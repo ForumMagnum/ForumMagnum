@@ -6,6 +6,7 @@ import AFSuggestCommentsItem from "./AFSuggestCommentsItem";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const SuggestAlignmentCommentMultiQuery = gql(`
   query multiCommentAFSuggestCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -18,11 +19,11 @@ const SuggestAlignmentCommentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AFSuggestCommentsList', (theme: ThemeType) => ({
   icon: {
     marginRight: 4
   }
-})
+}))
 
 
 const AFSuggestCommentsList = ({ classes }: {

@@ -8,8 +8,9 @@ import Check from '@/lib/vendor/@material-ui/icons/src/Check';
 import classNames from 'classnames';
 import LWTooltip from "../../common/LWTooltip";
 import { MenuItem } from "../../common/Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SetSideItemVisibility', (theme: ThemeType) => ({
   check: {
     width: 20,
     marginRight: 8,
@@ -38,7 +39,7 @@ const styles = (theme: ThemeType) => ({
     padding: 8,
     ...theme.typography.commentStyle,
   },
-});
+}));
 
 export type SideCommentMode = "hidden"|"highKarma"|"all";
 const sideCommentModes: {name: SideCommentMode, label: string, detailedLabel?: string}[] = [

@@ -17,6 +17,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import Loading from "../vulcan-core/Loading";
 import EAButton from "../ea-forum/EAButton";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const TagFragmentQuery = gql(`
   query TagMergePage($documentId: String) {
@@ -28,7 +29,7 @@ const TagFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagMergePage", (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
@@ -74,7 +75,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "flex-end",
     marginTop: 8,
   },
-});
+}));
 
 const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   const currentUser = useCurrentUser();

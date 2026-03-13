@@ -5,6 +5,7 @@ import { postBodyStyles } from '../../themes/stylePiping';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_2021_BOOK_BANNER_COOKIE, HIDE_FEATURED_RESOURCE_COOKIE } from '../../lib/cookies/cookies';
 import { Link } from '../../lib/reactRouterWrapper';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const collapsedStyles = (theme: ThemeType) => ({
   '& .book-container': {
@@ -21,7 +22,7 @@ const collapsedStyles = (theme: ThemeType) => ({
   },
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Books2021SaleAnimation', (theme: ThemeType) => ({
   buyButton: {
     display: 'flex',
     alignItems: 'center'
@@ -294,7 +295,7 @@ const styles = (theme: ThemeType) => ({
     transition: 'opacity 1.5s cubic-bezier(1, -0.11, 0.66, 0.99) 0.5s',
     maxWidth: '300px'
   }
-})
+}), { allowNonThemeColors: true })
 
 const Books2021SaleAnimation = ({ classes, successContent }: {
   classes: ClassesType<typeof styles>,

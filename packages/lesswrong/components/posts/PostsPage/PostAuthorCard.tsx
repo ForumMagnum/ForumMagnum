@@ -9,8 +9,9 @@ import ContentStyles from "../../common/ContentStyles";
 import NewConversationButton from "../../messaging/NewConversationButton";
 import NotifyMeButton from "../../notifications/NotifyMeButton";
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostAuthorCard", (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[100],
     padding: '15px 30px 20px',
@@ -68,7 +69,7 @@ const styles = (theme: ThemeType) => ({
   bio: {
     marginTop: 20,
   },
-});
+}));
 
 const PostAuthorCard = ({author, currentUser, classes}: {
   author: Exclude<PostsAuthors['user'], null>,

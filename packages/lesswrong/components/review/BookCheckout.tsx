@@ -4,10 +4,11 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 // import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { useTracking } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 // const stripePublicKeySetting = new DatabasePublicSetting<null|string>('stripe.publicKey', null)
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('BookCheckout', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     
@@ -52,7 +53,7 @@ const styles = (theme: ThemeType) => ({
       marginLeft: 0,
     },
   },
-})
+}))
 
 // deprecated
 // 

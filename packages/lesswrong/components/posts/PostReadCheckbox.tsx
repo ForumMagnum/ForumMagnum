@@ -7,8 +7,9 @@ import classNames from 'classnames';
 import LWTooltip from "../common/LWTooltip";
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostReadCheckbox', (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
   },
@@ -20,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   unread: {
     color: theme.palette.grey[400],
   },
-});
+}));
 
 interface PostFields {
   _id: string;

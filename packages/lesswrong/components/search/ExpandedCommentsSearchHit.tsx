@@ -10,8 +10,9 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
 import FormatDate from "../common/FormatDate";
 import UserNameDeleted from "../users/UserNameDeleted";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ExpandedCommentsSearchHit", (theme: ThemeType) => ({
   root: {
     maxWidth: 600,
     paddingTop: 2,
@@ -66,7 +67,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     marginTop: 5
   }
-})
+}))
 
 const ExpandedCommentsSearchHit = ({hit, classes}: {
   hit: Hit<any>,

@@ -14,8 +14,9 @@ import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
 import DropdownDivider from "../dropdowns/DropdownDivider";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ThemePickerMenu', (theme: ThemeType) => ({
   check: {
     width: 20,
     marginRight: 8,
@@ -31,7 +32,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 14,
     marginLeft: theme.isFriendlyUI ? 6 : 0,
   },
-})
+}))
 
 const ThemePickerMenu = ({children, classes}: {
   children: React.ReactNode,

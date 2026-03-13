@@ -26,6 +26,7 @@ import UserRateLimitItem from "./UserRateLimitItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { MANUAL_NEEDS_REVIEW } from '@/lib/collections/moderatorActions/constants';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModeratorActions($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -47,7 +48,7 @@ const ModeratorActionsCreateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ModeratorActions', (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
@@ -101,7 +102,7 @@ const styles = (theme: ThemeType) => ({
       ...hideScrollBars
     }
   },
-});
+}));
 
 export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, contentCount: number) {
   return getCurrentContentCount(user) + contentCount

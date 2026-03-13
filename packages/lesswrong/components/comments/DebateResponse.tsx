@@ -15,8 +15,9 @@ import DebateCommentsListSection from "./DebateCommentsListSection";
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
 import { commentBottomComponents } from '@/lib/voting/votingSystemComponents';
 import type { VotingSystemName } from '@/lib/voting/votingSystemNames';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DebateResponse', (theme: ThemeType) => ({
   innerDebateComment: {
     marginTop: 6,
     padding: '8px 8px 8px 16px',
@@ -84,7 +85,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center"
   },
-});
+}));
 
 const getParticipantBorderStyle = (
   classes: ClassesType<typeof styles>,

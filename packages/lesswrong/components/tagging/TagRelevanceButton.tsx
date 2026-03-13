@@ -6,8 +6,9 @@ import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import LoginPopup from "../users/LoginPopup";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TagRelevanceButton', (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -22,7 +23,7 @@ const styles = (theme: ThemeType) => ({
     padding: 6,
     marginTop: -6
   }
-})
+}))
 
 const TagRelevanceButton = ({document, voteType, vote, label, classes, cancelVote }: {
   document: TagRelMinimumFragment,

@@ -9,8 +9,9 @@ import FooterTagList from "../../tagging/FooterTagList";
 import LWPostsPageTopHeaderVote from "../../votes/LWPostsPageTopHeaderVote";
 import AudioToggle from "./AudioToggle";
 import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LWPostsPageHeaderTopRight', (theme: ThemeType) => ({
   root: {
     display: 'flex',
     flexWrap: "nowrap",
@@ -59,7 +60,7 @@ const styles = (theme: ThemeType) => ({
   darkerOpacity: {
     opacity: 0.7
   }
-});
+}));
 
 export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast, annualReviewMarketInfo}: {
   classes: ClassesType<typeof styles>,

@@ -7,8 +7,9 @@ import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "./OverallVoteButton";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWPostsPageTopHeaderVote", (theme: ThemeType) => ({
   voteBlockHorizontal: {
     display: 'flex',
     flexDirection: 'column',
@@ -46,7 +47,7 @@ const styles = (theme: ThemeType) => ({
     transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
     marginLeft: 0,
   },
-});
+}));
 
 const LWPostsPageTopHeaderVote = ({
   post,

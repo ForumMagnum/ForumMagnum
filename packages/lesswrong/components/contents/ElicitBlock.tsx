@@ -19,6 +19,7 @@ import UsersName from "../users/UsersName";
 import ContentStyles from "../common/ContentStyles";
 import { gql } from '@/lib/generated/gql-codegen';
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const elicitBlockDataQuery = gql(`
   query ElicitBlockData($questionId: String) {
@@ -83,7 +84,7 @@ const elicitPredictionMutation = gql(`
 const rootHeight = 50
 const rootPaddingTop = 12
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ElicitBlock', (theme: ThemeType) => ({
   root: {
     position: 'relative',
     paddingTop: rootPaddingTop,
@@ -213,7 +214,7 @@ const styles = (theme: ThemeType) => ({
   name: {
     marginRight: 4
   }
-})
+}))
 
 const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
   classes: ClassesType<typeof styles>,

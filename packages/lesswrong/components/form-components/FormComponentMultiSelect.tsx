@@ -12,8 +12,9 @@ import PeopleDirectoryFilterDropdown from "../peopleDirectory/PeopleDirectoryFil
 import PeopleDirectorySelectOption from "../peopleDirectory/PeopleDirectorySelectOption";
 import { MenuItem } from "../common/Menus";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("MultiSelect", (theme: ThemeType) => ({
   greyDropdownRoot: {
     width: "100%",
     minHeight: 45,
@@ -60,7 +61,7 @@ const styles = (theme: ThemeType) => ({
   placeholderGrey: {
     fontStyle: "normal",
   },
-});
+}));
 
 type MultiselectOption = {
   value: string,

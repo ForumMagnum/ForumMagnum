@@ -5,6 +5,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { Link } from '../../lib/reactRouterWrapper';
 import { slugify } from '@/lib/utils/slugify';
 import { Typography } from "./Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 export const sectionTitleStyle = (theme: ThemeType) => (theme.isEAForum ? { 
   margin: 0,
@@ -21,7 +22,7 @@ export const sectionTitleStyle = (theme: ThemeType) => (theme.isEAForum ? {
   fontSize: "2.3rem",
 });
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SectionTitle', (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "space-between",
@@ -43,7 +44,7 @@ const styles = (theme: ThemeType) => ({
       marginLeft: 16,
     },
   }
-})
+}), { stylePriority: -1 })
 
 // TODO: figure out what to do when title isn't a string. It currently returns
 // undefined, which prevents anchor links from working 

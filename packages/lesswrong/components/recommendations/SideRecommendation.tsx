@@ -7,8 +7,9 @@ import { Link } from "../../lib/reactRouterWrapper";
 import ForumIcon from "../common/ForumIcon";
 import KarmaDisplay from "../common/KarmaDisplay";
 import PostsItemTooltipWrapper from "../posts/PostsItemTooltipWrapper";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SideRecommendation", (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -48,7 +49,7 @@ const styles = (theme: ThemeType) => ({
       width: 10,
     },
   },
-});
+}));
 
 const SideRecommendation = ({post, classes}: {
   post: PostsListWithVotesAndSequence,

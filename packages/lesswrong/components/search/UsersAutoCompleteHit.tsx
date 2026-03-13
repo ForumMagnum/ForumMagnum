@@ -3,12 +3,13 @@ import React from 'react';
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UsersAutoCompleteHit', (theme: ThemeType) => ({
   root: {
     cursor: "pointer"
   }
-});
+}));
 
 const UsersAutoCompleteHit = ({document, classes}: {
   document: SearchUser

@@ -18,8 +18,9 @@ import TagMultiselect from "../form-components/TagMultiselect";
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SearchFilters", (theme: ThemeType) => ({
   filtersColumn: {
     flex: 'none',
     width: 250,
@@ -84,7 +85,7 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.small,
     width: "100%",
   }
-});
+}));
 
 type TagsRefinementProps = {
   tagsFilter?: Array<string>,

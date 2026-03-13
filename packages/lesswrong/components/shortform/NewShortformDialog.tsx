@@ -5,8 +5,9 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
 import ShortformSubmitForm from "./ShortformSubmitForm";
 import LWDialog from "../common/LWDialog";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NewShortformDialog', (theme: ThemeType) => ({
   content: {
     // This subselector is needed to beat the specificity of the default
     // MUI styles
@@ -17,7 +18,7 @@ const styles = (theme: ThemeType) => ({
   dialogPaper: {
     maxWidth: theme.isFriendlyUI ? 750 : undefined,
   },
-});
+}));
 
 const NewShortformDialog = ({onClose, classes}: {
   onClose: () => void,

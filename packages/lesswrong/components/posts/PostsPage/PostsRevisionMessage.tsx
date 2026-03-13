@@ -2,13 +2,14 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 import FormatDate from "../../common/FormatDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsRevisionMessage', (theme: ThemeType) => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle
   },
-})
+}))
 
 interface PostsRevisionMessageFragment {
   contents: { editedAt: Date } | null

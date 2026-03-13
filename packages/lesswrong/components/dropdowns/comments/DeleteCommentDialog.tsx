@@ -9,8 +9,9 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import LWDialog from "../../common/LWDialog";
 import { useCurrentUser } from '../../common/withUser';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DeleteCommentDialog', (theme: ThemeType) => ({
   subtitle: {
     fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
@@ -20,7 +21,7 @@ const styles = (theme: ThemeType) => ({
   modalTextField: {
     marginTop: 10,
   },
-})
+}))
 
 const DeleteCommentDialog = ({comment, onClose, classes}: {
   comment: CommentsList,

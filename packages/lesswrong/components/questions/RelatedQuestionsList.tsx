@@ -3,8 +3,9 @@ import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PostsItem from "../posts/PostsItem";
 import SectionTitle from "../common/SectionTitle";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RelatedQuestionsList', (theme: ThemeType) => ({
   root: {
     width: 650 + (32),
     marginBottom: 100,
@@ -27,7 +28,7 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 8,
     borderLeft: theme.palette.border.slightlyFaint,
   }
-})
+}))
 
 export type PostWithRelations = {
   _id: string;

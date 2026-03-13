@@ -27,10 +27,11 @@ import ReadTime from "./ReadTime";
 import LWCommentCount from "../TableOfContents/LWCommentCount";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './constants';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 export const LW_POST_PAGE_PADDING = 110;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LWPostsPageHeader', (theme: ThemeType) => ({
   root: {
     paddingTop: LW_POST_PAGE_PADDING,
     marginBottom: 96,
@@ -221,7 +222,7 @@ const styles = (theme: ThemeType) => ({
       },
     },
   }
-}); 
+}));
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.

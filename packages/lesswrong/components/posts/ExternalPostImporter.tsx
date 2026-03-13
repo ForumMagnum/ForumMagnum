@@ -16,6 +16,7 @@ import { maybeDate } from '@/lib/utils/dateUtils';
 import { makeEditorConfig } from '../editor/editorConfigs';
 import { userHasLexicalEditor } from '../editor/Editor';
 import LexicalEditor from '../editor/LexicalEditor';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostExternalPostImporter($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -54,7 +55,7 @@ export type ExternalPostImportData = {
   };
 };
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ExternalPostImporter', (theme: ThemeType) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -144,7 +145,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 32,
     fontSize: '1.6rem',
   },
-});
+}));
 
 const ImportedPostEditor = ({
   post,

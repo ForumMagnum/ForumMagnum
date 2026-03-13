@@ -10,12 +10,13 @@ import Loading from "../vulcan-core/Loading";
 import ForumIcon from "../common/ForumIcon";
 import { MenuItem } from "../common/Menus";
 import EAButton from "../ea-forum/EAButton";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 // Note: We're changing 'subscribe' to refer to the frontpage bump of tags, this
 // component still talks about 'subscriptions', but we're moving to calling them
 // 'notifications enabled'
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NotifyMeButton', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -36,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   hideLabel: {
     display: "none"
   },
-})
+}))
 
 const NotifyMeButton = ({
   document,

@@ -4,8 +4,9 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { ToCSection } from '../../lib/tableOfContents';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import TableOfContents from "../posts/TableOfContents/TableOfContents";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CollectionTableOfContents', (theme: ThemeType) => ({
   root: {
     ...commentBodyStyles(theme),
     color: theme.palette.grey[600]
@@ -22,7 +23,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 3,
     marginBottom: 3
   }
-});
+}));
 
 export const CollectionTableOfContents = ({classes, collection}: {
   classes: ClassesType<typeof styles>,

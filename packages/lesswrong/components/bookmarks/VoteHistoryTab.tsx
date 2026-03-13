@@ -10,6 +10,7 @@ import CommentsNode from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const UserVotesWithDocumentMultiQuery = gql(`
   query multiVoteVoteHistoryTabQuery($selector: VoteSelector, $limit: Int, $enableTotal: Boolean) {
@@ -22,7 +23,7 @@ const UserVotesWithDocumentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('VoteHistoryTab', (theme: ThemeType) => ({
   empty: {
     color: theme.palette.grey[600],
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -46,7 +47,7 @@ const styles = (theme: ThemeType) => ({
       marginBottom: 8,
     },
   },
-})
+}))
 
 const VoteHistoryTab = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const defaultLimit = 10;

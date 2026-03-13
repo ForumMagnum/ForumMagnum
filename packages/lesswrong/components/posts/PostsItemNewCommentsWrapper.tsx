@@ -3,8 +3,9 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import PostsItemNewCommentsList from "./PostsItemNewCommentsList";
 import PostsDialogItemNewCommentsList from "./PostsDialogItemNewCommentsList";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({})
+const styles = defineStyles('PostsItemNewCommentsWrapper', (theme: ThemeType) => ({}))
 
 const isDialogPost = (post: PostsList): post is PostsList & { debate: true } => !!post.debate;
 

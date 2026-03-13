@@ -17,8 +17,9 @@ import FooterTag from "../tagging/FooterTag";
 import CommentsMenu from "../dropdowns/comments/CommentsMenu";
 import LWPopper from "../common/LWPopper";
 import CommentsNode from "../comments/CommentsNode";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("QuickTakesCollapsedListItem", (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -103,7 +104,7 @@ const styles = (theme: ThemeType) => ({
   hoverOver: {
     width: 400,
   },
-});
+}));
 
 const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   quickTake: ShortformComments,

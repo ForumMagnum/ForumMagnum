@@ -7,8 +7,9 @@ import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import PostsTitle from "../posts/PostsTitle";
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsListEditorSearchHit", (theme: ThemeType) => ({
   root: {
     padding: 8,
     borderBottom: "solid 1px",
@@ -28,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   },
   metadataRow: {
   },
-})
+}))
 
 const PostsListEditorSearchHit = ({hit, classes}: {
   hit: Hit<AnyBecauseTodo>,

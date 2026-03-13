@@ -1,8 +1,9 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AnalyticsPostItemSkeleton", (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -26,7 +27,7 @@ const styles = (theme: ThemeType) => ({
   info: {
     width: 145,
   },
-});
+}), { stylePriority: -1 });
 
 export const AnalyticsPostItemSkeleton = ({className, classes}: {
   className?: string,

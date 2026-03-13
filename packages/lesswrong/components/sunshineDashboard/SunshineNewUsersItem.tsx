@@ -12,8 +12,9 @@ import SunshineNewUsersInfo from "./SunshineNewUsersInfo";
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import FirstContentIcons from "./FirstContentIcons";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineNewUsersItem', (theme: ThemeType) => ({
   negativeKarma: {
      color: theme.palette.text.negativeKarmaRed,
   },
@@ -31,7 +32,7 @@ const styles = (theme: ThemeType) => ({
   flagged: {
     background: theme.palette.panelBackground.sunshineFlaggedUser,
   }
-})
+}))
 const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
   user: SunshineUsersList,
   classes: ClassesType<typeof styles>,

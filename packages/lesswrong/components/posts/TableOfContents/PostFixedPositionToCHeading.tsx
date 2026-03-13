@@ -1,15 +1,16 @@
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import LWTooltip from "../../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostFixedPositionToCHeading', (theme: ThemeType) => ({
   readTime: {
     marginLeft: 12,
     marginBottom: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.greyAlpha(0.5),
   },
-})
+}))
 
 
 

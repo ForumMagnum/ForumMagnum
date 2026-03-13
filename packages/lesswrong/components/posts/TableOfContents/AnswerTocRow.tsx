@@ -3,8 +3,9 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import type { ToCAnswer } from '../../../lib/tableOfContents';
 import LWTooltip from "../../common/LWTooltip";
 import FormatDate from "../../common/FormatDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AnswerTocRow', (theme: ThemeType) => ({
   root: {
     marginLeft: -8,
     display: "flex"
@@ -36,7 +37,7 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.typography.commentStyle.fontFamily,
     marginBottom: 4
   }
-})
+}))
 
 const AnswerTocRow = ({classes, answer}: {
   classes: ClassesType<typeof styles>,

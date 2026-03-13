@@ -2,8 +2,9 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection from "../common/SingleColumnSection";
 import CollectionsItem from "./CollectionsItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWCoreReading", (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
@@ -13,7 +14,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body2,
     ...theme.typography.postStyle
   }
-});
+}));
 
 export interface CoreReadingCollection {
   title: string,

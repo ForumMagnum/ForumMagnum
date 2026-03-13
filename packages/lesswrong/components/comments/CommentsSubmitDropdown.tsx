@@ -12,8 +12,9 @@ import { Paper } from '../widgets/Paper';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import LoginPopup from '../users/LoginPopup';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentsSubmitDropdown', (theme: ThemeType) => ({
   buttonWrapper: {
     ...(theme.isFriendlyUI ? {
       backgroundColor: theme.palette.primary.main,
@@ -64,7 +65,7 @@ const styles = (theme: ThemeType) => ({
       padding: '4px 8px'
     })
   }
-});
+}));
 
 export const CommentsSubmitDropdown = ({ handleSubmit, classes }: {
   handleSubmit: (meta: {draft: boolean}) => Promise<void>,

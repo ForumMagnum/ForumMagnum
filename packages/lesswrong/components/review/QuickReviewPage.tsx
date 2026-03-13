@@ -10,6 +10,7 @@ import Loading from "../vulcan-core/Loading";
 import PostInteractionStripe from "./PostInteractionStripe";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsReviewVotingListMultiQuery = gql(`
   query multiPostQuickReviewPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -22,7 +23,7 @@ const PostsReviewVotingListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('QuickReviewPage', (theme: ThemeType) => ({
   root: { 
     marginBottom: -20
   },
@@ -52,7 +53,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     marginRight: "auto"
   }
-});
+}));
 
 export const QuickReviewPage = ({classes, reviewYear}: {
   classes: ClassesType<typeof styles>,

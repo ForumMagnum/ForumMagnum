@@ -7,8 +7,9 @@ import PostsList2 from "../posts/PostsList2";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import SunshineCuratedSuggestionsList from "../sunshineDashboard/SunshineCuratedSuggestionsList";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RecommendationsPageCuratedList', (theme: ThemeType) => ({
   curated: {
     position: "absolute",
     right: 0,
@@ -18,7 +19,7 @@ const styles = (theme: ThemeType) => ({
       display: "none"
     }
   }
-});
+}));
 
 const RecommendationsPageCuratedList = ({classes}: {
   classes: ClassesType<typeof styles>

@@ -5,8 +5,9 @@ import { CommentTreeNode } from '../../lib/utils/unflatten';
 import Answer from "./Answer";
 import SectionTitle from "../common/SectionTitle";
 import AnswersSorting from "./AnswersSorting";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AnswersList', (theme: ThemeType) => ({
   root: {
     width: 650 + (32),
     [theme.breakpoints.down('md')]: {
@@ -30,7 +31,7 @@ const styles = (theme: ThemeType) => ({
   loading: {
     opacity: .5,
   },
-})
+}))
 
 const AnswersList = ({post, answersTree, classes}: {
   post: PostsList,

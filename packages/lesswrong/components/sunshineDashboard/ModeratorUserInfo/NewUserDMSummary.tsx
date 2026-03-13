@@ -2,8 +2,9 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import LWTooltip from "../../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NewUserDMSummary', (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],
@@ -14,7 +15,7 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     top: 1
   },
-});
+}));
 
 export const NewUserDMSummary = ({classes, user}: {
   classes: ClassesType<typeof styles>,

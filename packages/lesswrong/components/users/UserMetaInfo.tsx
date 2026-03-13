@@ -7,8 +7,9 @@ import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
 import classNames from 'classnames';
 import ForumIcon from "../common/ForumIcon";
 import FormatDate from "../common/FormatDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UserMetaInfo', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -46,7 +47,7 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     }
   }
-});
+}));
 
 export const UserMetaInfo = ({
   user,

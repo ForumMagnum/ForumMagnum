@@ -8,6 +8,7 @@ import LWTooltip from "../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { TARGET_REVIEW_VOTING_NUM } from '@/lib/collections/reviewVotes/constants';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const reviewVoteFragmentMultiQuery = gql(`
   query multiReviewVoteReviewProgressVotingQuery($selector: ReviewVoteSelector, $limit: Int, $enableTotal: Boolean) {
@@ -20,7 +21,7 @@ const reviewVoteFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewProgressVoting', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -42,7 +43,7 @@ const styles = (theme: ThemeType) => ({
     transform: "rotate(45deg)",
     borderRadius: 2
   },
-});
+}));
 
 export const ReviewProgressVoting = ({classes, reviewYear}: {
   classes: ClassesType<typeof styles>,

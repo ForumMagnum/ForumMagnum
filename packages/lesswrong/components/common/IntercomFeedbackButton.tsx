@@ -4,8 +4,9 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "./withUser";
 import classNames from "classnames";
 import LWTooltip from "./LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("IntercomFeedbackButton", (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 13,
@@ -16,7 +17,7 @@ const styles = (theme: ThemeType) => ({
       opacity: 1,
     },
   },
-});
+}), { stylePriority: -5 });
 
 const IntercomFeedbackButton = ({
   title = "Give feedback",

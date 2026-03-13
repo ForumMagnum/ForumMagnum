@@ -15,8 +15,9 @@ import ExpandedUsersConversationSearchHit from "../search/ExpandedUsersConversat
 import ForumIcon from "../common/ForumIcon";
 import { Typography } from "../common/Typography";
 import EAButton from "../ea-forum/EAButton";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("NewConversationDialog", (theme: ThemeType) => ({
   paper: {
     width: 600,
     margin: '48px 24px'
@@ -154,7 +155,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "flex-end"
   },
-});
+}));
 
 const NewConversationDialog = ({
   isModInbox = false,

@@ -26,10 +26,11 @@ import GroupFormDialog from "./GroupFormDialog";
 import SetPersonalMapLocationDialog from "./SetPersonalMapLocationDialog";
 import EventNotificationsDialog from "./EventNotificationsDialog";
 import SimpleDivider from "../widgets/SimpleDivider";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const availableFilters = groupTypes.map(t => t.shortName);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommunityMapFilter', (theme: ThemeType) => ({
   root: {
     width: 120,
     padding: "10px 10px 5px 10px",
@@ -182,7 +183,7 @@ const styles = (theme: ThemeType) => ({
       display: 'none'
     }
   }
-});
+}));
 
 export const createFallBackDialogHandler = (
   openDialog: OpenDialogContextType['openDialog'],

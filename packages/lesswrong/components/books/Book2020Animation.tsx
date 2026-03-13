@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import React, { ReactNode } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const WIDTH = 220
 const HEIGHT = 343
@@ -37,7 +38,7 @@ const revealedContent = (_theme: ThemeType) => ({
   },
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Book2020Animation', (theme: ThemeType) => ({
   parent: {
     position: "relative",
     left: -93,
@@ -154,7 +155,7 @@ const styles = (theme: ThemeType) => ({
   two: {},
   three: {},
   four: {}
-})
+}), { allowNonThemeColors: true })
 
 const Book2020Animation = ({ classes, children }: {
   classes: ClassesType<typeof styles>,

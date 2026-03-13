@@ -6,8 +6,9 @@ import TagPreview from "./TagPreview";
 import OverallVoteButton from "../votes/OverallVoteButton";
 import TagRelevanceButton from "./TagRelevanceButton";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagRelCard", (theme: ThemeType) => ({
   relevance: {
     marginTop: theme.isFriendlyUI ? undefined : 2,
     marginLeft: 16,
@@ -54,7 +55,7 @@ const styles = (theme: ThemeType) => ({
       }),
     color: theme.palette.grey[400]
   }
-});
+}));
 
 const TagRelCard = ({tagRel, classes}: {
   tagRel: TagRelMinimumFragment,

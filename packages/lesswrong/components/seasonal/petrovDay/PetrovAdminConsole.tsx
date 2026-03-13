@@ -5,6 +5,7 @@ import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
 import Row from "../../common/Row";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PetrovDayActionInfoMultiQuery = gql(`
   query multiPetrovDayActionPetrovAdminConsoleQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -17,7 +18,7 @@ const PetrovDayActionInfoMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PetrovAdminConsole', (theme: ThemeType) => ({
   root: {
     maxHeight: 350,
     width: 350,
@@ -37,7 +38,7 @@ const styles = (theme: ThemeType) => ({
       marginRight: 12
     }
   }
-});
+}));
 
 export const PetrovAdminConsole = ({classes, currentUser}: {
   classes: ClassesType<typeof styles>,

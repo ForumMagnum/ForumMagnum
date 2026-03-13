@@ -7,6 +7,7 @@ import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentReviewProgressNominationsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -19,7 +20,7 @@ const CommentsListWithParentMetadataMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewProgressNominations', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -42,7 +43,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 14,
     transform: "rotate(45deg)"
   }
-});
+}));
 
 const TARGET_REVIEWS_NUM = 2
 

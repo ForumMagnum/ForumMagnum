@@ -8,10 +8,11 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import { useDialog } from "../common/withDialog";
 import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
 import LoginPopup from "../users/LoginPopup";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const COLLAPSED_HEIGHT = 40;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("QuickTakesEntry", (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     border: `1px solid ${theme.palette.grey[200]}`,
@@ -91,7 +92,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     fontStyle: 'italic',
   },
-});
+}));
 
 // TODO: decide on copy for LW
 const placeholder = "Share exploratory, draft-stage, rough thoughts...";

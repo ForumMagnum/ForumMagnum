@@ -5,17 +5,18 @@ import type { RecommendationsAlgorithm } from '../../lib/collections/users/recom
 import PostsItem from "../posts/PostsItem";
 import PostsLoading from "../posts/PostsLoading";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 export type RecommendationsListItem = ComponentType<{
   post: PostsListWithVotes|PostsListWithVotesAndSequence,
   translucentBackground?: boolean,
 }>;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RecommendationsList', (theme: ThemeType) => ({
   noMoreMessage: {
     fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
-});
+}), { stylePriority: -1 });
 
 const RecommendationsList = ({
   algorithm,

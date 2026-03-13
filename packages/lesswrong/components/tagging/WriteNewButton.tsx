@@ -12,8 +12,9 @@ import LWClickAwayListener from "../common/LWClickAwayListener";
 import LWPopper from "../common/LWPopper";
 import ForumIcon from "../common/ForumIcon";
 import { MenuItem } from "../common/Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('WriteNewButton', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -73,7 +74,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[1000],
     }
   },
-})
+}))
 
 const WriteNewButton = ({
   tag,

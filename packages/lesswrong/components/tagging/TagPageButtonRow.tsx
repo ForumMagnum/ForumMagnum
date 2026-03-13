@@ -23,11 +23,12 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import ForumIcon from "../common/ForumIcon";
 import { TagOrLensLikeButton } from "./lenses/LensTab";
 import { TagPageActionsMenuButton } from "./TagPageActionsMenu";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PODCAST_ICON_SIZE = 20;
 const PODCAST_ICON_PADDING = 3;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagPageButtonRow", (theme: ThemeType) => ({
   buttonsRow: {
     ...theme.typography.body2,
     marginTop: theme.isFriendlyUI ? 2 : undefined,
@@ -122,7 +123,7 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.icon.dim05,
     borderRadius: theme.borderRadius.small,
   },
-});
+}));
 
 /**
  * Returns whether the current user can edit the tag, and if not, why not.

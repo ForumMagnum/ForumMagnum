@@ -29,11 +29,12 @@ import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovConsts';
 
 import dynamic from 'next/dynamic';
+import { defineStyles } from '@/components/hooks/defineStyles';
 const NewDialogueDialog = dynamic(() => import("../posts/NewDialogueDialog"), { ssr: false });
 const NewShortformDialog = dynamic(() => import("../shortform/NewShortformDialog"), { ssr: false });
 const AFApplicationForm = dynamic(() => import("../alignment-forum/AFApplicationForm"), { ssr: false });
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UsersMenu', (theme: ThemeType) => ({
   root: {
     marginTop: 5,
     wordBreak: 'break-all',
@@ -96,7 +97,7 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     textOverflow: "ellipsis",
   },
-})
+}))
 
 const UsersMenu = ({classes}: {
   classes: ClassesType<typeof styles>,

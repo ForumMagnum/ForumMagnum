@@ -14,6 +14,7 @@ import { timeframeLabels, timeframeSettings as defaultTimeframes, TimeframeSetti
 import { TooltipSpan } from '../common/FMTooltip';
 import MetaInfo from "../common/MetaInfo";
 import SettingsColumn from "../common/SettingsColumn";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events'|'linkpost';
 
@@ -96,7 +97,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
 
 const getFilters = () => forumSelect(FILTERS_ALL)
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsListSettings', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "flex-start",
@@ -129,7 +130,7 @@ const styles = (theme: ThemeType) => ({
       order: 0
     }
   },
-})
+}))
 
 const USER_SETTING_NAMES = {
   timeframe: 'allPostsTimeframe',

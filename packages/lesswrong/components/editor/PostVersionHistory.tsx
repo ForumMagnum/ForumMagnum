@@ -22,6 +22,7 @@ import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 import LWTooltip from "../common/LWTooltip";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { disconnectCollaborationForPost } from "../lexical/collaboration";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
   query multiRevisionPostVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -48,7 +49,7 @@ const RevisionDisplayQuery = gql(`
 
 const LEFT_COLUMN_WIDTH = 160
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostVersionHistoryButton", (theme: ThemeType) => ({
   root: {
     maxWidth: CENTRAL_COLUMN_WIDTH + LEFT_COLUMN_WIDTH + 64,
     display: "flex",
@@ -124,7 +125,7 @@ const styles = (theme: ThemeType) => ({
   tooltip: {
     marginBottom: 4
   }
-});
+}));
 
 const PostVersionHistoryButton = ({post, postId, classes}: {
   post: PostsBase,

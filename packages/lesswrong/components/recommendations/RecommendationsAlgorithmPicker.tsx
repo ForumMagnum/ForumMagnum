@@ -10,10 +10,11 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 export const getArchiveRecommendationsName = () => isEAForum() ? 'Forum Favorites' : 'Archive Recommendations'
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("RecommendationsAlgorithmPicker", (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "space-between",
@@ -29,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 20,
     marginRight: 20
   }
-})
+}))
 
 // Elements here should match switch cases in recommendations.ts
 const recommendationAlgorithms = [

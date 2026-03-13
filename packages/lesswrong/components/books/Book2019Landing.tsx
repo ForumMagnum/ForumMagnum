@@ -8,10 +8,11 @@ import { useTracking } from "../../lib/analyticsEvents";
 import Book2019Animation from "./Book2019Animation";
 import LWTooltip from "../common/LWTooltip";
 import ContentStyles from "../common/ContentStyles";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Book2019Landing', (theme: ThemeType) => ({
   bookAnimationContainer: {
     width: '960px',
     marginLeft: 'auto',
@@ -248,7 +249,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 8,
     color: theme.palette.primary.main
   }
-})
+}))
 
 const HiddenQuote = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return (

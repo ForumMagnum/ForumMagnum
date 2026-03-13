@@ -4,8 +4,9 @@ import type { ContentItemBodyImperative } from '../../contents/contentBodyUtil';
 import type { VotingProps } from '../votingProps';
 import AddInlineReactionButton from "./AddInlineReactionButton";
 import LWPopper from "../../common/LWPopper";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('InlineReactSelectionWrapper', (theme: ThemeType) => ({
   popper: {
     height: 0,
   },
@@ -14,7 +15,7 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     left: 12,
   },
-});
+}));
 
 type Styling = "comment"|"post"|"tag"|"messageRight"|"messageLeft";
 

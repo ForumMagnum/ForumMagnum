@@ -1,10 +1,11 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { FormGroupLayoutProps } from "./FormGroupLayout";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const GAP = 12;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FormGroupFriendlyUserProfile", (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
@@ -32,7 +33,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 18,
     fontWeight: 600,
   },
-});
+}));
 
 const FormGroupFriendlyUserProfile = ({label, children, classes}: {
   classes: ClassesType<typeof styles>,

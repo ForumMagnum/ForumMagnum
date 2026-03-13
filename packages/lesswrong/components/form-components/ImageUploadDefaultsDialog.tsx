@@ -4,8 +4,9 @@ import { DialogContent } from '../widgets/DialogContent';
 import { DialogTitle } from '../widgets/DialogTitle';
 import LWDialog from "../common/LWDialog";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ImageUploadDefaultsDialog', (theme: ThemeType) => ({
   images: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -20,7 +21,7 @@ const styles = (theme: ThemeType) => ({
       borderColor: theme.palette.primary.main,
     },
   },
-})
+}))
 
 const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
   onSelect: (newImageId: string) => void,

@@ -9,8 +9,9 @@ import LWPopper from "../common/LWPopper";
 import AddTagOrWikiPage from "./AddTagOrWikiPage";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AddTagButton", (theme: ThemeType) => ({
   addTagButton: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
@@ -21,7 +22,7 @@ const styles = (theme: ThemeType) => ({
   defaultButton: {
     paddingLeft: 4
   }
-});
+}));
 
 const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingContext, hasTooltip=true, classes, children}: {
   onTagSelected: (props: {tagId: string, tagName: string}) => void,

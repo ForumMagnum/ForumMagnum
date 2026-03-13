@@ -9,8 +9,9 @@ import classNames from 'classnames';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { ChaptersForm } from './ChaptersForm';
 import AddDraftPostDialog from "./AddDraftPostDialog";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ChaptersEditForm', (theme: ThemeType) => ({
   root: {
     padding: 8
   },
@@ -27,7 +28,7 @@ const styles = (theme: ThemeType) => ({
   disabled: {
     opacity: 0.3,
   }
-})
+}))
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
 
 const ChaptersEditForm = ({classes, chapter, successCallback, cancelCallback}: {

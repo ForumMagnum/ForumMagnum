@@ -2,12 +2,13 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const readPostStyle = (theme: ThemeType) => ({
   background: theme.palette.grey[405],
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostInteractionStripe', (theme: ThemeType) => ({
   root: {
     position: "absolute",
     left: 0,
@@ -30,7 +31,7 @@ const styles = (theme: ThemeType) => ({
   },
   readPost: readPostStyle(theme),
   neutral: readPostStyle(theme),
-});
+}));
 
 const votePrefix = `You previously gave this post `
 const voteSuffix = <div><em>(This is different from a LessWrong Review vote)</em></div>

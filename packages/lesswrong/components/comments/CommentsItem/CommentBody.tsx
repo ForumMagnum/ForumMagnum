@@ -13,8 +13,9 @@ import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import CommentDeletedMetadata from "./CommentDeletedMetadata";
 import InlineReactSelectionWrapper from "../../votes/lwReactions/InlineReactSelectionWrapper";
 import type { ContentStyleType } from '@/components/common/ContentStylesValues';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentBody', (theme: ThemeType) => ({
   commentStyling: {
     maxWidth: "100%",
     overflowX: "hidden",
@@ -40,7 +41,7 @@ const styles = (theme: ThemeType) => ({
   retracted: {
     textDecoration: "line-through",
   },
-})
+}))
 
 const CommentBody = ({
   comment,

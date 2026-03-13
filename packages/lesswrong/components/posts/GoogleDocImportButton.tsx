@@ -12,8 +12,9 @@ import PopperCard from "../common/PopperCard";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("GoogleDocImportButton", (theme: ThemeType) => ({
   button: {
     color: theme.palette.grey[900],
     backgroundColor: "transparent",
@@ -93,7 +94,7 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[200],
     }
   }
-});
+}));
 
 
 const GoogleDocImportButton = ({ postId, version, classes }: { postId: string; version?: string; classes: ClassesType<typeof styles> }) => {

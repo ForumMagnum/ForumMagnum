@@ -6,8 +6,9 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames';
 import ForumIcon from "../common/ForumIcon";
 import ForumDropdown from "../common/ForumDropdown";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsLayoutDropdown', (theme: ThemeType) => ({
   optionIcon: {
     verticalAlign: "middle",
     position: "relative",
@@ -21,7 +22,7 @@ const styles = (theme: ThemeType) => ({
     width: 16,
     height: 16,
   },
-})
+}))
 
 const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="layout"}: {
   classes: ClassesType<typeof styles>,

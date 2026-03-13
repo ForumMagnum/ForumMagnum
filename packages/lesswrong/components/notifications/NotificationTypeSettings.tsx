@@ -19,8 +19,9 @@ import type { EditableUser } from '@/lib/collections/users/helpers';
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
 import ToggleSwitch from "../common/ToggleSwitch";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NotificationTypeSettingsWidget', (theme: ThemeType) => ({
   root: {
     paddingLeft: 8,
     paddingRight: 8,
@@ -66,7 +67,7 @@ const styles = (theme: ThemeType) => ({
       marginRight: 0,
     }
   }
-})
+}))
 
 type NotificationTypeSettingsWidgetProps = {
   field: TypedFieldApi<NotificationTypeSettings | LegacyNotificationTypeSettings, EditableUser>;

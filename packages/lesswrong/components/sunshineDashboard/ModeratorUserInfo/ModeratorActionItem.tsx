@@ -14,6 +14,7 @@ import { withDateFields } from '@/lib/utils/dateUtils';
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import FormatDate from '@/components/common/FormatDate';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const ModeratorActionDisplayUpdateMutation = gql(`
   mutation updateModeratorActionModeratorActionItem($selector: SelectorInput!, $data: UpdateModeratorActionDataInput!) {
@@ -25,7 +26,7 @@ const ModeratorActionDisplayUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ModeratorActionItem', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -65,7 +66,7 @@ const styles = (theme: ThemeType) => ({
     opacity: .1,
     marginBottom: -2,
   }
-});
+}));
 
 export const ModeratorActionItem = ({classes, user, moderatorAction, comments, posts }: {
   classes: ClassesType<typeof styles>,

@@ -4,6 +4,7 @@ import { AnalyticsContext } from '../../lib/analyticsEvents';
 import CoreTagCard from "./CoreTagCard";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const TagDetailsFragmentMultiQuery = gql(`
   query multiTagCoreTagsSectionQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -16,7 +17,7 @@ const TagDetailsFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CoreTagsSection", (theme: ThemeType) => ({
   root: {
     marginBottom: 16,
   },
@@ -33,7 +34,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     marginTop: 8,
   }
-});
+}));
 
 const INITIAL_LIMIT = 8;
 

@@ -19,6 +19,7 @@ import ReviewProgressReviews from "./ReviewProgressReviews";
 import ReviewProgressVoting from "./ReviewProgressVoting";
 import ReviewProgressNominations from "./ReviewProgressNominations";
 import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const commonActionButtonStyle = (theme: ThemeType) => ({
   paddingTop: 7,
@@ -36,7 +37,7 @@ const commonActionButtonStyle = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FrontpageReviewWidget', (theme: ThemeType) => ({
   sectionTitle: {
     alignItems: 'flex-end',
     marginBottom: 12,
@@ -169,7 +170,7 @@ const styles = (theme: ThemeType) => ({
       display: "none"
     }
   }
-})
+}))
 
 function isLastDay(now: Date, date: moment.Moment) {
   return date.diff(now) < (24 * 60 * 60 * 1000)

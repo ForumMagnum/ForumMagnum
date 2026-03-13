@@ -10,8 +10,9 @@ import CommentKarmaWithPreview from "../CommentKarmaWithPreview";
 import Loading from "../../vulcan-core/Loading";
 import Row from "../../common/Row";
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ContentSummaryRows', (theme: ThemeType) => ({
   contentSummaryRow: {
     display: "flex",
     flexWrap: "wrap",
@@ -47,7 +48,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: ".9rem",
     marginLeft: 7
   }
-});
+}));
 
 export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
   classes: ClassesType<typeof styles>,

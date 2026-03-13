@@ -9,6 +9,7 @@ import ActionButtonSection from "./ActionButtonSection";
 import FormatDate from "../../common/FormatDate";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const UsersEditUpdateMutation = gql(`
   mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -20,7 +21,7 @@ const UsersEditUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DeleteAccountSection', (theme: ThemeType) => ({
   warningButton: {
     border: `1px solid ${theme.palette.error.main} !important`,
     color: theme.palette.error.main
@@ -29,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     color: theme.palette.error.main
   }
-});
+}));
 
 const DeleteAccountSection = ({
   user,

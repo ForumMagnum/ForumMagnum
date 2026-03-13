@@ -6,12 +6,13 @@ import Loading from "../vulcan-core/Loading";
 import SectionFooter from "../common/SectionFooter";
 import { Typography } from "../common/Typography";
 import LoadMore from "../common/LoadMore";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FriendlyInboxNavigation", (theme: ThemeType) => ({
   noConversationsMessage: {
     padding: 16,
   }
-})
+}))
 
 // The Navigation for the Inbox components
 const FriendlyInboxNavigation = ({

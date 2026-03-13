@@ -18,10 +18,11 @@ import Book2020FrontpageWidget from "../books/Book2020FrontpageWidget";
 import SectionSubtitle from "../common/SectionSubtitle";
 import ContinueReadingList from "./ContinueReadingList";
 import BookmarksList from "../bookmarks/BookmarksList";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 export const curatedUrl = "/recommendations"
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWRecommendations", (theme: ThemeType) => ({
   section: {
     marginTop: -12,
   },
@@ -91,7 +92,7 @@ const styles = (theme: ThemeType) => ({
       display: 'none'
     }
   },
-});
+}));
 
 const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
   return {

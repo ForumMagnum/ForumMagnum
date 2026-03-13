@@ -13,8 +13,9 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import LWDialog from "../../common/LWDialog";
 import { MenuItem } from "../../common/Menus";
 import { responseToText } from '@/lib/collections/posts/constants';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RSVPForm', (theme: ThemeType) => ({
   emailMessage: theme.isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
@@ -22,7 +23,7 @@ const styles = (theme: ThemeType) => ({
     : {
       fontStyle: "italic",
     },
-});
+}));
 
 const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,

@@ -2,12 +2,13 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { Hit } from 'react-instantsearch-core';
 import MetaInfo from "../common/MetaInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagsListEditorSearchHit", (theme: ThemeType) => ({
   root: {
     cursor: "pointer"
   }
-});
+}));
 
 const TagsListEditorSearchHit = ({hit, classes}: {
   hit: Hit<any>,

@@ -4,15 +4,16 @@ import { getEditorTypeToDisplayMap, EditorTypeString, EditorContents, EditorChan
 import { useConvertDocument } from './useConvertDocument';
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LastEditedInWarning', (theme: ThemeType) => ({
   lastEditedWarning: {
     color: theme.palette.error.main,
   },
   clickHereColor: {
     color: theme.palette.primary.main
   },
-});
+}));
 
 const LastEditedInWarning = ({autoConvert, initialType, currentType, defaultType, value, setValue, classes}: {
   autoConvert: boolean,

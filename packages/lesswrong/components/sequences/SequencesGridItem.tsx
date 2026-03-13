@@ -9,8 +9,9 @@ import CloudinaryImage from "../common/CloudinaryImage";
 import UsersName from "../users/UsersName";
 import LinkCard from "../common/LinkCard";
 import SequencesSummary from "./SequencesSummary";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SequencesGridItem', (theme: ThemeType) => ({
   root: {
     ...theme.typography.postStyle,
 
@@ -123,7 +124,7 @@ const styles = (theme: ThemeType) => ({
       },
     }
   }
-})
+}))
 
 const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle }: {
   sequence: SequencesPageFragment,

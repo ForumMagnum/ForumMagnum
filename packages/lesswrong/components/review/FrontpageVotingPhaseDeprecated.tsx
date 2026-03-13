@@ -10,8 +10,9 @@ import SectionFooter from "../common/SectionFooter";
 import RecommendationsList from "../recommendations/RecommendationsList";
 import HoverPreviewLink from "../linkPreview/HoverPreviewLink";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FrontpageVotingPhase', (theme: ThemeType) => ({
   timeRemaining: {
     marginTop: 6,
     marginBottom: 4
@@ -31,7 +32,7 @@ const styles = (theme: ThemeType) => ({
     textTransform: "uppercase",
     fontSize: "1rem"
   }
-})
+}))
 
 const FrontpageVotingPhase = ({settings, classes}: {
   settings: DefaultRecommendationsAlgorithm,

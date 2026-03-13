@@ -16,8 +16,9 @@ import { createFallBackDialogHandler } from '@/components/localGroups/CommunityM
 import EventNotificationsDialog from "../../localGroups/EventNotificationsDialog";
 import LWTooltip from "../../common/LWTooltip";
 import SimpleDivider from "../../widgets/SimpleDivider";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('HomepageMapFilter', (theme: ThemeType) => ({
   section: {
     display: "flex",
     alignItems: "center",
@@ -63,7 +64,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 0,
     top: 0
   }
-});
+}));
 
 const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const { openDialog } = useDialog()

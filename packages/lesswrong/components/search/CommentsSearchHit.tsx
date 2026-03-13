@@ -9,8 +9,9 @@ import type { SearchHitComponentProps } from './types';
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentsSearchHit", (theme: ThemeType) => ({
   root: {
     padding: 8,
     paddingLeft: 10,
@@ -30,7 +31,7 @@ const styles = (theme: ThemeType) => ({
     wordBreak: "break-word",
     color: theme.palette.grey[600],
   }
-})
+}))
 
 const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;

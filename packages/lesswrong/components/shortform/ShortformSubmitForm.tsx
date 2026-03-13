@@ -8,8 +8,9 @@ import type {
 import { isFriendlyUI } from '../../themes/forumTheme';
 import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ShortformSubmitForm', (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
@@ -37,7 +38,7 @@ const styles = (theme: ThemeType) => ({
     padding: 0,
     border: "none",
   },
-});
+}));
 
 const ShortformSubmitForm = ({
   successCallback,

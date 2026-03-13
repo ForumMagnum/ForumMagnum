@@ -12,6 +12,7 @@ import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentReviewsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -24,14 +25,14 @@ const CommentsListWithParentMetadataMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewsList', (theme: ThemeType) => ({
   root: {
     padding: 16,
     paddingTop: 0,
     marginTop: -24,
     backgroundColor: theme.palette.background.translucentBackground
   }
-})
+}))
 
 const sortOptions = new TupleSet(["top", "new"] as const);
 export type ReviewSortOption = UnionOf<typeof sortOptions>;

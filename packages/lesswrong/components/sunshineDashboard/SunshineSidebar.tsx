@@ -16,8 +16,9 @@ import AFSuggestUsersList from "./AFSuggestUsersList";
 import AFSuggestPostsList from "./AFSuggestPostsList";
 import AFSuggestCommentsList from "./AFSuggestCommentsList";
 import SunshineGoogleServiceAccount from "./SunshineGoogleServiceAccount";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SunshineSidebar", (theme: ThemeType) => ({
   root: {
     zIndex: theme.zIndexes.sunshineSidebar,
     position: "relative",
@@ -48,7 +49,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[800],
     },
   }
-})
+}))
 
 const SunshineSidebar = ({classes}: {classes: ClassesType<typeof styles>}) => {
   const [showUnderbelly, setShowUnderbelly] = useState(false)

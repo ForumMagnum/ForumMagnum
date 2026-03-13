@@ -5,6 +5,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
 import TagRevisionItem from "./TagRevisionItem";
 import LensRevisionItem from "./history/LensRevisionItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const RevisionHistoryEntryQuery = gql(`
   query AllPostsPageTagRevisionItem($documentId: String) {
@@ -16,7 +17,7 @@ const RevisionHistoryEntryQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AllPostsPageTagRevisionItem", (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.commentNodeEven,
     border: theme.palette.border.commentBorder,
@@ -28,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 8,
     marginBottom: 16,
   },
-});
+}));
 
 const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
   tag: TagHistoryFragment,

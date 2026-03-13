@@ -11,8 +11,9 @@ import Row from "../common/Row";
 import MetaInfo from "../common/MetaInfo";
 import LWTooltip from "../common/LWTooltip";
 import CommentsNode from "../comments/CommentsNode";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewsLeaderboard', (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],
@@ -48,7 +49,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     color: theme.palette.grey[900]
   }
-});
+}));
 
 type ReviewLeaderboardRow = {
   user: UsersMinimumInfo,

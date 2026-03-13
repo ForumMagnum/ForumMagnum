@@ -9,6 +9,7 @@ import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import LWTooltip from "../common/LWTooltip";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostLWPostsByVoteQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -21,13 +22,13 @@ const PostsListWithVotesMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWPostsByVote", (theme: ThemeType) => ({
   checkboxRow: {
     display: 'flex',
     justifyContent: 'space-around',
     marginBottom: 24
   }
-})
+}))
 
 const LWPostsByVote = ({classes, postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
   classes: ClassesType<typeof styles>,

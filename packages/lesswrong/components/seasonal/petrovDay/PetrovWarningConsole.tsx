@@ -7,6 +7,7 @@ import PastWarnings from "./PastWarnings";
 import { gql } from "@/lib/generated/gql-codegen";
 import { inWarningWindow } from '@/lib/collections/petrovDayActions/helpers';
 import { STARTING_MINUTE } from '@/lib/collections/petrovDayActions/constants';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PetrovDayActionInfoMultiQuery = gql(`
   query multiPetrovDayActionPetrovWarningConsoleQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -29,7 +30,7 @@ const PetrovDayActionInfoMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PetrovWarningConsole', (theme: ThemeType) => ({
   root: {
 
   },
@@ -48,7 +49,7 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[200]
     }
   }
-});
+}));
 
 export const PetrovWarningConsole = ({classes, currentUser, side}: {
   classes: ClassesType<typeof styles>,

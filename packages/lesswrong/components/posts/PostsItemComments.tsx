@@ -2,8 +2,9 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsItemComments', (theme: ThemeType) => ({
   commentsIconSmall: {
     width: 20,
     fontSize: 11,
@@ -59,7 +60,7 @@ const styles = (theme: ThemeType) => ({
     width:30,
     height:30,
   },
-})
+}))
 
 const PostsItemComments = ({ commentCount, small, onClick, unreadComments, newPromotedComments, classes }: {
   commentCount: number,

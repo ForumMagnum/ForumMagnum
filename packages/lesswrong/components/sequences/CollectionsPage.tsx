@@ -20,6 +20,7 @@ import ErrorBoundary from "../common/ErrorBoundary";
 import CollectionTableOfContents from "./CollectionTableOfContents";
 import ToCColumn from "../posts/TableOfContents/ToCColumn";
 import { CollectionsPageFragmentQuery } from './queries';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const CollectionsEditFragmentQuery = gql(`
   query CollectionsEdit($documentId: String) {
@@ -34,7 +35,7 @@ const CollectionsEditFragmentQuery = gql(`
 const PADDING = 36
 const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CollectionsPage', (theme: ThemeType) => ({
   root: {
     padding: 32,
     position: "relative",
@@ -82,7 +83,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: 1.25,
     maxWidth: 700,
   },
-});
+}));
 
 const CollectionsPage = ({ documentId, classes }: {
   documentId: string,

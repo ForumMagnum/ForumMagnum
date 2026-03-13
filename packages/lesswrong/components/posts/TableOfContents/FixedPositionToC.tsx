@@ -22,6 +22,7 @@ import TableOfContentsRow, { TableOfContentsRowStyles } from './TableOfContentsR
 import type { TableOfContentsDividerStyles } from './TableOfContentsDivider';
 import AnswerTocRow from "./AnswerTocRow";
 import { useContainerReadProgress } from '../../hooks/useContainerReadProgress';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 function normalizeToCScale({containerPosition, sections}: {
   sections: ToCSection[]
@@ -123,7 +124,7 @@ function getSectionsWithOffsets(postContents: HTMLElement, sections: ToCSection[
   });
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FixedPositionToC", (theme: ThemeType) => ({
   root: {
     left: 0,
     top: 0,
@@ -236,7 +237,7 @@ const styles = (theme: ThemeType) => ({
       marginLeft: 4,
     },
   },
-});
+}));
 
 function getNewSearchParams(query: Record<string, string>) {
   const { commentId, ...restQuery } = query;

@@ -2,8 +2,9 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import React from 'react';
 import classNames from 'classnames';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LinkPostMessage', (theme: ThemeType) => ({
   root: theme.isFriendlyUI ? {
     fontFamily: theme.palette.fonts.sansSerifStack,
     wordBreak: 'break-word',
@@ -26,7 +27,7 @@ const styles = (theme: ThemeType) => ({
   negativeTopMargin: {
     marginTop: -14,
   }
-})
+}))
 
 const LinkPostMessage = ({post, classes, negativeTopMargin}: {
   post: PostsBase,

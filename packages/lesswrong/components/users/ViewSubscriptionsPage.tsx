@@ -25,8 +25,9 @@ import {
   subscribedTagQuery,
   subscribedSequenceQuery
 } from './subscriptionQueries';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ViewSubscriptionsPage", (theme: ThemeType) => ({
   noSubscriptions: {
     marginTop: 40,
     fontSize: 16,
@@ -37,7 +38,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     },
   },
-});
+}));
 
 const NoSubscriptionsMessage = ({currentUser, classes}: {
   currentUser: UsersCurrent,

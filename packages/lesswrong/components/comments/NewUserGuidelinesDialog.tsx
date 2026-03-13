@@ -12,6 +12,7 @@ import LWDialog from "../common/LWDialog";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 
 const CommentsListQuery = gql(`
@@ -24,7 +25,7 @@ const CommentsListQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NewUserGuidelinesDialog', (theme: ThemeType) => ({
   moderationGuidelines: {
     ...theme.typography.body2,
     padding: 30,
@@ -33,7 +34,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     }
   }
-});
+}));
 
 const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
   classes: ClassesType<typeof styles>,

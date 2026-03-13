@@ -5,8 +5,9 @@ import { usePostsPageContext } from "./PostsPageContext";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Typography } from "../../common/Typography";
 import Loading from "@/components/vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsPageCrosspostComments", (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -15,7 +16,7 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 3,
     padding: 12,
   },
-});
+}));
 
 type Response = {
   loading: boolean,

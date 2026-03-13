@@ -6,8 +6,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('BannedNotice', (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.panelBackground.default,
     width: '100%',
@@ -16,7 +17,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     },
   },
-});
+}));
 
 const BannedNotice = ({classes}: {
   classes: ClassesType<typeof styles>

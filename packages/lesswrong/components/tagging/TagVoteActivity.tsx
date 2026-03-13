@@ -14,6 +14,7 @@ import LoadMore from "../common/LoadMore";
 import NewTagsList from "./NewTagsList";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const TagVotingActivityMultiQuery = gql(`
   query multiVoteTagVoteActivityQuery($selector: VoteSelector, $limit: Int, $enableTotal: Boolean) {
@@ -26,7 +27,7 @@ const TagVotingActivityMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagVoteActivity", (theme: ThemeType) => ({
   voteRow: {
     ...theme.typography.body2,
     ...theme.typography.smallText,
@@ -66,7 +67,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     boxShadow: theme.palette.boxShadow.default,
   }
-})
+}))
 
 const TagVoteActivityRow = ({vote, classes}: {
   vote: TagVotingActivity,

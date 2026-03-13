@@ -7,8 +7,9 @@ import FormatDate from "../common/FormatDate";
 import UsersName from "../users/UsersName";
 import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
 import SmallSideVote from "../votes/SmallSideVote";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagRevisionItemFullMetadata", (theme: ThemeType) => ({
   root: {
     marginBottom: theme.isFriendlyUI ? 12 : undefined,
   },
@@ -52,7 +53,7 @@ const styles = (theme: ThemeType) => ({
   changeMetrics: {
     marginRight: theme.isFriendlyUI ? 8 : undefined,
   },
-});
+}));
 
 const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
   tag: TagBasicInfo,

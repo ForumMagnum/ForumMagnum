@@ -8,6 +8,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import UsersName from "../users/UsersName";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 
 const PostsMinimumInfoQuery = gql(`
@@ -20,14 +21,14 @@ const PostsMinimumInfoQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentOnYourDraftNotificationHover', (theme: ThemeType) => ({
   root: {
     padding: 16,
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
     maxWidth: 600,
   },
-});
+}));
 
 const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   notification: NotificationsList,

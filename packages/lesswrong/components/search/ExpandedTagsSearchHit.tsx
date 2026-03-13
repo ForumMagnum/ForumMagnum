@@ -6,8 +6,9 @@ import { Snippet } from 'react-instantsearch-dom';
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useThemeColor } from '../themes/useTheme';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ExpandedTagsSearchHit", (theme: ThemeType) => ({
   root: {
     maxWidth: 700,
     paddingTop: 2,
@@ -52,7 +53,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     marginTop: 5
   }
-})
+}))
 
 const ExpandedTagsSearchHit = ({hit, classes}: {
   hit: Hit<any>,

@@ -6,8 +6,9 @@ import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import CheckIcon from '@/lib/vendor/@material-ui/icons/src/Check';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ReactionsButton", (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     padding: '5px  8px',
@@ -34,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     padding: 0,
     paddingLeft: 4
   }
-})
+}))
 
 
 const ReactionsButton = ({classes, postId, vote, votes, reaction, freeEntry }: {classes: ClassesType<typeof styles>, postId: string, vote: any, votes: SyntheticReviewVote[], reaction: string, freeEntry: boolean}) => {

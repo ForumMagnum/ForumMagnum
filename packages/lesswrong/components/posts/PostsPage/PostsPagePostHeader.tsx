@@ -26,10 +26,11 @@ import SharePostButton from "../SharePostButton";
 import AudioToggle from "./AudioToggle";
 import ReadTime from "./ReadTime";
 import { CommentsLink } from './CommentsLink';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const SECONDARY_SPACING = 20;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsPagePostHeader', (theme: ThemeType) => ({
   header: {
     position: 'relative',
     display:"flex",
@@ -153,7 +154,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: theme.isFriendlyUI ? "column" : "row",
     height: "100%",
   }
-});
+}));
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.

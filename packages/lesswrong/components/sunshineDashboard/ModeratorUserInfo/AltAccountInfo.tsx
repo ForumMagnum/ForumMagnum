@@ -9,6 +9,7 @@ import Loading from "../../vulcan-core/Loading";
 import LWTooltip from "../../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserAltAccountInfoQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -21,7 +22,7 @@ const SunshineUsersListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AltAccountInfo', (theme: ThemeType) => ({
   root: {
 
   },
@@ -33,7 +34,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 2,
     marginTop: 1
   }
-});
+}));
 
 export const AltAccountInfo = ({classes, user}: {
   classes: ClassesType<typeof styles>,

@@ -7,15 +7,16 @@ import ContentType from "../posts/PostsPage/ContentType";
 import SingleLineTagUpdates from "./SingleLineTagUpdates";
 import LoadMore from "../common/LoadMore";
 import { withDateFields } from '@/lib/utils/dateUtils';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const INITIAL_LIMIT = 5
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TagEditsTimeBlock', (theme: ThemeType) => ({
   subtitle: {
     marginTop: theme.isFriendlyUI ? 20 : 6,
     marginBottom: 6
   },
-});
+}));
 
 const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
   before: Date,

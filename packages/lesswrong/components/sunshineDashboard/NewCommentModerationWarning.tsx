@@ -6,6 +6,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const CommentsListQuery = gql(`
   query NewCommentModerationWarning($documentId: String) {
@@ -17,13 +18,13 @@ const CommentsListQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NewCommentModerationWarning', (theme: ThemeType) => ({
   root: {
     borderBottom: theme.palette.border.commentBorder,
     padding: 12,
     paddingRight: 28
   }
-});
+}));
 
 export const NewCommentModerationWarning = ({classes}: {
   classes: ClassesType<typeof styles>,

@@ -12,8 +12,9 @@ import PostsTitle from "../posts/PostsTitle";
 import UsersName from "../users/UsersName";
 import LWTooltip from "../common/LWTooltip";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsPageRecommendationItem", (theme: ThemeType) => ({
   root: {
     position: "relative",
     display: "flex",
@@ -74,7 +75,7 @@ const styles = (theme: ThemeType) => ({
       opacity: 1,
     },
   },
-});
+}));
 
 const PostsPageRecommendationItem = ({
   post,

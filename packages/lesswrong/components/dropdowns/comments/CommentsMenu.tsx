@@ -6,8 +6,9 @@ import { useCurrentUserId } from '../../common/withUser';
 import { useTracking } from "../../../lib/analyticsEvents";
 import CommentActions from "./CommentActions";
 import { FeedCommentMetaInfo } from '../../ultraFeed/ultraFeedTypes';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentsMenu', (theme: ThemeType) => ({
   root: {
     ...(theme.isFriendlyUI && {
       "& .MuiList-padding": {
@@ -19,7 +20,7 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     fontSize:"1.4rem"
   },
-})
+}))
 
 interface CommentsMenuComponentProps {
   comment: CommentsList;

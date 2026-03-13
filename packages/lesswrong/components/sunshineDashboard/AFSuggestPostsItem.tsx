@@ -24,6 +24,7 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import uniq from 'lodash/uniq';
 import without from 'lodash/without';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const SuggestAlignmentPostUpdateMutation = gql(`
   mutation updatePostAFSuggestPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -47,14 +48,14 @@ export const afSubmissionHeaderText = (theme: ThemeType) => ({
   fontStyle: 'italic',
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AFSuggestPostsItem', (theme: ThemeType) => ({
   afSubmissionHeader: {
     ...afSubmissionHeader(theme)
   },
   afSubmissionHeaderText: {
     ...afSubmissionHeaderText(theme)
   }
-})
+}))
 
 
 const AFSuggestPostsItem = ({post, classes}: {

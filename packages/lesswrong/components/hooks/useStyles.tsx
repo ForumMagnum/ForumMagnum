@@ -17,8 +17,7 @@ import { type AbstractThemeOptions, abstractThemeToConcrete, themeOptionsAreConc
 import { getForumTheme } from "@/themes/forumTheme";
 import { classNameProxy, defineStyles } from "./defineStyles";
 
-type LegacyStyles = (theme: ThemeType) => JssStyles;
-export type RegisterComponentStyles = LegacyStyles|StyleDefinition<any>;
+export type RegisterComponentStyles = StyleDefinition<any>;
 
 export type StylesContextType = {
   initialTheme: ThemeType
@@ -199,8 +198,8 @@ export const withStyles = <T extends {classes: any}>(styles: StyleDefinition, Co
     const { classes: classesOverrides } = props;
     const classes = useStyles(styles, classesOverrides);
     return <Component ref={ref} {...props} classes={classes} />
-  }) as unknown as React.ForwardRefExoticComponent<Omit<T, "classes"> & { classes?: Partial<T["classes"]> } & React.RefAttributes<any>>;
-}
+  }) as unknown as React.ForwardRefExoticComponent<Omit<T, "classes"> & { classes?: Partial<T["classes"]>; } & React.RefAttributes<any>>;
+};
 
 function getNormalizedStyleOptionValue(
   options: StyleOptions|undefined,
@@ -240,10 +239,6 @@ function getStyleDefinitionForRegisterComponent(
   name: string,
   options?: StyleOptions,
 ): StyleDefinition {
-  if (typeof styles === "function") {
-    return defineStyles(name, styles, options);
-  }
-
   validateRegisterComponentStyles(styles, name, options);
   return styles;
 }
@@ -302,7 +297,7 @@ function createAndInsertStyleNode(theme: ThemeType, styleDefinition: StyleDefini
 
 function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): string {
   const sheets = new SheetsRegistry()
-  
+
   const jss = getJss();
   const sheet = jss.createStyleSheet(
     styleDefinition.styles(theme), {
@@ -334,7 +329,7 @@ export function serverEmbeddedStyles(abstractThemeOptions: AbstractThemeOptions,
     const styleName = styleDefinition.name;
     if (!serverEmbeddedStylesCache[themeKey][styleName]) {
       const priority = styleDefinition.options?.stylePriority ?? 0;
-  
+
       if (themeOptionsAreConcrete(abstractThemeOptions)) {
         const theme = getForumTheme(abstractThemeOptions);
         const stylesStr = styleNodeToString(theme, styleDefinition);
@@ -407,7 +402,7 @@ function insertStyleNodeAtCorrectPosition(styleNode: HTMLStyleElement, name: str
     const midNode = styleNodes[mid] as HTMLStyleElement;
     const midPriority = parseInt(midNode.getAttribute('data-priority') || '0', 10);
     const midName = midNode.getAttribute('data-name') || '';
-  
+    
     if (midPriority < priority || (midPriority === priority && midName < name)) {
       left = mid + 1;
     } else if (midPriority > priority || (midPriority === priority && midName > name)) {

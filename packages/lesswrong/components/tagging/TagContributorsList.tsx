@@ -7,6 +7,7 @@ import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import Loading from "../vulcan-core/Loading";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 
 const TagFullContributorsListQuery = gql(`
@@ -19,7 +20,7 @@ const TagFullContributorsListQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagContributorsList", (theme: ThemeType) => ({
   root: {
     fontSize: "1.16rem",
     fontFamily: theme.typography.fontFamily,
@@ -50,7 +51,7 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 8,
     color: theme.palette.grey[600],
   },
-});
+}));
 
 const TagContributorsList = ({tag, onHoverUser, classes}: {
   tag: TagPageFragment|TagPageWithRevisionFragment,

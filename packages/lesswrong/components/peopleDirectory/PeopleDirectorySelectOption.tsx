@@ -4,8 +4,9 @@ import { MultiSelectState } from "../hooks/useMultiSelect";
 import { useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PeopleDirectorySelectOption", (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     userSelect: "none",
@@ -39,7 +40,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: -1,
     color: theme.palette.primary.main,
   },
-});
+}), { stylePriority: -1 });
 
 const PeopleDirectorySelectOption = ({state, className, classes}: {
   state: MultiSelectState,

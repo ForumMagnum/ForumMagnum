@@ -7,6 +7,7 @@ import { hasGoogleDocImportSetting } from '@/lib/instanceSettings';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const GoogleServiceAccountSessionAdminInfoMultiQuery = gql(`
   query multiGoogleServiceAccountSessionSunshineGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -19,14 +20,14 @@ const GoogleServiceAccountSessionAdminInfoMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineGoogleServiceAccount', (theme: ThemeType) => ({
   root: {
     padding: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
     color: theme.palette.warning.main
   }
-});
+}));
 
 const WARN_THRESHOLD = 28 * 24 * 60 * 60 * 1000; // 28 days in milliseconds
 

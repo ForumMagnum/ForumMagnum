@@ -11,6 +11,7 @@ import SectionButton from "../common/SectionButton";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const TagPreviewFragmentMultiQuery = gql(`
   query multiTagAllTagsAlphabeticalQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -23,7 +24,7 @@ const TagPreviewFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AllTagsAlphabetical", (theme: ThemeType) => ({
   root: {
     margin: "auto",
     maxWidth: 1000
@@ -37,7 +38,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 24,
     borderRadius: theme.borderRadius.default,
   }
-})
+}))
 
 const AllTagsAlphabetical = ({classes}: {
   classes: ClassesType<typeof styles>,

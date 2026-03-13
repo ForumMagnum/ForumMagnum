@@ -20,6 +20,7 @@ import ContentStyles from "../common/ContentStyles";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const TagRelFragmentMultiQuery = gql(`
   query multiTagRelSunshineNewTagsItemQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {
@@ -42,7 +43,7 @@ const SunshineTagFragmentUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineNewTagsItem', (theme: ThemeType) => ({
   tagInfo: {
     marginTop: 0,
     marginBottom: 0
@@ -60,7 +61,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 4,
     color: theme.palette.grey[700]
   }
-})
+}))
 
 const SunshineNewTagsItem = ({tag, classes}: {
   tag: SunshineTagFragment,

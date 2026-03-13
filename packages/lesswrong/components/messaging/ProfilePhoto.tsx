@@ -4,11 +4,12 @@ import AccountCircleIcon from '@/lib/vendor/@material-ui/icons/src/AccountCircle
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import CloudinaryImage2 from "../common/CloudinaryImage2";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 export const PROFILE_IMG_DIAMETER = 36
 export const PROFILE_IMG_DIAMETER_MOBILE = 26
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ProfilePhoto', (theme: ThemeType) => ({
   img: {
     height: PROFILE_IMG_DIAMETER,
     width: PROFILE_IMG_DIAMETER,
@@ -44,7 +45,7 @@ const styles = (theme: ThemeType) => ({
     '-webkit-box-shadow': `0px 0px 2px 0px ${theme.palette.boxShadowColor(.25)}`,
     '-moz-box-shadow': `3px 3px 1px ${theme.palette.boxShadowColor(.25)}`,
   },
-})
+}))
 
 const getUserInitials = (displayName: string) => {
   // TODO: include uppercase char that comes after lowercase char

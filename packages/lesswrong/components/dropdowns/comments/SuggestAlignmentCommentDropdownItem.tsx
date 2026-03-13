@@ -10,6 +10,7 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import uniq from 'lodash/uniq';
 import without from 'lodash/without';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const SuggestAlignmentCommentUpdateMutation = gql(`
   mutation updateCommentSuggestAlignmentCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -21,7 +22,7 @@ const SuggestAlignmentCommentUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SuggestAlignmentCommentDropdownItem', (theme: ThemeType) => ({
   iconRoot: {
     position: "relative",
     width:24,
@@ -42,7 +43,7 @@ const styles = (theme: ThemeType) => ({
     width: 20,
     color: theme.palette.text.maxIntensity,
   }
-})
+}))
 
 const SuggestAlignmentCommentDropdownItem = ({ comment, post, classes }: {
   comment: CommentsList,

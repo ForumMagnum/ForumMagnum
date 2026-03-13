@@ -5,8 +5,9 @@ import PostsTooltip from "./PostsPreviewTooltip/PostsTooltip";
 import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
 import KarmaDisplay from "../common/KarmaDisplay";
 import PostsTitle from "./PostsTitle";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles("Pingback", (_theme: ThemeType) => ({
   root: {
     display: "flex",
     marginBottom: 2,
@@ -15,7 +16,7 @@ const styles = (_theme: ThemeType) => ({
     width: KARMA_WIDTH,
     marginRight: 8
   }
-});
+}));
 
 const Pingback = ({classes, post}: {
   classes: ClassesType<typeof styles>,

@@ -1,8 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { SyntheticQuadraticVote } from './ReviewVotingPage';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("QuadraticVotingButtons", (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center"
@@ -19,7 +20,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body1,
     ...theme.typography.commentStyle
   }
-})
+}))
 
 
 const QuadraticVotingButtons = ({classes, postId, vote, voteForCurrentPost }: {classes: ClassesType<typeof styles>, postId: string, vote: any, voteForCurrentPost: SyntheticQuadraticVote|null}) => {

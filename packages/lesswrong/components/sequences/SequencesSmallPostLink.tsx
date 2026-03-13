@@ -8,8 +8,9 @@ import { isLWorAF } from '../../lib/instanceSettings';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import PostReadCheckbox from "../posts/PostReadCheckbox";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SequencesSmallPostLink", (theme: ThemeType) => ({
   title: {
     position: "relative",
     flexGrow: 1,
@@ -37,7 +38,7 @@ const styles = (theme: ThemeType) => ({
     top: theme.isFriendlyUI ? -1 : 1,
     marginRight: 10
   }
-});
+}));
 
 const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="left-start"}: {
   classes: ClassesType<typeof styles>,

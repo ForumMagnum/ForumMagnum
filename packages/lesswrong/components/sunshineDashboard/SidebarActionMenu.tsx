@@ -1,7 +1,8 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SidebarActionMenu', (theme: ThemeType) => ({
   root: {
     position: "absolute",
     top:0,
@@ -13,7 +14,7 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 16,
     zIndex: theme.zIndexes.sidebarActionMenu,
   },
-})
+}))
 
 const SidebarActionMenu = ({children, classes}: {
   children: React.ReactNode,

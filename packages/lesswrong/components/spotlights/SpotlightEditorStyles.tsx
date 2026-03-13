@@ -1,8 +1,9 @@
 import React, { ReactNode } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { descriptionStyles } from './SpotlightItem';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SpotlightEditorStyles', (theme: ThemeType) => ({
   root: {
     [theme.breakpoints.up('md')]: {
       '& .form-section-default > div': {
@@ -31,7 +32,7 @@ const styles = (theme: ThemeType) => ({
       }
     }
   }
-});
+}));
 
 export const SpotlightEditorStyles = ({classes, children}: {
   classes: ClassesType<typeof styles>,

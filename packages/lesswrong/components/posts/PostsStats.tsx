@@ -1,15 +1,16 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import MetaInfo from "../common/MetaInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsStats', (theme: ThemeType) => ({
   root: {
     opacity:.5,
     [theme.breakpoints.down('sm')]: {
       display:"none"
     }
   }
-})
+}))
 
 const PostsStats = ({post, classes}: {
   post: PostsDetails,

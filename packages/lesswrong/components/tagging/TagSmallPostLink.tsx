@@ -7,8 +7,9 @@ import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import UsersName from "../users/UsersName";
 import MetaInfo from "../common/MetaInfo";
 import KarmaDisplay from "../common/KarmaDisplay";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagSmallPostLink", (theme: ThemeType) => ({
   root: {
     display: "flex",
     ...theme.typography.body2,
@@ -51,7 +52,7 @@ const styles = (theme: ThemeType) => ({
   widerSpacing: {
     marginBottom: 4
   }
-});
+}));
 
 const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpacing, disableHoverPreview}: {
   classes: ClassesType<typeof styles>,

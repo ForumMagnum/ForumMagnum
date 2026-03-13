@@ -14,7 +14,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { TooltipSpan } from '@/components/common/FMTooltip';
 import ModerationGuidelinesEditForm from "./ModerationGuidelinesEditForm";
 import ContentStyles from "../../common/ContentStyles";
-import { safeForDarkMode } from '@/components/hooks/defineStyles';
+import { defineStyles, safeForDarkMode } from '@/components/hooks/defineStyles';
 
 
 const PostsModerationGuidelinesQuery = gql(`
@@ -39,7 +39,7 @@ const TagModerationGuidelinesQuery = gql(`
   }
 `)
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ModerationGuidelinesBox', (theme: ThemeType) => ({
   root: {
     padding: 16,
     position: "relative"
@@ -81,7 +81,7 @@ const styles = (theme: ThemeType) => ({
       marginBottom: '.4em'
     }
   }
-})
+}))
 
 const truncateGuidelines = (guidelines: string) => {
   return truncatise(guidelines, {

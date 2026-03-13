@@ -14,10 +14,11 @@ import LWPopper from "../common/LWPopper";
 import { Typography } from "../common/Typography";
 import ForumIcon from "../common/ForumIcon";
 import SocialMediaIcon from "../icons/SocialMediaIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const ANIMATION_DURATION = 300;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SharePostPopup", (theme: ThemeType) => ({
   popper: {
     zIndex: theme.zIndexes.loginDialog,
     borderRadius: theme.borderRadius.default,
@@ -183,7 +184,7 @@ const styles = (theme: ThemeType) => ({
     width: 20,
     height: 20,
   },
-});
+}));
 
 type ShareButtonProps = { label: string; icon: React.JSX.Element; clickAction?: () => void; classes: ClassesType<typeof styles> };
 

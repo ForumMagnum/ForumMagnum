@@ -8,8 +8,9 @@ import FormatDate from "../common/FormatDate";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { useLocation } from "../../lib/routeUtil";
 import qs from "qs";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FriendlyConversationItem", (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     display: "flex",
@@ -79,7 +80,7 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.primary.main,
     borderRadius: "50%",
   },
-});
+}));
 
 const FriendlyConversationItem = ({
   conversation,

@@ -12,8 +12,9 @@ import { useABTest } from '@/components/hooks/useAbTests';
 import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useCurrentUser } from '../../common/withUser';
 import { Typography } from "../../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('WelcomeBox', (theme: ThemeType) => ({
   wrapper: {
     "@media print": {
       display: "none",
@@ -63,7 +64,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     whiteSpace: 'pre'
   },
-});
+}));
 
 const welcomeBoxes: ForumOptions<{title: string, contents: HashLinkProps[]} | null> = {
   LessWrong: {

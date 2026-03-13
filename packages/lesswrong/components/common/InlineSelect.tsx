@@ -2,15 +2,16 @@ import React, { useState } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Menu } from '@/components/widgets/Menu';
 import { MenuItem } from "./Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("InlineSelect", (theme: ThemeType) => ({
   root: {
     display: "inline",
   },
   link: {
     color: theme.palette.lwTertiary.main,
   },
-});
+}));
 
 export interface Option {
   value: string | number;

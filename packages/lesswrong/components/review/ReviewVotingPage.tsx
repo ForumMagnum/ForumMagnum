@@ -23,6 +23,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import ReviewPostForm from "./ReviewPostForm";
 import PostsTagsList from "../tagging/PostsTagsList";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsReviewVotingListMultiQuery = gql(`
   query multiPostReviewVotingPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -35,7 +36,7 @@ const PostsReviewVotingListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewVotingPage', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "flex-start",
@@ -88,7 +89,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     }
   }
-});
+}));
 
 export type SyntheticReviewVote = {postId: string, score: number, type: 'QUALITATIVE' | 'QUADRATIC'}
 export type SyntheticQualitativeVote = {_id: string, postId: string, score: number, type: 'QUALITATIVE'}

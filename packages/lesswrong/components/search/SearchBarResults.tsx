@@ -11,8 +11,9 @@ import SequencesSearchHit from "./SequencesSearchHit";
 import UsersSearchHit from "./UsersSearchHit";
 import TagsSearchHit from "./TagsSearchHit";
 import CommentsSearchHit from "./CommentsSearchHit";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SearchBarResults", (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.normal,
     transition: "opacity .1s ease-in-out",
@@ -72,7 +73,7 @@ const styles = (theme: ThemeType) => ({
       margin:0
     }
   },
-})
+}))
 
 const SearchBarResults = ({closeSearch, currentQuery, classes}: {
   closeSearch: () => void,

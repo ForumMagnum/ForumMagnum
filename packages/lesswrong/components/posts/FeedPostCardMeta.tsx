@@ -9,8 +9,9 @@ import TruncatedAuthorsList from "./TruncatedAuthorsList";
 import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import FormatDate from "../common/FormatDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FeedPostCardMeta", (theme: ThemeType) => ({
   root: {
     color: theme.palette.grey[600],
     width: "100%",
@@ -71,7 +72,7 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     }
   }
-});
+}), { stylePriority: -1 });
 
 const FeedPostCardMeta = ({post, className, classes}: {
   post: PostsList | SunshinePostsList,

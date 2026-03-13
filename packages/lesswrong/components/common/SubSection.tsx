@@ -1,12 +1,13 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SubSection', (theme: ThemeType) => ({
   root: {
     marginLeft: 20
   }
-})
+}))
 
 const SubSection = ({children, classes, className}: {
   children?: React.ReactNode,

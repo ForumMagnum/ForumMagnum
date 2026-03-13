@@ -4,11 +4,12 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import LWDialog from "../common/LWDialog";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('VotingPatternsWarningPopup', (theme: ThemeType) => ({
   dismissButton: {
   },
-});
+}));
 
 const VotingPatternsWarningPopup = ({onClose, classes}: {
   onClose?: () => void,

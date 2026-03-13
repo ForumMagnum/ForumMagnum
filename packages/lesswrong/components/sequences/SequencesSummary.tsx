@@ -13,6 +13,7 @@ import ContentItemTruncated from "../common/ContentItemTruncated";
 import LWTooltip from "../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const ChaptersFragmentMultiQuery = gql(`
   query multiChapterSequencesSummaryQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {
@@ -25,7 +26,7 @@ const ChaptersFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SequencesSummary', (theme: ThemeType) => ({
   root: {
     padding: 16,
     width: 450,
@@ -71,7 +72,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     size: 14,
   },
-});
+}));
 
 const SequenceMeta: FC<{
   user?: UsersMinimumInfo,

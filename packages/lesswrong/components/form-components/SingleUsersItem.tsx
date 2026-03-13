@@ -4,6 +4,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { Chip } from '@/components/widgets/Chip';
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const UsersProfileQuery = gql(`
   query SingleUsersItem($documentId: String) {
@@ -15,7 +16,7 @@ const UsersProfileQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SingleUsersItem', (theme: ThemeType) => ({
   chip: {
     marginLeft: 4,
     marginRight: 4,
@@ -26,7 +27,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexWrap: 'wrap',
   },
-});
+}));
 
 const SingleUsersItem = ({userId, removeItem, classes }: {
   userId: string,

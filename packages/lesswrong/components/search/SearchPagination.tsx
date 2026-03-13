@@ -1,8 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Pagination } from 'react-instantsearch-dom';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SearchPagination", (theme: ThemeType) => ({
   root: {
     fontFamily: theme.typography.fontFamily,
     ...theme.typography.smallCaps,
@@ -52,7 +53,7 @@ const styles = (theme: ThemeType) => ({
       cursor: "initial",
     },
   }
-})
+}))
 const SearchPagination = ({classes, pagesPadding=0, showFirst=false}: {
   classes: ClassesType<typeof styles>,
   pagesPadding?: number,

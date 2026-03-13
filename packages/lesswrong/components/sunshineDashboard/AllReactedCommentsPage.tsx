@@ -8,11 +8,12 @@ import CommentsNode from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AllReactedCommentsPage', (theme: ThemeType) => ({
   root: {
   }
-});
+}));
 
 export const AllReactedCommentsPage = ({classes}: {
   classes: ClassesType<typeof styles>,

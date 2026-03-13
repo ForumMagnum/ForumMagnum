@@ -8,8 +8,9 @@ import { SearchHitComponentProps } from './types';
 import FormatDate from "../common/FormatDate";
 import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SequencesSearchHit", (theme: ThemeType) => ({
   root: {
     padding: 8,
     paddingLeft: 10,
@@ -51,7 +52,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 4,
     wordBreak: "break-word"
   }
-});
+}));
 
 const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
   const sequence: SearchSequence = hit;

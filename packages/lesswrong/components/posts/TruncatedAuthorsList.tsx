@@ -7,8 +7,9 @@ import UsersNameDisplay from "../users/UsersNameDisplay";
 import UsersNameWithModal from "../ultraFeed/UsersNameWithModal";
 import UserNameDeleted from "../users/UserNameDeleted";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (_: ThemeType) => ({
+const styles = defineStyles("TruncatedAuthorsList", (_: ThemeType) => ({
   root: {
     position: "relative",
     overflow: "hidden",
@@ -30,7 +31,7 @@ const styles = (_: ThemeType) => ({
     opacity: 0,
     pointerEvents: "none",
   },
-});
+}), { stylePriority: -2 });
 
 const reformatAuthorPlaceholder = (
   moreCount: number,

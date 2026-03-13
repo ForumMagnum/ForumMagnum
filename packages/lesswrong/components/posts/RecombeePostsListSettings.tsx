@@ -8,8 +8,9 @@ import isEqual from 'lodash/isEqual';
 import { randomId } from '../../lib/random';
 import UserSelect from "../form-components/UserSelect";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RecombeePostsListSettings', (theme: ThemeType) => ({
   adminOverrides: {
     display: 'flex',
     flexDirection: 'column',
@@ -34,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     alignSelf: 'center',
     background: theme.palette.greyAlpha(0.1)
   },
-});
+}));
 
 export const RecombeePostsListSettings = ({ settings, updateSettings, classes }: {
   settings: RecombeeConfiguration,

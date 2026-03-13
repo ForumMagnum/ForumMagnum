@@ -7,6 +7,7 @@ import PostsItemIntroSequence from "../posts/PostsItemIntroSequence";
 import LoadMore from "../common/LoadMore";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const ChaptersFragmentMultiQuery = gql(`
   query multiChapterTagIntroSequenceQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {
@@ -21,11 +22,11 @@ const ChaptersFragmentMultiQuery = gql(`
 
 const PREVIEW_N = 3
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagIntroSequence", (theme: ThemeType) => ({
   root: {
     marginBottom: 16,
   },
-})
+}))
 
 const TagIntroSequence = ({tag, classes}: {
   tag: TagPageFragment,

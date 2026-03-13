@@ -9,8 +9,9 @@ import UsersName from "../users/UsersName";
 import LoadMore from "../common/LoadMore";
 import LWTooltip from "../common/LWTooltip";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RevisionSelect', (theme: ThemeType) => ({
   revisionRow: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
@@ -48,7 +49,7 @@ const styles = (theme: ThemeType) => ({
     display: "inline-block",
     width: 50
   }
-});
+}));
 
 const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes, count, totalCount }: {
   revisions: Array<RevisionMetadataWithChangeMetrics>,

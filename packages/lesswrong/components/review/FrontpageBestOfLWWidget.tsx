@@ -9,6 +9,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import SectionTitle from "../common/SectionTitle";
 import RecommendationsList from "../recommendations/RecommendationsList";
 import PostsItem from "../posts/PostsItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsListWithVotesQuery = gql(`
   query FrontpageBestOfLWWidget($documentId: String) {
@@ -20,7 +21,7 @@ const PostsListWithVotesQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FrontpageBestOfLWWidget', (theme: ThemeType) => ({
   root: {
     position: "relative",
     zIndex: theme.zIndexes.frontpageSplashImage,
@@ -60,7 +61,7 @@ const styles = (theme: ThemeType) => ({
     border: `solid 1px ${theme.palette.primary.main}`,
     borderRadius: 3
   }
-});
+}), { allowNonThemeColors: true });
 
 export const recommendationsAlgorithm: RecommendationsAlgorithm = {
   method: 'sample',

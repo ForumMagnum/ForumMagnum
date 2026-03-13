@@ -1,8 +1,9 @@
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PetrovWorldmapWrapper', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     zIndex: theme.zIndexes.petrovDayButton,
@@ -32,7 +33,7 @@ const styles = (theme: ThemeType) => ({
     flexDirection: "column",
     alignItems: "center"
   },
-});
+}));
 
 export const PetrovWorldmapWrapper = ({classes, children}: {
   classes: ClassesType<typeof styles>,

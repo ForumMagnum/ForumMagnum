@@ -5,9 +5,10 @@ import type { VotingProps } from '../votingProps';
 import { Card } from "@/components/widgets/Paper";
 import ReactionHoverTopRow from "./ReactionHoverTopRow";
 import ReactionQuotesHoverInfo from "./ReactionQuotesHoverInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
-})
+const styles = defineStyles('InlineReactHoverInfo', (theme: ThemeType) => ({
+}))
 
 /**
  * The hover that's shown when you hover over a passage which has an inline

@@ -3,8 +3,9 @@ import React from 'react';
 import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
 import classNames from 'classnames';
 import LWTooltip from "../../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentDiscussionIcon', (theme: ThemeType) => ({
   icon: {
     color: theme.palette.grey[500],
     width: 20,
@@ -19,7 +20,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: 6,
     top: 2
   }
-});
+}));
 
 const CommentDiscussionIcon = ({comment, small = false, classes}: {
   comment: CommentsList,

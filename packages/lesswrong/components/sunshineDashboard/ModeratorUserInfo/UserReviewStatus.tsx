@@ -4,8 +4,9 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import FormatDate from "../../common/FormatDate";
 import UsersNameWrapper from "../../users/UsersNameWrapper";
 import AltAccountInfo from "./AltAccountInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles('UserReviewStatus', (_theme: ThemeType) => ({
   root: {
     marginTop: 16,
     fontStyle: "italic",
@@ -17,7 +18,7 @@ const styles = (_theme: ThemeType) => ({
     maxHeight: 20,
     overflow: "hidden"
   }
-});
+}));
 
 export const UserReviewStatus = ({classes, user}: {
   classes: ClassesType<typeof styles>,

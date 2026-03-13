@@ -10,10 +10,11 @@ import CantCommentExplanation from "./CantCommentExplanation";
 import CommentsList from "./CommentsList";
 import PostsPageCrosspostComments from "../posts/PostsPage/PostsPageCrosspostComments";
 import { userIsPostCoauthor } from '@/lib/collections/posts/helpers';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("DebateCommentsListSection", (theme: ThemeType) => ({
   root: {
     fontWeight: 400,
     margin: "10px auto 5px auto",
@@ -59,7 +60,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 4,
   },
   debateCommentsList: {}
-})
+}))
 
 const DebateCommentsListSection = ({post, totalComments, comments, newForm=true, newFormProps={}, classes}: {
   post: PostsDetails,

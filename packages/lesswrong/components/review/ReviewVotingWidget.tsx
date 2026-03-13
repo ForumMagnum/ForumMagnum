@@ -11,8 +11,9 @@ import ErrorBoundary from "../common/ErrorBoundary";
 import LWTooltip from "../common/LWTooltip";
 import { reviewVotesForPostAndUserQuery, useCurrentUserReviewVote } from "../hooks/useCurrentUserReviewVote";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewVotingWidget', (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -23,7 +24,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.primary.main
     }
   }
-})
+}))
 
 const ReviewVotingWidget = ({classes, post, showTitle=true}: {
   classes: ClassesType<typeof styles>,

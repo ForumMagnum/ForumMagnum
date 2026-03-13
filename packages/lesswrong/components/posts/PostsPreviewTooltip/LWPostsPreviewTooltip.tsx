@@ -18,6 +18,7 @@ import FormatDate from "../../common/FormatDate";
 import Loading from "../../vulcan-core/Loading";
 import ContentStyles from "../../common/ContentStyles";
 import EventTime from "../../localGroups/EventTime";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostWithDialogueMessageQuery = gql(`
   query LWPostsPreviewTooltip1($documentId: String, $dialogueMessageId: String) {
@@ -72,7 +73,7 @@ const highlightStyles = (theme: ThemeType) => ({
   ...highlightSimplifiedStyles
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
   root: {
     width: getPostPreviewWidth(),
     position: "relative",
@@ -139,7 +140,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     marginRight: 8
   },
-})
+}))
 
 type LWPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
   classes: ClassesType<typeof styles>,

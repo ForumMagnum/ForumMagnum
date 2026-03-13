@@ -9,8 +9,9 @@ import {useLocation} from "../../lib/routeUtil";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import SingleColumnSection from "../common/SingleColumnSection";
 import DraftsList from "./DraftsList";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DraftsPage', (theme: ThemeType) => ({
   checkbox: {
     padding: "1px 12px 0 0"
   },
@@ -23,7 +24,7 @@ const styles = (theme: ThemeType) => ({
       order: 0
     }
   },
-})
+}))
 
 const DraftsPage = ({classes}: {
   classes: ClassesType<typeof styles>;

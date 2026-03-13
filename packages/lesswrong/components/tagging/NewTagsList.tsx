@@ -7,6 +7,7 @@ import MetaInfo from "../common/MetaInfo";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const SunshineTagFragmentMultiQuery = gql(`
   query multiTagNewTagsListQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -19,7 +20,7 @@ const SunshineTagFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("NewTagsList", (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     marginBottom: 24,
@@ -42,7 +43,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 2,
     marginTop: 6
   }
-})
+}))
 
 const NewTagsList = ({classes, showHeaders = true}: {
   classes: ClassesType<typeof styles>,

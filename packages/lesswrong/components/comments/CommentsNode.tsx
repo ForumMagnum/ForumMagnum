@@ -13,6 +13,7 @@ import SingleLineComment from "./SingleLineComment";
 import CommentsItem from "./CommentsItem/CommentsItem";
 import RepliesToCommentList from "../shortform/RepliesToCommentList";
 import AnalyticsTracker from "../common/AnalyticsTracker";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -26,7 +27,7 @@ export const COMMENT_DRAFT_TREE_OPTIONS: CommentTreeOptions = {
   hideReply: true
 };
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentsNode', (theme: ThemeType) => ({
   parentScroll: {
     position: "absolute",
     top:0,
@@ -47,7 +48,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 8,
     paddingTop: 8,
   },
-})
+}))
 
 export interface CommentsNodeProps {
   treeOptions: CommentTreeOptions,

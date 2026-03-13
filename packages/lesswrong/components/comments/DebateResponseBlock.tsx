@@ -1,8 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import DebateResponse from "./DebateResponse";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DebateResponseBlock', (theme: ThemeType) => ({
   divider: {
     display: 'flex',
     alignItems: 'center',
@@ -19,7 +20,7 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.background.pageActiveAreaBackground,
     ...theme.typography.subheading
   },
-});
+}), { stylePriority: 200 });
 
 export interface DebateResponseWithReplies {
   comment: CommentsList;

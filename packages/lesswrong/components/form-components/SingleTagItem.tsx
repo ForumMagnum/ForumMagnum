@@ -6,6 +6,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const TagBasicInfoQuery = gql(`
   query SingleTagItem($documentId: String) {
@@ -17,7 +18,7 @@ const TagBasicInfoQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SingleTagItem', (theme: ThemeType) => ({
   tag: {
     display: 'inline-flex',
     alignItems: 'baseline',
@@ -41,7 +42,7 @@ const styles = (theme: ThemeType) => ({
       height: 13,
     },
   },
-});
+}), { stylePriority: -1 });
 
 const SingleTagItem = ({documentId, onDelete, className, classes}: {
   documentId: string,

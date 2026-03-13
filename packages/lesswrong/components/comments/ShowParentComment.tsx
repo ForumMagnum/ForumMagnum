@@ -4,8 +4,9 @@ import SubdirectoryArrowLeft from '@/lib/vendor/@material-ui/icons/src/Subdirect
 import classNames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ShowParentComment', (theme: ThemeType) => ({
   root: {
     paddingRight: 8,
     paddingTop: 8,
@@ -39,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   activeArrow: {
     transform: "rotate(-90deg)"
   }
-})
+}))
 
 const ShowParentComment = ({ comment, active, onClick, classes }: {
   comment: CommentsList,

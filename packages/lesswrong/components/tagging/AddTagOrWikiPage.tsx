@@ -10,8 +10,9 @@ import { getAllTagsPath } from '@/lib/pathConstants';
 import type { SearchState } from 'react-instantsearch-core';
 import TagSearchHit from "./TagSearchHit";
 import DropdownDivider from "../dropdowns/DropdownDivider";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AddTagOrWikiPage", (theme: ThemeType) => ({
   root: {
     "& .ais-SearchBox": {
       padding: 8,
@@ -34,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     ...theme.typography.commentStyle
   },
-});
+}));
 
 const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggestions=6, showAllTagsAndCreateTags=true, classes}: {
   onTagSelected: (props: {tagId: string, tagName: string, tagSlug: string}) => void,

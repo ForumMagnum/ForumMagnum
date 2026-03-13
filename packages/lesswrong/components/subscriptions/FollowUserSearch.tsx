@@ -13,6 +13,7 @@ import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionFollowUserSearchQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -25,7 +26,7 @@ const SubscriptionStateMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FollowUserSearch", (theme: ThemeType) => ({
   root: {
     "& .ais-SearchBox": {
       padding: 8,
@@ -59,7 +60,7 @@ const styles = (theme: ThemeType) => ({
       maxWidth: 100,
     }
   }
-});
+}));
 
 const FollowUserSearchHit = ({hit, clickAction, existingSubscriptionIds, classes }: SearchHitComponentProps & {existingSubscriptionIds?: string[]}) => {
   const user = hit as SearchUser

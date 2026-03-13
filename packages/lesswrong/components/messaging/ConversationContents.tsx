@@ -12,6 +12,7 @@ import MessageItem from "./MessageItem";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { SideItemsContainer } from "../contents/SideItems.tsx";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const messageListFragmentMultiQuery = gql(`
   query multiMessageConversationContentsQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {
@@ -24,7 +25,7 @@ const messageListFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ConversationContents", (theme: ThemeType) => ({
   conversationTitle: {
     ...theme.typography.commentStyle,
     marginTop: 8,
@@ -68,7 +69,7 @@ const styles = (theme: ThemeType) => ({
       width: "calc(100% - 5px)",
     },
   },
-});
+}));
 
 const ConversationContents = ({
   conversation,

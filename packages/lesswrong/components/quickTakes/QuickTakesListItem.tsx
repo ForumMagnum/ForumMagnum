@@ -8,8 +8,9 @@ import DeferRender from "../common/DeferRender";
 import CommentsNode from "../comments/CommentsNode";
 import QuickTakesCollapsedListItem from "./QuickTakesCollapsedListItem";
 import LWQuickTakesCollapsedListItem from "./LWQuickTakesCollapsedListItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("QuickTakesListItem", (theme: ThemeType) => ({
   expandedRoot: {
     position: "relative",
     "& .comments-node-root": {
@@ -25,7 +26,7 @@ const styles = (theme: ThemeType) => ({
   hidden: {
     display: 'none',
   },
-});
+}));
 
 const QuickTakesListItem = ({quickTake, classes}: {
   quickTake: ShortformComments,

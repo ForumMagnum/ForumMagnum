@@ -7,8 +7,9 @@ import classNames from "classnames";
 import LWTooltip from "../../common/LWTooltip";
 import ForumIcon from "../../common/ForumIcon";
 import ReactionsPalette from "../ReactionsPalette";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AddInlineReactionButton', (theme: ThemeType) => ({
   container: {
     position: "relative",
   },
@@ -39,7 +40,7 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     top: -30,
   }
-})
+}))
 
 const AddInlineReactionButton = ({voteProps, classes, quote, disabled, wrapperClassName, iconClassName, paletteClassName}: {
   voteProps: VotingProps<VoteableTypeClient>,

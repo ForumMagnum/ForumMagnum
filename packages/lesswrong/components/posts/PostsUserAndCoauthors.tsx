@@ -8,8 +8,9 @@ import UsersName from "../users/UsersName";
 import UsersNameWithModal from "../ultraFeed/UsersNameWithModal";
 import UserNameDeleted from "../users/UserNameDeleted";
 import UserCommentMarkers from "../users/UserCommentMarkers";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsUserAndCoauthors", (theme: ThemeType) => ({
   lengthLimited: {
     maxWidth: 310,
     textOverflow: "ellipsis",
@@ -45,7 +46,7 @@ const styles = (theme: ThemeType) => ({
   new: {
     color: theme.palette.primary.main
   },
-});
+}));
 
 const PostsUserAndCoauthors = ({
   post,

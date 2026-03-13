@@ -1,13 +1,14 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { isAF } from '../../lib/instanceSettings';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AlignmentCrosspostMessage', (theme: ThemeType) => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle
   },
-})
+}))
 
 // This is deprecated, but we're keeping it around for now until we're sure we're not using it
 const AlignmentCrosspostMessage = ({post, classes}: {

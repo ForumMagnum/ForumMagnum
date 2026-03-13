@@ -5,8 +5,9 @@ import type { SocialMediaProfileField } from '../../lib/collections/users/helper
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { FormComponentFriendlyTextInput } from './FormComponentFriendlyTextInput';
 import SocialMediaIcon from "../icons/SocialMediaIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PrefixedInput", (theme: ThemeType) => ({
   root: {
     marginBottom: -10,
   },
@@ -22,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   adornmentText: {
     color: theme.palette.grey[600]
   },
-});
+}));
 
 export const iconNameByUserFieldName: Record<SocialMediaProfileField|"website", SocialMediaSiteName> = {
   "linkedinProfileURL": "linkedin",

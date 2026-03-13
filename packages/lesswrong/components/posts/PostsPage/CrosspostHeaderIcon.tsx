@@ -9,8 +9,9 @@ import { lightbulbIcon } from "../../icons/lightbulbIcon";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { combineUrls } from "../../../lib/vulcan-lib/utils";
 import LWTooltip from "../../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CrosspostHeaderIcon", (theme: ThemeType) => ({
   root: {
     display: "inline-block",
   },
@@ -21,7 +22,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: theme.isFriendlyUI ? undefined : -6,
     verticalAlign: "sub",
   },
-});
+}));
 
 const CrosspostHeaderIcon = ({post, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList|PostsEdit,

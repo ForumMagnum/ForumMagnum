@@ -8,8 +8,9 @@ import { useTimezone } from '../common/withTimezone';
 import PostsTimeBlock, { PostsTimeBlockShortformOption } from './PostsTimeBlock';
 import { useOnPropsChanged } from '../hooks/useOnPropsChanged';
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsTimeframeList', (theme: ThemeType) => ({
   loading: {
     opacity: .4,
   },
@@ -22,7 +23,7 @@ const styles = (theme: ThemeType) => ({
       }
       : {}),
   }
-})
+}))
 
 const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListParameters, dimWhenLoading, reverse, shortform, includeTags=true, classes }: {
   after: Date|string,

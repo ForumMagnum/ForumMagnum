@@ -12,8 +12,9 @@ import LWTooltip from "../common/LWTooltip";
 import AddToCalendarButton from "./AddToCalendar/AddToCalendarButton";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsItemMeta', (theme: ThemeType) => ({
   onGrayBackground: {
     ...(theme.isBookUI && theme.dark && {
       color: theme.palette.greyAlpha(1),
@@ -37,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   calendarIcon: {
     marginRight: 8
   }
-})
+}))
 
 export const DateWithoutTime: FC<{date: Date}> = ({date}) => {
   return <FormatDate date={date} granularity='date' format={"MMM Do"} />

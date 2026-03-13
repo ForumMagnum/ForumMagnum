@@ -28,6 +28,7 @@ import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostRecommendationsSamplePageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -40,7 +41,7 @@ const PostsListWithVotesMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("RecommendationsSamplePage", (theme: ThemeType) => ({
   root: {
     [theme.breakpoints.down("sm")]: {
       paddingTop: 30
@@ -59,7 +60,7 @@ const styles = (theme: ThemeType) => ({
     gap: "8px",
     marginBottom: 42,
   },
-});
+}));
 
 const parseStrategy = (queryStrategy?: string): RecommendationStrategyName =>
   queryStrategy && isRecommendationStrategyName(queryStrategy)

@@ -5,8 +5,9 @@ import Info from '@/lib/vendor/@material-ui/icons/src/Info';
 import { isLWorAF, forumHeaderTitleSetting } from '../../lib/instanceSettings';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import { TooltipSpan } from '../common/FMTooltip';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SignupSubscribeToCurated', (theme: ThemeType) => ({
   checkboxLabel: {
     ...theme.typography.body2,
     marginBottom: 10,
@@ -29,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.icon.dim2,
     marginLeft: 6,
   },
-});
+}));
 
 const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
   defaultValue: boolean,

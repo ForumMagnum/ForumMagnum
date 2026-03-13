@@ -10,6 +10,7 @@ import { useNavigate } from "../../../lib/routeUtil";
 import classNames from 'classnames';
 import SequencesTooltip from "../../sequences/SequencesTooltip";
 import SequencesNavigationLink from "../../sequences/SequencesNavigationLink";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 export const darkGreyAlpha = .7
 
@@ -23,7 +24,7 @@ export const titleStyles = (theme: ThemeType) => ({
   ...theme.typography.smallCaps,
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsTopSequencesNav', (theme: ThemeType) => ({
   root: {
     marginLeft:-20,
     display: "flex",
@@ -51,7 +52,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.greyAlpha(darkGreyAlpha),
     }
   }
-})
+}))
 
 const PostsTopSequencesNav = ({post, classes, blackText}: {
   post: PostSequenceNavigation,

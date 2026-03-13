@@ -16,8 +16,9 @@ import FooterTagList from "../../tagging/FooterTagList";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { postBottomSecondaryVotingComponents } from '@/lib/voting/votingSystemComponents';
 import type { VotingSystemName } from '@/lib/voting/votingSystemNames';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsPagePostFooter", (theme: ThemeType) => ({
   footerSection: {
     display: 'flex',
     columnGap: 20,
@@ -80,7 +81,7 @@ const styles = (theme: ThemeType) => ({
       display: 'none',
     }
   }
-});
+}));
 
 const PostsPagePostFooter = ({post, sequenceId, classes}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,

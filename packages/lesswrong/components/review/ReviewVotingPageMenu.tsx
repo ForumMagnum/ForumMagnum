@@ -15,8 +15,9 @@ import ContentStyles from "../common/ContentStyles";
 import LWTooltip from "../common/LWTooltip";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewVotingPageMenu', (theme: ThemeType) => ({
   root: {
     width: "100%",
     maxWidth: SECTION_WIDTH,
@@ -99,7 +100,7 @@ const styles = (theme: ThemeType) => ({
       display: "none"
     }
   }
-});
+}));
 
 export const sortingInfo: Record<string, {title: string, description: string}> = {  
   needsPreliminaryVote: {

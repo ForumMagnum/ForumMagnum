@@ -3,8 +3,9 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
 import FooterTag from "./FooterTag";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TruncatedTagsList", (theme: ThemeType) => ({
   root: {
     position: "relative",
     overflow: "hidden",
@@ -28,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     opacity: 0,
     pointerEvents: "none",
   },
-});
+}), { stylePriority: -1 });
 
 const reformatTagPlaceholder = (
   moreCount: number,

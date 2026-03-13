@@ -6,6 +6,7 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { useCurrentUser } from '../common/withUser';
 import { TooltipSpan } from '../common/FMTooltip';
 import MetaInfo from "../common/MetaInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const USER_SETTING_NAMES = {
   showDialogues: 'showDialoguesList',
@@ -14,7 +15,7 @@ const USER_SETTING_NAMES = {
   showRecommendedPartners: 'showRecommendedPartners'
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DialoguesSectionFrontpageSettings', (theme: ThemeType) => ({
   root: {
     display: "block",
     marginTop: theme.isFriendlyUI ? 10 : undefined,
@@ -41,7 +42,7 @@ const styles = (theme: ThemeType) => ({
       alignItems: "center",
     },
   }
-})
+}))
 
 const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, currentShowMyDialogues, classes}: {
   hidden: boolean,

@@ -6,6 +6,7 @@ import classNames from "classnames";
 import { truncate } from "../../../lib/editor/ellipsize";
 import { ContentItemBody } from "../../contents/ContentItemBody";
 import type { ContentStyleType } from "@/components/common/ContentStylesValues";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const HTML_CHARS_PER_LINE_HEURISTIC = 120;
 const EXPAND_IN_PLACE_LINES = 10;
@@ -32,7 +33,7 @@ const smallHeading = {
   fontWeight: 700,
 };
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ContentExcerpt", (theme: ThemeType) => ({
   root: {},
   excerpt: {
     position: "relative",
@@ -81,7 +82,7 @@ const styles = (theme: ThemeType) => ({
       color: `${theme.palette.primary.light} !important`,
     },
   },
-});
+}), { stylePriority: -1 });
 
 export type CommonExcerptProps = {
   lines?: number,

@@ -16,6 +16,7 @@ import { PolicyIcon } from '../icons/policyIcon';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { LotusOutlineIcon } from '../icons/lotusIcon';
 import classNames from 'classnames';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 // Mapping from tag slug to icon
 export const getCoreTagIconMap = () => forumSelect<Record<string, FC<{className?: string}>>>({
@@ -44,12 +45,12 @@ export const getCoreTagIconMap = () => forumSelect<Record<string, FC<{className?
   default: {}
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CoreTagIcon", (theme: ThemeType) => ({
   // prevent LotusOutlineIcon from having a fill
   noFill: {
     fill: 'none !important'
   }
-});
+}));
 
 const CoreTagIcon = ({tag, fallbackNode, className, classes}: {
   tag: {slug: string},

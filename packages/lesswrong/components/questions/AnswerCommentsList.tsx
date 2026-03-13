@@ -5,8 +5,9 @@ import classNames from 'classnames';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import CommentsList from "../comments/CommentsList";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AnswerCommentsList', (theme: ThemeType) => ({
   commentsList: {
     marginLeft: -4,
     marginRight: -12,
@@ -37,7 +38,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     textAlign: 'right'
   },
-})
+}))
 
 const AnswerCommentsList = ({post, parentAnswer, commentTree, treeOptions, classes}: {
   post: PostsList,

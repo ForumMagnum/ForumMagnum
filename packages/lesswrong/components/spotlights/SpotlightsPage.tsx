@@ -17,6 +17,7 @@ import TableOfContents from "../posts/TableOfContents/TableOfContents";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const SpotlightDisplayMultiQuery = gql(`
   query multiSpotlightSpotlightsPageQuery($selector: SpotlightSelector, $limit: Int, $enableTotal: Boolean) {
@@ -29,7 +30,7 @@ const SpotlightDisplayMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SpotlightsPage', (theme: ThemeType) => ({
   form: {
     padding: 16,
     background: theme.palette.background.pageActiveAreaBackground,
@@ -68,7 +69,7 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
   },
-});
+}));
 
 export const SpotlightsPage = ({classes}: {
   classes: ClassesType<typeof styles>,

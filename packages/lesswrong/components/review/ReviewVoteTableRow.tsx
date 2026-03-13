@@ -23,8 +23,9 @@ import UsersNameDisplay from "../users/UsersNameDisplay";
 import ForumIcon from "../common/ForumIcon";
 import PostsItemNewCommentsWrapper from "../posts/PostsItemNewCommentsWrapper";
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ReviewVoteTableRow", (theme: ThemeType) => ({
   root: {
     borderBottom: theme.palette.border.slightlyFaint,
     position: "relative",
@@ -207,7 +208,7 @@ const styles = (theme: ThemeType) => ({
   newCommentsSection: {
     marginLeft: 16
   }
-});
+}));
 
 export type voteTooltipType = 'Showing votes by 1000+ Karma LessWrong users'|'Showing all votes'|'Showing votes from Alignment Forum members'
 

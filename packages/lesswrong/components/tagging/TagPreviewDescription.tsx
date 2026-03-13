@@ -9,15 +9,16 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import TagExcerpt from "../common/excerpts/TagExcerpt";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagPreviewDescription", (theme: ThemeType) => ({
   root: {
     "& a.read-more-button": {
       fontSize: ".85em",
       color: theme.palette.grey[600]
     },
   }
-});
+}));
 
 const CoreTagCustomDescriptions: Record<string, string> = {
   'Rationality': "The <strong>Rationality</strong> tag is for posts about how to think in ways that more reliably result in you having true beliefs and making decisions that result in attainment of your goals.",

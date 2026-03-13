@@ -10,8 +10,9 @@ import RejectContentDialog from "./RejectContentDialog";
 import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
 import { useDialog } from '../common/withDialog';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RejectContentButton', (theme: ThemeType) => ({
   root: {
     padding: 4
   },
@@ -29,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     width: 18,
     marginRight: 6
   }
-});
+}));
 
 export const RejectContentButton = ({contentWrapper, classes}: {
   contentWrapper: RejectContentParams,

@@ -9,6 +9,7 @@ import { maybeDate } from '@/lib/utils/dateUtils';
 import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const RevisionTagFragmentMultiQuery = gql(`
   query multiRevisionTagEditsByUserQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -21,7 +22,7 @@ const RevisionTagFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TagEditsByUser', (theme: ThemeType) => ({
   root: {
   },
   subtitle: {
@@ -33,7 +34,7 @@ const styles = (theme: ThemeType) => ({
     fontStyle: "italic",
     color: theme.palette.grey[500]
   }
-});
+}));
 
 
 const TagEditsByUser = ({userId, limit, classes}: {

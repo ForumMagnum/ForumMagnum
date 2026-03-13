@@ -11,13 +11,14 @@ import { isRecombeeRecommendablePost } from '@/lib/collections/posts/helpers';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import LoginPopup from "../../users/LoginPopup";
 import DropdownItem from "../DropdownItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DislikeRecommendationDropdownItem', (theme: ThemeType) => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.icon.dim3,
   },
-});
+}));
 
 const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
   const isRecommendation = useContext(IsRecommendationContext)

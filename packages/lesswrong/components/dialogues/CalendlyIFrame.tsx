@@ -1,12 +1,13 @@
 import React from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components'
 import { calendlyPreviewStyles } from '../../themes/stylePiping'
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CalendlyIFrame', (theme: ThemeType) => ({
   calendlyEmbed: {
     ...calendlyPreviewStyles(theme)["& div.calendly-preview"]
   }
-})
+}))
 
 export const validatedCalendlyUrl = (url: string) => {
   if (url === "") return {valid: true, url: ""}

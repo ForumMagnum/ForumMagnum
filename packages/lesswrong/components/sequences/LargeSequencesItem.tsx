@@ -13,6 +13,7 @@ import ChapterTitle from "./ChapterTitle";
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from '../vulcan-core/Loading';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const GET_SEQUENCE_STATS = gql(`
   query GetSequenceStats($sequenceId: String!) {
@@ -23,7 +24,7 @@ const GET_SEQUENCE_STATS = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LargeSequencesItem', (theme: ThemeType) => ({
   root: {
     marginTop: 40,
     marginBottom: 40,
@@ -158,7 +159,7 @@ const styles = (theme: ThemeType) => ({
       opacity: 1
     }
   }
-});
+}));
 
 export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=false, classes}: {
   sequence: SequencesPageWithChaptersFragment,

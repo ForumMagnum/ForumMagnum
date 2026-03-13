@@ -27,6 +27,7 @@ import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import classNames from 'classnames';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostSunshineNewPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -48,7 +49,7 @@ const ModeratorActionsCreateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineNewPostsItem', (theme: ThemeType) => ({
   icon: {
     width: 14,
     marginRight: 4
@@ -98,7 +99,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 4,
     opacity: 0.9,
   }
-})
+}))
 
 const displayPredictionPercent = (prediction: FrontpageClassification): number => {
   const confidence = prediction.isFrontpage

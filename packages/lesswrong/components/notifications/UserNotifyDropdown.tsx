@@ -11,8 +11,9 @@ import PopperCard from "../common/PopperCard";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import NotifyMeToggleDropdownItem from "../dropdowns/NotifyMeToggleDropdownItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UserNotifyDropdown', (theme: ThemeType) => ({
   buttonContent: {
     display: "flex",
     gap: "4px",
@@ -29,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     width: theme.isFriendlyUI ? 200 : 220,
     maxWidth: "100vw",
   },
-});
+}));
 
 /**
  * Displays a "Get notified" button that lets the user subscribe to be notified

@@ -13,6 +13,7 @@ import FormatDate from "../common/FormatDate";
 import ConversationPreview from "./ConversationPreview";
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const ConversationsListUpdateMutation = gql(`
   mutation updateConversationInboxNavigation($selector: SelectorInput!, $data: UpdateConversationDataInput!) {
@@ -24,7 +25,7 @@ const ConversationsListUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ConversationItem', (theme: ThemeType) => ({
   ...postsItemLikeStyles(theme),
   wrap: {
     flexWrap: "wrap",
@@ -49,7 +50,7 @@ const styles = (theme: ThemeType) => ({
   boxShadow: {
     boxShadow: theme.palette.boxShadow.faint,
   },
-});
+}));
 
 const ConversationItem = ({conversation, currentUser, classes, expanded}: {
   conversation: ConversationsList,

@@ -10,8 +10,9 @@ import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import RecentComments from "../comments/RecentComments";
 import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Reviews2018', (theme: ThemeType) => ({
   setting: {
     ...theme.typography.body2,
     color: theme.palette.grey[600]
@@ -27,7 +28,7 @@ const styles = (theme: ThemeType) => ({
       alignItems: "flex-end"
     }
   }
-})
+}))
 
 const Reviews2018 = ({classes}: {
   classes: ClassesType<typeof styles>,

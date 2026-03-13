@@ -25,8 +25,9 @@ import { Typography } from "../common/Typography";
 import CommentBottom from "../comments/CommentsItem/CommentBottom";
 import CommentsNewForm from "../comments/CommentsNewForm";
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Answer', (theme: ThemeType) => ({
   root: {
     marginBottom: 32,
     paddingTop: 20,
@@ -141,7 +142,7 @@ const styles = (theme: ThemeType) => ({
   retracted: {
     textDecoration: "line-through",
   },
-})
+}))
 
 const Answer = ({ comment, post, childComments, classes }: {
   comment: CommentsList,

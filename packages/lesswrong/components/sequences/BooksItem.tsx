@@ -15,6 +15,7 @@ import SequencesGrid from "./SequencesGrid";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const BookEditQuery = gql(`
   query BooksItem($documentId: String) {
@@ -26,7 +27,7 @@ const BookEditQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('BooksItem', (theme: ThemeType) => ({
   description: {
     marginTop: 8,
     marginBottom: 20,
@@ -49,7 +50,7 @@ const styles = (theme: ThemeType) => ({
       textDecoration: "none",
     }
   },
-});
+}));
 
 const BooksItem = ({ book, canEdit, classes }: {
   book: BookPageFragment,

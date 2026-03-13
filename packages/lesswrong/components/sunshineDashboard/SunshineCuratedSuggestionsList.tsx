@@ -15,6 +15,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { userIsMemberOf } from '@/lib/vulcan-users/permissions';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsListMultiQuery = gql(`
   query multiPostsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -38,7 +39,7 @@ const SunshineCurationPostsListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineCuratedSuggestionsList', (theme: ThemeType) => ({
   loadMorePadding: {
     paddingLeft: 16,
   },
@@ -67,7 +68,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: `${theme.palette.error.main}30`,
     border: `10px solid ${theme.palette.error.main}`,
   },
-});
+}));
 
 const shouldShow = (atBottom: boolean, timeForCuration: boolean, currentUser: UsersCurrent | null, hasCurationDrafts: boolean) => {
   if (isEAForum()) {

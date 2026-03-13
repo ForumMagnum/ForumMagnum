@@ -1,8 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import ForumIcon from "./ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('WarningBanner', (theme: ThemeType) => ({
   root: {
     display: 'flex',
     justifyContent: 'space-between',
@@ -27,7 +28,7 @@ const styles = (theme: ThemeType) => ({
       textDecoration: 'underline',
     }
   },
-});
+}));
 
 const WarningBanner = ({message, classes}: {
   message: string,

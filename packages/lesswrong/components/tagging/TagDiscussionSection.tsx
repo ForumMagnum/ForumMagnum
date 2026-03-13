@@ -4,6 +4,7 @@ import CommentsListSection from "../comments/CommentsListSection";
 import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const CommentsListMultiQuery = gql(`
   query multiCommentTagDiscussionSectionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -16,8 +17,8 @@ const CommentsListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
-});
+const styles = defineStyles("TagDiscussionSection", (theme: ThemeType) => ({
+}));
 
 const TagDiscussionSection = ({classes, tag}: {
   classes: ClassesType<typeof styles>,

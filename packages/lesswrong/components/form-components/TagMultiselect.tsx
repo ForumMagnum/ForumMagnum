@@ -7,8 +7,9 @@ import SingleTagItem from "./SingleTagItem";
 import TagsSearchAutoComplete from "../search/TagsSearchAutoComplete";
 import ErrorBoundary from "../common/ErrorBoundary";
 import SectionTitle from "../common/SectionTitle";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TagMultiselect', (theme: ThemeType) => ({
   label: {
     display: 'block',
     fontSize: 10,
@@ -67,7 +68,7 @@ const styles = (theme: ThemeType) => ({
       cursor: "text"
     }
   },
-});
+}));
 
 const TagMultiselect = ({
   value,

@@ -5,6 +5,7 @@ import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const UserMostValuablePostInfoMultiQuery = gql(`
   query multiUserMostValuablePostPostMostValuableCheckboxQuery($selector: UserMostValuablePostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -37,7 +38,7 @@ const UserMostValuablePostInfoMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostMostValuableCheckbox', (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     color: theme.palette.text.alwaysWhite,
@@ -47,7 +48,7 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.5,
     },
   },
-});
+}));
 
 /**
  * This is used by the EA Forum Wrapped page, to let users indicate which posts

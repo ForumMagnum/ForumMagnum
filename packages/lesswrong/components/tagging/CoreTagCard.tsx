@@ -5,8 +5,9 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { siteImageSetting } from '@/lib/instanceSettings';
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import SubscribeButton from "./SubscribeButton";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CoreTagCard", (theme: ThemeType) => ({
   root: {
     width: "100%",
     // white background
@@ -54,7 +55,7 @@ const styles = (theme: ThemeType) => ({
   subscribeButton: {
     marginTop: "auto",
   }
-});
+}));
 
 const CoreTagCard = ({tag, classes}: {
   tag: TagDetailsFragment

@@ -8,8 +8,9 @@ import { useCurrentUser } from "../common/withUser";
 import { useDialog } from "../common/withDialog";
 import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
 import CommentsNewForm from "../comments/CommentsNewForm";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NewAnswerCommentQuestionForm', (theme: ThemeType) => ({
   root: {
     borderTop: theme.palette.border.intense,
     maxWidth:650 + (32),
@@ -68,7 +69,7 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 12,
     padding: 8
   }
-})
+}))
 
 const NewAnswerCommentQuestionForm = ({post, classes}: {
   post: PostsListWithVotes,

@@ -5,6 +5,7 @@ import LoadMore from "../common/LoadMore";
 import ContentType from "../posts/PostsPage/ContentType";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const ShortformCommentsMultiQuery = gql(`
   query multiCommentShortformTimeBlockQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -17,7 +18,7 @@ const ShortformCommentsMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ShortformTimeBlock', (theme: ThemeType) => ({
   shortformGroup: {
     marginTop: theme.isFriendlyUI ? 20 : 12,
   },
@@ -28,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   loadMore: {
     marginTop: 6
   }
-})
+}))
 
 const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
   if (!comment.post) {

@@ -1,10 +1,11 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("RevisionComparisonNotice", (theme: ThemeType) => ({
   root: {
   }
-});
+}));
 const RevisionComparisonNotice = ({before, after, classes}: {
   before: string,
   after: string,

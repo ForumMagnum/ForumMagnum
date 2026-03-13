@@ -6,12 +6,13 @@ import { CommentVotingComponentProps } from '@/lib/voting/votingSystemTypes';
 import { useVote } from './withVote';
 import OverallVoteAxis from "./OverallVoteAxis";
 import AgreementVoteAxis from "./AgreementVoteAxis";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TwoAxisVoteOnComment', (theme: ThemeType) => ({
   root: {
     whiteSpace: "nowrap",
   },
-});
+}));
 
 interface TwoAxisVoteOnCommentProps extends CommentVotingComponentProps {
   classes: ClassesType<typeof styles>

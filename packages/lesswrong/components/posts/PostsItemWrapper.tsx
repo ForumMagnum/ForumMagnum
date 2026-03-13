@@ -10,6 +10,7 @@ import Loading from "../vulcan-core/Loading";
 import PostsTitle from "./PostsTitle";
 import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
 import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsListQuery = gql(`
   query PostsItemWrapper($documentId: String) {
@@ -21,7 +22,7 @@ const PostsListQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsItemWrapper', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -70,7 +71,7 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.3,
     cursor: "default",
   }
-});
+}));
 
 const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = false, simpleAuthor = false, draggable = true}: {
   documentId: string,

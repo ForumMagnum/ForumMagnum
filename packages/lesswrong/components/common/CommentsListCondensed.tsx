@@ -10,6 +10,7 @@ import SectionButton from "./SectionButton";
 import ShortformSubmitForm from "../shortform/ShortformSubmitForm";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const ShortformCommentsMultiQuery = gql(`
   query multiCommentCommentsListCondensedQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -22,7 +23,7 @@ const ShortformCommentsMultiQuery = gql(`
   }
 `);
 
-const styles = (_: ThemeType) => ({
+const styles = defineStyles('CommentsListCondensed', (_: ThemeType) => ({
   subheader: {
     fontSize: 14,
   },
@@ -30,7 +31,7 @@ const styles = (_: ThemeType) => ({
     marginTop: 6,
     marginBottom: 12,
   }
-});
+}), { stylePriority: 1 });
 
 const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTotal=false, hideTag, shortformButton=false, classes}: {
   label: string,

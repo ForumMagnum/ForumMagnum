@@ -5,8 +5,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import PopperCard from "../common/PopperCard";
 import TagPreview from "./TagPreview";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagsListItem", (theme: ThemeType) => ({
   tag: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -30,7 +31,7 @@ const styles = (theme: ThemeType) => ({
       display: "none"
     }
   }
-});
+}));
 
 const TagsListItem = ({tag, classes, postCount=3}: {
   tag: TagPreviewFragment,

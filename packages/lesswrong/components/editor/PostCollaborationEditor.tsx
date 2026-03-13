@@ -25,11 +25,12 @@ import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import dynamic from 'next/dynamic';
 import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
 import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, sidenotesHiddenBreakpoint } from '../posts/PostsPage/constants';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const CKPostEditor = dynamic(() => import("./CKPostEditor"));
 const LexicalEditor = dynamic(() => import("./LexicalEditor"));
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostCollaborationEditor', (theme: ThemeType) => ({
   title: {
     ...theme.typography.display3,
     ...theme.typography.postStyle,
@@ -60,7 +61,7 @@ const styles = (theme: ThemeType) => ({
       display: 'none',
     },
   },
-})
+}))
 
 // Editor that gives people access to the collaborative editor (Lexical or CKEditor, depending on the post's current editor type)
 const PostCollaborationEditor = ({ classes }: {

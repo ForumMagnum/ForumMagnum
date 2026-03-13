@@ -6,8 +6,9 @@ import LWTooltip from "../common/LWTooltip";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import MetaInfo from "../common/MetaInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RejectedReasonDisplay', (theme: ThemeType) => ({
   root: {
     marginBottom: 4
   },
@@ -24,7 +25,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: '1rem',
     marginBottom: 12
   },
-});
+}));
 
 export const RejectedReasonDisplay = ({classes, reason}: {
   classes: ClassesType<typeof styles>,

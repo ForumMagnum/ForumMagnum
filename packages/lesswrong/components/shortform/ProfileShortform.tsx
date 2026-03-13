@@ -3,6 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import PostsItem from "../posts/PostsItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 
 const PostsListWithVotesQuery = gql(`
@@ -15,11 +16,11 @@ const PostsListWithVotesQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ProfileShortform', (theme: ThemeType) => ({
   root: {
 
   }
-});
+}));
 
 export const ProfileShortform = ({classes, user}: {
   classes: ClassesType<typeof styles>,

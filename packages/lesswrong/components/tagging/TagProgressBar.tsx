@@ -11,6 +11,7 @@ import LoginPopup from "../users/LoginPopup";
 import LWTooltip from "../common/LWTooltip";
 import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
 import SeparatorBullet from "../common/SeparatorBullet";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 export const progressBarRoot = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.default,
@@ -31,7 +32,7 @@ export const secondaryInfo = (theme: ThemeType) => ({
   marginTop: 8
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagProgressBar", (theme: ThemeType) => ({
   root: {
     ...progressBarRoot(theme)
   },
@@ -75,7 +76,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.tenPercent,
   }
 
-});
+}));
 
 const TagProgressBar = ({ classes }: {
   classes: ClassesType<typeof styles>,

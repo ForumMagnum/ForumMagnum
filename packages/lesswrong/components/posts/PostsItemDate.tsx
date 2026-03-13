@@ -9,6 +9,7 @@ import EventTime from "../localGroups/EventTime";
 import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
 import LWTooltip from "../common/LWTooltip";
 import TimeTag from "../common/TimeTag";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
@@ -21,7 +22,7 @@ const customStyles = (theme: ThemeType) => theme.isFriendlyUI
     color: theme.palette.text.slightlyIntense2,
   };
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsItemDate", (theme: ThemeType) => ({
   postedAt: {
     ...(theme.isFriendlyUI && {display: "flex"}),
     '&&': {
@@ -59,7 +60,7 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-});
+}));
 
 const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfNew, classes}: {
   post: PostsBase,

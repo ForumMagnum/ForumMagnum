@@ -1,8 +1,9 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { SunshineNewUserPostItem } from "./SunshineNewUserPostItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineNewUserPostsList', (theme: ThemeType) => ({
   row: {
     display: "flex",
     justifyContent: "space-between",
@@ -65,7 +66,7 @@ const styles = (theme: ThemeType) => ({
     flexWrap: "wrap",
     backgroundColor: theme.palette.grey[200],
   },
-})
+}))
 
 
 const SunshineNewUserPostsList = ({posts, user, classes}: {

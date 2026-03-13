@@ -11,8 +11,9 @@ import CommentsNode from "../comments/CommentsNode";
 import CommentsItemMeta from "../comments/CommentsItem/CommentsItemMeta";
 import CommentBottomCaveats from "../comments/CommentsItem/CommentBottomCaveats";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWQuickTakesCollapsedListItem", (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.bannerAdOverlay,
     background: theme.palette.panelBackground.bannerAdTranslucentMedium,
@@ -79,7 +80,7 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     }
   },
-});
+}));
 
 const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
   quickTake: FrontpageShortformComments,

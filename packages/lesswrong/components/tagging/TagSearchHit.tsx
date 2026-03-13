@@ -9,6 +9,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import PopperCard from "../common/PopperCard";
 import TagPreview from "./TagPreview";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const TagPreviewFragmentQuery = gql(`
   query TagSearchHit($documentId: String) {
@@ -20,7 +21,7 @@ const TagPreviewFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagSearchHit", (theme: ThemeType) => ({
   root: {
     display: "block",
     padding: 8,
@@ -44,7 +45,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: ".85em",
     color: theme.palette.grey[500]
   }
-});
+}));
 
 const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, classes}: {
   hit: any,

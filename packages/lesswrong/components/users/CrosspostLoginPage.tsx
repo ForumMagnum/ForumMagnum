@@ -11,8 +11,9 @@ import { useLocation } from "@/lib/routeUtil";
 import LoginForm from "./LoginForm";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CrosspostLoginPage", (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -35,7 +36,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.error.main,
     marginTop: 16,
   },
-});
+}));
 
 const CrosspostLoginPage = ({classes}: {
   classes: ClassesType<typeof styles>,

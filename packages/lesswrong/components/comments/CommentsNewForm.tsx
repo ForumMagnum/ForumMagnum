@@ -25,6 +25,7 @@ import RateLimitWarning from "../editor/RateLimitWarning";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useLocation } from '@/lib/routeUtil';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const UsersCurrentCommentRateLimitQuery = gql(`
   query CommentsNewForm($documentId: String, $postId: String) {
@@ -39,7 +40,7 @@ const UsersCurrentCommentRateLimitQuery = gql(`
 export type FormDisplayMode = "default" | "minimalist"
 
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentsNewForm', (theme: ThemeType) => ({
   root: theme.isFriendlyUI ? {
     '& .form-component-EditorFormComponent': {
       marginTop: 0
@@ -99,7 +100,7 @@ const styles = (theme: ThemeType) => ({
   moderationGuidelinesWrapper: {
     backgroundColor: theme.palette.panelBackground.newCommentFormModerationGuidelines,
   }
-});
+}));
 
 export type CommentSuccessCallback = ((
   comment: CommentsList,

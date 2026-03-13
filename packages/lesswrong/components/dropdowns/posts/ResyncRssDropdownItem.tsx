@@ -14,6 +14,7 @@ import ContentStyles from "../../common/ContentStyles";
 import { ContentItemBody } from "../../contents/ContentItemBody";
 import LWDialog from "../../common/LWDialog";
 import Loading from "../../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsEditUpdateMutation = gql(`
   mutation updatePostResyncRssDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -26,7 +27,7 @@ const PostsEditUpdateMutation = gql(`
 `);
 
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ResyncRssDropdownItem', (theme: ThemeType) => ({
   diffExplanation: {
     fontStyle: "italic",
     marginBottom: 24,
@@ -50,7 +51,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: 8,
     padding: "8px 14px 8px 14px",
   },
-})
+}))
 
 const ResyncRssDropdownItemInner = ({post, closeMenu, classes}: {
   post: PostsList|SunshinePostsList,

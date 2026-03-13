@@ -5,15 +5,16 @@ import { commentIsHiddenPendingReview } from '../../../lib/collections/comments/
 import moment from 'moment';
 import CalendarDate from "../../common/CalendarDate";
 import MetaInfo from "../../common/MetaInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentBottomCaveats", (theme: ThemeType) => ({
   caveatText: {
     flexGrow: 1,
   },
   blockedReplies: {
     padding: "5px 0",
   },
-});
+}));
 
 const CommentBottomCaveats = ({comment, classes}: {
   comment: CommentsList,

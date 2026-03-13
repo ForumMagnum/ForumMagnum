@@ -17,6 +17,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import type { CloudinaryPropsType } from "../common/cloudinaryHelpers";
 import { ICON_ONLY_NAVIGATION_BREAKPOINT } from '../common/TabNavigationMenu/NavigationStandalone';
 import { TAB_NAVIGATION_MENU_WIDTH, TAB_NAVIGATION_MENU_ICON_ONLY_WIDTH } from '../common/TabNavigationMenu/TabNavigationMenu';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const reviewVoteFragmentMultiQuery = gql(`
   query multiReviewVoteReviewVotingCanvasQuery($selector: ReviewVoteSelector, $limit: Int, $enableTotal: Boolean) {
@@ -37,7 +38,7 @@ export type GivingSeasonHeart = {
   theta: number,
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ReviewVotingCanvas", (theme: ThemeType) => ({
   screenContainer: {
     position: 'absolute',
     top: 0,
@@ -266,7 +267,7 @@ const styles = (theme: ThemeType) => ({
       top: 625
     },
   }
-});
+}));
 
 const votingPortalSocialImageProps: CloudinaryPropsType = {
   dpr: "auto",

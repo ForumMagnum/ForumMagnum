@@ -11,8 +11,9 @@ import LWTooltip from "../common/LWTooltip";
 import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
 import SmallSideVote from "../votes/SmallSideVote";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagRevisionItemShortMetadata", (theme: ThemeType) => ({
   username: {
     ...theme.typography.commentStyle,
     fontWeight: 600,
@@ -34,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     verticalAlign: "middle",
     marginRight: 16,
   },
-});
+}));
 
 const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision, classes}: {
   tag: TagBasicInfo,

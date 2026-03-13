@@ -11,8 +11,9 @@ import PostsList2 from "../posts/PostsList2";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import TagDiscussionButton from "./TagDiscussionButton";
 import ContentStyles from "../common/ContentStyles";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("NewTagItem", (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
@@ -37,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   discussionButtonPositioning: {
     display: "flex",
   }
-});
+}));
 
 const NewTagItem = ({tag, classes}: {
   tag: TagCreationHistoryFragment,

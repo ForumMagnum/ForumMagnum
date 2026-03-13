@@ -17,6 +17,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import LWDialog from "../common/LWDialog";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const UsersEditQuery = gql(`
   query SetPersonalMapLocationDialog($documentId: String) {
@@ -32,9 +33,9 @@ const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {
   return suggestion ? suggestion.gmaps : null
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SetPersonalMapLocationDialog', (theme: ThemeType) => ({
   ...sharedStyles(theme),
-});
+}));
 
 const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   onClose: () => void,

@@ -11,6 +11,7 @@ import { Typography } from "../common/Typography";
 import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentModeratorCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -23,7 +24,7 @@ const CommentsListWithParentMetadataMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) =>  ({
+const styles = defineStyles('ModeratorComments', (theme: ThemeType) =>  ({
   root: {
     [theme.breakpoints.up('sm')]: {
       marginRight: 32,
@@ -33,7 +34,7 @@ const styles = (theme: ThemeType) =>  ({
     marginBottom: 8,
     ...sectionTitleStyle(theme),
   },
-})
+}))
 
 
 const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncated=true, noResultsMessage="No Comments Found"}: {

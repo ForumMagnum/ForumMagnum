@@ -2,8 +2,9 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SettingsButton', (theme: ThemeType) => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.grey[600],
@@ -39,7 +40,7 @@ const styles = (theme: ThemeType) => ({
   rotate180: {
    transform: "rotate(180deg)" 
   }
-})
+}), { stylePriority: -1 })
 
 const SettingsButton = ({classes, className, onClick, showIcon=true, label="", useArrow, textShadow = false, labelClassName}: {
   classes: ClassesType<typeof styles>,

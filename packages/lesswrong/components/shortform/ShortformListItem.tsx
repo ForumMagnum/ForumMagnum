@@ -14,8 +14,9 @@ import ForumIcon from "../common/ForumIcon";
 import UsersName from "../users/UsersName";
 import FooterTag from "../tagging/FooterTag";
 import CommentsNode from "../comments/CommentsNode";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ShortformListItem", (theme: ThemeType) => ({
   root: {
     maxWidth: SECTION_WIDTH,
     display: "flex",
@@ -82,7 +83,7 @@ const styles = (theme: ThemeType) => ({
   hoverOver: {
     width: 400,
   },
-});
+}));
 
 const ShortformListItem = ({comment, hideTag, classes}: {
   comment: ShortformComments,

@@ -4,8 +4,9 @@ import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
 import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
 import { useEventListener } from '../../hooks/useEventListener';
 import { useTracking } from '../../../lib/analyticsEvents';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsPodcastPlayer', (theme: ThemeType) => ({
   embeddedPlayer: {
     marginBottom: '2px',
     opacity: theme.dark ? 0.85 : 1,
@@ -18,7 +19,7 @@ const styles = (theme: ThemeType) => ({
     display: 'inline-block',
     marginRight: '8px'
   }
-});
+}));
 
 const PostsPodcastPlayer = ({ podcastEpisode, postId, hideIconList = false, classes }: {
   podcastEpisode: Exclude<PostPodcastEpisode['podcastEpisode'], null>,

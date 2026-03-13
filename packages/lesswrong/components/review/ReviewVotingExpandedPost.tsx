@@ -12,6 +12,7 @@ import ReviewPostComments from "./ReviewPostComments";
 import PostsHighlight from "../posts/PostsHighlight";
 import PingbacksList from "../posts/PingbacksList";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 
 const PostsListQuery = gql(`
@@ -24,7 +25,7 @@ const PostsListQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewVotingExpandedPost', (theme: ThemeType) => ({
   root: {
     maxWidth: CENTRAL_COLUMN_WIDTH,
     margin: "0 auto",
@@ -76,7 +77,7 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     right: 32
   }
-})
+}))
 
 const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
   classes: ClassesType<typeof styles>,

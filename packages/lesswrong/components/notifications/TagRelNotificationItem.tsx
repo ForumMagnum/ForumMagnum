@@ -3,6 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const TagRelFragmentQuery = gql(`
   query TagRelNotificationItem($documentId: String) {
@@ -14,7 +15,7 @@ const TagRelFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TagRelNotificationItem', (theme: ThemeType) => ({
   meta: {
     fontSize: ".9rem",
     color: theme.palette.text.dim45,
@@ -24,7 +25,7 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     textOverflow: "ellipsis"
   }
-});
+}));
 
 export const TagRelNotificationItem = ({classes, tagRelId}: {
   classes: ClassesType<typeof styles>,

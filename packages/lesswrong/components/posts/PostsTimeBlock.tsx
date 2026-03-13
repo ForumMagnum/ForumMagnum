@@ -17,6 +17,7 @@ import PostsTagsList from "../tagging/PostsTagsList";
 import PostsLoading from "./PostsLoading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostPostsTimeBlockQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -29,7 +30,7 @@ const PostsListWithVotesMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsTimeBlock', (theme: ThemeType) => ({
   root: {
     marginBottom: 32
   },
@@ -94,7 +95,7 @@ const styles = (theme: ThemeType) => ({
       display: 'none'
     }),
   }
-})
+}))
 
 interface PostTypeOptions {
   name: ContentTypeString

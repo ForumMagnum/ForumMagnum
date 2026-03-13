@@ -6,8 +6,9 @@ import UserCommentMarkers from "../../users/UserCommentMarkers";
 import PostsCoauthor from "./PostsCoauthor";
 import { AUTHOR_MARKER_STYLES } from "./authorMarkerStyles";
 import { Typography } from "../../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsAuthors', (theme: ThemeType) => ({
   root: {
     fontFamily: theme.isFriendlyUI ? theme.typography.uiSecondary.fontFamily : undefined,
     textAlign: 'left',
@@ -18,7 +19,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: theme.isFriendlyUI ? 1 : 0,
   },
   authorMarkers: AUTHOR_MARKER_STYLES,
-})
+}))
 
 const PostsAuthors = ({classes, post, pageSectionContext}: {
   classes: ClassesType<typeof styles>,

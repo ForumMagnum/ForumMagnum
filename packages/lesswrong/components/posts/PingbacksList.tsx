@@ -7,6 +7,7 @@ import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsListMultiQuery = gql(`
   query multiPostPingbacksListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -19,7 +20,7 @@ const PostsListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PingbacksList", (theme: ThemeType) => ({
   root: {
     marginBottom: 32,
     marginTop: 16
@@ -52,7 +53,7 @@ const styles = (theme: ThemeType) => ({
   list: {
     marginTop: 8
   },
-});
+}));
 
 const PingbacksList = ({classes, postId, limit=5}: {
   classes: ClassesType<typeof styles>,

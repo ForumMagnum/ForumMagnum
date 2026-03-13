@@ -5,6 +5,7 @@ import RemoveIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const SequencesPageFragmentQuery = gql(`
   query SequencesListEditorItem($documentId: String) {
@@ -16,7 +17,7 @@ const SequencesPageFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SequencesListEditorItem', (theme: ThemeType) => ({
   box: {
     display: "block",
     marginLeft: 30,
@@ -58,7 +59,7 @@ const styles = (theme: ThemeType) => ({
     bottom: "0px",
     cursor: "pointer"
   },
-});
+}));
 
 const SequencesListEditorItem = ({documentId, removeItem, classes}: {
   documentId: string;

@@ -20,8 +20,9 @@ import { useHover } from '../common/withHover';
 import type { MessageVotingBottomComponent } from '@/lib/voting/votingSystemTypes';
 import { SideItemsSidebar } from '../contents/SideItems';
 import { commentBodyStyles, postBodyStyles } from '@/themes/stylePiping';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('MessageItem', (theme: ThemeType) => ({
   hoverWrapper: {
     width: '100%',
     display: 'flex',
@@ -123,7 +124,7 @@ const styles = (theme: ThemeType) => ({
   currentUserMessageReactSidebar: {
     marginRight: 20,
   }
-})
+}))
 
 /**
  * Display of a single message in the Conversation Wrapper

@@ -11,6 +11,7 @@ import UserMetaInfo from "./UserMetaInfo";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsListMultiQuery = gql(`
   query multiPostLWUserTooltipContentQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -23,7 +24,7 @@ const PostsListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LWUserTooltipContent', (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -72,7 +73,7 @@ const styles = (theme: ThemeType) => ({
     borderTop: theme.palette.border.extraFaint,
     overflow: "hidden",
   },
-});
+}));
 
 export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
   hideFollowButton?: boolean,

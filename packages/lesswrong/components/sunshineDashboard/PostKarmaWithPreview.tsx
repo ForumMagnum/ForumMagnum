@@ -5,8 +5,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import FormatDate from "../common/FormatDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostKarmaWithPreview', (theme: ThemeType) => ({
   root: {
     marginRight: 8,
     whiteSpace: "nowrap"
@@ -33,7 +34,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     fontWeight: 600
   }
-})
+}))
 
 const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
   post: SunshinePostsList,

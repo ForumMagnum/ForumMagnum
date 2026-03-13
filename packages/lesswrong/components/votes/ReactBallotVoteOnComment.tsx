@@ -16,8 +16,9 @@ import LoginPopup from "../users/LoginPopup";
 import AxisVoteButton from "./AxisVoteButton";
 import OverallVoteAxis from "./OverallVoteAxis";
 import PopperCard from "../common/PopperCard";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReactBallotVoteOnComment', (theme: ThemeType) => ({
   root: {
   },
   agreementSection: {
@@ -100,7 +101,7 @@ const styles = (theme: ThemeType) => ({
   },
   standaloneReaction: {
   },
-});
+}));
 
 interface ReactBallotVoteOnCommentProps extends CommentVotingComponentProps {
   classes: ClassesType<typeof styles>

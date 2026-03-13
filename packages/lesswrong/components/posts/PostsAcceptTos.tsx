@@ -7,6 +7,7 @@ import { Link } from "../../lib/reactRouterWrapper";
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 export const TosLink: FC<PropsWithChildren<{}>> = ({children}) =>
   <Link to="/termsOfUse" target="_blank" rel="noreferrer">{children ?? "terms of use"}</Link>
@@ -16,7 +17,7 @@ export const LicenseLink: FC<PropsWithChildren<{}>> = ({children}) =>
     {children ?? "Creative Commons Attribution 4.0"}
   </a>
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsAcceptTos", (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "row",
@@ -32,7 +33,7 @@ const styles = (theme: ThemeType) => ({
   spinner: {
     marginTop: 18,
   },
-});
+}));
 
 const PostsAcceptTos = ({currentUser, classes}: {
   currentUser: UsersCurrent,

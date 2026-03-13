@@ -3,12 +3,13 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import LibraryAddIcon from '@/lib/vendor/@material-ui/icons/src/LibraryAdd';
 import SectionButton from "../common/SectionButton";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SequencesNewButton', (theme: ThemeType) => ({
   newSequence: {
     color: theme.palette.primary.light
   }
-});
+}));
 
 export const SequencesNewButton = ({ classes }: {
   classes: ClassesType<typeof styles>

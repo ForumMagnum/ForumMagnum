@@ -10,8 +10,9 @@ import ForumIcon from "../common/ForumIcon";
 import PopperCard from "../common/PopperCard";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import SharePostActions from "../dropdowns/posts/SharePostActions";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SharePostButton', (theme: ThemeType) => ({
   root: {
     display: "inline-block",
   },
@@ -22,7 +23,7 @@ const styles = (theme: ThemeType) => ({
       opacity: '0.5'
     }
   },
-})
+}))
 
 const SharePostButton = ({
   post,

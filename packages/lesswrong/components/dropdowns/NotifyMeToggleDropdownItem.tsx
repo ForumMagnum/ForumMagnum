@@ -6,6 +6,7 @@ import type { SubscriptionType } from "../../lib/collections/subscriptions/helpe
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import DropdownItem from "./DropdownItem";
 import ToggleSwitch from "../common/ToggleSwitch";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 type NotifyMeToggleDropdownItemInternalProps = {
   document: NotifyMeDocument,
@@ -23,14 +24,14 @@ type NotifyMeToggleDropdownItemProps = {
 export type NotifyMeToggleDropdownItemPropsExternal = Omit<NotifyMeToggleDropdownItemProps, "classes">;
 
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles("NotifyMeToggleDropdownItem", (_theme: ThemeType) => ({
   toggle: {
     marginLeft: 12,
   },
   menuItemCheckbox: {
     paddingRight: 8
   }
-});
+}));
 
 export const NotifyMeToggleDropdownItemInternal = ({
   document,

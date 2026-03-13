@@ -1,7 +1,8 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { ReactNode } from 'react';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CollectionsCardContainer", (theme: ThemeType) => ({
   root: {
     display:"flex",
     flexWrap: "wrap",
@@ -13,7 +14,7 @@ const styles = (theme: ThemeType) => ({
       width: "unset"
     }
   }
-})
+}))
 
 const CollectionsCardContainer = ({ classes, children }: {
   classes: ClassesType<typeof styles>,

@@ -22,6 +22,7 @@ import SectionFooterCheckbox from "../../form-components/SectionFooterCheckbox";
 import Row from "../../common/Row";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserRecentlyActiveUsersQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -34,7 +35,7 @@ const SunshineUsersListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RecentlyActiveUsers', (theme: ThemeType) => ({
   root: {
     ...commentBodyStyles(theme),
     width: '90%',
@@ -130,7 +131,7 @@ const styles = (theme: ThemeType) => ({
   checkbox: {
     marginRight: 12
   }
-});
+}));
 
 type SortingType = "lastNotificationsCheck"|"last20Karma"|"downvoters"|"karma"|"lastMonthKarma"|"userSortByRateLimitCount";
 

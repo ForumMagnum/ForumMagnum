@@ -4,8 +4,9 @@ import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import classNames from 'classnames';
 import type { Placement as PopperPlacementType } from "popper.js"
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SectionFooterCheckbox", (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     ...theme.typography.commentStyle,
@@ -39,7 +40,7 @@ const styles = (theme: ThemeType) => ({
     cursor: "default",
     opacity: .5
   }
-})
+}))
 
 const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled, tooltip, tooltipPlacement="bottom-start", labelClassName }: {
   classes: ClassesType<typeof styles>,

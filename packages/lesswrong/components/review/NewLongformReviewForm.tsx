@@ -7,8 +7,9 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import PostsNewForm from "../posts/PostsNewForm";
 import SingleColumnSection from "../common/SingleColumnSection";
 import Row from "../common/Row";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NewLongformReviewForm', (theme: ThemeType) => ({
   text: {
     ...theme.typography.body2,
     width: 680,
@@ -20,7 +21,7 @@ const styles = (theme: ThemeType) => ({
     padding: 30,
     paddingBottom: 10
   }
-});
+}));
 
 export const NewLongformReviewForm = ({classes}: {
   classes: ClassesType<typeof styles>,

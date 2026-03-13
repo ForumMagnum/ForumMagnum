@@ -6,10 +6,11 @@ import { CookiesTable } from "../../../lib/cookies/utils";
 import CookieDialog from "./CookieDialog";
 import { Typography } from "../Typography";
 import CookieTable from "./CookieTable";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PADDING = 15;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CookiePolicy", (theme: ThemeType) => ({
   root: {
     maxWidth: CENTRAL_COLUMN_WIDTH,
     marginLeft: "auto",
@@ -61,7 +62,7 @@ const styles = (theme: ThemeType) => ({
       marginBottom: 10,
     },
   },
-});
+}));
 
 const ExternalLink: FC<PropsWithChildren<{ href: string }>> = ({ href, children }) => (
   <a href={href} target="_blank" rel="noreferrer">

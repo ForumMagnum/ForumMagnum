@@ -9,8 +9,9 @@ import type { ConnectedUserInfo } from './CKPostEditor';
 import PresenceList from "./PresenceList";
 import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EditorTopBar", (theme: ThemeType) => ({
   editorTopBar: {
     display: "flex",
     width: "100%",
@@ -40,7 +41,7 @@ const styles = (theme: ThemeType) => ({
   tooltipWrapped: {
     marginRight: 16
   }
-});
+}));
 
 export type CollaborationMode = "Viewing"|"Commenting"|"Editing"|"Editing (override)";
 

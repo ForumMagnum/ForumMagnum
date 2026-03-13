@@ -5,8 +5,9 @@ import sortBy from 'lodash/sortBy';
 import classNames from 'classnames';
 import filter from 'lodash/filter';
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsTagsList', (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
@@ -39,7 +40,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1rem",
     marginLeft: 6,
   }
-});
+}));
 
 type TagWithCount = TagBasicInfo & {count: number}
 

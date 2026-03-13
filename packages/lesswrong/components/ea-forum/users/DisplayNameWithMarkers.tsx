@@ -1,16 +1,17 @@
 import React from "react";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import LWTooltip from "../../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 export const tenPercentPledgeDiamond = "🔸";
 export const trialPledgeDiamond = "🔹";
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles("DisplayNameWithMarkers", (_theme: ThemeType) => ({
   tooltipPopper: {
     maxWidth: 200,
     textAlign: 'center'
   },
-});
+}));
 
 type Marker = {
   text: string;

@@ -6,13 +6,14 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import PostsList2 from "../posts/PostsList2";
 import RecentDiscussionThreadsList from "../recentDiscussion/RecentDiscussionThreadsList";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Nominations2018', (theme: ThemeType) => ({
   setting: {
     ...theme.typography.body2,
     color: theme.palette.grey[600]
   }
-})
+}))
 
 const Nominations2018 = ({classes}: {
   classes: ClassesType<typeof styles>,

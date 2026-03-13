@@ -5,6 +5,7 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentPinToProfileDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -16,11 +17,11 @@ const CommentsListUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PinToProfileDropdownItem", (theme: ThemeType) => ({
   icon: theme.isFriendlyUI
     ? {fontSize: "18px"}
     : {},
-});
+}));
 
 const PinToProfileDropdownItem = ({comment, post, classes}: {
   comment: CommentsList,

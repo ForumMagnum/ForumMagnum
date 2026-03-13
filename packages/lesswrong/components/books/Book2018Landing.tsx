@@ -7,11 +7,12 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { useTracking } from "../../lib/analyticsEvents";
 import BookAnimation from "./BookAnimation";
 import BookCheckout from "../review/BookCheckout";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const contentMaxWidth = "1050px"
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Book2018Landing', (theme: ThemeType) => ({
 
   textSettings: {
     fontFamily: `warnock-pro,Palatino,"Palatino Linotype","Palatino LT STD","Book Antiqua",Georgia,serif`
@@ -304,7 +305,7 @@ const styles = (theme: ThemeType) => ({
 
   [theme.breakpoints.down('md')]: {
   },
-})
+}), { allowNonThemeColors: true })
 
 const Hidden = ({classes}: {classes: ClassesType<typeof styles>}) => {
   return (

@@ -3,8 +3,9 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { isAF } from '@/lib/instanceSettings';
 import { Typography } from "./Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SectionButton', (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     color: theme.palette.lwTertiary.main,
@@ -20,7 +21,7 @@ const styles = (theme: ThemeType) => ({
       fontWeight: 500,
     }),
   }
-})
+}))
 
 const SectionButton = ({children, classes, className, onClick}: {
   children?: React.ReactNode,

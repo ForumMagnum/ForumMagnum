@@ -7,8 +7,9 @@ import { useCurrentUser } from '../common/withUser';
 import { eligibleToNominate, getCostData, reviewIsActive } from '../../lib/reviewUtils';
 import { SyntheticQualitativeVote } from './ReviewVotingPage';
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => {
+const styles = defineStyles("ReviewVotingButtons", (theme: ThemeType) => {
   const downvoteColor = theme.palette.text.reviewDownvote;
   const upvoteColor = theme.isFriendlyUI ? theme.palette.primary.main : theme.palette.text.reviewUpvote;
   
@@ -52,7 +53,7 @@ const styles = (theme: ThemeType) => {
     6: { color: upvoteColor},
     7: { color: upvoteColor},
   }
-}
+})
 
 const ReviewVotingButtons = ({classes, post, dispatch, currentUserVote, costTotal}: {classes: ClassesType<typeof styles>, post: PostsMinimumInfo, dispatch: any, currentUserVote: SyntheticQualitativeVote|null, costTotal?: number}) => {
   const currentUser = useCurrentUser()

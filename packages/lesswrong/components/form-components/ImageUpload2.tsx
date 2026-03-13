@@ -6,8 +6,9 @@ import classNames from 'classnames';
 import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
 import { formPreviewSizeByImageType } from './ImageUpload';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ImageUpload2", (theme: ThemeType) => ({
   root: {
     "& img": {
       display: "block",
@@ -35,7 +36,7 @@ const styles = (theme: ThemeType) => ({
     backgroundPosition: 'center',
     display: 'flex',
   },
-});
+}));
 
 
 const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl, classes}: {

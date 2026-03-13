@@ -16,8 +16,9 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { Typography } from "../../common/Typography";
 import LWTooltip from "../../common/LWTooltip";
 import SectionTitle from "../../common/SectionTitle";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ContentType', (theme: ThemeType) => ({
   root: {
     textAlign: 'left',
     display: 'inline-block',
@@ -45,7 +46,7 @@ const styles = (theme: ThemeType) => ({
   sectionTitle: {
     fontSize: 14,
   },
-})
+}))
 
 
 export type ContentTypeString = "frontpage"|"personal"|"curated"|"shortform"|"tags"|"subforumDiscussion";

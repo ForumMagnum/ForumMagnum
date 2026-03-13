@@ -15,6 +15,7 @@ import Loading from "../vulcan-core/Loading";
 import FirstContentIcons from "./FirstContentIcons";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserModerationDashboardQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -27,7 +28,7 @@ const SunshineUsersListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ModerationDashboard', (theme: ThemeType) => ({
   page: {
     width: '90%',
     maxWidth: 1800,
@@ -108,7 +109,7 @@ const styles = (theme: ThemeType) => ({
   main: {
     width: "100%",
   }
-});
+}));
 
 const tabs = new TupleSet(['sunshineNewUsers', 'allUsers', 'recentlyActive'] as const);
 type DashboardTabs = UnionOf<typeof tabs>;

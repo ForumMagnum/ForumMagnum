@@ -11,8 +11,9 @@ import { gql } from '@/lib/generated/gql-codegen';
 import LWTooltip from "../common/LWTooltip";
 import { useDialog } from '../common/withDialog';
 import LoginPopup from "../users/LoginPopup";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FollowUserButton', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     color: theme.palette.primary.main,
@@ -49,7 +50,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[900],
     },
   },
-});
+}));
 
 export const FollowUserButton = ({user, styleVariant = "default", classes}: {
   user: UsersMinimumInfo,

@@ -12,11 +12,12 @@ import SectionTitle from "../common/SectionTitle";
 import RecommendationsList from "./RecommendationsList";
 import PostsPageRecommendationItem from "./PostsPageRecommendationItem";
 import PostsLoading from "../posts/PostsLoading";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PADDING = (MAX_COLUMN_WIDTH - CENTRAL_COLUMN_WIDTH) / 4;
 const COUNT = 3;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsPageRecommendationsList", (theme: ThemeType) => ({
   root: {
     background: theme.palette.grey[55],
     borderRadius: theme.borderRadius.default,
@@ -40,7 +41,7 @@ const styles = (theme: ThemeType) => ({
       minHeight: 60 * COUNT,
     },
   }
-});
+}));
 
 const PostsPageRecommendationsList = ({
   title = "More posts like this",

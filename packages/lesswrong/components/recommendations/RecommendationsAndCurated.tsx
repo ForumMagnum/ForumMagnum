@@ -21,8 +21,9 @@ import BookmarksList from "../bookmarks/BookmarksList";
 import LWTooltip from "../common/LWTooltip";
 import CuratedPostsList from "./CuratedPostsList";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("RecommendationsAndCurated", (theme: ThemeType) => ({
   section: theme.isFriendlyUI ? {} : {
     marginTop: -12,
   },
@@ -98,7 +99,7 @@ const styles = (theme: ThemeType) => ({
       },
     }),
   },
-});
+}));
 
 const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
   if (isLW()) {

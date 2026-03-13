@@ -11,8 +11,9 @@ import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import { MenuItem } from "../common/Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("UsersViewABTests", (theme: ThemeType) => ({
   explanatoryText: {
     ...theme.typography.body1,
     ...(theme.isFriendlyUI && {
@@ -32,7 +33,7 @@ const styles = (theme: ThemeType) => ({
       paddingRight: 20,
     },
   },
-});
+}));
 
 const UsersViewABTests = ({classes}: {
   classes: ClassesType<typeof styles>,

@@ -8,6 +8,7 @@ import { Card } from "@/components/widgets/Paper";
 import HoverOver from "../common/HoverOver";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const sharedStyles = (theme: ThemeType) => ({
   width: 'fit-content',
@@ -24,7 +25,7 @@ const sharedStyles = (theme: ThemeType) => ({
   whiteSpace: theme.isFriendlyUI ? "nowrap": undefined,
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsAnnualReviewMarketTag', (theme: ThemeType) => ({
   expectedWinner: {
     ...sharedStyles(theme),
     color: theme.palette.review.winner,
@@ -44,7 +45,7 @@ const styles = (theme: ThemeType) => ({
     width: 450,
     paddingTop: 8,
   },
-});
+}));
 
 const PostsAnnualReviewMarketTag = ({ annualReviewMarketInfo, classes }: {
   annualReviewMarketInfo: AnnualReviewMarketInfo,

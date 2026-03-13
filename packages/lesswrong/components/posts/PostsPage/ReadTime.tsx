@@ -1,15 +1,16 @@
 import React, { useMemo } from 'react';
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import LWTooltip from "../../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReadTime', (theme: ThemeType) => ({
   root: {
     fontWeight: theme.isFriendlyUI ? 450 : undefined,
     fontSize: theme.isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     cursor: 'default',
     "@media print": { display: "none" },
   },
-});
+}));
 
 export const ReadTime = ({classes, post, dialogueResponses}: {
   classes: ClassesType<typeof styles>,

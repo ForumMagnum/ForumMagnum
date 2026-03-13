@@ -5,8 +5,9 @@ import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest, { OnSuggestionSelected } from 'react-autosuggest';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SearchAutoComplete", (theme: ThemeType) => ({
   autoComplete: {
     '& input': {
       ...theme.typography.body2,
@@ -23,7 +24,7 @@ const styles = (theme: ThemeType) => ({
       paddingLeft: 0,
     },
   }
-});
+}));
 
 export const formatFacetFilters = (
   facetFilters?: Record<string, boolean | string>,

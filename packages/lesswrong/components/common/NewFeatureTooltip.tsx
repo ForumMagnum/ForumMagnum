@@ -3,11 +3,12 @@ import { useHover } from './withHover';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import LWPopper from "./LWPopper";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const HANDLE_SIZE = 9; // Should be an odd number
 const ARROW_SIZE = 8;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NewFeatureTooltip', (theme: ThemeType) => ({
   container: {
     display: 'inline-block',
     position: 'relative',
@@ -102,7 +103,7 @@ const styles = (theme: ThemeType) => ({
       borderBottomColor: theme.palette.lwTertiary.main,
     },
   },
-});
+}));
 
 const NewFeatureTooltip = ({classes, children, title = 'New feature!', placement = 'left'}: {
   children?: ReactNode,

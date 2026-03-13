@@ -9,8 +9,9 @@ import MetaInfo from "../../common/MetaInfo";
 import LWTooltip from "../../common/LWTooltip";
 import ForumIcon from '@/components/common/ForumIcon';
 import classNames from 'classnames';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UserAutoRateLimitsDisplay', (theme: ThemeType) => ({
   root: {
     width: 'fit-content',
   },
@@ -73,7 +74,7 @@ const styles = (theme: ThemeType) => ({
   newUserDefault: {
     opacity: 0.5,
   },
-});
+}));
 
 export const recentKarmaTooltip = (user: SunshineUsersList) => {
   return <div>

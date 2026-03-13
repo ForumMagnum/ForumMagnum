@@ -3,14 +3,15 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import UsersName from "../users/UsersName";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CollabEditorPermissionsNotices', (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     marginTop: 4,
     marginBottom: 12
   }
-});
+}));
 
 const CollabEditorPermissionsNotices = ({post, classes}: {
   post: PostsPage,

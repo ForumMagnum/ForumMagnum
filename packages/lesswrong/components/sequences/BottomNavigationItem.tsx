@@ -6,8 +6,9 @@ import { postGetCommentCount, postGetPageUrl } from '../../lib/collections/posts
 import { useUpdateContinueReading } from './useUpdateContinueReading';
 import { Link } from '../../lib/reactRouterWrapper';
 import LoginToTrack from "./LoginToTrack";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('BottomNavigationItem', (theme: ThemeType) => ({
   root: {
     paddingTop: 28,
     
@@ -59,7 +60,7 @@ const styles = (theme: ThemeType) => ({
     position: "relative", // TODO: figure out more elegant way of doing this without weird CSS rituals
     top: 8
   }
-});
+}));
 
 const BottomNavigationItem = ({direction, post, sequence, classes}: {
   direction: "Previous"|"Next",

@@ -11,6 +11,7 @@ import ContentStyles from "../common/ContentStyles";
 import LinkPostMessage from "./LinkPostMessage";
 import ContentItemTruncated from "../common/ContentItemTruncated";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsExpandedHighlightQuery = gql(`
   query PostsHighlight($documentId: String) {
@@ -22,7 +23,7 @@ const PostsExpandedHighlightQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsHighlight', (theme: ThemeType) => ({
   highlightContinue: {
     marginTop:16,
     fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
@@ -40,7 +41,7 @@ const styles = (theme: ThemeType) => ({
       fontSize: '1.1rem'
     }
   }
-})
+}))
 
 const TruncatedSuffix: FC<{
   post: PostsList,

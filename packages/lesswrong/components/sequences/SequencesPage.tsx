@@ -29,6 +29,7 @@ import SectionButton from "../common/SectionButton";
 import ContentStyles from "../common/ContentStyles";
 import NotifyMeButton from "../notifications/NotifyMeButton";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const SequencesPageFragmentQuery = gql(`
   query SequencesPage($documentId: String) {
@@ -59,7 +60,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.sequenceImageGradient,
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SequencesPage', (theme: ThemeType) => ({
   root: {
     paddingTop: theme.isFriendlyUI ? `calc(270px + var(--header-height))` : 380,
   },
@@ -179,7 +180,7 @@ const styles = (theme: ThemeType) => ({
       fontSize: "2em",
     },
   },
-})
+}))
 
 const SequencesPage = ({ documentId, classes }: {
   documentId: string,

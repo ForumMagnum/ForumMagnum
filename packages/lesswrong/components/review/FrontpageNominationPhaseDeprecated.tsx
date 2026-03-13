@@ -8,8 +8,9 @@ import RecommendationsList from "../recommendations/RecommendationsList";
 import SectionFooter from "../common/SectionFooter";
 import HoverPreviewLink from "../linkPreview/HoverPreviewLink";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FrontpageNominationPhase', (theme: ThemeType) => ({
   hideOnMobile: {
     [theme.breakpoints.down('xs')]: {
       display: "none"
@@ -22,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   learnMore: {
     color: theme.palette.lwTertiary.main
   }
-})
+}))
 
 const FrontpageNominationPhase = ({classes, settings}: {
   classes: ClassesType<typeof styles>,

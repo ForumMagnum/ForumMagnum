@@ -4,14 +4,15 @@ import without from 'lodash/without';
 import LocalEventMarker from "./LocalEventMarker";
 import LocalGroupMarker from "./LocalGroupMarker";
 import { WrappedReactMapGL } from '../community/WrappedReactMapGL';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles("SmallMapPreview", (_theme: ThemeType) => ({
   previewWrapper: {
     paddingTop: 5,
     height: 200,
     maxWidth: 300
   }
-});
+}));
 
 const SmallMapPreview = ({post, group, zoom, classes}: {
   post: PostsList,

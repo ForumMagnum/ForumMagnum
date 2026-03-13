@@ -3,8 +3,9 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Typography } from "../common/Typography";
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsItem2MetaInfo", (theme: ThemeType) => ({
   metaInfo: {
     color: theme.palette.text.dim3,
     ...isIfAnyoneBuildsItFrontPage({
@@ -15,7 +16,7 @@ const styles = (theme: ThemeType) => ({
     flexShrink: 0,
     flexGrow: 0,
   }
-});
+}));
 
 const PostsItem2MetaInfo = ({children, className, classes}: {
   children?: React.ReactNode,

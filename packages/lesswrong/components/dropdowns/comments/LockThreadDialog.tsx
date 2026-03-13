@@ -9,12 +9,13 @@ import { gql } from "@/lib/generated/gql-codegen";
 import moment from 'moment';
 import LWDialog from "../../common/LWDialog";
 import { DatePicker } from "../../form-components/FormComponentDateTime";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LockThreadDialog', (theme: ThemeType) => ({
   message: {
     fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
-});
+}));
 
 const LockThreadDialog = ({commentId, onClose, classes}: {
   commentId: string,

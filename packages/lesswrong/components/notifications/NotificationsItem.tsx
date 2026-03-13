@@ -16,8 +16,9 @@ import PostNominatedNotification from "../review/PostNominatedNotification";
 import TagRelNotificationItem from "./TagRelNotificationItem";
 import { onsiteHoverViewComponents } from '@/lib/notificationTypeComponents';
 import { getNotificationIconByNotificationName } from './notificationIcons';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NotificationsItem', (theme: ThemeType) => ({
   root: {
     "&:hover": {
       backgroundColor: `${theme.palette.panelBackground.darken02} !important`,
@@ -63,7 +64,7 @@ const styles = (theme: ThemeType) => ({
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": "vertical",
   },
-});
+}));
 
 const tooltipProps = {
   placement: "left-start",

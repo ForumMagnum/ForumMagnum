@@ -1,8 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import LWPopper from "../common/LWPopper";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SidebarHoverOver', (theme: ThemeType) => ({
   root: {
     position:"relative",
     zIndex: theme.zIndexes.sidebarHoverOver,
@@ -15,7 +16,7 @@ const styles = (theme: ThemeType) => ({
     boxShadow: theme.palette.boxShadow.sunshineSidebarHoverInfo,
     overflow: "hidden",
   }
-})
+}))
 
 const SidebarHoverOver = ({children, classes, hover, anchorEl, width=500}: {
   children: React.ReactNode,

@@ -1,12 +1,13 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import MetaInfo from "../common/MetaInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineListCount', (theme: ThemeType) => ({
   overflow: {
     color: theme.palette.text.red,
   }
-})
+}))
 
 const SunshineListCount = ({ count, classes }: {
   count: number|undefined,

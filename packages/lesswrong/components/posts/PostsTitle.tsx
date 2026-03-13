@@ -17,8 +17,9 @@ import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 import AllInclusiveIcon from '@/lib/vendor/@material-ui/icons/src/AllInclusive';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsTitle', (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.normal,
     position: "relative",
@@ -142,7 +143,7 @@ const styles = (theme: ThemeType) => ({
   highlightedTagTooltip: {
     marginTop: -2,
   },
-});
+}));
 
 const tagSettingIcons = new Map([
   [amaTagIdSetting, QuestionAnswerIcon], 

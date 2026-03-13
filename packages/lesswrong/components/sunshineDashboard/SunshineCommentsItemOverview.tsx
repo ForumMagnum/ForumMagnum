@@ -6,13 +6,14 @@ import { Link } from '../../lib/reactRouterWrapper'
 import { Typography } from "../common/Typography";
 import SidebarInfo from "./SidebarInfo";
 import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineCommentsItemOverview', (theme: ThemeType) => ({
   comment: {
     fontSize: "1rem",
     lineHeight: "1.5em"
   }
-})
+}))
 
 const SunshineCommentsItemOverview = ({ comment, classes }: {
   comment: any,

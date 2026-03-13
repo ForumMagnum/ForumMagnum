@@ -19,12 +19,13 @@ import LoginPopupButton from "../users/LoginPopupButton";
 import { Typography } from "../common/Typography";
 import { petrovDayLaunchCode } from '@/lib/collections/petrovDayActions/constants';
 import { WrappedReactMapGL } from '../community/WrappedReactMapGL';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
 // https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PetrovDayButton', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     zIndex: theme.zIndexes.petrovDayButton,
@@ -137,7 +138,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 12,
     color: theme.palette.primary.main
   }
-})
+}))
 
 const PetrovDayButton = ({classes, alreadyLaunched }: {
   classes: ClassesType<typeof styles>,

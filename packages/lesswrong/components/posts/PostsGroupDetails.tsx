@@ -4,6 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames'
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const localGroupsHomeFragmentQuery = gql(`
   query PostsGroupDetails($documentId: String) {
@@ -15,7 +16,7 @@ const localGroupsHomeFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsGroupDetails', (theme: ThemeType) => ({
   title: {
     display: 'inline-block',
     fontSize: 22,
@@ -38,7 +39,7 @@ const styles = (theme: ThemeType) => ({
     marginBottom: theme.isFriendlyUI ? 5 : 12, 
     marginTop: 10
   }
-})
+}))
 
 const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
   documentId: string,

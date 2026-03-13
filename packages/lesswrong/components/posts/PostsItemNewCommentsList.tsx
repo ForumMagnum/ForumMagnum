@@ -5,6 +5,7 @@ import NoContent from "../common/NoContent";
 import PostsItemNewCommentsListNode from "./PostsItemNewCommentsListNode";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const CommentsListMultiQuery = gql(`
   query multiCommentPostsItemNewCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -17,7 +18,7 @@ const CommentsListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({})
+const styles = defineStyles('PostsItemNewCommentsList', (theme: ThemeType) => ({}))
 
 const PostsItemNewCommentsList = ({ terms, post, treeOptions }: {
   terms: CommentsViewTerms,

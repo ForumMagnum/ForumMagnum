@@ -10,8 +10,9 @@ import SequencesNewButton from "./SequencesNewButton";
 import LWCoreReading from "./LWCoreReading";
 import SequencesGridWrapper from "./SequencesGridWrapper";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LibraryPage', (theme: ThemeType) => ({
   pageTitle: {
     ...theme.typography.headerStyle,
     fontWeight: "bold",
@@ -22,7 +23,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: 1,
     marginTop: 0,
   }
-});
+}));
 
 const LibraryPage = ({classes}: {
   classes: ClassesType<typeof styles>,

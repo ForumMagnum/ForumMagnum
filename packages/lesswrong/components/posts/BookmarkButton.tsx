@@ -8,7 +8,8 @@ import { useBookmark } from '../hooks/useBookmark';
 import LWTooltip from '../common/LWTooltip';
 import ForumIcon from '../common/ForumIcon';
 import { BookmarkableCollectionName } from '@/lib/collections/bookmarks/constants';
-const styles = (theme: ThemeType) => ({
+import { defineStyles } from '@/components/hooks/defineStyles';
+const styles = defineStyles('BookmarkButton', (theme: ThemeType) => ({
   container: {
     cursor: "pointer",
     color: theme.palette.icon.dim3,
@@ -31,7 +32,7 @@ const styles = (theme: ThemeType) => ({
       marginRight: -1,
     },
   },
-})
+}))
 
 
 const BookmarkButton = ({

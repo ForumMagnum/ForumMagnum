@@ -12,6 +12,7 @@ import Loading from "../vulcan-core/Loading";
 import EAButton from "../ea-forum/EAButton";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsEditMutation = gql(`
   mutation createPostNewDialogueDialog($data: CreatePostDataInput!) {
@@ -23,7 +24,7 @@ const PostsEditMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NewDialogueDialog', (theme: ThemeType) => ({
   dialog: {
     padding: 24,
     paddingBottom: theme.isFriendlyUI ? undefined : 12,
@@ -58,7 +59,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body2,
     marginRight: 12
   }
-})
+}))
 
 const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
   initialParticipantIds?: string[],

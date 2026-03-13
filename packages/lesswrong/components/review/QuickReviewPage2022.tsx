@@ -12,6 +12,7 @@ import ReviewDashboardButtons from "./ReviewDashboardButtons";
 import PostInteractionStripe from "./PostInteractionStripe";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsReviewVotingListMultiQuery = gql(`
   query multiPostQuickReviewPage2022Query($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -24,7 +25,7 @@ const PostsReviewVotingListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('QuickReviewPage2022', (theme: ThemeType) => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `
@@ -103,7 +104,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     marginRight: "auto"
   }
-});
+}));
 
 export const QuickReviewPage2022 = ({classes}: {
   classes: ClassesType<typeof styles>,

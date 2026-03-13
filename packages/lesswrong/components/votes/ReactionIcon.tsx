@@ -2,8 +2,9 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defaultFilter, getNamesAttachedReactionsByName} from '../../lib/voting/reactions';
 import classNames from 'classnames';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReactionIcon', (theme: ThemeType) => ({
   reactionSvg: {
     verticalAlign: "middle",
     marginTop: 1
@@ -14,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   invertUnlessDarkMode: {
     filter: (theme.palette.type==="dark") ? "unset" : "invert(1)"
   }
-})
+}))
 
 const ReactionIcon = ({react, inverted=false, size=18, classes}: {
   react: string,

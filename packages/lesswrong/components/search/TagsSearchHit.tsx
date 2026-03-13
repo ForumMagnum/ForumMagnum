@@ -6,8 +6,9 @@ import { Snippet } from 'react-instantsearch-dom';
 import LocalOfferOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/LocalOfferOutlined';
 import type { SearchHitComponentProps } from './types';
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagsSearchHit", (theme: ThemeType) => ({
   root: {
     padding: 8,
     paddingLeft: 10,
@@ -29,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim,
     wordBreak: "break-word"
   }
-})
+}))
 
 const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;

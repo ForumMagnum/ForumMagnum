@@ -2,6 +2,7 @@ import classNames from 'classnames';
 import React, { ReactNode } from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { registerComponent } from '../../lib/vulcan-lib/components';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const collapsedStyles = (theme: ThemeType) => ({
   [theme.breakpoints.up('lg')]: {
@@ -25,7 +26,7 @@ const collapsedStyles = (theme: ThemeType) => ({
   },
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Book2019Animation', (theme: ThemeType) => ({
   success: {
     '& .parent-container': {
       ...collapsedStyles(theme)
@@ -209,7 +210,7 @@ const styles = (theme: ThemeType) => ({
       opacity: 1
     }
   }
-})
+}), { allowNonThemeColors: true })
 
 const Book2019Animation = ({ classes, children, successContent }: {
   classes: ClassesType<typeof styles>,

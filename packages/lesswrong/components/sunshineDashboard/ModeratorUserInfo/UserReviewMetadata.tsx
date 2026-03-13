@@ -2,8 +2,9 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import MetaInfo from "../../common/MetaInfo";
 import FormatDate from "../../common/FormatDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UserReviewMetadata', (theme: ThemeType) => ({
   root: {
     paddingTop: 8,
     paddingBottom: 8,
@@ -14,7 +15,7 @@ const styles = (theme: ThemeType) => ({
   negativeRecentKarma: {
     color: theme.palette.error.dark
   }
-});
+}));
 
 export const UserReviewMetadata = ({classes, user}: {
   user: SunshineUsersList

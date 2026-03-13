@@ -7,6 +7,7 @@ import CloudOff from "@/lib/vendor/@material-ui/icons/src/CloudOff";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import UsersName from "../users/UsersName";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const UsersMinimumInfoQuery = gql(`
   query PresenceList($documentId: String) {
@@ -18,7 +19,7 @@ const UsersMinimumInfoQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PresenceList', (theme: ThemeType) => ({
   user: {
     ...theme.typography.body2,
     marginRight: 8,
@@ -49,7 +50,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: 4,
     marginLeft: 9
   },
-})
+}))
 
 /**
  * UI for displaying who's currently connected, in the collaborative editor.

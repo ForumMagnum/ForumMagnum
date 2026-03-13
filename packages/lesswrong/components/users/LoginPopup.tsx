@@ -2,8 +2,9 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import LWDialog from "../common/LWDialog";
 import LoginForm from "./LoginForm";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LoginPopup', (theme: ThemeType) => ({
   dialog: {
     zIndex: theme.zIndexes.loginDialog
   },
@@ -14,7 +15,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 0,
     marginRight: 0,
   },
-});
+}));
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.

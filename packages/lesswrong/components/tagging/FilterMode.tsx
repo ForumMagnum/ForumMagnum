@@ -19,6 +19,7 @@ import LWTooltip from "../common/LWTooltip";
 import PopperCard from "../common/PopperCard";
 import TagPreview from "./TagPreview";
 import ContentStyles from "../common/ContentStyles";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 
 const TagPreviewFragmentQuery = gql(`
@@ -46,7 +47,7 @@ export const filteringStyles = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FilterMode", (theme: ThemeType) => ({
   tag: {
     padding: 8,
     paddingLeft: 10,
@@ -158,7 +159,7 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-});
+}));
 
 const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description, classes}: {
   tagId?: string,

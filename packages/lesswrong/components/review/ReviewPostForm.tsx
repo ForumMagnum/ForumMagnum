@@ -4,8 +4,9 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import PopupCommentEditor from "../comments/PopupCommentEditor";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewPostForm', (theme: ThemeType) => ({
   guidelines: {
     cursor: "default",
     marginTop: 8,
@@ -32,7 +33,7 @@ const styles = (theme: ThemeType) => ({
     fontStyle: "italic",
     marginTop: 8,
   }
-})
+}))
 
 const ReviewPostForm = ({classes, post, onClose}: {
   classes: ClassesType<typeof styles>,

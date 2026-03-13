@@ -3,8 +3,9 @@ import { QuoteLocator, VoteOnReactionType } from '../../../lib/voting/namesAttac
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import UpArrowIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReactOrAntireactVote', (theme: ThemeType) => ({
   reactOrAntireact: {
     minWidth: 55
   },
@@ -37,7 +38,7 @@ const styles = (theme: ThemeType) => ({
   colorGreen: {
     color: theme.palette.primary.main,
   },
-})
+}))
 
 const ReactOrAntireactVote = ({reactionName, quote, netReactionCount, currentUserReaction, setCurrentUserReaction, classes}: {
   reactionName: string

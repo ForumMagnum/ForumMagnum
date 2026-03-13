@@ -6,11 +6,12 @@ import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { useConvertDocument } from './useConvertDocument';
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EditorTypeSelect", (theme: ThemeType) => ({
   select: {
   },
-});
+}));
 
 const EditorTypeSelect = ({value, setValue, isCollaborative, classes}: {
   value: EditorContents,

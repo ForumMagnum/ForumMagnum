@@ -1,8 +1,9 @@
 import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../../themes/stylePiping';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DialogueEditorGuidelines', (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[60],
     ...(theme.isFriendlyUI
@@ -30,7 +31,7 @@ const styles = (theme: ThemeType) => ({
     margin: '0 !important',
     paddingBottom: 8
   }
-});
+}));
 
 export const DialogueEditorGuidelines = ({classes}: {
   classes: ClassesType<typeof styles>,

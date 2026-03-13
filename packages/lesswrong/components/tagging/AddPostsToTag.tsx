@@ -16,8 +16,9 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import LoginPopup from "../users/LoginPopup";
 import SearchPagination from "../search/SearchPagination";
 import PostsListEditorSearchHit from "../search/PostsListEditorSearchHit";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AddPostsToTag", (theme: ThemeType) => ({
   root: {
     display: "flex",
     '& input': {
@@ -92,7 +93,7 @@ const styles = (theme: ThemeType) => ({
   postHit: {
     cursor: "pointer"
   }
-});
+}));
 
 
 

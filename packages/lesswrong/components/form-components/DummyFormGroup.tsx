@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { FormGroupHeader } from "./FormGroupHeader";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DummyFormGroup', (theme: ThemeType) => ({
   formSection: {
     fontFamily: theme.typography.fontFamily,
     border: theme.palette.border.grey300,
@@ -20,7 +21,7 @@ const styles = (theme: ThemeType) => ({
     paddingRight: 16,
     paddingLeft: 16,
   },
-});
+}));
 
 type DummyFormGroupProps = {
   label: string,

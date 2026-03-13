@@ -15,6 +15,7 @@ import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import FormatDate from "../common/FormatDate";
 import UsersNameDisplay from "../users/UsersNameDisplay";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const ModeratorClientIDInfoMultiQuery = gql(`
   query multiClientIdModerationAltAccountsQuery($selector: ClientIdSelector, $limit: Int, $enableTotal: Boolean) {
@@ -49,7 +50,7 @@ const UserAltAccountsFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ModerationAltAccounts', (theme: ThemeType) => ({
   selectUser: {
     margin: 16,
   },
@@ -79,7 +80,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     textDecoration: "underline",
   },
-});
+}));
 
 const accountIdentifierTypes = [
   { key: "slug", label: "User-slug" },

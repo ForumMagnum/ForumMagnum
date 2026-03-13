@@ -14,8 +14,9 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { useTracking } from "../../lib/analyticsEvents";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RecentDiscussionTag', (theme: ThemeType) => ({
   root: {
     marginBottom: 32,
     position: "relative",
@@ -68,7 +69,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim3,
     ...theme.typography.commentStyle,
   },
-});
+}));
 
 const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", classes }: {
   tag: TagRecentDiscussion,

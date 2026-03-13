@@ -3,8 +3,9 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PopupCommentEditor', (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     width: 600,
@@ -47,7 +48,7 @@ const styles = (theme: ThemeType) => ({
     padding: 20,
     paddingBottom: 12,
   },
-});
+}));
 
 /**
  * PopupCommentEditor: A floating comment editor. Used when you click the

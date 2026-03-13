@@ -4,13 +4,14 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import LoginPopup from "./LoginPopup";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LoginPopupButton', (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     color: theme.palette.primary.main,
   },
-});
+}));
 
 const LoginPopupButton = ({classes, children, title, className}: {
   classes: ClassesType<typeof styles>,

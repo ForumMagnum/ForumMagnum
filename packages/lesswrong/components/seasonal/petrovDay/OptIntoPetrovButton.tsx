@@ -10,6 +10,7 @@ import { useMutation } from "@apollo/client/react";
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from "@/lib/generated/gql-codegen";
 import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PetrovDayActionInfoMultiQuery = gql(`
   query multiPetrovDayActionOptIntoPetrovButtonQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -32,7 +33,7 @@ const PetrovDayActionInfoMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('OptIntoPetrovButton', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     width: "100%",
@@ -159,7 +160,7 @@ const styles = (theme: ThemeType) => ({
     marginTop: 16,
     textAlign: "center"
   }
-})
+}))
 
 const OptIntoPetrovButton = ({classes }: {
   classes: ClassesType<typeof styles>

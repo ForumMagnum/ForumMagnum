@@ -11,6 +11,7 @@ import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserReviews2019($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -22,7 +23,7 @@ const UsersCurrentUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Reviews2019', (theme: ThemeType) => ({
   setting: {
     ...theme.typography.body2,
     color: theme.palette.grey[600]
@@ -38,7 +39,7 @@ const styles = (theme: ThemeType) => ({
       alignItems: "flex-end"
     }
   }
-})
+}))
 
 const Reviews2019 = ({classes}: {
   classes: ClassesType<typeof styles>,

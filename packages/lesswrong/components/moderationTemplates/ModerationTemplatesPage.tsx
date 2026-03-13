@@ -17,6 +17,7 @@ import ToCColumn from "../posts/TableOfContents/ToCColumn";
 import TableOfContents from "../posts/TableOfContents/TableOfContents";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateModerationTemplatesPageQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -29,7 +30,7 @@ const ModerationTemplateFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ModerationTemplatesPage', (theme: ThemeType) => ({
   form: {
     border: theme.palette.border.commentBorder,
     padding: 12,
@@ -48,7 +49,7 @@ const styles = (theme: ThemeType) => ({
   filterSelected: {
     backgroundColor: theme.palette.grey[200]
   }
-});
+}));
 
 //a page for creating and viewing moderation templates
 export const ModerationTemplatesPage = ({classes}: {

@@ -19,6 +19,7 @@ import LoadMore from "../common/LoadMore";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 import LWTooltip from "../common/LWTooltip";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
   query multiRevisionTagVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -43,7 +44,7 @@ const RevisionDisplayQuery = gql(`
 
 const LEFT_COLUMN_WIDTH = 160
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagVersionHistoryButton", (theme: ThemeType) => ({
   root: {
     width: CENTRAL_COLUMN_WIDTH + LEFT_COLUMN_WIDTH + 64, //should import post
     display: "flex",
@@ -81,7 +82,7 @@ const styles = (theme: ThemeType) => ({
   loadMore: {
     paddingLeft: 12
   }
-});
+}));
 
 const TagVersionHistoryButton = ({tagId, classes}: {
   tagId: string,

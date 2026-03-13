@@ -2,8 +2,9 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SidebarInfo', (theme: ThemeType) => ({
   root: {
     display: "inline",
     color: theme.palette.grey[600],
@@ -11,7 +12,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: ".85rem",
     lineHeight: "1.5em"
   }
-})
+}))
 
 const SidebarInfo = ({children, classes, className}: {
   children: React.ReactNode,

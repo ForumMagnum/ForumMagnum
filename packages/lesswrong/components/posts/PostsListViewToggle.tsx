@@ -7,8 +7,9 @@ import { NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE } from "../../lib/cookies/cookies";
 import moment from "moment";
 import ForumDropdown from "../common/ForumDropdown";
 import { useCurrentTime } from "@/lib/utils/timeUtil";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsListViewToggle", (theme: ThemeType) => ({
   root: {
     position: "relative",
   },
@@ -38,7 +39,7 @@ const styles = (theme: ThemeType) => ({
     transform: "scaleY(70%) rotate(45deg)",
     background: theme.palette.primary.main,
   },
-});
+}));
 
 const options = {
   card: {label: "Card view", icon: "CardView"},

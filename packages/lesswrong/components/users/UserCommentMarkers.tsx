@@ -5,8 +5,9 @@ import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("UserCommentMarkers", (theme: ThemeType) => ({
   iconWrapper: {
     margin: "0 3px",
   },
@@ -21,7 +22,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.icon.sprout,
     fontSize: 16,
   },
-});
+}));
 
 const UserCommentMarkers = ({
   user,

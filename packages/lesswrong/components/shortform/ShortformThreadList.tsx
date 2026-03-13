@@ -7,6 +7,7 @@ import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
 import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const CommentWithRepliesFragmentMultiQuery = gql(`
   query multiCommentShortformThreadListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -19,11 +20,11 @@ const CommentWithRepliesFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ShortformThreadList', (theme: ThemeType) => ({
   shortformItem: {
     marginTop: 32,
   }
-})
+}))
 
 const ShortformThreadList = ({ classes, userId, showQuickTakeEntry = true, showPostTitle = true, limit = 20 }: {
   classes: ClassesType<typeof styles>,

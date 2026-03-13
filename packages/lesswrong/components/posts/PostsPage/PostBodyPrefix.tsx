@@ -15,12 +15,13 @@ import LWTooltip from "../../common/LWTooltip";
 import PostPageReviewButton from "./PostPageReviewButton";
 import RejectionNotice from "./RejectionNotice";
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from '@/components/posts/PostsPage/constants';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const getShortformDraftMessage = () => isFriendlyUI()
   ? "This is a special post that holds your quick takes. Because it's marked as a draft, your quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
   : "This is a special post that holds your short-form writing. Because it's marked as a draft, your short-form posts will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish.";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostBodyPrefix', (theme: ThemeType) => ({
   reviewInfo: {
     textAlign: "center",
     marginBottom: 32
@@ -45,7 +46,7 @@ const styles = (theme: ThemeType) => ({
     verticalAlign: "top",
     color: theme.palette.icon.dim2,
   },
-});
+}));
 
 const getForumNewUserProcessingTime = () => forumSelect({
   EAForum: 24,

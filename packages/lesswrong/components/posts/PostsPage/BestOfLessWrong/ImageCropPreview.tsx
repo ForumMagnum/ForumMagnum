@@ -7,6 +7,7 @@ import { COORDINATE_POSITIONS_TO_BOOK_OFFSETS, CoordinatePosition } from '../../
 import classNames from 'classnames';
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const SplashArtCoordinatesMutation = gql(`
   mutation createSplashArtCoordinateImageCropPreview($data: CreateSplashArtCoordinateDataInput!) {
@@ -82,7 +83,7 @@ function getOffsetPercentages<T extends CoordinatePosition>(imgCoordinates: Coor
   } as PositionedOffsets<T>;
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ImageCropPreview', (theme: ThemeType) => ({
   button: {
     padding: '8px 20px',
     cursor: 'pointer',
@@ -161,7 +162,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.primary,
     textAlign: 'center',
   },
-});
+}));
 
 const ImagePreviewSubset = ({ boxCoordinates, selectedImageInfo, subBoxPosition, selectedBox, setSelectedBox, cachedBoxCoordinates, setCachedBoxCoordinates, flipped }: {
   boxCoordinates: Coordinates,

@@ -21,6 +21,7 @@ import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionSubscribeButtonQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -43,7 +44,7 @@ const SubscriptionStateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SubscribeButton', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -106,7 +107,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: 13,
     color: theme.palette.primary.main
   },
-})
+}))
 
 const SubscribeButton = ({
   tag,

@@ -16,10 +16,11 @@ import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
 import UsersName from "../users/UsersName";
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import Loading from '../vulcan-core/Loading';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 export const POSTED_AT_WIDTH = 38
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SingleLineTagUpdates', (theme: ThemeType) => ({
   root: {
     ...(theme.isFriendlyUI
       ? {
@@ -110,7 +111,7 @@ const styles = (theme: ThemeType) => ({
     },
   },
   tagRevision: {},
-});
+}));
 
 const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, documentDeletions, lastRevisedAt, classes}: {
   tag: TagHistoryFragment,

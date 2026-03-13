@@ -1,7 +1,8 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { ReactNode } from 'react';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentsListMeta', (theme: ThemeType) => ({
   root: {
     fontSize: 14,
     clear: 'both',
@@ -13,7 +14,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     color: theme.palette.grey[600]
   }
-})
+}))
 
 const CommentsListMeta = ({classes, children}: {
   classes: ClassesType<typeof styles>,

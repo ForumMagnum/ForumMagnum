@@ -4,15 +4,16 @@ import { unflattenComments } from '../../lib/utils/unflatten';
 import { CommentTreeOptions } from '../comments/commentTree';
 import Loading from "../vulcan-core/Loading";
 import CommentsList from "../comments/CommentsList";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsItemNewCommentsListNode', (theme: ThemeType) => ({
   title: {
     fontSize: 10,
     ...theme.typography.commentStyle,
     color: theme.palette.text.dim700,
     marginBottom: 4
   }
-})
+}))
 
 const PostsItemNewCommentsListNode = ({ commentsList, loadingState, title, reverseOrder, post, treeOptions, classes }: {
   commentsList?: CommentsList[],

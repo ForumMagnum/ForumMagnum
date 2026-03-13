@@ -1,8 +1,9 @@
 import React, { ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("DropdownMenu", (theme: ThemeType) => ({
   root: {
     ...(theme.isFriendlyUI && {
       padding: 6,
@@ -11,7 +12,7 @@ const styles = (theme: ThemeType) => ({
       border: `1px solid ${theme.palette.dropdown.border}`,
     }),
   },
-});
+}));
 
 const DropdownMenu = ({children, className, classes}: {
   children: ReactNode,

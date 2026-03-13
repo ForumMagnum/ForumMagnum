@@ -12,6 +12,7 @@ import ContentStyles from "../common/ContentStyles";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const CommentWithRepliesFragmentMultiQuery = gql(`
   query multiCommentReviewPostCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -24,7 +25,7 @@ const CommentWithRepliesFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewPostComments', (theme: ThemeType) => ({
   title: {
     fontSize: "1rem",
     ...theme.typography.commentStyle,
@@ -43,7 +44,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.italic,
     paddingTop: 4,
   }
-})
+}))
 
 const ReviewPostComments = ({ terms, classes, title, post, singleLine, placeholderCount, hideReviewVoteButtons, singleLineCollapse }: {
   terms: CommentsViewTerms,

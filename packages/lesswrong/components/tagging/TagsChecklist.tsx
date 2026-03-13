@@ -6,8 +6,9 @@ import LWTooltip from "../common/LWTooltip";
 import LoadMore from "../common/LoadMore";
 import ForumIcon from "../common/ForumIcon";
 import KeystrokeDisplay from "@/components/sunshineDashboard/supermod/KeystrokeDisplay";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagsChecklist", (theme: ThemeType) => ({
   root: {
     marginBottom: 8,
     display: "flex",
@@ -83,7 +84,7 @@ const styles = (theme: ThemeType) => ({
       height: 14,
     },
   },
-});
+}));
 
 export interface ChecklistTag {
   _id: string;

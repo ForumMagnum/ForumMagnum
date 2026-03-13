@@ -2,8 +2,9 @@ import React, { ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import LWDialog from "./LWDialog";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("BlurredBackgroundModal", (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.modalBackground,
     borderRadius: theme.borderRadius.default,
@@ -32,7 +33,7 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.background.loginBackdrop,
     backdropFilter: "blur(4px)",
   },
-});
+}), { stylePriority: -1 });
 
 export const BlurredBackgroundModal = ({
   open,

@@ -10,6 +10,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import LWPopper from "../common/LWPopper";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const TagWithFlagsFragmentMultiQuery = gql(`
   query multiTagTagFlagItemQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -32,7 +33,7 @@ const TagFlagFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TagFlagItem', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     padding: 4,
@@ -54,7 +55,7 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 350,
     padding: 8,
   }
-})
+}))
 
 type ItemTypeName = "tagFlagId"|"allPages"|"userPages"
 

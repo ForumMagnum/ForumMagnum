@@ -1,7 +1,8 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('BasicFormStyles', (theme: ThemeType) => ({
   root: {
     [theme.breakpoints.up('md')]: {
       '& .form-input:first-child': {
@@ -16,7 +17,7 @@ const styles = (theme: ThemeType) => ({
       }
     }
   }
-});
+}));
 
 export const BasicFormStyles = ({classes, children}: {
   classes: ClassesType<typeof styles>,

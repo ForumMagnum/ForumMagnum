@@ -2,10 +2,11 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getTagPostsSortOrderOptions } from "@/lib/collections/tags/helpers";
 import ForumDropdown from "../common/ForumDropdown";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsListSortDropdown', (theme: ThemeType) => ({
   root: {}
-})
+}))
 
 const getDefaultOptions = () => Object.keys(getTagPostsSortOrderOptions()) as (keyof ReturnType<typeof getTagPostsSortOrderOptions>)[];
 

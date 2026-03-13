@@ -4,8 +4,9 @@ import { tagStyle } from './FooterTag';
 import TagsChecklist from "./TagsChecklist";
 import Loading from "../vulcan-core/Loading";
 import { useCoreTags } from './useCoreTags';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CoreTagsChecklist", (theme: ThemeType) => ({
   root: {
     marginBottom: 8,
     display: "flex",
@@ -28,7 +29,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[800]
     }
   }
-}); 
+})); 
 
 const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
   onTagSelected?: (tag: {tagId: string, tagName: string}, existingTagIds: Array<string>) => void,

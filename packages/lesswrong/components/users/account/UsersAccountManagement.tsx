@@ -9,6 +9,7 @@ import DeactivateAccountSection from "./DeactivateAccountSection";
 import DeleteAccountSection from "./DeleteAccountSection";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from "@/lib/crud/useQuery";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const GetUserBySlugQuery = gql(`
   query UsersAccountManagementGetUserBySlug($slug: String!) {
@@ -18,14 +19,14 @@ const GetUserBySlugQuery = gql(`
   }
 `);
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles('UsersAccountManagement', (_theme: ThemeType) => ({
   actionsWrapper: {
     padding: '8px 0',
     display: 'flex',
     flexDirection: 'column',
     gap: '16px'
   },
-})
+}))
 
 const UsersAccountManagement = ({terms: { slug }, classes}: {
   terms: {slug: string},

@@ -9,8 +9,9 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
 import FormatDate from "../common/FormatDate";
 import UserNameDeleted from "../users/UserNameDeleted";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ExpandedSequencesSearchHit", (theme: ThemeType) => ({
   root: {
     maxWidth: 700,
     paddingTop: 2,
@@ -64,7 +65,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     marginTop: 4
   }
-})
+}))
 
 const ExpandedSequencesSearchHit = ({hit, classes}: {
   hit: Hit<any>,

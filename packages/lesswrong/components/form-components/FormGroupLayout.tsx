@@ -2,8 +2,9 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { slugify } from '@/lib/utils/slugify';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FormGroupLayout', (theme: ThemeType) => ({
   formSection: {
     fontFamily: theme.typography.fontFamily,
     border: theme.palette.border.grey300,
@@ -32,7 +33,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "baseline",
     flexWrap: "wrap"
   }
-});
+}));
 
 export interface FormGroupLayoutProps {
   children: React.ReactNode;

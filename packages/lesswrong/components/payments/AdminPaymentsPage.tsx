@@ -18,6 +18,7 @@ import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import ForumIcon from "../common/ForumIcon";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const UsersProfileMultiQuery = gql(`
   query multiUserAdminPaymentsPageQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -30,7 +31,7 @@ const UsersProfileMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AdminPaymentsPage', (theme: ThemeType) => ({
   row: {
     display: "flex"
   },
@@ -63,7 +64,7 @@ const styles = (theme: ThemeType) => ({
     width: 30,
     paddingRight: 0
   }
-});
+}));
 
 export const AdminPaymentsPage = ({classes}: {
   classes: ClassesType<typeof styles>,

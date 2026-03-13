@@ -7,8 +7,9 @@ import { useCurrentUser } from '../common/withUser';
 import Row from "../common/Row";
 import SectionFooter from "../common/SectionFooter";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewDashboardButtons', (theme: ThemeType) => ({
   actionButton: {
     border: `solid 1px ${theme.palette.grey[400]}`,
     paddingTop: 8,
@@ -35,7 +36,7 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center"
   }
-});
+}));
 
 export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAdvancedDashboard, showQuickReview}: {
   classes: ClassesType<typeof styles>,

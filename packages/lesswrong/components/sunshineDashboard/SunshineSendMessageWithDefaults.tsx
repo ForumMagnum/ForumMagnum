@@ -11,6 +11,7 @@ import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateSunshineSendMessageWithDefaultsQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -27,7 +28,7 @@ const MODERATION_TEMPLATES_URL = "/admin/moderationTemplates"
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineSendMessageWithDefaults', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -61,7 +62,7 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[200]
     }
   }
-})
+}))
 
 const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
   user: SunshineUsersList|UsersMinimumInfo|null,

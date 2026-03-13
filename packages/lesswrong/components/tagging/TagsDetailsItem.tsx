@@ -13,6 +13,7 @@ import Loading from "../vulcan-core/Loading";
 import TagFlagItem from "./TagFlagItem";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const TagRelFragmentMultiQuery = gql(`
   query multiTagRelTagsDetailsItemQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {
@@ -35,7 +36,7 @@ const TagEditFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagsDetailsItem", (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     ...theme.typography.commentStyle,
@@ -100,7 +101,7 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1.2rem",
     whiteSpace: "nowrap"
   }
-});
+}));
 
 const TagsDetailsItem = ({ tag, classes, showFlags = false, flagId, collapse = false }: {
   tag: TagFragment | TagWithFlagsFragment,

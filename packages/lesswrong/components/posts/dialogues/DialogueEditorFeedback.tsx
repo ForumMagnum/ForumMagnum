@@ -4,8 +4,9 @@ import { useCurrentUser } from '../../common/withUser';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { getSiteUrl } from "../../../lib/vulcan-lib/utils";
 import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DialogueEditorFeedback', (theme: ThemeType) => ({
   root: {
     padding: 20
   },
@@ -20,7 +21,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     justifyContent: 'center',
   }
-});
+}));
 
 type ClickState = 'unclicked' | 'success' | 'failure'
 

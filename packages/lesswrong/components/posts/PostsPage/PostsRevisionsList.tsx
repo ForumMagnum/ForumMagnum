@@ -6,6 +6,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import FormatDate from "../../common/FormatDate";
 import { MenuItem } from "../../common/Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 
 const PostsRevisionsListQuery = gql(`
@@ -18,11 +19,11 @@ const PostsRevisionsListQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsRevisionsList', (theme: ThemeType) => ({
   version: {
     marginRight: 5
   }
-})
+}))
 
 const PostsRevisionsList = ({post, classes}: {
   post: PostsBase,

@@ -8,8 +8,9 @@ import { forumSelect } from '@/lib/forumTypeUtils';
 import { TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "../votes/OverallVoteButton";
 import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsItemTagRelevance", (theme: ThemeType) => ({
   root: {
     width: 30,
     position: "absolute",
@@ -45,7 +46,7 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     fontSize: 11
   },
-});
+}));
 
 const PostsItemTagRelevance = ({tagRel, classes}: {
   tagRel: WithVoteTagRel,

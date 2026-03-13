@@ -11,6 +11,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 import SectionTitle from '../common/SectionTitle';
 import { DraftCommentsQuery } from './queries';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const LinkedDraftCommentQuery = gql(`
   query LinkedDraftCommentQuery($documentId: String!) {
@@ -22,7 +23,7 @@ const LinkedDraftCommentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentsDraftList', (theme: ThemeType) => ({
   heading: {
     display: 'flex',
     marginBottom: 8,
@@ -38,7 +39,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 8,
     color: theme.palette.text.dim4,
   }
-});
+}), { stylePriority: 1 });
 
 const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTotal, silentIfEmpty, sectionTitleStyle, classes}: {
   userId: string,

@@ -6,6 +6,7 @@ import AFSuggestPostsItem from "./AFSuggestPostsItem";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const SuggestAlignmentPostMultiQuery = gql(`
   query multiPostAFSuggestPostsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -18,11 +19,11 @@ const SuggestAlignmentPostMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AFSuggestPostsList', (theme: ThemeType) => ({
   icon: {
     marginRight: 4
   }
-})
+}))
 
 
 const AFSuggestPostsList = ({ classes }: {

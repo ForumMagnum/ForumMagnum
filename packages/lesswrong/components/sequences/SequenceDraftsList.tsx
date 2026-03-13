@@ -11,6 +11,7 @@ import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const PostsListMultiQuery = gql(`
   query multiPostSequenceDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -23,7 +24,7 @@ const PostsListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SequenceDraftsList', (theme: ThemeType) => ({
   item: {
     listStyle: "none",
     position: "relative",
@@ -36,7 +37,7 @@ const styles = (theme: ThemeType) => ({
       minWidth: 230,
     },
   }
-})
+}))
 
 const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft, dialogPostIds}: {
   classes: ClassesType<typeof styles>,

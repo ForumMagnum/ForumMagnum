@@ -6,8 +6,9 @@ import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import ReviewPostForm from "./ReviewPostForm";
 import LoginPopup from "../users/LoginPopup";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewPostButton', (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -20,7 +21,7 @@ const styles = (theme: ThemeType) => ({
       opacity: .8
     }
   }
-})
+}))
 
 const ReviewPostButton = ({classes, post, reviewMessage="Review", year}: {
   classes: ClassesType<typeof styles>,
