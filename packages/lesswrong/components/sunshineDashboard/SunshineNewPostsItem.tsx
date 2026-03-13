@@ -278,7 +278,7 @@ const SunshineNewPostsItem = ({post, refetch}: {
   )
 }
 
-export default registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, {styles, 
+export default registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, {
   hocs: [withErrorBoundary]
 });
 

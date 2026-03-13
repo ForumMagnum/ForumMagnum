@@ -91,7 +91,7 @@ const ExpandedPostsSearchHit = ({hit}: {
   </div>
 }
 
-export default registerComponent("ExpandedPostsSearchHit", ExpandedPostsSearchHit, {styles});
+export default ExpandedPostsSearchHit;
 
 
 

@@ -155,6 +155,6 @@ const FriendlyConversationItem = ({conversation, currentUserId, selectedConversa
   );
 };
 
-export default registerComponent("FriendlyConversationItem", FriendlyConversationItem, { styles });
+export default FriendlyConversationItem;
 
 

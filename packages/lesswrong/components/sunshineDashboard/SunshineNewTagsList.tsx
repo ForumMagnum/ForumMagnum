@@ -62,6 +62,6 @@ const SunshineNewTagsList = () => {
   }
 }
 
-export default registerComponent('SunshineNewTagsList', SunshineNewTagsList, {styles});
+export default SunshineNewTagsList;
 
 

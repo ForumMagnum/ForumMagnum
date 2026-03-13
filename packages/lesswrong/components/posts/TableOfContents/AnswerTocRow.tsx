@@ -73,6 +73,6 @@ const AnswerTocRow = ({answer}: {
   </div>
 }
 
-export default registerComponent('AnswerTocRow', AnswerTocRow, {styles});
+export default AnswerTocRow
 
 

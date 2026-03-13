@@ -103,7 +103,7 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms}: {
   </div>
 }
 
-export default registerComponent('ShortformTimeBlock', ShortformTimeBlock, {styles});
+export default ShortformTimeBlock;
 
 
 

@@ -480,6 +480,6 @@ const FriendlyInbox = ({currentUserId, conversationId, view = "userConversations
   );
 };
 
-export default registerComponent("FriendlyInbox", FriendlyInbox, { styles });
+export default FriendlyInbox;
 
 

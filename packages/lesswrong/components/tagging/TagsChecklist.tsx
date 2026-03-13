@@ -216,6 +216,6 @@ const TagsChecklist = ({onTagSelected = () => {}, onTagRemoved = () => {}, selec
 };
 
 
-export default registerComponent("TagsChecklist", TagsChecklist, {styles});
+export default TagsChecklist
 
 

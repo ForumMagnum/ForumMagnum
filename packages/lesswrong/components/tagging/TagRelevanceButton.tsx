@@ -62,7 +62,7 @@ const TagRelevanceButton = ({document, voteType, vote, label, cancelVote}: {
   </a>
 }
 
-export default registerComponent('TagRelevanceButton', TagRelevanceButton, {styles});
+export default TagRelevanceButton;
 
 
 

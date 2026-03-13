@@ -54,6 +54,6 @@ export const PastWarnings = ({petrovDayActions, side, general}: {
   </div>;
 }
 
-export default registerComponent('PastWarnings', PastWarnings, {styles});
+export default PastWarnings
 
 

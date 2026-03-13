@@ -88,7 +88,7 @@ const NewTagsList = ({showHeaders = true}: {
   </div>
 }
 
-export default registerComponent("NewTagsList", NewTagsList, {styles});
+export default NewTagsList
 
 
 

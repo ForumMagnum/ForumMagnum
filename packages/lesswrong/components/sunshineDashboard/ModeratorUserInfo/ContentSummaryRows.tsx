@@ -137,6 +137,6 @@ export const ContentSummaryRows = ({comments, posts, user, loading}: {
   </div>;
 }
 
-export default registerComponent('ContentSummaryRows', ContentSummaryRows, {styles});
+export default ContentSummaryRows;
 
 

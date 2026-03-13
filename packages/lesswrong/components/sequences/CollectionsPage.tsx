@@ -194,7 +194,7 @@ const CollectionsPage = ({documentId}: {
   }
 }
 
-export default registerComponent('CollectionsPage', CollectionsPage, {styles});
+export default CollectionsPage
 
 
 

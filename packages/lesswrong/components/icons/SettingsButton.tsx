@@ -64,9 +64,4 @@ const SettingsButton = ({className, onClick, showIcon=true, label="", useArrow, 
   return <ForumIcon icon={iconType} className={classNames(classes.icon, className, {[classes.rotate180]: useArrow==='up'})} onClick={onClick}/>
 }
 
-export default registerComponent('SettingsButton', SettingsButton, {
-  styles,
-  stylePriority: -1,
-});
-
-
+export default SettingsButton;

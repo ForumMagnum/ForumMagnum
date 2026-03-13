@@ -34,7 +34,7 @@ const UsersAutoCompleteHit = ({document}: {
   }
 };
 
-export default registerComponent('UsersAutoCompleteHit', UsersAutoCompleteHit, {styles});
+export default UsersAutoCompleteHit;
 
 
 

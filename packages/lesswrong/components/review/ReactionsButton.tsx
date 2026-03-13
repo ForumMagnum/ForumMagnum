@@ -110,6 +110,6 @@ const ReactionsButton = ({postId, vote, votes, reaction, freeEntry}: {postId: st
   </span>
 }
 
-export default registerComponent("ReactionsButton", ReactionsButton, {styles});
+export default ReactionsButton;
 
 

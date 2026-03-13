@@ -120,11 +120,7 @@ const AllPostsPage = ({defaultHideSettings}: {defaultHideSettings?: boolean}) =>
   );
 }
 
-export default registerComponent(
-  "AllPostsPage",
-  AllPostsPage,
-  {styles},
-);
+export default AllPostsPage;
 
 
 

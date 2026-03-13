@@ -113,6 +113,6 @@ const UserNotifyDropdown = ({user, popperPlacement="bottom-start", className}: {
   );
 }
 
-export default registerComponent('UserNotifyDropdown', UserNotifyDropdown, {styles});
+export default UserNotifyDropdown
 
 

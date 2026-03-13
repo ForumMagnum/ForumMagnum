@@ -143,6 +143,6 @@ const NewFeatureTooltip = ({children, title = 'New feature!', placement = 'left'
   );
 }
 
-export default registerComponent('NewFeatureTooltip', NewFeatureTooltip, { styles });
+export default NewFeatureTooltip;
 
 

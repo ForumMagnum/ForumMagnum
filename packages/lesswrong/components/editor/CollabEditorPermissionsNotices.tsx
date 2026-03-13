@@ -44,6 +44,6 @@ const CollabEditorPermissionsNotices = ({post}: {
   </div>;
 }
 
-export default registerComponent('CollabEditorPermissionsNotices', CollabEditorPermissionsNotices, {styles});
+export default CollabEditorPermissionsNotices;
 
 

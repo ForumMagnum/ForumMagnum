@@ -25,7 +25,7 @@ const SunshineListTitle = ({children}: {
   </Typography>
 };
 
-export default registerComponent('SunshineListTitle', SunshineListTitle, {styles});
+export default SunshineListTitle;
 
 
 

@@ -85,7 +85,7 @@ export const AltAccountInfo = ({user}: {
   </div>;
 }
 
-export default registerComponent('AltAccountInfo', AltAccountInfo, {styles});
+export default AltAccountInfo;
 
 
 

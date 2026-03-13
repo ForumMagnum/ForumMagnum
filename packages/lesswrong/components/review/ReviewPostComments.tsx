@@ -117,6 +117,6 @@ const ReviewPostComments = ({terms, title, post, singleLine, placeholderCount, h
   );
 };
 
-export default registerComponent('ReviewPostComments', ReviewPostComments, {styles});
+export default ReviewPostComments;
 
 

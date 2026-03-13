@@ -36,7 +36,7 @@ export const UserReviewMetadata = ({user}: {
   </div>
 }
 
-export default registerComponent('UserReviewMetadata', UserReviewMetadata, {styles});
+export default UserReviewMetadata
 
 
 

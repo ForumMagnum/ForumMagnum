@@ -54,7 +54,7 @@ const styles = defineStyles('ResyncRssDropdownItem', (theme: ThemeType) => ({
   },
 }))
 
-const ResyncRssDropdownItemInner = ({post, closeMenu}: {
+export const ResyncRssDropdownItem = ({post, closeMenu}: {
   post: PostsList|SunshinePostsList,
   closeMenu: () => void,
 }) => {
@@ -179,7 +179,3 @@ const ResyncRssDialog = ({onClose, post}: {
     </DialogActions>
   </LWDialog>
 }
-
-export const ResyncRssDropdownItem = registerComponent('ResyncRssDropdownItem', ResyncRssDropdownItemInner, {styles});
-
-

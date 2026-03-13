@@ -74,6 +74,6 @@ const ShortformSubmitForm = ({successCallback, cancelCallback, className, defaul
   );
 }
 
-export default registerComponent('ShortformSubmitForm', ShortformSubmitForm, {styles});
+export default ShortformSubmitForm;
 
 

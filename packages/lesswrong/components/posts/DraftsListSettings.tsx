@@ -114,8 +114,6 @@ const DraftsListSettings = ({persistentSettings, hidden, currentSorting, current
   );
 };
 
-export default registerComponent(
-  'DraftsListSettings', DraftsListSettings, { styles }
-);
+export default DraftsListSettings;
 
 

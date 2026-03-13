@@ -101,8 +101,6 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, addDraft, dialogP
   </>
 }
 
-export default registerComponent(
-  'SequenceDraftsList', SequenceDraftsList, {styles}
-);
+export default SequenceDraftsList;
 
 

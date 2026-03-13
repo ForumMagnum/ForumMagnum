@@ -74,6 +74,6 @@ const ReviewPostForm = ({post, onClose}: {
   />
 }
 
-export default registerComponent('ReviewPostForm', ReviewPostForm, {styles});
+export default ReviewPostForm
 
 

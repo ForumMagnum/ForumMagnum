@@ -136,6 +136,6 @@ export const QuickReviewPage = ({reviewYear}: {
     </div>
 }
 
-export default registerComponent('QuickReviewPage', QuickReviewPage, {styles});
+export default QuickReviewPage;
 
 

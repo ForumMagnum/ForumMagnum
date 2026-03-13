@@ -126,10 +126,6 @@ export const LWUserTooltipContent = ({hideFollowButton=false, user}: {
 );
 }
 
-export default registerComponent(
-  'LWUserTooltipContent',
-  LWUserTooltipContent,
-  {styles},
-);
+export default LWUserTooltipContent;
 
 

@@ -481,8 +481,4 @@ const UsersProfileFn = ({terms, slug}: {
   return render();
 }
 
-export default registerComponent(
-  'UsersProfile', UsersProfileFn, {styles}
-);
-
-
+export default UsersProfileFn;

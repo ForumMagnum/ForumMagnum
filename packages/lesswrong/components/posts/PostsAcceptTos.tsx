@@ -87,6 +87,6 @@ const PostsAcceptTos = ({currentUser}: {
   );
 }
 
-export default registerComponent("PostsAcceptTos", PostsAcceptTos, {styles});
+export default PostsAcceptTos;
 
 

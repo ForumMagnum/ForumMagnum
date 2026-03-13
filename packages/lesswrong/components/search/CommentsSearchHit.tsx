@@ -72,7 +72,7 @@ const CommentsSearchHit = ({hit, clickAction, showIcon=false}: SearchHitComponen
   </div>
 }
 
-export default registerComponent("CommentsSearchHit", CommentsSearchHit, {styles});
+export default CommentsSearchHit;
 
 
 

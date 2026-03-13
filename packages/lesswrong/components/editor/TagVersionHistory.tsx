@@ -202,6 +202,6 @@ const TagVersionHistory = ({tagId, onClose}: {
   </LWDialog>
 }
 
-export default registerComponent("TagVersionHistoryButton", TagVersionHistoryButton, {styles});
+export default TagVersionHistoryButton;
 
 

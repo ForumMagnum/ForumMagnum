@@ -58,9 +58,5 @@ const AFSuggestUsersList = () => {
 }
 
 export default registerComponent('AFSuggestUsersList', AFSuggestUsersList, {
-  styles,
   areEqual: "auto",
 });
-
-
-

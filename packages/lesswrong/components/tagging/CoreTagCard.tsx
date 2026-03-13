@@ -90,6 +90,6 @@ const CoreTagCard = ({tag}: {
   );
 }
 
-export default registerComponent("CoreTagCard", CoreTagCard, {styles});
+export default CoreTagCard;
 
 

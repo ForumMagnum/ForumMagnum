@@ -61,13 +61,8 @@ const DislikeRecommendationDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-export default registerComponent(
-  'DislikeRecommendationDropdownItem',
-  DislikeRecommendationDropdownItem,
-  {
-    styles,
-    hocs: [withErrorBoundary],
-  },
-);
+export default registerComponent('DislikeRecommendationDropdownItem', DislikeRecommendationDropdownItem, {
+  hocs: [withErrorBoundary],
+});
 
 

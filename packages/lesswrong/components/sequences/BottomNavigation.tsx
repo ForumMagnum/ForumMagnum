@@ -105,7 +105,6 @@ const BottomNavigation = ({post}: {
 
 
 export default registerComponent('BottomNavigation', BottomNavigation, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

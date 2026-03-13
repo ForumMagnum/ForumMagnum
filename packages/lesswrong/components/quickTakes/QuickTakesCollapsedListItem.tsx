@@ -231,10 +231,6 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded}: {
   );
 }
 
-export default registerComponent(
-  "QuickTakesCollapsedListItem",
-  QuickTakesCollapsedListItem,
-  {styles},
-);
+export default QuickTakesCollapsedListItem;
 
 

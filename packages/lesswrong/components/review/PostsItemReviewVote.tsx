@@ -130,6 +130,6 @@ const PostsItemReviewVote = ({post, marginRight=true}: {
   </div>
 }
 
-export default registerComponent('PostsItemReviewVote', PostsItemReviewVote, {styles});
+export default PostsItemReviewVote
 
 

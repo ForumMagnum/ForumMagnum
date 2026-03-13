@@ -476,6 +476,6 @@ const ImageCropPreview = ({imgRef, flipped}: {
   );
 };
 
-export default registerComponent('ImageCropPreview', ImageCropPreview, {styles});
+export default ImageCropPreview;
 
 

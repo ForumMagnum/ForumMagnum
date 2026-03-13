@@ -58,6 +58,6 @@ function InlineSelect({options, selected, handleSelect}: {
   );
 }
 
-export default registerComponent("InlineSelect", InlineSelect, { styles });
+export default InlineSelect;
 
 

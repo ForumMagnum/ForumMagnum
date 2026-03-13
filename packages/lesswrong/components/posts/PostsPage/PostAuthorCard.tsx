@@ -125,6 +125,6 @@ const PostAuthorCard = ({author, currentUser}: {
   </AnalyticsContext>
 }
 
-export default registerComponent("PostAuthorCard", PostAuthorCard, {styles});
+export default PostAuthorCard
 
 

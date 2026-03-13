@@ -107,6 +107,6 @@ const DeleteCommentDialog = ({comment, onClose}: {
   return render();
 }
 
-export default registerComponent('DeleteCommentDialog', DeleteCommentDialog, {styles});
+export default DeleteCommentDialog;
 
 

@@ -45,6 +45,6 @@ export const SpotlightEditorStyles = ({children}: {
   </div>;
 }
 
-export default registerComponent('SpotlightEditorStyles', SpotlightEditorStyles, {styles});
+export default SpotlightEditorStyles;
 
 

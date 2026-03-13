@@ -235,7 +235,6 @@ const SunshineNewUsersInfo = ({user, refetch, currentUser}: {
 }
 
 export default registerComponent('SunshineNewUsersInfo', SunshineNewUsersInfo, {
-  styles,
   hocs: [
     withErrorBoundary,
   ]

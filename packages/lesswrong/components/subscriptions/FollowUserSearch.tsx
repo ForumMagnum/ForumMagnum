@@ -177,6 +177,6 @@ const FollowUserSearch = ({onUserSelected, currentUser}: {
   </div>
 }
 
-export default registerComponent("FollowUserSearch", FollowUserSearch, {styles});
+export default FollowUserSearch;
 
 

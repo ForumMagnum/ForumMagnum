@@ -24,10 +24,6 @@ const PostsCoauthor = ({coauthor, pageSectionContext}: {
   );
 }
 
-export default registerComponent(
-  'PostsCoauthor',
-  PostsCoauthor,
-  {styles},
-);
+export default PostsCoauthor;
 
 

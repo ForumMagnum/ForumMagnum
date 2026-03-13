@@ -30,7 +30,7 @@ const SidebarInfo = ({children, className}: {
   </Typography>
 }
 
-export default registerComponent('SidebarInfo', SidebarInfo, {styles});
+export default SidebarInfo;
 
 
 

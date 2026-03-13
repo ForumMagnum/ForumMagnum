@@ -354,6 +354,6 @@ const RecentlyActiveUsers = () => {
   );
 };
 
-export default registerComponent('RecentlyActiveUsers', RecentlyActiveUsers, { styles });
+export default RecentlyActiveUsers;
 
 

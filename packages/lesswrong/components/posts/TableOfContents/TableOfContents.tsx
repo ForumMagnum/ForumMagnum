@@ -62,11 +62,8 @@ const TableOfContents = ({sectionData, title, heading, onClickSection, displayOp
   );
 }
 
-export default registerComponent(
-  "TableOfContents", TableOfContents, {
-    styles,
-    hocs: [withErrorBoundary]
-  }
-);
+export default registerComponent("TableOfContents", TableOfContents, {
+  hocs: [withErrorBoundary]
+});
 
 

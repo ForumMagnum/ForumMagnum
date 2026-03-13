@@ -49,10 +49,6 @@ const PostsItemNewCommentsListNode = ({commentsList, loadingState, title, revers
   );
 };
 
-export default registerComponent(
-  'PostsItemNewCommentsListNode', PostsItemNewCommentsListNode, {
-    styles,
-  }
-);
+export default PostsItemNewCommentsListNode;
 
 

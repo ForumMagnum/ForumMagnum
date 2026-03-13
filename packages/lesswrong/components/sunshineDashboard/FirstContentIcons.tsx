@@ -30,7 +30,7 @@ export const FirstContentIcons = ({user}: {
   </span>;
 }
 
-export default registerComponent('FirstContentIcons', FirstContentIcons, {styles});
+export default FirstContentIcons
 
 
 

@@ -61,7 +61,7 @@ const ShowParentComment = ({comment, active, onClick}: {
   )
 };
 
-export default registerComponent('ShowParentComment', ShowParentComment, {styles});
+export default ShowParentComment;
 
 
 

@@ -64,7 +64,7 @@ const Nominations2019 = () => {
   )
 }
 
-export default registerComponent('Nominations2019', Nominations2019, {styles});
+export default Nominations2019;
 
 
 

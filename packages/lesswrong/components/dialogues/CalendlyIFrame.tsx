@@ -42,6 +42,6 @@ const CalendlyIFrame = ({url}: {url: string,}) => {
   </div>
 }
 
-export default registerComponent('CalendlyIFrame', CalendlyIFrame, {styles});
+export default CalendlyIFrame;
 
 

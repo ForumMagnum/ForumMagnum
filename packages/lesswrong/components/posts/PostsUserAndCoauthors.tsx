@@ -98,6 +98,6 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, simple=false, tool
   </div>;
 };
 
-export default registerComponent("PostsUserAndCoauthors", PostsUserAndCoauthors, {styles});
+export default PostsUserAndCoauthors
 
 

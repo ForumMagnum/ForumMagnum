@@ -142,7 +142,6 @@ const AFSuggestCommentsItem = ({comment}: {
 }
 
 export default registerComponent('AFSuggestCommentsItem', AFSuggestCommentsItem, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

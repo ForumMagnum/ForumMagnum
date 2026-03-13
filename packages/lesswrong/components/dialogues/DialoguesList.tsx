@@ -206,7 +206,6 @@ const DialoguesList = ({currentUser}: { currentUser: UsersCurrent, }) => {
 
 export default registerComponent('DialoguesList', DialoguesList, {
   hocs: [withErrorBoundary],
-  styles
 });
 
 

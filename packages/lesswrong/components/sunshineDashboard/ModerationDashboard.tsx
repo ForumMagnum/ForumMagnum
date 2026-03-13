@@ -242,6 +242,6 @@ const ModerationDashboard = () => {
   );
 };
 
-export default registerComponent('ModerationDashboard', ModerationDashboard, { styles });
+export default ModerationDashboard;
 
 

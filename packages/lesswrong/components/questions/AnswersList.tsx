@@ -65,6 +65,6 @@ const AnswersList = ({post, answersTree}: {
   }
 };
 
-export default registerComponent('AnswersList', AnswersList, {styles});
+export default AnswersList;
 
 

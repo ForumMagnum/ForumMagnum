@@ -45,6 +45,6 @@ const LoginPopupButton = ({children, title, className}: {
   )
 }
 
-export default registerComponent('LoginPopupButton', LoginPopupButton, {styles});
+export default LoginPopupButton;
 
 

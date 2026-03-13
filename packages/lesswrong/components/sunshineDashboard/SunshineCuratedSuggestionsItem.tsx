@@ -175,7 +175,7 @@ const SunshineCuratedSuggestionsItem = ({post, setCurationPost}: {
   )
 }
 
-export default registerComponent('SunshineCuratedSuggestionsItem', SunshineCuratedSuggestionsItem, {styles, 
+export default registerComponent('SunshineCuratedSuggestionsItem', SunshineCuratedSuggestionsItem, {
   hocs: [withErrorBoundary]
 });
 

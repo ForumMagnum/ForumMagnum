@@ -47,6 +47,6 @@ export const DialogueEditorGuidelines = () => {
   </div>;
 }
 
-export default registerComponent('DialogueEditorGuidelines', DialogueEditorGuidelines, {styles});
+export default DialogueEditorGuidelines;
 
 

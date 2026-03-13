@@ -74,6 +74,6 @@ const SmallMapPreview = ({post, group, zoom}: {
   );
 }
 
-export default registerComponent("SmallMapPreview", SmallMapPreview, {styles});
+export default SmallMapPreview;
 
 

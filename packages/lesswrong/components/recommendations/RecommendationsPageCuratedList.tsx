@@ -48,6 +48,6 @@ const RecommendationsPageCuratedList = () => {
   )
 };
 
-export default registerComponent('RecommendationsPageCuratedList', RecommendationsPageCuratedList, {styles});
+export default RecommendationsPageCuratedList
 
 

@@ -21,6 +21,6 @@ const NoContent = ({children}: {
   </Typography>
 }
 
-export default registerComponent('NoContent', NoContent, {styles});
+export default NoContent;
 
 

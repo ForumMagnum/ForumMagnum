@@ -74,4 +74,4 @@ const ShortformThreadList = ({userId, showQuickTakeEntry = true, showPostTitle =
   )
 }
 
-export default registerComponent('ShortformThreadList', ShortformThreadList, {styles});
+export default ShortformThreadList;

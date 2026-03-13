@@ -62,7 +62,7 @@ export const CollectionTableOfContents = ({collection}: {
   />
 }
 
-export default registerComponent('CollectionTableOfContents', CollectionTableOfContents, {styles});
+export default CollectionTableOfContents;
 
 
 

@@ -135,8 +135,6 @@ const SunshineSendMessageWithDefaults = ({user, embedConversation}: {
   )
 }
 
-export default registerComponent('SunshineSendMessageWithDefaults', SunshineSendMessageWithDefaults, {
-  styles,
-});
+export default SunshineSendMessageWithDefaults;
 
 

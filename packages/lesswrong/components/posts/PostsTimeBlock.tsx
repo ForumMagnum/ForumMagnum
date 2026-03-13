@@ -270,8 +270,6 @@ const PostsTimeBlock = ({terms, timeBlockLoadComplete, dateForTitle, getTitle, b
   );
 };
 
-export default registerComponent('PostsTimeBlock', PostsTimeBlock, {
-  styles,
-});
+export default PostsTimeBlock;
 
 

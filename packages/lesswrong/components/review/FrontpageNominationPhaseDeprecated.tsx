@@ -93,7 +93,7 @@ const FrontpageNominationPhase = ({settings}: {
   )
 }
 
-export default registerComponent('FrontpageNominationPhase', FrontpageNominationPhase, {styles});
+export default FrontpageNominationPhase;
 
 
 

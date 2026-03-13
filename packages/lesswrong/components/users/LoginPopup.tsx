@@ -37,6 +37,6 @@ const LoginPopup = ({onClose}: {
   );
 }
 
-export default registerComponent('LoginPopup', LoginPopup, {styles});
+export default LoginPopup
 
 

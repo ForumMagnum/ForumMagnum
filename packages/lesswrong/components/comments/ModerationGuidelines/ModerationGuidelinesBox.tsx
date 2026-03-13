@@ -232,7 +232,6 @@ const moderationStyleLookup: Partial<Record<string, string>> = {
 }
 
 export default registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

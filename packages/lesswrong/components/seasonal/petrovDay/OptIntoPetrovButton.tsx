@@ -286,7 +286,7 @@ const OptIntoPetrovButton = () => {
       </div>
 }
 
-export default registerComponent('OptIntoPetrovButton', OptIntoPetrovButton, {styles});
+export default OptIntoPetrovButton;
 
 
 

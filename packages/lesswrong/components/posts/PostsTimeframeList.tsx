@@ -144,6 +144,6 @@ export const getTimeBlockTitle = (
   return result;
 }
 
-export default registerComponent('PostsTimeframeList', PostsTimeframeList, {styles});
+export default PostsTimeframeList;
 
 

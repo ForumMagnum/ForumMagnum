@@ -55,10 +55,6 @@ const NewShortformDialog = ({onClose}: {
   );
 }
 
-export default registerComponent(
-  'NewShortformDialog',
-  NewShortformDialog,
-  {styles},
-);
+export default NewShortformDialog;
 
 

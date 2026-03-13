@@ -85,7 +85,7 @@ const TagDiscussion = ({tag}: {
   </div>
 }
 
-export default registerComponent("TagDiscussion", TagDiscussion, {styles});
+export default TagDiscussion;
 
 
 

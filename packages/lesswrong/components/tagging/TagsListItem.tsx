@@ -58,6 +58,6 @@ const TagsListItem = ({tag, postCount=3}: {
   </div>;
 }
 
-export default registerComponent("TagsListItem", TagsListItem, {styles});
+export default TagsListItem;
 
 

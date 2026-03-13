@@ -56,7 +56,7 @@ const SunshineNewCommentsList = ({terms}: {
   }
 }
 
-export default registerComponent('SunshineNewCommentsList', SunshineNewCommentsList, {styles});
+export default SunshineNewCommentsList
 
 
 

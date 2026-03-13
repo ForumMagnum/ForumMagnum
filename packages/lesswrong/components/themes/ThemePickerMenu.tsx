@@ -146,6 +146,6 @@ const ThemePickerMenu = ({children}: {
   </LWTooltip>
 }
 
-export default registerComponent('ThemePickerMenu', ThemePickerMenu, {styles});
+export default ThemePickerMenu
 
 

@@ -113,6 +113,6 @@ function BookCheckout({ignoreMessages = false, text, link}: {ignoreMessages?: bo
   </div>
 }
 
-export default registerComponent('BookCheckout', BookCheckout, {styles});
+export default BookCheckout;
 
 

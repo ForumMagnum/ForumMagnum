@@ -329,6 +329,6 @@ const PostVersionHistory = ({post, postId, onClose}: {
   );
 }
 
-export default registerComponent("PostVersionHistoryButton", PostVersionHistoryButton, {styles});
+export default PostVersionHistoryButton;
 
 

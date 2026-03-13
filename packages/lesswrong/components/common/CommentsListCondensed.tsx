@@ -96,10 +96,6 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
   </>;
 }
 
-export default registerComponent(
-  'CommentsListCondensed',
-  CommentsListCondensed,
-  {styles, stylePriority: 1},
-);
+export default CommentsListCondensed;
 
 

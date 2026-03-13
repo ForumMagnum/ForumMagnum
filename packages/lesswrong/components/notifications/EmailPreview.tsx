@@ -48,7 +48,7 @@ export const EmailPreview = ({email, sentDate}: {
   </div>;
 }
 
-export default registerComponent('EmailPreview', EmailPreview, {styles});
+export default EmailPreview;
 
 
 

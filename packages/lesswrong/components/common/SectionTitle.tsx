@@ -91,6 +91,6 @@ const SectionTitle = ({title, noTopMargin, noBottomPadding, centered, anchor, hr
   )
 }
 
-export default registerComponent('SectionTitle', SectionTitle, {styles, stylePriority: -1});
+export default SectionTitle;
 
 

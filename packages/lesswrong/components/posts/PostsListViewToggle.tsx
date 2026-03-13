@@ -140,10 +140,6 @@ const PostsListViewToggle = () => {
   );
 }
 
-export default registerComponent(
-  "PostsListViewToggle",
-  PostsListViewToggle,
-  {styles},
-);
+export default PostsListViewToggle;
 
 

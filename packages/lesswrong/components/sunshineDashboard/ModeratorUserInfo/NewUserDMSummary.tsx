@@ -32,6 +32,6 @@ export const NewUserDMSummary = ({user}: {
   </div>
 }
 
-export default registerComponent('NewUserDMSummary', NewUserDMSummary, {styles});
+export default NewUserDMSummary;
 
 

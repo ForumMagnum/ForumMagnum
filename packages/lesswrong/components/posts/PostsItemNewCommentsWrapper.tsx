@@ -32,10 +32,6 @@ const PostsItemNewCommentsWrapper = ({terms, post, treeOptions}: {
   />;
 };
 
-export default registerComponent(
-  'PostsItemNewCommentsWrapper', PostsItemNewCommentsWrapper, {
-    styles,
-  }
-);
+export default PostsItemNewCommentsWrapper;
 
 

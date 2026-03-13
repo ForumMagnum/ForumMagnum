@@ -67,7 +67,7 @@ const LibraryPage = () => {
   </React.Fragment>;
 };
 
-export default registerComponent('LibraryPage', LibraryPage, {styles});
+export default LibraryPage;
 
 
 

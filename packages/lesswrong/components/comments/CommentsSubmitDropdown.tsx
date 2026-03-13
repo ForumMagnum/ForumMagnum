@@ -130,4 +130,4 @@ export const CommentsSubmitDropdown = ({handleSubmit}: {
   );
 }
 
-export default registerComponent('CommentsSubmitDropdown', CommentsSubmitDropdown, {styles});
+export default CommentsSubmitDropdown;

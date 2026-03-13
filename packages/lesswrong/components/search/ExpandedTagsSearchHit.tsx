@@ -87,7 +87,7 @@ const ExpandedTagsSearchHit = ({hit}: {
   </div>
 }
 
-export default registerComponent("ExpandedTagsSearchHit", ExpandedTagsSearchHit, {styles});
+export default ExpandedTagsSearchHit;
 
 
 

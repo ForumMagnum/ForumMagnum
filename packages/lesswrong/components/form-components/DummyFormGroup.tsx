@@ -52,6 +52,6 @@ const DummyFormGroup = ({label, startCollapsed, children}: DummyFormGroupProps) 
   );
 };
 
-export default registerComponent('DummyFormGroup', DummyFormGroup, {styles});
+export default DummyFormGroup;
 
 

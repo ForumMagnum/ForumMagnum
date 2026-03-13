@@ -30,6 +30,6 @@ const PostsListSortDropdown = ({value, options=getDefaultOptions(), sortingParam
   return <ForumDropdown value={value} options={filteredOptions} queryParam={sortingParam} />;
 }
 
-export default registerComponent('PostsListSortDropdown', PostsListSortDropdown, {styles});
+export default PostsListSortDropdown;
 
 

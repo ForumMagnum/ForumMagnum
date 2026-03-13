@@ -67,6 +67,6 @@ const LastEditedInWarning = ({autoConvert, initialType, currentType, defaultType
   </div>
 }
 
-export default registerComponent('LastEditedInWarning', LastEditedInWarning, {styles});
+export default LastEditedInWarning;
 
 

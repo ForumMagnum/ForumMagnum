@@ -130,10 +130,6 @@ const LWPostsPageTopHeaderVote = ({post, votingSystem}: {
   );
 }
 
-export default registerComponent(
-  "LWPostsPageTopHeaderVote",
-  LWPostsPageTopHeaderVote,
-  {styles},
-);
+export default LWPostsPageTopHeaderVote;
 
 

@@ -317,6 +317,6 @@ const UsersMenu = () => {
   );
 }
 
-export default registerComponent('UsersMenu', UsersMenu, {styles});
+export default UsersMenu;
 
 

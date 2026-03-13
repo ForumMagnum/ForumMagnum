@@ -62,6 +62,6 @@ export const AllReactedCommentsPage = () => {
   )
 }
 
-export default registerComponent('AllReactedCommentsPage', AllReactedCommentsPage, {styles});
+export default AllReactedCommentsPage;
 
 

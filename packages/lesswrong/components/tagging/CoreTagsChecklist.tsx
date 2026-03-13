@@ -47,6 +47,6 @@ const CoreTagsChecklist = ({onTagSelected, existingTagIds=[]}: {
 }
 
 
-export default registerComponent("CoreTagsChecklist", CoreTagsChecklist, {styles});
+export default CoreTagsChecklist;
 
 

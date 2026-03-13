@@ -160,10 +160,6 @@ const FeedPostCardMeta = ({post, className}: {
   );
 }
 
-export default registerComponent(
-  "FeedPostCardMeta",
-  FeedPostCardMeta,
-  {styles, stylePriority: -1},
-);
+export default FeedPostCardMeta;
 
 

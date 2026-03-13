@@ -128,10 +128,4 @@ const TruncatedAuthorsList = ({post, expandContainer, className, useMoreSuffix =
     );
 }
 
-export default registerComponent(
-  "TruncatedAuthorsList",
-  TruncatedAuthorsList,
-  {styles, stylePriority: -2},
-);
-
-
+export default TruncatedAuthorsList;

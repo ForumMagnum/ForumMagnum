@@ -139,6 +139,6 @@ const WriteNewButton = ({tag, isSubscribed, setNewShortformOpen, className}: {
   );
 }
 
-export default registerComponent('WriteNewButton', WriteNewButton, {styles});
+export default WriteNewButton;
 
 

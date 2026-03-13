@@ -74,6 +74,6 @@ const PostKarmaWithPreview = ({post, displayTitle, reviewedAt}: {
   );
 }
 
-export default registerComponent('PostKarmaWithPreview', PostKarmaWithPreview, {styles});
+export default PostKarmaWithPreview
 
 

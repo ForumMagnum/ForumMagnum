@@ -128,6 +128,6 @@ const ReviewVotingExpandedPost = ({post, setExpandedPost}: {
   </div>
 }
 
-export default registerComponent('ReviewVotingExpandedPost', ReviewVotingExpandedPost, {styles});
+export default ReviewVotingExpandedPost;
 
 

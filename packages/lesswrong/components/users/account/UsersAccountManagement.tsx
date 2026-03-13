@@ -56,6 +56,6 @@ const UsersAccountManagement = ({terms: { slug }}: {
   );
 };
 
-export default registerComponent('UsersAccountManagement', UsersAccountManagement, {styles});
+export default UsersAccountManagement;
 
 

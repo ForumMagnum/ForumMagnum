@@ -16,6 +16,6 @@ const RevisionComparisonNotice = ({before, after}: {
   return <p className={classes.root}>You are comparing revision {before} to revision {after}.</p>
 }
 
-export default registerComponent("RevisionComparisonNotice", RevisionComparisonNotice, {styles});
+export default RevisionComparisonNotice
 
 

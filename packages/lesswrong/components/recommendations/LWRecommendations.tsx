@@ -247,6 +247,6 @@ const LWRecommendations = ({configName}: {
   return render();
 }
 
-export default registerComponent("LWRecommendations", LWRecommendations, {styles});
+export default LWRecommendations;
 
 

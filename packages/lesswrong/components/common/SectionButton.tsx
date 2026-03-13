@@ -41,6 +41,6 @@ const SectionButton = ({children, className, onClick}: {
   </Typography>
 }
 
-export default registerComponent('SectionButton', SectionButton, {styles});
+export default SectionButton;
 
 

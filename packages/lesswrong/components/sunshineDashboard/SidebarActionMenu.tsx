@@ -27,7 +27,7 @@ const SidebarActionMenu = ({children}: {
   </div>
 };
 
-export default registerComponent('SidebarActionMenu', SidebarActionMenu, {styles});
+export default SidebarActionMenu
 
 
 

@@ -44,6 +44,6 @@ const PostsAuthors = ({post, pageSectionContext}: {
   </Typography>
 }
 
-export default registerComponent('PostsAuthors', PostsAuthors, {styles});
+export default PostsAuthors;
 
 

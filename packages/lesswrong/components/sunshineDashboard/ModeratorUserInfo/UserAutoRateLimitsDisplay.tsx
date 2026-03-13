@@ -165,4 +165,4 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta = false, absolute
   </div>;
 }
 
-export default registerComponent('UserAutoRateLimitsDisplay', UserAutoRateLimitsDisplay, {styles});
+export default UserAutoRateLimitsDisplay

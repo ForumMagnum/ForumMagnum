@@ -109,7 +109,7 @@ const DeleteAccountSection = ({user}: {
   );
 };
 
-export default registerComponent('DeleteAccountSection', DeleteAccountSection, { styles });
+export default DeleteAccountSection;
 
 
 

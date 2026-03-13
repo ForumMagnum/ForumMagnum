@@ -232,5 +232,5 @@ const MessageItem = ({message, highlight=false, showFullWidth=false}: {
 
 
 export default registerComponent('MessageItem', MessageItem, {
-  styles, hocs: [withErrorBoundary]
+  hocs: [withErrorBoundary]
 });

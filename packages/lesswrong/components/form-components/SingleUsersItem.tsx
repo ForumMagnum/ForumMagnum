@@ -53,6 +53,6 @@ const SingleUsersItem = ({userId, removeItem}: {
   }
 };
 
-export default registerComponent('SingleUsersItem', SingleUsersItem, {styles});
+export default SingleUsersItem;
 
 

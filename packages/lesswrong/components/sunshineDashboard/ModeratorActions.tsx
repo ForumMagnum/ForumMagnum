@@ -451,7 +451,7 @@ export const ModeratorActions = ({user, currentUser, refetch, comments, posts}: 
   </div>
 }
 
-export default registerComponent('ModeratorActions', ModeratorActions, {styles});
+export default ModeratorActions;
 
 
 

@@ -111,6 +111,6 @@ const PostsItemMeta = ({post, read, hideTags}: {
     </span>
 };
 
-export default registerComponent('PostsItemMeta', PostsItemMeta, {styles});
+export default PostsItemMeta;
 
 

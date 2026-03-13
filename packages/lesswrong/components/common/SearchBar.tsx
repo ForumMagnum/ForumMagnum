@@ -206,7 +206,6 @@ const SearchBar = ({onSetIsActive, searchResultsArea}: {
 }
 
 export default registerComponent("SearchBar", SearchBar, {
-  styles,
   hocs: [withErrorBoundary],
   areEqual: "auto",
 });

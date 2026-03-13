@@ -10,11 +10,7 @@ type ComparePropsDict = { [propName: string]: "default"|"shallow"|"ignore"|"deep
 type AreEqualOption = ComparisonFn|ComparePropsDict|"auto"
 
 // Options passed to registerComponent
-type ComponentOptions = StyleOptions & {
-  // JSS styles for this component. These will generate class names, which will
-  // be passed as an extra prop named "classes".
-  styles?: RegisterComponentStyles
-
+type ComponentOptions = {
   // Whether this component can take a ref. If set, forwardRef is used to pass
   // the ref across any higher-order components. If not set, and HoCs are
   // present, the ref may not work work.
@@ -82,11 +78,7 @@ export function registerComponent<PropType>(
   rawComponent: React.ComponentType<PropType> & DisallowClassesProp<PropType>,
   options?: ComponentOptions
 ): React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">> {
-  const { styles=null, hocs=[] } = options || {};
-  if (styles) {
-    hocs.push(withAddClasses(styles, name, options));
-  }
-  
+  const { hocs=[] } = options || {};
   rawComponent.displayName = name;
   
   return composeComponent({ name, rawComponent, hocs, options });

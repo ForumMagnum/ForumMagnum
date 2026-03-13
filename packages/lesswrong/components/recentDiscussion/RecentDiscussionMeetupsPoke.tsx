@@ -211,11 +211,8 @@ const RecentDiscussionMeetupsPoke = () => {
   </div>
 }
 
-export default registerComponent(
-  'RecentDiscussionMeetupsPoke', RecentDiscussionMeetupsPoke, {
-    styles,
-    hocs: [withErrorBoundary],
-  }
-);
+export default registerComponent('RecentDiscussionMeetupsPoke', RecentDiscussionMeetupsPoke, {
+  hocs: [withErrorBoundary],
+});
 
 

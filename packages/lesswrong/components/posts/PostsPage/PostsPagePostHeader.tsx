@@ -278,8 +278,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   </>
 }
 
-export default registerComponent(
-  'PostsPagePostHeader', PostsPagePostHeader, {styles}
-);
+export default PostsPagePostHeader;
 
 

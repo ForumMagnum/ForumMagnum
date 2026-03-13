@@ -36,7 +36,7 @@ const Pingback = ({post}: {
   );
 }
 
-export default registerComponent("Pingback", Pingback, {styles});
+export default Pingback;
 
 
 

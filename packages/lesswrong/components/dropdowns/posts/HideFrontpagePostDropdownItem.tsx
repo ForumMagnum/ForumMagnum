@@ -61,13 +61,8 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-export default registerComponent(
-  'HideFrontpagePostDropdownItem',
-  HideFrontpagePostDropdownItem,
-  {
-    styles,
-    hocs: [withErrorBoundary],
-  },
-);
+export default registerComponent('HideFrontpagePostDropdownItem', HideFrontpagePostDropdownItem, {
+  hocs: [withErrorBoundary],
+});
 
 

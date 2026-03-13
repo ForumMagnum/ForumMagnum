@@ -74,6 +74,6 @@ const PostsPodcastPlayer = ({podcastEpisode, postId, hideIconList = false}: {
   </>;
 };
 
-export default registerComponent('PostsPodcastPlayer', PostsPodcastPlayer, { styles });
+export default PostsPodcastPlayer
 
 

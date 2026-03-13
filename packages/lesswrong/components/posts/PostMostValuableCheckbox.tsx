@@ -130,7 +130,7 @@ export const PostMostValuableCheckbox = ({post}: {
   />
 }
 
-export default registerComponent('PostMostValuableCheckbox', PostMostValuableCheckbox, {styles});
+export default PostMostValuableCheckbox;
 
 
 

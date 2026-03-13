@@ -257,6 +257,6 @@ const SubscribeButton = ({tag, subscribeMessage, unsubscribeMessage, isSubscribe
   );
 }
 
-export default registerComponent('SubscribeButton', SubscribeButton, {styles});
+export default SubscribeButton;
 
 

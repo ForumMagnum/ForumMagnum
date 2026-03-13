@@ -34,6 +34,6 @@ const TwoAxisVoteOnComment = ({document, hideKarma=false, collectionName, voting
 }
 
 
-export default registerComponent('TwoAxisVoteOnComment', TwoAxisVoteOnComment, {styles});
+export default TwoAxisVoteOnComment;
 
 

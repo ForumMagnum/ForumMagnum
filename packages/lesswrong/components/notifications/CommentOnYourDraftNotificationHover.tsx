@@ -60,6 +60,6 @@ const CommentOnYourDraftNotificationHover = ({notification}: {
   </div>
 }
 
-export default registerComponent('CommentOnYourDraftNotificationHover', CommentOnYourDraftNotificationHover, {styles});
+export default CommentOnYourDraftNotificationHover;
 
 

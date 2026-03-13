@@ -125,6 +125,6 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", style = "grey"}: {
   </span>
 }
 
-export default registerComponent('TagFlagItem', TagFlagItem, { styles } );
+export default TagFlagItem;
 
 

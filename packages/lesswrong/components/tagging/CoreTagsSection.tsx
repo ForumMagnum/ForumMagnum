@@ -72,6 +72,6 @@ const CoreTagsSection = () => {
   );
 }
 
-export default registerComponent("CoreTagsSection", CoreTagsSection, {styles});
+export default CoreTagsSection;
 
 

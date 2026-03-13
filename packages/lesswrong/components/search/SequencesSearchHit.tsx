@@ -83,7 +83,7 @@ const SequencesSearchHit = ({hit, clickAction, showIcon=false}: SearchHitCompone
   </div>
 }
 
-export default registerComponent("SequencesSearchHit", SequencesSearchHit, {styles});
+export default SequencesSearchHit
 
 
 

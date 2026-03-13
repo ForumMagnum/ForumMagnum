@@ -48,7 +48,7 @@ const SunshineCommentsItemOverview = ({comment}: {
   )
 }
 
-export default registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverview, {styles});
+export default SunshineCommentsItemOverview
 
 
 

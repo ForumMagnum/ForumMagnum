@@ -142,6 +142,6 @@ const ImageUploadDefaultsDialog = ({onSelect, onClose, type}: {
   )
 }
 
-export default registerComponent('ImageUploadDefaultsDialog', ImageUploadDefaultsDialog, {styles});
+export default ImageUploadDefaultsDialog;
 
 

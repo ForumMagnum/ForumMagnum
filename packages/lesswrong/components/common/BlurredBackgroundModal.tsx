@@ -51,10 +51,6 @@ export const BlurredBackgroundModal = ({open, onClose, children, className}: {
   </LWDialog>
 }
 
-export default registerComponent(
-  "BlurredBackgroundModal",
-  BlurredBackgroundModal,
-  {styles, stylePriority: -1},
-);
+export default BlurredBackgroundModal;
 
 

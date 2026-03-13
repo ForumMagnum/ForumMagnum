@@ -40,6 +40,6 @@ const QuadraticVotingButtons = ({postId, vote, voteForCurrentPost}: {postId: str
   </div>
 }
 
-export default registerComponent("QuadraticVotingButtons", QuadraticVotingButtons, {styles});
+export default QuadraticVotingButtons;
 
 

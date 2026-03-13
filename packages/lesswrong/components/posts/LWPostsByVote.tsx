@@ -82,6 +82,6 @@ const LWPostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hi
   </ErrorBoundary>
 }
 
-export default registerComponent("LWPostsByVote", LWPostsByVote, {styles});
+export default LWPostsByVote
 
 

@@ -172,8 +172,5 @@ const AFSuggestPostsItem = ({post}: {
 }
 
 export default registerComponent('AFSuggestPostsItem', AFSuggestPostsItem, {
-  styles,
   hocs: [withErrorBoundary]
 });
-
-

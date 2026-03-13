@@ -146,6 +146,5 @@ const PostsPagePostFooter = ({post, sequenceId}: {
 }
 
 export default registerComponent("PostsPagePostFooter", PostsPagePostFooter, {
-  styles,
   areEqual: "auto",
 });

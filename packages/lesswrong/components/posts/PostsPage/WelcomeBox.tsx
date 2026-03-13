@@ -124,6 +124,6 @@ const WelcomeBox = () => {
 };
 
 
-export default registerComponent('WelcomeBox', WelcomeBox, { styles });
+export default WelcomeBox;
 
 

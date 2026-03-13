@@ -90,7 +90,5 @@ const TagEditsByUser = ({userId, limit}: {
 }
 
 export default registerComponent('TagEditsByUser', TagEditsByUser, {
-  styles, hocs: [withErrorBoundary]
+  hocs: [withErrorBoundary]
 });
-
-

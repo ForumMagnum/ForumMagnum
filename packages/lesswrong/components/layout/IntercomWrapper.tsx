@@ -65,7 +65,6 @@ const IntercomWrapper = () => {
 }
 
 export default registerComponent('IntercomWrapper', IntercomWrapper, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

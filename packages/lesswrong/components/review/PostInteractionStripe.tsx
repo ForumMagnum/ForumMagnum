@@ -64,7 +64,7 @@ export const PostInteractionStripe = ({post}: {
   </LWTooltip>
 }
 
-export default registerComponent('PostInteractionStripe', PostInteractionStripe, {styles});
+export default PostInteractionStripe;
 
 
 

@@ -295,7 +295,6 @@ const Answer = ({comment, post, childComments}: {
 }
 
 export default registerComponent('Answer', Answer, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

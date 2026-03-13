@@ -91,6 +91,6 @@ const PostsAnnualReviewMarketTag = ({annualReviewMarketInfo}: {
   </span>
 };
 
-export default registerComponent('PostsAnnualReviewMarketTag', PostsAnnualReviewMarketTag, { styles });
+export default PostsAnnualReviewMarketTag
 
 

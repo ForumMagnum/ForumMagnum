@@ -254,6 +254,6 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
 
 }
 
-export default registerComponent('LWPostsPreviewTooltip', LWPostsPreviewTooltip, {styles});
+export default LWPostsPreviewTooltip
 
 

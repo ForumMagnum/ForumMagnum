@@ -89,6 +89,6 @@ export const LWPostsPageHeaderTopRight = ({post, toggleEmbeddedPlayer, showEmbed
   </div>;
 }
 
-export default registerComponent('LWPostsPageHeaderTopRight', LWPostsPageHeaderTopRight, {styles});
+export default LWPostsPageHeaderTopRight;
 
 

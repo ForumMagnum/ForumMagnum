@@ -31,10 +31,6 @@ const PostsPreviewLoading = () => {
   );
 }
 
-export default registerComponent(
-  'PostsPreviewLoading',
-  PostsPreviewLoading,
-  {styles},
-);
+export default PostsPreviewLoading;
 
 

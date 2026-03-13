@@ -32,6 +32,6 @@ const ResendVerificationEmailPage = () => {
   }
 }
 
-export default registerComponent('ResendVerificationEmailPage', ResendVerificationEmailPage, {styles});
+export default ResendVerificationEmailPage
 
 

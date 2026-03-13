@@ -239,6 +239,6 @@ const TagMergePage = () => {
   );
 };
 
-export default registerComponent("TagMergePage", TagMergePage, { styles });
+export default TagMergePage;
 
 

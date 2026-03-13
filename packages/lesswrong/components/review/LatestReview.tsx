@@ -93,6 +93,6 @@ const LatestReview = () => {
   );
 }
 
-export default registerComponent('LatestReview', LatestReview, {styles});
+export default LatestReview;
 
 

@@ -259,6 +259,6 @@ const PostsTitle = ({post, postLink, sticky, read, showPersonalIcon=true, showDr
   )
 }
 
-export default registerComponent('PostsTitle', PostsTitle, {styles});
+export default PostsTitle;
 
 

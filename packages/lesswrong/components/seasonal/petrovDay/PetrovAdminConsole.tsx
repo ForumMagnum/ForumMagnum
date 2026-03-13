@@ -77,6 +77,6 @@ export const PetrovAdminConsole = ({currentUser}: {
   </PetrovWorldmapWrapper>
 }
 
-export default registerComponent('PetrovAdminConsole', PetrovAdminConsole, {styles});
+export default PetrovAdminConsole;
 
 

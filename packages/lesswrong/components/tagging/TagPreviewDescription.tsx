@@ -112,6 +112,6 @@ const TagPreviewDescription = ({tag, hash, activeTab}: {
   return <div className={classes.root}><b>{tag.name}</b></div>
 }
 
-export default registerComponent("TagPreviewDescription", TagPreviewDescription, {styles});
+export default TagPreviewDescription;
 
 

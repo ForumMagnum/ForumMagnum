@@ -38,6 +38,6 @@ const SingleColumnSection = ({className, children}: {
   )
 };
 
-export default registerComponent('SingleColumnSection', SingleColumnSection, {styles, stylePriority: -1});
+export default SingleColumnSection;
 
 

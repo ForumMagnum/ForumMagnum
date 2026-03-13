@@ -155,6 +155,6 @@ const NewDialogueDialog = ({initialParticipantIds, onClose}: {
   </LWDialog>
 }
 
-export default registerComponent('NewDialogueDialog', NewDialogueDialog, {styles});
+export default NewDialogueDialog;
 
 

@@ -58,7 +58,7 @@ export const ModeratorMessageCount = ({userId}: {
   </LWTooltip>
 }
 
-export default registerComponent('ModeratorMessageCount', ModeratorMessageCount, {styles});
+export default ModeratorMessageCount
 
 
 

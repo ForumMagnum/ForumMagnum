@@ -123,7 +123,7 @@ const BooksProgressBar = ({book}: {
   </div>;
 };
 
-export default registerComponent('BooksProgressBar', BooksProgressBar, { styles });
+export default BooksProgressBar
 
 
 

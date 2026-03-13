@@ -121,7 +121,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
   );
 }
 
-export default registerComponent("DebateCommentsListSection", DebateCommentsListSection, {styles});
+export default DebateCommentsListSection;
 
 
 

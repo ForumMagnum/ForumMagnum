@@ -30,7 +30,7 @@ const TagsListEditorSearchHit = ({hit}: {
 }
 
 
-export default registerComponent("TagsListEditorSearchHit", TagsListEditorSearchHit, {styles});
+export default TagsListEditorSearchHit;
 
 
 

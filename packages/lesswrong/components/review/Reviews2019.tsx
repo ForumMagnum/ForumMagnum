@@ -130,7 +130,7 @@ const Reviews2019 = () => {
   )
 }
 
-export default registerComponent('Reviews2019', Reviews2019, {styles});
+export default Reviews2019;
 
 
 

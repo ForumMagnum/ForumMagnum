@@ -48,7 +48,7 @@ const Nominations2018 = () => {
   )
 }
 
-export default registerComponent('Nominations2018', Nominations2018, {styles});
+export default Nominations2018;
 
 
 

@@ -21,6 +21,6 @@ const SubSection = ({children, className}: {
   </div>
 }
 
-export default registerComponent('SubSection', SubSection, {styles});
+export default SubSection;
 
 

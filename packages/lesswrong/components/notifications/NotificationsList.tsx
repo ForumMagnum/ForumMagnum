@@ -94,7 +94,6 @@ const NotificationsList = ({terms}: {
 }
 
 export default registerComponent('NotificationsList', NotificationsList, {
-  styles,
   areEqual: {
     terms: "shallow",
   }

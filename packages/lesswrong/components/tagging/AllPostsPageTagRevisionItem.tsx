@@ -66,7 +66,7 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId}: {
   }
 }
 
-export default registerComponent("AllPostsPageTagRevisionItem", AllPostsPageTagRevisionItem, {styles});
+export default AllPostsPageTagRevisionItem
 
 
 

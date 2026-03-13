@@ -156,7 +156,7 @@ const SunshineNewTagsItem = ({tag}: {
   )
 }
 
-export default registerComponent('SunshineNewTagsItem', SunshineNewTagsItem, {styles, 
+export default registerComponent('SunshineNewTagsItem', SunshineNewTagsItem, {
   hocs: [withErrorBoundary]
 });
 

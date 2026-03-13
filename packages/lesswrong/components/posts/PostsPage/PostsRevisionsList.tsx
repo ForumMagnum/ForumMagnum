@@ -52,8 +52,6 @@ const PostsRevisionsList = ({post}: {
   </React.Fragment>
 }
 
-export default registerComponent(
-  'PostsRevisionsList', PostsRevisionsList, {styles}
-);
+export default PostsRevisionsList;
 
 

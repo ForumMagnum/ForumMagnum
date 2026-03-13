@@ -409,6 +409,6 @@ function filterModeStrToLabel(filterModeStr: FilterModeString) {
   }
 }
 
-export default registerComponent("FilterMode", FilterModeRawComponent, {styles});
+export default FilterModeRawComponent;
 
 

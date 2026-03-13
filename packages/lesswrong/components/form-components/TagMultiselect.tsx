@@ -139,6 +139,6 @@ const TagMultiselect = ({value, label, placeholder, hidePostCount=false, startWi
   )
 }
 
-export default registerComponent('TagMultiselect', TagMultiselect, {styles});
+export default TagMultiselect;
 
 

@@ -114,8 +114,6 @@ const CookieBanner = () => {
   );
 };
 
-export default registerComponent("CookieBanner", CookieBanner, {
-  styles,
-});
+export default CookieBanner;
 
 

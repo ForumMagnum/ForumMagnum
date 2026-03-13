@@ -216,7 +216,7 @@ export const SpotlightsPage = () => {
   </ToCColumn>
 }
 
-export default registerComponent('SpotlightsPage', SpotlightsPage, {styles});
+export default SpotlightsPage
 
 
 

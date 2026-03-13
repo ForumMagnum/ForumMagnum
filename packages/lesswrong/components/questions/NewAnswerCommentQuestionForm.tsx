@@ -126,6 +126,6 @@ const NewAnswerCommentQuestionForm = ({post}: {
   </div>
 }
 
-export default registerComponent('NewAnswerCommentQuestionForm', NewAnswerCommentQuestionForm, {styles});
+export default NewAnswerCommentQuestionForm;
 
 

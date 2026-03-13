@@ -67,6 +67,6 @@ const SectionFooterCheckbox = ({label, onClick, value, disabled, tooltip, toolti
   }
 }
 
-export default registerComponent("SectionFooterCheckbox", SectionFooterCheckbox, {styles});
+export default SectionFooterCheckbox;
 
 

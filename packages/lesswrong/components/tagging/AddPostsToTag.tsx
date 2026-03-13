@@ -169,6 +169,6 @@ const AddPostsToTag = ({tag}: {
   </div>
 }
 
-export default registerComponent("AddPostsToTag", AddPostsToTag, {styles});
+export default AddPostsToTag
 
 

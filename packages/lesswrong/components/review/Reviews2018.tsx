@@ -111,7 +111,7 @@ const Reviews2018 = () => {
   )
 }
 
-export default registerComponent('Reviews2018', Reviews2018, {styles});
+export default Reviews2018;
 
 
 

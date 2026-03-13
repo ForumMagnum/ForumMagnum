@@ -48,10 +48,6 @@ const RecommendationsList = ({algorithm, translucentBackground, ListItem = Posts
   </div>
 }
 
-export default registerComponent(
-  'RecommendationsList',
-  RecommendationsList,
-  {styles, stylePriority: -1},
-);
+export default RecommendationsList;
 
 

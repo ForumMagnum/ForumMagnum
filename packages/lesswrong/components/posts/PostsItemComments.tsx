@@ -85,7 +85,7 @@ const PostsItemComments = ({commentCount, small, onClick, unreadComments, newPro
   )
 }
 
-export default registerComponent('PostsItemComments', PostsItemComments, {styles});
+export default PostsItemComments;
 
 
 

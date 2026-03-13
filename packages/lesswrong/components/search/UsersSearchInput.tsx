@@ -31,7 +31,7 @@ const UsersSearchInput = ({inputProps}: {
   />
 };
 
-export default registerComponent("UsersSearchInput", UsersSearchInput, {styles});
+export default UsersSearchInput;
 
 
 

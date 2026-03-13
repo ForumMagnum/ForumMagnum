@@ -30,6 +30,6 @@ const PopperCard = ({
   </LWPopper>
 }
 
-export default registerComponent("PopperCard", PopperCard, {stylePriority: -1});
+export default PopperCard;
 
 

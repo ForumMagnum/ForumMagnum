@@ -184,10 +184,6 @@ const QuickTakesEntry = ({currentUser, defaultExpanded = false, defaultFocus = f
   </div>
 }
 
-export default registerComponent(
-  "QuickTakesEntry",
-  QuickTakesEntry,
-  {styles},
-);
+export default QuickTakesEntry;
 
 

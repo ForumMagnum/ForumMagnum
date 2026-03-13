@@ -162,7 +162,6 @@ const NotificationTypeSettingsWidget = ({field, label}: NotificationTypeSettings
 }
 
 export default registerComponent('NotificationTypeSettingsWidget', NotificationTypeSettingsWidget, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

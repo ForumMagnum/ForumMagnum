@@ -53,6 +53,6 @@ export const DebateResponseBlock = ({responses, post, orderedParticipantList, da
   </div>;
 }
 
-export default registerComponent('DebateResponseBlock', DebateResponseBlock, {styles, stylePriority: 200});
+export default DebateResponseBlock;
 
 

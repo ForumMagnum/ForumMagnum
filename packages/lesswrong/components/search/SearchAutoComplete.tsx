@@ -110,7 +110,7 @@ const AutocompleteTextbox = connectAutoComplete(
   }
 );
 
-export default registerComponent("SearchAutoComplete", SearchAutoComplete, {styles});
+export default SearchAutoComplete;
 
 
 

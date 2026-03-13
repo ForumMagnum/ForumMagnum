@@ -465,4 +465,4 @@ const dateFraction = (fractionDate: moment.Moment, startDate: moment.Moment, end
   return result.toFixed(2)
 }
 
-export default registerComponent('FrontpageReviewWidget', FrontpageReviewWidget, {styles});
+export default FrontpageReviewWidget

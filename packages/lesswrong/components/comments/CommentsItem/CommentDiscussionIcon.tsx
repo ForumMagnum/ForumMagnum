@@ -38,9 +38,7 @@ const CommentDiscussionIcon = ({comment, small = false}: {
   )
 }
 
-export default registerComponent(
-  'CommentDiscussionIcon', CommentDiscussionIcon, {styles}
-);
+export default CommentDiscussionIcon;
 
 
 

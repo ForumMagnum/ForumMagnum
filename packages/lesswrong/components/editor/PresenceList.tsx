@@ -110,6 +110,6 @@ const PresenceListUser = ({userId, isLoggedOutUser, connected}: {
   </span>
 }
 
-export default registerComponent('PresenceList', PresenceList, {styles});
+export default PresenceList;
 
 

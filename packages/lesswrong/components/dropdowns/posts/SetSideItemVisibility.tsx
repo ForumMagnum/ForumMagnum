@@ -173,6 +173,6 @@ export const SideItemVisibilityContextProvider = ({post, children}: {
   </SideItemVisibilityContext.Provider>
 }
 
-export default registerComponent('SetSideItemVisibility', SetSideItemVisibility, {styles});
+export default SetSideItemVisibility;
 
 

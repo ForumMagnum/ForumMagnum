@@ -54,6 +54,6 @@ export const DialogueEditorFeedback = ({post}: {
   </div>
 }
 
-export default registerComponent('DialogueEditorFeedback', DialogueEditorFeedback, { styles });
+export default DialogueEditorFeedback;
 
 

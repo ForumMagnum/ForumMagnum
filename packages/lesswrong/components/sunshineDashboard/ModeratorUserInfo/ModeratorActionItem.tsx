@@ -169,7 +169,7 @@ export const ModeratorActionItem = ({user, moderatorAction, comments, posts}: {
   </div>;
 }
 
-export default registerComponent('ModeratorActionItem', ModeratorActionItem, {styles});
+export default ModeratorActionItem
 
 
 

@@ -140,8 +140,4 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
   </AnalyticsContext>;
 }
 
-export default registerComponent(
-  'CommentsDraftList',
-  CommentsDraftList,
-  {styles, stylePriority: 1},
-);
+export default CommentsDraftList;

@@ -96,6 +96,6 @@ const PostsItemTagRelevance = ({tagRel}: {
   </PostsItem2MetaInfo>
 }
 
-export default registerComponent("PostsItemTagRelevance", PostsItemTagRelevance, {styles});
+export default PostsItemTagRelevance;
 
 

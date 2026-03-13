@@ -73,7 +73,7 @@ type MultiselectOption = {
  * MultiSelect: A pick-multiple checkbox list. This is split from FormComponentMultiSelect
  * so that it can be used outside of vulcan-forms.
  */
-const MultiSelectInner = ({value, setValue, label, placeholder, separator, options, variant = "default"}: {
+export const MultiSelect = ({value, setValue, label, placeholder, separator, options, variant = "default"}: {
   value: string[],
   setValue: (newValue: any) => void,
   label?: string,
@@ -193,7 +193,3 @@ export const FormComponentMultiSelect = ({
     setValue={(value) => field.handleChange(value)}
   />
 }
-
-export const MultiSelect = registerComponent("MultiSelect", MultiSelectInner, {styles});
-
-

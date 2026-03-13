@@ -97,6 +97,6 @@ const PostBodyPrefix = ({post, query}: {
   </>;
 }
 
-export default registerComponent('PostBodyPrefix', PostBodyPrefix, {styles});
+export default PostBodyPrefix;
 
 

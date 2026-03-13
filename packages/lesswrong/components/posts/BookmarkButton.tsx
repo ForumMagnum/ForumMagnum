@@ -66,7 +66,6 @@ const BookmarkButton = ({documentId, collectionName, initial, withText, placemen
 }
 
 export default registerComponent('BookmarkButton', BookmarkButton, {
-  styles,
   hocs: [withErrorBoundary],
 });
 

@@ -35,6 +35,6 @@ export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer}: {
   </>;
 }
 
-export default registerComponent('PostsAudioPlayerWrapper', PostsAudioPlayerWrapper, {styles});
+export default PostsAudioPlayerWrapper;
 
 

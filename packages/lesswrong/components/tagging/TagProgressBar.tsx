@@ -155,7 +155,7 @@ const TagProgressBar = () => {
   </div>
 }
 
-export default registerComponent("TagProgressBar", TagProgressBar, { styles, hocs: [withErrorBoundary] });
+export default registerComponent("TagProgressBar", TagProgressBar, { hocs: [withErrorBoundary] });
 
 
 

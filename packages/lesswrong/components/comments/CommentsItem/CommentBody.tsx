@@ -107,7 +107,7 @@ const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, v
   }
 }
 
-export default registerComponent('CommentBody', CommentBody, {styles});
+export default CommentBody;
 
 
 

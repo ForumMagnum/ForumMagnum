@@ -408,10 +408,6 @@ const CommunityMapFilter = ({setShowMap, showHideMap, toggleGroups, showGroups, 
   );
 }
 
-export default registerComponent(
-  'CommunityMapFilter',
-  CommunityMapFilter,
-  {styles},
-);
+export default CommunityMapFilter;
 
 

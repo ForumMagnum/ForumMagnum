@@ -66,6 +66,6 @@ const CoreTagIcon = ({tag, fallbackNode, className}: {
   return <Icon className={classNames(className, {[classes.noFill]: Icon === LotusOutlineIcon})} />
 }
 
-export default registerComponent("CoreTagIcon", CoreTagIcon, {styles});
+export default CoreTagIcon
 
 

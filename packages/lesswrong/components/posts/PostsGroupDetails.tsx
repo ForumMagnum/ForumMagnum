@@ -72,8 +72,6 @@ const PostsGroupDetails = ({documentId, post, inRecentDiscussion}: {
   </div>
 }
 
-export default registerComponent(
-  'PostsGroupDetails', PostsGroupDetails, { styles }
-);
+export default PostsGroupDetails;
 
 

@@ -139,7 +139,7 @@ export const ModerationTemplatesPage = () => {
 }
   
 
-export default registerComponent('ModerationTemplatesPage', ModerationTemplatesPage, {styles});
+export default ModerationTemplatesPage;
 
 
 

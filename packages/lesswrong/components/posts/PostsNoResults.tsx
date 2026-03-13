@@ -19,7 +19,7 @@ const PostsNoResults = () => {
   </Typography>;
 };
 
-export default registerComponent('PostsNoResults', PostsNoResults, {styles});
+export default PostsNoResults;
 
 
 

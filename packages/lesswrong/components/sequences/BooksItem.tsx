@@ -117,7 +117,7 @@ const BooksItem = ({book, canEdit}: {
   }
 }
 
-export default registerComponent('BooksItem', BooksItem, {styles});
+export default BooksItem;
 
 
 

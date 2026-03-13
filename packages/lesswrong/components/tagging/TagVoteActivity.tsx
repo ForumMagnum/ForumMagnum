@@ -156,6 +156,6 @@ const TagVoteActivity = ({showHeaders = true, showNewTags = true, limit = 200, i
 }
 
 
-export default registerComponent("TagVoteActivity", TagVoteActivity, {styles});
+export default TagVoteActivity;
 
 

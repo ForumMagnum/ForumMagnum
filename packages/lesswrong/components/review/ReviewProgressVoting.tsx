@@ -82,7 +82,7 @@ export const ReviewProgressVoting = ({reviewYear}: {
 </LWTooltip></div>
 }
 
-export default registerComponent('ReviewProgressVoting', ReviewProgressVoting, {styles});
+export default ReviewProgressVoting;
 
 
 

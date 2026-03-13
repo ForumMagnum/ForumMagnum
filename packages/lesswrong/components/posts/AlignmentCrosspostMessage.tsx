@@ -28,6 +28,6 @@ const AlignmentCrosspostMessage = ({post}: {
   }
 }
 
-export default registerComponent('AlignmentCrosspostMessage', AlignmentCrosspostMessage, {styles});
+export default AlignmentCrosspostMessage;
 
 

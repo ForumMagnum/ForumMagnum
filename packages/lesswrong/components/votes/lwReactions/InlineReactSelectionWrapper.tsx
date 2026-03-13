@@ -155,6 +155,6 @@ function countStringsInString(haystack: string, needle: string): number {
   return count;
 }
 
-export default registerComponent('InlineReactSelectionWrapper', InlineReactSelectionWrapper, {styles});
+export default InlineReactSelectionWrapper
 
 

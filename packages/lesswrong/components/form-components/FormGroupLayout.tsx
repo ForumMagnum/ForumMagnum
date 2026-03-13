@@ -82,6 +82,6 @@ const FormGroupLayout = ({children, label, heading, footer, collapsed, hasErrors
   );
 };
 
-export default registerComponent('FormGroupLayout', FormGroupLayout, {styles});
+export default FormGroupLayout;
 
 

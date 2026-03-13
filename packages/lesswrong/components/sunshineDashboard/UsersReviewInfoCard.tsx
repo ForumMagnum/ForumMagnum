@@ -285,7 +285,6 @@ const UsersReviewInfoCard = ({user, refetch, currentUser}: {
 }
 
 export default registerComponent('UsersReviewInfoCard', UsersReviewInfoCard, {
-  styles,
   hocs: [
     withErrorBoundary,
   ],

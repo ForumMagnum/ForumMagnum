@@ -102,6 +102,6 @@ const CrosspostLoginPage = () => {
   );
 }
 
-export default registerComponent("CrosspostLoginPage", CrosspostLoginPage, {styles});
+export default CrosspostLoginPage;
 
 

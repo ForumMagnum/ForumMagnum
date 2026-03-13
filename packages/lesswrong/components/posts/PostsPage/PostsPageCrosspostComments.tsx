@@ -95,8 +95,4 @@ const PostsPageCrosspostComments = () => {
   );
 }
 
-export default registerComponent(
-  "PostsPageCrosspostComments",
-  PostsPageCrosspostComments,
-  {styles},
-);
+export default PostsPageCrosspostComments;

@@ -152,7 +152,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   </LWTooltip>
 }
 
-export default registerComponent("PostsItemDate", PostsItemDate, {styles});
+export default PostsItemDate
 
 
 

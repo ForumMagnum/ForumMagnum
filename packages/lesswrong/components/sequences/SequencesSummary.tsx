@@ -209,6 +209,6 @@ export const SequencesSummary = ({sequence, showAuthor=true, maxPosts}: {
   </Card>;
 }
 
-export default registerComponent('SequencesSummary', SequencesSummary, {styles});
+export default SequencesSummary
 
 

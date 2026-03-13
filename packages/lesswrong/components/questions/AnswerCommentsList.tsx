@@ -68,7 +68,7 @@ const AnswerCommentsList = ({post, parentAnswer, commentTree, treeOptions}: {
   </div>
 }
 
-export default registerComponent('AnswerCommentsList', AnswerCommentsList, {styles});
+export default AnswerCommentsList;
 
 
 

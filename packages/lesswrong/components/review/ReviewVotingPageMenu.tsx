@@ -286,6 +286,6 @@ export const ReviewVotingPageMenu = ({reviewPhase, loading, sortedPosts, costTot
   </AnalyticsContext>;
 }
 
-export default registerComponent('ReviewVotingPageMenu', ReviewVotingPageMenu, {styles});
+export default ReviewVotingPageMenu;
 
 

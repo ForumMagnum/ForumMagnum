@@ -108,6 +108,6 @@ const ReviewVotingButtons = ({post, dispatch, currentUserVote, costTotal}: {post
   </AnalyticsContext>
 }
 
-export default registerComponent("ReviewVotingButtons", ReviewVotingButtons, {styles});
+export default ReviewVotingButtons;
 
 

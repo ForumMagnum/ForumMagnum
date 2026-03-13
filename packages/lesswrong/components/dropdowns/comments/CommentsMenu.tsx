@@ -94,7 +94,7 @@ const CommentsMenu = ({className, comment, post, tag, showEdit, onSeeLess, isSee
   )
 }
 
-export default registerComponent('CommentsMenu', CommentsMenu, {styles});
+export default CommentsMenu;
 
 
 

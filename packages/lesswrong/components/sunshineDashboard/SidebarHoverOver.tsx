@@ -34,7 +34,7 @@ const SidebarHoverOver = ({children, hover, anchorEl, width=500}: {
   </LWPopper>
 };
 
-export default registerComponent('SidebarHoverOver', SidebarHoverOver, {styles});
+export default SidebarHoverOver;
 
 
 

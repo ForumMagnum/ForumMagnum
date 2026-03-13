@@ -182,6 +182,6 @@ export const QuickReviewPage2022 = () => {
   </div>;
 }
 
-export default registerComponent('QuickReviewPage2022', QuickReviewPage2022, {styles});
+export default QuickReviewPage2022;
 
 

@@ -116,7 +116,7 @@ const ExpandedCommentsSearchHit = ({hit}: {
   </div>
 }
 
-export default registerComponent("ExpandedCommentsSearchHit", ExpandedCommentsSearchHit, {styles});
+export default ExpandedCommentsSearchHit;
 
 
 

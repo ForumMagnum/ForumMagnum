@@ -105,6 +105,6 @@ const TagRevisionItemFullMetadata = ({tag, revision}: {
   </div>;
 }
 
-export default registerComponent("TagRevisionItemFullMetadata", TagRevisionItemFullMetadata, {styles});
+export default TagRevisionItemFullMetadata;
 
 

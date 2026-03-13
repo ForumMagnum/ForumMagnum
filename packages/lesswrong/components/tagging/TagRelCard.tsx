@@ -129,6 +129,6 @@ const TagRelCard = ({tagRel}: {
   </div>
 }
 
-export default registerComponent("TagRelCard", TagRelCard, {styles});
+export default TagRelCard
 
 

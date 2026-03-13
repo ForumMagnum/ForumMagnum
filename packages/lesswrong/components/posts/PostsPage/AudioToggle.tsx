@@ -51,6 +51,6 @@ const AudioToggle = ({post, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
   </LWTooltip>
 }
 
-export default registerComponent('AudioToggle', AudioToggle, {styles});
+export default AudioToggle
 
 

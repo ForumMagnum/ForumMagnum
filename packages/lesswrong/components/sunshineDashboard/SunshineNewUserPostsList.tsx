@@ -91,6 +91,6 @@ const SunshineNewUserPostsList = ({posts, user}: {
   )
 }
 
-export default registerComponent('SunshineNewUserPostsList', SunshineNewUserPostsList, {styles});
+export default SunshineNewUserPostsList;
 
 

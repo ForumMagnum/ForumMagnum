@@ -65,6 +65,6 @@ const SignupSubscribeToCurated = ({defaultValue, onChange}: {
   </div>
 }
 
-export default registerComponent('SignupSubscribeToCurated', SignupSubscribeToCurated, {styles});
+export default SignupSubscribeToCurated
 
 

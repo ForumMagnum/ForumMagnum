@@ -91,7 +91,7 @@ export const PostsTagsList = (
   </div>;
 }
 
-export default registerComponent('PostsTagsList', PostsTagsList, {styles});
+export default PostsTagsList;
 
 
 

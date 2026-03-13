@@ -260,11 +260,6 @@ const Book2019Animation = ({children, successContent}: {
 }
 
 
-export default registerComponent('Book2019Animation', Book2019Animation, {
-  styles,
-  // This component tries to look like a printed book, which is white, so its colors
-  // don't change in dark mode
-  allowNonThemeColors: true,
-});
+export default Book2019Animation;
 
 

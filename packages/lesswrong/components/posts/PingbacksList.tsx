@@ -101,6 +101,6 @@ const PingbacksList = ({postId, limit=5}: {
   return null;
 }
 
-export default registerComponent("PingbacksList", PingbacksList, {styles});
+export default PingbacksList
 
 

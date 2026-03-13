@@ -42,6 +42,6 @@ const BannedNotice = () => {
   </SingleColumnSection>
 }
 
-export default registerComponent('BannedNotice', BannedNotice, {styles});
+export default BannedNotice
 
 

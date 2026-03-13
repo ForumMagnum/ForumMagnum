@@ -105,7 +105,7 @@ const ExpandedSequencesSearchHit = ({hit}: {
   </div>
 }
 
-export default registerComponent("ExpandedSequencesSearchHit", ExpandedSequencesSearchHit, {styles});
+export default ExpandedSequencesSearchHit;
 
 
 

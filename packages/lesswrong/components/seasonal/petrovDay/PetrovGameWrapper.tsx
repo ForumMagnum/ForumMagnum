@@ -122,6 +122,6 @@ export const PetrovGameWrapper = () => {
   // return <DismissibleSpotlightItem spotlight={spotlight}/>
 }
 
-export default registerComponent('PetrovGameWrapper', PetrovGameWrapper, {styles});
+export default PetrovGameWrapper;
 
 

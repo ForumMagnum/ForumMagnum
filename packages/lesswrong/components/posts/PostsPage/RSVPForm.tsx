@@ -109,6 +109,6 @@ const RSVPForm = ({post, onClose, initialResponse = "yes"}: {
   )
 }
 
-export default registerComponent('RSVPForm', RSVPForm, {styles});
+export default RSVPForm
 
 

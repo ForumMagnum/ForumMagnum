@@ -84,7 +84,7 @@ export const RejectContentButton = ({contentWrapper}: {
   </span>
 }
 
-export default registerComponent('RejectContentButton', RejectContentButton, {styles});
+export default RejectContentButton
 
 
 

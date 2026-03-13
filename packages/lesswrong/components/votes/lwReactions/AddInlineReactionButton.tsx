@@ -97,6 +97,6 @@ const AddInlineReactionButton = ({voteProps, quote, disabled, wrapperClassName, 
   </span>
 }
 
-export default registerComponent('AddInlineReactionButton', AddInlineReactionButton, {styles});
+export default AddInlineReactionButton;
 
 

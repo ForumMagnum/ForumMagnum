@@ -193,15 +193,11 @@ const ShortformListItem = ({comment, hideTag}: {
   );
 }
 
-export default registerComponent(
-  "ShortformListItem",
-  ShortformListItem, {
-    styles,
-    hocs: [withErrorBoundary],
-    areEqual: {
-      treeOptions: "shallow",
-    },
+export default registerComponent("ShortformListItem", ShortformListItem, {
+  hocs: [withErrorBoundary],
+  areEqual: {
+    treeOptions: "shallow",
   },
-);
+});
 
 

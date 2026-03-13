@@ -78,7 +78,7 @@ const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true}: {
   }
 }
 
-export default registerComponent('UsersWhoReacted', UsersWhoReacted, {styles});
+export default UsersWhoReacted;
 
 
 

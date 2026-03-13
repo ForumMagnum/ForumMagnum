@@ -66,7 +66,7 @@ const SearchPagination = ({pagesPadding=0, showFirst=false}: {
   </div>
 }
 
-export default registerComponent("SearchPagination", SearchPagination, {styles});
+export default SearchPagination;
 
 
 

@@ -64,5 +64,5 @@ const PinToProfileDropdownItem = ({comment, post}: {
   );
 };
 
-export default registerComponent("PinToProfileDropdownItem", PinToProfileDropdownItem, {styles});
+export default PinToProfileDropdownItem;
 

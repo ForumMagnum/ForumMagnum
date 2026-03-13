@@ -202,6 +202,6 @@ export const DebateResponse = ({comment, replies, idx, responseCount, orderedPar
   }
 
 
-export default registerComponent('DebateResponse', DebateResponse, {styles});
+export default DebateResponse;
 
 

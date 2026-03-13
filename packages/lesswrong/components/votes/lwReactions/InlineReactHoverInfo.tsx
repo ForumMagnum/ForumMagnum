@@ -43,7 +43,7 @@ const InlineReactHoverInfo = ({quote, reactions, voteProps}: {
   </Card>
 }
 
-export default registerComponent('InlineReactHoverInfo', InlineReactHoverInfo, {styles});
+export default InlineReactHoverInfo;
 
 
 

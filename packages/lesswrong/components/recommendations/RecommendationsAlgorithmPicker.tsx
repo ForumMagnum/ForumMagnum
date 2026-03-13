@@ -227,6 +227,6 @@ const RecommendationsAlgorithmPicker = ({settings, configName, onChange, showAdv
   </div>;
 }
 
-export default registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPicker, {styles});
+export default RecommendationsAlgorithmPicker;
 
 

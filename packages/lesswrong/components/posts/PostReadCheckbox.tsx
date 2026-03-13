@@ -74,7 +74,7 @@ export const PostReadCheckbox = ({post, width=12}: {
   }
 }
 
-export default registerComponent('PostReadCheckbox', PostReadCheckbox, {styles});
+export default PostReadCheckbox;
 
 
 

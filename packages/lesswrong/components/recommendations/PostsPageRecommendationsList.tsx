@@ -100,10 +100,6 @@ const PostsPageRecommendationsList = ({title = "More posts like this", strategy 
   );
 }
 
-export default registerComponent(
-  "PostsPageRecommendationsList",
-  PostsPageRecommendationsList,
-  {styles},
-);
+export default PostsPageRecommendationsList;
 
 

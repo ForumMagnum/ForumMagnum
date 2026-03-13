@@ -21,4 +21,4 @@ const DropdownDivider = ({className}: {
   );
 }
 
-export default registerComponent("DropdownDivider", DropdownDivider, {styles});
+export default DropdownDivider;

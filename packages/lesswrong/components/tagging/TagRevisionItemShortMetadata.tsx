@@ -103,6 +103,6 @@ const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision}: {
   </>;
 }
 
-export default registerComponent("TagRevisionItemShortMetadata", TagRevisionItemShortMetadata, {styles});
+export default TagRevisionItemShortMetadata
 
 

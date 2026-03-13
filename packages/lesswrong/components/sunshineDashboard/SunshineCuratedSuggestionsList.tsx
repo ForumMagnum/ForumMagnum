@@ -177,6 +177,6 @@ const SunshineCuratedSuggestionsList = ({limit = 7, atBottom, setCurationPost, s
   )
 }
 
-export default registerComponent('SunshineCuratedSuggestionsList', SunshineCuratedSuggestionsList, {styles});
+export default SunshineCuratedSuggestionsList;
 
 

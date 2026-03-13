@@ -73,10 +73,6 @@ const PeopleDirectorySelectOption = ({state, className}: {
   );
 }
 
-export default registerComponent(
-  "PeopleDirectorySelectOption",
-  PeopleDirectorySelectOption,
-  {styles, stylePriority: -1},
-);
+export default PeopleDirectorySelectOption;
 
 

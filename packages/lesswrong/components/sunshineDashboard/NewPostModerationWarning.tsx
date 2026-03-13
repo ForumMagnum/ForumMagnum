@@ -48,7 +48,7 @@ export const NewPostModerationWarning = () => {
   </div>;
 }
 
-export default registerComponent('NewPostModerationWarning', NewPostModerationWarning, {styles});
+export default NewPostModerationWarning;
 
 
 

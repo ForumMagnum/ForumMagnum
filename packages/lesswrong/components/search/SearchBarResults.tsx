@@ -111,6 +111,6 @@ const SearchBarResults = ({closeSearch, currentQuery}: {
   </div>
 }
 
-export default registerComponent("SearchBarResults", SearchBarResults, {styles});
+export default SearchBarResults;
 
 

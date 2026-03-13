@@ -273,6 +273,6 @@ const NewConversationDialog = ({isModInbox = false, onClose}: {
   );
 };
 
-export default registerComponent("NewConversationDialog", NewConversationDialog, { styles });
+export default NewConversationDialog;
 
 

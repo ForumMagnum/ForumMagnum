@@ -112,7 +112,7 @@ const ProfilePhoto = ({user, noLink=false, from, className}: {
 }
 
 
-export default registerComponent('ProfilePhoto', ProfilePhoto, {styles});
+export default ProfilePhoto;
 
 
 

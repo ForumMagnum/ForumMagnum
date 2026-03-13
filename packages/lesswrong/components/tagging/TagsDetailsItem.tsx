@@ -190,6 +190,6 @@ const TagsDetailsItem = ({tag, showFlags = false, flagId, collapse = false}: {
   </div>
 }
 
-export default registerComponent("TagsDetailsItem", TagsDetailsItem, { styles });
+export default TagsDetailsItem;
 
 

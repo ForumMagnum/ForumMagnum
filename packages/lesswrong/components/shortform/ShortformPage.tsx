@@ -28,6 +28,6 @@ const ShortformPage = () => {
   )
 }
 
-export default registerComponent('ShortformPage', ShortformPage, {styles});
+export default ShortformPage;
 
 

@@ -155,7 +155,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
 }
 
 export default registerComponent('DraftsList', DraftsList, {
-  hocs: [withErrorBoundary], styles
+  hocs: [withErrorBoundary],
 });
 
 

@@ -103,7 +103,7 @@ const ExpandedUsersSearchHit = ({hit}: {
   </div>
 }
 
-export default registerComponent("ExpandedUsersSearchHit", ExpandedUsersSearchHit, {styles});
+export default ExpandedUsersSearchHit
 
 
 

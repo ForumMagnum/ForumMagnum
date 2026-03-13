@@ -77,10 +77,4 @@ export const ToggleSwitch = ({value, setValue, smallVersion, className}: {
   );
 }
 
-export default registerComponent(
-  "ToggleSwitch",
-  ToggleSwitch,
-  {styles, stylePriority: -1},
-);
-
-
+export default ToggleSwitch;

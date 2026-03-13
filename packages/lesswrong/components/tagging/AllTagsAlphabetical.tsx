@@ -80,6 +80,6 @@ const AllTagsAlphabetical = () => {
   );
 }
 
-export default registerComponent("AllTagsAlphabetical", AllTagsAlphabetical, {styles});
+export default AllTagsAlphabetical
 
 

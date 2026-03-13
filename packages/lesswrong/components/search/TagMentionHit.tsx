@@ -36,10 +36,6 @@ const TagMentionHit = ({hit}: {
   );
 }
 
-export default registerComponent(
-  "TagMentionHit",
-  TagMentionHit,
-  {styles},
-);
+export default TagMentionHit;
 
 

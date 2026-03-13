@@ -66,6 +66,6 @@ const PostsLayoutDropdown = ({value=defaultPostsLayout, queryParam="layout"}: {
   return <ForumDropdown value={value} options={POSTS_LAYOUT_OPTIONS} queryParam={queryParam} onSelect={onSelect} />;
 }
 
-export default registerComponent('PostsLayoutDropdown', PostsLayoutDropdown, {styles});
+export default PostsLayoutDropdown;
 
 

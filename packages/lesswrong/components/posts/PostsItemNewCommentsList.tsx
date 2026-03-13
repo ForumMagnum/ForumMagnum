@@ -55,10 +55,6 @@ const PostsItemNewCommentsList = ({ terms, post, treeOptions }: {
   }
 };
 
-export default registerComponent(
-  'PostsItemNewCommentsList', PostsItemNewCommentsList, {
-    styles,
-  }
-);
+export default PostsItemNewCommentsList;
 
 

@@ -130,7 +130,7 @@ const HomepageMapFilter = () => {
   </Paper>
 }
 
-export default registerComponent('HomepageMapFilter', HomepageMapFilter, {styles});
+export default HomepageMapFilter;
 
 
 

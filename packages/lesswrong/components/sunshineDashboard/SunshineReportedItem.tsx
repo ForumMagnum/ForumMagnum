@@ -187,5 +187,5 @@ const SunshineReportedItem = ({report, currentUser, refetch}: {
 }
 
 export default registerComponent('SunshineReportedItem', SunshineReportedItem, {
-  styles, hocs: [withErrorBoundary]
+  hocs: [withErrorBoundary]
 });

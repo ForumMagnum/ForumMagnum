@@ -34,6 +34,6 @@ const PostsRevisionMessage = ({post}: {
   );
 }
 
-export default registerComponent('PostsRevisionMessage', PostsRevisionMessage, {styles});
+export default PostsRevisionMessage
 
 

@@ -27,7 +27,6 @@ const CollectionsCardContainer = ({children}: {
   </div>
 }
 
-export default registerComponent(
-  "CollectionsCardContainer", CollectionsCardContainer, { styles });
+export default CollectionsCardContainer;
 
 

@@ -106,7 +106,6 @@ const RelatedQuestionsList = ({post}: {
 }
 
 export default registerComponent('RelatedQuestionsList', RelatedQuestionsList, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

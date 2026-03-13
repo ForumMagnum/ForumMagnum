@@ -314,6 +314,6 @@ const RecommendationsAndCurated = ({configName}: {
   return render();
 }
 
-export default registerComponent("RecommendationsAndCurated", RecommendationsAndCurated, {styles});
+export default RecommendationsAndCurated;
 
 

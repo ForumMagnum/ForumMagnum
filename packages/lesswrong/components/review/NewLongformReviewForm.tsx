@@ -53,7 +53,7 @@ export const NewLongformReviewForm = () => {
   </div>;
 }
 
-export default registerComponent('NewLongformReviewForm', NewLongformReviewForm, {styles});
+export default NewLongformReviewForm
 
 
 

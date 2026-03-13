@@ -101,6 +101,6 @@ const UsersViewABTests = () => {
   </SingleColumnSection>
 }
 
-export default registerComponent("UsersViewABTests", UsersViewABTests, {styles});
+export default UsersViewABTests;
 
 

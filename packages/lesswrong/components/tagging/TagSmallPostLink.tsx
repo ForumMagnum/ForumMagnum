@@ -91,6 +91,6 @@ const TagSmallPostLink = ({post, hideMeta, hideAuthor, wrap, widerSpacing, disab
   );
 }
 
-export default registerComponent("TagSmallPostLink", TagSmallPostLink, {styles});
+export default TagSmallPostLink
 
 

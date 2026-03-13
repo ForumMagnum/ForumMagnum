@@ -144,7 +144,7 @@ export const AdminPaymentsPage = () => {
   </div>;
 }
 
-export default registerComponent('AdminPaymentsPage', AdminPaymentsPage, {styles});
+export default AdminPaymentsPage
 
 
 

@@ -72,10 +72,4 @@ const SingleTagItem = ({documentId, onDelete, className}: {
   return null
 };
 
-export default registerComponent(
-  'SingleTagItem',
-  SingleTagItem,
-  {styles, stylePriority: -1},
-);
-
-
+export default SingleTagItem;

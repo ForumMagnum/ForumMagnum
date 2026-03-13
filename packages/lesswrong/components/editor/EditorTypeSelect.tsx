@@ -59,6 +59,6 @@ const EditorTypeSelect = ({value, setValue, isCollaborative}: {
   </>
 }
 
-export default registerComponent("EditorTypeSelect", EditorTypeSelect, {styles});
+export default EditorTypeSelect;
 
 

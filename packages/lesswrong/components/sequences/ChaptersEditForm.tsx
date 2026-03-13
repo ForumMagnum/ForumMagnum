@@ -78,7 +78,7 @@ const ChaptersEditForm = ({chapter, successCallback, cancelCallback}: {
   )
 }
 
-export default registerComponent('ChaptersEditForm', ChaptersEditForm, {styles});
+export default ChaptersEditForm;
 
 
 

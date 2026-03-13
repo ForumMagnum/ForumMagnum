@@ -54,6 +54,6 @@ export const UserReviewStatus = ({user}: {
   </div>;
 }
 
-export default registerComponent('UserReviewStatus', UserReviewStatus, {styles});
+export default UserReviewStatus;
 
 

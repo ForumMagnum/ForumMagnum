@@ -58,7 +58,7 @@ const TagsSearchHit = ({hit, clickAction, showIcon=false}: SearchHitComponentPro
   </div>
 }
 
-export default registerComponent("TagsSearchHit", TagsSearchHit, {styles});
+export default TagsSearchHit
 
 
 

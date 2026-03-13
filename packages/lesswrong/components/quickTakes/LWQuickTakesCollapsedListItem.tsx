@@ -225,10 +225,6 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded}: {
   );
 }
 
-export default registerComponent(
-  "LWQuickTakesCollapsedListItem",
-  LWQuickTakesCollapsedListItem,
-  {styles},
-);
+export default LWQuickTakesCollapsedListItem;
 
 

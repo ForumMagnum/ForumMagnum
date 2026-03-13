@@ -28,10 +28,6 @@ const FormGroupQuickTakes = ({children}: FormGroupLayoutProps) => {
   );
 }
 
-export default registerComponent(
-  'FormGroupQuickTakes',
-  FormGroupQuickTakes,
-  {styles},
-);
+export default FormGroupQuickTakes;
 
 

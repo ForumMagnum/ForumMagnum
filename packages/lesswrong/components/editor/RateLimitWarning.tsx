@@ -64,6 +64,6 @@ const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage}: 
   </ContentStyles>
 }
 
-export default registerComponent('RateLimitWarning', RateLimitWarning, {styles});
+export default RateLimitWarning;
 
 

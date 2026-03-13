@@ -60,7 +60,7 @@ const TagDiscussionSection = ({tag}: {
   );
 }
 
-export default registerComponent("TagDiscussionSection", TagDiscussionSection, {styles});
+export default TagDiscussionSection;
 
 
 

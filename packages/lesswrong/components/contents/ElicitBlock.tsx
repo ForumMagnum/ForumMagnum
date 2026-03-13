@@ -325,7 +325,6 @@ const ElicitBlock = ({questionId = "IyWNjzc5P"}: {
 }
 
 export default registerComponent('ElicitBlock', ElicitBlock, {
-  styles,
   hocs: [withErrorBoundary],
 });
 

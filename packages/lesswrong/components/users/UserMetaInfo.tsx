@@ -92,7 +92,7 @@ export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hidePostC
     </div>
 }
 
-export default registerComponent('UserMetaInfo', UserMetaInfo, {styles});
+export default UserMetaInfo;
 
 
 

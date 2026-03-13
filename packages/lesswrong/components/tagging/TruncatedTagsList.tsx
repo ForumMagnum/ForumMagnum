@@ -87,10 +87,4 @@ const TruncatedTagsList = ({post, expandContainer, className}: {
   );
 }
 
-export default registerComponent(
-  "TruncatedTagsList",
-  TruncatedTagsList,
-  {styles, stylePriority: -1},
-);
-
-
+export default TruncatedTagsList;

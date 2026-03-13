@@ -153,10 +153,6 @@ const PostsPageRecommendationItem = ({post, disableAnalytics, className}: {
   );
 }
 
-export default registerComponent(
-  "PostsPageRecommendationItem",
-  PostsPageRecommendationItem,
-  {styles},
-);
+export default PostsPageRecommendationItem;
 
 

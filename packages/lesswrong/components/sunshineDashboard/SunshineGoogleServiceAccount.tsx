@@ -72,6 +72,6 @@ const SunshineGoogleServiceAccount = () => {
   )
 }
 
-export default registerComponent('SunshineGoogleServiceAccount', SunshineGoogleServiceAccount, {styles});
+export default SunshineGoogleServiceAccount
 
 

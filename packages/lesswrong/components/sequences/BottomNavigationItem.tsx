@@ -95,7 +95,7 @@ const BottomNavigationItem = ({direction, post, sequence}: {
   )
 };
 
-export default registerComponent('BottomNavigationItem', BottomNavigationItem, {styles});
+export default BottomNavigationItem
 
 
 

@@ -174,7 +174,6 @@ const NominationsPage = ({reviewYear}: { reviewYear: ReviewYear }) => {
 
 export default registerComponent("NominationsPage", NominationsPage, {
   hocs: [withErrorBoundary],
-  styles
 });
 
 

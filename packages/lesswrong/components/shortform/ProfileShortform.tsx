@@ -40,7 +40,7 @@ export const ProfileShortform = ({user}: {
   </div>;
 }
 
-export default registerComponent('ProfileShortform', ProfileShortform, {styles});
+export default ProfileShortform;
 
 
 

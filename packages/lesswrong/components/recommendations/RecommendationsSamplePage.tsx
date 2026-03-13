@@ -263,10 +263,6 @@ const RecommendationsSamplePage = () => {
   );
 }
 
-export default registerComponent(
-  "RecommendationsSamplePage",
-  RecommendationsSamplePage,
-  {styles},
-);
+export default RecommendationsSamplePage;
 
 

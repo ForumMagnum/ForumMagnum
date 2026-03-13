@@ -96,7 +96,7 @@ export const ReviewDashboardButtons = ({reviewYear, reviewPhase, showAdvancedDas
   </div>;
 }
 
-export default registerComponent('ReviewDashboardButtons', ReviewDashboardButtons, {styles});
+export default ReviewDashboardButtons;
 
 
 

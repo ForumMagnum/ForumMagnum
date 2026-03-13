@@ -30,7 +30,7 @@ const PostFixedPositionToCHeading = ({post}: {
   </LWTooltip>
 }
 
-export default registerComponent('PostFixedPositionToCHeading', PostFixedPositionToCHeading, {styles});
+export default PostFixedPositionToCHeading;
 
 
 

@@ -105,7 +105,7 @@ const ReactionVoteArrow = ({orientation, onClick, className}: {
 }
 
 
-export default registerComponent('ReactOrAntireactVote', ReactOrAntireactVote, {styles});
+export default ReactOrAntireactVote;
 
 
 

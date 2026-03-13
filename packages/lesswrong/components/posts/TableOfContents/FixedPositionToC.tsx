@@ -519,11 +519,8 @@ function waitForImageToLoad(imageTag: HTMLImageElement): Promise<void> {
   });
 }
 
-export default registerComponent(
-  "FixedPositionToC", FixedPositionToc, {
-    hocs: [withErrorBoundary],
-    styles
-  }
-);
+export default registerComponent("FixedPositionToC", FixedPositionToc, {
+  hocs: [withErrorBoundary],
+});
 
 

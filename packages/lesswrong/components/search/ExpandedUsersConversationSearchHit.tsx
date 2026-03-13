@@ -117,7 +117,7 @@ const ExpandedUsersConversationSearchHit = ({hit, currentUser, onClose, onSelect
   );
 };
 
-export default registerComponent("ExpandedUsersConversationSearchHit", ExpandedUsersConversationSearchHit, {styles});
+export default ExpandedUsersConversationSearchHit;
 
 
 

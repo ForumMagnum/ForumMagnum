@@ -128,10 +128,6 @@ const NotifyMeButton = ({document, subscriptionType: overrideSubscriptionType, s
     : maybeToolipButton;
 }
 
-export default registerComponent(
-  'NotifyMeButton',
-  NotifyMeButton,
-  {styles},
-);
+export default NotifyMeButton;
 
 

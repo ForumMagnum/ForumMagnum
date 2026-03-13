@@ -429,11 +429,6 @@ const Books2021SaleAnimation = ({successContent}: {
 }
 
 
-export default registerComponent('Books2021SaleAnimation', Books2021SaleAnimation, {
-  styles,
-  // This component tries to look like a printed book, which is white, so its colors
-  // don't change in dark mode
-  allowNonThemeColors: true,
-});
+export default Books2021SaleAnimation;
 
 

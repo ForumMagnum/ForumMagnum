@@ -53,6 +53,6 @@ const FriendlyInboxNavigation = ({conversationsResult, currentUserId, selectedCo
   </>;
 };
 
-export default registerComponent("FriendlyInboxNavigation", FriendlyInboxNavigation, {styles});
+export default FriendlyInboxNavigation;
 
 

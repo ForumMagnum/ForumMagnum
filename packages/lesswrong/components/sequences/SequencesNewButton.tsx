@@ -23,7 +23,7 @@ export const SequencesNewButton = () => {
   </Link>
 }
 
-export default registerComponent('SequencesNewButton', SequencesNewButton, {styles});
+export default SequencesNewButton;
 
 
 

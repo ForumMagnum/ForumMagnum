@@ -96,6 +96,6 @@ const NewTagItem = ({tag}: {
   </div>;
 }
 
-export default registerComponent("NewTagItem", NewTagItem, {styles});
+export default NewTagItem
 
 

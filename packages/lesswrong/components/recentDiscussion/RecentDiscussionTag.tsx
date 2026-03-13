@@ -163,11 +163,6 @@ const RecentDiscussionTag = ({tag, refetch = () => {}, comments, expandAllThread
   )
 }
 
-export default registerComponent(
-  'RecentDiscussionTag', RecentDiscussionTag, {
-    styles,
-    hocs: [withErrorBoundary],
-  }
-);
-
-
+export default registerComponent('RecentDiscussionTag', RecentDiscussionTag, {
+  hocs: [withErrorBoundary],
+});

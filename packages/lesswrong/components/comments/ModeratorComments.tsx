@@ -88,7 +88,7 @@ const ModeratorComments = ({terms={view: "moderatorComments"}, truncated=true, n
   )
 }
 
-export default registerComponent('ModeratorComments', ModeratorComments, {styles});
+export default ModeratorComments;
 
 
 

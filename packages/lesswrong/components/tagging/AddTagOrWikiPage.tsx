@@ -139,6 +139,6 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
   </div>
 }
 
-export default registerComponent("AddTagOrWikiPage", AddTagOrWikiPage, {styles});
+export default AddTagOrWikiPage
 
 

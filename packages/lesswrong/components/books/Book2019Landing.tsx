@@ -343,6 +343,6 @@ const Book2019Landing = () => {
   )
 }
 
-export default registerComponent('Book2019Landing', Book2019Landing, {styles});
+export default Book2019Landing;
 
 

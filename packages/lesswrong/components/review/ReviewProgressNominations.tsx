@@ -87,6 +87,6 @@ export const ReviewProgressNominations = ({reviewYear = REVIEW_YEAR}: {
       </LWTooltip>
 }
 
-export default registerComponent('ReviewProgressNominations', ReviewProgressNominations, {styles});
+export default ReviewProgressNominations;
 
 

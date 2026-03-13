@@ -32,6 +32,6 @@ const PostsStats = ({post}: {
   )
 }
 
-export default registerComponent('PostsStats', PostsStats, {styles});
+export default PostsStats
 
 

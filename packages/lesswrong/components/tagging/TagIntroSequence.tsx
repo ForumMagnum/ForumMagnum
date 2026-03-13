@@ -77,6 +77,6 @@ const TagIntroSequence = ({tag}: {
   </div>
 }
 
-export default registerComponent("TagIntroSequence", TagIntroSequence, {styles});
+export default TagIntroSequence
 
 

@@ -331,7 +331,6 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, dial
 }
 
 export default registerComponent('LWPostsPageHeader', LWPostsPageHeader, {
-  styles,
   areEqual: "auto"
 });
 

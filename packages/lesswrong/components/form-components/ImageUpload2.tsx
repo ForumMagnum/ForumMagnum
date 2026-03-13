@@ -113,6 +113,6 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
   );
 };
 
-export default registerComponent("ImageUpload2", ImageUpload2, {styles});
+export default ImageUpload2;
 
 

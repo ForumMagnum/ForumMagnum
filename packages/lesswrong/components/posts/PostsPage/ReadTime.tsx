@@ -47,6 +47,6 @@ export const ReadTime = ({post, dialogueResponses}: {
       </LWTooltip>
 }
 
-export default registerComponent('ReadTime', ReadTime, {styles});
+export default ReadTime;
 
 

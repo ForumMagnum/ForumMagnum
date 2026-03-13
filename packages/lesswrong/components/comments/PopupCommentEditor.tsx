@@ -95,6 +95,6 @@ const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose}: {
   </Card>
 }
 
-export default registerComponent('PopupCommentEditor', PopupCommentEditor, {styles});
+export default PopupCommentEditor;
 
 

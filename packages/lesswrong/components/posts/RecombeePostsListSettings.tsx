@@ -130,6 +130,6 @@ export const RecombeePostsListSettings = ({settings, updateSettings}: {
   );
 }
  
-export default registerComponent('RecombeePostsListSettings', RecombeePostsListSettings, {styles});
+export default RecombeePostsListSettings;
 
 

@@ -111,7 +111,7 @@ const PostsItemWrapper = ({documentId, addItem, removeItem, disabled = false, si
   }
 };
 
-export default registerComponent('PostsItemWrapper', PostsItemWrapper, {styles});
+export default PostsItemWrapper;
 
 
 

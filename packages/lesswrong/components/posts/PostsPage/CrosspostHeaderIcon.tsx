@@ -50,8 +50,6 @@ const CrosspostHeaderIcon = ({post}: {
   );
 }
 
-export default registerComponent(
-  "CrosspostHeaderIcon", CrosspostHeaderIcon, {styles}
-);
+export default CrosspostHeaderIcon;
 
 

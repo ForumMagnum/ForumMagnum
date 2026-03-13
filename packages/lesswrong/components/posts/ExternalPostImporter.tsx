@@ -456,8 +456,6 @@ const ExternalPostImporter = ({defaultPostedAt}: { defaultPostedAt?: Date }) => 
   );
 };
 
-export default registerComponent('ExternalPostImporter', ExternalPostImporter, {
-  styles,
-});
+export default ExternalPostImporter;
 
 

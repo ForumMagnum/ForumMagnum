@@ -254,6 +254,6 @@ const TaggingDashboard = () => {
 }
 
 
-export default registerComponent("TaggingDashboard", TaggingDashboard, { styles });
+export default TaggingDashboard
 
 

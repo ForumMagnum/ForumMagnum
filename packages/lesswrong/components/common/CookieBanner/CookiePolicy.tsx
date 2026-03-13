@@ -222,6 +222,6 @@ const CookiePolicy = () => {
   );
 };
 
-export default registerComponent("CookiePolicy", CookiePolicy, { styles });
+export default CookiePolicy;
 
 

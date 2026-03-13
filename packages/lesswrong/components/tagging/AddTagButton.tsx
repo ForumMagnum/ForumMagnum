@@ -82,6 +82,6 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
   return button;
 }
 
-export default registerComponent("AddTagButton", AddTagButton, {styles});
+export default AddTagButton;
 
 

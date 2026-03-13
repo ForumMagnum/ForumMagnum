@@ -49,10 +49,6 @@ const FormGroupFriendlyUserProfile = ({label, children}: Pick<FormGroupLayoutPro
   );
 }
 
-export default registerComponent(
-  "FormGroupFriendlyUserProfile",
-  FormGroupFriendlyUserProfile,
-  {styles},
-);
+export default FormGroupFriendlyUserProfile;
 
 

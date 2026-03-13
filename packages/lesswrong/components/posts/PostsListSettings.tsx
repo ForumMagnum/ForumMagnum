@@ -245,8 +245,6 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   );
 };
 
-export default registerComponent(
-  'PostsListSettings', PostsListSettings, { styles }
-);
+export default PostsListSettings;
 
 

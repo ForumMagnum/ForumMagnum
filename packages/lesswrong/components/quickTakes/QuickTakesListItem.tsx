@@ -74,10 +74,6 @@ const QuickTakesListItem = ({quickTake}: {
   </>;
 }
 
-export default registerComponent(
-  "QuickTakesListItem",
-  QuickTakesListItem,
-  {styles},
-);
+export default QuickTakesListItem;
 
 

@@ -45,7 +45,7 @@ const DraftsPage = () => {
 
 
 export default registerComponent('DraftsPage', DraftsPage, {
-  hocs: [withErrorBoundary], styles
+  hocs: [withErrorBoundary]
 });
 
 

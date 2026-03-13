@@ -71,11 +71,7 @@ const SunshineNewUsersItem = ({user, refetch, currentUser}: {
 }
 
 export default registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, {
-  styles,
   hocs: [
     withErrorBoundary,
   ]
 });
-
-
-

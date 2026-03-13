@@ -455,4 +455,4 @@ const ReviewVotingPage = ({reviewYear, expandedPost, setExpandedPost}: {
   );
 }
 
-export default registerComponent('ReviewVotingPage', ReviewVotingPage, {styles});
+export default ReviewVotingPage

@@ -55,7 +55,7 @@ const ReactionIcon = ({react, inverted=false, size=18}: {
 }
 
 
-export default registerComponent('ReactionIcon', ReactionIcon, {styles});
+export default ReactionIcon;
 
 
 

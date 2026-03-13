@@ -201,6 +201,6 @@ const PostCollaborationEditor = () => {
   </>
 };
 
-export default registerComponent('PostCollaborationEditor', PostCollaborationEditor, {styles});
+export default PostCollaborationEditor;
 
 

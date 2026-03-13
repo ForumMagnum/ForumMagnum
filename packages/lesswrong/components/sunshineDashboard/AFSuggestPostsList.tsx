@@ -57,7 +57,7 @@ const AFSuggestPostsList = () => {
   }
 }
 
-export default registerComponent('AFSuggestPostsList', AFSuggestPostsList, {styles});
+export default AFSuggestPostsList;
 
 
 

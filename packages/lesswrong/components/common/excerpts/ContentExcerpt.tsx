@@ -152,10 +152,5 @@ const ContentExcerpt = ({contentHtml, moreLink, hideMoreLink, smallText, noLinkS
   );
 }
 
-export default registerComponent(
-  "ContentExcerpt",
-  ContentExcerpt,
-  {styles, stylePriority: -1},
-);
-
+export default ContentExcerpt;
 

@@ -65,7 +65,7 @@ const SunshineReportedContentList = ({currentUser}: {
   }
 }
 
-export default registerComponent('SunshineReportedContentList', SunshineReportedContentList, {styles});
+export default SunshineReportedContentList
 
 
 

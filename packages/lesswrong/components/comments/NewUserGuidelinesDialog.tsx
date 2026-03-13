@@ -93,6 +93,6 @@ const NewUserGuidelinesDialog = ({onClose, post, user}: {
   )
 };
 
-export default registerComponent('NewUserGuidelinesDialog', NewUserGuidelinesDialog, { styles });
+export default NewUserGuidelinesDialog;
 
 

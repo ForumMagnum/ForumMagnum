@@ -66,10 +66,6 @@ const UserCommentMarkers = ({user, isPostAuthor, className}: {
   );
 }
 
-export default registerComponent(
-  "UserCommentMarkers",
-  UserCommentMarkers,
-  {styles},
-);
+export default UserCommentMarkers;
 
 

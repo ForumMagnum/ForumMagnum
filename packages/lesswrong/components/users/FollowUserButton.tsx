@@ -117,6 +117,6 @@ export const FollowUserButton = ({user, styleVariant = "default"}: {
   </div>;
 }
 
-export default registerComponent('FollowUserButton', FollowUserButton, {styles});
+export default FollowUserButton;
 
 

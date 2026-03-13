@@ -75,11 +75,7 @@ const SunshineNewUsersList = ({terms, currentUser}: {
 }
 
 export default registerComponent('SunshineNewUsersList', SunshineNewUsersList, {
-  styles,
   areEqual: {
     terms: "deep",
   },
 });
-
-
-

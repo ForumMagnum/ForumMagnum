@@ -28,7 +28,7 @@ const PostsItemMetaInfo = ({children, className}: {
   </Typography>
 }
 
-export default registerComponent('PostsItemMetaInfo', PostsItemMetaInfo, {styles});
+export default PostsItemMetaInfo;
 
 
 

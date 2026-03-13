@@ -114,6 +114,6 @@ const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, pos
   </div>
 }
 
-export default registerComponent("EditorTopBar", EditorTopBar, {styles});
+export default EditorTopBar;
 
 

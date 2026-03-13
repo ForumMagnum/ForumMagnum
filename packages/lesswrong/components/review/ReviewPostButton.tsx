@@ -59,7 +59,7 @@ const ReviewPostButton = ({post, reviewMessage="Review", year}: {
   )
 }
 
-export default registerComponent('ReviewPostButton', ReviewPostButton, {styles});
+export default ReviewPostButton;
 
 
 

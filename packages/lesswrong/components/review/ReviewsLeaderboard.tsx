@@ -139,7 +139,7 @@ export const ReviewsLeaderboard = ({reviews, reviewYear}: {
   </div>
 }
 
-export default registerComponent('ReviewsLeaderboard', ReviewsLeaderboard, {styles});
+export default ReviewsLeaderboard
 
 
 

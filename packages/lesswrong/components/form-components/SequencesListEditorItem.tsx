@@ -94,6 +94,6 @@ const SequencesListEditorItem = ({documentId, removeItem}: {
   }
 };
 
-export default registerComponent('SequencesListEditorItem', SequencesListEditorItem, {styles});
+export default SequencesListEditorItem;
 
 

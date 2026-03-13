@@ -110,7 +110,5 @@ const TagEditsTimeBlock = ({before, after, reportEmpty}: {
 }
 
 export default registerComponent('TagEditsTimeBlock', TagEditsTimeBlock, {
-  styles, hocs: [withErrorBoundary]
+  hocs: [withErrorBoundary]
 });
-
-

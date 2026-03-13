@@ -86,7 +86,7 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext}: {
   );
 }
 
-export default registerComponent("TagSearchHit", TagSearchHit, {styles});
+export default TagSearchHit
 
 
 

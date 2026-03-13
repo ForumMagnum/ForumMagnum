@@ -46,7 +46,7 @@ export const TagRelNotificationItem = ({tagRelId}: {
   </div>;
 }
 
-export default registerComponent('TagRelNotificationItem', TagRelNotificationItem, {styles});
+export default TagRelNotificationItem
 
 
 

@@ -99,10 +99,7 @@ export const FrontpageBestOfLWWidget = ({reviewYear}: {
   </div>;
 }
 
-export default registerComponent('FrontpageBestOfLWWidget', FrontpageBestOfLWWidget, {
-  styles,
-  allowNonThemeColors: true, // Overlayed on an image
-});
+export default FrontpageBestOfLWWidget;
 
 
 

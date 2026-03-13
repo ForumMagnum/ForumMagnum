@@ -63,6 +63,6 @@ export const T3AudioPlayer = ({showEmbeddedPlayer, documentId, collectionName}: 
   </div>
 }
 
-export default registerComponent('T3AudioPlayer', T3AudioPlayer, {styles});
+export default T3AudioPlayer;
 
 

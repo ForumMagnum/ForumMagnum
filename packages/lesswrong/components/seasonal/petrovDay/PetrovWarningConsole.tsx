@@ -140,6 +140,6 @@ export const PetrovWarningConsole = ({currentUser, side}: {
   }
 }
 
-export default registerComponent('PetrovWarningConsole', PetrovWarningConsole, {styles});
+export default PetrovWarningConsole;
 
 

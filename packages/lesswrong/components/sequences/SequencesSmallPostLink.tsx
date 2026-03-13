@@ -70,6 +70,6 @@ const SequencesSmallPostLink = ({post, sequenceId, large, placement="left-start"
   </div>
 }
 
-export default registerComponent("SequencesSmallPostLink", SequencesSmallPostLink, {styles});
+export default SequencesSmallPostLink;
 
 

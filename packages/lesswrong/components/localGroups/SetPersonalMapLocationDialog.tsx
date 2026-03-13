@@ -117,7 +117,7 @@ const SetPersonalMapLocationDialog = ({onClose}: {
   )
 }
 
-export default registerComponent('SetPersonalMapLocationDialog', SetPersonalMapLocationDialog, {styles});
+export default SetPersonalMapLocationDialog;
 
 
 

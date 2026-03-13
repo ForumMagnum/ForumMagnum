@@ -175,7 +175,7 @@ const SequencesGridItem = ({sequence, showAuthor=false, bookItemStyle}: {
   </div>
 }
 
-export default registerComponent('SequencesGridItem', SequencesGridItem, {styles});
+export default SequencesGridItem;
 
 
 

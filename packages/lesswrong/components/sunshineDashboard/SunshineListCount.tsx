@@ -22,7 +22,7 @@ const SunshineListCount = ({count}: {
   }
 }
 
-export default registerComponent('SunshineListCount', SunshineListCount, {styles});
+export default SunshineListCount;
 
 
 

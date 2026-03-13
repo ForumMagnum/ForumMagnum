@@ -61,7 +61,7 @@ const ParentCommentSingle = ({
   }
 }
 
-export default registerComponent('ParentCommentSingle', ParentCommentSingle, {});
+export default ParentCommentSingle;
 
 
 

@@ -533,10 +533,6 @@ const ReviewVotingCanvas = () => {
   );
 }
 
-export default registerComponent(
-  "ReviewVotingCanvas",
-  ReviewVotingCanvas,
-  {styles},
-);
+export default ReviewVotingCanvas;
 
 

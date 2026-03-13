@@ -313,6 +313,6 @@ const ContentType = ({className, type, label}: {
   );
 }
 
-export default registerComponent('ContentType', ContentType, {styles});
+export default ContentType
 
 

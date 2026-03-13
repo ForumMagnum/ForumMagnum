@@ -55,7 +55,7 @@ export const RejectedReasonDisplay = ({reason}: {
   </span>;
 }
 
-export default registerComponent('RejectedReasonDisplay', RejectedReasonDisplay, {styles});
+export default RejectedReasonDisplay;
 
 
 

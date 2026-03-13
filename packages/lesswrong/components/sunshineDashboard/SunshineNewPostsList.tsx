@@ -69,7 +69,7 @@ const SunshineNewPostsList = () => {
   }
 }
 
-export default registerComponent('SunshineNewPostsList', SunshineNewPostsList, {styles});
+export default SunshineNewPostsList;
 
 
 

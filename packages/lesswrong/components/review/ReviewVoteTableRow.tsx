@@ -379,9 +379,6 @@ const ReviewVoteTableRow = ({post, index, dispatch, costTotal, expandedPostId, h
   </AnalyticsContext>
 }
 
-export default registerComponent("ReviewVoteTableRow", ReviewVoteTableRow, {
-  styles,
-  //areEqual: "auto"
-});
+export default ReviewVoteTableRow;
 
 

@@ -78,6 +78,6 @@ const ReviewVotingWidget = ({post, showTitle=true}: {
     </ErrorBoundary>
 }
 
-export default registerComponent('ReviewVotingWidget', ReviewVotingWidget, {styles});
+export default ReviewVotingWidget;
 
 

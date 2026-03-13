@@ -55,6 +55,6 @@ export const PetrovWorldmapWrapper = ({children}: {
   </div>;
 }
 
-export default registerComponent('PetrovWorldmapWrapper', PetrovWorldmapWrapper, {styles});
+export default PetrovWorldmapWrapper;
 
 

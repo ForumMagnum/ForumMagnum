@@ -62,6 +62,6 @@ const PostsListEditorSearchHit = ({hit}: {
   );
 }
 
-export default registerComponent("PostsListEditorSearchHit", PostsListEditorSearchHit, {styles});
+export default PostsListEditorSearchHit;
 
 

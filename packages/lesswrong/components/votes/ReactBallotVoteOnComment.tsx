@@ -257,7 +257,7 @@ const ReactBallotVoteOnComment = ({document, hideKarma=false, collectionName, vo
 }
 
 
-export default registerComponent('ReactBallotVoteOnComment', ReactBallotVoteOnComment, {styles});
+export default ReactBallotVoteOnComment
 
 
 

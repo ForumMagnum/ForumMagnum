@@ -37,7 +37,7 @@ const SunshineListItem = ({children, hover=false}: {
   </div>
 };
 
-export default registerComponent('SunshineListItem', SunshineListItem, {styles});
+export default SunshineListItem;
 
 
 

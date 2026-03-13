@@ -134,8 +134,6 @@ const RevisionSelect = ({revisions, getRevisionUrl, onPairSelected, loadMoreProp
   </React.Fragment>
 }
 
-export default registerComponent(
-  'RevisionSelect', RevisionSelect, {styles}
-);
+export default RevisionSelect;
 
 

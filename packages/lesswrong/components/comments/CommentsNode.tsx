@@ -351,7 +351,6 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
 }
 
 const CommentsNode = registerComponent('CommentsNode', CommentsNodeInner, {
-  styles,
   areEqual: {
     treeOptions: "shallow",
     childComments: (oldValue: Array<CommentTreeNode<CommentsList>>, newValue: Array<CommentTreeNode<CommentsList>>) => commentTreesEqual(oldValue, newValue)

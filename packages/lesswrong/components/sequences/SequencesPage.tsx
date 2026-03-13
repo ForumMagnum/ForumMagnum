@@ -351,6 +351,6 @@ const SequencesPage = ({documentId}: {
   </AnalyticsContext>
 }
 
-export default registerComponent('SequencesPage', SequencesPage, {styles});
+export default SequencesPage
 
 

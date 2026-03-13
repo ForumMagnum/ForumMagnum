@@ -40,6 +40,6 @@ const KarmaIcon = ({className}: {
     </span>
 }
 
-export default registerComponent('KarmaIcon', KarmaIcon, {styles});
+export default KarmaIcon;
 
 

@@ -50,6 +50,6 @@ const LinkPostMessage = ({post, negativeTopMargin}: {
   );
 }
 
-export default registerComponent('LinkPostMessage', LinkPostMessage, {styles});
+export default LinkPostMessage;
 
 

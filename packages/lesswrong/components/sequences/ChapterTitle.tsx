@@ -22,6 +22,6 @@ const ChapterTitle = ({title, large}: {
   return  <div className={classNames(classes.root, {[classes.large]:large})}>{title}</div>
 }
 
-export default registerComponent("ChapterTitle", ChapterTitle, {styles});
+export default ChapterTitle;
 
 

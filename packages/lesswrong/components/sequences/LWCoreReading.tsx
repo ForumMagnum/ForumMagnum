@@ -101,7 +101,7 @@ const coreReadingCollections: Array<CoreReadingCollection> =
     }
   ]
 
-const LWCoreReading = ({}: {
+const LWCoreReading = ({minimal}: {
   minimal?: boolean,
 }) => {
   const classes = useStyles(styles);
@@ -111,6 +111,6 @@ const LWCoreReading = ({}: {
   </SingleColumnSection>
 }
 
-export default registerComponent("LWCoreReading", LWCoreReading, {styles});
+export default LWCoreReading
 
 

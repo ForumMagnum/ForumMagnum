@@ -20,6 +20,6 @@ const LWHelpIcon = () => {
   return <span><HelpOutlineIcon className={classes.icon}/></span>
 }
 
-export default registerComponent("LWHelpIcon", LWHelpIcon, {styles});
+export default LWHelpIcon;
 
 

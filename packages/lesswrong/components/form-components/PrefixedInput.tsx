@@ -77,6 +77,6 @@ const PrefixedInput = ({field, heading, inputPrefix, smallBottomMargin}: {
   );
 }
 
-export default registerComponent("PrefixedInput", PrefixedInput, { styles });
+export default PrefixedInput;
 
 

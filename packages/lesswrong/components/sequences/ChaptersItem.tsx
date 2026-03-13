@@ -103,6 +103,6 @@ const ChaptersItem = ({chapter, canEdit}: {
   )
 }
 
-export default registerComponent('ChaptersItem', ChaptersItem, {styles});
+export default ChaptersItem
 
 

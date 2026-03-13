@@ -193,6 +193,6 @@ const SearchFilters = ({tab, tagsFilter, handleUpdateTagsFilter, onSortingChange
 }
 
 
-export default registerComponent("SearchFilters", SearchFilters, {styles});
+export default SearchFilters
 
 

@@ -267,7 +267,7 @@ const PetrovDayButton = ({alreadyLaunched}: {
   )
 }
 
-export default registerComponent('PetrovDayButton', PetrovDayButton, {styles});
+export default PetrovDayButton;
 
 
 

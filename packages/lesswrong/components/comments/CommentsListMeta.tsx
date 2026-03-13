@@ -27,6 +27,6 @@ const CommentsListMeta = ({children}: {
   </div>
 }
 
-export default registerComponent('CommentsListMeta', CommentsListMeta, {styles});
+export default CommentsListMeta;
 
 

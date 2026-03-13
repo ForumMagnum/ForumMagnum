@@ -207,7 +207,6 @@ const ConversationContents = ({conversation, currentUserId, scrollRef, sendEmail
 };
 
 export default registerComponent("ConversationContents", ConversationContents, {
-  styles,
   hocs: [withErrorBoundary],
 });
 

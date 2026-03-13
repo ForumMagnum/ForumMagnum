@@ -36,10 +36,6 @@ const PostMentionHit = ({hit}: {
   );
 }
 
-export default registerComponent(
-  "PostMentionHit",
-  PostMentionHit,
-  {styles},
-);
+export default PostMentionHit;
 
 

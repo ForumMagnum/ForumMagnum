@@ -231,6 +231,6 @@ const GoogleDocImportButton = ({postId, version}: { postId: string; version?: st
   );
 };
 
-export default registerComponent("GoogleDocImportButton", GoogleDocImportButton, { styles });
+export default GoogleDocImportButton;
 
 

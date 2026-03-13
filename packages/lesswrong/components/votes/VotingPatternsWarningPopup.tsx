@@ -31,6 +31,6 @@ const VotingPatternsWarningPopup = ({onClose}: {
   </LWDialog>
 }
 
-export default registerComponent('VotingPatternsWarningPopup', VotingPatternsWarningPopup, {styles});
+export default VotingPatternsWarningPopup;
 
 

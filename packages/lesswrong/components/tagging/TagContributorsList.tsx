@@ -115,7 +115,6 @@ const TagContributorsList = ({tag, onHoverUser}: {
 }
 
 export default registerComponent("TagContributorsList", TagContributorsList, {
-  styles,
   hocs: [withErrorBoundary],
 });
 

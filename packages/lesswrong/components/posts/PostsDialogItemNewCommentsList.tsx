@@ -80,10 +80,5 @@ const PostsDialogItemNewCommentsList = ({ terms, post, treeOptions }: {
   }
 };
 
-export default registerComponent(
-  'PostsDialogItemNewCommentsList', PostsDialogItemNewCommentsList, {
-    styles,
-  }
-);
-
+export default PostsDialogItemNewCommentsList;
 

@@ -100,7 +100,6 @@ const SunshineSidebar = () => {
 }
 
 export default registerComponent("SunshineSidebar", SunshineSidebar, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

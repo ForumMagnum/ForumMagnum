@@ -111,11 +111,8 @@ const PostsTopSequencesNav = ({post, blackText}: {
   )
 }
 
-export default registerComponent(
-  'PostsTopSequencesNav', PostsTopSequencesNav, {
-    styles,
-    hocs: [withErrorBoundary]
-  }
-);
+export default registerComponent('PostsTopSequencesNav', PostsTopSequencesNav, {
+  hocs: [withErrorBoundary]
+});
 
 

@@ -28,4 +28,4 @@ const DropdownMenu = ({children, className}: {
   );
 }
 
-export default registerComponent("DropdownMenu", DropdownMenu, {styles});
+export default DropdownMenu;

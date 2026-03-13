@@ -30,7 +30,7 @@ export const BasicFormStyles = ({children}: {
   </div>;
 }
 
-export default registerComponent('BasicFormStyles', BasicFormStyles, {styles});
+export default BasicFormStyles;
 
 
 

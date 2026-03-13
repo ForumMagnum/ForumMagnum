@@ -89,6 +89,6 @@ const FrontpageVotingPhase = ({settings}: {
   )
 }
 
-export default registerComponent('FrontpageVotingPhase', FrontpageVotingPhase, {styles});
+export default FrontpageVotingPhase;
 
 

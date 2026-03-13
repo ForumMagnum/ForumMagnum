@@ -48,11 +48,5 @@ const PetrovDayLossScreen = () => {
   )
 }
 
-export default registerComponent('PetrovDayLossScreen', PetrovDayLossScreen, {
-  styles,
-  // This is text overlayed on an image, which doesn't get inverted for dark mode
-  allowNonThemeColors: true,
-});
-
-
+export default PetrovDayLossScreen;
 

@@ -46,10 +46,6 @@ const IntercomFeedbackButton = ({title = "Give feedback", eventName, className}:
   );
 }
 
-export default registerComponent(
-  "IntercomFeedbackButton",
-  IntercomFeedbackButton,
-  {styles, stylePriority: -5},
-);
+export default IntercomFeedbackButton;
 
 

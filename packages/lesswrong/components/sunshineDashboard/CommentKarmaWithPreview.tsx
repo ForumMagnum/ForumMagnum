@@ -78,7 +78,7 @@ const CommentKarmaWithPreview = ({comment, displayTitle, reviewedAt}: {
   </span>
 }
 
-export default registerComponent('CommentKarmaWithPreview', CommentKarmaWithPreview, {styles});
+export default CommentKarmaWithPreview;
 
 
 

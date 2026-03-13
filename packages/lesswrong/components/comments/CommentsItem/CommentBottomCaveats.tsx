@@ -50,6 +50,6 @@ const CommentBottomCaveats = ({comment}: {
   </>
 }
 
-export default registerComponent("CommentBottomCaveats", CommentBottomCaveats, {styles});
+export default CommentBottomCaveats;
 
 

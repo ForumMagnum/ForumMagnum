@@ -84,10 +84,6 @@ const SideRecommendation = ({post}: {
   );
 }
 
-export default registerComponent(
-  "SideRecommendation",
-  SideRecommendation,
-  {styles},
-);
+export default SideRecommendation;
 
 

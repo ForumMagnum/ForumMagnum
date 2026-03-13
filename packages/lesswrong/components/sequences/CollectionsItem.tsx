@@ -161,7 +161,7 @@ export const CollectionsItem = ({showCloseIcon, collection}: {
   </div>
 }
 
-export default registerComponent('CollectionsItem', CollectionsItem, {styles});
+export default CollectionsItem
 
 
 

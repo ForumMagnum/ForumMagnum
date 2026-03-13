@@ -106,6 +106,6 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideP
   </Link>
 }
 
-export default registerComponent("TagDiscussionButton", TagDiscussionButton, {styles});
+export default TagDiscussionButton
 
 

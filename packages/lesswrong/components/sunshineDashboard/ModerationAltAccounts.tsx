@@ -356,7 +356,7 @@ const CensoredUserName = ({user}: {
   }
 }
 
-export default registerComponent('ModerationAltAccounts', ModerationAltAccounts, {styles});
+export default ModerationAltAccounts
 
 
 

@@ -76,7 +76,6 @@ const SharePostButton = ({post, className}: {
 }
 
 export default registerComponent('SharePostButton', SharePostButton, {
-  styles,
   hocs: [withErrorBoundary],
 });
 

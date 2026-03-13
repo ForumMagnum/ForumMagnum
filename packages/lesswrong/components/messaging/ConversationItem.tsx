@@ -103,7 +103,7 @@ const ConversationItem = ({conversation, currentUser, expanded}: {
   )
 }
 
-export default registerComponent('ConversationItem', ConversationItem, {styles});
+export default ConversationItem;
 
 
 

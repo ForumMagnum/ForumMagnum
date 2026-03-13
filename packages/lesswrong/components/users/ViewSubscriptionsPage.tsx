@@ -211,10 +211,6 @@ const ViewSubscriptionsPage = () => {
   );
 }
 
-export default registerComponent(
-  "ViewSubscriptionsPage",
-  ViewSubscriptionsPage,
-  {styles},
-);
+export default ViewSubscriptionsPage;
 
 

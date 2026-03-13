@@ -246,7 +246,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   </div>
 }
 
-export default registerComponent('LargeSequencesItem', LargeSequencesItem, {styles});
+export default LargeSequencesItem;
 
 
 

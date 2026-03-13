@@ -312,6 +312,6 @@ const TagPageButtonRow = ({tag, selectedLens, editing, setEditing, hideLabels = 
   </AnalyticsContext>
 }
 
-export default registerComponent("TagPageButtonRow", TagPageButtonRow, { styles });
+export default TagPageButtonRow
 
 

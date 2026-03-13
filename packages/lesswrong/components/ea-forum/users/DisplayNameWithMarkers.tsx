@@ -61,7 +61,6 @@ const DisplayNameWithMarkers = ({name}: { name: string; }) => {
 };
 
 export default registerComponent("DisplayNameWithMarkers", DisplayNameWithMarkers, {
-  styles,
   areEqual: "auto",
 });
 

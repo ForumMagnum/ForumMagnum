@@ -95,6 +95,6 @@ export const ReviewsList = ({title, defaultSort, reviewYear}: {
   </div>;
 }
 
-export default registerComponent('ReviewsList', ReviewsList, {styles});
+export default ReviewsList;
 
 

@@ -42,6 +42,6 @@ const WarningBanner = ({message}: {
   </div>
 }
 
-export default registerComponent('WarningBanner', WarningBanner, {styles});
+export default WarningBanner;
 
 

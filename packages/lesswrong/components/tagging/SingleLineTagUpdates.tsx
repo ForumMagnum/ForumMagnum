@@ -220,6 +220,6 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
   </div>
 }
 
-export default registerComponent('SingleLineTagUpdates', SingleLineTagUpdates, {styles});
+export default SingleLineTagUpdates
 
 
