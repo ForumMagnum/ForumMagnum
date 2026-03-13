@@ -52,19 +52,6 @@ import { IsReturningVisitorContext } from '@/components/layout/IsReturningVisito
 type RecombeeCookieSettings = [string, RecombeeConfiguration][];
 
 const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
-  title: {
-    ...sectionTitleStyle(theme),
-    display: "inline",
-    marginRight: "auto"
-  },
-  toggleFilters: {
-    [theme.breakpoints.up('sm')]: {
-      display: "none"
-    },
-  },
-  hide: {
-    display: "none"
-  },
   hideOnMobile: {
     [theme.breakpoints.down('sm')]: {
       display: "none"
@@ -74,9 +61,6 @@ const styles = defineStyles("LWHomePost", (theme: ThemeType) => ({
     [theme.breakpoints.up('md')]: {
       display: "none"
     },
-  },
-  titleWrapper: {
-    marginBottom: 8
   },
   settingsVisibilityControls: {
     display: "flex",

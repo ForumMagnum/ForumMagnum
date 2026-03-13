@@ -43,12 +43,6 @@ const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
   maxWidthRoot: {
     maxWidth: 720,
   },
-  commentsHeadline: {
-    fontSize: 24,
-    lineHeight: '36px',
-    fontWeight: 600,
-    marginBottom: 16
-  },
   commentCount: {
     color: theme.palette.grey[600],
     marginLeft: 10
