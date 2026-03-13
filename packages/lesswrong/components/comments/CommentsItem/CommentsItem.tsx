@@ -152,13 +152,6 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
     position: "relative",
     top: 3
   },
-  replyIcon: {
-    opacity: .3,
-    height: 18,
-    width: 18,
-    position: "relative",
-    top: 3
-  },
   excerpt: {
     marginBottom: 8,
   },
