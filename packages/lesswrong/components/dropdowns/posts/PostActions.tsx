@@ -1,6 +1,5 @@
 import React from 'react';
 import { useCurrentUser } from '../../common/withUser';
-import { isBookUI } from '../../../themes/forumTheme';
 import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
 import MoveToDraftDropdownItem from "./MoveToDraftDropdownItem";
 import BookmarkDropdownItem from "./BookmarkDropdownItem";

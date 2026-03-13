@@ -847,7 +847,7 @@ const CKPostEditor = ({
       }}
       config={editorConfig}
     />}
-    {"collabEditorDialogue" in postOrSequence && postOrSequence.collabEditorDialogue && !isFriendlyUI
+    {"collabEditorDialogue" in postOrSequence && postOrSequence.collabEditorDialogue
       ? <DialogueEditorFeedback post={postOrSequence} /> 
       : null
     }

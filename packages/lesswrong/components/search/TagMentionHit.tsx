@@ -1,7 +1,5 @@
 import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
-import { isFriendlyUI } from "@/themes/forumTheme";
-import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
@@ -18,9 +16,7 @@ const TagMentionHit = ({hit, classes}: {
   hit: SearchTag,
   classes: ClassesType<typeof styles>,
 }) => {
-  const icon = isFriendlyUI()
-    ? <ForumIcon icon="Tag" className={classes.icon} />
-    : "🏷️";
+  const icon = "🏷️";
   return (
     <span className={classes.root}>
       {icon} <span>{hit.name}</span>

@@ -4,7 +4,6 @@ import CommentsNewForm, {
   CommentCancelCallback,
   CommentSuccessCallback } from "../comments/CommentsNewForm";
 import classNames from "classnames";
-import { isFriendlyUI } from "../../themes/forumTheme";
 import { useDialog } from "../common/withDialog";
 import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
 import LoginPopup from "../users/LoginPopup";
@@ -13,12 +12,8 @@ const COLLAPSED_HEIGHT = 40;
 
 const styles = (theme: ThemeType) => ({
   root: {
-    background: theme.palette.panelBackground.default,
-    border: `1px solid ${theme.palette.grey[200]}`,
-    ...(theme.isBookUI && {
-      background: theme.palette.panelBackground.bannerAdTranslucentStrong,
-      border: "none",
-    }),
+    background: theme.palette.panelBackground.bannerAdTranslucentStrong,
+    border: "none",
     borderRadius: theme.borderRadius.quickTakesEntry,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
@@ -159,7 +154,7 @@ const QuickTakesEntry = ({
   }, []);
 
   // is true when user is logged out or has not been reviewed yet, i.e. has made no contributions yet
-  const showNewUserMessage = !currentUser?.reviewedByUserId && !isFriendlyUI();
+  const showNewUserMessage = !currentUser?.reviewedByUserId;
   return <div className={classNames(classes.root, className)} ref={ref}>
     {/* TODO: Write a better message for new users */}
     {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}

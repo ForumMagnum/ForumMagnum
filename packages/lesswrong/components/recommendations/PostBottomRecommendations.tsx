@@ -2,11 +2,9 @@ import React, { useMemo } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { userGetProfileUrl } from "../../lib/collections/users/helpers";
-import { useRecentOpportunities } from "../hooks/useRecentOpportunities";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useRecommendations } from "./withRecommendations";
 import ToCColumn, { MAX_CONTENT_WIDTH } from "../posts/TableOfContents/ToCColumn";
-import { isFriendlyUI } from "@/themes/forumTheme";
 import PostsLoading from "../posts/PostsLoading";
 import UserTooltip from "../users/UserTooltip";
 import PostsItem from "../posts/PostsItem";
@@ -91,18 +89,6 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
   });
 
   const curatedAndPopularPosts = curatedAndPopularData?.CuratedAndPopularThisWeek?.results;
-
-  const {
-    results: opportunityPosts,
-    loading: opportunitiesLoading,
-    coreTagLabel
-  } = useRecentOpportunities({
-    fragmentName: "PostsListWithVotes",
-    post,
-    maxAgeInDays: 60,
-    ssr,
-    skip: !isFriendlyUI(),
-  });
 
   const profileUrl = userGetProfileUrl(post.user);
 

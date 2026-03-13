@@ -3,7 +3,6 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useVote } from '../votes/withVote';
 import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
 import classNames from 'classnames';
-import { isBookUI } from '../../themes/forumTheme';
 import { forumSelect } from '@/lib/forumTypeUtils';
 import { TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "../votes/OverallVoteButton";
@@ -61,8 +60,6 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
     {!canVote && whyYouCantVote}
   </div>
 
-  const solidArrow = isBookUI();
-
   return <PostsItem2MetaInfo className={classes.root}>
     <TooltipSpan title={tooltip} placement="left-end"><>
       <div className={classNames(classes.voteButton, classes.vertLayoutVoteDown)}>
@@ -70,7 +67,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
           orientation="down"
           color="error"
           upOrDown="Downvote"
-          solidArrow={solidArrow}
+          solidArrow={true}
           enabled={canVote}
           {...voteProps}
         />
@@ -85,7 +82,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
           orientation="up"
           color="secondary"
           upOrDown="Upvote"
-          solidArrow={solidArrow}
+          solidArrow={true}
           enabled={canVote}
           {...voteProps}
         />

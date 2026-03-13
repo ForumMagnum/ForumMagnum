@@ -3,12 +3,11 @@ import classNames from "classnames";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { isEAForum, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
-import { CommentLinkWrapper, useCommentLinkState } from "./useCommentLink";
+import { useCommentLinkState } from "./useCommentLink";
 import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
 import { useFilteredCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
-import { isBookUI, isFriendlyUI } from "../../../themes/forumTheme";
 import CommentShortformIcon from "./CommentShortformIcon";
 import CommentDiscussionIcon from "./CommentDiscussionIcon";
 import ShowParentComment from "../ShowParentComment";
@@ -18,7 +17,6 @@ import SmallSideVote from "../../votes/SmallSideVote";
 import CommentOutdatedWarning from "./CommentOutdatedWarning";
 import FooterTag from "../../tagging/FooterTag";
 import LoadMore from "../../common/LoadMore";
-import ForumIcon from "../../common/ForumIcon";
 import CommentsMenu from "../../dropdowns/comments/CommentsMenu";
 import UserCommentMarkers from "../../users/UserCommentMarkers";
 import { metaNoticeStyles } from "./metaNoticeStyles";
@@ -245,12 +243,7 @@ export const CommentsItemMeta = ({
       }
       {(showCollapseButtons || collapsed) &&
         <a className={classes.collapse} onClick={toggleCollapse}>
-          {isFriendlyUI()
-            ? <ForumIcon icon="ThickChevronRight" className={classNames(
-                classes.collapseChevron, !collapsed && classes.collapseChevronOpen
-              )} />
-            : <>[<span className={classes.collapseCharacter}>{collapsed ? "+" : "-"}</span>]</>
-          }
+          <>[<span className={classes.collapseCharacter}>{collapsed ? "+" : "-"}</span>]</>
         </a>
       }
       {singleLineCollapse && <a className={classes.collapse} onClick={() =>
@@ -306,7 +299,7 @@ export const CommentsItemMeta = ({
             hoverable={true}
             key={tag._id}
             className={classes.relevantTag}
-            neverCoreStyling={isBookUI()}
+            neverCoreStyling
             smallText
           />
         )}
@@ -317,13 +310,8 @@ export const CommentsItemMeta = ({
         />}
       </span>}
 
-      {(rightSectionElements || isFriendlyUI() || menuVisible) && <span className={classes.rightSection}>
+      {(rightSectionElements || menuVisible) && <span className={classes.rightSection}>
         {rightSectionElements}
-        {isFriendlyUI() &&
-          <CommentLinkWrapper {...commentLinkProps}>
-            <ForumIcon icon="Link" className={classNames(classes.linkIcon, {[classes.linkIconHighlighted]: highlightLinkIcon})} />
-          </CommentLinkWrapper>
-        }
         {menuVisible &&
           <AnalyticsContext pageElementContext="tripleDotMenu">
             <CommentsMenu

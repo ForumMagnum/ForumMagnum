@@ -1,7 +1,6 @@
 import React from 'react';
 import FormatDate, { ExpandedDate } from '../../common/FormatDate';
 import moment from 'moment';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import PostsRevisionSelector from "./PostsRevisionSelector";
 import LWTooltip from "../../common/LWTooltip";

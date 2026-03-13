@@ -2,7 +2,6 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import moment from 'moment';
 import AlarmIcon from '@/lib/vendor/@material-ui/icons/src/Alarm';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import WarningBanner from "../common/WarningBanner";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";

@@ -1,7 +1,6 @@
 import { defineStyles } from '@/components/hooks/useStyles';
 import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
 import { isEAForum } from '@/lib/instanceSettings';
-import { isFriendlyUI } from '@/themes/forumTheme';
 
 export const styles = defineStyles("KarmaChangeNotifier", (theme: ThemeType) => ({
   root: {

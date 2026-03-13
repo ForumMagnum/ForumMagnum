@@ -2,7 +2,6 @@ import React, { ReactNode } from "react";
 import type { Placement as PopperPlacementType } from "popper.js"
 import HoverOver from "../common/HoverOver";
 import LWUserTooltipContent from "./LWUserTooltipContent";
-import { isFriendlyUI } from "@/themes/forumTheme";
 import { defineStyles } from "../hooks/defineStyles";
 import { useStyles } from "../hooks/useStyles";
 
@@ -35,7 +34,7 @@ const UserTooltip = ({user, placement, inlineBlock, hideFollowButton, disabled, 
       inlineBlock={inlineBlock}
       popperClassName={classes.root}
       titleClassName={classes.overrideTooltip}
-      clickable={!isFriendlyUI()}
+      clickable
       disabled={disabled}
     >
       {children}

@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
 import { forumTitleSetting, isEAForum, isLW, isLWorAF, requestFeedbackKarmaLevelSetting } from '@/lib/instanceSettings.ts';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import type { EditablePost, PostSubmitMeta } from '@/lib/collections/posts/helpers.ts';
 import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';
@@ -144,10 +143,6 @@ export const PostSubmit = ({
           onClick={onSubmitClick}
           disabled={disabled}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-          {...(isFriendlyUI() ? {
-            variant: "contained",
-            color: "primary",
-          } : {})}
         >
           {submitLabel}
         </Button>

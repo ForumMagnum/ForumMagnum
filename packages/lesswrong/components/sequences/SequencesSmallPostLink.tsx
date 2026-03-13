@@ -4,8 +4,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import type { Placement as PopperPlacementType } from "popper.js"
-import { isLWorAF } from '../../lib/instanceSettings';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import PostReadCheckbox from "../posts/PostReadCheckbox";
 
@@ -42,14 +40,11 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
 }) => {
   return <div className={classNames(classes.title, {[classes.large]: large})}>
     <span className={classes.checkbox}>
-      <PostReadCheckbox
-        post={post}
-        width={isFriendlyUI() ? 14 : undefined}
-      />
+      <PostReadCheckbox post={post} />
     </span>
     <PostsTooltip
       {...('contents' in post ? { post } : { postId: post._id, preload: 'on-screen' })}
-      postsList={isLWorAF()}
+      postsList={true}
       placement={placement}
       inlineBlock={false}
       clickable

@@ -13,7 +13,6 @@ import { commentDefaultToAlignment } from '../../lib/collections/comments/helper
 import { isInFuture, useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { useTracking } from "../../lib/analyticsEvents";
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { getCommentsNewFormPadding } from '@/lib/collections/comments/constants';
 import { CommentForm, type CommentInteractionType } from './CommentForm';
@@ -101,11 +100,7 @@ const shouldOpenNewUserGuidelinesDialog = (
 };
 
 const getSubmitLabel = (isQuickTake: boolean, isAnswer?: boolean) => {
-  if (isAnswer) {
-    return isFriendlyUI() ? 'Add answer' : 'Submit';
-  }
-  if (!isFriendlyUI()) return 'Submit'
-  return isQuickTake ? 'Publish' : 'Comment'
+  return "Submit";
 }
 
 export type CommentsNewFormProps = {
@@ -291,10 +286,6 @@ const CommentsNewForm = ({
     ...(overrideHintText ? {editorHintText: overrideHintText} : {})
   }), [isMinimalist, overrideHintText]);
 
-  const answerFormProps = useMemo(() => isAnswer
-    ? {editorHintText: isFriendlyUI() && isAnswer ? 'Write a new answer...' : undefined}
-    : {}, [isAnswer]);
-
   const parentDocumentId = post?._id || tag?._id
 
   useEffect(() => {
@@ -313,8 +304,7 @@ const CommentsNewForm = ({
     formClassName: isQuickTake ? classes.quickTakesForm : '',
     ...extraFormProps,
     ...formProps,
-    ...answerFormProps,
-  }), [isQuickTake, classes.quickTakesForm, extraFormProps, formProps, answerFormProps]);
+  }), [isQuickTake, classes.quickTakesForm, extraFormProps, formProps]);
 
   const commentSubmitProps = useMemo(() => ({
     formDisabledDueToRateLimit,
@@ -364,7 +354,6 @@ const CommentsNewForm = ({
               interactionType={interactionType}
               alignmentForumPost={post?.af}
               hideAlignmentForumCheckbox={hideAlignmentForumCheckbox}
-              quickTakesFormGroup={isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI())}
               formClassName={mergedFormProps.formClassName}
               editorHintText={mergedFormProps.editorHintText}
               commentMinimalistStyle={mergedFormProps.commentMinimalistStyle}

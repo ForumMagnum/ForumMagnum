@@ -40,7 +40,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: 8,
   },
   onGrayBackground: {
-    ...(theme.isBookUI && theme.dark && {
+    ...(theme.dark && {
       color: theme.palette.greyAlpha(1),
     }),
   },

@@ -15,7 +15,7 @@ const styles = defineStyles("TabNavigationSubItem", (theme: ThemeType) => ({
     // padding reflects how large an icon+padding is
     paddingLeft: 16 + iconPadding(theme),
     color: theme.palette.grey[700],
-    ...(theme.isBookUI && theme.dark && {
+    ...(theme.dark && {
       color: theme.palette.text.bannerAdOverlay,
     }),
     width:

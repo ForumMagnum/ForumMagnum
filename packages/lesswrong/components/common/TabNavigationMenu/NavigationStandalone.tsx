@@ -2,7 +2,6 @@ import React from 'react';
 import { useLocation } from '../../../lib/routeUtil';
 import classNames from 'classnames';
 import TabNavigationMenu, { TAB_NAVIGATION_MENU_WIDTH } from './TabNavigationMenu';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { getCommunityPath } from '@/lib/pathConstants';
 
@@ -19,11 +18,6 @@ const styles = defineStyles("NavigationStandalone", (theme: ThemeType) => ({
   iconOnlySidebar: {
     [`@media (max-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT}px)`]: {
       width: ICON_ONLY_NAVIGATION_WIDTH,
-    },
-  },
-  iconOnlySidebarWrapper: {
-    [`@media (max-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT}px)`]: {
-      minWidth: ICON_ONLY_NAVIGATION_WIDTH,
     },
   },
   navSidebarTransparent: {
@@ -45,24 +39,16 @@ const styles = defineStyles("NavigationStandalone", (theme: ThemeType) => ({
   },
 }))
 
-const NavigationStandalone = ({
-  sidebarHidden,
-  noTopMargin,
-  iconOnlyNavigationEnabled,
-}: {
+const NavigationStandalone = ({ sidebarHidden, iconOnlyNavigationEnabled }: {
   sidebarHidden: boolean,
-  noTopMargin?: boolean,
   iconOnlyNavigationEnabled?: boolean,
 }) => {
   const classes = useStyles(styles);
   const { location } = useLocation();
-  const friendlyUI = isFriendlyUI();
 
   const background = location.pathname === getCommunityPath();
 
-  return <div className={classNames({
-    [classes.iconOnlySidebarWrapper]: friendlyUI && iconOnlyNavigationEnabled,
-  })}>
+  return <div>
     <Slide slidIn={!sidebarHidden}>
       <div className={classNames(classes.sidebar, {
         [classes.background]: background,
@@ -71,13 +57,11 @@ const NavigationStandalone = ({
         <div className={classes.fullNavigation}>
           <TabNavigationMenu
             iconOnlyNavigationEnabled={false}
-            noTopMargin={noTopMargin}
           />
         </div>
         {iconOnlyNavigationEnabled && <div className={classes.iconOnlyNavigation}>
           <TabNavigationMenu
             iconOnlyNavigationEnabled={iconOnlyNavigationEnabled}
-            noTopMargin={noTopMargin}
           />
         </div>}
       </div>

@@ -332,7 +332,7 @@ const FooterTagList = ({
     ? stableSortTags(results.filter((tagRel) => !!tagRel?.tag).map((tr) => ({ tag: tr.tag!, tagRel: tr })), {
         coreTags: "last",
       })
-    : post.tags.map((tag) => ({ tag }));
+    : post.tags.map((tag) => ({ tag, tagRel: undefined }));
   const menuPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
   const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext menuPlacement={menuPlacement}>

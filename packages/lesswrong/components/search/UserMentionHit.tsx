@@ -1,8 +1,5 @@
 import React from "react"
-import { registerComponent } from "../../lib/vulcan-lib/components"
-import { isFriendlyUI } from "@/themes/forumTheme";
 import FormatDate from "../common/FormatDate";
-import ForumIcon from "../common/ForumIcon";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import MetaInfo from "../common/MetaInfo";
 
@@ -35,9 +32,7 @@ const UserMentionHit = ({hit}: {
   hit: SearchUser,
 }) => {
   const classes = useStyles(styles);
-  const icon = isFriendlyUI()
-    ? <ForumIcon icon="UserOutline" className={classes.icon} />
-    : "👤";
+  const icon = "👤";
   return <span className={classes.root}>
     {icon} <span>{hit.displayName}</span>
     <MetaInfo className={classes.userHitLabel}>

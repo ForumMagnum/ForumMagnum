@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
 import ShortformSubmitForm from "./ShortformSubmitForm";
 import LWDialog from "../common/LWDialog";
@@ -29,7 +28,7 @@ const NewShortformDialog = ({onClose, classes}: {
       open={open}
       onClose={onClose}
       fullWidth
-      maxWidth={isFriendlyUI() ? "md" : "sm"}
+      maxWidth={"sm"}
       disableBackdropClick={true}
       disableEscapeKeyDown={true}
       paperClassName={classes.dialogPaper}
@@ -38,14 +37,14 @@ const NewShortformDialog = ({onClose, classes}: {
         <ShortformSubmitForm
           successCallback={() => {
             onClose();
-            navigate(isFriendlyUI() ? '/quicktakes' : '/shortform');
+            navigate('/quicktakes');
           }}
           cancelCallback={() => {
             setOpen(false);
             onClose?.();
           }}
-          defaultExpanded={!isFriendlyUI()}
-          submitButtonAtBottom={!isFriendlyUI()}
+          defaultExpanded
+          submitButtonAtBottom
         />
       </DialogContent>
     </LWDialog>

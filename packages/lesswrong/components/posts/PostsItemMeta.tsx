@@ -15,7 +15,7 @@ import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
 
 const styles = (theme: ThemeType) => ({
   onGrayBackground: {
-    ...(theme.isBookUI && theme.dark && {
+    ...(theme.dark && {
       color: theme.palette.greyAlpha(1),
     }),
   },

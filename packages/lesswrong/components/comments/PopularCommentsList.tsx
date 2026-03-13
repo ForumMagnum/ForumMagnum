@@ -1,6 +1,5 @@
 import React from "react";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { isFriendlyUI } from "../../themes/forumTheme";
 import LoadMore from "../common/LoadMore";
 import LWPopularComment from "./LWPopularComment";
 import { useQueryWithLoadMore } from "../hooks/useQueryWithLoadMore";

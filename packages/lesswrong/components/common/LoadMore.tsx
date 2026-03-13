@@ -14,7 +14,7 @@ const styles = defineStyles("LoadMore", (theme: ThemeType) => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
     color: theme.palette.lwTertiary.main,
-    ...(theme.isBookUI && theme.dark && {
+    ...(theme.dark && {
       color: theme.palette.text.bannerAdOverlay,
     }),
     display: "inline-block",

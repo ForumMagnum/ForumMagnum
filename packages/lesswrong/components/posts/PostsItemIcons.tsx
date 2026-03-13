@@ -1,10 +1,8 @@
 import React, { useContext } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isRecombeeRecommendablePost, postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { curatedUrl } from '../recommendations/constants';
 import { Link } from '../../lib/reactRouterWrapper';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { isAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useSetIsHiddenMutation } from '../dropdowns/posts/useSetIsHidden';
@@ -45,9 +43,6 @@ const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
     position: "relative",
     top: 3,
   },
-  curatedIconColor: {
-    color: theme.palette.primary.main,
-  },
   question: {
     "--icon-size": "15.6px",
     color: theme.palette.icon.dim4,
@@ -83,7 +78,6 @@ export const CuratedIcon = ({hasColor}: {
         <Link to={curatedUrl}>
           <ForumIcon icon="Star" className={classNames(
             classes.curatedIcon,
-            {[classes.curatedIconColor]: hasColor && isFriendlyUI()},
           )}/>
         </Link>
       </LWTooltip>
@@ -150,11 +144,7 @@ export const PostsItemIcons = ({post, hover, hideCuratedIcon, hidePersonalIcon}:
     {(post.debate || post.collabEditorDialogue) && <span className={classes.postIcon}>
       <LWTooltip title="Dialogue" placement="right">
         <ForumIcon
-          icon={
-            isFriendlyUI()
-              ? "ChatBubbleLeftRight"
-              : "ChatBubbleLeftRightFilled"
-          }
+          icon={"ChatBubbleLeftRightFilled"}
           className={classNames(classes.icon, classes.dialogueIcon)}
         />
       </LWTooltip>

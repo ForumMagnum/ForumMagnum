@@ -13,9 +13,7 @@ const styles = defineStyles("ExpandableSection", (theme: ThemeType) => ({
   title: {
     display: "flex",
     columnGap: 10,
-    ...(theme.isBookUI && {
-      color: theme.palette.text.bannerAdOverlay,
-    }),
+    color: theme.palette.text.bannerAdOverlay,
   },
   afterContainer: {
     display: "flex",

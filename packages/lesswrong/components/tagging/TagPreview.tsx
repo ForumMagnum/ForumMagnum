@@ -3,7 +3,6 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPageUtils';
 import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import TagPreviewDescription, { getTagDescriptionHtmlHighlight } from './TagPreviewDescription';
@@ -189,7 +188,7 @@ const TagPreview = ({
     setForceOpen?.(true);
   };
 
-  const showPosts = postCount > 0 && !!tag?._id && !isFriendlyUI();
+  const showPosts = postCount > 0 && !!tag?._id;
   const { view, limit, ...selectorTerms } = tagPostTerms(tag);
   const { data } = useQuery(PostsListMultiQuery, {
     variables: {
@@ -223,7 +222,6 @@ const TagPreview = ({
   )) ?? [];
 
   const showRelatedTags =
-    !isFriendlyUI() &&
     !hideRelatedTags &&
     !!(tag.parentTag || tag.subTags.length);
 
@@ -318,15 +316,6 @@ const TagPreview = ({
             </div>
           }
         </>
-        }
-        {isFriendlyUI() &&
-          <div className={classNames(classes.footerCount, {
-            [classes.footerMarginTop]: hasDescription,
-          })}>
-            <Link to={tagGetUrl(tag)}>
-              View all {tag.postCount} posts
-            </Link>
-          </div>
         }
       </div>
     </div>

@@ -22,7 +22,7 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
       color: theme.palette.link.tocLinkHighlighted,
     },
     '& $highlightDot:after': {
-      content: theme.isBookUI ? null : `"•"`,
+      content: null,
       marginLeft: 3,
       position: 'relative',
       top: 1

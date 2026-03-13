@@ -5,7 +5,6 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import ArrowDropDownIcon from '@/lib/vendor/@material-ui/icons/src/ArrowDropDown';
 import classNames from 'classnames';
 import { SettingsOption } from '../../lib/collections/posts/dropdownOptions';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { MenuItem } from "./Menus";
 import ForumIcon from "./ForumIcon";
 import { defineStyles } from '../hooks/defineStyles';
@@ -104,7 +103,7 @@ const ForumDropdownMultiselect = ({
       return `${prev}, ${nextLabel}`
     }, '');
 
-  const dropdownIcon = isFriendlyUI() ? <ForumIcon icon="ThickChevronDown" className={classes.dropdownIcon} /> : <ArrowDropDownIcon className={classes.dropdownIcon}/>
+  const dropdownIcon = <ArrowDropDownIcon className={classes.dropdownIcon}/>
   return (
     <div className={classNames(classes.root, className)}>
       <Button
@@ -131,12 +130,6 @@ const ForumDropdownMultiselect = ({
           >
             {icon && <ForumIcon icon={icon} className={classes.optionIcon} />}
             {label}
-            {values.includes(option) && isFriendlyUI() && (
-              <>
-                <div style={{width: paddingSize}} />
-                <ForumIcon icon="Check" className={classes.selectedIcon} />
-              </>
-            )}
           </MenuItem>
 
           if (queryParam) {

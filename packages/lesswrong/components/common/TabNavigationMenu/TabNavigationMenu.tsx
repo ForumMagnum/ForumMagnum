@@ -23,9 +23,6 @@ const styles = defineStyles("TabNavigationMenu", (theme: ThemeType) => ({
       paddingTop: 15,
       justifyContent: "space-around",
     },
-    noTopMargin: {
-      paddingTop: "0px !important",
-    },
     iconOnlyRoot: {
       maxWidth: TAB_NAVIGATION_MENU_ICON_ONLY_WIDTH,
       width: TAB_NAVIGATION_MENU_ICON_ONLY_WIDTH,
@@ -42,7 +39,7 @@ const styles = defineStyles("TabNavigationMenu", (theme: ThemeType) => ({
     divider: {
       width: 50,
       borderBottom: theme.palette.border.normal,
-      ...(theme.isBookUI && theme.dark && {
+      ...(theme.dark && {
         color: theme.palette.text.bannerAdOverlay,
         background: theme.palette.text.bannerAdOverlay,
       }),
@@ -52,19 +49,11 @@ const styles = defineStyles("TabNavigationMenu", (theme: ThemeType) => ({
     },
 }));
 
-type TabNavigationMenuProps = {
+const TabNavigationMenu = ({ onClickSection, transparentBackground, iconOnlyNavigationEnabled }: {
   onClickSection?: (e?: React.BaseSyntheticEvent) => void,
   transparentBackground?: boolean,
-  noTopMargin?: boolean,
   iconOnlyNavigationEnabled?: boolean,
-}
-
-const TabNavigationMenu = ({
-  onClickSection,
-  transparentBackground,
-  noTopMargin,
-  iconOnlyNavigationEnabled,
-}: TabNavigationMenuProps) => {
+}) => {
   const classes = useStyles(styles);
   const currentUserId = useCurrentUserId();
   const { captureEvent } = useTracking()
@@ -91,7 +80,6 @@ const TabNavigationMenu = ({
         <div className={classNames(classes.root, {
           [classes.iconOnlyRoot]: iconOnly,
           [classes.navSidebarTransparent]: transparentBackground,
-          [classes.noTopMargin]: noTopMargin,
         })}>
           {filteredTabs.map(tab => {
             if ('loggedOutOnly' in tab && tab.loggedOutOnly && currentUserId) return null

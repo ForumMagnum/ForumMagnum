@@ -7,7 +7,6 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate, useSubscribedLocation } from "../../lib/routeUtil";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -76,7 +75,7 @@ const BookmarksPage = () => {
         onChange={handleChangeTab}
         className={classes.tabs}
       >
-        <Tab className={classes.tab} value='bookmarks' label={isFriendlyUI() ? 'Saved' : 'Bookmarks'} />
+        <Tab className={classes.tab} value='bookmarks' label={'Bookmarks'} />
         <Tab className={classes.tab} value='readhistory' label='Read History' />
         <Tab className={classes.tab} value='votehistory' label='Vote History' />
       </Tabs>

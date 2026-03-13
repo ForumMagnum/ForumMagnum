@@ -18,7 +18,7 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
   marginLeft: 0,
   marginBottom: 0,
   color: theme.palette.text.primary,
-  textWrap: theme.isBookUI ? "balance" : undefined,
+  textWrap: "balance",
   [theme.breakpoints.down('sm')]: {
     fontSize: '3.5rem',
   },

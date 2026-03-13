@@ -112,7 +112,7 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
   navText: {
     ...theme.typography.body2,
     color: "inherit",
-    ...(theme.isBookUI && theme.dark && {
+    ...(theme.dark && {
       color: theme.palette.text.bannerAdOverlay,
     }),
     textTransform: "none !important",

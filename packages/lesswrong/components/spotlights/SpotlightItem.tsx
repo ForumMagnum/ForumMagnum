@@ -10,7 +10,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
-import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
 import { usePublishAndDeDuplicateSpotlight } from './withPublishAndDeDuplicateSpotlight';
@@ -62,7 +61,7 @@ const TEXT_WIDTH = 350;
 
 export const descriptionStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),
-  ...(theme.isBookUI ? theme.typography.body2 : {}),
+  ...theme.typography.body2,
   lineHeight: '1.65rem',
   '& p': {
     marginTop: ".5em",
@@ -525,7 +524,7 @@ export const SpotlightItem = ({
               {spotlight.customSubtitle && showSubtitle && <div className={classes.subtitle}>
                 {subtitleComponent}
               </div>}
-              {(spotlight.description?.html || isBookUI()) && <div className={classes.description}>
+              <div className={classes.description}>
                 {(editDescription && editableSpotlight) ? 
                   <div className={classes.editDescription}>
                     <SpotlightForm
@@ -540,7 +539,7 @@ export const SpotlightItem = ({
                     description={`${spotlight.documentType} ${spotlightDocument?._id}`}
                   />
                 }
-              </div>}
+              </div>
               {spotlight.showAuthor && spotlightDocument?.user && <Typography variant='body2' className={classes.author}>
                 by <Link className={classes.authorName} to={userGetProfileUrlFromSlug(spotlightDocument?.user.slug)}>{spotlightDocument?.user.displayName}</Link>
               </Typography>}
@@ -564,26 +563,13 @@ export const SpotlightItem = ({
             />}
           </div>
           {spotlightReviews.length > 0 && <SpotlightReviews reviewIds={spotlightReviews.map(r=>r._id)}/>}
-          {hideBanner && (
-            isFriendlyUI()
-              ? (
-                <ForumIcon
-                  icon="Close"
-                  onClick={hideBanner}
-                  className={classes.hideButton}
-                />
-              )
-              : (
-                <div className={classes.closeButtonWrapper}>
-                  <LWTooltip title="Hide this spotlight" placement="right">
-                    <Button className={classes.closeButton} onClick={hideBanner}>
-                      <ForumIcon icon="Close" />
-                    </Button>
-                  </LWTooltip>
-                </div>
-              )
-            )
-          }
+          {hideBanner && <div className={classes.closeButtonWrapper}>
+            <LWTooltip title="Hide this spotlight" placement="right">
+              <Button className={classes.closeButton} onClick={hideBanner}>
+                <ForumIcon icon="Close" />
+              </Button>
+            </LWTooltip>
+          </div>}
           <div className={classes.editAllButton}>
             {userCanDo(currentUser, 'spotlights.edit.all') && <LWTooltip title="Edit Spotlight">
               <MoreVertIcon className={classNames(classes.adminButtonIcon, classes.editAllButtonIcon)} onClick={() => setEdit(!edit)}/>

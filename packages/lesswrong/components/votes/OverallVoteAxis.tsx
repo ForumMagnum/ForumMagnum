@@ -7,7 +7,6 @@ import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import type { VotingProps } from './votingProps';
 import OverallVoteButton from './OverallVoteButton';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import UsersName from "../users/UsersName";
 import LWTooltip from "../common/LWTooltip";
@@ -67,7 +66,7 @@ const styles = defineStyles('OverallVoteAxis', theme => ({
   },
 }));
 
-const getKarmaQuestion = () => isFriendlyUI() ? 'Is this a valuable contribution?' : 'How much do you like this overall?'
+const getKarmaQuestion = () => 'How much do you like this overall?'
 
 const OverallVoteAxis = ({
   document,

@@ -4,8 +4,7 @@ import { getResponseCounts, parseUnsafeUrl, postGetAnswerCountStr, postGetCommen
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';
 import classNames from 'classnames';
-import { isServer } from '../../../lib/executionEnvironment';
-import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
+import { isFriendlyUI } from '../../../themes/forumTheme';
 import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
 import PostsPageTitle from "./PostsPageTitle";
 import PostsAuthors from "./PostsAuthors";
@@ -196,7 +195,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   const tripleDotMenuNode = !hideMenu &&
     <span className={classes.actions}>
       <AnalyticsContext pageElementContext="tripleDotMenu">
-        <PostActionsButton post={post} includeBookmark={isBookUI()} flip={true}/>
+        <PostActionsButton post={post} includeBookmark flip={true}/>
       </AnalyticsContext>
     </span>
 
