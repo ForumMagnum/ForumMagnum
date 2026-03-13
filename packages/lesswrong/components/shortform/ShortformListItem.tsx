@@ -15,6 +15,7 @@ import UsersName from "../users/UsersName";
 import FooterTag from "../tagging/FooterTag";
 import CommentsNode from "../comments/CommentsNode";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ShortformListItem", (theme: ThemeType) => ({
   root: {
@@ -85,11 +86,11 @@ const styles = defineStyles("ShortformListItem", (theme: ThemeType) => ({
   },
 }));
 
-const ShortformListItem = ({comment, hideTag, classes}: {
+const ShortformListItem = ({comment, hideTag}: {
   comment: ShortformComments,
   hideTag?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking();
 
   const [expanded, setExpanded] = useState(false)

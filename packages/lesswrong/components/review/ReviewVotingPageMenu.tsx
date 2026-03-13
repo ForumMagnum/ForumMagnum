@@ -16,6 +16,7 @@ import LWTooltip from "../common/LWTooltip";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ReviewVotingPageMenu', (theme: ThemeType) => ({
   root: {
@@ -149,8 +150,7 @@ export const sortingInfo: Record<string, {title: string, description: string}> =
   },
 }
 
-export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts, costTotal, setSortPosts, sortPosts, sortReversed, setSortReversed, postsLoading, postsResults}: {
-  classes: ClassesType<typeof styles>,
+export const ReviewVotingPageMenu = ({reviewPhase, loading, sortedPosts, costTotal, setSortPosts, sortPosts, sortReversed, setSortReversed, postsLoading, postsResults}: {
   reviewPhase: ReviewPhase,
   loading: boolean,
   sortedPosts: PostsList[]|null,
@@ -162,6 +162,7 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
   postsLoading: boolean,
   postsResults: PostsList[]|null,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const accountSettings = "Account Settings";
 

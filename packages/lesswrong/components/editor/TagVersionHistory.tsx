@@ -85,10 +85,10 @@ const styles = defineStyles("TagVersionHistoryButton", (theme: ThemeType) => ({
   }
 }));
 
-const TagVersionHistoryButton = ({tagId, classes}: {
+const TagVersionHistoryButton = ({tagId}: {
   tagId: string,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking()
 

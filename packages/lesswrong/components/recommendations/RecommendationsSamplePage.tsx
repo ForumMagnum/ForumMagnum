@@ -29,6 +29,7 @@ import { MenuItem } from "../common/Menus";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostRecommendationsSamplePageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -96,9 +97,8 @@ const featureInputToFeatures = (
   return result;
 }
 
-const RecommendationsSamplePage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const RecommendationsSamplePage = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
   const {query} = useLocation();

@@ -13,6 +13,7 @@ import UsersName from "../users/UsersName";
 import LWTooltip from "../common/LWTooltip";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("PostsPageRecommendationItem", (theme: ThemeType) => ({
   root: {
@@ -77,19 +78,14 @@ const styles = defineStyles("PostsPageRecommendationItem", (theme: ThemeType) =>
   },
 }));
 
-const PostsPageRecommendationItem = ({
-  post,
-  disableAnalytics,
-  className,
-  classes,
-}: {
+const PostsPageRecommendationItem = ({post, disableAnalytics, className}: {
   post: PostsListWithVotesAndSequence,
   // This prop is not used, but is required to be compatible with RecommendationsList
   translucentBackground?: boolean,
   disableAnalytics?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const postLink = postGetPageUrl(post, false, post.canonicalSequence?._id);
   const {onClick: onClickCell} = useClickableCell({href: postLink});
   const {ref, onClick} = useRecommendationAnalytics(

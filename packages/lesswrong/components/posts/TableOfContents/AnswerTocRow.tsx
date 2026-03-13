@@ -4,6 +4,7 @@ import type { ToCAnswer } from '../../../lib/tableOfContents';
 import LWTooltip from "../../common/LWTooltip";
 import FormatDate from "../../common/FormatDate";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('AnswerTocRow', (theme: ThemeType) => ({
   root: {
@@ -39,10 +40,10 @@ const styles = defineStyles('AnswerTocRow', (theme: ThemeType) => ({
   }
 }))
 
-const AnswerTocRow = ({classes, answer}: {
-  classes: ClassesType<typeof styles>,
+const AnswerTocRow = ({answer}: {
   answer: ToCAnswer,
 }) => {
+  const classes = useStyles(styles);
   const tooltip = <div>
     <div className={classes.tooltipKarma}>
       <div>

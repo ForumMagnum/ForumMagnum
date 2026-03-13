@@ -2,6 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { SunshineNewUserCommentItem } from "./SunshineNewUserCommentItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('SunshineNewUserCommentsList', (theme: ThemeType) => ({
   root: {
@@ -33,11 +34,11 @@ const styles = defineStyles('SunshineNewUserCommentsList', (theme: ThemeType) =>
   },
 }))
 
-const SunshineNewUserCommentsList = ({comments, user, classes}: {
+const SunshineNewUserCommentsList = ({comments, user}: {
   comments?: Array<CommentsListWithParentMetadata>,
-  classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
+  const classes = useStyles(styles);
 
   if (!comments) return null;
 

@@ -10,6 +10,7 @@ import FormatDate from "../common/FormatDate";
 import UsersProfileImage from "../users/UsersProfileImage";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
   root: {
@@ -67,10 +68,10 @@ const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
   }
 }))
 
-const ExpandedUsersSearchHit = ({hit, classes}: {
+const ExpandedUsersSearchHit = ({hit}: {
   hit: Hit<any>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const user = hit as SearchUser;
 
   return <div className={classes.root}>

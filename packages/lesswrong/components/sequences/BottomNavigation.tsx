@@ -6,6 +6,7 @@ import classnames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import BottomNavigationItem from "./BottomNavigationItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('BottomNavigation', (theme: ThemeType) => ({
   root: {
@@ -69,10 +70,10 @@ const styles = defineStyles('BottomNavigation', (theme: ThemeType) => ({
   }
 }))
 
-const BottomNavigation = ({post, classes}: {
+const BottomNavigation = ({post}: {
   post: PostSequenceNavigation,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { nextPost, prevPost, sequence } = post;
   const currentUser = useCurrentUser();
   

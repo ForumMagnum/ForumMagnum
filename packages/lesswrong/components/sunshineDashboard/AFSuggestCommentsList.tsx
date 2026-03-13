@@ -7,6 +7,7 @@ import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SuggestAlignmentCommentMultiQuery = gql(`
   query multiCommentAFSuggestCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -26,9 +27,8 @@ const styles = defineStyles('AFSuggestCommentsList', (theme: ThemeType) => ({
 }))
 
 
-const AFSuggestCommentsList = ({ classes }: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const AFSuggestCommentsList = () => {
+  const classes = useStyles(styles);
   const { data, loadMoreProps } = useQueryWithLoadMore(SuggestAlignmentCommentMultiQuery, {
     variables: {
       selector: { alignmentSuggestedComments: {} },

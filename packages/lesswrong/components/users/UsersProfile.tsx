@@ -59,6 +59,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import CommentsDraftList from '../comments/CommentsDraftList';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersProfileMultiQuery = gql(`
   query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -159,11 +160,11 @@ export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>
   return results?.find(user => !!user.displayName) || results?.[0] || null
 }
 
-const UsersProfileFn = ({terms, slug, classes}: {
+const UsersProfileFn = ({terms, slug}: {
   terms: UsersViewTerms,
   slug: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [showSettings, setShowSettings] = useState(false);
 
   const currentUser = useCurrentUser();

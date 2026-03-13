@@ -26,6 +26,7 @@ import dynamic from 'next/dynamic';
 import { SideItemsContainer, SideItemsSidebar } from '../contents/SideItems';
 import { RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, sidenotesHiddenBreakpoint } from '../posts/PostsPage/constants';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CKPostEditor = dynamic(() => import("./CKPostEditor"));
 const LexicalEditor = dynamic(() => import("./LexicalEditor"));
@@ -64,9 +65,8 @@ const styles = defineStyles('PostCollaborationEditor', (theme: ThemeType) => ({
 }))
 
 // Editor that gives people access to the collaborative editor (Lexical or CKEditor, depending on the post's current editor type)
-const PostCollaborationEditor = ({ classes }: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const PostCollaborationEditor = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const { query: { postId, key } } = useLocation();

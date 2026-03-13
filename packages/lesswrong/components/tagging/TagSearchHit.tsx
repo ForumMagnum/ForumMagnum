@@ -10,6 +10,7 @@ import PopperCard from "../common/PopperCard";
 import TagPreview from "./TagPreview";
 import Loading from "../vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagPreviewFragmentQuery = gql(`
   query TagSearchHit($documentId: String) {
@@ -47,13 +48,13 @@ const styles = defineStyles("TagSearchHit", (theme: ThemeType) => ({
   }
 }));
 
-const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, classes}: {
+const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext}: {
   hit: any,
   onClick?: (ev: any) => void,
   hidePostCount?: boolean,
   isVotingContext?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { data } = useQuery(TagPreviewFragmentQuery, {
     variables: { documentId: hit._id },
     fetchPolicy: 'cache-first',

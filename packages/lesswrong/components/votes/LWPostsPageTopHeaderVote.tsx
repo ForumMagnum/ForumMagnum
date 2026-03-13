@@ -8,6 +8,7 @@ import { TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "./OverallVoteButton";
 import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("LWPostsPageTopHeaderVote", (theme: ThemeType) => ({
   voteBlockHorizontal: {
@@ -49,15 +50,11 @@ const styles = defineStyles("LWPostsPageTopHeaderVote", (theme: ThemeType) => ({
   },
 }));
 
-const LWPostsPageTopHeaderVote = ({
-  post,
-  votingSystem,
-  classes,
-}: {
+const LWPostsPageTopHeaderVote = ({post, votingSystem}: {
   post: PostsWithVotes,
   votingSystem: VotingSystem<PostsWithVotes>,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const voteProps = useVote(post, "Posts", votingSystem);
 
   const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();

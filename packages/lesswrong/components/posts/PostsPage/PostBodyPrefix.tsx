@@ -16,6 +16,7 @@ import PostPageReviewButton from "./PostPageReviewButton";
 import RejectionNotice from "./RejectionNotice";
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from '@/components/posts/PostsPage/constants';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const getShortformDraftMessage = () => isFriendlyUI()
   ? "This is a special post that holds your quick takes. Because it's marked as a draft, your quick takes will not be displayed. To un-draft it, pick Edit from the menu above, then click Publish."
@@ -55,11 +56,11 @@ const getForumNewUserProcessingTime = () => forumSelect({
   default: 24
 })
 
-const PostBodyPrefix = ({post, query, classes}: {
+const PostBodyPrefix = ({post, query}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList|SunshinePostsList,
   query?: any,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   return <>

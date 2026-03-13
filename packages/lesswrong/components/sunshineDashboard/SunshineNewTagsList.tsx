@@ -9,6 +9,7 @@ import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineTagFragmentMultiQuery = gql(`
   query multiTagSunshineNewTagsListQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -27,7 +28,8 @@ const styles = defineStyles('SunshineNewTagsList', (theme: ThemeType) => ({
   }
 }))
 
-const SunshineNewTagsList = ({ classes }: {classes: ClassesType<typeof styles>}) => {
+const SunshineNewTagsList = () => {
+  const classes = useStyles(styles);
   const { data, loadMoreProps } = useQueryWithLoadMore(SunshineTagFragmentMultiQuery, {
     variables: {
       selector: { unreviewedTags: {} },

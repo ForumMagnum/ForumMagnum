@@ -8,6 +8,7 @@ import { eligibleToNominate, getCostData, reviewIsActive } from '../../lib/revie
 import { SyntheticQualitativeVote } from './ReviewVotingPage';
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ReviewVotingButtons", (theme: ThemeType) => {
   const downvoteColor = theme.palette.text.reviewDownvote;
@@ -55,7 +56,8 @@ const styles = defineStyles("ReviewVotingButtons", (theme: ThemeType) => {
   }
 })
 
-const ReviewVotingButtons = ({classes, post, dispatch, currentUserVote, costTotal}: {classes: ClassesType<typeof styles>, post: PostsMinimumInfo, dispatch: any, currentUserVote: SyntheticQualitativeVote|null, costTotal?: number}) => {
+const ReviewVotingButtons = ({post, dispatch, currentUserVote, costTotal}: {post: PostsMinimumInfo, dispatch: any, currentUserVote: SyntheticQualitativeVote|null, costTotal?: number}) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
 
   const [selection, setSelection] = useState(currentUserVote?.score || DEFAULT_QUALITATIVE_VOTE)

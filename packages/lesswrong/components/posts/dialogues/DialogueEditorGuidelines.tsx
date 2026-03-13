@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../../themes/stylePiping';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('DialogueEditorGuidelines', (theme: ThemeType) => ({
   root: {
@@ -33,9 +34,9 @@ const styles = defineStyles('DialogueEditorGuidelines', (theme: ThemeType) => ({
   }
 }));
 
-export const DialogueEditorGuidelines = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const DialogueEditorGuidelines = () => {
+  const classes = useStyles(styles);
+
   return <div className={classes.root}>
     <div className={classes.title}>Dialogue Editor</div>
     <ul className={classes.info}>

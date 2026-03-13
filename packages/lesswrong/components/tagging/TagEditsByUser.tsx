@@ -10,6 +10,7 @@ import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const RevisionTagFragmentMultiQuery = gql(`
   query multiRevisionTagEditsByUserQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -37,12 +38,11 @@ const styles = defineStyles('TagEditsByUser', (theme: ThemeType) => ({
 }));
 
 
-const TagEditsByUser = ({userId, limit, classes}: {
+const TagEditsByUser = ({userId, limit}: {
   userId: string,
   limit: number,
-  classes: ClassesType<typeof styles>
 }) => {
-
+  const classes = useStyles(styles);
   const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(RevisionTagFragmentMultiQuery, {
     variables: {
       selector: { revisionsByUser: { userId } },

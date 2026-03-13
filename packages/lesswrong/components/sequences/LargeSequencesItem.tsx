@@ -14,6 +14,7 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from '../vulcan-core/Loading';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const GET_SEQUENCE_STATS = gql(`
   query GetSequenceStats($sequenceId: String!) {
@@ -161,12 +162,12 @@ const styles = defineStyles('LargeSequencesItem', (theme: ThemeType) => ({
   }
 }));
 
-export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=false, classes}: {
+export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=false}: {
   sequence: SequencesPageWithChaptersFragment,
   showAuthor?: boolean,
   showChapters?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [expanded, setExpanded] = useState<boolean>(false)
 
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()

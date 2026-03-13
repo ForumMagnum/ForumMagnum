@@ -20,7 +20,7 @@ import PopperCard from "../common/PopperCard";
 import TagPreview from "./TagPreview";
 import ContentStyles from "../common/ContentStyles";
 import { defineStyles } from '@/components/hooks/defineStyles';
-
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagPreviewFragmentQuery = gql(`
   query FilterMode($documentId: String) {
@@ -161,7 +161,7 @@ const styles = defineStyles("FilterMode", (theme: ThemeType) => ({
   },
 }));
 
-const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description, classes}: {
+const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description}: {
   tagId?: string,
   label?: string,
   mode: FilterModeType,
@@ -169,8 +169,8 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   onChangeMode: (mode: FilterModeType) => void,
   onRemove?: () => void,
   description?: React.ReactNode
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { hover, anchorEl, eventHandlers } = useHover({
     eventProps: {tagId, label, mode},
   });

@@ -18,6 +18,7 @@ import SettingsButton from "../icons/SettingsButton";
 import PostsListSettings from "./PostsListSettings";
 import AllPostsList from "./AllPostsList";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("AllPostsPage", (theme: ThemeType) => ({
   title: {
@@ -44,7 +45,8 @@ const formatSort = (sorting: PostSortingMode) => {
   return isFriendlyUI() ? sort : `Sorted by ${sort}`;
 }
 
-const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<typeof styles>, defaultHideSettings?: boolean}) => {
+const AllPostsPage = ({defaultHideSettings}: {defaultHideSettings?: boolean}) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {query} = useLocation();

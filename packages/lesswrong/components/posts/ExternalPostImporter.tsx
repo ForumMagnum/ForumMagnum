@@ -257,7 +257,8 @@ const CommentEditor = ({onPublish, onCancel, useLexical}: {
   );
 };
 
-const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesType<typeof styles>, defaultPostedAt?: Date }) => {
+const ExternalPostImporter = ({defaultPostedAt}: { defaultPostedAt?: Date }) => {
+  const classes = useStyles(styles);
   const [value, setValue] = useState('');
   const [post, setPost] = useState<ExternalPostImportData['post'] | null>(null);
   const [postContent, setPostContent] = useState<string>('');

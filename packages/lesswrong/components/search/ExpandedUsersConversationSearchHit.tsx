@@ -9,6 +9,7 @@ import FormatDate from "../common/FormatDate";
 import UsersProfileImage from "../users/UsersProfileImage";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedUsersConversationSearchHit", (theme: ThemeType) => ({
   root: {
@@ -70,23 +71,15 @@ const styles = defineStyles("ExpandedUsersConversationSearchHit", (theme: ThemeT
   }
 }))
 
-const ExpandedUsersConversationSearchHit = ({
-  hit,
-  currentUser,
-  onClose,
-  onSelect,
-  isModInbox = false,
-  className,
-  classes,
-}: {
+const ExpandedUsersConversationSearchHit = ({hit, currentUser, onClose, onSelect, isModInbox = false, className}: {
   hit: Hit<any>;
   currentUser: UsersCurrent;
   onClose: () => void;
   onSelect: (userId: Hit<any>) => void;
   isModInbox?: boolean;
   className?: string;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   const user = hit as SearchUser;
 
   return (

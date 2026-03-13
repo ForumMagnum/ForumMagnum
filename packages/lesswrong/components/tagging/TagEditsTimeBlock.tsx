@@ -8,6 +8,7 @@ import SingleLineTagUpdates from "./SingleLineTagUpdates";
 import LoadMore from "../common/LoadMore";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const INITIAL_LIMIT = 5
 
@@ -18,12 +19,13 @@ const styles = defineStyles('TagEditsTimeBlock', (theme: ThemeType) => ({
   },
 }));
 
-const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
+const TagEditsTimeBlock = ({before, after, reportEmpty}: {
   before: Date,
   after: Date,
   reportEmpty: () => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
+
   // TODO: see if we can use a fragment other than TagHistoryFragment to avoid fetching the ToC or other expensive stuff
   const { data, loading } = useQuery(gql(`
     query getTagUpdates($before: Date!, $after: Date!) {

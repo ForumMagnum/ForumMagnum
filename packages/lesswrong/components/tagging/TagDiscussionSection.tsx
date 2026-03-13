@@ -5,6 +5,7 @@ import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListMultiQuery = gql(`
   query multiCommentTagDiscussionSectionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -20,10 +21,10 @@ const CommentsListMultiQuery = gql(`
 const styles = defineStyles("TagDiscussionSection", (theme: ThemeType) => ({
 }));
 
-const TagDiscussionSection = ({classes, tag}: {
-  classes: ClassesType<typeof styles>,
+const TagDiscussionSection = ({tag}: {
   tag: TagBasicInfo
 }) => {
+  const classes = useStyles(styles);
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(undefined);
   
   const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(CommentsListMultiQuery, {

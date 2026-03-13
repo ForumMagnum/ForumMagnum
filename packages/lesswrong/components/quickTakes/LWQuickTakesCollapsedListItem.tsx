@@ -12,6 +12,7 @@ import CommentsItemMeta from "../comments/CommentsItem/CommentsItemMeta";
 import CommentBottomCaveats from "../comments/CommentsItem/CommentBottomCaveats";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("LWQuickTakesCollapsedListItem", (theme: ThemeType) => ({
   root: {
@@ -82,11 +83,11 @@ const styles = defineStyles("LWQuickTakesCollapsedListItem", (theme: ThemeType) 
   },
 }));
 
-const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
+const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded}: {
   quickTake: FrontpageShortformComments,
   setExpanded: (expanded: boolean) => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {eventHandlers, hover, anchorEl} = useHover({
     eventProps: {
       pageElementContext: "shortformItemTooltip",

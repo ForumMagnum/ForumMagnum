@@ -4,6 +4,7 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import UsersName from "../users/UsersName";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('CollabEditorPermissionsNotices', (theme: ThemeType) => ({
   root: {
@@ -13,10 +14,10 @@ const styles = defineStyles('CollabEditorPermissionsNotices', (theme: ThemeType)
   }
 }));
 
-const CollabEditorPermissionsNotices = ({post, classes}: {
+const CollabEditorPermissionsNotices = ({post}: {
   post: PostsPage,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const canEditAsAdmin = userCanDo(currentUser, 'posts.edit.all');
   return <div className={classes.root}>

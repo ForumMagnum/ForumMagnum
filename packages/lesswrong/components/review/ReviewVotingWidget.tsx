@@ -12,6 +12,7 @@ import LWTooltip from "../common/LWTooltip";
 import { reviewVotesForPostAndUserQuery, useCurrentUserReviewVote } from "../hooks/useCurrentUserReviewVote";
 import Loading from "../vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ReviewVotingWidget', (theme: ThemeType) => ({
   root: {
@@ -26,11 +27,11 @@ const styles = defineStyles('ReviewVotingWidget', (theme: ThemeType) => ({
   }
 }))
 
-const ReviewVotingWidget = ({classes, post, showTitle=true}: {
-  classes: ClassesType<typeof styles>,
+const ReviewVotingWidget = ({post, showTitle=true}: {
   post: PostsMinimumInfo,
   showTitle?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
 
   // TODO: Refactor these + the ReviewVotingPage dispatch

@@ -8,6 +8,7 @@ import ForumIcon from "../common/ForumIcon";
 import KarmaDisplay from "../common/KarmaDisplay";
 import PostsItemTooltipWrapper from "../posts/PostsItemTooltipWrapper";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("SideRecommendation", (theme: ThemeType) => ({
   root: {
@@ -51,10 +52,10 @@ const styles = defineStyles("SideRecommendation", (theme: ThemeType) => ({
   },
 }));
 
-const SideRecommendation = ({post, classes}: {
+const SideRecommendation = ({post}: {
   post: PostsListWithVotesAndSequence,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const href = postGetPageUrl(post);
   const {onClick: onClickCell} = useClickableCell({href});
   const {ref, onClick: onClickLink} = useRecommendationAnalytics(post._id);

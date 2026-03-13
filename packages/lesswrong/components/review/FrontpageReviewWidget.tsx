@@ -20,6 +20,7 @@ import ReviewProgressVoting from "./ReviewProgressVoting";
 import ReviewProgressNominations from "./ReviewProgressNominations";
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const commonActionButtonStyle = (theme: ThemeType) => ({
   paddingTop: 7,
@@ -234,7 +235,8 @@ export function ReviewOverviewTooltip() {
   </div>
 }
 
-const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType<typeof styles>, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
+const FrontpageReviewWidget = ({showFrontpageItems=true, reviewYear, className}: {showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
 

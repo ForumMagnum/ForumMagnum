@@ -10,6 +10,7 @@ import { useNavigate } from "../../lib/routeUtil";
 import FormatDate from "../common/FormatDate";
 import UserNameDeleted from "../users/UserNameDeleted";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedSequencesSearchHit", (theme: ThemeType) => ({
   root: {
@@ -67,10 +68,10 @@ const styles = defineStyles("ExpandedSequencesSearchHit", (theme: ThemeType) => 
   }
 }))
 
-const ExpandedSequencesSearchHit = ({hit, classes}: {
+const ExpandedSequencesSearchHit = ({hit}: {
   hit: Hit<any>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
   const sequence: SearchSequence = hit
   const translucentBackground = useThemeColor(theme => theme.palette.panelBackground.translucent3);

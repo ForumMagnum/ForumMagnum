@@ -25,6 +25,7 @@ import ArchiveIcon from "@/lib/vendor/@material-ui/icons/src/Archive";
 import LWTooltip from "../common/LWTooltip";
 import { StatusCodeSetter } from "../next/StatusCodeSetter";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ConversationsListWithReadStatusMultiQuery = gql(`
   query multiConversationFriendlyInboxQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -241,19 +242,8 @@ const styles = defineStyles("FriendlyInbox", (theme: ThemeType) => ({
   },
 }));
 
-const FriendlyInbox = ({
-  currentUserId,
-  conversationId,
-  view = "userConversations",
-  isModInbox = false,
-  userCanViewModInbox = false,
-  showArchive = false,
-  isAdmin = false,
-  classes,
-}: InboxComponentProps & {
-  conversationId?: string;
-  classes: ClassesType<typeof styles>;
-}) => {
+const FriendlyInbox = ({currentUserId, conversationId, view = "userConversations", isModInbox = false, userCanViewModInbox = false, showArchive = false, isAdmin = false}: InboxComponentProps & { conversationId?: string; }) => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const { query } = useLocation();
   const navigate = useNavigate();

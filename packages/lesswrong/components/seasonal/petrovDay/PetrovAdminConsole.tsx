@@ -6,6 +6,7 @@ import Row from "../../common/Row";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PetrovDayActionInfoMultiQuery = gql(`
   query multiPetrovDayActionPetrovAdminConsoleQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -40,10 +41,10 @@ const styles = defineStyles('PetrovAdminConsole', (theme: ThemeType) => ({
   }
 }));
 
-export const PetrovAdminConsole = ({classes, currentUser}: {
-  classes: ClassesType<typeof styles>,
+export const PetrovAdminConsole = ({currentUser}: {
   currentUser: UsersCurrent
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const { data, refetch: refetchPetrovDayActions } = useQuery(PetrovDayActionInfoMultiQuery, {
     variables: {

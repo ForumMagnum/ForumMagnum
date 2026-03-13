@@ -10,6 +10,7 @@ import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("CommentsSearchHit", (theme: ThemeType) => ({
   root: {
@@ -37,7 +38,8 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const CommentsSearchHit = ({hit, clickAction, showIcon=false}: SearchHitComponentProps) => {
+  const classes = useStyles(styles);
   const comment = (hit as SearchComment);
   let url = "";
   if (comment.postId && comment.postSlug) {

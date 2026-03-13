@@ -8,6 +8,7 @@ import LoadMore from "../common/LoadMore";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ChaptersFragmentMultiQuery = gql(`
   query multiChapterTagIntroSequenceQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {
@@ -28,10 +29,10 @@ const styles = defineStyles("TagIntroSequence", (theme: ThemeType) => ({
   },
 }))
 
-const TagIntroSequence = ({tag, classes}: {
+const TagIntroSequence = ({tag}: {
   tag: TagPageFragment,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const { data, loading } = useQuery(ChaptersFragmentMultiQuery, {
     variables: {
       selector: { SequenceChapters: { sequenceId: tag.sequence?._id } },

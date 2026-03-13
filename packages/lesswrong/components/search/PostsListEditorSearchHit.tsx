@@ -8,6 +8,7 @@ import PostsTitle from "../posts/PostsTitle";
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("PostsListEditorSearchHit", (theme: ThemeType) => ({
   root: {
@@ -31,10 +32,10 @@ const styles = defineStyles("PostsListEditorSearchHit", (theme: ThemeType) => ({
   },
 }))
 
-const PostsListEditorSearchHit = ({hit, classes}: {
+const PostsListEditorSearchHit = ({hit}: {
   hit: Hit<AnyBecauseTodo>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const post = hit as SearchPost;
   return (
     <PostsTooltip postId={post._id} postsList placement="left">

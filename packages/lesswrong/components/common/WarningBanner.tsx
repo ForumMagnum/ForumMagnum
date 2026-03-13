@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import ForumIcon from "./ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('WarningBanner', (theme: ThemeType) => ({
   root: {
@@ -30,11 +31,11 @@ const styles = defineStyles('WarningBanner', (theme: ThemeType) => ({
   },
 }));
 
-const WarningBanner = ({message, classes}: {
+const WarningBanner = ({message}: {
   message: string,
-  classes: ClassesType<typeof styles>,
 }) => {
-  
+  const classes = useStyles(styles);
+
   return <div className={classes.root}>
     <ForumIcon icon="Warning" className={classes.icon} />
     <div className={classes.message} dangerouslySetInnerHTML={{__html: message}} />

@@ -11,6 +11,7 @@ import { useNavigate } from "../../lib/routeUtil";
 import FormatDate from "../common/FormatDate";
 import UserNameDeleted from "../users/UserNameDeleted";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedCommentsSearchHit", (theme: ThemeType) => ({
   root: {
@@ -69,10 +70,10 @@ const styles = defineStyles("ExpandedCommentsSearchHit", (theme: ThemeType) => (
   }
 }))
 
-const ExpandedCommentsSearchHit = ({hit, classes}: {
+const ExpandedCommentsSearchHit = ({hit}: {
   hit: Hit<any>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
   const comment: SearchComment = hit
   

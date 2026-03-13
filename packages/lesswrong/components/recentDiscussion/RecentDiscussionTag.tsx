@@ -15,6 +15,7 @@ import ContentStyles from "../common/ContentStyles";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { useTracking } from "../../lib/analyticsEvents";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('RecentDiscussionTag', (theme: ThemeType) => ({
   root: {
@@ -71,14 +72,14 @@ const styles = defineStyles('RecentDiscussionTag', (theme: ThemeType) => ({
   },
 }));
 
-const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", classes }: {
+const RecentDiscussionTag = ({tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION"}: {
   tag: TagRecentDiscussion,
   refetch?: any,
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
   tagCommentType?: TagCommentType,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const { captureEvent } = useTracking();

@@ -10,6 +10,7 @@ import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import SingleColumnSection from "../common/SingleColumnSection";
 import DraftsList from "./DraftsList";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('DraftsPage', (theme: ThemeType) => ({
   checkbox: {
@@ -26,9 +27,8 @@ const styles = defineStyles('DraftsPage', (theme: ThemeType) => ({
   },
 }))
 
-const DraftsPage = ({classes}: {
-  classes: ClassesType<typeof styles>;
-}) => {
+const DraftsPage = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const { query } = useLocation();
   

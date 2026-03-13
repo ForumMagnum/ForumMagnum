@@ -7,6 +7,7 @@ import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SuggestAlignmentPostMultiQuery = gql(`
   query multiPostAFSuggestPostsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -26,9 +27,8 @@ const styles = defineStyles('AFSuggestPostsList', (theme: ThemeType) => ({
 }))
 
 
-const AFSuggestPostsList = ({ classes }: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const AFSuggestPostsList = () => {
+  const classes = useStyles(styles);
   const { data, loadMoreProps } = useQueryWithLoadMore(SuggestAlignmentPostMultiQuery, {
     variables: {
       selector: { alignmentSuggestedPosts: {} },

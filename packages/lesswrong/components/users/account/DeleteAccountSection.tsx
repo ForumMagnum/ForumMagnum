@@ -10,6 +10,7 @@ import FormatDate from "../../common/FormatDate";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersEditUpdateMutation = gql(`
   mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -32,13 +33,10 @@ const styles = defineStyles('DeleteAccountSection', (theme: ThemeType) => ({
   }
 }));
 
-const DeleteAccountSection = ({
-  user,
-  classes,
-}: {
+const DeleteAccountSection = ({user}: {
   user: UsersEdit,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [rawUpdateUser, { loading }] = useMutation(UsersEditUpdateMutation);
   const updateUser = useFlashErrors(rawUpdateUser);
   const { openDialog } = useDialog();

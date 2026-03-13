@@ -8,6 +8,7 @@ import UsersName from "../users/UsersName";
 import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
 import SmallSideVote from "../votes/SmallSideVote";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("TagRevisionItemFullMetadata", (theme: ThemeType) => ({
   root: {
@@ -55,11 +56,11 @@ const styles = defineStyles("TagRevisionItemFullMetadata", (theme: ThemeType) =>
   },
 }));
 
-const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
+const TagRevisionItemFullMetadata = ({tag, revision}: {
   tag: TagBasicInfo,
   revision: RevisionMetadataWithChangeMetrics,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const tagUrl = tagGetUrl(tag);
 
   return <div className={classes.root}>

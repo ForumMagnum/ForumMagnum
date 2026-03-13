@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
@@ -8,6 +7,7 @@ import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("UsersSearchHit", (theme: ThemeType) => ({
   root: {
@@ -29,7 +29,8 @@ export const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const UsersSearchHit = ({hit, clickAction, showIcon=false}: SearchHitComponentProps) => {
+  const classes = useStyles(styles);
   const user = hit as SearchUser
 
   return <div className={classes.root}>
@@ -50,6 +51,4 @@ const UsersSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitCo
   </div>
 }
 
-export default registerComponent("UsersSearchHit", UsersSearchHit, {styles});
-
-
+export default UsersSearchHit;

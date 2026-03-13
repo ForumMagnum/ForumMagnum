@@ -7,6 +7,7 @@ import WarningBanner from "../common/WarningBanner";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('RateLimitWarning', (theme: ThemeType) => ({
   lwBanner: {
@@ -27,12 +28,12 @@ const styles = defineStyles('RateLimitWarning', (theme: ThemeType) => ({
 }));
 
 // Tells the user when they can next comment or post if they're rate limited, and a brief explanation
-const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage, classes}: {
+const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage}: {
   contentType: 'comment' | 'post',
   lastRateLimitExpiry: Date,
   rateLimitMessage?: string,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const getTimeUntilNextPost = () => {
     const lastExpiry = moment(lastRateLimitExpiry)
     const now = moment()

@@ -19,6 +19,7 @@ import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("SearchFilters", (theme: ThemeType) => ({
   filtersColumn: {
@@ -108,8 +109,7 @@ const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
 }
 const CustomTagsRefinementList = connectRefinementList(TagsRefinementList) as React.ComponentClass<RefinementListExposed & TagsRefinementProps>
 
-const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSortingChange, sorting, dateRangeValues, setModalOpen}: {
-  classes: ClassesType<typeof styles>
+const SearchFilters = ({tab, tagsFilter, handleUpdateTagsFilter, onSortingChange, sorting, dateRangeValues, setModalOpen}: {
   tab: SearchIndexCollectionName
   tagsFilter: Array<string>
   handleUpdateTagsFilter: (tags: Array<string>) => void
@@ -118,7 +118,7 @@ const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSort
   dateRangeValues: Array<MutableRefObject<number>>
   setModalOpen: (open: boolean) => void
 }) => {
-
+  const classes = useStyles(styles);
   const [pastDay, pastWeek, pastMonth, pastYear] = dateRangeValues;
   return <div className={classes.filtersColumn}>
     <div className={classes.filtersHeadlineWrapper}>

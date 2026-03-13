@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTracking } from "../../lib/analyticsEvents";
@@ -361,9 +360,8 @@ const Interlude = ({imageURL, coverImageUrl, spreadImageUrl, bigQuote, bigQuoteA
   )
 }
 
-const Book2018Landing = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const Book2018Landing = () => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking();
   
   return (
@@ -527,12 +525,4 @@ const Book2018Landing = ({classes}: {
   )
 }
 
-export default registerComponent('Book2018Landing', Book2018Landing, {
-  styles,
-  
-  // (Manually checked that there are no horrible contrast problems in dark mode.
-  // This page has a fair amount of very-no-reusable styling.)
-  allowNonThemeColors: true,
-});
-
-
+export default Book2018Landing;

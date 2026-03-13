@@ -15,6 +15,7 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import FormatDate from '@/components/common/FormatDate';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ModeratorActionDisplayUpdateMutation = gql(`
   mutation updateModeratorActionModeratorActionItem($selector: SelectorInput!, $data: UpdateModeratorActionDataInput!) {
@@ -68,13 +69,13 @@ const styles = defineStyles('ModeratorActionItem', (theme: ThemeType) => ({
   }
 }));
 
-export const ModeratorActionItem = ({classes, user, moderatorAction, comments, posts }: {
-  classes: ClassesType<typeof styles>,
+export const ModeratorActionItem = ({user, moderatorAction, comments, posts}: {
   user: SunshineUsersList,
   moderatorAction: ModeratorActionDisplay,
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined
 }) => {
+  const classes = useStyles(styles);
   const endedAtDate = moment(moderatorAction.endedAt)
   const today = moment(new Date())
   const existingEndedAtDays = endedAtDate.diff(today, "days")

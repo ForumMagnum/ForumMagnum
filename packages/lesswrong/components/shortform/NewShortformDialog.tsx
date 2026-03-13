@@ -6,6 +6,7 @@ import { useNavigate } from '../../lib/routeUtil';
 import ShortformSubmitForm from "./ShortformSubmitForm";
 import LWDialog from "../common/LWDialog";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('NewShortformDialog', (theme: ThemeType) => ({
   content: {
@@ -20,10 +21,10 @@ const styles = defineStyles('NewShortformDialog', (theme: ThemeType) => ({
   },
 }));
 
-const NewShortformDialog = ({onClose, classes}: {
+const NewShortformDialog = ({onClose}: {
   onClose: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [open, setOpen] = useState(true);
   const navigate = useNavigate();
   return (

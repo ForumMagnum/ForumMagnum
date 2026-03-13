@@ -21,6 +21,7 @@ import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagRelFragmentMultiQuery = gql(`
   query multiTagRelSunshineNewTagsItemQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {
@@ -63,10 +64,10 @@ const styles = defineStyles('SunshineNewTagsItem', (theme: ThemeType) => ({
   }
 }))
 
-const SunshineNewTagsItem = ({tag, classes}: {
+const SunshineNewTagsItem = ({tag}: {
   tag: SunshineTagFragment,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
   

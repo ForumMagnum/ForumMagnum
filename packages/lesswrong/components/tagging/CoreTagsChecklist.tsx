@@ -5,6 +5,7 @@ import TagsChecklist from "./TagsChecklist";
 import Loading from "../vulcan-core/Loading";
 import { useCoreTags } from './useCoreTags';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("CoreTagsChecklist", (theme: ThemeType) => ({
   root: {
@@ -31,11 +32,11 @@ const styles = defineStyles("CoreTagsChecklist", (theme: ThemeType) => ({
   }
 })); 
 
-const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
+const CoreTagsChecklist = ({onTagSelected, existingTagIds=[]}: {
   onTagSelected?: (tag: {tagId: string, tagName: string}, existingTagIds: Array<string>) => void,
-  classes: ClassesType<typeof styles>,
   existingTagIds?: Array<string|undefined>
 }) => {
+  const classes = useStyles(styles);
   const { data, loading } = useCoreTags();
 
   const results = data?.tags?.results;

@@ -13,6 +13,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import LoginPopup from '../users/LoginPopup';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('CommentsSubmitDropdown', (theme: ThemeType) => ({
   buttonWrapper: {
@@ -67,10 +68,10 @@ const styles = defineStyles('CommentsSubmitDropdown', (theme: ThemeType) => ({
   }
 }));
 
-export const CommentsSubmitDropdown = ({ handleSubmit, classes }: {
+export const CommentsSubmitDropdown = ({handleSubmit}: {
   handleSubmit: (meta: {draft: boolean}) => Promise<void>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking();
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();

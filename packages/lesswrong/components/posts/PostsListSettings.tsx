@@ -15,6 +15,7 @@ import { TooltipSpan } from '../common/FMTooltip';
 import MetaInfo from "../common/MetaInfo";
 import SettingsColumn from "../common/SettingsColumn";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events'|'linkpost';
 
@@ -142,7 +143,7 @@ const USER_SETTING_NAMES = {
 
 export const postListSettingUrlParameterNames = Object.keys(USER_SETTING_NAMES);
 
-const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, timeframes=defaultTimeframes, sortings=getSortOrderOptions(), showTimeframe, classes}: {
+const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, timeframes=defaultTimeframes, sortings=getSortOrderOptions(), showTimeframe}: {
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
@@ -153,8 +154,8 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   timeframes?: readonly TimeframeSettingType[],
   sortings?: { [key: string]: SettingsOption; },
   showTimeframe?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
 

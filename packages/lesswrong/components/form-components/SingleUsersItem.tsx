@@ -5,6 +5,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { Chip } from '@/components/widgets/Chip';
 import Loading from "../vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersProfileQuery = gql(`
   query SingleUsersItem($documentId: String) {
@@ -29,11 +30,11 @@ const styles = defineStyles('SingleUsersItem', (theme: ThemeType) => ({
   },
 }));
 
-const SingleUsersItem = ({userId, removeItem, classes }: {
+const SingleUsersItem = ({userId, removeItem}: {
   userId: string,
   removeItem: (id: string) => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(UsersProfileQuery, {
     variables: { documentId: userId },
   });

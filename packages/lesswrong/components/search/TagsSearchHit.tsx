@@ -7,6 +7,7 @@ import LocalOfferOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/LocalOff
 import type { SearchHitComponentProps } from './types';
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("TagsSearchHit", (theme: ThemeType) => ({
   root: {
@@ -36,7 +37,8 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const TagsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const TagsSearchHit = ({hit, clickAction, showIcon=false}: SearchHitComponentProps) => {
+  const classes = useStyles(styles);
   const tag = hit as SearchTag;
 
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"

@@ -5,6 +5,7 @@ import { useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("PeopleDirectorySelectOption", (theme: ThemeType) => ({
   root: {
@@ -42,11 +43,11 @@ const styles = defineStyles("PeopleDirectorySelectOption", (theme: ThemeType) =>
   },
 }), { stylePriority: -1 });
 
-const PeopleDirectorySelectOption = ({state, className, classes}: {
+const PeopleDirectorySelectOption = ({state, className}: {
   state: MultiSelectState,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {value, label, selected, onToggle} = state;
   const {captureEvent} = useTracking({
     eventType: "selectOptionToggle",

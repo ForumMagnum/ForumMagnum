@@ -15,6 +15,7 @@ import DropdownItem from "../dropdowns/DropdownItem";
 import DropdownDivider from "../dropdowns/DropdownDivider";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ThemePickerMenu', (theme: ThemeType) => ({
   check: {
@@ -34,10 +35,10 @@ const styles = defineStyles('ThemePickerMenu', (theme: ThemeType) => ({
   },
 }))
 
-const ThemePickerMenu = ({children, classes}: {
+const ThemePickerMenu = ({children}: {
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const themeContext = React.useContext(ThemeContext)!;
   const currentThemeOptions = themeContext!.abstractThemeOptions;
   const currentUser = useCurrentUser();

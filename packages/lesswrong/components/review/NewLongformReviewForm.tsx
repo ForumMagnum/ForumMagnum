@@ -8,6 +8,7 @@ import PostsNewForm from "../posts/PostsNewForm";
 import SingleColumnSection from "../common/SingleColumnSection";
 import Row from "../common/Row";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('NewLongformReviewForm', (theme: ThemeType) => ({
   text: {
@@ -23,9 +24,8 @@ const styles = defineStyles('NewLongformReviewForm', (theme: ThemeType) => ({
   }
 }));
 
-export const NewLongformReviewForm = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const NewLongformReviewForm = () => {
+  const classes = useStyles(styles);
   const [showText, setShowText] = useState(true)
 
   if (!reviewIsActive()) {

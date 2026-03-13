@@ -4,17 +4,19 @@ import type { CommentTreeOptions } from '../comments/commentTree';
 import PostsItemNewCommentsList from "./PostsItemNewCommentsList";
 import PostsDialogItemNewCommentsList from "./PostsDialogItemNewCommentsList";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PostsItemNewCommentsWrapper', (theme: ThemeType) => ({}))
 
 const isDialogPost = (post: PostsList): post is PostsList & { debate: true } => !!post.debate;
 
-const PostsItemNewCommentsWrapper = ({ terms, classes, post, treeOptions }: {
+const PostsItemNewCommentsWrapper = ({terms, post, treeOptions}: {
   terms: CommentsViewTerms,
-  classes: ClassesType<typeof styles>,
   post: PostsList,
   treeOptions: CommentTreeOptions,
 }) => {
+  const classes = useStyles(styles);
+
   if (isDialogPost(post)) {
     return <PostsDialogItemNewCommentsList
       terms={terms}

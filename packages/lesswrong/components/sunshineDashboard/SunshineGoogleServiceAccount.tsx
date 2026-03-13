@@ -8,6 +8,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const GoogleServiceAccountSessionAdminInfoMultiQuery = gql(`
   query multiGoogleServiceAccountSessionSunshineGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -36,9 +37,8 @@ const getExpiryMessage = (estimatedExpiry: string) => {
   return `The session for the service account used to handle Google Doc imports will expire soon (${estimatedExpiry} estimated), log in again to ensure the feature keeps working`
 }
 
-const SunshineGoogleServiceAccount = ({ classes }: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const SunshineGoogleServiceAccount = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const { data, loading } = useQuery(GoogleServiceAccountSessionAdminInfoMultiQuery, {

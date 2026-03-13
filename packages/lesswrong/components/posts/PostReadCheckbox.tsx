@@ -8,6 +8,7 @@ import LWTooltip from "../common/LWTooltip";
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PostReadCheckbox', (theme: ThemeType) => ({
   root: {
@@ -28,11 +29,11 @@ interface PostFields {
   isRead: boolean | null;
 }
 
-export const PostReadCheckbox = ({classes, post, width=12}: {
-  classes: ClassesType<typeof styles>,
+export const PostReadCheckbox = ({post, width=12}: {
   post: PostFields,
   width?: number
 }) => {
+  const classes = useStyles(styles);
   const {postsRead, setPostRead} = useItemsRead();
   
 

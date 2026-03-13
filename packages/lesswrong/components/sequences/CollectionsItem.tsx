@@ -16,6 +16,7 @@ import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('CollectionsItem', (theme: ThemeType) => ({
   root: {
@@ -102,11 +103,11 @@ const styles = defineStyles('CollectionsItem', (theme: ThemeType) => ({
   }
 }));
 
-export const CollectionsItem = ({classes, showCloseIcon, collection}: {
+export const CollectionsItem = ({showCloseIcon, collection}: {
   collection: CoreReadingCollection,
   showCloseIcon?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { firstPost } = collection;
 
   const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${collection.id}`; //hiding in one place, hides everywhere

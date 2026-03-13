@@ -115,13 +115,13 @@ const TagVoteActivityRow = ({vote}: {
   );
 }
 
-const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit = 200, itemsPerPage = 200}: {
-  classes: ClassesType<typeof styles>,
+const TagVoteActivity = ({showHeaders = true, showNewTags = true, limit = 200, itemsPerPage = 200}: {
   showHeaders?: boolean,
   showNewTags?: boolean,
   limit?: number,
   itemsPerPage?: number
 }) => {
+  const classes = useStyles(styles);
   const { data, loadMoreProps } = useQueryWithLoadMore(TagVotingActivityMultiQuery, {
     variables: {
       selector: { tagVotes: {} },

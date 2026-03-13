@@ -27,6 +27,7 @@ import AudioToggle from "./AudioToggle";
 import ReadTime from "./ReadTime";
 import { CommentsLink } from './CommentsLink';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SECONDARY_SPACING = 20;
 
@@ -158,7 +159,7 @@ const styles = defineStyles('PostsPagePostHeader', (theme: ThemeType) => ({
 
 /// PostsPagePostHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo, classes}: {
+const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEmbeddedPlayer, toggleEmbeddedPlayer, hideMenu, hideTags, annualReviewMarketInfo}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   answers?: CommentsList[],
   dialogueResponses?: readonly CommentsList[],
@@ -167,8 +168,8 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   hideMenu?: boolean,
   hideTags?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
   const rssFeedSource = ('feed' in post) ? post.feed : null;
   let feedLinkDomain;

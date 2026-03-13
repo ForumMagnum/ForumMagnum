@@ -6,6 +6,7 @@ import { isLWorAF, forumHeaderTitleSetting } from '../../lib/instanceSettings';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import { TooltipSpan } from '../common/FMTooltip';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('SignupSubscribeToCurated', (theme: ThemeType) => ({
   checkboxLabel: {
@@ -32,11 +33,11 @@ const styles = defineStyles('SignupSubscribeToCurated', (theme: ThemeType) => ({
   },
 }));
 
-const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
+const SignupSubscribeToCurated = ({defaultValue, onChange}: {
   defaultValue: boolean,
   onChange: (checked: boolean) => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [checked, setChecked] = useState(defaultValue);
 
   // this component is not used in the EA Forum signup flow,

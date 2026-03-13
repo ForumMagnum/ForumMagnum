@@ -11,6 +11,7 @@ import LWCoreReading from "./LWCoreReading";
 import SequencesGridWrapper from "./SequencesGridWrapper";
 import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('LibraryPage', (theme: ThemeType) => ({
   pageTitle: {
@@ -25,9 +26,9 @@ const styles = defineStyles('LibraryPage', (theme: ThemeType) => ({
   }
 }));
 
-const LibraryPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const LibraryPage = () => {
+  const classes = useStyles(styles);
+
   return <React.Fragment>
     <AnalyticsContext pageContext="sequencesHome">
       <SingleColumnSection>

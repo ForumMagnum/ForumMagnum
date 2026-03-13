@@ -15,7 +15,7 @@ import { TooltipSpan } from '@/components/common/FMTooltip';
 import ModerationGuidelinesEditForm from "./ModerationGuidelinesEditForm";
 import ContentStyles from "../../common/ContentStyles";
 import { defineStyles, safeForDarkMode } from '@/components/hooks/defineStyles';
-
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsModerationGuidelinesQuery = gql(`
   query PostsModerationGuidelines($documentId: String) {
@@ -126,11 +126,11 @@ const getSubforumModerationGuidelines = (tag: TagFragment) => {
   return { combinedGuidelines, truncatedGuidelines }
 }
 
-const ModerationGuidelinesBox = ({ classes, commentType = "post", documentId }: {
-  classes: ClassesType<typeof styles>,
+const ModerationGuidelinesBox = ({commentType = "post", documentId}: {
   commentType?: "post" | "subforum",
   documentId: string,
 }) => {
+  const classes = useStyles(styles);
   const { recordEvent } = useNewEvents();
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();

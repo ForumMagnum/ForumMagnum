@@ -12,6 +12,7 @@ import LoginForm from "./LoginForm";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("CrosspostLoginPage", (theme: ThemeType) => ({
   root: {
@@ -38,9 +39,8 @@ const styles = defineStyles("CrosspostLoginPage", (theme: ThemeType) => ({
   },
 }));
 
-const CrosspostLoginPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const CrosspostLoginPage = () => {
+  const classes = useStyles(styles);
   const [connectCrossposter, loading] = useMutation(gql(`
     mutation connectCrossposter($token: String) {
       connectCrossposter(token: $token)

@@ -4,6 +4,7 @@ import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnsw
 import classNames from 'classnames';
 import LWTooltip from "../../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('CommentDiscussionIcon', (theme: ThemeType) => ({
   icon: {
@@ -22,11 +23,12 @@ const styles = defineStyles('CommentDiscussionIcon', (theme: ThemeType) => ({
   }
 }));
 
-const CommentDiscussionIcon = ({comment, small = false, classes}: {
+const CommentDiscussionIcon = ({comment, small = false}: {
   comment: CommentsList,
   small?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   if (comment.tagCommentType !== "SUBFORUM" || comment.topLevelCommentId) return null
 
   return (

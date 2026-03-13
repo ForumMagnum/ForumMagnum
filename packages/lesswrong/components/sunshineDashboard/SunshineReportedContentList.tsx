@@ -7,6 +7,7 @@ import LoadMore from "../common/LoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UnclaimedReportsListMultiQuery = gql(`
   query multiReportSunshineReportedContentListQuery($selector: ReportSelector, $limit: Int, $enableTotal: Boolean) {
@@ -26,10 +27,10 @@ const styles = defineStyles('SunshineReportedContentList', (theme: ThemeType) =>
   }
 }))
 
-const SunshineReportedContentList = ({ classes, currentUser }: {
-  classes: ClassesType<typeof styles>,
+const SunshineReportedContentList = ({currentUser}: {
   currentUser: UsersCurrent,
 }) => {
+  const classes = useStyles(styles);
   const { data, refetch, loadMoreProps } = useQueryWithLoadMore(UnclaimedReportsListMultiQuery, {
     variables: {
       selector: { sunshineSidebarReports: {} },

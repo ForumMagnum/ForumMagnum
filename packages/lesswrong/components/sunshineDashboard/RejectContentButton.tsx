@@ -11,6 +11,7 @@ import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
 import { useDialog } from '../common/withDialog';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('RejectContentButton', (theme: ThemeType) => ({
   root: {
@@ -32,10 +33,10 @@ const styles = defineStyles('RejectContentButton', (theme: ThemeType) => ({
   }
 }));
 
-export const RejectContentButton = ({contentWrapper, classes}: {
+export const RejectContentButton = ({contentWrapper}: {
   contentWrapper: RejectContentParams,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { eventHandlers, anchorEl } = useHover();
   const { rejectContent, unrejectContent, rejectionTemplates } = useRejectContent();
   const { openDialog } = useDialog();

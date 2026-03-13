@@ -20,6 +20,7 @@ import { Typography } from "../common/Typography";
 import { petrovDayLaunchCode } from '@/lib/collections/petrovDayActions/constants';
 import { WrappedReactMapGL } from '../community/WrappedReactMapGL';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
@@ -140,11 +141,11 @@ const styles = defineStyles('PetrovDayButton', (theme: ThemeType) => ({
   }
 }))
 
-const PetrovDayButton = ({classes, alreadyLaunched }: {
-  classes: ClassesType<typeof styles>,
+const PetrovDayButton = ({alreadyLaunched}: {
   refetch?: any,
   alreadyLaunched?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const { petrovPressedButtonDate } = (currentUser || {}) as any;
   const [pressed, setPressed] = useState(false) //petrovPressedButtonDate)

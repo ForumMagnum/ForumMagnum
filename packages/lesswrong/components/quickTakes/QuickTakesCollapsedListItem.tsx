@@ -18,6 +18,7 @@ import CommentsMenu from "../dropdowns/comments/CommentsMenu";
 import LWPopper from "../common/LWPopper";
 import CommentsNode from "../comments/CommentsNode";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("QuickTakesCollapsedListItem", (theme: ThemeType) => ({
   root: {
@@ -106,11 +107,11 @@ const styles = defineStyles("QuickTakesCollapsedListItem", (theme: ThemeType) =>
   },
 }));
 
-const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
+const QuickTakesCollapsedListItem = ({quickTake, setExpanded}: {
   quickTake: ShortformComments,
   setExpanded: (expanded: boolean) => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {eventHandlers, hover, anchorEl} = useHover({
     eventProps: {
       pageElementContext: "shortformItemTooltip",

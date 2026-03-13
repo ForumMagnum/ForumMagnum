@@ -2,6 +2,7 @@ import React, { ReactNode } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("DropdownMenu", (theme: ThemeType) => ({
   root: {
@@ -14,11 +15,12 @@ const styles = defineStyles("DropdownMenu", (theme: ThemeType) => ({
   },
 }));
 
-const DropdownMenu = ({children, className, classes}: {
+const DropdownMenu = ({children, className}: {
   children: ReactNode,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return (
     <div className={classNames(classes.root, className)}>
       {children}

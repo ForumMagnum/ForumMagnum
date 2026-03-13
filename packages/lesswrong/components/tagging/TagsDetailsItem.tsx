@@ -14,6 +14,7 @@ import TagFlagItem from "./TagFlagItem";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagRelFragmentMultiQuery = gql(`
   query multiTagRelTagsDetailsItemQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {
@@ -103,13 +104,13 @@ const styles = defineStyles("TagsDetailsItem", (theme: ThemeType) => ({
   }
 }));
 
-const TagsDetailsItem = ({ tag, classes, showFlags = false, flagId, collapse = false }: {
+const TagsDetailsItem = ({tag, showFlags = false, flagId, collapse = false}: {
   tag: TagFragment | TagWithFlagsFragment,
-  classes: ClassesType<typeof styles>,
   showFlags?: boolean,
   flagId?: string,
   collapse?: boolean
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [editing, setEditing] = useState(false)
   const { query } = useLocation();

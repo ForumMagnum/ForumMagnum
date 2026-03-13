@@ -18,6 +18,7 @@ import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SpotlightDisplayMultiQuery = gql(`
   query multiSpotlightSpotlightsPageQuery($selector: SpotlightSelector, $limit: Int, $enableTotal: Boolean) {
@@ -71,9 +72,8 @@ const styles = defineStyles('SpotlightsPage', (theme: ThemeType) => ({
   },
 }));
 
-export const SpotlightsPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const SpotlightsPage = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [sortBy, setSortBy] = useState<'upcoming' | 'past'>('upcoming');
 

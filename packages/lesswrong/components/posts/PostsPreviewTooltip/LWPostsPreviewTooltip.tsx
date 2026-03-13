@@ -19,6 +19,7 @@ import Loading from "../../vulcan-core/Loading";
 import ContentStyles from "../../common/ContentStyles";
 import EventTime from "../../localGroups/EventTime";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostWithDialogueMessageQuery = gql(`
   query LWPostsPreviewTooltip1($documentId: String, $dialogueMessageId: String) {
@@ -142,18 +143,8 @@ const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
   },
 }))
 
-type LWPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
-  classes: ClassesType<typeof styles>,
-}
-
-const LWPostsPreviewTooltip = ({
-  postsList,
-  post,
-  hash,
-  comment,
-  dialogueMessageInfo,
-  classes,
-}: LWPostsPreviewTooltipProps) => {
+const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageInfo}: PostsPreviewTooltipProps) => {
+  const classes = useStyles(styles);
   const [expanded, setExpanded] = useState(false)
 
   const { loading, data: dataHighlight } = useQuery(HighlightWithHashQuery, {

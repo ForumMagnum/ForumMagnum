@@ -2,6 +2,7 @@ import React, { useCallback } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ToggleSwitch", (theme: ThemeType) => ({
   root: {
@@ -50,13 +51,13 @@ const styles = defineStyles("ToggleSwitch", (theme: ThemeType) => ({
   },
 }), { stylePriority: -1 });
 
-export const ToggleSwitch = ({value, setValue, smallVersion, className, classes}: {
+export const ToggleSwitch = ({value, setValue, smallVersion, className}: {
   value: boolean,
   setValue?: (value: boolean) => void,
   smallVersion?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const onToggle = useCallback(() => {
     setValue?.(!value);
   }, [value, setValue]);

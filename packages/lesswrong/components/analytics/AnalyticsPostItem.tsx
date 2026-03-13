@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import moment from "moment";
@@ -12,6 +11,7 @@ import {
 } from "./AuthorAnalyticsPage";
 import classNames from "classnames";
 import { defineStyles } from "../hooks/defineStyles";
+import { useStyles } from "../hooks/useStyles";
 
 const styles = defineStyles("AnalyticsPostItem", (theme: ThemeType) => ({
   root: {
@@ -61,11 +61,11 @@ const styles = defineStyles("AnalyticsPostItem", (theme: ThemeType) => ({
   stylePriority: -1,
 });
 
-export const AnalyticsPostItem = ({post, className, classes}: {
+export const AnalyticsPostItem = ({post, className}: {
   post: PostAnalytics2Result,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const timeFromNow = moment(new Date(post.postedAt)).fromNow();
   const ago = timeFromNow !== "now"
     ? <span className={classes.xsHide}>&nbsp;ago</span>
@@ -94,10 +94,4 @@ export const AnalyticsPostItem = ({post, className, classes}: {
   );
 }
 
-export default registerComponent(
-  "AnalyticsPostItem",
-  AnalyticsPostItem,
-  {styles, stylePriority: -1},
-);
-
-
+export default AnalyticsPostItem;

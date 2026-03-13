@@ -24,6 +24,7 @@ import ReviewPostForm from "./ReviewPostForm";
 import PostsTagsList from "../tagging/PostsTagsList";
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsReviewVotingListMultiQuery = gql(`
   query multiPostReviewVotingPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -109,12 +110,12 @@ export const generatePermutation = (count: number, user: UsersCurrent|null): Arr
   return result;
 }
 
-const ReviewVotingPage = ({classes, reviewYear, expandedPost, setExpandedPost}: {
-  classes: ClassesType<typeof styles>,
+const ReviewVotingPage = ({reviewYear, expandedPost, setExpandedPost}: {
   reviewYear: ReviewYear,
   expandedPost: PostsReviewVotingList|null,
   setExpandedPost: (post: PostsReviewVotingList|null) => void
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const { captureEvent } = useTracking({eventType: "reviewVotingEvent"})
   const { query } = useLocation()

@@ -17,6 +17,7 @@ import AFSuggestPostsList from "./AFSuggestPostsList";
 import AFSuggestCommentsList from "./AFSuggestCommentsList";
 import SunshineGoogleServiceAccount from "./SunshineGoogleServiceAccount";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("SunshineSidebar", (theme: ThemeType) => ({
   root: {
@@ -51,7 +52,8 @@ const styles = defineStyles("SunshineSidebar", (theme: ThemeType) => ({
   }
 }))
 
-const SunshineSidebar = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const SunshineSidebar = () => {
+  const classes = useStyles(styles);
   const [showUnderbelly, setShowUnderbelly] = useState(false)
   const currentUser = useCurrentUser();
   if (!currentUser) return null

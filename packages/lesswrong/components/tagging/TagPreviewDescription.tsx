@@ -10,6 +10,7 @@ import TagExcerpt from "../common/excerpts/TagExcerpt";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("TagPreviewDescription", (theme: ThemeType) => ({
   root: {
@@ -47,12 +48,12 @@ const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPrev
   return isLWorAF() ? 8 : 2;
 }
 
-const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
+const TagPreviewDescription = ({tag, hash, activeTab}: {
   tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] },
   hash?: string,
   activeTab?: number,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
 
   if (!tag) {

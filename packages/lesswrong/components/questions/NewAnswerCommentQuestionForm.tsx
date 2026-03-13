@@ -9,6 +9,7 @@ import { useDialog } from "../common/withDialog";
 import { TooltipRef, TooltipSpan } from '../common/FMTooltip';
 import CommentsNewForm from "../comments/CommentsNewForm";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('NewAnswerCommentQuestionForm', (theme: ThemeType) => ({
   root: {
@@ -71,10 +72,10 @@ const styles = defineStyles('NewAnswerCommentQuestionForm', (theme: ThemeType) =
   }
 }))
 
-const NewAnswerCommentQuestionForm = ({post, classes}: {
+const NewAnswerCommentQuestionForm = ({post}: {
   post: PostsListWithVotes,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [selection, setSelection] = useState("answer");
   const [formFocus, setFormFocus] = useState(false);
   const currentUser = useCurrentUser()

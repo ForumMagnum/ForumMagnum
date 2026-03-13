@@ -5,16 +5,18 @@ import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import LWDialog from "../common/LWDialog";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('VotingPatternsWarningPopup', (theme: ThemeType) => ({
   dismissButton: {
   },
 }));
 
-const VotingPatternsWarningPopup = ({onClose, classes}: {
+const VotingPatternsWarningPopup = ({onClose}: {
   onClose?: () => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
+
   return <LWDialog open={true}>
     <DialogTitle>
       Hang on there

@@ -10,6 +10,7 @@ import LWTooltip from "../../common/LWTooltip";
 import ForumIcon from '@/components/common/ForumIcon';
 import classNames from 'classnames';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('UserAutoRateLimitsDisplay', (theme: ThemeType) => ({
   root: {
@@ -98,13 +99,13 @@ export const downvoterTooltip = (user: SunshineUsersList) => {
 
 
 
-export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta = false, absolute, hideIfNoVotes = true, classes}: {
+export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta = false, absolute, hideIfNoVotes = true}: {
   user: SunshineUsersList,
   showKarmaMeta?: boolean,
   absolute?: boolean,
   hideIfNoVotes?: boolean
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const roundedDownvoteRatio = Math.round(getDownvoteRatio(user) * 100)
   const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
   const strictestRateLimits = getStrictestActiveRateLimits(user, allRateLimits);

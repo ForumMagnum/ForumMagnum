@@ -11,6 +11,7 @@ import LWPopper from "../common/LWPopper";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagWithFlagsFragmentMultiQuery = gql(`
   query multiTagTagFlagItemQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -59,12 +60,12 @@ const styles = defineStyles('TagFlagItem', (theme: ThemeType) => ({
 
 type ItemTypeName = "tagFlagId"|"allPages"|"userPages"
 
-const TagFlagItem = ({documentId, itemType = "tagFlagId", style = "grey", classes }: {
+const TagFlagItem = ({documentId, itemType = "tagFlagId", style = "grey"}: {
   documentId?: string,
   itemType?: ItemTypeName,
   style?: "white"|"grey"|"black",
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {eventHandlers, hover, anchorEl } = useHover();
   const currentUser = useCurrentUser();
   const { data } = useQuery(TagFlagFragmentQuery, {

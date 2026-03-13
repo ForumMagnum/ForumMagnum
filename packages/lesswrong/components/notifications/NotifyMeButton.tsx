@@ -11,6 +11,7 @@ import ForumIcon from "../common/ForumIcon";
 import { MenuItem } from "../common/Menus";
 import EAButton from "../ea-forum/EAButton";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 // Note: We're changing 'subscribe' to refer to the frontpage bump of tags, this
 // component still talks about 'subscriptions', but we're moving to calling them
@@ -39,23 +40,7 @@ const styles = defineStyles('NotifyMeButton', (theme: ThemeType) => ({
   },
 }))
 
-const NotifyMeButton = ({
-  document,
-  subscriptionType: overrideSubscriptionType,
-  subscribeMessage, unsubscribeMessage,
-  tooltip,
-  asMenuItem = false,
-  className="",
-  classes,
-  showIcon,
-  hideLabel = false,
-  hideLabelOnMobile = false,
-  hideIfNotificationsDisabled = false,
-  hideForLoggedOutUsers = false,
-  hideFlashes = false,
-  asButton = false,
-  componentIfSubscribed,
-}: {
+const NotifyMeButton = ({document, subscriptionType: overrideSubscriptionType, subscribeMessage, unsubscribeMessage, tooltip, asMenuItem = false, className="", showIcon, hideLabel = false, hideLabelOnMobile = false, hideIfNotificationsDisabled = false, hideForLoggedOutUsers = false, hideFlashes = false, asButton = false, componentIfSubscribed}: {
   document: AnyBecauseTodo,
   subscriptionType?: SubscriptionType,
   subscribeMessage?: string,
@@ -63,7 +48,6 @@ const NotifyMeButton = ({
   asMenuItem?: boolean,
   unsubscribeMessage?: string,
   className?: string,
-  classes: ClassesType<typeof styles>,
   showIcon?: boolean,
   hideLabel?: boolean,
   hideLabelOnMobile?: boolean
@@ -76,6 +60,7 @@ const NotifyMeButton = ({
   // display this component if the user is already subscribed, instead of the unsubscribeMessage
   componentIfSubscribed?: React.JSX.Element,
 }) => {
+  const classes = useStyles(styles);
   const {loading, disabled, isSubscribed, onSubscribe} = useNotifyMe({
     document,
     overrideSubscriptionType,

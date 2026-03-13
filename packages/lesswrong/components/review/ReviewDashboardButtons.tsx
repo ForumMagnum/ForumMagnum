@@ -8,6 +8,7 @@ import Row from "../common/Row";
 import SectionFooter from "../common/SectionFooter";
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ReviewDashboardButtons', (theme: ThemeType) => ({
   actionButton: {
@@ -38,13 +39,13 @@ const styles = defineStyles('ReviewDashboardButtons', (theme: ThemeType) => ({
   }
 }));
 
-export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAdvancedDashboard, showQuickReview}: {
-  classes: ClassesType<typeof styles>,
+export const ReviewDashboardButtons = ({reviewYear, reviewPhase, showAdvancedDashboard, showQuickReview}: {
   reviewYear: ReviewYear,
   reviewPhase: ReviewPhase,
   showAdvancedDashboard?: boolean,
   showQuickReview?: boolean
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
 
   return <div>

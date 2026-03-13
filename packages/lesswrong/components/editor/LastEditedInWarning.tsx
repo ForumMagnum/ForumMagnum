@@ -5,6 +5,7 @@ import { useConvertDocument } from './useConvertDocument';
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('LastEditedInWarning', (theme: ThemeType) => ({
   lastEditedWarning: {
@@ -15,15 +16,15 @@ const styles = defineStyles('LastEditedInWarning', (theme: ThemeType) => ({
   },
 }));
 
-const LastEditedInWarning = ({autoConvert, initialType, currentType, defaultType, value, setValue, classes}: {
+const LastEditedInWarning = ({autoConvert, initialType, currentType, defaultType, value, setValue}: {
   autoConvert: boolean,
   initialType: LegacyEditorTypeString,
   currentType: LegacyEditorTypeString,
   defaultType: LegacyEditorTypeString,
   value: EditorContents,
   setValue: (change: EditorChangeEvent) => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const {convertDocument, loading, error} = useConvertDocument({
     onCompleted: (result: EditorContents) => {
       setValue({

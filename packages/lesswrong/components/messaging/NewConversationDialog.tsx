@@ -16,6 +16,7 @@ import ForumIcon from "../common/ForumIcon";
 import { Typography } from "../common/Typography";
 import EAButton from "../ea-forum/EAButton";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("NewConversationDialog", (theme: ThemeType) => ({
   paper: {
@@ -157,15 +158,11 @@ const styles = defineStyles("NewConversationDialog", (theme: ThemeType) => ({
   },
 }));
 
-const NewConversationDialog = ({
-  isModInbox = false,
-  classes,
-  onClose,
-}: {
+const NewConversationDialog = ({isModInbox = false, onClose}: {
   isModInbox?: boolean;
-  classes: ClassesType<typeof styles>
   onClose: () => void;
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [query, setQuery] = useState<string>("");
   const navigate = useNavigate();

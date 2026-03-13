@@ -3,6 +3,7 @@ import { postGetLink, postGetLinkTarget } from '../../lib/collections/posts/help
 import React from 'react';
 import classNames from 'classnames';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('LinkPostMessage', (theme: ThemeType) => ({
   root: theme.isFriendlyUI ? {
@@ -29,11 +30,12 @@ const styles = defineStyles('LinkPostMessage', (theme: ThemeType) => ({
   }
 }))
 
-const LinkPostMessage = ({post, classes, negativeTopMargin}: {
+const LinkPostMessage = ({post, negativeTopMargin}: {
   post: PostsBase,
-  classes: ClassesType<typeof styles>,
   negativeTopMargin?: boolean
 }) => {
+  const classes = useStyles(styles);
+
   if (!post.url)
     return null;
 

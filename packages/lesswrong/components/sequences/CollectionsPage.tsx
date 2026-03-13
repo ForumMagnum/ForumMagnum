@@ -21,6 +21,7 @@ import CollectionTableOfContents from "./CollectionTableOfContents";
 import ToCColumn from "../posts/TableOfContents/ToCColumn";
 import { CollectionsPageFragmentQuery } from './queries';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CollectionsEditFragmentQuery = gql(`
   query CollectionsEdit($documentId: String) {
@@ -85,10 +86,10 @@ const styles = defineStyles('CollectionsPage', (theme: ThemeType) => ({
   },
 }));
 
-const CollectionsPage = ({ documentId, classes }: {
+const CollectionsPage = ({documentId}: {
   documentId: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [edit, setEdit] = useState(false);
   const [addingBook, setAddingBook] = useState(false);

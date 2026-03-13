@@ -7,6 +7,7 @@ import OverallVoteButton from "../votes/OverallVoteButton";
 import TagRelevanceButton from "./TagRelevanceButton";
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("TagRelCard", (theme: ThemeType) => ({
   relevance: {
@@ -57,10 +58,10 @@ const styles = defineStyles("TagRelCard", (theme: ThemeType) => ({
   }
 }));
 
-const TagRelCard = ({tagRel, classes}: {
+const TagRelCard = ({tagRel}: {
   tagRel: TagRelMinimumFragment,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const voteProps = useVote(tagRel, "TagRels");
   const newlyVoted = !!(tagRel.currentUserVote==="smallUpvote" && voteProps.voteCount === 1)
 

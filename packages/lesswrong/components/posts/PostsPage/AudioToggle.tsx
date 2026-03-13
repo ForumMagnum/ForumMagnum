@@ -5,6 +5,7 @@ import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import LWTooltip from "../../common/LWTooltip";
 import ForumIcon from "../../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const podcastIconSize = (theme: ThemeType) => theme.isFriendlyUI ? 22 : 24;
 // some padding around the icon to make it look like a stateful toggle button
@@ -32,12 +33,13 @@ const styles = defineStyles("AudioToggle", (theme: ThemeType) => ({
   }
 }));
 
-const AudioToggle = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
-  classes: ClassesType<typeof styles>,
+const AudioToggle = ({post, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   toggleEmbeddedPlayer?: (e: React.MouseEvent) => void,
   showEmbeddedPlayer?: boolean,
 }) => {
+  const classes = useStyles(styles);
+
   if (!postHasAudioPlayer(post)) {
     return null;
   }

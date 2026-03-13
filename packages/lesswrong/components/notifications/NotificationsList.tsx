@@ -6,6 +6,7 @@ import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { NotificationsListMultiQuery } from './NotificationsListMultiQuery';
 import { useCurrentUser } from '../common/withUser';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('NotificationsList', (theme: ThemeType) => ({
   root: {
@@ -36,10 +37,10 @@ const styles = defineStyles('NotificationsList', (theme: ThemeType) => ({
   },
 }));
 
-const NotificationsList = ({ terms, classes }: {
+const NotificationsList = ({terms}: {
   terms: NotificationsViewTerms,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { view, limit, ...selectorTerms } = terms;
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(NotificationsListMultiQuery, {

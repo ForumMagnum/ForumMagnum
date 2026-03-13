@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import FormatDate from "../common/FormatDate";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PostKarmaWithPreview', (theme: ThemeType) => ({
   root: {
@@ -36,12 +37,13 @@ const styles = defineStyles('PostKarmaWithPreview', (theme: ThemeType) => ({
   }
 }))
 
-const PostKarmaWithPreview = ({ post, classes, displayTitle, reviewedAt }: {
+const PostKarmaWithPreview = ({post, displayTitle, reviewedAt}: {
   post: SunshinePostsList,
-  classes: ClassesType<typeof styles>,
   displayTitle: boolean,
   reviewedAt?: Date
 }) => {
+  const classes = useStyles(styles);
+
   return (
     <PostsTooltip
       post={post}

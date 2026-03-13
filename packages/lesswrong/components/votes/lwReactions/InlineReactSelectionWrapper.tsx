@@ -5,6 +5,7 @@ import type { VotingProps } from '../votingProps';
 import AddInlineReactionButton from "./AddInlineReactionButton";
 import LWPopper from "../../common/LWPopper";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('InlineReactSelectionWrapper', (theme: ThemeType) => ({
   popper: {
@@ -49,14 +50,14 @@ function getButtonOffsetTop(styling: Styling): number {
   }
 }
 
-const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, setSelection, children, classes}: {
+const InlineReactSelectionWrapper = ({contentRef, voteProps, styling, setSelection, children}: {
   contentRef?: React.RefObject<ContentItemBodyImperative|null>|null, // we need this to check if the mouse is still over the comment, and it needs to be passed down from CommentsItem instead of declared here because it needs extra padding in order to behave intuively (without losing the selection)
   voteProps: VotingProps<VoteableTypeClient>
   styling: Styling,
   setSelection?: (selection?: { text: string, disabled: boolean }) => void,
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const commentTextRef = useRef<HTMLDivElement|null>(null);
   const popupRef = useRef<HTMLDivElement|null>(null);
   const [quote, setQuote] = useState<string>("");

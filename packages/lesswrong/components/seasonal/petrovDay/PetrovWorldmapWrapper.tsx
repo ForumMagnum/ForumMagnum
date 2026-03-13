@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import { WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PetrovWorldmapWrapper', (theme: ThemeType) => ({
   root: {
@@ -35,10 +36,10 @@ const styles = defineStyles('PetrovWorldmapWrapper', (theme: ThemeType) => ({
   },
 }));
 
-export const PetrovWorldmapWrapper = ({classes, children}: {
-  classes: ClassesType<typeof styles>,
+export const PetrovWorldmapWrapper = ({children}: {
   children: React.ReactNode
 }) => {
+  const classes = useStyles(styles);
 
   return <div className={classes.root}>
       <WrappedReactMapGL

@@ -7,6 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import { TooltipSpan } from '../common/FMTooltip';
 import MetaInfo from "../common/MetaInfo";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const USER_SETTING_NAMES = {
   showDialogues: 'showDialoguesList',
@@ -44,12 +45,12 @@ const styles = defineStyles('DialoguesSectionFrontpageSettings', (theme: ThemeTy
   }
 }))
 
-const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, currentShowMyDialogues, classes}: {
+const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, currentShowMyDialogues}: {
   hidden: boolean,
   currentShowDialogues: boolean,
   currentShowMyDialogues: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
 

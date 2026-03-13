@@ -30,6 +30,8 @@ import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovCo
 
 import dynamic from 'next/dynamic';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
+
 const NewDialogueDialog = dynamic(() => import("../posts/NewDialogueDialog"), { ssr: false });
 const NewShortformDialog = dynamic(() => import("../shortform/NewShortformDialog"), { ssr: false });
 const AFApplicationForm = dynamic(() => import("../alignment-forum/AFApplicationForm"), { ssr: false });
@@ -99,9 +101,8 @@ const styles = defineStyles('UsersMenu', (theme: ThemeType) => ({
   },
 }))
 
-const UsersMenu = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const UsersMenu = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, forceUnHover, anchorEl} = useHover();
   const {openDialog} = useDialog();

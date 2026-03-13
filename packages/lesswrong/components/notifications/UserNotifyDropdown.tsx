@@ -12,6 +12,7 @@ import LWClickAwayListener from "../common/LWClickAwayListener";
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import NotifyMeToggleDropdownItem from "../dropdowns/NotifyMeToggleDropdownItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('UserNotifyDropdown', (theme: ThemeType) => ({
   buttonContent: {
@@ -37,17 +38,12 @@ const styles = defineStyles('UserNotifyDropdown', (theme: ThemeType) => ({
  * when the given user has published a new post or a new comment.
  * Currently only used in the FriendlyUsersProfile.
  */
-const UserNotifyDropdown = ({
-  user,
-  popperPlacement="bottom-start",
-  className,
-  classes,
-}: {
+const UserNotifyDropdown = ({user, popperPlacement="bottom-start", className}: {
   user: UsersProfile,
   popperPlacement?: PopperPlacementType,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const {captureEvent} = useTracking();

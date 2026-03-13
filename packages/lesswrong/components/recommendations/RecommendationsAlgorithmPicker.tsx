@@ -11,6 +11,7 @@ import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const getArchiveRecommendationsName = () => isEAForum() ? 'Forum Favorites' : 'Archive Recommendations'
 
@@ -74,13 +75,13 @@ const forumIncludeExtra: ForumOptions<{humanName: string, machineName: 'includeP
 }
 const getIncludeExtra = () => forumSelect(forumIncludeExtra)
 
-const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
+const RecommendationsAlgorithmPicker = ({settings, configName, onChange, showAdvanced=false}: {
   settings: DefaultRecommendationsAlgorithm,
   configName: string,
   onChange: (newSettings: DefaultRecommendationsAlgorithm) => void,
   showAdvanced?: boolean,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   function applyChange(newSettings: DefaultRecommendationsAlgorithm) {

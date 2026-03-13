@@ -5,6 +5,7 @@ import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
 import { useEventListener } from '../../hooks/useEventListener';
 import { useTracking } from '../../../lib/analyticsEvents';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PostsPodcastPlayer', (theme: ThemeType) => ({
   embeddedPlayer: {
@@ -21,12 +22,12 @@ const styles = defineStyles('PostsPodcastPlayer', (theme: ThemeType) => ({
   }
 }));
 
-const PostsPodcastPlayer = ({ podcastEpisode, postId, hideIconList = false, classes }: {
+const PostsPodcastPlayer = ({podcastEpisode, postId, hideIconList = false}: {
   podcastEpisode: Exclude<PostPodcastEpisode['podcastEpisode'], null>,
   postId: string,
   hideIconList?: boolean,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const mouseOverDiv = useRef(false);
   const divRef = useRef<HTMLDivElement | null>(null);
   const { captureEvent } = useTracking();

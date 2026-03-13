@@ -3,6 +3,7 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import LWTooltip from "../../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('NewUserDMSummary', (theme: ThemeType) => ({
   root: {
@@ -17,10 +18,11 @@ const styles = defineStyles('NewUserDMSummary', (theme: ThemeType) => ({
   },
 }));
 
-export const NewUserDMSummary = ({classes, user}: {
-  classes: ClassesType<typeof styles>,
+export const NewUserDMSummary = ({user}: {
   user: SunshineUsersList,
 }) => {
+  const classes = useStyles(styles);
+
   if (!user.usersContactedBeforeReview?.length) return null
   
   return <div className={classes.root}>

@@ -6,6 +6,7 @@ import { getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest, { OnSuggestionSelected } from 'react-autosuggest';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("SearchAutoComplete", (theme: ThemeType) => ({
   autoComplete: {
@@ -33,27 +34,18 @@ export const formatFacetFilters = (
     ? [Object.keys(facetFilters).map((key) => `${key}:${facetFilters[key]}`)]
     : undefined;
 
-const SearchAutoComplete = ({
-  clickAction,
-  placeholder,
-  noSearchPlaceholder,
-  renderSuggestion,
-  hitsPerPage=7,
-  indexName,
-  classes,
-  renderInputComponent,
-  facetFilters,
-}: {
+const SearchAutoComplete = ({clickAction, placeholder, noSearchPlaceholder, renderSuggestion, hitsPerPage=7, indexName, renderInputComponent, facetFilters}: {
   clickAction: (_id: string, object: any) => void,
   placeholder: string,
   noSearchPlaceholder: string,
   renderSuggestion: any,
   hitsPerPage?: number,
   indexName: string,
-  classes: ClassesType<typeof styles>,
   renderInputComponent?: any,
   facetFilters?: Record<string, boolean>,
 }) => {
+  const classes = useStyles(styles);
+
   if (!isSearchEnabled()) {
     // Fallback for when search is unavailable (ie, local development installs).
     // This isn't a particularly nice UI, but it's functional enough to be able

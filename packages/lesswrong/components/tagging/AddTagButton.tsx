@@ -10,6 +10,7 @@ import AddTagOrWikiPage from "./AddTagOrWikiPage";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("AddTagButton", (theme: ThemeType) => ({
   addTagButton: {
@@ -24,14 +25,14 @@ const styles = defineStyles("AddTagButton", (theme: ThemeType) => ({
   }
 }));
 
-const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingContext, hasTooltip=true, classes, children}: {
+const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingContext, hasTooltip=true, children}: {
   onTagSelected: (props: {tagId: string, tagName: string}) => void,
   menuPlacement?: PopperPlacementType,
   isVotingContext?: boolean,
   hasTooltip?: boolean,
-  classes: ClassesType<typeof styles>,
   children?: ReactNode,
 }) => {
+  const classes = useStyles(styles);
   const [isOpen, setIsOpen] = useState(false);
   const anchorEl = useRef<HTMLAnchorElement|null>(null);
   const currentUser = useCurrentUser();

@@ -12,6 +12,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import { MenuItem } from "../common/Menus";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("UsersViewABTests", (theme: ThemeType) => ({
   explanatoryText: {
@@ -35,9 +36,8 @@ const styles = defineStyles("UsersViewABTests", (theme: ThemeType) => ({
   },
 }));
 
-const UsersViewABTests = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const UsersViewABTests = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const allABtests = useAllABTests();

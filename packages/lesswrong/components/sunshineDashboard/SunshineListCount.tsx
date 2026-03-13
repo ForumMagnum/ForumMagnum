@@ -2,6 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import MetaInfo from "../common/MetaInfo";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('SunshineListCount', (theme: ThemeType) => ({
   overflow: {
@@ -9,10 +10,11 @@ const styles = defineStyles('SunshineListCount', (theme: ThemeType) => ({
   }
 }))
 
-const SunshineListCount = ({ count, classes }: {
+const SunshineListCount = ({count}: {
   count: number|undefined,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   if (count && count > 10) {
     return <MetaInfo className={count > 20 ? classes.overflow : undefined}>({count})</MetaInfo>
   } else {

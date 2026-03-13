@@ -6,6 +6,7 @@ import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAp
 import { FormComponentFriendlyTextInput } from './FormComponentFriendlyTextInput';
 import SocialMediaIcon from "../icons/SocialMediaIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("PrefixedInput", (theme: ThemeType) => ({
   root: {
@@ -38,13 +39,7 @@ export const iconNameByUserFieldName: Record<SocialMediaProfileField|"website", 
  * This is similar to a normal text input,
  * except it also displays an inputPrefix to the left of the cursor.
  */
-const PrefixedInput = ({
-  field,
-  heading,
-  inputPrefix,
-  smallBottomMargin,
-  classes,
-}: {
+const PrefixedInput = ({field, heading, inputPrefix, smallBottomMargin}: {
   field: {
     name: TypedFieldApi<string | null | undefined>['name'];
     state: Pick<TypedFieldApi<string | null | undefined>['state'], 'value'>;
@@ -53,8 +48,8 @@ const PrefixedInput = ({
   inputPrefix?: string,
   heading?: string,
   smallBottomMargin?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const value = field.state.value;
   const fieldName = field.name;
 

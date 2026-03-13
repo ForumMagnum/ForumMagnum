@@ -11,6 +11,7 @@ import CommentsList from "./CommentsList";
 import PostsPageCrosspostComments from "../posts/PostsPage/PostsPageCrosspostComments";
 import { userIsPostCoauthor } from '@/lib/collections/posts/helpers';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
@@ -62,14 +63,14 @@ const styles = defineStyles("DebateCommentsListSection", (theme: ThemeType) => (
   debateCommentsList: {}
 }))
 
-const DebateCommentsListSection = ({post, totalComments, comments, newForm=true, newFormProps={}, classes}: {
+const DebateCommentsListSection = ({post, totalComments, comments, newForm=true, newFormProps={}}: {
   post: PostsDetails,
   totalComments: number,
   comments: CommentsList[],
   newForm: boolean,
   newFormProps?: Partial<CommentsNewFormProps>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);
   const highlightDate = post?.lastVisitedAt ? new Date(post.lastVisitedAt) : undefined;

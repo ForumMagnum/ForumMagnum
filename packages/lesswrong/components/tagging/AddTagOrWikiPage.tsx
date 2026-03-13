@@ -11,6 +11,7 @@ import type { SearchState } from 'react-instantsearch-core';
 import TagSearchHit from "./TagSearchHit";
 import DropdownDivider from "../dropdowns/DropdownDivider";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("AddTagOrWikiPage", (theme: ThemeType) => ({
   root: {
@@ -37,14 +38,14 @@ const styles = defineStyles("AddTagOrWikiPage", (theme: ThemeType) => ({
   },
 }));
 
-const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggestions=6, showAllTagsAndCreateTags=true, classes}: {
+const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggestions=6, showAllTagsAndCreateTags=true}: {
   onTagSelected: (props: {tagId: string, tagName: string, tagSlug: string}) => void,
   isVotingContext?: boolean,
   onlyTags: boolean,
   numSuggestions?: number,
   showAllTagsAndCreateTags?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const [searchOpen, setSearchOpen] = React.useState(false);
   const searchStateChanged = React.useCallback((searchState: SearchState) => {

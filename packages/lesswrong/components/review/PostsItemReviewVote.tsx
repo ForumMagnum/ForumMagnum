@@ -12,6 +12,7 @@ import ReviewPostButton from "./ReviewPostButton";
 import { useCurrentUserReviewVote } from '../hooks/useCurrentUserReviewVote';
 import Loading from '../vulcan-core/Loading';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const voteTextStyling = (theme: ThemeType) => ({
   ...theme.typography.smallText,
@@ -81,11 +82,11 @@ const styles = defineStyles('PostsItemReviewVote', (theme: ThemeType) => ({
   }
 }))
 
-const PostsItemReviewVote = ({classes, post, marginRight=true}: {
-  classes: ClassesType<typeof styles>,
+const PostsItemReviewVote = ({post, marginRight=true}: {
   post: PostsListBase,
   marginRight?: boolean
 }) => {
+  const classes = useStyles(styles);
   const [anchorEl, setAnchorEl] = useState<any>(null)
 
   const currentUser = useCurrentUser()

@@ -10,6 +10,7 @@ import PresenceList from "./PresenceList";
 import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("EditorTopBar", (theme: ThemeType) => ({
   editorTopBar: {
@@ -45,14 +46,14 @@ const styles = defineStyles("EditorTopBar", (theme: ThemeType) => ({
 
 export type CollaborationMode = "Viewing"|"Commenting"|"Editing"|"Editing (override)";
 
-const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, post, connectedUsers, classes}: {
+const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, post, connectedUsers}: {
   accessLevel: CollaborativeEditingAccessLevel,
   collaborationMode: CollaborationMode,
   setCollaborationMode: (mode: CollaborationMode) => void,
   post: PostsEdit,
   connectedUsers: ConnectedUserInfo[],
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   
   const isAdmin = !!currentUser && currentUser.isAdmin;

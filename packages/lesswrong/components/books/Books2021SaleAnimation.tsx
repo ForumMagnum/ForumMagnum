@@ -6,6 +6,7 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_2021_BOOK_BANNER_COOKIE, HIDE_FEATURED_RESOURCE_COOKIE } from '../../lib/cookies/cookies';
 import { Link } from '../../lib/reactRouterWrapper';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const collapsedStyles = (theme: ThemeType) => ({
   '& .book-container': {
@@ -297,10 +298,10 @@ const styles = defineStyles('Books2021SaleAnimation', (theme: ThemeType) => ({
   }
 }), { allowNonThemeColors: true })
 
-const Books2021SaleAnimation = ({ classes, successContent }: {
-  classes: ClassesType<typeof styles>,
+const Books2021SaleAnimation = ({successContent}: {
   successContent?: any
 }) => {
+  const classes = useStyles(styles);
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_2021_BOOK_BANNER_COOKIE])
 
   if (cookies[HIDE_2021_BOOK_BANNER_COOKIE]) {

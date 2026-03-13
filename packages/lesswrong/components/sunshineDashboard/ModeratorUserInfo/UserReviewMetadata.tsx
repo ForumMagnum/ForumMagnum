@@ -3,6 +3,7 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import MetaInfo from "../../common/MetaInfo";
 import FormatDate from "../../common/FormatDate";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('UserReviewMetadata', (theme: ThemeType) => ({
   root: {
@@ -17,10 +18,11 @@ const styles = defineStyles('UserReviewMetadata', (theme: ThemeType) => ({
   }
 }));
 
-export const UserReviewMetadata = ({classes, user}: {
+export const UserReviewMetadata = ({user}: {
   user: SunshineUsersList
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return <div className={classes.root}>
     <MetaInfo>
       {user.email}

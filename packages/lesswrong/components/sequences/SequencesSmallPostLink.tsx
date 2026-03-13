@@ -9,6 +9,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import PostReadCheckbox from "../posts/PostReadCheckbox";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("SequencesSmallPostLink", (theme: ThemeType) => ({
   title: {
@@ -40,13 +41,14 @@ const styles = defineStyles("SequencesSmallPostLink", (theme: ThemeType) => ({
   }
 }));
 
-const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="left-start"}: {
-  classes: ClassesType<typeof styles>,
+const SequencesSmallPostLink = ({post, sequenceId, large, placement="left-start"}: {
   post: ChapterPostSlim | PostsList,
   sequenceId: string,
   large?: boolean,
   placement?: PopperPlacementType,
 }) => {
+  const classes = useStyles(styles);
+
   return <div className={classNames(classes.title, {[classes.large]: large})}>
     <span className={classes.checkbox}>
       <PostReadCheckbox

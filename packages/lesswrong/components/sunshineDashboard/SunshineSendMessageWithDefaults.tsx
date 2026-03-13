@@ -12,6 +12,7 @@ import { MenuItem } from "../common/Menus";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateSunshineSendMessageWithDefaultsQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -64,11 +65,11 @@ const styles = defineStyles('SunshineSendMessageWithDefaults', (theme: ThemeType
   }
 }))
 
-const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
+const SunshineSendMessageWithDefaults = ({user, embedConversation}: {
   user: SunshineUsersList|UsersMinimumInfo|null,
   embedConversation?: (conversationId: string, templateQueries: TemplateQueryStrings) => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const [anchorEl, setAnchorEl] = useState<any>(null);
 

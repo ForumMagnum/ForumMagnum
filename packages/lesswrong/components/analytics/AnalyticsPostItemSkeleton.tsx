@@ -1,7 +1,7 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from "../hooks/useStyles";
 
 const styles = defineStyles("AnalyticsPostItemSkeleton", (theme: ThemeType) => ({
   root: {
@@ -29,10 +29,10 @@ const styles = defineStyles("AnalyticsPostItemSkeleton", (theme: ThemeType) => (
   },
 }), { stylePriority: -1 });
 
-export const AnalyticsPostItemSkeleton = ({className, classes}: {
+export const AnalyticsPostItemSkeleton = ({className}: {
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   return (
     <div className={classNames(classes.root, className)}>
       <div className={classNames(classes.title, classes.placeholder)} />
@@ -41,10 +41,4 @@ export const AnalyticsPostItemSkeleton = ({className, classes}: {
   );
 }
 
-export default registerComponent(
-  "AnalyticsPostItemSkeleton",
-  AnalyticsPostItemSkeleton,
-  {styles, stylePriority: -1},
-);
-
-
+export default AnalyticsPostItemSkeleton;

@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Pagination } from 'react-instantsearch-dom';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("SearchPagination", (theme: ThemeType) => ({
   root: {
@@ -54,11 +55,12 @@ const styles = defineStyles("SearchPagination", (theme: ThemeType) => ({
     },
   }
 }))
-const SearchPagination = ({classes, pagesPadding=0, showFirst=false}: {
-  classes: ClassesType<typeof styles>,
+const SearchPagination = ({pagesPadding=0, showFirst=false}: {
   pagesPadding?: number,
   showFirst?: boolean,
 }) => {
+  const classes = useStyles(styles);
+
   return <div className={classes.root}>
     <Pagination padding={pagesPadding} showFirst={showFirst}/>
   </div>

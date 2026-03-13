@@ -11,6 +11,7 @@ import PostInteractionStripe from "./PostInteractionStripe";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsReviewVotingListMultiQuery = gql(`
   query multiPostQuickReviewPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -55,10 +56,10 @@ const styles = defineStyles('QuickReviewPage', (theme: ThemeType) => ({
   }
 }));
 
-export const QuickReviewPage = ({classes, reviewYear}: {
-  classes: ClassesType<typeof styles>,
+export const QuickReviewPage = ({reviewYear}: {
   reviewYear: ReviewYear
 }) => {
+  const classes = useStyles(styles);
   const [expandedPost, setExpandedPost] = useState<PostsReviewVotingList|null>(null)
   const [truncatePosts, setTruncatePosts] = useState<boolean>(true)
   const currentUser = useCurrentUser()

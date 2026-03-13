@@ -2,6 +2,7 @@ import React from 'react'
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { FormGroupLayoutProps } from './FormGroupLayout';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('FormGroupQuickTakes', (_theme: ThemeType) => ({
   root: {
@@ -17,10 +18,9 @@ const styles = defineStyles('FormGroupQuickTakes', (_theme: ThemeType) => ({
  * the form entries (the tag picker), so we do that with a little CSS hack in
  * this layout component.
  */
-const FormGroupQuickTakes = ({
-  children,
-  classes,
-}: FormGroupLayoutProps & {classes: ClassesType<typeof styles>}) => {
+const FormGroupQuickTakes = ({children}: FormGroupLayoutProps) => {
+  const classes = useStyles(styles);
+
   return (
     <div className={classes.root}>
       {children}

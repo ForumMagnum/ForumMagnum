@@ -16,6 +16,7 @@ import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListMultiQuery = gql(`
   query multiPostsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -84,13 +85,13 @@ const hasCurationDrafts = (results: SunshineCurationPostsList[] | undefined): bo
   return results.some(post => post.curationNotices && post.curationNotices.length > 0);
 }
 
-const SunshineCuratedSuggestionsList = ({ limit = 7, atBottom, classes, setCurationPost, setHasDrafts }: {
+const SunshineCuratedSuggestionsList = ({limit = 7, atBottom, setCurationPost, setHasDrafts}: {
   limit?: number,
   atBottom?: boolean,
-  classes: ClassesType<typeof styles>,
   setCurationPost?: (post: PostsList) => void,
   setHasDrafts?: (hasDrafts: boolean) => void,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const [audioOnly, setAudioOnly] = useState<boolean>(false)

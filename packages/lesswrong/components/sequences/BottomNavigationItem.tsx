@@ -7,6 +7,7 @@ import { useUpdateContinueReading } from './useUpdateContinueReading';
 import { Link } from '../../lib/reactRouterWrapper';
 import LoginToTrack from "./LoginToTrack";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('BottomNavigationItem', (theme: ThemeType) => ({
   root: {
@@ -62,12 +63,12 @@ const styles = defineStyles('BottomNavigationItem', (theme: ThemeType) => ({
   }
 }));
 
-const BottomNavigationItem = ({direction, post, sequence, classes}: {
+const BottomNavigationItem = ({direction, post, sequence}: {
   direction: "Previous"|"Next",
   post: NonNullable<PostSequenceNavigation['nextPost']> | NonNullable<PostSequenceNavigation['prevPost']>,
   sequence: HasIdType|null,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const updateContinueReading = useUpdateContinueReading(post._id, sequence?._id);
   const commentCount = postGetCommentCount(post) || "No"
   const url = postGetPageUrl(post, false, sequence?._id);

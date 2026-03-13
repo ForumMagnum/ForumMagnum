@@ -6,6 +6,7 @@ import Loading from "../vulcan-core/Loading";
 import TagRevisionItem from "./TagRevisionItem";
 import LensRevisionItem from "./history/LensRevisionItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const RevisionHistoryEntryQuery = gql(`
   query AllPostsPageTagRevisionItem($documentId: String) {
@@ -31,12 +32,12 @@ const styles = defineStyles("AllPostsPageTagRevisionItem", (theme: ThemeType) =>
   },
 }));
 
-const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
+const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId}: {
   tag: TagHistoryFragment,
   revisionId: string,
   documentId: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(RevisionHistoryEntryQuery, {
     variables: { documentId: revisionId },
     fetchPolicy: 'cache-first',

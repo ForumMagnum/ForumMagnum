@@ -6,6 +6,7 @@ import { isFriendlyUI } from "../../themes/forumTheme";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("UserCommentMarkers", (theme: ThemeType) => ({
   iconWrapper: {
@@ -24,17 +25,13 @@ const styles = defineStyles("UserCommentMarkers", (theme: ThemeType) => ({
   },
 }));
 
-const UserCommentMarkers = ({
-  user,
-  isPostAuthor,
-  className,
-  classes,
-}: {
+const UserCommentMarkers = ({user, isPostAuthor, className}: {
   user?: UsersMinimumInfo|null,
   isPostAuthor?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   if (!user) {
     return null;
   }

@@ -6,6 +6,7 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import PopperCard from "../common/PopperCard";
 import TagPreview from "./TagPreview";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("TagsListItem", (theme: ThemeType) => ({
   tag: {
@@ -33,11 +34,11 @@ const styles = defineStyles("TagsListItem", (theme: ThemeType) => ({
   }
 }));
 
-const TagsListItem = ({tag, classes, postCount=3}: {
+const TagsListItem = ({tag, postCount=3}: {
   tag: TagPreviewFragment,
-  classes: ClassesType<typeof styles>,
   postCount?: number,
 }) => {
+  const classes = useStyles(styles);
   const { hover, anchorEl, eventHandlers } = useHover();
 
   return <div {...eventHandlers} className={classes.tag}>

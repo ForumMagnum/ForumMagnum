@@ -90,9 +90,8 @@ const accountIdentifierTypes = [
   { key: "ip", label: "IP Address" },
 ];
 
-const ModerationAltAccounts = ({classes}: {
-  classes: ClassesType<typeof styles>
-}) => {
+const ModerationAltAccounts = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   
   const { query } = useLocation();

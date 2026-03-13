@@ -3,6 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { slugify } from '@/lib/utils/slugify';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('FormGroupLayout', (theme: ThemeType) => ({
   formSection: {
@@ -54,19 +55,9 @@ export interface FormGroupLayoutProps {
  * can be overriden by specifying a `layoutComponent` on the form group, or by setting the `formComponents` prop
  * on a form.
  */
-const FormGroupLayout = ({
-  children,
-  label,
-  heading,
-  footer,
-  collapsed,
-  hasErrors,
-  groupStyling,
-  paddingStyling,
-  flexStyling,
-  flexAlignTopStyling,
-  classes
-}: FormGroupLayoutProps & { classes: ClassesType<typeof styles> }) => {
+const FormGroupLayout = ({children, label, heading, footer, collapsed, hasErrors, groupStyling, paddingStyling, flexStyling, flexAlignTopStyling}: FormGroupLayoutProps) => {
+  const classes = useStyles(styles);
+
   return (
     <div
       className={classNames(

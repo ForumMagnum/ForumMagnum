@@ -7,6 +7,7 @@ import { useCurrentUser } from '../common/withUser';
 import ReviewPostForm from "./ReviewPostForm";
 import LoginPopup from "../users/LoginPopup";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ReviewPostButton', (theme: ThemeType) => ({
   root: {
@@ -23,12 +24,12 @@ const styles = defineStyles('ReviewPostButton', (theme: ThemeType) => ({
   }
 }))
 
-const ReviewPostButton = ({classes, post, reviewMessage="Review", year}: {
-  classes: ClassesType<typeof styles>,
+const ReviewPostButton = ({post, reviewMessage="Review", year}: {
   post: PostsBase,
   reviewMessage?: any,
   year: string
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { openCommentBox } = useCommentBox();
   const { openDialog } = useDialog();

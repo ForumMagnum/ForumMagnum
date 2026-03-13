@@ -17,6 +17,7 @@ import EventNotificationsDialog from "../../localGroups/EventNotificationsDialog
 import LWTooltip from "../../common/LWTooltip";
 import SimpleDivider from "../../widgets/SimpleDivider";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('HomepageMapFilter', (theme: ThemeType) => ({
   section: {
@@ -66,7 +67,8 @@ const styles = defineStyles('HomepageMapFilter', (theme: ThemeType) => ({
   }
 }));
 
-const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const HomepageMapFilter = () => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
   const { flash } = useMessages()

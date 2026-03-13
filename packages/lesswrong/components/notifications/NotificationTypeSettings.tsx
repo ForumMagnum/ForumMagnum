@@ -20,6 +20,7 @@ import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
 import ToggleSwitch from "../common/ToggleSwitch";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('NotificationTypeSettingsWidget', (theme: ThemeType) => ({
   root: {
@@ -72,7 +73,6 @@ const styles = defineStyles('NotificationTypeSettingsWidget', (theme: ThemeType)
 type NotificationTypeSettingsWidgetProps = {
   field: TypedFieldApi<NotificationTypeSettings | LegacyNotificationTypeSettings, EditableUser>;
   label: string;
-  classes: ClassesType<typeof styles>;
 };
 
 const getChannelLabel = (channel: NotificationChannel): string => {
@@ -86,11 +86,8 @@ const getChannelLabel = (channel: NotificationChannel): string => {
   }
 }
 
-const NotificationTypeSettingsWidget = ({
-  field,
-  label,
-  classes
-}: NotificationTypeSettingsWidgetProps) => {
+const NotificationTypeSettingsWidget = ({field, label}: NotificationTypeSettingsWidgetProps) => {
+  const classes = useStyles(styles);
   const path = field.name;
   const value = field.state.value;
 

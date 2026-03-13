@@ -7,6 +7,7 @@ import PostsCoauthor from "./PostsCoauthor";
 import { AUTHOR_MARKER_STYLES } from "./authorMarkerStyles";
 import { Typography } from "../../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PostsAuthors', (theme: ThemeType) => ({
   root: {
@@ -21,11 +22,12 @@ const styles = defineStyles('PostsAuthors', (theme: ThemeType) => ({
   authorMarkers: AUTHOR_MARKER_STYLES,
 }))
 
-const PostsAuthors = ({classes, post, pageSectionContext}: {
-  classes: ClassesType<typeof styles>,
+const PostsAuthors = ({post, pageSectionContext}: {
   post: PostsList,
   pageSectionContext?: string,
 }) => {
+  const classes = useStyles(styles);
+
   return <Typography variant="body1" component="span" className={classes.root}>
     by <span className={classes.authorName}>
       {!post.user || post.hideAuthor

@@ -63,7 +63,7 @@ const styles = defineStyles("FollowUserSearch", (theme: ThemeType) => ({
   }
 }));
 
-const FollowUserSearchHit = ({hit, clickAction, existingSubscriptionIds }: Omit<SearchHitComponentProps, 'classes'> & {existingSubscriptionIds?: string[]}) => {
+const FollowUserSearchHit = ({hit, clickAction, existingSubscriptionIds }: SearchHitComponentProps & {existingSubscriptionIds?: string[]}) => {
   const classes = useStyles(styles);
   const user = hit as SearchUser
   
@@ -92,11 +92,11 @@ const FollowUserSearchHit = ({hit, clickAction, existingSubscriptionIds }: Omit<
 }
 
 // Modeled off and modified from AddTag.tsx
-const FollowUserSearch = ({onUserSelected, currentUser, classes}: {
+const FollowUserSearch = ({onUserSelected, currentUser}: {
   onUserSelected: (user: UsersMinimumInfo ) => void,
   currentUser: UsersCurrent,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [searchOpen, setSearchOpen] = React.useState(false);
   const searchStateChanged = React.useCallback((searchState: SearchState) => {
     setSearchOpen((searchState.query?.length ?? 0) > 0);

@@ -16,6 +16,7 @@ import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReaction
 import { commentBottomComponents } from '@/lib/voting/votingSystemComponents';
 import type { VotingSystemName } from '@/lib/voting/votingSystemNames';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('DebateResponse', (theme: ThemeType) => ({
   innerDebateComment: {
@@ -92,8 +93,7 @@ const getParticipantBorderStyle = (
   participantIndex: number
 ) => (classes as AnyBecauseTodo)[`border${participantIndex}`] ?? classes.border0;
 
-export const DebateResponse = ({classes, comment, replies, idx, responseCount, orderedParticipantList, post}: {
-  classes: ClassesType<typeof styles>,
+export const DebateResponse = ({comment, replies, idx, responseCount, orderedParticipantList, post}: {
   comment: CommentsList,
   replies: CommentsList[],
   idx: number,
@@ -102,6 +102,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
   responses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
 }) => {
+  const classes = useStyles(styles);
     const [showReplyState, setShowReplyState] = useState(false);
     const [showEdit, setShowEdit] = useState(false);
     

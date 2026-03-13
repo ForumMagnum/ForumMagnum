@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import ForumIcon from "../common/ForumIcon";
 import ForumDropdown from "../common/ForumDropdown";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PostsLayoutDropdown', (theme: ThemeType) => ({
   optionIcon: {
@@ -24,11 +25,11 @@ const styles = defineStyles('PostsLayoutDropdown', (theme: ThemeType) => ({
   },
 }))
 
-const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="layout"}: {
-  classes: ClassesType<typeof styles>,
+const PostsLayoutDropdown = ({value=defaultPostsLayout, queryParam="layout"}: {
   value?: PostsLayout
   queryParam?: string,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   

@@ -6,6 +6,7 @@ import { userEmailAddressIsVerified } from '../../lib/collections/users/helpers'
 import { useCurrentUser } from '../common/withUser';
 import UsersEmailVerification from "./UsersEmailVerification";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ResendVerificationEmailPage', (theme: ThemeType) => ({
   root: {
@@ -13,9 +14,8 @@ const styles = defineStyles('ResendVerificationEmailPage', (theme: ThemeType) =>
   },
 }));
 
-const ResendVerificationEmailPage = ({classes}: {
-  classes: ClassesType<typeof styles>
-}) => {
+const ResendVerificationEmailPage = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   if (!currentUser) {
     return <div className={classes.root}>

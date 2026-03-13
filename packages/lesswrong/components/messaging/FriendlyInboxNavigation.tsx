@@ -7,6 +7,7 @@ import SectionFooter from "../common/SectionFooter";
 import { Typography } from "../common/Typography";
 import LoadMore from "../common/LoadMore";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("FriendlyInboxNavigation", (theme: ThemeType) => ({
   noConversationsMessage: {
@@ -15,13 +16,7 @@ const styles = defineStyles("FriendlyInboxNavigation", (theme: ThemeType) => ({
 }))
 
 // The Navigation for the Inbox components
-const FriendlyInboxNavigation = ({
-  conversationsResult,
-  currentUserId,
-  selectedConversationId,
-  setSelectedConversationId,
-  classes,
-}: {
+const FriendlyInboxNavigation = ({conversationsResult, currentUserId, selectedConversationId, setSelectedConversationId}: {
   conversationsResult: {
     results: ConversationsListWithReadStatus[];
     loading: boolean;
@@ -31,8 +26,8 @@ const FriendlyInboxNavigation = ({
   title?: React.JSX.Element | string;
   selectedConversationId: string | undefined;
   setSelectedConversationId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   const { results: conversations, loading, loadMoreProps } = conversationsResult;
   return <>
       {conversations?.length ? (

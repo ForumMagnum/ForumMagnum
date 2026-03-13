@@ -6,6 +6,7 @@ import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentPinToProfileDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -23,11 +24,11 @@ const styles = defineStyles("PinToProfileDropdownItem", (theme: ThemeType) => ({
     : {},
 }));
 
-const PinToProfileDropdownItem = ({comment, post, classes}: {
+const PinToProfileDropdownItem = ({comment, post}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const [updateComment] = useMutation(CommentsListUpdateMutation);
   const togglePinned = useCallback(() => {

@@ -13,6 +13,7 @@ import PeopleDirectorySelectOption from "../peopleDirectory/PeopleDirectorySelec
 import { MenuItem } from "../common/Menus";
 import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("MultiSelect", (theme: ThemeType) => ({
   greyDropdownRoot: {
@@ -72,16 +73,7 @@ type MultiselectOption = {
  * MultiSelect: A pick-multiple checkbox list. This is split from FormComponentMultiSelect
  * so that it can be used outside of vulcan-forms.
  */
-const MultiSelectInner = ({
-  value,
-  setValue,
-  label,
-  placeholder,
-  separator,
-  options,
-  variant = "default",
-  classes,
-}: {
+const MultiSelectInner = ({value, setValue, label, placeholder, separator, options, variant = "default"}: {
   value: string[],
   setValue: (newValue: any) => void,
   label?: string,
@@ -89,8 +81,8 @@ const MultiSelectInner = ({
   separator?: string,
   options: Array<MultiselectOption>,
   variant?: "default" | "grey",
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const isGrey = variant === "grey";
 
   const renderValue = useCallback((selected: string[]) => {

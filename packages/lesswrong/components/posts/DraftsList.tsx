@@ -18,6 +18,7 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -59,14 +60,14 @@ export const sortings: Partial<Record<string,string>> = {
   wordCountDescending: "Longest First",
 }
 
-const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, hideHeaderRow, classes}: {
+const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, hideHeaderRow}: {
   limit: number,
   title?: string,
   userId?: string,
   showAllDraftsLink?: boolean,
   hideHeaderRow?: boolean,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { query } = useLocation();
   const [showSettings, setShowSettings] = useState(false);

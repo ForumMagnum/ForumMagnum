@@ -3,6 +3,7 @@ import React from 'react';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 import FormatDate from "../../common/FormatDate";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PostsRevisionMessage', (theme: ThemeType) => ({
   root: {
@@ -15,10 +16,11 @@ interface PostsRevisionMessageFragment {
   contents: { editedAt: Date } | null
 }
 
-const PostsRevisionMessage = ({post, classes}: {
+const PostsRevisionMessage = ({post}: {
   post: PostsRevisionMessageFragment|PostsList|SunshinePostsList,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   if (!post.contents )
     return null;
   if (!("editedAt" in post.contents))

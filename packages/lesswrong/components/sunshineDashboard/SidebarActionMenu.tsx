@@ -1,6 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('SidebarActionMenu', (theme: ThemeType) => ({
   root: {
@@ -16,10 +17,11 @@ const styles = defineStyles('SidebarActionMenu', (theme: ThemeType) => ({
   },
 }))
 
-const SidebarActionMenu = ({children, classes}: {
+const SidebarActionMenu = ({children}: {
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return <div className={classes.root}>
     {children}
   </div>

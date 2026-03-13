@@ -9,6 +9,7 @@ import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentLatestReviewQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -46,7 +47,8 @@ const styles = defineStyles('LatestReview', (theme: ThemeType) => ({
   }
 }))
 
-const LatestReview = ({classes}: { classes: ClassesType<typeof styles> }) => {
+const LatestReview = () => {
+  const classes = useStyles(styles);
   const { data } = useQuery(CommentsListWithParentMetadataMultiQuery, {
     variables: {
       selector: { reviews: { reviewYear: REVIEW_YEAR, sortBy: "new" } },

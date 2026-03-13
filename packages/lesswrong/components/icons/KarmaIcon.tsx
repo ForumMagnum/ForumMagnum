@@ -3,6 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import KeyboardArrowUpIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
 import classNames from 'classnames';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('KarmaIcon', (theme: ThemeType) => ({
   root: {
@@ -28,10 +29,11 @@ const styles = defineStyles('KarmaIcon', (theme: ThemeType) => ({
 }))
 
 // this is currently unused, but will hopefully be used someday after we reflect on it a bit more.
-const KarmaIcon = ({classes, className}: {
-  classes: ClassesType<typeof styles>,
+const KarmaIcon = ({className}: {
   className?: string,
 }) => {
+  const classes = useStyles(styles);
+
   return <span className={classNames(classes.root, className)}>
       <KeyboardArrowUpIcon className={classes.bigArrow}/>
       <KeyboardArrowUpIcon className={classes.smallArrow}/>

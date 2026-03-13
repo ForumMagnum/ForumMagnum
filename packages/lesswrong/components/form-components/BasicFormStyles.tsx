@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('BasicFormStyles', (theme: ThemeType) => ({
   root: {
@@ -19,10 +20,11 @@ const styles = defineStyles('BasicFormStyles', (theme: ThemeType) => ({
   }
 }));
 
-export const BasicFormStyles = ({classes, children}: {
-  classes: ClassesType<typeof styles>,
+export const BasicFormStyles = ({children}: {
   children: React.ReactNode
 }) => {
+  const classes = useStyles(styles);
+
   return <div className={classes.root}>
     {children}
   </div>;

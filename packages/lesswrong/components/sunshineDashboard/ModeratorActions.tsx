@@ -27,6 +27,7 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { MANUAL_NEEDS_REVIEW } from '@/lib/collections/moderatorActions/constants';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModeratorActions($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -108,14 +109,14 @@ export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, con
   return getCurrentContentCount(user) + contentCount
 }
 
-export const ModeratorActions = ({classes, user, currentUser, refetch, comments, posts}: {
+export const ModeratorActions = ({user, currentUser, refetch, comments, posts}: {
   user: SunshineUsersList,
-  classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
   refetch: () => void,
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined,
 }) => {
+  const classes = useStyles(styles);
   const [notes, setNotes] = useState(user.sunshineNotes || "")
   const { openDialog } = useDialog();
 

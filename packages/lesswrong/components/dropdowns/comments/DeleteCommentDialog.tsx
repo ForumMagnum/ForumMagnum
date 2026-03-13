@@ -10,6 +10,7 @@ import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import LWDialog from "../../common/LWDialog";
 import { useCurrentUser } from '../../common/withUser';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('DeleteCommentDialog', (theme: ThemeType) => ({
   subtitle: {
@@ -23,11 +24,11 @@ const styles = defineStyles('DeleteCommentDialog', (theme: ThemeType) => ({
   },
 }))
 
-const DeleteCommentDialog = ({comment, onClose, classes}: {
+const DeleteCommentDialog = ({comment, onClose}: {
   comment: CommentsList,
   onClose?: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [deletedReason, setDeletedReason] = useState("");
   const {moderateCommentMutation} = useModerateComment();
   const { flash } = useMessages();

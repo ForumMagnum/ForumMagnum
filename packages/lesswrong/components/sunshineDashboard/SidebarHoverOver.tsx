@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import LWPopper from "../common/LWPopper";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('SidebarHoverOver', (theme: ThemeType) => ({
   root: {
@@ -18,13 +19,14 @@ const styles = defineStyles('SidebarHoverOver', (theme: ThemeType) => ({
   }
 }))
 
-const SidebarHoverOver = ({children, classes, hover, anchorEl, width=500}: {
+const SidebarHoverOver = ({children, hover, anchorEl, width=500}: {
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
   hover: boolean,
   anchorEl: HTMLElement|null,
   width?: number,
 }) => {
+  const classes = useStyles(styles);
+
   return <LWPopper className={classes.root} open={hover} anchorEl={anchorEl} placement="left-start" allowOverflow>
     <div className={classes.hoverInfo} style={{width:width}}>
       { children }

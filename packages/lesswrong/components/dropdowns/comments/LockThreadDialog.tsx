@@ -10,6 +10,7 @@ import moment from 'moment';
 import LWDialog from "../../common/LWDialog";
 import { DatePicker } from "../../form-components/FormComponentDateTime";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('LockThreadDialog', (theme: ThemeType) => ({
   message: {
@@ -17,11 +18,11 @@ const styles = defineStyles('LockThreadDialog', (theme: ThemeType) => ({
   },
 }));
 
-const LockThreadDialog = ({commentId, onClose, classes}: {
+const LockThreadDialog = ({commentId, onClose}: {
   commentId: string,
   onClose: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const farFuture: Date = moment().add(1000,'years').toDate();
   const [until,setUntil] = useState<Date>(farFuture);
 

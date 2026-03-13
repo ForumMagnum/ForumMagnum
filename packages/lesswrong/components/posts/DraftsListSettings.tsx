@@ -11,6 +11,7 @@ import { TooltipSpan } from '../common/FMTooltip';
 import MetaInfo from "../common/MetaInfo";
 import SettingsColumn from "../common/SettingsColumn";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('DraftsListSettings', (theme: ThemeType) => ({
   root: {
@@ -46,23 +47,15 @@ const USER_SETTING_NAMES = {
   showShared: 'draftsListShowShared'
 }
 
-const DraftsListSettings = ({
-  persistentSettings, 
-  hidden, 
-  currentSorting, 
-  currentIncludeArchived,
-  currentIncludeShared,
-  sortings=defaultSortings, 
-  classes
-}: {
+const DraftsListSettings = ({persistentSettings, hidden, currentSorting, currentIncludeArchived, currentIncludeShared, sortings=defaultSortings}: {
   persistentSettings?: any,
   hidden: boolean,
   currentSorting: any,
   currentIncludeArchived: boolean,
   currentIncludeShared: boolean,
   sortings?: any,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   

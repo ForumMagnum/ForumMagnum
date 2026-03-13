@@ -2,6 +2,7 @@ import React from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { FormGroupLayoutProps } from "./FormGroupLayout";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const GAP = 12;
 
@@ -35,9 +36,9 @@ const styles = defineStyles("FormGroupFriendlyUserProfile", (theme: ThemeType) =
   },
 }));
 
-const FormGroupFriendlyUserProfile = ({label, children, classes}: {
-  classes: ClassesType<typeof styles>,
-} & Pick<FormGroupLayoutProps, "label" | "children">) => {
+const FormGroupFriendlyUserProfile = ({label, children}: Pick<FormGroupLayoutProps, "label" | "children">) => {
+  const classes = useStyles(styles);
+
   return (
     <div className={classes.root}>
       {label && label !== "default" &&

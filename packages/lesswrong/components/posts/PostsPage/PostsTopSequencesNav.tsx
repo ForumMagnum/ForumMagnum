@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import SequencesTooltip from "../../sequences/SequencesTooltip";
 import SequencesNavigationLink from "../../sequences/SequencesNavigationLink";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const darkGreyAlpha = .7
 
@@ -54,11 +55,11 @@ const styles = defineStyles('PostsTopSequencesNav', (theme: ThemeType) => ({
   }
 }))
 
-const PostsTopSequencesNav = ({post, classes, blackText}: {
+const PostsTopSequencesNav = ({post, blackText}: {
   post: PostSequenceNavigation,
-  classes: ClassesType<typeof styles>,
   blackText?: boolean
 }) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
 

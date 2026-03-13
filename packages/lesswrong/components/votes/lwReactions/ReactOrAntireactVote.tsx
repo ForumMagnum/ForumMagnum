@@ -41,14 +41,14 @@ const styles = defineStyles('ReactOrAntireactVote', (theme: ThemeType) => ({
   },
 }))
 
-const ReactOrAntireactVote = ({reactionName, quote, netReactionCount, currentUserReaction, setCurrentUserReaction, classes}: {
+const ReactOrAntireactVote = ({reactionName, quote, netReactionCount, currentUserReaction, setCurrentUserReaction}: {
   reactionName: string
   quote: QuoteLocator|null,
   netReactionCount: number
   currentUserReaction: VoteOnReactionType|null
   setCurrentUserReaction: (reactionName: string, reaction: VoteOnReactionType|null, quote: QuoteLocator|null) => void
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const onClick = (reaction: "reacted"|"disagreed") => {
     if (reaction === "reacted") {
       if (currentUserReaction === "created" || currentUserReaction === "seconded") {

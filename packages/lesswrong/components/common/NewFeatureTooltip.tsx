@@ -4,6 +4,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import LWPopper from "./LWPopper";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const HANDLE_SIZE = 9; // Should be an odd number
 const ARROW_SIZE = 8;
@@ -105,12 +106,12 @@ const styles = defineStyles('NewFeatureTooltip', (theme: ThemeType) => ({
   },
 }));
 
-const NewFeatureTooltip = ({classes, children, title = 'New feature!', placement = 'left'}: {
+const NewFeatureTooltip = ({children, title = 'New feature!', placement = 'left'}: {
   children?: ReactNode,
   title?: string,
   placement?: 'top'|'right'|'left'|'bottom',
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { hover, everHovered, anchorEl, eventHandlers } = useHover({
     eventProps: {
       pageElementContext: 'newFeatureHovered',

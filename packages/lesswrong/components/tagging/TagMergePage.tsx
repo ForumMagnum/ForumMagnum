@@ -18,6 +18,7 @@ import Loading from "../vulcan-core/Loading";
 import EAButton from "../ea-forum/EAButton";
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagFragmentQuery = gql(`
   query TagMergePage($documentId: String) {
@@ -77,7 +78,8 @@ const styles = defineStyles("TagMergePage", (theme: ThemeType) => ({
   },
 }));
 
-const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const TagMergePage = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
 

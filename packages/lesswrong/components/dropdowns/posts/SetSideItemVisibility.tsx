@@ -9,6 +9,7 @@ import classNames from 'classnames';
 import LWTooltip from "../../common/LWTooltip";
 import { MenuItem } from "../../common/Menus";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('SetSideItemVisibility', (theme: ThemeType) => ({
   check: {
@@ -65,9 +66,8 @@ export type SideItemVisibilityContextType = {
 
 export const SideItemVisibilityContext = createContext<SideItemVisibilityContextType|null>(null);
 
-const SetSideItemVisibility = ({classes}: {
-  classes: ClassesType<typeof styles>
-}) => {
+const SetSideItemVisibility = () => {
+  const classes = useStyles(styles);
   const sideItemVisibility = useContext(SideItemVisibilityContext);
   // If in a context that isn't a post page (eg, the triple-dot menu on posts in
   // a post list), this context won't be there and this option doesn't apply, so

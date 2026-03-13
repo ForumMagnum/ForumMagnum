@@ -24,6 +24,7 @@ import ForumIcon from "../common/ForumIcon";
 import PostsItemNewCommentsWrapper from "../posts/PostsItemNewCommentsWrapper";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ReviewVoteTableRow", (theme: ThemeType) => ({
   root: {
@@ -218,13 +219,12 @@ const hasUnreadComments = (visitedDate: Date|null, lastCommentedAt: Date | null)
   return visitedDate < lastCommentedAt
 }
 
-const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expandedPostId, handleSetExpandedPost, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
+const ReviewVoteTableRow = ({post, index, dispatch, costTotal, expandedPostId, handleSetExpandedPost, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip}: {
   post: PostsReviewVotingList,
   index: number,
   costTotal?: number,
   dispatch: React.Dispatch<SyntheticQualitativeVote>,
   showKarmaVotes: boolean,
-  classes: ClassesType<typeof styles>,
   expandedPostId?: string|null,
   handleSetExpandedPost: (post: PostsReviewVotingList, openReviewBox?: boolean) => void,
   currentVote: SyntheticQualitativeVote|null,
@@ -232,6 +232,7 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
   reviewYear: ReviewYear,
   voteTooltip: voteTooltipType
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
 
   const [markedVisitedAt, setMarkedVisitedAt] = useState<Date|null>(null);

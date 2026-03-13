@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
 import LWTooltip from "../../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PostFixedPositionToCHeading', (theme: ThemeType) => ({
   readTime: {
@@ -14,10 +15,10 @@ const styles = defineStyles('PostFixedPositionToCHeading', (theme: ThemeType) =>
 
 
 
-const PostFixedPositionToCHeading = ({post, classes}: {
+const PostFixedPositionToCHeading = ({post}: {
   post: PostsListWithVotes,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const wordCount = post.contents?.wordCount;
 
   const readTime = <div className={classes.readTime}>{post.readTimeMinutes} min read</div>

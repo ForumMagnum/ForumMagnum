@@ -18,6 +18,7 @@ import PostsLoading from "./PostsLoading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostPostsTimeBlockQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -110,19 +111,7 @@ const postTypes: PostTypeOptions[] = [
 
 export type PostsTimeBlockShortformOption = "all" | "none" | "frontpage";
 
-const PostsTimeBlock = ({
-  terms,
-  timeBlockLoadComplete,
-  dateForTitle,
-  getTitle,
-  before,
-  after,
-  hideIfEmpty,
-  timeframe,
-  shortform = "all",
-  classes,
-  includeTags=true,
-}: {
+const PostsTimeBlock = ({terms, timeBlockLoadComplete, dateForTitle, getTitle, before, after, hideIfEmpty, timeframe, shortform = "all", includeTags=true}: {
   terms: PostsViewTerms,
   timeBlockLoadComplete: () => void,
   dateForTitle: moment.Moment,
@@ -132,9 +121,9 @@ const PostsTimeBlock = ({
   hideIfEmpty: boolean,
   timeframe: TimeframeType,
   shortform?: PostsTimeBlockShortformOption,
-  classes: ClassesType<typeof styles>,
   includeTags?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const [noShortform, setNoShortform] = useState(false);
   const [noTags, setNoTags] = useState(false);
 

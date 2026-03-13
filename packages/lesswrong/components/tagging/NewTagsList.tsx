@@ -8,6 +8,7 @@ import UsersNameDisplay from "../users/UsersNameDisplay";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineTagFragmentMultiQuery = gql(`
   query multiTagNewTagsListQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -45,10 +46,10 @@ const styles = defineStyles("NewTagsList", (theme: ThemeType) => ({
   }
 }))
 
-const NewTagsList = ({classes, showHeaders = true}: {
-  classes: ClassesType<typeof styles>,
+const NewTagsList = ({showHeaders = true}: {
   showHeaders?: boolean
 }) => {
+  const classes = useStyles(styles);
   const { data, loadMoreProps } = useQueryWithLoadMore(SunshineTagFragmentMultiQuery, {
     variables: {
       selector: { newTags: {} },

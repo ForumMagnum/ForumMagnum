@@ -8,6 +8,7 @@ import LWPopper from "../common/LWPopper";
 import CommentsNode from "../comments/CommentsNode";
 import FormatDate from "../common/FormatDate";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('CommentKarmaWithPreview', (theme: ThemeType) => ({
   root: {
@@ -44,12 +45,12 @@ const styles = defineStyles('CommentKarmaWithPreview', (theme: ThemeType) => ({
 }))
 
 
-const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }: {
+const CommentKarmaWithPreview = ({comment, displayTitle, reviewedAt}: {
   comment: CommentsListWithParentMetadata,
-  classes: ClassesType<typeof styles>,
   displayTitle: boolean,
   reviewedAt?: Date
 }) => {
+  const classes = useStyles(styles);
   const { hover, anchorEl, eventHandlers } = useHover();
   if (!comment) return null 
 

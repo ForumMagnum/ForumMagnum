@@ -3,6 +3,7 @@ import React from 'react';
 import LWDialog from "../common/LWDialog";
 import LoginForm from "./LoginForm";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('LoginPopup', (theme: ThemeType) => ({
   dialog: {
@@ -19,10 +20,11 @@ const styles = defineStyles('LoginPopup', (theme: ThemeType) => ({
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
-const LoginPopup = ({onClose, classes}: {
+const LoginPopup = ({onClose}: {
   onClose?: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return (
     <LWDialog
       open={true}

@@ -10,6 +10,7 @@ import PetrovLaunchConsole from "./PetrovLaunchConsole";
 import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
 import PetrovDayLossScreen from "../PetrovDayLossScreen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PetrovDayActionInfoMultiQuery = gql(`
   query multiPetrovDayActionPetrovGameWrapperQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -50,9 +51,8 @@ const styles = defineStyles('PetrovGameWrapper', (theme: ThemeType) => ({
   }
 }));
 
-export const PetrovGameWrapper = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const PetrovGameWrapper = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
 
   const { data: dataPetrovDayActions } = useQuery(PetrovDayActionInfoMultiQuery, {

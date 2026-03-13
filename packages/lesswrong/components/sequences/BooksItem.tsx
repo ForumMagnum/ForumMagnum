@@ -16,6 +16,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const BookEditQuery = gql(`
   query BooksItem($documentId: String) {
@@ -52,11 +53,11 @@ const styles = defineStyles('BooksItem', (theme: ThemeType) => ({
   },
 }));
 
-const BooksItem = ({ book, canEdit, classes }: {
+const BooksItem = ({book, canEdit}: {
   book: BookPageFragment,
   canEdit: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [edit,setEdit] = useState(false);
 
   const { html = "" } = book.contents || {}

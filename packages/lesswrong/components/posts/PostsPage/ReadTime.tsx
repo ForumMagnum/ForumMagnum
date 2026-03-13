@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import LWTooltip from "../../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ReadTime', (theme: ThemeType) => ({
   root: {
@@ -12,11 +13,11 @@ const styles = defineStyles('ReadTime', (theme: ThemeType) => ({
   },
 }));
 
-export const ReadTime = ({classes, post, dialogueResponses}: {
-  classes: ClassesType<typeof styles>,
+export const ReadTime = ({post, dialogueResponses}: {
   post: PostsList,
   dialogueResponses: readonly CommentsList[],
 }) => {
+  const classes = useStyles(styles);
   const wordCount = useMemo(() => {
     if (!post.debate || dialogueResponses.length === 0) {
       return post.contents?.wordCount || 0;

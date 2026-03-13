@@ -13,6 +13,7 @@ import LWPopper from "../common/LWPopper";
 import ForumIcon from "../common/ForumIcon";
 import { MenuItem } from "../common/Menus";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('WriteNewButton', (theme: ThemeType) => ({
   root: {
@@ -76,19 +77,13 @@ const styles = defineStyles('WriteNewButton', (theme: ThemeType) => ({
   },
 }))
 
-const WriteNewButton = ({
-  tag,
-  isSubscribed,
-  setNewShortformOpen,
-  className,
-  classes,
-}: {
+const WriteNewButton = ({tag, isSubscribed, setNewShortformOpen, className}: {
   tag: TagBasicInfo,
   isSubscribed: boolean,
   setNewShortformOpen: (open: boolean) => void,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking()
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();

@@ -22,7 +22,6 @@ const styles = defineStyles('PostsItemNewCommentsList', (theme: ThemeType) => ({
 
 const PostsItemNewCommentsList = ({ terms, post, treeOptions }: {
   terms: CommentsViewTerms,
-  classes: ClassesType<typeof styles>,
   post: PostsList,
   treeOptions: CommentTreeOptions,
 }) => {

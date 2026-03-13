@@ -9,6 +9,7 @@ import HoverOver from "../common/HoverOver";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const sharedStyles = (theme: ThemeType) => ({
   width: 'fit-content',
@@ -47,10 +48,10 @@ const styles = defineStyles('PostsAnnualReviewMarketTag', (theme: ThemeType) => 
   },
 }));
 
-const PostsAnnualReviewMarketTag = ({ annualReviewMarketInfo, classes }: {
+const PostsAnnualReviewMarketTag = ({annualReviewMarketInfo}: {
   annualReviewMarketInfo: AnnualReviewMarketInfo,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { anchorEl, hover, eventHandlers } = useHover();
 
   const year = annualReviewMarketInfo.year

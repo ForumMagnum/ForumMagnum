@@ -5,6 +5,7 @@ import classNames from 'classnames'
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const localGroupsHomeFragmentQuery = gql(`
   query PostsGroupDetails($documentId: String) {
@@ -41,12 +42,12 @@ const styles = defineStyles('PostsGroupDetails', (theme: ThemeType) => ({
   }
 }))
 
-const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
+const PostsGroupDetails = ({documentId, post, inRecentDiscussion}: {
   documentId: string,
   post: PostsBase,
   inRecentDiscussion?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { data } = useQuery(localGroupsHomeFragmentQuery, {
     variables: { documentId: documentId },
   });

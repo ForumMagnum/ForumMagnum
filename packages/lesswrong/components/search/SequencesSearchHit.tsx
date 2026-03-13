@@ -9,6 +9,7 @@ import FormatDate from "../common/FormatDate";
 import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("SequencesSearchHit", (theme: ThemeType) => ({
   root: {
@@ -54,7 +55,8 @@ const styles = defineStyles("SequencesSearchHit", (theme: ThemeType) => ({
   }
 }));
 
-const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const SequencesSearchHit = ({hit, clickAction, showIcon=false}: SearchHitComponentProps) => {
+  const classes = useStyles(styles);
   const sequence: SearchSequence = hit;
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
 

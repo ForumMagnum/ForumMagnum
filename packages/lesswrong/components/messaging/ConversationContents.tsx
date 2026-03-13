@@ -13,6 +13,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { SideItemsContainer } from "../contents/SideItems.tsx";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const messageListFragmentMultiQuery = gql(`
   query multiMessageConversationContentsQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {
@@ -71,19 +72,14 @@ const styles = defineStyles("ConversationContents", (theme: ThemeType) => ({
   },
 }));
 
-const ConversationContents = ({
-  conversation,
-  currentUserId,
-  scrollRef,
-  sendEmail = true,
-  classes,
-}: {
+const ConversationContents = ({conversation, currentUserId, scrollRef, sendEmail = true}: {
   conversation: ConversationsList;
   currentUserId: string;
   scrollRef?: React.RefObject<HTMLDivElement|null>;
   sendEmail?: boolean;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
+
   // Count messages sent, and use it to set a distinct value for `key` on `MessagesNewForm`
   // that increments with each message. This is a way of clearing the form, which works
   // around problems inside the editor related to debounce timers and autosave and whatnot,

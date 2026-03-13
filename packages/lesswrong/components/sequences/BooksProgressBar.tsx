@@ -10,6 +10,7 @@ import LoginToTrack from "./LoginToTrack";
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const GET_BOOK_WORD_COUNT = gql(`
   query GetBookWordCount($bookId: String!) {
@@ -68,10 +69,10 @@ const WORDS_PER_MINUTE = 300;
 const WORDS_PER_HOUR = WORDS_PER_MINUTE * 60;
 const WORDS_PER_PAGE = 500;
 
-const BooksProgressBar = ({ book, classes }: {
+const BooksProgressBar = ({book}: {
   book: BookPageFragment,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const { postsRead: clientPostsRead } = useItemsRead();
 
   const preloadedBookPosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts));

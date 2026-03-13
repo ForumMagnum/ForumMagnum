@@ -4,6 +4,7 @@ import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
 import FooterTag from "./FooterTag";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("TruncatedTagsList", (theme: ThemeType) => ({
   root: {
@@ -42,12 +43,12 @@ const reformatTagPlaceholder = (
   );
 }
 
-const TruncatedTagsList = ({post, expandContainer, className, classes}: {
+const TruncatedTagsList = ({post, expandContainer, className}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement|null>,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const ref = useRef<HTMLDivElement>(null);
   const tags = post.tags;
 

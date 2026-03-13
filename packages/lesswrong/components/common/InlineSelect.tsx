@@ -3,6 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Menu } from '@/components/widgets/Menu';
 import { MenuItem } from "./Menus";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("InlineSelect", (theme: ThemeType) => ({
   root: {
@@ -18,17 +19,12 @@ export interface Option {
   label: string;
 }
 
-function InlineSelect({
-  options,
-  selected,
-  handleSelect,
-  classes,
-}: {
+function InlineSelect({options, selected, handleSelect}: {
   options: Option[];
   selected: Option;
   handleSelect: (opt: Option) => void;
-  classes: ClassesType<typeof styles>;
 }) {
+  const classes = useStyles(styles);
   const [anchorEl, setAnchorEl] = useState<any>(null);
   const handleClick = (event: React.MouseEvent) => {
     setAnchorEl(event.currentTarget);

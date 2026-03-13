@@ -142,12 +142,12 @@ const _SequenceSummaryFragment = gql(`
   }
 `)
 
-export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}: {
-  classes: ClassesType<typeof styles>,
+export const SequencesSummary = ({sequence, showAuthor=true, maxPosts}: {
   sequence: SequenceSummaryFragment|null,
   showAuthor?: boolean
   maxPosts?: number,
 }) => {
+  const classes = useStyles(styles);
   const { data, loading: chaptersLoading } = useQuery(ChaptersFragmentMultiQuery, {
     variables: {
       selector: { SequenceChapters: { sequenceId: sequence?._id } },

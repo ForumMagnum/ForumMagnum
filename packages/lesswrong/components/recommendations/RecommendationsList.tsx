@@ -6,6 +6,7 @@ import PostsItem from "../posts/PostsItem";
 import PostsLoading from "../posts/PostsLoading";
 import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export type RecommendationsListItem = ComponentType<{
   post: PostsListWithVotes|PostsListWithVotesAndSequence,
@@ -18,21 +19,14 @@ const styles = defineStyles('RecommendationsList', (theme: ThemeType) => ({
   },
 }), { stylePriority: -1 });
 
-const RecommendationsList = ({
-  algorithm,
-  translucentBackground,
-  ListItem = PostsItem,
-  loadingFallback,
-  className,
-  classes,
-}: {
+const RecommendationsList = ({algorithm, translucentBackground, ListItem = PostsItem, loadingFallback, className}: {
   algorithm: RecommendationsAlgorithm,
   translucentBackground?: boolean,
   ListItem?: RecommendationsListItem,
   loadingFallback?: React.JSX.Element,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {recommendationsLoading, recommendations} = useRecommendations({ algorithm });
 
   if (recommendationsLoading || !recommendations)

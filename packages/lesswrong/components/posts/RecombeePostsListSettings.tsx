@@ -9,6 +9,7 @@ import { randomId } from '../../lib/random';
 import UserSelect from "../form-components/UserSelect";
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('RecombeePostsListSettings', (theme: ThemeType) => ({
   adminOverrides: {
@@ -37,11 +38,11 @@ const styles = defineStyles('RecombeePostsListSettings', (theme: ThemeType) => (
   },
 }));
 
-export const RecombeePostsListSettings = ({ settings, updateSettings, classes }: {
+export const RecombeePostsListSettings = ({settings, updateSettings}: {
   settings: RecombeeConfiguration,
   updateSettings: (settings: RecombeeConfiguration) => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [userIdOverride, setUserIdOverride] = useState<string | null>(settings.userId ?? null);
   const [boosterOverride, setBoosterOverride] = useState<string | undefined>(settings.booster);
   const [rotationRateOverride, setRotationRateOverride] = useState<number|undefined>(settings.rotationRate);

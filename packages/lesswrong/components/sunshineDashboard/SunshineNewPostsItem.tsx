@@ -28,6 +28,7 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import classNames from 'classnames';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostSunshineNewPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -108,11 +109,11 @@ const displayPredictionPercent = (prediction: FrontpageClassification): number =
   return Math.round(confidence * 100);
 }
 
-const SunshineNewPostsItem = ({post, refetch, classes}: {
+const SunshineNewPostsItem = ({post, refetch}: {
   post: SunshinePostsList,
   refetch: () => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
 

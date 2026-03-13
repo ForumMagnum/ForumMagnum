@@ -5,6 +5,7 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import PopupCommentEditor from "../comments/PopupCommentEditor";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ReviewPostForm', (theme: ThemeType) => ({
   guidelines: {
@@ -35,11 +36,11 @@ const styles = defineStyles('ReviewPostForm', (theme: ThemeType) => ({
   }
 }))
 
-const ReviewPostForm = ({classes, post, onClose}: {
-  classes: ClassesType<typeof styles>,
+const ReviewPostForm = ({post, onClose}: {
   post: PostsBase,
   onClose: () => void,
 }) => {
+  const classes = useStyles(styles);
   const [ showPrompt, setShowPrompt ] = useState(true)
   
   return <PopupCommentEditor

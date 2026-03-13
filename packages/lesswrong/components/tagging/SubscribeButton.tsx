@@ -22,6 +22,7 @@ import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionSubscribeButtonQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -109,15 +110,7 @@ const styles = defineStyles('SubscribeButton', (theme: ThemeType) => ({
   },
 }))
 
-const SubscribeButton = ({
-  tag,
-  subscribeMessage,
-  unsubscribeMessage,
-  isSubscribedOverride,
-  subscribeUserToTagOverride,
-  className,
-  classes,
-}: {
+const SubscribeButton = ({tag, subscribeMessage, unsubscribeMessage, isSubscribedOverride, subscribeUserToTagOverride, className}: {
   tag: TagBasicInfo,
   subscriptionType?: string,
   subscribeMessage?: string,
@@ -125,8 +118,9 @@ const SubscribeButton = ({
   isSubscribedOverride?: boolean,
   subscribeUserToTagOverride?: (tag: TagBasicInfo, filterMode: FilterMode) => void,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   // useSubscribeUserToTag ultimately uses a useState to store the filter settings internally,
   // this means that updates here do not affect the isSubscribed of other places this hook is used.
   // This is currently only a problem in TagSubforumPage2, so I have added a way to override the

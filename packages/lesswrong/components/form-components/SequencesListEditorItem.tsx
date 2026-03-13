@@ -6,6 +6,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SequencesPageFragmentQuery = gql(`
   query SequencesListEditorItem($documentId: String) {
@@ -61,11 +62,11 @@ const styles = defineStyles('SequencesListEditorItem', (theme: ThemeType) => ({
   },
 }));
 
-const SequencesListEditorItem = ({documentId, removeItem, classes}: {
+const SequencesListEditorItem = ({documentId, removeItem}: {
   documentId: string;
   removeItem: (itemId: string) => void;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(SequencesPageFragmentQuery, {
     variables: { documentId: documentId },
   });

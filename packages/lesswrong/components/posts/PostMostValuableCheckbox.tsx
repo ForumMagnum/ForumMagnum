@@ -6,6 +6,7 @@ import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UserMostValuablePostInfoMultiQuery = gql(`
   query multiUserMostValuablePostPostMostValuableCheckboxQuery($selector: UserMostValuablePostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -54,10 +55,10 @@ const styles = defineStyles('PostMostValuableCheckbox', (theme: ThemeType) => ({
  * This is used by the EA Forum Wrapped page, to let users indicate which posts
  * they found particularly valuable.
  */
-export const PostMostValuableCheckbox = ({post, classes}: {
+export const PostMostValuableCheckbox = ({post}: {
   post: Pick<PostsBase, "_id">,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const { data, loading } = useQuery(UserMostValuablePostInfoMultiQuery, {
     variables: {

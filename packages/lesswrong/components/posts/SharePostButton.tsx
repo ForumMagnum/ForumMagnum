@@ -11,6 +11,7 @@ import PopperCard from "../common/PopperCard";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import SharePostActions from "../dropdowns/posts/SharePostActions";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('SharePostButton', (theme: ThemeType) => ({
   root: {
@@ -25,15 +26,11 @@ const styles = defineStyles('SharePostButton', (theme: ThemeType) => ({
   },
 }))
 
-const SharePostButton = ({
-  post,
-  className,
-  classes,
-}: {
+const SharePostButton = ({post, className}: {
   post: PostsBase,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null)
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const { captureEvent } = useTracking()

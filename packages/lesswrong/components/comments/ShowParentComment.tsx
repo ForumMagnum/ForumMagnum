@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ShowParentComment', (theme: ThemeType) => ({
   root: {
@@ -42,12 +43,12 @@ const styles = defineStyles('ShowParentComment', (theme: ThemeType) => ({
   }
 }))
 
-const ShowParentComment = ({ comment, active, onClick, classes }: {
+const ShowParentComment = ({comment, active, onClick}: {
   comment: CommentsList,
   active?: boolean,
   onClick?: any,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
 
   if (!comment) return null;
   

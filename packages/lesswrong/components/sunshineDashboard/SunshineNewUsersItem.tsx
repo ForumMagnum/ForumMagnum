@@ -13,6 +13,7 @@ import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import FirstContentIcons from "./FirstContentIcons";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('SunshineNewUsersItem', (theme: ThemeType) => ({
   negativeKarma: {
@@ -33,12 +34,12 @@ const styles = defineStyles('SunshineNewUsersItem', (theme: ThemeType) => ({
     background: theme.palette.panelBackground.sunshineFlaggedUser,
   }
 }))
-const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
+const SunshineNewUsersItem = ({user, refetch, currentUser}: {
   user: SunshineUsersList,
-  classes: ClassesType<typeof styles>,
   refetch: () => void,
   currentUser: UsersCurrent,
 }) => {
+  const classes = useStyles(styles);
   const { eventHandlers, hover, anchorEl } = useHover();
   return (
     <div {...eventHandlers} className={user.sunshineFlagged ? classes.flagged : undefined}>

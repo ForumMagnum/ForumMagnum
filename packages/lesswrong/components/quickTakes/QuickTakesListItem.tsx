@@ -9,6 +9,7 @@ import CommentsNode from "../comments/CommentsNode";
 import QuickTakesCollapsedListItem from "./QuickTakesCollapsedListItem";
 import LWQuickTakesCollapsedListItem from "./LWQuickTakesCollapsedListItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("QuickTakesListItem", (theme: ThemeType) => ({
   expandedRoot: {
@@ -28,10 +29,10 @@ const styles = defineStyles("QuickTakesListItem", (theme: ThemeType) => ({
   },
 }));
 
-const QuickTakesListItem = ({quickTake, classes}: {
+const QuickTakesListItem = ({quickTake}: {
   quickTake: ShortformComments,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {captureEvent} = useTracking();
   const [expanded, setExpanded] = useState(false);
   const wrappedSetExpanded = useCallback((value: boolean) => {

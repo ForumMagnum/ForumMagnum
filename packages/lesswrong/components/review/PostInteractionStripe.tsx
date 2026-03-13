@@ -3,6 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const readPostStyle = (theme: ThemeType) => ({
   background: theme.palette.grey[405],
@@ -50,10 +51,10 @@ const interactionLabels = {
 const isInteractionKey = (value: string | null): value is keyof typeof interactionLabels => 
   !!value && value in interactionLabels;
 
-export const PostInteractionStripe = ({classes, post}: {
-  classes: ClassesType<typeof styles>,
+export const PostInteractionStripe = ({post}: {
   post: PostsListWithVotes
 }) => {
+  const classes = useStyles(styles);
   const interaction = post.currentUserVote || (post.lastVisitedAt ? 'readPost' : null)
 
   if (!isInteractionKey(interaction)) return null

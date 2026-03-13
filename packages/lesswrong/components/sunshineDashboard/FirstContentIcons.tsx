@@ -4,6 +4,7 @@ import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
 import classNames from "classnames";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('FirstContentIcons', (theme: ThemeType) => ({
   icon: {
@@ -17,10 +18,10 @@ const styles = defineStyles('FirstContentIcons', (theme: ThemeType) => ({
   },
 }));
 
-export const FirstContentIcons = ({user, classes}: {
+export const FirstContentIcons = ({user}: {
   user: SunshineUsersList,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const showPostIcon = user.postCount > 0 && !user.reviewedByUserId
   const showCommentIcon = user.commentCount > 0 && !user.reviewedByUserId
   return <span>

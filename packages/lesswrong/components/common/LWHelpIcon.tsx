@@ -2,6 +2,7 @@ import React from 'react';
 import HelpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/HelpOutline';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("LWHelpIcon", (theme: ThemeType) => ({
   icon: {
@@ -13,7 +14,9 @@ const styles = defineStyles("LWHelpIcon", (theme: ThemeType) => ({
   }
 }))
 
-const LWHelpIcon = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const LWHelpIcon = () => {
+  const classes = useStyles(styles);
+
   return <span><HelpOutlineIcon className={classes.icon}/></span>
 }
 

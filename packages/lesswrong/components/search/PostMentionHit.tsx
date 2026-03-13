@@ -3,6 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("PostMentionHit", (theme: ThemeType) => ({
   root: {
@@ -21,10 +22,10 @@ const styles = defineStyles("PostMentionHit", (theme: ThemeType) => ({
   },
 }));
 
-const PostMentionHit = ({hit, classes}: {
+const PostMentionHit = ({hit}: {
   hit: SearchPost,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const icon = isFriendlyUI()
     ? <ForumIcon icon="Document" className={classes.icon} />
     : "📃";

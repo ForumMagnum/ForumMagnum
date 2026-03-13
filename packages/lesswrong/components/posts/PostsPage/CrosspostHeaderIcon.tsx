@@ -10,6 +10,7 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { combineUrls } from "../../../lib/vulcan-lib/utils";
 import LWTooltip from "../../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("CrosspostHeaderIcon", (theme: ThemeType) => ({
   root: {
@@ -24,10 +25,11 @@ const styles = defineStyles("CrosspostHeaderIcon", (theme: ThemeType) => ({
   },
 }));
 
-const CrosspostHeaderIcon = ({post, classes}: {
+const CrosspostHeaderIcon = ({post}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList|PostsEdit,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   if (!post.fmCrosspost) {
     return null;
   }

@@ -12,6 +12,7 @@ import Loading from "../vulcan-core/Loading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListMultiQuery = gql(`
   query multiPostSequenceDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -39,14 +40,14 @@ const styles = defineStyles('SequenceDraftsList', (theme: ThemeType) => ({
   }
 }))
 
-const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft, dialogPostIds}: {
-  classes: ClassesType<typeof styles>,
+const SequenceDraftsList = ({limit, title="My Drafts", userId, addDraft, dialogPostIds}: {
   limit: number,
   title?: string,
   userId?: string,
   addDraft: Function,
   dialogPostIds: string[],
 }) => {
+  const classes = useStyles(styles);
   const [showSettings, setShowSettings] = useState(false);
   const currentUser = useCurrentUser();
   const { query } = useLocation();

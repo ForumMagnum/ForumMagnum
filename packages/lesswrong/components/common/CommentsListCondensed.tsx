@@ -11,6 +11,7 @@ import ShortformSubmitForm from "../shortform/ShortformSubmitForm";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ShortformCommentsMultiQuery = gql(`
   query multiCommentCommentsListCondensedQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -33,7 +34,7 @@ const styles = defineStyles('CommentsListCondensed', (_: ThemeType) => ({
   }
 }), { stylePriority: 1 });
 
-const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTotal=false, hideTag, shortformButton=false, classes}: {
+const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTotal=false, hideTag, shortformButton=false}: {
   label: string,
   terms: CommentsViewTerms
   initialLimit?: number,
@@ -41,8 +42,8 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
   showTotal?: boolean,
   hideTag?: boolean,
   shortformButton?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [showShortformFeed, setShowShortformFeed] = useState(false);
 

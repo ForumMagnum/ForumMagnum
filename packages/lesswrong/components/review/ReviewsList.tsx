@@ -13,6 +13,7 @@ import { MenuItem } from "../common/Menus";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentReviewsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -37,12 +38,12 @@ const styles = defineStyles('ReviewsList', (theme: ThemeType) => ({
 const sortOptions = new TupleSet(["top", "new"] as const);
 export type ReviewSortOption = UnionOf<typeof sortOptions>;
 
-export const ReviewsList = ({classes, title, defaultSort, reviewYear}: {
-  classes: ClassesType<typeof styles>,
+export const ReviewsList = ({title, defaultSort, reviewYear}: {
   title: React.ReactNode | string,
   defaultSort: ReviewSortOption,
   reviewYear?: ReviewYear
 }) => {
+  const classes = useStyles(styles);
   const [sortReviews, setSortReviews ] = useState<string>(defaultSort)
   
   const { data, loading } = useQuery(CommentsListWithParentMetadataMultiQuery, {

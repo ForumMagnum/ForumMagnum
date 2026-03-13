@@ -4,6 +4,7 @@ import classNames from 'classnames';
 import { Typography } from "../common/Typography";
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("PostsItem2MetaInfo", (theme: ThemeType) => ({
   metaInfo: {
@@ -18,12 +19,13 @@ const styles = defineStyles("PostsItem2MetaInfo", (theme: ThemeType) => ({
   }
 }));
 
-const PostsItem2MetaInfo = ({children, className, classes}: {
+const PostsItem2MetaInfo = ({children, className}: {
   children?: React.ReactNode,
   className?: string,
-  classes: ClassesType<typeof styles>,
   read?: boolean,
 }) => {
+  const classes = useStyles(styles);
+
   return <Typography
     component='span'
     className={classNames(classes.metaInfo, className)}

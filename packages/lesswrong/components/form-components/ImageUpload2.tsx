@@ -7,6 +7,7 @@ import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
 import { formPreviewSizeByImageType } from './ImageUpload';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ImageUpload2", (theme: ThemeType) => ({
   root: {
@@ -39,7 +40,7 @@ const styles = defineStyles("ImageUpload2", (theme: ThemeType) => ({
 }));
 
 
-const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl, classes}: {
+const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl}: {
   name: string,
   value: string | null | undefined,
   updateValue: (value: string) => void,
@@ -47,8 +48,8 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
   label: string,
   croppingAspectRatio?: number,
   placeholderUrl?: string,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const {uploadImage} = useImageUpload({
     imageType: name as ImageType,
     onUploadSuccess: (publicImageId: string) => {

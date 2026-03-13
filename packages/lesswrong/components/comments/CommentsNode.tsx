@@ -14,6 +14,7 @@ import CommentsItem from "./CommentsItem/CommentsItem";
 import RepliesToCommentList from "../shortform/RepliesToCommentList";
 import AnalyticsTracker from "../common/AnalyticsTracker";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -90,7 +91,6 @@ export interface CommentsNodeProps {
   noAutoScroll?: boolean,
   displayTagIcon?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }
 /**
  * CommentsNode: A node in a comment tree, passes through to CommentsItems to handle rendering a specific comment,
@@ -98,34 +98,8 @@ export interface CommentsNodeProps {
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-const CommentsNodeInner = ({
-  treeOptions,
-  comment,
-  startThreadTruncated,
-  truncated,
-  shortform,
-  nestingLevel=1,
-  expandAllThreads,
-  forceUnTruncated,
-  forceUnCollapsed,
-  expandNewComments=true,
-  isChild,
-  parentAnswerId,
-  parentCommentId,
-  showExtraChildrenButton,
-  hoverPreview,
-  childComments,
-  loadChildrenSeparately,
-  loadDirectReplies=false,
-  showPinnedOnProfile=false,
-  enableGuidelines=true,
-  karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD,
-  showParentDefault=false,
-  noAutoScroll=false,
-  displayTagIcon=false,
-  className,
-  classes,
-}: CommentsNodeProps) => {
+const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, forceUnTruncated, forceUnCollapsed, expandNewComments=true, isChild, parentAnswerId, parentCommentId, showExtraChildrenButton, hoverPreview, childComments, loadChildrenSeparately, loadDirectReplies=false, showPinnedOnProfile=false, enableGuidelines=true, karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD, showParentDefault=false, noAutoScroll=false, displayTagIcon=false, className}: CommentsNodeProps) => {
+  const classes = useStyles(styles);
   const currentUserNoSingleLineCommentsSetting = useFilteredCurrentUser(u => u?.noSingleLineComments);
   const { captureEvent } = useTracking()
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);

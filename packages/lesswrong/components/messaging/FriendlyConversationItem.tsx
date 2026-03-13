@@ -9,6 +9,7 @@ import { isFriendlyUI } from "@/themes/forumTheme";
 import { useLocation } from "../../lib/routeUtil";
 import qs from "qs";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("FriendlyConversationItem", (theme: ThemeType) => ({
   root: {
@@ -82,19 +83,13 @@ const styles = defineStyles("FriendlyConversationItem", (theme: ThemeType) => ({
   },
 }));
 
-const FriendlyConversationItem = ({
-  conversation,
-  currentUserId,
-  classes,
-  selectedConversationId,
-  setSelectedConversationId,
-}: {
+const FriendlyConversationItem = ({conversation, currentUserId, selectedConversationId, setSelectedConversationId}: {
   conversation: ConversationsListWithReadStatus;
   currentUserId: string;
-  classes: ClassesType<typeof styles>;
   selectedConversationId: string | undefined;
   setSelectedConversationId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }) => {
+  const classes = useStyles(styles);
   const isSelected = selectedConversationId === conversation._id;
   const { location, query } = useLocation();
 

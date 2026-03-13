@@ -5,6 +5,7 @@ import FormatDate from "../../common/FormatDate";
 import UsersNameWrapper from "../../users/UsersNameWrapper";
 import AltAccountInfo from "./AltAccountInfo";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('UserReviewStatus', (_theme: ThemeType) => ({
   root: {
@@ -20,10 +21,10 @@ const styles = defineStyles('UserReviewStatus', (_theme: ThemeType) => ({
   }
 }));
 
-export const UserReviewStatus = ({classes, user}: {
-  classes: ClassesType<typeof styles>,
+export const UserReviewStatus = ({user}: {
   user: SunshineUsersList
 }) => {
+  const classes = useStyles(styles);
   const approvalStatus = user.banned 
     ? "Banned"
     : (user.reviewedByUserId && user.snoozedUntilContentCount) ? `Snoozed, ${user.snoozedUntilContentCount}` : "Approved"

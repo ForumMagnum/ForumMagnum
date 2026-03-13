@@ -10,6 +10,7 @@ import SectionTitle from "../common/SectionTitle";
 import RecommendationsList from "../recommendations/RecommendationsList";
 import PostsItem from "../posts/PostsItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListWithVotesQuery = gql(`
   query FrontpageBestOfLWWidget($documentId: String) {
@@ -78,10 +79,10 @@ export const recommendationsAlgorithm: RecommendationsAlgorithm = {
   excludeDefaultRecommendations: true
 }
 
-export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
-  classes: ClassesType<typeof styles>,
+export const FrontpageBestOfLWWidget = ({reviewYear}: {
   reviewYear: ReviewYear
 }) => {
+  const classes = useStyles(styles);
   const { data } = useQuery(PostsListWithVotesQuery, {
     variables: { documentId: "zajNa9fdr8JYJpxrG" },
   });

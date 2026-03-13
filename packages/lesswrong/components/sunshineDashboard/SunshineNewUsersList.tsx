@@ -9,6 +9,7 @@ import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserSunshineNewUsersListQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -30,11 +31,11 @@ const styles = defineStyles('SunshineNewUsersList', (theme: ThemeType) => ({
   }
 }))
 
-const SunshineNewUsersList = ({ classes, terms, currentUser }: {
+const SunshineNewUsersList = ({terms, currentUser}: {
   terms: { view: 'sunshineNewUsers' | 'allUsers', limit: number },
-  classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
 }) => {
+  const classes = useStyles(styles);
   const { view, limit, ...selectorTerms } = terms;
   const { data, refetch, loadMoreProps } = useQueryWithLoadMore(SunshineUsersListMultiQuery, {
     variables: {

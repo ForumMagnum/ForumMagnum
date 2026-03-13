@@ -76,9 +76,8 @@ const PostsPageCrosspostCommentsInner = ({foreignPostId, hostedHere}: {
   );
 }
 
-const PostsPageCrosspostComments = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const PostsPageCrosspostComments = () => {
+  const classes = useStyles(styles);
   const postsPage = usePostsPageContext();
   const post = postsPage?.fullPost ?? postsPage?.postPreload;
   if (!post?.fmCrosspost) {

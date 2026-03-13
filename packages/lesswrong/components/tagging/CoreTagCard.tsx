@@ -6,6 +6,7 @@ import { siteImageSetting } from '@/lib/instanceSettings';
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import SubscribeButton from "./SubscribeButton";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("CoreTagCard", (theme: ThemeType) => ({
   root: {
@@ -57,10 +58,10 @@ const styles = defineStyles("CoreTagCard", (theme: ThemeType) => ({
   }
 }));
 
-const CoreTagCard = ({tag, classes}: {
+const CoreTagCard = ({tag}: {
   tag: TagDetailsFragment
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const imageId = tag.squareImageId || tag.bannerImageId
 
   return (

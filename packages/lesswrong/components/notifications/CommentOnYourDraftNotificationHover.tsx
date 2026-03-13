@@ -9,7 +9,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import UsersName from "../users/UsersName";
 import Loading from "../vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
-
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsMinimumInfoQuery = gql(`
   query CommentOnYourDraftNotificationHover($documentId: String) {
@@ -30,10 +30,10 @@ const styles = defineStyles('CommentOnYourDraftNotificationHover', (theme: Theme
   },
 }));
 
-const CommentOnYourDraftNotificationHover = ({notification, classes}: {
+const CommentOnYourDraftNotificationHover = ({notification}: {
   notification: NotificationsList,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const postId = notification.documentId ?? undefined;
   const postEditUrl = `/editPost?postId=${postId}`
   const currentUser = useCurrentUser()

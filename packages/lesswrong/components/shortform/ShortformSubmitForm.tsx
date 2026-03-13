@@ -9,6 +9,7 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ShortformSubmitForm', (theme: ThemeType) => ({
   root: {
@@ -40,15 +41,7 @@ const styles = defineStyles('ShortformSubmitForm', (theme: ThemeType) => ({
   },
 }));
 
-const ShortformSubmitForm = ({
-  successCallback,
-  cancelCallback,
-  className,
-  defaultExpanded,
-  hideCloseButton,
-  submitButtonAtBottom,
-  classes,
-}: {
+const ShortformSubmitForm = ({successCallback, cancelCallback, className, defaultExpanded, hideCloseButton, submitButtonAtBottom}: {
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
   prefilledProps?: any,
@@ -57,8 +50,8 @@ const ShortformSubmitForm = ({
   defaultExpanded?: boolean,
   hideCloseButton?: boolean,
   submitButtonAtBottom?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   return (
     <div className={className}>

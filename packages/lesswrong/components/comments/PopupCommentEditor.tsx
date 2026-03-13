@@ -4,6 +4,7 @@ import { Card } from "@/components/widgets/Paper";
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PopupCommentEditor', (theme: ThemeType) => ({
   root: {
@@ -63,13 +64,14 @@ const styles = defineStyles('PopupCommentEditor', (theme: ThemeType) => ({
  *   specifying what post the comment is on, and prefilling props.
  * onClose: Called when the window is closed.
  */
-const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, classes}: {
+const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose}: {
   title: React.ReactNode,
   guidelines?: React.ReactNode,
   commentFormProps: Partial<CommentsNewFormProps>,
   onClose: () => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
+
   return <Card className={classes.root}>
     <div className={classes.header}>
       <div className={classes.title}>

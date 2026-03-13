@@ -22,6 +22,7 @@ import LWTooltip from "../common/LWTooltip";
 import CuratedPostsList from "./CuratedPostsList";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("RecommendationsAndCurated", (theme: ThemeType) => ({
   section: theme.isFriendlyUI ? {} : {
@@ -118,13 +119,10 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
 // NOTE: this component maybe should be deprecated. It first was created for LessWrong, then EA Forum added a bunch of special cases, then LW added
 // more special cases. I split it off into a LWRecommendations component, it looks like EA Forum isn't currently using this component. They could either \
 // create an EARecommendations component, or we can just delete it.
-const RecommendationsAndCurated = ({
-  configName,
-  classes,
-}: {
+const RecommendationsAndCurated = ({configName}: {
   configName: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "recommendations",
     onExpandEvent: "recommendationsSectionExpanded",

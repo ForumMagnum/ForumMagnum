@@ -13,6 +13,7 @@ import { maybeDate } from '@/lib/utils/dateUtils';
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentWithRepliesFragmentMultiQuery = gql(`
   query multiCommentReviewPostCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -46,9 +47,8 @@ const styles = defineStyles('ReviewPostComments', (theme: ThemeType) => ({
   }
 }))
 
-const ReviewPostComments = ({ terms, classes, title, post, singleLine, placeholderCount, hideReviewVoteButtons, singleLineCollapse }: {
+const ReviewPostComments = ({terms, title, post, singleLine, placeholderCount, hideReviewVoteButtons, singleLineCollapse}: {
   terms: CommentsViewTerms,
-  classes: ClassesType<typeof styles>,
   title?: string,
   post: PostsList,
   singleLine?: boolean,
@@ -56,6 +56,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
   hideReviewVoteButtons?: boolean
   singleLineCollapse?: boolean
 }) => {
+  const classes = useStyles(styles);
   const { view, limit, ...selectorTerms } = terms;
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(CommentWithRepliesFragmentMultiQuery, {
     variables: {

@@ -54,11 +54,11 @@ const styles = defineStyles('ResyncRssDropdownItem', (theme: ThemeType) => ({
   },
 }))
 
-const ResyncRssDropdownItemInner = ({post, closeMenu, classes}: {
+const ResyncRssDropdownItemInner = ({post, closeMenu}: {
   post: PostsList|SunshinePostsList,
   closeMenu: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
   

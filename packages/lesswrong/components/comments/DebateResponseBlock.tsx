@@ -2,6 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import DebateResponse from "./DebateResponse";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('DebateResponseBlock', (theme: ThemeType) => ({
   divider: {
@@ -27,13 +28,14 @@ export interface DebateResponseWithReplies {
   replies: CommentsList[];
 }
 
-export const DebateResponseBlock = ({ responses, post, orderedParticipantList, daySeparator, classes }: {
+export const DebateResponseBlock = ({responses, post, orderedParticipantList, daySeparator}: {
   responses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   orderedParticipantList: string[],
   daySeparator?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return <div>
     {daySeparator && <div className={classes.divider}>
       <span className={classes.dividerLabel}>{daySeparator}</span>

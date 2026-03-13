@@ -13,7 +13,7 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
-
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListQuery = gql(`
   query NewUserGuidelinesDialog($documentId: String) {
@@ -36,12 +36,12 @@ const styles = defineStyles('NewUserGuidelinesDialog', (theme: ThemeType) => ({
   }
 }));
 
-const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
-  classes: ClassesType<typeof styles>,
+const NewUserGuidelinesDialog = ({onClose, post, user}: {
   onClose: () => void,
   post: PostsMinimumInfo,
   user: UsersCurrent
 }) => {
+  const classes = useStyles(styles);
   const updateCurrentUser = useUpdateCurrentUser();
   const { recordEvent } = useNewEvents();
 

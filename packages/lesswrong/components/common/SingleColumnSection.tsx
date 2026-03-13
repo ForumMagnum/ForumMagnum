@@ -4,6 +4,7 @@ import React from 'react';
 import classNames from 'classnames';
 import ErrorBoundary from "./ErrorBoundary";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const SECTION_WIDTH = 765
 
@@ -22,11 +23,11 @@ const styles = defineStyles('SingleColumnSection', (theme: ThemeType) => ({
   }
 }), { stylePriority: -1 })
 
-const SingleColumnSection = ({classes, className, children}: {
-  classes: ClassesType<typeof styles>,
+const SingleColumnSection = ({className, children}: {
   className?: string,
   children?: React.ReactNode,
 }) => {
+  const classes = useStyles(styles);
 
   return (
     <ErrorBoundary>

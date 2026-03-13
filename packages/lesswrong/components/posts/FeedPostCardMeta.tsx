@@ -10,6 +10,7 @@ import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import FormatDate from "../common/FormatDate";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("FeedPostCardMeta", (theme: ThemeType) => ({
   root: {
@@ -74,12 +75,12 @@ const styles = defineStyles("FeedPostCardMeta", (theme: ThemeType) => ({
   }
 }), { stylePriority: -1 });
 
-const FeedPostCardMeta = ({post, className, classes}: {
+const FeedPostCardMeta = ({post, className}: {
   post: PostsList | SunshinePostsList,
   useEventStyles?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const authorExpandContainer = useRef(null);
   // TODO: Think about styling for events
 

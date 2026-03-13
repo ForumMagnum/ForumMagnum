@@ -5,6 +5,7 @@ import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import PersonAddIcon from '@/lib/vendor/@material-ui/icons/src/PersonAdd';
 import type { InputBaseComponentProps } from '@/lib/vendor/@material-ui/core/src/InputBase/InputBase';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("UsersSearchInput", (theme: ThemeType) => ({
   input: {
@@ -14,10 +15,11 @@ const styles = defineStyles("UsersSearchInput", (theme: ThemeType) => ({
   }
 }))
 
-const UsersSearchInput = ({ inputProps, classes }: {
+const UsersSearchInput = ({inputProps}: {
   inputProps: InputBaseComponentProps;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
+
   return <Input
     inputProps={inputProps}
     className={classes.input}

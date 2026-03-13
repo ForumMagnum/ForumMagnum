@@ -6,6 +6,7 @@ import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import CommentsList from "../comments/CommentsList";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('AnswerCommentsList', (theme: ThemeType) => ({
   commentsList: {
@@ -40,13 +41,13 @@ const styles = defineStyles('AnswerCommentsList', (theme: ThemeType) => ({
   },
 }))
 
-const AnswerCommentsList = ({post, parentAnswer, commentTree, treeOptions, classes}: {
+const AnswerCommentsList = ({post, parentAnswer, commentTree, treeOptions}: {
   post: PostsList,
   commentTree: CommentTreeNode<CommentsList>[],
   treeOptions: CommentTreeOptions,
   parentAnswer: CommentsList,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const totalCount = parentAnswer.descendentCount;
   const now = useCurrentTime();
   const treeOptionsWithHighlight = useMemo(() => ({

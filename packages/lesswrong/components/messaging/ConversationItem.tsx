@@ -14,6 +14,7 @@ import ConversationPreview from "./ConversationPreview";
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ConversationsListUpdateMutation = gql(`
   mutation updateConversationInboxNavigation($selector: SelectorInput!, $data: UpdateConversationDataInput!) {
@@ -52,12 +53,12 @@ const styles = defineStyles('ConversationItem', (theme: ThemeType) => ({
   },
 }));
 
-const ConversationItem = ({conversation, currentUser, classes, expanded}: {
+const ConversationItem = ({conversation, currentUser, expanded}: {
   conversation: ConversationsList,
   currentUser: UsersCurrent,
-  classes: ClassesType<typeof styles>,
   expanded?: boolean
 }) => {
+  const classes = useStyles(styles);
   const [updateConversation] = useMutation(ConversationsListUpdateMutation);
 
   const isArchived = conversation?.archivedByIds?.includes(currentUser._id)

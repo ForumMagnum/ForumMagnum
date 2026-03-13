@@ -9,6 +9,7 @@ import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshinePostsListMultiQuery = gql(`
   query multiPostSunshineNewPostsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -30,9 +31,8 @@ const styles = defineStyles('SunshineNewPostsList', (theme: ThemeType) => ({
   }
 }))
 
-const SunshineNewPostsList = ({ classes }: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const SunshineNewPostsList = () => {
+  const classes = useStyles(styles);
   const { data, refetch, loadMoreProps } = useQueryWithLoadMore(SunshinePostsListMultiQuery, {
     variables: {
       selector: { sunshineNewPosts: {} },

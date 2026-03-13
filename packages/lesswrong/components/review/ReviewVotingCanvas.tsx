@@ -330,11 +330,8 @@ const Heart: FC<{
   );
 }
 
-const ReviewVotingCanvas = ({
-  classes,
-}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const ReviewVotingCanvas = () => {
+  const classes = useStyles(styles);
   const { pathname } = useLocation();
   const currentUser = useCurrentUser();
   const showHearts = pathname === "/";

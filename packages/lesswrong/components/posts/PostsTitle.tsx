@@ -18,6 +18,7 @@ import AllInclusiveIcon from '@/lib/vendor/@material-ui/icons/src/AllInclusive';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PostsTitle', (theme: ThemeType) => ({
   root: {
@@ -181,25 +182,7 @@ const postIcon = (post: PostsBase|PostsListBase) => {
 
 const DefaultWrapper: FC<PropsWithChildren<{}>> = ({children}) => <>{children}</>;
 
-const PostsTitle = ({
-  post, 
-  postLink, 
-  sticky, 
-  read, 
-  showPersonalIcon=true, 
-  showDraftTag=true, 
-  wrap=false, 
-  showIcons=true,
-  isLink=true,
-  curatedIconLeft=true,
-  strikethroughTitle=false,
-  Wrapper=DefaultWrapper,
-  showEventTag,
-  linkEventProps,
-  postItemHovered,
-  className,
-  classes,
-}: {
+const PostsTitle = ({post, postLink, sticky, read, showPersonalIcon=true, showDraftTag=true, wrap=false, showIcons=true, isLink=true, curatedIconLeft=true, strikethroughTitle=false, Wrapper=DefaultWrapper, showEventTag, linkEventProps, postItemHovered, className}: {
   post: PostsBase|PostsListBase,
   postLink?: string,
   sticky?: boolean,
@@ -216,8 +199,8 @@ const PostsTitle = ({
   linkEventProps?: Record<string, string>,
   postItemHovered?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUserId = useCurrentUserId();
   const { pathname } = useLocation();
   const shared = post.draft && (post.userId !== currentUserId) && post.shareWithUsers

@@ -12,6 +12,7 @@ import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
 import SmallSideVote from "../votes/SmallSideVote";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("TagRevisionItemShortMetadata", (theme: ThemeType) => ({
   username: {
@@ -37,13 +38,13 @@ const styles = defineStyles("TagRevisionItemShortMetadata", (theme: ThemeType) =
   },
 }));
 
-const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision, classes}: {
+const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision}: {
   tag: TagBasicInfo,
   url: string,
   itemDescription?: React.ReactNode,
   revision: RevisionHistoryEntry,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
   
   function showArbitalImportDetails() {

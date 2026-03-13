@@ -3,6 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection from "../common/SingleColumnSection";
 import CollectionsItem from "./CollectionsItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("LWCoreReading", (theme: ThemeType) => ({
   root: {
@@ -100,10 +101,11 @@ const coreReadingCollections: Array<CoreReadingCollection> =
     }
   ]
 
-const LWCoreReading = ({classes}: {
+const LWCoreReading = ({}: {
   minimal?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return <SingleColumnSection className={classes.root}>
     {coreReadingCollections.map(collection => <CollectionsItem key={collection.id} collection={collection}/>)}
   </SingleColumnSection>

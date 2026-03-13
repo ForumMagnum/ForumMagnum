@@ -8,6 +8,7 @@ import TagsSearchAutoComplete from "../search/TagsSearchAutoComplete";
 import ErrorBoundary from "../common/ErrorBoundary";
 import SectionTitle from "../common/SectionTitle";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('TagMultiselect', (theme: ThemeType) => ({
   label: {
@@ -70,17 +71,7 @@ const styles = defineStyles('TagMultiselect', (theme: ThemeType) => ({
   },
 }));
 
-const TagMultiselect = ({
-  value,
-  label,
-  placeholder,
-  hidePostCount=false,
-  startWithBorder=false,
-  isVotingContext,
-  updateCurrentValues,
-  variant,
-  classes,
-}: {
+const TagMultiselect = ({value, label, placeholder, hidePostCount=false, startWithBorder=false, isVotingContext, updateCurrentValues, variant}: {
   value: Array<string>,
   label?: React.ReactNode,
   placeholder?: string,
@@ -89,8 +80,8 @@ const TagMultiselect = ({
   isVotingContext?: boolean,
   updateCurrentValues(values: Array<string>): void,
   variant?: "default" | "grey",
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [focused, setFocused] = useState(startWithBorder)
 
   const onFocus = useCallback(() => setFocused(true), []);

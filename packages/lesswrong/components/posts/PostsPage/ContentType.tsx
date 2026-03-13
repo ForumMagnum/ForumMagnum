@@ -274,12 +274,13 @@ const ContentTypeWrapper: FC<PropsWithChildren<{className?: string}>> = ({
     </Typography>;
 };
 
-const ContentType = ({classes, className, type, label}: {
-  classes: ClassesType<typeof styles>,
+const ContentType = ({className, type, label}: {
   className?: string,
   type: ContentTypeString,
   label?: string
 }) => {
+  const classes = useStyles(styles);
+
   if (!type) {
     throw new Error('ContentType requires type property')
   }

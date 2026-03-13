@@ -17,6 +17,7 @@ import UsersName from "../users/UsersName";
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import Loading from '../vulcan-core/Loading';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const POSTED_AT_WIDTH = 38
 
@@ -113,7 +114,7 @@ const styles = defineStyles('SingleLineTagUpdates', (theme: ThemeType) => ({
   tagRevision: {},
 }));
 
-const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, documentDeletions, lastRevisedAt, classes}: {
+const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, documentDeletions, lastRevisedAt}: {
   tag: TagHistoryFragment,
   revisionIds: string[],
   commentCount?: number,
@@ -121,9 +122,9 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
   users?: UsersMinimumInfo[],
   changeMetrics: ChangeMetrics,
   documentDeletions?: DocumentDeletion[] | null,
-  classes: ClassesType<typeof styles>,
   lastRevisedAt?: Date
 }) => {
+  const classes = useStyles(styles);
   const [expanded,setExpanded] = useState(false);
   documentDeletions ??= [];
 

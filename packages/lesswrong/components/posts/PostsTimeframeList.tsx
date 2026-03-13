@@ -9,6 +9,7 @@ import PostsTimeBlock, { PostsTimeBlockShortformOption } from './PostsTimeBlock'
 import { useOnPropsChanged } from '../hooks/useOnPropsChanged';
 import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PostsTimeframeList', (theme: ThemeType) => ({
   loading: {
@@ -25,7 +26,7 @@ const styles = defineStyles('PostsTimeframeList', (theme: ThemeType) => ({
   }
 }))
 
-const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListParameters, dimWhenLoading, reverse, shortform, includeTags=true, classes }: {
+const PostsTimeframeList = ({after, before, timeframe, numTimeBlocks, postListParameters, dimWhenLoading, reverse, shortform, includeTags=true}: {
   after: Date|string,
   before: Date|string,
   timeframe: TimeframeType,
@@ -35,8 +36,8 @@ const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListP
   reverse?: boolean,
   shortform: PostsTimeBlockShortformOption,
   includeTags: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { timezone } = useTimezone();
   const [dim,setDim] = useState(dimWhenLoading);
   const [displayedNumTimeBlocks,setDisplayedNumTimeBlocks] = useState(numTimeBlocks ?? 10);

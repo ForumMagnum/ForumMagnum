@@ -11,6 +11,7 @@ import PostsTitle from "./PostsTitle";
 import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
 import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListQuery = gql(`
   query PostsItemWrapper($documentId: String) {
@@ -73,15 +74,15 @@ const styles = defineStyles('PostsItemWrapper', (theme: ThemeType) => ({
   }
 }));
 
-const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = false, simpleAuthor = false, draggable = true}: {
+const PostsItemWrapper = ({documentId, addItem, removeItem, disabled = false, simpleAuthor = false, draggable = true}: {
   documentId: string,
-  classes: ClassesType<typeof styles>,
   addItem?: any,
   removeItem?: any,
   disabled?: boolean,
   simpleAuthor?: boolean,
   draggable?: boolean
 }) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(PostsListQuery, {
     variables: { documentId: documentId },
   });

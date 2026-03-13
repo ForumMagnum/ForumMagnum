@@ -7,6 +7,7 @@ import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import LoginPopup from "../users/LoginPopup";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('TagRelevanceButton', (theme: ThemeType) => ({
   root: {
@@ -25,14 +26,14 @@ const styles = defineStyles('TagRelevanceButton', (theme: ThemeType) => ({
   }
 }))
 
-const TagRelevanceButton = ({document, voteType, vote, label, classes, cancelVote }: {
+const TagRelevanceButton = ({document, voteType, vote, label, cancelVote}: {
   document: TagRelMinimumFragment,
   voteType: string,
   vote: (props: {document: TagRelMinimumFragment, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent}) => void,
   label: React.ReactNode,
-  classes: ClassesType<typeof styles>,
   cancelVote?: boolean // if this is set, the styling for the voted/non-voted status will be inverted (i.e. you click the button to cancel an existing vote)
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const { openDialog } = useDialog();

@@ -18,6 +18,7 @@ import TableOfContents from "../posts/TableOfContents/TableOfContents";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateModerationTemplatesPageQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -52,9 +53,8 @@ const styles = defineStyles('ModerationTemplatesPage', (theme: ThemeType) => ({
 }));
 
 //a page for creating and viewing moderation templates
-export const ModerationTemplatesPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const ModerationTemplatesPage = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [showDeleted, setShowDeleted] = useState<boolean>(false);
   const [filter, setFilter] = useState<TemplateType|null>(null);

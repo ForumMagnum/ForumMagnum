@@ -7,6 +7,7 @@ import SectionTitle from "../common/SectionTitle";
 import PostsList2 from "../posts/PostsList2";
 import RecentDiscussionThreadsList from "../recentDiscussion/RecentDiscussionThreadsList";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('Nominations2018', (theme: ThemeType) => ({
   setting: {
@@ -15,9 +16,8 @@ const styles = defineStyles('Nominations2018', (theme: ThemeType) => ({
   }
 }))
 
-const Nominations2018 = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const Nominations2018 = () => {
+  const classes = useStyles(styles);
   const [sortByMost, setSortBy] = useState(false);
   return (
     <div>

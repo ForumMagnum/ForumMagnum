@@ -11,6 +11,7 @@ import RecentComments from "../comments/RecentComments";
 import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('Reviews2018', (theme: ThemeType) => ({
   setting: {
@@ -30,9 +31,8 @@ const styles = defineStyles('Reviews2018', (theme: ThemeType) => ({
   }
 }))
 
-const Reviews2018 = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const Reviews2018 = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const [expandUnread, setExpandUnread] = useState(!!(currentUser ? !currentUser.noExpandUnreadCommentsReview : true));

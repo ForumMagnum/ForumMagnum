@@ -13,6 +13,7 @@ import LWClickAwayListener from "../common/LWClickAwayListener";
 import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("GoogleDocImportButton", (theme: ThemeType) => ({
   button: {
@@ -97,7 +98,8 @@ const styles = defineStyles("GoogleDocImportButton", (theme: ThemeType) => ({
 }));
 
 
-const GoogleDocImportButton = ({ postId, version, classes }: { postId: string; version?: string; classes: ClassesType<typeof styles> }) => {
+const GoogleDocImportButton = ({postId, version}: { postId: string; version?: string; }) => {
+  const classes = useStyles(styles);
   const [googleDocUrl, setGoogleDocUrl] = useState("");
   const [open, setOpen] = useState(false)
   const anchorEl = useRef<HTMLDivElement | null>(null)

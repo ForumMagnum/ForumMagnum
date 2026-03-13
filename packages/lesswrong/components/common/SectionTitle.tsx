@@ -6,6 +6,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { slugify } from '@/lib/utils/slugify';
 import { Typography } from "./Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const sectionTitleStyle = (theme: ThemeType) => (theme.isEAForum ? { 
   margin: 0,
@@ -70,18 +71,9 @@ export type SectionTitleProps = {
 }
 
 // This is meant to be used as the primary section title for the central page layout (normally used in conjunction with SingleColumnSection){}
-const SectionTitle = ({
-  title,
-  noTopMargin,
-  noBottomPadding,
-  centered,
-  anchor,
-  href,
-  children,
-  titleClassName,
-  rootClassName,
-  classes,
-}: SectionTitleProps & {classes: ClassesType<typeof styles>}) => {
+const SectionTitle = ({title, noTopMargin, noBottomPadding, centered, anchor, href, children, titleClassName, rootClassName}: SectionTitleProps) => {
+  const classes = useStyles(styles);
+
   return (
     <div className={classNames(classes.root, rootClassName, {[classes.noTopMargin]: noTopMargin, [classes.noBottomPadding]: noBottomPadding} )}>
       <Typography

@@ -5,6 +5,7 @@ import { CommentTreeOptions } from '../comments/commentTree';
 import Loading from "../vulcan-core/Loading";
 import CommentsList from "../comments/CommentsList";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PostsItemNewCommentsListNode', (theme: ThemeType) => ({
   title: {
@@ -15,15 +16,15 @@ const styles = defineStyles('PostsItemNewCommentsListNode', (theme: ThemeType) =
   }
 }))
 
-const PostsItemNewCommentsListNode = ({ commentsList, loadingState, title, reverseOrder, post, treeOptions, classes }: {
+const PostsItemNewCommentsListNode = ({commentsList, loadingState, title, reverseOrder, post, treeOptions}: {
   commentsList?: CommentsList[],
   loadingState: boolean,
   title?: string,
   reverseOrder?: boolean
   post: PostsList,
   treeOptions: CommentTreeOptions,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const lastCommentId = commentsList && commentsList[0]?._id
   const nestedComments = commentsList && unflattenComments(commentsList);
 

@@ -21,6 +21,7 @@ import type { MessageVotingBottomComponent } from '@/lib/voting/votingSystemType
 import { SideItemsSidebar } from '../contents/SideItems';
 import { commentBodyStyles, postBodyStyles } from '@/themes/stylePiping';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('MessageItem', (theme: ThemeType) => ({
   hoverWrapper: {
@@ -129,12 +130,12 @@ const styles = defineStyles('MessageItem', (theme: ThemeType) => ({
 /**
  * Display of a single message in the Conversation Wrapper
 */
-const MessageItem = ({message, highlight=false, showFullWidth=false, classes}: {
+const MessageItem = ({message, highlight=false, showFullWidth=false}: {
   message: messageListFragment,
   highlight?: boolean,
   showFullWidth?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [selection, setSelection] = useState<{ text: string, disabled: boolean }>();
   const { html = "" } = message?.contents || {}

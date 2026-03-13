@@ -17,6 +17,7 @@ import LoginPopup from "../users/LoginPopup";
 import SearchPagination from "../search/SearchPagination";
 import PostsListEditorSearchHit from "../search/PostsListEditorSearchHit";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("AddPostsToTag", (theme: ThemeType) => ({
   root: {
@@ -97,10 +98,10 @@ const styles = defineStyles("AddPostsToTag", (theme: ThemeType) => ({
 
 
 
-const AddPostsToTag = ({classes, tag}: {
-  classes: ClassesType<typeof styles>,
+const AddPostsToTag = ({tag}: {
   tag: TagPreviewFragment
 }) => {
+  const classes = useStyles(styles);
   const [isAwaiting, setIsAwaiting] = useState(false);
   const { captureEvent } = useTracking()
   const { flash } = useMessages()

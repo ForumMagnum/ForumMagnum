@@ -6,6 +6,7 @@ import ContentType from "../posts/PostsPage/ContentType";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ShortformCommentsMultiQuery = gql(`
   query multiCommentShortformTimeBlockQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -47,13 +48,13 @@ const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
   );
 }
 
-const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
+const ShortformTimeBlock  = ({reportEmpty, before, after, terms}: {
   reportEmpty: () => void,
   before: string
   after: string
   terms: CommentsViewTerms,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { view, ...rest } = terms;
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
     variables: {

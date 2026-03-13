@@ -16,6 +16,7 @@ import FirstContentIcons from "./FirstContentIcons";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserModerationDashboardQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -124,9 +125,8 @@ const getCurrentView = (query: Record<string, string>): DashboardTabs => {
 };
 
 
-const ModerationDashboard = ({ classes }: {
-  classes: ClassesType<typeof styles>
-}) => {
+const ModerationDashboard = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const navigate = useNavigate();

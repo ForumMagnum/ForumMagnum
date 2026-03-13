@@ -3,6 +3,7 @@ import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getPostPreviewWidth } from './helpers';
 import Loading from "../../vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const notificationLoadingStyles = (theme: ThemeType) => ({
   width: getPostPreviewWidth(),
@@ -20,7 +21,9 @@ const styles = defineStyles('PostsPreviewLoading', (theme: ThemeType) => ({
   },
 }));
 
-const PostsPreviewLoading = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const PostsPreviewLoading = () => {
+  const classes = useStyles(styles);
+
   return (
     <div className={classes.loading}>
       <Loading/>

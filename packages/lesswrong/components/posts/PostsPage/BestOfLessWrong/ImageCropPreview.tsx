@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SplashArtCoordinatesMutation = gql(`
   mutation createSplashArtCoordinateImageCropPreview($data: CreateSplashArtCoordinateDataInput!) {
@@ -239,11 +240,12 @@ const SaveAllBar = ({showSaveAllButton, loading, saveAllCoordinates}: {showSaveA
   return <div onClick={saveAllCoordinates}>{`Save all placements`}</div>
 }
 
-const ImageCropPreview = ({ imgRef, classes, flipped }: {
+const ImageCropPreview = ({imgRef, flipped}: {
   imgRef: RefObject<HTMLImageElement|null>,
-  classes: ClassesType<typeof styles>,
   flipped: boolean
 }) => {
+  const classes = useStyles(styles);
+
   // TODO: per docstring, this hook isn't safe in an SSR context; make sure we wrap this entire component in a NoSSR block
   const windowSize = useWindowSize();
   const { selectedImageInfo } = useImageContext();

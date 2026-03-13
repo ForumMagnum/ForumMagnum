@@ -9,6 +9,7 @@ import { useDialog } from "../common/withDialog";
 import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
 import LoginPopup from "../users/LoginPopup";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const COLLAPSED_HEIGHT = 40;
 
@@ -97,16 +98,7 @@ const styles = defineStyles("QuickTakesEntry", (theme: ThemeType) => ({
 // TODO: decide on copy for LW
 const placeholder = "Share exploratory, draft-stage, rough thoughts...";
 
-const QuickTakesEntry = ({
-  currentUser,
-  defaultExpanded = false,
-  defaultFocus = false,
-  submitButtonAtBottom = false,
-  className,
-  successCallback,
-  cancelCallback,
-  classes,
-}: {
+const QuickTakesEntry = ({currentUser, defaultExpanded = false, defaultFocus = false, submitButtonAtBottom = false, className, successCallback, cancelCallback}: {
   currentUser: UsersCurrent | null,
   defaultExpanded?: boolean,
   defaultFocus?: boolean,
@@ -114,8 +106,8 @@ const QuickTakesEntry = ({
   className?: string,
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const ref = useRef<HTMLDivElement>(null);
   const { openDialog } = useDialog();
   const [expanded, setExpanded] = useState(defaultExpanded);

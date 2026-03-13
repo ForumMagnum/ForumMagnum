@@ -10,6 +10,7 @@ import LWPostsPageTopHeaderVote from "../../votes/LWPostsPageTopHeaderVote";
 import AudioToggle from "./AudioToggle";
 import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('LWPostsPageHeaderTopRight', (theme: ThemeType) => ({
   root: {
@@ -62,14 +63,14 @@ const styles = defineStyles('LWPostsPageHeaderTopRight', (theme: ThemeType) => (
   }
 }));
 
-export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast, annualReviewMarketInfo}: {
-  classes: ClassesType<typeof styles>,
+export const LWPostsPageHeaderTopRight = ({post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast, annualReviewMarketInfo}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   toggleEmbeddedPlayer?: () => void,
   showEmbeddedPlayer?: boolean,
   higherContrast?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo
 }) => {
+  const classes = useStyles(styles);
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
   return <div className={classes.root}>

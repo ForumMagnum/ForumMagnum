@@ -9,6 +9,7 @@ import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListMultiQuery = gql(`
   query multiCommentTagDiscussionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -40,10 +41,10 @@ const styles = defineStyles("TagDiscussion", (theme: ThemeType) => ({
   }
 }))
 
-const TagDiscussion = ({classes, tag}: {
-  classes: ClassesType<typeof styles>,
+const TagDiscussion = ({tag}: {
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment
 }) => {
+  const classes = useStyles(styles);
   const { data, loading } = useQuery(CommentsListMultiQuery, {
     variables: {
       selector: { tagDiscussionComments: { tagId: tag?._id } },

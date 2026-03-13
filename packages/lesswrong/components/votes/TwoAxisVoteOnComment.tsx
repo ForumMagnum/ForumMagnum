@@ -7,6 +7,7 @@ import { useVote } from './withVote';
 import OverallVoteAxis from "./OverallVoteAxis";
 import AgreementVoteAxis from "./AgreementVoteAxis";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('TwoAxisVoteOnComment', (theme: ThemeType) => ({
   root: {
@@ -14,11 +15,8 @@ const styles = defineStyles('TwoAxisVoteOnComment', (theme: ThemeType) => ({
   },
 }));
 
-interface TwoAxisVoteOnCommentProps extends CommentVotingComponentProps {
-  classes: ClassesType<typeof styles>
-}
-
-const TwoAxisVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: TwoAxisVoteOnCommentProps) => {
+const TwoAxisVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem}: CommentVotingComponentProps) => {
+  const classes = useStyles(styles);
   const voteProps = useVote(document, collectionName, votingSystem);
   return <span className={classes.root}>
     <OverallVoteAxis

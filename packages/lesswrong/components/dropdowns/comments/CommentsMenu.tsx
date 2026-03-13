@@ -7,6 +7,7 @@ import { useTracking } from "../../../lib/analyticsEvents";
 import CommentActions from "./CommentActions";
 import { FeedCommentMetaInfo } from '../../ultraFeed/ultraFeedTypes';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('CommentsMenu', (theme: ThemeType) => ({
   root: {
@@ -32,8 +33,7 @@ interface CommentsMenuComponentProps {
   commentMetaInfo?: FeedCommentMetaInfo;
 }
 
-const CommentsMenu = ({classes, className, comment, post, tag, showEdit, onSeeLess, isSeeLessMode, icon, ActionsComponent, commentMetaInfo}: {
-  classes: ClassesType<typeof styles>,
+const CommentsMenu = ({className, comment, post, tag, showEdit, onSeeLess, isSeeLessMode, icon, ActionsComponent, commentMetaInfo}: {
   className?: string,
   comment: CommentsList,
   post?: PostsMinimumInfo,
@@ -45,6 +45,7 @@ const CommentsMenu = ({classes, className, comment, post, tag, showEdit, onSeeLe
   ActionsComponent?: React.ComponentType<CommentsMenuComponentProps>,
   commentMetaInfo?: FeedCommentMetaInfo,
 }) => {
+  const classes = useStyles(styles);
   const [anchorEl, setAnchorEl] = useState<any>(null);
 
   // Render menu-contents if the menu has ever been opened (keep rendering

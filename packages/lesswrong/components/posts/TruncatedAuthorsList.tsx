@@ -8,6 +8,7 @@ import UsersNameWithModal from "../ultraFeed/UsersNameWithModal";
 import UserNameDeleted from "../users/UserNameDeleted";
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("TruncatedAuthorsList", (_: ThemeType) => ({
   root: {
@@ -57,23 +58,15 @@ const reformatAuthorPlaceholder = (
   );
 }
 
-const TruncatedAuthorsList = ({
-  post,
-  expandContainer,
-  className,
-  classes,
-  useMoreSuffix = true,
-  useUltraFeedModal = false,
-  showSubscribedIcon = false,
-}: {
+const TruncatedAuthorsList = ({post, expandContainer, className, useMoreSuffix = true, useUltraFeedModal = false, showSubscribedIcon = false}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement|null>,
   className?: string,
-  classes: ClassesType<typeof styles>,
   useMoreSuffix?: boolean,
   useUltraFeedModal?: boolean,
   showSubscribedIcon?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const {isAnon, authors, topCommentAuthor} = usePostsUserAndCoauthors(post);
   const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersNameDisplay;
   const ref = useRef<HTMLDivElement>(null);

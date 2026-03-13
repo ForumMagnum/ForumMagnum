@@ -22,7 +22,6 @@ const styles = defineStyles('PostsDialogItemNewCommentsList', (theme: ThemeType)
 
 const PostsDialogItemNewCommentsList = ({ terms, post, treeOptions }: {
   terms: CommentsViewTerms,
-  classes: ClassesType<typeof styles>,
   post: PostsList & { debate: true },
   treeOptions: CommentTreeOptions,
 }) => {

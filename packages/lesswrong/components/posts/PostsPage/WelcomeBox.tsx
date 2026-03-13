@@ -13,6 +13,7 @@ import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useCurrentUser } from '../../common/withUser';
 import { Typography } from "../../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('WelcomeBox', (theme: ThemeType) => ({
   wrapper: {
@@ -78,9 +79,8 @@ const welcomeBoxes: ForumOptions<{title: string, contents: HashLinkProps[]} | nu
   default: null
 };
 
-const WelcomeBox = ({ classes }: {
-  classes: ClassesType<typeof styles>
-}) => {
+const WelcomeBox = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
   const data = forumSelect(welcomeBoxes);

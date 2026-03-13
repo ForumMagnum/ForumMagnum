@@ -10,6 +10,7 @@ import LoadMore from "../common/LoadMore";
 import LWTooltip from "../common/LWTooltip";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('RevisionSelect', (theme: ThemeType) => ({
   revisionRow: {
@@ -51,15 +52,15 @@ const styles = defineStyles('RevisionSelect', (theme: ThemeType) => ({
   }
 }));
 
-const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes, count, totalCount }: {
+const RevisionSelect = ({revisions, getRevisionUrl, onPairSelected, loadMoreProps, count, totalCount}: {
   revisions: Array<RevisionMetadataWithChangeMetrics>,
   getRevisionUrl: (rev: RevisionMetadata) => string,
   onPairSelected: ({before, after}: {before: RevisionMetadata, after: RevisionMetadata}) => void,
   loadMoreProps: any,
-  classes: ClassesType<typeof styles>,
   count?: number,
   totalCount?: number
 }) => {
+  const classes = useStyles(styles);
   const [beforeRevisionIndex, setBeforeRevisionIndex] = useState(1);
   const [afterRevisionIndex, setAfterRevisionIndex] = useState(0);
   

@@ -8,6 +8,7 @@ import ForumIcon from "../common/ForumIcon";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentReviewProgressNominationsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -47,11 +48,10 @@ const styles = defineStyles('ReviewProgressNominations', (theme: ThemeType) => (
 
 const TARGET_REVIEWS_NUM = 2
 
-export const ReviewProgressNominations = ({classes, reviewYear = REVIEW_YEAR}: {
-    classes: ClassesType<typeof styles>,
+export const ReviewProgressNominations = ({reviewYear = REVIEW_YEAR}: {
     reviewYear: ReviewYear
   }) => {
-
+  const classes = useStyles(styles);
     const currentUser = useCurrentUser()
   const { data } = useQuery(CommentsListWithParentMetadataMultiQuery, {
     variables: {

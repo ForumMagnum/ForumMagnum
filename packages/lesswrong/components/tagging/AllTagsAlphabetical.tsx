@@ -12,6 +12,7 @@ import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagPreviewFragmentMultiQuery = gql(`
   query multiTagAllTagsAlphabeticalQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -40,9 +41,8 @@ const styles = defineStyles("AllTagsAlphabetical", (theme: ThemeType) => ({
   }
 }))
 
-const AllTagsAlphabetical = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const AllTagsAlphabetical = () => {
+  const classes = useStyles(styles);
   const { data, loading } = useQuery(TagPreviewFragmentMultiQuery, {
     variables: {
       selector: { allTagsHierarchical: {} },

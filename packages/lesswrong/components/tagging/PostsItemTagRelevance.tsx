@@ -9,6 +9,7 @@ import { TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "../votes/OverallVoteButton";
 import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("PostsItemTagRelevance", (theme: ThemeType) => ({
   root: {
@@ -48,10 +49,10 @@ const styles = defineStyles("PostsItemTagRelevance", (theme: ThemeType) => ({
   },
 }));
 
-const PostsItemTagRelevance = ({tagRel, classes}: {
+const PostsItemTagRelevance = ({tagRel}: {
   tagRel: WithVoteTagRel,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const voteProps = useVote(tagRel, "TagRels");
   const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;

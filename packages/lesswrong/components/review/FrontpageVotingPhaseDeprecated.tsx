@@ -11,6 +11,7 @@ import RecommendationsList from "../recommendations/RecommendationsList";
 import HoverPreviewLink from "../linkPreview/HoverPreviewLink";
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('FrontpageVotingPhase', (theme: ThemeType) => ({
   timeRemaining: {
@@ -34,10 +35,10 @@ const styles = defineStyles('FrontpageVotingPhase', (theme: ThemeType) => ({
   }
 }))
 
-const FrontpageVotingPhase = ({settings, classes}: {
+const FrontpageVotingPhase = ({settings}: {
   settings: DefaultRecommendationsAlgorithm,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const reviewTooltip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2018, in three phases</div>

@@ -5,6 +5,7 @@ import type { ToCSection } from '../../lib/tableOfContents';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import TableOfContents from "../posts/TableOfContents/TableOfContents";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('CollectionTableOfContents', (theme: ThemeType) => ({
   root: {
@@ -25,10 +26,10 @@ const styles = defineStyles('CollectionTableOfContents', (theme: ThemeType) => (
   }
 }));
 
-export const CollectionTableOfContents = ({classes, collection}: {
-  classes: ClassesType<typeof styles>,
+export const CollectionTableOfContents = ({collection}: {
   collection: CollectionsPageFragment
 }) => {
+  const classes = useStyles(styles);
   const sections: ToCSection[] = [] 
 
   collection.books.forEach(book => {

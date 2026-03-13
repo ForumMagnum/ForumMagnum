@@ -2,6 +2,7 @@ import React, { ReactNode } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { descriptionStyles } from './SpotlightItem';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('SpotlightEditorStyles', (theme: ThemeType) => ({
   root: {
@@ -34,10 +35,11 @@ const styles = defineStyles('SpotlightEditorStyles', (theme: ThemeType) => ({
   }
 }));
 
-export const SpotlightEditorStyles = ({classes, children}: {
-  classes: ClassesType<typeof styles>,
+export const SpotlightEditorStyles = ({children}: {
   children: ReactNode,
 }) => {
+  const classes = useStyles(styles);
+
   return <div className={classes.root}>
     {children}
   </div>;

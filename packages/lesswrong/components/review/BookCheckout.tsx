@@ -87,7 +87,8 @@ const Message = ({ message }: {message: string}) => {
     </section>
   );
 };
-function BookCheckout({classes, ignoreMessages = false, text, link}: {classes: ClassesType<typeof styles>, ignoreMessages?: boolean, text?: string, link: string}) {
+function BookCheckout({ignoreMessages = false, text, link}: {ignoreMessages?: boolean, text?: string, link: string}) {
+  const classes = useStyles(styles);
   const [message, setMessage] = useState("");
   const { captureEvent } = useTracking()
   

@@ -25,6 +25,7 @@ import { gql } from "@/lib/generated/gql-codegen/gql";
 import uniq from 'lodash/uniq';
 import without from 'lodash/without';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SuggestAlignmentPostUpdateMutation = gql(`
   mutation updatePostAFSuggestPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -58,10 +59,10 @@ const styles = defineStyles('AFSuggestPostsItem', (theme: ThemeType) => ({
 }))
 
 
-const AFSuggestPostsItem = ({post, classes}: {
+const AFSuggestPostsItem = ({post}: {
   post: SuggestAlignmentPost,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();
   

@@ -104,10 +104,6 @@ const styles = defineStyles('ReactBallotVoteOnComment', (theme: ThemeType) => ({
   },
 }));
 
-interface ReactBallotVoteOnCommentProps extends CommentVotingComponentProps {
-  classes: ClassesType<typeof styles>
-}
-
 const BallotRow = ({axis, voteProps}: {
   axis: ReactBallotAxis,
   voteProps: VotingProps<VoteableTypeClient>,
@@ -214,7 +210,8 @@ const BallotStandaloneReaction = ({reaction, voteProps}: {
   </div>
 }
 
-const ReactBallotVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem, classes}: ReactBallotVoteOnCommentProps) => {
+const ReactBallotVoteOnComment = ({document, hideKarma=false, collectionName, votingSystem}: CommentVotingComponentProps) => {
+  const classes = useStyles(styles);
   const voteProps = useVote(document, collectionName, votingSystem);
   const { hover, anchorEl, eventHandlers } = useHover();
   

@@ -11,6 +11,7 @@ import PostsItem from "../posts/PostsItem";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ChaptersEditQuery = gql(`
   query ChaptersItem($documentId: String) {
@@ -44,11 +45,11 @@ const styles = defineStyles('ChaptersItem', (theme: ThemeType) => ({
   }
 }));
 
-const ChaptersItem = ({ chapter, canEdit, classes }: {
+const ChaptersItem = ({chapter, canEdit}: {
   chapter: ChaptersFragment,
   canEdit: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [edit,setEdit] = useState(false);
 
   const { data } = useQuery(ChaptersEditQuery, {

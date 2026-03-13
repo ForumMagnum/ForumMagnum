@@ -7,7 +7,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import FormatDate from "../../common/FormatDate";
 import { MenuItem } from "../../common/Menus";
 import { defineStyles } from '@/components/hooks/defineStyles';
-
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsRevisionsListQuery = gql(`
   query PostsRevisionsList($documentId: String) {
@@ -25,10 +25,10 @@ const styles = defineStyles('PostsRevisionsList', (theme: ThemeType) => ({
   }
 }))
 
-const PostsRevisionsList = ({post, classes}: {
+const PostsRevisionsList = ({post}: {
   post: PostsBase,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
   const { loading, data } = useQuery(PostsRevisionsListQuery, {
     variables: { documentId: post._id },

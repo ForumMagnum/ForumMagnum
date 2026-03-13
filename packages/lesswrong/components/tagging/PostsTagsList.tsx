@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import filter from 'lodash/filter';
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PostsTagsList', (theme: ThemeType) => ({
   root: {
@@ -48,16 +49,7 @@ type TagWithCount = TagBasicInfo & {count: number}
 // included among that list of posts, and allow users to filter the post list to only show 
 // those tags.
 export const PostsTagsList = (
-  {
-    classes, 
-    posts, 
-    currentFilter, 
-    handleFilter, 
-    expandedMinCount = 3, 
-    defaultMax = 6,
-    afterChildren,
-  }: {
-    classes: ClassesType<typeof styles>,
+  {posts, currentFilter, handleFilter, expandedMinCount = 3, defaultMax = 6, afterChildren}: {
     posts: PostsList[] | null,
     currentFilter: string | null, // the current tag being filtered on the post list
     handleFilter: (filter: string) => void, // function to update which tag is being filtered
@@ -66,6 +58,7 @@ export const PostsTagsList = (
     defaultMax?: number // default number of tags to show
     afterChildren?: React.ReactNode,
   }) => {
+  const classes = useStyles(styles);
   const allTags = posts?.flatMap(post => post.tags) ?? []
   const uniqueTags = [...new Set(allTags)]
   const tagsWithCount: TagWithCount[] = uniqueTags.map(tag => ({

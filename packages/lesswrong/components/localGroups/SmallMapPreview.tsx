@@ -5,6 +5,7 @@ import LocalEventMarker from "./LocalEventMarker";
 import LocalGroupMarker from "./LocalGroupMarker";
 import { WrappedReactMapGL } from '../community/WrappedReactMapGL';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("SmallMapPreview", (_theme: ThemeType) => ({
   previewWrapper: {
@@ -14,12 +15,12 @@ const styles = defineStyles("SmallMapPreview", (_theme: ThemeType) => ({
   }
 }));
 
-const SmallMapPreview = ({post, group, zoom, classes}: {
+const SmallMapPreview = ({post, group, zoom}: {
   post: PostsList,
   group?: AnyBecauseTodo,
   zoom?: number,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const document = post || group;
   const googleLocation = document.googleLocation;
   const center = googleLocation?.geometry?.location;

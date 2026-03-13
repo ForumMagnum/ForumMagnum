@@ -7,6 +7,7 @@ import LoadMore from "../common/LoadMore";
 import ForumIcon from "../common/ForumIcon";
 import KeystrokeDisplay from "@/components/sunshineDashboard/supermod/KeystrokeDisplay";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("TagsChecklist", (theme: ThemeType) => ({
   root: {
@@ -98,25 +99,12 @@ interface TagsChecklistItem {
   selected: boolean,
 }
 
-const TagsChecklist = ({
-  onTagSelected = () => {},
-  onTagRemoved = () => {},
-  classes,
-  selectedTagIds: selectedTagIds = [],
-  tags,
-  displaySelected = "hide",
-  tooltips = true,
-  truncate = false,
-  smallText = false,
-  shortNames = false,
-  keyboardShortcuts,
-}: {
+const TagsChecklist = ({onTagSelected = () => {}, onTagRemoved = () => {}, selectedTagIds: selectedTagIds = [], tags, displaySelected = "hide", tooltips = true, truncate = false, smallText = false, shortNames = false, keyboardShortcuts}: {
   onTagSelected?: (
     tag: { tagId: string; tagName: string; parentTagId?: string },
     existingTagIds: Array<string>
   ) => void;
   onTagRemoved?: (tag: { tagId: string; tagName: string; parentTagId?: string }, existingTagIds: Array<string>) => void;
-  classes: ClassesType<typeof styles>;
   selectedTagIds?: Array<string | undefined>;
   tags: Pick<TagFragment, "_id" | "name" | "shortName">[];
   displaySelected?: "highlight" | "hide";
@@ -126,6 +114,7 @@ const TagsChecklist = ({
   shortNames?: boolean,
   keyboardShortcuts?: Record<string, string>,
 }) => {
+  const classes = useStyles(styles);
   const [loadMoreClicked, setLoadMoreClicked] = useState(false);
 
   const getTagsToDisplay = (): TagsChecklistItem[] => {

@@ -8,6 +8,7 @@ import Loading from "../vulcan-core/Loading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListMultiQuery = gql(`
   query multiPostPingbacksListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -55,11 +56,11 @@ const styles = defineStyles("PingbacksList", (theme: ThemeType) => ({
   },
 }));
 
-const PingbacksList = ({classes, postId, limit=5}: {
-  classes: ClassesType<typeof styles>,
+const PingbacksList = ({postId, limit=5}: {
   postId: string,
   limit?: number
 }) => {
+  const classes = useStyles(styles);
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(PostsListMultiQuery, {
     variables: {
       selector: { pingbackPosts: { postId: postId } },

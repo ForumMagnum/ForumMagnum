@@ -4,6 +4,7 @@ import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import Loading from "../vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('UsersAutoCompleteHit', (theme: ThemeType) => ({
   root: {
@@ -11,10 +12,11 @@ const styles = defineStyles('UsersAutoCompleteHit', (theme: ThemeType) => ({
   }
 }));
 
-const UsersAutoCompleteHit = ({document, classes}: {
+const UsersAutoCompleteHit = ({document}: {
   document: SearchUser
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
+
   if (document) {
     return <div className={classes.root}>
       <MetaInfo>

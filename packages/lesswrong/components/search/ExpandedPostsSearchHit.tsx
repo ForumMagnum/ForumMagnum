@@ -9,6 +9,7 @@ import { useNavigate } from "../../lib/routeUtil";
 import FormatDate from "../common/FormatDate";
 import UserNameDeleted from "../users/UserNameDeleted";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
   root: {
@@ -60,10 +61,10 @@ const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
   }
 }))
 
-const ExpandedPostsSearchHit = ({hit, classes}: {
+const ExpandedPostsSearchHit = ({hit}: {
   hit: Hit<any>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
   const post: SearchPost = hit
   

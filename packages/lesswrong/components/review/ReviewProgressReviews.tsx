@@ -9,6 +9,7 @@ import LWTooltip from "../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentReviewProgressReviewsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -49,10 +50,10 @@ const styles = defineStyles('ReviewProgressReviews', (theme: ThemeType) => ({
   }
 }));
 
-export const ReviewProgressReviews = ({classes, reviewYear}: {
-  classes: ClassesType<typeof styles>,
+export const ReviewProgressReviews = ({reviewYear}: {
   reviewYear: ReviewYear
 }) => {
+  const classes = useStyles(styles);
   const TARGET_NUM = 3
 
   const currentUser = useCurrentUser()

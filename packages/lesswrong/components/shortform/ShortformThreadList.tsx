@@ -8,6 +8,7 @@ import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentWithRepliesFragmentMultiQuery = gql(`
   query multiCommentShortformThreadListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -26,13 +27,13 @@ const styles = defineStyles('ShortformThreadList', (theme: ThemeType) => ({
   }
 }))
 
-const ShortformThreadList = ({ classes, userId, showQuickTakeEntry = true, showPostTitle = true, limit = 20 }: {
-  classes: ClassesType<typeof styles>,
+const ShortformThreadList = ({userId, showQuickTakeEntry = true, showPostTitle = true, limit = 20}: {
   userId?: string,
   showQuickTakeEntry?: boolean,
   showPostTitle?: boolean,
   limit?: number,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const shortformSelector = userId
     ? { shortform: { userId } }

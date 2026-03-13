@@ -5,6 +5,7 @@ import CoreTagCard from "./CoreTagCard";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagDetailsFragmentMultiQuery = gql(`
   query multiTagCoreTagsSectionQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -38,9 +39,8 @@ const styles = defineStyles("CoreTagsSection", (theme: ThemeType) => ({
 
 const INITIAL_LIMIT = 8;
 
-const CoreTagsSection = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const CoreTagsSection = () => {
+  const classes = useStyles(styles);
   const { data } = useQuery(TagDetailsFragmentMultiQuery, {
     variables: {
       selector: { coreTags: {} },

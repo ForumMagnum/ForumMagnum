@@ -13,6 +13,7 @@ import EAButton from "../ea-forum/EAButton";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsEditMutation = gql(`
   mutation createPostNewDialogueDialog($data: CreatePostDataInput!) {
@@ -61,11 +62,11 @@ const styles = defineStyles('NewDialogueDialog', (theme: ThemeType) => ({
   }
 }))
 
-const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
+const NewDialogueDialog = ({initialParticipantIds, onClose}: {
   initialParticipantIds?: string[],
   onClose: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [title, setTitle] = useState("");
   const {flash} = useMessages();
   const [participants, setParticipants] = useState<string[]>(initialParticipantIds ?? []);

@@ -6,6 +6,7 @@ import moment from 'moment';
 import CalendarDate from "../../common/CalendarDate";
 import MetaInfo from "../../common/MetaInfo";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("CommentBottomCaveats", (theme: ThemeType) => ({
   caveatText: {
@@ -16,10 +17,10 @@ const styles = defineStyles("CommentBottomCaveats", (theme: ThemeType) => ({
   },
 }));
 
-const CommentBottomCaveats = ({comment, classes}: {
+const CommentBottomCaveats = ({comment}: {
   comment: CommentsList,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const now = useCurrentTime();
   const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
   

@@ -9,15 +9,15 @@ import LoadMore from "../common/LoadMore";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('AllReactedCommentsPage', (theme: ThemeType) => ({
   root: {
   }
 }));
 
-export const AllReactedCommentsPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const AllReactedCommentsPage = () => {
+  const classes = useStyles(styles);
   const defaultLimit = 50;
   const pageSize = 50
 

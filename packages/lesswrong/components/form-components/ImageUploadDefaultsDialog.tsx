@@ -5,6 +5,7 @@ import { DialogTitle } from '../widgets/DialogTitle';
 import LWDialog from "../common/LWDialog";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ImageUploadDefaultsDialog', (theme: ThemeType) => ({
   images: {
@@ -23,12 +24,12 @@ const styles = defineStyles('ImageUploadDefaultsDialog', (theme: ThemeType) => (
   },
 }))
 
-const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
+const ImageUploadDefaultsDialog = ({onSelect, onClose, type}: {
   onSelect: (newImageId: string) => void,
   onClose?: () => void,
-  classes: ClassesType<typeof styles>,
   type?: 'Event' | 'Profile'
 }) => {
+  const classes = useStyles(styles);
   const selectImg = (img: string) => {
     onSelect(img)
     if (onClose)

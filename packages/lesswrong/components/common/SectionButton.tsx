@@ -4,6 +4,7 @@ import classNames from 'classnames'
 import { isAF } from '@/lib/instanceSettings';
 import { Typography } from "./Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('SectionButton', (theme: ThemeType) => ({
   root: {
@@ -23,12 +24,13 @@ const styles = defineStyles('SectionButton', (theme: ThemeType) => ({
   }
 }))
 
-const SectionButton = ({children, classes, className, onClick}: {
+const SectionButton = ({children, className, onClick}: {
   children?: React.ReactNode,
-  classes: ClassesType<typeof styles>,
   className?: string,
   onClick?: (event: React.MouseEvent) => void,
 }) => {
+  const classes = useStyles(styles);
+
   return <Typography
     component='span'
     variant='body2'

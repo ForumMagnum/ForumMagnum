@@ -10,6 +10,7 @@ import LWTooltip from "../../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserAltAccountInfoQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -36,10 +37,10 @@ const styles = defineStyles('AltAccountInfo', (theme: ThemeType) => ({
   }
 }));
 
-export const AltAccountInfo = ({classes, user}: {
-  classes: ClassesType<typeof styles>,
+export const AltAccountInfo = ({user}: {
   user: SunshineUsersList
 }) => {
+  const classes = useStyles(styles);
   const [showAlternateAccounts, setShowAlternateAccounts] = useState<boolean>(false)
   const associatedUserIds: string[] = user.associatedClientIds
     ? flatMap(user.associatedClientIds, clientId=>(clientId.userIds||[]))

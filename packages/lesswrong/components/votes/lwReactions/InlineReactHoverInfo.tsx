@@ -6,6 +6,7 @@ import { Card } from "@/components/widgets/Paper";
 import ReactionHoverTopRow from "./ReactionHoverTopRow";
 import ReactionQuotesHoverInfo from "./ReactionQuotesHoverInfo";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('InlineReactHoverInfo', (theme: ThemeType) => ({
 }))
@@ -17,12 +18,12 @@ const styles = defineStyles('InlineReactHoverInfo', (theme: ThemeType) => ({
  * multiple different types of reactions here, if different users reacted
  * differently.
  */
-const InlineReactHoverInfo = ({quote, reactions, voteProps, classes}: {
+const InlineReactHoverInfo = ({quote, reactions, voteProps}: {
   quote: QuoteLocator,
   reactions: NamesAttachedReactionsList,
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const reactionNames = Object.keys(reactions);
 
   return <Card>

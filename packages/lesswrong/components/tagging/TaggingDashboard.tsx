@@ -22,6 +22,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagFlagFragmentMultiQuery = gql(`
   query multiTagFlagTaggingDashboardQuery($selector: TagFlagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -118,9 +119,8 @@ const styles = defineStyles("TaggingDashboard", (theme: ThemeType) => ({
   }
 }))
 
-const TaggingDashboard = ({classes}: {
-  classes: ClassesType<typeof styles>
-}) => {
+const TaggingDashboard = () => {
+  const classes = useStyles(styles);
   const { query } = useLocation();
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser()

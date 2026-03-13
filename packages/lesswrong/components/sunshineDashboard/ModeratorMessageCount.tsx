@@ -6,6 +6,7 @@ import LWTooltip from "../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ConversationsMinimumInfoMultiQuery = gql(`
   query multiConversationModeratorMessageCountQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -33,10 +34,10 @@ const styles = defineStyles('ModeratorMessageCount', (theme: ThemeType) => ({
   }
 }));
 
-export const ModeratorMessageCount = ({classes, userId}: {
+export const ModeratorMessageCount = ({userId}: {
   userId: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { data, loading } = useQuery(ConversationsMinimumInfoMultiQuery, {
     variables: {
       selector: { moderatorConversations: { userId } },

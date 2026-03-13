@@ -17,7 +17,6 @@ const TableOfContents = ({sectionData, title, heading, onClickSection, displayOp
   heading?: React.ReactNode,
   onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
-  classes: ClassesType<typeof styles>,
   fixedPositionToc?: boolean,
   hover?: boolean,
 }) => {

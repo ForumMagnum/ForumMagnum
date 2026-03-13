@@ -12,6 +12,7 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import TagDiscussionButton from "./TagDiscussionButton";
 import ContentStyles from "../common/ContentStyles";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("NewTagItem", (theme: ThemeType) => ({
   root: {
@@ -40,10 +41,10 @@ const styles = defineStyles("NewTagItem", (theme: ThemeType) => ({
   }
 }));
 
-const NewTagItem = ({tag, classes}: {
+const NewTagItem = ({tag}: {
   tag: TagCreationHistoryFragment,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const tagUrl = tagGetUrl(tag);
   const [truncated, setTruncated] = useState(true);
   const { captureEvent } =  useTracking()

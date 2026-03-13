@@ -10,6 +10,7 @@ import NewConversationButton from "../../messaging/NewConversationButton";
 import NotifyMeButton from "../../notifications/NotifyMeButton";
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("PostAuthorCard", (theme: ThemeType) => ({
   root: {
@@ -71,11 +72,12 @@ const styles = defineStyles("PostAuthorCard", (theme: ThemeType) => ({
   },
 }));
 
-const PostAuthorCard = ({author, currentUser, classes}: {
+const PostAuthorCard = ({author, currentUser}: {
   author: Exclude<PostsAuthors['user'], null>,
   currentUser: UsersCurrent|null,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
     return <AnalyticsContext pageSectionContext="postAuthorCard">
     <div className={classes.root}>
       <Typography variant="subheading" component="div" className={classes.about}>About the author</Typography>

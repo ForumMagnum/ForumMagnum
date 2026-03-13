@@ -27,6 +27,7 @@ import SetPersonalMapLocationDialog from "./SetPersonalMapLocationDialog";
 import EventNotificationsDialog from "./EventNotificationsDialog";
 import SimpleDivider from "../widgets/SimpleDivider";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const availableFilters = groupTypes.map(t => t.shortName);
 
@@ -211,17 +212,7 @@ const getInitialFilters = (query?: Record<string, string | string[]>) => {
   return [];
 }
 
-const CommunityMapFilter = ({
-  setShowMap,
-  showHideMap,
-  toggleGroups,
-  showGroups,
-  toggleEvents,
-  showEvents,
-  toggleIndividuals,
-  showIndividuals,
-  classes,
-}: {
+const CommunityMapFilter = ({setShowMap, showHideMap, toggleGroups, showGroups, toggleEvents, showEvents, toggleIndividuals, showIndividuals}: {
   setShowMap: any,
   showHideMap: boolean,
   toggleGroups: any,
@@ -230,8 +221,8 @@ const CommunityMapFilter = ({
   showEvents: boolean,
   toggleIndividuals: any,
   showIndividuals: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const location = useLocation();
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();

@@ -12,6 +12,7 @@ import LWTooltip from "../common/LWTooltip";
 import { useDialog } from '../common/withDialog';
 import LoginPopup from "../users/LoginPopup";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('FollowUserButton', (theme: ThemeType) => ({
   root: {
@@ -52,11 +53,11 @@ const styles = defineStyles('FollowUserButton', (theme: ThemeType) => ({
   },
 }));
 
-export const FollowUserButton = ({user, styleVariant = "default", classes}: {
+export const FollowUserButton = ({user, styleVariant = "default"}: {
   user: UsersMinimumInfo,
   styleVariant?: "default" | "ultraFeed",
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking();
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();

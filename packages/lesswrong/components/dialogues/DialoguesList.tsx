@@ -14,6 +14,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('DialoguesList', (theme: ThemeType) => ({
   content: {
@@ -89,7 +90,8 @@ const styles = defineStyles('DialoguesList', (theme: ThemeType) => ({
   },
 }));
  
-const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, classes: ClassesType<typeof styles> }) => {
+const DialoguesList = ({currentUser}: { currentUser: UsersCurrent, }) => {
+  const classes = useStyles(styles);
   const [showSettings, setShowSettings] = useState(false);
   const { captureEvent } = useTracking();
   const currentDate = useCurrentTime();

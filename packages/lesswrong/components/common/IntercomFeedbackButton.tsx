@@ -5,6 +5,7 @@ import { useCurrentUser } from "./withUser";
 import classNames from "classnames";
 import LWTooltip from "./LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("IntercomFeedbackButton", (theme: ThemeType) => ({
   root: {
@@ -19,17 +20,12 @@ const styles = defineStyles("IntercomFeedbackButton", (theme: ThemeType) => ({
   },
 }), { stylePriority: -5 });
 
-const IntercomFeedbackButton = ({
-  title = "Give feedback",
-  eventName,
-  className,
-  classes,
-}: {
+const IntercomFeedbackButton = ({title = "Give feedback", eventName, className}: {
   title?: string,
   eventName: string,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {captureEvent} = useTracking();
   const onClick = useCallback(() => {

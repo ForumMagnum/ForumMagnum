@@ -4,16 +4,18 @@ import UsersName from "../../users/UsersName";
 import UserCommentMarkers from "../../users/UserCommentMarkers";
 import { AUTHOR_MARKER_STYLES } from './authorMarkerStyles';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PostsCoauthor', (_: ThemeType) => ({
   markers: AUTHOR_MARKER_STYLES,
 }));
 
-const PostsCoauthor = ({ coauthor, pageSectionContext, classes }: {
+const PostsCoauthor = ({coauthor, pageSectionContext}: {
   coauthor: UsersMinimumInfo,
   pageSectionContext?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return (
     <>
       , <UsersName user={coauthor} pageSectionContext={pageSectionContext} />

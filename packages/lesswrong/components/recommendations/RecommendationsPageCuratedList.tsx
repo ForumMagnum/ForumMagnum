@@ -8,6 +8,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import SunshineCuratedSuggestionsList from "../sunshineDashboard/SunshineCuratedSuggestionsList";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('RecommendationsPageCuratedList', (theme: ThemeType) => ({
   curated: {
@@ -21,9 +22,8 @@ const styles = defineStyles('RecommendationsPageCuratedList', (theme: ThemeType)
   }
 }));
 
-const RecommendationsPageCuratedList = ({classes}: {
-  classes: ClassesType<typeof styles>
-}) => {
+const RecommendationsPageCuratedList = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
 
   return (

@@ -17,7 +17,7 @@ import { getOffsetChainTop } from '@/lib/utils/domUtil';
 import { scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
 import { isLWorAF } from '@/lib/instanceSettings';
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
-import { getClassName } from '@/components/hooks/useStyles';
+import { getClassName, useStyles } from '@/components/hooks/useStyles';
 import TableOfContentsRow, { TableOfContentsRowStyles } from './TableOfContentsRow';
 import type { TableOfContentsDividerStyles } from './TableOfContentsDivider';
 import AnswerTocRow from "./AnswerTocRow";
@@ -244,16 +244,16 @@ function getNewSearchParams(query: Record<string, string>) {
   return isEmpty(restQuery) ? '' : `?${qs.stringify(restQuery)}`;
 }
 
-const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover, scrollContainerRef}: {
+const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, hover, scrollContainerRef}: {
   tocSections: ToCSection[],
   title: string|null,
   heading?: React.ReactNode,
   onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
-  classes: ClassesType<typeof styles>,
   hover?: boolean,
   scrollContainerRef?: React.RefObject<HTMLDivElement | null>,
 }) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;

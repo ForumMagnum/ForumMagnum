@@ -10,6 +10,7 @@ import UsersName from "../users/UsersName";
 import LinkCard from "../common/LinkCard";
 import SequencesSummary from "./SequencesSummary";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('SequencesGridItem', (theme: ThemeType) => ({
   root: {
@@ -126,12 +127,13 @@ const styles = defineStyles('SequencesGridItem', (theme: ThemeType) => ({
   }
 }))
 
-const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle }: {
+const SequencesGridItem = ({sequence, showAuthor=false, bookItemStyle}: {
   sequence: SequencesPageFragment,
   showAuthor?: boolean,
-  classes: ClassesType<typeof styles>,
   bookItemStyle?: boolean
 }) => {
+  const classes = useStyles(styles);
+
   // The hoverover is adjusted so that it's title lines up with where the SequencesGridItem title would have been, to avoid seeing the title twice
   let positionAdjustment = -35
   if (showAuthor) positionAdjustment -= 20

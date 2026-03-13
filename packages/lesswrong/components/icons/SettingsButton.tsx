@@ -3,6 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('SettingsButton', (theme: ThemeType) => ({
   icon: {
@@ -42,8 +43,7 @@ const styles = defineStyles('SettingsButton', (theme: ThemeType) => ({
   }
 }), { stylePriority: -1 })
 
-const SettingsButton = ({classes, className, onClick, showIcon=true, label="", useArrow, textShadow = false, labelClassName}: {
-  classes: ClassesType<typeof styles>,
+const SettingsButton = ({className, onClick, showIcon=true, label="", useArrow, textShadow = false, labelClassName}: {
   className?: string,
   onClick?: any,
   label?: React.ReactNode,
@@ -52,6 +52,7 @@ const SettingsButton = ({classes, className, onClick, showIcon=true, label="", u
   textShadow?: boolean,
   labelClassName?: string,
 }) => {
+  const classes = useStyles(styles);
   const iconType = !!useArrow ? "ThickChevronDown" : "Settings"
 
   if (label) {

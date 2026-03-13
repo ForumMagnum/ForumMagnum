@@ -3,6 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import LWDialog from "./LWDialog";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("BlurredBackgroundModal", (theme: ThemeType) => ({
   root: {
@@ -35,19 +36,14 @@ const styles = defineStyles("BlurredBackgroundModal", (theme: ThemeType) => ({
   },
 }), { stylePriority: -1 });
 
-export const BlurredBackgroundModal = ({
-  open,
-  onClose,
-  children,
-  className,
-  classes,
-}: {
+export const BlurredBackgroundModal = ({open, onClose, children, className}: {
   open: boolean,
   onClose?: () => void,
   children: ReactNode,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return <LWDialog open={open} onClose={onClose} backdrop="blur">
     <div className={classNames(classes.root, className)}>
       {children}

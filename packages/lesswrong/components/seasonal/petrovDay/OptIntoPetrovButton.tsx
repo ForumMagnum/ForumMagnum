@@ -11,6 +11,7 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from "@/lib/generated/gql-codegen";
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PetrovDayActionInfoMultiQuery = gql(`
   query multiPetrovDayActionOptIntoPetrovButtonQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -162,9 +163,8 @@ const styles = defineStyles('OptIntoPetrovButton', (theme: ThemeType) => ({
   }
 }))
 
-const OptIntoPetrovButton = ({classes }: {
-  classes: ClassesType<typeof styles>
-}) => {
+const OptIntoPetrovButton = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const petrovPressedButtonDate = currentUser?.petrovPressedButtonDate
   const [pressed, setPressed] = useState(false) //petrovPressedButtonDate)

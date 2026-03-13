@@ -4,6 +4,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagRelFragmentQuery = gql(`
   query TagRelNotificationItem($documentId: String) {
@@ -27,10 +28,10 @@ const styles = defineStyles('TagRelNotificationItem', (theme: ThemeType) => ({
   }
 }));
 
-export const TagRelNotificationItem = ({classes, tagRelId}: {
-  classes: ClassesType<typeof styles>,
+export const TagRelNotificationItem = ({tagRelId}: {
   tagRelId: string
 }) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(TagRelFragmentQuery, {
     variables: { documentId: tagRelId },
   });

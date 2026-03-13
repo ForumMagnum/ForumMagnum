@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
@@ -11,6 +10,7 @@ import FormatDate from "../common/FormatDate";
 import { Typography } from "../common/Typography";
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("PostsSearchHit", (theme: ThemeType) => ({
   root: {
@@ -41,7 +41,8 @@ const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const PostsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const PostsSearchHit = ({hit, clickAction, showIcon=false}: SearchHitComponentProps) => {
+  const classes = useStyles(styles);
   const post = (hit as SearchPost);
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
 
@@ -76,8 +77,4 @@ const PostsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitCo
   </div>
 }
 
-
-export default registerComponent("PostsSearchHit", PostsSearchHit, {styles});
-
-
-
+export default PostsSearchHit;

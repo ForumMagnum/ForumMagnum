@@ -9,6 +9,7 @@ import SectionFooter from "../common/SectionFooter";
 import HoverPreviewLink from "../linkPreview/HoverPreviewLink";
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('FrontpageNominationPhase', (theme: ThemeType) => ({
   hideOnMobile: {
@@ -25,10 +26,10 @@ const styles = defineStyles('FrontpageNominationPhase', (theme: ThemeType) => ({
   }
 }))
 
-const FrontpageNominationPhase = ({classes, settings}: {
-  classes: ClassesType<typeof styles>,
+const FrontpageNominationPhase = ({settings}: {
   settings: DefaultRecommendationsAlgorithm,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const reviewTooltip = <div>

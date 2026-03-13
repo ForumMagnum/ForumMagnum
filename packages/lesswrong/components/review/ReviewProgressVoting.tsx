@@ -9,6 +9,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { TARGET_REVIEW_VOTING_NUM } from '@/lib/collections/reviewVotes/constants';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const reviewVoteFragmentMultiQuery = gql(`
   query multiReviewVoteReviewProgressVotingQuery($selector: ReviewVoteSelector, $limit: Int, $enableTotal: Boolean) {
@@ -45,11 +46,10 @@ const styles = defineStyles('ReviewProgressVoting', (theme: ThemeType) => ({
   },
 }));
 
-export const ReviewProgressVoting = ({classes, reviewYear}: {
-  classes: ClassesType<typeof styles>,
+export const ReviewProgressVoting = ({reviewYear}: {
   reviewYear: ReviewYear
 }) => {
-
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const { data } = useQuery(reviewVoteFragmentMultiQuery, {
     variables: {

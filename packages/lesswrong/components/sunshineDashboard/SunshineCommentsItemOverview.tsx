@@ -7,6 +7,7 @@ import { Typography } from "../common/Typography";
 import SidebarInfo from "./SidebarInfo";
 import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('SunshineCommentsItemOverview', (theme: ThemeType) => ({
   comment: {
@@ -15,10 +16,10 @@ const styles = defineStyles('SunshineCommentsItemOverview', (theme: ThemeType) =
   }
 }))
 
-const SunshineCommentsItemOverview = ({ comment, classes }: {
+const SunshineCommentsItemOverview = ({comment}: {
   comment: any,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { markdown = "" } = comment.contents || {}
   const commentExcerpt = markdown && markdown.substring(0,38);
   return (

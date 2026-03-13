@@ -7,6 +7,7 @@ import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListQuery = gql(`
   query NewCommentModerationWarning($documentId: String) {
@@ -26,9 +27,8 @@ const styles = defineStyles('NewCommentModerationWarning', (theme: ThemeType) =>
   }
 }));
 
-export const NewCommentModerationWarning = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const NewCommentModerationWarning = () => {
+  const classes = useStyles(styles);
   const documentId = commentModerationWarningCommentIdSetting.get() 
   
   const { loading, data } = useQuery(CommentsListQuery, {

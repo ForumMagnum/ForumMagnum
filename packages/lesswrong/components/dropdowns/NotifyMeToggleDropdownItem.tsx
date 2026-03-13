@@ -7,6 +7,7 @@ import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import DropdownItem from "./DropdownItem";
 import ToggleSwitch from "../common/ToggleSwitch";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from "../hooks/useStyles";
 
 type NotifyMeToggleDropdownItemInternalProps = {
   document: NotifyMeDocument,
@@ -14,15 +15,11 @@ type NotifyMeToggleDropdownItemInternalProps = {
   enabled?: boolean,
   subscriptionType: SubscriptionType,
   useCheckboxIcon?: boolean,
-  classes: ClassesType<typeof styles>,
 }
 
-type NotifyMeToggleDropdownItemProps = {
+export type NotifyMeToggleDropdownItemProps = {
   document?: NotifyMeDocument | null,
 } & Omit<NotifyMeToggleDropdownItemInternalProps, "document">;
-
-export type NotifyMeToggleDropdownItemPropsExternal = Omit<NotifyMeToggleDropdownItemProps, "classes">;
-
 
 const styles = defineStyles("NotifyMeToggleDropdownItem", (_theme: ThemeType) => ({
   toggle: {
@@ -38,8 +35,8 @@ export const NotifyMeToggleDropdownItemInternal = ({
   title,
   subscriptionType,
   useCheckboxIcon,
-  classes,
 }: NotifyMeToggleDropdownItemInternalProps) => {
+  const classes = useStyles(styles);
   const {isSubscribed, onSubscribe, disabled} = useNotifyMe({
     document,
     overrideSubscriptionType: subscriptionType,
@@ -71,9 +68,7 @@ export const NotifyMeToggleDropdownItemInternal = ({
   );
 }
 
-export const NotifyMeToggleDropdownItem = (
-  props: NotifyMeToggleDropdownItemProps,
-) => {
+export const NotifyMeToggleDropdownItem = (props: NotifyMeToggleDropdownItemProps) => {
   if (!(props.enabled ?? true) || !props.document) {
     return null;
   }
@@ -84,6 +79,6 @@ export const NotifyMeToggleDropdownItem = (
   );
 }
 
-export default registerComponent("NotifyMeToggleDropdownItem", NotifyMeToggleDropdownItem, {styles});
+export default NotifyMeToggleDropdownItem;
 
 

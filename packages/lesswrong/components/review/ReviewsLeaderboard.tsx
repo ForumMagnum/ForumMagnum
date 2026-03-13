@@ -12,6 +12,7 @@ import MetaInfo from "../common/MetaInfo";
 import LWTooltip from "../common/LWTooltip";
 import CommentsNode from "../comments/CommentsNode";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ReviewsLeaderboard', (theme: ThemeType) => ({
   root: {
@@ -57,11 +58,11 @@ type ReviewLeaderboardRow = {
   reviews: CommentsListWithParentMetadata[]
 }
 
-export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
-  classes: ClassesType<typeof styles>,
+export const ReviewsLeaderboard = ({reviews, reviewYear}: {
   reviews?: CommentsListWithParentMetadata[],
   reviewYear?: ReviewYear
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const [truncated, setTruncated] = useState<boolean>(true)
   // TODO find the place in the code where this is normally set

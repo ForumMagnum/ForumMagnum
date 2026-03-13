@@ -13,7 +13,7 @@ import PostsHighlight from "../posts/PostsHighlight";
 import PingbacksList from "../posts/PingbacksList";
 import Loading from "../vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
-
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListQuery = gql(`
   query ReviewVotingExpandedPost($documentId: String) {
@@ -79,11 +79,11 @@ const styles = defineStyles('ReviewVotingExpandedPost', (theme: ThemeType) => ({
   }
 }))
 
-const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
-  classes: ClassesType<typeof styles>,
+const ReviewVotingExpandedPost = ({post, setExpandedPost}: {
   post?: PostsReviewVotingList|null,
   setExpandedPost: (post: PostsReviewVotingList|null) => void
 }) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(PostsListQuery, {
     variables: { documentId: post?._id },
     fetchPolicy: "cache-first",

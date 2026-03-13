@@ -266,7 +266,8 @@ const HiddenQuote = () => {
   )
 }
 
-const Book2019Landing = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const Book2019Landing = () => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking();
 
   return (

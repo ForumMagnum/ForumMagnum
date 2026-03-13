@@ -12,6 +12,7 @@ import LinkPostMessage from "./LinkPostMessage";
 import ContentItemTruncated from "../common/ContentItemTruncated";
 import Loading from "../vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsExpandedHighlightQuery = gql(`
   query PostsHighlight($documentId: String) {
@@ -82,7 +83,6 @@ const HighlightBody = ({
   expandedLoading,
   expandedDocument,
   smallerFonts,
-  classes,
 }: {
   post: PostsList,
   maxLengthWords: number,
@@ -92,8 +92,8 @@ const HighlightBody = ({
   expandedLoading: boolean,
   expandedDocument?: PostsExpandedHighlight,
   smallerFonts?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { htmlHighlight = "", wordCount = 0 } = post.contents || {};
 
   const clickExpand = useCallback((ev: MouseEvent) => {
@@ -127,12 +127,11 @@ const HighlightBody = ({
 }
 
 
-const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerFonts, classes}: {
+const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerFonts}: {
   post: PostsList,
   maxLengthWords: number,
   forceSeeMore?: boolean,
   smallerFonts?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
   const [expanded, setExpanded] = useState(false);
   const { loading: expandedLoading, data } = useQuery(PostsExpandedHighlightQuery, {
@@ -151,8 +150,7 @@ const PostsHighlight = ({post, maxLengthWords, forceSeeMore=false, smallerFonts,
     setExpanded,
     expandedLoading,
     expandedDocument,
-    classes,
   }} />
 }
 
-export default registerComponent('PostsHighlight', PostsHighlight, {styles});
+export default PostsHighlight;

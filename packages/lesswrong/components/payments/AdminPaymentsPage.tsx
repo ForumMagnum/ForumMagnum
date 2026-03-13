@@ -19,6 +19,7 @@ import ForumIcon from "../common/ForumIcon";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersProfileMultiQuery = gql(`
   query multiUserAdminPaymentsPageQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -66,9 +67,8 @@ const styles = defineStyles('AdminPaymentsPage', (theme: ThemeType) => ({
   }
 }));
 
-export const AdminPaymentsPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const AdminPaymentsPage = () => {
+  const classes = useStyles(styles);
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(UsersProfileMultiQuery, {
     variables: {
       selector: { usersWithPaymentInfo: {} },

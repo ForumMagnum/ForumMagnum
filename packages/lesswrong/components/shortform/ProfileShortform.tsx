@@ -4,7 +4,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import PostsItem from "../posts/PostsItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
-
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListWithVotesQuery = gql(`
   query ProfileShortform($documentId: String) {
@@ -22,10 +22,10 @@ const styles = defineStyles('ProfileShortform', (theme: ThemeType) => ({
   }
 }));
 
-export const ProfileShortform = ({classes, user}: {
-  classes: ClassesType<typeof styles>,
+export const ProfileShortform = ({user}: {
   user: UsersProfile
 }) => {
+  const classes = useStyles(styles);
   const { data } = useQuery(PostsListWithVotesQuery, {
     variables: {
       documentId: user.shortformFeedId

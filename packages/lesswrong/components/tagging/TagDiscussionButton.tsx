@@ -10,6 +10,7 @@ import PopperCard from "../common/PopperCard";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListMultiQuery = gql(`
   query multiCommentTagDiscussionButtonQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -63,14 +64,14 @@ const styles = defineStyles("TagDiscussionButton", (theme: ThemeType) => ({
 }));
 
 
-const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideParens = false, hideLabelOnMobile = false, classes}: {
+const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideParens = false, hideLabelOnMobile = false}: {
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment,
   text?: string,
   hideLabel?: boolean,
   hideParens?: boolean,
   hideLabelOnMobile?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { hover, anchorEl, eventHandlers } = useHover()
   const { data, loading } = useQuery(CommentsListMultiQuery, {
     variables: {

@@ -7,6 +7,7 @@ import { truncate } from "../../../lib/editor/ellipsize";
 import { ContentItemBody } from "../../contents/ContentItemBody";
 import type { ContentStyleType } from "@/components/common/ContentStylesValues";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const HTML_CHARS_PER_LINE_HEURISTIC = 120;
 const EXPAND_IN_PLACE_LINES = 10;
@@ -93,25 +94,8 @@ export type CommonExcerptProps = {
   className?: string,
 }
 
-const ContentExcerpt = ({
-  contentHtml,
-  moreLink,
-  hideMoreLink,
-  smallText,
-  noLinkStyling,
-  hideMultimedia,
-  lines = 3,
-  alwaysExpandInPlace,
-  contentType,
-  className,
-  classes,
-}: CommonExcerptProps & {
-  contentHtml: string,
-  moreLink: string,
-  contentType: ContentStyleType,
-  alwaysExpandInPlace?: boolean,
-  classes: ClassesType<typeof styles>,
-}) => {
+const ContentExcerpt = ({contentHtml, moreLink, hideMoreLink, smallText, noLinkStyling, hideMultimedia, lines = 3, alwaysExpandInPlace, contentType, className}: CommonExcerptProps & { contentHtml: string, moreLink: string, contentType: ContentStyleType, alwaysExpandInPlace?: boolean, }) => {
+  const classes = useStyles(styles);
   const [expanded, setExpanded] = useState(false);
 
   const onExpand = useCallback(() => setExpanded(true), []);

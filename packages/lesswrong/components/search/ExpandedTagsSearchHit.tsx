@@ -7,6 +7,7 @@ import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useThemeColor } from '../themes/useTheme';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ExpandedTagsSearchHit", (theme: ThemeType) => ({
   root: {
@@ -55,10 +56,10 @@ const styles = defineStyles("ExpandedTagsSearchHit", (theme: ThemeType) => ({
   }
 }))
 
-const ExpandedTagsSearchHit = ({hit, classes}: {
+const ExpandedTagsSearchHit = ({hit}: {
   hit: Hit<any>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const tag = hit as SearchTag
   const translucentBackground = useThemeColor(theme => theme.palette.panelBackground.translucent3);
   const greyBackground = useThemeColor(theme => theme.palette.grey[0]);

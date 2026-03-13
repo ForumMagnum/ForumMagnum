@@ -18,6 +18,7 @@ import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import LWDialog from "../common/LWDialog";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersEditQuery = gql(`
   query SetPersonalMapLocationDialog($documentId: String) {
@@ -37,10 +38,10 @@ const styles = defineStyles('SetPersonalMapLocationDialog', (theme: ThemeType) =
   ...sharedStyles(theme),
 }));
 
-const SetPersonalMapLocationDialog = ({ onClose, classes }: {
+const SetPersonalMapLocationDialog = ({onClose}: {
   onClose: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { loading, data } = useQuery(UsersEditQuery, {
     variables: { documentId: currentUser?._id },

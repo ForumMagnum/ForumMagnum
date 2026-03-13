@@ -12,6 +12,7 @@ import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 import SectionTitle from '../common/SectionTitle';
 import { DraftCommentsQuery } from './queries';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const LinkedDraftCommentQuery = gql(`
   query LinkedDraftCommentQuery($documentId: String!) {
@@ -41,7 +42,7 @@ const styles = defineStyles('CommentsDraftList', (theme: ThemeType) => ({
   }
 }), { stylePriority: 1 });
 
-const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTotal, silentIfEmpty, sectionTitleStyle, classes}: {
+const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTotal, silentIfEmpty, sectionTitleStyle}: {
   userId: string,
   postId?: string,
   initialLimit?: number,
@@ -49,8 +50,8 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
   showTotal?: boolean,
   silentIfEmpty?: boolean,
   sectionTitleStyle?: boolean
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { linkedCommentId } = useCommentLinkState();
 
   // Usually, there will be no linked comment (`?commentId=...` in the url), and the rawResults below

@@ -8,6 +8,7 @@ import { ALL_COOKIES, ONLY_NECESSARY_COOKIES } from "../../../lib/cookies/utils"
 import CookieDialog from "./CookieDialog";
 import { Typography } from "../Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("CookieBanner", (theme: ThemeType) => ({
   bannerContainer: {
@@ -73,7 +74,8 @@ const styles = defineStyles("CookieBanner", (theme: ThemeType) => ({
   }
 }));
 
-const CookieBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const CookieBanner = () => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const { updateCookiePreferences } = useCookiePreferences();
   

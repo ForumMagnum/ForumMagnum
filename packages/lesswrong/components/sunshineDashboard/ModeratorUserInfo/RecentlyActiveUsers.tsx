@@ -23,6 +23,7 @@ import Row from "../../common/Row";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserRecentlyActiveUsersQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -136,9 +137,8 @@ const styles = defineStyles('RecentlyActiveUsers', (theme: ThemeType) => ({
 type SortingType = "lastNotificationsCheck"|"last20Karma"|"downvoters"|"karma"|"lastMonthKarma"|"userSortByRateLimitCount";
 
 
-const RecentlyActiveUsers = ({ classes }: {
-  classes: ClassesType<typeof styles>
-}) => {
+const RecentlyActiveUsers = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const [expandId, setExpandId] = useState<string|null>(null);

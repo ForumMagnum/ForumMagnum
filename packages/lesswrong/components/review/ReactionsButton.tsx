@@ -7,6 +7,7 @@ import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import CheckIcon from '@/lib/vendor/@material-ui/icons/src/Check';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ReactionsButton", (theme: ThemeType) => ({
   root: {
@@ -38,7 +39,8 @@ const styles = defineStyles("ReactionsButton", (theme: ThemeType) => ({
 }))
 
 
-const ReactionsButton = ({classes, postId, vote, votes, reaction, freeEntry }: {classes: ClassesType<typeof styles>, postId: string, vote: any, votes: SyntheticReviewVote[], reaction: string, freeEntry: boolean}) => {
+const ReactionsButton = ({postId, vote, votes, reaction, freeEntry}: {postId: string, vote: any, votes: SyntheticReviewVote[], reaction: string, freeEntry: boolean}) => {
+  const classes = useStyles(styles);
   const voteForCurrentPost = votes.find(vote => vote.postId === postId)
   // TODO: This component is unused, except in ReviewVotingPage2019. Cast to any
   // here is a way to make a minimally invasive fix.

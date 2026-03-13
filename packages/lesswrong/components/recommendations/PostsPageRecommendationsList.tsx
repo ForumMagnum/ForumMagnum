@@ -13,6 +13,7 @@ import RecommendationsList from "./RecommendationsList";
 import PostsPageRecommendationItem from "./PostsPageRecommendationItem";
 import PostsLoading from "../posts/PostsLoading";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PADDING = (MAX_COLUMN_WIDTH - CENTRAL_COLUMN_WIDTH) / 4;
 const COUNT = 3;
@@ -43,21 +44,14 @@ const styles = defineStyles("PostsPageRecommendationsList", (theme: ThemeType) =
   }
 }));
 
-const PostsPageRecommendationsList = ({
-  title = "More posts like this",
-  strategy = "moreFromTag",
-  bias,
-  features,
-  forceLoggedOutView,
-  classes,
-}: {
+const PostsPageRecommendationsList = ({title = "More posts like this", strategy = "moreFromTag", bias, features, forceLoggedOutView}: {
   title?: string,
   strategy?: RecommendationStrategyName,
   bias?: number,
   features?: WeightedFeature[],
   forceLoggedOutView?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const post = usePostsPageContext()?.fullPost;
   if (!post) {
     return null;

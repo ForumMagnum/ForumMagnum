@@ -12,6 +12,7 @@ import { MenuItem } from "../common/Menus";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserReviews2019($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -41,9 +42,8 @@ const styles = defineStyles('Reviews2019', (theme: ThemeType) => ({
   }
 }))
 
-const Reviews2019 = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const Reviews2019 = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [expandUnread, setExpandUnread] = useState(!!(currentUser ? !currentUser.noExpandUnreadCommentsReview : true));
   const [sortNominatedPosts, setSortNominatedPosts] = useState("fewestReviews")

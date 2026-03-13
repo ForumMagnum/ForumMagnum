@@ -7,6 +7,7 @@ import AFSuggestUsersItem from "./AFSuggestUsersItem";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SuggestAlignmentUserMultiQuery = gql(`
   query multiUserAFSuggestUsersListQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -25,9 +26,8 @@ const styles = defineStyles('AFSuggestUsersList', (theme: ThemeType) => ({
   }
 }))
 
-const AFSuggestUsersList = ({ classes }: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const AFSuggestUsersList = () => {
+  const classes = useStyles(styles);
   const { data, loadMoreProps } = useQueryWithLoadMore(SuggestAlignmentUserMultiQuery, {
     variables: {
       selector: { alignmentSuggestedUsers: {} },

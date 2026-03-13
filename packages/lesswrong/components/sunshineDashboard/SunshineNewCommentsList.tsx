@@ -5,6 +5,7 @@ import SunshineListTitle from "./SunshineListTitle";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentSunshineNewCommentsListQuery($selector: CommentSelector, $limit: Int) {
@@ -22,10 +23,10 @@ const styles = defineStyles('SunshineNewCommentsList', (theme: ThemeType) => ({
   }
 }))
 
-const SunshineNewCommentsList = ({ terms, classes }: {
+const SunshineNewCommentsList = ({terms}: {
   terms: CommentsViewTerms,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { view, limit, ...selectorTerms } = terms;
   const { data } = useQuery(CommentsListWithParentMetadataMultiQuery, {
     variables: {

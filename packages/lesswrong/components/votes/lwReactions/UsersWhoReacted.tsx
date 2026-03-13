@@ -4,6 +4,7 @@ import type { UserReactInfo } from '../../../lib/voting/namesAttachedReactions';
 import classNames from 'classnames';
 import LWTooltip from "../../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('UsersWhoReacted', (theme: ThemeType) => ({
   usersWhoReactedRoot: {
@@ -25,12 +26,13 @@ const styles = defineStyles('UsersWhoReacted', (theme: ThemeType) => ({
   },
 }))
 
-const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true, classes}: {
+const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true}: {
   reactions: UserReactInfo[],
   wrap?: boolean,
   showTooltip?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   if (reactions.length === 0) return null;
 
   const usersWhoProReacted = reactions.filter(r=>r.reactType!=="disagreed")

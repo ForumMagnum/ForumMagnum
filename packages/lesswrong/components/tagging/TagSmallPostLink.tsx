@@ -8,6 +8,7 @@ import UsersName from "../users/UsersName";
 import MetaInfo from "../common/MetaInfo";
 import KarmaDisplay from "../common/KarmaDisplay";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("TagSmallPostLink", (theme: ThemeType) => ({
   root: {
@@ -54,8 +55,7 @@ const styles = defineStyles("TagSmallPostLink", (theme: ThemeType) => ({
   }
 }));
 
-const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpacing, disableHoverPreview}: {
-  classes: ClassesType<typeof styles>,
+const TagSmallPostLink = ({post, hideMeta, hideAuthor, wrap, widerSpacing, disableHoverPreview}: {
   post: PostsList,
   hideMeta?: boolean,
   hideAuthor?: boolean,
@@ -63,6 +63,8 @@ const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpaci
   widerSpacing?: boolean
   disableHoverPreview?: boolean
 }) => {
+  const classes = useStyles(styles);
+
   return (
     <PostsTooltip post={post} clickable={false} placement="bottom-start" disabled={disableHoverPreview}>
       <div className={classNames(classes.root, {[classes.widerSpacing]: widerSpacing})}>

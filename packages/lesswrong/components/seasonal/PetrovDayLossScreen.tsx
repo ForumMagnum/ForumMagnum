@@ -4,6 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { petrovPostIdSetting } from '@/lib/instanceSettings';
 import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
@@ -34,9 +35,9 @@ const styles = defineStyles('PetrovDayLossScreen', (theme: ThemeType) => ({
   }
 }), { allowNonThemeColors: true })
 
-const PetrovDayLossScreen = ({classes}: {
-  classes: ClassesType<typeof styles>;
-}) => {
+const PetrovDayLossScreen = () => {
+  const classes = useStyles(styles);
+
   return (
     <div className={classes.root}>
       <Typography variant="display3" className={classes.title}>

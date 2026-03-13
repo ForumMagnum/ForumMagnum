@@ -11,6 +11,7 @@ import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const UserVotesWithDocumentMultiQuery = gql(`
   query multiVoteVoteHistoryTabQuery($selector: VoteSelector, $limit: Int, $enableTotal: Boolean) {
@@ -49,7 +50,8 @@ const styles = defineStyles('VoteHistoryTab', (theme: ThemeType) => ({
   },
 }))
 
-const VoteHistoryTab = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const VoteHistoryTab = () => {
+  const classes = useStyles(styles);
   const defaultLimit = 10;
   const pageSize = 30;
 
@@ -117,7 +119,4 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType<typeof styles>}) => {
   </AnalyticsContext>
 }
 
-
-export default registerComponent('VoteHistoryTab', VoteHistoryTab, {styles});
-
-
+export default VoteHistoryTab;

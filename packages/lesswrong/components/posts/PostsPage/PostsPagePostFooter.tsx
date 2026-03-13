@@ -17,6 +17,7 @@ import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { postBottomSecondaryVotingComponents } from '@/lib/voting/votingSystemComponents';
 import type { VotingSystemName } from '@/lib/voting/votingSystemNames';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("PostsPagePostFooter", (theme: ThemeType) => ({
   footerSection: {
@@ -83,11 +84,11 @@ const styles = defineStyles("PostsPagePostFooter", (theme: ThemeType) => ({
   }
 }));
 
-const PostsPagePostFooter = ({post, sequenceId, classes}: {
+const PostsPagePostFooter = ({post, sequenceId}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   sequenceId: string|null,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const votingSystemName = (post.votingSystem || "default") as VotingSystemName;
   const votingSystem = getVotingSystemByName(votingSystemName);
   const wordCount = post.contents?.wordCount || 0

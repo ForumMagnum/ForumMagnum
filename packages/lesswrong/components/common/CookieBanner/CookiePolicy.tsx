@@ -7,6 +7,7 @@ import CookieDialog from "./CookieDialog";
 import { Typography } from "../Typography";
 import CookieTable from "./CookieTable";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PADDING = 15;
 
@@ -70,7 +71,8 @@ const ExternalLink: FC<PropsWithChildren<{ href: string }>> = ({ href, children 
   </a>
 );
 
-const CookiePolicy = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const CookiePolicy = () => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
 
   const uniqueNecessaryThirdParties = [

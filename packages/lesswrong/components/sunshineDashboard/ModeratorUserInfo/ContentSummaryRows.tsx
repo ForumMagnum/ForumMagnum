@@ -11,6 +11,7 @@ import Loading from "../../vulcan-core/Loading";
 import Row from "../../common/Row";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ContentSummaryRows', (theme: ThemeType) => ({
   contentSummaryRow: {
@@ -50,13 +51,13 @@ const styles = defineStyles('ContentSummaryRows', (theme: ThemeType) => ({
   }
 }));
 
-export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
-  classes: ClassesType<typeof styles>,
+export const ContentSummaryRows = ({comments, posts, user, loading}: {
   comments: CommentsListWithParentMetadata[],
   posts: SunshinePostsList[],
   user: SunshineUsersList,
   loading: boolean
 }) => {
+  const classes = useStyles(styles);
   const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("postedAt")
   const [contentDisplay, setContentDisplay] = useState<'titles' | 'karma'>("karma")
 

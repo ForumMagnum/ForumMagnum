@@ -6,6 +6,7 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import ShortformThreadList from "./ShortformThreadList";
 import SectionTitle from "../common/SectionTitle";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ShortformPage', (theme: ThemeType) => ({
   column: {
@@ -14,9 +15,9 @@ const styles = defineStyles('ShortformPage', (theme: ThemeType) => ({
   }
 }))
 
-const ShortformPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const ShortformPage = () => {
+  const classes = useStyles(styles);
+
   return (
     <SingleColumnSection>
       <div className={classes.column}>

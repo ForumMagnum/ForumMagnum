@@ -3,6 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PostsItemComments', (theme: ThemeType) => ({
   commentsIconSmall: {
@@ -62,14 +63,14 @@ const styles = defineStyles('PostsItemComments', (theme: ThemeType) => ({
   },
 }))
 
-const PostsItemComments = ({ commentCount, small, onClick, unreadComments, newPromotedComments, classes }: {
+const PostsItemComments = ({commentCount, small, onClick, unreadComments, newPromotedComments}: {
   commentCount: number,
   small: boolean,
   onClick?: () => void,
   unreadComments: boolean,
   newPromotedComments: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   let unreadCommentsClass =  classes.noUnreadComments
   if (unreadComments) { unreadCommentsClass = classes.unreadComments }
   if (newPromotedComments) { unreadCommentsClass = classes.unreadComments }

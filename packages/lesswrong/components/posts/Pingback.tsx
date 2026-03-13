@@ -6,6 +6,7 @@ import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
 import KarmaDisplay from "../common/KarmaDisplay";
 import PostsTitle from "./PostsTitle";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("Pingback", (_theme: ThemeType) => ({
   root: {
@@ -18,10 +19,11 @@ const styles = defineStyles("Pingback", (_theme: ThemeType) => ({
   }
 }));
 
-const Pingback = ({classes, post}: {
-  classes: ClassesType<typeof styles>,
+const Pingback = ({post}: {
   post: PostsList,
 }) => {
+  const classes = useStyles(styles);
+
   return (
     <div className={classes.root}>
       <PostsItem2MetaInfo className={classes.karma}>

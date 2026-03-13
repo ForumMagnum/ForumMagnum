@@ -9,6 +9,7 @@ import UsersNameWithModal from "../ultraFeed/UsersNameWithModal";
 import UserNameDeleted from "../users/UserNameDeleted";
 import UserCommentMarkers from "../users/UserCommentMarkers";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("PostsUserAndCoauthors", (theme: ThemeType) => ({
   lengthLimited: {
@@ -48,21 +49,9 @@ const styles = defineStyles("PostsUserAndCoauthors", (theme: ThemeType) => ({
   },
 }));
 
-const PostsUserAndCoauthors = ({
-  post,
-  abbreviateIfLong=false,
-  classes,
-  simple=false,
-  tooltipPlacement="left",
-  newPromotedComments,
-  showMarkers,
-  useUltraFeedModal=false,
-  compact=false,
-  showSubscribedIcon=false,
-}: {
+const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, simple=false, tooltipPlacement="left", newPromotedComments, showMarkers, useUltraFeedModal=false, compact=false, showSubscribedIcon=false}: {
   post: PostsList | SunshinePostsList,
   abbreviateIfLong?: boolean,
-  classes: ClassesType<typeof styles>,
   simple?: boolean,
   tooltipPlacement?: PopperPlacementType,
   newPromotedComments?: boolean,
@@ -71,6 +60,7 @@ const PostsUserAndCoauthors = ({
   compact?: boolean,
   showSubscribedIcon?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const {isAnon, topCommentAuthor, authors} = usePostsUserAndCoauthors(post);
   const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersName;
   if (isAnon)

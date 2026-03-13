@@ -2,6 +2,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { SunshineNewUserPostItem } from "./SunshineNewUserPostItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('SunshineNewUserPostsList', (theme: ThemeType) => ({
   row: {
@@ -69,11 +70,12 @@ const styles = defineStyles('SunshineNewUserPostsList', (theme: ThemeType) => ({
 }))
 
 
-const SunshineNewUserPostsList = ({posts, user, classes}: {
+const SunshineNewUserPostsList = ({posts, user}: {
   posts?: SunshinePostsList[],
-  classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
+  const classes = useStyles(styles);
+
   // Calculate newPosts early for rendering
   const newPosts = React.useMemo(() => {
     if (!posts) return [];

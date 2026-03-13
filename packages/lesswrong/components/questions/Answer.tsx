@@ -26,6 +26,7 @@ import CommentBottom from "../comments/CommentsItem/CommentBottom";
 import CommentsNewForm from "../comments/CommentsNewForm";
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('Answer', (theme: ThemeType) => ({
   root: {
@@ -144,12 +145,12 @@ const styles = defineStyles('Answer', (theme: ThemeType) => ({
   },
 }))
 
-const Answer = ({ comment, post, childComments, classes }: {
+const Answer = ({comment, post, childComments}: {
   comment: CommentsList,
   post: PostsList,
   childComments: CommentTreeNode<CommentsList>[],
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [showEdit,setShowEdit] = useState(false);
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
   const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper

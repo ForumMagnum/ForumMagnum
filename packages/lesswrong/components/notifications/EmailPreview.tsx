@@ -1,6 +1,7 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('EmailPreview', (theme: ThemeType) => ({
   emailPreview: {
@@ -24,11 +25,11 @@ const styles = defineStyles('EmailPreview', (theme: ThemeType) => ({
   },
 }));
 
-export const EmailPreview = ({email, sentDate, classes}: {
+export const EmailPreview = ({email, sentDate}: {
   email: EmailPreview,
   sentDate?: Date,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
 
   return <div className={classes.emailPreview}>
     <p>{""+sentDate}</p>

@@ -10,6 +10,7 @@ import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
 import LWTooltip from "../common/LWTooltip";
 import TimeTag from "../common/TimeTag";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
@@ -62,20 +63,24 @@ const styles = defineStyles("PostsItemDate", (theme: ThemeType) => ({
   },
 }));
 
-const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfNew, classes}: {
+const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfNew}: {
   post: PostsBase,
   noStyles?: boolean,
   includeAgo?: boolean,
   useCuratedDate?: boolean,
   emphasizeIfNew?: boolean,
-  classes: Partial<ClassesType<typeof styles>>,
 }) => {
-  if (noStyles) {
-    classes = {
-      tooltipSmallText: classes.tooltipSmallText,
-      xsHide: classes.xsHide,
-    };
-  }
+  const baseClasses = useStyles(styles);
+  const classes = noStyles
+    ? {
+      ...baseClasses,
+      postedAt: '',
+      isNew: '',
+      startTime: '',
+      tooltipSmallText: baseClasses.tooltipSmallText,
+      xsHide: baseClasses.xsHide,
+    }
+    : baseClasses;
 
   const now = useCurrentTime();
   if (post.isEvent && post.startTime) {

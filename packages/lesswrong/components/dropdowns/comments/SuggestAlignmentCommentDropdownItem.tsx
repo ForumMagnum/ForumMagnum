@@ -11,6 +11,7 @@ import { gql } from "@/lib/generated/gql-codegen/gql";
 import uniq from 'lodash/uniq';
 import without from 'lodash/without';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SuggestAlignmentCommentUpdateMutation = gql(`
   mutation updateCommentSuggestAlignmentCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -45,11 +46,11 @@ const styles = defineStyles('SuggestAlignmentCommentDropdownItem', (theme: Theme
   }
 }))
 
-const SuggestAlignmentCommentDropdownItem = ({ comment, post, classes }: {
+const SuggestAlignmentCommentDropdownItem = ({comment, post}: {
   comment: CommentsList,
   post?: PostsDetails,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [updateComment] = useMutation(SuggestAlignmentCommentUpdateMutation);
 

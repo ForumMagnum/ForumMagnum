@@ -8,6 +8,7 @@ import classNames from 'classnames';
 import ForumIcon from "../common/ForumIcon";
 import FormatDate from "../common/FormatDate";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('UserMetaInfo', (theme: ThemeType) => ({
   root: {
@@ -49,17 +50,7 @@ const styles = defineStyles('UserMetaInfo', (theme: ThemeType) => ({
   }
 }));
 
-export const UserMetaInfo = ({
-  user,
-  hideAfKarma,
-  hideWikiContribution,
-  hidePostCount,
-  hideCommentCount,
-  omegaAlignment = "legacy",
-  hideInfoOnSmallScreen,
-  infoClassName,
-  classes,
-}: {
+export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hidePostCount, hideCommentCount, omegaAlignment = "legacy", hideInfoOnSmallScreen, infoClassName}: {
   user: UsersMinimumInfo,
   hideAfKarma?: boolean,
   hideWikiContribution?: boolean,
@@ -68,8 +59,8 @@ export const UserMetaInfo = ({
   omegaAlignment?: "legacy" | "inline",
   hideInfoOnSmallScreen?: boolean,
   infoClassName?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { createdAt, karma, afKarma, postCount, commentCount, tagRevisionCount: wikiContributionCount } = user;
 
   const infoClasses = classNames(infoClassName, classes.info);

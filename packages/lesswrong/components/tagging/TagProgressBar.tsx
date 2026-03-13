@@ -12,6 +12,7 @@ import LWTooltip from "../common/LWTooltip";
 import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
 import SeparatorBullet from "../common/SeparatorBullet";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const progressBarRoot = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.default,
@@ -78,9 +79,8 @@ const styles = defineStyles("TagProgressBar", (theme: ThemeType) => ({
 
 }));
 
-const TagProgressBar = ({ classes }: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const TagProgressBar = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const { openDialog } = useDialog();

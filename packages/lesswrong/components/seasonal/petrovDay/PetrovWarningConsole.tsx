@@ -8,6 +8,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { inWarningWindow } from '@/lib/collections/petrovDayActions/helpers';
 import { STARTING_MINUTE } from '@/lib/collections/petrovDayActions/constants';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PetrovDayActionInfoMultiQuery = gql(`
   query multiPetrovDayActionPetrovWarningConsoleQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -51,11 +52,11 @@ const styles = defineStyles('PetrovWarningConsole', (theme: ThemeType) => ({
   }
 }));
 
-export const PetrovWarningConsole = ({classes, currentUser, side}: {
-  classes: ClassesType<typeof styles>,
+export const PetrovWarningConsole = ({currentUser, side}: {
   currentUser: UsersCurrent,
   side: 'east' | 'west'
 }) => {
+  const classes = useStyles(styles);
   const { data: dataPetrovDayActionInfo, refetch: refetchPetrovDayActions } = useQuery(PetrovDayActionInfoMultiQuery, {
     variables: {
       selector: { warningConsole: { side: side } },

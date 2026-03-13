@@ -3,6 +3,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('SidebarInfo', (theme: ThemeType) => ({
   root: {
@@ -14,11 +15,12 @@ const styles = defineStyles('SidebarInfo', (theme: ThemeType) => ({
   }
 }))
 
-const SidebarInfo = ({children, classes, className}: {
+const SidebarInfo = ({children, className}: {
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
   className?: string,
 }) => {
+  const classes = useStyles(styles);
+
   return <Typography
     component='span'
     className={classNames(classes.root, className)}

@@ -7,6 +7,7 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection from "../common/SingleColumnSection";
 import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('BannedNotice', (theme: ThemeType) => ({
   root: {
@@ -19,9 +20,9 @@ const styles = defineStyles('BannedNotice', (theme: ThemeType) => ({
   },
 }));
 
-const BannedNotice = ({classes}: {
-  classes: ClassesType<typeof styles>
-}) => {
+const BannedNotice = () => {
+  const classes = useStyles(styles);
+
   return <SingleColumnSection>
     <div className={classes.root}>
       <Typography variant='body2' gutterBottom>

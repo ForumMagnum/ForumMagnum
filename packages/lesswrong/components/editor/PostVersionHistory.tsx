@@ -128,11 +128,11 @@ const styles = defineStyles("PostVersionHistoryButton", (theme: ThemeType) => ({
   }
 }));
 
-const PostVersionHistoryButton = ({post, postId, classes}: {
+const PostVersionHistoryButton = ({post, postId}: {
   post: PostsBase,
   postId: string,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking()
   return <EAButton

@@ -9,6 +9,8 @@ import LWTooltip from '../common/LWTooltip';
 import ForumIcon from '../common/ForumIcon';
 import { BookmarkableCollectionName } from '@/lib/collections/bookmarks/constants';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
+
 const styles = defineStyles('BookmarkButton', (theme: ThemeType) => ({
   container: {
     cursor: "pointer",
@@ -35,16 +37,7 @@ const styles = defineStyles('BookmarkButton', (theme: ThemeType) => ({
 }))
 
 
-const BookmarkButton = ({
-  documentId,
-  collectionName,
-  initial,
-  withText,
-  placement="right",
-  overrideTooltipText,
-  className,
-  classes,
-}: {
+const BookmarkButton = ({documentId, collectionName, initial, withText, placement="right", overrideTooltipText, className}: {
   documentId: string,
   collectionName: BookmarkableCollectionName,
   initial?: boolean,
@@ -52,8 +45,8 @@ const BookmarkButton = ({
   placement?: PopperPlacementType,
   overrideTooltipText?: string,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {icon, labelText, hoverText, toggleBookmark} = useBookmark(documentId, collectionName, initial);
   const Component = withText ? "a" : "span";
   return (

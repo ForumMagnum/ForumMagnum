@@ -8,7 +8,7 @@ import UsersNameDisplay from "../users/UsersNameDisplay";
 import Loading from "../vulcan-core/Loading";
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
-
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagFullContributorsListQuery = gql(`
   query TagContributorsList($documentId: String) {
@@ -53,11 +53,11 @@ const styles = defineStyles("TagContributorsList", (theme: ThemeType) => ({
   },
 }));
 
-const TagContributorsList = ({tag, onHoverUser, classes}: {
+const TagContributorsList = ({tag, onHoverUser}: {
   tag: TagPageFragment|TagPageWithRevisionFragment,
   onHoverUser?: (userId: string|null) => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [expandLoadMore,setExpandLoadMore] = useState(false);
   
   const { loading: loadingMore, data } = useQuery(TagFullContributorsListQuery, {

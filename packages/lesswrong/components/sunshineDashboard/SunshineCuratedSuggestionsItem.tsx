@@ -22,6 +22,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum } from '@/lib/instanceSettings';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineCurationPostsListUpdateMutation = gql(`
   mutation updatePostSunshineCuratedSuggestionsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -56,11 +57,11 @@ const styles = defineStyles('SunshineCuratedSuggestionsItem', (theme: ThemeType)
   },
 }));
 
-const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
-  classes: ClassesType<typeof styles>,
+const SunshineCuratedSuggestionsItem = ({post, setCurationPost}: {
   post: SunshineCurationPostsList,
   setCurationPost?: (post: SunshineCurationPostsList) => void,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();
   const [updatePost] = useMutation(SunshineCurationPostsListUpdateMutation);

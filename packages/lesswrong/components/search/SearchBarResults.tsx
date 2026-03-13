@@ -12,6 +12,7 @@ import UsersSearchHit from "./UsersSearchHit";
 import TagsSearchHit from "./TagsSearchHit";
 import CommentsSearchHit from "./CommentsSearchHit";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("SearchBarResults", (theme: ThemeType) => ({
   root: {
@@ -75,14 +76,14 @@ const styles = defineStyles("SearchBarResults", (theme: ThemeType) => ({
   },
 }))
 
-const SearchBarResults = ({closeSearch, currentQuery, classes}: {
+const SearchBarResults = ({closeSearch, currentQuery}: {
   closeSearch: () => void,
   currentQuery: string,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const searchTypes: Array<{
     type: SearchIndexCollectionName;
-    Component: React.ComponentType<Omit<SearchHitComponentProps, "classes">>;
+    Component: React.ComponentType<SearchHitComponentProps>;
   }> = [
     { type: "Users", Component: UsersSearchHit },
     { type: "Posts", Component: PostsSearchHit },
