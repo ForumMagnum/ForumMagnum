@@ -9,6 +9,7 @@ import Book2019Animation from "./Book2019Animation";
 import LWTooltip from "../common/LWTooltip";
 import ContentStyles from "../common/ContentStyles";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
 
@@ -251,7 +252,8 @@ const styles = defineStyles('Book2019Landing', (theme: ThemeType) => ({
   }
 }))
 
-const HiddenQuote = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const HiddenQuote = () => {
+  const classes = useStyles(styles);
   return (
     <div className={classes.mainQuoteContainer}>
       <div className={classes.mainQuote}>
@@ -271,7 +273,7 @@ const Book2019Landing = ({classes}: {classes: ClassesType<typeof styles>}) => {
     <div>
       <div className={classes.bookAnimationContainer}>
         <Book2019Animation >
-          <HiddenQuote classes={classes} />
+          <HiddenQuote />
         </Book2019Animation>
       </div>
       <div className={classes.wrapper}>

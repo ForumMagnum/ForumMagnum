@@ -26,6 +26,7 @@ import {
   subscribedSequenceQuery
 } from './subscriptionQueries';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ViewSubscriptionsPage", (theme: ThemeType) => ({
   noSubscriptions: {
@@ -40,10 +41,10 @@ const styles = defineStyles("ViewSubscriptionsPage", (theme: ThemeType) => ({
   },
 }));
 
-const NoSubscriptionsMessage = ({currentUser, classes}: {
+const NoSubscriptionsMessage = ({currentUser}: {
   currentUser: UsersCurrent,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const context = useCountItemsContext();
   const itemCount = context?.items.current ?? 0;
   if (itemCount > 0) {
@@ -60,10 +61,11 @@ const NoSubscriptionsMessage = ({currentUser, classes}: {
   );
 }
 
-const ViewSubscriptionsList = ({currentUser, classes}: {
+const ViewSubscriptionsList = ({currentUser}: {
   currentUser: UsersCurrent,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return (
     <SingleColumnSection>
       {userHasSubscribeTabFeed(currentUser) &&
@@ -188,14 +190,12 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
         subscriptionTypeDescription="You will be notified when new posts are added to these sequences"
       />}
 
-      <NoSubscriptionsMessage currentUser={currentUser} classes={classes} />
+      <NoSubscriptionsMessage currentUser={currentUser} />
     </SingleColumnSection>
   );
 }
 
-const ViewSubscriptionsPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const ViewSubscriptionsPage = () => {
   const currentUser = useCurrentUser();
 
   if (!currentUser) {
@@ -206,7 +206,7 @@ const ViewSubscriptionsPage = ({classes}: {
 
   return (
     <CountItemsContextProvider>
-      <ViewSubscriptionsList currentUser={currentUser} classes={classes} />
+      <ViewSubscriptionsList currentUser={currentUser} />
     </CountItemsContextProvider>
   );
 }

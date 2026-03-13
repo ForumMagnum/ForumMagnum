@@ -17,6 +17,7 @@ import { Typography } from "../../common/Typography";
 import LWTooltip from "../../common/LWTooltip";
 import SectionTitle from "../../common/SectionTitle";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ContentType', (theme: ThemeType) => ({
   root: {
@@ -257,12 +258,12 @@ export const getContentTypes = (): ForumOptions<ContentTypeRecord> => {
   }
 };
 
-const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType<typeof styles>, className?: string}>> = ({
-  classes,
+const ContentTypeWrapper: FC<PropsWithChildren<{className?: string}>> = ({
   className,
   children,
-}) =>
-  isFriendlyUI()
+}) => {
+  const classes = useStyles(styles);
+  return isFriendlyUI()
     ? <>{children}</>
     : <Typography
       variant="body1"
@@ -271,6 +272,7 @@ const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType<typeof styl
     >
         {children}
     </Typography>;
+};
 
 const ContentType = ({classes, className, type, label}: {
   classes: ClassesType<typeof styles>,
@@ -293,7 +295,7 @@ const ContentType = ({classes, className, type, label}: {
     </span>;
 
   return (
-    <ContentTypeWrapper className={className} classes={classes}>
+    <ContentTypeWrapper className={className}>
       {contentData.tooltipTitle ? (
         <LWTooltip
           title={

@@ -17,6 +17,7 @@ import { makeEditorConfig } from '../editor/editorConfigs';
 import { userHasLexicalEditor } from '../editor/Editor';
 import LexicalEditor from '../editor/LexicalEditor';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostExternalPostImporter($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -147,17 +148,12 @@ const styles = defineStyles('ExternalPostImporter', (theme: ThemeType) => ({
   },
 }));
 
-const ImportedPostEditor = ({
-  post,
-  onContentChange,
-  classes,
-  useLexical,
-}: {
+const ImportedPostEditor = ({post, onContentChange, useLexical}: {
   post: ExternalPostImportData['post'];
   onContentChange: (updatedContent: string) => void;
-  classes: ClassesType<typeof styles>;
   useLexical: boolean;
 }) => {
+  const classes = useStyles(styles);
   const [editorValue, setEditorValue] = useState<string>(post.content || '');
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
   const editorRef = useRef<any>(null);
@@ -199,17 +195,12 @@ const ImportedPostEditor = ({
   );
 };
 
-const CommentEditor = ({
-  onPublish,
-  onCancel,
-  classes,
-  useLexical,
-}: {
+const CommentEditor = ({onPublish, onCancel, useLexical}: {
   onPublish: (commentContent: string) => void;
   onCancel: () => void;
-  classes: ClassesType<typeof styles>;
   useLexical: boolean;
 }) => {
+  const classes = useStyles(styles);
   const [commentValue, setCommentValue] = useState<string>('');
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
   const editorRef = useRef<any>(null);
@@ -446,7 +437,6 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
           <ImportedPostEditor
             post={post}
             onContentChange={setPostContent}
-            classes={classes}
             useLexical={editorType === 'lexical'}
           />
           <Typography variant="body2">
@@ -456,7 +446,6 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
           <CommentEditor
             onPublish={handlePublish}
             onCancel={handleImportDifferentPost}
-            classes={classes}
             useLexical={editorType === 'lexical'}
           />
           {publishingPost && <Loading />}

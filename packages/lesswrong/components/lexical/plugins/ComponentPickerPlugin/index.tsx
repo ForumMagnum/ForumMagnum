@@ -114,21 +114,15 @@ class ComponentPickerOption extends MenuOption {
   }
 }
 
-function ComponentPickerMenuItem({
-  index,
-  isSelected,
-  onClick,
-  onMouseEnter,
-  option,
-  classes,
-}: {
+function ComponentPickerMenuItem({index, isSelected, onClick, onMouseEnter, option}: {
   index: number;
   isSelected: boolean;
   onClick: () => void;
   onMouseEnter: () => void;
   option: ComponentPickerOption;
-  classes: Record<string, string>;
 }) {
+  const classes = useStyles(styles);
+
   return (
     <li
       key={option.key}
@@ -381,7 +375,6 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
                         }}
                         key={option.key}
                         option={option}
-                        classes={classes}
                       />
                     ))}
                   </ul>

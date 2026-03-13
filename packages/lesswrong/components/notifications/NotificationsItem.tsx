@@ -17,6 +17,7 @@ import TagRelNotificationItem from "./TagRelNotificationItem";
 import { onsiteHoverViewComponents } from '@/lib/notificationTypeComponents';
 import { getNotificationIconByNotificationName } from './notificationIcons';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('NotificationsItem', (theme: ThemeType) => ({
   root: {
@@ -76,8 +77,9 @@ const tooltipProps = {
 const TooltipWrapper: FC<{
   title: ReactNode,
   children: ReactNode,
-  classes: ClassesType<typeof styles>,
-}> = ({title, children, classes}) => {
+}> = ({title, children}) => {
+  const classes = useStyles(styles);
+
   return (
     <LWTooltip
       {...tooltipProps}
@@ -95,11 +97,11 @@ const TooltipWrapper: FC<{
   );
 }
 
-const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
+const NotificationsItem = ({notification, lastNotificationsCheck}: {
   notification: NotificationsList,
   lastNotificationsCheck: any,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [clicked,setClicked] = useState(false);
   const { captureEvent } = useTracking();
   const navigate = useNavigate();
@@ -121,7 +123,6 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
       return (
         <TooltipWrapper
           title={<OnsiteHoverView notification={notification}/>}
-          classes={classes}
         >
           {children}
         </TooltipWrapper>
@@ -132,7 +133,6 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
       return (
         <TooltipWrapper
           title={<PostNominatedNotification postId={documentId}/>}
-          classes={classes}
         >
           {children}
         </TooltipWrapper>
@@ -182,7 +182,6 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
         return (
           <TooltipWrapper
             title={<ConversationPreview conversationId={parsedPath?.query?.conversation} messageId={documentId} count={1} />}
-            classes={classes}
           >
             {children}
           </TooltipWrapper>
@@ -194,7 +193,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
     return (
       <>{children}</>
     );
-  }, [classes, notification, notificationLink, notificationType, documentId]);
+  }, [notification, notificationLink, notificationType, documentId]);
 
   const renderMessage = () => {
     switch (notification.documentType) {
@@ -257,7 +256,6 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
 }
 
 export default registerComponent('NotificationsItem', NotificationsItem, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

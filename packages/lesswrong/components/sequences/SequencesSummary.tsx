@@ -14,6 +14,7 @@ import LWTooltip from "../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ChaptersFragmentMultiQuery = gql(`
   query multiChapterSequencesSummaryQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {
@@ -78,8 +79,9 @@ const SequenceMeta: FC<{
   user?: UsersMinimumInfo,
   postCount: number,
   wordCountNode: ReactNode,
-  classes: ClassesType<typeof styles>,
-}> = ({user, postCount, wordCountNode, classes}) => {
+}> = ({user, postCount, wordCountNode}) => {
+  const classes = useStyles(styles);
+
   return isFriendlyUI()
     ? (
       <div className={classes.author}>
@@ -97,13 +99,13 @@ const SequenceMeta: FC<{
     );
 }
 
-const SequencePosts = ({sequence, chapters, maxPosts, totalPosts, classes}: {
+const SequencePosts = ({sequence, chapters, maxPosts, totalPosts}: {
   sequence: SequenceSummaryFragment,
   chapters: ChaptersFragment[],
   maxPosts: number,
   totalPosts: number,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   let postsRendered = 0;
   const nodes: ReactNode[] = [];
   for (let i = 0; i < chapters.length && postsRendered < maxPosts; i++) {
@@ -178,7 +180,6 @@ export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}:
         user={sequence?.user}
         postCount={sequence?.postsCount ?? 0}
         wordCountNode={wordCountNode}
-        classes={classes}
       />
     }
     {!isFriendlyUI() &&
@@ -202,7 +203,6 @@ export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}:
         chapters={chapters}
         maxPosts={maxPosts}
         totalPosts={posts.length}
-        classes={classes}
       />
     }
     {!isFriendlyUI() && wordCountNode}

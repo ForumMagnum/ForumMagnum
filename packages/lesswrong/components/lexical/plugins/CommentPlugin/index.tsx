@@ -542,19 +542,13 @@ const rejectSuggestionThread = (editor: LexicalEditor, thread: Thread) => {
  * Permission checks determine which buttons are shown.
  * Derives permissions from the CollaboratorIdentityContext.
  */
-function SuggestionStatusOrActions({
-  status,
-  suggestionAuthorId,
-  onAccept,
-  onReject,
-  classes,
-}: {
+function SuggestionStatusOrActions({status, suggestionAuthorId, onAccept, onReject}: {
   status: 'open' | 'accepted' | 'rejected' | 'archived';
   suggestionAuthorId: string | undefined;
   onAccept: () => void;
   onReject: () => void;
-  classes: Record<string, string>;
 }): JSX.Element | null {
+  const classes = useStyles(styles);
   const { accessLevel } = useCollaboratorIdentity();
   const canRejectSuggestion = useCanRejectSuggestion();
   
@@ -1269,7 +1263,6 @@ function CommentsPanelList({
                         suggestionAuthorId={suggestionSummaryComment?.authorId}
                         onAccept={() => acceptSuggestionThread(editor, commentOrThread)}
                         onReject={() => rejectSuggestionThread(editor, commentOrThread)}
-                        classes={classes}
                       />
                     </div>
                   </>

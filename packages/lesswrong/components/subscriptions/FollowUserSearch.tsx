@@ -14,6 +14,7 @@ import FormatDate from "../common/FormatDate";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionFollowUserSearchQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -62,7 +63,8 @@ const styles = defineStyles("FollowUserSearch", (theme: ThemeType) => ({
   }
 }));
 
-const FollowUserSearchHit = ({hit, clickAction, existingSubscriptionIds, classes }: SearchHitComponentProps & {existingSubscriptionIds?: string[]}) => {
+const FollowUserSearchHit = ({hit, clickAction, existingSubscriptionIds }: Omit<SearchHitComponentProps, 'classes'> & {existingSubscriptionIds?: string[]}) => {
+  const classes = useStyles(styles);
   const user = hit as SearchUser
   
   const isSubscribed = existingSubscriptionIds?.includes(user._id);
@@ -169,7 +171,6 @@ const FollowUserSearch = ({onUserSelected, currentUser, classes}: {
           hit={hit}
           clickAction={() => handleSelectUser(hit)}
           existingSubscriptionIds={existingSubscriptionIds}
-          classes={classes}
         />
       }/>
     </InstantSearch>

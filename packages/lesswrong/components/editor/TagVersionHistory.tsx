@@ -20,6 +20,7 @@ import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 import LWTooltip from "../common/LWTooltip";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
   query multiRevisionTagVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -99,7 +100,6 @@ const TagVersionHistoryButton = ({tagId, classes}: {
         contents: ({onClose}) => <TagVersionHistory
           onClose={onClose}
           tagId={tagId}
-          classes={classes}
         />
       })
     }}
@@ -108,11 +108,11 @@ const TagVersionHistoryButton = ({tagId, classes}: {
   </Button>
 }
 
-const TagVersionHistory = ({tagId, onClose, classes}: {
+const TagVersionHistory = ({tagId, onClose}: {
   tagId: string,
   onClose: () => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
   const [revertInProgress,setRevertInProgress] = useState(false);

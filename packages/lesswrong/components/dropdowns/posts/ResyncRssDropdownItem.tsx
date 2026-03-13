@@ -15,6 +15,7 @@ import { ContentItemBody } from "../../contents/ContentItemBody";
 import LWDialog from "../../common/LWDialog";
 import Loading from "../../vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsEditUpdateMutation = gql(`
   mutation updatePostResyncRssDropdownItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -72,7 +73,7 @@ const ResyncRssDropdownItemInner = ({post, closeMenu, classes}: {
     closeMenu();
     openDialog({
       name: "ResyncRssDialog",
-      contents: ({onClose}) => <ResyncRssDialog onClose={onClose} post={post} classes={classes} />
+      contents: ({onClose}) => <ResyncRssDialog onClose={onClose} post={post} />
     });
   }
 
@@ -83,11 +84,11 @@ const ResyncRssDropdownItemInner = ({post, closeMenu, classes}: {
   />
 }
 
-const ResyncRssDialog = ({onClose, post, classes}: {
+const ResyncRssDialog = ({onClose, post}: {
   onClose: () => void,
   post: PostsList|SunshinePostsList,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const client = useApolloClient();
   
   // Query to get a diff between the post HTML and the HTML seen in the RSS feed

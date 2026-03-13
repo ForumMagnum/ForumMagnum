@@ -8,6 +8,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import UsersName from "../users/UsersName";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersMinimumInfoQuery = gql(`
   query PresenceList($documentId: String) {
@@ -57,10 +58,9 @@ const styles = defineStyles('PresenceList', (theme: ThemeType) => ({
  * This is used inside fo EditorTopBar. If alwaysShownUserIds is provided, those
  * users will be shown even if they're not connected (but grayed out).
  */
-const PresenceList = ({connectedUsers, alwaysShownUserIds, classes}: {
+const PresenceList = ({connectedUsers, alwaysShownUserIds}: {
   connectedUsers: ConnectedUserInfo[],
   alwaysShownUserIds?: string[],
-  classes: ClassesType<typeof styles>,
 }) => {
   const connectedUsersById = keyBy(connectedUsers, u=>u._id);
   const disconnectedUserIds: string[] = alwaysShownUserIds
@@ -73,24 +73,22 @@ const PresenceList = ({connectedUsers, alwaysShownUserIds, classes}: {
       connected={true}
       userId={u._id}
       isLoggedOutUser={u.name==="Anonymous"}
-      classes={classes}
     />)}
     {disconnectedUserIds.map(userId => <PresenceListUser
       key={userId}
       connected={false}
       userId={userId}
       isLoggedOutUser={false}
-      classes={classes}
     />)}
   </div>
 }
 
-const PresenceListUser = ({userId, isLoggedOutUser, connected, classes}: {
+const PresenceListUser = ({userId, isLoggedOutUser, connected}: {
   userId: string,
   isLoggedOutUser: boolean,
   connected: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(UsersMinimumInfoQuery, {
     variables: { documentId: userId },
     skip: isLoggedOutUser,

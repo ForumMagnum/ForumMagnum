@@ -5,6 +5,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 // const stripePublicKeySetting = new DatabasePublicSetting<null|string>('stripe.publicKey', null)
 
@@ -62,12 +63,13 @@ const styles = defineStyles('BookCheckout', (theme: ThemeType) => ({
 // const stripePublicKey = stripePublicKeySetting.get()
 // const stripePromise = stripePublicKey && loadStripe(stripePublicKey);
 
-const ProductDisplay = ({ handleClickAmazon, text="Amazon", classes }: {
+const ProductDisplay = ({handleClickAmazon, text="Amazon"}: {
   handleClickAmazon: (event: any) => void,
   // handleClickStripe: (event: any)=>void,
   text?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return <>
     <button className={classNames(classes.checkoutButton, classes.buyUsButton)} id="checkout-button-amazon-us" role="link" onClick={handleClickAmazon}>
       {`${text} (US) - $30`}
@@ -77,11 +79,14 @@ const ProductDisplay = ({ handleClickAmazon, text="Amazon", classes }: {
     </button> */}
   </>
 };
-const Message = ({ message, classes }: {message: string, classes: ClassesType<typeof styles>}) => (
-  <section>
-    <p>{message}</p>
-  </section>
-);
+const Message = ({ message }: {message: string}) => {
+  useStyles(styles);
+  return (
+    <section>
+      <p>{message}</p>
+    </section>
+  );
+};
 function BookCheckout({classes, ignoreMessages = false, text, link}: {classes: ClassesType<typeof styles>, ignoreMessages?: boolean, text?: string, link: string}) {
   const [message, setMessage] = useState("");
   const { captureEvent } = useTracking()
@@ -100,9 +105,9 @@ function BookCheckout({classes, ignoreMessages = false, text, link}: {classes: C
 
   return <div className={classes.root}>
     { (message && !ignoreMessages) ? (
-      <Message message={message} classes={classes} />
+      <Message message={message} />
     ) : (
-      <ProductDisplay handleClickAmazon={handleClickAmazon} text={text} classes={classes}/>
+      <ProductDisplay handleClickAmazon={handleClickAmazon} text={text}/>
     ) }
   </div>
 }

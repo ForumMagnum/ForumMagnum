@@ -23,6 +23,7 @@ import LWTooltip from "../common/LWTooltip";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { disconnectCollaborationForPost } from "../lexical/collaboration";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
   query multiRevisionPostVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -143,7 +144,6 @@ const PostVersionHistoryButton = ({post, postId, classes}: {
           onClose={onClose}
           post={post}
           postId={postId}
-          classes={classes}
         />
       })
     }}
@@ -158,12 +158,12 @@ const LIVE_REVISION_TOOLTIP = "This version is currently live"
 const LOAD_VERSION_TOOLTIP = "Load this version into the editor (you will then need to publish it to update the live post)"
 const RESTORE_VERSION_TOOLTIP = "Update the live post to use this version"
 
-const PostVersionHistory = ({post, postId, onClose, classes}: {
+const PostVersionHistory = ({post, postId, onClose}: {
   post: PostsBase,
   postId: string,
   onClose: () => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const location = useLocation();

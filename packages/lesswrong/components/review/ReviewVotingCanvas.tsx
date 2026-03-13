@@ -18,6 +18,7 @@ import type { CloudinaryPropsType } from "../common/cloudinaryHelpers";
 import { ICON_ONLY_NAVIGATION_BREAKPOINT } from '../common/TabNavigationMenu/NavigationStandalone';
 import { TAB_NAVIGATION_MENU_WIDTH, TAB_NAVIGATION_MENU_ICON_ONLY_WIDTH } from '../common/TabNavigationMenu/TabNavigationMenu';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const reviewVoteFragmentMultiQuery = gql(`
   query multiReviewVoteReviewVotingCanvasQuery($selector: ReviewVoteSelector, $limit: Int, $enableTotal: Boolean) {
@@ -291,15 +292,9 @@ const Heart: FC<{
   heart: GivingSeasonHeart,
   currentUser: UsersCurrent | null,
   removeHeart: () => Promise<void>,
-  classes: ClassesType<typeof styles>,
   disabled?: boolean
-}> = ({
-  heart: {userId, displayName, x, y, theta},
-  currentUser,
-  removeHeart,
-  classes,
-  disabled
-}) => {
+}> = ({heart: {userId, displayName, x, y, theta}, currentUser, removeHeart, disabled}) => {
+  const classes = useStyles(styles);
   const isCurrentUser = userId === currentUser?._id;
   const title = !isCurrentUser ? `${displayName} voted!` : "You voted! (Click to remove icon)" 
   const onClick = useCallback(() => {
@@ -523,7 +518,6 @@ const ReviewVotingCanvas = ({
                     heart={heart}
                     currentUser={currentUser}
                     removeHeart={removeHeart}
-                    classes={classes}
                   />
                 ))}
                 {hoverPos &&
@@ -531,7 +525,6 @@ const ReviewVotingCanvas = ({
                     heart={{displayName: "", userId: "", theta: 0, ...hoverPos}}
                     currentUser={currentUser}
                     removeHeart={removeHeart}
-                    classes={classes}
                     disabled={!userHasVotedEnough}
                   />
                 }

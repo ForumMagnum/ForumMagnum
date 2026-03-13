@@ -16,6 +16,7 @@ import Loading from "../vulcan-core/Loading";
 import FormatDate from "../common/FormatDate";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const ModeratorClientIDInfoMultiQuery = gql(`
   query multiClientIdModerationAltAccountsQuery($selector: ClientIdSelector, $limit: Int, $enableTotal: Boolean) {
@@ -155,18 +156,18 @@ const ModerationAltAccounts = ({classes}: {
     </div>
     
     <div className={classes.userInfoArea}>
-      {startingIdentifierType==="slug" && <AltAccountsNodeUserBySlug slug={startingIdentifier} classes={classes}/>}
-      {startingIdentifierType==="userId" && <AltAccountsNodeUserByID userId={startingIdentifier} classes={classes}/>}
-      {startingIdentifierType==="clientId" && <AltAccountsNodeClientID clientId={startingIdentifier} classes={classes}/>}
-      {startingIdentifierType==="ip" && <AltAccountsNodeIPAddress ipAddress={startingIdentifier} classes={classes}/>}
+      {startingIdentifierType==="slug" && <AltAccountsNodeUserBySlug slug={startingIdentifier} />}
+      {startingIdentifierType==="userId" && <AltAccountsNodeUserByID userId={startingIdentifier} />}
+      {startingIdentifierType==="clientId" && <AltAccountsNodeClientID clientId={startingIdentifier} />}
+      {startingIdentifierType==="ip" && <AltAccountsNodeIPAddress ipAddress={startingIdentifier} />}
     </div>
   </SingleColumnSection>
 }
 
-const AltAccountsNodeUserBySlug = ({slug, classes}: {
+const AltAccountsNodeUserBySlug = ({slug}: {
   slug: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { data, loading } = useQuery(UserAltAccountsFragmentMultiQuery, {
     variables: {
       selector: { usersProfile: { slug } },
@@ -190,14 +191,14 @@ const AltAccountsNodeUserBySlug = ({slug, classes}: {
   }
   
   return <div>
-    <AltAccountsNodeUser user={user} classes={classes}/>
+    <AltAccountsNodeUser user={user} />
   </div>
 }
 
-const AltAccountsNodeUserByID = ({userId, classes}: {
+const AltAccountsNodeUserByID = ({userId}: {
   userId: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(UserAltAccountsFragmentQuery, {
     variables: { documentId: userId },
   });
@@ -205,18 +206,18 @@ const AltAccountsNodeUserByID = ({userId, classes}: {
   
   if (loading) return <Loading/>;
   if (!user) return <>{`Couldn't find user with ID ${userId}`}</>
-  return <AltAccountsNodeUser user={user} classes={classes}/>
+  return <AltAccountsNodeUser user={user} />
 }
 
-const AltAccountsNodeUser = ({user, classes}: {
+const AltAccountsNodeUser = ({user}: {
   user: UserAltAccountsFragment,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [expandedClientIDs, setExpandedClientIDs] = useState(false);
   const [expandedIPs, setExpandedIPs] = useState(false);
 
   return <div>
-    <div><CensoredUserName user={user} classes={classes}/></div>
+    <div><CensoredUserName user={user} /></div>
     
     <ul>
       <li>Vote count: {user.voteCount} (small downvotes: {user.smallDownvoteCount}; big downvotes: {user.bigDownvoteCount})</li>
@@ -225,7 +226,7 @@ const AltAccountsNodeUser = ({user, classes}: {
             <div>Client IDs</div>
             <ul>
               {user.associatedClientIds?.map(clientId => <li key={clientId.clientId}>
-                <AltAccountsNodeClientID clientId={clientId.clientId!} classes={classes}/>
+                <AltAccountsNodeClientID clientId={clientId.clientId!} />
               </li>)}
             </ul>
           </li>
@@ -238,7 +239,7 @@ const AltAccountsNodeUser = ({user, classes}: {
             <div>IP Addresses</div>
             <ul>
               {user.IPs?.map(ip => <li key={ip}>
-                <AltAccountsNodeIPAddress ipAddress={ip} classes={classes}/>
+                <AltAccountsNodeIPAddress ipAddress={ip} />
               </li>)}
             </ul>
           </li>
@@ -250,10 +251,10 @@ const AltAccountsNodeUser = ({user, classes}: {
   </div>
 }
 
-const AltAccountsNodeClientID = ({clientId, classes}: {
+const AltAccountsNodeClientID = ({clientId}: {
   clientId: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [expanded,setExpanded] = useState(false);
   
   const { data: dataModeratorClientIDInfo, loading } = useQuery(ModeratorClientIDInfoMultiQuery, {
@@ -282,7 +283,7 @@ const AltAccountsNodeClientID = ({clientId, classes}: {
               <div>Associated users</div>
               <ul>
                 {clientIdInfo.users?.map(u => <li key={u._id}>
-                  <AltAccountsNodeUserByID userId={u._id} classes={classes}/>
+                  <AltAccountsNodeUserByID userId={u._id} />
                 </li>)}
               </ul>
             </li>
@@ -295,10 +296,10 @@ const AltAccountsNodeClientID = ({clientId, classes}: {
   </div>
 }
 
-const AltAccountsNodeIPAddress = ({ipAddress, classes}: {
+const AltAccountsNodeIPAddress = ({ipAddress}: {
   ipAddress: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [expanded,setExpanded] = useState(false);
   const {data, loading} = useQuery(gql(`
     query ModeratorIPAddressInfo($ipAddress: String!) {
@@ -331,7 +332,7 @@ const AltAccountsNodeIPAddress = ({ipAddress, classes}: {
             <div>Associated users</div>
             <ul>
               {userIds.map((userId: string) => <li key={userId}>
-                <AltAccountsNodeUserByID userId={userId} classes={classes}/>
+                <AltAccountsNodeUserByID userId={userId} />
               </li>)}
             </ul>
           </li>
@@ -343,10 +344,10 @@ const AltAccountsNodeIPAddress = ({ipAddress, classes}: {
   </div>
 }
 
-const CensoredUserName = ({user, classes}: {
+const CensoredUserName = ({user}: {
   user: UserAltAccountsFragment,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [revealName,setRevealName] = useState(false);
   
   if (revealName) {

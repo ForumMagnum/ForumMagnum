@@ -6,6 +6,7 @@ import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Typography } from "../../common/Typography";
 import Loading from "@/components/vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("PostsPageCrosspostComments", (theme: ThemeType) => ({
   root: {
@@ -23,11 +24,11 @@ type Response = {
   data?: { canonicalLink: string, commentCount: number },
 }
 
-const PostsPageCrosspostCommentsInner = ({foreignPostId, hostedHere, classes}: {
+const PostsPageCrosspostCommentsInner = ({foreignPostId, hostedHere}: {
   foreignPostId: string,
   hostedHere: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [response, setResponse] = useState<Response>({ loading: true });
 
   useEffect(() => {
@@ -91,7 +92,6 @@ const PostsPageCrosspostComments = ({classes}: {
     <PostsPageCrosspostCommentsInner
       foreignPostId={foreignPostId}
       hostedHere={!!hostedHere}
-      classes={classes}
     />
   );
 }

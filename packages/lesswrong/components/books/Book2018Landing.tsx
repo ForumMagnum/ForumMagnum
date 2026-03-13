@@ -8,12 +8,12 @@ import { useTracking } from "../../lib/analyticsEvents";
 import BookAnimation from "./BookAnimation";
 import BookCheckout from "../review/BookCheckout";
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const contentMaxWidth = "1050px"
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
 
 const styles = defineStyles('Book2018Landing', (theme: ThemeType) => ({
-
   textSettings: {
     fontFamily: `warnock-pro,Palatino,"Palatino Linotype","Palatino LT STD","Book Antiqua",Georgia,serif`
   },
@@ -307,7 +307,8 @@ const styles = defineStyles('Book2018Landing', (theme: ThemeType) => ({
   },
 }), { allowNonThemeColors: true })
 
-const Hidden = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const Hidden = () => {
+  const classes = useStyles(styles);
   return (
     <div className={classes.mainQuoteContainer}>
       <div className={classes.mainQuote}>
@@ -321,8 +322,7 @@ const Hidden = ({classes}: {classes: ClassesType<typeof styles>}) => {
 }
 
 
-const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, bigQuoteAuthor, accentColor, bodyText}: {
-  classes: ClassesType<typeof styles>,
+const Interlude = ({imageURL, coverImageUrl, spreadImageUrl, bigQuote, bigQuoteAuthor, accentColor, bodyText}: {
   imageURL: string,
   coverImageUrl: string,
   spreadImageUrl: string,
@@ -331,7 +331,7 @@ const Interlude = ({classes, imageURL, coverImageUrl, spreadImageUrl, bigQuote, 
   accentColor: string,
   bodyText: React.JSX.Element
 }) => {
-  
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking()
 
   return (
@@ -370,7 +370,7 @@ const Book2018Landing = ({classes}: {
     <div>
       <div className={classes.bookAnimationContainer}>
         <BookAnimation >
-          <Hidden classes={classes} />
+          <Hidden />
         </BookAnimation>
       </div>
       <div className={classNames(classes.textSettings, classes.wrapper)}>
@@ -433,7 +433,7 @@ const Book2018Landing = ({classes}: {
         </div>
       </div>
 
-      <Interlude classes={classes}
+      <Interlude
         imageURL="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606885987/1_Epistemology_internals_vemtes.jpg"
         coverImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895065/Book%20landing%20page/Front%20covers/1_Epistemology_front.jpg"
         spreadImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895482/Book%20landing%20page/Contents/1_Epistemology_internals.jpg"
@@ -450,7 +450,7 @@ const Book2018Landing = ({classes}: {
           </div>}
       />
 
-      <Interlude classes={classes}
+      <Interlude
         imageURL="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606885987/2_Agency_internals_kpbogk.jpg"
         coverImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895065/Book%20landing%20page/Front%20covers/2_Agency_front.jpg"
         spreadImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895482/Book%20landing%20page/Contents/2_Agency_internals.jpg"
@@ -467,7 +467,7 @@ const Book2018Landing = ({classes}: {
       />
 
       <div className={classes.desktopOnlyInterlude}>
-        <Interlude classes={classes}
+        <Interlude
           imageURL="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606885987/3_Coordination_internals_vicuiq.jpg"
           coverImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895065/Book%20landing%20page/Front%20covers/3_Coordination_front.jpg"
           spreadImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895485/Book%20landing%20page/Contents/3_Coordination_internals.jpg"
@@ -482,7 +482,7 @@ const Book2018Landing = ({classes}: {
       </div>
 
       <div className={classes.mobileInterlude}>
-        <Interlude classes={classes}
+        <Interlude
           imageURL="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606885987/3_Coordination_internals_vicuiq.jpg"
           coverImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895065/Book%20landing%20page/Front%20covers/3_Coordination_front.jpg"
           spreadImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606895485/Book%20landing%20page/Contents/3_Coordination_internals.jpg"
@@ -496,7 +496,7 @@ const Book2018Landing = ({classes}: {
         />
       </div>
 
-      <Interlude classes={classes}
+      <Interlude
         imageURL="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606885987/4_Curiosity_internals_2_copy_szbhto.jpg"
         coverImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606896839/Book%20landing%20page/Front%20covers/4_Curiosity_front.jpg"
         spreadImageUrl="https://res.cloudinary.com/lesswrong-2-0/image/upload/v1606896891/Book%20landing%20page/Contents/4_Curiosity_internals.jpg"
