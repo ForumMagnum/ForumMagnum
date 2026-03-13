@@ -128,7 +128,6 @@ import { SendIcon } from '../../icons/SendIcon';
 import { Trash3Icon } from '../../icons/Trash3Icon';
 import { InlineCommentsPanelContext } from '@/components/common/sharedContexts';
 import LWClickAwayListener from '@/components/common/LWClickAwayListener';
-import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
 import ForumIcon from '@/components/common/ForumIcon';
 import { formatSuggestionSummary } from '@/components/editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils';
 import { SUGGESTION_SUMMARY_KIND } from '@/components/editor/lexicalPlugins/suggestedEdits/Utils';
@@ -1337,12 +1336,14 @@ function CommentsPanelList({
 }
 
 function CommentsPanel({
+  panelRef,
   activeIDs,
   deleteCommentOrThread,
   comments,
   submitAddComment,
   markNodeMap,
 }: {
+  panelRef: React.RefObject<HTMLDivElement | null>;
   activeIDs: Array<string>;
   comments: Comments;
   deleteCommentOrThread: (
@@ -1362,7 +1363,7 @@ function CommentsPanel({
   const { setShowComments } = useContext(InlineCommentsPanelContext);
 
   return (
-    <div className={classes.commentsPanel}>
+    <div ref={panelRef} className={classes.commentsPanel}>
       <h2 className={classes.commentsPanelHeading}>
         Comments
         <Button onClick={() => setShowComments(false)} className={classes.commentsPanelCloseButton}>
@@ -1399,7 +1400,8 @@ export default function CommentPlugin(): JSX.Element {
     null,
   );
   const { showComments, setShowComments, setCommentCount } = useContext(InlineCommentsPanelContext);
-  const isAboveSm = useIsAboveBreakpoint('sm');
+  const panelRef = useRef<HTMLDivElement>(null);
+  const replyActivatedRef = useRef(false);
   const cancelAddComment = useCallback(() => {
     editor.update(() => {
       const selection = $getSelection();
@@ -1480,6 +1482,22 @@ export default function CommentPlugin(): JSX.Element {
       setShowComments(true);
     }
   }, [activeIDs, setShowComments]);
+
+  useEffect(() => {
+    if (!showComments) {
+      replyActivatedRef.current = false;
+      return;
+    }
+    const panelEl = panelRef.current;
+    if (!panelEl) return;
+    const handleFocusIn = (e: FocusEvent) => {
+      if (e.target instanceof HTMLElement && e.target.getAttribute('contenteditable') === 'true') {
+        replyActivatedRef.current = true;
+      }
+    };
+    panelEl.addEventListener('focusin', handleFocusIn);
+    return () => panelEl.removeEventListener('focusin', handleFocusIn);
+  }, [showComments]);
 
   useEffect(() => {
     const markNodeKeysToIDs: Map<NodeKey, Array<string>> = new Map();
@@ -1702,8 +1720,14 @@ export default function CommentPlugin(): JSX.Element {
         )}
       {showComments && isPostEditor &&
         createPortal(
-          <LWClickAwayListener onClickAway={() => { if (!isAboveSm) setShowComments(false); }}>
+          <LWClickAwayListener onClickAway={(e) => {
+            if (replyActivatedRef.current) return;
+            const target = e.target;
+            if (target instanceof Element && target.closest('mark')) return;
+            setShowComments(false);
+          }}>
             <CommentsPanel
+              panelRef={panelRef}
               comments={[...comments].reverse()}
               submitAddComment={submitAddComment}
               deleteCommentOrThread={deleteCommentOrThread}
