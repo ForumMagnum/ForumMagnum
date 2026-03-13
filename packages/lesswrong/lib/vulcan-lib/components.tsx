@@ -76,7 +76,7 @@ type DisallowClassesProp<T> = "classes" extends keyof T ? never : unknown;
 export function registerComponent<PropType>(
   name: string,
   rawComponent: React.ComponentType<PropType> & DisallowClassesProp<PropType>,
-  options?: ComponentOptions
+  options: ComponentOptions
 ): React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">> {
   const { hocs=[] } = options || {};
   rawComponent.displayName = name;
