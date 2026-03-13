@@ -157,13 +157,6 @@ const styles = defineStyles("UltraFeedItemFooter", (theme: ThemeType) => ({
     marginLeft: 4,
     display: 'none',
   },
-  reactionIcon: {
-    marginRight: 6,
-  },
-  reactionCount: {
-    position: "relative",
-    bottom: 2,
-  },
   condensedFooterReactions: {
     marginLeft: 'auto',
     [theme.breakpoints.down('sm')]: {
