@@ -24,22 +24,6 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("HomeLatestPosts", (theme: ThemeType) => ({
-  titleWrapper: {
-    marginBottom: 8
-  },
-  title: {
-    ...sectionTitleStyle(theme),
-    display: "inline",
-    marginRight: "auto"
-  },
-  toggleFilters: {
-    [theme.breakpoints.up('sm')]: {
-      display: "none"
-    },
-  },
-  hide: {
-      display: "none"
-  },
   hideOnMobile: {
     [theme.breakpoints.down('sm')]: {
       display: "none"
