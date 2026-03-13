@@ -5,8 +5,7 @@ import SimpleDivider from "../widgets/SimpleDivider";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    margin: theme.isFriendlyUI ? `6px 0 !important` : undefined,
-  },
+},
 });
 
 const DropdownDivider = ({className, classes}: {

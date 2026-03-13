@@ -5,12 +5,6 @@ import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI && {
-      display: "block",
-      maxWidth: 500,
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    }),
   },
   icon: {
     width: 16,

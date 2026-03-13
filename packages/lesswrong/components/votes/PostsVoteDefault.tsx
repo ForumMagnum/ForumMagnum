@@ -47,20 +47,10 @@ const styles = defineStyles("PostsVoteDefault", (theme: ThemeType) => ({
     margin: '0 12px'
   },
   voteScore: {
-    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.grey[500],
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    color: theme.palette.grey[500],
     position: 'relative',
     zIndex: theme.zIndexes.postsVote,
-    fontSize: theme.isFriendlyUI ? '50%' : '55%',
-    
-    ...(theme.isFriendlyUI && {
-      paddingTop:4,
-      paddingBottom:2,
-      paddingLeft:1,
-      paddingRight:0,
-      fontSize: '50%',
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
+    fontSize: '55%'
   },
   voteScoreFooter: {
     fontSize: 18,
@@ -82,7 +72,7 @@ const styles = defineStyles("PostsVoteDefault", (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.default,
     transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
     marginLeft: 0,
-    paddingTop: theme.isFriendlyUI ? 12 : 0
+    paddingTop: 0
   },
 }));
 

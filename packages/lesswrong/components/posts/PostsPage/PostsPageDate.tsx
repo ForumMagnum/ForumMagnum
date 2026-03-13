@@ -11,7 +11,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 const styles = defineStyles("PostsPageDate", (theme: ThemeType) => ({
   date: {
     color: theme.palette.text.dim3,
-    fontSize: theme.isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    fontSize: theme.typography.body2.fontSize,
     cursor: 'default'
   },
   mobileDate: {

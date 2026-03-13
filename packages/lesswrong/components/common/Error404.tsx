@@ -10,7 +10,7 @@ import qs from 'qs';
 
 const styles = defineStyles('Error404', (theme: ThemeType) => ({
   root: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : theme.palette.fonts.serifStack,
+    fontFamily: theme.palette.fonts.serifStack,
   },
 }));
 

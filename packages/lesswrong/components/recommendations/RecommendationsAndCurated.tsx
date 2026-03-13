@@ -23,7 +23,7 @@ import CuratedPostsList from "./CuratedPostsList";
 import ForumIcon from "../common/ForumIcon";
 
 const styles = (theme: ThemeType) => ({
-  section: theme.isFriendlyUI ? {} : {
+  section: {
     marginTop: -12,
   },
   continueReadingList: {
@@ -90,13 +90,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     '@media (max-width: 350px)': {
       display: 'none'
-    },
-    ...(theme.isFriendlyUI && {
-      "&:hover": {
-        color: theme.palette.grey[1000],
-        opacity: 1,
-      },
-    }),
+    }
   },
 });
 

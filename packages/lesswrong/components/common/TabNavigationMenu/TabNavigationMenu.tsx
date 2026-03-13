@@ -21,14 +21,7 @@ const styles = defineStyles("TabNavigationMenu", (theme: ThemeType) => ({
       flexDirection: "column",
       maxWidth: TAB_NAVIGATION_MENU_WIDTH,
       paddingTop: 15,
-      ...(theme.isFriendlyUI
-        ? {
-          paddingLeft: 6,
-          height: "100%",
-        }
-        : {
-          justifyContent: "space-around",
-        }),
+      justifyContent: "space-around",
     },
     noTopMargin: {
       paddingTop: "0px !important",
@@ -54,15 +47,8 @@ const styles = defineStyles("TabNavigationMenu", (theme: ThemeType) => ({
         background: theme.palette.text.bannerAdOverlay,
       }),
       marginBottom: 20,
-      ...(theme.isFriendlyUI
-        ? {
-          marginLeft: 20,
-          marginTop: 20,
-        }
-        : {
-          marginLeft: 16 + (iconWidth + 16) - 2,
-          marginTop: 12,
-        }),
+      marginLeft: 16 + (iconWidth + 16) - 2,
+      marginTop: 12,
     },
 }));
 

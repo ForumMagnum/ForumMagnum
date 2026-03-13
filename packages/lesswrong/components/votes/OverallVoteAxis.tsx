@@ -16,12 +16,12 @@ const styles = defineStyles('OverallVoteAxis', theme => ({
   overallSection: {
     display: 'inline-block',
     height: 24,
-    paddingTop: theme.isFriendlyUI ? 2.5 : 0
+    paddingTop: 0
   },
   overallSectionBox: {
     marginLeft: 8,
     outline: theme.palette.border.commentBorder,
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : 2,
+    borderRadius: 2,
     textAlign: 'center',
     minWidth: 60
   },

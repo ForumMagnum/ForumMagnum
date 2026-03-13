@@ -82,21 +82,8 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
   submitQuickTakesNewForm: {
     background: theme.palette.grey[100],
   },
-  submitQuickTakesButtonAtBottom: theme.isFriendlyUI
-    ? {
-      marginTop: 20,
-      padding: 20,
-      borderTop: `1px solid ${theme.palette.grey[300]}`,
-    }
-    : {},
-  formButton: theme.isFriendlyUI ? {
-    fontSize: 14,
-    textTransform: 'none',
-    padding: '6px 12px',
-    borderRadius: 6,
-    boxShadow: 'none',
-    marginLeft: 8,
-  } : {
+  submitQuickTakesButtonAtBottom: {},
+  formButton: {
     fontSize: "16px",
     color: theme.palette.lwTertiary.main,
     marginLeft: "5px",
@@ -105,17 +92,9 @@ const customSubmitButtonStyles = defineStyles('CommentSubmit', (theme: ThemeType
     },
   },
   cancelButton: {
-    color: theme.isFriendlyUI ? undefined : theme.palette.grey[400],
+    color: theme.palette.grey[400],
   },
-  submitButton: theme.isFriendlyUI ? {
-    backgroundColor: theme.palette.buttons.alwaysPrimary,
-    color: theme.palette.text.alwaysWhite,
-    '&:disabled': {
-      backgroundColor: theme.palette.buttons.alwaysPrimary,
-      color: theme.palette.text.alwaysWhite,
-      opacity: .5,
-    }
-  } : {
+  submitButton: {
     padding: '8px',
   },
   submitMinimalist: {

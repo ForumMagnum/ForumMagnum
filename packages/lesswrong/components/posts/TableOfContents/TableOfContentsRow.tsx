@@ -43,13 +43,8 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
     color: theme.palette.link.tocLink,
     lineHeight: "1em",
     '&:hover':{
-      color: theme.palette.link.tocLinkHighlighted,
-      opacity: theme.isFriendlyUI ? 1 : undefined
-    },
-    ...(theme.isFriendlyUI && {
-      lineHeight: "1.1rem",
-      fontSize: "1rem",
-    }),
+      color: theme.palette.link.tocLinkHighlighted
+    }
   },
   highlightDot: {},
   // Makes sure that the start of the ToC is in line with the start of the text
@@ -57,7 +52,6 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
     paddingTop: 3,
     paddingBottom: 12,
     borderBottom: theme.palette.border.faint,
-    fontSize: theme.isFriendlyUI ? "1em" : undefined,
     '&:hover': {
       opacity: "unset"
     }
@@ -81,19 +75,19 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
   },
   level2: {
     fontSize:"1.1rem",
-    paddingLeft: theme.isFriendlyUI ? 16 : 12,
+    paddingLeft: 12,
     ...getSectionOffsetStyling(),
   },
   level3: {
     fontSize:"1.1rem",
     color: theme.palette.text.dim700,
-    paddingLeft: theme.isFriendlyUI ? 32 : 24,
+    paddingLeft: 24,
     ...getSectionOffsetStyling(),
   },
   level4: {
     fontSize:"1.1rem",
     color: theme.palette.text.dim700,
-    paddingLeft: theme.isFriendlyUI ? 48 : 36,
+    paddingLeft: 36,
     ...getSectionOffsetStyling(),
   },
   titleContainer: {

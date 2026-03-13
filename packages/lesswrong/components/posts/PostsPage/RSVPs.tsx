@@ -24,7 +24,7 @@ const styles = defineStyles("RSVPs", (theme: ThemeType) => ({
     marginBottom: 48
   },
   rsvpItem: {
-    width:  theme.isFriendlyUI ? "33%" : "25%",
+    width:  "25%",
     display: "inline-block",
     marginRight: 16,
     paddingTop: 4,
@@ -100,13 +100,9 @@ const styles = defineStyles("RSVPs", (theme: ThemeType) => ({
       display: "block"
     },
   },
-  rsvpMessage: theme.isFriendlyUI
-    ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }
-    : {
-      fontStyle: "italic",
-    },
+  rsvpMessage: {
+    fontStyle: "italic",
+  },
 }));
 
 const RSVPs = ({post}: {

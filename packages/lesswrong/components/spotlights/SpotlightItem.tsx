@@ -106,15 +106,10 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
       opacity: .2
     },
     '&:hover $closeButton': {
-      ...(theme.isFriendlyUI ? {
-        color: theme.palette.grey[100],
-        background: theme.palette.panelBackground.default,
-      } : {
-        // This button is on top of an image that doesn't invert in dark mode, so
-        // we can't use palette-colors that invert
-        color: theme.palette.type==="dark" ? "rgba(0,0,0,.7)" : theme.palette.grey[400],
-        background: theme.palette.type==="dark" ? "white" : theme.palette.panelBackground.default,
-      }),
+      // This button is on top of an image that doesn't invert in dark mode, so
+      // we can't use palette-colors that invert
+      color: theme.palette.type==="dark" ? "rgba(0,0,0,.7)" : theme.palette.grey[400],
+      background: theme.palette.type==="dark" ? "white" : theme.palette.panelBackground.default,
     }
   },
   contentContainer: {
@@ -133,7 +128,7 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     padding: '.5em',
     minHeight: '.75em',
     minWidth: '.75em',
-    color: theme.isFriendlyUI ? theme.palette.text.alwaysWhite : theme.palette.grey[300],
+    color: theme.palette.grey[300],
     zIndex: theme.zIndexes.spotlightItemCloseButton,
   },
   hideButton: {
@@ -158,7 +153,7 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     position: "relative",
     zIndex: theme.zIndexes.spotlightItem,
     // Drop shadow that helps the text stand out from the background image
-    textShadow: theme.isFriendlyUI ? undefined : `
+    textShadow: `
       0px 0px 10px ${theme.palette.background.default},
       0px 0px 20px ${theme.palette.background.default}
     `,
@@ -185,75 +180,30 @@ const styles = defineStyles("SpotlightItem", (theme: ThemeType) => ({
     [theme.breakpoints.down('xs')]: {
       display: "none"
     },
-    ...(theme.isFriendlyUI ? {
-      fontSize: 13,
-      fontWeight: 500,
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      color: theme.palette.text.alwaysWhite,
-      marginTop: 8,
-      maxWidth: TEXT_WIDTH,
-      "& a": {
-        color: theme.palette.text.alwaysWhite,
-        textDecoration: "underline",
-        "&:hover": {
-          opacity: 0.8,
-          color: `${theme.palette.text.alwaysWhite} !important`,
-        },
-        "&:visited": {
-          color: theme.palette.text.alwaysWhite,
-        },
-      },
-    } : {}),
   },
   title: {
     ...theme.typography.postStyle,
-    ...(theme.isFriendlyUI
-      ? {
-        fontSize: 22,
-        fontWeight: 700,
-        color: theme.palette.text.alwaysWhite,
-      }
-      : {
-        fontSize: 20,
-        fontVariant: "small-caps",
-        lineHeight: "1.2em",
-      }
-    ),
+    fontSize: 20,
+    fontVariant: "small-caps",
+    lineHeight: "1.2em",
     display: "flex",
     alignItems: "center"
   },
   subtitle: {
     ...theme.typography.postStyle,
     ...theme.typography.italic,
-    ...(theme.isFriendlyUI ? {
-      fontSize: 13,
-      fontWeight: 500,
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      color: theme.palette.text.alwaysWhite,
-      marginTop: 8,
-      maxWidth: TEXT_WIDTH,
-    } : {
-      minHeight: 25,
-      color: theme.palette.grey[700],
-      fontSize: 15,
-      marginTop: -1,
-    }),
+    minHeight: 25,
+    color: theme.palette.grey[700],
+    fontSize: 15,
+    marginTop: -1,
   },
   image: {
     height: "100%",
     position: "absolute",
     top: 0,
     right: 0,
-    ...(theme.isFriendlyUI
-      ? {
-          borderRadius: theme.borderRadius.default,
-          width: "100%",
-          objectFit: "cover",
-        }
-      : {
-          borderTopRightRadius: theme.borderRadius.default,
-          borderBottomRightRadius: theme.borderRadius.default,
-        }),
+    borderTopRightRadius: theme.borderRadius.default,
+    borderBottomRightRadius: theme.borderRadius.default,
   },
   imageFade: buildFadeMask([
     "transparent 0",

@@ -4,12 +4,6 @@ import classNames from "classnames";
 
 const styles = (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI && {
-      padding: 6,
-      borderRadius: theme.borderRadius.default,
-      backgroundColor: theme.palette.dropdown.background,
-      border: `1px solid ${theme.palette.dropdown.border}`,
-    }),
   },
 });
 

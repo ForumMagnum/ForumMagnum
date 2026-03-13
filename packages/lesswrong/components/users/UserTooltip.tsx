@@ -7,18 +7,11 @@ import { defineStyles } from "../hooks/defineStyles";
 import { useStyles } from "../hooks/useStyles";
 
 const styles = defineStyles("UserTooltip", (theme: ThemeType) => ({
-  root: theme.isFriendlyUI
-    ? {
-      padding: 12,
-      top: 2,
-    }
-    : {
-      padding: 0,
-      background: "unset",
-    },
-  overrideTooltip: theme.isFriendlyUI
-  ? {}
-  : {
+  root: {
+    padding: 0,
+    background: "unset",
+  },
+  overrideTooltip: {
     padding: 0,
     maxWidth: "none",
   }

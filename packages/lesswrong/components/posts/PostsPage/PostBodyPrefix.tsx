@@ -33,10 +33,7 @@ const styles = (theme: ThemeType) => ({
   contentNotice: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle,
-    maxWidth: 600,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
+    maxWidth: 600
   },
   infoIcon: {
     width: 16,

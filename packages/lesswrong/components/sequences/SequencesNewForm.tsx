@@ -113,7 +113,7 @@ export const styles = defineStyles("SequencesNewForm", (theme: ThemeType) => ({
         },
         "& .form-input-errors": {
           position: "absolute",
-          top: theme.isFriendlyUI ? 84 : 45,
+          top: 45,
           left: 7,
           textAlign: "left",
         }

@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   // these interact with whether the vote icons are solid or hollow (i.e. different components). Not ideally set up, so nb. 
   vertLayoutVoteUp: {
     position: "absolute",
-    left: theme.isFriendlyUI ? 9 : 10,
+    left: 10,
     top: forumSelect({
       LessWrong: -17,
       AlignmentForum: -15,
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   // these interact with whether the vote icons are solid or hollow (i.e. different components). Not ideally set up, so nb. 
   vertLayoutVoteDown: {
     position: "absolute",
-    left: theme.isFriendlyUI ? 9 : 10,
+    left: 10,
     top: forumSelect({
       LessWrong: 8,
       AlignmentForum: 10,

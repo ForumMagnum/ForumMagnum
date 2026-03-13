@@ -33,17 +33,8 @@ const styles = (theme: ThemeType) => ({
     ...postProgressBoxStyles(theme)
   },
   read: {
-    ...(
-      theme.isFriendlyUI
-        ? {
-          backgroundColor: theme.palette.primary.main,
-          border: theme.palette.primary.dark,
-        }
-        : {
-          backgroundColor: theme.palette.primary.light,
-          border: theme.palette.primary.main,
-        }
-    ),
+    backgroundColor: theme.palette.primary.light,
+    border: theme.palette.primary.main,
     opacity: .6
   },
   bookProgress: {

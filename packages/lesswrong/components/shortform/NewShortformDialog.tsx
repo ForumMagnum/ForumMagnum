@@ -11,12 +11,11 @@ const styles = (theme: ThemeType) => ({
     // This subselector is needed to beat the specificity of the default
     // MUI styles
     "&:first-child": {
-      padding: theme.isFriendlyUI ? 0 : "0 20px 20px",
+      padding: "0 20px 20px",
     },
   },
   dialogPaper: {
-    maxWidth: theme.isFriendlyUI ? 750 : undefined,
-  },
+},
 });
 
 const NewShortformDialog = ({onClose, classes}: {

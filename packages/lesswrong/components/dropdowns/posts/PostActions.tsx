@@ -39,7 +39,7 @@ export const IsRecommendationContext = React.createContext<boolean>(false);
 
 const styles = defineStyles("PostActions", (theme: ThemeType) => ({
   root: {
-    minWidth: theme.isFriendlyUI ? undefined : 300,
+    minWidth: 300,
     maxWidth: "calc(100vw - 100px)",
   },
 }))

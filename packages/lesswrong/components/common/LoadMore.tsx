@@ -19,13 +19,6 @@ const styles = defineStyles("LoadMore", (theme: ThemeType) => ({
     }),
     display: "inline-block",
     minHeight: 20,
-    ...(theme.isFriendlyUI
-      ? {
-        fontSize: 14,
-        fontWeight: 600,
-        lineHeight: "24px",
-      }
-      : {}),
     ...(theme.isAF && {
       fontWeight: 500,
     }),

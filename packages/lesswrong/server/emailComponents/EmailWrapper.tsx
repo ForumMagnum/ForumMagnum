@@ -7,7 +7,6 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 
 const styles = defineStyles("EmailWrapper", (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI ? {...theme.typography.smallText} : {}),
     "& img": {
       maxWidth: "100%",
     }

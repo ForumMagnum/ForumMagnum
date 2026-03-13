@@ -9,11 +9,6 @@ import { FeedCommentMetaInfo } from '../../ultraFeed/ultraFeedTypes';
 
 const styles = (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI && {
-      "& .MuiList-padding": {
-        padding: 0,
-      },
-    }),
   },
   icon: {
     cursor: "pointer",

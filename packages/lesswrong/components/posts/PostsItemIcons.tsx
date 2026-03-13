@@ -18,8 +18,8 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
   iconSet: {
-    marginLeft: theme.isFriendlyUI ? 6 : 8,
-    marginRight: theme.isFriendlyUI ? 2 : 8,
+    marginLeft: 8,
+    marginRight: 8,
     lineHeight: "1.0rem",
     '&:empty': {
       display: 'none',
@@ -34,23 +34,23 @@ const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
     '&&': {
       "--icon-size": "15.6px",
       fontSize: "15.6px",
-      color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+      color: theme.palette.icon.dim4,
       position: "relative",
       top: 3,
     },
   },
   curatedIcon: {
     "--icon-size": "15.6px",
-    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+    color: theme.palette.icon.dim4,
     position: "relative",
-    top: theme.isFriendlyUI ? 2 : 3,
+    top: 3,
   },
   curatedIconColor: {
-    color: theme.isFriendlyUI ? theme.palette.icon.yellow : theme.palette.primary.main,
+    color: theme.palette.primary.main,
   },
   question: {
     "--icon-size": "15.6px",
-    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+    color: theme.palette.icon.dim4,
     fontWeight: '600'
   },
   alignmentIcon: {
@@ -61,21 +61,13 @@ const styles = defineStyles("PostsItemIcons", (theme: ThemeType) => ({
   linkIcon: {
     position: "relative",
     "--icon-size": "15.6px",
-    ...(theme.isFriendlyUI
-      ? {
-        top: 1,
-        color: theme.palette.grey[600],
-      }
-      : {
-        top: 3,
-        color: theme.palette.icon.dim4,
-      }),
+    top: 3,
+    color: theme.palette.icon.dim4,
   },
   dialogueIcon: {
-    strokeWidth: theme.isFriendlyUI ? "2px" : undefined,
   },
   recommendationIcon: {
-    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.icon.dim4,
+    color: theme.palette.icon.dim4,
     '&:hover': {
       opacity: 0.5
     }

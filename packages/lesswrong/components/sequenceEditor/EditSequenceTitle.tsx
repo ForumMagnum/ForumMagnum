@@ -46,8 +46,8 @@ const styles = defineStyles('EditSequenceTitle', (theme: ThemeType) => ({
   },
   input: {
     width: '100%',
-    fontSize: theme.isFriendlyUI ? '2.4rem' : 36,
-    fontWeight: theme.isFriendlyUI ? 600 : 400,
+    fontSize: 36,
+    fontWeight: 400,
     ...theme.typography.smallCaps,
     height: '1em',
     '&::placeholder': {

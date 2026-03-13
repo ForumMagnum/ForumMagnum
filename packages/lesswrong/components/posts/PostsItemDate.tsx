@@ -14,16 +14,13 @@ export const POSTED_AT_WIDTH = 38
 export const START_TIME_WIDTH = 72
 const HOUR_IN_MS = 60*60*1000;
 
-const customStyles = (theme: ThemeType) => theme.isFriendlyUI
-  ? {}
-  : {
-    fontWeight: 300,
-    color: theme.palette.text.slightlyIntense2,
-  };
+const customStyles = (theme: ThemeType) => ({
+  fontWeight: 300,
+  color: theme.palette.text.slightlyIntense2,
+});
 
 const styles = (theme: ThemeType) => ({
   postedAt: {
-    ...(theme.isFriendlyUI && {display: "flex"}),
     '&&': {
       cursor: "pointer",
       width: POSTED_AT_WIDTH,

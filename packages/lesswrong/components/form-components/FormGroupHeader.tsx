@@ -18,8 +18,7 @@ const styles = defineStyles("FormGroupHeader", (theme: ThemeType) => ({
   },
   formSectionHeadingTitle: {
     marginBottom: 5,
-    fontSize: "1.25rem",
-    fontWeight: theme.isFriendlyUI ? 600 : undefined,
+    fontSize: "1.25rem"
   },
 }));
 

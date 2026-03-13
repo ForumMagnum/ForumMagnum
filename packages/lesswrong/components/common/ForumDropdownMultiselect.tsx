@@ -17,11 +17,9 @@ const styles = defineStyles("ForumDropdownMultiselect", (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
     textAlign: "center",
-    ...(!theme.isFriendlyUI && {
-      "& button:hover": {
-        backgroundColor: "transparent",
-      },
-    }),
+    "& button:hover": {
+    backgroundColor: "transparent",
+    },
   },
   button: {
     textTransform: "none",
@@ -35,24 +33,12 @@ const styles = defineStyles("ForumDropdownMultiselect", (theme: ThemeType) => ({
     paddingLeft: 12,
     paddingRight: 6,
     backgroundColor: "transparent",
-    ...(theme.isFriendlyUI && {
-      color: "inherit",
-      "&:hover": {
-        backgroundColor: theme.palette.grey[250],
-        color: theme.palette.grey[1000],
-      },
-    }),
   },
   openButton: {
-    ...(theme.isFriendlyUI && {
-      backgroundColor: theme.palette.grey[250],
-      color: theme.palette.grey[1000],
-    }),
   },
   dropdownIcon: {
     verticalAlign: "middle",
     position: "relative",
-    ...(theme.isFriendlyUI && { width: 10, fontSize: "18px!important", height: 12, marginLeft: 4, padding: 1}),
   },
   selectedIcon: {
     verticalAlign: "middle",
@@ -65,15 +51,6 @@ const styles = defineStyles("ForumDropdownMultiselect", (theme: ThemeType) => ({
   },
   menu: {
     marginTop: 28,
-    ...(theme.isFriendlyUI && {
-      "& .MuiPopover-paper": {
-        backgroundColor: theme.palette.dropdown.background,
-        border: `1px solid ${theme.palette.dropdown.border}`,
-      },
-      "& a:hover": {
-        opacity: "inherit",
-      },
-    }),
     '& .MuiList-padding': {
       padding: '4px 0px',
     }
@@ -84,18 +61,6 @@ const styles = defineStyles("ForumDropdownMultiselect", (theme: ThemeType) => ({
     marginTop: 46
   },
   menuItem: {
-    ...(theme.isFriendlyUI && {
-      color: theme.palette.grey[1000],
-      borderRadius: theme.borderRadius.small,
-      padding: "6px 8px",
-      margin: "0px 4px",
-      fontSize: "14px",
-      lineHeight: "14px",
-      "&:hover": {
-        backgroundColor: theme.palette.grey[250],
-        color: theme.palette.grey[1000],
-      },
-    }),
     "&:focus": {
       outline: "none",
     },

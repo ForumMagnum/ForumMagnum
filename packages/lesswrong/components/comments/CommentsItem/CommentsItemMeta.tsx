@@ -39,11 +39,11 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
     marginBottom: 8,
     color: theme.palette.text.dim,
     paddingTop: "0.6em",
-    marginRight: theme.isFriendlyUI ? 40 : 20,
+    marginRight: 20,
 
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: theme.isFriendlyUI ? undefined : `${theme.palette.linkHover.dim} !important`,
+      color: `${theme.palette.linkHover.dim} !important`,
     },
   },
   sideCommentMeta: {
@@ -54,14 +54,13 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
     ...metaNoticeStyles(theme),
   },
   collapse: {
-    marginRight: theme.isFriendlyUI ? 6 : 5,
+    marginRight: 5,
     opacity: 0.8,
     fontSize: "0.8rem",
     lineHeight: "1rem",
-    paddingBottom: theme.isFriendlyUI ? 4 : 2,
-    display: theme.isFriendlyUI ? "inline-block" : "flex",
+    paddingBottom: 2,
+    display: "flex",
     verticalAlign: "middle",
-    transform: theme.isFriendlyUI ? "translateY(3px)" : undefined,
 
     "& span": {
       fontFamily: "monospace",
@@ -78,7 +77,7 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
     transform: 'translateY(0.75px)',
   },
   username: {
-    marginRight: theme.isFriendlyUI ? 0 : 6,
+    marginRight: 6,
 
     "$sideCommentMeta &": {
       flexGrow: 1,
@@ -115,7 +114,7 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
   },
   rightSection: {
     position: "absolute",
-    right: theme.isFriendlyUI ? -46 : -26,
+    right: -26,
     top: 12,
     display: "flex",
   },
@@ -132,13 +131,9 @@ const styles = defineStyles("CommentsItemMeta", (theme: ThemeType) => ({
     stroke: "currentColor",
     color: theme.palette.primary.main
   },
-  menu: theme.isFriendlyUI
-    ? {
-      color: theme.palette.icon.dim,
-    }
-    : {
-      opacity: 0.35,
-    }
+  menu: {
+    opacity: 0.35,
+  }
 }));
 
 export const CommentsItemMeta = ({

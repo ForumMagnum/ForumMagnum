@@ -40,11 +40,7 @@ export type FormDisplayMode = "default" | "minimalist"
 
 
 const styles = (theme: ThemeType) => ({
-  root: theme.isFriendlyUI ? {
-    '& .form-component-EditorFormComponent': {
-      marginTop: 0
-    }
-  } : {},
+  root: {},
   rootMinimalist: {
     '& .form-input': {
       width: "100%",
@@ -64,17 +60,7 @@ const styles = (theme: ThemeType) => ({
       borderTopRightRadius: theme.borderRadius.quickTakesEntry,
     },
   },
-  quickTakesSubmitButtonAtBottom: theme.isFriendlyUI
-    ? {
-      "& .form-component-EditorFormComponent": {
-        background: "transparent",
-        borderRadius: theme.borderRadius.quickTakesEntry,
-      },
-      "& .form-input": {
-        padding: "0 20px",
-      },
-    }
-    : {},
+  quickTakesSubmitButtonAtBottom: {},
   loadingRoot: {
     opacity: 0.5
   },

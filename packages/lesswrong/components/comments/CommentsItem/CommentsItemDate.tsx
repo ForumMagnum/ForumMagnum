@@ -13,13 +13,8 @@ const EDIT_GRACE_PERIOD = 60*60*1000; //1hr
 
 const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI ? {
-      marginLeft: 2,
-      marginRight: 7,
-    } : {
-      marginLeft: 2,
-      marginRight: 16,
-    }),
+    marginLeft: 2,
+    marginRight: 16,
 
     "& a:hover, & a:active": {
       "& $icon": {

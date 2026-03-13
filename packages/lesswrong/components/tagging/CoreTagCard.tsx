@@ -37,10 +37,10 @@ const styles = (theme: ThemeType) => ({
     minWidth: 0, // required for text-overflow to work
   },
   title: {
-    ...theme.typography[theme.isFriendlyUI ? "headerStyle" : "headline"],
+    ...theme.typography["headline"],
     fontSize: 16,
     lineHeight: "20px",
-    fontWeight: theme.isFriendlyUI ? 600 : 700,
+    fontWeight: 700,
     whiteSpace: "nowrap",
     overflow: "hidden",
   },

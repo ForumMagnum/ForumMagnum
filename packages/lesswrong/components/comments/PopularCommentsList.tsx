@@ -14,7 +14,7 @@ const styles = defineStyles("PopularCommentsList", (theme: ThemeType) => ({
     flexDirection: "column",
     gap: "4px",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: theme.isFriendlyUI ? 14 : '1.16rem',
+    fontSize: '1.16rem',
     fontWeight: 500,
     color: theme.palette.grey[1000],
   },

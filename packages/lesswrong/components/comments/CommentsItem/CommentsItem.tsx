@@ -72,9 +72,8 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
   replyLink: {
     marginRight: 8,
     display: "inline",
-    fontWeight: theme.isFriendlyUI ? 600 : theme.typography.body1.fontWeight,
+    fontWeight: theme.typography.body1.fontWeight,
     color: theme.palette.link.dim,
-    fontSize: theme.isFriendlyUI ? "1.1rem" : undefined,
     "@media print": {
       display: "none",
     },
@@ -87,7 +86,7 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
     marginTop: 2,
     marginBottom: 8,
     border: theme.palette.border.normal,
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : 0,
+    borderRadius: 0,
   },
   replyFormMinimalist: {
     borderRadius: theme.borderRadius.small,
@@ -103,15 +102,9 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
     paddingTop: 10,
     marginBottom: '-3px',
   },
-  pinnedIcon: theme.isFriendlyUI
-    ? {
-      width: 16,
-      height: 16,
-      padding: 1.5,
-    }
-    : {
-      "--icon-size": "12px",
-    },
+  pinnedIcon: {
+    "--icon-size": "12px",
+  },
   title: {
     ...theme.typography.display2,
     ...theme.typography.postStyle,

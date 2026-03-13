@@ -27,10 +27,10 @@ const styles = (theme: ThemeType) => ({
   },
   newQuickTake: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontWeight: theme.isFriendlyUI ? 700 : 500,
+    fontWeight: 500,
     fontSize: 20,
     color: theme.palette.grey[1000],
-    margin: theme.isFriendlyUI ? 20 : '16px 20px 16px 0px',
+    margin: '16px 20px 16px 0px',
   },
   quickTakesRoot: {
     background: "transparent",

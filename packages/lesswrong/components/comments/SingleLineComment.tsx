@@ -31,8 +31,7 @@ export const singleLineStyles = (theme: ThemeType) => ({
   paddingLeft: 8,
   paddingRight: 8,
   color: theme.palette.text.dim60,
-  whiteSpace: "nowrap",
-  fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+  whiteSpace: "nowrap"
 })
 
 const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({

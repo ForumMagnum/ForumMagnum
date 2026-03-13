@@ -23,9 +23,8 @@ type TabType = 'bookmarks' | 'readhistory' | 'votehistory';
 const styles = defineStyles("BookmarksPage", (theme: ThemeType) => ({
   headline: {
     color: theme.palette.grey[1000],
-    fontSize: theme.isFriendlyUI ? 28 : undefined,
-    fontFamily: theme.isFriendlyUI ? undefined : theme.palette.fonts.serifStack,
-    marginTop: theme.isFriendlyUI ? 10 : 0,
+    fontFamily: theme.palette.fonts.serifStack,
+    marginTop: 0,
     marginBottom: 20,
     [theme.breakpoints.down('sm')]: {
       marginTop: 20,
@@ -37,7 +36,6 @@ const styles = defineStyles("BookmarksPage", (theme: ThemeType) => ({
   },
   tab: {
     fontSize: 14,
-    fontWeight: theme.isFriendlyUI ? '700' : undefined,
     [theme.breakpoints.down('xs')]: {
       fontSize: 13,
     }

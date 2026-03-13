@@ -59,15 +59,10 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     textAlign: "center",
     fontWeight: theme.typography.body1.fontWeight,
-    color: theme.isFriendlyUI ? theme.palette.lwTertiary.main : theme.palette.primary.main,
+    color: theme.palette.primary.main,
     boxShadow: theme.palette.boxShadow.default,
-    ...(theme.isFriendlyUI ? {
-      marginBottom: 4,
-      marginRight: 4,
-    } : {
-      maxWidth: 180,
-      whiteSpace: "nowrap",
-    }),
+    maxWidth: 180,
+    whiteSpace: "nowrap",
   },
   description: {
     marginTop: 20
@@ -77,7 +72,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     justifyContent: 'center',
     fontWeight: theme.typography.body1.fontWeight,
-    overflow: theme.isFriendlyUI ? undefined : 'hidden',
+    overflow: 'hidden',
   },
   filterScore: {
     color: theme.palette.primary.main,
@@ -132,11 +127,7 @@ const styles = (theme: ThemeType) => ({
     paddingRight: 8,
     marginTop: -4,
     marginBottom: -4,
-    borderRadius: 2,
-    
-    ...(theme.isFriendlyUI && {
-      color: theme.palette.primary.main
-    }),
+    borderRadius: 2
   },
   input: {
     padding: 0,

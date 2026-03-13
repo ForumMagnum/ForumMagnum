@@ -18,7 +18,7 @@ import { isAF } from "@/lib/instanceSettings";
 
 const styles = defineStyles("PostBottomRecommendations", (theme: ThemeType) => ({
   root: {
-    background: theme.isFriendlyUI ? theme.palette.grey[55] : 'transparent',
+    background: 'transparent',
     padding: "60px 0 80px 0",
     marginTop: 60,
     [theme.breakpoints.down('sm')]: {

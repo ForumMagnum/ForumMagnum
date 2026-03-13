@@ -90,7 +90,7 @@ const styles = defineStyles("CommunityMap", (theme: ThemeType) => ({
   mapButtons: {
     alignItems: "flex-end",
     position: "absolute",
-    top: theme.isFriendlyUI ? 40 : 10,
+    top: 10,
     right: 10,
     display: "flex",
     flexDirection: "column",

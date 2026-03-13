@@ -8,13 +8,7 @@ import MetaInfo from "../common/MetaInfo";
 
 const styles = defineStyles("UserMentionHit", (theme: ThemeType) => ({
   root: {
-    color: "inherit",
-    ...(theme.isFriendlyUI && {
-      display: "block",
-      maxWidth: 500,
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    }),
+    color: "inherit"
   },
   icon: {
     width: 16,
@@ -28,10 +22,6 @@ const styles = defineStyles("UserMentionHit", (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     marginRight: 8,
     fontSize: "1rem",
-    
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack
-    }),
     marginLeft: 8,
 
     // To properly switch color on item being selected

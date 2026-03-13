@@ -26,35 +26,19 @@ const CommentEditMutation = gql(`
 export const styles = defineStyles('DialogueSubmit', (theme: ThemeType) => ({
   formButton: {
     fontFamily: theme.typography.commentStyle.fontFamily,
-    fontSize: theme.isFriendlyUI ? 14 : 16,
+    fontSize: 16,
     marginLeft: 5,
-    ...(theme.isFriendlyUI ? {
-      textTransform: 'none',
-    } : {
-      paddingBottom: 4,
-      fontWeight: 500,
-      "&:hover": {
-        background: theme.palette.buttons.hoverGrayHighlight,
-      }
-    })
+    paddingBottom: 4,
+    fontWeight: 500,
+    "&:hover": {
+      background: theme.palette.buttons.hoverGrayHighlight,
+    }
   },
   secondaryButton: {
-    ...(theme.isFriendlyUI ? {
-      color: theme.palette.grey[680],
-      padding: '8px 12px'
-    } : {
-      color: theme.palette.text.dim40,
-    })
+    color: theme.palette.text.dim40,
   },
   submitButton: {
-    ...(theme.isFriendlyUI ? {
-      backgroundColor: theme.palette.buttons.alwaysPrimary,
-      color: theme.palette.text.alwaysWhite,
-      boxShadow: 'none',
-      marginLeft: 10,
-    } : {
-      color: theme.palette.secondary.main
-    })
+    color: theme.palette.secondary.main
   },
 }));
 

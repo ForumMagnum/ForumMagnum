@@ -17,9 +17,7 @@ const CommentsListUpdateMutation = gql(`
 `);
 
 const styles = (theme: ThemeType) => ({
-  icon: theme.isFriendlyUI
-    ? {fontSize: "18px"}
-    : {},
+  icon: {},
 });
 
 const PinToProfileDropdownItem = ({comment, post, classes}: {

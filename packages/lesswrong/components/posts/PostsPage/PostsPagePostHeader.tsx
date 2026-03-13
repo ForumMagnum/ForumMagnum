@@ -35,7 +35,7 @@ const styles = (theme: ThemeType) => ({
     display:"flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: theme.isFriendlyUI ? 20 : 16,
+    marginBottom: 16,
   },
   headerLeft: {
     width: "100%"
@@ -43,9 +43,7 @@ const styles = (theme: ThemeType) => ({
   headerVote: {
     textAlign: 'center',
     fontSize: 42,
-    position: theme.isFriendlyUI ? 'absolute' : "relative",
-    top: theme.isFriendlyUI ? 0 : undefined,
-    left: theme.isFriendlyUI ? -93 : undefined,
+    position: "relative",
     [theme.breakpoints.down("sm")]: {
       position: 'relative',
       top: 'auto',
@@ -60,12 +58,9 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'baseline',
     columnGap: SECONDARY_SPACING,
     flexWrap: 'wrap',
-    fontSize: theme.isFriendlyUI ? theme.typography.body1.fontSize : '1.4rem',
-    fontWeight: theme.isFriendlyUI ? 450 : undefined,
+    fontSize: '1.4rem',
     fontFamily: theme.typography.uiSecondary.fontFamily,
-    color: theme.palette.text.dim3,
-    paddingBottom: theme.isFriendlyUI ? 12 : undefined,
-    borderBottom: theme.isFriendlyUI ? theme.palette.border.grey300 : undefined
+    color: theme.palette.text.dim3
   },
   secondaryInfo: {
     flexGrow: 1,
@@ -91,12 +86,11 @@ const styles = (theme: ThemeType) => ({
     columnGap: SECONDARY_SPACING
   },
   secondaryInfoLink: {
-    fontWeight: theme.isFriendlyUI ? 450 : undefined,
-    fontSize: theme.isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    fontSize: theme.typography.body2.fontSize,
     "@media print": { display: "none" },
   },
   actions: {
-    color: theme.isFriendlyUI ? undefined : theme.palette.grey[500],
+    color: theme.palette.grey[500],
     "&:hover": {
       opacity: 0.5,
     },
@@ -150,7 +144,7 @@ const styles = (theme: ThemeType) => ({
   tagSection: {
     flex: 1,
     display: "flex",
-    flexDirection: theme.isFriendlyUI ? "column" : "row",
+    flexDirection: "row",
     height: "100%",
   }
 });

@@ -24,9 +24,7 @@ const styles = (theme: ThemeType) => ({
   },
   commentEditor: {
     "& .ck-placeholder": {
-      marginTop: theme.isFriendlyUI ? "-3px !important" : undefined,
       "&::before": {
-        color: theme.isFriendlyUI ? theme.palette.grey[600] : undefined,
         fontFamily: theme.palette.fonts.sansSerifStack,
         fontSize: 14,
         fontWeight: 500,

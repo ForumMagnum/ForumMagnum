@@ -14,16 +14,10 @@ import { MenuItem } from "../common/Menus";
 
 const styles = (theme: ThemeType) => ({
   explanatoryText: {
-    ...theme.typography.body1,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
+    ...theme.typography.body1
   },
   abTestsTable: {
     ...theme.typography.body1,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
     marginTop: 24,
     "& th": {
       textAlign: "left",

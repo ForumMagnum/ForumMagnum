@@ -12,7 +12,6 @@ export const CONDENSED_MARGIN_BOTTOM = 4
 const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
   node: {
     border: theme.palette.border.commentBorder,
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : undefined,
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
@@ -29,15 +28,13 @@ const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
     borderTop: theme.palette.border.commentBorder,
     borderBottom: theme.palette.border.commentBorder,
     borderRight: "none",
-    borderRadius: theme.isFriendlyUI
-      ? `${theme.borderRadius.small}px 0 0 ${theme.borderRadius.small}px`
-      : "2px 0 0 2px",
+    borderRadius: "2px 0 0 2px",
   },
   new: {
     '&&': {
-      borderLeft: `solid 5px ${theme.palette.secondary.light}${theme.isFriendlyUI ? '' : '8c'}`,
+      borderLeft: `solid 5px ${theme.palette.secondary.light}${'8c'}`,
       '&:hover': {
-        borderLeft: `solid 5px ${theme.palette.secondary.main}${theme.isFriendlyUI ? '' : '8c'}`
+        borderLeft: `solid 5px ${theme.palette.secondary.main}${'8c'}`
       },
     }
   },
@@ -121,7 +118,7 @@ const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
       left: 1,
       boxSizing: "border-box",
       backgroundColor: theme.palette.panelBackground.default,
-      borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : 0,
+      borderRadius: 0,
     },
     position: "relative",
     backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight}, ${theme.palette.border.primaryHighlight})`,

@@ -28,10 +28,7 @@ import { useStyles } from '../hooks/useStyles';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 const styles = defineStyles('FooterTagList', (theme: ThemeType) => ({
-  root: theme.isFriendlyUI ? {
-    marginTop: 8,
-    marginBottom: 8,
-  } : {
+  root: {
     display: 'flex',
     gap: 4,
     flexWrap: 'wrap',
@@ -42,7 +39,7 @@ const styles = defineStyles('FooterTagList', (theme: ThemeType) => ({
     justifyContent: 'flex-end'
   },
   allowTruncate: {
-    display: theme.isFriendlyUI ? "block" : "inline-flex",
+    display: "inline-flex",
     // Truncate to 1 row (webkit-line-clamp would be ideal here but it adds an ellipsis
     // which can't be removed)
     maxHeight: 33,
@@ -53,26 +50,13 @@ const styles = defineStyles('FooterTagList', (theme: ThemeType) => ({
     marginBottom: 0,
   },
   postTypeLink: {
-    "&:hover": theme.isFriendlyUI ? {opacity: 1} : {},
+    "&:hover": {},
   },
   frontpageOrPersonal: {
     ...tagStyle(theme),
     backgroundColor: theme.palette.tag.hollowTagBackground,
-    ...(theme.isFriendlyUI
-      ? {
-        marginBottom: 0,
-        "&:hover": {
-          opacity: 1,
-          backgroundColor: theme.palette.tag.hollowTagBackgroundHover,
-        },
-        "& a:hover": {
-          opacity: 1,
-        },
-      }
-      : {
-        paddingTop: 4.5,
-        paddingBottom: 4.5,
-      }),
+    paddingTop: 4.5,
+    paddingBottom: 4.5,
     border: theme.palette.tag.hollowTagBorder,
     color: theme.palette.text.dim3,
   },
@@ -348,7 +332,7 @@ const FooterTagList = ({
     ? stableSortTags(results.filter((tagRel) => !!tagRel?.tag).map((tr) => ({ tag: tr.tag!, tagRel: tr })), {
         coreTags: "last",
       })
-    : post.tags.map((tag) => ({ tag, tagRel: undefined }));
+    : post.tags.map((tag) => ({ tag }));
   const menuPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
   const addTagButton = <AddTagButton onTagSelected={onTagSelected} isVotingContext menuPlacement={menuPlacement}>

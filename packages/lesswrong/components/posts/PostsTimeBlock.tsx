@@ -39,18 +39,8 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.postStyle,
     position: "sticky",
     zIndex: 1,
-    ...(theme.isFriendlyUI
-      ? {
-        fontFamily: theme.palette.fonts.sansSerifStack,
-        fontWeight: 600,
-        fontSize: 18,
-        color: theme.palette.grey[1000],
-        marginTop: 25,
-      }
-      : {
-        paddingTop: 4,
-        paddingBottom: 4,
-      }),
+    paddingTop: 4,
+    paddingBottom: 4,
   },
   smallScreenTitle: {
     [theme.breakpoints.down('xs')]: {
@@ -66,34 +56,23 @@ const styles = (theme: ThemeType) => ({
     marginTop: 6,
   },
   noPosts: {
-    marginLeft: theme.isFriendlyUI ? 0 : 23,
-    color: theme.palette.text.dim,
-    ...(theme.isFriendlyUI
-      ? {
-        marginTop: 18,
-        fontFamily: theme.palette.fonts.sansSerifStack,
-      }
-      : {}),
+    marginLeft: 23,
+    color: theme.palette.text.dim
   },
   posts: {
     boxShadow: theme.palette.boxShadow.default,
-    marginBottom: theme.isFriendlyUI ? 8 : 0,
+    marginBottom: 0,
   },
-  subtitle: theme.isFriendlyUI ? {
-    marginTop: 12,
-  } : {},
+  subtitle: {},
   frontpageSubtitle: {
     marginBottom: 6
   },
   otherSubtitle: {
-    marginTop: theme.isFriendlyUI ? 0 : 6,
+    marginTop: 6,
     marginBottom: 6
   },
   divider: {
-    ...(theme.isFriendlyUI && {
-      display: 'none'
-    }),
-  }
+}
 })
 
 interface PostTypeOptions {

@@ -40,10 +40,10 @@ const styles = defineStyles("RouteRootClient", (theme: ThemeType) => ({
     minHeight: `calc(100vh - var(--header-height))`,
     gridArea: 'main',
     [theme.breakpoints.down('md')]: {
-      paddingTop: theme.isFriendlyUI ? 0 : theme.spacing.mainLayoutPaddingTop,
+      paddingTop: theme.spacing.mainLayoutPaddingTop,
     },
     [theme.breakpoints.down('sm')]: {
-      paddingTop: theme.isFriendlyUI ? 0 : 10,
+      paddingTop: 10,
       paddingLeft: 8,
       paddingRight: 8,
     },

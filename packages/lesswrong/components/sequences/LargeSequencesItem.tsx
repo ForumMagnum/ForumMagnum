@@ -108,7 +108,7 @@ const styles = (theme: ThemeType) => ({
     objectFit: "cover"
   },
   chapterTitle: {
-    fontSize: `${theme.isFriendlyUI ? "1.2rem" : "1.25rem"} !important`,
+    fontSize: `${"1.25rem"} !important`,
     margin: "8px 0 -8px 0 !important",
   },
   postIcon: {
@@ -131,7 +131,7 @@ const styles = (theme: ThemeType) => ({
     width: "45%",
     display: "flex",
     flexDirection: "column",
-    justifyContent: theme.isFriendlyUI ? "flex-start" : "center",
+    justifyContent: "center",
     maxHeight: 600,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
