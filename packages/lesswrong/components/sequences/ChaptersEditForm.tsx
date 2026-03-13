@@ -6,7 +6,6 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import isEqual from 'lodash/isEqual';
 import { useMessages } from "../common/withMessages";
 import classNames from 'classnames';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { ChaptersForm } from './ChaptersForm';
 import AddDraftPostDialog from "./AddDraftPostDialog";
 import { defineStyles } from '@/components/hooks/defineStyles';

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { tagPostTerms } from './TagPageUtils';

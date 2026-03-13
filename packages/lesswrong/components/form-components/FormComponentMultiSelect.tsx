@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';

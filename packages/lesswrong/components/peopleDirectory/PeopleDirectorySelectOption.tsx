@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { MultiSelectState } from "../hooks/useMultiSelect";
 import { useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";

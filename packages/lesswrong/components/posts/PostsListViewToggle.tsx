@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isPostsListViewType, usePostsListView } from "../hooks/usePostsListView";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";

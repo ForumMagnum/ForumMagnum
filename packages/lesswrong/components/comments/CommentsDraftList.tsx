@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Typography } from '../common/Typography';
 import Loading from '../vulcan-core/Loading';
 import LoadMore from '../common/LoadMore';

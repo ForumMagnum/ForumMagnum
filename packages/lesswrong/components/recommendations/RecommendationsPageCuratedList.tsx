@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { hasCuratedPostsSetting } from '../../lib/instanceSettings';

@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import without from 'lodash/without';
 import LocalEventMarker from "./LocalEventMarker";
 import LocalGroupMarker from "./LocalGroupMarker";

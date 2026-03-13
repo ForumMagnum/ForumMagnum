@@ -1,6 +1,5 @@
 import React from 'react';
 import HelpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/HelpOutline';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 

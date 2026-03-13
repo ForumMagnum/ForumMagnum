@@ -4,7 +4,6 @@ import { useQuery } from "@/lib/crud/useQuery"
 import { extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "../../lib/collections/posts/helpers";
 import { useMessages } from "../common/withMessages";
 import { useTracking } from "../../lib/analyticsEvents";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import EAButton from "../ea-forum/EAButton";
 import ForumIcon from "../common/ForumIcon";

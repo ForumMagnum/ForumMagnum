@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { getReviewPhase, REVIEW_YEAR, ReviewYear } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import sortBy from 'lodash/sortBy';
 import { getVotePower } from '@/lib/voting/vote';
 import { useCurrentUser } from '../common/withUser';

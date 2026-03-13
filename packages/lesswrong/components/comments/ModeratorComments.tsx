@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { sectionTitleStyle } from '../common/SectionTitle';
 import CommentsNode from "./CommentsNode";
 import Loading from "../vulcan-core/Loading";

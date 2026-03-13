@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogActions } from '../widgets/DialogActions';
 import { useMessages } from '../common/withMessages';

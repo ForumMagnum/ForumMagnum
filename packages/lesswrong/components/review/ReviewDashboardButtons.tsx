@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import Row from "../common/Row";

@@ -1,6 +1,5 @@
 import React from 'react';
 import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useVote } from '../votes/withVote';
 import TagPreview from "./TagPreview";
 import OverallVoteButton from "../votes/OverallVoteButton";

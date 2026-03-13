@@ -12,7 +12,6 @@ import { useDialog } from '../common/withDialog';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { formatFacetFilters } from '../search/SearchAutoComplete';
 import { Hits, InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import LoginPopup from "../users/LoginPopup";
 import SearchPagination from "../search/SearchPagination";
 import PostsListEditorSearchHit from "../search/PostsListEditorSearchHit";

@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Configure, Hits, SearchBox } from "react-instantsearch-dom";
 import { getElasticIndexNameWithSorting, getSearchClient } from "../../lib/search/searchUtil";

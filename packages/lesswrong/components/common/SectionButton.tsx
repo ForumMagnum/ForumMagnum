@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { isAF } from '@/lib/instanceSettings';
 import { Typography } from "./Typography";

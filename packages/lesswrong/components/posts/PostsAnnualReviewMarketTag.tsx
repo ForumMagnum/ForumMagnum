@@ -1,5 +1,4 @@
 import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useMemo } from 'react';
 import { useHover } from '../common/withHover';
 import { highlightReviewWinnerThresholdSetting } from '@/lib/instanceSettings';

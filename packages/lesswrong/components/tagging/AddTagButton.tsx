@@ -1,5 +1,4 @@
 import React, { ReactNode, useRef, useState }  from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Paper }from '@/components/widgets/Paper';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking } from "../../lib/analyticsEvents";

@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "./withUser";
 import classNames from "classnames";

@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import DropdownItem from "../DropdownItem";

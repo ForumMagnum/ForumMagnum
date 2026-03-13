@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { CommentTreeOptions } from '../comments/commentTree';
 import Loading from "../vulcan-core/Loading";

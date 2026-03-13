@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Menu } from '@/components/widgets/Menu';
 import { MenuItem } from "./Menus";
 import { defineStyles } from '@/components/hooks/defineStyles';

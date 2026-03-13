@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import sortBy from 'lodash/sortBy';
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'

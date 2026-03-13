@@ -1,5 +1,4 @@
 import React, { useRef } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useTracking } from "../../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { useEventListener } from '../../hooks/useEventListener';

@@ -1,5 +1,4 @@
 import React, { FC, ReactNode } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';

@@ -1,5 +1,4 @@
 import React, { MouseEvent, useContext } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo, userCanQuickTake, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName, userGetProfileUrl, userCanPost } from '../../lib/collections/users/helpers';

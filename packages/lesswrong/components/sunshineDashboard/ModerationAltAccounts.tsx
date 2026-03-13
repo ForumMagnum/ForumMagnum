@@ -1,7 +1,6 @@
 "use client";
 
 import React, {useState} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { useQuery } from "@/lib/crud/useQuery";

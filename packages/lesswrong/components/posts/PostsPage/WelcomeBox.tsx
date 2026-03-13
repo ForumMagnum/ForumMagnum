@@ -4,7 +4,6 @@ import React, { ComponentProps } from 'react';
 import { AnalyticsContext } from '../../../lib/analyticsEvents';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { HashLinkProps } from '../../common/HashLink';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_WELCOME_BOX_COOKIE } from '../../../lib/cookies/cookies';

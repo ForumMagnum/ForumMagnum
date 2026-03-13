@@ -5,7 +5,6 @@ import { userCanDo } from "../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { ALLOWABLE_COLLECTIONS, TemplateType } from "@/lib/collections/moderationTemplates/constants";
 import classNames from 'classnames';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { ModerationTemplatesForm } from './ModerationTemplateForm';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";

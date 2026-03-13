@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import classNames from "classnames";
 import { useDialog } from "../withDialog";

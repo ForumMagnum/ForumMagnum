@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import Info from '@/lib/vendor/@material-ui/icons/src/Info';
 import { isLWorAF, forumHeaderTitleSetting } from '../../lib/instanceSettings';

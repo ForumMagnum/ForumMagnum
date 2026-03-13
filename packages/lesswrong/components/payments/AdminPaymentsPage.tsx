@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Table } from '@/components/widgets/Table';
 import { TableRow } from '@/components/widgets/TableRow';
 import { TableCell } from '@/components/widgets/TableCell';

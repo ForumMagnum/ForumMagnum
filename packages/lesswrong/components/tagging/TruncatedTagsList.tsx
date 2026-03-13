@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, RefObject } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
 import FooterTag from "./FooterTag";

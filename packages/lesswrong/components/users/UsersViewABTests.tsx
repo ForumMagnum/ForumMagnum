@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getUserABTestKey, getABTestsMetadata } from '../../lib/abTestImpl';
 import { useClientId } from '../hooks/useClientId';
 import { useAllABTests } from '../hooks/useAbTests';

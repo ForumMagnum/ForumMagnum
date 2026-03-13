@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import React, { useState } from 'react';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';

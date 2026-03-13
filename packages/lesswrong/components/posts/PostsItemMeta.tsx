@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { FC } from 'react';
 import classNames from 'classnames';
 import { isAF } from '../../lib/instanceSettings';

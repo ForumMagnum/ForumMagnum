@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { fmCrosspostSiteNameSetting } from "../../../lib/instanceSettings";
 import { crosspostDetailsRoute } from "@/lib/fmCrosspost/routes";
 import { usePostsPageContext } from "./PostsPageContext";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Typography } from "../../common/Typography";
 import Loading from "@/components/vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';

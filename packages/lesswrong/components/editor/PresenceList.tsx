@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { ConnectedUserInfo } from "./CKPostEditor";
 import keyBy from 'lodash/keyBy';
 import classNames from 'classnames';

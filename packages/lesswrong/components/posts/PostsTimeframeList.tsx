@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import moment from '../../lib/moment-timezone';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { getDateRange, loadMoreTimeframeMessages, timeframeToRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';

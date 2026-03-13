@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import SunshineListTitle from "./SunshineListTitle";
 import OmegaIcon from "../icons/OmegaIcon";
 import AFSuggestCommentsItem from "./AFSuggestCommentsItem";

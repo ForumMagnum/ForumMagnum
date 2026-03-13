@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Card } from "@/components/widgets/Paper";
 import { useCurrentUser } from '../common/withUser';
 import { forumTitleSetting } from '../../lib/instanceSettings';

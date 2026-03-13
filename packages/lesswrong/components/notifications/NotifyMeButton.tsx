@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 import classNames from 'classnames';
 import { SubscriptionType } from '../../lib/collections/subscriptions/helpers';

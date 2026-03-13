@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import ContentStyles from "../ContentStyles";
 import classNames from "classnames";

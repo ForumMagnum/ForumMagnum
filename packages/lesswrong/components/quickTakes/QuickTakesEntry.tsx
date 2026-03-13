@@ -1,5 +1,4 @@
 import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import CommentsNewForm, {
   CommentCancelCallback,
   CommentSuccessCallback } from "../comments/CommentsNewForm";

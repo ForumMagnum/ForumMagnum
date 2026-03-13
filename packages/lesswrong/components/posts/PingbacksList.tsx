@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import Pingback from "./Pingback";
 import LWTooltip from "../common/LWTooltip";

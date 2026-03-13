@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import type { ToCAnswer } from '../../../lib/tableOfContents';
 import LWTooltip from "../../common/LWTooltip";
 import FormatDate from "../../common/FormatDate";

@@ -2,7 +2,6 @@ import React from 'react';
 import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";

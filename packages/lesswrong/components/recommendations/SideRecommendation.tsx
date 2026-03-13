@@ -1,5 +1,4 @@
 import React, { MouseEvent, useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useRecommendationAnalytics } from "./useRecommendationsAnalytics";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useClickableCell } from "../common/useClickableCell";

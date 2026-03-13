@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../../themes/stylePiping';
 import UserAutoRateLimitsDisplay, { downvoterTooltip, recentKarmaTooltip } from './UserAutoRateLimitsDisplay';
 import { forumSelect } from '../../../lib/forumTypeUtils';

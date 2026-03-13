@@ -1,5 +1,4 @@
 import React, { ReactNode } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import LocalGroupsItem from "./LocalGroupsItem";
 import Loading from "../vulcan-core/Loading";
 import PostsNoResults from "../posts/PostsNoResults";

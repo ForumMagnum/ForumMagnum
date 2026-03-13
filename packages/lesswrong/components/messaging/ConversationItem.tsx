@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postsItemLikeStyles } from '../localGroups/LocalGroupsItem'

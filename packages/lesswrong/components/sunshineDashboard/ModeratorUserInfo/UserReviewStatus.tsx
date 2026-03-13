@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import FormatDate from "../../common/FormatDate";
 import UsersNameWrapper from "../../users/UsersNameWrapper";
 import AltAccountInfo from "./AltAccountInfo";

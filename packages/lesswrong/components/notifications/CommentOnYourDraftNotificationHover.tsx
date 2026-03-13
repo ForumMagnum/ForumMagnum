@@ -1,7 +1,6 @@
 'use client';
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import {useCurrentUser} from "../common/withUser";
 import { NotifPopoverLink } from './useNotificationsPopoverContext';
 import { useQuery } from "@/lib/crud/useQuery";

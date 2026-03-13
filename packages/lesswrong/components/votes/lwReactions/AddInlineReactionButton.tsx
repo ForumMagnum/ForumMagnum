@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useNamesAttachedReactionsVoting } from "./NamesAttachedReactionsVoteOnComment";
 import { VotingProps } from "../votingProps";
 import { QuoteLocator } from "../../../lib/voting/namesAttachedReactions";

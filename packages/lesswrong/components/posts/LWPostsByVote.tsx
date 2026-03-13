@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import PostsItem from "./PostsItem";
 import ErrorBoundary from "../common/ErrorBoundary";
 import Loading from "../vulcan-core/Loading";

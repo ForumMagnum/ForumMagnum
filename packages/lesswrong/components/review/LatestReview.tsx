@@ -1,6 +1,5 @@
 import React from 'react';
 import { REVIEW_YEAR } from "../../lib/reviewUtils";
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { AnalyticsContext } from '../../lib/analyticsEvents';

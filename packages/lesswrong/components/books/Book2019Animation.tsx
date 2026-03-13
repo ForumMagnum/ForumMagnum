@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import React, { ReactNode } from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 

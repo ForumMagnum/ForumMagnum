@@ -1,5 +1,4 @@
 import React from 'react'
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import UsersName from "../../users/UsersName";
 import UserCommentMarkers from "../../users/UserCommentMarkers";
 import { AUTHOR_MARKER_STYLES } from './authorMarkerStyles';

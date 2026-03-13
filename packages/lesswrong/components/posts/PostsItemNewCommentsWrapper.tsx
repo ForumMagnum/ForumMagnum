@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import PostsItemNewCommentsList from "./PostsItemNewCommentsList";
 import PostsDialogItemNewCommentsList from "./PostsDialogItemNewCommentsList";

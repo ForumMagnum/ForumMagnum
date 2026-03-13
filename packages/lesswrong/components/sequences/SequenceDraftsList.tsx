@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { sortings } from '../posts/DraftsList';

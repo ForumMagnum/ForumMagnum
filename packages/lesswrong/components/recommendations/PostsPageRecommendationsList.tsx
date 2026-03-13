@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import type {
   RecommendationsAlgorithmWithStrategy,

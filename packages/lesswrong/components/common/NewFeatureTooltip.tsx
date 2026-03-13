@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react';
 import { useHover } from './withHover';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import LWPopper from "./LWPopper";
 import { defineStyles } from '@/components/hooks/defineStyles';

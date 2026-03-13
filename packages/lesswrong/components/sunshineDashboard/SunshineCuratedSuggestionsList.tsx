@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';

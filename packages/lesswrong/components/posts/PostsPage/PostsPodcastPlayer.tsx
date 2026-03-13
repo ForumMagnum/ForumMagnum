@@ -1,5 +1,4 @@
 import React, { useEffect, useRef } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
 import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
 import { useEventListener } from '../../hooks/useEventListener';

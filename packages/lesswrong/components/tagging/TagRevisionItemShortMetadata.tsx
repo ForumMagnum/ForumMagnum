@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useDialog } from '../common/withDialog';
 import { ArbitalLogo } from '../icons/ArbitalLogo';

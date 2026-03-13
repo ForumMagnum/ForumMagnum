@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncate } from '../../lib/editor/ellipsize';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useCurrentUser } from '../common/withUser';

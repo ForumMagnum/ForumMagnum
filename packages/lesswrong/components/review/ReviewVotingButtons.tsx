@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { DEFAULT_QUALITATIVE_VOTE } from "@/lib/collections/posts/helpers";
 import { AnalyticsContext } from '../../lib/analyticsEvents';

@@ -1,5 +1,4 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import LWDialog from "./LWDialog";
 import { defineStyles } from '@/components/hooks/defineStyles';

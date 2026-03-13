@@ -3,7 +3,6 @@ import classNames from "classnames";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "../../lib/routeUtil";

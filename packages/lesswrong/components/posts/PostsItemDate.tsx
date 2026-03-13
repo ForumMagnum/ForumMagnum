@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import FormatDate, { ExpandedDate } from '../common/FormatDate';
 import moment from '../../lib/moment-timezone';
 import classNames from 'classnames';

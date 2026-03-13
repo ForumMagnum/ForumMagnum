@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import SunshineNewCommentsItem from "./SunshineNewCommentsItem";
 import SunshineListTitle from "./SunshineListTitle";

@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useVote } from '../votes/withVote';
 import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
 import FormatDate from "../common/FormatDate";

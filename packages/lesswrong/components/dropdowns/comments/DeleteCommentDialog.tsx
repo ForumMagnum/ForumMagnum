@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMessages } from '../../common/withMessages';
 import { useModerateComment } from './withModerateComment'
 import { DialogActions } from '@/components/widgets/DialogActions';

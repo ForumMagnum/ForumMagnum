@@ -1,6 +1,5 @@
 import React from 'react';
 import { QuoteLocator, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import UpArrowIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
 import { defineStyles } from '@/components/hooks/defineStyles';

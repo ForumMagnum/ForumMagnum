@@ -1,7 +1,6 @@
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { Link } from '../../lib/reactRouterWrapper';
 import KeyboardBackspaceIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardBackspace';

@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getTagPostsSortOrderOptions } from "@/lib/collections/tags/helpers";
 import ForumDropdown from "../common/ForumDropdown";
 import { defineStyles } from '@/components/hooks/defineStyles';

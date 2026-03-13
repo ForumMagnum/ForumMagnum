@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components'
 import { Configure } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';

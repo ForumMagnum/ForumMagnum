@@ -1,5 +1,4 @@
 import React from 'react'
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { QueryLink } from "../../../lib/reactRouterWrapper";
 import { useNavigate } from "../../../lib/routeUtil";
 import { useQuery } from "@/lib/crud/useQuery";

@@ -1,7 +1,6 @@
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import React from 'react';
 import { useNewEvents } from '../../lib/events/withNewEvents';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { isLW, firstCommentAcknowledgeMessageCommentIdSetting } from '@/lib/instanceSettings';
 import { AnalyticsContext } from "../../lib/analyticsEvents";

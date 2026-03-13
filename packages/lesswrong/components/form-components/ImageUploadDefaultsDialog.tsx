@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { DialogContent } from '../widgets/DialogContent';
 import { DialogTitle } from '../widgets/DialogTitle';
 import LWDialog from "../common/LWDialog";

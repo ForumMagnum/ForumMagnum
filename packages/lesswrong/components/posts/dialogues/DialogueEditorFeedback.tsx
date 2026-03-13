@@ -3,7 +3,6 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '../../common/withUser';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { getSiteUrl } from "../../../lib/vulcan-lib/utils";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useApolloClient, useMutation } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useDialog } from '../../common/withDialog';
 import { useCurrentUser } from '../../common/withUser';
 import { canUserEditPostMetadata } from '../../../lib/collections/posts/helpers';

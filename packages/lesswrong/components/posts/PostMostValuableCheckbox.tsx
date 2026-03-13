@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";

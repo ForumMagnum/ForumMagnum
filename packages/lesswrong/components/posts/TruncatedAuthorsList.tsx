@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, RefObject, useState, useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";

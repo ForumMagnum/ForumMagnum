@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { SunshineNewUserPostItem } from "./SunshineNewUserPostItem";
 import { defineStyles } from '@/components/hooks/defineStyles';

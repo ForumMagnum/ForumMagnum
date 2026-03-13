@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, {Ref, useState} from 'react';
 import classNames from 'classnames';
 import FullscreenIcon from '@/lib/vendor/@material-ui/icons/src/Fullscreen';

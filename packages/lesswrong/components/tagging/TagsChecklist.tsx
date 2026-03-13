@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
 import LWTooltip from "../common/LWTooltip";

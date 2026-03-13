@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import classNames from 'classnames';
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/constants';

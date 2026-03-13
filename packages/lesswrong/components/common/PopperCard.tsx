@@ -1,5 +1,4 @@
 import React, { CSSProperties } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import type { Placement as PopperPlacementType } from "popper.js"
 import LWPopper from "./LWPopper";

@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import qs from 'qs';
 import React from 'react';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from "../../lib/reactRouterWrapper";

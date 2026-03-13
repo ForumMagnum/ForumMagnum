@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import ChaptersEditForm from "./ChaptersEditForm";
 import ChapterTitle from "./ChapterTitle";

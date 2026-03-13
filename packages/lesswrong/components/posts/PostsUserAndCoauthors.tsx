@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import ModeCommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import classNames from 'classnames';

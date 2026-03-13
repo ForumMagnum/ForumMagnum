@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import _sortBy from 'lodash/sortBy';

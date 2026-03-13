@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { SyntheticReviewVote } from './ReviewVotingPage';
 import classNames from 'classnames';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';

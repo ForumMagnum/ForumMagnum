@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import LWTooltip from "../../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';

@@ -1,5 +1,4 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';

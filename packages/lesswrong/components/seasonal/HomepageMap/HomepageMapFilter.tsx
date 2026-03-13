@@ -1,6 +1,5 @@
 import React from 'react';
 import { Paper }from '@/components/widgets/Paper';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { useMessages } from '../../common/withMessages';
 import classNames from 'classnames'

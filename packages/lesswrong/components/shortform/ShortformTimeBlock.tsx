@@ -1,5 +1,4 @@
 import React, { FC, useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import CommentsNode from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
 import ContentType from "../posts/PostsPage/ContentType";

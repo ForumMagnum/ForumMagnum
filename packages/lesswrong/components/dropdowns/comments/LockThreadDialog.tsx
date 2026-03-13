@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMutation } from "@apollo/client/react";
 import { DialogActions } from '@/components/widgets/DialogActions';
 import { DialogContent } from '@/components/widgets/DialogContent';

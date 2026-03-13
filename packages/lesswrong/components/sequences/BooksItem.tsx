@@ -1,7 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { getBookAnchor } from '../../lib/collections/books/helpers';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { BooksForm } from './BooksForm';
 import Loading from "../vulcan-core/Loading";
 import BooksProgressBar from "./BooksProgressBar";

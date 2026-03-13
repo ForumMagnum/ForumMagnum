@@ -1,5 +1,4 @@
 import React, { ComponentType } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useRecommendations } from './withRecommendations';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import PostsItem from "../posts/PostsItem";

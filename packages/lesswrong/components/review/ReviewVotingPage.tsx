@@ -19,7 +19,6 @@ import { Link } from '@/lib/reactRouterWrapper';
 import ReviewVotingPageMenu, { sortingInfo } from './ReviewVotingPageMenu';
 import { useCommentBox } from '../hooks/useCommentBox';
 import { useDialog } from '../common/withDialog';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import ReviewPostForm from "./ReviewPostForm";
 import PostsTagsList from "../tagging/PostsTagsList";
 import LWTooltip from "../common/LWTooltip";

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import MoreVertIcon from '@/lib/vendor/@material-ui/icons/src/MoreVert';
 import { Menu } from '@/components/widgets/Menu';
 import { useCurrentUserId } from '../../common/withUser';

@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';

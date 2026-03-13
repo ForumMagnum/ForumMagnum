@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { rootStyles as inputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';

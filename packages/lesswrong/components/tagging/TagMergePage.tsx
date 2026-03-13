@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";

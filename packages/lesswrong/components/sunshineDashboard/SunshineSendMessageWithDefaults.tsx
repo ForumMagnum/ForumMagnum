@@ -2,7 +2,6 @@ import React, {useCallback, useState} from 'react';
 import { Menu } from '@/components/widgets/Menu';
 import { Link } from "../../lib/reactRouterWrapper";
 import EditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from '../common/withUser';
 import NewConversationButton, { TemplateQueryStrings } from '../messaging/NewConversationButton'
 import { commentBodyStyles } from '../../themes/stylePiping';

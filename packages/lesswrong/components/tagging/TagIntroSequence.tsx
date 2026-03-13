@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
-import { registerComponent } from '../../lib/vulcan-lib/components'
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import PostsItemIntroSequence from "../posts/PostsItemIntroSequence";

@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import moment from 'moment-timezone';
 import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { QueryLink } from '../../lib/reactRouterWrapper';

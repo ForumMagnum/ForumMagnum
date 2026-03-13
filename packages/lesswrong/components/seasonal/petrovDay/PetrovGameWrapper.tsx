@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';

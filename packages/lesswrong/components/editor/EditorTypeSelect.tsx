@@ -1,6 +1,5 @@
 import React from 'react'
 import { EditorContents, EditorTypeString, EditorChangeEvent, getEditorsForUser, getEditorTypeToDisplayMap } from './Editor';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { useConvertDocument } from './useConvertDocument';

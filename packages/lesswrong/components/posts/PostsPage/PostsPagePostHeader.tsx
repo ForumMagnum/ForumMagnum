@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, parseUnsafeUrl, postGetAnswerCountStr, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { extractVersionsFromSemver } from '../../../lib/editor/utils';

@@ -1,5 +1,4 @@
 import { useTracking } from '@/lib/analyticsEvents';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useNotifyMe } from '../hooks/useNotifyMe';

@@ -8,7 +8,6 @@ import { eligibleToNominate, ReviewPhase } from '../../lib/reviewUtils';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import qs from 'qs';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import ContentStyles from "../common/ContentStyles";

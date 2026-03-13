@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useTracking } from '@/lib/analyticsEvents';
 import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
 import Row from "../../common/Row";

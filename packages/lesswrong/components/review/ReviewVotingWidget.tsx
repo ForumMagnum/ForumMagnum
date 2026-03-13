@@ -5,7 +5,6 @@ import { eligibleToNominate, getReviewNameInSitu, REVIEW_YEAR, VoteIndex } from 
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewOverviewTooltip } from './FrontpageReviewWidget';
 import { useCurrentUser } from '../common/withUser';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import ReviewVotingButtons from "./ReviewVotingButtons";
 import ErrorBoundary from "../common/ErrorBoundary";
 import LWTooltip from "../common/LWTooltip";

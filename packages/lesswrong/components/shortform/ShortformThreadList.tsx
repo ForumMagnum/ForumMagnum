@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userCanQuickTake } from '../../lib/vulcan-users/permissions';
 import LoadMore from "../common/LoadMore";

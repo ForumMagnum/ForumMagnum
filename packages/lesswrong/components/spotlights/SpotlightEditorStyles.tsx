@@ -1,5 +1,4 @@
 import React, { ReactNode } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { descriptionStyles } from './SpotlightItem';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';

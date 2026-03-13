@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import moment from 'moment';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
 import { useDialog } from '@/components/common/withDialog';

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useCurrentUser } from "../common/withUser";
 import { forumHeaderTitleSetting } from '@/lib/instanceSettings';

@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { isPostAllowedType3Audio } from '../../../lib/collections/posts/helpers';
 import PostsPodcastPlayer from "./PostsPodcastPlayer";

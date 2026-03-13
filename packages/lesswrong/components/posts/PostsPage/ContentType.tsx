@@ -1,5 +1,4 @@
 import React, { FC, PropsWithChildren } from 'react'
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person'
 import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';

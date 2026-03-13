@@ -1,5 +1,4 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';

@@ -1,5 +1,4 @@
 import React, { useState, FC } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';

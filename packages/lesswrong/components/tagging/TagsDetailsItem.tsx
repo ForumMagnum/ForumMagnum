@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link, QueryLink } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';

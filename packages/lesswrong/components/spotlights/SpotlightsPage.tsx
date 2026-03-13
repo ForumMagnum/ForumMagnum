@@ -5,7 +5,6 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { SpotlightItem, getSpotlightDisplayTitle } from './SpotlightItem';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { SpotlightForm } from './SpotlightForm';
 import Loading from "../vulcan-core/Loading";
 import SectionTitle from "../common/SectionTitle";

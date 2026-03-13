@@ -1,5 +1,4 @@
 import React, {useRef, useState} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import {useCurrentUser} from '../common/withUser';
 import {DebateResponseWithReplies} from './DebateResponseBlock';
 import classNames from 'classnames';

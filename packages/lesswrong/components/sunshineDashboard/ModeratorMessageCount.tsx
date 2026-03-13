@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import LWTooltip from "../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";

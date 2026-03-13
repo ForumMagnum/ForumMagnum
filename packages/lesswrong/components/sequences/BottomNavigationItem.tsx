@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classnames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';

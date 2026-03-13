@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';

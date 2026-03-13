@@ -1,5 +1,4 @@
 import React, { useState, useCallback, RefObject } from 'react';
-import { registerComponent } from '../../../../lib/vulcan-lib/components';
 import { useImageContext, ReviewWinnerImageInfo } from '../ImageContext';
 import { useEventListener } from '../../../hooks/useEventListener';
 import { useWindowSize } from '../../../hooks/useScreenWidth';

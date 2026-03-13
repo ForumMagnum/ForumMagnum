@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";

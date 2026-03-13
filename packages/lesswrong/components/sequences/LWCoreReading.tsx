@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection from "../common/SingleColumnSection";
 import CollectionsItem from "./CollectionsItem";
 import { defineStyles } from '@/components/hooks/defineStyles';

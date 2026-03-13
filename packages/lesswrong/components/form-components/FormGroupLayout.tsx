@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { slugify } from '@/lib/utils/slugify';
 import { defineStyles } from '@/components/hooks/defineStyles';

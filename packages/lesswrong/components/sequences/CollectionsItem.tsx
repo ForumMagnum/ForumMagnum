@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { CoreReadingCollection } from './LWCoreReading';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';

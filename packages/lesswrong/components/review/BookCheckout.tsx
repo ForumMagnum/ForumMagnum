@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 // import { loadStripe } from "@stripe/stripe-js";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 // import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { useTracking } from "../../lib/analyticsEvents";
 import classNames from 'classnames';

@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection from "../common/SingleColumnSection";
 import ShortformThreadList from "./ShortformThreadList";
 import SectionTitle from "../common/SectionTitle";

@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';

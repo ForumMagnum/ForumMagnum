@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';

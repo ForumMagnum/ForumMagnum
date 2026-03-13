@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { FormGroupHeader } from "./FormGroupHeader";
 import { defineStyles } from '@/components/hooks/defineStyles';

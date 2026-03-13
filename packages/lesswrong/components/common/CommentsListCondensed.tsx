@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from './withUser';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox'
 import Loading from "../vulcan-core/Loading";

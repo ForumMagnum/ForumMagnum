@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'

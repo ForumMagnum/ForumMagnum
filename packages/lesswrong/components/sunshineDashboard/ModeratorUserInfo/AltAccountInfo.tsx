@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import LockIcon from '@/lib/vendor/@material-ui/icons/src/Lock'
 import LockOpenIcon from '@/lib/vendor/@material-ui/icons/src/LockOpen'
 import flatMap from 'lodash/flatMap';

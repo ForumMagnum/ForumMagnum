@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { isLWorAF } from "../../lib/instanceSettings";

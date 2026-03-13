@@ -9,7 +9,6 @@ import { DialogActions } from '../../widgets/DialogActions';
 import { DialogTitle } from '../../widgets/DialogTitle';
 import { useCurrentUser } from '../../common/withUser';
 import { useNavigate } from '../../../lib/routeUtil';
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import LWDialog from "../../common/LWDialog";
 import { MenuItem } from "../../common/Menus";
 import { responseToText } from '@/lib/collections/posts/constants';

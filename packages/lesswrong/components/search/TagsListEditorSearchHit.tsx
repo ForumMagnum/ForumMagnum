@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { Hit } from 'react-instantsearch-core';
 import MetaInfo from "../common/MetaInfo";
 import { defineStyles } from '@/components/hooks/defineStyles';

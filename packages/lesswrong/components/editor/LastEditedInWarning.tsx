@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getEditorTypeToDisplayMap, EditorTypeString, EditorContents, EditorChangeEvent, type LegacyEditorTypeString } from './Editor';
 import { useConvertDocument } from './useConvertDocument';
 import Loading from "../vulcan-core/Loading";

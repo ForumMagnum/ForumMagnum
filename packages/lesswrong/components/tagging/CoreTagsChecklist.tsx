@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagStyle } from './FooterTag';
 import TagsChecklist from "./TagsChecklist";
 import Loading from "../vulcan-core/Loading";

@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import sortBy from 'lodash/sortBy';
 import PostsItem from "../posts/PostsItem";
 import ReviewVotingExpandedPost from "./ReviewVotingExpandedPost";
