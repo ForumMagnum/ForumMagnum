@@ -40,7 +40,6 @@ const SubscriptionStateMutation = gql(`
 export type NotifyMeDocument =
   UsersProfile |
   UsersMinimumInfo |
-  UserOnboardingTag |
   SequencesPageTitleFragment |
   CommentsList |
   PostsBase |
