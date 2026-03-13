@@ -19,7 +19,7 @@ const styles = (theme: ThemeType) => ({
     width: podcastIconSize(theme) + (podcastIconPadding(theme) * 2),
     height: podcastIconSize(theme) + (podcastIconPadding(theme) * 2),
     padding: podcastIconPadding(theme),
-    transform: `translateY(-${podcastIconPadding}px)`,
+    transform: `translateY(-${podcastIconPadding(theme)}px)`,
   },
   audioIconOn: {
     background: theme.palette.icon.dim05,
