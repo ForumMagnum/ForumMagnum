@@ -37,6 +37,7 @@
     "graphql-codegen": "graphql-codegen --config codegen.ts",
     "depcruise": "dependency-cruiser packages app --config .dependency-cruiser.js",
     "depcruise:validate": "dependency-cruiser packages app --validate .dependency-cruiser.js",
+    "unused-graphql-fragments": "ts-node --swc -r tsconfig-paths/register scripts/unusedGraphqlFragments.ts",
     "unused-jss-classes": "ts-node --swc -r tsconfig-paths/register scripts/unusedJssClasses.ts",
     "next-start": "NODE_OPTIONS='--inspect --no-deprecation --enable-source-maps' next start"
   },
