@@ -285,6 +285,9 @@ export const routeTrie = {
             },
             "replaceWidget": {
               "hasRoute": true
+            },
+            "replyToComment": {
+              "hasRoute": true
             }
           },
           "lowerCase": {
@@ -295,7 +298,8 @@ export const routeTrie = {
             "insertllmblock": "insertLLMBlock",
             "insertwidget": "insertWidget",
             "replacetext": "replaceText",
-            "replacewidget": "replaceWidget"
+            "replacewidget": "replaceWidget",
+            "replytocomment": "replyToComment"
           }
         },
         "autocomplete": {

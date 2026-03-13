@@ -3,7 +3,7 @@ import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
 import { NextRequest, NextResponse } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
-import { withMainDocEditorSession } from "../agent/editorAgentUtil";
+import { withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
@@ -13,6 +13,10 @@ import {
   $isDecoratorNode,
   type LexicalNode,
 } from "lexical";
+import { HocuspocusProvider } from "@hocuspocus/provider";
+import { Doc, Array as YArray, Map as YMap } from "yjs";
+import type { ThreadType, ThreadStatus } from "@/components/lexical/commenting";
+import { captureException } from "@/lib/sentryWrapper";
 
 export function normalizeImportedTopLevelNodes(nodes: LexicalNode[]): LexicalNode[] {
   const normalized: LexicalNode[] = [];
@@ -94,6 +98,172 @@ export function convertWidgetIframesToMarkdownFences(markdown: string): string {
   });
 }
 
+interface SerializedComment {
+  author: string
+  content: string
+  timeStamp: number
+  commentKind?: string
+  deleted: boolean
+}
+
+interface SerializedThread {
+  id: string
+  threadType: ThreadType
+  quote: string
+  status?: ThreadStatus
+  comments: SerializedComment[]
+}
+
+function readThreadFromYMap(threadMap: YMap<unknown>): SerializedThread | null {
+  const commentsArray = threadMap.get("comments") as YArray<unknown> | undefined;
+  const serializedComments: SerializedComment[] = commentsArray?.toArray().map((comment: YMap<unknown>) => {
+    return {
+      author: (comment.get("author") as string) ?? "Unknown",
+      content: (comment.get("content") as string) ?? "",
+      timeStamp: (comment.get("timeStamp") as number) ?? 0,
+      commentKind: comment.get("commentKind") as string | undefined,
+      deleted: (comment.get("deleted") as boolean) ?? false,
+    };
+  }) ?? [];
+
+  return {
+    id: (threadMap.get("id") as string) ?? "",
+    threadType: (threadMap.get("threadType") as ThreadType | undefined) ?? "comment",
+    quote: (threadMap.get("quote") as string) ?? "",
+    status: threadMap.get("status") as ThreadStatus | undefined,
+    comments: serializedComments,
+  };
+}
+
+async function readOpenCommentThreads({
+  postId,
+  token,
+}: {
+  postId: string
+  token: string
+}): Promise<SerializedThread[]> {
+  const wsUrl = process.env.HOCUSPOCUS_URL;
+  if (!wsUrl) return [];
+
+  const doc = new Doc();
+  const provider = new HocuspocusProvider({
+    url: wsUrl,
+    name: `post-${postId}/comments`,
+    document: doc,
+    token,
+    connect: false,
+  });
+
+  try {
+    await provider.connect();
+    await waitForProviderSync(provider);
+
+    const commentsArray = doc.get("comments", YArray);
+    const threads: SerializedThread[] = [];
+
+    for (let i = 0; i < commentsArray.length; i++) {
+      const threadMap = commentsArray.get(i) as YMap<unknown>;
+      if (threadMap.get("type") !== "thread") continue;
+      // Only include open threads (status undefined or "open")
+      const status = threadMap.get("status") as ThreadStatus | undefined;
+      if (status && status !== "open") continue;
+      const thread = readThreadFromYMap(threadMap);
+      if (!thread) continue;
+      threads.push(thread);
+    }
+
+    return threads;
+  } finally {
+    provider.destroy();
+    doc.destroy();
+  }
+}
+
+function formatCommentTimestamp(epochMs: number): string {
+  const date = new Date(epochMs);
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(date.getUTCDate()).padStart(2, "0");
+  const hours = String(date.getUTCHours()).padStart(2, "0");
+  const minutes = String(date.getUTCMinutes()).padStart(2, "0");
+  return `${year}-${month}-${day}, ${hours}:${minutes}`;
+}
+
+function truncate(s: string, max: number): string {
+  return s.length > max ? s.slice(0, max) + "..." : s;
+}
+
+function formatSuggestionSummaryForMarkdown(content: string): string {
+  try {
+    const items: Array<{ type?: string; content?: string; replaceWith?: string }> = JSON.parse(content);
+    if (!Array.isArray(items) || items.length === 0) return "Suggestion";
+    const first = items[0];
+    const type = first.type ?? "suggestion";
+    if (first.replaceWith !== undefined) {
+      return `Suggested ${type}: "${truncate(first.content ?? "", 100)}" → "${truncate(first.replaceWith, 100)}"`;
+    }
+    const trimmedContent = (first.content ?? "").trim();
+    return trimmedContent
+      ? `Suggested ${type}: "${truncate(trimmedContent, 150)}"`
+      : `Suggested ${type}`;
+  } catch {
+    return "Suggestion";
+  }
+}
+
+function serializeThreadsToMarkdown(threads: SerializedThread[]): string {
+  if (threads.length === 0) return "";
+
+  const lines: string[] = [];
+  lines.push(`## Comment Threads`);
+  lines.push("");
+  lines.push(
+    `${threads.length} open thread${threads.length !== 1 ? "s" : ""}. To reply: POST /api/agent/replyToComment { postId, key, threadId, comment }`
+  );
+
+  for (const thread of threads) {
+    lines.push("");
+    lines.push(`### Thread \`${thread.id}\` · ${thread.threadType}`);
+
+    if (thread.quote) {
+      const quotedLines = thread.quote.split("\n").map((line) => `> ${line}`).join("\n");
+      lines.push(quotedLines);
+    }
+
+    const visibleComments = thread.comments.filter((c) => !c.deleted);
+
+    for (const comment of visibleComments) {
+      if (comment.commentKind === "suggestionSummary") {
+        lines.push(formatSuggestionSummaryForMarkdown(comment.content));
+      } else {
+        const date = formatCommentTimestamp(comment.timeStamp);
+        lines.push(`**${comment.author}** (${date}): ${comment.content}`);
+      }
+    }
+  }
+
+  return lines.join("\n");
+}
+
+async function getOpenCommentThreadsMarkdown({
+  postId,
+  token,
+}: {
+  postId: string
+  token: string
+}): Promise<string> {
+  try {
+    const threads = await readOpenCommentThreads({ postId, token });
+    return serializeThreadsToMarkdown(threads);
+  } catch (error) {
+    // Don't fail the whole request, but log for debugging
+    // eslint-disable-next-line no-console
+    console.error("Failed to read comment threads for editPost response:", error);
+    captureException(error);
+    return "";
+  }
+}
+
 export async function getLiveDraftMarkdown({
   postId,
   token,
@@ -162,7 +332,10 @@ export async function renderLiveEditorDraftMarkdownRoute({
         )
       ).data?.post?.result;
 
-    const bodyMarkdown = await getLiveDraftMarkdown({ postId, token });
+    const [bodyMarkdown, commentThreadsMarkdown] = await Promise.all([
+      getLiveDraftMarkdown({ postId, token }),
+      getOpenCommentThreadsMarkdown({ postId, token }),
+    ]);
     const resolvedPostId = post?._id ?? postId;
     const title = post?.title ?? "(untitled draft)";
 
@@ -171,6 +344,7 @@ export async function renderLiveEditorDraftMarkdownRoute({
       postId: resolvedPostId,
       version,
       bodyMarkdown,
+      commentThreadsMarkdown,
     });
   } catch {
     return new Response(`Unable to access shared draft for postId: ${postId}`, { status: 403 });
@@ -182,11 +356,13 @@ export async function renderEditorDraftMarkdown({
   postId,
   bodyMarkdown,
   version,
+  commentThreadsMarkdown,
 }: {
   title: string
   postId: string
   bodyMarkdown: string
   version?: string
+  commentThreadsMarkdown?: string
 }): Promise<Response> {
   return markdownResponse(
     <div>
@@ -203,11 +379,12 @@ export async function renderEditorDraftMarkdown({
         </div>
       ) : null}
       <div>
-        LLM Agent Guidance: If a user is asking you for help with editing a post, please read the "Helping Users With Drafts" section of the Markdown API documentation.  The content of the post is below, between the two horizontal rules.  (There may be additional horizontal rules in the post content.  To help disambiguate, the post content should be followed by a "Navigation" section, which is not part of the post.)
+        LLM Agent Guidance: If a user is asking you for help with editing a post, please read the "Helping Users With Drafts" section of the Markdown API documentation.  The content of the post is below, between the two horizontal rules.  (There may be additional horizontal rules in the post content.  To help disambiguate, the post content should be followed by a "Comment Threads" section if the post has any open comment threads, and then a "Navigation" section; neither is part of the post.)
       </div>
       <hr />
       <MarkdownNode markdown={bodyMarkdown} />
       <hr />
+      {commentThreadsMarkdown ? <MarkdownNode markdown={commentThreadsMarkdown} /> : null}
     </div>
   );
 }

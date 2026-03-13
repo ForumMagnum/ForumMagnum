@@ -85,6 +85,14 @@ export const insertWidgetToolSchema = z.object({
   location: insertLocationSchema,
 });
 
+export const replyToCommentToolSchema = z.object({
+  postId: z.string().describe("The ID of the post"),
+  key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),
+  agentName: z.string().optional().describe("Name to attribute the reply to"),
+  threadId: z.string().describe("The ID of the thread to reply to (from the Comment Threads section of the editPost response)"),
+  comment: z.string().describe("The reply text in markdown"),
+});
+
 export const deleteBlockToolSchema = z.object({
   postId: z.string().describe("The ID of the post"),
   key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),

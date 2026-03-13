@@ -120,12 +120,23 @@ inline curl -d arguments):
     { "postId": "...", "key": "...", "comment": "..." }
     EOF
 
-To add add Google Docs-style comments to the draft, make a request to:
+The editPost response includes a "Comment Threads" section after the post body
+if there are any open comment or suggestion threads on the draft. Each thread
+shows its ID, type (comment or suggestion), the quoted anchor text (if any),
+and the conversation. You can use the thread ID to reply to existing threads.
+
+To add Google Docs-style comments to the draft, make a request to:
     POST /api/agent/commentOnDraft
     with JSON body: { postId, key, agentName?, quote?, comment }
 If a quote is provided, the comment will be attached to matching quoted text. The
 quote should be long enough to be unambiguous. If no quote is provided, the
 comment will be top-level. Both the quote and your comment should be in markdown.
+
+To reply to an existing comment thread on the draft:
+    POST /api/agent/replyToComment
+    with JSON body: { postId, key, agentName?, threadId, comment }
+The threadId comes from the Comment Threads section of the editPost response.
+This adds a reply to the specified thread, visible in the editor's comment panel.
 
 To replace text inside the draft, make a POST request to:
     POST /api/agent/replaceText

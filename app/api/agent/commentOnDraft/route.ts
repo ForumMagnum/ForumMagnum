@@ -18,7 +18,7 @@ import { commentOnDraftToolSchema } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { getHocuspocusToken } from "../getHocuspocusToken";
 
-function createCollabComment({
+export function createCollabComment({
   content,
   author,
   authorId,
