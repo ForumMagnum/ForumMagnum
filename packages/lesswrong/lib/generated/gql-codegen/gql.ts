@@ -612,6 +612,7 @@ type Documents = {
     "\n  fragment ChaptersFragment on Chapter {\n    _id\n    createdAt\n    title\n    subtitle\n    contents {\n      ...RevisionDisplay\n    }\n    number\n    sequenceId\n    postIds\n    posts {\n      ...PostsListWithVotes\n    }\n  }\n": typeof types.ChaptersFragmentDoc,
     "\n  fragment SlimChapter on Chapter {\n    _id\n    createdAt\n    title\n    subtitle\n    contents {\n      ...RevisionDisplay\n    }\n    number\n    sequenceId\n    postIds\n    posts {\n      ...ChapterPostSlim\n    }\n  }\n": typeof types.SlimChapterDoc,
     "\n  fragment ChaptersEdit on Chapter {\n    ...ChaptersFragment\n    contents {\n      ...RevisionEdit\n    }\n  }\n": typeof types.ChaptersEditDoc,
+    "\n  fragment CkEditorUserSessionInfo on CkEditorUserSession {\n    _id\n    userId\n    documentId\n    endedAt\n    endedBy\n  }\n": typeof types.CkEditorUserSessionInfoDoc,
     "\n  fragment ModeratorClientIDInfo on ClientId {\n    _id\n    clientId\n    createdAt\n    firstSeenReferrer\n    firstSeenLandingPage\n    users {\n      ...UsersMinimumInfo\n    }\n  }\n": typeof types.ModeratorClientIDInfoDoc,
     "\n  fragment CollectionContinueReadingFragment on Collection {\n    _id\n    title\n    slug\n    gridImageId\n  }\n": typeof types.CollectionContinueReadingFragmentDoc,
     "\n  fragment CollectionsPageFragment on Collection {\n    _id\n    createdAt\n    slug\n    userId\n    user {\n      ...UsersMinimumInfo\n    }\n    title\n    contents {\n      ...RevisionDisplay\n    }\n    firstPageLink\n    gridImageId\n    books {\n      ...BookPageFragment\n    }\n    hideStartReadingButton\n    noindex\n  }\n": typeof types.CollectionsPageFragmentDoc,
@@ -708,6 +709,7 @@ type Documents = {
     "\n  fragment PostWithGeneratedSummary on Post {\n    _id\n    languageModelSummary\n  }\n": typeof types.PostWithGeneratedSummaryDoc,
     "\n  fragment PostsBestOfList on Post {\n    ...PostsListWithVotes\n    podcastEpisode {\n      _id\n      title\n      podcast {\n        _id\n        title\n        applePodcastLink\n        spotifyPodcastLink\n      }\n      episodeLink\n      externalEpisodeId\n    }\n    socialPreviewData {\n      _id\n      text\n      imageUrl\n    }\n    firstVideoAttribsForPreview\n  }\n": typeof types.PostsBestOfListDoc,
     "\n  fragment PostsRSSFeed on Post {\n    ...PostsDetails\n    contents {\n      ...RevisionDisplay\n    }\n    scoreExceeded2Date\n    scoreExceeded30Date\n    scoreExceeded45Date\n    scoreExceeded75Date\n    scoreExceeded125Date\n    scoreExceeded200Date\n    metaDate\n  }\n": typeof types.PostsRSSFeedDoc,
+    "\n  fragment PostsOriginalContents on Post {\n    _id\n    contents {\n      _id\n      originalContents {\n        type\n        data\n      }\n    }\n  }\n": typeof types.PostsOriginalContentsDoc,
     "\n  fragment PostsHTML on Post {\n    _id\n    contents {\n      ...RevisionHTML\n    }\n  }\n": typeof types.PostsHTMLDoc,
     "\n  fragment PostsForAutocomplete on Post {\n    _id\n    title\n    userId\n    baseScore\n    extendedScore\n    user {\n      ...UsersMinimumInfo\n    }\n    contents {\n      markdown\n    }\n  }\n": typeof types.PostsForAutocompleteDoc,
     "\n  fragment SuggestAlignmentPost on Post {\n    ...PostsList\n    suggestForAlignmentUsers {\n      _id\n      displayName\n    }\n  }\n": typeof types.SuggestAlignmentPostDoc,
@@ -1431,6 +1433,7 @@ const documents: Documents = {
     "\n  fragment ChaptersFragment on Chapter {\n    _id\n    createdAt\n    title\n    subtitle\n    contents {\n      ...RevisionDisplay\n    }\n    number\n    sequenceId\n    postIds\n    posts {\n      ...PostsListWithVotes\n    }\n  }\n": types.ChaptersFragmentDoc,
     "\n  fragment SlimChapter on Chapter {\n    _id\n    createdAt\n    title\n    subtitle\n    contents {\n      ...RevisionDisplay\n    }\n    number\n    sequenceId\n    postIds\n    posts {\n      ...ChapterPostSlim\n    }\n  }\n": types.SlimChapterDoc,
     "\n  fragment ChaptersEdit on Chapter {\n    ...ChaptersFragment\n    contents {\n      ...RevisionEdit\n    }\n  }\n": types.ChaptersEditDoc,
+    "\n  fragment CkEditorUserSessionInfo on CkEditorUserSession {\n    _id\n    userId\n    documentId\n    endedAt\n    endedBy\n  }\n": types.CkEditorUserSessionInfoDoc,
     "\n  fragment ModeratorClientIDInfo on ClientId {\n    _id\n    clientId\n    createdAt\n    firstSeenReferrer\n    firstSeenLandingPage\n    users {\n      ...UsersMinimumInfo\n    }\n  }\n": types.ModeratorClientIDInfoDoc,
     "\n  fragment CollectionContinueReadingFragment on Collection {\n    _id\n    title\n    slug\n    gridImageId\n  }\n": types.CollectionContinueReadingFragmentDoc,
     "\n  fragment CollectionsPageFragment on Collection {\n    _id\n    createdAt\n    slug\n    userId\n    user {\n      ...UsersMinimumInfo\n    }\n    title\n    contents {\n      ...RevisionDisplay\n    }\n    firstPageLink\n    gridImageId\n    books {\n      ...BookPageFragment\n    }\n    hideStartReadingButton\n    noindex\n  }\n": types.CollectionsPageFragmentDoc,
@@ -1527,6 +1530,7 @@ const documents: Documents = {
     "\n  fragment PostWithGeneratedSummary on Post {\n    _id\n    languageModelSummary\n  }\n": types.PostWithGeneratedSummaryDoc,
     "\n  fragment PostsBestOfList on Post {\n    ...PostsListWithVotes\n    podcastEpisode {\n      _id\n      title\n      podcast {\n        _id\n        title\n        applePodcastLink\n        spotifyPodcastLink\n      }\n      episodeLink\n      externalEpisodeId\n    }\n    socialPreviewData {\n      _id\n      text\n      imageUrl\n    }\n    firstVideoAttribsForPreview\n  }\n": types.PostsBestOfListDoc,
     "\n  fragment PostsRSSFeed on Post {\n    ...PostsDetails\n    contents {\n      ...RevisionDisplay\n    }\n    scoreExceeded2Date\n    scoreExceeded30Date\n    scoreExceeded45Date\n    scoreExceeded75Date\n    scoreExceeded125Date\n    scoreExceeded200Date\n    metaDate\n  }\n": types.PostsRSSFeedDoc,
+    "\n  fragment PostsOriginalContents on Post {\n    _id\n    contents {\n      _id\n      originalContents {\n        type\n        data\n      }\n    }\n  }\n": types.PostsOriginalContentsDoc,
     "\n  fragment PostsHTML on Post {\n    _id\n    contents {\n      ...RevisionHTML\n    }\n  }\n": types.PostsHTMLDoc,
     "\n  fragment PostsForAutocomplete on Post {\n    _id\n    title\n    userId\n    baseScore\n    extendedScore\n    user {\n      ...UsersMinimumInfo\n    }\n    contents {\n      markdown\n    }\n  }\n": types.PostsForAutocompleteDoc,
     "\n  fragment SuggestAlignmentPost on Post {\n    ...PostsList\n    suggestForAlignmentUsers {\n      _id\n      displayName\n    }\n  }\n": types.SuggestAlignmentPostDoc,
@@ -4061,6 +4065,10 @@ export function gql(source: "\n  fragment ChaptersEdit on Chapter {\n    ...Chap
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  fragment CkEditorUserSessionInfo on CkEditorUserSession {\n    _id\n    userId\n    documentId\n    endedAt\n    endedBy\n  }\n"): (typeof documents)["\n  fragment CkEditorUserSessionInfo on CkEditorUserSession {\n    _id\n    userId\n    documentId\n    endedAt\n    endedBy\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  fragment ModeratorClientIDInfo on ClientId {\n    _id\n    clientId\n    createdAt\n    firstSeenReferrer\n    firstSeenLandingPage\n    users {\n      ...UsersMinimumInfo\n    }\n  }\n"): (typeof documents)["\n  fragment ModeratorClientIDInfo on ClientId {\n    _id\n    clientId\n    createdAt\n    firstSeenReferrer\n    firstSeenLandingPage\n    users {\n      ...UsersMinimumInfo\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -4442,6 +4450,10 @@ export function gql(source: "\n  fragment PostsBestOfList on Post {\n    ...Post
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  fragment PostsRSSFeed on Post {\n    ...PostsDetails\n    contents {\n      ...RevisionDisplay\n    }\n    scoreExceeded2Date\n    scoreExceeded30Date\n    scoreExceeded45Date\n    scoreExceeded75Date\n    scoreExceeded125Date\n    scoreExceeded200Date\n    metaDate\n  }\n"): (typeof documents)["\n  fragment PostsRSSFeed on Post {\n    ...PostsDetails\n    contents {\n      ...RevisionDisplay\n    }\n    scoreExceeded2Date\n    scoreExceeded30Date\n    scoreExceeded45Date\n    scoreExceeded75Date\n    scoreExceeded125Date\n    scoreExceeded200Date\n    metaDate\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment PostsOriginalContents on Post {\n    _id\n    contents {\n      _id\n      originalContents {\n        type\n        data\n      }\n    }\n  }\n"): (typeof documents)["\n  fragment PostsOriginalContents on Post {\n    _id\n    contents {\n      _id\n      originalContents {\n        type\n        data\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

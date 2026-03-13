@@ -19,6 +19,7 @@ interface FragmentTypes {
   ChapterPostSlim: ChapterPostSlim
   ChaptersEdit: ChaptersEdit
   ChaptersFragment: ChaptersFragment
+  CkEditorUserSessionInfo: CkEditorUserSessionInfo
   CollectionContinueReadingFragment: CollectionContinueReadingFragment
   CollectionsEditFragment: CollectionsEditFragment
   CollectionsPageFragment: CollectionsPageFragment
@@ -93,6 +94,7 @@ interface FragmentTypes {
   PostsListWithVotesAndSequence: PostsListWithVotesAndSequence
   PostsMinimumInfo: PostsMinimumInfo
   PostsModerationGuidelines: PostsModerationGuidelines
+  PostsOriginalContents: PostsOriginalContents
   PostsPage: PostsPage
   PostsPlaintextDescription: PostsPlaintextDescription
   PostsRSSFeed: PostsRSSFeed
@@ -219,6 +221,7 @@ interface FragmentTypesByCollection {
   Bookmarks: "BookmarksFeedItemFragment"|"BookmarksMinimumInfoFragment"|"BookmarksWithDocumentFragment"
   Books: "BookEdit"|"BookPageFragment"
   Chapters: "ChaptersEdit"|"ChaptersFragment"|"SlimChapter"
+  CkEditorUserSessions: "CkEditorUserSessionInfo"
   ClientIds: "ModeratorClientIDInfo"
   Collections: "CollectionContinueReadingFragment"|"CollectionsEditFragment"|"CollectionsPageFragment"
   Comments: "CommentEdit"|"CommentWithRepliesFragment"|"CommentsForAutocomplete"|"CommentsForAutocompleteWithParents"|"CommentsList"|"CommentsListWithParentMetadata"|"CommentsListWithTopLevelComment"|"CommentsMarkdownFragment"|"DeletedCommentsMetaData"|"DraftComments"|"FrontpageShortformComments"|"ShortformComments"|"SuggestAlignmentComment"|"SunshineCommentsList"|"UltraFeedComment"|"WithVoteComment"
@@ -245,7 +248,7 @@ interface FragmentTypesByCollection {
   PetrovDayActions: "PetrovDayActionInfo"
   PodcastEpisodes: "PodcastEpisodeCreateFragment"|"PodcastEpisodeFull"
   Podcasts: "PodcastSelect"
-  Posts: "ChapterPostSlim"|"HighlightWithHash"|"MarkdownPostsList"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ProfileTopPost"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UserProfilePost"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
+  Posts: "ChapterPostSlim"|"HighlightWithHash"|"MarkdownPostsList"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ProfileTopPost"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UserProfilePost"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
   RSSFeeds: "RSSFeedMinimumInfo"|"newRSSFeedFragment"
   Reports: "UnclaimedReportsList"
   ReviewVotes: "reviewAdminDashboard"|"reviewVoteFragment"
@@ -277,6 +280,7 @@ interface CollectionNamesByFragmentName {
   ChapterPostSlim: "Posts"
   ChaptersEdit: "Chapters"
   ChaptersFragment: "Chapters"
+  CkEditorUserSessionInfo: "CkEditorUserSessions"
   CollectionContinueReadingFragment: "Collections"
   CollectionsEditFragment: "Collections"
   CollectionsPageFragment: "Collections"
@@ -351,6 +355,7 @@ interface CollectionNamesByFragmentName {
   PostsListWithVotesAndSequence: "Posts"
   PostsMinimumInfo: "Posts"
   PostsModerationGuidelines: "Posts"
+  PostsOriginalContents: "Posts"
   PostsPage: "Posts"
   PostsPlaintextDescription: "Posts"
   PostsRSSFeed: "Posts"

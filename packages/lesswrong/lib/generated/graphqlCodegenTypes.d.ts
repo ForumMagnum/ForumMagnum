@@ -21864,6 +21864,8 @@ type ChaptersEdit = (
   & ChaptersFragment
 );
 
+type CkEditorUserSessionInfo = { __typename?: 'CkEditorUserSession', _id: string, userId: string | null, documentId: string | null, endedAt: string | null, endedBy: string | null };
+
 type ModeratorClientIDInfo_ClientId_users_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
@@ -22826,6 +22828,12 @@ type PostsRSSFeed = (
   { __typename?: 'Post', scoreExceeded2Date: string | null, scoreExceeded30Date: string | null, scoreExceeded45Date: string | null, scoreExceeded75Date: string | null, scoreExceeded125Date: string | null, scoreExceeded200Date: string | null, metaDate: string | null, contents: PostsRSSFeed_Post_contents_Revision | null }
   & PostsDetails
 );
+
+type PostsOriginalContents_Post_contents_Revision_originalContents_ContentType = { __typename?: 'ContentType', type: string, data: any };
+
+type PostsOriginalContents_Post_contents_Revision = { __typename?: 'Revision', _id: string, originalContents: PostsOriginalContents_Post_contents_Revision_originalContents_ContentType };
+
+type PostsOriginalContents = { __typename?: 'Post', _id: string, contents: PostsOriginalContents_Post_contents_Revision | null };
 
 type PostsHTML_Post_contents_Revision = (
   { __typename?: 'Revision' }
