@@ -13,6 +13,7 @@ import {
 import PlaygroundNodes from "@/components/lexical/nodes/PlaygroundNodes";
 import { buildTextNodeExportMap } from "@/components/editor/lexicalDomExport";
 import { randomId } from "@/lib/random";
+import { sleep } from "@/lib/utils/asyncUtils";
 
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const INITIAL_SYNC_SETTLE_MS = 25;
@@ -24,10 +25,6 @@ export interface SelectQuotedTextResult {
   matchedNodeKey?: string
   startOffset?: number
   endOffset?: number
-}
-
-export function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 export function normalizeText(value: string): string {

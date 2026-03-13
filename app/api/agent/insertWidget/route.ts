@@ -6,7 +6,8 @@ import {
   $createTextNode,
 } from "lexical";
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { HOCUSPOCUS_FLUSH_WAIT_MS, sleep, withMainDocEditorSession } from "../editorAgentUtil";
+import { HOCUSPOCUS_FLUSH_WAIT_MS, withMainDocEditorSession } from "../editorAgentUtil";
+import { sleep } from "@/lib/utils/asyncUtils";
 import { resolveInsertionIndex } from "../insertBlock/route";
 import { insertWidgetToolSchema, type InsertLocation } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";

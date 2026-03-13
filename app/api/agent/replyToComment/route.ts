@@ -3,12 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Map as YMap, Array as YArray, Doc } from "yjs";
 import { randomId } from "@/lib/random";
-import {
-  deriveAgentAuthor,
-  HOCUSPOCUS_FLUSH_WAIT_MS,
-  sleep,
-  waitForProviderSync,
-} from "../editorAgentUtil";
+import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, waitForProviderSync } from "../editorAgentUtil";
+import { sleep } from "@/lib/utils/asyncUtils";
 import { createCollabComment } from "../commentOnDraft/route";
 import { replyToCommentToolSchema } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";

@@ -7,12 +7,8 @@ import { JSDOM } from "jsdom";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { markdownToHtml } from "@/server/editor/conversionUtils";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
-import {
-  deriveAgentAuthor,
-  HOCUSPOCUS_FLUSH_WAIT_MS,
-  sleep,
-  withMainDocEditorSession,
-} from "../editorAgentUtil";
+import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, withMainDocEditorSession } from "../editorAgentUtil";
+import { sleep } from "@/lib/utils/asyncUtils";
 import { locateMarkdownQuoteSelectionInSubtree, type MarkdownSelectionPoint } from "../mapMarkdownToLexical";
 import { replaceTextToolSchema, type ReplaceMode } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";

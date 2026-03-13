@@ -10,10 +10,10 @@ import {
   HOCUSPOCUS_FLUSH_WAIT_MS,
   normalizeText,
   waitForProviderSync,
-  sleep,
   withMainDocEditorSession,
   selectQuotedTextInEditor,
 } from "../editorAgentUtil";
+import { sleep } from "@/lib/utils/asyncUtils";
 import { commentOnDraftToolSchema } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { getHocuspocusToken } from "../getHocuspocusToken";
