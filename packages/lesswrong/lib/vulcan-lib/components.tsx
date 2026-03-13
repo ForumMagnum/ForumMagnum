@@ -64,6 +64,7 @@ interface ComponentsTableEntry {
  * implicitly because most components don't take refs.
  */
 type NoImplicitRef<T> = (T extends {ref?: any} ? T : T & {ref?: never});
+type DisallowClassesProp<T> = "classes" extends keyof T ? never : unknown;
 
 /**
  * Register a component. Takes a name, a raw component, and ComponentOptions
@@ -78,7 +79,7 @@ type NoImplicitRef<T> = (T extends {ref?: any} ? T : T & {ref?: never});
  */
 export function registerComponent<PropType>(
   name: string,
-  rawComponent: React.ComponentType<PropType>,
+  rawComponent: React.ComponentType<PropType> & DisallowClassesProp<PropType>,
   options?: ComponentOptions
 ): React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">> {
   const { styles=null, hocs=[] } = options || {};
