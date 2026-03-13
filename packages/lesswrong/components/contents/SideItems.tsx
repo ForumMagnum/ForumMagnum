@@ -27,14 +27,17 @@ type SideItem = {
 type SideItemsState = {
   maxId: number
   sideItems: SideItem[]
+  focusedAnchor: HTMLElement | null
 }
 type SideItemsPlacementContextType = {
   addSideItem: (anchorEl: HTMLElement, options: SideItemOptions) => HTMLDivElement
   removeSideItem: (anchorEl: HTMLElement) => void
   resizeItem: (anchorEl: HTMLElement, newHeight: number) => void
+  setFocusedAnchor: (anchorEl: HTMLElement | null) => void
 }
 type SideItemsDisplayContextType = {
   sideItems: SideItem[]
+  focusedAnchor: HTMLElement | null
 };
 const SideItemsPlacementContext = createContext<SideItemsPlacementContextType|null>(null);
 const SideItemsDisplayContext = createContext<SideItemsDisplayContextType|null>(null);
@@ -47,6 +50,7 @@ export const styles = defineStyles("SideItems", (theme: ThemeType) => ({
   sideItem: {
     position: "absolute",
     width: "100%",
+    transition: "top 0.25s ease-in-out",
   },
   sidebar: {
     position: "relative",
@@ -69,7 +73,7 @@ export const SideItemsContainer = ({
   hideBlockSideItems?: boolean
 }) => {
   const classes = useStyles(styles);
-  const state = useRef<SideItemsState>({sideItems: [], maxId: -1});
+  const state = useRef<SideItemsState>({sideItems: [], maxId: -1, focusedAnchor: null});
   const contentsRef = useRef<HTMLDivElement|null>(null);
   const {renderCount, rerender} = useForceRerender();
   
@@ -110,16 +114,24 @@ export const SideItemsContainer = ({
     }
   }, [rerender]);
   
+  const setFocusedAnchor = useCallback((anchorEl: HTMLElement | null) => {
+    if (state.current.focusedAnchor !== anchorEl) {
+      state.current.focusedAnchor = anchorEl;
+      rerender();
+    }
+  }, [rerender]);
+
   const sideItemsPlacementContext: SideItemsPlacementContextType = useMemo(() => ({
-    addSideItem, removeSideItem, resizeItem
-  }), [addSideItem, removeSideItem, resizeItem]);
+    addSideItem, removeSideItem, resizeItem, setFocusedAnchor
+  }), [addSideItem, removeSideItem, resizeItem, setFocusedAnchor]);
   
   const sideItemsDisplayContext: SideItemsDisplayContextType = useMemo(() => ({
     sideItems: hideBlockSideItems
       ? state.current.sideItems.filter((sideItem) => sideItem.options.format !== "block")
-      : state.current.sideItems
+      : state.current.sideItems,
+    focusedAnchor: state.current.focusedAnchor,
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }), [renderCount, state.current.sideItems, hideBlockSideItems]);
+  }), [renderCount, state.current.sideItems, state.current.focusedAnchor, hideBlockSideItems]);
   
   useEffect(() => {
     // Watch contents for size-change of the central column, which will happen
@@ -192,19 +204,54 @@ export const SideItemsSidebar = () => {
     const sortedSideItems = orderBy(displayContext.sideItems,
       [s => s.anchorTop, s => s.anchorLeft]
     );
-    
-    // Place them vertically
-    let top = 0;
-    for (let i=0; i<sortedSideItems.length; i++) {
-      const sideItem = sortedSideItems[i];
-      let newTop = Math.max(top, sideItem.anchorTop!);
 
-      const sidebarColumnHeight = sideItemColumnRef.current?.clientHeight;
+    const sidebarColumnHeight = sideItemColumnRef.current.clientHeight;
 
+    // Compute default positions (single downward pass)
+    const positions = new Array<number>(sortedSideItems.length);
+    {
+      let top = 0;
+      for (let i = 0; i < sortedSideItems.length; i++) {
+        positions[i] = Math.max(top, sortedSideItems[i].anchorTop!);
+        top = positions[i] + sortedSideItems[i].sideItemHeight!;
+      }
+    }
+
+    // If there's a focused item, adjust positions so the focused item sits
+    // at its anchor, then cascade any overlaps.
+    const focusedIndex = displayContext.focusedAnchor
+      ? sortedSideItems.findIndex(s => s.anchorEl === displayContext.focusedAnchor)
+      : -1;
+
+    if (focusedIndex >= 0) {
+      // Place focused item at its anchor position
+      positions[focusedIndex] = sortedSideItems[focusedIndex].anchorTop!;
+
+      // Items below: recalculate downward from the focused item, which may
+      // have moved up and freed space for items below to settle closer to
+      // their anchors.
+      let bottom = positions[focusedIndex] + sortedSideItems[focusedIndex].sideItemHeight!;
+      for (let i = focusedIndex + 1; i < sortedSideItems.length; i++) {
+        positions[i] = Math.max(bottom, sortedSideItems[i].anchorTop!);
+        bottom = positions[i] + sortedSideItems[i].sideItemHeight!;
+      }
+
+      // Items above: only push up if they actually overlap with the item
+      // below them. Otherwise keep them at their default positions.
+      let top = positions[focusedIndex];
+      for (let i = focusedIndex - 1; i >= 0; i--) {
+        if (positions[i] + sortedSideItems[i].sideItemHeight! > top) {
+          positions[i] = top - sortedSideItems[i].sideItemHeight!;
+        }
+        top = positions[i];
+      }
+    }
+
+    // Apply positions
+    for (let i = 0; i < sortedSideItems.length; i++) {
+      const newTop = positions[i];
       const style = `top:${newTop}px; --sidebar-column-remaining-height: ${sidebarColumnHeight - newTop}px`;
-
-      sideItem.container.setAttribute("style", style);
-      top = newTop + sideItem.sideItemHeight!;
+      sortedSideItems[i].container.setAttribute("style", style);
     }
     
     // Use a ResizeObserver to watch for size-changes of side-item containers
@@ -267,6 +314,11 @@ export const SideItem = ({options, children, anchorEl}: {
 
 export const useHasSideItemsSidebar = (): boolean => {
   return !!useContext(SideItemsPlacementContext);
+}
+
+export const useSideItemsFocus = (): ((anchorEl: HTMLElement | null) => void) | null => {
+  const ctx = useContext(SideItemsPlacementContext);
+  return ctx?.setFocusedAnchor ?? null;
 }
 
 export const NoSideItems = ({children}: {

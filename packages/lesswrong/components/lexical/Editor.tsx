@@ -124,6 +124,7 @@ import SuggestedEditsPlugin from '../editor/lexicalPlugins/suggestedEdits/Sugges
 import { EditorUserMode, getDefaultEditorUserMode, type EditorUserModeType } from '../editor/lexicalPlugins/suggestions/EditorUserMode';
 import { SET_USER_MODE_COMMAND } from '../editor/lexicalPlugins/suggestedEdits/Commands';
 import BlockCursorNavigationPlugin from '../editor/lexicalPlugins/blockCursorNavigation/BlockCursorNavigationPlugin';
+import { SideCommentsPlugin } from '../editor/lexicalPlugins/sideComments/SideCommentsPlugin';
 import HorizontalRuleEnterPlugin from '../editor/lexicalPlugins/horizontalRuleEnter';
 import {
   preprocessHtmlForImport,
@@ -835,7 +836,10 @@ export default function Editor({
                 providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
               >
                 {!isCommentEditor && !(isCollab && useCollabV2) && (
-                  <CommentPlugin />
+                  <>
+                    <CommentPlugin />
+                    <SideCommentsPlugin />
+                  </>
                 )}
               <SuggestedEditsPlugin
                 isSuggestionMode={isSuggestionMode}

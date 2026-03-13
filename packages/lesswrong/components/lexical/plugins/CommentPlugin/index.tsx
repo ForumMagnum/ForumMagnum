@@ -128,6 +128,7 @@ import { SendIcon } from '../../icons/SendIcon';
 import { Trash3Icon } from '../../icons/Trash3Icon';
 import { InlineCommentsPanelContext } from '@/components/common/sharedContexts';
 import LWClickAwayListener from '@/components/common/LWClickAwayListener';
+import { useHasSideComments } from '@/components/editor/lexicalPlugins/sideComments/SideCommentsPlugin';
 import ForumIcon from '@/components/common/ForumIcon';
 import { formatSuggestionSummary } from '@/components/editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils';
 import { SUGGESTION_SUMMARY_KIND } from '@/components/editor/lexicalPlugins/suggestedEdits/Utils';
@@ -1400,6 +1401,7 @@ export default function CommentPlugin(): JSX.Element {
     null,
   );
   const { showComments, setShowComments, setCommentCount } = useContext(InlineCommentsPanelContext);
+  const hasSideComments = useHasSideComments();
   const panelRef = useRef<HTMLDivElement>(null);
   const replyActivatedRef = useRef(false);
   const cancelAddComment = useCallback(() => {
@@ -1478,10 +1480,10 @@ export default function CommentPlugin(): JSX.Element {
   );
 
   useEffect(() => {
-    if (activeIDs.length > 0) {
+    if (activeIDs.length > 0 && !hasSideComments) {
       setShowComments(true);
     }
-  }, [activeIDs, setShowComments]);
+  }, [activeIDs, setShowComments, hasSideComments]);
 
   useEffect(() => {
     if (!showComments) {
