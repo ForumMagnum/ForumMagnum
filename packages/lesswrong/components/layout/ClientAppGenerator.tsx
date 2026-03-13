@@ -8,7 +8,7 @@ import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
 import { SSRMetadata, EnvironmentOverrideContext } from '@/lib/utils/timeUtil';
 import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
-import { LocationContext, NavigationContext, SubscribeLocationContext } from '@/lib/routeUtil';
+import { LocationContext, NavigationContext, SubscribeLocationContext } from '@/lib/locationContexts';
 import { parsePath } from '@/lib/routeChecks/parseRoute';
 import { MessageContextProvider } from '@/components/layout/FlashMessages';
 import { UserContextProvider } from '../common/withUser';
