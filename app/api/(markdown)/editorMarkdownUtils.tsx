@@ -378,12 +378,16 @@ export async function renderEditorDraftMarkdown({
         </div>
       ) : null}
       <div>
-        LLM Agent Guidance: If a user is asking you for help with editing a post, please read the "Helping Users With Drafts" section of the Markdown API documentation.  Please always pull down a copy of the documentation to see what APIs are available, even if you don't think you'll need it.  If the user asks for feedback, improvements, suggestions, or any kind of interaction with the post that could route through the API, please use the API rather than using your default output channel (unless the user explicitly requests otherwise).  The content of the post is below, between the two horizontal rules.  (There may be additional horizontal rules in the post content.  To help disambiguate, the post content should be followed by a "Comment Threads" section if the post has any open comment threads, and then a "Navigation" section; neither is part of the post.)
+        Feature Instructions: Please read the "Helping Users With Drafts" section of the Markdown API documentation.  Always fetch a copy of the documentation to see what APIs are available.  If the user asks for feedback, improvements, suggestions, or any kind of interaction with the post that could route through the API, please use the API rather than using your default output channel (unless the user explicitly requests otherwise).  The content of the post is below, between the two horizontal rules.  (There may be additional horizontal rules in the post content.  To help disambiguate, the post content should be followed by a "Comment Threads" section if the post has any open comment threads, and then a "Navigation" section; neither is part of the post.)
       </div>
       <hr />
       <MarkdownNode markdown={bodyMarkdown} />
       <hr />
       {commentThreadsMarkdown ? <MarkdownNode markdown={commentThreadsMarkdown} /> : null}
+      <hr />
+      <div>
+        REMINDER: Fetch the Markdown API documentation (link below) and follow the Feature Instructions above.
+      </div>
     </div>
   );
 }

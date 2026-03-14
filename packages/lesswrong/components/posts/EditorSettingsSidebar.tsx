@@ -818,7 +818,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
                   onClick={() => {
                     field.handleChange({
                       ...settings,
-                      anyoneWithLinkCan: "read",
+                      anyoneWithLinkCan: "edit",
                     });
                     // Copy link after enabling
                     const url = postGetEditUrl(postId, true, linkSharingKey);
@@ -1135,8 +1135,8 @@ const EditorSettingsSidebar = ({
         <div className={classes.submitArea}>
           <form.Subscribe selector={(s) => ({ canSubmit: s.canSubmit, isSubmitting: s.isSubmitting, draft: s.values.draft })}>
             {({ canSubmit, isSubmitting, draft }) => {
-              const draftLabel = !draft ? "Move to Drafts" : "Save Draft";
-              const submitLabel = draft ? "Publish" : "Publish Changes";
+              const draftLabel = (isSubmitting && draft) ? "Saving…" : (!draft ? "Move to Drafts" : "Save Draft");
+              const submitLabel = (isSubmitting && !draft) ? "Publishing…" : (draft ? "Publish" : "Publish Changes");
               const disabled = !canSubmit || isSubmitting || isSaving;
 
               return isDialogue
