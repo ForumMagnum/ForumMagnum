@@ -88,7 +88,10 @@ export const PostSubmit = ({
     }
   };
 
-  const submitWithoutConfirmation = () => formApi.setFieldValue('draft', false);
+  const submitWithoutConfirmation = async () =>  {
+    formApi.setFieldValue('draft', false);
+    await formApi.handleSubmit();
+  };
 
   const requireConfirmation = isLW() && !!document.debate;
 
