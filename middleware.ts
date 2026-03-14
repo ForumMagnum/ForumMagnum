@@ -227,6 +227,7 @@ function getMarkdownRewriteResponse(request: NextRequest, addedClientId: string 
   }
 
   const rewrittenUrl = new URL(markdownPathname, request.url);
+  rewrittenUrl.search = request.nextUrl.search;
   const response = NextResponse.rewrite(rewrittenUrl);
   addVaryHeader(response, "accept");
   if (addedClientId) {
