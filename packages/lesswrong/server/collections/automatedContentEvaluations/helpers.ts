@@ -426,7 +426,7 @@ export async function createAutomatedContentEvaluation(
   });
 
   // Auto-reject if Pangram score is high AND there's either no LLM evaluation (comments) or the LLM says review (posts)
-  if (autoreject && (!llmEvaluation || llmEvaluation.decision === "review") && (pangramEvaluation?.pangramScore ?? 0) > .5) {
+  if (autoreject && (!llmEvaluation || llmEvaluation.decision === "review") && (pangramEvaluation?.pangramScore ?? 0) > .25) {
     const collectionName = revision.collectionName;
     if (collectionName === "Posts" || collectionName === "Comments") {
       await rejectContentForLLM(documentId, collectionName, context);

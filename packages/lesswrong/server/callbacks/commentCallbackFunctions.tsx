@@ -997,12 +997,6 @@ export async function maybeCreateAutomatedContentEvaluationForComment(
     : null;
 
   if (revision) {
-    // For now, only autoreject above threshold for unreviewed users.
-    // Might remove this later after we've had Pangram for a bit longer,
-    // or make the thresholds configurable, or the behavior itself depend
-    // on a user's review state, i.e. have LLM-y posts by reviewed users
-    // trigger a custom moderator action instead of rejecting.
-    const shouldAutoreject = !context.currentUser?.reviewedByUserId;
-    await createAutomatedContentEvaluation(revision, context, { autoreject: shouldAutoreject });
+    await createAutomatedContentEvaluation(revision, context, { autoreject: true });
   }
 }

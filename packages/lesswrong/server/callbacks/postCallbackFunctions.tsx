@@ -1149,16 +1149,10 @@ export async function oldPostsLastCommentedAt(post: DbPost, context: ResolverCon
 
 export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPost: DbPost, context: ResolverContext) {
   const shouldEvaluate = isLW() && !post.draft && oldPost.draft;
-  // For now, only autoreject above threshold for unreviewed users.
-  // Might remove this later after we've had Pangram for a bit longer,
-  // or make the thresholds configurable, or the behavior itself depend
-  // on a user's review state, i.e. have LLM-y posts by reviewed users
-  // trigger a custom moderator action instead of rejecting.
-  const shouldAutoreject = !context.currentUser?.reviewedByUserId;
   if (shouldEvaluate) {
     const revision = await getLatestContentsRevision(post, context);
     if (revision) {
-      await createAutomatedContentEvaluation(revision, context, { autoreject: shouldAutoreject });
+      await createAutomatedContentEvaluation(revision, context, { autoreject: true });
     }
   }
 }
