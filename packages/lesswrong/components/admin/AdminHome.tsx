@@ -60,7 +60,6 @@ const AdminHome = () => {
         <li><Link className={classes.link} to="/moderation/altAccounts">Alt-Accounts Investigator</Link></li>
         <li><Link className={classes.link} to="/admin/recentlyActiveUsers">Recently Active Users</Link></li>
         <li><Link className={classes.link} to="/admin/moderationTemplates">Moderation Templates</Link></li>
-        <li><Link className={classes.link} to="/admin/modgpt">ModGPT Dashboard</Link></li>
         <li><Link className={classes.link} to="/admin/random-user">Random User</Link></li>
         <li><Link className={classes.link} to="/moderatorComments">Moderator Comments</Link></li>
         <li><Link className={classes.link} to="/moderation">Moderation Log</Link></li>

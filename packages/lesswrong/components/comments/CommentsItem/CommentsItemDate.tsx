@@ -21,12 +21,6 @@ const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
       marginRight: 16,
     }),
 
-    "& a:hover, & a:active": {
-      "& $icon": {
-        color: `${theme.palette.icon.dim5} !important`,
-      },
-    },
-
     // Create a stacking context and set z-index to be higher than the vote
     // buttons, which are to the right of this and have a click-target that
     // partially overlaps.
@@ -41,19 +35,6 @@ const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
   },
   answerDate: {
     color: "inherit",
-  },
-  postTitle: {
-    marginRight: 5,
-  },
-  link: {
-  },
-  icon: {
-    fontSize: "0.9rem",
-    verticalAlign: "middle",
-    color: theme.palette.icon.dim,
-    margin: "0 2px",
-    position: "relative",
-    top: -2,
   },
   editedMarker: {
     paddingLeft: 2,

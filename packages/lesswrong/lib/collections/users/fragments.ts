@@ -147,7 +147,6 @@ export const UsersCurrent = gql(`
     allPostsFilter
     allPostsShowLowKarma
     allPostsIncludeEvents
-    allPostsHideCommunity
     allPostsOpenSettings
     draftsListSorting
     draftsListShowArchived
@@ -305,16 +304,6 @@ export const UserKarmaChanges = gql(`
         collectionName
       }
     }
-  }
-`)
-
-export const UsersBannedFromUsersModerationLog = gql(`
-  fragment UsersBannedFromUsersModerationLog on User {
-    _id
-    slug
-    displayName
-    bannedUserIds
-    bannedPersonalUserIds
   }
 `)
 

@@ -174,8 +174,6 @@ export const reCaptchaSecretSetting = new ServerSetting<string | null>('reCaptch
 
 export const defaultEmailSetting = new ServerSetting<string>('defaultEmail', "hello@world.com")
 
-export const gatherTownRoomPassword = new ServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
-
 export const cloudinaryApiKey = new ServerSetting<string>("cloudinaryApiKey", "");
 export const cloudinaryApiSecret = new ServerSetting<string>("cloudinaryApiSecret", "");
 
@@ -230,11 +228,6 @@ export const swrCachingEnabledSetting = new ParsedServerSetting<boolean>('swrCac
 export const swrCachingInvalidationIntervalMsSetting = new ParsedServerSetting<number>('swrCaching.invalidationIntervalMs', 30_000)
 
 export const enableDevelopmentEmailsSetting = new ParsedServerSetting<boolean>('enableDevelopmentEmails', false)
-
-// Minimum version number of the GatherTown bot that should run. If this is higher
-// than the bot version in this file, then the cronjob shuts off so some other
-// server can update it instead.
-export const minGatherTownTrackerVersion = new ParsedServerSetting<number>("gatherTownTrackerVersion", 7);
 
 export const petrovFalseAlarmMissileCount = new ParsedServerSetting<number[]>('petrovFalseAlarmMissileCount', [])
 export const petrovRealAttackMissileCount = new ParsedServerSetting<number[]>('petrovRealAttackMissileCount', [])

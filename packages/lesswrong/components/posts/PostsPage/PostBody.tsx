@@ -6,7 +6,6 @@ import { SideItemVisibilityContext } from '../../dropdowns/posts/SetSideItemVisi
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { type ContentItemBodyImperative, type ContentReplacedSubstringComponentInfo } from '../../contents/contentBodyUtil';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
-import { hasSideComments, inlineReactsHoverEnabled } from '../../../lib/betas';
 import { VotingProps } from '@/components/votes/votingProps';
 import { jargonTermsToTextReplacements } from '@/components/jargon/JargonTooltip';
 import { useGlobalKeydown } from '@/components/common/withGlobalKeydown';
@@ -65,10 +64,7 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
 
   const sideItemVisibilityContext = useContext(SideItemVisibilityContext);
   const sideCommentMode = isOldVersion ? "hidden" : (sideItemVisibilityContext?.sideCommentMode ?? "hidden")
-  const includeSideComments =
-    hasSideComments() &&
-    sideCommentMode &&
-    sideCommentMode !== "hidden";
+  const includeSideComments = sideCommentMode && sideCommentMode !== "hidden";
   
   const votingSystemName = post.votingSystem || "default";
   const votingSystem = getVotingSystemByName(votingSystemName);
@@ -111,21 +107,14 @@ const PostBody = ({post, html, isOldVersion, voteProps}: {
     />
   }
   
-  if (inlineReactsHoverEnabled()) {
-    return <InlineReactSelectionWrapper
-      contentRef={contentRef}
-      voteProps={voteProps}
-      styling="post"
-    >
-      {glossarySidebar}
-      {content}
-    </InlineReactSelectionWrapper>
-  } else {
-    return <>
-      {glossarySidebar}
-      {content}
-    </>;
-  }
+  return <InlineReactSelectionWrapper
+    contentRef={contentRef}
+    voteProps={voteProps}
+    styling="post"
+  >
+    {glossarySidebar}
+    {content}
+  </InlineReactSelectionWrapper>
 }
 
 export default registerComponent('PostBody', PostBody, { areEqual: "auto" });

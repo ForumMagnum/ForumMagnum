@@ -2,20 +2,17 @@ import React, { useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext, useOnMountTracking } from '../../lib/analyticsEvents';
-import { FilterSettings } from '../../lib/filterSettings';
 import { useFilterSettings } from '../hooks/useFilterSettings';
 import moment from '../../lib/moment-timezone';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
-import { isEAForum, isLW, frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
+import { isLW, frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
 import SectionTitle, { sectionTitleStyle } from '../common/SectionTitle';
 import { AllowHidingFrontPagePostsContext } from '../dropdowns/posts/PostActions';
 import { HideRepeatedPostsProvider } from '../posts/HideRepeatedPostsContext';
 import classNames from 'classnames';
 import {useUpdateCurrentUser} from "../hooks/useUpdateCurrentUser";
 import { reviewIsActive } from '../../lib/reviewUtils';
-import { forumSelect } from '../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
-import { EA_FORUM_TRANSLATION_TOPIC_ID } from '../../lib/collections/tags/helpers';
 import SingleColumnSection from "./SingleColumnSection";
 import PostsList2 from "../posts/PostsList2";
 import TagFilterSettings from "../tagging/TagFilterSettings";
@@ -27,22 +24,6 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("HomeLatestPosts", (theme: ThemeType) => ({
-  titleWrapper: {
-    marginBottom: 8
-  },
-  title: {
-    ...sectionTitleStyle(theme),
-    display: "inline",
-    marginRight: "auto"
-  },
-  toggleFilters: {
-    [theme.breakpoints.up('sm')]: {
-      display: "none"
-    },
-  },
-  hide: {
-      display: "none"
-  },
   hideOnMobile: {
     [theme.breakpoints.down('sm')]: {
       display: "none"
@@ -62,44 +43,11 @@ const styles = defineStyles("HomeLatestPosts", (theme: ThemeType) => ({
 
 const getLatestPostsName = () => isFriendlyUI() ? 'New & upvoted' : 'Latest Posts'
 
-const getFilterSettingsToggleLabels = () => forumSelect({
-  EAForum: {
-    desktopVisible: "Customize feed",
-    desktopHidden: "Customize feed",
-    mobileVisible: "Customize feed",
-    mobileHidden: "Customize feed",
-  },
-  default: {
-    desktopVisible: "Customize (Hide)",
-    desktopHidden: "Customize",
-    mobileVisible: "Customize (Hide)",
-    mobileHidden: "Customize",
-  }
-})
-
 const getAdvancedSortingText = () => isFriendlyUI()
   ? "Advanced sorting & filtering"
   : "Advanced Sorting/Filtering";
 
 const getDefaultLimit = () => isFriendlyUI() ? 11 : 13;
-
-const applyConstantFilters = (filterSettings: FilterSettings): FilterSettings => {
-  if (!isEAForum()) {
-    return filterSettings;
-  }
-  const tags = filterSettings.tags.filter(
-    ({tagId}) => tagId !== EA_FORUM_TRANSLATION_TOPIC_ID,
-  );
-  tags.push({
-    tagId: EA_FORUM_TRANSLATION_TOPIC_ID,
-    tagName: "Translation",
-    filterMode: "Hidden",
-  });
-  return {
-    ...filterSettings,
-    tags,
-  };
-}
 
 const HomeLatestPosts = () => {
   const classes = useStyles(styles);
@@ -124,7 +72,7 @@ const HomeLatestPosts = () => {
   const dateCutoff = moment(now).subtract(frontpageDaysAgoCutoffSetting.get()*24, 'hours').startOf('hour').toISOString()
 
   const recentPostsTerms = {
-    filterSettings: applyConstantFilters(filterSettings),
+    filterSettings,
     after: dateCutoff,
     view: "magic",
     forum: true,
@@ -154,18 +102,18 @@ const HomeLatestPosts = () => {
             >
               <SettingsButton
                 className={classes.hideOnMobile}
-                label={filterSettingsVisibleDesktop ?
-                  getFilterSettingsToggleLabels().desktopVisible :
-                  getFilterSettingsToggleLabels().desktopHidden}
+                label={filterSettingsVisibleDesktop
+                  ? "Customize (Hide)"
+                  : "Customize"}
                 showIcon={false}
                 onClick={changeShowTagFilterSettingsDesktop}
                 textShadow={true}
               />
               <SettingsButton
                 className={classes.hideOnDesktop}
-                label={filterSettingsVisibleMobile ?
-                  getFilterSettingsToggleLabels().mobileVisible :
-                  getFilterSettingsToggleLabels().mobileHidden}
+                label={filterSettingsVisibleMobile
+                  ? "Customize (Hide)"
+                  : "Customize"}
                 showIcon={false}
                 onClick={() => {
                   setFilterSettingsVisibleMobile(!filterSettingsVisibleMobile)

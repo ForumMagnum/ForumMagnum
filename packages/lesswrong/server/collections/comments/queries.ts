@@ -64,13 +64,6 @@ export const graphqlCommentQueryTypeDefs = gql`
     authorIsUnreviewed: Boolean
   }
   
-  input CommentsCheckedByModGPTInput {
-    userId: String
-    commentIds: [String!]
-    minimumKarma: Int
-    authorIsUnreviewed: Boolean
-  }
-  
   input CommentsPostCommentsTopInput {
     userId: String
     commentIds: [String!]
@@ -453,7 +446,6 @@ export const graphqlCommentQueryTypeDefs = gql`
     commentReplies: CommentsCommentRepliesInput
     postCommentsDeleted: CommentsPostCommentsDeletedInput
     allCommentsDeleted: CommentsAllCommentsDeletedInput
-    checkedByModGPT: CommentsCheckedByModGPTInput
     postCommentsTop: CommentsPostCommentsTopInput
     postCommentsRecentReplies: CommentsPostCommentsRecentRepliesInput
     postCommentsMagic: CommentsPostCommentsMagicInput

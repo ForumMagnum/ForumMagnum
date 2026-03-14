@@ -178,20 +178,6 @@ export const DeletedCommentsMetaData = gql(`
   }
 `)
 
-export const DeletedCommentsModerationLog = gql(`
-  fragment DeletedCommentsModerationLog on Comment {
-    ...DeletedCommentsMetaData
-    user {
-      ...UsersMinimumInfo
-    }
-    post {
-      title
-      slug
-      _id
-    }
-  }
-`)
-
 export const CommentsListWithParentMetadata = gql(`
   fragment CommentsListWithParentMetadata on Comment {
     ...CommentsList
@@ -214,17 +200,6 @@ export const SunshineCommentsList = gql(`
   }
 `)
 
-// TODO: This is now the same as CommentWithRepliesFragment, now that said
-// fragment gets the tag field
-export const StickySubforumCommentFragment = gql(`
-  fragment StickySubforumCommentFragment on Comment {
-    ...CommentWithRepliesFragment
-    tag {
-      ...TagBasicInfo
-    }
-  }
-`)
-
 export const WithVoteComment = gql(`
   fragment WithVoteComment on Comment {
     __typename
@@ -237,16 +212,6 @@ export const WithVoteComment = gql(`
     afBaseScore
     afExtendedScore
     voteCount
-  }
-`)
-
-export const CommentsListWithModGPTAnalysis = gql(`
-  fragment CommentsListWithModGPTAnalysis on Comment {
-    ...CommentsList
-    post {
-      ...PostsMinimumInfo
-    }
-    modGPTAnalysis
   }
 `)
 

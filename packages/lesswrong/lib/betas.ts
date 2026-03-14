@@ -6,7 +6,7 @@
 //
 // Beta-feature test functions must handle the case where user is null.
 
-import { testServerSetting, isEAForum, isLWorAF, hasCommentsTableOfContentSetting, hasSideCommentsSetting, hasDialoguesSetting, hasPostInlineReactionsSetting, isBotSiteSetting, isLW, userIdsWithAccessToLlmChat } from './instanceSettings';
+import { testServerSetting, isEAForum, isLWorAF, isLW, userIdsWithAccessToLlmChat } from './instanceSettings';
 import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
 
@@ -45,36 +45,22 @@ export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null): currentUs
   return isLW() && (isAdmin(currentUser) || userIdsWithAccess.includes(currentUser._id));
 }
 
-export const userHasDarkModeHotkey: BetaGate = (user) => shippedFeature(user);
-
 export const userHasPostAutosave: BetaGate = (user) => isLWorAF() ? adminOnly(user) : disabled(user);
 
 // Non-user-specific features
-export const dialoguesEnabled = () => hasDialoguesSetting.get();
+export const dialoguesEnabled = () => true;
 export const ckEditorUserSessionsEnabled = () => isLWorAF();
-export const inlineReactsHoverEnabled = () => hasPostInlineReactionsSetting.get();
 export const allowSubscribeToUserComments = true;
 export const allowSubscribeToSequencePosts = () => isFriendlyUI();
 
-export const hasAccountDeletionFlow = () => isEAForum();
-export const hasSideComments = () => hasSideCommentsSetting.get();
+export const hasAccountDeletionFlow = () => false;
 export const useElicitApi = false;
 export const hasCollapsedFootnotes = false; // TODO re-enable for EAF once https://github.com/ForumMagnum/ForumMagnum/issues/10912 is fixed
 export const usesCurationEmailsCron = () => isLW();
-export const visitedLinksHaveFilledInCircle = () => isLWorAF();
 export const hasWikiLenses = () => isLWorAF();
-export const hasDraftComments = () => true;
 
 export const userCanCreateAndEditJargonTerms = (user: UsersCurrent|DbUser|null) => isLW() && !!user && user.karma >= 100;
 export const userCanViewJargonTerms = (user: UsersCurrent|DbUser|UpdateUserDataInput|null) => isLW();
 export const userCanViewUnapprovedJargonTerms = (user: UsersCurrent|DbUser|null) => isLW()
 /* if this is reduced to 0, we need to make sure to handle spam somehow */
 export const userCanPassivelyGenerateJargonTerms = (user: UsersCurrent|DbUser|null) => isLW() && !!user && user.karma >= 100
-
-// Shipped Features
-export const userCanManageTags = shippedFeature;
-export const userCanCreateTags = shippedFeature;
-export const userCanUseTags = shippedFeature;
-export const userCanViewRevisionHistory = shippedFeature;
-export const userHasPingbacks = shippedFeature;
-export const userHasElasticsearch = shippedFeature;

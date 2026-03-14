@@ -6,7 +6,6 @@ import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import { viewFieldNullOrMissing } from '@/lib/utils/viewConstants';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
-import { EA_FORUM_COMMUNITY_TOPIC_ID } from '../tags/helpers';
 
 /**
  * Comment sorting mode, a string which gets translated into a mongodb sort
@@ -202,15 +201,6 @@ function allCommentsDeleted(terms: CommentsViewTerms) {
       deleted: true,
     },
     options: {sort: {deletedDate: -1, postedAt: -1, baseScore: -1 }}
-  };
-}
-
-function checkedByModGPT(terms: CommentsViewTerms) {
-  return {
-    selector: {
-      modGPTAnalysis: {$exists: true}
-    },
-    options: {sort: {postedAt: -1}}
   };
 }
 
@@ -556,11 +546,6 @@ function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?:
       parentCommentId: viewFieldNullOrMissing,
       postedAt: {$gt: moment().subtract(maxAgeDays, 'days').toDate()},
       $and: [
-        !terms.showCommunity
-          ? {
-            relevantTagIds: {$ne: EA_FORUM_COMMUNITY_TOPIC_ID},
-          }
-          : {},
         !!terms.relevantTagId
           ? {
             relevantTagIds: terms.relevantTagId,
@@ -756,7 +741,6 @@ export const CommentsViews = new CollectionViewSet('Comments', {
   commentReplies,
   postCommentsDeleted,
   allCommentsDeleted,
-  checkedByModGPT,
   postCommentsTop,
   postCommentsRecentReplies,
   postCommentsMagic,

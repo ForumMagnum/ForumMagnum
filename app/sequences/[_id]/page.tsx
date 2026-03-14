@@ -1,5 +1,6 @@
 import React from "react";
 import SequencesSingle from '@/components/sequences/SequencesSingle';
+import { SequencesPageSubtitle } from '@/components/titles/SequencesPageSubtitle';
 import type { Metadata } from "next";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
@@ -24,7 +25,8 @@ export default async function Page({ params }: {
   params: Promise<{ _id: string }>
 }) {
   const { _id } = await params;
-  return <RouteRoot>
+
+  return <RouteRoot delayedStatusCode subtitle={SequencesPageSubtitle}>
     <SequencesSingle _id={_id} />
-  </RouteRoot>
+  </RouteRoot>;
 }

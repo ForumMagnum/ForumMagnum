@@ -28,9 +28,6 @@ const styles = defineStyles('UltraFeedHeader', (theme: ThemeType) => ({
       flex: '1 1 100%',
     },
   },
-  hideTitle: {
-    display: 'none'
-  },
   tabsAndControls: {
     flex: '1 1 auto',
     minWidth: 0,

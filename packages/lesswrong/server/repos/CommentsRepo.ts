@@ -5,9 +5,7 @@ import keyBy from 'lodash/keyBy';
 import groupBy from 'lodash/groupBy';
 import orderBy from 'lodash/orderBy';
 import { filterWhereFieldsNotNull } from "../../lib/utils/typeGuardUtils";
-import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { forumSelect } from "../../lib/forumTypeUtils";
 import { isAF } from "../../lib/instanceSettings";
 import { getViewableCommentsSelector, getViewablePostsSelector } from "./helpers";
 import { FeedCommentFromDb, ThreadEngagementStats } from "../../components/ultraFeed/ultraFeedTypes";
@@ -120,15 +118,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     // over selecting brand new comments - defaults to 2 hours
     recencyBias?: number,
   }): Promise<DbComment[]> {
-    const excludedTagId = forumSelect({
-      EAForum: EA_FORUM_COMMUNITY_TOPIC_ID,
-      default: null
-    });
-
-    const excludeTagId = !!excludedTagId;
-    const excludedTagIdParam = excludeTagId ? { excludedTagId } : {};
-    const excludedTagIdCondition = excludeTagId ? 'AND COALESCE((p."tagRelevance"->$(excludedTagId))::INTEGER, 0) < 1' : '';
-
     const lookbackPeriod = isAF() ? '1 month' : '1 week';
     const afCommentsFilter = isAF() ? 'AND "af" IS TRUE' : '';
 
@@ -155,7 +144,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         p."hideFromPopularComments" IS NOT TRUE
         AND p."frontpageDate" IS NOT NULL
         AND ${getViewablePostsSelector('p')}
-        ${excludedTagIdCondition}
       ORDER BY c."baseScore" * EXP((EXTRACT(EPOCH FROM CURRENT_TIMESTAMP - c."postedAt") + $(recencyBias)) / -$(recencyFactor)) DESC
       OFFSET $(offset)
       LIMIT $(limit)
@@ -166,7 +154,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       recencyFactor,
       recencyBias,
       lookbackPeriod,
-      ...excludedTagIdParam,
     });
   }
 

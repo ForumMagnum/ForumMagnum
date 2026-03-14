@@ -4,7 +4,6 @@ import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import { useCurrentUser } from '../common/withUser';
-import { userCanCreateTags } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import { getTagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { getAllTagsPath } from '@/lib/pathConstants';
@@ -127,7 +126,7 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
       <Link target="_blank" to={getAllTagsPath()} className={classes.newTag}>
         All Wikitags
       </Link>
-      {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") && <Link
+      {tagUserHasSufficientKarma(currentUser, "new") && <Link
         target="_blank"
         to={getTagCreateUrl()}
         className={classes.newTag}

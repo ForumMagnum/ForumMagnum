@@ -1,7 +1,6 @@
 import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
-import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
@@ -321,10 +320,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         ${afFilter}
         p."curatedDate" IS NULL AND
         p."frontpageDate" > NOW() - ($1 || ' days')::INTERVAL AND
-        COALESCE(
-          (p."tagRelevance"->'${EA_FORUM_COMMUNITY_TOPIC_ID}')::INTEGER,
-          0
-        ) < 1 AND
         p."groupId" IS NULL AND
         p."disableRecommendation" IS NOT TRUE AND
         u."deleted" IS NOT TRUE AND
