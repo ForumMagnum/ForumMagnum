@@ -46,12 +46,7 @@ const profilePageAllPostsTabUnsharedStyles = defineStyles("ProfilePageAllPostsTa
       opacity: 1,
     },
     "&:hover $listArticleTitleText": {
-      textDecoration: "underline",
-      textDecorationColor: theme.palette.greyAlpha(0.2),
-      textDecorationThickness: 1,
-    },
-    "&:hover $listArticleSummary": {
-      color: theme.palette.text.maxIntensity,
+      opacity: 0.84,
     },
     "&:last-of-type": {
       borderBottom: "none",
