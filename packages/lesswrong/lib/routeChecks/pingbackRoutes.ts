@@ -38,7 +38,6 @@ type NextExistingRoute = keyof ParamMap;
 
 export const routePingbackMapping = {
   '/users/[slug]': getUserPingbackBySlug,
-  '/collaborateOnPost': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.query.postId),
   '/s/[_id]/p/[postId]': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params.postId),
   '/highlights/[slug]': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
   '/w/[slug]': (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),

@@ -1118,6 +1118,11 @@ type ConversationsUserGroupUntitledConversationsInput = {
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
+type ConvertibleCollectionName =
+  | 'Comments'
+  | 'Posts'
+  | 'Tags';
+
 type CreateBookDataInput = {
   collectionId: Scalars['String']['input'];
   contents?: InputMaybe<CreateRevisionDataInput>;
@@ -3668,6 +3673,7 @@ type Mutation = {
   autosaveRevision?: Maybe<Revision>;
   clickRecommendation?: Maybe<Scalars['Boolean']['output']>;
   connectCrossposter?: Maybe<Scalars['String']['output']>;
+  convertDocumentEditorType?: Maybe<Scalars['JSON']['output']>;
   createBook?: Maybe<BookOutput>;
   createChapter?: Maybe<ChapterOutput>;
   createCollection?: Maybe<CollectionOutput>;
@@ -3920,6 +3926,15 @@ type MutationclickRecommendationArgs = {
 
 type MutationconnectCrossposterArgs = {
   token?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationconvertDocumentEditorTypeArgs = {
+  collectionName: ConvertibleCollectionName;
+  document: Scalars['JSON']['input'];
+  documentId: Scalars['String']['input'];
+  fieldName: Scalars['String']['input'];
+  targetFormat: Scalars['String']['input'];
 };
 
 
@@ -13767,26 +13782,6 @@ type autosaveRevisionMutationVariables = Exact<{
 
 type autosaveRevisionMutation = autosaveRevisionMutation_Mutation;
 
-type LinkSharingQueryQuery_getLinkSharedPost_Post_contents_Revision_originalContents_ContentType = { __typename?: 'ContentType', type: string };
-
-type LinkSharingQueryQuery_getLinkSharedPost_Post_contents_Revision = { __typename?: 'Revision', originalContents: LinkSharingQueryQuery_getLinkSharedPost_Post_contents_Revision_originalContents_ContentType };
-
-type LinkSharingQueryQuery_getLinkSharedPost_Post = (
-  { __typename?: 'Post', contents: LinkSharingQueryQuery_getLinkSharedPost_Post_contents_Revision | null }
-  & PostsEdit
-);
-
-type LinkSharingQueryQuery_Query = { __typename?: 'Query', getLinkSharedPost: LinkSharingQueryQuery_getLinkSharedPost_Post | null };
-
-
-type LinkSharingQueryQueryVariables = Exact<{
-  postId: Scalars['String']['input'];
-  linkSharingKey: Scalars['String']['input'];
-}>;
-
-
-type LinkSharingQueryQuery = LinkSharingQueryQuery_Query;
-
 type multiRevisionPostVersionHistoryQueryQuery_revisions_MultiRevisionOutput_results_Revision = (
   { __typename?: 'Revision' }
   & RevisionMetadataWithChangeMetrics
@@ -15644,6 +15639,46 @@ type updatePostDraftsListMutationVariables = Exact<{
 
 type updatePostDraftsListMutation = updatePostDraftsListMutation_Mutation;
 
+type latestGoogleDocMetadataSidebarQuery_Query = { __typename?: 'Query', latestGoogleDocMetadata: any | null };
+
+
+type latestGoogleDocMetadataSidebarQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+}>;
+
+
+type latestGoogleDocMetadataSidebarQuery = latestGoogleDocMetadataSidebarQuery_Query;
+
+type ImportGoogleDocSidebarMutation_ImportGoogleDoc_Post = (
+  { __typename?: 'Post' }
+  & PostsBase
+);
+
+type ImportGoogleDocSidebarMutation_Mutation = { __typename?: 'Mutation', ImportGoogleDoc: ImportGoogleDocSidebarMutation_ImportGoogleDoc_Post | null };
+
+
+type ImportGoogleDocSidebarMutationVariables = Exact<{
+  fileUrl: Scalars['String']['input'];
+  postId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type ImportGoogleDocSidebarMutation = ImportGoogleDocSidebarMutation_Mutation;
+
+type ConvertDocumentEditorTypeMutation_Mutation = { __typename?: 'Mutation', convertDocumentEditorType: any | null };
+
+
+type ConvertDocumentEditorTypeMutationVariables = Exact<{
+  documentId: Scalars['String']['input'];
+  collectionName: ConvertibleCollectionName;
+  fieldName: Scalars['String']['input'];
+  document: Scalars['JSON']['input'];
+  targetFormat: Scalars['String']['input'];
+}>;
+
+
+type ConvertDocumentEditorTypeMutation = ConvertDocumentEditorTypeMutation_Mutation;
+
 type updatePostExternalPostImporterMutation_updatePost_PostOutput_data_Post = (
   { __typename?: 'Post' }
   & PostsList
@@ -15992,6 +16027,22 @@ type PostsEditFormUserQueryVariables = Exact<{
 
 
 type PostsEditFormUserQuery = PostsEditFormUserQuery_Query;
+
+type LinkSharingEditQueryQuery_getLinkSharedPost_Post = (
+  { __typename?: 'Post' }
+  & PostsEditMutationFragment
+);
+
+type LinkSharingEditQueryQuery_Query = { __typename?: 'Query', getLinkSharedPost: LinkSharingEditQueryQuery_getLinkSharedPost_Post | null };
+
+
+type LinkSharingEditQueryQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+  linkSharingKey: Scalars['String']['input'];
+}>;
+
+
+type LinkSharingEditQueryQuery = LinkSharingEditQueryQuery_Query;
 
 type PostsGroupDetailsQuery_localgroup_SingleLocalgroupOutput_result_Localgroup = (
   { __typename?: 'Localgroup' }

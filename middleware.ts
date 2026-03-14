@@ -118,7 +118,14 @@ export async function middleware(request: NextRequest) {
   }
 }
 
-type MarkdownNegotiationMode = "explicit";
+type MarkdownNegotiationMode = "explicit" | "default";
+
+/**
+ * Routes that should default to returning markdown when the client doesn't
+ * send an Accept header (e.g. bare `curl` or programmatic fetches by AI
+ * agents). A wildcard-only or HTML-preferring Accept header still gets HTML.
+ */
+const markdownDefaultPathnames = new Set(["/editPost"]);
 
 interface ParsedAcceptRange {
   mediaType: string
@@ -185,6 +192,9 @@ function getMarkdownNegotiationMode(request: NextRequest): MarkdownNegotiationMo
 
   const acceptHeader = request.headers.get("accept")?.toLowerCase() ?? "";
   if (!acceptHeader.trim()) {
+    if (markdownDefaultPathnames.has(request.nextUrl.pathname)) {
+      return "default";
+    }
     return null;
   }
 
@@ -198,9 +208,14 @@ function getMarkdownNegotiationMode(request: NextRequest): MarkdownNegotiationMo
     getEffectiveQForMediaType(parsedRanges, "application/xhtml+xml")
   );
 
-  // For ambiguous or wildcard-only requests, default to HTML.
+  // For ambiguous or wildcard-only requests, default to HTML…
   if (markdownPreference > 0 && markdownPreference > htmlPreference) {
     return "explicit";
+  }
+  // …unless this is a markdown-default route and the client hasn't shown an
+  // explicit preference for HTML (e.g. curl's default `*/*`).
+  if (markdownDefaultPathnames.has(request.nextUrl.pathname) && htmlPreference <= markdownPreference) {
+    return "default";
   }
   return null;
 }
@@ -212,6 +227,7 @@ function getMarkdownRewriteResponse(request: NextRequest, addedClientId: string 
   }
 
   const rewrittenUrl = new URL(markdownPathname, request.url);
+  rewrittenUrl.search = request.nextUrl.search;
   const response = NextResponse.rewrite(rewrittenUrl);
   addVaryHeader(response, "accept");
   if (addedClientId) {

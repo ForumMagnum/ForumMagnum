@@ -13,7 +13,6 @@ import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { makeEditorConfig } from '../editor/editorConfigs';
-import { userHasLexicalEditor } from '../editor/Editor';
 import LexicalEditor from '../editor/LexicalEditor';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -267,7 +266,7 @@ const ExternalPostImporter = ({defaultPostedAt}: { defaultPostedAt?: Date }) => 
   const { flash } = useMessages();
 
   const currentUser = useCurrentUser();
-  const editorType = userHasLexicalEditor(currentUser) ? 'lexical' : 'ckEditorMarkup';
+  const editorType = 'lexical' as const;
 
   const [importUrlAsDraftPost, { data, loading, error }] = useMutation(gql(`
     mutation importUrlAsDraftPost($url: String!) {

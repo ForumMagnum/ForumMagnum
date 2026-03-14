@@ -20,7 +20,6 @@ const CollabEditorPermissionsNotices = ({post}: {
   const currentUser = useCurrentUser();
   const canEditAsAdmin = userCanDo(currentUser, 'posts.edit.all');
   return <div className={classes.root}>
-    {/* Note: admins and moderators are currently redirected from PostCollaborationEditor to PostsEditForm, so many of these are not currently in use. I didn't want to get rid of them yet because I'm not sure our redirection-scheme is exactly right. */}
     {post.myEditorAccess === "none" && <div>
       {canEditAsAdmin && <span>
         You have not been shared on this post, but you can edit because you are a site moderator. Please use this power sparingly.

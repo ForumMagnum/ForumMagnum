@@ -5,7 +5,7 @@ import {useCurrentUser} from "../common/withUser";
 import { NotifPopoverLink } from './useNotificationsPopoverContext';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import UsersName from "../users/UsersName";
+import UsersNameWrapper from "../users/UsersNameWrapper";
 import Loading from "../vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -43,12 +43,15 @@ const CommentOnYourDraftNotificationHover = ({notification}: {
   const post = data?.post?.result;
   
   const senderUserId = notification.extraData?.senderUserID;
-  
+  const senderDisplayName = notification.extraData?.senderDisplayName;
+
   const postOrDraft = post?.draft ? "draft" : "post";
-  
+
   return <div className={classes.root}>
     <div>
-      {senderUserId ? <UsersName documentId={notification.extraData.senderUserID}/> : "Someone"}
+      {senderUserId
+        ? <UsersNameWrapper documentId={senderUserId} fallbackName={senderDisplayName}/>
+        : "Someone"}
       {(currentUser?._id !== post?.userId) ? " replied to your comment on " : ` commented on your ${postOrDraft}`}
       <NotifPopoverLink to={postEditUrl}>
         {post ? post.title : <Loading/>}

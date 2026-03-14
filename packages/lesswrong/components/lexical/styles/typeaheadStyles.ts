@@ -95,10 +95,11 @@ export const typeaheadItemText = () => ({
  */
 export const typeaheadItemIcon = () => ({
   display: 'flex',
-  width: 20,
-  height: 20,
+  width: 18,
+  height: 18,
   userSelect: 'none' as const,
   marginRight: 8,
+  marginTop: 2,
   lineHeight: '16px',
   backgroundSize: 'contain',
   backgroundRepeat: 'no-repeat',

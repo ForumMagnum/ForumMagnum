@@ -20,7 +20,6 @@ import LastEditedInWarning from "./LastEditedInWarning";
 import LocalStorageCheck from "./LocalStorageCheck";
 import EditorTypeSelect from "./EditorTypeSelect";
 import ErrorBoundary from "../common/ErrorBoundary";
-import PostVersionHistoryButton from './PostVersionHistory';
 
 const autosaveInterval = 3000; //milliseconds
 const remoteAutosaveInterval = 1000 * 60 * 5; // 5 minutes in milliseconds
@@ -238,15 +237,24 @@ function InnerEditorFormComponent<S, R>({
    * Update the edited field (e.g. "contents") so that other form components can access the updated value. The direct motivation for this
    * was for SocialPreviewUpload, which needs to know the body of the post in order to generate a preview description and image.
    */
-  const throttledSetContentsValue = useDebouncedCallback(async (_: {}) => {
+  const throttledSetContentsValue = useDebouncedCallback(async (newContents: EditorContents) => {
     if (!(editorRef.current && shouldSubmitContents(editorRef.current))) return
-    
+
     // Preserve other fields in "contents" which may have been sent from the server
     const newFieldValue = {
       ...(document[fieldName] || {}),
       ...(await editorRef.current.submitData()),
     };
-    
+
+    // submitData reads from Editor props which may be stale during
+    // leading-edge calls (React hasn't re-rendered yet). For editor types
+    // that read content from props (everything except CKEditor, which reads
+    // from its own internal state), override with the contents we received
+    // directly as an argument.
+    if (newContents.type !== 'ckEditorMarkup' && newFieldValue.originalContents) {
+      newFieldValue.originalContents.data = newContents.value;
+    }
+
     field.handleChange(newFieldValue);
   }, {
     rateLimitMs: autosaveInterval,
@@ -291,7 +299,7 @@ function InnerEditorFormComponent<S, R>({
     // callback to improve performance. Note that the contents are always recalculated on
     // submit anyway, setting them here is only for the benefit of other form components (e.g. SocialPreviewUpload)
     setFieldEditorType?.(newContents?.type)
-    void throttledSetContentsValue({})
+    void throttledSetContentsValue(newContents)
     
     if (autosave) {
       throttledSaveBackup(newContents);
@@ -434,7 +442,7 @@ function InnerEditorFormComponent<S, R>({
     && currentUser && userCanCreateCommitMessages(currentUser)
     && (collectionName!=="Tags" || updatedFormType==="edit");
 
-  const actualPlaceholder = ((collectionName === "Posts" && getPostPlaceholder(document)) || editorHintText || hintText || placeholder);
+  const actualPlaceholder = (editorHintText || hintText || placeholder || (collectionName === "Posts" ? getPostPlaceholder(document) : undefined));
 
   useEffect(() => {
     if (!isCollabEditor && collectionName === 'Posts' && fieldName === 'contents') {
@@ -501,12 +509,6 @@ function InnerEditorFormComponent<S, R>({
     </CKEditorPortalProvider>
     {!hideControls && formVariant !== "grey" && (
       <EditorTypeSelect value={contents} setValue={wrappedSetContents} isCollaborative={isCollabEditor}/>
-    )}
-    {!hideControls && collectionName==="Posts" && fieldName==="contents" && !!document._id && (
-      <PostVersionHistoryButton
-        post={document}
-        postId={document._id}
-      />
     )}
   </div>
 }

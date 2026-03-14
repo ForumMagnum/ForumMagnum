@@ -66,6 +66,7 @@ import {
   typeaheadItemIcon,
   componentPickerMenu,
 } from '../../styles/typeaheadStyles';
+import omit from 'lodash/omit';
 
 const styles = defineStyles('LexicalComponentPicker', (theme: ThemeType) => ({
   popover: {
@@ -82,7 +83,7 @@ const styles = defineStyles('LexicalComponentPicker', (theme: ThemeType) => ({
   icon: typeaheadItemIcon(),
 }));
 
-const iconStyle = { display: 'flex', width: 20, height: 20, marginRight: 8, opacity: 0.6 };
+const iconStyle = { display: 'flex', width: 18, height: 18, marginRight: 8, marginTop: 2, opacity: 0.6 };
 
 class ComponentPickerOption extends MenuOption {
   // What shows up in the editor
@@ -178,7 +179,7 @@ const headingIcons = {
 } as const;
 
 
-function getBaseOptions(editor: LexicalEditor, openDialog: OpenDialogContextType['openDialog'], currentUser: UsersCurrent | null) {
+function useBaseOptions(editor: LexicalEditor, openDialog: OpenDialogContextType['openDialog'], currentUser: UsersCurrent | null) {
   const isAdminUser = userIsAdmin(currentUser);
   return [
     new ComponentPickerOption('Table', {
@@ -255,7 +256,7 @@ function getBaseOptions(editor: LexicalEditor, openDialog: OpenDialogContextType
       },
     }),
     new ComponentPickerOption('LLM Content', {
-      icon: <ForumIcon icon="Robot" style={iconStyle} />,
+      icon: <ForumIcon icon="Robot" style={omit(iconStyle, 'marginTop')} />,
       keywords: ['ai', 'llm', 'model', 'generated', 'language model', 'chatbot'],
       onSelect: () =>
         editor.dispatchCommand(INSERT_LLM_CONTENT_BLOCK_COMMAND, undefined),
@@ -310,9 +311,9 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
     minLength: 0,
   });
 
-  const options = useMemo(() => {
-    const baseOptions = getBaseOptions(editor, openDialog, currentUser);
+  const baseOptions = useBaseOptions(editor, openDialog, currentUser);
 
+  const options = useMemo(() => {
     if (!queryString) {
       return baseOptions;
     }
@@ -327,7 +328,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           option.keywords.some((keyword) => regex.test(keyword)),
       ),
     ];
-  }, [editor, queryString, openDialog, currentUser]);
+  }, [editor, queryString, baseOptions]);
 
   const onSelectOption = useCallback(
     (

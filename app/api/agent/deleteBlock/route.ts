@@ -3,7 +3,8 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { NextRequest, NextResponse } from "next/server";
 import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
-import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, paragraphMarkdownStartsWith, plainTextStartsWith, sleep, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, paragraphMarkdownStartsWith, plainTextStartsWith, withMainDocEditorSession } from "../editorAgentUtil";
+import { sleep } from "@/lib/utils/asyncUtils";
 import { buildNodeMarkdownMapForSubtree } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deleteBlockToolSchema, type ReplaceMode } from "../toolSchemas";

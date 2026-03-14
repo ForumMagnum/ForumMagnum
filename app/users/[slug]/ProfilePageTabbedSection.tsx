@@ -212,12 +212,12 @@ const feedTab: ProfilePageTabDefinition<"feed"> = {
 };
 
 const allTabs: ProfilePageTabDefinition<ProfileTab>[] = [
-  feedTab,
   postsTab,
   //commentsTab,
   //wikiEditsTab,
   sequencesTab,
   quickTakesTab,
+  feedTab,
 ];
 
 const profilePageTabSettingsByTabSchema = z.object({

@@ -11,6 +11,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 const styles = defineStyles('PostsAuthors', (theme: ThemeType) => ({
   root: {
     fontFamily: theme.isFriendlyUI ? theme.typography.uiSecondary.fontFamily : undefined,
+    fontSize: 'inherit',
     textAlign: 'left',
     display: 'inline',
   },
