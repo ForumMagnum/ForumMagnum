@@ -260,6 +260,9 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
     fontSize: 19.3,
     fontWeight: 400,
     opacity: 0.94,
+    '& h1, & h2, & h3, & h4, & h5, & h6': {
+      fontFamily: 'inherit',
+    },
     // Render the model label inline so the content starts immediately after it.
     '&::before': {
       content: 'attr(data-model-name)',
