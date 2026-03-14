@@ -7,7 +7,6 @@
  */
 
 import type {
-  EditorState,
   LexicalCommand,
   LexicalEditor,
   NodeKey,
@@ -22,17 +21,8 @@ import {
   $wrapSelectionInMarkNode,
   MarkNode,
 } from '@lexical/mark';
-import {AutoFocusPlugin} from '@lexical/react/LexicalAutoFocusPlugin';
-import {ClearEditorPlugin} from '@lexical/react/LexicalClearEditorPlugin';
-import {LexicalComposer} from '@lexical/react/LexicalComposer';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {EditorRefPlugin} from '@lexical/react/LexicalEditorRefPlugin';
-import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
-import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
-import {OnChangePlugin} from '@lexical/react/LexicalOnChangePlugin';
-import {PlainTextPlugin} from '@lexical/react/LexicalPlainTextPlugin';
 import {createDOMRange} from '@lexical/selection';
-import {$isRootTextContentEmpty, $rootTextContent} from '@lexical/text';
 import {mergeRegister, registerNestedElementResolver} from '@lexical/utils';
 import {
   $addUpdateTag,
@@ -42,14 +32,11 @@ import {
   $isRangeSelection,
   $isTextNode,
   $setSelection,
-  CLEAR_EDITOR_COMMAND,
   COLLABORATION_TAG,
   COMMAND_PRIORITY_EDITOR,
-  COMMAND_PRIORITY_NORMAL,
   createCommand,
   getDOMSelection,
   HISTORY_MERGE_TAG,
-  KEY_ESCAPE_COMMAND,
   SKIP_SCROLL_INTO_VIEW_TAG,
 } from 'lexical';
 import moment from 'moment';
@@ -71,9 +58,16 @@ import { SuggestionTypesThatCanBeEmpty } from '@/components/editor/lexicalPlugin
 import { createThread, createComment, Thread, Comments, Comment } from '../../commenting';
 import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND } from '@/components/editor/lexicalPlugins/suggestedEdits/Commands';
 import useModal from '../../hooks/useModal';
-import CommentEditorTheme from '../../themes/CommentEditorTheme';
 import Button from '../../ui/Button';
-import ContentEditable from '../../ui/ContentEditable';
+import { Trash3Icon } from '../../icons/Trash3Icon';
+import { InlineCommentsPanelContext } from '@/components/common/sharedContexts';
+import LWClickAwayListener from '@/components/common/LWClickAwayListener';
+import { useHasSideComments } from '@/components/editor/lexicalPlugins/sideComments/SideCommentsPlugin';
+import { PlainTextEditor, useOnChange, CommentsComposer, SuggestionStatusOrActions } from './CommentPluginComponents';
+import ForumIcon from '@/components/common/ForumIcon';
+import { formatSuggestionSummary } from '@/components/editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils';
+import { SUGGESTION_SUMMARY_KIND } from '@/components/editor/lexicalPlugins/suggestedEdits/Utils';
+import { useCurrentCollaboratorId } from '@/components/lexical/collaboration';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 
@@ -122,18 +116,6 @@ function createRectsFromDOMRange(range: Range): DOMRect[] {
   return selectionRects;
 }
 
-import { ChatLeftTextIcon } from '../../icons/ChatLeftTextIcon';
-import { CommentsIcon } from '../../icons/CommentsIcon';
-import { SendIcon } from '../../icons/SendIcon';
-import { Trash3Icon } from '../../icons/Trash3Icon';
-import { InlineCommentsPanelContext } from '@/components/common/sharedContexts';
-import LWClickAwayListener from '@/components/common/LWClickAwayListener';
-import { useHasSideComments } from '@/components/editor/lexicalPlugins/sideComments/SideCommentsPlugin';
-import ForumIcon from '@/components/common/ForumIcon';
-import { formatSuggestionSummary } from '@/components/editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils';
-import { SUGGESTION_SUMMARY_KIND } from '@/components/editor/lexicalPlugins/suggestedEdits/Utils';
-import { useCurrentCollaboratorId, useCollaboratorIdentity, useCanRejectSuggestion } from '@/components/lexical/collaboration';
-import { accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 
 const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   commentInputBox: {
@@ -200,14 +182,6 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
         backgroundColor: theme.palette.grey[200],
       },
     },
-  },
-  commentInputBoxEditorContainer: {
-    position: 'relative',
-    margin: 10,
-    borderRadius: 5,
-    '--lexical-comment-placeholder-top': '10px',
-    '--lexical-comment-placeholder-left': '10px',
-    '--lexical-comment-min-height': '30px',
   },
   commentInputBoxEditor: {
     position: 'relative',
@@ -295,51 +269,6 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   commentsPanelCloseButtonIcon: {
     height: 16,
     width: 16,
-  },
-  commentsPanelEditor: {
-    position: 'relative',
-    border: theme.palette.greyBorder('1px', 0.14),
-    backgroundColor: theme.palette.background.default,
-    borderRadius: 8,
-    fontSize: 15,
-    caretColor: theme.palette.grey[900],
-    display: 'block',
-    padding: '9px 10px 10px 9px',
-    minHeight: 20,
-    '&::before': {
-      content: '""',
-      width: 30,
-      height: 20,
-      float: 'right',
-    },
-  },
-  commentsPanelSendButton: {
-    position: 'absolute',
-    right: 10,
-    top: 8,
-    background: 'none',
-    '&:hover': {
-      background: 'none',
-      '& $sendIcon': {
-        opacity: 1,
-        color: theme.palette.greyAlpha(0.85),
-      },
-    },
-    '&:disabled $sendIcon': {
-      opacity: 0.3,
-    },
-    '&:disabled:hover $sendIcon': {
-      opacity: 0.3,
-      filter: 'none',
-    },
-  },
-  sendIcon: {
-    display: 'inline-block',
-    height: 20,
-    width: 20,
-    verticalAlign: '-10px',
-    opacity: 0.5,
-    transition: 'opacity 0.2s linear',
   },
   commentsPanelEmpty: {
     color: theme.palette.greyAlpha(0.62),
@@ -464,28 +393,6 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     marginRight: 16,
     fontSize: 13,
   },
-  suggestionActions: {
-    display: 'flex',
-    gap: 6,
-    marginTop: 6,
-  },
-  suggestionActionButton: {
-    padding: 0,
-    height: 16,
-    width: 16,
-    cursor: 'pointer',
-    background: 'unset',
-  },
-  suggestionActionButtonIcon: {
-    height: 16,
-    width: 16,
-  },
-  suggestionStatus: {
-    fontSize: 12,
-    fontWeight: 600,
-    color: theme.palette.grey[600],
-    marginTop: 6,
-  },
   threadComments: {
     paddingLeft: 10,
     listStyleType: 'none',
@@ -556,72 +463,6 @@ const rejectSuggestionThread = (editor: LexicalEditor, thread: Thread) => {
   editor.dispatchCommand(REJECT_SUGGESTION_COMMAND, suggestionId);
 };
 
-/**
- * Renders either the suggestion status (if not open) or accept/reject action buttons.
- * Permission checks determine which buttons are shown.
- * Derives permissions from the CollaboratorIdentityContext.
- */
-function SuggestionStatusOrActions({
-  status,
-  suggestionAuthorId,
-  onAccept,
-  onReject,
-  classes,
-}: {
-  status: 'open' | 'accepted' | 'rejected' | 'archived';
-  suggestionAuthorId: string | undefined;
-  onAccept: () => void;
-  onReject: () => void;
-  classes: Record<string, string>;
-}): JSX.Element | null {
-  const { accessLevel } = useCollaboratorIdentity();
-  const canRejectSuggestion = useCanRejectSuggestion();
-  
-  if (status !== 'open') {
-    return (
-      <div className={classes.suggestionStatus}>
-        {status === 'accepted'
-          ? 'Accepted'
-          : status === 'rejected'
-            ? 'Rejected'
-            : 'Archived'}
-      </div>
-    );
-  }
-
-  const canAccept = accessLevelCan(accessLevel, "edit");
-  const canReject = suggestionAuthorId ? canRejectSuggestion(suggestionAuthorId) : false;
-
-  if (!canAccept && !canReject) {
-    return null;
-  }
-
-  return (
-    <div className={classes.suggestionActions}>
-      {canAccept && (
-        <button
-          type="button"
-          className={classes.suggestionActionButton}
-          onClick={onAccept}
-          title="Accept suggestion"
-        >
-          <ForumIcon icon="Check" className={classes.suggestionActionButtonIcon} />
-        </button>
-      )}
-      {canReject && (
-        <button
-          type="button"
-          className={classes.suggestionActionButton}
-          onClick={onReject}
-          title="Reject suggestion"
-        >
-          <ForumIcon icon="Close" className={classes.suggestionActionButtonIcon} />
-        </button>
-      )}
-    </div>
-  );
-}
-
 export const INSERT_INLINE_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_INLINE_COMMAND',
 );
@@ -681,85 +522,6 @@ export const HIDE_THREAD_COMMAND: LexicalCommand<HideThreadPayload> = createComm
   'HIDE_THREAD_COMMAND',
 );
 
-function EscapeHandlerPlugin({
-  onEscape,
-}: {
-  onEscape: (e: KeyboardEvent) => boolean;
-}): null {
-  const [editor] = useLexicalComposerContext();
-
-  useEffect(() => {
-    return editor.registerCommand(
-      KEY_ESCAPE_COMMAND,
-      (event: KeyboardEvent) => {
-        return onEscape(event);
-      },
-      COMMAND_PRIORITY_NORMAL,
-    );
-  }, [editor, onEscape]);
-
-  return null;
-}
-
-function PlainTextEditor({
-  className,
-  autoFocus,
-  onEscape,
-  onChange,
-  editorRef,
-  placeholder = 'Type a comment...',
-}: {
-  autoFocus?: boolean;
-  className?: string;
-  editorRef?: {current: null | LexicalEditor};
-  onChange: (editorState: EditorState, editor: LexicalEditor) => void;
-  onEscape: (e: KeyboardEvent) => boolean;
-  placeholder?: string;
-}) {
-  const initialConfig = {
-    namespace: 'Commenting',
-    nodes: [],
-    onError: (error: Error) => {
-      throw error;
-    },
-    theme: CommentEditorTheme,
-  };
-
-  const classes = useStyles(styles);
-  return (
-    <LexicalComposer initialConfig={initialConfig}>
-      <div className={classes.commentInputBoxEditorContainer}>
-        <PlainTextPlugin
-          contentEditable={
-            <ContentEditable placeholder={placeholder} className={className} variant="comment" />
-          }
-          ErrorBoundary={LexicalErrorBoundary}
-        />
-        <OnChangePlugin onChange={onChange} />
-        <HistoryPlugin />
-        {autoFocus !== false && <AutoFocusPlugin />}
-        <EscapeHandlerPlugin onEscape={onEscape} />
-        <ClearEditorPlugin />
-        {editorRef !== undefined && <EditorRefPlugin editorRef={editorRef} />}
-      </div>
-    </LexicalComposer>
-  );
-}
-
-function useOnChange(
-  setContent: (text: string) => void,
-  setCanSubmit: (canSubmit: boolean) => void,
-) {
-  return useCallback(
-    (editorState: EditorState, _editor: LexicalEditor) => {
-      editorState.read(() => {
-        setContent($rootTextContent());
-        setCanSubmit(!$isRootTextContentEmpty(_editor.isComposing(), true));
-      });
-    },
-    [setCanSubmit, setContent],
-  );
-}
 
 function CommentInputBox({
   editor,
@@ -952,60 +714,7 @@ function CommentInputBox({
   );
 }
 
-function CommentsComposer({
-  submitAddComment,
-  thread,
-  placeholder,
-}: {
-  placeholder?: string;
-  submitAddComment: (
-    commentOrThread: Comment,
-    isInlineComment: boolean,
-    // eslint-disable-next-line no-shadow
-    thread?: Thread,
-  ) => void;
-  thread?: Thread;
-}) {
-  const classes = useStyles(styles);
-  const [content, setContent] = useState('');
-  const [canSubmit, setCanSubmit] = useState(false);
-  const editorRef = useRef<LexicalEditor>(null);
-  const author = useCollabAuthorName();
-  const authorId = useCurrentCollaboratorId();
 
-  const onChange = useOnChange(setContent, setCanSubmit);
-
-  const submitComment = () => {
-    if (canSubmit) {
-      submitAddComment(createComment(content, author, authorId), false, thread);
-      const editor = editorRef.current;
-      if (editor !== null) {
-        editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
-      }
-    }
-  };
-
-  return (
-    <>
-      <PlainTextEditor
-        className={classes.commentsPanelEditor}
-        autoFocus={false}
-        onEscape={() => {
-          return true;
-        }}
-        onChange={onChange}
-        editorRef={editorRef}
-        placeholder={placeholder}
-      />
-      <Button
-        className={classes.commentsPanelSendButton}
-        onClick={submitComment}
-        disabled={!canSubmit}>
-        <SendIcon className={classes.sendIcon} />
-      </Button>
-    </>
-  );
-}
 
 const deleteCommentOrThreadDialogStyles = defineStyles('DeleteCommentOrThreadDialog', (theme: ThemeType) => ({
   message: {
@@ -1298,7 +1007,6 @@ function CommentsPanelList({
                         suggestionAuthorId={suggestionSummaryComment?.authorId}
                         onAccept={() => acceptSuggestionThread(editor, commentOrThread)}
                         onReject={() => rejectSuggestionThread(editor, commentOrThread)}
-                        classes={classes}
                       />
                     </div>
                   </>
