@@ -4,6 +4,7 @@ import { useCurrentUser } from '../common/withUser';
 import UsersName from "../users/UsersName";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { EditablePost } from '@/lib/collections/posts/helpers';
 
 const styles = defineStyles('CollabEditorPermissionsNotices', (theme: ThemeType) => ({
   root: {
@@ -14,7 +15,7 @@ const styles = defineStyles('CollabEditorPermissionsNotices', (theme: ThemeType)
 }));
 
 const CollabEditorPermissionsNotices = ({post}: {
-  post: PostsPage,
+  post: EditablePost,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();

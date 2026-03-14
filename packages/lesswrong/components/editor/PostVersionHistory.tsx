@@ -118,38 +118,12 @@ const styles = defineStyles('PostVersionHistory', (theme: ThemeType) => ({
   }
 }));
 
-const PostVersionHistoryButton = ({post, postId}: {
-  post: PostsBase,
-  postId: string,
-}) => {
-  const classes = useStyles(styles);
-  const { openDialog } = useDialog();
-  const { captureEvent } = useTracking()
-  return <EAButton
-    onClick={() => {
-      captureEvent("versionHistoryButtonClicked", {postId})
-      openDialog({
-        name: "PostVersionHistory",
-        contents: ({onClose}) => <PostVersionHistory
-          onClose={onClose}
-          post={post}
-          postId={postId}
-        />
-      })
-    }}
-    variant={"outlined"}
-    className={classes.versionHistoryButton}
-  >
-    Version History
-  </EAButton>
-}
-
 const LIVE_REVISION_TOOLTIP = "This version is currently live"
 const LOAD_VERSION_TOOLTIP = "Load this version into the editor (you will then need to publish it to update the live post)"
 const RESTORE_VERSION_TOOLTIP = "Update the live post to use this version"
 
-const PostVersionHistory = ({post, postId, onClose}: {
-  post: PostsBase,
+export const PostVersionHistoryDialog = ({post, postId, onClose}: {
+  post: EditablePost,
   postId: string,
   onClose: () => void,
 }) => {
@@ -325,6 +299,3 @@ const PostVersionHistory = ({post, postId, onClose}: {
     </LWDialog>
   );
 }
-
-export default PostVersionHistoryButton;
-
