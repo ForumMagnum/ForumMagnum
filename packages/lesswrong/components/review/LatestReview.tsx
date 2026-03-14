@@ -1,6 +1,5 @@
 import React from 'react';
 import { REVIEW_YEAR } from "../../lib/reviewUtils";
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
@@ -8,6 +7,8 @@ import ErrorBoundary from "../common/ErrorBoundary";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentLatestReviewQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -20,7 +21,7 @@ const CommentsListWithParentMetadataMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LatestReview', (theme: ThemeType) => ({
   root: {
     flexGrow: 1,
     flexShrink: 1,
@@ -43,9 +44,10 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     display: "block"
   }
-})
+}))
 
-const LatestReview = ({classes}: { classes: ClassesType<typeof styles> }) => {
+const LatestReview = () => {
+  const classes = useStyles(styles);
   const { data } = useQuery(CommentsListWithParentMetadataMultiQuery, {
     variables: {
       selector: { reviews: { reviewYear: REVIEW_YEAR, sortBy: "new" } },
@@ -90,6 +92,6 @@ const LatestReview = ({classes}: { classes: ClassesType<typeof styles> }) => {
   );
 }
 
-export default registerComponent('LatestReview', LatestReview, {styles});
+export default LatestReview;
 
 

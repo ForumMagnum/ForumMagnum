@@ -1,8 +1,9 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import classNames from 'classnames';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PastWarnings', (theme: ThemeType) => ({
   root: {
     marginTop: 16,
     paddingTop: 16,
@@ -34,14 +35,14 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1.2rem",
     marginLeft: 0
   }
-});
+}));
 
-export const PastWarnings = ({classes, petrovDayActions, side, general}: {
-  classes: ClassesType<typeof styles>,
+export const PastWarnings = ({petrovDayActions, side, general}: {
   petrovDayActions: PetrovDayActionInfo[],
   side: 'east' | 'west',
   general?: boolean
 }) => {
+  const classes = useStyles(styles);
   const reports = side === 'east' ? petrovDayActions.filter(action => action.actionType === 'eastPetrovAllClear' || action.actionType === 'eastPetrovNukesIncoming') : petrovDayActions.filter(action => action.actionType === 'westPetrovAllClear' || action.actionType === 'westPetrovNukesIncoming')
   
   return <div className={classes.root}>
@@ -52,6 +53,6 @@ export const PastWarnings = ({classes, petrovDayActions, side, general}: {
   </div>;
 }
 
-export default registerComponent('PastWarnings', PastWarnings, {styles});
+export default PastWarnings
 
 

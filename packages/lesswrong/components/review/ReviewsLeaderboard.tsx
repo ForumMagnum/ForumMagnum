@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import { Card } from "@/components/widgets/Paper";
@@ -11,8 +10,10 @@ import Row from "../common/Row";
 import MetaInfo from "../common/MetaInfo";
 import LWTooltip from "../common/LWTooltip";
 import CommentsNode from "../comments/CommentsNode";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewsLeaderboard', (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],
@@ -48,7 +49,7 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     color: theme.palette.grey[900]
   }
-});
+}));
 
 type ReviewLeaderboardRow = {
   user: UsersMinimumInfo,
@@ -56,11 +57,11 @@ type ReviewLeaderboardRow = {
   reviews: CommentsListWithParentMetadata[]
 }
 
-export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
-  classes: ClassesType<typeof styles>,
+export const ReviewsLeaderboard = ({reviews, reviewYear}: {
   reviews?: CommentsListWithParentMetadata[],
   reviewYear?: ReviewYear
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const [truncated, setTruncated] = useState<boolean>(true)
   // TODO find the place in the code where this is normally set
@@ -137,7 +138,7 @@ export const ReviewsLeaderboard = ({classes, reviews, reviewYear}: {
   </div>
 }
 
-export default registerComponent('ReviewsLeaderboard', ReviewsLeaderboard, {styles});
+export default ReviewsLeaderboard
 
 
 

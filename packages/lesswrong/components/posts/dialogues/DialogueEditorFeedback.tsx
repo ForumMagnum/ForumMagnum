@@ -3,9 +3,10 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '../../common/withUser';
 import { forumTitleSetting } from '../../../lib/instanceSettings';
 import { getSiteUrl } from "../../../lib/vulcan-lib/utils";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DialogueEditorFeedback', (theme: ThemeType) => ({
   root: {
     padding: 20
   },
@@ -20,15 +21,15 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     justifyContent: 'center',
   }
-});
+}));
 
 type ClickState = 'unclicked' | 'success' | 'failure'
 
 
-export const DialogueEditorFeedback = ({ classes, post }: {
+export const DialogueEditorFeedback = ({post}: {
   post: PostsEdit,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [clickState, setClickState] = useState<ClickState>('unclicked');
   const user = useCurrentUser()
 
@@ -52,6 +53,6 @@ export const DialogueEditorFeedback = ({ classes, post }: {
   </div>
 }
 
-export default registerComponent('DialogueEditorFeedback', DialogueEditorFeedback, { styles });
+export default DialogueEditorFeedback;
 
 

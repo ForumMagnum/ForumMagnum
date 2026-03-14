@@ -1,7 +1,8 @@
 import classNames from 'classnames';
 import React, { ReactNode } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const WIDTH = 220
 const HEIGHT = 343
@@ -37,7 +38,7 @@ const revealedContent = (_theme: ThemeType) => ({
   },
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Book2020Animation', (theme: ThemeType) => ({
   parent: {
     position: "relative",
     left: -93,
@@ -154,12 +155,12 @@ const styles = (theme: ThemeType) => ({
   two: {},
   three: {},
   four: {}
-})
+}), { allowNonThemeColors: true })
 
-const Book2020Animation = ({ classes, children }: {
-  classes: ClassesType<typeof styles>,
+const Book2020Animation = ({ children }: {
   children: ReactNode,
 }) => {
+  const classes = useStyles(styles);
   return (
     <div className={classes.root}>
       <div className={classes.parent}>
@@ -176,11 +177,4 @@ const Book2020Animation = ({ classes, children }: {
 }
 
 
-export default registerComponent('Book2020Animation', Book2020Animation, {
-  styles,
-  // This component tries to look like a printed book, which is white, so its colors
-  // don't change in dark mode
-  allowNonThemeColors: true,
-});
-
-
+export default Book2020Animation;

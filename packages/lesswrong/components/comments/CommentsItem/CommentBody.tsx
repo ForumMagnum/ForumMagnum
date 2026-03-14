@@ -1,4 +1,3 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 import { commentExcerptFromHTML } from '../../../lib/editor/ellipsize'
@@ -13,8 +12,10 @@ import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import CommentDeletedMetadata from "./CommentDeletedMetadata";
 import InlineReactSelectionWrapper from "../../votes/lwReactions/InlineReactSelectionWrapper";
 import type { ContentStyleType } from '@/components/common/ContentStylesValues';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentBody', (theme: ThemeType) => ({
   commentStyling: {
     maxWidth: "100%",
     overflowX: "hidden",
@@ -40,18 +41,9 @@ const styles = (theme: ThemeType) => ({
   retracted: {
     textDecoration: "line-through",
   },
-})
+}))
 
-const CommentBody = ({
-  comment,
-  commentBodyRef,
-  collapsed,
-  truncated,
-  postPage,
-  voteProps,
-  className,
-  classes,
-}: {
+const CommentBody = ({comment, commentBodyRef, collapsed, truncated, postPage, voteProps, className}: {
   comment: CommentsList,
   commentBodyRef?: React.RefObject<ContentItemBodyImperative|null>|null,
   collapsed?: boolean,
@@ -59,8 +51,9 @@ const CommentBody = ({
   postPage?: boolean,
   voteProps?: VotingProps<VoteableTypeClient>
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   // Do not truncate for users who have disabled it in their user settings
   const truncationDisabledByUserConfig = useFilteredCurrentUser((u) => u && (postPage ? u.noCollapseCommentsPosts : u.noCollapseCommentsFrontpage));
   const { html = "" } = comment.contents || {}
@@ -113,7 +106,7 @@ const CommentBody = ({
   }
 }
 
-export default registerComponent('CommentBody', CommentBody, {styles});
+export default CommentBody;
 
 
 

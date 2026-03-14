@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import moment from 'moment-timezone';
 import { timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { QueryLink } from '../../lib/reactRouterWrapper';
@@ -17,6 +16,8 @@ import PostsTagsList from "../tagging/PostsTagsList";
 import PostsLoading from "./PostsLoading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostPostsTimeBlockQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -29,7 +30,7 @@ const PostsListWithVotesMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsTimeBlock', (theme: ThemeType) => ({
   root: {
     marginBottom: 32
   },
@@ -94,7 +95,7 @@ const styles = (theme: ThemeType) => ({
       display: 'none'
     }),
   }
-})
+}))
 
 interface PostTypeOptions {
   name: ContentTypeString
@@ -109,19 +110,7 @@ const postTypes: PostTypeOptions[] = [
 
 export type PostsTimeBlockShortformOption = "all" | "none" | "frontpage";
 
-const PostsTimeBlock = ({
-  terms,
-  timeBlockLoadComplete,
-  dateForTitle,
-  getTitle,
-  before,
-  after,
-  hideIfEmpty,
-  timeframe,
-  shortform = "all",
-  classes,
-  includeTags=true,
-}: {
+const PostsTimeBlock = ({terms, timeBlockLoadComplete, dateForTitle, getTitle, before, after, hideIfEmpty, timeframe, shortform = "all", includeTags=true}: {
   terms: PostsViewTerms,
   timeBlockLoadComplete: () => void,
   dateForTitle: moment.Moment,
@@ -131,9 +120,9 @@ const PostsTimeBlock = ({
   hideIfEmpty: boolean,
   timeframe: TimeframeType,
   shortform?: PostsTimeBlockShortformOption,
-  classes: ClassesType<typeof styles>,
   includeTags?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const [noShortform, setNoShortform] = useState(false);
   const [noTags, setNoTags] = useState(false);
 
@@ -280,8 +269,6 @@ const PostsTimeBlock = ({
   );
 };
 
-export default registerComponent('PostsTimeBlock', PostsTimeBlock, {
-  styles,
-});
+export default PostsTimeBlock;
 
 

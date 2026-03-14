@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -9,8 +8,10 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
 import FormatDate from "../common/FormatDate";
 import UserNameDeleted from "../users/UserNameDeleted";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ExpandedSequencesSearchHit", (theme: ThemeType) => ({
   root: {
     maxWidth: 700,
     paddingTop: 2,
@@ -64,12 +65,12 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     marginTop: 4
   }
-})
+}))
 
-const ExpandedSequencesSearchHit = ({hit, classes}: {
+const ExpandedSequencesSearchHit = ({hit}: {
   hit: Hit<any>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
   const sequence: SearchSequence = hit
   const translucentBackground = useThemeColor(theme => theme.palette.panelBackground.translucent3);
@@ -103,7 +104,7 @@ const ExpandedSequencesSearchHit = ({hit, classes}: {
   </div>
 }
 
-export default registerComponent("ExpandedSequencesSearchHit", ExpandedSequencesSearchHit, {styles});
+export default ExpandedSequencesSearchHit;
 
 
 

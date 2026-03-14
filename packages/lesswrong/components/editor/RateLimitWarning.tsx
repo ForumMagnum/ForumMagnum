@@ -1,13 +1,14 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import moment from 'moment';
 import AlarmIcon from '@/lib/vendor/@material-ui/icons/src/Alarm';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import WarningBanner from "../common/WarningBanner";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RateLimitWarning', (theme: ThemeType) => ({
   lwBanner: {
     padding: 12,
     backgroundColor: theme.palette.background.warningTranslucent,
@@ -23,15 +24,15 @@ const styles = (theme: ThemeType) => ({
     height: 24,
     color: theme.palette.grey[500]
   }
-});
+}));
 
 // Tells the user when they can next comment or post if they're rate limited, and a brief explanation
-const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage, classes}: {
+const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage}: {
   contentType: 'comment' | 'post',
   lastRateLimitExpiry: Date,
   rateLimitMessage?: string,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const getTimeUntilNextPost = () => {
     const lastExpiry = moment(lastRateLimitExpiry)
     const now = moment()
@@ -62,6 +63,6 @@ const RateLimitWarning = ({contentType, lastRateLimitExpiry, rateLimitMessage, c
   </ContentStyles>
 }
 
-export default registerComponent('RateLimitWarning', RateLimitWarning, {styles});
+export default RateLimitWarning;
 
 

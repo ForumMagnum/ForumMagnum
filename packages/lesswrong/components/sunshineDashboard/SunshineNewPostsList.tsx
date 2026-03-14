@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
@@ -8,6 +7,8 @@ import SunshineNewPostsItem from "./SunshineNewPostsItem";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshinePostsListMultiQuery = gql(`
   query multiPostSunshineNewPostsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -20,18 +21,17 @@ const SunshinePostsListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineNewPostsList', (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.panelBackground.sunshineNewPosts,
   },
   loadMorePadding: {
     paddingLeft: 16
   }
-})
+}))
 
-const SunshineNewPostsList = ({ classes }: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const SunshineNewPostsList = () => {
+  const classes = useStyles(styles);
   const { data, refetch, loadMoreProps } = useQueryWithLoadMore(SunshinePostsListMultiQuery, {
     variables: {
       selector: { sunshineNewPosts: {} },
@@ -68,7 +68,7 @@ const SunshineNewPostsList = ({ classes }: {
   }
 }
 
-export default registerComponent('SunshineNewPostsList', SunshineNewPostsList, {styles});
+export default SunshineNewPostsList;
 
 
 

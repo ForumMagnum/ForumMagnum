@@ -1,9 +1,10 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import SunshineNewCommentsItem from "./SunshineNewCommentsItem";
 import SunshineListTitle from "./SunshineListTitle";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentSunshineNewCommentsListQuery($selector: CommentSelector, $limit: Int) {
@@ -15,16 +16,16 @@ const CommentsListWithParentMetadataMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineNewCommentsList', (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.panelBackground.sunshineNewComments,
   }
-})
+}))
 
-const SunshineNewCommentsList = ({ terms, classes }: {
+const SunshineNewCommentsList = ({terms}: {
   terms: CommentsViewTerms,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { view, limit, ...selectorTerms } = terms;
   const { data } = useQuery(CommentsListWithParentMetadataMultiQuery, {
     variables: {
@@ -54,7 +55,7 @@ const SunshineNewCommentsList = ({ terms, classes }: {
   }
 }
 
-export default registerComponent('SunshineNewCommentsList', SunshineNewCommentsList, {styles});
+export default SunshineNewCommentsList
 
 
 

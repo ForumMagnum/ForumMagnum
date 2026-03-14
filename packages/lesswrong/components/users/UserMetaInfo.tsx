@@ -1,14 +1,15 @@
 // TODO: Reconcile this file with user meta info the LW user profile page
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message';
 import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
 import classNames from 'classnames';
 import ForumIcon from "../common/ForumIcon";
 import FormatDate from "../common/FormatDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UserMetaInfo', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -46,19 +47,9 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     }
   }
-});
+}));
 
-export const UserMetaInfo = ({
-  user,
-  hideAfKarma,
-  hideWikiContribution,
-  hidePostCount,
-  hideCommentCount,
-  omegaAlignment = "legacy",
-  hideInfoOnSmallScreen,
-  infoClassName,
-  classes,
-}: {
+export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hidePostCount, hideCommentCount, omegaAlignment = "legacy", hideInfoOnSmallScreen, infoClassName}: {
   user: UsersMinimumInfo,
   hideAfKarma?: boolean,
   hideWikiContribution?: boolean,
@@ -67,8 +58,8 @@ export const UserMetaInfo = ({
   omegaAlignment?: "legacy" | "inline",
   hideInfoOnSmallScreen?: boolean,
   infoClassName?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { createdAt, karma, afKarma, postCount, commentCount, tagRevisionCount: wikiContributionCount } = user;
 
   const infoClasses = classNames(infoClassName, classes.info);
@@ -100,7 +91,7 @@ export const UserMetaInfo = ({
     </div>
 }
 
-export default registerComponent('UserMetaInfo', UserMetaInfo, {styles});
+export default UserMetaInfo;
 
 
 

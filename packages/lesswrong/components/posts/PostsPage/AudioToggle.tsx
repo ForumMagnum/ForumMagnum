@@ -1,15 +1,16 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
 import LWTooltip from "../../common/LWTooltip";
 import ForumIcon from "../../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const podcastIconSize = (theme: ThemeType) => theme.isFriendlyUI ? 22 : 24;
 // some padding around the icon to make it look like a stateful toggle button
 const podcastIconPadding = (theme: ThemeType) => theme.isFriendlyUI ? 4 : 2
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AudioToggle", (theme: ThemeType) => ({
   togglePodcastContainer: {
     alignSelf: 'center',
     color: theme.palette.text.dim3,
@@ -29,14 +30,15 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.5,
     cursor: 'not-allowed'
   }
-});
+}));
 
-const AudioToggle = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
-  classes: ClassesType<typeof styles>,
+const AudioToggle = ({post, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   toggleEmbeddedPlayer?: (e: React.MouseEvent) => void,
   showEmbeddedPlayer?: boolean,
 }) => {
+  const classes = useStyles(styles);
+
   if (!postHasAudioPlayer(post)) {
     return null;
   }
@@ -48,6 +50,6 @@ const AudioToggle = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer}: 
   </LWTooltip>
 }
 
-export default registerComponent('AudioToggle', AudioToggle, {styles});
+export default AudioToggle
 
 

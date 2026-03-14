@@ -1,5 +1,4 @@
 import React, { MouseEvent, useContext } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo, userCanQuickTake, userIsMemberOf } from '../../lib/vulcan-users/permissions';
 import { userGetDisplayName, userGetProfileUrl, userCanPost } from '../../lib/collections/users/helpers';
@@ -29,11 +28,14 @@ import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovConsts';
 
 import dynamic from 'next/dynamic';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
+
 const NewDialogueDialog = dynamic(() => import("../posts/NewDialogueDialog"), { ssr: false });
 const NewShortformDialog = dynamic(() => import("../shortform/NewShortformDialog"), { ssr: false });
 const AFApplicationForm = dynamic(() => import("../alignment-forum/AFApplicationForm"), { ssr: false });
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UsersMenu', (theme: ThemeType) => ({
   root: {
     marginTop: 5,
     wordBreak: 'break-all',
@@ -96,11 +98,10 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     textOverflow: "ellipsis",
   },
-})
+}))
 
-const UsersMenu = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const UsersMenu = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, forceUnHover, anchorEl} = useHover();
   const {openDialog} = useDialog();
@@ -315,6 +316,6 @@ const UsersMenu = ({classes}: {
   );
 }
 
-export default registerComponent('UsersMenu', UsersMenu, {styles});
+export default UsersMenu;
 
 

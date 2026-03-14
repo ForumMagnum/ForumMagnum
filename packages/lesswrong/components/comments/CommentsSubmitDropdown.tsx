@@ -1,5 +1,4 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
 import { isFriendlyUI } from '@/themes/forumTheme';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -12,8 +11,10 @@ import { Paper } from '../widgets/Paper';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import LoginPopup from '../users/LoginPopup';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentsSubmitDropdown', (theme: ThemeType) => ({
   buttonWrapper: {
     ...(theme.isFriendlyUI ? {
       backgroundColor: theme.palette.primary.main,
@@ -64,12 +65,12 @@ const styles = (theme: ThemeType) => ({
       padding: '4px 8px'
     })
   }
-});
+}));
 
-export const CommentsSubmitDropdown = ({ handleSubmit, classes }: {
+export const CommentsSubmitDropdown = ({handleSubmit}: {
   handleSubmit: (meta: {draft: boolean}) => Promise<void>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking();
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -128,4 +129,4 @@ export const CommentsSubmitDropdown = ({ handleSubmit, classes }: {
   );
 }
 
-export default registerComponent('CommentsSubmitDropdown', CommentsSubmitDropdown, {styles});
+export default CommentsSubmitDropdown;

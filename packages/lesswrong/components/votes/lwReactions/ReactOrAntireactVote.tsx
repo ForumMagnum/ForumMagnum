@@ -1,10 +1,11 @@
 import React from 'react';
 import { QuoteLocator, VoteOnReactionType } from '../../../lib/voting/namesAttachedReactions';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import UpArrowIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowUp';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReactOrAntireactVote', (theme: ThemeType) => ({
   reactOrAntireact: {
     minWidth: 55
   },
@@ -37,16 +38,16 @@ const styles = (theme: ThemeType) => ({
   colorGreen: {
     color: theme.palette.primary.main,
   },
-})
+}))
 
-const ReactOrAntireactVote = ({reactionName, quote, netReactionCount, currentUserReaction, setCurrentUserReaction, classes}: {
+const ReactOrAntireactVote = ({reactionName, quote, netReactionCount, currentUserReaction, setCurrentUserReaction}: {
   reactionName: string
   quote: QuoteLocator|null,
   netReactionCount: number
   currentUserReaction: VoteOnReactionType|null
   setCurrentUserReaction: (reactionName: string, reaction: VoteOnReactionType|null, quote: QuoteLocator|null) => void
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const onClick = (reaction: "reacted"|"disagreed") => {
     if (reaction === "reacted") {
       if (currentUserReaction === "created" || currentUserReaction === "seconded") {
@@ -67,7 +68,6 @@ const ReactOrAntireactVote = ({reactionName, quote, netReactionCount, currentUse
     <ReactionVoteArrow
       orientation="left"
       onClick={() => onClick("disagreed")}
-      classes={classes}
       className={currentUserReaction==="disagreed" ? classes.colorRed : undefined}
     />
     <span className={classes.reactionVoteCount}>
@@ -76,18 +76,18 @@ const ReactOrAntireactVote = ({reactionName, quote, netReactionCount, currentUse
     <ReactionVoteArrow
       orientation="right"
       onClick={() => onClick("reacted")}
-      classes={classes}
       className={(currentUserReaction==="created"||currentUserReaction==="seconded") ? classes.colorGreen : undefined}
     />
   </div>
 }
 
-const ReactionVoteArrow = ({orientation, onClick, className, classes}: {
+const ReactionVoteArrow = ({orientation, onClick, className}: {
   orientation: "left"|"right",
   onClick: () => void,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return <span className={classes.voteArrow}>
     <UpArrowIcon
       onClick={onClick}
@@ -104,7 +104,7 @@ const ReactionVoteArrow = ({orientation, onClick, className, classes}: {
 }
 
 
-export default registerComponent('ReactOrAntireactVote', ReactOrAntireactVote, {styles});
+export default ReactOrAntireactVote;
 
 
 

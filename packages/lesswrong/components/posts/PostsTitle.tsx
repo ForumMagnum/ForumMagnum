@@ -1,5 +1,4 @@
 import React, { CSSProperties, FC, PropsWithChildren } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser, useCurrentUserId } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
@@ -17,8 +16,10 @@ import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 import AllInclusiveIcon from '@/lib/vendor/@material-ui/icons/src/AllInclusive';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsTitle', (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.normal,
     position: "relative",
@@ -142,7 +143,7 @@ const styles = (theme: ThemeType) => ({
   highlightedTagTooltip: {
     marginTop: -2,
   },
-});
+}));
 
 const tagSettingIcons = new Map([
   [amaTagIdSetting, QuestionAnswerIcon], 
@@ -180,25 +181,7 @@ const postIcon = (post: PostsBase|PostsListBase) => {
 
 const DefaultWrapper: FC<PropsWithChildren<{}>> = ({children}) => <>{children}</>;
 
-const PostsTitle = ({
-  post, 
-  postLink, 
-  sticky, 
-  read, 
-  showPersonalIcon=true, 
-  showDraftTag=true, 
-  wrap=false, 
-  showIcons=true,
-  isLink=true,
-  curatedIconLeft=true,
-  strikethroughTitle=false,
-  Wrapper=DefaultWrapper,
-  showEventTag,
-  linkEventProps,
-  postItemHovered,
-  className,
-  classes,
-}: {
+const PostsTitle = ({post, postLink, sticky, read, showPersonalIcon=true, showDraftTag=true, wrap=false, showIcons=true, isLink=true, curatedIconLeft=true, strikethroughTitle=false, Wrapper=DefaultWrapper, showEventTag, linkEventProps, postItemHovered, className}: {
   post: PostsBase|PostsListBase,
   postLink?: string,
   sticky?: boolean,
@@ -215,8 +198,8 @@ const PostsTitle = ({
   linkEventProps?: Record<string, string>,
   postItemHovered?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUserId = useCurrentUserId();
   const { pathname } = useLocation();
   const shared = post.draft && (post.userId !== currentUserId) && post.shareWithUsers
@@ -275,6 +258,6 @@ const PostsTitle = ({
   )
 }
 
-export default registerComponent('PostsTitle', PostsTitle, {styles});
+export default PostsTitle;
 
 

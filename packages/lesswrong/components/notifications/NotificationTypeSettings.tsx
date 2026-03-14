@@ -19,8 +19,10 @@ import type { EditableUser } from '@/lib/collections/users/helpers';
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
 import ToggleSwitch from "../common/ToggleSwitch";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NotificationTypeSettingsWidget', (theme: ThemeType) => ({
   root: {
     paddingLeft: 8,
     paddingRight: 8,
@@ -66,12 +68,11 @@ const styles = (theme: ThemeType) => ({
       marginRight: 0,
     }
   }
-})
+}))
 
 type NotificationTypeSettingsWidgetProps = {
   field: TypedFieldApi<NotificationTypeSettings | LegacyNotificationTypeSettings, EditableUser>;
   label: string;
-  classes: ClassesType<typeof styles>;
 };
 
 const getChannelLabel = (channel: NotificationChannel): string => {
@@ -85,11 +86,8 @@ const getChannelLabel = (channel: NotificationChannel): string => {
   }
 }
 
-const NotificationTypeSettingsWidget = ({
-  field,
-  label,
-  classes
-}: NotificationTypeSettingsWidgetProps) => {
+const NotificationTypeSettingsWidget = ({field, label}: NotificationTypeSettingsWidgetProps) => {
+  const classes = useStyles(styles);
   const path = field.name;
   const value = field.state.value;
 
@@ -164,7 +162,6 @@ const NotificationTypeSettingsWidget = ({
 }
 
 export default registerComponent('NotificationTypeSettingsWidget', NotificationTypeSettingsWidget, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

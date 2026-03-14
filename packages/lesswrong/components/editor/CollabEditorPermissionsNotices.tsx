@@ -1,21 +1,23 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import UsersName from "../users/UsersName";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
+import { EditablePost } from '@/lib/collections/posts/helpers';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CollabEditorPermissionsNotices', (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     marginTop: 4,
     marginBottom: 12
   }
-});
+}));
 
-const CollabEditorPermissionsNotices = ({post, classes}: {
-  post: { myEditorAccess?: string | null; user: UsersMinimumInfo | null },
-  classes: ClassesType<typeof styles>,
+const CollabEditorPermissionsNotices = ({post}: {
+  post: EditablePost,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const canEditAsAdmin = userCanDo(currentUser, 'posts.edit.all');
   return <div className={classes.root}>
@@ -41,6 +43,6 @@ const CollabEditorPermissionsNotices = ({post, classes}: {
   </div>;
 }
 
-export default registerComponent('CollabEditorPermissionsNotices', CollabEditorPermissionsNotices, {styles});
+export default CollabEditorPermissionsNotices;
 
 

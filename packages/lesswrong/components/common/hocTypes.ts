@@ -4,17 +4,23 @@ import type { StyleDefinition } from '@/server/styleGeneration';
 
 declare global {
 
-type AnyStyles = JssStylesCallback<string>;
+type AnyStyles = JssStylesCallback<string>|StyleDefinition<string>;
+
+type StylesCallbackFrom<Styles extends AnyStyles> =
+  Styles extends StyleDefinition<infer ClassKey>
+    ? JssStylesCallback<ClassKey>
+    : Styles extends JssStylesCallback<infer ClassKey>
+      ? JssStylesCallback<ClassKey>
+      : never;
 
 type ClassesType<
-  Styles extends JssStylesCallback<ClassKey>,
-  ClassKey extends string = string
-> = Readonly<Record<keyof ReturnType<Styles>, string>>;
+  Styles extends AnyStyles,
+> = Readonly<Record<keyof ReturnType<StylesCallbackFrom<Styles>>, string>>;
 
-type ClassNameIn<T extends StyleDefinition> = keyof ClassesType<(T["styles"])>
+type ClassNameIn<T extends StyleDefinition> = keyof ClassesType<T>
 
-interface WithStylesProps<T extends StyleDefinition<any>=any> {
-  classes: ClassesType<T["styles"]>,
+interface WithStylesProps<T extends AnyStyles=AnyStyles> {
+  classes: ClassesType<T>,
 }
 
 interface WithUserProps {

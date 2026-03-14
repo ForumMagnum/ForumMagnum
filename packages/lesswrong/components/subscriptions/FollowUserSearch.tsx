@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
@@ -13,6 +12,8 @@ import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionFollowUserSearchQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -25,7 +26,7 @@ const SubscriptionStateMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FollowUserSearch", (theme: ThemeType) => ({
   root: {
     "& .ais-SearchBox": {
       padding: 8,
@@ -59,9 +60,10 @@ const styles = (theme: ThemeType) => ({
       maxWidth: 100,
     }
   }
-});
+}));
 
-const FollowUserSearchHit = ({hit, clickAction, existingSubscriptionIds, classes }: SearchHitComponentProps & {existingSubscriptionIds?: string[]}) => {
+const FollowUserSearchHit = ({hit, clickAction, existingSubscriptionIds }: SearchHitComponentProps & {existingSubscriptionIds?: string[]}) => {
+  const classes = useStyles(styles);
   const user = hit as SearchUser
   
   const isSubscribed = existingSubscriptionIds?.includes(user._id);
@@ -89,11 +91,11 @@ const FollowUserSearchHit = ({hit, clickAction, existingSubscriptionIds, classes
 }
 
 // Modeled off and modified from AddTag.tsx
-const FollowUserSearch = ({onUserSelected, currentUser, classes}: {
+const FollowUserSearch = ({onUserSelected, currentUser}: {
   onUserSelected: (user: UsersMinimumInfo ) => void,
   currentUser: UsersCurrent,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [searchOpen, setSearchOpen] = React.useState(false);
   const searchStateChanged = React.useCallback((searchState: SearchState) => {
     setSearchOpen((searchState.query?.length ?? 0) > 0);
@@ -168,13 +170,12 @@ const FollowUserSearch = ({onUserSelected, currentUser, classes}: {
           hit={hit}
           clickAction={() => handleSelectUser(hit)}
           existingSubscriptionIds={existingSubscriptionIds}
-          classes={classes}
         />
       }/>
     </InstantSearch>
   </div>
 }
 
-export default registerComponent("FollowUserSearch", FollowUserSearch, {styles});
+export default FollowUserSearch;
 
 

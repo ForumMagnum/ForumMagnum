@@ -1,12 +1,13 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import type { SocialMediaProfileField } from '../../lib/collections/users/helpers';
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { FormComponentFriendlyTextInput } from './FormComponentFriendlyTextInput';
 import SocialMediaIcon from "../icons/SocialMediaIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PrefixedInput", (theme: ThemeType) => ({
   root: {
     marginBottom: -10,
   },
@@ -22,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   adornmentText: {
     color: theme.palette.grey[600]
   },
-});
+}));
 
 export const iconNameByUserFieldName: Record<SocialMediaProfileField|"website", SocialMediaSiteName> = {
   "linkedinProfileURL": "linkedin",
@@ -37,13 +38,7 @@ export const iconNameByUserFieldName: Record<SocialMediaProfileField|"website", 
  * This is similar to a normal text input,
  * except it also displays an inputPrefix to the left of the cursor.
  */
-const PrefixedInput = ({
-  field,
-  heading,
-  inputPrefix,
-  smallBottomMargin,
-  classes,
-}: {
+const PrefixedInput = ({field, heading, inputPrefix, smallBottomMargin}: {
   field: {
     name: TypedFieldApi<string | null | undefined>['name'];
     state: Pick<TypedFieldApi<string | null | undefined>['state'], 'value'>;
@@ -52,8 +47,8 @@ const PrefixedInput = ({
   inputPrefix?: string,
   heading?: string,
   smallBottomMargin?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const value = field.state.value;
   const fieldName = field.name;
 
@@ -81,6 +76,6 @@ const PrefixedInput = ({
   );
 }
 
-export default registerComponent("PrefixedInput", PrefixedInput, { styles });
+export default PrefixedInput;
 
 

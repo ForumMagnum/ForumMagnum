@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Configure, Hits, SearchBox } from "react-instantsearch-dom";
 import { getElasticIndexNameWithSorting, getSearchClient } from "../../lib/search/searchUtil";
@@ -15,8 +14,10 @@ import ExpandedUsersConversationSearchHit from "../search/ExpandedUsersConversat
 import ForumIcon from "../common/ForumIcon";
 import { Typography } from "../common/Typography";
 import EAButton from "../ea-forum/EAButton";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("NewConversationDialog", (theme: ThemeType) => ({
   paper: {
     width: 600,
     margin: '48px 24px'
@@ -154,17 +155,13 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center",
     justifyContent: "flex-end"
   },
-});
+}));
 
-const NewConversationDialog = ({
-  isModInbox = false,
-  classes,
-  onClose,
-}: {
+const NewConversationDialog = ({isModInbox = false, onClose}: {
   isModInbox?: boolean;
-  classes: ClassesType<typeof styles>
   onClose: () => void;
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [query, setQuery] = useState<string>("");
   const navigate = useNavigate();
@@ -275,6 +272,6 @@ const NewConversationDialog = ({
   );
 };
 
-export default registerComponent("NewConversationDialog", NewConversationDialog, { styles });
+export default NewConversationDialog;
 
 

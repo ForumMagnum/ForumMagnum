@@ -3,7 +3,6 @@ import classNames from "classnames";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import { useCurrentUser } from "../common/withUser";
 import { useLocation } from "../../lib/routeUtil";
@@ -17,6 +16,8 @@ import { gql } from "@/lib/generated/gql-codegen";
 import type { CloudinaryPropsType } from "../common/cloudinaryHelpers";
 import { ICON_ONLY_NAVIGATION_BREAKPOINT } from '../common/TabNavigationMenu/NavigationStandalone';
 import { TAB_NAVIGATION_MENU_WIDTH, TAB_NAVIGATION_MENU_ICON_ONLY_WIDTH } from '../common/TabNavigationMenu/TabNavigationMenu';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const reviewVoteFragmentMultiQuery = gql(`
   query multiReviewVoteReviewVotingCanvasQuery($selector: ReviewVoteSelector, $limit: Int, $enableTotal: Boolean) {
@@ -37,7 +38,7 @@ export type GivingSeasonHeart = {
   theta: number,
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ReviewVotingCanvas", (theme: ThemeType) => ({
   screenContainer: {
     position: 'absolute',
     top: 0,
@@ -266,7 +267,7 @@ const styles = (theme: ThemeType) => ({
       top: 625
     },
   }
-});
+}));
 
 const votingPortalSocialImageProps: CloudinaryPropsType = {
   dpr: "auto",
@@ -290,15 +291,9 @@ const Heart: FC<{
   heart: GivingSeasonHeart,
   currentUser: UsersCurrent | null,
   removeHeart: () => Promise<void>,
-  classes: ClassesType<typeof styles>,
   disabled?: boolean
-}> = ({
-  heart: {userId, displayName, x, y, theta},
-  currentUser,
-  removeHeart,
-  classes,
-  disabled
-}) => {
+}> = ({heart: {userId, displayName, x, y, theta}, currentUser, removeHeart, disabled}) => {
+  const classes = useStyles(styles);
   const isCurrentUser = userId === currentUser?._id;
   const title = !isCurrentUser ? `${displayName} voted!` : "You voted! (Click to remove icon)" 
   const onClick = useCallback(() => {
@@ -334,11 +329,8 @@ const Heart: FC<{
   );
 }
 
-const ReviewVotingCanvas = ({
-  classes,
-}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const ReviewVotingCanvas = () => {
+  const classes = useStyles(styles);
   const { pathname } = useLocation();
   const currentUser = useCurrentUser();
   const showHearts = pathname === "/";
@@ -522,7 +514,6 @@ const ReviewVotingCanvas = ({
                     heart={heart}
                     currentUser={currentUser}
                     removeHeart={removeHeart}
-                    classes={classes}
                   />
                 ))}
                 {hoverPos &&
@@ -530,7 +521,6 @@ const ReviewVotingCanvas = ({
                     heart={{displayName: "", userId: "", theta: 0, ...hoverPos}}
                     currentUser={currentUser}
                     removeHeart={removeHeart}
-                    classes={classes}
                     disabled={!userHasVotedEnough}
                   />
                 }
@@ -542,10 +532,6 @@ const ReviewVotingCanvas = ({
   );
 }
 
-export default registerComponent(
-  "ReviewVotingCanvas",
-  ReviewVotingCanvas,
-  {styles},
-);
+export default ReviewVotingCanvas;
 
 

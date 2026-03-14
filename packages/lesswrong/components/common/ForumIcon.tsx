@@ -549,5 +549,3 @@ const ForumIcon = ({
 export default registerComponent("ForumIcon", ForumIcon, {
   areEqual: "auto",
 });
-
-

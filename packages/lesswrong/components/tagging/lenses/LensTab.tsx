@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { TagLens } from '@/lib/arbital/useTagLenses';
 import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";

@@ -1,13 +1,14 @@
 "use client";
 
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import PostsList2 from "../posts/PostsList2";
 import RecentDiscussionThreadsList from "../recentDiscussion/RecentDiscussionThreadsList";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Nominations2019', (theme: ThemeType) => ({
   setting: {
     ...theme.typography.body2,
     color: theme.palette.grey[600]
@@ -22,11 +23,10 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body2,
     ...theme.typography.commentStyle
   }
-})
+}))
 
-const Nominations2019 = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const Nominations2019 = () => {
+  const classes = useStyles(styles);
   const [sortByMost, setSortBy] = useState(false);
   return (
     <div>
@@ -63,7 +63,7 @@ const Nominations2019 = ({classes}: {
   )
 }
 
-export default registerComponent('Nominations2019', Nominations2019, {styles});
+export default Nominations2019;
 
 
 

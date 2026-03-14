@@ -1,9 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsItemComments', (theme: ThemeType) => ({
   commentsIconSmall: {
     width: 20,
     fontSize: 11,
@@ -59,16 +60,16 @@ const styles = (theme: ThemeType) => ({
     width:30,
     height:30,
   },
-})
+}))
 
-const PostsItemComments = ({ commentCount, small, onClick, unreadComments, newPromotedComments, classes }: {
+const PostsItemComments = ({commentCount, small, onClick, unreadComments, newPromotedComments}: {
   commentCount: number,
   small: boolean,
   onClick?: () => void,
   unreadComments: boolean,
   newPromotedComments: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   let unreadCommentsClass =  classes.noUnreadComments
   if (unreadComments) { unreadCommentsClass = classes.unreadComments }
   if (newPromotedComments) { unreadCommentsClass = classes.unreadComments }
@@ -83,7 +84,7 @@ const PostsItemComments = ({ commentCount, small, onClick, unreadComments, newPr
   )
 }
 
-export default registerComponent('PostsItemComments', PostsItemComments, {styles});
+export default PostsItemComments;
 
 
 

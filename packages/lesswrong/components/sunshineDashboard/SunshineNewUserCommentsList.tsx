@@ -1,8 +1,9 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { SunshineNewUserCommentItem } from "./SunshineNewUserCommentItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineNewUserCommentsList', (theme: ThemeType) => ({
   root: {
     marginTop: 8,
     display: "flex",
@@ -30,13 +31,13 @@ const styles = (theme: ThemeType) => ({
     marginRight: 8,
     color: theme.palette.grey[600],
   },
-})
+}))
 
-const SunshineNewUserCommentsList = ({comments, user, classes}: {
+const SunshineNewUserCommentsList = ({comments, user}: {
   comments?: Array<CommentsListWithParentMetadata>,
-  classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
+  const classes = useStyles(styles);
 
   if (!comments) return null;
 
@@ -49,6 +50,6 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
   )
 }
 
-export default registerComponent('SunshineNewUserCommentsList', SunshineNewUserCommentsList, {styles});
+export default SunshineNewUserCommentsList
 
 

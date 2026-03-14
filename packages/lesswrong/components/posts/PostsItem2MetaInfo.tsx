@@ -1,10 +1,11 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Typography } from "../common/Typography";
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsItem2MetaInfo", (theme: ThemeType) => ({
   metaInfo: {
     color: theme.palette.text.dim3,
     ...isIfAnyoneBuildsItFrontPage({
@@ -15,14 +16,15 @@ const styles = (theme: ThemeType) => ({
     flexShrink: 0,
     flexGrow: 0,
   }
-});
+}));
 
-const PostsItem2MetaInfo = ({children, className, classes}: {
+const PostsItem2MetaInfo = ({children, className}: {
   children?: React.ReactNode,
   className?: string,
-  classes: ClassesType<typeof styles>,
   read?: boolean,
 }) => {
+  const classes = useStyles(styles);
+
   return <Typography
     component='span'
     className={classNames(classes.metaInfo, className)}
@@ -31,6 +33,6 @@ const PostsItem2MetaInfo = ({children, className, classes}: {
   </Typography>
 }
 
-export default registerComponent("PostsItem2MetaInfo", PostsItem2MetaInfo, {styles});
+export default PostsItem2MetaInfo
   
 

@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useRef } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { sectionFooterLeftStyles } from '../users/UsersProfile'
@@ -29,6 +28,8 @@ import SectionButton from "../common/SectionButton";
 import ContentStyles from "../common/ContentStyles";
 import NotifyMeButton from "../notifications/NotifyMeButton";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SequencesPageFragmentQuery = gql(`
   query SequencesPage($documentId: String) {
@@ -59,7 +60,7 @@ export const sequencesImageScrim = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.sequenceImageGradient,
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SequencesPage', (theme: ThemeType) => ({
   root: {
     paddingTop: theme.isFriendlyUI ? `calc(270px + var(--header-height))` : 380,
   },
@@ -179,12 +180,12 @@ const styles = (theme: ThemeType) => ({
       fontSize: "2em",
     },
   },
-})
+}))
 
-const SequencesPage = ({ documentId, classes }: {
+const SequencesPage = ({documentId}: {
   documentId: string,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const [edit,setEdit] = useState(false);
   const [showNewChapterForm,setShowNewChapterForm] = useState(false);
   const nextSuggestedNumberRef = useRef(1);
@@ -349,6 +350,6 @@ const SequencesPage = ({ documentId, classes }: {
   </AnalyticsContext>
 }
 
-export default registerComponent('SequencesPage', SequencesPage, {styles});
+export default SequencesPage
 
 

@@ -1,5 +1,4 @@
 import React, { MutableRefObject } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { RefinementListExposed, RefinementListProvided } from 'react-instantsearch/connectors';
 import { ToggleRefinement, NumericMenu, ClearRefinements, connectRefinementList } from 'react-instantsearch-dom';
 import { isEAForum } from '../../lib/instanceSettings';
@@ -18,8 +17,10 @@ import TagMultiselect from "../form-components/TagMultiselect";
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SearchFilters", (theme: ThemeType) => ({
   filtersColumn: {
     flex: 'none',
     width: 250,
@@ -84,7 +85,7 @@ const styles = (theme: ThemeType) => ({
     borderRadius: theme.borderRadius.small,
     width: "100%",
   }
-});
+}));
 
 type TagsRefinementProps = {
   tagsFilter?: Array<string>,
@@ -107,8 +108,7 @@ const TagsRefinementList = ({ tagsFilter, setTagsFilter }:
 }
 const CustomTagsRefinementList = connectRefinementList(TagsRefinementList) as React.ComponentClass<RefinementListExposed & TagsRefinementProps>
 
-const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSortingChange, sorting, dateRangeValues, setModalOpen}: {
-  classes: ClassesType<typeof styles>
+const SearchFilters = ({tab, tagsFilter, handleUpdateTagsFilter, onSortingChange, sorting, dateRangeValues, setModalOpen}: {
   tab: SearchIndexCollectionName
   tagsFilter: Array<string>
   handleUpdateTagsFilter: (tags: Array<string>) => void
@@ -117,7 +117,7 @@ const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSort
   dateRangeValues: Array<MutableRefObject<number>>
   setModalOpen: (open: boolean) => void
 }) => {
-
+  const classes = useStyles(styles);
   const [pastDay, pastWeek, pastMonth, pastYear] = dateRangeValues;
   return <div className={classes.filtersColumn}>
     <div className={classes.filtersHeadlineWrapper}>
@@ -192,6 +192,6 @@ const SearchFilters = ({classes, tab, tagsFilter, handleUpdateTagsFilter, onSort
 }
 
 
-export default registerComponent("SearchFilters", SearchFilters, {styles});
+export default SearchFilters
 
 

@@ -1,4 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
+import { useDialog } from '../common/withDialog';
 import classNames from 'classnames';
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/constants';
 import {commentBodyStyles, postBodyStyles} from "../../themes/stylePiping";
@@ -20,7 +21,8 @@ import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 import LWTooltip from "../common/LWTooltip";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { disconnectCollaborationForPost } from "../lexical/collaboration";
-import { defineStyles, useStyles } from "../hooks/useStyles";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
   query multiRevisionPostVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -47,7 +49,7 @@ const RevisionDisplayQuery = gql(`
 
 const LEFT_COLUMN_WIDTH = 160
 
-const styles = defineStyles('PostVersionHistoryDialog', (theme: ThemeType) => ({
+const styles = defineStyles('PostVersionHistory', (theme: ThemeType) => ({
   root: {
     maxWidth: CENTRAL_COLUMN_WIDTH + LEFT_COLUMN_WIDTH + 64,
     display: "flex",
@@ -297,5 +299,3 @@ export const PostVersionHistoryDialog = ({post, postId, onClose}: {
     </LWDialog>
   );
 }
-
-

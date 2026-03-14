@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import Info from '@/lib/vendor/@material-ui/icons/src/Info';
 import { isLWorAF, forumHeaderTitleSetting } from '../../lib/instanceSettings';
 import InputLabel from '@/lib/vendor/@material-ui/core/src/InputLabel';
 import { TooltipSpan } from '../common/FMTooltip';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SignupSubscribeToCurated', (theme: ThemeType) => ({
   checkboxLabel: {
     ...theme.typography.body2,
     marginBottom: 10,
@@ -29,13 +30,13 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.icon.dim2,
     marginLeft: 6,
   },
-});
+}));
 
-const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
+const SignupSubscribeToCurated = ({defaultValue, onChange}: {
   defaultValue: boolean,
   onChange: (checked: boolean) => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [checked, setChecked] = useState(defaultValue);
 
   // this component is not used in the EA Forum signup flow,
@@ -63,6 +64,6 @@ const SignupSubscribeToCurated = ({ defaultValue, onChange, classes }: {
   </div>
 }
 
-export default registerComponent('SignupSubscribeToCurated', SignupSubscribeToCurated, {styles});
+export default SignupSubscribeToCurated
 
 

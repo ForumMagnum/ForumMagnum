@@ -1,10 +1,11 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PopupCommentEditor', (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     width: 600,
@@ -47,7 +48,7 @@ const styles = (theme: ThemeType) => ({
     padding: 20,
     paddingBottom: 12,
   },
-});
+}));
 
 /**
  * PopupCommentEditor: A floating comment editor. Used when you click the
@@ -62,13 +63,14 @@ const styles = (theme: ThemeType) => ({
  *   specifying what post the comment is on, and prefilling props.
  * onClose: Called when the window is closed.
  */
-const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, classes}: {
+const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose}: {
   title: React.ReactNode,
   guidelines?: React.ReactNode,
   commentFormProps: Partial<CommentsNewFormProps>,
   onClose: () => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
+
   return <Card className={classes.root}>
     <div className={classes.header}>
       <div className={classes.title}>
@@ -92,6 +94,6 @@ const PopupCommentEditor = ({title, guidelines, commentFormProps, onClose, class
   </Card>
 }
 
-export default registerComponent('PopupCommentEditor', PopupCommentEditor, {styles});
+export default PopupCommentEditor;
 
 
