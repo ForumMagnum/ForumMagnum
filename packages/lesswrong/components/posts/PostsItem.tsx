@@ -1,7 +1,8 @@
 import React from "react";
-import LWPostsItem, { PostsList2Props } from "./LWPostsItem";
+import LWPostsItem from "./LWPostsItem";
+import { PostsItemConfig } from "./postsItemHelpers";
 
-const PostsItem = (props: PostsList2Props) => {
+const PostsItem = (props: PostsItemConfig) => {
   return <LWPostsItem {...props} />;
 };
 

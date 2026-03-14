@@ -5,7 +5,7 @@ import { postGetLastCommentedAt } from "../../lib/collections/posts/helpers";
 import { useOnMountTracking } from "../../lib/analyticsEvents";
 import type { Placement as PopperPlacementType } from "popper.js"
 import { isFriendlyUI } from "../../themes/forumTheme";
-import { PostsItemConfig } from "./usePostsItem";
+import { PostsItemConfig } from "./postsItemHelpers";
 import { PostsListViewType, usePostsListView } from "../hooks/usePostsListView";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';

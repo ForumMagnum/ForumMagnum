@@ -40,29 +40,23 @@ const styles = defineStyles("PostsList2", (theme: ThemeType) => ({
   },
 }));
 
-type PostsList2Props = PostsListConfig;
-
-const PostsList2 = (props: PostsList2Props & {noSuspenseBoundary?: boolean}) => {
-  if (props.noSuspenseBoundary) {
-    return <PostsListLoaded {...props}/>
-  } else {
-    return <SuspenseWrapper name="PostsList2" fallback={
-      <PostsLoading
-        placeholderCount={props.placeholderCount ?? props.terms?.limit ?? 1}
-        showFinalBottomBorder={props.showFinalBottomBorder}
-        viewType={"list"}
-        loadMore={props.alwaysShowLoadMore}
-      >
-        {props.children}
-      </PostsLoading>
-    }>
-      <PostsListLoaded {...props}/>
-    </SuspenseWrapper>
-  }
+const PostsList2 = (props: PostsListConfig) => {
+  return <SuspenseWrapper name="PostsList2" fallback={
+    <PostsLoading
+      placeholderCount={props.placeholderCount ?? props.terms?.limit ?? 1}
+      showFinalBottomBorder={props.showFinalBottomBorder}
+      viewType={"list"}
+      loadMore={props.alwaysShowLoadMore}
+    >
+      {props.children}
+    </PostsLoading>
+  }>
+    <PostsListLoaded {...props}/>
+  </SuspenseWrapper>
 }
 
 /** A list of posts, defined by a query that returns them. */
-const PostsListLoaded = ({...props}: PostsList2Props) => {
+const PostsListLoaded = ({...props}: PostsListConfig) => {
   const {
     children,
     showNoResults,

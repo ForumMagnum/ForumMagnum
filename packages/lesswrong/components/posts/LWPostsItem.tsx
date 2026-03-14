@@ -1,5 +1,5 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import React from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { sequenceGetPageUrl } from "../../lib/collections/sequences/helpers";
 import { collectionGetPageUrl } from "../../lib/collections/collections/helpers";
@@ -8,12 +8,12 @@ import classNames from 'classnames';
 import { NEW_COMMENT_MARGIN_BOTTOM } from '../comments/constants';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting, isLW } from '@/lib/instanceSettings';
-import { getReviewPhase, postEligibleForReview, postPassedNomination, REVIEW_YEAR, reviewIsActive } from '../../lib/reviewUtils';
-import { PostsItemConfig, usePostsItem } from './usePostsItem';
+import { getReviewPhase, postEligibleForReview, postPassedNomination, REVIEW_YEAR } from '../../lib/reviewUtils';
+import { PostsItemConfig, getPostItemCommentTerms, getPostItemLink, hasUnreadPostItemComments, isStickyPostItem } from './postsItemHelpers';
 import PostsItemTrailingButtons, { MENU_WIDTH, DismissButton } from './PostsItemTrailingButtons';
 import DebateIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
 import { useHover } from '../common/withHover';
-import { highlightMarket } from '@/lib/collections/posts/annualReviewMarkets';
+import { getMarketInfo, highlightMarket } from '@/lib/collections/posts/annualReviewMarkets';
 import PostsItemTagRelevance from "../tagging/PostsItemTagRelevance";
 import EventVicinity from "../localGroups/EventVicinity";
 import PostsItemComments from "./PostsItemComments";
@@ -39,6 +39,9 @@ import { ResponseIcon } from "./PostsPage/RSVPs";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { RecommendationOptions, useRecordPostView } from '../hooks/useRecordPostView';
+import { useCurrentUser } from '../common/withUser';
+import { postCanDelete, postGetCommentCount, postGetLastCommentedAt, postGetLastCommentPromotedAt } from '@/lib/collections/posts/helpers';
 
 export const KARMA_WIDTH = 32;
 
@@ -432,57 +435,105 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   },
 }), { stylePriority: 1 });
 
-export type PostsList2Props = PostsItemConfig;
-
 const LWPostsItem = (props: PostsItemConfig) => {
-  const {
-    post,
-    postLink,
-    commentCount,
-    tagRel,
-    resumeReading,
-    sticky,
-    renderComments,
-    renderDialogueMessages,
-    condensedAndHiddenComments,
-    toggleComments,
-    toggleDialogueMessages,
-    showAuthor,
-    showDate,
-    showTrailingButtons,
-    showMostValuableCheckbox,
-    showNominationCount,
-    showReviewCount,
-    showIcons,
-    showKarma,
-    useCuratedDate,
-    annualReviewMarketInfo,
-    showReadCheckbox,
-    showDraftTag,
-    showPersonalIcon,
-    showBottomBorder,
-    showDismissButton,
-    showArchiveButton,
-    showCommentsIcon,
-    onDismiss,
-    onArchive,
-    hasUnreadComments,
-    hasNewPromotedComments,
-    commentTerms,
-    analyticsProps,
-    translucentBackground,
-    isRead,
-    tooltipPlacement,
-    dense,
-    curatedIconLeft,
-    strikethroughTitle,
-    bookmark,
-    emphasizeIfNew,
-    className,
-  } = usePostsItem(props);
-
   const classes = useStyles(styles);
   const { hover, eventHandlers } = useHover();
+  const {
+    post,
+    tagRel = null,
+    defaultToShowComments = false,
+    sequenceId,
+    chapter,
+    terms,
+    resumeReading,
+    dismissRecommendation,
+    toggleDeleteDraft,
+    showBottomBorder = true,
+    showDraftTag = true,
+    showPersonalIcon = true,
+    showIcons = true,
+    showPostedAt = true,
+    defaultToShowUnreadComments = false,
+    dense = false,
+    bookmark = false,
+    showNominationCount = false,
+    showReviewCount = false,
+    hideAuthor = false,
+    hideTrailingButtons = false,
+    tooltipPlacement = "bottom-end",
+    curatedIconLeft = false,
+    strikethroughTitle = false,
+    translucentBackground = false,
+    forceSticky = false,
+    showReadCheckbox = false,
+    showMostValuableCheckbox = false,
+    viewType = "list",
+    showKarma = true,
+    useCuratedDate = true,
+    recombeeRecommId,
+    emphasizeIfNew = false,
+    showCommentsIcon = true,
+    className,
+  } = props;
+  const [showComments, setShowComments] = useState(defaultToShowComments);
+  const [readComments, setReadComments] = useState(false);
+  const [showDialogueMessages, setShowDialogueMessages] = useState(false);
+  const { isRead, recordPostView } = useRecordPostView(post);
+  const currentUser = useCurrentUser();
+
+  const recommendationEventOptions = useMemo<RecommendationOptions>(() => ({
+    recombeeOptions: { recommId: recombeeRecommId },
+  }), [recombeeRecommId]);
+
+  const toggleComments = useCallback(() => {
+    void recordPostView({
+      post,
+      extraEventProperties: { type: "toggleComments" },
+      recommendationOptions: recommendationEventOptions,
+    });
+    setShowComments((currentValue) => !currentValue);
+    setReadComments(true);
+  }, [post, recordPostView, recommendationEventOptions]);
+
+  const toggleDialogueMessages = useCallback(() => {
+    void recordPostView({
+      post,
+      extraEventProperties: { type: "toggleDialogueMessages" },
+      recommendationOptions: recommendationEventOptions,
+    });
+    setShowDialogueMessages((currentValue) => !currentValue);
+  }, [post, recordPostView, recommendationEventOptions]);
+
+  const lastVisitedAt = maybeDate(post.lastVisitedAt);
+  const lastCommentedAt = postGetLastCommentedAt(post);
+  const lastCommentPromotedAt = postGetLastCommentPromotedAt(post);
+  const hasUnreadComments = isRead && hasUnreadPostItemComments(lastCommentedAt, lastVisitedAt) && !readComments;
+  const hasNewPromotedComments = isRead && hasUnreadPostItemComments(lastCommentPromotedAt, lastVisitedAt) && !readComments;
+  const sticky = forceSticky || isStickyPostItem(post, terms);
+  const renderComments = showComments || (defaultToShowUnreadComments && hasUnreadComments);
+  const renderDialogueMessages = showDialogueMessages;
+  const condensedAndHiddenComments = defaultToShowUnreadComments && !showComments;
+  const postLink = getPostItemLink({ post, sequenceId, chapter, recombeeRecommId });
+  const commentCount = postGetCommentCount(post);
+  const annualReviewMarketInfo = getMarketInfo(post);
+  const showAuthor = !post.isEvent && !hideAuthor;
+  const showDate = showPostedAt && !resumeReading;
+  const showTrailingButtons = !hideTrailingButtons;
+  const showDismissButton = Boolean(currentUser && resumeReading);
+  const onDismiss = dismissRecommendation;
+  const onArchive = toggleDeleteDraft ? () => toggleDeleteDraft(post) : undefined;
+  const showArchiveButton = Boolean(currentUser && post.draft && postCanDelete(currentUser, post) && onArchive);
+  const commentTerms = getPostItemCommentTerms({
+    post,
+    defaultToShowUnreadComments,
+    showComments,
+  });
+  const analyticsProps = {
+    pageElementContext: "postItem",
+    postId: post._id,
+    isSticky: sticky,
+    viewType,
+  };
 
   const reviewCountsTooltip = `${post.nominationCount2019 || 0} nomination${(post.nominationCount2019 === 1) ? "" :"s"} / ${post.reviewCount2019 || 0} review${(post.nominationCount2019 === 1) ? "" :"s"}`
 

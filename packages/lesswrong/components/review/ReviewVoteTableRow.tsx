@@ -9,7 +9,7 @@ import { eligibleToNominate, getCostData, ReviewPhase, ReviewYear } from '../../
 import PostsItemReviewVote, { voteTextStyling } from './PostsItemReviewVote';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { commentBodyStyles } from '../../themes/stylePiping';
-import { usePostsItem } from '../posts/usePostsItem';
+import { getPostItemCommentTerms, hasUnreadPostItemComments } from '../posts/postsItemHelpers';
 import PostsTitle from "../posts/PostsTitle";
 import LWTooltip from "../common/LWTooltip";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
@@ -211,12 +211,6 @@ const styles = (theme: ThemeType) => ({
 
 export type voteTooltipType = 'Showing votes by 1000+ Karma LessWrong users'|'Showing all votes'|'Showing votes from Alignment Forum members'
 
-const hasUnreadComments = (visitedDate: Date|null, lastCommentedAt: Date | null) => {
-  if (!lastCommentedAt) return false
-  if (!visitedDate) return true
-  return visitedDate < lastCommentedAt
-}
-
 const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expandedPostId, handleSetExpandedPost, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
   post: PostsReviewVotingList,
   index: number,
@@ -240,7 +234,8 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
     setMarkedVisitedAt(new Date()) 
   }
 
-  const { commentTerms } = usePostsItem({post})
+  const [commentsVisible, setCommentsVisible] = useState(false);
+  const commentTerms = getPostItemCommentTerms({ post, showComments: commentsVisible });
 
   const expanded = expandedPostId === post._id
 
@@ -267,12 +262,10 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
   const userReviewVote = post.currentUserReviewVote?.quadraticScore || qualitativeScoreDisplay;
 
   const visitedDate = markedVisitedAt ?? maybeDate(post.lastVisitedAt);
-  const unreadComments = hasUnreadComments(visitedDate, maybeDate(post.lastCommentedAt));
-
-  const [commentsVisible, setCommentsVisible] = useState(false);
+  const unreadComments = hasUnreadPostItemComments(maybeDate(post.lastCommentedAt), visitedDate);
 
   const toggleComments = () => {
-    setCommentsVisible(!commentsVisible);
+    setCommentsVisible((visible) => !visible);
   };
   
 
