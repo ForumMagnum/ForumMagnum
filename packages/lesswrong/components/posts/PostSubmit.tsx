@@ -126,7 +126,7 @@ export const PostSubmit = ({
         >
           {submitLabel}
         </Button>
-        {requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel && !document.draft && <LWTooltip
+        {requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel && document.draft && <LWTooltip
           title={feedbackTitle}
         >
           <Button type="submit"
