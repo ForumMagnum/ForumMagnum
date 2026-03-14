@@ -1,12 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import type { NodeKey } from 'lexical';
+import type { LexicalEditor, NodeKey } from 'lexical';
 import { $getNodeByKey, SKIP_SCROLL_INTO_VIEW_TAG } from 'lexical';
 import { $isMarkNode } from '@lexical/mark';
 import { mergeRegister } from '@lexical/utils';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { useMarkNodesContext, type MarkNodeMap } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext';
 import { useCommentStoreContext, useCommentStore } from '@/components/lexical/commenting/CommentStoreContext';
-import type { Thread } from '@/components/lexical/commenting';
+import type { Thread, Comment } from '@/components/lexical/commenting';
+import { $isSuggestionNode } from '@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode';
+import { SuggestionTypesThatCanBeEmpty } from '@/components/editor/lexicalPlugins/suggestedEdits/Types';
+import { SUGGESTION_SUMMARY_KIND } from '@/components/editor/lexicalPlugins/suggestedEdits/Utils';
+import { formatSuggestionSummary } from '@/components/editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils';
+import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND } from '@/components/editor/lexicalPlugins/suggestedEdits/Commands';
+import { CommentsComposer, SuggestionStatusOrActions } from '@/components/lexical/plugins/CommentPlugin/CommentPluginComponents';
 import { SideItem, useHasSideItemsSidebar, useSideItemsFocus } from '@/components/contents/SideItems';
 import { useLexicalEditorContext } from '@/components/editor/LexicalEditorContext';
 import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
@@ -15,7 +21,8 @@ import classNames from 'classnames';
 import moment from 'moment';
 
 interface SideCommentData {
-  threadId: string;
+  /** The ID used to look up this thread's mark nodes in markNodeMap */
+  markId: string;
   anchorEl: HTMLElement;
   thread: Thread;
 }
@@ -38,19 +45,13 @@ const styles = defineStyles('SideCommentsPlugin', (theme: ThemeType) => ({
     borderColor: theme.palette.primary.main,
     boxShadow: `0 0 0 1px ${theme.palette.primary.main}`,
   },
-  threadQuote: {
+  suggestionContent: {
     margin: 0,
-    padding: '8px 12px',
-    borderLeft: `3px solid ${theme.palette.grey[300]}`,
-    color: theme.palette.grey[600],
     fontSize: 13,
-    lineHeight: 1.4,
-    fontStyle: 'italic',
+    lineHeight: 1.5,
+    color: theme.palette.grey[800],
     whiteSpace: 'pre-wrap',
-    overflow: 'hidden',
-    display: '-webkit-box',
-    '-webkit-line-clamp': 2,
-    '-webkit-box-orient': 'vertical',
+    fontStyle: 'italic',
   },
   commentsList: {
     listStyleType: 'none',
@@ -86,6 +87,22 @@ const styles = defineStyles('SideCommentsPlugin', (theme: ThemeType) => ({
     color: theme.palette.grey[800],
     whiteSpace: 'pre-wrap',
   },
+  commentHeaderWithActions: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 6,
+  },
+  commentHeaderLeft: {
+    display: 'flex',
+    alignItems: 'baseline',
+    gap: 6,
+    minWidth: 0,
+  },
+  replyComposer: {
+    position: 'relative',
+    borderTop: theme.palette.greyBorder('1px', 0.08),
+  },
 }));
 
 export function useHasSideComments(): boolean {
@@ -95,8 +112,10 @@ export function useHasSideComments(): boolean {
   return isPostEditor && hasSideItemsSidebar && screenIsWideEnough;
 }
 
-function isCommentThread(thread: Thread): boolean {
-  return thread.threadType !== 'suggestion';
+function getThreadMarkId(thread: Thread): string {
+  return thread.threadType === 'suggestion'
+    ? (thread.markID ?? thread.id)
+    : thread.id;
 }
 
 function collectSideComments(
@@ -106,10 +125,11 @@ function collectSideComments(
 ): SideCommentData[] {
   const result: SideCommentData[] = [];
   for (const thread of threads) {
-    if (!isCommentThread(thread)) continue;
+    // Skip non-open threads (resolved/rejected suggestions)
+    if ((thread.status ?? 'open') !== 'open') continue;
 
-    const threadId = thread.id;
-    const nodeKeys = markNodeMap.get(threadId);
+    const markId = getThreadMarkId(thread);
+    const nodeKeys = markNodeMap.get(markId);
     if (!nodeKeys || nodeKeys.size === 0) continue;
 
     const firstKey = nodeKeys.values().next().value;
@@ -117,7 +137,7 @@ function collectSideComments(
     const element = editor.getElementByKey(firstKey);
     if (!element) continue;
 
-    result.push({ threadId, anchorEl: element, thread });
+    result.push({ markId, anchorEl: element, thread });
   }
   return result;
 }
@@ -129,7 +149,7 @@ function sideCommentsAreEqual(
   if (prev.length !== next.length) return false;
   for (let i = 0; i < prev.length; i++) {
     if (
-      prev[i].threadId !== next[i].threadId ||
+      prev[i].markId !== next[i].markId ||
       prev[i].anchorEl !== next[i].anchorEl ||
       prev[i].thread !== next[i].thread
     ) {
@@ -158,17 +178,43 @@ function scrollAnchorIntoViewIfNeeded(anchorEl: HTMLElement): void {
   }
 }
 
+function acceptSuggestionThread(editor: LexicalEditor, thread: Thread): void {
+  editor.dispatchCommand(ACCEPT_SUGGESTION_COMMAND, getThreadMarkId(thread));
+}
+
+function rejectSuggestionThread(editor: LexicalEditor, thread: Thread): void {
+  editor.dispatchCommand(REJECT_SUGGESTION_COMMAND, getThreadMarkId(thread));
+}
+
 const SideCommentItem = ({
   data,
   isActive,
   onClick,
+  submitAddComment,
 }: {
   data: SideCommentData;
   isActive: boolean;
   onClick: () => void;
+  submitAddComment: (comment: Comment, isInlineComment: boolean, thread?: Thread) => void;
 }) => {
   const classes = useStyles(styles);
+  const [editor] = useLexicalComposerContext();
   const { thread } = data;
+  const isSuggestion = thread.threadType === 'suggestion';
+
+  const summaryComment = isSuggestion
+    ? thread.comments.find((c) => c.commentKind === SUGGESTION_SUMMARY_KIND)
+    : undefined;
+  const summaryText = useMemo(
+    () => summaryComment ? formatSuggestionSummary(summaryComment.content) : null,
+    [summaryComment],
+  );
+
+  const visibleComments = thread.comments.filter(
+    (c) => !c.deleted && c.commentKind !== SUGGESTION_SUMMARY_KIND,
+  );
+
+  const suggestionStatus = thread.status ?? 'open';
 
   return (
     <SideItem anchorEl={data.anchorEl}>
@@ -179,28 +225,53 @@ const SideCommentItem = ({
         )}
         onClick={onClick}
       >
-        {thread.quote && (
-          <blockquote className={classes.threadQuote}>
-            {thread.quote}
-          </blockquote>
+        {isSuggestion && summaryComment && (
+          <div className={classes.comment}>
+            <div className={classes.commentHeaderWithActions}>
+              <div className={classes.commentHeaderLeft}>
+                <span className={classes.commentAuthor}>{summaryComment.author}</span>
+                <span className={classes.commentTime}>
+                  {moment(summaryComment.timeStamp).fromNow()}
+                </span>
+              </div>
+              <div onClick={(e) => e.stopPropagation()}>
+                <SuggestionStatusOrActions
+                  status={suggestionStatus}
+                  suggestionAuthorId={summaryComment.authorId}
+                  onAccept={() => acceptSuggestionThread(editor, thread)}
+                  onReject={() => rejectSuggestionThread(editor, thread)}
+                />
+              </div>
+            </div>
+            {summaryText && (
+              <p className={classes.suggestionContent}>{summaryText}</p>
+            )}
+          </div>
         )}
         <ul className={classes.commentsList}>
-          {thread.comments
-            .filter((c) => !c.deleted)
-            .map((comment) => (
-              <li key={comment.id} className={classes.comment}>
-                <div className={classes.commentHeader}>
-                  <span className={classes.commentAuthor}>{comment.author}</span>
-                  <span className={classes.commentTime}>
-                    {moment(comment.timeStamp).fromNow()}
-                  </span>
-                </div>
-                <p className={classes.commentContent}>
-                  {comment.content}
-                </p>
-              </li>
-            ))}
+          {visibleComments.map((comment) => (
+            <li key={comment.id} className={classes.comment}>
+              <div className={classes.commentHeader}>
+                <span className={classes.commentAuthor}>{comment.author}</span>
+                <span className={classes.commentTime}>
+                  {moment(comment.timeStamp).fromNow()}
+                </span>
+              </div>
+              <p className={classes.commentContent}>
+                {comment.content}
+              </p>
+            </li>
+          ))}
         </ul>
+        {isActive && (
+          <div className={classes.replyComposer} onClick={(e) => e.stopPropagation()}>
+            <CommentsComposer
+              submitAddComment={submitAddComment}
+              thread={thread}
+              placeholder="Reply..."
+            />
+          </div>
+        )}
       </div>
     </SideItem>
   );
@@ -254,7 +325,7 @@ export const SideCommentsPlugin = () => {
 
     if (activeIDs.length > 0) {
       const activeThreadId = activeIDs[0];
-      const activeData = sideComments.find((d) => d.threadId === activeThreadId);
+      const activeData = sideComments.find((d) => d.markId === activeThreadId);
       if (activeData) {
         setFocusedAnchor(activeData.anchorEl);
         return;
@@ -270,6 +341,13 @@ export const SideCommentsPlugin = () => {
     };
   }, [setFocusedAnchor]);
 
+  const submitAddComment = useCallback(
+    (comment: Comment, _isInlineComment: boolean, thread?: Thread) => {
+      commentStore.addComment(comment, thread);
+    },
+    [commentStore],
+  );
+
   const handleClickSideComment = useCallback(
     (data: SideCommentData) => {
       if (!setFocusedAnchor) return;
@@ -283,7 +361,7 @@ export const SideCommentsPlugin = () => {
       // Move editor selection to the start of the mark, which will update
       // activeIDs and make the focus state symmetric — clicking away from
       // the mark in the editor will naturally clear activeIDs and focus.
-      const markNodeKeys = markNodeMap.get(data.threadId);
+      const markNodeKeys = markNodeMap.get(data.markId);
       if (markNodeKeys && markNodeKeys.size > 0) {
         const markNodeKey = markNodeKeys.values().next().value;
         if (markNodeKey) {
@@ -292,6 +370,13 @@ export const SideCommentsPlugin = () => {
               const markNode = $getNodeByKey(markNodeKey);
               if ($isMarkNode(markNode)) {
                 markNode.selectStart();
+              } else if ($isSuggestionNode(markNode)) {
+                const suggestionType = markNode.getSuggestionTypeOrThrow();
+                if (SuggestionTypesThatCanBeEmpty.includes(suggestionType)) {
+                  markNode.getParent()?.selectEnd();
+                } else {
+                  markNode.selectStart();
+                }
               }
             },
             { tag: SKIP_SCROLL_INTO_VIEW_TAG },
@@ -310,10 +395,11 @@ export const SideCommentsPlugin = () => {
     <>
       {sideComments.map((data) => (
         <SideCommentItem
-          key={data.threadId}
+          key={data.markId}
           data={data}
-          isActive={activeIDs.indexOf(data.threadId) !== -1}
+          isActive={activeIDs.indexOf(data.markId) !== -1}
           onClick={() => handleClickSideComment(data)}
+          submitAddComment={submitAddComment}
         />
       ))}
     </>
