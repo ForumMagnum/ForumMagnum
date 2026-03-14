@@ -110,7 +110,7 @@ const editorStyles = defineStyles("DynamicTableOfContents", (theme: ThemeType) =
       },
     },
   },
-}), { allowNonThemeColors: true });
+}));
 
 /**
  * Syncs anchor IDs from extracted ToC sections onto the live editor DOM headings.

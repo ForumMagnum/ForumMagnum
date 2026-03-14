@@ -215,8 +215,8 @@ const SideCommentItem = ({
     ? thread.comments.find((c) => c.commentKind === SUGGESTION_SUMMARY_KIND)
     : undefined;
   const summaryText = useMemo(
-    () => summaryComment ? formatSuggestionSummary(summaryComment.content) : null,
-    [summaryComment],
+    () => summaryComment?.content ? formatSuggestionSummary(summaryComment.content) : null,
+    [summaryComment?.content],
   );
 
   const visibleComments = thread.comments.filter(

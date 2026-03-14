@@ -588,8 +588,6 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
       padding: "4px 10px",
       margin: "2px 0",
     },
-    "& .ImageUpload2-imageBackground": {
-    },
   },
   socialPreviewCardTitle: {
     ...theme.typography.commentStyle,

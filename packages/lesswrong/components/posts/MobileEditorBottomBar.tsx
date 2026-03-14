@@ -273,8 +273,6 @@ const styles = defineStyles("MobileEditorBottomBar", (theme: ThemeType) => ({
     "& .EditorSettingsSidebar-socialPreviewCardTitle": {
       marginTop: 4,
     },
-    "& .ImageUpload2-imageBackground": {
-    },
   },
 }));
 

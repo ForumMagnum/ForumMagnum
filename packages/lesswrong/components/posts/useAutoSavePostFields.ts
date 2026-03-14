@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import pick from "lodash/pick";
+import isEqual from "lodash/isEqual";
 import { useMessages } from "../common/withMessages";
 import { recursivelyRemoveTypenameFrom } from "@/components/tanstack-form-components/helpers";
 import type { EditablePost, PostSubmitMeta } from "@/lib/collections/posts/helpers";
@@ -61,7 +62,7 @@ export function useAutoSavePostFields(
   const drainResolversRef = useRef<Array<() => void>>([]);
 
   const processQueue = useCallback(async () => {
-    if (savingRef.current || !pendingSaveRef.current) return;
+    if (savingRef.current || !pendingSaveRef.current || !postId) return;
 
     const fields = pendingSaveRef.current;
     pendingSaveRef.current = null;
@@ -72,7 +73,7 @@ export function useAutoSavePostFields(
       const cleanedFields = recursivelyRemoveTypenameFrom(fields);
       await mutate({
         variables: {
-          selector: { _id: postId! },
+          selector: { _id: postId },
           data: cleanedFields,
         },
       });
@@ -107,7 +108,7 @@ export function useAutoSavePostFields(
         .filter(([key, meta]) => {
           if (!meta.isDirty || EXCLUDE_FIELDS.has(key)) return false;
           const typedKey = key as keyof PostFormValues;
-          return values[typedKey] !== lastEnqueuedRef.current[typedKey];
+          return !isEqual(values[typedKey], lastEnqueuedRef.current[typedKey]);
         })
         .map(([key]) => key);
 

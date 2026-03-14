@@ -623,93 +623,89 @@ const PostForm = ({
     }}>
       {displayedErrorComponent}
 
-      <form.Subscribe selector={() => ({})}>
-        {() => (
-          <div className={classes.topRightControls}>
-            {canEditMetadata && <>
-              <LWTooltip title="Publishing menu" placement="left">
-              <button
-                type="button"
-                className={classNames(
-                  "editor-sidebar-toggle",
-                  classes.iconButton,
-                  classes.publishIconButton,
-                  sidebarPanel === "publish" && classes.iconButtonActive,
-                  sidebarPanel === "publish" && classes.publishIconButtonActive,
-                )}
-                onClick={() => setSidebarPanel((panel) => panel === "publish" ? null : "publish")}
-              >
-                <ForumIcon icon="PublishSettings" className={classes.icon} />
-              </button>
-              </LWTooltip>
-              <LWTooltip title="Sharing and collaboration" placement="left">
-              <button
-                type="button"
-                className={classNames("editor-sidebar-toggle", classes.iconButton, sidebarPanel === "sharing" && classes.iconButtonActive)}
-                title={sidebarPanel === "sharing" ? "Hide sharing panel" : "Share & collaborate"}
-                onClick={() => setSidebarPanel((panel) => panel === "sharing" ? null : "sharing")}
-              >
-                <ForumIcon icon="GroupAdd" className={classes.icon} />
-              </button>
-              </LWTooltip>
-              <LWTooltip title="Settings" placement="left">
-              <button
-                type="button"
-                className={classNames("editor-sidebar-toggle", classes.iconButton, sidebarPanel === "settings" && classes.iconButtonActive)}
-                title={sidebarPanel === "settings" ? "Hide settings" : "Show settings"}
-                onClick={() => setSidebarPanel((panel) => panel === "settings" ? null : "settings")}
-              >
-                <ForumIcon icon="Settings" className={classes.icon} />
-              </button>
-              </LWTooltip>
-            </>}
-            {(commentCount > 0 || showComments) && <LWTooltip title="Comments" placement="left">
-            <button
-              type="button"
-              className={classNames(classes.iconButton, showComments && classes.iconButtonActive)}
-              title={showComments ? "Hide comments" : "Show comments"}
-              onClick={() => {
-                setSidebarPanel(null);
-                setShowComments((v) => !v);
-              }}
-            >
-              <ForumIcon icon="Comment" className={classes.icon} />
-            </button>
-            </LWTooltip>}
-            {editorType === "lexical" && (
-              <div className={classes.editorModeSelector}>
-                <div className={classes.editorModeSelectorInner}>
-                  {availableModes.map(mode => (
-                    <LWTooltip key={mode} title={editorModeLabels[mode]} placement="bottom">
-                      <button
-                        type="button"
-                        className={classNames(
-                          classes.editorModeOption,
-                          mode === userMode && classes.editorModeOptionActive,
-                        )}
-                        onClick={() => setUserMode(mode)}
-                      >
-                        <ForumIcon icon={editorModeIcons[mode]} className={classes.icon} />
-                      </button>
-                    </LWTooltip>
-                  ))}
-                  <LWTooltip
-                    title={isConnected
-                      ? editorModeLabels[userMode]
-                      : `${editorModeLabels[userMode]} — offline, changes saved locally`
-                    }
-                    placement="bottom-end"
-                  >
-                    <div className={classes.editorModeActiveOverlay}>
-                      <ForumIcon icon={editorModeIcons[userMode]} className={classes.icon} />
-                    </div>
-                  </LWTooltip>
-                </div>
-              </div>
+      <div className={classes.topRightControls}>
+        {canEditMetadata && <>
+          <LWTooltip title="Publishing menu" placement="left">
+          <button
+            type="button"
+            className={classNames(
+              "editor-sidebar-toggle",
+              classes.iconButton,
+              classes.publishIconButton,
+              sidebarPanel === "publish" && classes.iconButtonActive,
+              sidebarPanel === "publish" && classes.publishIconButtonActive,
             )}
+            onClick={() => setSidebarPanel((panel) => panel === "publish" ? null : "publish")}
+          >
+            <ForumIcon icon="PublishSettings" className={classes.icon} />
+          </button>
+          </LWTooltip>
+          <LWTooltip title="Sharing and collaboration" placement="left">
+          <button
+            type="button"
+            className={classNames("editor-sidebar-toggle", classes.iconButton, sidebarPanel === "sharing" && classes.iconButtonActive)}
+            title={sidebarPanel === "sharing" ? "Hide sharing panel" : "Share & collaborate"}
+            onClick={() => setSidebarPanel((panel) => panel === "sharing" ? null : "sharing")}
+          >
+            <ForumIcon icon="GroupAdd" className={classes.icon} />
+          </button>
+          </LWTooltip>
+          <LWTooltip title="Settings" placement="left">
+          <button
+            type="button"
+            className={classNames("editor-sidebar-toggle", classes.iconButton, sidebarPanel === "settings" && classes.iconButtonActive)}
+            title={sidebarPanel === "settings" ? "Hide settings" : "Show settings"}
+            onClick={() => setSidebarPanel((panel) => panel === "settings" ? null : "settings")}
+          >
+            <ForumIcon icon="Settings" className={classes.icon} />
+          </button>
+          </LWTooltip>
+        </>}
+        {(commentCount > 0 || showComments) && <LWTooltip title="Comments" placement="left">
+        <button
+          type="button"
+          className={classNames(classes.iconButton, showComments && classes.iconButtonActive)}
+          title={showComments ? "Hide comments" : "Show comments"}
+          onClick={() => {
+            setSidebarPanel(null);
+            setShowComments((v) => !v);
+          }}
+        >
+          <ForumIcon icon="Comment" className={classes.icon} />
+        </button>
+        </LWTooltip>}
+        {editorType === "lexical" && (
+          <div className={classes.editorModeSelector}>
+            <div className={classes.editorModeSelectorInner}>
+              {availableModes.map(mode => (
+                <LWTooltip key={mode} title={editorModeLabels[mode]} placement="bottom">
+                  <button
+                    type="button"
+                    className={classNames(
+                      classes.editorModeOption,
+                      mode === userMode && classes.editorModeOptionActive,
+                    )}
+                    onClick={() => setUserMode(mode)}
+                  >
+                    <ForumIcon icon={editorModeIcons[mode]} className={classes.icon} />
+                  </button>
+                </LWTooltip>
+              ))}
+              <LWTooltip
+                title={isConnected
+                  ? editorModeLabels[userMode]
+                  : `${editorModeLabels[userMode]} — offline, changes saved locally`
+                }
+                placement="bottom-end"
+              >
+                <div className={classes.editorModeActiveOverlay}>
+                  <ForumIcon icon={editorModeIcons[userMode]} className={classes.icon} />
+                </div>
+              </LWTooltip>
+            </div>
           </div>
         )}
-      </form.Subscribe>
+      </div>
 
       <LegacyFormGroupLayout
         groupStyling={false}

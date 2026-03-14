@@ -114,7 +114,7 @@ interface SerializedThread {
   comments: SerializedComment[]
 }
 
-function readThreadFromYMap(threadMap: YMap<unknown>): SerializedThread | null {
+function readThreadFromYMap(threadMap: YMap<unknown>): SerializedThread {
   const commentsArray = threadMap.get("comments") as YArray<unknown> | undefined;
   const serializedComments: SerializedComment[] = commentsArray?.toArray().map((comment: YMap<unknown>) => {
     return {
@@ -168,7 +168,6 @@ async function readOpenCommentThreads({
       const status = threadMap.get("status") as ThreadStatus | undefined;
       if (status && status !== "open") continue;
       const thread = readThreadFromYMap(threadMap);
-      if (!thread) continue;
       threads.push(thread);
     }
 

@@ -297,7 +297,7 @@ export class RevisionSyncExtension implements Extension {
 
             await this.sendWebhookEvent('comment.added', documentName, {
               'X-Hocuspocus-Comment-Author-Id': authorId,
-              'X-Hocuspocus-Comment-Author-Name': authorName,
+              ...(authorName ? { 'X-Hocuspocus-Comment-Author-Name': authorName } : {}),
               'X-Hocuspocus-Comment-Content': content,
               'X-Hocuspocus-Comment-Thread-Id': parentThread ? parentThread.get('id') : id,
               'X-Hocuspocus-Comment-Commenters': commentersInThread.join(','),
@@ -324,7 +324,7 @@ export class RevisionSyncExtension implements Extension {
               if (authorId && content) {
                 await this.sendWebhookEvent('comment.added', documentName, {
                   'X-Hocuspocus-Comment-Author-Id': authorId,
-                  'X-Hocuspocus-Comment-Author-Name': authorName,
+                  ...(authorName ? { 'X-Hocuspocus-Comment-Author-Name': authorName } : {}),
                   'X-Hocuspocus-Comment-Content': content,
                   'X-Hocuspocus-Comment-Thread-Id': id,
                   'X-Hocuspocus-Comment-Commenters': authorId,
