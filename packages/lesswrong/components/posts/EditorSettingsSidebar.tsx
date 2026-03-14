@@ -435,29 +435,6 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
   shareLinkIcon: {
     fontSize: 15,
   },
-  copyLinkButton: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 6,
-    width: "100%",
-    padding: "7px 12px",
-    marginTop: 16,
-    marginBottom: 14,
-    borderRadius: 8,
-    border: theme.palette.greyBorder("1px", 0.12),
-    background: "transparent",
-    cursor: "pointer",
-    ...theme.typography.commentStyle,
-    fontSize: 13,
-    color: theme.palette.greyAlpha(0.68),
-    transition: "all 0.15s ease",
-    "&:hover": {
-      borderColor: theme.palette.greyAlpha(0.22),
-      color: theme.palette.greyAlpha(0.87),
-      background: theme.palette.greyAlpha(0.03),
-    },
-  },
   copyLinkIcon: {
     fontSize: 14,
   },
@@ -860,7 +837,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
                 text={postGetEditUrl(postId, true, linkSharingKey)}
                 onCopy={() => flash("Link copied")}
               >
-                <button type="button" className={classes.copyLinkButton}>
+                <button type="button" className={classes.shareLinkButton}>
                   <ForumIcon icon="Link" className={classes.copyLinkIcon} />
                   Copy link
                 </button>

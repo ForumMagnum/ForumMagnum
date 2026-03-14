@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState, type JSX } from 'react';
-import type { EditorState, LexicalEditor } from 'lexical';
-import { CLEAR_EDITOR_COMMAND, COMMAND_PRIORITY_NORMAL, KEY_ESCAPE_COMMAND } from 'lexical';
+import type { EditorState, LexicalCommand, LexicalEditor } from 'lexical';
+import { CLEAR_EDITOR_COMMAND, COMMAND_PRIORITY_NORMAL, KEY_ESCAPE_COMMAND, createCommand } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin';
@@ -12,6 +12,7 @@ import { EditorRefPlugin } from '@lexical/react/LexicalEditorRefPlugin';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { $isRootTextContentEmpty, $rootTextContent } from '@lexical/text';
 import { createComment, type Comment, type Thread } from '../../commenting';
+import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND } from '@/components/editor/lexicalPlugins/suggestedEdits/Commands';
 import { useCollabAuthorName } from '../../commenting/CommentStoreContext';
 import { useCurrentCollaboratorId, useCollaboratorIdentity, useCanRejectSuggestion } from '../../collaboration';
 import { accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
@@ -56,7 +57,9 @@ const styles = defineStyles('CommentPluginComponents', (theme: ThemeType) => ({
       background: 'none',
     },
     '&:hover': {
-      background: 'none',
+      '&&': {
+        background: 'none',
+      },
       '& $sendIcon': {
         opacity: 1,
         color: theme.palette.greyAlpha(0.85),
@@ -81,7 +84,6 @@ const styles = defineStyles('CommentPluginComponents', (theme: ThemeType) => ({
   suggestionActions: {
     display: 'flex',
     gap: 6,
-    marginTop: 6,
   },
   suggestionActionButton: {
     padding: 0,
@@ -295,3 +297,27 @@ export function SuggestionStatusOrActions({
     </div>
   );
 }
+
+/** Returns the mark node ID for a thread (differs for suggestions vs comments). */
+export function getThreadMarkId(thread: Thread): string {
+  return thread.threadType === 'suggestion'
+    ? (thread.markID ?? thread.id)
+    : thread.id;
+}
+
+export function acceptSuggestionThread(editor: LexicalEditor, thread: Thread): void {
+  editor.dispatchCommand(ACCEPT_SUGGESTION_COMMAND, getThreadMarkId(thread));
+}
+
+export function rejectSuggestionThread(editor: LexicalEditor, thread: Thread): void {
+  editor.dispatchCommand(REJECT_SUGGESTION_COMMAND, getThreadMarkId(thread));
+}
+
+export interface ResolveThreadPayload {
+  threadId: string;
+  markId: string;
+}
+
+export const RESOLVE_THREAD_COMMAND: LexicalCommand<ResolveThreadPayload> = createCommand(
+  'RESOLVE_THREAD_COMMAND',
+);

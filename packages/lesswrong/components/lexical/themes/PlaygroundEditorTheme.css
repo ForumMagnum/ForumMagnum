@@ -78,7 +78,7 @@
   font-family: Menlo, Consolas, Monaco, monospace;
   font-size: 94%;
   padding: 1px 0.25rem;
-  background-color: rgb(240, 242, 245);
+  background-color: light-dark(rgb(240, 242, 245), rgb(40, 40, 40));
   border-radius: 2px;
 }
 .text-highlight {

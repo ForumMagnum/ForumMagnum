@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import type { LexicalEditor, NodeKey } from 'lexical';
+import type { NodeKey } from 'lexical';
 import { $getNodeByKey, SKIP_SCROLL_INTO_VIEW_TAG } from 'lexical';
 import { $isMarkNode } from '@lexical/mark';
 import { mergeRegister } from '@lexical/utils';
@@ -11,8 +11,8 @@ import { $isSuggestionNode } from '@/components/editor/lexicalPlugins/suggestedE
 import { SuggestionTypesThatCanBeEmpty } from '@/components/editor/lexicalPlugins/suggestedEdits/Types';
 import { SUGGESTION_SUMMARY_KIND } from '@/components/editor/lexicalPlugins/suggestedEdits/Utils';
 import { formatSuggestionSummary } from '@/components/editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils';
-import { ACCEPT_SUGGESTION_COMMAND, REJECT_SUGGESTION_COMMAND } from '@/components/editor/lexicalPlugins/suggestedEdits/Commands';
-import { CommentsComposer, SuggestionStatusOrActions } from '@/components/lexical/plugins/CommentPlugin/CommentPluginComponents';
+import { CommentsComposer, SuggestionStatusOrActions, RESOLVE_THREAD_COMMAND, getThreadMarkId, acceptSuggestionThread, rejectSuggestionThread } from '@/components/lexical/plugins/CommentPlugin/CommentPluginComponents';
+import ForumIcon from '@/components/common/ForumIcon';
 import { SideItem, useHasSideItemsSidebar, useSideItemsFocus } from '@/components/contents/SideItems';
 import { useLexicalEditorContext } from '@/components/editor/LexicalEditorContext';
 import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
@@ -29,15 +29,17 @@ interface SideCommentData {
 
 const styles = defineStyles('SideCommentsPlugin', (theme: ThemeType) => ({
   sideComment: {
-    backgroundColor: theme.palette.panelBackground.default,
-    border: theme.palette.greyBorder('1px', 0.14),
-    borderRadius: 8,
+    backgroundColor: theme.palette.type === 'light' ? theme.palette.panelBackground.darken05 : theme.palette.panelBackground.darken08,
+    borderRadius: 5,
     overflow: 'hidden',
     cursor: 'pointer',
-    transition: 'box-shadow 0.15s ease-in-out, border-color 0.15s ease-in-out',
+    transition: 'background-color 0.15s ease-in-out',
     marginBottom: 12,
     '&:hover': {
-      borderColor: theme.palette.greyAlpha(0.25),
+      backgroundColor: theme.palette.type === 'light' ? theme.palette.panelBackground.darken08 : theme.palette.panelBackground.darken15,
+      '& $resolveButton, & $threadActions': {
+        opacity: 1,
+      },
     },
     ...theme.typography.commentStyle,
   },
@@ -60,10 +62,6 @@ const styles = defineStyles('SideCommentsPlugin', (theme: ThemeType) => ({
   },
   comment: {
     padding: '8px 12px',
-    borderTop: theme.palette.greyBorder('1px', 0.08),
-    '&:first-child': {
-      borderTop: 'none',
-    },
   },
   commentHeader: {
     display: 'flex',
@@ -99,6 +97,29 @@ const styles = defineStyles('SideCommentsPlugin', (theme: ThemeType) => ({
     gap: 6,
     minWidth: 0,
   },
+  threadActions: {
+    opacity: 0,
+    transition: 'opacity 0.15s ease-in-out',
+    flexShrink: 0,
+  },
+  resolveButton: {
+    padding: 0,
+    height: 16,
+    width: 16,
+    cursor: 'pointer',
+    background: 'unset',
+    opacity: 0,
+    transition: 'opacity 0.15s ease-in-out',
+    color: theme.palette.grey[500],
+    flexShrink: 0,
+    '&:hover': {
+      color: theme.palette.grey[800],
+    },
+  },
+  resolveIcon: {
+    height: 16,
+    width: 16,
+  },
   replyComposer: {
     position: 'relative',
     borderTop: theme.palette.greyBorder('1px', 0.08),
@@ -110,12 +131,6 @@ export function useHasSideComments(): boolean {
   const hasSideItemsSidebar = useHasSideItemsSidebar();
   const screenIsWideEnough = useIsAboveBreakpoint('lg');
   return isPostEditor && hasSideItemsSidebar && screenIsWideEnough;
-}
-
-function getThreadMarkId(thread: Thread): string {
-  return thread.threadType === 'suggestion'
-    ? (thread.markID ?? thread.id)
-    : thread.id;
 }
 
 function collectSideComments(
@@ -178,24 +193,18 @@ function scrollAnchorIntoViewIfNeeded(anchorEl: HTMLElement): void {
   }
 }
 
-function acceptSuggestionThread(editor: LexicalEditor, thread: Thread): void {
-  editor.dispatchCommand(ACCEPT_SUGGESTION_COMMAND, getThreadMarkId(thread));
-}
-
-function rejectSuggestionThread(editor: LexicalEditor, thread: Thread): void {
-  editor.dispatchCommand(REJECT_SUGGESTION_COMMAND, getThreadMarkId(thread));
-}
-
 const SideCommentItem = ({
   data,
   isActive,
   onClick,
   submitAddComment,
+  onResolve,
 }: {
   data: SideCommentData;
   isActive: boolean;
   onClick: () => void;
   submitAddComment: (comment: Comment, isInlineComment: boolean, thread?: Thread) => void;
+  onResolve: () => void;
 }) => {
   const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
@@ -234,7 +243,7 @@ const SideCommentItem = ({
                   {moment(summaryComment.timeStamp).fromNow()}
                 </span>
               </div>
-              <div onClick={(e) => e.stopPropagation()}>
+              <div className={classes.threadActions} onClick={(e) => e.stopPropagation()}>
                 <SuggestionStatusOrActions
                   status={suggestionStatus}
                   suggestionAuthorId={summaryComment.authorId}
@@ -249,14 +258,36 @@ const SideCommentItem = ({
           </div>
         )}
         <ul className={classes.commentsList}>
-          {visibleComments.map((comment) => (
+          {visibleComments.map((comment, index) => (
             <li key={comment.id} className={classes.comment}>
-              <div className={classes.commentHeader}>
-                <span className={classes.commentAuthor}>{comment.author}</span>
-                <span className={classes.commentTime}>
-                  {moment(comment.timeStamp).fromNow()}
-                </span>
-              </div>
+              {index === 0 && !isSuggestion ? (
+                <div className={classes.commentHeaderWithActions}>
+                  <div className={classes.commentHeaderLeft}>
+                    <span className={classes.commentAuthor}>{comment.author}</span>
+                    <span className={classes.commentTime}>
+                      {moment(comment.timeStamp).fromNow()}
+                    </span>
+                  </div>
+                  <button
+                    type="button"
+                    className={classes.resolveButton}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onResolve();
+                    }}
+                    title="Resolve thread"
+                  >
+                    <ForumIcon icon="Check" className={classes.resolveIcon} />
+                  </button>
+                </div>
+              ) : (
+                <div className={classes.commentHeader}>
+                  <span className={classes.commentAuthor}>{comment.author}</span>
+                  <span className={classes.commentTime}>
+                    {moment(comment.timeStamp).fromNow()}
+                  </span>
+                </div>
+              )}
               <p className={classes.commentContent}>
                 {comment.content}
               </p>
@@ -341,6 +372,16 @@ export const SideCommentsPlugin = () => {
     };
   }, [setFocusedAnchor]);
 
+  const handleResolveThread = useCallback(
+    (thread: Thread) => {
+      editor.dispatchCommand(RESOLVE_THREAD_COMMAND, {
+        threadId: thread.id,
+        markId: getThreadMarkId(thread),
+      });
+    },
+    [editor],
+  );
+
   const submitAddComment = useCallback(
     (comment: Comment, _isInlineComment: boolean, thread?: Thread) => {
       commentStore.addComment(comment, thread);
@@ -400,6 +441,7 @@ export const SideCommentsPlugin = () => {
           isActive={activeIDs.indexOf(data.markId) !== -1}
           onClick={() => handleClickSideComment(data)}
           submitAddComment={submitAddComment}
+          onResolve={() => handleResolveThread(data.thread)}
         />
       ))}
     </>
