@@ -69,10 +69,8 @@ const userProfileTopPostsSectionUnsharedStyles = defineStyles("UserProfileTopPos
   postArticleTop: {
     gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
     "&:hover $postTitle": {
-      textDecoration: "underline",
-      textDecorationColor: theme.palette.greyAlpha(0.2),
-      textDecorationThickness: 1,
-    }
+      opacity: 0.84,
+    },
   },
   postContent: {
     gridColumn: "1 / 4",
@@ -131,6 +129,7 @@ const userProfileTopPostsSectionUnsharedStyles = defineStyles("UserProfileTopPos
     WebkitBoxOrient: "vertical",
     WebkitLineClamp: 4,
     overflow: "hidden",
+    transition: "opacity 0.15s ease",
   },
   topPostTitle: {
     fontSize: 44,
@@ -235,9 +234,7 @@ const userProfileTopPostsSectionUnsharedStyles = defineStyles("UserProfileTopPos
     display: "flex",
     flexDirection: "column",
     "&:hover $smallArticleTitle": {
-      textDecoration: "underline",
-      textDecorationColor: theme.palette.greyAlpha(0.2),
-      textDecorationThickness: 1,
+      opacity: 0.84,
     },
   },
   smallArticleImage: {
@@ -277,6 +274,7 @@ const userProfileTopPostsSectionUnsharedStyles = defineStyles("UserProfileTopPos
     lineClamp: 2,
     overflow: "hidden",
     textOverflow: "ellipsis",
+    transition: "opacity 0.15s ease",
     "@media (max-width: 630px)": {
       wordWrap: "break-word",
       overflowWrap: "break-word",
