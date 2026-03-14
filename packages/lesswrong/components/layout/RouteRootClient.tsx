@@ -17,6 +17,7 @@ import { userCanDo } from '@/lib/vulcan-users/permissions';
 import { MaybeStickyWrapper } from './MaybeStickyWrapper';
 import dynamic from 'next/dynamic';
 import { HideNavigationSidebarContext } from './HideNavigationSidebarContextProvider';
+import { ResetStateOnUnmount } from './ResetStateOnUnmount';
 
 const SunshineSidebar = dynamic(() => import("../sunshineDashboard/SunshineSidebar"), { ssr: false });
 
@@ -57,8 +58,9 @@ const styles = defineStyles("RouteRootClient", (theme: ThemeType) => ({
   },
 }))
 
-export const RouteRootClient = ({fullscreen, children}: {
+export const RouteRootClient = ({fullscreen, preserveStateWhileUnmounted, children}: {
   fullscreen: boolean
+  preserveStateWhileUnmounted: boolean
   children: React.ReactNode
 }) => {
   const classes = useStyles(styles);
@@ -81,7 +83,8 @@ export const RouteRootClient = ({fullscreen, children}: {
 
   const isFullscreen = isFullscreenRoute(pathname);
 
-  return <PopperPortalProvider>
+  return <ResetStateOnUnmount enabled={!preserveStateWhileUnmounted}>
+    <PopperPortalProvider>
     <div className={classNames(classes.main, {[classes.mainFullscreen]: isFullscreen})}>
     <LeftAndRightSidebarsWrapper
       sidebarsEnabled={shouldUseGridLayout}
@@ -123,6 +126,7 @@ export const RouteRootClient = ({fullscreen, children}: {
     </LeftAndRightSidebarsWrapper>
   </div>
   </PopperPortalProvider>
+  </ResetStateOnUnmount>
 }
 
 const sidebarsWrapperStyles = defineStyles("LeftAndRightSidebarsWrapper", theme => ({
