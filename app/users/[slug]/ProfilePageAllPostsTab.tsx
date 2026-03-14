@@ -42,17 +42,8 @@ const profilePageAllPostsTabUnsharedStyles = defineStyles("ProfilePageAllPostsTa
     transition: "opacity 0.15s ease",
     animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
     overflow: "visible",
-    "& $listArticleTitle, & $listArticleTitleText": {
-      textDecoration: "none !important",
-    },
     "&:hover": {
       opacity: 1,
-    },
-    "&:hover $listArticleTitle, &:hover $listArticleTitleText": {
-      textDecoration: "none !important",
-    },
-    "&:hover $listArticleTitleText": {
-      opacity: 0.84,
     },
     "&:last-of-type": {
       borderBottom: "none",
@@ -110,7 +101,6 @@ const profilePageAllPostsTabUnsharedStyles = defineStyles("ProfilePageAllPostsTa
     fontWeight: 400,
     margin: 0,
     color: theme.palette.text.normal,
-    textDecoration: "none !important",
     lineHeight: 1.2,
     letterSpacing: "-.015em",
     whiteSpace: "normal",
@@ -133,8 +123,12 @@ const profilePageAllPostsTabUnsharedStyles = defineStyles("ProfilePageAllPostsTa
     minWidth: 0,
     position: "relative",
     zIndex: 1,
-    textDecoration: "none !important",
+    textDecoration: "none",
     transition: "opacity 0.15s ease",
+    "&:hover": {
+      opacity: 0.84,
+      textDecoration: "none",
+    },
   },
   listArticleSummaryWrapper: {
     flex: "1 1 0",
