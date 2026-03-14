@@ -26,6 +26,8 @@ export interface CollaborationConfig {
   /** Called when sync with the server completes. `docId` is 'main' or a sub-doc id like 'comments'. */
   onSynced?: (doc: Doc, isFirstSync: boolean, docId: string) => void;
   onError?: (error: Error) => void;
+  /** Called when WebSocket connection status changes (connected/disconnected/connecting). */
+  onConnectionStatusChange?: (connected: boolean) => void;
 }
 
 export interface CollaboratorIdentity {
@@ -232,6 +234,10 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
       // eslint-disable-next-line no-console
       console.error('[Collaboration] Authentication failed:', reason);
       config.onError?.(new Error(`Authentication failed: ${reason}`));
+    },
+
+    onStatus: ({ status }) => {
+      config.onConnectionStatusChange?.(status === 'connected');
     },
   });
 

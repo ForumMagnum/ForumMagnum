@@ -720,10 +720,11 @@ export const NewCommentOnDraftNotification = createServerNotificationType({
     const firstNotification = notifications[0];
     const post = await Posts.findOne({_id: firstNotification.documentId});
     if (notifications.length===1) {
-      const { senderUserID, commentHtml } = firstNotification.extraData;
+      const { senderUserID, senderDisplayName } = firstNotification.extraData;
       const senderUser = await Users.findOne({_id: senderUserID});
-      
-      return `${senderUser?.displayName} commented on ${post?.title}`;
+      const senderName = senderUser?.displayName ?? senderDisplayName ?? "[anonymous]";
+
+      return `${senderName} commented on ${post?.title}`;
     } else {
       return `${notifications.length} comments on ${post?.title}`;
     }
@@ -739,7 +740,7 @@ export const NewCommentOnDraftNotification = createServerNotificationType({
     
     return <div>
       {notifications.map((notification,i) => <div key={i}>
-        <div><EmailUsernameByID userID={notification.extraData?.senderUserID} emailContext={emailContext}/> commented on <a href={postLink}>{postTitle}</a>:</div>
+        <div><EmailUsernameByID userID={notification.extraData?.senderUserID} fallbackName={notification.extraData?.senderDisplayName} emailContext={emailContext}/> commented on <a href={postLink}>{postTitle}</a>:</div>
         <div>
           <blockquote dangerouslySetInnerHTML={{__html: notification.extraData?.commentHtml}}/>
         </div>

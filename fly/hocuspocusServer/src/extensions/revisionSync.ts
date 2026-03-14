@@ -282,6 +282,7 @@ export class RevisionSyncExtension implements Extension {
           if (type === 'comment') {
             // A new comment was added to a thread
             const authorId = map.get('authorId');
+            const authorName = map.get('author');
             const content = map.get('content');
 
             if (!authorId || !content) {
@@ -296,6 +297,7 @@ export class RevisionSyncExtension implements Extension {
 
             await this.sendWebhookEvent('comment.added', documentName, {
               'X-Hocuspocus-Comment-Author-Id': authorId,
+              ...(authorName ? { 'X-Hocuspocus-Comment-Author-Name': authorName } : {}),
               'X-Hocuspocus-Comment-Content': content,
               'X-Hocuspocus-Comment-Thread-Id': parentThread ? parentThread.get('id') : id,
               'X-Hocuspocus-Comment-Commenters': commentersInThread.join(','),
@@ -317,10 +319,12 @@ export class RevisionSyncExtension implements Extension {
               }
 
               const authorId = firstComment.get('authorId');
+              const authorName = firstComment.get('author');
               const content = firstComment.get('content');
               if (authorId && content) {
                 await this.sendWebhookEvent('comment.added', documentName, {
                   'X-Hocuspocus-Comment-Author-Id': authorId,
+                  ...(authorName ? { 'X-Hocuspocus-Comment-Author-Name': authorName } : {}),
                   'X-Hocuspocus-Comment-Content': content,
                   'X-Hocuspocus-Comment-Thread-Id': id,
                   'X-Hocuspocus-Comment-Commenters': authorId,

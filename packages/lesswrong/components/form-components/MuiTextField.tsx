@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { ReactNode, useState } from 'react';
 import TextField, { TextFieldProps } from '@/lib/vendor/@material-ui/core/src/TextField/TextField';
 import classnames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -43,6 +43,8 @@ interface MuiTextFieldProps<T extends string | string[] | number | null | undefi
   InputLabelProps?: Partial<TextFieldProps['InputLabelProps']>;
   placeholder?: string;
   overrideClassName?: string;
+  /** When true, the form field is only updated on blur instead of on every keystroke. */
+  updateOnBlur?: boolean;
 }
 
 export function MuiTextField<T extends string | string[] | number | null | undefined>({
@@ -60,13 +62,30 @@ export function MuiTextField<T extends string | string[] | number | null | undef
   InputLabelProps,
   placeholder,
   overrideClassName: className,
+  updateOnBlur = false,
 }: MuiTextFieldProps<T>) {
   const classes = useStyles(styles);
+  const [localValue, setLocalValue] = useState<string | number | undefined>(undefined);
+  const isLocallyEditing = updateOnBlur && localValue !== undefined;
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const value = type === 'number' ? getUpdatedNumericValue(event) : event.target.value;
-    field.handleChange(value as Updater<T>);
+    if (updateOnBlur) {
+      setLocalValue(value ?? undefined);
+    } else {
+      field.handleChange(value);
+    }
   };
 
+  const handleBlur = (_event: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (updateOnBlur && localValue !== undefined) {
+      field.handleChange(localValue);
+      setLocalValue(undefined);
+    }
+    field.handleBlur();
+  };
+
+  const displayValue = isLocallyEditing ? localValue : (field.state.value ?? "");
   const error = field.state.meta.errors[0];
 
   return (
@@ -74,11 +93,11 @@ export function MuiTextField<T extends string | string[] | number | null | undef
       name={field.name}
       variant={variant || 'standard'}
       select={select}
-      value={field.state.value ?? ""}
+      value={displayValue}
       defaultValue={defaultValue}
       label={label}
       onChange={handleChange}
-      onBlur={field.handleBlur}
+      onBlur={handleBlur}
       multiline={multiLine}
       rows={rows}
       type={type}

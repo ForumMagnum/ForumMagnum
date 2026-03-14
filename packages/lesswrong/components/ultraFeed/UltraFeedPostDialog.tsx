@@ -934,7 +934,7 @@ const UltraFeedPostDialog = ({
                                 target={postGetLinkTarget(displayPost)} 
                                 className={classes.linkpost}
                               >
-                                Linkpost from {linkpostDomain}
+                                Linkpost for {linkpostDomain}
                               </a>
                             </LWTooltip>
                           )}

@@ -96,7 +96,7 @@ export const PostSubmit = ({
   const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get()
   // EA Forum title is Effective Altruism Forum, which is unecessarily long
   const eaOrOtherFeedbackTitle = isEAForum() ? 'the EA Forum team' : `the ${forumTitleSetting.get()} team`
-  const feedbackTitle = `Request feedback from ${isLWorAF() ? 'our editor' : eaOrOtherFeedbackTitle}`
+  const feedbackTitle = `Request feedback from ${isLWorAF() ? 'our editor' : eaOrOtherFeedbackTitle}.  If you don't see a notification pop up next to the Intercom icon in a few seconds, try opening Intercom and check the "Messages" panel to see if there's a new conversation there.`
 
   return (
     <React.Fragment>
@@ -114,7 +114,19 @@ export const PostSubmit = ({
         </div>
       }
       <div className={classes.submitButtons}>
-        {requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel && document.draft!==false && <LWTooltip
+        <Button
+          type="submit"
+          onClick={onSubmitClick}
+          disabled={disabled}
+          className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
+          {...(isFriendlyUI() ? {
+            variant: "contained",
+            color: "primary",
+          } : {})}
+        >
+          {submitLabel}
+        </Button>
+        {requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel && document.draft && <LWTooltip
           title={feedbackTitle}
         >
           <Button type="submit"
@@ -150,23 +162,15 @@ export const PostSubmit = ({
         </LWTooltip>}
         <Button type="submit"
           className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
-          onClick={() => formApi.setFieldValue('draft', true)}
+          onClick={async () => {
+            formApi.setFieldValue('draft', true);
+            await formApi.handleSubmit();
+          }}
           disabled={disabled}
         >
           {saveDraftLabel}
         </Button>
-        <Button
-          type="submit"
-          onClick={onSubmitClick}
-          disabled={disabled}
-          className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-          {...(isFriendlyUI() ? {
-            variant: "contained",
-            color: "primary",
-          } : {})}
-        >
-          {submitLabel}
-        </Button>
+
       </div>
     </React.Fragment>
   );

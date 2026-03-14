@@ -233,6 +233,7 @@ interface Mutation {
   importUrlAsDraftPost: ExternalPostImportData;
   revertTagToRevision: Tag | null;
   autosaveRevision: Revision | null;
+  convertDocumentEditorType: any;
   lockThread: boolean;
   unlockThread: boolean;
   rejectContentAndRemoveUserFromQueue: boolean;

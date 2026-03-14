@@ -1,14 +1,12 @@
-import { EditablePost, PostSubmitMeta } from "@/lib/collections/posts/helpers";
+import { EditablePost, PostSubmitMeta, userCanEditCoauthors, canUserEditPostMetadata, detectLinkpost } from "@/lib/collections/posts/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { isLWorAF, isEAForum, fmCrosspostSiteNameSetting, fmCrosspostBaseUrlSetting } from "@/lib/instanceSettings";
+import { isLWorAF, isEAForum } from "@/lib/instanceSettings";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useState } from "react";
+import React, { useMemo, useEffect, useState, useRef, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { useCurrentUser } from "../common/withUser";
-import { EditLinkpostUrl } from "../editor/EditLinkpostUrl";
 import { EditTitle } from "../editor/EditTitle";
-import { PostSharingSettings } from "../editor/PostSharingSettings";
-import { EditPostCategory } from "../form-components/EditPostCategory";
 import { SelectLocalgroup } from "../form-components/SelectLocalgroup";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
@@ -21,19 +19,29 @@ import { MultiSelectButtons } from "@/components/form-components/MultiSelectButt
 import { FormComponentSelect } from "@/components/form-components/FormComponentSelect";
 import { FormComponentDatePicker } from "../form-components/FormComponentDateTime";
 import { submitButtonStyles } from "@/components/tanstack-form-components/TanStackSubmit";
-import { DialogueSubmit } from "./dialogues/DialogueSubmit";
-import { PostSubmit } from "./PostSubmit";
-import { SubmitToFrontpageCheckbox } from "./SubmitToFrontpageCheckbox";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
 import LWTooltip from "../common/LWTooltip";
 import Error404 from "../common/Error404";
-import FormGroupPostTopBar from "../form-components/FormGroupPostTopBar";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
-import { gql } from "@/lib/generated/gql-codegen";
-import PostFormSecondaryGroups from "./PostFormSecondaryGroups";
+import EditorSettingsSidebar from "./EditorSettingsSidebar";
+import MobileEditorBottomBar from "./MobileEditorBottomBar";
 import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
 import { EVENT_TYPES } from "@/lib/collections/posts/constants";
+import { isClient } from "@/lib/executionEnvironment";
+import FormatDate from "../common/FormatDate";
+import UsersSearchAutoComplete from "../search/UsersSearchAutoComplete";
+import UsersNameWrapper from "../users/UsersNameWrapper";
+import ErrorBoundary from "../common/ErrorBoundary";
+import { InlineCommentsPanelContext, EditorUserModeContext } from "../common/sharedContexts";
+import { useAutoSavePostFields } from "./useAutoSavePostFields";
+import { getDefaultEditorUserMode, getAvailableEditorModes, editorModeLabels, editorModeIcons, type EditorUserModeType } from "../editor/lexicalPlugins/suggestions/EditorUserMode";
+import { useEventListener } from "../hooks/useEventListener";
+import { accessLevelCan, type CollaborativeEditingAccessLevel } from "@/lib/collections/posts/collabEditingPermissions";
+import { LW_POST_TITLE_FONT_SIZE } from "../posts/PostsPage/PostsPageTitle";
+import CollabEditorPermissionsNotices from "../editor/CollabEditorPermissionsNotices";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const PostsEditMutationFragmentUpdateMutation = gql(`
   mutation updatePostPostForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -55,6 +63,8 @@ const PostsEditMutationFragmentMutation = gql(`
   }
 `);
 
+const ICON_BUTTON_SIZE = 34;
+
 const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   fieldWrapper: {
     marginTop: 16,
@@ -66,26 +76,433 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     marginTop: 20,
   },
   submitButton: submitButtonStyles(theme),
+  topRightControls: {
+    position: "fixed",
+    top: "var(--editor-right-rail-top)",
+    right: 20,
+    zIndex: theme.zIndexes.hideTableOfContentsButton + 2,
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    gap: 10,
+    transition: "top 0.2s ease-in-out",
+    [theme.breakpoints.down("sm")]: {
+      display: "none",
+    },
+  },
+  iconButton: {
+    width: ICON_BUTTON_SIZE,
+    height: ICON_BUTTON_SIZE,
+    borderRadius: 999,
+    border: theme.palette.greyBorder("1px", 0.16),
+    background: theme.palette.panelBackground.default,
+    color: theme.palette.greyAlpha(0.75),
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    transition: "background-color 0.15s ease, color 0.15s ease, border-color 0.15s ease",
+    "&:hover": {
+      color: theme.palette.greyAlpha(0.96),
+      borderColor: theme.palette.greyAlpha(0.25),
+      background: theme.palette.background.pageActiveAreaBackground,
+    },
+    "&:disabled": {
+      cursor: "not-allowed",
+      opacity: 0.45,
+    },
+  },
+  iconButtonActive: {
+    color: theme.palette.greyAlpha(0.98),
+    borderColor: theme.palette.greyAlpha(0.34),
+    background: theme.palette.background.pageActiveAreaBackground,
+    boxShadow: `0 0 0 1px ${theme.palette.greyAlpha(0.08)} inset`,
+  },
+  iconButtonDisconnected: {
+    borderColor: theme.palette.warning.main,
+    color: theme.palette.warning.main,
+  },
+  editorModeSelector: {
+    position: 'relative',
+    width: ICON_BUTTON_SIZE,
+    height: ICON_BUTTON_SIZE,
+  },
+  editorModeSelectorInner: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    height: ICON_BUTTON_SIZE,
+    borderRadius: 999,
+    background: theme.palette.panelBackground.default,
+    boxShadow: `inset 0 0 0 1px ${theme.palette.greyAlpha(0.16)}`,
+    overflow: 'hidden',
+    maxWidth: ICON_BUTTON_SIZE,
+    transition: 'max-width 0.25s ease, box-shadow 0.15s ease',
+    '&:hover': {
+      maxWidth: ICON_BUTTON_SIZE * 3,
+      boxShadow: `inset 0 0 0 1px ${theme.palette.greyAlpha(0.25)}`,
+    },
+  },
+  editorModeOption: {
+    width: ICON_BUTTON_SIZE,
+    height: ICON_BUTTON_SIZE,
+    minWidth: ICON_BUTTON_SIZE,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    cursor: 'pointer',
+    background: 'none',
+    border: 'none',
+    borderRadius: 999,
+    padding: 0,
+    color: theme.palette.greyAlpha(0.45),
+    transition: 'color 0.15s ease, background-color 0.15s ease',
+    '&:hover': {
+      color: theme.palette.greyAlpha(0.96),
+      background: theme.palette.greyAlpha(0.08),
+    },
+  },
+  editorModeOptionActive: {
+    color: theme.palette.primary.main,
+    '&:hover': {
+      color: theme.palette.primary.dark,
+    },
+  },
+  editorModeActiveOverlay: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    width: ICON_BUTTON_SIZE,
+    height: ICON_BUTTON_SIZE,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 999,
+    color: theme.palette.greyAlpha(0.75),
+    background: theme.palette.panelBackground.default,
+    transition: 'opacity 0.15s ease',
+    '$editorModeSelectorInner:hover &': {
+      opacity: 0,
+      pointerEvents: 'none',
+    },
+  },
+  publishIconButton: {
+    background: theme.palette.buttons.alwaysPrimary,
+    border: "none",
+    color: theme.palette.text.alwaysWhite,
+    "&:hover": {
+      background: theme.palette.primary.dark,
+      color: theme.palette.text.alwaysWhite,
+    },
+  },
+  publishIconButtonActive: {
+    background: theme.palette.primary.dark,
+    boxShadow: `0 0 0 1px ${theme.palette.primary.main}`,
+  },
+  icon: {
+    width: 16,
+    height: 16,
+  },
+  // Metadata row below title — matches LWPostsPageHeader.authorAndSecondaryInfo exactly
+  metadataRow: {
+    display: "flex",
+    alignItems: "baseline",
+    columnGap: 20,
+    ...theme.typography.commentStyle,
+    fontSize: 16,
+    flexWrap: "wrap",
+    color: theme.palette.text.dim3,
+    marginTop: 12,
+    marginBottom: 96,
+  },
+  metaAuthorInfo: {
+    color: theme.palette.text.primary,
+  },
+  metaAuthorName: {
+    fontWeight: 600,
+  },
+  metaCoauthorName: {
+    fontWeight: 600,
+  },
+  metaCoauthorRemove: {
+    cursor: "pointer",
+    marginLeft: 3,
+    opacity: 0.35,
+    "&:hover": {
+      opacity: 0.7,
+    },
+  },
+  addCoauthorButton: {
+    ...theme.typography.commentStyle,
+    display: "inline",
+    background: "none",
+    border: "none",
+    padding: "0 2px",
+    margin: 0,
+    marginLeft: 2,
+    cursor: "pointer",
+    color: theme.palette.text.dim3,
+    opacity: 0.4,
+    fontSize: "1.1em",
+    lineHeight: 1,
+    verticalAlign: "baseline",
+    "&:hover": {
+      opacity: 0.85,
+    },
+  },
+  metaDate: {
+    cursor: "default",
+  },
+  disconnectedIndicator: {
+    color: theme.palette.warning.main,
+  },
+  disconnectedIcon: {
+    width: 14,
+    height: 14,
+    marginBottom: -2,
+  },
+  // Linkpost toggle styled as inline text link, matching metadata row aesthetic
+  linkpostToggle: {
+    ...theme.typography.commentStyle,
+    display: "inline",
+    background: "none",
+    border: "none",
+    padding: 0,
+    margin: 0,
+    cursor: "pointer",
+    color: theme.palette.text.dim3,
+    opacity: 0.5,
+    fontSize: "inherit",
+    lineHeight: "inherit",
+    "&:hover": {
+      opacity: 1,
+    },
+  },
+  linkpostToggleActive: {
+    opacity: 1,
+    color: "inherit",
+    "&:hover": {
+      opacity: 0.75,
+    },
+  },
+  // Inline linkpost URL input — sits inside the metadata row as a flex item
+  linkpostInputWrapper: {
+    display: "inline-flex",
+    alignItems: "baseline",
+    gap: 4,
+  },
+  linkpostInput: {
+    ...theme.typography.commentStyle,
+    fontSize: "inherit",
+    width: 200,
+    border: "none",
+    borderBottom: theme.palette.greyBorder("1px", 0.3),
+    padding: "0 2px 1px",
+    color: theme.palette.text.normal,
+    background: "transparent",
+    outline: "none",
+    "&:focus": {
+      borderBottomColor: theme.palette.greyAlpha(0.6),
+    },
+    "&::placeholder": {
+      color: theme.palette.text.dim3,
+      opacity: 0.6,
+    },
+  },
+  linkpostConfirmButton: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "none",
+    border: "none",
+    padding: 0,
+    margin: 0,
+    marginLeft: 2,
+    cursor: "pointer",
+    color: theme.palette.text.dim3,
+    opacity: 0.5,
+    "&:hover": {
+      opacity: 1,
+    },
+  },
+  linkpostConfirmIcon: {
+    width: 14,
+    height: 14,
+  },
+  // Inline linkpost display (after URL is set) — matches live post page style
+  linkpostDisplay: {
+    display: "inline",
+  },
+  linkpostLink: {
+    color: "inherit",
+    textDecoration: "none",
+    "&:hover": {
+      textDecoration: "underline",
+    },
+  },
+  linkpostEditIcon: {
+    ...theme.typography.commentStyle,
+    display: "inline",
+    background: "none",
+    border: "none",
+    padding: 0,
+    margin: 0,
+    marginLeft: 6,
+    cursor: "pointer",
+    color: theme.palette.text.dim3,
+    opacity: 0.35,
+    fontSize: 12,
+    verticalAlign: "baseline",
+    "&:hover": {
+      opacity: 0.7,
+    },
+  },
+  coauthorSearchRow: {
+    marginTop: -28,
+    marginBottom: 24,
+    maxWidth: 300,
+    ...theme.typography.commentStyle,
+    "& .UsersSearchInput-input": {
+      ...theme.typography.commentStyle,
+      fontSize: 13,
+      "& .MuiSvgIcon-root": {
+        fontSize: 18,
+        color: theme.palette.greyAlpha(0.35),
+      },
+    },
+    "& .MuiInputBase-input": {
+      ...theme.typography.commentStyle,
+      fontSize: 13,
+    },
+  },
+  // Override EditTitle margins to match LWPostsPageHeader layout:
+  // LWPostsPageHeader uses paddingTop: 110 on its wrapper; we replicate
+  // by keeping marginTop on EditTitle and zeroing out marginBottom
+  // (the metadata row provides spacing below instead).
+  titleWithMetadata: {
+    "& .EditTitle-root": {
+      marginBottom: 0,
+    },
+  },
+  readOnlyTitle: {
+    ...theme.typography.display3,
+    ...theme.typography.headerStyle,
+    fontSize: LW_POST_TITLE_FONT_SIZE,
+    lineHeight: '1.1',
+    textWrap: 'balance',
+    marginTop: 110,
+    marginBottom: 0,
+  },
+  mobileBottomPadding: {
+    [theme.breakpoints.down("md")]: {
+      paddingBottom: 72,
+    },
+  },
+  '@global': {
+    ':root': {
+      '--editor-right-rail-top': '20px',
+      '--editor-right-rail-height': 'calc(100vh - 28px)',
+    },
+    'body:has(.headroom--pinned), body:has(.headroom--unfixed)': {
+      '--editor-right-rail-top': 'calc(var(--header-height, 56px) + 20px)',
+      '--editor-right-rail-height': 'calc(100vh - var(--header-height, 56px) - 28px)',
+    },
+  },
 }));
 
-function getDraftLabel(post: { draft?: boolean | null } | null) {
-  if (!post) return "Save Draft";
-  if (!post.draft) return "Move to Drafts";
-  return "Save Draft";
+/**
+ * Like useState<boolean>, but debounces transitions to `false` by `delayMs`.
+ * Transitions to `true` are instant and cancel any pending `false` timer.
+ */
+function useDebouncedFalse(initialValue: boolean, delayMs: number): [boolean, (value: boolean) => void] {
+  const [value, setValueRaw] = useState(initialValue);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const setValue = useCallback((next: boolean) => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+    if (next) {
+      setValueRaw(true);
+    } else {
+      timerRef.current = setTimeout(() => {
+        setValueRaw(false);
+      }, delayMs);
+    }
+  }, [delayMs]);
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
+  return [value, setValue];
 }
 
 const ON_SUBMIT_META: PostSubmitMeta = {};
 
+const SyncTitleToParent = ({ title, onTitleChange }: {
+  title: string;
+  onTitleChange: (title: string) => void;
+}) => {
+  React.useEffect(() => {
+    onTitleChange(title);
+  }, [title, onTitleChange]);
+  return null;
+};
+
+
 const PostForm = ({
   initialData,
   onSuccess,
+  onTitleChange,
 }: {
   initialData: EditablePost;
   onSuccess: (doc: PostsEditMutationFragment, options?: { submitOptions: PostSubmitMeta }) => void;
+  onTitleChange?: (title: string) => void;
 }) => {
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
-  const [editorType, setEditorType] = useState<string>();
+  const [editorType, setEditorType] = useState<string | undefined>(initialData.contents?.originalContents.type);
+  const [sidebarPanel, setSidebarPanel] = useState<"publish" | "settings" | "sharing" | null>(null);
+  const [showComments, setShowComments] = useState(false);
+  const [commentCount, setCommentCount] = useState(0);
+  const [showCoauthorSearch, setShowCoauthorSearch] = useState(false);
+  const [editingLinkpostUrl, setEditingLinkpostUrl] = useState(false);
+  const [linkpostUrlDraft, setLinkpostUrlDraft] = useState("");
+
+  const accessLevel = (initialData.myEditorAccess ?? "edit") as CollaborativeEditingAccessLevel;
+  const canEdit = accessLevelCan(accessLevel, "edit") || !!currentUser?.isAdmin;
+  const canComment = accessLevelCan(accessLevel, "comment") || !!currentUser?.isAdmin;
+  const canEditMetadata = canUserEditPostMetadata(currentUser, {
+    ...initialData,
+    userId: initialData.userId ?? null,
+  });
+  const [userMode, setUserMode] = useState<EditorUserModeType>(() => getDefaultEditorUserMode(canEdit, canComment));
+  const [isBrowserOnline, setIsBrowserOnline] = useState(() => typeof navigator !== 'undefined' ? navigator.onLine : true);
+  // Debounce the "disconnected" state so that the initial WS connection
+  // handshake (disconnected → connecting → connected) and brief reconnection
+  // blips don't flash the warning style. Transitions to "connected" are instant.
+  const [isWsConnected, setIsWsConnected] = useDebouncedFalse(true, 2000);
+  const isConnected = isBrowserOnline && isWsConnected;
+
+  useEventListener('online', () => setIsBrowserOnline(true));
+  useEventListener('offline', () => setIsBrowserOnline(false));
+
+  const editorUserModeContext = useMemo(() => ({
+    userMode,
+    setUserMode,
+    canEdit,
+    canComment,
+    isConnected,
+    setIsWsConnected,
+  }), [userMode, setUserMode, canEdit, canComment, isConnected, setIsWsConnected]);
+
+  const availableModes = getAvailableEditorModes(canEdit, canComment);
 
   // TODO: maybe this is just an edit form?
   const formType = initialData ? 'edit' : 'new';
@@ -124,6 +541,8 @@ const PostForm = ({
     },
     onSubmitMeta: ON_SUBMIT_META,
     onSubmit: async ({ formApi, meta }) => {
+      await awaitPendingSaves();
+
       await Promise.all([
         onSubmitCallback.current?.(),
         onSubmitCallbackCustomHighlight.current?.(),
@@ -167,6 +586,20 @@ const PostForm = ({
     },
   });
 
+  // Disable auto-save for collaborators who can't edit metadata — their content
+  // changes go through the collaborative editing protocol, not the form mutation.
+  const { isSaving, awaitPendingSaves } = useAutoSavePostFields(form, canEditMetadata ? initialData?._id : undefined, mutate);
+
+  useEffect(() => {
+    if (sidebarPanel) {
+      setShowComments(false);
+    }
+  }, [sidebarPanel]);
+
+  const inlineCommentsContext = useMemo(() => ({
+    showComments, setShowComments, commentCount, setCommentCount,
+  }), [showComments, commentCount]);
+
   if (formType === 'edit' && !initialData) {
     return <Error404 />;
   }
@@ -174,114 +607,329 @@ const PostForm = ({
   const isEvent = !!initialData.isEvent;
   const isDialogue = !!initialData.collabEditorDialogue;
 
-  const hideSocialPreviewGroup = (isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent);
+  const sidebarPortalTarget = isClient
+    ? document.getElementById("editor-settings-portal")
+    : null;
 
-  const hideCrosspostControl = !fmCrosspostSiteNameSetting.get() || isEvent;
-  const crosspostControlTooltip = fmCrosspostBaseUrlSetting.get()?.includes("forum.effectivealtruism.org")
-    ? "The EA Forum is for discussions that are relevant to doing good effectively. If you're not sure what this means, consider exploring the Forum's Frontpage before posting on it."
-    : undefined;
-
-  const postSubmit = <form.Subscribe selector={(s) => ({ canSubmit: s.canSubmit, isSubmitting: s.isSubmitting, draft: s.values.draft })}>
-    {({ canSubmit, isSubmitting, draft }) => {
-      const draftLabel = getDraftLabel({ draft });
-      const submitLabel = draft ? "Publish" : "Publish Changes";
-
-      return isDialogue
-        ? <DialogueSubmit
-            formApi={form}
-            disabled={!canSubmit || isSubmitting}
-            submitLabel={submitLabel}
-            saveDraftLabel={draftLabel}
-          />
-        : <div className={classes.formSubmit}>
-            {!isEvent && <form.Field name="submitToFrontpage">
-              {(field) => <SubmitToFrontpageCheckbox field={field} />}
-            </form.Field>}
-            <PostSubmit
-              formApi={form}
-              disabled={!canSubmit || isSubmitting}
-              submitLabel={submitLabel}
-              saveDraftLabel={draftLabel}
-              feedbackLabel={"Get Feedback"}
-            />
-          </div>
-    }}
-  </form.Subscribe>;
+  const showMetadataRow = !(isEvent || isDialogue);
 
   return (
-    <form onSubmit={(e) => {
+    <EditorUserModeContext.Provider value={editorUserModeContext}>
+    <InlineCommentsPanelContext.Provider value={inlineCommentsContext}>
+    <form className={classes.mobileBottomPadding} onSubmit={(e) => {
       e.preventDefault();
       e.stopPropagation();
       void form.handleSubmit();
     }}>
       {displayedErrorComponent}
-      <FormGroupPostTopBar>
-        {!(isEvent || isDialogue) && <div className={classNames('form-input', classes.fieldWrapper)}>
-          <form.Field name="postCategory">
-            {(field) => (
-              <EditPostCategory
-                field={field}
-                post={form.state.values}
-              />
-            )}
-          </form.Field>
-        </div>}
 
-        <div className={classNames('form-input', classes.fieldWrapper)}>
-          <form.Field name="sharingSettings">
-            {(field) => (
-              <PostSharingSettings
-                field={field}
-                post={form.state.values}
-                formType={formType}
-                editorType={editorType}
-              />
+      <div className={classes.topRightControls}>
+        {canEditMetadata && <>
+          <LWTooltip title="Publishing menu" placement="left">
+          <button
+            type="button"
+            className={classNames(
+              "editor-sidebar-toggle",
+              classes.iconButton,
+              classes.publishIconButton,
+              sidebarPanel === "publish" && classes.iconButtonActive,
+              sidebarPanel === "publish" && classes.publishIconButtonActive,
             )}
-          </form.Field>
-        </div>
-      </FormGroupPostTopBar>
+            onClick={() => setSidebarPanel((panel) => panel === "publish" ? null : "publish")}
+          >
+            <ForumIcon icon="PublishSettings" className={classes.icon} />
+          </button>
+          </LWTooltip>
+          <LWTooltip title="Sharing and collaboration" placement="left">
+          <button
+            type="button"
+            className={classNames("editor-sidebar-toggle", classes.iconButton, sidebarPanel === "sharing" && classes.iconButtonActive)}
+            title={sidebarPanel === "sharing" ? "Hide sharing panel" : "Share & collaborate"}
+            onClick={() => setSidebarPanel((panel) => panel === "sharing" ? null : "sharing")}
+          >
+            <ForumIcon icon="GroupAdd" className={classes.icon} />
+          </button>
+          </LWTooltip>
+          <LWTooltip title="Settings" placement="left">
+          <button
+            type="button"
+            className={classNames("editor-sidebar-toggle", classes.iconButton, sidebarPanel === "settings" && classes.iconButtonActive)}
+            title={sidebarPanel === "settings" ? "Hide settings" : "Show settings"}
+            onClick={() => setSidebarPanel((panel) => panel === "settings" ? null : "settings")}
+          >
+            <ForumIcon icon="Settings" className={classes.icon} />
+          </button>
+          </LWTooltip>
+        </>}
+        {(commentCount > 0 || showComments) && <LWTooltip title="Comments" placement="left">
+        <button
+          type="button"
+          className={classNames(classes.iconButton, showComments && classes.iconButtonActive)}
+          title={showComments ? "Hide comments" : "Show comments"}
+          onClick={() => {
+            setSidebarPanel(null);
+            setShowComments((v) => !v);
+          }}
+        >
+          <ForumIcon icon="Comment" className={classes.icon} />
+        </button>
+        </LWTooltip>}
+        {editorType === "lexical" && (
+          <div className={classes.editorModeSelector}>
+            <div className={classes.editorModeSelectorInner}>
+              {availableModes.map(mode => (
+                <LWTooltip key={mode} title={editorModeLabels[mode]} placement="bottom">
+                  <button
+                    type="button"
+                    className={classNames(
+                      classes.editorModeOption,
+                      mode === userMode && classes.editorModeOptionActive,
+                    )}
+                    onClick={() => setUserMode(mode)}
+                  >
+                    <ForumIcon icon={editorModeIcons[mode]} className={classes.icon} />
+                  </button>
+                </LWTooltip>
+              ))}
+              <LWTooltip
+                title={isConnected
+                  ? editorModeLabels[userMode]
+                  : `${editorModeLabels[userMode]} — offline, changes saved locally`
+                }
+                placement="bottom-end"
+              >
+                <div className={classes.editorModeActiveOverlay}>
+                  <ForumIcon icon={editorModeIcons[userMode]} className={classes.icon} />
+                </div>
+              </LWTooltip>
+            </div>
+          </div>
+        )}
+      </div>
 
       <LegacyFormGroupLayout
         groupStyling={false}
-        paddingStyling={true}
+        paddingStyling={false}
         flexAlignTopStyling={true}
       >
-        <div className={'form-component-EditTitle'}>
-          <form.Field name="title">
-            {(field) => (
-              <EditTitle
-                field={field}
-                document={form.state.values}
-              />
-            )}
-          </form.Field>
-        </div>
+        {onTitleChange && <form.Subscribe selector={(s) => s.values.title ?? ""}>
+          {(title) => <SyncTitleToParent title={title} onTitleChange={onTitleChange} />}
+        </form.Subscribe>}
+        {canEditMetadata ? (
+          <div className={classNames('form-component-EditTitle', showMetadataRow && classes.titleWithMetadata)}>
+            <form.Field name="title">
+              {(field) => (
+                <EditTitle
+                  field={field}
+                  document={form.state.values}
+                />
+              )}
+            </form.Field>
+          </div>
+        ) : (
+          <div className={classes.readOnlyTitle}>
+            {initialData.title}
+          </div>
+        )}
+        {!canEditMetadata && <CollabEditorPermissionsNotices post={initialData} />}
       </LegacyFormGroupLayout>
 
-      <form.Subscribe selector={(s) => ({ isLinkpost: s.values.postCategory === 'linkpost' })}>
-        {({ isLinkpost }) => !(isEvent || isDialogue) && isLinkpost && (
-          <LegacyFormGroupLayout
-            groupStyling={false}
-            paddingStyling={true}
-            flexStyling={true}
-          >
-            <div className={classNames('form-input', 'input-url', classes.fieldWrapper)}>
-              <form.Field name="url">
-                {(field) => (
-                  <EditLinkpostUrl
-                    field={field}
-                    post={form.state.values}
-                  />
-                )}
+      {showMetadataRow && (
+        <LegacyFormGroupLayout groupStyling={false} paddingStyling={false}>
+          <div className={classes.metadataRow}>
+            <span className={classes.metaAuthorInfo}>
+              by{" "}
+              <span className={classes.metaAuthorName}>{initialData.user?.displayName ?? currentUser?.displayName}</span>
+              <form.Field name="coauthorUserIds">
+                {(field) => <>
+                  {(field.state.value ?? []).map((userId) => (
+                    <span key={userId}>
+                      , <UsersNameWrapper documentId={userId} simple className={classes.metaCoauthorName} />
+                      {canEditMetadata && <span className={classes.metaCoauthorRemove} onClick={() => {
+                        field.handleChange((field.state.value ?? []).filter((uid) => uid !== userId));
+                      }}>&times;</span>}
+                    </span>
+                  ))}
+                  {canEditMetadata && userCanEditCoauthors(currentUser) && (
+                    <button
+                      type="button"
+                      className={classes.addCoauthorButton}
+                      title="Add co-author"
+                      onClick={() => setShowCoauthorSearch((v) => !v)}
+                    >
+                      {" +"}
+                    </button>
+                  )}
+                </>}
+              </form.Field>
+            </span>
+
+            <span className={classes.metaDate}>
+              {initialData.draft === false && initialData.postedAt
+                ? <FormatDate date={initialData.postedAt} format="Do MMM YYYY" />
+                : "Draft"
+              }
+            </span>
+
+            {canEditMetadata && <form.Subscribe selector={(s) => ({ postCategory: s.values.postCategory, url: s.values.url })}>
+              {({ postCategory, url }) => {
+                const isLinkpost = postCategory === "linkpost";
+                const { linkpostDomain } = detectLinkpost({ url });
+
+                if (isLinkpost && url && linkpostDomain && !editingLinkpostUrl) {
+                  // Show "Linkpost for domain.com" with edit icon
+                  return (
+                    <span className={classes.linkpostDisplay}>
+                      <LWTooltip title={<div>View the original at:<br/>{url}</div>}>
+                        <a href={url} target="_blank" rel="noopener noreferrer" className={classes.linkpostLink}>
+                          Linkpost for {linkpostDomain}
+                        </a>
+                      </LWTooltip>
+                      <button
+                        type="button"
+                        className={classes.linkpostEditIcon}
+                        title="Edit linkpost URL"
+                        onClick={() => {
+                          setLinkpostUrlDraft(url || "");
+                          setEditingLinkpostUrl(true);
+                        }}
+                      >
+                        <ForumIcon icon="Edit" className={classes.icon} />
+                      </button>
+                    </span>
+                  );
+                }
+
+                if (isLinkpost && editingLinkpostUrl) {
+                  // Show "Linkpost for" label + inline input
+                  return (
+                    <span className={classes.linkpostInputWrapper}>
+                      <button
+                        type="button"
+                        className={classNames(classes.linkpostToggle, classes.linkpostToggleActive)}
+                        title="Remove linkpost"
+                        onClick={() => {
+                          form.setFieldValue("postCategory", "post");
+                          form.setFieldValue("url", "");
+                          setEditingLinkpostUrl(false);
+                        }}
+                      >
+                        Linkpost for
+                      </button>
+                      <input
+                        type="url"
+                        className={classes.linkpostInput}
+                        placeholder="url"
+                        value={linkpostUrlDraft}
+                        onChange={(e) => setLinkpostUrlDraft(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            if (linkpostUrlDraft.trim()) {
+                              form.setFieldValue("url", linkpostUrlDraft.trim());
+                              setEditingLinkpostUrl(false);
+                            }
+                          } else if (e.key === "Escape") {
+                            if (url) {
+                              setEditingLinkpostUrl(false);
+                            } else {
+                              form.setFieldValue("postCategory", "post");
+                              setEditingLinkpostUrl(false);
+                            }
+                          }
+                        }}
+                        autoFocus
+                      />
+                      <button
+                        type="button"
+                        className={classes.linkpostConfirmButton}
+                        title="Confirm URL"
+                        onClick={() => {
+                          if (linkpostUrlDraft.trim()) {
+                            form.setFieldValue("url", linkpostUrlDraft.trim());
+                            setEditingLinkpostUrl(false);
+                          }
+                        }}
+                      >
+                        <ForumIcon icon="Check" className={classes.linkpostConfirmIcon} />
+                      </button>
+                      <button
+                        type="button"
+                        className={classes.linkpostConfirmButton}
+                        title="Remove linkpost"
+                        onClick={() => {
+                          form.setFieldValue("postCategory", "post");
+                          form.setFieldValue("url", "");
+                          setEditingLinkpostUrl(false);
+                        }}
+                      >
+                        <ForumIcon icon="Close" className={classes.linkpostConfirmIcon} />
+                      </button>
+                    </span>
+                  );
+                }
+
+                // Show toggle button (no URL set, not editing)
+                return (
+                  <button
+                    type="button"
+                    className={classNames(
+                      classes.linkpostToggle,
+                      isLinkpost && classes.linkpostToggleActive,
+                    )}
+                    title={isLinkpost ? "Remove linkpost" : "Make this a linkpost"}
+                    onClick={() => {
+                      if (isLinkpost) {
+                        form.setFieldValue("postCategory", "post");
+                        form.setFieldValue("url", "");
+                        setEditingLinkpostUrl(false);
+                      } else {
+                        form.setFieldValue("postCategory", "linkpost");
+                        setLinkpostUrlDraft("");
+                        setEditingLinkpostUrl(true);
+                      }
+                    }}
+                  >
+                    {isLinkpost ? "Linkpost" : "+ Linkpost"}
+                  </button>
+                );
+              }}
+            </form.Subscribe>}
+            {!isConnected && (
+              <LWTooltip title="Offline — changes are saved locally">
+                <span className={classes.disconnectedIndicator}>
+                  <ForumIcon icon="CloudOff" className={classes.disconnectedIcon} />
+                </span>
+              </LWTooltip>
+            )}
+          </div>
+
+          {canEditMetadata && showCoauthorSearch && (
+            <div className={classes.coauthorSearchRow}>
+              <ErrorBoundary>
+                <form.Field name="coauthorUserIds">
+                  {(field) => (
+                    <UsersSearchAutoComplete
+                      clickAction={(userId) => {
+                        const current = field.state.value ?? [];
+                        if (!current.includes(userId)) {
+                          field.handleChange([...current, userId]);
+                        }
+                      }}
+                      label="Search for co-authors"
+                    />
+                  )}
                 </form.Field>
-              </div>
-          </LegacyFormGroupLayout>
-        )}
-      </form.Subscribe>
+              </ErrorBoundary>
+            </div>
+          )}
+
+        </LegacyFormGroupLayout>
+      )}
 
       <LegacyFormGroupLayout
         groupStyling={false}
-        paddingStyling={true}
+        paddingStyling={false}
       >
         <div className={classNames('form-input', 'input-contents', 'form-component-EditorFormComponent', classes.fieldWrapper)}>
           <form.Field name="contents">
@@ -300,14 +948,14 @@ const PostForm = ({
                 collectionName="Posts"
                 commentEditor={false}
                 commentStyles={false}
-                hideControls={false}
+                hideControls={true}
               />
             )}
           </form.Field>
         </div>
       </LegacyFormGroupLayout>
 
-      {isEvent && <LegacyFormGroupLayout label={"Event Details"}>
+      {canEditMetadata && isEvent && <LegacyFormGroupLayout label={"Event Details"}>
         <div className={classes.fieldWrapper}>
           <form.Field name="onlineEvent">
             {(field) => (
@@ -387,6 +1035,7 @@ const PostForm = ({
                 <MuiTextField
                   field={field}
                   label="Event Registration Link"
+                  updateOnBlur
                 />
               </LWTooltip>
             )}
@@ -400,6 +1049,7 @@ const PostForm = ({
                 <MuiTextField
                   field={field}
                   label="Join Online Event Link"
+                  updateOnBlur
                 />
               </LWTooltip>
             )}
@@ -437,6 +1087,7 @@ const PostForm = ({
               <MuiTextField
                 field={field}
                 label="Contact Info"
+                updateOnBlur
               />
             )}
           </form.Field>
@@ -449,6 +1100,7 @@ const PostForm = ({
                 <MuiTextField
                   field={field}
                   label="Facebook Event"
+                  updateOnBlur
                 />
               </LWTooltip>
             )}
@@ -462,6 +1114,7 @@ const PostForm = ({
                 <MuiTextField
                   field={field}
                   label="Meetup.com Event"
+                  updateOnBlur
                 />
               </LWTooltip>
             )}
@@ -475,6 +1128,7 @@ const PostForm = ({
                 <MuiTextField
                   field={field}
                   label="Website"
+                  updateOnBlur
                 />
               </LWTooltip>
             )}
@@ -507,22 +1161,47 @@ const PostForm = ({
         </div>}
       </LegacyFormGroupLayout>}
 
-      <PostFormSecondaryGroups
+      {canEditMetadata && sidebarPortalTarget && sidebarPanel && createPortal(
+        <EditorSettingsSidebar
+          form={form}
+          initialData={initialData}
+          formType={formType}
+          mode={sidebarPanel}
+          currentUser={currentUser}
+          isSaving={isSaving}
+          onClose={() => setSidebarPanel(null)}
+          addOnSubmitCallbackCustom={addOnSubmitCallbackCustomHighlight}
+          addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
+          addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
+          addOnSuccessCallbackModerationGuidelines={addOnSuccessCallbackModerationGuidelines}
+        />,
+        sidebarPortalTarget
+      )}
+
+      {/* 
+          Technically logged out users should have access to the comments panel
+          but they can always just click on a post segment with an inline comment
+          to open it, so this only matters if there aren't already any comments
+          and they explicitly want to leave a comment that's not on a quoted segment.
+      */}
+      {canEditMetadata && <MobileEditorBottomBar
         form={form}
         initialData={initialData}
         formType={formType}
         currentUser={currentUser}
+        isSaving={isSaving}
+        editorType={editorType}
+        sidebarPanel={sidebarPanel}
+        setSidebarPanel={setSidebarPanel}
         addOnSubmitCallbackCustom={addOnSubmitCallbackCustomHighlight}
         addOnSuccessCallbackCustom={addOnSuccessCallbackCustomHighlight}
         addOnSubmitCallbackModerationGuidelines={addOnSubmitCallbackModerationGuidelines}
         addOnSuccessCallbackModerationGuidelines={addOnSuccessCallbackModerationGuidelines}
-      />
-
-      {postSubmit}
-    </form >
+      />}
+    </form>
+    </InlineCommentsPanelContext.Provider>
+    </EditorUserModeContext.Provider>
   );
 };
 
 export default PostForm;
-
-

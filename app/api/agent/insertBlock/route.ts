@@ -15,7 +15,8 @@ import {
 } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, paragraphMarkdownStartsWith, plainTextStartsWith, sleep, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, paragraphMarkdownStartsWith, plainTextStartsWith, withMainDocEditorSession } from "../editorAgentUtil";
+import { sleep } from "@/lib/utils/asyncUtils";
 import { normalizeImportedTopLevelNodes } from "../../(markdown)/editorMarkdownUtils";
 import { buildNodeMarkdownMapForSubtree } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
@@ -109,7 +110,7 @@ function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], insertionI
   $wrapSelectionInSuggestionNode(selection, false, suggestionId, "insert");
 }
 
-function $markdownToNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
+export function $markdownToNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
   const widgetFence = parseWholeWidgetFence(markdown);
   if (widgetFence) {
     const widgetNode = $createIframeWidgetNode(widgetFence.widgetId);
@@ -149,7 +150,7 @@ function findInsertionIndexByPrefix(
   return null;
 }
 
-function resolveInsertionIndex(location: InsertLocation, rootChildren: LexicalNode[]): number | null {
+export function resolveInsertionIndex(location: InsertLocation, rootChildren: LexicalNode[]): number | null {
   const target = getInsertionIndexByLocation(location);
   if (target.mode === "fixed") {
     return target.index === Number.MAX_SAFE_INTEGER ? rootChildren.length : target.index;

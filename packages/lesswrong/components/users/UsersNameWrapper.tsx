@@ -23,13 +23,15 @@ const UsersMinimumInfoQuery = gql(`
  * display their name. If the nofollow attribute is true OR the user has a
  * spam-risk score below 0.8, the user-page link will be marked nofollow.
  */
-const UsersNameWrapper = ({documentId, nofollow=false, simple=false, nowrap=false, className, ...otherProps}: {
+const UsersNameWrapper = ({documentId, nofollow=false, simple=false, nowrap=false, className, fallbackName, ...otherProps}: {
   documentId: string,
   nofollow?: boolean,
   simple?: boolean,
   nowrap?: boolean,
   className?: string,
   tooltipPlacement?: PopperPlacementType,
+  /** Name to display when the user ID doesn't correspond to a real user (e.g. agent comments) */
+  fallbackName?: string,
 }) => {
   const { loading, data } = useQuery(UsersMinimumInfoQuery, {
     variables: { documentId: documentId },
@@ -39,6 +41,8 @@ const UsersNameWrapper = ({documentId, nofollow=false, simple=false, nowrap=fals
     return <Loading />
   } else if (document) {
     return <UsersNameDisplay user={document} nofollow={nofollow || document.spamRiskScore<0.8} simple={simple} nowrap={nowrap} className={className} {...otherProps}/>
+  } else if (fallbackName) {
+    return <span>{fallbackName}</span>
   } else {
     return <UserNameDeleted/>
   }

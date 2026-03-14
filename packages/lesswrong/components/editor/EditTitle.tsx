@@ -30,8 +30,10 @@ const styles = defineStyles('EditTitle', (theme: ThemeType) => ({
       marginTop: 0,
     }: {
       fontSize: LW_POST_TITLE_FONT_SIZE,
-      marginTop: 34,
-      marginBottom: 64,
+      lineHeight: '1.1',
+      textWrap: 'balance' as const,
+      marginTop: 110,
+      marginBottom: 96,
     }),
     width: "100%",
     resize: "none",

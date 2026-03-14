@@ -81,20 +81,37 @@ Helping Users With Drafts
 =========================
 (This feature is currently in development, the API should not be assumed stable,
 and users using it should be reminded of LessWrong's policy on LLM writing, found
-at https://www.lesswrong.com/api/post/KXujJjnmP85u8eM6B)
+at https://www.lesswrong.com/api/post/KXujJjnmP85u8eM6B [without the /api in the
+path if providing a link to the user].)
+
+If you are an AI agent operating in a harness that permits you to make POST
+requests using standard tools (like curl), then you should be able to use the
+following API endpoints without any special setup. This is likely to be the case
+for harnesses like Claude Code, Codex, Cursor, etc.
+
+If you are Claude, operating from a chat interface like claude.ai, you should have
+access to your network configuration's Allowed Domains list. If that list doesn't
+contain www.lesswrong.com, your user will need to add it to enable you to make
+API requests to our domain by going to https://claude.ai/settings/capabilities
+and adding www.lesswrong.com to "Additional allowed domains" in the "Code execution
+and file creation" section, and then starting a new chat session (since the change
+won't take effect until they do so).  If you are ChatGPT, operating from a chat interface
+like chatgpt.com, you may not have a similar domain allowlist. (If this is false,
+please report it to the LessWrong developers using the /api/agent/feedback endpoint
+so that we can update this documentation.)  Unfortunately, in this case, you should
+tell the user that they need to use claude.ai or a harness like Codex to use this feature.
 
 The API can also be used to edit and comment on post drafts, which will appear
-in the post editor. This feature is only available for Lexical, which is enabled
-for users who have enabled the "Beta features" option in their settings, which
-can be found at https://www.lesswrong.com/account?tab=preferences. To give an AI
-agent access, the user needs to press the Share button, change the permissions
-for "Anyone with the link can" to "Edit", then copy the edit-post URL for you.
-The URL will look like this:
-    https://www.lesswrong.com/editPost?postId=XYZXYZ&key=XYZXYZ (or /collaborateOnPost?postId=XYZXYZ&key=XYZXYZ, which is functionally equivalent)
+in the post editor. This feature is only available for posts written using our
+lexical editor, which is the default editor for new posts, but old posts might
+still be using a different editor. To give an AI agent access, the user needs
+to set the permissions for "Anyone with the link can" to "Edit", then copy the
+edit-post URL for you. The URL will look like this:
+    https://www.lesswrong.com/editPost?postId=XYZXYZ&key=XYZXYZ
 The key in the URL is called the "link sharing key"; do not share this key with
 anyone unless the user is asking you to give that person permission to edit
 the post. Once you have the post URL, read the post at:
-    GET /api/editPost?postId=[id]&key=[linkSharingKey] (even if the user-provided URL uses the /collaborateOnPost route)
+    GET /api/editPost?postId=[id]&key=[linkSharingKey]
 
 When making POST requests to these endpoints, pipe the JSON body from a heredoc
 to avoid shell escaping issues (some environments mangle characters like ! in
@@ -103,12 +120,23 @@ inline curl -d arguments):
     { "postId": "...", "key": "...", "comment": "..." }
     EOF
 
-To add add Google Docs-style comments to the draft, make a request to:
+The editPost response includes a "Comment Threads" section after the post body
+if there are any open comment or suggestion threads on the draft. Each thread
+shows its ID, type (comment or suggestion), the quoted anchor text (if any),
+and the conversation. You can use the thread ID to reply to existing threads.
+
+To add Google Docs-style comments to the draft, make a request to:
     POST /api/agent/commentOnDraft
     with JSON body: { postId, key, agentName?, quote?, comment }
 If a quote is provided, the comment will be attached to matching quoted text. The
 quote should be long enough to be unambiguous. If no quote is provided, the
 comment will be top-level. Both the quote and your comment should be in markdown.
+
+To reply to an existing comment thread on the draft:
+    POST /api/agent/replyToComment
+    with JSON body: { postId, key, agentName?, threadId, comment }
+The threadId comes from the Comment Threads section of the editPost response.
+This adds a reply to the specified thread, visible in the editor's comment panel.
 
 To replace text inside the draft, make a POST request to:
     POST /api/agent/replaceText
@@ -127,6 +155,10 @@ that already exists in the draft. The location can be one of the following:
     "end": insert at the end of the post
     "before": insert before the paragraph with the given markdown prefix
     "after": insert after the paragraph with the given markdown prefix
+This API is only for inserting new blocks of text that can be expressed in
+traditional markdown.  It supports paragraphs, lists, blockquotes,
+bold/italic/strikethrough (no underline), and code blocks.
+Custom block-level elements like LLM content blocks and widgets have dedicated APIs (see below).
 
 To delete an existing block from the draft, make a POST request to:
     POST /api/agent/deleteBlock
@@ -135,6 +167,55 @@ The prefix should be a markdown string that matches the start of a paragraph
 that already exists in the draft.
 In edit mode, the matched block is removed immediately. In suggest mode, the
 matched block is wrapped as a deletion suggestion.
+
+To insert an LLM content block (a visually distinct block attributed to a
+specific AI model) into the draft, make a POST request to:
+    POST /api/agent/insertLLMBlock
+    with JSON body: {
+      postId, key,
+      modelName?: string,
+      markdown: string,
+      location: "start"|"end"|{ before: string }|{ after: string }
+    }
+The modelName is displayed in the block header (e.g. "Claude Opus 4.6"). If
+omitted, it defaults to "AI Agent". The markdown is the content
+that will appear inside the block. The location works the same as insertBlock.
+LLM content blocks are always inserted directly (no suggest mode) because they
+are explicitly labeled as AI-generated content.
+
+LLM content blocks (visually distinct blocks attributed to a specific AI model) are
+represented in the markdown output as:
+    %%% llm-output model="Claude Opus 4.6"
+
+    The markdown content of the block...
+
+    %%% /llm-output
+Content inside these blocks was generated by the named model, not written by the
+post author. You can modify text inside these blocks with replaceText, delete them
+with deleteBlock, or insert new ones with the insertLLMBlock endpoint below.
+
+When using insertBlock, deleteBlock, or the location parameter of insertLLMBlock,
+prefix and location strings are matched against each block's markdown representation
+as it appears in the editPost output. For plain paragraphs, use the paragraph text;
+for structured blocks like LLM content blocks, use the %%% delimiter line. Examples:
+
+Deleting a plain paragraph:
+    { "postId": "...", "key": "...", "prefix": "After this paragraph", "mode": "edit" }
+
+Deleting an LLM content block:
+    { "postId": "...", "key": "...", "prefix": "%%% llm-output model=\\"GPT-4o\\"", "mode": "edit" }
+
+Inserting a paragraph before an LLM content block:
+    { "postId": "...", "key": "...", "location": { "before": "%%% llm-output model=\\"GPT-4o\\"" }, "markdown": "New paragraph text.", "mode": "edit" }
+
+To insert a new custom widget (sandboxed HTML/JS) into the draft, make a POST
+request to:
+    POST /api/agent/insertWidget
+    with JSON body: { postId, key, agentName?, content, location }
+The content is raw HTML/JS — do not wrap it in markdown fences. The location
+works the same as insertBlock. A unique widgetId is generated automatically
+and returned in the response as { widgetId }, so you can later modify the
+widget with replaceWidget.
 
 Custom widgets are represented in markdown with fenced code blocks using:
     \`\`\`widget[widgetId]
