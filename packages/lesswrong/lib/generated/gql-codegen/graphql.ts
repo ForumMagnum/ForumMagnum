@@ -15923,12 +15923,13 @@ export type PostsEditFormUserQuery = { __typename?: 'Query', user: { __typename?
 export type LinkSharingEditQueryQueryVariables = Exact<{
   postId: Scalars['String']['input'];
   linkSharingKey: Scalars['String']['input'];
+  version?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
 export type LinkSharingEditQueryQuery = { __typename?: 'Query', getLinkSharedPost: (
     { __typename?: 'Post' }
-    & PostsEditMutationFragment
+    & PostsEditQueryFragment
   ) | null };
 
 export type PostsGroupDetailsQueryVariables = Exact<{
@@ -21546,7 +21547,7 @@ export const multiRevisionPostsCompareRevisionsQueryDocument = _o1(_1,[_o11(_951
 export const PostsCompareRevisionsDocument = _o1(_1,[_o11(_951,_952,_o3(_3,"PostsCompareRevisions"),_1434,_o5(_7,[_o7(_8,_203,_968,_1435)])),_22,_121,_54,_130,_140,_151,_177,_185,_483,_191,_196,_200,_490,_219,_568,_223,_232,_550,_455,_458,_552,_556,_558,_573]) as unknown as DocumentNode<PostsCompareRevisionsQuery, PostsCompareRevisionsQueryVariables>;
 export const multiCommentPostsDialogItemNewCommentsListQueryDocument = _o1(_1,[_o11(_951,_952,_o3(_3,"multiCommentPostsDialogItemNewCommentsListQuery"),_1074,_1179),_140,_151,_54,_177]) as unknown as DocumentNode<multiCommentPostsDialogItemNewCommentsListQueryQuery, multiCommentPostsDialogItemNewCommentsListQueryQueryVariables>;
 export const PostsEditFormUserDocument = _o1(_1,[_o11(_951,_952,_o3(_3,"PostsEditFormUser"),[_1117,_o12(_953,_836,_979)],_o5(_7,[_o7(_8,_59,_968,_o5(_7,[_o6(_8,_969,_o5(_7,[_o4(_24,_834)]))]))])),_837]) as unknown as DocumentNode<PostsEditFormUserQuery, PostsEditFormUserQueryVariables>;
-export const LinkSharingEditQueryDocument = _o1(_1,[_o11(_951,_952,_o3(_3,"LinkSharingEditQuery"),[_1047,_o12(_953,_1048,_957)],_o5(_7,[_o7(_8,_o3(_3,"getLinkSharedPost"),_1049,_1428)])),_22,_121,_54,_130,_140,_151,_177,_185,_483,_191,_196,_200,_490,_219,_263,_577,_583]) as unknown as DocumentNode<LinkSharingEditQueryQuery, LinkSharingEditQueryQueryVariables>;
+export const LinkSharingEditQueryDocument = _o1(_1,[_o11(_951,_952,_o3(_3,"LinkSharingEditQuery"),[_1047,_o12(_953,_1048,_957),_1168],_o5(_7,[_o7(_8,_o3(_3,"getLinkSharedPost"),_1049,_1169)])),_22,_121,_54,_130,_140,_151,_177,_185,_483,_191,_196,_200,_490,_219,_263,_577,_581]) as unknown as DocumentNode<LinkSharingEditQueryQuery, LinkSharingEditQueryQueryVariables>;
 export const PostsGroupDetailsDocument = _o1(_1,[_o11(_951,_952,_o3(_3,"PostsGroupDetails"),_1118,_o5(_7,[_o7(_8,_1053,_968,_1389)])),_54,_400,_219,_403]) as unknown as DocumentNode<PostsGroupDetailsQuery, PostsGroupDetailsQueryVariables>;
 export const PostsHighlightDocument = _o1(_1,[_o11(_951,_952,_o3(_3,"PostsHighlight"),_1118,_1424),_527]) as unknown as DocumentNode<PostsHighlightQuery, PostsHighlightQueryVariables>;
 export const multiCommentPostsItemNewCommentsListQueryDocument = _o1(_1,[_o11(_951,_952,_o3(_3,"multiCommentPostsItemNewCommentsListQuery"),_1074,_1179),_140,_151,_54,_177]) as unknown as DocumentNode<multiCommentPostsItemNewCommentsListQueryQuery, multiCommentPostsItemNewCommentsListQueryQueryVariables>;
