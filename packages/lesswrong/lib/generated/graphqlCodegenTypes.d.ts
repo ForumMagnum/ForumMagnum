@@ -16030,7 +16030,7 @@ type PostsEditFormUserQuery = PostsEditFormUserQuery_Query;
 
 type LinkSharingEditQueryQuery_getLinkSharedPost_Post = (
   { __typename?: 'Post' }
-  & PostsEditMutationFragment
+  & PostsEditQueryFragment
 );
 
 type LinkSharingEditQueryQuery_Query = { __typename?: 'Query', getLinkSharedPost: LinkSharingEditQueryQuery_getLinkSharedPost_Post | null };
@@ -16039,6 +16039,7 @@ type LinkSharingEditQueryQuery_Query = { __typename?: 'Query', getLinkSharedPost
 type LinkSharingEditQueryQueryVariables = Exact<{
   postId: Scalars['String']['input'];
   linkSharingKey: Scalars['String']['input'];
+  version: InputMaybe<Scalars['String']['input']>;
 }>;
 
 

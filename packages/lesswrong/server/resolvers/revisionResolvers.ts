@@ -125,7 +125,8 @@ export const revisionResolversGraphQLMutations = {
     if (!dbDocument) {
       throw new Error(`No ${collectionName} document with id: ${documentId}`);
     }
-    if (!userOwns(currentUser, dbDocument) && !userIsAdmin(currentUser)) {
+
+    if (!(userOwns(currentUser, dbDocument) || userIsAdmin(currentUser))) {
       throw new Error(`You don't have permission to edit this document`);
     }
 

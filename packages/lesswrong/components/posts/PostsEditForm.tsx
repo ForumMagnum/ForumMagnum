@@ -48,9 +48,9 @@ const UsersCurrentPostRateLimitQuery = gql(`
 `);
 
 const LinkSharingEditQuery = gql(`
-  query LinkSharingEditQuery($postId: String!, $linkSharingKey: String!) {
+  query LinkSharingEditQuery($postId: String!, $linkSharingKey: String!, $version: String) {
     getLinkSharedPost(postId: $postId, linkSharingKey: $linkSharingKey) {
-      ...PostsEditMutationFragment
+      ...PostsEditQueryFragment
     }
   }
 `);
@@ -180,8 +180,9 @@ const PostsEditFormInner = ({ documentId, version }: {
   // Link-sharing query — used when a link-sharing key is in the URL. This
   // handles first-time link-sharing visitors who aren't yet in
   // linkSharingKeyUsedBy and wouldn't pass the standard resolver's access check.
+  // We still need to pass the version in for the contents field resolver.
   const { loading: loadingLinkShared, data: dataLinkShared, error: linkSharedError } = useQuery(LinkSharingEditQuery, {
-    variables: { postId: documentId, linkSharingKey: query.key || "" },
+    variables: { postId: documentId, linkSharingKey: query.key || "", version: version ?? 'draft' },
     fetchPolicy: 'network-only',
     skip: !hasLinkSharingKey,
   });
