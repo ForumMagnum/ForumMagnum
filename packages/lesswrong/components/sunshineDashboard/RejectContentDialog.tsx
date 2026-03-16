@@ -17,6 +17,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import KeystrokeDisplay from './supermod/KeystrokeDisplay';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
 import { focusLexicalEditor } from '../editor/focusLexicalEditor';
+import { getDraftMessageHtml } from '@/lib/collections/messages/helpers';
 import dynamic from 'next/dynamic';
 
 const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
@@ -193,6 +194,7 @@ interface TemplateConfig {
 type TemplateRowProps = {
   selected: boolean;
   template: ModerationTemplateFragment;
+  displayName?: string;
   isTop6: boolean;
   selections: Record<string, boolean>;
   onCheckboxChange: (label: string, checked: boolean) => void;
@@ -208,6 +210,7 @@ type TemplateRowProps = {
 
 const TemplateRowContent = ({
   template,
+  displayName,
   selected,
   isTop6,
   selections,
@@ -216,12 +219,13 @@ const TemplateRowContent = ({
   onUnhide,
 }: TemplateRowProps) => {
   const classes = useStyles(styles);
+  const templateHtml = getDraftMessageHtml({ html: template.contents?.html ?? "", displayName });
 
   return (
     <div className={classNames(classes.reason, isTop6 ? classes.topReason : classes.nonTopReason)}>
       <LWTooltip className={classes.templateTooltip} placement="right-end" tooltip={false} title={<Card className={classes.card}>
         <ContentStyles contentType='comment'>
-          <ContentItemBody dangerouslySetInnerHTML={{__html: template.contents?.html ?? ""}} />
+          <ContentItemBody dangerouslySetInnerHTML={{__html: templateHtml}} />
         </ContentStyles>
       </Card>}>
         <div className={classNames(classes.templateRowItem, { selected })}>
@@ -256,10 +260,11 @@ const TemplateRowContent = ({
 
 const STORAGE_KEY_PREFIX = 'rejectionTemplateConfig_';
 
-const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
+const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent, displayName}: {
   rejectionTemplates: ModerationTemplateFragment[],
   onClose?: () => void,
   rejectContent: (reason: string) => void,
+  displayName?: string,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -278,7 +283,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
   const templateListRef = useRef<HTMLDivElement>(null);
   const editorContainerRef = useRef<HTMLDivElement>(null);
   
-  const rejectionReasons = Object.fromEntries(rejectionTemplates.map(({name, contents}) => [name, contents?.html]));
+  const rejectionReasons = Object.fromEntries(rejectionTemplates.map(({name, contents}) => [name, getDraftMessageHtml({ html: contents?.html ?? "", displayName })]));
 
   // Create a map for quick template lookup
   const templatesById = Object.fromEntries(rejectionTemplates.map(t => [t._id, t]));
@@ -496,6 +501,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
           </span>
           <TemplateRowContent
             template={template}
+            displayName={displayName}
             isTop6={top6}
             selections={selections}
             onCheckboxChange={composeRejectedReason}
@@ -549,6 +555,7 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
               <div key={template._id} className={classes.templateRow}>
                 <TemplateRowContent
                   template={template}
+                  displayName={displayName}
                   isTop6={false}
                   selections={selections}
                   onCheckboxChange={composeRejectedReason}
@@ -610,5 +617,3 @@ const RejectContentDialog = ({rejectionTemplates, onClose, rejectContent}: {
 };
 
 export default RejectContentDialog;
-
-
