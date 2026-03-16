@@ -36,6 +36,7 @@ const sendEventPostEmail = async (post: DbPost, user: DbUser, subject: string) =
       utm_user_id: user._id,
     },
     unsubscribeNode,
+    relativeHashLinks: true,
   });
 }
 
