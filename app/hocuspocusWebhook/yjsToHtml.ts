@@ -16,11 +16,12 @@
  *   3. Use @lexical/yjs V1 binding to sync the Yjs state into Lexical
  *   4. Serialize the Lexical editor state to HTML via $generateHtmlFromNodes
  */
-import { createEditor, $getRoot } from 'lexical';
+import { createEditor, $getRoot, $isElementNode, type LexicalNode } from 'lexical';
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { createBinding } from '@lexical/yjs';
 import type { Provider, Binding } from '@lexical/yjs';
 import * as Y from 'yjs';
+import { $isTableCellNode, type TableCellNode } from '@lexical/table';
 import PlaygroundNodes from '@/components/lexical/nodes/PlaygroundNodes';
 import PlaygroundEditorTheme from '@/components/lexical/themes/PlaygroundEditorTheme';
 import { withDomGlobals } from '@/server/editor/withDomGlobals';
@@ -61,6 +62,53 @@ export function createHeadlessEditor(errorLabel: string) {
 }
 
 /**
+ * Fixes TableCellNode colSpan and rowSpan properties after Yjs sync.
+ *
+ * The Lexical-Yjs binding syncs properties by direct assignment (e.g.,
+ * `node.colSpan = value`), but TableCellNode stores these internally as
+ * `__colSpan` and `__rowSpan`. Direct assignment creates a new instance
+ * property instead of using the setter, leaving the internal value at 1.
+ *
+ * This function walks through the Lexical tree and transfers any colSpan/
+ * rowSpan values that were set directly on the instance to the internal
+ * properties via the proper setters.
+ *
+ * Must be called inside an editor.update() context after syncChildrenFromYjs.
+ */
+function $fixTableCellSpanProperties(node: LexicalNode): void {
+  if ($isTableCellNode(node)) {
+    // Check if colSpan was set directly on the instance (not via setter)
+    // The Yjs binding sets `node.colSpan = value` which creates an own property
+    const nodeWithDirectProps = node as TableCellNode & { colSpan?: number; rowSpan?: number };
+
+    if (Object.prototype.hasOwnProperty.call(nodeWithDirectProps, 'colSpan')) {
+      const colSpan = nodeWithDirectProps.colSpan;
+      if (colSpan !== undefined && colSpan > 1) {
+        node.setColSpan(colSpan);
+      }
+      // Remove the direct property to avoid confusion
+      delete nodeWithDirectProps.colSpan;
+    }
+
+    if (Object.prototype.hasOwnProperty.call(nodeWithDirectProps, 'rowSpan')) {
+      const rowSpan = nodeWithDirectProps.rowSpan;
+      if (rowSpan !== undefined && rowSpan > 1) {
+        node.setRowSpan(rowSpan);
+      }
+      // Remove the direct property to avoid confusion
+      delete nodeWithDirectProps.rowSpan;
+    }
+  }
+
+  // Recursively process children
+  if ($isElementNode(node)) {
+    for (const child of node.getChildren()) {
+      $fixTableCellSpanProperties(child);
+    }
+  }
+}
+
+/**
  * Syncs the V1 Yjs binding's collab tree into the Lexical editor.
  *
  * After createBinding, the binding.root is a CollabElementNode wrapping
@@ -83,6 +131,10 @@ function $syncV1BindingToLexical(binding: Binding): void {
 
   binding.root.applyChildrenYjsDelta(binding, delta);
   binding.root.syncChildrenFromYjs(binding);
+
+  // Fix TableCellNode colSpan/rowSpan properties that were set directly
+  // by the Yjs binding instead of using the proper setters
+  $fixTableCellSpanProperties(root);
 }
 
 /**
