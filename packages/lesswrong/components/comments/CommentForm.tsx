@@ -36,6 +36,7 @@ import { isIfAnyoneBuildsItFrontPage } from '../seasonal/styles';
 import AutoEmailSubscribeCheckbox from "./AutoEmailSubscribeCheckbox";
 import { CommentsListMultiQuery, postCommentsThreadQuery } from "../posts/queries";
 import { CommentsListWithParentMetadataMultiQuery, DraftCommentsQuery } from "./queries";
+import type { EditorTypeString } from "../editor/Editor";
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentCommentForm($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -498,12 +499,12 @@ export const CommentForm = ({
                     verify: false,
                   };
                 }}
-                hintText={getCommentEditorPlaceholder()}
+                hintText={getCommentEditorPlaceholder(form.state.values.contents?.originalContents.type as EditorTypeString ?? 'lexical')}
                 fieldName="contents"
                 collectionName="Comments"
                 commentEditor={true}
                 commentStyles={true}
-                hideControls={false}
+                hideControls={true}
                 editorHintText={editorHintText}
                 commentMinimalistStyle={commentMinimalistStyle}
                 maxHeight={maxHeight}

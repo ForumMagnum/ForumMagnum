@@ -42,6 +42,7 @@ import { accessLevelCan, type CollaborativeEditingAccessLevel } from "@/lib/coll
 import { LW_POST_TITLE_FONT_SIZE } from "../posts/PostsPage/PostsPageTitle";
 import CollabEditorPermissionsNotices from "../editor/CollabEditorPermissionsNotices";
 import { gql } from "@/lib/generated/gql-codegen";
+import type { EditorTypeString } from "../editor/Editor";
 
 const PostsEditMutationFragmentUpdateMutation = gql(`
   mutation updatePostPostForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -943,7 +944,7 @@ const PostForm = ({
                 addOnSubmitCallback={addOnSubmitCallback}
                 addOnSuccessCallback={addOnSuccessCallback}
                 hasToc={true}
-                hintText={getDefaultEditorPlaceholder()}
+                hintText={getDefaultEditorPlaceholder(form.state.values.contents?.originalContents.type as EditorTypeString ?? 'lexical')}
                 fieldName="contents"
                 collectionName="Posts"
                 commentEditor={false}
