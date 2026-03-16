@@ -2,13 +2,14 @@ import React from 'react';
 import { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewYear, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection, { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import SectionTitle from "../common/SectionTitle";
 import RecommendationsList from "../recommendations/RecommendationsList";
 import PostsItem from "../posts/PostsItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListWithVotesQuery = gql(`
   query FrontpageBestOfLWWidget($documentId: String) {
@@ -20,7 +21,7 @@ const PostsListWithVotesQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FrontpageBestOfLWWidget', (theme: ThemeType) => ({
   root: {
     position: "relative",
     zIndex: theme.zIndexes.frontpageSplashImage,
@@ -60,7 +61,7 @@ const styles = (theme: ThemeType) => ({
     border: `solid 1px ${theme.palette.primary.main}`,
     borderRadius: 3
   }
-});
+}), { allowNonThemeColors: true });
 
 export const recommendationsAlgorithm: RecommendationsAlgorithm = {
   method: 'sample',
@@ -77,10 +78,10 @@ export const recommendationsAlgorithm: RecommendationsAlgorithm = {
   excludeDefaultRecommendations: true
 }
 
-export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
-  classes: ClassesType<typeof styles>,
+export const FrontpageBestOfLWWidget = ({reviewYear}: {
   reviewYear: ReviewYear
 }) => {
+  const classes = useStyles(styles);
   const { data } = useQuery(PostsListWithVotesQuery, {
     variables: { documentId: "zajNa9fdr8JYJpxrG" },
   });
@@ -97,10 +98,7 @@ export const FrontpageBestOfLWWidget = ({classes, reviewYear}: {
   </div>;
 }
 
-export default registerComponent('FrontpageBestOfLWWidget', FrontpageBestOfLWWidget, {
-  styles,
-  allowNonThemeColors: true, // Overlayed on an image
-});
+export default FrontpageBestOfLWWidget;
 
 
 

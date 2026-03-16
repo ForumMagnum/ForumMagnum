@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import SunshineListTitle from "./SunshineListTitle";
 import OmegaIcon from "../icons/OmegaIcon";
@@ -6,6 +5,8 @@ import AFSuggestPostsItem from "./AFSuggestPostsItem";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SuggestAlignmentPostMultiQuery = gql(`
   query multiPostAFSuggestPostsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -18,16 +19,15 @@ const SuggestAlignmentPostMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AFSuggestPostsList', (theme: ThemeType) => ({
   icon: {
     marginRight: 4
   }
-})
+}))
 
 
-const AFSuggestPostsList = ({ classes }: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const AFSuggestPostsList = () => {
+  const classes = useStyles(styles);
   const { data, loadMoreProps } = useQueryWithLoadMore(SuggestAlignmentPostMultiQuery, {
     variables: {
       selector: { alignmentSuggestedPosts: {} },
@@ -56,7 +56,7 @@ const AFSuggestPostsList = ({ classes }: {
   }
 }
 
-export default registerComponent('AFSuggestPostsList', AFSuggestPostsList, {styles});
+export default AFSuggestPostsList;
 
 
 

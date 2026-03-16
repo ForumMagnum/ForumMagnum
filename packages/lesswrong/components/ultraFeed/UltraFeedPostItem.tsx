@@ -360,7 +360,7 @@ const UltraFeedPostItemHeader = ({
             </LWTooltip>
           ))}
           {isLinkpost && (
-            <LWTooltip title={`Linkpost from ${linkpostDomain}`} placement="top">
+            <LWTooltip title={`Linkpost for ${linkpostDomain}`} placement="top">
               <a href={postGetLink(post)} target={postGetLinkTarget(post)} onClick={(e) => e.stopPropagation()}>
                 <ForumIcon icon="Link" className={classes.sourceIcon} />
               </a>

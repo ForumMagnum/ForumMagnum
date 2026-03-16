@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
@@ -23,8 +22,10 @@ import UsersNameDisplay from "../users/UsersNameDisplay";
 import ForumIcon from "../common/ForumIcon";
 import PostsItemNewCommentsWrapper from "../posts/PostsItemNewCommentsWrapper";
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ReviewVoteTableRow", (theme: ThemeType) => ({
   root: {
     borderBottom: theme.palette.border.slightlyFaint,
     position: "relative",
@@ -207,7 +208,7 @@ const styles = (theme: ThemeType) => ({
   newCommentsSection: {
     marginLeft: 16
   }
-});
+}));
 
 export type voteTooltipType = 'Showing votes by 1000+ Karma LessWrong users'|'Showing all votes'|'Showing votes from Alignment Forum members'
 
@@ -217,13 +218,12 @@ const hasUnreadComments = (visitedDate: Date|null, lastCommentedAt: Date | null)
   return visitedDate < lastCommentedAt
 }
 
-const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expandedPostId, handleSetExpandedPost, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip }: {
+const ReviewVoteTableRow = ({post, index, dispatch, costTotal, expandedPostId, handleSetExpandedPost, currentVote, showKarmaVotes, reviewPhase, reviewYear, voteTooltip}: {
   post: PostsReviewVotingList,
   index: number,
   costTotal?: number,
   dispatch: React.Dispatch<SyntheticQualitativeVote>,
   showKarmaVotes: boolean,
-  classes: ClassesType<typeof styles>,
   expandedPostId?: string|null,
   handleSetExpandedPost: (post: PostsReviewVotingList, openReviewBox?: boolean) => void,
   currentVote: SyntheticQualitativeVote|null,
@@ -231,6 +231,7 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
   reviewYear: ReviewYear,
   voteTooltip: voteTooltipType
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
 
   const [markedVisitedAt, setMarkedVisitedAt] = useState<Date|null>(null);
@@ -377,9 +378,6 @@ const ReviewVoteTableRow = ({ post, index, dispatch, costTotal, classes, expande
   </AnalyticsContext>
 }
 
-export default registerComponent("ReviewVoteTableRow", ReviewVoteTableRow, {
-  styles,
-  //areEqual: "auto"
-});
+export default ReviewVoteTableRow;
 
 

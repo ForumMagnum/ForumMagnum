@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Typography } from '../common/Typography';
 import Loading from '../vulcan-core/Loading';
 import LoadMore from '../common/LoadMore';
@@ -11,6 +10,8 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 import SectionTitle from '../common/SectionTitle';
 import { DraftCommentsQuery } from './queries';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const LinkedDraftCommentQuery = gql(`
   query LinkedDraftCommentQuery($documentId: String!) {
@@ -22,7 +23,7 @@ const LinkedDraftCommentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentsDraftList', (theme: ThemeType) => ({
   heading: {
     display: 'flex',
     marginBottom: 8,
@@ -38,9 +39,9 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 8,
     color: theme.palette.text.dim4,
   }
-});
+}), { stylePriority: 1 });
 
-const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTotal, silentIfEmpty, sectionTitleStyle, classes}: {
+const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTotal, silentIfEmpty, sectionTitleStyle}: {
   userId: string,
   postId?: string,
   initialLimit?: number,
@@ -48,8 +49,8 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
   showTotal?: boolean,
   silentIfEmpty?: boolean,
   sectionTitleStyle?: boolean
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { linkedCommentId } = useCommentLinkState();
 
   // Usually, there will be no linked comment (`?commentId=...` in the url), and the rawResults below
@@ -138,8 +139,4 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
   </AnalyticsContext>;
 }
 
-export default registerComponent(
-  'CommentsDraftList',
-  CommentsDraftList,
-  {styles, stylePriority: 1},
-);
+export default CommentsDraftList;

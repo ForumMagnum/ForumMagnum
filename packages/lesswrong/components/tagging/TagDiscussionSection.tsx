@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import CommentsListSection from "../comments/CommentsListSection";
 import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListMultiQuery = gql(`
   query multiCommentTagDiscussionSectionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -16,13 +17,13 @@ const CommentsListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
-});
+const styles = defineStyles("TagDiscussionSection", (theme: ThemeType) => ({
+}));
 
-const TagDiscussionSection = ({classes, tag}: {
-  classes: ClassesType<typeof styles>,
+const TagDiscussionSection = ({tag}: {
   tag: TagBasicInfo
 }) => {
+  const classes = useStyles(styles);
   const [highlightDate,setHighlightDate] = useState<Date|undefined>(undefined);
   
   const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(CommentsListMultiQuery, {
@@ -58,7 +59,7 @@ const TagDiscussionSection = ({classes, tag}: {
   );
 }
 
-export default registerComponent("TagDiscussionSection", TagDiscussionSection, {styles});
+export default TagDiscussionSection;
 
 
 

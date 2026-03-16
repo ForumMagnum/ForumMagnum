@@ -8,8 +8,13 @@
 const RESIZE_SCRIPT = `<script>
 (function() {
   function postHeight() {
-    var h = document.documentElement.scrollHeight;
-    parent.postMessage({ type: 'iframe-widget-resize', height: h }, '*');
+    var body = document.body;
+    if (!body) return;
+    var cs = getComputedStyle(body);
+    var h = body.offsetHeight
+      + (parseFloat(cs.marginTop) || 0)
+      + (parseFloat(cs.marginBottom) || 0);
+    parent.postMessage({ type: 'iframe-widget-resize', height: Math.ceil(h) }, '*');
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', postHeight);

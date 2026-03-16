@@ -21,15 +21,10 @@ jest.mock("../components/hooks/useStyles", () => {
     mockStyleFnsUsed.add(styles);
     return originalModule.defineStyles(name, styles, options);
   });
-  const wrappedWithAddClasses = jest.fn((styles, name, options) => {
-    wrappedDefineStyles(name, styles, options);
-    return originalModule.withAddClasses(styles, name, options);
-  });
   return {
     __esModule: true,
     ...originalModule,
     defineStyles: wrappedDefineStyles,
-    withAddClasses: wrappedWithAddClasses,
   };
 });
 jest.mock("@/components/hooks/defineStyles", () => {
@@ -96,11 +91,15 @@ describe('JSS', () => {
     let nonPaletteColors: string[] = [];
 
     for (const name in topLevelStyleDefinitions) {
-      const styleGetter = topLevelStyleDefinitions[name].styles;
-      const lightModeStyles = styleGetter(stubbedLightTheme);
-      const darkModeStyles = styleGetter(stubbedDarkTheme);
-      if (lightModeStyles && !topLevelStyleDefinitions[name].options?.allowNonThemeColors) {
-        assertNoNonPaletteColors(name, lightModeStyles, darkModeStyles, nonPaletteColors);
+      try {
+        const styleGetter = topLevelStyleDefinitions[name].styles;
+        const lightModeStyles = styleGetter(stubbedLightTheme);
+        const darkModeStyles = styleGetter(stubbedDarkTheme);
+        if (lightModeStyles && !topLevelStyleDefinitions[name].options?.allowNonThemeColors) {
+          assertNoNonPaletteColors(name, lightModeStyles, darkModeStyles, nonPaletteColors);
+        }
+      } catch (e) {
+        throw new Error("Error getting styles for component " + name + ": " + e);
       }
     }
 

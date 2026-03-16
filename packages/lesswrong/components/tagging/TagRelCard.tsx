@@ -1,13 +1,14 @@
 import React from 'react';
 import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useVote } from '../votes/withVote';
 import TagPreview from "./TagPreview";
 import OverallVoteButton from "../votes/OverallVoteButton";
 import TagRelevanceButton from "./TagRelevanceButton";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagRelCard", (theme: ThemeType) => ({
   relevance: {
     marginTop: 2,
     marginLeft: 16,
@@ -37,12 +38,12 @@ const styles = (theme: ThemeType) => ({
     right: 16,
     color: theme.palette.grey[400]
   }
-});
+}));
 
-const TagRelCard = ({tagRel, classes}: {
+const TagRelCard = ({tagRel}: {
   tagRel: TagRelMinimumFragment,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const voteProps = useVote(tagRel, "TagRels");
   const newlyVoted = !!(tagRel.currentUserVote==="smallUpvote" && voteProps.voteCount === 1)
 
@@ -110,6 +111,6 @@ const TagRelCard = ({tagRel, classes}: {
   </div>
 }
 
-export default registerComponent("TagRelCard", TagRelCard, {styles});
+export default TagRelCard
 
 

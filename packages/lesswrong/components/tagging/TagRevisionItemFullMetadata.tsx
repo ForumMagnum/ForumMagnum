@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -7,8 +6,10 @@ import FormatDate from "../common/FormatDate";
 import UsersName from "../users/UsersName";
 import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
 import SmallSideVote from "../votes/SmallSideVote";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagRevisionItemFullMetadata", (theme: ThemeType) => ({
   root: {
 },
   tagName: {
@@ -34,13 +35,13 @@ const styles = (theme: ThemeType) => ({
   },
   changeMetrics: {
   },
-});
+}));
 
-const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
+const TagRevisionItemFullMetadata = ({tag, revision}: {
   tag: TagBasicInfo,
   revision: RevisionMetadataWithChangeMetrics,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const tagUrl = tagGetUrl(tag);
 
   return <div className={classes.root}>
@@ -85,6 +86,6 @@ const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
   </div>;
 }
 
-export default registerComponent("TagRevisionItemFullMetadata", TagRevisionItemFullMetadata, {styles});
+export default TagRevisionItemFullMetadata;
 
 

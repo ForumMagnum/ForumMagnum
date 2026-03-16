@@ -21,6 +21,8 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum } from '@/lib/instanceSettings';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineCurationPostsListUpdateMutation = gql(`
   mutation updatePostSunshineCuratedSuggestionsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -32,7 +34,7 @@ const SunshineCurationPostsListUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineCuratedSuggestionsItem', (theme: ThemeType) => ({
   audioIcon: {
     width: 14,
     height: 14,
@@ -53,13 +55,13 @@ const styles = (theme: ThemeType) => ({
   oldPost: {
     opacity: 0.5,
   },
-});
+}));
 
-const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
-  classes: ClassesType<typeof styles>,
+const SunshineCuratedSuggestionsItem = ({post, setCurationPost}: {
   post: SunshineCurationPostsList,
   setCurationPost?: (post: SunshineCurationPostsList) => void,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();
   const [updatePost] = useMutation(SunshineCurationPostsListUpdateMutation);
@@ -173,7 +175,7 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost}: {
   )
 }
 
-export default registerComponent('SunshineCuratedSuggestionsItem', SunshineCuratedSuggestionsItem, {styles, 
+export default registerComponent('SunshineCuratedSuggestionsItem', SunshineCuratedSuggestionsItem, {
   hocs: [withErrorBoundary]
 });
 

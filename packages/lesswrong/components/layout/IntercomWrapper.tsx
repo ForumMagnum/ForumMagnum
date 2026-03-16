@@ -8,8 +8,9 @@ import withErrorBoundary from '@/components/common/withErrorBoundary'
 import Intercom from '../../lib/vendor/react-intercom';
 import { useCookiePreferences } from '../hooks/useCookiesWithConsent';
 import { isStandaloneRoute } from '@/lib/routeChecks';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('IntercomWrapper', (theme: ThemeType) => ({
   "@global": {
     ...(theme.palette.intercom ? {
       '.intercom-launcher': {
@@ -27,7 +28,7 @@ const styles = (theme: ThemeType) => ({
       }
     }
   },
-});
+}));
 
 const IntercomWrapper = () => {
   const currentUser = useCurrentUser();
@@ -64,7 +65,6 @@ const IntercomWrapper = () => {
 }
 
 export default registerComponent('IntercomWrapper', IntercomWrapper, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

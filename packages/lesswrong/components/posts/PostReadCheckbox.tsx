@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import CheckBoxOutlineBlankIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxTwoTone';
 import { useItemsRead } from '../hooks/useRecordPostView';
@@ -7,8 +6,10 @@ import classNames from 'classnames';
 import LWTooltip from "../common/LWTooltip";
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostReadCheckbox', (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
   },
@@ -18,18 +19,18 @@ const styles = (theme: ThemeType) => ({
   unread: {
     color: theme.palette.grey[400],
   },
-});
+}));
 
 interface PostFields {
   _id: string;
   isRead: boolean | null;
 }
 
-export const PostReadCheckbox = ({classes, post, width=12}: {
-  classes: ClassesType<typeof styles>,
+export const PostReadCheckbox = ({post, width=12}: {
   post: PostFields,
   width?: number
 }) => {
+  const classes = useStyles(styles);
   const {postsRead, setPostRead} = useItemsRead();
   
 
@@ -70,7 +71,7 @@ export const PostReadCheckbox = ({classes, post, width=12}: {
   }
 }
 
-export default registerComponent('PostReadCheckbox', PostReadCheckbox, {styles});
+export default PostReadCheckbox;
 
 
 

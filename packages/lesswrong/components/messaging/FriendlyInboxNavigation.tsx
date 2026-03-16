@@ -1,26 +1,21 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import type { LoadMoreProps } from '../hooks/useQueryWithLoadMore';
 import FriendlyConversationItem from "./FriendlyConversationItem";
 import Loading from "../vulcan-core/Loading";
 import SectionFooter from "../common/SectionFooter";
 import { Typography } from "../common/Typography";
 import LoadMore from "../common/LoadMore";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FriendlyInboxNavigation", (theme: ThemeType) => ({
   noConversationsMessage: {
     padding: 16,
   }
-})
+}))
 
 // The Navigation for the Inbox components
-const FriendlyInboxNavigation = ({
-  conversationsResult,
-  currentUserId,
-  selectedConversationId,
-  setSelectedConversationId,
-  classes,
-}: {
+const FriendlyInboxNavigation = ({conversationsResult, currentUserId, selectedConversationId, setSelectedConversationId}: {
   conversationsResult: {
     results: ConversationsListWithReadStatus[];
     loading: boolean;
@@ -30,8 +25,8 @@ const FriendlyInboxNavigation = ({
   title?: React.JSX.Element | string;
   selectedConversationId: string | undefined;
   setSelectedConversationId: React.Dispatch<React.SetStateAction<string | undefined>>;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   const { results: conversations, loading, loadMoreProps } = conversationsResult;
   return <>
       {conversations?.length ? (
@@ -57,6 +52,6 @@ const FriendlyInboxNavigation = ({
   </>;
 };
 
-export default registerComponent("FriendlyInboxNavigation", FriendlyInboxNavigation, {styles});
+export default FriendlyInboxNavigation;
 
 

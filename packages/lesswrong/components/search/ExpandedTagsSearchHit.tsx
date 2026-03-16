@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
@@ -6,8 +5,10 @@ import { Snippet } from 'react-instantsearch-dom';
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useThemeColor } from '../themes/useTheme';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ExpandedTagsSearchHit", (theme: ThemeType) => ({
   root: {
     maxWidth: 700,
     paddingTop: 2,
@@ -52,12 +53,12 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     marginTop: 5
   }
-})
+}))
 
-const ExpandedTagsSearchHit = ({hit, classes}: {
+const ExpandedTagsSearchHit = ({hit}: {
   hit: Hit<any>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const tag = hit as SearchTag
   const translucentBackground = useThemeColor(theme => theme.palette.panelBackground.translucent3);
   const greyBackground = useThemeColor(theme => theme.palette.grey[0]);
@@ -85,7 +86,7 @@ const ExpandedTagsSearchHit = ({hit, classes}: {
   </div>
 }
 
-export default registerComponent("ExpandedTagsSearchHit", ExpandedTagsSearchHit, {styles});
+export default ExpandedTagsSearchHit;
 
 
 

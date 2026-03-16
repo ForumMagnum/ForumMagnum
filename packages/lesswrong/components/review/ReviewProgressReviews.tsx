@@ -1,6 +1,5 @@
 import React from 'react';
 import { ReviewYear } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import CheckBoxOutlineBlankIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxOutlineBlank';
 import CheckBoxTwoToneIcon from '@/lib/vendor/@material-ui/icons/src/CheckBoxTwoTone';
@@ -8,6 +7,8 @@ import range from 'lodash/range';
 import LWTooltip from "../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentReviewProgressReviewsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -20,7 +21,7 @@ const CommentsListWithParentMetadataMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewProgressReviews', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -46,12 +47,12 @@ const styles = (theme: ThemeType) => ({
   highlightedIcon: {
     color: theme.palette.primary.main,
   }
-});
+}));
 
-export const ReviewProgressReviews = ({classes, reviewYear}: {
-  classes: ClassesType<typeof styles>,
+export const ReviewProgressReviews = ({reviewYear}: {
   reviewYear: ReviewYear
 }) => {
+  const classes = useStyles(styles);
   const TARGET_NUM = 3
 
   const currentUser = useCurrentUser()
@@ -90,7 +91,7 @@ export const ReviewProgressReviews = ({classes, reviewYear}: {
   </LWTooltip>
 }
 
-export default registerComponent('ReviewProgressReviews', ReviewProgressReviews, {styles});
+export default ReviewProgressReviews;
 
 
 

@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { sectionTitleStyle } from '../common/SectionTitle';
 import CommentsNode from "./CommentsNode";
 import Loading from "../vulcan-core/Loading";
@@ -11,6 +10,8 @@ import { Typography } from "../common/Typography";
 import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentModeratorCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -23,7 +24,7 @@ const CommentsListWithParentMetadataMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) =>  ({
+const styles = defineStyles('ModeratorComments', (theme: ThemeType) =>  ({
   root: {
     [theme.breakpoints.up('sm')]: {
       marginRight: 32,
@@ -33,15 +34,15 @@ const styles = (theme: ThemeType) =>  ({
     marginBottom: 8,
     ...sectionTitleStyle(theme),
   },
-})
+}))
 
 
-const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncated=true, noResultsMessage="No Comments Found"}: {
-  classes: ClassesType<typeof styles>,
+const ModeratorComments = ({terms={view: "moderatorComments"}, truncated=true, noResultsMessage="No Comments Found"}: {
   terms?: CommentsViewTerms,
   truncated?: boolean,
   noResultsMessage?: string,
 }) => {
+  const classes = useStyles(styles);
   const { view, limit, ...selectorTerms } = terms;
   const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(CommentsListWithParentMetadataMultiQuery, {
     variables: {
@@ -86,7 +87,7 @@ const ModeratorComments = ({classes, terms={view: "moderatorComments"}, truncate
   )
 }
 
-export default registerComponent('ModeratorComments', ModeratorComments, {styles});
+export default ModeratorComments;
 
 
 

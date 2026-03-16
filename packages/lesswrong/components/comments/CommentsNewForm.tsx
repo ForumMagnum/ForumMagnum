@@ -24,6 +24,8 @@ import RateLimitWarning from "../editor/RateLimitWarning";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useLocation } from '@/lib/routeUtil';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersCurrentCommentRateLimitQuery = gql(`
   query CommentsNewForm($documentId: String, $postId: String) {
@@ -38,7 +40,7 @@ const UsersCurrentCommentRateLimitQuery = gql(`
 export type FormDisplayMode = "default" | "minimalist"
 
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentsNewForm', (theme: ThemeType) => ({
   root: {},
   rootMinimalist: {
     '& .form-input': {
@@ -84,7 +86,7 @@ const styles = (theme: ThemeType) => ({
   moderationGuidelinesWrapper: {
     backgroundColor: theme.palette.panelBackground.newCommentFormModerationGuidelines,
   }
-});
+}));
 
 export type CommentSuccessCallback = ((
   comment: CommentsList,
@@ -94,7 +96,7 @@ export type CommentCancelCallback = (...args: unknown[]) => void | Promise<void>
 
 const shouldOpenNewUserGuidelinesDialog = (
   maybeProps: { user: UsersCurrent | null, post?: PostsMinimumInfo }
-): maybeProps is Omit<ComponentProps<typeof NewUserGuidelinesDialog>, "onClose" | "classes"> => {
+): maybeProps is Omit<ComponentProps<typeof NewUserGuidelinesDialog>, "onClose"> => {
   const { user, post } = maybeProps;
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
@@ -129,31 +131,10 @@ export type CommentsNewFormProps = {
   cancelLabel?: string,
   hideAlignmentForumCheckbox?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }
 
-const CommentsNewForm = ({
-  prefilledProps={},
-  post,
-  tag,
-  tagCommentType="DISCUSSION",
-  parentComment,
-  successCallback,
-  interactionType,
-  cancelCallback,
-  removeFields,
-  formProps,
-  enableGuidelines=true,
-  padding=true,
-  formStyle="default",
-  overrideHintText,
-  quickTakesSubmitButtonAtBottom,
-  isAnswer,
-  cancelLabel,
-  hideAlignmentForumCheckbox,
-  className,
-  classes,
-}: CommentsNewFormProps) => {
+const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSION", parentComment, successCallback, interactionType, cancelCallback, removeFields, formProps, enableGuidelines=true, padding=true, formStyle="default", overrideHintText, quickTakesSubmitButtonAtBottom, isAnswer, cancelLabel, hideAlignmentForumCheckbox, className}: CommentsNewFormProps) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
   const now = useCurrentTime();
@@ -385,7 +366,6 @@ const CommentsNewForm = ({
 };
 
 export default registerComponent('CommentsNewForm', CommentsNewForm, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

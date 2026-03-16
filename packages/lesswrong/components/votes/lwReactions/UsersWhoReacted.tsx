@@ -1,10 +1,11 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import type { UserReactInfo } from '../../../lib/voting/namesAttachedReactions';
 import classNames from 'classnames';
 import LWTooltip from "../../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UsersWhoReacted', (theme: ThemeType) => ({
   usersWhoReactedRoot: {
     maxWidth: 205,
     display: "flex",
@@ -22,14 +23,15 @@ const styles = (theme: ThemeType) => ({
   usersWhoReacted: {
     fontSize: 12,
   },
-})
+}))
 
-const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true, classes}: {
+const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true}: {
   reactions: UserReactInfo[],
   wrap?: boolean,
   showTooltip?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   if (reactions.length === 0) return null;
 
   const usersWhoProReacted = reactions.filter(r=>r.reactType!=="disagreed")
@@ -75,7 +77,7 @@ const UsersWhoReacted = ({reactions, wrap=false, showTooltip=true, classes}: {
   }
 }
 
-export default registerComponent('UsersWhoReacted', UsersWhoReacted, {styles});
+export default UsersWhoReacted;
 
 
 

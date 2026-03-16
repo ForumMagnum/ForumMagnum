@@ -1,8 +1,9 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../../themes/stylePiping';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DialogueEditorGuidelines', (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[60],
     paddingLeft: 16,
@@ -18,11 +19,11 @@ const styles = (theme: ThemeType) => ({
     margin: '0 !important',
     paddingBottom: 8
   }
-});
+}));
 
-export const DialogueEditorGuidelines = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const DialogueEditorGuidelines = () => {
+  const classes = useStyles(styles);
+
   return <div className={classes.root}>
     <div className={classes.title}>Dialogue Editor</div>
     <ul className={classes.info}>
@@ -33,6 +34,6 @@ export const DialogueEditorGuidelines = ({classes}: {
   </div>;
 }
 
-export default registerComponent('DialogueEditorGuidelines', DialogueEditorGuidelines, {styles});
+export default DialogueEditorGuidelines;
 
 

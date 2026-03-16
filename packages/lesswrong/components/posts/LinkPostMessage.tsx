@@ -1,9 +1,10 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import React from 'react';
 import classNames from 'classnames';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LinkPostMessage', (theme: ThemeType) => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle,
@@ -14,13 +15,14 @@ const styles = (theme: ThemeType) => ({
   negativeTopMargin: {
     marginTop: -14,
   }
-})
+}))
 
-const LinkPostMessage = ({post, classes, negativeTopMargin}: {
+const LinkPostMessage = ({post, negativeTopMargin}: {
   post: PostsBase,
-  classes: ClassesType<typeof styles>,
   negativeTopMargin?: boolean
 }) => {
+  const classes = useStyles(styles);
+
   if (!post.url)
     return null;
 
@@ -35,6 +37,6 @@ const LinkPostMessage = ({post, classes, negativeTopMargin}: {
   );
 }
 
-export default registerComponent('LinkPostMessage', LinkPostMessage, {styles});
+export default LinkPostMessage;
 
 

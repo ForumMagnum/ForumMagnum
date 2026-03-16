@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { unflattenComments } from "../../lib/utils/unflatten";
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames';
@@ -8,6 +7,8 @@ import CommentsList from "../comments/CommentsList";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListMultiQuery = gql(`
   query multiCommentTagDiscussionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -20,7 +21,7 @@ const CommentsListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagDiscussion", (theme: ThemeType) => ({
   root: {
     width: 400,
     maxHeight: 600,
@@ -37,12 +38,12 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 6,
     color: theme.palette.primary.main
   }
-})
+}))
 
-const TagDiscussion = ({classes, tag}: {
-  classes: ClassesType<typeof styles>,
+const TagDiscussion = ({tag}: {
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment
 }) => {
+  const classes = useStyles(styles);
   const { data, loading } = useQuery(CommentsListMultiQuery, {
     variables: {
       selector: { tagDiscussionComments: { tagId: tag?._id } },
@@ -83,7 +84,7 @@ const TagDiscussion = ({classes, tag}: {
   </div>
 }
 
-export default registerComponent("TagDiscussion", TagDiscussion, {styles});
+export default TagDiscussion;
 
 
 

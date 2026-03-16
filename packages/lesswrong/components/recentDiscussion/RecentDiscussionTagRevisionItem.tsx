@@ -1,6 +1,5 @@
 import React from 'react';
 import { isEAForum } from "../../lib/instanceSettings"
-import { registerComponent } from "../../lib/vulcan-lib/components"
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import TagRevisionItem from "../tagging/TagRevisionItem";
 
@@ -74,8 +73,4 @@ function RecentDiscussionTagRevisionItem({
   </div>
 }
 
-export default registerComponent(
-  'RecentDiscussionTagRevisionItem', RecentDiscussionTagRevisionItem
-);
-
-
+export default RecentDiscussionTagRevisionItem;

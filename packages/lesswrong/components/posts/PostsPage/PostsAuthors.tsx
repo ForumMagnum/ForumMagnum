@@ -1,14 +1,16 @@
 import React from 'react'
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import UserNameDeleted from "../../users/UserNameDeleted";
 import UsersName from "../../users/UsersName";
 import UserCommentMarkers from "../../users/UserCommentMarkers";
 import PostsCoauthor from "./PostsCoauthor";
 import { AUTHOR_MARKER_STYLES } from "./authorMarkerStyles";
 import { Typography } from "../../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsAuthors', (theme: ThemeType) => ({
   root: {
+    fontSize: 'inherit',
     textAlign: 'left',
     display: 'inline',
   },
@@ -17,13 +19,14 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 0,
   },
   authorMarkers: AUTHOR_MARKER_STYLES,
-})
+}))
 
-const PostsAuthors = ({classes, post, pageSectionContext}: {
-  classes: ClassesType<typeof styles>,
+const PostsAuthors = ({post, pageSectionContext}: {
   post: PostsList,
   pageSectionContext?: string,
 }) => {
+  const classes = useStyles(styles);
+
   return <Typography variant="body1" component="span" className={classes.root}>
     by <span className={classes.authorName}>
       {!post.user || post.hideAuthor
@@ -40,6 +43,6 @@ const PostsAuthors = ({classes, post, pageSectionContext}: {
   </Typography>
 }
 
-export default registerComponent('PostsAuthors', PostsAuthors, {styles});
+export default PostsAuthors;
 
 

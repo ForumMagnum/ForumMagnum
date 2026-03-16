@@ -10,8 +10,10 @@ import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Geosuggest from 'react-geosuggest';
 import { pickBestReverseGeocodingResult } from '../../lib/geocoding';
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RecentDiscussionMeetupsPoke', (theme: ThemeType) => ({
   root: {
     marginBottom: 32,
     position: "relative",
@@ -59,11 +61,10 @@ const styles = (theme: ThemeType) => ({
     marginTop: 16,
     textAlign: "right",
   },
-});
+}));
 
-const RecentDiscussionMeetupsPoke = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const RecentDiscussionMeetupsPoke = () => {
+  const classes = useStyles(styles);
   const [mapsLoaded, googleMaps] = useGoogleMaps()
   const [geolocationLoading, setGeolocationLoading] = useState(false);
   const [label, setLabel] = useState<any>(null)
@@ -210,11 +211,8 @@ const RecentDiscussionMeetupsPoke = ({classes}: {
   </div>
 }
 
-export default registerComponent(
-  'RecentDiscussionMeetupsPoke', RecentDiscussionMeetupsPoke, {
-    styles,
-    hocs: [withErrorBoundary],
-  }
-);
+export default registerComponent('RecentDiscussionMeetupsPoke', RecentDiscussionMeetupsPoke, {
+  hocs: [withErrorBoundary],
+});
 
 

@@ -27,6 +27,8 @@ import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import classNames from 'classnames';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostSunshineNewPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -48,7 +50,7 @@ const ModeratorActionsCreateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineNewPostsItem', (theme: ThemeType) => ({
   icon: {
     width: 14,
     marginRight: 4
@@ -97,7 +99,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 4,
     opacity: 0.9,
   }
-})
+}))
 
 const displayPredictionPercent = (prediction: FrontpageClassification): number => {
   const confidence = prediction.isFrontpage
@@ -106,11 +108,11 @@ const displayPredictionPercent = (prediction: FrontpageClassification): number =
   return Math.round(confidence * 100);
 }
 
-const SunshineNewPostsItem = ({post, refetch, classes}: {
+const SunshineNewPostsItem = ({post, refetch}: {
   post: SunshinePostsList,
   refetch: () => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {eventHandlers, hover, anchorEl} = useHover();
 
@@ -275,7 +277,7 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
   )
 }
 
-export default registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, {styles, 
+export default registerComponent('SunshineNewPostsItem', SunshineNewPostsItem, {
   hocs: [withErrorBoundary]
 });
 

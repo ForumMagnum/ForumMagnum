@@ -58,21 +58,15 @@ class EmojiOption extends MenuOption {
     this.keywords = options.keywords || [];
   }
 }
-function EmojiMenuItem({
-  index,
-  isSelected,
-  onClick,
-  onMouseEnter,
-  option,
-  classes,
-}: {
+function EmojiMenuItem({index, isSelected, onClick, onMouseEnter, option}: {
   index: number;
   isSelected: boolean;
   onClick: () => void;
   onMouseEnter: () => void;
   option: EmojiOption;
-  classes: Record<string, string>;
 }) {
+  const classes = useStyles(styles);
+
   return (
     <li
       key={option.key}
@@ -204,7 +198,6 @@ export default function EmojiPickerPlugin() {
                         setHighlightedIndex(index);
                       }}
                       option={option}
-                      classes={classes}
                     />
                   ))}
                 </ul>

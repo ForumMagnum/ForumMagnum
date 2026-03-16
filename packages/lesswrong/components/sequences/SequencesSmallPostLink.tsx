@@ -1,13 +1,14 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import type { Placement as PopperPlacementType } from "popper.js"
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import PostReadCheckbox from "../posts/PostReadCheckbox";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SequencesSmallPostLink", (theme: ThemeType) => ({
   title: {
     position: "relative",
     flexGrow: 1,
@@ -29,15 +30,16 @@ const styles = (theme: ThemeType) => ({
     top: 1,
     marginRight: 10
   }
-});
+}));
 
-const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="left-start"}: {
-  classes: ClassesType<typeof styles>,
+const SequencesSmallPostLink = ({post, sequenceId, large, placement="left-start"}: {
   post: ChapterPostSlim | PostsList,
   sequenceId: string,
   large?: boolean,
   placement?: PopperPlacementType,
 }) => {
+  const classes = useStyles(styles);
+
   return <div className={classNames(classes.title, {[classes.large]: large})}>
     <span className={classes.checkbox}>
       <PostReadCheckbox post={post} />
@@ -56,6 +58,6 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
   </div>
 }
 
-export default registerComponent("SequencesSmallPostLink", SequencesSmallPostLink, {styles});
+export default SequencesSmallPostLink;
 
 

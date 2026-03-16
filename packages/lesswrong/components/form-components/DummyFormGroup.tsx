@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { FormGroupHeader } from "./FormGroupHeader";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DummyFormGroup', (theme: ThemeType) => ({
   formSection: {
     fontFamily: theme.typography.fontFamily,
     border: theme.palette.border.grey300,
@@ -19,7 +20,7 @@ const styles = (theme: ThemeType) => ({
     paddingRight: 16,
     paddingLeft: 16,
   },
-});
+}));
 
 type DummyFormGroupProps = {
   label: string,
@@ -31,12 +32,8 @@ type DummyFormGroupProps = {
  * A component designed to mostly look and act like a default styled <FormGroup>
  * but for use outside a form.
  */
-const DummyFormGroup = ({
-  label,
-  startCollapsed,
-  children,
-  classes
-}: DummyFormGroupProps & { classes: ClassesType<typeof styles> }) => {
+const DummyFormGroup = ({label, startCollapsed, children}: DummyFormGroupProps) => {
+  const classes = useStyles(styles);
   const [collapsed, setCollapsed] = useState(startCollapsed)
 
   return (
@@ -53,6 +50,6 @@ const DummyFormGroup = ({
   );
 };
 
-export default registerComponent('DummyFormGroup', DummyFormGroup, {styles});
+export default DummyFormGroup;
 
 

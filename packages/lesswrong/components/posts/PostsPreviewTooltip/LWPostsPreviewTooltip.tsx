@@ -1,4 +1,3 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React, { useState } from 'react';
 import { truncate } from '../../../lib/editor/ellipsize';
 import { postGetPageUrl, postGetKarma, postGetCommentCountStr } from '../../../lib/collections/posts/helpers';
@@ -18,6 +17,8 @@ import FormatDate from "../../common/FormatDate";
 import Loading from "../../vulcan-core/Loading";
 import ContentStyles from "../../common/ContentStyles";
 import EventTime from "../../localGroups/EventTime";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostWithDialogueMessageQuery = gql(`
   query LWPostsPreviewTooltip1($documentId: String, $dialogueMessageId: String) {
@@ -72,7 +73,7 @@ const highlightStyles = (theme: ThemeType) => ({
   ...highlightSimplifiedStyles
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LWPostsPreviewTooltip', (theme: ThemeType) => ({
   root: {
     width: getPostPreviewWidth(),
     position: "relative",
@@ -139,20 +140,10 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[500],
     marginRight: 8
   },
-})
+}))
 
-type LWPostsPreviewTooltipProps = PostsPreviewTooltipProps & {
-  classes: ClassesType<typeof styles>,
-}
-
-const LWPostsPreviewTooltip = ({
-  postsList,
-  post,
-  hash,
-  comment,
-  dialogueMessageInfo,
-  classes,
-}: LWPostsPreviewTooltipProps) => {
+const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageInfo}: PostsPreviewTooltipProps) => {
+  const classes = useStyles(styles);
   const [expanded, setExpanded] = useState(false)
 
   const { loading, data: dataHighlight } = useQuery(HighlightWithHashQuery, {
@@ -262,6 +253,6 @@ const LWPostsPreviewTooltip = ({
 
 }
 
-export default registerComponent('LWPostsPreviewTooltip', LWPostsPreviewTooltip, {styles});
+export default LWPostsPreviewTooltip
 
 

@@ -4,7 +4,6 @@ import classNames from 'classnames';
 import qs from 'qs';
 import React from 'react';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from "../../lib/reactRouterWrapper";
@@ -15,6 +14,8 @@ import Loading from "../vulcan-core/Loading";
 import FirstContentIcons from "./FirstContentIcons";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserModerationDashboardQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -27,7 +28,7 @@ const SunshineUsersListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ModerationDashboard', (theme: ThemeType) => ({
   page: {
     width: '90%',
     maxWidth: 1800,
@@ -108,7 +109,7 @@ const styles = (theme: ThemeType) => ({
   main: {
     width: "100%",
   }
-});
+}));
 
 const tabs = new TupleSet(['sunshineNewUsers', 'allUsers', 'recentlyActive'] as const);
 type DashboardTabs = UnionOf<typeof tabs>;
@@ -123,9 +124,8 @@ const getCurrentView = (query: Record<string, string>): DashboardTabs => {
 };
 
 
-const ModerationDashboard = ({ classes }: {
-  classes: ClassesType<typeof styles>
-}) => {
+const ModerationDashboard = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const navigate = useNavigate();
@@ -241,6 +241,6 @@ const ModerationDashboard = ({ classes }: {
   );
 };
 
-export default registerComponent('ModerationDashboard', ModerationDashboard, { styles });
+export default ModerationDashboard;
 
 

@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
 import LWTooltip from "../common/LWTooltip";
 import LoadMore from "../common/LoadMore";
 import ForumIcon from "../common/ForumIcon";
 import KeystrokeDisplay from "@/components/sunshineDashboard/supermod/KeystrokeDisplay";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagsChecklist", (theme: ThemeType) => ({
   root: {
     marginBottom: 8,
     display: "flex",
@@ -83,7 +84,7 @@ const styles = (theme: ThemeType) => ({
       height: 14,
     },
   },
-});
+}));
 
 export interface ChecklistTag {
   _id: string;
@@ -97,25 +98,12 @@ interface TagsChecklistItem {
   selected: boolean,
 }
 
-const TagsChecklist = ({
-  onTagSelected = () => {},
-  onTagRemoved = () => {},
-  classes,
-  selectedTagIds: selectedTagIds = [],
-  tags,
-  displaySelected = "hide",
-  tooltips = true,
-  truncate = false,
-  smallText = false,
-  shortNames = false,
-  keyboardShortcuts,
-}: {
+const TagsChecklist = ({onTagSelected = () => {}, onTagRemoved = () => {}, selectedTagIds: selectedTagIds = [], tags, displaySelected = "hide", tooltips = true, truncate = false, smallText = false, shortNames = false, keyboardShortcuts}: {
   onTagSelected?: (
     tag: { tagId: string; tagName: string; parentTagId?: string },
     existingTagIds: Array<string>
   ) => void;
   onTagRemoved?: (tag: { tagId: string; tagName: string; parentTagId?: string }, existingTagIds: Array<string>) => void;
-  classes: ClassesType<typeof styles>;
   selectedTagIds?: Array<string | undefined>;
   tags: Pick<TagFragment, "_id" | "name" | "shortName">[];
   displaySelected?: "highlight" | "hide";
@@ -125,6 +113,7 @@ const TagsChecklist = ({
   shortNames?: boolean,
   keyboardShortcuts?: Record<string, string>,
 }) => {
+  const classes = useStyles(styles);
   const [loadMoreClicked, setLoadMoreClicked] = useState(false);
 
   const getTagsToDisplay = (): TagsChecklistItem[] => {
@@ -226,6 +215,6 @@ const TagsChecklist = ({
 };
 
 
-export default registerComponent("TagsChecklist", TagsChecklist, {styles});
+export default TagsChecklist
 
 

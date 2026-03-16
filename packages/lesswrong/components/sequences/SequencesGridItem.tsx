@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import classNames from 'classnames';
@@ -9,8 +8,10 @@ import CloudinaryImage from "../common/CloudinaryImage";
 import UsersName from "../users/UsersName";
 import LinkCard from "../common/LinkCard";
 import SequencesSummary from "./SequencesSummary";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SequencesGridItem', (theme: ThemeType) => ({
   root: {
     ...theme.typography.postStyle,
 
@@ -102,14 +103,15 @@ const styles = (theme: ThemeType) => ({
       },
     }
   }
-})
+}))
 
-const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle }: {
+const SequencesGridItem = ({sequence, showAuthor=false, bookItemStyle}: {
   sequence: SequencesPageFragment,
   showAuthor?: boolean,
-  classes: ClassesType<typeof styles>,
   bookItemStyle?: boolean
 }) => {
+  const classes = useStyles(styles);
+
   // The hoverover is adjusted so that it's title lines up with where the SequencesGridItem title would have been, to avoid seeing the title twice
   let positionAdjustment = -35
   if (showAuthor) positionAdjustment -= 20
@@ -151,7 +153,7 @@ const SequencesGridItem = ({ sequence, showAuthor=false, classes, bookItemStyle 
   </div>
 }
 
-export default registerComponent('SequencesGridItem', SequencesGridItem, {styles});
+export default SequencesGridItem;
 
 
 

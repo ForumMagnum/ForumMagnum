@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import UsersName from "../users/UsersName";
 import ContentStyles from "../common/ContentStyles";
@@ -11,6 +10,8 @@ import ChapterTitle from "./ChapterTitle";
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from '../vulcan-core/Loading';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const GET_SEQUENCE_STATS = gql(`
   query GetSequenceStats($sequenceId: String!) {
@@ -21,7 +22,7 @@ const GET_SEQUENCE_STATS = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LargeSequencesItem', (theme: ThemeType) => ({
   root: {
     marginTop: 40,
     marginBottom: 40,
@@ -148,14 +149,14 @@ const styles = (theme: ThemeType) => ({
       opacity: 1
     }
   }
-});
+}));
 
-export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=false, classes}: {
+export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=false}: {
   sequence: SequencesPageWithChaptersFragment,
   showAuthor?: boolean,
   showChapters?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [expanded, setExpanded] = useState<boolean>(false)
 
   const cloudinaryCloudName = cloudinaryCloudNameSetting.get()
@@ -234,7 +235,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
   </div>
 }
 
-export default registerComponent('LargeSequencesItem', LargeSequencesItem, {styles});
+export default LargeSequencesItem;
 
 
 

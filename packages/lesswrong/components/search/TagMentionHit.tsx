@@ -1,7 +1,8 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagMentionHit", (theme: ThemeType) => ({
   root: {
   },
   icon: {
@@ -10,13 +11,13 @@ const styles = (theme: ThemeType) => ({
     marginRight: 6,
     transform: "translateY(4px)",
   },
-});
+}));
 
-const TagMentionHit = ({hit, classes}: {
+const TagMentionHit = ({hit}: {
   hit: SearchTag,
-  classes: ClassesType<typeof styles>,
 }) => {
   const icon = "🏷️";
+  const classes = useStyles(styles);
   return (
     <span className={classes.root}>
       {icon} <span>{hit.name}</span>
@@ -24,10 +25,6 @@ const TagMentionHit = ({hit, classes}: {
   );
 }
 
-export default registerComponent(
-  "TagMentionHit",
-  TagMentionHit,
-  {styles},
-);
+export default TagMentionHit;
 
 

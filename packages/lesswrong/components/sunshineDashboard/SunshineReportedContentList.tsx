@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import SunshineListTitle from "./SunshineListTitle";
 import SunshineReportedItem from "./SunshineReportedItem";
@@ -6,6 +5,8 @@ import SunshineListCount from "./SunshineListCount";
 import LoadMore from "../common/LoadMore";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UnclaimedReportsListMultiQuery = gql(`
   query multiReportSunshineReportedContentListQuery($selector: ReportSelector, $limit: Int, $enableTotal: Boolean) {
@@ -19,16 +20,16 @@ const UnclaimedReportsListMultiQuery = gql(`
 `);
 
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineReportedContentList', (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.panelBackground.sunshineReportedContent,
   }
-})
+}))
 
-const SunshineReportedContentList = ({ classes, currentUser }: {
-  classes: ClassesType<typeof styles>,
+const SunshineReportedContentList = ({currentUser}: {
   currentUser: UsersCurrent,
 }) => {
+  const classes = useStyles(styles);
   const { data, refetch, loadMoreProps } = useQueryWithLoadMore(UnclaimedReportsListMultiQuery, {
     variables: {
       selector: { sunshineSidebarReports: {} },
@@ -63,7 +64,7 @@ const SunshineReportedContentList = ({ classes, currentUser }: {
   }
 }
 
-export default registerComponent('SunshineReportedContentList', SunshineReportedContentList, {styles});
+export default SunshineReportedContentList
 
 
 

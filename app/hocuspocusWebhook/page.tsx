@@ -52,6 +52,7 @@ async function processWebhookRequest(headersList: Headers): Promise<WebhookResul
 
     case 'comment.added': {
       const authorId = headersList.get('x-hocuspocus-comment-author-id');
+      const authorName = headersList.get('x-hocuspocus-comment-author-name');
       const content = headersList.get('x-hocuspocus-comment-content');
       const threadId = headersList.get('x-hocuspocus-comment-thread-id');
       const commentersStr = headersList.get('x-hocuspocus-comment-commenters') ?? '';
@@ -62,6 +63,7 @@ async function processWebhookRequest(headersList: Headers): Promise<WebhookResul
 
       await handleCommentAdded(documentName, {
         authorId,
+        authorName: authorName ?? undefined,
         content,
         threadId,
         commentersInThread: commentersStr ? commentersStr.split(',') : [],

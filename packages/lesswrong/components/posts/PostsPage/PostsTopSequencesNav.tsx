@@ -10,6 +10,8 @@ import { useNavigate } from "../../../lib/routeUtil";
 import classNames from 'classnames';
 import SequencesTooltip from "../../sequences/SequencesTooltip";
 import SequencesNavigationLink from "../../sequences/SequencesNavigationLink";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const darkGreyAlpha = .7
 
@@ -23,7 +25,7 @@ export const titleStyles = (theme: ThemeType) => ({
   ...theme.typography.smallCaps,
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsTopSequencesNav', (theme: ThemeType) => ({
   root: {
     marginLeft:-20,
     display: "flex",
@@ -37,13 +39,13 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.greyAlpha(darkGreyAlpha),
     }
   }
-})
+}))
 
-const PostsTopSequencesNav = ({post, classes, blackText}: {
+const PostsTopSequencesNav = ({post, blackText}: {
   post: PostSequenceNavigation,
-  classes: ClassesType<typeof styles>,
   blackText?: boolean
 }) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
 
@@ -95,11 +97,8 @@ const PostsTopSequencesNav = ({post, classes, blackText}: {
   )
 }
 
-export default registerComponent(
-  'PostsTopSequencesNav', PostsTopSequencesNav, {
-    styles,
-    hocs: [withErrorBoundary]
-  }
-);
+export default registerComponent('PostsTopSequencesNav', PostsTopSequencesNav, {
+  hocs: [withErrorBoundary]
+});
 
 

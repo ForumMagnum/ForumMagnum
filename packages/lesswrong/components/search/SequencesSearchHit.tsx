@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { Hit } from 'react-instantsearch-core';
 import LocalLibraryIcon from '@/lib/vendor/@material-ui/icons/src/LocalLibrary';
@@ -8,8 +7,10 @@ import { SearchHitComponentProps } from './types';
 import FormatDate from "../common/FormatDate";
 import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SequencesSearchHit", (theme: ThemeType) => ({
   root: {
     padding: 8,
     paddingLeft: 10,
@@ -48,9 +49,10 @@ const styles = (theme: ThemeType) => ({
     marginTop: 4,
     wordBreak: "break-word"
   }
-});
+}));
 
-const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const SequencesSearchHit = ({hit, clickAction, showIcon=false}: SearchHitComponentProps) => {
+  const classes = useStyles(styles);
   const sequence: SearchSequence = hit;
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
 
@@ -77,7 +79,7 @@ const SequencesSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchH
   </div>
 }
 
-export default registerComponent("SequencesSearchHit", SequencesSearchHit, {styles});
+export default SequencesSearchHit
 
 
 

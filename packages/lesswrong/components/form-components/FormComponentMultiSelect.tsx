@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import FormControl from '@/lib/vendor/@material-ui/core/src/FormControl';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
@@ -12,8 +11,10 @@ import PeopleDirectoryFilterDropdown from "../peopleDirectory/PeopleDirectoryFil
 import PeopleDirectorySelectOption from "../peopleDirectory/PeopleDirectorySelectOption";
 import { MenuItem } from "../common/Menus";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("MultiSelect", (theme: ThemeType) => ({
   greyDropdownRoot: {
     width: "100%",
     minHeight: 45,
@@ -60,7 +61,7 @@ const styles = (theme: ThemeType) => ({
   placeholderGrey: {
     fontStyle: "normal",
   },
-});
+}));
 
 type MultiselectOption = {
   value: string,
@@ -71,16 +72,7 @@ type MultiselectOption = {
  * MultiSelect: A pick-multiple checkbox list. This is split from FormComponentMultiSelect
  * so that it can be used outside of vulcan-forms.
  */
-const MultiSelectInner = ({
-  value,
-  setValue,
-  label,
-  placeholder,
-  separator,
-  options,
-  variant = "default",
-  classes,
-}: {
+export const MultiSelect = ({value, setValue, label, placeholder, separator, options, variant = "default"}: {
   value: string[],
   setValue: (newValue: any) => void,
   label?: string,
@@ -88,8 +80,8 @@ const MultiSelectInner = ({
   separator?: string,
   options: Array<MultiselectOption>,
   variant?: "default" | "grey",
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const isGrey = variant === "grey";
 
   const renderValue = useCallback((selected: string[]) => {
@@ -200,7 +192,3 @@ export const FormComponentMultiSelect = ({
     setValue={(value) => field.handleChange(value)}
   />
 }
-
-export const MultiSelect = registerComponent("MultiSelect", MultiSelectInner, {styles});
-
-

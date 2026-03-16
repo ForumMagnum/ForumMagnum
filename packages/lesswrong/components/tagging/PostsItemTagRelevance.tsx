@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useVote } from '../votes/withVote';
 import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
 import classNames from 'classnames';
@@ -7,8 +6,10 @@ import { forumSelect } from '@/lib/forumTypeUtils';
 import { TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "../votes/OverallVoteButton";
 import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsItemTagRelevance", (theme: ThemeType) => ({
   root: {
     width: 30,
     position: "absolute",
@@ -44,12 +45,12 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     fontSize: 11
   },
-});
+}));
 
-const PostsItemTagRelevance = ({tagRel, classes}: {
+const PostsItemTagRelevance = ({tagRel}: {
   tagRel: WithVoteTagRel,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const voteProps = useVote(tagRel, "TagRels");
   const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
@@ -91,6 +92,6 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
   </PostsItem2MetaInfo>
 }
 
-export default registerComponent("PostsItemTagRelevance", PostsItemTagRelevance, {styles});
+export default PostsItemTagRelevance;
 
 

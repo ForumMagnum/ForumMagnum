@@ -1,14 +1,15 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { petrovPostIdSetting } from '@/lib/instanceSettings';
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
 // https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PetrovDayLossScreen', (theme: ThemeType) => ({
   root: {
     position: "fixed",
     top: 0,
@@ -31,11 +32,11 @@ const styles = (theme: ThemeType) => ({
     color: "white",
     marginBottom: 40
   }
-})
+}), { allowNonThemeColors: true })
 
-const PetrovDayLossScreen = ({classes}: {
-  classes: ClassesType<typeof styles>;
-}) => {
+const PetrovDayLossScreen = () => {
+  const classes = useStyles(styles);
+
   return (
     <div className={classes.root}>
       <Typography variant="display3" className={classes.title}>
@@ -46,11 +47,5 @@ const PetrovDayLossScreen = ({classes}: {
   )
 }
 
-export default registerComponent('PetrovDayLossScreen', PetrovDayLossScreen, {
-  styles,
-  // This is text overlayed on an image, which doesn't get inverted for dark mode
-  allowNonThemeColors: true,
-});
-
-
+export default PetrovDayLossScreen;
 

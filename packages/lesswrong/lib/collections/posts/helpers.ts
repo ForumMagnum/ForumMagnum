@@ -1,7 +1,7 @@
 import { aboutPostIdSetting, allowTypeIIIPlayerSetting, isAF, isLWorAF, siteUrlSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdminOrMod, userOverNKarmaOrApproved } from '../../vulcan-users/permissions';
-import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
+import { userGetDisplayName, userIsSharedOn, type SharableDocument } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import maxBy from "lodash/maxBy";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
@@ -225,14 +225,6 @@ export const postGetCommentsUrl = (
   return postGetPageUrl(post, isAbsolute, sequenceId) + "#comments";
 }
 
-export const getPostCollaborateUrl = function (postId: string, isAbsolute=false, linkSharingKey?: string): string {
-  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-  if (linkSharingKey) {
-    return `${prefix}/collaborateOnPost?postId=${postId}&key=${linkSharingKey}`;
-  } else {
-    return `${prefix}/collaborateOnPost?postId=${postId}`;
-  }
-}
 
 export const postGetEditUrl = (postId: string, isAbsolute = false, linkSharingKey?: string, version?: string): string => {
   const prefix = isAbsolute ? getSiteUrl().slice(0, -1) : '';
@@ -327,17 +319,19 @@ export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|nul
 /**
  * Whether the user can make updates to the post document (including both the main post body and most other post fields)
  */
-export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
+export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, post: SharableDocument & HasUserIdType & {
+  group?: { organizerIds: string[] } | null;
+}): boolean => {
   if (!currentUser) return false;
 
-  const organizerIds = (post as PostsBase)?.group?.organizerIds;
+  const organizerIds = post.group?.organizerIds;
   const isPostGroupOrganizer = organizerIds ? organizerIds.some(id => id === currentUser?._id) : false;
   if (isPostGroupOrganizer) return true
 
   if (userOwns(currentUser, post)) return true
   if (userCanDo(currentUser, 'posts.edit.all')) return true
   // Shared as a coauthor? Always give access
-  if (post.coauthorUserIds.includes(currentUser._id)) {
+  if ((post.coauthorUserIds ?? []).includes(currentUser._id)) {
     return true;
   }
 
@@ -487,8 +481,10 @@ export type EditablePost = UpdatePostDataInput & {
   commentCount: number;
   afCommentCount: number;
   contents: CreateRevisionDataInput & { html: string | null } | null;
+  contents_latest: string | null;
   debate: boolean;
   title: string;
+  myEditorAccess?: string;
 } & Pick<PostsListBase, 'postCategory'>;
 
 export interface PostSubmitMeta {
@@ -549,6 +545,12 @@ export function getDefaultVotingSystem() {
 }
 
 export const dateStr = (startDate?: Date) => startDate ? moment(startDate).format('YYYY-MM-DD') : '';
+
+export function getDraftLabel(post: { draft?: boolean | null } | null) {
+  if (!post) return "Save Draft";
+  if (!post.draft) return "Move to Drafts";
+  return "Save Draft";
+}
 
 export const allPostsParams = (reviewYear: ReviewYear = REVIEW_YEAR) => {
   const startDate = getReviewPeriodStart(reviewYear).toDate();

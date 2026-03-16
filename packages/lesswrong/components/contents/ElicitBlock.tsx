@@ -19,6 +19,8 @@ import UsersName from "../users/UsersName";
 import ContentStyles from "../common/ContentStyles";
 import { gql } from '@/lib/generated/gql-codegen';
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const elicitBlockDataQuery = gql(`
   query ElicitBlockData($questionId: String) {
@@ -83,7 +85,7 @@ const elicitPredictionMutation = gql(`
 const rootHeight = 50
 const rootPaddingTop = 12
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ElicitBlock', (theme: ThemeType) => ({
   root: {
     position: 'relative',
     paddingTop: rootPaddingTop,
@@ -213,12 +215,12 @@ const styles = (theme: ThemeType) => ({
   name: {
     marginRight: 4
   }
-})
+}))
 
-const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
-  classes: ClassesType<typeof styles>,
+const ElicitBlock = ({questionId = "IyWNjzc5P"}: {
   questionId: string
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [hideTitle, setHideTitle] = useState(false);
   const {openDialog} = useDialog();
@@ -323,7 +325,6 @@ const ElicitBlock = ({ classes, questionId = "IyWNjzc5P" }: {
 }
 
 export default registerComponent('ElicitBlock', ElicitBlock, {
-  styles,
   hocs: [withErrorBoundary],
 });
 

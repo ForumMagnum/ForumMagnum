@@ -9,8 +9,8 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("PostsPageDate", (theme: ThemeType) => ({
   date: {
-    color: theme.palette.text.dim3,
-    fontSize: theme.typography.body2.fontSize,
+    color: 'inherit',
+    fontSize: 'inherit',
     cursor: 'default'
   },
   mobileDate: {

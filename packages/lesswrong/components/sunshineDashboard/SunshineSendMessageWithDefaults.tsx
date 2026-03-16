@@ -2,7 +2,6 @@ import React, {useCallback, useState} from 'react';
 import { Menu } from '@/components/widgets/Menu';
 import { Link } from "../../lib/reactRouterWrapper";
 import EditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from '../common/withUser';
 import NewConversationButton, { TemplateQueryStrings } from '../messaging/NewConversationButton'
 import { commentBodyStyles } from '../../themes/stylePiping';
@@ -11,6 +10,8 @@ import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateSunshineSendMessageWithDefaultsQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -27,7 +28,7 @@ const MODERATION_TEMPLATES_URL = "/admin/moderationTemplates"
 
 export const getTitle = (s: string|null) => s ? s.split("\\")[0] : ""
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineSendMessageWithDefaults', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -61,13 +62,13 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[200]
     }
   }
-})
+}))
 
-const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
+const SunshineSendMessageWithDefaults = ({user, embedConversation}: {
   user: SunshineUsersList|UsersMinimumInfo|null,
   embedConversation?: (conversationId: string, templateQueries: TemplateQueryStrings) => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const [anchorEl, setAnchorEl] = useState<any>(null);
 
@@ -133,8 +134,6 @@ const SunshineSendMessageWithDefaults = ({ user, embedConversation, classes }: {
   )
 }
 
-export default registerComponent('SunshineSendMessageWithDefaults', SunshineSendMessageWithDefaults, {
-  styles,
-});
+export default SunshineSendMessageWithDefaults;
 
 

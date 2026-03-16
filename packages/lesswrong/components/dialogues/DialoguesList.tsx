@@ -13,8 +13,10 @@ import DialoguesSectionFrontpageSettings from "./DialoguesSectionFrontpageSettin
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DialoguesList', (theme: ThemeType) => ({
   content: {
     paddingTop: 0,
     paddingRight: 35,
@@ -86,9 +88,10 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.5,
     padding: 2,
   },
-});
+}));
  
-const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, classes: ClassesType<typeof styles> }) => {
+const DialoguesList = ({currentUser}: { currentUser: UsersCurrent, }) => {
+  const classes = useStyles(styles);
   const [showSettings, setShowSettings] = useState(false);
   const { captureEvent } = useTracking();
   const currentDate = useCurrentTime();
@@ -203,7 +206,6 @@ const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, cl
 
 export default registerComponent('DialoguesList', DialoguesList, {
   hocs: [withErrorBoundary],
-  styles
 });
 
 

@@ -1,7 +1,7 @@
 import compose from 'lodash/flowRight';
 import React from 'react';
 import { shallowEqual, shallowEqualExcept, debugShouldComponentUpdate } from '../utils/componentUtils';
-import { withAddClasses } from '@/components/hooks/useStyles';
+import { withAddClasses, type RegisterComponentStyles } from '@/components/hooks/useStyles';
 import isEqual from 'lodash/isEqual';
 import type { StyleOptions } from '@/server/styleGeneration';
 
@@ -10,11 +10,7 @@ type ComparePropsDict = { [propName: string]: "default"|"shallow"|"ignore"|"deep
 type AreEqualOption = ComparisonFn|ComparePropsDict|"auto"
 
 // Options passed to registerComponent
-type ComponentOptions = StyleOptions & {
-  // JSS styles for this component. These will generate class names, which will
-  // be passed as an extra prop named "classes".
-  styles?: any
-
+type ComponentOptions = {
   // Whether this component can take a ref. If set, forwardRef is used to pass
   // the ref across any higher-order components. If not set, and HoCs are
   // present, the ref may not work work.
@@ -64,6 +60,7 @@ interface ComponentsTableEntry {
  * implicitly because most components don't take refs.
  */
 type NoImplicitRef<T> = (T extends {ref?: any} ? T : T & {ref?: never});
+type DisallowClassesProp<T> = "classes" extends keyof T ? never : unknown;
 
 /**
  * Register a component. Takes a name, a raw component, and ComponentOptions
@@ -78,14 +75,10 @@ type NoImplicitRef<T> = (T extends {ref?: any} ? T : T & {ref?: never});
  */
 export function registerComponent<PropType>(
   name: string,
-  rawComponent: React.ComponentType<PropType>,
-  options?: ComponentOptions
+  rawComponent: React.ComponentType<PropType> & DisallowClassesProp<PropType>,
+  options: ComponentOptions
 ): React.ComponentType<Omit<NoImplicitRef<PropType>,"classes">> {
-  const { styles=null, hocs=[] } = options || {};
-  if (styles) {
-    hocs.push(withAddClasses(styles, name, options));
-  }
-  
+  const { hocs=[] } = options || {};
   rawComponent.displayName = name;
   
   return composeComponent({ name, rawComponent, hocs, options });

@@ -107,7 +107,7 @@ function stripDeletedMarkupFromSrcdoc(srcdoc: string): string {
   const parser = new DOMParser();
   const doc = parser.parseFromString(srcdoc, 'text/html');
   doc.querySelectorAll('del').forEach((node) => node.remove());
-  return doc.body.innerHTML;
+  return doc.documentElement.innerHTML;
 }
 
 function applyPreviewModeToDOM(

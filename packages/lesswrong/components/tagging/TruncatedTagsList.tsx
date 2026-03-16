@@ -1,10 +1,11 @@
 import React, { useRef, useEffect, RefObject } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
 import FooterTag from "./FooterTag";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TruncatedTagsList", (theme: ThemeType) => ({
   root: {
     position: "relative",
     overflow: "hidden",
@@ -28,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     opacity: 0,
     pointerEvents: "none",
   },
-});
+}), { stylePriority: -1 });
 
 const reformatTagPlaceholder = (
   moreCount: number,
@@ -41,12 +42,12 @@ const reformatTagPlaceholder = (
   );
 }
 
-const TruncatedTagsList = ({post, expandContainer, className, classes}: {
+const TruncatedTagsList = ({post, expandContainer, className}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement|null>,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const ref = useRef<HTMLDivElement>(null);
   const tags = post.tags;
 
@@ -85,10 +86,4 @@ const TruncatedTagsList = ({post, expandContainer, className, classes}: {
   );
 }
 
-export default registerComponent(
-  "TruncatedTagsList",
-  TruncatedTagsList,
-  {styles, stylePriority: -1},
-);
-
-
+export default TruncatedTagsList;

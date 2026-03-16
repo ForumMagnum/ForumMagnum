@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import moment from '../../lib/moment-timezone';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { getDateRange, loadMoreTimeframeMessages, timeframeToRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
@@ -8,8 +7,10 @@ import { useTimezone } from '../common/withTimezone';
 import PostsTimeBlock, { PostsTimeBlockShortformOption } from './PostsTimeBlock';
 import { useOnPropsChanged } from '../hooks/useOnPropsChanged';
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsTimeframeList', (theme: ThemeType) => ({
   loading: {
     opacity: .4,
   },
@@ -17,9 +18,9 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.postStyle,
     color: theme.palette.primary.main
   }
-})
+}))
 
-const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListParameters, dimWhenLoading, reverse, shortform, includeTags=true, classes }: {
+const PostsTimeframeList = ({after, before, timeframe, numTimeBlocks, postListParameters, dimWhenLoading, reverse, shortform, includeTags=true}: {
   after: Date|string,
   before: Date|string,
   timeframe: TimeframeType,
@@ -29,8 +30,8 @@ const PostsTimeframeList = ({ after, before, timeframe, numTimeBlocks, postListP
   reverse?: boolean,
   shortform: PostsTimeBlockShortformOption,
   includeTags: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { timezone } = useTimezone();
   const [dim,setDim] = useState(dimWhenLoading);
   const [displayedNumTimeBlocks,setDisplayedNumTimeBlocks] = useState(numTimeBlocks ?? 10);
@@ -137,6 +138,6 @@ export const getTimeBlockTitle = (
   return result;
 }
 
-export default registerComponent('PostsTimeframeList', PostsTimeframeList, {styles});
+export default PostsTimeframeList;
 
 

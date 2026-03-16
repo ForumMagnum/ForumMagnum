@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { getPostCollaborateUrl, postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
+import { postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
 import { commentGetAuthorName } from './collections/comments/helpers';
 import { responseToText } from './collections/posts/constants';
 import sortBy from 'lodash/sortBy';
@@ -490,7 +490,7 @@ export const PostSharedWithUserNotification = createNotificationType({
     if (!documentId) {
       throw new Error("PostSharedWithUserNotification documentId is missing")
     }
-    return getPostCollaborateUrl(documentId, false)
+    return postGetEditUrl(documentId, false)
   },
   Display: ({User, Post, notification: {post}}) => <>
     <User /> shared their {post?.draft ? "draft" : "post"} <Post /> with you

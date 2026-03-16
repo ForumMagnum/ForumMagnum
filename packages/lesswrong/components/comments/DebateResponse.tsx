@@ -1,5 +1,4 @@
 import React, {useRef, useState} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import {useCurrentUser} from '../common/withUser';
 import {DebateResponseWithReplies} from './DebateResponseBlock';
 import classNames from 'classnames';
@@ -15,8 +14,10 @@ import DebateCommentsListSection from "./DebateCommentsListSection";
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
 import { commentBottomComponents } from '@/lib/voting/votingSystemComponents';
 import type { VotingSystemName } from '@/lib/voting/votingSystemNames';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DebateResponse', (theme: ThemeType) => ({
   innerDebateComment: {
     marginTop: 6,
     padding: '8px 8px 8px 16px',
@@ -84,15 +85,14 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center"
   },
-});
+}));
 
 const getParticipantBorderStyle = (
   classes: ClassesType<typeof styles>,
   participantIndex: number
 ) => (classes as AnyBecauseTodo)[`border${participantIndex}`] ?? classes.border0;
 
-export const DebateResponse = ({classes, comment, replies, idx, responseCount, orderedParticipantList, post}: {
-  classes: ClassesType<typeof styles>,
+export const DebateResponse = ({comment, replies, idx, responseCount, orderedParticipantList, post}: {
   comment: CommentsList,
   replies: CommentsList[],
   idx: number,
@@ -101,6 +101,7 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
   responses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
 }) => {
+  const classes = useStyles(styles);
     const [showReplyState, setShowReplyState] = useState(false);
     const [showEdit, setShowEdit] = useState(false);
     
@@ -200,6 +201,6 @@ export const DebateResponse = ({classes, comment, replies, idx, responseCount, o
   }
 
 
-export default registerComponent('DebateResponse', DebateResponse, {styles});
+export default DebateResponse;
 
 

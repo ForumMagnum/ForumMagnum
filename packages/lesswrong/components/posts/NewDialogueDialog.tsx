@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogActions } from '../widgets/DialogActions';
 import { useMessages } from '../common/withMessages';
@@ -12,6 +11,8 @@ import Loading from "../vulcan-core/Loading";
 import EAButton from "../ea-forum/EAButton";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsEditMutation = gql(`
   mutation createPostNewDialogueDialog($data: CreatePostDataInput!) {
@@ -23,7 +24,7 @@ const PostsEditMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NewDialogueDialog', (theme: ThemeType) => ({
   dialog: {
     padding: 24,
     paddingBottom: 12,
@@ -57,13 +58,13 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body2,
     marginRight: 12
   }
-})
+}))
 
-const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
+const NewDialogueDialog = ({initialParticipantIds, onClose}: {
   initialParticipantIds?: string[],
   onClose: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [title, setTitle] = useState("");
   const {flash} = useMessages();
   const [participants, setParticipants] = useState<string[]>(initialParticipantIds ?? []);
@@ -152,6 +153,6 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
   </LWDialog>
 }
 
-export default registerComponent('NewDialogueDialog', NewDialogueDialog, {styles});
+export default NewDialogueDialog;
 
 

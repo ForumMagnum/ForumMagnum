@@ -1,11 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { useCurrentUser } from '../common/withUser';
 import { TooltipSpan } from '../common/FMTooltip';
 import MetaInfo from "../common/MetaInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const USER_SETTING_NAMES = {
   showDialogues: 'showDialoguesList',
@@ -14,7 +15,7 @@ const USER_SETTING_NAMES = {
   showRecommendedPartners: 'showRecommendedPartners'
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DialoguesSectionFrontpageSettings', (theme: ThemeType) => ({
   root: {
     display: "block",
     marginBottom: 8,
@@ -40,14 +41,14 @@ const styles = (theme: ThemeType) => ({
       alignItems: "center",
     },
   }
-})
+}))
 
-const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, currentShowMyDialogues, classes}: {
+const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, currentShowMyDialogues}: {
   hidden: boolean,
   currentShowDialogues: boolean,
   currentShowMyDialogues: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
 
@@ -85,6 +86,6 @@ const DialoguesSectionFrontpageSettings = ({hidden, currentShowDialogues, curren
   );
 };
 
-export default registerComponent('DialoguesSectionFrontpageSettings', DialoguesSectionFrontpageSettings, { styles });
+export default DialoguesSectionFrontpageSettings;
 
 

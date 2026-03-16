@@ -1,9 +1,10 @@
 import React, { useCallback } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListUpdateMutation = gql(`
   mutation updateCommentPinToProfileDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -15,15 +16,15 @@ const CommentsListUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PinToProfileDropdownItem", (theme: ThemeType) => ({
   icon: {},
-});
+}));
 
-const PinToProfileDropdownItem = ({comment, post, classes}: {
+const PinToProfileDropdownItem = ({comment, post}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const [updateComment] = useMutation(CommentsListUpdateMutation);
   const togglePinned = useCallback(() => {
@@ -59,5 +60,5 @@ const PinToProfileDropdownItem = ({comment, post, classes}: {
   );
 };
 
-export default registerComponent("PinToProfileDropdownItem", PinToProfileDropdownItem, {styles});
+export default PinToProfileDropdownItem;
 
