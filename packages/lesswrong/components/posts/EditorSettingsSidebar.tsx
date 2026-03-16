@@ -1105,8 +1105,8 @@ const EditorSettingsSidebar = ({
   const canShare = userCanUseSharing(currentUser);
   const contentType = initialData.contents?.originalContents?.type;
   const postId = initialData._id;
-  const canSeeMarkdownToggle = userUseMarkdownPostEditor(currentUser)
-    && (contentType === "markdown" || contentType === "lexical");
+  const canSeeMarkdownToggle = contentType === "markdown"
+    || (contentType === "lexical" && userUseMarkdownPostEditor(currentUser));
 
   const openVersionHistory = useCallback(() => {
     if (!postId) {
