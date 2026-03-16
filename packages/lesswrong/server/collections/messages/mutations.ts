@@ -1,20 +1,29 @@
 
 import schema from "@/lib/collections/messages/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { userCanDo } from "@/lib/vulcan-users/permissions";
+import { userCanDo, userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { addParticipantIfNew, checkIfNewMessageIsEmpty, sendMessageNotifications, unArchiveConversations, updateConversationActivity, updateUserNotesOnModMessage } from "@/server/callbacks/messageCallbacks";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
+import { loadByIds } from "@/lib/loaders";
 import gql from "graphql-tag";
 
 async function newCheck(user: DbUser | null, document: DbMessage | null, context: ResolverContext) {
   const { Conversations } = context;
   if (!user || !document) return false;
   const conversation = await Conversations.findOne({_id: document.conversationId})
-  return conversation && conversation.participantIds.includes(user._id)
+  if (!conversation) return false;
+
+  if (user.conversationsDisabled) {
+    const participants = await loadByIds(context, "Users", conversation.participantIds);
+    const hasAdminParticipant = participants.some(userIsAdmin);
+    if (!hasAdminParticipant) return false;
+  }
+
+  return conversation.participantIds.includes(user._id)
     ? userCanDo(user, 'messages.new.own')
     : userCanDo(user, `messages.new.all`)
 }
