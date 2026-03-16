@@ -105,10 +105,6 @@ export const PostSubmit = ({
           onClick={onSubmitClick}
           disabled={disabled}
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
-          {...(isFriendlyUI() ? {
-            variant: "contained",
-            color: "primary",
-          } : {})}
         >
           {submitLabel}
         </Button>
