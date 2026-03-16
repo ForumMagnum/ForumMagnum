@@ -246,12 +246,8 @@ export const eaForumTheme: SiteThemeSpecification = {
         }
       },
 
-      isBookUI: false,
-      isFriendlyUI: true,
       isLW: false,
       isAF: false,
-      isLWorAF: false,
-      isEAForum: true,
     }
   }
 };

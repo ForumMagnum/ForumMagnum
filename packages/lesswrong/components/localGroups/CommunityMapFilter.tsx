@@ -70,7 +70,6 @@ const styles = defineStyles('CommunityMapFilter', (theme: ThemeType) => ({
   },
   checkboxLabel: {
     ...theme.typography.body2,
-    fontWeight: theme.isEAForum ? 600 : undefined,
   },
   checkedLabel: {
     color: theme.palette.text.tooltipText,

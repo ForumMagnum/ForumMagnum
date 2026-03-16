@@ -6,16 +6,7 @@ import { Typography } from "./Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
-export const sectionTitleStyle = (theme: ThemeType) => (theme.isEAForum ? { 
-  margin: 0,
-  fontFamily: theme.palette.fonts.sansSerifStack,
-  fontSize: "14px",
-  lineHeight: "21px",
-  fontWeight: 700,
-  letterSpacing: "0.03em",
-  color: theme.palette.grey[600],
-  textTransform: "uppercase",
-} : {
+export const sectionTitleStyle = (theme: ThemeType) => ({
   margin: 0,
   ...theme.typography.headerStyle,
   fontSize: "2.3rem",
