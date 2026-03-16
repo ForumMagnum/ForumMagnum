@@ -26,6 +26,7 @@ const sendEventPostEmail = async (post: DbPost, user: DbUser, subject: string) =
         postIds={[post._id]}
         reason="you have marketing emails from the Forum enabled"
         hideRecommendations
+        hidePostPageLink
       />
     ),
     tag: "eventPost",
