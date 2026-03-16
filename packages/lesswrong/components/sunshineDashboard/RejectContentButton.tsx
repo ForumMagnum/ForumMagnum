@@ -54,6 +54,7 @@ export const RejectContentButton = ({contentWrapper}: {
         <RejectContentDialog
           rejectionTemplates={rejectionTemplates}
           rejectContent={handleRejectContent}
+          displayName={document.user?.displayName}
           onClose={onClose}
         />
       ),
@@ -77,13 +78,10 @@ export const RejectContentButton = ({contentWrapper}: {
       placement={"right-start"}
     >
       <LWClickAwayListener onClickAway={() => setShowRejectionDialog(false)}>
-        <RejectContentDialog rejectionTemplates={rejectionTemplates} rejectContent={handleRejectContent}/>
+        <RejectContentDialog rejectionTemplates={rejectionTemplates} rejectContent={handleRejectContent} displayName={document.user?.displayName}/>
       </LWClickAwayListener>
     </LWPopper>
   </span>
 }
 
 export default RejectContentButton
-
-
-
