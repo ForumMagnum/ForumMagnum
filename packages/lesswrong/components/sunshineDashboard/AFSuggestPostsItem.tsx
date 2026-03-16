@@ -24,6 +24,8 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import uniq from 'lodash/uniq';
 import without from 'lodash/without';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SuggestAlignmentPostUpdateMutation = gql(`
   mutation updatePostAFSuggestPostsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -47,20 +49,20 @@ export const afSubmissionHeaderText = (theme: ThemeType) => ({
   fontStyle: 'italic',
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AFSuggestPostsItem', (theme: ThemeType) => ({
   afSubmissionHeader: {
     ...afSubmissionHeader(theme)
   },
   afSubmissionHeaderText: {
     ...afSubmissionHeaderText(theme)
   }
-})
+}))
 
 
-const AFSuggestPostsItem = ({post, classes}: {
+const AFSuggestPostsItem = ({post}: {
   post: SuggestAlignmentPost,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();
   
@@ -170,8 +172,5 @@ const AFSuggestPostsItem = ({post, classes}: {
 }
 
 export default registerComponent('AFSuggestPostsItem', AFSuggestPostsItem, {
-  styles,
   hocs: [withErrorBoundary]
 });
-
-

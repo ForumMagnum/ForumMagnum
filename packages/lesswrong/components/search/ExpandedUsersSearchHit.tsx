@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import React from 'react';
@@ -9,8 +8,10 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import FormatDate from "../common/FormatDate";
 import UsersProfileImage from "../users/UsersProfileImage";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ExpandedUsersSearchHit", (theme: ThemeType) => ({
   root: {
     maxWidth: 600,
     paddingTop: 2,
@@ -64,12 +65,12 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     marginTop: 5
   }
-})
+}))
 
-const ExpandedUsersSearchHit = ({hit, classes}: {
+const ExpandedUsersSearchHit = ({hit}: {
   hit: Hit<any>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const user = hit as SearchUser;
 
   return <div className={classes.root}>
@@ -101,7 +102,7 @@ const ExpandedUsersSearchHit = ({hit, classes}: {
   </div>
 }
 
-export default registerComponent("ExpandedUsersSearchHit", ExpandedUsersSearchHit, {styles});
+export default ExpandedUsersSearchHit
 
 
 

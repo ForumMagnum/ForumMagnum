@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { REVIEW_YEAR, ReviewYear } from '@/lib/reviewUtils';
 import { useCurrentUser } from '../common/withUser';
 import range from 'lodash/range';
@@ -7,6 +6,8 @@ import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentReviewProgressNominationsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -19,7 +20,7 @@ const CommentsListWithParentMetadataMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewProgressNominations', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -42,15 +43,14 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 14,
     transform: "rotate(45deg)"
   }
-});
+}));
 
 const TARGET_REVIEWS_NUM = 2
 
-export const ReviewProgressNominations = ({classes, reviewYear = REVIEW_YEAR}: {
-    classes: ClassesType<typeof styles>,
+export const ReviewProgressNominations = ({reviewYear = REVIEW_YEAR}: {
     reviewYear: ReviewYear
   }) => {
-
+  const classes = useStyles(styles);
     const currentUser = useCurrentUser()
   const { data } = useQuery(CommentsListWithParentMetadataMultiQuery, {
     variables: {
@@ -86,6 +86,6 @@ export const ReviewProgressNominations = ({classes, reviewYear = REVIEW_YEAR}: {
       </LWTooltip>
 }
 
-export default registerComponent('ReviewProgressNominations', ReviewProgressNominations, {styles});
+export default ReviewProgressNominations;
 
 

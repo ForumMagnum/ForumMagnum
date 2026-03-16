@@ -5,8 +5,10 @@ import withErrorBoundary from '../common/withErrorBoundary'
 import classnames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import BottomNavigationItem from "./BottomNavigationItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('BottomNavigation', (theme: ThemeType) => ({
   root: {
     position: "relative"
   },
@@ -66,12 +68,12 @@ const styles = (theme: ThemeType) => ({
   clear: {
     clear: "both"
   }
-})
+}))
 
-const BottomNavigation = ({post, classes}: {
+const BottomNavigation = ({post}: {
   post: PostSequenceNavigation,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { nextPost, prevPost, sequence } = post;
   const currentUser = useCurrentUser();
   
@@ -103,7 +105,6 @@ const BottomNavigation = ({post, classes}: {
 
 
 export default registerComponent('BottomNavigation', BottomNavigation, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

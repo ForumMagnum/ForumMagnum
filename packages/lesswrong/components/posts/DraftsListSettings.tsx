@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
@@ -10,8 +9,10 @@ import { sortings as defaultSortings } from './DraftsList'
 import { TooltipSpan } from '../common/FMTooltip';
 import MetaInfo from "../common/MetaInfo";
 import SettingsColumn from "../common/SettingsColumn";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DraftsListSettings', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "flex-start",
@@ -37,7 +38,7 @@ const styles = (theme: ThemeType) => ({
       order: 0
     }
   },
-})
+}))
 
 const USER_SETTING_NAMES = {
   sortDraftsBy: 'draftsListSorting',
@@ -45,23 +46,15 @@ const USER_SETTING_NAMES = {
   showShared: 'draftsListShowShared'
 }
 
-const DraftsListSettings = ({
-  persistentSettings, 
-  hidden, 
-  currentSorting, 
-  currentIncludeArchived,
-  currentIncludeShared,
-  sortings=defaultSortings, 
-  classes
-}: {
+const DraftsListSettings = ({persistentSettings, hidden, currentSorting, currentIncludeArchived, currentIncludeShared, sortings=defaultSortings}: {
   persistentSettings?: any,
   hidden: boolean,
   currentSorting: any,
   currentIncludeArchived: boolean,
   currentIncludeShared: boolean,
   sortings?: any,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   
@@ -120,8 +113,6 @@ const DraftsListSettings = ({
   );
 };
 
-export default registerComponent(
-  'DraftsListSettings', DraftsListSettings, { styles }
-);
+export default DraftsListSettings;
 
 

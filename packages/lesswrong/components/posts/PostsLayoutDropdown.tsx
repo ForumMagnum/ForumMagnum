@@ -1,13 +1,14 @@
 import React, { useCallback, useMemo } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defaultPostsLayout, PostsLayout, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames';
 import ForumIcon from "../common/ForumIcon";
 import ForumDropdown from "../common/ForumDropdown";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsLayoutDropdown', (theme: ThemeType) => ({
   optionIcon: {
     verticalAlign: "middle",
     position: "relative",
@@ -21,13 +22,13 @@ const styles = (theme: ThemeType) => ({
     width: 16,
     height: 16,
   },
-})
+}))
 
-const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="layout"}: {
-  classes: ClassesType<typeof styles>,
+const PostsLayoutDropdown = ({value=defaultPostsLayout, queryParam="layout"}: {
   value?: PostsLayout
   queryParam?: string,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   
@@ -64,6 +65,6 @@ const PostsLayoutDropdown = ({classes, value=defaultPostsLayout, queryParam="lay
   return <ForumDropdown value={value} options={POSTS_LAYOUT_OPTIONS} queryParam={queryParam} onSelect={onSelect} />;
 }
 
-export default registerComponent('PostsLayoutDropdown', PostsLayoutDropdown, {styles});
+export default PostsLayoutDropdown;
 
 

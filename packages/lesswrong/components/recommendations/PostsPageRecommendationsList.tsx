@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import type {
   RecommendationsAlgorithmWithStrategy,
@@ -12,11 +11,13 @@ import SectionTitle from "../common/SectionTitle";
 import RecommendationsList from "./RecommendationsList";
 import PostsPageRecommendationItem from "./PostsPageRecommendationItem";
 import PostsLoading from "../posts/PostsLoading";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PADDING = (MAX_COLUMN_WIDTH - CENTRAL_COLUMN_WIDTH) / 4;
 const COUNT = 3;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsPageRecommendationsList", (theme: ThemeType) => ({
   root: {
     background: theme.palette.grey[55],
     borderRadius: theme.borderRadius.default,
@@ -40,23 +41,16 @@ const styles = (theme: ThemeType) => ({
       minHeight: 60 * COUNT,
     },
   }
-});
+}));
 
-const PostsPageRecommendationsList = ({
-  title = "More posts like this",
-  strategy = "moreFromTag",
-  bias,
-  features,
-  forceLoggedOutView,
-  classes,
-}: {
+const PostsPageRecommendationsList = ({title = "More posts like this", strategy = "moreFromTag", bias, features, forceLoggedOutView}: {
   title?: string,
   strategy?: RecommendationStrategyName,
   bias?: number,
   features?: WeightedFeature[],
   forceLoggedOutView?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const post = usePostsPageContext()?.fullPost;
   if (!post) {
     return null;
@@ -105,10 +99,6 @@ const PostsPageRecommendationsList = ({
   );
 }
 
-export default registerComponent(
-  "PostsPageRecommendationsList",
-  PostsPageRecommendationsList,
-  {styles},
-);
+export default PostsPageRecommendationsList;
 
 

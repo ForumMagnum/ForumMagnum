@@ -18,7 +18,6 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import {isFriendlyUI} from '../../themes/forumTheme'
 import { RouterLocation } from "../../lib/routeChecks/parseRoute";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { TooltipSpan } from '../common/FMTooltip';
 import LoginPopup from "../users/LoginPopup";
@@ -26,10 +25,12 @@ import GroupFormDialog from "./GroupFormDialog";
 import SetPersonalMapLocationDialog from "./SetPersonalMapLocationDialog";
 import EventNotificationsDialog from "./EventNotificationsDialog";
 import SimpleDivider from "../widgets/SimpleDivider";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const availableFilters = groupTypes.map(t => t.shortName);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommunityMapFilter', (theme: ThemeType) => ({
   root: {
     width: 120,
     padding: "10px 10px 5px 10px",
@@ -182,7 +183,7 @@ const styles = (theme: ThemeType) => ({
       display: 'none'
     }
   }
-});
+}));
 
 export const createFallBackDialogHandler = (
   openDialog: OpenDialogContextType['openDialog'],
@@ -210,17 +211,7 @@ const getInitialFilters = (query?: Record<string, string | string[]>) => {
   return [];
 }
 
-const CommunityMapFilter = ({
-  setShowMap,
-  showHideMap,
-  toggleGroups,
-  showGroups,
-  toggleEvents,
-  showEvents,
-  toggleIndividuals,
-  showIndividuals,
-  classes,
-}: {
+const CommunityMapFilter = ({setShowMap, showHideMap, toggleGroups, showGroups, toggleEvents, showEvents, toggleIndividuals, showIndividuals}: {
   setShowMap: any,
   showHideMap: boolean,
   toggleGroups: any,
@@ -229,8 +220,8 @@ const CommunityMapFilter = ({
   showEvents: boolean,
   toggleIndividuals: any,
   showIndividuals: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const location = useLocation();
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
@@ -416,10 +407,6 @@ const CommunityMapFilter = ({
   );
 }
 
-export default registerComponent(
-  'CommunityMapFilter',
-  CommunityMapFilter,
-  {styles},
-);
+export default CommunityMapFilter;
 
 

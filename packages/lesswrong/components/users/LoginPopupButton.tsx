@@ -1,23 +1,24 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import LoginPopup from "./LoginPopup";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LoginPopupButton', (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     color: theme.palette.primary.main,
   },
-});
+}));
 
-const LoginPopupButton = ({classes, children, title, className}: {
-  classes: ClassesType<typeof styles>,
+const LoginPopupButton = ({children, title, className}: {
   children: React.ReactNode,
   title?: string,
   className?: string
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   // This component is intended only for buttons whose sole purpose is logging a user in 
   // (not wrapped around other buttons with other functionality. For that, just add
@@ -43,6 +44,6 @@ const LoginPopupButton = ({classes, children, title, className}: {
   )
 }
 
-export default registerComponent('LoginPopupButton', LoginPopupButton, {styles});
+export default LoginPopupButton;
 
 

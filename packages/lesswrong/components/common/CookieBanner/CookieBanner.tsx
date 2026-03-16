@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import classNames from "classnames";
 import { useDialog } from "../withDialog";
@@ -7,8 +6,10 @@ import { useCookiePreferences } from "../../hooks/useCookiesWithConsent";
 import { ALL_COOKIES, ONLY_NECESSARY_COOKIES } from "../../../lib/cookies/utils";
 import CookieDialog from "./CookieDialog";
 import { Typography } from "../Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CookieBanner", (theme: ThemeType) => ({
   bannerContainer: {
     display: "flex",
     alignItems: "center",
@@ -70,9 +71,10 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[700],
     },
   }
-});
+}));
 
-const CookieBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const CookieBanner = () => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const { updateCookiePreferences } = useCookiePreferences();
   
@@ -111,8 +113,6 @@ const CookieBanner = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-export default registerComponent("CookieBanner", CookieBanner, {
-  styles,
-});
+export default CookieBanner;
 
 

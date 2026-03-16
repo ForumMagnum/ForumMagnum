@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
 import { useDialog } from "../common/withDialog";
@@ -24,6 +23,8 @@ import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import ArchiveIcon from "@/lib/vendor/@material-ui/icons/src/Archive";
 import LWTooltip from "../common/LWTooltip";
 import { StatusCodeSetter } from "../next/StatusCodeSetter";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ConversationsListWithReadStatusMultiQuery = gql(`
   query multiConversationFriendlyInboxQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -48,7 +49,7 @@ const ConversationsListWithReadStatusQuery = gql(`
 
 const MAX_WIDTH = 1100;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FriendlyInbox", (theme: ThemeType) => ({
   root: {
     height: "100%",
     display: "flex",
@@ -238,21 +239,10 @@ const styles = (theme: ThemeType) => ({
     marginRight: 6,
     color: theme.palette.grey[500],
   },
-});
+}));
 
-const FriendlyInbox = ({
-  currentUserId,
-  conversationId,
-  view = "userConversations",
-  isModInbox = false,
-  userCanViewModInbox = false,
-  showArchive = false,
-  isAdmin = false,
-  classes,
-}: InboxComponentProps & {
-  conversationId?: string;
-  classes: ClassesType<typeof styles>;
-}) => {
+const FriendlyInbox = ({currentUserId, conversationId, view = "userConversations", isModInbox = false, userCanViewModInbox = false, showArchive = false, isAdmin = false}: InboxComponentProps & { conversationId?: string; }) => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const { query } = useLocation();
   const navigate = useNavigate();
@@ -489,6 +479,6 @@ const FriendlyInbox = ({
   );
 };
 
-export default registerComponent("FriendlyInbox", FriendlyInbox, { styles });
+export default FriendlyInbox;
 
 

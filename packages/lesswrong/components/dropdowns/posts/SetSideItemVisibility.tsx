@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState, useMemo } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { sideCommentFilterMinKarma } from '../../../lib/collections/posts/constants';
 import { Paper }from '@/components/widgets/Paper';
 import ChatBubbleOutline from '@/lib/vendor/@material-ui/icons/src/ChatBubbleOutline';
@@ -8,8 +7,10 @@ import Check from '@/lib/vendor/@material-ui/icons/src/Check';
 import classNames from 'classnames';
 import LWTooltip from "../../common/LWTooltip";
 import { MenuItem } from "../../common/Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SetSideItemVisibility', (theme: ThemeType) => ({
   check: {
     width: 20,
     marginRight: 8,
@@ -38,7 +39,7 @@ const styles = (theme: ThemeType) => ({
     padding: 8,
     ...theme.typography.commentStyle,
   },
-});
+}));
 
 export type SideCommentMode = "hidden"|"highKarma"|"all";
 const sideCommentModes: {name: SideCommentMode, label: string, detailedLabel?: string}[] = [
@@ -64,9 +65,8 @@ export type SideItemVisibilityContextType = {
 
 export const SideItemVisibilityContext = createContext<SideItemVisibilityContextType|null>(null);
 
-const SetSideItemVisibility = ({classes}: {
-  classes: ClassesType<typeof styles>
-}) => {
+const SetSideItemVisibility = () => {
+  const classes = useStyles(styles);
   const sideItemVisibility = useContext(SideItemVisibilityContext);
   // If in a context that isn't a post page (eg, the triple-dot menu on posts in
   // a post list), this context won't be there and this option doesn't apply, so
@@ -172,6 +172,6 @@ export const SideItemVisibilityContextProvider = ({post, children}: {
   </SideItemVisibilityContext.Provider>
 }
 
-export default registerComponent('SetSideItemVisibility', SetSideItemVisibility, {styles});
+export default SetSideItemVisibility;
 
 

@@ -1,13 +1,14 @@
 import React from 'react';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCommentBox } from '../hooks/useCommentBox';
 import { useDialog } from '../common/withDialog';
 import { useCurrentUser } from '../common/withUser';
 import ReviewPostForm from "./ReviewPostForm";
 import LoginPopup from "../users/LoginPopup";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewPostButton', (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -20,14 +21,14 @@ const styles = (theme: ThemeType) => ({
       opacity: .8
     }
   }
-})
+}))
 
-const ReviewPostButton = ({classes, post, reviewMessage="Review", year}: {
-  classes: ClassesType<typeof styles>,
+const ReviewPostButton = ({post, reviewMessage="Review", year}: {
   post: PostsBase,
   reviewMessage?: any,
   year: string
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { openCommentBox } = useCommentBox();
   const { openDialog } = useDialog();
@@ -57,7 +58,7 @@ const ReviewPostButton = ({classes, post, reviewMessage="Review", year}: {
   )
 }
 
-export default registerComponent('ReviewPostButton', ReviewPostButton, {styles});
+export default ReviewPostButton;
 
 
 

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate } from '../../lib/routeUtil';
 import ShortformSubmitForm from "./ShortformSubmitForm";
 import LWDialog from "../common/LWDialog";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NewShortformDialog', (theme: ThemeType) => ({
   content: {
     // This subselector is needed to beat the specificity of the default
     // MUI styles
@@ -17,12 +18,12 @@ const styles = (theme: ThemeType) => ({
   dialogPaper: {
     maxWidth: theme.isFriendlyUI ? 750 : undefined,
   },
-});
+}));
 
-const NewShortformDialog = ({onClose, classes}: {
+const NewShortformDialog = ({onClose}: {
   onClose: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [open, setOpen] = useState(true);
   const navigate = useNavigate();
   return (
@@ -53,10 +54,6 @@ const NewShortformDialog = ({onClose, classes}: {
   );
 }
 
-export default registerComponent(
-  'NewShortformDialog',
-  NewShortformDialog,
-  {styles},
-);
+export default NewShortformDialog;
 
 

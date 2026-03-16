@@ -10,8 +10,10 @@ import ForumIcon from "../common/ForumIcon";
 import PopperCard from "../common/PopperCard";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import SharePostActions from "../dropdowns/posts/SharePostActions";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SharePostButton', (theme: ThemeType) => ({
   root: {
     display: "inline-block",
   },
@@ -22,17 +24,13 @@ const styles = (theme: ThemeType) => ({
       opacity: '0.5'
     }
   },
-})
+}))
 
-const SharePostButton = ({
-  post,
-  className,
-  classes,
-}: {
+const SharePostButton = ({post, className}: {
   post: PostsBase,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null)
   const [isOpen, setIsOpen] = useState<boolean>(false)
   const { captureEvent } = useTracking()
@@ -78,7 +76,6 @@ const SharePostButton = ({
 }
 
 export default registerComponent('SharePostButton', SharePostButton, {
-  styles,
   hocs: [withErrorBoundary],
 });
 

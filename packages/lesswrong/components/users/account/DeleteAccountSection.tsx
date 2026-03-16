@@ -1,5 +1,4 @@
 import React, { useCallback } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import moment from 'moment';
 import { ACCOUNT_DELETION_COOLING_OFF_DAYS } from '@/lib/collections/users/helpers';
 import { useDialog } from '@/components/common/withDialog';
@@ -9,6 +8,8 @@ import ActionButtonSection from "./ActionButtonSection";
 import FormatDate from "../../common/FormatDate";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersEditUpdateMutation = gql(`
   mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -20,7 +21,7 @@ const UsersEditUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DeleteAccountSection', (theme: ThemeType) => ({
   warningButton: {
     border: `1px solid ${theme.palette.error.main} !important`,
     color: theme.palette.error.main
@@ -29,15 +30,12 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     color: theme.palette.error.main
   }
-});
+}));
 
-const DeleteAccountSection = ({
-  user,
-  classes,
-}: {
+const DeleteAccountSection = ({user}: {
   user: UsersEdit,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [rawUpdateUser, { loading }] = useMutation(UsersEditUpdateMutation);
   const updateUser = useFlashErrors(rawUpdateUser);
   const { openDialog } = useDialog();
@@ -110,7 +108,7 @@ const DeleteAccountSection = ({
   );
 };
 
-export default registerComponent('DeleteAccountSection', DeleteAccountSection, { styles });
+export default DeleteAccountSection;
 
 
 

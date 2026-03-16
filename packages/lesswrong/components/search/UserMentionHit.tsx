@@ -1,5 +1,4 @@
 import React from "react"
-import { registerComponent } from "../../lib/vulcan-lib/components"
 import { isFriendlyUI } from "@/themes/forumTheme";
 import FormatDate from "../common/FormatDate";
 import ForumIcon from "../common/ForumIcon";

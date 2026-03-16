@@ -1,10 +1,11 @@
 import classNames from 'classnames';
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postBodyStyles } from '../../themes/stylePiping';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_2021_BOOK_BANNER_COOKIE, HIDE_FEATURED_RESOURCE_COOKIE } from '../../lib/cookies/cookies';
 import { Link } from '../../lib/reactRouterWrapper';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const collapsedStyles = (theme: ThemeType) => ({
   '& .book-container': {
@@ -21,7 +22,7 @@ const collapsedStyles = (theme: ThemeType) => ({
   },
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Books2021SaleAnimation', (theme: ThemeType) => ({
   buyButton: {
     display: 'flex',
     alignItems: 'center'
@@ -294,12 +295,12 @@ const styles = (theme: ThemeType) => ({
     transition: 'opacity 1.5s cubic-bezier(1, -0.11, 0.66, 0.99) 0.5s',
     maxWidth: '300px'
   }
-})
+}), { allowNonThemeColors: true })
 
-const Books2021SaleAnimation = ({ classes, successContent }: {
-  classes: ClassesType<typeof styles>,
+const Books2021SaleAnimation = ({successContent}: {
   successContent?: any
 }) => {
+  const classes = useStyles(styles);
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_2021_BOOK_BANNER_COOKIE])
 
   if (cookies[HIDE_2021_BOOK_BANNER_COOKIE]) {
@@ -427,11 +428,6 @@ const Books2021SaleAnimation = ({ classes, successContent }: {
 }
 
 
-export default registerComponent('Books2021SaleAnimation', Books2021SaleAnimation, {
-  styles,
-  // This component tries to look like a printed book, which is white, so its colors
-  // don't change in dark mode
-  allowNonThemeColors: true,
-});
+export default Books2021SaleAnimation;
 
 

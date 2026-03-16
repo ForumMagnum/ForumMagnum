@@ -1,10 +1,11 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import LWTooltip from "../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ConversationsMinimumInfoMultiQuery = gql(`
   query multiConversationModeratorMessageCountQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -17,7 +18,7 @@ const ConversationsMinimumInfoMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ModeratorMessageCount', (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],
@@ -30,12 +31,12 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     top: 1
   }
-});
+}));
 
-export const ModeratorMessageCount = ({classes, userId}: {
+export const ModeratorMessageCount = ({userId}: {
   userId: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { data, loading } = useQuery(ConversationsMinimumInfoMultiQuery, {
     variables: {
       selector: { moderatorConversations: { userId } },
@@ -56,7 +57,7 @@ export const ModeratorMessageCount = ({classes, userId}: {
   </LWTooltip>
 }
 
-export default registerComponent('ModeratorMessageCount', ModeratorMessageCount, {styles});
+export default ModeratorMessageCount
 
 
 

@@ -1,5 +1,4 @@
 import React, {useState} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import RejectedIcon from "@/lib/vendor/@material-ui/icons/src/NotInterested";
 import { useHover } from "../common/withHover";
 import { useRejectContent, RejectContentParams } from "../hooks/useRejectContent";
@@ -10,8 +9,10 @@ import RejectContentDialog from "./RejectContentDialog";
 import LWTooltip from "../common/LWTooltip";
 import MetaInfo from "../common/MetaInfo";
 import { useDialog } from '../common/withDialog';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RejectContentButton', (theme: ThemeType) => ({
   root: {
     padding: 4
   },
@@ -29,12 +30,12 @@ const styles = (theme: ThemeType) => ({
     width: 18,
     marginRight: 6
   }
-});
+}));
 
-export const RejectContentButton = ({contentWrapper, classes}: {
+export const RejectContentButton = ({contentWrapper}: {
   contentWrapper: RejectContentParams,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { eventHandlers, anchorEl } = useHover();
   const { rejectContent, unrejectContent, rejectionTemplates } = useRejectContent();
   const { openDialog } = useDialog();
@@ -83,4 +84,4 @@ export const RejectContentButton = ({contentWrapper, classes}: {
   </span>
 }
 
-export default registerComponent('RejectContentButton', RejectContentButton, {styles});
+export default RejectContentButton

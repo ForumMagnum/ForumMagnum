@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { singleLineStyles } from '../comments/SingleLineComment';
 import { CONDENSED_MARGIN_BOTTOM } from '../comments/CommentFrame';
@@ -12,6 +11,8 @@ import ContentStyles from "../common/ContentStyles";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentWithRepliesFragmentMultiQuery = gql(`
   query multiCommentReviewPostCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -24,7 +25,7 @@ const CommentWithRepliesFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewPostComments', (theme: ThemeType) => ({
   title: {
     fontSize: "1rem",
     ...theme.typography.commentStyle,
@@ -43,11 +44,10 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.italic,
     paddingTop: 4,
   }
-})
+}))
 
-const ReviewPostComments = ({ terms, classes, title, post, singleLine, placeholderCount, hideReviewVoteButtons, singleLineCollapse }: {
+const ReviewPostComments = ({terms, title, post, singleLine, placeholderCount, hideReviewVoteButtons, singleLineCollapse}: {
   terms: CommentsViewTerms,
-  classes: ClassesType<typeof styles>,
   title?: string,
   post: PostsList,
   singleLine?: boolean,
@@ -55,6 +55,7 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
   hideReviewVoteButtons?: boolean
   singleLineCollapse?: boolean
 }) => {
+  const classes = useStyles(styles);
   const { view, limit, ...selectorTerms } = terms;
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(CommentWithRepliesFragmentMultiQuery, {
     variables: {
@@ -115,6 +116,6 @@ const ReviewPostComments = ({ terms, classes, title, post, singleLine, placehold
   );
 };
 
-export default registerComponent('ReviewPostComments', ReviewPostComments, {styles});
+export default ReviewPostComments;
 
 

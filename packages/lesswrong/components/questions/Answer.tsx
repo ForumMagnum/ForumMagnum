@@ -25,8 +25,10 @@ import { Typography } from "../common/Typography";
 import CommentBottom from "../comments/CommentsItem/CommentBottom";
 import CommentsNewForm from "../comments/CommentsNewForm";
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Answer', (theme: ThemeType) => ({
   root: {
     marginBottom: 32,
     paddingTop: 20,
@@ -141,14 +143,14 @@ const styles = (theme: ThemeType) => ({
   retracted: {
     textDecoration: "line-through",
   },
-})
+}))
 
-const Answer = ({ comment, post, childComments, classes }: {
+const Answer = ({comment, post, childComments}: {
   comment: CommentsList,
   post: PostsList,
   childComments: CommentTreeNode<CommentsList>[],
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [showEdit,setShowEdit] = useState(false);
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
   const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
@@ -293,7 +295,6 @@ const Answer = ({ comment, post, childComments, classes }: {
 }
 
 export default registerComponent('Answer', Answer, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

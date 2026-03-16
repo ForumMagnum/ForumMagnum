@@ -1,12 +1,13 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isNewUser } from "../../lib/collections/users/helpers";
 import { siteNameWithArticleSetting } from "../../lib/instanceSettings";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("UserCommentMarkers", (theme: ThemeType) => ({
   iconWrapper: {
     margin: "0 3px",
   },
@@ -21,19 +22,15 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.icon.sprout,
     fontSize: 16,
   },
-});
+}));
 
-const UserCommentMarkers = ({
-  user,
-  isPostAuthor,
-  className,
-  classes,
-}: {
+const UserCommentMarkers = ({user, isPostAuthor, className}: {
   user?: UsersMinimumInfo|null,
   isPostAuthor?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   if (!user) {
     return null;
   }
@@ -68,10 +65,6 @@ const UserCommentMarkers = ({
   );
 }
 
-export default registerComponent(
-  "UserCommentMarkers",
-  UserCommentMarkers,
-  {styles},
-);
+export default UserCommentMarkers;
 
 

@@ -18,10 +18,12 @@ import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { createPortal } from 'react-dom';
 import SearchBarResults from "../search/SearchBarResults";
 import ForumIcon from "./ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const VirtualMenu = connectMenu(() => null);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SearchBar", (theme: ThemeType) => ({
   root: {
     display: 'flex',
     alignItems: 'center',
@@ -100,13 +102,13 @@ const styles = (theme: ThemeType) => ({
     right: 5,
     cursor: "pointer"
   },
-})
+}))
 
-const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
+const SearchBar = ({onSetIsActive, searchResultsArea}: {
   onSetIsActive: (active: boolean) => void,
   searchResultsArea: any,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const [inputOpen,setInputOpen] = useState(false);
   const [searchOpen,setSearchOpen] = useState(false);
@@ -204,7 +206,6 @@ const SearchBar = ({onSetIsActive, searchResultsArea, classes}: {
 }
 
 export default registerComponent("SearchBar", SearchBar, {
-  styles,
   hocs: [withErrorBoundary],
   areEqual: "auto",
 });

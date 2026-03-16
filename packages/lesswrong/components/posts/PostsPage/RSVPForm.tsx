@@ -9,12 +9,13 @@ import { DialogActions } from '../../widgets/DialogActions';
 import { DialogTitle } from '../../widgets/DialogTitle';
 import { useCurrentUser } from '../../common/withUser';
 import { useNavigate } from '../../../lib/routeUtil';
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import LWDialog from "../../common/LWDialog";
 import { MenuItem } from "../../common/Menus";
 import { responseToText } from '@/lib/collections/posts/constants';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RSVPForm', (theme: ThemeType) => ({
   emailMessage: theme.isFriendlyUI
     ? {
       fontFamily: theme.palette.fonts.sansSerifStack,
@@ -22,14 +23,14 @@ const styles = (theme: ThemeType) => ({
     : {
       fontStyle: "italic",
     },
-});
+}));
 
-const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
+const RSVPForm = ({post, onClose, initialResponse = "yes"}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   initialResponse: string,
   onClose?: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [registerRSVP] = useMutation(gql(`
     mutation RegisterRSVP($postId: String, $name: String, $email: String, $private: Boolean, $response: String) {
         RSVPToEvent(postId: $postId, name: $name, email: $email, private: $private, response: $response) {
@@ -107,6 +108,6 @@ const RSVPForm = ({ post, onClose, initialResponse = "yes", classes }: {
   )
 }
 
-export default registerComponent('RSVPForm', RSVPForm, {styles});
+export default RSVPForm
 
 

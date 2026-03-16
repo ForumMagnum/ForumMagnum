@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 // import { loadStripe } from "@stripe/stripe-js";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 // import { DatabasePublicSetting } from "../../lib/publicSettings";
 import { useTracking } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 // const stripePublicKeySetting = new DatabasePublicSetting<null|string>('stripe.publicKey', null)
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('BookCheckout', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     
@@ -52,7 +53,7 @@ const styles = (theme: ThemeType) => ({
       marginLeft: 0,
     },
   },
-})
+}))
 
 // deprecated
 // 
@@ -61,12 +62,13 @@ const styles = (theme: ThemeType) => ({
 // const stripePublicKey = stripePublicKeySetting.get()
 // const stripePromise = stripePublicKey && loadStripe(stripePublicKey);
 
-const ProductDisplay = ({ handleClickAmazon, text="Amazon", classes }: {
+const ProductDisplay = ({handleClickAmazon, text="Amazon"}: {
   handleClickAmazon: (event: any) => void,
   // handleClickStripe: (event: any)=>void,
   text?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return <>
     <button className={classNames(classes.checkoutButton, classes.buyUsButton)} id="checkout-button-amazon-us" role="link" onClick={handleClickAmazon}>
       {`${text} (US) - $30`}
@@ -76,12 +78,16 @@ const ProductDisplay = ({ handleClickAmazon, text="Amazon", classes }: {
     </button> */}
   </>
 };
-const Message = ({ message, classes }: {message: string, classes: ClassesType<typeof styles>}) => (
-  <section>
-    <p>{message}</p>
-  </section>
-);
-function BookCheckout({classes, ignoreMessages = false, text, link}: {classes: ClassesType<typeof styles>, ignoreMessages?: boolean, text?: string, link: string}) {
+const Message = ({ message }: {message: string}) => {
+  useStyles(styles);
+  return (
+    <section>
+      <p>{message}</p>
+    </section>
+  );
+};
+function BookCheckout({ignoreMessages = false, text, link}: {ignoreMessages?: boolean, text?: string, link: string}) {
+  const classes = useStyles(styles);
   const [message, setMessage] = useState("");
   const { captureEvent } = useTracking()
   
@@ -99,13 +105,13 @@ function BookCheckout({classes, ignoreMessages = false, text, link}: {classes: C
 
   return <div className={classes.root}>
     { (message && !ignoreMessages) ? (
-      <Message message={message} classes={classes} />
+      <Message message={message} />
     ) : (
-      <ProductDisplay handleClickAmazon={handleClickAmazon} text={text} classes={classes}/>
+      <ProductDisplay handleClickAmazon={handleClickAmazon} text={text}/>
     ) }
   </div>
 }
 
-export default registerComponent('BookCheckout', BookCheckout, {styles});
+export default BookCheckout;
 
 

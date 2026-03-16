@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import TagHistory from '@/lib/vendor/@material-ui/icons/src/History';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { ChangeMetrics } from '../../server/collections/revisions/collection';
 import { tagGetUrl, tagGetDiscussionUrl, tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -16,10 +15,12 @@ import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
 import UsersName from "../users/UsersName";
 import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import Loading from '../vulcan-core/Loading';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const POSTED_AT_WIDTH = 38
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SingleLineTagUpdates', (theme: ThemeType) => ({
   root: {
     ...(theme.isFriendlyUI
       ? {
@@ -110,9 +111,9 @@ const styles = (theme: ThemeType) => ({
     },
   },
   tagRevision: {},
-});
+}));
 
-const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, documentDeletions, lastRevisedAt, classes}: {
+const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users, changeMetrics, documentDeletions, lastRevisedAt}: {
   tag: TagHistoryFragment,
   revisionIds: string[],
   commentCount?: number,
@@ -120,9 +121,9 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
   users?: UsersMinimumInfo[],
   changeMetrics: ChangeMetrics,
   documentDeletions?: DocumentDeletion[] | null,
-  classes: ClassesType<typeof styles>,
   lastRevisedAt?: Date
 }) => {
+  const classes = useStyles(styles);
   const [expanded,setExpanded] = useState(false);
   documentDeletions ??= [];
 
@@ -218,6 +219,6 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
   </div>
 }
 
-export default registerComponent('SingleLineTagUpdates', SingleLineTagUpdates, {styles});
+export default SingleLineTagUpdates
 
 

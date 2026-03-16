@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { useStyles, defineStyles } from '@/components/hooks/useStyles';
 import groupBy from 'lodash/groupBy';

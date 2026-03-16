@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../themes/stylePiping';
 import { CoreReadingCollection } from './LWCoreReading';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -15,8 +14,10 @@ import LinkCard from "../common/LinkCard";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CollectionsItem', (theme: ThemeType) => ({
   root: {
     marginBottom: 12,
     '&:hover $closeButton': {
@@ -99,13 +100,13 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.primary.main
     }
   }
-});
+}));
 
-export const CollectionsItem = ({classes, showCloseIcon, collection}: {
+export const CollectionsItem = ({showCloseIcon, collection}: {
   collection: CoreReadingCollection,
   showCloseIcon?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { firstPost } = collection;
 
   const cookieName = `${HIDE_COLLECTION_ITEM_PREFIX}${collection.id}`; //hiding in one place, hides everywhere
@@ -159,7 +160,7 @@ export const CollectionsItem = ({classes, showCloseIcon, collection}: {
   </div>
 }
 
-export default registerComponent('CollectionsItem', CollectionsItem, {styles});
+export default CollectionsItem
 
 
 

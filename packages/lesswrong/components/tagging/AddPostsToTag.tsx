@@ -12,12 +12,13 @@ import { useDialog } from '../common/withDialog';
 import CloseIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { formatFacetFilters } from '../search/SearchAutoComplete';
 import { Hits, InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import LoginPopup from "../users/LoginPopup";
 import SearchPagination from "../search/SearchPagination";
 import PostsListEditorSearchHit from "../search/PostsListEditorSearchHit";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AddPostsToTag", (theme: ThemeType) => ({
   root: {
     display: "flex",
     '& input': {
@@ -92,14 +93,14 @@ const styles = (theme: ThemeType) => ({
   postHit: {
     cursor: "pointer"
   }
-});
+}));
 
 
 
-const AddPostsToTag = ({classes, tag}: {
-  classes: ClassesType<typeof styles>,
+const AddPostsToTag = ({tag}: {
   tag: TagPreviewFragment
 }) => {
+  const classes = useStyles(styles);
   const [isAwaiting, setIsAwaiting] = useState(false);
   const { captureEvent } = useTracking()
   const { flash } = useMessages()
@@ -167,6 +168,6 @@ const AddPostsToTag = ({classes, tag}: {
   </div>
 }
 
-export default registerComponent("AddPostsToTag", AddPostsToTag, {styles});
+export default AddPostsToTag
 
 

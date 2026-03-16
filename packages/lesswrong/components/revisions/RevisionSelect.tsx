@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react'
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import Radio from '@/lib/vendor/@material-ui/core/src/Radio';
@@ -9,8 +8,10 @@ import UsersName from "../users/UsersName";
 import LoadMore from "../common/LoadMore";
 import LWTooltip from "../common/LWTooltip";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RevisionSelect', (theme: ThemeType) => ({
   revisionRow: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
@@ -48,17 +49,17 @@ const styles = (theme: ThemeType) => ({
     display: "inline-block",
     width: 50
   }
-});
+}));
 
-const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMoreProps, classes, count, totalCount }: {
+const RevisionSelect = ({revisions, getRevisionUrl, onPairSelected, loadMoreProps, count, totalCount}: {
   revisions: Array<RevisionMetadataWithChangeMetrics>,
   getRevisionUrl: (rev: RevisionMetadata) => string,
   onPairSelected: ({before, after}: {before: RevisionMetadata, after: RevisionMetadata}) => void,
   loadMoreProps: any,
-  classes: ClassesType<typeof styles>,
   count?: number,
   totalCount?: number
 }) => {
+  const classes = useStyles(styles);
   const [beforeRevisionIndex, setBeforeRevisionIndex] = useState(1);
   const [afterRevisionIndex, setAfterRevisionIndex] = useState(0);
   
@@ -132,8 +133,6 @@ const RevisionSelect = ({ revisions, getRevisionUrl, onPairSelected, loadMorePro
   </React.Fragment>
 }
 
-export default registerComponent(
-  'RevisionSelect', RevisionSelect, {styles}
-);
+export default RevisionSelect;
 
 

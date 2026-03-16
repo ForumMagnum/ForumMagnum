@@ -16,8 +16,10 @@ import FooterTagList from "../../tagging/FooterTagList";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { postBottomSecondaryVotingComponents } from '@/lib/voting/votingSystemComponents';
 import type { VotingSystemName } from '@/lib/voting/votingSystemNames';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsPagePostFooter", (theme: ThemeType) => ({
   footerSection: {
     display: 'flex',
     columnGap: 20,
@@ -80,13 +82,13 @@ const styles = (theme: ThemeType) => ({
       display: 'none',
     }
   }
-});
+}));
 
-const PostsPagePostFooter = ({post, sequenceId, classes}: {
+const PostsPagePostFooter = ({post, sequenceId}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   sequenceId: string|null,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const votingSystemName = (post.votingSystem || "default") as VotingSystemName;
   const votingSystem = getVotingSystemByName(votingSystemName);
   const wordCount = post.contents?.wordCount || 0
@@ -144,6 +146,5 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
 }
 
 export default registerComponent("PostsPagePostFooter", PostsPagePostFooter, {
-  styles,
   areEqual: "auto",
 });

@@ -1,7 +1,6 @@
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import React from 'react';
 import { useNewEvents } from '../../lib/events/withNewEvents';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { isLW, firstCommentAcknowledgeMessageCommentIdSetting } from '@/lib/instanceSettings';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -12,7 +11,8 @@ import LWDialog from "../common/LWDialog";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
-
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListQuery = gql(`
   query NewUserGuidelinesDialog($documentId: String) {
@@ -24,7 +24,7 @@ const CommentsListQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NewUserGuidelinesDialog', (theme: ThemeType) => ({
   moderationGuidelines: {
     ...theme.typography.body2,
     padding: 30,
@@ -33,14 +33,14 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     }
   }
-});
+}));
 
-const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
-  classes: ClassesType<typeof styles>,
+const NewUserGuidelinesDialog = ({onClose, post, user}: {
   onClose: () => void,
   post: PostsMinimumInfo,
   user: UsersCurrent
 }) => {
+  const classes = useStyles(styles);
   const updateCurrentUser = useUpdateCurrentUser();
   const { recordEvent } = useNewEvents();
 
@@ -92,6 +92,6 @@ const NewUserGuidelinesDialog = ({classes, onClose, post, user}: {
   )
 };
 
-export default registerComponent('NewUserGuidelinesDialog', NewUserGuidelinesDialog, { styles });
+export default NewUserGuidelinesDialog;
 
 

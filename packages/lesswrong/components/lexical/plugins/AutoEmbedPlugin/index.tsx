@@ -511,21 +511,15 @@ export const EmbedConfigs = [
   // FigmaEmbedConfig,
 ];
 
-function AutoEmbedMenuItem({
-  index,
-  isSelected,
-  onClick,
-  onMouseEnter,
-  option,
-  classes,
-}: {
+function AutoEmbedMenuItem({index, isSelected, onClick, onMouseEnter, option}: {
   index: number;
   isSelected: boolean;
   onClick: () => void;
   onMouseEnter: () => void;
   option: AutoEmbedOption;
-  classes: Record<string, string>;
 }) {
+  const classes = useStyles(styles);
+
   return (
     <li
       key={option.key}
@@ -542,19 +536,14 @@ function AutoEmbedMenuItem({
   );
 }
 
-function AutoEmbedMenu({
-  options,
-  selectedItemIndex,
-  onOptionClick,
-  onOptionMouseEnter,
-  classes,
-}: {
+function AutoEmbedMenu({options, selectedItemIndex, onOptionClick, onOptionMouseEnter}: {
   selectedItemIndex: number | null;
   onOptionClick: (option: AutoEmbedOption, index: number) => void;
   onOptionMouseEnter: (index: number) => void;
   options: Array<AutoEmbedOption>;
-  classes: Record<string, string>;
 }) {
+  const classes = useStyles(styles);
+
   return (
     <div className={classes.popover}>
       <ul className={classes.list}>
@@ -566,7 +555,6 @@ function AutoEmbedMenu({
             onMouseEnter={() => onOptionMouseEnter(i)}
             key={option.key}
             option={option}
-            classes={classes}
           />
         ))}
       </ul>
@@ -705,7 +693,6 @@ export default function AutoEmbedPlugin(): JSX.Element {
                     onOptionMouseEnter={(index: number) => {
                       setHighlightedIndex(index);
                     }}
-                    classes={classes}
                   />
                 </div>,
                 anchorElementRef.current,

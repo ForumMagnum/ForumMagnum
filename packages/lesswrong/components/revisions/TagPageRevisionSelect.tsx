@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback } from 'react'
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTagBySlug } from '../tagging/useTag';
 import { tagGetRevisionLink, tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from "../../lib/reactRouterWrapper";

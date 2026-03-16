@@ -1,5 +1,4 @@
 import React, { FC, useState, useCallback, PropsWithChildren } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isLWorAF } from "../../lib/instanceSettings";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useMessages } from "../common/withMessages";
@@ -7,6 +6,8 @@ import { Link } from "../../lib/reactRouterWrapper";
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const TosLink: FC<PropsWithChildren<{}>> = ({children}) =>
   <Link to="/termsOfUse" target="_blank" rel="noreferrer">{children ?? "terms of use"}</Link>
@@ -16,7 +17,7 @@ export const LicenseLink: FC<PropsWithChildren<{}>> = ({children}) =>
     {children ?? "Creative Commons Attribution 4.0"}
   </a>
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsAcceptTos", (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "row",
@@ -32,12 +33,12 @@ const styles = (theme: ThemeType) => ({
   spinner: {
     marginTop: 18,
   },
-});
+}));
 
-const PostsAcceptTos = ({currentUser, classes}: {
+const PostsAcceptTos = ({currentUser}: {
   currentUser: UsersCurrent,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [loading, setLoading] = useState(false);
   const [accepted, setAccepted] = useState(currentUser.acceptedTos);
   const updateCurrentUser = useUpdateCurrentUser();
@@ -85,6 +86,6 @@ const PostsAcceptTos = ({currentUser, classes}: {
   );
 }
 
-export default registerComponent("PostsAcceptTos", PostsAcceptTos, {styles});
+export default PostsAcceptTos;
 
 

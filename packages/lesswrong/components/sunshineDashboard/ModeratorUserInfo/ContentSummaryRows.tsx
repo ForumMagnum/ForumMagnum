@@ -1,6 +1,5 @@
 import classNames from 'classnames';
 import React, { useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import sortBy from 'lodash/sortBy';
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
@@ -10,8 +9,10 @@ import CommentKarmaWithPreview from "../CommentKarmaWithPreview";
 import Loading from "../../vulcan-core/Loading";
 import Row from "../../common/Row";
 import { maybeDate } from '@/lib/utils/dateUtils';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ContentSummaryRows', (theme: ThemeType) => ({
   contentSummaryRow: {
     display: "flex",
     flexWrap: "wrap",
@@ -47,15 +48,15 @@ const styles = (theme: ThemeType) => ({
     fontSize: ".9rem",
     marginLeft: 7
   }
-});
+}));
 
-export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
-  classes: ClassesType<typeof styles>,
+export const ContentSummaryRows = ({comments, posts, user, loading}: {
   comments: CommentsListWithParentMetadata[],
   posts: SunshinePostsList[],
   user: SunshineUsersList,
   loading: boolean
 }) => {
+  const classes = useStyles(styles);
   const [contentSort, setContentSort] = useState<'baseScore' | 'postedAt'>("postedAt")
   const [contentDisplay, setContentDisplay] = useState<'titles' | 'karma'>("karma")
 
@@ -135,6 +136,6 @@ export const ContentSummaryRows = ({classes, comments, posts, user, loading}: {
   </div>;
 }
 
-export default registerComponent('ContentSummaryRows', ContentSummaryRows, {styles});
+export default ContentSummaryRows;
 
 

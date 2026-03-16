@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useMessages } from '../../common/withMessages';
 import { useModerateComment } from './withModerateComment'
 import { DialogActions } from '@/components/widgets/DialogActions';
@@ -9,8 +8,10 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import LWDialog from "../../common/LWDialog";
 import { useCurrentUser } from '../../common/withUser';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DeleteCommentDialog', (theme: ThemeType) => ({
   subtitle: {
     fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
@@ -20,13 +21,13 @@ const styles = (theme: ThemeType) => ({
   modalTextField: {
     marginTop: 10,
   },
-})
+}))
 
-const DeleteCommentDialog = ({comment, onClose, classes}: {
+const DeleteCommentDialog = ({comment, onClose}: {
   comment: CommentsList,
   onClose?: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [deletedReason, setDeletedReason] = useState("");
   const {moderateCommentMutation} = useModerateComment();
   const { flash } = useMessages();
@@ -105,6 +106,6 @@ const DeleteCommentDialog = ({comment, onClose, classes}: {
   return render();
 }
 
-export default registerComponent('DeleteCommentDialog', DeleteCommentDialog, {styles});
+export default DeleteCommentDialog;
 
 
