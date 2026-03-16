@@ -1,9 +1,10 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import classNames from 'classnames'
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const localGroupsHomeFragmentQuery = gql(`
   query PostsGroupDetails($documentId: String) {
@@ -15,7 +16,7 @@ const localGroupsHomeFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsGroupDetails', (theme: ThemeType) => ({
   title: {
     display: 'inline-block',
     fontSize: 22,
@@ -38,14 +39,14 @@ const styles = (theme: ThemeType) => ({
     marginBottom: theme.isFriendlyUI ? 5 : 12, 
     marginTop: 10
   }
-})
+}))
 
-const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
+const PostsGroupDetails = ({documentId, post, inRecentDiscussion}: {
   documentId: string,
   post: PostsBase,
   inRecentDiscussion?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { data } = useQuery(localGroupsHomeFragmentQuery, {
     variables: { documentId: documentId },
   });
@@ -70,8 +71,6 @@ const PostsGroupDetails = ({ documentId, post, inRecentDiscussion, classes }: {
   </div>
 }
 
-export default registerComponent(
-  'PostsGroupDetails', PostsGroupDetails, { styles }
-);
+export default PostsGroupDetails;
 
 

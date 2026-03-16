@@ -1,9 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import SingleColumnSection from "../common/SingleColumnSection";
 import CollectionsItem from "./CollectionsItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWCoreReading", (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexWrap: "wrap",
@@ -13,7 +14,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body2,
     ...theme.typography.postStyle
   }
-});
+}));
 
 export interface CoreReadingCollection {
   title: string,
@@ -99,15 +100,16 @@ const coreReadingCollections: Array<CoreReadingCollection> =
     }
   ]
 
-const LWCoreReading = ({classes}: {
+const LWCoreReading = ({minimal}: {
   minimal?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return <SingleColumnSection className={classes.root}>
     {coreReadingCollections.map(collection => <CollectionsItem key={collection.id} collection={collection}/>)}
   </SingleColumnSection>
 }
 
-export default registerComponent("LWCoreReading", LWCoreReading, {styles});
+export default LWCoreReading
 
 

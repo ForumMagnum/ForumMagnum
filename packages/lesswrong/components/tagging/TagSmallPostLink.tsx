@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
@@ -7,8 +6,10 @@ import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import UsersName from "../users/UsersName";
 import MetaInfo from "../common/MetaInfo";
 import KarmaDisplay from "../common/KarmaDisplay";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagSmallPostLink", (theme: ThemeType) => ({
   root: {
     display: "flex",
     ...theme.typography.body2,
@@ -51,10 +52,9 @@ const styles = (theme: ThemeType) => ({
   widerSpacing: {
     marginBottom: 4
   }
-});
+}));
 
-const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpacing, disableHoverPreview}: {
-  classes: ClassesType<typeof styles>,
+const TagSmallPostLink = ({post, hideMeta, hideAuthor, wrap, widerSpacing, disableHoverPreview}: {
   post: PostsList,
   hideMeta?: boolean,
   hideAuthor?: boolean,
@@ -62,6 +62,8 @@ const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpaci
   widerSpacing?: boolean
   disableHoverPreview?: boolean
 }) => {
+  const classes = useStyles(styles);
+
   return (
     <PostsTooltip post={post} clickable={false} placement="bottom-start" disabled={disableHoverPreview}>
       <div className={classNames(classes.root, {[classes.widerSpacing]: widerSpacing})}>
@@ -88,6 +90,6 @@ const TagSmallPostLink = ({classes, post, hideMeta, hideAuthor, wrap, widerSpaci
   );
 }
 
-export default registerComponent("TagSmallPostLink", TagSmallPostLink, {styles});
+export default TagSmallPostLink
 
 

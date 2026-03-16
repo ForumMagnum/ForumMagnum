@@ -1,7 +1,6 @@
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import React, { useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../../common/withUser';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import LWTooltip from "../../common/LWTooltip";
@@ -10,6 +9,8 @@ import { useMutation } from "@apollo/client/react";
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from "@/lib/generated/gql-codegen";
 import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PetrovDayActionInfoMultiQuery = gql(`
   query multiPetrovDayActionOptIntoPetrovButtonQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -32,7 +33,7 @@ const PetrovDayActionInfoMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('OptIntoPetrovButton', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     width: "100%",
@@ -159,11 +160,10 @@ const styles = (theme: ThemeType) => ({
     marginTop: 16,
     textAlign: "center"
   }
-})
+}))
 
-const OptIntoPetrovButton = ({classes }: {
-  classes: ClassesType<typeof styles>
-}) => {
+const OptIntoPetrovButton = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const petrovPressedButtonDate = currentUser?.petrovPressedButtonDate
   const [pressed, setPressed] = useState(false) //petrovPressedButtonDate)
@@ -285,7 +285,7 @@ const OptIntoPetrovButton = ({classes }: {
       </div>
 }
 
-export default registerComponent('OptIntoPetrovButton', OptIntoPetrovButton, {styles});
+export default OptIntoPetrovButton;
 
 
 

@@ -1,20 +1,21 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import MetaInfo from "../common/MetaInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsStats', (theme: ThemeType) => ({
   root: {
     opacity:.5,
     [theme.breakpoints.down('sm')]: {
       display:"none"
     }
   }
-})
+}))
 
-const PostsStats = ({post, classes}: {
+const PostsStats = ({post}: {
   post: PostsDetails,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
 
   return (
     <span className={classes.root}>
@@ -30,6 +31,6 @@ const PostsStats = ({post, classes}: {
   )
 }
 
-export default registerComponent('PostsStats', PostsStats, {styles});
+export default PostsStats
 
 

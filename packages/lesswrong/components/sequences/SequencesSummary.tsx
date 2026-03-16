@@ -1,5 +1,4 @@
 import React, { FC, ReactNode } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
 import { getCollectionOrSequenceUrl } from '../../lib/collections/sequences/helpers';
@@ -13,6 +12,8 @@ import ContentItemTruncated from "../common/ContentItemTruncated";
 import LWTooltip from "../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ChaptersFragmentMultiQuery = gql(`
   query multiChapterSequencesSummaryQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {
@@ -25,7 +26,7 @@ const ChaptersFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SequencesSummary', (theme: ThemeType) => ({
   root: {
     padding: 16,
     width: 450,
@@ -71,14 +72,15 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 500,
     size: 14,
   },
-});
+}));
 
 const SequenceMeta: FC<{
   user?: UsersMinimumInfo,
   postCount: number,
   wordCountNode: ReactNode,
-  classes: ClassesType<typeof styles>,
-}> = ({user, postCount, wordCountNode, classes}) => {
+}> = ({user, postCount, wordCountNode}) => {
+  const classes = useStyles(styles);
+
   return isFriendlyUI()
     ? (
       <div className={classes.author}>
@@ -96,13 +98,13 @@ const SequenceMeta: FC<{
     );
 }
 
-const SequencePosts = ({sequence, chapters, maxPosts, totalPosts, classes}: {
+const SequencePosts = ({sequence, chapters, maxPosts, totalPosts}: {
   sequence: SequenceSummaryFragment,
   chapters: ChaptersFragment[],
   maxPosts: number,
   totalPosts: number,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   let postsRendered = 0;
   const nodes: ReactNode[] = [];
   for (let i = 0; i < chapters.length && postsRendered < maxPosts; i++) {
@@ -139,12 +141,12 @@ const _SequenceSummaryFragment = gql(`
   }
 `)
 
-export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}: {
-  classes: ClassesType<typeof styles>,
+export const SequencesSummary = ({sequence, showAuthor=true, maxPosts}: {
   sequence: SequenceSummaryFragment|null,
   showAuthor?: boolean
   maxPosts?: number,
 }) => {
+  const classes = useStyles(styles);
   const { data, loading: chaptersLoading } = useQuery(ChaptersFragmentMultiQuery, {
     variables: {
       selector: { SequenceChapters: { sequenceId: sequence?._id } },
@@ -177,7 +179,6 @@ export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}:
         user={sequence?.user}
         postCount={sequence?.postsCount ?? 0}
         wordCountNode={wordCountNode}
-        classes={classes}
       />
     }
     {!isFriendlyUI() &&
@@ -201,13 +202,12 @@ export const SequencesSummary = ({classes, sequence, showAuthor=true, maxPosts}:
         chapters={chapters}
         maxPosts={maxPosts}
         totalPosts={posts.length}
-        classes={classes}
       />
     }
     {!isFriendlyUI() && wordCountNode}
   </Card>;
 }
 
-export default registerComponent('SequencesSummary', SequencesSummary, {styles});
+export default SequencesSummary
 
 

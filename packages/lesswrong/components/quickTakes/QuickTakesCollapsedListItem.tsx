@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useClickableCell, InteractionWrapper } from "../common/useClickableCell";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
@@ -17,8 +16,10 @@ import FooterTag from "../tagging/FooterTag";
 import CommentsMenu from "../dropdowns/comments/CommentsMenu";
 import LWPopper from "../common/LWPopper";
 import CommentsNode from "../comments/CommentsNode";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("QuickTakesCollapsedListItem", (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -103,13 +104,13 @@ const styles = (theme: ThemeType) => ({
   hoverOver: {
     width: 400,
   },
-});
+}));
 
-const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
+const QuickTakesCollapsedListItem = ({quickTake, setExpanded}: {
   quickTake: ShortformComments,
   setExpanded: (expanded: boolean) => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {eventHandlers, hover, anchorEl} = useHover({
     eventProps: {
       pageElementContext: "shortformItemTooltip",
@@ -229,10 +230,6 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, classes}: {
   );
 }
 
-export default registerComponent(
-  "QuickTakesCollapsedListItem",
-  QuickTakesCollapsedListItem,
-  {styles},
-);
+export default QuickTakesCollapsedListItem;
 
 

@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -8,8 +7,10 @@ import {isFriendlyUI} from '../../themes/forumTheme.ts'
 import FormatDate from "../common/FormatDate";
 import UsersProfileImage from "../users/UsersProfileImage";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ExpandedUsersConversationSearchHit", (theme: ThemeType) => ({
   root: {
     maxWidth: 600,
     paddingTop: 2,
@@ -67,25 +68,17 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     marginTop: 5
   }
-})
+}))
 
-const ExpandedUsersConversationSearchHit = ({
-  hit,
-  currentUser,
-  onClose,
-  onSelect,
-  isModInbox = false,
-  className,
-  classes,
-}: {
+const ExpandedUsersConversationSearchHit = ({hit, currentUser, onClose, onSelect, isModInbox = false, className}: {
   hit: Hit<any>;
   currentUser: UsersCurrent;
   onClose: () => void;
   onSelect: (userId: Hit<any>) => void;
   isModInbox?: boolean;
   className?: string;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   const user = hit as SearchUser;
 
   return (
@@ -123,7 +116,7 @@ const ExpandedUsersConversationSearchHit = ({
   );
 };
 
-export default registerComponent("ExpandedUsersConversationSearchHit", ExpandedUsersConversationSearchHit, {styles});
+export default ExpandedUsersConversationSearchHit;
 
 
 

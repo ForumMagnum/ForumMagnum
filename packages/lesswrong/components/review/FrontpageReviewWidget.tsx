@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
@@ -19,6 +18,8 @@ import ReviewProgressReviews from "./ReviewProgressReviews";
 import ReviewProgressVoting from "./ReviewProgressVoting";
 import ReviewProgressNominations from "./ReviewProgressNominations";
 import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const commonActionButtonStyle = (theme: ThemeType) => ({
   paddingTop: 7,
@@ -36,7 +37,7 @@ const commonActionButtonStyle = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FrontpageReviewWidget', (theme: ThemeType) => ({
   sectionTitle: {
     alignItems: 'flex-end',
     marginBottom: 12,
@@ -169,7 +170,7 @@ const styles = (theme: ThemeType) => ({
       display: "none"
     }
   }
-})
+}))
 
 function isLastDay(now: Date, date: moment.Moment) {
   return date.diff(now) < (24 * 60 * 60 * 1000)
@@ -233,7 +234,8 @@ export function ReviewOverviewTooltip() {
   </div>
 }
 
-const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType<typeof styles>, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
+const FrontpageReviewWidget = ({showFrontpageItems=true, reviewYear, className}: {showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
 
@@ -462,4 +464,4 @@ const dateFraction = (fractionDate: moment.Moment, startDate: moment.Moment, end
   return result.toFixed(2)
 }
 
-export default registerComponent('FrontpageReviewWidget', FrontpageReviewWidget, {styles});
+export default FrontpageReviewWidget

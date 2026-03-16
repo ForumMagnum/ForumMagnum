@@ -1,13 +1,14 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 import LocalOfferOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/LocalOfferOutlined';
 import type { SearchHitComponentProps } from './types';
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagsSearchHit", (theme: ThemeType) => ({
   root: {
     padding: 8,
     paddingLeft: 10,
@@ -29,13 +30,14 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim,
     wordBreak: "break-word"
   }
-})
+}))
 
 const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const TagsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const TagsSearchHit = ({hit, clickAction, showIcon=false}: SearchHitComponentProps) => {
+  const classes = useStyles(styles);
   const tag = hit as SearchTag;
 
   const showSnippet = hit._snippetResult?.body?.matchLevel !== "none"
@@ -55,7 +57,7 @@ const TagsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitCom
   </div>
 }
 
-export default registerComponent("TagsSearchHit", TagsSearchHit, {styles});
+export default TagsSearchHit
 
 
 

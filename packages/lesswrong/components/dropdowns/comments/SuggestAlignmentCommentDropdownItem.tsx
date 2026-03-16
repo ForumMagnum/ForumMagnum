@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { userCanDo } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import ExposurePlus1 from '@/lib/vendor/@material-ui/icons/src/ExposurePlus1';
@@ -10,6 +9,8 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen/gql";
 import uniq from 'lodash/uniq';
 import without from 'lodash/without';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SuggestAlignmentCommentUpdateMutation = gql(`
   mutation updateCommentSuggestAlignmentCommentDropdownItem($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
@@ -21,7 +22,7 @@ const SuggestAlignmentCommentUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SuggestAlignmentCommentDropdownItem', (theme: ThemeType) => ({
   iconRoot: {
     position: "relative",
     width:24,
@@ -42,13 +43,13 @@ const styles = (theme: ThemeType) => ({
     width: 20,
     color: theme.palette.text.maxIntensity,
   }
-})
+}))
 
-const SuggestAlignmentCommentDropdownItem = ({ comment, post, classes }: {
+const SuggestAlignmentCommentDropdownItem = ({comment, post}: {
   comment: CommentsList,
   post?: PostsDetails,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [updateComment] = useMutation(SuggestAlignmentCommentUpdateMutation);
 
@@ -105,4 +106,4 @@ const SuggestAlignmentCommentDropdownItem = ({ comment, post, classes }: {
   );
 }
 
-export default registerComponent('SuggestAlignmentCommentDropdownItem', SuggestAlignmentCommentDropdownItem, {styles});
+export default SuggestAlignmentCommentDropdownItem;

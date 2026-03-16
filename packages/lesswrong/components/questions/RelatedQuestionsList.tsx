@@ -3,8 +3,10 @@ import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PostsItem from "../posts/PostsItem";
 import SectionTitle from "../common/SectionTitle";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RelatedQuestionsList', (theme: ThemeType) => ({
   root: {
     width: 650 + (32),
     marginBottom: 100,
@@ -27,7 +29,7 @@ const styles = (theme: ThemeType) => ({
     paddingLeft: 8,
     borderLeft: theme.palette.border.slightlyFaint,
   }
-})
+}))
 
 export type PostWithRelations = {
   _id: string;
@@ -43,10 +45,10 @@ export type PostWithRelations = {
   }>;
 };
 
-const RelatedQuestionsList = ({ post, classes }: {
+const RelatedQuestionsList = ({post}: {
   post: PostWithRelations,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const sourcePostRelations = post.sourcePostRelations.filter(rel => !!rel.sourcePost)
   const targetPostRelations = post.targetPostRelations.filter(rel => (rel.sourcePostId === post._id && !!rel.targetPost))
 
@@ -104,7 +106,6 @@ const RelatedQuestionsList = ({ post, classes }: {
 }
 
 export default registerComponent('RelatedQuestionsList', RelatedQuestionsList, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

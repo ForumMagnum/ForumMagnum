@@ -20,6 +20,8 @@ import ModeratorActions from "./ModeratorActions";
 import NewUserDMSummary from "./ModeratorUserInfo/NewUserDMSummary";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 function formatMailgunValidationSummary(validation: SunshineUsersList["mailgunValidation"]): string {
   if (!validation) return "not validated";
@@ -75,7 +77,7 @@ const CommentsListWithParentMetadataMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineNewUsersInfo', (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[50]
   },
@@ -148,15 +150,14 @@ const styles = (theme: ThemeType) => ({
       marginTop: 8,
     },
   },
-})
+}))
 
-const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
+const SunshineNewUsersInfo = ({user, refetch, currentUser}: {
   user: SunshineUsersList,
-  classes: ClassesType<typeof styles>,
   refetch: () => void,
   currentUser: UsersCurrent
 }) => {
-
+  const classes = useStyles(styles);
   const [bioWordcount, setBioWordcount] = useState<number>(DEFAULT_BIO_WORDCOUNT)
 
   const { posts = [], loading: postsLoading } = usePublishedPosts(user._id, CONTENT_LIMIT);
@@ -234,7 +235,6 @@ const SunshineNewUsersInfo = ({ user, classes, refetch, currentUser }: {
 }
 
 export default registerComponent('SunshineNewUsersInfo', SunshineNewUsersInfo, {
-  styles,
   hocs: [
     withErrorBoundary,
   ]

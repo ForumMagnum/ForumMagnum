@@ -1,8 +1,9 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagRelFragmentQuery = gql(`
   query TagRelNotificationItem($documentId: String) {
@@ -14,7 +15,7 @@ const TagRelFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TagRelNotificationItem', (theme: ThemeType) => ({
   meta: {
     fontSize: ".9rem",
     color: theme.palette.text.dim45,
@@ -24,12 +25,12 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     textOverflow: "ellipsis"
   }
-});
+}));
 
-export const TagRelNotificationItem = ({classes, tagRelId}: {
-  classes: ClassesType<typeof styles>,
+export const TagRelNotificationItem = ({tagRelId}: {
   tagRelId: string
 }) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(TagRelFragmentQuery, {
     variables: { documentId: tagRelId },
   });
@@ -44,7 +45,7 @@ export const TagRelNotificationItem = ({classes, tagRelId}: {
   </div>;
 }
 
-export default registerComponent('TagRelNotificationItem', TagRelNotificationItem, {styles});
+export default TagRelNotificationItem
 
 
 

@@ -5,7 +5,6 @@ import { userCanDo } from "../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { ALLOWABLE_COLLECTIONS, TemplateType } from "@/lib/collections/moderationTemplates/constants";
 import classNames from 'classnames';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { ModerationTemplatesForm } from './ModerationTemplateForm';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
@@ -17,6 +16,8 @@ import ToCColumn from "../posts/TableOfContents/ToCColumn";
 import TableOfContents from "../posts/TableOfContents/TableOfContents";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ModerationTemplateFragmentMultiQuery = gql(`
   query multiModerationTemplateModerationTemplatesPageQuery($selector: ModerationTemplateSelector, $limit: Int, $enableTotal: Boolean) {
@@ -29,7 +30,7 @@ const ModerationTemplateFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ModerationTemplatesPage', (theme: ThemeType) => ({
   form: {
     border: theme.palette.border.commentBorder,
     padding: 12,
@@ -48,12 +49,11 @@ const styles = (theme: ThemeType) => ({
   filterSelected: {
     backgroundColor: theme.palette.grey[200]
   }
-});
+}));
 
 //a page for creating and viewing moderation templates
-export const ModerationTemplatesPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const ModerationTemplatesPage = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [showDeleted, setShowDeleted] = useState<boolean>(false);
   const [filter, setFilter] = useState<TemplateType|null>(null);
@@ -138,7 +138,7 @@ export const ModerationTemplatesPage = ({classes}: {
 }
   
 
-export default registerComponent('ModerationTemplatesPage', ModerationTemplatesPage, {styles});
+export default ModerationTemplatesPage;
 
 
 

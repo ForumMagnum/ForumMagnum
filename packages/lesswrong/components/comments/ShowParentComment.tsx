@@ -1,11 +1,12 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import SubdirectoryArrowLeft from '@/lib/vendor/@material-ui/icons/src/SubdirectoryArrowLeft';
 import classNames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ShowParentComment', (theme: ThemeType) => ({
   root: {
     paddingRight: 8,
     paddingTop: 8,
@@ -39,14 +40,14 @@ const styles = (theme: ThemeType) => ({
   activeArrow: {
     transform: "rotate(-90deg)"
   }
-})
+}))
 
-const ShowParentComment = ({ comment, active, onClick, classes }: {
+const ShowParentComment = ({comment, active, onClick}: {
   comment: CommentsList,
   active?: boolean,
   onClick?: any,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
 
   if (!comment) return null;
   
@@ -59,7 +60,7 @@ const ShowParentComment = ({ comment, active, onClick, classes }: {
   )
 };
 
-export default registerComponent('ShowParentComment', ShowParentComment, {styles});
+export default ShowParentComment;
 
 
 

@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
@@ -17,6 +16,8 @@ import SingleColumnSection from "../common/SingleColumnSection";
 import Loading from "../vulcan-core/Loading";
 import EAButton from "../ea-forum/EAButton";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagFragmentQuery = gql(`
   query TagMergePage($documentId: String) {
@@ -28,7 +29,7 @@ const TagFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagMergePage", (theme: ThemeType) => ({
   root: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 14,
@@ -74,9 +75,10 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "flex-end",
     marginTop: 8,
   },
-});
+}));
 
-const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
+const TagMergePage = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
 
@@ -236,6 +238,6 @@ const TagMergePage = ({ classes }: { classes: ClassesType<typeof styles> }) => {
   );
 };
 
-export default registerComponent("TagMergePage", TagMergePage, { styles });
+export default TagMergePage;
 
 

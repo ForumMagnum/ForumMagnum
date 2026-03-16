@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncate } from '../../lib/editor/ellipsize';
 import { userHasSubscribeTabFeed } from '@/lib/betas';
 import { useCurrentUser } from '../common/withUser';
@@ -11,6 +10,8 @@ import UserMetaInfo from "./UserMetaInfo";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListMultiQuery = gql(`
   query multiPostLWUserTooltipContentQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -23,7 +24,7 @@ const PostsListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LWUserTooltipContent', (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -72,13 +73,13 @@ const styles = (theme: ThemeType) => ({
     borderTop: theme.palette.border.extraFaint,
     overflow: "hidden",
   },
-});
+}));
 
-export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
+export const LWUserTooltipContent = ({hideFollowButton=false, user}: {
   hideFollowButton?: boolean,
-  classes: ClassesType<typeof styles>,
   user: UsersMinimumInfo,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const { htmlBio, displayName } = user;
@@ -124,10 +125,6 @@ export const LWUserTooltipContent = ({hideFollowButton=false, classes, user}: {
 );
 }
 
-export default registerComponent(
-  'LWUserTooltipContent',
-  LWUserTooltipContent,
-  {styles},
-);
+export default LWUserTooltipContent;
 
 

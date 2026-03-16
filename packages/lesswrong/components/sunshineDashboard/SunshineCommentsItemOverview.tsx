@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
@@ -6,18 +5,20 @@ import { Link } from '../../lib/reactRouterWrapper'
 import { Typography } from "../common/Typography";
 import SidebarInfo from "./SidebarInfo";
 import CommentsItemDate from "../comments/CommentsItem/CommentsItemDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineCommentsItemOverview', (theme: ThemeType) => ({
   comment: {
     fontSize: "1rem",
     lineHeight: "1.5em"
   }
-})
+}))
 
-const SunshineCommentsItemOverview = ({ comment, classes }: {
+const SunshineCommentsItemOverview = ({comment}: {
   comment: any,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { markdown = "" } = comment.contents || {}
   const commentExcerpt = markdown && markdown.substring(0,38);
   return (
@@ -46,7 +47,7 @@ const SunshineCommentsItemOverview = ({ comment, classes }: {
   )
 }
 
-export default registerComponent('SunshineCommentsItemOverview', SunshineCommentsItemOverview, {styles});
+export default SunshineCommentsItemOverview
 
 
 

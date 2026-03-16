@@ -17,11 +17,12 @@ import { getOffsetChainTop } from '@/lib/utils/domUtil';
 import { scrollFocusOnElement, ScrollHighlightLandmark } from '@/lib/scrollUtils';
 import { isLWorAF } from '@/lib/instanceSettings';
 import { useLocation, useNavigate } from "../../../lib/routeUtil";
-import { getClassName } from '@/components/hooks/useStyles';
+import { getClassName, useStyles } from '@/components/hooks/useStyles';
 import TableOfContentsRow, { TableOfContentsRowStyles } from './TableOfContentsRow';
 import type { TableOfContentsDividerStyles } from './TableOfContentsDivider';
 import AnswerTocRow from "./AnswerTocRow";
 import { useContainerReadProgress } from '../../hooks/useContainerReadProgress';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 function normalizeToCScale({containerPosition, sections}: {
   sections: ToCSection[]
@@ -123,7 +124,7 @@ function getSectionsWithOffsets(postContents: HTMLElement, sections: ToCSection[
   });
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FixedPositionToC", (theme: ThemeType) => ({
   root: {
     left: 0,
     top: 0,
@@ -236,23 +237,23 @@ const styles = (theme: ThemeType) => ({
       marginLeft: 4,
     },
   },
-});
+}));
 
 function getNewSearchParams(query: Record<string, string>) {
   const { commentId, ...restQuery } = query;
   return isEmpty(restQuery) ? '' : `?${qs.stringify(restQuery)}`;
 }
 
-const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, classes, hover, scrollContainerRef}: {
+const FixedPositionToc = ({tocSections, title, heading, onClickSection, displayOptions, hover, scrollContainerRef}: {
   tocSections: ToCSection[],
   title: string|null,
   heading?: React.ReactNode,
   onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
-  classes: ClassesType<typeof styles>,
   hover?: boolean,
   scrollContainerRef?: React.RefObject<HTMLDivElement | null>,
 }) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
   const location = useLocation();
   const { query } = location;
@@ -518,11 +519,8 @@ function waitForImageToLoad(imageTag: HTMLImageElement): Promise<void> {
   });
 }
 
-export default registerComponent(
-  "FixedPositionToC", FixedPositionToc, {
-    hocs: [withErrorBoundary],
-    styles
-  }
-);
+export default registerComponent("FixedPositionToC", FixedPositionToc, {
+  hocs: [withErrorBoundary],
+});
 
 

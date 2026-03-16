@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
@@ -8,6 +7,8 @@ import SunshineNewTagsItem from "./SunshineNewTagsItem";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineTagFragmentMultiQuery = gql(`
   query multiTagSunshineNewTagsListQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -20,13 +21,14 @@ const SunshineTagFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineNewTagsList', (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.panelBackground.sunshineNewTags,
   }
-})
+}))
 
-const SunshineNewTagsList = ({ classes }: {classes: ClassesType<typeof styles>}) => {
+const SunshineNewTagsList = () => {
+  const classes = useStyles(styles);
   const { data, loadMoreProps } = useQueryWithLoadMore(SunshineTagFragmentMultiQuery, {
     variables: {
       selector: { unreviewedTags: {} },
@@ -59,6 +61,6 @@ const SunshineNewTagsList = ({ classes }: {classes: ClassesType<typeof styles>})
   }
 }
 
-export default registerComponent('SunshineNewTagsList', SunshineNewTagsList, {styles});
+export default SunshineNewTagsList;
 
 

@@ -1,12 +1,13 @@
 "use client";
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 import ErrorBoundary from "./ErrorBoundary";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const SECTION_WIDTH = 765
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SingleColumnSection', (theme: ThemeType) => ({
   root: {
     marginBottom: 32,
     maxWidth: SECTION_WIDTH,
@@ -19,13 +20,13 @@ const styles = (theme: ThemeType) => ({
       // (SingleColumnLayout should probably be replaced by grid-css in Layout.tsx)
     }
   }
-})
+}), { stylePriority: -1 })
 
-const SingleColumnSection = ({classes, className, children}: {
-  classes: ClassesType<typeof styles>,
+const SingleColumnSection = ({className, children}: {
   className?: string,
   children?: React.ReactNode,
 }) => {
+  const classes = useStyles(styles);
 
   return (
     <ErrorBoundary>
@@ -36,6 +37,6 @@ const SingleColumnSection = ({classes, className, children}: {
   )
 };
 
-export default registerComponent('SingleColumnSection', SingleColumnSection, {styles, stylePriority: -1});
+export default SingleColumnSection;
 
 

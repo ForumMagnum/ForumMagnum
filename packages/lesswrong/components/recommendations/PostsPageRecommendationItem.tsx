@@ -1,5 +1,4 @@
 import React, { FC, PropsWithChildren } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { SoftUpArrowIcon } from "../icons/softUpArrowIcon";
 import { InteractionWrapper, useClickableCell } from "../common/useClickableCell";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
@@ -12,8 +11,10 @@ import PostsTitle from "../posts/PostsTitle";
 import UsersName from "../users/UsersName";
 import LWTooltip from "../common/LWTooltip";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsPageRecommendationItem", (theme: ThemeType) => ({
   root: {
     position: "relative",
     display: "flex",
@@ -74,21 +75,16 @@ const styles = (theme: ThemeType) => ({
       opacity: 1,
     },
   },
-});
+}));
 
-const PostsPageRecommendationItem = ({
-  post,
-  disableAnalytics,
-  className,
-  classes,
-}: {
+const PostsPageRecommendationItem = ({post, disableAnalytics, className}: {
   post: PostsListWithVotesAndSequence,
   // This prop is not used, but is required to be compatible with RecommendationsList
   translucentBackground?: boolean,
   disableAnalytics?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const postLink = postGetPageUrl(post, false, post.canonicalSequence?._id);
   const {onClick: onClickCell} = useClickableCell({href: postLink});
   const {ref, onClick} = useRecommendationAnalytics(
@@ -156,10 +152,6 @@ const PostsPageRecommendationItem = ({
   );
 }
 
-export default registerComponent(
-  "PostsPageRecommendationItem",
-  PostsPageRecommendationItem,
-  {styles},
-);
+export default PostsPageRecommendationItem;
 
 

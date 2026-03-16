@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
@@ -10,8 +9,10 @@ import SequencesNewButton from "./SequencesNewButton";
 import LWCoreReading from "./LWCoreReading";
 import SequencesGridWrapper from "./SequencesGridWrapper";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LibraryPage', (theme: ThemeType) => ({
   pageTitle: {
     ...theme.typography.headerStyle,
     fontWeight: "bold",
@@ -22,11 +23,11 @@ const styles = (theme: ThemeType) => ({
     lineHeight: 1,
     marginTop: 0,
   }
-});
+}));
 
-const LibraryPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const LibraryPage = () => {
+  const classes = useStyles(styles);
+
   return <React.Fragment>
     <AnalyticsContext pageContext="sequencesHome">
       <SingleColumnSection>
@@ -65,7 +66,7 @@ const LibraryPage = ({classes}: {
   </React.Fragment>;
 };
 
-export default registerComponent('LibraryPage', LibraryPage, {styles});
+export default LibraryPage;
 
 
 

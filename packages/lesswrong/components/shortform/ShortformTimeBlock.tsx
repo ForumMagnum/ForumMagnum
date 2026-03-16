@@ -1,10 +1,11 @@
 import React, { FC, useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import CommentsNode from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
 import ContentType from "../posts/PostsPage/ContentType";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ShortformCommentsMultiQuery = gql(`
   query multiCommentShortformTimeBlockQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -17,7 +18,7 @@ const ShortformCommentsMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ShortformTimeBlock', (theme: ThemeType) => ({
   shortformGroup: {
     marginTop: theme.isFriendlyUI ? 20 : 12,
   },
@@ -28,7 +29,7 @@ const styles = (theme: ThemeType) => ({
   loadMore: {
     marginTop: 6
   }
-})
+}))
 
 const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
   if (!comment.post) {
@@ -46,13 +47,13 @@ const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
   );
 }
 
-const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
+const ShortformTimeBlock  = ({reportEmpty, before, after, terms}: {
   reportEmpty: () => void,
   before: string
   after: string
   terms: CommentsViewTerms,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { view, ...rest } = terms;
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
     variables: {
@@ -101,7 +102,7 @@ const ShortformTimeBlock  = ({reportEmpty, before, after, terms, classes}: {
   </div>
 }
 
-export default registerComponent('ShortformTimeBlock', ShortformTimeBlock, {styles});
+export default ShortformTimeBlock;
 
 
 

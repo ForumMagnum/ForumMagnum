@@ -1,9 +1,10 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagMentionHit", (theme: ThemeType) => ({
   root: {
     ...(theme.isFriendlyUI && {
       display: "block",
@@ -18,12 +19,12 @@ const styles = (theme: ThemeType) => ({
     marginRight: 6,
     transform: "translateY(4px)",
   },
-});
+}));
 
-const TagMentionHit = ({hit, classes}: {
+const TagMentionHit = ({hit}: {
   hit: SearchTag,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const icon = isFriendlyUI()
     ? <ForumIcon icon="Tag" className={classes.icon} />
     : "🏷️";
@@ -34,10 +35,6 @@ const TagMentionHit = ({hit, classes}: {
   );
 }
 
-export default registerComponent(
-  "TagMentionHit",
-  TagMentionHit,
-  {styles},
-);
+export default TagMentionHit;
 
 

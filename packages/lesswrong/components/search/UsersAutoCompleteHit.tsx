@@ -1,19 +1,21 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UsersAutoCompleteHit', (theme: ThemeType) => ({
   root: {
     cursor: "pointer"
   }
-});
+}));
 
-const UsersAutoCompleteHit = ({document, classes}: {
+const UsersAutoCompleteHit = ({document}: {
   document: SearchUser
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
+
   if (document) {
     return <div className={classes.root}>
       <MetaInfo>
@@ -31,7 +33,7 @@ const UsersAutoCompleteHit = ({document, classes}: {
   }
 };
 
-export default registerComponent('UsersAutoCompleteHit', UsersAutoCompleteHit, {styles});
+export default UsersAutoCompleteHit;
 
 
 

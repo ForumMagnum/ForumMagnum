@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 import React from 'react';
@@ -9,8 +8,10 @@ import type { SearchHitComponentProps } from './types';
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentsSearchHit", (theme: ThemeType) => ({
   root: {
     padding: 8,
     paddingLeft: 10,
@@ -30,13 +31,14 @@ const styles = (theme: ThemeType) => ({
     wordBreak: "break-word",
     color: theme.palette.grey[600],
   }
-})
+}))
 
 const isLeftClick = (event: React.MouseEvent): boolean => {
   return event.button === 0 && !event.ctrlKey && !event.metaKey;
 }
 
-const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHitComponentProps) => {
+const CommentsSearchHit = ({hit, clickAction, showIcon=false}: SearchHitComponentProps) => {
+  const classes = useStyles(styles);
   const comment = (hit as SearchComment);
   let url = "";
   if (comment.postId && comment.postSlug) {
@@ -69,7 +71,7 @@ const CommentsSearchHit = ({hit, clickAction, classes, showIcon=false}: SearchHi
   </div>
 }
 
-export default registerComponent("CommentsSearchHit", CommentsSearchHit, {styles});
+export default CommentsSearchHit;
 
 
 

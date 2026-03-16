@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import CoreTagCard from "./CoreTagCard";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagDetailsFragmentMultiQuery = gql(`
   query multiTagCoreTagsSectionQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -16,7 +17,7 @@ const TagDetailsFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CoreTagsSection", (theme: ThemeType) => ({
   root: {
     marginBottom: 16,
   },
@@ -33,13 +34,12 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     marginTop: 8,
   }
-});
+}));
 
 const INITIAL_LIMIT = 8;
 
-const CoreTagsSection = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const CoreTagsSection = () => {
+  const classes = useStyles(styles);
   const { data } = useQuery(TagDetailsFragmentMultiQuery, {
     variables: {
       selector: { coreTags: {} },
@@ -71,6 +71,6 @@ const CoreTagsSection = ({classes}: {
   );
 }
 
-export default registerComponent("CoreTagsSection", CoreTagsSection, {styles});
+export default CoreTagsSection;
 
 

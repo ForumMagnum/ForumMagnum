@@ -14,8 +14,10 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { useTracking } from "../../lib/analyticsEvents";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RecentDiscussionTag', (theme: ThemeType) => ({
   root: {
     marginBottom: 32,
     position: "relative",
@@ -68,16 +70,16 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim3,
     ...theme.typography.commentStyle,
   },
-});
+}));
 
-const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", classes }: {
+const RecentDiscussionTag = ({tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION"}: {
   tag: TagRecentDiscussion,
   refetch?: any,
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
   tagCommentType?: TagCommentType,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const { captureEvent } = useTracking();
@@ -161,11 +163,6 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   )
 }
 
-export default registerComponent(
-  'RecentDiscussionTag', RecentDiscussionTag, {
-    styles,
-    hocs: [withErrorBoundary],
-  }
-);
-
-
+export default registerComponent('RecentDiscussionTag', RecentDiscussionTag, {
+  hocs: [withErrorBoundary],
+});

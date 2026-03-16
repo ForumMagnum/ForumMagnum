@@ -1,11 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagStyle } from './FooterTag';
 import TagsChecklist from "./TagsChecklist";
 import Loading from "../vulcan-core/Loading";
 import { useCoreTags } from './useCoreTags';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CoreTagsChecklist", (theme: ThemeType) => ({
   root: {
     marginBottom: 8,
     display: "flex",
@@ -28,13 +29,13 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[800]
     }
   }
-}); 
+})); 
 
-const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
+const CoreTagsChecklist = ({onTagSelected, existingTagIds=[]}: {
   onTagSelected?: (tag: {tagId: string, tagName: string}, existingTagIds: Array<string>) => void,
-  classes: ClassesType<typeof styles>,
   existingTagIds?: Array<string|undefined>
 }) => {
+  const classes = useStyles(styles);
   const { data, loading } = useCoreTags();
 
   const results = data?.tags?.results;
@@ -45,6 +46,6 @@ const CoreTagsChecklist = ({onTagSelected, classes, existingTagIds=[] }: {
 }
 
 
-export default registerComponent("CoreTagsChecklist", CoreTagsChecklist, {styles});
+export default CoreTagsChecklist;
 
 

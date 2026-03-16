@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
@@ -10,8 +9,10 @@ import SectionFooter from "../common/SectionFooter";
 import RecommendationsList from "../recommendations/RecommendationsList";
 import HoverPreviewLink from "../linkPreview/HoverPreviewLink";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FrontpageVotingPhase', (theme: ThemeType) => ({
   timeRemaining: {
     marginTop: 6,
     marginBottom: 4
@@ -31,12 +32,12 @@ const styles = (theme: ThemeType) => ({
     textTransform: "uppercase",
     fontSize: "1rem"
   }
-})
+}))
 
-const FrontpageVotingPhase = ({settings, classes}: {
+const FrontpageVotingPhase = ({settings}: {
   settings: DefaultRecommendationsAlgorithm,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const reviewTooltip = <div>
     <div>The LessWrong community is reflecting on the best posts from 2018, in three phases</div>
@@ -87,6 +88,6 @@ const FrontpageVotingPhase = ({settings, classes}: {
   )
 }
 
-export default registerComponent('FrontpageVotingPhase', FrontpageVotingPhase, {styles});
+export default FrontpageVotingPhase;
 
 

@@ -9,13 +9,14 @@ import { useSetIsHiddenMutation } from './useSetIsHidden';
 import { registerComponent } from "../../../lib/vulcan-lib/components";
 import LoginPopup from "../../users/LoginPopup";
 import DropdownItem from "../DropdownItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('HideFrontpagePostDropdownItem', (theme: ThemeType) => ({
   icon: {
     cursor: "pointer",
     color: theme.palette.icon.dim3,
   },
-});
+}));
 
 const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
   const allowHidingPosts = useContext(AllowHidingFrontPagePostsContext)
@@ -60,13 +61,8 @@ const HideFrontpagePostDropdownItem = ({post}: {post: PostsBase}) => {
   );
 }
 
-export default registerComponent(
-  'HideFrontpagePostDropdownItem',
-  HideFrontpagePostDropdownItem,
-  {
-    styles,
-    hocs: [withErrorBoundary],
-  },
-);
+export default registerComponent('HideFrontpagePostDropdownItem', HideFrontpagePostDropdownItem, {
+  hocs: [withErrorBoundary],
+});
 
 

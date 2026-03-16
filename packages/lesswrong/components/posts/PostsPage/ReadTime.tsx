@@ -1,21 +1,22 @@
 import React, { useMemo } from 'react';
-import { registerComponent } from "@/lib/vulcan-lib/components";
 import LWTooltip from "../../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReadTime', (theme: ThemeType) => ({
   root: {
     fontWeight: theme.isFriendlyUI ? 450 : undefined,
     fontSize: theme.isFriendlyUI ? undefined : theme.typography.body2.fontSize,
     cursor: 'default',
     "@media print": { display: "none" },
   },
-});
+}));
 
-export const ReadTime = ({classes, post, dialogueResponses}: {
-  classes: ClassesType<typeof styles>,
+export const ReadTime = ({post, dialogueResponses}: {
   post: PostsList,
   dialogueResponses: readonly CommentsList[],
 }) => {
+  const classes = useStyles(styles);
   const wordCount = useMemo(() => {
     if (!post.debate || dialogueResponses.length === 0) {
       return post.contents?.wordCount || 0;
@@ -45,6 +46,6 @@ export const ReadTime = ({classes, post, dialogueResponses}: {
       </LWTooltip>
 }
 
-export default registerComponent('ReadTime', ReadTime, {styles});
+export default ReadTime;
 
 

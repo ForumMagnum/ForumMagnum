@@ -1,9 +1,10 @@
 import React, { ReactNode } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import LWDialog from "./LWDialog";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("BlurredBackgroundModal", (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.modalBackground,
     borderRadius: theme.borderRadius.default,
@@ -32,21 +33,16 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.background.loginBackdrop,
     backdropFilter: "blur(4px)",
   },
-});
+}), { stylePriority: -1 });
 
-export const BlurredBackgroundModal = ({
-  open,
-  onClose,
-  children,
-  className,
-  classes,
-}: {
+export const BlurredBackgroundModal = ({open, onClose, children, className}: {
   open: boolean,
   onClose?: () => void,
   children: ReactNode,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return <LWDialog open={open} onClose={onClose} backdrop="blur">
     <div className={classNames(classes.root, className)}>
       {children}
@@ -54,10 +50,6 @@ export const BlurredBackgroundModal = ({
   </LWDialog>
 }
 
-export default registerComponent(
-  "BlurredBackgroundModal",
-  BlurredBackgroundModal,
-  {styles, stylePriority: -1},
-);
+export default BlurredBackgroundModal;
 
 

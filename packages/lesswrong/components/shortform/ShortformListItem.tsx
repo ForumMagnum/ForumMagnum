@@ -14,8 +14,10 @@ import ForumIcon from "../common/ForumIcon";
 import UsersName from "../users/UsersName";
 import FooterTag from "../tagging/FooterTag";
 import CommentsNode from "../comments/CommentsNode";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ShortformListItem", (theme: ThemeType) => ({
   root: {
     maxWidth: SECTION_WIDTH,
     display: "flex",
@@ -82,13 +84,13 @@ const styles = (theme: ThemeType) => ({
   hoverOver: {
     width: 400,
   },
-});
+}));
 
-const ShortformListItem = ({comment, hideTag, classes}: {
+const ShortformListItem = ({comment, hideTag}: {
   comment: ShortformComments,
   hideTag?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking();
 
   const [expanded, setExpanded] = useState(false)
@@ -191,15 +193,11 @@ const ShortformListItem = ({comment, hideTag, classes}: {
   );
 }
 
-export default registerComponent(
-  "ShortformListItem",
-  ShortformListItem, {
-    styles,
-    hocs: [withErrorBoundary],
-    areEqual: {
-      treeOptions: "shallow",
-    },
+export default registerComponent("ShortformListItem", ShortformListItem, {
+  hocs: [withErrorBoundary],
+  areEqual: {
+    treeOptions: "shallow",
   },
-);
+});
 
 

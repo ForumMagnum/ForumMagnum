@@ -1,11 +1,12 @@
 import React from 'react';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import FormatDate from "../../common/FormatDate";
 import UsersNameWrapper from "../../users/UsersNameWrapper";
 import AltAccountInfo from "./AltAccountInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles('UserReviewStatus', (_theme: ThemeType) => ({
   root: {
     marginTop: 16,
     fontStyle: "italic",
@@ -17,12 +18,12 @@ const styles = (_theme: ThemeType) => ({
     maxHeight: 20,
     overflow: "hidden"
   }
-});
+}));
 
-export const UserReviewStatus = ({classes, user}: {
-  classes: ClassesType<typeof styles>,
+export const UserReviewStatus = ({user}: {
   user: SunshineUsersList
 }) => {
+  const classes = useStyles(styles);
   const approvalStatus = user.banned 
     ? "Banned"
     : (user.reviewedByUserId && user.snoozedUntilContentCount) ? `Snoozed, ${user.snoozedUntilContentCount}` : "Approved"
@@ -52,6 +53,6 @@ export const UserReviewStatus = ({classes, user}: {
   </div>;
 }
 
-export default registerComponent('UserReviewStatus', UserReviewStatus, {styles});
+export default UserReviewStatus;
 
 

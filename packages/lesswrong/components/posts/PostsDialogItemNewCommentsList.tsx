@@ -1,10 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { CommentTreeOptions } from '../comments/commentTree';
 import NoContent from "../common/NoContent";
 import PostsItemNewCommentsListNode from "./PostsItemNewCommentsListNode";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
 
 const CommentsListMultiQuery = gql(`
   query multiCommentPostsDialogItemNewCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -17,11 +17,10 @@ const CommentsListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({})
+const styles = defineStyles('PostsDialogItemNewCommentsList', (theme: ThemeType) => ({}))
 
 const PostsDialogItemNewCommentsList = ({ terms, post, treeOptions }: {
   terms: CommentsViewTerms,
-  classes: ClassesType<typeof styles>,
   post: PostsList & { debate: true },
   treeOptions: CommentTreeOptions,
 }) => {
@@ -80,10 +79,5 @@ const PostsDialogItemNewCommentsList = ({ terms, post, treeOptions }: {
   }
 };
 
-export default registerComponent(
-  'PostsDialogItemNewCommentsList', PostsDialogItemNewCommentsList, {
-    styles,
-  }
-);
-
+export default PostsDialogItemNewCommentsList;
 

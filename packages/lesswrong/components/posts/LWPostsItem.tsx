@@ -696,5 +696,3 @@ export default registerComponent('LWPostsItem', LWPostsItem, {
     terms: "deep",
   },
 });
-
-

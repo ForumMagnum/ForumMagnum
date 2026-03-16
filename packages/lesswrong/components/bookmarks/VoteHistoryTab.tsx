@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import moment from 'moment';
 import { commentsNodeRootMarginBottom, maxSmallish, maxTiny } from '../../themes/globalStyles/globalStyles';
@@ -10,6 +9,8 @@ import CommentsNode from "../comments/CommentsNode";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const UserVotesWithDocumentMultiQuery = gql(`
   query multiVoteVoteHistoryTabQuery($selector: VoteSelector, $limit: Int, $enableTotal: Boolean) {
@@ -22,7 +23,7 @@ const UserVotesWithDocumentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('VoteHistoryTab', (theme: ThemeType) => ({
   empty: {
     color: theme.palette.grey[600],
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -46,9 +47,10 @@ const styles = (theme: ThemeType) => ({
       marginBottom: 8,
     },
   },
-})
+}))
 
-const VoteHistoryTab = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const VoteHistoryTab = () => {
+  const classes = useStyles(styles);
   const defaultLimit = 10;
   const pageSize = 30;
 
@@ -116,7 +118,4 @@ const VoteHistoryTab = ({classes}: {classes: ClassesType<typeof styles>}) => {
   </AnalyticsContext>
 }
 
-
-export default registerComponent('VoteHistoryTab', VoteHistoryTab, {styles});
-
-
+export default VoteHistoryTab;
