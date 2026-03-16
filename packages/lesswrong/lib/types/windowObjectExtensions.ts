@@ -1,5 +1,4 @@
 import type { AbstractThemeOptions } from '../../themes/themeNames';
-import type { SSRMetadata } from '../utils/timeUtil';
 
 declare global {
   // Typechecking for things we add to the window object on the client.
@@ -10,13 +9,9 @@ declare global {
   interface Window {
     tabId: string | null;
     themeOptions: AbstractThemeOptions,
-    ssrMetadata?: SSRMetadata
+    ssrTimestamp?: Date
     publicSettings: any,
     publicInstanceSettings: any,
-    __APOLLO_STATE__: any,
-    __APOLLO_FOREIGN_STATE__: any,
-    missingMainStylesheet?: boolean,
-    __replayEvents?: () => void,
     
     googleMapsFinishedLoading?: () => void,
     killPreloadScroll?: () => void,

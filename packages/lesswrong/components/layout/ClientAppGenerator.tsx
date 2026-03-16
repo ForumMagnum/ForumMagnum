@@ -6,7 +6,6 @@ import '@/client/publicSettings';
 import React, { Suspense, use, useEffect, useRef, useState, useTransition } from 'react';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
-import { SSRMetadata, EnvironmentOverrideContext } from '@/lib/utils/timeUtil';
 import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { LocationContext, NavigationContext, SubscribeLocationContext } from '@/lib/locationContexts';
 import { parsePath } from '@/lib/routeChecks/parseRoute';
@@ -23,6 +22,7 @@ import { ApolloWrapper } from '@/components/common/ApolloWrapper';
 import type { RouterLocation } from '@/lib/routeChecks/parseRoute';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { initClientOnce } from '@/client/initClient';
+import { TimeProvider } from '@/lib/utils/TimeProvider';
 
 if (isClient) {
   // This has a downstream call to `googleTagManagerIdSetting.get()`.
@@ -147,7 +147,7 @@ const ClientAppGenerator = ({ abTestGroupsUsed, requestId, children }: {
   const urlSearchParams = useSearchParams();
   const loginToken = universalCookies.get('loginToken');
 
-  return <EnableSuspenseContext.Provider value={isServer}>
+  return <TimeProvider>
     <ApolloWrapper
       loginToken={loginToken ?? null}
       requestId={requestId}
@@ -171,7 +171,7 @@ const ClientAppGenerator = ({ abTestGroupsUsed, requestId, children }: {
         </UserContextProvider>
       </CookiesProvider>
     </ApolloWrapper>
-  </EnableSuspenseContext.Provider>
+  </TimeProvider>
 };
 
 const useGetUniversalCookies = () => {
@@ -188,19 +188,6 @@ const useGetUniversalCookies = () => {
     });
     return new Cookies(browserCookies);
   }
-}
-
-export const EnvironmentOverrideContextProvider = ({ssrMetadata, children}: {
-  ssrMetadata: SSRMetadata
-  children: React.ReactNode
-}) => {
-  const [envOverride, setEnvOverride] = useState<Partial<SSRMetadata>>(ssrMetadata ? {
-    ...ssrMetadata,
-  } : {});
-
-  return <EnvironmentOverrideContext.Provider value={envOverride}>
-    {children}
-  </EnvironmentOverrideContext.Provider>
 }
 
 export default ClientAppGenerator;

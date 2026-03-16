@@ -5,7 +5,7 @@ import { useCurrentUser } from './withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { TIMEZONE_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { EnvironmentOverrideContext, DEFAULT_TIMEZONE } from '@/lib/utils/timeUtil';
+import { DEFAULT_TIMEZONE } from '@/lib/utils/timeUtil';
 
 const TimezoneContext = createContext<{
   timezone: string
