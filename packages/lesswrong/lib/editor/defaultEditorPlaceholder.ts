@@ -1,13 +1,27 @@
-import { isFriendlyUI } from '@/themes/forumTheme';
+import type { EditorTypeString } from '@/components/editor/Editor';
 
 
-export const getDefaultEditorPlaceholder = () => isFriendlyUI() ?
-  `Highlight text to format it. Type @ to mention a user, post, or topic.` :
-  `Type here! Use '/' for editor commands.`;
+export const getDefaultEditorPlaceholder = (editorType: EditorTypeString = 'lexical') => {
+  switch (editorType) {
+    case 'lexical':
+      return `Type here! Use '/' for editor commands.`;
+    case 'markdown':
+      return 'Markdown editor enabled.  If you want to use our new editor, go to https://www.lesswrong.com/account?tab=preferences and disable "Use Markdown editor".';
+    default:
+      return `If you want to use our new editor, go to https://www.lesswrong.com/account?tab=preferences and disable "Use Markdown editor".`;
+  }
+};
 
-export const getCommentEditorPlaceholder = () => isFriendlyUI() ?
-  `Write a new comment...` :
-  `Type here! Use '/' for editor commands.`;
+export const getCommentEditorPlaceholder = (editorType: EditorTypeString) => {
+  switch (editorType) {
+    case 'lexical':
+      return `Type here! Use '/' for editor commands.`;
+    case 'markdown':
+      return 'Markdown editor enabled.  If you want to use our new editor, go to https://www.lesswrong.com/account?tab=preferences and disable "Use Markdown editor".';
+    default:
+      return `If you want to use our new editor, go to https://www.lesswrong.com/account?tab=preferences and disable "Use Markdown editor".`;
+  }
+};
 
 export const debateEditorPlaceholder = `Enter your first dialogue comment here, add other participants as co-authors, then save this as a draft.
 
