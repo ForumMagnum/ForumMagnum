@@ -5,12 +5,6 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("DropdownMenu", (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI && {
-      padding: 6,
-      borderRadius: theme.borderRadius.default,
-      backgroundColor: theme.palette.dropdown.background,
-      border: `1px solid ${theme.palette.dropdown.border}`,
-    }),
   },
 }));
 

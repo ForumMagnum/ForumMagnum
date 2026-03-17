@@ -14,7 +14,6 @@ export type RecommendationsListItem = ComponentType<{
 
 const styles = defineStyles('RecommendationsList', (theme: ThemeType) => ({
   noMoreMessage: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
 }), { stylePriority: -1 });
 

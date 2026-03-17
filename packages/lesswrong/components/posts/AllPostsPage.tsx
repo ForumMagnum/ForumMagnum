@@ -22,16 +22,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 const styles = defineStyles("AllPostsPage", (theme: ThemeType) => ({
   title: {
     cursor: "pointer",
-    "& .SectionTitle-title": theme.isFriendlyUI
-      ? {
-        color: theme.palette.grey[1000],
-        textTransform: "none",
-        fontWeight: 600,
-        fontSize: 28,
-        letterSpacing: "0",
-        lineHeight: "34px",
-      }
-      : {},
+    "& .SectionTitle-title": {},
   },
   divider: {
     border: "none",

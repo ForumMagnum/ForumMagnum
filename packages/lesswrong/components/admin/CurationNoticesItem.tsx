@@ -45,7 +45,6 @@ const CommentsListMutation = gql(`
 const styles = defineStyles("CurationNoticesItem", (theme: ThemeType) => ({
   root: {
     border: theme.palette.border.commentBorder,
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : undefined,
     cursor: "default",
     marginBottom: 20,
     background: theme.palette.background.pageActiveAreaBackground,
@@ -93,10 +92,10 @@ const styles = defineStyles("CurationNoticesItem", (theme: ThemeType) => ({
     marginBottom: 8,
     color: theme.palette.text.dim,
     paddingTop: "0.6em",
-    marginRight: theme.isFriendlyUI ? 40 : 20,
+    marginRight: 20,
     "& a:hover, & a:active": {
       textDecoration: "none",
-      color: theme.isFriendlyUI ? undefined : `${theme.palette.linkHover.dim} !important`,
+      color: `${theme.palette.linkHover.dim} !important`,
     },
   },
   postTitle: {

@@ -1,7 +1,6 @@
 import React from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -100,7 +99,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
             {(field) => (
               <MuiTextField
                 field={field}
-                label={isFriendlyUI() ? "Conversation title (visible to all)" : "Conversation Title"}
+                label={"Conversation Title"}
               />
             )}
           </form.Field>

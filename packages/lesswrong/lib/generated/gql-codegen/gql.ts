@@ -176,8 +176,6 @@ type Documents = {
     "\n    query PostAnalyticsQuery($postId: String!) {\n      PostAnalytics(postId: $postId) {\n        allViews\n        uniqueClientViews\n        uniqueClientViews10Sec\n        medianReadingTime\n        uniqueClientViews5Min\n        uniqueClientViewsSeries {\n          date\n          uniqueClientViews\n        }\n      }\n    }\n  ": typeof types.PostAnalyticsQueryDocument,
     "\n  query PostsPreviewTooltipSingle($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.PostsPreviewTooltipSingleDocument,
     "\n  query multiPostusePublishedPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SunshinePostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostusePublishedPostsQueryDocument,
-    "\n  query RecentOpportunitiesQuery($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": typeof types.RecentOpportunitiesQueryDocument,
-    "\n  query RecentOpportunitiesWithSequenceQuery($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsListWithVotesAndSequence\n      }\n    }\n  }\n": typeof types.RecentOpportunitiesWithSequenceQueryDocument,
     "\n    mutation increasePostViewCountMutation($postId: String) {\n      increasePostViewCount(postId: $postId)\n    }\n  ": typeof types.increasePostViewCountMutationDocument,
     "\n    mutation markPostCommentsRead($postId: String!) {\n      markPostCommentsRead(postId: $postId)\n    }\n  ": typeof types.markPostCommentsReadDocument,
     "\n    mutation RefreshDbSettings {\n      RefreshDbSettings\n    }\n  ": typeof types.RefreshDbSettingsDocument,
@@ -1000,8 +998,6 @@ const documents: Documents = {
     "\n    query PostAnalyticsQuery($postId: String!) {\n      PostAnalytics(postId: $postId) {\n        allViews\n        uniqueClientViews\n        uniqueClientViews10Sec\n        medianReadingTime\n        uniqueClientViews5Min\n        uniqueClientViewsSeries {\n          date\n          uniqueClientViews\n        }\n      }\n    }\n  ": types.PostAnalyticsQueryDocument,
     "\n  query PostsPreviewTooltipSingle($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.PostsPreviewTooltipSingleDocument,
     "\n  query multiPostusePublishedPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SunshinePostsList\n      }\n      totalCount\n    }\n  }\n": types.multiPostusePublishedPostsQueryDocument,
-    "\n  query RecentOpportunitiesQuery($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsListWithVotes\n      }\n    }\n  }\n": types.RecentOpportunitiesQueryDocument,
-    "\n  query RecentOpportunitiesWithSequenceQuery($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsListWithVotesAndSequence\n      }\n    }\n  }\n": types.RecentOpportunitiesWithSequenceQueryDocument,
     "\n    mutation increasePostViewCountMutation($postId: String) {\n      increasePostViewCount(postId: $postId)\n    }\n  ": types.increasePostViewCountMutationDocument,
     "\n    mutation markPostCommentsRead($postId: String!) {\n      markPostCommentsRead(postId: $postId)\n    }\n  ": types.markPostCommentsReadDocument,
     "\n    mutation RefreshDbSettings {\n      RefreshDbSettings\n    }\n  ": types.RefreshDbSettingsDocument,
@@ -2324,14 +2320,6 @@ export function gql(source: "\n  query PostsPreviewTooltipSingle($documentId: St
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query multiPostusePublishedPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SunshinePostsList\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiPostusePublishedPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SunshinePostsList\n      }\n      totalCount\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query RecentOpportunitiesQuery($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"): (typeof documents)["\n  query RecentOpportunitiesQuery($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsListWithVotes\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query RecentOpportunitiesWithSequenceQuery($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsListWithVotesAndSequence\n      }\n    }\n  }\n"): (typeof documents)["\n  query RecentOpportunitiesWithSequenceQuery($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsListWithVotesAndSequence\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

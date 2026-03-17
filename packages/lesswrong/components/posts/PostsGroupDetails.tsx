@@ -27,16 +27,14 @@ const styles = defineStyles('PostsGroupDetails', (theme: ThemeType) => ({
     ...theme.typography.smallCaps,
   },
   notRecentDiscussionTitle: {
-    fontFamily: theme.isFriendlyUI
-      ? theme.palette.fonts.sansSerifStack
-      : theme.typography.body1.fontFamily,
+    fontFamily: theme.typography.body1.fontFamily,
   },
   recentDiscussionTitle: {
     fontSize: 16,
     fontFamily: theme.typography.fontFamily
   },
   root: {
-    marginBottom: theme.isFriendlyUI ? 5 : 12, 
+    marginBottom: 12, 
     marginTop: 10
   }
 }))

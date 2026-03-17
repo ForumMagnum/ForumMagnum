@@ -23,9 +23,6 @@ const styles = defineStyles("SequencesSearchHit", (theme: ThemeType) => ({
     ...theme.typography.postStyle,
     fontSize: "1.25rem",
     ...theme.typography.smallCaps,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
     marginRight: 8,
     textDecoration: "none",
     "& a:hover": {

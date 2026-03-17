@@ -44,10 +44,10 @@ const profilePageUnsharedStyles = defineStyles("ProfilePageUnshared", (theme: Th
       boxSizing: "border-box" as const,
     },
     [theme.breakpoints.down("md")]: {
-      marginTop: theme.isFriendlyUI ? 0 : -theme.spacing.mainLayoutPaddingTop,
+      marginTop: -theme.spacing.mainLayoutPaddingTop,
     },
     [theme.breakpoints.down("sm")]: {
-      marginTop: theme.isFriendlyUI ? 0 : -10,
+      marginTop: -10,
     },
   },
   profileContent: {

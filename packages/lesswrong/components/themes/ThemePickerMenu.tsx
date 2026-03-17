@@ -30,7 +30,7 @@ const styles = defineStyles('ThemePickerMenu', (theme: ThemeType) => ({
   },
   infoIcon: {
     fontSize: 14,
-    marginLeft: theme.isFriendlyUI ? 6 : 0,
+    marginLeft: 0,
   },
 }))
 

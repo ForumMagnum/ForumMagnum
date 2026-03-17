@@ -16,7 +16,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PostsItemMeta', (theme: ThemeType) => ({
   onGrayBackground: {
-    ...(theme.isBookUI && theme.dark && {
+    ...(theme.dark && {
       color: theme.palette.greyAlpha(1),
     }),
   },

@@ -20,7 +20,7 @@ const ShortformCommentsMultiQuery = gql(`
 
 const styles = defineStyles('ShortformTimeBlock', (theme: ThemeType) => ({
   shortformGroup: {
-    marginTop: theme.isFriendlyUI ? 20 : 12,
+    marginTop: 12,
   },
   subtitle: {
     marginTop: 6,

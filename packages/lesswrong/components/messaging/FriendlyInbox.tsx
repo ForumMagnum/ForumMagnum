@@ -213,9 +213,7 @@ const styles = defineStyles("FriendlyInbox", (theme: ThemeType) => ({
     textAlign: "center",
   },
   emptyStateButton: {
-    ...(theme.isFriendlyUI
-      ? { color: theme.palette.text.alwaysWhite }
-      : { backgroundColor: theme.palette.background.default }),
+    backgroundColor: theme.palette.background.default,
     fontSize: 14,
   },
   modInboxCheckboxIcon: {

@@ -48,7 +48,7 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     padding: "0 2px 0 10px",
     border: theme.palette.border.extraFaint,
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small,
+    borderRadius: theme.borderRadius.small,
     backgroundColor: theme.palette.grey[100],
     width: "100%",
     '& form': {
@@ -79,25 +79,12 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
   formButton: {
     fontFamily: theme.typography.fontFamily,
     marginLeft: "5px",
-    ...(theme.isFriendlyUI
-      ? {
-          fontSize: 14,
-          fontWeight: 500,
-          textTransform: "none",
-          background: theme.palette.primary.main,
-          color: theme.palette.text.alwaysWhite, // Dark mode independent
-          "&:hover": {
-            background: theme.palette.primary.light,
-          },
-        }
-      : {
-          paddingBottom: 2,
-          fontSize: 16,
-          color: theme.palette.secondary.main,
-          "&:hover": {
-            background: theme.palette.panelBackground.darken05,
-          },
-        }),
+    paddingBottom: 2,
+    fontSize: 16,
+    color: theme.palette.secondary.main,
+    "&:hover": {
+      background: theme.palette.panelBackground.darken05,
+    },
   },
   formButtonMinimalist: {
     padding: "8px",

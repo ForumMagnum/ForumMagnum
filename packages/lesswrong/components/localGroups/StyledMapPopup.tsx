@@ -47,11 +47,11 @@ const styles = defineStyles("StyledMapPopup", (theme: ThemeType) => ({
   contactInfo: {
     marginBottom: "10px",
     marginTop: "10px",
-    fontWeight: theme.isEAForum ? 450 : 400,
+    fontWeight: 400,
     color: theme.palette.text.dim60,
   },
   markerPageLink: {
-    fontWeight: theme.isEAForum ? 450 : 400,
+    fontWeight: 400,
     color: theme.palette.link.dim3,
     flex: 'none'
   },

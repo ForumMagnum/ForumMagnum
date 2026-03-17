@@ -21,12 +21,7 @@ const styles = defineStyles('AnswersList', (theme: ThemeType) => ({
   },
   answersSorting:{
     ...theme.typography.body1,
-    color: theme.palette.text.secondary,
-    ...(theme.isFriendlyUI
-      ? {
-        fontFamily: theme.palette.fonts.sansSerifStack,
-      }
-      : {}),
+    color: theme.palette.text.secondary
   },
   loading: {
     opacity: .5,

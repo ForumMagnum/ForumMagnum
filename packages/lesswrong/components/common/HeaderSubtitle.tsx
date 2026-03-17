@@ -8,7 +8,7 @@ export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: Theme
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',
-    textTransform: theme.isFriendlyUI ? undefined : 'uppercase',
+    textTransform: 'uppercase',
     color: isBlackBarTitle ? theme.palette.text.alwaysWhite : theme.palette.header.text,
     borderLeft: theme.palette.border.appBarSubtitleDivider,
   },

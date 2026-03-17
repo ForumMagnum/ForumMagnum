@@ -1,13 +1,6 @@
-import { isFriendlyUI } from "@/themes/forumTheme";
-import { useConcreteThemeOptions } from "../themes/useTheme";
-
 export const useMapStyle = () => {
-  const themeOptions = useConcreteThemeOptions();
-  const isDarkMode = themeOptions.name === "dark";
-  if (!isFriendlyUI()) {
-    return "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra";
-  }
-  return isDarkMode
-    ? "mapbox://styles/mapbox/dark-v11"
-    : undefined;
+  //const themeOptions = useConcreteThemeOptions();
+  //const isDarkMode = themeOptions.name === "dark";
+  return "mapbox://styles/habryka/cilory317001r9mkmkcnvp2ra";
+  // See also: mapbox://styles/mapbox/dark-v11 (used by EA Forum in dark mode)
 }

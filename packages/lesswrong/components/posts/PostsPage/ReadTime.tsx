@@ -5,8 +5,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('ReadTime', (theme: ThemeType) => ({
   root: {
-    fontWeight: theme.isFriendlyUI ? 450 : undefined,
-    fontSize: theme.isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    fontSize: theme.typography.body2.fontSize,
     cursor: 'default',
     "@media print": { display: "none" },
   },

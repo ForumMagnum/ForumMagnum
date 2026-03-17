@@ -10,14 +10,13 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('PostsAuthors', (theme: ThemeType) => ({
   root: {
-    fontFamily: theme.isFriendlyUI ? theme.typography.uiSecondary.fontFamily : undefined,
     fontSize: 'inherit',
     textAlign: 'left',
     display: 'inline',
   },
   authorName: {
     fontWeight: 600,
-    marginLeft: theme.isFriendlyUI ? 1 : 0,
+    marginLeft: 0,
   },
   authorMarkers: AUTHOR_MARKER_STYLES,
 }))

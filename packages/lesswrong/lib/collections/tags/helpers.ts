@@ -3,7 +3,6 @@ import { forumSelect } from "../../forumTypeUtils";
 import { siteUrlSetting, allowTypeIIIPlayerSetting } from '@/lib/instanceSettings';
 import { combineUrls } from "../../vulcan-lib/utils";
 import { TagCommentType } from "../comments/types";
-import { isFriendlyUI } from "../../../themes/forumTheme";
 import type { TagLens } from "@/lib/arbital/useTagLenses";
 import { getSortOrderOptions, SettingsOption } from "../posts/dropdownOptions";
 import type { TagHistorySettings } from "@/components/tagging/history/TagHistoryPage";

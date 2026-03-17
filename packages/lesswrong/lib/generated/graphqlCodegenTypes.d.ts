@@ -14363,42 +14363,6 @@ type multiPostusePublishedPostsQueryQueryVariables = Exact<{
 
 type multiPostusePublishedPostsQueryQuery = multiPostusePublishedPostsQueryQuery_Query;
 
-type RecentOpportunitiesQueryQuery_posts_MultiPostOutput_results_Post = (
-  { __typename?: 'Post' }
-  & PostsListWithVotes
-);
-
-type RecentOpportunitiesQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<RecentOpportunitiesQueryQuery_posts_MultiPostOutput_results_Post> };
-
-type RecentOpportunitiesQueryQuery_Query = { __typename?: 'Query', posts: RecentOpportunitiesQueryQuery_posts_MultiPostOutput | null };
-
-
-type RecentOpportunitiesQueryQueryVariables = Exact<{
-  selector: InputMaybe<PostSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type RecentOpportunitiesQueryQuery = RecentOpportunitiesQueryQuery_Query;
-
-type RecentOpportunitiesWithSequenceQueryQuery_posts_MultiPostOutput_results_Post = (
-  { __typename?: 'Post' }
-  & PostsListWithVotesAndSequence
-);
-
-type RecentOpportunitiesWithSequenceQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<RecentOpportunitiesWithSequenceQueryQuery_posts_MultiPostOutput_results_Post> };
-
-type RecentOpportunitiesWithSequenceQueryQuery_Query = { __typename?: 'Query', posts: RecentOpportunitiesWithSequenceQueryQuery_posts_MultiPostOutput | null };
-
-
-type RecentOpportunitiesWithSequenceQueryQueryVariables = Exact<{
-  selector: InputMaybe<PostSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type RecentOpportunitiesWithSequenceQueryQuery = RecentOpportunitiesWithSequenceQueryQuery_Query;
-
 type increasePostViewCountMutationMutation_Mutation = { __typename?: 'Mutation', increasePostViewCount: number | null };
 
 

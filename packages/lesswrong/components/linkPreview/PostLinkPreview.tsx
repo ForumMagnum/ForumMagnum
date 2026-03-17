@@ -7,7 +7,6 @@ import { useCommentByLegacyId } from '../comments/useComment';
 import { useHover } from '../common/withHover';
 import { usePostByLegacyId, usePostBySlug } from '../posts/usePost';
 import { isClient } from '../../lib/executionEnvironment';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import classNames from 'classnames';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { gql } from "@/lib/generated/gql-codegen";
@@ -329,7 +328,7 @@ const PostLinkPreviewWithPost = ({href, post, id, className, children}: {
       post={post}
       hash={hash}
       placement="bottom-start"
-      clickable={!isFriendlyUI()}
+      clickable={true}
       As="span"
     >
       <Link className={classNames(classes.link, visited && "visited", className)} to={href} id={id} smooth>
@@ -361,7 +360,7 @@ const CommentLinkPreviewWithComment = ({href, comment, post, id, className, chil
       comment={comment}
       placement="bottom-start"
       As="span"
-      clickable={!isFriendlyUI()}
+      clickable={true}
     >
       <Link className={classNames(classes.link, className)} to={href} id={id}>
         {children}

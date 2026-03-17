@@ -1,17 +1,9 @@
 import React from "react";
-import { isFriendlyUI } from "@/themes/forumTheme";
-import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("TagMentionHit", (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI && {
-      display: "block",
-      maxWidth: 500,
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    }),
   },
   icon: {
     width: 16,
@@ -24,10 +16,8 @@ const styles = defineStyles("TagMentionHit", (theme: ThemeType) => ({
 const TagMentionHit = ({hit}: {
   hit: SearchTag,
 }) => {
+  const icon = "🏷️";
   const classes = useStyles(styles);
-  const icon = isFriendlyUI()
-    ? <ForumIcon icon="Tag" className={classes.icon} />
-    : "🏷️";
   return (
     <span className={classes.root}>
       {icon} <span>{hit.name}</span>

@@ -11,7 +11,7 @@ const styles = defineStyles("PostsItem2MetaInfo", (theme: ThemeType) => ({
     ...isIfAnyoneBuildsItFrontPage({
       color: theme.palette.text.bannerAdOverlay,
     }),
-    fontSize: theme.isFriendlyUI ? "13px" : "1.1rem",
+    fontSize: "1.1rem",
     textAlign: "center",
     flexShrink: 0,
     flexGrow: 0,

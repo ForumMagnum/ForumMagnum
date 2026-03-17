@@ -114,6 +114,9 @@ describe('JSS', () => {
 });
 
 function assertNoNonPaletteColors(componentName: string, lightModeStyles: JssStyles, darkModeStyles: JssStyles, outNonPaletteColors: string[]) {
+  if (!lightModeStyles || !darkModeStyles) {
+    throw new Error("Nullish styles for component " + componentName);
+  }
   for (let key of Object.keys(lightModeStyles)) {
     assertNoNonPaletteColorsRec(componentName, key, lightModeStyles[key], darkModeStyles[key], outNonPaletteColors);
   }
@@ -123,9 +126,12 @@ function assertNoNonPaletteColorsRec(componentName: string, path: string, lightM
   if (typeof lightModeStyleFragment === "string") {
     const mentionedColor = stringMentionsAnyColor(lightModeStyleFragment);
     if (mentionedColor && lightModeStyleFragment === darkModeStyleFragment && !lightModeStyleFragment.includes("light-dark")) {
-      outNonPaletteColors.push(`Color for ${componentName} at ${path} (${mentionedColor}) is the same in light mode and dark mode. `);
+      outNonPaletteColors.push(`Color for ${componentName} at ${path} (${lightModeStyleFragment}) is the same in light mode and dark mode. `);
     }
   } else if (typeof lightModeStyleFragment === "object") {
+    if (!lightModeStyleFragment || !darkModeStyleFragment) {
+      throw new Error("Nullish style fragment for component " + componentName + " at " + path);
+    }
     for (let key of Object.keys(lightModeStyleFragment)) {
       assertNoNonPaletteColorsRec(componentName, `${path}.${key}`, lightModeStyleFragment[key], darkModeStyleFragment[key], outNonPaletteColors);
     }

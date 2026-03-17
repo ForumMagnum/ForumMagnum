@@ -25,10 +25,10 @@ const RevisionHistoryEntryMultiQuery = gql(`
 
 const styles = defineStyles('TagCompareRevisions', (theme) => ({
   title: {
-    ...theme.typography[theme.isFriendlyUI ? "display2" : "display3"],
-    ...theme.typography[theme.isFriendlyUI ? "headerStyle" : "commentStyle"],
+    ...theme.typography["display3"],
+    ...theme.typography["commentStyle"],
     marginTop: 0,
-    fontWeight: theme.isFriendlyUI ? 700 : 600,
+    fontWeight: 600,
     ...theme.typography.smallCaps,
   },
   description: {},

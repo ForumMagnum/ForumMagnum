@@ -16,8 +16,6 @@ import { PersonSVG, ArrowSVG, GroupIconSVG } from './Icons'
 import qs from 'qs'
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
-import {isFriendlyUI} from '../../themes/forumTheme'
-import { RouterLocation } from "../../lib/routeChecks/parseRoute";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { TooltipSpan } from '../common/FMTooltip';
 import LoginPopup from "../users/LoginPopup";
@@ -72,7 +70,6 @@ const styles = defineStyles('CommunityMapFilter', (theme: ThemeType) => ({
   },
   checkboxLabel: {
     ...theme.typography.body2,
-    fontWeight: theme.isEAForum ? 600 : undefined,
   },
   checkedLabel: {
     color: theme.palette.text.tooltipText,
@@ -272,7 +269,7 @@ const CommunityMapFilter = ({setShowMap, showHideMap, toggleGroups, showGroups, 
 
   return (
     <Paper>
-      {!isFriendlyUI() && <div className={classes.filters}>
+      <div className={classes.filters}>
         {availableFilters.map((value, i) => {
           const checked = filters.includes(value)
           return (
@@ -295,7 +292,7 @@ const CommunityMapFilter = ({setShowMap, showHideMap, toggleGroups, showGroups, 
             </span>
           );
         })}
-      </div>}
+      </div>
       <SimpleDivider className={classNames(classes.divider, classes.topDivider)} />
       <div className={classes.actions}>
         <div className={classes.filterSection}>

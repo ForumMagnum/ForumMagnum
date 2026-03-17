@@ -13,7 +13,6 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('LockThreadDialog', (theme: ThemeType) => ({
   message: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
 }));
 

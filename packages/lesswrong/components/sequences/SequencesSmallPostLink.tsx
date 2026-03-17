@@ -3,8 +3,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import type { Placement as PopperPlacementType } from "popper.js"
-import { isLWorAF } from '../../lib/instanceSettings';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import PostReadCheckbox from "../posts/PostReadCheckbox";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -18,15 +16,9 @@ const styles = defineStyles("SequencesSmallPostLink", (theme: ThemeType) => ({
     ...theme.typography.postStyle,
     color: theme.palette.grey[900],
     display: "flex",
-    alignItems: theme.isFriendlyUI ? "flex-start" : "center",
+    alignItems: "center",
     marginBottom: 6,
-    marginTop: 6,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 14,
-      fontWeight: 500,
-      lineHeight: "150%",
-    }),
+    marginTop: 6
   },
   large: {
     ...theme.typography.postsItemTitle,
@@ -35,7 +27,7 @@ const styles = defineStyles("SequencesSmallPostLink", (theme: ThemeType) => ({
   },
   checkbox: {
     position: "relative",
-    top: theme.isFriendlyUI ? -1 : 1,
+    top: 1,
     marginRight: 10
   }
 }));
@@ -50,14 +42,11 @@ const SequencesSmallPostLink = ({post, sequenceId, large, placement="left-start"
 
   return <div className={classNames(classes.title, {[classes.large]: large})}>
     <span className={classes.checkbox}>
-      <PostReadCheckbox
-        post={post}
-        width={isFriendlyUI() ? 14 : undefined}
-      />
+      <PostReadCheckbox post={post} />
     </span>
     <PostsTooltip
       {...('contents' in post ? { post } : { postId: post._id, preload: 'on-screen' })}
-      postsList={isLWorAF()}
+      postsList={true}
       placement={placement}
       inlineBlock={false}
       clickable

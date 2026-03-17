@@ -70,7 +70,7 @@ const styles = defineStyles('CollectionsPage', (theme: ThemeType) => ({
   title: {
     ...theme.typography.headerStyle,
     fontWeight: "bold",
-    textTransform: theme.isFriendlyUI ? undefined : "uppercase",
+    textTransform: "uppercase",
     borderTopStyle: "solid",
     borderTopWidth: 4,
     paddingTop: 10,
@@ -79,7 +79,7 @@ const styles = defineStyles('CollectionsPage', (theme: ThemeType) => ({
   },
   description: {
     marginTop: 30,
-    marginBottom: theme.isFriendlyUI ? 0 : 25,
+    marginBottom: 25,
     lineHeight: 1.25,
     maxWidth: 700,
   },

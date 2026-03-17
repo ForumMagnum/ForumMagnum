@@ -47,10 +47,7 @@ const styles = defineStyles("BigCollectionsCard", (theme: ThemeType) => ({
   },
   author: {
     ...theme.typography.postStyle,
-    marginBottom:8,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
+    marginBottom:8
   },
   media: {
     height:271,

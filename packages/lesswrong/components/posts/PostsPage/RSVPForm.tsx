@@ -16,13 +16,9 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('RSVPForm', (theme: ThemeType) => ({
-  emailMessage: theme.isFriendlyUI
-    ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }
-    : {
-      fontStyle: "italic",
-    },
+  emailMessage: {
+    fontStyle: "italic",
+  },
 }));
 
 const RSVPForm = ({post, onClose, initialResponse = "yes"}: {

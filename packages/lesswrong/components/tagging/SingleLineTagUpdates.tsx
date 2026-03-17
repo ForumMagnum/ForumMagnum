@@ -22,22 +22,10 @@ export const POSTED_AT_WIDTH = 38
 
 const styles = defineStyles('SingleLineTagUpdates', (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI
-      ? {
-        background: theme.palette.grey[0],
-        border: `1px solid ${theme.palette.grey[100]}`,
-        borderRadius: theme.borderRadius.default,
-        fontWeight: 500,
-        fontSize: 14,
-        padding: "6px 0",
-        color: theme.palette.grey[600],
-      }
-      : {
-        background: theme.palette.panelBackground.default,
-        border: theme.palette.border.commentBorder,
-        borderRadius: 3,
-        marginBottom: 4,
-      }),
+    background: theme.palette.panelBackground.default,
+    border: theme.palette.border.commentBorder,
+    borderRadius: 3,
+    marginBottom: 4,
   },
   metadata: {
     display: "flex",
@@ -53,10 +41,8 @@ const styles = defineStyles('SingleLineTagUpdates', (theme: ThemeType) => ({
     cursor: "pointer",
     padding: 4,
     fontFamily: theme.typography.fontFamily,
-    fontSize: theme.isFriendlyUI ? 14 : 17,
-    fontWeight: theme.isFriendlyUI ? 600 : undefined,
-    ...theme.typography.smallCaps,
-    marginLeft: theme.isFriendlyUI ? 2 : undefined,
+    fontSize: 17,
+    ...theme.typography.smallCaps
   },
   expandedBody: {
     marginTop: 8,
@@ -70,11 +56,10 @@ const styles = defineStyles('SingleLineTagUpdates', (theme: ThemeType) => ({
     marginBottom: 8,
   },
   commentBubble: {
-    margin: `-5px ${theme.isFriendlyUI ? 6 : 0}px 0 11px`,
+    margin: `-5px 0px 0 11px`,
   },
   changeMetrics: {
-    cursor: "pointer",
-    margin: theme.isFriendlyUI ? "0 4px -2px 2px" : undefined,
+    cursor: "pointer"
   },
   postedAt: {
     '&&': {
@@ -97,7 +82,7 @@ const styles = defineStyles('SingleLineTagUpdates', (theme: ThemeType) => ({
     fontSize: "1rem",
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.link.dim3,
-    margin: `${theme.isFriendlyUI ? -4 : -8}px 0 8px 8px`,
+    margin: `${-8}px 0 8px 8px`,
   },
   usernames: {
     marginRight: 16,

@@ -35,7 +35,7 @@ const styles = defineStyles("NotificationsMenu", (theme: ThemeType) => ({
     backgroundColor: 'inherit',
     color: theme.palette.text.notificationCount,
     fontSize: "12px",
-    fontWeight: theme.isFriendlyUI ? 450 : 500,
+    fontWeight: 500,
     right: "-15px",
     top: 0,
     pointerEvents: "none",

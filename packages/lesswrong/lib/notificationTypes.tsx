@@ -7,7 +7,6 @@ import { getReviewNameInSitu } from './reviewUtils';
 import startCase from 'lodash/startCase';
 import { userGetDisplayName } from './collections/users/helpers'
 import { Link } from './reactRouterWrapper';
-import { isFriendlyUI } from '../themes/forumTheme';
 import { sequenceGetPageUrl } from './collections/sequences/helpers';
 import { tagGetUrl } from './collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
@@ -447,7 +446,7 @@ export const NewMessageNotification = createNotificationType({
     let conversation = await Conversations.findOne(document.conversationId);
     return (await Users.findOne(document.userId))?.displayName + ' sent you a new message' + (conversation?.title ? (' in the conversation ' + conversation.title) : "") + '!';
   },
-  causesRedBadge: () => !isFriendlyUI(),
+  causesRedBadge: () => true,
 });
 
 export const WrappedNotification = createNotificationType({

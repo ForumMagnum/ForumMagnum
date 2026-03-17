@@ -10,9 +10,7 @@ const SubscribeDialog = dynamic(() => import('./SubscribeDialog'), { ssr: false 
 const styles = defineStyles('SubscribeWidget', (theme: ThemeType) => ({
   root: {
     "&:hover": {
-      opacity: theme.isFriendlyUI ? 1 : undefined,
-      color: theme.isFriendlyUI ? theme.palette.grey[800] : undefined,
-    },
+},
   },
 }));
 

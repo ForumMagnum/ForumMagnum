@@ -30,9 +30,7 @@ const styles = defineStyles('NotificationTypeSettingsWidget', (theme: ThemeType)
     flexDirection: "column",
     gap: "8px"
   },
-  label: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
-  },
+  label: {},
   channelLabel: {
     fontSize: 13
   },

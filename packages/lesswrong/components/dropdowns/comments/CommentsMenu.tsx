@@ -10,11 +10,6 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('CommentsMenu', (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI && {
-      "& .MuiList-padding": {
-        padding: 0,
-      },
-    }),
   },
   icon: {
     cursor: "pointer",

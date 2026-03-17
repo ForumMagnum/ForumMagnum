@@ -13,7 +13,6 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('DeleteCommentDialog', (theme: ThemeType) => ({
   subtitle: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
   deleteWithoutTrace: {
     marginRight:"auto"

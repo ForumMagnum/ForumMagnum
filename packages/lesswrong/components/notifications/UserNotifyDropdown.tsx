@@ -27,7 +27,7 @@ const styles = defineStyles('UserNotifyDropdown', (theme: ThemeType) => ({
     marginTop: 6,
   },
   dropdown: {
-    width: theme.isFriendlyUI ? 200 : 220,
+    width: 220,
     maxWidth: "100vw",
   },
 }));

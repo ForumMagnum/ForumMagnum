@@ -1,19 +1,11 @@
 import React from "react"
-import { isFriendlyUI } from "@/themes/forumTheme";
 import FormatDate from "../common/FormatDate";
-import ForumIcon from "../common/ForumIcon";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import MetaInfo from "../common/MetaInfo";
 
 const styles = defineStyles("UserMentionHit", (theme: ThemeType) => ({
   root: {
-    color: "inherit",
-    ...(theme.isFriendlyUI && {
-      display: "block",
-      maxWidth: 500,
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    }),
+    color: "inherit"
   },
   icon: {
     width: 16,
@@ -27,10 +19,6 @@ const styles = defineStyles("UserMentionHit", (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     marginRight: 8,
     fontSize: "1rem",
-    
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack
-    }),
     marginLeft: 8,
 
     // To properly switch color on item being selected
@@ -44,9 +32,7 @@ const UserMentionHit = ({hit}: {
   hit: SearchUser,
 }) => {
   const classes = useStyles(styles);
-  const icon = isFriendlyUI()
-    ? <ForumIcon icon="UserOutline" className={classes.icon} />
-    : "👤";
+  const icon = "👤";
   return <span className={classes.root}>
     {icon} <span>{hit.displayName}</span>
     <MetaInfo className={classes.userHitLabel}>

@@ -94,12 +94,8 @@ declare global {
   type ThemePalette = ThemeComponentPalette
   
   type ForumTypeFlags = {
-    isBookUI: boolean,
-    isFriendlyUI: boolean,
     isLW: boolean,
     isAF: boolean,
-    isLWorAF: boolean,
-    isEAForum: boolean,
   }
   
   type ThemeType = {

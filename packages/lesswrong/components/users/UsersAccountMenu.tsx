@@ -10,11 +10,11 @@ import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovCo
 
 const styles = defineStyles('UsersAccountMenu', (theme: ThemeType) => ({
   root: {
-    marginTop: theme.isFriendlyUI ? undefined : 5,
+    marginTop: 5,
   },
   userButton: {
     fontSize: '14px',
-    fontWeight: theme.isFriendlyUI ? undefined : 400,
+    fontWeight: 400,
     opacity: .8,
     color: isBlackBarTitle ? theme.palette.text.alwaysWhite : theme.palette.header.text,
   },

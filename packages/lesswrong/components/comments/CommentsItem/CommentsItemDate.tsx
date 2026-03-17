@@ -13,13 +13,8 @@ const EDIT_GRACE_PERIOD = 60*60*1000; //1hr
 
 const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI ? {
-      marginLeft: 2,
-      marginRight: 7,
-    } : {
-      marginLeft: 2,
-      marginRight: 16,
-    }),
+    marginLeft: 2,
+    marginRight: 16,
 
     // Create a stacking context and set z-index to be higher than the vote
     // buttons, which are to the right of this and have a click-target that
