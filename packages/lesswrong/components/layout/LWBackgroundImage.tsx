@@ -8,6 +8,7 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
 import { SolsticeSeasonBanner } from '../seasonal/solsticeSeason/SolsticeSeasonBanner';
 import { Inkhaven2026Banner } from '../seasonal/Inkhaven2026Banner';
+import { LessOnline2026Banner } from '../seasonal/LessOnline2026Banner';
 import withErrorBoundary from '@/components/common/withErrorBoundary';
 import { getReviewPhase, reviewIsActive, reviewResultsPostPath } from '@/lib/reviewUtils';
 import ReviewVotingCanvas from '../review/ReviewVotingCanvas';
@@ -21,6 +22,19 @@ const INKHAVEN_2026_END = new Date('2026-02-01T00:00:00-08:00');
 function useIsInkhaven2026Active(): boolean {
   const now = useCurrentTime();
   return now >= INKHAVEN_2026_START && now < INKHAVEN_2026_END;
+}
+
+// LessOnline 2026 banner active period
+const LESSONLINE_2026_START = new Date('2026-03-17T00:00:00-07:00');
+const LESSONLINE_2026_EARLY_BIRD_END = new Date('2026-04-08T00:00:00-07:00');
+const LESSONLINE_2026_END = new Date('2026-03-24T00:00:00-07:00');
+
+function useIsLessOnline2026Active(): { active: boolean; earlyBirdEndDate: Date } {
+  const now = useCurrentTime();
+  return {
+    active: now >= LESSONLINE_2026_START && now < LESSONLINE_2026_END,
+    earlyBirdEndDate: LESSONLINE_2026_EARLY_BIRD_END,
+  };
 }
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
@@ -167,7 +181,12 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   if (useIsInkhaven2026Active() && standaloneNavigation && isHomePage) {
     homePageImage = <Inkhaven2026Banner />;
   }
-  
+
+  const lessOnline2026 = useIsLessOnline2026Active();
+  if (lessOnline2026.active && isHomePage) {
+    homePageImage = <LessOnline2026Banner earlyBirdEndDate={lessOnline2026.earlyBirdEndDate} />;
+  }
+
   // if (reviewIsActive() && standaloneNavigation && isHomePage) {
   //   homePageImage = <AnnualReviewSidebarBanner />
   // }
