@@ -368,6 +368,13 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
    */
   private _lexicalGetDataWithDiscardedSuggestions: (() => string | undefined) | null = null;
 
+  /**
+   * The most recent HTML value received from the Lexical editor's onChange
+   * callback. Used by submitData as a fallback because this.props.value may
+   * be stale (React hasn't re-rendered yet after the latest onChange).
+   */
+  private _latestLexicalHtml: string | null = null;
+
   constructor(props: EditorProps) {
     super(props)
 
@@ -421,7 +428,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         data = this.props.value.value;
         break
       case "lexical":
-        data = this.props.value.value;
+        data = this._latestLexicalHtml ?? this.props.value.value;
         dataWithDiscardedSuggestions = this._lexicalGetDataWithDiscardedSuggestions?.();
         // For Lexical posts, capture the current Yjs state so
         // the revision created by updatePost has a restorable snapshot.
@@ -477,6 +484,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         break;
       }
       case "lexical": {
+        this._latestLexicalHtml = value;
         if (this.props.value.value === value)
           return;
         this.props.onChange({
