@@ -411,12 +411,18 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     color: theme.palette.greyAlpha(0.5),
     marginBottom: 8,
   },
+  shareLinkButtonContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 4,
+  },
   shareLinkButton: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    width: "100%",
+    width: "50%",
     padding: "8px 12px",
     marginTop: 16,
     marginBottom: 14,
@@ -431,6 +437,28 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     transition: "all 0.15s ease",
     "&:hover": {
       background: theme.palette.primary.dark,
+    },
+  },
+  openInClaudeButton: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    width: "50%",
+    padding: "8px 12px",
+    marginTop: 16,
+    marginBottom: 14,
+    borderRadius: 8,
+    border: "none",
+    background: theme.palette.buttons.shareWithClaude,
+    cursor: "pointer",
+    ...theme.typography.commentStyle,
+    fontSize: 13,
+    fontWeight: 600,
+    color: theme.palette.text.alwaysWhite,
+    transition: "all 0.15s ease",
+    "&:hover": {
+      background: theme.palette.buttons.shareWithClaudeHover,
     },
   },
   shareLinkIcon: {
@@ -715,6 +743,20 @@ const STICKY_PRIORITIES: Record<number, string> = {
   4: "Max",
 };
 
+function getFeedbackQuery(postId: string, linkSharingKey: string | undefined) {
+  const postUrl = postGetEditUrl(postId, true, linkSharingKey);
+  return `I'm writing a post on LessWrong and would appreciate your feedback on it.  The post is located at ${postUrl}.
+
+Please carefully and thoroughly review the following:
+- Well-established premises.  Consider the likely target audience of my post, within the broader LessWrong community.  Do any of my arguments depend on premises that seem likely to be controversial or unfamiliar to that audience?
+- Local validity.  Do I make any claims that don't validly follow from my premises?
+- Missed considerations.  Take a broad-picture view of the post and the claims that it's advancing.  Are there any important considerations that I've missed?  Think about this from the perspective of an incisive LessWrong reader - if one were to leave a comment saying something like "This entire post is wrong/unhelpful/misguided/etc, because you failed to consider [x]", what is [x], if anything?
+- Accurate representation of my sources.  Wherever I cite a source or link to another resource as part of an argument, fetch that resource and check that I've accurately understood and represented it.
+- Existing arguments.  Are there existing arguments/research/other writing on the subject which are sufficently relevant that not mentioning them would be a major oversight?
+- Clarity.  Is my writing clear and easy to understand?  Look for explicit mistakes, ambiguous references, and sentences that are long enough that readers might have trouble keeping everything in their mental stack.
+- Everything else.  This is not a comprehensive list of things to check, merely the highest priority items.  If you any mistakes, issues, or areas for improvement that don't fit into the above categories, please point them out.`;
+}
+
 function AccordionSection({ title, defaultOpen = false, children, className, contentClassName }: {
   title: string;
   defaultOpen?: boolean;
@@ -811,8 +853,25 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
                 </div>;
               }
 
-              if (!linkEnabled) {
-                return <button
+              const shareWithClaudeButton = (
+                <button
+                  type="button"
+                  className={classes.openInClaudeButton}
+                  onClick={() => {
+                    field.handleChange({
+                      ...settings,
+                      ...(settings.anyoneWithLinkCan === 'none' ? { anyoneWithLinkCan: "edit" } : {}),
+                    });
+                    window.open(`https://www.claude.ai/new?q=${encodeURIComponent(getFeedbackQuery(postId, linkSharingKey))}`, '_blank');
+                  }}
+                >
+                  <ForumIcon icon="OpenInNew" className={classes.shareLinkIcon} />
+                  Claude
+                </button>
+              );
+
+              const shareLinkButton = (
+                <button
                   type="button"
                   className={classes.shareLinkButton}
                   onClick={() => {
@@ -829,18 +888,26 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
                 >
                   <ForumIcon icon="Link" className={classes.shareLinkIcon} />
                   Share link
-                </button>;
+                </button>
+              );
+
+              if (!linkEnabled) {
+                return <div className={classes.shareLinkButtonContainer}>{shareLinkButton}{shareWithClaudeButton}</div>;
               }
 
-              return <CopyToClipboard
-                text={postGetEditUrl(postId, true, linkSharingKey)}
-                onCopy={() => flash("Link copied")}
-              >
-                <button type="button" className={classes.shareLinkButton}>
-                  <ForumIcon icon="Link" className={classes.copyLinkIcon} />
-                  Copy link
-                </button>
-              </CopyToClipboard>;
+              const copyLinkButton = (
+                <CopyToClipboard
+                  text={postGetEditUrl(postId, true, linkSharingKey)}
+                  onCopy={() => flash("Link copied")}
+                >
+                  <button type="button" className={classes.shareLinkButton}>
+                    <ForumIcon icon="Link" className={classes.copyLinkIcon} />
+                    Copy link
+                  </button>
+                </CopyToClipboard>
+              );
+
+              return <div className={classes.shareLinkButtonContainer}>{copyLinkButton}{shareWithClaudeButton}</div>;
             }}
           </form.Field>
 
