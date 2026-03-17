@@ -310,6 +310,23 @@ export const mapboxAPIKeySetting = new PublicInstanceSetting<string | null>('map
 export const isProductionDBSetting = new PublicInstanceSetting<boolean>('isProductionDB', false, "optional");
 
 export const showReviewOnFrontPageIfActive = new PublicInstanceSetting<boolean>('annualReview.showReviewOnFrontPageIfActive', true, "optional");
+export const mobileSpotlightOverrideIdSetting = new PublicInstanceSetting<string | null>('mobileSpotlightOverride.id', null, "optional");
+export const mobileSpotlightOverrideUntilSetting = new PublicInstanceSetting<string | null>('mobileSpotlightOverride.until', null, "optional");
+
+export const getActiveMobileSpotlightOverrideId = (now: Date = new Date()): string | null => {
+  const spotlightId = mobileSpotlightOverrideIdSetting.get();
+  const spotlightOverrideUntil = mobileSpotlightOverrideUntilSetting.get();
+  if (!spotlightId || !spotlightOverrideUntil) {
+    return null;
+  }
+
+  const spotlightOverrideUntilMs = Date.parse(spotlightOverrideUntil);
+  if (Number.isNaN(spotlightOverrideUntilMs) || now.getTime() >= spotlightOverrideUntilMs) {
+    return null;
+  }
+
+  return spotlightId;
+};
 
 // these are deprecated, but preserved for now in case we want to revert
 // export const annualReviewStart = new PublicInstanceSetting('annualReview.start', "2021-11-30", "optional")

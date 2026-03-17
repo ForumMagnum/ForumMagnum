@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { showReviewOnFrontPageIfActive, ultraFeedEnabledSetting, isLW, isAF } from '@/lib/instanceSettings';
+import { getActiveMobileSpotlightOverrideId, showReviewOnFrontPageIfActive, ultraFeedEnabledSetting, isLW, isAF } from '@/lib/instanceSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
@@ -20,10 +20,25 @@ import UltraFeed from "../ultraFeed/UltraFeed";
 import { StructuredData } from './StructuredData';
 import { SuspenseWrapper } from './SuspenseWrapper';
 import DeferRender from './DeferRender';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 import dynamic from 'next/dynamic';
 import { IsReturningVisitorContextProvider } from '@/components/layout/IsReturningVisitorContextProvider';
 const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
+
+const styles = defineStyles("LWHome", (theme: ThemeType) => ({
+  desktopSpotlight: {
+    [theme.breakpoints.down('xs')]: {
+      display: "none",
+    },
+  },
+  mobileSpotlight: {
+    display: "none",
+    [theme.breakpoints.down('xs')]: {
+      display: "block",
+    },
+  },
+}));
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -54,6 +69,9 @@ const getStructuredData = () => ({
 })
 
 const LWHome = () => {
+  const classes = useStyles(styles);
+  const mobileSpotlightOverrideId = getActiveMobileSpotlightOverrideId();
+
   return (
       <AnalyticsContext pageContext="homePage">
         <StructuredData generate={() => getStructuredData()}/>
@@ -66,7 +84,12 @@ const LWHome = () => {
           </SingleColumnSection>}
         </>}
         {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
-          <DismissibleSpotlightItem loadingStyle="placeholder" />
+          <DismissibleSpotlightItem loadingStyle="placeholder" className={classes.desktopSpotlight} />
+          <DismissibleSpotlightItem
+            loadingStyle="placeholder"
+            className={classes.mobileSpotlight}
+            spotlightId={mobileSpotlightOverrideId}
+          />
         </SingleColumnSection>}
         <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
           <IsReturningVisitorContextProvider>

@@ -399,6 +399,7 @@ type Documents = {
     "\n  query multiCommentShortformThreadListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentWithRepliesFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentShortformThreadListQueryDocument,
     "\n  query multiCommentShortformTimeBlockQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ShortformComments\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentShortformTimeBlockQueryDocument,
     "\n  query DisplaySpotlightQuery {\n    currentSpotlight {\n      ...SpotlightDisplay\n    }\n  }\n": typeof types.DisplaySpotlightQueryDocument,
+    "\n  query DisplaySpotlightByIdQuery($spotlightId: String) {\n    spotlight(selector: { _id: $spotlightId }) {\n      result {\n        ...SpotlightDisplay\n      }\n    }\n  }\n": typeof types.DisplaySpotlightByIdQueryDocument,
     "\n  mutation updateSpotlightSpotlightForm($selector: SelectorInput!, $data: UpdateSpotlightDataInput!) {\n    updateSpotlight(selector: $selector, data: $data) {\n      data {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n": typeof types.updateSpotlightSpotlightFormDocument,
     "\n  mutation createSpotlightSpotlightForm($data: CreateSpotlightDataInput!) {\n    createSpotlight(data: $data) {\n      data {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n": typeof types.createSpotlightSpotlightFormDocument,
     "\n  query multiSpotlightSpotlightHistoryQuery($selector: SpotlightSelector, $limit: Int, $enableTotal: Boolean) {\n    spotlights(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SpotlightDisplay\n      }\n      totalCount\n    }\n  }\n": typeof types.multiSpotlightSpotlightHistoryQueryDocument,
@@ -1221,6 +1222,7 @@ const documents: Documents = {
     "\n  query multiCommentShortformThreadListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentWithRepliesFragment\n      }\n      totalCount\n    }\n  }\n": types.multiCommentShortformThreadListQueryDocument,
     "\n  query multiCommentShortformTimeBlockQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ShortformComments\n      }\n      totalCount\n    }\n  }\n": types.multiCommentShortformTimeBlockQueryDocument,
     "\n  query DisplaySpotlightQuery {\n    currentSpotlight {\n      ...SpotlightDisplay\n    }\n  }\n": types.DisplaySpotlightQueryDocument,
+    "\n  query DisplaySpotlightByIdQuery($spotlightId: String) {\n    spotlight(selector: { _id: $spotlightId }) {\n      result {\n        ...SpotlightDisplay\n      }\n    }\n  }\n": types.DisplaySpotlightByIdQueryDocument,
     "\n  mutation updateSpotlightSpotlightForm($selector: SelectorInput!, $data: UpdateSpotlightDataInput!) {\n    updateSpotlight(selector: $selector, data: $data) {\n      data {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n": types.updateSpotlightSpotlightFormDocument,
     "\n  mutation createSpotlightSpotlightForm($data: CreateSpotlightDataInput!) {\n    createSpotlight(data: $data) {\n      data {\n        ...SpotlightEditQueryFragment\n      }\n    }\n  }\n": types.createSpotlightSpotlightFormDocument,
     "\n  query multiSpotlightSpotlightHistoryQuery($selector: SpotlightSelector, $limit: Int, $enableTotal: Boolean) {\n    spotlights(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SpotlightDisplay\n      }\n      totalCount\n    }\n  }\n": types.multiSpotlightSpotlightHistoryQueryDocument,
@@ -3212,6 +3214,10 @@ export function gql(source: "\n  query multiCommentShortformTimeBlockQuery($sele
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query DisplaySpotlightQuery {\n    currentSpotlight {\n      ...SpotlightDisplay\n    }\n  }\n"): (typeof documents)["\n  query DisplaySpotlightQuery {\n    currentSpotlight {\n      ...SpotlightDisplay\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query DisplaySpotlightByIdQuery($spotlightId: String) {\n    spotlight(selector: { _id: $spotlightId }) {\n      result {\n        ...SpotlightDisplay\n      }\n    }\n  }\n"): (typeof documents)["\n  query DisplaySpotlightByIdQuery($spotlightId: String) {\n    spotlight(selector: { _id: $spotlightId }) {\n      result {\n        ...SpotlightDisplay\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
