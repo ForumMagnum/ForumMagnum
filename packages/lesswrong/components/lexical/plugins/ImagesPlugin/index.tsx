@@ -69,6 +69,7 @@ import {
   uploadToCloudinary,
   ImageUploadError,
 } from '../../utils/cloudinaryUpload';
+import { validateImageUrl } from '../../utils/url';
 import { INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'
 import { useMessages } from '@/components/common/withMessages'
 import { WithMessagesMessage } from '@/components/layout/FlashMessages';
@@ -160,18 +161,30 @@ export function InsertImageUriDialogBody({
 }) {
   const [src, setSrc] = useState('');
   const [altText, setAltText] = useState('');
+  const [urlError, setUrlError] = useState<string | null>(null);
 
-  const isDisabled = src === '';
+  const handleSrcChange = (value: string) => {
+    setSrc(value);
+    if (value.trim()) {
+      setUrlError(validateImageUrl(value));
+    } else {
+      setUrlError(null);
+    }
+  };
+
+  const isDisabled = src === '' || urlError !== null;
 
   return (
     <>
       <TextField
         label="Image URL"
         placeholder="i.e. https://source.unsplash.com/random"
-        onChange={(e) => setSrc(e.target.value)}
+        onChange={(e) => handleSrcChange(e.target.value)}
         value={src}
         fullWidth
         margin="dense"
+        error={urlError !== null}
+        helperText={urlError}
         data-test-id="image-modal-url-input"
       />
       <TextField

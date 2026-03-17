@@ -73,3 +73,54 @@ export function validateUrl(url: string): boolean {
   // Maybe show a dialog where they user can type the URL before inserting it.
   return url === 'https://' || urlRegExp.test(url) || /^[/?#]/.test(url);
 }
+
+const LOCALHOST_PATTERNS = [
+  'localhost',
+  '127.0.0.1',
+  '0.0.0.0',
+  '[::1]',
+];
+
+function isLocalhostUrl(url: URL): boolean {
+  const hostname = url.hostname.toLowerCase();
+  return LOCALHOST_PATTERNS.some(pattern => hostname === pattern || hostname.endsWith('.' + pattern));
+}
+
+/**
+ * Validates that a URL is appropriate for an embedded image.
+ * This is stricter than validateUrl because:
+ * - Only http/https URLs are allowed (no relative paths, mailto, etc.)
+ * - Localhost URLs are blocked (they won't work for other users)
+ * - The URL must be well-formed
+ *
+ * Returns an error message if invalid, or null if valid.
+ */
+export function validateImageUrl(url: string): string | null {
+  const trimmed = url.trim();
+  if (!trimmed) {
+    return 'URL is required';
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(trimmed);
+  } catch {
+    return 'Invalid URL format';
+  }
+
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    return 'URL must use http or https';
+  }
+
+  if (isLocalhostUrl(parsed)) {
+    return 'Localhost URLs are not allowed';
+  }
+
+  // Check for obviously invalid hostnames (no TLD)
+  const hostname = parsed.hostname;
+  if (!hostname.includes('.') && hostname !== 'localhost') {
+    return 'Invalid hostname';
+  }
+
+  return null;
+}
