@@ -103,10 +103,6 @@ export const sharedSettings = {
     announcementPostPath: "/posts/B6CxEApaatATzown6/the-lesswrong-2022-review",
     showReviewOnFrontPageIfActive: true
   },
-  mobileSpotlightOverride: {
-    id: null,
-    until: null,
-  },
   googleVertex: {
     enabled: false
   },
