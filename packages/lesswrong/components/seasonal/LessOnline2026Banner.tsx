@@ -111,7 +111,9 @@ export const LessOnline2026Banner = ({earlyBirdEndDate}: {earlyBirdEndDate: Date
 
   const countdownText = daysRemaining > 0
     ? `in ${daysRemaining} day${daysRemaining === 1 ? '' : 's'}`
-    : 'tomorrow';
+    : daysRemaining === 0
+    ? 'today'
+    : 'deadline passed';
 
   return (
     <AnalyticsContext pageSectionContext="lessOnline2026Banner">
