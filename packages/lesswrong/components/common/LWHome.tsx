@@ -94,13 +94,13 @@ const LWHome = () => {
         {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
           <DismissibleSpotlightItem
             loadingStyle="placeholder"
-            className={classes.desktopSpotlight}
+            // className={classes.desktopSpotlight}
           />
-          <DismissibleSpotlightItem
+          {/* <DismissibleSpotlightItem
             loadingStyle="placeholder"
             className={classes.mobileSpotlight}
             spotlightId={mobileSpotlightOverrideId}
-          />
+          /> */}
         </SingleColumnSection>}
         <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
           <IsReturningVisitorContextProvider>
