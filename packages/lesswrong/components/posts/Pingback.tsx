@@ -1,5 +1,5 @@
 import React from 'react';
-import { KARMA_WIDTH } from './LWPostsItem';
+import { KARMA_WIDTH } from './PostsItem';
 import PostsTooltip from "./PostsPreviewTooltip/PostsTooltip";
 import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
 import KarmaDisplay from "../common/KarmaDisplay";
