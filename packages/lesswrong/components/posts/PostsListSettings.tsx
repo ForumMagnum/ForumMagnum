@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
@@ -14,6 +13,8 @@ import { timeframeLabels, timeframeSettings as defaultTimeframes, TimeframeSetti
 import { TooltipSpan } from '../common/FMTooltip';
 import MetaInfo from "../common/MetaInfo";
 import SettingsColumn from "../common/SettingsColumn";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events'|'linkpost';
 
@@ -96,16 +97,15 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
 
 const getFilters = () => forumSelect(FILTERS_ALL)
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsListSettings', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginTop: theme.isFriendlyUI ? 10 : undefined,
     marginBottom: 8,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
-    padding: theme.isFriendlyUI ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
+    padding: "12px 24px 8px 12px",
     borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down('xs')]: {
       flexDirection: "column",
@@ -117,8 +117,7 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
   },
   checkbox: {
-    padding: "1px 12px 0 0",
-    paddingRight: theme.isFriendlyUI ? 6 : undefined,
+    padding: "1px 12px 0 0"
   },
   checkboxGroup: {
     display: "flex",
@@ -129,7 +128,7 @@ const styles = (theme: ThemeType) => ({
       order: 0
     }
   },
-})
+}))
 
 const USER_SETTING_NAMES = {
   timeframe: 'allPostsTimeframe',
@@ -141,7 +140,7 @@ const USER_SETTING_NAMES = {
 
 export const postListSettingUrlParameterNames = Object.keys(USER_SETTING_NAMES);
 
-const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, timeframes=defaultTimeframes, sortings=getSortOrderOptions(), showTimeframe, classes}: {
+const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, timeframes=defaultTimeframes, sortings=getSortOrderOptions(), showTimeframe}: {
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
@@ -152,8 +151,8 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   timeframes?: readonly TimeframeSettingType[],
   sortings?: { [key: string]: SettingsOption; },
   showTimeframe?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
 
@@ -243,8 +242,6 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   );
 };
 
-export default registerComponent(
-  'PostsListSettings', PostsListSettings, { styles }
-);
+export default PostsListSettings;
 
 

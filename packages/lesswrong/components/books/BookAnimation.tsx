@@ -1,7 +1,8 @@
 import classNames from 'classnames';
 import React, { ReactNode } from 'react';
 import { useLocation } from '../../lib/routeUtil';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const collapsedStyles = (theme: ThemeType) => ({
   [theme.breakpoints.up('lg')]: {
@@ -25,7 +26,7 @@ const collapsedStyles = (theme: ThemeType) => ({
   },
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('BookAnimation', (theme: ThemeType) => ({
   success: {
     '& .parent-container': {
       ...collapsedStyles(theme)
@@ -217,13 +218,13 @@ const styles = (theme: ThemeType) => ({
       opacity: 1
     }
   }
-})
+}), { allowNonThemeColors: true })
 
-const BookAnimation = ({ classes, children, successContent }: {
-  classes: ClassesType<typeof styles>,
+const BookAnimation = ({children, successContent}: {
   children: ReactNode,
   successContent?: any
 }) => {
+  const classes = useStyles(styles);
   const { query } = useLocation();
   const success = !!query.success
   return (
@@ -273,11 +274,6 @@ const BookAnimation = ({ classes, children, successContent }: {
 }
 
 
-export default registerComponent('BookAnimation', BookAnimation, {
-  styles,
-  // This component tries to look like a printed book, which is white, so its colors
-  // don't change in dark mode
-  allowNonThemeColors: true,
-});
+export default BookAnimation;
 
 

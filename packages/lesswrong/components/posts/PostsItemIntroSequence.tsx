@@ -21,7 +21,6 @@ const IMAGE_HEIGHT = 96;
 export const styles = defineStyles("PostsItemIntroSequence", (theme: ThemeType)=> ({
   root: {
     position: "relative",
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : undefined,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     },

@@ -1,11 +1,12 @@
 import React from 'react';
 import { postModerationWarningCommentIdSetting } from '@/lib/instanceSettings';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListQuery = gql(`
   query NewPostModerationWarning($documentId: String) {
@@ -17,17 +18,16 @@ const CommentsListQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NewPostModerationWarning', (theme: ThemeType) => ({
   root: {
     border: theme.palette.border.commentBorder,
     padding: 24,
     marginBottom: 40
   }
-});
+}));
 
-export const NewPostModerationWarning = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const NewPostModerationWarning = () => {
+  const classes = useStyles(styles);
   const documentId = postModerationWarningCommentIdSetting.get() 
   
   const { loading, data } = useQuery(CommentsListQuery, {
@@ -47,7 +47,7 @@ export const NewPostModerationWarning = ({classes}: {
   </div>;
 }
 
-export default registerComponent('NewPostModerationWarning', NewPostModerationWarning, {styles});
+export default NewPostModerationWarning;
 
 
 

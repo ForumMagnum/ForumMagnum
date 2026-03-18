@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { Hit } from 'react-instantsearch-core';
@@ -7,8 +6,10 @@ import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import PostsTitle from "../posts/PostsTitle";
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsListEditorSearchHit", (theme: ThemeType) => ({
   root: {
     padding: 8,
     borderBottom: "solid 1px",
@@ -19,8 +20,7 @@ const styles = (theme: ThemeType) => ({
   },
   postLink: {
     float:"right",
-    marginRight: 8,
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    marginRight: 8
   },
   titleRow: {
     textOverflow: "ellipsis",
@@ -28,12 +28,12 @@ const styles = (theme: ThemeType) => ({
   },
   metadataRow: {
   },
-})
+}))
 
-const PostsListEditorSearchHit = ({hit, classes}: {
+const PostsListEditorSearchHit = ({hit}: {
   hit: Hit<AnyBecauseTodo>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const post = hit as SearchPost;
   return (
     <PostsTooltip postId={post._id} postsList placement="left">
@@ -60,6 +60,6 @@ const PostsListEditorSearchHit = ({hit, classes}: {
   );
 }
 
-export default registerComponent("PostsListEditorSearchHit", PostsListEditorSearchHit, {styles});
+export default PostsListEditorSearchHit;
 
 

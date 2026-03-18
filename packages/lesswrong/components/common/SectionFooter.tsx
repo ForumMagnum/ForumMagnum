@@ -37,14 +37,7 @@ const styles = defineStyles("SectionFooter", (theme: ThemeType) => ({
       color: theme.palette.text.bannerAdOverlay,
     }),
     flexWrap: "wrap",
-    ...separatorBulletStyles(theme),
-    ...(theme.isFriendlyUI
-      ? {
-        fontSize: 14,
-        fontWeight: 600,
-        lineHeight: "24px",
-      }
-      : {}),
+    ...separatorBulletStyles(theme)
   }
 }))
 

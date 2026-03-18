@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useVote } from '../votes/withVote';
 import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
 import FormatDate from "../common/FormatDate";
@@ -14,6 +13,8 @@ import LoadMore from "../common/LoadMore";
 import NewTagsList from "./NewTagsList";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagVotingActivityMultiQuery = gql(`
   query multiVoteTagVoteActivityQuery($selector: VoteSelector, $limit: Int, $enableTotal: Boolean) {
@@ -26,7 +27,7 @@ const TagVotingActivityMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagVoteActivity", (theme: ThemeType) => ({
   voteRow: {
     ...theme.typography.body2,
     ...theme.typography.smallText,
@@ -66,12 +67,12 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     boxShadow: theme.palette.boxShadow.default,
   }
-})
+}))
 
-const TagVoteActivityRow = ({vote, classes}: {
+const TagVoteActivityRow = ({vote}: {
   vote: TagVotingActivity,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const voteProps = useVote(vote.tagRel!, "TagRels")
   const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   if (!vote.tagRel?.post || !vote.tagRel?.tag)
@@ -113,13 +114,13 @@ const TagVoteActivityRow = ({vote, classes}: {
   );
 }
 
-const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit = 200, itemsPerPage = 200}: {
-  classes: ClassesType<typeof styles>,
+const TagVoteActivity = ({showHeaders = true, showNewTags = true, limit = 200, itemsPerPage = 200}: {
   showHeaders?: boolean,
   showNewTags?: boolean,
   limit?: number,
   itemsPerPage?: number
 }) => {
+  const classes = useStyles(styles);
   const { data, loadMoreProps } = useQueryWithLoadMore(TagVotingActivityMultiQuery, {
     variables: {
       selector: { tagVotes: {} },
@@ -145,7 +146,7 @@ const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit
             <td className={classes.headerCell}> When </td>
             <td className={classes.headerCell}> Vote </td>
           </tr>
-          {votes?.map(vote => <TagVoteActivityRow key={vote._id} vote={vote} classes={classes}/>)}
+          {votes?.map(vote => <TagVoteActivityRow key={vote._id} vote={vote}/>)}
         </tbody>
       </table>
       <LoadMore {...loadMoreProps} />
@@ -154,6 +155,6 @@ const TagVoteActivity = ({classes, showHeaders = true, showNewTags = true, limit
 }
 
 
-export default registerComponent("TagVoteActivity", TagVoteActivity, {styles});
+export default TagVoteActivity;
 
 

@@ -1,14 +1,14 @@
 'use client';
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import {useCurrentUser} from "../common/withUser";
 import { NotifPopoverLink } from './useNotificationsPopoverContext';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
-import UsersName from "../users/UsersName";
+import UsersNameWrapper from "../users/UsersNameWrapper";
 import Loading from "../vulcan-core/Loading";
-
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsMinimumInfoQuery = gql(`
   query CommentOnYourDraftNotificationHover($documentId: String) {
@@ -20,19 +20,19 @@ const PostsMinimumInfoQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentOnYourDraftNotificationHover', (theme: ThemeType) => ({
   root: {
     padding: 16,
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
     maxWidth: 600,
   },
-});
+}));
 
-const CommentOnYourDraftNotificationHover = ({notification, classes}: {
+const CommentOnYourDraftNotificationHover = ({notification}: {
   notification: NotificationsList,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const postId = notification.documentId ?? undefined;
   const postEditUrl = `/editPost?postId=${postId}`
   const currentUser = useCurrentUser()
@@ -43,12 +43,15 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   const post = data?.post?.result;
   
   const senderUserId = notification.extraData?.senderUserID;
-  
+  const senderDisplayName = notification.extraData?.senderDisplayName;
+
   const postOrDraft = post?.draft ? "draft" : "post";
-  
+
   return <div className={classes.root}>
     <div>
-      {senderUserId ? <UsersName documentId={notification.extraData.senderUserID}/> : "Someone"}
+      {senderUserId
+        ? <UsersNameWrapper documentId={senderUserId} fallbackName={senderDisplayName}/>
+        : "Someone"}
       {(currentUser?._id !== post?.userId) ? " replied to your comment on " : ` commented on your ${postOrDraft}`}
       <NotifPopoverLink to={postEditUrl}>
         {post ? post.title : <Loading/>}
@@ -59,6 +62,6 @@ const CommentOnYourDraftNotificationHover = ({notification, classes}: {
   </div>
 }
 
-export default registerComponent('CommentOnYourDraftNotificationHover', CommentOnYourDraftNotificationHover, {styles});
+export default CommentOnYourDraftNotificationHover;
 
 

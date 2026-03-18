@@ -89,6 +89,16 @@ function getTurndown(): TurndownService {
         return iframeWidgetElementToMarkdown(element);
       }
     })
+    turndownService.addRule('llm-content-block', {
+      filter: (node) =>
+        node.nodeName === 'DIV' && !!node.classList?.contains('llm-content-block'),
+      replacement: (content, node) => {
+        const element = node as Element;
+        const modelName = element.getAttribute('data-model-name') || 'unknown model';
+        const trimmed = content.trim();
+        return `\n\n%%% llm-output model="${modelName}"\n\n${trimmed}\n\n%%% /llm-output\n\n`;
+      },
+    })
     turndownService.use(gfm); // Add support for strikethrough and tables
     turndownService.addRule('suggestion-deletion', {
       filter: ['del'],

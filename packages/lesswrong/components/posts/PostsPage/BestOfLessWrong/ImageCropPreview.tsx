@@ -1,5 +1,4 @@
 import React, { useState, useCallback, RefObject } from 'react';
-import { registerComponent } from '../../../../lib/vulcan-lib/components';
 import { useImageContext, ReviewWinnerImageInfo } from '../ImageContext';
 import { useEventListener } from '../../../hooks/useEventListener';
 import { useWindowSize } from '../../../hooks/useScreenWidth';
@@ -7,6 +6,8 @@ import { COORDINATE_POSITIONS_TO_BOOK_OFFSETS, CoordinatePosition } from '../../
 import classNames from 'classnames';
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SplashArtCoordinatesMutation = gql(`
   mutation createSplashArtCoordinateImageCropPreview($data: CreateSplashArtCoordinateDataInput!) {
@@ -82,7 +83,7 @@ function getOffsetPercentages<T extends CoordinatePosition>(imgCoordinates: Coor
   } as PositionedOffsets<T>;
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ImageCropPreview', (theme: ThemeType) => ({
   button: {
     padding: '8px 20px',
     cursor: 'pointer',
@@ -161,7 +162,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.primary,
     textAlign: 'center',
   },
-});
+}));
 
 const ImagePreviewSubset = ({ boxCoordinates, selectedImageInfo, subBoxPosition, selectedBox, setSelectedBox, cachedBoxCoordinates, setCachedBoxCoordinates, flipped }: {
   boxCoordinates: Coordinates,
@@ -238,11 +239,12 @@ const SaveAllBar = ({showSaveAllButton, loading, saveAllCoordinates}: {showSaveA
   return <div onClick={saveAllCoordinates}>{`Save all placements`}</div>
 }
 
-const ImageCropPreview = ({ imgRef, classes, flipped }: {
+const ImageCropPreview = ({imgRef, flipped}: {
   imgRef: RefObject<HTMLImageElement|null>,
-  classes: ClassesType<typeof styles>,
   flipped: boolean
 }) => {
+  const classes = useStyles(styles);
+
   // TODO: per docstring, this hook isn't safe in an SSR context; make sure we wrap this entire component in a NoSSR block
   const windowSize = useWindowSize();
   const { selectedImageInfo } = useImageContext();
@@ -473,6 +475,6 @@ const ImageCropPreview = ({ imgRef, classes, flipped }: {
   );
 };
 
-export default registerComponent('ImageCropPreview', ImageCropPreview, {styles});
+export default ImageCropPreview;
 
 

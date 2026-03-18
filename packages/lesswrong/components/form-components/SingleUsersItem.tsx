@@ -1,9 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { Chip } from '@/components/widgets/Chip';
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersProfileQuery = gql(`
   query SingleUsersItem($documentId: String) {
@@ -15,7 +16,7 @@ const UsersProfileQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SingleUsersItem', (theme: ThemeType) => ({
   chip: {
     marginLeft: 4,
     marginRight: 4,
@@ -26,13 +27,13 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     flexWrap: 'wrap',
   },
-});
+}));
 
-const SingleUsersItem = ({userId, removeItem, classes }: {
+const SingleUsersItem = ({userId, removeItem}: {
   userId: string,
   removeItem: (id: string) => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(UsersProfileQuery, {
     variables: { documentId: userId },
   });
@@ -51,6 +52,6 @@ const SingleUsersItem = ({userId, removeItem, classes }: {
   }
 };
 
-export default registerComponent('SingleUsersItem', SingleUsersItem, {styles});
+export default SingleUsersItem;
 
 

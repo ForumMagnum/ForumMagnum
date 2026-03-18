@@ -1,24 +1,25 @@
 import React, { useCallback, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import without from 'lodash/without';
 import LocalEventMarker from "./LocalEventMarker";
 import LocalGroupMarker from "./LocalGroupMarker";
 import { WrappedReactMapGL } from '../community/WrappedReactMapGL';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles("SmallMapPreview", (_theme: ThemeType) => ({
   previewWrapper: {
     paddingTop: 5,
     height: 200,
     maxWidth: 300
   }
-});
+}));
 
-const SmallMapPreview = ({post, group, zoom, classes}: {
+const SmallMapPreview = ({post, group, zoom}: {
   post: PostsList,
   group?: AnyBecauseTodo,
   zoom?: number,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const document = post || group;
   const googleLocation = document.googleLocation;
   const center = googleLocation?.geometry?.location;
@@ -72,6 +73,6 @@ const SmallMapPreview = ({post, group, zoom, classes}: {
   );
 }
 
-export default registerComponent("SmallMapPreview", SmallMapPreview, {styles});
+export default SmallMapPreview;
 
 

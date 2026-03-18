@@ -1,5 +1,4 @@
 import React, { FC, ReactNode } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { DnaIcon } from '../icons/dnaIcon';
 import { MushroomCloudIcon } from '../icons/mushroomCloudIcon';
 import { CausePrioIcon } from '../icons/causePrioIcon';
@@ -16,6 +15,8 @@ import { PolicyIcon } from '../icons/policyIcon';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { LotusOutlineIcon } from '../icons/lotusIcon';
 import classNames from 'classnames';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 // Mapping from tag slug to icon
 export const getCoreTagIconMap = () => forumSelect<Record<string, FC<{className?: string}>>>({
@@ -44,19 +45,19 @@ export const getCoreTagIconMap = () => forumSelect<Record<string, FC<{className?
   default: {}
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CoreTagIcon", (theme: ThemeType) => ({
   // prevent LotusOutlineIcon from having a fill
   noFill: {
     fill: 'none !important'
   }
-});
+}));
 
-const CoreTagIcon = ({tag, fallbackNode, className, classes}: {
+const CoreTagIcon = ({tag, fallbackNode, className}: {
   tag: {slug: string},
   fallbackNode?: ReactNode,
   className?: string,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const Icon = getCoreTagIconMap()[tag.slug]
   if (!Icon) {
     return fallbackNode ? <>{fallbackNode}</> : null
@@ -64,6 +65,6 @@ const CoreTagIcon = ({tag, fallbackNode, className, classes}: {
   return <Icon className={classNames(className, {[classes.noFill]: Icon === LotusOutlineIcon})} />
 }
 
-export default registerComponent("CoreTagIcon", CoreTagIcon, {styles});
+export default CoreTagIcon
 
 

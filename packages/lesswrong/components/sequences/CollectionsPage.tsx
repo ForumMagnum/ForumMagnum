@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -20,6 +19,8 @@ import ErrorBoundary from "../common/ErrorBoundary";
 import CollectionTableOfContents from "./CollectionTableOfContents";
 import ToCColumn from "../posts/TableOfContents/ToCColumn";
 import { CollectionsPageFragmentQuery } from './queries';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CollectionsEditFragmentQuery = gql(`
   query CollectionsEdit($documentId: String) {
@@ -34,7 +35,7 @@ const CollectionsEditFragmentQuery = gql(`
 const PADDING = 36
 const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CollectionsPage', (theme: ThemeType) => ({
   root: {
     padding: 32,
     position: "relative",
@@ -69,7 +70,7 @@ const styles = (theme: ThemeType) => ({
   title: {
     ...theme.typography.headerStyle,
     fontWeight: "bold",
-    textTransform: theme.isFriendlyUI ? undefined : "uppercase",
+    textTransform: "uppercase",
     borderTopStyle: "solid",
     borderTopWidth: 4,
     paddingTop: 10,
@@ -78,16 +79,16 @@ const styles = (theme: ThemeType) => ({
   },
   description: {
     marginTop: 30,
-    marginBottom: theme.isFriendlyUI ? 0 : 25,
+    marginBottom: 25,
     lineHeight: 1.25,
     maxWidth: 700,
   },
-});
+}));
 
-const CollectionsPage = ({ documentId, classes }: {
+const CollectionsPage = ({documentId}: {
   documentId: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [edit, setEdit] = useState(false);
   const [addingBook, setAddingBook] = useState(false);
@@ -192,7 +193,7 @@ const CollectionsPage = ({ documentId, classes }: {
   }
 }
 
-export default registerComponent('CollectionsPage', CollectionsPage, {styles});
+export default CollectionsPage
 
 
 

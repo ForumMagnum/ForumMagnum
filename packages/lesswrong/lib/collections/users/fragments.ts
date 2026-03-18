@@ -307,16 +307,6 @@ export const UserKarmaChanges = gql(`
   }
 `)
 
-export const UsersBannedFromUsersModerationLog = gql(`
-  fragment UsersBannedFromUsersModerationLog on User {
-    _id
-    slug
-    displayName
-    bannedUserIds
-    bannedPersonalUserIds
-  }
-`)
-
 export const SunshineUsersList = gql(`
   fragment SunshineUsersList on User {
     ...UsersMinimumInfo

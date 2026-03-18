@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isPostsListViewType, usePostsListView } from "../hooks/usePostsListView";
 import { useTracking } from "../../lib/analyticsEvents";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
@@ -7,8 +6,10 @@ import { NEW_POSTS_LIST_VIEW_TOGGLE_COOKIE } from "../../lib/cookies/cookies";
 import moment from "moment";
 import ForumDropdown from "../common/ForumDropdown";
 import { useCurrentTime } from "@/lib/utils/timeUtil";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsListViewToggle", (theme: ThemeType) => ({
   root: {
     position: "relative",
   },
@@ -38,7 +39,7 @@ const styles = (theme: ThemeType) => ({
     transform: "scaleY(70%) rotate(45deg)",
     background: theme.palette.primary.main,
   },
-});
+}));
 
 const options = {
   card: {label: "Card view", icon: "CardView"},
@@ -71,9 +72,8 @@ const getCookieData = (data: unknown): ViewToggleCookieData => {
   }
 }
 
-const PostsListViewToggle = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const PostsListViewToggle = () => {
+  const classes = useStyles(styles);
   const {captureEvent} = useTracking();
 
   /*
@@ -139,10 +139,6 @@ const PostsListViewToggle = ({classes}: {
   );
 }
 
-export default registerComponent(
-  "PostsListViewToggle",
-  PostsListViewToggle,
-  {styles},
-);
+export default PostsListViewToggle;
 
 

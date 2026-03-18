@@ -1,11 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { DialogContent } from '../widgets/DialogContent';
 import { DialogTitle } from '../widgets/DialogTitle';
 import LWDialog from "../common/LWDialog";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ImageUploadDefaultsDialog', (theme: ThemeType) => ({
   images: {
     display: 'flex',
     flexWrap: 'wrap',
@@ -20,14 +21,14 @@ const styles = (theme: ThemeType) => ({
       borderColor: theme.palette.primary.main,
     },
   },
-})
+}))
 
-const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
+const ImageUploadDefaultsDialog = ({onSelect, onClose, type}: {
   onSelect: (newImageId: string) => void,
   onClose?: () => void,
-  classes: ClassesType<typeof styles>,
   type?: 'Event' | 'Profile'
 }) => {
+  const classes = useStyles(styles);
   const selectImg = (img: string) => {
     onSelect(img)
     if (onClose)
@@ -140,6 +141,6 @@ const ImageUploadDefaultsDialog = ({ onSelect, onClose, classes, type }: {
   )
 }
 
-export default registerComponent('ImageUploadDefaultsDialog', ImageUploadDefaultsDialog, {styles});
+export default ImageUploadDefaultsDialog;
 
 

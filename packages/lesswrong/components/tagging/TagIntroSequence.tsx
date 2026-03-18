@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
 import { AnalyticsContext } from '../../lib/analyticsEvents'
-import { registerComponent } from '../../lib/vulcan-lib/components'
 import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import PostsItemIntroSequence from "../posts/PostsItemIntroSequence";
 import LoadMore from "../common/LoadMore";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ChaptersFragmentMultiQuery = gql(`
   query multiChapterTagIntroSequenceQuery($selector: ChapterSelector, $limit: Int, $enableTotal: Boolean) {
@@ -21,16 +22,16 @@ const ChaptersFragmentMultiQuery = gql(`
 
 const PREVIEW_N = 3
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagIntroSequence", (theme: ThemeType) => ({
   root: {
     marginBottom: 16,
   },
-})
+}))
 
-const TagIntroSequence = ({tag, classes}: {
+const TagIntroSequence = ({tag}: {
   tag: TagPageFragment,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const { data, loading } = useQuery(ChaptersFragmentMultiQuery, {
     variables: {
       selector: { SequenceChapters: { sequenceId: tag.sequence?._id } },
@@ -75,6 +76,6 @@ const TagIntroSequence = ({tag, classes}: {
   </div>
 }
 
-export default registerComponent("TagIntroSequence", TagIntroSequence, {styles});
+export default TagIntroSequence
 
 

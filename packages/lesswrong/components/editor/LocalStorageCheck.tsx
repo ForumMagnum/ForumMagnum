@@ -11,7 +11,7 @@ const styles = defineStyles("LocalStorageCheck", (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    columnGap: theme.isFriendlyUI ? 8 : 10,
+    columnGap: 10,
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.text.primaryAlert,
     fontSize: 14,
@@ -33,24 +33,15 @@ const styles = defineStyles("LocalStorageCheck", (theme: ThemeType) => ({
     color: theme.palette.text.primaryAlert,
     whiteSpace: 'nowrap',
     paddingLeft: 6,
-    paddingRight: 2,
-    fontWeight: theme.isFriendlyUI ? 600 : undefined,
+    paddingRight: 2
   },
   restoreBody: {
     maxHeight: '1.5em',
     lineHeight: '1.5em',
     fontSize: '1.1rem',
     overflow: 'hidden',
-    ...(theme.isFriendlyUI
-      ? {
-        color: theme.palette.text.primaryAlert,
-        fontWeight: 500,
-        opacity: 0.75,
-      }
-      : {
-        color: theme.palette.grey[500],
-        padding: '0 4px',
-      }),
+    color: theme.palette.grey[500],
+    padding: '0 4px',
   },
   closeIcon: {
     fontSize: 16,

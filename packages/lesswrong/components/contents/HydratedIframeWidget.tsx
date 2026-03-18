@@ -4,6 +4,7 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { injectResizeScript, clampIframeHeight, IFRAME_DEFAULT_HEIGHT } from '@/components/lexical/embeds/IframeWidgetEmbed/iframeResizeScript';
+import { parseDocumentFromString } from '@/lib/domParser';
 
 const iframeWidgetSrcdocQuery = gql(`
   query IframeWidgetSrcdocQuery($widgetId: String!) {
@@ -29,10 +30,9 @@ const styles = defineStyles('HydratedIframeWidget', () => ({
 }));
 
 function stripDeletedMarkupFromSrcdoc(srcdoc: string): string {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(srcdoc, 'text/html');
+  const { document: doc } = parseDocumentFromString(srcdoc);
   doc.querySelectorAll('del').forEach((node) => node.remove());
-  return doc.body.innerHTML;
+  return doc.documentElement.innerHTML;
 }
 
 function InlineIframeWidget({ srcdoc, title }: {

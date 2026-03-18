@@ -1,13 +1,13 @@
 import React from "react";
 import { NotifyMeDropdownItem, type NotifyMeDropdownItemProps } from "./NotifyMeDropdownItem";
-import { NotifyMeToggleDropdownItemPropsExternal } from "./NotifyMeToggleDropdownItem";
+import { NotifyMeToggleDropdownItemProps } from "./NotifyMeToggleDropdownItem";
 
 /**
  * On friendly sites, this is a single menu item that opens a submenu with subscription options.
  * On other sites, the subscription options are individual menu items.
  */
 export const CombinedSubscriptionsDropdownItem = ({notifyMeItems}: {
-  notifyMeItems: Array<NotifyMeDropdownItemProps & NotifyMeToggleDropdownItemPropsExternal>,
+  notifyMeItems: Array<NotifyMeDropdownItemProps & NotifyMeToggleDropdownItemProps>,
 }) => {
   return <>
     {notifyMeItems.map((props) =>

@@ -1,11 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagStyle } from '../tagging/FooterTag';
 import classNames from 'classnames';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagBasicInfoQuery = gql(`
   query SingleTagItem($documentId: String) {
@@ -17,7 +18,7 @@ const TagBasicInfoQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SingleTagItem', (theme: ThemeType) => ({
   tag: {
     display: 'inline-flex',
     alignItems: 'baseline',
@@ -41,14 +42,14 @@ const styles = (theme: ThemeType) => ({
       height: 13,
     },
   },
-});
+}), { stylePriority: -1 });
 
-const SingleTagItem = ({documentId, onDelete, className, classes}: {
+const SingleTagItem = ({documentId, onDelete, className}: {
   documentId: string,
   onDelete: (id: string) => void,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(TagBasicInfoQuery, {
     variables: { documentId: documentId },
   });
@@ -70,10 +71,4 @@ const SingleTagItem = ({documentId, onDelete, className, classes}: {
   return null
 };
 
-export default registerComponent(
-  'SingleTagItem',
-  SingleTagItem,
-  {styles, stylePriority: -1},
-);
-
-
+export default SingleTagItem;

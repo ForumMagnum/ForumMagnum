@@ -1,5 +1,4 @@
 import React, { ChangeEvent, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { frontpageDaysAgoCutoffSetting } from '@/lib/instanceSettings';
 import { PostsPageContext } from "../posts/PostsPage/PostsPageContext";
 import { useCurrentUser } from "../common/withUser";
@@ -28,6 +27,8 @@ import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostRecommendationsSamplePageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -40,7 +41,7 @@ const PostsListWithVotesMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("RecommendationsSamplePage", (theme: ThemeType) => ({
   root: {
     [theme.breakpoints.down("sm")]: {
       paddingTop: 30
@@ -59,7 +60,7 @@ const styles = (theme: ThemeType) => ({
     gap: "8px",
     marginBottom: 42,
   },
-});
+}));
 
 const parseStrategy = (queryStrategy?: string): RecommendationStrategyName =>
   queryStrategy && isRecommendationStrategyName(queryStrategy)
@@ -95,9 +96,8 @@ const featureInputToFeatures = (
   return result;
 }
 
-const RecommendationsSamplePage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const RecommendationsSamplePage = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
   const {query} = useLocation();
@@ -262,10 +262,6 @@ const RecommendationsSamplePage = ({classes}: {
   );
 }
 
-export default registerComponent(
-  "RecommendationsSamplePage",
-  RecommendationsSamplePage,
-  {styles},
-);
+export default RecommendationsSamplePage;
 
 

@@ -2,17 +2,25 @@ import { dataToMarkdown, dataToHTML, dataToCkEditor, buildRevision } from '../ed
 import { getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
 import { EditorContents } from '../../components/editor/Editor';
-import { userOwns } from '../../lib/vulcan-users/permissions';
+import { userOwns, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import gql from 'graphql-tag';
 import { createRevision } from '../collections/revisions/mutations';
 import { updateTag } from '../collections/tags/mutations';
+import { resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
 
 export const revisionResolversGraphQLTypeDefs = gql`
   input AutosaveContentType {
     type: String
     value: ContentTypeData
   }
+
+  enum ConvertibleCollectionName {
+    Posts
+    Comments
+    Tags
+  }
+  
   extend type Query {
     convertDocument(document: JSON, targetFormat: String): JSON
     latestGoogleDocMetadata(postId: String!, version: String): JSON
@@ -20,6 +28,7 @@ export const revisionResolversGraphQLTypeDefs = gql`
   extend type Mutation {
     revertTagToRevision(tagId: String!, revertToRevisionId: String!): Tag
     autosaveRevision(postId: String!, contents: AutosaveContentType!): Revision
+    convertDocumentEditorType(documentId: String!, collectionName: ConvertibleCollectionName!, fieldName: String!, document: JSON!, targetFormat: String!): JSON
   }
 `;
 
@@ -104,7 +113,93 @@ export const revisionResolversGraphQLMutations = {
     }, context);
 
     return createdRevision;
-  }
+  },
+  convertDocumentEditorType: async (root: void, { documentId, collectionName, fieldName, document: sourceDocument, targetFormat }: { documentId: string, collectionName: ConvertibleCollectionName, fieldName: string, document: { type: string, value: string }, targetFormat: string }, context: ResolverContext) => {
+    const { currentUser } = context;
+    if (!currentUser) {
+      throw new Error('Must be logged in to convert editor type');
+    }
+
+    const collection: PgCollection<ConvertibleCollectionName> = context[collectionName];
+    const dbDocument = await collection.findOne({ _id: documentId });
+    if (!dbDocument) {
+      throw new Error(`No ${collectionName} document with id: ${documentId}`);
+    }
+
+    if (!(userOwns(currentUser, dbDocument) || userIsAdmin(currentUser))) {
+      throw new Error(`You don't have permission to edit this document`);
+    }
+
+    const { type: sourceType, value: sourceData } = sourceDocument;
+    if (sourceType === targetFormat) {
+      return true;
+    }
+
+    let convertedData: string;
+    switch (targetFormat) {
+      case "markdown":
+        convertedData = dataToMarkdown(sourceData, sourceType);
+        break;
+      case "lexical":
+        convertedData = await dataToHTML(sourceData, sourceType, context);
+        break;
+      case "html":
+        convertedData = await dataToHTML(sourceData, sourceType, context);
+        break;
+      case "ckEditorMarkup":
+        convertedData = await dataToCkEditor(sourceData, sourceType);
+        break;
+      default:
+        throw new Error(`Unsupported target format: ${targetFormat}`);
+    }
+
+    const isDraft = 'draft' in dbDocument ? !!dbDocument.draft : true;
+    const previousRev = await getLatestRev(documentId, fieldName, context);
+
+    // When converting to lexical, generate the Yjs binary state from the HTML
+    // so the collaborative document can be properly initialized.
+    // Inline import: htmlToYjsBinary transitively imports PlaygroundNodes which
+    // pulls in CSS files that break the codegen CJS loader.
+    let yjsState: string | null = null;
+    let yjsBinary: Uint8Array | null = null;
+    if (targetFormat === 'lexical') {
+      const { htmlToYjsBinary } = await import('../editor/htmlToYjsBinary');
+      yjsBinary = htmlToYjsBinary(convertedData);
+      yjsState = Buffer.from(yjsBinary).toString('base64');
+    }
+
+    const originalContents = { type: targetFormat, data: convertedData, yjsState };
+    const nextVersion = getNextVersion(previousRev, 'minor', isDraft);
+
+    const builtRevision = await buildRevision({
+      originalContents,
+      currentUser,
+      context,
+    });
+
+    const newRevision: Partial<DbRevision> = {
+      ...builtRevision,
+      documentId,
+      fieldName,
+      collectionName,
+      version: nextVersion,
+      draft: isDraft,
+      updateType: 'minor',
+      changeMetrics: htmlToChangeMetrics(previousRev?.html || '', builtRevision.html),
+      commitMessage: `Converted from ${sourceType} to ${targetFormat}`,
+    };
+
+    await createRevision({ data: newRevision }, context);
+
+    // When converting to lexical on a post, push the new Yjs state to
+    // Hocuspocus so any existing collaborative session is replaced with
+    // the converted content (same as restoring a previous revision).
+    if (collectionName === 'Posts' && fieldName === 'contents' && targetFormat === 'lexical' && yjsBinary) {
+      await resetHocuspocusDocument(`post-${documentId}`, yjsBinary);
+    }
+
+    return true;
+  },
 }
 
 export const revisionResolversGraphQLQueries = {

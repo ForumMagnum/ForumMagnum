@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import ListItemIcon from '@/lib/vendor/@material-ui/core/src/ListItemIcon';
 import classNames from 'classnames';
 import { SubscriptionType } from '../../lib/collections/subscriptions/helpers';
@@ -10,12 +9,14 @@ import Loading from "../vulcan-core/Loading";
 import ForumIcon from "../common/ForumIcon";
 import { MenuItem } from "../common/Menus";
 import EAButton from "../ea-forum/EAButton";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 // Note: We're changing 'subscribe' to refer to the frontpage bump of tags, this
 // component still talks about 'subscriptions', but we're moving to calling them
 // 'notifications enabled'
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NotifyMeButton', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -23,11 +24,7 @@ const styles = (theme: ThemeType) => ({
       opacity: 0.5
     }
   },
-  icon: theme.isFriendlyUI ? {
-    color: theme.palette.grey[900],
-    fontSize: 16,
-    marginRight: 6,
-  } : {},
+  icon: {},
   hideLabelOnMobile: {
     [theme.breakpoints.down('sm')]: { //optimized for tag page
       display: "none"
@@ -36,25 +33,9 @@ const styles = (theme: ThemeType) => ({
   hideLabel: {
     display: "none"
   },
-})
+}))
 
-const NotifyMeButton = ({
-  document,
-  subscriptionType: overrideSubscriptionType,
-  subscribeMessage, unsubscribeMessage,
-  tooltip,
-  asMenuItem = false,
-  className="",
-  classes,
-  showIcon,
-  hideLabel = false,
-  hideLabelOnMobile = false,
-  hideIfNotificationsDisabled = false,
-  hideForLoggedOutUsers = false,
-  hideFlashes = false,
-  asButton = false,
-  componentIfSubscribed,
-}: {
+const NotifyMeButton = ({document, subscriptionType: overrideSubscriptionType, subscribeMessage, unsubscribeMessage, tooltip, asMenuItem = false, className="", showIcon, hideLabel = false, hideLabelOnMobile = false, hideIfNotificationsDisabled = false, hideForLoggedOutUsers = false, hideFlashes = false, asButton = false, componentIfSubscribed}: {
   document: AnyBecauseTodo,
   subscriptionType?: SubscriptionType,
   subscribeMessage?: string,
@@ -62,7 +43,6 @@ const NotifyMeButton = ({
   asMenuItem?: boolean,
   unsubscribeMessage?: string,
   className?: string,
-  classes: ClassesType<typeof styles>,
   showIcon?: boolean,
   hideLabel?: boolean,
   hideLabelOnMobile?: boolean
@@ -75,6 +55,7 @@ const NotifyMeButton = ({
   // display this component if the user is already subscribed, instead of the unsubscribeMessage
   componentIfSubscribed?: React.JSX.Element,
 }) => {
+  const classes = useStyles(styles);
   const {loading, disabled, isSubscribed, onSubscribe} = useNotifyMe({
     document,
     overrideSubscriptionType,
@@ -142,10 +123,6 @@ const NotifyMeButton = ({
     : maybeToolipButton;
 }
 
-export default registerComponent(
-  'NotifyMeButton',
-  NotifyMeButton,
-  {styles},
-);
+export default NotifyMeButton;
 
 

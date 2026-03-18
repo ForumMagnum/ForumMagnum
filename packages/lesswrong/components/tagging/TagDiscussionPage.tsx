@@ -15,7 +15,7 @@ const styles = defineStyles("TagDiscussionPage", (theme: ThemeType) => ({
     ...theme.typography.display3,
     ...theme.typography.commentStyle,
     marginTop: 0,
-    fontWeight: theme.isFriendlyUI ? 700 : 600,
+    fontWeight: 600,
     ...theme.typography.smallCaps,
   },
   description: {

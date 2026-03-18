@@ -37,7 +37,7 @@ const styles = defineStyles('LexicalContentEditable', (theme: ThemeType) => ({
     minHeight: 'var(--lexical-comment-min-height, 60px)',
   },
   placeholder: {
-    fontSize: 15,
+    fontSize: 'inherit',
     color: theme.palette.grey[550],
     position: 'absolute',
     top: 0,

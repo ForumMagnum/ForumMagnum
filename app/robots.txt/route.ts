@@ -1,3 +1,4 @@
+import { isProduction } from "@/lib/executionEnvironment";
 import { robotsTxtSetting } from "@/server/databaseSettings";
 import type { NextRequest } from "next/server";
 
@@ -29,7 +30,7 @@ function isCrawlable(req: NextRequest) {
 export async function GET(req: NextRequest) {
   const hostname = req.nextUrl.host;
 
-  if (!isCrawlable(req)) {
+  if (isProduction && !isCrawlable(req)) {
     return new Response(`${documentationComment(hostname)}\n${nonCrawlableMirrorComment}\n\nUser-agent: *\nDisallow: /`, {status: 200});
   } else if (robotsTxtSetting.get()) {
     return new Response(robotsTxtSetting.get(), {status: 200});

@@ -1,6 +1,7 @@
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Doc } from "yjs";
-import { createHeadlessEditor, getLexicalCompatibleProvider, HOCUSPOCUS_FLUSH_WAIT_MS, sleep, waitForProviderSync } from "./editorAgentUtil";
+import { createHeadlessEditor, getLexicalCompatibleProvider, HOCUSPOCUS_FLUSH_WAIT_MS, waitForProviderSync } from "./editorAgentUtil";
+import { sleep } from "@/lib/utils/asyncUtils";
 import { CommentStore } from "@/components/lexical/commenting";
 import { createSuggestionThreadController } from "@/components/editor/lexicalPlugins/suggestions/createSuggestionThreadController";
 import type { SuggestionSummaryItem } from "@/components/editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils";

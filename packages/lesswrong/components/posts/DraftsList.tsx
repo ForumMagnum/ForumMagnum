@@ -17,6 +17,8 @@ import Loading from "../vulcan-core/Loading";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -39,7 +41,7 @@ const PostsListUpdateMutation = gql(`
   }
 `);
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles('DraftsList', (_theme: ThemeType) => ({
   draftsHeaderRow: {
     display: 'flex'
   },
@@ -49,7 +51,7 @@ const styles = (_theme: ThemeType) => ({
   draftsPageButton: {
     marginRight: 20
   }
-})
+}))
 
 export const sortings: Partial<Record<string,string>> = {
   newest: "Most Recently Created",
@@ -58,14 +60,14 @@ export const sortings: Partial<Record<string,string>> = {
   wordCountDescending: "Longest First",
 }
 
-const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, hideHeaderRow, classes}: {
+const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, hideHeaderRow}: {
   limit: number,
   title?: string,
   userId?: string,
   showAllDraftsLink?: boolean,
   hideHeaderRow?: boolean,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { query } = useLocation();
   const [showSettings, setShowSettings] = useState(false);
@@ -153,7 +155,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
 }
 
 export default registerComponent('DraftsList', DraftsList, {
-  hocs: [withErrorBoundary], styles
+  hocs: [withErrorBoundary],
 });
 
 

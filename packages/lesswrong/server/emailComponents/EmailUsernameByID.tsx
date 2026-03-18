@@ -14,8 +14,10 @@ const UsersMinimumInfoQuery = gql(`
   }
 `);
 
-export const EmailUsernameByID = async ({userID, emailContext}: {
+export const EmailUsernameByID = async ({userID, fallbackName, emailContext}: {
   userID: string
+  /** Name to display when the user ID doesn't correspond to a real user (e.g. agent comments) */
+  fallbackName?: string
   emailContext: EmailContextType
 }) => {
   const { data } = await emailUseQuery(UsersMinimumInfoQuery, {
@@ -23,6 +25,9 @@ export const EmailUsernameByID = async ({userID, emailContext}: {
     emailContext
   });
   const document = data?.user?.result;
+  if (!document && fallbackName) {
+    return <span>{fallbackName}</span>
+  }
   return <EmailUsername user={document}/>
 }
 

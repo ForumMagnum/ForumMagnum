@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import PostsItem from "./PostsItem";
 import ErrorBoundary from "../common/ErrorBoundary";
 import Loading from "../vulcan-core/Loading";
@@ -9,6 +8,8 @@ import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import LWTooltip from "../common/LWTooltip";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostLWPostsByVoteQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -21,16 +22,15 @@ const PostsListWithVotesMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWPostsByVote", (theme: ThemeType) => ({
   checkboxRow: {
     display: 'flex',
     justifyContent: 'space-around',
     marginBottom: 24
   }
-})
+}))
 
-const LWPostsByVote = ({classes, postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
-  classes: ClassesType<typeof styles>,
+const LWPostsByVote = ({postIds, year, limit, showMostValuableCheckbox=false, hideEmptyStateText=false, postItemClassName}: {
   postIds: Array<string>,
   year: number | '≤2020',
   limit?: number,
@@ -38,6 +38,7 @@ const LWPostsByVote = ({classes, postIds, year, limit, showMostValuableCheckbox=
   hideEmptyStateText?: boolean,
   postItemClassName?: string,
 }) => {
+  const classes = useStyles(styles);
   const [requiredUnnominated, setRequiredUnnominated] = useState(true)
   const [requiredFrontpage, setRequiredFrontpage] = useState(true)
 
@@ -80,6 +81,6 @@ const LWPostsByVote = ({classes, postIds, year, limit, showMostValuableCheckbox=
   </ErrorBoundary>
 }
 
-export default registerComponent("LWPostsByVote", LWPostsByVote, {styles});
+export default LWPostsByVote
 
 

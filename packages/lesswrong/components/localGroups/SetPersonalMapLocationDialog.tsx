@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import Geosuggest from 'react-geosuggest';
@@ -17,6 +16,8 @@ import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import LWDialog from "../common/LWDialog";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersEditQuery = gql(`
   query SetPersonalMapLocationDialog($documentId: String) {
@@ -32,14 +33,14 @@ const suggestionToGoogleMapsLocation = (suggestion: Suggest) => {
   return suggestion ? suggestion.gmaps : null
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SetPersonalMapLocationDialog', (theme: ThemeType) => ({
   ...sharedStyles(theme),
-});
+}));
 
-const SetPersonalMapLocationDialog = ({ onClose, classes }: {
+const SetPersonalMapLocationDialog = ({onClose}: {
   onClose: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { loading, data } = useQuery(UsersEditQuery, {
     variables: { documentId: currentUser?._id },
@@ -115,7 +116,7 @@ const SetPersonalMapLocationDialog = ({ onClose, classes }: {
   )
 }
 
-export default registerComponent('SetPersonalMapLocationDialog', SetPersonalMapLocationDialog, {styles});
+export default SetPersonalMapLocationDialog;
 
 
 

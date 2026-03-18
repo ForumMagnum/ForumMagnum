@@ -232,8 +232,7 @@ const styles = defineStyles("GlossaryEditForm", (theme: ThemeType) => ({
   },
   formSectionHeadingTitle: {
     marginBottom: 5,
-    fontSize: "1.25rem",
-    fontWeight: theme.isFriendlyUI ? 600 : undefined,
+    fontSize: "1.25rem"
   },
   promptEditorWarning: {
     color: theme.palette.error.main,

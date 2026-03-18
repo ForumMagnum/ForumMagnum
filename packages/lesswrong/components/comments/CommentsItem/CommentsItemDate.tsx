@@ -13,19 +13,8 @@ const EDIT_GRACE_PERIOD = 60*60*1000; //1hr
 
 const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI ? {
-      marginLeft: 2,
-      marginRight: 7,
-    } : {
-      marginLeft: 2,
-      marginRight: 16,
-    }),
-
-    "& a:hover, & a:active": {
-      "& $icon": {
-        color: `${theme.palette.icon.dim5} !important`,
-      },
-    },
+    marginLeft: 2,
+    marginRight: 16,
 
     // Create a stacking context and set z-index to be higher than the vote
     // buttons, which are to the right of this and have a click-target that
@@ -41,19 +30,6 @@ const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
   },
   answerDate: {
     color: "inherit",
-  },
-  postTitle: {
-    marginRight: 5,
-  },
-  link: {
-  },
-  icon: {
-    fontSize: "0.9rem",
-    verticalAlign: "middle",
-    color: theme.palette.icon.dim,
-    margin: "0 2px",
-    position: "relative",
-    top: -2,
   },
   editedMarker: {
     paddingLeft: 2,

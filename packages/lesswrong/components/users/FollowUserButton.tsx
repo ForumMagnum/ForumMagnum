@@ -1,5 +1,4 @@
 import { useTracking } from '@/lib/analyticsEvents';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { useNotifyMe } from '../hooks/useNotifyMe';
@@ -11,8 +10,10 @@ import { gql } from '@/lib/generated/gql-codegen';
 import LWTooltip from "../common/LWTooltip";
 import { useDialog } from '../common/withDialog';
 import LoginPopup from "../users/LoginPopup";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FollowUserButton', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     color: theme.palette.primary.main,
@@ -49,13 +50,13 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[900],
     },
   },
-});
+}));
 
-export const FollowUserButton = ({user, styleVariant = "default", classes}: {
+export const FollowUserButton = ({user, styleVariant = "default"}: {
   user: UsersMinimumInfo,
   styleVariant?: "default" | "ultraFeed",
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking();
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -115,6 +116,6 @@ export const FollowUserButton = ({user, styleVariant = "default", classes}: {
   </div>;
 }
 
-export default registerComponent('FollowUserButton', FollowUserButton, {styles});
+export default FollowUserButton;
 
 

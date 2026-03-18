@@ -1,37 +1,30 @@
 import React, { ComponentType } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useRecommendations } from './withRecommendations';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import PostsItem from "../posts/PostsItem";
 import PostsLoading from "../posts/PostsLoading";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export type RecommendationsListItem = ComponentType<{
   post: PostsListWithVotes|PostsListWithVotesAndSequence,
   translucentBackground?: boolean,
 }>;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RecommendationsList', (theme: ThemeType) => ({
   noMoreMessage: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
   },
-});
+}), { stylePriority: -1 });
 
-const RecommendationsList = ({
-  algorithm,
-  translucentBackground,
-  ListItem = PostsItem,
-  loadingFallback,
-  className,
-  classes,
-}: {
+const RecommendationsList = ({algorithm, translucentBackground, ListItem = PostsItem, loadingFallback, className}: {
   algorithm: RecommendationsAlgorithm,
   translucentBackground?: boolean,
   ListItem?: RecommendationsListItem,
   loadingFallback?: React.JSX.Element,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {recommendationsLoading, recommendations} = useRecommendations({ algorithm });
 
   if (recommendationsLoading || !recommendations)
@@ -53,10 +46,6 @@ const RecommendationsList = ({
   </div>
 }
 
-export default registerComponent(
-  'RecommendationsList',
-  RecommendationsList,
-  {styles, stylePriority: -1},
-);
+export default RecommendationsList;
 
 

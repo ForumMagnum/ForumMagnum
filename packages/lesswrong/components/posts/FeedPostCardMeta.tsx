@@ -1,5 +1,4 @@
 import React, { useRef } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { InteractionWrapper } from "../common/useClickableCell";
 import classNames from "classnames";
 import { isAF } from "../../lib/instanceSettings";
@@ -9,8 +8,10 @@ import TruncatedAuthorsList from "./TruncatedAuthorsList";
 import ForumIcon from "../common/ForumIcon";
 import LWTooltip from "../common/LWTooltip";
 import FormatDate from "../common/FormatDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FeedPostCardMeta", (theme: ThemeType) => ({
   root: {
     color: theme.palette.grey[600],
     width: "100%",
@@ -71,14 +72,14 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     }
   }
-});
+}), { stylePriority: -1 });
 
-const FeedPostCardMeta = ({post, className, classes}: {
+const FeedPostCardMeta = ({post, className}: {
   post: PostsList | SunshinePostsList,
   useEventStyles?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const authorExpandContainer = useRef(null);
   // TODO: Think about styling for events
 
@@ -158,10 +159,6 @@ const FeedPostCardMeta = ({post, className, classes}: {
   );
 }
 
-export default registerComponent(
-  "FeedPostCardMeta",
-  FeedPostCardMeta,
-  {styles, stylePriority: -1},
-);
+export default FeedPostCardMeta;
 
 

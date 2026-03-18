@@ -1,11 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import SunshineListTitle from "./SunshineListTitle";
 import OmegaIcon from "../icons/OmegaIcon";
 import AFSuggestCommentsItem from "./AFSuggestCommentsItem";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SuggestAlignmentCommentMultiQuery = gql(`
   query multiCommentAFSuggestCommentsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -18,16 +19,15 @@ const SuggestAlignmentCommentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AFSuggestCommentsList', (theme: ThemeType) => ({
   icon: {
     marginRight: 4
   }
-})
+}))
 
 
-const AFSuggestCommentsList = ({ classes }: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const AFSuggestCommentsList = () => {
+  const classes = useStyles(styles);
   const { data, loadMoreProps } = useQueryWithLoadMore(SuggestAlignmentCommentMultiQuery, {
     variables: {
       selector: { alignmentSuggestedComments: {} },
@@ -57,7 +57,7 @@ const AFSuggestCommentsList = ({ classes }: {
   }
 }
 
-export default registerComponent('AFSuggestCommentsList', AFSuggestCommentsList, {styles});
+export default AFSuggestCommentsList;
 
 
 

@@ -6,10 +6,27 @@ import {
   $isTextNode,
   type LexicalEditor,
   type LexicalNode,
+  type SerializedLexicalNode,
 } from "lexical";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { createHeadlessEditor, normalizeText } from "./editorAgentUtil";
+
+/**
+ * Recursively serialize a Lexical node and its children to JSON.
+ * Lexical's internal `exportNodeToJSON` is not exported, but we need
+ * the same behaviour: call `exportJSON()` on the node, then walk its
+ * element children and push their serialized forms into the `children`
+ * array that `exportJSON()` leaves empty.
+ */
+function exportNodeToJSONRecursive(node: LexicalNode): SerializedLexicalNode {
+  const serialized = node.exportJSON();
+  if ($isElementNode(node)) {
+    const children = node.getChildren().map(exportNodeToJSONRecursive);
+    (serialized as AnyBecauseHard).children = children;
+  }
+  return serialized;
+}
 
 export interface MarkdownSelectionPoint {
   key: string
@@ -61,7 +78,7 @@ function normalizeForSemanticMatch(value: string): string {
   return normalizeText(normalizeMathDelimiters(normalizeEmphasisMarkerStyle(value)));
 }
 
-function markdownQuoteToPlainText(value: string): string {
+export function markdownQuoteToPlainText(value: string): string {
   return value
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
     .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
@@ -232,8 +249,8 @@ function serializeNodeSubtreeToMarkdown(node: LexicalNode): string {
   const headlessEditor = createHeadlessEditor("MapMarkdownToLexical");
 
   const rootChildren = node.getType() === "root" && $isElementNode(node)
-    ? node.getChildren().map((child) => child.exportJSON())
-    : [node.exportJSON()];
+    ? node.getChildren().map((child) => exportNodeToJSONRecursive(child))
+    : [exportNodeToJSONRecursive(node)];
   const state = {
     root: {
       children: rootChildren,

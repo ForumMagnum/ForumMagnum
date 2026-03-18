@@ -665,7 +665,7 @@ export const ${className} = ({
     }
 
     const submitVariantProp = collectionName === 'Users'
-      ? `\n            variant={isBookUI() ? 'outlined' : undefined}`
+      ? `\n            variant="outlined"`
       : '';
 
     const submitOnClickProp = collectionName === 'Posts'

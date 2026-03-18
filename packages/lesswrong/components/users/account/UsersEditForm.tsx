@@ -150,39 +150,26 @@ function getTabForField(fieldName: string | null | undefined): SettingsTabId | n
 
 const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI && {
-      "& .form-submit": {
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "flex-end",
-        marginRight: 5,
-      },
-    }),
   },
   fieldWrapper: {
     marginTop: 14,
     marginBottom: 14,
   },
   submitButton: {
-    ...(theme.isFriendlyUI
-      ? submitButtonStyles(theme)
-      : {
-          fontFamily: theme.typography.fontFamily,
-          border: `1px solid ${theme.palette.primary.main}`,
-          color: theme.palette.primary.main,
-          padding: '8px 24px',
-          fontSize: 14,
-          fontWeight: 500,
-          lineHeight: '1.4',
-          borderRadius: 6,
-          textTransform: 'none',
-          background: 'none',
-          '&:hover': {
-            background: theme.palette.primary.main,
-            color: theme.palette.text.alwaysWhite,
-          },
-        }
-    ),
+    fontFamily: theme.typography.fontFamily,
+    border: `1px solid ${theme.palette.primary.main}`,
+    color: theme.palette.primary.main,
+    padding: '8px 24px',
+    fontSize: 14,
+    fontWeight: 500,
+    lineHeight: '1.4',
+    borderRadius: 6,
+    textTransform: 'none',
+    background: 'none',
+    '&:hover': {
+      background: theme.palette.primary.main,
+      color: theme.palette.text.alwaysWhite,
+    },
   },
   layout: {
     display: 'flex',

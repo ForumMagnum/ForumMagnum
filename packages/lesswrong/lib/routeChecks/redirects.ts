@@ -458,6 +458,10 @@ export const redirects = [
     source: "/saved",
     destination: "/account",
     permanent: true
+  }, {
+    source: "/collaborateOnPost",
+    destination: "/editPost",
+    permanent: true,
   },
 ] satisfies Redirect[];
 

@@ -14,8 +14,8 @@ const styles = defineStyles("TabNavigationSubItem", (theme: ThemeType) => ({
     paddingBottom: 8,
     // padding reflects how large an icon+padding is
     paddingLeft: 16 + iconPadding(theme),
-    color: theme.isFriendlyUI ? theme.palette.grey[600] : theme.palette.grey[700],
-    ...(theme.isBookUI && theme.dark && {
+    color: theme.palette.grey[700],
+    ...(theme.dark && {
       color: theme.palette.text.bannerAdOverlay,
     }),
     width:
@@ -26,8 +26,7 @@ const styles = defineStyles("TabNavigationSubItem", (theme: ThemeType) => ({
     whiteSpace: "nowrap",
     overflow: "hidden",
     '&:hover': {
-      opacity: theme.isFriendlyUI ? 1 : 0.6,
-      color: theme.isFriendlyUI ? theme.palette.grey[800] : undefined,
+      opacity: 0.6
     },
     boxSizing: "content-box"
   }

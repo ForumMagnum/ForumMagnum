@@ -1,5 +1,4 @@
 import React, { FC, PropsWithChildren } from 'react'
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person'
 import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
@@ -16,28 +15,23 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { Typography } from "../../common/Typography";
 import LWTooltip from "../../common/LWTooltip";
 import SectionTitle from "../../common/SectionTitle";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ContentType', (theme: ThemeType) => ({
   root: {
     textAlign: 'left',
     display: 'inline-block',
     color: theme.palette.text.dim2,
     whiteSpace: "no-wrap",
-    fontSize: theme.typography.body2.fontSize,
-    ...(theme.isFriendlyUI && {
-      color: theme.palette.grey[800],
-      fontWeight: 600
-    }),
+    fontSize: theme.typography.body2.fontSize
   },
   icon: {
     fontSize: "1.3rem",
     color: theme.palette.icon.dim600,
     position: "relative",
     top: 3,
-    marginRight: 4,
-    ...(theme.isFriendlyUI && {
-      color: theme.palette.grey[800]
-    }),
+    marginRight: 4
   },
   tooltipTitle: {
     marginBottom: 8,
@@ -45,7 +39,7 @@ const styles = (theme: ThemeType) => ({
   sectionTitle: {
     fontSize: 14,
   },
-})
+}))
 
 
 export type ContentTypeString = "frontpage"|"personal"|"curated"|"shortform"|"tags"|"subforumDiscussion";
@@ -256,12 +250,12 @@ export const getContentTypes = (): ForumOptions<ContentTypeRecord> => {
   }
 };
 
-const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType<typeof styles>, className?: string}>> = ({
-  classes,
+const ContentTypeWrapper: FC<PropsWithChildren<{className?: string}>> = ({
   className,
   children,
-}) =>
-  isFriendlyUI()
+}) => {
+  const classes = useStyles(styles);
+  return isFriendlyUI()
     ? <>{children}</>
     : <Typography
       variant="body1"
@@ -270,13 +264,15 @@ const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType<typeof styl
     >
         {children}
     </Typography>;
+};
 
-const ContentType = ({classes, className, type, label}: {
-  classes: ClassesType<typeof styles>,
+const ContentType = ({className, type, label}: {
   className?: string,
   type: ContentTypeString,
   label?: string
 }) => {
+  const classes = useStyles(styles);
+
   if (!type) {
     throw new Error('ContentType requires type property')
   }
@@ -292,7 +288,7 @@ const ContentType = ({classes, className, type, label}: {
     </span>;
 
   return (
-    <ContentTypeWrapper className={className} classes={classes}>
+    <ContentTypeWrapper className={className}>
       {contentData.tooltipTitle ? (
         <LWTooltip
           title={
@@ -309,6 +305,6 @@ const ContentType = ({classes, className, type, label}: {
   );
 }
 
-export default registerComponent('ContentType', ContentType, {styles});
+export default ContentType
 
 

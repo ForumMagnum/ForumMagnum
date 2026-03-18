@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -58,6 +57,8 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import CommentsDraftList from '../comments/CommentsDraftList';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersProfileMultiQuery = gql(`
   query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -78,7 +79,7 @@ export const sectionFooterLeftStyles = {
   }
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UsersProfile', (theme: ThemeType) => ({
   profilePage: {
     marginLeft: "auto",
     [theme.breakpoints.down('sm')]: {
@@ -151,18 +152,18 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
   },
-})
+}))
 
 export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
   // HOTFIX: Filtering out invalid users
   return results?.find(user => !!user.displayName) || results?.[0] || null
 }
 
-const UsersProfileFn = ({terms, slug, classes}: {
+const UsersProfileFn = ({terms, slug}: {
   terms: UsersViewTerms,
   slug: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [showSettings, setShowSettings] = useState(false);
 
   const currentUser = useCurrentUser();
@@ -479,8 +480,4 @@ const UsersProfileFn = ({terms, slug, classes}: {
   return render();
 }
 
-export default registerComponent(
-  'UsersProfile', UsersProfileFn, {styles}
-);
-
-
+export default UsersProfileFn;

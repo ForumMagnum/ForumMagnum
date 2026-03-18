@@ -27,10 +27,12 @@ import ReadTime from "./ReadTime";
 import LWCommentCount from "../TableOfContents/LWCommentCount";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD } from './constants';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const LW_POST_PAGE_PADDING = 110;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LWPostsPageHeader', (theme: ThemeType) => ({
   root: {
     paddingTop: LW_POST_PAGE_PADDING,
     marginBottom: 96,
@@ -55,6 +57,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'baseline',
     columnGap: 20,
     ...theme.typography.commentStyle,
+    fontSize: 16,
     flexWrap: 'wrap',
     color: theme.palette.text.dim3,
     marginTop: 12
@@ -221,20 +224,20 @@ const styles = (theme: ThemeType) => ({
       },
     },
   }
-}); 
+}));
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, classes, dialogueResponses, answerCount, annualReviewMarketInfo, showSplashPageHeader}: {
+const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, dialogueResponses, answerCount, annualReviewMarketInfo, showSplashPageHeader}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
-  classes: ClassesType<typeof styles>,
   dialogueResponses: readonly CommentsList[],
   answerCount?: number,
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   showSplashPageHeader?: boolean
 }) => {
+  const classes = useStyles(styles);
   const rssFeedSource = ('feed' in post) ? post.feed : null;
   let feedLinkDomain;
   let feedLink;
@@ -257,7 +260,7 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
   const shouldShowLinkpostText = isLinkpost && linkpostDomain && (post.contents?.wordCount ?? 0) >= BOOKUI_LINKPOST_WORDCOUNT_THRESHOLD;
   const linkpostNode = shouldShowLinkpostText ? <LWTooltip title={linkpostTooltip}>
     <a href={postGetLink(post)} target={postGetLinkTarget(post)}>
-      Linkpost from {linkpostDomain}
+      Linkpost for {linkpostDomain}
     </a>
   </LWTooltip> : null;
 
@@ -329,7 +332,6 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, clas
 }
 
 export default registerComponent('LWPostsPageHeader', LWPostsPageHeader, {
-  styles,
   areEqual: "auto"
 });
 

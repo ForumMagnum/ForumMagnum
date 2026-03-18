@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { ThemeMetadata, getThemeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
 import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
@@ -14,8 +13,10 @@ import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
 import DropdownDivider from "../dropdowns/DropdownDivider";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ThemePickerMenu', (theme: ThemeType) => ({
   check: {
     width: 20,
     marginRight: 8,
@@ -29,14 +30,14 @@ const styles = (theme: ThemeType) => ({
   },
   infoIcon: {
     fontSize: 14,
-    marginLeft: theme.isFriendlyUI ? 6 : 0,
+    marginLeft: 0,
   },
-})
+}))
 
-const ThemePickerMenu = ({children, classes}: {
+const ThemePickerMenu = ({children}: {
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const themeContext = React.useContext(ThemeContext)!;
   const currentThemeOptions = themeContext!.abstractThemeOptions;
   const currentUser = useCurrentUser();
@@ -144,6 +145,6 @@ const ThemePickerMenu = ({children, classes}: {
   </LWTooltip>
 }
 
-export default registerComponent('ThemePickerMenu', ThemePickerMenu, {styles});
+export default ThemePickerMenu
 
 

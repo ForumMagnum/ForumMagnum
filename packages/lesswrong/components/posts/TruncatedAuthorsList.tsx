@@ -1,5 +1,4 @@
 import React, { useRef, useEffect, RefObject, useState, useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { usePostsUserAndCoauthors } from "./usePostsUserAndCoauthors";
 import { recalculateTruncation } from "../../lib/truncateUtils";
 import classNames from "classnames";
@@ -7,8 +6,10 @@ import UsersNameDisplay from "../users/UsersNameDisplay";
 import UsersNameWithModal from "../ultraFeed/UsersNameWithModal";
 import UserNameDeleted from "../users/UserNameDeleted";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (_: ThemeType) => ({
+const styles = defineStyles("TruncatedAuthorsList", (_: ThemeType) => ({
   root: {
     position: "relative",
     overflow: "hidden",
@@ -30,7 +31,7 @@ const styles = (_: ThemeType) => ({
     opacity: 0,
     pointerEvents: "none",
   },
-});
+}), { stylePriority: -2 });
 
 const reformatAuthorPlaceholder = (
   moreCount: number,
@@ -56,23 +57,15 @@ const reformatAuthorPlaceholder = (
   );
 }
 
-const TruncatedAuthorsList = ({
-  post,
-  expandContainer,
-  className,
-  classes,
-  useMoreSuffix = true,
-  useUltraFeedModal = false,
-  showSubscribedIcon = false,
-}: {
+const TruncatedAuthorsList = ({post, expandContainer, className, useMoreSuffix = true, useUltraFeedModal = false, showSubscribedIcon = false}: {
   post: PostsList | SunshinePostsList | PostsBestOfList,
   expandContainer: RefObject<HTMLDivElement|null>,
   className?: string,
-  classes: ClassesType<typeof styles>,
   useMoreSuffix?: boolean,
   useUltraFeedModal?: boolean,
   showSubscribedIcon?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const {isAnon, authors, topCommentAuthor} = usePostsUserAndCoauthors(post);
   const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersNameDisplay;
   const ref = useRef<HTMLDivElement>(null);
@@ -134,10 +127,4 @@ const TruncatedAuthorsList = ({
     );
 }
 
-export default registerComponent(
-  "TruncatedAuthorsList",
-  TruncatedAuthorsList,
-  {styles, stylePriority: -2},
-);
-
-
+export default TruncatedAuthorsList;

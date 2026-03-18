@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useMemo } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
@@ -9,6 +8,8 @@ import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import LoginToTrack from "./LoginToTrack";
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const GET_BOOK_WORD_COUNT = gql(`
   query GetBookWordCount($bookId: String!) {
@@ -25,7 +26,7 @@ export const postProgressBoxStyles = (theme: ThemeType) => ({
   marginTop: 2,
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('BooksProgressBar', (theme: ThemeType) => ({
   root: {
     marginBottom: 16
   },
@@ -33,17 +34,8 @@ const styles = (theme: ThemeType) => ({
     ...postProgressBoxStyles(theme)
   },
   read: {
-    ...(
-      theme.isFriendlyUI
-        ? {
-          backgroundColor: theme.palette.primary.main,
-          border: theme.palette.primary.dark,
-        }
-        : {
-          backgroundColor: theme.palette.primary.light,
-          border: theme.palette.primary.main,
-        }
-    ),
+    backgroundColor: theme.palette.primary.light,
+    border: theme.palette.primary.main,
     opacity: .6
   },
   bookProgress: {
@@ -61,16 +53,16 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 12,
     fontSize: "1rem"
   }
-});
+}));
 
 const WORDS_PER_MINUTE = 300;
 const WORDS_PER_HOUR = WORDS_PER_MINUTE * 60;
 const WORDS_PER_PAGE = 500;
 
-const BooksProgressBar = ({ book, classes }: {
+const BooksProgressBar = ({book}: {
   book: BookPageFragment,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const { postsRead: clientPostsRead } = useItemsRead();
 
   const preloadedBookPosts = book.sequences.flatMap(sequence => sequence.chapters.flatMap(chapter => chapter.posts));
@@ -121,7 +113,7 @@ const BooksProgressBar = ({ book, classes }: {
   </div>;
 };
 
-export default registerComponent('BooksProgressBar', BooksProgressBar, { styles });
+export default BooksProgressBar
 
 
 

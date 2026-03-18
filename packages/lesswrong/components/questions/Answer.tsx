@@ -25,8 +25,10 @@ import { Typography } from "../common/Typography";
 import CommentBottom from "../comments/CommentsItem/CommentBottom";
 import CommentsNewForm from "../comments/CommentsNewForm";
 import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Answer', (theme: ThemeType) => ({
   root: {
     marginBottom: 32,
     paddingTop: 20,
@@ -50,12 +52,7 @@ const styles = (theme: ThemeType) => ({
   author: {
     display: 'inline-block',
     fontWeight: 600,
-    ...theme.typography.postStyle,
-    ...(theme.isFriendlyUI
-      ? {
-        fontFamily: theme.palette.fonts.sansSerifStack,
-      }
-      : {}),
+    ...theme.typography.postStyle
   },
   date: {
     display: 'inline-block',
@@ -71,7 +68,7 @@ const styles = (theme: ThemeType) => ({
     flexShrink: 0,
     flexGrow: 1,
     position: "relative",
-    top: theme.isFriendlyUI ? 0 : -4,
+    top: -4,
   },
   footer: {
     marginTop: 5,
@@ -141,14 +138,14 @@ const styles = (theme: ThemeType) => ({
   retracted: {
     textDecoration: "line-through",
   },
-})
+}))
 
-const Answer = ({ comment, post, childComments, classes }: {
+const Answer = ({comment, post, childComments}: {
   comment: CommentsList,
   post: PostsList,
   childComments: CommentTreeNode<CommentsList>[],
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [showEdit,setShowEdit] = useState(false);
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
   const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
@@ -293,7 +290,6 @@ const Answer = ({ comment, post, childComments, classes }: {
 }
 
 export default registerComponent('Answer', Answer, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

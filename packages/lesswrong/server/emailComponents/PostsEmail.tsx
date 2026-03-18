@@ -1,5 +1,4 @@
 import React from 'react';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { postGetPageUrl, postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import { truncatise } from '@/lib/truncatise';
 import { SMALL_TRUNCATION_CHAR_COUNT } from '@/lib/editor/ellipsize';
@@ -94,11 +93,7 @@ const styles = defineStyles("PostsEmail", (theme: ThemeType) => ({
     color: theme.palette.text.maxIntensity,
     textDecoration: "none",
     fontWeight: "normal",
-    fontFamily: theme.typography.headerStyle.fontFamily,
-    ...(theme.isFriendlyUI ? {
-      fontSize: "2.4rem",
-      lineHeight: '1.25em'
-    } : {}),
+    fontFamily: theme.typography.headerStyle.fontFamily
   },
   headingHR: {
     width: 210,

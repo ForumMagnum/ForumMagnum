@@ -1,27 +1,18 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { Link } from '../../lib/reactRouterWrapper';
 import { slugify } from '@/lib/utils/slugify';
 import { Typography } from "./Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-export const sectionTitleStyle = (theme: ThemeType) => (theme.isEAForum ? { 
-  margin: 0,
-  fontFamily: theme.palette.fonts.sansSerifStack,
-  fontSize: "14px",
-  lineHeight: "21px",
-  fontWeight: 700,
-  letterSpacing: "0.03em",
-  color: theme.palette.grey[600],
-  textTransform: "uppercase",
-} : {
+export const sectionTitleStyle = (theme: ThemeType) => ({
   margin: 0,
   ...theme.typography.headerStyle,
   fontSize: "2.3rem",
 });
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SectionTitle', (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "space-between",
@@ -43,7 +34,7 @@ const styles = (theme: ThemeType) => ({
       marginLeft: 16,
     },
   }
-})
+}), { stylePriority: -1 })
 
 // TODO: figure out what to do when title isn't a string. It currently returns
 // undefined, which prevents anchor links from working 
@@ -69,18 +60,9 @@ export type SectionTitleProps = {
 }
 
 // This is meant to be used as the primary section title for the central page layout (normally used in conjunction with SingleColumnSection){}
-const SectionTitle = ({
-  title,
-  noTopMargin,
-  noBottomPadding,
-  centered,
-  anchor,
-  href,
-  children,
-  titleClassName,
-  rootClassName,
-  classes,
-}: SectionTitleProps & {classes: ClassesType<typeof styles>}) => {
+const SectionTitle = ({title, noTopMargin, noBottomPadding, centered, anchor, href, children, titleClassName, rootClassName}: SectionTitleProps) => {
+  const classes = useStyles(styles);
+
   return (
     <div className={classNames(classes.root, rootClassName, {[classes.noTopMargin]: noTopMargin, [classes.noBottomPadding]: noBottomPadding} )}>
       <Typography
@@ -98,6 +80,6 @@ const SectionTitle = ({
   )
 }
 
-export default registerComponent('SectionTitle', SectionTitle, {styles, stylePriority: -1});
+export default SectionTitle;
 
 

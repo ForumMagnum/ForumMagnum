@@ -1,15 +1,15 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useVote } from '../votes/withVote';
 import { useVoteButtonsDisabled } from '../votes/useVoteButtonsDisabled';
 import classNames from 'classnames';
-import { isBookUI } from '../../themes/forumTheme';
 import { forumSelect } from '@/lib/forumTypeUtils';
 import { TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "../votes/OverallVoteButton";
 import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsItemTagRelevance", (theme: ThemeType) => ({
   root: {
     width: 30,
     position: "absolute",
@@ -24,7 +24,7 @@ const styles = (theme: ThemeType) => ({
   // these interact with whether the vote icons are solid or hollow (i.e. different components). Not ideally set up, so nb. 
   vertLayoutVoteUp: {
     position: "absolute",
-    left: theme.isFriendlyUI ? 9 : 10,
+    left: 10,
     top: forumSelect({
       LessWrong: -17,
       AlignmentForum: -15,
@@ -34,7 +34,7 @@ const styles = (theme: ThemeType) => ({
   // these interact with whether the vote icons are solid or hollow (i.e. different components). Not ideally set up, so nb. 
   vertLayoutVoteDown: {
     position: "absolute",
-    left: theme.isFriendlyUI ? 9 : 10,
+    left: 10,
     top: forumSelect({
       LessWrong: 8,
       AlignmentForum: 10,
@@ -45,12 +45,12 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     fontSize: 11
   },
-});
+}));
 
-const PostsItemTagRelevance = ({tagRel, classes}: {
+const PostsItemTagRelevance = ({tagRel}: {
   tagRel: WithVoteTagRel,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const voteProps = useVote(tagRel, "TagRels");
   const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
@@ -61,8 +61,6 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
     {!canVote && whyYouCantVote}
   </div>
 
-  const solidArrow = isBookUI();
-
   return <PostsItem2MetaInfo className={classes.root}>
     <TooltipSpan title={tooltip} placement="left-end"><>
       <div className={classNames(classes.voteButton, classes.vertLayoutVoteDown)}>
@@ -70,7 +68,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
           orientation="down"
           color="error"
           upOrDown="Downvote"
-          solidArrow={solidArrow}
+          solidArrow={true}
           enabled={canVote}
           {...voteProps}
         />
@@ -85,7 +83,7 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
           orientation="up"
           color="secondary"
           upOrDown="Upvote"
-          solidArrow={solidArrow}
+          solidArrow={true}
           enabled={canVote}
           {...voteProps}
         />
@@ -94,6 +92,6 @@ const PostsItemTagRelevance = ({tagRel, classes}: {
   </PostsItem2MetaInfo>
 }
 
-export default registerComponent("PostsItemTagRelevance", PostsItemTagRelevance, {styles});
+export default PostsItemTagRelevance;
 
 

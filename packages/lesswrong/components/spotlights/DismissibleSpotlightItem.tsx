@@ -18,16 +18,34 @@ const DisplaySpotlightQuery = gql(`
   }
 `);
 
-const DismissibleSpotlightItemInner = ({ className }: {
+const DisplaySpotlightByIdQuery = gql(`
+  query DisplaySpotlightByIdQuery($spotlightId: String) {
+    spotlight(selector: { _id: $spotlightId }) {
+      result {
+        ...SpotlightDisplay
+      }
+    }
+  }
+`);
+
+const DismissibleSpotlightItemInner = ({ className, spotlightId }: {
   className?: string,
+  spotlightId?: string | null,
 }) => {
   const { captureEvent } = useTracking()
 
   const { data } = useSuspenseQuery(DisplaySpotlightQuery, {
     context: {loggedOutCache: true},
   });
+  const { data: spotlightByIdData } = useSuspenseQuery(DisplaySpotlightByIdQuery, {
+    variables: { spotlightId },
+    context: {loggedOutCache: true},
+    skip: !spotlightId,
+  });
   const currentSpotlight = data?.currentSpotlight;
-  const spotlightDocument = currentSpotlight?.post ?? currentSpotlight?.sequence ?? currentSpotlight?.tag;
+  const overrideSpotlight = spotlightByIdData?.spotlight?.result;
+  const spotlight = overrideSpotlight ?? currentSpotlight;
+  const spotlightDocument = spotlight?.post ?? spotlight?.sequence ?? spotlight?.tag;
 
   const cookieName = `${HIDE_SPOTLIGHT_ITEM_PREFIX}${spotlightDocument?._id}`; //hiding in one place, hides everywhere
   const [cookies, setCookie] = useCookiesWithConsent([cookieName]);
@@ -44,14 +62,14 @@ const DismissibleSpotlightItemInner = ({ className }: {
     captureEvent("spotlightItemHideItemClicked", { document: spotlightDocument })
   }, [setCookie, cookieName, spotlightDocument, captureEvent]);
 
-  if (!currentSpotlight || isHidden) {
+  if (!spotlight || isHidden) {
     return null;
   }
 
   return <AnalyticsContext pageElementContext="spotlightItem">
     <SpotlightItem
-      key={currentSpotlight._id}
-      spotlight={currentSpotlight}
+      key={spotlight._id}
+      spotlight={spotlight}
       hideBanner={hideBanner}
       className={className}
     />
@@ -69,15 +87,19 @@ export const SpotlightItemFallback = () => {
   return <div className={classes.fallback}/>
 }
 
-export const DismissibleSpotlightItem = ({loadingStyle="spinner", className}: {
+export const DismissibleSpotlightItem = ({loadingStyle="spinner", className, spotlightId}: {
   loadingStyle?: "placeholder"|"spinner"
   className?: string
+  spotlightId?: string | null
 }) => {
   return <SuspenseWrapper
     name="DismissibleSpotlightItem"
     fallback={loadingStyle==="placeholder" ? <SpotlightItemFallback/> : <Loading/>}
   >
-    <DismissibleSpotlightItemInner className={className}/>
+    <DismissibleSpotlightItemInner
+      className={className}
+      spotlightId={spotlightId}
+    />
   </SuspenseWrapper>
 }
 

@@ -1,10 +1,11 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import DragIcon from '@/lib/vendor/@material-ui/icons/src/DragHandle';
 import RemoveIcon from '@/lib/vendor/@material-ui/icons/src/Close';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SequencesPageFragmentQuery = gql(`
   query SequencesListEditorItem($documentId: String) {
@@ -16,7 +17,7 @@ const SequencesPageFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SequencesListEditorItem', (theme: ThemeType) => ({
   box: {
     display: "block",
     marginLeft: 30,
@@ -58,13 +59,13 @@ const styles = (theme: ThemeType) => ({
     bottom: "0px",
     cursor: "pointer"
   },
-});
+}));
 
-const SequencesListEditorItem = ({documentId, removeItem, classes}: {
+const SequencesListEditorItem = ({documentId, removeItem}: {
   documentId: string;
   removeItem: (itemId: string) => void;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(SequencesPageFragmentQuery, {
     variables: { documentId: documentId },
   });
@@ -92,6 +93,6 @@ const SequencesListEditorItem = ({documentId, removeItem, classes}: {
   }
 };
 
-export default registerComponent('SequencesListEditorItem', SequencesListEditorItem, {styles});
+export default SequencesListEditorItem;
 
 

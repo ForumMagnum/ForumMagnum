@@ -3,7 +3,6 @@ import ArchiveIcon from "@/lib/vendor/@material-ui/icons/src/Archive";
 import UnarchiveIcon from "@/lib/vendor/@material-ui/icons/src/Unarchive";
 import CloseIcon from "@/lib/vendor/@material-ui/icons/src/Close";
 import { useCurrentUser } from "../common/withUser";
-import { isBookUI } from "../../themes/forumTheme";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import LWTooltip from "../common/LWTooltip";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
@@ -87,10 +86,10 @@ const PostsItemTrailingButtons = ({
   }
   return (
     <>
-      {(showDismissButton || resumeReading || isBookUI()) && <div className={classes.actions}>
+      <div className={classes.actions}>
         {showDismissButton && onDismiss && <DismissButton onDismiss={onDismiss} />}
-        {isBookUI() && !resumeReading && currentUser && <PostActionsButton post={post} vertical autoPlace />}
-      </div>}
+        {!resumeReading && currentUser && <PostActionsButton post={post} vertical autoPlace />}
+      </div>
       {showArchiveButton && onArchive && <div className={classes.archiveButton}>
         { post.deletedDraft ?
             <LWTooltip title={restoreDraftTooltip} placement="right">

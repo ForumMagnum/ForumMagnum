@@ -1,6 +1,5 @@
 import React from 'react';
 import { useDialog } from '../common/withDialog';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers'
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -23,22 +22,19 @@ import { ContentItemBody } from "../contents/ContentItemBody";
 import ForumIcon from "../common/ForumIcon";
 import { TagOrLensLikeButton } from "./lenses/LensTab";
 import { TagPageActionsMenuButton } from "./TagPageActionsMenu";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PODCAST_ICON_SIZE = 20;
 const PODCAST_ICON_PADDING = 3;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagPageButtonRow", (theme: ThemeType) => ({
   buttonsRow: {
     ...theme.typography.body2,
-    marginTop: theme.isFriendlyUI ? 2 : undefined,
-    marginBottom: theme.isFriendlyUI ? 16 : undefined,
     color: theme.palette.grey[700],
     display: "flex",
     flexWrap: "wrap",
     columnGap: 16,
-    [theme.breakpoints.down('xs')]: {
-      marginTop: theme.isFriendlyUI ? 8 : undefined,
-    },
     '& svg': {
       height: 20,
       width: 20,
@@ -86,14 +82,11 @@ const styles = (theme: ThemeType) => ({
   },
   subscribeToWrapper: {
     display: "flex !important",
-    ...(theme.isFriendlyUI ? {
-    } : {
-      marginLeft: -2,
-      marginRight: -5,
-      '& .MuiListItemIcon-root': {
-        marginRight: "unset !important",
-      },
-    }),
+    marginLeft: -2,
+    marginRight: -5,
+    '& .MuiListItemIcon-root': {
+      marginRight: "unset !important",
+    },
   },
   subscribeTo: {
   },
@@ -115,14 +108,14 @@ const styles = (theme: ThemeType) => ({
     width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2) + "px !important",
     height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2) + "px !important",
     padding: PODCAST_ICON_PADDING,
-    transform: theme.isFriendlyUI ? undefined : `translateY(-3px)`,
+    transform: `translateY(-3px)`,
     marginRight: -3
   },
   audioIconOn: {
     background: theme.palette.icon.dim05,
     borderRadius: theme.borderRadius.small,
   },
-});
+}));
 
 /**
  * Returns whether the current user can edit the tag, and if not, why not.
@@ -139,19 +132,7 @@ export function useTagEditingRestricted(tag: TagPageWithRevisionFragment | TagPa
 
   return { canEdit, noEditNotAuthor, noEditKarmaTooLow };
 }
-const TagPageButtonRow = ({
-  tag,
-  selectedLens,
-  editing,
-  setEditing,
-  hideLabels = false,
-  className,
-  refetchTag,
-  updateSelectedLens,
-  toggleEmbeddedPlayer,
-  showEmbeddedPlayer,
-  classes
-}: {
+const TagPageButtonRow = ({tag, selectedLens, editing, setEditing, hideLabels = false, className, refetchTag, updateSelectedLens, toggleEmbeddedPlayer, showEmbeddedPlayer}: {
   tag: TagPageWithRevisionFragment | TagPageFragment | TagPageWithArbitalContentFragment;
   selectedLens?: TagLens;
   editing: boolean;
@@ -162,8 +143,8 @@ const TagPageButtonRow = ({
   updateSelectedLens?: (lensId: string) => void;
   toggleEmbeddedPlayer?: () => void;
   showEmbeddedPlayer?: boolean;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
   const { tag: beginnersGuideContentTag } = useTagBySlug("tag-cta-popup", "TagFragment");
@@ -322,6 +303,6 @@ const TagPageButtonRow = ({
   </AnalyticsContext>
 }
 
-export default registerComponent("TagPageButtonRow", TagPageButtonRow, { styles });
+export default TagPageButtonRow
 
 

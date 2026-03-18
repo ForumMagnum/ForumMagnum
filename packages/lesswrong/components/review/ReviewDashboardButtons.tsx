@@ -1,14 +1,15 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ReviewPhase, ReviewYear } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import Row from "../common/Row";
 import SectionFooter from "../common/SectionFooter";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewDashboardButtons', (theme: ThemeType) => ({
   actionButton: {
     border: `solid 1px ${theme.palette.grey[400]}`,
     paddingTop: 8,
@@ -35,15 +36,15 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center"
   }
-});
+}));
 
-export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAdvancedDashboard, showQuickReview}: {
-  classes: ClassesType<typeof styles>,
+export const ReviewDashboardButtons = ({reviewYear, reviewPhase, showAdvancedDashboard, showQuickReview}: {
   reviewYear: ReviewYear,
   reviewPhase: ReviewPhase,
   showAdvancedDashboard?: boolean,
   showQuickReview?: boolean
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
 
   return <div>
@@ -94,7 +95,7 @@ export const ReviewDashboardButtons = ({classes, reviewYear, reviewPhase, showAd
   </div>;
 }
 
-export default registerComponent('ReviewDashboardButtons', ReviewDashboardButtons, {styles});
+export default ReviewDashboardButtons;
 
 
 

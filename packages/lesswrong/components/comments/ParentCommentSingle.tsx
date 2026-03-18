@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from './commentTree';
 import React from 'react';
 import classNames from 'classnames';
@@ -61,7 +60,7 @@ const ParentCommentSingle = ({
   }
 }
 
-export default registerComponent('ParentCommentSingle', ParentCommentSingle, {});
+export default ParentCommentSingle;
 
 
 

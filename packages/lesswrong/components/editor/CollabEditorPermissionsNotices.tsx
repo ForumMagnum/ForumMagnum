@@ -1,25 +1,26 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import UsersName from "../users/UsersName";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
+import { EditablePost } from '@/lib/collections/posts/helpers';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CollabEditorPermissionsNotices', (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     marginTop: 4,
     marginBottom: 12
   }
-});
+}));
 
-const CollabEditorPermissionsNotices = ({post, classes}: {
-  post: PostsPage,
-  classes: ClassesType<typeof styles>,
+const CollabEditorPermissionsNotices = ({post}: {
+  post: EditablePost,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const canEditAsAdmin = userCanDo(currentUser, 'posts.edit.all');
   return <div className={classes.root}>
-    {/* Note: admins and moderators are currently redirected from PostCollaborationEditor to PostsEditForm, so many of these are not currently in use. I didn't want to get rid of them yet because I'm not sure our redirection-scheme is exactly right. */}
     {post.myEditorAccess === "none" && <div>
       {canEditAsAdmin && <span>
         You have not been shared on this post, but you can edit because you are a site moderator. Please use this power sparingly.
@@ -42,6 +43,6 @@ const CollabEditorPermissionsNotices = ({post, classes}: {
   </div>;
 }
 
-export default registerComponent('CollabEditorPermissionsNotices', CollabEditorPermissionsNotices, {styles});
+export default CollabEditorPermissionsNotices;
 
 

@@ -466,6 +466,8 @@ export const defaultComponentPalette = (dark: boolean) => ({
       selected: "light-dark(#198cf0,#0c70c7)",
       selectedHover: "light-dark(#0e7fe1,#0b62ae)",
     },
+    shareWithClaude: "rgba(217,119,87)",
+    shareWithClaudeHover: "rgba(179,88,61)",
   },
   intercom: {
     buttonBackground: "light-dark(#f5f5f5,#424242) !important",

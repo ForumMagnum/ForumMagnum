@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -10,8 +9,10 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
 import FormatDate from "../common/FormatDate";
 import UserNameDeleted from "../users/UserNameDeleted";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ExpandedCommentsSearchHit", (theme: ThemeType) => ({
   root: {
     maxWidth: 600,
     paddingTop: 2,
@@ -66,12 +67,12 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     marginTop: 5
   }
-})
+}))
 
-const ExpandedCommentsSearchHit = ({hit, classes}: {
+const ExpandedCommentsSearchHit = ({hit}: {
   hit: Hit<any>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
   const comment: SearchComment = hit
   
@@ -114,7 +115,7 @@ const ExpandedCommentsSearchHit = ({hit, classes}: {
   </div>
 }
 
-export default registerComponent("ExpandedCommentsSearchHit", ExpandedCommentsSearchHit, {styles});
+export default ExpandedCommentsSearchHit;
 
 
 

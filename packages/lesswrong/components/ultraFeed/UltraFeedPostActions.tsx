@@ -1,4 +1,3 @@
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import React, { useCallback } from "react";
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
