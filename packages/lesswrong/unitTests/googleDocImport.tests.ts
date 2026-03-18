@@ -1,6 +1,40 @@
-import { convertImportedGoogleDoc } from '@/server/editor/googleDocUtils';
+import JSZip from 'jszip';
+import { convertImportedGoogleDoc, getGoogleDocZipHtml } from '@/server/editor/googleDocUtils';
+
+async function createGoogleDocZip(files: Record<string, string>): Promise<Buffer> {
+  const zip = new JSZip();
+
+  for (const [fileName, contents] of Object.entries(files)) {
+    zip.file(fileName, contents);
+  }
+
+  return zip.generateAsync({ type: 'nodebuffer' });
+}
 
 describe("convertImportedGoogleDoc", () => {
+  it("inlines zipped HTML images as data URIs", async () => {
+    const highResolutionImage = Buffer.from("high-resolution-image").toString("base64");
+    const zipBuffer = await createGoogleDocZip({
+      "index.html": '<html><body><img src="images/image1.jpg" /></body></html>',
+      "images/image1.jpg": "high-resolution-image",
+    });
+
+    const html = await getGoogleDocZipHtml(zipBuffer);
+
+    expect(html).toContain(`data:image/jpeg;base64,${highResolutionImage}`);
+  });
+
+  it("resolves image paths relative to the exported HTML file", async () => {
+    const highResolutionImage = Buffer.from("nested-high-resolution-image").toString("base64");
+    const zipBuffer = await createGoogleDocZip({
+      "folder/export.html": '<html><body><img src="images/image1.jpg" /></body></html>',
+      "folder/images/image1.jpg": "nested-high-resolution-image",
+    });
+
+    const html = await getGoogleDocZipHtml(zipBuffer);
+
+    expect(html).toContain(`data:image/jpeg;base64,${highResolutionImage}`);
+  });
 
   it("Regression: Handle nested bullets with different list ids", async () => {
     const htmlInput = `
@@ -26,7 +60,10 @@ describe("convertImportedGoogleDoc", () => {
         </body>
       </html>
     `;
-    const htmlOutput = await convertImportedGoogleDoc({html: htmlInput.replace(/\s+</g, '<'), postId: 'dummy'});
+    const zipBuffer = await createGoogleDocZip({
+      "index.html": htmlInput.replace(/\s+</g, '<'),
+    });
+    const htmlOutput = await convertImportedGoogleDoc({zipBuffer, postId: 'dummy'});
     expect(htmlOutput).toMatchSnapshot();
   });
 });

@@ -1,9 +1,108 @@
 import axios from 'axios';
 import cheerio, { type Element, type Cheerio, type Node } from 'cheerio';
+import JSZip from 'jszip';
+import path from 'node:path';
 import { convertImagesInHTML, uploadBufferToCloudinary } from '../scripts/convertImagesToCloudinary';
 import { extractTableOfContents } from '@/lib/tableOfContents';
-import { dataToCkEditor, markdownToHtml } from './conversionUtils';
+import { dataToCkEditor } from './conversionUtils';
 import { parseDocumentFromString } from '@/lib/domParser';
+
+function googleDocImageFileNameToMimeType(fileName: string): string | null {
+  const extension = path.posix.extname(fileName).toLowerCase();
+  switch (extension) {
+    case '.jpg':
+    case '.jpeg':
+      return 'image/jpeg';
+    case '.png':
+      return 'image/png';
+    case '.gif':
+      return 'image/gif';
+    case '.webp':
+      return 'image/webp';
+    case '.svg':
+      return 'image/svg+xml';
+    default:
+      return null;
+  }
+}
+
+function googleDocInlineZipImage($img: Cheerio<Element>, zipFile: JSZip, htmlFileName: string) {
+  const src = $img.attr('src');
+  if (!src || src.startsWith('data:')) {
+    return null;
+  }
+
+  let parsedSrc: URL;
+  try {
+    parsedSrc = new URL(src);
+    if (parsedSrc.protocol !== 'file:') {
+      return null;
+    }
+  } catch {
+    const htmlDirectory = path.posix.dirname(htmlFileName);
+    const basePath = htmlDirectory === '.' ? '/' : `/${htmlDirectory}/`;
+    parsedSrc = new URL(src, `file://${basePath}`);
+  }
+
+  const zipPath = path.posix.normalize(parsedSrc.pathname.replace(/^\/+/, ''));
+  const zipEntry = zipFile.file(zipPath);
+  if (!zipEntry) {
+    return null;
+  }
+
+  return { zipEntry, zipPath };
+}
+
+export async function getGoogleDocZipHtml(zipBuffer: Buffer): Promise<string> {
+  const zip = await JSZip.loadAsync(zipBuffer);
+  const htmlEntry = Object.values(zip.files).find((zipEntry) =>
+    !zipEntry.dir && path.posix.extname(zipEntry.name).toLowerCase() === '.html'
+  );
+  if (!htmlEntry) {
+    throw new Error('Google Doc zip export did not contain an HTML file');
+  }
+
+  const html = await htmlEntry.async('string');
+  const $ = cheerio.load(html);
+  const imagePromises = $('img[src]').map(async (_, img) => {
+    const $img = $(img);
+    const inlineZipImage = googleDocInlineZipImage($img, zip, htmlEntry.name);
+    if (!inlineZipImage) {
+      return;
+    }
+
+    const { zipEntry, zipPath } = inlineZipImage;
+    const mimeType = googleDocImageFileNameToMimeType(zipPath);
+    if (!mimeType) {
+      return;
+    }
+
+    const buffer = await zipEntry.async('nodebuffer');
+    $img.attr('src', `data:${mimeType};base64,${buffer.toString('base64')}`);
+  }).get();
+
+  await Promise.all(imagePromises);
+
+  return $.html();
+}
+
+function googleDocParseDataUri(dataUri: string): Buffer {
+  const [, base64Data] = dataUri.split(',');
+  if (!base64Data) {
+    throw new Error('Invalid data URI');
+  }
+
+  return Buffer.from(base64Data, 'base64');
+}
+
+async function googleDocGetImageBuffer(src: string): Promise<Buffer> {
+  if (src.startsWith('data:')) {
+    return googleDocParseDataUri(src);
+  }
+
+  const response = await axios.get(src, { responseType: 'arraybuffer' });
+  return Buffer.from(response.data, 'binary');
+}
 
 /**
  * Convert the footnotes we get in google doc html to a format ckeditor can understand. This is mirroring the logic
@@ -215,8 +314,7 @@ async function googleDocCropImages(html: string): Promise<string> {
     }
 
     try {
-      const response = await axios.get(src, { responseType: 'arraybuffer' });
-      const buffer = Buffer.from(response.data, 'binary');
+      const buffer = await googleDocGetImageBuffer(src);
 
       const { default: Jimp } = await import('jimp');
       const image = await Jimp.read(buffer);
@@ -437,15 +535,6 @@ function removeEmptyBodyParagraphs(html: string): string {
   return $.html();
 }
 
-export async function convertImportedGoogleDocMarkdown({markdown, postId}: {
-  markdown: string,
-  postId: string
-}): Promise<string> {
-  const html = await markdownToHtml(markdown);
-  const { html: rehostedHtml } = await convertImagesInHTML(html, postId, _ => true);
-  return rehostedHtml;
-}
-
 /**
  * We need to convert a few things in the raw html exported from google to make it work with ckeditor, this is
  * largely mirroring conversions we do on paste in the ckeditor code:
@@ -454,16 +543,17 @@ export async function convertImportedGoogleDocMarkdown({markdown, postId}: {
  * - Reupload images to cloudinary (we actually don't do this on paste, but it's easier to do so here and prevents images breaking due to rate limits)
  */
 export async function convertImportedGoogleDoc({
-  html,
+  zipBuffer,
   postId,
 }: {
-  html: string;
+  zipBuffer: Buffer;
   postId: string;
 }) {
+  const html = await getGoogleDocZipHtml(zipBuffer);
   const converters: (((html: string) => Promise<string>) | ((html: string) => string))[] = [
     async (html: string) => {
       const { html: rehostedHtml } = await convertImagesInHTML(html, postId, (url) =>
-        url.includes("googleusercontent")
+        url.includes("googleusercontent") || url.startsWith("data:")
       );
       return rehostedHtml;
     },
