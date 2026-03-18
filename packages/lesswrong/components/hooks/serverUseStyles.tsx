@@ -14,7 +14,7 @@ import { styleDefinitionToCSS } from "./serverEmbeddedStyles";
  *     }
  *   }), { stylePriority: 0 });
  *   function MyServerComponent() {
- *     const { classes, styleTag } = useStylesServer(styles);
+ *     const { classes, styleTag } = serverUseStyles(styles);
  *     return <div className={classes.root}>
  *       {styleTag}
  *     </div>
