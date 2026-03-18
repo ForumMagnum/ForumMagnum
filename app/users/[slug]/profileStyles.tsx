@@ -2,31 +2,6 @@ import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import classNames from "classnames";
 
 export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => ({
-  profileActionIconButton: {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 0,
-    border: "none",
-    background: "none",
-    color: "light-dark(#000, #fff)",
-    cursor: "pointer",
-    "&:hover": {
-      opacity: 0.67,
-    },
-    "&:focus-visible": {
-      outline: `1px solid light-dark(#000, #fff)`,
-      outlineOffset: 2,
-      borderRadius: 2,
-    },
-  },
-  profileActionIcon: {
-    fontSize: 16,
-  },
-  sunshineToolsSection: {
-    marginTop: 8,
-    marginBottom: 24,
-  },
   emptyStateContainer: {
     display: "flex",
     flexDirection: "column",
@@ -58,23 +33,6 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     lineHeight: 1.5,
     margin: 0,
     fontStyle: "italic",
-  },
-  sortPanel: {
-    background: theme.palette.greyAlpha(0.03),
-    padding: "20px 24px",
-    marginBottom: 20,
-    borderRadius: 4,
-    overflow: "hidden",
-    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-    animation: "$panelOpen 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-  },
-  sortPanelClosing: {
-    animation: "$panelClose 0.3s cubic-bezier(0.4, 0, 1, 1)",
-    animationFillMode: "forwards",
-  },
-  sortPanelMulti: {
-    display: "flex",
-    gap: 40,
   },
   sortPanelSection: {
     display: "flex",
@@ -116,33 +74,6 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   profileFeedTopMargin: {
     marginTop: 16,
   },
-  sidebarAuthorMeta: {
-    display: "flex",
-    flexWrap: "wrap" as const,
-    gap: "2px 10px",
-    marginTop: 6,
-    fontFamily: theme.typography.fontFamily,
-    fontWeight: 400,
-    color: theme.palette.text.dim,
-    fontSize: 12,
-    lineHeight: 1.4,
-  },
-  sidebarMetaAction: {
-    fontFamily: theme.typography.fontFamily,
-    color: theme.palette.primary.main,
-    fontSize: 12,
-    cursor: "pointer",
-    fontWeight: 400,
-    textDecoration: "none",
-    "&:hover": {
-      opacity: 0.67,
-    },
-  },
-  postsSidebarHasBio: {
-    "& $sidebarStats": {
-      display: "none",
-    },
-  },
   sidebarAuthorBio: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
@@ -179,31 +110,6 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       marginBottom: 0,
     },
   },
-  sidebarStats: {
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 14,
-    lineHeight: 1.6,
-    color: theme.palette.text.dim,
-    fontWeight: 400,
-    marginTop: 16,
-  },
-  sidebarStatRow: {
-    whiteSpace: "nowrap",
-  },
-  diamondHollow: {
-    backgroundColor: theme.palette.primary.main,
-    position: "relative" as const,
-    "&::after": {
-      content: '""',
-      position: "absolute",
-      top: 1.5,
-      left: 1.5,
-      right: 1.5,
-      bottom: 1.5,
-      clipPath: "polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%)",
-      backgroundColor: theme.palette.background.profilePageBackground,
-    },
-  },
   readMore: {
     textAlign: "left",
     marginTop: 12,
@@ -217,13 +123,6 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     "&:hover": {
       opacity: 0.67,
     },
-  },
-  sidebarActions: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    marginTop: 24,
-    marginBottom: 22,
   },
   sidebarSubscribe: {
     fontFamily: theme.typography.fontFamily,
@@ -246,38 +145,6 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     textDecoration: "none",
     "&:hover": {
       opacity: 0.67,
-    },
-  },
-  "@keyframes panelOpen": {
-    from: {
-      opacity: 0,
-      maxHeight: 0,
-      paddingTop: 0,
-      paddingBottom: 0,
-      marginBottom: 0,
-    },
-    to: {
-      opacity: 1,
-      maxHeight: 500,
-      paddingTop: 20,
-      paddingBottom: 20,
-      marginBottom: 20,
-    },
-  },
-  "@keyframes panelClose": {
-    from: {
-      opacity: 1,
-      maxHeight: 500,
-      paddingTop: 20,
-      paddingBottom: 20,
-      marginBottom: 20,
-    },
-    to: {
-      opacity: 0,
-      maxHeight: 0,
-      paddingTop: 0,
-      paddingBottom: 0,
-      marginBottom: 0,
     },
   },
 }));
