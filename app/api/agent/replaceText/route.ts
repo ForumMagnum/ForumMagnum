@@ -19,6 +19,16 @@ interface ReplaceResult {
   quoteFoundInDocument: boolean
   note: string
   suggestionId?: string
+  /** The quote/replacement after narrowing, for use in suggestion summaries. */
+  summaryQuote?: string
+  summaryReplacement?: string
+}
+
+interface SuggestionNarrowingResult {
+  replaced: boolean
+  /** The quote/replacement actually used after narrowing (for summaries). */
+  narrowedQuote: string
+  narrowedReplacement: string
 }
 
 /**
@@ -507,9 +517,97 @@ function $applySuggestionInsertionAtPoint({
 }
 
 /**
+ * Try to compute narrowed anchor/focus/replacement by stripping the common
+ * markdown prefix/suffix between quote and replacement. Returns null if
+ * narrowing isn't applicable (identical plain text, no common affixes, etc.),
+ * in which case the caller should use the original anchor/focus/replacement.
+ */
+function $computeNarrowing(
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+  quote: string,
+  replacement: string,
+): {
+  anchor: MarkdownSelectionPoint
+  focus: MarkdownSelectionPoint
+  quote: string
+  replacement: string
+} | null {
+  const matchedPlainText = $collectPlainTextInRange(anchor, focus);
+  if (matchedPlainText === null) return null;
+
+  // If the visible text is identical, the change is purely structural
+  // (formatting, link URLs, etc.) — show the full range.
+  if (markdownQuoteToPlainText(replacement) === matchedPlainText) return null;
+
+  // Compare at the markdown level so that formatting/syntax changes
+  // prevent narrowing past them.
+  const { prefixLen: mdPrefixLen, suffixLen: mdSuffixLen } = computeCommonPrefixSuffix(quote, replacement);
+
+  // Convert markdown offsets to plain-text character counts using the
+  // quote's mapping (which has full regex context for links, math, etc.)
+  const quoteMapping = buildPlainToMarkdownMapping(quote);
+  const ptAdvance = countPlainTextInPrefix(quoteMapping.toMarkdown, mdPrefixLen);
+  const ptRetreat = countPlainTextInSuffix(quoteMapping.toMarkdown, quote.length, mdSuffixLen);
+
+  if (ptAdvance === 0 && ptRetreat === 0) return null;
+  if (ptAdvance + ptRetreat > matchedPlainText.length) return null;
+
+  const narrowedAnchor = $advancePoint(anchor, ptAdvance);
+  const narrowedFocus = $retreatPoint(focus, ptRetreat);
+  if (!narrowedAnchor || !narrowedFocus) return null;
+
+  return {
+    anchor: narrowedAnchor,
+    focus: narrowedFocus,
+    quote: quote.slice(mdPrefixLen, quote.length - mdSuffixLen),
+    replacement: replacement.slice(mdPrefixLen, replacement.length - mdSuffixLen),
+  };
+}
+
+/**
+ * Apply a suggestion replacement, dispatching to the insertion, single-node,
+ * or multi-node apply function as appropriate for the given selection.
+ */
+function $applySuggestionForSelection(
+  editor: LexicalEditor,
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+  replacement: string,
+  suggestionId: string,
+  replacementNodes?: LexicalNode[],
+): boolean {
+  const insertionPoint = $getEquivalentInsertionPoint(anchor, focus);
+  if (insertionPoint) {
+    return $applySuggestionInsertionAtPoint({
+      editor, point: insertionPoint, replacement, suggestionId, replacementNodes,
+    });
+  }
+
+  const sameTextNode = anchor.key === focus.key
+    && anchor.type === "text" && focus.type === "text";
+
+  if (sameTextNode) {
+    return $applySuggestionReplacement({
+      editor,
+      matchedNodeKey: anchor.key,
+      startOffset: anchor.offset,
+      endOffset: focus.offset,
+      replacement,
+      replacementNodes,
+      suggestionId,
+    });
+  }
+
+  return $applySuggestionReplacementMultiNode({
+    editor, anchor, focus, replacement, replacementNodes, suggestionId,
+  });
+}
+
+/**
  * Apply a suggestion replacement with narrowing: strip the common
- * prefix/suffix between the matched document text and the replacement,
- * so that delete/insert suggestion nodes only wrap the minimal diff.
+ * markdown prefix/suffix between the quote and replacement so that
+ * delete/insert suggestion nodes only wrap the minimal diff.
  *
  * Must be called inside a Lexical update context.
  */
@@ -527,116 +625,20 @@ export function $applySuggestionWithNarrowing({
   quote: string
   replacement: string
   suggestionId: string
-}): boolean {
-  const matchedPlainText = $collectPlainTextInRange(anchor, focus);
-  if (matchedPlainText === null) {
-    return $applySuggestionFallback({ editor, anchor, focus, replacement, suggestionId });
+}): SuggestionNarrowingResult {
+  const narrowing = $computeNarrowing(anchor, focus, quote, replacement);
+
+  if (!narrowing) {
+    const replaced = $applySuggestionForSelection(editor, anchor, focus, replacement, suggestionId);
+    return { replaced, narrowedQuote: quote, narrowedReplacement: replacement };
   }
 
-  // If the visible text is identical, the change is purely structural
-  // (formatting, link URLs, etc.) — show the full range.
-  const replacementPlainText = markdownQuoteToPlainText(replacement);
-  if (replacementPlainText === matchedPlainText) {
-    return $applySuggestionFallback({ editor, anchor, focus, replacement, suggestionId });
-  }
-
-  // Compare at the markdown level so that formatting/syntax changes
-  // prevent narrowing past them.
-  const { prefixLen: mdPrefixLen, suffixLen: mdSuffixLen } = computeCommonPrefixSuffix(quote, replacement);
-
-  // Convert markdown offsets to plain-text character counts using the
-  // quote's mapping (which has full regex context for links, math, etc.)
-  const quoteMapping = buildPlainToMarkdownMapping(quote);
-  const ptAdvance = countPlainTextInPrefix(quoteMapping.toMarkdown, mdPrefixLen);
-  const ptRetreat = countPlainTextInSuffix(quoteMapping.toMarkdown, quote.length, mdSuffixLen);
-
-  if (ptAdvance === 0 && ptRetreat === 0) {
-    return $applySuggestionFallback({ editor, anchor, focus, replacement, suggestionId });
-  }
-
-  if (ptAdvance + ptRetreat > matchedPlainText.length) {
-    return $applySuggestionFallback({ editor, anchor, focus, replacement, suggestionId });
-  }
-
-  const narrowedAnchor = $advancePoint(anchor, ptAdvance);
-  const narrowedFocus = $retreatPoint(focus, ptRetreat);
-  if (!narrowedAnchor || !narrowedFocus) {
-    return $applySuggestionFallback({ editor, anchor, focus, replacement, suggestionId });
-  }
-
-  // Slice the replacement at exact markdown positions — guaranteed to be
-  // at matching syntax boundaries since the prefix/suffix are identical
-  // in both quote and replacement.
-  const narrowedReplacement = replacement.slice(mdPrefixLen, replacement.length - mdSuffixLen);
-  const narrowedPlainText = markdownQuoteToPlainText(narrowedReplacement);
-  const replacementNodes = $narrowedReplacementToNodes(editor, narrowedReplacement, narrowedPlainText);
-
-  const insertionPoint = $getEquivalentInsertionPoint(narrowedAnchor, narrowedFocus);
-
-  if (insertionPoint) {
-    return $applySuggestionInsertionAtPoint({
-      editor, point: insertionPoint, replacement: narrowedReplacement, suggestionId,
-      replacementNodes,
-    });
-  }
-
-  const sameTextNode = narrowedAnchor.key === narrowedFocus.key
-    && narrowedAnchor.type === "text" && narrowedFocus.type === "text";
-
-  if (sameTextNode) {
-    return $applySuggestionReplacement({
-      editor,
-      matchedNodeKey: narrowedAnchor.key,
-      startOffset: narrowedAnchor.offset,
-      endOffset: narrowedFocus.offset,
-      replacement: narrowedReplacement,
-      replacementNodes,
-      suggestionId,
-    });
-  }
-
-  return $applySuggestionReplacementMultiNode({
-    editor,
-    anchor: narrowedAnchor,
-    focus: narrowedFocus,
-    replacement: narrowedReplacement,
-    replacementNodes,
-    suggestionId,
-  });
-}
-
-/**
- * Fallback: apply suggestion without narrowing, using the original
- * anchor/focus/replacement. Dispatches to single-node or multi-node
- * depending on the selection.
- */
-function $applySuggestionFallback({
-  editor,
-  anchor,
-  focus,
-  replacement,
-  suggestionId,
-}: {
-  editor: LexicalEditor
-  anchor: MarkdownSelectionPoint
-  focus: MarkdownSelectionPoint
-  replacement: string
-  suggestionId: string
-}): boolean {
-  const sameTextNode = anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
-  if (sameTextNode) {
-    return $applySuggestionReplacement({
-      editor,
-      matchedNodeKey: anchor.key,
-      startOffset: anchor.offset,
-      endOffset: focus.offset,
-      replacement,
-      suggestionId,
-    });
-  }
-  return $applySuggestionReplacementMultiNode({
-    editor, anchor, focus, replacement, suggestionId,
-  });
+  const narrowedPlainText = markdownQuoteToPlainText(narrowing.replacement);
+  const replacementNodes = $narrowedReplacementToNodes(editor, narrowing.replacement, narrowedPlainText);
+  const replaced = $applySuggestionForSelection(
+    editor, narrowing.anchor, narrowing.focus, narrowing.replacement, suggestionId, replacementNodes,
+  );
+  return { replaced, narrowedQuote: narrowing.quote, narrowedReplacement: narrowing.replacement };
 }
 
 function $applySuggestionReplacementMultiNode({
@@ -698,6 +700,8 @@ export async function replaceTextInMainDoc({
       let replaced = false;
       let quoteFoundInDocument = false;
       let suggestionId: string | undefined = undefined;
+      let summaryQuote = quote;
+      let summaryReplacement = replacement;
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
@@ -732,9 +736,12 @@ export async function replaceTextInMainDoc({
           }
 
           suggestionId = randomId();
-          replaced = $applySuggestionWithNarrowing({
+          const narrowingResult = $applySuggestionWithNarrowing({
             editor, anchor, focus, quote, replacement, suggestionId,
           });
+          replaced = narrowingResult.replaced;
+          summaryQuote = narrowingResult.narrowedQuote;
+          summaryReplacement = narrowingResult.narrowedReplacement;
           if (!replaced) {
             suggestionId = undefined;
           }
@@ -753,6 +760,8 @@ export async function replaceTextInMainDoc({
             ? "Created delete/insert suggestion nodes for replacement."
             : "Replaced text directly.",
           suggestionId,
+          summaryQuote,
+          summaryReplacement,
         };
       }
 
@@ -775,8 +784,8 @@ export async function replaceTextInMainDoc({
       authorId,
       summaryItems: [{
         type: "replace",
-        content: quote,
-        replaceWith: replacement,
+        content: result.summaryQuote ?? quote,
+        replaceWith: result.summaryReplacement ?? replacement,
       }],
     });
   }
