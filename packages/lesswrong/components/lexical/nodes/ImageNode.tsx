@@ -34,6 +34,7 @@ import {
   DecoratorNode,
   ElementNode,
 } from 'lexical';
+import { dataUriToBlob } from '../utils/cloudinaryUpload';
 
 
 const ImageComponent = React.lazy(() => import('./ImageComponent'));
@@ -87,9 +88,12 @@ function isGoogleDocCheckboxImg(img: HTMLImageElement): boolean {
 
 function $convertImageElement(domNode: Node): null | DOMConversionOutput {
   const img = domNode as HTMLImageElement;
-  const src = img.getAttribute('src');
+  let src = img.getAttribute('src');
   if (!src || src.startsWith('file:///') || isGoogleDocCheckboxImg(img)) {
     return null;
+  }
+  if (src.startsWith('data:')) {
+    src = URL.createObjectURL(dataUriToBlob(src));
   }
   const {alt: altText, width, height} = img;
   const srcset = img.getAttribute('srcset');
@@ -557,6 +561,16 @@ export class ImageNode extends ElementNode {
   setAltText(altText: string): void {
     const writable = this.getWritable();
     writable.__altText = altText;
+  }
+
+  setSrc(src: string): void {
+    const writable = this.getWritable();
+    writable.__src = src;
+    // Mark the render node dirty so decorate() is re-invoked with the new src
+    const renderNode = writable.getFirstChild();
+    if ($isImageRenderNode(renderNode)) {
+      renderNode.getWritable();
+    }
   }
 
   setSrcset(srcset: string | null): void {

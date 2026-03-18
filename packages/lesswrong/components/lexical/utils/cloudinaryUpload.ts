@@ -16,9 +16,24 @@ export class ImageUploadError extends Error {
   }
 }
 
+export function dataUriToBlob(dataUri: string): Blob {
+  const [header, data] = dataUri.split(',');
+  const mimeMatch = header.match(/data:([^;]+)/);
+  const mime = mimeMatch ? mimeMatch[1] : 'application/octet-stream';
+  if (!header.includes(';base64')) {
+    return new Blob([decodeURIComponent(data)], { type: mime });
+  }
+  const binary = atob(data);
+  const array = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) {
+    array[i] = binary.charCodeAt(i);
+  }
+  return new Blob([array], { type: mime });
+}
+
 /**
  * Upload a file to Cloudinary using unsigned upload.
- * 
+ *
  * @param file - The file or blob to upload
  * @param options - Optional configuration
  * @param options.signal - AbortSignal for cancellation
