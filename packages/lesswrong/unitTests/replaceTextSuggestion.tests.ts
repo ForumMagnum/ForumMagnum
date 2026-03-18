@@ -23,9 +23,10 @@ async function replaceTextAsSuggestion(
     if (!result.found || !result.anchor || !result.focus) return;
 
     const { anchor, focus } = result;
-    replaced = $applySuggestionWithNarrowing({
+    const narrowingResult = $applySuggestionWithNarrowing({
       editor, anchor, focus, quote, replacement, suggestionId: randomId(),
     });
+    replaced = narrowingResult.replaced;
   });
   return replaced;
 }
