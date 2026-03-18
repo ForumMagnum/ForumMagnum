@@ -36,6 +36,7 @@ export function serverUseStyles<T extends string>(styles: StyleDefinition<T>): {
     const themeOptions: AbstractThemeOptions = { name: "auto" };
     const precedence = `${styles.options?.stylePriority ?? 0}-${styles.name}`;
     const styleStr = styleDefinitionToCSS(themeOptions, styles);
+    // eslint-disable-next-line react/no-unknown-property
     styles.styleTag = <style href={styles.name} precedence={precedence}>
       {styleStr}
     </style>;
