@@ -297,6 +297,7 @@ interface LexicalEditorProps {
   /** Document ID for collaborative editing. When provided for Posts, the editor always uses
    * collaborative mode for consistency, even if not sharing with others. */
   documentId?: string | null;
+  fieldName?: string;
   /** Collaborative editor access level for suggested edits permissions */
   accessLevel?: CollaborativeEditingAccessLevel;
 }
@@ -389,6 +390,7 @@ const LexicalEditor = ({
   onGetDataWithDiscardedSuggestions,
   collectionName,
   documentId = null,
+  fieldName = 'contents',
   commentEditor = false,
   accessLevel,
 }: LexicalEditorProps) => {
@@ -399,13 +401,15 @@ const LexicalEditor = ({
   const { query } = useLocation();
   const linkSharingKey = typeof query.key === 'string' ? query.key : null;
   const initialHtmlRef = useRef<string | null>(null);
-  const lastDocumentIdRef = useRef<string | null>(null);
+  const lastDocumentKeyRef = useRef<string | null>(null);
   const lastEmittedHtmlRef = useRef<string | null>(null);
   const [editorVersion, setEditorVersion] = useState(0);
   const [collaborationWarning, setCollaborationWarning] = useState<string | null>(null);
 
-  if (lastDocumentIdRef.current !== documentId) {
-    lastDocumentIdRef.current = documentId;
+  const collaborationDocumentKey = `${documentId ?? 'lexical-new'}:${fieldName}`;
+
+  if (lastDocumentKeyRef.current !== collaborationDocumentKey) {
+    lastDocumentKeyRef.current = collaborationDocumentKey;
     initialHtmlRef.current = data;
   } else if (initialHtmlRef.current === null) {
     initialHtmlRef.current = data;
@@ -434,6 +438,7 @@ const LexicalEditor = ({
     
     return {
       postId: documentId!,
+      fieldName,
       getToken: () => fetchHocuspocusToken(apolloClient, documentId!, linkSharingKey),
       user: {
         id: userId,
@@ -443,7 +448,7 @@ const LexicalEditor = ({
         setCollaborationWarning(error.message);
       },
     };
-  }, [shouldEnableCollaboration, currentUser, clientId, documentId, apolloClient, linkSharingKey]);
+  }, [shouldEnableCollaboration, currentUser, clientId, documentId, fieldName, apolloClient, linkSharingKey]);
 
   useEffect(() => {
     onReady?.();
@@ -503,7 +508,7 @@ const LexicalEditor = ({
               )}
               <div className={classNames(!commentEditor && classes.editorShell)}>
                 <Editor
-                  key={`${documentId ?? 'lexical-new'}-${editorVersion}`}
+                  key={`${collaborationDocumentKey}-${editorVersion}`}
                   collaborationConfig={collaborationConfig ?? undefined}
                   accessLevel={accessLevel}
                   initialHtml={initialHtmlRef.current ?? ''}
