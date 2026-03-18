@@ -345,6 +345,29 @@ describe("replaceText narrowing across multi-node matches", () => {
     expect(insertSuggestions.length).toBe(1);
     expect(insertSuggestions[0].textContent).toBe("near");
   });
+
+  it("narrows to an insertion at a formatting boundary", async () => {
+    const editor = await setupEditorWithContent(
+      "This has **bold text**, and more."
+    );
+
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "**bold text**, and",
+      "**bold text** really, and",
+    );
+
+    expect(replaced).toBe(true);
+
+    const suggestions = getAllSuggestions(editor);
+    const deleteSuggestions = suggestions.filter(s => s.type === "delete");
+    const insertSuggestions = suggestions.filter(s => s.type === "insert");
+
+    expect(deleteSuggestions.length).toBe(1);
+    expect(deleteSuggestions[0].textContent).toBe("");
+    expect(insertSuggestions.length).toBe(1);
+    expect(insertSuggestions[0].textContent).toBe(" really");
+  });
 });
 
 describe("getAllSuggestions finds suggestions inside nested structures", () => {

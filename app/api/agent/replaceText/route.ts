@@ -252,15 +252,13 @@ export function $applyEditReplacementMultiNode({
 function computeCommonPrefixSuffix(a: string, b: string): { prefixLen: number, suffixLen: number } {
   let prefixLen = 0;
   const minLen = Math.min(a.length, b.length);
-  const prefixCharSame = a[prefixLen] === b[prefixLen];
-  while (prefixLen < minLen && prefixCharSame) {
+  while (prefixLen < minLen && a[prefixLen] === b[prefixLen]) {
     prefixLen++;
   }
 
   let suffixLen = 0;
   const maxSuffixLen = minLen - prefixLen;
-  const suffixCharSame = a[a.length - 1 - suffixLen] === b[b.length - 1 - suffixLen];
-  while (suffixLen < maxSuffixLen && suffixCharSame) {
+  while (suffixLen < maxSuffixLen && a[a.length - 1 - suffixLen] === b[b.length - 1 - suffixLen]) {
     suffixLen++;
   }
   
