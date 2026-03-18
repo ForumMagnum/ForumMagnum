@@ -745,16 +745,9 @@ const STICKY_PRIORITIES: Record<number, string> = {
 
 function getFeedbackQuery(postId: string, linkSharingKey: string | undefined) {
   const postUrl = postGetEditUrl(postId, true, linkSharingKey);
-  return `I'm writing a post on LessWrong and would appreciate your feedback on it.  The post is located at ${postUrl}.
+  return `I'm writing a post on LessWrong and would appreciate your inline feedback on it.  The post is located at ${postUrl}.
 
-Please carefully and thoroughly review the following:
-- Well-established premises.  Consider the likely target audience of my post, within the broader LessWrong community.  Do any of my arguments depend on premises that seem likely to be controversial or unfamiliar to that audience?
-- Local validity.  Do I make any claims that don't validly follow from my premises?
-- Missed considerations.  Take a broad-picture view of the post and the claims that it's advancing.  Are there any important considerations that I've missed?  Think about this from the perspective of an incisive LessWrong reader - if one were to leave a comment saying something like "This entire post is wrong/unhelpful/misguided/etc, because you failed to consider [x]", what is [x], if anything?
-- Accurate representation of my sources.  Wherever I cite a source or link to another resource as part of an argument, fetch that resource and check that I've accurately understood and represented it.
-- Existing arguments.  Are there existing arguments/research/other writing on the subject which are sufficently relevant that not mentioning them would be a major oversight?
-- Clarity.  Is my writing clear and easy to understand?  Look for explicit mistakes, ambiguous references, and sentences that are long enough that readers might have trouble keeping everything in their mental stack.
-- Everything else.  This is not a comprehensive list of things to check, merely the highest priority items.  If you any mistakes, issues, or areas for improvement that don't fit into the above categories, please point them out.`;
+Please remember to follow the guidelines in LessWrong's SKILL.md (https://www.lesswrong.com/SKILL.md).`;
 }
 
 function AccordionSection({ title, defaultOpen = false, children, className, contentClassName }: {
