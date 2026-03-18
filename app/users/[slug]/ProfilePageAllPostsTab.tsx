@@ -8,7 +8,7 @@ import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import LWTooltip from "@/components/common/LWTooltip";
 import { ExpandedDate } from "@/components/common/FormatDate";
 import { Link } from "@/lib/reactRouterWrapper";
-import { profileStyles } from "./profileStyles";
+import { profileStyles, TabPanel } from "./profileStyles";
 import LoadMore from "@/components/common/LoadMore";
 import { cssUrl, formatReadableDate, getListPostImageUrl, getPostSummary } from "./userProfilePageUtil";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -24,23 +24,12 @@ const profilePageAllPostsTabUnsharedStyles = defineStyles("ProfilePageAllPostsTa
       width: "100%",
     },
   },
-  tabPanel: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 8,
-    animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-    "@media (max-width: 630px)": {
-      order: 1,
-    },
-  },
   listArticle: {
     padding: "14px 0 15px",
     borderBottom: theme.palette.type === "dark"
       ? theme.palette.greyBorder("1px", 0.28)
       : "1px solid rgba(140,110,70,.14)",
     display: "block",
-    transition: "opacity 0.15s ease",
-    animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
     overflow: "visible",
     "&:hover": {
       opacity: 1,
@@ -353,7 +342,7 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
   const recentPosts = recentPostsData?.posts?.results ?? [];
   const hasPosts = user.postCount > 0;
 
-  return <div className={classNames(classes.postsList, classes.tabPanel)}>
+  return <TabPanel className={classes.postsList}>
     {!hasPosts && !recentPostsLoading && (
       <div className={sharedClasses.emptyStateContainer}>
         <p className={sharedClasses.emptyStateDescription}>{userGetDisplayName(user)} has not written any posts yet.</p>
@@ -415,5 +404,5 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
     })}
 
     <LoadMore {...loadMoreProps} />
-  </div>
+  </TabPanel>
 }

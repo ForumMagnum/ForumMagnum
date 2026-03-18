@@ -6,20 +6,11 @@ import SingleLineTagUpdates from "@/components/tagging/SingleLineTagUpdates";
 import LoadMore from "@/components/common/LoadMore";
 import { maybeDate } from "@/lib/utils/dateUtils";
 import { gql } from "@/lib/generated/gql-codegen";
-import { profileStyles } from "./profileStyles";
+import { profileStyles, TabPanel } from "./profileStyles";
 import { z } from "zod";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const profilePageWikiEditsTabUnsharedStyles = defineStyles("ProfilePageWikiEditsTabUnshared", () => ({
-  tabPanel: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 8,
-    animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-    "@media (max-width: 630px)": {
-      order: 1,
-    },
-  },
   wikiEditsList: {
     display: "flex",
     flexDirection: "column",
@@ -85,7 +76,7 @@ export function ProfilePageWikiEditsTabContents({user, settings}: {
     return hasLiveTag || hasLiveLensTag;
   });
 
-  return <div className={classNames(classes.wikiEditsList, classes.tabPanel)}>
+  return <TabPanel className={classes.wikiEditsList}>
     {!loading && resultsWithLiveTags.length === 0 && (
       <div className={sharedClasses.emptyStateContainer}>
         <p className={sharedClasses.emptyStateDescription}>No wikitag contributions to display.</p>
@@ -102,5 +93,5 @@ export function ProfilePageWikiEditsTabContents({user, settings}: {
       />;
     })}
     <LoadMore {...loadMoreProps} />
-  </div>;
+  </TabPanel>;
 }

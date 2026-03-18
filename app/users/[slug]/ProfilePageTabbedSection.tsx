@@ -137,6 +137,55 @@ const profilePageTabbedSectionUnsharedStyles = defineStyles("ProfilePageTabbedSe
       gap: 30,
     },
   },
+  sortPanel: {
+    background: theme.palette.greyAlpha(0.03),
+    padding: "20px 24px",
+    marginBottom: 20,
+    borderRadius: 4,
+    overflow: "hidden",
+    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+    animation: "$panelOpen 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+  },
+  sortPanelClosing: {
+    animation: "$panelClose 0.3s cubic-bezier(0.4, 0, 1, 1)",
+    animationFillMode: "forwards",
+  },
+  sortPanelMulti: {
+    display: "flex",
+    gap: 40,
+  },
+  "@keyframes panelOpen": {
+    from: {
+      opacity: 0,
+      maxHeight: 0,
+      paddingTop: 0,
+      paddingBottom: 0,
+      marginBottom: 0,
+    },
+    to: {
+      opacity: 1,
+      maxHeight: 500,
+      paddingTop: 20,
+      paddingBottom: 20,
+      marginBottom: 20,
+    },
+  },
+  "@keyframes panelClose": {
+    from: {
+      opacity: 1,
+      maxHeight: 500,
+      paddingTop: 20,
+      paddingBottom: 20,
+      marginBottom: 20,
+    },
+    to: {
+      opacity: 0,
+      maxHeight: 0,
+      paddingTop: 0,
+      paddingBottom: 0,
+      marginBottom: 0,
+    },
+  },
 }));
 
 type ProfileTab = "posts" | "comments" | "wikiEdits" | "sequences" | "quickTakes" | "feed";
@@ -455,9 +504,9 @@ export function ProfilePageTabbedSection({user}: {
 
     {showSettingsPanel && (
       <div className={classNames(
-        sharedClasses.sortPanel,
-        activeTabDefinition.useMultiColumnSettingsPanel && sharedClasses.sortPanelMulti,
-        settingsPanelClosing && sharedClasses.sortPanelClosing,
+        classes.sortPanel,
+        activeTabDefinition.useMultiColumnSettingsPanel && classes.sortPanelMulti,
+        settingsPanelClosing && classes.sortPanelClosing,
       )}>
         {renderActiveTabSettingsForm()}
       </div>
