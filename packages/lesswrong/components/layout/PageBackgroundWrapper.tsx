@@ -12,7 +12,6 @@ const themeSelectorScript = `
   try {
     const getCookie = (name) => {
       const cookie = document.cookie.split(';').filter(c=>c.trim().startsWith(name+"="))[0];
-      console.log(cookie);
       if (cookie) {
         return decodeURIComponent(cookie.split("=")[1]);
       }
