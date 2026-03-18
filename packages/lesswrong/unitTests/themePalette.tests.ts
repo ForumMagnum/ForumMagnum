@@ -74,7 +74,7 @@ beforeAll(() => {
 
 describe('JSS', () => {
   /**
-   * Check that component styles use only colors that either come from the theme, 
+   * Check that component styles use only colors that either come from the theme,
    * or change in dark mode. It is okay to use non-palette colors in ways that are
    * conditinal on being in dark mode, eg
    *    `theme.palette.type==="dark" ? "#123456" : theme.palette.panelBackground.default`
@@ -109,6 +109,63 @@ describe('JSS', () => {
       // eslint-disable-next-line no-console
       console.error("To prevent black-on-black text, use either a theme palette color, or check for dark mode with light-dark(#123,#edf) or theme.dark ? colorOne : colorTwo. Or disable the warning for this component by passing {allowNonThemeColors: true} in the stylesheet options.");
       nonPaletteColors.length.should.equal(0);
+    }
+  });
+
+  /**
+   * Check that CSS selectors referencing other components' JSS class names
+   * (like `'& .ComponentName-styleKey'`) point to class names that actually
+   * exist. When a style key is removed from a defineStyles block but a
+   * cross-component CSS selector still references it, the selector silently
+   * stops matching.
+   */
+  it('cross-component CSS class references point to existing styles', () => {
+    const theme = getForumTheme({name: "default", siteThemeOverride: {}}) as unknown as ThemeType;
+
+    // Build a set of all valid CSS class names (ComponentName-styleKey)
+    const validClassNames = new Set<string>();
+    for (const name in topLevelStyleDefinitions) {
+      try {
+        const styles = topLevelStyleDefinitions[name].styles(theme);
+        if (styles) {
+          for (const key of Object.keys(styles)) {
+            validClassNames.add(`${name}-${key}`);
+          }
+        }
+      } catch (e) {
+        // Skip components whose styles throw during evaluation
+      }
+    }
+
+    // Scan source files for CSS selectors referencing ComponentName-styleKey
+    const componentRoots = ["packages/lesswrong/components", "app"];
+    const sourceFiles = componentRoots
+      .flatMap(enumerateFiles)
+      .filter(f => f.endsWith('.tsx') || f.endsWith('.ts'));
+
+    // Match .ComponentName-styleKey in CSS selector strings
+    const crossRefPattern = /\.([A-Z][a-zA-Z0-9]*)-([a-zA-Z][a-zA-Z0-9]*)/g;
+    const brokenRefs: string[] = [];
+
+    for (const file of sourceFiles) {
+      const contents = fs.readFileSync(file, 'utf-8');
+      let match;
+      while ((match = crossRefPattern.exec(contents)) !== null) {
+        const componentName = match[1];
+        const styleKey = match[2];
+        const className = `${componentName}-${styleKey}`;
+
+        // Only check names where the component prefix is a known defineStyles name
+        if (componentName in topLevelStyleDefinitions && !validClassNames.has(className)) {
+          brokenRefs.push(`  ${file}: .${className} (${componentName} has keys: ${Object.keys(topLevelStyleDefinitions[componentName].styles(theme)).join(', ')})`);
+        }
+      }
+    }
+
+    if (brokenRefs.length > 0) {
+      // eslint-disable-next-line no-console
+      console.error(`Broken cross-component CSS class references (these selectors will silently fail to match):\n${brokenRefs.join("\n")}`);
+      brokenRefs.length.should.equal(0);
     }
   });
 });
