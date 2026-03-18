@@ -291,14 +291,14 @@ export function buildInflationAdjustedField(): any {
 
 function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, context?: ResolverContext): any {
   // We get the default tag relevance from the database config
-  const tagFilterSettingsWithDefaults: FilterTag[] = filterSettings.tags.map(t =>
+  const tagFilterSettingsWithDefaults: FilterTag[] = filterSettings.tags?.map(t =>
     t.filterMode === "TagDefault" ? {
       tagId: t.tagId,
       tagName: t.tagName,
       filterMode: defaultVisibilityTags.get().find(dft => dft.tagId === t.tagId)?.filterMode || 'Default',
     } :
     t
-  )
+  ) ?? [];
   const tagsRequired = tagFilterSettingsWithDefaults.filter(t=>t.filterMode==="Required");
   const tagsExcluded = tagFilterSettingsWithDefaults.filter(t=>t.filterMode==="Hidden");
   
