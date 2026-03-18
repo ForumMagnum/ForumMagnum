@@ -2,8 +2,7 @@ import { $getRoot, type LexicalEditor } from "lexical";
 import {
   $applyEditReplacement,
   $applyEditReplacementMultiNode,
-  $applySuggestionReplacement,
-  $applySuggestionReplacementMultiNode,
+  $applySuggestionWithNarrowing,
 } from "../../../app/api/agent/replaceText/route";
 import { locateMarkdownQuoteSelectionInSubtree } from "../../../app/api/agent/mapMarkdownToLexical";
 import { getAllSuggestions, runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
@@ -24,22 +23,9 @@ async function replaceTextAsSuggestion(
     if (!result.found || !result.anchor || !result.focus) return;
 
     const { anchor, focus } = result;
-    const sameTextNode = anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
-
-    if (sameTextNode) {
-      replaced = $applySuggestionReplacement({
-        editor,
-        matchedNodeKey: anchor.key,
-        startOffset: anchor.offset,
-        endOffset: focus.offset,
-        replacement,
-        suggestionId: randomId(),
-      });
-    } else {
-      replaced = $applySuggestionReplacementMultiNode({
-        editor, anchor, focus, replacement, suggestionId: randomId(),
-      });
-    }
+    replaced = $applySuggestionWithNarrowing({
+      editor, anchor, focus, replacement, suggestionId: randomId(),
+    });
   });
   return replaced;
 }
@@ -101,13 +87,15 @@ describe("replaceText suggest mode", () => {
     expect(replaced).toBe(true);
 
     const suggestions = getAllSuggestions(editor);
+    // Narrowing strips the common prefix ("This is ") and suffix
+    // (" second paragraph."), leaving only the actual diff.
     expect(suggestions.length).toBe(2);
     expect(suggestions[0].type).toBe("delete");
-    expect(suggestions[0].textContent).toBe("This is a second paragraph.");
+    expect(suggestions[0].textContent).toBe("a");
     expect(suggestions[1].type).toBe("insert");
     // Bold formatting is rendered as Lexical nodes, not literal asterisks,
     // so textContent contains the plain text without markdown syntax.
-    expect(suggestions[1].textContent).toBe("This is the improved second paragraph.");
+    expect(suggestions[1].textContent).toBe("the improved");
   });
 
   it("handles plain text replacement without markdown", async () => {
@@ -124,11 +112,12 @@ describe("replaceText suggest mode", () => {
     expect(replaced).toBe(true);
 
     const suggestions = getAllSuggestions(editor);
+    // Narrowing strips the common suffix (" paragraph."), leaving only the diff.
     expect(suggestions.length).toBe(2);
     expect(suggestions[0].type).toBe("delete");
-    expect(suggestions[0].textContent).toBe("Second paragraph.");
+    expect(suggestions[0].textContent).toBe("Second");
     expect(suggestions[1].type).toBe("insert");
-    expect(suggestions[1].textContent).toBe("Replacement paragraph.");
+    expect(suggestions[1].textContent).toBe("Replacement");
   });
 
   it("handles multi-paragraph replacement in suggest mode", async () => {
@@ -148,11 +137,11 @@ describe("replaceText suggest mode", () => {
     // The delete suggestion should contain the original text
     const deleteSuggestions = suggestions.filter(s => s.type === "delete");
     const insertSuggestions = suggestions.filter(s => s.type === "insert");
+    // Narrowing strips the common suffix ("."), leaving only the diff.
     expect(deleteSuggestions.length).toBe(1);
-    expect(deleteSuggestions[0].textContent).toBe("Second paragraph.");
+    expect(deleteSuggestions[0].textContent).toBe("Second paragraph");
     expect(insertSuggestions.length).toBe(1);
-    // The insert suggestion should contain the full replacement text (both paragraphs)
-    expect(insertSuggestions[0].textContent).toBe("Replacement line one.\n\nReplacement line two.");
+    expect(insertSuggestions[0].textContent).toBe("Replacement line one.\n\nReplacement line two");
   });
 });
 
@@ -214,11 +203,12 @@ describe("replaceText edit mode when quote starts at beginning of text node", ()
     expect(replaced).toBe(true);
 
     const suggestions = getAllSuggestions(editor);
+    // Narrowing strips the common suffix (" world."), leaving only the diff.
     expect(suggestions.length).toBe(2);
     expect(suggestions[0].type).toBe("delete");
-    expect(suggestions[0].textContent).toBe("Hello world.");
+    expect(suggestions[0].textContent).toBe("Hello");
     expect(suggestions[1].type).toBe("insert");
-    expect(suggestions[1].textContent).toBe("Goodbye world.");
+    expect(suggestions[1].textContent).toBe("Goodbye");
   });
 });
 
@@ -257,10 +247,103 @@ describe("replaceText when quote spans formatting boundaries", () => {
     const suggestions = getAllSuggestions(editor);
     const deleteSuggestions = suggestions.filter(s => s.type === "delete");
     const insertSuggestions = suggestions.filter(s => s.type === "insert");
+    // Narrowing strips the common prefix ("has ") and suffix ("t in"),
+    // leaving only the minimal diff. The suffix includes the trailing "t"
+    // because it matches between "text" and "content".
     expect(deleteSuggestions.length).toBe(1);
-    expect(deleteSuggestions[0].textContent).toBe("has bold text in");
+    expect(deleteSuggestions[0].textContent).toBe("bold tex");
     expect(insertSuggestions.length).toBe(1);
-    expect(insertSuggestions[0].textContent).toBe("has improved content in");
+    expect(insertSuggestions[0].textContent).toBe("improved conten");
+  });
+});
+
+describe("replaceText narrowing across multi-node matches", () => {
+  // These tests verify that when quote and replacement share a common
+  // prefix/suffix, the suggestion nodes are narrowed to only the actual
+  // diff rather than wrapping the entire quoted range.
+
+  it("narrows to a pure insertion when only new text is added in the middle", async () => {
+    const editor = await setupEditorWithContent(
+      "This has **bold text** in the middle."
+    );
+
+    // The quote spans bold→plain nodes. The replacement adds "right "
+    // before "in", so narrowing should produce an empty delete and a
+    // small insert of just "right ".
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "**bold text** in",
+      "**bold text** right in",
+    );
+
+    expect(replaced).toBe(true);
+
+    const suggestions = getAllSuggestions(editor);
+    const deleteSuggestions = suggestions.filter(s => s.type === "delete");
+    const insertSuggestions = suggestions.filter(s => s.type === "insert");
+
+    // Without narrowing, the delete would contain "bold text in" and the
+    // insert would contain "bold text right in". With narrowing, only the
+    // actual insertion "right " should appear.
+    expect(deleteSuggestions.length).toBe(1);
+    expect(deleteSuggestions[0].textContent).toBe("");
+    expect(insertSuggestions.length).toBe(1);
+    expect(insertSuggestions[0].textContent).toBe("right ");
+  });
+
+  it("narrows to a pure deletion when text is removed from the middle", async () => {
+    const editor = await setupEditorWithContent(
+      "This has **bold text** right in the middle."
+    );
+
+    // The quote spans bold→plain nodes. The replacement removes "right ",
+    // so narrowing should produce a delete of just "right " and an empty insert.
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "**bold text** right in",
+      "**bold text** in",
+    );
+
+    expect(replaced).toBe(true);
+
+    const suggestions = getAllSuggestions(editor);
+    const deleteSuggestions = suggestions.filter(s => s.type === "delete");
+    const insertSuggestions = suggestions.filter(s => s.type === "insert");
+
+    // Without narrowing, the delete would contain "bold text right in" and
+    // the insert "bold text in". With narrowing, only "right " is deleted.
+    expect(deleteSuggestions.length).toBe(1);
+    expect(deleteSuggestions[0].textContent).toBe("right ");
+    expect(insertSuggestions.length).toBe(1);
+    expect(insertSuggestions[0].textContent).toBe("");
+  });
+
+  it("narrows to a minimal replacement when text differs in the middle", async () => {
+    const editor = await setupEditorWithContent(
+      "This has **bold text** in the middle."
+    );
+
+    // The quote spans bold→plain nodes. The replacement changes "in" to
+    // "near", so narrowing should produce a small delete/insert pair.
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "**bold text** in",
+      "**bold text** near",
+    );
+
+    expect(replaced).toBe(true);
+
+    const suggestions = getAllSuggestions(editor);
+    const deleteSuggestions = suggestions.filter(s => s.type === "delete");
+    const insertSuggestions = suggestions.filter(s => s.type === "insert");
+
+    // Without narrowing, the delete would contain "bold text in" and the
+    // insert "bold text near". With narrowing, only the differing portion
+    // is wrapped: delete "in", insert "near".
+    expect(deleteSuggestions.length).toBe(1);
+    expect(deleteSuggestions[0].textContent).toBe("in");
+    expect(insertSuggestions.length).toBe(1);
+    expect(insertSuggestions[0].textContent).toBe("near");
   });
 });
 
