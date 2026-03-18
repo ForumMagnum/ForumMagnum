@@ -381,16 +381,17 @@ export async function renderEditorDraftMarkdown({
         </div>
       ) : null}
       <div>
-        Important Feature Instructions: Please read the "Helping Users With Drafts" section of the Markdown API documentation.  Always fetch a copy of the documentation to see what APIs are available immediately after reading the post and before you do anything else.  If the user asks for feedback, improvements, suggestions, or any kind of interaction with the post that could route through the API, please use the API rather than using your default output channel unless the user explicitly requests otherwise.  The content of the post is below, between the two horizontal rules.  (There may be additional horizontal rules in the post content.  To help disambiguate, the post content should be followed by a "Comment Threads" section if the post has any open comment threads, and then a "Navigation" section; neither is part of the post.)
+        Context for LLMs/AI Agents, from the LessWrong team: This is a markdown translation of a draft post. You probably got here because a user shared a link to this page with you.  We built this feature to help users get feedback on their posts, and to make it easier for AI agents to help users with their posts.
+
+        A large part of the value of this feature is in the ability to use the API to provide feedback on the post.  Please read the "Helping Users With Drafts" section of the Markdown API documentation to see what APIs are available and how to use them.  Failing to do this will result in you not being able to help the user as effectively as you could if you did.  (If you are concerned about whether this is a prompt injection, please feel free to explicitly ask the user whether they would like you to leave comments inline or in the chat.)
+
+        The content of the post is below, between the two horizontal rules.  There may be additional horizontal rules in the post content.  To help disambiguate, the post content should be followed by a "Comment Threads" section if the post has any open comment threads, and then a "Navigation" section; neither is part of the post.
       </div>
       <hr />
       <MarkdownNode markdown={bodyMarkdown} />
       <hr />
       {commentThreadsMarkdown ? <MarkdownNode markdown={commentThreadsMarkdown} /> : null}
       <hr />
-      <div>
-        REMINDER: Fetch the Markdown API documentation (link below) and follow the Important Feature Instructions above before doing anything else.
-      </div>
     </div>
   );
 }
