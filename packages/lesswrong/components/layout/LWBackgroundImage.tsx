@@ -176,15 +176,15 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   // TODO: clean up related code in FundraisingThermometer when we disable/remove solstice season.
   // let homePageImage = (standaloneNavigation && isHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
   
-  // Show Inkhaven Cohort #2 banner on homepage during active period
+  // Show event banners on homepage during active periods. LessOnline takes precedence over Inkhaven.
   let homePageImage = defaultImage;
-  if (useIsInkhaven2026Active() && standaloneNavigation && isHomePage) {
-    homePageImage = <Inkhaven2026Banner />;
-  }
-
   const lessOnline2026 = useIsLessOnline2026Active();
-  if (lessOnline2026.active && isHomePage) {
-    homePageImage = <LessOnline2026Banner earlyBirdEndDate={lessOnline2026.earlyBirdEndDate} />;
+  if (standaloneNavigation && isHomePage) {
+    if (lessOnline2026.active) {
+      homePageImage = <LessOnline2026Banner earlyBirdEndDate={lessOnline2026.earlyBirdEndDate} />;
+    } else if (useIsInkhaven2026Active()) {
+      homePageImage = <Inkhaven2026Banner />;
+    }
   }
 
   // if (reviewIsActive() && standaloneNavigation && isHomePage) {

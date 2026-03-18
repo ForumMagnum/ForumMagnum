@@ -1,4 +1,5 @@
 import moment from 'moment';
+import classNames from 'classnames';
 import React, { useCallback, useMemo } from 'react';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
@@ -82,21 +83,45 @@ const spotlightItemFallbackStyles = defineStyles("SpotlightItemFallback", (theme
   },
 }));
 
+const responsiveSpotlightStyles = defineStyles("DismissibleSpotlightItem", () => ({
+  showBelowLessOnlineBreakpoint: {
+    ['@media(min-width: 1200px)']: {
+      display: "none",
+    },
+  },
+  showAtOrAboveLessOnlineBreakpoint: {
+    ['@media(max-width: 1199.95px)']: {
+      display: "none",
+    },
+  },
+}));
+
 export const SpotlightItemFallback = () => {
   const classes = useStyles(spotlightItemFallbackStyles);
   return <div className={classes.fallback}/>
 }
 
-export const DismissibleSpotlightItem = ({loadingStyle="spinner", className, spotlightId}: {
+export const DismissibleSpotlightItem = ({loadingStyle="spinner", className, spotlightId, screenVisibility}: {
   loadingStyle?: "placeholder"|"spinner"
   className?: string
   spotlightId?: string | null
+  screenVisibility?: "belowLessOnlineBreakpoint" | "atOrAboveLessOnlineBreakpoint"
 }) => {
+  const classes = useStyles(responsiveSpotlightStyles);
+  const responsiveClassName = screenVisibility === "belowLessOnlineBreakpoint"
+    ? classes.showBelowLessOnlineBreakpoint
+    : screenVisibility === "atOrAboveLessOnlineBreakpoint"
+      ? classes.showAtOrAboveLessOnlineBreakpoint
+      : undefined;
+
   return <SuspenseWrapper
     name="DismissibleSpotlightItem"
     fallback={loadingStyle==="placeholder" ? <SpotlightItemFallback/> : <Loading/>}
   >
-    <DismissibleSpotlightItemInner className={className} spotlightId={spotlightId}/>
+    <DismissibleSpotlightItemInner
+      className={classNames(className, responsiveClassName)}
+      spotlightId={spotlightId}
+    />
   </SuspenseWrapper>
 }
 

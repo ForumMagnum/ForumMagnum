@@ -20,25 +20,10 @@ import UltraFeed from "../ultraFeed/UltraFeed";
 import { StructuredData } from './StructuredData';
 import { SuspenseWrapper } from './SuspenseWrapper';
 import DeferRender from './DeferRender';
-import { defineStyles, useStyles } from '../hooks/useStyles';
 
 import dynamic from 'next/dynamic';
 import { IsReturningVisitorContextProvider } from '@/components/layout/IsReturningVisitorContextProvider';
 const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
-
-const styles = defineStyles("LWHome", (theme: ThemeType) => ({
-  desktopSpotlight: {
-    [theme.breakpoints.down('xs')]: {
-      display: "none",
-    },
-  },
-  mobileSpotlight: {
-    display: "none",
-    [theme.breakpoints.down('xs')]: {
-      display: "block",
-    },
-  },
-}));
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -69,7 +54,6 @@ const getStructuredData = () => ({
 })
 
 const LWHome = () => {
-  const classes = useStyles(styles);
   const mobileSpotlightOverrideId = getActiveMobileSpotlightOverrideId();
 
   return (
@@ -84,10 +68,13 @@ const LWHome = () => {
           </SingleColumnSection>}
         </>}
         {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
-          <DismissibleSpotlightItem loadingStyle="placeholder" className={classes.desktopSpotlight} />
           <DismissibleSpotlightItem
             loadingStyle="placeholder"
-            className={classes.mobileSpotlight}
+            screenVisibility="atOrAboveLessOnlineBreakpoint"
+          />
+          <DismissibleSpotlightItem
+            loadingStyle="placeholder"
+            screenVisibility="belowLessOnlineBreakpoint"
             spotlightId={mobileSpotlightOverrideId}
           />
         </SingleColumnSection>}
