@@ -11,8 +11,7 @@ import ForumIcon from "../../common/ForumIcon";
 import { SuspenseWrapper } from '../../common/SuspenseWrapper';
 import ErrorBoundary from '../../common/ErrorBoundary';
 import { ColoredNumber } from './ColoredNumber';
-import { styles } from './styles';
-import { useStyles } from '../../hooks/useStyles';
+import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import KarmaChangesDisplay from './KarmaChangesDisplay';
 import LWPopper from '../../common/LWPopper';
@@ -20,6 +19,29 @@ import DeferRender from '@/components/common/DeferRender';
 import { useLocation } from '@/lib/routeUtil';
 import { canonicalizePath } from '@/lib/generated/routeManifest';
 import { useMutationNoCache } from '@/lib/crud/useMutationNoCache';
+import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
+
+const styles = defineStyles("KarmaChangeNotifier", (theme: ThemeType) => ({
+  root: {
+    display: 'flex',
+    alignItems: 'center',
+  },
+  placeholder: {},
+  karmaNotifierButton: {},
+  karmaNotifierPaper: {},
+  karmaNotifierPopper: {
+    zIndex: theme.zIndexes.karmaChangeNotifier,
+  },
+  starIcon: {
+    color: theme.palette.header.text,
+    ...isIfAnyoneBuildsItFrontPage({
+      color: theme.palette.text.bannerAdOverlay,
+    }),
+  },
+  pointBadge: {
+    fontSize: '0.9rem'
+  },
+}), { stylePriority: -1 });
 
 const UserKarmaChangesQuery = gql(`
   query KarmaChangeNotifier($documentId: String) {

@@ -630,7 +630,6 @@ interface PostKarmaChange {
   title: string | null;
   slug: string;
   addedReacts: Array<ReactionChange> | null;
-  eaAddedReacts: any;
 }
 
 interface CommentKarmaChange {
@@ -647,7 +646,6 @@ interface CommentKarmaChange {
   tagCommentType: TagCommentType | null;
   tagId: string | null;
   addedReacts: Array<ReactionChange> | null;
-  eaAddedReacts: any;
 }
 
 interface RevisionsKarmaChange {
@@ -658,7 +656,6 @@ interface RevisionsKarmaChange {
   tagSlug: string | null;
   tagName: string | null;
   addedReacts: Array<ReactionChange> | null;
-  eaAddedReacts: any;
 }
 
 interface ReactionChange {

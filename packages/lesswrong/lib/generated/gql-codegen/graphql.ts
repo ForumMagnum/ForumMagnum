@@ -2270,7 +2270,6 @@ export type CommentKarmaChange = {
   collectionName: Scalars['String']['output'];
   commentId: Maybe<Scalars['String']['output']>;
   description: Maybe<Scalars['String']['output']>;
-  eaAddedReacts: Maybe<Scalars['JSON']['output']>;
   postId: Maybe<Scalars['String']['output']>;
   postSlug: Maybe<Scalars['String']['output']>;
   postTitle: Maybe<Scalars['String']['output']>;
@@ -6940,7 +6939,6 @@ export type PostKarmaChange = {
   _id: Scalars['String']['output'];
   addedReacts: Maybe<Array<ReactionChange>>;
   collectionName: Scalars['String']['output'];
-  eaAddedReacts: Maybe<Scalars['JSON']['output']>;
   postId: Scalars['String']['output'];
   scoreChange: Scalars['Int']['output'];
   slug: Scalars['String']['output'];
@@ -10304,7 +10302,6 @@ export type RevisionsKarmaChange = {
   _id: Scalars['String']['output'];
   addedReacts: Maybe<Array<ReactionChange>>;
   collectionName: Scalars['String']['output'];
-  eaAddedReacts: Maybe<Scalars['JSON']['output']>;
   scoreChange: Scalars['Int']['output'];
   tagId: Maybe<Scalars['String']['output']>;
   tagName: Maybe<Scalars['String']['output']>;
