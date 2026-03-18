@@ -8,6 +8,7 @@ import gql from 'graphql-tag';
 import { createRevision } from '../collections/revisions/mutations';
 import { updateTag } from '../collections/tags/mutations';
 import { resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
+import { htmlToYjsStateFromHtml } from '../editor/htmlToYjsState';
 
 export const revisionResolversGraphQLTypeDefs = gql`
   input AutosaveContentType {
@@ -156,16 +157,12 @@ export const revisionResolversGraphQLMutations = {
     const isDraft = 'draft' in dbDocument ? !!dbDocument.draft : true;
     const previousRev = await getLatestRev(documentId, fieldName, context);
 
-    // When converting to lexical, generate the Yjs binary state from the HTML
-    // so the collaborative document can be properly initialized.
-    // Inline import: htmlToYjsBinary transitively imports PlaygroundNodes which
-    // pulls in CSS files that break the codegen CJS loader.
     let yjsState: string | null = null;
     let yjsBinary: Uint8Array | null = null;
     if (targetFormat === 'lexical') {
-      const { htmlToYjsBinary } = await import('../editor/htmlToYjsBinary');
-      yjsBinary = htmlToYjsBinary(convertedData);
-      yjsState = Buffer.from(yjsBinary).toString('base64');
+      const yjs = await htmlToYjsStateFromHtml(convertedData);
+      yjsBinary = yjs.yjsBinary;
+      yjsState = yjs.yjsState;
     }
 
     const originalContents = { type: targetFormat, data: convertedData, yjsState };
