@@ -1,4 +1,5 @@
-import { defineStyles } from "@/components/hooks/useStyles";
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
+import classNames from "classnames";
 
 export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => ({
   profileActionIconButton: {
@@ -247,16 +248,6 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
       opacity: 0.67,
     },
   },
-  "@keyframes slideIn": {
-    from: {
-      opacity: 0,
-      transform: "translateY(10px)",
-    },
-    to: {
-      opacity: 1,
-      transform: "translateY(0)",
-    },
-  },
   "@keyframes panelOpen": {
     from: {
       opacity: 0,
@@ -290,3 +281,32 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     },
   },
 }));
+
+const tabPanelStyles = defineStyles("TabPanel", (theme: ThemeType) => ({
+  tabPanel: {
+    display: "flex",
+    flexDirection: "column",
+    gap: 8,
+    animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
+    "@media (max-width: 630px)": {
+      order: 1,
+    },
+  },
+  "@keyframes slideIn": {
+    from: {
+      opacity: 0,
+      transform: "translateY(10px)",
+    },
+    to: {
+      opacity: 1,
+      transform: "translateY(0)",
+    },
+  },
+}));
+
+export function TabPanel({className, children}: {className?: string, children: React.ReactNode}) {
+  const classes = useStyles(tabPanelStyles);
+  return <div className={classNames(className, classes.tabPanel)}>
+    {children}
+  </div>;
+}

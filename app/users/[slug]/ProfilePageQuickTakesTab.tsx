@@ -1,5 +1,5 @@
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
-import { profileStyles } from "./profileStyles";
+import { profileStyles, TabPanel } from "./profileStyles";
 import { UltraFeedContextProvider } from "@/components/ultraFeed/UltraFeedContextProvider";
 import { UltraFeedObserverProvider } from "@/components/ultraFeed/UltraFeedObserver";
 import { OverflowNavObserverProvider } from "@/components/ultraFeed/OverflowNavObserverContext";
@@ -7,15 +7,6 @@ import UserContentFeed from "@/components/users/UserContentFeed";
 import { z } from "zod";
 
 const profilePageQuickTakesTabUnsharedStyles = defineStyles("ProfilePageQuickTakesTabUnshared", () => ({
-  tabPanel: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 8,
-    animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-    "@media (max-width: 630px)": {
-      order: 1,
-    },
-  },
 }));
 
 export const profilePageQuickTakesTabSettingsSchema = z.object({});
@@ -44,7 +35,7 @@ export function ProfilePageQuickTakesTabContents({user, settings}: {
   const classes = useStyles(profilePageQuickTakesTabUnsharedStyles);
 
   return (
-    <div className={classes.tabPanel}>
+    <TabPanel>
       <UltraFeedContextProvider openInNewTab={true}>
         <UltraFeedObserverProvider incognitoMode={false}>
           <OverflowNavObserverProvider>
@@ -54,6 +45,6 @@ export function ProfilePageQuickTakesTabContents({user, settings}: {
           </OverflowNavObserverProvider>
         </UltraFeedObserverProvider>
       </UltraFeedContextProvider>
-    </div>
+    </TabPanel>
   );
 }
