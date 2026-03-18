@@ -18192,6 +18192,23 @@ type DisplaySpotlightQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 type DisplaySpotlightQueryQuery = DisplaySpotlightQueryQuery_Query;
 
+type DisplaySpotlightByIdQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight = (
+  { __typename?: 'Spotlight' }
+  & SpotlightDisplay
+);
+
+type DisplaySpotlightByIdQueryQuery_spotlight_SingleSpotlightOutput = { __typename?: 'SingleSpotlightOutput', result: DisplaySpotlightByIdQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight | null };
+
+type DisplaySpotlightByIdQueryQuery_Query = { __typename?: 'Query', spotlight: DisplaySpotlightByIdQueryQuery_spotlight_SingleSpotlightOutput | null };
+
+
+type DisplaySpotlightByIdQueryQueryVariables = Exact<{
+  spotlightId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type DisplaySpotlightByIdQueryQuery = DisplaySpotlightByIdQueryQuery_Query;
+
 type updateSpotlightSpotlightFormMutation_updateSpotlight_SpotlightOutput_data_Spotlight = (
   { __typename?: 'Spotlight' }
   & SpotlightEditQueryFragment
