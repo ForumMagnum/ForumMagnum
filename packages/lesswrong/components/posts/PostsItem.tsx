@@ -45,7 +45,7 @@ import { postCanDelete, postGetCommentCount, postGetLastCommentedAt, postGetLast
 
 export const KARMA_WIDTH = 32;
 
-export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
+export const styles = defineStyles("PostsItem", (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
@@ -435,7 +435,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   },
 }), { stylePriority: 1 });
 
-const LWPostsItem = (props: PostsItemConfig) => {
+const PostsItem = (props: PostsItemConfig) => {
   const classes = useStyles(styles);
   const { hover, eventHandlers } = useHover();
   const {
@@ -741,7 +741,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
   )
 };
 
-export default registerComponent('LWPostsItem', LWPostsItem, {
+export default registerComponent('PostsItem', PostsItem, {
   hocs: [withErrorBoundary],
   areEqual: {
     terms: "deep",
