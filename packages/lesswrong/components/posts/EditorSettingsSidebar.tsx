@@ -1030,6 +1030,8 @@ function GoogleDocImportSection({ postId }: { postId: string }) {
   );
 
   const handleImportClick = useCallback(async () => {
+    // Clear any live/local Yjs state before the import replaces the server copy.
+    await disconnectCollaborationForPost(postId);
     void importGoogleDocMutation({
       variables: { fileUrl: googleDocUrl, postId },
     });

@@ -23,6 +23,8 @@ import { getCollaborativeEditorAccessWithKey } from '@/lib/collections/posts/col
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { getViewablePostsSelector } from '@/server/repos/helpers';
 import { getUserDefaultRichTextEditor } from '@/lib/editor/defaultRichTextEditor';
+import { resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
+import { htmlToYjsStateFromHtml } from '../editor/htmlToYjsState';
 import jwt from 'jsonwebtoken';
 
 interface PostWithApprovedJargon {
@@ -491,7 +493,10 @@ export const postGqlMutations = {
       const richTextEditorType = (previousEditorType === "lexical" || previousEditorType === "ckEditorMarkup")
         ? previousEditorType
         : fallbackRichTextEditorType;
-      const originalContents = { type: richTextEditorType, data: importedHtml, yjsState: null };
+      const yjs = richTextEditorType === "lexical"
+        ? await htmlToYjsStateFromHtml(importedHtml)
+        : null;
+      const originalContents = { type: richTextEditorType, data: importedHtml, yjsState: yjs?.yjsState ?? null };
       // Revision type controls whether we increase the major or minor version
       // number; if we increase the major version number it flags it to
       // end-users and shows a version-history dropdown. This was built
@@ -518,9 +523,16 @@ export const postGqlMutations = {
 
       await createRevision({ data: newRevision }, context);
 
+      if (richTextEditorType === "lexical" && yjs) {
+        await resetHocuspocusDocument(`post-${postId}`, yjs.yjsBinary);
+      }
+
       return await Posts.findOne({_id: postId})
     } else {
-      const originalContents = { type: fallbackRichTextEditorType, data: importedHtml, yjsState: null };
+      const yjs = fallbackRichTextEditorType === "lexical"
+        ? await htmlToYjsStateFromHtml(importedHtml)
+        : null;
+      const originalContents = { type: fallbackRichTextEditorType, data: importedHtml, yjsState: yjs?.yjsState ?? null };
       let afField = {};
       if (isAF()) {
         afField = !userCanDo(currentUser, 'posts.alignment.new')
