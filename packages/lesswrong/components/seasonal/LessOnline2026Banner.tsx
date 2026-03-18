@@ -108,12 +108,14 @@ export const LessOnline2026Banner = ({earlyBirdEndDate}: {earlyBirdEndDate: Date
   const now = useCurrentTime();
   const timeRemaining = earlyBirdEndDate.getTime() - now.getTime();
   const daysRemaining = Math.ceil(timeRemaining / (1000 * 60 * 60 * 24));
+  const earlyBirdActive = timeRemaining > 0;
 
   const countdownText = daysRemaining > 0
     ? `in ${daysRemaining} day${daysRemaining === 1 ? '' : 's'}`
     : daysRemaining === 0
     ? 'today'
-    : 'deadline passed';
+    : null;
+  const buttonPrice = earlyBirdActive ? '$550' : '$675';
 
   return (
     <AnalyticsContext pageSectionContext="lessOnline2026Banner">
@@ -128,9 +130,9 @@ export const LessOnline2026Banner = ({earlyBirdEndDate}: {earlyBirdEndDate: Date
         </div>
         <div className={classes.bannerText}>
           <h2><a href="http://less.online">LessOnline 2026</a></h2>
-          <h3>Early bird tickets increase {countdownText}</h3>
+          {countdownText && <h3>Early bird tickets increase {countdownText}</h3>}
           <div className={classes.dateAndLocation}>Join our Festival of Blogging and Truthseeking from Jun 5 - Jun 7, Berkeley, CA</div>
-          <a href="http://less.online/" target="_blank" rel="noopener noreferrer"><button>Buy Tickets — $550</button></a>
+          <a href="http://less.online/" target="_blank" rel="noopener noreferrer"><button>Buy Tickets — {buttonPrice}</button></a>
         </div>
       </div>
     </AnalyticsContext>

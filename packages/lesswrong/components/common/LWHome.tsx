@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { getActiveMobileSpotlightOverrideId, showReviewOnFrontPageIfActive, ultraFeedEnabledSetting, isLW, isAF } from '@/lib/instanceSettings';
+import { showReviewOnFrontPageIfActive, ultraFeedEnabledSetting, isLW, isAF } from '@/lib/instanceSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
@@ -39,6 +39,15 @@ const styles = defineStyles("LWHome", () => ({
   },
 }));
 
+const LESSONLINE_MOBILE_SPOTLIGHT_ID = 'hSdzjMYuyFewrw74y';
+const LESSONLINE_MOBILE_SPOTLIGHT_UNTIL = new Date('2026-03-24T00:00:00Z');
+
+const getLessOnlineMobileSpotlightOverrideId = (now: Date = new Date()): string | null => (
+  now.getTime() < LESSONLINE_MOBILE_SPOTLIGHT_UNTIL.getTime()
+    ? LESSONLINE_MOBILE_SPOTLIGHT_ID
+    : null
+);
+
 const getStructuredData = () => ({
   "@context": "http://schema.org",
   "@type": "WebSite",
@@ -69,7 +78,7 @@ const getStructuredData = () => ({
 
 const LWHome = () => {
   const classes = useStyles(styles);
-  const mobileSpotlightOverrideId = getActiveMobileSpotlightOverrideId();
+  const mobileSpotlightOverrideId = getLessOnlineMobileSpotlightOverrideId();
 
   return (
       <AnalyticsContext pageContext="homePage">

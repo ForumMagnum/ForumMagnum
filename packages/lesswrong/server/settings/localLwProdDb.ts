@@ -83,9 +83,5 @@ export const localLwProdDb = merge({
       }
     ]
   },
-  mobileSpotlightOverride: {
-    id: "hSdzjMYuyFewrw74y",
-    until: "2026-03-24T00:00:00Z",
-  },
   ultraFeedEnabled: true,
 }, sharedSettings);
