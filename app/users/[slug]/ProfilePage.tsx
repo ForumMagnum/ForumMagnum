@@ -7,26 +7,18 @@ import { userGetEditUrl } from "@/lib/vulcan-users/helpers";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { getUserFromResults } from "@/components/users/UsersProfile";
 import { useCurrentUser } from "@/components/common/withUser";
-import classNames from "classnames";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import UsersNameWithModal from "@/components/ultraFeed/UsersNameWithModal";
 import LWTooltip from "@/components/common/LWTooltip";
-import UserMetaInfo from "@/components/users/UserMetaInfo";
-import UserNotifyDropdown from "@/components/notifications/UserNotifyDropdown";
-import NewConversationButton from "@/components/messaging/NewConversationButton";
-import ContentStyles from "@/components/common/ContentStyles";
-import { ContentItemBody } from "@/components/contents/ContentItemBody";
 import EditIcon from "@/lib/vendor/@material-ui/icons/src/Edit";
 import VisibilityOutlinedIcon from "@/lib/vendor/@material-ui/icons/src/VisibilityOutlined";
 import { Link } from "@/lib/reactRouterWrapper";
 import { nofollowKarmaThreshold } from "@/lib/instanceSettings";
-import { profileStyles } from "./profileStyles";
 import Error404 from "@/components/common/Error404";
 import { StatusCodeSetter } from "@/components/next/StatusCodeSetter";
 import { UserProfileTopPostsSection } from "./UserProfileTopPostsSection";
-import { getCollapsedBioHtml } from "./userProfilePageUtil";
 import { ProfilePageTabbedSection } from "./ProfilePageTabbedSection";
-import { ProfilePageSidebar } from "./ProfilePageSidebar";
+import { ProfilePageMobileBio, ProfilePageSidebar } from "./ProfilePageSidebar";
 
 const profilePageUnsharedStyles = defineStyles("ProfilePageUnshared", (theme: ThemeType) => ({
   page: {
@@ -132,63 +124,12 @@ const profilePageUnsharedStyles = defineStyles("ProfilePageUnshared", (theme: Th
   profileActionIcon: {
     fontSize: 16,
   },
-  mobileProfileBio: {
-    display: "none",
-    margin: "0 0 30px",
-    padding: "30px 0 30px",
-    borderBottom: theme.palette.type === "dark"
-      ? theme.palette.greyBorder("1px", 0.28)
-      : "1px solid rgba(140,110,70,.14)",
-    "@media (max-width: 630px)": {
-      display: "block",
-    },
-  },
-  mobileProfileName: {
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 13,
-    fontWeight: 400,
-    margin: 0,
-    color: theme.palette.text.normal,
-    textTransform: "uppercase",
-    letterSpacing: 0.8,
-  },
-  mobileProfileHeaderRow: {
-    display: "flex",
-    alignItems: "baseline",
-    justifyContent: "space-between",
-    gap: 12,
-    marginBottom: 10,
-  },
-  mobileProfileActions: {
-    display: "flex",
-    alignItems: "center",
-    gap: 12,
-    margin: 0,
-  },
-  mobileMetaInfo: {
-    marginTop: 12,
-    color: theme.palette.text.dim,
-    "& > div": {
-      flexWrap: "wrap",
-      gap: "4px 0",
-    },
-    "& > div > div": {
-      marginRight: "14px !important",
-    },
-  },
   allPostsSection: {
     marginTop: 30,
     display: "flex",
     gap: 25,
     "@media (max-width: 630px)": {
       flexDirection: "column",
-    },
-  },
-  sidebarActionDisabled: {
-    color: theme.palette.primary.light,
-    cursor: "default",
-    "&:hover": {
-      opacity: 1,
     },
   },
 }));
@@ -313,71 +254,4 @@ function ProfileHeaderActions({user}: {
       )}
     </div>
   )
-}
-
-function ProfilePageMobileBio({user, bioNoFollow}: {
-  user: UsersProfile,
-  bioNoFollow: boolean
-}) {
-  const sharedClasses = useStyles(profileStyles);
-  const classes = useStyles(profilePageUnsharedStyles);
-  const currentUser = useCurrentUser();
-
-  const [bioExpanded, setBioExpanded] = useState(false);
-  const bioHtml = user?.htmlBio ?? "";
-  const collapsedBioHtml = getCollapsedBioHtml(bioHtml);
-  const displayBioHtml = bioExpanded ? bioHtml : collapsedBioHtml;
-  const showBioExpand = !!bioHtml && collapsedBioHtml !== bioHtml;
-
-  const isOwnProfile = !!currentUser && user && currentUser._id === user._id;
-  const canSubscribeToUser = !isOwnProfile;
-  const canMessageUser = !!currentUser && !isOwnProfile;
-
-  if (!bioHtml && !user) return null;
-
-  return <div className={classes.mobileProfileBio}>
-    <div className={classes.mobileProfileHeaderRow}>
-      <h4 className={classes.mobileProfileName}>{userGetDisplayName(user)}</h4>
-      <div className={classes.mobileProfileActions}>
-        {canSubscribeToUser ? (
-          <UserNotifyDropdown
-            user={user}
-            popperPlacement="bottom-start"
-            className={sharedClasses.sidebarSubscribe}
-          />
-        ) : (
-          <span className={classNames(sharedClasses.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
-        )}
-        {canMessageUser ? (
-          <NewConversationButton user={user} currentUser={currentUser}>
-            <a className={sharedClasses.sidebarMore}>Message</a>
-          </NewConversationButton>
-        ) : (
-          <span className={classNames(sharedClasses.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
-        )}
-      </div>
-    </div>
-    {bioHtml && <ContentStyles contentType="post" className={sharedClasses.sidebarAuthorBioContent}>
-      <ContentItemBody
-        className={sharedClasses.sidebarAuthorBio}
-        dangerouslySetInnerHTML={{ __html: displayBioHtml }}
-        nofollow={bioNoFollow}
-      />
-    </ContentStyles>}
-    {showBioExpand && <div className={sharedClasses.readMore}>
-      <a
-        href="#"
-        className={sharedClasses.readMoreLink}
-        onClick={(e) => {
-          e.preventDefault();
-          setBioExpanded(!bioExpanded);
-        }}
-      >
-        {bioExpanded ? "See less" : "See more"}
-      </a>
-    </div>}
-    {user && <div className={classes.mobileMetaInfo}>
-      <UserMetaInfo user={user} />
-    </div>}
-  </div>
 }

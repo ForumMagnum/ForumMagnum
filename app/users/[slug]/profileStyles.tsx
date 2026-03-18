@@ -74,42 +74,6 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
   profileFeedTopMargin: {
     marginTop: 16,
   },
-  sidebarAuthorBio: {
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 14,
-    lineHeight: 1.6,
-    color: theme.palette.text.dim55,
-    fontWeight: 400,
-    margin: 0,
-  },
-  sidebarAuthorBioContent: {
-    // Normalize typography across all rendered block types in bio HTML.
-    "& p, & ul, & ol, & li, & blockquote, & pre, & h1, & h2, & h3, & h4, & h5, & h6, & table, & th, & td": {
-      fontFamily: theme.typography.fontFamily,
-      fontSize: 14,
-      lineHeight: 1.6,
-      color: theme.palette.text.dim55,
-      fontWeight: 400,
-    },
-    "& p": {
-      marginTop: 0,
-      marginBottom: 12,
-    },
-    "& p:last-child": {
-      marginBottom: 0,
-    },
-    "& ul, & ol": {
-      marginTop: 0,
-      marginBottom: 12,
-      paddingLeft: 20,
-    },
-    "& li": {
-      marginBottom: 4,
-    },
-    "& li:last-child": {
-      marginBottom: 0,
-    },
-  },
   readMore: {
     textAlign: "left",
     marginTop: 12,
@@ -120,29 +84,6 @@ export const profileStyles = defineStyles("ProfilePage", (theme: ThemeType) => (
     color: theme.palette.primary.main,
     textDecoration: "none",
     fontWeight: 400,
-    "&:hover": {
-      opacity: 0.67,
-    },
-  },
-  sidebarSubscribe: {
-    fontFamily: theme.typography.fontFamily,
-    color: theme.palette.primary.main,
-    fontSize: 14,
-    cursor: "pointer",
-    display: "inline-block",
-    fontWeight: 400,
-    "&:hover": {
-      opacity: 0.67,
-    },
-  },
-  sidebarMore: {
-    fontFamily: theme.typography.fontFamily,
-    color: theme.palette.primary.main,
-    fontSize: 14,
-    cursor: "pointer",
-    display: "inline-block",
-    fontWeight: 400,
-    textDecoration: "none",
     "&:hover": {
       opacity: 0.67,
     },
