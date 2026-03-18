@@ -73,7 +73,7 @@ const styles = defineStyles("QuickTakesEntry", (theme: ThemeType) => ({
     '& .ck .ck-placeholder': {
       position: 'unset'
     },
-    '& .CommentSubmit-submitQuickTakes': {
+    '& .CommentSubmit-submit': {
       display: 'none'
     }
   },
