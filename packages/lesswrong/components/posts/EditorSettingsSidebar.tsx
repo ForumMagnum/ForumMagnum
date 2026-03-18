@@ -456,10 +456,20 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     fontSize: 13,
     fontWeight: 600,
     color: theme.palette.text.alwaysWhite,
+    textDecoration: "none",
     transition: "all 0.15s ease",
     "&:hover": {
       background: theme.palette.buttons.shareWithClaudeHover,
+      // By default, links get opacity 0.5 in our codebase, but we want this to feel more like a button
+      opacity: 'initial',
     },
+  },
+  openInClaudeButtonTooltip: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    width: "100%",
   },
   shareLinkIcon: {
     fontSize: 15,
@@ -823,6 +833,8 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
   flash: (message: string) => void;
 }) {
   const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
+
   const postId = form.state.values._id;
   const linkSharingKey = form.state.values.linkSharingKey ?? undefined;
 
@@ -846,21 +858,29 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
                 </div>;
               }
 
+              const claudeUrl = `https://www.claude.ai/new?q=${encodeURIComponent(getFeedbackQuery(postId, linkSharingKey))}`;
               const shareWithClaudeButton = (
-                <button
-                  type="button"
+                <a
+                  href={claudeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={classes.openInClaudeButton}
                   onClick={() => {
+                    captureEvent("shareWithClaudeClicked", { postId });
                     field.handleChange({
                       ...settings,
                       ...(settings.anyoneWithLinkCan === 'none' ? { anyoneWithLinkCan: "edit" } : {}),
                     });
-                    window.open(`https://www.claude.ai/new?q=${encodeURIComponent(getFeedbackQuery(postId, linkSharingKey))}`, '_blank');
                   }}
+                >
+                <LWTooltip
+                  className={classes.openInClaudeButtonTooltip}
+                  title="Opens a new conversation in claude.ai with our default feedback prompt.  If you change it, you need to explicitly tell Claude to leave feedback in the editor, or it will respond to you in chat.  (We can't do this for you since it's treated as a prompt injection.)"
                 >
                   <ForumIcon icon="OpenInNew" className={classes.shareLinkIcon} />
                   Claude
-                </button>
+                </LWTooltip>
+                </a>
               );
 
               const shareLinkButton = (
