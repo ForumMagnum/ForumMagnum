@@ -1,9 +1,86 @@
 import axios from 'axios';
 import cheerio, { type Element, type Cheerio, type Node } from 'cheerio';
+import JSZip from 'jszip';
+import path from 'node:path';
 import { convertImagesInHTML, uploadBufferToCloudinary } from '../scripts/convertImagesToCloudinary';
 import { extractTableOfContents } from '@/lib/tableOfContents';
 import { dataToCkEditor, markdownToHtml } from './conversionUtils';
 import { parseDocumentFromString } from '@/lib/domParser';
+
+const GOOGLE_DOC_MARKDOWN_IMAGE_DEFINITION_REGEX = /^\[([^\]]+)\]:\s*<?(\S+)>?\s*$/gm;
+
+function googleDocImageFileNameToMimeType(fileName: string): string | null {
+  const extension = path.posix.extname(fileName).toLowerCase();
+  switch (extension) {
+    case '.jpg':
+    case '.jpeg':
+      return 'image/jpeg';
+    case '.png':
+      return 'image/png';
+    case '.gif':
+      return 'image/gif';
+    case '.webp':
+      return 'image/webp';
+    case '.svg':
+      return 'image/svg+xml';
+    default:
+      return null;
+  }
+}
+
+async function getGoogleDocOriginalImageDataUris(zipBuffer: Buffer): Promise<Record<string, string>> {
+  const zip = await JSZip.loadAsync(zipBuffer);
+  const originalImageDataUris: Record<string, string> = {};
+
+  for (const zipEntry of Object.values(zip.files)) {
+    if (zipEntry.dir) {
+      continue;
+    }
+
+    const pathSegments = zipEntry.name.split('/');
+    if (pathSegments.length < 2 || pathSegments[pathSegments.length - 2] !== 'images') {
+      continue;
+    }
+
+    const fileName = path.posix.basename(zipEntry.name);
+    const mimeType = googleDocImageFileNameToMimeType(fileName);
+    if (!mimeType) {
+      continue;
+    }
+
+    const label = path.posix.parse(fileName).name;
+    const buffer = await zipEntry.async('nodebuffer');
+    originalImageDataUris[label] = `data:${mimeType};base64,${buffer.toString('base64')}`;
+  }
+
+  return originalImageDataUris;
+}
+
+export async function replaceGoogleDocMarkdownImagesWithOriginals({
+  markdown,
+  zipBuffer,
+}: {
+  markdown: string;
+  zipBuffer: Buffer;
+}): Promise<string> {
+  const originalImageDataUris = await getGoogleDocOriginalImageDataUris(zipBuffer);
+
+  return markdown.replace(
+    GOOGLE_DOC_MARKDOWN_IMAGE_DEFINITION_REGEX,
+    (fullMatch: string, label: string, url: string) => {
+      if (!url.startsWith('data:image/')) {
+        return fullMatch;
+      }
+
+      const originalImageDataUri = originalImageDataUris[label];
+      if (!originalImageDataUri) {
+        return fullMatch;
+      }
+
+      return `[${label}]: <${originalImageDataUri}>`;
+    }
+  );
+}
 
 /**
  * Convert the footnotes we get in google doc html to a format ckeditor can understand. This is mirroring the logic
@@ -437,11 +514,15 @@ function removeEmptyBodyParagraphs(html: string): string {
   return $.html();
 }
 
-export async function convertImportedGoogleDocMarkdown({markdown, postId}: {
+export async function convertImportedGoogleDocMarkdown({markdown, postId, googleDocZipBuffer}: {
   markdown: string,
-  postId: string
+  postId: string,
+  googleDocZipBuffer?: Buffer,
 }): Promise<string> {
-  const html = await markdownToHtml(markdown);
+  const markdownWithOriginalImages = googleDocZipBuffer
+    ? await replaceGoogleDocMarkdownImagesWithOriginals({ markdown, zipBuffer: googleDocZipBuffer })
+    : markdown;
+  const html = await markdownToHtml(markdownWithOriginalImages);
   const { html: rehostedHtml } = await convertImagesInHTML(html, postId, _ => true);
   return rehostedHtml;
 }

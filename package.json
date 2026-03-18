@@ -200,6 +200,7 @@
     "json-stringify-deterministic": "^1.0.8",
     "jsonwebtoken": "^9.0.3",
     "jss": "^10.10.0",
+    "jszip": "^3.10.1",
     "juice": "^7.0.0",
     "katex": "^0.16.27",
     "keycode": "^2.2.1",

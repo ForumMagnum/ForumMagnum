@@ -14,7 +14,7 @@ import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { FilterPostsForReview } from '@/components/bookmarks/ReadHistoryTab';
 import gql from "graphql-tag";
 import { createPaginatedResolver } from './paginatedResolver';
-import { convertImportedGoogleDoc, convertImportedGoogleDocMarkdown } from '../editor/googleDocUtils';
+import { convertImportedGoogleDocMarkdown } from '../editor/googleDocUtils';
 import { createPost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
@@ -30,6 +30,55 @@ import jwt from 'jsonwebtoken';
 interface PostWithApprovedJargon {
   post: Partial<DbPost>;
   jargonTerms: Partial<DbJargonTerm>[];
+}
+
+type GoogleDocExportFormat = 'markdown' | 'zip';
+
+const GOOGLE_DOC_IMPORT_USER_AGENT = 'Mozilla/5.0 (compatible; ForumMagnum/1.0)';
+
+function createGoogleDocImportError(message: string) {
+  return Object.assign(new Error(message), { isGoogleDocImportError: true as const });
+}
+
+function isGoogleDocImportError(error: unknown): error is Error & { isGoogleDocImportError: true } {
+  return error instanceof Error && 'isGoogleDocImportError' in error && error.isGoogleDocImportError === true;
+}
+
+function googleDocExportUrl(fileId: string, format: GoogleDocExportFormat) {
+  return `https://docs.google.com/document/d/${fileId}/export?format=${format}`;
+}
+
+async function fetchGoogleDocExport(fileId: string, format: GoogleDocExportFormat) {
+  let response: Response;
+
+  try {
+    response = await fetch(googleDocExportUrl(fileId, format), {
+      signal: AbortSignal.timeout(30000),
+      headers: {
+        'User-Agent': GOOGLE_DOC_IMPORT_USER_AGENT,
+      },
+    });
+  } catch (error) {
+    if (error instanceof Error && (error.name === 'TimeoutError' || error.name === 'AbortError')) {
+      throw createGoogleDocImportError('Request timed out while fetching document. Please try again.');
+    }
+
+    throw error;
+  }
+
+  if (response.status === 404) {
+    throw createGoogleDocImportError("Document not found. Please ensure the document is publicly accessible (set to 'Anyone with the link can view')");
+  }
+
+  if (response.status === 401 || response.status === 403) {
+    throw createGoogleDocImportError("Access denied. Please ensure the document is publicly accessible (set to 'Anyone with the link can view')");
+  }
+
+  if (!response.ok) {
+    throw createGoogleDocImportError(`Failed to fetch Google Doc export (${response.status})`);
+  }
+
+  return response;
 }
 
 const {Query: CuratedAndPopularThisWeekQuery, typeDefs: CuratedAndPopularThisWeekTypeDefs } = createPaginatedResolver({
@@ -445,36 +494,38 @@ export const postGqlMutations = {
       }
     }
 
-    // Fetch the HTML directly from the public export URL
-    const exportUrl = `https://docs.google.com/document/d/${fileId}/export?format=markdown`;
-
     let markdown: string;
-    let docTitle: string;
+    let googleDocZipBuffer: Buffer | undefined;
 
     try {
-      const response = await fetch(exportUrl, {
-        signal: AbortSignal.timeout(30000),
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; ForumMagnum/1.0)'
-        }
-      });
-
-      markdown = await response.text();
+      const [markdownResponse, zipResponse] = await Promise.all([
+        fetchGoogleDocExport(fileId, 'markdown'),
+        fetchGoogleDocExport(fileId, 'zip'),
+      ]);
+      const [markdownText, zipArrayBuffer] = await Promise.all([
+        markdownResponse.text(),
+        zipResponse.arrayBuffer(),
+      ]);
+      markdown = markdownText;
+      googleDocZipBuffer = Buffer.from(zipArrayBuffer);
 
       if (!markdown || markdown.length === 0) {
-        throw new Error("Received empty result from Google Docs");
+        throw createGoogleDocImportError("Received empty result from Google Docs");
+      }
+    } catch (error) {
+      if (isGoogleDocImportError(error)) {
+        throw error;
       }
 
-    } catch (error: any) {
-      if (error.response?.status === 404) {
-        throw new Error("Document not found. Please ensure the document is publicly accessible (set to 'Anyone with the link can view')");
-      } else if (error.response?.status === 403 || error.response?.status === 401) {
-        throw new Error("Access denied. Please ensure the document is publicly accessible (set to 'Anyone with the link can view')");
-      } else if (error.code === 'ECONNABORTED' || error.code === 'ETIMEDOUT') {
-        throw new Error("Request timed out while fetching document. Please try again.");
-      } else {
+      if (error instanceof Error) {
         throw new Error(`Failed to import Google Doc: ${error.message}`);
       }
+
+      throw new Error('Failed to import Google Doc');
+    }
+
+    if (!googleDocZipBuffer) {
+      throw new Error('Failed to import Google Doc zip export');
     }
 
     const finalPostId = postId ?? randomId()
@@ -482,7 +533,11 @@ export const postGqlMutations = {
     // Converting to ckeditor markup does some thing like removing styles to standardise
     // the result, so we always want to do this first before converting to whatever format the user
     // is using
-    const importedHtml = await convertImportedGoogleDocMarkdown({ markdown, postId: finalPostId })
+    const importedHtml = await convertImportedGoogleDocMarkdown({
+      markdown,
+      postId: finalPostId,
+      googleDocZipBuffer,
+    })
     //const importedHtml = await convertImportedGoogleDoc({ html, postId: finalPostId })
     const commitMessage = `[Google Doc import]`
     const fallbackRichTextEditorType = getUserDefaultRichTextEditor(currentUser);
