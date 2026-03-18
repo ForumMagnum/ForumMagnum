@@ -30,11 +30,9 @@ export default async function RootLayout({
           <ClientIDAssignerServer/>
           <PageBackgroundColorSwitcher/>
         </Suspense>
-        <Suspense>
-          <ClientAppGeneratorWithRequestId>
-            {children}
-          </ClientAppGeneratorWithRequestId>
-        </Suspense>
+        <ClientAppGeneratorWithRequestId>
+          {children}
+        </ClientAppGeneratorWithRequestId>
       </BodyWithBackgroundColor>
     </html>
   );

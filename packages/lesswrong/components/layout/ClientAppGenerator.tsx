@@ -143,17 +143,10 @@ const ClientAppGenerator = ({ abTestGroupsUsed, requestId, children }: {
   requestId: string,
   children: React.ReactNode,
 }) => {
-  const universalCookies = useGetUniversalCookies();
-  const urlSearchParams = useSearchParams();
-  const loginToken = universalCookies.get('loginToken');
-
   return <TimeProvider>
-    <ApolloWrapper
-      loginToken={loginToken ?? null}
-      requestId={requestId}
-      searchParams={Object.fromEntries(urlSearchParams.entries())}
-    >
-      <CookiesProvider cookies={universalCookies}>
+    <Suspense>
+    <ApolloWrapper requestId={requestId}>
+      <CookiesProvider>
         <UserContextProvider>
           <ThemeContextProvider>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
@@ -171,23 +164,8 @@ const ClientAppGenerator = ({ abTestGroupsUsed, requestId, children }: {
         </UserContextProvider>
       </CookiesProvider>
     </ApolloWrapper>
+    </Suspense>
   </TimeProvider>
 };
-
-const useGetUniversalCookies = () => {
-  if (isServer) {
-    const { cookies } = use(import('next/headers'));
-    const serverCookies = use(cookies());
-    const parsedCookies = serverCookies.getAll();
-    return new Cookies(Object.fromEntries(parsedCookies.map((cookie) => [cookie.name, cookie.value])));
-  } else {
-    const browserCookies = document.cookie;
-    const parsedCookies = browserCookies.split(';').map((cookie) => {
-      const [name, value] = cookie.split('=');
-      return { name, value };
-    });
-    return new Cookies(browserCookies);
-  }
-}
 
 export default ClientAppGenerator;
