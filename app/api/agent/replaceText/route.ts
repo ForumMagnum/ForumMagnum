@@ -7,7 +7,7 @@ import { JSDOM } from "jsdom";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { markdownToHtml } from "@/server/editor/conversionUtils";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
-import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, normalizeText, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, withMainDocEditorSession } from "../editorAgentUtil";
 import { sleep } from "@/lib/utils/asyncUtils";
 import { locateMarkdownQuoteSelectionInSubtree, markdownQuoteToPlainText, type MarkdownSelectionPoint } from "../mapMarkdownToLexical";
 import { replaceTextToolSchema, type ReplaceMode } from "../toolSchemas";
@@ -274,8 +274,8 @@ function computeCommonPrefixSuffix(a: string, b: string): { prefixLen: number, s
  * last entry is a sentinel equal to `markdown.length`, used when no suffix
  * needs to be trimmed.
  */
-function buildPlainToMarkdownMapping(markdown: string, precomputedPlainText?: string): { plainText: string, toMarkdown: number[] } {
-  const plainText = precomputedPlainText ?? markdownQuoteToPlainText(markdown);
+function buildPlainToMarkdownMapping(markdown: string): { plainText: string, toMarkdown: number[] } {
+  const plainText = markdownQuoteToPlainText(markdown);
   const toMarkdown: number[] = [];
   let mdIdx = 0;
   for (let plainIdx = 0; plainIdx < plainText.length; plainIdx++) {
@@ -290,38 +290,42 @@ function buildPlainToMarkdownMapping(markdown: string, precomputedPlainText?: st
 }
 
 /**
- * Narrow a replacement markdown string by trimming `prefixLen` plain-text
- * characters from the start and `suffixLen` from the end. Uses the
- * plain-to-markdown mapping so that formatting markers surrounding the
- * narrowed portion are preserved when possible.
- *
- * If the resulting slice produces malformed markdown (i.e. its plain-text
- * rendering doesn't match the expected narrowed plain text), falls back to
- * returning the narrowed plain text directly.
+ * Count how many plain-text characters fall within the first `mdPrefixLen`
+ * markdown characters, using the plain-to-markdown mapping built on the
+ * full string. This correctly handles partial markdown constructs (e.g.
+ * a prefix that ends inside a link URL) because the mapping is built with
+ * the full string's regex context.
  */
-function narrowReplacementMarkdown(
-  replacementMarkdown: string,
-  replacementPlainText: string,
-  prefixLen: number,
-  suffixLen: number,
-): { narrowedMarkdown: string, narrowedPlainText: string } {
-  if (prefixLen === 0 && suffixLen === 0) {
-    return { narrowedMarkdown: replacementMarkdown, narrowedPlainText: replacementPlainText };
+function countPlainTextInPrefix(toMarkdown: number[], mdPrefixLen: number): number {
+  let count = 0;
+  // Exclude the sentinel (last entry)
+  for (let i = 0; i < toMarkdown.length - 1; i++) {
+    if (toMarkdown[i] < mdPrefixLen) {
+      count++;
+    } else {
+      break; // toMarkdown is monotonically increasing
+    }
   }
+  return count;
+}
 
-  const { plainText, toMarkdown } = buildPlainToMarkdownMapping(replacementMarkdown, replacementPlainText);
-  const mdStart = toMarkdown[prefixLen];
-  const mdEnd = toMarkdown[plainText.length - suffixLen];
-  const narrowed = replacementMarkdown.slice(mdStart, mdEnd);
-
-  const narrowedPlainText = plainText.slice(prefixLen, plainText.length - suffixLen);
-  const actualPlainText = markdownQuoteToPlainText(narrowed);
-
-  // Prefer exact match; fall back to normalized comparison (whitespace/case insensitive)
-  if (actualPlainText === narrowedPlainText || normalizeText(actualPlainText) === normalizeText(narrowedPlainText)) {
-    return { narrowedMarkdown: narrowed, narrowedPlainText };
+/**
+ * Count how many plain-text characters fall within the last `mdSuffixLen`
+ * markdown characters.
+ */
+function countPlainTextInSuffix(toMarkdown: number[], markdownLength: number, mdSuffixLen: number): number {
+  if (mdSuffixLen === 0) return 0;
+  const threshold = markdownLength - mdSuffixLen;
+  let count = 0;
+  // Walk backwards from the last non-sentinel entry
+  for (let i = toMarkdown.length - 2; i >= 0; i--) {
+    if (toMarkdown[i] >= threshold) {
+      count++;
+    } else {
+      break;
+    }
   }
-  return { narrowedMarkdown: narrowedPlainText, narrowedPlainText };
+  return count;
 }
 
 /**
@@ -413,6 +417,43 @@ function $retreatPoint(
 }
 
 /**
+ * Some zero-width positions sit exactly on a text-node boundary, so Lexical can
+ * represent the same insertion point as either "end of left node" or "start of
+ * right node". Normalize those equivalent points to a single text position.
+ */
+function $getEquivalentInsertionPoint(
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+): MarkdownSelectionPoint | null {
+  if (anchor.type !== "text" || focus.type !== "text") return null;
+
+  if (anchor.key === focus.key && anchor.offset === focus.offset) {
+    return anchor;
+  }
+
+  const anchorNode = $getNodeByKey(anchor.key);
+  const focusNode = $getNodeByKey(focus.key);
+  if (!$isTextNode(anchorNode) || !$isTextNode(focusNode)) return null;
+
+  const anchorAtEnd = anchor.offset === anchorNode.getTextContent().length;
+  const focusAtStart = focus.offset === 0;
+  if (anchorAtEnd && focusAtStart && anchorNode.getNextSibling()?.getKey() === focus.key) {
+    return focus;
+  }
+
+  // Defensive: handle the reverse case where focus precedes anchor in sibling
+  // order. This shouldn't arise from the narrowing logic but guards against
+  // unexpected selection orientations.
+  const anchorAtStart = anchor.offset === 0;
+  const focusAtEnd = focus.offset === focusNode.getTextContent().length;
+  if (anchorAtStart && focusAtEnd && focusNode.getNextSibling()?.getKey() === anchor.key) {
+    return anchor;
+  }
+
+  return null;
+}
+
+/**
  * Handle the pure-insertion case: narrowing produced an empty delete range
  * (anchor and focus are at the same point), so we just need to insert
  * suggestion nodes at that position.
@@ -476,12 +517,14 @@ export function $applySuggestionWithNarrowing({
   editor,
   anchor,
   focus,
+  quote,
   replacement,
   suggestionId,
 }: {
   editor: LexicalEditor
   anchor: MarkdownSelectionPoint
   focus: MarkdownSelectionPoint
+  quote: string
   replacement: string
   suggestionId: string
 }): boolean {
@@ -490,29 +533,49 @@ export function $applySuggestionWithNarrowing({
     return $applySuggestionFallback({ editor, anchor, focus, replacement, suggestionId });
   }
 
+  // If the visible text is identical, the change is purely structural
+  // (formatting, link URLs, etc.) — show the full range.
   const replacementPlainText = markdownQuoteToPlainText(replacement);
-  const { prefixLen, suffixLen } = computeCommonPrefixSuffix(matchedPlainText, replacementPlainText);
-
-  if (prefixLen === 0 && suffixLen === 0) {
+  if (replacementPlainText === matchedPlainText) {
     return $applySuggestionFallback({ editor, anchor, focus, replacement, suggestionId });
   }
 
-  const narrowedAnchor = $advancePoint(anchor, prefixLen);
-  const narrowedFocus = $retreatPoint(focus, suffixLen);
+  // Compare at the markdown level so that formatting/syntax changes
+  // prevent narrowing past them.
+  const { prefixLen: mdPrefixLen, suffixLen: mdSuffixLen } = computeCommonPrefixSuffix(quote, replacement);
+
+  // Convert markdown offsets to plain-text character counts using the
+  // quote's mapping (which has full regex context for links, math, etc.)
+  const quoteMapping = buildPlainToMarkdownMapping(quote);
+  const ptAdvance = countPlainTextInPrefix(quoteMapping.toMarkdown, mdPrefixLen);
+  const ptRetreat = countPlainTextInSuffix(quoteMapping.toMarkdown, quote.length, mdSuffixLen);
+
+  if (ptAdvance === 0 && ptRetreat === 0) {
+    return $applySuggestionFallback({ editor, anchor, focus, replacement, suggestionId });
+  }
+
+  if (ptAdvance + ptRetreat > matchedPlainText.length) {
+    return $applySuggestionFallback({ editor, anchor, focus, replacement, suggestionId });
+  }
+
+  const narrowedAnchor = $advancePoint(anchor, ptAdvance);
+  const narrowedFocus = $retreatPoint(focus, ptRetreat);
   if (!narrowedAnchor || !narrowedFocus) {
     return $applySuggestionFallback({ editor, anchor, focus, replacement, suggestionId });
   }
 
-  const { narrowedMarkdown: narrowedReplacement, narrowedPlainText } = narrowReplacementMarkdown(replacement, replacementPlainText, prefixLen, suffixLen);
+  // Slice the replacement at exact markdown positions — guaranteed to be
+  // at matching syntax boundaries since the prefix/suffix are identical
+  // in both quote and replacement.
+  const narrowedReplacement = replacement.slice(mdPrefixLen, replacement.length - mdSuffixLen);
+  const narrowedPlainText = markdownQuoteToPlainText(narrowedReplacement);
   const replacementNodes = $narrowedReplacementToNodes(editor, narrowedReplacement, narrowedPlainText);
 
-  const isInsertionPoint = narrowedAnchor.key === narrowedFocus.key
-    && narrowedAnchor.offset === narrowedFocus.offset
-    && narrowedAnchor.type === "text";
+  const insertionPoint = $getEquivalentInsertionPoint(narrowedAnchor, narrowedFocus);
 
-  if (isInsertionPoint) {
+  if (insertionPoint) {
     return $applySuggestionInsertionAtPoint({
-      editor, point: narrowedAnchor, replacement: narrowedReplacement, suggestionId,
+      editor, point: insertionPoint, replacement: narrowedReplacement, suggestionId,
       replacementNodes,
     });
   }
@@ -670,7 +733,7 @@ export async function replaceTextInMainDoc({
 
           suggestionId = randomId();
           replaced = $applySuggestionWithNarrowing({
-            editor, anchor, focus, replacement, suggestionId,
+            editor, anchor, focus, quote, replacement, suggestionId,
           });
           if (!replaced) {
             suggestionId = undefined;

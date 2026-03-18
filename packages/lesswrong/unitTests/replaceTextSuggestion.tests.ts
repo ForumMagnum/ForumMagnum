@@ -24,7 +24,7 @@ async function replaceTextAsSuggestion(
 
     const { anchor, focus } = result;
     replaced = $applySuggestionWithNarrowing({
-      editor, anchor, focus, replacement, suggestionId: randomId(),
+      editor, anchor, focus, quote, replacement, suggestionId: randomId(),
     });
   });
   return replaced;
@@ -247,13 +247,14 @@ describe("replaceText when quote spans formatting boundaries", () => {
     const suggestions = getAllSuggestions(editor);
     const deleteSuggestions = suggestions.filter(s => s.type === "delete");
     const insertSuggestions = suggestions.filter(s => s.type === "insert");
-    // Narrowing strips the common prefix ("has ") and suffix ("t in"),
-    // leaving only the minimal diff. The suffix includes the trailing "t"
-    // because it matches between "text" and "content".
+    // Narrowing at the markdown level strips the common prefix ("has ")
+    // and suffix (" in"). The suffix stops at 3 markdown chars because
+    // the quote's "**" markers break the match before "t", avoiding
+    // mid-word splits.
     expect(deleteSuggestions.length).toBe(1);
-    expect(deleteSuggestions[0].textContent).toBe("bold tex");
+    expect(deleteSuggestions[0].textContent).toBe("bold text");
     expect(insertSuggestions.length).toBe(1);
-    expect(insertSuggestions[0].textContent).toBe("improved conten");
+    expect(insertSuggestions[0].textContent).toBe("improved content");
   });
 });
 
@@ -367,6 +368,103 @@ describe("replaceText narrowing across multi-node matches", () => {
     expect(deleteSuggestions[0].textContent).toBe("");
     expect(insertSuggestions.length).toBe(1);
     expect(insertSuggestions[0].textContent).toBe(" really");
+  });
+});
+
+describe("replaceText narrowing preserves non-plain-text markdown changes", () => {
+  it("does not narrow away a pure formatting change with the same visible text", async () => {
+    const editor = await setupEditorWithContent(
+      "This sentence has formatting."
+    );
+
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "formatting",
+      "**formatting**",
+    );
+
+    expect(replaced).toBe(true);
+
+    const suggestions = getAllSuggestions(editor);
+    const deleteSuggestions = suggestions.filter(s => s.type === "delete");
+    const insertSuggestions = suggestions.filter(s => s.type === "insert");
+
+    expect(deleteSuggestions.length).toBe(1);
+    expect(deleteSuggestions[0].textContent).toBe("formatting");
+    expect(insertSuggestions.length).toBe(1);
+    expect(insertSuggestions[0].textContent).toBe("formatting");
+  });
+
+  it("does not narrow away a link target change with the same visible text", async () => {
+    const editor = await setupEditorWithContent(
+      "Visit [LessWrong](https://old.example) for details."
+    );
+
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "[LessWrong](https://old.example)",
+      "[LessWrong](https://new.example)",
+    );
+
+    expect(replaced).toBe(true);
+
+    const suggestions = getAllSuggestions(editor);
+    const deleteSuggestions = suggestions.filter(s => s.type === "delete");
+    const insertSuggestions = suggestions.filter(s => s.type === "insert");
+
+    expect(deleteSuggestions.length).toBe(1);
+    expect(deleteSuggestions[0].textContent).toBe("LessWrong");
+    expect(insertSuggestions.length).toBe(1);
+    expect(insertSuggestions[0].textContent).toBe("LessWrong");
+  });
+
+  it("does not narrow away formatting changes on unchanged prefix text", async () => {
+    const editor = await setupEditorWithContent(
+      "Change alpha beta gamma."
+    );
+
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "alpha beta",
+      "**alpha** theta",
+    );
+
+    expect(replaced).toBe(true);
+
+    const suggestions = getAllSuggestions(editor);
+    const deleteSuggestions = suggestions.filter(s => s.type === "delete");
+    const insertSuggestions = suggestions.filter(s => s.type === "insert");
+
+    // Markdown prefix is "" (a vs *), so the bold on "alpha" is preserved
+    // in the suggestion. The suffix "eta" is narrowed (identical markdown
+    // in both strings).
+    expect(deleteSuggestions.length).toBe(1);
+    expect(deleteSuggestions[0].textContent).toBe("alpha b");
+    expect(insertSuggestions.length).toBe(1);
+    expect(insertSuggestions[0].textContent).toBe("alpha th");
+  });
+
+  it("does not narrow away formatting changes on unchanged suffix text", async () => {
+    const editor = await setupEditorWithContent(
+      "Change alpha beta gamma."
+    );
+
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "beta gamma",
+      "theta **gamma**",
+    );
+
+    expect(replaced).toBe(true);
+
+    const suggestions = getAllSuggestions(editor);
+    const deleteSuggestions = suggestions.filter(s => s.type === "delete");
+    const insertSuggestions = suggestions.filter(s => s.type === "insert");
+
+    expect(deleteSuggestions.length).toBe(1);
+    expect(deleteSuggestions[0].textContent).toBe("beta gamma");
+    expect(insertSuggestions.length).toBe(1);
+    expect(insertSuggestions[0].textContent).toBe("theta gamma");
   });
 });
 
