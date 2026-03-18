@@ -14,7 +14,7 @@ import { userCanDo, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { FilterPostsForReview } from '@/components/bookmarks/ReadHistoryTab';
 import gql from "graphql-tag";
 import { createPaginatedResolver } from './paginatedResolver';
-import { convertImportedGoogleDocMarkdown } from '../editor/googleDocUtils';
+import { convertImportedGoogleDoc } from '../editor/googleDocUtils';
 import { createPost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
@@ -494,24 +494,12 @@ export const postGqlMutations = {
       }
     }
 
-    let markdown: string;
     let googleDocZipBuffer: Buffer | undefined;
 
     try {
-      const [markdownResponse, zipResponse] = await Promise.all([
-        fetchGoogleDocExport(fileId, 'markdown'),
-        fetchGoogleDocExport(fileId, 'zip'),
-      ]);
-      const [markdownText, zipArrayBuffer] = await Promise.all([
-        markdownResponse.text(),
-        zipResponse.arrayBuffer(),
-      ]);
-      markdown = markdownText;
+      const zipResponse = await fetchGoogleDocExport(fileId, 'zip');
+      const zipArrayBuffer = await zipResponse.arrayBuffer();
       googleDocZipBuffer = Buffer.from(zipArrayBuffer);
-
-      if (!markdown || markdown.length === 0) {
-        throw createGoogleDocImportError("Received empty result from Google Docs");
-      }
     } catch (error) {
       if (isGoogleDocImportError(error)) {
         throw error;
@@ -533,12 +521,10 @@ export const postGqlMutations = {
     // Converting to ckeditor markup does some thing like removing styles to standardise
     // the result, so we always want to do this first before converting to whatever format the user
     // is using
-    const importedHtml = await convertImportedGoogleDocMarkdown({
-      markdown,
+    const importedHtml = await convertImportedGoogleDoc({
+      zipBuffer: googleDocZipBuffer,
       postId: finalPostId,
-      googleDocZipBuffer,
     })
-    //const importedHtml = await convertImportedGoogleDoc({ html, postId: finalPostId })
     const commitMessage = `[Google Doc import]`
     const fallbackRichTextEditorType = getUserDefaultRichTextEditor(currentUser);
 

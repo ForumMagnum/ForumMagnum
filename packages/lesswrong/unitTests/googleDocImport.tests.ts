@@ -1,5 +1,5 @@
 import JSZip from 'jszip';
-import { convertImportedGoogleDoc, replaceGoogleDocMarkdownImagesWithOriginals } from '@/server/editor/googleDocUtils';
+import { convertImportedGoogleDoc, getGoogleDocZipHtml } from '@/server/editor/googleDocUtils';
 
 async function createGoogleDocZip(files: Record<string, string>): Promise<Buffer> {
   const zip = new JSZip();
@@ -12,40 +12,28 @@ async function createGoogleDocZip(files: Record<string, string>): Promise<Buffer
 }
 
 describe("convertImportedGoogleDoc", () => {
-  it("replaces markdown image data with originals from the zip export", async () => {
-    const lowResolutionImage = Buffer.from("low-resolution-image").toString("base64");
+  it("inlines zipped HTML images as data URIs", async () => {
     const highResolutionImage = Buffer.from("high-resolution-image").toString("base64");
     const zipBuffer = await createGoogleDocZip({
+      "index.html": '<html><body><img src="images/image1.jpg" /></body></html>',
       "images/image1.jpg": "high-resolution-image",
     });
-    const markdown = `![][image1]
 
-[image1]: <data:image/png;base64,${lowResolutionImage}>`;
+    const html = await getGoogleDocZipHtml(zipBuffer);
 
-    const mergedMarkdown = await replaceGoogleDocMarkdownImagesWithOriginals({
-      markdown,
-      zipBuffer,
-    });
-
-    expect(mergedMarkdown).toContain(`data:image/jpeg;base64,${highResolutionImage}`);
-    expect(mergedMarkdown).not.toContain(lowResolutionImage);
+    expect(html).toContain(`data:image/jpeg;base64,${highResolutionImage}`);
   });
 
-  it("leaves markdown images alone when the zip export has no matching original", async () => {
-    const lowResolutionImage = Buffer.from("low-resolution-image").toString("base64");
+  it("resolves image paths relative to the exported HTML file", async () => {
+    const highResolutionImage = Buffer.from("nested-high-resolution-image").toString("base64");
     const zipBuffer = await createGoogleDocZip({
-      "images/image2.jpg": "some-other-image",
-    });
-    const markdown = `![][image1]
-
-[image1]: <data:image/png;base64,${lowResolutionImage}>`;
-
-    const mergedMarkdown = await replaceGoogleDocMarkdownImagesWithOriginals({
-      markdown,
-      zipBuffer,
+      "folder/export.html": '<html><body><img src="images/image1.jpg" /></body></html>',
+      "folder/images/image1.jpg": "nested-high-resolution-image",
     });
 
-    expect(mergedMarkdown).toContain(lowResolutionImage);
+    const html = await getGoogleDocZipHtml(zipBuffer);
+
+    expect(html).toContain(`data:image/jpeg;base64,${highResolutionImage}`);
   });
 
   it("Regression: Handle nested bullets with different list ids", async () => {
@@ -72,7 +60,10 @@ describe("convertImportedGoogleDoc", () => {
         </body>
       </html>
     `;
-    const htmlOutput = await convertImportedGoogleDoc({html: htmlInput.replace(/\s+</g, '<'), postId: 'dummy'});
+    const zipBuffer = await createGoogleDocZip({
+      "index.html": htmlInput.replace(/\s+</g, '<'),
+    });
+    const htmlOutput = await convertImportedGoogleDoc({zipBuffer, postId: 'dummy'});
     expect(htmlOutput).toMatchSnapshot();
   });
 });

@@ -4,10 +4,8 @@ import JSZip from 'jszip';
 import path from 'node:path';
 import { convertImagesInHTML, uploadBufferToCloudinary } from '../scripts/convertImagesToCloudinary';
 import { extractTableOfContents } from '@/lib/tableOfContents';
-import { dataToCkEditor, markdownToHtml } from './conversionUtils';
+import { dataToCkEditor } from './conversionUtils';
 import { parseDocumentFromString } from '@/lib/domParser';
-
-const GOOGLE_DOC_MARKDOWN_IMAGE_DEFINITION_REGEX = /^\[([^\]]+)\]:\s*<?(\S+)>?\s*$/gm;
 
 function googleDocImageFileNameToMimeType(fileName: string): string | null {
   const extension = path.posix.extname(fileName).toLowerCase();
@@ -28,58 +26,82 @@ function googleDocImageFileNameToMimeType(fileName: string): string | null {
   }
 }
 
-async function getGoogleDocOriginalImageDataUris(zipBuffer: Buffer): Promise<Record<string, string>> {
-  const zip = await JSZip.loadAsync(zipBuffer);
-  const originalImageDataUris: Record<string, string> = {};
-
-  for (const zipEntry of Object.values(zip.files)) {
-    if (zipEntry.dir) {
-      continue;
-    }
-
-    const pathSegments = zipEntry.name.split('/');
-    if (pathSegments.length < 2 || pathSegments[pathSegments.length - 2] !== 'images') {
-      continue;
-    }
-
-    const fileName = path.posix.basename(zipEntry.name);
-    const mimeType = googleDocImageFileNameToMimeType(fileName);
-    if (!mimeType) {
-      continue;
-    }
-
-    const label = path.posix.parse(fileName).name;
-    const buffer = await zipEntry.async('nodebuffer');
-    originalImageDataUris[label] = `data:${mimeType};base64,${buffer.toString('base64')}`;
+function googleDocInlineZipImage($img: Cheerio<Element>, zipFile: JSZip, htmlFileName: string) {
+  const src = $img.attr('src');
+  if (!src || src.startsWith('data:')) {
+    return null;
   }
 
-  return originalImageDataUris;
+  let parsedSrc: URL;
+  try {
+    parsedSrc = new URL(src);
+    if (parsedSrc.protocol !== 'file:') {
+      return null;
+    }
+  } catch {
+    const htmlDirectory = path.posix.dirname(htmlFileName);
+    const basePath = htmlDirectory === '.' ? '/' : `/${htmlDirectory}/`;
+    parsedSrc = new URL(src, `file://${basePath}`);
+  }
+
+  const zipPath = path.posix.normalize(parsedSrc.pathname.replace(/^\/+/, ''));
+  const zipEntry = zipFile.file(zipPath);
+  if (!zipEntry) {
+    return null;
+  }
+
+  return { zipEntry, zipPath };
 }
 
-export async function replaceGoogleDocMarkdownImagesWithOriginals({
-  markdown,
-  zipBuffer,
-}: {
-  markdown: string;
-  zipBuffer: Buffer;
-}): Promise<string> {
-  const originalImageDataUris = await getGoogleDocOriginalImageDataUris(zipBuffer);
-
-  return markdown.replace(
-    GOOGLE_DOC_MARKDOWN_IMAGE_DEFINITION_REGEX,
-    (fullMatch: string, label: string, url: string) => {
-      if (!url.startsWith('data:image/')) {
-        return fullMatch;
-      }
-
-      const originalImageDataUri = originalImageDataUris[label];
-      if (!originalImageDataUri) {
-        return fullMatch;
-      }
-
-      return `[${label}]: <${originalImageDataUri}>`;
-    }
+export async function getGoogleDocZipHtml(zipBuffer: Buffer): Promise<string> {
+  const zip = await JSZip.loadAsync(zipBuffer);
+  const htmlEntry = Object.values(zip.files).find((zipEntry) =>
+    !zipEntry.dir && path.posix.extname(zipEntry.name).toLowerCase() === '.html'
   );
+  if (!htmlEntry) {
+    throw new Error('Google Doc zip export did not contain an HTML file');
+  }
+
+  const html = await htmlEntry.async('string');
+  const $ = cheerio.load(html);
+  const imagePromises = $('img[src]').map(async (_, img) => {
+    const $img = $(img);
+    const inlineZipImage = googleDocInlineZipImage($img, zip, htmlEntry.name);
+    if (!inlineZipImage) {
+      return;
+    }
+
+    const { zipEntry, zipPath } = inlineZipImage;
+    const mimeType = googleDocImageFileNameToMimeType(zipPath);
+    if (!mimeType) {
+      return;
+    }
+
+    const buffer = await zipEntry.async('nodebuffer');
+    $img.attr('src', `data:${mimeType};base64,${buffer.toString('base64')}`);
+  }).get();
+
+  await Promise.all(imagePromises);
+
+  return $.html();
+}
+
+function googleDocParseDataUri(dataUri: string): Buffer {
+  const [, base64Data] = dataUri.split(',');
+  if (!base64Data) {
+    throw new Error('Invalid data URI');
+  }
+
+  return Buffer.from(base64Data, 'base64');
+}
+
+async function googleDocGetImageBuffer(src: string): Promise<Buffer> {
+  if (src.startsWith('data:')) {
+    return googleDocParseDataUri(src);
+  }
+
+  const response = await axios.get(src, { responseType: 'arraybuffer' });
+  return Buffer.from(response.data, 'binary');
 }
 
 /**
@@ -292,8 +314,7 @@ async function googleDocCropImages(html: string): Promise<string> {
     }
 
     try {
-      const response = await axios.get(src, { responseType: 'arraybuffer' });
-      const buffer = Buffer.from(response.data, 'binary');
+      const buffer = await googleDocGetImageBuffer(src);
 
       const { default: Jimp } = await import('jimp');
       const image = await Jimp.read(buffer);
@@ -514,19 +535,6 @@ function removeEmptyBodyParagraphs(html: string): string {
   return $.html();
 }
 
-export async function convertImportedGoogleDocMarkdown({markdown, postId, googleDocZipBuffer}: {
-  markdown: string,
-  postId: string,
-  googleDocZipBuffer?: Buffer,
-}): Promise<string> {
-  const markdownWithOriginalImages = googleDocZipBuffer
-    ? await replaceGoogleDocMarkdownImagesWithOriginals({ markdown, zipBuffer: googleDocZipBuffer })
-    : markdown;
-  const html = await markdownToHtml(markdownWithOriginalImages);
-  const { html: rehostedHtml } = await convertImagesInHTML(html, postId, _ => true);
-  return rehostedHtml;
-}
-
 /**
  * We need to convert a few things in the raw html exported from google to make it work with ckeditor, this is
  * largely mirroring conversions we do on paste in the ckeditor code:
@@ -535,16 +543,17 @@ export async function convertImportedGoogleDocMarkdown({markdown, postId, google
  * - Reupload images to cloudinary (we actually don't do this on paste, but it's easier to do so here and prevents images breaking due to rate limits)
  */
 export async function convertImportedGoogleDoc({
-  html,
+  zipBuffer,
   postId,
 }: {
-  html: string;
+  zipBuffer: Buffer;
   postId: string;
 }) {
+  const html = await getGoogleDocZipHtml(zipBuffer);
   const converters: (((html: string) => Promise<string>) | ((html: string) => string))[] = [
     async (html: string) => {
       const { html: rehostedHtml } = await convertImagesInHTML(html, postId, (url) =>
-        url.includes("googleusercontent")
+        url.includes("googleusercontent") || url.startsWith("data:")
       );
       return rehostedHtml;
     },
