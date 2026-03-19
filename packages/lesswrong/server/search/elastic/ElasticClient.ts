@@ -1,12 +1,11 @@
 import { Client } from "@elastic/elasticsearch";
 import type {
-  AggregationsTopHitsAggregate,
   SearchHit,
   SearchResponse,
   SearchTotalHits,
 } from "@elastic/elasticsearch/lib/api/types";
 import ElasticQuery, { QueryData } from "./ElasticQuery";
-import ElasticMultiQuery, { MultiQueryData } from "./ElasticMultiQuery";
+import type { MultiQueryData } from "./ElasticMultiQuery";
 import sortBy from "lodash/sortBy";
 import { elasticCloudIdSetting, elasticPasswordSetting, elasticUsernameSetting, isElasticEnabled } from "../../../lib/instanceSettings";
 import take from "lodash/take";
@@ -87,16 +86,22 @@ class ElasticClient {
         }).compile())
       )
     )
-    
-    // Merge the result set, sorting the merged list by similarity score (even
-    // though similarity score calculation methods may differ between indexes)
-    // and applying the limit.
-    const mergedResultsList = resultsBySearchIndex.flatMap(r => r.hits.hits);
-    const sortedResults = take(sortBy(mergedResultsList, h => -(h._score ?? 0)), queryData.limit);
+
+    // Normalize scores within each index to [0, 1] before merging, so that
+    // differences in analyzers/boosts between indexes don't cause one index's
+    // results to dominate the merged list.
+    const normalizedResults = resultsBySearchIndex.flatMap(indexResult => {
+      const hits = indexResult.hits.hits;
+      const maxScore = hits.reduce((max, h) => Math.max(max, h._score ?? 0), 0);
+      if (maxScore <= 0) return hits;
+      return hits.map(h => ({ ...h, _score: (h._score ?? 0) / maxScore }));
+    });
+
+    const sortedResults = take(sortBy(normalizedResults, h => -(h._score ?? 0)), queryData.limit);
 
     return {
       hits: {
-        total: mergedResultsList.length,
+        total: normalizedResults.length,
         hits: sortedResults as ElasticSearchHit[],
       },
     };
