@@ -20,7 +20,7 @@ export const graphqlPostQueryTypeDefs = gql`
   }
   
   input SinglePostInput {
-    selector: SelectorInput
+    selector: SelectorInputWithSlug
     resolverArgs: JSON
     allowNull: Boolean
   }
@@ -1585,8 +1585,8 @@ export const graphqlPostQueryTypeDefs = gql`
   
   extend type Query {
     post(
-      input: SinglePostInput @deprecated(reason: "Use the selector field instead"),
-      selector: SelectorInput,
+      input: SinglePostInput@deprecated(reason: "Use the selector field instead"),
+      selector: SelectorInputWithSlug,
       allowNull: Boolean
     ): SinglePostOutput
     posts(

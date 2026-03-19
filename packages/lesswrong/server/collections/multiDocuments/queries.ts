@@ -19,7 +19,7 @@ export const graphqlMultiDocumentQueryTypeDefs = gql`
   }
   
   input SingleMultiDocumentInput {
-    selector: SelectorInput
+    selector: SelectorInputWithSlug
     resolverArgs: JSON
   }
   
@@ -68,7 +68,7 @@ export const graphqlMultiDocumentQueryTypeDefs = gql`
   extend type Query {
     multiDocument(
       input: SingleMultiDocumentInput @deprecated(reason: "Use the selector field instead"),
-      selector: SelectorInput
+      selector: SelectorInputWithSlug
     ): SingleMultiDocumentOutput
     multiDocuments(
       input: MultiMultiDocumentInput @deprecated(reason: "Use the selector field instead"),
