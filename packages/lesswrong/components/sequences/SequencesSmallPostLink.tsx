@@ -51,7 +51,7 @@ const SequencesSmallPostLink = ({post, sequenceId, large, placement="left-start"
       inlineBlock={false}
       clickable
     >
-      <Link to={postGetPageUrl(post, false, sequenceId)}>
+      <Link to={postGetPageUrl(post, { isAbsolute: false, sequenceId })}>
         {post.title}
       </Link>
     </PostsTooltip>

@@ -36,7 +36,7 @@ const UltraFeedPostActions = ({ post, closeMenu, includeBookmark, onSeeLess, isS
   }, [post, closeMenu]);
 
   const handleCopyLink = useCallback(() => {
-    const url = postGetPageUrl(post, true);
+    const url = postGetPageUrl(post, { isAbsolute: true });
     void navigator.clipboard.writeText(url);
     closeMenu();
   }, [post, closeMenu]);

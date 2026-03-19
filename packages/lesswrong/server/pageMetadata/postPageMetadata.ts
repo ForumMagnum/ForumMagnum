@@ -112,7 +112,7 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
         ? getCommentDescription(comment)
         : getPostDescription(post) ?? defaultMetadata.description;
   
-      const ogUrl = postGetPageUrl(post, true);
+      const ogUrl = postGetPageUrl(post, { isAbsolute: true });
       const canonicalUrl = post.canonicalSource ?? ogUrl;
       const socialPreviewImageUrl = getSocialPreviewImageUrl(post);
       const postNoIndex = post.noIndex || post.rejected || (post.baseScore <= 0 && isEAForum());

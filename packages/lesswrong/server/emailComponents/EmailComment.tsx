@@ -136,7 +136,7 @@ const EmailCommentsOnPostHeader = async ({postId, allShortform, emailContext}: {
 
   const title = allShortform ? post.title : `New comments on ${post.title}`
 
-  return <HeadingLink text={title} href={postGetPageUrl(post, true)} emailContext={emailContext}/>
+  return <HeadingLink text={title} href={postGetPageUrl(post, { isAbsolute: true })} emailContext={emailContext}/>
 }
 
 const EmailCommentsOnTagHeader = async ({tagId, isSubforum, emailContext}: {
@@ -197,7 +197,7 @@ export const EmailComment = async ({commentId, hideTitle, emailContext}: {
       {" by "}
       <EmailUsername user={comment.user}/>
       {" "}
-      {!hideTitle && comment.post && <a href={postGetPageUrl(comment.post, true)}>
+      {!hideTitle && comment.post && <a href={postGetPageUrl(comment.post, { isAbsolute: true })}>
         {comment.post.title}
       </a>}
     </div>

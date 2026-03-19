@@ -68,7 +68,7 @@ export const EventUpdatedEmail = async({postId, emailContext}: {
   
   if (!post) return null;
   
-  const link = postGetPageUrl(post, true);
+  const link = postGetPageUrl(post, { isAbsolute: true });
   
   // event location - for online events, attempt to show the meeting link
   let eventLocation: string|React.JSX.Element = post.location ?? ""

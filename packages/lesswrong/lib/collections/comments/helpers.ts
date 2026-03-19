@@ -18,7 +18,7 @@ export async function commentGetPageUrlFromDB(comment: DbComment, context: Resol
   if (comment.postId) {
     const post = await context.loaders.Posts.load(comment.postId);
     if (!post) throw Error(`Unable to find post for comment: ${comment._id}`)
-    return `${postGetPageUrl(post, isAbsolute)}?commentId=${comment._id}`;
+    return `${postGetPageUrl(post, { isAbsolute })}?commentId=${comment._id}`;
   } else if (comment.tagId) {
     const tag = await context.loaders.Tags.load(comment.tagId);
     if (!tag) throw Error(`Unable to find wikitag for comment: ${comment._id}`)
@@ -31,7 +31,7 @@ export async function commentGetPageUrlFromDB(comment: DbComment, context: Resol
 
 export function commentGetPageUrl(comment: CommentsListWithParentMetadata, isAbsolute = false): string {
   if (comment.post) {
-    return `${postGetPageUrl(comment.post, isAbsolute)}?commentId=${comment._id}`;
+    return `${postGetPageUrl(comment.post, { isAbsolute })}?commentId=${comment._id}`;
   } else if (comment.tag) {
     return tagGetCommentLink({tagSlug: comment.tag.slug, commentId: comment._id, tagCommentType: comment.tagCommentType, isAbsolute});
   } else {

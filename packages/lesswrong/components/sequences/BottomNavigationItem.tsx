@@ -70,7 +70,7 @@ const BottomNavigationItem = ({direction, post, sequence}: {
   const classes = useStyles(styles);
   const updateContinueReading = useUpdateContinueReading(post._id, sequence?._id);
   const commentCount = postGetCommentCount(post) || "No"
-  const url = postGetPageUrl(post, false, sequence?._id);
+  const url = postGetPageUrl(post, { sequenceId: sequence?._id });
   
   return (
     <span>

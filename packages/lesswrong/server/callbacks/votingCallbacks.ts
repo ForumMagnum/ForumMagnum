@@ -301,7 +301,7 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
   if (post.manifoldReviewMarketId) return;
 
   const annualReviewLink = tagGetUrl({slug: 'lesswrong-review'}, {}, true)
-  const postLink = postGetPageUrl(post, true)
+  const postLink = postGetPageUrl(post, { isAbsolute: true })
 
   const year = post.postedAt.getFullYear()
   const initialProb = 14

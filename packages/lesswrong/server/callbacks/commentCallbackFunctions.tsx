@@ -110,7 +110,7 @@ const utils = {
     
     const emailsToNotify = await getUsersToNotifyAboutEvent(post);
     
-    const postLink = postGetPageUrl(post, true);
+    const postLink = postGetPageUrl(post, { isAbsolute: true });
     
     for (let {userId,email} of emailsToNotify) {
       if (!email) continue;

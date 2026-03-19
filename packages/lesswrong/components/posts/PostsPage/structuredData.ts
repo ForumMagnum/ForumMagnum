@@ -66,11 +66,11 @@ export const getStructuredData = ({
   return {
     "@context": "http://schema.org",
     "@type": "DiscussionForumPosting",
-    "url": postGetPageUrl(post, true),
+    "url": postGetPageUrl(post, { isAbsolute: true }),
     "text": post.contents?.html ?? description,
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": postGetPageUrl(post, true),
+      "@id": postGetPageUrl(post, { isAbsolute: true }),
     },
     headline: post.title,
     ...(description && { description: description }),

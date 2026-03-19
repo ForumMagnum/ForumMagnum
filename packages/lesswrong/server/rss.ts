@@ -83,7 +83,7 @@ export const servePostRSS = async (terms: RSSTerms,) => {
 
     let date = (viewDate > thresholdDate) ? viewDate : thresholdDate;
 
-    const postLink = `<a href="${postGetPageUrl(post, true)}#comments">Discuss</a>`;
+    const postLink = `<a href="${postGetPageUrl(post, { isAbsolute: true })}#comments">Discuss</a>`;
     const feedItem: any = {
       title: post.title,
       description: `${(post.contents && post.contents.html) || ""}<br/><br/>${postLink}`,
@@ -95,7 +95,7 @@ export const servePostRSS = async (terms: RSSTerms,) => {
       // date: post.postedAt
       date: date,
       guid: post._id,
-      url: postGetPageUrl(post, true)
+      url: postGetPageUrl(post, { isAbsolute: true })
     };
 
     feed.item(feedItem);

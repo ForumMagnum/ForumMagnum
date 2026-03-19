@@ -202,8 +202,14 @@ export interface PostsMinimumForGetPageUrl {
   groupId?: string | undefined | null
 }
 
+interface PostGetUrlOptions {
+  isAbsolute?: boolean,
+  sequenceId?: string|null
+}
 // Get URL of a post page.
-export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, sequenceId: string|null=null): string {
+export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, options?: PostGetUrlOptions): string {
+  const isAbsolute = options?.isAbsolute ?? false;
+  const sequenceId = options?.sequenceId ?? null;
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
   // LESSWRONG – included event and group post urls
@@ -217,12 +223,8 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolu
   return `${prefix}/posts/${post._id}/${post.slug}`;
 };
 
-export const postGetCommentsUrl = (
-  post: PostsMinimumForGetPageUrl,
-  isAbsolute = false,
-  sequenceId: string | null = null,
-): string => {
-  return postGetPageUrl(post, isAbsolute, sequenceId) + "#comments";
+export const postGetCommentsUrl = (post: PostsMinimumForGetPageUrl, options?: PostGetUrlOptions): string => {
+  return postGetPageUrl(post, options) + "#comments";
 }
 
 

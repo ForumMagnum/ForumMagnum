@@ -42,7 +42,7 @@ export const SequenceNewPostsEmail = ({sequence, posts, emailContext}: {
     <ul>
       {posts.map(post => {
         return <li key={post._id}>
-          <a href={postGetPageUrl(post, true)}>{post.title}</a>
+          <a href={postGetPageUrl(post, { isAbsolute: true })}>{post.title}</a>
         </li>
       })}
     </ul>

@@ -132,7 +132,7 @@ export const swrInvalidatePostRoute = async (postId: string, context: ResolverCo
   const post = await Posts.findOne({_id: postId, swrCachingEnabled: true}, {}, {_id: 1, slug: 1, isEvent: 1, groupId: 1}) as PostsMinimumForGetPageUrl;
 
   if (!post) return;
-  const url = postGetPageUrl(post, true);
+  const url = postGetPageUrl(post, { isAbsolute: true });
 
   if (invalidationQueue.includes(url)) return;
 

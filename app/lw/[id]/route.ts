@@ -18,7 +18,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const post = await findPostByLegacyId(id);
 
   if (post) {
-    redirect(postGetPageUrl(post, true));
+    redirect(postGetPageUrl(post, { isAbsolute: true }));
   } else {
     return new Response(`No post found with: id=${id}`, { status: 404 });
   }

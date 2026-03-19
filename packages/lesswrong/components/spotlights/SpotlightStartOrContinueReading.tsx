@@ -111,7 +111,7 @@ const SpotlightStartOrContinueReadingFirstPost = ({spotlight, firstPost}: {
 
   return <div className={classNames(classes.firstPost, classes.root)}>
     {prefix}<PostsTooltip post={firstPost}>
-      <Link to={postGetPageUrl(firstPost, false, firstPostSequenceId)}>{firstPost.title}</Link>
+      <Link to={postGetPageUrl(firstPost, { isAbsolute: false, sequenceId: firstPostSequenceId })}>{firstPost.title}</Link>
     </PostsTooltip>
   </div>
 }
@@ -131,7 +131,7 @@ const SpotlightStartOrContinueReadingCheckboxes = ({spotlight, posts}: {
       flip={false}
       inlineBlock
     >
-      <Link to={postGetPageUrl(post, false, firstPostSequenceId)}>
+      <Link to={postGetPageUrl(post, { isAbsolute: false, sequenceId: firstPostSequenceId })}>
         <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />
       </Link>
     </PostsTooltip>

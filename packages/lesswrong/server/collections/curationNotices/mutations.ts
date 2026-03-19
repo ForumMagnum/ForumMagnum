@@ -41,7 +41,7 @@ async function postCurationNoticeToSlack(document: DbCurationNotice, context: Re
   const post = await context.Posts.findOne({ _id: document.postId });
   if (!post) return;
   const author = await context.loaders.Users.load(document.userId);
-  const postUrl = postGetPageUrl(post, true);
+  const postUrl = postGetPageUrl(post, { isAbsolute: true });
   const noticeText = document.contents?.html ? htmlToTextDefault(document.contents.html) : '(empty)';
   const lines = [
     `:pencil: *New curation draft* by ${author?.displayName ?? 'Unknown'}`,
@@ -56,7 +56,7 @@ async function postCurationPublishToSlack(document: DbCurationNotice, context: R
   const post = await context.Posts.findOne({ _id: document.postId });
   if (!post) return;
   const author = await context.loaders.Users.load(document.userId);
-  const postUrl = postGetPageUrl(post, true);
+  const postUrl = postGetPageUrl(post, { isAbsolute: true });
   await postSlackMessage(`:tada: *Post curated* by ${author?.displayName ?? 'Unknown'}: <${postUrl}|${post.title}>`);
 }
 
