@@ -26,7 +26,7 @@ export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false): 
   if (post.url) {
     return post.url;
   }
-  return postGetPageUrl(post, isAbsolute);
+  return postGetPageUrl(post, { isAbsolute });
 };
 
 // Whether a post's link should open in a new tab or not
@@ -195,11 +195,15 @@ export const getSocialPreviewSql = (tablePrefix: string) => `JSON_BUILD_OBJECT(
 
 // The set of fields required for calling postGetPageUrl. Could be supplied by
 // either a fragment or a DbPost.
-export interface PostsMinimumForGetPageUrl {
+export type PostsMinimumForGetPageUrl = {
+  pageUrlRelative: string
+} | {
   _id: string
   slug: string
   isEvent?: boolean
   groupId?: string | undefined | null
+  canonicalSequenceId?: string | undefined | null
+  canonicalCollectionSlug?: string | undefined | null
 }
 
 interface PostGetUrlOptions {
@@ -212,15 +216,21 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, options?
   const sequenceId = options?.sequenceId ?? null;
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
-  // LESSWRONG – included event and group post urls
-  if (sequenceId) {
+  if ('pageUrlRelative' in post) {
+    return isAbsolute ? `${prefix}/${post.pageUrlRelative}` : post.pageUrlRelative;
+  }
+
+  if (post.canonicalCollectionSlug) {
+    return `${prefix}/${post.canonicalCollectionSlug}/${post.slug}`;
+  } else if (sequenceId) {
     return `${prefix}/s/${sequenceId}/p/${post._id}`;
   } else if (post.isEvent) {
     return `${prefix}/events/${post._id}/${post.slug}`;
   } else if (post.groupId) {
     return `${prefix}/g/${post.groupId}/p/${post._id}/`;
+  } else {
+    return `${prefix}/posts/${post._id}/${post.slug}`;
   }
-  return `${prefix}/posts/${post._id}/${post.slug}`;
 };
 
 export const postGetCommentsUrl = (post: PostsMinimumForGetPageUrl, options?: PostGetUrlOptions): string => {

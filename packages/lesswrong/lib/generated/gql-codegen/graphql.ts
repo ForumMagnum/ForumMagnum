@@ -37,7 +37,7 @@ const _18=_o3(_3,"userId")
 const _19=_o4(_8,_18)
 const _20=_o4(_8,_o3(_3,"coauthorUserIds"))
 const _21=_o4(_8,_o3(_3,"rejected"))
-const _22=_o2(_2,_4,_6,_o5(_7,[_10,_12,_13,_14,_15,_o4(_8,_o3(_3,"hideCommentKarma")),_17,_19,_20,_21,_o4(_8,_o3(_3,"collabEditorDialogue"))]))
+const _22=_o2(_2,_4,_6,_o5(_7,[_10,_12,_13,_14,_15,_o4(_8,_o3(_3,"hideCommentKarma")),_17,_19,_20,_21,_o4(_8,_o3(_3,"collabEditorDialogue")),_o4(_8,_o3(_3,"pageUrlRelative"))]))
 const _23=_o3(_3,"UserProfilePost")
 const _24="FragmentSpread"
 const _25=_o4(_24,_4)
@@ -19931,7 +19931,7 @@ export type PodcastEpisodeFull = { __typename?: 'PodcastEpisode', _id: string, p
 
 export type PodcastSelect = { __typename?: 'Podcast', _id: string, title: string };
 
-export type PostsMinimumInfo = { __typename?: 'Post', _id: string, slug: string, title: string, draft: boolean | null, shortform: boolean, hideCommentKarma: boolean, af: boolean, userId: string | null, coauthorUserIds: Array<string>, rejected: boolean, collabEditorDialogue: boolean };
+export type PostsMinimumInfo = { __typename?: 'Post', _id: string, slug: string, title: string, draft: boolean | null, shortform: boolean, hideCommentKarma: boolean, af: boolean, userId: string | null, coauthorUserIds: Array<string>, rejected: boolean, collabEditorDialogue: boolean, pageUrlRelative: string | null };
 
 export type PostsTopItemInfo = (
   { __typename?: 'Post', isRead: boolean | null, user: { __typename?: 'User', _id: string, displayName: string } | null, reviewWinner: (

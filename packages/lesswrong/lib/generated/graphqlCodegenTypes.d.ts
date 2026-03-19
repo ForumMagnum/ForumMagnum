@@ -22427,7 +22427,7 @@ type PodcastEpisodeFull = { __typename?: 'PodcastEpisode', _id: string, podcastI
 
 type PodcastSelect = { __typename?: 'Podcast', _id: string, title: string };
 
-type PostsMinimumInfo = { __typename?: 'Post', _id: string, slug: string, title: string, draft: boolean | null, shortform: boolean, hideCommentKarma: boolean, af: boolean, userId: string | null, coauthorUserIds: Array<string>, rejected: boolean, collabEditorDialogue: boolean };
+type PostsMinimumInfo = { __typename?: 'Post', _id: string, slug: string, title: string, draft: boolean | null, shortform: boolean, hideCommentKarma: boolean, af: boolean, userId: string | null, coauthorUserIds: Array<string>, rejected: boolean, collabEditorDialogue: boolean, pageUrlRelative: string | null };
 
 type PostsTopItemInfo_Post_user_User = { __typename?: 'User', _id: string, displayName: string };
 

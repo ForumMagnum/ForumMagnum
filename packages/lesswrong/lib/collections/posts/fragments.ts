@@ -13,6 +13,7 @@ export const PostsMinimumInfo = gql(`
     coauthorUserIds
     rejected
     collabEditorDialogue
+    pageUrlRelative
   }
 `)
 
