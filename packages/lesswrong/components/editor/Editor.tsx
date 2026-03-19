@@ -433,7 +433,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         // For Lexical posts, capture the current Yjs state so
         // the revision created by updatePost has a restorable snapshot.
         if (this.props.document?._id) {
-          yjsState = getYjsStateBase64ForPost(this.props.document._id);
+          yjsState = getYjsStateBase64ForPost(this.props.document._id, this.props.fieldName);
         }
         break
       case "ckEditorMarkup":
@@ -657,6 +657,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         commentEditor={commentEditor}
         documentId={documentId}
         collectionName={collectionName}
+        fieldName={this.props.fieldName}
         accessLevel={this.props.accessLevel}
       />
     </div>
