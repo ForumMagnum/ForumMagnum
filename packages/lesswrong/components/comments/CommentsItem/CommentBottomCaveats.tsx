@@ -1,24 +1,25 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useCurrentTime } from '../../../lib/utils/timeUtil';
 import { commentIsHiddenPendingReview } from '../../../lib/collections/comments/helpers';
 import moment from 'moment';
 import CalendarDate from "../../common/CalendarDate";
 import MetaInfo from "../../common/MetaInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CommentBottomCaveats", (theme: ThemeType) => ({
   caveatText: {
     flexGrow: 1,
   },
   blockedReplies: {
     padding: "5px 0",
   },
-});
+}));
 
-const CommentBottomCaveats = ({comment, classes}: {
+const CommentBottomCaveats = ({comment}: {
   comment: CommentsList,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const now = useCurrentTime();
   const blockedReplies = comment.repliesBlockedUntil && new Date(comment.repliesBlockedUntil) > now;
   
@@ -48,6 +49,6 @@ const CommentBottomCaveats = ({comment, classes}: {
   </>
 }
 
-export default registerComponent("CommentBottomCaveats", CommentBottomCaveats, {styles});
+export default CommentBottomCaveats;
 
 

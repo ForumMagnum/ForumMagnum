@@ -287,6 +287,7 @@ const ModerationUserKeyboardHandler = ({
         <RejectContentDialog
           rejectionTemplates={rejectionTemplates}
           rejectContent={handleRejectContent}
+          displayName={selectedUser.displayName}
           onClose={onClose}
         />
       ),
@@ -324,6 +325,7 @@ const ModerationUserKeyboardHandler = ({
       contents: ({ onClose: closeRejectDialog }) => (
         <RejectContentDialog
           rejectionTemplates={rejectionTemplates}
+          displayName={selectedUser.displayName}
           rejectContent={(rejectedReason: string) => {
             closeRejectDialog();
             
@@ -388,6 +390,7 @@ const ModerationUserKeyboardHandler = ({
       contents: ({ onClose }) => (
         <RejectContentDialog
           rejectionTemplates={rejectionTemplates}
+          displayName={selectedUser.displayName}
           rejectContent={(rejectedReason: string) => {
             onClose();
             handleAction('Rejected & Removed', async () => {
@@ -609,4 +612,3 @@ const ModerationUserKeyboardHandler = ({
 };
 
 export default ModerationUserKeyboardHandler;
-

@@ -345,8 +345,11 @@ export async function renderLiveEditorDraftMarkdownRoute({
       bodyMarkdown,
       commentThreadsMarkdown,
     });
-  } catch {
-    return new Response(`Unable to access shared draft for postId: ${postId}`, { status: 403 });
+  } catch (error) {
+    // This needs to be a 200 because Claude's web_fetch tool doesn't give it any additional information if you return a 4xx status code,
+    // so if we want Claude to be able to tell the user what they need to do to make the post accessible, we have to return the error message
+    // along with a 200 status code.
+    return new Response(`Unable to access shared draft for postId: ${postId}.  If you are an AI agent, and a user has shared this link with you, please remind the user to set the permissions for "Anyone with the link can" to "Edit".`, { status: 200 });
   }
 }
 
@@ -378,16 +381,17 @@ export async function renderEditorDraftMarkdown({
         </div>
       ) : null}
       <div>
-        Feature Instructions: Please read the "Helping Users With Drafts" section of the Markdown API documentation.  Always fetch a copy of the documentation to see what APIs are available.  If the user asks for feedback, improvements, suggestions, or any kind of interaction with the post that could route through the API, please use the API rather than using your default output channel (unless the user explicitly requests otherwise).  The content of the post is below, between the two horizontal rules.  (There may be additional horizontal rules in the post content.  To help disambiguate, the post content should be followed by a "Comment Threads" section if the post has any open comment threads, and then a "Navigation" section; neither is part of the post.)
+        Context for LLMs/AI Agents: This is a markdown translation of a draft post. You probably got here because a user shared a link to this page with you.  We built this feature to help users get feedback on their posts, and to make it easier for AI agents to help users with their posts.
+
+        As part of the feature, we also provide API endpoints for leaving inline comments/suggestions/etc on the post.  The API endpoints are documented in the "Helping Users With Drafts" section of the Markdown API documentation.
+
+        The content of the post is below, between the two horizontal rules.  There may be additional horizontal rules in the post content.  To help disambiguate, the post content should be followed by a "Comment Threads" section if the post has any open comment threads, and then a "Navigation" section; neither is part of the post.
       </div>
       <hr />
       <MarkdownNode markdown={bodyMarkdown} />
       <hr />
       {commentThreadsMarkdown ? <MarkdownNode markdown={commentThreadsMarkdown} /> : null}
       <hr />
-      <div>
-        REMINDER: Fetch the Markdown API documentation (link below) and follow the Feature Instructions above.
-      </div>
     </div>
   );
 }

@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
 
@@ -6,8 +5,10 @@ import { useDialog } from '../common/withDialog';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import LoginPopup from "../users/LoginPopup";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TagRelevanceButton', (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
@@ -22,16 +23,16 @@ const styles = (theme: ThemeType) => ({
     padding: 6,
     marginTop: -6
   }
-})
+}))
 
-const TagRelevanceButton = ({document, voteType, vote, label, classes, cancelVote }: {
+const TagRelevanceButton = ({document, voteType, vote, label, cancelVote}: {
   document: TagRelMinimumFragment,
   voteType: string,
   vote: (props: {document: TagRelMinimumFragment, voteType: string|null, collectionName: CollectionNameString, currentUser: UsersCurrent}) => void,
   label: React.ReactNode,
-  classes: ClassesType<typeof styles>,
   cancelVote?: boolean // if this is set, the styling for the voted/non-voted status will be inverted (i.e. you click the button to cancel an existing vote)
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const { openDialog } = useDialog();
@@ -60,7 +61,7 @@ const TagRelevanceButton = ({document, voteType, vote, label, classes, cancelVot
   </a>
 }
 
-export default registerComponent('TagRelevanceButton', TagRelevanceButton, {styles});
+export default TagRelevanceButton;
 
 
 

@@ -24,9 +24,7 @@ const styles = defineStyles("RecentDiscussionFeed", (theme: ThemeType) => ({
     columnGap: 10,
     alignItems: 'center',
     width: '100%',
-    ...(theme.isBookUI && {
-      color: theme.palette.text.bannerAdOverlay,
-    }),
+    color: theme.palette.text.bannerAdOverlay,
   },
   titleText: {
   },

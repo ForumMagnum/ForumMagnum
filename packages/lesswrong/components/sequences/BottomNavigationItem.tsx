@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classnames from 'classnames';
 import { legacyBreakpoints } from '../../lib/utils/theme';
@@ -6,8 +5,10 @@ import { postGetCommentCount, postGetPageUrl } from '../../lib/collections/posts
 import { useUpdateContinueReading } from './useUpdateContinueReading';
 import { Link } from '../../lib/reactRouterWrapper';
 import LoginToTrack from "./LoginToTrack";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('BottomNavigationItem', (theme: ThemeType) => ({
   root: {
     paddingTop: 28,
     
@@ -59,14 +60,14 @@ const styles = (theme: ThemeType) => ({
     position: "relative", // TODO: figure out more elegant way of doing this without weird CSS rituals
     top: 8
   }
-});
+}));
 
-const BottomNavigationItem = ({direction, post, sequence, classes}: {
+const BottomNavigationItem = ({direction, post, sequence}: {
   direction: "Previous"|"Next",
   post: NonNullable<PostSequenceNavigation['nextPost']> | NonNullable<PostSequenceNavigation['prevPost']>,
   sequence: HasIdType|null,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const updateContinueReading = useUpdateContinueReading(post._id, sequence?._id);
   const commentCount = postGetCommentCount(post) || "No"
   const url = postGetPageUrl(post, false, sequence?._id);
@@ -93,7 +94,7 @@ const BottomNavigationItem = ({direction, post, sequence, classes}: {
   )
 };
 
-export default registerComponent('BottomNavigationItem', BottomNavigationItem, {styles});
+export default BottomNavigationItem
 
 
 

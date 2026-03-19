@@ -12,6 +12,8 @@ import MessageItem from "./MessageItem";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { SideItemsContainer } from "../contents/SideItems.tsx";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const messageListFragmentMultiQuery = gql(`
   query multiMessageConversationContentsQuery($selector: MessageSelector, $limit: Int, $enableTotal: Boolean) {
@@ -24,7 +26,7 @@ const messageListFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ConversationContents", (theme: ThemeType) => ({
   conversationTitle: {
     ...theme.typography.commentStyle,
     marginTop: 8,
@@ -39,13 +41,8 @@ const styles = (theme: ThemeType) => ({
       // on mobile. This fixes that.
       display: "flex",
     },
-    ...(theme.isFriendlyUI ? {
-      padding: '18px 0px',
-      marginTop: "auto",
-    } : {
-      padding: '8px 0px',
-      backgroundColor: theme.palette.background.paper,
-    })
+    padding: '8px 0px',
+    backgroundColor: theme.palette.background.paper,
   },
   backButton: {
     color: theme.palette.lwTertiary.main,
@@ -68,21 +65,16 @@ const styles = (theme: ThemeType) => ({
       width: "calc(100% - 5px)",
     },
   },
-});
+}));
 
-const ConversationContents = ({
-  conversation,
-  currentUserId,
-  scrollRef,
-  sendEmail = true,
-  classes,
-}: {
+const ConversationContents = ({conversation, currentUserId, scrollRef, sendEmail = true}: {
   conversation: ConversationsList;
   currentUserId: string;
   scrollRef?: React.RefObject<HTMLDivElement|null>;
   sendEmail?: boolean;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
+
   // Count messages sent, and use it to set a distinct value for `key` on `MessagesNewForm`
   // that increments with each message. This is a way of clearing the form, which works
   // around problems inside the editor related to debounce timers and autosave and whatnot,
@@ -210,7 +202,6 @@ const ConversationContents = ({
 };
 
 export default registerComponent("ConversationContents", ConversationContents, {
-  styles,
   hocs: [withErrorBoundary],
 });
 

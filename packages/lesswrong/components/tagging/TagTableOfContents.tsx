@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import type { ToCDisplayOptions } from '../posts/TableOfContents/TableOfContentsList';
 import TableOfContents from "../posts/TableOfContents/TableOfContents";

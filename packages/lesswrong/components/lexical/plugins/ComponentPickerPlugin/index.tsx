@@ -115,21 +115,15 @@ class ComponentPickerOption extends MenuOption {
   }
 }
 
-function ComponentPickerMenuItem({
-  index,
-  isSelected,
-  onClick,
-  onMouseEnter,
-  option,
-  classes,
-}: {
+function ComponentPickerMenuItem({index, isSelected, onClick, onMouseEnter, option}: {
   index: number;
   isSelected: boolean;
   onClick: () => void;
   onMouseEnter: () => void;
   option: ComponentPickerOption;
-  classes: Record<string, string>;
 }) {
+  const classes = useStyles(styles);
+
   return (
     <li
       key={option.key}
@@ -285,24 +279,24 @@ function useBaseOptions(editor: LexicalEditor, openDialog: OpenDialogContextType
             ),
           }),
       }),
-      new ComponentPickerOption('Paragraph', {
-        icon: <TextParagraphIcon style={iconStyle} />,
-        keywords: ['normal', 'paragraph', 'p', 'text'],
-        onSelect: () =>
-          applyBlockTypeChange(editor, 'paragraph'),
-      }),
-      ...([1, 2, 3] as const).map(
-        (n) => {
-          const HeadingIcon = headingIcons[n];
-          return new ComponentPickerOption(`Heading ${n}`, {
-            icon: <HeadingIcon style={iconStyle} />,
-            keywords: ['heading', 'header', `h${n}`],
-            onSelect: () =>
-              applyBlockTypeChange(editor, `h${n}`),
-          });
-        }
-      ),
     ] : []),
+    new ComponentPickerOption('Paragraph', {
+      icon: <TextParagraphIcon style={iconStyle} />,
+      keywords: ['normal', 'paragraph', 'p', 'text'],
+      onSelect: () =>
+        applyBlockTypeChange(editor, 'paragraph'),
+    }),
+    ...([1, 2, 3] as const).map(
+      (n) => {
+        const HeadingIcon = headingIcons[n];
+        return new ComponentPickerOption(`Heading ${n}`, {
+          icon: <HeadingIcon style={iconStyle} />,
+          keywords: ['heading', 'header', `h${n}`],
+          onSelect: () =>
+            applyBlockTypeChange(editor, `h${n}`),
+        });
+      }
+    ),
   ];
 }
 
@@ -382,7 +376,6 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
                         }}
                         key={option.key}
                         option={option}
-                        classes={classes}
                       />
                     ))}
                   </ul>

@@ -1,5 +1,4 @@
 import React from "react"
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from 'classnames';
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
@@ -10,6 +9,8 @@ import { gql } from "@/lib/generated/gql-codegen";
 import LWPopper from "../common/LWPopper";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagWithFlagsFragmentMultiQuery = gql(`
   query multiTagTagFlagItemQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -32,7 +33,7 @@ const TagFlagFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TagFlagItem', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     padding: 4,
@@ -54,16 +55,16 @@ const styles = (theme: ThemeType) => ({
     maxWidth: 350,
     padding: 8,
   }
-})
+}))
 
 type ItemTypeName = "tagFlagId"|"allPages"|"userPages"
 
-const TagFlagItem = ({documentId, itemType = "tagFlagId", style = "grey", classes }: {
+const TagFlagItem = ({documentId, itemType = "tagFlagId", style = "grey"}: {
   documentId?: string,
   itemType?: ItemTypeName,
   style?: "white"|"grey"|"black",
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {eventHandlers, hover, anchorEl } = useHover();
   const currentUser = useCurrentUser();
   const { data } = useQuery(TagFlagFragmentQuery, {
@@ -123,6 +124,6 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", style = "grey", classe
   </span>
 }
 
-export default registerComponent('TagFlagItem', TagFlagItem, { styles } );
+export default TagFlagItem;
 
 

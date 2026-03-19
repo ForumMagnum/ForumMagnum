@@ -1,5 +1,5 @@
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
-import { profileStyles } from "./profileStyles";
+import { profileStyles, TabPanel } from "./profileStyles";
 import { UltraFeedContextProvider } from "@/components/ultraFeed/UltraFeedContextProvider";
 import { UltraFeedObserverProvider } from "@/components/ultraFeed/UltraFeedObserver";
 import { OverflowNavObserverProvider } from "@/components/ultraFeed/OverflowNavObserverContext";
@@ -76,7 +76,7 @@ export function ProfilePageQuickTakesTabContents({user, settings}: {
   const quickTakes = data?.comments?.results;
 
   return (
-    <div className={classes.tabPanel}>
+    <TabPanel>
       <UltraFeedContextProvider openInNewTab={true}>
         <UltraFeedObserverProvider incognitoMode={false}>
           <OverflowNavObserverProvider>
@@ -94,6 +94,6 @@ export function ProfilePageQuickTakesTabContents({user, settings}: {
           </OverflowNavObserverProvider>
         </UltraFeedObserverProvider>
       </UltraFeedContextProvider>
-    </div>
+    </TabPanel>
   );
 }

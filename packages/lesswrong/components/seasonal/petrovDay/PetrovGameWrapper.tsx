@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
@@ -9,6 +8,8 @@ import PetrovWarningConsole from "./PetrovWarningConsole";
 import PetrovLaunchConsole from "./PetrovLaunchConsole";
 import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
 import PetrovDayLossScreen from "../PetrovDayLossScreen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PetrovDayActionInfoMultiQuery = gql(`
   query multiPetrovDayActionPetrovGameWrapperQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -21,7 +22,7 @@ const PetrovDayActionInfoMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PetrovGameWrapper', (theme: ThemeType) => ({
   citizenEast: {
     width: 400,
     height: 300,
@@ -47,11 +48,10 @@ const styles = (theme: ThemeType) => ({
     fontSize: '2.5rem',
     textShadow: `0px 0px 3px ${theme.palette.background.pageActiveAreaBackground}, 0px 0px 3px ${theme.palette.background.pageActiveAreaBackground}`,
   }
-});
+}));
 
-export const PetrovGameWrapper = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const PetrovGameWrapper = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
 
   const { data: dataPetrovDayActions } = useQuery(PetrovDayActionInfoMultiQuery, {
@@ -121,6 +121,6 @@ export const PetrovGameWrapper = ({classes}: {
   // return <DismissibleSpotlightItem spotlight={spotlight}/>
 }
 
-export default registerComponent('PetrovGameWrapper', PetrovGameWrapper, {styles});
+export default PetrovGameWrapper;
 
 

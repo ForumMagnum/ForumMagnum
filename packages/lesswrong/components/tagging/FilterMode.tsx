@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { FilterMode as FilterModeType, isCustomFilterMode, getStandardFilterModes } from '../../lib/filterSettings';
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
@@ -19,7 +18,8 @@ import LWTooltip from "../common/LWTooltip";
 import PopperCard from "../common/PopperCard";
 import TagPreview from "./TagPreview";
 import ContentStyles from "../common/ContentStyles";
-
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagPreviewFragmentQuery = gql(`
   query FilterMode($documentId: String) {
@@ -46,7 +46,7 @@ export const filteringStyles = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FilterMode", (theme: ThemeType) => ({
   tag: {
     padding: 8,
     paddingLeft: 10,
@@ -59,15 +59,10 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     textAlign: "center",
     fontWeight: theme.typography.body1.fontWeight,
-    color: theme.isFriendlyUI ? theme.palette.lwTertiary.main : theme.palette.primary.main,
+    color: theme.palette.primary.main,
     boxShadow: theme.palette.boxShadow.default,
-    ...(theme.isFriendlyUI ? {
-      marginBottom: 4,
-      marginRight: 4,
-    } : {
-      maxWidth: 180,
-      whiteSpace: "nowrap",
-    }),
+    maxWidth: 180,
+    whiteSpace: "nowrap",
   },
   description: {
     marginTop: 20
@@ -77,7 +72,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     justifyContent: 'center',
     fontWeight: theme.typography.body1.fontWeight,
-    overflow: theme.isFriendlyUI ? undefined : 'hidden',
+    overflow: 'hidden',
   },
   filterScore: {
     color: theme.palette.primary.main,
@@ -132,11 +127,7 @@ const styles = (theme: ThemeType) => ({
     paddingRight: 8,
     marginTop: -4,
     marginBottom: -4,
-    borderRadius: 2,
-    
-    ...(theme.isFriendlyUI && {
-      color: theme.palette.primary.main
-    }),
+    borderRadius: 2
   },
   input: {
     padding: 0,
@@ -158,9 +149,9 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-});
+}));
 
-const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description, classes}: {
+const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description}: {
   tagId?: string,
   label?: string,
   mode: FilterModeType,
@@ -168,8 +159,8 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   onChangeMode: (mode: FilterModeType) => void,
   onRemove?: () => void,
   description?: React.ReactNode
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { hover, anchorEl, eventHandlers } = useHover({
     eventProps: {tagId, label, mode},
   });
@@ -408,6 +399,6 @@ function filterModeStrToLabel(filterModeStr: FilterModeString) {
   }
 }
 
-export default registerComponent("FilterMode", FilterModeRawComponent, {styles});
+export default FilterModeRawComponent;
 
 

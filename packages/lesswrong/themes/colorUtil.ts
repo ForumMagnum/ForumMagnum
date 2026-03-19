@@ -1,4 +1,3 @@
-import { isLWorAF } from "../lib/instanceSettings";
 import mapValues from "lodash/mapValues";
 
 type ColorTuple=[number,number,number,number]; //RGBA, all channels floating point zero to one
@@ -73,19 +72,13 @@ export function colorToString(color: ColorTuple): string
 
 // HACK: Gamma here is tuned empirically for a visual result, not based on
 // anything principled.
-const getGamma = () => !isLWorAF() ? 1.24 : 1.5;
-
-const applyInversionBias = (color: number) => (
-  !isLWorAF()
-    ? ((0.92 * color) + 0.08)
-    : color
-);
+const getGamma = () => 1.5;
 
 const invertChannel = (channel: number) => {
   const linearized = Math.pow(channel, getGamma());
   const invertedLinearized = 1.0-linearized;
   const inverted = Math.pow(invertedLinearized, 1.0 / getGamma());
-  return applyInversionBias(inverted);
+  return inverted;
 }
 
 export function invertColor(color: ColorTuple): ColorTuple

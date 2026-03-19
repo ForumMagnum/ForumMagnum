@@ -4,7 +4,6 @@ import { useQuery } from "@/lib/crud/useQuery"
 import { extractGoogleDocId, googleDocIdToUrl, postGetEditUrl } from "../../lib/collections/posts/helpers";
 import { useMessages } from "../common/withMessages";
 import { useTracking } from "../../lib/analyticsEvents";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import EAButton from "../ea-forum/EAButton";
 import ForumIcon from "../common/ForumIcon";
@@ -12,8 +11,11 @@ import PopperCard from "../common/PopperCard";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
+import { disconnectCollaborationForPost } from "../lexical/collaboration";
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("GoogleDocImportButton", (theme: ThemeType) => ({
   button: {
     color: theme.palette.grey[900],
     backgroundColor: "transparent",
@@ -93,10 +95,11 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[200],
     }
   }
-});
+}));
 
 
-const GoogleDocImportButton = ({ postId, version, classes }: { postId: string; version?: string; classes: ClassesType<typeof styles> }) => {
+const GoogleDocImportButton = ({postId, version}: { postId: string; version?: string; }) => {
+  const classes = useStyles(styles);
   const [googleDocUrl, setGoogleDocUrl] = useState("");
   const [open, setOpen] = useState(false)
   const anchorEl = useRef<HTMLDivElement | null>(null)
@@ -182,6 +185,10 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId: string; v
   }, [captureEvent])
 
   const handleImportClick = useCallback(async () => {
+    if (postId) {
+      // Clear any live/local Yjs state before the import replaces the server copy.
+      await disconnectCollaborationForPost(postId);
+    }
     void importGoogleDocMutation({
       variables: { fileUrl: googleDocUrl, postId },
     });
@@ -228,6 +235,6 @@ const GoogleDocImportButton = ({ postId, version, classes }: { postId: string; v
   );
 };
 
-export default registerComponent("GoogleDocImportButton", GoogleDocImportButton, { styles });
+export default GoogleDocImportButton;
 
 

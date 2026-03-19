@@ -1,12 +1,11 @@
 "use client";
 import React from "react";
-import classNames from "classnames";
 import { useQuery } from "@/lib/crud/useQuery";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { Link } from "@/lib/reactRouterWrapper";
 import { defaultSequenceBannerIdSetting } from "@/lib/instanceSettings";
-import { profileStyles } from "./profileStyles";
+import { profileStyles, TabPanel } from "./profileStyles";
 import { cssUrl } from "./userProfilePageUtil";
 import { gql } from "@/lib/generated/gql-codegen";
 import { z } from "zod";
@@ -14,15 +13,6 @@ import { z } from "zod";
 const profilePageSequencesTabUnsharedStyles = defineStyles("ProfilePageSequencesTabUnshared", (theme: ThemeType) => ({
   sequencesList: {
     paddingTop: 20,
-  },
-  tabPanel: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 8,
-    animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-    "@media (max-width: 630px)": {
-      order: 1,
-    },
   },
   sequencesGrid: {
     display: "grid",
@@ -117,7 +107,7 @@ export function ProfilePageSequencesTabContents({user, settings}: {
   });
   const sequences = sequencesData?.sequences?.results ?? [];
 
-  return <div className={classNames(classes.sequencesList, classes.tabPanel)}>
+  return <TabPanel className={classes.sequencesList}>
     <div className={classes.sequencesGrid}>
       {sequences.map((sequence) => {
         const imageId = sequence.gridImageId || defaultSequenceBannerIdSetting.get();
@@ -141,5 +131,5 @@ export function ProfilePageSequencesTabContents({user, settings}: {
         );
       })}
     </div>
-  </div>
+  </TabPanel>
 }

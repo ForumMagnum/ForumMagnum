@@ -1,11 +1,12 @@
 import React, { useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { MultiSelectState } from "../hooks/useMultiSelect";
 import { useTracking } from "../../lib/analyticsEvents";
 import classNames from "classnames";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PeopleDirectorySelectOption", (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     userSelect: "none",
@@ -39,13 +40,13 @@ const styles = (theme: ThemeType) => ({
     marginLeft: -1,
     color: theme.palette.primary.main,
   },
-});
+}), { stylePriority: -1 });
 
-const PeopleDirectorySelectOption = ({state, className, classes}: {
+const PeopleDirectorySelectOption = ({state, className}: {
   state: MultiSelectState,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {value, label, selected, onToggle} = state;
   const {captureEvent} = useTracking({
     eventType: "selectOptionToggle",
@@ -71,10 +72,6 @@ const PeopleDirectorySelectOption = ({state, className, classes}: {
   );
 }
 
-export default registerComponent(
-  "PeopleDirectorySelectOption",
-  PeopleDirectorySelectOption,
-  {styles, stylePriority: -1},
-);
+export default PeopleDirectorySelectOption;
 
 

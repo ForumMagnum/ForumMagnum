@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { getVotingSystemByName } from '@/lib/voting/getVotingSystem';
 import classNames from 'classnames';
@@ -9,8 +8,10 @@ import FooterTagList from "../../tagging/FooterTagList";
 import LWPostsPageTopHeaderVote from "../../votes/LWPostsPageTopHeaderVote";
 import AudioToggle from "./AudioToggle";
 import PostActionsButton from "../../dropdowns/posts/PostActionsButton";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LWPostsPageHeaderTopRight', (theme: ThemeType) => ({
   root: {
     display: 'flex',
     flexWrap: "nowrap",
@@ -59,16 +60,16 @@ const styles = (theme: ThemeType) => ({
   darkerOpacity: {
     opacity: 0.7
   }
-});
+}));
 
-export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast, annualReviewMarketInfo}: {
-  classes: ClassesType<typeof styles>,
+export const LWPostsPageHeaderTopRight = ({post, toggleEmbeddedPlayer, showEmbeddedPlayer, higherContrast, annualReviewMarketInfo}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   toggleEmbeddedPlayer?: () => void,
   showEmbeddedPlayer?: boolean,
   higherContrast?: boolean,
   annualReviewMarketInfo?: AnnualReviewMarketInfo
 }) => {
+  const classes = useStyles(styles);
   const votingSystem = getVotingSystemByName(post.votingSystem ?? 'default');
 
   return <div className={classes.root}>
@@ -87,6 +88,6 @@ export const LWPostsPageHeaderTopRight = ({classes, post, toggleEmbeddedPlayer, 
   </div>;
 }
 
-export default registerComponent('LWPostsPageHeaderTopRight', LWPostsPageHeaderTopRight, {styles});
+export default LWPostsPageHeaderTopRight;
 
 

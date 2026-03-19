@@ -8,16 +8,7 @@ import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("ErrorAccessDenied", (theme: ThemeType) => ({
-  root: theme.isFriendlyUI
-    ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 16,
-      fontWeight: 500,
-      lineHeight: '26px',
-      textWrap: 'pretty',
-      marginTop: 30
-    }
-    :{},
+  root: {},
 }));
 
 /**

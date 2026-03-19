@@ -27,9 +27,7 @@ const styles = defineStyles("CommentPermalink", (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    ...(theme.isBookUI ? {
-      marginTop: 64
-    } : {}),
+    marginTop: 64
   },
   dividerMargins: {
     marginTop: 150,

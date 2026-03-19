@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getUserABTestKey, getABTestsMetadata } from '../../lib/abTestImpl';
 import { useClientId } from '../hooks/useClientId';
 import { useAllABTests } from '../hooks/useAbTests';
@@ -11,19 +10,15 @@ import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import { MenuItem } from "../common/Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("UsersViewABTests", (theme: ThemeType) => ({
   explanatoryText: {
-    ...theme.typography.body1,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
+    ...theme.typography.body1
   },
   abTestsTable: {
     ...theme.typography.body1,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
     marginTop: 24,
     "& th": {
       textAlign: "left",
@@ -32,11 +27,10 @@ const styles = (theme: ThemeType) => ({
       paddingRight: 20,
     },
   },
-});
+}));
 
-const UsersViewABTests = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const UsersViewABTests = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const allABtests = useAllABTests();
@@ -100,6 +94,6 @@ const UsersViewABTests = ({classes}: {
   </SingleColumnSection>
 }
 
-export default registerComponent("UsersViewABTests", UsersViewABTests, {styles});
+export default UsersViewABTests;
 
 

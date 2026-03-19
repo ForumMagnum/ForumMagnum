@@ -1,19 +1,21 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import PostsItemNewCommentsList from "./PostsItemNewCommentsList";
 import PostsDialogItemNewCommentsList from "./PostsDialogItemNewCommentsList";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({})
+const styles = defineStyles('PostsItemNewCommentsWrapper', (theme: ThemeType) => ({}))
 
 const isDialogPost = (post: PostsList): post is PostsList & { debate: true } => !!post.debate;
 
-const PostsItemNewCommentsWrapper = ({ terms, classes, post, treeOptions }: {
+const PostsItemNewCommentsWrapper = ({terms, post, treeOptions}: {
   terms: CommentsViewTerms,
-  classes: ClassesType<typeof styles>,
   post: PostsList,
   treeOptions: CommentTreeOptions,
 }) => {
+  const classes = useStyles(styles);
+
   if (isDialogPost(post)) {
     return <PostsDialogItemNewCommentsList
       terms={terms}
@@ -29,10 +31,6 @@ const PostsItemNewCommentsWrapper = ({ terms, classes, post, treeOptions }: {
   />;
 };
 
-export default registerComponent(
-  'PostsItemNewCommentsWrapper', PostsItemNewCommentsWrapper, {
-    styles,
-  }
-);
+export default PostsItemNewCommentsWrapper;
 
 

@@ -78,7 +78,7 @@ function normalizeForSemanticMatch(value: string): string {
   return normalizeText(normalizeMathDelimiters(normalizeEmphasisMarkerStyle(value)));
 }
 
-function markdownQuoteToPlainText(value: string): string {
+export function markdownQuoteToPlainText(value: string): string {
   return value
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
     .replace(/\$\$([\s\S]*?)\$\$/g, "$1")

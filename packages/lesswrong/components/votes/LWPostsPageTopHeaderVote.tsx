@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useVote } from './withVote';
 import { isAF } from '../../lib/instanceSettings';
@@ -7,8 +6,10 @@ import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { TooltipSpan } from '../common/FMTooltip';
 import OverallVoteButton from "./OverallVoteButton";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWPostsPageTopHeaderVote", (theme: ThemeType) => ({
   voteBlockHorizontal: {
     display: 'flex',
     flexDirection: 'column',
@@ -46,17 +47,13 @@ const styles = (theme: ThemeType) => ({
     transition: 'opacity 150ms cubic-bezier(0.4, 0, 1, 1) 0ms',
     marginLeft: 0,
   },
-});
+}));
 
-const LWPostsPageTopHeaderVote = ({
-  post,
-  votingSystem,
-  classes,
-}: {
+const LWPostsPageTopHeaderVote = ({post, votingSystem}: {
   post: PostsWithVotes,
   votingSystem: VotingSystem<PostsWithVotes>,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const voteProps = useVote(post, "Posts", votingSystem);
 
   const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
@@ -132,10 +129,6 @@ const LWPostsPageTopHeaderVote = ({
   );
 }
 
-export default registerComponent(
-  "LWPostsPageTopHeaderVote",
-  LWPostsPageTopHeaderVote,
-  {styles},
-);
+export default LWPostsPageTopHeaderVote;
 
 

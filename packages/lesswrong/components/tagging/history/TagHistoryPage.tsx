@@ -34,8 +34,7 @@ import { TagHistoryFeedQuery } from '@/components/common/feeds/feedQueries';
 
 export const tagHistoryStyles = defineStyles("TagHistoryPage", (theme: ThemeType) => ({
   title: {
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
-  },
+},
   feed: {
     ...theme.typography.body2,
   },

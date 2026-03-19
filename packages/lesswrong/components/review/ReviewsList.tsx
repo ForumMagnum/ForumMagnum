@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { ReviewYear } from '../../lib/reviewUtils';
 import { TupleSet, UnionOf } from '../../lib/utils/typeGuardUtils';
@@ -12,6 +11,8 @@ import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentReviewsListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -24,24 +25,24 @@ const CommentsListWithParentMetadataMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewsList', (theme: ThemeType) => ({
   root: {
     padding: 16,
     paddingTop: 0,
     marginTop: -24,
     backgroundColor: theme.palette.background.translucentBackground
   }
-})
+}))
 
 const sortOptions = new TupleSet(["top", "new"] as const);
 export type ReviewSortOption = UnionOf<typeof sortOptions>;
 
-export const ReviewsList = ({classes, title, defaultSort, reviewYear}: {
-  classes: ClassesType<typeof styles>,
+export const ReviewsList = ({title, defaultSort, reviewYear}: {
   title: React.ReactNode | string,
   defaultSort: ReviewSortOption,
   reviewYear?: ReviewYear
 }) => {
+  const classes = useStyles(styles);
   const [sortReviews, setSortReviews ] = useState<string>(defaultSort)
   
   const { data, loading } = useQuery(CommentsListWithParentMetadataMultiQuery, {
@@ -93,6 +94,6 @@ export const ReviewsList = ({classes, title, defaultSort, reviewYear}: {
   </div>;
 }
 
-export default registerComponent('ReviewsList', ReviewsList, {styles});
+export default ReviewsList;
 
 

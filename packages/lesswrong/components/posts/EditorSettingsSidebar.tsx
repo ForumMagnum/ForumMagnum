@@ -411,12 +411,18 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     color: theme.palette.greyAlpha(0.5),
     marginBottom: 8,
   },
+  shareLinkButtonContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 4,
+  },
   shareLinkButton: {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     gap: 6,
-    width: "100%",
+    width: "50%",
     padding: "8px 12px",
     marginTop: 16,
     marginBottom: 14,
@@ -432,6 +438,38 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     "&:hover": {
       background: theme.palette.primary.dark,
     },
+  },
+  openInClaudeButton: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    width: "50%",
+    padding: "8px 12px",
+    marginTop: 16,
+    marginBottom: 14,
+    borderRadius: 8,
+    border: "none",
+    background: theme.palette.buttons.shareWithClaude,
+    cursor: "pointer",
+    ...theme.typography.commentStyle,
+    fontSize: 13,
+    fontWeight: 600,
+    color: theme.palette.text.alwaysWhite,
+    textDecoration: "none",
+    transition: "all 0.15s ease",
+    "&:hover": {
+      background: theme.palette.buttons.shareWithClaudeHover,
+      // By default, links get opacity 0.5 in our codebase, but we want this to feel more like a button
+      opacity: 'initial',
+    },
+  },
+  openInClaudeButtonTooltip: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    width: "100%",
   },
   shareLinkIcon: {
     fontSize: 15,
@@ -715,6 +753,13 @@ const STICKY_PRIORITIES: Record<number, string> = {
   4: "Max",
 };
 
+function getFeedbackQuery(postId: string, linkSharingKey: string | undefined) {
+  const postUrl = postGetEditUrl(postId, true, linkSharingKey);
+  return `I'm writing a post on LessWrong and would appreciate your inline feedback on it.  The post is located at ${postUrl}.
+
+Please remember to follow the guidelines in LessWrong's SKILL.md (https://www.lesswrong.com/SKILL.md).`;
+}
+
 function AccordionSection({ title, defaultOpen = false, children, className, contentClassName }: {
   title: string;
   defaultOpen?: boolean;
@@ -788,6 +833,8 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
   flash: (message: string) => void;
 }) {
   const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
+
   const postId = form.state.values._id;
   const linkSharingKey = form.state.values.linkSharingKey ?? undefined;
 
@@ -811,8 +858,33 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
                 </div>;
               }
 
-              if (!linkEnabled) {
-                return <button
+              const claudeUrl = `https://www.claude.ai/new?q=${encodeURIComponent(getFeedbackQuery(postId, linkSharingKey))}`;
+              const shareWithClaudeButton = (
+                <a
+                  href={claudeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={classes.openInClaudeButton}
+                  onClick={() => {
+                    captureEvent("shareWithClaudeClicked", { postId });
+                    field.handleChange({
+                      ...settings,
+                      ...(settings.anyoneWithLinkCan === 'none' ? { anyoneWithLinkCan: "edit" } : {}),
+                    });
+                  }}
+                >
+                <LWTooltip
+                  className={classes.openInClaudeButtonTooltip}
+                  title="Opens a new conversation in claude.ai with our default feedback prompt.  If you change it, you need to explicitly tell Claude to leave feedback in the editor, or it will respond to you in chat.  (We can't do this for you since it's treated as a prompt injection.)"
+                >
+                  <ForumIcon icon="OpenInNew" className={classes.shareLinkIcon} />
+                  Claude
+                </LWTooltip>
+                </a>
+              );
+
+              const shareLinkButton = (
+                <button
                   type="button"
                   className={classes.shareLinkButton}
                   onClick={() => {
@@ -829,18 +901,26 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
                 >
                   <ForumIcon icon="Link" className={classes.shareLinkIcon} />
                   Share link
-                </button>;
+                </button>
+              );
+
+              if (!linkEnabled) {
+                return <div className={classes.shareLinkButtonContainer}>{shareLinkButton}{shareWithClaudeButton}</div>;
               }
 
-              return <CopyToClipboard
-                text={postGetEditUrl(postId, true, linkSharingKey)}
-                onCopy={() => flash("Link copied")}
-              >
-                <button type="button" className={classes.shareLinkButton}>
-                  <ForumIcon icon="Link" className={classes.copyLinkIcon} />
-                  Copy link
-                </button>
-              </CopyToClipboard>;
+              const copyLinkButton = (
+                <CopyToClipboard
+                  text={postGetEditUrl(postId, true, linkSharingKey)}
+                  onCopy={() => flash("Link copied")}
+                >
+                  <button type="button" className={classes.shareLinkButton}>
+                    <ForumIcon icon="Link" className={classes.copyLinkIcon} />
+                    Copy link
+                  </button>
+                </CopyToClipboard>
+              );
+
+              return <div className={classes.shareLinkButtonContainer}>{copyLinkButton}{shareWithClaudeButton}</div>;
             }}
           </form.Field>
 
@@ -970,6 +1050,8 @@ function GoogleDocImportSection({ postId }: { postId: string }) {
   );
 
   const handleImportClick = useCallback(async () => {
+    // Clear any live/local Yjs state before the import replaces the server copy.
+    await disconnectCollaborationForPost(postId);
     void importGoogleDocMutation({
       variables: { fileUrl: googleDocUrl, postId },
     });
@@ -1105,8 +1187,8 @@ const EditorSettingsSidebar = ({
   const canShare = userCanUseSharing(currentUser);
   const contentType = initialData.contents?.originalContents?.type;
   const postId = initialData._id;
-  const canSeeMarkdownToggle = userUseMarkdownPostEditor(currentUser)
-    && (contentType === "markdown" || contentType === "lexical");
+  const canSeeMarkdownToggle = contentType === "markdown"
+    || (contentType === "lexical" && userUseMarkdownPostEditor(currentUser));
 
   const openVersionHistory = useCallback(() => {
     if (!postId) {

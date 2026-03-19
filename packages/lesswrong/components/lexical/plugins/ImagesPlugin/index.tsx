@@ -58,6 +58,7 @@ import {
   ImagePayload,
 } from '../../nodes/ImageNode';
 import { $canDropImage, $getImageNodeInSelection, getDragImageData, getDragSelection, isImageFile } from './ImageUtils';
+import { preloadImage } from '../../nodes/imageCache';
 
 import {
   SET_IMAGE_CAPTION_VISIBILITY_COMMAND,
@@ -539,6 +540,63 @@ export default function ImagesPlugin({
       }),
       editor.registerMutationListener(ParagraphNode, (mutations) => {
         updateCaptionEmptyFromMutations(editor, mutations);
+      }),
+      editor.registerMutationListener(ImageNode, (mutations) => {
+        const nodeKeysToRedecorate: string[] = [];
+
+        for (const [nodeKey, mutation] of mutations) {
+          if (mutation === 'destroyed') continue;
+
+          // Ensure the render node re-decorates on any ImageNode change.
+          // This is necessary because collaboration updates modify node
+          // properties directly without going through setter methods like
+          // setSrc(), so the render node isn't automatically marked dirty.
+          nodeKeysToRedecorate.push(nodeKey);
+
+          if (mutation !== 'created') continue;
+
+          editor.getEditorState().read(() => {
+            const node = $getNodeByKey(nodeKey);
+            if (!$isImageNode(node)) return;
+            const src = node.getSrc();
+            if (!src.startsWith('blob:')) return;
+
+            fetch(src)
+              .then(response => response.blob())
+              .then(blob => uploadToCloudinary(blob))
+              .then(async (result) => {
+                await preloadImage(result.secure_url);
+                editor.update(() => {
+                  const currentNode = $getNodeByKey(nodeKey);
+                  if ($isImageNode(currentNode)) {
+                    currentNode.setSrc(result.secure_url);
+                  }
+                });
+                URL.revokeObjectURL(src);
+              })
+              .catch((error) => {
+                // On non-creating clients, the blob URL is unresolvable —
+                // the creating client will handle the upload and propagate
+                // the Cloudinary URL via Yjs.
+                if (error instanceof ImageUploadError) {
+                  flashUploadError(flash, error);
+                }
+              });
+          });
+        }
+
+        if (nodeKeysToRedecorate.length > 0) {
+          editor.update(() => {
+            for (const nodeKey of nodeKeysToRedecorate) {
+              const node = $getNodeByKey(nodeKey);
+              if (!$isImageNode(node)) continue;
+              const renderNode = node.getFirstChild();
+              if ($isImageRenderNode(renderNode)) {
+                renderNode.getWritable();
+              }
+            }
+          });
+        }
       }),
     );
   }, [captionsEnabled, editor, flash]);

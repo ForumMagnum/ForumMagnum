@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import SnoozeIcon from '@/lib/vendor/@material-ui/icons/src/Snooze';
 import AddAlarmIcon from '@/lib/vendor/@material-ui/icons/src/AddAlarm';
@@ -26,6 +25,8 @@ import UserRateLimitItem from "./UserRateLimitItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { MANUAL_NEEDS_REVIEW } from '@/lib/collections/moderatorActions/constants';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineUsersListUpdateMutation = gql(`
   mutation updateUserModeratorActions($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -47,7 +48,7 @@ const ModeratorActionsCreateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ModeratorActions', (theme: ThemeType) => ({
   row: {
     display: "flex",
     alignItems: "center",
@@ -101,20 +102,20 @@ const styles = (theme: ThemeType) => ({
       ...hideScrollBars
     }
   },
-});
+}));
 
 export function getNewSnoozeUntilContentCount(user: UserContentCountPartial, contentCount: number) {
   return getCurrentContentCount(user) + contentCount
 }
 
-export const ModeratorActions = ({classes, user, currentUser, refetch, comments, posts}: {
+export const ModeratorActions = ({user, currentUser, refetch, comments, posts}: {
   user: SunshineUsersList,
-  classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
   refetch: () => void,
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined,
 }) => {
+  const classes = useStyles(styles);
   const [notes, setNotes] = useState(user.sunshineNotes || "")
   const { openDialog } = useDialog();
 
@@ -449,7 +450,7 @@ export const ModeratorActions = ({classes, user, currentUser, refetch, comments,
   </div>
 }
 
-export default registerComponent('ModeratorActions', ModeratorActions, {styles});
+export default ModeratorActions;
 
 
 

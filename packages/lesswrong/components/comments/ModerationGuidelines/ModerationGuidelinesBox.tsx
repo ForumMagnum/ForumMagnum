@@ -14,8 +14,8 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { TooltipSpan } from '@/components/common/FMTooltip';
 import ModerationGuidelinesEditForm from "./ModerationGuidelinesEditForm";
 import ContentStyles from "../../common/ContentStyles";
-import { safeForDarkMode } from '@/components/hooks/defineStyles';
-
+import { defineStyles, safeForDarkMode } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsModerationGuidelinesQuery = gql(`
   query PostsModerationGuidelines($documentId: String) {
@@ -39,7 +39,7 @@ const TagModerationGuidelinesQuery = gql(`
   }
 `)
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ModerationGuidelinesBox', (theme: ThemeType) => ({
   root: {
     padding: 16,
     position: "relative"
@@ -81,7 +81,7 @@ const styles = (theme: ThemeType) => ({
       marginBottom: '.4em'
     }
   }
-})
+}))
 
 const truncateGuidelines = (guidelines: string) => {
   return truncatise(guidelines, {
@@ -126,11 +126,11 @@ const getSubforumModerationGuidelines = (tag: TagFragment) => {
   return { combinedGuidelines, truncatedGuidelines }
 }
 
-const ModerationGuidelinesBox = ({ classes, commentType = "post", documentId }: {
-  classes: ClassesType<typeof styles>,
+const ModerationGuidelinesBox = ({commentType = "post", documentId}: {
   commentType?: "post" | "subforum",
   documentId: string,
 }) => {
+  const classes = useStyles(styles);
   const { recordEvent } = useNewEvents();
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -232,7 +232,6 @@ const moderationStyleLookup: Partial<Record<string, string>> = {
 }
 
 export default registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

@@ -13,7 +13,6 @@ import { commentDefaultToAlignment } from '../../lib/collections/comments/helper
 import { isInFuture, useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { useTracking } from "../../lib/analyticsEvents";
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { getCommentsNewFormPadding } from '@/lib/collections/comments/constants';
 import { CommentForm, type CommentInteractionType } from './CommentForm';
@@ -25,6 +24,8 @@ import RateLimitWarning from "../editor/RateLimitWarning";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useLocation } from '@/lib/routeUtil';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersCurrentCommentRateLimitQuery = gql(`
   query CommentsNewForm($documentId: String, $postId: String) {
@@ -39,12 +40,8 @@ const UsersCurrentCommentRateLimitQuery = gql(`
 export type FormDisplayMode = "default" | "minimalist"
 
 
-const styles = (theme: ThemeType) => ({
-  root: theme.isFriendlyUI ? {
-    '& .form-component-EditorFormComponent': {
-      marginTop: 0
-    }
-  } : {},
+const styles = defineStyles('CommentsNewForm', (theme: ThemeType) => ({
+  root: {},
   rootMinimalist: {
     '& .form-input': {
       width: "100%",
@@ -64,17 +61,7 @@ const styles = (theme: ThemeType) => ({
       borderTopRightRadius: theme.borderRadius.quickTakesEntry,
     },
   },
-  quickTakesSubmitButtonAtBottom: theme.isFriendlyUI
-    ? {
-      "& .form-component-EditorFormComponent": {
-        background: "transparent",
-        borderRadius: theme.borderRadius.quickTakesEntry,
-      },
-      "& .form-input": {
-        padding: "0 20px",
-      },
-    }
-    : {},
+  quickTakesSubmitButtonAtBottom: {},
   loadingRoot: {
     opacity: 0.5
   },
@@ -99,7 +86,7 @@ const styles = (theme: ThemeType) => ({
   moderationGuidelinesWrapper: {
     backgroundColor: theme.palette.panelBackground.newCommentFormModerationGuidelines,
   }
-});
+}));
 
 export type CommentSuccessCallback = ((
   comment: CommentsList,
@@ -109,17 +96,13 @@ export type CommentCancelCallback = (...args: unknown[]) => void | Promise<void>
 
 const shouldOpenNewUserGuidelinesDialog = (
   maybeProps: { user: UsersCurrent | null, post?: PostsMinimumInfo }
-): maybeProps is Omit<ComponentProps<typeof NewUserGuidelinesDialog>, "onClose" | "classes"> => {
+): maybeProps is Omit<ComponentProps<typeof NewUserGuidelinesDialog>, "onClose"> => {
   const { user, post } = maybeProps;
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
 
 const getSubmitLabel = (isQuickTake: boolean, isAnswer?: boolean) => {
-  if (isAnswer) {
-    return isFriendlyUI() ? 'Add answer' : 'Submit';
-  }
-  if (!isFriendlyUI()) return 'Submit'
-  return isQuickTake ? 'Publish' : 'Comment'
+  return "Submit";
 }
 
 export type CommentsNewFormProps = {
@@ -148,31 +131,10 @@ export type CommentsNewFormProps = {
   cancelLabel?: string,
   hideAlignmentForumCheckbox?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }
 
-const CommentsNewForm = ({
-  prefilledProps={},
-  post,
-  tag,
-  tagCommentType="DISCUSSION",
-  parentComment,
-  successCallback,
-  interactionType,
-  cancelCallback,
-  removeFields,
-  formProps,
-  enableGuidelines=true,
-  padding=true,
-  formStyle="default",
-  overrideHintText,
-  quickTakesSubmitButtonAtBottom,
-  isAnswer,
-  cancelLabel,
-  hideAlignmentForumCheckbox,
-  className,
-  classes,
-}: CommentsNewFormProps) => {
+const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSION", parentComment, successCallback, interactionType, cancelCallback, removeFields, formProps, enableGuidelines=true, padding=true, formStyle="default", overrideHintText, quickTakesSubmitButtonAtBottom, isAnswer, cancelLabel, hideAlignmentForumCheckbox, className}: CommentsNewFormProps) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking({eventProps: { postId: post?._id, tagId: tag?._id, tagCommentType}});
   const now = useCurrentTime();
@@ -305,10 +267,6 @@ const CommentsNewForm = ({
     ...(overrideHintText ? {editorHintText: overrideHintText} : {})
   }), [isMinimalist, overrideHintText]);
 
-  const answerFormProps = useMemo(() => isAnswer
-    ? {editorHintText: isFriendlyUI() && isAnswer ? 'Write a new answer...' : undefined}
-    : {}, [isAnswer]);
-
   const parentDocumentId = post?._id || tag?._id
 
   useEffect(() => {
@@ -327,8 +285,7 @@ const CommentsNewForm = ({
     formClassName: isQuickTake ? classes.quickTakesForm : '',
     ...extraFormProps,
     ...formProps,
-    ...answerFormProps,
-  }), [isQuickTake, classes.quickTakesForm, extraFormProps, formProps, answerFormProps]);
+  }), [isQuickTake, classes.quickTakesForm, extraFormProps, formProps]);
 
   const commentSubmitProps = useMemo(() => ({
     formDisabledDueToRateLimit,
@@ -378,7 +335,6 @@ const CommentsNewForm = ({
               interactionType={interactionType}
               alignmentForumPost={post?.af}
               hideAlignmentForumCheckbox={hideAlignmentForumCheckbox}
-              quickTakesFormGroup={isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI())}
               formClassName={mergedFormProps.formClassName}
               editorHintText={mergedFormProps.editorHintText}
               commentMinimalistStyle={mergedFormProps.commentMinimalistStyle}
@@ -410,7 +366,6 @@ const CommentsNewForm = ({
 };
 
 export default registerComponent('CommentsNewForm', CommentsNewForm, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

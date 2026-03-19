@@ -1,25 +1,12 @@
 export const submitButtonStyles = (theme: ThemeType) => ({
   fontFamily: theme.typography.fontFamily,
   marginLeft: "5px",
-  ...(theme.isFriendlyUI
-    ? {
-      fontSize: 14,
-      fontWeight: 500,
-      textTransform: "none",
-      background: theme.palette.buttons.alwaysPrimary,
-      color: theme.palette.text.alwaysWhite, // Dark mode independent
-      "&:hover": {
-        background: theme.palette.primary.dark,
-      },
-    }
-    : {
-      paddingBottom: 2,
-      fontSize: 16,
-      color: theme.palette.secondary.main,
-      "&:hover": {
-        background: theme.palette.panelBackground.darken05,
-      },
-    }),
+  paddingBottom: 2,
+  fontSize: 16,
+  color: theme.palette.secondary.main,
+  "&:hover": {
+    background: theme.palette.panelBackground.darken05,
+  },
 });
 
 export const cancelButtonStyles = (theme: ThemeType) => ({
@@ -29,14 +16,6 @@ export const cancelButtonStyles = (theme: ThemeType) => ({
   "&:hover": {
     background: theme.palette.panelBackground.darken05,
   },
-  ...(theme.isFriendlyUI
-    ? {
-      fontSize: 14,
-      fontWeight: 500,
-      textTransform: "none",
-    }
-    : {
-      paddingBottom: 2,
-      fontSize: 16,
-    }),
+  paddingBottom: 2,
+  fontSize: 16,
 });

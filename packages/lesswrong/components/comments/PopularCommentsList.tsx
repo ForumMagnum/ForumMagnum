@@ -1,6 +1,5 @@
 import React from "react";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { isFriendlyUI } from "../../themes/forumTheme";
 import LoadMore from "../common/LoadMore";
 import LWPopularComment from "./LWPopularComment";
 import { useQueryWithLoadMore } from "../hooks/useQueryWithLoadMore";
@@ -14,7 +13,7 @@ const styles = defineStyles("PopularCommentsList", (theme: ThemeType) => ({
     flexDirection: "column",
     gap: "4px",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontSize: theme.isFriendlyUI ? 14 : '1.16rem',
+    fontSize: '1.16rem',
     fontWeight: 500,
     color: theme.palette.grey[1000],
   },

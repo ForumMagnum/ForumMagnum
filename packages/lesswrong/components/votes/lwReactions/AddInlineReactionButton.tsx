@@ -1,5 +1,4 @@
 import React, { useRef, useState } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { useNamesAttachedReactionsVoting } from "./NamesAttachedReactionsVoteOnComment";
 import { VotingProps } from "../votingProps";
 import { QuoteLocator } from "../../../lib/voting/namesAttachedReactions";
@@ -7,8 +6,10 @@ import classNames from "classnames";
 import LWTooltip from "../../common/LWTooltip";
 import ForumIcon from "../../common/ForumIcon";
 import ReactionsPalette from "../ReactionsPalette";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AddInlineReactionButton', (theme: ThemeType) => ({
   container: {
     position: "relative",
   },
@@ -39,17 +40,17 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     top: -30,
   }
-})
+}))
 
-const AddInlineReactionButton = ({voteProps, classes, quote, disabled, wrapperClassName, iconClassName, paletteClassName}: {
+const AddInlineReactionButton = ({voteProps, quote, disabled, wrapperClassName, iconClassName, paletteClassName}: {
   voteProps: VotingProps<VoteableTypeClient>,
-  classes: ClassesType<typeof styles>,
   quote: QuoteLocator|null,
   disabled?: boolean,
   wrapperClassName?: string,
   iconClassName?: string,
   paletteClassName?: string,
 }) => {
+  const classes = useStyles(styles);
   const [open,setOpen] = useState(false);
   const buttonRef = useRef<HTMLElement|null>(null);
   const { getCurrentUserReactionVote, toggleReaction } = useNamesAttachedReactionsVoting(voteProps);
@@ -95,6 +96,6 @@ const AddInlineReactionButton = ({voteProps, classes, quote, disabled, wrapperCl
   </span>
 }
 
-export default registerComponent('AddInlineReactionButton', AddInlineReactionButton, {styles});
+export default AddInlineReactionButton;
 
 

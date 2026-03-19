@@ -1,16 +1,16 @@
 import React, { ReactNode, useRef, useState }  from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Paper }from '@/components/widgets/Paper';
 import { useCurrentUser } from '../common/withUser';
 import { useTracking } from "../../lib/analyticsEvents";
-import { isBookUI } from '../../themes/forumTheme';
 import type { Placement as PopperPlacementType } from "popper.js"
 import LWPopper from "../common/LWPopper";
 import AddTagOrWikiPage from "./AddTagOrWikiPage";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AddTagButton", (theme: ThemeType) => ({
   addTagButton: {
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
@@ -21,16 +21,16 @@ const styles = (theme: ThemeType) => ({
   defaultButton: {
     paddingLeft: 4
   }
-});
+}));
 
-const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingContext, hasTooltip=true, classes, children}: {
+const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingContext, hasTooltip=true, children}: {
   onTagSelected: (props: {tagId: string, tagName: string}) => void,
   menuPlacement?: PopperPlacementType,
   isVotingContext?: boolean,
   hasTooltip?: boolean,
-  classes: ClassesType<typeof styles>,
   children?: ReactNode,
 }) => {
+  const classes = useStyles(styles);
   const [isOpen, setIsOpen] = useState(false);
   const anchorEl = useRef<HTMLAnchorElement|null>(null);
   const currentUser = useCurrentUser();
@@ -72,7 +72,7 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
         </LWPopper>
     </a>
   
-  if (isBookUI() && hasTooltip) {
+  if (hasTooltip) {
     return <LWTooltip title="Add a tag">
       {button}
     </LWTooltip>
@@ -80,6 +80,6 @@ const AddTagButton = ({onTagSelected, menuPlacement="bottom-start", isVotingCont
   return button;
 }
 
-export default registerComponent("AddTagButton", AddTagButton, {styles});
+export default AddTagButton;
 
 

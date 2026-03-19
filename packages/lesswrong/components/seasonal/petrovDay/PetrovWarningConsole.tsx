@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import PetrovWorldmapWrapper from "./PetrovWorldmapWrapper";
@@ -7,6 +6,8 @@ import PastWarnings from "./PastWarnings";
 import { gql } from "@/lib/generated/gql-codegen";
 import { inWarningWindow } from '@/lib/collections/petrovDayActions/helpers';
 import { STARTING_MINUTE } from '@/lib/collections/petrovDayActions/constants';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PetrovDayActionInfoMultiQuery = gql(`
   query multiPetrovDayActionPetrovWarningConsoleQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -29,7 +30,7 @@ const PetrovDayActionInfoMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PetrovWarningConsole', (theme: ThemeType) => ({
   root: {
 
   },
@@ -48,13 +49,13 @@ const styles = (theme: ThemeType) => ({
       backgroundColor: theme.palette.grey[200]
     }
   }
-});
+}));
 
-export const PetrovWarningConsole = ({classes, currentUser, side}: {
-  classes: ClassesType<typeof styles>,
+export const PetrovWarningConsole = ({currentUser, side}: {
   currentUser: UsersCurrent,
   side: 'east' | 'west'
 }) => {
+  const classes = useStyles(styles);
   const { data: dataPetrovDayActionInfo, refetch: refetchPetrovDayActions } = useQuery(PetrovDayActionInfoMultiQuery, {
     variables: {
       selector: { warningConsole: { side: side } },
@@ -138,6 +139,6 @@ export const PetrovWarningConsole = ({classes, currentUser, side}: {
   }
 }
 
-export default registerComponent('PetrovWarningConsole', PetrovWarningConsole, {styles});
+export default PetrovWarningConsole;
 
 

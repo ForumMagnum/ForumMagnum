@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import { fmCrosspostSiteNameSetting } from "../../../lib/instanceSettings";
 import { crosspostDetailsRoute } from "@/lib/fmCrosspost/routes";
 import { usePostsPageContext } from "./PostsPageContext";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Typography } from "../../common/Typography";
 import Loading from "@/components/vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsPageCrosspostComments", (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -15,18 +16,18 @@ const styles = (theme: ThemeType) => ({
     borderRadius: 3,
     padding: 12,
   },
-});
+}));
 
 type Response = {
   loading: boolean,
   data?: { canonicalLink: string, commentCount: number },
 }
 
-const PostsPageCrosspostCommentsInner = ({foreignPostId, hostedHere, classes}: {
+const PostsPageCrosspostCommentsInner = ({foreignPostId, hostedHere}: {
   foreignPostId: string,
   hostedHere: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [response, setResponse] = useState<Response>({ loading: true });
 
   useEffect(() => {
@@ -74,9 +75,8 @@ const PostsPageCrosspostCommentsInner = ({foreignPostId, hostedHere, classes}: {
   );
 }
 
-const PostsPageCrosspostComments = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const PostsPageCrosspostComments = () => {
+  const classes = useStyles(styles);
   const postsPage = usePostsPageContext();
   const post = postsPage?.fullPost ?? postsPage?.postPreload;
   if (!post?.fmCrosspost) {
@@ -90,13 +90,8 @@ const PostsPageCrosspostComments = ({classes}: {
     <PostsPageCrosspostCommentsInner
       foreignPostId={foreignPostId}
       hostedHere={!!hostedHere}
-      classes={classes}
     />
   );
 }
 
-export default registerComponent(
-  "PostsPageCrosspostComments",
-  PostsPageCrosspostComments,
-  {styles},
-);
+export default PostsPageCrosspostComments;

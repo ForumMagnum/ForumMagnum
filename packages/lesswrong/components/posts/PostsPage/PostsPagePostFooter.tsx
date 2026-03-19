@@ -16,17 +16,15 @@ import FooterTagList from "../../tagging/FooterTagList";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { postBottomSecondaryVotingComponents } from '@/lib/voting/votingSystemComponents';
 import type { VotingSystemName } from '@/lib/voting/votingSystemNames';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsPagePostFooter", (theme: ThemeType) => ({
   footerSection: {
     display: 'flex',
     columnGap: 20,
     alignItems: 'center',
-    fontSize: '1.4em',
-    paddingTop: theme.isFriendlyUI ? 30 : undefined,
-    borderTop: theme.isFriendlyUI ? theme.palette.border.grey300 : undefined,
-    marginTop: theme.isFriendlyUI ? 40 : undefined,
-    marginBottom: theme.isFriendlyUI ? 40 : undefined
+    fontSize: '1.4em'
   },
   bookmarkButton: {
     marginBottom: -5,
@@ -45,14 +43,13 @@ const styles = (theme: ThemeType) => ({
     },
   },
   voteBottom: {
-    flexGrow: theme.isFriendlyUI ? 1 : undefined,
     position: 'relative',
     fontSize: 42,
     textAlign: 'center',
     display: 'inline-block',
-    marginLeft: theme.isFriendlyUI ? undefined : 'auto',
-    marginRight: theme.isFriendlyUI ? undefined : 'auto',
-    marginBottom: theme.isFriendlyUI ? undefined : 40,
+    marginLeft: 'auto',
+    marginRight: 'auto',
+    marginBottom: 40,
     "@media print": { display: "none" },
   },
   secondaryInfoRight: {
@@ -80,13 +77,13 @@ const styles = (theme: ThemeType) => ({
       display: 'none',
     }
   }
-});
+}));
 
-const PostsPagePostFooter = ({post, sequenceId, classes}: {
+const PostsPagePostFooter = ({post, sequenceId}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   sequenceId: string|null,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const votingSystemName = (post.votingSystem || "default") as VotingSystemName;
   const votingSystem = getVotingSystemByName(votingSystemName);
   const wordCount = post.contents?.wordCount || 0
@@ -144,6 +141,5 @@ const PostsPagePostFooter = ({post, sequenceId, classes}: {
 }
 
 export default registerComponent("PostsPagePostFooter", PostsPagePostFooter, {
-  styles,
   areEqual: "auto",
 });

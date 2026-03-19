@@ -1,5 +1,4 @@
 import React, { MouseEvent, useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useRecommendationAnalytics } from "./useRecommendationsAnalytics";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { useClickableCell } from "../common/useClickableCell";
@@ -7,8 +6,10 @@ import { Link } from "../../lib/reactRouterWrapper";
 import ForumIcon from "../common/ForumIcon";
 import KarmaDisplay from "../common/KarmaDisplay";
 import PostsItemTooltipWrapper from "../posts/PostsItemTooltipWrapper";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SideRecommendation", (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -48,12 +49,12 @@ const styles = (theme: ThemeType) => ({
       width: 10,
     },
   },
-});
+}));
 
-const SideRecommendation = ({post, classes}: {
+const SideRecommendation = ({post}: {
   post: PostsListWithVotesAndSequence,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const href = postGetPageUrl(post);
   const {onClick: onClickCell} = useClickableCell({href});
   const {ref, onClick: onClickLink} = useRecommendationAnalytics(post._id);
@@ -82,10 +83,6 @@ const SideRecommendation = ({post, classes}: {
   );
 }
 
-export default registerComponent(
-  "SideRecommendation",
-  SideRecommendation,
-  {styles},
-);
+export default SideRecommendation;
 
 

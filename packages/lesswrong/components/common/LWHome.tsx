@@ -20,10 +20,33 @@ import UltraFeed from "../ultraFeed/UltraFeed";
 import { StructuredData } from './StructuredData';
 import { SuspenseWrapper } from './SuspenseWrapper';
 import DeferRender from './DeferRender';
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
 import dynamic from 'next/dynamic';
 import { IsReturningVisitorContextProvider } from '@/components/layout/IsReturningVisitorContextProvider';
 const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
+
+const styles = defineStyles("LWHome", () => ({
+  desktopSpotlight: {
+    ['@media(max-width: 1199.95px)']: {
+      display: "none",
+    },
+  },
+  mobileSpotlight: {
+    ['@media(min-width: 1200px)']: {
+      display: "none",
+    },
+  },
+}));
+
+const LESSONLINE_MOBILE_SPOTLIGHT_ID = 'hSdzjMYuyFewrw74y';
+const LESSONLINE_MOBILE_SPOTLIGHT_UNTIL = new Date('2026-03-24T00:00:00Z');
+
+const getLessOnlineMobileSpotlightOverrideId = (now: Date = new Date()): string | null => (
+  now.getTime() < LESSONLINE_MOBILE_SPOTLIGHT_UNTIL.getTime()
+    ? LESSONLINE_MOBILE_SPOTLIGHT_ID
+    : null
+);
 
 const getStructuredData = () => ({
   "@context": "http://schema.org",
@@ -54,6 +77,9 @@ const getStructuredData = () => ({
 })
 
 const LWHome = () => {
+  const classes = useStyles(styles);
+  const mobileSpotlightOverrideId = getLessOnlineMobileSpotlightOverrideId();
+
   return (
       <AnalyticsContext pageContext="homePage">
         <StructuredData generate={() => getStructuredData()}/>
@@ -66,7 +92,15 @@ const LWHome = () => {
           </SingleColumnSection>}
         </>}
         {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
-          <DismissibleSpotlightItem loadingStyle="placeholder" />
+          <DismissibleSpotlightItem
+            loadingStyle="placeholder"
+            // className={classes.desktopSpotlight}
+          />
+          {/* <DismissibleSpotlightItem
+            loadingStyle="placeholder"
+            className={classes.mobileSpotlight}
+            spotlightId={mobileSpotlightOverrideId}
+          /> */}
         </SingleColumnSection>}
         <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
           <IsReturningVisitorContextProvider>

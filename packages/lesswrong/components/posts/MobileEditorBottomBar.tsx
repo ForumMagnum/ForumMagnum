@@ -180,6 +180,9 @@ const styles = defineStyles("MobileEditorBottomBar", (theme: ThemeType) => ({
     opacity: 1,
     pointerEvents: "auto",
   },
+  sheetOverlayWithoutTransition: {
+    transition: "none",
+  },
   sheetPanel: {
     position: "fixed",
     bottom: 0,
@@ -200,6 +203,9 @@ const styles = defineStyles("MobileEditorBottomBar", (theme: ThemeType) => ({
   },
   sheetPanelOpen: {
     transform: "translateY(0)",
+  },
+  sheetPanelWithoutTransition: {
+    transition: "none",
   },
   sheetTabs: {
     display: "flex",
@@ -315,6 +321,7 @@ const MobileEditorBottomBar = ({
   const [sheetOpen, setSheetOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<SidebarMode>("publish");
   const [modeExpanded, setModeExpanded] = useState(false);
+  const [transitionsEnabled, setTransitionsEnabled] = useState(false);
   const modeSelectorRef = useRef<HTMLDivElement>(null);
 
   const editorModeContext = useContext(EditorUserModeContext);
@@ -335,6 +342,10 @@ const MobileEditorBottomBar = ({
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, [modeExpanded]);
+
+  useEffect(() => {
+    setTransitionsEnabled(true);
+  }, []);
 
   const openSheet = () => {
     setSheetOpen(true);
@@ -457,6 +468,7 @@ const MobileEditorBottomBar = ({
       <div
         className={classNames(
           classes.sheetOverlay,
+          !transitionsEnabled && classes.sheetOverlayWithoutTransition,
           sheetOpen && classes.sheetOverlayVisible,
         )}
         onClick={closeSheet}
@@ -466,6 +478,7 @@ const MobileEditorBottomBar = ({
       <div
         className={classNames(
           classes.sheetPanel,
+          !transitionsEnabled && classes.sheetPanelWithoutTransition,
           sheetOpen && classes.sheetPanelOpen,
         )}
       >

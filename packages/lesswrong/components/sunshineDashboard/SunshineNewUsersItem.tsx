@@ -12,8 +12,10 @@ import SunshineNewUsersInfo from "./SunshineNewUsersInfo";
 import MetaInfo from "../common/MetaInfo";
 import FormatDate from "../common/FormatDate";
 import FirstContentIcons from "./FirstContentIcons";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineNewUsersItem', (theme: ThemeType) => ({
   negativeKarma: {
      color: theme.palette.text.negativeKarmaRed,
   },
@@ -31,13 +33,13 @@ const styles = (theme: ThemeType) => ({
   flagged: {
     background: theme.palette.panelBackground.sunshineFlaggedUser,
   }
-})
-const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
+}))
+const SunshineNewUsersItem = ({user, refetch, currentUser}: {
   user: SunshineUsersList,
-  classes: ClassesType<typeof styles>,
   refetch: () => void,
   currentUser: UsersCurrent,
 }) => {
+  const classes = useStyles(styles);
   const { eventHandlers, hover, anchorEl } = useHover();
   return (
     <div {...eventHandlers} className={user.sunshineFlagged ? classes.flagged : undefined}>
@@ -69,11 +71,7 @@ const SunshineNewUsersItem = ({ user, classes, refetch, currentUser }: {
 }
 
 export default registerComponent('SunshineNewUsersItem', SunshineNewUsersItem, {
-  styles,
   hocs: [
     withErrorBoundary,
   ]
 });
-
-
-

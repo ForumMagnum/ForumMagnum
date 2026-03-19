@@ -2,7 +2,6 @@ import moment from 'moment';
 import React, { useState } from 'react';
 import { isLowAverageKarmaContent } from '../../../lib/collections/moderatorActions/helpers';
 import { LOW_AVERAGE_KARMA_COMMENT_ALERT, LOW_AVERAGE_KARMA_POST_ALERT, MODERATOR_ACTION_TYPES } from "@/lib/collections/moderatorActions/constants";
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import sortBy from 'lodash/sortBy';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done'
@@ -14,6 +13,8 @@ import { withDateFields } from '@/lib/utils/dateUtils';
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import FormatDate from '@/components/common/FormatDate';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ModeratorActionDisplayUpdateMutation = gql(`
   mutation updateModeratorActionModeratorActionItem($selector: SelectorInput!, $data: UpdateModeratorActionDataInput!) {
@@ -25,7 +26,7 @@ const ModeratorActionDisplayUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ModeratorActionItem', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -65,15 +66,15 @@ const styles = (theme: ThemeType) => ({
     opacity: .1,
     marginBottom: -2,
   }
-});
+}));
 
-export const ModeratorActionItem = ({classes, user, moderatorAction, comments, posts }: {
-  classes: ClassesType<typeof styles>,
+export const ModeratorActionItem = ({user, moderatorAction, comments, posts}: {
   user: SunshineUsersList,
   moderatorAction: ModeratorActionDisplay,
   comments: Array<CommentsListWithParentMetadata>|undefined,
   posts: Array<SunshinePostsList>|undefined
 }) => {
+  const classes = useStyles(styles);
   const endedAtDate = moment(moderatorAction.endedAt)
   const today = moment(new Date())
   const existingEndedAtDays = endedAtDate.diff(today, "days")
@@ -167,7 +168,7 @@ export const ModeratorActionItem = ({classes, user, moderatorAction, comments, p
   </div>;
 }
 
-export default registerComponent('ModeratorActionItem', ModeratorActionItem, {styles});
+export default ModeratorActionItem
 
 
 

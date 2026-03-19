@@ -1,12 +1,13 @@
 import React, { useMemo, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { CommentTreeNode } from "../../lib/utils/unflatten";
 import classNames from 'classnames';
 import type { CommentTreeOptions } from '../comments/commentTree';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import CommentsList from "../comments/CommentsList";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AnswerCommentsList', (theme: ThemeType) => ({
   commentsList: {
     marginLeft: -4,
     marginRight: -12,
@@ -37,15 +38,15 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     textAlign: 'right'
   },
-})
+}))
 
-const AnswerCommentsList = ({post, parentAnswer, commentTree, treeOptions, classes}: {
+const AnswerCommentsList = ({post, parentAnswer, commentTree, treeOptions}: {
   post: PostsList,
   commentTree: CommentTreeNode<CommentsList>[],
   treeOptions: CommentTreeOptions,
   parentAnswer: CommentsList,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const totalCount = parentAnswer.descendentCount;
   const now = useCurrentTime();
   const treeOptionsWithHighlight = useMemo(() => ({
@@ -66,7 +67,7 @@ const AnswerCommentsList = ({post, parentAnswer, commentTree, treeOptions, class
   </div>
 }
 
-export default registerComponent('AnswerCommentsList', AnswerCommentsList, {styles});
+export default AnswerCommentsList;
 
 
 

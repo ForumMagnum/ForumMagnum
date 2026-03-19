@@ -74,7 +74,7 @@ const CKCommentEditor = ({
   const [editorObject, setEditorObject] = useState<Editor | null>(null);
   const editorRef = useRef<CKEditor<AnyBecauseHard>>(null);
 
-  const actualPlaceholder = placeholder ?? getDefaultEditorPlaceholder();
+  const actualPlaceholder = placeholder ?? getDefaultEditorPlaceholder('ckEditorMarkup');
 
   const openCommandPalette = useCommandPalette();
 

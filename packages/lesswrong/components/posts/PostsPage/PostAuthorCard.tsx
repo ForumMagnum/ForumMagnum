@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { Link } from '../../../lib/reactRouterWrapper';
 import { truncate } from '../../../lib/editor/ellipsize';
@@ -9,8 +8,10 @@ import ContentStyles from "../../common/ContentStyles";
 import NewConversationButton from "../../messaging/NewConversationButton";
 import NotifyMeButton from "../../notifications/NotifyMeButton";
 import CloudinaryImage2 from "../../common/CloudinaryImage2";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostAuthorCard", (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[100],
     padding: '15px 30px 20px',
@@ -68,13 +69,14 @@ const styles = (theme: ThemeType) => ({
   bio: {
     marginTop: 20,
   },
-});
+}));
 
-const PostAuthorCard = ({author, currentUser, classes}: {
+const PostAuthorCard = ({author, currentUser}: {
   author: Exclude<PostsAuthors['user'], null>,
   currentUser: UsersCurrent|null,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
     return <AnalyticsContext pageSectionContext="postAuthorCard">
     <div className={classes.root}>
       <Typography variant="subheading" component="div" className={classes.about}>About the author</Typography>
@@ -122,6 +124,6 @@ const PostAuthorCard = ({author, currentUser, classes}: {
   </AnalyticsContext>
 }
 
-export default registerComponent("PostAuthorCard", PostAuthorCard, {styles});
+export default PostAuthorCard
 
 

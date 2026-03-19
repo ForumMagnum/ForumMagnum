@@ -1,9 +1,10 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import LWTooltip from "../../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NewUserDMSummary', (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     color: theme.palette.grey[600],
@@ -14,12 +15,13 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     top: 1
   },
-});
+}));
 
-export const NewUserDMSummary = ({classes, user}: {
-  classes: ClassesType<typeof styles>,
+export const NewUserDMSummary = ({user}: {
   user: SunshineUsersList,
 }) => {
+  const classes = useStyles(styles);
+
   if (!user.usersContactedBeforeReview?.length) return null
   
   return <div className={classes.root}>
@@ -29,6 +31,6 @@ export const NewUserDMSummary = ({classes, user}: {
   </div>
 }
 
-export default registerComponent('NewUserDMSummary', NewUserDMSummary, {styles});
+export default NewUserDMSummary;
 
 

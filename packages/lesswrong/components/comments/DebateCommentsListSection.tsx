@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useCurrentUser } from '../common/withUser';
 import { unflattenComments } from '../../lib/utils/unflatten';
@@ -10,10 +9,12 @@ import CantCommentExplanation from "./CantCommentExplanation";
 import CommentsList from "./CommentsList";
 import PostsPageCrosspostComments from "../posts/PostsPage/PostsPageCrosspostComments";
 import { userIsPostCoauthor } from '@/lib/collections/posts/helpers';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const NEW_COMMENT_MARGIN_BOTTOM = "1.3em"
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("DebateCommentsListSection", (theme: ThemeType) => ({
   root: {
     fontWeight: 400,
     margin: "10px auto 5px auto",
@@ -59,16 +60,16 @@ const styles = (theme: ThemeType) => ({
     marginTop: 4,
   },
   debateCommentsList: {}
-})
+}))
 
-const DebateCommentsListSection = ({post, totalComments, comments, newForm=true, newFormProps={}, classes}: {
+const DebateCommentsListSection = ({post, totalComments, comments, newForm=true, newFormProps={}}: {
   post: PostsDetails,
   totalComments: number,
   comments: CommentsList[],
   newForm: boolean,
   newFormProps?: Partial<CommentsNewFormProps>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const commentTree = unflattenComments(comments);
   const highlightDate = post?.lastVisitedAt ? new Date(post.lastVisitedAt) : undefined;
@@ -119,7 +120,7 @@ const DebateCommentsListSection = ({post, totalComments, comments, newForm=true,
   );
 }
 
-export default registerComponent("DebateCommentsListSection", DebateCommentsListSection, {styles});
+export default DebateCommentsListSection;
 
 
 

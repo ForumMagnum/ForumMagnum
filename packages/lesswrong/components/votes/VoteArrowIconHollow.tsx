@@ -10,7 +10,7 @@ const styles = defineStyles("VoteArrowIconHollow", (theme: ThemeType) => ({
   },
   smallArrow: {
     fontSize: '50%',
-    opacity: theme.isEAForum ? 0.7 : 0.6,
+    opacity: 0.6,
     width: "1em",
     height: "1em",
     fill: "currentColor",
