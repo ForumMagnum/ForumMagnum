@@ -1,3 +1,4 @@
+"use client";
 import React, { useCallback } from 'react';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
 import { useApolloClient } from '@apollo/client/react';

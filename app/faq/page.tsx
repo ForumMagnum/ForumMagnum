@@ -1,8 +1,8 @@
 import React from "react";
-import PostsSingleRoute from '@/components/posts/PostsSingleRoute';
 import RouteRoot from "@/components/layout/RouteRoot";
 import { faqPostIdSetting } from "@/lib/instanceSettings";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+import { PostsSingle, type PostPageSearchParams } from "@/components/posts/PostsSingle";
 
 assertRouteAttributes("/faq", {
   whiteBackground: true,
@@ -12,8 +12,10 @@ assertRouteAttributes("/faq", {
   hasMarkdownVersion: true,
 });
 
-export default function Page() {
-  return <RouteRoot delayedStatusCode>
-    <PostsSingleRoute _id={faqPostIdSetting.get()} />
+export default async function Page({ searchParams }: {
+  searchParams: Promise<PostPageSearchParams>
+}) {
+  return <RouteRoot>
+    <PostsSingle _id={faqPostIdSetting.get()} searchParams={searchParams} />
   </RouteRoot>;
 }

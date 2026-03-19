@@ -1,7 +1,7 @@
 import React from "react";
-import PostsSingleRoute from '@/components/posts/PostsSingleRoute';
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+import { PostsSingle, type PostPageSearchParams } from "@/components/posts/PostsSingle";
 
 assertRouteAttributes("/donate", {
   whiteBackground: true,
@@ -11,8 +11,10 @@ assertRouteAttributes("/donate", {
   hasMarkdownVersion: false,
 });
 
-export default function Page() {
+export default async function Page({ searchParams }: {
+  searchParams: Promise<PostPageSearchParams>
+}) {
   return <RouteRoot delayedStatusCode>
-    <PostsSingleRoute _id="LcpQQvcpWfPXvW7R9" />
+    <PostsSingle _id="LcpQQvcpWfPXvW7R9" searchParams={searchParams} />
   </RouteRoot>;
 }

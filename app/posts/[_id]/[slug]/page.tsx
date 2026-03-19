@@ -1,5 +1,5 @@
 import React from "react";
-import PostsSingle from '../../../../packages/lesswrong/components/posts/PostsSingle';
+import { PostsSingle, type PostPageSearchParams } from '@/components/posts/PostsSingle';
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
@@ -14,13 +14,14 @@ assertRouteAttributes("/posts/[_id]/[slug]", {
   hasMarkdownVersion: true,
 });
 
-export default async function PostPage({ params }: {
+export default async function PostPage({ params, searchParams }: {
   params: Promise<{ _id: string, slug: string }>
+  searchParams: Promise<PostPageSearchParams>
 }) {
   const { _id, slug } = await params;
   return <RouteRoot
     delayedStatusCode
   >
-    <PostsSingle _id={_id} slug={slug} />
+    <PostsSingle _id={_id} slug={slug} searchParams={searchParams} />
   </RouteRoot>;
 }

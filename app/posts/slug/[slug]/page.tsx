@@ -1,7 +1,7 @@
 import React from "react";
-import PostsSingleSlugRedirect from '@/components/posts/PostsSingleSlugRedirect';
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+import { PostsSingle, type PostPageSearchParams } from "@/components/posts/PostsSingle";
 
 // TODO: this route previously used PostsPageHeaderTitle for its metadata, but that was nonsensical because
 // it was using a slug to then do a permanent redirect, and PostsPageHeaderTitle needs an _id or postId
@@ -16,13 +16,14 @@ assertRouteAttributes("/posts/slug/[slug]", {
   hasMarkdownVersion: true,
 });
 
-export default async function Page({ params }: {
-  params: Promise<{ slug: string }>
+export default async function Page({ params, searchParams }: {
+  params: Promise<{ slug: string }>,
+  searchParams: Promise<PostPageSearchParams>
 }) {
   const { slug } = await params;
   return <RouteRoot
     delayedStatusCode
   >
-    <PostsSingleSlugRedirect slug={slug} />
+    <PostsSingle slug={slug} searchParams={searchParams} />
   </RouteRoot>;
 }
