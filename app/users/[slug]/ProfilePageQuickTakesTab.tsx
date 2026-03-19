@@ -62,6 +62,7 @@ export function ProfilePageQuickTakesTabContents({user, settings}: {
   user: UsersProfile,
   settings: ProfilePageQuickTakesTabSettings,
 }) {
+  void settings;
   const sharedClasses = useStyles(profileStyles);
   const classes = useStyles(profilePageQuickTakesTabUnsharedStyles);
   const {data, loading, loadMoreProps} = useQueryWithLoadMore(ProfilePageQuickTakesTabQuery, {
