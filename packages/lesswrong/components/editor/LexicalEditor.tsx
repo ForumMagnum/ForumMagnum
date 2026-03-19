@@ -34,6 +34,7 @@ import { CodeHighlightNode, CodeNode } from '@lexical/code';
 import { exportTextNode } from './lexicalDomExport';
 import { gql } from '@/lib/generated/gql-codegen';
 import { HorizontalRuleExtension } from '@lexical/extension';
+import ErrorBoundary from '../common/ErrorBoundary';
 
 const HocuspocusAuthQuery = gql(`
   query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
@@ -507,6 +508,7 @@ const LexicalEditor = ({
                 <WarningBanner message={collaborationWarning} />
               )}
               <div className={classNames(!commentEditor && classes.editorShell)}>
+                <ErrorBoundary>
                 <Editor
                   key={`${collaborationDocumentKey}-${editorVersion}`}
                   collaborationConfig={collaborationConfig ?? undefined}
@@ -517,6 +519,7 @@ const LexicalEditor = ({
                   placeholder={placeholder}
                   commentEditor={commentEditor}
                 />
+                </ErrorBoundary>
               </div>
               {/* {!commentEditor && <Settings />} */}
               {/* {isDevPlayground ? <DocsPlugin /> : null}
