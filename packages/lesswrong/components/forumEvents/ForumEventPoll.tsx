@@ -110,6 +110,9 @@ const styles = (theme: ThemeType) => ({
     marginLeft: "auto",
     marginRight: "auto"
   },
+  questionLink: {
+    textDecoration: "none !important",
+  },
   questionFootnote: {
     fontSize: 20,
     verticalAlign: 'super',
@@ -528,6 +531,27 @@ function footnotesToTooltips({
   return resultArray;
 }
 
+const createQuestionNode = (
+  event: ForumEventsDisplay | null | undefined,
+  classes: ClassesType<typeof styles>,
+) => {
+  if (!event?.pollQuestion?.html) {
+    return null;
+  }
+  const questionNode = footnotesToTooltips({
+    html: event.pollQuestion.html,
+    event,
+    classes,
+  });
+  return event.post
+    ? (
+      <Link to={postGetPageUrl(event.post)} className={classes.questionLink}>
+        {questionNode}
+      </Link>
+    )
+    : questionNode;
+}
+
 /**
  * This component is for forum events that have a poll.
  * Displays the question, a slider where the user can vote on a scale from "Disagree" to "Agree",
@@ -567,8 +591,8 @@ export const ForumEventPoll = ({
   // Events where endDate is null always have voting open
   const votingOpen = event ? (!event.endDate || new Date(event.endDate) > new Date()) : false;
 
-  const displayHtml = useMemo(
-    () => (event?.pollQuestion?.html ? footnotesToTooltips({ html: event.pollQuestion.html, event, classes }) : null),
+  const questionNode = useMemo(
+    () => createQuestionNode(event, classes),
     [event, classes]
   );
   const plaintextQuestion = useMemo(
@@ -862,7 +886,7 @@ export const ForumEventPoll = ({
   return (
     <AnalyticsContext pageElementContext="forumEventPoll">
       <div className={classNames(classes.root, className)}>
-        {displayHtml && <div className={classes.question}>{displayHtml}</div>}
+        {questionNode && <div className={classes.question}>{questionNode}</div>}
         <div className={classes.votePromptWrapper}>
           <DeferRender ssr={false}>
             {!hideViewResults && (
