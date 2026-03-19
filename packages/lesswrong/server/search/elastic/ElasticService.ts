@@ -242,10 +242,17 @@ class ElasticService {
     return encodeURIComponent(data.join("&"));
   }
 
+  /**
+   * Escape special regex characters in a string
+   */
+  private escapeRegex(str: string): string {
+    return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  }
+
   private sanitizeIndexName(indexName: string): SanitizedIndexName {
     const prefix = algoliaPrefixSetting.get();
     if (prefix) {
-      indexName = indexName.replace(new RegExp(prefix, "g"), "");
+      indexName = indexName.replace(new RegExp(this.escapeRegex(prefix), "g"), "");
     }
     const tokens = indexName.split("_");
     const indexNames = tokens[0].split(",");
@@ -256,6 +263,18 @@ class ElasticService {
     };
   }
 
+  /**
+   * Extract the base index name from an Elasticsearch _index field value.
+   * Elasticsearch returns the backing index name (e.g., "users_1683033972316"),
+   * but we need the base name (e.g., "users") for client-side processing.
+   */
+  private extractBaseIndexName(elasticIndex: string): string {
+    // The backing index format is "{baseIndex}_{timestamp}", so split by underscore
+    // and take the first part. This handles cases like "users_1683033972316" -> "users"
+    const parts = elasticIndex.split("_");
+    return parts[0];
+  }
+
   private getHits(
     indexName: string | string[],
     hits: ElasticSearchHit[],
@@ -264,7 +283,7 @@ class ElasticService {
       return hits.map(({_id, _source, _index}) => ({
         ..._source,
         _id,
-        _index: _index.split("_")[0],
+        _index: this.extractBaseIndexName(_index),
       }))
     } else {
       const config = indexNameToConfig(indexName);
