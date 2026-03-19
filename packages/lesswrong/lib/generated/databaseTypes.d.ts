@@ -970,6 +970,7 @@ interface DbPost extends DbObject {
   onlyVisibleToLoggedIn: boolean
   organizerIds: Array<string>
   originalPostRelationSourceId: string | null
+  overridePageUrl: string | null
   pingbacks: any | null
   podcastEpisodeId: string | null
   positiveReviewVoteCount: number

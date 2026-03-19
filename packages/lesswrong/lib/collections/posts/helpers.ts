@@ -202,6 +202,7 @@ export type PostsMinimumForGetPageUrl = {
   slug: string
   isEvent?: boolean
   groupId?: string | undefined | null
+  overridePageUrl?: string | undefined | null
   canonicalSequenceId?: string | undefined | null
   canonicalCollectionSlug?: string | undefined | null
 }
@@ -220,7 +221,9 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, options?
     return isAbsolute ? `${prefix}/${post.pageUrlRelative}` : post.pageUrlRelative;
   }
 
-  if (post.canonicalCollectionSlug) {
+  if (post.overridePageUrl) {
+    return `${prefix}/${post.overridePageUrl}`;
+  } else if (post.canonicalCollectionSlug) {
     return `${prefix}/${post.canonicalCollectionSlug}/${post.slug}`;
   } else if (sequenceId) {
     return `${prefix}/s/${sequenceId}/p/${post._id}`;

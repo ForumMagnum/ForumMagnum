@@ -136,7 +136,7 @@ const _117=_o4(_8,_116)
 const _118=_o4(_8,_o3(_3,"organizerIds"))
 const _119=_o4(_8,_o3(_3,"forceAllowType3Audio"))
 const _120=_o4(_8,_o3(_3,"votingSystem"))
-const _121=_o2(_2,_70,_6,_o5(_7,[_25,_72,_27,_o4(_8,_o3(_3,"sticky")),_o4(_8,_o3(_3,"metaSticky")),_o4(_8,_o3(_3,"stickyPriority")),_73,_74,_o4(_8,_o3(_3,"meta")),_75,_o4(_8,_o3(_3,"postCategory")),_77,_o4(_8,_o3(_3,"shareWithUsers")),_o4(_8,_o3(_3,"sharingSettings")),_o4(_8,_78),_o4(_8,_o3(_3,"contents_latest")),_50,_79,_26,_80,_o4(_8,_o3(_3,"unlisted")),_81,_82,_o4(_8,_o3(_3,"isFuture")),_84,_85,_o4(_8,_o3(_3,"lastCommentPromotedAt")),_58,_o4(_8,_o3(_3,"curatedDate")),_o4(_8,_o3(_3,"commentsLocked")),_o4(_8,_o3(_3,"commentsLockedToAccountsCreatedAfter")),_o4(_8,_o3(_3,"debate")),_o4(_8,_o3(_3,"question")),_o4(_8,_o3(_3,"hiddenRelatedQuestion")),_o4(_8,_o3(_3,"originalPostRelationSourceId")),_19,_86,_87,_89,_91,_92,_93,_o4(_8,_o3(_3,"localStartTime")),_o4(_8,_o3(_3,"localEndTime")),_o4(_8,_o3(_3,"eventRegistrationLink")),_o4(_8,_o3(_3,"joinEventLink")),_94,_95,_96,_97,_98,_99,_o4(_8,_100),_101,_103,_53,_o4(_8,_o3(_3,"suggestForCuratedUserIds")),_o4(_8,_o3(_3,"suggestForCuratedUsernames")),_o4(_8,_o3(_3,"reviewForCuratedUserId")),_105,_106,_107,_108,_109,_110,_52,_o4(_8,_o3(_3,"afLastCommentedAt")),_o4(_8,_o3(_3,"afSticky")),_111,_112,_o4(_8,_o3(_3,"ignoreRateLimits")),_o4(_8,_o3(_3,"submitToFrontpage")),_15,_o4(_8,_o3(_3,"onlyVisibleToLoggedIn")),_o4(_8,_o3(_3,"onlyVisibleToEstablishedAccounts")),_o4(_8,_o3(_3,"reviewCount")),_113,_o4(_8,_o3(_3,"positiveReviewVoteCount")),_o4(_8,_o3(_3,"manifoldReviewMarketId")),_114,_o4(_8,_o3(_3,"annualReviewMarketIsResolved")),_o4(_8,_o3(_3,"annualReviewMarketYear")),_115,_o6(_8,_o3(_3,"group"),_o5(_7,[_10,_117,_118])),_o4(_8,_o3(_3,"rsvpCounts")),_o4(_8,_o3(_3,"podcastEpisodeId")),_119,_o4(_8,_o3(_3,"nominationCount2019")),_o4(_8,_o3(_3,"reviewCount2019")),_120,_o4(_8,_o3(_3,"disableRecommendation"))]))
+const _121=_o2(_2,_70,_6,_o5(_7,[_25,_72,_o4(_8,_o3(_3,"overridePageUrl")),_27,_o4(_8,_o3(_3,"sticky")),_o4(_8,_o3(_3,"metaSticky")),_o4(_8,_o3(_3,"stickyPriority")),_73,_74,_o4(_8,_o3(_3,"meta")),_75,_o4(_8,_o3(_3,"postCategory")),_77,_o4(_8,_o3(_3,"shareWithUsers")),_o4(_8,_o3(_3,"sharingSettings")),_o4(_8,_78),_o4(_8,_o3(_3,"contents_latest")),_50,_79,_26,_80,_o4(_8,_o3(_3,"unlisted")),_81,_82,_o4(_8,_o3(_3,"isFuture")),_84,_85,_o4(_8,_o3(_3,"lastCommentPromotedAt")),_58,_o4(_8,_o3(_3,"curatedDate")),_o4(_8,_o3(_3,"commentsLocked")),_o4(_8,_o3(_3,"commentsLockedToAccountsCreatedAfter")),_o4(_8,_o3(_3,"debate")),_o4(_8,_o3(_3,"question")),_o4(_8,_o3(_3,"hiddenRelatedQuestion")),_o4(_8,_o3(_3,"originalPostRelationSourceId")),_19,_86,_87,_89,_91,_92,_93,_o4(_8,_o3(_3,"localStartTime")),_o4(_8,_o3(_3,"localEndTime")),_o4(_8,_o3(_3,"eventRegistrationLink")),_o4(_8,_o3(_3,"joinEventLink")),_94,_95,_96,_97,_98,_99,_o4(_8,_100),_101,_103,_53,_o4(_8,_o3(_3,"suggestForCuratedUserIds")),_o4(_8,_o3(_3,"suggestForCuratedUsernames")),_o4(_8,_o3(_3,"reviewForCuratedUserId")),_105,_106,_107,_108,_109,_110,_52,_o4(_8,_o3(_3,"afLastCommentedAt")),_o4(_8,_o3(_3,"afSticky")),_111,_112,_o4(_8,_o3(_3,"ignoreRateLimits")),_o4(_8,_o3(_3,"submitToFrontpage")),_15,_o4(_8,_o3(_3,"onlyVisibleToLoggedIn")),_o4(_8,_o3(_3,"onlyVisibleToEstablishedAccounts")),_o4(_8,_o3(_3,"reviewCount")),_113,_o4(_8,_o3(_3,"positiveReviewVoteCount")),_o4(_8,_o3(_3,"manifoldReviewMarketId")),_114,_o4(_8,_o3(_3,"annualReviewMarketIsResolved")),_o4(_8,_o3(_3,"annualReviewMarketYear")),_115,_o6(_8,_o3(_3,"group"),_o5(_7,[_10,_117,_118])),_o4(_8,_o3(_3,"rsvpCounts")),_o4(_8,_o3(_3,"podcastEpisodeId")),_119,_o4(_8,_o3(_3,"nominationCount2019")),_o4(_8,_o3(_3,"reviewCount2019")),_120,_o4(_8,_o3(_3,"disableRecommendation"))]))
 const _122=_o3(_3,"PostsAuthors")
 const _123=_o4(_8,_o3(_3,"bannedUserIds"))
 const _124=_o4(_8,_o3(_3,"moderatorAssistance"))
@@ -3209,6 +3209,7 @@ export type CreatePostDataInput = {
   onlyVisibleToLoggedIn?: InputMaybe<Scalars['Boolean']['input']>;
   organizerIds?: InputMaybe<Array<Scalars['String']['input']>>;
   originalPostRelationSourceId?: InputMaybe<Scalars['String']['input']>;
+  overridePageUrl?: InputMaybe<Scalars['String']['input']>;
   podcastEpisodeId?: InputMaybe<Scalars['String']['input']>;
   postCategory?: InputMaybe<PostCategory>;
   postedAt?: InputMaybe<Scalars['Date']['input']>;
@@ -6723,6 +6724,7 @@ export type Post = {
   organizerIds: Maybe<Array<Scalars['String']['output']>>;
   organizers: Maybe<Array<User>>;
   originalPostRelationSourceId: Maybe<Scalars['String']['output']>;
+  overridePageUrl: Maybe<Scalars['String']['output']>;
   pageUrl: Scalars['String']['output'];
   pageUrlRelative: Maybe<Scalars['String']['output']>;
   pingbacks: Maybe<Scalars['JSON']['output']>;
@@ -9202,7 +9204,7 @@ export type QueryclientIdsArgs = {
 
 export type QuerycollectionArgs = {
   input?: InputMaybe<SingleCollectionInput>;
-  selector?: InputMaybe<SelectorInput>;
+  selector?: InputMaybe<SelectorInputWithSlug>;
 };
 
 
@@ -9531,7 +9533,7 @@ export type QuerymoderatorViewIPAddressArgs = {
 
 export type QuerymultiDocumentArgs = {
   input?: InputMaybe<SingleMultiDocumentInput>;
-  selector?: InputMaybe<SelectorInput>;
+  selector?: InputMaybe<SelectorInputWithSlug>;
 };
 
 
@@ -9607,7 +9609,7 @@ export type QuerypodcastsArgs = {
 export type QuerypostArgs = {
   allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<SinglePostInput>;
-  selector?: InputMaybe<SelectorInput>;
+  selector?: InputMaybe<SelectorInputWithSlug>;
 };
 
 
@@ -9794,13 +9796,13 @@ export type QuerysubscriptionsArgs = {
 
 export type QuerytagArgs = {
   input?: InputMaybe<SingleTagInput>;
-  selector?: InputMaybe<SelectorInput>;
+  selector?: InputMaybe<SelectorInputWithSlug>;
 };
 
 
 export type QuerytagFlagArgs = {
   input?: InputMaybe<SingleTagFlagInput>;
-  selector?: InputMaybe<SelectorInput>;
+  selector?: InputMaybe<SelectorInputWithSlug>;
 };
 
 
@@ -9869,7 +9871,7 @@ export type QueryultraFeedEventsArgs = {
 
 export type QueryuserArgs = {
   input?: InputMaybe<SingleUserInput>;
-  selector?: InputMaybe<SelectorInput>;
+  selector?: InputMaybe<SelectorInputWithSlug>;
 };
 
 
@@ -10342,6 +10344,12 @@ export type SelectorInput = {
   documentId?: InputMaybe<Scalars['String']['input']>;
 };
 
+export type SelectorInputWithSlug = {
+  _id?: InputMaybe<Scalars['String']['input']>;
+  documentId?: InputMaybe<Scalars['String']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
+};
+
 export type SentenceScore = {
   __typename?: 'SentenceScore';
   score: Scalars['Float']['output'];
@@ -10535,7 +10543,7 @@ export type SingleClientIdOutput = {
 
 export type SingleCollectionInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
+  selector?: InputMaybe<SelectorInputWithSlug>;
 };
 
 export type SingleCollectionOutput = {
@@ -10721,7 +10729,7 @@ export type SingleModeratorActionOutput = {
 
 export type SingleMultiDocumentInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
+  selector?: InputMaybe<SelectorInputWithSlug>;
 };
 
 export type SingleMultiDocumentOutput = {
@@ -10772,7 +10780,7 @@ export type SinglePodcastOutput = {
 export type SinglePostInput = {
   allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
+  selector?: InputMaybe<SelectorInputWithSlug>;
 };
 
 export type SinglePostOutput = {
@@ -10893,7 +10901,7 @@ export type SingleSubscriptionOutput = {
 
 export type SingleTagFlagInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
+  selector?: InputMaybe<SelectorInputWithSlug>;
 };
 
 export type SingleTagFlagOutput = {
@@ -10903,7 +10911,7 @@ export type SingleTagFlagOutput = {
 
 export type SingleTagInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
+  selector?: InputMaybe<SelectorInputWithSlug>;
 };
 
 export type SingleTagOutput = {
@@ -12066,6 +12074,7 @@ export type UpdatePostDataInput = {
   onlyVisibleToEstablishedAccounts?: InputMaybe<Scalars['Boolean']['input']>;
   onlyVisibleToLoggedIn?: InputMaybe<Scalars['Boolean']['input']>;
   organizerIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  overridePageUrl?: InputMaybe<Scalars['String']['input']>;
   podcastEpisodeId?: InputMaybe<Scalars['String']['input']>;
   postCategory?: InputMaybe<PostCategory>;
   postedAt?: InputMaybe<Scalars['Date']['input']>;
@@ -19942,7 +19951,7 @@ export type PostsTopItemInfo = (
 );
 
 export type PostsBase = (
-  { __typename?: 'Post', url: string | null, postedAt: string, sticky: boolean, metaSticky: boolean, stickyPriority: number, status: number, frontpageDate: string | null, meta: boolean, deletedDraft: boolean, postCategory: PostCategory, tagRelevance: any | null, shareWithUsers: Array<string> | null, sharingSettings: any | null, linkSharingKey: string | null, contents_latest: string | null, commentCount: number, voteCount: number, baseScore: number, extendedScore: any | null, unlisted: boolean, score: number, lastVisitedAt: string | null, isFuture: boolean, isRead: boolean | null, lastCommentedAt: string, lastCommentPromotedAt: string | null, canonicalCollectionSlug: string | null, curatedDate: string | null, commentsLocked: boolean | null, commentsLockedToAccountsCreatedAfter: string | null, debate: boolean, question: boolean, hiddenRelatedQuestion: boolean, originalPostRelationSourceId: string | null, userId: string | null, location: string | null, googleLocation: any | null, onlineEvent: boolean, globalEvent: boolean, startTime: string | null, endTime: string | null, localStartTime: string | null, localEndTime: string | null, eventRegistrationLink: string | null, joinEventLink: string | null, facebookLink: string | null, meetupLink: string | null, website: string | null, contactInfo: string | null, isEvent: boolean, eventImageId: string | null, eventType: string | null, types: Array<string> | null, groupId: string | null, reviewedByUserId: string | null, suggestForCuratedUserIds: Array<string> | null, suggestForCuratedUsernames: string | null, reviewForCuratedUserId: string | null, authorIsUnreviewed: boolean, afDate: string | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, afCommentCount: number, afLastCommentedAt: string | null, afSticky: boolean, hideAuthor: boolean, moderationStyle: string | null, ignoreRateLimits: boolean | null, submitToFrontpage: boolean, shortform: boolean, onlyVisibleToLoggedIn: boolean, onlyVisibleToEstablishedAccounts: boolean, reviewCount: number, reviewVoteCount: number, positiveReviewVoteCount: number, manifoldReviewMarketId: string | null, annualReviewMarketProbability: number | null, annualReviewMarketIsResolved: boolean | null, annualReviewMarketYear: number | null, annualReviewMarketUrl: string | null, rsvpCounts: any, podcastEpisodeId: string | null, forceAllowType3Audio: boolean, nominationCount2019: number, reviewCount2019: number, votingSystem: string | null, disableRecommendation: boolean, group: { __typename?: 'Localgroup', _id: string, name: string, organizerIds: Array<string> } | null }
+  { __typename?: 'Post', url: string | null, overridePageUrl: string | null, postedAt: string, sticky: boolean, metaSticky: boolean, stickyPriority: number, status: number, frontpageDate: string | null, meta: boolean, deletedDraft: boolean, postCategory: PostCategory, tagRelevance: any | null, shareWithUsers: Array<string> | null, sharingSettings: any | null, linkSharingKey: string | null, contents_latest: string | null, commentCount: number, voteCount: number, baseScore: number, extendedScore: any | null, unlisted: boolean, score: number, lastVisitedAt: string | null, isFuture: boolean, isRead: boolean | null, lastCommentedAt: string, lastCommentPromotedAt: string | null, canonicalCollectionSlug: string | null, curatedDate: string | null, commentsLocked: boolean | null, commentsLockedToAccountsCreatedAfter: string | null, debate: boolean, question: boolean, hiddenRelatedQuestion: boolean, originalPostRelationSourceId: string | null, userId: string | null, location: string | null, googleLocation: any | null, onlineEvent: boolean, globalEvent: boolean, startTime: string | null, endTime: string | null, localStartTime: string | null, localEndTime: string | null, eventRegistrationLink: string | null, joinEventLink: string | null, facebookLink: string | null, meetupLink: string | null, website: string | null, contactInfo: string | null, isEvent: boolean, eventImageId: string | null, eventType: string | null, types: Array<string> | null, groupId: string | null, reviewedByUserId: string | null, suggestForCuratedUserIds: Array<string> | null, suggestForCuratedUsernames: string | null, reviewForCuratedUserId: string | null, authorIsUnreviewed: boolean, afDate: string | null, suggestForAlignmentUserIds: Array<string>, reviewForAlignmentUserId: string | null, afBaseScore: number | null, afExtendedScore: any | null, afCommentCount: number, afLastCommentedAt: string | null, afSticky: boolean, hideAuthor: boolean, moderationStyle: string | null, ignoreRateLimits: boolean | null, submitToFrontpage: boolean, shortform: boolean, onlyVisibleToLoggedIn: boolean, onlyVisibleToEstablishedAccounts: boolean, reviewCount: number, reviewVoteCount: number, positiveReviewVoteCount: number, manifoldReviewMarketId: string | null, annualReviewMarketProbability: number | null, annualReviewMarketIsResolved: boolean | null, annualReviewMarketYear: number | null, annualReviewMarketUrl: string | null, rsvpCounts: any, podcastEpisodeId: string | null, forceAllowType3Audio: boolean, nominationCount2019: number, reviewCount2019: number, votingSystem: string | null, disableRecommendation: boolean, group: { __typename?: 'Localgroup', _id: string, name: string, organizerIds: Array<string> } | null }
   & PostsMinimumInfo
 );
 

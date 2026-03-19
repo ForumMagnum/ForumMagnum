@@ -341,6 +341,12 @@ interface SelectorInput {
   documentId?: string | null;
 }
 
+interface SelectorInputWithSlug {
+  _id?: string | null;
+  documentId?: string | null;
+  slug?: string | null;
+}
+
 interface EmptyViewInput {
   _?: boolean | null;
 }
@@ -1594,7 +1600,7 @@ interface Collection {
 }
 
 interface SingleCollectionInput {
-  selector?: SelectorInput | null;
+  selector?: SelectorInputWithSlug | null;
   resolverArgs?: any;
 }
 
@@ -3177,7 +3183,7 @@ interface MultiDocument {
 }
 
 interface SingleMultiDocumentInput {
-  selector?: SelectorInput | null;
+  selector?: SelectorInputWithSlug | null;
   resolverArgs?: any;
 }
 
@@ -3538,6 +3544,7 @@ interface Post {
   domain: string | null;
   pageUrl: string;
   pageUrlRelative: string | null;
+  overridePageUrl: string | null;
   linkUrl: string | null;
   postedAtFormatted: string | null;
   emailShareUrl: string | null;
@@ -3752,7 +3759,7 @@ interface FrontpageClassification {
 }
 
 interface SinglePostInput {
-  selector?: SelectorInput | null;
+  selector?: SelectorInputWithSlug | null;
   resolverArgs?: any;
   allowNull?: boolean | null;
 }
@@ -5998,7 +6005,7 @@ interface TagFlag {
 }
 
 interface SingleTagFlagInput {
-  selector?: SelectorInput | null;
+  selector?: SelectorInputWithSlug | null;
   resolverArgs?: any;
 }
 
@@ -6177,7 +6184,7 @@ interface Tag {
 }
 
 interface SingleTagInput {
-  selector?: SelectorInput | null;
+  selector?: SelectorInputWithSlug | null;
   resolverArgs?: any;
 }
 
@@ -7567,6 +7574,7 @@ interface CreatePostDataInput {
   sticky?: boolean | null;
   stickyPriority?: number | null;
   userId?: string | null;
+  overridePageUrl?: string | null;
   question?: boolean | null;
   authorIsUnreviewed?: boolean | null;
   readTimeMinutesOverride?: number | null;
@@ -7683,6 +7691,7 @@ interface UpdatePostDataInput {
   sticky?: boolean | null;
   stickyPriority?: number | null;
   userId?: string | null;
+  overridePageUrl?: string | null;
   question?: boolean | null;
   authorIsUnreviewed?: boolean | null;
   readTimeMinutesOverride?: number | null;
@@ -8642,6 +8651,7 @@ interface GraphQLTypeMap {
   Mutation: Mutation;
   ContentType: ContentType;
   SelectorInput: SelectorInput;
+  SelectorInputWithSlug: SelectorInputWithSlug;
   EmptyViewInput: EmptyViewInput;
   EmailPreview: EmailPreview;
   ArbitalLinkedPage: ArbitalLinkedPage;

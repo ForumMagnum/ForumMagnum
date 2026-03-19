@@ -37,6 +37,7 @@ export const PostsBase = gql(`
     
     # Core fields
     url
+    overridePageUrl
     postedAt
     sticky
     metaSticky

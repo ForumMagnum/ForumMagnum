@@ -44,13 +44,3 @@ const routesWithLeftNavigationColumn = [
 export type LeftNavigationRoutePattern = typeof routesWithLeftNavigationColumn[number];
 
 export const isRouteWithLeftNavigationColumn = (pathname: string) => pathnameMatchesAnyOf(pathname, [...routesWithLeftNavigationColumn]);
-
-export const isPostsSingleRoute = (pathname: string) => {
-  const match = matchPath<{ _id: string }>(pathname, {
-    path: ['/posts/[_id]', '/posts/[_id]/[slug]'].map(routePatternToReactRouterPath),
-    exact: true,
-    strict: false,
-  });
-
-  return !!match && match.params._id !== 'slug';
-}

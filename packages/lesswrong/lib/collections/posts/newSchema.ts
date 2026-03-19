@@ -709,6 +709,21 @@ const schema = {
       resolver: (post, args, context) => postGetPageUrl(post, { isAbsolute: false }),
     },
   },
+  overridePageUrl: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   linkUrl: {
     graphql: {
       outputType: "String",

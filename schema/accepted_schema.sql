@@ -1395,6 +1395,7 @@ CREATE TABLE "Posts" (
   "referrer" TEXT,
   "author" TEXT,
   "userId" VARCHAR(27) NOT NULL,
+  "overridePageUrl" TEXT,
   "question" BOOL NOT NULL DEFAULT FALSE,
   "authorIsUnreviewed" BOOL NOT NULL DEFAULT FALSE,
   "readTimeMinutesOverride" DOUBLE PRECISION,
