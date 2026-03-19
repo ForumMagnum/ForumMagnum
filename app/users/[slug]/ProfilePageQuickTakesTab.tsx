@@ -62,7 +62,6 @@ export function ProfilePageQuickTakesTabContents({user, settings}: {
   user: UsersProfile,
   settings: ProfilePageQuickTakesTabSettings,
 }) {
-  void settings;
   const sharedClasses = useStyles(profileStyles);
   const classes = useStyles(profilePageQuickTakesTabUnsharedStyles);
   const {data, loading, loadMoreProps} = useQueryWithLoadMore(ProfilePageQuickTakesTabQuery, {
@@ -84,7 +83,7 @@ export function ProfilePageQuickTakesTabContents({user, settings}: {
               <div className={classes.quickTakesList}>
                 {quickTakes?.map((quickTake: FrontpageShortformComments) => (
                   <div key={quickTake._id} className={classes.quickTakeItem}>
-                    <QuickTakesListItem key={quickTake._id} quickTake={quickTake} />
+                    <QuickTakesListItem key={quickTake._id} quickTake={quickTake} linesToDisplay={3} />
                   </div>
                 ))}
                 {loading && <Loading />}
