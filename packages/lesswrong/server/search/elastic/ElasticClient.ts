@@ -83,6 +83,7 @@ class ElasticClient {
           filters: [],
           limit: queryData.limit,
           search: queryData.search,
+          offset: queryData.offset,
         }).compile())
       )
     )
