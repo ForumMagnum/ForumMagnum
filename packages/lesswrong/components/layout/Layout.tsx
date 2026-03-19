@@ -161,10 +161,10 @@ const Layout = ({children}: {
       <LlmChatWrapper>
       <DisableNoKibitzContextProvider>
       <CommentOnSelectionPageWrapper>
-      <LlmSidebarWrapper>
         <HeaderHeightProvider>
         <PageBackgroundWrapper>
           <DialogManager>
+          <LlmSidebarWrapper>
             <CommentBoxManager>
               <AnalyticsClient/>
               <AnalyticsPageInitializer/>
@@ -201,11 +201,11 @@ const Layout = ({children}: {
 
               {children}
             </CommentBoxManager>
+          </LlmSidebarWrapper>
           </DialogManager>
           <NavigationEventSender />
         </PageBackgroundWrapper>
         </HeaderHeightProvider>
-      </LlmSidebarWrapper>
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContextProvider>
       </LlmChatWrapper>

@@ -3,9 +3,6 @@ import { Doc, UndoManager } from "yjs";
 import type { Provider as LexicalProvider } from "@lexical/yjs";
 import { createBinding, syncLexicalUpdateToYjs, syncYjsChangesToLexical } from "@lexical/yjs";
 import {
-  $createRangeSelection,
-  $getRoot,
-  $setSelection,
   createEditor,
   type LexicalEditor,
   SKIP_COLLAB_TAG,
@@ -18,14 +15,6 @@ import { sleep } from "@/lib/utils/asyncUtils";
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const INITIAL_SYNC_SETTLE_MS = 25;
 export const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
-
-export interface SelectQuotedTextResult {
-  quoteFoundInDocument: boolean
-  selectionCreated: boolean
-  matchedNodeKey?: string
-  startOffset?: number
-  endOffset?: number
-}
 
 export function normalizeText(value: string): string {
   return value.replace(/\s+/g, " ").trim().toLowerCase();
@@ -112,40 +101,6 @@ export function createHeadlessEditor(errorLabel: string): LexicalEditor {
     },
     editable: false,
   });
-}
-
-export function selectQuotedTextInEditor(quote: string): SelectQuotedTextResult {
-  const rawQuote = quote.trim();
-  const normalizedQuote = normalizeText(rawQuote);
-  const textNodes = $getRoot().getAllTextNodes();
-  const aggregateText = textNodes.map((node) => node.getTextContent()).join(" ");
-  const quoteFoundInDocument = !!normalizedQuote && normalizeText(aggregateText).includes(normalizedQuote);
-
-  if (!rawQuote || !normalizedQuote || !quoteFoundInDocument) {
-    return { quoteFoundInDocument, selectionCreated: false };
-  }
-
-  for (const textNode of textNodes) {
-    const nodeText = textNode.getTextContent();
-    const matchIndex = nodeText.toLowerCase().indexOf(rawQuote.toLowerCase());
-    if (matchIndex === -1) {
-      continue;
-    }
-
-    const selection = $createRangeSelection();
-    selection.anchor.set(textNode.getKey(), matchIndex, "text");
-    selection.focus.set(textNode.getKey(), matchIndex + rawQuote.length, "text");
-    $setSelection(selection);
-    return {
-      quoteFoundInDocument,
-      selectionCreated: true,
-      matchedNodeKey: textNode.getKey(),
-      startOffset: matchIndex,
-      endOffset: matchIndex + rawQuote.length,
-    };
-  }
-
-  return { quoteFoundInDocument, selectionCreated: false };
 }
 
 export async function withMainDocEditorSession<T>({

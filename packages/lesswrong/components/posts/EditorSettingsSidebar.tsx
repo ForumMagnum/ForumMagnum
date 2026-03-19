@@ -757,7 +757,7 @@ function getFeedbackQuery(postId: string, linkSharingKey: string | undefined) {
   const postUrl = postGetEditUrl(postId, true, linkSharingKey);
   return `I'm writing a post on LessWrong and would appreciate your inline feedback on it.  The post is located at ${postUrl}.
 
-Please remember to follow the guidelines in LessWrong's SKILL.md (https://www.lesswrong.com/SKILL.md).`;
+Please remember to follow the guidelines and review structure in LessWrong's SKILL.md (https://www.lesswrong.com/api/SKILL.md).`;
 }
 
 function AccordionSection({ title, defaultOpen = false, children, className, contentClassName }: {
