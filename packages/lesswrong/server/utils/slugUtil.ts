@@ -1,7 +1,7 @@
 import { randomLowercaseId } from "@/lib/random";
 import { getCollection } from "@/server/collections/allCollections";
 import type { CreateCallbackProperties, UpdateCallbackProperties } from "../mutationCallbacks";
-import { slugify } from "@/lib/utils/slugify";
+import { slugify, slugLooksLikeId } from "@/lib/utils/slugify";
 
 
 // Get an unused slug. If `slug` is already unused, returns it as-is. If it's
@@ -20,6 +20,13 @@ const getUnusedSlug = async function ({collectionsToCheck, slug, useOldSlugs=fal
 }): Promise<string> {
   let suffix = '';
   let index = 0;
+
+  // If a slug looks like it could be an _id (no dashes, length 17), it must
+  // be suffixed to avoid ambiguity in places that accept both _id and slug
+  if (slugLooksLikeId(slug)) {
+    index = 1;
+    suffix = '-1';
+  }
   
   //eslint-disable-next-line no-constant-condition
   while(true) {
@@ -134,10 +141,6 @@ export async function runSlugCreateBeforeCallback<P extends CreateCallbackProper
 }
 
 export async function runSlugUpdateBeforeCallback<N extends CollectionNameWithSlug>(updateProps: UpdateCallbackProperties<N>) {
-  // if (!isUpdateBeforeCallbackForSlugCollection<N>(updateProps)) {
-  //   return updateProps.data;
-  // }
-
   const { oldDocument, newDocument, data, schema } = updateProps;
   if (!schema.slug.graphql || !('slugCallbackOptions' in schema.slug.graphql) || !schema.slug.graphql.slugCallbackOptions) {
     return updateProps.data;
