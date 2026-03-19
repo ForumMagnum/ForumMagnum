@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { descriptionStyles } from './SpotlightItem';
+import { descriptionStyles } from './SpotlightDescriptionStyles';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 

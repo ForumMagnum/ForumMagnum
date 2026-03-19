@@ -8,7 +8,6 @@ import React, { CSSProperties, useCallback, useState } from 'react';
 import { userGetProfileUrlFromSlug } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
-import { postBodyStyles } from '../../themes/stylePiping';
 import { useCurrentUser } from '../common/withUser';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
 import { getSpotlightUrl } from '../../lib/collections/spotlights/helpers';
@@ -33,6 +32,7 @@ import { SuspenseWrapper } from '../common/SuspenseWrapper';
 import range from 'lodash/range';
 import { CommentByIdSuspense } from '../comments/CommentById';
 import { SingleLineCommentPlaceholder } from '../comments/SingleLineComment';
+import { descriptionStyles } from './SpotlightDescriptionStyles';
 
 import dynamic from 'next/dynamic';
 const SpotlightForm = dynamic(() => import('./SpotlightForm').then(mod => ({ default: mod.SpotlightForm })), { ssr: false });
@@ -58,25 +58,6 @@ const SpotlightEditQueryFragmentQuery = gql(`
 `);
 
 const TEXT_WIDTH = 350;
-
-export const descriptionStyles = (theme: ThemeType) => ({
-  ...postBodyStyles(theme),
-  ...theme.typography.body2,
-  lineHeight: '1.65rem',
-  '& p': {
-    marginTop: ".5em",
-    marginBottom: ".5em",
-    '&:first-child': {
-      marginTop: 0,
-    },
-    'style~&': {
-      marginTop: 0,
-    },
-    '&:last-child': {
-      marginBottom: 0,
-    }
-  },
-})
 
 const buildFadeMask = (breakpoints: string[]) => {
   const mask = `linear-gradient(to right, ${breakpoints.join(",")})`;
