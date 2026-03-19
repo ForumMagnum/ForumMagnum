@@ -256,7 +256,7 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
   '& .llm-content-block': {
     margin: '1em 0',
     position: 'relative',
-    fontFamily: '"cronos-pro", serif',
+    fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 19.3,
     fontWeight: 400,
     opacity: 0.94,
