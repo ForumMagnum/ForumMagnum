@@ -27,7 +27,7 @@ const styles = defineStyles("LessOnline2026Banner", (theme: ThemeType) => ({
     top: 0,
     right: '0px',
     height: "120vh",
-    width: '44vw',
+    width: '26vw',
     maskImage: `linear-gradient(to bottom, ${theme.palette.greyAlpha(1)} 18%, ${theme.palette.greyAlpha(0.82)} 38%, ${theme.palette.greyAlpha(0.48)} 54%, ${theme.palette.greyAlpha(0.22)} 66%, ${theme.palette.greyAlpha(0)} 76%)`,
     WebkitMaskImage: `linear-gradient(to bottom, ${theme.palette.greyAlpha(1)} 18%, ${theme.palette.greyAlpha(0.82)} 38%, ${theme.palette.greyAlpha(0.48)} 54%, ${theme.palette.greyAlpha(0.22)} 66%, ${theme.palette.greyAlpha(0)} 76%)`,
     ['@media(max-width: 1000px)']: {
@@ -59,6 +59,12 @@ const styles = defineStyles("LessOnline2026Banner", (theme: ThemeType) => ({
       fontSize: 'clamp(2.5rem, 3vw, 4rem)',
       lineHeight: '1.2',
       margin: 0,
+      [theme.breakpoints.down(1450)]: {
+        fontSize: 'clamp(2.05rem, 2.4vw, 3.1rem)',
+      },
+      [theme.breakpoints.down(1380)]: {
+        fontSize: 'clamp(1.75rem, 2.05vw, 2.6rem)',
+      },
       '& a': {
         color: 'inherit',
         textDecoration: 'none',
@@ -68,24 +74,25 @@ const styles = defineStyles("LessOnline2026Banner", (theme: ThemeType) => ({
       fontSize: 'clamp(1.5rem, 1.5vw, 2.2rem)',
       margin: 0,
       lineHeight: '1.2',
+      textWrap: 'balance',
       marginBottom: 8
     },
     '& button': {
       ...theme.typography.commentStyle,
-      backgroundColor: theme.palette.primary.main,
+      backgroundColor: '#5f6d42',
       opacity: 0.8,
-      border: 'none',
+      border: 0,
       color: theme.palette.text.alwaysWhite,
       borderRadius: '3px',
       textAlign: 'center',
-      padding: '8px 14px',
+      padding: '5px 10px',
       cursor: 'pointer',
       '& a': {
         color: 'inherit',
         textDecoration: 'none',
       },
       fontWeight: '600',
-      fontSize: '22px',
+      fontSize: '17px',
     }
   },
   dateAndLocation: {
@@ -97,7 +104,7 @@ const styles = defineStyles("LessOnline2026Banner", (theme: ThemeType) => ({
     marginLeft: 'auto',
     textAlign: 'right',
   },
-}));
+}), { allowNonThemeColors: true });
 
 export const LessOnline2026Banner = ({earlyBirdEndDate}: {earlyBirdEndDate: Date}) => {
   const classes = useStyles(styles);
@@ -120,7 +127,7 @@ export const LessOnline2026Banner = ({earlyBirdEndDate}: {earlyBirdEndDate: Date
           <CloudinaryImage2
             loading="lazy"
             className={classes.image}
-            publicId="t_fliph/v1773986020/LessOnline/lessonline_2026_sidebanner_6.png"
+            publicId="v1774037345/LessOnline/lessonline_2026_sidebanner_7.png"
           />
           <div className={classes.leftFade} />
         </div>
