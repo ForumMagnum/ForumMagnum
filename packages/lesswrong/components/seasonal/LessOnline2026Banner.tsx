@@ -28,19 +28,16 @@ const styles = defineStyles("LessOnline2026Banner", (theme: ThemeType) => ({
     right: '0px',
     height: "120vh",
     width: '44vw',
-    maskImage: `
-      radial-gradient(ellipse at top right, ${theme.palette.greyAlpha(1)} 35%, ${theme.palette.greyAlpha(0)} 63%),
-      linear-gradient(to bottom, ${theme.palette.greyAlpha(1)} 18%, ${theme.palette.greyAlpha(0.82)} 38%, ${theme.palette.greyAlpha(0.48)} 54%, ${theme.palette.greyAlpha(0.22)} 66%, ${theme.palette.greyAlpha(0)} 76%)
-    `,
-    WebkitMaskImage: `
-      radial-gradient(ellipse at top right, ${theme.palette.greyAlpha(1)} 35%, ${theme.palette.greyAlpha(0)} 63%),
-      linear-gradient(to bottom, ${theme.palette.greyAlpha(1)} 18%, ${theme.palette.greyAlpha(0.82)} 38%, ${theme.palette.greyAlpha(0.48)} 54%, ${theme.palette.greyAlpha(0.22)} 66%, ${theme.palette.greyAlpha(0)} 76%)
-    `,
-    maskComposite: 'intersect',
-    WebkitMaskComposite: 'destination-in',
+    maskImage: `linear-gradient(to bottom, ${theme.palette.greyAlpha(1)} 18%, ${theme.palette.greyAlpha(0.82)} 38%, ${theme.palette.greyAlpha(0.48)} 54%, ${theme.palette.greyAlpha(0.22)} 66%, ${theme.palette.greyAlpha(0)} 76%)`,
+    WebkitMaskImage: `linear-gradient(to bottom, ${theme.palette.greyAlpha(1)} 18%, ${theme.palette.greyAlpha(0.82)} 38%, ${theme.palette.greyAlpha(0.48)} 54%, ${theme.palette.greyAlpha(0.22)} 66%, ${theme.palette.greyAlpha(0)} 76%)`,
     ['@media(max-width: 1000px)']: {
       display: 'none'
     },
+  },
+  leftFade: {
+    position: 'absolute',
+    inset: 0,
+    background: `linear-gradient(to right, ${theme.palette.background.default} 0%, ${theme.palette.background.translucentBackgroundHeavy} 12%, ${theme.palette.background.translucentBackground} 28%, ${theme.palette.background.transparent} 56%)`,
   },
   bannerText: {
     ...theme.typography.postStyle,
@@ -120,11 +117,12 @@ export const LessOnline2026Banner = ({earlyBirdEndDate}: {earlyBirdEndDate: Date
     <AnalyticsContext pageSectionContext="lessOnline2026Banner">
       <div className={classes.root}>
         <div className={classes.imageColumn}>
-            <CloudinaryImage2
-              loading="lazy"
-              className={classes.image}
-              publicId="t_fliph/v1773986020/LessOnline/lessonline_2026_sidebanner_6.png"
-            />
+          <CloudinaryImage2
+            loading="lazy"
+            className={classes.image}
+            publicId="t_fliph/v1773986020/LessOnline/lessonline_2026_sidebanner_6.png"
+          />
+          <div className={classes.leftFade} />
         </div>
         <div className={classes.bannerText}>
           <h2><a href="http://less.online">LessOnline 2026</a></h2>
