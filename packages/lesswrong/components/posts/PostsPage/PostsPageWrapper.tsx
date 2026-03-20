@@ -43,7 +43,7 @@ const PostsPageWrapper = ({ sequenceId, version, documentId, embedded, redirectB
   canonicalUrl?: string,
 }) => {
   const { pathname } = useLocation();
-  if (redirectBehavior === "redirectToCanonical" && canonicalUrl && canonicalUrl !== pathname) {
+  if (redirectBehavior === "redirectToCanonical" && canonicalUrl && canonicalUrl !== pathname && !embedded) {
     return <PermanentRedirect url={canonicalUrl} />
   } else {
     return <PostsPageWrapperInner sequenceId={sequenceId} version={version} documentId={documentId} embedded={embedded} />

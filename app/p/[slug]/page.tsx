@@ -4,7 +4,7 @@ import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetad
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
-export const generateMetadata = getPostPageMetadataFunction<{ slug: string }>(({ slug }) => ({idOrSlug: _id}));
+export const generateMetadata = getPostPageMetadataFunction<{ slug: string }>(({ slug }) => ({idOrSlug: slug}));
 
 assertRouteAttributes("/p/[slug]", {
   whiteBackground: true,

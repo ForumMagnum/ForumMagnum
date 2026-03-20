@@ -9,7 +9,7 @@ const PostsSingleSlug = ({slug, sequenceId, version}: {slug: string, sequenceId:
   const { post, loading } = usePostBySlug({ slug });
   
   if (post) {
-    return <PostsPageWrapper documentId={post._id} sequenceId={sequenceId} version={version} />
+    return <PostsPageWrapper documentId={post._id} sequenceId={sequenceId} version={version} redirectBehavior="noRedirect" />
   } else {
     return loading ? <Loading/> : <Error404 />
   }

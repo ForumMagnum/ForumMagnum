@@ -20,6 +20,6 @@ export default async function Page({ params, searchParams }: {
 }) {
   const { _id, postId } = await params;
   return <RouteRoot>
-    <PostsSingle idOrSlug={postId} sequenceId={_id} searchParams={searchParams} />
+    <PostsSingle idOrSlug={postId} sequenceId={_id} searchParams={searchParams} redirectBehavior="noRedirect" />
   </RouteRoot>;
 }

@@ -210,7 +210,7 @@ const ModerationPostSidebar = ({
       </div>
 
       <div className={classes.postWrapper} key={post._id}>
-        <PostsPageWrapper documentId={post._id} sequenceId={null} embedded />
+        <PostsPageWrapper documentId={post._id} sequenceId={null} embedded redirectBehavior="noRedirect" />
       </div>
     </div>
   );

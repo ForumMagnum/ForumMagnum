@@ -30,6 +30,7 @@ export const routeMarkdownMapping = defineMarkdownRouteMapping({
   "/events/[_id]": ({ _id }) => `/api/events/${_id}`,
   "/events/[_id]/[slug]": ({ _id, slug }) => `/api/events/${_id}/${slug}`,
   "/posts/[_id]": ({ _id }) => `/api/post/${_id}`,
+  "/p/[slug]": ({ slug }) => `/api/post/${slug}`,
   // Prefer canonical _id when present to avoid stale/mismatched slugs rewriting to the wrong post.
   "/posts/[_id]/[slug]": ({ _id }) => `/api/post/${_id}`,
   "/posts/[_id]/[slug]/comment": ({ _id }) => `/api/post/${_id}/comments`,
