@@ -18,27 +18,26 @@ const styles = defineStyles("LessOnline2026Banner", (theme: ThemeType) => ({
   },
   image: {
     width: '100%',
-    height: '80vh',
+    height: '92vh',
     objectFit: 'cover',
     objectPosition: 'right',
-  },
-  gradientOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: `radial-gradient(ellipse at top right, 
-                transparent 35%,
-                ${theme.palette.background.default} 63%)`,
-    pointerEvents: 'none',
   },
   imageColumn: {
     position: 'absolute',
     top: 0,
     right: '0px',
-    height: "100vh",
-    width: '34vw',
+    height: "120vh",
+    width: '44vw',
+    maskImage: `
+      radial-gradient(ellipse at top right, white 35%, transparent 63%),
+      linear-gradient(to bottom, white 18%, rgba(255, 255, 255, 0.82) 38%, rgba(255, 255, 255, 0.48) 54%, rgba(255, 255, 255, 0.22) 66%, transparent 76%)
+    `,
+    WebkitMaskImage: `
+      radial-gradient(ellipse at top right, white 35%, transparent 63%),
+      linear-gradient(to bottom, white 18%, rgba(255, 255, 255, 0.82) 38%, rgba(255, 255, 255, 0.48) 54%, rgba(255, 255, 255, 0.22) 66%, transparent 76%)
+    `,
+    maskComposite: 'intersect',
+    WebkitMaskComposite: 'destination-in',
     ['@media(max-width: 1000px)']: {
       display: 'none'
     },
@@ -124,9 +123,8 @@ export const LessOnline2026Banner = ({earlyBirdEndDate}: {earlyBirdEndDate: Date
             <CloudinaryImage2
               loading="lazy"
               className={classes.image}
-              publicId="v1773781900/LessOnline/lessonline_lesswrong_rightbanner.psd"
+              publicId="t_fliph/v1773986020/LessOnline/lessonline_2026_sidebanner_6.png"
             />
-            <div className={classes.gradientOverlay} />
         </div>
         <div className={classes.bannerText}>
           <h2><a href="http://less.online">LessOnline 2026</a></h2>

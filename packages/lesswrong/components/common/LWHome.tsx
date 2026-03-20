@@ -39,7 +39,7 @@ const styles = defineStyles("LWHome", () => ({
   },
 }));
 
-const LESSONLINE_MOBILE_SPOTLIGHT_ID = 'hSdzjMYuyFewrw74y';
+const LESSONLINE_MOBILE_SPOTLIGHT_ID = 'j4q2gcjowKqfpdjsR';
 const LESSONLINE_MOBILE_SPOTLIGHT_UNTIL = new Date('2026-03-24T00:00:00Z');
 
 const getLessOnlineMobileSpotlightOverrideId = (now: Date = new Date()): string | null => (
