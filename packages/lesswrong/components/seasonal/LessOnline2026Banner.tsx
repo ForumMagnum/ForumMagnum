@@ -132,10 +132,10 @@ export const LessOnline2026Banner = ({earlyBirdEndDate}: {earlyBirdEndDate: Date
           <div className={classes.leftFade} />
         </div>
         <div className={classes.bannerText}>
-          <h2><a href="http://less.online">LessOnline 2026</a></h2>
+          <h2><a href="http://less.online?ref=lwb">LessOnline 2026</a></h2>
           {countdownText && <h3>Early bird prices end {countdownText}</h3>}
           <div className={classes.dateAndLocation}>Join our Festival of Blogging and Truthseeking from Jun 5 - Jun 7, Berkeley, CA</div>
-          <a href="http://less.online/" target="_blank" rel="noopener noreferrer"><button>Buy Tickets — {buttonPrice}</button></a>
+          <a href="http://less.online?ref=lwb" target="_blank" rel="noopener noreferrer"><button>Buy Tickets — {buttonPrice}</button></a>
         </div>
       </div>
     </AnalyticsContext>
