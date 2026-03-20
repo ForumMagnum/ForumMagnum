@@ -3522,6 +3522,7 @@ interface Post {
   customHighlight: Revision | null;
   customHighlight_latest: string | null;
   slug: string;
+  oldSlugs: Array<string>;
   postedAt: Date;
   modifiedAt: Date | null;
   url: string | null;

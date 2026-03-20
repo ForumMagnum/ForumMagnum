@@ -965,6 +965,7 @@ interface DbPost extends DbObject {
   noIndex: boolean
   nominationCount2018: number
   nominationCount2019: number
+  oldSlugs: Array<string>
   onlineEvent: boolean
   onlyVisibleToEstablishedAccounts: boolean
   onlyVisibleToLoggedIn: boolean

@@ -4984,6 +4984,7 @@ type Post = {
   noIndex: Scalars['Boolean']['output'];
   nominationCount2018: Scalars['Float']['output'];
   nominationCount2019: Scalars['Float']['output'];
+  oldSlugs: Array<Scalars['String']['output']>;
   onlineEvent: Scalars['Boolean']['output'];
   onlyVisibleToEstablishedAccounts: Scalars['Boolean']['output'];
   onlyVisibleToLoggedIn: Scalars['Boolean']['output'];

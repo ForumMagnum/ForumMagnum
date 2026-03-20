@@ -3954,6 +3954,7 @@ type Post {
   customHighlight(version: String): Revision
   customHighlight_latest: String
   slug: String!
+  oldSlugs: [String!]!
   postedAt: Date!
   modifiedAt: Date
   url: String

@@ -121,6 +121,16 @@ interface SlugCallbackOptions<N extends CollectionNameString> {
    * change.
    */
   includesOldSlugs: boolean,
+
+  /**
+   * Optional per-collection guard for whether a changed slug should be added to
+   * `oldSlugs`.
+   */
+  shouldAddOldSlug?: (args: {
+    data: UpdateInputsByCollectionName[N]['data'],
+    oldDocument: ObjectsByCollectionName[N],
+    newDocument: ObjectsByCollectionName[N],
+  }) => boolean,
 }
 
 type DatabaseBaseType = `VARCHAR(${number})` | 'TEXT' | 'BOOL' | 'DOUBLE PRECISION' | 'INTEGER' | 'JSONB' | 'TIMESTAMPTZ' | 'VECTOR(1024)' | 'VECTOR(1536)' | 'BYTEA';

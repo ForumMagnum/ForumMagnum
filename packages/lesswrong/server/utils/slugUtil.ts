@@ -104,6 +104,23 @@ const slugIsUsed = async ({collectionsToCheck, slug, useOldSlugs, excludedId}: {
   return false;
 }
 
+function getUpdatedOldSlugs(
+  newDocument: unknown,
+  oldSlug: string,
+  deconflictedSlug: string,
+): string[] {
+  const oldSlugs = (
+    newDocument &&
+    typeof newDocument === "object" &&
+    "oldSlugs" in newDocument &&
+    Array.isArray(newDocument.oldSlugs)
+  )
+    ? newDocument.oldSlugs.filter((slug): slug is string => typeof slug === "string" && slug !== deconflictedSlug)
+    : [];
+
+  return [...oldSlugs, oldSlug];
+}
+
 export async function runSlugCreateBeforeCallback<P extends CreateCallbackProperties<N>, N extends CollectionNameWithSlug>(createProps: P): Promise<P['document']> {
   const { schema, document } = createProps;
   if (!schema.slug.graphql || !('slugCallbackOptions' in schema.slug.graphql) || !schema.slug.graphql.slugCallbackOptions) {
@@ -146,7 +163,13 @@ export async function runSlugUpdateBeforeCallback<N extends CollectionNameWithSl
     return updateProps.data;
   }
 
-  const { collectionsToAvoidCollisionsWith, getTitle, onCollision, includesOldSlugs } = schema.slug.graphql.slugCallbackOptions;
+  const {
+    collectionsToAvoidCollisionsWith,
+    getTitle,
+    onCollision,
+    includesOldSlugs,
+    shouldAddOldSlug,
+  } = schema.slug.graphql.slugCallbackOptions;
 
   const oldTitle = getTitle(oldDocument);
   const newTitle = getTitle(newDocument);
@@ -171,18 +194,14 @@ export async function runSlugUpdateBeforeCallback<N extends CollectionNameWithSl
     useOldSlugs: includesOldSlugs,
     documentId: newDocument._id
   });
+  const shouldWriteOldSlug = includesOldSlugs && (shouldAddOldSlug?.({ data, oldDocument, newDocument }) ?? true);
+
   if (deconflictedSlug === changedSlug) {
     return {
       ...data,
       slug: deconflictedSlug,
-      ...(includesOldSlugs && {
-        oldSlugs: [
-          // The type signature above didn't capture the fact that
-          // includesOldSlugs implies that the document has an oldSlugs field, so
-          // @ts-ignore
-          ...(newDocument.oldSlugs ?? []).filter(s => s!==deconflictedSlug),
-          oldDocument.slug
-        ],
+      ...(shouldWriteOldSlug && {
+        oldSlugs: getUpdatedOldSlugs(newDocument, oldDocument.slug, deconflictedSlug),
       })
     };
   }
@@ -196,12 +215,8 @@ export async function runSlugUpdateBeforeCallback<N extends CollectionNameWithSl
       return {
         ...data,
         slug: deconflictedSlug,
-        ...(includesOldSlugs && {
-          oldSlugs: [
-            //@ts-ignore
-            ...(newDocument.oldSlugs ?? []).filter(s => s!==deconflictedSlug),
-            oldDocument.slug
-          ],
+        ...(shouldWriteOldSlug && {
+          oldSlugs: getUpdatedOldSlugs(newDocument, oldDocument.slug, deconflictedSlug),
         }),
       };
     case "rejectNewDocument":

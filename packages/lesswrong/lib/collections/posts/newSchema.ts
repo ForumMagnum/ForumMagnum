@@ -332,8 +332,25 @@ const schema = {
         // The cast is somewhat unfortunately but posts can't be missing titles
         getTitle: (post) => post.title!,
         onCollision: "newDocumentGetsSuffix",
-        includesOldSlugs: false,
+        includesOldSlugs: true,
+        shouldAddOldSlug: ({ newDocument }) => !newDocument.draft,
       },
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  oldSlugs: {
+    database: {
+      type: "TEXT[]",
+      defaultValue: [],
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]!",
+      inputType: "[String!]",
+      canRead: ["guests"],
       validation: {
         optional: true,
       },

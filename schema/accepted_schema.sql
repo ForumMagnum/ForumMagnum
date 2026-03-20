@@ -1377,6 +1377,7 @@ CREATE TABLE "Posts" (
   "customHighlight" JSONB,
   "customHighlight_latest" TEXT,
   "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "postedAt" TIMESTAMPTZ NOT NULL,
   "modifiedAt" TIMESTAMPTZ,
   "url" VARCHAR(500),
