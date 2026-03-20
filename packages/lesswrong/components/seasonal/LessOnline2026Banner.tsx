@@ -26,7 +26,7 @@ const styles = defineStyles("LessOnline2026Banner", (theme: ThemeType) => ({
     position: 'absolute',
     top: 0,
     right: '0px',
-    height: "120vh",
+    height: "100vh",
     width: '26vw',
     maskImage: `linear-gradient(to bottom, ${theme.palette.greyAlpha(1)} 18%, ${theme.palette.greyAlpha(0.82)} 38%, ${theme.palette.greyAlpha(0.48)} 54%, ${theme.palette.greyAlpha(0.22)} 66%, ${theme.palette.greyAlpha(0)} 76%)`,
     WebkitMaskImage: `linear-gradient(to bottom, ${theme.palette.greyAlpha(1)} 18%, ${theme.palette.greyAlpha(0.82)} 38%, ${theme.palette.greyAlpha(0.48)} 54%, ${theme.palette.greyAlpha(0.22)} 66%, ${theme.palette.greyAlpha(0)} 76%)`,
