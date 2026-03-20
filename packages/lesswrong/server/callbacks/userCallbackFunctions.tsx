@@ -412,16 +412,18 @@ export async function userEditDeleteContentCallbacksAsync({ newDocument, oldDocu
 export async function approveUnreviewedSubmissions(userId: string, context: ResolverContext) {
   const { Comments, Posts } = context;
 
-  // For each post by this author which has the authorIsUnreviewed flag set,
-  // clear the authorIsUnreviewed flag so it's visible, and update postedAt
-  // to now so that it goes to the right place int he latest posts list.
-  const unreviewedPosts = await Posts.find({userId, authorIsUnreviewed: true}).fetch();
+  // For each non-rejected post by this author which has the authorIsUnreviewed
+  // flag set, clear the flag so it's visible. For non-draft posts, also update
+  // postedAt to now so they appear in the right place in the latest posts list.
+  // Drafts keep their original postedAt since it will be set when they're undrafted.
+  const unreviewedPosts = await Posts.find({userId, authorIsUnreviewed: true, rejected: {$ne: true}}).fetch();
   for (let post of unreviewedPosts) {
+    const data: UpdatePostDataInput = { authorIsUnreviewed: false };
+    if (!post.draft) {
+      data.postedAt = new Date();
+    }
     await updatePost({
-      data: {
-        authorIsUnreviewed: false,
-        postedAt: new Date(),
-      },
+      data,
       selector: { _id: post._id }
     }, context);
   }

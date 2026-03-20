@@ -27,7 +27,7 @@ function useIsInkhaven2026Active(): boolean {
 // LessOnline 2026 banner active period
 const LESSONLINE_2026_START = new Date('2026-03-17T00:00:00-07:00');
 const LESSONLINE_2026_EARLY_BIRD_END = new Date('2026-04-08T00:00:00-07:00');
-const LESSONLINE_2026_END = new Date('2026-03-24T00:00:00-07:00');
+const LESSONLINE_2026_END = new Date('2026-03-26T00:00:00-07:00');
 
 function useIsLessOnline2026Active(): { active: boolean; earlyBirdEndDate: Date } {
   const now = useCurrentTime();

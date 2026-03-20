@@ -1,7 +1,7 @@
 import classNames from 'classnames';
 import React from 'react';
 import { useStyles } from '../hooks/useStyles';
-import { styles } from './LWPostsItem';
+import { styles } from './PostsItem';
 
 const LWPlaceholderPostsItem = ({showBottomBorder}: {
   showBottomBorder?: boolean,

@@ -16118,6 +16118,45 @@ type PostsItemWrapperQueryVariables = Exact<{
 
 type PostsItemWrapperQuery = PostsItemWrapperQuery_Query;
 
+type postsListWithVotesQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsListWithVotes
+);
+
+type postsListWithVotesQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<postsListWithVotesQuery_posts_MultiPostOutput_results_Post> };
+
+type postsListWithVotesQuery_Query = { __typename?: 'Query', posts: postsListWithVotesQuery_posts_MultiPostOutput | null };
+
+
+type postsListWithVotesQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type postsListWithVotesQuery = postsListWithVotesQuery_Query;
+
+type postsListTagWithVotesQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsListTagWithVotes
+);
+
+type postsListTagWithVotesQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<postsListTagWithVotesQuery_posts_MultiPostOutput_results_Post> };
+
+type postsListTagWithVotesQuery_Query = { __typename?: 'Query', posts: postsListTagWithVotesQuery_posts_MultiPostOutput | null };
+
+
+type postsListTagWithVotesQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+  tagId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type postsListTagWithVotesQuery = postsListTagWithVotesQuery_Query;
+
 type createPostPostsNewFormMutation_createPost_PostOutput_data_Post = (
   { __typename?: 'Post' }
   & PostsEdit
@@ -16661,45 +16700,6 @@ type multiPostusePostQueryQueryVariables = Exact<{
 
 
 type multiPostusePostQueryQuery = multiPostusePostQueryQuery_Query;
-
-type postsListWithVotesQuery_posts_MultiPostOutput_results_Post = (
-  { __typename?: 'Post' }
-  & PostsListWithVotes
-);
-
-type postsListWithVotesQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<postsListWithVotesQuery_posts_MultiPostOutput_results_Post> };
-
-type postsListWithVotesQuery_Query = { __typename?: 'Query', posts: postsListWithVotesQuery_posts_MultiPostOutput | null };
-
-
-type postsListWithVotesQueryVariables = Exact<{
-  selector: InputMaybe<PostSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type postsListWithVotesQuery = postsListWithVotesQuery_Query;
-
-type postsListTagWithVotesQuery_posts_MultiPostOutput_results_Post = (
-  { __typename?: 'Post' }
-  & PostsListTagWithVotes
-);
-
-type postsListTagWithVotesQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<postsListTagWithVotesQuery_posts_MultiPostOutput_results_Post> };
-
-type postsListTagWithVotesQuery_Query = { __typename?: 'Query', posts: postsListTagWithVotesQuery_posts_MultiPostOutput | null };
-
-
-type postsListTagWithVotesQueryVariables = Exact<{
-  selector: InputMaybe<PostSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-  tagId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type postsListTagWithVotesQuery = postsListTagWithVotesQuery_Query;
 
 type multiCommentQuickTakesSectionQueryQuery_comments_MultiCommentOutput_results_Comment = (
   { __typename?: 'Comment' }

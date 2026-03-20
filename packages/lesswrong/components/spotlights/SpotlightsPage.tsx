@@ -147,16 +147,6 @@ export const SpotlightsPage = () => {
   const sectionData = {
     html: "",
     sections: [
-      {
-        title: sectionTitle,
-        anchor: "spotlights",
-        level: 1
-      },
-      ...displayedSpotlights.map(spotlight => ({
-        title: getSpotlightDisplayTitle(spotlight),
-        anchor: spotlight._id,
-        level: 2
-      })),
       ...(noDrafts ? [] : [
         {
           title: "Draft Spotlights",
@@ -169,6 +159,16 @@ export const SpotlightsPage = () => {
           level: 2
         }))
       ]),
+      {
+        title: sectionTitle,
+        anchor: "spotlights",
+        level: 1
+      },
+      ...displayedSpotlights.map(spotlight => ({
+        title: getSpotlightDisplayTitle(spotlight),
+        anchor: spotlight._id,
+        level: 2
+      })),
     ],
   }
 
@@ -186,6 +186,13 @@ export const SpotlightsPage = () => {
         </SpotlightEditorStyles>
       </div>
       {loading && !onlyDrafts && <Loading/>}
+      {!noDrafts && <div>
+        <SectionTitle title="Draft Spotlights">
+          <div>Total: {totalDraftDuration} days, {uniqueDocumentIds.length} spotlights</div>
+        </SectionTitle>
+        {draftSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo isDraftProcessing={onlyDrafts}/>)}
+        <LoadMore {...loadMoreProps} />
+      </div>}
       <SectionTitle title={sectionTitle}>
         <div className={classes.sectionTitleContent}>
           <div>Total: {totalDisplayedDuration} days, {displayedSpotlights.length} spotlights</div>
@@ -204,13 +211,6 @@ export const SpotlightsPage = () => {
       </SectionTitle>
       {displayedSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
       <LoadMore {...loadMoreProps} />
-      {!noDrafts && <div>
-        <SectionTitle title="Draft Spotlights">
-          <div>Total: {totalDraftDuration} days, {uniqueDocumentIds.length} spotlights</div>
-        </SectionTitle>
-        {draftSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo isDraftProcessing={onlyDrafts}/>)}
-        <LoadMore {...loadMoreProps} />
-      </div>}
     </SingleColumnSection>
   </ToCColumn>
 }
