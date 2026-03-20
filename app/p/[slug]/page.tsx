@@ -4,22 +4,25 @@ import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetad
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
-export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => ({_id}), { noIndex: true });
+export const generateMetadata = getPostPageMetadataFunction<{ slug: string }>(({ slug }) => ({idOrSlug: _id}));
 
-assertRouteAttributes("/posts/[_id]/[slug]/comment/[commentId]", {
-  whiteBackground: false,
+assertRouteAttributes("/p/[slug]", {
+  whiteBackground: true,
   hasLinkPreview: true,
-  hasPingbacks: false,
+  hasPingbacks: true,
   hasLeftNavigationColumn: false,
   hasMarkdownVersion: true,
 });
 
 export default async function Page({ params, searchParams }: {
-  params: Promise<{ _id: string, slug: string, commentId: string }>
+  params: Promise<{ slug: string }>,
   searchParams: Promise<PostPageSearchParams>
 }) {
-  const { _id, slug, commentId } = await params;
-  return <RouteRoot delayedStatusCode>
-    <PostsSingle _id={_id} slug={slug} searchParams={searchParams} />
+  const { slug } = await params;
+
+  return <RouteRoot
+    delayedStatusCode
+  >
+    <PostsSingle idOrSlug={slug} searchParams={searchParams} />
   </RouteRoot>;
 }

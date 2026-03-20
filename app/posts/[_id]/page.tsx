@@ -4,7 +4,7 @@ import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetad
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
-export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => _id);
+export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => ({idOrSlug: _id}));
 
 assertRouteAttributes("/posts/[_id]", {
   whiteBackground: true,
@@ -19,6 +19,7 @@ export default async function Page({ params, searchParams }: {
   searchParams: Promise<PostPageSearchParams>
 }) {
   const { _id } = await params;
+
   return <RouteRoot
     delayedStatusCode
   >

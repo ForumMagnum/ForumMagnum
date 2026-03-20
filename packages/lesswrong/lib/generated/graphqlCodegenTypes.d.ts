@@ -4992,7 +4992,7 @@ type Post = {
   originalPostRelationSourceId?: Maybe<Scalars['String']['output']>;
   overridePageUrl?: Maybe<Scalars['String']['output']>;
   pageUrl: Scalars['String']['output'];
-  pageUrlRelative?: Maybe<Scalars['String']['output']>;
+  pageUrlRelative: Scalars['String']['output'];
   pingbacks?: Maybe<Scalars['JSON']['output']>;
   podcastEpisode?: Maybe<PodcastEpisode>;
   podcastEpisodeId?: Maybe<Scalars['String']['output']>;
@@ -16497,6 +16497,20 @@ type PostsPreviewTooltipSingle3QueryVariables = Exact<{
 
 type PostsPreviewTooltipSingle3Query = PostsPreviewTooltipSingle3Query_Query;
 
+type PostsSingleQueryQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, pageUrlRelative: string };
+
+type PostsSingleQueryQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostsSingleQueryQuery_post_SinglePostOutput_result_Post | null };
+
+type PostsSingleQueryQuery_Query = { __typename?: 'Query', post: PostsSingleQueryQuery_post_SinglePostOutput | null };
+
+
+type PostsSingleQueryQueryVariables = Exact<{
+  selector: InputMaybe<SelectorInputWithSlug>;
+}>;
+
+
+type PostsSingleQueryQuery = PostsSingleQueryQuery_Query;
+
 type multiPostPostsTimeBlockQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & PostsListWithVotes
@@ -22436,7 +22450,7 @@ type PodcastEpisodeFull = { __typename?: 'PodcastEpisode', _id: string, podcastI
 
 type PodcastSelect = { __typename?: 'Podcast', _id: string, title: string };
 
-type PostsMinimumInfo = { __typename?: 'Post', _id: string, slug: string, title: string, draft: boolean | null, shortform: boolean, hideCommentKarma: boolean, af: boolean, userId: string | null, coauthorUserIds: Array<string>, rejected: boolean, collabEditorDialogue: boolean, pageUrlRelative: string | null };
+type PostsMinimumInfo = { __typename?: 'Post', _id: string, slug: string, title: string, draft: boolean | null, shortform: boolean, hideCommentKarma: boolean, af: boolean, userId: string | null, coauthorUserIds: Array<string>, rejected: boolean, collabEditorDialogue: boolean, pageUrlRelative: string };
 
 type PostsTopItemInfo_Post_user_User = { __typename?: 'User', _id: string, displayName: string };
 
@@ -24079,7 +24093,7 @@ type PostMetadataQuery_Query = { __typename?: 'Query', post: PostMetadataQuery_p
 
 
 type PostMetadataQueryVariables = Exact<{
-  postId: InputMaybe<Scalars['String']['input']>;
+  selector: InputMaybe<SelectorInputWithSlug>;
 }>;
 
 

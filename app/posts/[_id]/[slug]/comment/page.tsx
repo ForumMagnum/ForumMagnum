@@ -4,7 +4,7 @@ import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetad
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
-export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => _id, { noIndex: true });
+export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => ({_id}), { noIndex: true });
 
 assertRouteAttributes("/posts/[_id]/[slug]/comment", {
   whiteBackground: false,

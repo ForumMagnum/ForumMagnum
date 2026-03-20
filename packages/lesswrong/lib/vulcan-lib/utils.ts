@@ -226,7 +226,7 @@ export type UpdateSelector = {
 };
 
 function isDocumentIdSelector(selector: UpdateSelector): selector is { _id: null; documentId: string } {
-  return !selector._id;
+  return !!selector.documentId && !selector._id;
 }
 
 /**

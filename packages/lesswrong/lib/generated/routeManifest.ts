@@ -889,6 +889,14 @@ export const routeTrie = {
     "out": {
       "hasRoute": true
     },
+    "p": {
+      "dynamicChild": {
+        "paramName": "slug",
+        "child": {
+          "hasPage": true
+        }
+      }
+    },
     "pastEvents": {
       "hasPage": true
     },
@@ -1271,6 +1279,7 @@ export const routeTrie = {
     "nominations": "nominations",
     "oauth": "oauth",
     "out": "out",
+    "p": "p",
     "pastevents": "pastEvents",
     "payments": "payments",
     "petrov": "petrov",

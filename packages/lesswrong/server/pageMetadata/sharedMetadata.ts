@@ -154,3 +154,5 @@ export async function getResolverContextForGenerateMetadata(searchParams: Record
   return await getResolverContextForSSR(searchParamsStr, requestId);
 }
 
+export const getResolverContextForServerComponent = getResolverContextForGenerateMetadata;
+

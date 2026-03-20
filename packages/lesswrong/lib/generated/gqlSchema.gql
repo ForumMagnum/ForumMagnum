@@ -3975,7 +3975,7 @@ type Post {
   user: User
   domain: String
   pageUrl: String!
-  pageUrlRelative: String
+  pageUrlRelative: String!
   overridePageUrl: String
   linkUrl: String
   postedAtFormatted: String

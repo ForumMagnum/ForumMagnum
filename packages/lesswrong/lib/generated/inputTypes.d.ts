@@ -3543,7 +3543,7 @@ interface Post {
   user: User | null;
   domain: string | null;
   pageUrl: string;
-  pageUrlRelative: string | null;
+  pageUrlRelative: string;
   overridePageUrl: string | null;
   linkUrl: string | null;
   postedAtFormatted: string | null;

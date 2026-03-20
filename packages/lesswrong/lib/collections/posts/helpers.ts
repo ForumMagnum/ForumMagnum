@@ -232,7 +232,7 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, options?
   } else if (post.groupId) {
     return `${prefix}/g/${post.groupId}/p/${post._id}/`;
   } else {
-    return `${prefix}/posts/${post._id}/${post.slug}`;
+    return `${prefix}/posts/${post.slug}`;
   }
 };
 

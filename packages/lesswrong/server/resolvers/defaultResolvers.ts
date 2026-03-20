@@ -2,7 +2,6 @@ import { getMultiResolverName, getSingleResolverName } from "@/lib/crud/utils";
 import { collectionNameToTypeName } from "@/lib/generated/collectionTypeNames";
 import { isEAForum, maxAllowedApiSkip } from "@/lib/instanceSettings";
 import { asyncFilter } from "@/lib/utils/asyncUtils";
-import { logGroupConstructor, loggerConstructor } from "@/lib/utils/logging";
 import { describeTerms, viewTermsToQuery } from "@/lib/utils/viewUtils";
 import { Pluralize } from "@/lib/vulcan-lib/pluralize";
 import { CamelCaseify, convertDocumentIdToIdInSelector } from "@/lib/vulcan-lib/utils";
@@ -117,9 +116,6 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       limit: selectorTerms.limit ?? limit,
       offset: selectorTerms.offset ?? offset,
     };
-    const logger = loggerConstructor(`views-${collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
-    logger('multi resolver()')
-    logger('multi terms', terms)
 
     const { input: _input, selector: _selector, ...otherQueryVariables } = info.variableValues;
 
@@ -252,37 +248,24 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
   const singleResolver = async (
     _root: void,
-    { input = {}, selector, allowNull }: { input: AnyBecauseTodo, selector?: SelectorInput, allowNull?: boolean },
+    { input = {}, selector, allowNull }: { input: AnyBecauseTodo, selector?: SelectorInput|SelectorInputWithSlug, allowNull?: boolean },
     context: ResolverContext,
     info: GraphQLResolveInfo,
   ) => {
+    const { currentUser } = context;
     const collection = context[collectionName] as unknown as PgCollection<N>;
     const { input: _input, selector: _selector, ...otherQueryVariables } = info.variableValues;
     allowNull ??= input.allowNull ?? false;
+
     // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
     // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
     // down the line. See https://stackoverflow.com/questions/56298481/how-to-fix-object-null-prototype-title-product
     // So we copy it here to give it back those methoods
-    const usedSelector = { ...(input.selector ?? selector ?? {}) };
+    const usedSelector = convertDocumentIdToIdInSelector({ ...(input.selector ?? selector ?? {}) }) as SelectorInputWithSlug;
 
-    const logger = loggerConstructor(`resolvers-${collectionName.toLowerCase()}`)
-    const {logGroupStart, logGroupEnd} = logGroupConstructor(`resolvers-${collectionName.toLowerCase()}`)
-    logger('');
-    logGroupStart(
-      `--------------- start \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`
-    );
-    logger(`Selector: ${JSON.stringify(usedSelector)}`);
-
-    const { currentUser } = context;
-
-    // useSingle allows passing in `_id` as `documentId`
-    if ('documentId' in usedSelector) {
-      usedSelector._id = usedSelector.documentId;
-      delete usedSelector.documentId;
-    }
     const documentId = usedSelector._id;
     
-    if (!documentId && !usedSelector.slug) {
+    if (!usedSelector._id && !usedSelector.slug) {
       if (allowNull) {
         return { result: null };
       } else {
@@ -314,11 +297,12 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       const db = getSqlClientOrThrow();
       doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);
     } else {
-      const selector = convertDocumentIdToIdInSelector(usedSelector);
-      if (selector._id && Object.keys(selector).length===1) {
-        doc = await context.loaders[collectionName].load(selector._id);
+      if (usedSelector._id) {
+        doc = await context.loaders[collectionName].load(usedSelector._id);
+      } else if (usedSelector.slug) {
+        doc = await collection.findOne({ slug: usedSelector.slug });
       } else {
-        doc = await collection.findOne(selector);
+        throw new Error("Invalid selector");
       }
     }
 
@@ -360,10 +344,6 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
 
     const restrictedDoc = await restrictViewableFieldsSingle(currentUser, collection, doc);
 
-    logGroupEnd();
-    logger(`--------------- end \x1b[35m${typeName} Single Resolver\x1b[0m ---------------`);
-    logger('');
-
     // filter out disallowed properties and return resulting document
     return { result: restrictedDoc };
   };
@@ -382,7 +362,6 @@ export const performQueryFromViewParameters = async <N extends CollectionNameStr
   terms: ViewTermsBase,
   parameters: AnyBecauseTodo,
 ): Promise<ObjectsByCollectionName[N][]> => {
-  const logger = loggerConstructor(`views-${collection.collectionName.toLowerCase()}`)
   const selector = parameters.selector;
   const description = describeTerms(collection.collectionName, terms);
 
@@ -420,10 +399,8 @@ export const performQueryFromViewParameters = async <N extends CollectionNameStr
     if (parameters.options.limit) {
       pipeline.push({ $limit: parameters.options.limit });
     }
-    logger('aggregation pipeline', pipeline);
     return await collection.aggregate(pipeline).toArray();
   } else {
-    logger('performQueryFromViewParameters connector find', selector, terms, options);
     return await collection.find({
       ...selector,
     }, options).fetch();

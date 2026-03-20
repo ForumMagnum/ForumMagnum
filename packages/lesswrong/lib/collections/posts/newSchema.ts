@@ -704,7 +704,7 @@ const schema = {
   },
   pageUrlRelative: {
     graphql: {
-      outputType: "String",
+      outputType: "String!",
       canRead: ["guests"],
       resolver: (post, args, context) => postGetPageUrl(post, { isAbsolute: false }),
     },

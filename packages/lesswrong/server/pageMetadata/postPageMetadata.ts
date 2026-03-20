@@ -8,10 +8,11 @@ import { getPostDescription } from "@/components/posts/PostsPage/structuredData"
 import { notFound } from "next/navigation";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { runQuery } from "../vulcan-lib/query";
+import { slugLooksLikeId } from "@/lib/utils/slugify";
 
 const PostMetadataQuery = gql(`
-  query PostMetadata($postId: String) {
-    post(selector: { _id: $postId }) {
+  query PostMetadata($selector: SelectorInputWithSlug) {
+    post(selector: $selector) {
       result {
         _id
         title
@@ -79,19 +80,29 @@ interface PostPageMetadataOptions {
   noIndex?: boolean;
 }
 
-export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (params: Params) => string, options?: PostPageMetadataOptions) {
+export function getPostPageMetadataFunction<Params>(paramsToSelectorConverter: (params: Params) => SelectorInputWithSlug|{idOrSlug: string}, options?: PostPageMetadataOptions) {
   return async function generateMetadata({ params, searchParams }: { params: Promise<Params>, searchParams: Promise<{ commentId?: string }> }): Promise<Metadata> {
     const [paramValues, searchParamsValues, defaultMetadata] = await Promise.all([params, searchParams, getDefaultMetadata()]);
 
-    const postId = paramsToPostIdConverter(paramValues);
+    const selector = paramsToSelectorConverter(paramValues);
     const commentId = searchParamsValues.commentId;
     const resolverContext = await getResolverContextForGenerateMetadata(searchParamsValues);
 
     try {
+      let usedSelector: SelectorInputWithSlug;
+      if ('idOrSlug' in selector) {
+        if (slugLooksLikeId(selector.idOrSlug)) {
+          usedSelector = { _id: selector.idOrSlug };
+        } else {
+          usedSelector = { slug: selector.idOrSlug };
+        }
+      } else {
+        usedSelector = selector;
+      }
       const [{ data: postData }, { data: commentData }] = await Promise.all([
         runQuery(
           PostMetadataQuery,
-          { postId },
+          { selector: usedSelector },
           resolverContext
         ),
         commentId
