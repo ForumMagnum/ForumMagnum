@@ -18,30 +18,26 @@ const styles = defineStyles("LessOnline2026Banner", (theme: ThemeType) => ({
   },
   image: {
     width: '100%',
-    height: '80vh',
+    height: '92vh',
     objectFit: 'cover',
     objectPosition: 'right',
-  },
-  gradientOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    background: `radial-gradient(ellipse at top right, 
-                transparent 35%,
-                ${theme.palette.background.default} 63%)`,
-    pointerEvents: 'none',
   },
   imageColumn: {
     position: 'absolute',
     top: 0,
     right: '0px',
     height: "100vh",
-    width: '34vw',
+    width: '26vw',
+    maskImage: `linear-gradient(to bottom, ${theme.palette.greyAlpha(1)} 18%, ${theme.palette.greyAlpha(0.82)} 38%, ${theme.palette.greyAlpha(0.48)} 54%, ${theme.palette.greyAlpha(0.22)} 66%, ${theme.palette.greyAlpha(0)} 76%)`,
+    WebkitMaskImage: `linear-gradient(to bottom, ${theme.palette.greyAlpha(1)} 18%, ${theme.palette.greyAlpha(0.82)} 38%, ${theme.palette.greyAlpha(0.48)} 54%, ${theme.palette.greyAlpha(0.22)} 66%, ${theme.palette.greyAlpha(0)} 76%)`,
     ['@media(max-width: 1000px)']: {
       display: 'none'
     },
+  },
+  leftFade: {
+    position: 'absolute',
+    inset: 0,
+    background: `linear-gradient(to right, ${theme.palette.background.default} 0%, ${theme.palette.background.translucentBackgroundHeavy} 12%, ${theme.palette.background.translucentBackground} 28%, ${theme.palette.background.transparent} 56%)`,
   },
   bannerText: {
     ...theme.typography.postStyle,
@@ -63,6 +59,12 @@ const styles = defineStyles("LessOnline2026Banner", (theme: ThemeType) => ({
       fontSize: 'clamp(2.5rem, 3vw, 4rem)',
       lineHeight: '1.2',
       margin: 0,
+      [theme.breakpoints.down(1450)]: {
+        fontSize: 'clamp(2.05rem, 2.4vw, 3.1rem)',
+      },
+      [theme.breakpoints.down(1380)]: {
+        fontSize: 'clamp(1.75rem, 2.05vw, 2.6rem)',
+      },
       '& a': {
         color: 'inherit',
         textDecoration: 'none',
@@ -72,24 +74,25 @@ const styles = defineStyles("LessOnline2026Banner", (theme: ThemeType) => ({
       fontSize: 'clamp(1.5rem, 1.5vw, 2.2rem)',
       margin: 0,
       lineHeight: '1.2',
+      textWrap: 'balance',
       marginBottom: 8
     },
     '& button': {
       ...theme.typography.commentStyle,
-      backgroundColor: theme.palette.primary.main,
+      backgroundColor: '#5f6d42',
       opacity: 0.8,
-      border: 'none',
+      border: 0,
       color: theme.palette.text.alwaysWhite,
       borderRadius: '3px',
       textAlign: 'center',
-      padding: '8px 14px',
+      padding: '5px 10px',
       cursor: 'pointer',
       '& a': {
         color: 'inherit',
         textDecoration: 'none',
       },
       fontWeight: '600',
-      fontSize: '22px',
+      fontSize: '17px',
     }
   },
   dateAndLocation: {
@@ -101,7 +104,7 @@ const styles = defineStyles("LessOnline2026Banner", (theme: ThemeType) => ({
     marginLeft: 'auto',
     textAlign: 'right',
   },
-}));
+}), { allowNonThemeColors: true });
 
 export const LessOnline2026Banner = ({earlyBirdEndDate}: {earlyBirdEndDate: Date}) => {
   const classes = useStyles(styles);
@@ -121,16 +124,16 @@ export const LessOnline2026Banner = ({earlyBirdEndDate}: {earlyBirdEndDate: Date
     <AnalyticsContext pageSectionContext="lessOnline2026Banner">
       <div className={classes.root}>
         <div className={classes.imageColumn}>
-            <CloudinaryImage2
-              loading="lazy"
-              className={classes.image}
-              publicId="v1773781900/LessOnline/lessonline_lesswrong_rightbanner.psd"
-            />
-            <div className={classes.gradientOverlay} />
+          <CloudinaryImage2
+            loading="lazy"
+            className={classes.image}
+            publicId="v1774037345/LessOnline/lessonline_2026_sidebanner_7.png"
+          />
+          <div className={classes.leftFade} />
         </div>
         <div className={classes.bannerText}>
           <h2><a href="http://less.online">LessOnline 2026</a></h2>
-          {countdownText && <h3>Early bird tickets increase {countdownText}</h3>}
+          {countdownText && <h3>Early bird prices end {countdownText}</h3>}
           <div className={classes.dateAndLocation}>Join our Festival of Blogging and Truthseeking from Jun 5 - Jun 7, Berkeley, CA</div>
           <a href="http://less.online/" target="_blank" rel="noopener noreferrer"><button>Buy Tickets — {buttonPrice}</button></a>
         </div>
