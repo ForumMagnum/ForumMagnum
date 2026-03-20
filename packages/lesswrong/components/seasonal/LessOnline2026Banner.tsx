@@ -29,12 +29,12 @@ const styles = defineStyles("LessOnline2026Banner", (theme: ThemeType) => ({
     height: "120vh",
     width: '44vw',
     maskImage: `
-      radial-gradient(ellipse at top right, white 35%, transparent 63%),
-      linear-gradient(to bottom, white 18%, rgba(255, 255, 255, 0.82) 38%, rgba(255, 255, 255, 0.48) 54%, rgba(255, 255, 255, 0.22) 66%, transparent 76%)
+      radial-gradient(ellipse at top right, ${theme.palette.greyAlpha(1)} 35%, ${theme.palette.greyAlpha(0)} 63%),
+      linear-gradient(to bottom, ${theme.palette.greyAlpha(1)} 18%, ${theme.palette.greyAlpha(0.82)} 38%, ${theme.palette.greyAlpha(0.48)} 54%, ${theme.palette.greyAlpha(0.22)} 66%, ${theme.palette.greyAlpha(0)} 76%)
     `,
     WebkitMaskImage: `
-      radial-gradient(ellipse at top right, white 35%, transparent 63%),
-      linear-gradient(to bottom, white 18%, rgba(255, 255, 255, 0.82) 38%, rgba(255, 255, 255, 0.48) 54%, rgba(255, 255, 255, 0.22) 66%, transparent 76%)
+      radial-gradient(ellipse at top right, ${theme.palette.greyAlpha(1)} 35%, ${theme.palette.greyAlpha(0)} 63%),
+      linear-gradient(to bottom, ${theme.palette.greyAlpha(1)} 18%, ${theme.palette.greyAlpha(0.82)} 38%, ${theme.palette.greyAlpha(0.48)} 54%, ${theme.palette.greyAlpha(0.22)} 66%, ${theme.palette.greyAlpha(0)} 76%)
     `,
     maskComposite: 'intersect',
     WebkitMaskComposite: 'destination-in',
