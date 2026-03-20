@@ -196,6 +196,7 @@ export const getSocialPreviewSql = (tablePrefix: string) => `JSON_BUILD_OBJECT(
 // The set of fields required for calling postGetPageUrl. Could be supplied by
 // either a fragment or a DbPost.
 export type PostsMinimumForGetPageUrl = {
+  _id: string
   pageUrlRelative: string
 } | {
   _id: string
@@ -217,16 +218,19 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, options?
   const sequenceId = options?.sequenceId ?? null;
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
+  if (sequenceId) {
+    if ('slug' in post) {
+      return `${prefix}/s/${sequenceId}/p/${post.slug}`;
+    } else {
+      return `${prefix}/s/${sequenceId}/p/${post._id}`;
+    }
+  }
   if ('pageUrlRelative' in post) {
     return isAbsolute ? `${prefix}/${post.pageUrlRelative}` : post.pageUrlRelative;
-  }
-
-  if (post.overridePageUrl) {
+  } else if (post.overridePageUrl) {
     return `${prefix}/${post.overridePageUrl}`;
   } else if (post.canonicalCollectionSlug) {
     return `${prefix}/${post.canonicalCollectionSlug}/${post.slug}`;
-  } else if (sequenceId) {
-    return `${prefix}/s/${sequenceId}/p/${post._id}`;
   } else if (post.isEvent) {
     return `${prefix}/events/${post._id}/${post.slug}`;
   } else if (post.groupId) {
