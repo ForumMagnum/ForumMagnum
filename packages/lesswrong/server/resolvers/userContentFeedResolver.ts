@@ -40,7 +40,7 @@ export const userContentFeedGraphQLQueries = {
   UserContentFeed: async (_root: void, args: { userId: string; limit?: number; cutoff?: Date; offset?: number; sortBy?: string; filter?: string }, context: ResolverContext) => {
     const { userId, limit = 20, cutoff, offset, filter = "all" } = args;
 
-    const skipPosts = filter === 'comments' || filter === 'wikiEdits';
+    const skipPosts = filter === 'comments' || filter === 'wikiEdits' || filter === 'quickTakes';
     const skipProfileComments = filter === 'posts' || filter === 'quickTakes' || filter === 'wikiEdits';
     const skipShortform = filter === 'posts' || filter === 'wikiEdits';
     const skipWikiEdits = filter === 'posts' || filter === 'quickTakes' || filter === 'comments';

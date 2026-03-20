@@ -456,10 +456,20 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     fontSize: 13,
     fontWeight: 600,
     color: theme.palette.text.alwaysWhite,
+    textDecoration: "none",
     transition: "all 0.15s ease",
     "&:hover": {
       background: theme.palette.buttons.shareWithClaudeHover,
+      // By default, links get opacity 0.5 in our codebase, but we want this to feel more like a button
+      opacity: 'initial',
     },
+  },
+  openInClaudeButtonTooltip: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    width: "100%",
   },
   shareLinkIcon: {
     fontSize: 15,
@@ -747,7 +757,7 @@ function getFeedbackQuery(postId: string, linkSharingKey: string | undefined) {
   const postUrl = postGetEditUrl(postId, true, linkSharingKey);
   return `I'm writing a post on LessWrong and would appreciate your inline feedback on it.  The post is located at ${postUrl}.
 
-Please remember to follow the guidelines in LessWrong's SKILL.md (https://www.lesswrong.com/SKILL.md).`;
+Please remember to follow the guidelines and review structure in LessWrong's SKILL.md (https://www.lesswrong.com/api/SKILL.md).`;
 }
 
 function AccordionSection({ title, defaultOpen = false, children, className, contentClassName }: {
@@ -823,6 +833,8 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
   flash: (message: string) => void;
 }) {
   const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
+
   const postId = form.state.values._id;
   const linkSharingKey = form.state.values.linkSharingKey ?? undefined;
 
@@ -846,21 +858,29 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
                 </div>;
               }
 
+              const claudeUrl = `https://www.claude.ai/new?q=${encodeURIComponent(getFeedbackQuery(postId, linkSharingKey))}`;
               const shareWithClaudeButton = (
-                <button
-                  type="button"
+                <a
+                  href={claudeUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className={classes.openInClaudeButton}
                   onClick={() => {
+                    captureEvent("shareWithClaudeClicked", { postId });
                     field.handleChange({
                       ...settings,
                       ...(settings.anyoneWithLinkCan === 'none' ? { anyoneWithLinkCan: "edit" } : {}),
                     });
-                    window.open(`https://www.claude.ai/new?q=${encodeURIComponent(getFeedbackQuery(postId, linkSharingKey))}`, '_blank');
                   }}
+                >
+                <LWTooltip
+                  className={classes.openInClaudeButtonTooltip}
+                  title="Opens a new conversation in claude.ai with our default feedback prompt.  If you change it, you need to explicitly tell Claude to leave feedback in the editor, or it will respond to you in chat.  (We can't do this for you since it's treated as a prompt injection.)"
                 >
                   <ForumIcon icon="OpenInNew" className={classes.shareLinkIcon} />
                   Claude
-                </button>
+                </LWTooltip>
+                </a>
               );
 
               const shareLinkButton = (
@@ -1030,6 +1050,8 @@ function GoogleDocImportSection({ postId }: { postId: string }) {
   );
 
   const handleImportClick = useCallback(async () => {
+    // Clear any live/local Yjs state before the import replaces the server copy.
+    await disconnectCollaborationForPost(postId);
     void importGoogleDocMutation({
       variables: { fileUrl: googleDocUrl, postId },
     });
@@ -1291,7 +1313,7 @@ const EditorSettingsSidebar = ({
                   addOnSubmitCallback={addOnSubmitCallbackCustom}
                   addOnSuccessCallback={addOnSuccessCallbackCustom}
                   hintText={getDefaultEditorPlaceholder()}
-                  fieldName="custom"
+                  fieldName="customHighlight"
                   collectionName="Posts"
                   commentEditor={false}
                   commentStyles={false}

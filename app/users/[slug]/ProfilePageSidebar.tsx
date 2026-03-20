@@ -11,6 +11,7 @@ import classNames from "classnames";
 import ContentStyles from "@/components/common/ContentStyles";
 import { ContentItemBody } from "@/components/contents/ContentItemBody";
 import ProfileDiamondSections from "./ProfileDiamondSections";
+import { userGetDisplayName } from "@/lib/collections/users/helpers";
 
 const profilePageSidebarUnsharedStyles = defineStyles("ProfilePageSidebarUnshared", (theme: ThemeType) => ({
   postsSidebar: {
@@ -84,8 +85,118 @@ const profilePageSidebarUnsharedStyles = defineStyles("ProfilePageSidebarUnshare
     maxHeight: 2000,
     transition: "max-height 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
   },
+  sidebarAuthorBio: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 14,
+    lineHeight: 1.6,
+    color: theme.palette.text.dim55,
+    fontWeight: 400,
+    margin: 0,
+  },
+  sidebarAuthorBioContent: {
+    // Normalize typography across all rendered block types in bio HTML.
+    "& p, & ul, & ol, & li, & blockquote, & pre, & h1, & h2, & h3, & h4, & h5, & h6, & table, & th, & td": {
+      fontFamily: theme.typography.fontFamily,
+      fontSize: 14,
+      lineHeight: 1.6,
+      color: theme.palette.text.dim55,
+      fontWeight: 400,
+    },
+    "& p": {
+      marginTop: 0,
+      marginBottom: 12,
+    },
+    "& p:last-child": {
+      marginBottom: 0,
+    },
+    "& ul, & ol": {
+      marginTop: 0,
+      marginBottom: 12,
+      paddingLeft: 20,
+    },
+    "& li": {
+      marginBottom: 4,
+    },
+    "& li:last-child": {
+      marginBottom: 0,
+    },
+  },
   postsSidebarReadMore: {
     marginTop: 5,
+  },
+  mobileProfileBio: {
+    display: "none",
+    margin: "0 0 30px",
+    padding: "30px 0 30px",
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
+    "@media (max-width: 630px)": {
+      display: "block",
+    },
+  },
+  mobileProfileName: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    fontWeight: 400,
+    margin: 0,
+    color: theme.palette.text.normal,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+  },
+  mobileProfileHeaderRow: {
+    display: "flex",
+    alignItems: "baseline",
+    justifyContent: "space-between",
+    gap: 12,
+    marginBottom: 10,
+  },
+  mobileProfileActions: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    margin: 0,
+  },
+  mobileMetaInfo: {
+    marginTop: 12,
+    color: theme.palette.text.dim,
+    "& > div": {
+      flexWrap: "wrap",
+      gap: "4px 0",
+    },
+    "& > div > div": {
+      marginRight: "14px !important",
+    },
+  },
+  sidebarActionDisabled: {
+    color: theme.palette.primary.light,
+    cursor: "default",
+    "&:hover": {
+      opacity: 1,
+    },
+  },
+  sidebarSubscribe: {
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.primary.main,
+    fontSize: 14,
+    cursor: "pointer",
+    display: "inline-block",
+    fontWeight: 400,
+    "&:hover": {
+      opacity: 0.67,
+    },
+  },
+  sidebarMore: {
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.primary.main,
+    fontSize: 14,
+    cursor: "pointer",
+    display: "inline-block",
+    fontWeight: 400,
+    textDecoration: "none",
+    "&:hover": {
+      opacity: 0.67,
+    },
   },
 }));
 
@@ -122,10 +233,10 @@ export function ProfilePageSidebar({user, bioNoFollow}: {
         {canSubscribeToUser && <UserNotifyDropdown
           user={user}
           popperPlacement="bottom-start"
-          className={sharedClasses.sidebarSubscribe}
+          className={classes.sidebarSubscribe}
         />}
         {canMessageUser && <NewConversationButton user={user} currentUser={currentUser}>
-          <a className={sharedClasses.sidebarMore}>Message</a>
+          <a className={classes.sidebarMore}>Message</a>
         </NewConversationButton>}
       </div>
     </div>
@@ -137,9 +248,9 @@ export function ProfilePageSidebar({user, bioNoFollow}: {
 
       {hasBio && <>
         <div className={classNames(classes.sidebarBioWrapper, bioExpanded ? classes.sidebarBioExpanded : classes.sidebarBioCollapsed)}>
-          <ContentStyles contentType="post" className={sharedClasses.sidebarAuthorBioContent}>
+          <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
             <ContentItemBody
-              className={sharedClasses.sidebarAuthorBio}
+              className={classes.sidebarAuthorBio}
               dangerouslySetInnerHTML={{ __html: displayBioHtml }}
               nofollow={bioNoFollow}
             />
@@ -168,4 +279,71 @@ export function ProfilePageSidebar({user, bioNoFollow}: {
       />
     </Suspense>
   </aside>
+}
+
+export function ProfilePageMobileBio({user, bioNoFollow}: {
+  user: UsersProfile,
+  bioNoFollow: boolean
+}) {
+  const sharedClasses = useStyles(profileStyles);
+  const classes = useStyles(profilePageSidebarUnsharedStyles);
+  const currentUser = useCurrentUser();
+
+  const [bioExpanded, setBioExpanded] = useState(false);
+  const bioHtml = user?.htmlBio ?? "";
+  const collapsedBioHtml = getCollapsedBioHtml(bioHtml);
+  const displayBioHtml = bioExpanded ? bioHtml : collapsedBioHtml;
+  const showBioExpand = !!bioHtml && collapsedBioHtml !== bioHtml;
+
+  const isOwnProfile = !!currentUser && user && currentUser._id === user._id;
+  const canSubscribeToUser = !isOwnProfile;
+  const canMessageUser = !!currentUser && !isOwnProfile;
+
+  if (!bioHtml && !user) return null;
+
+  return <div className={classes.mobileProfileBio}>
+    <div className={classes.mobileProfileHeaderRow}>
+      <h4 className={classes.mobileProfileName}>{userGetDisplayName(user)}</h4>
+      <div className={classes.mobileProfileActions}>
+        {canSubscribeToUser ? (
+          <UserNotifyDropdown
+            user={user}
+            popperPlacement="bottom-start"
+            className={classes.sidebarSubscribe}
+          />
+        ) : (
+          <span className={classNames(classes.sidebarSubscribe, classes.sidebarActionDisabled)}>Subscribe</span>
+        )}
+        {canMessageUser ? (
+          <NewConversationButton user={user} currentUser={currentUser}>
+            <a className={classes.sidebarMore}>Message</a>
+          </NewConversationButton>
+        ) : (
+          <span className={classNames(classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
+        )}
+      </div>
+    </div>
+    {bioHtml && <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>
+      <ContentItemBody
+        className={classes.sidebarAuthorBio}
+        dangerouslySetInnerHTML={{ __html: displayBioHtml }}
+        nofollow={bioNoFollow}
+      />
+    </ContentStyles>}
+    {showBioExpand && <div className={sharedClasses.readMore}>
+      <a
+        href="#"
+        className={sharedClasses.readMoreLink}
+        onClick={(e) => {
+          e.preventDefault();
+          setBioExpanded(!bioExpanded);
+        }}
+      >
+        {bioExpanded ? "See less" : "See more"}
+      </a>
+    </div>}
+    {user && <div className={classes.mobileMetaInfo}>
+      <UserMetaInfo user={user} />
+    </div>}
+  </div>
 }

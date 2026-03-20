@@ -11907,6 +11907,25 @@ type ProfilePageCommentsQueryQueryVariables = Exact<{
 
 type ProfilePageCommentsQueryQuery = ProfilePageCommentsQueryQuery_Query;
 
+type ProfilePageQuickTakesTabQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & FrontpageShortformComments
+);
+
+type ProfilePageQuickTakesTabQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<ProfilePageQuickTakesTabQuery_comments_MultiCommentOutput_results_Comment> };
+
+type ProfilePageQuickTakesTabQuery_Query = { __typename?: 'Query', comments: ProfilePageQuickTakesTabQuery_comments_MultiCommentOutput | null };
+
+
+type ProfilePageQuickTakesTabQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type ProfilePageQuickTakesTabQuery = ProfilePageQuickTakesTabQuery_Query;
+
 type ProfileSequencesQueryQuery_sequences_MultiSequenceOutput_results_Sequence = (
   { __typename?: 'Sequence' }
   & SequenceContinueReadingFragment

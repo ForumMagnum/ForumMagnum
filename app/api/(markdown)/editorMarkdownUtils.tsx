@@ -381,9 +381,9 @@ export async function renderEditorDraftMarkdown({
         </div>
       ) : null}
       <div>
-        Context for LLMs/AI Agents, from the LessWrong team: This is a markdown translation of a draft post. You probably got here because a user shared a link to this page with you.  We built this feature to help users get feedback on their posts, and to make it easier for AI agents to help users with their posts.
+        Context for LLMs/AI Agents: This is a markdown translation of a draft post. You probably got here because a user shared a link to this page with you.  We built this feature to help users get feedback on their posts, and to make it easier for AI agents to help users with their posts.
 
-        As part of the feature, we also provide API endpoints for leaving inline comments/suggestions/etc on the post.  You can ask the user whether they would like you to leave comments inline using the API, or in the directly in your chat.  The API endpoints are documented in the "Helping Users With Drafts" section of the Markdown API documentation.
+        As part of the feature, we also provide API endpoints for leaving inline comments/suggestions/etc on the post.  The API endpoints are documented in the "Helping Users With Drafts" section of the Markdown API documentation.
 
         The content of the post is below, between the two horizontal rules.  There may be additional horizontal rules in the post content.  To help disambiguate, the post content should be followed by a "Comment Threads" section if the post has any open comment threads, and then a "Navigation" section; neither is part of the post.
       </div>

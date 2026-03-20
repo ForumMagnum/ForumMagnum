@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Map as YMap, Array as YArray, Doc } from "yjs";
 import { randomId } from "@/lib/random";
-import { $setSelection, $getSelection, $isRangeSelection } from "lexical";
+import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInMarkNode } from "@lexical/mark";
 import {
   deriveAgentAuthor,
@@ -11,8 +11,8 @@ import {
   normalizeText,
   waitForProviderSync,
   withMainDocEditorSession,
-  selectQuotedTextInEditor,
 } from "../editorAgentUtil";
+import { locateMarkdownQuoteSelectionInSubtree } from "../mapMarkdownToLexical";
 import { sleep } from "@/lib/utils/asyncUtils";
 import { commentOnDraftToolSchema } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
@@ -61,9 +61,31 @@ function createCollabThread({
   return threadMap;
 }
 
-interface MainDocQuoteMatchResult {
+export interface QuoteMarkResult {
   quoteFoundInDocument: boolean
-  createdMarkId: string | null
+  markCreated: boolean
+}
+
+/**
+ * Locate a markdown quote in the current editor state and wrap the matched
+ * range in a MarkNode. Must be called inside a Lexical update context.
+ */
+export function $attachMarkToQuote(quote: string, markId: string): QuoteMarkResult {
+  const root = $getRoot();
+  const result = locateMarkdownQuoteSelectionInSubtree({
+    rootNodeKey: root.getKey(),
+    markdownQuote: quote,
+  });
+  if (!result.found || !result.anchor || !result.focus) {
+    return { quoteFoundInDocument: result.found, markCreated: false };
+  }
+
+  const selection = $createRangeSelection();
+  selection.anchor.set(result.anchor.key, result.anchor.offset, result.anchor.type);
+  selection.focus.set(result.focus.key, result.focus.offset, result.focus.type);
+  $setSelection(selection);
+  $wrapSelectionInMarkNode(selection, false, markId);
+  return { quoteFoundInDocument: true, markCreated: true };
 }
 
 async function getMainDocQuoteMatchResult({
@@ -76,7 +98,7 @@ async function getMainDocQuoteMatchResult({
   token: string
   quote: string
   markId: string
-}): Promise<MainDocQuoteMatchResult> {
+}): Promise<{ quoteFoundInDocument: boolean, createdMarkId: string | null }> {
   return withMainDocEditorSession({
     postId,
     token,
@@ -87,15 +109,10 @@ async function getMainDocQuoteMatchResult({
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
-          const selectionResult = selectQuotedTextInEditor(quote);
-          quoteFoundInDocument = selectionResult.quoteFoundInDocument;
-          if (selectionResult.selectionCreated) {
-            const selection = $getSelection();
-            if ($isRangeSelection(selection)) {
-              $setSelection(selection);
-              $wrapSelectionInMarkNode(selection, false, markId);
-              createdMarkId = markId;
-            }
+          const markResult = $attachMarkToQuote(quote, markId);
+          quoteFoundInDocument = markResult.quoteFoundInDocument;
+          if (markResult.markCreated) {
+            createdMarkId = markId;
           }
         }, { onUpdate: resolve });
       });

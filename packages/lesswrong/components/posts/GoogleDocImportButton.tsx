@@ -13,6 +13,7 @@ import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { disconnectCollaborationForPost } from "../lexical/collaboration";
 
 const styles = defineStyles("GoogleDocImportButton", (theme: ThemeType) => ({
   button: {
@@ -184,6 +185,10 @@ const GoogleDocImportButton = ({postId, version}: { postId: string; version?: st
   }, [captureEvent])
 
   const handleImportClick = useCallback(async () => {
+    if (postId) {
+      // Clear any live/local Yjs state before the import replaces the server copy.
+      await disconnectCollaborationForPost(postId);
+    }
     void importGoogleDocMutation({
       variables: { fileUrl: googleDocUrl, postId },
     });

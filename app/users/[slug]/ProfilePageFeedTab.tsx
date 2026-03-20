@@ -6,20 +6,11 @@ import UserContentFeed from "@/components/users/UserContentFeed";
 import { UltraFeedContextProvider } from "@/components/ultraFeed/UltraFeedContextProvider";
 import { UltraFeedObserverProvider } from "@/components/ultraFeed/UltraFeedObserver";
 import { OverflowNavObserverProvider } from "@/components/ultraFeed/OverflowNavObserverContext";
-import { profileStyles } from "./profileStyles";
+import { profileStyles, TabPanel } from "./profileStyles";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { z } from "zod";
 
 const profilePageFeedTabUnsharedStyles = defineStyles("ProfilePageFeedTabUnshared", () => ({
-  tabPanel: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 8,
-    animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-    "@media (max-width: 630px)": {
-      order: 1,
-    },
-  },
   feedList: {
     "& .UserContentFeed-feedContent": {
       marginLeft: 0,
@@ -119,7 +110,7 @@ export function ProfilePageFeedTabContents({user, settings}: {
   const hasPosts = user.postCount > 0;
   const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0 || (user?.tagRevisionCount ?? 0) > 0;
 
-  return <div className={classNames(classes.feedList, classes.tabPanel)}>
+  return <TabPanel className={classes.feedList}>
     {!hasFeedContent && (
       <div className={sharedClasses.emptyStateContainer}>
         <p className={sharedClasses.emptyStateDescription}>{userGetDisplayName(user)} hasn&apos;t written anything yet.</p>
@@ -139,5 +130,5 @@ export function ProfilePageFeedTabContents({user, settings}: {
         </UltraFeedObserverProvider>
       </UltraFeedContextProvider>
     )}
-  </div>
+  </TabPanel>
 }

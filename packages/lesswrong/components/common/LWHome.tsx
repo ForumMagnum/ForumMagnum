@@ -39,8 +39,8 @@ const styles = defineStyles("LWHome", () => ({
   },
 }));
 
-const LESSONLINE_MOBILE_SPOTLIGHT_ID = 'hSdzjMYuyFewrw74y';
-const LESSONLINE_MOBILE_SPOTLIGHT_UNTIL = new Date('2026-03-24T00:00:00Z');
+const LESSONLINE_MOBILE_SPOTLIGHT_ID = 'j4q2gcjowKqfpdjsR';
+const LESSONLINE_MOBILE_SPOTLIGHT_UNTIL = new Date('2026-03-26T00:00:00Z');
 
 const getLessOnlineMobileSpotlightOverrideId = (now: Date = new Date()): string | null => (
   now.getTime() < LESSONLINE_MOBILE_SPOTLIGHT_UNTIL.getTime()
@@ -94,13 +94,13 @@ const LWHome = () => {
         {(!reviewIsActive() || getReviewPhase() === "RESULTS" || !showReviewOnFrontPageIfActive.get()) && <SingleColumnSection>
           <DismissibleSpotlightItem
             loadingStyle="placeholder"
-            className={classes.desktopSpotlight}
+            // className={classes.desktopSpotlight}
           />
-          <DismissibleSpotlightItem
+          {/* <DismissibleSpotlightItem
             loadingStyle="placeholder"
             className={classes.mobileSpotlight}
             spotlightId={mobileSpotlightOverrideId}
-          />
+          /> */}
         </SingleColumnSection>}
         <SuspenseWrapper name="LWHomePosts" fallback={<div style={{height: 800}}/>}>
           <IsReturningVisitorContextProvider>
