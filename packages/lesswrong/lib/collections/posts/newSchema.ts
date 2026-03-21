@@ -140,7 +140,7 @@ async function getIsBookmarked(documentId: string, context: ResolverContext): Pr
   return bookmarks.length > 0;
 }
 
-export const sideCommentCacheVersion = 1;
+export const sideCommentCacheVersion = 2;
 export interface SideCommentsCache {
   version: number;
   createdAt: Date;
