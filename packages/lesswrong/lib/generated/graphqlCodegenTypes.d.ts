@@ -20957,7 +20957,7 @@ type SequencesPageTitleQuery_Query = { __typename?: 'Query', sequence: Sequences
 
 
 type SequencesPageTitleQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
+  idOrSlug: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
