@@ -4,7 +4,7 @@ import { isEAForum, maxAllowedApiSkip } from "@/lib/instanceSettings";
 import { asyncFilter } from "@/lib/utils/asyncUtils";
 import { describeTerms, viewTermsToQuery } from "@/lib/utils/viewUtils";
 import { Pluralize } from "@/lib/vulcan-lib/pluralize";
-import { CamelCaseify, convertDocumentIdToIdInSelector } from "@/lib/vulcan-lib/utils";
+import { CamelCaseify } from "@/lib/vulcan-lib/utils";
 import { restrictViewableFieldsMultiple, restrictViewableFieldsSingle } from '@/lib/vulcan-users/restrictViewableFields';
 import SelectFragmentQuery from "@/server/sql/SelectFragmentQuery";
 import { throwError } from "@/server/vulcan-lib/errors";
@@ -69,6 +69,44 @@ const stripNonDbFields = <N extends CollectionNameString>(doc: ObjectsByCollecti
   const schema = context[collectionName].schema;
   return Object.fromEntries(Object.entries(doc).filter(([fieldName]) => !!schema[fieldName]?.database));
 };
+
+function normalizeSingleResolverSelector<N extends CollectionNameString>(
+  collection: PgCollection<N>,
+  graphqlSelector: Partial<SelectorInputWithSlug>,
+) {
+  if (graphqlSelector.idOrSlug) {
+    return {
+       idOrSlug: graphqlSelector.idOrSlug,
+    };
+  } else if (graphqlSelector._id || graphqlSelector.documentId) {
+    const selectedId = graphqlSelector._id ?? graphqlSelector.documentId;
+    return {
+      _id: selectedId,
+    }
+  } else if (graphqlSelector.slug) {
+    return {
+      slug: graphqlSelector.slug,
+    };
+  } else {
+    return { invalidSelector: true }
+  }
+
+  // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
+  // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
+  // down the line. See https://stackoverflow.com/questions/56298481/how-to-fix-object-null-prototype-title-product
+  // So we copy it here to give it back those methods.
+  /*const usedSelector: SelectorInputWithSlug = {
+    _id: graphqlSelector._id ?? graphqlSelector.documentId ?? undefined,
+    slug: graphqlSelector.slug ?? undefined,
+  };
+  const collectionIncludesOldSlugs = !!collection.schema.oldSlugs?.database;
+
+  const dbSelector = usedSelector.slug && !usedSelector._id && collectionIncludesOldSlugs
+    ? { $or: [{ slug: usedSelector.slug }, { oldSlugs: usedSelector.slug }] }
+    : usedSelector;
+
+  return { usedSelector, dbSelector };*/
+}
 
 type DefaultSingleResolverHandler<N extends CollectionNameString> = {
   [k in N as `${CamelCaseify<typeof collectionNameToTypeName[k]>}`]: (_root: void, { input }: { input: AnyBecauseTodo; }, context: ResolverContext, info: GraphQLResolveInfo) => Promise<{ result: Partial<ObjectsByCollectionName[N]> | null; }>
@@ -255,54 +293,37 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     const { currentUser } = context;
     const collection = context[collectionName] as unknown as PgCollection<N>;
     const { input: _input, selector: _selector, ...otherQueryVariables } = info.variableValues;
+    const hasOldSlugs = !!collection.schema.oldSlugs?.database;
     allowNull ??= input.allowNull ?? false;
 
-    // In this context (for reasons I don't fully understand) selector is an object with a null prototype, i.e.
-    // it has none of the methods you would usually associate with objects like `toString`. This causes various problems
-    // down the line. See https://stackoverflow.com/questions/56298481/how-to-fix-object-null-prototype-title-product
-    // So we copy it here to give it back those methoods
-    const usedSelector = convertDocumentIdToIdInSelector({ ...(input.selector ?? selector ?? {}) }) as SelectorInputWithSlug;
+    const normalizedSelector = normalizeSingleResolverSelector(
+      collection,
+      (input.selector ?? selector ?? {}) as SelectorInput | SelectorInputWithSlug,
+    );
 
-    const documentId = usedSelector._id;
-    
-    if (!usedSelector._id && !usedSelector.slug) {
-      if (allowNull) {
-        return { result: null };
-      } else {
-        throwError({
-          id: 'app.missing_document',
-          data: { documentId, selector, collectionName: collection.collectionName },
-        });
+    let doc: ObjectsByCollectionName[N] | null = null;
+    if (normalizedSelector._id) {
+      doc = await context.loaders[collectionName].load(normalizedSelector._id);
+    } else if (normalizedSelector.slug) {
+      doc = await collection.findOne(hasOldSlugs ? {
+        $or: [
+          {slug: normalizedSelector.slug},
+          {oldSlugs: normalizedSelector.slug},
+        ],
+      } : {slug: normalizedSelector.slug});
+      if (doc) {
+        await context.loaders[collectionName].prime(doc._id, doc);
       }
-    }
-
-    // get fragment from GraphQL AST
-    const fragmentInfo = getFragmentInfo(info, "result", typeName);
-
-    let doc: ObjectsByCollectionName[N] | null;
-    if (fragmentInfo && enableCustomSqlResolvers) {
-      // Make a dynamic require here to avoid our circular dependency lint rule, since really by this point we should be fine
-      const { getSqlFragment } = await import('../../lib/fragments/sqlFragments');
-      const sqlFragment = getSqlFragment(fragmentInfo.fragmentName, fragmentInfo.fragmentDefinitions);
-      let query: SelectFragmentQuery;
-      query = new SelectFragmentQuery(
-        sqlFragment,
-        currentUser,
-        otherQueryVariables,
-        usedSelector,
-        undefined,
-        {limit: 1},
-      );
-      const compiledQuery = query.compile();
-      const db = getSqlClientOrThrow();
-      doc = await db.oneOrNone(compiledQuery.sql, compiledQuery.args);
-    } else {
-      if (usedSelector._id) {
-        doc = await context.loaders[collectionName].load(usedSelector._id);
-      } else if (usedSelector.slug) {
-        doc = await collection.findOne({ slug: usedSelector.slug });
-      } else {
-        throw new Error("Invalid selector");
+    } else if (normalizedSelector.idOrSlug) {
+      doc = await collection.findOne({
+        $or: [
+          {_id: normalizedSelector.idOrSlug},
+          {slug: normalizedSelector.idOrSlug},
+          ...(hasOldSlugs ? [{oldSlugs: normalizedSelector.idOrSlug}] : []),
+        ],
+      });
+      if (doc) {
+        await context.loaders[collectionName].prime(doc._id, doc);
       }
     }
 
@@ -315,7 +336,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
           // Don't log not-found errors in Sentry if the request is from GreaterWrong because
           // it periodically retries deleted IDs it saw in the past
           noSentryCapture: context.isGreaterWrong,
-          data: { documentId, selector, collectionName: collection.collectionName },
+          data: { selector, collectionName: collection.collectionName },
         });
       }
     }
@@ -336,7 +357,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
           throwError({
             id: 'app.operation_not_allowed',
             noSentryCapture: context.isGreaterWrong,
-            data: {documentId, operationName: `${typeName}.read.single`}
+            data: {operationName: `${typeName}.read.single`}
           });
         }
       }

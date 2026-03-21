@@ -195,6 +195,7 @@ const selectorInput = gql`
     _id: String
     documentId: String
     slug: String
+    idOrSlug: String
   }
 `;
 
