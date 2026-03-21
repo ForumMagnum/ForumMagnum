@@ -50,7 +50,7 @@ import {
 import {useSettings} from './context/SettingsContext';
 import {useSharedHistoryContext} from './context/SharedHistoryContext';
 // import ActionsPlugin from './plugins/ActionsPlugin';
-import AutocompletePlugin from './plugins/AutocompletePlugin';
+// import AutocompletePlugin from './plugins/AutocompletePlugin';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
@@ -65,7 +65,7 @@ import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
 import DateTimePlugin from './plugins/DateTimePlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
-import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
+// import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 // import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
 import EmojisPlugin from './plugins/EmojisPlugin';
 import { MathPlugin } from '../editor/lexicalPlugins/math/MathPlugin';
@@ -93,7 +93,7 @@ import TableCellResizer from './plugins/TableCellResizer';
 import TableHoverActionsV2Plugin from './plugins/TableHoverActionsV2Plugin';
 import TableOfContentsPlugin from './plugins/TableOfContentsPlugin';
 import TableScrollShadowPlugin from './plugins/TableScrollShadowPlugin';
-import ToolbarPlugin from './plugins/ToolbarPlugin';
+// import ToolbarPlugin from './plugins/ToolbarPlugin';
 // import TreeViewPlugin from './plugins/TreeViewPlugin';
 // import TwitterPlugin from './embeds/TwitterEmbed/TwitterPlugin';
 import {VersionsPlugin} from './plugins/VersionsPlugin';
@@ -789,7 +789,7 @@ export default function Editor({
 
   return (
     <>
-      {isRichText && (
+      {/* {isRichText && (
         <ToolbarPlugin
           editor={editor}
           activeEditor={activeEditor}
@@ -798,7 +798,7 @@ export default function Editor({
           isSuggestionMode={isSuggestionMode}
           isVisible={false}
         />
-      )}
+      )} */}
       {isRichText && (
         <ShortcutsPlugin
           editor={activeEditor}
@@ -1017,7 +1017,7 @@ export default function Editor({
             maxLength={5}
           />
         )}
-        {isAutocomplete && <AutocompletePlugin />}
+        {/* {isAutocomplete && <AutocompletePlugin />} */}
         <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
         {shouldUseLexicalContextMenu && <ContextMenuPlugin isSuggestionMode={isSuggestionMode} />}
         {/* {shouldAllowHighlightingWithBrackets && <SpecialTextPlugin />} */}
