@@ -10,7 +10,7 @@ import { isSpecialClick } from "@/lib/utils/eventUtils";
 import { useMatchSSR } from "@/components/common/DeferRender";
 
 export type UseCommentLinkProps = {
-  comment: Pick<CommentsList, "_id" | "tagCommentType">,
+  comment: Pick<CommentsList, "_id" | "postId" | "tagCommentType">,
   post?: Pick<PostsMinimumInfo, "_id" | "slug"> | null,
   tag?: TagBasicInfo,
   scrollOnClick?: boolean,
@@ -32,7 +32,7 @@ export const CommentLinkWrapper = ({
   const {captureEvent} = useTracking();
 
   const url = commentGetPageUrlFromIds({
-    postId: post?._id,
+    postId: post?._id ?? comment.postId,
     postSlug: post?.slug,
     tagSlug: tag?.slug,
     commentId: comment._id,
