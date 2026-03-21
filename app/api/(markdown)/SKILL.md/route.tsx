@@ -146,7 +146,7 @@ edit-post URL for you. The URL will look like this:
 The key in the URL is called the "link sharing key"; do not share this key with
 anyone unless the user is asking you to give that person permission to edit
 the post. Once you have the post URL, read the post at:
-    GET /api/editPost?postId=[id]&key=[linkSharingKey]
+    GET /editPost?postId=[id]&key=[linkSharingKey]
 
 The editPost response includes a "Comment Threads" section after the post body
 if there are any open comment or suggestion threads on the draft. Each thread
