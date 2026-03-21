@@ -267,7 +267,7 @@ const UsersMenu = () => {
                 />
               </ThemePickerMenu>
               {hasBookmarks &&<DropdownItem
-                title={"Bookmarks"}
+                title={"Saved & Read"}
                 to="/bookmarks"
                 icon={"Bookmarks"}
                 iconClassName={classes.icon}
@@ -317,5 +317,3 @@ const UsersMenu = () => {
 }
 
 export default UsersMenu;
-
-
