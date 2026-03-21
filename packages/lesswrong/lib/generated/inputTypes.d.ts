@@ -5708,6 +5708,8 @@ interface Sequence {
   user: User | null;
   slug: string;
   oldSlugs: Array<string>;
+  pageUrl: string;
+  pageUrlRelative: string;
   title: string;
   bannerImageId: string | null;
   gridImageId: string | null;
@@ -5727,7 +5729,7 @@ interface Sequence {
 }
 
 interface SingleSequenceInput {
-  selector?: SelectorInput | null;
+  selector?: SelectorInputWithSlug | null;
   resolverArgs?: any;
   allowNull?: boolean | null;
 }

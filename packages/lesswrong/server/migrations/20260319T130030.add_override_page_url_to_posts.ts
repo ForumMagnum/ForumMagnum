@@ -12,7 +12,7 @@ export const up = async ({db}: MigrationContext) => {
 }
 
 async function addSpecialPostRoute(db: SqlClient, path: string, postId: string) {
-  await db.none(`UPDATE Posts SET overridePageUrl = $1 WHERE _id = $2`, [path, postId]);
+  await db.none(`UPDATE "Posts" SET "overridePageUrl" = $1 WHERE _id = $2`, [path, postId]);
 }
 
 export const down = async ({db}: MigrationContext) => {

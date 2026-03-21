@@ -8004,7 +8004,7 @@ type QueryrevisionsArgs = {
 type QuerysequenceArgs = {
   allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<SingleSequenceInput>;
-  selector?: InputMaybe<SelectorInput>;
+  selector?: InputMaybe<SelectorInputWithSlug>;
 };
 
 
@@ -8646,6 +8646,8 @@ type Sequence = {
   legacyData?: Maybe<Scalars['JSON']['output']>;
   noindex: Scalars['Boolean']['output'];
   oldSlugs: Array<Scalars['String']['output']>;
+  pageUrl: Scalars['String']['output'];
+  pageUrlRelative: Scalars['String']['output'];
   postsCount: Scalars['Int']['output'];
   readPostsCount: Scalars['Int']['output'];
   schemaVersion: Scalars['Float']['output'];
@@ -8654,11 +8656,6 @@ type Sequence = {
   user?: Maybe<User>;
   userId: Scalars['String']['output'];
   userProfileOrder?: Maybe<Scalars['Float']['output']>;
-};
-
-
-type SequencecontentsArgs = {
-  version?: InputMaybe<Scalars['String']['input']>;
 };
 
 type SequenceDefaultViewInput = {
@@ -9132,7 +9129,7 @@ type SingleRevisionOutput = {
 type SingleSequenceInput = {
   allowNull?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
+  selector?: InputMaybe<SelectorInputWithSlug>;
 };
 
 type SingleSequenceOutput = {
@@ -18038,6 +18035,20 @@ type SequencesEditQueryVariables = Exact<{
 
 type SequencesEditQuery = SequencesEditQuery_Query;
 
+type SequencesSingleQueryQuery_sequence_SingleSequenceOutput_result_Sequence = { __typename?: 'Sequence', _id: string, slug: string, pageUrlRelative: string };
+
+type SequencesSingleQueryQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: SequencesSingleQueryQuery_sequence_SingleSequenceOutput_result_Sequence | null };
+
+type SequencesSingleQueryQuery_Query = { __typename?: 'Query', sequence: SequencesSingleQueryQuery_sequence_SingleSequenceOutput | null };
+
+
+type SequencesSingleQueryQueryVariables = Exact<{
+  idOrSlug: Scalars['String']['input'];
+}>;
+
+
+type SequencesSingleQueryQuery = SequencesSingleQueryQuery_Query;
+
 type multiChapterSequencesSummaryQueryQuery_chapters_MultiChapterOutput_results_Chapter = (
   { __typename?: 'Chapter' }
   & ChaptersFragment
@@ -18064,7 +18075,7 @@ type SequenceSummaryFragment_Sequence_user_User = (
 
 type SequenceSummaryFragment_Sequence_contents_Revision = { __typename?: 'Revision', htmlHighlight: string, wordCount: number };
 
-type SequenceSummaryFragment = { __typename?: 'Sequence', _id: string, title: string, postsCount: number, canonicalCollectionSlug: string | null, user: SequenceSummaryFragment_Sequence_user_User | null, contents: SequenceSummaryFragment_Sequence_contents_Revision | null };
+type SequenceSummaryFragment = { __typename?: 'Sequence', _id: string, slug: string, title: string, postsCount: number, canonicalCollectionSlug: string | null, user: SequenceSummaryFragment_Sequence_user_User | null, contents: SequenceSummaryFragment_Sequence_contents_Revision | null };
 
 type GetAllReviewWinnersQuery_GetAllReviewWinners_Post = (
   { __typename?: 'Post' }
@@ -23093,7 +23104,7 @@ type newRSSFeedFragment = { __typename?: 'RSSFeed', _id: string, userId: string,
 
 type SequencesPageTitleFragment_Sequence_canonicalCollection_Collection = { __typename?: 'Collection', _id: string, title: string };
 
-type SequencesPageTitleFragment = { __typename?: 'Sequence', _id: string, title: string, canonicalCollectionSlug: string | null, canonicalCollection: SequencesPageTitleFragment_Sequence_canonicalCollection_Collection | null };
+type SequencesPageTitleFragment = { __typename?: 'Sequence', _id: string, slug: string, title: string, canonicalCollectionSlug: string | null, canonicalCollection: SequencesPageTitleFragment_Sequence_canonicalCollection_Collection | null };
 
 type SequencesPageFragment_Sequence_user_User = (
   { __typename?: 'User' }
@@ -23110,7 +23121,7 @@ type SequencesPageFragment = (
   & SequencesPageTitleFragment
 );
 
-type SequenceContinueReadingFragment = { __typename?: 'Sequence', _id: string, title: string, gridImageId: string | null, canonicalCollectionSlug: string | null };
+type SequenceContinueReadingFragment = { __typename?: 'Sequence', _id: string, slug: string, title: string, gridImageId: string | null, canonicalCollectionSlug: string | null };
 
 type SequencesPageWithChaptersFragment_Sequence_chapters_Chapter = (
   { __typename?: 'Chapter' }
@@ -24107,7 +24118,7 @@ type PostMetadataQuery = PostMetadataQuery_Query;
 
 type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
 
-type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence = { __typename?: 'Sequence', _id: string, title: string, bannerImageId: string | null, gridImageId: string | null, noindex: boolean, contents: SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision | null };
+type SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence = { __typename?: 'Sequence', _id: string, slug: string, title: string, bannerImageId: string | null, gridImageId: string | null, noindex: boolean, contents: SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence_contents_Revision | null };
 
 type SequenceMetadataQuery_sequence_SingleSequenceOutput = { __typename?: 'SingleSequenceOutput', result: SequenceMetadataQuery_sequence_SingleSequenceOutput_result_Sequence | null };
 
@@ -24115,7 +24126,7 @@ type SequenceMetadataQuery_Query = { __typename?: 'Query', sequence: SequenceMet
 
 
 type SequenceMetadataQueryVariables = Exact<{
-  sequenceId: InputMaybe<Scalars['String']['input']>;
+  idOrSlug: InputMaybe<Scalars['String']['input']>;
 }>;
 
 

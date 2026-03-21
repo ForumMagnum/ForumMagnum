@@ -6174,13 +6174,15 @@ type Sequence {
   schemaVersion: Float!
   createdAt: Date!
   legacyData: JSON
-  contents(version: String): Revision
+  contents: Revision
   contents_latest: String
   lastUpdated: Date!
   userId: String!
   user: User
   slug: String!
   oldSlugs: [String!]!
+  pageUrl: String!
+  pageUrlRelative: String!
   title: String!
   bannerImageId: String
   gridImageId: String
@@ -6200,7 +6202,7 @@ type Sequence {
 }
 
 input SingleSequenceInput {
-  selector: SelectorInput
+  selector: SelectorInputWithSlug
   resolverArgs: JSON
   allowNull: Boolean
 }
@@ -6260,7 +6262,7 @@ type MultiSequenceOutput {
 }
 
 extend type Query {
-  sequence(input: SingleSequenceInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput, allowNull: Boolean): SingleSequenceOutput
+  sequence(input: SingleSequenceInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInputWithSlug, allowNull: Boolean): SingleSequenceOutput
   sequences(input: MultiSequenceInput @deprecated(reason: "Use the selector field instead"), selector: SequenceSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSequenceOutput
 }
 

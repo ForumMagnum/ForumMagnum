@@ -3,6 +3,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 export const SequencesPageTitleFragment = gql(`
   fragment SequencesPageTitleFragment on Sequence {
     _id
+    slug
     title
     canonicalCollectionSlug
     canonicalCollection {
@@ -42,6 +43,7 @@ export const SequencesPageFragment = gql(`
 export const SequenceContinueReadingFragment = gql(`
   fragment SequenceContinueReadingFragment on Sequence {
     _id
+    slug
     title
     gridImageId
     canonicalCollectionSlug

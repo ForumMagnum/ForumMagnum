@@ -1,3 +1,4 @@
+"use client";
 import React, { useState, useCallback, useRef } from 'react';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
@@ -30,6 +31,8 @@ import NotifyMeButton from "../notifications/NotifyMeButton";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import PermanentRedirect from '../common/PermanentRedirect';
+import { useLocation } from '@/lib/routeUtil';
 
 const SequencesPageFragmentQuery = gql(`
   query SequencesPage($documentId: String) {
@@ -182,10 +185,13 @@ const styles = defineStyles('SequencesPage', (theme: ThemeType) => ({
   },
 }))
 
-const SequencesPage = ({documentId}: {
+const SequencesPage = ({documentId, redirectBehavior, canonicalUrl}: {
   documentId: string,
+  redirectBehavior: "redirectToCanonical" | "noRedirect",
+  canonicalUrl: string,
 }) => {
   const classes = useStyles(styles);
+  const { pathname } = useLocation();
   const [edit,setEdit] = useState(false);
   const [showNewChapterForm,setShowNewChapterForm] = useState(false);
   const nextSuggestedNumberRef = useRef(1);
@@ -243,6 +249,10 @@ const SequencesPage = ({documentId}: {
         cancelCallback={showSequence}
       />
     </>)
+  }
+
+  if (redirectBehavior === "redirectToCanonical" && canonicalUrl && canonicalUrl !== pathname) {
+    return <PermanentRedirect url={canonicalUrl} />
   }
 
   const canEdit = userCanDo(currentUser, 'sequences.edit.all') || (userCanDo(currentUser, 'sequences.edit.own') && userOwns(currentUser, document))

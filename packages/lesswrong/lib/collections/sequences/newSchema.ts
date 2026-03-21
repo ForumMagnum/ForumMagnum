@@ -8,7 +8,7 @@ import { documentIsNotDeleted, userOwns } from "../../vulcan-users/permissions";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { getChaptersInSequence } from "./sequenceServerHelpers";
-import { getCollectionBySlug } from "./helpers";
+import { getCollectionBySlug, sequenceGetPageUrl } from "./helpers";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -28,8 +28,6 @@ const schema = {
       canRead: [documentIsNotDeleted],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      editableFieldOptions: { pingbacks: false, normalized: false },
-      arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Sequences", "contents"),
       validation: {
         simpleSchema: RevisionStorageType,
@@ -116,6 +114,20 @@ const schema = {
       validation: {
         optional: true,
       },
+    },
+  },
+  pageUrl: {
+    graphql: {
+      outputType: "String!",
+      canRead: ["guests"],
+      resolver: (sequence, args, context) => sequenceGetPageUrl(sequence, { isAbsolute: true }),
+    },
+  },
+  pageUrlRelative: {
+    graphql: {
+      outputType: "String!",
+      canRead: ["guests"],
+      resolver: (sequence, args, context) => sequenceGetPageUrl(sequence, { isAbsolute: false }),
     },
   },
   title: {

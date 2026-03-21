@@ -10,15 +10,24 @@ export interface SequencePostId {
 
 // TODO: Make these functions able to use loaders for caching.
 
-export const sequenceGetPageUrl = function(sequence: {_id: string}, isAbsolute = false){
+interface SequenceMinimumForGetPageUrl {
+  _id: string
+  slug: string
+}
+interface SequenceGetPageUrlOptions {
+  isAbsolute?: boolean,
+}
+export const sequenceGetPageUrl = function(sequence: SequenceMinimumForGetPageUrl, options?: SequenceGetPageUrlOptions){
+  const isAbsolute = options?.isAbsolute ?? false;
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
-  return `${prefix}/s/${sequence._id}`;
+  return `${prefix}/s/${sequence.slug}`;
 };
 
-export const getCollectionOrSequenceUrl = function (sequence: Pick<DbSequence, '_id'|'canonicalCollectionSlug'>, isAbsolute = false) {
-  if (!sequence.canonicalCollectionSlug) return sequenceGetPageUrl(sequence, isAbsolute)
+export const getCollectionOrSequenceUrl = function (sequence: Pick<DbSequence, '_id'|'slug'|'canonicalCollectionSlug'>, options?: SequenceGetPageUrlOptions) {
+  if (!sequence.canonicalCollectionSlug) return sequenceGetPageUrl(sequence, options)
   
+  const isAbsolute = options?.isAbsolute ?? false;
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
   return `${prefix}/${sequence.canonicalCollectionSlug}#${sequence._id}`
 }

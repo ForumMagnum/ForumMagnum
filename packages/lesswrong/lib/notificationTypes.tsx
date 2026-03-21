@@ -385,7 +385,7 @@ export const NewSequencePostsNotification = createNotificationType({
     return `Posts added to ${sequence.title}`
   },
   getLink({documentId}) {
-    return documentId ? sequenceGetPageUrl({_id: documentId}) : "#";
+    return documentId ? `/s/${documentId}` : "#";
   },
   Display: ({Sequence}) => <>Posts added to <Sequence /></>,
 });

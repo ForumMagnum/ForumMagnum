@@ -12,6 +12,7 @@ function getInitialSequenceSlug(title: string, usedSlugs: Set<string>) {
   const baseSlug = slugify(title);
   let nextSuffix = slugLooksLikeId(baseSlug) ? 1 : 0;
 
+  // eslint-disable-next-line no-constant-condition
   while (true) {
     const candidateSlug = nextSuffix === 0 ? baseSlug : `${baseSlug}-${nextSuffix}`;
     if (!usedSlugs.has(candidateSlug)) {
