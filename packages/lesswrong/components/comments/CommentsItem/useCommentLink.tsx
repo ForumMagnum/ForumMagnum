@@ -10,7 +10,7 @@ import { isSpecialClick } from "@/lib/utils/eventUtils";
 import { useMatchSSR } from "@/components/common/DeferRender";
 
 export type UseCommentLinkProps = {
-  comment: Pick<CommentsList, "_id" | "postId" | "tag" | "tagCommentType">,
+  comment: Pick<CommentsList, "_id" | "postId" | "tagCommentType">,
   post?: Pick<PostsMinimumInfo, "_id" | "slug"> | null,
   tag?: TagBasicInfo,
   scrollOnClick?: boolean,
