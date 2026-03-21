@@ -63,7 +63,7 @@ import { CommentStoreProvider } from './commenting/CommentStoreContext';
 import { MarkNodesProvider } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext';
 import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
-import DateTimePlugin from './plugins/DateTimePlugin';
+// import DateTimePlugin from './plugins/DateTimePlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 // import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 // import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
@@ -828,7 +828,7 @@ export default function Editor({
         {/* <KeywordsPlugin /> */}
         {/* <SpeechToTextPlugin /> */}
         <AutoLinkPlugin />
-        <DateTimePlugin />
+        {/* <DateTimePlugin /> */}
         <MarkNodesProvider>
           {collaboratorIdentity && (
             <CollaboratorIdentityProvider value={collaboratorIdentity}>

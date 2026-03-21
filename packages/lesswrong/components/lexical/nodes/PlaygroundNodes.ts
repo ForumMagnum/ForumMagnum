@@ -24,7 +24,6 @@ import { CollapsibleSectionContainerNode } from '@/components/editor/lexicalPlug
 import { CollapsibleSectionContentNode } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionContentNode';
 import { CollapsibleSectionTitleNode } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionTitleNode';
 import {AutocompleteNode} from './AutocompleteNode';
-import {DateTimeNode} from './DateTimeNode/DateTimeNode';
 import {EmojiNode} from './EmojiNode';
 import { MathNode } from '@/components/editor/lexicalPlugins/math/MathNode';
 // import {ExcalidrawNode} from './ExcalidrawNode';
@@ -126,7 +125,6 @@ const PlaygroundNodes: Array<LexicalNodeConfig> = validateLexicalNodes({
   LayoutContainerNode,
   LayoutItemNode,
   SpecialTextNode,
-  DateTimeNode,
 
   // Custom plugin nodes
   FootnoteReferenceNode,
