@@ -10,10 +10,11 @@ const styles = defineStyles("LessOnline2026Banner", (theme: ThemeType) => {
 
   return {
     root: {
-      position: 'fixed',
+      position: 'absolute',
       top: 0,
       left: 0,
       right: 0,
+      height: '100vh',
       zIndex: theme.zIndexes.frontpageSplashImage,
       pointerEvents: 'none',
       [theme.breakpoints.down(1200)]: {
@@ -46,7 +47,7 @@ const styles = defineStyles("LessOnline2026Banner", (theme: ThemeType) => {
     },
     bannerText: {
       ...theme.typography.postStyle,
-      position: 'fixed',
+      position: 'absolute',
       right: 16,
       bottom: 80,
       color: theme.palette.greyAlpha(0.87),
