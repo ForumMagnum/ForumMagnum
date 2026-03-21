@@ -3,7 +3,7 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { getAnthropicClientOrThrow } from "@/server/languageModels/anthropicClient";
 import { constructMessageHistory } from "@/server/autocompleteEndpoint";
-import { z } from "zod";
+import * as z from "zod";
 
 const AutocompleteRequestSchema = z.object({
   prefix: z.string().optional().default(''),

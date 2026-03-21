@@ -8,7 +8,7 @@ import { UltraFeedObserverProvider } from "@/components/ultraFeed/UltraFeedObser
 import { OverflowNavObserverProvider } from "@/components/ultraFeed/OverflowNavObserverContext";
 import { profileStyles, TabPanel } from "./profileStyles";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
-import { z } from "zod";
+import * as z from "zod";
 
 const profilePageFeedTabUnsharedStyles = defineStyles("ProfilePageFeedTabUnshared", () => ({
   feedList: {

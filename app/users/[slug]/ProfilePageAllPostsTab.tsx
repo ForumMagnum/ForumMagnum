@@ -12,7 +12,7 @@ import { profileStyles, TabPanel } from "./profileStyles";
 import LoadMore from "@/components/common/LoadMore";
 import { cssUrl, formatReadableDate, getListPostImageUrl, getPostSummary } from "./userProfilePageUtil";
 import { gql } from "@/lib/generated/gql-codegen";
-import { z } from "zod";
+import * as z from "zod";
 
 const profilePageAllPostsTabUnsharedStyles = defineStyles("ProfilePageAllPostsTabUnshared", (theme: ThemeType) => ({
   postsList: {

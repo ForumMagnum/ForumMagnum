@@ -1,7 +1,7 @@
 import { captureException } from "@/lib/sentryWrapper";
 import { NextRequest, NextResponse } from "next/server";
 import { WebClient } from "@slack/web-api";
-import { z } from "zod";
+import * as z from "zod";
 
 const agentFeedbackSchema = z.object({
   message: z.string().trim().min(1).max(8000),

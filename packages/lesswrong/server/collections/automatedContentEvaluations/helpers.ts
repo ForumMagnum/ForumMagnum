@@ -1,7 +1,7 @@
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { cheerioParse } from "@/server/utils/htmlUtil";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
-import { z } from "zod";
+import * as z from "zod";
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
 import { captureException } from "@/lib/sentryWrapper";
 import Posts from "../posts/collection";

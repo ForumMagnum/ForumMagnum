@@ -6,7 +6,7 @@ import { fetchFragmentSingle } from '@/server/fetchFragment';
 import { htmlToMarkdown } from '@/server/editor/conversionUtils';
 import { userCanCreateAndEditJargonTerms } from '@/lib/betas';
 import { getAdminTeamAccount } from '@/server/utils/adminTeamAccount';
-import { z } from 'zod';
+import * as z from "zod";
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { cyrb53Rand } from '@/server/perfMetrics';
 import JargonTermsRepo from '@/server/repos/JargonTermsRepo';

@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as z from "zod";
 
 export const RAG_MODE_SET = ['Auto', 'None', 'CurrentPost', 'Search', 'Provided'] as const;
 export type RagModeType = typeof RAG_MODE_SET[number];

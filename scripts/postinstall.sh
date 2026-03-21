@@ -38,6 +38,9 @@ else
   exit 1
 fi
 
+echo 'Applying dependency patches (patch-package)...'
+yarn patch-package
+
 if [ "$NODE_ENV" == "production" ]; then
   echo "production run, skipping unnecessary checks"
   exit 0

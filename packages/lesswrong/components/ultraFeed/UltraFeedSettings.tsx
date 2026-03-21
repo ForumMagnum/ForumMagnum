@@ -27,7 +27,7 @@ import {
   ValidatedThreadInterestModel,
   ValidatedUnifiedScoring
 } from './ultraFeedSettingsValidation';
-import { ZodFormattedError } from 'zod';
+import type { ZodFormattedError } from 'zod/v4';
 import mergeWith from 'lodash/mergeWith';
 import cloneDeep from 'lodash/cloneDeep';
 import isEqual from 'lodash/isEqual';

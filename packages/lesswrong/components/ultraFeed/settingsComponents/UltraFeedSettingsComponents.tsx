@@ -15,7 +15,7 @@ import {
 import { FeedItemSourceType } from '../ultraFeedTypes';
 import Slider from '@/lib/vendor/@material-ui/core/src/Slider';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
-import { ZodFormattedError } from 'zod';
+import type { ZodFormattedError } from 'zod/v4';
 import LWTooltip from '@/components/common/LWTooltip';
 import ForumIcon from '@/components/common/ForumIcon';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';

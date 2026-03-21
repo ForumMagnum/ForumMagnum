@@ -6,7 +6,7 @@ import CommentsNode from "@/components/comments/CommentsNode";
 import LoadMore from "@/components/common/LoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { profileStyles, TabPanel } from "./profileStyles";
-import { z } from "zod";
+import * as z from "zod";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const profilePageCommentsTabUnsharedStyles = defineStyles("ProfilePageCommentsTabUnshared", () => ({

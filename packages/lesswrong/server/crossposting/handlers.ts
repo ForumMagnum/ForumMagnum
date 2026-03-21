@@ -1,4 +1,5 @@
-import { ZodType, z } from "zod";
+import * as z from "zod";
+import type { ZodType } from "zod/v4";
 import { getContextFromReqAndRes } from "../vulcan-lib/apollo-server/context";
 import { assertCrosspostingKarmaThreshold } from "@/server/fmCrosspost/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";

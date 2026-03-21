@@ -3,7 +3,7 @@ import { randomId } from "@/lib/random";
 import ClientIdsRepo from "@/server/repos/ClientIdsRepo";
 import { getUserFromReq } from '@/server/vulcan-lib/apollo-server/getUserFromReq';
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import * as z from "zod";
 import { cookies } from "next/headers";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 

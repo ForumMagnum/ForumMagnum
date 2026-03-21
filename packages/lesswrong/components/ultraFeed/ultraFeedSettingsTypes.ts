@@ -3,7 +3,7 @@
  * This file defines the UltraFeed settings types and default values.
  */
 import { FeedItemSourceType } from './ultraFeedTypes';
-import { ZodFormattedError } from 'zod';
+import type { ZodFormattedError } from 'zod/v4';
 
 
 export interface UltraFeedDisplaySettings {

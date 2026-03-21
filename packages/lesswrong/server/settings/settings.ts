@@ -8,7 +8,7 @@ import { prodAf } from "./prodAf";
 import { prodLw } from "./prodLw";
 import { testSettings } from "./test";
 import { testCrosspostSettings } from "./testCrosspost";
-import { z } from "zod";
+import * as z from "zod";
 import { isAnyTest, isProduction } from "@/lib/executionEnvironment";
 import { isAF } from "@/lib/forumTypeUtils";
 
