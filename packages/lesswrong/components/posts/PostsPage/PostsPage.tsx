@@ -194,7 +194,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     right: 0,
     bottom: 0,
     height: '100vh',
-    width: '100vw',
+    width: '100%',
     
     "@media print": {
       display: "none",
