@@ -193,7 +193,7 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
   const defaultData = {
     _id: postId,
     userId: user!._id,
-    title: randomId(),
+    title: randomId(15),
     "contents_latest": revision._id,
     fmCrosspost: {isCrosspost: false},
     createdAt: new Date(),
@@ -207,7 +207,7 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
 }
 
 export const createDummyUser = async (data?: any) => {
-  const testUsername = randomId()
+  const testUsername = randomId(15)
   const defaultData = {
     _id: randomId(),
     username: testUsername,
