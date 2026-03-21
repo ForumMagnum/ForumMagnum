@@ -14902,7 +14902,7 @@ type SequencePreviewQuery_Query = { __typename?: 'Query', sequence: SequencePrev
 
 
 type SequencePreviewQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
+  idOrSlug: InputMaybe<Scalars['String']['input']>;
   allowNull: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
@@ -14938,8 +14938,7 @@ type PostLinkPreviewPostQuery_Query = { __typename?: 'Query', post: PostLinkPrev
 
 
 type PostLinkPreviewPostQueryVariables = Exact<{
-  documentId: InputMaybe<Scalars['String']['input']>;
-  allowNull: InputMaybe<Scalars['Boolean']['input']>;
+  selector: InputMaybe<SelectorInputWithSlug>;
 }>;
 
 

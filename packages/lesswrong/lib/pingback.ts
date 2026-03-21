@@ -1,10 +1,11 @@
 import { PingbackDocument, RouterLocation } from './routeChecks/parseRoute'
+import { slugLooksLikeId } from './utils/slugify'
 
 export const userMentionQuery = 'mention'
 export const userMentionValue = 'user'
 export const userMentionQueryString = `${userMentionQuery}=${userMentionValue}`
 
-export async function getPostPingbackById(parsedUrl: RouterLocation, postId: string | null): Promise<PingbackDocument | null> {
+export async function getPostPingbackById(parsedUrl: RouterLocation, postId: string|null): Promise<PingbackDocument | null> {
   if (!postId)
     return null
 
@@ -15,6 +16,18 @@ export async function getPostPingbackById(parsedUrl: RouterLocation, postId: str
   // TODO: In the case of a landmark, we want to customize the hover preview to
   // reflect where in the post the link was to.
   return ({collectionName: 'Posts', documentId: postId})
+}
+
+export async function getPostPingbackByIdOrSlug(parsedUrl: RouterLocation, idOrSlug: string|null, context: ResolverContext): Promise<PingbackDocument | null> {
+  if (!idOrSlug) return null
+  const { Posts } = context;
+  const post = await Posts.findOne({$or: [
+    {_id: idOrSlug},
+    {slug: idOrSlug},
+    {oldSlugs: idOrSlug}
+  ]})
+  if (!post) return null
+  return ({collectionName: 'Posts', documentId: post._id})
 }
 
 export async function getPostPingbackByLegacyId(parsedUrl: RouterLocation, legacyId: string, context: ResolverContext) {

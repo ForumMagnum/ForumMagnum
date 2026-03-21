@@ -1,9 +1,9 @@
-import { getUserPingbackBySlug, getPostPingbackById, getPostPingbackBySlug, getTagPingbackBySlug, getPostPingbackByLegacyId } from '@/lib/pingback';
+import { getUserPingbackBySlug, getPostPingbackById, getPostPingbackBySlug, getTagPingbackBySlug, getPostPingbackByLegacyId, getPostPingbackByIdOrSlug } from '@/lib/pingback';
 import { aboutPostIdSetting, faqPostIdSetting, contactPostIdSetting } from '@/lib/instanceSettings';
 import type { RouterLocation } from './parseRoute';
 import type { ParamMap } from '../../../../.next/types/routes';
 
-interface PingbackDocument {
+type PingbackDocument = {
   collectionName: CollectionNameString,
   documentId: string,
 }
@@ -38,7 +38,7 @@ type NextExistingRoute = keyof ParamMap;
 
 export const routePingbackMapping = {
   '/users/[slug]': getUserPingbackBySlug,
-  '/s/[_id]/p/[postId]': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params.postId),
+  '/s/[_id]/p/[postId]': (parsedUrl, context) => getPostPingbackByIdOrSlug(parsedUrl, parsedUrl.params.postId, context),
   '/highlights/[slug]': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
   '/w/[slug]': (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
   '/w/[slug]/discussion': (parsedUrl, context) => getTagPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
@@ -50,12 +50,12 @@ export const routePingbackMapping = {
   '/hpmor/[slug]': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
   '/codex/[slug]': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
   '/rationality/[slug]': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
-  '/events/[_id]': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
+  '/events/[_id]': (parsedUrl, context) => getPostPingbackByIdOrSlug(parsedUrl, parsedUrl.params._id, context),
   '/events/[_id]/[slug]': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
-  '/g/[groupId]/p/[_id]': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
-  '/posts/[_id]': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
+  '/g/[groupId]/p/[_id]': (parsedUrl, context) => getPostPingbackByIdOrSlug(parsedUrl, parsedUrl.params._id, context),
+  '/posts/[_id]': (parsedUrl, context) => getPostPingbackByIdOrSlug(parsedUrl, parsedUrl.params._id, context),
   '/posts/[_id]/[slug]': (parsedUrl) => getPostPingbackById(parsedUrl, parsedUrl.params._id),
-  '/p/[slug]': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
+  '/p/[slug]': (parsedUrl, context) => getPostPingbackByIdOrSlug(parsedUrl, parsedUrl.params.slug, context),
   '/posts/slug/[slug]': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
   [`/${legacyRouteAcronym}/[id]`]: (parsedUrl, context) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id, context),
   [`/${legacyRouteAcronym}/[id]/[slug]`]: (parsedUrl, context) => getPostPingbackByLegacyId(parsedUrl, parsedUrl.params.id, context),
