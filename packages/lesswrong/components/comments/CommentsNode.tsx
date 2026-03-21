@@ -89,7 +89,6 @@ export interface CommentsNodeProps {
    */
   showParentDefault?: boolean,
   noAutoScroll?: boolean,
-  displayTagIcon?: boolean,
   className?: string,
 }
 /**
@@ -98,7 +97,7 @@ export interface CommentsNodeProps {
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, forceUnTruncated, forceUnCollapsed, expandNewComments=true, isChild, parentAnswerId, parentCommentId, showExtraChildrenButton, hoverPreview, childComments, loadChildrenSeparately, loadDirectReplies=false, showPinnedOnProfile=false, enableGuidelines=true, karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD, showParentDefault=false, noAutoScroll=false, displayTagIcon=false, className}: CommentsNodeProps) => {
+const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, forceUnTruncated, forceUnCollapsed, expandNewComments=true, isChild, parentAnswerId, parentCommentId, showExtraChildrenButton, hoverPreview, childComments, loadChildrenSeparately, loadDirectReplies=false, showPinnedOnProfile=false, enableGuidelines=true, karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD, showParentDefault=false, noAutoScroll=false, className}: CommentsNodeProps) => {
   const classes = useStyles(styles);
   const currentUserNoSingleLineCommentsSetting = useFilteredCurrentUser(u => u?.noSingleLineComments);
   const { captureEvent } = useTracking()
@@ -304,7 +303,6 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
                   parentCommentId={parentCommentId}
                   hideKarma={post?.hideCommentKarma}
                   showDescendentCount={loadChildrenSeparately}
-                  displayTagIcon={displayTagIcon}
                 />
               </AnalyticsTracker>
             </AnalyticsContext>
@@ -319,7 +317,6 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
                 key={comment._id}
                 scrollIntoView={scrollIntoView}
                 setSingleLine={setSingleLine}
-                displayTagIcon={displayTagIcon}
                 { ...passedThroughItemProps}
               />
             </AnalyticsContext>

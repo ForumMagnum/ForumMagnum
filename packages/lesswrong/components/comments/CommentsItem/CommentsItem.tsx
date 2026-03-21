@@ -29,7 +29,6 @@ import LWTooltip from "../../common/LWTooltip";
 import PostsTooltip from "../../posts/PostsPreviewTooltip/PostsTooltip";
 import ReviewVotingWidget from "../../review/ReviewVotingWidget";
 import LWHelpIcon from "../../common/LWHelpIcon";
-import CoreTagIcon from "../../tagging/CoreTagIcon";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import CommentBottom from "./CommentBottom";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -48,14 +47,6 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
   },
   subforumTop: {
     paddingTop: 4,
-  },
-  tagIcon: {
-    marginRight: 6,
-    '& svg': {
-      width: 15,
-      height: 15,
-      fill: theme.palette.grey[600],
-    },
   },
   body: {
     borderStyle: "none",
@@ -173,7 +164,6 @@ export const CommentsItem = ({
   parentAnswerId,
   enableGuidelines=true,
   showParentDefault=false,
-  displayTagIcon=false,
   excerptLines,
   className,
 }: {
@@ -192,7 +182,6 @@ export const CommentsItem = ({
   parentAnswerId?: string,
   enableGuidelines?: boolean,
   showParentDefault?: boolean,
-  displayTagIcon?: boolean,
   excerptLines?: number,
   className?: string,
 }) => {
@@ -349,11 +338,7 @@ export const CommentsItem = ({
         <CommentTitleRow comment={comment} treeOptions={treeOptions} isChild={isChild} showPinnedOnProfile={showPinnedOnProfile} />
         <div className={classNames(classes.body)}>
           {showCommentTitle && <div className={classes.title}>
-            {(displayTagIcon && tag) ? <span className={classes.tagIcon}>
-              <CoreTagIcon tag={tag} />
-            </span> : <CommentDiscussionIcon
-              comment={comment}
-            />}
+            <CommentDiscussionIcon comment={comment} />
             {comment.title}
           </div>}
           <CommentsItemMeta
