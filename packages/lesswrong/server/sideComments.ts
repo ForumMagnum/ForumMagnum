@@ -147,9 +147,10 @@ export function annotateMatchedSpans(html: string, intervals: MarkedInterval[]):
       case 'data':
         let lastSplit = 0;
         
-        for (let i=0; i<tokenStr.length; i++) {
-          //if (intervalsByStart[i+pos] || intervalsByEnd[i+pos]) {
-          //if (intervalsByStart[i+pos] || some(activeIntervals, interval => interval.end > i+pos)) {
+        // Use <= so that the boundary position (i === tokenStr.length) is
+        // also checked. Without this, intervals ending exactly at the token
+        // boundary survive the filter and leak empty spans between tags.
+        for (let i=0; i<=tokenStr.length; i++) {
           {
             if (i>lastSplit) {
               const activeClassStrs = activeIntervals.map(interval => interval.spanClass);
