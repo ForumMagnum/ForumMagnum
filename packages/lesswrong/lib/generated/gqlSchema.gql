@@ -25,6 +25,7 @@ input SelectorInputWithSlug {
   _id: String
   documentId: String
   slug: String
+  idOrSlug: String
 }
 
 input EmptyViewInput {
@@ -6178,6 +6179,8 @@ type Sequence {
   lastUpdated: Date!
   userId: String!
   user: User
+  slug: String!
+  oldSlugs: [String!]!
   title: String!
   bannerImageId: String
   gridImageId: String
@@ -8630,6 +8633,7 @@ input CreateSequenceDataInput {
   contents: CreateRevisionDataInput
   lastUpdated: Date
   userId: String
+  slug: String
   title: String!
   bannerImageId: String
   gridImageId: String
@@ -8653,6 +8657,7 @@ input UpdateSequenceDataInput {
   contents: CreateRevisionDataInput
   lastUpdated: Date
   userId: String
+  slug: String
   title: String
   bannerImageId: String
   gridImageId: String

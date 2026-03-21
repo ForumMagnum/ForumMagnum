@@ -80,6 +80,44 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
+  slug: {
+    database: {
+      type: "TEXT",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String!",
+      inputType: "String",
+      canRead: ["guests"],
+      canUpdate: [userOwns, "admins", "sunshineRegiment"],
+      canCreate: ["members"],
+      slugCallbackOptions: {
+        collectionsToAvoidCollisionsWith: ["Sequences"],
+        getTitle: (sequence) => sequence.title!,
+        onCollision: "newDocumentGetsSuffix",
+        includesOldSlugs: true,
+      },
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  oldSlugs: {
+    database: {
+      type: "TEXT[]",
+      defaultValue: [],
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]!",
+      inputType: "[String!]",
+      canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   title: {
     database: {
       type: "TEXT",

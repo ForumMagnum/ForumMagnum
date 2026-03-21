@@ -1204,6 +1204,8 @@ interface DbSequence extends DbObject {
   lastUpdated: Date
   legacyData: any | null
   noindex: boolean
+  oldSlugs: Array<string>
+  slug: string
   title: string
   userId: string
   userProfileOrder: number | null

@@ -3308,6 +3308,7 @@ export type CreateSequenceDataInput = {
   lastUpdated?: InputMaybe<Scalars['Date']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   noindex?: InputMaybe<Scalars['Boolean']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
   title: Scalars['String']['input'];
   userId?: InputMaybe<Scalars['String']['input']>;
   userProfileOrder?: InputMaybe<Scalars['Float']['input']>;
@@ -10350,6 +10351,7 @@ export type SelectorInput = {
 export type SelectorInputWithSlug = {
   _id?: InputMaybe<Scalars['String']['input']>;
   documentId?: InputMaybe<Scalars['String']['input']>;
+  idOrSlug?: InputMaybe<Scalars['String']['input']>;
   slug?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -10379,9 +10381,11 @@ export type Sequence = {
   lastUpdated: Scalars['Date']['output'];
   legacyData: Maybe<Scalars['JSON']['output']>;
   noindex: Scalars['Boolean']['output'];
+  oldSlugs: Array<Scalars['String']['output']>;
   postsCount: Scalars['Int']['output'];
   readPostsCount: Scalars['Int']['output'];
   schemaVersion: Scalars['Float']['output'];
+  slug: Scalars['String']['output'];
   title: Scalars['String']['output'];
   user: Maybe<User>;
   userId: Scalars['String']['output'];
@@ -12179,6 +12183,7 @@ export type UpdateSequenceDataInput = {
   lastUpdated?: InputMaybe<Scalars['Date']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   noindex?: InputMaybe<Scalars['Boolean']['input']>;
+  slug?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
   userProfileOrder?: InputMaybe<Scalars['Float']['input']>;

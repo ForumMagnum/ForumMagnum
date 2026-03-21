@@ -2397,6 +2397,8 @@ CREATE TABLE "Sequences" (
   "contents_latest" TEXT,
   "lastUpdated" TIMESTAMPTZ NOT NULL,
   "userId" VARCHAR(27) NOT NULL,
+  "slug" TEXT NOT NULL,
+  "oldSlugs" TEXT[] NOT NULL DEFAULT '{}',
   "title" TEXT NOT NULL,
   "bannerImageId" TEXT,
   "gridImageId" TEXT,

@@ -345,6 +345,7 @@ interface SelectorInputWithSlug {
   _id?: string | null;
   documentId?: string | null;
   slug?: string | null;
+  idOrSlug?: string | null;
 }
 
 interface EmptyViewInput {
@@ -5705,6 +5706,8 @@ interface Sequence {
   lastUpdated: Date;
   userId: string;
   user: User | null;
+  slug: string;
+  oldSlugs: Array<string>;
   title: string;
   bannerImageId: string | null;
   gridImageId: string | null;
@@ -7906,6 +7909,7 @@ interface CreateSequenceDataInput {
   contents?: CreateRevisionDataInput | null;
   lastUpdated?: Date | null;
   userId?: string | null;
+  slug?: string | null;
   title: string;
   bannerImageId?: string | null;
   gridImageId?: string | null;
@@ -7929,6 +7933,7 @@ interface UpdateSequenceDataInput {
   contents?: CreateRevisionDataInput | null;
   lastUpdated?: Date | null;
   userId?: string | null;
+  slug?: string | null;
   title?: string | null;
   bannerImageId?: string | null;
   gridImageId?: string | null;

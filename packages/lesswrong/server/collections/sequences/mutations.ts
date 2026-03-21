@@ -8,6 +8,7 @@ import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFields
 import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
 import { backgroundTask } from "@/server/utils/backgroundTask";
+import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
@@ -44,6 +45,8 @@ export async function createSequence({ data }: CreateSequenceInput, context: Res
   data = callbackProps.document;
 
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+
+  data = await runSlugCreateBeforeCallback(callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
     doc: data,
@@ -95,6 +98,8 @@ export async function updateSequence({ selector, data }: UpdateSequenceInput, co
   const { oldDocument } = updateCallbackProperties;
 
   data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+
+  data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
 
   data = await createRevisionsForEditableFields({
     docData: data,
