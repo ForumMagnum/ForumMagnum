@@ -7,8 +7,8 @@ import { JSDOM } from "jsdom";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { markdownToHtml } from "@/server/editor/conversionUtils";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
-import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, withMainDocEditorSession } from "../editorAgentUtil";
-import { sleep } from "@/lib/utils/asyncUtils";
+import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+
 import { locateMarkdownQuoteSelectionInSubtree, markdownQuoteToPlainText, type MarkdownSelectionPoint } from "../mapMarkdownToLexical";
 import { replaceTextToolSchema, type ReplaceMode } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
@@ -696,7 +696,7 @@ export async function replaceTextInMainDoc({
     postId,
     token,
     operationLabel: "ReplaceText",
-    callback: async ({ editor }) => {
+    callback: async ({ editor, provider }) => {
       let replaced = false;
       let quoteFoundInDocument = false;
       let suggestionId: string | undefined = undefined;
@@ -749,7 +749,7 @@ export async function replaceTextInMainDoc({
       });
 
       if (replaced) {
-        await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+        await waitForProviderFlush(provider);
       }
 
       if (replaced) {

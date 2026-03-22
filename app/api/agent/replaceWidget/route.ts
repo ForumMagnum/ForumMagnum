@@ -5,8 +5,8 @@ import { applyPatch } from "diff";
 import { $createTextNode, $getRoot, $isElementNode, type LexicalNode } from "lexical";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { $isIframeWidgetNode, type IframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, withMainDocEditorSession } from "../editorAgentUtil";
-import { sleep } from "@/lib/utils/asyncUtils";
+import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { replaceWidgetRouteSchema, type ReplaceMode } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
@@ -109,7 +109,7 @@ export async function replaceWidgetInMainDoc({
     postId,
     token,
     operationLabel: "ReplaceWidget",
-    callback: async ({ editor }) => {
+    callback: async ({ editor, provider }) => {
       let result: ReplaceWidgetResult = {
         replaced: false,
         widgetFound: false,
@@ -173,7 +173,7 @@ export async function replaceWidgetInMainDoc({
       });
 
       if (result.replaced) {
-        await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+        await waitForProviderFlush(provider);
       }
       return result;
     },

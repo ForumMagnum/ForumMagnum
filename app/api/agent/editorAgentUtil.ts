@@ -14,7 +14,31 @@ import { sleep } from "@/lib/utils/asyncUtils";
 
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const INITIAL_SYNC_SETTLE_MS = 25;
-export const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
+
+const FLUSH_POLL_INTERVAL_MS = 5;
+const FLUSH_TIMEOUT_MS = 2_000;
+
+/**
+ * Wait for a HocuspocusProvider's WebSocket send buffer to drain, indicating
+ * that all pending updates have been handed off to the OS network layer.
+ *
+ * The provider sends Yjs updates synchronously during `doc.transact()` via
+ * `ws.send()`, which buffers data immediately. We just need to wait for
+ * `bufferedAmount` to reach 0 before destroying the provider so that the
+ * close handshake doesn't race with pending data frames.
+ *
+ * Returns immediately if the WebSocket isn't accessible or the buffer is
+ * already empty.
+ */
+export async function waitForProviderFlush(provider: HocuspocusProvider): Promise<void> {
+  const ws = provider.configuration.websocketProvider.webSocket;
+  if (!ws || ws.bufferedAmount === 0) return;
+
+  const deadline = Date.now() + FLUSH_TIMEOUT_MS;
+  while (ws.bufferedAmount && ws.bufferedAmount > 0 && Date.now() < deadline) {
+    await sleep(FLUSH_POLL_INTERVAL_MS);
+  }
+}
 
 export function normalizeText(value: string): string {
   return value.replace(/\s+/g, " ").trim().toLowerCase();
