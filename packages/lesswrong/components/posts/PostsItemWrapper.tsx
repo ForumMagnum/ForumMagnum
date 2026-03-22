@@ -9,6 +9,7 @@ import Loading from "../vulcan-core/Loading";
 import PostsTitle from "./PostsTitle";
 import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
 import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
+import UsersName from "../users/UsersName";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -100,7 +101,7 @@ const PostsItemWrapper = ({documentId, addItem, removeItem, disabled = false, si
         <PostsTitle post={document} isLink={false}/>
       </span>
       <PostsItem2MetaInfo className={classes.author}>
-        <PostsUserAndCoauthors post={document} abbreviateIfLong={true} simple={simpleAuthor}/>
+        <PostsUserAndCoauthors post={document} abbreviateIfLong={true} simple={simpleAuthor} UserNameComponent={UsersName}/>
       </PostsItem2MetaInfo>
       {addItem && <AddIcon className={classes.addIcon} onClick={() => addItem(document._id)} />}
       {removeItem && <RemoveIcon className={classes.removeIcon} onClick={() => removeItem(document._id)} />}

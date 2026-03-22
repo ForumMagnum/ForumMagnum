@@ -10,6 +10,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import PostsUserAndCoauthors from "../PostsUserAndCoauthors";
 import PostsTitle from "../PostsTitle";
+import UsersName from "../../users/UsersName";
 import { ContentItemBody } from "../../contents/ContentItemBody";
 import CommentsNode from "../../comments/CommentsNode";
 import BookmarkButton from "../BookmarkButton";
@@ -204,7 +205,7 @@ const LWPostsPreviewTooltip = ({postsList, post, hash, comment, dialogueMessageI
                 {renderWordCount && <span>{" "}<span className={classes.wordCount}>({wordCount} words)</span></span>}
               </span>}
               { !postsList && <>
-                {post.user && <PostsUserAndCoauthors post={post}/>}
+                {post.user && <PostsUserAndCoauthors post={post} UserNameComponent={UsersName}/>}
                 <div className={classes.metadata}>
                   <span className={classes.smallText}>{postGetKarma(post)} karma</span>
                   <span className={classes.smallText}>{postGetCommentCountStr(post)}</span>

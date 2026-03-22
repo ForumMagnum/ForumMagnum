@@ -1,9 +1,7 @@
 import React from 'react';
 import classNames from 'classnames';
-import { useFilteredCurrentUser } from '../../common/withUser';
 import UserNameDeleted from "../../users/UserNameDeleted";
 import UsersName from "../../users/UsersName";
-import UsersNameWithModal from "../../ultraFeed/UsersNameWithModal";
 import type { Placement as PopperPlacementType } from "popper.js";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -30,19 +28,15 @@ const CommentUserName = ({
   comment,
   simple = false,
   className,
-  useUltraFeedModal = false,
   tooltipPlacement,
 }: {
   comment: CommentsList,
   simple?: boolean,
   className?: string,
-  useUltraFeedModal?: boolean,
   tooltipPlacement?: PopperPlacementType,
 }) => {
   const classes = useStyles(styles);
   const author = comment.user;
-
-  const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersName;
 
   if (comment.deleted) {
     return <span className={className}>[comment deleted]</span>
@@ -53,7 +47,7 @@ const CommentUserName = ({
   } else if (comment.answer) {
     return (
       <span className={classNames(className, classes.authorAnswer)}>
-        Answer by <UserNameComponent 
+        Answer by <UsersName 
           user={author} 
           simple={simple}
           tooltipPlacement={tooltipPlacement}
@@ -63,7 +57,7 @@ const CommentUserName = ({
   }
 
   return (
-    <UserNameComponent
+    <UsersName
       user={author}
       simple={simple}
       className={classNames(className, classes.author)}

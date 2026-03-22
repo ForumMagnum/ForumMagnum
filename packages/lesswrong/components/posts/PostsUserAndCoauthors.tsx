@@ -3,8 +3,8 @@ import ModeCommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import classNames from 'classnames';
 import type { Placement as PopperPlacementType } from "popper.js"
 import { usePostsUserAndCoauthors } from './usePostsUserAndCoauthors';
-import UsersName from "../users/UsersName";
-import UsersNameWithModal from "../ultraFeed/UsersNameWithModal";
+import type UsersName from "../users/UsersName";
+import type UsersNameWithModal from "../ultraFeed/UsersNameWithModal";
 import UserNameDeleted from "../users/UserNameDeleted";
 import UserCommentMarkers from "../users/UserCommentMarkers";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -48,20 +48,31 @@ const styles = defineStyles("PostsUserAndCoauthors", (theme: ThemeType) => ({
   },
 }));
 
-const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, simple=false, tooltipPlacement="left", newPromotedComments, showMarkers, useUltraFeedModal=false, compact=false, showSubscribedIcon=false}: {
+type UserNameComponent = typeof UsersName | typeof UsersNameWithModal;
+
+const PostsUserAndCoauthors = ({
+  post,
+  abbreviateIfLong=false,
+  simple=false,
+  tooltipPlacement="left",
+  newPromotedComments,
+  showMarkers,
+  UserNameComponent,
+  compact=false,
+  showSubscribedIcon=false,
+}: {
   post: PostsList | SunshinePostsList,
   abbreviateIfLong?: boolean,
   simple?: boolean,
   tooltipPlacement?: PopperPlacementType,
   newPromotedComments?: boolean,
   showMarkers?: boolean,
-  useUltraFeedModal?: boolean,
+  UserNameComponent: UserNameComponent,
   compact?: boolean,
   showSubscribedIcon?: boolean,
 }) => {
   const classes = useStyles(styles);
   const {isAnon, topCommentAuthor, authors} = usePostsUserAndCoauthors(post);
-  const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersName;
   if (isAnon)
     return <UserNameDeleted/>;
 
@@ -73,11 +84,11 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, simple=false, tool
     {authors.map((author, i) =>
       <React.Fragment key={author._id}>
         {i > 0 ? ", " : ""}
-        <UserNameComponent 
-          user={author} 
-          simple={simple} 
+        <UserNameComponent
+          user={author}
+          simple={simple}
           tooltipPlacement={tooltipPlacement}
-          {...(useUltraFeedModal && { showSubscribedIcon })}
+          {...{ showSubscribedIcon }}
         />
         {showMarkers &&
           <UserCommentMarkers user={author} className={classes.userMarkers} />
@@ -87,12 +98,12 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, simple=false, tool
     }
     {topCommentAuthor && <span className={classNames(classes.topCommentAuthor, {[classes.new]: newPromotedComments})}>
       {", "}<ModeCommentIcon className={classNames(classes.topAuthorIcon, {[classes.new]: newPromotedComments})}/>
-      <UserNameComponent 
-        user={topCommentAuthor || undefined} 
-        simple={simple} 
+      <UserNameComponent
+        user={topCommentAuthor || undefined}
+        simple={simple}
         tooltipPlacement={tooltipPlacement}
-        {...(useUltraFeedModal && { showSubscribedIcon })}
-      />
+        {...{ showSubscribedIcon }}
+        />
     </span>}
   </div>;
 };
