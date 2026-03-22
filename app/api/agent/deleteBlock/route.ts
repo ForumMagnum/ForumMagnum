@@ -3,9 +3,9 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { NextRequest, NextResponse } from "next/server";
 import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
-import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, paragraphMarkdownStartsWith, plainTextStartsWith, withMainDocEditorSession } from "../editorAgentUtil";
-import { sleep } from "@/lib/utils/asyncUtils";
-import { buildNodeMarkdownMapForSubtree } from "../mapMarkdownToLexical";
+import { deriveAgentAuthor, paragraphMarkdownStartsWith, plainTextStartsWith, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+
+import { buildNodeMarkdownMapForSubtree, toPlainTextFilter } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deleteBlockToolSchema, type ReplaceMode } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
@@ -37,14 +37,15 @@ export async function deleteMarkdownBlock({
     postId,
     token,
     operationLabel: "DeleteBlock",
-    callback: async ({ editor }) => {
+    callback: async ({ editor, provider }) => {
       let result: DeleteBlockResult = { deleted: false, note: "No deletion performed." };
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
           const root = $getRoot();
           const rootChildren = root.getChildren();
-          const mapResult = buildNodeMarkdownMapForSubtree(root.getKey());
+          const textFilter = toPlainTextFilter(prefix);
+          const mapResult = buildNodeMarkdownMapForSubtree(root.getKey(), textFilter);
 
           let deletionIndex: number | null = null;
           for (let i = 0; i < rootChildren.length; i++) {
@@ -109,7 +110,7 @@ export async function deleteMarkdownBlock({
       });
 
       if (result.deleted) {
-        await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+        await waitForProviderFlush(provider);
       }
       return result;
     },

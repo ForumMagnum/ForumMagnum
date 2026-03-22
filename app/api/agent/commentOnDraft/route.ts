@@ -7,13 +7,12 @@ import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInMarkNode } from "@lexical/mark";
 import {
   deriveAgentAuthor,
-  HOCUSPOCUS_FLUSH_WAIT_MS,
   normalizeText,
+  waitForProviderFlush,
   waitForProviderSync,
   withMainDocEditorSession,
 } from "../editorAgentUtil";
 import { locateMarkdownQuoteSelectionInSubtree } from "../mapMarkdownToLexical";
-import { sleep } from "@/lib/utils/asyncUtils";
 import { commentOnDraftToolSchema } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { getHocuspocusToken } from "../getHocuspocusToken";
@@ -103,7 +102,7 @@ async function getMainDocQuoteMatchResult({
     postId,
     token,
     operationLabel: "CommentOnDraftQuoteMatch",
-    callback: async ({ editor }) => {
+    callback: async ({ editor, provider: mainDocProvider }) => {
       let quoteFoundInDocument = false;
       let createdMarkId: string | null = null;
 
@@ -118,7 +117,7 @@ async function getMainDocQuoteMatchResult({
       });
 
       if (createdMarkId) {
-        await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+        await waitForProviderFlush(mainDocProvider);
       }
 
       return { quoteFoundInDocument, createdMarkId };
@@ -202,8 +201,7 @@ export async function insertDraftCommentThread({
       comments.insert(comments.length, [threadMap]);
     }, "agent-comment-on-draft");
 
-    // Give the provider a moment to flush the update over websocket.
-    await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+    await waitForProviderFlush(provider);
     return { threadId, commentId, anchorStatus, anchorNote };
   } finally {
     provider.destroy();
