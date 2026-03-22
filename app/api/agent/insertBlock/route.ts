@@ -15,7 +15,7 @@ import {
 } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { deriveAgentAuthor, paragraphMarkdownStartsWith, plainTextStartsWith, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
 
 import { normalizeImportedTopLevelNodes } from "../../(markdown)/editorMarkdownUtils";
 import { buildNodeMarkdownMapForSubtree, toPlainTextFilter } from "../mapMarkdownToLexical";
@@ -135,15 +135,20 @@ function findInsertionIndexByPrefix(
   for (let i = 0; i < rootChildren.length; i++) {
     const child = rootChildren[i];
     const childMarkdown = mapResult.byKey.get(child.getKey())?.markdown;
+    const textContent = child.getTextContent();
     if (!childMarkdown) {
-      if (plainTextStartsWith(child.getTextContent(), prefix)) {
+      if (
+        plainTextStartsWith(textContent, prefix) ||
+        (textFilter && normalizeText(textContent).startsWith(textFilter))
+      ) {
         return relation === "before" ? i : i + 1;
       }
       continue;
     }
     if (
       paragraphMarkdownStartsWith(childMarkdown, prefix) ||
-      plainTextStartsWith(child.getTextContent(), prefix)
+      plainTextStartsWith(textContent, prefix) ||
+      (textFilter && normalizeText(textContent).startsWith(textFilter))
     ) {
       return relation === "before" ? i : i + 1;
     }

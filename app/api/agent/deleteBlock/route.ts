@@ -3,7 +3,7 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { NextRequest, NextResponse } from "next/server";
 import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
-import { deriveAgentAuthor, paragraphMarkdownStartsWith, plainTextStartsWith, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
 
 import { buildNodeMarkdownMapForSubtree, toPlainTextFilter } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
@@ -51,8 +51,12 @@ export async function deleteMarkdownBlock({
           for (let i = 0; i < rootChildren.length; i++) {
             const child = rootChildren[i];
             const childMarkdown = mapResult.byKey.get(child.getKey())?.markdown;
+            const textContent = child.getTextContent();
             if (!childMarkdown) {
-              if (plainTextStartsWith(child.getTextContent(), prefix)) {
+              if (
+                plainTextStartsWith(textContent, prefix) ||
+                (textFilter && normalizeText(textContent).startsWith(textFilter))
+              ) {
                 deletionIndex = i;
                 break;
               }
@@ -60,7 +64,8 @@ export async function deleteMarkdownBlock({
             }
             if (
               paragraphMarkdownStartsWith(childMarkdown, prefix) ||
-              plainTextStartsWith(child.getTextContent(), prefix)
+              plainTextStartsWith(textContent, prefix) ||
+              (textFilter && normalizeText(textContent).startsWith(textFilter))
             ) {
               deletionIndex = i;
               break;
