@@ -8,7 +8,8 @@ import {
   type LexicalNode,
   type SerializedLexicalNode,
 } from "lexical";
-import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { htmlToMarkdown, markdownToHtml } from "@/server/editor/conversionUtils";
+import { JSDOM } from "jsdom";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { createHeadlessEditor, normalizeText } from "./editorAgentUtil";
 
@@ -84,11 +85,17 @@ export function markdownQuoteToPlainText(value: string): string {
 }
 
 /**
- * Strip markdown formatting and normalize whitespace/casing to produce a
- * plain-text filter string suitable for `buildNodeMarkdownMapForSubtree`.
+ * Parse markdown through the markdown-it pipeline and extract the rendered
+ * plain text, producing a filter string suitable for
+ * `buildNodeMarkdownMapForSubtree`. This handles all block-level and inline
+ * markdown syntax (headings, blockquotes, lists, links, emphasis, etc.)
+ * without hardcoding individual patterns.
  */
 export function toPlainTextFilter(markdownQuote: string): string {
-  return normalizeText(markdownQuoteToPlainText(markdownQuote));
+  const html = markdownToHtml(markdownQuote);
+  const dom = new JSDOM(html);
+  const textOnly = dom.window.document.body.textContent;
+  return normalizeText(textOnly);
 }
 
 /**

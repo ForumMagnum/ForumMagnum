@@ -239,4 +239,52 @@ describe("mapMarkdownToLexical quote selection", () => {
 
     await expectQuoteRoundTripsFromMarkdownDocument({ markdownDocument, markdownQuote });
   });
+
+  it("finds a heading when quoted with markdown # prefix", async () => {
+    // Uses h3 because Turndown serializes h1/h2 with setext (underline) style
+    // rather than ATX (# prefix) style, making h1/h2 unmatchable by # prefix.
+    const markdownDocument = [
+      "Opening paragraph.",
+      "",
+      "### My Important Section",
+      "",
+      "Section body text.",
+    ].join("\n");
+
+    const editor = await setupEditorWithContent(markdownDocument);
+    let result: ReturnType<typeof locateMarkdownQuoteSelectionInSubtree> | undefined;
+    editor.getEditorState().read(() => {
+      const root = $getRoot();
+      result = locateMarkdownQuoteSelectionInSubtree({
+        rootNodeKey: root.getKey(),
+        markdownQuote: "### My Important Section",
+      });
+    });
+
+    expect(result).toBeDefined();
+    expect(result!.found).toBe(true);
+  });
+
+  it("finds a blockquote when quoted with > prefix", async () => {
+    const markdownDocument = [
+      "Before the quote.",
+      "",
+      "> This is a blockquote.",
+      "",
+      "After the quote.",
+    ].join("\n");
+
+    const editor = await setupEditorWithContent(markdownDocument);
+    let result: ReturnType<typeof locateMarkdownQuoteSelectionInSubtree> | undefined;
+    editor.getEditorState().read(() => {
+      const root = $getRoot();
+      result = locateMarkdownQuoteSelectionInSubtree({
+        rootNodeKey: root.getKey(),
+        markdownQuote: "> This is a blockquote.",
+      });
+    });
+
+    expect(result).toBeDefined();
+    expect(result!.found).toBe(true);
+  });
 });
