@@ -28,7 +28,7 @@ const styles = defineStyles("RecentDiscussionThread", (theme: ThemeType) => ({
     position: "relative",
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
-    borderRadius: theme.borderRadius[theme.isFriendlyUI ? "default" : "small"],
+    borderRadius: theme.borderRadius["small"],
     backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
     backdropFilter: theme.palette.filters.bannerAdBlur,
   },
@@ -100,7 +100,7 @@ const styles = defineStyles("RecentDiscussionThread", (theme: ThemeType) => ({
     paddingTop: 18,
     paddingLeft: 16,
     paddingRight: 16,
-    borderRadius: theme.borderRadius[theme.isFriendlyUI ? "default" : "small"],
+    borderRadius: theme.borderRadius["small"],
     marginBottom: 4,
     
     "$cardStyle &": {
@@ -124,14 +124,7 @@ const styles = defineStyles("RecentDiscussionThread", (theme: ThemeType) => ({
     marginTop: 0,
     marginBottom: 8,
     display: "block",
-    fontSize: "2rem",
-    ...(theme.isFriendlyUI ? {
-      fontSize: 22,
-      fontWeight: 600,
-      lineHeight: 1.25,
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      marginBottom: 10,
-    } : {})
+    fontSize: "2rem"
   },
   smallerTitle: {
     fontSize: '1.5rem',

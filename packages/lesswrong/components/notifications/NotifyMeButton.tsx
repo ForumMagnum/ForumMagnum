@@ -24,11 +24,7 @@ const styles = defineStyles('NotifyMeButton', (theme: ThemeType) => ({
       opacity: 0.5
     }
   },
-  icon: theme.isFriendlyUI ? {
-    color: theme.palette.grey[900],
-    fontSize: 16,
-    marginRight: 6,
-  } : {},
+  icon: {},
   hideLabelOnMobile: {
     [theme.breakpoints.down('sm')]: { //optimized for tag page
       display: "none"

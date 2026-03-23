@@ -4,7 +4,6 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { injectResizeScript, clampIframeHeight, IFRAME_DEFAULT_HEIGHT } from '@/components/lexical/embeds/IframeWidgetEmbed/iframeResizeScript';
-import { parseDocumentFromString } from '@/lib/domParser';
 
 const iframeWidgetSrcdocQuery = gql(`
   query IframeWidgetSrcdocQuery($widgetId: String!) {
@@ -28,12 +27,6 @@ const styles = defineStyles('HydratedIframeWidget', () => ({
     borderRadius: 4,
   },
 }));
-
-function stripDeletedMarkupFromSrcdoc(srcdoc: string): string {
-  const { document: doc } = parseDocumentFromString(srcdoc);
-  doc.querySelectorAll('del').forEach((node) => node.remove());
-  return doc.documentElement.innerHTML;
-}
 
 function InlineIframeWidget({ srcdoc, title }: {
   srcdoc: string,
@@ -65,7 +58,7 @@ function InlineIframeWidget({ srcdoc, title }: {
 
   return (
     <iframe
-      srcDoc={injectResizeScript(stripDeletedMarkupFromSrcdoc(srcdoc))}
+      srcDoc={injectResizeScript(srcdoc)}
       sandbox="allow-scripts"
       title={title ?? 'Embedded widget'}
       data-lexical-iframe-widget="true"

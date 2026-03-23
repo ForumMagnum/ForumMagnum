@@ -3,8 +3,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Map as YMap, Array as YArray, Doc } from "yjs";
 import { randomId } from "@/lib/random";
-import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, waitForProviderSync } from "../editorAgentUtil";
-import { sleep } from "@/lib/utils/asyncUtils";
+import { deriveAgentAuthor, waitForProviderFlush, waitForProviderSync } from "../editorAgentUtil";
+
 import { createCollabComment } from "../commentOnDraft/route";
 import { replyToCommentToolSchema } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
@@ -92,7 +92,7 @@ export async function POST(req: NextRequest) {
         threadComments.insert(threadComments.length, [commentMap]);
       }, "agent-reply-to-comment");
 
-      await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+      await waitForProviderFlush(provider);
 
       return NextResponse.json({
         ok: true,

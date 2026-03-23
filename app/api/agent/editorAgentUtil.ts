@@ -3,9 +3,6 @@ import { Doc, UndoManager } from "yjs";
 import type { Provider as LexicalProvider } from "@lexical/yjs";
 import { createBinding, syncLexicalUpdateToYjs, syncYjsChangesToLexical } from "@lexical/yjs";
 import {
-  $createRangeSelection,
-  $getRoot,
-  $setSelection,
   createEditor,
   type LexicalEditor,
   SKIP_COLLAB_TAG,
@@ -17,14 +14,30 @@ import { sleep } from "@/lib/utils/asyncUtils";
 
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const INITIAL_SYNC_SETTLE_MS = 25;
-export const HOCUSPOCUS_FLUSH_WAIT_MS = 750;
 
-export interface SelectQuotedTextResult {
-  quoteFoundInDocument: boolean
-  selectionCreated: boolean
-  matchedNodeKey?: string
-  startOffset?: number
-  endOffset?: number
+const FLUSH_POLL_INTERVAL_MS = 5;
+const FLUSH_TIMEOUT_MS = 2_000;
+
+/**
+ * Wait for a HocuspocusProvider's WebSocket send buffer to drain, indicating
+ * that all pending updates have been handed off to the OS network layer.
+ *
+ * The provider sends Yjs updates synchronously during `doc.transact()` via
+ * `ws.send()`, which buffers data immediately. We just need to wait for
+ * `bufferedAmount` to reach 0 before destroying the provider so that the
+ * close handshake doesn't race with pending data frames.
+ *
+ * Returns immediately if the WebSocket isn't accessible or the buffer is
+ * already empty.
+ */
+export async function waitForProviderFlush(provider: HocuspocusProvider): Promise<void> {
+  const ws = provider.configuration.websocketProvider.webSocket;
+  if (!ws || ws.bufferedAmount === 0) return;
+
+  const deadline = Date.now() + FLUSH_TIMEOUT_MS;
+  while (ws.bufferedAmount && ws.bufferedAmount > 0 && Date.now() < deadline) {
+    await sleep(FLUSH_POLL_INTERVAL_MS);
+  }
 }
 
 export function normalizeText(value: string): string {
@@ -112,40 +125,6 @@ export function createHeadlessEditor(errorLabel: string): LexicalEditor {
     },
     editable: false,
   });
-}
-
-export function selectQuotedTextInEditor(quote: string): SelectQuotedTextResult {
-  const rawQuote = quote.trim();
-  const normalizedQuote = normalizeText(rawQuote);
-  const textNodes = $getRoot().getAllTextNodes();
-  const aggregateText = textNodes.map((node) => node.getTextContent()).join(" ");
-  const quoteFoundInDocument = !!normalizedQuote && normalizeText(aggregateText).includes(normalizedQuote);
-
-  if (!rawQuote || !normalizedQuote || !quoteFoundInDocument) {
-    return { quoteFoundInDocument, selectionCreated: false };
-  }
-
-  for (const textNode of textNodes) {
-    const nodeText = textNode.getTextContent();
-    const matchIndex = nodeText.toLowerCase().indexOf(rawQuote.toLowerCase());
-    if (matchIndex === -1) {
-      continue;
-    }
-
-    const selection = $createRangeSelection();
-    selection.anchor.set(textNode.getKey(), matchIndex, "text");
-    selection.focus.set(textNode.getKey(), matchIndex + rawQuote.length, "text");
-    $setSelection(selection);
-    return {
-      quoteFoundInDocument,
-      selectionCreated: true,
-      matchedNodeKey: textNode.getKey(),
-      startOffset: matchIndex,
-      endOffset: matchIndex + rawQuote.length,
-    };
-  }
-
-  return { quoteFoundInDocument, selectionCreated: false };
 }
 
 export async function withMainDocEditorSession<T>({

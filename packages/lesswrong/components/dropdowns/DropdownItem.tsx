@@ -11,29 +11,10 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 
 const styles = defineStyles("DropdownItem", (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI && {
-      "&:hover": {
-        opacity: 1,
-      },
-    }),
   },
   main: {
-    ...(theme.isFriendlyUI && {
-      borderRadius: theme.borderRadius.default,
-      padding: 8,
-      "&:hover": {
-        background: theme.palette.dropdown.hoverBackground,
-        "& svg": {
-          color: theme.palette.grey[1000],
-        },
-      },
-      "& .ForumIcon-root": {
-        fontSize: theme.isFriendlyUI ? 20 : undefined,
-      },
-    }),
   },
   noIcon: {
-    paddingLeft: theme.isFriendlyUI ? 12 : undefined,
   },
   title: {
     flexGrow: 1,

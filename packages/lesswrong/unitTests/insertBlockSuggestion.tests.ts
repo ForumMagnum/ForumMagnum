@@ -90,6 +90,22 @@ describe("insertBlock suggest mode", () => {
     expect(suggestionTexts[0]).toBe("New first paragraph.");
   });
 
+  it("matches heading locators that include markdown syntax", async () => {
+    const editor = await setupEditorWithContent(
+      "# Existing heading\n\nBody paragraph."
+    );
+
+    await insertBlock(
+      editor,
+      "Inserted after heading.",
+      { after: "# Existing heading" },
+    );
+
+    const suggestionTexts = getAllSuggestionTexts(editor);
+    expect(suggestionTexts.length).toBe(1);
+    expect(suggestionTexts[0]).toBe("Inserted after heading.");
+  });
+
   it("wraps a standalone horizontal rule in a suggestion node", async () => {
     const editor = await setupEditorWithContent(
       "Before.\n\nAfter."

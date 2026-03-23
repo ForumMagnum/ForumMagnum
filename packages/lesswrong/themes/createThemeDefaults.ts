@@ -1,8 +1,7 @@
 import transitions from '@/lib/vendor/@material-ui/core/src/styles/transitions';
 import { defaultComponentPalette, headerStack, sansSerifStack, serifStack } from './defaultPalette';
 import { defaultZIndexes } from "./zIndexes";
-import { isBookUI, isFriendlyUI } from './forumTheme';
-import { isAF, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
+import { isAF, isLW } from '@/lib/instanceSettings';
 
 const monoStack = [
   '"Liberation Mono"',
@@ -283,12 +282,8 @@ export const baseTheme: BaseThemeSpecification = {
       ],
       transitions: transitions,
 
-      isBookUI: isBookUI(),
-      isFriendlyUI: isFriendlyUI(),
       isLW: isLW(),
       isAF: isAF(),
-      isLWorAF: isLWorAF(),
-      isEAForum: isEAForum(),
     };
   }
 };

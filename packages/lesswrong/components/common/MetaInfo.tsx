@@ -9,11 +9,7 @@ const styles = defineStyles("MetaInfo", (theme: ThemeType) => ({
     display: "inline",
     color: theme.palette.grey[600],
     marginRight: 8,
-    fontSize: "1rem",
-    
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack
-    }),
+    fontSize: "1rem"
   },
   button: {
     cursor: "pointer",

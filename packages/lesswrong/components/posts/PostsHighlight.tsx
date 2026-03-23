@@ -26,7 +26,6 @@ const PostsExpandedHighlightQuery = gql(`
 const styles = defineStyles('PostsHighlight', (theme: ThemeType) => ({
   highlightContinue: {
     marginTop:16,
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     '&& a, && a:hover': {
       color: theme.palette.primary.main,
     },

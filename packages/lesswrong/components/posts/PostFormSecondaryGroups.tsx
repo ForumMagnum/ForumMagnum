@@ -5,7 +5,6 @@ import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWo
 import { allOf } from "@/lib/utils/functionUtils";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { OwnableDocument, userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOwns } from "@/lib/vulcan-users/permissions";
-import { isFriendlyUI } from "@/themes/forumTheme";
 import classNames from "classnames";
 import React, { useState } from "react";
 import { CoauthorsListEditor } from "../form-components/CoauthorsListEditor";
@@ -160,7 +159,7 @@ const PostFormSecondaryGroups = ({
   const canSeeHighlight = isAdminOrMod; // same condition as render guard
   const canSeeAdmin = isAdminOrMod;
   const canSeeAudio = userIsAdmin(currentUser) || userIsMemberOf(currentUser, 'podcasters');
-  const canSeeModeration = !isFriendlyUI();
+  const canSeeModeration = true;
   // const canSeeGlossary = userCanCreateAndEditJargonTerms(currentUser);
   const canSeeTags = !initialData.isEvent && !(isLWorAF() && !!initialData.collabEditorDialogue);
   const canSeeSocialPreview = !((isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent));
@@ -275,7 +274,7 @@ const PostFormSecondaryGroups = ({
                   addOnSubmitCallback={addOnSubmitCallbackCustom}
                   addOnSuccessCallback={addOnSuccessCallbackCustom}
                   hintText={getDefaultEditorPlaceholder()}
-                  fieldName="custom"
+                  fieldName="customHighlight"
                   collectionName="Posts"
                   commentEditor={false}
                   commentStyles={false}
@@ -695,7 +694,7 @@ const PostFormSecondaryGroups = ({
 
         {expandedFormGroup === 'Moderation' && <div className={classes.formGroup}>
           <h3 className={classes.formGroupTitle}>Moderation</h3>
-          {!isFriendlyUI() && <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+          <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
             <form.Field name="moderationGuidelines">
               {(field) => (
                 <EditorFormComponent
@@ -714,9 +713,9 @@ const PostFormSecondaryGroups = ({
                 />
               )}
             </form.Field>
-          </div>}
+          </div>
 
-          {!isFriendlyUI() && !isDialogue && <div className={classes.fieldWrapper}>
+          {!isDialogue && <div className={classes.fieldWrapper}>
             <form.Field name="moderationStyle">
               {(field) => (
                 <FormComponentSelect

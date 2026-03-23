@@ -28,8 +28,9 @@ const styles = defineStyles("QuickTakesListItem", (theme: ThemeType) => ({
   },
 }));
 
-const QuickTakesListItem = ({quickTake}: {
-  quickTake: ShortformComments,
+const QuickTakesListItem = ({quickTake, linesToDisplay=2}: {
+  quickTake: FrontpageShortformComments,
+  linesToDisplay?: number,
 }) => {
   const classes = useStyles(styles);
   const {captureEvent} = useTracking();
@@ -63,7 +64,7 @@ const QuickTakesListItem = ({quickTake}: {
 
   const collapsedComment = (
     <div className={classNames({ [classes.hidden]: expanded })}>
-      <CollapsedListItem quickTake={quickTake} setExpanded={wrappedSetExpanded} />
+      <CollapsedListItem quickTake={quickTake} setExpanded={wrappedSetExpanded} linesToDisplay={linesToDisplay} />
     </div>
   );
 
@@ -74,5 +75,3 @@ const QuickTakesListItem = ({quickTake}: {
 }
 
 export default QuickTakesListItem;
-
-

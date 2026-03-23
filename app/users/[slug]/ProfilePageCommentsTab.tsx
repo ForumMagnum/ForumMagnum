@@ -5,20 +5,11 @@ import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import CommentsNode from "@/components/comments/CommentsNode";
 import LoadMore from "@/components/common/LoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
-import { profileStyles } from "./profileStyles";
+import { profileStyles, TabPanel } from "./profileStyles";
 import { z } from "zod";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const profilePageCommentsTabUnsharedStyles = defineStyles("ProfilePageCommentsTabUnshared", () => ({
-  tabPanel: {
-    display: "flex",
-    flexDirection: "column",
-    gap: 8,
-    animation: "$slideIn 0.4s cubic-bezier(0.4, 0, 0.2, 1)",
-    "@media (max-width: 630px)": {
-      order: 1,
-    },
-  },
   commentsList: {
     display: "flex",
     flexDirection: "column",
@@ -100,7 +91,7 @@ export function ProfilePageCommentsTabContents({user, settings}: {
   const comments = data?.comments?.results ?? [];
   const hasComments = user.commentCount > 0;
 
-  return <div className={classNames(classes.commentsList, classes.tabPanel)}>
+  return <TabPanel className={classes.commentsList}>
     {!hasComments && !loading && (
       <div className={sharedClasses.emptyStateContainer}>
         <p className={sharedClasses.emptyStateDescription}>{user.displayName} has not written any comments yet.</p>
@@ -123,5 +114,5 @@ export function ProfilePageCommentsTabContents({user, settings}: {
       />
     ))}
     <LoadMore {...loadMoreProps} />
-  </div>;
+  </TabPanel>;
 }

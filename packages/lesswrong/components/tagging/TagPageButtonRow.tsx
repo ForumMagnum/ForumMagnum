@@ -31,15 +31,10 @@ const PODCAST_ICON_PADDING = 3;
 const styles = defineStyles("TagPageButtonRow", (theme: ThemeType) => ({
   buttonsRow: {
     ...theme.typography.body2,
-    marginTop: theme.isFriendlyUI ? 2 : undefined,
-    marginBottom: theme.isFriendlyUI ? 16 : undefined,
     color: theme.palette.grey[700],
     display: "flex",
     flexWrap: "wrap",
     columnGap: 16,
-    [theme.breakpoints.down('xs')]: {
-      marginTop: theme.isFriendlyUI ? 8 : undefined,
-    },
     '& svg': {
       height: 20,
       width: 20,
@@ -87,14 +82,11 @@ const styles = defineStyles("TagPageButtonRow", (theme: ThemeType) => ({
   },
   subscribeToWrapper: {
     display: "flex !important",
-    ...(theme.isFriendlyUI ? {
-    } : {
-      marginLeft: -2,
-      marginRight: -5,
-      '& .MuiListItemIcon-root': {
-        marginRight: "unset !important",
-      },
-    }),
+    marginLeft: -2,
+    marginRight: -5,
+    '& .MuiListItemIcon-root': {
+      marginRight: "unset !important",
+    },
   },
   subscribeTo: {
   },
@@ -116,7 +108,7 @@ const styles = defineStyles("TagPageButtonRow", (theme: ThemeType) => ({
     width: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2) + "px !important",
     height: PODCAST_ICON_SIZE + (PODCAST_ICON_PADDING * 2) + "px !important",
     padding: PODCAST_ICON_PADDING,
-    transform: theme.isFriendlyUI ? undefined : `translateY(-3px)`,
+    transform: `translateY(-3px)`,
     marginRight: -3
   },
   audioIconOn: {

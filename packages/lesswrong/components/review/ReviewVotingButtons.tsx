@@ -11,7 +11,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("ReviewVotingButtons", (theme: ThemeType) => {
   const downvoteColor = theme.palette.text.reviewDownvote;
-  const upvoteColor = theme.isFriendlyUI ? theme.palette.primary.main : theme.palette.text.reviewUpvote;
+  const upvoteColor = theme.palette.text.reviewUpvote;
   
   return {
     root: { 

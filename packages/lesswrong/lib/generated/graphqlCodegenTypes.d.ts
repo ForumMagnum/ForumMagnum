@@ -11907,6 +11907,25 @@ type ProfilePageCommentsQueryQueryVariables = Exact<{
 
 type ProfilePageCommentsQueryQuery = ProfilePageCommentsQueryQuery_Query;
 
+type ProfilePageQuickTakesTabQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & FrontpageShortformComments
+);
+
+type ProfilePageQuickTakesTabQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', totalCount: number | null, results: Array<ProfilePageQuickTakesTabQuery_comments_MultiCommentOutput_results_Comment> };
+
+type ProfilePageQuickTakesTabQuery_Query = { __typename?: 'Query', comments: ProfilePageQuickTakesTabQuery_comments_MultiCommentOutput | null };
+
+
+type ProfilePageQuickTakesTabQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type ProfilePageQuickTakesTabQuery = ProfilePageQuickTakesTabQuery_Query;
+
 type ProfileSequencesQueryQuery_sequences_MultiSequenceOutput_results_Sequence = (
   { __typename?: 'Sequence' }
   & SequenceContinueReadingFragment
@@ -14362,42 +14381,6 @@ type multiPostusePublishedPostsQueryQueryVariables = Exact<{
 
 
 type multiPostusePublishedPostsQueryQuery = multiPostusePublishedPostsQueryQuery_Query;
-
-type RecentOpportunitiesQueryQuery_posts_MultiPostOutput_results_Post = (
-  { __typename?: 'Post' }
-  & PostsListWithVotes
-);
-
-type RecentOpportunitiesQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<RecentOpportunitiesQueryQuery_posts_MultiPostOutput_results_Post> };
-
-type RecentOpportunitiesQueryQuery_Query = { __typename?: 'Query', posts: RecentOpportunitiesQueryQuery_posts_MultiPostOutput | null };
-
-
-type RecentOpportunitiesQueryQueryVariables = Exact<{
-  selector: InputMaybe<PostSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type RecentOpportunitiesQueryQuery = RecentOpportunitiesQueryQuery_Query;
-
-type RecentOpportunitiesWithSequenceQueryQuery_posts_MultiPostOutput_results_Post = (
-  { __typename?: 'Post' }
-  & PostsListWithVotesAndSequence
-);
-
-type RecentOpportunitiesWithSequenceQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<RecentOpportunitiesWithSequenceQueryQuery_posts_MultiPostOutput_results_Post> };
-
-type RecentOpportunitiesWithSequenceQueryQuery_Query = { __typename?: 'Query', posts: RecentOpportunitiesWithSequenceQueryQuery_posts_MultiPostOutput | null };
-
-
-type RecentOpportunitiesWithSequenceQueryQueryVariables = Exact<{
-  selector: InputMaybe<PostSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-}>;
-
-
-type RecentOpportunitiesWithSequenceQueryQuery = RecentOpportunitiesWithSequenceQueryQuery_Query;
 
 type increasePostViewCountMutationMutation_Mutation = { __typename?: 'Mutation', increasePostViewCount: number | null };
 
@@ -18227,6 +18210,23 @@ type DisplaySpotlightQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
 type DisplaySpotlightQueryQuery = DisplaySpotlightQueryQuery_Query;
+
+type DisplaySpotlightByIdQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight = (
+  { __typename?: 'Spotlight' }
+  & SpotlightDisplay
+);
+
+type DisplaySpotlightByIdQueryQuery_spotlight_SingleSpotlightOutput = { __typename?: 'SingleSpotlightOutput', result: DisplaySpotlightByIdQueryQuery_spotlight_SingleSpotlightOutput_result_Spotlight | null };
+
+type DisplaySpotlightByIdQueryQuery_Query = { __typename?: 'Query', spotlight: DisplaySpotlightByIdQueryQuery_spotlight_SingleSpotlightOutput | null };
+
+
+type DisplaySpotlightByIdQueryQueryVariables = Exact<{
+  spotlightId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type DisplaySpotlightByIdQueryQuery = DisplaySpotlightByIdQueryQuery_Query;
 
 type updateSpotlightSpotlightFormMutation_updateSpotlight_SpotlightOutput_data_Spotlight = (
   { __typename?: 'Spotlight' }

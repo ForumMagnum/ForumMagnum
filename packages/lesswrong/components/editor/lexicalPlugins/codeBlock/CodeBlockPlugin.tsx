@@ -1,16 +1,19 @@
 "use client";
 
-import { $createCodeNode } from "@lexical/code";
+import { $createCodeNode, $isCodeNode } from "@lexical/code";
 import { $setBlocksType } from "@lexical/selection";
 import {
   $createTextNode,
+  $findMatchingParent,
   $getSelection,
   $isRangeSelection,
   COMMAND_PRIORITY_CRITICAL,
   COMMAND_PRIORITY_EDITOR,
+  COMMAND_PRIORITY_HIGH,
   createCommand,
   KEY_DOWN_COMMAND,
   $isRootNode,
+  SELECT_ALL_COMMAND,
   type LexicalCommand,
   type LexicalEditor,
 } from "lexical";
@@ -76,6 +79,53 @@ function insertCodeBlock(editor: LexicalEditor): void {
   });
 }
 
+/**
+ * When Cmd+A (or Ctrl+A) is pressed while the selection is inside a CodeNode
+ * (including IframeWidgetNode, which extends CodeNode), select only the
+ * contents of that code block instead of the entire editor.
+ *
+ * If the code block is already fully selected, a subsequent Cmd+A falls
+ * through to the default handler which selects the whole editor.
+ */
+function $handleSelectAllInCodeBlock(): boolean {
+  const selection = $getSelection();
+  if (!selection || !$isRangeSelection(selection)) {
+    return false;
+  }
+
+  const anchorNode = selection.anchor.getNode();
+  const codeNode = $isCodeNode(anchorNode)
+    ? anchorNode
+    : $findMatchingParent(anchorNode, $isCodeNode);
+
+  if (!codeNode) {
+    return false;
+  }
+
+  // Also verify the focus is in the same code node — if the user has
+  // a cross-block selection we shouldn't interfere.
+  const focusNode = selection.focus.getNode();
+  const focusCodeNode = $isCodeNode(focusNode)
+    ? focusNode
+    : $findMatchingParent(focusNode, $isCodeNode);
+
+  if (focusCodeNode !== codeNode) {
+    return false;
+  }
+
+  // Check if the entire code block is already selected. If so, let the
+  // default handler expand the selection to the whole editor.
+  const selectedText = selection.getTextContent();
+  const codeText = codeNode.getTextContent();
+  if (selectedText === codeText) {
+    return false;
+  }
+
+  // Select all content within the code block.
+  codeNode.select(0, codeNode.getChildrenSize());
+  return true;
+}
+
 export function registerCodeBlockPlugin(editor: LexicalEditor): () => void {
   const removeInsertCommand = editor.registerCommand(
       INSERT_CODE_BLOCK_COMMAND,
@@ -113,9 +163,16 @@ export function registerCodeBlockPlugin(editor: LexicalEditor): () => void {
       COMMAND_PRIORITY_CRITICAL,
     );
 
+  const removeSelectAll = editor.registerCommand(
+      SELECT_ALL_COMMAND,
+      (_event) => $handleSelectAllInCodeBlock(),
+      COMMAND_PRIORITY_HIGH,
+    );
+
   return () => {
     removeInsertCommand();
     removeTripleBackticksKeyDown();
+    removeSelectAll();
   };
 }
 

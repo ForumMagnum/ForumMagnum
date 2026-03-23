@@ -36,19 +36,7 @@ const styles = defineStyles("PingbacksList", (theme: ThemeType) => ({
     display: "inline-block",
     lineHeight: "1rem",
     marginBottom: -4,
-    ...(theme.isFriendlyUI
-      ? {
-        fontWeight: 600,
-        marginTop: 12,
-        color: theme.palette.primary.main,
-        "&:hover": {
-          color: theme.palette.primary.dark,
-          opacity: 1,
-        },
-      }
-      : {
-        color: theme.palette.lwTertiary.main,
-      }),
+    color: theme.palette.lwTertiary.main,
   },
   list: {
     marginTop: 8

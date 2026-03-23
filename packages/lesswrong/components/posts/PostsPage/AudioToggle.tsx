@@ -6,9 +6,9 @@ import ForumIcon from "../../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
-const podcastIconSize = (theme: ThemeType) => theme.isFriendlyUI ? 22 : 24;
+const podcastIconSize = (theme: ThemeType) => 24;
 // some padding around the icon to make it look like a stateful toggle button
-const podcastIconPadding = (theme: ThemeType) => theme.isFriendlyUI ? 4 : 2
+const podcastIconPadding = (theme: ThemeType) => 2
 
 const styles = defineStyles("AudioToggle", (theme: ThemeType) => ({
   togglePodcastContainer: {
@@ -20,7 +20,7 @@ const styles = defineStyles("AudioToggle", (theme: ThemeType) => ({
     width: podcastIconSize(theme) + (podcastIconPadding(theme) * 2),
     height: podcastIconSize(theme) + (podcastIconPadding(theme) * 2),
     padding: podcastIconPadding(theme),
-    transform: theme.isFriendlyUI ? undefined : `translateY(-${podcastIconPadding}px)`,
+    transform: `translateY(-${podcastIconPadding(theme)}px)`,
   },
   audioIconOn: {
     background: theme.palette.icon.dim05,

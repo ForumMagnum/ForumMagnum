@@ -4,9 +4,7 @@ import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn'
-import { isFriendlyUI } from '../../themes/forumTheme';
 import FormatDate from "../common/FormatDate";
-import UsersProfileImage from "../users/UsersProfileImage";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -75,9 +73,6 @@ const ExpandedUsersSearchHit = ({hit}: {
 
   return <div className={classes.root}>
     <Link to={`${userGetProfileUrl(user)}?from=search_page`} className={classes.link}>
-      {isFriendlyUI() && <div className={classes.profilePhotoCol}>
-        <UsersProfileImage user={user} size={36} />
-      </div>}
       <div>
         <div className={classes.displayNameRow}>
           <span className={classes.displayName}>

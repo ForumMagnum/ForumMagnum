@@ -34,8 +34,8 @@ const styles = defineStyles("NewConversationDialog", (theme: ThemeType) => ({
   titleRow: {
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.grey[1000],
-    fontSize: theme.isFriendlyUI ? 20 : 18,
-    fontWeight: theme.isFriendlyUI ? 700 : 500,
+    fontSize: 18,
+    fontWeight: 500,
     padding: '20px 20px 14px 20px',
     display: "flex",
     justifyContent: "space-between",

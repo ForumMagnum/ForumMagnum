@@ -9,7 +9,7 @@ const styles = defineStyles("RecentDiscussionTagRevisionItem", (theme) => ({
     marginBottom: 32,
     position: "relative",
     boxShadow: theme.palette.boxShadow.default,
-    borderRadius: theme.borderRadius[theme.isFriendlyUI ? "default" : "small"],
+    borderRadius: theme.borderRadius["small"],
 
     paddingLeft: 16,
     paddingRight: 16,

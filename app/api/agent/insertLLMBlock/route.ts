@@ -10,8 +10,8 @@ import {
 import { $createLLMContentBlockNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockNode";
 import { $createLLMContentBlockContentNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockContentNode";
 import { $createLLMContentBlockHeaderNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockHeaderNode";
-import { HOCUSPOCUS_FLUSH_WAIT_MS, withMainDocEditorSession } from "../editorAgentUtil";
-import { sleep } from "@/lib/utils/asyncUtils";
+import { waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+
 import { $markdownToNodes, resolveInsertionIndex } from "../insertBlock/route";
 import { insertLLMBlockToolSchema, type InsertLocation } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
@@ -100,7 +100,7 @@ async function insertLLMBlock({
     postId,
     token,
     operationLabel: "InsertLLMBlock",
-    callback: async ({ editor }) => {
+    callback: async ({ editor, provider }) => {
       let result: InsertLLMBlockResult = { inserted: false, note: "No insertion performed." };
 
       await new Promise<void>((resolve) => {
@@ -110,7 +110,7 @@ async function insertLLMBlock({
       });
 
       if (result.inserted) {
-        await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+        await waitForProviderFlush(provider);
       }
       return result;
     },

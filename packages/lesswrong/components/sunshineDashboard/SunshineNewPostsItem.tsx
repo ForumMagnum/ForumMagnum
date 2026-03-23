@@ -73,8 +73,7 @@ const styles = defineStyles('SunshineNewPostsItem', (theme: ThemeType) => ({
   metaInfoRow: {
     marginBottom: 8,
     display: "flex",
-    alignItems: "center",
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    alignItems: "center"
   },
   vote: {
     marginRight: 8

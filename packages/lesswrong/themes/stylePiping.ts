@@ -257,7 +257,7 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
     margin: '1em 0',
     position: 'relative',
     fontFamily: '"cronos-pro", serif',
-    fontSize: 19.3,
+    fontSize: 19.1,
     fontWeight: 400,
     opacity: 0.94,
     '& h1, & h2, & h3, & h4, & h5, & h6': {
@@ -274,6 +274,8 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
       borderRight: `1px solid ${theme.palette.grey[400]}`,
       fontWeight: 600,
       fontVariant: 'small-caps',
+      position: 'relative',
+      top: 2
     },
     '&:has(> .llm-content-block-content > p:first-child)::before': {
       float: 'left',

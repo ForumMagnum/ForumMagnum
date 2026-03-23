@@ -190,4 +190,19 @@ describe('matchSideComments', () => {
       },
     );
   });
+
+  it('does not insert spans outside of valid positions in tables', () => {
+    const tableHtml = '<table><tbody><tr><td style="border:1pt solid hsl(0, 0%, 0%);vertical-align:top"><p><strong>[Ngo][11:14]</strong>&nbsp;</p><p>One way that we could take this discussion is by discussing the pivotal act.</p></td></tr></tbody></table>';
+    const result = matchSideComments({
+      html: tableHtml,
+      quoteShardSettings: testQuoteShardSettings,
+      comments: [{
+        _id: "comment1",
+        html: "<blockquote><p>One way that we could take this discussion is by discussing the pivotal act.</p></blockquote><p>I agree.</p>",
+      }],
+    });
+    // The annotated HTML should NOT have spans between table structure tags
+    const hasBadSpan = /<\/td><span/.test(result.html) || /<\/tr><span/.test(result.html) || /<\/tbody><span/.test(result.html);
+    chai.assert.isFalse(hasBadSpan, `Found span in invalid table position: ${result.html}`);
+  });
 });

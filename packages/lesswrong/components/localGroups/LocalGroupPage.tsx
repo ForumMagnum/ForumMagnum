@@ -216,18 +216,10 @@ const styles = defineStyles("LocalGroupPage", (theme: ThemeType) => ({
   },
   contactUsHeadline: {
     marginBottom: 16,
-    ...(theme.isEAForum && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontWeight: 500,
-    }),
   },
   eventsHeadline: {
     marginTop: 40,
     marginBottom: 16,
-    ...(theme.isEAForum && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontWeight: 500,
-    }),
   },
   eventCards: {
     display: 'grid',

@@ -11,7 +11,6 @@ const styles = defineStyles('SectionButton', (theme: ThemeType) => ({
     color: theme.palette.lwTertiary.main,
     display: "flex",
     alignItems: "center",
-    ...(theme.isFriendlyUI ? {fontWeight: 600} : {}),
     '& svg': {
       marginRight: 8
     },

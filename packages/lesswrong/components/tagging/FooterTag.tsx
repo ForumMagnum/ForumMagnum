@@ -11,19 +11,16 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import ForumIcon from "../common/ForumIcon";
 
 export const tagStyle = (theme: ThemeType) => ({
-  marginRight: theme.isFriendlyUI ? 3 : undefined,
   padding: 5,
   paddingLeft: 6,
   paddingRight: 6,
-  marginBottom: theme.isFriendlyUI ? 8 : undefined,
   fontWeight: theme.typography.body1.fontWeight,
   backgroundColor: theme.palette.tag.background,
   border: theme.palette.tag.border,
   color: theme.palette.tag.text,
   borderRadius: 3,
   ...theme.typography.commentStyle,
-  cursor: "pointer",
-  whiteSpace: theme.isFriendlyUI ? "nowrap": undefined,
+  cursor: "pointer"
 })
 
 export const smallTagTextStyle = (theme: ThemeType) => ({
@@ -52,12 +49,11 @@ const styles = defineStyles("FooterTag", (theme: ThemeType) => ({
       opacity: 1,
       backgroundColor: theme.palette.tag.backgroundHover,
     },
-    "& a:hover": theme.isFriendlyUI ? {opacity: 1} : {},
+    "& a:hover": {},
     ...tagStyle(theme)
   },
   tooltip: {
-    marginTop: theme.isFriendlyUI ? 6 : undefined,
-  },
+},
   core: {
     ...coreTagStyle(theme),
   },
@@ -65,7 +61,6 @@ const styles = defineStyles("FooterTag", (theme: ThemeType) => ({
     position: "relative",
     display: "inline-block",
     minWidth: 20,
-    margin: theme.isFriendlyUI ? "0 3px 0 6px" : undefined,
     "& svg": {
       position: "absolute",
       top: -13,

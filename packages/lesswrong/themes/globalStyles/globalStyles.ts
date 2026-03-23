@@ -33,7 +33,6 @@ const clearStyle = (theme: ThemeType) => ({
   "textarea, textarea:focus, input, input:focus": {
     border: "none",
     outline: "none",
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
     color: theme.palette.text.maxIntensity,
   },
   
@@ -123,17 +122,6 @@ const globalStyle = (theme: ThemeType) => ({
   },
   
   // Mapbox
-  ...(theme.isFriendlyUI ? {
-    ".mapboxgl-popup-content": {
-      background: `${theme.palette.panelBackground.mapboxTooltip} !important`
-    },
-    ".mapboxgl-popup-tip": {
-      borderTopColor: `${theme.palette.panelBackground.mapboxTooltip} !important`
-    },
-    ".mapboxgl-popup-close-button": {
-      color: `${theme.palette.text.normal} !important`,
-    },
-  }: {}),
 });
 
 const commentsStyle = (theme: ThemeType) => ({
@@ -269,108 +257,47 @@ const dialogueStyle = (theme: ThemeType) => ({
     position: 'relative',
     margin: '12px 0',
     order: 2,
-    ...(theme.isFriendlyUI
-      ? {
-        fontSize: "1.1rem",
-        "& p, & div, & span, & li, & blockquote, & pre": {
-          fontSize: "1.1rem",
-        },
-        borderRadius: theme.borderRadius.small,
-        border: "2px solid transparent",
-        ...makeDialogueCommentStyles(
-          theme,
-          (i) => `&[user-order="${i}"]`,
-          (color) => ({
-            borderColor: `${color} !important`,
-          }),
-        ),
-      }
-      : {
-        borderRadius: 3,
-        border: '2px solid !important',
-        ...makeDialogueCommentStyles(
-          theme,
-          (i) => `&[user-order="${i}"] .dialogue-message-input-header`,
-          (color) => ({
-            color: `${color} !important`,
-          }),
-        ),
+    borderRadius: 3,
+    border: '2px solid !important',
+    ...makeDialogueCommentStyles(
+      theme,
+      (i) => `&[user-order="${i}"] .dialogue-message-input-header`,
+      (color) => ({
+        color: `${color} !important`,
       }),
+    ),
   },
 
   '.dialogue-message-input-header': {
     position: 'absolute',
     top: -14,
     backgroundColor: theme.palette.grey[0],
-    padding: theme.isFriendlyUI ? "4px 8px" : 4,
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : undefined,
+    padding: 4
   },
 
   '.dialogue-message-input button': {
     marginRight: -8,
     display: 'block',
     position: 'absolute',
-    ...(theme.isFriendlyUI
-      ? {
-        right: 12,
-        bottom: 5,
-        color: theme.palette.grey[1000],
-        backgroundColor: theme.palette.grey[250],
-        "&:hover": {
-          backgroundColor: theme.palette.grey[300],
-        },
-      }
-      : {
-        right: 16,
-        padding: 0,
-        minHeight: 'unset',
-        marginLeft: 'auto',
-        marginBottom: -4,
-        bottom: 12,
-      }),
+    right: 16,
+    padding: 0,
+    minHeight: 'unset',
+    marginLeft: 'auto',
+    marginBottom: -4,
+    bottom: 12,
   },
 
   '.dialogue-message': {
     marginTop: 6,
     position: 'relative',
-    ...(theme.isFriendlyUI
-      ? {
-        fontSize: "1.1rem",
-        "& p, & div, & span, & li, & blockquote, & pre": {
-          fontSize: "1.1rem",
-        },
-        marginBottom: 22,
-        padding: '22px 8px 0px 12px',
-        "&:after": {
-          display: "block",
-          position: "absolute",
-          content: "''",
-          top: 0,
-          left: 0,
-          height: "calc(100% - 3px)",
-          borderRight: "2px solid transparent",
-        },
-        '& .dialogue-message-header b': {
-          fontWeight: 700,
-        },
-        ...makeDialogueCommentStyles(
-          theme,
-          (i) => `&[user-order="${i}"]:after`,
-          (color) => ({
-            borderColor: color,
-          }),
-        ),
-      }
-      : {
-        padding: '22px 8px 8px 0px',
-        ...makeDialogueCommentStyles(
-          theme,
-          (i) => `&[user-order="${i}"] .dialogue-message-header`,
-          (color) => ({
-            color: `${color} !important`,
-          }),
-        ),
+    padding: '22px 8px 8px 0px',
+    ...makeDialogueCommentStyles(
+      theme,
+      (i) => `&[user-order="${i}"] .dialogue-message-header`,
+      (color) => ({
+        color: `${color} !important`,
       }),
+    ),
   },
 
   '.dialogue-message p, .dialogue-message-input p': {
@@ -379,7 +306,7 @@ const dialogueStyle = (theme: ThemeType) => ({
 
   '.dialogue-message-header': {
     position: 'absolute',
-    top: theme.isFriendlyUI ? -4 : 0,
+    top: 0,
   },
 
   '.dialogue-message-header b': {

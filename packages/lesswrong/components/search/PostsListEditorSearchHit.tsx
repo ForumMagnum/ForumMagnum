@@ -20,8 +20,7 @@ const styles = defineStyles("PostsListEditorSearchHit", (theme: ThemeType) => ({
   },
   postLink: {
     float:"right",
-    marginRight: 8,
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    marginRight: 8
   },
   titleRow: {
     textOverflow: "ellipsis",

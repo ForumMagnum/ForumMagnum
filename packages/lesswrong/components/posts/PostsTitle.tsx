@@ -24,8 +24,7 @@ const styles = defineStyles('PostsTitle', (theme: ThemeType) => ({
     color: theme.palette.text.normal,
     position: "relative",
     lineHeight: "1.7rem",
-    fontWeight: theme.isFriendlyUI ? 600 : undefined,
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.postStyle.fontFamily,
     zIndex: theme.zIndexes.postItemTitle,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
@@ -42,7 +41,7 @@ const styles = defineStyles('PostsTitle', (theme: ThemeType) => ({
     marginRight: 8,
   },
   onGrayBackground: {
-    ...(theme.isBookUI && theme.dark && {
+    ...(theme.dark && {
       color: theme.palette.greyAlpha(1),
     }),
   },
@@ -50,27 +49,19 @@ const styles = defineStyles('PostsTitle', (theme: ThemeType) => ({
     whiteSpace: "normal",
   },
   sticky: {
-    paddingLeft: theme.isFriendlyUI ? 2 : undefined,
-    paddingRight: theme.isFriendlyUI ? 8 : 10,
+    paddingRight: 10,
     position: "relative",
     top: 2,
     color: theme.palette.icon["dim4"],
   },
-  stickyIcon: theme.isFriendlyUI
-    ? {
-      width: 16,
-      height: 16,
-      padding: 1.5,
-      color: theme.palette.primary.main,
-    }
-    : {
-      "--icon-size": "1.2rem",
-    },
+  stickyIcon: {
+    "--icon-size": "1.2rem",
+  },
   primaryIcon: {
     color: theme.palette.icon.dim55,
     paddingRight: 8,
     top: -2,
-    width: theme.isFriendlyUI ? 26 : "auto",
+    width: "auto",
     position: "relative",
     verticalAlign: "middle",
   },
@@ -80,19 +71,7 @@ const styles = defineStyles('PostsTitle', (theme: ThemeType) => ({
       color: theme.palette.text.normal,
     }
   },
-  eaTitleDesktopEllipsis: theme.isFriendlyUI ? {
-    '&:hover': {
-      opacity: 0.5
-    },
-    '& a': {
-      opacity: 1
-    },
-    [theme.breakpoints.up("sm")]: {
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    },
-  } : {},
+  eaTitleDesktopEllipsis: {},
   hideXsDown: {
     [theme.breakpoints.down('xs')]: {
       display: "none",

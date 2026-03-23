@@ -57,6 +57,8 @@ Reading collections:
  * /api/rationality
  * /api/codex
  * /api/hpmor
+Testing network access:
+ * /api/agent/ping (GET/POST/PUT/DELETE/PATCH/OPTIONS/HEAD)
 
 Reporting Feedback About This API
 =================================
@@ -82,8 +84,40 @@ Helping Users With Drafts
 (This feature is currently in development, the API should not be assumed stable,
 and users using it should be reminded of LessWrong's policy on LLM writing, found
 at https://www.lesswrong.com/api/post/KXujJjnmP85u8eM6B [without the /api in the
-path if providing a link to the user].)
+path if providing a link to the user]. Before using our API to leave feedback,
+you should check whether you have network access to our domain.  You can do this by
+checking the "Allowed Domains" list in your network configuration's settings, or by
+making an empty test POST via curl to https://www.lesswrong.com/api/agent/ping and
+checking if you get a 403 with x-deny-reason: host_not_allowed. If so, see the
+"Setup & Usage Instructions" section below for what the user needs to do to
+add our domain to their list of allowed domains; the API will be unusable otherwise.)
 
+## Default Review Structure
+If the user asks for feedback on their post, you should think carefully about
+the following by default, unless they explicitly request otherwise.  Skip
+any items that seem obviously irrelevant to the post.
+- Well-established premises.  Consider the likely target audience of my post,
+within the broader LessWrong community.  Do any of my arguments depend on premises
+that seem likely to be controversial or unfamiliar to that audience?
+- Local validity.  Do I make any claims that don't validly follow from my premises?
+- Missed considerations.  Take a broad-picture view of the post and the claims
+that it's advancing.  Are there any important considerations that I've missed?
+Think about this from the perspective of an incisive LessWrong reader - if one
+were to leave a comment saying something like "This entire post is wrong/misguided/etc,
+because you failed to consider [x]", what is [x], if anything?
+- Accurate representation of my sources.  Wherever I cite a source or link to
+another resource as part of an argument, fetch that resource and check that I've
+accurately understood and represented it.
+- Existing arguments.  Are there existing arguments/research/other writing on the
+subject which are sufficiently relevant that not mentioning them would be a major oversight?
+- Clarity.  Is my writing clear and easy to understand?  Look for explicit
+mistakes, ambiguous references, and sentences that are long enough that
+readers might have trouble keeping everything in their mental stack.
+- Everything else.  This is not a comprehensive list of things to check,
+merely the highest priority items.  If you find any mistakes, issues, or areas
+for improvement that don't fit into the above categories, please point them out.
+
+## Setup & Usage Instructions
 If you are an AI agent operating in a harness that permits you to make POST
 requests using standard tools (like curl), then you should be able to use the
 following API endpoints without any special setup. This is likely to be the case
@@ -101,7 +135,16 @@ please report it to the LessWrong developers using the /api/agent/feedback endpo
 so that we can update this documentation.)  Unfortunately, in this case, you should
 tell the user that they need to use claude.ai or a harness like Codex to use this feature.
 
-The API can also be used to edit and comment on post drafts, which will appear
+When making POST requests to the API endpoints below, pipe the JSON body from a heredoc
+to avoid shell escaping issues (some environments mangle characters like ! in
+inline curl -d arguments):
+    cat <<'EOF' | curl -X POST https://${hostname}/api/agent/commentOnDraft -H 'Content-Type: application/json' -d @-
+    { "postId": "...", "key": "...", "comment": "..." }
+    EOF
+
+
+## API Documentation
+The API can be used to edit and comment on post drafts, which will appear
 in the post editor. This feature is only available for posts written using our
 lexical editor, which is the default editor for new posts, but old posts might
 still be using a different editor. To give an AI agent access, the user needs
@@ -111,14 +154,7 @@ edit-post URL for you. The URL will look like this:
 The key in the URL is called the "link sharing key"; do not share this key with
 anyone unless the user is asking you to give that person permission to edit
 the post. Once you have the post URL, read the post at:
-    GET /api/editPost?postId=[id]&key=[linkSharingKey]
-
-When making POST requests to these endpoints, pipe the JSON body from a heredoc
-to avoid shell escaping issues (some environments mangle characters like ! in
-inline curl -d arguments):
-    cat <<'EOF' | curl -X POST https://${hostname}/api/agent/commentOnDraft -H 'Content-Type: application/json' -d @-
-    { "postId": "...", "key": "...", "comment": "..." }
-    EOF
+    GET /editPost?postId=[id]&key=[linkSharingKey]
 
 The editPost response includes a "Comment Threads" section after the post body
 if there are any open comment or suggestion threads on the draft. Each thread

@@ -102,11 +102,10 @@ const styles = defineStyles('PostsListSettings', (theme: ThemeType) => ({
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginTop: theme.isFriendlyUI ? 10 : undefined,
     marginBottom: 8,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
-    padding: theme.isFriendlyUI ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
+    padding: "12px 24px 8px 12px",
     borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down('xs')]: {
       flexDirection: "column",
@@ -118,8 +117,7 @@ const styles = defineStyles('PostsListSettings', (theme: ThemeType) => ({
     overflow: "hidden",
   },
   checkbox: {
-    padding: "1px 12px 0 0",
-    paddingRight: theme.isFriendlyUI ? 6 : undefined,
+    padding: "1px 12px 0 0"
   },
   checkboxGroup: {
     display: "flex",

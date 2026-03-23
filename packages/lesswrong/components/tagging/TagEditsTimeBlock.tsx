@@ -14,7 +14,7 @@ const INITIAL_LIMIT = 5
 
 const styles = defineStyles('TagEditsTimeBlock', (theme: ThemeType) => ({
   subtitle: {
-    marginTop: theme.isFriendlyUI ? 20 : 6,
+    marginTop: 6,
     marginBottom: 6
   },
 }));

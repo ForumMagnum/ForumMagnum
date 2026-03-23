@@ -26,12 +26,12 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
       opacity: 1,
     },
     '& $navText': {
-      color: theme.palette.grey[theme.isFriendlyUI ? 1000 : 900],
+      color: theme.palette.grey[900],
       fontWeight: 600,
     },
   },
   menuItem: {
-    width: theme.isFriendlyUI ? 210 : 190,
+    width: 190,
   },
   desktopOnly: {
     [theme.breakpoints.down("xs")]: {
@@ -40,16 +40,10 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
   },
   navButton: {
     '&:hover': {
-      opacity: theme.isFriendlyUI ? 1 : 0.6,
-      color: theme.isFriendlyUI ? theme.palette.grey[800] : undefined,
-      backgroundColor: 'transparent', // Prevent MUI default behavior of rendering solid background on hover
-      
-      ...(theme.isFriendlyUI && {
-        paddingTop: 10,
-        paddingBottom: 10,
-      }),
+      opacity: 0.6,
+      backgroundColor: 'transparent'
     },
-    color: theme.palette.grey[theme.isFriendlyUI ? 600 : 800],
+    color: theme.palette.grey[800],
     ...(theme.forumType === "LessWrong"
       ? {
         paddingTop: 7,
@@ -71,8 +65,7 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
     paddingLeft: 0,
     paddingRight: 0,
     '&:hover': {
-      backgroundColor: 'transparent', // Prevent MUI default behavior of rendering solid background on hover
-      opacity: theme.isFriendlyUI ? 1 : undefined,
+      backgroundColor: 'transparent'
     }
   },
   icon: {
@@ -82,13 +75,10 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
     marginRight: 16,
     display: "inline",
     "& svg": {
-      fill: theme.isFriendlyUI ? undefined : "currentColor",
-      color: theme.isFriendlyUI ? undefined : theme.palette.icon.navigationSidebarIcon,
+      fill: "currentColor",
+      color: theme.palette.icon.navigationSidebarIcon,
       transform: getIconTransform(),
-    },
-    ...(theme.isFriendlyUI && {
-      opacity: 1,
-    }),
+    }
   },
   iconOnlyIcon: {
     marginRight: 0,
@@ -116,13 +106,12 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
   },
   selectedIcon: {
     "& svg": {
-      color: theme.isFriendlyUI ? theme.palette.grey[1000] : undefined,
-    },
+},
   },
   navText: {
     ...theme.typography.body2,
     color: "inherit",
-    ...(theme.isBookUI && theme.dark && {
+    ...(theme.dark && {
       color: theme.palette.text.bannerAdOverlay,
     }),
     textTransform: "none !important",
@@ -142,8 +131,7 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
     }
   },
   tooltip: {
-    maxWidth: theme.isFriendlyUI ? 190 : undefined,
-  },
+},
   flag: {
     padding: "2px 4px",
     marginLeft: 10,

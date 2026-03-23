@@ -11,47 +11,29 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("TagRevisionItemFullMetadata", (theme: ThemeType) => ({
   root: {
-    marginBottom: theme.isFriendlyUI ? 12 : undefined,
+},
+  tagName: {
+    // same as RecentDiscussionThread-title
+    ...theme.typography.display2,
+    ...theme.typography.postStyle,
+    marginTop: 0,
+    marginBottom: 8,
+    display: "block",
+    fontSize: "1.75rem",
   },
-  tagName: theme.isFriendlyUI
-    ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 16,
-      fontWeight: 600,
-      marginBottom: 10,
-    }
-    : {
-      // same as RecentDiscussionThread-title
-      ...theme.typography.display2,
-      ...theme.typography.postStyle,
-      marginTop: 0,
-      marginBottom: 8,
-      display: "block",
-      fontSize: "1.75rem",
-    },
-  metadata: theme.isFriendlyUI
-    ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 14,
-      fontWeight: 500,
-      color: theme.palette.grey[600],
-      marginRight: 8,
-    }
-    : {
-      color: theme.palette.grey[800],
-      marginRight: 8,
-      fontSize: "1.1rem",
-      ...theme.typography.commentStyle
-    },
+  metadata: {
+    color: theme.palette.grey[800],
+    marginRight: 8,
+    fontSize: "1.1rem",
+    ...theme.typography.commentStyle
+  },
   metadataText: {
-    fontStyle: theme.isFriendlyUI ? "italic" : undefined,
   },
   username: {
     ...theme.typography.commentStyle,
     color: theme.palette.text.normal,
   },
   changeMetrics: {
-    marginRight: theme.isFriendlyUI ? 8 : undefined,
   },
 }));
 

@@ -56,7 +56,6 @@ const styles = defineStyles("LWQuickTakesCollapsedListItem", (theme: ThemeType) 
     overflow: "hidden",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
-    "-webkit-line-clamp": 2,
   },
   hoverOver: {
     width: 400,
@@ -82,9 +81,10 @@ const styles = defineStyles("LWQuickTakesCollapsedListItem", (theme: ThemeType) 
   },
 }));
 
-const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded}: {
+const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, linesToDisplay=2}: {
   quickTake: FrontpageShortformComments,
   setExpanded: (expanded: boolean) => void,
+  linesToDisplay?: number,
 }) => {
   const classes = useStyles(styles);
   const {eventHandlers, hover, anchorEl} = useHover({
@@ -186,7 +186,7 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded}: {
 
   const body = (
     <div className={classes.bodyWrapper} onClick={expand} {...eventHandlers}>
-      <div  className={classes.body}>
+      <div className={classes.body} style={{WebkitLineClamp: linesToDisplay}}>
         {quickTake.contents?.plaintextMainText}
       </div>
     </div>
@@ -225,5 +225,3 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded}: {
 }
 
 export default LWQuickTakesCollapsedListItem;
-
-

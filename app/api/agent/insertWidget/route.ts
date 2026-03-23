@@ -6,8 +6,8 @@ import {
   $createTextNode,
 } from "lexical";
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { HOCUSPOCUS_FLUSH_WAIT_MS, withMainDocEditorSession } from "../editorAgentUtil";
-import { sleep } from "@/lib/utils/asyncUtils";
+import { waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+
 import { resolveInsertionIndex } from "../insertBlock/route";
 import { insertWidgetToolSchema, type InsertLocation } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
@@ -61,7 +61,7 @@ async function insertWidget({
     postId,
     token,
     operationLabel: "InsertWidget",
-    callback: async ({ editor }) => {
+    callback: async ({ editor, provider }) => {
       let result: InsertWidgetResult = { inserted: false, note: "No insertion performed." };
 
       await new Promise<void>((resolve) => {
@@ -71,7 +71,7 @@ async function insertWidget({
       });
 
       if (result.inserted) {
-        await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+        await waitForProviderFlush(provider);
       }
       return result;
     },

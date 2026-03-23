@@ -23,18 +23,11 @@ const styles = defineStyles('EditTitle', (theme: ThemeType) => ({
   root: {
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
-    ...(theme.isFriendlyUI ? {
-      fontWeight: 700,
-      fontSize: "3rem",
-      marginBottom: 12,
-      marginTop: 0,
-    }: {
-      fontSize: LW_POST_TITLE_FONT_SIZE,
-      lineHeight: '1.1',
-      textWrap: 'balance' as const,
-      marginTop: 110,
-      marginBottom: 96,
-    }),
+    fontSize: LW_POST_TITLE_FONT_SIZE,
+    lineHeight: '1.1',
+    textWrap: 'balance' as const,
+    marginTop: 110,
+    marginBottom: 96,
     width: "100%",
     resize: "none",
     textAlign: "left",

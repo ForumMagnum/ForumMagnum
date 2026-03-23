@@ -14,9 +14,7 @@ const styles = defineStyles('PostReadCheckbox', (theme: ThemeType) => ({
     cursor: "pointer",
   },
   read: {
-    color: theme.isFriendlyUI
-      ? theme.palette.primary.main
-      : theme.palette.primary.light,
+    color: theme.palette.primary.light,
   },
   unread: {
     color: theme.palette.grey[400],

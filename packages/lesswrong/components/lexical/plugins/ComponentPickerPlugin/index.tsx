@@ -279,24 +279,24 @@ function useBaseOptions(editor: LexicalEditor, openDialog: OpenDialogContextType
             ),
           }),
       }),
-      new ComponentPickerOption('Paragraph', {
-        icon: <TextParagraphIcon style={iconStyle} />,
-        keywords: ['normal', 'paragraph', 'p', 'text'],
-        onSelect: () =>
-          applyBlockTypeChange(editor, 'paragraph'),
-      }),
-      ...([1, 2, 3] as const).map(
-        (n) => {
-          const HeadingIcon = headingIcons[n];
-          return new ComponentPickerOption(`Heading ${n}`, {
-            icon: <HeadingIcon style={iconStyle} />,
-            keywords: ['heading', 'header', `h${n}`],
-            onSelect: () =>
-              applyBlockTypeChange(editor, `h${n}`),
-          });
-        }
-      ),
     ] : []),
+    new ComponentPickerOption('Paragraph', {
+      icon: <TextParagraphIcon style={iconStyle} />,
+      keywords: ['normal', 'paragraph', 'p', 'text'],
+      onSelect: () =>
+        applyBlockTypeChange(editor, 'paragraph'),
+    }),
+    ...([1, 2, 3] as const).map(
+      (n) => {
+        const HeadingIcon = headingIcons[n];
+        return new ComponentPickerOption(`Heading ${n}`, {
+          icon: <HeadingIcon style={iconStyle} />,
+          keywords: ['heading', 'header', `h${n}`],
+          onSelect: () =>
+            applyBlockTypeChange(editor, `h${n}`),
+        });
+      }
+    ),
   ];
 }
 

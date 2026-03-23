@@ -13,7 +13,6 @@ import { commentDefaultToAlignment } from '../../lib/collections/comments/helper
 import { isInFuture, useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
 import { useTracking } from "../../lib/analyticsEvents";
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { getCommentsNewFormPadding } from '@/lib/collections/comments/constants';
 import { CommentForm, type CommentInteractionType } from './CommentForm';
@@ -42,11 +41,7 @@ export type FormDisplayMode = "default" | "minimalist"
 
 
 const styles = defineStyles('CommentsNewForm', (theme: ThemeType) => ({
-  root: theme.isFriendlyUI ? {
-    '& .form-component-EditorFormComponent': {
-      marginTop: 0
-    }
-  } : {},
+  root: {},
   rootMinimalist: {
     '& .form-input': {
       width: "100%",
@@ -66,17 +61,7 @@ const styles = defineStyles('CommentsNewForm', (theme: ThemeType) => ({
       borderTopRightRadius: theme.borderRadius.quickTakesEntry,
     },
   },
-  quickTakesSubmitButtonAtBottom: theme.isFriendlyUI
-    ? {
-      "& .form-component-EditorFormComponent": {
-        background: "transparent",
-        borderRadius: theme.borderRadius.quickTakesEntry,
-      },
-      "& .form-input": {
-        padding: "0 20px",
-      },
-    }
-    : {},
+  quickTakesSubmitButtonAtBottom: {},
   loadingRoot: {
     opacity: 0.5
   },
@@ -117,11 +102,7 @@ const shouldOpenNewUserGuidelinesDialog = (
 };
 
 const getSubmitLabel = (isQuickTake: boolean, isAnswer?: boolean) => {
-  if (isAnswer) {
-    return isFriendlyUI() ? 'Add answer' : 'Submit';
-  }
-  if (!isFriendlyUI()) return 'Submit'
-  return isQuickTake ? 'Publish' : 'Comment'
+  return "Submit";
 }
 
 export type CommentsNewFormProps = {
@@ -286,10 +267,6 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
     ...(overrideHintText ? {editorHintText: overrideHintText} : {})
   }), [isMinimalist, overrideHintText]);
 
-  const answerFormProps = useMemo(() => isAnswer
-    ? {editorHintText: isFriendlyUI() && isAnswer ? 'Write a new answer...' : undefined}
-    : {}, [isAnswer]);
-
   const parentDocumentId = post?._id || tag?._id
 
   useEffect(() => {
@@ -308,8 +285,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
     formClassName: isQuickTake ? classes.quickTakesForm : '',
     ...extraFormProps,
     ...formProps,
-    ...answerFormProps,
-  }), [isQuickTake, classes.quickTakesForm, extraFormProps, formProps, answerFormProps]);
+  }), [isQuickTake, classes.quickTakesForm, extraFormProps, formProps]);
 
   const commentSubmitProps = useMemo(() => ({
     formDisabledDueToRateLimit,
@@ -359,7 +335,6 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
               interactionType={interactionType}
               alignmentForumPost={post?.af}
               hideAlignmentForumCheckbox={hideAlignmentForumCheckbox}
-              quickTakesFormGroup={isQuickTake && !(quickTakesSubmitButtonAtBottom && isFriendlyUI())}
               formClassName={mergedFormProps.formClassName}
               editorHintText={mergedFormProps.editorHintText}
               commentMinimalistStyle={mergedFormProps.commentMinimalistStyle}

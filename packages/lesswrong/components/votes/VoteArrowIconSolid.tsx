@@ -14,11 +14,11 @@ const styles = defineStyles("VoteArrowIconSolid", (theme: ThemeType) => ({
     cursor: 'not-allowed',
   },
   smallArrow: {
-    opacity: theme.isEAForum ? 0.7 : 0.6,
+    opacity: 0.6,
     pointerEvents: 'none',
   },
   smallArrowLarge: {
-    opacity: theme.isEAForum ? 0.7 : 0.6,
+    opacity: 0.6,
     pointerEvents: 'none',
   },
   up: {

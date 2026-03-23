@@ -276,6 +276,9 @@ export const routeTrie = {
             "insertWidget": {
               "hasRoute": true
             },
+            "ping": {
+              "hasRoute": true
+            },
             "replaceText": {
               "hasRoute": true
             },
@@ -293,6 +296,7 @@ export const routeTrie = {
             "insertblock": "insertBlock",
             "insertllmblock": "insertLLMBlock",
             "insertwidget": "insertWidget",
+            "ping": "ping",
             "replacetext": "replaceText",
             "replacewidget": "replaceWidget",
             "replytocomment": "replyToComment"

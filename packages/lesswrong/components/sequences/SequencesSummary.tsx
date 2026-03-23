@@ -34,13 +34,7 @@ const styles = defineStyles('SequencesSummary', (theme: ThemeType) => ({
   title: {
     ...theme.typography.body1,
     ...theme.typography.postStyle,
-    ...theme.typography.smallCaps,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: "1.3rem",
-      fontWeight: 700,
-      lineHeight: "130%",
-    }),
+    ...theme.typography.smallCaps
   },
   description: {
     ...theme.typography.body2,
@@ -49,23 +43,14 @@ const styles = defineStyles('SequencesSummary', (theme: ThemeType) => ({
     paddingBottom: 8,
   },
   author: {
-    color: theme.palette.text.dim,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 13,
-      fontWeight: 500,
-      marginTop: 10,
-      marginBottom: 14,
-    }),
+    color: theme.palette.text.dim
   },
-  wordcount: theme.isFriendlyUI
-    ? {}
-    : {
-      ...theme.typography.commentStyle,
-      color: theme.palette.grey[500],
-      marginTop: 12,
-      fontSize: "1rem"
-    },
+  wordcount: {
+    ...theme.typography.commentStyle,
+    color: theme.palette.grey[500],
+    marginTop: 12,
+    fontSize: "1rem"
+  },
   morePosts: {
     color: theme.palette.grey[600],
     fontFamily: theme.palette.fonts.sansSerifStack,

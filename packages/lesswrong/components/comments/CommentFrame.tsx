@@ -1,7 +1,6 @@
 import React from 'react';
 import type { CommentTreeOptions } from './commentTree';
 import classNames from 'classnames';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 
@@ -12,7 +11,6 @@ export const CONDENSED_MARGIN_BOTTOM = 4
 const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
   node: {
     border: theme.palette.border.commentBorder,
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : undefined,
     cursor: "default",
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
@@ -29,15 +27,13 @@ const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
     borderTop: theme.palette.border.commentBorder,
     borderBottom: theme.palette.border.commentBorder,
     borderRight: "none",
-    borderRadius: theme.isFriendlyUI
-      ? `${theme.borderRadius.small}px 0 0 ${theme.borderRadius.small}px`
-      : "2px 0 0 2px",
+    borderRadius: "2px 0 0 2px",
   },
   new: {
     '&&': {
-      borderLeft: `solid 5px ${theme.palette.secondary.light}${theme.isFriendlyUI ? '' : '8c'}`,
+      borderLeft: `solid 5px ${theme.palette.secondary.light}${'8c'}`,
       '&:hover': {
-        borderLeft: `solid 5px ${theme.palette.secondary.main}${theme.isFriendlyUI ? '' : '8c'}`
+        borderLeft: `solid 5px ${theme.palette.secondary.main}${'8c'}`
       },
     }
   },
@@ -107,30 +103,6 @@ const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
   promoted: {
     border: `solid 1px ${theme.palette.lwTertiary.main}`,
   },
-  isPinnedOnProfile: {
-    // What we _really_ want to do here is apply a 1px border with the given linear
-    // gradient, however, the `border-image` property isn't compatible with
-    // `border-radius`. Using the `::before` selector is a hack to get around this.
-    "&::before": {
-      content: "''",
-      position: "absolute",
-      zIndex: -1,
-      top: 1,
-      right: 1,
-      bottom: 1,
-      left: 1,
-      boxSizing: "border-box",
-      backgroundColor: theme.palette.panelBackground.default,
-      borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : 0,
-    },
-    position: "relative",
-    backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight}, ${theme.palette.border.primaryHighlight})`,
-    border: "none",
-    zIndex: 0,
-    '&.CommentFrame-isAnswer': {
-      backgroundImage: `linear-gradient(to bottom right, ${theme.palette.border.secondaryHighlight2}, ${theme.palette.border.primaryHighlight2})`,
-    },
-  },
 }), {
   stylePriority: -1,
 });
@@ -186,7 +158,6 @@ const CommentFrame = ({
     isChild && classes.child,
     isNewComment && classes.new,
     comment.deleted && classes.deleted,
-    isFriendlyUI() && showPinnedOnProfile && comment.isPinnedOnProfile && classes.isPinnedOnProfile,
     comment.answer && classes.isAnswer,
     isReplyToAnswer && classes.answerChildComment,
     isChild && isReplyToAnswer && classes.childAnswerComment,

@@ -37,7 +37,7 @@ const styles = defineStyles("PostsPageEventData", (theme: ThemeType) => ({
     columnGap: 8,
   },
   iconWrapper: {
-    paddingTop: theme.isFriendlyUI ? 3 : 2
+    paddingTop: 2
   },
   icon: {
     fontSize: 16,
