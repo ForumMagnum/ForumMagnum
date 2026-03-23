@@ -9,7 +9,7 @@ declare global {
   interface Window {
     tabId: string | null;
     themeOptions: AbstractThemeOptions,
-    ssrTimestamp?: Date
+    ssrTime?: Date
     publicSettings: any,
     publicInstanceSettings: any,
     

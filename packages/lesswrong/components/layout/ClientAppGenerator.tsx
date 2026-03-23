@@ -14,9 +14,7 @@ import { UserContextProvider } from '../common/withUser';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { HelmetProvider } from 'react-helmet-async';
-import { EnableSuspenseContext } from '@/lib/crud/useQuery';
-import { isClient, isServer } from '@/lib/executionEnvironment';
-import Cookies from 'universal-cookie';
+import { isClient } from '@/lib/executionEnvironment';
 import { ApolloWrapper } from '@/components/common/ApolloWrapper';
 
 import type { RouterLocation } from '@/lib/routeChecks/parseRoute';

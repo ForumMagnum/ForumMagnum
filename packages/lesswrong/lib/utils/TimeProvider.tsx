@@ -57,7 +57,7 @@ function useCurrentTimeClient(): Date {
   return useSyncExternalStore(
     noopSubscribe,
     () => {
-      const ssrTime = window.ssrTimestamp;
+      const ssrTime = window.ssrTime;
       const now = new Date();
       if (ssrTime && isCloseEnough(ssrTime, now)) {
         return ssrTime;
@@ -72,7 +72,7 @@ function useCurrentTimeClient(): Date {
       return now;
     },
     () => {
-      if (window.ssrTimestamp) return window.ssrTimestamp;
+      if (window.ssrTime) return window.ssrTime;
       if (!nowRef.current) nowRef.current = new Date();
       return nowRef.current;
     }
