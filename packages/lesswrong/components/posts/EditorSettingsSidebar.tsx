@@ -1049,12 +1049,17 @@ function GoogleDocImportSection({ postId }: { postId: string }) {
     }
   );
 
-  const handleImportClick = useCallback(async () => {
-    // Clear any live/local Yjs state before the import replaces the server copy.
-    await disconnectCollaborationForPost(postId);
-    void importGoogleDocMutation({
-      variables: { fileUrl: googleDocUrl, postId },
-    });
+  const handleImportClick = useCallback((event: React.FormEvent<HTMLFormElement>|React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    void (async () => {
+      // Clear any live/local Yjs state before the import replaces the server copy.
+      await disconnectCollaborationForPost(postId);
+      void importGoogleDocMutation({
+        variables: { fileUrl: googleDocUrl, postId },
+      });
+  })();
   }, [googleDocUrl, importGoogleDocMutation, postId]);
 
   return (
@@ -1062,22 +1067,24 @@ function GoogleDocImportSection({ postId }: { postId: string }) {
       <div className={classes.importInfo}>
         Paste a link to a publicly accessible Google Doc (sharing set to "Anyone with the link can view")
       </div>
-      <input
-        className={classes.importInput}
-        type="url"
-        placeholder="https://docs.google.com/document/d/..."
-        value={googleDocUrl}
-        onChange={(e) => setGoogleDocUrl(e.target.value)}
-      />
-      {errorMessage && <div className={classes.importError}>{errorMessage}</div>}
-      <button
-        type="button"
-        className={classes.importButton}
-        disabled={!canImport || mutationLoading}
-        onClick={handleImportClick}
-      >
-        {mutationLoading ? <Loading className={classes.importLoadingDots} /> : "Import"}
-      </button>
+      <form onSubmit={handleImportClick}>
+        <input
+          className={classes.importInput}
+          type="url"
+          placeholder="https://docs.google.com/document/d/..."
+          value={googleDocUrl}
+          onChange={(e) => setGoogleDocUrl(e.target.value)}
+        />
+        {errorMessage && <div className={classes.importError}>{errorMessage}</div>}
+        <button
+          type="button"
+          className={classes.importButton}
+          disabled={!canImport || mutationLoading}
+          onClick={handleImportClick}
+        >
+          {mutationLoading ? <Loading className={classes.importLoadingDots} /> : "Import"}
+        </button>
+      </form>
       <div className={classes.importFooter}>
         This will overwrite any unsaved changes, but you can still restore saved versions from "Version history"
       </div>
