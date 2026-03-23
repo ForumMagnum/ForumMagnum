@@ -55,24 +55,49 @@ export const SHORTCUTS = Object.freeze({
 
 const CONTROL_OR_META = {ctrlKey: !IS_APPLE, metaKey: IS_APPLE};
 
-export function isFormatParagraph(event: KeyboardEvent): boolean {
-  const {code} = event;
+const SHIFTED_KEY_ALIASES: Record<string, string> = {
+  '~': '`',
+  '!': '1',
+  '@': '2',
+  '#': '3',
+  '$': '4',
+  '%': '5',
+  '^': '6',
+  '&': '7',
+  '*': '8',
+  '(': '9',
+  ')': '0',
+  '_': '-',
+  '+': '=',
+  '{': '[',
+  '}': ']',
+  '|': '\\',
+  ':': ';',
+  '"': '\'',
+  '<': ',',
+  '>': '.',
+  '?': '/',
+};
 
+export function getShortcutKey(event: KeyboardEvent): string {
+  const {key} = event;
+  if (key.length !== 1) {
+    return key;
+  }
+
+  const normalizedKey = SHIFTED_KEY_ALIASES[key] ?? key;
+  return normalizedKey.toLowerCase();
+}
+
+export function isFormatParagraph(event: KeyboardEvent): boolean {
   return (
-    (code === 'Numpad0' || code === 'Digit0') &&
+    getShortcutKey(event) === '0' &&
     isModifierMatch(event, {...CONTROL_OR_META, altKey: true})
   );
 }
 
 export function isFormatHeading(event: KeyboardEvent): boolean {
-  const {code} = event;
-
-  // Apple pencil keyboard events don't have a code property
-  if (!code) {
-    return false;
-  }
-
-  const keyNumber = code[code.length - 1];
+  const keyNumber = getShortcutKey(event);
 
   return (
     ['1', '2', '3'].includes(keyNumber) &&
@@ -81,41 +106,36 @@ export function isFormatHeading(event: KeyboardEvent): boolean {
 }
 
 export function isFormatNumberedList(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    (code === 'Numpad7' || code === 'Digit7') &&
+    getShortcutKey(event) === '7' &&
     isModifierMatch(event, {...CONTROL_OR_META, shiftKey: true})
   );
 }
 
 export function isFormatBulletList(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    (code === 'Numpad8' || code === 'Digit8') &&
+    getShortcutKey(event) === '8' &&
     isModifierMatch(event, {...CONTROL_OR_META, shiftKey: true})
   );
 }
 
 export function isFormatCheckList(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    (code === 'Numpad9' || code === 'Digit9') &&
+    getShortcutKey(event) === '9' &&
     isModifierMatch(event, {...CONTROL_OR_META, shiftKey: true})
   );
 }
 
 export function isFormatCode(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    code === 'KeyC' &&
+    getShortcutKey(event) === 'c' &&
     isModifierMatch(event, {...CONTROL_OR_META, altKey: true})
   );
 }
 
 export function isFormatQuote(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    code === 'KeyQ' &&
+    getShortcutKey(event) === 'q' &&
     isModifierMatch(event, {
       ctrlKey: true,
       shiftKey: true,
@@ -124,153 +144,131 @@ export function isFormatQuote(event: KeyboardEvent): boolean {
 }
 
 export function isLowercase(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    (code === 'Numpad1' || code === 'Digit1') &&
+    getShortcutKey(event) === '1' &&
     isModifierMatch(event, {ctrlKey: true, shiftKey: true})
   );
 }
 
 export function isUppercase(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    (code === 'Numpad2' || code === 'Digit2') &&
+    getShortcutKey(event) === '2' &&
     isModifierMatch(event, {ctrlKey: true, shiftKey: true})
   );
 }
 
 export function isCapitalize(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    (code === 'Numpad3' || code === 'Digit3') &&
+    getShortcutKey(event) === '3' &&
     isModifierMatch(event, {ctrlKey: true, shiftKey: true})
   );
 }
 
 export function isUnderline(event: KeyboardEvent): boolean {
-  const {code} = event;
-  return code === 'KeyU' && isModifierMatch(event, CONTROL_OR_META);
+  return getShortcutKey(event) === 'u' && isModifierMatch(event, CONTROL_OR_META);
 }
 
 export function isStrikeThrough(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    code === 'KeyX' &&
+    getShortcutKey(event) === 'x' &&
     isModifierMatch(event, {...CONTROL_OR_META, shiftKey: true})
   );
 }
 
 export function isIndent(event: KeyboardEvent): boolean {
-  const {code} = event;
-  return code === 'BracketRight' && isModifierMatch(event, CONTROL_OR_META);
+  return getShortcutKey(event) === ']' && isModifierMatch(event, CONTROL_OR_META);
 }
 
 export function isOutdent(event: KeyboardEvent): boolean {
-  const {code} = event;
-  return code === 'BracketLeft' && isModifierMatch(event, CONTROL_OR_META);
+  return getShortcutKey(event) === '[' && isModifierMatch(event, CONTROL_OR_META);
 }
 
 export function isCenterAlign(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    code === 'KeyE' &&
+    getShortcutKey(event) === 'e' &&
     isModifierMatch(event, {...CONTROL_OR_META, shiftKey: true})
   );
 }
 
 export function isLeftAlign(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    code === 'KeyL' &&
+    getShortcutKey(event) === 'l' &&
     isModifierMatch(event, {...CONTROL_OR_META, shiftKey: true})
   );
 }
 
 export function isRightAlign(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    code === 'KeyR' &&
+    getShortcutKey(event) === 'r' &&
     isModifierMatch(event, {...CONTROL_OR_META, shiftKey: true})
   );
 }
 
 export function isJustifyAlign(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    code === 'KeyJ' &&
+    getShortcutKey(event) === 'j' &&
     isModifierMatch(event, {...CONTROL_OR_META, shiftKey: true})
   );
 }
 
 export function isSubscript(event: KeyboardEvent): boolean {
-  const {code} = event;
-  return code === 'Comma' && isModifierMatch(event, CONTROL_OR_META);
+  return getShortcutKey(event) === ',' && isModifierMatch(event, CONTROL_OR_META);
 }
 
 export function isSuperscript(event: KeyboardEvent): boolean {
-  const {code} = event;
-  return code === 'Period' && isModifierMatch(event, CONTROL_OR_META);
+  return getShortcutKey(event) === '.' && isModifierMatch(event, CONTROL_OR_META);
 }
 
 export function isInsertCodeBlock(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    code === 'KeyC' &&
+    getShortcutKey(event) === 'c' &&
     isModifierMatch(event, {...CONTROL_OR_META, shiftKey: true})
   );
 }
 
 export function isInsertInlineMath(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    (code === 'Digit4' || code === 'Numpad4') &&
+    getShortcutKey(event) === '4' &&
     isModifierMatch(event, CONTROL_OR_META)
   );
 }
 
 export function isInsertDisplayMath(event: KeyboardEvent): boolean {
-  const {code} = event;
-  return code === 'KeyM' && isModifierMatch(event, CONTROL_OR_META);
+  return getShortcutKey(event) === 'm' && isModifierMatch(event, CONTROL_OR_META);
 }
 
 export function isIncreaseFontSize(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    code === 'Period' &&
+    getShortcutKey(event) === '.' &&
     isModifierMatch(event, {...CONTROL_OR_META, shiftKey: true})
   );
 }
 
 export function isDecreaseFontSize(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    code === 'Comma' &&
+    getShortcutKey(event) === ',' &&
     isModifierMatch(event, {...CONTROL_OR_META, shiftKey: true})
   );
 }
 
 export function isClearFormatting(event: KeyboardEvent): boolean {
-  const {code} = event;
-  return code === 'Backslash' && isModifierMatch(event, CONTROL_OR_META);
+  return getShortcutKey(event) === '\\' && isModifierMatch(event, CONTROL_OR_META);
 }
 
 export function isInsertLink(event: KeyboardEvent): boolean {
-  const {code} = event;
-  return code === 'KeyK' && isModifierMatch(event, CONTROL_OR_META);
+  return getShortcutKey(event) === 'k' && isModifierMatch(event, CONTROL_OR_META);
 }
 
 export function isAddComment(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    code === 'KeyM' &&
+    getShortcutKey(event) === 'm' &&
     isModifierMatch(event, {...CONTROL_OR_META, altKey: true})
   );
 }
 
 export function isInsertFootnote(event: KeyboardEvent): boolean {
-  const {code} = event;
   return (
-    code === 'KeyF' &&
+    getShortcutKey(event) === 'f' &&
     isModifierMatch(event, {...CONTROL_OR_META, altKey: true})
   );
 }
