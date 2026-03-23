@@ -8,7 +8,7 @@ import { defaultSequenceBannerIdSetting } from "@/lib/instanceSettings";
 import { profileStyles, TabPanel } from "./profileStyles";
 import { cssUrl } from "./userProfilePageUtil";
 import { gql } from "@/lib/generated/gql-codegen";
-import { z } from "zod";
+import * as z from "zod";
 
 const profilePageSequencesTabUnsharedStyles = defineStyles("ProfilePageSequencesTabUnshared", (theme: ThemeType) => ({
   sequencesList: {

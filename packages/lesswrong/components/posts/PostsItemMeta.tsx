@@ -9,6 +9,7 @@ import FooterTagList from "../tagging/FooterTagList";
 import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
 import LWTooltip from "../common/LWTooltip";
 import AddToCalendarButton from "./AddToCalendar/AddToCalendarButton";
+import UsersName from "../users/UsersName";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -87,7 +88,7 @@ const PostsItemMeta = ({post, read, hideTags}: {
       </span>}
 
       <span className={classes.info}>
-        <PostsUserAndCoauthors post={post} showMarkers />
+        <PostsUserAndCoauthors post={post} showMarkers UserNameComponent={UsersName} />
       </span>
 
       { showAfScore && <span className={classes.info}>

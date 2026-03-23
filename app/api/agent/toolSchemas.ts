@@ -1,4 +1,4 @@
-import { z } from "zod";
+import * as z from "zod";
 
 export const replaceModeSchema = z.enum(["edit", "suggest"]);
 export type ReplaceMode = z.infer<typeof replaceModeSchema>;

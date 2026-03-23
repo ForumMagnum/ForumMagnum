@@ -19,7 +19,7 @@ import { runQuery } from "../vulcan-lib/query";
 import { createLlmConversation } from "../collections/llmConversations/mutations";
 import { createLlmMessage } from "../collections/llmMessages/mutations";
 import { gql } from "@/lib/generated/gql-codegen";
-import z from "zod";
+import * as z from "zod";
 import { createSingleton } from "@/lib/utils/createSingleton";
 
 interface InitializeConversationArgs {

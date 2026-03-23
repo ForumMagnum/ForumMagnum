@@ -1,4 +1,5 @@
-import { ZodType, z } from "zod";
+import * as z from "zod";
+import type { ZodType } from "zod/v4";
 import jwt, { VerifyErrors } from "jsonwebtoken";
 import { InvalidPayloadError, MissingSecretError } from "../fmCrosspost/errors";
 import { crosspostSigningKeySetting } from "../databaseSettings";

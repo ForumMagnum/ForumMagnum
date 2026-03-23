@@ -2,7 +2,7 @@ import type { Client, Index } from "algoliasearch/lite";
 import type { MultiResponse, QueryParameters, SearchForFacetValues } from "algoliasearch";
 import stringify from "json-stringify-deterministic";
 import LRU from "lru-cache";
-import { z } from "zod";
+import * as z from "zod";
 
 /**
  * The is the schema of the request sent from the InstantSearch frontend to

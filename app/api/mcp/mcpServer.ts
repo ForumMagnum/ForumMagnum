@@ -1,6 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
-import { z } from "zod";
+import * as z from "zod";
 import { validateAccessToken, OAuthError } from "@/server/oauth/oauthProvider";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";

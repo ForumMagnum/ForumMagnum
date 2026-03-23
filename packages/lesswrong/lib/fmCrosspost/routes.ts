@@ -1,4 +1,5 @@
-import { ZodType, z } from "zod";
+import * as z from "zod";
+import type { ZodType } from "zod/v4";
 import { combineUrls } from "../vulcan-lib/utils";
 import { fmCrosspostBaseUrlSetting } from "../instanceSettings";
 

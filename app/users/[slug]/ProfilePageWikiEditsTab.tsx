@@ -7,7 +7,7 @@ import LoadMore from "@/components/common/LoadMore";
 import { maybeDate } from "@/lib/utils/dateUtils";
 import { gql } from "@/lib/generated/gql-codegen";
 import { profileStyles, TabPanel } from "./profileStyles";
-import { z } from "zod";
+import * as z from "zod";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 
 const profilePageWikiEditsTabUnsharedStyles = defineStyles("ProfilePageWikiEditsTabUnshared", () => ({

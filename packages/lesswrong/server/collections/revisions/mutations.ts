@@ -11,7 +11,7 @@ import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 import { dataToMarkdown, extractAndReplaceIframeWidgets } from "@/server/editor/conversionUtils";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
-import { z } from "zod"; // Add this import for Zod
+import * as z from "zod"; // Add this import for Zod
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
 import { captureException } from "@/lib/sentryWrapper";
 import { backgroundTask } from "@/server/utils/backgroundTask";

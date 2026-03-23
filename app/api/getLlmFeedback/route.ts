@@ -1,6 +1,6 @@
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { NextRequest, NextResponse } from "next/server";
-import { z } from "zod";
+import * as z from "zod";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { generateText, tool } from 'ai';
 import { createAnthropic } from '@ai-sdk/anthropic';

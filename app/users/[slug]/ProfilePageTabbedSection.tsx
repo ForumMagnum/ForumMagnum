@@ -46,7 +46,7 @@ import {
   ProfilePageQuickTakesTabSettingsForm,
   profilePageQuickTakesTabSettingsSchema,
 } from "./ProfilePageQuickTakesTab";
-import { z } from "zod";
+import * as z from "zod";
 
 const profilePageTabbedSectionUnsharedStyles = defineStyles("ProfilePageTabbedSectionUnshared", (theme: ThemeType) => ({
   allPostsLeftColumn: {

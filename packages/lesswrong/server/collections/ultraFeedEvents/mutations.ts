@@ -6,7 +6,7 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { assignUserIdToData, insertAndReturnDocument, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { convertDocumentIdToIdInSelector, UpdateSelector } from "@/lib/vulcan-lib/utils";
 import gql from "graphql-tag";
-import { z } from "zod";
+import * as z from "zod";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { userOwns } from "@/lib/vulcan-users/permissions";
 import { backgroundTask } from "@/server/utils/backgroundTask";

@@ -7,7 +7,7 @@ import { getCkEditorEnvironmentId, getCkEditorSecretKey } from './ckEditorServer
 import jwt from 'jsonwebtoken'
 import { randomId } from '../../lib/random';
 import { NextRequest, NextResponse } from 'next/server';
-import { z } from 'zod';
+import * as z from "zod";
 import { captureException } from '@/lib/sentryWrapper';
 import { getUserFromReq } from '../vulcan-lib/apollo-server/getUserFromReq';
 

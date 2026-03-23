@@ -1,0 +1,23 @@
+diff --git a/node_modules/moment/moment.js b/node_modules/moment/moment.js
+index 05a63b1..92e83f3 100644
+--- a/node_modules/moment/moment.js
++++ b/node_modules/moment/moment.js
+@@ -2086,6 +2086,9 @@
+     }
+ 
+     function loadLocale(name) {
++        if (name !== 'en-US') {
++            console.warn(`Loading locale ${name} is not supported. Use 'en-US' instead.`);
++        }
+         var oldLocale = null,
+             aliasedRequire;
+         // TODO: Find a better way to register and load all the locales in Node
+@@ -2099,7 +2102,7 @@
+             try {
+                 oldLocale = globalLocale._abbr;
+                 aliasedRequire = require;
+-                aliasedRequire('./locale/' + name);
++                aliasedRequire('./locale/en-US');
+                 getSetGlobalLocale(oldLocale);
+             } catch (e) {
+                 // mark as not found to avoid repeating expensive file require call causing high CPU

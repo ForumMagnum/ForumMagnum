@@ -12,7 +12,7 @@
  *   yarn repl prod packages/lesswrong/server/scripts/generativeModels/coverImageGeneration.ts 'previewIllustrations("postId")'
  */
 
-import { z } from "zod";
+import * as z from "zod";
 import { getOpenAI } from '../../languageModels/languageModelIntegration';
 import { getAnthropicClientOrThrow } from '@/server/languageModels/anthropicClient';
 import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';

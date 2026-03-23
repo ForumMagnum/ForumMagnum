@@ -13,6 +13,7 @@ import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
 import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
 import PostsItemTooltipWrapper from "./PostsItemTooltipWrapper";
 import AnalyticsTracker from "../common/AnalyticsTracker";
+import UsersName from "../users/UsersName";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 
 const IMAGE_WIDTH = 292;
@@ -191,7 +192,7 @@ const PostsItemIntroSequence = ({
             </AnalyticsTracker>
           </span>
           {!post.isEvent && !hideAuthor && <PostsItem2MetaInfo className={classes.author}>
-            <PostsUserAndCoauthors post={post} abbreviateIfLong={true} />
+            <PostsUserAndCoauthors post={post} abbreviateIfLong={true} UserNameComponent={UsersName} />
           </PostsItem2MetaInfo>}
 
           <div className={classes.mobileSecondRowSpacer}/>

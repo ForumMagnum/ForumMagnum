@@ -6,7 +6,6 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { commentGetKarma } from '../../lib/collections/comments/helpers'
 import { isMobile } from '../../lib/utils/isMobile'
 import { CommentTreeOptions } from './commentTree';
-import CoreTagIcon, { getCoreTagIconMap } from '../tagging/CoreTagIcon';
 import { metaNoticeStyles } from "./CommentsItem/metaNoticeStyles";
 import FormatDate from "../common/FormatDate";
 import ShowParentComment from "./ShowParentComment";
@@ -61,18 +60,6 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
   },
   shortformIcon: {
     marginTop: 4,
-  },
-  tagIcon: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    marginLeft: -2,
-    marginRight: 8,
-    '& svg': {
-      width: 12,
-      height: 12,
-      fill: theme.palette.grey[600],
-    },
   },
   leadingInfo: {
     display:"inline-block",
@@ -141,14 +128,13 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
   }
 }))
 
-const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId, hideKarma, showDescendentCount, displayTagIcon=false }: {
+const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId, hideKarma, showDescendentCount }: {
   treeOptions: CommentTreeOptions,
   comment: CommentsList,
   nestingLevel: number,
   parentCommentId?: string,
   hideKarma?: boolean,
   showDescendentCount?: boolean,
-  displayTagIcon?: boolean,
 }) => {
   const classes = useStyles(styles);
   const {anchorEl, hover, eventHandlers} = useHover();
@@ -161,9 +147,6 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const displayHoverOver = hover && ((comment.baseScore ?? 0) > -5) && !isMobile() && enableHoverPreview
   const renderHighlight = ((comment.baseScore ?? 0) > -5) && !comment.deleted
 
-  const parentTag = comment.tag;
-  const actuallyDisplayTagIcon = !!(displayTagIcon && parentTag && getCoreTagIconMap()[parentTag.slug])
-  
   const effectiveNestingLevel = nestingLevel + (treeOptions.switchAlternatingHighlights ? 1 : 0);
   
   const deempphasizeComment = !!deemphasizeCommentsExcludingUserIds && !deemphasizeCommentsExcludingUserIds.has(comment.userId ?? '')
@@ -180,9 +163,6 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         )}
       >
         {post && <div className={classes.shortformIcon}><CommentShortformIcon comment={comment} post={post} simple={true} /></div>}
-        {actuallyDisplayTagIcon && <div className={classes.tagIcon}>
-          <CoreTagIcon tag={parentTag} />
-        </div>}
 
         {/* We're often comparing null to undefined, so we need to explicitly use a double-eq-negation */}
         {/* eslint-disable-next-line eqeqeq */}

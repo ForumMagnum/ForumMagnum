@@ -20,6 +20,7 @@ import PostsItemComments from "./PostsItemComments";
 import KarmaDisplay from "../common/KarmaDisplay";
 import PostsTitle from "./PostsTitle";
 import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
+import UsersName from "../users/UsersName";
 import LWTooltip from "../common/LWTooltip";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
 import { PostsItemIcons } from "./PostsItemIcons";
@@ -583,7 +584,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
               </PostsItem2MetaInfo>}
 
               {showAuthor && <PostsItem2MetaInfo className={classes.author}>
-                <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments} tooltipPlacement="top"/>
+                <PostsUserAndCoauthors post={post} abbreviateIfLong={true} newPromotedComments={hasNewPromotedComments} tooltipPlacement="top" UserNameComponent={UsersName}/>
               </PostsItem2MetaInfo>}
 
               {!!post.unreadDebateResponseCount && <PostsItem2MetaInfo className={classes.unreadDebateResponseContainer}>

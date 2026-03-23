@@ -4,7 +4,6 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../common/withUser';
-import CoreTagIcon, { getCoreTagIconMap } from './CoreTagIcon';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import TagsTooltip, { TagsTooltipPreviewWrapper } from './TagsTooltip';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -57,19 +56,6 @@ const styles = defineStyles("FooterTag", (theme: ThemeType) => ({
   core: {
     ...coreTagStyle(theme),
   },
-  coreIcon: {
-    position: "relative",
-    display: "inline-block",
-    minWidth: 20,
-    "& svg": {
-      position: "absolute",
-      top: -13,
-      left: -4,
-      width: 20,
-      height: 18,
-      fill: theme.palette.tag.coreTagText,
-    },
-  },
   score:  {
     paddingLeft: 5,
     color: theme.palette.text.slightlyDim2,
@@ -110,7 +96,6 @@ const FooterTag = ({
   tagRel,
   tag,
   hideScore=false,
-  hideIcon,
   smallText,
   PreviewWrapper,
   link=true,
@@ -123,7 +108,6 @@ const FooterTag = ({
 }: {
   tagRel?: TagRelMinimumFragment,
   hideScore?: boolean,
-  hideIcon?: boolean,
   smallText?: boolean,
   PreviewWrapper?: TagsTooltipPreviewWrapper,
   link?: boolean
@@ -142,13 +126,10 @@ const FooterTag = ({
 
   if (tag.adminOnly && !currentUser?.isAdmin) { return null }
 
-  const showIcon = Boolean(tag.core && !smallText && getCoreTagIconMap()[tag.slug] && !hideIcon);
-
   const tagName = isFriendlyUI() && smallText
     ? tag.shortName || tag.name
     : tag.name;
   const renderedTag = <>
-    {showIcon && <span className={classes.coreIcon}><CoreTagIcon tag={tag} /></span>}
     <span className={classes.name}>{tagName}</span>
     {!hideScore && tagRel && <span className={classes.score}>{tagRel.baseScore}</span>}
   </>

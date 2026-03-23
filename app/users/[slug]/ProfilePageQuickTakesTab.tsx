@@ -8,7 +8,7 @@ import LoadMore from "@/components/common/LoadMore";
 import Loading from "@/components/vulcan-core/Loading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
-import { z } from "zod";
+import * as z from "zod";
 
 const ProfilePageQuickTakesTabQuery = gql(`
   query ProfilePageQuickTakesTab($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {

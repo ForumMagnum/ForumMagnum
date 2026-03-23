@@ -6,7 +6,7 @@ import { DialogActions } from '../widgets/DialogActions';
 import { UnifiedScoringSettings } from './settingsComponents/UltraFeedSettingsComponents';
 import { UnifiedScoringFormState, DEFAULT_SETTINGS } from './ultraFeedSettingsTypes';
 import { ValidatedUnifiedScoring, unifiedScoringSchema } from './ultraFeedSettingsValidation';
-import { ZodFormattedError } from 'zod';
+import type { ZodFormattedError } from 'zod/v4';
 import { useMessages } from '../common/withMessages';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import mergeWith from 'lodash/mergeWith';

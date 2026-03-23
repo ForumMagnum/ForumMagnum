@@ -54,6 +54,7 @@ const nextConfig: NextConfig = {
   experimental: {
     serverSourceMaps: true,
     turbopackFileSystemCacheForDev: true,
+    optimizePackageImports: ['zod'],
   },
   
   turbopack: {

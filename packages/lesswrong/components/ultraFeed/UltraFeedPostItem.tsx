@@ -34,6 +34,7 @@ import ForumIcon from "../common/ForumIcon";
 import { RecombeeRecommendationsContextWrapper } from "../recommendations/RecombeeRecommendationsContextWrapper";
 import { useUltraFeedContext } from "./UltraFeedContextProvider";
 import { Link } from "@/lib/reactRouterWrapper";
+import UsersNameWithModal from "./UsersNameWithModal";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -342,7 +343,7 @@ const UltraFeedPostItemHeader = ({
             abbreviateIfLong={true} 
             tooltipPlacement="top" 
             compact 
-            useUltraFeedModal 
+            UserNameComponent={UsersNameWithModal}
             showSubscribedIcon={isSubscribedFeed && isFromSubscribedSource}
           />
         </div>
