@@ -534,6 +534,7 @@ export const postGqlMutations = {
       const richTextEditorType = (previousEditorType === "lexical" || previousEditorType === "ckEditorMarkup")
         ? previousEditorType
         : fallbackRichTextEditorType;
+      console.log(importedHtml); //DEBUG
       const yjs = richTextEditorType === "lexical"
         ? await htmlToYjsStateFromHtml(importedHtml)
         : null;

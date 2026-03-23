@@ -66,4 +66,34 @@ describe("convertImportedGoogleDoc", () => {
     const htmlOutput = await convertImportedGoogleDoc({zipBuffer, postId: 'dummy'});
     expect(htmlOutput).toMatchSnapshot();
   });
+
+  it("preserves bold and italic formatting from stylesheet classes", async () => {
+    const htmlInput = `
+      <html>
+        <head>
+          <style type="text/css">
+            .c1{font-weight:700}
+            .c2{font-style:italic}
+            .c3{font-style:italic;font-weight:700}
+          </style>
+        </head>
+        <body>
+          <p>
+            <span class="c1">bold</span>
+            <span class="c2">italic</span>
+            <span class="c3">both</span>
+          </p>
+        </body>
+      </html>
+    `;
+    const zipBuffer = await createGoogleDocZip({
+      "index.html": htmlInput.replace(/\s+</g, '<'),
+    });
+
+    const htmlOutput = await convertImportedGoogleDoc({ zipBuffer, postId: 'dummy' });
+
+    expect(htmlOutput).toContain('<strong><span>bold</span></strong>');
+    expect(htmlOutput).toContain('<i><span>italic</span></i>');
+    expect(htmlOutput).toContain('<i><strong><span>both</span></strong></i>');
+  });
 });

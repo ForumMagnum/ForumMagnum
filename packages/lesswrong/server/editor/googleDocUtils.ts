@@ -1,5 +1,5 @@
 import axios from 'axios';
-import cheerio, { type Element, type Cheerio, type Node } from 'cheerio';
+import cheerio, { type Element, type Cheerio, type CheerioAPI, type Node } from 'cheerio';
 import JSZip from 'jszip';
 import path from 'node:path';
 import { convertImagesInHTML, uploadBufferToCloudinary } from '../scripts/convertImagesToCloudinary';
@@ -247,19 +247,144 @@ function googleDocRemoveRedirects(html: string): string {
  * - Italics
  * - Bold
  */
+interface GoogleDocTextFormattingRule {
+  className: string;
+  fontStyle?: string;
+  fontWeight?: string;
+}
+
+function googleDocParseTextFormattingDeclarations(styleText: string): Pick<GoogleDocTextFormattingRule, 'fontStyle' | 'fontWeight'> {
+  return styleText
+    .split(';')
+    .map((declaration) => declaration.trim())
+    .filter(Boolean)
+    .reduce<Pick<GoogleDocTextFormattingRule, 'fontStyle' | 'fontWeight'>>((formatting, declaration) => {
+      const [rawPropertyName, ...rawValueParts] = declaration.split(':');
+      const propertyName = rawPropertyName?.trim().toLowerCase();
+      const propertyValue = rawValueParts.join(':').trim().toLowerCase();
+
+      if (!propertyName || !propertyValue) {
+        return formatting;
+      }
+
+      if (propertyName === 'font-style') {
+        formatting.fontStyle = propertyValue;
+      }
+
+      if (propertyName === 'font-weight') {
+        formatting.fontWeight = propertyValue;
+      }
+
+      return formatting;
+    }, {});
+}
+
+function googleDocGetTextFormattingRules($: CheerioAPI): GoogleDocTextFormattingRule[] {
+  const formattingRules: GoogleDocTextFormattingRule[] = [];
+  const cssRulePattern = /([^{}]+)\{([^{}]*)\}/g;
+
+  $('style').each((_: number, styleElement: Element) => {
+    const styleContents = $(styleElement).html();
+
+    if (!styleContents) {
+      return;
+    }
+
+    for (const match of styleContents.matchAll(cssRulePattern)) {
+      const selectors = match[1]?.split(',').map((selector: string) => selector.trim()).filter(Boolean) ?? [];
+      const declarations = match[2];
+
+      if (!declarations) {
+        continue;
+      }
+
+      const formatting = googleDocParseTextFormattingDeclarations(declarations);
+      if (!formatting.fontStyle && !formatting.fontWeight) {
+        continue;
+      }
+
+      selectors.forEach((selector: string) => {
+        const classSelectorMatch = selector.match(/^\.(?<className>[-_a-zA-Z0-9]+)$/);
+        const className = classSelectorMatch?.groups?.className;
+        if (!className) {
+          return;
+        }
+
+        formattingRules.push({
+          className,
+          ...formatting,
+        });
+      });
+    }
+  });
+
+  return formattingRules;
+}
+
+function googleDocGetSpanTextFormatting(
+  span: Cheerio<Element>,
+  formattingRules: GoogleDocTextFormattingRule[],
+): Pick<GoogleDocTextFormattingRule, 'fontStyle' | 'fontWeight'> {
+  const spanClassNames = new Set(
+    span.attr('class')?.split(/\s+/).map((className) => className.trim()).filter(Boolean) ?? []
+  );
+
+  const formatting = formattingRules.reduce<Pick<GoogleDocTextFormattingRule, 'fontStyle' | 'fontWeight'>>((acc, rule) => {
+    if (!spanClassNames.has(rule.className)) {
+      return acc;
+    }
+
+    if (rule.fontStyle) {
+      acc.fontStyle = rule.fontStyle;
+    }
+
+    if (rule.fontWeight) {
+      acc.fontWeight = rule.fontWeight;
+    }
+
+    return acc;
+  }, {});
+
+  const inlineFormatting = googleDocParseTextFormattingDeclarations(span.attr('style') ?? '');
+
+  return {
+    ...formatting,
+    ...inlineFormatting,
+  };
+}
+
+function googleDocIsItalic(fontStyle?: string): boolean {
+  return fontStyle === 'italic' || fontStyle === 'oblique';
+}
+
+function googleDocIsBold(fontWeight?: string): boolean {
+  if (!fontWeight) {
+    return false;
+  }
+
+  if (fontWeight === 'bold') {
+    return true;
+  }
+
+  const numericFontWeight = Number.parseInt(fontWeight, 10);
+  return !Number.isNaN(numericFontWeight) && numericFontWeight >= 700;
+}
+
 function googleDocTextFormatting(html: string): string {
   const $ = cheerio.load(html);
+  const formattingRules = googleDocGetTextFormattingRules($);
 
   $('span').each((_, element) => {
     const span = $(element);
-    const fontStyle = span.css('font-style');
-    const fontWeight = span.css('font-weight');
+    const { fontStyle, fontWeight } = googleDocGetSpanTextFormatting(span, formattingRules);
+    const isItalic = googleDocIsItalic(fontStyle);
+    const isBold = googleDocIsBold(fontWeight);
 
-    if (fontStyle === 'italic' && fontWeight === '700') {
+    if (isItalic && isBold) {
       span.wrap('<i><strong></strong></i>');
-    } else if (fontStyle === 'italic') {
+    } else if (isItalic) {
       span.wrap('<i></i>');
-    } else if (fontWeight === '700') {
+    } else if (isBold) {
       span.wrap('<strong></strong>');
     }
   });
