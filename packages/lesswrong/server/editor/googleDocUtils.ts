@@ -151,15 +151,20 @@ function googleDocConvertFootnotes(html: string): string {
     }
   });
 
+  const createFootnoteReference = (index: string, id: string) => $(
+    `<span class="footnote-reference" data-footnote-reference="" data-footnote-id="${id}" data-footnote-index="${index}" role="doc-noteref" id="fnref${id}"><sup><a href="#fn${id}">[${index}]</a></sup></span>`
+  );
+
   // Normalize the references by adding attributes and replacing the original <sup> tag
   Object.entries(references).forEach(([index, { item, id }]) => {
-    item.attr('data-footnote-reference', '');
-    item.attr('data-footnote-index', index);
-    item.attr('data-footnote-id', id);
-    item.attr('role', 'doc-noteref');
-    item.parents('sup').replaceWith(item); // Replace the original <sup> tag with `item`
-    item.wrap(`<span class="footnote-reference" id="fnref${id}"></span>`);
-    item.text(`[${index}]`);
+    const reference = createFootnoteReference(index, id);
+    const supParent = item.parents('sup').first();
+
+    if (supParent.length) {
+      supParent.replaceWith(reference);
+    } else {
+      item.replaceWith(reference);
+    }
   });
 
   // Create the footnotes section
@@ -167,15 +172,14 @@ function googleDocConvertFootnotes(html: string): string {
 
   // Normalize the footnotes and put them in the newly created section
   Object.entries(footnotes).forEach(([index, { item, anchor, id }]) => {
-    // Remove e.g. "[1]&nbsp;" from the footnote
-    const anchorHtml = anchor.html();
-    if (anchorHtml && anchorHtml.startsWith('&nbsp;')) {
-      anchor.html(anchorHtml.replace(/^&nbsp;/, ''));
-    } else {
-      anchor.remove();
-    }
+    anchor.remove();
 
     const footnoteContent = item.clone().addClass('footnote-content');
+
+    const firstFootnoteSpan = footnoteContent.find('p span').first();
+    if (firstFootnoteSpan.length) {
+      firstFootnoteSpan.text(firstFootnoteSpan.text().replace(/^[\s\u00A0]+/, ''));
+    }
 
     // Replace bullets in footnotes with regular <p> elements and move them up a level
     const listParent = footnoteContent.find('li').parent('ul, ol');
@@ -187,7 +191,7 @@ function googleDocConvertFootnotes(html: string): string {
 
     const newFootnoteBackLink = $('<span class="footnote-back-link" data-footnote-back-link="" data-footnote-id="' + id + '"><sup><strong><a href="#fnref' + id + '">^</a></strong></sup></span>');
 
-    const newFootnoteContent = $('<div class="footnote-content" data-footnote-content="" data-footnote-id="' + id + '" data-footnote-index="' + index + '"></div>');
+    const newFootnoteContent = $('<div class="footnote-content" data-footnote-content=""></div>');
     newFootnoteContent.append(footnoteContent.contents());
 
     const newFootnoteItem = $('<li class="footnote-item" data-footnote-item="" data-footnote-id="' + id + '" data-footnote-index="' + index + '" role="doc-endnote" id="fn' + id + '"></li>');
