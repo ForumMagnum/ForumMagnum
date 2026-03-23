@@ -121,4 +121,29 @@ describe("convertImportedGoogleDoc", () => {
     expect(htmlOutput).toContain('class="footnote-content" data-footnote-content');
     expect(htmlOutput).toContain('<span>Footnote one</span>');
   });
+
+  it("removes empty paragraphs inside footnotes", async () => {
+    const htmlInput = `
+      <html>
+        <body>
+          <p><span>Footnote</span><sup><a href="#ftnt1" id="ftnt_ref1">[1]</a></sup></p>
+          <hr />
+          <div>
+            <p><a href="#ftnt_ref1" id="ftnt1">[1]</a><span>&nbsp;First paragraph</span></p>
+            <p><span></span></p>
+            <p><span>Second paragraph</span></p>
+          </div>
+        </body>
+      </html>
+    `;
+    const zipBuffer = await createGoogleDocZip({
+      "index.html": htmlInput.replace(/\s+</g, '<'),
+    });
+
+    const htmlOutput = await convertImportedGoogleDoc({ zipBuffer, postId: 'dummy' });
+
+    expect(htmlOutput).toContain('<span>First paragraph</span>');
+    expect(htmlOutput).toContain('<span>Second paragraph</span>');
+    expect(htmlOutput).not.toContain('<div class="footnote-content" data-footnote-content=""><p><span>First paragraph</span></p><p><span></span></p><p><span>Second paragraph</span></p></div>');
+  });
 });

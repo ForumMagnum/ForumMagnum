@@ -648,12 +648,12 @@ function googleDocConvertNestedBullets(html: string): string {
 }
 
 /**
- * To fix double spacing, remove all empty <p> tags that are immediate children of <body> from the HTML
+ * To fix double spacing, remove empty paragraphs from the document body and footnote bodies.
  */
 function removeEmptyBodyParagraphs(html: string): string {
   const $ = cheerio.load(html);
 
-  $('body > p').each((_, element) => {
+  $('body > p, .footnote-content > p').each((_, element) => {
     const p = $(element);
     // Allow otherwise empty paragraphs containing images
     if (p.text().trim() === '' && p.find('img').length === 0) {
