@@ -21,6 +21,7 @@ import BanUserFromPostDropdownItem from "./BanUserFromPostDropdownItem";
 import LockThreadDropdownItem from "./LockThreadDropdownItem";
 import { useCurrentUser } from '@/components/common/withUser';
 import BookmarkDropdownItem from "../posts/BookmarkDropdownItem";
+import RejectCommentDropdownItem from "./RejectCommentDropdownItem";
 
 
 const PostsDetailsQuery = gql(`
@@ -76,6 +77,7 @@ const CommentActions = ({comment, post, tag, showEdit}: {
       <MoveToAnswersDropdownItem comment={comment} post={postDetails} />
       <ShortformFrontpageDropdownItem comment={comment} />
       <DeleteCommentDropdownItem comment={comment} post={postDetails} tag={tag} />
+      <RejectCommentDropdownItem comment={comment} post={postDetails} tag={tag} />
       <RetractCommentDropdownItem comment={comment} />
       <LockThreadDropdownItem comment={comment} />
       <BanUserFromPostDropdownItem comment={comment} post={postDetails} />
@@ -87,5 +89,3 @@ const CommentActions = ({comment, post, tag, showEdit}: {
 }
 
 export default CommentActions;
-
-
