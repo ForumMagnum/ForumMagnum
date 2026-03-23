@@ -212,7 +212,7 @@ function googleDocConvertFootnotes(html: string): string {
   //
   // Remove everything from the <hr /> to the footnotes section
   const footnotesSection = $('.footnote-section');
-  const hrBeforeFootnotes = footnotesSection.prevAll('hr').last();
+  const hrBeforeFootnotes = footnotesSection.prevAll('hr').first();
   hrBeforeFootnotes.remove();
 
   return $.html();
@@ -565,9 +565,9 @@ async function googleDocInternalLinks(html: string): Promise<string> {
  * Handle footnotes and internal links. These are bundled together because they must
  * be done in the right order
  */
-function googleDocConvertLinks(html: string) {
+async function googleDocConvertLinks(html: string) {
   const withNormalizedFootnotes = googleDocConvertFootnotes(html);
-  const withInternalLinks = googleDocInternalLinks(withNormalizedFootnotes);
+  const withInternalLinks = await googleDocInternalLinks(withNormalizedFootnotes);
   return withInternalLinks
 }
 
