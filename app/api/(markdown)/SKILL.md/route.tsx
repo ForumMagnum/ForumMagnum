@@ -57,6 +57,8 @@ Reading collections:
  * /api/rationality
  * /api/codex
  * /api/hpmor
+Testing network access:
+ * /api/agent/ping (GET/POST/PUT/DELETE/PATCH/OPTIONS/HEAD)
 
 Reporting Feedback About This API
 =================================
@@ -85,7 +87,7 @@ at https://www.lesswrong.com/api/post/KXujJjnmP85u8eM6B [without the /api in the
 path if providing a link to the user]. Before using our API to leave feedback,
 you should check whether you have network access to our domain.  You can do this by
 checking the "Allowed Domains" list in your network configuration's settings, or by
-making an empty test curl to https://www.lesswrong.com/api/agent/commentOnDraft and
+making an empty test POST via curl to https://www.lesswrong.com/api/agent/ping and
 checking if you get a 403 with x-deny-reason: host_not_allowed. If so, see the
 "Setup & Usage Instructions" section below for what the user needs to do to
 add our domain to their list of allowed domains; the API will be unusable otherwise.)
