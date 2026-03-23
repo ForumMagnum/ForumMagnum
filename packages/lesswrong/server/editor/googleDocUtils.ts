@@ -257,34 +257,29 @@ interface GoogleDocTextFormattingRule {
   fontWeight?: string;
 }
 
-function googleDocParseTextFormattingDeclarations(styleText: string): Pick<GoogleDocTextFormattingRule, 'fontStyle' | 'fontWeight'> {
+type GoogleDocCssDeclarations = Record<string, string>;
+
+function googleDocParseCssDeclarations(styleText: string): GoogleDocCssDeclarations {
   return styleText
     .split(';')
     .map((declaration) => declaration.trim())
     .filter(Boolean)
-    .reduce<Pick<GoogleDocTextFormattingRule, 'fontStyle' | 'fontWeight'>>((formatting, declaration) => {
+    .reduce<GoogleDocCssDeclarations>((declarations, declaration) => {
       const [rawPropertyName, ...rawValueParts] = declaration.split(':');
       const propertyName = rawPropertyName?.trim().toLowerCase();
       const propertyValue = rawValueParts.join(':').trim().toLowerCase();
 
       if (!propertyName || !propertyValue) {
-        return formatting;
+        return declarations;
       }
 
-      if (propertyName === 'font-style') {
-        formatting.fontStyle = propertyValue;
-      }
-
-      if (propertyName === 'font-weight') {
-        formatting.fontWeight = propertyValue;
-      }
-
-      return formatting;
+      declarations[propertyName] = propertyValue;
+      return declarations;
     }, {});
 }
 
-function googleDocGetTextFormattingRules($: CheerioAPI): GoogleDocTextFormattingRule[] {
-  const formattingRules: GoogleDocTextFormattingRule[] = [];
+function googleDocGetClassStyleDeclarations($: CheerioAPI): Map<string, GoogleDocCssDeclarations> {
+  const classStyleDeclarations = new Map<string, GoogleDocCssDeclarations>();
   const cssRulePattern = /([^{}]+)\{([^{}]*)\}/g;
 
   $('style').each((_: number, styleElement: Element) => {
@@ -302,10 +297,7 @@ function googleDocGetTextFormattingRules($: CheerioAPI): GoogleDocTextFormatting
         continue;
       }
 
-      const formatting = googleDocParseTextFormattingDeclarations(declarations);
-      if (!formatting.fontStyle && !formatting.fontWeight) {
-        continue;
-      }
+      const parsedDeclarations = googleDocParseCssDeclarations(declarations);
 
       selectors.forEach((selector: string) => {
         const classSelectorMatch = selector.match(/^\.(?<className>[-_a-zA-Z0-9]+)$/);
@@ -314,46 +306,47 @@ function googleDocGetTextFormattingRules($: CheerioAPI): GoogleDocTextFormatting
           return;
         }
 
-        formattingRules.push({
-          className,
-          ...formatting,
+        classStyleDeclarations.set(className, {
+          ...(classStyleDeclarations.get(className) ?? {}),
+          ...parsedDeclarations,
         });
       });
     }
   });
 
-  return formattingRules;
+  return classStyleDeclarations;
+}
+
+function googleDocGetElementClassNames(element: Cheerio<Element>): string[] {
+  return element.attr('class')?.split(/\s+/).map((className) => className.trim()).filter(Boolean) ?? [];
+}
+
+function googleDocGetElementStyleDeclarations(
+  element: Cheerio<Element>,
+  classStyleDeclarations: Map<string, GoogleDocCssDeclarations>,
+): GoogleDocCssDeclarations {
+  const classDeclarations = googleDocGetElementClassNames(element).reduce<GoogleDocCssDeclarations>((declarations, className) => {
+    return {
+      ...declarations,
+      ...(classStyleDeclarations.get(className) ?? {}),
+    };
+  }, {});
+
+  return {
+    ...classDeclarations,
+    ...googleDocParseCssDeclarations(element.attr('style') ?? ''),
+  };
 }
 
 function googleDocGetSpanTextFormatting(
   span: Cheerio<Element>,
-  formattingRules: GoogleDocTextFormattingRule[],
+  classStyleDeclarations: Map<string, GoogleDocCssDeclarations>,
 ): Pick<GoogleDocTextFormattingRule, 'fontStyle' | 'fontWeight'> {
-  const spanClassNames = new Set(
-    span.attr('class')?.split(/\s+/).map((className) => className.trim()).filter(Boolean) ?? []
-  );
-
-  const formatting = formattingRules.reduce<Pick<GoogleDocTextFormattingRule, 'fontStyle' | 'fontWeight'>>((acc, rule) => {
-    if (!spanClassNames.has(rule.className)) {
-      return acc;
-    }
-
-    if (rule.fontStyle) {
-      acc.fontStyle = rule.fontStyle;
-    }
-
-    if (rule.fontWeight) {
-      acc.fontWeight = rule.fontWeight;
-    }
-
-    return acc;
-  }, {});
-
-  const inlineFormatting = googleDocParseTextFormattingDeclarations(span.attr('style') ?? '');
+  const declarations = googleDocGetElementStyleDeclarations(span, classStyleDeclarations);
 
   return {
-    ...formatting,
-    ...inlineFormatting,
+    fontStyle: declarations['font-style'],
+    fontWeight: declarations['font-weight'],
   };
 }
 
@@ -376,11 +369,11 @@ function googleDocIsBold(fontWeight?: string): boolean {
 
 function googleDocTextFormatting(html: string): string {
   const $ = cheerio.load(html);
-  const formattingRules = googleDocGetTextFormattingRules($);
+  const classStyleDeclarations = googleDocGetClassStyleDeclarations($);
 
   $('span').each((_, element) => {
     const span = $(element);
-    const { fontStyle, fontWeight } = googleDocGetSpanTextFormatting(span, formattingRules);
+    const { fontStyle, fontWeight } = googleDocGetSpanTextFormatting(span, classStyleDeclarations);
     const isItalic = googleDocIsItalic(fontStyle);
     const isBold = googleDocIsBold(fontWeight);
 
@@ -648,17 +641,73 @@ function googleDocConvertNestedBullets(html: string): string {
 }
 
 /**
- * To fix double spacing, remove empty paragraphs from the document body and footnote bodies.
+ * To fix Google Docs' double spacing, collapse each run of blank spacer paragraphs by one.
  */
 function removeEmptyBodyParagraphs(html: string): string {
   const $ = cheerio.load(html);
+  const classStyleDeclarations = googleDocGetClassStyleDeclarations($);
 
-  $('body > p, .footnote-content > p').each((_, element) => {
-    const p = $(element);
-    // Allow otherwise empty paragraphs containing images
-    if (p.text().trim() === '' && p.find('img').length === 0) {
-      p.remove();
+  const isZeroCssLength = (value?: string): boolean => {
+    if (!value) {
+      return false;
     }
+
+    const normalizedValue = value.trim().toLowerCase();
+    if (!normalizedValue) {
+      return false;
+    }
+
+    const numericValue = Number.parseFloat(normalizedValue);
+    return !Number.isNaN(numericValue) && numericValue === 0;
+  };
+
+  const hasMeaningfulParagraphContent = (paragraph: Cheerio<Element>): boolean => {
+    if (paragraph.find('img, svg, video, audio, iframe, table, hr, ol, ul, li, blockquote, pre').length > 0) {
+      return true;
+    }
+
+    return paragraph.text().replace(/\u00a0/g, '').trim() !== '';
+  };
+
+  const isGoogleDocSpacerParagraph = (paragraph: Cheerio<Element>): boolean => {
+    if (hasMeaningfulParagraphContent(paragraph)) {
+      return false;
+    }
+
+    const declarations = googleDocGetElementStyleDeclarations(paragraph, classStyleDeclarations);
+    const hasExplicitHeight = declarations.height !== undefined;
+    const hasZeroVerticalPadding = isZeroCssLength(declarations['padding-top']) && isZeroCssLength(declarations['padding-bottom']);
+    const hasLineHeight = declarations['line-height'] !== undefined;
+    const hasNoParagraphStyling = googleDocGetElementClassNames(paragraph).length === 0 && !paragraph.attr('style');
+
+    return hasExplicitHeight || (hasZeroVerticalPadding && hasLineHeight) || hasNoParagraphStyling;
+  };
+
+  const collapseSpacerParagraphRun = (paragraphs: Cheerio<Element>[]) => {
+    if (paragraphs.length > 0) {
+      paragraphs[0].remove();
+    }
+  };
+
+  const collapseSpacerParagraphsInContainer = (container: Cheerio<Element>) => {
+    let spacerParagraphRun: Cheerio<Element>[] = [];
+
+    container.children('p').each((_, element) => {
+      const paragraph = $(element);
+      if (isGoogleDocSpacerParagraph(paragraph)) {
+        spacerParagraphRun.push(paragraph);
+        return;
+      }
+
+      collapseSpacerParagraphRun(spacerParagraphRun);
+      spacerParagraphRun = [];
+    });
+
+    collapseSpacerParagraphRun(spacerParagraphRun);
+  };
+
+  $('body, .footnote-content').each((_, element) => {
+    collapseSpacerParagraphsInContainer($(element));
   });
 
   return $.html();

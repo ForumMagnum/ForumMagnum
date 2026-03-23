@@ -146,4 +146,35 @@ describe("convertImportedGoogleDoc", () => {
     expect(htmlOutput).toContain('<span>Second paragraph</span>');
     expect(htmlOutput).not.toContain('<div class="footnote-content" data-footnote-content=""><p><span>First paragraph</span></p><p><span></span></p><p><span>Second paragraph</span></p></div>');
   });
+
+  it("collapses each run of blank Google Docs spacer paragraphs by one", async () => {
+    const htmlInput = `
+      <html>
+        <head>
+          <style type="text/css">
+            .c1{padding-top:0pt;padding-bottom:0pt;line-height:1.15}
+            .c2{height:11pt}
+            .c3{color:#000000;font-size:11pt;font-family:"Arial"}
+          </style>
+        </head>
+        <body>
+          <p class="c1"><span class="c3">First paragraph</span></p>
+          <p class="c1 c2"><span class="c3"></span></p>
+          <p class="c1 c2"><span class="c3"></span></p>
+          <p class="c1 c2"><span class="c3"></span></p>
+          <p class="c1"><span class="c3">Second paragraph</span></p>
+        </body>
+      </html>
+    `;
+    const zipBuffer = await createGoogleDocZip({
+      "index.html": htmlInput.replace(/\s+</g, '<'),
+    });
+
+    const htmlOutput = await convertImportedGoogleDoc({ zipBuffer, postId: 'dummy' });
+    const emptyParagraphMatches = htmlOutput.match(/<p><span><\/span><\/p>/g) ?? [];
+
+    expect(htmlOutput).toContain('<span>First paragraph</span>');
+    expect(htmlOutput).toContain('<span>Second paragraph</span>');
+    expect(emptyParagraphMatches).toHaveLength(2);
+  });
 });
