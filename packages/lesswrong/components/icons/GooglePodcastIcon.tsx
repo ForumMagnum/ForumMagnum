@@ -1,7 +1,6 @@
 import React from 'react';
 
 export const googlePodcastIcon = <svg xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" width="150px" height="38px" viewBox="0 0 150 38" version="1.1">
-  <title>EN_Google_Podcasts_Badge</title>
   <desc>Created with Sketch.</desc>
   <g id="EN_Google_Podcasts_Badge" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
     <g id="Rectangle-Solid" fill="#FFFFFF" stroke="#9AA0A6" strokeWidth="0.56">
