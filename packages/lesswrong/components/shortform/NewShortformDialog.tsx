@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
-import { useNavigate } from '../../lib/routeUtil';
 import ShortformSubmitForm from "./ShortformSubmitForm";
 import LWDialog from "../common/LWDialog";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -23,7 +22,6 @@ const NewShortformDialog = ({onClose}: {
 }) => {
   const classes = useStyles(styles);
   const [open, setOpen] = useState(true);
-  const navigate = useNavigate();
   return (
     <LWDialog
       open={open}
@@ -36,10 +34,7 @@ const NewShortformDialog = ({onClose}: {
     >
       <DialogContent className={classes.content}>
         <ShortformSubmitForm
-          successCallback={(comment) => {
-            onClose();
-            navigate(comment.draft ? '/drafts#quick-take-drafts' : '/quicktakes');
-          }}
+          successCallback={onClose}
           cancelCallback={() => {
             setOpen(false);
             onClose?.();
