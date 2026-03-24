@@ -81,7 +81,7 @@ export const ApolloWrapper = ({ requestId, children }: React.PropsWithChildren<{
     const browserCookies = document.cookie;
     const cookies = new Cookies(browserCookies);
     const loginToken = cookies.get('loginToken');
-    const searchParams= Object.fromEntries(urlSearchParams.entries())
+    const searchParams = Object.fromEntries(urlSearchParams.entries())
 
     return (
       <ApolloWrapperClient loginToken={loginToken} searchParams={searchParams}>
