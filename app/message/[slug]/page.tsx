@@ -2,6 +2,9 @@ import React from "react";
 import MessageUser from '@/components/messaging/MessageUser';
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+import { getPageTitleFields, mergeMetadata } from "@/server/pageMetadata/sharedMetadata";
+
+export const generateMetadata = () => mergeMetadata(getPageTitleFields("Messages"))
 
 assertRouteAttributes("/message/[slug]", {
   whiteBackground: false,

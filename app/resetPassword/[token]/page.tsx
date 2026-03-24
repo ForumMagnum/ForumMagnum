@@ -2,6 +2,9 @@ import React from "react";
 import PasswordResetPage from '@/components/users/PasswordResetPage';
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+import { getPageTitleFields, mergeMetadata } from "@/server/pageMetadata/sharedMetadata";
+
+export const generateMetadata = () => mergeMetadata(getPageTitleFields("Reset Password"));
 
 assertRouteAttributes("/resetPassword/[token]", {
   whiteBackground: false,

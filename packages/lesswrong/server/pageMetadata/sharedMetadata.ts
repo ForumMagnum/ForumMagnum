@@ -8,6 +8,7 @@ import { headers } from "next/headers";
 import { notFound } from 'next/navigation';
 import { getRequestIdForServerComponentOrGenerateMetadata } from '../rendering/requestId';
 import { getResolverContextForSSR } from '@/server/rendering/ssrApolloClient';
+import merge from 'lodash/merge';
 
 const IGNORED_ERROR_MESSAGES = new Set(['app.operation_not_allowed', 'app.missing_document']);
 
@@ -60,6 +61,13 @@ export async function getDefaultMetadata() {
     },
     ...(noIndexSetting.get() ? noIndexMetadata : {})
   } satisfies Metadata;
+}
+
+/**
+ * Deep-merges getDefaultMetadata() and at least one other object containing page metadata
+ */
+export function mergeMetadata(metadata: Metadata, ...otherMetadata: Metadata[]): Metadata {
+  return merge({}, getDefaultMetadata(), metadata, ...otherMetadata);
 }
 
 function getPageTitleString(title: string) {

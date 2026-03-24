@@ -134,3 +134,7 @@ export function getPostPageMetadataFunction<Params>(paramsToSelectorConverter: (
     }
   }
 }
+
+export function getMetadataForPostPageWithFixedId(getId: () => string) {
+  return getPostPageMetadataFunction<{}>(() => ({_id: getId()}));
+}

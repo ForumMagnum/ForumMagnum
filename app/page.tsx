@@ -4,6 +4,9 @@ import RouteRoot from "@/components/layout/RouteRoot";
 import AlignmentForumHome from "@/components/alignment-forum/AlignmentForumHome";
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+import { getDefaultMetadata } from "@/server/pageMetadata/sharedMetadata";
+
+export const generateMetadata = () => getDefaultMetadata();
 
 assertRouteAttributes("/", {
   whiteBackground: false,

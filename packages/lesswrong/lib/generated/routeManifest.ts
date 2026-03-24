@@ -927,9 +927,6 @@ export const routeTrie = {
     "petrovDayPoll": {
       "hasPage": true
     },
-    "petroyDayPoll": {
-      "hasPage": true
-    },
     "postAnalytics": {
       "hasPage": true
     },
@@ -1284,7 +1281,6 @@ export const routeTrie = {
     "payments": "payments",
     "petrov": "petrov",
     "petrovdaypoll": "petrovDayPoll",
-    "petroydaypoll": "petroyDayPoll",
     "postanalytics": "postAnalytics",
     "posts": "posts",
     "postswithapprovedjargon": "postsWithApprovedJargon",

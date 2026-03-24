@@ -8,6 +8,9 @@ import {
 } from '@/server/hocuspocus/hocuspocusCallbacks';
 import WebhookProcessor from './WebhookProcessor';
 import { assertRouteAttributes } from '@/lib/routeChecks/assertRouteAttributes';
+import { getPageTitleFields, mergeMetadata } from "@/server/pageMetadata/sharedMetadata";
+
+export const generateMetadata = () => mergeMetadata(getPageTitleFields("Hocuspocus Webhook"));
 
 type WebhookResult =
   | { type: 'error'; message: string }
