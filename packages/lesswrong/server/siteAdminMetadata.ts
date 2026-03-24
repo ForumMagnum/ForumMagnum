@@ -33,6 +33,7 @@ export const siteAdminMetadataGraphQLQueries = {
       cpuUsage: process.cpuUsage(),
       serverTimezoneOffset: new Date().getTimezoneOffset()/60.0,
       estimatedDatabaseLatency: await getEstimatedDatabaseLatency(),
+      NODE_OPTIONS: process.env.NODE_OPTIONS,
     });
   }
 };
