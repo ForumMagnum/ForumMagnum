@@ -10,7 +10,6 @@ export const karmaChangesTypeDefs = gql`
     title: String
     slug: String!
     addedReacts: [ReactionChange!]
-    eaAddedReacts: JSON
   }
   type CommentKarmaChange {
     _id: String!
@@ -26,7 +25,6 @@ export const karmaChangesTypeDefs = gql`
     tagCommentType: TagCommentType
     tagId: String
     addedReacts: [ReactionChange!]
-    eaAddedReacts: JSON
   }
   type RevisionsKarmaChange {
     _id: String!
@@ -36,7 +34,6 @@ export const karmaChangesTypeDefs = gql`
     tagSlug: String
     tagName: String
     addedReacts: [ReactionChange!]
-    eaAddedReacts: JSON
   }
   type ReactionChange {
     reactionType: String!
@@ -82,11 +79,7 @@ export type KarmaChangesArgs = {
 
 export type ReactionChange = {
   reactionType: string
-  userId?: string
+  userId?: string|null
 }
-
-export type EAReactionChange = number | {_id: string, displayName: string, slug: string}[];
-
-export type EAReactionChanges = Record<string, EAReactionChange>;
 
 export type AnyKarmaChange = PostKarmaChange | CommentKarmaChange | RevisionsKarmaChange;

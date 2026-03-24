@@ -86,7 +86,7 @@ const textColorOverrideStyles = ({
   "& .KarmaChangeNotifier-starIcon": {
     color,
   },
-  "& .KarmaChangeNotifier-gainedPoints": {
+  "& .ColoredNumber-gainedPoints": {
     color,
   },
   "& .NotificationsMenuButton-badge": {
