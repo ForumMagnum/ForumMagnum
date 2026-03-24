@@ -15728,33 +15728,6 @@ type FeedPostsHighlightQueryVariables = Exact<{
 
 type FeedPostsHighlightQuery = FeedPostsHighlightQuery_Query;
 
-type latestGoogleDocMetadataQuery_Query = { __typename?: 'Query', latestGoogleDocMetadata: any | null };
-
-
-type latestGoogleDocMetadataQueryVariables = Exact<{
-  postId: Scalars['String']['input'];
-  version: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type latestGoogleDocMetadataQuery = latestGoogleDocMetadataQuery_Query;
-
-type ImportGoogleDocMutation_ImportGoogleDoc_Post = (
-  { __typename?: 'Post' }
-  & PostsBase
-);
-
-type ImportGoogleDocMutation_Mutation = { __typename?: 'Mutation', ImportGoogleDoc: ImportGoogleDocMutation_ImportGoogleDoc_Post | null };
-
-
-type ImportGoogleDocMutationVariables = Exact<{
-  fileUrl: Scalars['String']['input'];
-  postId: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type ImportGoogleDocMutation = ImportGoogleDocMutation_Mutation;
-
 type multiPostLWPostsByVoteQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & PostsListWithVotes
