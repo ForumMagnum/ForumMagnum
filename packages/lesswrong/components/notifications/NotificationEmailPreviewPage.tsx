@@ -9,6 +9,7 @@ import { gql } from '@/lib/generated/gql-codegen';
 import SingleColumnSection from "../common/SingleColumnSection";
 import Loading from "../vulcan-core/Loading";
 import EmailPreview from "./EmailPreview";
+import ErrorAccessDenied from '../common/ErrorAccessDenied';
 
 const parseIds = (urlStr: string): Array<string> => {
   if (!urlStr) return [];
@@ -30,7 +31,7 @@ const NotificationEmailPreviewPage = () => {
   });
   
   if (!userIsAdmin(currentUser))
-    return <div>You must be logged in as an admin to use this page.</div>;
+    return <ErrorAccessDenied explanation="You must be logged in as an admin to use this page."/>;
 
   const emails = data?.EmailPreview;
   
