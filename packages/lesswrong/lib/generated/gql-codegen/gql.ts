@@ -255,8 +255,6 @@ type Documents = {
     "\n  mutation createCommentExternalPostImporter($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.createCommentExternalPostImporterDocument,
     "\n    mutation importUrlAsDraftPost($url: String!) {\n      importUrlAsDraftPost(url: $url) {\n        alreadyExists\n        post {\n          _id\n          slug\n          title\n          content\n          url\n          postedAt\n          createdAt\n          modifiedAt\n          userId\n          draft\n          coauthorUserIds\n        }\n      }\n    }\n  ": typeof types.importUrlAsDraftPostDocument,
     "\n  query FeedPostsHighlight($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsExpandedHighlight\n      }\n    }\n  }\n": typeof types.FeedPostsHighlightDocument,
-    "\n      query latestGoogleDocMetadata($postId: String!, $version: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    ": typeof types.latestGoogleDocMetadataDocument,
-    "\n      mutation ImportGoogleDoc($fileUrl: String!, $postId: String) {\n        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {\n          ...PostsBase\n        }\n      }\n    ": typeof types.ImportGoogleDocDocument,
     "\n  query multiPostLWPostsByVoteQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsListWithVotes\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostLWPostsByVoteQueryDocument,
     "\n  mutation createPostNewDialogueDialog($data: CreatePostDataInput!) {\n    createPost(data: $data) {\n      data {\n        ...PostsEdit\n      }\n    }\n  }\n": typeof types.createPostNewDialogueDialogDocument,
     "\n  query multiPostPingbacksListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostPingbacksListQueryDocument,
@@ -1079,8 +1077,6 @@ const documents: Documents = {
     "\n  mutation createCommentExternalPostImporter($data: CreateCommentDataInput!) {\n    createComment(data: $data) {\n      data {\n        ...CommentsList\n      }\n    }\n  }\n": types.createCommentExternalPostImporterDocument,
     "\n    mutation importUrlAsDraftPost($url: String!) {\n      importUrlAsDraftPost(url: $url) {\n        alreadyExists\n        post {\n          _id\n          slug\n          title\n          content\n          url\n          postedAt\n          createdAt\n          modifiedAt\n          userId\n          draft\n          coauthorUserIds\n        }\n      }\n    }\n  ": types.importUrlAsDraftPostDocument,
     "\n  query FeedPostsHighlight($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsExpandedHighlight\n      }\n    }\n  }\n": types.FeedPostsHighlightDocument,
-    "\n      query latestGoogleDocMetadata($postId: String!, $version: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    ": types.latestGoogleDocMetadataDocument,
-    "\n      mutation ImportGoogleDoc($fileUrl: String!, $postId: String) {\n        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {\n          ...PostsBase\n        }\n      }\n    ": types.ImportGoogleDocDocument,
     "\n  query multiPostLWPostsByVoteQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsListWithVotes\n      }\n      totalCount\n    }\n  }\n": types.multiPostLWPostsByVoteQueryDocument,
     "\n  mutation createPostNewDialogueDialog($data: CreatePostDataInput!) {\n    createPost(data: $data) {\n      data {\n        ...PostsEdit\n      }\n    }\n  }\n": types.createPostNewDialogueDialogDocument,
     "\n  query multiPostPingbacksListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": types.multiPostPingbacksListQueryDocument,
@@ -2640,14 +2636,6 @@ export function gql(source: "\n    mutation importUrlAsDraftPost($url: String!) 
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query FeedPostsHighlight($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsExpandedHighlight\n      }\n    }\n  }\n"): (typeof documents)["\n  query FeedPostsHighlight($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsExpandedHighlight\n      }\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n      query latestGoogleDocMetadata($postId: String!, $version: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    "): (typeof documents)["\n      query latestGoogleDocMetadata($postId: String!, $version: String) {\n        latestGoogleDocMetadata(postId: $postId, version: $version)\n      }\n    "];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n      mutation ImportGoogleDoc($fileUrl: String!, $postId: String) {\n        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {\n          ...PostsBase\n        }\n      }\n    "): (typeof documents)["\n      mutation ImportGoogleDoc($fileUrl: String!, $postId: String) {\n        ImportGoogleDoc(fileUrl: $fileUrl, postId: $postId) {\n          ...PostsBase\n        }\n      }\n    "];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
