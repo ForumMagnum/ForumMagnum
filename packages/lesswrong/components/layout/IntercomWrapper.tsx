@@ -9,6 +9,7 @@ import Intercom from '../../lib/vendor/react-intercom';
 import { useCookiePreferences } from '../hooks/useCookiesWithConsent';
 import { isStandaloneRoute } from '@/lib/routeChecks';
 import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles('IntercomWrapper', (theme: ThemeType) => ({
   "@global": {
@@ -33,6 +34,7 @@ const styles = defineStyles('IntercomWrapper', (theme: ThemeType) => ({
 const IntercomWrapper = () => {
   const currentUser = useCurrentUser();
   const { pathname } = useLocation();
+  const _classes = useStyles(styles);
 
   const { cookiePreferences } = useCookiePreferences()
   const functionalCookiesAllowed = cookiePreferences.includes('functional')
