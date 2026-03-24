@@ -15,6 +15,7 @@ import {
 import { locateMarkdownQuoteSelectionInSubtree } from "../mapMarkdownToLexical";
 import { commentOnDraftToolSchema } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
+import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 import { getHocuspocusToken } from "../getHocuspocusToken";
 
 export function createCollabComment({
@@ -217,6 +218,7 @@ export async function POST(req: NextRequest) {
 
   const parseResult = commentOnDraftToolSchema.safeParse(body);
   if (!parseResult.success) {
+    captureAgentApiEvent({ route: "commentOnDraft", postId: body?.postId, userId: context.currentUser?._id, agentName: body?.agentName, status: "validation_error" });
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
 
@@ -225,6 +227,7 @@ export async function POST(req: NextRequest) {
   try {
     const token = await getHocuspocusToken(context, postId, key);
     if (!token) {
+      captureAgentApiEvent({ route: "commentOnDraft", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
       return NextResponse.json({ error: "Unauthorized to comment on draft" }, { status: 403 });
     }
 
@@ -240,6 +243,7 @@ export async function POST(req: NextRequest) {
       authorId,
     });
 
+    captureAgentApiEvent({ route: "commentOnDraft", postId, userId: context.currentUser?._id, agentName, status: "success", operationResult: anchorStatus });
     return NextResponse.json({
       ok: true,
       postId,
@@ -253,6 +257,7 @@ export async function POST(req: NextRequest) {
     // eslint-disable-next-line no-console
     console.error(error);
     captureException(error);
+    captureAgentApiFailure("commentOnDraft", error, { postId, userId: context.currentUser?._id, agentName });
     return NextResponse.json(
       {
         error: "Failed to write comment to collaborative draft",

@@ -106,8 +106,11 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
         background: theme.palette.greyAlpha(0.04),
       },
     },
-    "& .PostSubmit-feedback": {
+    "& .PostSubmit-feedbackRow": {
       order: 1,
+      "& > *": {
+        width: "50%",
+      },
     },
     "& .SubmitToFrontpageCheckbox-checkboxLabel": {
       ...theme.typography.commentStyle,
@@ -470,6 +473,14 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     justifyContent: "center",
     gap: 6,
     width: "100%",
+  },
+  publishClaudeButton: {
+    marginTop: 0,
+    marginBottom: 0,
+    borderRadius: 6,
+    padding: "7px 12px",
+    height: 36,
+    boxSizing: "border-box",
   },
   shareLinkIcon: {
     fontSize: 15,
@@ -866,7 +877,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
                   rel="noopener noreferrer"
                   className={classes.openInClaudeButton}
                   onClick={() => {
-                    captureEvent("shareWithClaudeClicked", { postId });
+                    captureEvent("shareWithClaudeClicked", { postId, panel: "sharing" });
                     field.handleChange({
                       ...settings,
                       ...(settings.anyoneWithLinkCan === 'none' ? { anyoneWithLinkCan: "edit" } : {}),
@@ -1218,6 +1229,34 @@ const EditorSettingsSidebar = ({
     });
   }, [captureEvent, initialData, openDialog, postId]);
 
+  const linkSharingKey = form.state.values.linkSharingKey ?? undefined;
+  const publishClaudeButton = postId ? (
+    <a
+      href={`https://www.claude.ai/new?q=${encodeURIComponent(getFeedbackQuery(postId, linkSharingKey))}`}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={classNames(classes.openInClaudeButton, classes.publishClaudeButton)}
+      onClick={() => {
+        captureEvent("shareWithClaudeClicked", { postId, panel: "publish" });
+        const settings = form.state.values.sharingSettings ?? defaultSharingSettings;
+        if (settings.anyoneWithLinkCan === 'none') {
+          form.setFieldValue('sharingSettings', {
+            ...settings,
+            anyoneWithLinkCan: "edit",
+          });
+        }
+      }}
+    >
+      <LWTooltip
+        className={classes.openInClaudeButtonTooltip}
+        title="Opens a new conversation in claude.ai with our default feedback prompt.  If you change it, you need to explicitly tell Claude to leave feedback in the editor, or it will respond to you in chat.  (We can't do this for you since it's treated as a prompt injection.)"
+      >
+        <ForumIcon icon="OpenInNew" className={classes.shareLinkIcon} />
+        Claude
+      </LWTooltip>
+    </a>
+  ) : undefined;
+
   const content = (
     <div className={classes.root}>
       {mode === "publish" && <>
@@ -1243,6 +1282,7 @@ const EditorSettingsSidebar = ({
                         submitLabel={submitLabel}
                         saveDraftLabel={draftLabel}
                         feedbackLabel="Get Feedback"
+                        claudeButton={publishClaudeButton}
                       />
                     </div>
                     {!isEvent && <div className={classes.frontpageCheckbox}>
