@@ -1,5 +1,5 @@
 import { getUserPingbackBySlug, getPostPingbackById, getPostPingbackBySlug, getTagPingbackBySlug, getPostPingbackByLegacyId } from '@/lib/pingback';
-import { aboutPostIdSetting, faqPostIdSetting, contactPostIdSetting } from '@/lib/instanceSettings';
+import { aboutPostIdSetting, faqPostIdSetting, contactPostIdSetting, newUserGuideId } from '@/lib/instanceSettings';
 import type { RouterLocation } from './parseRoute';
 import type { ParamMap } from '../../../../.next/types/routes';
 
@@ -46,6 +46,7 @@ export const routePingbackMapping = {
   '/about': (parsedUrl) => getPostPingbackById(parsedUrl, aboutPostIdSetting.get()),
   '/contact': (parsedUrl) => getPostPingbackById(parsedUrl, contactPostIdSetting.get()),
   '/faq': (parsedUrl) => getPostPingbackById(parsedUrl, faqPostIdSetting.get()),
+  '/newUserGuide': (parsedUrl) => getPostPingbackById(parsedUrl, newUserGuideId.get()),
   '/donate': (parsedUrl) => getPostPingbackById(parsedUrl, "LcpQQvcpWfPXvW7R9"),
   '/hpmor/[slug]': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),
   '/codex/[slug]': (parsedUrl, context) => getPostPingbackBySlug(parsedUrl, parsedUrl.params.slug, context),

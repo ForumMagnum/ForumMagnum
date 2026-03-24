@@ -37,6 +37,7 @@ const routesWithWhiteBackground = [
   "/login",
   "/manageSubscriptions",
   "/newPost",
+  "/newUserGuide",
   "/petrov/ceremony",
   "/postAnalytics",
   "/posts/[_id]/[slug]",

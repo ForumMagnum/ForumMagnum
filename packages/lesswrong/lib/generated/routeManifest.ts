@@ -846,6 +846,9 @@ export const routeTrie = {
     "newPost": {
       "hasPage": true
     },
+    "newUserGuide": {
+      "hasPage": true
+    },
     "nominatePosts": {
       "dynamicChild": {
         "paramName": "year",
@@ -1271,6 +1274,7 @@ export const routeTrie = {
     "moderatorinbox": "moderatorInbox",
     "newlongformreview": "newLongformReview",
     "newpost": "newPost",
+    "newuserguide": "newUserGuide",
     "nominateposts": "nominatePosts",
     "nominations": "nominations",
     "oauth": "oauth",

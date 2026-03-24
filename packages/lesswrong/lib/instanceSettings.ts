@@ -221,6 +221,7 @@ export const homepagePostFeedsSetting = new PublicInstanceSetting<PostFeedDetail
 export const recombeeCacheTtlMsSetting = new PublicInstanceSetting<number>('recombee.cacheTtlMs', 1000 * 60 * 60 * 24 * 30, "optional");
 
 export const aboutPostIdSetting = new PublicInstanceSetting<string>('aboutPostId', 'bJ2haLkcGeLtTWaD5', "warning") // Post ID for the /about route
+export const newUserGuideId = new PublicInstanceSetting<string>('newUserGuideId', "LbbrnRvc9QwjJeics", "warning");
 
 export const anthropicApiKey = new PublicInstanceSetting<string>('anthropic.claudeTestKey', "LessWrong", "optional")
 

@@ -17,6 +17,7 @@ export const routeMarkdownMapping = defineMarkdownRouteMapping({
   "/about": () => "/api/about",
   "/faq": () => "/api/faq",
   "/contact": () => "/api/contact",
+  "/newUserGuide": () => "/api/newUserGuide",
   "/search": () => "/api/search",
   "/community": () => "/api/community",
   "/rationality": () => "/api/rationality",
