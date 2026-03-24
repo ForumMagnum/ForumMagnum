@@ -126,7 +126,7 @@ export async function postAiEditorUsageToSlack() {
     SELECT event_type, event
     FROM raw
     WHERE event_type IN ('shareWithClaudeClicked', 'agentApiCall')
-      AND timestamp > NOW() - INTERVAL '5 minutes 30 seconds'
+      AND timestamp > NOW() - INTERVAL '5 minutes'
       AND environment = $(environment)
     ORDER BY timestamp
     LIMIT 10000
