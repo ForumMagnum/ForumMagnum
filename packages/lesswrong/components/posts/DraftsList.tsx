@@ -19,6 +19,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { Typography } from '../common/Typography';
 
 const PostsListWithVotesMultiQuery = gql(`
   query multiPostDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -41,7 +42,7 @@ const PostsListUpdateMutation = gql(`
   }
 `);
 
-const styles = defineStyles('DraftsList', (_theme: ThemeType) => ({
+const styles = defineStyles('DraftsList', (theme: ThemeType) => ({
   draftsHeaderRow: {
     display: 'flex'
   },
@@ -50,7 +51,11 @@ const styles = defineStyles('DraftsList', (_theme: ThemeType) => ({
   },
   draftsPageButton: {
     marginRight: 20
-  }
+  },
+  noResults: {
+    color: theme.palette.greyAlpha(0.5),
+    marginTop: 20,
+  },
 }))
 
 export const sortings: Partial<Record<string,string>> = {
@@ -136,6 +141,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
       currentIncludeShared={!!terms.includeShared}
       sortings={sortings}
     />}
+
     {(!results && loading) ? <Loading /> : <>
       {results && results.map((post: PostsListWithVotes, i: number) =>
         <PostsItem
@@ -151,12 +157,14 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
       )}
     </>}
     <LoadMore { ...loadMoreProps }/>
+
+    {!loading && results && !results.length && <Typography variant="body2" className={classes.noResults}>
+      You don't have any draft posts yet.
+    </Typography>}
   </>
 }
 
 export default registerComponent('DraftsList', DraftsList, {
   hocs: [withErrorBoundary],
 });
-
-
 
