@@ -238,11 +238,21 @@ const links = {
   privacy: "/privacyPolicy",
 } as const;
 
-export const EALoginPopover = ({action: action_, setAction: setAction_, facebookEnabled = auth0FacebookLoginEnabled.get(), googleEnabled = true, classes}: {
+export const EALoginPopover = ({
+  action: action_,
+  setAction: setAction_,
+  facebookEnabled = auth0FacebookLoginEnabled.get(),
+  googleEnabled = true,
+  signupTitle,
+  signupMessage,
+  classes,
+}: {
   action?: LoginAction | null,
   setAction?: (action: LoginAction | null) => void,
   facebookEnabled?: boolean,
   googleEnabled?: boolean,
+  signupTitle?: string,
+  signupMessage?: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
   const {loginAction, setLoginAction} = useLoginPopoverContext();
@@ -397,7 +407,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
   }, [open]);
 
   const title = isSignup
-    ? `Sign up to get more from ${siteNameWithArticleSetting.get() || "forum"}`
+    ? (signupTitle ?? `Sign up to get more from ${siteNameWithArticleSetting.get() || "forum"}`)
     : showFacebookWarning
       ? "Facebook login will be removed soon"
       : "Welcome back";
@@ -415,6 +425,11 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
         <div className={classes.lightbulb}>{lightbulbIcon}</div>
         <div className={classes.title}>{title}</div>
         <div className={classes.formContainer}>
+          {isSignup && signupMessage && !showFacebookWarning && (
+            <div className={classes.message}>
+              {signupMessage}
+            </div>
+          )}
           {showFacebookWarning && (
             <div className={classes.facebookWarning}>
               <p>
@@ -568,5 +583,3 @@ export default registerComponent(
   EALoginPopover,
   {styles},
 );
-
-

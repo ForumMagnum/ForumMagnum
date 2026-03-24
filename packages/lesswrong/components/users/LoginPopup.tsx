@@ -19,13 +19,21 @@ const styles = (theme: ThemeType) => ({
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
-const LoginPopup = ({onClose, classes}: {
+const LoginPopup = ({onClose, startingState, signupTitle, signupMessage, classes}: {
   onClose?: () => void,
+  startingState?: "login" | "signup" | "pwReset",
+  signupTitle?: string,
+  signupMessage?: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
   if (isFriendlyUI) {
     return (
-      <LoginForm onClose={onClose} />
+      <LoginForm
+        onClose={onClose}
+        startingState={startingState}
+        signupTitle={signupTitle}
+        signupMessage={signupMessage}
+      />
     );
   }
 
@@ -36,11 +44,13 @@ const LoginPopup = ({onClose, classes}: {
       className={classes.dialog}
       paperClassName={classes.paper}
     >
-      <LoginForm />
+      <LoginForm
+        startingState={startingState}
+        signupTitle={signupTitle}
+        signupMessage={signupMessage}
+      />
     </LWDialog>
   );
 }
 
 export default registerComponent('LoginPopup', LoginPopup, {styles});
-
-

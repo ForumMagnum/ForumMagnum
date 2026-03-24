@@ -103,6 +103,8 @@ type LoginFormProps = {
   startingState?: possibleActions,
   immediateRedirect?: boolean,
   onClose?: () => void,
+  signupTitle?: string,
+  signupMessage?: React.ReactNode,
   classes: ClassesType<typeof styles>
 }
 
@@ -113,7 +115,7 @@ const LoginForm = (props: LoginFormProps) => {
   return <LoginFormDefault {...props} />
 }
 
-const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) => {
+const LoginFormDefault = ({ startingState = "login", classes, signupMessage }: LoginFormProps) => {
   const hasSubscribeToCuratedCheckbox = !isEAForum && !isAF;
   const hasOauthSection = !isEAForum;
 
@@ -201,6 +203,7 @@ const LoginFormDefault = ({ startingState = "login", classes }: LoginFormProps) 
     {reCaptchaSiteKeySetting.get()
       && <ReCaptcha verifyCallback={(token) => reCaptchaToken.current = token} action="login/signup"/>}
     <form className={classes.root} onSubmit={submitFunction}>
+      {currentAction === "signup" && signupMessage && <div className={classes.oAuthComment}>{signupMessage}</div>}
       {["signup", "pwReset"].includes(currentAction) && <input value={email} type="text" name="email" placeholder="email" className={classes.input} onChange={event => setEmail(event.target.value)} />}
       {["signup", "login"].includes(currentAction) && <>
         <input
@@ -244,6 +247,8 @@ const LoginFormEA = ({
   startingState = "login",
   immediateRedirect,
   onClose,
+  signupTitle,
+  signupMessage,
 }: LoginFormProps) => {
   const { pathname, query } = useLocation()
   const [action, setAction] = useState<"login" | "signup" | null>(
@@ -274,10 +279,11 @@ const LoginFormEA = ({
     <EALoginPopover
       action={action}
       setAction={wrappedSetAction}
+      signupTitle={signupTitle}
+      signupMessage={signupMessage}
     />
   );
 }
 
 export default registerComponent('LoginForm', LoginForm, { styles });
-
 
