@@ -1,6 +1,6 @@
 import { captureException } from "@/lib/sentryWrapper";
 import { NextRequest, NextResponse } from "next/server";
-import { WebClient } from "@slack/web-api";
+import { postMessage } from "@/server/slack/client";
 import { z } from "zod";
 
 const agentFeedbackSchema = z.object({
@@ -11,10 +11,6 @@ const agentFeedbackSchema = z.object({
   endpoint: z.string().trim().min(1).max(500).optional(),
   details: z.record(z.string(), z.unknown()).optional(),
 });
-
-function getFeedbackChannelId() {
-  return process.env.AGENT_FEEDBACK_SLACK_CHANNEL_ID ?? process.env.MODERATION_CHANNEL_ID;
-}
 
 function buildSlackMessage(payload: z.infer<typeof agentFeedbackSchema>) {
   const lines = [
@@ -32,17 +28,10 @@ function buildSlackMessage(payload: z.infer<typeof agentFeedbackSchema>) {
 }
 
 async function sendFeedbackToSlack(payload: z.infer<typeof agentFeedbackSchema>) {
-  const slackBotToken = process.env.AMANUENSIS_SLACK_BOT_TOKEN;
-  const channelId = getFeedbackChannelId();
-  if (!slackBotToken || !channelId) {
-    throw new Error("Missing Slack configuration for /api/agent/feedback");
-  }
-
-  const slack = new WebClient(slackBotToken);
-  await slack.chat.postMessage({
-    channel: channelId,
+  await postMessage({
     text: buildSlackMessage(payload),
-    mrkdwn: true,
+    channelName: "agentFeedback",
+    options: { mrkdwn: true },
   });
 }
 
