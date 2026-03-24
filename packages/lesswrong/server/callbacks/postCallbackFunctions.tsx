@@ -1,5 +1,6 @@
 import React from "react";
 import { usesCurationEmailsCron, userCanPassivelyGenerateJargonTerms } from "@/lib/betas";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { MOVED_POST_TO_DRAFT, REJECTED_POST } from "@/lib/collections/moderatorActions/constants";
 import { Posts } from "@/server/collections/posts/collection";
 import { postStatuses } from "@/lib/collections/posts/constants";
@@ -55,6 +56,7 @@ import { backgroundTask } from "../utils/backgroundTask";
 import { createAutomatedContentEvaluation } from "../collections/automatedContentEvaluations/helpers";
 import CurationEmails from "../collections/curationEmails/collection";
 import { maybeAutoFrontpagePost } from "../frontpageClassifier/predictions";
+import { WebClient } from "@slack/web-api";
 
 
 /**
@@ -1079,6 +1081,37 @@ export async function sendLWAFPostCurationEmails(post: DbPost, oldPost: DbPost) 
       await hydrateCurationEmailsQueue(post._id);
     }
   }
+}
+
+async function postSlackMessageToCurationChannel(text: string) {
+  const slackBotToken = process.env.AMANUENSIS_SLACK_BOT_TOKEN;
+  const channelId = process.env.CURATION_SLACK_CHANNEL_ID;
+  if (!slackBotToken || !channelId) return;
+  try {
+    const slack = new WebClient(slackBotToken);
+    await slack.chat.postMessage({ channel: channelId, text, mrkdwn: true });
+  } catch (error) {
+    captureException(error);
+    // eslint-disable-next-line no-console
+    console.error('Failed to post to curation Slack channel:', error);
+  }
+}
+
+export async function sendCurationSuggestionToSlack(post: DbPost, oldPost: DbPost, context: ResolverContext) {
+  const oldSuggestedUserIds = oldPost.suggestForCuratedUserIds ?? [];
+  const newSuggestedUserIds = post.suggestForCuratedUserIds ?? [];
+  const newlyAddedSuggesterIds = difference(newSuggestedUserIds, oldSuggestedUserIds);
+  if (!newlyAddedSuggesterIds.length) return;
+
+  const suggesters = await context.Users.find({ _id: { $in: newlyAddedSuggesterIds } }).fetch();
+  const suggesterNames = suggesters.map(user => user.displayName ?? 'Unknown');
+  const suggesterDisplay = suggesterNames.length ? suggesterNames.join(", ") : "Unknown";
+  const postUrl = postGetPageUrl(post, true);
+  const lines = [
+    `:raising_hand: *Post suggested for curation* by ${suggesterDisplay}`,
+    `*Post:* <${postUrl}|${post.title}>`,
+  ];
+  await postSlackMessageToCurationChannel(lines.join('\n'));
 }
 
 /**
