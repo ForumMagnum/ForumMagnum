@@ -12,6 +12,7 @@ import CommentOnPostWithReplies from "./CommentOnPostWithReplies";
 import CommentWithReplies from "./CommentWithReplies";
 import { useStyles } from '../hooks/useStyles';
 import { defineStyles } from '../hooks/defineStyles';
+import { useCurrentUserId } from '../common/withUser';
 
 const CommentWithRepliesFragmentQuery = gql(`
   query CommentPermalink($documentId: String) {
@@ -58,6 +59,7 @@ const CommentPermalink = ({
   silentLoading?: boolean,
 }) => {
   const classes = useStyles(styles);
+  const currentUserId = useCurrentUserId();
   const hasInContextComments = commentPermalinkStyleSetting.get() === 'in-context'
 
   const { data, loading, error, refetch } = useQuery(CommentWithRepliesFragmentQuery, {
@@ -74,8 +76,11 @@ const CommentPermalink = ({
 
   if (!comment || !documentId) return null
   
+  const hiddenPendingReview = commentIsHiddenPendingReview(comment) && !comment.rejected;
+  const isOwnUnreviewedComment = hiddenPendingReview && currentUserId === comment.userId;
+
   // if the site is currently hiding comments by unreviewed authors, check if we need to hide this comment
-  if (commentIsHiddenPendingReview(comment) && !comment.rejected) return <div className={classes.root}>
+  if (hiddenPendingReview && !isOwnUnreviewedComment) return <div className={classes.root}>
     <div className={classes.permalinkLabel}>
       Comment Permalink 
       <p>Error: Sorry, this comment is hidden</p>

@@ -36,9 +36,9 @@ const NewShortformDialog = ({onClose}: {
     >
       <DialogContent className={classes.content}>
         <ShortformSubmitForm
-          successCallback={() => {
+          successCallback={(comment) => {
             onClose();
-            navigate('/quicktakes');
+            navigate(comment.draft ? '/drafts#quick-take-drafts' : '/quicktakes');
           }}
           cancelCallback={() => {
             setOpen(false);
