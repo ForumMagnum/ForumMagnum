@@ -28,6 +28,14 @@ const blockTags = new Set([
 ]);
 
 const isBlockTag = (nodeName: string): boolean => blockTags.has(nodeName);
+const NON_BREAKING_SPACE = "\u00A0";
+const preserveWhitespaceTagNames = new Set([
+  "code",
+  "pre",
+  "script",
+  "style",
+  "textarea",
+]);
 
 function isLexicalIframeWidgetElement(node: Node): node is Element {
   if (node?.nodeType !== ServerSafeNode.ELEMENT_NODE) {
@@ -416,7 +424,36 @@ export async function draftJSToHtmlWithLatex(draftJS: AnyBecauseTodo) {
 }
 
 export function htmlToMarkdown(html: string): string {
-  return getTurndown().turndown(html)
+  const $ = cheerioParse(html);
+  preserveConsecutiveSpacesForTurndown($.root().contents(), $, false);
+  return getTurndown().turndown($.html()).replaceAll(NON_BREAKING_SPACE, " ")
+}
+
+function preserveConsecutiveSpacesForTurndown(
+  nodes: ReturnType<ReturnType<CheerioAPI["root"]>["contents"]>,
+  $: CheerioAPI,
+  preserveWhitespace: boolean,
+): void {
+  nodes.each((_, node) => {
+    if (node.type === "text") {
+      const textNode = node as DataNode;
+      if (!preserveWhitespace && textNode.data?.includes("  ")) {
+        textNode.data = textNode.data.replace(/ {2,}/g, (spaceRun: string) => {
+          return ` ${NON_BREAKING_SPACE.repeat(spaceRun.length - 1)}`;
+        });
+      }
+      return;
+    }
+
+    if (node.type !== "tag") {
+      return;
+    }
+
+    const element = node as CheerioElement;
+    const preservesWhitespaceHere = preserveWhitespace
+      || preserveWhitespaceTagNames.has(element.name);
+    preserveConsecutiveSpacesForTurndown($(element).contents(), $, preservesWhitespaceHere);
+  });
 }
 
 export function ckEditorMarkupToMarkdown(markup: string): string {

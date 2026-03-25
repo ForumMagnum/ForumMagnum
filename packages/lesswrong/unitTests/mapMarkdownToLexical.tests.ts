@@ -17,6 +17,32 @@ import { locateMarkdownQuoteSelectionInSubtree } from "../../../app/api/agent/ma
 import { runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
 
+function getBodyTextContent(html: string): string {
+  return (new JSDOM(`<body>${html}</body>`).window.document.body.textContent ?? "").trim();
+}
+
+async function exportEditorHtml(editor: LexicalEditor): Promise<string> {
+  let html = "";
+  editor.getEditorState().read(() => {
+    html = withDomGlobals(() => $generateHtmlFromNodes(editor, null));
+  });
+  return html;
+}
+
+async function roundTripMarkdownThroughLexical(markdownDocument: string): Promise<string> {
+  const editor = await setupEditorWithContent(markdownDocument, "MarkdownLexicalRoundTrip");
+  const html = await exportEditorHtml(editor);
+  return htmlToMarkdown(html).trim();
+}
+
+function getEditorTextContent(editor: LexicalEditor): string {
+  let textContent = "";
+  editor.getEditorState().read(() => {
+    textContent = $getRoot().getTextContent();
+  });
+  return textContent;
+}
+
 async function selectMarkdownQuoteInEditor(
   editor: LexicalEditor,
   markdownQuote: string
@@ -56,11 +82,7 @@ async function deleteEverythingOutsideSelectionAndRoundTripToMarkdown(
     root.append(...normalizeImportedTopLevelNodes(selectedNodes));
   });
 
-  let html = "";
-  editor.getEditorState().read(() => {
-    html = withDomGlobals(() => $generateHtmlFromNodes(editor, null));
-  });
-
+  const html = await exportEditorHtml(editor);
   return htmlToMarkdown(html).trim();
 }
 
@@ -286,5 +308,25 @@ describe("mapMarkdownToLexical quote selection", () => {
 
     expect(result).toBeDefined();
     expect(result!.found).toBe(true);
+  });
+});
+
+describe("Markdown/Lexical whitespace roundtrip", () => {
+  it("preserves two spaces after a period through the full roundtrip", async () => {
+    const markdownDocument = "First sentence.  Second sentence.";
+
+    expect(await roundTripMarkdownThroughLexical(markdownDocument)).toBe(markdownDocument);
+  });
+
+  it("preserves the double space before converting editor HTML back to markdown", async () => {
+    const markdownDocument = "First sentence.  Second sentence.";
+    const markdownHtml = markdownToHtml(markdownDocument);
+    const editor = await setupEditorWithContent(markdownDocument, "WhitespaceRoundTripDirection");
+    const lexicalHtml = await exportEditorHtml(editor);
+
+    expect(getBodyTextContent(markdownHtml)).toBe(markdownDocument);
+    expect(getEditorTextContent(editor)).toBe(markdownDocument);
+    expect(getBodyTextContent(lexicalHtml)).toBe(markdownDocument);
+    expect(htmlToMarkdown(lexicalHtml).trim()).toBe(markdownDocument);
   });
 });
