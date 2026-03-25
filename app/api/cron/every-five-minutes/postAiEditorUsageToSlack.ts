@@ -10,14 +10,24 @@ interface RawAnalyticsRow {
   event: Record<string, unknown>;
 }
 
-async function getUserDisplayNames(userIds: string[]): Promise<Map<string, string>> {
-  if (userIds.length === 0) return new Map();
+async function getPostAuthorNames(postIds: string[]): Promise<Map<string, string>> {
+  if (postIds.length === 0) return new Map();
   const context = createAnonymousContext();
-  const users = await context.Users.find(
-    { _id: { $in: userIds } },
-    { projection: { _id: 1, displayName: 1 } },
+  const posts = await context.Posts.find(
+    { _id: { $in: postIds } },
+    undefined,
+    { _id: 1, userId: 1 },
   ).fetch();
-  return new Map(users.map(u => [u._id, u.displayName]));
+
+  const authorIds = [...new Set(posts.map(p => p.userId))];
+  const users = await context.Users.find(
+    { _id: { $in: authorIds } },
+    undefined,
+    { _id: 1, displayName: 1 },
+  ).fetch();
+  const userNames = new Map(users.map(u => [u._id, u.displayName]));
+
+  return new Map(posts.map(p => [p._id, userNames.get(p.userId) ?? "Unknown user"]));
 }
 
 // Known "happy path" operation results that don't need to be called out in the digest
@@ -30,14 +40,10 @@ function getOperationResult(event: RawAnalyticsRow): string | null {
   return result;
 }
 
-function formatUserActivity(
-  userId: string,
+function formatAuthorActivity(
+  authorName: string,
   events: RawAnalyticsRow[],
-  userNames: Map<string, string>,
 ): string[] {
-  const name = userId === "anonymous"
-    ? "Anonymous"
-    : (userNames.get(userId) ?? "Unknown user");
   const lines: string[] = [];
 
   const claudeClicks = events.filter(e => e.event_type === "shareWithClaudeClicked");
@@ -50,7 +56,7 @@ function formatUserActivity(
     const panelSummary = [...panelCounts.entries()]
       .map(([panel, count]) => count > 1 ? `${count}× ${panel}` : panel)
       .join(", ");
-    lines.push(`• *${name}* clicked "Claude" button (${panelSummary})`);
+    lines.push(`• *${authorName}* clicked "Claude" button (${panelSummary})`);
   }
 
   const apiCalls = events.filter(e => e.event_type === "agentApiCall");
@@ -77,7 +83,7 @@ function formatUserActivity(
       .map(([route, count]) => `${count} ${route}`)
       .join(", ");
 
-    let line = `• *${name}*: agent "${agentName}" made ${successes.length} edit${successes.length !== 1 ? "s" : ""}`;
+    let line = `• *${authorName}*: agent "${agentName}" made ${successes.length} edit${successes.length !== 1 ? "s" : ""}`;
     if (routeSummary) line += ` (${routeSummary})`;
 
     if (failures.length > 0) {
@@ -134,24 +140,25 @@ export async function postAiEditorUsageToSlack() {
 
   if (events.length === 0) return;
 
-  const userIds = [...new Set(
+  const postIds = [...new Set(
     events
-      .map(e => (e.event.userId as string | undefined))
+      .map(e => (e.event.postId as string | undefined))
       .filter((id): id is string => !!id)
   )];
-  const userNames = await getUserDisplayNames(userIds);
+  const postAuthorNames = await getPostAuthorNames(postIds);
 
-  const byUser = new Map<string, RawAnalyticsRow[]>();
+  const byAuthorName = new Map<string, RawAnalyticsRow[]>();
   for (const event of events) {
-    const key = (event.event.userId as string) ?? "anonymous";
-    const list = byUser.get(key) ?? [];
+    const postId = event.event.postId as string | undefined;
+    const authorName = (postId && postAuthorNames.get(postId)) ?? "Unknown author";
+    const list = byAuthorName.get(authorName) ?? [];
     list.push(event);
-    byUser.set(key, list);
+    byAuthorName.set(authorName, list);
   }
 
   const activityLines: string[] = [];
-  for (const [userId, userEvents] of byUser) {
-    activityLines.push(...formatUserActivity(userId, userEvents, userNames));
+  for (const [authorName, authorEvents] of byAuthorName) {
+    activityLines.push(...formatAuthorActivity(authorName, authorEvents));
   }
 
   if (activityLines.length === 0) return;
@@ -169,7 +176,7 @@ export async function postAiEditorUsageToSlack() {
       options: { mrkdwn: true },
     });
     // eslint-disable-next-line no-console
-    console.log(`Posted AI editor usage to Slack: ${events.length} events, ${byUser.size} users`);
+    console.log(`Posted AI editor usage to Slack: ${events.length} events, ${byAuthorName.size} authors`);
   } catch (error) {
     captureException(error);
     // eslint-disable-next-line no-console
