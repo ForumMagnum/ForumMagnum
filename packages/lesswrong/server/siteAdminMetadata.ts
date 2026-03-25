@@ -34,6 +34,7 @@ export const siteAdminMetadataGraphQLQueries = {
       serverTimezoneOffset: new Date().getTimezoneOffset()/60.0,
       estimatedDatabaseLatency: await getEstimatedDatabaseLatency(),
       NODE_OPTIONS: process.env.NODE_OPTIONS,
+      execArgv: process.execArgv,
     });
   }
 };
