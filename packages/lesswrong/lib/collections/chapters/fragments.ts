@@ -11,6 +11,7 @@ export const ChaptersFragment = gql(`
     }
     number
     sequenceId
+    sequenceSlug
     postIds
     posts {
       ...PostsListWithVotes
@@ -29,6 +30,7 @@ export const SlimChapter = gql(`
     }
     number
     sequenceId
+    sequenceSlug
     postIds
     posts {
       ...ChapterPostSlim

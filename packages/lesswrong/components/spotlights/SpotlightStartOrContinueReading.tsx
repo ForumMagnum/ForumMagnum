@@ -102,7 +102,7 @@ const SpotlightStartOrContinueReadingFirstPost = ({spotlight, firstPost}: {
   firstPost: PostsList
 }) => {
   const classes = useStyles(styles);
-  const firstPostSequenceId = spotlight.documentId;
+  const firstPostSequenceSlug = spotlight.sequence?.slug;
 
   const prefix = forumSelect({
     EAForum: "Start with: ",
@@ -111,7 +111,7 @@ const SpotlightStartOrContinueReadingFirstPost = ({spotlight, firstPost}: {
 
   return <div className={classNames(classes.firstPost, classes.root)}>
     {prefix}<PostsTooltip post={firstPost}>
-      <Link to={postGetPageUrl(firstPost, { isAbsolute: false, sequenceId: firstPostSequenceId })}>{firstPost.title}</Link>
+      <Link to={postGetPageUrl(firstPost, { isAbsolute: false, sequenceSlug: firstPostSequenceSlug })}>{firstPost.title}</Link>
     </PostsTooltip>
   </div>
 }
@@ -122,7 +122,7 @@ const SpotlightStartOrContinueReadingCheckboxes = ({spotlight, posts}: {
 }) => {
   const classes = useStyles(styles);
   const { postsRead: clientPostsRead } = useItemsRead();
-  const firstPostSequenceId = spotlight.documentId;
+  const firstPostSequenceSlug = spotlight.sequence?.slug;
   
   return <div className={classNames(classes.boxesRoot, classes.root)}>
     {posts.map(post => <PostsTooltip
@@ -131,7 +131,7 @@ const SpotlightStartOrContinueReadingCheckboxes = ({spotlight, posts}: {
       flip={false}
       inlineBlock
     >
-      <Link to={postGetPageUrl(post, { isAbsolute: false, sequenceId: firstPostSequenceId })}>
+      <Link to={postGetPageUrl(post, { isAbsolute: false, sequenceSlug: firstPostSequenceSlug })}>
         <div className={classNames(classes.postProgressBox, {[classes.read]: post.isRead || clientPostsRead[post._id]})} />
       </Link>
     </PostsTooltip>

@@ -210,19 +210,21 @@ export type PostsMinimumForGetPageUrl = {
 
 interface PostGetUrlOptions {
   isAbsolute?: boolean,
-  sequenceId?: string|null
+  //sequenceId?: string|null
+  sequenceSlug?: string|null
 }
 // Get URL of a post page.
 export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, options?: PostGetUrlOptions): string {
   const isAbsolute = options?.isAbsolute ?? false;
-  const sequenceId = options?.sequenceId ?? null;
+  //const sequenceId = options?.sequenceId ?? null;
+  const sequenceSlug = options?.sequenceSlug ?? null;
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
-  if (sequenceId) {
+  if (sequenceSlug) {
     if ('slug' in post) {
-      return `${prefix}/s/${sequenceId}/p/${post.slug}`;
+      return `${prefix}/s/${sequenceSlug}/p/${post.slug}`;
     } else {
-      return `${prefix}/s/${sequenceId}/p/${post._id}`;
+      return `${prefix}/s/${sequenceSlug}/p/${post._id}`;
     }
   }
   if ('pageUrlRelative' in post) {

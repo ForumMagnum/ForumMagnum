@@ -68,7 +68,7 @@ const ContinueReadingList = ({ continueReading, continueReadingLoading, limit=3,
         const { nextPost, sequence, collection } = resumeReading;
         return <PostsItem
           post={nextPost}
-          sequenceId={sequence?._id}
+          sequenceSlug={sequence?.slug}
           resumeReading={resumeReading}
           dismissRecommendation={() => dismissAndHideRecommendation(nextPost._id)}
           key={sequence?._id || collection?._id}

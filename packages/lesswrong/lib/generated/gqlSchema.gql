@@ -1685,6 +1685,7 @@ type Chapter {
   subtitle: String
   number: Float
   sequenceId: String
+  sequenceSlug: String
   sequence: Sequence
   postIds: [String!]!
   posts: [Post!]!

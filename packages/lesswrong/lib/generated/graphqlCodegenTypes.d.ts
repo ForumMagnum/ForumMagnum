@@ -289,6 +289,7 @@ type Chapter = {
   schemaVersion: Scalars['Float']['output'];
   sequence?: Maybe<Sequence>;
   sequenceId?: Maybe<Scalars['String']['output']>;
+  sequenceSlug?: Maybe<Scalars['String']['output']>;
   subtitle?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
 };
@@ -21931,7 +21932,7 @@ type ChaptersFragment_Chapter_posts_Post = (
   & PostsListWithVotes
 );
 
-type ChaptersFragment = { __typename?: 'Chapter', _id: string, createdAt: string, title: string | null, subtitle: string | null, number: number | null, sequenceId: string | null, postIds: Array<string>, contents: ChaptersFragment_Chapter_contents_Revision | null, posts: Array<ChaptersFragment_Chapter_posts_Post> };
+type ChaptersFragment = { __typename?: 'Chapter', _id: string, createdAt: string, title: string | null, subtitle: string | null, number: number | null, sequenceId: string | null, sequenceSlug: string | null, postIds: Array<string>, contents: ChaptersFragment_Chapter_contents_Revision | null, posts: Array<ChaptersFragment_Chapter_posts_Post> };
 
 type SlimChapter_Chapter_contents_Revision = (
   { __typename?: 'Revision' }
@@ -21943,7 +21944,7 @@ type SlimChapter_Chapter_posts_Post = (
   & ChapterPostSlim
 );
 
-type SlimChapter = { __typename?: 'Chapter', _id: string, createdAt: string, title: string | null, subtitle: string | null, number: number | null, sequenceId: string | null, postIds: Array<string>, contents: SlimChapter_Chapter_contents_Revision | null, posts: Array<SlimChapter_Chapter_posts_Post> };
+type SlimChapter = { __typename?: 'Chapter', _id: string, createdAt: string, title: string | null, subtitle: string | null, number: number | null, sequenceId: string | null, sequenceSlug: string | null, postIds: Array<string>, contents: SlimChapter_Chapter_contents_Revision | null, posts: Array<SlimChapter_Chapter_posts_Post> };
 
 type ChaptersEdit_Chapter_contents_Revision = (
   { __typename?: 'Revision' }
@@ -22634,7 +22635,7 @@ type PostsDetails_Post_tags_Tag = (
 
 type PostsDetails_Post_socialPreviewData_SocialPreviewType = { __typename?: 'SocialPreviewType', _id: string, text: string | null, imageUrl: string };
 
-type PostsDetails_Post_canonicalSequence_Sequence = { __typename?: 'Sequence', _id: string, title: string };
+type PostsDetails_Post_canonicalSequence_Sequence = { __typename?: 'Sequence', _id: string, slug: string, title: string };
 
 type PostsDetails_Post_canonicalBook_Book = { __typename?: 'Book', _id: string, title: string | null };
 
@@ -22733,14 +22734,14 @@ type PostSequenceNavigation_Post_sequence_Sequence = (
   & SequencesPageFragment
 );
 
-type PostSequenceNavigation_Post_prevPost_Post_sequence_Sequence = { __typename?: 'Sequence', _id: string };
+type PostSequenceNavigation_Post_prevPost_Post_sequence_Sequence = { __typename?: 'Sequence', _id: string, slug: string };
 
 type PostSequenceNavigation_Post_prevPost_Post = (
   { __typename?: 'Post', sequence: PostSequenceNavigation_Post_prevPost_Post_sequence_Sequence | null }
   & PostsListWithVotes
 );
 
-type PostSequenceNavigation_Post_nextPost_Post_sequence_Sequence = { __typename?: 'Sequence', _id: string };
+type PostSequenceNavigation_Post_nextPost_Post_sequence_Sequence = { __typename?: 'Sequence', _id: string, slug: string };
 
 type PostSequenceNavigation_Post_nextPost_Post = (
   { __typename?: 'Post', sequence: PostSequenceNavigation_Post_nextPost_Post_sequence_Sequence | null }
@@ -23153,7 +23154,7 @@ type SpotlightMinimumInfo = { __typename?: 'Spotlight', _id: string, documentId:
 
 type SpotlightHeaderEventSubtitle_Spotlight_post_Post = { __typename?: 'Post', _id: string, slug: string };
 
-type SpotlightHeaderEventSubtitle_Spotlight_sequence_Sequence = { __typename?: 'Sequence', _id: string };
+type SpotlightHeaderEventSubtitle_Spotlight_sequence_Sequence = { __typename?: 'Sequence', _id: string, slug: string };
 
 type SpotlightHeaderEventSubtitle_Spotlight_tag_Tag = { __typename?: 'Tag', _id: string, slug: string };
 
@@ -23176,7 +23177,7 @@ type SpotlightDisplay_Spotlight_sequence_Sequence_user_User = (
   & UsersMinimumInfo
 );
 
-type SpotlightDisplay_Spotlight_sequence_Sequence = { __typename?: 'Sequence', _id: string, title: string, user: SpotlightDisplay_Spotlight_sequence_Sequence_user_User | null };
+type SpotlightDisplay_Spotlight_sequence_Sequence = { __typename?: 'Sequence', _id: string, slug: string, title: string, user: SpotlightDisplay_Spotlight_sequence_Sequence_user_User | null };
 
 type SpotlightDisplay_Spotlight_tag_Tag_user_User = (
   { __typename?: 'User' }

@@ -442,7 +442,7 @@ const PostsItem = (props: PostsItemConfig) => {
     post,
     tagRel = null,
     defaultToShowComments = false,
-    sequenceId,
+    sequenceSlug,
     chapter,
     terms,
     resumeReading,
@@ -513,7 +513,7 @@ const PostsItem = (props: PostsItemConfig) => {
   const renderComments = showComments || (defaultToShowUnreadComments && hasUnreadComments);
   const renderDialogueMessages = showDialogueMessages;
   const condensedAndHiddenComments = defaultToShowUnreadComments && !showComments;
-  const postLink = getPostItemLink({ post, sequenceId, chapter, recombeeRecommId });
+  const postLink = getPostItemLink({ post, sequenceSlug, chapter, recombeeRecommId });
   const commentCount = postGetCommentCount(post);
   const annualReviewMarketInfo = getMarketInfo(post);
   const showAuthor = !post.isEvent && !hideAuthor;
@@ -607,12 +607,12 @@ const PostsItem = (props: PostsItemConfig) => {
                   {resumeReading.numRead ? "Next unread in " : "First post in "}<Link to={
                     resumeReading.sequence
                       ? sequenceGetPageUrl(resumeReading.sequence)
-                      : collectionGetPageUrl(resumeReading.collection)
+                      : collectionGetPageUrl(resumeReading.collection!)
                   }>
                     {resumeReading.sequence ? resumeReading.sequence.title : resumeReading.collection?.title}
                   </Link>
                   {" "}
-                  {(resumeReading.numRead>0) && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
+                  {(resumeReading.numRead && resumeReading.numRead>0) && <span>({resumeReading.numRead}/{resumeReading.numTotal} read)</span>}
                 </div>
               }
 

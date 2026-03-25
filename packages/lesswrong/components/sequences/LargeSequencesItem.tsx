@@ -225,7 +225,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
               <SequencesSmallPostLink
                 key={sequence._id + post._id}
                 post={post}
-                sequenceId={sequence._id}
+                sequenceSlug={sequence.slug}
               />
             ))}
           </React.Fragment>

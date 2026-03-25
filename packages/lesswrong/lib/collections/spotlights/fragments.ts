@@ -34,6 +34,7 @@ export const SpotlightHeaderEventSubtitle = gql(`
     }
     sequence {
       _id
+      slug
     }
     tag {
       _id
@@ -58,6 +59,7 @@ export const SpotlightDisplay = gql(`
     }
     sequence {
       _id
+      slug
       title
       user {
         ...UsersMinimumInfo

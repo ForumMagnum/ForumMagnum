@@ -152,7 +152,7 @@ const PostsItemIntroSequence = ({
 }) => {
   const classes = useStyles(styles);
   const { isRead } = useRecordPostView(post);
-  const postLink = postGetPageUrl(post, { isAbsolute: false, sequenceId: sequence?._id });
+  const postLink = postGetPageUrl(post, { isAbsolute: false, sequenceSlug: sequence?.slug });
 
   return (
     <AnalyticsContext pageElementContext="postItem" postId={post._id}>

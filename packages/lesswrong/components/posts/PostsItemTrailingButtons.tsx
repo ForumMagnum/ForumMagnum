@@ -61,7 +61,7 @@ type PostsItemTrailingButtonsProps = {
 };
 
 export const DismissButton = ({ onDismiss }: {
-  onDismiss: () => void
+  onDismiss?: () => void
 }) => {
   const classes = useStyles(styles);
   return <LWTooltip title={dismissRecommendationTooltip} placement="right">

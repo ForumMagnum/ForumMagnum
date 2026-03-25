@@ -62,15 +62,17 @@ const styles = defineStyles('BottomNavigationItem', (theme: ThemeType) => ({
   }
 }));
 
+type PrevOrNextPost = NonNullable<PostSequenceNavigation['nextPost']> | NonNullable<PostSequenceNavigation['prevPost']>
+
 const BottomNavigationItem = ({direction, post, sequence}: {
   direction: "Previous"|"Next",
-  post: NonNullable<PostSequenceNavigation['nextPost']> | NonNullable<PostSequenceNavigation['prevPost']>,
-  sequence: HasIdType|null,
+  post: PrevOrNextPost,
+  sequence: PrevOrNextPost['sequence']|null,
 }) => {
   const classes = useStyles(styles);
   const updateContinueReading = useUpdateContinueReading(post._id, sequence?._id);
   const commentCount = postGetCommentCount(post) || "No"
-  const url = postGetPageUrl(post, { sequenceId: sequence?._id });
+  const url = postGetPageUrl(post, { sequenceSlug: sequence?.slug });
   
   return (
     <span>

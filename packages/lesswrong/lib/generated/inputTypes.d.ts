@@ -1463,6 +1463,7 @@ interface Chapter {
   subtitle: string | null;
   number: number | null;
   sequenceId: string | null;
+  sequenceSlug: string | null;
   sequence: Sequence | null;
   postIds: Array<string>;
   posts: Array<Post>;

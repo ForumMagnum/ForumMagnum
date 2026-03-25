@@ -89,6 +89,17 @@ const schema = {
       },
     },
   },
+  sequenceSlug: {
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      resolver: async (chapter, _, context) => {
+        if (!chapter.sequenceId) return null;
+        const sequence = await context.loaders.Sequences.load(chapter.sequenceId);
+        return sequence?.slug;
+      },
+    }
+  },
   sequence: {
     graphql: {
       outputType: "Sequence",

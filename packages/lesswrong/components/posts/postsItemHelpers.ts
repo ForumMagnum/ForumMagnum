@@ -15,12 +15,12 @@ export type PostsItemConfig = {
   post: PostsListWithVotes,
   tagRel?: WithVoteTagRel | null,
   defaultToShowComments?: boolean,
-  sequenceId?: string,
-  chapter?: any,
+  sequenceSlug?: string,
+  chapter?: ChaptersFragment,
   index?: number,
   terms?: PostsViewTerms,
-  resumeReading?: any,
-  dismissRecommendation?: any,
+  resumeReading?: ContinueReadingQueryQuery_ContinueReading_RecommendResumeSequence,
+  dismissRecommendation?: () => void,
   toggleDeleteDraft?: (post: PostsList) => void,
   showBottomBorder?: boolean,
   showDraftTag?: boolean,
@@ -79,18 +79,18 @@ export const getPostItemCommentTerms = ({
 
 export const getPostItemLink = ({
   post,
-  sequenceId,
+  sequenceSlug,
   chapter,
   recombeeRecommId,
 }: {
   post: Pick<PostsListWithVotes, "_id"|"slug"|"draft"|"debate"|"isEvent">,
-  sequenceId?: string,
-  chapter?: { sequenceId?: string },
+  sequenceSlug?: string,
+  chapter?: { sequenceSlug?: string|null },
   recombeeRecommId?: string,
 }) => {
   let postLink = post.draft && !post.debate
     ? `/editPost?${qs.stringify({ postId: post._id, eventForm: post.isEvent })}`
-    : postGetPageUrl(post, { isAbsolute: false, sequenceId: sequenceId || chapter?.sequenceId});
+    : postGetPageUrl(post, { isAbsolute: false, sequenceSlug: sequenceSlug || chapter?.sequenceSlug});
 
   if (recombeeRecommId && recombeeEnabledSetting.get()) {
     postLink = `${postLink}?${RECOMBEE_RECOMM_ID_QUERY_PARAM}=${recombeeRecommId}`;

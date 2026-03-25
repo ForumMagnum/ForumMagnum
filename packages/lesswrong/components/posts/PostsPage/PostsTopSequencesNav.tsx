@@ -60,10 +60,10 @@ const PostsTopSequencesNav = ({post, blackText}: {
       if (ev.target === document.body || (ev.target && (ev.target as any).tagName === 'A')) {
         if (ev.keyCode === 37) { // Left
           if (post.prevPost)
-            navigate(postGetPageUrl(post.prevPost, { isAbsolute: false, sequenceId: post.prevPost.sequence?._id }));
+            navigate(postGetPageUrl(post.prevPost, { isAbsolute: false, sequenceSlug: post.prevPost.sequence?.slug }));
         } else if (ev.keyCode === 39) { // Right
           if (post.nextPost)
-            navigate(postGetPageUrl(post.nextPost, { isAbsolute: false, sequenceId: post.nextPost.sequence?._id }));
+            navigate(postGetPageUrl(post.nextPost, { isAbsolute: false, sequenceSlug: post.nextPost.sequence?.slug }));
         }
       }
     }

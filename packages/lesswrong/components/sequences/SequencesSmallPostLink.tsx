@@ -32,9 +32,9 @@ const styles = defineStyles("SequencesSmallPostLink", (theme: ThemeType) => ({
   }
 }));
 
-const SequencesSmallPostLink = ({post, sequenceId, large, placement="left-start"}: {
+const SequencesSmallPostLink = ({post, sequenceSlug, large, placement="left-start"}: {
   post: ChapterPostSlim | PostsList,
-  sequenceId: string,
+  sequenceSlug: string,
   large?: boolean,
   placement?: PopperPlacementType,
 }) => {
@@ -51,7 +51,7 @@ const SequencesSmallPostLink = ({post, sequenceId, large, placement="left-start"
       inlineBlock={false}
       clickable
     >
-      <Link to={postGetPageUrl(post, { isAbsolute: false, sequenceId })}>
+      <Link to={postGetPageUrl(post, { isAbsolute: false, sequenceSlug })}>
         {post.title}
       </Link>
     </PostsTooltip>
