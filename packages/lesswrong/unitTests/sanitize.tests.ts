@@ -159,3 +159,33 @@ describe('sanitize iframe handling', () => {
     });
   });
 });
+
+describe('sanitize ordered list numbering', () => {
+  it('preserves value attribute on li elements', () => {
+    const input = '<ol><li value="1">Item 1</li><li value="4">Item 4</li></ol>';
+    const result = sanitize(input);
+    expect(result).toContain('value="1"');
+    expect(result).toContain('value="4"');
+  });
+
+  it('preserves start attribute on ol elements', () => {
+    const input = '<ol start="5"><li>Item 5</li></ol>';
+    const result = sanitize(input);
+    expect(result).toContain('start="5"');
+  });
+
+  it('preserves numbering through nested lists with wrapper li', () => {
+    const input = [
+      '<ol>',
+      '<li value="1">Item 1</li>',
+      '<li value="2">Item 2</li>',
+      '<li value="3">Item 3</li>',
+      '<li value="3" class="nested-list-item"><ol><li value="1">Item 3a</li></ol></li>',
+      '<li value="4">Item 4</li>',
+      '</ol>',
+    ].join('');
+    const result = sanitize(input);
+    // The last li should retain value="4" so the browser numbers it correctly
+    expect(result).toContain('<li value="4">Item 4</li>');
+  });
+});
