@@ -26,8 +26,8 @@ import UsersProfileImage from "../users/UsersProfileImage";
 import ForumEventCommentForm from "./ForumEventCommentForm";
 import Loading from "../vulcan-core/Loading";
 
-const SLIDER_MAX_WIDTH = 1120;
-const RESULT_ICON_MAX_HEIGHT = 27;
+const SLIDER_MAX_WIDTH = 880;
+const RESULT_ICON_MAX_HEIGHT = 32;
 const USER_IMAGE_SIZE = 30;
 const DEFAULT_STACK_IMAGES = 20;
 const NUM_TICKS = 21;
@@ -155,7 +155,7 @@ const styles = (theme: ThemeType) => ({
     color: "var(--forum-event-background)",
     borderRadius: "50%",
     fontWeight: "bold",
-    width: "calc(100% + 4px)",
+    width: "calc(100% + 4px)", // +4px to account for the 2px outline on vote icons
     aspectRatio: "1 / 1",
     overflow: "hidden",
     position: "relative",
@@ -1045,5 +1045,4 @@ export default registerComponent(
   ForumEventPoll,
   {styles}
 );
-
 
