@@ -126,10 +126,13 @@ const styles = (theme: ThemeType) => ({
     },
   },
   contentWithPoll: {
-    display: 'none',
     maxWidth: 500,
     textWrap: 'pretty',
     padding: '16px 30px 30px',
+    display: 'none',
+    [`@media(max-width: ${POLL_MIN_WIDTH}px)`]: {
+      display: 'block',
+    },
   },
   postsHeading: {
     display: 'flex',
@@ -347,7 +350,7 @@ const ForumEventFrontpageBannerWithPoll = ({classes}: {
     <AnalyticsContext pageSectionContext="forumEventFrontpageBannerWithPoll">
       <div className={classes.root}>
         <ForumEventPoll className={classes.hideBelowMinWidth} />
-        <div className={classNames(classes.contentWithPoll, classes.hideBelowMinWidth)}>
+        <div className={classes.contentWithPoll}>
           <div className={classes.titleWithPoll}>{title}</div>
           {date && <div className={classes.dateWithPoll}>{date}</div>}
           <div className={classes.descriptionWithPoll}>
@@ -446,5 +449,4 @@ export default registerComponent(
   ForumEventFrontpageBanner,
   {styles},
 );
-
 
