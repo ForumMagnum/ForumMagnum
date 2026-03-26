@@ -42,6 +42,7 @@ import { useTracking } from "@/lib/analyticsEvents";
 import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
 import { PostVersionHistoryDialog } from "../editor/PostVersionHistory";
+import { ToggleSwitch } from "../common/ToggleSwitch";
 
 const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
   root: {
@@ -1344,6 +1345,19 @@ const EditorSettingsSidebar = ({
         {canSeeMarkdownToggle && (
           <div className={classes.accordionSection}>
             <MarkdownEditorToggle form={form} />
+          </div>
+        )}
+
+        {userIsMemberOf(currentUser, "alignmentForum") && (
+          <div className={classes.accordionSection}>
+            <form.Field name="af">
+              {(field) => (
+                <div className={classes.toggleRow} onClick={() => field.handleChange(!field.state.value)}>
+                  <span className={classes.toggleLabel}>Alignment Forum Post</span>
+                  <ToggleSwitch value={!!field.state.value} smallVersion />
+                </div>
+              )}
+            </form.Field>
           </div>
         )}
 
