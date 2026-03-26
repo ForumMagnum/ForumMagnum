@@ -1,5 +1,4 @@
 import React from "react";
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from "../../lib/reactRouterWrapper";
 import CommentOutlinedIcon from "@/lib/vendor/@material-ui/icons/src/ModeCommentOutlined";
 import { useHover } from "../common/withHover";
@@ -9,6 +8,8 @@ import TagDiscussion from "./TagDiscussion";
 import PopperCard from "../common/PopperCard";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListMultiQuery = gql(`
   query multiCommentTagDiscussionButtonQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -21,7 +22,7 @@ const CommentsListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagDiscussionButton", (theme: ThemeType) => ({
   discussionButton: {
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
@@ -40,7 +41,7 @@ const styles = (theme: ThemeType) => ({
   discussionCount: {
     [theme.breakpoints.down('sm')]: {
       alignSelf: "flex-start", //appears too low when there's no label
-      marginTop: theme.isFriendlyUI ? undefined : -2,
+      marginTop: -2,
     }
   },
   discussionCountWithoutLabel: {
@@ -59,17 +60,17 @@ const styles = (theme: ThemeType) => ({
   text: {
     marginRight: 2,
   }
-});
+}));
 
 
-const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideParens = false, hideLabelOnMobile = false, classes}: {
+const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideParens = false, hideLabelOnMobile = false}: {
   tag: TagFragment | TagBasicInfo | TagCreationHistoryFragment,
   text?: string,
   hideLabel?: boolean,
   hideParens?: boolean,
   hideLabelOnMobile?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { hover, anchorEl, eventHandlers } = useHover()
   const { data, loading } = useQuery(CommentsListMultiQuery, {
     variables: {
@@ -104,6 +105,6 @@ const TagDiscussionButton = ({tag, text = "Discussion", hideLabel = false, hideP
   </Link>
 }
 
-export default registerComponent("TagDiscussionButton", TagDiscussionButton, {styles});
+export default TagDiscussionButton
 
 

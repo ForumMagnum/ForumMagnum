@@ -1,10 +1,11 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
 import classNames from "classnames";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FirstContentIcons', (theme: ThemeType) => ({
   icon: {
     height: 13,
     color: theme.palette.grey[500],
@@ -14,12 +15,12 @@ const styles = (theme: ThemeType) => ({
   commentIcon: {
     marginLeft: -6
   },
-});
+}));
 
-export const FirstContentIcons = ({user, classes}: {
+export const FirstContentIcons = ({user}: {
   user: SunshineUsersList,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const showPostIcon = user.postCount > 0 && !user.reviewedByUserId
   const showCommentIcon = user.commentCount > 0 && !user.reviewedByUserId
   return <span>
@@ -28,7 +29,7 @@ export const FirstContentIcons = ({user, classes}: {
   </span>;
 }
 
-export default registerComponent('FirstContentIcons', FirstContentIcons, {styles});
+export default FirstContentIcons
 
 
 

@@ -1,18 +1,18 @@
 import React, { useCallback, useRef } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { SearchBox, Hits, Configure } from 'react-instantsearch-dom';
 import { getSearchIndexName, getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import { useCurrentUser } from '../common/withUser';
-import { userCanCreateTags } from '../../lib/betas';
 import { Link } from '../../lib/reactRouterWrapper';
 import { getTagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { getAllTagsPath } from '@/lib/pathConstants';
 import type { SearchState } from 'react-instantsearch-core';
 import TagSearchHit from "./TagSearchHit";
 import DropdownDivider from "../dropdowns/DropdownDivider";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AddTagOrWikiPage", (theme: ThemeType) => ({
   root: {
     "& .ais-SearchBox": {
       padding: 8,
@@ -35,16 +35,16 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     ...theme.typography.commentStyle
   },
-});
+}));
 
-const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggestions=6, showAllTagsAndCreateTags=true, classes}: {
+const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggestions=6, showAllTagsAndCreateTags=true}: {
   onTagSelected: (props: {tagId: string, tagName: string, tagSlug: string}) => void,
   isVotingContext?: boolean,
   onlyTags: boolean,
   numSuggestions?: number,
   showAllTagsAndCreateTags?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const [searchOpen, setSearchOpen] = React.useState(false);
   const searchStateChanged = React.useCallback((searchState: SearchState) => {
@@ -127,7 +127,7 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
       <Link target="_blank" to={getAllTagsPath()} className={classes.newTag}>
         All Wikitags
       </Link>
-      {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") && <Link
+      {tagUserHasSufficientKarma(currentUser, "new") && <Link
         target="_blank"
         to={getTagCreateUrl()}
         className={classes.newTag}
@@ -138,6 +138,6 @@ const AddTagOrWikiPage = ({onTagSelected, isVotingContext, onlyTags, numSuggesti
   </div>
 }
 
-export default registerComponent("AddTagOrWikiPage", AddTagOrWikiPage, {styles});
+export default AddTagOrWikiPage
 
 

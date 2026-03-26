@@ -353,14 +353,6 @@ const styles = defineStyles("ModerationPageContent", (theme: ThemeType) => ({
     fontSize: '12px',
     whiteSpace: 'nowrap'
   },
-  badge: {
-    display: 'inline-block',
-    padding: '2px 6px',
-    borderRadius: '3px',
-    fontSize: '11px',
-    fontWeight: 500,
-    background: theme.palette.grey[300]
-  },
   expandedContent: {
     padding: '12px',
     background: theme.palette.panelBackground.default,
@@ -422,17 +414,6 @@ const styles = defineStyles("ModerationPageContent", (theme: ThemeType) => ({
     '&:hover': {
       background: theme.palette.panelBackground.default
     }
-  },
-  pageButtonActive: {
-    padding: '4px 8px',
-    background: theme.palette.primary.main,
-    color: theme.palette.text.alwaysWhite,
-    border: `1px solid ${theme.palette.primary.main}`,
-    borderRadius: '3px',
-    fontSize: '12px',
-    cursor: 'default',
-    minWidth: '32px',
-    fontWeight: 600
   },
   pageButtonDisabled: {
     padding: '4px 8px',
@@ -518,84 +499,6 @@ const styles = defineStyles("ModerationPageContent", (theme: ThemeType) => ({
       content: '" "',
       whiteSpace: 'pre'
     }
-  },
-  rateLimitsContainer: {
-    padding: '12px',
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '12px'
-  },
-  rateLimitCard: {
-    background: theme.palette.panelBackground.default,
-    border: `1px solid ${theme.palette.border.grey300}`,
-    borderRadius: '4px',
-    padding: '12px',
-    transition: 'box-shadow 0.2s',
-    '&:hover': {
-      boxShadow: `0 2px 8px ${theme.palette.boxShadowColor(0.1)}`
-    }
-  },
-  rateLimitHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '8px',
-    paddingBottom: '8px',
-    borderBottom: `1px solid ${theme.palette.border.faint}`
-  },
-  rateLimitUserLink: {
-    fontSize: '14px',
-    fontWeight: 600,
-    color: theme.palette.primary.main,
-    textDecoration: 'none',
-    '&:hover': {
-      textDecoration: 'underline'
-    }
-  },
-  rateLimitTimestamp: {
-    fontSize: '12px',
-    color: theme.palette.text.dim,
-    fontStyle: 'italic'
-  },
-  rateLimitsList: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: '8px'
-  },
-  rateLimitItem: {
-    padding: '8px',
-    background: theme.palette.background.pageActiveAreaBackground,
-    borderRadius: '3px',
-    borderLeft: `3px solid ${theme.palette.primary.main}`
-  },
-  rateLimitType: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '4px',
-    '& strong': {
-      fontSize: '13px',
-      color: theme.palette.text.primary
-    }
-  },
-  rateLimitValue: {
-    fontSize: '12px',
-    color: theme.palette.text.dim,
-    fontWeight: 500,
-    background: theme.palette.grey[200],
-    padding: '2px 6px',
-    borderRadius: '3px'
-  },
-  rateLimitReason: {
-    fontSize: '12px',
-    color: theme.palette.text.dim,
-    marginBottom: '4px',
-    lineHeight: '1.3'
-  },
-  rateLimitActivated: {
-    fontSize: '11px',
-    color: theme.palette.text.dim3,
-    fontStyle: 'italic'
   },
   commentsList: {
     '& > *': {
@@ -949,7 +852,7 @@ export default function ModerationPageContent(props: Props) {
         <div>
           <div className={classes.essay}>
             <h2 className={classes.essayTitle}>Moderation Principles and Process</h2>
-            <p>LessWrong is trying to cultivate a specific culture. The best pointers towards that culture are the <Link to="/rationality">LessWrong Sequences</Link> and the <Link to="/newUserGuide">New User Guide</Link>.</p>
+            <p>LessWrong is trying to cultivate a specific culture. The best pointers towards that culture are the <Link to="/rationality">LessWrong Sequences</Link> and the <Link to="/posts/LbbrnRvc9QwjJeics/new-user-s-guide-to-lesswrong">New User Guide</Link>.</p>
             <p>LessWrong operates under benevolent dictatorship of the Lightcone Infrastructure team, under its current CEO <Link to="/users/habryka4">habryka</Link>. It is not a democracy. For some insight into our moderation philosophy see <Link to="/posts/tscc3e5eujrsEeFN4/well-kept-gardens-die-by-pacifism">"Well Kept Gardens Die By Pacifism"</Link>.</p>
             <p>Norms on the site get developed largely by case-law. I.e. the moderators notice that something is going wrong on the site, then they take some moderation actions to fix this, and in doing so establish some precedent about what will cause future moderation action. There is no comprehensive set of rules you can follow that will guarantee we will not moderate your comments or content. Most of the time we "know it when we see it".</p>
             <p>LessWrong relies heavily on rate-limits in addition to deleting content and banning users. New users start out with some relatively lax rate limits to avoid spamming. Users who get downvoted acquire stricter and stricter rate limits the more they get downvoted.</p>

@@ -860,18 +860,6 @@ export const PostsForAutocomplete = gql(`
   }
 `)
 
-export const PostsTwitterAdmin = gql(`
-  fragment PostsTwitterAdmin on Post {
-    ...PostsListWithVotes
-    user {
-      ...UsersSocialMediaInfo
-    }
-    coauthors {
-      ...UsersSocialMediaInfo
-    }
-  }
-`)
-
 export const SuggestAlignmentPost = gql(`
   fragment SuggestAlignmentPost on Post {
     ...PostsList

@@ -7,7 +7,6 @@ import {AnalyticsContext} from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import { useNavigate, useSubscribedLocation } from "../../lib/routeUtil";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -23,9 +22,8 @@ type TabType = 'bookmarks' | 'readhistory' | 'votehistory';
 const styles = defineStyles("BookmarksPage", (theme: ThemeType) => ({
   headline: {
     color: theme.palette.grey[1000],
-    fontSize: theme.isFriendlyUI ? 28 : undefined,
-    fontFamily: theme.isFriendlyUI ? undefined : theme.palette.fonts.serifStack,
-    marginTop: theme.isFriendlyUI ? 10 : 0,
+    fontFamily: theme.palette.fonts.serifStack,
+    marginTop: 0,
     marginBottom: 20,
     [theme.breakpoints.down('sm')]: {
       marginTop: 20,
@@ -37,7 +35,6 @@ const styles = defineStyles("BookmarksPage", (theme: ThemeType) => ({
   },
   tab: {
     fontSize: 14,
-    fontWeight: theme.isFriendlyUI ? '700' : undefined,
     [theme.breakpoints.down('xs')]: {
       fontSize: 13,
     }
@@ -78,7 +75,7 @@ const BookmarksPage = () => {
         onChange={handleChangeTab}
         className={classes.tabs}
       >
-        <Tab className={classes.tab} value='bookmarks' label={isFriendlyUI() ? 'Saved' : 'Bookmarks'} />
+        <Tab className={classes.tab} value='bookmarks' label={'Bookmarks'} />
         <Tab className={classes.tab} value='readhistory' label='Read History' />
         <Tab className={classes.tab} value='votehistory' label='Vote History' />
       </Tabs>

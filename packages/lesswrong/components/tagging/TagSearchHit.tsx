@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useHover } from '../common/withHover';
 import { useCurrentUser } from '../common/withUser';
 import { shouldHideTagForVoting } from '../../lib/collections/tags/permissions';
@@ -9,6 +8,8 @@ import { gql } from "@/lib/generated/gql-codegen";
 import PopperCard from "../common/PopperCard";
 import TagPreview from "./TagPreview";
 import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagPreviewFragmentQuery = gql(`
   query TagSearchHit($documentId: String) {
@@ -20,7 +21,7 @@ const TagPreviewFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagSearchHit", (theme: ThemeType) => ({
   root: {
     display: "block",
     padding: 8,
@@ -44,15 +45,15 @@ const styles = (theme: ThemeType) => ({
     fontSize: ".85em",
     color: theme.palette.grey[500]
   }
-});
+}));
 
-const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, classes}: {
+const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext}: {
   hit: any,
   onClick?: (ev: any) => void,
   hidePostCount?: boolean,
   isVotingContext?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { data } = useQuery(TagPreviewFragmentQuery, {
     variables: { documentId: hit._id },
     fetchPolicy: 'cache-first',
@@ -84,7 +85,7 @@ const TagSearchHit = ({hit, onClick, hidePostCount=false, isVotingContext, class
   );
 }
 
-export default registerComponent("TagSearchHit", TagSearchHit, {styles});
+export default TagSearchHit
 
 
 

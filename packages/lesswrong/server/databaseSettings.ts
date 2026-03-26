@@ -126,32 +126,10 @@ export const forumTeamUserId = new ServerSetting<string|null>("forumTeamUserId",
 export const googleClientIdSetting = new ServerSetting<string | null>('oAuth.google.clientId', null);
 export const googleOAuthSecretSetting = new ServerSetting<string | null>('oAuth.google.secret', null);
 
-export const auth0ClientIdSetting = new ServerSetting<string | null>('oAuth.auth0.appId', null);
-export const auth0OAuthSecretSetting = new ServerSetting<string | null>('oAuth.auth0.secret', null);
-export const auth0DomainSetting = new ServerSetting<string | null>('oAuth.auth0.domain', null);
-
 export const githubClientIdSetting = new ServerSetting<string | null>('oAuth.github.clientId', null);
 export const githubOAuthSecretSetting = new ServerSetting<string | null>('oAuth.github.secret', null);
 export const afGithubClientIdSetting = new ServerSetting<string | null>('oAuth.afGithub.clientId', null);
 export const afGithubOAuthSecretSetting = new ServerSetting<string | null>('oAuth.afGithub.secret', null);
-
-export const hasAuth0 = () => {
-  const { auth0ClientId, auth0OAuthSecret, auth0Domain } = getAuth0Credentials();
-
-  return !!(auth0ClientId && auth0OAuthSecret && auth0Domain);
-};
-
-export const getAuth0Credentials = () => {
-  const auth0ClientId = auth0ClientIdSetting.get();
-  const auth0OAuthSecret = auth0OAuthSecretSetting.get();
-  const auth0Domain = auth0DomainSetting.get();
-
-  return {
-    auth0ClientId,
-    auth0OAuthSecret,
-    auth0Domain,
-  };
-};
 
 export const connectionStringSetting = new ServerSetting<string | null>("analytics.connectionString", null);
 export const mirrorConnectionSettingString = new ServerSetting<string | null>("analytics.mirrorConnectionString", null); //for streaming to two DB at once
@@ -195,8 +173,6 @@ export const expressSessionSecretSetting = new ServerSetting<string | null>('exp
 export const reCaptchaSecretSetting = new ServerSetting<string | null>('reCaptcha.secret', null) // ReCaptcha Secret
 
 export const defaultEmailSetting = new ServerSetting<string>('defaultEmail', "hello@world.com")
-
-export const gatherTownRoomPassword = new ServerSetting<string | null>("gatherTownRoomPassword", "the12thvirtue")
 
 export const cloudinaryApiKey = new ServerSetting<string>("cloudinaryApiKey", "");
 export const cloudinaryApiSecret = new ServerSetting<string>("cloudinaryApiSecret", "");
@@ -253,11 +229,6 @@ export const swrCachingInvalidationIntervalMsSetting = new ParsedServerSetting<n
 
 export const enableDevelopmentEmailsSetting = new ParsedServerSetting<boolean>('enableDevelopmentEmails', false)
 
-// Minimum version number of the GatherTown bot that should run. If this is higher
-// than the bot version in this file, then the cronjob shuts off so some other
-// server can update it instead.
-export const minGatherTownTrackerVersion = new ParsedServerSetting<number>("gatherTownTrackerVersion", 7);
-
 export const petrovFalseAlarmMissileCount = new ParsedServerSetting<number[]>('petrovFalseAlarmMissileCount', [])
 export const petrovRealAttackMissileCount = new ParsedServerSetting<number[]>('petrovRealAttackMissileCount', [])
 
@@ -266,15 +237,6 @@ export const petrovRealAttackMissileCount = new ParsedServerSetting<number[]>('p
  * the site
  */
 export const fmCrosspostTimeoutMsSetting = new ParsedServerSetting<number>('fmCrosspostTimeoutMs', 15000)
-
-type Auth0Settings = {
-  appId: string;
-  secret: string;
-  domain: string;
-  originalDomain: string;
-}
-
-export const auth0SettingsDatabaseServerSetting = new ParsedServerSetting<Auth0Settings|null>("oAuth.auth0", null);
 
 export const slowSSRWarnThresholdSetting = new ParsedServerSetting<number>("slowSSRWarnThreshold", 3000);
 

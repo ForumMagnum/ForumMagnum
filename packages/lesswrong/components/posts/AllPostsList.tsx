@@ -13,7 +13,6 @@ import {
   timeframeToTimeBlock,
   TimeframeType,
 } from "./timeframeUtils";
-import { forumAllPostsNumDaysSetting, forumAllPostsNumMonthsSetting, forumAllPostsNumWeeksSetting, forumAllPostsNumYearsSetting } from '@/lib/instanceSettings';
 import type { PostsTimeBlockShortformOption } from "./PostsTimeBlock";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import PostsTimeframeList from "./PostsTimeframeList";
@@ -27,7 +26,6 @@ const AllPostsList = ({
   currentFilter,
   currentShowLowKarma,
   currentIncludeEvents,
-  currentHideCommunity,
   showSettings,
 }: {
   currentTimeframe: string,
@@ -35,7 +33,6 @@ const AllPostsList = ({
   currentSorting: PostSortingMode,
   currentShowLowKarma: boolean,
   currentIncludeEvents: boolean,
-  currentHideCommunity: boolean,
   showSettings: boolean,
 }) => {
   const {timezone} = useTimezone();
@@ -47,7 +44,6 @@ const AllPostsList = ({
       ? MAX_LOW_KARMA_THRESHOLD
       : DEFAULT_LOW_KARMA_THRESHOLD),
     excludeEvents: !currentIncludeEvents && currentFilter !== "events",
-    hideCommunity: currentHideCommunity,
     filter: currentFilter,
     sortedBy: currentSorting,
     after: query.after,
@@ -74,10 +70,10 @@ const AllPostsList = ({
   }
 
   const timeframeToNumTimeBlocks = {
-    daily: forumAllPostsNumDaysSetting.get(),
-    weekly: forumAllPostsNumWeeksSetting.get(),
-    monthly: forumAllPostsNumMonthsSetting.get(),
-    yearly: forumAllPostsNumYearsSetting.get(),
+    daily: 10,
+    weekly: 4,
+    monthly: 4,
+    yearly: 4,
   };
   
   const numTimeBlocks = timeframeToNumTimeBlocks[currentTimeframe as TimeframeType];

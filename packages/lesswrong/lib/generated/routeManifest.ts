@@ -72,9 +72,6 @@ export const routeTrie = {
         "moderationTemplates": {
           "hasPage": true
         },
-        "modgpt": {
-          "hasPage": true
-        },
         "random-user": {
           "hasPage": true
         },
@@ -101,7 +98,6 @@ export const routeTrie = {
         "migrations": "migrations",
         "moderation": "moderation",
         "moderationtemplates": "moderationTemplates",
-        "modgpt": "modgpt",
         "random-user": "random-user",
         "recentlyactiveusers": "recentlyActiveUsers",
         "supermod": "supermod",
@@ -140,9 +136,6 @@ export const routeTrie = {
               "hasRoute": true
             }
           },
-          "hasRoute": true
-        },
-        "collaborateOnPost": {
           "hasRoute": true
         },
         "community": {
@@ -271,7 +264,19 @@ export const routeTrie = {
             "deleteBlock": {
               "hasRoute": true
             },
+            "feedback": {
+              "hasRoute": true
+            },
             "insertBlock": {
+              "hasRoute": true
+            },
+            "insertLLMBlock": {
+              "hasRoute": true
+            },
+            "insertWidget": {
+              "hasRoute": true
+            },
+            "ping": {
               "hasRoute": true
             },
             "replaceText": {
@@ -279,14 +284,22 @@ export const routeTrie = {
             },
             "replaceWidget": {
               "hasRoute": true
+            },
+            "replyToComment": {
+              "hasRoute": true
             }
           },
           "lowerCase": {
             "commentondraft": "commentOnDraft",
             "deleteblock": "deleteBlock",
+            "feedback": "feedback",
             "insertblock": "insertBlock",
+            "insertllmblock": "insertLLMBlock",
+            "insertwidget": "insertWidget",
+            "ping": "ping",
             "replacetext": "replaceText",
-            "replacewidget": "replaceWidget"
+            "replacewidget": "replaceWidget",
+            "replytocomment": "replyToComment"
           }
         },
         "autocomplete": {
@@ -436,7 +449,6 @@ export const routeTrie = {
         "skill.md": "SKILL.md",
         "about": "about",
         "codex": "codex",
-        "collaborateonpost": "collaborateOnPost",
         "community": "community",
         "contact": "contact",
         "curated": "curated",
@@ -574,9 +586,6 @@ export const routeTrie = {
           "hasPage": true
         }
       },
-      "hasPage": true
-    },
-    "collaborateOnPost": {
       "hasPage": true
     },
     "collections": {
@@ -1226,7 +1235,6 @@ export const routeTrie = {
     "ckeditor-token": "ckeditor-token",
     "ckeditor-webhook": "ckeditor-webhook",
     "codex": "codex",
-    "collaborateonpost": "collaborateOnPost",
     "collections": "collections",
     "community": "community",
     "compare": "compare",

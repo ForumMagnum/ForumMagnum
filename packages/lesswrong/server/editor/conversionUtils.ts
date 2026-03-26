@@ -89,6 +89,16 @@ function getTurndown(): TurndownService {
         return iframeWidgetElementToMarkdown(element);
       }
     })
+    turndownService.addRule('llm-content-block', {
+      filter: (node) =>
+        node.nodeName === 'DIV' && !!node.classList?.contains('llm-content-block'),
+      replacement: (content, node) => {
+        const element = node as Element;
+        const modelName = element.getAttribute('data-model-name') || 'unknown model';
+        const trimmed = content.trim();
+        return `\n\n%%% llm-output model="${modelName}"\n\n${trimmed}\n\n%%% /llm-output\n\n`;
+      },
+    })
     turndownService.use(gfm); // Add support for strikethrough and tables
     turndownService.addRule('suggestion-deletion', {
       filter: ['del'],
@@ -650,12 +660,14 @@ export async function dataToWordCount(data: AnyBecauseTodo, type: string, contex
     }
     bestWordCount = wordCountWithoutFootnotes;
 
-    // Convert to HTML and try removing appendixes
+    // Convert to HTML and try removing appendixes and collapsible section bodies.
     const htmlWithoutFootnotes = await dataToHTML(withoutFootnotes, "markdown", context, { skipMathjax: true }) ?? "";
     const htmlWithoutFootnotesAndAppendices = htmlWithoutFootnotes
       .split(/<h[1-6]>.*(appendix).*<\/h[1-6]>/i)[0];
-    const markdownWithoutFootnotesAndAppendices = dataToMarkdown(htmlWithoutFootnotesAndAppendices, "html");
-    bestWordCount = markdownWithoutFootnotesAndAppendices.trim().split(/[\s]+/g).length;
+    const $ = cheerioParse(htmlWithoutFootnotesAndAppendices);
+    $('.detailsBlockContent').remove();
+    const markdownWithoutFootnotesAndAppendicesOrCollapsedBodies = dataToMarkdown($.html(), "html");
+    bestWordCount = markdownWithoutFootnotesAndAppendicesOrCollapsedBodies.trim().split(/[\s]+/g).length;
   } catch(err) {
     // eslint-disable-next-line no-console
     console.error("Error in dataToWordCount", err)

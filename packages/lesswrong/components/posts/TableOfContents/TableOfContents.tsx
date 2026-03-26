@@ -6,9 +6,10 @@ import type { ToCData } from '../../../lib/tableOfContents';
 import TableOfContentsList, { ToCDisplayOptions } from './TableOfContentsList';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import FixedPositionToc from './FixedPositionToC';
+import { defineStyles } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
-});
+const styles = defineStyles("TableOfContents", (theme: ThemeType) => ({
+}));
 
 const TableOfContents = ({sectionData, title, heading, onClickSection, displayOptions, fixedPositionToc = false, hover}: {
   sectionData: ToCData,
@@ -16,7 +17,6 @@ const TableOfContents = ({sectionData, title, heading, onClickSection, displayOp
   heading?: React.ReactNode,
   onClickSection?: () => void,
   displayOptions?: ToCDisplayOptions,
-  classes: ClassesType<typeof styles>,
   fixedPositionToc?: boolean,
   hover?: boolean,
 }) => {
@@ -62,11 +62,8 @@ const TableOfContents = ({sectionData, title, heading, onClickSection, displayOp
   );
 }
 
-export default registerComponent(
-  "TableOfContents", TableOfContents, {
-    styles,
-    hocs: [withErrorBoundary]
-  }
-);
+export default registerComponent("TableOfContents", TableOfContents, {
+  hocs: [withErrorBoundary]
+});
 
 

@@ -1,5 +1,5 @@
 import React from 'react';
-import { hasEventsSetting, isEAForum, isLW, isLWorAF, verifyEmailsSetting } from '@/lib/instanceSettings';
+import { hasEventsSetting, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
 import { allowSubscribeToSequencePosts } from '@/lib/betas';
 import { ManageSubscriptionsLink } from '@/components/form-components/ManageSubscriptionsLink';
 import KarmaChangeNotifierSettings from '@/components/users/KarmaChangeNotifierSettings';
@@ -227,11 +227,11 @@ const NotificationsSettingsTab = ({
       </SettingsSection>
 
       <SettingsSection title="Emails">
-        {verifyEmailsSetting.get() && <div className={fieldWrapperClass}>
+        <div className={fieldWrapperClass}>
           <form.Field name="whenConfirmationEmailSent">
             {() => <UsersEmailVerification />}
           </form.Field>
-        </div>}
+        </div>
 
         {isLW() && <div className={fieldWrapperClass}>
           <form.Field name="emailSubscribedToCurated">

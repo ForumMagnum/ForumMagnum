@@ -1,11 +1,12 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import classNames from 'classnames';
 import type { Placement as PopperPlacementType } from "popper.js"
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SectionFooterCheckbox", (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     ...theme.typography.commentStyle,
@@ -39,10 +40,9 @@ const styles = (theme: ThemeType) => ({
     cursor: "default",
     opacity: .5
   }
-})
+}))
 
-const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled, tooltip, tooltipPlacement="bottom-start", labelClassName }: {
-  classes: ClassesType<typeof styles>,
+const SectionFooterCheckbox = ({label, onClick, value, disabled, tooltip, tooltipPlacement="bottom-start", labelClassName}: {
   label: string|React.ReactNode,
   onClick: (ev: React.MouseEvent) => void,
   value: boolean,
@@ -51,6 +51,7 @@ const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled, toolt
   tooltipPlacement?: PopperPlacementType,
   labelClassName?: string
 }) => {
+  const classes = useStyles(styles);
   const checkbox = <span className={classNames(classes.root, {[classes.disabled]: disabled })} onClick={!disabled ? onClick : undefined}>
     <Checkbox disableRipple classes={{root: classes.checkbox, checked: classes.checked}} checked={value} />
     <span className={classNames(classes.label, labelClassName)}>{ label }</span>
@@ -65,6 +66,6 @@ const SectionFooterCheckbox = ({ classes, label, onClick, value, disabled, toolt
   }
 }
 
-export default registerComponent("SectionFooterCheckbox", SectionFooterCheckbox, {styles});
+export default SectionFooterCheckbox;
 
 

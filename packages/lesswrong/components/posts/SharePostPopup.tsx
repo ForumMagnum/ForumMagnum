@@ -8,16 +8,17 @@ import { useMessages } from "../common/withMessages";
 import { forumTitleSetting, siteImageSetting } from '@/lib/instanceSettings';
 import { getPostDescription } from "./PostsPage/structuredData";
 import classNames from "classnames";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import LWPopper from "../common/LWPopper";
 import { Typography } from "../common/Typography";
 import ForumIcon from "../common/ForumIcon";
 import SocialMediaIcon from "../icons/SocialMediaIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ANIMATION_DURATION = 300;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SharePostPopup", (theme: ThemeType) => ({
   popper: {
     zIndex: theme.zIndexes.loginDialog,
     borderRadius: theme.borderRadius.default,
@@ -183,11 +184,16 @@ const styles = (theme: ThemeType) => ({
     width: 20,
     height: 20,
   },
-});
+}));
 
-type ShareButtonProps = { label: string; icon: React.JSX.Element; clickAction?: () => void; classes: ClassesType<typeof styles> };
+type ShareButtonProps = {
+  label: string;
+  icon: React.JSX.Element;
+  clickAction?: () => void;
+ };
 
-const ShareButton = ({ label, icon, clickAction, classes }: ShareButtonProps) => {
+const ShareButton = ({ label, icon, clickAction }: ShareButtonProps) => {
+  const classes = useStyles(styles);
   return (
     <div className={classes.shareButton}>
       <div onClick={clickAction} className={classes.shareButtonIcon}>
@@ -198,15 +204,11 @@ const ShareButton = ({ label, icon, clickAction, classes }: ShareButtonProps) =>
   );
 };
 
-const SharePostPopup = ({
-  post,
-  onClose,
-  classes,
-}: {
+const SharePostPopup = ({post, onClose}: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision;
   onClose: () => void;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const { captureEvent } = useTracking();
   const { flash } = useMessages();
@@ -267,24 +269,21 @@ const SharePostPopup = ({
   };
 
   const shareButtons: ShareButtonProps[] = [
-    { label: "Copy link", icon: <ForumIcon icon="Link" className={classes.icon} />, clickAction: copyLink, classes },
+    { label: "Copy link", icon: <ForumIcon icon="Link" className={classes.icon} />, clickAction: copyLink },
     {
       label: "Twitter",
       icon: <SocialMediaIcon className={classes.icon} name="twitter" />,
       clickAction: shareToTwitter,
-      classes,
     },
     {
       label: "Facebook",
       icon: <SocialMediaIcon className={classes.icon} name="facebook" />,
       clickAction: shareToFacebook,
-      classes,
     },
     {
       label: "LinkedIn",
       icon: <SocialMediaIcon className={classes.icon} name="linkedin" />,
       clickAction: shareToLinkedIn,
-      classes,
     },
   ];
 
@@ -331,6 +330,4 @@ const SharePostPopup = ({
   );
 };
 
-export default registerComponent("SharePostPopup", SharePostPopup, { styles });
-
-
+export default SharePostPopup;

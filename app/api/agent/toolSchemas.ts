@@ -46,7 +46,7 @@ export const replaceWidgetToolSchema = z.object({
  * Returns an error message string if validation fails, or null if valid.
  */
 export function validateReplaceWidgetExclusivity(value: { replacement?: string, unifiedDiff?: string }): string | null {
-  const operationCount = (value.replacement ? 1 : 0) + (value.unifiedDiff ? 1 : 0);
+  const operationCount = (typeof value.replacement === "string" ? 1 : 0) + (typeof value.unifiedDiff === "string" ? 1 : 0);
   if (operationCount !== 1) {
     return "Provide exactly one of replacement or unifiedDiff.";
   }
@@ -67,6 +67,30 @@ export const insertBlockToolSchema = z.object({
   location: insertLocationSchema,
   markdown: z.string().describe("The markdown content to insert"),
   mode: modeSchema,
+});
+
+export const insertLLMBlockToolSchema = z.object({
+  postId: z.string().describe("The ID of the post"),
+  key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),
+  modelName: z.string().default("AI Agent").describe("The model name to display on the LLM content block (e.g. 'Claude Opus 4.6')"),
+  markdown: z.string().describe("The markdown content for the LLM content block"),
+  location: insertLocationSchema,
+});
+
+export const insertWidgetToolSchema = z.object({
+  postId: z.string().describe("The ID of the post"),
+  key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),
+  agentName: z.string().optional().describe("Name to attribute the widget insertion to"),
+  content: z.string().describe("The raw HTML/JS content for the widget"),
+  location: insertLocationSchema,
+});
+
+export const replyToCommentToolSchema = z.object({
+  postId: z.string().describe("The ID of the post"),
+  key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),
+  agentName: z.string().optional().describe("Name to attribute the reply to"),
+  threadId: z.string().describe("The ID of the thread to reply to (from the Comment Threads section of the editPost response)"),
+  comment: z.string().describe("The reply text in markdown"),
 });
 
 export const deleteBlockToolSchema = z.object({

@@ -34,7 +34,7 @@ import { userGetDisplayNameById } from "../../vulcan-users/helpers";
 import { loadByIds, getWithLoader, getWithCustomLoader } from "../../loaders";
 import SimpleSchema from "@/lib/utils/simpleSchema";
 import { getCollaborativeEditorAccess } from "./collabEditingPermissions";
-import { eaFrontpageDateDefault, isEAForum, isLWorAF, requireReviewToFrontpagePostsSetting, reviewUserBotSetting } from "../../instanceSettings";
+import { isEAForum, isLWorAF, reviewUserBotSetting } from "../../instanceSettings";
 import { userCanCommentLock, userCanModeratePost, userIsSharedOn } from "../users/helpers";
 import {
   sequenceGetNextPostID,
@@ -45,7 +45,7 @@ import {
 } from '../sequences/sequenceServerHelpers';
 import { allOf } from "../../utils/functionUtils";
 import { getDefaultViewSelector } from "../../utils/viewUtils";
-import { hasSideComments, userCanViewJargonTerms } from "../../betas";
+import { userCanViewJargonTerms } from "../../betas";
 import { stableSortTags } from "../tags/helpers";
 import { getLatestContentsRevision } from "../../../server/collections/revisions/helpers";
 import { marketInfoLoader } from "./annualReviewMarkets";
@@ -140,7 +140,7 @@ async function getIsBookmarked(documentId: string, context: ResolverContext): Pr
   return bookmarks.length > 0;
 }
 
-export const sideCommentCacheVersion = 1;
+export const sideCommentCacheVersion = 2;
 export interface SideCommentsCache {
   version: number;
   createdAt: Date;
@@ -1591,7 +1591,7 @@ const schema = {
             baseScore: tagRelevanceRecord[tag._id],
           },
         }));
-        const sortedTagInfo = stableSortTags(tagInfo);
+        const sortedTagInfo = stableSortTags(tagInfo, {coreTags: "last"});
         const sortedTags = sortedTagInfo.map(({ tag }) => tag);
         return await accessFilterMultiple(currentUser, "Tags", sortedTags, context);
       },
@@ -2214,31 +2214,10 @@ const schema = {
       canUpdate: ["sunshineRegiment", "admins"],
       canCreate: ["members"],
       onCreate: ({ document: { isEvent, submitToFrontpage, draft } }) => {
-        if (requireReviewToFrontpagePostsSetting.get()) {
-          return undefined;
-        }
-
-        return eaFrontpageDateDefault(
-          isEvent ?? undefined,
-          submitToFrontpage ?? undefined,
-          draft ?? undefined,
-        );
+        return undefined;
       },
       onUpdate: ({ data, oldDocument }) => {
-        if (requireReviewToFrontpagePostsSetting.get()) {
-          return undefined;
-        }
-
-        if (oldDocument.draft && data.draft === false && !oldDocument.frontpageDate) {
-          return eaFrontpageDateDefault(
-            data.isEvent ?? oldDocument.isEvent,
-            data.submitToFrontpage ?? oldDocument.submitToFrontpage,
-            false,
-          );
-        }
-        // Setting frontpageDate to null is a special case that means "move to personal blog",
-        // if frontpageDate is actually undefined then we want to use the old value.
-        return data.frontpageDate === undefined ? oldDocument.frontpageDate : data.frontpageDate;
+        return undefined;
       },
       validation: {
         optional: true,
@@ -3531,7 +3510,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (post, _args, context) => {
         const { SideCommentCaches, Comments } = context;
-        if (!hasSideComments() || isNotHostedHere(post)) {
+        if (isNotHostedHere(post)) {
           return null;
         }
         const cache = await SideCommentCaches.findOne({
@@ -3674,9 +3653,6 @@ const schema = {
       canRead: ["guests"],
       resolver: ({ _id }, _, context) => {
         const { SideCommentCaches } = context;
-        if (!hasSideComments()) {
-          return null;
-        }
         return SideCommentCaches.findOne({
           postId: _id,
           version: sideCommentCacheVersion,
@@ -3691,7 +3667,6 @@ const schema = {
         },
         resolver: (sideCommentsField) => sideCommentsField("*"),
       }),
-      skipSqlResolver: () => !hasSideComments(),
       sqlPostProcess: () => null,
     },
   },

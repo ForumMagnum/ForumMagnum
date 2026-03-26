@@ -9,8 +9,6 @@ import { isClient } from '../../lib/executionEnvironment';
 import { isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
-import { getUserABTestGroup } from '@/lib/abTestImpl';
-import { lexicalEditorABTest } from '@/lib/abTests';
 import { rootStyles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import {checkEditorValid} from './validation'
@@ -50,6 +48,9 @@ export const styles = (theme: ThemeType) => ({
   },
   sectionTitle: {
     fontSize: 12,
+  },
+  plainEditorContentStyles: {
+    marginTop: 0,
   },
   markdownEditor: {
     fontSize: "inherit",
@@ -202,39 +203,23 @@ export const getEditorTypeToDisplayMap = (): Record<LegacyEditorTypeString,{name
   lexical: {name: 'Lexical', postfix: '[Experimental]'},
 });
 
-const nonAdminEditors: EditorTypeString[] = ['ckEditorMarkup', 'markdown']
-const betaEditors: EditorTypeString[] = ['ckEditorMarkup', 'lexical']
+const defaultEditors: EditorTypeString[] = ['lexical', 'ckEditorMarkup']
 const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown', 'lexical']
-
-/** Whether a user should have access to the Lexical editor (as a default or selectable option). */
-export function userHasLexicalEditor(user: UsersCurrent | DbUser | null): boolean {
-  if (!user) return false;
-  if (userIsAdmin(user)) return true;
-  if (user.beta) {
-    const abTestGroup = getUserABTestGroup({ user }, lexicalEditorABTest);
-    return abTestGroup === "lexical";
-  }
-  return false;
-}
 
 /** Returns the list of editors available to the given user. */
 export function getEditorsForUser(user: UsersCurrent | DbUser | null): EditorTypeString[] {
   if (user && userIsAdmin(user)) {
     return adminEditors;
   }
-  if (user?.beta) {
-    if (userUseMarkdownPostEditor(user)) {
-      return ['markdown', ...betaEditors];
-    }
-    return betaEditors;
+  if (userUseMarkdownPostEditor(user)) {
+    return ['markdown', ...defaultEditors];
   }
-  return nonAdminEditors;
+  return defaultEditors;
 }
 
 export const getUserDefaultEditor = (user: UsersCurrent|null): EditorTypeString => {
   if (userUseMarkdownPostEditor(user)) return "markdown"
-  if (userHasLexicalEditor(user)) return "lexical"
-  return "ckEditorMarkup"
+  return "lexical"
 }
 
 export function isValidEditorType(editorType: string): editorType is EditorTypeString {
@@ -383,6 +368,13 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
    */
   private _lexicalGetDataWithDiscardedSuggestions: (() => string | undefined) | null = null;
 
+  /**
+   * The most recent HTML value received from the Lexical editor's onChange
+   * callback. Used by submitData as a fallback because this.props.value may
+   * be stale (React hasn't re-rendered yet after the latest onChange).
+   */
+  private _latestLexicalHtml: string | null = null;
+
   constructor(props: EditorProps) {
     super(props)
 
@@ -436,12 +428,12 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         data = this.props.value.value;
         break
       case "lexical":
-        data = this.props.value.value;
+        data = this._latestLexicalHtml ?? this.props.value.value;
         dataWithDiscardedSuggestions = this._lexicalGetDataWithDiscardedSuggestions?.();
         // For Lexical posts, capture the current Yjs state so
         // the revision created by updatePost has a restorable snapshot.
         if (this.props.document?._id) {
-          yjsState = getYjsStateBase64ForPost(this.props.document._id);
+          yjsState = getYjsStateBase64ForPost(this.props.document._id, this.props.fieldName);
         }
         break
       case "ckEditorMarkup":
@@ -492,6 +484,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         break;
       }
       case "lexical": {
+        this._latestLexicalHtml = value;
         if (this.props.value.value === value)
           return;
         this.props.onChange({
@@ -664,6 +657,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         commentEditor={commentEditor}
         documentId={documentId}
         collectionName={collectionName}
+        fieldName={this.props.fieldName}
         accessLevel={this.props.accessLevel}
       />
     </div>
@@ -743,7 +737,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const value = contents.value || "";
     return <div>
       { this.renderPlaceholder(!value, false) }
-      <ContentStyles contentType={contentType}  className={classNames({[classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle})}>
+      <ContentStyles contentType={contentType} className={classNames(classes.plainEditorContentStyles, {
+        [classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle
+      })}>
         <Input
           className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: questionStyles, [classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle}
           )}

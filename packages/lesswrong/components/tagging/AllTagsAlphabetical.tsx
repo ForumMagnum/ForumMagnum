@@ -1,9 +1,7 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import _sortBy from 'lodash/sortBy';
-import { userCanCreateTags } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { getTagCreateUrl, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import TagsListItem from "./TagsListItem";
@@ -12,6 +10,8 @@ import SectionButton from "../common/SectionButton";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagPreviewFragmentMultiQuery = gql(`
   query multiTagAllTagsAlphabeticalQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -24,7 +24,7 @@ const TagPreviewFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AllTagsAlphabetical", (theme: ThemeType) => ({
   root: {
     margin: "auto",
     maxWidth: 1000
@@ -38,11 +38,10 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 24,
     borderRadius: theme.borderRadius.default,
   }
-})
+}))
 
-const AllTagsAlphabetical = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const AllTagsAlphabetical = () => {
+  const classes = useStyles(styles);
   const { data, loading } = useQuery(TagPreviewFragmentMultiQuery, {
     variables: {
       selector: { allTagsHierarchical: {} },
@@ -63,7 +62,7 @@ const AllTagsAlphabetical = ({classes}: {
         title={`All Wikitags (${loading ? "loading" : results?.length})`}
         anchor={`all-wikitags`}
       >
-        {userCanCreateTags(currentUser) && tagUserHasSufficientKarma(currentUser, "new") &&
+        {tagUserHasSufficientKarma(currentUser, "new") &&
           <SectionButton>
             <AddBoxIcon/>
             <Link to={getTagCreateUrl()}>
@@ -80,6 +79,6 @@ const AllTagsAlphabetical = ({classes}: {
   );
 }
 
-export default registerComponent("AllTagsAlphabetical", AllTagsAlphabetical, {styles});
+export default AllTagsAlphabetical
 
 

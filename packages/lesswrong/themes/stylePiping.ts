@@ -18,7 +18,7 @@ const spoilerStyles = (theme: ThemeType) => ({
   '& .spoiler': {
     padding: 8,
     pointerEvents: 'auto',
-    minHeight: theme.typography.commentStyle.fontSize,
+    minHeight: 15,
     '&:not(:hover)': { // using ':not(:hover)' means we don't need to manually reset elements with special colors or backgrounds, instead they just automatically stay the same if we're not hovering
       ...hideSpoilers(theme),
     }
@@ -257,9 +257,12 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
     margin: '1em 0',
     position: 'relative',
     fontFamily: '"cronos-pro", serif',
-    fontSize: 19.3,
+    fontSize: 19.1,
     fontWeight: 400,
     opacity: 0.94,
+    '& h1, & h2, & h3, & h4, & h5, & h6': {
+      fontFamily: 'inherit',
+    },
     // Render the model label inline so the content starts immediately after it.
     '&::before': {
       content: 'attr(data-model-name)',
@@ -271,6 +274,8 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
       borderRight: `1px solid ${theme.palette.grey[400]}`,
       fontWeight: 600,
       fontVariant: 'small-caps',
+      position: 'relative',
+      top: 2
     },
     '&:has(> .llm-content-block-content > p:first-child)::before': {
       float: 'left',
@@ -592,7 +597,12 @@ const baseBodyStyles = (theme: ThemeType) => ({
   },
   '& img': {
     maxWidth: "100%",
-    ...theme.postImageStyles,
+    ...(theme.dark && {
+      // Override image background color to white (so that transparent isn't
+      // black). Necessary because there are a handful of posts with images that
+      // have black-on-transparent text in them.
+      background: "#ffffff"
+    })
   },
   '& sup': {
     verticalAlign: 'baseline',

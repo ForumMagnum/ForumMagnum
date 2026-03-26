@@ -1,10 +1,6 @@
 import { StrategySettings, StrategySpecification } from "../../lib/collections/users/recommendationSettings";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { postStatuses } from "../../lib/collections/posts/constants";
-import {
-  EA_FORUM_COMMUNITY_TOPIC_ID,
-  EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID,
-} from "../../lib/collections/tags/helpers";
 
 export type RecommendationStrategyConfig = {
   maxRecommendationCount: number,
@@ -138,23 +134,6 @@ abstract class RecommendationStrategy {
       args: {
         postStatus: postStatuses.STATUS_APPROVED,
         minimumBaseScore: this.config.minimumBaseScore,
-      },
-    };
-  }
-
-  /**
-   * Create SQL query fragments to exclude posts tagged with non-recommendable
-   * tags.
-   */
-  protected getTagFilter() {
-    return {
-      filter: `
-        COALESCE((p."tagRelevance"->>$(communityTagId))::INTEGER, 0) < 1 AND
-        COALESCE((p."tagRelevance"->>$(aprilFoolsDayTagId))::INTEGER, 0) < 1
-      `,
-      args: {
-        communityTagId: EA_FORUM_COMMUNITY_TOPIC_ID,
-        aprilFoolsDayTagId: EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID,
       },
     };
   }

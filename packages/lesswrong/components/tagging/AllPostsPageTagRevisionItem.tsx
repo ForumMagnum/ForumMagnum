@@ -1,10 +1,11 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import Loading from "../vulcan-core/Loading";
 import TagRevisionItem from "./TagRevisionItem";
 import LensRevisionItem from "./history/LensRevisionItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const RevisionHistoryEntryQuery = gql(`
   query AllPostsPageTagRevisionItem($documentId: String) {
@@ -16,26 +17,24 @@ const RevisionHistoryEntryQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AllPostsPageTagRevisionItem", (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.commentNodeEven,
     border: theme.palette.border.commentBorder,
     borderRight: "none",
-    borderRadius: theme.isFriendlyUI
-      ? `${theme.borderRadius.default}px 0 0 ${theme.borderRadius.default}px`
-      : "2px 0 0 2px",
+    borderRadius: "2px 0 0 2px",
     padding: 12,
     marginLeft: 8,
     marginBottom: 16,
   },
-});
+}));
 
-const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
+const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId}: {
   tag: TagHistoryFragment,
   revisionId: string,
   documentId: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(RevisionHistoryEntryQuery, {
     variables: { documentId: revisionId },
     fetchPolicy: 'cache-first',
@@ -64,7 +63,7 @@ const AllPostsPageTagRevisionItem = ({tag, revisionId, documentId, classes}: {
   }
 }
 
-export default registerComponent("AllPostsPageTagRevisionItem", AllPostsPageTagRevisionItem, {styles});
+export default AllPostsPageTagRevisionItem
 
 
 

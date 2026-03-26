@@ -1,20 +1,22 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getTagPostsSortOrderOptions } from "@/lib/collections/tags/helpers";
 import ForumDropdown from "../common/ForumDropdown";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsListSortDropdown', (theme: ThemeType) => ({
   root: {}
-})
+}))
 
 const getDefaultOptions = () => Object.keys(getTagPostsSortOrderOptions()) as (keyof ReturnType<typeof getTagPostsSortOrderOptions>)[];
 
-const PostsListSortDropdown = ({value, options=getDefaultOptions(), sortingParam="sortedBy", classes}: {
+const PostsListSortDropdown = ({value, options=getDefaultOptions(), sortingParam="sortedBy"}: {
   value: string
   options?: string[],
   sortingParam?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   // if specific options are passed in, filter out any other options from TAG_POSTS_SORT_ORDER_OPTIONS
   const filteredOptions = options
     ? getDefaultOptions()
@@ -27,6 +29,6 @@ const PostsListSortDropdown = ({value, options=getDefaultOptions(), sortingParam
   return <ForumDropdown value={value} options={filteredOptions} queryParam={sortingParam} />;
 }
 
-export default registerComponent('PostsListSortDropdown', PostsListSortDropdown, {styles});
+export default PostsListSortDropdown;
 
 

@@ -1,22 +1,24 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import InputAdornment from '@/lib/vendor/@material-ui/core/src/InputAdornment';
 import PersonAddIcon from '@/lib/vendor/@material-ui/icons/src/PersonAdd';
 import type { InputBaseComponentProps } from '@/lib/vendor/@material-ui/core/src/InputBase/InputBase';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("UsersSearchInput", (theme: ThemeType) => ({
   input: {
     // this needs to be here because of Bootstrap. I am sorry :(
     padding: "6px 0 7px",
     fontSize: "13px"
   }
-})
+}))
 
-const UsersSearchInput = ({ inputProps, classes }: {
+const UsersSearchInput = ({inputProps}: {
   inputProps: InputBaseComponentProps;
-  classes: ClassesType<typeof styles>;
 }) => {
+  const classes = useStyles(styles);
+
   return <Input
     inputProps={inputProps}
     className={classes.input}
@@ -28,7 +30,7 @@ const UsersSearchInput = ({ inputProps, classes }: {
   />
 };
 
-export default registerComponent("UsersSearchInput", UsersSearchInput, {styles});
+export default UsersSearchInput;
 
 
 

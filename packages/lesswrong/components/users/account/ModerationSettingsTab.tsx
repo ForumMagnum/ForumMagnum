@@ -1,6 +1,5 @@
 import React from 'react';
 import classNames from 'classnames';
-import { hasAuthorModeration } from '@/lib/betas';
 import { MODERATION_GUIDELINES_OPTIONS } from '@/lib/collections/posts/constants';
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
 import { userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
@@ -26,8 +25,7 @@ const ModerationSettingsTab = ({
 }: ModerationSettingsTabProps) => {
   return (
     <div>
-      {hasAuthorModeration() && (
-        <SettingsSection title="Moderation Guidelines" description="Set the norms for discussions on your posts">
+      <SettingsSection title="Moderation Guidelines" description="Set the norms for discussions on your posts">
           <div className={classNames("form-component-EditorFormComponent", fieldWrapperClass)}>
             <form.Field name="moderationGuidelines">
               {(field) => (
@@ -79,8 +77,7 @@ const ModerationSettingsTab = ({
               />
             )}
           </form.Field>
-        </SettingsSection>
-      )}
+      </SettingsSection>
 
       <SettingsSection title="Banned Users" description="Users banned from commenting on your posts">
         {(userIsAdminOrMod(currentUser) || userIsMemberOf(currentUser, 'trustLevel1')) && <div className={fieldWrapperClass}>

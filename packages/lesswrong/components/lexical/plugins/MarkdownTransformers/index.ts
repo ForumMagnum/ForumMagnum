@@ -140,6 +140,9 @@ export const EMOJI: TextMatchTransformer = {
   type: 'text-match',
 };
 
+const INLINE_EQUATION_IMPORT_REG_EXP = /\$(\S(?:[^$]*?\S)?)\$/;
+const INLINE_EQUATION_REG_EXP = /\$(\S(?:[^$]*?\S)?)\$$/;
+
 export const EQUATION: TextMatchTransformer = {
   dependencies: [MathNode],
   export: (node) => {
@@ -149,8 +152,8 @@ export const EQUATION: TextMatchTransformer = {
 
     return `$${node.getEquation()}$`;
   },
-  importRegExp: /\$([^$]+?)\$/,
-  regExp: /\$([^$]+?)\$$/,
+  importRegExp: INLINE_EQUATION_IMPORT_REG_EXP,
+  regExp: INLINE_EQUATION_REG_EXP,
   replace: (textNode, match) => {
     const [, equation] = match;
     const equationNode = $createMathNode(equation, true);

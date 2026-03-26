@@ -95,7 +95,7 @@ const styles = defineStyles("NamesAttachedReactionsVoteOnComment", (theme: Theme
   },
   addReactionButton: {
     verticalAlign: "bottom",
-    filter: theme.palette.buttons.messageReaction,
+    filter: theme.dark ? "opacity(0.35)" : "opacity(0.15)",
     cursor: "pointer",
     "& svg": {
       width: 20,

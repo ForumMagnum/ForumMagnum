@@ -1,23 +1,25 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import React from 'react';
 import { QueryLink } from '../../../lib/reactRouterWrapper';
 import FormatDate from "../../common/FormatDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsRevisionMessage', (theme: ThemeType) => ({
   root: {
     ...theme.typography.contentNotice,
     ...theme.typography.postStyle
   },
-})
+}))
 
 interface PostsRevisionMessageFragment {
   contents: { editedAt: Date } | null
 }
 
-const PostsRevisionMessage = ({post, classes}: {
+const PostsRevisionMessage = ({post}: {
   post: PostsRevisionMessageFragment|PostsList|SunshinePostsList,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   if (!post.contents )
     return null;
   if (!("editedAt" in post.contents))
@@ -31,6 +33,6 @@ const PostsRevisionMessage = ({post, classes}: {
   );
 }
 
-export default registerComponent('PostsRevisionMessage', PostsRevisionMessage, {styles});
+export default PostsRevisionMessage
 
 

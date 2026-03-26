@@ -10,7 +10,7 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, hasProminentLogoSetting } from '@/lib/instanceSettings';
+import { forumHeaderTitleSetting, forumShortTitleSetting, isAF } from '@/lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { useLocation } from '../../lib/routeUtil';
 import SearchBar from "@/components/common/SearchBar";
@@ -23,7 +23,6 @@ import { KarmaChangeNotifier } from "../users/karmaChanges/KarmaChangeNotifier";
 import HeaderSubtitle from "@/components/common/HeaderSubtitle";
 import { Typography } from "@/components/common/Typography";
 import ForumIcon from "@/components/common/ForumIcon";
-import SiteLogo from "../ea-forum/SiteLogo";
 import { isHomeRoute } from '@/lib/routeChecks';
 import NotificationsMenu from "../notifications/NotificationsMenu";
 import { IsLlmChatSidebarOpenContext } from './Layout';
@@ -87,7 +86,7 @@ const textColorOverrideStyles = ({
   "& .KarmaChangeNotifier-starIcon": {
     color,
   },
-  "& .KarmaChangeNotifier-gainedPoints": {
+  "& .ColoredNumber-gainedPoints": {
     color,
   },
   "& .NotificationsMenuButton-badge": {
@@ -211,14 +210,6 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
   icon: {
     width: 24,
     height: 24,
-  },
-  siteLogo: {
-    marginLeft:  -7,
-    marginRight: 6,
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: -12,
-      marginRight: 3
-    },
   },
   hideLgUp: {
     [theme.breakpoints.up(ICON_ONLY_NAVIGATION_BREAKPOINT)]: {
@@ -566,7 +557,6 @@ const Header = ({
                   <div className={classes.titleSubtitleContainer}>
                     <div className={classes.titleFundraiserContainer}>
                       <Link to="/" className={classes.titleLink}>
-                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
                         {forumHeaderTitleSetting.get()}
                       </Link>
                     </div>
@@ -575,7 +565,6 @@ const Header = ({
                 </div>
                 <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
                   <Link to="/" className={classes.titleLink}>
-                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
                     {forumShortTitleSetting.get()}
                   </Link>
                 </div>

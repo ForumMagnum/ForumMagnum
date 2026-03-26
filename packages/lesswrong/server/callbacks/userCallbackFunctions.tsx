@@ -3,13 +3,12 @@ import Conversations from "@/server/collections/conversations/collection";
 import Users from "@/server/collections/users/collection";
 import { getUserEmail, userGetLocation, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
-import { forumTitleSetting, isEAForum, isLW, isLWorAF, verifyEmailsSetting, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { forumTitleSetting, isEAForum, isLW, isLWorAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { encodeIntlError } from "@/lib/vulcan-lib/utils";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { captureException } from "@/lib/sentryWrapper";
-import { getAuth0Profile, updateAuth0Email } from "../authentication/auth0";
 import { userFindOneByEmail } from "../commonQueries";
-import { changesAllowedSetting, forumTeamUserId, sinceDaysAgoSetting, welcomeEmailPostId, hasAuth0 } from "../databaseSettings";
+import { changesAllowedSetting, forumTeamUserId, sinceDaysAgoSetting, welcomeEmailPostId } from "../databaseSettings";
 import { EventDebouncer } from "../debouncer";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { fetchFragmentSingle } from "../fetchFragment";
@@ -204,7 +203,7 @@ const utils = {
   },
 
   sendVerificationEmailConditional: async (user: DbUser) => {
-    if (!isAnyTest && verifyEmailsSetting.get()) {
+    if (!isAnyTest) {
       backgroundTask(sendVerificationEmail(user));
       await bellNotifyEmailVerificationRequired(user);
     }
@@ -341,16 +340,6 @@ export async function usersEditCheckEmail(modifier: MongoModifier, user: DbUser)
       modifier.$set.emails = [{address: newEmail, verified: false}];
       await utils.sendVerificationEmailConditional(user)
     }
-
-    if (hasAuth0()) {
-      await updateAuth0Email(user, newEmail);
-      /*
-       * Be careful here: DbUser does NOT includes services, so overwriting
-       * modifier.$set.services is both very easy and very bad (amongst other
-       * things, it will invalidate the user's session)
-       */
-      modifier.$set["services.auth0"] = await getAuth0Profile(user);
-    }
   }
   return modifier;
 }
@@ -423,16 +412,18 @@ export async function userEditDeleteContentCallbacksAsync({ newDocument, oldDocu
 export async function approveUnreviewedSubmissions(userId: string, context: ResolverContext) {
   const { Comments, Posts } = context;
 
-  // For each post by this author which has the authorIsUnreviewed flag set,
-  // clear the authorIsUnreviewed flag so it's visible, and update postedAt
-  // to now so that it goes to the right place int he latest posts list.
-  const unreviewedPosts = await Posts.find({userId, authorIsUnreviewed: true}).fetch();
+  // For each non-rejected post by this author which has the authorIsUnreviewed
+  // flag set, clear the flag so it's visible. For non-draft posts, also update
+  // postedAt to now so they appear in the right place in the latest posts list.
+  // Drafts keep their original postedAt since it will be set when they're undrafted.
+  const unreviewedPosts = await Posts.find({userId, authorIsUnreviewed: true, rejected: {$ne: true}}).fetch();
   for (let post of unreviewedPosts) {
+    const data: UpdatePostDataInput = { authorIsUnreviewed: false };
+    if (!post.draft) {
+      data.postedAt = new Date();
+    }
     await updatePost({
-      data: {
-        authorIsUnreviewed: false,
-        postedAt: new Date(),
-      },
+      data,
       selector: { _id: post._id }
     }, context);
   }

@@ -4,7 +4,6 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
-import { hasTwitterFeatures } from '../../lib/betas';
 import { useRefreshDbSettings } from '../hooks/useRefreshDbSettings';
 import SingleColumnSection from "../common/SingleColumnSection";
 import AdminMetadata from "./AdminMetadata";
@@ -61,7 +60,6 @@ const AdminHome = () => {
         <li><Link className={classes.link} to="/moderation/altAccounts">Alt-Accounts Investigator</Link></li>
         <li><Link className={classes.link} to="/admin/recentlyActiveUsers">Recently Active Users</Link></li>
         <li><Link className={classes.link} to="/admin/moderationTemplates">Moderation Templates</Link></li>
-        <li><Link className={classes.link} to="/admin/modgpt">ModGPT Dashboard</Link></li>
         <li><Link className={classes.link} to="/admin/random-user">Random User</Link></li>
         <li><Link className={classes.link} to="/moderatorComments">Moderator Comments</Link></li>
         <li><Link className={classes.link} to="/moderation">Moderation Log</Link></li>
@@ -70,7 +68,6 @@ const AdminHome = () => {
 
       <h3>Site Admin</h3>
       <ul>
-        {hasTwitterFeatures() && <li><Link className={classes.link} to="/admin/twitter">Twitter tools</Link></li>}
         <li><Link className={classes.link} to="/spotlights">Spotlights</Link></li>
         <li><Link className={classes.link} to="/admin/emailSender">Email Sender</Link></li>
         <li><Link className={classes.link} to="/reviewAdmin">Review Admin (current year)</Link></li>

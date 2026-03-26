@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { makeCloudinaryImageUrl } from '../common/cloudinaryHelpers';
 import { ImageType, useImageUpload } from '../hooks/useImageUpload';
 import { formPreviewSizeByImageType } from './ImageUpload';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ImageUpload2", (theme: ThemeType) => ({
   root: {
     "& img": {
       display: "block",
@@ -35,10 +36,10 @@ const styles = (theme: ThemeType) => ({
     backgroundPosition: 'center',
     display: 'flex',
   },
-});
+}));
 
 
-const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl, classes}: {
+const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspectRatio, placeholderUrl}: {
   name: string,
   value: string | null | undefined,
   updateValue: (value: string) => void,
@@ -46,8 +47,8 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
   label: string,
   croppingAspectRatio?: number,
   placeholderUrl?: string,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const {uploadImage} = useImageUpload({
     imageType: name as ImageType,
     onUploadSuccess: (publicImageId: string) => {
@@ -111,6 +112,6 @@ const ImageUpload2 = ({name, value, updateValue, clearField, label, croppingAspe
   );
 };
 
-export default registerComponent("ImageUpload2", ImageUpload2, {styles});
+export default ImageUpload2;
 
 

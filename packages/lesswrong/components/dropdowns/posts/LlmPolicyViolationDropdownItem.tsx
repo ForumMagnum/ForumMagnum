@@ -64,6 +64,7 @@ const LlmPolicyViolationDropdownItem = ({post, closeMenu}: {
         contents: ({onClose}) => (
           <RejectContentDialog
             rejectionTemplates={rejectionTemplates}
+            displayName={post.user?.displayName}
             rejectContent={(reason) => {
               void rejectContent({
                 collectionName: "Posts",

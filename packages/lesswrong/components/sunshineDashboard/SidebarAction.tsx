@@ -1,8 +1,8 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles, useStyles } from '../hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SidebarAction", (theme: ThemeType) => ({
   root: {
     marginRight: 16,
     cursor:"pointer",
@@ -27,15 +27,15 @@ const styles = (theme: ThemeType) => ({
   tooltip: {
     fontSize: '.9rem',
   }
-})
+}))
 
-const SidebarAction = ({children, classes, title, warningHighlight, onClick}: {
+const SidebarAction = ({children, title, warningHighlight, onClick}: {
   children?: React.ReactNode,
-  classes: ClassesType<typeof styles>,
   title: string,
   warningHighlight?: boolean,
   onClick: () => void,
 }) => {
+  const classes = useStyles(styles);
   return <LWTooltip title={title} placement="bottom">
     <div onClick={onClick} className={classes.root}>
       {children}
@@ -44,7 +44,7 @@ const SidebarAction = ({children, classes, title, warningHighlight, onClick}: {
   </LWTooltip>
 }
 
-export default registerComponent('SidebarAction', SidebarAction, {styles});
+export default SidebarAction;
 
 
 

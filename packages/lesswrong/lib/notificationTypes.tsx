@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { getPostCollaborateUrl, postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
+import { postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
 import { commentGetAuthorName } from './collections/comments/helpers';
 import { responseToText } from './collections/posts/constants';
 import sortBy from 'lodash/sortBy';
@@ -7,7 +7,6 @@ import { getReviewNameInSitu } from './reviewUtils';
 import startCase from 'lodash/startCase';
 import { userGetDisplayName } from './collections/users/helpers'
 import { Link } from './reactRouterWrapper';
-import { isFriendlyUI } from '../themes/forumTheme';
 import { sequenceGetPageUrl } from './collections/sequences/helpers';
 import { tagGetUrl } from './collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
@@ -447,7 +446,7 @@ export const NewMessageNotification = createNotificationType({
     let conversation = await Conversations.findOne(document.conversationId);
     return (await Users.findOne(document.userId))?.displayName + ' sent you a new message' + (conversation?.title ? (' in the conversation ' + conversation.title) : "") + '!';
   },
-  causesRedBadge: () => !isFriendlyUI(),
+  causesRedBadge: () => true,
 });
 
 export const WrappedNotification = createNotificationType({
@@ -491,7 +490,7 @@ export const PostSharedWithUserNotification = createNotificationType({
     if (!documentId) {
       throw new Error("PostSharedWithUserNotification documentId is missing")
     }
-    return getPostCollaborateUrl(documentId, false)
+    return postGetEditUrl(documentId, false)
   },
   Display: ({User, Post, notification: {post}}) => <>
     <User /> shared their {post?.draft ? "draft" : "post"} <Post /> with you

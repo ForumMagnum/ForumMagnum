@@ -1,12 +1,4 @@
 export const sharedSettings = {
-  forum: {
-    numberOfDays: 10,
-    postInterval: 30,
-    numberOfWeeks: 4,
-    numberOfYears: 4,
-    maxPostsPerDay: 5,
-    numberOfMonths: 4
-  },
   type3: {
     cutoffDate: "2023-07-01",
     explicitlyAllowedPostIds: []
@@ -130,12 +122,10 @@ export const sharedSettings = {
     "Artificial Intelligence": "Fake News"
   },
   alternateHomePage: false,
-  gatherTownMessage: "Schelling social hours on Tues 1pm and Thurs 6pm PT",
   bookDisplaySetting: false,
   gardenOpenToPublic: false,
   karmaRewarderId100: "iqWr6C3oEB4yWpzn5",
   legacyRouteAcronym: "lw",
-  maxRenderQueueSize: 3,
   recommendationsTab: {
     manuallyStickiedPostIds: []
   },
@@ -162,7 +152,6 @@ export const sharedSettings = {
       filterMode: 10
     }
   ],
-  enableGoodHeartProject: false,
   maxDocumentsPerRequest: 5000,
   defaultSequenceBannerId: "sequences/vnyzzznenju0hzdv6pqb.jpg",
   defaultModeratorComments: [
@@ -178,7 +167,6 @@ export const sharedSettings = {
   newUserIconKarmaThreshold: 50,
   dialogueMatchmakingEnabled: true,
   hideUnreviewedAuthorComments: "2023-04-04T18:54:35.895Z",
-  gatherTownUserTrackingIsBroken: true,
   postModerationWarningCommentId: "sLay9Tv65zeXaQzR4",
   commentModerationWarningCommentId: "LbGNE5Ssnvs6MYnLu",
   firstCommentAcknowledgeMessageCommentId: "QgwD7PkQHFp3nfhjj"

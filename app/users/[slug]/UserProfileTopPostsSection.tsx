@@ -5,7 +5,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { useSuspenseQuery } from "@/lib/crud/useQuery";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import classNames from "classnames";
-import { useStyles } from "@/components/hooks/useStyles";
+import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import LWTooltip from "@/components/common/LWTooltip";
 import { ExpandedDate } from "@/components/common/FormatDate";
 import { Link } from "@/lib/reactRouterWrapper";
@@ -14,6 +14,293 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { cleanPostPreviewText, cssUrl, DEFAULT_PREVIEWS, formatReadableDate, getDefaultPreview, PostWithPreview } from "./userProfilePageUtil";
 import times from "lodash/times";
 import { seededShuffle } from "@/lib/random";
+
+const userProfileTopPostsSectionUnsharedStyles = defineStyles("UserProfileTopPostsSectionUnshared", (theme: ThemeType) => ({
+  topPostsIndicator: {
+    marginTop: 25,
+    marginBottom: 15,
+    marginLeft: 0,
+    paddingLeft: 0,
+  },
+  topPostsLabel: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    color: theme.palette.text.dim,
+    fontWeight: 400,
+    textTransform: "uppercase",
+    letterSpacing: 0.8,
+    display: "block",
+    margin: 0,
+    padding: 0,
+  },
+  topPostsLabelPlural: {
+    display: "block",
+    "@media (max-width: 630px)": {
+      display: "none",
+    },
+  },
+  topPostsLabelSingular: {
+    display: "none",
+    "@media (max-width: 630px)": {
+      display: "block",
+    },
+  },
+  postArticle: {
+    marginTop: 0,
+    display: "grid",
+    gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
+    gap: 25,
+    paddingBottom: 30,
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
+    overflow: "visible",
+    textDecoration: "none",
+    color: "inherit",
+    "&:hover": {
+      opacity: 1,
+    },
+    "@media (max-width: 750px)": {
+      display: "flex",
+      flexDirection: "column-reverse",
+      gap: 16,
+    },
+  },
+  postArticleTop: {
+    gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
+    "&:hover $postTitle": {
+      opacity: 0.84,
+    },
+  },
+  postContent: {
+    gridColumn: "1 / 4",
+    display: "flex",
+    flexDirection: "column",
+    minWidth: 0,
+    overflow: "hidden",
+    paddingLeft: 0,
+    marginLeft: 0,
+    aspectRatio: "3 / 2",
+    transition: "opacity 0.15s ease",
+    "@media (max-width: 750px)": {
+      height: "auto",
+      maxHeight: "none",
+      width: "100%",
+      aspectRatio: "auto",
+    },
+  },
+  postImage: {
+    gridColumn: "4 / 7",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    borderRadius: 4,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: "light-dark(rgba(255,255,255,.87),rgba(0,0,0,.92))",
+    fontSize: 14,
+    aspectRatio: "3 / 2",
+    transition: "opacity 0.15s ease",
+    mixBlendMode: theme.dark ? "normal" : "multiply",
+    "@media (max-width: 750px)": {
+      width: "100%",
+      height: 220,
+      aspectRatio: "auto",
+    },
+    "@media (max-width: 630px)": {
+      height: 200,
+    },
+  },
+  postTitle: {
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    fontSize: "2rem",
+    fontWeight: 400,
+    margin: "0 0 18px 0",
+    color: theme.palette.text.normal,
+    lineHeight: 1.2,
+    letterSpacing: "-.02em",
+    wordWrap: "break-word",
+    overflowWrap: "break-word",
+    whiteSpace: "normal",
+    maxWidth: "100%",
+    paddingLeft: 0,
+    flexShrink: 0,
+    display: "-webkit-box",
+    WebkitBoxOrient: "vertical",
+    WebkitLineClamp: 4,
+    overflow: "hidden",
+    transition: "opacity 0.15s ease",
+  },
+  topPostTitle: {
+    fontSize: 44,
+    lineHeight: 1.1,
+  },
+  postSummaryWrapper: {
+    flex: "1 1 0",
+    minHeight: 0,
+    marginBottom: 10,
+    fontFamily: theme.typography.postStyle.fontFamily,
+    fontSize: 15,
+    lineHeight: 1.6,
+    color: theme.palette.text.slightlyDim2,
+    "@media (max-width: 750px)": {
+      flex: "none",
+      minHeight: "auto",
+      marginBottom: 16,
+    },
+  },
+  postSummary: {
+    fontFamily: theme.typography.postStyle.fontFamily,
+    fontSize: 16.8,
+    fontWeight: 400,
+    lineHeight: 1.6,
+    color: theme.palette.text.slightlyDim2,
+    margin: 0,
+    whiteSpace: "pre-line",
+    maxHeight: "round(down, 100%, 1lh)",
+    overflow: "hidden",
+    position: "relative",
+    "&::after": {
+      content: '""',
+      position: "absolute",
+      right: 0,
+      bottom: 0,
+      width: "6em",
+      height: "1lh",
+      backgroundColor: theme.palette.background.profilePageBackground,
+      WebkitMaskImage: theme.palette.type === "dark"
+        ? "linear-gradient(to right, transparent, white)"
+        : "linear-gradient(to right, transparent, black)",
+      maskImage: theme.palette.type === "dark"
+        ? "linear-gradient(to right, transparent, white)"
+        : "linear-gradient(to right, transparent, black)",
+      pointerEvents: "none",
+    },
+    "@media (max-width: 900px)": {
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "pre-line",
+    },
+    "@media (max-width: 750px)": {
+      maxHeight: "none",
+      display: "-webkit-box",
+      WebkitBoxOrient: "vertical",
+      WebkitLineClamp: 4,
+      lineClamp: 4,
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+    },
+    "@media (max-width: 630px)": {
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "pre-line",
+    },
+  },
+  postMetaBar: {
+    display: "flex",
+    alignItems: "baseline",
+    gap: 10,
+    fontSize: 13,
+    color: theme.palette.text.dim,
+    flexShrink: 0,
+  },
+  karmaScore: {
+    fontSize: 13,
+    color: theme.palette.text.slightlyDim2,
+    fontWeight: 600,
+    letterSpacing: "-0.01em",
+  },
+  postDate: {
+    fontSize: 13,
+    color: theme.palette.text.dim,
+    fontWeight: 400,
+    letterSpacing: 0,
+  },
+  smallArticlesGrid: {
+    marginTop: 30,
+    paddingBottom: 30,
+    borderBottom: theme.palette.type === "dark"
+      ? theme.palette.greyBorder("1px", 0.28)
+      : "1px solid rgba(140,110,70,.14)",
+    display: "grid",
+    gridTemplateColumns: "repeat(6, minmax(0, 1fr))",
+    gap: 25,
+    "@media (max-width: 630px)": {
+      display: "none",
+    },
+  },
+  smallArticle: {
+    gridColumn: "span 2",
+    display: "flex",
+    flexDirection: "column",
+    "&:hover $smallArticleTitle": {
+      opacity: 0.84,
+    },
+  },
+  smallArticleImage: {
+    width: "100%",
+    aspectRatio: "3 / 2",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    color: theme.palette.type === "dark" ? "rgba(0,0,0,.92)" : "rgba(255,255,255,.87)",
+    fontSize: 12,
+    borderRadius: 4,
+    overflow: "hidden",
+    transition: "opacity 0.15s ease",
+    mixBlendMode: theme.dark ? "normal" : "multiply",
+  },
+  smallArticleContent: {
+    padding: "15px 0 0 0",
+    display: "flex",
+    flexDirection: "column",
+    gap: 16,
+    transition: "opacity 0.15s ease",
+  },
+  smallArticleTitle: {
+    fontFamily: theme.typography.headerStyle.fontFamily,
+    fontSize: 16,
+    fontWeight: 400,
+    margin: 0,
+    color: theme.palette.text.normal,
+    lineHeight: 1.3,
+    minHeight: 42,
+    letterSpacing: "-.02em",
+    display: "-webkit-box",
+    WebkitBoxOrient: "vertical",
+    WebkitLineClamp: 2,
+    lineClamp: 2,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    transition: "opacity 0.15s ease",
+    "@media (max-width: 630px)": {
+      wordWrap: "break-word",
+      overflowWrap: "break-word",
+      whiteSpace: "normal",
+    },
+  },
+  smallArticleMeta: {
+    display: "flex",
+    alignItems: "baseline",
+    gap: 10,
+  },
+  smallKarma: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    color: theme.palette.text.slightlyDim2,
+    fontWeight: 600,
+    letterSpacing: "-0.01em",
+  },
+  smallDate: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    color: theme.palette.text.dim,
+    fontWeight: 400,
+    letterSpacing: 0,
+  },
+}));
 
 const ProfileTopPostsQuery = gql(`
   query ProfileTopPostsQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -34,6 +321,11 @@ const ProfileTopPostsQuery = gql(`
 `);
 
 const TOP_POSTS_LIMIT = 4;
+
+function getTopPostsTooltipTitle(user: UsersProfile): string {
+  const hasPinnedPosts = (user.pinnedPostIds?.length ?? 0) >= TOP_POSTS_LIMIT;
+  return hasPinnedPosts ? "User selected" : "Based on karma";
+}
 
 function getPostImageUrl(
   post: ProfileTopPost,
@@ -106,7 +398,7 @@ export function UserProfileTopPostsSectionQuery({user}: {user: UsersProfile}) {
       selector: hasPinnedPosts
         ? { default: { exactPostIds: pinnedPostIds } }
         : (userId
-          ? { userPosts: { userId, sortedBy: "top", excludeEvents: true } }
+          ? { userPosts: { userId, sortedBy: "top", excludeEvents: true, authorIsUnreviewed: null } }
           : undefined
         ),
       limit: TOP_POSTS_LIMIT,
@@ -128,7 +420,8 @@ export function UserProfileTopPostsSectionInner({user, topPosts}: {
   user: UsersProfile,
   topPosts: (ProfileTopPost|null)[]
 }) {
-  const classes = useStyles(profileStyles);
+  const classes = useStyles(userProfileTopPostsSectionUnsharedStyles);
+  const topPostsTooltipTitle = getTopPostsTooltipTitle(user);
 
   const topPost = topPosts[0];
   const smallArticles = topPosts.slice(1, TOP_POSTS_LIMIT);
@@ -140,7 +433,7 @@ export function UserProfileTopPostsSectionInner({user, topPosts}: {
   return (
     <>
       <div className={classes.topPostsIndicator}>
-        <LWTooltip title="Based on karma" placement="bottom">
+        <LWTooltip title={topPostsTooltipTitle} placement="bottom">
           <span className={classNames(classes.topPostsLabel, classes.topPostsLabelPlural)}>Top posts</span>
           <span className={classNames(classes.topPostsLabel, classes.topPostsLabelSingular)}>Top post</span>
         </LWTooltip>
@@ -164,7 +457,7 @@ function TopPostBigArticle({post, topPostDefaultImages}: {
   post: ProfileTopPost|null
   topPostDefaultImages: string[]
 }) {
-  const classes = useStyles(profileStyles);
+  const classes = useStyles(userProfileTopPostsSectionUnsharedStyles);
   if (post) {
     return <Link
       to={postGetPageUrl(post)}
@@ -210,14 +503,15 @@ function TopPostSmallArticle({post, topPostDefaultImages, idx}: {
   topPostDefaultImages: string[],
   idx: number
 }) {
-  const classes = useStyles(profileStyles);
+  const sharedClasses = useStyles(profileStyles);
+  const classes = useStyles(userProfileTopPostsSectionUnsharedStyles);
 
   if (post) {
     const imageBackground = getPostBackgroundImage(post, topPostDefaultImages, idx + 1);
     return <article className={classes.smallArticle}>
       <Link
         to={postGetPageUrl(post)}
-        className={classes.articleLink}
+        className={sharedClasses.articleLink}
       >
         <div
           className={classes.smallArticleImage}

@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -19,7 +18,7 @@ import { getSortOrderOptions } from '../../lib/collections/posts/dropdownOptions
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useMessages } from '../common/withMessages';
 import CopyIcon from '@/lib/vendor/@material-ui/icons/src/FileCopy'
-import { getUserStructuredData } from './UsersSingle';
+import { getUserStructuredData } from '../../../../app/users/[slug]/UsersSingle';
 import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
 import { useDialog } from '../common/withDialog';
 import pick from 'lodash/pick';
@@ -58,6 +57,8 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import CommentsDraftList from '../comments/CommentsDraftList';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersProfileMultiQuery = gql(`
   query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -78,7 +79,7 @@ export const sectionFooterLeftStyles = {
   }
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UsersProfile', (theme: ThemeType) => ({
   profilePage: {
     marginLeft: "auto",
     [theme.breakpoints.down('sm')]: {
@@ -87,7 +88,6 @@ const styles = (theme: ThemeType) => ({
     }
   },
   usernameTitle: {
-    fontSize: "3.2rem",
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
     marginTop: 0,
@@ -152,18 +152,18 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
   },
-})
+}))
 
 export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
   // HOTFIX: Filtering out invalid users
   return results?.find(user => !!user.displayName) || results?.[0] || null
 }
 
-const UsersProfileFn = ({terms, slug, classes}: {
+const UsersProfileFn = ({terms, slug}: {
   terms: UsersViewTerms,
   slug: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [showSettings, setShowSettings] = useState(false);
 
   const currentUser = useCurrentUser();
@@ -480,8 +480,4 @@ const UsersProfileFn = ({terms, slug, classes}: {
   return render();
 }
 
-export default registerComponent(
-  'UsersProfile', UsersProfileFn, {styles}
-);
-
-
+export default UsersProfileFn;

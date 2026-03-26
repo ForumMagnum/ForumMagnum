@@ -1,6 +1,5 @@
 import qs from 'qs';
 import React, { useCallback, useContext } from 'react';
-import { LocationContext, SubscribeLocationContext, NavigationContext } from './vulcan-core/appContext';
 import type { RouterLocation, SegmentedUrl } from './routeChecks/parseRoute';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
 import { createPath, type LocationDescriptor, parsePath } from 'history';
@@ -8,6 +7,7 @@ import { parseQuery } from './routeChecks/parseRoute';
 import {siteUrlSetting} from './instanceSettings'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import { urlIsAbsolute } from './vulcan-lib/utils';
+import { LocationContext, NavigationContext, SubscribeLocationContext } from './locationContexts';
 
 type MaybeRelativeLocationDescriptor = LocationDescriptor|1|-1;
 

@@ -181,7 +181,7 @@ function getHocuspocusHttpUrl(): string | null {
  * database. When clients auto-reconnect, Hocuspocus loads the new state
  * from the database.
  */
-async function resetHocuspocusDocument(documentName: string, newState: Uint8Array): Promise<void> {
+export async function resetHocuspocusDocument(documentName: string, newState: Uint8Array): Promise<void> {
   const httpUrl = getHocuspocusHttpUrl();
   const secret = process.env.HOCUSPOCUS_WEBHOOK_SECRET;
   if (!httpUrl || !secret) {
@@ -264,6 +264,7 @@ export async function pushRevisionToLexicalCollab(
 
 export interface HocuspocusCommentData {
   authorId: string;
+  authorName?: string;
   content: string;
   threadId: string;
   commentersInThread: string[];
@@ -309,6 +310,7 @@ export async function handleCommentAdded(
     documentId: postId,
     extraData: {
       senderUserID: comment.authorId,
+      senderDisplayName: comment.authorName,
       commentHtml: comment.content,
       linkSharingKey: post.linkSharingKey,
     },

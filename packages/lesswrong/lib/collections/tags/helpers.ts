@@ -3,7 +3,6 @@ import { forumSelect } from "../../forumTypeUtils";
 import { siteUrlSetting, allowTypeIIIPlayerSetting } from '@/lib/instanceSettings';
 import { combineUrls } from "../../vulcan-lib/utils";
 import { TagCommentType } from "../comments/types";
-import { isFriendlyUI } from "../../../themes/forumTheme";
 import type { TagLens } from "@/lib/arbital/useTagLenses";
 import { getSortOrderOptions, SettingsOption } from "../posts/dropdownOptions";
 import type { TagHistorySettings } from "@/components/tagging/history/TagHistoryPage";
@@ -103,7 +102,12 @@ export const userIsSubforumModerator = (user: DbUser|UsersCurrent|null, tag: Pic
 export function stableSortTags<
   T extends {name: string; core: boolean},
   TR extends {baseScore: number} | null | undefined
->(tagInfo: Array<{ tag: T; tagRel: TR }>): Array<{ tag: T; tagRel: TR }> {
+>(
+  tagInfo: Array<{ tag: T; tagRel: TR }>,
+  options?: { coreTags?: "first"|"last" },
+): Array<{ tag: T; tagRel: TR }> {
+  const coreTagsSort = (options?.coreTags === "first" ? 1 : -1);
+
   return [...tagInfo].sort((a, b) => {
     const tagA = a.tag;
     const tagB = b.tag;
@@ -111,8 +115,8 @@ export function stableSortTags<
     const tagRelB = b.tagRel;
 
     if (tagA.core !== tagB.core) {
-      // Core tags come first with isFriendlyUI(), last otherwise
-      return (tagA.core ? -1 : 1) * (isFriendlyUI() ? 1 : -1);
+      // Core tags come first unless options?.coreTags is "last"
+      return (tagA.core ? -1 : 1) * coreTagsSort;
     }
 
     if (tagRelA && tagRelB) {
@@ -126,10 +130,6 @@ export function stableSortTags<
     return 0;
   });
 }
-
-export const EA_FORUM_COMMUNITY_TOPIC_ID = 'ZCihBFp5P64JCvQY6';
-export const EA_FORUM_TRANSLATION_TOPIC_ID = 'f4d3KbWLszzsKqxej';
-export const EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID = '4saLTjJHsbduczFti';
 
 export const isTagAllowedType3Audio = (tag: TagPageFragment|DbTag): boolean => {
   if (!allowTypeIIIPlayerSetting.get()) return false

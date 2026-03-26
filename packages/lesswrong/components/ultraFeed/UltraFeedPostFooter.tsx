@@ -1,6 +1,5 @@
 import React from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { userHasPingbacks } from '../../lib/betas';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from '../common/withUser';
 import { isLWorAF } from '../../lib/instanceSettings';
@@ -84,9 +83,9 @@ const UltraFeedPostFooter = ({post}: {
         </div>
       </>
     }
-    {userHasPingbacks(currentUser) && <AnalyticsContext pageSectionContext="pingbacks">
+    <AnalyticsContext pageSectionContext="pingbacks">
       <PingbacksList postId={post._id}/>
-    </AnalyticsContext>}
+    </AnalyticsContext>
   </>
 }
 

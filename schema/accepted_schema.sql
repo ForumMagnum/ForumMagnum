@@ -287,8 +287,6 @@ CREATE TABLE "Comments" (
   "relevantTagIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
   "debateResponse" BOOL,
   "rejected" BOOL NOT NULL DEFAULT FALSE,
-  "modGPTAnalysis" TEXT,
-  "modGPTRecommendation" TEXT,
   "rejectedReason" TEXT,
   "rejectedByUserId" VARCHAR(27),
   "af" BOOL NOT NULL DEFAULT FALSE,

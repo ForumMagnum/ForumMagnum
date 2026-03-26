@@ -4,7 +4,6 @@ import React, { ComponentProps } from 'react';
 import { AnalyticsContext } from '../../../lib/analyticsEvents';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { HashLinkProps } from '../../common/HashLink';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
 import { HIDE_WELCOME_BOX_COOKIE } from '../../../lib/cookies/cookies';
@@ -12,8 +11,10 @@ import { useABTest } from '@/components/hooks/useAbTests';
 import { welcomeBoxABTest } from '../../../lib/abTests';
 import { useCurrentUser } from '../../common/withUser';
 import { Typography } from "../../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('WelcomeBox', (theme: ThemeType) => ({
   wrapper: {
     "@media print": {
       display: "none",
@@ -63,7 +64,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     whiteSpace: 'pre'
   },
-});
+}));
 
 const welcomeBoxes: ForumOptions<{title: string, contents: HashLinkProps[]} | null> = {
   LessWrong: {
@@ -77,9 +78,8 @@ const welcomeBoxes: ForumOptions<{title: string, contents: HashLinkProps[]} | nu
   default: null
 };
 
-const WelcomeBox = ({ classes }: {
-  classes: ClassesType<typeof styles>
-}) => {
+const WelcomeBox = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const welcomeBoxABTestGroup = useABTest(welcomeBoxABTest);
   const data = forumSelect(welcomeBoxes);
@@ -123,6 +123,6 @@ const WelcomeBox = ({ classes }: {
 };
 
 
-export default registerComponent('WelcomeBox', WelcomeBox, { styles });
+export default WelcomeBox;
 
 

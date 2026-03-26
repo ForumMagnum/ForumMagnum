@@ -17,7 +17,7 @@ const styles = defineStyles('AgreementVoteAxis', (theme: ThemeType) => ({
     lineHeight: 0.6,
     height: 24,
     minWidth: 60,
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : 2,
+    borderRadius: 2,
     textAlign: 'center',
     whiteSpace: "nowrap",
   },

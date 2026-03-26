@@ -1,18 +1,19 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { Hit } from 'react-instantsearch-core';
 import MetaInfo from "../common/MetaInfo";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagsListEditorSearchHit", (theme: ThemeType) => ({
   root: {
     cursor: "pointer"
   }
-});
+}));
 
-const TagsListEditorSearchHit = ({hit, classes}: {
+const TagsListEditorSearchHit = ({hit}: {
   hit: Hit<any>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const tag = (hit as SearchTag);
 
   return (
@@ -28,7 +29,7 @@ const TagsListEditorSearchHit = ({hit, classes}: {
 }
 
 
-export default registerComponent("TagsListEditorSearchHit", TagsListEditorSearchHit, {styles});
+export default TagsListEditorSearchHit;
 
 
 

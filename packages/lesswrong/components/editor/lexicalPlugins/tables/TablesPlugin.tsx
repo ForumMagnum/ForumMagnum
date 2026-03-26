@@ -488,7 +488,12 @@ export function TablesPlugin(): React.ReactElement {
           const selectedNodes = selection.getNodes();
           const selectedCells = selectedNodes.filter($isTableCellNode);
           if (selectedCells.length > 1) {
-            $mergeCells(selectedCells);
+            const mergedCell = $mergeCells(selectedCells);
+            // Move selection into the merged cell so it no longer references
+            // removed cells, which would crash the Yjs collab sync.
+            if (mergedCell) {
+              mergedCell.selectStart();
+            }
           }
         }
       });

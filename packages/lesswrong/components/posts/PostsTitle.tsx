@@ -1,5 +1,4 @@
 import React, { CSSProperties, FC, PropsWithChildren } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser, useCurrentUserId } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
@@ -17,14 +16,15 @@ import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 import AllInclusiveIcon from '@/lib/vendor/@material-ui/icons/src/AllInclusive';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsTitle', (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.normal,
     position: "relative",
     lineHeight: "1.7rem",
-    fontWeight: theme.isFriendlyUI ? 600 : undefined,
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.postStyle.fontFamily,
     zIndex: theme.zIndexes.postItemTitle,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
@@ -41,7 +41,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: 8,
   },
   onGrayBackground: {
-    ...(theme.isBookUI && theme.dark && {
+    ...(theme.dark && {
       color: theme.palette.greyAlpha(1),
     }),
   },
@@ -49,27 +49,19 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "normal",
   },
   sticky: {
-    paddingLeft: theme.isFriendlyUI ? 2 : undefined,
-    paddingRight: theme.isFriendlyUI ? 8 : 10,
+    paddingRight: 10,
     position: "relative",
     top: 2,
     color: theme.palette.icon["dim4"],
   },
-  stickyIcon: theme.isFriendlyUI
-    ? {
-      width: 16,
-      height: 16,
-      padding: 1.5,
-      color: theme.palette.primary.main,
-    }
-    : {
-      "--icon-size": "1.2rem",
-    },
+  stickyIcon: {
+    "--icon-size": "1.2rem",
+  },
   primaryIcon: {
     color: theme.palette.icon.dim55,
     paddingRight: 8,
     top: -2,
-    width: theme.isFriendlyUI ? 26 : "auto",
+    width: "auto",
     position: "relative",
     verticalAlign: "middle",
   },
@@ -79,19 +71,7 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.text.normal,
     }
   },
-  eaTitleDesktopEllipsis: theme.isFriendlyUI ? {
-    '&:hover': {
-      opacity: 0.5
-    },
-    '& a': {
-      opacity: 1
-    },
-    [theme.breakpoints.up("sm")]: {
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    },
-  } : {},
+  eaTitleDesktopEllipsis: {},
   hideXsDown: {
     [theme.breakpoints.down('xs')]: {
       display: "none",
@@ -142,7 +122,7 @@ const styles = (theme: ThemeType) => ({
   highlightedTagTooltip: {
     marginTop: -2,
   },
-});
+}));
 
 const tagSettingIcons = new Map([
   [amaTagIdSetting, QuestionAnswerIcon], 
@@ -180,25 +160,7 @@ const postIcon = (post: PostsBase|PostsListBase) => {
 
 const DefaultWrapper: FC<PropsWithChildren<{}>> = ({children}) => <>{children}</>;
 
-const PostsTitle = ({
-  post, 
-  postLink, 
-  sticky, 
-  read, 
-  showPersonalIcon=true, 
-  showDraftTag=true, 
-  wrap=false, 
-  showIcons=true,
-  isLink=true,
-  curatedIconLeft=true,
-  strikethroughTitle=false,
-  Wrapper=DefaultWrapper,
-  showEventTag,
-  linkEventProps,
-  postItemHovered,
-  className,
-  classes,
-}: {
+const PostsTitle = ({post, postLink, sticky, read, showPersonalIcon=true, showDraftTag=true, wrap=false, showIcons=true, isLink=true, curatedIconLeft=true, strikethroughTitle=false, Wrapper=DefaultWrapper, showEventTag, linkEventProps, postItemHovered, className}: {
   post: PostsBase|PostsListBase,
   postLink?: string,
   sticky?: boolean,
@@ -215,8 +177,8 @@ const PostsTitle = ({
   linkEventProps?: Record<string, string>,
   postItemHovered?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUserId = useCurrentUserId();
   const { pathname } = useLocation();
   const shared = post.draft && (post.userId !== currentUserId) && post.shareWithUsers
@@ -275,6 +237,6 @@ const PostsTitle = ({
   )
 }
 
-export default registerComponent('PostsTitle', PostsTitle, {styles});
+export default PostsTitle;
 
 

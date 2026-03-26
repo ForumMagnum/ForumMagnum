@@ -31,7 +31,6 @@ interface Query {
   UsersReadPostsOfTargetUser: Array<Post> | null;
   UserReadHistory: UserReadHistoryResult | null;
   PostsUserCommentedOn: UserReadHistoryResult | null;
-  PostIsCriticism: boolean | null;
   ProfileDiamondPosts: ProfileDiamondPostsResult;
   ProfileDiamondComments: ProfileDiamondCommentsResult;
   LastCuratedDate: LastCuratedDateResult;
@@ -51,6 +50,7 @@ interface Query {
   AllTagsActivityFeed: AllTagsActivityFeedQueryResults;
   RecentDiscussionFeed: RecentDiscussionFeedQueryResults;
   TagHistoryFeed: TagHistoryFeedQueryResults;
+  UserContentFeed: UserContentFeedQueryResults;
   TagUpdatesInTimeBlock: Array<TagUpdates>;
   TagUpdatesByUser: Array<TagUpdates> | null;
   RandomTag: Tag;
@@ -234,6 +234,7 @@ interface Mutation {
   importUrlAsDraftPost: ExternalPostImportData;
   revertTagToRevision: Tag | null;
   autosaveRevision: Revision | null;
+  convertDocumentEditorType: any;
   lockThread: boolean;
   unlockThread: boolean;
   rejectContentAndRemoveUserFromQueue: boolean;
@@ -630,7 +631,6 @@ interface PostKarmaChange {
   title: string | null;
   slug: string;
   addedReacts: Array<ReactionChange> | null;
-  eaAddedReacts: any;
 }
 
 interface CommentKarmaChange {
@@ -647,7 +647,6 @@ interface CommentKarmaChange {
   tagCommentType: TagCommentType | null;
   tagId: string | null;
   addedReacts: Array<ReactionChange> | null;
-  eaAddedReacts: any;
 }
 
 interface RevisionsKarmaChange {
@@ -658,7 +657,6 @@ interface RevisionsKarmaChange {
   tagSlug: string | null;
   tagName: string | null;
   addedReacts: Array<ReactionChange> | null;
-  eaAddedReacts: any;
 }
 
 interface ReactionChange {
@@ -981,6 +979,20 @@ interface TagHistoryFeedEntry {
   summaryRevision: Revision | null;
   wikiMetadataChanged: FieldChange | null;
   lensOrSummaryMetadataChanged: FieldChange | null;
+}
+
+interface UserContentFeedQueryResults {
+  cutoff: Date | null;
+  endOffset: number;
+  results: Array<UserContentFeedEntry> | null;
+}
+
+interface UserContentFeedEntry {
+  type: UserContentFeedEntryType;
+  profileComment: Comment | null;
+  shortformComment: Comment | null;
+  userPost: Post | null;
+  wikiEdit: Revision | null;
 }
 
 interface DocumentDeletion {
@@ -1747,8 +1759,6 @@ interface Comment {
   relevantTags: Array<Tag>;
   debateResponse: boolean | null;
   rejected: boolean;
-  modGPTAnalysis: string | null;
-  modGPTRecommendation: string | null;
   rejectedReason: string | null;
   rejectedByUserId: string | null;
   rejectedByUser: User | null;
@@ -1809,13 +1819,6 @@ interface CommentsPostCommentsDeletedInput {
 }
 
 interface CommentsAllCommentsDeletedInput {
-  userId?: string | null;
-  commentIds?: Array<string> | null;
-  minimumKarma?: number | null;
-  authorIsUnreviewed?: boolean | null;
-}
-
-interface CommentsCheckedByModGPTInput {
   userId?: string | null;
   commentIds?: Array<string> | null;
   minimumKarma?: number | null;
@@ -2204,7 +2207,6 @@ interface CommentSelector {
   commentReplies: CommentsCommentRepliesInput | null;
   postCommentsDeleted: CommentsPostCommentsDeletedInput | null;
   allCommentsDeleted: CommentsAllCommentsDeletedInput | null;
-  checkedByModGPT: CommentsCheckedByModGPTInput | null;
   postCommentsTop: CommentsPostCommentsTopInput | null;
   postCommentsRecentReplies: CommentsPostCommentsRecentRepliesInput | null;
   postCommentsMagic: CommentsPostCommentsMagicInput | null;
@@ -2787,7 +2789,6 @@ interface LWEventSelector {
   adminView: LWEventsAdminViewInput | null;
   postVisits: LWEventsPostVisitsInput | null;
   emailHistory: LWEventsEmailHistoryInput | null;
-  gatherTownUsers: EmptyViewInput | null;
 }
 
 interface MultiLWEventInput {
@@ -7116,8 +7117,6 @@ interface CreateCommentDataInput {
   relevantTagIds?: Array<string> | null;
   debateResponse?: boolean | null;
   rejected?: boolean | null;
-  modGPTAnalysis?: string | null;
-  modGPTRecommendation?: string | null;
   rejectedReason?: string | null;
   rejectedByUserId?: string | null;
   af?: boolean | null;
@@ -7168,8 +7167,6 @@ interface UpdateCommentDataInput {
   relevantTagIds?: Array<string> | null;
   debateResponse?: boolean | null;
   rejected?: boolean | null;
-  modGPTAnalysis?: string | null;
-  modGPTRecommendation?: string | null;
   rejectedReason?: string | null;
   rejectedByUserId?: string | null;
   af?: boolean | null;
@@ -8759,6 +8756,8 @@ interface GraphQLTypeMap {
   RecentDiscussionFeedEntry: RecentDiscussionFeedEntry;
   TagHistoryFeedQueryResults: TagHistoryFeedQueryResults;
   TagHistoryFeedEntry: TagHistoryFeedEntry;
+  UserContentFeedQueryResults: UserContentFeedQueryResults;
+  UserContentFeedEntry: UserContentFeedEntry;
   DocumentDeletion: DocumentDeletion;
   TagUpdates: TagUpdates;
   TagPreviewWithSummaries: TagPreviewWithSummaries;
@@ -8869,7 +8868,6 @@ interface GraphQLTypeMap {
   CommentsCommentRepliesInput: CommentsCommentRepliesInput;
   CommentsPostCommentsDeletedInput: CommentsPostCommentsDeletedInput;
   CommentsAllCommentsDeletedInput: CommentsAllCommentsDeletedInput;
-  CommentsCheckedByModGPTInput: CommentsCheckedByModGPTInput;
   CommentsPostCommentsTopInput: CommentsPostCommentsTopInput;
   CommentsPostCommentsRecentRepliesInput: CommentsPostCommentsRecentRepliesInput;
   CommentsPostCommentsMagicInput: CommentsPostCommentsMagicInput;

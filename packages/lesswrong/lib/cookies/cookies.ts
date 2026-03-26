@@ -171,7 +171,13 @@ export const SELECTED_FRONTPAGE_TAB_COOKIE = registerCookie({
 export const SELECTED_PROFILE_TAB_COOKIE = registerCookie({
   name: "selected_profile_tab",
   type: "functional",
-  description: "Stores the selected profile page tab (posts, sequences, or feed)",
+  description: "Stores the selected profile page tab (feed, posts, comments, wiki edits, sequences, or quick takes)",
+});
+
+export const PROFILE_TAB_SETTINGS_COOKIE = registerCookie({
+  name: "profile_tab_settings",
+  type: "functional",
+  description: "Stores settings for all profile page tabs, including comments",
 });
 
 export const HIDE_EAG_BANNER_COOKIE = registerCookie({

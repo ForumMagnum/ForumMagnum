@@ -19,10 +19,7 @@ const styles = defineStyles("TabNavigationCompressedItem", (theme: ThemeType) =>
       fill: "currentColor",
       width: compressedIconSize,
       height: compressedIconSize,
-    },
-    ...(theme.isFriendlyUI && {
-      opacity: 1,
-    }),
+    }
   },
   navText: {
     ...theme.typography.body2,

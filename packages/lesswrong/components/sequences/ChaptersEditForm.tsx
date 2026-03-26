@@ -6,11 +6,12 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import isEqual from 'lodash/isEqual';
 import { useMessages } from "../common/withMessages";
 import classNames from 'classnames';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { ChaptersForm } from './ChaptersForm';
 import AddDraftPostDialog from "./AddDraftPostDialog";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ChaptersEditForm', (theme: ThemeType) => ({
   root: {
     padding: 8
   },
@@ -27,15 +28,15 @@ const styles = (theme: ThemeType) => ({
   disabled: {
     opacity: 0.3,
   }
-})
+}))
 //TODO: Manage chapter removal to remove the reference from all parent-sequences
 
-const ChaptersEditForm = ({classes, chapter, successCallback, cancelCallback}: {
-  classes: ClassesType<typeof styles>,
+const ChaptersEditForm = ({chapter, successCallback, cancelCallback}: {
   chapter: ChaptersEdit,
   successCallback: any,
   cancelCallback: any,
 }) => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const [saved, setSaved] = useState(true);
   const { flash } = useMessages();
@@ -76,7 +77,7 @@ const ChaptersEditForm = ({classes, chapter, successCallback, cancelCallback}: {
   )
 }
 
-export default registerComponent('ChaptersEditForm', ChaptersEditForm, {styles});
+export default ChaptersEditForm;
 
 
 

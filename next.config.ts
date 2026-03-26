@@ -6,7 +6,7 @@ import type { WebpackConfigContext } from 'next/dist/server/config-shared';
 
 const serverExternalPackages = [
   'superagent-proxy', 'gpt-3-encoder', 'mathjax-full', 'turndown', 'cloudinary',
-  '@aws-sdk/client-cloudfront', 'auth0', 'jimp', 'juice', '@sentry/nextjs',
+  '@aws-sdk/client-cloudfront', 'jimp', 'juice', '@sentry/nextjs',
   'request', 'stripe', 'openai', 'twitter-api-v2', 'draft-js', 'draft-convert', 'csso',
   'js-tiktoken', 'cheerio', '@elastic/elasticsearch', '@googlemaps/google-maps-services-js',
   'intercom-client', 'jsdom',
@@ -261,15 +261,6 @@ module.exports = process.env.E2E ? module.exports : withSentryConfig(
     // Note: Check that the configured route will not match with your Next.js middleware, otherwise reporting of client-
     // side errors will fail.
     tunnelRoute: '/api/sentry',
-
-    // Automatically tree-shake Sentry logger statements to reduce bundle size
-    disableLogger: true,
-
-    // Enables automatic instrumentation of Vercel Cron Monitors. (Does not yet work with App Router route handlers.)
-    // See the following for more information:
-    // https://docs.sentry.io/product/crons/
-    // https://vercel.com/docs/cron-jobs
-    automaticVercelMonitors: true,
 
     authToken: process.env.SENTRY_AUTH_TOKEN,
 

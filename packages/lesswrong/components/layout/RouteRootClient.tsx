@@ -10,11 +10,9 @@ import { isFullscreenRoute, isHomeRoute, isRouteWithLeftNavigationColumn, isSuns
 import DeferRender from '../common/DeferRender';
 import NavigationStandalone from '../common/TabNavigationMenu/NavigationStandalone';
 import { isLW, isLWorAF } from '@/lib/forumTypeUtils';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '@/lib/vulcan-users/permissions';
-import { MaybeStickyWrapper } from './MaybeStickyWrapper';
 import dynamic from 'next/dynamic';
 import { HideNavigationSidebarContext } from './HideNavigationSidebarContextProvider';
 
@@ -40,10 +38,10 @@ const styles = defineStyles("RouteRootClient", (theme: ThemeType) => ({
     minHeight: `calc(100vh - var(--header-height))`,
     gridArea: 'main',
     [theme.breakpoints.down('md')]: {
-      paddingTop: theme.isFriendlyUI ? 0 : theme.spacing.mainLayoutPaddingTop,
+      paddingTop: theme.spacing.mainLayoutPaddingTop,
     },
     [theme.breakpoints.down('sm')]: {
-      paddingTop: theme.isFriendlyUI ? 0 : 10,
+      paddingTop: 10,
       paddingLeft: 8,
       paddingRight: 8,
     },
@@ -71,9 +69,6 @@ export const RouteRootClient = ({fullscreen, children}: {
   const renderIconOnlyNavigation = isLW()
   const iconOnlyNavigationEnabled = renderIconOnlyNavigation && standaloneNavigation
 
-  // The friendly home page has a unique grid layout, to account for the right hand side column.
-  const friendlyHomeLayout = isFriendlyUI() && isHomeRoute(pathname);
-
   const currentUser = useCurrentUser();
   const renderSunshineSidebar = isSunshineSidebarRoute(pathname) && !!(userCanDo(currentUser, 'posts.moderate.all') || currentUser?.groups?.includes('alignmentForumAdmins')) && !currentUser?.hideSunshineSidebar;
   
@@ -88,17 +83,14 @@ export const RouteRootClient = ({fullscreen, children}: {
       fullscreen={isFullscreen}
       leftSidebar={
         standaloneNavigation && <SuspenseWrapper fallback={<span/>} name="NavigationStandalone" >
-          <MaybeStickyWrapper sticky={friendlyHomeLayout}>
-            <DeferRender ssr={true} clientTiming='mobile-aware'>
-              <SuspenseWrapper name="NavigationStandalone">
-                <NavigationStandalone
-                  sidebarHidden={hideNavigationSidebar}
-                  noTopMargin={friendlyHomeLayout}
-                  iconOnlyNavigationEnabled={iconOnlyNavigationEnabled}
-                />
-              </SuspenseWrapper>
-            </DeferRender>
-          </MaybeStickyWrapper>
+          <DeferRender ssr={true} clientTiming='mobile-aware'>
+            <SuspenseWrapper name="NavigationStandalone">
+              <NavigationStandalone
+                sidebarHidden={hideNavigationSidebar}
+                iconOnlyNavigationEnabled={iconOnlyNavigationEnabled}
+              />
+            </SuspenseWrapper>
+          </DeferRender>
         </SuspenseWrapper>
       }
       rightSidebar={

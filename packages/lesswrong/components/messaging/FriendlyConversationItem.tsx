@@ -1,5 +1,4 @@
 import React, { useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { truncate } from "../../lib/editor/ellipsize";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
@@ -8,8 +7,10 @@ import FormatDate from "../common/FormatDate";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { useLocation } from "../../lib/routeUtil";
 import qs from "qs";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FriendlyConversationItem", (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     display: "flex",
@@ -79,21 +80,15 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.primary.main,
     borderRadius: "50%",
   },
-});
+}));
 
-const FriendlyConversationItem = ({
-  conversation,
-  currentUserId,
-  classes,
-  selectedConversationId,
-  setSelectedConversationId,
-}: {
+const FriendlyConversationItem = ({conversation, currentUserId, selectedConversationId, setSelectedConversationId}: {
   conversation: ConversationsListWithReadStatus;
   currentUserId: string;
-  classes: ClassesType<typeof styles>;
   selectedConversationId: string | undefined;
   setSelectedConversationId: React.Dispatch<React.SetStateAction<string | undefined>>;
 }) => {
+  const classes = useStyles(styles);
   const isSelected = selectedConversationId === conversation._id;
   const { location, query } = useLocation();
 
@@ -159,6 +154,6 @@ const FriendlyConversationItem = ({
   );
 };
 
-export default registerComponent("FriendlyConversationItem", FriendlyConversationItem, { styles });
+export default FriendlyConversationItem;
 
 

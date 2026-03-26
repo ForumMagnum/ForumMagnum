@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
@@ -8,13 +7,14 @@ import { useCurrentUser } from '../common/withUser';
 import { DEFAULT_LOW_KARMA_THRESHOLD, MAX_LOW_KARMA_THRESHOLD } from '../../lib/collections/posts/views'
 
 import { getSortOrderOptions, SettingsOption } from '../../lib/collections/posts/dropdownOptions';
-import { isEAForum } from '../../lib/instanceSettings';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import pick from 'lodash/pick';
 import { timeframeLabels, timeframeSettings as defaultTimeframes, TimeframeSettingType } from "./timeframeUtils";
 import { TooltipSpan } from '../common/FMTooltip';
 import MetaInfo from "../common/MetaInfo";
 import SettingsColumn from "../common/SettingsColumn";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events'|'linkpost';
 
@@ -97,16 +97,15 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
 
 const getFilters = () => forumSelect(FILTERS_ALL)
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsListSettings', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginTop: theme.isFriendlyUI ? 10 : undefined,
     marginBottom: 8,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
-    padding: theme.isFriendlyUI ? "16px 24px 16px 24px" : "12px 24px 8px 12px",
+    padding: "12px 24px 8px 12px",
     borderRadius: theme.borderRadius.default,
     [theme.breakpoints.down('xs')]: {
       flexDirection: "column",
@@ -118,8 +117,7 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
   },
   checkbox: {
-    padding: "1px 12px 0 0",
-    paddingRight: theme.isFriendlyUI ? 6 : undefined,
+    padding: "1px 12px 0 0"
   },
   checkboxGroup: {
     display: "flex",
@@ -130,7 +128,7 @@ const styles = (theme: ThemeType) => ({
       order: 0
     }
   },
-})
+}))
 
 const USER_SETTING_NAMES = {
   timeframe: 'allPostsTimeframe',
@@ -138,12 +136,11 @@ const USER_SETTING_NAMES = {
   filter: 'allPostsFilter',
   showLowKarma: 'allPostsShowLowKarma',
   showEvents: 'allPostsIncludeEvents',
-  hideCommunity: 'allPostsHideCommunity'
 }
 
 export const postListSettingUrlParameterNames = Object.keys(USER_SETTING_NAMES);
 
-const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, currentHideCommunity = false, timeframes=defaultTimeframes, sortings=getSortOrderOptions(), showTimeframe, classes}: {
+const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, currentSorting, currentFilter, currentShowLowKarma, currentIncludeEvents, timeframes=defaultTimeframes, sortings=getSortOrderOptions(), showTimeframe}: {
   persistentSettings?: any,
   hidden: boolean,
   currentTimeframe?: any,
@@ -151,12 +148,11 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   currentFilter: any,
   currentShowLowKarma: boolean,
   currentIncludeEvents: boolean,
-  currentHideCommunity?: boolean,
   timeframes?: readonly TimeframeSettingType[],
   sortings?: { [key: string]: SettingsOption; },
   showTimeframe?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
 
@@ -241,34 +237,11 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
               </MetaInfo>
             </QueryLink>
           </TooltipSpan>
-
-          {isEAForum() && <TooltipSpan
-            title={<div>
-              <div>By default, Community posts are shown.</div>
-              <div>Toggle to hide them.</div>
-            </div>}
-            placement="left-start"
-          >
-            <QueryLink
-              className={classes.checkboxGroup}
-              onClick={() => setSetting('hideCommunity', !currentHideCommunity)}
-              query={{hideCommunity: !currentHideCommunity}}
-              merge
-              rel="nofollow"
-            >
-              <Checkbox classes={{root: classes.checkbox}} checked={!currentHideCommunity}/>
-              <MetaInfo>
-                Show community
-              </MetaInfo>
-            </QueryLink>
-          </TooltipSpan>}
         </div>
       </div>
   );
 };
 
-export default registerComponent(
-  'PostsListSettings', PostsListSettings, { styles }
-);
+export default PostsListSettings;
 
 

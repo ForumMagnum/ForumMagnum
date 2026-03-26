@@ -12,7 +12,6 @@ import { isEAForum } from '../lib/instanceSettings';
 import SelectQuery from "./sql/SelectQuery";
 import { getPositiveVoteThreshold } from '../lib/reviewUtils';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
-import { EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID } from '../lib/collections/tags/helpers';
 import RecommendationService from './recommendations/RecommendationService';
 import PgCollection from './sql/PgCollection';
 import gql from 'graphql-tag';
@@ -157,16 +156,6 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm, res
       ...recommendationFilter,
       af: true,
     };
-  }
-
-  if (isEAForum()) {
-    recommendationFilter = {$and: [
-      recommendationFilter,
-      {$or: [
-        {[`tagRelevance.${EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID}`]: {$exists: false}},
-        {[`tagRelevance.${EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID}`]: {$lt: 1}},
-      ]},
-    ]};
   }
 
   if (algorithm.excludeDefaultRecommendations) {

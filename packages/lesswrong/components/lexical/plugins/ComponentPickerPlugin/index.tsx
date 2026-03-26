@@ -29,7 +29,7 @@ import {
 import {useCallback, useMemo, useState} from 'react';
 import * as ReactDOM from 'react-dom';
 
-import useModal, { ShowModal } from '../../hooks/useModal';
+import { useDialog, type OpenDialogContextType } from '@/components/common/withDialog';
 import { applyBlockTypeChange } from '../ToolbarPlugin/utils';
 import { INSERT_COLLAPSIBLE_SECTION_COMMAND } from '@/components/editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import { OPEN_MATH_EDITOR_COMMAND } from '@/components/editor/lexicalPlugins/math/MathPlugin';
@@ -66,6 +66,7 @@ import {
   typeaheadItemIcon,
   componentPickerMenu,
 } from '../../styles/typeaheadStyles';
+import omit from 'lodash/omit';
 
 const styles = defineStyles('LexicalComponentPicker', (theme: ThemeType) => ({
   popover: {
@@ -82,7 +83,7 @@ const styles = defineStyles('LexicalComponentPicker', (theme: ThemeType) => ({
   icon: typeaheadItemIcon(),
 }));
 
-const iconStyle = { display: 'flex', width: 20, height: 20, marginRight: 8, opacity: 0.6 };
+const iconStyle = { display: 'flex', width: 18, height: 18, marginRight: 8, marginTop: 2, opacity: 0.6 };
 
 class ComponentPickerOption extends MenuOption {
   // What shows up in the editor
@@ -114,21 +115,15 @@ class ComponentPickerOption extends MenuOption {
   }
 }
 
-function ComponentPickerMenuItem({
-  index,
-  isSelected,
-  onClick,
-  onMouseEnter,
-  option,
-  classes,
-}: {
+function ComponentPickerMenuItem({index, isSelected, onClick, onMouseEnter, option}: {
   index: number;
   isSelected: boolean;
   onClick: () => void;
   onMouseEnter: () => void;
   option: ComponentPickerOption;
-  classes: Record<string, string>;
 }) {
+  const classes = useStyles(styles);
+
   return (
     <li
       key={option.key}
@@ -184,9 +179,107 @@ const headingIcons = {
 } as const;
 
 
-function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser: UsersCurrent | null) {
+function useBaseOptions(editor: LexicalEditor, openDialog: OpenDialogContextType['openDialog'], currentUser: UsersCurrent | null) {
   const isAdminUser = userIsAdmin(currentUser);
   return [
+    new ComponentPickerOption('Table', {
+      icon: <TableIcon style={iconStyle} />,
+      keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
+      onSelect: () => {
+        const nativeSelection = window.getSelection();
+        let anchorRect: DOMRect | null = null;
+        if (nativeSelection && nativeSelection.rangeCount > 0) {
+          anchorRect = nativeSelection.getRangeAt(0).getBoundingClientRect();
+        }
+        editor.dispatchCommand(OPEN_TABLE_SELECTOR_COMMAND, anchorRect);
+      },
+    }),
+    new ComponentPickerOption('Numbered List', {
+      icon: <ListOlIcon style={iconStyle} />,
+      keywords: ['numbered list', 'ordered list', 'ol'],
+      onSelect: () =>
+        editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined),
+    }),
+    new ComponentPickerOption('Bulleted List', {
+      icon: <ListUlIcon style={iconStyle} />,
+      keywords: ['bulleted list', 'unordered list', 'ul'],
+      onSelect: () =>
+        editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined),
+    }),
+    new ComponentPickerOption('Blockquote', {
+      icon: <ChatSquareQuoteIcon style={iconStyle} />,
+      keywords: ['blockquote', 'block', 'quote'],
+      onSelect: () =>
+        applyBlockTypeChange(editor, 'quote'),
+    }),
+    new ComponentPickerOption('Divider', {
+      icon: <HorizontalRuleIcon style={iconStyle} />,
+      keywords: ['horizontal rule', 'divider', 'hr'],
+      onSelect: () => {
+        editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined);
+      }
+    }),
+    new ComponentPickerOption('Inline Equation', {
+      icon: <PlusSlashMinusIcon style={iconStyle} />,
+      keywords: ['equation', 'latex', 'math', 'inline'],
+      onSelect: () =>
+        editor.dispatchCommand(OPEN_MATH_EDITOR_COMMAND, { inline: true }),
+    }),
+    new ComponentPickerOption('Display Equation', {
+      icon: <PlusSlashMinusIcon style={iconStyle} />,
+      keywords: ['display', 'equation', 'latex', 'math', 'block'],
+      onSelect: () =>
+        editor.dispatchCommand(OPEN_MATH_EDITOR_COMMAND, { inline: false }),
+    }),
+    new ComponentPickerOption('Image', {
+      icon: <FileImageIcon style={iconStyle} />,
+      keywords: ['image', 'photo', 'picture', 'file'],
+      onSelect: () =>
+        openDialog({
+          name: 'InsertImageDialog',
+          contents: ({ onClose }) => (
+            <InsertImageDialog activeEditor={editor} onClose={onClose} />
+          ),
+        }),
+    }),
+    new ComponentPickerOption('Collapsible Section', {
+      icon: <CaretRightFillIcon style={iconStyle} />,
+      keywords: ['collapse', 'collapsible', 'toggle', 'section'],
+      onSelect: () =>
+        editor.dispatchCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND, undefined),
+    }),
+    new ComponentPickerOption('Custom Widget', {
+      icon: <CodeIcon style={iconStyle} />,
+      keywords: ['custom', 'iframe', 'widget', 'html', 'embed', 'javascript', 'interactive'],
+      onSelect: () => {
+        editor.dispatchCommand(INSERT_IFRAME_WIDGET_COMMAND, undefined);
+      },
+    }),
+    new ComponentPickerOption('LLM Content', {
+      icon: <ForumIcon icon="Robot" style={omit(iconStyle, 'marginTop')} />,
+      keywords: ['ai', 'llm', 'model', 'generated', 'language model', 'chatbot'],
+      onSelect: () =>
+        editor.dispatchCommand(INSERT_LLM_CONTENT_BLOCK_COMMAND, undefined),
+    }),
+    new ComponentPickerOption('Code Block', {
+      icon: <CodeIcon style={iconStyle} />,
+      keywords: ['javascript', 'python', 'js', 'code block', 'code', 'block'],
+      onSelect: () =>
+        applyBlockTypeChange(editor, 'code'),
+    }),
+    ...(isAdminUser ? [
+      new ComponentPickerOption('Review Results Table', {
+        icon: <CardChecklistIcon style={iconStyle} />,
+        keywords: ['review', 'results', 'annual', 'voting', 'table'],
+        onSelect: () =>
+          openDialog({
+            name: 'InsertReviewResultsDialog',
+            contents: ({ onClose }) => (
+              <InsertReviewResultsDialog activeEditor={editor} onClose={onClose} />
+            ),
+          }),
+      }),
+    ] : []),
     new ComponentPickerOption('Paragraph', {
       icon: <TextParagraphIcon style={iconStyle} />,
       keywords: ['normal', 'paragraph', 'p', 'text'],
@@ -204,188 +297,13 @@ function getBaseOptions(editor: LexicalEditor, showModal: ShowModal, currentUser
         });
       }
     ),
-    new ComponentPickerOption('Table', {
-      icon: <TableIcon style={iconStyle} />,
-      keywords: ['table', 'grid', 'spreadsheet', 'rows', 'columns'],
-      onSelect: () =>
-        editor.dispatchCommand(OPEN_TABLE_SELECTOR_COMMAND, null),
-    }),
-    new ComponentPickerOption('Numbered List', {
-      icon: <ListOlIcon style={iconStyle} />,
-      keywords: ['numbered list', 'ordered list', 'ol'],
-      onSelect: () =>
-        editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined),
-    }),
-    new ComponentPickerOption('Bulleted List', {
-      icon: <ListUlIcon style={iconStyle} />,
-      keywords: ['bulleted list', 'unordered list', 'ul'],
-      onSelect: () =>
-        editor.dispatchCommand(INSERT_UNORDERED_LIST_COMMAND, undefined),
-    }),
-    // new ComponentPickerOption('Check List', {
-    //   icon: <SquareCheckIcon style={iconStyle} />,
-    //   keywords: ['check list', 'todo list'],
-    //   onSelect: () =>
-    //     editor.dispatchCommand(INSERT_CHECK_LIST_COMMAND, undefined),
-    // }),
-    new ComponentPickerOption('Quote', {
-      icon: <ChatSquareQuoteIcon style={iconStyle} />,
-      keywords: ['block quote'],
-      onSelect: () =>
-        applyBlockTypeChange(editor, 'quote'),
-    }),
-    new ComponentPickerOption('Code', {
-      icon: <CodeIcon style={iconStyle} />,
-      keywords: ['javascript', 'python', 'js', 'codeblock'],
-      onSelect: () =>
-        applyBlockTypeChange(editor, 'code'),
-    }),
-    new ComponentPickerOption('Divider', {
-      icon: <HorizontalRuleIcon style={iconStyle} />,
-      keywords: ['horizontal rule', 'divider', 'hr'],
-      onSelect: () => {
-        editor.dispatchCommand(INSERT_HORIZONTAL_RULE_COMMAND, undefined);
-      }
-    }),
-    // new ComponentPickerOption('Page Break', {
-    //   icon: <ScissorsIcon style={iconStyle} />,
-    //   keywords: ['page break', 'divider'],
-    //   onSelect: () => editor.dispatchCommand(INSERT_PAGE_BREAK, undefined),
-    // }),
-    // new ComponentPickerOption('Excalidraw', {
-    //   icon: <Diagram2Icon style={iconStyle} />,
-    //   keywords: ['excalidraw', 'diagram', 'drawing'],
-    //   onSelect: () =>
-    //     editor.dispatchCommand(INSERT_EXCALIDRAW_COMMAND, undefined),
-    // }),
-    // new ComponentPickerOption('Poll', {
-    //   icon: <CardChecklistIcon style={iconStyle} />,
-    //   keywords: ['poll', 'vote'],
-    //   onSelect: () =>
-    //     showModal('Insert Poll', (onClose) => (
-    //       <InsertPollDialog activeEditor={editor} onClose={onClose} />
-    //     )),
-    // }),
-    // ...EmbedConfigs.map(
-    //   (embedConfig) =>
-    //     new ComponentPickerOption(`Embed ${embedConfig.contentName}`, {
-    //       icon: embedConfig.icon,
-    //       keywords: [...embedConfig.keywords, 'embed'],
-    //       onSelect: () =>
-    //         editor.dispatchCommand(INSERT_EMBED_COMMAND, embedConfig.type),
-    //     }),
-    // ),
-    // new ComponentPickerOption('Date', {
-    //   icon: <CalendarIcon style={iconStyle} />,
-    //   keywords: ['date', 'calendar', 'time'],
-    //   onSelect: () => {
-    //     const dateTime = new Date();
-    //     dateTime.setHours(0, 0, 0, 0); // Set time to midnight
-    //     editor.dispatchCommand(INSERT_DATETIME_COMMAND, {dateTime});
-    //   },
-    // }),
-    // new ComponentPickerOption('Today', {
-    //   icon: <CalendarIcon style={iconStyle} />,
-    //   keywords: ['date', 'calendar', 'time', 'today'],
-    //   onSelect: () => {
-    //     const dateTime = new Date();
-    //     dateTime.setHours(0, 0, 0, 0); // Set time to midnight
-    //     editor.dispatchCommand(INSERT_DATETIME_COMMAND, {dateTime});
-    //   },
-    // }),
-    // new ComponentPickerOption('Tomorrow', {
-    //   icon: <CalendarIcon style={iconStyle} />,
-    //   keywords: ['date', 'calendar', 'time', 'tomorrow'],
-    //   onSelect: () => {
-    //     const dateTime = new Date();
-    //     dateTime.setDate(dateTime.getDate() + 1);
-    //     dateTime.setHours(0, 0, 0, 0); // Set time to midnight
-    //     editor.dispatchCommand(INSERT_DATETIME_COMMAND, {dateTime});
-    //   },
-    // }),
-    // new ComponentPickerOption('Yesterday', {
-    //   icon: <CalendarIcon style={iconStyle} />,
-    //   keywords: ['date', 'calendar', 'time', 'yesterday'],
-    //   onSelect: () => {
-    //     const dateTime = new Date();
-    //     dateTime.setDate(dateTime.getDate() - 1);
-    //     dateTime.setHours(0, 0, 0, 0); // Set time to midnight
-    //     editor.dispatchCommand(INSERT_DATETIME_COMMAND, {dateTime});
-    //   },
-    // }),
-    new ComponentPickerOption('Equation', {
-      icon: <PlusSlashMinusIcon style={iconStyle} />,
-      keywords: ['equation', 'latex', 'math'],
-      onSelect: () =>
-        editor.dispatchCommand(OPEN_MATH_EDITOR_COMMAND, { inline: true }),
-    }),
-    new ComponentPickerOption('Display Equation', {
-      icon: <PlusSlashMinusIcon style={iconStyle} />,
-      keywords: ['display', 'equation', 'latex', 'math', 'block'],
-      onSelect: () =>
-        editor.dispatchCommand(OPEN_MATH_EDITOR_COMMAND, { inline: false }),
-    }),
-    // new ComponentPickerOption('GIF', {
-    //   icon: <FiletypeGifIcon style={iconStyle} />,
-    //   keywords: ['gif', 'animate', 'image', 'file'],
-    //   onSelect: () =>
-    //     editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-    //       altText: 'Cat typing on a laptop',
-    //       src: catTypingGif,
-    //     }),
-    // }),
-    new ComponentPickerOption('Image', {
-      icon: <FileImageIcon style={iconStyle} />,
-      keywords: ['image', 'photo', 'picture', 'file'],
-      onSelect: () =>
-        showModal('Insert Image', (onClose) => (
-          <InsertImageDialog activeEditor={editor} onClose={onClose} />
-        )),
-    }),
-    new ComponentPickerOption('Collapsible', {
-      icon: <CaretRightFillIcon style={iconStyle} />,
-      keywords: ['collapse', 'collapsible', 'toggle'],
-      onSelect: () =>
-        editor.dispatchCommand(INSERT_COLLAPSIBLE_SECTION_COMMAND, undefined),
-    }),
-    new ComponentPickerOption('Custom Widget', {
-      icon: <CodeIcon style={iconStyle} />,
-      keywords: ['custom', 'iframe', 'widget', 'html', 'embed', 'javascript', 'interactive'],
-      onSelect: () => {
-        editor.dispatchCommand(INSERT_IFRAME_WIDGET_COMMAND, undefined);
-      },
-    }),
-    new ComponentPickerOption('LLM Content', {
-      icon: <ForumIcon icon="Robot" style={iconStyle} />,
-      keywords: ['ai', 'llm', 'model', 'generated', 'language model', 'chatbot'],
-      onSelect: () =>
-        editor.dispatchCommand(INSERT_LLM_CONTENT_BLOCK_COMMAND, undefined),
-    }),
-    // new ComponentPickerOption('Columns Layout', {
-    //   icon: <ThreeColumnsIcon style={iconStyle} />,
-    //   keywords: ['columns', 'layout', 'grid'],
-    //   onSelect: () =>
-    //     showModal('Insert Columns Layout', (onClose) => (
-    //       <InsertLayoutDialog activeEditor={editor} onClose={onClose} />
-    //     )),
-    // }),
-    ...(isAdminUser ? [
-      new ComponentPickerOption('Review Results Table', {
-        icon: <CardChecklistIcon style={iconStyle} />,
-        keywords: ['review', 'results', 'annual', 'voting', 'table'],
-        onSelect: () =>
-          showModal('Insert Review Results Table', (onClose) => (
-            <InsertReviewResultsDialog activeEditor={editor} onClose={onClose} />
-          )),
-      }),
-    ] : []),
   ];
 }
 
 export default function ComponentPickerMenuPlugin(): JSX.Element {
   const [editor] = useLexicalComposerContext();
-  const [modal, showModal] = useModal();
   const [queryString, setQueryString] = useState<string | null>(null);
+  const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
 
   const checkForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
@@ -393,9 +311,9 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
     minLength: 0,
   });
 
-  const options = useMemo(() => {
-    const baseOptions = getBaseOptions(editor, showModal, currentUser);
+  const baseOptions = useBaseOptions(editor, openDialog, currentUser);
 
+  const options = useMemo(() => {
     if (!queryString) {
       return baseOptions;
     }
@@ -410,7 +328,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
           option.keywords.some((keyword) => regex.test(keyword)),
       ),
     ];
-  }, [editor, queryString, showModal, currentUser]);
+  }, [editor, queryString, baseOptions]);
 
   const onSelectOption = useCallback(
     (
@@ -432,7 +350,6 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
 
   return (
     <>
-      {modal}
       <LexicalTypeaheadMenuPlugin<ComponentPickerOption>
         onQueryChange={setQueryString}
         onSelectOption={onSelectOption}
@@ -459,7 +376,6 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
                         }}
                         key={option.key}
                         option={option}
-                        classes={classes}
                       />
                     ))}
                   </ul>

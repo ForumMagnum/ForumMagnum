@@ -1,4 +1,3 @@
-import { userCanUseTags } from "@/lib/betas";
 import schema from "@/lib/collections/userTagRels/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
@@ -11,11 +10,11 @@ import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
 function newCheck(user: DbUser | null, userTagRel: CreateUserTagRelDataInput | null) {
-  return userCanUseTags(user);
+  return true;
 }
 
 function editCheck(user: DbUser | null, userTagRel: DbUserTagRel | null) {
-  return userCanUseTags(user);
+  return true;
 }
 
 export async function createUserTagRel({ data }: CreateUserTagRelInput, context: ResolverContext) {

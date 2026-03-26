@@ -24,7 +24,6 @@ import {
 } from '../../lib/search/searchUtil';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import { userHasPeopleDirectory } from '../../lib/betas';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate, useSubscribedLocation } from "../../lib/routeUtil";
 import SearchFilters from "./SearchFilters";
@@ -131,7 +130,6 @@ const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
       borderStyle: "none",
       boxShadow: "none",
       backgroundColor: "transparent",
-      fontSize: 'inherit',
       "-webkit-appearance": "none",
       cursor: "text",
       ...theme.typography.body2,
@@ -445,14 +443,6 @@ const SearchPageTabbed = () => {
         <ErrorBoundary>
           <Configure hitsPerPage={hitsPerPage} />
           <CustomStats className={classes.resultCount} />
-          {userHasPeopleDirectory(currentUser) && tab === "Users" && searchState?.query &&
-            <Link
-              to={`/people-directory?query=${encodeURIComponent(searchState.query)}`}
-              className={classes.peopleDirectory}
-            >
-              -&gt; View results in People directory (beta)
-            </Link>
-          }
           <CustomScrollTo targetRef={scrollToRef}>
             <Hits hitComponent={HitComponent} />
           </CustomScrollTo>

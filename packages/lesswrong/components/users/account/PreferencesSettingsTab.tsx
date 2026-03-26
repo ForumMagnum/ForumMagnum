@@ -1,6 +1,5 @@
 import React from 'react';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
-import { hasPostRecommendations, userCanViewJargonTerms } from '@/lib/betas';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { ThemeSelect } from '@/components/form-components/ThemeSelect';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
@@ -10,6 +9,7 @@ import SettingsSection from './SettingsSection';
 import SettingsToggleRow from './SettingsToggleRow';
 import SettingsSelectRow from './SettingsSelectRow';
 import type { SettingsTabProps } from './settingsTabTypes';
+import { userCanViewJargonTerms } from '@/lib/betas';
 
 const SORT_DRAFTS_BY_OPTIONS = [
   { value: "wordCount", label: "Wordcount" },
@@ -115,18 +115,6 @@ const PreferencesSettingsTab = ({
             />
           )}
         </form.Field>
-
-        {hasPostRecommendations() && (
-          <form.Field name="hidePostsRecommendations">
-            {(field) => (
-              <SettingsToggleRow
-                field={field}
-                label="Hide post recommendations"
-                description="Don't show recommended posts at the bottom of post pages"
-              />
-            )}
-          </form.Field>
-        )}
 
         {isEAForum() && (
           <form.Field name="hideCommunitySection">

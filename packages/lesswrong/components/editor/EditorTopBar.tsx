@@ -1,16 +1,16 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { CollaborativeEditingAccessLevel, accessLevelCan } from '../../lib/collections/posts/collabEditingPermissions';
 import {useCurrentUser} from '../common/withUser';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import type { ConnectedUserInfo } from './CKPostEditor';
 import PresenceList from "./PresenceList";
 import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EditorTopBar", (theme: ThemeType) => ({
   editorTopBar: {
     display: "flex",
     width: "100%",
@@ -40,18 +40,18 @@ const styles = (theme: ThemeType) => ({
   tooltipWrapped: {
     marginRight: 16
   }
-});
+}));
 
 export type CollaborationMode = "Viewing"|"Commenting"|"Editing"|"Editing (override)";
 
-const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, post, connectedUsers, classes}: {
+const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, post, connectedUsers}: {
   accessLevel: CollaborativeEditingAccessLevel,
   collaborationMode: CollaborationMode,
   setCollaborationMode: (mode: CollaborationMode) => void,
   post: PostsEdit,
   connectedUsers: ConnectedUserInfo[],
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   
   const isAdmin = !!currentUser && currentUser.isAdmin;
@@ -112,6 +112,6 @@ const EditorTopBar = ({accessLevel, collaborationMode, setCollaborationMode, pos
   </div>
 }
 
-export default registerComponent("EditorTopBar", EditorTopBar, {styles});
+export default EditorTopBar;
 
 

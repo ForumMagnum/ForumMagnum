@@ -9,8 +9,6 @@ export type SSRMetadata = {
   /** ISO timestamp */
   renderedAt: string;
   cacheFriendly: boolean;
-  /** The timezone used on the server. This may differ from the client's timezone if this is a cached render */
-  timezone: string;
 }
 
 export const EnvironmentOverrideContext = React.createContext<Partial<SSRMetadata>>({});
@@ -34,13 +32,6 @@ export function useCurrentTime(): Date {
   } else {
     return new Date();
   }
-}
-
-export const useSsrRenderedAt = () => {
-  const currentTime = useCurrentTime();
-  return typeof window === "undefined" || !window.ssrMetadata
-    ? currentTime
-    : new Date(window.ssrMetadata.renderedAt);
 }
 
 // Given a time of day (number of hours, 0-24), a day of the week (string or

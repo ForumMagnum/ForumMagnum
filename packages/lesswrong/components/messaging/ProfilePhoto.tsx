@@ -1,14 +1,15 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import AccountCircleIcon from '@/lib/vendor/@material-ui/icons/src/AccountCircle';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import CloudinaryImage2 from "../common/CloudinaryImage2";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const PROFILE_IMG_DIAMETER = 36
 export const PROFILE_IMG_DIAMETER_MOBILE = 26
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ProfilePhoto', (theme: ThemeType) => ({
   img: {
     height: PROFILE_IMG_DIAMETER,
     width: PROFILE_IMG_DIAMETER,
@@ -44,7 +45,7 @@ const styles = (theme: ThemeType) => ({
     '-webkit-box-shadow': `0px 0px 2px 0px ${theme.palette.boxShadowColor(.25)}`,
     '-moz-box-shadow': `3px 3px 1px ${theme.palette.boxShadowColor(.25)}`,
   },
-})
+}))
 
 const getUserInitials = (displayName: string) => {
   // TODO: include uppercase char that comes after lowercase char
@@ -62,7 +63,7 @@ const getUserInitials = (displayName: string) => {
  * where we didn't like how the layout looked with that empty space.
  * So this component includes a couple fallbacks in case the user has no photo.
  */
-const ProfilePhoto = ({user, noLink=false, from, className, classes}: {
+const ProfilePhoto = ({user, noLink=false, from, className}: {
   user: {
     slug: string,
     profileImageId: string | null,
@@ -71,8 +72,9 @@ const ProfilePhoto = ({user, noLink=false, from, className, classes}: {
   noLink?: boolean,
   from?: string,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   // placeholder icon, in case nothing else is available
   let imgNode = <AccountCircleIcon
     viewBox="3 3 18 18"
@@ -109,7 +111,7 @@ const ProfilePhoto = ({user, noLink=false, from, className, classes}: {
 }
 
 
-export default registerComponent('ProfilePhoto', ProfilePhoto, {styles});
+export default ProfilePhoto;
 
 
 

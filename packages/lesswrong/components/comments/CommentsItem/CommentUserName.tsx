@@ -1,6 +1,5 @@
 import React from 'react';
 import classNames from 'classnames';
-import { userHasCommentProfileImages } from '../../../lib/betas';
 import { useFilteredCurrentUser } from '../../common/withUser';
 import UserNameDeleted from "../../users/UserNameDeleted";
 import UsersName from "../../users/UsersName";
@@ -25,36 +24,6 @@ const styles = defineStyles("CommentUserName", (theme: ThemeType) => ({
       backgroundImage: "none"
     }
   },
-  mainWrapper: {
-    display: "flex",
-    alignItems: "center",
-    "&:hover": {
-      opacity: 1,
-    },
-    "& a:hover": {
-      opacity: 1,
-    },
-  },
-  fullWrapper: {
-    borderRadius: theme.borderRadius.default,
-    height: 26, // match height of vote buttons
-    padding: "1px 4px 1px 2px",
-    marginLeft: -6,
-    "&:hover": {
-      background: theme.palette.grey[300],
-    },
-  },
-  profileImage: {
-    minWidth: PROFILE_IMAGE_SIZE,
-    marginLeft: 4,
-    marginRight: 6,
-    ["@media screen and (max-width: 290px)"]: {
-      display: "none",
-    },
-  },
-  profileImagePlaceholder: {
-    marginRight: 4,
-  },
 }), {stylePriority: 100});
 
 const CommentUserName = ({
@@ -71,7 +40,6 @@ const CommentUserName = ({
   tooltipPlacement?: PopperPlacementType,
 }) => {
   const classes = useStyles(styles);
-  const currentUserHasProfileImages = useFilteredCurrentUser(u => userHasCommentProfileImages(u));
   const author = comment.user;
 
   const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersName;

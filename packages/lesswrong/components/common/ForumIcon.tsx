@@ -50,6 +50,7 @@ import BookOpenIcon from "@heroicons/react/24/outline/BookOpenIcon";
 import ComputerDesktopIcon from "@heroicons/react/24/outline/ComputerDesktopIcon";
 import ArrowRightIcon from "@heroicons/react/24/solid/ArrowRightIcon";
 import ArrowRightOutlineIcon from "@heroicons/react/24/outline/PaperAirplaneIcon";
+import { PublishSettingsIcon } from "../icons/publishSettingsIcon";
 import ArrowLeftIcon from "@heroicons/react/24/solid/ArrowLeftIcon";
 import ArrowCircleIcon from "@heroicons/react/20/solid/ArrowPathRoundedSquareIcon";
 import BarsArrowDown from "@heroicons/react/24/outline/BarsArrowDownIcon";
@@ -67,6 +68,7 @@ import MuiStarIcon from "@/lib/vendor/@material-ui/icons/src/Star";
 import MuiStarBorderIcon from "@/lib/vendor/@material-ui/icons/src/StarBorder";
 import MuiPersonIcon from "@/lib/vendor/@material-ui/icons/src/Person";
 import MuiPeopleIcon from "@/lib/vendor/@material-ui/icons/src/People";
+import MuiGroupAddIcon from "@/lib/vendor/@material-ui/icons/src/GroupAdd";
 import MuiNotificationsIcon from '@/lib/vendor/@material-ui/icons/src/Notifications';
 import MuiLinkIcon from "@/lib/vendor/@material-ui/icons/src/Link";
 import MuiTagIcon from "@/lib/vendor/@material-ui/icons/src/LocalOfferOutlined";
@@ -113,6 +115,7 @@ import MuiSnoozeIcon from "@/lib/vendor/@material-ui/icons/src/Snooze";
 import MuiFlagIcon from "@/lib/vendor/@material-ui/icons/src/Flag";
 import MuiDeleteIcon from "@/lib/vendor/@material-ui/icons/src/Delete";
 import MuiOpenInNewIcon from "@/lib/vendor/@material-ui/icons/src/OpenInNew";
+import MuiCloudOffIcon from "@/lib/vendor/@material-ui/icons/src/CloudOff";
 
 /**
  * ForumIcon can be used with custom SVG elements but you MUST pass through
@@ -177,6 +180,7 @@ export type ForumIconName =
   "UserCircle" |
   "Users" |
   "UsersOutline" |
+  "GroupAdd" |
   "Gift" |
   "Bell" |
   "BellAlert" |
@@ -245,6 +249,7 @@ export type ForumIconName =
   "ArrowForward" |
   "ArrowRight" |
   "ArrowRightOutline" |
+  "PublishSettings" |
   "ArrowCircle" |
   "Autorenew" |
   "EllipsisVertical" |
@@ -303,7 +308,8 @@ export type ForumIconName =
   "Snooze" |
   "Flag" |
   "Delete" |
-  "OpenInNew";
+  "OpenInNew" |
+  "CloudOff";
 
 const icons: Record<ForumIconName, IconComponent> = {
   VolumeUp: SpeakerWaveIcon,
@@ -322,6 +328,7 @@ const icons: Record<ForumIconName, IconComponent> = {
   UserCircle: UserCircleIcon,
   Users: MuiPeopleIcon,
   UsersOutline: UsersOutlineIcon,
+  GroupAdd: MuiGroupAddIcon,
   Gift: GiftIcon,
   Bell: MuiNotificationsIcon,
   BellAlert: BellAlertIcon,
@@ -390,6 +397,7 @@ const icons: Record<ForumIconName, IconComponent> = {
   ArrowLeft: ArrowLeftIcon,
   ArrowForward: MuiArrowForwardIcon,
   ArrowRightOutline: ArrowRightOutlineIcon,
+  PublishSettings: PublishSettingsIcon,
   ArrowCircle: ArrowCircleIcon,
   Autorenew: MuiReplayIcon,
   EllipsisVertical: MuiEllipsisVerticalIcon,
@@ -449,6 +457,7 @@ const icons: Record<ForumIconName, IconComponent> = {
   Flag: MuiFlagIcon,
   Delete: MuiDeleteIcon,
   OpenInNew: MuiOpenInNewIcon,
+  CloudOff: MuiCloudOffIcon,
 };
 
 type IconProps = {
@@ -540,5 +549,3 @@ const ForumIcon = ({
 export default registerComponent("ForumIcon", ForumIcon, {
   areEqual: "auto",
 });
-
-

@@ -1,5 +1,4 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTracking } from '../../lib/analyticsEvents';
 import { userHasSubscribeTabFeed } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
@@ -11,8 +10,10 @@ import PopperCard from "../common/PopperCard";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import NotifyMeToggleDropdownItem from "../dropdowns/NotifyMeToggleDropdownItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UserNotifyDropdown', (theme: ThemeType) => ({
   buttonContent: {
     display: "flex",
     gap: "4px",
@@ -26,27 +27,22 @@ const styles = (theme: ThemeType) => ({
     marginTop: 6,
   },
   dropdown: {
-    width: theme.isFriendlyUI ? 200 : 220,
+    width: 220,
     maxWidth: "100vw",
   },
-});
+}));
 
 /**
  * Displays a "Get notified" button that lets the user subscribe to be notified
  * when the given user has published a new post or a new comment.
  * Currently only used in the FriendlyUsersProfile.
  */
-const UserNotifyDropdown = ({
-  user,
-  popperPlacement="bottom-start",
-  className,
-  classes,
-}: {
+const UserNotifyDropdown = ({user, popperPlacement="bottom-start", className}: {
   user: UsersProfile,
   popperPlacement?: PopperPlacementType,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const anchorEl = useRef<HTMLDivElement | null>(null);
   const [isOpen, setIsOpen] = useState(false);
   const {captureEvent} = useTracking();
@@ -116,6 +112,6 @@ const UserNotifyDropdown = ({
   );
 }
 
-export default registerComponent('UserNotifyDropdown', UserNotifyDropdown, {styles});
+export default UserNotifyDropdown
 
 

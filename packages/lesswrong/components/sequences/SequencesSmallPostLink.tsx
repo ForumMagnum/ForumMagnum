@@ -1,15 +1,14 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import classNames from 'classnames';
 import type { Placement as PopperPlacementType } from "popper.js"
-import { isLWorAF } from '../../lib/instanceSettings';
-import { isFriendlyUI } from '../../themes/forumTheme';
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import PostReadCheckbox from "../posts/PostReadCheckbox";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SequencesSmallPostLink", (theme: ThemeType) => ({
   title: {
     position: "relative",
     flexGrow: 1,
@@ -17,15 +16,9 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.postStyle,
     color: theme.palette.grey[900],
     display: "flex",
-    alignItems: theme.isFriendlyUI ? "flex-start" : "center",
+    alignItems: "center",
     marginBottom: 6,
-    marginTop: 6,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 14,
-      fontWeight: 500,
-      lineHeight: "150%",
-    }),
+    marginTop: 6
   },
   large: {
     ...theme.typography.postsItemTitle,
@@ -34,28 +27,26 @@ const styles = (theme: ThemeType) => ({
   },
   checkbox: {
     position: "relative",
-    top: theme.isFriendlyUI ? -1 : 1,
+    top: 1,
     marginRight: 10
   }
-});
+}));
 
-const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="left-start"}: {
-  classes: ClassesType<typeof styles>,
+const SequencesSmallPostLink = ({post, sequenceId, large, placement="left-start"}: {
   post: ChapterPostSlim | PostsList,
   sequenceId: string,
   large?: boolean,
   placement?: PopperPlacementType,
 }) => {
+  const classes = useStyles(styles);
+
   return <div className={classNames(classes.title, {[classes.large]: large})}>
     <span className={classes.checkbox}>
-      <PostReadCheckbox
-        post={post}
-        width={isFriendlyUI() ? 14 : undefined}
-      />
+      <PostReadCheckbox post={post} />
     </span>
     <PostsTooltip
       {...('contents' in post ? { post } : { postId: post._id, preload: 'on-screen' })}
-      postsList={isLWorAF()}
+      postsList={true}
       placement={placement}
       inlineBlock={false}
       clickable
@@ -67,6 +58,6 @@ const SequencesSmallPostLink = ({classes, post, sequenceId, large, placement="le
   </div>
 }
 
-export default registerComponent("SequencesSmallPostLink", SequencesSmallPostLink, {styles});
+export default SequencesSmallPostLink;
 
 

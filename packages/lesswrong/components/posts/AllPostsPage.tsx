@@ -1,7 +1,6 @@
 "use client";
 
 import React, { Ref, useCallback, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
@@ -17,33 +16,27 @@ import SortButton from "../icons/SortButton";
 import SettingsButton from "../icons/SettingsButton";
 import PostsListSettings from "./PostsListSettings";
 import AllPostsList from "./AllPostsList";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("AllPostsPage", (theme: ThemeType) => ({
   title: {
     cursor: "pointer",
-    "& .SectionTitle-title": theme.isFriendlyUI
-      ? {
-        color: theme.palette.grey[1000],
-        textTransform: "none",
-        fontWeight: 600,
-        fontSize: 28,
-        letterSpacing: "0",
-        lineHeight: "34px",
-      }
-      : {},
+    "& .SectionTitle-title": {},
   },
   divider: {
     border: "none",
     borderTop: `1px solid ${theme.palette.grey[300]}`,
   },
-});
+}));
 
 const formatSort = (sorting: PostSortingMode) => {
   const sort = getSortOrderOptions()[sorting].label
   return isFriendlyUI() ? sort : `Sorted by ${sort}`;
 }
 
-const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<typeof styles>, defaultHideSettings?: boolean}) => {
+const AllPostsPage = ({defaultHideSettings}: {defaultHideSettings?: boolean}) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const {query} = useLocation();
@@ -71,7 +64,6 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
   const currentShowLowKarma = (parseInt(query.karmaThreshold) === MAX_LOW_KARMA_THRESHOLD) ||
     currentUser?.allPostsShowLowKarma || false;
   const currentIncludeEvents = (query.includeEvents === 'true') || currentUser?.allPostsIncludeEvents || false;
-  const currentHideCommunity = (query.hideCommunity === 'true') || currentUser?.allPostsHideCommunity || false;
   return (
     <>
       <AnalyticsContext pageContext="allPostsPage">
@@ -98,7 +90,6 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
             currentFilter={currentFilter}
             currentShowLowKarma={currentShowLowKarma}
             currentIncludeEvents={currentIncludeEvents}
-            currentHideCommunity={currentHideCommunity}
             persistentSettings
             showTimeframe
           />
@@ -109,7 +100,6 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
               currentFilter,
               currentShowLowKarma,
               currentIncludeEvents,
-              currentHideCommunity,
               showSettings,
             }}
           />
@@ -120,11 +110,7 @@ const AllPostsPage = ({classes, defaultHideSettings}: {classes: ClassesType<type
   );
 }
 
-export default registerComponent(
-  "AllPostsPage",
-  AllPostsPage,
-  {styles},
-);
+export default AllPostsPage;
 
 
 

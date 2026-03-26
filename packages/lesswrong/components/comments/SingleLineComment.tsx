@@ -31,8 +31,7 @@ export const singleLineStyles = (theme: ThemeType) => ({
   paddingLeft: 8,
   paddingRight: 8,
   color: theme.palette.text.dim60,
-  whiteSpace: "nowrap",
-  fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+  whiteSpace: "nowrap"
 })
 
 const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
@@ -110,25 +109,6 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
     '& strong': {
       fontWeight: theme.typography.body2.fontWeight
     }
-  },
-  highlight: {
-    backgroundColor: theme.palette.panelBackground.default,
-    width: "inherit",
-    maxWidth: 625,
-    position: "absolute",
-    top: "calc(100% - 20px)",
-    right: 0,
-    zIndex: 5,
-    border: theme.palette.border.faint,
-    boxShadow: theme.palette.boxShadow.comment,
-    maxHeight: 500,
-    overflow: "hidden",
-    '& img': {
-      maxHeight: "200px"
-    }
-  },
-  highlightPadding: {
-    padding: 12
   },
   isAnswer: {
     fontSize: theme.typography.body2.fontSize,

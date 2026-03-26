@@ -23,12 +23,7 @@ const getDataCollectionFirstDay = () => forumSelect({
 });
 
 const styles = defineStyles("AnalyticsDisclaimers", (theme: ThemeType) => ({
-  root: theme.isFriendlyUI
-    ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      margin: `0 ${GRAPH_LEFT_MARGIN}px`,
-    }
-    : {},
+  root: {},
 }));
 
 const AnalyticsDisclaimers = ({earliestDate}: {

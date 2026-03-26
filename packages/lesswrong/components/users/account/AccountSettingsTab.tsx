@@ -67,7 +67,6 @@ const AccountSettingsTab = ({
           {(field) => (
             <SettingsTextRow
               field={field}
-              disabled={isEAForum() && !form.state.values.hasAuth0Id}
               label="Email"
               type="email"
               description="Used for notifications and account recovery"

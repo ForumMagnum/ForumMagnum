@@ -7,41 +7,29 @@ import { $generateNodesFromDOM } from "@lexical/html";
 import {
   $getRoot,
   $createRangeSelection,
-  $setSelection,
   $createTextNode,
-  $isDecoratorNode,
   $isElementNode,
-  $createParagraphNode,
+  $isTextNode,
+  type LexicalEditor,
   type LexicalNode,
 } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, paragraphMarkdownStartsWith, plainTextStartsWith, sleep, withMainDocEditorSession } from "../editorAgentUtil";
-import { buildNodeMarkdownMapForSubtree } from "../mapMarkdownToLexical";
+import { deriveAgentAuthor, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+
+import { normalizeImportedTopLevelNodes } from "../../(markdown)/editorMarkdownUtils";
+import { buildNodeMarkdownMapForSubtree, toPlainTextFilter } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { insertBlockToolSchema, type InsertLocation, type ReplaceMode } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
+import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
 interface InsertBlockResult {
   inserted: boolean
   note: string
   insertionIndex?: number
   suggestionId?: string
-}
-
-function normalizeImportedTopLevelNodes(nodes: LexicalNode[]): LexicalNode[] {
-  const normalized: LexicalNode[] = [];
-  for (const node of nodes) {
-    if ($isElementNode(node) || $isDecoratorNode(node)) {
-      normalized.push(node);
-    } else {
-      const paragraph = $createParagraphNode();
-      paragraph.append(node);
-      normalized.push(paragraph);
-    }
-  }
-  return normalized;
 }
 
 function getInsertionIndexByLocation(location: InsertLocation): { mode: "fixed", index: number } | { mode: "prefix", relation: "before" | "after", prefix: string } {
@@ -86,6 +74,140 @@ function parseWholeWidgetFence(markdown: string): { widgetId: string, widgetMark
   return { widgetId, widgetMarkup };
 }
 
+/**
+ * Wraps already-inserted top-level nodes in suggestion markup. Must be called
+ * inside a Lexical editor.update() callback, after the nodes have been spliced
+ * into the root at insertionIndex.
+ */
+function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], insertionIndex: number, suggestionId: string): void {
+  if (nodesToInsert.length === 0) return;
+
+  const firstInserted = nodesToInsert[0];
+  const lastInserted = nodesToInsert[nodesToInsert.length - 1];
+
+  const firstDescendant = $isElementNode(firstInserted)
+    ? firstInserted.getFirstDescendant()
+    : null;
+  const lastDescendant = $isElementNode(lastInserted)
+    ? lastInserted.getLastDescendant()
+    : null;
+
+  // Use text-level selection on the first/last text descendants when possible,
+  // which avoids a bug where root-level element selection clips the first
+  // character. For non-element, non-text nodes (e.g. decorator nodes like
+  // horizontal rules), fall back to root-level element selection.
+  const root = $getRoot();
+  const selection = $createRangeSelection();
+  if (firstDescendant && $isTextNode(firstDescendant)) {
+    selection.anchor.set(firstDescendant.getKey(), 0, "text");
+  } else {
+    selection.anchor.set(root.getKey(), insertionIndex, "element");
+  }
+  if (lastDescendant && $isTextNode(lastDescendant)) {
+    selection.focus.set(lastDescendant.getKey(), lastDescendant.getTextContentSize(), "text");
+  } else {
+    selection.focus.set(root.getKey(), insertionIndex + nodesToInsert.length, "element");
+  }
+  $wrapSelectionInSuggestionNode(selection, false, suggestionId, "insert");
+}
+
+export function $markdownToNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
+  const widgetFence = parseWholeWidgetFence(markdown);
+  if (widgetFence) {
+    const widgetNode = $createIframeWidgetNode(widgetFence.widgetId);
+    widgetNode.append($createTextNode(widgetFence.widgetMarkup));
+    return [widgetNode];
+  }
+
+  const markdownWithWidgetIframes = transformWidgetFencesToInlineIframeHtml(markdown);
+  const html = markdownToHtml(markdownWithWidgetIframes);
+  const dom = new JSDOM(html);
+  const importedNodes = $generateNodesFromDOM(editor, dom.window.document);
+  return normalizeImportedTopLevelNodes(importedNodes);
+}
+
+function findInsertionIndexByPrefix(
+  rootChildren: LexicalNode[],
+  prefix: string,
+  relation: "before" | "after",
+): number | null {
+  const textFilter = toPlainTextFilter(prefix);
+  const mapResult = buildNodeMarkdownMapForSubtree($getRoot().getKey(), textFilter);
+  for (let i = 0; i < rootChildren.length; i++) {
+    const child = rootChildren[i];
+    const childMarkdown = mapResult.byKey.get(child.getKey())?.markdown;
+    const textContent = child.getTextContent();
+    if (!childMarkdown) {
+      if (
+        plainTextStartsWith(textContent, prefix) ||
+        (textFilter && normalizeText(textContent).startsWith(textFilter))
+      ) {
+        return relation === "before" ? i : i + 1;
+      }
+      continue;
+    }
+    if (
+      paragraphMarkdownStartsWith(childMarkdown, prefix) ||
+      plainTextStartsWith(textContent, prefix) ||
+      (textFilter && normalizeText(textContent).startsWith(textFilter))
+    ) {
+      return relation === "before" ? i : i + 1;
+    }
+  }
+  return null;
+}
+
+export function resolveInsertionIndex(location: InsertLocation, rootChildren: LexicalNode[]): number | null {
+  const target = getInsertionIndexByLocation(location);
+  if (target.mode === "fixed") {
+    return target.index === Number.MAX_SAFE_INTEGER ? rootChildren.length : target.index;
+  }
+  return findInsertionIndexByPrefix(rootChildren, target.prefix, target.relation);
+}
+
+/**
+ * The core Lexical update logic for inserting a markdown block. Exported for
+ * direct testing without requiring a hocuspocus session. Must be called inside
+ * an editor.update() callback.
+ */
+export function $insertMarkdownBlockInEditor({
+  editor,
+  mode,
+  location,
+  markdown,
+}: {
+  editor: LexicalEditor
+  mode: ReplaceMode
+  location: InsertLocation
+  markdown: string
+}): InsertBlockResult {
+  const nodesToInsert = $markdownToNodes(editor, markdown);
+  if (nodesToInsert.length === 0) {
+    return { inserted: false, note: "No insertable nodes were generated from markdown." };
+  }
+
+  const root = $getRoot();
+  const insertionIndex = resolveInsertionIndex(location, root.getChildren());
+  if (insertionIndex === null) {
+    return { inserted: false, note: `No paragraph markdown starts with locator text: ${JSON.stringify(location)}` };
+  }
+
+  root.splice(insertionIndex, 0, nodesToInsert);
+  let suggestionId: string | undefined = undefined;
+  if (mode === "suggest") {
+    suggestionId = randomId();
+    $wrapInsertedNodesAsSuggestion(nodesToInsert, insertionIndex, suggestionId);
+  }
+  return {
+    inserted: true,
+    note: mode === "suggest"
+      ? "Inserted markdown block as suggestion."
+      : "Inserted markdown block into collaborative draft.",
+    insertionIndex,
+    suggestionId,
+  };
+}
+
 export async function insertMarkdownBlock({
   postId,
   token,
@@ -107,91 +229,17 @@ export async function insertMarkdownBlock({
     postId,
     token,
     operationLabel: "InsertBlock",
-    callback: async ({ editor }) => {
+    callback: async ({ editor, provider }) => {
       let result: InsertBlockResult = { inserted: false, note: "No insertion performed." };
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
-          const root = $getRoot();
-          const widgetFence = parseWholeWidgetFence(markdown);
-          const nodesToInsert = widgetFence
-            ? (() => {
-              const widgetNode = $createIframeWidgetNode(widgetFence.widgetId);
-              widgetNode.append($createTextNode(widgetFence.widgetMarkup));
-              return [widgetNode];
-            })()
-            : (() => {
-              const markdownWithWidgetIframes = transformWidgetFencesToInlineIframeHtml(markdown);
-              const html = markdownToHtml(markdownWithWidgetIframes);
-              const dom = new JSDOM(html);
-              const importedNodes = $generateNodesFromDOM(editor, dom.window.document);
-              return normalizeImportedTopLevelNodes(importedNodes);
-            })();
-
-          if (nodesToInsert.length === 0) {
-            result = { inserted: false, note: "No insertable nodes were generated from markdown." };
-            return;
-          }
-
-          const insertionTarget = getInsertionIndexByLocation(location);
-          const rootChildren = root.getChildren();
-          let insertionIndex: number | null = null;
-
-          if (insertionTarget.mode === "fixed") {
-            insertionIndex = insertionTarget.index === Number.MAX_SAFE_INTEGER ? rootChildren.length : insertionTarget.index;
-          } else {
-            const mapResult = buildNodeMarkdownMapForSubtree(root.getKey());
-            for (let i = 0; i < rootChildren.length; i++) {
-              const child = rootChildren[i];
-              const childMarkdown = mapResult.byKey.get(child.getKey())?.markdown;
-              if (!childMarkdown) {
-                if (plainTextStartsWith(child.getTextContent(), insertionTarget.prefix)) {
-                  insertionIndex = insertionTarget.relation === "before" ? i : i + 1;
-                  break;
-                }
-                continue;
-              }
-              if (
-                paragraphMarkdownStartsWith(childMarkdown, insertionTarget.prefix) ||
-                plainTextStartsWith(child.getTextContent(), insertionTarget.prefix)
-              ) {
-                insertionIndex = insertionTarget.relation === "before" ? i : i + 1;
-                break;
-              }
-            }
-            if (insertionIndex === null) {
-              result = {
-                inserted: false,
-                note: `No paragraph markdown starts with locator text: ${insertionTarget.prefix}`,
-              };
-              return;
-            }
-          }
-
-          root.splice(insertionIndex, 0, nodesToInsert);
-          let suggestionId: string | undefined = undefined;
-          if (mode === "suggest") {
-            const insertedCount = nodesToInsert.length;
-            const selection = $createRangeSelection();
-            selection.anchor.set(root.getKey(), insertionIndex, "element");
-            selection.focus.set(root.getKey(), insertionIndex + insertedCount, "element");
-            $setSelection(selection);
-            suggestionId = randomId();
-            $wrapSelectionInSuggestionNode(selection, false, suggestionId, "insert");
-          }
-          result = {
-            inserted: true,
-            note: mode === "suggest"
-              ? "Inserted markdown block as suggestion."
-              : "Inserted markdown block into collaborative draft.",
-            insertionIndex,
-            suggestionId,
-          };
+          result = $insertMarkdownBlockInEditor({ editor, mode, location, markdown });
         }, { onUpdate: resolve });
       });
 
       if (result.inserted) {
-        await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+        await waitForProviderFlush(provider);
       }
       return result;
     },
@@ -222,6 +270,7 @@ export async function POST(req: NextRequest) {
 
   const parseResult = insertBlockToolSchema.safeParse(body);
   if (!parseResult.success) {
+    captureAgentApiEvent({ route: "insertBlock", postId: body?.postId, userId: context.currentUser?._id, agentName: body?.agentName, status: "validation_error" });
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
 
@@ -230,6 +279,7 @@ export async function POST(req: NextRequest) {
   try {
     const token = await getHocuspocusToken(context, postId, key);
     if (!token) {
+      captureAgentApiEvent({ route: "insertBlock", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
@@ -244,6 +294,7 @@ export async function POST(req: NextRequest) {
       authorId,
     });
 
+    captureAgentApiEvent({ route: "insertBlock", postId, userId: context.currentUser?._id, agentName, status: "success", operationResult: insertResult.inserted ? "inserted" : "not_inserted" });
     return NextResponse.json({
       ok: true,
       postId,
@@ -258,6 +309,7 @@ export async function POST(req: NextRequest) {
     // eslint-disable-next-line no-console
     console.error(error);
     captureException(error);
+    captureAgentApiFailure("insertBlock", error, { postId, userId: context.currentUser?._id, agentName });
     return NextResponse.json(
       {
         error: "Failed to insert markdown block in collaborative draft",

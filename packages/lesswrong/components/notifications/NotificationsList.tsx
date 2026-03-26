@@ -5,8 +5,10 @@ import Loading from "../vulcan-core/Loading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { NotificationsListMultiQuery } from './NotificationsListMultiQuery';
 import { useCurrentUser } from '../common/withUser';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NotificationsList', (theme: ThemeType) => ({
   root: {
     overflowY: "auto",
     padding: 0,
@@ -33,12 +35,12 @@ const styles = (theme: ThemeType) => ({
     width: "100%",
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
-});
+}));
 
-const NotificationsList = ({ terms, classes }: {
+const NotificationsList = ({terms}: {
   terms: NotificationsViewTerms,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { view, limit, ...selectorTerms } = terms;
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(NotificationsListMultiQuery, {
@@ -92,7 +94,6 @@ const NotificationsList = ({ terms, classes }: {
 }
 
 export default registerComponent('NotificationsList', NotificationsList, {
-  styles,
   areEqual: {
     terms: "shallow",
   }

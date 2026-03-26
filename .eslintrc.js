@@ -78,7 +78,7 @@ module.exports = {
     "babel/object-curly-spacing": 0,
     "babel/object-shorthand": 0,
     "babel/arrow-parens": 0,
-    "eol-last": 1,
+    "eol-last": 0,
     "no-await-in-loop": 0,
     "comma-dangle": 0,
     "eqeqeq": [1, "always", {"null": "ignore"}],
@@ -102,6 +102,11 @@ module.exports = {
     "react/no-unescaped-entities": 0,
     "react/display-name": 0,
     "react/jsx-no-comment-textnodes": 1,
+
+    // Disabled warning that would warn on "while (true) { ... }". Whether you
+    // like this idiom or not, it comes up reasonably often in agent-outputs,
+    // and I (Jim) happen to think it's fine.
+    "no-constant-condition": 0,
 
     // Warn if defining a component inside a function, which results in the
     // component's subtree and its state being destroyed on every render

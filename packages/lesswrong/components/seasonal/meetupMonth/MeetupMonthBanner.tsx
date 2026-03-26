@@ -10,6 +10,7 @@ import MagnifyingGlassPlusIcon from '@heroicons/react/24/solid/MagnifyingGlassPl
 import MagnifyingGlassMinusIcon from '@heroicons/react/24/solid/MagnifyingGlassMinusIcon';
 import { Link } from '@/lib/reactRouterWrapper';
 import classNames from 'classnames';
+import { safeForDarkMode } from '@/components/hooks/defineStyles';
 
 const smallBreakpoint = 1525
 
@@ -56,6 +57,12 @@ function getCarouselSections(classes: JssStyles) {
     }
   ]
 }
+
+const meetupTypeColors = {
+  acx: safeForDarkMode("#5f86c9"),
+  ifanyone: safeForDarkMode("#b64d4d"),
+  petrov: "light-dark(#444, #eee)",
+} as const;
 
 const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   root: {
@@ -215,15 +222,15 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
     color: theme.palette.text.alwaysWhite,
   },
   activeAcxMeetupType: {
-    background: theme.palette.meetupMonth.acx,
+    background: meetupTypeColors.acx,
     color: theme.palette.text.alwaysWhite,
   },
   activeIfanyoneMeetupType: {
-    background: theme.palette.meetupMonth.ifanyone,
+    background: meetupTypeColors.ifanyone,
     color: theme.palette.text.alwaysWhite,
   },
   activePetrovMeetupType: {
-    background: theme.palette.meetupMonth.petrov,
+    background: meetupTypeColors.petrov,
     color: theme.palette.grey[100],
   },
   date: {
@@ -354,17 +361,17 @@ const styles = defineStyles("MeetupMonthBanner", (theme: ThemeType) => ({
   },
   acxMode: {
     '& svg': {
-      fill: theme.palette.meetupMonth.acx + ' !important',
+      fill: meetupTypeColors.acx + ' !important',
     },
   },
   ifanyoneMode: {
     '& svg': {
-      fill: theme.palette.meetupMonth.ifanyone + ' !important',
+      fill: meetupTypeColors.ifanyone + ' !important',
     },
   },
   petrovMode: {
     '& svg': {
-      fill: theme.palette.meetupMonth.petrov + ' !important',
+      fill: meetupTypeColors.petrov + ' !important',
     },
   },
   buttonText: {

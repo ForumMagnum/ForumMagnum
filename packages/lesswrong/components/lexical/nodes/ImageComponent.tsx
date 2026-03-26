@@ -55,6 +55,8 @@ import { ChatSquareQuoteIcon } from '../icons/ChatSquareQuoteIcon';
 import { FileEarmarkTextIcon } from '../icons/FileEarmarkTextIcon';
 import {$isImageNode} from './ImageNode';
 import { INSERT_INLINE_COMMENT_AT_COMMAND } from '../plugins/CommentPlugin';
+import Loading from '@/components/vulcan-core/Loading';
+import { imageCache, ImageStatus } from './imageCache';
 
 
 const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
@@ -123,13 +125,21 @@ const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
   resizing: {
     touchAction: 'none',
   },
+  '@keyframes imagePlaceholderPulse': {
+    '0%, 100%': { opacity: 0.4 },
+    '50%': { opacity: 0.7 },
+  },
+  uploadingPlaceholder: {
+    width: 500,
+    height: 200,
+    background: theme.palette.greyAlpha(0.08),
+    borderRadius: 4,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    animation: '$imagePlaceholderPulse 2s ease-in-out infinite',
+  },
 }));
-
-type ImageStatus =
-  | {error: true}
-  | {error: false; width: number; height: number};
-
-const imageCache = new Map<string, Promise<ImageStatus> | ImageStatus>();
 
 export const RIGHT_CLICK_IMAGE_COMMAND: LexicalCommand<MouseEvent> =
   createCommand('RIGHT_CLICK_IMAGE_COMMAND');
@@ -284,9 +294,20 @@ export default function ImageComponent({
   const isEditable = useLexicalEditable();
   const { flash } = useMessages();
   const [modal, showModal] = useModal();
+  const srcRef = useRef(src);
 
   useEffect(() => {
+    if (srcRef.current !== src) {
+      srcRef.current = src;
+      setIsLoadError(false);
+      return;
+    }
     if (isLoadError) {
+      if (src.startsWith('blob:')) {
+        // On non-creating clients, blob URLs can't be resolved.
+        // The creating client will replace the src with a Cloudinary URL shortly.
+        return;
+      }
       flash({ messageString: 'Failed to load image', type: 'error' });
       editor.update(() => {
         const node = $getNodeByKey(imageNodeKey);
@@ -295,7 +316,7 @@ export default function ImageComponent({
         }
       });
     }
-  }, [isLoadError, editor, imageNodeKey, flash]);
+  }, [isLoadError, editor, imageNodeKey, flash, src]);
 
   const isInNodeSelection = useMemo(
     () =>
@@ -676,7 +697,11 @@ export default function ImageComponent({
               [classes.imageWrapperFocused]: isFocused,
             },
           )}>
-          {!isLoadError && (
+          {isLoadError && src.startsWith('blob:') ? (
+            <div className={classes.uploadingPlaceholder}>
+              <Loading />
+            </div>
+          ) : !isLoadError ? (
             <LazyImage
               className={classNames(
                 classes.imageElement,
@@ -692,7 +717,7 @@ export default function ImageComponent({
               maxWidth={maxWidth}
               onError={() => setIsLoadError(true)}
             />
-          )}
+          ) : null}
           {resizable && isInNodeSelection && isFocused && (
             <ImageResizer
               editor={editor}

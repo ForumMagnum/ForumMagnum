@@ -172,35 +172,6 @@ export const TagSectionPreviewFragment = gql(`
   }
 `)
 
-export const TagSubforumFragment = gql(`
-  fragment TagSubforumFragment on Tag {
-    ...TagPreviewFragment
-    subforumModeratorIds
-    tableOfContents
-    subforumWelcomeText {
-      _id
-      html
-    }
-  }
-`)
-
-// TODO: would prefer to fetch subtags in fewer places
-export const TagSubtagFragment = gql(`
-  fragment TagSubtagFragment on Tag {
-    _id
-    subforumModeratorIds
-    subTags {
-      ...TagPreviewFragment
-    }
-  }
-`)
-
-export const TagSubforumSidebarFragment = gql(`
-  fragment TagSubforumSidebarFragment on Tag {
-    ...TagBasicInfo
-  }
-`)
-
 export const TagWithFlagsFragment = gql(`
   fragment TagWithFlagsFragment on Tag {
     ...TagFragment
@@ -425,24 +396,6 @@ export const SunshineTagFragment = gql(`
     user {
       ...UsersMinimumInfo
     }
-  }
-`)
-
-export const UserOnboardingTag = gql(`
-  fragment UserOnboardingTag on Tag {
-    _id
-    name
-    slug
-    bannerImageId
-    squareImageId
-  }
-`)
-
-export const TagName = gql(`
-  fragment TagName on Tag {
-    _id
-    name
-    slug
   }
 `)
 

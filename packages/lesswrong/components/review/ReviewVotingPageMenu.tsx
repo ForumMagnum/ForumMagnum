@@ -8,15 +8,16 @@ import { eligibleToNominate, ReviewPhase } from '../../lib/reviewUtils';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import qs from 'qs';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import ContentStyles from "../common/ContentStyles";
 import LWTooltip from "../common/LWTooltip";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewVotingPageMenu', (theme: ThemeType) => ({
   root: {
     width: "100%",
     maxWidth: SECTION_WIDTH,
@@ -99,7 +100,7 @@ const styles = (theme: ThemeType) => ({
       display: "none"
     }
   }
-});
+}));
 
 export const sortingInfo: Record<string, {title: string, description: string}> = {  
   needsPreliminaryVote: {
@@ -148,8 +149,7 @@ export const sortingInfo: Record<string, {title: string, description: string}> =
   },
 }
 
-export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts, costTotal, setSortPosts, sortPosts, sortReversed, setSortReversed, postsLoading, postsResults}: {
-  classes: ClassesType<typeof styles>,
+export const ReviewVotingPageMenu = ({reviewPhase, loading, sortedPosts, costTotal, setSortPosts, sortPosts, sortReversed, setSortReversed, postsLoading, postsResults}: {
   reviewPhase: ReviewPhase,
   loading: boolean,
   sortedPosts: PostsList[]|null,
@@ -161,6 +161,7 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
   postsLoading: boolean,
   postsResults: PostsList[]|null,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const accountSettings = "Account Settings";
 
@@ -284,6 +285,6 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
   </AnalyticsContext>;
 }
 
-export default registerComponent('ReviewVotingPageMenu', ReviewVotingPageMenu, {styles});
+export default ReviewVotingPageMenu;
 
 

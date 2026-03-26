@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import type { DefaultRecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
@@ -8,8 +7,10 @@ import RecommendationsList from "../recommendations/RecommendationsList";
 import SectionFooter from "../common/SectionFooter";
 import HoverPreviewLink from "../linkPreview/HoverPreviewLink";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FrontpageNominationPhase', (theme: ThemeType) => ({
   hideOnMobile: {
     [theme.breakpoints.down('xs')]: {
       display: "none"
@@ -22,12 +23,12 @@ const styles = (theme: ThemeType) => ({
   learnMore: {
     color: theme.palette.lwTertiary.main
   }
-})
+}))
 
-const FrontpageNominationPhase = ({classes, settings}: {
-  classes: ClassesType<typeof styles>,
+const FrontpageNominationPhase = ({settings}: {
   settings: DefaultRecommendationsAlgorithm,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const reviewTooltip = <div>
@@ -91,7 +92,7 @@ const FrontpageNominationPhase = ({classes, settings}: {
   )
 }
 
-export default registerComponent('FrontpageNominationPhase', FrontpageNominationPhase, {styles});
+export default FrontpageNominationPhase;
 
 
 

@@ -5,7 +5,6 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../common/withUser';
 import { useLocation } from '../../lib/routeUtil';
 import { SpotlightItem, getSpotlightDisplayTitle } from './SpotlightItem';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { SpotlightForm } from './SpotlightForm';
 import Loading from "../vulcan-core/Loading";
 import SectionTitle from "../common/SectionTitle";
@@ -17,6 +16,8 @@ import TableOfContents from "../posts/TableOfContents/TableOfContents";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SpotlightDisplayMultiQuery = gql(`
   query multiSpotlightSpotlightsPageQuery($selector: SpotlightSelector, $limit: Int, $enableTotal: Boolean) {
@@ -29,7 +30,7 @@ const SpotlightDisplayMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SpotlightsPage', (theme: ThemeType) => ({
   form: {
     padding: 16,
     background: theme.palette.background.pageActiveAreaBackground,
@@ -68,11 +69,10 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
   },
-});
+}));
 
-export const SpotlightsPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const SpotlightsPage = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [sortBy, setSortBy] = useState<'upcoming' | 'past'>('upcoming');
 
@@ -147,16 +147,6 @@ export const SpotlightsPage = ({classes}: {
   const sectionData = {
     html: "",
     sections: [
-      {
-        title: sectionTitle,
-        anchor: "spotlights",
-        level: 1
-      },
-      ...displayedSpotlights.map(spotlight => ({
-        title: getSpotlightDisplayTitle(spotlight),
-        anchor: spotlight._id,
-        level: 2
-      })),
       ...(noDrafts ? [] : [
         {
           title: "Draft Spotlights",
@@ -169,6 +159,16 @@ export const SpotlightsPage = ({classes}: {
           level: 2
         }))
       ]),
+      {
+        title: sectionTitle,
+        anchor: "spotlights",
+        level: 1
+      },
+      ...displayedSpotlights.map(spotlight => ({
+        title: getSpotlightDisplayTitle(spotlight),
+        anchor: spotlight._id,
+        level: 2
+      })),
     ],
   }
 
@@ -186,6 +186,13 @@ export const SpotlightsPage = ({classes}: {
         </SpotlightEditorStyles>
       </div>
       {loading && !onlyDrafts && <Loading/>}
+      {!noDrafts && <div>
+        <SectionTitle title="Draft Spotlights">
+          <div>Total: {totalDraftDuration} days, {uniqueDocumentIds.length} spotlights</div>
+        </SectionTitle>
+        {draftSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo isDraftProcessing={onlyDrafts}/>)}
+        <LoadMore {...loadMoreProps} />
+      </div>}
       <SectionTitle title={sectionTitle}>
         <div className={classes.sectionTitleContent}>
           <div>Total: {totalDisplayedDuration} days, {displayedSpotlights.length} spotlights</div>
@@ -204,18 +211,11 @@ export const SpotlightsPage = ({classes}: {
       </SectionTitle>
       {displayedSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo/>)}
       <LoadMore {...loadMoreProps} />
-      {!noDrafts && <div>
-        <SectionTitle title="Draft Spotlights">
-          <div>Total: {totalDraftDuration} days, {uniqueDocumentIds.length} spotlights</div>
-        </SectionTitle>
-        {draftSpotlights.map(spotlight => <SpotlightItem key={`spotlightpage${spotlight._id}`} spotlight={spotlight} refetchAllSpotlights={refetch} showAdminInfo isDraftProcessing={onlyDrafts}/>)}
-        <LoadMore {...loadMoreProps} />
-      </div>}
     </SingleColumnSection>
   </ToCColumn>
 }
 
-export default registerComponent('SpotlightsPage', SpotlightsPage, {styles});
+export default SpotlightsPage
 
 
 

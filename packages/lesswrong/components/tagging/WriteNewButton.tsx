@@ -1,5 +1,4 @@
 import React, { useRef, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -12,8 +11,10 @@ import LWClickAwayListener from "../common/LWClickAwayListener";
 import LWPopper from "../common/LWPopper";
 import ForumIcon from "../common/ForumIcon";
 import { MenuItem } from "../common/Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('WriteNewButton', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -73,21 +74,15 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.grey[1000],
     }
   },
-})
+}))
 
-const WriteNewButton = ({
-  tag,
-  isSubscribed,
-  setNewShortformOpen,
-  className,
-  classes,
-}: {
+const WriteNewButton = ({tag, isSubscribed, setNewShortformOpen, className}: {
   tag: TagBasicInfo,
   isSubscribed: boolean,
   setNewShortformOpen: (open: boolean) => void,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking()
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
@@ -143,6 +138,6 @@ const WriteNewButton = ({
   );
 }
 
-export default registerComponent('WriteNewButton', WriteNewButton, {styles});
+export default WriteNewButton;
 
 

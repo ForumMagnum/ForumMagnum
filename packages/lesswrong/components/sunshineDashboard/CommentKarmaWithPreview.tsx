@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -7,8 +6,10 @@ import classNames from 'classnames';
 import LWPopper from "../common/LWPopper";
 import CommentsNode from "../comments/CommentsNode";
 import FormatDate from "../common/FormatDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentKarmaWithPreview', (theme: ThemeType) => ({
   root: {
     marginRight: 8,
     whiteSpace: "nowrap"
@@ -40,15 +41,15 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     fontWeight: 600
   }
-})
+}))
 
 
-const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }: {
+const CommentKarmaWithPreview = ({comment, displayTitle, reviewedAt}: {
   comment: CommentsListWithParentMetadata,
-  classes: ClassesType<typeof styles>,
   displayTitle: boolean,
   reviewedAt?: Date
 }) => {
+  const classes = useStyles(styles);
   const { hover, anchorEl, eventHandlers } = useHover();
   if (!comment) return null 
 
@@ -76,7 +77,7 @@ const CommentKarmaWithPreview = ({ comment, classes, displayTitle, reviewedAt }:
   </span>
 }
 
-export default registerComponent('CommentKarmaWithPreview', CommentKarmaWithPreview, {styles});
+export default CommentKarmaWithPreview;
 
 
 

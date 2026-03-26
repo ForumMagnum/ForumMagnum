@@ -1,8 +1,9 @@
 import React from 'react';
 import HelpOutlineIcon from '@/lib/vendor/@material-ui/icons/src/HelpOutline';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWHelpIcon", (theme: ThemeType) => ({
   icon: {
     fontSize: "1.3em",
     width: "1.5em",
@@ -10,12 +11,14 @@ const styles = (theme: ThemeType) => ({
     top: ".19em", // seems to be necessary so that it lines up nicely with text, might revisit this if it looks weird next to other text sizes
     color: theme.palette.grey[500]
   }
-})
+}))
 
-const LWHelpIcon = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const LWHelpIcon = () => {
+  const classes = useStyles(styles);
+
   return <span><HelpOutlineIcon className={classes.icon}/></span>
 }
 
-export default registerComponent("LWHelpIcon", LWHelpIcon, {styles});
+export default LWHelpIcon;
 
 

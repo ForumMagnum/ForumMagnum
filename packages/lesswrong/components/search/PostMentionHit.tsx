@@ -1,16 +1,9 @@
 import React from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
-import { isFriendlyUI } from "@/themes/forumTheme";
-import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostMentionHit", (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI && {
-      display: "block",
-      maxWidth: 500,
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    }),
   },
   icon: {
     width: 16,
@@ -18,15 +11,13 @@ const styles = (theme: ThemeType) => ({
     marginRight: 6,
     transform: "translateY(4px)",
   },
-});
+}));
 
-const PostMentionHit = ({hit, classes}: {
+const PostMentionHit = ({hit}: {
   hit: SearchPost,
-  classes: ClassesType<typeof styles>,
 }) => {
-  const icon = isFriendlyUI()
-    ? <ForumIcon icon="Document" className={classes.icon} />
-    : "📃";
+  const icon = "📃";
+  const classes = useStyles(styles);
   return (
     <span className={classes.root}>
       {icon} <span>{hit.title}</span>
@@ -34,10 +25,6 @@ const PostMentionHit = ({hit, classes}: {
   );
 }
 
-export default registerComponent(
-  "PostMentionHit",
-  PostMentionHit,
-  {styles},
-);
+export default PostMentionHit;
 
 

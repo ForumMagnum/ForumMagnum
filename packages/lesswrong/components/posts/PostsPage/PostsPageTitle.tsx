@@ -14,43 +14,24 @@ export const postPageTitleStyles = (theme: ThemeType) => ({
   ...theme.typography.display3,
   ...theme.typography.postStyle,
   ...theme.typography.headerStyle,
-  marginTop: theme.isFriendlyUI ? 5 : 0,
+  marginTop: 0,
   marginLeft: 0,
-  marginBottom: theme.isFriendlyUI ? 12 : 0,
+  marginBottom: 0,
   color: theme.palette.text.primary,
-  textWrap: theme.isBookUI ? "balance" : undefined,
-  [theme.breakpoints.down('sm')]: theme.isFriendlyUI
-    ? {
-      fontSize: '2.3rem',
-      marginTop: 20,
-    }
-    : {
-      fontSize: '3.5rem',
-    },
-  ...(theme.isFriendlyUI
-    ? {
-      fontSize: '3rem',
-    }
-    : {
-      fontSize: LW_POST_TITLE_FONT_SIZE,
-      lineHeight: '1.1',
-  }),
-  [theme.breakpoints.down('xs')]: theme.isFriendlyUI
-    ? {
-      fontSize: '2.3rem',
-    }
-    : {
-      fontSize: '2.5rem',
-    },
+  textWrap: "balance",
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '3.5rem',
+  },
+  fontSize: LW_POST_TITLE_FONT_SIZE,
+  lineHeight: '1.1',
+  [theme.breakpoints.down('xs')]: {
+    fontSize: '2.5rem',
+  },
 })
 
 const styles = defineStyles("PostsPageTitle", (theme: ThemeType) => ({
   root: {
     ...postPageTitleStyles(theme),
-    ...(theme.isFriendlyUI && {
-      lineHeight: 1.25,
-      fontWeight: 700
-    }),
   },
   draft: {
     color: theme.palette.text.dim4

@@ -8,16 +8,7 @@ import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 
 const styles = defineStyles("ErrorAccessDenied", (theme: ThemeType) => ({
-  root: theme.isFriendlyUI
-    ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 16,
-      fontWeight: 500,
-      lineHeight: '26px',
-      textWrap: 'pretty',
-      marginTop: 30
-    }
-    :{},
+  root: {},
 }));
 
 /**
@@ -42,7 +33,9 @@ const ErrorAccessDenied = ({explanation, skipLoginPrompt}: {
     return <>
       <StatusCodeSetter status={401}/>
       <SingleColumnSection>
-        <div className={classes.root}>{message}</div>
+        <Typography variant='body1' className={classes.root}>
+          {message}
+        </Typography>
       </SingleColumnSection>
     </>
   } else {

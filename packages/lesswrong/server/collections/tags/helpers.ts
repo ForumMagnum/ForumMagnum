@@ -1,4 +1,3 @@
-import { userCanCreateTags } from "@/lib/betas";
 import { tagUserHasSufficientKarma } from "@/lib/collections/tags/helpers";
 
 export function newCheck(user: DbUser | null, tag: OmitBySubtype<CreateTagDataInput, CreateRevisionDataInput> | null): tag is CreateTagDataInput {
@@ -8,7 +7,7 @@ export function newCheck(user: DbUser | null, tag: OmitBySubtype<CreateTagDataIn
   if (!user.isAdmin) {  // skip further checks for admins
     if (!tagUserHasSufficientKarma(user, "new")) return false
   }
-  return userCanCreateTags(user);
+  return true;
 }
 
 export function editCheck(user: DbUser | null, tag: DbTag) {
@@ -21,5 +20,5 @@ export function editCheck(user: DbUser | null, tag: DbTag) {
     if (restricted && !tag.canEditUserIds?.includes(user._id)) return false;
     if (!restricted && !tagUserHasSufficientKarma(user, "edit")) return false
   }
-  return userCanCreateTags(user);
+  return true;
 }

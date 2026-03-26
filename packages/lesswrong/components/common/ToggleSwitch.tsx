@@ -1,8 +1,9 @@
 import React, { useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ToggleSwitch", (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     position: "relative",
@@ -47,15 +48,15 @@ const styles = (theme: ThemeType) => ({
     height: 12,
     marginLeft: 12,
   },
-});
+}), { stylePriority: -1 });
 
-export const ToggleSwitch = ({value, setValue, smallVersion, className, classes}: {
+export const ToggleSwitch = ({value, setValue, smallVersion, className}: {
   value: boolean,
   setValue?: (value: boolean) => void,
   smallVersion?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const onToggle = useCallback(() => {
     setValue?.(!value);
   }, [value, setValue]);
@@ -75,10 +76,4 @@ export const ToggleSwitch = ({value, setValue, smallVersion, className, classes}
   );
 }
 
-export default registerComponent(
-  "ToggleSwitch",
-  ToggleSwitch,
-  {styles, stylePriority: -1},
-);
-
-
+export default ToggleSwitch;

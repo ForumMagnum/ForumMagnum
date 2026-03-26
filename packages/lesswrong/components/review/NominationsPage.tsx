@@ -18,8 +18,10 @@ import LWTooltip from "../common/LWTooltip";
 import AllPostsPage from "../posts/AllPostsPage";
 import ExternalPostImporter from "../posts/ExternalPostImporter";
 import { allPostsParams } from '@/lib/collections/posts/helpers';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("NominationsPage", (theme: ThemeType) => ({
   headline: {
     color: theme.palette.grey[1000],
     marginBottom: 40,
@@ -72,10 +74,11 @@ const styles = (theme: ThemeType) => ({
   divider: {
     marginRight: 36
   }
-});
+}));
 
 
-const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof styles>, reviewYear: ReviewYear }) => {
+const NominationsPage = ({reviewYear}: { reviewYear: ReviewYear }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const navigate = useNavigate()
   const {location, query} = useLocation()
@@ -171,7 +174,6 @@ const NominationsPage = ({classes, reviewYear}: { classes: ClassesType<typeof st
 
 export default registerComponent("NominationsPage", NominationsPage, {
   hocs: [withErrorBoundary],
-  styles
 });
 
 

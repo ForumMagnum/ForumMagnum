@@ -26,8 +26,7 @@ const styles = defineStyles("FlashMessages", (theme) => ({
   },
   message: {
     padding: '8px 0',
-    color: theme.palette.text.maxIntensity,
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    color: theme.palette.text.maxIntensity
   },
   action: {
     display: 'flex',

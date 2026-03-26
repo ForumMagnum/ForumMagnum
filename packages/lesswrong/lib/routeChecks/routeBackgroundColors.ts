@@ -24,7 +24,6 @@ const routesWithWhiteBackground = [
   "/books/2018",
   "/books/2019",
   "/codex/[slug]",
-  "/collaborateOnPost",
   "/contact",
   "/donate",
   "/drafts",

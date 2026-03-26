@@ -1,11 +1,12 @@
 import React, { useCallback, useState } from "react";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { Link } from "../../../lib/reactRouterWrapper";
 import ContentStyles from "../ContentStyles";
 import classNames from "classnames";
 import { truncate } from "../../../lib/editor/ellipsize";
 import { ContentItemBody } from "../../contents/ContentItemBody";
 import type { ContentStyleType } from "@/components/common/ContentStylesValues";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const HTML_CHARS_PER_LINE_HEURISTIC = 120;
 const EXPAND_IN_PLACE_LINES = 10;
@@ -32,7 +33,7 @@ const smallHeading = {
   fontWeight: 700,
 };
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ContentExcerpt", (theme: ThemeType) => ({
   root: {},
   excerpt: {
     position: "relative",
@@ -81,7 +82,7 @@ const styles = (theme: ThemeType) => ({
       color: `${theme.palette.primary.light} !important`,
     },
   },
-});
+}), { stylePriority: -1 });
 
 export type CommonExcerptProps = {
   lines?: number,
@@ -92,25 +93,8 @@ export type CommonExcerptProps = {
   className?: string,
 }
 
-const ContentExcerpt = ({
-  contentHtml,
-  moreLink,
-  hideMoreLink,
-  smallText,
-  noLinkStyling,
-  hideMultimedia,
-  lines = 3,
-  alwaysExpandInPlace,
-  contentType,
-  className,
-  classes,
-}: CommonExcerptProps & {
-  contentHtml: string,
-  moreLink: string,
-  contentType: ContentStyleType,
-  alwaysExpandInPlace?: boolean,
-  classes: ClassesType<typeof styles>,
-}) => {
+const ContentExcerpt = ({contentHtml, moreLink, hideMoreLink, smallText, noLinkStyling, hideMultimedia, lines = 3, alwaysExpandInPlace, contentType, className}: CommonExcerptProps & { contentHtml: string, moreLink: string, contentType: ContentStyleType, alwaysExpandInPlace?: boolean, }) => {
+  const classes = useStyles(styles);
   const [expanded, setExpanded] = useState(false);
 
   const onExpand = useCallback(() => setExpanded(true), []);
@@ -167,10 +151,5 @@ const ContentExcerpt = ({
   );
 }
 
-export default registerComponent(
-  "ContentExcerpt",
-  ContentExcerpt,
-  {styles, stylePriority: -1},
-);
-
+export default ContentExcerpt;
 

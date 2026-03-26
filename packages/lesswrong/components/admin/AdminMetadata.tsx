@@ -2,25 +2,8 @@ import React from 'react';
 import { gql } from "@/lib/generated/gql-codegen";
 import { useQuery } from "@/lib/crud/useQuery";
 import Loading from "../vulcan-core/Loading";
-import { useStyles } from '../hooks/useStyles';
-import { defineStyles } from '../hooks/defineStyles';
-
-const styles = defineStyles("AdminMetadata", (theme: ThemeType) => ({
-  indexesTable: {
-    border: theme.palette.border.maxIntensity,
-    padding: 5,
-    ...theme.typography.code,
-  },
-  indexRow: {
-    lineBreak: "anywhere",
-    display: "block",
-    width: 700,
-    padding: 5,
-  },
-}));
 
 const AdminMetadata = () => {
-  const classes = useStyles(styles);
   const { data, loading } = useQuery(gql(`
     query AdminMetadataQuery {
       AdminMetadata

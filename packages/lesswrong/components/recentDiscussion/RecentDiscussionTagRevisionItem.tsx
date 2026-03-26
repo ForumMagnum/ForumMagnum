@@ -1,6 +1,5 @@
 import React from 'react';
 import { isEAForum } from "../../lib/instanceSettings"
-import { registerComponent } from "../../lib/vulcan-lib/components"
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import TagRevisionItem from "../tagging/TagRevisionItem";
 
@@ -10,7 +9,7 @@ const styles = defineStyles("RecentDiscussionTagRevisionItem", (theme) => ({
     marginBottom: 32,
     position: "relative",
     boxShadow: theme.palette.boxShadow.default,
-    borderRadius: theme.borderRadius[theme.isFriendlyUI ? "default" : "small"],
+    borderRadius: theme.borderRadius["small"],
 
     paddingLeft: 16,
     paddingRight: 16,
@@ -74,8 +73,4 @@ function RecentDiscussionTagRevisionItem({
   </div>
 }
 
-export default registerComponent(
-  'RecentDiscussionTagRevisionItem', RecentDiscussionTagRevisionItem
-);
-
-
+export default RecentDiscussionTagRevisionItem;

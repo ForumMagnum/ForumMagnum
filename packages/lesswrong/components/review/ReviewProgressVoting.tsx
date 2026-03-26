@@ -1,6 +1,5 @@
 import React from 'react';
 import { ReviewYear } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import CropSquareIcon from '@/lib/vendor/@material-ui/icons/src/CropSquare';
 import range from 'lodash/range';
@@ -8,6 +7,8 @@ import LWTooltip from "../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { TARGET_REVIEW_VOTING_NUM } from '@/lib/collections/reviewVotes/constants';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const reviewVoteFragmentMultiQuery = gql(`
   query multiReviewVoteReviewProgressVotingQuery($selector: ReviewVoteSelector, $limit: Int, $enableTotal: Boolean) {
@@ -20,7 +21,7 @@ const reviewVoteFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewProgressVoting', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -42,13 +43,12 @@ const styles = (theme: ThemeType) => ({
     transform: "rotate(45deg)",
     borderRadius: 2
   },
-});
+}));
 
-export const ReviewProgressVoting = ({classes, reviewYear}: {
-  classes: ClassesType<typeof styles>,
+export const ReviewProgressVoting = ({reviewYear}: {
   reviewYear: ReviewYear
 }) => {
-
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const { data } = useQuery(reviewVoteFragmentMultiQuery, {
     variables: {
@@ -81,7 +81,7 @@ export const ReviewProgressVoting = ({classes, reviewYear}: {
 </LWTooltip></div>
 }
 
-export default registerComponent('ReviewProgressVoting', ReviewProgressVoting, {styles});
+export default ReviewProgressVoting;
 
 
 

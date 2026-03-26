@@ -6,10 +6,28 @@ import {
   $isTextNode,
   type LexicalEditor,
   type LexicalNode,
+  type SerializedLexicalNode,
 } from "lexical";
-import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { htmlToMarkdown, markdownToHtml } from "@/server/editor/conversionUtils";
+import { JSDOM } from "jsdom";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { createHeadlessEditor, normalizeText } from "./editorAgentUtil";
+
+/**
+ * Recursively serialize a Lexical node and its children to JSON.
+ * Lexical's internal `exportNodeToJSON` is not exported, but we need
+ * the same behaviour: call `exportJSON()` on the node, then walk its
+ * element children and push their serialized forms into the `children`
+ * array that `exportJSON()` leaves empty.
+ */
+function exportNodeToJSONRecursive(node: LexicalNode): SerializedLexicalNode {
+  const serialized = node.exportJSON();
+  if ($isElementNode(node)) {
+    const children = node.getChildren().map(exportNodeToJSONRecursive);
+    (serialized as AnyBecauseHard).children = children;
+  }
+  return serialized;
+}
 
 export interface MarkdownSelectionPoint {
   key: string
@@ -43,10 +61,6 @@ function stripSimpleMarkdownPunctuation(value: string): string {
   return value.replace(/[*_`~]/g, "");
 }
 
-function normalizeForMarkdownInsensitiveMatch(value: string): string {
-  return normalizeText(markdownQuoteToPlainText(value));
-}
-
 function normalizeEmphasisMarkerStyle(value: string): string {
   return value.replace(/\*/g, "_");
 }
@@ -61,13 +75,58 @@ function normalizeForSemanticMatch(value: string): string {
   return normalizeText(normalizeMathDelimiters(normalizeEmphasisMarkerStyle(value)));
 }
 
-function markdownQuoteToPlainText(value: string): string {
+export function markdownQuoteToPlainText(value: string): string {
   return value
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
     .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
     .replace(/\$([^$]+)\$/g, "$1")
     .replace(/\\([A-Za-z]+)/g, "$1")
     .replace(/[*_`~]/g, "");
+}
+
+/**
+ * Parse markdown through the markdown-it pipeline and extract the rendered
+ * plain text, producing a filter string suitable for
+ * `buildNodeMarkdownMapForSubtree`. This handles all block-level and inline
+ * markdown syntax (headings, blockquotes, lists, links, emphasis, etc.)
+ * without hardcoding individual patterns.
+ */
+export function toPlainTextFilter(markdownQuote: string): string {
+  const html = markdownToHtml(markdownQuote);
+  const dom = new JSDOM(html);
+  const textOnly = dom.window.document.body.textContent;
+  return normalizeText(textOnly);
+}
+
+/**
+ * Map a character index in a whitespace-normalized (trimmed, collapsed, lowercased)
+ * string back to the corresponding index in the original lowercased string.
+ * Implements the inverse of `normalizeText` for position tracking in O(n).
+ */
+function mapNormalizedIndexToRaw(rawLower: string, targetNormalizedIndex: number): number {
+  let normalizedIndex = 0;
+  let inLeadingWhitespace = true;
+  let prevWasWhitespace = false;
+  for (let i = 0; i < rawLower.length; i++) {
+    const ch = rawLower[i];
+    const isWs = /\s/.test(ch);
+    if (inLeadingWhitespace) {
+      if (isWs) continue;
+      inLeadingWhitespace = false;
+    }
+    if (isWs) {
+      if (!prevWasWhitespace) {
+        if (normalizedIndex === targetNormalizedIndex) return i;
+        normalizedIndex++;
+      }
+      prevWasWhitespace = true;
+    } else {
+      if (normalizedIndex === targetNormalizedIndex) return i;
+      normalizedIndex++;
+      prevWasWhitespace = false;
+    }
+  }
+  return -1;
 }
 
 function findTextRangeInNodeByPlainQuote(
@@ -128,15 +187,14 @@ function findTextRangeInNodeByPlainQuote(
     // Fallback when whitespace normalization is needed.
     // We need to find the range in the original (un-normalized) text that corresponds
     // to the normalized quote, correctly mapping offsets despite whitespace differences.
+    // Normalize the full string once and search within it (O(n)), instead of
+    // re-normalizing a suffix at every position (which was O(n²)).
     const rawLower = combined.toLowerCase();
-    let fallbackStart = -1;
-    for (let i = 0; i < rawLower.length; i++) {
-      const candidateNormalized = normalizeText(rawLower.slice(i));
-      if (candidateNormalized.startsWith(plainQuote)) {
-        fallbackStart = i;
-        break;
-      }
-    }
+    const normalizedCombined = normalizeText(rawLower);
+    const normalizedMatchIdx = normalizedCombined.indexOf(plainQuote);
+    const fallbackStart = normalizedMatchIdx === -1
+      ? -1
+      : mapNormalizedIndexToRaw(rawLower, normalizedMatchIdx);
     if (fallbackStart === -1) {
       return null;
     }
@@ -221,7 +279,7 @@ function findTextRangeInNodeByPlainQuote(
   };
 }
 
-function serializeNodeSubtreeToMarkdown(node: LexicalNode): string {
+function serializeNodeSubtreeToMarkdown(node: LexicalNode, editor: LexicalEditor): string {
   if ($isTextNode(node)) {
     return node.getTextContent();
   }
@@ -229,11 +287,9 @@ function serializeNodeSubtreeToMarkdown(node: LexicalNode): string {
     return node.getTextContent();
   }
 
-  const headlessEditor = createHeadlessEditor("MapMarkdownToLexical");
-
   const rootChildren = node.getType() === "root" && $isElementNode(node)
-    ? node.getChildren().map((child) => child.exportJSON())
-    : [node.exportJSON()];
+    ? node.getChildren().map((child) => exportNodeToJSONRecursive(child))
+    : [exportNodeToJSONRecursive(node)];
   const state = {
     root: {
       children: rootChildren,
@@ -244,13 +300,13 @@ function serializeNodeSubtreeToMarkdown(node: LexicalNode): string {
       version: 1,
     },
   };
-  const parsedState = headlessEditor.parseEditorState(JSON.stringify(state));
-  headlessEditor.setEditorState(parsedState);
+  const parsedState = editor.parseEditorState(JSON.stringify(state));
+  editor.setEditorState(parsedState);
 
   const html = withDomGlobals(() => {
     let generated = "";
-    headlessEditor.getEditorState().read(() => {
-      generated = $generateHtmlFromNodes(headlessEditor, null);
+    editor.getEditorState().read(() => {
+      generated = $generateHtmlFromNodes(editor, null);
     });
     return generated;
   });
@@ -277,21 +333,35 @@ function collectSubtreeNodes(rootNode: LexicalNode): Array<{ node: LexicalNode, 
 /**
  * Build markdown serializations for every node in the subtree rooted at rootNodeKey.
  * Must be called inside a Lexical read/update context.
+ *
+ * When `textFilter` is provided, nodes whose plain-text content clearly cannot
+ * contain the filter string are skipped, avoiding expensive markdown serialization
+ * (JSDOM + Turndown) for non-matching nodes.
  */
-export function buildNodeMarkdownMapForSubtree(rootNodeKey: string): NodeMarkdownMapResult {
+export function buildNodeMarkdownMapForSubtree(rootNodeKey: string, textFilter?: string): NodeMarkdownMapResult {
   const rootNode = $getNodeByKey(rootNodeKey);
   if (!rootNode) {
     return { entries: [], byKey: new Map() };
   }
 
+  const reusableEditor = createHeadlessEditor("MapMarkdownToLexical");
   const entries: NodeMarkdownEntry[] = [];
   const byKey = new Map<string, NodeMarkdownEntry>();
   for (const { node, depth } of collectSubtreeNodes(rootNode)) {
+    if (textFilter) {
+      const textContent = normalizeText(node.getTextContent());
+      // Skip nodes whose text content is non-empty and clearly doesn't contain
+      // the filter. Nodes with empty text content (e.g. decorator/math nodes)
+      // are kept to avoid false negatives.
+      if (textContent && !textContent.includes(textFilter)) {
+        continue;
+      }
+    }
     const entry: NodeMarkdownEntry = {
       key: node.getKey(),
       type: node.getType(),
       depth,
-      markdown: serializeNodeSubtreeToMarkdown(node),
+      markdown: serializeNodeSubtreeToMarkdown(node, reusableEditor),
     };
     entries.push(entry);
     byKey.set(entry.key, entry);
@@ -337,13 +407,14 @@ export function locateMarkdownQuoteSelectionInSubtree({
   mapResult?: NodeMarkdownMapResult
 }): MarkdownQuoteSelectionResult {
   const normalizedQuote = normalizeText(markdownQuote);
-  const normalizedQuoteMarkdownInsensitive = normalizeForMarkdownInsensitiveMatch(markdownQuote);
+  const normalizedQuoteMarkdownInsensitive = toPlainTextFilter(markdownQuote);
   const normalizedQuoteMarkerStyleInsensitive = normalizeForSemanticMatch(markdownQuote);
   if (!normalizedQuote) {
     return { found: false, reason: "Quote was empty after normalization." };
   }
 
-  const mapping = mapResult ?? buildNodeMarkdownMapForSubtree(rootNodeKey);
+  const plainTextFilter = toPlainTextFilter(markdownQuote);
+  const mapping = mapResult ?? buildNodeMarkdownMapForSubtree(rootNodeKey, plainTextFilter);
   if (mapping.entries.length === 0) {
     return { found: false, reason: "No nodes found for subtree." };
   }
@@ -361,7 +432,7 @@ export function locateMarkdownQuoteSelectionInSubtree({
       if (!normalizedQuoteMarkdownInsensitive) {
         return false;
       }
-      return normalizeForMarkdownInsensitiveMatch(markdown).includes(normalizedQuoteMarkdownInsensitive);
+      return toPlainTextFilter(markdown).includes(normalizedQuoteMarkdownInsensitive);
     })
     .sort((a, b) => b.depth - a.depth || a.markdown.length - b.markdown.length);
 
@@ -475,7 +546,8 @@ export function locateMarkdownQuoteSelectionInEditor({
 }): MarkdownQuoteSelectionResult {
   let result: MarkdownQuoteSelectionResult = { found: false, reason: "Editor read did not run." };
   editor.getEditorState().read(() => {
-    const mapResult = buildNodeMarkdownMapForSubtree(rootNodeKey);
+    const plainTextFilter = toPlainTextFilter(markdownQuote);
+    const mapResult = buildNodeMarkdownMapForSubtree(rootNodeKey, plainTextFilter);
     result = locateMarkdownQuoteSelectionInSubtree({ rootNodeKey, markdownQuote, mapResult });
   });
   return result;

@@ -15,6 +15,7 @@ import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/coll
 
 export interface CollaborationConfig {
   postId: string;
+  fieldName?: string;
   /** Async function that fetches a fresh JWT for Hocuspocus authentication.
    * Called on every WebSocket connection attempt (including reconnections),
    * ensuring the token is always valid at connection time. */
@@ -26,6 +27,8 @@ export interface CollaborationConfig {
   /** Called when sync with the server completes. `docId` is 'main' or a sub-doc id like 'comments'. */
   onSynced?: (doc: Doc, isFirstSync: boolean, docId: string) => void;
   onError?: (error: Error) => void;
+  /** Called when WebSocket connection status changes (connected/disconnected/connecting). */
+  onConnectionStatusChange?: (connected: boolean) => void;
 }
 
 export interface CollaboratorIdentity {
@@ -90,6 +93,12 @@ let _collaborationConfig: CollaborationConfig | null = null;
 
 export function setCollaborationConfig(config: CollaborationConfig | null): void {
   _collaborationConfig = config;
+}
+
+function getCollaborationBaseDocumentName(postId: string, fieldName = 'contents'): string {
+  return fieldName === 'contents'
+    ? `post-${postId}`
+    : `post-${postId}/${fieldName}`;
 }
 
 // Track provider and IndexedDB persistence instances so we can clean them up
@@ -199,9 +208,13 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
     throw new Error('[Collaboration] HOCUSPOCUS_URL is not configured. Set the HOCUSPOCUS_URL environment variable at build time.');
   }
 
-  // Document names follow the pattern "post-{postId}" for the main editor,
-  // or "post-{postId}/{subDocId}" for nested editors (captions, etc.).
-  const baseDocumentName = `post-${config.postId}`;
+  // Document names follow the pattern "post-{postId}" for the main contents
+  // editor, "post-{postId}/{fieldName}" for other editable post fields, or
+  // append a further "/{subDocId}" suffix for nested collaboration docs.
+  const baseDocumentName = getCollaborationBaseDocumentName(
+    config.postId,
+    config.fieldName,
+  );
   const documentName = id === 'main' ? baseDocumentName : `${baseDocumentName}/${id}`;
 
   // Initialize persistence if needed.
@@ -232,6 +245,10 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
       // eslint-disable-next-line no-console
       console.error('[Collaboration] Authentication failed:', reason);
       config.onError?.(new Error(`Authentication failed: ${reason}`));
+    },
+
+    onStatus: ({ status }) => {
+      config.onConnectionStatusChange?.(status === 'connected');
     },
   });
 
@@ -293,8 +310,8 @@ export async function disconnectCollaborationForPost(postId: string): Promise<vo
  * originalContents so that revisions created by updatePost (manual save,
  * publish, etc.) also have a restorable Yjs state.
  */
-export function getYjsStateBase64ForPost(postId: string): string | null {
-  const provider = providerInstances.get(`post-${postId}`);
+export function getYjsStateBase64ForPost(postId: string, fieldName = 'contents'): string | null {
+  const provider = providerInstances.get(getCollaborationBaseDocumentName(postId, fieldName));
   if (!provider) return null;
 
   const doc = provider.document;

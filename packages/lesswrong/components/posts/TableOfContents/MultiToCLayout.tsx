@@ -1,7 +1,6 @@
 import classNames from 'classnames';
 import React, { useEffect, useRef } from 'react';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/constants';
-import { fullHeightToCEnabled } from '../../../lib/betas';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
 export const MAX_CONTENT_WIDTH = 720;
@@ -73,8 +72,7 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
   toc: {
     position: 'unset',
     width: 'unset',
-    marginTop: fullHeightToCEnabled() ? -50 : -TOC_OFFSET_TOP,
-    marginBottom: fullHeightToCEnabled() ? undefined : -TOC_OFFSET_BOTTOM,
+    marginTop: -50,
     [theme.breakpoints.down('sm')]:{
       display: "none",
       marginTop: 0,
@@ -112,7 +110,7 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
     paddingLeft: 16,
     textAlign: "left",
     maxHeight: `calc(100vh - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`,
-    height: fullHeightToCEnabled() ? `calc(100vh - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))` : undefined,
+    height: `calc(100vh - var(--fixed-toc-footer-height, ${DEFAULT_FIXED_TOC_COMMENT_COUNT_HEIGHT}px))`,
     overflowY: "auto",
     
     scrollbarWidth: "none", //Firefox-specific
@@ -127,9 +125,7 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
   stickyBlock: {
     // Cancels the direction:rtl in stickyBlockScroller
     direction: "ltr",
-    height: fullHeightToCEnabled() ? "100%" : undefined,
-    paddingTop: fullHeightToCEnabled() ? undefined : TOC_OFFSET_TOP,
-    paddingBottom: fullHeightToCEnabled() ? undefined : TOC_OFFSET_BOTTOM,
+    height: "100%",
   },
   content: {},
   rhs: {},

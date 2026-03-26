@@ -10,10 +10,16 @@ import { FeedPostMetaInfo, DisplayFeedCommentThread, FeedItemSourceType } from '
 import classNames from 'classnames';
 import { useUltraFeedSettings } from '../hooks/useUltraFeedSettings';
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
+import { MixedTypeFeed } from '../common/MixedTypeFeed';
+import { UserContentFeedQuery as SharedUserContentFeedQuery } from '../common/feeds/feedQueries';
+import CommentsNode from '../comments/CommentsNode';
+import RecentDiscussionThread from '../recentDiscussion/RecentDiscussionThread';
+import SingleLineTagUpdates from '../tagging/SingleLineTagUpdates';
 
+// Queries used only by the "top" sort mode fallback
 const USER_POSTS_QUERY = gql(`
   query UserContentFeedPosts($userId: String!, $limit: Int!, $sortedBy: String!) {
-    posts(selector: { userPosts: { userId: $userId, sortedBy: $sortedBy } }, limit: $limit, enableTotal: true) {
+    posts(selector: { userPosts: { userId: $userId, sortedBy: $sortedBy, authorIsUnreviewed: null } }, limit: $limit, enableTotal: true) {
       results {
         ...PostsListWithVotes
       }
@@ -33,6 +39,17 @@ const USER_COMMENTS_QUERY = gql(`
         topLevelComment {
           ...CommentsListWithTopLevelComment
         }
+      }
+      totalCount
+    }
+  }
+`);
+
+const USER_WIKI_EDITS_QUERY = gql(`
+  query UserContentFeedWikiEdits($userId: String!, $limit: Int!) {
+    revisions(selector: { revisionsByUser: { userId: $userId } }, limit: $limit, enableTotal: true) {
+      results {
+        ...RevisionTagFragment
       }
       totalCount
     }
@@ -59,6 +76,7 @@ const THREAD_BY_TOPLEVEL_QUERY = gql(`
     }
   }
 `);
+
 
 export const userContentFeedStyles = defineStyles("UserContentFeed", (theme: ThemeType) => ({
   root: {
@@ -128,12 +146,16 @@ export const userContentFeedStyles = defineStyles("UserContentFeed", (theme: The
     justifyContent: 'center',
     alignItems: 'center',
   },
+  wrapPostItem: {
+  }
 }));
 
-export function UltraFeedPrefetchedThreadItem({ comment, index, feedSettings }: { 
-  comment: CommentItem; 
-  index: number; 
-  feedSettings: UltraFeedSettingsType; 
+// Renders a comment in the feed by fetching its full thread context and displaying
+// the ancestry chain with the focused comment expanded.
+function PrefetchedThreadItem({ comment, index, feedSettings }: {
+  comment: UltraFeedComment;
+  index: number;
+  feedSettings: UltraFeedSettingsType;
 }) {
   const topLevelId = comment.topLevelCommentId ?? comment._id;
   const { data: threadData } = useQuery<UserContentFeedThreadQuery, UserContentFeedThreadQueryVariables>(THREAD_BY_TOPLEVEL_QUERY, {
@@ -149,27 +171,27 @@ export function UltraFeedPrefetchedThreadItem({ comment, index, feedSettings }: 
     const allThreadComments = threadData?.comments?.results ?? [comment];
     const chain: Array<UltraFeedComment> = [];
     const byId: Record<string, UltraFeedComment> = {};
-    
+
     allThreadComments.forEach((c) => {
       byId[c._id] = c;
     });
-    
+
     // Prefer the thread-fetched copy when available so we keep richer fields (e.g. post metadata).
     let current = byId[comment._id] ?? comment;
     const seen = new Set<string>();
-    
+
     while (current) {
       if (seen.has(current._id)) break;
       seen.add(current._id);
       chain.unshift(current);
-      
+
       if (!current.parentCommentId) break;
       current = byId[current.parentCommentId];
     }
-    
+
     return chain;
   }, [threadData?.comments?.results, comment]);
-  
+
   const commentMetaInfos = useMemo(() => {
     const now = new Date();
     return Object.fromEntries(
@@ -188,7 +210,7 @@ export function UltraFeedPrefetchedThreadItem({ comment, index, feedSettings }: 
       ])
     );
   }, [ancestryChain, comment._id]);
-  
+
   const thread: DisplayFeedCommentThread = useMemo(() => ({
     _id: `thread-${comment._id}`,
     comments: ancestryChain,
@@ -208,7 +230,7 @@ export function UltraFeedPrefetchedThreadItem({ comment, index, feedSettings }: 
 
 
 type SortMode = 'recent' | 'top';
-type FilterMode = 'all' | 'posts' | 'quickTakes' | 'comments';
+type FilterMode = 'all' | 'posts' | 'quickTakes' | 'comments' | 'wikiEdits';
 
 interface UserContentFeedProps {
   userId: string;
@@ -221,18 +243,20 @@ interface UserContentFeedProps {
 
 type PostItem = PostsListWithVotes;
 type CommentItem = CommentsList & { post: PostItem | null };
+type WikiEditItem = RevisionTagFragment;
 
-type FeedItem = 
-  | { type: 'post'; data: PostItem; postedAt: Date }
-  | { type: 'comment'; data: CommentItem; postedAt: Date };
+type FeedItem =
+  | { type: 'post'; data: PostItem; sortAt: Date }
+  | { type: 'comment'; data: CommentItem; sortAt: Date }
+  | { type: 'wikiEdit'; data: WikiEditItem; sortAt: Date };
 
-const UserContentFeedItem = ({ item, index, feedSettings }: {
+// Renders a single item in the score-sorted ("top") feed
+function TopSortedFeedItem({ item, index, feedSettings }: {
   item: FeedItem;
   index: number;
   feedSettings: UltraFeedSettingsType;
-}) => {
+}) {
   if (item.type === 'post') {
-    const post = item.data;
     const postMetaInfo: FeedPostMetaInfo = {
       sources: ["subscriptionsPosts"],
       displayStatus: "expanded",
@@ -240,80 +264,201 @@ const UserContentFeedItem = ({ item, index, feedSettings }: {
     };
     return (
       <UltraFeedPostItem
-        post={post}
+        post={item.data}
         postMetaInfo={postMetaInfo}
         index={index}
         settings={feedSettings}
       />
     );
-  } else {
-    const comment = item.data;
+  }
+
+  if (item.type === 'comment') {
     return (
-      <UltraFeedPrefetchedThreadItem
-        comment={comment}
+      <PrefetchedThreadItem
+        comment={item.data}
         index={index}
         feedSettings={feedSettings}
       />
-    );
+    )
   }
-};
 
-const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, externalSortMode, externalFilter, removeSideMargins = false }: UserContentFeedProps) => {
+  const tag = item.data.tag ?? item.data.lens?.parentTag;
+  if (!tag) {
+    return null;
+  }
+
+  return (
+    <SingleLineTagUpdates
+      tag={tag}
+      revisionIds={[item.data._id]}
+      changeMetrics={item.data.changeMetrics}
+      lastRevisedAt={new Date(item.data.editedAt)}
+    />
+  );
+}
+
+// "Recent" mode: uses a server-side resolver that properly interleaves posts and
+// comments by date with cursor-based pagination, so items always appear in
+// chronological order and new pages append at the bottom.
+function RecentFeed({ userId, filter, feedSettings, removeSideMargins }: {
+  userId: string;
+  filter: FilterMode;
+  feedSettings: UltraFeedSettingsType;
+  removeSideMargins: boolean;
+}) {
   const classes = useStyles(userContentFeedStyles);
-  const [internalSortMode, setInternalSortMode] = useState<SortMode>('recent');
-  const sortMode = externalSortMode ?? internalSortMode;
-  const setSortMode = setInternalSortMode;
-  const filter = externalFilter ?? 'all';
+
+  return (
+    <MixedTypeFeed<typeof SharedUserContentFeedQuery>
+      query={SharedUserContentFeedQuery}
+      variables={{ userId, sortBy: "new", filter }}
+      firstPageSize={20}
+      pageSize={20}
+      className={classNames(classes.feedContent, removeSideMargins && classes.feedContentNoSideMargins)}
+      renderers={{
+        userPost: {
+          render: (post, index) => {
+            const postMetaInfo: FeedPostMetaInfo = {
+              sources: ["subscriptionsPosts"],
+              displayStatus: "expanded",
+              highlight: false,
+            };
+            return (
+              <div className={classes.wrapPostItem}>
+                <RecentDiscussionThread
+                  post={post}
+                  cardStyle
+                  refetch={() => {}}
+                  expandAllThreads={false}
+                />
+              </div>
+            );
+          },
+        },
+        profileComment: {
+          render: (comment, index) => (
+            <CommentsNode
+              key={comment._id}
+              treeOptions={{
+                condensed: false,
+                post: comment.post || undefined,
+                //tag: comment.tag || undefined,
+                showPostTitle: true,
+                forceNotSingleLine: true,
+              }}
+              comment={comment}
+              startThreadTruncated={true}
+            />
+          ),
+        },
+        shortformComment: {
+          render: (comment, index) => (
+            <CommentsNode
+              key={comment._id}
+              treeOptions={{
+                condensed: false,
+                post: comment.post || undefined,
+                //tag: comment.tag || undefined,
+                showPostTitle: true,
+                forceNotSingleLine: true,
+              }}
+              comment={comment}
+              startThreadTruncated={true}
+            />
+          ),
+        },
+        wikiEdit: {
+          render: (revision) => {
+            const tag = revision.tag ?? revision.lens?.parentTag;
+            if (!tag) {
+              return null;
+            }
+
+            return (
+              <SingleLineTagUpdates
+                tag={tag}
+                revisionIds={[revision._id]}
+                changeMetrics={revision.changeMetrics}
+                lastRevisedAt={new Date(revision.editedAt)}
+              />
+            );
+          },
+        },
+      }}
+    />
+  );
+}
+
+// "Top" mode: uses the old three-query approach with independent pagination.
+// Score-based sorting doesn't have the same date-range mismatch problem as
+// chronological sorting, so this simpler approach works fine.
+function TopFeed({ userId, filter, feedSettings, removeSideMargins, initialLimit }: {
+  userId: string;
+  filter: FilterMode;
+  feedSettings: UltraFeedSettingsType;
+  removeSideMargins: boolean;
+  initialLimit: number;
+}) {
+  const classes = useStyles(userContentFeedStyles);
   const [loadingMore, setLoadingMore] = useState(false);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
 
-  const skipPosts = filter === 'comments';
-  const skipProfileComments = filter === 'posts' || filter === 'quickTakes';
-  const skipShortformComments = filter === 'posts';
+  const skipPosts = filter === 'comments' || filter === 'wikiEdits';
+  const skipProfileComments = filter === 'posts' || filter === 'quickTakes' || filter === 'wikiEdits';
+  const skipShortformComments = filter === 'posts' || filter === 'wikiEdits';
+  const skipWikiEdits = filter === 'posts' || filter === 'quickTakes' || filter === 'comments';
 
-  const postsSortBy = sortMode === 'recent' ? 'new' : 'top';
-  const commentsSortBy = sortMode === 'recent' ? 'new' : 'top';
-  const shortformSelector = sortMode === 'top'
-    ? ({ topShortform: { userId } })
-    : ({ shortform: { userId } });
-
-  const { 
-    data: postsData, 
-    loading: postsLoading, 
-    loadMoreProps: postsLoadMoreProps 
+  const {
+    data: postsData,
+    loading: postsLoading,
+    loadMoreProps: postsLoadMoreProps
   } = useQueryWithLoadMore(
     USER_POSTS_QUERY,
     {
-      variables: { userId, limit: initialLimit, sortedBy: postsSortBy },
+      variables: { userId, limit: initialLimit, sortedBy: 'top' },
       skip: !userId || skipPosts,
       fetchPolicy: 'cache-and-network',
       itemsPerPage: 10,
     }
   );
 
-  const { 
-    data: profileCommentsData, 
-    loading: profileCommentsLoading, 
-    loadMoreProps: profileCommentsLoadMoreProps 
+  const {
+    data: profileCommentsData,
+    loading: profileCommentsLoading,
+    loadMoreProps: profileCommentsLoadMoreProps
   } = useQueryWithLoadMore(
     USER_COMMENTS_QUERY,
     {
-      variables: { userId, limit: initialLimit, sortBy: commentsSortBy },
+      variables: { userId, limit: initialLimit, sortBy: 'top' },
       skip: !userId || skipProfileComments,
       fetchPolicy: 'cache-and-network',
       itemsPerPage: 10,
     }
   );
 
-  const { 
-    data: shortformCommentsData, 
-    loading: shortformCommentsLoading, 
-    loadMoreProps: shortformCommentsLoadMoreProps 
+  const {
+    data: shortformCommentsData,
+    loading: shortformCommentsLoading,
+    loadMoreProps: shortformCommentsLoadMoreProps
   } = useQueryWithLoadMore(
     COMMENTS_LIST_MULTI_QUERY,
     {
-      variables: { selector: shortformSelector, limit: initialLimit, enableTotal: true },
+      variables: { selector: { topShortform: { userId } }, limit: initialLimit, enableTotal: true },
       skip: !userId || skipShortformComments,
+      fetchPolicy: 'cache-and-network',
+      itemsPerPage: 10,
+    }
+  );
+
+  const {
+    data: wikiEditsData,
+    loading: wikiEditsLoading,
+    loadMoreProps: wikiEditsLoadMoreProps,
+  } = useQueryWithLoadMore<UserContentFeedWikiEditsQuery, UserContentFeedWikiEditsQueryVariables>(
+    USER_WIKI_EDITS_QUERY,
+    {
+      variables: { userId, limit: initialLimit },
+      skip: !userId || skipWikiEdits,
       fetchPolicy: 'cache-and-network',
       itemsPerPage: 10,
     }
@@ -321,13 +466,14 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
 
   const mixedFeed = useMemo(() => {
     const items: FeedItem[] = [];
-    
+
     const posts = skipPosts ? [] : (postsData?.posts?.results ?? []);
     const profileComments = (skipProfileComments ? [] : (profileCommentsData?.comments?.results ?? [])) as CommentItem[];
     const shortformComments = skipShortformComments
       ? []
       : (shortformCommentsData?.comments?.results ?? []).map((comment) => ({ ...comment, post: null })) as CommentItem[];
     const shortformCommentIds = new Set(shortformComments.map((comment) => comment._id));
+    const wikiEdits = skipWikiEdits ? [] : (wikiEditsData?.revisions?.results ?? []);
     const comments: CommentItem[] = (() => {
       if (filter === 'quickTakes') {
         return shortformComments;
@@ -344,7 +490,7 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
       });
       return merged;
     })();
-    
+
     posts.forEach(post => {
       if (!post?.postedAt) return;
       const isShortform = !!post.shortform;
@@ -353,68 +499,65 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
       items.push({
         type: 'post',
         data: post,
-        postedAt: new Date(post.postedAt)
+        sortAt: new Date(post.postedAt)
       });
     });
-    
+
     comments.forEach(comment => {
       if (!comment?.postedAt) return;
       items.push({
         type: 'comment',
         data: comment,
-        postedAt: new Date(comment.postedAt)
+        sortAt: new Date(comment.postedAt)
       });
     });
-    
-    if (sortMode === 'recent') {
-      items.sort((a, b) => b.postedAt.getTime() - a.postedAt.getTime());
-    } else {
-      items.sort((a, b) => {
-        const scoreA = a.data.baseScore ?? 0;
-        const scoreB = b.data.baseScore ?? 0;
-        return scoreB - scoreA;
+
+    wikiEdits.forEach((revision) => {
+      if (!revision?.editedAt) return;
+      items.push({
+        type: 'wikiEdit',
+        data: revision,
+        sortAt: new Date(revision.editedAt),
       });
-    }
-    
+    });
+
+    items.sort((a, b) => {
+      const scoreA = a.data.baseScore ?? 0;
+      const scoreB = b.data.baseScore ?? 0;
+      return scoreB - scoreA;
+    });
+
     return items;
-  }, [postsData, profileCommentsData, shortformCommentsData, sortMode, filter, skipPosts, skipProfileComments, skipShortformComments]);
+  }, [postsData, profileCommentsData, shortformCommentsData, wikiEditsData, filter, skipPosts, skipProfileComments, skipShortformComments, skipWikiEdits]);
 
   const postsHasMore = !skipPosts && !postsLoadMoreProps.hidden;
   const profileCommentsHasMore = !skipProfileComments && !profileCommentsLoadMoreProps.hidden;
   const shortformCommentsHasMore = !skipShortformComments && !shortformCommentsLoadMoreProps.hidden;
-  const hasMoreRemote = postsHasMore || profileCommentsHasMore || shortformCommentsHasMore;
-
-  const { settings: feedSettings } = useUltraFeedSettings();
+  const wikiEditsHasMore = !skipWikiEdits && !wikiEditsLoadMoreProps.hidden;
+  const hasMoreRemote = postsHasMore || profileCommentsHasMore || shortformCommentsHasMore || wikiEditsHasMore;
 
   const handleLoadMore = useCallback(async () => {
     if (loadingMore || !hasMoreRemote) return;
-    
+
     setLoadingMore(true);
     try {
-      // Load more from both queries in parallel
       const promises = [];
-      if (postsHasMore) {
-        promises.push(postsLoadMoreProps.loadMore());
-      }
-      if (profileCommentsHasMore) {
-        promises.push(profileCommentsLoadMoreProps.loadMore());
-      }
-      if (shortformCommentsHasMore) {
-        promises.push(shortformCommentsLoadMoreProps.loadMore());
-      }
+      if (postsHasMore) promises.push(postsLoadMoreProps.loadMore());
+      if (profileCommentsHasMore) promises.push(profileCommentsLoadMoreProps.loadMore());
+      if (shortformCommentsHasMore) promises.push(shortformCommentsLoadMoreProps.loadMore());
+      if (wikiEditsHasMore) promises.push(wikiEditsLoadMoreProps.loadMore());
       await Promise.all(promises);
     } finally {
       setLoadingMore(false);
     }
-  }, [loadingMore, hasMoreRemote, postsHasMore, profileCommentsHasMore, shortformCommentsHasMore, postsLoadMoreProps, profileCommentsLoadMoreProps, shortformCommentsLoadMoreProps]);
+  }, [loadingMore, hasMoreRemote, postsHasMore, profileCommentsHasMore, shortformCommentsHasMore, wikiEditsHasMore, postsLoadMoreProps, profileCommentsLoadMoreProps, shortformCommentsLoadMoreProps, wikiEditsLoadMoreProps]);
 
   // Set up infinite scroll
   useEffect(() => {
     if (!sentinelRef.current) return;
-    
-    const rootEl = scrollContainerRef?.current ?? null;
+
     const sentinel = sentinelRef.current;
-    
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting && !loadingMore && hasMoreRemote) {
@@ -422,35 +565,56 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
         }
       },
       {
-        root: rootEl,
         rootMargin: '200px',
         threshold: 0,
       }
     );
-    
+
     observer.observe(sentinel);
     return () => observer.disconnect();
-  }, [scrollContainerRef, loadingMore, handleLoadMore, hasMoreRemote]);
+  }, [loadingMore, handleLoadMore, hasMoreRemote]);
 
+  const isInitialLoading = (
+    (!skipPosts && postsLoading) ||
+    (!skipProfileComments && profileCommentsLoading) ||
+    (!skipShortformComments && shortformCommentsLoading) ||
+    (!skipWikiEdits && wikiEditsLoading)
+  ) && mixedFeed.length === 0;
 
+  if (isInitialLoading) {
+    return <div className={classes.loading}><Loading /></div>;
+  }
 
+  return (
+    <div className={classNames(classes.feedContent, removeSideMargins && classes.feedContentNoSideMargins)}>
+      {mixedFeed.map((item, index) => (
+        <TopSortedFeedItem
+          key={`${item.type}-${item.data._id}`}
+          item={item}
+          index={index}
+          feedSettings={feedSettings}
+        />
+      ))}
+      {hasMoreRemote && <div ref={sentinelRef} style={{height: 1}} />}
+      {loadingMore && <div className={classes.loading}><Loading /></div>}
+    </div>
+  );
+}
+
+const UserContentFeed = ({ userId, initialLimit = 10, externalSortMode, externalFilter, removeSideMargins = false }: UserContentFeedProps) => {
+  const classes = useStyles(userContentFeedStyles);
+  const [internalSortMode, setInternalSortMode] = useState<SortMode>('recent');
+  const sortMode = externalSortMode ?? internalSortMode;
+  const setSortMode = setInternalSortMode;
+  const filter = externalFilter ?? 'all';
+
+  const { settings: feedSettings } = useUltraFeedSettings();
 
   const handleSortModeChange = useCallback((newMode: SortMode) => {
     if (newMode !== sortMode) {
       setSortMode(newMode);
     }
   }, [sortMode, setSortMode]);
-
-  const isInitialLoading = (
-    (!skipPosts && postsLoading) ||
-    (!skipProfileComments && profileCommentsLoading) ||
-    (!skipShortformComments && shortformCommentsLoading)
-  ) && mixedFeed.length === 0;
-  const hasNoContent = !isInitialLoading && mixedFeed.length === 0;
-
-  if (hasNoContent) {
-    return null;
-  }
 
   return (
     <div className={classes.root}>
@@ -497,21 +661,22 @@ const UserContentFeed = ({ userId, initialLimit = 10, scrollContainerRef, extern
           </div>
         </div>
       )}
-      {isInitialLoading && <div className={classes.loading}>
-        <Loading />
-      </div>}
-      {!isInitialLoading && <div className={classNames(classes.feedContent, removeSideMargins && classes.feedContentNoSideMargins)}>
-        {mixedFeed.map((item, index) => (
-          <UserContentFeedItem 
-            key={item.type === 'post' ? `post-${item.data._id}` : `comment-${item.data._id}`}
-            item={item} 
-            index={index} 
-            feedSettings={feedSettings} 
-          />
-        ))}
-        {hasMoreRemote && <div ref={sentinelRef} style={{height: 1}} />}
-        {loadingMore && <div className={classes.loading}><Loading /></div>}
-      </div>}
+      {sortMode === 'recent' ? (
+        <RecentFeed
+          userId={userId}
+          filter={filter}
+          feedSettings={feedSettings}
+          removeSideMargins={removeSideMargins}
+        />
+      ) : (
+        <TopFeed
+          userId={userId}
+          filter={filter}
+          feedSettings={feedSettings}
+          removeSideMargins={removeSideMargins}
+          initialLimit={initialLimit}
+        />
+      )}
     </div>
   );
 };

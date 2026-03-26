@@ -1,15 +1,15 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { slugify } from '@/lib/utils/slugify';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FormGroupLayout', (theme: ThemeType) => ({
   formSection: {
     fontFamily: theme.typography.fontFamily,
     border: theme.palette.border.grey300,
     marginBottom: 8,
-    background: theme.palette.background.pageActiveAreaBackground,
-    ...(theme.isFriendlyUI ? {borderRadius: 6} : {})
+    background: theme.palette.background.pageActiveAreaBackground
   },
   formSectionBody: {
     paddingTop: 8,
@@ -32,7 +32,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: "baseline",
     flexWrap: "wrap"
   }
-});
+}));
 
 export interface FormGroupLayoutProps {
   children: React.ReactNode;
@@ -53,19 +53,9 @@ export interface FormGroupLayoutProps {
  * can be overriden by specifying a `layoutComponent` on the form group, or by setting the `formComponents` prop
  * on a form.
  */
-const FormGroupLayout = ({
-  children,
-  label,
-  heading,
-  footer,
-  collapsed,
-  hasErrors,
-  groupStyling,
-  paddingStyling,
-  flexStyling,
-  flexAlignTopStyling,
-  classes
-}: FormGroupLayoutProps & { classes: ClassesType<typeof styles> }) => {
+const FormGroupLayout = ({children, label, heading, footer, collapsed, hasErrors, groupStyling, paddingStyling, flexStyling, flexAlignTopStyling}: FormGroupLayoutProps) => {
+  const classes = useStyles(styles);
+
   return (
     <div
       className={classNames(
@@ -90,6 +80,6 @@ const FormGroupLayout = ({
   );
 };
 
-export default registerComponent('FormGroupLayout', FormGroupLayout, {styles});
+export default FormGroupLayout;
 
 

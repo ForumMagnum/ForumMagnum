@@ -17,6 +17,8 @@ import { type AbstractThemeOptions, abstractThemeToConcrete, themeOptionsAreConc
 import { getForumTheme } from "@/themes/forumTheme";
 import { classNameProxy, defineStyles } from "./defineStyles";
 
+export type RegisterComponentStyles = StyleDefinition<any>;
+
 export type StylesContextType = {
   initialTheme: ThemeType
   stylesAwaitingServerInjection: StyleDefinition[]
@@ -196,7 +198,49 @@ export const withStyles = <T extends {classes: any}>(styles: StyleDefinition, Co
     const { classes: classesOverrides } = props;
     const classes = useStyles(styles, classesOverrides);
     return <Component ref={ref} {...props} classes={classes} />
-  }) as unknown as React.ForwardRefExoticComponent<Omit<T, "classes"> & { classes?: Partial<T["classes"]> } & React.RefAttributes<any>>;
+  }) as unknown as React.ForwardRefExoticComponent<Omit<T, "classes"> & { classes?: Partial<T["classes"]>; } & React.RefAttributes<any>>;
+};
+
+function getNormalizedStyleOptionValue(
+  options: StyleOptions|undefined,
+  key: keyof StyleOptions
+) {
+  switch (key) {
+    case "stylePriority":
+      return options?.stylePriority ?? 0;
+    case "allowNonThemeColors":
+      return options?.allowNonThemeColors ?? false;
+  }
+}
+
+function validateRegisterComponentStyles(
+  styles: StyleDefinition,
+  componentName: string,
+  options?: StyleOptions,
+) {
+  if (styles.name !== componentName) {
+    throw new Error(`registerComponent("${componentName}") received styles for "${styles.name}"`);
+  }
+
+  for (const key of ["stylePriority", "allowNonThemeColors"] as const) {
+    const styleDefinitionValue = getNormalizedStyleOptionValue(styles.options, key);
+    const registerComponentValue = getNormalizedStyleOptionValue(options, key);
+    if (styleDefinitionValue !== registerComponentValue) {
+      throw new Error(
+        `registerComponent("${componentName}") received mismatched ${key}: `+
+        `styles=${String(styleDefinitionValue)} registerComponent=${String(registerComponentValue)}`
+      );
+    }
+  }
+}
+
+function getStyleDefinitionForRegisterComponent(
+  styles: RegisterComponentStyles,
+  name: string,
+  options?: StyleOptions,
+): StyleDefinition {
+  validateRegisterComponentStyles(styles, name, options);
+  return styles;
 }
 
 export function getClassName<T extends StyleDefinition>(
@@ -207,11 +251,11 @@ export function getClassName<T extends StyleDefinition>(
 }
 
 export const withAddClasses = (
-  styles: (theme: ThemeType) => JssStyles,
+  styles: RegisterComponentStyles,
   name: string,
   options?: StyleOptions,
 ) => {
-  const styleDefinition = defineStyles(name, styles, options);
+  const styleDefinition = getStyleDefinitionForRegisterComponent(styles, name, options);
 
   return (Component: AnyBecauseHard) => {
     return function AddClassesHoc(props: AnyBecauseHard) {
@@ -253,7 +297,7 @@ function createAndInsertStyleNode(theme: ThemeType, styleDefinition: StyleDefini
 
 function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): string {
   const sheets = new SheetsRegistry()
-  
+
   const jss = getJss();
   const sheet = jss.createStyleSheet(
     styleDefinition.styles(theme), {
@@ -270,47 +314,6 @@ function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): 
 }
 
 
-// JSON-serialized theme => style name => style script tag
-const serverEmbeddedStylesCache: Record<string, Record<string,string>> = {};
-
-export function serverEmbeddedStyles(abstractThemeOptions: AbstractThemeOptions, styleDefinitions: StyleDefinition[]) {
-  const themeKey = JSON.stringify(abstractThemeOptions);
-
-  if (!serverEmbeddedStylesCache[themeKey]) {
-    serverEmbeddedStylesCache[themeKey] = {};
-  }
-  
-  const result: string[] = [];
-  for (const styleDefinition of styleDefinitions) {
-    const styleName = styleDefinition.name;
-    if (!serverEmbeddedStylesCache[themeKey][styleName]) {
-      const priority = styleDefinition.options?.stylePriority ?? 0;
-  
-      if (themeOptionsAreConcrete(abstractThemeOptions)) {
-        const theme = getForumTheme(abstractThemeOptions);
-        const stylesStr = styleNodeToString(theme, styleDefinition);
-        const priority = styleDefinition.options?.stylePriority ?? 0;
-        const styleScriptTag = `_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})`;
-        serverEmbeddedStylesCache[themeKey][styleName] = styleScriptTag;
-      } else {
-        const lightThemeOptions = abstractThemeToConcrete(abstractThemeOptions, false);
-        const darkThemeOptions = abstractThemeToConcrete(abstractThemeOptions, true);
-        const lightTheme = getForumTheme(lightThemeOptions);
-        const darkTheme = getForumTheme(darkThemeOptions);
-        const lightStylesStr = styleNodeToString(lightTheme, styleDefinition);
-        const darkStylesStr = styleNodeToString(darkTheme, styleDefinition);
-        const stylesStr = (lightStylesStr === darkStylesStr)
-          ? lightStylesStr
-          : `@media (prefers-color-scheme: light) {\n${lightStylesStr}\n}\n@media (prefers-color-scheme: dark) {\n${darkStylesStr}\n}`
-        const styleScriptTag = `_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})`;
-        serverEmbeddedStylesCache[themeKey][styleName] = styleScriptTag;
-      }
-    }
-    result.push(serverEmbeddedStylesCache[themeKey][styleName]);
-  }
-  return result.join(";");
-}
-
 export function getJss() {
   return jssCreate({
     plugins: [
@@ -323,7 +326,6 @@ export function getJss() {
     ],
   });
 }
-
 
 /**
  * Takes a detached style element, and inserts it into the DOM as a child of
@@ -358,7 +360,7 @@ function insertStyleNodeAtCorrectPosition(styleNode: HTMLStyleElement, name: str
     const midNode = styleNodes[mid] as HTMLStyleElement;
     const midPriority = parseInt(midNode.getAttribute('data-priority') || '0', 10);
     const midName = midNode.getAttribute('data-name') || '';
-  
+    
     if (midPriority < priority || (midPriority === priority && midName < name)) {
       left = mid + 1;
     } else if (midPriority > priority || (midPriority === priority && midName > name)) {

@@ -20,8 +20,8 @@ const styles = defineStyles("SettingsColumn", (theme: ThemeType) => ({
     '&&': {
       // Increase specifity to remove import-order conflict with MetaInfo
       display: "block",
-      fontStyle: theme.isFriendlyUI ? undefined : "italic",
-      fontWeight: theme.isFriendlyUI ? undefined : 600,
+      fontStyle: "italic",
+      fontWeight: 600,
       marginBottom: 4
     },
   },

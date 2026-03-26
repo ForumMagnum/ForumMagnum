@@ -1,12 +1,13 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { useLocation } from '../../lib/routeUtil';
 import { CommentTreeNode } from '../../lib/utils/unflatten';
 import Answer from "./Answer";
 import SectionTitle from "../common/SectionTitle";
 import AnswersSorting from "./AnswersSorting";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AnswersList', (theme: ThemeType) => ({
   root: {
     width: 650 + (32),
     [theme.breakpoints.down('md')]: {
@@ -20,23 +21,18 @@ const styles = (theme: ThemeType) => ({
   },
   answersSorting:{
     ...theme.typography.body1,
-    color: theme.palette.text.secondary,
-    ...(theme.isFriendlyUI
-      ? {
-        fontFamily: theme.palette.fonts.sansSerifStack,
-      }
-      : {}),
+    color: theme.palette.text.secondary
   },
   loading: {
     opacity: .5,
   },
-})
+}))
 
-const AnswersList = ({post, answersTree, classes}: {
+const AnswersList = ({post, answersTree}: {
   post: PostsList,
   answersTree: CommentTreeNode<CommentsList>[],
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const location = useLocation();
   const { query } = location;
   if (answersTree?.length) {
@@ -63,6 +59,6 @@ const AnswersList = ({post, answersTree, classes}: {
   }
 };
 
-export default registerComponent('AnswersList', AnswersList, {styles});
+export default AnswersList;
 
 

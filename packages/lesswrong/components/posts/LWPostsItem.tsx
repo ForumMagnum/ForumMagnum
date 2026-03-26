@@ -79,7 +79,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   background: {
     width: "100%",
     background: theme.palette.panelBackground.default,
-    ...(theme.isBookUI && theme.dark && {
+    ...(theme.dark && {
       background: theme.palette.panelBackground.bannerAdTranslucent,
       backdropFilter: theme.palette.filters.bannerAdBlur,
       ...isIfAnyoneBuildsItFrontPage({
@@ -112,7 +112,7 @@ export const styles = defineStyles("LWPostsItem", (theme: ThemeType) => ({
   withGrayHover: {
     '&:hover': {
       backgroundColor: theme.palette.panelBackground.postsItemHover,
-      ...(theme.isBookUI && theme.dark && {
+      ...(theme.dark && {
         backgroundColor: theme.palette.panelBackground.bannerAdTranslucentHeavy,
       }),
     },
@@ -696,5 +696,3 @@ export default registerComponent('LWPostsItem', LWPostsItem, {
     terms: "deep",
   },
 });
-
-

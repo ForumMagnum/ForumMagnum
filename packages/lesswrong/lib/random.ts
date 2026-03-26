@@ -1,5 +1,6 @@
 import { isServer } from "./executionEnvironment";
 import seedrandom from "./seedrandom";
+import orderBy from "lodash/orderBy";
 
 // Excludes 0O1lIUV
 const unmistakableChars = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTWXYZ23456789";
@@ -82,5 +83,6 @@ export const randomSecret = () => {
 
 export const seededShuffle = <T>(array: T[], seed: string): T[] => {
   const rng = seedrandom(seed);
-  return [...array].sort(() => rng() - 0.5);
-}
+  // Assign a random key to each element for reproducible shuffling
+  return orderBy(array, () => rng());
+};

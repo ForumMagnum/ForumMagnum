@@ -23,6 +23,8 @@ import SunshineNewUsersInfo from "./SunshineNewUsersInfo";
 import UsersName from "../users/UsersName";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostSunshineReportedItem1($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -54,7 +56,7 @@ const UnclaimedReportsListUpdateMutation = gql(`
   }
 `);
 
-const styles = (_theme: ThemeType) => ({
+const styles = defineStyles('SunshineReportedItem', (_theme: ThemeType) => ({
   reportedUser: {
     display: 'inline-flex',
     alignItems: 'center',
@@ -67,14 +69,14 @@ const styles = (_theme: ThemeType) => ({
   postTitle: {
     fontSize: 28,
   }
-});
+}));
 
-const SunshineReportedItem = ({report, classes, currentUser, refetch}: {
+const SunshineReportedItem = ({report, currentUser, refetch}: {
   report: UnclaimedReportsList,
-  classes: ClassesType<typeof styles>,
   currentUser: UsersCurrent,
   refetch: () => void
 }) => {
+  const classes = useStyles(styles);
   const { hover, anchorEl, eventHandlers } = useHover();
   const [updateReport] = useMutation(UnclaimedReportsListUpdateMutation);
   const [updateComment] = useMutation(CommentsListWithParentMetadataUpdateMutation);
@@ -185,5 +187,5 @@ const SunshineReportedItem = ({report, classes, currentUser, refetch}: {
 }
 
 export default registerComponent('SunshineReportedItem', SunshineReportedItem, {
-  styles, hocs: [withErrorBoundary]
+  hocs: [withErrorBoundary]
 });

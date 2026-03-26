@@ -1,32 +1,26 @@
 import React, { MouseEvent, useState, useCallback, useRef, useEffect } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import CommentsNewForm, {
   CommentCancelCallback,
   CommentSuccessCallback } from "../comments/CommentsNewForm";
 import classNames from "classnames";
-import { isFriendlyUI } from "../../themes/forumTheme";
 import { useDialog } from "../common/withDialog";
 import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
 import LoginPopup from "../users/LoginPopup";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const COLLAPSED_HEIGHT = 40;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("QuickTakesEntry", (theme: ThemeType) => ({
   root: {
-    background: theme.palette.panelBackground.default,
-    border: `1px solid ${theme.palette.grey[200]}`,
-    ...(theme.isBookUI && {
-      background: theme.palette.panelBackground.bannerAdTranslucentStrong,
-      border: "none",
-    }),
+    background: theme.palette.panelBackground.bannerAdTranslucentStrong,
+    border: "none",
     borderRadius: theme.borderRadius.quickTakesEntry,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
   commentEditor: {
     "& .ck-placeholder": {
-      marginTop: theme.isFriendlyUI ? "-3px !important" : undefined,
       "&::before": {
-        color: theme.isFriendlyUI ? theme.palette.grey[600] : undefined,
         fontFamily: theme.palette.fonts.sansSerifStack,
         fontSize: 14,
         fontWeight: 500,
@@ -79,7 +73,7 @@ const styles = (theme: ThemeType) => ({
     '& .ck .ck-placeholder': {
       position: 'unset'
     },
-    '& .CommentSubmit-submitQuickTakes': {
+    '& .CommentSubmit-submit': {
       display: 'none'
     }
   },
@@ -91,21 +85,12 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     fontStyle: 'italic',
   },
-});
+}));
 
 // TODO: decide on copy for LW
 const placeholder = "Share exploratory, draft-stage, rough thoughts...";
 
-const QuickTakesEntry = ({
-  currentUser,
-  defaultExpanded = false,
-  defaultFocus = false,
-  submitButtonAtBottom = false,
-  className,
-  successCallback,
-  cancelCallback,
-  classes,
-}: {
+const QuickTakesEntry = ({currentUser, defaultExpanded = false, defaultFocus = false, submitButtonAtBottom = false, className, successCallback, cancelCallback}: {
   currentUser: UsersCurrent | null,
   defaultExpanded?: boolean,
   defaultFocus?: boolean,
@@ -113,8 +98,8 @@ const QuickTakesEntry = ({
   className?: string,
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const ref = useRef<HTMLDivElement>(null);
   const { openDialog } = useDialog();
   const [expanded, setExpanded] = useState(defaultExpanded);
@@ -160,17 +145,8 @@ const QuickTakesEntry = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // TODO: The editor is currently pretty messed up if the user has enabled
-  // the markdown editor in their user settings, unless we're positioning the
-  // submit button at the bottom. For now, we just disable the editor in this
-  // case but we probably want to fix this properly in the long run. This is a
-  // pretty small percentage of users, so seems ~fine.
-  if (currentUser?.markDownPostEditor && !submitButtonAtBottom) {
-    return null;
-  }
-
   // is true when user is logged out or has not been reviewed yet, i.e. has made no contributions yet
-  const showNewUserMessage = !currentUser?.reviewedByUserId && !isFriendlyUI();
+  const showNewUserMessage = !currentUser?.reviewedByUserId;
   return <div className={classNames(classes.root, className)} ref={ref}>
     {/* TODO: Write a better message for new users */}
     {expanded && showNewUserMessage && <div className={classes.userNotApprovedMessage}>Quick Takes is an excellent place for your first contribution!</div>}
@@ -200,10 +176,6 @@ const QuickTakesEntry = ({
   </div>
 }
 
-export default registerComponent(
-  "QuickTakesEntry",
-  QuickTakesEntry,
-  {styles},
-);
+export default QuickTakesEntry;
 
 

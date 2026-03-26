@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useCallback } from 'react'
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useQuery } from "@/lib/crud/useQuery";
