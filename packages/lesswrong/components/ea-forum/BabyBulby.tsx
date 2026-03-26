@@ -11,15 +11,15 @@ import LoginPopup from "../users/LoginPopup";
 import { useCookiePreferences } from "../hooks/useCookiesWithConsent";
 import { useConcreteThemeOptions } from "../themes/useTheme";
 import {
-  sitePetAnimations,
-  sitePetSpritePalette,
-  type SitePetSpriteGridValue,
-} from "./sitePetSprites";
+  babyBulbyAnimations,
+  babyBulbySpritePalette,
+  type BabyBulbySpriteGridValue,
+} from "./babyBulbySprites";
 
-const LEGACY_STORAGE_KEY_PREFIX = "sitePet:v1:";
-const STORAGE_KEY_PREFIX = "sitePet:v2:";
-const PET_WIDTH = 108;
-const PET_HEIGHT = 152;
+const BABY_BULBY_STORAGE_KEY_PREFIX = "babyBulby:v2:";
+const LEGACY_BABY_BULBY_STORAGE_KEY_PREFIXES = ["sitePet:v2:", "sitePet:v1:"] as const;
+const BABY_BULBY_WIDTH = 108;
+const BABY_BULBY_HEIGHT = 152;
 const SPRITE_SIZE = 18;
 const SPRITE_DISPLAY_SIZE = 96;
 const EDGE_MARGIN = 0;
@@ -28,13 +28,15 @@ const DESKTOP_BOTTOM_MARGIN = 24;
 const COOKIE_BANNER_OFFSET_MOBILE = 160;
 const COOKIE_BANNER_OFFSET_DESKTOP = 88;
 const DRAG_THRESHOLD = 6;
-const HUNGER_DECAY_DURATION_MS = 15 * 60 * 1000;
+const HUNGER_DECAY_DURATION_MS = 5 * 60 * 1000;
 const HUNGER_LIVE_UPDATE_INTERVAL_MS = 15 * 1000;
 const HUNGER_PAUSE_AFTER_EATING_MS = 30 * 1000;
 const HUNGER_MAX = 100;
 const HUNGER_DEFAULT = 100;
 const HUNGER_SEGMENT_COUNT = 10;
 const HUNGER_SEGMENT_VALUE = HUNGER_MAX / HUNGER_SEGMENT_COUNT;
+const HUNGER_WARNING_SEGMENT_THRESHOLD = 3;
+const HUNGER_METER_DELTA_DURATION_MS = 800;
 const HUNGER_REFILL_MULTIPLIER = 4;
 const HUNGER_REFILL_MIN = 3;
 const HUNGER_REFILL_MAX = 30;
@@ -45,8 +47,8 @@ const EATING_ANIMATION_ROUTE_NAMES = new Set([
   "sequencesPost",
 ]);
 
-const SITE_PET_POST_METRICS_QUERY = gql`
-  query SitePetPostMetrics($input: SinglePostInput) {
+const BABY_BULBY_POST_METRICS_QUERY = gql`
+  query BabyBulbyPostMetrics($input: SinglePostInput) {
     post(input: $input) {
       result {
         _id
@@ -63,25 +65,31 @@ type Position = {
   y: number,
 };
 
-type SitePetVariant = "egg" | "pet";
-type SitePetAnimationMode = "idle" | "eating" | "happy" | "refuse" | "dead";
+type BabyBulbyStage = "egg" | "bulby";
+type BabyBulbyAnimationMode = "idle" | "eating" | "happy" | "refuse" | "shatterDeath" | "dead";
 type HungerSnapshot = {
   hunger: number,
   hungerUpdatedAt: number,
 };
-type SitePetStoredState = Position & {
+type HungerMeterDelta = {
+  direction: "up" | "down",
+  amount: number,
+  changedSegmentIndexes: number[],
+  useWarningColor: boolean,
+};
+type BabyBulbyStoredState = Position & {
   hunger?: number,
   hungerUpdatedAt?: string,
   lastFedPostKey?: string,
 };
-type SitePetPostMetrics = {
+type BabyBulbyPostMetrics = {
   _id: string,
   tagRelevance: Record<string, number> | null,
   readTimeMinutes: number,
 };
-type SitePetPostMetricsQueryResult = {
+type BabyBulbyPostMetricsQueryResult = {
   post?: {
-    result?: SitePetPostMetrics | null,
+    result?: BabyBulbyPostMetrics | null,
   } | null,
 };
 
@@ -97,15 +105,65 @@ const styles = (theme: ThemeType) => ({
       opacity: 1,
     },
   },
+  "@keyframes hunger-segment-gain": {
+    "0%": {
+      opacity: 0.5,
+      transform: "scale(0.82)",
+      filter: "brightness(1.35)",
+    },
+    "50%": {
+      opacity: 1,
+      transform: "scale(1.08)",
+      filter: "brightness(1.15)",
+    },
+    "100%": {
+      opacity: 1,
+      transform: "scale(1)",
+      filter: "brightness(1)",
+    },
+  },
+  "@keyframes hunger-segment-loss": {
+    "0%": {
+      opacity: 1,
+      transform: "scale(1)",
+    },
+    "35%": {
+      opacity: 0.2,
+    },
+    "60%": {
+      opacity: 1,
+    },
+    "100%": {
+      opacity: 0,
+      transform: "scale(0.88)",
+    },
+  },
+  "@keyframes hunger-delta-fade": {
+    "0%": {
+      opacity: 0,
+      transform: "translateY(1px)",
+    },
+    "20%": {
+      opacity: 1,
+      transform: "translateY(0)",
+    },
+    "100%": {
+      opacity: 0,
+      transform: "translateY(-1px)",
+    },
+  },
   root: {
     position: "fixed",
     left: 0,
     top: 0,
-    zIndex: theme.zIndexes.sitePet,
+    zIndex: theme.zIndexes.babyBulby,
     pointerEvents: "auto",
     transition: "transform 180ms ease-out",
   },
   rootDragging: {
+    transition: "none",
+  },
+  rootStatic: {
     transition: "none",
   },
   rootHidden: {
@@ -116,7 +174,7 @@ const styles = (theme: ThemeType) => ({
     border: "none",
     background: "transparent",
     padding: 0,
-    width: PET_WIDTH,
+    width: BABY_BULBY_WIDTH,
     cursor: "grab",
     touchAction: "none",
     userSelect: "none",
@@ -132,7 +190,7 @@ const styles = (theme: ThemeType) => ({
   },
   artFrame: {
     position: "relative",
-    width: PET_WIDTH,
+    width: BABY_BULBY_WIDTH,
     height: 110,
     display: "flex",
     alignItems: "center",
@@ -145,6 +203,13 @@ const styles = (theme: ThemeType) => ({
     gap: 4,
     marginTop: -2,
   },
+  hungerLabelRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 6,
+    alignSelf: "flex-start",
+    minHeight: 10,
+  },
   hungerLabel: {
     fontSize: 10,
     lineHeight: "10px",
@@ -153,7 +218,19 @@ const styles = (theme: ThemeType) => ({
     textTransform: "uppercase",
     letterSpacing: 0.6,
     color: theme.palette.type === "dark" ? theme.palette.text.alwaysWhite : theme.palette.grey[700],
-    alignSelf: "flex-start",
+  },
+  hungerDelta: {
+    fontSize: 10,
+    lineHeight: "10px",
+    fontFamily: "monospace",
+    fontWeight: 700,
+    animation: `hunger-delta-fade ${HUNGER_METER_DELTA_DURATION_MS}ms steps(4, end) forwards`,
+  },
+  hungerDeltaUp: {
+    color: theme.palette.primary.main,
+  },
+  hungerDeltaDown: {
+    color: babyBulbySpritePalette.heart,
   },
   hungerTrack: {
     width: "100%",
@@ -166,13 +243,25 @@ const styles = (theme: ThemeType) => ({
     boxSizing: "border-box",
     border: `1px solid ${theme.palette.type === "dark" ? theme.palette.grey[500] : theme.palette.grey[400]}`,
     background: "transparent",
+    cursor: "pointer",
+    transformOrigin: "center",
   },
-  hungerSegmentFilled: {
-    background: sitePetSpritePalette.heart,
-    borderColor: sitePetSpritePalette.heart,
+  hungerSegmentFilledHealthy: {
+    background: theme.palette.primary.main,
+    borderColor: theme.palette.primary.main,
+  },
+  hungerSegmentFilledWarning: {
+    background: babyBulbySpritePalette.heart,
+    borderColor: babyBulbySpritePalette.heart,
   },
   hungerSegmentWarning: {
     animation: "hunger-warning-flash .8s steps(2, end) infinite",
+  },
+  hungerSegmentGain: {
+    animation: `hunger-segment-gain ${HUNGER_METER_DELTA_DURATION_MS}ms steps(4, end)`,
+  },
+  hungerSegmentLoss: {
+    animation: `hunger-segment-loss ${HUNGER_METER_DELTA_DURATION_MS}ms steps(4, end) forwards`,
   },
   srOnly: {
     border: 0,
@@ -197,12 +286,12 @@ const isValidPosition = (value: unknown): value is Position => {
   return typeof maybePosition.x === "number" && typeof maybePosition.y === "number";
 };
 
-const isValidStoredState = (value: unknown): value is SitePetStoredState => {
+const isValidStoredState = (value: unknown): value is BabyBulbyStoredState => {
   if (!isValidPosition(value)) {
     return false;
   }
 
-  const maybeState = value as Partial<SitePetStoredState>;
+  const maybeState = value as Partial<BabyBulbyStoredState>;
   const hasValidHunger = maybeState.hunger === undefined || typeof maybeState.hunger === "number";
   const hasValidTimestamp = maybeState.hungerUpdatedAt === undefined || typeof maybeState.hungerUpdatedAt === "string";
   const hasValidLastFedKey = maybeState.lastFedPostKey === undefined || typeof maybeState.lastFedPostKey === "string";
@@ -227,6 +316,16 @@ const getDecayedHunger = ({ hunger, hungerUpdatedAt }: HungerSnapshot, now: numb
   return clampHunger(hunger - decay);
 };
 
+const getAwayClampedHunger = (snapshot: HungerSnapshot, now: number) => {
+  if (snapshot.hunger <= 0) {
+    return 0;
+  }
+
+  const decayedHunger = getDecayedHunger(snapshot, now);
+  const minimumAwayHunger = Math.min(snapshot.hunger, HUNGER_SEGMENT_VALUE);
+  return Math.max(decayedHunger, minimumAwayHunger);
+};
+
 const parseStoredTimestamp = (value: string | undefined, fallback: number) => {
   if (!value) {
     return fallback;
@@ -244,16 +343,6 @@ const getHungerRefill = (readTimeMinutes: number | null | undefined) => {
   return Math.min(HUNGER_REFILL_MAX, Math.max(HUNGER_REFILL_MIN, readTimeMinutes * HUNGER_REFILL_MULTIPLIER));
 };
 
-const getHungerAfterFeeding = (currentHunger: number, refill: number) => {
-  if (currentHunger >= HUNGER_MAX) {
-    return HUNGER_MAX;
-  }
-
-  const currentFilledSegments = Math.floor(currentHunger / HUNGER_SEGMENT_VALUE);
-  const minimumVisibleIncrease = Math.min(HUNGER_MAX, (currentFilledSegments + 1) * HUNGER_SEGMENT_VALUE);
-  return clampHunger(Math.max(currentHunger + refill, minimumVisibleIncrease));
-};
-
 const getFilledHungerSegments = (hunger: number | null) => {
   if (hunger === null || hunger <= 0) {
     return 0;
@@ -262,21 +351,51 @@ const getFilledHungerSegments = (hunger: number | null) => {
   return clamp(Math.ceil(hunger / HUNGER_SEGMENT_VALUE), 1, HUNGER_SEGMENT_COUNT);
 };
 
-const renderSpriteGrid = (grid: SitePetSpriteGridValue[][], isDarkMode: boolean) => [
+const getHungerAfterFeeding = (currentHunger: number, refill: number) => {
+  if (currentHunger >= HUNGER_MAX) {
+    return HUNGER_MAX;
+  }
+
+  const currentFilledSegments = getFilledHungerSegments(currentHunger);
+  const minimumVisibleIncrease = currentFilledSegments === 0
+    ? 1
+    : Math.min(HUNGER_MAX, (currentFilledSegments * HUNGER_SEGMENT_VALUE) + 1);
+  return clampHunger(Math.max(currentHunger + refill, minimumVisibleIncrease));
+};
+
+const getChangedSegmentIndexes = (previousFilledSegments: number, nextFilledSegments: number) => {
+  if (previousFilledSegments === nextFilledSegments) {
+    return [];
+  }
+
+  if (nextFilledSegments > previousFilledSegments) {
+    return Array.from(
+      {length: nextFilledSegments - previousFilledSegments},
+      (_, index) => previousFilledSegments + index,
+    );
+  }
+
+  return Array.from(
+    {length: previousFilledSegments - nextFilledSegments},
+    (_, index) => nextFilledSegments + index,
+  );
+};
+
+const renderSpriteGrid = (grid: BabyBulbySpriteGridValue[][], isDarkMode: boolean) => [
   ...grid.flatMap((row, y) => row.flatMap((value, x) => {
     if (value === 0) {
       return [];
     }
 
     const fill = value === 2
-      ? sitePetSpritePalette.heart
+      ? babyBulbySpritePalette.heart
       : value === 3
-        ? sitePetSpritePalette.sparkle
+        ? babyBulbySpritePalette.sparkle
         : value === 4
-          ? sitePetSpritePalette.fill
+          ? babyBulbySpritePalette.fill
           : value === 5
-            ? isDarkMode ? sitePetSpritePalette.fill : sitePetSpritePalette.body
-        : sitePetSpritePalette.body;
+            ? isDarkMode ? babyBulbySpritePalette.fill : babyBulbySpritePalette.body
+        : babyBulbySpritePalette.body;
 
     return (
       <rect
@@ -291,7 +410,7 @@ const renderSpriteGrid = (grid: SitePetSpriteGridValue[][], isDarkMode: boolean)
   })),
 ];
 
-const SpriteGrid = ({grid, isDarkMode}: {grid: SitePetSpriteGridValue[][], isDarkMode: boolean}) => (
+const SpriteGrid = ({grid, isDarkMode}: {grid: BabyBulbySpriteGridValue[][], isDarkMode: boolean}) => (
   <svg
     width={SPRITE_DISPLAY_SIZE}
     height={SPRITE_DISPLAY_SIZE}
@@ -303,7 +422,7 @@ const SpriteGrid = ({grid, isDarkMode}: {grid: SitePetSpriteGridValue[][], isDar
   </svg>
 );
 
-const SitePetCompanion = ({
+const BabyBulby = ({
   currentUser,
   classes,
 }: {
@@ -317,12 +436,14 @@ const SitePetCompanion = ({
   const [position, setPosition] = useState<Position | null>(null);
   const [loadedStorageKey, setLoadedStorageKey] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
-  const [animationMode, setAnimationMode] = useState<SitePetAnimationMode>("idle");
+  const [hasCompletedInitialPlacement, setHasCompletedInitialPlacement] = useState(false);
+  const [animationMode, setAnimationMode] = useState<BabyBulbyAnimationMode>("idle");
   const [happyLoopsRemaining, setHappyLoopsRemaining] = useState(0);
   const [hungerSnapshot, setHungerSnapshot] = useState<HungerSnapshot | null>(null);
   const [lastFedPostKey, setLastFedPostKey] = useState<string | null>(null);
   const [currentTimeMs, setCurrentTimeMs] = useState(() => Date.now());
   const [frameIndex, setFrameIndex] = useState(0);
+  const [hungerMeterDelta, setHungerMeterDelta] = useState<HungerMeterDelta | null>(null);
   const pointerStateRef = useRef<{
     pointerId: number,
     startX: number,
@@ -332,8 +453,11 @@ const SitePetCompanion = ({
   const draggingRef = useRef(false);
   const suppressClickRef = useRef(false);
   const lastTriggeredPostPageRef = useRef<string | null>(null);
+  const previousFilledHungerSegmentsRef = useRef<number | null>(null);
+  const hungerMeterDeltaTimeoutRef = useRef<number | null>(null);
+  const previousIsDeadRef = useRef<boolean | null>(null);
 
-  const variant: SitePetVariant = currentUser ? "pet" : "egg";
+  const displayStage: BabyBulbyStage = currentUser ? "bulby" : "egg";
   const isPostPage = (currentRoute?.name && (
     EATING_ANIMATION_ROUTE_NAMES.has(currentRoute.name) ||
     currentRoute.name.endsWith(".posts.single")
@@ -346,8 +470,8 @@ const SitePetCompanion = ({
     return currentRoute?.name === "sequencesPost" ? params.postId : params._id;
   }, [currentRoute?.name, isPostPage, params._id, params.postId]);
   const postPageKey = isPostPage ? `${currentRoute?.name ?? ""}:${pathname}` : null;
-  const { data: currentPostData, loading: currentPostLoading } = useQuery<SitePetPostMetricsQueryResult>(
-    SITE_PET_POST_METRICS_QUERY,
+  const { data: currentPostData, loading: currentPostLoading } = useQuery<BabyBulbyPostMetricsQueryResult>(
+    BABY_BULBY_POST_METRICS_QUERY,
     {
       variables: {
         input: {
@@ -357,48 +481,62 @@ const SitePetCompanion = ({
         },
       },
       ssr: false,
-      skip: variant !== "pet" || !currentPostId,
+      skip: displayStage !== "bulby" || !currentPostId,
     },
   );
   const currentPost = currentPostData?.post?.result ?? null;
   const currentPostReadTimeMinutes = currentPost?.readTimeMinutes ?? 0;
   const isCommunityPost = !!currentPost?.tagRelevance?.[EA_FORUM_COMMUNITY_TOPIC_ID];
   const displayedHunger = useMemo(
-    () => variant === "pet"
-      ? getDecayedHunger(hungerSnapshot ?? createHungerSnapshot(HUNGER_DEFAULT, currentTimeMs), currentTimeMs)
+    () => displayStage === "bulby" && hungerSnapshot
+      ? getDecayedHunger(hungerSnapshot, currentTimeMs)
       : null,
-    [currentTimeMs, hungerSnapshot, variant],
+    [currentTimeMs, hungerSnapshot, displayStage],
   );
   const filledHungerSegments = useMemo(
     () => getFilledHungerSegments(displayedHunger),
     [displayedHunger],
   );
+  const useWarningHungerColor = filledHungerSegments > 0 && filledHungerSegments <= HUNGER_WARNING_SEGMENT_THRESHOLD;
   const shouldFlashLowHunger = filledHungerSegments === 1;
+  const hungerMeterDeltaIndexes = useMemo(
+    () => new Set(hungerMeterDelta?.changedSegmentIndexes ?? []),
+    [hungerMeterDelta],
+  );
   const showCookieBanner = explicitConsentRequired === true && !explicitConsentGiven;
   const storageKey = useMemo(
-    () => `${STORAGE_KEY_PREFIX}${currentUser?._id ?? "anon"}`,
+    () => `${BABY_BULBY_STORAGE_KEY_PREFIX}${currentUser?._id ?? "anon"}`,
     [currentUser?._id],
   );
-  const showDeadSprite = variant === "pet" && displayedHunger === 0 && animationMode === "idle";
+  const isStateHydrated = !!position && loadedStorageKey === storageKey && (displayStage === "egg" || hungerSnapshot !== null);
+  const isDead = displayStage === "bulby" && displayedHunger === 0;
   const activeAnimation = useMemo(
-    () => variant === "egg"
-      ? sitePetAnimations.egg.idle
-      : showDeadSprite
-        ? sitePetAnimations.bulby.dead
+    () => displayStage === "egg"
+      ? babyBulbyAnimations.egg.idle
+      : isDead
+        ? babyBulbyAnimations.babyBulby.dead
       : animationMode === "eating"
-        ? sitePetAnimations.bulby.eating
+        ? babyBulbyAnimations.babyBulby.eating
         : animationMode === "happy"
-          ? sitePetAnimations.bulby.happy
+          ? babyBulbyAnimations.babyBulby.happy
           : animationMode === "refuse"
-            ? sitePetAnimations.bulby.refuse
+            ? babyBulbyAnimations.babyBulby.refuse
+          : animationMode === "shatterDeath"
+            ? babyBulbyAnimations.babyBulby.shatterDeath
           : animationMode === "dead"
-            ? sitePetAnimations.bulby.dead
-        : sitePetAnimations.bulby.idle,
-    [animationMode, showDeadSprite, variant],
+            ? babyBulbyAnimations.babyBulby.dead
+          : filledHungerSegments === 1
+            ? babyBulbyAnimations.babyBulby.sick
+            : babyBulbyAnimations.babyBulby.idle,
+    [animationMode, filledHungerSegments, displayStage, isDead],
   );
   const currentSpriteGrid = useMemo(() => {
+    if (animationMode === "dead") {
+      return activeAnimation.frames[activeAnimation.frames.length - 1];
+    }
+
     return activeAnimation.frames[frameIndex % activeAnimation.frames.length];
-  }, [activeAnimation, frameIndex]);
+  }, [activeAnimation, animationMode, frameIndex]);
   const isDarkMode = concreteThemeOptions.name === "dark";
 
   const getViewport = useCallback(() => ({
@@ -417,8 +555,8 @@ const SitePetCompanion = ({
 
   const clampPosition = useCallback((nextPosition: Position) => {
     const viewport = getViewport();
-    const maxX = Math.max(EDGE_MARGIN, viewport.width - PET_WIDTH - EDGE_MARGIN);
-    const maxY = Math.max(EDGE_MARGIN, viewport.height - PET_HEIGHT - getBottomInset());
+    const maxX = Math.max(EDGE_MARGIN, viewport.width - BABY_BULBY_WIDTH - EDGE_MARGIN);
+    const maxY = Math.max(EDGE_MARGIN, viewport.height - BABY_BULBY_HEIGHT - getBottomInset());
 
     return {
       x: clamp(nextPosition.x, EDGE_MARGIN, maxX),
@@ -430,9 +568,35 @@ const SitePetCompanion = ({
     const viewport = getViewport();
     return clampPosition({
       x: EDGE_MARGIN,
-      y: viewport.height - PET_HEIGHT - getBottomInset(),
+      y: viewport.height - BABY_BULBY_HEIGHT - getBottomInset(),
     });
   }, [clampPosition, getBottomInset, getViewport]);
+
+  const syncHungerFromAway = useCallback((now: number) => {
+    setCurrentTimeMs(now);
+    setHungerSnapshot((currentSnapshot) => {
+      if (!currentSnapshot) {
+        return currentSnapshot;
+      }
+
+      return createHungerSnapshot(getAwayClampedHunger(currentSnapshot, now), now);
+    });
+  }, []);
+
+  useEffect(() => {
+    if (!isStateHydrated) {
+      setHasCompletedInitialPlacement(false);
+      return;
+    }
+
+    const animationFrame = window.requestAnimationFrame(() => {
+      setHasCompletedInitialPlacement(true);
+    });
+
+    return () => {
+      window.cancelAnimationFrame(animationFrame);
+    };
+  }, [isStateHydrated]);
 
   useEffect(() => {
     if (!isEAForum) {
@@ -443,12 +607,14 @@ const SitePetCompanion = ({
     setCurrentTimeMs(now);
     const storage = getBrowserLocalStorage();
     const fallbackPosition = getDefaultPosition();
-    const legacyStorageKey = `${LEGACY_STORAGE_KEY_PREFIX}${currentUser?._id ?? "anon"}`;
+    const legacyStorageKeys = LEGACY_BABY_BULBY_STORAGE_KEY_PREFIXES.map(
+      (prefix) => `${prefix}${currentUser?._id ?? "anon"}`,
+    );
 
     if (!storage) {
       setPosition(fallbackPosition);
       setLoadedStorageKey(storageKey);
-      if (variant === "pet") {
+      if (displayStage === "bulby") {
         setHungerSnapshot(createHungerSnapshot(HUNGER_DEFAULT, now));
         setLastFedPostKey(null);
       } else {
@@ -460,7 +626,11 @@ const SitePetCompanion = ({
 
     try {
       const rawCurrentValue = storage.getItem(storageKey);
-      const rawLegacyValue = rawCurrentValue ? null : storage.getItem(legacyStorageKey);
+      const rawLegacyValue = rawCurrentValue
+        ? null
+        : legacyStorageKeys
+          .map((legacyStorageKey) => storage.getItem(legacyStorageKey))
+          .find((value) => value !== null) ?? null;
       const parsedCurrentValue = rawCurrentValue ? JSON.parse(rawCurrentValue) : null;
       const parsedLegacyValue = rawLegacyValue ? JSON.parse(rawLegacyValue) : null;
       const storedValue = isValidStoredState(parsedCurrentValue)
@@ -470,13 +640,13 @@ const SitePetCompanion = ({
           : null;
 
       setPosition(storedValue ? clampPosition(storedValue) : fallbackPosition);
-      if (variant === "pet") {
+      if (displayStage === "bulby") {
         if (storedValue && typeof storedValue.hunger === "number") {
           const storedSnapshot = createHungerSnapshot(
             storedValue.hunger,
             parseStoredTimestamp(storedValue.hungerUpdatedAt, now),
           );
-          setHungerSnapshot(createHungerSnapshot(getDecayedHunger(storedSnapshot, now), now));
+          setHungerSnapshot(createHungerSnapshot(getAwayClampedHunger(storedSnapshot, now), now));
           setLastFedPostKey(storedValue.lastFedPostKey ?? null);
         } else {
           setHungerSnapshot(createHungerSnapshot(HUNGER_DEFAULT, now));
@@ -489,7 +659,7 @@ const SitePetCompanion = ({
       setLoadedStorageKey(storageKey);
     } catch {
       setPosition(fallbackPosition);
-      if (variant === "pet") {
+      if (displayStage === "bulby") {
         setHungerSnapshot(createHungerSnapshot(HUNGER_DEFAULT, now));
         setLastFedPostKey(null);
       } else {
@@ -498,43 +668,152 @@ const SitePetCompanion = ({
       }
       setLoadedStorageKey(storageKey);
     }
-  }, [clampPosition, currentUser?._id, getDefaultPosition, storageKey, variant]);
+  }, [clampPosition, currentUser?._id, getDefaultPosition, storageKey, displayStage]);
 
   useEffect(() => {
-    if (variant !== "pet") {
+    if (displayStage !== "bulby") {
       return;
     }
+
+    let interval: number | null = null;
+
+    const clearLiveUpdates = () => {
+      if (interval !== null) {
+        window.clearInterval(interval);
+        interval = null;
+      }
+    };
 
     const syncClock = () => {
       setCurrentTimeMs(Date.now());
     };
 
-    syncClock();
-    const interval = window.setInterval(syncClock, HUNGER_LIVE_UPDATE_INTERVAL_MS);
-    window.addEventListener("focus", syncClock);
-    document.addEventListener("visibilitychange", syncClock);
+    const isSiteActive = () => document.visibilityState === "visible" && document.hasFocus();
+
+    const refreshDecayMode = () => {
+      const now = Date.now();
+      if (isSiteActive()) {
+        syncHungerFromAway(now);
+        if (interval === null) {
+          interval = window.setInterval(syncClock, HUNGER_LIVE_UPDATE_INTERVAL_MS);
+        }
+        return;
+      }
+
+      clearLiveUpdates();
+      setCurrentTimeMs(now);
+    };
+
+    refreshDecayMode();
+    window.addEventListener("focus", refreshDecayMode);
+    window.addEventListener("blur", refreshDecayMode);
+    document.addEventListener("visibilitychange", refreshDecayMode);
 
     return () => {
-      window.clearInterval(interval);
-      window.removeEventListener("focus", syncClock);
-      document.removeEventListener("visibilitychange", syncClock);
+      clearLiveUpdates();
+      window.removeEventListener("focus", refreshDecayMode);
+      window.removeEventListener("blur", refreshDecayMode);
+      document.removeEventListener("visibilitychange", refreshDecayMode);
     };
-  }, [variant]);
+  }, [syncHungerFromAway, displayStage]);
 
   useEffect(() => {
-    if (variant !== "pet") {
+    if (displayStage !== "bulby") {
       return;
     }
 
     setCurrentTimeMs(Date.now());
-  }, [pathname, variant]);
+  }, [pathname, displayStage]);
+
+  useEffect(() => {
+    if (displayStage !== "bulby" || displayedHunger !== 0 || !hungerSnapshot || hungerSnapshot.hunger === 0) {
+      return;
+    }
+
+    setHungerSnapshot(createHungerSnapshot(0, currentTimeMs));
+  }, [currentTimeMs, displayedHunger, hungerSnapshot, displayStage]);
+
+  useEffect(() => {
+    if (displayStage !== "bulby" || !isStateHydrated) {
+      previousFilledHungerSegmentsRef.current = null;
+      setHungerMeterDelta(null);
+      if (hungerMeterDeltaTimeoutRef.current !== null) {
+        window.clearTimeout(hungerMeterDeltaTimeoutRef.current);
+        hungerMeterDeltaTimeoutRef.current = null;
+      }
+      return;
+    }
+
+    const previousFilledHungerSegments = previousFilledHungerSegmentsRef.current;
+    previousFilledHungerSegmentsRef.current = filledHungerSegments;
+
+    if (previousFilledHungerSegments === null || previousFilledHungerSegments === filledHungerSegments) {
+      return;
+    }
+
+    const direction = filledHungerSegments > previousFilledHungerSegments ? "up" : "down";
+    const changedSegmentIndexes = getChangedSegmentIndexes(previousFilledHungerSegments, filledHungerSegments);
+    const nextMeterDelta: HungerMeterDelta = {
+      direction,
+      amount: Math.abs(filledHungerSegments - previousFilledHungerSegments),
+      changedSegmentIndexes,
+      useWarningColor: direction === "up"
+        ? filledHungerSegments <= HUNGER_WARNING_SEGMENT_THRESHOLD
+        : previousFilledHungerSegments <= HUNGER_WARNING_SEGMENT_THRESHOLD,
+    };
+
+    setHungerMeterDelta(nextMeterDelta);
+
+    if (hungerMeterDeltaTimeoutRef.current !== null) {
+      window.clearTimeout(hungerMeterDeltaTimeoutRef.current);
+    }
+
+    hungerMeterDeltaTimeoutRef.current = window.setTimeout(() => {
+      setHungerMeterDelta(null);
+      hungerMeterDeltaTimeoutRef.current = null;
+    }, HUNGER_METER_DELTA_DURATION_MS);
+  }, [filledHungerSegments, displayStage, isStateHydrated]);
+
+  useEffect(() => () => {
+    if (hungerMeterDeltaTimeoutRef.current !== null) {
+      window.clearTimeout(hungerMeterDeltaTimeoutRef.current);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (displayStage !== "bulby") {
+      previousIsDeadRef.current = null;
+      return;
+    }
+
+    const previousIsDead = previousIsDeadRef.current;
+    previousIsDeadRef.current = isDead;
+
+    if (!isDead) {
+      if (animationMode === "dead" || animationMode === "shatterDeath") {
+        setAnimationMode("idle");
+      }
+      return;
+    }
+
+    if (animationMode === "dead" || animationMode === "shatterDeath") {
+      return;
+    }
+
+    setAnimationMode("dead");
+  }, [animationMode, isDead, displayStage]);
 
   useEffect(() => {
     setFrameIndex(0);
   }, [activeAnimation]);
 
   useEffect(() => {
-    if (variant === "pet" && animationMode !== "idle") {
+    if (displayStage === "bulby" && animationMode === "dead") {
+      setFrameIndex(activeAnimation.frames.length - 1);
+      return;
+    }
+
+    if (displayStage === "bulby" && animationMode !== "idle") {
       let nextFrameIndex = 1;
       let timeout: number | undefined;
       const advanceAnimation = () => {
@@ -561,6 +840,10 @@ const SitePetCompanion = ({
           if (currentMode === "refuse") {
             return "idle";
           }
+          if (currentMode === "shatterDeath") {
+            setFrameIndex(activeAnimation.frames.length - 1);
+            return "dead";
+          }
           return currentMode;
         });
       };
@@ -578,13 +861,23 @@ const SitePetCompanion = ({
     }, activeAnimation.frameDurationMs);
 
     return () => window.clearInterval(interval);
-  }, [activeAnimation, animationMode, happyLoopsRemaining, variant]);
+  }, [activeAnimation, animationMode, happyLoopsRemaining, displayStage]);
 
   useEffect(() => {
-    if (variant !== "pet") {
+    if (displayStage !== "bulby") {
       setAnimationMode("idle");
       setHappyLoopsRemaining(0);
       lastTriggeredPostPageRef.current = null;
+      return;
+    }
+
+    if (!isStateHydrated) {
+      return;
+    }
+
+    if (isDead) {
+      setHappyLoopsRemaining(0);
+      lastTriggeredPostPageRef.current = postPageKey;
       return;
     }
 
@@ -619,10 +912,14 @@ const SitePetCompanion = ({
       setLastFedPostKey(postPageKey);
     }
     setAnimationMode(isCommunityPost ? "refuse" : "eating");
-  }, [currentPost, currentPostLoading, currentPostReadTimeMinutes, isCommunityPost, lastFedPostKey, postPageKey, variant]);
+  }, [currentPost, currentPostLoading, currentPostReadTimeMinutes, isCommunityPost, isDead, isStateHydrated, lastFedPostKey, postPageKey, displayStage]);
 
   useEffect(() => {
     if (!position || loadedStorageKey !== storageKey) {
+      return;
+    }
+
+    if (displayStage === "bulby" && !hungerSnapshot) {
       return;
     }
 
@@ -632,7 +929,7 @@ const SitePetCompanion = ({
     }
 
     try {
-      if (variant === "pet" && displayedHunger !== null) {
+      if (displayStage === "bulby" && displayedHunger !== null) {
         const persistedHungerUpdatedAt = hungerSnapshot
           ? Math.max(hungerSnapshot.hungerUpdatedAt, currentTimeMs)
           : currentTimeMs;
@@ -642,14 +939,14 @@ const SitePetCompanion = ({
           hunger: displayedHunger,
           hungerUpdatedAt: new Date(persistedHungerUpdatedAt).toISOString(),
           ...(lastFedPostKey ? { lastFedPostKey } : {}),
-        } satisfies SitePetStoredState));
+        } satisfies BabyBulbyStoredState));
       } else {
         storage.setItem(storageKey, JSON.stringify(position));
       }
     } catch {
       // Ignore localStorage write failures so the overlay still works for the session.
     }
-  }, [currentTimeMs, displayedHunger, hungerSnapshot, lastFedPostKey, loadedStorageKey, position, storageKey, variant]);
+  }, [currentTimeMs, displayedHunger, hungerSnapshot, lastFedPostKey, loadedStorageKey, position, storageKey, displayStage]);
 
   useEffect(() => {
     const onResize = () => {
@@ -693,7 +990,7 @@ const SitePetCompanion = ({
         <LoginPopup
           onClose={onClose}
           startingState="signup"
-          signupTitle="Sign up to hatch the egg"
+          signupTitle="Sign up to hatch Baby Bulby"
         />
       ),
     });
@@ -764,10 +1061,36 @@ const SitePetCompanion = ({
       return;
     }
 
-    if (variant === "egg") {
+    if (displayStage === "egg") {
       openClaimPrompt();
     }
-  }, [openClaimPrompt, variant]);
+  }, [openClaimPrompt, displayStage]);
+
+  const setTestHungerFromSegment = useCallback((segmentIndex: number) => {
+    if (displayStage !== "bulby") {
+      return;
+    }
+
+    const now = Date.now();
+    setCurrentTimeMs(now);
+    setHungerSnapshot(createHungerSnapshot((segmentIndex + 1) * HUNGER_SEGMENT_VALUE, now));
+  }, [displayStage]);
+
+  const onHungerSegmentPointerDown = useCallback((event: React.PointerEvent<HTMLSpanElement>, segmentIndex: number) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    pointerStateRef.current = null;
+    draggingRef.current = false;
+    setIsDragging(false);
+    setTestHungerFromSegment(segmentIndex);
+  }, [setTestHungerFromSegment]);
+
+  const onHungerSegmentClick = useCallback((event: React.MouseEvent<HTMLSpanElement>, segmentIndex: number) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setTestHungerFromSegment(segmentIndex);
+  }, [setTestHungerFromSegment]);
 
   if (!isEAForum) {
     return null;
@@ -777,7 +1100,8 @@ const SitePetCompanion = ({
     <div
       className={classNames(classes.root, {
         [classes.rootDragging]: isDragging,
-        [classes.rootHidden]: !position,
+        [classes.rootStatic]: !hasCompletedInitialPlacement,
+        [classes.rootHidden]: !isStateHydrated,
       })}
       style={position ? { transform: `translate3d(${position.x}px, ${position.y}px, 0)` } : undefined}
     >
@@ -791,28 +1115,58 @@ const SitePetCompanion = ({
         onPointerMove={onPointerMove}
         onPointerUp={finishPointerGesture}
         onPointerCancel={finishPointerGesture}
-        aria-label={variant === "egg" ? "Claim your pet" : "Your forum pet"}
+        aria-label={displayStage === "egg" ? "Claim Baby Bulby" : "Your Baby Bulby"}
       >
         <span className={classes.srOnly}>
-          {variant === "egg"
-            ? "Create an account to claim your pet"
-            : `Your forum pet. Hunger ${displayedHunger ?? HUNGER_DEFAULT} out of ${HUNGER_MAX}.`}
+          {displayStage === "egg"
+            ? "Create an account to claim Baby Bulby"
+            : `Your Baby Bulby. Hunger ${displayedHunger ?? HUNGER_DEFAULT} out of ${HUNGER_MAX}.`}
         </span>
         <div className={classes.artFrame}>
           <SpriteGrid grid={currentSpriteGrid} isDarkMode={isDarkMode} />
         </div>
-        {variant === "pet" && displayedHunger !== null && (
+        {displayStage === "bulby" && displayedHunger !== null && (
           <div className={classes.hungerMeter}>
-            <span className={classes.hungerLabel}>Hunger</span>
+            <div className={classes.hungerLabelRow}>
+              <span className={classes.hungerLabel}>Hunger</span>
+              {hungerMeterDelta && (
+                <span
+                  className={classNames(classes.hungerDelta, {
+                    [classes.hungerDeltaUp]: hungerMeterDelta.direction === "up",
+                    [classes.hungerDeltaDown]: hungerMeterDelta.direction === "down",
+                  })}
+                >
+                  {`${hungerMeterDelta.direction === "up" ? "+" : "-"}${hungerMeterDelta.amount}`}
+                </span>
+              )}
+            </div>
             <div className={classes.hungerTrack} aria-hidden="true">
               {Array.from({length: HUNGER_SEGMENT_COUNT}, (_, index) => (
-                <span
-                  key={`hunger-segment-${index}`}
-                  className={classNames(classes.hungerSegment, {
-                    [classes.hungerSegmentFilled]: index < filledHungerSegments,
-                    [classes.hungerSegmentWarning]: shouldFlashLowHunger && index === 0,
-                  })}
-                />
+                (() => {
+                  const isFilled = index < filledHungerSegments;
+                  const isGainedSegment = hungerMeterDelta?.direction === "up" && hungerMeterDeltaIndexes.has(index);
+                  const isLostSegment = hungerMeterDelta?.direction === "down" && hungerMeterDeltaIndexes.has(index);
+                  const shouldUseWarningColor = isLostSegment
+                    ? !!hungerMeterDelta?.useWarningColor
+                    : useWarningHungerColor;
+                  const shouldApplyGenericMeterAnimation = !(shouldFlashLowHunger && index === 0);
+
+                  return (
+                    <span
+                      key={`hunger-segment-${index}`}
+                      className={classNames(classes.hungerSegment, {
+                        [classes.hungerSegmentFilledHealthy]: (isFilled || isLostSegment) && !shouldUseWarningColor,
+                        [classes.hungerSegmentFilledWarning]: (isFilled || isLostSegment) && shouldUseWarningColor,
+                        [classes.hungerSegmentWarning]: shouldFlashLowHunger && index === 0,
+                        [classes.hungerSegmentGain]: isGainedSegment && shouldApplyGenericMeterAnimation,
+                        [classes.hungerSegmentLoss]: isLostSegment && shouldApplyGenericMeterAnimation,
+                      })}
+                      onPointerDown={(event) => onHungerSegmentPointerDown(event, index)}
+                      onClick={(event) => onHungerSegmentClick(event, index)}
+                      title={`Set hunger to bar ${index + 1}`}
+                    />
+                  );
+                })()
               ))}
             </div>
           </div>
@@ -822,4 +1176,4 @@ const SitePetCompanion = ({
   );
 };
 
-export default registerComponent("SitePetCompanion", SitePetCompanion, {styles});
+export default registerComponent("BabyBulby", BabyBulby, {styles});
