@@ -256,6 +256,7 @@ export default () => createJestConfig({
     "@exodus/bytes",
     "@csstools/*",
     "parse5",
+    "@truto/turndown-plugin-gfm",
   ];
   
   config.transformIgnorePatterns = [
