@@ -17891,10 +17891,10 @@ node-releases@^2.0.18:
   resolved "https://registry.npmjs.org/node-releases/-/node-releases-2.0.18.tgz"
   integrity sha512-d9VeXT4SJ7ZeOqGX6R5EM022wpL+eWPooLI+5UpWn2jCT1aosUQEhQP214x33Wkwx3JQMvIm+tIoVOdodFS40g==
 
-nodemailer@^6.9.9:
-  version "6.9.9"
-  resolved "https://registry.npmjs.org/nodemailer/-/nodemailer-6.9.9.tgz"
-  integrity sha512-dexTll8zqQoVJEZPwQAKzxxtFn0qTnjdQTchoU6Re9BUUGBJiOy3YMn/0ShTW6J5M0dfQ1NeDeRTTl4oIWgQMA==
+nodemailer@^8.0.4:
+  version "8.0.4"
+  resolved "https://registry.yarnpkg.com/nodemailer/-/nodemailer-8.0.4.tgz#b63626585693f37a390ddaecde273da991c76010"
+  integrity sha512-k+jf6N8PfQJ0Fe8ZhJlgqU5qJU44Lpvp2yvidH3vp1lPnVQMgi4yEEMPXg5eJS1gFIJTVq1NHBk7Ia9ARdSBdQ==
 
 nopt@^5.0.0:
   version "5.0.0"
