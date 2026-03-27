@@ -7275,6 +7275,13 @@
   resolved "https://registry.npmjs.org/@tootallnate/once/-/once-2.0.0.tgz"
   integrity sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==
 
+"@truto/turndown-plugin-gfm@^1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@truto/turndown-plugin-gfm/-/turndown-plugin-gfm-1.0.2.tgz#cb97beb90fc295c2b9e9cf0e91c643027e6fd6c5"
+  integrity sha512-EayTVTfRg4cTIPTIwC7bwY4jvCy4lz2V4NBDf1OHPr0fH044K5xs1LRy5tcjspOrL1do7FerVw2iqBglO2gxlg==
+  optionalDependencies:
+    "@rollup/rollup-linux-x64-gnu" "4.45.1"
+
 "@ts-morph/common@~0.26.0":
   version "0.26.1"
   resolved "https://registry.yarnpkg.com/@ts-morph/common/-/common-0.26.1.tgz#a346188e59d2befe4c71f66a7d626d81b1abe2a8"
@@ -21688,11 +21695,6 @@ tunnel-agent@^0.6.0:
   integrity sha1-J6XeoGs2sEoKmWZ3SykIaPD8QP0=
   dependencies:
     safe-buffer "^5.0.1"
-
-turndown-plugin-gfm@^1.0.2:
-  version "1.0.2"
-  resolved "https://registry.npmjs.org/turndown-plugin-gfm/-/turndown-plugin-gfm-1.0.2.tgz"
-  integrity sha512-vwz9tfvF7XN/jE0dGoBei3FXWuvll78ohzCZQuOb+ZjWrs3a0XhQVomJEb2Qh4VHTPNRO4GPZh0V7VRbiWwkRg==
 
 turndown@^4.0.2:
   version "4.0.2"
