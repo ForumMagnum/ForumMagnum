@@ -2,6 +2,7 @@ import React, { CSSProperties, useCallback, useEffect, useRef } from "react";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentAndRecentForumEvents } from "../hooks/useCurrentForumEvent";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { useSingle } from "../../lib/crud/withSingle";
 import { hasForumEvents } from "../../lib/betas";
 import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
@@ -77,9 +78,6 @@ const styles = (theme: ThemeType) => ({
   },
 });
 
-// TODO make this a field on forum events
-const announcementPostUrl = '/posts/9ad4C4YknLM5fGG4v/announcing-animal-welfare-vs-global-health-debate-week-oct-7'
-
 /**
  * This is used on the post page to display the current forum event's poll,
  * and allow users to update their vote to show that the post changed their minds.
@@ -103,6 +101,7 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
     skip: !forumEventId,
   });
   const event = forumEventId ? eventFromId : currentForumEvent;
+  const eventTagUrl = event?.tag ? tagGetUrl(event.tag) : null;
 
   const currentUser = useCurrentUser()
   const hasVoted = getForumEventVoteForUser(event, currentUser) !== null
@@ -171,7 +170,9 @@ export const ForumEventPostPagePollSection = ({postId, forumEventId, classes, ..
           <>
             <h2 className={classes.heading}>{!hasVoted ? "Have you voted yet?" : "Did this post change your mind?"}</h2>
             <div className={classes.description}>
-              This post is part of <Link to={announcementPostUrl}>{event.title}</Link>.{" "}
+              {eventTagUrl &&
+                <>This post is part of <Link to={eventTagUrl}>{event.title}</Link>.{" "}</>
+              }
               {!hasVoted ? (
                 <>
                   Click and drag your avatar to vote on the debate statement. Votes are non-anonymous, and you can
@@ -202,5 +203,3 @@ export default registerComponent(
   ForumEventPostPagePollSection,
   {styles},
 );
-
-
