@@ -693,6 +693,10 @@ export const postBodyStyles = (theme: ThemeType) => {
     '& .footnotes': {
       marginTop: 40,
       fontSize: '0.9em',
+      '& li': {
+        fontSize: '0.9em', // Overwriting default size setting for list items
+        lineHeight: '21.06px',
+      },
       paddingTop: 40,
       borderTop: theme.palette.border.normal,
       '& sup': {
@@ -702,9 +706,6 @@ export const postBodyStyles = (theme: ThemeType) => {
         marginBlockStart: '1em',
         paddingInlineStart: 0,
         marginInlineStart: '1em'
-      },
-      '& li': {
-        fontSize: '0.9em' // Overwriting default size setting for list items
       },
       '& blockquote': {
         fontSize: '0.9em',
