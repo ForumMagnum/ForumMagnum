@@ -33,7 +33,9 @@ const ErrorAccessDenied = ({explanation, skipLoginPrompt}: {
     return <>
       <StatusCodeSetter status={401}/>
       <SingleColumnSection>
-        <div className={classes.root}>{message}</div>
+        <Typography variant='body1' className={classes.root}>
+          {message}
+        </Typography>
       </SingleColumnSection>
     </>
   } else {

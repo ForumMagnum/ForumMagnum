@@ -103,6 +103,11 @@ module.exports = {
     "react/display-name": 0,
     "react/jsx-no-comment-textnodes": 1,
 
+    // Disabled warning that would warn on "while (true) { ... }". Whether you
+    // like this idiom or not, it comes up reasonably often in agent-outputs,
+    // and I (Jim) happen to think it's fine.
+    "no-constant-condition": 0,
+
     // Warn if defining a component inside a function, which results in the
     // component's subtree and its state being destroyed on every render
     "react/no-unstable-nested-components": [1, {
