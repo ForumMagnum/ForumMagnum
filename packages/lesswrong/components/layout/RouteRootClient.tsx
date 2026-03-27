@@ -9,12 +9,13 @@ import { PopperPortalProvider } from '../common/LWPopper';
 import { isFullscreenRoute, isHomeRoute, isRouteWithLeftNavigationColumn, isSunshineSidebarRoute } from '@/lib/routeChecks';
 import DeferRender from '../common/DeferRender';
 import NavigationStandalone from '../common/TabNavigationMenu/NavigationStandalone';
-import { isLW, isLWorAF } from '@/lib/forumTypeUtils';
+import { isLWorAF } from '@/lib/forumTypeUtils';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { useCurrentUser } from '../common/withUser';
 import { userCanDo } from '@/lib/vulcan-users/permissions';
 import dynamic from 'next/dynamic';
 import { HideNavigationSidebarContext } from './HideNavigationSidebarContextProvider';
+import { useForumType } from '../hooks/useForumType';
 
 const SunshineSidebar = dynamic(() => import("../sunshineDashboard/SunshineSidebar"), { ssr: false });
 
@@ -61,12 +62,13 @@ export const RouteRootClient = ({fullscreen, children}: {
 }) => {
   const classes = useStyles(styles);
   const pathname = usePrerenderablePathname();
+  const { isLW } = useForumType();
   const standaloneNavigation = isRouteWithLeftNavigationColumn(pathname);
   const shouldUseGridLayout = standaloneNavigation;
 
   // an optional mode for displaying the side navigation, for when we want the right banner
   // to be displayed on medium screens
-  const renderIconOnlyNavigation = isLW()
+  const renderIconOnlyNavigation = isLW
   const iconOnlyNavigationEnabled = renderIconOnlyNavigation && standaloneNavigation
 
   const currentUser = useCurrentUser();
@@ -161,8 +163,9 @@ function LeftAndRightSidebarsWrapper({sidebarsEnabled, fullscreen, leftSidebar, 
   children: React.ReactNode
 }) {
   const classes = useStyles(sidebarsWrapperStyles);
+  const { isLW } = useForumType();
   // ea-forum-look-here There used to be a column-sizing special case for the EA Forum front page here, which is no present.
-  const navigationHasIconOnlyVersion = isLW();
+  const navigationHasIconOnlyVersion = isLW;
 
   return <div className={classNames({
     [classes.spacedGridActivated]: sidebarsEnabled,

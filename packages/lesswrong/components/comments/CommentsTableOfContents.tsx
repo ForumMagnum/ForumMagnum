@@ -5,7 +5,6 @@ import { useScrollHighlight } from '../hooks/useScrollHighlight';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
 import classNames from 'classnames';
-import { isAF } from '@/lib/instanceSettings';
 import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/scrollUtils';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import TableOfContentsDivider from "../posts/TableOfContents/TableOfContentsDivider";
@@ -13,6 +12,7 @@ import UsersNameDisplay from "../users/UsersNameDisplay";
 import TableOfContentsRow from "../posts/TableOfContents/TableOfContentsRow";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { isSpecialClick } from '@/lib/utils/eventUtils';
+import { useForumType } from '../hooks/useForumType';
 const COMMENTS_TITLE_CLASS_NAME = 'CommentsTableOfContentsTitle';
 
 const styles = defineStyles("CommentsTableOfContents", (theme: ThemeType) => ({
@@ -143,8 +143,9 @@ const ToCCommentBlock = ({commentTree, indentLevel, highlightedCommentId, highli
   const navigate = useNavigate();
   const { query, location } = useLocation();
   const comment = commentTree.item;
+  const { isAF } = useForumType();
   
-  const score = isAF()
+  const score = isAF
     ? comment.afBaseScore
     : comment.baseScore;
   

@@ -2,7 +2,7 @@ import React from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import { MAX_COLUMN_WIDTH } from './constants';
-import { isLW, isLWorAF } from '../../../lib/instanceSettings';
+import { isLWorAF } from '../../../lib/instanceSettings';
 import { getVotingSystemByName } from '../../../lib/voting/getVotingSystem';
 import { isFriendlyUI } from '../../../themes/forumTheme';
 import classNames from 'classnames';
@@ -18,6 +18,7 @@ import { postBottomSecondaryVotingComponents } from '@/lib/voting/votingSystemCo
 import type { VotingSystemName } from '@/lib/voting/votingSystemNames';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useForumType } from '../../hooks/useForumType';
 
 const styles = defineStyles("PostsPagePostFooter", (theme: ThemeType) => ({
   footerSection: {
@@ -84,6 +85,7 @@ const PostsPagePostFooter = ({post, sequenceId}: {
   sequenceId: string|null,
 }) => {
   const classes = useStyles(styles);
+  const { isLW } = useForumType();
   const votingSystemName = (post.votingSystem || "default") as VotingSystemName;
   const votingSystem = getVotingSystemByName(votingSystemName);
   const wordCount = post.contents?.wordCount || 0
@@ -99,7 +101,7 @@ const PostsPagePostFooter = ({post, sequenceId}: {
         </AnalyticsContext>
       </SuspenseWrapper>
     }
-    {!post.shortform && isLW() &&
+    {!post.shortform && isLW &&
       <>
         <div className={classes.footerSection}>
           <div className={classNames(classes.voteBottom, isLWorAF() && classes.lwVote)}>

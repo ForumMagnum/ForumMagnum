@@ -1,6 +1,5 @@
 import React, { FC } from 'react';
 import classNames from 'classnames';
-import { isAF } from '../../lib/instanceSettings';
 import { AnalyticsContext } from '../../lib/analyticsEvents'
 import EventTime from "../localGroups/EventTime";
 import EventVicinity from "../localGroups/EventVicinity";
@@ -13,6 +12,7 @@ import { maybeDate } from '@/lib/utils/dateUtils';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles('PostsItemMeta', (theme: ThemeType) => ({
   onGrayBackground: {
@@ -50,8 +50,9 @@ const PostsItemMeta = ({post, read, hideTags}: {
   hideTags?: boolean,
 }) => {
   const classes = useStyles(styles);
-  const baseScore = isAF() ? post.afBaseScore : post.baseScore
-  const showAfScore = (!isAF() && post.af);
+  const { isAF } = useForumType();
+  const baseScore = isAF ? post.afBaseScore : post.baseScore
+  const showAfScore = (!isAF && post.af);
   const afBaseScore = showAfScore ? post.afBaseScore : null
   const isOnGrayBackground = useIsOnGrayBackground();
 

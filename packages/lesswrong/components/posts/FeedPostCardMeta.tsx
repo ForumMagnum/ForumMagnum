@@ -1,7 +1,6 @@
 import React, { useRef } from "react";
 import { InteractionWrapper } from "../common/useClickableCell";
 import classNames from "classnames";
-import { isAF } from "../../lib/instanceSettings";
 import { postGetCommentCountStr, postGetLink, postGetLinkTarget, postGetPageUrl } from "../../lib/collections/posts/helpers";
 import { Link } from "../../lib/reactRouterWrapper";
 import TruncatedAuthorsList from "./TruncatedAuthorsList";
@@ -10,6 +9,7 @@ import LWTooltip from "../common/LWTooltip";
 import FormatDate from "../common/FormatDate";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles("FeedPostCardMeta", (theme: ThemeType) => ({
   root: {
@@ -81,10 +81,11 @@ const FeedPostCardMeta = ({post, className}: {
 }) => {
   const classes = useStyles(styles);
   const authorExpandContainer = useRef(null);
+  const { isAF } = useForumType();
   // TODO: Think about styling for events
 
-  const baseScore = (isAF() ? post.afBaseScore : post.baseScore) ?? 0
-  const showAfScore = !isAF() && post.af && !post.shortform && !post.isEvent;
+  const baseScore = (isAF ? post.afBaseScore : post.baseScore) ?? 0
+  const showAfScore = !isAF && post.af && !post.shortform && !post.isEvent;
   const afBaseScore = showAfScore ? post.afBaseScore : null
 
   const separatorElement = <span className={classes.dot}>·</span>

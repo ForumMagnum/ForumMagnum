@@ -108,6 +108,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     limit = 3,
     recencyFactor = 250000,
     recencyBias = 60 * 60 * 2,
+    af
   }: {
     offset?: number,
     limit?: number,
@@ -117,9 +118,10 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     // The minimum age that a post will be considered as having, to avoid
     // over selecting brand new comments - defaults to 2 hours
     recencyBias?: number,
+    af: boolean,
   }): Promise<DbComment[]> {
-    const lookbackPeriod = isAF() ? '1 month' : '1 week';
-    const afCommentsFilter = isAF() ? 'AND "af" IS TRUE' : '';
+    const lookbackPeriod = af ? '1 month' : '1 week';
+    const afCommentsFilter = af ? 'AND "af" IS TRUE' : '';
 
     return this.any(`
       -- CommentsRepo.getPopularComments

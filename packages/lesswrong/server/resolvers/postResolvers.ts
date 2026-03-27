@@ -3,7 +3,7 @@ import { Comments } from '../../server/collections/comments/collection';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { canUserEditPostMetadata, extractGoogleDocId } from '../../lib/collections/posts/helpers';
 import { buildRevision } from '../editor/conversionUtils';
-import { isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
+import { twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { GoogleDocMetadata } from '../collections/revisions/helpers';
@@ -86,11 +86,11 @@ const {Query: CuratedAndPopularThisWeekQuery, typeDefs: CuratedAndPopularThisWee
   graphQLType: "Post",
   args: { af: "Boolean" },
   callback: async (
-    {repos, currentUser}: ResolverContext,
+    {repos, currentUser, isAF}: ResolverContext,
     limit: number,
     args: { af?: boolean },
   ): Promise<DbPost[]> => {
-    const af = args?.af ?? isAF();
+    const af = args?.af ?? isAF;
     return repos.posts.getCuratedAndPopularPosts({
       currentUser,
       limit,
@@ -575,7 +575,7 @@ export const postGqlMutations = {
         : null;
       const originalContents = { type: fallbackRichTextEditorType, data: importedHtml, yjsState: yjs?.yjsState ?? null };
       let afField = {};
-      if (isAF()) {
+      if (context.isAF) {
         afField = !userCanDo(currentUser, 'posts.alignment.new')
           ? { suggestForAlignmentUserIds: [currentUser._id] }
           : { af: true };

@@ -2,7 +2,6 @@ import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
 import { getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
-import { isAF } from "../../lib/instanceSettings";
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
 import { FilterSettings, FilterMode } from "@/lib/filterSettings";
 import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
@@ -57,7 +56,7 @@ function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
  * Constructs a SQL expression for calculating the filteredScore based on filterSettings
  * This mirrors the logic in the "magic" view's filterSettingsToParams function
  */
-function constructFilteredScoreSql(filterSettings: FilterSettings): string {
+function constructFilteredScoreSql({filterSettings, af}: {filterSettings: FilterSettings, af: boolean}): string {
   const tagsSoftFiltered = filterSettings.tags.filter(
     t => t.filterMode !== "Hidden" && t.filterMode !== "Required" && t.filterMode !== "Default"
   );
@@ -87,7 +86,7 @@ function constructFilteredScoreSql(filterSettings: FilterSettings): string {
   `;
   
   const timeDecayFactor = TIME_DECAY_FACTOR.get();
-  const ageOffset = isAF() ? 6 : SCORE_BIAS;
+  const ageOffset = af ? 6 : SCORE_BIAS;
   
   const timeDecayDenominatorSql = `
     POWER(
@@ -856,7 +855,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       ? 'AND p."frontpageDate" IS NOT NULL' 
       : '';
 
-    const filteredScoreSql = constructFilteredScoreSql(filterSettings);
+    const filteredScoreSql = constructFilteredScoreSql({filterSettings, af: context.isAF});
     const hiddenPostIds = currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
     const hiddenPostIdsCondition = hiddenPostIds.length > 0 
       ? `AND p."_id" NOT IN ($(hiddenPostIds:csv))` 

@@ -1,7 +1,7 @@
 import React from 'react';
-import { isAF } from '../../lib/instanceSettings';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles('AlignmentCrosspostMessage', (theme: ThemeType) => ({
   root: {
@@ -15,8 +15,9 @@ const AlignmentCrosspostMessage = ({post}: {
   post: PostsBase,
 }) => {
   const classes = useStyles(styles);
+  const { isAF } = useForumType();
 
-  if (post.af && !isAF()) {
+  if (post.af && !isAF) {
     return (
       <div className={classes.root}>
         Crossposted from the <a href={`https://alignmentforum.org/posts/${post._id}/${post.slug}`}>AI Alignment Forum</a>. May contain more technical jargon than usual.

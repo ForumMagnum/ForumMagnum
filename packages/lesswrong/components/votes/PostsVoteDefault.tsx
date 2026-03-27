@@ -1,7 +1,6 @@
 import React, { Ref } from 'react';
 import classNames from 'classnames';
 import { useVote } from './withVote';
-import { isAF } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -10,6 +9,7 @@ import OverallVoteButton from "./OverallVoteButton";
 import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles("PostsVoteDefault", (theme: ThemeType) => ({
   voteBlock: {
@@ -90,6 +90,7 @@ const PostsVoteDefault = ({
 }) => {
   const classes = useStyles(styles);
   const voteProps = useVote(post, "Posts", votingSystem);
+  const { isAF } = useForumType();
 
   const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
@@ -142,7 +143,7 @@ const PostsVoteDefault = ({
           </Typography>
         </TooltipSpan>
 
-        {!!post.af && !!post.afBaseScore && !isAF() &&
+        {!!post.af && !!post.afBaseScore && !isAF &&
           <TooltipSpan
             title="AI Alignment Forum karma"
             placement={tooltipPlacement}

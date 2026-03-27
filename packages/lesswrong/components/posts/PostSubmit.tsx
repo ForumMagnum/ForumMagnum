@@ -3,12 +3,13 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
 import { useCurrentUser } from "../common/withUser";
 import { useTracking } from "../../lib/analyticsEvents";
-import { forumTitleSetting, isEAForum, isLW, isLWorAF, requestFeedbackKarmaLevelSetting } from '@/lib/instanceSettings.ts';
+import { forumTitleSetting, isEAForum, isLWorAF, requestFeedbackKarmaLevelSetting } from '@/lib/instanceSettings.ts';
 import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import type { EditablePost, PostSubmitMeta } from '@/lib/collections/posts/helpers.ts';
 import type { TypedFormApi } from '@/components/tanstack-form-components/BaseAppForm.tsx';
 import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
 import LWTooltip from "../common/LWTooltip";
+import { useForumType } from '../hooks/useForumType';
 
 export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
   formButton: {
@@ -68,6 +69,7 @@ export const PostSubmit = ({
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking();
+  const { isLW } = useForumType();
   if (!currentUser) throw Error("must be logged in to post");
   const document = formApi.state.values;
 
@@ -84,7 +86,7 @@ export const PostSubmit = ({
     await formApi.handleSubmit();
   };
 
-  const requireConfirmation = isLW() && !!document.debate;
+  const requireConfirmation = isLW && !!document.debate;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
   const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get()

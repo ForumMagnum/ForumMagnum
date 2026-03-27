@@ -2,7 +2,7 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import React from 'react';
 import { useNewEvents } from '../../lib/events/withNewEvents';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { isLW, firstCommentAcknowledgeMessageCommentIdSetting } from '@/lib/instanceSettings';
+import { firstCommentAcknowledgeMessageCommentIdSetting } from '@/lib/instanceSettings';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -13,6 +13,7 @@ import ContentStyles from "../common/ContentStyles";
 import Loading from "../vulcan-core/Loading";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 const CommentsListQuery = gql(`
   query NewUserGuidelinesDialog($documentId: String) {
@@ -43,6 +44,7 @@ const NewUserGuidelinesDialog = ({onClose, post, user}: {
   const classes = useStyles(styles);
   const updateCurrentUser = useUpdateCurrentUser();
   const { recordEvent } = useNewEvents();
+  const { isLW } = useForumType();
 
   const handleClick = () => {
     void updateCurrentUser({
@@ -80,7 +82,7 @@ const NewUserGuidelinesDialog = ({onClose, post, user}: {
           {!html && !loading && <div className={classes.moderationGuidelines}><em>A moderator will need to review your account before your posts will appear publicly.</em></div>}
         </ContentStyles>
         <DialogActions>
-          {isLW() && <Button>
+          {isLW && <Button>
             This was your father's rock
           </Button>}
           <Button onClick={handleClick}>

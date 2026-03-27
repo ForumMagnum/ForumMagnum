@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { getReviewPhase, reviewIsActive, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { showReviewOnFrontPageIfActive, ultraFeedEnabledSetting, isLW, isAF } from '@/lib/instanceSettings';
+import { ForumTypeString, showReviewOnFrontPageIfActive, ultraFeedEnabledSetting } from '@/lib/instanceSettings';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { LAST_VISITED_FRONTPAGE_COOKIE } from '../../lib/cookies/cookies';
 import moment from 'moment';
@@ -24,6 +24,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 
 import dynamic from 'next/dynamic';
 import { IsReturningVisitorContextProvider } from '@/components/layout/IsReturningVisitorContextProvider';
+import { useForumType } from '../hooks/useForumType';
 const RecentDiscussionFeed = dynamic(() => import("../recentDiscussion/RecentDiscussionFeed"), { ssr: false });
 
 const styles = defineStyles("LWHome", () => ({
@@ -48,7 +49,7 @@ const getLessOnlineMobileSpotlightOverrideId = (now: Date = new Date()): string 
     : null
 );
 
-const getStructuredData = () => ({
+const getStructuredData = (forumType: ForumTypeString) => ({
   "@context": "http://schema.org",
   "@type": "WebSite",
   "url": `${getSiteUrl()}`,
@@ -61,14 +62,14 @@ const getStructuredData = () => ({
     "@type": "WebPage",
     "@id": `${getSiteUrl()}`,
   },
-  ...(isLW() && {
+  ...(forumType === "LessWrong" && {
     "description": [
       "LessWrong is an online forum and community dedicated to improving human reasoning and decision-making.", 
       "We seek to hold true beliefs and to be effective at accomplishing our goals.", 
       "Each day, we aim to be less wrong about the world than the day before."
     ].join(' ')
   }),
-  ...(isAF() && {
+  ...(forumType === "AlignmentForum" && {
     "description": [
       "The Alignment Forum is a single online hub for researchers to discuss all ideas related to ensuring that transformatively powerful AIs are aligned with human values.", 
       "Discussion ranges from technical models of agency to the strategic landscape, and everything in between."
@@ -79,10 +80,11 @@ const getStructuredData = () => ({
 const LWHome = () => {
   const classes = useStyles(styles);
   const mobileSpotlightOverrideId = getLessOnlineMobileSpotlightOverrideId();
+  const { forumType } = useForumType();
 
   return (
       <AnalyticsContext pageContext="homePage">
-        <StructuredData generate={() => getStructuredData()}/>
+        <StructuredData generate={() => getStructuredData(forumType)}/>
         <UpdateLastVisitCookie />
         {reviewIsActive() && <>
           {getReviewPhase() !== "RESULTS" && <SingleColumnSection>

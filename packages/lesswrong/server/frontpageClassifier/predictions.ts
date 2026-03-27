@@ -3,7 +3,7 @@ import PostEmbeddings from '../collections/postEmbeddings/collection';
 import { frontpageClassifierModel, type FrontpageClassifierModel } from '../../lib/frontpageClassifier/model';
 import { getSqlClientOrThrow } from '../sql/sqlClient';
 import { postStatuses } from '../../lib/collections/posts/constants';
-import { adminAccountSetting, isLW } from '../../lib/instanceSettings';
+import { adminAccountSetting } from '../../lib/instanceSettings';
 
 export type ClassifierModel = FrontpageClassifierModel;
 
@@ -134,7 +134,7 @@ interface PostWithPrediction {
  */
 export async function maybeAutoFrontpagePost(postId: string, context: ResolverContext): Promise<void> {
   const { Posts } = context;
-  if (!isLW()) {
+  if (!context.isLW) {
     return;
   }
 

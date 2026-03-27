@@ -1,6 +1,5 @@
 import React from 'react';
 import classNames from 'classnames'
-import { isAF } from '@/lib/instanceSettings';
 import { Typography } from "./Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -15,7 +14,7 @@ const styles = defineStyles('SectionButton', (theme: ThemeType) => ({
       marginRight: 8
     },
     
-    ...(isAF() && {
+    ...(theme.isAF && {
       marginTop: 4,
       fontWeight: 500,
     }),

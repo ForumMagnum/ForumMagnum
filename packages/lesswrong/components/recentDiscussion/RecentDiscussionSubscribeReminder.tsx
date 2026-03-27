@@ -13,13 +13,14 @@ import CheckRounded from '@/lib/vendor/@material-ui/icons/src/CheckRounded'
 import { isValidEmail } from '@/lib/vulcan-lib/utils';
 import withErrorBoundary from '../common/withErrorBoundary'
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
-import { forumTitleSetting, isAF, isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
+import { forumTitleSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import LoginForm from "../users/LoginForm";
 import SignupSubscribeToCurated from "../users/SignupSubscribeToCurated";
 import Loading from "../vulcan-core/Loading";
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles("RecentDiscussionSubscribeReminder", (theme: ThemeType) => ({
   root: {
@@ -126,6 +127,7 @@ const RecentDiscussionSubscribeReminder = () => {
   const { flash } = useMessages();
   const subscriptionDescription = '(2-3 posts per week, selected by the LessWrong moderation team.)';
   const { captureEvent } = useTracking({eventProps: {pageElementContext: "subscribeReminder"}});
+  const { isAF, isLW } = useForumType();
   
   // Show admins a random version of the widget. Makes sure we notice if it's intrusive/bad.
   const [adminBranch, setAdminBranch] = useState(-1);
@@ -144,7 +146,7 @@ const RecentDiscussionSubscribeReminder = () => {
   }, [adminBranch, currentUser?.isAdmin]);
 
   // disable on AlignmentForum
-  if (isAF()) {
+  if (isAF) {
     return null;
   }
 
@@ -226,7 +228,7 @@ const RecentDiscussionSubscribeReminder = () => {
   } else if (subscriptionConfirmed) {
     // Show the confirmation after the user subscribes
     let confirmText;
-    if (isLW()) {
+    if (isLW) {
       confirmText = "You are subscribed to the best posts of LessWrong!";
     } else {
       confirmText = `You are subscribed to the ${forumTitleSetting} Digest`;

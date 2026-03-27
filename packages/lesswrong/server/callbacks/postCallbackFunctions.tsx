@@ -1148,7 +1148,7 @@ export async function oldPostsLastCommentedAt(post: DbPost, context: ResolverCon
 }
 
 export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPost: DbPost, context: ResolverContext) {
-  const shouldEvaluate = isLW() && !post.draft && oldPost.draft;
+  const shouldEvaluate = context.isLW && !post.draft && oldPost.draft;
   if (shouldEvaluate) {
     const revision = await getLatestContentsRevision(post, context);
     if (revision) {

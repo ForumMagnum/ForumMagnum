@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
 import { useDialog } from '../common/withDialog';
-import { hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
+import { ForumTypeString, hideUnreviewedAuthorCommentsSettings } from '@/lib/instanceSettings';
 import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { requireNewUserGuidelinesAck, userIsAllowedToComment } from '../../lib/collections/users/helpers';
 import { useMessages } from '../common/withMessages';
@@ -26,6 +26,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { useLocation } from '@/lib/routeUtil';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 const UsersCurrentCommentRateLimitQuery = gql(`
   query CommentsNewForm($documentId: String, $postId: String) {
@@ -94,11 +95,12 @@ export type CommentSuccessCallback = ((
 
 export type CommentCancelCallback = (...args: unknown[]) => void | Promise<void>;
 
-const shouldOpenNewUserGuidelinesDialog = (
-  maybeProps: { user: UsersCurrent | null, post?: PostsMinimumInfo }
-): maybeProps is Omit<ComponentProps<typeof NewUserGuidelinesDialog>, "onClose"> => {
-  const { user, post } = maybeProps;
-  return !!user && requireNewUserGuidelinesAck(user) && !!post;
+const shouldOpenNewUserGuidelinesDialog = ({user, post, forumType}: {
+  user: UsersCurrent | null,
+  post?: PostsMinimumInfo,
+  forumType: ForumTypeString,
+}): boolean => {
+  return !!user && requireNewUserGuidelinesAck(user, forumType) && !!post;
 };
 
 const getSubmitLabel = (isQuickTake: boolean, isAnswer?: boolean) => {
@@ -171,6 +173,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
   const [loading, setLoading] = useState(false)
   const [commentFormInstance, setCommentFormInstance] = useState(0)
   const [_,setForceRefreshState] = useState(0);
+  const { forumType } = useForumType();
 
   const { openDialog } = useDialog();
   
@@ -183,13 +186,13 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
     setTimeout(() => {
       // TODO: user field for showing new user guidelines
       // TODO: decide if post should be required?  We might not have a post param in the case of shortform, not sure where else
-      const dialogProps = { user: currentUser, post };
-      if (shouldOpenNewUserGuidelinesDialog(dialogProps)) {
+      if (!!currentUser && !!post && shouldOpenNewUserGuidelinesDialog({user: currentUser, post, forumType})) {
         openDialog({
           name: 'NewUserGuidelinesDialog',
           contents: ({onClose}) => <NewUserGuidelinesDialog
             onClose={onClose}
-            {...dialogProps}
+            user={currentUser}
+            post={post}
           />
         });
       }

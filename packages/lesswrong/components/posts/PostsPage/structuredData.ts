@@ -1,7 +1,8 @@
+import { useForumType } from "@/components/hooks/useForumType";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import { userGetProfileUrl } from "@/lib/collections/users/helpers";
-import { forumTitleSetting, isAF } from "@/lib/instanceSettings";
+import { forumTitleSetting } from "@/lib/instanceSettings";
 import { CommentTreeNode } from "@/lib/utils/unflatten";
 
 const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
@@ -12,9 +13,11 @@ const POST_DESCRIPTION_EXCLUSIONS: RegExp[] = [
 
 
 const getCommentStructuredData = ({
-  comment
+  comment,
+  isAF
 }: {
   comment: CommentTreeNode<CommentsList>
+  isAF: boolean,
 }): Record<string, any> => ({
   "@type": "Comment",
   text: comment.item.contents?.html,
@@ -29,33 +32,29 @@ const getCommentStructuredData = ({
         interactionType: {
           "@type": "http://schema.org/CommentAction",
         },
-        userInteractionCount: comment.item.user?.[isAF() ? "afCommentCount" : "commentCount"],
+        userInteractionCount: comment.item.user?.[isAF ? "afCommentCount" : "commentCount"],
       },
       {
         "@type": "InteractionCounter",
         interactionType: {
           "@type": "http://schema.org/WriteAction",
         },
-        userInteractionCount: comment.item.user?.[isAF() ? "afPostCount" : "postCount"],
+        userInteractionCount: comment.item.user?.[isAF ? "afPostCount" : "postCount"],
       },
     ],
   }],
-  ...(comment.children.length > 0 && {comment: comment.children.map(child => getCommentStructuredData({comment: child}))})
+  ...(comment.children.length > 0 && {comment: comment.children.map(child => getCommentStructuredData({comment: child, isAF}))})
 })
 
 /**
  * Build structured data for a post to help with SEO.
  */
-export const getStructuredData = ({
-  post,
-  description,
-  commentTree,
-  answersTree
-}: {
+export const getStructuredData = ({ post, description, commentTree, answersTree, isAF }: {
   post: PostsWithNavigation | PostsWithNavigationAndRevision;
   description: string | null;
   commentTree: CommentTreeNode<CommentsList>[];
   answersTree: CommentTreeNode<CommentsList>[];
+  isAF: boolean;
 }) => {
   const { user, coauthors } = post;
   const hasUser = !!user;
@@ -99,7 +98,7 @@ export const getStructuredData = ({
           : []),
       ],
     }),
-    ...(answersAndComments.length > 0 && {comment: answersAndComments.map(comment => getCommentStructuredData({comment}))}),
+    ...(answersAndComments.length > 0 && {comment: answersAndComments.map(comment => getCommentStructuredData({comment, isAF}))}),
     interactionStatistic: [
       {
         "@type": "InteractionCounter",

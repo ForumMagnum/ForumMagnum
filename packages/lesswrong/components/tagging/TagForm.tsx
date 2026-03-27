@@ -1,6 +1,6 @@
 import { userIsSubforumModerator, getTagPostsSortOrderOptions } from "@/lib/collections/tags/helpers";
 import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlaceholder';
-import { isEAForum, isLW, isLWorAF } from "@/lib/instanceSettings";
+import { isEAForum, isLWorAF } from "@/lib/instanceSettings";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { userIsAdmin, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { useForm } from "@tanstack/react-form";
@@ -25,6 +25,7 @@ import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import ContentStyles from "../common/ContentStyles";
+import { useForumType } from "../hooks/useForumType";
 
 const TagWithFlagsFragmentUpdateMutation = gql(`
   mutation updateTagTagForm($selector: SelectorInput!, $data: UpdateTagDataInput!) {
@@ -55,10 +56,10 @@ const formStyles = defineStyles('TagForm', (theme: ThemeType) => ({
   cancelButton: cancelButtonStyles(theme),
 }));
 
-function showWikiOnlyField(currentUser: UsersCurrent | null, formType: 'new' | 'edit') {
+function showWikiOnlyField(currentUser: UsersCurrent | null, formType: 'new' | 'edit', isLW: boolean) {
   // LessWrong shows this field on the new tag form, but EA Forum does not
   if (formType === 'new') {
-    return isLW() || userIsAdminOrMod(currentUser);
+    return isLW || userIsAdminOrMod(currentUser);
   }
 
   return userIsAdminOrMod(currentUser);
@@ -119,6 +120,7 @@ export const TagForm = ({
 }) => {
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
+  const { isLW } = useForumType();
   
   const formType = initialData ? 'edit' : 'new';
 
@@ -155,7 +157,7 @@ export const TagForm = ({
 
         if (formType === 'new') {
           const { wikiOnly, ...rest } = formApi.state.values;
-          const createData = showWikiOnlyField(currentUser, formType) ? { ...rest, wikiOnly } : rest;
+          const createData = showWikiOnlyField(currentUser, formType, isLW) ? { ...rest, wikiOnly } : rest;
 
           const { data } = await create({ variables: { data: createData } });
           if (!data?.createTag?.data) {
@@ -420,7 +422,7 @@ export const TagForm = ({
             </form.Field>
           </div>
 
-          {showWikiOnlyField(currentUser, formType) && <div className={classes.fieldWrapper}>
+          {showWikiOnlyField(currentUser, formType, isLW) && <div className={classes.fieldWrapper}>
             <form.Field name="wikiOnly">
               {(field) => (
                 <FormComponentCheckbox

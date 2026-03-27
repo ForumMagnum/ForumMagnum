@@ -1,5 +1,5 @@
 import { isFriendlyUI } from "../themes/forumTheme";
-import { isAF } from "./instanceSettings";
+import { type ForumTypeString } from "./instanceSettings";
 
 const getCustomViewNames = (): Partial<Record<CommentsViewName,string>> => ({
   'postCommentsMagic': isFriendlyUI() ? 'New & upvoted' : 'magic (new & upvoted)',
@@ -13,14 +13,14 @@ const getCustomViewNames = (): Partial<Record<CommentsViewName,string>> => ({
   'postLWComments': 'top scoring (include LW)',
 });
 
-const getCommentsTopView = (): CommentsViewName =>
-  isAF()
+const getCommentsTopView = (options: CommentViewsConfig): CommentsViewName =>
+  (options.forumType === "AlignmentForum")
     ? "afPostCommentsTop"
     : "postCommentsTop";
 
-const getDefaultViews = (): CommentsViewName[] => [
+const getDefaultViews = (options: CommentViewsConfig): CommentsViewName[] => [
   "postCommentsMagic",
-  getCommentsTopView(),
+  getCommentsTopView(options),
   "postCommentsNew",
   "postCommentsOld",
   "postCommentsRecentReplies",
@@ -29,19 +29,20 @@ const adminViews: CommentsViewName[] = ["postCommentsDeleted"];
 const afViews: CommentsViewName[] = ["postLWComments"];
 
 type CommentViewsConfig = {
+  forumType: ForumTypeString,
   includeAdminViews?: boolean,
 }
 
 const getCommentViewNames = (
-  options?: CommentViewsConfig,
+  options: CommentViewsConfig,
 ): CommentsViewName[] => [
-  ...getDefaultViews(),
+  ...getDefaultViews(options),
   ...(options?.includeAdminViews ? adminViews : []),
-  ...(isAF() ? afViews : []),
+  ...(options.forumType === "AlignmentForum" ? afViews : []),
 ];
 
 export const getCommentViewOptions = (
-  options?: CommentViewsConfig,
+  options: CommentViewsConfig,
 ): {value: CommentsViewName, label: string}[] =>
   getCommentViewNames(options).map((view) => ({
     value: view,
@@ -50,6 +51,6 @@ export const getCommentViewOptions = (
 
 export const isValidCommentView = (
   name: string,
-  options?: CommentViewsConfig,
+  options: CommentViewsConfig,
 ): name is CommentsViewName =>
   getCommentViewNames(options).includes(name as CommentsViewName);

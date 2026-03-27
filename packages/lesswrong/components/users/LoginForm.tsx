@@ -1,5 +1,5 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { reCaptchaSiteKeySetting, isAF, isEAForum } from '../../lib/instanceSettings';
+import { reCaptchaSiteKeySetting, isEAForum } from '../../lib/instanceSettings';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMessages } from '../common/withMessages';
@@ -13,6 +13,7 @@ import DeferRender from '../common/DeferRender';
 import { ErrorLike } from '@apollo/client';
 import useCookies from '@/lib/vendor/react-cookie/useCookies.tsx';
 import { defineStyles, useStyles } from '../hooks/useStyles.tsx';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles('LoginForm', (theme: ThemeType) => ({
   root: {
@@ -104,7 +105,8 @@ const LoginForm = ({ startingState = "login", returnTo }: {
   returnTo?: string
 }) => {
   const classes = useStyles(styles);
-  const hasSubscribeToCuratedCheckbox = !isEAForum() && !isAF();
+  const { isAF } = useForumType();
+  const hasSubscribeToCuratedCheckbox = !isEAForum() && !isAF;
   const hasOauthSection = !isEAForum();
 
   const { pathname } = useLocation()

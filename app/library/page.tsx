@@ -1,10 +1,9 @@
 import React from "react";
 import LibraryPage from '@/components/sequences/LibraryPage';
-import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata, getPageTitleFields, getResolverContextForServerComponent } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { isAF } from "@/lib/forumTypeUtils";
 import AFLibraryPage from "@/components/alignment-forum/AFLibraryPage";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
@@ -20,8 +19,9 @@ assertRouteAttributes("/library", {
   hasMarkdownVersion: false,
 });
 
-export default function Page() {
+export default async function Page({ searchParams }: { searchParams: Promise<{}> }) {
+  const context = await getResolverContextForServerComponent(await searchParams);
   return <RouteRoot>
-    {isAF() ? <AFLibraryPage /> : <LibraryPage />}
+    {context.isAF ? <AFLibraryPage /> : <LibraryPage />}
   </RouteRoot>;
 }

@@ -3,7 +3,7 @@ import { useMessages } from '../common/withMessages';
 import { postGetPageUrl, postGetEditUrl, isNotHostedHere } from '../../lib/collections/posts/helpers';
 import {useCurrentUser} from "../common/withUser";
 import { useAfNonMemberSuccessHandling } from "../../lib/alignment-forum/displayAFNonMemberPopups";
-import { isEAForum, isLW } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import { isMissingDocumentError } from '../../lib/utils/errorUtil';
 import type { Editor } from '@ckeditor/ckeditor5-core';
 import DeferRender from '../common/DeferRender';
@@ -36,6 +36,7 @@ import {
   RIGHT_COLUMN_WIDTH_XS,
   sidenotesHiddenBreakpoint,
 } from './PostsPage/constants';
+import { useForumType } from '../hooks/useForumType';
 
 const UsersCurrentPostRateLimitQuery = gql(`
   query PostsEditFormUser($documentId: String, $eventForm: Boolean) {
@@ -160,6 +161,7 @@ const PostsEditFormInner = ({ documentId, version }: {
   version?: string | null,
 }) => {
   const classes = useStyles(styles);
+  const { isLW } = useForumType();
   const { query } = useLocation();
   const navigate = useNavigate();
   const { flash } = useMessages();
@@ -247,7 +249,7 @@ const PostsEditFormInner = ({ documentId, version }: {
   }
 
   // on LW, show a moderation message to users who haven't been approved yet
-  const postWillBeHidden = isLW() && !currentUser?.reviewedByUserId && currentUser?._id === document.userId;
+  const postWillBeHidden = isLW && !currentUser?.reviewedByUserId && currentUser?._id === document.userId;
   const rightColumnChildren = <>
     {/* We render a portal target div in the right column. PostForm will use
     createPortal to render the EditorSettingsSidebar into this target, since it needs

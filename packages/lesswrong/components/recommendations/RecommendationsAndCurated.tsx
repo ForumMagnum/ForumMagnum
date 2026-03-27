@@ -4,7 +4,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import RecommendationsAlgorithmPicker, { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
 import { useContinueReading } from './withContinueReading';
 import {AnalyticsContext, useTracking} from "../../lib/analyticsEvents";
-import { isLW, isEAForum } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import type { RecommendationsAlgorithm } from '../../lib/collections/users/recommendationSettings';
 import { useExpandedFrontpageSection } from '../hooks/useExpandedFrontpageSection';
 import { SHOW_RECOMMENDATIONS_SECTION_COOKIE } from '../../lib/cookies/cookies';
@@ -22,6 +22,7 @@ import CuratedPostsList from "./CuratedPostsList";
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles("RecommendationsAndCurated", (theme: ThemeType) => ({
   section: {
@@ -95,8 +96,8 @@ const styles = defineStyles("RecommendationsAndCurated", (theme: ThemeType) => (
   },
 }));
 
-const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
-  if (isLW()) {
+const getFrontPageOverwrites = (haveCurrentUser: boolean, isLW: boolean): Partial<RecommendationsAlgorithm> => {
+  if (isLW) {
     return {
       lwRationalityOnly: true,
       method: 'sample',
@@ -116,6 +117,7 @@ const RecommendationsAndCurated = ({configName}: {
   configName: string,
 }) => {
   const classes = useStyles(styles);
+  const { isLW } = useForumType();
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "recommendations",
     onExpandEvent: "recommendationsSectionExpanded",
@@ -140,7 +142,7 @@ const RecommendationsAndCurated = ({configName}: {
     const settings = getRecommendationSettings({settings: settingsState, currentUser, configName})
     const frontpageRecommendationSettings: RecommendationsAlgorithm = {
       ...settings,
-      ...getFrontPageOverwrites(!!currentUser)
+      ...getFrontPageOverwrites(!!currentUser, isLW)
     }
 
     const continueReadingTooltip = <div>
@@ -212,14 +214,14 @@ const RecommendationsAndCurated = ({configName}: {
 
     const bodyNode = (
       <>
-        {isLW() && (
+        {isLW && (
           <AnalyticsContext pageSubSectionContext="frontpageCuratedCollections">
             <DismissibleSpotlightItem />
           </AnalyticsContext>
         )}
 
         {/*Delete after the dust has settled on other Recommendations stuff*/}
-        {!currentUser && isLW() && (
+        {!currentUser && isLW && (
           <div>
             {/* <div className={classes.largeScreenLoggedOutSequences}>
             <AnalyticsContext pageSectionContext="frontpageCuratedSequences">

@@ -4250,7 +4250,7 @@ const schema = {
           startDate,
           endDate,
           nextBatchDate,
-          af: isAF(),
+          af: context.isAF,
           context,
         });
       },

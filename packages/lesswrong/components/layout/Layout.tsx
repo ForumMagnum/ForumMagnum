@@ -11,7 +11,7 @@ import { DialogManager } from '@/components/common/withDialog';
 import { CommentBoxManager } from '@/components/hooks/useCommentBox';
 import { ItemsReadContextWrapper } from '@/components/hooks/useRecordPostView';
 import { pBodyStyle } from '../../themes/stylePiping';
-import { googleTagManagerIdSetting, isLW, isLWorAF, isAF } from '@/lib/instanceSettings';
+import { googleTagManagerIdSetting, isLWorAF } from '@/lib/instanceSettings';
 import { globalStyles } from '../../themes/globalStyles/globalStyles';
 import { Helmet } from "@/components/layout/Helmet";
 import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
@@ -38,6 +38,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { gql } from "@/lib/generated/gql-codegen";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { isFullscreenRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
+import { useForumType } from '../hooks/useForumType';
 import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { SubtitlePortalProvider } from './SubtitlePortalContext';
@@ -123,6 +124,7 @@ const Layout = ({children}: {
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const { isLW } = useForumType();
   const currentUserId = currentUser?._id;
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
   const prerenderablePathname = usePrerenderablePathname();
@@ -198,7 +200,7 @@ const Layout = ({children}: {
                 <FlashMessages />
               </ErrorBoundary>
 
-              {isLW() && <LWBackgroundImage />}
+              {isLW && <LWBackgroundImage />}
               <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
 
               {children}
@@ -304,10 +306,11 @@ function PageBackgroundWrapper({children}: {
 }) {
   const classes = useStyles(pageBackgroundWrapperStyles);
   const pathname = usePrerenderablePathname();
+  const { isAF } = useForumType();
 
   return <div id="wrapper" className={classNames(
     "wrapper", {
-      'alignment-forum': isAF(),
+      'alignment-forum': isAF,
       [classes.fullscreen]: isFullscreenRoute(pathname),
       [classes.wrapper]: isLWorAF(),
     },

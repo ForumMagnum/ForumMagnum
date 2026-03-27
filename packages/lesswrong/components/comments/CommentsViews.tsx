@@ -7,11 +7,13 @@ import isEmpty from 'lodash/isEmpty';
 import InlineSelect, { Option } from '../common/InlineSelect';
 import { getCommentViewOptions } from '../../lib/commentViewOptions';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
+import { useForumType } from '../hooks/useForumType';
 
 const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRestoreScrollPos?: (pos: number) => void}) => {
   const currentUser = useCurrentUser();
   const navigate = useNavigate();
   const location = useLocation();
+  const { forumType } = useForumType();
   const { query } = location;
   // permalinkedCommentHeight() finds the height of the comment at the top of comment permalink pages
   // on the EA Forum and LessWrong. This is used when the user changes the comment sort order, which
@@ -39,7 +41,7 @@ const CommentsViews = ({post, setRestoreScrollPos}: {post?: PostsDetails, setRes
 
   const currentView: string = query?.view || commentGetDefaultView(post||null, currentUser)
   const includeAdminViews = userCanDo(currentUser, "comments.softRemove.all");
-  const viewOptions = getCommentViewOptions({includeAdminViews});
+  const viewOptions = getCommentViewOptions({forumType, includeAdminViews});
   const selectedOption = viewOptions.find((option) => option.value === currentView) || viewOptions[0]
 
   return <InlineSelect options={viewOptions} selected={selectedOption} handleSelect={handleViewClick}/>

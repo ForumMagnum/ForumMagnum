@@ -5,7 +5,6 @@ import { userCanPost } from '@/lib/collections/users/helpers';
 import pick from 'lodash/pick';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser'
-import { isAF } from '../../lib/instanceSettings';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -20,6 +19,7 @@ import Loading from "../vulcan-core/Loading";
 import { getMeetupMonthInfo } from '../seasonal/meetupMonth/meetupMonthEventUtils';
 import { getUserDefaultEditor } from '../editor/Editor';
 import { getUserDefaultRichTextEditor } from '@/lib/editor/defaultRichTextEditor';
+import { useForumType } from '../hooks/useForumType';
 
 const PostsEditMutation = gql(`
   mutation createPostPostsNewForm($data: CreatePostDataInput!) {
@@ -175,6 +175,7 @@ const PostsNewForm = () => {
   const [error, setError] = useState<string|null>(null);
   const navigate = useNavigate();
   const currentUser = useCurrentUser();
+  const { isAF } = useForumType();
 
   const templateId = query && query.templateId;
   const questionInQuery = query && !!query.question;
@@ -228,7 +229,7 @@ const PostsNewForm = () => {
   if (userIsMemberOf(currentUser, 'alignmentForum')) {
     prefilledProps = {
       ...prefilledProps,
-      af: isAF() || (query && !!query.af),
+      af: isAF || (query && !!query.af),
     };
   }
 

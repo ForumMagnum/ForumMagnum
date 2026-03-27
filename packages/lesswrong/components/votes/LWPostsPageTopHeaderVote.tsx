@@ -1,6 +1,5 @@
 import React from 'react';
 import { useVote } from './withVote';
-import { isAF } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import { VotingSystem } from '@/lib/voting/votingSystemTypes';
 import { TooltipSpan } from '../common/FMTooltip';
@@ -8,6 +7,7 @@ import OverallVoteButton from "./OverallVoteButton";
 import { Typography } from "../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles("LWPostsPageTopHeaderVote", (theme: ThemeType) => ({
   voteBlockHorizontal: {
@@ -55,6 +55,7 @@ const LWPostsPageTopHeaderVote = ({post, votingSystem}: {
 }) => {
   const classes = useStyles(styles);
   const voteProps = useVote(post, "Posts", votingSystem);
+  const { isAF } = useForumType();
 
   const {fail, reason: whyYouCantVote} = useVoteButtonsDisabled();
   const canVote = !fail;
@@ -64,7 +65,7 @@ const LWPostsPageTopHeaderVote = ({post, votingSystem}: {
 
   const tooltipText = <div>
     <div>{`${voteProps.voteCount} ${voteProps.voteCount === 1 ? "vote" : "votes"}`}</div>
-    {post.af && !isAF() && <div><em>{post.afBaseScore} karma on AlignmentForum</em></div>}
+    {post.af && !isAF && <div><em>{post.afBaseScore} karma on AlignmentForum</em></div>}
   </div>
 
   return (

@@ -1,4 +1,4 @@
-import { isEAForum, newUserIconKarmaThresholdSetting, isAF, isLW } from '@/lib/instanceSettings';
+import { isEAForum, newUserIconKarmaThresholdSetting, isAF, isLW, ForumTypeString } from '@/lib/instanceSettings';
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
 import type { PermissionResult } from '../../make_voteable';
@@ -403,10 +403,10 @@ export const isMod = (user: UsersProfile|UsersCurrent|DbUser): boolean => {
 }
 
 const SHOW_NEW_USER_GUIDELINES_AFTER = new Date('10-07-2022');
-export const requireNewUserGuidelinesAck = (user: UsersCurrent) => {
+export const requireNewUserGuidelinesAck = (user: UsersCurrent, forumType: ForumTypeString) => {
   if (isE2E) return false;
   
-  if (!isLW()) return false;
+  if (forumType === 'AlignmentForum') return false;
 
   const userCreatedAfterCutoff = user.createdAt
     ? new Date(user.createdAt) > SHOW_NEW_USER_GUIDELINES_AFTER

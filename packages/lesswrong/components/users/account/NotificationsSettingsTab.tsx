@@ -1,5 +1,5 @@
 import React from 'react';
-import { hasEventsSetting, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
+import { hasEventsSetting, isEAForum, isLWorAF } from '@/lib/instanceSettings';
 import { allowSubscribeToSequencePosts } from '@/lib/betas';
 import { ManageSubscriptionsLink } from '@/components/form-components/ManageSubscriptionsLink';
 import KarmaChangeNotifierSettings from '@/components/users/KarmaChangeNotifierSettings';
@@ -10,11 +10,14 @@ import SettingsSection from './SettingsSection';
 import SettingsToggleRow from './SettingsToggleRow';
 import NotificationSettingsRow, { NotificationColumnHeaders } from './NotificationSettingsRow';
 import type { SettingsTabProps } from './settingsTabTypes';
+import { useForumType } from '@/components/hooks/useForumType';
 
 const NotificationsSettingsTab = ({
   form,
   fieldWrapperClass,
 }: SettingsTabProps) => {
+  const { isLW } = useForumType();
+
   return (
     <div>
       <SettingsSection title="Auto-Subscriptions">
@@ -233,7 +236,7 @@ const NotificationsSettingsTab = ({
           </form.Field>
         </div>
 
-        {isLW() && <div className={fieldWrapperClass}>
+        {isLW && <div className={fieldWrapperClass}>
           <form.Field name="emailSubscribedToCurated">
             {(field) => (
               <EmailConfirmationRequiredCheckbox

@@ -6,11 +6,12 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import { isAF, isEAForum, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { isEAForum, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { useDialog } from '../../common/withDialog';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
+import { useForumType } from '../../hooks/useForumType';
 import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import isEmpty from 'lodash/isEmpty';
@@ -239,10 +240,13 @@ const getDebateResponseBlocks = (responses: readonly CommentsList[], replies: re
 }));
 
 function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurrent | null, defaultTerms: T, query: Record<string, string>) {
-  const commentOpts = { includeAdminViews: currentUser?.isAdmin };
   let view;
   let limit;
-  if (isValidCommentView(query.view, commentOpts)) {
+  const { forumType } = useForumType();
+  if (isValidCommentView(query.view, {
+    includeAdminViews: currentUser?.isAdmin,
+    forumType
+  })) {
     const { view: queryView, limit: queryLimit } = query;
     view = queryView;
     limit = returnIfValidNumber(queryLimit);
@@ -533,7 +537,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
 
   const header = <>
     {fullPost && !linkedCommentId && <>
-      <StructuredData generate={() => getStructuredData({post: fullPost, description, commentTree, answersTree})}/>
+      <StructuredData generate={() => getStructuredData({post: fullPost, description, commentTree, answersTree, isAF})}/>
     </>}
     {/* Header/Title */}
     <AnalyticsContext pageSectionContext="postHeader">
@@ -574,10 +578,11 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
   </>;
 
   const postsPageContext = useMemo(() => ({fullPost: fullPost ?? null, postPreload: postPreload ?? null}), [fullPost, postPreload]);
+  const { isAF } = useForumType();
 
 
   // If this is a non-AF post being viewed on AF, redirect to LW.
-  if (isAF() && !post.af) {
+  if (isAF && !post.af) {
     const lwURL = "https://www.lesswrong.com" + location.url;
     return <PermanentRedirect url={lwURL}/>
   }
@@ -698,7 +703,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
               highlightDate={highlightDate ?? undefined}
               setHighlightDate={setHighlightDate}
             />}
-            {isAF() && <AFUnreviewedCommentCount post={post}/>}
+            {isAF && <AFUnreviewedCommentCount post={post}/>}
           </Suspense>
           </AnalyticsContext>
         </div>

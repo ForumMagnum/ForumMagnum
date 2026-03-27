@@ -12,7 +12,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { RecommendationsAlgorithm } from "@/lib/collections/users/recommendationSettings";
 import { defineStyles, useStyles } from "../hooks/useStyles";
-import { isAF } from "@/lib/instanceSettings";
+import { useForumType } from "../hooks/useForumType";
 
 const styles = defineStyles("PostBottomRecommendations", (theme: ThemeType) => ({
   root: {
@@ -56,6 +56,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
   ssr?: boolean,
 }) => {
   const classes = useStyles(styles);
+  const { isAF } = useForumType();
   const postId = post._id;
   const algorithm: RecommendationsAlgorithm = useMemo(() => ({
     strategy: {
@@ -65,8 +66,8 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
     },
     count: 3,
     disableFallbacks: true,
-    af: isAF(),
-  }), [postId]);
+    af: isAF,
+  }), [postId, isAF]);
 
   const {
     recommendationsLoading: moreFromAuthorLoading,
@@ -82,7 +83,7 @@ const PostBottomRecommendations = ({post, hasTableOfContents, ssr = false}: {
       }
     }
   `), {
-    variables: { limit: 3, af: isAF() },
+    variables: { limit: 3, af: isAF },
     fetchPolicy: "cache-and-network",
     nextFetchPolicy: "cache-first",
     ssr

@@ -15,7 +15,7 @@ import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayA
 import { DisableNoKibitzContext } from '../common/sharedContexts';
 import { useAdminToggle } from '../admin/useAdminToggle';
 import { isMobile } from '../../lib/utils/isMobile'
-import { isAF, blackBarTitle } from '@/lib/instanceSettings';
+import { blackBarTitle } from '@/lib/instanceSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import LWPopper from "../common/LWPopper";
 import LWTooltip from "../common/LWTooltip";
@@ -30,6 +30,7 @@ import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovCo
 import dynamic from 'next/dynamic';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 const NewDialogueDialog = dynamic(() => import("../posts/NewDialogueDialog"), { ssr: false });
 const NewShortformDialog = dynamic(() => import("../shortform/NewShortformDialog"), { ssr: false });
@@ -103,6 +104,7 @@ const styles = defineStyles('UsersMenu', (theme: ThemeType) => ({
 const UsersMenu = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const { isAF } = useForumType();
   const {eventHandlers, hover, forceUnHover, anchorEl} = useHover();
   const {openDialog} = useDialog();
   const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
@@ -119,7 +121,7 @@ const UsersMenu = () => {
     </div>
   }
   
-  const showNewButtons = (!isAF() || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
+  const showNewButtons = (!isAF || userCanDo(currentUser, 'posts.alignment.new')) && !currentUser.deleted
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
   // By default, we show the user's display name as the menu button.
   let userButtonNode = <span className={classes.userButtonContents}>
@@ -133,7 +135,7 @@ const UsersMenu = () => {
     </div>}>
       <span className={classes.deactivated}>[Deactivated]</span>
     </LWTooltip>}
-    {isAF() && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
+    {isAF && !isAfMember && <span className={classes.notAMember}> (Not a Member) </span>}
   </span>
   
   /** Prevent navigation to your profile on mobile, where the only way to open
@@ -211,7 +213,7 @@ const UsersMenu = () => {
 
               <DropdownDivider />
 
-              {isAF() && !isAfMember &&
+              {isAF && !isAfMember &&
                 <DropdownItem
                   title={"Apply for Membership"}
                   onClick={() => {

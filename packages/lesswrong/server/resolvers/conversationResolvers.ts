@@ -2,7 +2,7 @@ import gql from "graphql-tag"
 import { forumSelect } from "@/lib/forumTypeUtils";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { TupleSet, UnionOf } from "@/lib/utils/typeGuardUtils";
-import { adminAccountSetting, isAF } from "@/lib/instanceSettings";
+import { adminAccountSetting } from "@/lib/instanceSettings";
 import { createConversation, createConversationGqlMutation } from '../collections/conversations/mutations';
 import { createMessage } from '../collections/messages/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
@@ -117,13 +117,13 @@ export const conversationGqlMutations = {
     return true;
   },
   async initiateConversation (_: void, { participantIds, moderator }: { participantIds: string[], moderator: boolean | null }, context: ResolverContext): Promise<(Partial<DbConversation> & { [ACCESS_FILTERED]: true }) | null> {
-    const { currentUser, Conversations } = context;
+    const { currentUser, Conversations, isAF } = context;
 
     if (!currentUser) {
       throw new Error("You must be logged in to do this");
     }
 
-    const afField = isAF() ? { af: true } : {};
+    const afField = isAF ? { af: true } : {};
     const moderatorField = typeof moderator === 'boolean' ? { moderator } : {};
 
     // This is basically the `userGroupUntitledConversations` view plus the default view

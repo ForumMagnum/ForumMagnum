@@ -1,5 +1,5 @@
 import React from 'react';
-import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
+import { hasEventsSetting, isEAForum, isLWorAF } from '@/lib/instanceSettings';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
 import { ThemeSelect } from '@/components/form-components/ThemeSelect';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
@@ -10,6 +10,7 @@ import SettingsToggleRow from './SettingsToggleRow';
 import SettingsSelectRow from './SettingsSelectRow';
 import type { SettingsTabProps } from './settingsTabTypes';
 import { userCanViewJargonTerms } from '@/lib/betas';
+import { useForumType } from '@/components/hooks/useForumType';
 
 const SORT_DRAFTS_BY_OPTIONS = [
   { value: "wordCount", label: "Wordcount" },
@@ -26,6 +27,8 @@ const PreferencesSettingsTab = ({
   currentUser,
   fieldWrapperClass,
 }: SettingsTabProps) => {
+  const { isAF, isLW, forumType } = useForumType();
+
   return (
     <div>
       {!isLWorAF() && (
@@ -57,7 +60,7 @@ const PreferencesSettingsTab = ({
           {(field) => (
             <SettingsSelectRow
               field={field}
-              options={getCommentViewOptions()}
+              options={getCommentViewOptions({forumType})}
               label="Default comment sorting"
               description="How comments are ordered when you open a post"
             />
@@ -163,7 +166,7 @@ const PreferencesSettingsTab = ({
       </SettingsSection>
 
       <SettingsSection title="Frontpage">
-        {isLW() && (
+        {isLW && (
           <form.Field name="hideFrontpageMap">
             {(field) => (
               <SettingsToggleRow
@@ -185,7 +188,7 @@ const PreferencesSettingsTab = ({
           </form.Field>
         )}
 
-        {isAF() && (
+        {isAF && (
           <form.Field name="hideAFNonMemberInitialWarning">
             {(field) => (
               <SettingsToggleRow

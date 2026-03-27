@@ -2,7 +2,6 @@ import React from 'react';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import moment from '../../lib/moment-timezone';
 import { useCurrentUser } from '../common/withUser';
-import { isAF } from '../../lib/instanceSettings';
 import { useVoteButtonsDisabled } from './useVoteButtonsDisabled';
 import type { VotingProps } from './votingProps';
 import OverallVoteButton from './OverallVoteButton';
@@ -10,6 +9,7 @@ import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import UsersName from "../users/UsersName";
 import LWTooltip from "../common/LWTooltip";
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles('OverallVoteAxis', theme => ({
   overallSection: {
@@ -138,6 +138,7 @@ const OverallVoteAxis = ({
       </LWTooltip>
     : ({children}: {children: React.ReactNode}) => <>{children}</>
   , [canVote, classes.tooltip])
+  const { isAF } = useForumType();
 
 
   // Moved down here to allow for useMemo hooks
@@ -147,7 +148,7 @@ const OverallVoteAxis = ({
 
   return <TooltipIfDisabled>
     <span className={classes.vote}>
-      {!!af && !isAF() && !hideAfScore &&
+      {!!af && !isAF && !hideAfScore &&
         <LWTooltip
           placement={tooltipPlacement}
           popperClassName={classes.tooltip}
@@ -164,7 +165,7 @@ const OverallVoteAxis = ({
           </span>
         </LWTooltip>
       }
-      {!af && isAF() &&
+      {!af && isAF &&
         <LWTooltip
           title="LessWrong Karma"
           placement={tooltipPlacement}
@@ -176,7 +177,7 @@ const OverallVoteAxis = ({
           </span>
         </LWTooltip>
       }
-      {(!isAF() || !!af) &&
+      {(!isAF || !!af) &&
         <span className={classNames(classes.overallSection, className, {
           [classes.overallSectionBox]: showBox,
           [classes.verticalArrows]: verticalArrows,

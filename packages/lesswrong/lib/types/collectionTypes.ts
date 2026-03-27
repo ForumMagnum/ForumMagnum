@@ -337,6 +337,13 @@ interface ResolverContext extends CollectionsByName {
   currentUser: DbUser|null,
 
   /**
+   * isAF, isLW: Indicates whether the request is to lesswrong.com or
+   * alignmentforum.org. Prefer these over calling top-level isLW() or isAF().
+   */
+  isAF: boolean
+  isLW: boolean
+
+  /**
    * Hack to make visitorActivity acceptable to posts-list resolvers, in a
    * non-async context. If missing from the ResolverContext, this hasn't been
    * queried; if present and null, it's been queried but there's no activity
