@@ -11,6 +11,7 @@ import BookmarkDropdownItem from "../dropdowns/posts/BookmarkDropdownItem";
 import SeeLessDropdownItem from "../dropdowns/posts/SeeLessDropdownItem";
 import ScoreBreakdownDropdownItem from "../dropdowns/ScoreBreakdownDropdownItem";
 import { FeedCommentMetaInfo } from "./ultraFeedTypes";
+import { useForumType } from "../hooks/useForumType";
 
 const UltraFeedCommentActions = ({ comment, post, closeMenu, showEdit, onSeeLess, isSeeLessMode, commentMetaInfo }: {
   comment: CommentsList,
@@ -22,6 +23,8 @@ const UltraFeedCommentActions = ({ comment, post, closeMenu, showEdit, onSeeLess
   commentMetaInfo?: FeedCommentMetaInfo,
 }) => {
   const currentUserId = useCurrentUserId();
+  const { forumType } = useForumType();
+
   const url = comment.postId
     ? `${postGetPageUrl({ _id: comment.postId, slug: post?.slug ?? "" })}#${comment._id}`
     : commentGetPageUrlFromIds({ commentId: comment._id, postId: comment.postId ?? undefined, postSlug: post?.slug, tagSlug: undefined });
@@ -49,7 +52,7 @@ const UltraFeedCommentActions = ({ comment, post, closeMenu, showEdit, onSeeLess
       {!isOwnComment &&
         <NotifyMeToggleDropdownItem
           document={comment.user}
-          title={`Follow ${userGetDisplayName(comment.user)}`}
+          title={`Follow ${userGetDisplayName(comment.user, forumType)}`}
           subscriptionType="newActivityForFeed"
         />}
       {commentMetaInfo?.rankingMetadata && <ScoreBreakdownDropdownItem

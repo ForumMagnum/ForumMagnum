@@ -1,4 +1,4 @@
-import { isAF, isLW, localeSetting } from '@/lib/instanceSettings';
+import { forumTypeSetting, isAF, isLW, localeSetting } from '@/lib/instanceSettings';
 import { getAllCollectionsByName } from "../collections/allCollections";
 import { getAllRepos } from "../repos";
 import { generateDataLoaders } from "./apollo-server/context";
@@ -13,6 +13,7 @@ export const createAnonymousContext = (options?: Partial<ResolverContext>): Reso
     isSSR: false,
     isAF: isAF(),
     isLW: isLW(),
+    forumType: forumTypeSetting.get(),
     isGreaterWrong: false,
     isIssaRiceReader: false,
     repos: getAllRepos(),

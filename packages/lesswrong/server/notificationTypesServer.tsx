@@ -287,14 +287,14 @@ export const NewSubforumCommentNotification = createServerNotificationType({
 export const NewDialogueMessageNotification = createServerNotificationType({
   name: "newDialogueMessages",
   canCombineEmails: true,
-  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext }) => {
     const post = await Posts.findOne(notifications[0].documentId);
     const authorId = notifications[0].extraData?.newMessageAuthorId
     const author = authorId && await Users.findOne(authorId)
     if (!post) throw Error(`Can't find dialogue for notification: ${notifications[0]}`)
 
     if (author) {
-      return `${userGetDisplayName(author)} left a new reply in your dialogue, ${post.title}`
+      return `${userGetDisplayName(author, context.forumType)} left a new reply in your dialogue, ${post.title}`
     }      
 
     return `New reply in your dialogue, ${post.title}`;
@@ -397,7 +397,7 @@ export const NewDebateReplyNotification = createServerNotificationType({
 export const NewReplyNotification = createServerNotificationType({
   name: "newReply",
   canCombineEmails: true,
-  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext }) => {
     if (notifications.length > 1) {
       return `${notifications.length} replies to comments you're subscribed to`;
     } else {
@@ -405,7 +405,7 @@ export const NewReplyNotification = createServerNotificationType({
       if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
       const author = await Users.findOne(comment.userId);
       if (!author) throw Error(`Can't find author for new comment notification: ${notifications[0]}`)
-      return `${userGetDisplayName(author)} replied to a comment you're subscribed to`;
+      return `${userGetDisplayName(author, context.forumType)} replied to a comment you're subscribed to`;
     }
   },
   emailBody: async ({ user, notifications, emailContext }) => {
@@ -420,7 +420,7 @@ export const NewReplyNotification = createServerNotificationType({
 export const NewReplyToYouNotification = createServerNotificationType({
   name: "newReplyToYou",
   canCombineEmails: true,
-  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
+  emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext }) => {
     const anyIndirect = notifications.some(n => n.extraData?.direct === false);
 
     if (notifications.length > 1) {
@@ -430,7 +430,7 @@ export const NewReplyToYouNotification = createServerNotificationType({
       if (!comment) throw Error(`Can't find comment for notification: ${notifications[0]}`)
       const author = await Users.findOne(comment.userId);
       if (!author) throw Error(`Can't find author for new comment notification: ${notifications[0]}`)
-      return anyIndirect ? `${userGetDisplayName(author)} replied to a thread you participated in` : `${userGetDisplayName(author)} replied to your comment`;
+      return anyIndirect ? `${userGetDisplayName(author, context.forumType)} replied to a thread you participated in` : `${userGetDisplayName(author, context.forumType)} replied to your comment`;
     }
   },
   emailBody: async ({ user, notifications, emailContext }) => {
@@ -484,7 +484,7 @@ export const NewMessageNotification = createServerNotificationType({
   emailSubject: async function({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) {
     const { conversations, otherParticipants } = await this.loadData!({ user, notifications, context });
     
-    const otherParticipantNames = otherParticipants.map((u: DbUser)=>userGetDisplayName(u)).join(', ');
+    const otherParticipantNames = otherParticipants.map((u: DbUser)=>userGetDisplayName(u, context.forumType)).join(', ');
     
     return `Private message conversation${conversations.length>1 ? 's' : ''} with ${otherParticipantNames}`;
   },

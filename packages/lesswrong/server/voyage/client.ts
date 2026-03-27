@@ -115,7 +115,7 @@ const enrichCommentDocumentForEmbedding = (comment: EmbeddingCommentInfo) => {
   const text = htmlToTextDefault(comment.contents?.html ?? "");
   const { user, post } = comment;
   const parentPostTitleNode = `<parent-post-title>${post?.title}</parent-post-title>`;
-  const commentAuthorNode = `<comment-author>${userGetDisplayName(user)}</comment-author>`;
+  const commentAuthorNode = `<comment-author>${user?.displayName ?? ""}</comment-author>`;
   const commentTextNode = `<comment-text>${text}</comment-text>`;
   return `<comment>\n${parentPostTitleNode}\n${commentAuthorNode}\n${commentTextNode}\n</comment>`;
 }

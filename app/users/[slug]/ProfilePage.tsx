@@ -19,6 +19,7 @@ import { StatusCodeSetter } from "@/components/next/StatusCodeSetter";
 import { UserProfileTopPostsSection } from "./UserProfileTopPostsSection";
 import { ProfilePageTabbedSection } from "./ProfilePageTabbedSection";
 import { ProfilePageMobileBio, ProfilePageSidebar } from "./ProfilePageSidebar";
+import { useForumType } from "@/components/hooks/useForumType";
 
 const profilePageUnsharedStyles = defineStyles("ProfilePageUnshared", (theme: ThemeType) => ({
   page: {
@@ -224,7 +225,8 @@ function ProfileHeaderActions({user}: {
   const currentUser = useCurrentUser();
   const canEditProfile = !!user && userCanEditUser(currentUser, user);
   const canModerateUserProfile = userIsAdminOrMod(currentUser);
-  const username = userGetDisplayName(user);
+  const { forumType } = useForumType();
+  const username = userGetDisplayName(user, forumType);
 
   if (!canEditProfile && !canModerateUserProfile) return null;
 

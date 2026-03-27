@@ -32,6 +32,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
   if (!documentId) return null;
 
   const { Posts, Comments, Users, Messages, Conversations, Localgroups, TagRels, Sequences } = context;
+  const { forumType } = context;
 
   switch (documentType) {
     case 'post':
@@ -55,8 +56,8 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
       return user && {
         type: documentType,
         document: user,
-        displayName: userGetDisplayName(user),
-        associatedUserName: userGetDisplayName(user),
+        displayName: userGetDisplayName(user, forumType),
+        associatedUserName: userGetDisplayName(user, forumType),
       };
     case 'message':
       const message = await Messages.findOne(documentId);
@@ -68,7 +69,7 @@ export const getDocumentSummary = async (documentType: NotificationDocument | nu
         type: documentType,
         document: message,
         displayName: conversation?.title ?? undefined,
-        associatedUserName: userGetDisplayName(author),
+        associatedUserName: userGetDisplayName(author, forumType),
       };
     case 'localgroup':
       const localgroup = await Localgroups.findOne(documentId);

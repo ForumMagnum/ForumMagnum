@@ -166,6 +166,7 @@ const UsersProfileFn = ({terms, slug}: {
 }) => {
   const classes = useStyles(styles);
   const [showSettings, setShowSettings] = useState(false);
+  const { forumType } = useForumType();
 
   const currentUser = useCurrentUser();
   const { flash } = useMessages();
@@ -309,7 +310,7 @@ const UsersProfileFn = ({terms, slug}: {
     postTerms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
     
 
-    const username = userGetDisplayName(user)
+    const username = userGetDisplayName(user, forumType)
     const metaDescription = `${username}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`
     
     const nonAFMember = (isAF && !userCanDo(currentUser, "posts.alignment.new"))

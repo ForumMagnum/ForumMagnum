@@ -11,6 +11,7 @@ import SeeLessDropdownItem from "../dropdowns/posts/SeeLessDropdownItem";
 import BookmarkDropdownItem from "../dropdowns/posts/BookmarkDropdownItem";
 import ScoreBreakdownDropdownItem from "../dropdowns/ScoreBreakdownDropdownItem";
 import { FeedPostMetaInfo } from "./ultraFeedTypes";
+import { useForumType } from "../hooks/useForumType";
 
 const styles = defineStyles("UltraFeedPostActions", (theme: ThemeType) => ({
   root: {
@@ -28,6 +29,7 @@ const UltraFeedPostActions = ({ post, closeMenu, includeBookmark, onSeeLess, isS
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const { forumType } = useForumType();
 
   const handleOpenNewTab = useCallback((ev: React.MouseEvent) => {
     ev.preventDefault();
@@ -53,7 +55,7 @@ const UltraFeedPostActions = ({ post, closeMenu, includeBookmark, onSeeLess, isS
     <DropdownMenu className={classes.root}>
       {author && !userIsAuthor && <NotifyMeToggleDropdownItem
         document={author}
-        title={`Follow ${userGetDisplayName(author)}`}
+        title={`Follow ${userGetDisplayName(author, forumType)}`}
         subscriptionType="newActivityForFeed"
       />}
       {postMetaInfo?.rankingMetadata && <ScoreBreakdownDropdownItem

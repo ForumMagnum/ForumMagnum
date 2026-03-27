@@ -9,6 +9,7 @@ import UserNameDeleted from "./UserNameDeleted";
 import UserTooltip from "./UserTooltip";
 import { useNoKibitz } from '../hooks/useNoKibitz';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles("UsersNameDisplay", (theme: ThemeType) => ({
   color: {
@@ -72,11 +73,12 @@ const UsersNameDisplay = ({
   });
   const noKibitz = useNoKibitz(user);
   const nameHidden = noKibitz && !hover;
+  const { forumType } = useForumType();
 
   if (!user || user.deleted) {
     return <UserNameDeleted userShownToAdmins={user}/>
   }
-  const displayName = nameHidden ? "(hidden)" : userGetDisplayName(user);
+  const displayName = nameHidden ? "(hidden)" : userGetDisplayName(user, forumType);
   const colorClass = color?classes.color:classes.noColor;
 
   if (simple) {

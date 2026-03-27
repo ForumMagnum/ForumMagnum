@@ -4,16 +4,19 @@ import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { allowSubscribeToUserComments } from "../../../lib/betas";
 import { CombinedSubscriptionsDropdownItem } from "../CombinedSubscriptionsDropdownItem";
+import { useForumType } from "@/components/hooks/useForumType";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 
 /**
  * A list of props that go into each subscription menu item,
  * pulled out so that friendly sites can display them differently.
  */
-const getNotifyMeItems = ({comment, post, currentUser, enableSubscribeToCommentUser}: {
+const getNotifyMeItems = ({comment, post, currentUser, enableSubscribeToCommentUser, forumType}: {
   comment: CommentsList,
   post?: PostsMinimumInfo,
   currentUser: UsersCurrent | null,
   enableSubscribeToCommentUser: boolean,
+  forumType: ForumTypeString,
 }) => [
   {
     document: post,
@@ -25,7 +28,7 @@ const getNotifyMeItems = ({comment, post, currentUser, enableSubscribeToCommentU
     ),
     subscribeMessage: `Subscribe to ${post?.title}`,
     unsubscribeMessage: `Unsubscribe from ${post?.title}`,
-    title: `New quick takes from ${userGetDisplayName(comment.user)}`,
+    title: `New quick takes from ${userGetDisplayName(comment.user, forumType)}`,
     subscriptionType: subscriptionTypes.newShortform,
   },
   {
@@ -38,17 +41,17 @@ const getNotifyMeItems = ({comment, post, currentUser, enableSubscribeToCommentU
   {
     document: comment.user,
     enabled: enableSubscribeToCommentUser,
-    subscribeMessage: `Subscribe to posts by ${userGetDisplayName(comment.user)}`,
-    unsubscribeMessage: `Unsubscribe from posts by ${userGetDisplayName(comment.user)}`,
-    title: `New posts by ${userGetDisplayName(comment.user)}`,
+    subscribeMessage: `Subscribe to posts by ${userGetDisplayName(comment.user, forumType)}`,
+    unsubscribeMessage: `Unsubscribe from posts by ${userGetDisplayName(comment.user, forumType)}`,
+    title: `New posts by ${userGetDisplayName(comment.user, forumType)}`,
     subscriptionType: subscriptionTypes.newPosts,
   },
   {
     document: comment.user,
     enabled: enableSubscribeToCommentUser && allowSubscribeToUserComments,
-    subscribeMessage: `Subscribe to all comments by ${userGetDisplayName(comment.user)}`,
-    unsubscribeMessage: `Unsubscribe from all comments by ${userGetDisplayName(comment.user)}`,
-    title: `New comments by ${userGetDisplayName(comment.user)}`,
+    subscribeMessage: `Subscribe to all comments by ${userGetDisplayName(comment.user, forumType)}`,
+    unsubscribeMessage: `Unsubscribe from all comments by ${userGetDisplayName(comment.user, forumType)}`,
+    title: `New comments by ${userGetDisplayName(comment.user, forumType)}`,
     subscriptionType: subscriptionTypes.newUserComments,
   },
 ];
@@ -62,6 +65,7 @@ export const CommentSubscriptionsDropdownItem = ({comment, post}: {
   post?: PostsMinimumInfo,
 }) => {
   const currentUser = useCurrentUser();
+  const { forumType } = useForumType();
 
   const enableSubscribeToCommentUser = Boolean(
     comment.user?._id &&
@@ -70,8 +74,8 @@ export const CommentSubscriptionsDropdownItem = ({comment, post}: {
   );
 
   const notifyMeItems = useMemo(() => {
-    return getNotifyMeItems({comment, post, currentUser, enableSubscribeToCommentUser});
-  }, [comment, post, currentUser, enableSubscribeToCommentUser]);
+    return getNotifyMeItems({comment, post, currentUser, enableSubscribeToCommentUser, forumType});
+  }, [comment, post, currentUser, enableSubscribeToCommentUser, forumType]);
 
   if (comment.draft) {
     return null;

@@ -10,6 +10,7 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import dynamic from 'next/dynamic';
 import { userGetDisplayName } from '@/lib/collections/users/helpers';
+import { useForumType } from '@/components/hooks/useForumType';
 
 const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
 
@@ -86,8 +87,9 @@ const LlmPolicyViolationDialog = ({post, onClose, onSubmit}: {
 }) => {
   const classes = useStyles(styles);
   const editorContainerRef = useRef<HTMLDivElement>(null);
+  const { forumType } = useForumType();
 
-  const authorDisplayName = userGetDisplayName(post.user);
+  const authorDisplayName = userGetDisplayName(post.user, forumType);
   const authorSlug = post.user?.slug ?? '';
 
   const { data: templateData, loading: templateLoading } = useQuery(llmPolicyViolationTemplateQuery, {

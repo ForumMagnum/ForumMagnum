@@ -31,6 +31,7 @@ import Loading from '../vulcan-core/Loading';
 import { makeEditorConfig } from '../editor/editorConfigs';
 import LexicalEditor from '../editor/LexicalEditor';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles('LanguageModelChat', (theme: ThemeType) => ({
   root: {
@@ -267,11 +268,12 @@ const LLMInputTextbox = ({onSubmit}: {
   const [currentMessage, setCurrentMessage] = useState('');
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
   const editorRef = useRef<Editor | null>(null);
+  const { forumType } = useForumType();
 
   // TODO: we probably want to come back to this and enable cloud services for image uploading
   const editorConfig = makeEditorConfig({
     placeholder: 'Type here.  Ctrl/Cmd + Enter to submit to Claude 3.5. ',
-    mention: mentionPluginConfiguration,
+    mention: mentionPluginConfiguration(forumType),
   });
 
   const submitEditorContentAndClear = useCallback(() => {

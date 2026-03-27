@@ -109,6 +109,7 @@ const UsersMenu = () => {
   const {openDialog} = useDialog();
   const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
   const {toggleOn, toggleOff} = useAdminToggle();
+  const { forumType } = useForumType();
 
   if (!currentUser) return null;
   if (currentUser.usernameUnset) {
@@ -125,7 +126,7 @@ const UsersMenu = () => {
   const isAfMember = currentUser.groups && currentUser.groups.includes('alignmentForum')
   // By default, we show the user's display name as the menu button.
   let userButtonNode = <span className={classes.userButtonContents}>
-    {userGetDisplayName(currentUser)}
+    {userGetDisplayName(currentUser, forumType)}
     {currentUser.deleted && <LWTooltip title={<div className={classes.deactivatedTooltip}>
       <div>Your account has been deactivated:</div>
       <ul>

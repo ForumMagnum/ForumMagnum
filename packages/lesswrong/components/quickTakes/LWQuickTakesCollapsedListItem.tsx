@@ -12,6 +12,7 @@ import CommentBottomCaveats from "../comments/CommentsItem/CommentBottomCaveats"
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useForumType } from "../hooks/useForumType";
 
 const styles = defineStyles("LWQuickTakesCollapsedListItem", (theme: ThemeType) => ({
   root: {
@@ -87,6 +88,8 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, linesToDisplay=2
   linesToDisplay?: number,
 }) => {
   const classes = useStyles(styles);
+  const { forumType } = useForumType();
+
   const {eventHandlers, hover, anchorEl} = useHover({
     eventProps: {
       pageElementContext: "shortformItemTooltip",
@@ -150,7 +153,8 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, linesToDisplay=2
   );
 
   const commenterNames = Array.from(new Set(
-    quickTake.latestChildren?.map((c: FrontpageShortformComments) => userGetDisplayName(c.user)).filter((name: string) => !!name && name !== userGetDisplayName(quickTake.user))
+    quickTake.latestChildren?.map((c: FrontpageShortformComments) => userGetDisplayName(c.user, forumType))
+      .filter((name: string) => !!name && name !== userGetDisplayName(quickTake.user, forumType))
   ));
 
   const commentersElement = commenterNames.length > 0 && (

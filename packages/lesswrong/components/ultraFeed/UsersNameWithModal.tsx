@@ -12,6 +12,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import SubscriptionsIcon from '@/lib/vendor/@material-ui/icons/src/NotificationsNone';
 import { useHover } from '../common/withHover';
 import { useNoKibitz } from '../hooks/useNoKibitz';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles("UsersNameWithModal", (theme: ThemeType) => ({
   subscribeIcon: {
@@ -66,6 +67,7 @@ const UsersNameWithModal = ({
   });
   const noKibitz = useNoKibitz(user);
   const nameHidden = noKibitz && !hover;
+  const { forumType } = useForumType();
 
   if (!user && !documentId) {
     return <UsersName user={user} documentId={documentId} {...otherProps} className={className} />;
@@ -79,7 +81,7 @@ const UsersNameWithModal = ({
     return <UserNameDeleted />;
   }
 
-  const displayName = nameHidden ? "(hidden)" : userGetDisplayName(user);
+  const displayName = nameHidden ? "(hidden)" : userGetDisplayName(user, forumType);
   const profileUrl = userGetProfileUrl(user);
 
   if (simple) {

@@ -117,7 +117,7 @@ export const detectLinkpost = (
 export const postGetAuthorName = async function (post: DbPost, context: ResolverContext): Promise<string> {
   var user = await context.Users.findOne({_id: post.userId});
   if (user) {
-    return userGetDisplayName(user);
+    return userGetDisplayName(user, context.forumType);
   } else {
     return post.author ?? "[unknown author]";
   }

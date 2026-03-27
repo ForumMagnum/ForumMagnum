@@ -17,6 +17,7 @@ import { ckEditorPluginStyles } from './ckEditorStyles';
 import { augmentEditor } from './editorAugmentations';
 import { useCommandPalette } from '../hooks/useCommandPalette';
 import { makeEditorConfig } from './editorConfigs';
+import { useForumType } from '../hooks/useForumType';
 
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
@@ -69,6 +70,7 @@ const CKCommentEditor = ({
   const ckEditorCloudConfigured = !!webSocketUrl;
   const CommentEditor = getCkCommentEditor();
   const portalContext = useContext(CkEditorPortalContext);
+  const { forumType } = useForumType();
   const { openDialog } = useDialog();
 
   const [editorObject, setEditorObject] = useState<Editor | null>(null);
@@ -98,7 +100,7 @@ const CKCommentEditor = ({
     },
     initialData: data || "",
     placeholder: actualPlaceholder,
-    mention: mentionPluginConfiguration(portalContext),
+    mention: mentionPluginConfiguration(forumType)(portalContext),
     ...cloudinaryConfig,
     claims: claimsConfig(portalContext, openDialog),
   });

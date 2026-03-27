@@ -486,7 +486,7 @@ export async function createMissingUsersForDocument(document: CreateDocumentPayl
   const missingUserNames = await Users.find({ _id: { $in: missingUserIds } }, undefined, { _id: 1, displayName: 1, username: 1, fullName: 1 }).fetch();
   const missingUserPayloads = missingUserNames.map(user => ({
     id: user._id,
-    name: userGetDisplayName(user),
+    name: userGetDisplayName(user, "LessWrong"),
   }));
 
   await Promise.all(missingUserPayloads.map(user => createCkEditorUser(user)));

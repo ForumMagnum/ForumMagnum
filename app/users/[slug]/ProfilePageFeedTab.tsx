@@ -9,6 +9,7 @@ import { OverflowNavObserverProvider } from "@/components/ultraFeed/OverflowNavO
 import { profileStyles, TabPanel } from "./profileStyles";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { z } from "zod";
+import { useForumType } from "@/components/hooks/useForumType";
 
 const profilePageFeedTabUnsharedStyles = defineStyles("ProfilePageFeedTabUnshared", () => ({
   feedList: {
@@ -106,14 +107,14 @@ export function ProfilePageFeedTabContents({user, settings}: {
 }) {
   const sharedClasses = useStyles(profileStyles);
   const classes = useStyles(profilePageFeedTabUnsharedStyles);
-
+  const { forumType } = useForumType();
   const hasPosts = user.postCount > 0;
   const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0 || (user?.tagRevisionCount ?? 0) > 0;
 
   return <TabPanel className={classes.feedList}>
     {!hasFeedContent && (
       <div className={sharedClasses.emptyStateContainer}>
-        <p className={sharedClasses.emptyStateDescription}>{userGetDisplayName(user)} hasn&apos;t written anything yet.</p>
+        <p className={sharedClasses.emptyStateDescription}>{userGetDisplayName(user, forumType)} hasn&apos;t written anything yet.</p>
         <div className={sharedClasses.emptyStateImage}>
           <img src="/profile-placeholder-4.png" alt="" />
         </div>

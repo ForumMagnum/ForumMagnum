@@ -228,10 +228,10 @@ async function createNewConversation({ query, systemPrompt, model, currentUser, 
   return newConversation;
 };
 
-function getPostContextMessage(postsLoadedIntoContext: LlmPost[], currentPost: LlmPost | null): string {
+function getPostContextMessage(postsLoadedIntoContext: LlmPost[], currentPost: LlmPost | null, context: ResolverContext): string {
 
   const postsList = postsLoadedIntoContext.map((post) => {
-    const author = userGetDisplayName(post.user)
+    const author = userGetDisplayName(post.user, context.forumType);
     return  `- *[${post?.title}](${postGetPageUrl(post)}) by ${author}*`}
   ).join("\n");
 
@@ -466,7 +466,7 @@ async function getContextMessages({ content, ragMode, currentPost, postContext, 
     getContextualPosts({ content, ragMode, currentPost, postContext, context })
   ]);
   const assistantContextMessage = await generateAssistantContextMessage({query: content, currentPost, postContext,providedPosts, contextualPosts, includeComments: true, context});
-  const userContextMessage = getPostContextMessage([...providedPosts, ...contextualPosts], currentPost);
+  const userContextMessage = getPostContextMessage([...providedPosts, ...contextualPosts], currentPost, context);
 
   return { userContextMessage, assistantContextMessage, providedPosts, contextualPosts };
 }

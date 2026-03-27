@@ -12,6 +12,7 @@ import { useDialog } from '../common/withDialog';
 import LoginPopup from "../users/LoginPopup";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 const styles = defineStyles('FollowUserButton', (theme: ThemeType) => ({
   root: {
@@ -60,6 +61,7 @@ export const FollowUserButton = ({user, styleVariant = "default"}: {
   const { captureEvent } = useTracking();
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
+  const { forumType } = useForumType();
 
   const { isSubscribed, onSubscribe, disabled } = useNotifyMe({
     document: user,
@@ -97,7 +99,7 @@ export const FollowUserButton = ({user, styleVariant = "default"}: {
     captureEvent("followUserButtonClick", {subcribedToUser: user._id, subscribed: !subscribed})
   }
 
-  const followTooltip = `${userGetDisplayName(user)}'s content will appear in your feed`
+  const followTooltip = `${userGetDisplayName(user, forumType)}'s content will appear in your feed`
 
   if (disabled) {
     return null;

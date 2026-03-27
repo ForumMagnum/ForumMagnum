@@ -36,6 +36,7 @@ import {
 } from '@/components/editor/lexicalPlugins/mentions/lexicalMentionsConfig';
 import type { MentionItem } from '@/components/editor/lexicalPlugins/mentions/MentionDropdown';
 import { userMentionQuery, userMentionValue } from '@/lib/pingback';
+import { useForumType } from '@/components/hooks/useForumType';
 
 const styles = defineStyles('LexicalMentions', (theme: ThemeType) => ({
   popover: {
@@ -278,7 +279,8 @@ function useMentionLookupService(
 
 export default function MentionsPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
-  const feeds = useMemo(() => getLexicalMentionFeeds(), []);
+  const { forumType } = useForumType();
+  const feeds = useMemo(() => getLexicalMentionFeeds(forumType), [forumType]);
 
   const [queryString, setQueryString] = useState<string | null>(null);
   const [activeFeed, setActiveFeed] = useState<MentionFeed | null>(null);

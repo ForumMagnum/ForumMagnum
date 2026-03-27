@@ -8,6 +8,7 @@ import { filterNonnull } from '../../../../lib/utils/typeGuardUtils';
 import { getSiteUrl } from '../../../../lib/vulcan-lib/utils';
 import type { MentionItem } from './MentionDropdown';
 import { defineStyles, useStyles } from '../../../hooks/useStyles';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 
 const MARKER = "@";
 
@@ -107,17 +108,17 @@ function isSearchTag(hit: SearchUser | SearchPost | SearchTag): hit is SearchTag
 /**
  * Format a search hit into a MentionItem
  */
-function formatSearchHit(hit: SearchUser | SearchPost | SearchTag): MentionItemWithHit | null {
+function formatSearchHit(hit: SearchUser | SearchPost | SearchTag, forumType: ForumTypeString): MentionItemWithHit | null {
   const linkPrefix = getSiteUrl();
 
   if (isSearchUser(hit)) {
-    const displayName = MARKER + userGetDisplayName(hit);
+    const displayName = MARKER + userGetDisplayName(hit, forumType);
     const result: MentionItemWithUserHit = {
       type: "Users",
       id: displayName,
       link: `${linkPrefix}users/${hit.slug}?${userMentionQueryString}`,
       text: displayName,
-      label: userGetDisplayName(hit),
+      label: userGetDisplayName(hit, forumType),
       description: `${hit.karma || 0} karma`,
       hit,
     };
@@ -156,7 +157,7 @@ const collectionNames = ["Posts", "Users", "Tags"] as const;
 /**
  * Fetch mention suggestions from Algolia
  */
-async function fetchMentionableSuggestions(searchString: string): Promise<MentionItemWithHit[]> {
+async function fetchMentionableSuggestions(searchString: string, forumType: ForumTypeString): Promise<MentionItemWithHit[]> {
   if (!searchString.trim()) {
     return [];
   }
@@ -173,7 +174,7 @@ async function fetchMentionableSuggestions(searchString: string): Promise<Mentio
       },
     }]);
     const hits = response?.results?.[0]?.hits;
-    return Array.isArray(hits) ? filterNonnull(hits.map(formatSearchHit)) : [];
+    return Array.isArray(hits) ? filterNonnull(hits.map(hit => formatSearchHit(hit, forumType))) : [];
   } catch {
     // Search failed - return empty results
     return [];
@@ -272,11 +273,11 @@ function mentionItemRenderer(item: MentionItem): React.ReactNode {
 /**
  * Get the mention feeds configuration for Lexical
  */
-export function getLexicalMentionFeeds(): MentionFeed[] {
+export function getLexicalMentionFeeds(forumType: ForumTypeString): MentionFeed[] {
   return [
     {
       marker: MARKER,
-      feed: fetchMentionableSuggestions,
+      feed: (searchString) => fetchMentionableSuggestions(searchString, forumType),
       minimumCharacters: 1,
       itemRenderer: mentionItemRenderer,
     },

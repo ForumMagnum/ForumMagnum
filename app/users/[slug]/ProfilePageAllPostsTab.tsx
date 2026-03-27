@@ -13,6 +13,7 @@ import LoadMore from "@/components/common/LoadMore";
 import { cssUrl, formatReadableDate, getListPostImageUrl, getPostSummary } from "./userProfilePageUtil";
 import { gql } from "@/lib/generated/gql-codegen";
 import { z } from "zod";
+import { useForumType } from "@/components/hooks/useForumType";
 
 const profilePageAllPostsTabUnsharedStyles = defineStyles("ProfilePageAllPostsTabUnshared", (theme: ThemeType) => ({
   postsList: {
@@ -328,6 +329,7 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
   const sharedClasses = useStyles(profileStyles);
   const classes = useStyles(profilePageAllPostsTabUnsharedStyles);
   const userId = user._id;
+  const { forumType } = useForumType();
 
   const { data: recentPostsData, loading: recentPostsLoading, loadMoreProps } = useQueryWithLoadMore(ProfilePostsQuery, {
     skip: !userId,
@@ -345,7 +347,7 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
   return <TabPanel className={classes.postsList}>
     {!hasPosts && !recentPostsLoading && (
       <div className={sharedClasses.emptyStateContainer}>
-        <p className={sharedClasses.emptyStateDescription}>{userGetDisplayName(user)} has not written any posts yet.</p>
+        <p className={sharedClasses.emptyStateDescription}>{userGetDisplayName(user, forumType)} has not written any posts yet.</p>
         <div className={sharedClasses.emptyStateImage}>
           <img src="/profile-placeholder-2.png" alt="" />
         </div>

@@ -19,6 +19,7 @@ import SectionTitle from "../common/SectionTitle";
 import ContentStyles from "../common/ContentStyles";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useForumType } from '../hooks/useForumType';
 
 const UsersEditUpdateMutation = gql(`
   mutation updateUserEditPaymentInfoPage($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -142,6 +143,7 @@ export const EditPaymentInfoPage = () => {
   const currentUser = useCurrentUser()
   const { flash } = useMessages();
   const navigate = useNavigate();
+  const { forumType } = useForumType();
 
   if (!currentUser) return <Error404 />
   return <ContentStyles contentType="comment" className={classes.root}>
@@ -153,7 +155,7 @@ export const EditPaymentInfoPage = () => {
     <UserPaymentInfoForm
       initialData={currentUser}
       onSuccess={async (user: UsersMinimumInfo | DbUser | null) => {
-        flash(`Payment Info for "${userGetDisplayName(user)}" edited`);
+        flash(`Payment Info for "${userGetDisplayName(user, forumType)}" edited`);
         navigate(userGetProfileUrl(user));
       }}
     />

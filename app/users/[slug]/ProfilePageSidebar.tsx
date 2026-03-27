@@ -12,6 +12,7 @@ import ContentStyles from "@/components/common/ContentStyles";
 import { ContentItemBody } from "@/components/contents/ContentItemBody";
 import ProfileDiamondSections from "./ProfileDiamondSections";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
+import { useForumType } from "@/components/hooks/useForumType";
 
 const profilePageSidebarUnsharedStyles = defineStyles("ProfilePageSidebarUnshared", (theme: ThemeType) => ({
   postsSidebar: {
@@ -288,6 +289,7 @@ export function ProfilePageMobileBio({user, bioNoFollow}: {
   const sharedClasses = useStyles(profileStyles);
   const classes = useStyles(profilePageSidebarUnsharedStyles);
   const currentUser = useCurrentUser();
+  const { forumType } = useForumType();
 
   const [bioExpanded, setBioExpanded] = useState(false);
   const bioHtml = user?.htmlBio ?? "";
@@ -303,7 +305,7 @@ export function ProfilePageMobileBio({user, bioNoFollow}: {
 
   return <div className={classes.mobileProfileBio}>
     <div className={classes.mobileProfileHeaderRow}>
-      <h4 className={classes.mobileProfileName}>{userGetDisplayName(user)}</h4>
+      <h4 className={classes.mobileProfileName}>{userGetDisplayName(user, forumType)}</h4>
       <div className={classes.mobileProfileActions}>
         {canSubscribeToUser ? (
           <UserNotifyDropdown

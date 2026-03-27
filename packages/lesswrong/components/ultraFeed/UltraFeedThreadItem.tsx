@@ -10,6 +10,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 import { useUltraFeedContext } from "./UltraFeedContextProvider";
+import { useForumType } from "../hooks/useForumType";
 
 // Only used as a fallback when post is not preloaded
 const PostsListWithVotesQuery = gql(`
@@ -141,7 +142,8 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
   focusedCommentId?: string,
 }) => {
   const classes = useStyles(styles);
-  
+  const { forumType } = useForumType();
+
   const { comments, commentMetaInfos, postSources, post: preloadedPost, postMetaInfo } = thread;
   const {captureEvent} = useTracking();
 
@@ -201,10 +203,10 @@ const UltraFeedThreadItem = ({thread, index, settings = DEFAULT_SETTINGS, startR
   const commentAuthorsMap = useMemo(() => {
     const authorsMap: Record<string, string | null> = {};
     comments.forEach(comment => {
-      authorsMap[comment._id] = userGetDisplayName(comment.user) ?? null;
+      authorsMap[comment._id] = userGetDisplayName(comment.user, forumType) ?? null;
     });
     return authorsMap;
-  }, [comments]);
+  }, [comments, forumType]);
   
   const setDisplayStatus = useCallback((commentId: string, newStatus: FeedItemDisplayStatus) => {
     setCommentDisplayStatuses(prev => ({

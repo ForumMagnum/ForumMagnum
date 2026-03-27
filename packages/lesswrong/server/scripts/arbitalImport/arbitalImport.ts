@@ -648,7 +648,7 @@ export async function buildConversionContext(database: WholeArbitalDatabase, pag
         console.warn(`Arbital page ID ${arbitalUserId} may be being imported as both a wiki page and a user-matching?`);
       }
       linksById[arbitalUserId] = `/users/${lwUser.slug}`;
-      titlesByPageId[arbitalUserId] = userGetDisplayName(lwUser);
+      titlesByPageId[arbitalUserId] = userGetDisplayName(lwUser, "LessWrong");
     }
   }
   

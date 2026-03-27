@@ -9,7 +9,7 @@ import { asyncLocalStorage } from '../../perfMetrics';
 import type { NextRequest } from 'next/server';
 import type { RequestCookie } from 'next/dist/compiled/@edge-runtime/cookies';
 import { getUserFromReq } from './getUserFromReq';
-import { isAF, isLW } from '@/lib/instanceSettings';
+import { forumTypeSetting, isAF, isLW } from '@/lib/instanceSettings';
 
 
 // Generate a set of DataLoader objects, one per collection, to be added to a resolver context
@@ -66,6 +66,7 @@ export const computeContextFromUser = ({user, headers, searchParams, cookies, is
     isSSR,
     isAF: isAF(),
     isLW: isLW(),
+    forumType: forumTypeSetting.get(),
     isGreaterWrong: requestIsFromGreaterWrong(headers),
     isIssaRiceReader: requestIsFromIssaRiceReader(headers),
     repos: getAllRepos(),

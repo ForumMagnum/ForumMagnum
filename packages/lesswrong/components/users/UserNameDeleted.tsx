@@ -4,6 +4,7 @@ import { userGetDisplayName, userGetProfileUrl } from '../../lib/collections/use
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import LWTooltip from "../common/LWTooltip";
+import { useForumType } from '../hooks/useForumType';
 
 /**
  * Username for a deleted user. Ordinarily, looks like "[anonymous]" and
@@ -34,6 +35,8 @@ const UserNameDeletedWithAdminHover = ({user}: {
   user: UsersMinimumInfo
 }) => {
   const {eventHandlers,hover} = useHover();
+  const { forumType } = useForumType();
+
   return <span {...eventHandlers}>
     <LWTooltip
       title={<div>
@@ -43,7 +46,7 @@ const UserNameDeletedWithAdminHover = ({user}: {
     >
       {hover
         ? <Link to={userGetProfileUrl(user)}>
-            {userGetDisplayName(user)}
+            {userGetDisplayName(user, forumType)}
           </Link>
         : "[anonymous]"
       }

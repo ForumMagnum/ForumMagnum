@@ -258,7 +258,7 @@ export const NewDialogueMessagesNotification = createNotificationType({
     let post = await getDocument(documentType, documentId, context) as DbPost;
     let author = await getDocument("user", newMessageAuthorId, context) as DbUser ?? '[Missing Author Name]';
 
-    return userGetDisplayName(author) + ' left a new reply in your dialogue "' + post.title + '"';
+    return userGetDisplayName(author, context.forumType) + ' left a new reply in your dialogue "' + post.title + '"';
   },
   getLink: ({documentId}: {
     documentId: string|null,

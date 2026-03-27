@@ -38,6 +38,7 @@ import { useEditorCommands } from './EditorCommandsContext';
 import { CkEditorShortcut, augmentEditor } from './editorAugmentations';
 import { useCommandPalette } from '../hooks/useCommandPalette';
 import { makeEditorConfig } from './editorConfigs';
+import { useForumType } from '../hooks/useForumType';
 
 // If any custom commands' execute methods change their signatures, we need to update this declaration
 declare module '@ckeditor/ckeditor5-core' {
@@ -433,6 +434,7 @@ const CKPostEditor = ({
     postOrSequence.collabEditorDialogue;
 
   const portalContext = useContext(CkEditorPortalContext);
+  const { forumType } = useForumType();
   
   const getInitialCollaborationMode = () => {
     if (!isCollaborative || !accessLevel) return "Editing";
@@ -582,7 +584,7 @@ const CKPostEditor = ({
     },
     initialData: initData,
     placeholder: actualPlaceholder,
-    mention: mentionPluginConfiguration(portalContext),
+    mention: mentionPluginConfiguration(forumType)(portalContext),
     dialogues: dialogueConfiguration,
     conditionalVisibility: conditionalVisibilityPluginConfiguration,
     ...cloudinaryConfig,

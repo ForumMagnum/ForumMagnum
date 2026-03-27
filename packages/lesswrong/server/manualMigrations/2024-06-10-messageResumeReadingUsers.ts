@@ -13,7 +13,7 @@ const messageResumeReadingUsers = async (user: DbUser) => {
   const context = createAnonymousContext();
   const adminEmail = adminAccountSetting.get()?.email ?? "";
   const message = `<div
-    <p>Hey ${userGetDisplayName(user)},</p>
+    <p>Hey ${userGetDisplayName(user, context.forumType)},</p>
     <p>I wanted to send you a heads up that we have removed the Resume Reading tab from the frontpage. You have been switched to the Enriched tab instead.</p>
     <p>Unfortunately Resume Reading wasn't getting enough use to justify it's spot. If you were using it, please let us know and we'll figure out a new location for it.</p>
     <p>Feel free to ask us questions via Intercom or email (team@lesswrong.com). This inbox isn't monitored, but I'm keen to hear from you!</p>

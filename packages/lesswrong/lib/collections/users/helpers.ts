@@ -1,4 +1,4 @@
-import { isEAForum, newUserIconKarmaThresholdSetting, isAF, isLW, ForumTypeString } from '@/lib/instanceSettings';
+import { isEAForum, newUserIconKarmaThresholdSetting, isAF, ForumTypeString } from '@/lib/instanceSettings';
 import { combineUrls, getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userIsMemberOf, PermissionableUser } from '../../vulcan-users/permissions';
 import type { PermissionResult } from '../../make_voteable';
@@ -26,11 +26,11 @@ export interface PermissionsPostMinimumInfo {
 }
 
 // Get a user's display name (not unique, can take special characters and spaces)
-export const userGetDisplayName = (user: UserDisplayNameInfo | null): string => {
+export const userGetDisplayName = (user: UserDisplayNameInfo | null, forumType: ForumTypeString): string => {
   if (!user) {
     return "";
   } else {
-    return (isAF()
+    return (forumType === 'AlignmentForum'
       ? (user.fullName || user.displayName) ?? ""
       : (user.displayName || getUserName(user)) ?? ""
     ).trim();

@@ -17,6 +17,7 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 const UsersMapEntryMultiQuery = gql(`
   query multiUserCommunityMapQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -250,6 +251,8 @@ const PersonalMapLocationMarkersInner = ({users, handleClick, handleClose, openW
   openWindows: any,
 }) => {
   const classes = useStyles(personalMapMarkerStyles);
+  const { forumType } = useForumType();
+
   const mapLocations = filterNonnull(users.map(user => {
     const location = user.mapLocationLatLng
     if (!location) return null
@@ -284,7 +287,7 @@ const PersonalMapLocationMarkersInner = ({users, handleClick, handleClose, openW
             lat={lat}
             lng={lng}
             link={userGetProfileUrl(user)}
-            title={` [User] ${userGetDisplayName(user)} `}
+            title={` [User] ${userGetDisplayName(user, forumType)} `}
             onClose={() => handleClose(user._id)}
           >
             <div dangerouslySetInnerHTML={htmlBody} />

@@ -4,15 +4,18 @@ import { userGetDisplayName } from "../../../lib/collections/users/helpers";
 import { useCurrentUser } from "../../common/withUser";
 import { isDialogueParticipant } from "@/lib/collections/posts/helpers";
 import { CombinedSubscriptionsDropdownItem } from "../CombinedSubscriptionsDropdownItem";
+import { useForumType } from "@/components/hooks/useForumType";
+import type { ForumTypeString } from "@/lib/instanceSettings";
 
 /**
  * A list of props that go into each subscription menu item,
  * pulled out so that friendly sites can display them differently.
  */
-const getNotifyMeItems = ({post, currentUser, showSubscribeToDialogueButton}: {
+const getNotifyMeItems = ({post, currentUser, showSubscribeToDialogueButton, forumType}: {
   post: PostsList|SunshinePostsList,
   currentUser: UsersCurrent | null,
   showSubscribeToDialogueButton: boolean,
+  forumType: ForumTypeString,
 }) => [
   {
     document: post.group,
@@ -27,15 +30,15 @@ const getNotifyMeItems = ({post, currentUser, showSubscribeToDialogueButton}: {
     enabled: post.shortform && post.userId !== currentUser?._id,
     subscribeMessage: `Subscribe to ${post.title}`,
     unsubscribeMessage: `Unsubscribe from ${post.title}`,
-    title: `New quick takes from ${userGetDisplayName(post.user)}`,
+    title: `New quick takes from ${userGetDisplayName(post.user, forumType)}`,
     subscriptionType: subscriptionTypes.newShortform,
   },
   {
     document: post.user,
     enabled: !!post.user && post.user._id !== currentUser?._id,
-    subscribeMessage: `Subscribe to posts by ${userGetDisplayName(post.user)}`,
-    unsubscribeMessage: `Unsubscribe from posts by ${userGetDisplayName(post.user)}`,
-    title: `New posts by ${userGetDisplayName(post.user)}`,
+    subscribeMessage: `Subscribe to posts by ${userGetDisplayName(post.user, forumType)}`,
+    unsubscribeMessage: `Unsubscribe from posts by ${userGetDisplayName(post.user, forumType)}`,
+    title: `New posts by ${userGetDisplayName(post.user, forumType)}`,
     subscriptionType: subscriptionTypes.newPosts,
   },
   {
@@ -64,12 +67,13 @@ export const PostSubscriptionsDropdownItem = ({post}: {
   post: PostsList|SunshinePostsList,
 }) => {
   const currentUser = useCurrentUser();
+  const { forumType } = useForumType();
 
   const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);
   const showSubscribeToDialogueButton = post.collabEditorDialogue && !userIsDialogueParticipant;
 
   const notifyMeItems = useMemo(() => {
-    return getNotifyMeItems({post, currentUser, showSubscribeToDialogueButton});
-  }, [post, currentUser, showSubscribeToDialogueButton]);
+    return getNotifyMeItems({post, currentUser, showSubscribeToDialogueButton, forumType});
+  }, [post, currentUser, showSubscribeToDialogueButton, forumType]);
   return <CombinedSubscriptionsDropdownItem notifyMeItems={notifyMeItems} />
 }

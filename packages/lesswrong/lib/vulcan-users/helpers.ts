@@ -4,7 +4,7 @@ import moment from 'moment';
 
 export const userGetDisplayNameById = async function(userId: string, context: ResolverContext): Promise<string> {
   const user = await context.loaders.Users.load(userId);
-  return userGetDisplayName(user);
+  return userGetDisplayName(user, context.forumType);
 };
 
 // Get a user's account edit URL

@@ -10,7 +10,7 @@ import { forumSelect } from '../../forumTypeUtils';
 // Get a comment author's name
 export async function commentGetAuthorName(comment: DbComment, context: ResolverContext): Promise<string> {
   var user = await context.Users.findOne({_id: comment.userId});
-  return user ? userGetDisplayName(user) : comment.author ?? "[unknown author]";
+  return user ? userGetDisplayName(user, context.forumType) : comment.author ?? "[unknown author]";
 };
 
 // Get URL of a comment page.

@@ -44,7 +44,7 @@ export async function generateUserPageMetadata({ params, searchParams }: {
   
     if (!user) return notFound();
   
-    const displayName = userGetDisplayName(user);
+    const displayName = userGetDisplayName(user, resolverContext.forumType);
     const description = `${displayName}'s profile on ${siteNameWithArticleSetting.get()} — ${taglineSetting.get()}`;
     const descriptionFields = getMetadataDescriptionFields(description);
   

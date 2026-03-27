@@ -29,6 +29,7 @@ import NotificationsSettingsTab from './NotificationsSettingsTab';
 import ModerationSettingsTab from './ModerationSettingsTab';
 import AdminSettingsTab from './AdminSettingsTab';
 import type { SettingsFormApi } from './settingsTabTypes';
+import { useForumType } from '@/components/hooks/useForumType';
 
 const UsersEditUpdateMutation = gql(`
   mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -400,6 +401,7 @@ const UsersEditForm = ({ terms, accountManagement }: {
   const currentThemeOptions = useAbstractThemeOptions();
   const setTheme = useSetTheme();
   const { captureEvent } = useTracking();
+  const { forumType } = useForumType();
 
   const userHasEditAccess = userCanEditUser(currentUser, terms);
 
@@ -432,7 +434,7 @@ const UsersEditForm = ({ terms, accountManagement }: {
       captureEvent("setUserTheme", theme);
     }
 
-    flash(`User "${userGetDisplayName(user)}" edited`);
+    flash(`User "${userGetDisplayName(user, forumType)}" edited`);
     try {
       await client.resetStore()
     } finally {
