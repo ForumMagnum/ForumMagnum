@@ -122,14 +122,14 @@ async function getAndValidateToken(token: string) {
  * Core logic for validating and executing an email token. Shared between the
  * GraphQL mutation and the API route handler.
  */
-export async function executeEmailToken(token: string, args?: any): Promise<UseEmailTokenResult> {
+export async function executeEmailToken(token: string, args?: any): Promise<UseEmailTokenResult & { userId: string }> {
   const { tokenObj, tokenType } = await getAndValidateToken(token);
   const resultProps = await tokenType.handleToken(tokenObj, args);
   await updateEmailToken({
     data: { usedAt: new Date() },
     selector: { _id: tokenObj._id }
   }, createAnonymousContext());
-  return resultProps;
+  return { ...resultProps, userId: tokenObj.userId };
 }
 
 export const emailTokensGraphQLTypeDefs = gql`
@@ -142,7 +142,8 @@ export const emailTokensGraphQLTypeDefs = gql`
 export const emailTokensGraphQLMutations = {
   async useEmailToken(root: void, {token, args}: {token: string, args: any}, _context: ResolverContext) {
       try {
-        return await executeEmailToken(token, args);
+        const { userId, ...resultProps } = await executeEmailToken(token, args);
+        return resultProps;
       } catch(e) {
         //eslint-disable-next-line no-console
         console.error(`error when using email token: `, e);

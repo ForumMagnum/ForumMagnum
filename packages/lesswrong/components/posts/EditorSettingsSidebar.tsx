@@ -928,9 +928,10 @@ function ShareWithClaudeButton({ form, postId, currentUser, panel, className }: 
   );
 }
 
-function ClaudeConnectionStatus({ currentUser }: { currentUser: UsersCurrent | null }) {
+function ClaudeConnectionStatus({ currentUser, postId }: { currentUser: UsersCurrent | null; postId: string }) {
   const classes = useStyles(styles);
   const { openDialog } = useDialog();
+  const { captureEvent } = useTracking();
   const isConnected = !!currentUser?.claudeLinkedAt;
 
   if (isConnected) {
@@ -946,10 +947,13 @@ function ClaudeConnectionStatus({ currentUser }: { currentUser: UsersCurrent | n
     <button
       type="button"
       className={classes.claudeOnboardingLink}
-      onClick={() => openDialog({
-        name: "ClaudeOnboardingModal",
-        contents: ({ onClose }) => <ClaudeOnboardingModal onClose={onClose} />,
-      })}
+      onClick={() => {
+        captureEvent("claudeOnboardingStarted", { postId });
+        openDialog({
+          name: "ClaudeOnboardingModal",
+          contents: ({ onClose }) => <ClaudeOnboardingModal onClose={onClose} postId={postId} />,
+        });
+      }}
     >
       <ClaudeSparkIcon className={classNames(classes.claudeOnboardingIcon, classes.claudeOnboardingIconDisconnected)} />
       Connect Claude to LW Docs
@@ -1017,7 +1021,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
               if (!linkEnabled) {
                 return <>
                   <div className={classes.shareLinkButtonContainer}>{shareLinkButton}{shareWithClaudeButton}</div>
-                  <ClaudeConnectionStatus currentUser={currentUser} />
+                  <ClaudeConnectionStatus currentUser={currentUser} postId={postId} />
                 </>;
               }
 
@@ -1035,7 +1039,7 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
 
               return <>
                 <div className={classes.shareLinkButtonContainer}>{copyLinkButton}{shareWithClaudeButton}</div>
-                <ClaudeConnectionStatus currentUser={currentUser} />
+                <ClaudeConnectionStatus currentUser={currentUser} postId={postId} />
               </>;
             }}
           </form.Field>
@@ -1366,7 +1370,7 @@ const EditorSettingsSidebar = ({
                         claudeButton={publishClaudeButton}
                       />
                     </div>
-                    {postId && <ClaudeConnectionStatus currentUser={currentUser} />}
+                    {postId && <ClaudeConnectionStatus currentUser={currentUser} postId={postId} />}
                     {!isEvent && <div className={classes.frontpageCheckbox}>
                       <form.Field name="submitToFrontpage">
                         {(field) => <SubmitToFrontpageCheckbox field={field} />}

@@ -9,6 +9,7 @@ import { ClaudeSparkIcon } from "../icons/claudeSparkIcon";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import ForumIcon from "../common/ForumIcon";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useTracking } from "@/lib/analyticsEvents";
 
 const styles = defineStyles("ClaudeOnboardingModal", (theme: ThemeType) => ({
   content: {
@@ -120,10 +121,13 @@ function getClaudeConfirmMessage(confirmUrl: string) {
 
 const ClaudeOnboardingModal = ({
   onClose,
+  postId,
 }: {
   onClose: () => void;
+  postId: string;
 }) => {
   const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
   const [confirmUrl, setConfirmUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [getLink] = useMutation(getClaudeAccessLinkMutation);
@@ -143,7 +147,7 @@ const ClaudeOnboardingModal = ({
   }, []);
 
   const claudeConfirmLink = confirmUrl
-    ? `https://claude.ai/new?q=${encodeURIComponent(getClaudeConfirmMessage(confirmUrl))}`
+    ? `https://www.claude.ai/new?q=${encodeURIComponent(getClaudeConfirmMessage(confirmUrl))}`
     : null;
 
   return (
@@ -162,6 +166,7 @@ const ClaudeOnboardingModal = ({
                 href="https://claude.ai/settings/capabilities#code-execution"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => captureEvent("claudeOnboardingSettingsClicked", { postId })}
               >
                 Claude settings
               </a>
@@ -184,7 +189,11 @@ const ClaudeOnboardingModal = ({
                     type="button"
                     className={classNames(classes.claudeButton, classes.confirmButton, !claudeConfirmLink && classes.claudeButtonDisabled)}
                     disabled={!claudeConfirmLink}
-                    onClick={() => claudeConfirmLink && window.open(claudeConfirmLink, "_blank", "noopener,noreferrer")}
+                    onClick={() => {
+                      if (!claudeConfirmLink) return;
+                      captureEvent("claudeOnboardingConfirmClicked", { postId });
+                      window.open(claudeConfirmLink, "_blank", "noopener,noreferrer");
+                    }}
                   >
                     <ForumIcon icon="OpenInNew" className={classes.claudeButtonIcon} />
                     Confirm in Claude

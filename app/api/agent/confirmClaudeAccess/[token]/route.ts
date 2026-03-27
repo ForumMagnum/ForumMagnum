@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { executeEmailToken } from "@/server/emails/emailTokens";
+import { serverCaptureEvent } from "@/server/analytics/serverAnalyticsWriter";
 
 export async function POST(
   _req: Request,
@@ -8,18 +9,11 @@ export async function POST(
   try {
     const { token } = await params;
     const result = await executeEmailToken(token);
+    serverCaptureEvent("claudeOnboardingConfirmed", { userId: result.userId });
     return NextResponse.json({ ok: true, message: result.props.message });
   } catch (e) {
-    const message = e instanceof Error ? e.message : "Unknown error";
     //eslint-disable-next-line no-console
     console.error("Error confirming Claude access:", e);
-    return NextResponse.json({ error: 'Invalid token or already used' }, { status: 400 });
+    return NextResponse.json({ error: "Invalid token or already used" }, { status: 400 });
   }
-}
-
-export async function GET(
-  req: Request,
-  context: { params: Promise<{ token: string }> }
-) {
-  return POST(req, context);
 }

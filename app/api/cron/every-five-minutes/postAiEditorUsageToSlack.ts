@@ -30,6 +30,17 @@ async function getPostAuthorNames(postIds: string[]): Promise<Map<string, string
   return new Map(posts.map(p => [p._id, userNames.get(p.userId) ?? "Unknown user"]));
 }
 
+async function getUserNames(userIds: string[]): Promise<Map<string, string>> {
+  if (userIds.length === 0) return new Map();
+  const context = createAnonymousContext();
+  const users = await context.Users.find(
+    { _id: { $in: userIds } },
+    undefined,
+    { _id: 1, displayName: 1 },
+  ).fetch();
+  return new Map(users.map(u => [u._id, u.displayName]));
+}
+
 // Known "happy path" operation results that don't need to be called out in the digest
 const HAPPY_RESULTS = new Set(["inserted", "replaced", "deleted", "attached_by_quote_match"]);
 
@@ -40,11 +51,26 @@ function getOperationResult(event: RawAnalyticsRow): string | null {
   return result;
 }
 
+
+const onboardingLabels: Record<string, string> = {
+  claudeOnboardingStarted: `opened the "Connect Claude to LW Docs" onboarding modal (step 1)`,
+  claudeOnboardingSettingsClicked: `opened the external Claude settings page (step 2)`,
+  claudeOnboardingConfirmClicked: `clicked "Confirm in Claude" (step 3)`,
+  claudeOnboardingConfirmed: `Claude confirmed network access (step 4)`,
+};
+
 function formatAuthorActivity(
   authorName: string,
   events: RawAnalyticsRow[],
 ): string[] {
   const lines: string[] = [];
+
+  for (const event of events) {
+    const label = onboardingLabels[event.event_type];
+    if (label) {
+      lines.push(`• *${authorName}* ${label}`);
+    }
+  }
 
   const claudeClicks = events.filter(e => e.event_type === "shareWithClaudeClicked");
   if (claudeClicks.length > 0) {
@@ -131,7 +157,7 @@ export async function postAiEditorUsageToSlack() {
   const events: RawAnalyticsRow[] = await connection.any(`
     SELECT event_type, event
     FROM raw
-    WHERE event_type IN ('shareWithClaudeClicked', 'agentApiCall')
+    WHERE event_type IN ('shareWithClaudeClicked', 'agentApiCall', 'claudeOnboardingStarted', 'claudeOnboardingSettingsClicked', 'claudeOnboardingConfirmClicked', 'claudeOnboardingConfirmed')
       AND timestamp > NOW() - INTERVAL '5 minutes'
       AND environment = $(environment)
     ORDER BY timestamp
@@ -145,12 +171,24 @@ export async function postAiEditorUsageToSlack() {
       .map(e => (e.event.postId as string | undefined))
       .filter((id): id is string => !!id)
   )];
-  const postAuthorNames = await getPostAuthorNames(postIds);
+  const userIds = [...new Set(
+    events
+      .filter(e => !e.event.postId && e.event.userId)
+      .map(e => e.event.userId as string)
+  )];
+  
+  const [postAuthorNames, directUserNames] = await Promise.all([
+    getPostAuthorNames(postIds),
+    getUserNames(userIds),
+  ]);
 
   const byAuthorName = new Map<string, RawAnalyticsRow[]>();
   for (const event of events) {
     const postId = event.event.postId as string | undefined;
-    const authorName = (postId && postAuthorNames.get(postId)) ?? "Unknown author";
+    const userId = event.event.userId as string | undefined;
+    const authorName = (postId && postAuthorNames.get(postId))
+      ?? (userId && directUserNames.get(userId))
+      ?? "Unknown author";
     const list = byAuthorName.get(authorName) ?? [];
     list.push(event);
     byAuthorName.set(authorName, list);
