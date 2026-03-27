@@ -21,7 +21,7 @@ const styles = defineStyles('SingleUsersItem', (theme: ThemeType) => ({
     marginLeft: 4,
     marginRight: 4,
     marginBottom: 4,
-    backgroundColor: theme.palette.background.usersListItem,
+    backgroundColor: theme.palette.greyAlpha(.05),
   },
   wrapper: {
     display: 'flex',

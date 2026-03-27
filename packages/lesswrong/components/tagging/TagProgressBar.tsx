@@ -74,7 +74,7 @@ const styles = defineStyles("TagProgressBar", (theme: ThemeType) => ({
     backgroundColor: theme.palette.text.dim3,
   },
   bar2Background: {
-    backgroundColor: theme.palette.panelBackground.tenPercent,
+    backgroundColor: theme.palette.greyAlpha(.1),
   }
 
 }));

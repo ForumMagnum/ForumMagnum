@@ -16,7 +16,7 @@ export const defaultBorderRadius = () => ({
   quickTakesEntry: 3,
 });
 
-export const defaultTypography = (palette: ThemePalette, spacingUnit: number) => ({
+export const defaultTypography = (palette: ThemePalette) => ({
   fontFamily: palette.fonts.sansSerifStack,
   cloudinaryFont: {
     stack: "'Merriweather', serif",
@@ -179,22 +179,22 @@ export const defaultTypography = (palette: ThemePalette, spacingUnit: number) =>
   },
   blockquote: {
     fontWeight: 400,
-    paddingTop: spacingUnit*2,
-    paddingRight: spacingUnit*2,
-    paddingBottom: spacingUnit*2,
-    paddingLeft: spacingUnit*2,
+    paddingTop: 16,
+    paddingRight: 16,
+    paddingBottom: 16,
+    paddingLeft: 16,
     borderLeft: `solid 3px ${palette.grey[300]}`,
     margin: 0,
   },
   commentBlockquote: {
     fontWeight: 400,
-    paddingTop: spacingUnit,
-    paddingRight: spacingUnit*3,
-    paddingBottom: spacingUnit,
-    paddingLeft: spacingUnit*2,
+    paddingTop: 8,
+    paddingRight: 24,
+    paddingBottom: 8,
+    paddingLeft: 16,
     borderLeft: `solid 3px ${palette.grey[300]}`,
     margin: 0,
-    marginLeft: spacingUnit*1.5,
+    marginLeft: 12,
   },
   codeblock: {
     backgroundColor: palette.grey[100],
@@ -248,10 +248,7 @@ export const defaultTypography = (palette: ThemePalette, spacingUnit: number) =>
 
 export const baseTheme: BaseThemeSpecification = {
   componentPalette: (dark: boolean) => defaultComponentPalette(dark, isAF()),
-  make: (palette: ThemePalette): NativeThemeType => {
-    const spacingUnit = 8
-  
-    return {
+  make: (palette: ThemePalette): NativeThemeType => ({
       dark: false,
       breakpoints: {
         values: {
@@ -266,7 +263,7 @@ export const baseTheme: BaseThemeSpecification = {
         mainLayoutPaddingTop: 50
       },
       borderRadius: defaultBorderRadius(),
-      typography: defaultTypography(palette, spacingUnit),
+      typography: defaultTypography(palette),
       zIndexes: {
         ...defaultZIndexes
       },
@@ -302,6 +299,5 @@ export const baseTheme: BaseThemeSpecification = {
 
       isLW: isLW(),
       isAF: isAF(),
-    };
-  }
+  }),
 };

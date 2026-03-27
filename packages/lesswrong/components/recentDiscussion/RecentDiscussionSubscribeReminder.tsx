@@ -20,6 +20,7 @@ import SignupSubscribeToCurated from "../users/SignupSubscribeToCurated";
 import Loading from "../vulcan-core/Loading";
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { safeForDarkMode } from '../hooks/defineStyles';
 
 const styles = defineStyles("RecentDiscussionSubscribeReminder", (theme: ThemeType) => ({
   root: {
@@ -81,7 +82,7 @@ const styles = defineStyles("RecentDiscussionSubscribeReminder", (theme: ThemeTy
     marginRight: 12
   },
   checkIcon: {
-    color: theme.palette.icon.greenCheckmark,
+    color: safeForDarkMode("#4caf50"),
     marginTop: 4,
     marginRight: 12
   },

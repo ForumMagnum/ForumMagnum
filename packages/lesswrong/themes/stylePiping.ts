@@ -199,7 +199,7 @@ const tableStyles = (theme: ThemeType) => ({
 const tableCellStyles = (theme: ThemeType) => ({
   minWidth: "2em",
   padding: ".4em",
-  border: theme.palette.border.tableCell,
+  border: `1px double ${theme.palette.grey[320]}`,
   wordBreak: "normal",
   '& p': {
     marginTop: '0.5em',
@@ -211,7 +211,7 @@ const tableCellStyles = (theme: ThemeType) => ({
 });
 
 const tableHeadingStyles = (theme: ThemeType) => ({
-  background: theme.palette.panelBackground.tableHeading,
+  background: theme.palette.grey[50],
   fontWeight: 700
 });
 

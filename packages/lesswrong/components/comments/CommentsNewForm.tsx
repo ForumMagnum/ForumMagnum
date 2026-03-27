@@ -84,7 +84,7 @@ const styles = defineStyles('CommentsNewForm', (theme: ThemeType) => ({
     color: theme.palette.text.dim2,
   },
   moderationGuidelinesWrapper: {
-    backgroundColor: theme.palette.panelBackground.newCommentFormModerationGuidelines,
+    backgroundColor: theme.palette.greyAlpha(.07),
   }
 }));
 
