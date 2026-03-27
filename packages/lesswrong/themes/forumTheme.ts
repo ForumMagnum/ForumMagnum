@@ -54,7 +54,7 @@ const buildTheme = (
 ): ThemeType => {
   const dark = userTheme.dark ?? false;
 
-  let componentPalette: ThemeComponentPalette = baseTheme.componentPalette(dark);
+  let componentPalette: ThemePalette = baseTheme.componentPalette(dark);
   if (siteTheme.componentPalette) componentPalette = deepmerge(componentPalette, siteTheme.componentPalette(dark));
   if (userTheme.componentPalette) componentPalette = deepmerge(componentPalette, userTheme.componentPalette(dark));
 
