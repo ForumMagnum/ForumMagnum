@@ -47,6 +47,7 @@ import { isBlackBarTitle } from '@/components/seasonal/petrovDay/petrov-day-stor
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { PopperPortalProvider } from '../common/LWPopper';
 import { HideNavigationSidebarContextProvider } from './HideNavigationSidebarContextProvider';
+import { usePathname } from 'next/navigation';
 
 const LanguageModelLauncherButton = dynamic(() => import("../languageModels/LanguageModelLauncherButton"), { ssr: false });
 const SidebarLanguageModelChat = dynamic(() => import("../languageModels/SidebarLanguageModelChat"), { ssr: false });
@@ -124,18 +125,19 @@ const Layout = ({children}: {
   const currentUser = useCurrentUser();
   const currentUserId = currentUser?._id;
   const searchResultsAreaRef = useRef<HTMLDivElement|null>(null);
-  // TODO: figure out if using usePathname directly is safe or better (concerns about unnecessary rerendering, idk; my guess is that with Next if the pathname changes we're rerendering everything anyways?)
-  const { pathname, query } = useLocation();
-  // const pathname = usePathname();
+  const prerenderablePathname = usePrerenderablePathname();
+  const pathname = usePathname();
+
   // enable during ACX Everywhere
   // const [cookies] = useCookiesWithConsent()
   // replace with following line to enable during ACX Everywhere.
   // also uncomment out the dynamic import and render of the HomepageCommunityMap.
   // (they're commented out to reduce the split bundle size.)
   const renderCommunityMap = false
-  // (isLW()) && isHomeRoute(pathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
+
+  // (isLW()) && isHomeRoute(prerenderablePathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
-  const isInbox = pathname.startsWith('/inbox');
+  const isInbox = prerenderablePathname.startsWith('/inbox');
 
   let headerBackgroundColor: ColorString|undefined = undefined;
   if (isBlackBarTitle) {
@@ -145,7 +147,7 @@ const Layout = ({children}: {
   // Check whether the current route is one which should have standalone
   // navigation on the side. If there is no current route (ie, a 404 page),
   // then it should.
-  const standaloneNavigation = isRouteWithLeftNavigationColumn(pathname);
+  const standaloneNavigation = isRouteWithLeftNavigationColumn(prerenderablePathname);
     
   return (
     <AnalyticsContext path={pathname}>
@@ -178,7 +180,7 @@ const Layout = ({children}: {
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>
 
-              {!isStandaloneRoute(pathname) && <SuspenseWrapper name="Header">
+              {!isStandaloneRoute(prerenderablePathname) && <SuspenseWrapper name="Header">
                 <Header
                   searchResultsArea={searchResultsAreaRef}
                   standaloneNavigationPresent={standaloneNavigation}
@@ -196,7 +198,7 @@ const Layout = ({children}: {
                 <FlashMessages />
               </ErrorBoundary>
 
-              {isLW() && <LWBackgroundImage standaloneNavigation={standaloneNavigation} />}
+              {isLW() && <LWBackgroundImage />}
               <div ref={searchResultsAreaRef} className={classes.searchResultsArea} />
 
               {children}
@@ -249,8 +251,8 @@ const LlmSidebarWrapper = ({children}: {
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const { pathname } = useLocation();
-  const isInbox = pathname.startsWith('/inbox');
+  const prerenderablePathname = usePrerenderablePathname();
+  const isInbox = prerenderablePathname.startsWith('/inbox');
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
 
   const [showLlmChatSidebar, setShowLlmChatSidebar] = useState(false);
