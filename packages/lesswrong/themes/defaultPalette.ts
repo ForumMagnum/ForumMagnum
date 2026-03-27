@@ -87,11 +87,33 @@
 
 import { grey, greyAlpha, inverseGreyAlpha, primaryAlpha, boxShadowColor, greyBorder, invertIfDarkMode } from "./colorUtil";
 import { isBlackBarTitle } from '../components/seasonal/petrovDay/petrov-day-story/petrovConsts';
+import { isAF } from '@/lib/instanceSettings';
 
 export const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
   'Calibri',
   'gill-sans-nova',
+  '"Gill Sans"',
+  '"Gill Sans MT"',
+  "Myriad Pro",
+  'Myriad',
+  '"Liberation Sans"',
+  '"Nimbus Sans L"',
+  'Tahoma',
+  'Geneva',
+  '"Helvetica Neue"',
+  'Helvetica',
+  'Arial',
+  'sans-serif'
+].join(',')
+
+const afSansSerifStack = [
+  'GreekFallback', // Ensures that greek letters render consistently
+  '"freight-sans-pro"',
+  'Frutiger',
+  '"Frutiger Linotype"',
+  'Univers',
+  'Calibri',
   '"Gill Sans"',
   '"Gill Sans MT"',
   "Myriad Pro",
@@ -119,7 +141,7 @@ const serifStackBody = [
 export const serifStack = serifStackBody.join(',')
 export const headerStack = ["ETBookRoman", ...serifStackBody].join(',')
 
-export const defaultComponentPalette = (dark: boolean) => ({
+export const defaultComponentPalette = (dark: boolean, isAF: boolean) => ({
   type: dark ? "dark" : "light",
   grey,
   greyAlpha,
@@ -129,8 +151,24 @@ export const defaultComponentPalette = (dark: boolean) => ({
   greyBorder,
   invertIfDarkMode,
   fonts: {
-    sansSerifStack,
-    serifStack,
+    sansSerifStack: isAF ? afSansSerifStack : sansSerifStack,
+    serifStack: isAF ? afSansSerifStack : serifStack,
+    headerStack: isAF ? afSansSerifStack : headerStack,
+  },
+  typography: {
+    postStyle: {
+      fontVariantNumeric: isAF ? "lining-nums" : undefined,
+    },
+    commentStyle: {
+      fontVariantNumeric: isAF ? "lining-nums" : undefined,
+      '& b, & strong': isAF ? undefined : { fontWeight: 600 },
+    },
+    display2: {
+      fontWeight: isAF ? 500 : 400,
+    },
+    display3: {
+      fontWeight: isAF ? 500 : 400,
+    },
   },
   text: {
     primary: greyAlpha(.87),
@@ -209,9 +247,9 @@ export const defaultComponentPalette = (dark: boolean) => ({
     grey800: grey[800],
     tocLink: grey[600],
     tocLinkHighlighted: grey[1000],
-    color: "light-dark(#327E09,#788e6a)",
+    color: isAF ? "light-dark(#3f51b5,#7581d1)" : "light-dark(#327E09,#788e6a)",
     primaryDim: "light-dark(#5caab7,#3a7883)",
-    visited: "#798754",
+    visited: isAF ? "light-dark(#8c4298,#798754)" : "#798754",
   },
   linkHover: {
     dim: greyAlpha(.3),
@@ -294,7 +332,7 @@ export const defaultComponentPalette = (dark: boolean) => ({
     eaButtonGreyOutline: "light-dark(#BCC1C9,#5F5F5F)",
   },
   background: {
-    default: "light-dark(#f8f4ee,#262626)",
+    default: isAF ? (dark ? grey[100] : grey[60]) : "light-dark(#f8f4ee,#262626)",
     paper: grey[0], //Used by MUI
     contrastInDarkMode: "light-dark(#ffffff,#f5f5f5)",
     pageActiveAreaBackground: grey[0],
@@ -529,8 +567,8 @@ export const defaultComponentPalette = (dark: boolean) => ({
     dropdownActiveHoveredBackground: "#ccc",
   },
   review: {
-    activeProgress: 'rgba(127, 175, 131, 0.5)',
-    progressBar: 'rgba(127, 175, 131, 0.7)',
+    activeProgress: isAF ? "rgba(63,81,181, .5)" : 'rgba(127, 175, 131, 0.5)',
+    progressBar: isAF ? "rgba(63,81,181, 1)" : 'rgba(127, 175, 131, 0.7)',
     adminButton: "rgba(200,150,100)",
     winner: "rgba(179, 136, 79, 1)",
   },
@@ -543,17 +581,25 @@ export const defaultComponentPalette = (dark: boolean) => ({
     postBodyScrim: 'rgba(0,0,0,var(--top-posts-page-scrim-opacity))'
   },
   header: {
-    text: greyAlpha(.87),
-    background: dark
-      ? "rgba(50,50,50,.75)"
-      : isBlackBarTitle ? inverseGreyAlpha(.1) : inverseGreyAlpha(.65),
+    text: isAF ? (dark ? "#ffffff" : "rgba(0,0,0,0.87)") : greyAlpha(.87),
+    background: isAF
+      ? (dark ? "rgba(0,0,0,0.5)" : "#ffffff")
+      : (
+        dark
+          ? "rgba(50,50,50,.75)"
+          : isBlackBarTitle ? inverseGreyAlpha(.1) : inverseGreyAlpha(.65)
+      ),
   },
   ultrafeedModalHeader: {
-    background: dark
-      ? "rgba(50,50,50,.98)"
-      : (isBlackBarTitle
-        ? "rgba(255,255,255,.4)"
-        : "rgba(255,255,255,.95)"
+    background: isAF
+      ? (dark ? "rgba(255,255,255,.95)" : "rgba(0,0,0,.98)")
+      : (
+        dark
+          ? "rgba(50,50,50,.98)"
+          : (isBlackBarTitle
+            ? "rgba(255,255,255,.4)"
+            : "rgba(255,255,255,.95)"
+          )
       )
   },
   datePicker: {
@@ -666,20 +712,20 @@ export const defaultComponentPalette = (dark: boolean) => ({
   group: 'rgba(24,68,155,.65)',
   individual: 'rgba(90,90,90,.65)',
   primary: {
-    main: "#5f9b65",
-    dark: "#426c46",
-    light: "#7faf83",
+    main: isAF ? (dark ? "#7581d1" : "#3f51b5") : "#5f9b65",
+    dark: isAF ? (dark ? "#7986cb" : "#303f9f") : "#426c46",
+    light: isAF ? (dark ? "#5968c9" : "#7986cb") : "#7faf83",
     contrastText: grey[0],
   },
   secondary: {
-    main: "#5f9b65",
-    dark: "#426c46",
-    light: "#7faf83",
+    main: isAF ? "#3f51b5" : "#5f9b65",
+    dark: isAF ? "#303f9f" : "#426c46",
+    light: isAF ? "#7986cb" : "#7faf83",
     contrastText: grey[0],
   },
   lwTertiary: {
-    main: "#69886e",
-    dark: "#21672b",
+    main: isAF ? (dark ? "#7799a4" : "#607e88") : "#69886e",
+    dark: isAF ? (dark ? "#7799a4" : "#607e88") : "#21672b",
   },
   action: {
     active: "light-dark(rgba(0, 0, 0, 0.54),#fff)",
@@ -708,7 +754,7 @@ export const defaultComponentPalette = (dark: boolean) => ({
     cardSeparator: dark
       ? `12px solid ${greyAlpha(0.15)}`
       : `12px solid ${greyAlpha(0.005)}`,
-    readBackground: dark ? grey[200] : '#ffffffb3',
+    readBackground: isAF ? (dark ? grey[200] : grey[300]) : (dark ? grey[200] : '#ffffffb3'),
     readBackgroundMobile: grey[100],
     readOpacity: {
       root: dark ? 1 : 0.7,
@@ -717,4 +763,4 @@ export const defaultComponentPalette = (dark: boolean) => ({
       contentMobile: dark ? 1 : 0.7,
     },
   }
-})
+});

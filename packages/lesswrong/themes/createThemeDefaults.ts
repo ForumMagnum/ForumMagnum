@@ -1,5 +1,5 @@
 import transitions from '@/lib/vendor/@material-ui/core/src/styles/transitions';
-import { defaultComponentPalette, headerStack, sansSerifStack, serifStack } from './defaultPalette';
+import { defaultComponentPalette, headerStack } from './defaultPalette';
 import { defaultZIndexes } from "./zIndexes";
 import { isAF, isLW } from '@/lib/instanceSettings';
 
@@ -24,12 +24,20 @@ export const defaultTypography = (palette: ThemePalette, spacingUnit: number) =>
   },
   postStyle: {
     fontFamily: palette.fonts.serifStack,
+    ...(isAF() && {
+      fontVariantNumeric: "lining-nums",
+    })
   },
   commentStyle: {
     fontFamily: palette.fonts.sansSerifStack,
-    '& b, & strong': {
-      fontWeight: 600
-    }
+    ...(!isAF() && {
+      '& b, & strong': {
+        fontWeight: 600
+      }
+    }),
+    ...(isAF() && {
+      fontVariantNumeric: "lining-nums",
+    }),
   },
   ultraFeedMobileStyle: {
     fontFamily: palette.fonts.sansSerifStack,
@@ -110,6 +118,9 @@ export const defaultTypography = (palette: ThemePalette, spacingUnit: number) =>
     fontSize: 36.4,
     marginTop: '1em',
     fontWeight: 400,
+    ...(isAF() && {
+      fontWeight: 500,
+    }),
     fontFamily: palette.fonts.sansSerifStack,
     lineHeight: `1.13333em`,
     marginLeft: '-.02em',
@@ -119,6 +130,9 @@ export const defaultTypography = (palette: ThemePalette, spacingUnit: number) =>
     marginTop: '1.2em',
     fontSize: 39,
     fontWeight: 400,
+    ...(isAF() && {
+      fontWeight: 500,
+    }),
     fontFamily: palette.fonts.sansSerifStack,
     letterSpacing: '-.02em',
     lineHeight: `1.30357em`,
@@ -138,6 +152,10 @@ export const defaultTypography = (palette: ThemePalette, spacingUnit: number) =>
     fontWeight: 500,
     marginBottom: 3,
     fontFamily: headerStack,
+    ...(isAF() && {
+      fontFamily: palette.fonts.sansSerifStack,
+      fontWeight: 500,
+    }),
     lineHeight: `1.16667em`,
     color: palette.text.primary,
   },
@@ -229,7 +247,7 @@ export const defaultTypography = (palette: ThemePalette, spacingUnit: number) =>
 });
 
 export const baseTheme: BaseThemeSpecification = {
-  componentPalette: (dark: boolean) => defaultComponentPalette(dark),
+  componentPalette: (dark: boolean) => defaultComponentPalette(dark, isAF()),
   make: (palette: ThemePalette): NativeThemeType => {
     const spacingUnit = 8
   
