@@ -88,7 +88,7 @@ export const PostSubmit = ({
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
   const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get()
-  const showFeedbackButton = requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel && document.draft;
+  const showFeedbackButton = requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel;
   // EA Forum title is Effective Altruism Forum, which is unecessarily long
   const eaOrOtherFeedbackTitle = isEAForum() ? 'the EA Forum team' : `the ${forumTitleSetting.get()} team`
   const feedbackTitle = `Request feedback from ${isLWorAF() ? 'our editor' : eaOrOtherFeedbackTitle}.  If you don't see a notification pop up next to the Intercom icon in a few seconds, try opening Intercom and check the "Messages" panel to see if there's a new conversation there.`
@@ -127,7 +127,6 @@ export const PostSubmit = ({
                   onClick={async () => {
                     captureEvent("feedbackRequestButtonClicked")
                     if (!!document.title) {
-                      formApi.setFieldValue('draft', true);
                       await formApi.handleSubmit({
                         successCallback: (createdPost: PostsEditMutationFragment) => {
                           const intercomProps = {

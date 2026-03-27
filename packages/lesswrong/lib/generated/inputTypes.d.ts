@@ -258,6 +258,7 @@ interface Mutation {
   analyticsEvent: boolean | null;
   UpdateSearchSynonyms: Array<string>;
   useEmailToken: any;
+  getClaudeAccessLink: string | null;
   connectCrossposter: string | null;
   unlinkCrossposter: string | null;
   observeRecommendation: boolean | null;
@@ -6794,6 +6795,7 @@ interface User {
   lastRemovedFromReviewQueueAt: Date | null;
   rejectedContentCount: number | null;
   userRateLimits: Array<UserRateLimit> | null;
+  claudeLinkedAt: Date | null;
 }
 
 interface UserSelectorUniqueInput {

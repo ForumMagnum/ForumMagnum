@@ -230,6 +230,7 @@ export const UsersCurrent = gql(`
     postGlossariesPinned
     generateJargonForDrafts
     generateJargonForPublishedPosts
+    claudeLinkedAt
   }
 `)
 

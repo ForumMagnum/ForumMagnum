@@ -43,6 +43,8 @@ import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
 import { PostVersionHistoryDialog } from "../editor/PostVersionHistory";
 import { ToggleSwitch } from "../common/ToggleSwitch";
+import { ClaudeSparkIcon } from "../icons/claudeSparkIcon";
+import ClaudeOnboardingModal from "./ClaudeOnboardingModal";
 
 const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
   root: {
@@ -468,6 +470,13 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
       opacity: 'initial',
     },
   },
+  openInClaudeButtonDisabled: {
+    background: theme.palette.greyAlpha(0.3),
+    cursor: "default",
+    "&:hover": {
+      background: theme.palette.greyAlpha(0.3),
+    },
+  },
   openInClaudeButtonTooltip: {
     display: "flex",
     alignItems: "center",
@@ -476,6 +485,8 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
     width: "100%",
   },
   publishClaudeButton: {
+    width: "auto",
+    flex: 1,
     marginTop: 0,
     marginBottom: 0,
     borderRadius: 6,
@@ -488,6 +499,31 @@ const styles = defineStyles("EditorSettingsSidebar", (theme: ThemeType) => ({
   },
   copyLinkIcon: {
     fontSize: 14,
+  },
+  claudeOnboardingLink: {
+    display: "flex",
+    alignItems: "center",
+    gap: 5,
+    ...theme.typography.commentStyle,
+    fontSize: 12,
+    color: theme.palette.greyAlpha(0.6),
+    marginTop: 4,
+    background: "none",
+    border: "none",
+    padding: 0,
+  },
+  claudeOnboardingIcon: {
+    width: 12,
+    height: 12,
+  },
+  claudeOnboardingIconDisconnected: {
+    "& path": {
+      fill: theme.palette.greyAlpha(0.4),
+    },
+    "&:hover": {
+      color: theme.palette.greyAlpha(0.8),
+    },
+    cursor: "pointer",
   },
   linkSharingStatus: {
     display: "flex",
@@ -765,6 +801,9 @@ const STICKY_PRIORITIES: Record<number, string> = {
   4: "Max",
 };
 
+const CLAUDE_BUTTON_TOOLTIP_ENABLED = "Opens a new conversation in claude.ai with our default feedback prompt.  If you change it, you need to explicitly tell Claude to leave feedback in the editor, or it will respond to you in chat.  (We can't do this for you since it's treated as a prompt injection.)";
+const CLAUDE_BUTTON_TOOLTIP_DISABLED = "Click \"Connect Claude to LW Docs\" below to enable this button.";
+
 function getFeedbackQuery(postId: string, linkSharingKey: string | undefined) {
   const postUrl = postGetEditUrl(postId, true, linkSharingKey);
   return `I'm writing a post on LessWrong and would appreciate your inline feedback on it.  The post is located at ${postUrl}.
@@ -838,14 +877,98 @@ function SharingPermissionSelect({ field, settingsKey, label }: {
   );
 }
 
-function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
+function ShareWithClaudeButton({ form, postId, currentUser, panel, className }: {
+  form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
+  postId: string;
+  currentUser: UsersCurrent | null;
+  panel: "sharing" | "publish";
+  className?: string;
+}) {
+  const classes = useStyles(styles);
+  const { captureEvent } = useTracking();
+  const isConnected = !!currentUser?.claudeLinkedAt;
+  const linkSharingKey = form.state.values.linkSharingKey ?? undefined;
+  const claudeUrl = `https://www.claude.ai/new?q=${encodeURIComponent(getFeedbackQuery(postId, linkSharingKey))}`;
+  const tooltip = isConnected ? CLAUDE_BUTTON_TOOLTIP_ENABLED : CLAUDE_BUTTON_TOOLTIP_DISABLED;
+
+  const inner = (
+    <LWTooltip className={classes.openInClaudeButtonTooltip} title={tooltip}>
+      <ForumIcon icon="OpenInNew" className={classes.shareLinkIcon} />
+      Claude
+    </LWTooltip>
+  );
+
+  if (!isConnected) {
+    return (
+      <span className={classNames(classes.openInClaudeButton, classes.openInClaudeButtonDisabled, className)}>
+        {inner}
+      </span>
+    );
+  }
+
+  return (
+    <a
+      href={claudeUrl}
+      target="_blank"
+      rel="noopener noreferrer"
+      className={classNames(classes.openInClaudeButton, className)}
+      onClick={() => {
+        captureEvent("shareWithClaudeClicked", { postId, panel });
+        const settings = form.state.values.sharingSettings ?? defaultSharingSettings;
+        if (settings.anyoneWithLinkCan === 'none') {
+          form.setFieldValue('sharingSettings', {
+            ...settings,
+            anyoneWithLinkCan: "edit",
+          });
+        }
+      }}
+    >
+      {inner}
+    </a>
+  );
+}
+
+function ClaudeConnectionStatus({ currentUser, postId }: { currentUser: UsersCurrent | null; postId: string }) {
+  const classes = useStyles(styles);
+  const { openDialog } = useDialog();
+  const { captureEvent } = useTracking();
+  const isConnected = !!currentUser?.claudeLinkedAt;
+
+  if (isConnected) {
+    return (
+      <span className={classes.claudeOnboardingLink}>
+        <ClaudeSparkIcon className={classes.claudeOnboardingIcon} />
+        Claude connected
+      </span>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      className={classes.claudeOnboardingLink}
+      onClick={() => {
+        captureEvent("claudeOnboardingStarted", { postId });
+        openDialog({
+          name: "ClaudeOnboardingModal",
+          contents: ({ onClose }) => <ClaudeOnboardingModal onClose={onClose} postId={postId} />,
+        });
+      }}
+    >
+      <ClaudeSparkIcon className={classNames(classes.claudeOnboardingIcon, classes.claudeOnboardingIconDisconnected)} />
+      Connect Claude to LW Docs
+    </button>
+  );
+}
+
+function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: {
   form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
   canShare: boolean;
   canEditCoauthors: boolean;
   flash: (message: string) => void;
+  currentUser: UsersCurrent | null;
 }) {
   const classes = useStyles(styles);
-  const { captureEvent } = useTracking();
 
   const postId = form.state.values._id;
   const linkSharingKey = form.state.values.linkSharingKey ?? undefined;
@@ -870,29 +993,8 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
                 </div>;
               }
 
-              const claudeUrl = `https://www.claude.ai/new?q=${encodeURIComponent(getFeedbackQuery(postId, linkSharingKey))}`;
               const shareWithClaudeButton = (
-                <a
-                  href={claudeUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={classes.openInClaudeButton}
-                  onClick={() => {
-                    captureEvent("shareWithClaudeClicked", { postId, panel: "sharing" });
-                    field.handleChange({
-                      ...settings,
-                      ...(settings.anyoneWithLinkCan === 'none' ? { anyoneWithLinkCan: "edit" } : {}),
-                    });
-                  }}
-                >
-                <LWTooltip
-                  className={classes.openInClaudeButtonTooltip}
-                  title="Opens a new conversation in claude.ai with our default feedback prompt.  If you change it, you need to explicitly tell Claude to leave feedback in the editor, or it will respond to you in chat.  (We can't do this for you since it's treated as a prompt injection.)"
-                >
-                  <ForumIcon icon="OpenInNew" className={classes.shareLinkIcon} />
-                  Claude
-                </LWTooltip>
-                </a>
+                <ShareWithClaudeButton form={form} postId={postId} currentUser={currentUser} panel="sharing" />
               );
 
               const shareLinkButton = (
@@ -917,7 +1019,10 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
               );
 
               if (!linkEnabled) {
-                return <div className={classes.shareLinkButtonContainer}>{shareLinkButton}{shareWithClaudeButton}</div>;
+                return <>
+                  <div className={classes.shareLinkButtonContainer}>{shareLinkButton}{shareWithClaudeButton}</div>
+                  <ClaudeConnectionStatus currentUser={currentUser} postId={postId} />
+                </>;
               }
 
               const copyLinkButton = (
@@ -932,7 +1037,10 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash }: {
                 </CopyToClipboard>
               );
 
-              return <div className={classes.shareLinkButtonContainer}>{copyLinkButton}{shareWithClaudeButton}</div>;
+              return <>
+                <div className={classes.shareLinkButtonContainer}>{copyLinkButton}{shareWithClaudeButton}</div>
+                <ClaudeConnectionStatus currentUser={currentUser} postId={postId} />
+              </>;
             }}
           </form.Field>
 
@@ -1230,32 +1338,8 @@ const EditorSettingsSidebar = ({
     });
   }, [captureEvent, initialData, openDialog, postId]);
 
-  const linkSharingKey = form.state.values.linkSharingKey ?? undefined;
   const publishClaudeButton = postId ? (
-    <a
-      href={`https://www.claude.ai/new?q=${encodeURIComponent(getFeedbackQuery(postId, linkSharingKey))}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className={classNames(classes.openInClaudeButton, classes.publishClaudeButton)}
-      onClick={() => {
-        captureEvent("shareWithClaudeClicked", { postId, panel: "publish" });
-        const settings = form.state.values.sharingSettings ?? defaultSharingSettings;
-        if (settings.anyoneWithLinkCan === 'none') {
-          form.setFieldValue('sharingSettings', {
-            ...settings,
-            anyoneWithLinkCan: "edit",
-          });
-        }
-      }}
-    >
-      <LWTooltip
-        className={classes.openInClaudeButtonTooltip}
-        title="Opens a new conversation in claude.ai with our default feedback prompt.  If you change it, you need to explicitly tell Claude to leave feedback in the editor, or it will respond to you in chat.  (We can't do this for you since it's treated as a prompt injection.)"
-      >
-        <ForumIcon icon="OpenInNew" className={classes.shareLinkIcon} />
-        Claude
-      </LWTooltip>
-    </a>
+    <ShareWithClaudeButton form={form} postId={postId} currentUser={currentUser} panel="publish" className={classes.publishClaudeButton} />
   ) : undefined;
 
   const content = (
@@ -1286,6 +1370,7 @@ const EditorSettingsSidebar = ({
                         claudeButton={publishClaudeButton}
                       />
                     </div>
+                    {postId && <ClaudeConnectionStatus currentUser={currentUser} postId={postId} />}
                     {!isEvent && <div className={classes.frontpageCheckbox}>
                       <form.Field name="submitToFrontpage">
                         {(field) => <SubmitToFrontpageCheckbox field={field} />}
@@ -1318,6 +1403,7 @@ const EditorSettingsSidebar = ({
           canShare={canShare}
           canEditCoauthors={canEditCoauthors}
           flash={flash}
+          currentUser={currentUser}
         />
       )}
 
