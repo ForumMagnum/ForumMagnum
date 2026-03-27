@@ -9,7 +9,7 @@ import { use } from 'react';
 
 const CookiesProvider = ({ children }: { children: React.ReactNode }) => {
   const cookies = useGetUniversalCookies();
-  const initialCookiesRef = React.useRef<Record<string, Cookie>>(cookies);
+  const initialCookiesRef = React.useRef<Record<string, Cookie>>(cookies.getAll());
 
   const store = React.useMemo(() => ({
     cookies,
