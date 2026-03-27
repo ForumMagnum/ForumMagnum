@@ -4322,6 +4322,17 @@ const schema = {
       },
     },
   },
+  // Set when the user completes the Claude onboarding flow (confirming that
+  // their Claude instance can make network requests to LessWrong).
+  claudeLinkedAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+    },
+    graphql: {
+      outputType: "Date",
+      canRead: [userOwns, "admins"],
+    },
+  },
 } satisfies Record<string, CollectionFieldSpecification<"Users">>;
 
 export default schema;

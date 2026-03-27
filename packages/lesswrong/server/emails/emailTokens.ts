@@ -45,7 +45,7 @@ export class EmailTokenType<T extends EmailTokenResultComponentName> {
   
   generateToken = async (userId: string) => {
     if (!userId) throw new Error("Missing required argument: userId");
-    
+
     const token = randomSecret();
     await EmailTokens.rawInsert({
       token: token,
@@ -56,11 +56,35 @@ export class EmailTokenType<T extends EmailTokenResultComponentName> {
     });
     return token;
   }
-  
+
   generateLink = async (userId: string) => {
     if (!userId) throw new Error("Missing required argument: userId");
-    
+
     const token = await this.generateToken(userId);
+    const prefix = getSiteUrl().slice(0,-1);
+    return `${prefix}/${this.path}/${token}`;
+  }
+
+  /**
+   * Returns an existing unused token for this user and token type, or creates
+   * a new one if none exists.
+   */
+  getOrGenerateToken = async (userId: string) => {
+    if (!userId) throw new Error("Missing required argument: userId");
+
+    const existing = await EmailTokens.findOne({
+      tokenType: this.name,
+      userId,
+      usedAt: null,
+    });
+    if (existing) return existing.token;
+    return this.generateToken(userId);
+  }
+
+  getOrGenerateLink = async (userId: string) => {
+    if (!userId) throw new Error("Missing required argument: userId");
+
+    const token = await this.getOrGenerateToken(userId);
     const prefix = getSiteUrl().slice(0,-1);
     return `${prefix}/${this.path}/${token}`;
   }
@@ -94,24 +118,31 @@ async function getAndValidateToken(token: string) {
   return { tokenObj, tokenType }
 }
 
+/**
+ * Core logic for validating and executing an email token. Shared between the
+ * GraphQL mutation and the API route handler.
+ */
+export async function executeEmailToken(token: string, args?: any): Promise<UseEmailTokenResult> {
+  const { tokenObj, tokenType } = await getAndValidateToken(token);
+  const resultProps = await tokenType.handleToken(tokenObj, args);
+  await updateEmailToken({
+    data: { usedAt: new Date() },
+    selector: { _id: tokenObj._id }
+  }, createAnonymousContext());
+  return resultProps;
+}
+
 export const emailTokensGraphQLTypeDefs = gql`
   extend type Mutation {
     useEmailToken(token: String, args: JSON): JSON
+    getClaudeAccessLink: String
   }
 `
 
 export const emailTokensGraphQLMutations = {
-  async useEmailToken(root: void, {token, args}: {token: string, args: any}, context: ResolverContext) {
+  async useEmailToken(root: void, {token, args}: {token: string, args: any}, _context: ResolverContext) {
       try {
-        const { tokenObj, tokenType } = await getAndValidateToken(token)
-
-        const resultProps = await tokenType.handleToken(tokenObj, args);
-        await updateEmailToken({
-          data: { usedAt: new Date() },
-          selector: { _id: tokenObj._id }
-        }, context);
-        
-        return resultProps;
+        return await executeEmailToken(token, args);
       } catch(e) {
         //eslint-disable-next-line no-console
         console.error(`error when using email token: `, e);
@@ -122,7 +153,13 @@ export const emailTokensGraphQLMutations = {
           }
         };
       }
-    }
+    },
+
+  async getClaudeAccessLink(root: void, _args: {}, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser) throw new Error("Must be logged in");
+    return emailTokenTypesByName.confirmClaudeAccess.getOrGenerateLink(currentUser._id);
+  },
 };
 
 export const emailTokenTypesByName = {
@@ -150,7 +187,7 @@ export const emailTokenTypesByName = {
   
   resetPassword: new EmailTokenType({
     name: "resetPassword",
-    onUseAction: async (user, params, args) => {
+    onUseAction: async (user, _params, args) => {
       if (!args) throw Error("Using a reset-password token requires providing a new password")
       const { password } = args
       const validatePasswordResponse = validatePassword(password)
@@ -162,5 +199,18 @@ export const emailTokenTypesByName = {
     },
     resultComponentName: "EmailTokenResult",
     path: "resetPassword" // Defined in routes.ts
+  }),
+
+  confirmClaudeAccess: new EmailTokenType({
+    name: "confirmClaudeAccess",
+    onUseAction: async (user) => {
+      await Users.rawUpdateOne(
+        { _id: user._id },
+        { $set: { claudeLinkedAt: new Date() } }
+      );
+      return { message: `Claude access confirmed. You can now use Claude to interact with your LessWrong posts by clicking the "Claude" button in the editor's settings panel.` };
+    },
+    resultComponentName: "EmailTokenResult",
+    path: "api/agent/confirmClaudeAccess",
   }),
 } satisfies Record<DbEmailTokens['tokenType'], EmailTokenType<EmailTokenResultComponentName>>;
