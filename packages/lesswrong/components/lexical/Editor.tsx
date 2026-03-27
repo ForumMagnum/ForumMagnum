@@ -312,9 +312,6 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     },
     '& .footnote-content': {
       flex: 1,
-      '& p': {
-        margin: 0,
-      },
     },
     '& .llm-content-block': {
       margin: 0,
