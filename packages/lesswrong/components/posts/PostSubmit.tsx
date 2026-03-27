@@ -127,7 +127,6 @@ export const PostSubmit = ({
                   onClick={async () => {
                     captureEvent("feedbackRequestButtonClicked")
                     if (!!document.title) {
-                      formApi.setFieldValue('draft', true);
                       await formApi.handleSubmit({
                         successCallback: (createdPost: PostsEditMutationFragment) => {
                           const intercomProps = {

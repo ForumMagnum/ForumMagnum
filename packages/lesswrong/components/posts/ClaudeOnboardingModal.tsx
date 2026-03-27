@@ -10,6 +10,7 @@ import CloudinaryImage2 from "../common/CloudinaryImage2";
 import ForumIcon from "../common/ForumIcon";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useTracking } from "@/lib/analyticsEvents";
+import { useRefetchCurrentUser } from "../common/withUser";
 
 const styles = defineStyles("ClaudeOnboardingModal", (theme: ThemeType) => ({
   content: {
@@ -128,9 +129,15 @@ const ClaudeOnboardingModal = ({
 }) => {
   const classes = useStyles(styles);
   const { captureEvent } = useTracking();
+  const refetchCurrentUser = useRefetchCurrentUser();
   const [confirmUrl, setConfirmUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [getLink] = useMutation(getClaudeAccessLinkMutation);
+
+  const handleClose = () => {
+    onClose();
+    void refetchCurrentUser();
+  };
 
   useEffect(() => {
     void getLink().then((result) => {
@@ -151,7 +158,7 @@ const ClaudeOnboardingModal = ({
     : null;
 
   return (
-    <LWDialog maxWidth="md" open={true} onClose={onClose}>
+    <LWDialog maxWidth="md" open={true} onClose={handleClose}>
       <div className={classes.content}>
         <div className={classes.title}>
           <ClaudeSparkIcon className={classes.claudeIcon} />
@@ -205,7 +212,7 @@ const ClaudeOnboardingModal = ({
         </div>
 
         <div className={classes.footer}>
-          <button type="button" className={classNames(classes.claudeButton, classes.doneButton)} onClick={onClose}>
+          <button type="button" className={classNames(classes.claudeButton, classes.doneButton)} onClick={handleClose}>
             Done
           </button>
         </div>
