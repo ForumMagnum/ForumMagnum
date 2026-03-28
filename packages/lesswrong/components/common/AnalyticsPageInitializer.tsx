@@ -69,6 +69,9 @@ const AnalyticsPageInitializer = () => {
     pageIsVisibleRef.current = isVisible;
     maybeUpdateLastActivity();
     captureEvent("pageVisibilityChange", {isVisible, visibilityState});
+    if (!isVisible) {
+      flushClientEvents(true);
+    }
   })
 
   const timerIsActiveRef = useRef(true);
