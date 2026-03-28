@@ -2181,6 +2181,7 @@ interface CommentsDraftCommentsInput {
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
   postId?: string | null;
+  shortform?: boolean | null;
   drafts?: string | null;
 }
 

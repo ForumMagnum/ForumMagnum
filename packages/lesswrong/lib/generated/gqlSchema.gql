@@ -2445,6 +2445,7 @@ input CommentsDraftCommentsInput {
   minimumKarma: Int
   authorIsUnreviewed: Boolean
   postId: String
+  shortform: Boolean
   drafts: String
 }
 

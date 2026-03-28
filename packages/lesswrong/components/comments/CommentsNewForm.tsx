@@ -206,7 +206,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
       flash(comment.deletedReason);
     }
     if (comment.draft && comment.shortform && pathname === '/') {
-      flash("Quick take saved as draft, visit your profile to edit it.");
+      flash("Quick take saved as draft. You can resume it from your drafts page.");
     }
     if (successCallback) {
       void successCallback(comment);
