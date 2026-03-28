@@ -263,6 +263,12 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
     '& h1, & h2, & h3, & h4, & h5, & h6': {
       fontFamily: 'inherit',
     },
+    // Prevent baseBodyStyles selectors (which spread postStyle/body1/commentStyle)
+    // from overriding the LLM block's font on these elements. Without this,
+    // list items and blockquotes get the post/comment font instead of cronos-pro.
+    '& li, & blockquote': {
+      fontFamily: 'inherit',
+    },
     // Render the model label inline so the content starts immediately after it.
     '&::before': {
       content: 'attr(data-model-name)',
