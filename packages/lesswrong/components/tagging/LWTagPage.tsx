@@ -5,7 +5,7 @@ import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'r
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
-import { tagGetUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
+import { tagGetUrl, tagUserHasSufficientKarma, isTagAllowedType3Audio, tagMinimumKarmaPermissions } from '../../lib/collections/tags/helpers';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -718,7 +718,7 @@ const LWTagPage = ({slug}: {slug: string}) => {
     return <PermanentRedirect url={`${baseTagUrl}${queryString}`} />
   }
   if (editing && !tagUserHasSufficientKarma(currentUser, "edit")) {
-    throw new Error(`Sorry, you cannot edit wikitags without ${getTagMinimumKarmaPermissions().edit} or more karma.`)
+    throw new Error(`Sorry, you cannot edit wikitags without ${tagMinimumKarmaPermissions.edit} or more karma.`)
   }
 
   // if no sort order was selected, try to use the tag page's default sort order for posts

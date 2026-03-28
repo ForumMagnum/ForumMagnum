@@ -15,6 +15,8 @@ import MetaInfo from "../common/MetaInfo";
 import SettingsColumn from "../common/SettingsColumn";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
+import type { ForumTypeString } from '@/lib/instanceSettings';
 
 type Filters = 'all'|'questions'|'meta'|'frontpage'|'curated'|'events'|'linkpost';
 
@@ -95,7 +97,7 @@ const FILTERS_ALL: ForumOptions<Partial<Record<Filters, SettingsOption>>> = {
   }
 }
 
-const getFilters = () => forumSelect(FILTERS_ALL)
+const getFilters = (forumType: ForumTypeString) => forumSelect(FILTERS_ALL, forumType)
 
 const styles = defineStyles('PostsListSettings', (theme: ThemeType) => ({
   root: {
@@ -155,6 +157,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
+  const { forumType } = useForumType();
 
   const setSetting = (type: keyof typeof USER_SETTING_NAMES, newSetting: any) => {
     if (currentUser && persistentSettings) {
@@ -187,7 +190,7 @@ const PostsListSettings = ({persistentSettings, hidden, currentTimeframe, curren
         <SettingsColumn
           type={'filter'}
           title={'Filtered by:'}
-          options={getFilters()}
+          options={getFilters(forumType)}
           currentOption={currentFilter}
           setSetting={setSetting}
           nofollow

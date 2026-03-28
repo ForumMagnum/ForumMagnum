@@ -2,7 +2,6 @@ import React, { useCallback } from 'react';
 import classNames from 'classnames';
 import { useLocation } from '../../../lib/routeUtil';
 import { MenuTabRegular } from './menuTabs';
-import { forumSelect } from '../../../lib/forumTypeUtils';
 import { useCurrentUser } from '../withUser';
 import { useCookiesWithConsent } from '@/components/hooks/useCookiesWithConsent';
 import { NAV_MENU_FLAG_COOKIE_PREFIX } from '@/lib/cookies/cookies';
@@ -13,12 +12,6 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 export const iconWidth = 30
-
-const getIconTransform = () => forumSelect({
-  LessWrong: "scale(0.8)",
-  EAForum: "scale(0.7)",
-  default: undefined,
-});
 
 const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
   selected: {
@@ -77,7 +70,9 @@ const styles = defineStyles('TabNavigationItem', (theme: ThemeType) => ({
     "& svg": {
       fill: "currentColor",
       color: theme.palette.icon.navigationSidebarIcon,
-      transform: getIconTransform(),
+      ...(theme.isLW && {
+        transform: "scale(0.8)",
+      }),
     }
   },
   iconOnlyIcon: {

@@ -1,5 +1,4 @@
 import qs from "qs";
-import { forumSelect } from "../../forumTypeUtils";
 import { siteUrlSetting, allowTypeIIIPlayerSetting } from '@/lib/instanceSettings';
 import { combineUrls } from "../../vulcan-lib/utils";
 import { TagCommentType } from "../comments/types";
@@ -7,22 +6,10 @@ import type { TagLens } from "@/lib/arbital/useTagLenses";
 import { getSortOrderOptions, SettingsOption } from "../posts/dropdownOptions";
 import type { TagHistorySettings } from "@/components/tagging/history/TagHistoryPage";
 
-export const getTagMinimumKarmaPermissions = () => forumSelect({
-  // Topic spampocalypse defense
-  EAForum: {
-    new: 1,
-    edit: 1,
-  },
-  LessWrong: {
-    new: 1,
-    edit: 1,
-  },
-  // Default is to allow all users to create/edit tags
-  default: {
-    new: -1000,
-    edit: -1000,
-  }
-})
+export const tagMinimumKarmaPermissions = {
+  new: 1,
+  edit: 1,
+}
 
 type GetUrlOptions = {
   edit?: boolean,
@@ -80,7 +67,7 @@ export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: strin
 export const tagUserHasSufficientKarma = (user: UsersCurrent | DbUser | null, action: "new" | "edit"): boolean => {
   if (!user) return false
   if (user.isAdmin) return true
-  if ((user.karma) >= getTagMinimumKarmaPermissions()[action]) return true
+  if ((user.karma) >= tagMinimumKarmaPermissions[action]) return true
   return false
 }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import round from "lodash/round"
 import moment from "moment"
-import { isEAForum, isLW, isLWorAF } from "./instanceSettings"
+import { isEAForum, isLWorAF } from "./instanceSettings"
 import { TupleSet, UnionOf } from './utils/typeGuardUtils';
 import { memoizeWithExpiration } from './utils/memoizeWithExpiration';
 import { isDevelopment } from './executionEnvironment'; 

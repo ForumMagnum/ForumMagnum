@@ -17,6 +17,7 @@ import ContentStyles from "../common/ContentStyles";
 import LWPopper from "../common/LWPopper";
 import CommentsNode from "./CommentsNode";
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { useForumType } from '../hooks/useForumType';
 
 export const SINGLE_LINE_PADDING_TOP = 5
 
@@ -152,6 +153,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
 }) => {
   const classes = useStyles(styles);
   const {anchorEl, hover, eventHandlers} = useHover();
+  const { forumType } = useForumType();
   
   if (!comment) return null
   
@@ -162,7 +164,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
   const renderHighlight = ((comment.baseScore ?? 0) > -5) && !comment.deleted
 
   const parentTag = comment.tag;
-  const actuallyDisplayTagIcon = !!(displayTagIcon && parentTag && getCoreTagIconMap()[parentTag.slug])
+  const actuallyDisplayTagIcon = !!(displayTagIcon && parentTag && getCoreTagIconMap(forumType)[parentTag.slug])
   
   const effectiveNestingLevel = nestingLevel + (treeOptions.switchAlternatingHighlights ? 1 : 0);
   

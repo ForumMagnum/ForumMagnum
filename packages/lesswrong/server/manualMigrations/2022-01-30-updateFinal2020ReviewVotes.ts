@@ -6,11 +6,11 @@ import { Posts } from '../../server/collections/posts/collection';
 import Users from '../../server/collections/users/collection';
 import moment from 'moment';
 import { getForumTheme } from '../../themes/forumTheme';
-import { isLW } from '../../lib/instanceSettings';
 import fs from 'fs';
 
 const getCost = (vote: AnyBecauseTodo) => getCostData({})[vote.qualitativeScore].cost
 const getValue = (vote: AnyBecauseTodo, total: number) => getCostData({costTotal:total})[vote.qualitativeScore].value
+const isLW = () => true;
 
 export default registerMigration({
   name: "updateFinal2020ReviewVotes",

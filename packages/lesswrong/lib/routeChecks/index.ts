@@ -17,7 +17,7 @@ function pathnameMatchesRoutePath(pathname: string, routePath: NextExistingRoute
   });
 }
 
-export const isHomeRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/') && !isAF();
+export const isHomeRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/')
 
 export const isSunshineSidebarRoute = (pathname: string) => pathnameMatchesRoutePath(pathname, '/');
 

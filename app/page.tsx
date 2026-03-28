@@ -2,8 +2,8 @@ import React from "react";
 import LWHome from "@/components/common/LWHome";
 import RouteRoot from "@/components/layout/RouteRoot";
 import AlignmentForumHome from "@/components/alignment-forum/AlignmentForumHome";
-import { forumSelect } from "@/lib/forumTypeUtils";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+import { getResolverContextForServerComponent } from "@/server/pageMetadata/sharedMetadata";
 
 assertRouteAttributes("/", {
   whiteBackground: false,
@@ -13,12 +13,15 @@ assertRouteAttributes("/", {
   hasMarkdownVersion: true,
 });
 
-export default async function Home() {
-  return <RouteRoot>
-    {forumSelect({
-      AlignmentForum: <AlignmentForumHome/>,
-      LessWrong: <LWHome/>,
-      default: <LWHome/>,
-    })}
-  </RouteRoot>;
+export default async function Home({ searchParams }: { searchParams: Promise<{}> }) {
+  const resolverContext = await getResolverContextForServerComponent(await searchParams);
+  if (resolverContext.isAF) {
+    return <RouteRoot>
+      <AlignmentForumHome/>
+    </RouteRoot>;
+  } else {
+    return <RouteRoot>
+      <LWHome/>
+    </RouteRoot>;
+  }
 }

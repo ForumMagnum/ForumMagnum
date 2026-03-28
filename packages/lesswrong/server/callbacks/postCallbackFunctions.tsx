@@ -8,7 +8,7 @@ import { isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
-import { isEAForum, recombeeEnabledSetting, isLW } from '@/lib/instanceSettings';
+import { isEAForum, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from "../curationEmails/cron";

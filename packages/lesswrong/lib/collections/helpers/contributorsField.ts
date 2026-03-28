@@ -1,4 +1,3 @@
-import { forumSelect } from '@/lib/forumTypeUtils';
 import { getContributorsList, ContributorWithStats } from '@/server/utils/contributorsUtil';
 import { loadByIds } from '@/lib/loaders';
 import { accessFilterMultiple } from '@/lib/utils/schemaUtils';
@@ -45,12 +44,7 @@ export function getContributorsFieldResolver(options: ContributorsFieldOptions) 
 
     const sortedContributors = orderBy(
       contributorUserIds,
-      userId => forumSelect({
-        // TODO: But this should be tied to whether the default is using our tag page or not
-        LessWrong: -(contributionStatsByUserId[userId]!.currentAttributionCharCount ?? 0),
-        AlignmentForum: -(contributionStatsByUserId[userId]!.currentAttributionCharCount ?? 0),
-        default: -contributionStatsByUserId[userId]!.contributionScore
-      })
+      userId => -(contributionStatsByUserId[userId]!.currentAttributionCharCount ?? 0),
     );
 
     const contributorsWithStats: ContributorWithStats[] = sortedContributors.map(userId => ({

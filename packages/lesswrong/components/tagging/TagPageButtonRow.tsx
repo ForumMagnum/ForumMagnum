@@ -9,7 +9,7 @@ import LockIcon from '@/lib/vendor/@material-ui/icons/src/Lock';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import classNames from 'classnames';
 import { useTagBySlug } from './useTag';
-import { tagGetHistoryUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
+import { tagGetHistoryUrl, tagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
 import { isLWorAF } from '@/lib/instanceSettings';
 import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { AnalyticsContext, useTracking } from '@/lib/analyticsEvents';
@@ -207,7 +207,7 @@ const TagPageButtonRow = ({tag, selectedLens, editing, setEditing, hideLabels = 
     </>}
     {noEditKarmaTooLow && <>
       <div>
-      You must have at least {getTagMinimumKarmaPermissions().edit} karma to edit this topic
+      You must have at least {tagMinimumKarmaPermissions.edit} karma to edit this topic
     </div>
     <br />
     </>}

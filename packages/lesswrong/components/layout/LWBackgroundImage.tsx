@@ -15,6 +15,7 @@ import ReviewVotingCanvas from '../review/ReviewVotingCanvas';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { Link } from '@/lib/reactRouterWrapper';
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
+import { useForumType } from '../hooks/useForumType';
 
 // Inkhaven Cohort #2 banner active period
 const INKHAVEN_2026_START = new Date('2026-01-10T00:00:00-08:00');
@@ -152,7 +153,8 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
 export const LWBackgroundImage = () => {
   const classes = useStyles(styles);
   const pathname = usePrerenderablePathname();
-  const isHomePage = isHomeRoute(pathname);
+  const { isLW } = useForumType();
+  const isLWHomePage = isLW && isHomeRoute(pathname);
 
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_SOLSTICE_GLOBE_COOKIE]);
   const hideGlobeCookie = cookies[HIDE_SOLSTICE_GLOBE_COOKIE] === "true";
@@ -172,13 +174,13 @@ export const LWBackgroundImage = () => {
   </div> : null
 
   // TODO: clean up related code in FundraisingThermometer when we disable/remove solstice season.
-  // let homePageImage = (standaloneNavigation && isHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
+  // let homePageImage = (standaloneNavigation && isLWHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
   
   // Show event banners on homepage during active periods. LessOnline takes precedence over Inkhaven.
   let homePageImage = defaultImage;
   const inkhaven2026Active = useIsInkhaven2026Active();
   const lessOnline2026 = useIsLessOnline2026Active();
-  if (standaloneNavigation && isHomePage) {
+  if (standaloneNavigation && isLWHomePage) {
     if (lessOnline2026.active) {
       homePageImage = <LessOnline2026Banner earlyBirdEndDate={lessOnline2026.earlyBirdEndDate} />;
     } else if (inkhaven2026Active) {
@@ -186,13 +188,13 @@ export const LWBackgroundImage = () => {
     }
   }
 
-  // if (reviewIsActive() && standaloneNavigation && isHomePage) {
+  // if (reviewIsActive() && standaloneNavigation && isLWHomePage) {
   //   homePageImage = <AnnualReviewSidebarBanner />
   // }
 
-  // const showSolsticeButton = standaloneNavigation && isHomePage && hideGlobeCookie
+  // const showSolsticeButton = standaloneNavigation && isLWHomePage && hideGlobeCookie
 
-  // if (reviewIsActive() && getReviewPhase() === 'VOTING' && isHomePage && standaloneNavigation) {
+  // if (reviewIsActive() && getReviewPhase() === 'VOTING' && isLWHomePage && standaloneNavigation) {
   //   homePageImage = <ReviewVotingCanvas />
   // }
 
@@ -209,7 +211,7 @@ export const LWBackgroundImage = () => {
     />
   </div>;
 
-  if (getReviewPhase() === 'RESULTS' && isHomePage && standaloneNavigation) {
+  if (getReviewPhase() === 'RESULTS' && isLWHomePage && standaloneNavigation) {
     homePageImage = reviewCompleteImage;
   }
 

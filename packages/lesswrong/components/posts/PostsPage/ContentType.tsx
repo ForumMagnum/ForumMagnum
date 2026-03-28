@@ -17,6 +17,7 @@ import LWTooltip from "../../common/LWTooltip";
 import SectionTitle from "../../common/SectionTitle";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useForumType } from '@/components/hooks/useForumType';
 
 const styles = defineStyles('ContentType', (theme: ThemeType) => ({
   root: {
@@ -272,11 +273,12 @@ const ContentType = ({className, type, label}: {
   label?: string
 }) => {
   const classes = useStyles(styles);
+  const { forumType } = useForumType();
 
   if (!type) {
     throw new Error('ContentType requires type property')
   }
-  const contentData = forumSelect(getContentTypes())[type]
+  const contentData = forumSelect(getContentTypes(), forumType)[type]
   if (!contentData) {
     throw new Error(`Content type ${type} invalid for this forum type`)
   }

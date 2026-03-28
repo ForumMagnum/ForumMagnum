@@ -8,7 +8,6 @@ import {
 } from '../lib/settingsCache'
 import groupBy from 'lodash/groupBy';
 import get from 'lodash/get'
-import { forumSelect } from '@/lib/forumTypeUtils';
 import { getPrivateSettings } from './settings/settings';
 
 const runValidateSettings = false
