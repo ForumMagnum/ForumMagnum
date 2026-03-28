@@ -213,7 +213,7 @@ interface ProfilePageTabDefinition<T extends ProfileTab> {
 const postsTab: ProfilePageTabDefinition<"posts"> = {
   id: "posts",
   label: "Posts",
-  isAvailable: (user) => user.postCount > 0,
+  isAvailable: () => true,
   defaultSettings: defaultProfilePageAllPostsTabSettings,
   showSettingsButton: true,
 };

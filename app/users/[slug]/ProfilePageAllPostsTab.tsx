@@ -340,7 +340,7 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
     fetchPolicy: "cache-and-network",
   });
   const recentPosts = recentPostsData?.posts?.results ?? [];
-  const hasPosts = user.postCount > 0;
+  const hasPosts = user.postCount > 0 || recentPosts.length > 0;
 
   return <TabPanel className={classes.postsList}>
     {!hasPosts && !recentPostsLoading && (
