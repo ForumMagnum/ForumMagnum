@@ -9,6 +9,9 @@ const hideSpoilers = (theme: ThemeType) => ({
   '& code': {
     backgroundColor: theme.palette.panelBackground.spoilerBlock,
   },
+  '& img, & video, & iframe, & svg, & canvas': {
+    opacity: 0,
+  },
 });
 
 const spoilerStyles = (theme: ThemeType) => ({
