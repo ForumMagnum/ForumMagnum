@@ -527,6 +527,7 @@ export const UltraFeedCommentItem = ({
                   hideSuffix={false}
                   resetSignal={resetSig}
                   isRead={isRead}
+                  isRetracted={!!comment.retracted}
                 />
               )}
             </div>

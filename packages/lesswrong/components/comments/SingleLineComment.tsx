@@ -138,7 +138,10 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
   },
   deemphasize: {
     opacity: 0.5
-  }
+  },
+  retracted: {
+    textDecoration: "line-through",
+  },
 }))
 
 const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId, hideKarma, showDescendentCount, displayTagIcon=false }: {
@@ -203,7 +206,7 @@ const SingleLineComment = ({treeOptions, comment, nestingLevel, parentCommentId,
         {!hideSingleLineMeta && <span className={classes.date}>
           <FormatDate date={comment.postedAt} tooltip={false}/>
         </span>}
-        {renderHighlight && <ContentStyles contentType="comment" className={classes.truncatedHighlight}> 
+        {renderHighlight && <ContentStyles contentType="comment" className={classNames(classes.truncatedHighlight, comment.retracted && classes.retracted)}>
           {singleLinePostTitle && <span className={classes.postTitle}>{post?.title}</span>}
           { comment.nominatedForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Nomination</span>}
           { comment.reviewingForReview && !hideSingleLineMeta && <span className={classes.metaNotice}>Review</span>}
