@@ -85,7 +85,7 @@ export const footnotePreviewStyles = defineStyles("FootnotePreview", (theme: The
     display: "inline-block",
     verticalAlign: "top",
     fontSize: 15,
-    marginRight: 0,
+    marginRight: 5,
     whiteSpace: "nowrap",
     lineHeight: "19px",
 
