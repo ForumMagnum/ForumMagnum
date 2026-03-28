@@ -426,10 +426,8 @@ const UsersEditForm = ({ terms, accountManagement }: {
 
   const onSuccess = async (user: UsersEdit) => {
     if (user?.theme.name) {
-      const name = user.theme.name;
-      const theme = { ...currentThemeOptions, ...user.theme, name };
-      setTheme(theme);
-      captureEvent("setUserTheme", theme);
+      setTheme(user.theme);
+      captureEvent("setUserTheme", user.theme);
     }
 
     flash(`User "${userGetDisplayName(user)}" edited`);

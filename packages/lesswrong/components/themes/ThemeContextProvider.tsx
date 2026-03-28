@@ -29,6 +29,13 @@ export const ThemeContextProvider = ({children}: {
   const prefersDarkMode = usePrefersDarkMode();
 
   useEffect(() => {
+    if (user?.theme) {
+      const newThemeOptions = getThemeOptions(themeCookie, user);
+      setThemeOptions(newThemeOptions);
+    }
+  }, [user?.theme?.name, themeCookie]);
+
+  useEffect(() => {
     if (isEAForum()) {
       removeCookie(THEME_COOKIE, {path: "/"});
     } else {
