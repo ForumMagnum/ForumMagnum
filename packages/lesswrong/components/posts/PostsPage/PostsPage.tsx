@@ -744,7 +744,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
       showSplashPageHeader={showSplashPageHeader}
       sharedToCFooter={<LWCommentCount
         answerCount={answerCount}
-        commentCount={displayedPublicCommentCount}
+        commentCount={totalComments}
       />}
       embedded={embedded}
     />
