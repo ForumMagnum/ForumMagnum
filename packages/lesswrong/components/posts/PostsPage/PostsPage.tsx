@@ -462,6 +462,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
       limit,
       enableTotal: false,
     },
+    itemsPerPage: 200,
     fetchPolicy: 'cache-and-network' as const,
   });
 
