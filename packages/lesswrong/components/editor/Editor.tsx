@@ -200,7 +200,7 @@ export const getEditorTypeToDisplayMap = (): Record<LegacyEditorTypeString,{name
   ckEditorMarkup: {name: getCkEditorName()},
   markdown: {name: 'Markdown'},
   draftJS: {name: "DraftJS"},
-  lexical: {name: 'Lexical', postfix: '[Experimental]'},
+  lexical: {name: 'LessWrong Docs'},
 });
 
 const defaultEditors: EditorTypeString[] = ['lexical', 'ckEditorMarkup']

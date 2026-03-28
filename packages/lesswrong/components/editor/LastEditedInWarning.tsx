@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { getEditorTypeToDisplayMap, EditorTypeString, EditorContents, EditorChangeEvent, type LegacyEditorTypeString } from './Editor';
+import { getEditorTypeToDisplayMap, EditorContents, EditorChangeEvent, type LegacyEditorTypeString } from './Editor';
 import { useConvertDocument } from './useConvertDocument';
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
@@ -36,7 +36,7 @@ const LastEditedInWarning = ({autoConvert, initialType, currentType, defaultType
   useEffect(() => {
     if (autoConvert) {
       setTimeout(() => {
-        convertDocument(value, 'ckEditorMarkup');
+        convertDocument(value, 'lexical');
       }, 0);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -54,12 +54,12 @@ const LastEditedInWarning = ({autoConvert, initialType, currentType, defaultType
         <a
           className={classes.clickHereColor}
           onClick={() => {
-            convertDocument(value, 'ckEditorMarkup');
+            convertDocument(value, 'lexical');
           }}
         >
           Click here
         </a>
-        {' '}to switch to the {getEditorTypeToDisplayMap()['ckEditorMarkup'].name} editor (the default editor).
+        {' '}to switch to the {getEditorTypeToDisplayMap()['lexical'].name} editor (the default editor).
       </>}
     </Typography>
     <br/>
