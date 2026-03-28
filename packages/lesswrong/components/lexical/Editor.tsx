@@ -522,7 +522,7 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     bottom: 0,
     left: 0,
     pointerEvents: 'none',
-    zIndex: 0,
+    zIndex: 1,
   },
 }));
 
