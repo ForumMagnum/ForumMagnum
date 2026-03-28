@@ -55,6 +55,7 @@ export const defaultZIndexes = {
   splashHeaderImageOptions: 2000,
   afNonMemberPopup: 9999,
   commandPalette: 9999,
+  floatingLinkEditor: 10000,
   lwPopper: 10000,
   lwPopperTooltip: 10001,
   loginDialog: 10002,

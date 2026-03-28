@@ -52,7 +52,7 @@ const styles = defineStyles('LexicalFloatingLinkEditorPlugin', (theme: ThemeType
     position: 'absolute',
     top: 0,
     left: 0,
-    zIndex: 10,
+    zIndex: theme.zIndexes.floatingLinkEditor,
     maxWidth: 400,
     width: '100%',
     opacity: 0,
