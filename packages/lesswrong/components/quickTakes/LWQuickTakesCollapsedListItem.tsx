@@ -10,6 +10,7 @@ import CommentsNode from "../comments/CommentsNode";
 import CommentsItemMeta from "../comments/CommentsItem/CommentsItemMeta";
 import CommentBottomCaveats from "../comments/CommentsItem/CommentBottomCaveats";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
+import ContentStyles from "../common/ContentStyles";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -186,9 +187,9 @@ const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, linesToDisplay=2
 
   const body = (
     <div className={classes.bodyWrapper} onClick={expand} {...eventHandlers}>
-      <div className={classes.body} style={{WebkitLineClamp: linesToDisplay}}>
-        {quickTake.contents?.plaintextMainText}
-      </div>
+      <ContentStyles contentType="comment" className={classes.body} style={{WebkitLineClamp: linesToDisplay}}>
+        <div dangerouslySetInnerHTML={{__html: quickTake.contents?.html ?? ''}} />
+      </ContentStyles>
     </div>
   );
 

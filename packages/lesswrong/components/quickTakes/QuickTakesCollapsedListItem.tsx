@@ -16,6 +16,7 @@ import FooterTag from "../tagging/FooterTag";
 import CommentsMenu from "../dropdowns/comments/CommentsMenu";
 import LWPopper from "../common/LWPopper";
 import CommentsNode from "../comments/CommentsNode";
+import ContentStyles from "../common/ContentStyles";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -198,9 +199,9 @@ const QuickTakesCollapsedListItem = ({quickTake, setExpanded, linesToDisplay=2}:
           </InteractionWrapper>
         </div>
       </div>
-      <div {...eventHandlers} className={classes.body} style={{WebkitLineClamp: linesToDisplay}}>
-        {quickTake.contents?.plaintextMainText}
-      </div>
+      <ContentStyles contentType="comment" className={classes.body} style={{WebkitLineClamp: linesToDisplay}}>
+        <div {...eventHandlers} dangerouslySetInnerHTML={{__html: quickTake.contents?.html ?? ''}} />
+      </ContentStyles>
       <LWPopper
         open={displayHoverOver}
         anchorEl={anchorEl}
