@@ -125,6 +125,34 @@ const styles = defineStyles('NewspaperFrontpage', () => ({
     height: 6,
     marginTop: 4,
   },
+  mastheadMotto: {
+    fontFamily: serifStack,
+    fontSize: '12px',
+    fontStyle: 'italic',
+    color: INK_FAINT,
+    textAlign: 'center',
+    margin: '10px 0 0 0',
+    letterSpacing: '0.3px',
+  },
+  weatherBar: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    fontFamily: sansSerifStack,
+    fontSize: '10px',
+    letterSpacing: '1px',
+    textTransform: 'uppercase',
+    color: INK_FAINT,
+    borderTop: `1px solid ${RULE_LIGHT}`,
+    borderBottom: `1px solid ${RULE_LIGHT}`,
+    padding: '6px 0',
+    marginTop: 12,
+    '@media (max-width: 600px)': {
+      flexDirection: 'column',
+      gap: 4,
+      textAlign: 'center',
+    },
+  },
 
   // === HERO SECTION ===
   heroSection: {
@@ -183,7 +211,16 @@ const styles = defineStyles('NewspaperFrontpage', () => ({
     color: INK_COLOR,
     maxWidth: 650,
     margin: '0 auto',
-    textAlign: 'left',
+    textAlign: 'justify',
+    '& p:first-child::first-letter': {
+      float: 'left',
+      fontFamily: headerStack,
+      fontSize: '4.5em',
+      lineHeight: '0.8',
+      paddingRight: '8px',
+      paddingTop: '4px',
+      color: INK_COLOR,
+    },
     '& p': {
       marginBottom: '0.8em',
     },
@@ -284,6 +321,7 @@ const styles = defineStyles('NewspaperFrontpage', () => ({
     fontSize: '15px',
     lineHeight: 1.6,
     color: INK_LIGHT,
+    textAlign: 'justify',
     '& p': {
       marginBottom: '0.5em',
     },
@@ -502,6 +540,50 @@ const styles = defineStyles('NewspaperFrontpage', () => ({
     color: INK_FAINT,
   },
 
+  // === CLASSIFIEDS ===
+  classifiedsGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gap: 0,
+    border: `1px solid ${RULE_LIGHT}`,
+    '@media (max-width: 600px)': {
+      gridTemplateColumns: '1fr',
+    },
+  },
+  classifiedItem: {
+    padding: '16px 20px',
+    borderRight: `1px solid ${RULE_LIGHT}`,
+    borderBottom: `1px solid ${RULE_LIGHT}`,
+    '&:nth-child(2n)': {
+      borderRight: 'none',
+    },
+    '@media (max-width: 600px)': {
+      borderRight: 'none',
+    },
+  },
+  classifiedTitle: {
+    fontFamily: sansSerifStack,
+    fontSize: '10px',
+    fontWeight: 700,
+    letterSpacing: '2px',
+    color: INK_COLOR,
+    marginBottom: 6,
+  },
+  classifiedBody: {
+    fontFamily: serifStack,
+    fontSize: '13px',
+    lineHeight: 1.5,
+    color: INK_LIGHT,
+    '& a': {
+      color: INK_COLOR,
+      textDecoration: 'none',
+      borderBottom: `1px solid ${RULE_LIGHT}`,
+      '&:hover': {
+        borderBottomColor: INK_COLOR,
+      },
+    },
+  },
+
   // Ornamental dingbat between sections
   ornament: {
     textAlign: 'center',
@@ -574,9 +656,10 @@ interface NewspaperArticleProps {
   post: PostsListWithVotes;
   classes: ReturnType<typeof useStyles<typeof styles>>;
   variant: 'hero' | 'secondary' | 'tertiary' | 'side';
+  isCurated?: boolean;
 }
 
-function NewspaperArticle({ post, classes, variant }: NewspaperArticleProps) {
+function NewspaperArticle({ post, classes, variant, isCurated }: NewspaperArticleProps) {
   const url = postGetPageUrl(post);
   const author = formatAuthor(post);
   const tagLine = getPostTags(post);
@@ -585,9 +668,10 @@ function NewspaperArticle({ post, classes, variant }: NewspaperArticleProps) {
 
   if (variant === 'hero') {
     const excerptHtml = getPostExcerptHtml(post, 200);
+    const kicker = isCurated ? "Editors\u2019 Selection" : tagLine;
     return (
       <article className={classes.heroArticle}>
-        {tagLine && <div className={classes.heroKicker}>{tagLine}</div>}
+        {kicker && <div className={classes.heroKicker}>{kicker}</div>}
         <h1 className={classes.heroTitle}>
           <Link to={url}>{post.title}</Link>
         </h1>
@@ -753,6 +837,14 @@ const NewspaperFrontpage = () => {
               All The Rationality That&rsquo;s Fit to Print
             </div>
             <div className={classes.mastheadRuleBottom} />
+            <div className={classes.mastheadMotto}>
+              &ldquo;The map is not the territory, but a good map is worth a thousand editorials.&rdquo;
+            </div>
+            <div className={classes.weatherBar}>
+              <span>Epistemic Weather: Partly Bayesian, 73% chance of updating</span>
+              <span>Prior Temperature: 0.7 · Posterior Humidity: Moderate</span>
+              <span>Forecast: Clear thinking with scattered biases</span>
+            </div>
           </div>
         </div>
 
@@ -762,7 +854,7 @@ const NewspaperFrontpage = () => {
             <div className={classes.aboveFoldLayout}>
               <div className={classes.mainColumn}>
                 <div className={classes.heroSection}>
-                  <NewspaperArticle post={heroPost} classes={classes} variant="hero" />
+                  <NewspaperArticle post={heroPost} classes={classes} variant="hero" isCurated={heroFromCurated} />
                 </div>
               </div>
               {sidePosts.length > 0 && (
@@ -822,6 +914,43 @@ const NewspaperFrontpage = () => {
                 maxAgeHours={18}
               />
             </DeferRender>
+          </div>
+
+          {/* === CLASSIFIEDS === */}
+          <div className={classes.belowFoldSection}>
+            <hr className={classes.doubleSectionRule} />
+            <div className={classes.belowFoldHeader}>The Classifieds</div>
+            <div className={classes.belowFoldSubheader}>Community notices &amp; sundry announcements</div>
+            <div className={classes.classifiedsGrid}>
+              <div className={classes.classifiedItem}>
+                <div className={classes.classifiedTitle}>ALL POSTS</div>
+                <div className={classes.classifiedBody}>
+                  Browse the complete archive of posts, sorted by your preference.{' '}
+                  <Link to="/allPosts">Visit the archive →</Link>
+                </div>
+              </div>
+              <div className={classes.classifiedItem}>
+                <div className={classes.classifiedTitle}>COMMUNITY</div>
+                <div className={classes.classifiedBody}>
+                  Find local meetups, reading groups, and events near you.{' '}
+                  <Link to="/community">Find your people →</Link>
+                </div>
+              </div>
+              <div className={classes.classifiedItem}>
+                <div className={classes.classifiedTitle}>LIBRARY</div>
+                <div className={classes.classifiedBody}>
+                  Curated sequences and collections of LessWrong&rsquo;s best writing.{' '}
+                  <Link to="/library">Browse the stacks →</Link>
+                </div>
+              </div>
+              <div className={classes.classifiedItem}>
+                <div className={classes.classifiedTitle}>BEST OF</div>
+                <div className={classes.classifiedBody}>
+                  The annual review selects the best posts. Read the winners.{' '}
+                  <Link to="/bestoflesswrong">See the best →</Link>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
