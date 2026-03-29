@@ -13,6 +13,7 @@ import LoadMore from "@/components/common/LoadMore";
 import { cssUrl, formatReadableDate, getListPostImageUrl, getPostSummary } from "./userProfilePageUtil";
 import { gql } from "@/lib/generated/gql-codegen";
 import { z } from "zod";
+import { isAF } from "@/lib/instanceSettings";
 
 const profilePageAllPostsTabUnsharedStyles = defineStyles("ProfilePageAllPostsTabUnshared", (theme: ThemeType) => ({
   postsList: {
@@ -247,7 +248,7 @@ const ProfilePostsQuery = gql(`
   }
   fragment UserProfilePost on Post {
     ...PostsMinimumInfo
-    baseScore postedAt
+    baseScore afBaseScore postedAt
     contents { plaintextDescription }
   }
 `);
@@ -329,10 +330,11 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
   const classes = useStyles(profilePageAllPostsTabUnsharedStyles);
   const userId = user._id;
 
+  const af = isAF();
   const { data: recentPostsData, loading: recentPostsLoading, loadMoreProps } = useQueryWithLoadMore(ProfilePostsQuery, {
     skip: !userId,
     variables: {
-      selector: userId ? { userPosts: { userId, sortedBy: settings.sortBy, excludeEvents: true, authorIsUnreviewed: null } } : undefined,
+      selector: userId ? { userPosts: { userId, sortedBy: settings.sortBy, excludeEvents: true, authorIsUnreviewed: null, ...(af ? { af: true } : {}) } } : undefined,
       limit: INITIAL_POSTS_TO_SHOW,
       enableTotal: true,
     },
@@ -384,7 +386,7 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
                     </LWTooltip>
                     <span className={classes.listMetaDivider} aria-hidden="true">•</span>
                     <LWTooltip title="Karma score">
-                      <span className={classes.listKarma}>{post.baseScore ?? 0}</span>
+                      <span className={classes.listKarma}>{af ? (post.afBaseScore ?? 0) : (post.baseScore ?? 0)}</span>
                     </LWTooltip>
                   </div>
                 </div>
