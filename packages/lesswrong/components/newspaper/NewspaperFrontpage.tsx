@@ -31,20 +31,11 @@ const INK_TERTIARY = '#888888';
 const RULE_COLOR = '#DDDDDD';
 const RULE_DARK = '#333333';
 
-const newspaperPostsQuery = gql(`
-  query newspaperFrontpagePosts($selector: PostSelector, $limit: Int) {
-    posts(selector: $selector, limit: $limit) {
-      results {
-        ...PostsListWithVotes
-      }
-      totalCount
-    }
-  }
-`);
-
-const newspaperCuratedQuery = gql(`
-  query newspaperCuratedPosts($selector: PostSelector, $limit: Int) {
-    posts(selector: $selector, limit: $limit) {
+// Reuse the exact query string from usePostsList.ts so it matches the codegen map
+// (the gql() function uses the string as a lookup key — same string = same typed document)
+const postsQuery = gql(`
+  query postsListWithVotes($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
+    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
         ...PostsListWithVotes
       }
@@ -673,7 +664,7 @@ const NewspaperFrontpage = () => {
 
   const dateCutoff = moment(now).subtract(7 * 24, 'hours').startOf('hour').toISOString();
 
-  const { data: postsData, loading: postsLoading } = useQuery(newspaperPostsQuery, {
+  const { data: postsData, loading: postsLoading } = useQuery(postsQuery, {
     variables: {
       selector: {
         magic: {
@@ -685,7 +676,7 @@ const NewspaperFrontpage = () => {
     },
   });
 
-  const { data: curatedData, loading: curatedLoading } = useQuery(newspaperCuratedQuery, {
+  const { data: curatedData, loading: curatedLoading } = useQuery(postsQuery, {
     variables: {
       selector: {
         curated: {},
@@ -718,7 +709,7 @@ const NewspaperFrontpage = () => {
 
   const displayDate = new Date(now);
 
-  if (postsLoading && curatedLoading) {
+  if ((postsLoading || curatedLoading) && allPosts.length === 0 && curatedPosts.length === 0) {
     return (
       <div className={classes.pageWrapper}>
         <div className={classes.loading}>
