@@ -16,6 +16,7 @@ import { $markdownToNodes, resolveInsertionIndex } from "../insertBlock/route";
 import { insertLLMBlockToolSchema, type InsertLocation } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
+import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
 interface InsertLLMBlockResult {
   inserted: boolean
@@ -125,6 +126,7 @@ export async function POST(req: NextRequest) {
 
   const parseResult = insertLLMBlockToolSchema.safeParse(body);
   if (!parseResult.success) {
+    captureAgentApiEvent({ route: "insertLLMBlock", postId: body?.postId, userId: context.currentUser?._id, agentName: body?.modelName, status: "validation_error" });
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
 
@@ -133,6 +135,7 @@ export async function POST(req: NextRequest) {
   try {
     const token = await getHocuspocusToken(context, postId, key);
     if (!token) {
+      captureAgentApiEvent({ route: "insertLLMBlock", postId, userId: context.currentUser?._id, agentName: modelName, status: "unauthorized" });
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }
 
@@ -144,6 +147,7 @@ export async function POST(req: NextRequest) {
       markdown,
     });
 
+    captureAgentApiEvent({ route: "insertLLMBlock", postId, userId: context.currentUser?._id, agentName: modelName, status: "success", operationResult: result.inserted ? "inserted" : "not_inserted" });
     return NextResponse.json({
       ok: true,
       postId,
@@ -158,6 +162,7 @@ export async function POST(req: NextRequest) {
     // eslint-disable-next-line no-console
     console.error(error);
     captureException(error);
+    captureAgentApiFailure("insertLLMBlock", error, { postId, userId: context.currentUser?._id, agentName: modelName });
     return NextResponse.json(
       {
         error: "Failed to insert LLM content block in collaborative draft",

@@ -27,6 +27,7 @@ declare global {
     view: CommentsViewName | 'default',
     postId?: string,
     userId?: string,
+    shortform?: boolean,
     drafts?: "exclude" | "include-my-draft-replies" | "include" | "drafts-only"
     tagId?: string,
     relevantTagId?: string,
@@ -117,7 +118,7 @@ const getDraftSelector = ({ drafts = "include-my-draft-replies", context }: { dr
 };
 
 function defaultView(terms: CommentsViewTerms, _: ApolloClient, context?: ResolverContext) {
-  const validFields = pick(terms, 'userId', 'authorIsUnreviewed');
+  const validFields = pick(terms, 'userId', 'authorIsUnreviewed', 'shortform');
 
   const alignmentForum = isAF() ? {af: true} : {}
   const hideSince = hideUnreviewedAuthorCommentsSettings.get()

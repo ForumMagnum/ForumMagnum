@@ -33,6 +33,7 @@ import CoreTagIcon from "../../tagging/CoreTagIcon";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import CommentBottom from "./CommentBottom";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useNavigate } from '@/lib/routeUtil';
 import dynamic from 'next/dynamic';
 
 const RejectedReasonDisplay = dynamic(() => import("../../sunshineDashboard/RejectedReasonDisplay"));
@@ -197,6 +198,7 @@ export const CommentsItem = ({
   className?: string,
 }) => {
   const classes = useStyles(styles);
+  const navigate = useNavigate();
   const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
   const [showEditState, setShowEditState] = useState(treeOptions.initialShowEdit || false);
@@ -237,7 +239,14 @@ export const CommentsItem = ({
     }
   }
 
-  const editSuccessCallback = () => {
+  const editSuccessCallback = (updatedComment: CommentsList) => {
+    if (treeOptions.redirectAfterEditSubmit) {
+      navigate(commentGetPageUrlFromIds({
+        postId: updatedComment.postId ?? comment.postId,
+        commentId: updatedComment._id,
+      }));
+      return;
+    }
     if (refetch) {
       refetch()
     }

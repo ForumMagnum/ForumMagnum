@@ -517,6 +517,20 @@ Use `useNavigate` for performing client-side navigations.  You need to preserve 
 
 ---
 
+## Shell Commands
+
+Do not use `find -exec`. Claude Code's permission system cannot statically analyze `-exec` and will always prompt the user, even when an allow rule exists for `find`. Use pipes instead:
+```bash
+# Bad: triggers an unbypassable permission prompt
+find . -type f -name "*.ts" -exec grep -l "pattern" {} \;
+
+# Good: each pipe segment is checked independently against allow rules
+find . -type f -name "*.ts" | xargs grep -l "pattern"
+```
+The same applies to `-execdir`, `-ok`, `-okdir`, and `-delete`.
+
+---
+
 ## Style / Conventions
 Never apply `as any` type casts, and try very hard to avoid any other type casts.  Consider whether you are applying a type cast because you've forgotten to run `yarn generate`.  If you absolutely must apply a type cast somewhere, always leave the following comment above it:
 ```typescript

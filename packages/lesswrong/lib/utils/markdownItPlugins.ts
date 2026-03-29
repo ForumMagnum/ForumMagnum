@@ -3,14 +3,109 @@ import markdownItContainer from "markdown-it-container";
 import markdownItFootnote from "markdown-it-footnote";
 import markdownItSub from "markdown-it-sub";
 import markdownItSup from "markdown-it-sup";
+import type { Renderer, StateBlock, Token } from "markdown-it/index.js";
 import markdownItMathjax from './markdownMathjax';
 import { markdownCollapsibleSections } from './markdownCollapsibleSections';
+
+const llmOutputOpenRegex = /^%%%[ \t]+llm-output(?:[ \t]+model="([^"]*)")?[ \t]*$/;
+const llmOutputCloseRegex = /^%%%[ \t]+\/llm-output[ \t]*$/;
+
+function parseLlmOutputBlock(state: StateBlock, startLine: number, endLine: number, silent: boolean) {
+  let start = state.bMarks[startLine] + state.tShift[startLine];
+  let max = state.eMarks[startLine];
+
+  if (state.sCount[startLine] - state.blkIndent >= 4) {
+    return false;
+  }
+
+  const openLine = state.src.slice(start, max).trim();
+  const openMatch = openLine.match(llmOutputOpenRegex);
+  if (!openMatch) {
+    return false;
+  }
+
+  if (silent) {
+    return true;
+  }
+
+  const modelName = openMatch[1] ?? '';
+  const oldParent = state.parentType;
+  const oldLineMax = state.lineMax;
+  let nextLine = startLine;
+  let autoClosedBlock = false;
+
+  state.parentType = "reference";
+
+  for (;;) {
+    nextLine++;
+
+    if (nextLine >= endLine) {
+      break;
+    }
+
+    start = state.bMarks[nextLine] + state.tShift[nextLine];
+    max = state.eMarks[nextLine];
+
+    if (start < max && state.sCount[nextLine] < state.blkIndent) {
+      break;
+    }
+
+    const line = state.src.slice(start, max).trim();
+    if (!llmOutputCloseRegex.test(line)) {
+      continue;
+    }
+
+    autoClosedBlock = true;
+    break;
+  }
+
+  state.lineMax = nextLine;
+
+  let token = state.push("llm_output_open", "div", 1);
+  token.block = true;
+  token.map = [startLine, nextLine];
+  token.attrSet("class", "llm-content-block");
+  token.attrSet("data-model-name", modelName);
+
+  token = state.push("llm_output_content_open", "div", 1);
+  token.block = true;
+  token.attrSet("class", "llm-content-block-content");
+
+  state.md.block.tokenize(state, startLine + 1, nextLine);
+
+  token = state.push("llm_output_content_close", "div", -1);
+  token.block = true;
+
+  token = state.push("llm_output_close", "div", -1);
+  token.block = true;
+
+  state.parentType = oldParent;
+  state.lineMax = oldLineMax;
+  state.line = nextLine + (autoClosedBlock ? 1 : 0);
+
+  return true;
+}
+
+function markdownLlmContentBlocks(md: markdownIt) {
+  md.block.ruler.before("fence", "llm_output", parseLlmOutputBlock, {
+    alt: ["paragraph", "reference", "blockquote", "list"],
+  });
+
+  const renderToken = (tokens: Token[], idx: number, options: AnyBecauseHard, _env: AnyBecauseHard, self: Renderer) =>
+    self.renderToken(tokens, idx, options);
+
+  md.renderer.rules.llm_output_open = renderToken;
+  md.renderer.rules.llm_output_content_open = renderToken;
+  md.renderer.rules.llm_output_content_close = renderToken;
+  md.renderer.rules.llm_output_close = renderToken;
+}
 
 let _mdi: markdownIt|null = null;
 export function getMarkdownIt(): markdownIt {
   if (!_mdi) {
     const mdi = markdownIt({linkify: true})
     mdi.use(markdownItMathjax())
+    mdi.use(markdownLlmContentBlocks)
     mdi.use(markdownItContainer as AnyBecauseHard, 'spoiler')
     mdi.use(markdownItFootnote as any)
     applyMarkdownFootnoteRules(mdi);
@@ -28,6 +123,7 @@ export function getMarkdownItNoMathjax(): markdownIt {
     // FIXME This is a copy-paste of a markdown config from conversionUtils that has gotten out of sync
     const mdi = markdownIt({ linkify: true });
     // mdi.use(markdownItMathjax()) // for performance, don't render mathjax
+    mdi.use(markdownLlmContentBlocks);
     mdi.use(markdownItContainer as AnyBecauseHard, "spoiler");
     mdi.use(markdownItFootnote as any);
     applyMarkdownFootnoteRules(mdi);

@@ -100,7 +100,7 @@ export function createAndInsertStyleNode(theme: ThemeType, styleDefinition: Styl
   return styleNode;
 }
 
-function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): string {
+export function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): string {
   const sheets = new SheetsRegistry()
   
   const jss = getJss();

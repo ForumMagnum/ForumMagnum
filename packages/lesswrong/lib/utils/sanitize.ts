@@ -100,7 +100,7 @@ export const sanitize = function(s: string): string {
       div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug', 'data-props', 'data-review-results', 'data-model-name'],
       a: ['class', 'href', 'name', 'target', 'rel', 'data-href'],
       iframe: ['src', 'allowfullscreen', 'allow', 'srcdoc', 'sandbox', 'title', 'data-lexical-iframe-widget'],
-      li: ['id', 'role'],
+      li: ['id', 'role', 'value'],
 
       // Attributes for dialogues
       section: ['class', 'message-id', 'user-id', 'user-order', 'submitted-date', 'display-name'],

@@ -73,7 +73,7 @@ export class FootnoteContentNode extends ElementNode {
   }
 
   isShadowRoot(): boolean {
-    return false;
+    return true;
   }
 }
 
