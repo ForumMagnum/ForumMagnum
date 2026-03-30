@@ -1,3 +1,4 @@
+import { noLlmContentBlockFontSizeOverride } from '@/components/contents/llmContentBlockStyles';
 import { isIfAnyoneBuildsItFrontPage } from '@/components/seasonal/styles';
 
 const hideSpoilers = (theme: ThemeType) => ({
@@ -679,6 +680,12 @@ export const commentBodyStyles = (theme: ThemeType, dontIncludePointerEvents?: b
       ...theme.typography.commentHeader,
       ...theme.typography.commentStyle
     },
+
+    // Disable LLM content-block font-size override in comments
+    // (This is too mismatched with comment-font size, and also interacted with
+    // styling of the float:left indicator to make it two lines tall.)
+    ...noLlmContentBlockFontSizeOverride(theme),
+
     // spoiler styles
     // HACK FIXME: Playing with pointer events is a horrible idea in general, and probably also in this context
     // but it's the only way I was able to make this weird stuff work.

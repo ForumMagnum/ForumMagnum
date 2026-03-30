@@ -1,3 +1,15 @@
+
+const endMarkerStyles = (theme: ThemeType) => ({
+  content: '"⊙"',
+  color: theme.palette.greyAlpha(0.55),
+  fontSize: '0.85em',
+  paddingLeft: 3,
+  borderLeft: `1px solid ${theme.palette.grey[400]}`,
+  fontWeight: 300,
+  letterSpacing: 2.1,
+  opacity: 0.6,
+})
+
 export const llmContentBlockStyles = (theme: ThemeType) => ({
   '& .llm-content-block': {
     margin: '1em 0',
@@ -61,61 +73,40 @@ export const llmContentBlockStyles = (theme: ThemeType) => ({
       },
     },
 
-    // If the last element in llm-block-content is a paragraph, add an end-marker as a ::after
-    // inline element at the end of that paragraph
-    '&:has(> .llm-content-block-content > p:last-child) > .llm-content-block-content > p:last-child::after': {
-      content: '"⊙"',
-      color: theme.palette.greyAlpha(0.55),
-      fontSize: '0.85em',
-      paddingLeft: 3,
-      marginLeft: 9,
-      borderLeft: `1px solid ${theme.palette.grey[400]}`,
-      fontWeight: 300,
-      letterSpacing: 2.1,
-      opacity: 0.6,
-    },
-
-    // If the last element in llm-block-content is a paragraph, and that paragraph is empty,
-    // select that empty paragraph
-    '& > .llm-content-block-content > p:last-child:has(> br:only-child)': {
-      display: 'inline-block',
-      margin: 0,
-      minWidth: '0.6em',
-
-      '& > br:only-child': {
-        display: 'none',
+    // If the last element in llm-block-content is a paragraph,
+    "& > .llm-content-block-content > p:last-child": {
+      // Add an end-marker as a ::after inline element at the end of that paragraph
+      "&::after": {
+        ...endMarkerStyles(theme),
+        marginLeft: 9,
       },
-      '&::after': {
-        content: '"⊙"',
+
+      // If that paragraph is empty (contains only a <br>), hide the <br> and override some end-marker styles
+      '&:has(> br:only-child)': {
         display: 'inline-block',
-        color: theme.palette.greyAlpha(0.55),
-        fontSize: '0.85em',
-        lineHeight: 'inherit',
-        paddingLeft: 3,
-        marginLeft: 0,
-        borderLeft: `1px solid ${theme.palette.grey[400]}`,
-        fontWeight: 300,
-        letterSpacing: 2.1,
-        opacity: 0.6,
+        margin: 0,
+        minWidth: '0.6em',
+
+        '& > br:only-child': {
+          display: 'none',
+        },
+        '&::after': {
+          display: 'inline-block',
+          lineHeight: 'inherit',
+          marginLeft: 0,
+        },
       },
     },
 
     // If the last element in llm-block-content is not a paragraph, add an end-marker as a
     // ::after block element
     '&:not(:has(> .llm-content-block-content > p:last-child)) > .llm-content-block-content::after': {
-      content: '"⊙"',
+      ...endMarkerStyles(theme),
       display: 'block',
       width: 'fit-content',
-      color: theme.palette.greyAlpha(0.55),
-      fontSize: '0.85em',
       lineHeight: 1.3,
       marginTop: '1em',
       marginBottom: '1em',
-      paddingLeft: 3,
-      borderLeft: `1px solid ${theme.palette.grey[400]}`,
-      fontWeight: 300,
-      letterSpacing: 2.1,
-      opacity: 0.6,
     },
   },
 });
@@ -179,5 +170,15 @@ export const llmContentBlockEditorStyles = (theme: ThemeType) => ({
       color: theme.palette.grey[800],
       outline: 'none',
     },
+  },
+});
+
+// Disable LLM content-block font-size override in comments
+// Imported and used in stylePiping. The enlarged font size is too mismatched
+// with comment-font size, and also interacted with styling of the float:left
+// indicator to make it two lines tall.)
+export const noLlmContentBlockFontSizeOverride = (theme: ThemeType) => ({
+  "& .llm-content-block": {
+    fontSize: 'inherit',
   },
 });
