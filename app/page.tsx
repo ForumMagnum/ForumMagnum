@@ -1,5 +1,6 @@
 import React from "react";
 import LWHome from "@/components/common/LWHome";
+import SandboxedHomePage from "@/components/common/SandboxedHomePage";
 import RouteRoot from "@/components/layout/RouteRoot";
 import AlignmentForumHome from "@/components/alignment-forum/AlignmentForumHome";
 import { forumSelect } from "@/lib/forumTypeUtils";
@@ -17,7 +18,7 @@ export default async function Home() {
   return <RouteRoot>
     {forumSelect({
       AlignmentForum: <AlignmentForumHome/>,
-      LessWrong: <LWHome/>,
+      LessWrong: <SandboxedHomePage/>,
       default: <LWHome/>,
     })}
   </RouteRoot>;
