@@ -12,7 +12,7 @@ const endMarkerStyles = (theme: ThemeType) => ({
 
 export const llmContentBlockStyles = (theme: ThemeType) => ({
   '& .llm-content-block': {
-    margin: '1em 0',
+    //margin: '1em 0',
     position: 'relative',
     fontFamily: '"cronos-pro", serif',
     fontSize: 19.1,
@@ -28,41 +28,6 @@ export const llmContentBlockStyles = (theme: ThemeType) => ({
       fontFamily: 'inherit',
     },
 
-    // Add an inline label to the beginning, filled in from the data-model-name
-    // attribute, with a ::before selector
-    '&::before': {
-      content: 'attr(data-model-name)',
-      display: 'inline-block',
-      lineHeight: 1.3,
-      fontSize: '0.85em',
-      color: theme.palette.greyAlpha(0.6),
-      paddingRight: 6,
-      borderRight: `1px solid ${theme.palette.grey[400]}`,
-      fontWeight: 600,
-      fontVariant: 'small-caps',
-      position: 'relative',
-      top: 2
-    },
-
-    // If the first element is a paragraph, make the label float:left instead of inline,
-    // since it's not inside the paragraph and therefore can't be inline.
-    // FIXME: If font size differs (eg, when used in comments rather than posts), this
-    // float can be two lines tall, when it should only be one.
-    '&:has(> .llm-content-block-content > p:first-child)::before': {
-      float: 'left',
-      marginRight: 8,
-      marginBottom: 0,
-    },
-
-    // If the first element is _not_ a paragraph, the label is inline.
-    '&:not(:has(> .llm-content-block-content > p:first-child))::before': {
-      float: 'none',
-      display: 'block',
-      width: 'fit-content',
-      marginRight: 0,
-      marginTop: '1em',
-      marginBottom: '1em',
-    },
     '& > .llm-content-block-content': {
       outline: 'none',
       '& > :first-child': {
@@ -109,12 +74,6 @@ export const llmContentBlockStyles = (theme: ThemeType) => ({
       marginBottom: '1em',
     },
   },
-});
-
-export const llmContentBlockEditorStyles = (theme: ThemeType) => ({
-  "& .llm-content-block": {
-    margin: 0,
-  },
 
   // The llm-content-block-header classname only appears in the editor version (it gets a <div> and an <input>
   //  because it's editable; whereas in the non-editor representation, it's reduced to a data-model-name attribute.
@@ -122,10 +81,16 @@ export const llmContentBlockEditorStyles = (theme: ThemeType) => ({
     display: 'inline-flex',
     alignItems: 'center',
     fontSize: '0.85em',
-    color: theme.palette.grey[600],
     lineHeight: 1.3,
     paddingRight: 6,
     borderRight: `1px solid ${theme.palette.grey[400]}`,
+
+    color: theme.palette.greyAlpha(0.6),
+    fontWeight: 600,
+    fontVariant: 'small-caps',
+    position: 'relative',
+
+    top: 2,
   },
 
   // If the first element is a paragraph, make it float
@@ -148,7 +113,7 @@ export const llmContentBlockEditorStyles = (theme: ThemeType) => ({
     fontSize: 'inherit',
     fontFamily: 'inherit',
     fontWeight: 600,
-    fontVariant: 'small-caps',
+    fontVariant: 'inherit',
     lineHeight: 'inherit',
     padding: 0,
     border: 'none',
@@ -170,6 +135,12 @@ export const llmContentBlockEditorStyles = (theme: ThemeType) => ({
       color: theme.palette.grey[800],
       outline: 'none',
     },
+  },
+});
+
+export const llmContentBlockEditorStyles = (theme: ThemeType) => ({
+  "& .llm-content-block-header": {
+    paddingRight: "0px !important",
   },
 });
 

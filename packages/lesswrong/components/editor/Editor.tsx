@@ -39,10 +39,10 @@ const quickTakesEditorHeightRows = 5;
 export const editorStyles = defineStyles("Editor", (theme: ThemeType) => ({
   root: {
     position: 'relative',
-    ...llmContentBlockEditorStyles(theme),
   },
   editor: {
     position: 'relative',
+    ...llmContentBlockEditorStyles(theme),
   },
   label: {
     display: 'block',

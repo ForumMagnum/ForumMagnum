@@ -22,6 +22,7 @@ import { getColorReplacementsCache } from '@/themes/userThemes/darkMode';
 import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
 import { useAbstractThemeOptions } from '../themes/useTheme';
 import dynamic from 'next/dynamic';
+import LLMContentBlockDisplay from './LLMContentBlockDisplay';
 
 const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMenu'));
 
@@ -161,6 +162,10 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
 
       if (classNames.includes("footnotes") && hasCollapsedFootnotes) {
         return <CollapsedFootnotes attributes={attribs} footnoteElements={mappedChildren}/>
+      }
+
+      if (classNames.includes("llm-content-block")) {
+        return <LLMContentBlockDisplay modelName={attribs['data-model-name']}>{mappedChildren}</LLMContentBlockDisplay>
       }
 
       if (attribs["style"]) {

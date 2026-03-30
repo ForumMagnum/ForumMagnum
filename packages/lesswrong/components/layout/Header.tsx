@@ -231,6 +231,11 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
       display: "none !important",
     },
   },
+  hideSmUp: {
+    [theme.breakpoints.up('sm')]: {
+      display: "none !important",
+    },
+  },
   hideMdUp: {
     [theme.breakpoints.up('md')]: {
       display: "none !important",
@@ -553,7 +558,7 @@ const Header = ({
             <Toolbar>
               {navigationMenuButton}
               <Typography className={classes.title} variant="title">
-                <div className={classes.hideSmDown}>
+                <div className={classes.hideXsDown}>
                   <div className={classes.titleSubtitleContainer}>
                     <div className={classes.titleFundraiserContainer}>
                       <Link to="/" className={classes.titleLink}>
@@ -563,7 +568,7 @@ const Header = ({
                     <HeaderSubtitle />
                   </div>
                 </div>
-                <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
+                <div className={classNames(classes.hideSmUp, classes.titleFundraiserContainer)}>
                   <Link to="/" className={classes.titleLink}>
                     {forumShortTitleSetting.get()}
                   </Link>
