@@ -93,7 +93,7 @@ const NewspaperFrontpage = () => {
   const heroEligiblePosts = [...curatedPosts, ...highKarmaPosts];
   const heroPost = heroEligiblePosts[0];
   const heroPostId = heroPost?._id;
-  const cardPosts = heroEligiblePosts.filter(p => p._id !== heroPostId).slice(0, 4);
+  const cardPosts = heroEligiblePosts.filter(p => p._id !== heroPostId).slice(0, 6);
   const heroSectionPostIds = new Set([heroPostId, ...cardPosts.map(p => p._id)].filter(Boolean));
   const postsForTagGrouping = allPosts.filter(p => !heroSectionPostIds.has(p._id));
   const { tagGroups, ungroupedPosts } = groupPostsByCoreTag(postsForTagGrouping);

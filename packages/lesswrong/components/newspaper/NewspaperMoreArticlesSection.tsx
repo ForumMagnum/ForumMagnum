@@ -31,8 +31,9 @@ const styles = defineStyles('NewspaperMoreArticlesSection', () => ({
   },
   tertiaryGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr 1fr',
-    gap: 0,
+    gridTemplateColumns: '1fr 1fr 1fr 1fr',
+    gap: '1px',
+    backgroundColor: RULE_COLOR,
     '@media (max-width: 900px)': {
       gridTemplateColumns: '1fr 1fr',
     },

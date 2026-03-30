@@ -18,16 +18,14 @@ const styles = defineStyles('NewspaperCardArticle', () => ({
     padding: '0 20px 20px 20px',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
-    '&:nth-child(1)': {
-      borderRight: `1px solid ${RULE_COLOR}`,
-      borderBottom: `1px solid ${RULE_COLOR}`,
+    justifyContent: 'flex-start',
+    borderRight: `1px solid ${RULE_COLOR}`,
+    borderBottom: `1px solid ${RULE_COLOR}`,
+    '&:nth-child(3n)': {
+      borderRight: 'none',
     },
-    '&:nth-child(2)': {
-      borderBottom: `1px solid ${RULE_COLOR}`,
-    },
-    '&:nth-child(3)': {
-      borderRight: `1px solid ${RULE_COLOR}`,
+    '&:nth-child(n+4)': {
+      borderBottom: 'none',
     },
     '@media (max-width: 600px)': {
       borderRight: 'none !important',
@@ -41,9 +39,9 @@ const styles = defineStyles('NewspaperCardArticle', () => ({
     fontFamily: headerStack,
     fontWeight: 400,
     lineHeight: 1.25,
-    marginBottom: 6,
+    marginBottom: 8,
     marginTop: 20,
-    minHeight: 55,
+    minHeight: "unset",
     color: INK,
     '& a': {
       color: INK,
@@ -79,10 +77,11 @@ const styles = defineStyles('NewspaperCardArticle', () => ({
     },
   },
   cardMeta: {
+    marginTop: "auto",
     fontFamily: sansSerifStack,
     fontSize: '11px',
     color: INK_TERTIARY,
-    marginTop: 12,
+    paddingTop: 12,
     display: "flex",
     justifyContent: "space-between",
     width: "100%",
@@ -118,11 +117,13 @@ const NewspaperCardArticle = ({post}:{post: PostsListWithVotes}) => {
   const titleFontSize = getTitleFontSize(post.title);
 
   return <article className={classes.card}>
-    <h2 className={classes.cardTitle} style={{ fontSize: titleFontSize }}>
-      <Link to={url}>{post.title}</Link>
-    </h2>
-    <div className={classes.cardByline}>
-      {formatAuthor(post)}
+    <div>
+      <h2 className={classes.cardTitle} style={{ fontSize: titleFontSize }}>
+        <Link to={url}>{post.title}</Link>
+      </h2>
+      <div className={classes.cardByline}>
+        {formatAuthor(post)}
+      </div>
     </div>
     {excerptHtml && <ContentStyles contentType="postHighlight">
       <div className={classes.cardExcerpt}>

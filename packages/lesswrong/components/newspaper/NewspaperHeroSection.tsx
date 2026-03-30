@@ -17,7 +17,7 @@ const styles = defineStyles('NewspaperHeroSection', () => ({
   },
   heroSection: {
     display: 'grid',
-    gridTemplateColumns: '2fr 3fr',
+    gridTemplateColumns: '1fr 2fr',
     gap: 0,
     marginTop: 32,
     '@media (max-width: 900px)': {
@@ -26,12 +26,14 @@ const styles = defineStyles('NewspaperHeroSection', () => ({
   },
   cardsGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
+    gridTemplateColumns: '1fr 1fr 1fr',
     gridTemplateRows: '1fr 1fr',
     gap: 0,
     paddingLeft: 0,
+    borderLeft: `1px solid ${RULE_COLOR}`,
     '@media (max-width: 900px)': {
       paddingLeft: 0,
+      borderLeft: 'none',
       marginTop: 24,
     },
     '@media (max-width: 600px)': {

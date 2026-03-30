@@ -8,6 +8,7 @@ import NewspaperCardArticle from './NewspaperCardArticle';
 
 const INK = '#1A1A1A';
 const INK_TERTIARY = '#888888';
+const RULE_COLOR = '#DDDDDD';
 const RULE_DARK = '#333333';
 
 const styles = defineStyles('NewspaperTagSection', () => ({
@@ -50,7 +51,7 @@ const styles = defineStyles('NewspaperTagSection', () => ({
   },
   heroSection: {
     display: 'grid',
-    gridTemplateColumns: '2fr 3fr',
+    gridTemplateColumns: '1fr 2fr',
     gap: 0,
     marginTop: 32,
     '@media (max-width: 900px)': {
@@ -59,12 +60,14 @@ const styles = defineStyles('NewspaperTagSection', () => ({
   },
   cardsGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
+    gridTemplateColumns: '1fr 1fr 1fr',
     gridTemplateRows: '1fr 1fr',
     gap: 0,
     paddingLeft: 0,
+    borderLeft: `1px solid ${RULE_COLOR}`,
     '@media (max-width: 900px)': {
       paddingLeft: 0,
+      borderLeft: 'none',
       marginTop: 24,
     },
     '@media (max-width: 600px)': {
@@ -77,15 +80,12 @@ const styles = defineStyles('NewspaperTagSection', () => ({
 const NewspaperTagSection = ({group}: {group: CoreTagGroup}) => {
   const classes = useStyles(styles);
   const tagUrl = `/tag/${group.tagSlug}`;
-  const cardPosts = group.otherPosts.slice(0, 4);
+  const cardPosts = group.otherPosts.slice(0, 6);
   return <div className={classes.tagSectionWrapper}>
     <div className={classes.container}>
       <hr className={classes.tagSectionRule} />
       <div className={classes.tagLabel}>
         <Link to={tagUrl}>{group.tagName}</Link>
-      </div>
-      <div className={classes.tagLabelSubtext}>
-        {group.otherPosts.length + 1} articles this week
       </div>
       <div className={classes.heroSection}>
         <NewspaperHeroArticle post={group.heroPost} />

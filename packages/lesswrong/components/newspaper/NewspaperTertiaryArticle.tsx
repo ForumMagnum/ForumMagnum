@@ -11,27 +11,12 @@ import { formatAuthor, formatScore, getPostExcerptHtml } from './newspaperHelper
 const INK = '#1A1A1A';
 const INK_SECONDARY = '#555555';
 const INK_TERTIARY = '#888888';
-const RULE_COLOR = '#DDDDDD';
+
 
 const styles = defineStyles('NewspaperTertiaryArticle', () => ({
   tertiaryArticle: {
     padding: '20px 24px',
-    borderRight: `1px solid ${RULE_COLOR}`,
-    borderBottom: `1px solid ${RULE_COLOR}`,
-    '&:nth-child(3n)': {
-      borderRight: 'none',
-    },
-    '@media (max-width: 900px)': {
-      '&:nth-child(3n)': {
-        borderRight: `1px solid ${RULE_COLOR}`,
-      },
-      '&:nth-child(2n)': {
-        borderRight: 'none',
-      },
-    },
-    '@media (max-width: 600px)': {
-      borderRight: 'none',
-    },
+    backgroundColor: '#FFFFFF',
   },
   tertiaryTitle: {
     fontFamily: headerStack,
