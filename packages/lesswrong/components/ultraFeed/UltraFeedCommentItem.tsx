@@ -22,6 +22,10 @@ import { eligibleToNominate, getReviewNameInSitu, shouldShowReviewVotePrompt } f
 import LWTooltip from "../common/LWTooltip";
 import LWHelpIcon from "../common/LWHelpIcon";
 import ReviewVotingWidget from "../review/ReviewVotingWidget";
+import { useVote } from "../votes/withVote";
+import { getVotingSystemByName } from "../../lib/voting/getVotingSystem";
+import HoveredReactionContextProvider from "../votes/lwReactions/HoveredReactionContextProvider";
+import InlineReactSelectionWrapper from "../votes/lwReactions/InlineReactSelectionWrapper";
 
 
 const commentHeaderPaddingDesktop = 12;
@@ -333,6 +337,18 @@ export const UltraFeedCommentItem = ({
   
   const cannotReplyReason = customCannotReplyReason ?? (userOwns(currentUser, comment) ? "You cannot reply to your own comment from within the feed" : null);
 
+  const votingSystemName = comment.votingSystem ?? "default";
+  const votingSystem = getVotingSystemByName(votingSystemName);
+  const voteProps = useVote(comment, "Comments", votingSystem);
+  const commentBodyRef = useRef<null>(null);
+
+  const inlineReactHighlights = useMemo(() => {
+    if (voteProps && votingSystem.getCommentHighlights) {
+      return votingSystem.getCommentHighlights({comment, voteProps});
+    }
+    return undefined;
+  }, [comment, voteProps, votingSystem]);
+
   const displayStatus = metaInfo.displayStatus ?? 'expanded';
   const isRead = !!metaInfo.lastViewed || !!metaInfo.lastInteracted
 
@@ -472,6 +488,7 @@ export const UltraFeedCommentItem = ({
 
   return (
     <AnalyticsContext ultraFeedElementType="feedComment" commentId={comment._id} postId={comment.postId ?? undefined} ultraFeedSources={metaInfo.sources}>
+    <HoveredReactionContextProvider voteProps={voteProps}>
     <div className={classNames(classes.root, {
       [classes.rootWithAnimation]: isHighlightAnimating,
       [classes.rootWithReadStyles]: isRead,
@@ -515,19 +532,38 @@ export const UltraFeedCommentItem = ({
                   cancelCallback={editCancelCallback}
                 />
               ) : (
-                <FeedContentBody
-                  html={comment.contents?.html ?? ""}
-                  initialWordCount={initialWordCount}
-                  maxWordCount={truncationParams.maxWordCount}
-                  wordCount={comment.contents?.wordCount ?? 0}
-                  continueReadingUrl={continueReadingUrl}
-                  nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
-                  clampOverride={displaySettings.lineClampNumberOfLines}
-                  onExpand={handleContentExpand}
-                  hideSuffix={false}
-                  resetSignal={resetSig}
-                  isRead={isRead}
-                />
+                votingSystem.hasInlineReacts ? (
+                  <InlineReactSelectionWrapper contentRef={commentBodyRef} voteProps={voteProps} styling="comment">
+                    <FeedContentBody
+                      html={comment.contents?.html ?? ""}
+                      initialWordCount={initialWordCount}
+                      maxWordCount={truncationParams.maxWordCount}
+                      wordCount={comment.contents?.wordCount ?? 0}
+                      continueReadingUrl={continueReadingUrl}
+                      nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+                      clampOverride={displaySettings.lineClampNumberOfLines}
+                      onExpand={handleContentExpand}
+                      hideSuffix={false}
+                      resetSignal={resetSig}
+                      isRead={isRead}
+                      replacedSubstrings={inlineReactHighlights}
+                    />
+                  </InlineReactSelectionWrapper>
+                ) : (
+                  <FeedContentBody
+                    html={comment.contents?.html ?? ""}
+                    initialWordCount={initialWordCount}
+                    maxWordCount={truncationParams.maxWordCount}
+                    wordCount={comment.contents?.wordCount ?? 0}
+                    continueReadingUrl={continueReadingUrl}
+                    nofollow={(comment.user?.karma ?? 0) < nofollowKarmaThreshold.get()}
+                    clampOverride={displaySettings.lineClampNumberOfLines}
+                    onExpand={handleContentExpand}
+                    hideSuffix={false}
+                    resetSignal={resetSig}
+                    isRead={isRead}
+                  />
+                )
               )}
             </div>
           )}
@@ -557,6 +593,7 @@ export const UltraFeedCommentItem = ({
       {/* buttons are placed separately within root because display: flex disrupts their positioning */}
       {(overflowNav.showUp || overflowNav.showDown) && <OverflowNavButtons nav={overflowNav} onCollapse={collapseToFirst} applyCommentStyle={true} />}
     </div>
+    </HoveredReactionContextProvider>
     </AnalyticsContext>
   );
 };
