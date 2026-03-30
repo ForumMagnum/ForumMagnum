@@ -48,6 +48,7 @@ import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { PopperPortalProvider } from '../common/LWPopper';
 import { HideNavigationSidebarContextProvider } from './HideNavigationSidebarContextProvider';
 import { usePathname } from 'next/navigation';
+import { llmContentBlockStyles } from '../contents/llmContentBlockStyles';
 
 const LanguageModelLauncherButton = dynamic(() => import("../languageModels/LanguageModelLauncherButton"), { ssr: false });
 const SidebarLanguageModelChat = dynamic(() => import("../languageModels/SidebarLanguageModelChat"), { ssr: false });
@@ -83,6 +84,7 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
   },
   '@global': {
     ...globalStyles(theme),
+    ...llmContentBlockStyles(theme),
     p: pBodyStyle(theme),
     '.mapboxgl-popup': {
       willChange: 'auto !important',

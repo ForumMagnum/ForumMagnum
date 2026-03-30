@@ -255,108 +255,6 @@ const footnoteStyles = (_theme: ThemeType) => ({
   },
 });
 
-const llmContentBlockStyles = (theme: ThemeType) => ({
-  '& .llm-content-block': {
-    margin: '1em 0',
-    position: 'relative',
-    fontFamily: '"cronos-pro", serif',
-    fontSize: 19.1,
-    fontWeight: 400,
-    opacity: 0.94,
-    '& h1, & h2, & h3, & h4, & h5, & h6': {
-      fontFamily: 'inherit',
-    },
-    // Prevent baseBodyStyles selectors (which spread postStyle/body1/commentStyle)
-    // from overriding the LLM block's font on these elements. Without this,
-    // list items and blockquotes get the post/comment font instead of cronos-pro.
-    '& li, & blockquote': {
-      fontFamily: 'inherit',
-    },
-    // Render the model label inline so the content starts immediately after it.
-    '&::before': {
-      content: 'attr(data-model-name)',
-      display: 'inline-block',
-      lineHeight: 1.3,
-      fontSize: '0.85em',
-      color: theme.palette.greyAlpha(0.6),
-      paddingRight: 6,
-      borderRight: `1px solid ${theme.palette.grey[400]}`,
-      fontWeight: 600,
-      fontVariant: 'small-caps',
-      position: 'relative',
-      top: 2
-    },
-    '&:has(> .llm-content-block-content > p:first-child)::before': {
-      float: 'left',
-      marginRight: 8,
-      marginBottom: 0,
-    },
-    '&:not(:has(> .llm-content-block-content > p:first-child))::before': {
-      float: 'none',
-      display: 'block',
-      width: 'fit-content',
-      marginRight: 0,
-      marginTop: '1em',
-      marginBottom: '1em',
-    },
-    '& > .llm-content-block-content': {
-      '& > :first-child': {
-        marginTop: 0,
-      },
-      '& > :last-child': {
-        marginBottom: 0,
-      },
-    },
-    '&:has(> .llm-content-block-content > p:last-child) > .llm-content-block-content > p:last-child::after': {
-      content: '"⊙"',
-      color: theme.palette.greyAlpha(0.55),
-      fontSize: '0.85em',
-      paddingLeft: 3,
-      marginLeft: 9,
-      borderLeft: `1px solid ${theme.palette.grey[400]}`,
-      fontWeight: 300,
-      letterSpacing: 2.1,
-      opacity: 0.6,
-    },
-    '& > .llm-content-block-content > p:last-child:has(> br:only-child)': {
-      display: 'inline-block',
-      margin: 0,
-      minWidth: '0.6em',
-    },
-    '& > .llm-content-block-content > p:last-child:has(> br:only-child) > br:only-child': {
-      display: 'none',
-    },
-    '& > .llm-content-block-content > p:last-child:has(> br:only-child)::after': {
-      content: '"⊙"',
-      display: 'inline-block',
-      color: theme.palette.greyAlpha(0.55),
-      fontSize: '0.85em',
-      lineHeight: 'inherit',
-      paddingLeft: 3,
-      marginLeft: 0,
-      borderLeft: `1px solid ${theme.palette.grey[400]}`,
-      fontWeight: 300,
-      letterSpacing: 2.1,
-      opacity: 0.6,
-    },
-    '&:not(:has(> .llm-content-block-content > p:last-child)) > .llm-content-block-content::after': {
-      content: '"⊙"',
-      display: 'block',
-      width: 'fit-content',
-      color: theme.palette.greyAlpha(0.55),
-      fontSize: '0.85em',
-      lineHeight: 1.3,
-      marginTop: '1em',
-      marginBottom: '1em',
-      paddingLeft: 3,
-      borderLeft: `1px solid ${theme.palette.grey[400]}`,
-      fontWeight: 300,
-      letterSpacing: 2.1,
-      opacity: 0.6,
-    },
-  },
-});
-
 const collapsibleSectionStyles = (theme: ThemeType) => ({
   '& .detailsBlock': {
     // This conflicts with a CkEditor style on `.ck .ck-editor__nested-editable`
@@ -695,7 +593,6 @@ export const postBodyStyles = (theme: ThemeType) => {
     ...lwartifactsPreviewStyles(theme),
     ...footnoteStyles(theme),
     ...collapsibleSectionStyles(theme),
-    ...llmContentBlockStyles(theme),
     ...conditionallyVisibleBlockStyles(theme),
     ...ctaButtonStyles(theme),
     // Used for R:A-Z imports as well as markdown-it-footnotes
@@ -967,7 +864,7 @@ export const ckEditorStyles = (theme: ThemeType) => {
   }
 }
 
-export const editorStyles = (theme: ThemeType) => ({
+export const editorSpoilerStyles = (theme: ThemeType) => ({
     // Using '*' selectors is a bit dangerous, as is using '!important'
     // This is necessary to catch spoiler-selectors on 'code' elemenents, as implemented in draft-js, 
     // which involved nested spans with manually set style attributes, which can't be overwritten except via 'important'
