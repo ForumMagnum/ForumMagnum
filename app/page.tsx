@@ -16,6 +16,7 @@ assertRouteAttributes("/", {
 });
 
 function isNewspaperDay(searchParams: Record<string, string | string[] | undefined>): boolean {
+  return true
   if (searchParams.newspaper === 'true') return true;
   if (searchParams.newspaper === 'false') return false;
 
