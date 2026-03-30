@@ -5,19 +5,20 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { isEAForum } from "../../lib/instanceSettings";
 import { useSubscribedLocation } from "../../lib/routeUtil";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
+import { useRefetchCurrentUser } from "../common/withUser";
 import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
-import { useDialog } from "../common/withDialog";
-import LoginPopup from "../users/LoginPopup";
 import { useCookiePreferences } from "../hooks/useCookiesWithConsent";
+import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useConcreteThemeOptions } from "../themes/useTheme";
 import {
+  BABY_BULBY_SPRITE_PIXELS,
   babyBulbyAnimations,
   babyBulbySpritePalette,
+  type BabyBulbyAnimationMode,
   type BabyBulbySpriteGridValue,
 } from "./babyBulbySprites";
 
 const BABY_BULBY_STORAGE_KEY_PREFIX = "babyBulby:v2:";
-const LEGACY_BABY_BULBY_STORAGE_KEY_PREFIXES = ["sitePet:v2:", "sitePet:v1:"] as const;
 const BABY_BULBY_WIDTH = 108;
 const BABY_BULBY_HEIGHT = 152;
 const SPRITE_SIZE = 18;
@@ -55,7 +56,6 @@ const BABY_BULBY_POST_METRICS_QUERY = gql`
         tagRelevance
         readTimeMinutes
       }
-      __typename
     }
   }
 `;
@@ -66,10 +66,11 @@ type Position = {
 };
 
 type BabyBulbyStage = "egg" | "bulby";
-type BabyBulbyAnimationMode = "idle" | "eating" | "happy" | "refuse" | "shatterDeath" | "dead";
 type HungerSnapshot = {
   hunger: number,
   hungerUpdatedAt: number,
+  pauseUntil: number | null,
+  updatedAt: number,
 };
 type HungerMeterDelta = {
   direction: "up" | "down",
@@ -77,10 +78,11 @@ type HungerMeterDelta = {
   changedSegmentIndexes: number[],
   useWarningColor: boolean,
 };
-type BabyBulbyStoredState = Position & {
-  hunger?: number,
-  hungerUpdatedAt?: string,
-  lastFedPostKey?: string,
+type BabyBulbyDbState = {
+  hunger: number,
+  hungerUpdatedAt: string,
+  pauseUntil?: string | null,
+  updatedAt: string,
 };
 type BabyBulbyPostMetrics = {
   _id: string,
@@ -92,6 +94,26 @@ type BabyBulbyPostMetricsQueryResult = {
     result?: BabyBulbyPostMetrics | null,
   } | null,
 };
+
+type BabyBulbyAnimationName = keyof typeof babyBulbyAnimations.babyBulby;
+
+const getActiveAnimationName = (
+  animationMode: BabyBulbyAnimationMode,
+  isDead: boolean,
+  filledHungerSegments: number,
+): BabyBulbyAnimationName => {
+  if (isDead || animationMode === "dead") {
+    return "dead";
+  }
+
+  if (animationMode === "eating" || animationMode === "happy" || animationMode === "refuse") {
+    return animationMode;
+  }
+
+  return filledHungerSegments === 1 ? "sick" : "idle";
+};
+
+const getDisplayStage = (currentUser: UsersCurrent | null): BabyBulbyStage => currentUser ? "bulby" : "egg";
 
 const styles = (theme: ThemeType) => ({
   "@keyframes hunger-warning-flash": {
@@ -286,53 +308,94 @@ const isValidPosition = (value: unknown): value is Position => {
   return typeof maybePosition.x === "number" && typeof maybePosition.y === "number";
 };
 
-const isValidStoredState = (value: unknown): value is BabyBulbyStoredState => {
-  if (!isValidPosition(value)) {
+const clampHunger = (value: number) => clamp(Math.floor(value), 0, HUNGER_MAX);
+
+const parseTimestamp = (value: unknown, fallback: number) => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+
+  if (typeof value === "string" || value instanceof Date) {
+    const timestamp = new Date(value).getTime();
+    return Number.isFinite(timestamp) ? timestamp : fallback;
+  }
+
+  return fallback;
+};
+
+const isValidBabyBulbyDbState = (value: unknown): value is BabyBulbyDbState => {
+  if (!value || typeof value !== "object") {
     return false;
   }
 
-  const maybeState = value as Partial<BabyBulbyStoredState>;
-  const hasValidHunger = maybeState.hunger === undefined || typeof maybeState.hunger === "number";
-  const hasValidTimestamp = maybeState.hungerUpdatedAt === undefined || typeof maybeState.hungerUpdatedAt === "string";
-  const hasValidLastFedKey = maybeState.lastFedPostKey === undefined || typeof maybeState.lastFedPostKey === "string";
-
-  return hasValidHunger && hasValidTimestamp && hasValidLastFedKey;
+  const maybeState = value as Partial<BabyBulbyDbState>;
+  return typeof maybeState.hunger === "number"
+    && typeof maybeState.hungerUpdatedAt === "string"
+    && typeof maybeState.updatedAt === "string"
+    && (maybeState.pauseUntil === undefined || maybeState.pauseUntil === null || typeof maybeState.pauseUntil === "string");
 };
 
-const clampHunger = (value: number) => clamp(Math.floor(value), 0, HUNGER_MAX);
-
-const createHungerSnapshot = (hunger: number, hungerUpdatedAt: number): HungerSnapshot => ({
+const createHungerSnapshot = (
+  hunger: number,
+  hungerUpdatedAt: number,
+  pauseUntil: number | null = null,
+  updatedAt: number = hungerUpdatedAt,
+): HungerSnapshot => ({
   hunger: clampHunger(hunger),
   hungerUpdatedAt,
+  pauseUntil,
+  updatedAt,
 });
 
-const getDecayedHunger = ({ hunger, hungerUpdatedAt }: HungerSnapshot, now: number) => {
-  if (now <= hungerUpdatedAt) {
-    return hunger;
+const getDecayStartTime = ({ hungerUpdatedAt, pauseUntil }: HungerSnapshot) => Math.max(hungerUpdatedAt, pauseUntil ?? hungerUpdatedAt);
+
+const getDecayedHunger = (snapshot: HungerSnapshot, now: number) => {
+  const decayStartTime = getDecayStartTime(snapshot);
+
+  if (now <= decayStartTime) {
+    return snapshot.hunger;
   }
 
-  const elapsed = now - hungerUpdatedAt;
+  const elapsed = now - decayStartTime;
   const decay = (elapsed / HUNGER_DECAY_DURATION_MS) * HUNGER_MAX;
-  return clampHunger(hunger - decay);
+  return clampHunger(snapshot.hunger - decay);
 };
 
-const getAwayClampedHunger = (snapshot: HungerSnapshot, now: number) => {
+const normalizeHungerSnapshot = (
+  snapshot: HungerSnapshot,
+  now: number,
+  {
+    clampAway = false,
+    preserveUpdatedAt = true,
+  }: {
+    clampAway?: boolean,
+    preserveUpdatedAt?: boolean,
+  } = {},
+) => {
+  // Product rule: Bulby can die during an active session, but an alive Bulby should not
+  // disappear off-screen while the user is away. Away-sync therefore clamps alive state
+  // to at least one visible bar; only an already-dead Bulby is allowed to persist as zero.
   if (snapshot.hunger <= 0) {
-    return 0;
+    return createHungerSnapshot(0, now, null, preserveUpdatedAt ? snapshot.updatedAt : now);
+  }
+
+  const decayStartTime = getDecayStartTime(snapshot);
+
+  if (now <= decayStartTime) {
+    return createHungerSnapshot(
+      snapshot.hunger,
+      snapshot.hungerUpdatedAt,
+      snapshot.pauseUntil && snapshot.pauseUntil > now ? snapshot.pauseUntil : null,
+      preserveUpdatedAt ? snapshot.updatedAt : now,
+    );
   }
 
   const decayedHunger = getDecayedHunger(snapshot, now);
-  const minimumAwayHunger = Math.min(snapshot.hunger, HUNGER_SEGMENT_VALUE);
-  return Math.max(decayedHunger, minimumAwayHunger);
-};
+  const hunger = clampAway
+    ? Math.max(decayedHunger, Math.min(snapshot.hunger, HUNGER_SEGMENT_VALUE))
+    : decayedHunger;
 
-const parseStoredTimestamp = (value: string | undefined, fallback: number) => {
-  if (!value) {
-    return fallback;
-  }
-
-  const timestamp = new Date(value).getTime();
-  return Number.isFinite(timestamp) ? timestamp : fallback;
+  return createHungerSnapshot(hunger, now, null, preserveUpdatedAt ? snapshot.updatedAt : now);
 };
 
 const getHungerRefill = (readTimeMinutes: number | null | undefined) => {
@@ -381,21 +444,54 @@ const getChangedSegmentIndexes = (previousFilledSegments: number, nextFilledSegm
   );
 };
 
+const createSnapshotFromDbState = (value: BabyBulbyDbState, now: number) => normalizeHungerSnapshot(
+  createHungerSnapshot(
+    value.hunger,
+    parseTimestamp(value.hungerUpdatedAt, now),
+    value.pauseUntil ? parseTimestamp(value.pauseUntil, now) : null,
+    parseTimestamp(value.updatedAt, now),
+  ),
+  now,
+  { clampAway: true, preserveUpdatedAt: true },
+);
+
+const snapshotToDbState = (snapshot: HungerSnapshot): BabyBulbyDbState => ({
+  hunger: snapshot.hunger,
+  hungerUpdatedAt: new Date(snapshot.hungerUpdatedAt).toISOString(),
+  ...(snapshot.pauseUntil ? { pauseUntil: new Date(snapshot.pauseUntil).toISOString() } : {}),
+  updatedAt: new Date(snapshot.updatedAt).toISOString(),
+});
+
+const getDbStateComparableKey = (snapshot: HungerSnapshot | BabyBulbyDbState) => JSON.stringify({
+  hunger: snapshot.hunger,
+  hungerUpdatedAt: parseTimestamp(snapshot.hungerUpdatedAt, 0),
+  pauseUntil: "pauseUntil" in snapshot && snapshot.pauseUntil
+    ? parseTimestamp(snapshot.pauseUntil, 0)
+    : null,
+});
+
+const getSpritePixelFill = (value: BabyBulbySpriteGridValue, isDarkMode: boolean) => {
+  switch (value) {
+  case BABY_BULBY_SPRITE_PIXELS.heart:
+    return babyBulbySpritePalette.heart;
+  case BABY_BULBY_SPRITE_PIXELS.sparkle:
+    return babyBulbySpritePalette.sparkle;
+  case BABY_BULBY_SPRITE_PIXELS.fill:
+    return babyBulbySpritePalette.fill;
+  case BABY_BULBY_SPRITE_PIXELS.darkModePellet:
+  case BABY_BULBY_SPRITE_PIXELS.darkModeSkull:
+    return isDarkMode ? babyBulbySpritePalette.fill : babyBulbySpritePalette.body;
+  case BABY_BULBY_SPRITE_PIXELS.outline:
+  default:
+    return babyBulbySpritePalette.body;
+  }
+};
+
 const renderSpriteGrid = (grid: BabyBulbySpriteGridValue[][], isDarkMode: boolean) => [
   ...grid.flatMap((row, y) => row.flatMap((value, x) => {
-    if (value === 0) {
+    if (value === BABY_BULBY_SPRITE_PIXELS.transparent) {
       return [];
     }
-
-    const fill = value === 2
-      ? babyBulbySpritePalette.heart
-      : value === 3
-        ? babyBulbySpritePalette.sparkle
-        : value === 4
-          ? babyBulbySpritePalette.fill
-          : value === 5
-            ? isDarkMode ? babyBulbySpritePalette.fill : babyBulbySpritePalette.body
-        : babyBulbySpritePalette.body;
 
     return (
       <rect
@@ -404,23 +500,30 @@ const renderSpriteGrid = (grid: BabyBulbySpriteGridValue[][], isDarkMode: boolea
         y={y}
         width={1}
         height={1}
-        fill={fill}
+        fill={getSpritePixelFill(value, isDarkMode)}
       />
     );
   })),
 ];
 
-const SpriteGrid = ({grid, isDarkMode}: {grid: BabyBulbySpriteGridValue[][], isDarkMode: boolean}) => (
-  <svg
-    width={SPRITE_DISPLAY_SIZE}
-    height={SPRITE_DISPLAY_SIZE}
-    viewBox={`0 0 ${SPRITE_SIZE} ${SPRITE_SIZE}`}
-    shapeRendering="crispEdges"
-    aria-hidden="true"
-  >
-    {renderSpriteGrid(grid, isDarkMode)}
-  </svg>
-);
+const SpriteGrid = React.memo(({grid, isDarkMode}: {grid: BabyBulbySpriteGridValue[][], isDarkMode: boolean}) => {
+  const spriteRects = useMemo(
+    () => renderSpriteGrid(grid, isDarkMode),
+    [grid, isDarkMode],
+  );
+
+  return (
+    <svg
+      width={SPRITE_DISPLAY_SIZE}
+      height={SPRITE_DISPLAY_SIZE}
+      viewBox={`0 0 ${SPRITE_SIZE} ${SPRITE_SIZE}`}
+      shapeRendering="crispEdges"
+      aria-hidden="true"
+    >
+      {spriteRects}
+    </svg>
+  );
+});
 
 const BabyBulby = ({
   currentUser,
@@ -431,16 +534,16 @@ const BabyBulby = ({
 }) => {
   const concreteThemeOptions = useConcreteThemeOptions();
   const { currentRoute, pathname, params } = useSubscribedLocation();
-  const { openDialog } = useDialog();
+  const refetchCurrentUser = useRefetchCurrentUser();
+  const updateCurrentUser = useUpdateCurrentUser();
   const { explicitConsentGiven, explicitConsentRequired } = useCookiePreferences();
+  const isAdminViewer = !!currentUser?.isAdmin;
   const [position, setPosition] = useState<Position | null>(null);
   const [loadedStorageKey, setLoadedStorageKey] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
   const [hasCompletedInitialPlacement, setHasCompletedInitialPlacement] = useState(false);
   const [animationMode, setAnimationMode] = useState<BabyBulbyAnimationMode>("idle");
-  const [happyLoopsRemaining, setHappyLoopsRemaining] = useState(0);
   const [hungerSnapshot, setHungerSnapshot] = useState<HungerSnapshot | null>(null);
-  const [lastFedPostKey, setLastFedPostKey] = useState<string | null>(null);
   const [currentTimeMs, setCurrentTimeMs] = useState(() => Date.now());
   const [frameIndex, setFrameIndex] = useState(0);
   const [hungerMeterDelta, setHungerMeterDelta] = useState<HungerMeterDelta | null>(null);
@@ -455,9 +558,26 @@ const BabyBulby = ({
   const lastTriggeredPostPageRef = useRef<string | null>(null);
   const previousFilledHungerSegmentsRef = useRef<number | null>(null);
   const hungerMeterDeltaTimeoutRef = useRef<number | null>(null);
-  const previousIsDeadRef = useRef<boolean | null>(null);
+  const hungerSnapshotRef = useRef<HungerSnapshot | null>(null);
+  const lastPersistedStateKeyRef = useRef<string | null>(null);
+  const pendingPersistOptionsRef = useRef<{clampAway: boolean, refetchAfter: boolean} | null>(null);
+  const persistInFlightRef = useRef(false);
+  const bootstrapRequestedRef = useRef(false);
+  const awaySyncCompletedRef = useRef(false);
 
-  const displayStage: BabyBulbyStage = currentUser ? "bulby" : "egg";
+  /*
+   * Admin-only soft launch: keep the live runtime path Bulby-only for now.
+   * The admin gate still hides the egg path in this branch, but keep displayStage
+   * as a real union so the full-release PR can re-enable egg behavior without
+   * first untangling Bulby-only type narrowing.
+   *
+   * Full-release checklist:
+   * 1. Widen the mount gate in Layout so logged-out users can see the egg and non-admins can see Bulby.
+   * 2. Restore the egg click/signup handler and the egg-specific screenreader copy below.
+   * 3. Decide whether the admin hunger-meter cheat should be deleted or hidden behind an explicit debug flag.
+   * 4. Revisit whether dormant egg-only comments can be replaced with live code again.
+   */
+  const displayStage = getDisplayStage(currentUser);
   const isPostPage = (currentRoute?.name && (
     EATING_ANIMATION_ROUTE_NAMES.has(currentRoute.name) ||
     currentRoute.name.endsWith(".posts.single")
@@ -481,12 +601,17 @@ const BabyBulby = ({
         },
       },
       ssr: false,
-      skip: displayStage !== "bulby" || !currentPostId,
+      skip: !isAdminViewer || !currentPostId,
     },
   );
   const currentPost = currentPostData?.post?.result ?? null;
   const currentPostReadTimeMinutes = currentPost?.readTimeMinutes ?? 0;
   const isCommunityPost = !!currentPost?.tagRelevance?.[EA_FORUM_COMMUNITY_TOPIC_ID];
+  const serverBabyBulbyState = useMemo(() => (
+    isValidBabyBulbyDbState(currentUser?.babyBulbyState)
+      ? currentUser.babyBulbyState
+      : null
+  ), [currentUser?.babyBulbyState]);
   const displayedHunger = useMemo(
     () => displayStage === "bulby" && hungerSnapshot
       ? getDecayedHunger(hungerSnapshot, currentTimeMs)
@@ -510,34 +635,101 @@ const BabyBulby = ({
   );
   const isStateHydrated = !!position && loadedStorageKey === storageKey && (displayStage === "egg" || hungerSnapshot !== null);
   const isDead = displayStage === "bulby" && displayedHunger === 0;
+  const activeAnimationName = useMemo(
+    () => getActiveAnimationName(animationMode, isDead, filledHungerSegments),
+    [animationMode, filledHungerSegments, isDead],
+  );
   const activeAnimation = useMemo(
-    () => displayStage === "egg"
-      ? babyBulbyAnimations.egg.idle
-      : isDead
-        ? babyBulbyAnimations.babyBulby.dead
-      : animationMode === "eating"
-        ? babyBulbyAnimations.babyBulby.eating
-        : animationMode === "happy"
-          ? babyBulbyAnimations.babyBulby.happy
-          : animationMode === "refuse"
-            ? babyBulbyAnimations.babyBulby.refuse
-          : animationMode === "shatterDeath"
-            ? babyBulbyAnimations.babyBulby.shatterDeath
-          : animationMode === "dead"
-            ? babyBulbyAnimations.babyBulby.dead
-          : filledHungerSegments === 1
-            ? babyBulbyAnimations.babyBulby.sick
-            : babyBulbyAnimations.babyBulby.idle,
-    [animationMode, filledHungerSegments, displayStage, isDead],
+    () => babyBulbyAnimations.babyBulby[activeAnimationName],
+    [activeAnimationName],
   );
   const currentSpriteGrid = useMemo(() => {
-    if (animationMode === "dead") {
-      return activeAnimation.frames[activeAnimation.frames.length - 1];
+    const sequencePosition = activeAnimation.loop
+      ? frameIndex % activeAnimation.playOrder.length
+      : Math.min(frameIndex, activeAnimation.playOrder.length - 1);
+    const framePosition = activeAnimation.playOrder[sequencePosition] ?? activeAnimation.playOrder[activeAnimation.playOrder.length - 1] ?? 0;
+
+    return activeAnimation.frames[framePosition];
+  }, [activeAnimation, frameIndex]);
+  const isDarkMode = concreteThemeOptions.name === "dark";
+  const applyHungerSnapshotLocally = useCallback((nextSnapshot: HungerSnapshot, now = Date.now()) => {
+    hungerSnapshotRef.current = nextSnapshot;
+    setCurrentTimeMs(now);
+    setHungerSnapshot(nextSnapshot);
+  }, []);
+
+  const persistBabyBulbyState = useCallback(async (
+    {
+      clampAway = false,
+      refetchAfter = false,
+    }: {
+      clampAway?: boolean,
+      refetchAfter?: boolean,
+    } = {},
+    snapshotOverride?: HungerSnapshot | null,
+  ): Promise<boolean> => {
+    if (!currentUser?._id) {
+      return false;
     }
 
-    return activeAnimation.frames[frameIndex % activeAnimation.frames.length];
-  }, [activeAnimation, animationMode, frameIndex]);
-  const isDarkMode = concreteThemeOptions.name === "dark";
+    const baseSnapshot = snapshotOverride ?? hungerSnapshotRef.current;
+    if (!baseSnapshot) {
+      return false;
+    }
+
+    const now = Date.now();
+    const normalizedSnapshot = normalizeHungerSnapshot(baseSnapshot, now, {
+      clampAway,
+      preserveUpdatedAt: false,
+    });
+    const localComparableKey = getDbStateComparableKey(baseSnapshot);
+    const comparableKey = getDbStateComparableKey(normalizedSnapshot);
+
+    setCurrentTimeMs(now);
+
+    if (localComparableKey !== comparableKey) {
+      applyHungerSnapshotLocally(normalizedSnapshot, now);
+    }
+
+    if (persistInFlightRef.current) {
+      pendingPersistOptionsRef.current = pendingPersistOptionsRef.current
+        ? {
+          clampAway: pendingPersistOptionsRef.current.clampAway || clampAway,
+          refetchAfter: pendingPersistOptionsRef.current.refetchAfter || refetchAfter,
+        }
+        : { clampAway, refetchAfter };
+      return false;
+    }
+
+    if (!refetchAfter && lastPersistedStateKeyRef.current === comparableKey) {
+      return true;
+    }
+
+    persistInFlightRef.current = true;
+
+    try {
+      await updateCurrentUser({
+        babyBulbyState: snapshotToDbState(normalizedSnapshot),
+      } as UpdateUserDataInput & { babyBulbyState: BabyBulbyDbState });
+      lastPersistedStateKeyRef.current = comparableKey;
+
+      if (refetchAfter) {
+        await refetchCurrentUser();
+      }
+
+      return true;
+    } catch {
+      return false;
+    } finally {
+      persistInFlightRef.current = false;
+
+      if (pendingPersistOptionsRef.current) {
+        const nextPersistOptions = pendingPersistOptionsRef.current;
+        pendingPersistOptionsRef.current = null;
+        void persistBabyBulbyState(nextPersistOptions);
+      }
+    }
+  }, [applyHungerSnapshotLocally, currentUser?._id, refetchCurrentUser, updateCurrentUser]);
 
   const getViewport = useCallback(() => ({
     width: window.innerWidth,
@@ -572,16 +764,9 @@ const BabyBulby = ({
     });
   }, [clampPosition, getBottomInset, getViewport]);
 
-  const syncHungerFromAway = useCallback((now: number) => {
-    setCurrentTimeMs(now);
-    setHungerSnapshot((currentSnapshot) => {
-      if (!currentSnapshot) {
-        return currentSnapshot;
-      }
-
-      return createHungerSnapshot(getAwayClampedHunger(currentSnapshot, now), now);
-    });
-  }, []);
+  useEffect(() => {
+    hungerSnapshotRef.current = hungerSnapshot;
+  }, [hungerSnapshot]);
 
   useEffect(() => {
     if (!isStateHydrated) {
@@ -599,7 +784,11 @@ const BabyBulby = ({
   }, [isStateHydrated]);
 
   useEffect(() => {
-    if (!isEAForum) {
+    if (!isEAForum || !isAdminViewer) {
+      return;
+    }
+
+    if (loadedStorageKey === storageKey && position && hungerSnapshotRef.current) {
       return;
     }
 
@@ -607,134 +796,222 @@ const BabyBulby = ({
     setCurrentTimeMs(now);
     const storage = getBrowserLocalStorage();
     const fallbackPosition = getDefaultPosition();
-    const legacyStorageKeys = LEGACY_BABY_BULBY_STORAGE_KEY_PREFIXES.map(
-      (prefix) => `${prefix}${currentUser?._id ?? "anon"}`,
-    );
+
+    // Pre-release cleanup: Bulby position remains browser-local, but hunger is DB-only.
+    // We intentionally do not read any legacy local hunger here. If the logged-in admin
+    // has no DB state yet, we start from the default snapshot and bootstrap it once below
+    // so cross-device state becomes canonical immediately.
+    bootstrapRequestedRef.current = false;
+    lastPersistedStateKeyRef.current = serverBabyBulbyState
+      ? getDbStateComparableKey(serverBabyBulbyState)
+      : null;
 
     if (!storage) {
       setPosition(fallbackPosition);
       setLoadedStorageKey(storageKey);
-      if (displayStage === "bulby") {
-        setHungerSnapshot(createHungerSnapshot(HUNGER_DEFAULT, now));
-        setLastFedPostKey(null);
-      } else {
-        setHungerSnapshot(null);
-        setLastFedPostKey(null);
-      }
+      const nextSnapshot = serverBabyBulbyState
+        ? createSnapshotFromDbState(serverBabyBulbyState, now)
+        : createHungerSnapshot(HUNGER_DEFAULT, now, null, now);
+      hungerSnapshotRef.current = nextSnapshot;
+      setHungerSnapshot(nextSnapshot);
       return;
     }
 
     try {
       const rawCurrentValue = storage.getItem(storageKey);
-      const rawLegacyValue = rawCurrentValue
-        ? null
-        : legacyStorageKeys
-          .map((legacyStorageKey) => storage.getItem(legacyStorageKey))
-          .find((value) => value !== null) ?? null;
       const parsedCurrentValue = rawCurrentValue ? JSON.parse(rawCurrentValue) : null;
-      const parsedLegacyValue = rawLegacyValue ? JSON.parse(rawLegacyValue) : null;
-      const storedValue = isValidStoredState(parsedCurrentValue)
-        ? parsedCurrentValue
-        : isValidStoredState(parsedLegacyValue)
-          ? parsedLegacyValue
-          : null;
+      const storedPosition = isValidPosition(parsedCurrentValue) ? parsedCurrentValue : null;
 
-      setPosition(storedValue ? clampPosition(storedValue) : fallbackPosition);
-      if (displayStage === "bulby") {
-        if (storedValue && typeof storedValue.hunger === "number") {
-          const storedSnapshot = createHungerSnapshot(
-            storedValue.hunger,
-            parseStoredTimestamp(storedValue.hungerUpdatedAt, now),
-          );
-          setHungerSnapshot(createHungerSnapshot(getAwayClampedHunger(storedSnapshot, now), now));
-          setLastFedPostKey(storedValue.lastFedPostKey ?? null);
-        } else {
-          setHungerSnapshot(createHungerSnapshot(HUNGER_DEFAULT, now));
-          setLastFedPostKey(null);
-        }
+      setPosition(storedPosition ? clampPosition(storedPosition) : fallbackPosition);
+      if (serverBabyBulbyState) {
+        const nextSnapshot = createSnapshotFromDbState(serverBabyBulbyState, now);
+        hungerSnapshotRef.current = nextSnapshot;
+        setHungerSnapshot(nextSnapshot);
       } else {
-        setHungerSnapshot(null);
-        setLastFedPostKey(null);
+        const nextSnapshot = createHungerSnapshot(HUNGER_DEFAULT, now, null, now);
+        hungerSnapshotRef.current = nextSnapshot;
+        setHungerSnapshot(nextSnapshot);
       }
       setLoadedStorageKey(storageKey);
     } catch {
       setPosition(fallbackPosition);
-      if (displayStage === "bulby") {
-        setHungerSnapshot(createHungerSnapshot(HUNGER_DEFAULT, now));
-        setLastFedPostKey(null);
-      } else {
-        setHungerSnapshot(null);
-        setLastFedPostKey(null);
-      }
+      const nextSnapshot = serverBabyBulbyState
+        ? createSnapshotFromDbState(serverBabyBulbyState, now)
+        : createHungerSnapshot(HUNGER_DEFAULT, now, null, now);
+      hungerSnapshotRef.current = nextSnapshot;
+      setHungerSnapshot(nextSnapshot);
       setLoadedStorageKey(storageKey);
     }
-  }, [clampPosition, currentUser?._id, getDefaultPosition, storageKey, displayStage]);
+  }, [clampPosition, currentUser?._id, getDefaultPosition, isAdminViewer, loadedStorageKey, position, serverBabyBulbyState, storageKey]);
 
   useEffect(() => {
-    if (displayStage !== "bulby") {
+    if (!isAdminViewer || displayStage !== "bulby" || loadedStorageKey !== storageKey) {
       return;
     }
 
-    let interval: number | null = null;
+    if (!serverBabyBulbyState) {
+      return;
+    }
 
-    const clearLiveUpdates = () => {
-      if (interval !== null) {
-        window.clearInterval(interval);
-        interval = null;
+    const now = Date.now();
+    const nextSnapshot = createSnapshotFromDbState(serverBabyBulbyState, now);
+    const currentSnapshot = hungerSnapshotRef.current;
+
+    if (!currentSnapshot || nextSnapshot.updatedAt > currentSnapshot.updatedAt) {
+      if (hungerMeterDeltaTimeoutRef.current !== null) {
+        window.clearTimeout(hungerMeterDeltaTimeoutRef.current);
+        hungerMeterDeltaTimeoutRef.current = null;
       }
-    };
+      setHungerMeterDelta(null);
+      previousFilledHungerSegmentsRef.current = getFilledHungerSegments(getDecayedHunger(nextSnapshot, now));
+      applyHungerSnapshotLocally(nextSnapshot, now);
+    }
 
-    const syncClock = () => {
-      setCurrentTimeMs(Date.now());
+    lastPersistedStateKeyRef.current = getDbStateComparableKey(nextSnapshot);
+  }, [applyHungerSnapshotLocally, displayStage, isAdminViewer, loadedStorageKey, serverBabyBulbyState, storageKey]);
+
+  useEffect(() => {
+    if (!isAdminViewer || displayStage !== "bulby" || !isStateHydrated || serverBabyBulbyState || bootstrapRequestedRef.current || !currentUser?._id) {
+      return;
+    }
+
+    const bootstrapSnapshot = hungerSnapshotRef.current;
+    if (!bootstrapSnapshot) {
+      return;
+    }
+
+    bootstrapRequestedRef.current = true;
+    void persistBabyBulbyState({ refetchAfter: true }, bootstrapSnapshot).then((persisted) => {
+      if (!persisted) {
+        bootstrapRequestedRef.current = false;
+      }
+    });
+  }, [currentUser?._id, displayStage, isAdminViewer, isStateHydrated, persistBabyBulbyState, serverBabyBulbyState]);
+
+  useEffect(() => {
+    if (!isAdminViewer || displayStage !== "bulby" || !isStateHydrated) {
+      return;
+    }
+
+    let localClockInterval: number | null = null;
+
+    const clearLocalClock = () => {
+      if (localClockInterval !== null) {
+        window.clearInterval(localClockInterval);
+        localClockInterval = null;
+      }
     };
 
     const isSiteActive = () => document.visibilityState === "visible" && document.hasFocus();
 
-    const refreshDecayMode = () => {
-      const now = Date.now();
-      if (isSiteActive()) {
-        syncHungerFromAway(now);
-        if (interval === null) {
-          interval = window.setInterval(syncClock, HUNGER_LIVE_UPDATE_INTERVAL_MS);
-        }
+    const startLocalClock = () => {
+      if (localClockInterval !== null) {
         return;
       }
 
-      clearLiveUpdates();
+      localClockInterval = window.setInterval(() => {
+        setCurrentTimeMs(Date.now());
+      }, HUNGER_LIVE_UPDATE_INTERVAL_MS);
+    };
+
+    const syncAwayState = () => {
+      if (awaySyncCompletedRef.current) {
+        return;
+      }
+
+      awaySyncCompletedRef.current = true;
+      if (currentUser) {
+        void persistBabyBulbyState({ clampAway: true });
+      }
+    };
+
+    const refreshDecayMode = () => {
+      const now = Date.now();
       setCurrentTimeMs(now);
+
+      if (!isSiteActive()) {
+        clearLocalClock();
+        return;
+      }
+
+      awaySyncCompletedRef.current = false;
+      startLocalClock();
+    };
+
+    const onPageHide = () => {
+      clearLocalClock();
+      syncAwayState();
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        clearLocalClock();
+        syncAwayState();
+        return;
+      }
+
+      refreshDecayMode();
     };
 
     refreshDecayMode();
     window.addEventListener("focus", refreshDecayMode);
-    window.addEventListener("blur", refreshDecayMode);
-    document.addEventListener("visibilitychange", refreshDecayMode);
+    window.addEventListener("pagehide", onPageHide);
+    document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
-      clearLiveUpdates();
+      clearLocalClock();
       window.removeEventListener("focus", refreshDecayMode);
-      window.removeEventListener("blur", refreshDecayMode);
-      document.removeEventListener("visibilitychange", refreshDecayMode);
+      window.removeEventListener("pagehide", onPageHide);
+      document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [syncHungerFromAway, displayStage]);
+  }, [currentUser, displayStage, isAdminViewer, isStateHydrated, persistBabyBulbyState]);
 
   useEffect(() => {
-    if (displayStage !== "bulby") {
+    if (!isAdminViewer || displayStage !== "bulby") {
       return;
     }
 
     setCurrentTimeMs(Date.now());
-  }, [pathname, displayStage]);
+  }, [pathname, displayStage, isAdminViewer]);
 
   useEffect(() => {
-    if (displayStage !== "bulby" || displayedHunger !== 0 || !hungerSnapshot || hungerSnapshot.hunger === 0) {
+    if (!isAdminViewer || displayStage !== "bulby" || !isStateHydrated) {
       return;
     }
 
-    setHungerSnapshot(createHungerSnapshot(0, currentTimeMs));
-  }, [currentTimeMs, displayedHunger, hungerSnapshot, displayStage]);
+    const refetchBulbyState = () => {
+      void refetchCurrentUser();
+    };
+
+    const refetchOnVisible = () => {
+      if (document.visibilityState === "visible") {
+        refetchBulbyState();
+      }
+    };
+
+    window.addEventListener("focus", refetchBulbyState);
+    document.addEventListener("visibilitychange", refetchOnVisible);
+
+    return () => {
+      window.removeEventListener("focus", refetchBulbyState);
+      document.removeEventListener("visibilitychange", refetchOnVisible);
+    };
+  }, [displayStage, isAdminViewer, isStateHydrated, refetchCurrentUser]);
 
   useEffect(() => {
-    if (displayStage !== "bulby" || !isStateHydrated) {
+    if (!isAdminViewer || displayStage !== "bulby" || displayedHunger !== 0 || !hungerSnapshot || hungerSnapshot.hunger === 0) {
+      return;
+    }
+
+    const nextSnapshot = createHungerSnapshot(0, currentTimeMs, null, currentTimeMs);
+    applyHungerSnapshotLocally(nextSnapshot, currentTimeMs);
+    if (currentUser) {
+      void persistBabyBulbyState({}, nextSnapshot);
+    }
+  }, [applyHungerSnapshotLocally, currentTimeMs, currentUser, displayedHunger, hungerSnapshot, displayStage, isAdminViewer, persistBabyBulbyState]);
+
+  useEffect(() => {
+    if (!isAdminViewer || displayStage !== "bulby" || !isStateHydrated) {
       previousFilledHungerSegmentsRef.current = null;
       setHungerMeterDelta(null);
       if (hungerMeterDeltaTimeoutRef.current !== null) {
@@ -772,7 +1049,7 @@ const BabyBulby = ({
       setHungerMeterDelta(null);
       hungerMeterDeltaTimeoutRef.current = null;
     }, HUNGER_METER_DELTA_DURATION_MS);
-  }, [filledHungerSegments, displayStage, isStateHydrated]);
+  }, [filledHungerSegments, displayStage, isAdminViewer, isStateHydrated]);
 
   useEffect(() => () => {
     if (hungerMeterDeltaTimeoutRef.current !== null) {
@@ -781,72 +1058,59 @@ const BabyBulby = ({
   }, []);
 
   useEffect(() => {
-    if (displayStage !== "bulby") {
-      previousIsDeadRef.current = null;
+    if (!isAdminViewer || displayStage !== "bulby") {
       return;
     }
 
-    const previousIsDead = previousIsDeadRef.current;
-    previousIsDeadRef.current = isDead;
-
     if (!isDead) {
-      if (animationMode === "dead" || animationMode === "shatterDeath") {
+      if (animationMode === "dead") {
         setAnimationMode("idle");
       }
       return;
     }
 
-    if (animationMode === "dead" || animationMode === "shatterDeath") {
+    if (animationMode === "dead") {
       return;
     }
 
     setAnimationMode("dead");
-  }, [animationMode, isDead, displayStage]);
+  }, [animationMode, isDead, displayStage, isAdminViewer]);
 
   useEffect(() => {
-    setFrameIndex(0);
-  }, [activeAnimation]);
-
-  useEffect(() => {
-    if (displayStage === "bulby" && animationMode === "dead") {
-      setFrameIndex(activeAnimation.frames.length - 1);
+    if (!isAdminViewer) {
       return;
     }
 
-    if (displayStage === "bulby" && animationMode !== "idle") {
-      let nextFrameIndex = 1;
+    setFrameIndex(0);
+  }, [activeAnimation, isAdminViewer]);
+
+  useEffect(() => {
+    if (!isAdminViewer) {
+      return;
+    }
+
+    if (!activeAnimation.loop && !activeAnimation.nextMode) {
+      setFrameIndex(Math.max(activeAnimation.playOrder.length - 1, 0));
+      return;
+    }
+
+    if (!activeAnimation.loop) {
+      let nextSequencePosition = 1;
       let timeout: number | undefined;
+
       const advanceAnimation = () => {
-        if (nextFrameIndex < activeAnimation.frames.length) {
-          setFrameIndex(nextFrameIndex);
-          nextFrameIndex += 1;
+        if (nextSequencePosition < activeAnimation.playOrder.length) {
+          setFrameIndex(nextSequencePosition);
+          nextSequencePosition += 1;
           timeout = window.setTimeout(advanceAnimation, activeAnimation.frameDurationMs);
           return;
         }
 
-        setAnimationMode((currentMode) => {
-          if (currentMode === "eating") {
-            setHappyLoopsRemaining(1);
-            return "happy";
-          }
-          if (currentMode === "happy") {
-            if (happyLoopsRemaining > 0) {
-              setFrameIndex(0);
-              setHappyLoopsRemaining(happyLoopsRemaining - 1);
-              return "happy";
-            }
-            return "idle";
-          }
-          if (currentMode === "refuse") {
-            return "idle";
-          }
-          if (currentMode === "shatterDeath") {
-            setFrameIndex(activeAnimation.frames.length - 1);
-            return "dead";
-          }
-          return currentMode;
-        });
+        if (activeAnimation.nextMode) {
+          setAnimationMode(activeAnimation.nextMode);
+        }
       };
+
       timeout = window.setTimeout(advanceAnimation, activeAnimation.frameDurationMs);
 
       return () => {
@@ -857,16 +1121,15 @@ const BabyBulby = ({
     }
 
     const interval = window.setInterval(() => {
-      setFrameIndex((currentFrame) => (currentFrame + 1) % activeAnimation.frames.length);
+      setFrameIndex((currentFrame) => (currentFrame + 1) % activeAnimation.playOrder.length);
     }, activeAnimation.frameDurationMs);
 
     return () => window.clearInterval(interval);
-  }, [activeAnimation, animationMode, happyLoopsRemaining, displayStage]);
+  }, [activeAnimation, isAdminViewer]);
 
   useEffect(() => {
-    if (displayStage !== "bulby") {
+    if (!isAdminViewer || displayStage !== "bulby") {
       setAnimationMode("idle");
-      setHappyLoopsRemaining(0);
       lastTriggeredPostPageRef.current = null;
       return;
     }
@@ -876,14 +1139,12 @@ const BabyBulby = ({
     }
 
     if (isDead) {
-      setHappyLoopsRemaining(0);
       lastTriggeredPostPageRef.current = postPageKey;
       return;
     }
 
     if (!postPageKey) {
       setAnimationMode("idle");
-      setHappyLoopsRemaining(0);
       lastTriggeredPostPageRef.current = null;
       return;
     }
@@ -899,27 +1160,29 @@ const BabyBulby = ({
     lastTriggeredPostPageRef.current = postPageKey;
     const now = Date.now();
     setCurrentTimeMs(now);
-    setHappyLoopsRemaining(0);
-    if (!isCommunityPost && lastFedPostKey !== postPageKey) {
+    if (!isCommunityPost) {
       const refill = getHungerRefill(currentPostReadTimeMinutes);
-      setHungerSnapshot((currentSnapshot) => {
-        const currentHunger = currentSnapshot ? getDecayedHunger(currentSnapshot, now) : HUNGER_DEFAULT;
-        return createHungerSnapshot(
-          getHungerAfterFeeding(currentHunger, refill),
-          now + HUNGER_PAUSE_AFTER_EATING_MS,
-        );
-      });
-      setLastFedPostKey(postPageKey);
+      const currentHunger = hungerSnapshotRef.current ? getDecayedHunger(hungerSnapshotRef.current, now) : HUNGER_DEFAULT;
+      const nextSnapshot = createHungerSnapshot(
+        getHungerAfterFeeding(currentHunger, refill),
+        now,
+        now + HUNGER_PAUSE_AFTER_EATING_MS,
+        now,
+      );
+      applyHungerSnapshotLocally(nextSnapshot, now);
+      if (currentUser) {
+        void persistBabyBulbyState({}, nextSnapshot);
+      }
     }
     setAnimationMode(isCommunityPost ? "refuse" : "eating");
-  }, [currentPost, currentPostLoading, currentPostReadTimeMinutes, isCommunityPost, isDead, isStateHydrated, lastFedPostKey, postPageKey, displayStage]);
+  }, [applyHungerSnapshotLocally, currentPost, currentPostLoading, currentPostReadTimeMinutes, currentUser, displayStage, isAdminViewer, isCommunityPost, isDead, isStateHydrated, persistBabyBulbyState, postPageKey]);
 
   useEffect(() => {
-    if (!position || loadedStorageKey !== storageKey) {
+    if (!isAdminViewer) {
       return;
     }
 
-    if (displayStage === "bulby" && !hungerSnapshot) {
+    if (!position || loadedStorageKey !== storageKey) {
       return;
     }
 
@@ -929,24 +1192,11 @@ const BabyBulby = ({
     }
 
     try {
-      if (displayStage === "bulby" && displayedHunger !== null) {
-        const persistedHungerUpdatedAt = hungerSnapshot
-          ? Math.max(hungerSnapshot.hungerUpdatedAt, currentTimeMs)
-          : currentTimeMs;
-        storage.setItem(storageKey, JSON.stringify({
-          x: position.x,
-          y: position.y,
-          hunger: displayedHunger,
-          hungerUpdatedAt: new Date(persistedHungerUpdatedAt).toISOString(),
-          ...(lastFedPostKey ? { lastFedPostKey } : {}),
-        } satisfies BabyBulbyStoredState));
-      } else {
-        storage.setItem(storageKey, JSON.stringify(position));
-      }
+      storage.setItem(storageKey, JSON.stringify(position));
     } catch {
       // Ignore localStorage write failures so the overlay still works for the session.
     }
-  }, [currentTimeMs, displayedHunger, hungerSnapshot, lastFedPostKey, loadedStorageKey, position, storageKey, displayStage]);
+  }, [displayStage, isAdminViewer, loadedStorageKey, position, serverBabyBulbyState, storageKey]);
 
   useEffect(() => {
     const onResize = () => {
@@ -983,18 +1233,10 @@ const BabyBulby = ({
     });
   }, [clampPosition, showCookieBanner]);
 
-  const openClaimPrompt = useCallback(() => {
-    openDialog({
-      name: "LoginPopup",
-      contents: ({onClose}) => (
-        <LoginPopup
-          onClose={onClose}
-          startingState="signup"
-          signupTitle="Sign up to hatch Baby Bulby"
-        />
-      ),
-    });
-  }, [openDialog]);
+  /*
+   * Full-release note: restore the logged-out egg click handler and signup prompt here.
+   * The pre-launch admin-only build intentionally hides the egg experience entirely.
+   */
 
   const onPointerDown = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
     if (event.button !== 0) {
@@ -1058,23 +1300,22 @@ const BabyBulby = ({
       suppressClickRef.current = false;
       event.preventDefault();
       event.stopPropagation();
-      return;
     }
+  }, []);
 
-    if (displayStage === "egg") {
-      openClaimPrompt();
-    }
-  }, [openClaimPrompt, displayStage]);
-
+  // Admin-only soft-launch cheat: keep direct hunger editing available for testers.
   const setTestHungerFromSegment = useCallback((segmentIndex: number) => {
     if (displayStage !== "bulby") {
       return;
     }
 
     const now = Date.now();
-    setCurrentTimeMs(now);
-    setHungerSnapshot(createHungerSnapshot((segmentIndex + 1) * HUNGER_SEGMENT_VALUE, now));
-  }, [displayStage]);
+    const nextSnapshot = createHungerSnapshot((segmentIndex + 1) * HUNGER_SEGMENT_VALUE, now, null, now);
+    applyHungerSnapshotLocally(nextSnapshot, now);
+    if (currentUser) {
+      void persistBabyBulbyState({}, nextSnapshot);
+    }
+  }, [applyHungerSnapshotLocally, currentUser, displayStage, persistBabyBulbyState]);
 
   const onHungerSegmentPointerDown = useCallback((event: React.PointerEvent<HTMLSpanElement>, segmentIndex: number) => {
     event.preventDefault();
@@ -1092,7 +1333,7 @@ const BabyBulby = ({
     setTestHungerFromSegment(segmentIndex);
   }, [setTestHungerFromSegment]);
 
-  if (!isEAForum) {
+  if (!isEAForum || !isAdminViewer) {
     return null;
   }
 
@@ -1115,17 +1356,16 @@ const BabyBulby = ({
         onPointerMove={onPointerMove}
         onPointerUp={finishPointerGesture}
         onPointerCancel={finishPointerGesture}
-        aria-label={displayStage === "egg" ? "Claim Baby Bulby" : "Your Baby Bulby"}
+        aria-label="Your Baby Bulby"
       >
         <span className={classes.srOnly}>
-          {displayStage === "egg"
-            ? "Create an account to claim Baby Bulby"
-            : `Your Baby Bulby. Hunger ${displayedHunger ?? HUNGER_DEFAULT} out of ${HUNGER_MAX}.`}
+          {/* Full-release note: restore egg-specific screenreader copy if the logged-out experience returns. */}
+          {`Your Baby Bulby. Hunger ${displayedHunger ?? HUNGER_DEFAULT} out of ${HUNGER_MAX}.`}
         </span>
         <div className={classes.artFrame}>
           <SpriteGrid grid={currentSpriteGrid} isDarkMode={isDarkMode} />
         </div>
-        {displayStage === "bulby" && displayedHunger !== null && (
+        {displayedHunger !== null && (
           <div className={classes.hungerMeter}>
             <div className={classes.hungerLabelRow}>
               <span className={classes.hungerLabel}>Hunger</span>

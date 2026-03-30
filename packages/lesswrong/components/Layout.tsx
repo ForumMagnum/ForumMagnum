@@ -409,7 +409,8 @@ const Layout = ({currentUser, children}: {
                 <MaybeCookieBanner isWrapped={isWrapped} />
               </DeferRender>
               <DeferRender ssr={false}>
-                <BabyBulby currentUser={currentUser} />
+                {/* Soft-launch Baby Bulby to admins only. Full release should widen this gate to restore the logged-out egg and non-admin Bulby paths. */}
+                {currentUser?.isAdmin && <BabyBulby currentUser={currentUser} />}
               </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
@@ -519,4 +520,3 @@ function MaybeCookieBanner({isWrapped}: {isWrapped: boolean}) {
 }
 
 export default registerComponent('Layout', Layout);
-

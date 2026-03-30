@@ -1681,6 +1681,7 @@ interface DbUser extends DbObject {
   autoSubscribeAsOrganizer: boolean
   auto_subscribe_to_my_comments: boolean
   auto_subscribe_to_my_posts: boolean
+  babyBulbyState: any | null
   banned: Date | null
   bannedPersonalUserIds: Array<string> | null
   bannedUserIds: Array<string> | null

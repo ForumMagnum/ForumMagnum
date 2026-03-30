@@ -4230,6 +4230,7 @@ interface User {
   inactiveSummaryEmailSentAt: Date | null;
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
+  babyBulbyState: any;
   givingSeason2025DonatedFlair: boolean;
   givingSeason2025VotedFlair: boolean;
 }
@@ -6475,6 +6476,7 @@ interface UpdateUserDataInput {
   userSurveyEmailSentAt?: Date | null;
   inactiveSummaryEmailSentAt?: Date | null;
   recommendationSettings?: RecommendationSettingsInput | null;
+  babyBulbyState?: any;
   givingSeason2025DonatedFlair?: boolean | null;
   givingSeason2025VotedFlair?: boolean | null;
 }
