@@ -25,9 +25,9 @@ const styles = defineStyles('NewspaperHeroArticle', () => ({
   },
   heroTitle: {
     fontFamily: headerStack,
-    fontSize: '36px',
+    fontSize: '32px',
     fontWeight: 400,
-    lineHeight: 1.2,
+    lineHeight: 1.15,
     marginBottom: 10,
     color: INK,
     '& a': {
@@ -35,7 +35,7 @@ const styles = defineStyles('NewspaperHeroArticle', () => ({
       textDecoration: 'none',
     },
     '@media (max-width: 768px)': {
-      fontSize: '28px',
+      fontSize: '24px',
     },
   },
   heroByline: {
@@ -51,8 +51,8 @@ const styles = defineStyles('NewspaperHeroArticle', () => ({
   },
   heroExcerpt: {
     fontFamily: serifStack,
-    fontSize: '17px',
-    lineHeight: 1.75,
+    fontSize: '15px',
+    lineHeight: 1.6,
     color: INK,
     display: '-webkit-box',
     WebkitLineClamp: 12,

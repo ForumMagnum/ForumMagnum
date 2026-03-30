@@ -35,9 +35,9 @@ const styles = defineStyles('NewspaperTertiaryArticle', () => ({
   },
   tertiaryTitle: {
     fontFamily: headerStack,
-    fontSize: '22px',
+    fontSize: '19px',
     fontWeight: 400,
-    lineHeight: 1.3,
+    lineHeight: 1.25,
     marginBottom: 6,
     color: INK,
     '& a': {
@@ -54,8 +54,8 @@ const styles = defineStyles('NewspaperTertiaryArticle', () => ({
   },
   tertiaryExcerpt: {
     fontFamily: serifStack,
-    fontSize: '17px',
-    lineHeight: 1.75,
+    fontSize: '15px',
+    lineHeight: 1.6,
     color: INK_SECONDARY,
     display: '-webkit-box',
     WebkitLineClamp: 8,

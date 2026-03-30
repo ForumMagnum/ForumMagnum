@@ -40,7 +40,7 @@ const styles = defineStyles('NewspaperCardArticle', () => ({
   cardTitle: {
     fontFamily: headerStack,
     fontWeight: 400,
-    lineHeight: 1.3,
+    lineHeight: 1.25,
     marginBottom: 6,
     marginTop: 20,
     minHeight: 55,
@@ -59,8 +59,8 @@ const styles = defineStyles('NewspaperCardArticle', () => ({
   },
   cardExcerpt: {
     fontFamily: serifStack,
-    fontSize: '17px',
-    lineHeight: 1.75,
+    fontSize: '15px',
+    lineHeight: 1.6,
     color: INK_SECONDARY,
     flex: 1,
     display: '-webkit-box',
@@ -97,10 +97,10 @@ const styles = defineStyles('NewspaperCardArticle', () => ({
 }), { allowNonThemeColors: true });
 
 const titleFontSizeTiers: [number, number][] = [
-  [30, 32],
-  [55, 28],
-  [80, 24],
-  [110, 20],
+  [30, 28],
+  [55, 24],
+  [80, 21],
+  [110, 18],
 ];
 
 function getTitleFontSize(title: string): number {
@@ -108,7 +108,7 @@ function getTitleFontSize(title: string): number {
   for (const [maxLen, size] of titleFontSizeTiers) {
     if (len <= maxLen) return size;
   }
-  return 16;
+  return 15;
 }
 
 const NewspaperCardArticle = ({post}:{post: PostsListWithVotes}) => {
