@@ -44,8 +44,21 @@ function toRoman(num: number): string {
   return result;
 }
 
+function shouldSkipFirstParagraph(innerHtml: string): boolean {
+  const textContent = innerHtml.replace(/<[^>]*>/g, '').trim();
+  if (textContent.toLowerCase().startsWith('epistemic status')) return true;
+  if (/^<(em|i)\b[^>]*>[\s\S]*<\/\1>$/i.test(innerHtml.trim())) return true;
+  if (textContent.length > 0 && textContent.length < 25) return true;
+  return false;
+}
+
 export function getPostExcerptHtml(post: PostsListWithVotes): string {
-  return post.customHighlight?.html ?? post.contents?.htmlHighlight ?? '';
+  const html = post.customHighlight?.html ?? post.contents?.htmlHighlight ?? '';
+  const firstParagraphMatch = html.match(/^(\s*<p[^>]*>)([\s\S]*?)(<\/p>)/i);
+  if (firstParagraphMatch && shouldSkipFirstParagraph(firstParagraphMatch[2])) {
+    return html.slice(firstParagraphMatch[0].length).trim();
+  }
+  return html;
 }
 
 export function formatAuthor(post: PostsListWithVotes): string {
@@ -56,6 +69,10 @@ export function formatAuthor(post: PostsListWithVotes): string {
 export function formatScore(score: number): string {
   if (score >= 1000) return `${(score / 1000).toFixed(1)}k`;
   return String(score);
+}
+
+export function getCoreTags(post: PostsListWithVotes): { name: string; slug: string }[] {
+  return (post.tags ?? []).filter(t => t.core).map(t => ({ name: t.name, slug: t.slug }));
 }
 
 export interface CoreTagGroup {

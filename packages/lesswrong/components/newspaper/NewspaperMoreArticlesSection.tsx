@@ -1,45 +1,56 @@
 import React from 'react';
 import type { PostsListWithVotes } from '@/lib/generated/gql-codegen/graphql';
-import { Link } from '@/lib/reactRouterWrapper';
-import { postGetPageUrl } from '@/lib/collections/posts/helpers';
-import { ContentItemBody } from '@/components/contents/ContentItemBody';
-import ContentStyles from '@/components/common/ContentStyles';
-import { formatAuthor, formatScore, getPostExcerptHtml } from './newspaperHelpers';
-import { newspaperStyles } from './newspaperStyles';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { sansSerifStack } from '@/themes/defaultPalette';
+import NewspaperTertiaryArticle from './NewspaperTertiaryArticle';
 
-const TertiaryArticle = ({post, classes}:{post: PostsListWithVotes, classes: ClassesType<typeof newspaperStyles>}) => {
-  const url = postGetPageUrl(post);
-  const excerptHtml = getPostExcerptHtml(post);
+const INK_TERTIARY = '#888888';
+const RULE_COLOR = '#DDDDDD';
 
-  return <article className={classes.tertiaryArticle}>
-    <h3 className={classes.tertiaryTitle}>
-      <Link to={url}>{post.title}</Link>
-    </h3>
-    <div className={classes.tertiaryByline}>
-      {formatAuthor(post)}
-    </div>
-    {excerptHtml && <ContentStyles contentType="postHighlight">
-      <div className={classes.tertiaryExcerpt}>
-        <ContentItemBody
-          dangerouslySetInnerHTML={{ __html: excerptHtml }}
-          description={`(newspaper tertiary) ${post.title}`}
-        />
-      </div>
-    </ContentStyles>}
-    <div className={classes.tertiaryMeta}>
-      {formatScore(post.baseScore ?? 0)}, {post.commentCount ?? 0} comments
-    </div>
-  </article>;
-};
+const styles = defineStyles('NewspaperMoreArticlesSection', () => ({
+  container: {
+    maxWidth: 1500,
+    margin: '0 auto',
+    padding: '0 48px',
+    '@media (max-width: 768px)': {
+      padding: '0 24px',
+    },
+  },
+  sectionRule: {
+    borderTop: `1px solid ${RULE_COLOR}`,
+    margin: '0',
+  },
+  sectionHeader: {
+    fontFamily: sansSerifStack,
+    fontSize: '11px',
+    letterSpacing: '3px',
+    textTransform: 'uppercase',
+    color: INK_TERTIARY,
+    textAlign: 'center',
+    margin: '32px 0 24px 0',
+  },
+  tertiaryGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr 1fr',
+    gap: 0,
+    '@media (max-width: 900px)': {
+      gridTemplateColumns: '1fr 1fr',
+    },
+    '@media (max-width: 600px)': {
+      gridTemplateColumns: '1fr',
+    },
+  },
+}), { allowNonThemeColors: true });
 
-const NewspaperMoreArticlesSection = ({classes, tertiaryPosts}:{classes: ClassesType<typeof newspaperStyles>, tertiaryPosts: PostsListWithVotes[]}) => {
+const NewspaperMoreArticlesSection = ({tertiaryPosts}:{tertiaryPosts: PostsListWithVotes[]}) => {
+  const classes = useStyles(styles);
   if (tertiaryPosts.length === 0) return null;
 
   return <div className={classes.container}>
     <hr className={classes.sectionRule} />
     <div className={classes.sectionHeader}>More Articles</div>
     <div className={classes.tertiaryGrid}>
-      {tertiaryPosts.map(post => <TertiaryArticle key={post._id} post={post} classes={classes} />)}
+      {tertiaryPosts.map(post => <NewspaperTertiaryArticle key={post._id} post={post} />)}
     </div>
   </div>;
 };

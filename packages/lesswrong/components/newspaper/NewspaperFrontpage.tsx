@@ -4,8 +4,8 @@ import React from 'react';
 import { useQuery } from '@/lib/crud/useQuery';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
-import { useStyles } from '@/components/hooks/useStyles';
-import { Link } from '@/lib/reactRouterWrapper';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { serifStack } from '@/themes/defaultPalette';
 import { postsListWithVotesDocument } from '@/lib/generated/gql-codegen/graphql';
 import moment from 'moment';
 import { registerComponent } from '@/lib/vulcan-lib/components';
@@ -15,10 +15,54 @@ import NewspaperTagSection from './NewspaperTagSection';
 import { useNewspaperFullWidthMode, groupPostsByCoreTag } from './newspaperHelpers';
 import NewspaperMasthead from './NewspaperMasthead';
 import NewspaperMoreArticlesSection from './NewspaperMoreArticlesSection';
-import { newspaperStyles } from './newspaperStyles';
+import NewspaperFooter from './NewspaperFooter';
+import { NEWSPAPER_BODY_CLASS } from './newspaperStyles';
+
+const BG_WHITE = '#FFFFFF';
+const INK = '#1A1A1A';
+const INK_TERTIARY = '#888888';
+
+const styles = defineStyles('NewspaperFrontpage', () => ({
+  '@global': {
+    [`body.${NEWSPAPER_BODY_CLASS} .RouteRootClient-main`]: {
+      overflowX: 'visible !important',
+    },
+    [`body.${NEWSPAPER_BODY_CLASS} .RouteRootClient-centralColumn`]: {
+      width: '100%',
+      maxWidth: 'none',
+      paddingTop: '0 !important',
+      paddingLeft: '0 !important',
+      paddingRight: '0 !important',
+    },
+    [`body.${NEWSPAPER_BODY_CLASS} .LeftAndRightSidebarsWrapper-spacedGridActivated`]: {
+      display: 'block !important',
+    },
+    [`body.${NEWSPAPER_BODY_CLASS} .Slide-wrapper`]: {
+      display: 'none !important',
+    },
+  },
+  pageWrapper: {
+    width: '100%',
+    background: BG_WHITE,
+    color: INK,
+    colorScheme: 'light',
+    minHeight: '100vh',
+    fontFamily: serifStack,
+    position: 'relative',
+    zIndex: 1,
+  },
+  loading: {
+    textAlign: 'center',
+    padding: '80px 0',
+    fontFamily: serifStack,
+    fontSize: '18px',
+    fontStyle: 'italic',
+    color: INK_TERTIARY,
+  },
+}), { allowNonThemeColors: true });
 
 const NewspaperFrontpage = () => {
-  const classes = useStyles(newspaperStyles);
+  const classes = useStyles(styles);
   const now = useCurrentTime();
   useNewspaperFullWidthMode();
   const dateCutoff = moment(now).subtract(7 * 24, 'hours').startOf('hour').toISOString();
@@ -63,20 +107,12 @@ const NewspaperFrontpage = () => {
   }
   return <AnalyticsContext pageContext="newspaperFrontpage">
     <div className={classes.pageWrapper}>
-      <NewspaperMasthead classes={classes} displayDate={displayDate} />
-      <NewspaperHeroSection classes={classes} heroPost={heroPost} cardPosts={cardPosts} />
-      {tagGroups.map(group => <NewspaperTagSection key={group.tagId} group={group} classes={classes} />)}
-      <NewspaperMoreArticlesSection classes={classes} tertiaryPosts={ungroupedPosts} />
-      <NewspaperBelowFold classes={classes} />
-      <div className={classes.footer}>
-        <div className={classes.footerText}>
-          <Link to="/?newspaper=false">Return to regular LessWrong</Link>
-          {' \u00B7 '}
-          The Less Wrong Times is a special April 1st edition.
-          {' \u00B7 '}
-          &copy; {displayDate.getFullYear()} LessWrong
-        </div>
-      </div>
+      <NewspaperMasthead displayDate={displayDate} />
+      <NewspaperHeroSection heroPost={heroPost} cardPosts={cardPosts} />
+      {tagGroups.map(group => <NewspaperTagSection key={group.tagId} group={group} />)}
+      <NewspaperMoreArticlesSection tertiaryPosts={ungroupedPosts} />
+      <NewspaperBelowFold />
+      <NewspaperFooter displayDate={displayDate} />
     </div>
   </AnalyticsContext>;
 };

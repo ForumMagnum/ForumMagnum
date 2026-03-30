@@ -1,39 +1,81 @@
 import React from 'react';
 import type { CoreTagGroup } from './newspaperHelpers';
 import { Link } from '@/lib/reactRouterWrapper';
-import { postGetPageUrl } from '@/lib/collections/posts/helpers';
-import { ContentItemBody } from '@/components/contents/ContentItemBody';
-import ContentStyles from '@/components/common/ContentStyles';
-import { formatAuthor, formatScore, getPostExcerptHtml } from './newspaperHelpers';
-import { newspaperStyles } from './newspaperStyles';
-import type { PostsListWithVotes } from '@/lib/generated/gql-codegen/graphql';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { headerStack, serifStack, sansSerifStack } from '@/themes/defaultPalette';
+import NewspaperHeroArticle from './NewspaperHeroArticle';
+import NewspaperCardArticle from './NewspaperCardArticle';
 
-const TagCardArticle = ({post, classes}: {post: PostsListWithVotes, classes: ClassesType<typeof newspaperStyles>}) => {
-  const url = postGetPageUrl(post);
-  const excerptHtml = getPostExcerptHtml(post);
-  return <article className={classes.card}>
-    <h2 className={classes.cardTitle}>
-      <Link to={url}>{post.title}</Link>
-    </h2>
-    <div className={classes.cardByline}>{formatAuthor(post)}</div>
-    {excerptHtml && <ContentStyles contentType="postHighlight">
-      <div className={classes.cardExcerpt}>
-        <ContentItemBody
-          dangerouslySetInnerHTML={{ __html: excerptHtml }}
-          description={`(newspaper tag card) ${post.title}`}
-        />
-      </div>
-    </ContentStyles>}
-    <div className={classes.cardMeta}>
-      {formatScore(post.baseScore ?? 0)}, {post.commentCount ?? 0} comments
-    </div>
-  </article>;
-};
+const INK = '#1A1A1A';
+const INK_TERTIARY = '#888888';
+const RULE_DARK = '#333333';
 
-const NewspaperTagSection = ({group, classes}: {group: CoreTagGroup, classes: ClassesType<typeof newspaperStyles>}) => {
-  const heroPost = group.heroPost;
-  const heroUrl = postGetPageUrl(heroPost);
-  const heroExcerpt = getPostExcerptHtml(heroPost);
+const styles = defineStyles('NewspaperTagSection', () => ({
+  tagSectionWrapper: {
+    marginTop: 32,
+  },
+  container: {
+    maxWidth: 1500,
+    margin: '0 auto',
+    padding: '0 48px',
+    '@media (max-width: 768px)': {
+      padding: '0 24px',
+    },
+  },
+  tagSectionRule: {
+    borderTop: `2px solid ${RULE_DARK}`,
+    margin: 0,
+  },
+  tagLabel: {
+    fontFamily: sansSerifStack,
+    fontSize: '32px',
+    fontWeight: 700,
+    letterSpacing: '4px',
+    textTransform: 'uppercase',
+    color: INK,
+    textAlign: 'center',
+    margin: '24px 0 4px 0',
+    '& a': {
+      color: INK,
+      textDecoration: 'none',
+    },
+  },
+  tagLabelSubtext: {
+    fontFamily: serifStack,
+    fontSize: '13px',
+    fontStyle: 'italic',
+    color: INK_TERTIARY,
+    textAlign: 'center',
+    marginBottom: 24,
+  },
+  heroSection: {
+    display: 'grid',
+    gridTemplateColumns: '2fr 3fr',
+    gap: 0,
+    marginTop: 32,
+    '@media (max-width: 900px)': {
+      gridTemplateColumns: '1fr',
+    },
+  },
+  cardsGrid: {
+    display: 'grid',
+    gridTemplateColumns: '1fr 1fr',
+    gridTemplateRows: '1fr 1fr',
+    gap: 0,
+    paddingLeft: 0,
+    '@media (max-width: 900px)': {
+      paddingLeft: 0,
+      marginTop: 24,
+    },
+    '@media (max-width: 600px)': {
+      gridTemplateColumns: '1fr',
+      gridTemplateRows: 'auto',
+    },
+  },
+}), { allowNonThemeColors: true });
+
+const NewspaperTagSection = ({group}: {group: CoreTagGroup}) => {
+  const classes = useStyles(styles);
   const tagUrl = `/tag/${group.tagSlug}`;
   const cardPosts = group.otherPosts.slice(0, 4);
   return <div className={classes.tagSectionWrapper}>
@@ -46,25 +88,9 @@ const NewspaperTagSection = ({group, classes}: {group: CoreTagGroup, classes: Cl
         {group.otherPosts.length + 1} articles this week
       </div>
       <div className={classes.heroSection}>
-        <article className={classes.heroMain}>
-          <h1 className={classes.heroTitle}>
-            <Link to={heroUrl}>{heroPost.title}</Link>
-          </h1>
-          <div className={classes.heroByline}>{formatAuthor(heroPost)}</div>
-          {heroExcerpt && <ContentStyles contentType="postHighlight">
-            <div className={classes.heroExcerpt}>
-              <ContentItemBody
-                dangerouslySetInnerHTML={{ __html: heroExcerpt }}
-                description={`(newspaper tag hero) ${heroPost.title}`}
-              />
-            </div>
-          </ContentStyles>}
-          <div className={classes.heroMeta}>
-            {formatScore(heroPost.baseScore ?? 0)}, {heroPost.commentCount ?? 0} comments
-          </div>
-        </article>
+        <NewspaperHeroArticle post={group.heroPost} />
         <div className={classes.cardsGrid}>
-          {cardPosts.map(post => <TagCardArticle key={post._id} post={post} classes={classes} />)}
+          {cardPosts.map(post => <NewspaperCardArticle key={post._id} post={post} />)}
         </div>
       </div>
     </div>
