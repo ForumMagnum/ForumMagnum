@@ -9,7 +9,7 @@ import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { headerStack, serifStack, sansSerifStack } from '@/themes/defaultPalette';
-import { truncateWithGrace } from '@/lib/editor/ellipsize';
+// Line-clamp used for excerpt truncation instead of word-based truncation
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
 import ContentStyles from '@/components/common/ContentStyles';
 import moment from 'moment';
@@ -18,6 +18,7 @@ import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import DeferRender from '@/components/common/DeferRender';
 import QuickTakesSection from '@/components/quickTakes/QuickTakesSection';
 import { HideNavigationSidebarContext } from '@/components/layout/HideNavigationSidebarContextProvider';
+
 
 import dynamic from 'next/dynamic';
 const RecentDiscussionFeed = dynamic(() => import("@/components/recentDiscussion/RecentDiscussionFeed"), { ssr: false });
@@ -45,15 +46,30 @@ const postsQuery = gql(`
 `);
 
 const styles = defineStyles('NewspaperFrontpage', () => ({
+  // Global override: when newspaper is active, remove the overflow clipping
+  // that prevents the 100vw trick from working
+  '@global': {
+    [`body.${NEWSPAPER_BODY_CLASS} .RouteRootClient-main`]: {
+      overflowX: 'visible !important',
+    },
+  },
   // Break out of the central column grid area to fill the full viewport
   pageWrapper: {
     width: '100vw',
     marginLeft: 'calc(-50vw + 50%)',
+    // Pull up to be flush with the header (negate centralColumn's paddingTop)
+    marginTop: -50,
     background: BG_WHITE,
     color: INK,
     colorScheme: 'light',
     minHeight: '100vh',
     fontFamily: serifStack,
+    // Ensure we're above the background image layer
+    position: 'relative',
+    zIndex: 1,
+    '@media (max-width: 600px)': {
+      marginTop: -10,
+    },
   },
   container: {
     maxWidth: 1100,
@@ -177,6 +193,10 @@ const styles = defineStyles('NewspaperFrontpage', () => ({
     fontSize: '17px',
     lineHeight: 1.75,
     color: INK,
+    display: '-webkit-box',
+    WebkitLineClamp: 12,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
     '& p': {
       marginBottom: '0.9em',
     },
@@ -257,6 +277,10 @@ const styles = defineStyles('NewspaperFrontpage', () => ({
     lineHeight: 1.6,
     color: INK_SECONDARY,
     flex: 1,
+    display: '-webkit-box',
+    WebkitLineClamp: 8,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
     '& p': {
       marginBottom: '0.5em',
     },
@@ -351,6 +375,10 @@ const styles = defineStyles('NewspaperFrontpage', () => ({
     fontSize: '14px',
     lineHeight: 1.55,
     color: INK_SECONDARY,
+    display: '-webkit-box',
+    WebkitLineClamp: 8,
+    WebkitBoxOrient: 'vertical',
+    overflow: 'hidden',
     '& p': {
       marginBottom: '0.4em',
     },
@@ -503,18 +531,8 @@ function toRoman(num: number): string {
   return result;
 }
 
-function getPostExcerptHtml(post: PostsListWithVotes, maxWords: number): string {
-  const html = post.customHighlight?.html ?? post.contents?.htmlHighlight ?? '';
-  if (!html) return '';
-  return truncateWithGrace(html, maxWords, 20);
-}
-
-function getPlaintextExcerpt(post: PostsListWithVotes, maxLength: number): string {
-  const text = post.contents?.plaintextDescription ?? '';
-  if (text.length <= maxLength) return text;
-  const truncated = text.slice(0, maxLength);
-  const lastSpace = truncated.lastIndexOf(' ');
-  return (lastSpace > 0 ? truncated.slice(0, lastSpace) : truncated) + '\u2026';
+function getPostExcerptHtml(post: PostsListWithVotes): string {
+  return post.customHighlight?.html ?? post.contents?.htmlHighlight ?? '';
 }
 
 function formatAuthor(post: PostsListWithVotes): string {
@@ -530,20 +548,29 @@ function formatScore(score: number): string {
 
 // === Sidebar hiding hook ===
 
-function useHideNavigationSidebar() {
+// CSS class added to document.body to override the grid overflow clipping
+// so the 100vw trick works for true full-width content
+const NEWSPAPER_BODY_CLASS = 'newspaper-fullwidth-active';
+
+function useNewspaperFullWidthMode() {
   const context = use(HideNavigationSidebarContext);
   const previousValueRef = useRef<boolean | null>(null);
 
   useEffect(() => {
-    if (!context) return;
+    // Hide sidebar
+    if (context) {
+      previousValueRef.current = context.hideNavigationSidebar;
+      context.setHideNavigationSidebar(true);
+    }
 
-    previousValueRef.current = context.hideNavigationSidebar;
-    context.setHideNavigationSidebar(true);
+    // Add body class to override overflow clipping on the grid wrapper
+    document.body.classList.add(NEWSPAPER_BODY_CLASS);
 
     return () => {
-      if (previousValueRef.current !== null) {
+      if (context && previousValueRef.current !== null) {
         context.setHideNavigationSidebar(previousValueRef.current);
       }
+      document.body.classList.remove(NEWSPAPER_BODY_CLASS);
     };
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -557,7 +584,7 @@ function HeroArticle({ post, classes }: {
   classes: ReturnType<typeof useStyles<typeof styles>>;
 }) {
   const url = postGetPageUrl(post);
-  const excerptHtml = getPostExcerptHtml(post, 300);
+  const excerptHtml = getPostExcerptHtml(post);
 
   return (
     <article className={classes.heroMain}>
@@ -589,7 +616,7 @@ function CardArticle({ post, classes }: {
   classes: ReturnType<typeof useStyles<typeof styles>>;
 }) {
   const url = postGetPageUrl(post);
-  const excerptHtml = getPostExcerptHtml(post, 80);
+  const excerptHtml = getPostExcerptHtml(post);
 
   return (
     <article className={classes.card}>
@@ -621,7 +648,7 @@ function TertiaryArticle({ post, classes }: {
   classes: ReturnType<typeof useStyles<typeof styles>>;
 }) {
   const url = postGetPageUrl(post);
-  const excerptHtml = getPostExcerptHtml(post, 60);
+  const excerptHtml = getPostExcerptHtml(post);
 
   return (
     <article className={classes.tertiaryArticle}>
@@ -631,7 +658,7 @@ function TertiaryArticle({ post, classes }: {
       <div className={classes.tertiaryByline}>
         {formatAuthor(post)}
       </div>
-      {excerptHtml ? (
+      {excerptHtml && (
         <ContentStyles contentType="postHighlight">
           <div className={classes.tertiaryExcerpt}>
             <ContentItemBody
@@ -640,10 +667,6 @@ function TertiaryArticle({ post, classes }: {
             />
           </div>
         </ContentStyles>
-      ) : (
-        <div className={classes.tertiaryExcerpt}>
-          {getPlaintextExcerpt(post, 120)}
-        </div>
       )}
       <div className={classes.tertiaryMeta}>
         {formatScore(post.baseScore ?? 0)} points, {post.commentCount ?? 0} comments
@@ -659,8 +682,8 @@ const NewspaperFrontpage = () => {
   const classes = useStyles(styles);
   const now = useCurrentTime();
 
-  // Hide the left navigation sidebar for the full-page newspaper layout
-  useHideNavigationSidebar();
+  // Hide the left navigation sidebar and enable full-width mode
+  useNewspaperFullWidthMode();
 
   const dateCutoff = moment(now).subtract(7 * 24, 'hours').startOf('hour').toISOString();
 
