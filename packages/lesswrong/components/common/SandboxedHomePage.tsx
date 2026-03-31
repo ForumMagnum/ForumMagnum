@@ -1,12 +1,12 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getSandboxedHomePageSrcdoc } from './SandboxedHomePageSrcdoc';
 import { useCurrentUser } from '../common/withUser';
 import { useHomeDesignChat } from './HomeDesignChatContext';
 import HomeDesignChatPanel from './HomeDesignChatPanel';
+import DeferRender from './DeferRender';
 
 const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
   root: {
@@ -126,12 +126,11 @@ const SandboxedHomePage = () => {
     return () => window.removeEventListener('message', onMessage);
   }, [handleRpc]);
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const defaultSrcdoc = getSandboxedHomePageSrcdoc({ origin });
   const srcdoc = designChat?.customSrcdoc ?? defaultSrcdoc;
 
   return (
-    <>
+    <DeferRender ssr={false}>
       <div className={classes.root}>
         <iframe
           ref={iframeRef}
@@ -149,8 +148,8 @@ const SandboxedHomePage = () => {
         </button>
       )}
       <HomeDesignChatPanel />
-    </>
+    </DeferRender>
   );
 };
 
-export default registerComponent('SandboxedHomePage', SandboxedHomePage, {});
+export default SandboxedHomePage;
