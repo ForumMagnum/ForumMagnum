@@ -136,7 +136,7 @@ const SandboxedHomePage = () => {
         <iframe
           ref={iframeRef}
           className={classes.iframe}
-          sandbox="allow-scripts"
+          sandbox="allow-scripts allow-top-navigation-by-user-activation"
           srcDoc={srcdoc}
         />
       </div>
