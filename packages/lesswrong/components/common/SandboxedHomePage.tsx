@@ -5,17 +5,12 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getSandboxedHomePageSrcdoc } from './SandboxedHomePageSrcdoc';
 import { useCurrentUser } from '../common/withUser';
+import { useHomeDesignChat } from './HomeDesignChatContext';
+import HomeDesignChatPanel from './HomeDesignChatPanel';
 
 const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
   root: {
-    // The parent grid column is `minmax(0, min-content)`, so percentage-based
-    // widths collapse to 0. Use a fixed width matching the site's content column.
-    width: 760,
-    maxWidth: 'calc(100vw - 16px)',
-    [theme.breakpoints.down('sm')]: {
-      width: '100vw',
-      maxWidth: '100vw',
-    },
+    width: '100%',
     position: 'relative',
   },
   iframe: {
@@ -23,6 +18,28 @@ const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
     border: 'none',
     // Height is set dynamically via postMessage from the iframe content
     minHeight: 500,
+  },
+  customizeButton: {
+    position: 'fixed',
+    bottom: 24,
+    right: 80,
+    zIndex: theme.zIndexes.lwPopper - 1,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '10px 18px',
+    background: '#5f9b65',
+    color: '#fff',
+    border: 'none',
+    borderRadius: 24,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 14,
+    fontWeight: 500,
+    cursor: 'pointer',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+    '&:hover': {
+      background: '#4e8a54',
+    },
   },
 }));
 
@@ -54,6 +71,7 @@ const SandboxedHomePage = () => {
   const classes = useStyles(styles);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const currentUser = useCurrentUser();
+  const designChat = useHomeDesignChat();
 
   const handleRpc = useCallback(async (method: string, params: Record<string, unknown>): Promise<unknown> => {
     switch (method) {
@@ -109,25 +127,37 @@ const SandboxedHomePage = () => {
     return () => window.removeEventListener('message', onMessage);
   }, [handleRpc]);
 
-  const srcdoc = getSandboxedHomePageSrcdoc();
+  const defaultSrcdoc = getSandboxedHomePageSrcdoc();
+  const srcdoc = designChat?.customSrcdoc ?? defaultSrcdoc;
 
   return (
-    <div className={classes.root}>
-      {/* The `csp` attribute is not in React's type definitions but is a valid
-         HTML attribute for iframe CSP Embedded Enforcement (Chrome 61+).
-         We apply it via ref as a workaround for the missing type. */}
-      <iframe
-        ref={(el) => {
-          iframeRef.current = el;
-          if (el) {
-            el.setAttribute('csp', IFRAME_CSP);
-          }
-        }}
-        className={classes.iframe}
-        sandbox="allow-scripts"
-        srcDoc={srcdoc}
-      />
-    </div>
+    <>
+      <div className={classes.root}>
+        {/* The `csp` attribute is not in React's type definitions but is a valid
+           HTML attribute for iframe CSP Embedded Enforcement (Chrome 61+).
+           We apply it via ref as a workaround for the missing type. */}
+        <iframe
+          ref={(el) => {
+            iframeRef.current = el;
+            if (el) {
+              el.setAttribute('csp', IFRAME_CSP);
+            }
+          }}
+          className={classes.iframe}
+          sandbox="allow-scripts"
+          srcDoc={srcdoc}
+        />
+      </div>
+      {designChat && !designChat.isOpen && (
+        <button
+          className={classes.customizeButton}
+          onClick={() => designChat.setIsOpen(true)}
+        >
+          ✨ Customize
+        </button>
+      )}
+      <HomeDesignChatPanel />
+    </>
   );
 };
 
