@@ -171,20 +171,13 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
       display: "none"
     }
   },
-  titleSubtitleContainer: {
-    display: 'flex',
-    alignItems: 'center'
-  },
-  titleFundraiserContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
   title: {
-    flex: 1,
+    display: "flex",
+    overflow: "hidden",
+    flexGrow: 1,
+    flexShrink: 1,
     position: "relative",
     top: 3,
-    paddingRight: 8,
     color: theme.palette.text.secondary,
   },
   titleLink: {
@@ -227,6 +220,11 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
   },
   hideXsDown: {
     [theme.breakpoints.down('xs')]: {
+      display: "none !important",
+    },
+  },
+  hideSmUp: {
+    [theme.breakpoints.up('sm')]: {
       display: "none !important",
     },
   },
@@ -551,22 +549,17 @@ const Header = ({
           >
             <div className={classes.toolbar}>
               {navigationMenuButton}
-              <Typography className={classes.title} variant="title">
-                <div className={classes.hideSmDown}>
-                  <div className={classes.titleSubtitleContainer}>
-                    <div className={classes.titleFundraiserContainer}>
-                      <Link to="/" className={classes.titleLink}>
-                        {forumHeaderTitleSetting.get()}
-                      </Link>
-                    </div>
-                    <HeaderSubtitle />
-                  </div>
-                </div>
-                <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
-                  <Link to="/" className={classes.titleLink}>
-                    {forumShortTitleSetting.get()}
-                  </Link>
-                </div>
+
+              <Typography className={classNames(classes.title, classes.hideXsDown)} variant="title">
+                <Link to="/" className={classes.titleLink}>
+                  {forumHeaderTitleSetting.get()}
+                </Link>
+                <HeaderSubtitle />
+              </Typography>
+              <Typography className={classNames(classes.title, classes.hideSmUp)} variant="title">
+                <Link to="/" className={classes.titleLink}>
+                  {forumShortTitleSetting.get()}
+                </Link>
               </Typography>
               {rightHeaderItemsNode}
             </div>
