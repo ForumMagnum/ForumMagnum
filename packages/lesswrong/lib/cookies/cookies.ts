@@ -58,6 +58,19 @@ export const HIDE_HANDBOOK_COOKIE = registerCookie({
   description: "Whether to hide the EA Handbook on the EA Forum home page",
 });
 
+// Strangler fig migration cookies
+export const PREFER_NEW_SITE_COOKIE = registerCookie({
+  name: "prefer_ea_forum_v3",
+  type: "necessary",
+  description: "Opt-in to use the new EA Forum site where available",
+});
+
+export const NEW_SITE_OWNED_ROUTES_COOKIE = registerCookie({
+  name: "ea_forum_v3_owned_routes",
+  type: "necessary",
+  description: "JSON blob indicating which routes are handled by the new EA Forum site",
+});
+
 export const SHOW_PODCAST_PLAYER_COOKIE = registerCookie({
   name: "show_post_podcast_player",
   type: "necessary",
