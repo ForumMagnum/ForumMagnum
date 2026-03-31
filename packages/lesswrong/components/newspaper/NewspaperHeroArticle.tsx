@@ -2,10 +2,9 @@ import React from 'react';
 import type { PostsListWithVotes } from '@/lib/generated/gql-codegen/graphql';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
-import { ContentItemBody } from '@/components/contents/ContentItemBody';
-import ContentStyles from '@/components/common/ContentStyles';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { headerStack, serifStack, sansSerifStack } from '@/themes/defaultPalette';
+import NewspaperJustifiedText from './NewspaperJustifiedText';
 import { formatAuthor, formatScore, getCoreTags, getPostExcerptHtml } from './newspaperHelpers';
 
 const INK = '#1A1A1A';
@@ -54,20 +53,7 @@ const styles = defineStyles('NewspaperHeroArticle', () => ({
     fontSize: '15px',
     lineHeight: 1.6,
     color: INK,
-    display: '-webkit-box',
-    WebkitLineClamp: 12,
-    WebkitBoxOrient: 'vertical',
     overflow: 'hidden',
-    '& p': {
-      marginBottom: '0.9em',
-    },
-    '& a': {
-      color: INK,
-    },
-    '& h1, & h2, & h3, & h4': {
-      fontSize: '1.1em',
-      marginBottom: '0.5em',
-    },
   },
   heroMeta: {
     fontFamily: sansSerifStack,
@@ -99,14 +85,9 @@ const NewspaperHeroArticle = ({post}:{post: PostsListWithVotes}) => {
     <div className={classes.heroByline}>
       {formatAuthor(post)}
     </div>
-    {excerptHtml && <ContentStyles contentType="postHighlight">
-      <div className={classes.heroExcerpt}>
-        <ContentItemBody
-          dangerouslySetInnerHTML={{ __html: excerptHtml }}
-          description={`(newspaper hero) ${post.title}`}
-        />
-      </div>
-    </ContentStyles>}
+    {excerptHtml && <div className={classes.heroExcerpt}>
+      <NewspaperJustifiedText html={excerptHtml} maxLines={12} />
+    </div>}
     <div className={classes.heroMeta}>
       <span>
         {formatScore(post.baseScore ?? 0)}

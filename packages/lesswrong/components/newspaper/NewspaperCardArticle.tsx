@@ -2,10 +2,9 @@ import React from 'react';
 import type { PostsListWithVotes } from '@/lib/generated/gql-codegen/graphql';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
-import { ContentItemBody } from '@/components/contents/ContentItemBody';
-import ContentStyles from '@/components/common/ContentStyles';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { headerStack, serifStack, sansSerifStack } from '@/themes/defaultPalette';
+import NewspaperJustifiedText from './NewspaperJustifiedText';
 import { formatAuthor, formatScore, getCoreTags, getPostExcerptHtml } from './newspaperHelpers';
 
 const INK = '#1A1A1A';
@@ -41,6 +40,7 @@ const styles = defineStyles('NewspaperCardArticle', () => ({
     lineHeight: 1.25,
     marginBottom: 8,
     marginTop: 20,
+    textWrap: 'pretty',
     minHeight: "unset",
     color: INK,
     '& a': {
@@ -61,20 +61,7 @@ const styles = defineStyles('NewspaperCardArticle', () => ({
     lineHeight: 1.6,
     color: INK_SECONDARY,
     flex: 1,
-    display: '-webkit-box',
-    WebkitLineClamp: 8,
-    WebkitBoxOrient: 'vertical',
     overflow: 'hidden',
-    '& p': {
-      marginBottom: '0.5em',
-    },
-    '& a': {
-      color: INK_SECONDARY,
-    },
-    '& h1, & h2, & h3, & h4': {
-      fontSize: '1em',
-      marginBottom: '0.4em',
-    },
   },
   cardMeta: {
     marginTop: "auto",
@@ -125,14 +112,9 @@ const NewspaperCardArticle = ({post}:{post: PostsListWithVotes}) => {
         {formatAuthor(post)}
       </div>
     </div>
-    {excerptHtml && <ContentStyles contentType="postHighlight">
-      <div className={classes.cardExcerpt}>
-        <ContentItemBody
-          dangerouslySetInnerHTML={{ __html: excerptHtml }}
-          description={`(newspaper card) ${post.title}`}
-        />
-      </div>
-    </ContentStyles>}
+    {excerptHtml && <div className={classes.cardExcerpt}>
+      <NewspaperJustifiedText html={excerptHtml} maxLines={8} />
+    </div>}
     <div className={classes.cardMeta}>
       <span>
         {formatScore(post.baseScore ?? 0)}

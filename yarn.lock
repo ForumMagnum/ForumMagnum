@@ -2437,6 +2437,11 @@
     pony-cause "^2.1.4"
     type-fest "^2.18.0"
 
+"@chenglou/pretext@^0.0.3":
+  version "0.0.3"
+  resolved "https://registry.yarnpkg.com/@chenglou/pretext/-/pretext-0.0.3.tgz#877f847afa8ea6a268d530a214369cfa0475dde1"
+  integrity sha512-RQmqMqUAPRCyv4R3LlRi/ao6KbNWYclqLA+V1HS7sWgyUUbjn3JmmlfXZSY/BjM4rbmIaMSyIVisYocYGYftiQ==
+
 "@ckeditor/ckeditor5-adapter-ckfinder@47.4.0":
   version "47.4.0"
   resolved "https://registry.yarnpkg.com/@ckeditor/ckeditor5-adapter-ckfinder/-/ckeditor5-adapter-ckfinder-47.4.0.tgz#7ff01dc465a8cd71f7a1acd0e9f943649ffce9df"

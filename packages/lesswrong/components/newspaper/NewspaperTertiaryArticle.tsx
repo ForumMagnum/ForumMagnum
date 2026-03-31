@@ -2,10 +2,9 @@ import React from 'react';
 import type { PostsListWithVotes } from '@/lib/generated/gql-codegen/graphql';
 import { Link } from '@/lib/reactRouterWrapper';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
-import { ContentItemBody } from '@/components/contents/ContentItemBody';
-import ContentStyles from '@/components/common/ContentStyles';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { headerStack, serifStack, sansSerifStack } from '@/themes/defaultPalette';
+import NewspaperJustifiedText from './NewspaperJustifiedText';
 import { formatAuthor, formatScore, getPostExcerptHtml } from './newspaperHelpers';
 
 const INK = '#1A1A1A';
@@ -42,16 +41,7 @@ const styles = defineStyles('NewspaperTertiaryArticle', () => ({
     fontSize: '15px',
     lineHeight: 1.6,
     color: INK_SECONDARY,
-    display: '-webkit-box',
-    WebkitLineClamp: 8,
-    WebkitBoxOrient: 'vertical',
     overflow: 'hidden',
-    '& p': {
-      marginBottom: '0.4em',
-    },
-    '& a': {
-      color: INK_SECONDARY,
-    },
   },
   tertiaryMeta: {
     fontFamily: sansSerifStack,
@@ -73,14 +63,9 @@ const NewspaperTertiaryArticle = ({post}:{post: PostsListWithVotes}) => {
     <div className={classes.tertiaryByline}>
       {formatAuthor(post)}
     </div>
-    {excerptHtml && <ContentStyles contentType="postHighlight">
-      <div className={classes.tertiaryExcerpt}>
-        <ContentItemBody
-          dangerouslySetInnerHTML={{ __html: excerptHtml }}
-          description={`(newspaper tertiary) ${post.title}`}
-        />
-      </div>
-    </ContentStyles>}
+    {excerptHtml && <div className={classes.tertiaryExcerpt}>
+      <NewspaperJustifiedText html={excerptHtml} maxLines={8} />
+    </div>}
     <div className={classes.tertiaryMeta}>
       {formatScore(post.baseScore ?? 0)}, {post.commentCount ?? 0} comments
     </div>
