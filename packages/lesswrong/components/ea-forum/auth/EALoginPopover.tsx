@@ -244,7 +244,6 @@ export const EALoginPopover = ({
   facebookEnabled = auth0FacebookLoginEnabled.get(),
   googleEnabled = true,
   signupTitle,
-  signupMessage,
   classes,
 }: {
   action?: LoginAction | null,
@@ -252,7 +251,6 @@ export const EALoginPopover = ({
   facebookEnabled?: boolean,
   googleEnabled?: boolean,
   signupTitle?: string,
-  signupMessage?: React.ReactNode,
   classes: ClassesType<typeof styles>,
 }) => {
   const {loginAction, setLoginAction} = useLoginPopoverContext();
@@ -425,11 +423,6 @@ export const EALoginPopover = ({
         <div className={classes.lightbulb}>{lightbulbIcon}</div>
         <div className={classes.title}>{title}</div>
         <div className={classes.formContainer}>
-          {isSignup && signupMessage && !showFacebookWarning && (
-            <div className={classes.message}>
-              {signupMessage}
-            </div>
-          )}
           {showFacebookWarning && (
             <div className={classes.facebookWarning}>
               <p>

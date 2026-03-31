@@ -6,10 +6,12 @@ import { isEAForum } from "../../lib/instanceSettings";
 import { useSubscribedLocation } from "../../lib/routeUtil";
 import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { useRefetchCurrentUser } from "../common/withUser";
+import { useDialog } from "../common/withDialog";
 import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
 import { useCookiePreferences } from "../hooks/useCookiesWithConsent";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useConcreteThemeOptions } from "../themes/useTheme";
+import LoginPopup from "../users/LoginPopup";
 import {
   babyBulbyAnimations,
   babyBulbySpritePalette,
@@ -534,6 +536,7 @@ const BabyBulby = ({
   const concreteThemeOptions = useConcreteThemeOptions();
   const { currentRoute, pathname, params } = useSubscribedLocation();
   const refetchCurrentUser = useRefetchCurrentUser();
+  const { openDialog } = useDialog();
   const updateCurrentUser = useUpdateCurrentUser();
   const { explicitConsentGiven, explicitConsentRequired } = useCookiePreferences();
   const isAdminViewer = !!currentUser?.isAdmin;
@@ -1233,9 +1236,22 @@ const BabyBulby = ({
   }, [clampPosition, showCookieBanner]);
 
   /*
-   * Full-release note: restore the logged-out egg click handler and signup prompt here.
-   * The pre-launch admin-only build intentionally hides the egg experience entirely.
+   * Full-release note: this handler is restored now, but remains unreachable in the
+   * soft launch because Layout only mounts BabyBulby for admins and this component
+   * returns null for non-admin viewers below.
    */
+  const openClaimPrompt = useCallback(() => {
+    openDialog({
+      name: "LoginPopup",
+      contents: ({onClose}) => (
+        <LoginPopup
+          onClose={onClose}
+          startingState="signup"
+          signupTitle="Hatch the egg by signing up"
+        />
+      ),
+    });
+  }, [openDialog]);
 
   const onPointerDown = useCallback((event: React.PointerEvent<HTMLButtonElement>) => {
     if (event.button !== 0) {
@@ -1299,8 +1315,13 @@ const BabyBulby = ({
       suppressClickRef.current = false;
       event.preventDefault();
       event.stopPropagation();
+      return;
     }
-  }, []);
+
+    if (displayStage === "egg") {
+      openClaimPrompt();
+    }
+  }, [displayStage, openClaimPrompt]);
 
   // Admin-only soft-launch cheat: keep direct hunger editing available for testers.
   const setTestHungerFromSegment = useCallback((segmentIndex: number) => {
@@ -1355,11 +1376,12 @@ const BabyBulby = ({
         onPointerMove={onPointerMove}
         onPointerUp={finishPointerGesture}
         onPointerCancel={finishPointerGesture}
-        aria-label="Your Baby Bulby"
+        aria-label={displayStage === "egg" ? "Claim Baby Bulby" : "Your Baby Bulby"}
       >
         <span className={classes.srOnly}>
-          {/* Full-release note: restore egg-specific screenreader copy if the logged-out experience returns. */}
-          {`Your Baby Bulby. Hunger ${displayedHunger ?? HUNGER_DEFAULT} out of ${HUNGER_MAX}.`}
+          {displayStage === "egg"
+            ? "Create an account to hatch Baby Bulby"
+            : `Your Baby Bulby. Hunger ${displayedHunger ?? HUNGER_DEFAULT} out of ${HUNGER_MAX}.`}
         </span>
         <div className={classes.artFrame}>
           <SpriteGrid grid={currentSpriteGrid} isDarkMode={isDarkMode} />
