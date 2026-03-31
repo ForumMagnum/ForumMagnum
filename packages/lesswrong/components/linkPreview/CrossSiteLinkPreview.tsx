@@ -191,7 +191,7 @@ export const CrossSiteLinkPreview = ({
     },
   });
 
-  const { data, loading, refetch } = useQuery(CrossSiteLinkPreviewQuery, {
+  const queryResult = useQuery(CrossSiteLinkPreviewQuery, {
     variables: {
       url: href,
       forceRefetch: false,
@@ -200,6 +200,7 @@ export const CrossSiteLinkPreview = ({
     ssr: false,
     fetchPolicy: "cache-first",
   });
+  const { data, loading, refetch } = queryResult;
 
   const previewData = data?.crossSiteLinkPreview;
   const imageLayout = getPreviewImageLayout(previewData?.imageWidth, previewData?.imageHeight);

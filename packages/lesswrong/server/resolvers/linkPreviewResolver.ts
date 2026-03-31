@@ -239,18 +239,17 @@ function cleanBodyText(text: string): string {
     .trim();
 }
 
-function extractWikipediaBodyDescription($: CheerioAPI): ExtractedValue {
-  const selectors = [
-    "#mw-content-text .mw-parser-output > p",
-    ".mw-parser-output > p",
-    "#mw-content-text p",
-  ];
+function extractBodyDescriptionFromSelectors(
+  $: CheerioAPI,
+  selectors: string[],
+  minLength = 80,
+): ExtractedValue {
   for (const selector of selectors) {
     const paragraphs = $(selector);
     for (const paragraph of paragraphs.toArray()) {
       const selected = $(paragraph);
       const cleaned = cleanBodyText(selected.text());
-      if (cleaned.length >= 80) {
+      if (cleaned.length >= minLength) {
         return {
           value: truncate(cleaned),
           source: truncate($.html(selected)),
@@ -262,6 +261,14 @@ function extractWikipediaBodyDescription($: CheerioAPI): ExtractedValue {
     value: null,
     source: null,
   };
+}
+
+function extractWikipediaBodyDescription($: CheerioAPI): ExtractedValue {
+  return extractBodyDescriptionFromSelectors($, [
+    "#mw-content-text .mw-parser-output > p",
+    ".mw-parser-output > p",
+    "#mw-content-text p",
+  ]);
 }
 
 function isLikelySubstackPage($: CheerioAPI, pageUrl: string): boolean {
@@ -279,28 +286,26 @@ function isLikelySubstackPage($: CheerioAPI, pageUrl: string): boolean {
 }
 
 function extractSubstackBodyDescription($: CheerioAPI): ExtractedValue {
-  const selectors = [
+  return extractBodyDescriptionFromSelectors($, [
     ".available-content .body.markup > p",
     ".available-content .body > p",
     "article.newsletter-post p",
-  ];
-  for (const selector of selectors) {
-    const paragraphs = $(selector);
-    for (const paragraph of paragraphs.toArray()) {
-      const selected = $(paragraph);
-      const cleaned = cleanBodyText(selected.text());
-      if (cleaned.length >= 80) {
-        return {
-          value: truncate(cleaned),
-          source: truncate($.html(selected)),
-        };
-      }
-    }
-  }
-  return {
-    value: null,
-    source: null,
-  };
+  ]);
+}
+
+function extractGenericBodyDescription($: CheerioAPI): ExtractedValue {
+  return extractBodyDescriptionFromSelectors($, [
+    "body > main > article .content > p",
+    "body > main > article .entry-content > p",
+    "body > main > article .post-content > p",
+    "body > main > article p",
+    "article .content > p",
+    "article .entry-content > p",
+    "article .post-content > p",
+    "article p",
+    "main article p",
+    "main p",
+  ]);
 }
 
 function extractDescriptionWithFallback($: CheerioAPI, pageUrl: string): ExtractedValue {
@@ -316,6 +321,10 @@ function extractDescriptionWithFallback($: CheerioAPI, pageUrl: string): Extract
     if (fromBody.value) {
       return fromBody;
     }
+  }
+  const fromGenericBody = extractGenericBodyDescription($);
+  if (fromGenericBody.value) {
+    return fromGenericBody;
   }
   if (fromMeta.value) {
     return fromMeta;
@@ -424,7 +433,7 @@ function buildSanitizedPreviewHtml({
 }): string | null {
   const pieces: string[] = [];
   const cleanedDescription = stripTitleFromDescription(title, description);
-  if (shouldIncludeSiteName({ title, description: cleanedDescription, siteName })) {
+  if (siteName && shouldIncludeSiteName({ title, description: cleanedDescription, siteName })) {
     pieces.push(`<div>${escapeHtml(siteName)}</div>`);
   }
   if (cleanedDescription) {
