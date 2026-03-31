@@ -1,24 +1,12 @@
-import { streamText, generateText, UIMessage, convertToModelMessages } from 'ai';
-// eslint-disable-next-line no-restricted-imports
-import { createOpenAI, OpenAIChatLanguageModelOptions } from '@ai-sdk/openai';
+import { streamText, generateText, UIMessage, convertToModelMessages, LanguageModel } from 'ai';
 import { z } from 'zod';
-import { openAIApiKey } from '@/server/databaseSettings';
-import { anthropicApiKey } from "@/lib/instanceSettings";
-import { AnthropicLanguageModelOptions, AnthropicProvider, createAnthropic } from '@ai-sdk/anthropic';
 import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import HomePageDesigns from "@/server/collections/homePageDesigns/collection";
 import { HOME_DESIGN_SHARED_PROMPT } from "@/lib/homeDesignPrompt";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { NextRequest } from "next/server";
 
-type ExtractLiterals<T> = T extends string
-  ? string extends T
-    ? never
-    : T
-  : never;
-
 async function generateDesignTitle(
-  anthropic: AnthropicProvider,
   messages: UIMessage[],
 ): Promise<string> {
   const userMessages = messages
@@ -28,7 +16,7 @@ async function generateDesignTitle(
 
   try {
     const result = await generateText({
-      model: anthropic('claude-haiku-4-5-20251001'),
+      model: 'anthropic/claude-haiku-4-5-20251001',
       system: 'Generate a short title (3-6 words, no quotes) for a home page design based on the user\'s request. Respond with ONLY the title, nothing else.',
       prompt: userMessages,
       maxOutputTokens: 30,
@@ -48,27 +36,17 @@ When the user asks you to apply, preview, or submit a design, call the submitHom
 export async function POST(req: NextRequest) {
   const { messages, publicId: clientPublicId }: { messages: UIMessage[], publicId?: string } = await req.json();
 
-  const openAiApiKey = openAIApiKey.get();
-  if (!openAiApiKey) {
-    return new Response('OpenAI API key not configured', { status: 500 });
-  }
-
-  const anthropicKey = anthropicApiKey.get();
-
   const currentUser = await getUserFromReq(req);
   const clientId = req.cookies.get('clientId')?.value ?? null;
   const ownerId = currentUser?._id ?? clientId;
 
-  const openai = createOpenAI({ apiKey: openAiApiKey });
-  const anthropic = createAnthropic({ apiKey: anthropicKey });
-
   let publicId = clientPublicId ?? null;
 
-  const modelId: ExtractLiterals<Parameters<typeof anthropic>[0]>= 'claude-sonnet-4-6';
+  // NOTE: Model switching for OpenAI models (e.g. 'openai/gpt-5.4') to be implemented.
+  // All gateway model IDs use the 'provider/model' format.
+  const modelId: LanguageModel = 'anthropic/claude-sonnet-4-6';
   const result = streamText({
-    // model: openai('gpt-5.4'),
-    // model: anthropic('claude-haiku-4-5-20251001'),
-    model: anthropic(modelId),
+    model: modelId,
     system: { role: 'system', content: SYSTEM_PROMPT, providerOptions: { anthropic: { cacheControl: { type: 'ephemeral' } } } },
     messages: await convertToModelMessages(messages),
     tools: {
@@ -119,7 +97,7 @@ export async function POST(req: NextRequest) {
             publicId = newId;
 
             // Generate a title in the background for new designs
-            backgroundTask(generateDesignTitle(anthropic, messages).then(
+            backgroundTask(generateDesignTitle(messages).then(
               (title) => HomePageDesigns.rawUpdateOne(
                 { _id: newId },
                 { $set: { title } },
@@ -134,10 +112,10 @@ export async function POST(req: NextRequest) {
     providerOptions: {
       openai: {
         reasoningEffort: 'medium',
-      } satisfies OpenAIChatLanguageModelOptions,
+      },
       anthropic: {
-        thinking: { type: 'enabled', budgetTokens: 2048, },
-      } satisfies AnthropicLanguageModelOptions,
+        thinking: { type: 'enabled', budgetTokens: 2048 },
+      },
     },
     onFinish: (result) => {
       // eslint-disable-next-line no-console
