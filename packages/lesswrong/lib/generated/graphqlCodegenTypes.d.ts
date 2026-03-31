@@ -12872,19 +12872,6 @@ type multiCommentCommentsListCondensedQueryQueryVariables = Exact<{
 
 type multiCommentCommentsListCondensedQueryQuery = multiCommentCommentsListCondensedQueryQuery_Query;
 
-type HeaderEventSubtitleSpotlightQueryQuery_currentSpotlight_Spotlight = (
-  { __typename?: 'Spotlight' }
-  & SpotlightHeaderEventSubtitle
-);
-
-type HeaderEventSubtitleSpotlightQueryQuery_Query = { __typename?: 'Query', currentSpotlight: HeaderEventSubtitleSpotlightQueryQuery_currentSpotlight_Spotlight | null };
-
-
-type HeaderEventSubtitleSpotlightQueryQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-type HeaderEventSubtitleSpotlightQueryQuery = HeaderEventSubtitleSpotlightQueryQuery_Query;
-
 type PostExcerptQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & HighlightWithHash
