@@ -72,6 +72,12 @@ const globalStyle = (theme: ThemeType) => ({
     textDecoration: "none",
     opacity: 0.5,
   },
+
+  // Don't dim images inside links on hover — the opacity effect is meant for
+  // text links and looks bad when applied to linked images.
+  "a:has(img):hover, a:has(img):active": {
+    opacity: 1,
+  },
   
   // Hide ReCaptcha box (see: https://developers.google.com/recaptcha/docs/faq)
   ".grecaptcha-badge": {

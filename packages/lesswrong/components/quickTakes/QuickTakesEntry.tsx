@@ -5,6 +5,8 @@ import CommentsNewForm, {
 import classNames from "classnames";
 import { useDialog } from "../common/withDialog";
 import { getCommentsNewFormPadding } from "@/lib/collections/comments/constants";
+import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
+import { useNavigate } from "@/lib/routeUtil";
 import LoginPopup from "../users/LoginPopup";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -102,6 +104,7 @@ const QuickTakesEntry = ({currentUser, defaultExpanded = false, defaultFocus = f
   const classes = useStyles(styles);
   const ref = useRef<HTMLDivElement>(null);
   const { openDialog } = useDialog();
+  const navigate = useNavigate();
   const [expanded, setExpanded] = useState(defaultExpanded);
 
   const onCancel = useCallback(async (ev?: MouseEvent) => {
@@ -133,6 +136,16 @@ const QuickTakesEntry = ({currentUser, defaultExpanded = false, defaultFocus = f
       contents: ({onClose}) => <LoginPopup onClose={onClose} />
     });
   }, [currentUser, openDialog, expanded]);
+
+  const handleSuccess = useCallback(async (comment: CommentsList) => {
+    await successCallback?.(comment);
+    navigate(comment.draft
+      ? '/drafts#quick-take-drafts'
+      : commentGetPageUrlFromIds({
+          postId: comment.postId,
+          commentId: comment._id,
+        }));
+  }, [navigate, successCallback]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -168,7 +181,7 @@ const QuickTakesEntry = ({currentUser, defaultExpanded = false, defaultFocus = f
           [classes.commentFormCollapsed]: !expanded,
         })}
         cancelCallback={onCancel}
-        successCallback={successCallback}
+        successCallback={handleSuccess}
         overrideHintText={placeholder}
         quickTakesSubmitButtonAtBottom={submitButtonAtBottom}
       />

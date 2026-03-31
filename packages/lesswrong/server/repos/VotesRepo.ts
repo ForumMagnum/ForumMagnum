@@ -188,7 +188,6 @@ class VotesRepo extends AbstractRepo<"Votes"> {
           tagName: votedContent.commentTagName,
           tagCommentType: votedContent.commentTagCommentType,
           tagSlug: null,
-          eaAddedReacts: null,
         });
       } else if (votedContent.collectionName==="Posts") {
         changedPosts.push({
@@ -196,7 +195,6 @@ class VotesRepo extends AbstractRepo<"Votes"> {
           postId: votedContent._id,
           title: votedContent.postTitle,
           slug: votedContent.postSlug,
-          eaAddedReacts: null,
         });
       } else if (votedContent.collectionName==="Revisions") {
         changedTagRevisions.push({
@@ -204,7 +202,6 @@ class VotesRepo extends AbstractRepo<"Votes"> {
           tagId: votedContent.revisionTagId,
           tagName: null,
           tagSlug: null,
-          eaAddedReacts: null,
         });
       }
     }

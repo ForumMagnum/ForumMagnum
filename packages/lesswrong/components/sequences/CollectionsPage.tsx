@@ -56,9 +56,15 @@ const styles = defineStyles('CollectionsPage', (theme: ThemeType) => ({
     marginRight: "auto",
     position: "relative",
     zIndex: theme.zIndexes.singleColumnSection,
-    [theme.breakpoints.up('md')]: {
-      width: COLLECTION_WIDTH // TODO: replace this hacky solution with a more comprehensive refactoring of SingleColumnSection. 
-      // (SingleColumnLayout should probably be replaced by grid-css in Layout.tsx)
+    ["@media (min-width: 960px)"]: {
+      width: 650
+    },
+    ["@media (min-width: 1030px)"]: {
+      width: 780
+    },
+    ["@media (min-width: 1100px)"]: {
+      // HACK
+      width: COLLECTION_WIDTH
     }
   },
   startReadingButton: {
@@ -82,6 +88,9 @@ const styles = defineStyles('CollectionsPage', (theme: ThemeType) => ({
     marginBottom: 25,
     lineHeight: 1.25,
     maxWidth: 700,
+  },
+  tocWrapper: {
+    paddingRight: 10,
   },
 }));
 
@@ -149,7 +158,9 @@ const CollectionsPage = ({documentId}: {
     return (<ErrorBoundary>
       <div className={classes.root}>
       <ToCColumn
-        tableOfContents={<CollectionTableOfContents collection={document}/>}
+        tableOfContents={<div className={classes.tocWrapper}>
+          <CollectionTableOfContents collection={document}/>
+        </div>}
       >
         <div className={classes.section}>
           {collection.title && <Typography variant="display3" className={classes.title}>{collection.title}</Typography>}

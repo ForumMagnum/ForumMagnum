@@ -31,7 +31,7 @@ export const getPostsListLimit = (req: NextRequest): number =>
 
 export async function renderPostsListResponse(req: NextRequest, options: {
   title: string
-  selector: Record<string, unknown>
+  selector: PostSelector
 }) {
   const resolverContext = await getContextFromReqAndRes({ req });
   const limit = getPostsListLimit(req);

@@ -3,7 +3,7 @@ import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useSubscribedLocation } from '@/lib/routeUtil';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
-import { isHomeRoute } from '@/lib/routeChecks';
+import { isHomeRoute, isRouteWithLeftNavigationColumn } from '@/lib/routeChecks';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
 import { SolsticeSeasonBanner } from '../seasonal/solsticeSeason/SolsticeSeasonBanner';
@@ -14,6 +14,7 @@ import { getReviewPhase, reviewIsActive, reviewResultsPostPath } from '@/lib/rev
 import ReviewVotingCanvas from '../review/ReviewVotingCanvas';
 import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { Link } from '@/lib/reactRouterWrapper';
+import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 
 // Inkhaven Cohort #2 banner active period
 const INKHAVEN_2026_START = new Date('2026-01-10T00:00:00-08:00');
@@ -32,7 +33,7 @@ const LESSONLINE_2026_END = new Date('2026-03-26T00:00:00-07:00');
 function useIsLessOnline2026Active(): { active: boolean; earlyBirdEndDate: Date } {
   const now = useCurrentTime();
   return {
-    active: false, // now >= LESSONLINE_2026_START && now < LESSONLINE_2026_END,
+    active: now >= LESSONLINE_2026_START && now < LESSONLINE_2026_END,
     earlyBirdEndDate: LESSONLINE_2026_EARLY_BIRD_END,
   };
 }
@@ -148,18 +149,15 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   },
 }));
 
-export const LWBackgroundImage = ({standaloneNavigation}: {
-  standaloneNavigation: boolean,
-}) => {
+export const LWBackgroundImage = () => {
   const classes = useStyles(styles);
-  // TODO: figure out if using usePathname directly is safe or better (concerns about unnecessary rerendering, idk; my guess is that with Next if the pathname changes we're rerendering everything anyways?)
-  const { pathname } = useSubscribedLocation();
-  // const pathname = usePathname();
+  const pathname = usePrerenderablePathname();
   const isHomePage = isHomeRoute(pathname);
 
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_SOLSTICE_GLOBE_COOKIE]);
   const hideGlobeCookie = cookies[HIDE_SOLSTICE_GLOBE_COOKIE] === "true";
 
+  const standaloneNavigation = isRouteWithLeftNavigationColumn(pathname);
   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
     {/* Background image shown in the top-right corner of LW. The
     * loading="lazy" prevents downloading the image if the

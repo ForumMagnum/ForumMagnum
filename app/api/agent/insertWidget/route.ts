@@ -6,12 +6,13 @@ import {
   $createTextNode,
 } from "lexical";
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { HOCUSPOCUS_FLUSH_WAIT_MS, withMainDocEditorSession } from "../editorAgentUtil";
-import { sleep } from "@/lib/utils/asyncUtils";
+import { waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+
 import { resolveInsertionIndex } from "../insertBlock/route";
 import { insertWidgetToolSchema, type InsertLocation } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
+import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
 interface InsertWidgetResult {
   inserted: boolean
@@ -61,7 +62,7 @@ async function insertWidget({
     postId,
     token,
     operationLabel: "InsertWidget",
-    callback: async ({ editor }) => {
+    callback: async ({ editor, provider }) => {
       let result: InsertWidgetResult = { inserted: false, note: "No insertion performed." };
 
       await new Promise<void>((resolve) => {
@@ -71,7 +72,7 @@ async function insertWidget({
       });
 
       if (result.inserted) {
-        await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+        await waitForProviderFlush(provider);
       }
       return result;
     },
@@ -86,6 +87,7 @@ export async function POST(req: NextRequest) {
 
   const parseResult = insertWidgetToolSchema.safeParse(body);
   if (!parseResult.success) {
+    captureAgentApiEvent({ route: "insertWidget", postId: body?.postId, userId: context.currentUser?._id, status: "validation_error" });
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
 
@@ -94,6 +96,7 @@ export async function POST(req: NextRequest) {
   try {
     const token = await getHocuspocusToken(context, postId, key);
     if (!token) {
+      captureAgentApiEvent({ route: "insertWidget", postId, userId: context.currentUser?._id, status: "unauthorized" });
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }
 
@@ -104,6 +107,7 @@ export async function POST(req: NextRequest) {
       location,
     });
 
+    captureAgentApiEvent({ route: "insertWidget", postId, userId: context.currentUser?._id, status: "success", operationResult: result.inserted ? "inserted" : "not_inserted" });
     return NextResponse.json({
       ok: true,
       postId,
@@ -118,6 +122,7 @@ export async function POST(req: NextRequest) {
     // eslint-disable-next-line no-console
     console.error(error);
     captureException(error);
+    captureAgentApiFailure("insertWidget", error, { postId, userId: context.currentUser?._id });
     return NextResponse.json(
       {
         error: "Failed to insert widget in collaborative draft",

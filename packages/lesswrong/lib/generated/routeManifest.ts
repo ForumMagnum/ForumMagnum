@@ -261,6 +261,14 @@ export const routeTrie = {
             "commentOnDraft": {
               "hasRoute": true
             },
+            "confirmClaudeAccess": {
+              "dynamicChild": {
+                "paramName": "token",
+                "child": {
+                  "hasRoute": true
+                }
+              }
+            },
             "deleteBlock": {
               "hasRoute": true
             },
@@ -276,6 +284,9 @@ export const routeTrie = {
             "insertWidget": {
               "hasRoute": true
             },
+            "ping": {
+              "hasRoute": true
+            },
             "replaceText": {
               "hasRoute": true
             },
@@ -288,11 +299,13 @@ export const routeTrie = {
           },
           "lowerCase": {
             "commentondraft": "commentOnDraft",
+            "confirmclaudeaccess": "confirmClaudeAccess",
             "deleteblock": "deleteBlock",
             "feedback": "feedback",
             "insertblock": "insertBlock",
             "insertllmblock": "insertLLMBlock",
             "insertwidget": "insertWidget",
+            "ping": "ping",
             "replacetext": "replaceText",
             "replacewidget": "replaceWidget",
             "replytocomment": "replyToComment"

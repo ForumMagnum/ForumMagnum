@@ -322,6 +322,11 @@ const ProfileTopPostsQuery = gql(`
 
 const TOP_POSTS_LIMIT = 4;
 
+function getTopPostsTooltipTitle(user: UsersProfile): string {
+  const hasPinnedPosts = (user.pinnedPostIds?.length ?? 0) >= TOP_POSTS_LIMIT;
+  return hasPinnedPosts ? "User selected" : "Based on karma";
+}
+
 function getPostImageUrl(
   post: ProfileTopPost,
   topPostDefaultImages: string[],
@@ -416,6 +421,7 @@ export function UserProfileTopPostsSectionInner({user, topPosts}: {
   topPosts: (ProfileTopPost|null)[]
 }) {
   const classes = useStyles(userProfileTopPostsSectionUnsharedStyles);
+  const topPostsTooltipTitle = getTopPostsTooltipTitle(user);
 
   const topPost = topPosts[0];
   const smallArticles = topPosts.slice(1, TOP_POSTS_LIMIT);
@@ -427,7 +433,7 @@ export function UserProfileTopPostsSectionInner({user, topPosts}: {
   return (
     <>
       <div className={classes.topPostsIndicator}>
-        <LWTooltip title="Based on karma" placement="bottom">
+        <LWTooltip title={topPostsTooltipTitle} placement="bottom">
           <span className={classNames(classes.topPostsLabel, classes.topPostsLabelPlural)}>Top posts</span>
           <span className={classNames(classes.topPostsLabel, classes.topPostsLabelSingular)}>Top post</span>
         </LWTooltip>

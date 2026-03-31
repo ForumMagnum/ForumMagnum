@@ -35,7 +35,13 @@ export const styles = defineStyles('PostSubmit', (theme: ThemeType) => ({
   draft: {
   },
   feedback: {
-  }
+  },
+  feedbackRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 4,
+    width: "100%",
+  },
 }));
 
 export type PostSubmitProps = {
@@ -45,6 +51,7 @@ export type PostSubmitProps = {
   cancelLabel?: string,
   saveDraftLabel?: string,
   feedbackLabel?: string,
+  claudeButton?: React.ReactNode,
   cancelCallback?: (document: EditablePost) => void,
 }
 
@@ -55,6 +62,7 @@ export const PostSubmit = ({
   cancelLabel = "Cancel",
   saveDraftLabel = "Save as draft",
   feedbackLabel = "Request Feedback",
+  claudeButton,
   cancelCallback,
 }: PostSubmitProps) => {
   const classes = useStyles(styles);
@@ -80,6 +88,7 @@ export const PostSubmit = ({
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
   const requestFeedbackKarmaLevel = requestFeedbackKarmaLevelSetting.get()
+  const showFeedbackButton = requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel;
   // EA Forum title is Effective Altruism Forum, which is unecessarily long
   const eaOrOtherFeedbackTitle = isEAForum() ? 'the EA Forum team' : `the ${forumTitleSetting.get()} team`
   const feedbackTitle = `Request feedback from ${isLWorAF() ? 'our editor' : eaOrOtherFeedbackTitle}.  If you don't see a notification pop up next to the Intercom icon in a few seconds, try opening Intercom and check the "Messages" panel to see if there's a new conversation there.`
@@ -108,40 +117,44 @@ export const PostSubmit = ({
         >
           {submitLabel}
         </Button>
-        {requestFeedbackKarmaLevel !== null && currentUser.karma >= requestFeedbackKarmaLevel && document.draft && <LWTooltip
-          title={feedbackTitle}
-        >
-          <Button type="submit"
-            className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
-            disabled={disabled}
-            onClick={async () => {
-              captureEvent("feedbackRequestButtonClicked")
-              if (!!document.title) {
-                formApi.setFieldValue('draft', true);
-                await formApi.handleSubmit({
-                  successCallback: (createdPost: PostsEditMutationFragment) => {
-                    const intercomProps = {
-                      title: createdPost.title,
-                      _id: createdPost._id,
-                      url: getSiteUrl() + "posts/" + createdPost._id
-                    };
+        {(showFeedbackButton || claudeButton) && (
+          <div className={classes.feedbackRow}>
+            {showFeedbackButton && (
+              <LWTooltip title={feedbackTitle}>
+                <Button type="submit"
+                  className={classNames(classes.formButton, classes.secondaryButton, classes.feedback)}
+                  disabled={disabled}
+                  onClick={async () => {
+                    captureEvent("feedbackRequestButtonClicked")
+                    if (!!document.title) {
+                      await formApi.handleSubmit({
+                        successCallback: (createdPost: PostsEditMutationFragment) => {
+                          const intercomProps = {
+                            title: createdPost.title,
+                            _id: createdPost._id,
+                            url: getSiteUrl() + "posts/" + createdPost._id
+                          };
 
-                    // eslint-disable-next-line
-                    window.Intercom(
-                      'trackEvent',
-                      'requested-feedback',
-                      intercomProps
-                    );
-                  },
-                  // The redirect here is both undesirable and might interfere with Intercom displaying the message prompt
-                  skipRedirect: true,
-                });
-              }
-            }}
-          >
-            {feedbackLabel}
-          </Button>
-        </LWTooltip>}
+                          // eslint-disable-next-line
+                          window.Intercom(
+                            'trackEvent',
+                            'requested-feedback',
+                            intercomProps
+                          );
+                        },
+                        // The redirect here is both undesirable and might interfere with Intercom displaying the message prompt
+                        skipRedirect: true,
+                      });
+                    }
+                  }}
+                >
+                  {feedbackLabel}
+                </Button>
+              </LWTooltip>
+            )}
+            {claudeButton}
+          </div>
+        )}
         <Button type="submit"
           className={classNames(classes.formButton, classes.secondaryButton, classes.draft)}
           onClick={async () => {

@@ -263,7 +263,6 @@ function FloatingLinkEditor({
       }
 
       if (domRect) {
-        domRect.y += 40;
         setFloatingElemPositionForLinkEditor(domRect, editorElem, anchorElem);
       }
       setLastSelection(selection);

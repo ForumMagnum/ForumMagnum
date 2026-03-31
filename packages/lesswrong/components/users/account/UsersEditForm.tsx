@@ -5,7 +5,6 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
 import { useMutation, useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
-import { useSetTheme, useAbstractThemeOptions } from '@/components/themes/useTheme';
 import { useLocation, useNavigate } from '@/lib/routeUtil.tsx';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { submitButtonStyles } from '@/components/tanstack-form-components/TanStackSubmit';
@@ -20,7 +19,6 @@ import ErrorAccessDenied from "../../common/ErrorAccessDenied";
 import { withDateFields } from '@/lib/utils/dateUtils';
 import { gql } from "@/lib/generated/gql-codegen";
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
-import { useTracking } from '@/lib/analyticsEvents';
 import AccountSettingsSidebar, { type SettingsTabId } from './AccountSettingsSidebar';
 import AccountSettingsTab from './AccountSettingsTab';
 import ProfileSettingsTab from './ProfileSettingsTab';
@@ -56,7 +54,6 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   hideProfileTopPosts: 'profile',
   biography: 'profile',
   fullName: 'profile',
-  theme: 'preferences',
   commentSorting: 'preferences',
   sortDraftsBy: 'preferences',
   hideFrontpageMap: 'preferences',
@@ -76,7 +73,6 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   postGlossariesPinned: 'preferences',
   googleLocation: 'preferences',
   mapLocation: 'preferences',
-  reactPaletteStyle: 'preferences',
   hideFromPeopleDirectory: 'preferences',
   allowDatadogSessionReplay: 'preferences',
   auto_subscribe_to_my_posts: 'notifications',
@@ -397,10 +393,6 @@ const UsersEditForm = ({ terms, accountManagement }: {
       resetPassword(email: $email)
     }
   `), { errorPolicy: 'all' })
-  const currentThemeOptions = useAbstractThemeOptions();
-  const setTheme = useSetTheme();
-  const { captureEvent } = useTracking();
-
   const userHasEditAccess = userCanEditUser(currentUser, terms);
 
   const { data: userBySlugData, loading: loadingUser } = useQuery(GetUserBySlugQuery, {
@@ -425,13 +417,6 @@ const UsersEditForm = ({ terms, accountManagement }: {
   }
 
   const onSuccess = async (user: UsersEdit) => {
-    if (user?.theme.name) {
-      const name = user.theme.name;
-      const theme = { ...currentThemeOptions, ...user.theme, name };
-      setTheme(theme);
-      captureEvent("setUserTheme", theme);
-    }
-
     flash(`User "${userGetDisplayName(user)}" edited`);
     try {
       await client.resetStore()

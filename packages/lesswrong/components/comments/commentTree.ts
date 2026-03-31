@@ -203,4 +203,9 @@ export interface CommentTreeOptions {
    * box in the context their comment will appear.
    */
   showEditInContext?: boolean,
+
+  /**
+   * If set, navigating to the edited comment's permalink happens after a successful edit submit.
+   */
+  redirectAfterEditSubmit?: boolean,
 }

@@ -37,6 +37,7 @@ import {
   UpdateFontSizeType,
 } from '../ToolbarPlugin/utils';
 import {
+  getFormatHeadingLevel,
   isAddComment,
   isCapitalize,
   isClearFormatting,
@@ -81,8 +82,11 @@ export default function ShortcutsPlugin({
       } else if (isFormatParagraph(event)) {
         formatParagraph(editor);
       } else if (isFormatHeading(event)) {
-        const {code} = event;
-        const headingSize = `h${code[code.length - 1]}` as HeadingTagType;
+        const headingLevel = getFormatHeadingLevel(event);
+        if (headingLevel === null) {
+          return false;
+        }
+        const headingSize = `h${headingLevel}` as HeadingTagType;
         formatHeading(editor, toolbarState.blockType, headingSize);
       } else if (isFormatBulletList(event)) {
         formatBulletList(editor, toolbarState.blockType);

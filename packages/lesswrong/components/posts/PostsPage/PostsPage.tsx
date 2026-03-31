@@ -194,7 +194,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     right: 0,
     bottom: 0,
     height: '100vh',
-    width: '100vw',
+    width: '100%',
     
     "@media print": {
       display: "none",
@@ -462,6 +462,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
       limit,
       enableTotal: false,
     },
+    itemsPerPage: 200,
     fetchPolicy: 'cache-and-network' as const,
   });
 
@@ -744,7 +745,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
       showSplashPageHeader={showSplashPageHeader}
       sharedToCFooter={<LWCommentCount
         answerCount={answerCount}
-        commentCount={displayedPublicCommentCount}
+        commentCount={totalComments}
       />}
       embedded={embedded}
     />

@@ -3,13 +3,14 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { NextRequest, NextResponse } from "next/server";
 import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
-import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, paragraphMarkdownStartsWith, plainTextStartsWith, withMainDocEditorSession } from "../editorAgentUtil";
-import { sleep } from "@/lib/utils/asyncUtils";
-import { buildNodeMarkdownMapForSubtree } from "../mapMarkdownToLexical";
+import { deriveAgentAuthor, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+
+import { buildNodeMarkdownMapForSubtree, toPlainTextFilter } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deleteBlockToolSchema, type ReplaceMode } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
+import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
 interface DeleteBlockResult {
   deleted: boolean
@@ -37,21 +38,26 @@ export async function deleteMarkdownBlock({
     postId,
     token,
     operationLabel: "DeleteBlock",
-    callback: async ({ editor }) => {
+    callback: async ({ editor, provider }) => {
       let result: DeleteBlockResult = { deleted: false, note: "No deletion performed." };
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
           const root = $getRoot();
           const rootChildren = root.getChildren();
-          const mapResult = buildNodeMarkdownMapForSubtree(root.getKey());
+          const textFilter = toPlainTextFilter(prefix);
+          const mapResult = buildNodeMarkdownMapForSubtree(root.getKey(), textFilter);
 
           let deletionIndex: number | null = null;
           for (let i = 0; i < rootChildren.length; i++) {
             const child = rootChildren[i];
             const childMarkdown = mapResult.byKey.get(child.getKey())?.markdown;
+            const textContent = child.getTextContent();
             if (!childMarkdown) {
-              if (plainTextStartsWith(child.getTextContent(), prefix)) {
+              if (
+                plainTextStartsWith(textContent, prefix) ||
+                (textFilter && normalizeText(textContent).startsWith(textFilter))
+              ) {
                 deletionIndex = i;
                 break;
               }
@@ -59,7 +65,8 @@ export async function deleteMarkdownBlock({
             }
             if (
               paragraphMarkdownStartsWith(childMarkdown, prefix) ||
-              plainTextStartsWith(child.getTextContent(), prefix)
+              plainTextStartsWith(textContent, prefix) ||
+              (textFilter && normalizeText(textContent).startsWith(textFilter))
             ) {
               deletionIndex = i;
               break;
@@ -109,7 +116,7 @@ export async function deleteMarkdownBlock({
       });
 
       if (result.deleted) {
-        await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+        await waitForProviderFlush(provider);
       }
       return result;
     },
@@ -140,6 +147,7 @@ export async function POST(req: NextRequest) {
 
   const parseResult = deleteBlockToolSchema.safeParse(body);
   if (!parseResult.success) {
+    captureAgentApiEvent({ route: "deleteBlock", postId: body?.postId, userId: context.currentUser?._id, agentName: body?.agentName, status: "validation_error" });
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
 
@@ -148,6 +156,7 @@ export async function POST(req: NextRequest) {
   try {
     const token = await getHocuspocusToken(context, postId, key);
     if (!token) {
+      captureAgentApiEvent({ route: "deleteBlock", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }
 
@@ -162,6 +171,7 @@ export async function POST(req: NextRequest) {
       authorId,
     });
 
+    captureAgentApiEvent({ route: "deleteBlock", postId, userId: context.currentUser?._id, agentName, status: "success", operationResult: deleteResult.deleted ? "deleted" : "block_not_found" });
     return NextResponse.json({
       ok: true,
       postId,
@@ -176,6 +186,7 @@ export async function POST(req: NextRequest) {
     // eslint-disable-next-line no-console
     console.error(error);
     captureException(error);
+    captureAgentApiFailure("deleteBlock", error, { postId, userId: context.currentUser?._id, agentName });
     return NextResponse.json(
       {
         error: "Failed to delete markdown block in collaborative draft",

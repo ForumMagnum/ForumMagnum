@@ -12,6 +12,8 @@ import { SsrQueryCacheProvider } from "@/lib/crud/ssrQueryCache";
 import { SSRResolverContext } from "@/lib/crud/ssrResolverContext";
 import { disableFragmentWarnings } from "graphql-tag";
 import { HTMLInjector } from '../hooks/useInjectHTML';
+import { useSearchParams } from 'next/navigation';
+import Cookies from 'universal-cookie';
 
 // In the internals of apollo client, they do two round-trips that look like `gql(print(gql(options.query)))`
 // This causes graphql-tag to emit warnings that look like "Warning: fragment with name PostsMinimumInfo already exists",
@@ -55,10 +57,8 @@ function makeApolloClientForClient({ loginToken }: {
   return client;
 }
 
-export const ApolloWrapper = ({ loginToken, requestId, searchParams, children }: React.PropsWithChildren<{
-  loginToken: string|null,
+export const ApolloWrapper = ({ requestId, children }: React.PropsWithChildren<{
   requestId: string,
-  searchParams: Record<string, string>,
 }>) => {
   // Either this is an SSR context, in which case constructing an apollo client
   // involves an async function call because of dynamic imports, or this is in
@@ -68,14 +68,21 @@ export const ApolloWrapper = ({ loginToken, requestId, searchParams, children }:
   // nextjs's bundler would try to import server-specific code and bundle it as
   // if it was client code, which fails at compile time (but it doesn't bundle
   // it this way if it's imported dynamically).
+  const urlSearchParams = useSearchParams();
+
   if (isServer) {
-    const searchParamsStr = JSON.stringify(searchParams);
+    const searchParamsStr = JSON.stringify(urlSearchParams);
     return (
       <ApolloWrapperServer searchParamsStr={searchParamsStr} requestId={requestId}>
         {children}
       </ApolloWrapperServer>
     );
   } else {
+    const browserCookies = document.cookie;
+    const cookies = new Cookies(browserCookies);
+    const loginToken = cookies.get('loginToken');
+    const searchParams = Object.fromEntries(urlSearchParams.entries())
+
     return (
       <ApolloWrapperClient loginToken={loginToken} searchParams={searchParams}>
         {children}

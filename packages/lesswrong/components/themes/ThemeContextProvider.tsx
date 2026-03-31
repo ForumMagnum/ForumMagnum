@@ -11,10 +11,11 @@ import stringify from 'json-stringify-deterministic';
 import { ThemeContext } from './useTheme';
 import { isClient, isServer } from '@/lib/executionEnvironment';
 import { useTracking } from '@/lib/analyticsEvents';
-import { createStylesContext, regeneratePageStyles, serverEmbeddedStyles, StylesContext, useStyles, type StylesContextType } from '../hooks/useStyles';
+import { createStylesContext, regeneratePageStyles, StylesContext, useStyles, type StylesContextType } from '../hooks/useStyles';
 import { useServerInsertedHTML } from 'next/navigation';
 import { defineStyles, setClientMountedStyles } from '../hooks/defineStyles';
 import { useCurrentUser } from '../common/withUser';
+import { serverEmbeddedStyles } from '../hooks/serverEmbeddedStyles';
 
 export const ThemeContextProvider = ({children}: {
   children: React.ReactNode,

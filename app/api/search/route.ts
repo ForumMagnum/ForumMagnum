@@ -1,5 +1,6 @@
 import { queryRequestSchema, type SearchOptions, type SearchQuery } from "@/lib/search/NativeSearchClient";
 import ElasticService from "@/server/search/elastic/ElasticService";
+import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 import uniq from "lodash/uniq";
 import type { NextRequest } from "next/server";
 
@@ -185,7 +186,7 @@ async function runMarkdownSearchQuery(
 }
 
 function getSearchDocumentationResponse(req: NextRequest): Response {
-  const host = req.nextUrl.host;
+  const urlPrefix = getSiteUrlFromReq(req);
   const markdown = `
 # Search API
 
@@ -199,8 +200,8 @@ Use this endpoint to search posts, comments, wikitags, users, and sequences.
 
 Examples:
 
-- \`https://${host}/api/search?search=decision%20theory\`
-- \`https://${host}/search?search=decision%20theory\` (rewrites to markdown when markdown is requested)
+- \`${urlPrefix}/api/search?search=decision%20theory\`
+- \`${urlPrefix}/search?search=decision%20theory\` (rewrites to markdown when markdown is requested)
 
 ## Parameters
 

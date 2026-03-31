@@ -1,6 +1,7 @@
+import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 import { NextRequest } from "next/server";
 
-export const markdownApiDocumentationMarkdown = (hostname: string) => `
+export const markdownApiDocumentationMarkdown = (urlPrefix: string) => `
 ---
 name: lesswrong
 version: 2.0.0
@@ -15,8 +16,8 @@ starting with /api/ are either Markdown or JSON. For routes not starting with
 /api, you can control which version you get with the Accept header or with a
 query parameter ?format=markdown, eg:
 
-    curl -H "Accept: text/markdown" https://${hostname}/
-    curl https://${hostname}/?format=markdown
+    curl -H "Accept: text/markdown" ${urlPrefix}
+    curl ${urlPrefix}/?format=markdown
 
 The Markdown versions of pages are designed to be more AI-agent-friendly than
 the HTML versions. If your "Accept" header is "text/markdown", you will only
@@ -57,6 +58,8 @@ Reading collections:
  * /api/rationality
  * /api/codex
  * /api/hpmor
+Testing network access:
+ * /api/agent/ping (GET/POST/PUT/DELETE/PATCH/OPTIONS/HEAD)
 
 Reporting Feedback About This API
 =================================
@@ -82,7 +85,13 @@ Helping Users With Drafts
 (This feature is currently in development, the API should not be assumed stable,
 and users using it should be reminded of LessWrong's policy on LLM writing, found
 at https://www.lesswrong.com/api/post/KXujJjnmP85u8eM6B [without the /api in the
-path if providing a link to the user].)
+path if providing a link to the user]. Before using our API to leave feedback,
+you should check whether you have network access to our domain.  You can do this by
+checking the "Allowed Domains" list in your network configuration's settings, or by
+making an empty test POST via curl to https://www.lesswrong.com/api/agent/ping and
+checking if you get a 403 with x-deny-reason: host_not_allowed. If so, see the
+"Setup & Usage Instructions" section below for what the user needs to do to
+add our domain to their list of allowed domains; the API will be unusable otherwise.)
 
 ## Default Review Structure
 If the user asks for feedback on their post, you should think carefully about
@@ -130,7 +139,7 @@ tell the user that they need to use claude.ai or a harness like Codex to use thi
 When making POST requests to the API endpoints below, pipe the JSON body from a heredoc
 to avoid shell escaping issues (some environments mangle characters like ! in
 inline curl -d arguments):
-    cat <<'EOF' | curl -X POST https://${hostname}/api/agent/commentOnDraft -H 'Content-Type: application/json' -d @-
+    cat <<'EOF' | curl -X POST ${urlPrefix}/api/agent/commentOnDraft -H 'Content-Type: application/json' -d @-
     { "postId": "...", "key": "...", "comment": "..." }
     EOF
 
@@ -146,7 +155,7 @@ edit-post URL for you. The URL will look like this:
 The key in the URL is called the "link sharing key"; do not share this key with
 anyone unless the user is asking you to give that person permission to edit
 the post. Once you have the post URL, read the post at:
-    GET /api/editPost?postId=[id]&key=[linkSharingKey]
+    GET /editPost?postId=[id]&key=[linkSharingKey]
 
 The editPost response includes a "Comment Threads" section after the post body
 if there are any open comment or suggestion threads on the draft. Each thread
@@ -264,6 +273,6 @@ change is represented as widget-content suggestions.
 `;
 
 export function GET(req: NextRequest) {
-  const hostname = req.nextUrl.hostname;
-  return new Response(markdownApiDocumentationMarkdown(hostname));
+  const urlPrefix = getSiteUrlFromReq(req);
+  return new Response(markdownApiDocumentationMarkdown(urlPrefix));
 }
