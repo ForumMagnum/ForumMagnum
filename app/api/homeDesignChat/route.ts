@@ -1,14 +1,44 @@
-import { streamText, UIMessage, convertToModelMessages } from 'ai';
+import { streamText, generateText, UIMessage, convertToModelMessages } from 'ai';
 // eslint-disable-next-line no-restricted-imports
 import { createOpenAI, OpenAIChatLanguageModelOptions } from '@ai-sdk/openai';
 import { z } from 'zod';
 import { openAIApiKey } from '@/server/databaseSettings';
 import { anthropicApiKey } from "@/lib/instanceSettings";
-import { AnthropicLanguageModelOptions, createAnthropic } from '@ai-sdk/anthropic';
+import { AnthropicLanguageModelOptions, AnthropicProvider, createAnthropic } from '@ai-sdk/anthropic';
 import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import HomePageDesigns from "@/server/collections/homePageDesigns/collection";
 import { HOME_DESIGN_SHARED_PROMPT } from "@/lib/homeDesignPrompt";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import { NextRequest } from "next/server";
+
+type ExtractLiterals<T> = T extends string
+  ? string extends T
+    ? never
+    : T
+  : never;
+
+async function generateDesignTitle(
+  anthropic: AnthropicProvider,
+  messages: UIMessage[],
+): Promise<string> {
+  const userMessages = messages
+    .filter((m) => m.role === 'user')
+    .map((m) => m.parts.filter((p) => p.type === 'text').map((p) => p.text).join(' '))
+    .join('\n');
+
+  try {
+    const result = await generateText({
+      model: anthropic('claude-haiku-4-5-20251001'),
+      system: 'Generate a short title (3-6 words, no quotes) for a home page design based on the user\'s request. Respond with ONLY the title, nothing else.',
+      prompt: userMessages,
+      maxOutputTokens: 30,
+    });
+    const title = result.text.trim();
+    return title || 'Untitled Design';
+  } catch {
+    return 'Untitled Design';
+  }
+}
 
 const SYSTEM_PROMPT = `You are a home page designer for LessWrong, a discussion forum about rationality and AI safety. Users describe their ideal home page and you build it as **body content only** that runs inside a sandboxed iframe.
 ${HOME_DESIGN_SHARED_PROMPT}
@@ -34,7 +64,7 @@ export async function POST(req: NextRequest) {
 
   let publicId = clientPublicId ?? null;
 
-  const modelId = 'claude-sonnet-4-6';
+  const modelId: ExtractLiterals<Parameters<typeof anthropic>[0]>= 'claude-sonnet-4-6';
   const result = streamText({
     // model: openai('gpt-5.4'),
     // model: anthropic('claude-haiku-4-5-20251001'),
@@ -52,22 +82,25 @@ export async function POST(req: NextRequest) {
             return { success: true, message: 'Design applied (not saved — no identity).', publicId: null };
           }
 
+          // For existing designs, check ownership and reuse the title
+          let existingTitle: string | null = null;
           if (publicId) {
             const original = await HomePageDesigns.findOne(
               { publicId },
               { sort: { createdAt: 1 } },
-              { ownerId: 1 },
+              { ownerId: 1, title: 1 },
             );
             if (!original || original.ownerId !== ownerId) {
               return { success: true, message: 'Design applied (not saved — ownership mismatch).', publicId };
             }
+            existingTitle = original.title;
           }
 
           const newId = await HomePageDesigns.rawInsert({
             ownerId,
             publicId: publicId ?? "",
             html,
-            title: "Untitled Design",
+            title: existingTitle ?? "Untitled Design",
             source: "internal",
             modelName: modelId,
             conversationHistory: messages,
@@ -84,6 +117,14 @@ export async function POST(req: NextRequest) {
               { $set: { publicId: shortId } },
             );
             publicId = newId;
+
+            // Generate a title in the background for new designs
+            backgroundTask(generateDesignTitle(anthropic, messages).then(
+              (title) => HomePageDesigns.rawUpdateOne(
+                { _id: newId },
+                { $set: { title } },
+              ),
+            ));
           }
 
           return { success: true, message: 'Design applied and saved.', publicId };
