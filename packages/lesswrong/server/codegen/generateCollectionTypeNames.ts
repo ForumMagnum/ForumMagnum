@@ -1,34 +1,36 @@
-import { getAllCollections } from "@/server/collections/allCollections";
+import { getCollectionTypeNameMaps } from "./collectionTypeNameMaps";
 
 // Generate mappings from collection name to type name and vice versa
 export function generateCollectionTypeNames(): string {
   const sb: Array<string> = [];
-  const collections = getAllCollections();
+  const {
+    collectionNameToTypeName,
+    typeNameToCollectionName,
+    tableNameToCollectionName,
+    testTableNameToCollectionName,
+  } = getCollectionTypeNameMaps();
+
   sb.push(`import { isAnyTest, isIntegrationTest } from '@/lib/executionEnvironment';\n`);
 
   sb.push(`export const collectionNameToTypeName = {`);
-  for (let collection of collections) {
-    sb.push(`  ${collection.collectionName}: '${collection.typeName}',`);
+  for (const [collectionName, typeName] of Object.entries(collectionNameToTypeName)) {
+    sb.push(`  ${collectionName}: '${typeName}',`);
   }
   sb.push(`} as const;\n`);
 
   sb.push(`export const typeNameToCollectionName = {`);
-  for (let collection of collections) {
-    sb.push(`  ${collection.typeName}: '${collection.collectionName}',`);
+  for (const [typeName, collectionName] of Object.entries(typeNameToCollectionName)) {
+    sb.push(`  ${typeName}: '${collectionName}',`);
   }
   sb.push(`} as const;\n`);
 
   sb.push(`export const tableNameToCollectionName = {`);
-  for (let collection of collections) {
-    sb.push(`  ${collection.collectionName.toLowerCase()}: '${collection.collectionName}',`);
+  for (const [tableName, collectionName] of Object.entries(tableNameToCollectionName)) {
+    sb.push(`  ${tableName}: '${collectionName}',`);
   }
   sb.push(`  ...((isAnyTest && !isIntegrationTest) ? {`);
-  let testCollections: CollectionBase<any>[] = [];
-  if (bundleIsCodegen) {
-    testCollections = require('../sql/tests/testHelpers').testCollections;
-  }
-  for (let collection of Object.values(testCollections)) {
-    sb.push(`    ${collection.collectionName.toLowerCase()}: '${collection.collectionName}',`);
+  for (const [tableName, collectionName] of Object.entries(testTableNameToCollectionName)) {
+    sb.push(`    ${tableName}: '${collectionName}',`);
   }
   sb.push(`  } : {}),`);
   sb.push(`} as const;\n`);

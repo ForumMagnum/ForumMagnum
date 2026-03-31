@@ -11,6 +11,7 @@
     "eslint": "eslint --max-warnings 0 --cache --ext .jsx,js,tsx,ts packages app",
     "migrate": "ts-node -r tsconfig-paths/register --swc --project tsconfig-repl.json ./migrate.ts",
     "repl": "NODE_OPTIONS='--no-deprecation' ts-node --swc -r tsconfig-paths/register --project tsconfig-repl.json scripts/repl.ts",
+    "repl-codegen": "NODE_OPTIONS='--no-deprecation' ts-node --swc -r tsconfig-paths/register --project tsconfig-codegen.json scripts/repl.ts",
     "upload-ckeditor-bundle": "ts-node --swc -r tsconfig-paths/register --project tsconfig-repl.json ./deployCkEditorBundle.ts",
     "unit": "jest --config jest.unit.config.ts --forceExit",
     "unit-ci": "jest --config jest.unit.config.ts --forceExit --ci --coverage --coverageProvider=v8",
