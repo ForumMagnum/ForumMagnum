@@ -1,12 +1,20 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { HomeDesignChatContext } from './HomeDesignChatContext';
 
 const HomeDesignChatProvider = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [customSrcdoc, setCustomSrcdoc] = useState<string | null>(null);
   const [publicId, setPublicId] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.body.dataset.homeDesignActive = 'true';
+
+    return () => {
+      delete document.body.dataset.homeDesignActive;
+    };
+  }, []);
 
   const value = useMemo(() => ({
     isOpen,
