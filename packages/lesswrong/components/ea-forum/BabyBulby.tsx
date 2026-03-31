@@ -11,11 +11,10 @@ import { useCookiePreferences } from "../hooks/useCookiesWithConsent";
 import { useUpdateCurrentUser } from "../hooks/useUpdateCurrentUser";
 import { useConcreteThemeOptions } from "../themes/useTheme";
 import {
-  BABY_BULBY_SPRITE_PIXELS,
   babyBulbyAnimations,
   babyBulbySpritePalette,
   type BabyBulbyAnimationMode,
-  type BabyBulbySpriteGridValue,
+  type BabyBulbySpritePixel,
 } from "./babyBulbySprites";
 
 const BABY_BULBY_STORAGE_KEY_PREFIX = "babyBulby:v2:";
@@ -470,26 +469,26 @@ const getDbStateComparableKey = (snapshot: HungerSnapshot | BabyBulbyDbState) =>
     : null,
 });
 
-const getSpritePixelFill = (value: BabyBulbySpriteGridValue, isDarkMode: boolean) => {
+const getSpritePixelFill = (value: BabyBulbySpritePixel, isDarkMode: boolean) => {
   switch (value) {
-  case BABY_BULBY_SPRITE_PIXELS.heart:
+  case "h":
     return babyBulbySpritePalette.heart;
-  case BABY_BULBY_SPRITE_PIXELS.sparkle:
+  case "s":
     return babyBulbySpritePalette.sparkle;
-  case BABY_BULBY_SPRITE_PIXELS.fill:
+  case "w":
     return babyBulbySpritePalette.fill;
-  case BABY_BULBY_SPRITE_PIXELS.darkModePellet:
-  case BABY_BULBY_SPRITE_PIXELS.darkModeSkull:
+  case "p":
+  case "k":
     return isDarkMode ? babyBulbySpritePalette.fill : babyBulbySpritePalette.body;
-  case BABY_BULBY_SPRITE_PIXELS.outline:
+  case "#":
   default:
     return babyBulbySpritePalette.body;
   }
 };
 
-const renderSpriteGrid = (grid: BabyBulbySpriteGridValue[][], isDarkMode: boolean) => [
+const renderSpriteGrid = (grid: BabyBulbySpritePixel[][], isDarkMode: boolean) => [
   ...grid.flatMap((row, y) => row.flatMap((value, x) => {
-    if (value === BABY_BULBY_SPRITE_PIXELS.transparent) {
+    if (value === ".") {
       return [];
     }
 
@@ -506,7 +505,7 @@ const renderSpriteGrid = (grid: BabyBulbySpriteGridValue[][], isDarkMode: boolea
   })),
 ];
 
-const SpriteGrid = React.memo(({grid, isDarkMode}: {grid: BabyBulbySpriteGridValue[][], isDarkMode: boolean}) => {
+const SpriteGrid = React.memo(({grid, isDarkMode}: {grid: BabyBulbySpritePixel[][], isDarkMode: boolean}) => {
   const spriteRects = useMemo(
     () => renderSpriteGrid(grid, isDarkMode),
     [grid, isDarkMode],

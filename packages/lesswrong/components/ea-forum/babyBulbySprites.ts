@@ -1,19 +1,9 @@
-export const BABY_BULBY_SPRITE_PIXELS = {
-  transparent: 0,
-  outline: 1,
-  heart: 2,
-  sparkle: 3,
-  fill: 4,
-  darkModePellet: 5,
-  darkModeSkull: 6,
-} as const;
-
-export type BabyBulbySpriteGridValue = typeof BABY_BULBY_SPRITE_PIXELS[keyof typeof BABY_BULBY_SPRITE_PIXELS];
+export type BabyBulbySpritePixel = "." | "#" | "h" | "s" | "w" | "p" | "k";
 export type BabyBulbyAnimationMode = "idle" | "eating" | "happy" | "refuse" | "dead";
 
 export type BabyBulbyAnimation = {
   frameDurationMs: number,
-  frames: BabyBulbySpriteGridValue[][][],
+  frames: BabyBulbySpritePixel[][][],
   playOrder: readonly number[],
   loop: boolean,
   nextMode?: BabyBulbyAnimationMode,
@@ -26,33 +16,19 @@ export const babyBulbySpritePalette = {
   sparkle: "#efaf00",
 } as const;
 
-const SPRITE_CHAR_TO_PIXEL = {
-  ".": BABY_BULBY_SPRITE_PIXELS.transparent,
-  "#": BABY_BULBY_SPRITE_PIXELS.outline,
-  h: BABY_BULBY_SPRITE_PIXELS.heart,
-  s: BABY_BULBY_SPRITE_PIXELS.sparkle,
-  w: BABY_BULBY_SPRITE_PIXELS.fill,
-  p: BABY_BULBY_SPRITE_PIXELS.darkModePellet,
-  k: BABY_BULBY_SPRITE_PIXELS.darkModeSkull,
-} as const;
-
-type BabyBulbySpriteChar = keyof typeof SPRITE_CHAR_TO_PIXEL;
-
-const parseSpriteChar = (char: string, rowIndex: number, columnIndex: number): BabyBulbySpriteGridValue => {
-  const pixel = SPRITE_CHAR_TO_PIXEL[char as BabyBulbySpriteChar];
-
-  if (pixel === undefined) {
+const parseSpriteChar = (char: string, rowIndex: number, columnIndex: number): BabyBulbySpritePixel => {
+  if (![".", "#", "h", "s", "w", "p", "k"].includes(char)) {
     throw new Error(`Unknown Baby Bulby sprite pixel "${char}" at row ${rowIndex + 1}, column ${columnIndex + 1}`);
   }
 
-  return pixel;
+  return char as BabyBulbySpritePixel;
 };
 
-const parseSpriteFrame = (rows: readonly string[]): BabyBulbySpriteGridValue[][] => rows.map((row, rowIndex) =>
+const parseSpriteFrame = (rows: readonly string[]): BabyBulbySpritePixel[][] => rows.map((row, rowIndex) =>
   row.split("").map((char, columnIndex) => parseSpriteChar(char, rowIndex, columnIndex))
 );
 
-const parseSpriteFrames = (frames: readonly (readonly string[])[]): BabyBulbySpriteGridValue[][][] => frames.map(parseSpriteFrame);
+const parseSpriteFrames = (frames: readonly (readonly string[])[]): BabyBulbySpritePixel[][][] => frames.map(parseSpriteFrame);
 
 const getDefaultPlayOrder = (frameCount: number) => Array.from({ length: frameCount }, (_, index) => index);
 
