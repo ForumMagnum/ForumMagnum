@@ -5,6 +5,9 @@ import { z } from 'zod';
 import { openAIApiKey } from '@/server/databaseSettings';
 import { anthropicApiKey } from "@/lib/instanceSettings";
 import { AnthropicLanguageModelOptions, createAnthropic } from '@ai-sdk/anthropic';
+import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
+import HomePageDesigns from "@/server/collections/homePageDesigns/collection";
+import { NextRequest } from "next/server";
 
 const SYSTEM_PROMPT = `You are a home page designer for LessWrong, a discussion forum about rationality and AI safety. Users describe their ideal home page and you build it as **body content only** that runs inside a sandboxed iframe.
 
@@ -193,8 +196,8 @@ Available methods:
 
 When the user asks you to apply, preview, or submit a design, call the submitHomePageDesign tool with the body content. Always call this tool proactively after creating or modifying a design — don't just show code, apply it.`;
 
-export async function POST(req: Request) {
-  const { messages }: { messages: UIMessage[] } = await req.json();
+export async function POST(req: NextRequest) {
+  const { messages, publicId: clientPublicId }: { messages: UIMessage[], publicId?: string } = await req.json();
 
   const openAiApiKey = openAIApiKey.get();
   if (!openAiApiKey) {
@@ -203,8 +206,16 @@ export async function POST(req: Request) {
 
   const anthropicKey = anthropicApiKey.get();
 
+  const currentUser = await getUserFromReq(req);
+  const clientId = req.cookies.get('clientId')?.value ?? null;
+  const ownerId = currentUser?._id ?? clientId;
+
   const openai = createOpenAI({ apiKey: openAiApiKey });
   const anthropic = createAnthropic({ apiKey: anthropicKey });
+
+  // Track the publicId across tool calls within this request.
+  // Starts with whatever the client sent (if iterating on an existing design).
+  let publicId = clientPublicId ?? null;
 
   const result = streamText({
     // model: openai('gpt-5.4'),
@@ -218,7 +229,44 @@ export async function POST(req: Request) {
         inputSchema: z.object({
           html: z.string().describe('Body content: <style> tags, HTML elements, and <script type="text/babel"> tags. Do NOT include <!DOCTYPE>, <html>, <head>, or <body> tags — the wrapper handles those. React, ReactDOM, Babel, and the RPC bridge are already loaded.'),
         }),
-        execute: async () => ({ success: true, message: 'Design applied to the home page.' }),
+        execute: async ({ html }) => {
+          if (!ownerId) {
+            return { success: true, message: 'Design applied (not saved — no identity).', publicId: null };
+          }
+
+          if (publicId) {
+            // Verify ownership of existing design
+            const original = await HomePageDesigns.findOne(
+              { publicId },
+              { sort: { createdAt: 1 } },
+              { ownerId: 1 },
+            );
+            if (!original || original.ownerId !== ownerId) {
+              return { success: true, message: 'Design applied (not saved — ownership mismatch).', publicId };
+            }
+          }
+
+          const newId = await HomePageDesigns.rawInsert({
+            ownerId,
+            publicId: publicId ?? "",
+            html,
+            title: "Untitled Design",
+            conversationHistory: messages,
+            verified: false,
+            commentId: null,
+            createdAt: new Date(),
+          });
+
+          if (!publicId) {
+            await HomePageDesigns.rawUpdateOne(
+              { _id: newId },
+              { $set: { publicId: newId } },
+            );
+            publicId = newId;
+          }
+
+          return { success: true, message: 'Design applied and saved.', publicId };
+        },
       },
     },
     providerOptions: {

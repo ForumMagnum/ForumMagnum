@@ -2,11 +2,25 @@
 
 import React, { useCallback, useEffect, useRef } from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { getSandboxedHomePageSrcdoc } from './SandboxedHomePageSrcdoc';
+import { getSandboxedHomePageSrcdoc, wrapBodyInSrcdoc } from './SandboxedHomePageSrcdoc';
 import { useCurrentUser } from '../common/withUser';
 import { useHomeDesignChat } from './HomeDesignChatContext';
+import { useLocation } from '@/lib/routeUtil';
+import { useQuery } from '@/lib/crud/useQuery';
+import { gql } from '@/lib/generated/gql-codegen';
 import HomeDesignChatPanel from './HomeDesignChatPanel';
 import DeferRender from './DeferRender';
+
+const homePageDesignByPublicIdQuery = gql(`
+  query HomePageDesignByPublicId($publicId: String!) {
+    homePageDesignByPublicId(publicId: $publicId) {
+      _id
+      publicId
+      html
+      title
+    }
+  }
+`);
 
 const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
   root: {
@@ -60,7 +74,14 @@ const SandboxedHomePage = () => {
   const classes = useStyles(styles);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const currentUser = useCurrentUser();
-  const designChat = useHomeDesignChat();
+  const { isOpen, setIsOpen, customSrcdoc } = useHomeDesignChat();
+  const { query } = useLocation();
+  const themePublicId = query.theme as string | undefined;
+
+  const { data: themeData } = useQuery(homePageDesignByPublicIdQuery, {
+    variables: { publicId: themePublicId! },
+    skip: !themePublicId,
+  });
 
   const handleRpc = useCallback(async (method: string, params: Record<string, unknown>): Promise<unknown> => {
     switch (method) {
@@ -127,8 +148,10 @@ const SandboxedHomePage = () => {
   }, [handleRpc]);
 
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const themeHtml = themeData?.homePageDesignByPublicId?.html;
+  const themeSrcdoc = themeHtml ? wrapBodyInSrcdoc(themeHtml, { origin }) : null;
   const defaultSrcdoc = getSandboxedHomePageSrcdoc({ origin });
-  const srcdoc = designChat?.customSrcdoc ?? defaultSrcdoc;
+  const srcdoc = customSrcdoc ?? themeSrcdoc ?? defaultSrcdoc;
 
   return (
     <DeferRender ssr={false}>
@@ -140,10 +163,10 @@ const SandboxedHomePage = () => {
           srcDoc={srcdoc}
         />
       </div>
-      {designChat && !designChat.isOpen && (
+      {!isOpen && (
         <button
           className={classes.customizeButton}
-          onClick={() => designChat.setIsOpen(true)}
+          onClick={() => setIsOpen(true)}
         >
           ✨ Customize
         </button>

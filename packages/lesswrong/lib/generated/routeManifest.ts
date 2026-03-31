@@ -380,6 +380,9 @@ export const routeTrie = {
         "health": {
           "hasRoute": true
         },
+        "homeDesignChat": {
+          "hasRoute": true
+        },
         "mcp": {
           "hasRoute": true
         },
@@ -481,6 +484,7 @@ export const routeTrie = {
         "dropandcreatepg": "dropAndCreatePg",
         "getllmfeedback": "getLlmFeedback",
         "health": "health",
+        "homedesignchat": "homeDesignChat",
         "mcp": "mcp",
         "notificationcount": "notificationCount",
         "notificationevents": "notificationEvents",

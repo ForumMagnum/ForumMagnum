@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -157,25 +157,28 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
   },
 }));
 
-const transport = new DefaultChatTransport({
-  api: '/api/homeDesignChat',
-});
-
 const HomeDesignChatPanel = () => {
   const classes = useStyles(styles);
-  const designChat = useHomeDesignChat();
+  const { isOpen, setIsOpen, applyDesign, publicId, setPublicId } = useHomeDesignChat();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const appliedToolCallIds = useRef(new Set<string>());
   const [input, setInput] = useState('');
+
+  // Use a ref so the transport's body function always reads the latest value
+  const publicIdRef = useRef<string | null>(publicId);
+  publicIdRef.current = publicId;
+
+  const transport = useMemo(() => new DefaultChatTransport({
+    api: '/api/homeDesignChat',
+    body: () => ({ publicId: publicIdRef.current }),
+  }), []);
 
   const { messages, sendMessage, status } = useChat({ transport });
 
   const isLoading = status === 'streaming' || status === 'submitted';
 
   // Watch for tool invocations and apply designs
-  const applyDesign = designChat?.applyDesign;
   useEffect(() => {
-    if (!applyDesign) return;
     for (const message of messages) {
       if (message.role !== 'assistant') continue;
       for (const part of message.parts) {
@@ -189,10 +192,16 @@ const HomeDesignChatPanel = () => {
           const bodyContent = (part.input as { html: string }).html;
           const origin = window.location.origin;
           applyDesign(wrapBodyInSrcdoc(bodyContent, { origin }));
+
+          // Read publicId from the tool result (set server-side)
+          const toolOutput = part.output as { publicId?: string } | undefined;
+          if (toolOutput?.publicId) {
+            setPublicId(toolOutput.publicId);
+          }
         }
       }
     }
-  }, [messages, applyDesign]);
+  }, [messages, applyDesign, setPublicId]);
 
   // Auto-scroll to bottom
   useEffect(() => {
@@ -200,8 +209,8 @@ const HomeDesignChatPanel = () => {
   }, [messages]);
 
   const handleClose = useCallback(() => {
-    designChat?.setIsOpen(false);
-  }, [designChat]);
+    setIsOpen(false);
+  }, [setIsOpen]);
 
   const handleSubmit = useCallback((e: React.SyntheticEvent) => {
     e.preventDefault();
@@ -210,7 +219,7 @@ const HomeDesignChatPanel = () => {
     setInput('');
   }, [input, isLoading, sendMessage]);
 
-  if (!designChat?.isOpen) return null;
+  if (!isOpen) return null;
 
   return (
     <div className={classes.overlay}>

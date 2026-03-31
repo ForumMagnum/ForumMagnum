@@ -17,6 +17,7 @@ import { DialogueChecksViews } from '../collections/dialogueChecks/views';
 import { DialogueMatchPreferencesViews } from '../collections/dialogueMatchPreferences/views';
 import { FieldChangesViews } from '../collections/fieldChanges/views';
 import { GoogleServiceAccountSessionsViews } from '../collections/googleServiceAccountSessions/views';
+import { HomePageDesignsViews } from '../collections/homePageDesigns/views';
 import { IframeWidgetSrcdocsViews } from '../collections/iframeWidgetSrcdocs/views';
 import { JargonTermsViews } from '../collections/jargonTerms/views';
 import { LlmConversationsViews } from '../collections/llmConversations/views';
@@ -81,6 +82,7 @@ export const allViews = {
   EmailTokens: new CollectionViewSet('EmailTokens', {}),
   FieldChanges: FieldChangesViews,
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsViews,
+  HomePageDesigns: HomePageDesignsViews,
   IframeWidgetSrcdocs: IframeWidgetSrcdocsViews,
   Images: new CollectionViewSet('Images', {}),
   JargonTerms: JargonTermsViews,

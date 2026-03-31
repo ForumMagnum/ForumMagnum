@@ -114,6 +114,8 @@ interface Query {
   fieldChanges: MultiFieldChangeOutput | null;
   googleServiceAccountSession: SingleGoogleServiceAccountSessionOutput | null;
   googleServiceAccountSessions: MultiGoogleServiceAccountSessionOutput | null;
+  homePageDesignByPublicId: HomePageDesign | null;
+  myHomePageDesigns: Array<HomePageDesign>;
   iframeWidgetSrcdoc: SingleIframeWidgetSrcdocOutput | null;
   iframeWidgetSrcdocs: MultiIframeWidgetSrcdocOutput | null;
   jargonTerm: SingleJargonTermOutput | null;
@@ -285,6 +287,7 @@ interface Mutation {
   updateCurationNotice: CurationNoticeOutput | null;
   createElicitQuestion: ElicitQuestionOutput | null;
   updateElicitQuestion: ElicitQuestionOutput | null;
+  publishHomePageDesign: HomePageDesignMutationOutput | null;
   createJargonTerm: JargonTermOutput | null;
   updateJargonTerm: JargonTermOutput | null;
   createLWEvent: LWEventOutput | null;
@@ -2649,6 +2652,18 @@ interface MultiGoogleServiceAccountSessionInput {
 interface MultiGoogleServiceAccountSessionOutput {
   results: Array<GoogleServiceAccountSession>;
   totalCount: number | null;
+}
+
+interface HomePageDesign {
+  _id: string;
+  createdAt: Date;
+  ownerId: string;
+  publicId: string;
+  html: string;
+  title: string;
+  verified: boolean;
+  commentId: string | null;
+  conversationHistory: any;
 }
 
 interface IframeWidgetSrcdoc {
@@ -7259,6 +7274,16 @@ interface ElicitQuestionOutput {
   data: ElicitQuestion | null;
 }
 
+interface PublishHomePageDesignInput {
+  publicId: string;
+  title: string;
+  description: string;
+}
+
+interface HomePageDesignMutationOutput {
+  data: HomePageDesign | null;
+}
+
 interface CreateJargonTermDataInput {
   legacyData?: any;
   contents?: CreateRevisionDataInput | null;
@@ -8959,6 +8984,7 @@ interface GraphQLTypeMap {
   GoogleServiceAccountSessionSelector: GoogleServiceAccountSessionSelector;
   MultiGoogleServiceAccountSessionInput: MultiGoogleServiceAccountSessionInput;
   MultiGoogleServiceAccountSessionOutput: MultiGoogleServiceAccountSessionOutput;
+  HomePageDesign: HomePageDesign;
   IframeWidgetSrcdoc: IframeWidgetSrcdoc;
   SingleIframeWidgetSrcdocOutput: SingleIframeWidgetSrcdocOutput;
   IframeWidgetSrcdocSelector: IframeWidgetSrcdocSelector;
@@ -9375,6 +9401,8 @@ interface GraphQLTypeMap {
   UpdateElicitQuestionDataInput: UpdateElicitQuestionDataInput;
   UpdateElicitQuestionInput: UpdateElicitQuestionInput;
   ElicitQuestionOutput: ElicitQuestionOutput;
+  PublishHomePageDesignInput: PublishHomePageDesignInput;
+  HomePageDesignMutationOutput: HomePageDesignMutationOutput;
   CreateJargonTermDataInput: CreateJargonTermDataInput;
   CreateJargonTermInput: CreateJargonTermInput;
   UpdateJargonTermDataInput: UpdateJargonTermDataInput;
@@ -9542,6 +9570,7 @@ interface CreateInputsByCollectionName {
   EmailTokens: never;
   FieldChanges: never;
   GoogleServiceAccountSessions: never;
+  HomePageDesigns: never;
   IframeWidgetSrcdocs: never;
   Images: never;
   LegacyData: never;
@@ -9625,6 +9654,7 @@ interface UpdateInputsByCollectionName {
   EmailTokens: never;
   FieldChanges: never;
   GoogleServiceAccountSessions: never;
+  HomePageDesigns: never;
   IframeWidgetSrcdocs: never;
   Images: never;
   LWEvents: never;

@@ -2320,6 +2320,24 @@ type HocuspocusAuth = {
   token: Scalars['String']['output'];
 };
 
+type HomePageDesign = {
+  __typename?: 'HomePageDesign';
+  _id: Scalars['String']['output'];
+  commentId?: Maybe<Scalars['String']['output']>;
+  conversationHistory: Scalars['JSON']['output'];
+  createdAt: Scalars['Date']['output'];
+  html: Scalars['String']['output'];
+  ownerId: Scalars['String']['output'];
+  publicId: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  verified: Scalars['Boolean']['output'];
+};
+
+type HomePageDesignMutationOutput = {
+  __typename?: 'HomePageDesignMutationOutput';
+  data?: Maybe<HomePageDesign>;
+};
+
 type HomepageCommunityEventMarker = {
   __typename?: 'HomepageCommunityEventMarker';
   _id: Scalars['String']['output'];
@@ -3732,6 +3750,7 @@ type Mutation = {
   performVoteTagRel?: Maybe<VoteResultTagRel>;
   promoteLensToMain?: Maybe<Scalars['Boolean']['output']>;
   publishAndDeDuplicateSpotlight?: Maybe<Spotlight>;
+  publishHomePageDesign?: Maybe<HomePageDesignMutationOutput>;
   rejectContentAndRemoveUserFromQueue: Scalars['Boolean']['output'];
   reorderSummaries?: Maybe<Scalars['Boolean']['output']>;
   rerunLlmCheck: AutomatedContentEvaluation;
@@ -4248,6 +4267,11 @@ type MutationpromoteLensToMainArgs = {
 
 type MutationpublishAndDeDuplicateSpotlightArgs = {
   spotlightId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationpublishHomePageDesignArgs = {
+  input: PublishHomePageDesignInput;
 };
 
 
@@ -6854,6 +6878,12 @@ type ProfilePostDiamond = {
   slug: Scalars['String']['output'];
 };
 
+type PublishHomePageDesignInput = {
+  description: Scalars['String']['input'];
+  publicId: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+};
+
 type Query = {
   __typename?: 'Query';
   ActiveTagCount: Scalars['Int']['output'];
@@ -6965,6 +6995,7 @@ type Query = {
   getSequenceStats?: Maybe<SequenceStats>;
   googleServiceAccountSession?: Maybe<SingleGoogleServiceAccountSessionOutput>;
   googleServiceAccountSessions?: Maybe<MultiGoogleServiceAccountSessionOutput>;
+  homePageDesignByPublicId?: Maybe<HomePageDesign>;
   iframeWidgetSrcdoc?: Maybe<SingleIframeWidgetSrcdocOutput>;
   iframeWidgetSrcdocs?: Maybe<MultiIframeWidgetSrcdocOutput>;
   jargonTerm?: Maybe<SingleJargonTermOutput>;
@@ -6986,6 +7017,7 @@ type Query = {
   moderatorViewIPAddress?: Maybe<ModeratorIPAddressInfo>;
   multiDocument?: Maybe<SingleMultiDocumentOutput>;
   multiDocuments?: Maybe<MultiMultiDocumentOutput>;
+  myHomePageDesigns: Array<HomePageDesign>;
   notification?: Maybe<SingleNotificationOutput>;
   notifications?: Maybe<MultiNotificationOutput>;
   petrov2024checkIfNuked?: Maybe<Scalars['Boolean']['output']>;
@@ -7656,6 +7688,11 @@ type QuerygoogleServiceAccountSessionsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<GoogleServiceAccountSessionSelector>;
+};
+
+
+type QueryhomePageDesignByPublicIdArgs = {
+  publicId: Scalars['String']['input'];
 };
 
 
@@ -12884,6 +12921,18 @@ type HeaderEventSubtitleSpotlightQueryQueryVariables = Exact<{ [key: string]: ne
 
 
 type HeaderEventSubtitleSpotlightQueryQuery = HeaderEventSubtitleSpotlightQueryQuery_Query;
+
+type HomePageDesignByPublicIdQuery_homePageDesignByPublicId_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, publicId: string, html: string, title: string };
+
+type HomePageDesignByPublicIdQuery_Query = { __typename?: 'Query', homePageDesignByPublicId: HomePageDesignByPublicIdQuery_homePageDesignByPublicId_HomePageDesign | null };
+
+
+type HomePageDesignByPublicIdQueryVariables = Exact<{
+  publicId: Scalars['String']['input'];
+}>;
+
+
+type HomePageDesignByPublicIdQuery = HomePageDesignByPublicIdQuery_Query;
 
 type PostExcerptQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }

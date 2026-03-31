@@ -434,6 +434,20 @@ interface DbGoogleServiceAccountSession extends DbObject {
   revoked: boolean
 }
 
+type HomePageDesignsCollection = PgCollection<"HomePageDesigns">;
+
+interface DbHomePageDesign extends DbObject {
+  __collectionName?: "HomePageDesigns"
+  commentId: string | null
+  conversationHistory: any
+  createdAt: Date
+  html: string
+  ownerId: string
+  publicId: string
+  title: string
+  verified: boolean
+}
+
 type IframeWidgetSrcdocsCollection = PgCollection<"IframeWidgetSrcdocs">;
 
 interface DbIframeWidgetSrcdoc extends DbObject {
@@ -2158,6 +2172,7 @@ interface CollectionsByName {
   EmailTokens: EmailTokensCollection
   FieldChanges: FieldChangesCollection
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsCollection
+  HomePageDesigns: HomePageDesignsCollection
   IframeWidgetSrcdocs: IframeWidgetSrcdocsCollection
   Images: ImagesCollection
   JargonTerms: JargonTermsCollection
@@ -2244,6 +2259,7 @@ interface ObjectsByCollectionName {
   EmailTokens: DbEmailTokens
   FieldChanges: DbFieldChange
   GoogleServiceAccountSessions: DbGoogleServiceAccountSession
+  HomePageDesigns: DbHomePageDesign
   IframeWidgetSrcdocs: DbIframeWidgetSrcdoc
   Images: DbImages
   JargonTerms: DbJargonTerm
@@ -2330,6 +2346,7 @@ interface ObjectsByTypeName {
   EmailTokens: DbEmailTokens
   FieldChange: DbFieldChange
   GoogleServiceAccountSession: DbGoogleServiceAccountSession
+  HomePageDesign: DbHomePageDesign
   IframeWidgetSrcdoc: DbIframeWidgetSrcdoc
   Images: DbImages
   JargonTerm: DbJargonTerm

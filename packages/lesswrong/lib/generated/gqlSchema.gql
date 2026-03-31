@@ -2960,6 +2960,23 @@ extend type Query {
   googleServiceAccountSessions(input: MultiGoogleServiceAccountSessionInput @deprecated(reason: "Use the selector field instead"), selector: GoogleServiceAccountSessionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiGoogleServiceAccountSessionOutput
 }
 
+type HomePageDesign {
+  _id: String!
+  createdAt: Date!
+  ownerId: String!
+  publicId: String!
+  html: String!
+  title: String!
+  verified: Boolean!
+  commentId: String
+  conversationHistory: JSON!
+}
+
+extend type Query {
+  homePageDesignByPublicId(publicId: String!): HomePageDesign
+  myHomePageDesigns: [HomePageDesign!]!
+}
+
 type IframeWidgetSrcdoc {
   _id: String!
   createdAt: Date!
@@ -7912,6 +7929,20 @@ type ElicitQuestionOutput {
 extend type Mutation {
   createElicitQuestion(data: CreateElicitQuestionDataInput!): ElicitQuestionOutput
   updateElicitQuestion(selector: SelectorInput!, data: UpdateElicitQuestionDataInput!): ElicitQuestionOutput
+}
+
+input PublishHomePageDesignInput {
+  publicId: String!
+  title: String!
+  description: String!
+}
+
+type HomePageDesignMutationOutput {
+  data: HomePageDesign
+}
+
+extend type Mutation {
+  publishHomePageDesign(input: PublishHomePageDesignInput!): HomePageDesignMutationOutput
 }
 
 input CreateJargonTermDataInput {
