@@ -221,6 +221,11 @@ const HomeDesignChatPanel = () => {
 
   if (!isOpen) return null;
 
+  const lastMsg = messages[messages.length - 1];
+  const showTypingIndicator = isLoading && !(lastMsg?.role === 'assistant' && lastMsg.parts.some(
+    p => (p.type === 'text' && p.text.trim()) || p.type.startsWith('tool-')
+  ));
+
   return (
     <div className={classes.overlay}>
       <div className={classes.header}>
@@ -263,13 +268,7 @@ const HomeDesignChatPanel = () => {
             })}
           </div>
         ))}
-        {isLoading && (() => {
-          const lastMsg = messages[messages.length - 1];
-          const hasVisibleContent = lastMsg && lastMsg.role === 'assistant' && lastMsg.parts.some(
-            p => (p.type === 'text' && p.text.trim()) || p.type.startsWith('tool-')
-          );
-          return !hasVisibleContent;
-        })() && (
+        {showTypingIndicator && (
           <div className={classes.typingIndicator}>
             <span /><span /><span />
           </div>

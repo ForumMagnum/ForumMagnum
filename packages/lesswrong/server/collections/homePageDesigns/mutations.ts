@@ -40,6 +40,7 @@ async function publishHomePageDesignResolver(
   const latest = await HomePageDesigns.findOne(
     { publicId },
     { sort: { createdAt: -1 } },
+    { _id: 1 },
   );
   if (!latest) {
     throw new Error("No design found with that publicId");
@@ -48,6 +49,8 @@ async function publishHomePageDesignResolver(
   // Check if already published (any revision has a commentId)
   const existingPublished = await HomePageDesigns.findOne(
     { publicId, commentId: { $ne: null } },
+    undefined,
+    { _id: 1 },
   );
   if (existingPublished) {
     throw new Error("This design has already been published");
@@ -69,7 +72,6 @@ async function publishHomePageDesignResolver(
     },
   }, context);
 
-  // Set commentId and title on the latest revision
   await HomePageDesigns.rawUpdateOne(
     { _id: latest._id },
     { $set: { commentId: comment._id, title } },

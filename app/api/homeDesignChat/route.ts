@@ -223,8 +223,6 @@ export async function POST(req: NextRequest) {
   const openai = createOpenAI({ apiKey: openAiApiKey });
   const anthropic = createAnthropic({ apiKey: anthropicKey });
 
-  // Track the publicId across tool calls within this request.
-  // Starts with whatever the client sent (if iterating on an existing design).
   let publicId = clientPublicId ?? null;
 
   const result = streamText({
@@ -245,7 +243,6 @@ export async function POST(req: NextRequest) {
           }
 
           if (publicId) {
-            // Verify ownership of existing design
             const original = await HomePageDesigns.findOne(
               { publicId },
               { sort: { createdAt: 1 } },
