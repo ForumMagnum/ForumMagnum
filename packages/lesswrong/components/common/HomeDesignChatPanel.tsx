@@ -5,6 +5,7 @@ import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useHomeDesignChat } from './HomeDesignChatContext';
+import { wrapBodyInSrcdoc } from './SandboxedHomePageSrcdoc';
 import classNames from 'classnames';
 
 const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
@@ -185,7 +186,9 @@ const HomeDesignChatPanel = () => {
           !appliedToolCallIds.current.has(part.toolCallId)
         ) {
           appliedToolCallIds.current.add(part.toolCallId);
-          applyDesign((part.input as { html: string }).html);
+          const bodyContent = (part.input as { html: string }).html;
+          const origin = window.location.origin;
+          applyDesign(wrapBodyInSrcdoc(bodyContent, { origin }));
         }
       }
     }

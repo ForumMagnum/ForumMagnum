@@ -1,29 +1,135 @@
 /**
- * The srcdoc HTML for the sandboxed iframe home page.
- * This is the "default" implementation that recreates the LessWrong home page
- * experience using React + Babel standalone, fetching from the GraphQL API.
+ * Srcdoc generation for the sandboxed iframe home page.
  *
- * The iframe communicates with the parent via postMessage RPCs for:
- * - Fetching read status for posts
- * - Casting votes (no confirmation required)
- * - Creating comments (requires parent-side confirmation dialog)
+ * Architecture:
+ * - `wrapBodyInSrcdoc` creates a full HTML document from body content, handling:
+ *   CSP meta tag, library loading, RPC bridge setup, and height reporting.
+ * - `getDefaultHomePageBody` returns the default LW home page as body content.
+ * - `getSandboxedHomePageSrcdoc` combines both for the default experience.
+ *
+ * LLM-generated designs only provide body content; the wrapper is applied by
+ * the parent component before setting it as the iframe srcdoc.
  */
 
-const GRAPHQL_ENDPOINT = '/graphql';
+interface SrcdocWrapperOptions {
+  /** The origin of the parent page, used for CSP connect-src. */
+  origin: string;
+}
 
-export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_ENDPOINT): string {
+/**
+ * Wrap body content in a complete HTML document with CSP, libraries,
+ * RPC bridge, and height reporting.
+ */
+export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOptions): string {
+  const { origin } = options;
+
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://unpkg.com; style-src 'unsafe-inline'; connect-src ${origin}/; img-src https://res.cloudinary.com data:; font-src 'none';">
+  <style>
+    html { font-size: 13px; overflow: hidden; }
+    body { overflow: hidden; }
+  </style>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+  <script>
+    // ---- RPC bridge ----
+    // Provides window.rpc with methods for communicating with the parent frame.
+    (function() {
+      var rpcIdCounter = 0;
+      var pendingRpcs = {};
+
+      window.addEventListener('message', function(event) {
+        var data = event.data || {};
+        if (data.type === 'rpc-response' && pendingRpcs[data.id]) {
+          var cb = pendingRpcs[data.id];
+          delete pendingRpcs[data.id];
+          if (data.error) cb.reject(new Error(data.error));
+          else cb.resolve(data.result);
+        }
+      });
+
+      function callRpc(method, params) {
+        return new Promise(function(resolve, reject) {
+          var id = ++rpcIdCounter;
+          pendingRpcs[id] = { resolve: resolve, reject: reject };
+          window.parent.postMessage({ type: 'rpc-request', id: id, method: method, params: params }, '*');
+        });
+      }
+
+      // GraphQL helper — fetches directly from the iframe (unauthenticated)
+      window.gqlQuery = function(query, variables) {
+        return fetch('${origin}/graphql', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: query, variables: variables || {} }),
+        }).then(function(resp) {
+          if (!resp.ok) throw new Error('GraphQL request failed: ' + resp.status);
+          return resp.json();
+        }).then(function(json) {
+          if (json.errors) throw new Error(json.errors[0].message);
+          return json.data;
+        });
+      };
+
+      window.rpc = {
+        /**
+         * Get read statuses for a list of post IDs.
+         * @param {string[]} postIds
+         * @returns {Promise<Record<string, boolean>>}
+         */
+        getReadStatuses: function(postIds) {
+          return callRpc('getReadStatuses', { postIds: postIds });
+        },
+        /**
+         * Get the current user's vote statuses for a list of document IDs.
+         * @param {{postIds?: string[], commentIds?: string[]}} params
+         * @returns {Promise<Record<string, {voteType: string|null}>>}
+         */
+        getVoteStatuses: function(params) {
+          return callRpc('getVoteStatuses', params);
+        },
+        /**
+         * Cast a vote on a document.
+         * @param {{documentId: string, collectionName: string, voteType: string}} params
+         *   collectionName: "Posts" or "Comments"
+         *   voteType: "smallUpvote", "bigUpvote", "smallDownvote", "bigDownvote", or "neutral" (to clear)
+         * @returns {Promise<{success: boolean}>}
+         */
+        castVote: function(params) {
+          return callRpc('castVote', params);
+        },
+      };
+    })();
+  </script>
+</head>
+<body>
+  ${bodyContent}
+  <script>
+    // Report document height to parent so the iframe sizes to fit content.
+    (function() {
+      var ro = new ResizeObserver(function() {
+        window.parent.postMessage({ type: 'resize', height: document.documentElement.scrollHeight }, '*');
+      });
+      ro.observe(document.documentElement);
+    })();
+  </script>
+</body>
+</html>`;
+}
+
+/**
+ * The default LW home page body content. This is what gets rendered in the
+ * iframe when no custom design is active.
+ */
+export function getDefaultHomePageBody(): string {
+  return `
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html {
-      font-size: 13px;
-      overflow: hidden;
-    }
 
     body {
       font-family: 'GreekFallback', Calibri, 'gill-sans-nova', 'Gill Sans', 'Gill Sans MT',
@@ -39,7 +145,6 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
 
     a { color: inherit; text-decoration: none; }
 
-    /* ---- Section layout (matches SingleColumnSection: 765px, mb 32) ---- */
     .section {
       max-width: 765px;
       margin-left: auto;
@@ -48,7 +153,6 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
       position: relative;
     }
 
-    /* ---- Spotlight (matches SpotlightItem) ---- */
     .spotlight {
       position: relative;
       margin-bottom: 12px;
@@ -56,7 +160,6 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
       margin-left: auto;
       margin-right: auto;
       box-shadow: 0 1px 5px rgba(0,0,0,0.025);
-      border-radius: 0px;
       overflow: hidden;
     }
     .spotlight-inner {
@@ -83,8 +186,6 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
       font-size: 20px;
       font-variant: small-caps;
       line-height: 1.2em;
-      display: flex;
-      align-items: center;
     }
     .spotlight-title a { color: rgba(0,0,0,0.87); }
     .spotlight-title a:hover { color: #5f9b65; }
@@ -118,31 +219,11 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
       -webkit-mask-image: linear-gradient(to right, transparent 0, #fff 80%, #fff 100%);
       mask: linear-gradient(to right, transparent 0, #fff 80%, #fff 100%);
     }
-    .spotlight-close {
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      z-index: 3;
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: #e0e0e0;
-      font-size: 20px;
-      padding: 4px;
-      line-height: 1;
-    }
-    .spotlight-close:hover { color: #999; }
-
     @media (max-width: 600px) {
-      .spotlight-content {
-        margin-right: 50px;
-      }
-      .spotlight-description {
-        display: none;
-      }
+      .spotlight-content { margin-right: 50px; }
+      .spotlight-description { display: none; }
     }
 
-    /* ---- Post item (matches LWPostsItem) ---- */
     .post-item {
       display: flex;
       align-items: center;
@@ -151,17 +232,10 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
       background: #fff;
       border-bottom: 2px solid rgba(0,0,0,0.05);
     }
-    .post-item:hover {
-      background: #fafafa;
-    }
-    .post-item.is-read .post-title a {
-      color: rgba(0,0,0,0.55);
-    }
-    .post-item.is-read .post-title a:hover {
-      color: rgba(0,0,0,0.87);
-    }
+    .post-item:hover { background: #fafafa; }
+    .post-item.is-read .post-title a { color: rgba(0,0,0,0.55); }
+    .post-item.is-read .post-title a:hover { color: rgba(0,0,0,0.87); }
 
-    /* Curated star icon (icon.dim4 = grey[500] = #9e9e9e) */
     .curated-icon {
       flex-shrink: 0;
       width: 15.6px;
@@ -172,7 +246,6 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
       bottom: 2px;
     }
 
-    /* Karma (matches PostsItem2MetaInfo + KARMA_WIDTH=32) */
     .post-karma {
       width: 32px;
       margin-right: 4px;
@@ -183,7 +256,6 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
       font-size: 1.1rem;
     }
 
-    /* Title (matches PostsTitle) */
     .post-title {
       flex: 1 1 0;
       min-width: 0;
@@ -207,7 +279,6 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
     }
     .post-title a:hover { color: rgba(0,0,0,0.55); }
 
-    /* Author (matches .author in LWPostsItem) */
     .post-author {
       flex: 0 1 auto;
       overflow: hidden;
@@ -217,14 +288,9 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
       color: #757575;
       font-size: 1.1rem;
     }
-    .post-author a {
-      color: inherit;
-    }
+    .post-author a { color: inherit; }
     .post-author a:hover { opacity: 0.7; }
 
-    /* Spacer is no longer needed — title flex-grows to push author right */
-
-    /* Date (matches PostsItemDate: width 38, weight 300, color .9 alpha) */
     .post-date {
       width: 38px;
       font-size: 1rem;
@@ -235,7 +301,6 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
       text-align: center;
     }
 
-    /* Comment count (matches PostsItemComments: icon 30x30 in container) */
     .post-comments {
       width: 36px;
       height: 30px;
@@ -267,7 +332,6 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
       margin-top: -2px;
     }
 
-    /* ---- Load more ---- */
     .load-more {
       display: block;
       width: 100%;
@@ -282,7 +346,6 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
     }
     .load-more:hover { color: rgba(105, 136, 110, 0.87); }
 
-    /* ---- Loading ---- */
     .loading {
       text-align: center;
       padding: 48px;
@@ -301,14 +364,12 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
     }
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* ---- Error ---- */
     .error {
       text-align: center;
       padding: 48px;
       color: #9b5e5e;
     }
 
-    /* ---- Responsive ---- */
     @media (max-width: 600px) {
       .post-item {
         flex-wrap: wrap;
@@ -327,7 +388,6 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
         margin-left: 2px;
         margin-right: 8px;
       }
-      .post-spacer { display: none; }
       .post-author {
         justify-content: flex-end;
         width: unset;
@@ -336,63 +396,12 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
       }
     }
   </style>
-</head>
-<body>
+
   <div id="root"></div>
 
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
-
-  <script type="text/babel" data-type="module">
+  <script type="text/babel" data-presets="react" data-plugins="transform-optional-chaining,transform-nullish-coalescing-operator">
     const { useState, useEffect, useCallback } = React;
 
-    const GRAPHQL_URL = ${JSON.stringify(graphqlEndpoint)};
-
-    // ---- postMessage RPC bridge ----
-    let rpcIdCounter = 0;
-    const pendingRpcs = new Map();
-
-    window.addEventListener('message', (event) => {
-      const { type, id, result, error } = event.data || {};
-      if (type === 'rpc-response' && pendingRpcs.has(id)) {
-        const { resolve, reject } = pendingRpcs.get(id);
-        pendingRpcs.delete(id);
-        if (error) reject(new Error(error));
-        else resolve(result);
-      }
-    });
-
-    function callRpc(method, params) {
-      return new Promise((resolve, reject) => {
-        const id = ++rpcIdCounter;
-        pendingRpcs.set(id, { resolve, reject });
-        window.parent.postMessage({ type: 'rpc-request', id, method, params }, '*');
-      });
-    }
-
-    async function getReadStatuses(postIds) {
-      try {
-        return await callRpc('getReadStatuses', { postIds });
-      } catch {
-        return {};
-      }
-    }
-
-    // ---- GraphQL helper ----
-    async function gqlQuery(query, variables = {}) {
-      const resp = await fetch(GRAPHQL_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query, variables }),
-      });
-      if (!resp.ok) throw new Error('GraphQL request failed: ' + resp.status);
-      const json = await resp.json();
-      if (json.errors) throw new Error(json.errors[0].message);
-      return json.data;
-    }
-
-    // ---- Time formatting (matches formatRelative from LW) ----
     function formatRelative(dateStr) {
       const msApart = Math.abs(Date.now() - new Date(dateStr).getTime());
       const sec = msApart / 1000;
@@ -404,7 +413,6 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
       return Math.round(sec / (365 * 86400)) + 'y';
     }
 
-    // ---- SVG Icons ----
     function CommentBubbleIcon() {
       return (
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -421,8 +429,6 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
       );
     }
 
-    // ---- Components ----
-
     function Loading() {
       return (
         <div className="loading">
@@ -434,10 +440,8 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
 
     function Spotlight({ spotlight }) {
       if (!spotlight) return null;
-
       const doc = spotlight.post || spotlight.sequence || spotlight.tag;
       if (!doc) return null;
-
       const title = spotlight.customTitle || doc.title || doc.name || '';
       const subtitle = spotlight.customSubtitle || '';
       const subtitleUrl = spotlight.subtitleUrl || '';
@@ -445,21 +449,17 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
       const imageUrl = spotlight.spotlightImageId
         ? 'https://res.cloudinary.com/lesswrong-2-0/image/upload/v1/' + spotlight.spotlightImageId
         : null;
-
       let url = '/';
       if (spotlight.post) url = '/posts/' + spotlight.post._id + '/' + (spotlight.post.slug || '');
       else if (spotlight.sequence) url = '/s/' + spotlight.sequence._id;
       else if (spotlight.tag) url = '/tag/' + (spotlight.tag.slug || spotlight.tag._id);
-
       return (
         <div className="section">
           <div className="spotlight">
             <a href={url} target="_top">
               <div className="spotlight-inner">
                 <div className="spotlight-content">
-                  <div className="spotlight-title">
-                    {title}
-                  </div>
+                  <div className="spotlight-title">{title}</div>
                   {description && (
                     <div className="spotlight-description" dangerouslySetInnerHTML={{ __html: description }} />
                   )}
@@ -467,8 +467,7 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
                     <div className="spotlight-subtitle">
                       {subtitleUrl
                         ? <span>First Post: <a href={subtitleUrl} target="_top" onClick={e => e.stopPropagation()}>{subtitle}</a></span>
-                        : subtitle
-                      }
+                        : subtitle}
                     </div>
                   )}
                 </div>
@@ -485,8 +484,7 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
         <a className="post-comments"
            href={'/posts/' + postId + '/' + (slug || '') + '#comments'}
            target="_top"
-           title={count + ' comments'}
-        >
+           title={count + ' comments'}>
           <CommentBubbleIcon />
           <span className="comment-count-text">{count != null ? count : ''}</span>
         </a>
@@ -496,7 +494,6 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
     function PostItem({ post, isRead, showCuratedIcon }) {
       const dateText = formatRelative(post.postedAt);
       const postUrl = '/posts/' + post._id + '/' + (post.slug || '');
-
       return (
         <div className={'post-item' + (isRead ? ' is-read' : '')}>
           <div className="post-karma">{post.baseScore}</div>
@@ -509,24 +506,16 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
               {post.user?.displayName || 'Anonymous'}
             </a>
           </div>
-          <div className="post-spacer" />
           <div className="post-date">{dateText}</div>
           <PostComments count={post.commentCount} postId={post._id} slug={post.slug} />
         </div>
       );
     }
 
-    // ---- Queries ----
-
     const SPOTLIGHT_QUERY = \`
       query CurrentSpotlight {
         currentSpotlight {
-          _id
-          documentType
-          customTitle
-          customSubtitle
-          subtitleUrl
-          spotlightImageId
+          _id documentType customTitle customSubtitle subtitleUrl spotlightImageId
           description { html }
           post { _id slug title user { displayName } }
           sequence { _id title }
@@ -538,10 +527,7 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
     const CURATED_QUERY = \`
       query CuratedPosts {
         CuratedAndPopularThisWeek(limit: 3) {
-          results {
-            _id title slug baseScore postedAt curatedDate commentCount
-            user { displayName slug }
-          }
+          results { _id title slug baseScore postedAt curatedDate commentCount user { displayName slug } }
         }
       }
     \`;
@@ -549,18 +535,13 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
     const FRONTPAGE_QUERY = \`
       query FrontpagePosts($limit: Int, $offset: Int) {
         posts(selector: { magic: { forum: true } }, limit: $limit, offset: $offset, enableTotal: true) {
-          results {
-            _id title slug baseScore postedAt curatedDate commentCount
-            user { displayName slug }
-          }
+          results { _id title slug baseScore postedAt curatedDate commentCount user { displayName slug } }
           totalCount
         }
       }
     \`;
 
     const PAGE_SIZE = 13;
-
-    // ---- App ----
 
     function App() {
       const [spotlight, setSpotlight] = useState(null);
@@ -580,23 +561,15 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
               gqlQuery(CURATED_QUERY),
               gqlQuery(FRONTPAGE_QUERY, { limit: PAGE_SIZE, offset: 0 }),
             ]);
-
             setSpotlight(spotlightData?.currentSpotlight || null);
-
             const curatedResults = curatedData.CuratedAndPopularThisWeek?.results || [];
             const postsResults = postsData.posts?.results || [];
-            const total = postsData.posts?.totalCount;
-
             setCurated(curatedResults);
             setPosts(postsResults);
-            setTotalCount(total);
-
-            const allIds = [
-              ...curatedResults.map(p => p._id),
-              ...postsResults.map(p => p._id),
-            ];
+            setTotalCount(postsData.posts?.totalCount);
+            const allIds = [...curatedResults.map(p => p._id), ...postsResults.map(p => p._id)];
             if (allIds.length > 0) {
-              const statuses = await getReadStatuses(allIds);
+              const statuses = await rpc.getReadStatuses(allIds);
               setReadStatuses(statuses);
             }
           } catch (err) {
@@ -610,17 +583,13 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
       const loadMore = useCallback(async () => {
         setLoadingMore(true);
         try {
-          const data = await gqlQuery(FRONTPAGE_QUERY, {
-            limit: PAGE_SIZE,
-            offset: posts.length,
-          });
+          const data = await gqlQuery(FRONTPAGE_QUERY, { limit: PAGE_SIZE, offset: posts.length });
           const newPosts = data.posts?.results || [];
           setPosts(prev => [...prev, ...newPosts]);
           setTotalCount(data.posts?.totalCount);
-
           const newIds = newPosts.map(p => p._id);
           if (newIds.length > 0) {
-            const statuses = await getReadStatuses(newIds);
+            const statuses = await rpc.getReadStatuses(newIds);
             setReadStatuses(prev => ({ ...prev, ...statuses }));
           }
         } catch (err) {
@@ -634,9 +603,6 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
       if (error) return <div className="error">Error: {error}</div>;
 
       const hasMore = totalCount != null && posts.length < totalCount;
-
-      // Merge curated + frontpage into one continuous list.
-      // Curated posts appear first with star icons, then regular posts follow.
       const curatedIds = new Set(curated.map(p => p._id));
       const regularPosts = posts.filter(p => !curatedIds.has(p._id));
 
@@ -645,20 +611,10 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
           <Spotlight spotlight={spotlight} />
           <div className="section">
             {curated.map(post => (
-              <PostItem
-                key={post._id}
-                post={post}
-                isRead={readStatuses[post._id] || false}
-                showCuratedIcon={true}
-              />
+              <PostItem key={post._id} post={post} isRead={readStatuses[post._id] || false} showCuratedIcon={true} />
             ))}
             {regularPosts.map(post => (
-              <PostItem
-                key={post._id}
-                post={post}
-                isRead={readStatuses[post._id] || false}
-                showCuratedIcon={true}
-              />
+              <PostItem key={post._id} post={post} isRead={readStatuses[post._id] || false} showCuratedIcon={true} />
             ))}
             {hasMore && (
               <button className="load-more" onClick={loadMore} disabled={loadingMore}>
@@ -672,17 +628,12 @@ export function getSandboxedHomePageSrcdoc(graphqlEndpoint: string = GRAPHQL_END
 
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
-  </script>
+  </script>`;
+}
 
-  <script>
-    // Report document height to parent so the iframe can be sized to fit
-    // its content, allowing the parent page to handle scrolling.
-    const ro = new ResizeObserver(() => {
-      const height = document.documentElement.scrollHeight;
-      window.parent.postMessage({ type: 'resize', height }, '*');
-    });
-    ro.observe(document.documentElement);
-  </script>
-</body>
-</html>`;
+/**
+ * Get the complete default srcdoc (wrapper + default body).
+ */
+export function getSandboxedHomePageSrcdoc(options: SrcdocWrapperOptions): string {
+  return wrapBodyInSrcdoc(getDefaultHomePageBody(), options);
 }

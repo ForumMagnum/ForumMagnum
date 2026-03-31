@@ -6,17 +6,41 @@ import { openAIApiKey } from '@/server/databaseSettings';
 import { anthropicApiKey } from "@/lib/instanceSettings";
 import { AnthropicLanguageModelOptions, createAnthropic } from '@ai-sdk/anthropic';
 
-const SYSTEM_PROMPT = `You are a home page designer for LessWrong, a discussion forum about rationality and AI safety. Users describe their ideal home page and you build it as a complete HTML document that runs inside a sandboxed iframe.
+const SYSTEM_PROMPT = `You are a home page designer for LessWrong, a discussion forum about rationality and AI safety. Users describe their ideal home page and you build it as **body content only** that runs inside a sandboxed iframe.
 
-## Available Libraries (load via script tags)
-- React 18: https://unpkg.com/react@18/umd/react.production.min.js
-- ReactDOM 18: https://unpkg.com/react-dom@18/umd/react-dom.production.min.js
-- Babel Standalone: https://unpkg.com/@babel/standalone/babel.min.js
+## What You Provide
+You provide ONLY the content of the <body> tag. The parent system automatically wraps your output in a complete HTML document that includes:
+- CSP meta tag
+- React 18, ReactDOM 18, and Babel Standalone (already loaded)
+- The RPC bridge (available as \`window.rpc\`)
+- A ResizeObserver that reports document height to the parent
 
-Write JSX inside \`<script type="text/babel" data-presets="react" data-plugins="transform-optional-chaining,transform-nullish-coalescing-operator">\` tags. Babel transpiles it in-browser. Optional chaining (\`?.\`) and nullish coalescing (\`??\`) are supported via the explicit plugins listed above.
+Do NOT include \`<!DOCTYPE html>\`, \`<html>\`, \`<head>\`, or \`<body>\` tags. Do NOT include script tags to load React, ReactDOM, or Babel — they are already available.
 
-## Data Fetching
-The LessWrong GraphQL API is at \`/graphql\`. Send POST requests with JSON body \`{query, variables}\`.
+Your output can include:
+- \`<style>\` tags for CSS
+- \`<div>\` and other HTML elements
+- \`<script type="text/babel" data-presets="react" data-plugins="transform-optional-chaining,transform-nullish-coalescing-operator">\` tags for JSX code
+
+## Available Global APIs
+
+### React & ReactDOM
+React 18 and ReactDOM 18 are available as globals. Use them directly:
+\`\`\`js
+const { useState, useEffect, useCallback } = React;
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+\`\`\`
+
+### window.gqlQuery — GraphQL Helper
+\`gqlQuery(query, variables)\` makes a direct fetch to the LessWrong GraphQL API from inside the iframe (unauthenticated). Returns the \`data\` field of the response. This is just a wrapper around the standard fetch API.
+
+### window.rpc — RPC Bridge
+The RPC bridge provides methods that require authentication, proxied through the parent frame:
+
+- \`rpc.getReadStatuses(postIds)\` — Get read statuses for post IDs. Returns \`{[postId]: boolean}\`.
+- \`rpc.getVoteStatuses({postIds?, commentIds?})\` — Get the user's vote statuses. Returns \`{[documentId]: {voteType: string|null}}\`.
+- \`rpc.castVote({documentId, collectionName, voteType})\` — Cast a vote. collectionName: "Posts" or "Comments". voteType: "smallUpvote", "bigUpvote", "smallDownvote", "bigDownvote", or "neutral" (to clear).
 
 ### Post Queries
 
@@ -160,17 +184,6 @@ Available methods:
 - Use reasonable limits on queries (10-20 items per request).
 - Cloudinary images: https://res.cloudinary.com/lesswrong-2-0/image/upload/v1/{imageId}
 
-## Height Reporting (REQUIRED)
-Always include this script at the end of <body> so the iframe sizes correctly:
-\`\`\`html
-<script>
-const ro = new ResizeObserver(() => {
-  window.parent.postMessage({ type: 'resize', height: document.documentElement.scrollHeight }, '*');
-});
-ro.observe(document.documentElement);
-</script>
-\`\`\`
-
 ## LessWrong Typography Reference
 - Sans-serif: Calibri, 'Gill Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif
 - Serif (post titles): warnock-pro, Palatino, 'Palatino Linotype', 'Book Antiqua', Georgia, serif
@@ -178,7 +191,7 @@ ro.observe(document.documentElement);
 - Text color: rgba(0,0,0,0.87)
 - Muted text: #757575
 
-When the user asks you to apply, preview, or submit a design, call the submitHomePageDesign tool with the complete HTML. Always call this tool proactively after creating or modifying a design — don't just show code, apply it.`;
+When the user asks you to apply, preview, or submit a design, call the submitHomePageDesign tool with the body content. Always call this tool proactively after creating or modifying a design — don't just show code, apply it.`;
 
 export async function POST(req: Request) {
   const { messages }: { messages: UIMessage[] } = await req.json();
@@ -201,9 +214,9 @@ export async function POST(req: Request) {
     messages: await convertToModelMessages(messages),
     tools: {
       submitHomePageDesign: {
-        description: 'Apply a home page design to the iframe. Call this whenever you create or modify a design. The html parameter must be a complete, self-contained HTML document.',
+        description: 'Apply a home page design to the iframe. Call this whenever you create or modify a design. The html parameter should be body content only (styles, divs, scripts) — NOT a full HTML document.',
         inputSchema: z.object({
-          html: z.string().describe('Complete HTML document including <!DOCTYPE html>, all styles, scripts, React/Babel imports, and the height-reporting script.'),
+          html: z.string().describe('Body content: <style> tags, HTML elements, and <script type="text/babel"> tags. Do NOT include <!DOCTYPE>, <html>, <head>, or <body> tags — the wrapper handles those. React, ReactDOM, Babel, and the RPC bridge are already loaded.'),
         }),
         execute: async () => ({ success: true, message: 'Design applied to the home page.' }),
       },

@@ -43,17 +43,6 @@ const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
   },
 }));
 
-// CSP for the sandboxed iframe: allow scripts + eval (for Babel), styles,
-// connections only to our own GraphQL endpoint, images from our CDN.
-const IFRAME_CSP = [
-  "default-src 'none'",
-  "script-src 'unsafe-inline' 'unsafe-eval' https://unpkg.com",
-  "style-src 'unsafe-inline'",
-  "connect-src 'self'",
-  "img-src https://res.cloudinary.com",
-  "font-src 'none'",
-].join('; ');
-
 interface RpcRequest {
   type: 'rpc-request';
   id: number;
@@ -79,13 +68,23 @@ const SandboxedHomePage = () => {
         if (!currentUser) return {};
         const postIds = params.postIds;
         if (!Array.isArray(postIds)) return {};
-        // For now, return empty read statuses — this will be wired up to the
-        // real read status system via a server query later
+        // TODO: Wire up to real read status queries
         const statuses: Record<string, boolean> = {};
         for (const id of postIds) {
           statuses[id] = false;
         }
         return statuses;
+      }
+      case 'getVoteStatuses': {
+        if (!currentUser) return {};
+        // TODO: Wire up to real vote status queries
+        return {};
+      }
+      case 'castVote': {
+        if (!currentUser) throw new Error('Must be logged in to vote');
+        // TODO: Wire up to real vote mutation
+        // params: { documentId: string, collectionName: string, voteType: string }
+        return { success: false, error: 'Voting not yet implemented' };
       }
       default:
         throw new Error(`Unknown RPC method: ${method}`);
@@ -127,22 +126,15 @@ const SandboxedHomePage = () => {
     return () => window.removeEventListener('message', onMessage);
   }, [handleRpc]);
 
-  const defaultSrcdoc = getSandboxedHomePageSrcdoc();
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const defaultSrcdoc = getSandboxedHomePageSrcdoc({ origin });
   const srcdoc = designChat?.customSrcdoc ?? defaultSrcdoc;
 
   return (
     <>
       <div className={classes.root}>
-        {/* The `csp` attribute is not in React's type definitions but is a valid
-           HTML attribute for iframe CSP Embedded Enforcement (Chrome 61+).
-           We apply it via ref as a workaround for the missing type. */}
         <iframe
-          ref={(el) => {
-            iframeRef.current = el;
-            if (el) {
-              el.setAttribute('csp', IFRAME_CSP);
-            }
-          }}
+          ref={iframeRef}
           className={classes.iframe}
           sandbox="allow-scripts"
           srcDoc={srcdoc}
