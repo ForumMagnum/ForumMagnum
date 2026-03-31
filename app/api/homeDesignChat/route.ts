@@ -11,6 +11,7 @@ const SYSTEM_PROMPT = `You are a home page designer for LessWrong, a discussion 
 ## What You Provide
 You provide ONLY the content of the <body> tag. The parent system automatically wraps your output in a complete HTML document that includes:
 - CSP meta tag
+- LessWrong's Adobe Fonts / Typekit stylesheets (including fonts like \`warnock-pro\` and \`gill-sans-nova\`)
 - React 18, ReactDOM 18, and Babel Standalone (already loaded)
 - The RPC bridge (available as \`window.rpc\`)
 - A ResizeObserver that reports document height to the parent
@@ -127,10 +128,19 @@ query($limit: Int) {
 
 **Comment fields available:** _id, postId, parentCommentId, topLevelCommentId, baseScore, voteCount, score, postedAt, deleted, contents { html plaintextMainText wordCount }, user { _id displayName slug }, post { _id title slug }
 
-**Example — Recent top comments:**
+**Example — Top comments of all time:**
 \`\`\`graphql
 query {
   comments(selector: { recentComments: { sortBy: "top" } }, limit: 10) {
+    results { _id baseScore postedAt contents { html } user { displayName } post { title slug _id } }
+  }
+}
+\`\`\`
+
+**Example — Recent comments anywhere:**
+\`\`\`graphql
+query {
+  comments(selector: { recentComments: { sortBy: "new" } }, limit: 10) {
     results { _id baseScore postedAt contents { html } user { displayName } post { title slug _id } }
   }
 }
