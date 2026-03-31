@@ -1437,4 +1437,7 @@ const BabyBulby = ({
   );
 };
 
-export default registerComponent("BabyBulby", BabyBulby, {styles});
+export default registerComponent("BabyBulby", BabyBulby, {
+  styles,
+  allowNonThemeColors: true,
+});
