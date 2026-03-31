@@ -1,3 +1,4 @@
+import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 import { NextRequest } from "next/server";
 
 export const markdownApiDocumentationMarkdown = (hostname: string) => `
@@ -272,6 +273,7 @@ change is represented as widget-content suggestions.
 `;
 
 export function GET(req: NextRequest) {
-  const hostname = req.nextUrl.hostname;
+  const siteUrl = getSiteUrlFromReq(req);
+  const hostname = new URL(siteUrl).hostname;
   return new Response(markdownApiDocumentationMarkdown(hostname));
 }
