@@ -1,5 +1,6 @@
 import { queryRequestSchema, type SearchOptions, type SearchQuery } from "@/lib/search/NativeSearchClient";
 import ElasticService from "@/server/search/elastic/ElasticService";
+import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 import uniq from "lodash/uniq";
 import type { NextRequest } from "next/server";
 
@@ -185,7 +186,7 @@ async function runMarkdownSearchQuery(
 }
 
 function getSearchDocumentationResponse(req: NextRequest): Response {
-  const host = req.nextUrl.host;
+  const host = getSiteUrlFromReq(req);
   const markdown = `
 # Search API
 
