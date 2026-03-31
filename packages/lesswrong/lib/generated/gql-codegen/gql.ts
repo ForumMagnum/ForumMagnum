@@ -97,6 +97,7 @@ type Documents = {
     "\n  query multiCommentuseCommentQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentuseCommentQueryDocument,
     "\n  query multiCommentCommentsListCondensedQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ShortformComments\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentCommentsListCondensedQueryDocument,
     "\n  query HeaderEventSubtitleSpotlightQuery {\n    currentSpotlight {\n      ...SpotlightHeaderEventSubtitle\n    }\n  }\n": typeof types.HeaderEventSubtitleSpotlightQueryDocument,
+    "\n  mutation PublishHomePageDesign($input: PublishHomePageDesignInput!) {\n    publishHomePageDesign(input: $input) {\n      data {\n        _id\n        publicId\n        commentId\n      }\n    }\n  }\n": typeof types.PublishHomePageDesignDocument,
     "\n  query HomePageDesignByPublicId($publicId: String!) {\n    homePageDesignByPublicId(publicId: $publicId) {\n      _id\n      publicId\n      html\n      title\n    }\n  }\n": typeof types.HomePageDesignByPublicIdDocument,
     "\n  query MyHomePageDesigns($limit: Int) {\n    myHomePageDesigns(limit: $limit) {\n      _id\n      publicId\n      html\n      title\n    }\n  }\n": typeof types.MyHomePageDesignsDocument,
     "\n  query PostExcerpt($documentId: String, $hash: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...HighlightWithHash\n      }\n    }\n  }\n": typeof types.PostExcerptDocument,
@@ -922,6 +923,7 @@ const documents: Documents = {
     "\n  query multiCommentuseCommentQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": types.multiCommentuseCommentQueryDocument,
     "\n  query multiCommentCommentsListCondensedQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ShortformComments\n      }\n      totalCount\n    }\n  }\n": types.multiCommentCommentsListCondensedQueryDocument,
     "\n  query HeaderEventSubtitleSpotlightQuery {\n    currentSpotlight {\n      ...SpotlightHeaderEventSubtitle\n    }\n  }\n": types.HeaderEventSubtitleSpotlightQueryDocument,
+    "\n  mutation PublishHomePageDesign($input: PublishHomePageDesignInput!) {\n    publishHomePageDesign(input: $input) {\n      data {\n        _id\n        publicId\n        commentId\n      }\n    }\n  }\n": types.PublishHomePageDesignDocument,
     "\n  query HomePageDesignByPublicId($publicId: String!) {\n    homePageDesignByPublicId(publicId: $publicId) {\n      _id\n      publicId\n      html\n      title\n    }\n  }\n": types.HomePageDesignByPublicIdDocument,
     "\n  query MyHomePageDesigns($limit: Int) {\n    myHomePageDesigns(limit: $limit) {\n      _id\n      publicId\n      html\n      title\n    }\n  }\n": types.MyHomePageDesignsDocument,
     "\n  query PostExcerpt($documentId: String, $hash: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...HighlightWithHash\n      }\n    }\n  }\n": types.PostExcerptDocument,
@@ -2010,6 +2012,10 @@ export function gql(source: "\n  query multiCommentCommentsListCondensedQuery($s
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query HeaderEventSubtitleSpotlightQuery {\n    currentSpotlight {\n      ...SpotlightHeaderEventSubtitle\n    }\n  }\n"): (typeof documents)["\n  query HeaderEventSubtitleSpotlightQuery {\n    currentSpotlight {\n      ...SpotlightHeaderEventSubtitle\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation PublishHomePageDesign($input: PublishHomePageDesignInput!) {\n    publishHomePageDesign(input: $input) {\n      data {\n        _id\n        publicId\n        commentId\n      }\n    }\n  }\n"): (typeof documents)["\n  mutation PublishHomePageDesign($input: PublishHomePageDesignInput!) {\n    publishHomePageDesign(input: $input) {\n      data {\n        _id\n        publicId\n        commentId\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

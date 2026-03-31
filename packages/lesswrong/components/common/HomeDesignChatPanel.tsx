@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useChat } from '@ai-sdk/react';
-import { DefaultChatTransport } from 'ai';
+import { DefaultChatTransport, DynamicToolUIPart } from 'ai';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useHomeDesignChat } from './HomeDesignChatContext';
 import { wrapBodyInSrcdoc } from './SandboxedHomePageSrcdoc';
@@ -10,6 +10,7 @@ import classNames from 'classnames';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import CopyIcon from '@/lib/vendor/@material-ui/icons/src/FileCopy';
 import { useMessages } from './withMessages';
+import PublishDesignDialog from './PublishDesignDialog';
 
 const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
   overlay: {
@@ -106,6 +107,20 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     fontStyle: 'italic',
     padding: '4px 0',
   },
+  publishButton: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 12,
+    padding: '4px 12px',
+    background: 'none',
+    color: theme.palette.primary.main,
+    border: theme.palette.border.normal,
+    borderRadius: 4,
+    cursor: 'pointer',
+    marginTop: 4,
+    '&:hover': {
+      background: theme.palette.panelBackground.hoverHighlightGrey,
+    },
+  },
   inputArea: {
     display: 'flex',
     padding: '12px 16px',
@@ -186,6 +201,7 @@ const HomeDesignChatPanel = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const appliedToolCallIds = useRef(new Set<string>());
   const [input, setInput] = useState('');
+  const [showPublishDialog, setShowPublishDialog] = useState(false);
 
   // Use a ref so the transport's body function always reads the latest value
   const publicIdRef = useRef<string | null>(publicId);
@@ -244,6 +260,10 @@ const HomeDesignChatPanel = () => {
 
   if (!isOpen) return null;
 
+  const lastAppliedToolCallId = messages
+    .flatMap(msg => msg.parts)
+    .findLast((part): part is DynamicToolUIPart => part.type === 'tool-submitHomePageDesign' && part.state === 'output-available')?.toolCallId ?? null;
+
   const lastMsg = messages[messages.length - 1];
   const showTypingIndicator = isLoading && !(lastMsg?.role === 'assistant' && lastMsg.parts.some(
     p => (p.type === 'text' && p.text.trim()) || p.type.startsWith('tool-')
@@ -291,9 +311,20 @@ const HomeDesignChatPanel = () => {
                 );
               }
               if (part.type === 'tool-submitHomePageDesign') {
+                const isApplied = part.state === 'output-available';
                 return (
-                  <div key={`${message.id}-${i}`} className={classes.toolApplied}>
-                    {part.state === 'output-available' ? 'Design applied.' : 'Applying design...'}
+                  <div key={`${message.id}-${i}`}>
+                    <div className={classes.toolApplied}>
+                      {isApplied ? 'Design applied.' : 'Applying design...'}
+                    </div>
+                    {isApplied && publicId && part.toolCallId === lastAppliedToolCallId && (
+                      <button
+                        className={classes.publishButton}
+                        onClick={() => setShowPublishDialog(true)}
+                      >
+                        Publish to marketplace
+                      </button>
+                    )}
                   </div>
                 );
               }
@@ -325,6 +356,12 @@ const HomeDesignChatPanel = () => {
           {isLoading ? '...' : 'Send'}
         </button>
       </form>
+      {showPublishDialog && publicId && (
+        <PublishDesignDialog
+          publicId={publicId}
+          onClose={() => setShowPublishDialog(false)}
+        />
+      )}
     </div>
   );
 };

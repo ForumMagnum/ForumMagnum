@@ -1,9 +1,7 @@
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { createComment } from "@/server/collections/comments/mutations";
 import gql from "graphql-tag";
-
-// TODO: Replace with the actual marketplace post ID once created
-const MARKETPLACE_POST_ID = "PLACEHOLDER_POST_ID";
+import { MARKETPLACE_POST_ID } from "@/lib/collections/homePageDesigns/constants";
 
 async function publishHomePageDesignResolver(
   root: void,
@@ -15,13 +13,13 @@ async function publishHomePageDesignResolver(
     throw new Error("You must be logged in to publish a home page design.");
   }
 
-  const { publicId, title, description } = input;
+  const { publicId, title, descriptionHtml } = input;
 
   // Verify ownership — the original creator must be this logged-in user
   const original = await HomePageDesigns.findOne(
     { publicId },
     { sort: { createdAt: 1 } },
-    { ownerId: 1 },
+    { ownerId: 1, title: 1 },
   );
   if (!original) {
     throw new Error("No design found with that publicId");
@@ -51,7 +49,7 @@ async function publishHomePageDesignResolver(
   // Create a comment on the marketplace post if no comment already exists for this design
   if (!existingPublished) {
     const linkUrl = `/?theme=${publicId}`;
-    const commentHtml = `<p><strong>${title}</strong></p><p>${description}</p><p><a href="${linkUrl}">Try this design</a></p>`;
+    const commentHtml = `<p><a href="${linkUrl}">${title}</a></p>${descriptionHtml}`;
 
     const comment = await createComment({
       data: {
@@ -84,7 +82,7 @@ export const graphqlHomePageDesignMutationTypeDefs = gql`
   input PublishHomePageDesignInput {
     publicId: String!
     title: String!
-    description: String!
+    descriptionHtml: String!
   }
 
   type HomePageDesignMutationOutput {

@@ -7936,7 +7936,7 @@ extend type Mutation {
 input PublishHomePageDesignInput {
   publicId: String!
   title: String!
-  description: String!
+  descriptionHtml: String!
 }
 
 type HomePageDesignMutationOutput {

@@ -6881,7 +6881,7 @@ type ProfilePostDiamond = {
 };
 
 type PublishHomePageDesignInput = {
-  description: Scalars['String']['input'];
+  descriptionHtml: Scalars['String']['input'];
   publicId: Scalars['String']['input'];
   title: Scalars['String']['input'];
 };
@@ -12928,6 +12928,20 @@ type HeaderEventSubtitleSpotlightQueryQueryVariables = Exact<{ [key: string]: ne
 
 
 type HeaderEventSubtitleSpotlightQueryQuery = HeaderEventSubtitleSpotlightQueryQuery_Query;
+
+type PublishHomePageDesignMutation_publishHomePageDesign_HomePageDesignMutationOutput_data_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, publicId: string, commentId: string | null };
+
+type PublishHomePageDesignMutation_publishHomePageDesign_HomePageDesignMutationOutput = { __typename?: 'HomePageDesignMutationOutput', data: PublishHomePageDesignMutation_publishHomePageDesign_HomePageDesignMutationOutput_data_HomePageDesign | null };
+
+type PublishHomePageDesignMutation_Mutation = { __typename?: 'Mutation', publishHomePageDesign: PublishHomePageDesignMutation_publishHomePageDesign_HomePageDesignMutationOutput | null };
+
+
+type PublishHomePageDesignMutationVariables = Exact<{
+  input: PublishHomePageDesignInput;
+}>;
+
+
+type PublishHomePageDesignMutation = PublishHomePageDesignMutation_Mutation;
 
 type HomePageDesignByPublicIdQuery_homePageDesignByPublicId_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, publicId: string, html: string, title: string };
 

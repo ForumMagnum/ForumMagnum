@@ -7279,7 +7279,7 @@ interface ElicitQuestionOutput {
 interface PublishHomePageDesignInput {
   publicId: string;
   title: string;
-  description: string;
+  descriptionHtml: string;
 }
 
 interface HomePageDesignMutationOutput {
