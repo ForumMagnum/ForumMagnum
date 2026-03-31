@@ -1,7 +1,6 @@
 import React from 'react';
 import { hasEventsSetting, isAF, isEAForum, isLW, isLWorAF } from '@/lib/instanceSettings';
 import { getCommentViewOptions } from '@/lib/commentViewOptions';
-import { ThemeSelect } from '@/components/form-components/ThemeSelect';
 import { LocationFormComponent } from '@/components/form-components/LocationFormComponent';
 import { userIsAdminOrMod, userIsMemberOf } from '@/lib/vulcan-users/permissions';
 import { HighlightableField } from './HighlightableField';
@@ -16,11 +15,6 @@ const SORT_DRAFTS_BY_OPTIONS = [
   { value: "modifiedAt", label: "Last Modified" },
 ];
 
-const REACT_PALETTE_STYLE_OPTIONS = [
-  { value: "listView", label: "List View" },
-  { value: "iconView", label: "Icons" },
-];
-
 const PreferencesSettingsTab = ({
   form,
   currentUser,
@@ -28,30 +22,6 @@ const PreferencesSettingsTab = ({
 }: SettingsTabProps) => {
   return (
     <div>
-      {!isLWorAF() && (
-        <SettingsSection title="Appearance">
-          <div className={fieldWrapperClass}>
-            <form.Field name="theme">
-              {(field) => (
-                <ThemeSelect field={field} />
-              )}
-            </form.Field>
-          </div>
-
-          {!isEAForum() && (
-            <form.Field name="reactPaletteStyle">
-              {(field) => (
-                <SettingsSelectRow
-                  field={field}
-                  options={REACT_PALETTE_STYLE_OPTIONS}
-                  label="React palette style"
-                />
-              )}
-            </form.Field>
-          )}
-        </SettingsSection>
-      )}
-
       <SettingsSection title="Comments">
         <form.Field name="commentSorting">
           {(field) => (

@@ -1232,6 +1232,7 @@ extend type Mutation {
 
 extend type Mutation {
   useEmailToken(token: String, args: JSON): JSON
+  getClaudeAccessLink: String
 }
 
 extend type Mutation {
@@ -2466,6 +2467,7 @@ input CommentsDraftCommentsInput {
   minimumKarma: Int
   authorIsUnreviewed: Boolean
   postId: String
+  shortform: Boolean
   drafts: String
 }
 
@@ -7367,6 +7369,7 @@ type User {
   lastRemovedFromReviewQueueAt: Date
   rejectedContentCount: Int
   userRateLimits: [UserRateLimit!]
+  claudeLinkedAt: Date
 }
 
 enum ReactPaletteStyle {

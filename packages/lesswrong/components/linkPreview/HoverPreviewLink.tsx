@@ -52,6 +52,11 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
 
   // Within-page relative link?
   if (href.startsWith("#")) {
+    if (href === "#") {
+      return <a href={href} id={id} rel={rel} className={className}>
+        {children}
+      </a>
+    }
     if (locationHashIsFootnote(href)){
       return <FootnotePreview href={href} id={id} rel={rel} contentStyleType={contentStyleType}>
         {children}

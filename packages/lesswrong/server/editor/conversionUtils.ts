@@ -50,7 +50,7 @@ function getTurndown(): TurndownService {
   const cachedMarker = (_turndownService as AnyBecauseHard | null)?.__buildMarker;
   if (!_turndownService || cachedMarker !== TURNDOWN_BUILD_MARKER) {
     const TurndownService: typeof import('turndown') = require('turndown');
-    const {gfm} = require('turndown-plugin-gfm');
+    const {gfm} = require('@truto/turndown-plugin-gfm');
 
     const indentMarkdown = (markdown: string, indentLevel: number): string => {
       if (indentLevel <= 0) return markdown;

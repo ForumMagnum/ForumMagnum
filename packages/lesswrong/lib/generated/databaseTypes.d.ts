@@ -402,7 +402,7 @@ interface DbEmailTokens extends DbObject {
   legacyData: any | null
   params: any | null
   token: string
-  tokenType: 'unsubscribeAll' | 'verifyEmail' | 'resetPassword'
+  tokenType: 'unsubscribeAll' | 'verifyEmail' | 'resetPassword' | 'confirmClaudeAccess'
   usedAt: Date | null
   userId: string
 }
@@ -1553,6 +1553,7 @@ interface DbUser extends DbObject {
   blueskyProfileURL: string | null
   bookmarksCount: number
   careerStage: Array<string> | null
+  claudeLinkedAt: Date | null
   collapseModerationGuidelines: boolean | null
   commentCount: number
   commentSorting: string | null

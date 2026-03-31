@@ -259,6 +259,7 @@ interface Mutation {
   analyticsEvent: boolean | null;
   UpdateSearchSynonyms: Array<string>;
   useEmailToken: any;
+  getClaudeAccessLink: string | null;
   connectCrossposter: string | null;
   unlinkCrossposter: string | null;
   observeRecommendation: boolean | null;
@@ -2199,6 +2200,7 @@ interface CommentsDraftCommentsInput {
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
   postId?: string | null;
+  shortform?: boolean | null;
   drafts?: string | null;
 }
 
@@ -6813,6 +6815,7 @@ interface User {
   lastRemovedFromReviewQueueAt: Date | null;
   rejectedContentCount: number | null;
   userRateLimits: Array<UserRateLimit> | null;
+  claudeLinkedAt: Date | null;
 }
 
 interface UserSelectorUniqueInput {

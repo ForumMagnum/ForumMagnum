@@ -118,7 +118,9 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
     props: asyncProperties,
   });
 
-  backgroundTask(updateCommentEmbeddings(documentWithId._id));
+  if (!documentWithId.draft) {
+    backgroundTask(updateCommentEmbeddings(documentWithId._id));
+  }
   backgroundTask(maybeCreateAutomatedContentEvaluationForComment(documentWithId, null, context));
 
   return documentWithId;
@@ -183,7 +185,9 @@ export async function updateComment({ selector, data }: UpdateCommentInput, cont
     backgroundTask(elasticSyncDocument('Comments', updatedDocument._id));
   }
 
-  backgroundTask(updateCommentEmbeddings(updatedDocument._id));
+  if (!updatedDocument.draft) {
+    backgroundTask(updateCommentEmbeddings(updatedDocument._id));
+  }
 
   backgroundTask(logFieldChanges({ currentUser, collection: Comments, oldDocument, data: origData }));
   backgroundTask(maybeCreateAutomatedContentEvaluationForComment(updatedDocument, oldDocument, context));

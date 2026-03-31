@@ -1,9 +1,8 @@
 import "@/components/momentjs";
 
 import React, { Suspense } from "react";
-import ClientAppGenerator, { EnvironmentOverrideContextProvider } from "@/components/layout/ClientAppGenerator";
+import ClientAppGenerator from "@/components/layout/ClientAppGenerator";
 import { cookies } from "next/headers";
-import { DEFAULT_TIMEZONE, SSRMetadata } from "@/lib/utils/timeUtil";
 import ClientIDAssigner from "@/components/analytics/ClientIDAssigner";
 import { CLIENT_ID_COOKIE, CLIENT_ID_NEW_COOKIE, TIMEZONE_COOKIE } from "@/lib/cookies/cookies";
 import { SharedScripts } from "@/components/next/SharedScripts";
@@ -31,13 +30,9 @@ export default async function RootLayout({
           <ClientIDAssignerServer/>
           <PageBackgroundColorSwitcher/>
         </Suspense>
-        <Suspense>
-          <EnvironmentOverrideContextProviderServer>
-            <ClientAppGeneratorWithRequestId>
-              {children}
-            </ClientAppGeneratorWithRequestId>
-          </EnvironmentOverrideContextProviderServer>
-        </Suspense>
+        <ClientAppGeneratorWithRequestId>
+          {children}
+        </ClientAppGeneratorWithRequestId>
       </BodyWithBackgroundColor>
     </html>
   );
@@ -61,20 +56,4 @@ const ClientIDAssignerServer = async () => {
   const clientIdNewCookieExists = !!cookieStore.get(CLIENT_ID_NEW_COOKIE)?.value;
   const clientIdInvalidated = clientId && await new ClientIdsRepo().isClientIdInvalidated(clientId); // TODO Move off the critical path
   return <ClientIDAssigner clientIdNewCookieExists={clientIdNewCookieExists} clientIdInvalidated={!!clientIdInvalidated}/>
-}
-
-const EnvironmentOverrideContextProviderServer = async ({children}: {
-  children: React.ReactNode
-}) => {
-  // Required in order to make the `new Date()` below safe
-  const _cookieStore = await cookies();
-
-  const ssrMetadata: SSRMetadata = {
-    renderedAt: new Date().toISOString(),
-    // TODO: figure out how to port the exising cache-control response header logic here
-    cacheFriendly: false,
-  };
-  return <EnvironmentOverrideContextProvider ssrMetadata={ssrMetadata}>
-    {children}
-  </EnvironmentOverrideContextProvider>
 }
