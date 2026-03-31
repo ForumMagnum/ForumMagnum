@@ -1292,7 +1292,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [userId, since]);
   }
 
-  async fetchEAFundsPosts(userSlugs: string[]) {
+  async fetchEAFundsPosts(limit: number, userSlugs: string[], tagSlug?: string) {
     const eaFundsTagSlug = "effective-altruism-funds";
     return this.getRawDb().any(`
       -- PostsRepo.fetchEAFundsPosts
@@ -1300,7 +1300,9 @@ class PostsRepo extends AbstractRepo<"Posts"> {
         SELECT p."_id" "postId", coauthor "userId"
         FROM "Posts" p, UNNEST(p."coauthorUserIds" || ARRAY[p."userId"]) AS coauthor
         JOIN "Tags" t ON t."slug" = $2
+        ${tagSlug ? `JOIN "Tags" ct ON ct."slug" = $4` : ""}
         WHERE (p."tagRelevance"->t."_id")::INTEGER >= 1
+        ${tagSlug ? `AND (p."tagRelevance"->ct."_id")::INTEGER >= 1` : ""}
         AND ${getViewablePostsSelector("p")}
       ), authors AS (
         SELECT
@@ -1327,8 +1329,8 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       JOIN "Posts" p ON authors."postId" = p."_id"
       WHERE "authors"."slugs" && $3
       ORDER BY p."postedAt" DESC
-      LIMIT 6
-    `, [getSiteUrl(), eaFundsTagSlug, userSlugs]);
+      LIMIT $5
+    `, [getSiteUrl(), eaFundsTagSlug, userSlugs, tagSlug, limit]);
   }
 
   async getSitemapPosts(): Promise<Pick<
