@@ -186,7 +186,7 @@ async function runMarkdownSearchQuery(
 }
 
 function getSearchDocumentationResponse(req: NextRequest): Response {
-  const host = getSiteUrlFromReq(req);
+  const urlPrefix = getSiteUrlFromReq(req);
   const markdown = `
 # Search API
 
@@ -200,8 +200,8 @@ Use this endpoint to search posts, comments, wikitags, users, and sequences.
 
 Examples:
 
-- \`https://${host}/api/search?search=decision%20theory\`
-- \`https://${host}/search?search=decision%20theory\` (rewrites to markdown when markdown is requested)
+- \`${urlPrefix}/api/search?search=decision%20theory\`
+- \`${urlPrefix}/search?search=decision%20theory\` (rewrites to markdown when markdown is requested)
 
 ## Parameters
 
