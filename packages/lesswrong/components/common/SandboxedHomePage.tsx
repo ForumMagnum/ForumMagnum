@@ -126,6 +126,7 @@ const SandboxedHomePage = () => {
     return () => window.removeEventListener('message', onMessage);
   }, [handleRpc]);
 
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const defaultSrcdoc = getSandboxedHomePageSrcdoc({ origin });
   const srcdoc = designChat?.customSrcdoc ?? defaultSrcdoc;
 
