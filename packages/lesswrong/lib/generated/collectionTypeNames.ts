@@ -84,6 +84,14 @@ export const collectionNameToTypeName = {
   Users: 'User',
   Votes: 'Vote',
   YjsDocuments: 'YjsDocument',
+  ...((isAnyTest && !isIntegrationTest) ? {
+    TestCollection: 'TestCollection',
+    TestCollection2: 'TestCollection2',
+    TestCollection3: 'TestCollection3',
+    TestCollection4: 'TestCollection4',
+    TestCollection5: 'TestCollection5',
+    TestCollection6: 'TestCollection6',
+  } : {}),
 } as const;
 
 export const typeNameToCollectionName = {
@@ -170,6 +178,14 @@ export const typeNameToCollectionName = {
   User: 'Users',
   Vote: 'Votes',
   YjsDocument: 'YjsDocuments',
+  ...((isAnyTest && !isIntegrationTest) ? {
+    TestCollection: 'TestCollection',
+    TestCollection2: 'TestCollection2',
+    TestCollection3: 'TestCollection3',
+    TestCollection4: 'TestCollection4',
+    TestCollection5: 'TestCollection5',
+    TestCollection6: 'TestCollection6',
+  } : {}),
 } as const;
 
 export const tableNameToCollectionName = {
@@ -257,5 +273,11 @@ export const tableNameToCollectionName = {
   votes: 'Votes',
   yjsdocuments: 'YjsDocuments',
   ...((isAnyTest && !isIntegrationTest) ? {
+    testcollection: 'TestCollection',
+    testcollection2: 'TestCollection2',
+    testcollection3: 'TestCollection3',
+    testcollection4: 'TestCollection4',
+    testcollection5: 'TestCollection5',
+    testcollection6: 'TestCollection6',
   } : {}),
 } as const;

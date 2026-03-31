@@ -7,6 +7,8 @@ export function generateCollectionTypeNames(): string {
     collectionNameToTypeName,
     typeNameToCollectionName,
     tableNameToCollectionName,
+    testCollectionNameToTypeName,
+    testTypeNameToCollectionName,
     testTableNameToCollectionName,
   } = getCollectionTypeNameMaps();
 
@@ -16,12 +18,22 @@ export function generateCollectionTypeNames(): string {
   for (const [collectionName, typeName] of Object.entries(collectionNameToTypeName)) {
     sb.push(`  ${collectionName}: '${typeName}',`);
   }
+  sb.push(`  ...((isAnyTest && !isIntegrationTest) ? {`);
+  for (const [collectionName, typeName] of Object.entries(testCollectionNameToTypeName)) {
+    sb.push(`    ${collectionName}: '${typeName}',`);
+  }
+  sb.push(`  } : {}),`);
   sb.push(`} as const;\n`);
 
   sb.push(`export const typeNameToCollectionName = {`);
   for (const [typeName, collectionName] of Object.entries(typeNameToCollectionName)) {
     sb.push(`  ${typeName}: '${collectionName}',`);
   }
+  sb.push(`  ...((isAnyTest && !isIntegrationTest) ? {`);
+  for (const [typeName, collectionName] of Object.entries(testTypeNameToCollectionName)) {
+    sb.push(`    ${typeName}: '${collectionName}',`);
+  }
+  sb.push(`  } : {}),`);
   sb.push(`} as const;\n`);
 
   sb.push(`export const tableNameToCollectionName = {`);

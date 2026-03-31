@@ -1,11 +1,12 @@
 import fs from "fs";
 import path from "path";
-import { isAnyTest, isCodegen, isIntegrationTest } from "@/lib/executionEnvironment";
 
 interface CollectionTypeNameMaps {
   collectionNameToTypeName: Record<string, string>;
   typeNameToCollectionName: Record<string, string>;
   tableNameToCollectionName: Record<string, string>;
+  testCollectionNameToTypeName: Record<string, string>;
+  testTypeNameToCollectionName: Record<string, string>;
   testTableNameToCollectionName: Record<string, string>;
 }
 
@@ -52,25 +53,34 @@ function getCollectionTypeNamePairs(): CollectionTypeNamePair[] {
   return collectionTypeNamePairs;
 }
 
-function getTestTableNameToCollectionName(): Record<string, string> {
-  if (!(isCodegen || isAnyTest)) {
-    return {};
-  }
-
+function getTestCollectionTypeNameMaps() {
+  const testCollectionNameToTypeName: Record<string, string> = {};
+  const testTypeNameToCollectionName: Record<string, string> = {};
   const testTableNameToCollectionName: Record<string, string> = {};
   const testHelpersPath = path.resolve(__dirname, "..", "sql", "tests", "testHelpers.ts");
 
-  for (const { collectionName } of getCollectionTypeNamePairsFromFile(testHelpersPath)) {
+  for (const { collectionName, typeName } of getCollectionTypeNamePairsFromFile(testHelpersPath)) {
+    testCollectionNameToTypeName[collectionName] = typeName;
+    testTypeNameToCollectionName[typeName] = collectionName;
     testTableNameToCollectionName[collectionName.toLowerCase()] = collectionName;
   }
 
-  return testTableNameToCollectionName;
+  return {
+    testCollectionNameToTypeName,
+    testTypeNameToCollectionName,
+    testTableNameToCollectionName,
+  };
 }
 
 export function getCollectionTypeNameMaps(): CollectionTypeNameMaps {
   const collectionNameToTypeName: Record<string, string> = {};
   const typeNameToCollectionName: Record<string, string> = {};
   const tableNameToCollectionName: Record<string, string> = {};
+  const {
+    testCollectionNameToTypeName,
+    testTypeNameToCollectionName,
+    testTableNameToCollectionName,
+  } = getTestCollectionTypeNameMaps();
 
   for (const { collectionName, typeName } of getCollectionTypeNamePairs()) {
     collectionNameToTypeName[collectionName] = typeName;
@@ -82,6 +92,8 @@ export function getCollectionTypeNameMaps(): CollectionTypeNameMaps {
     collectionNameToTypeName,
     typeNameToCollectionName,
     tableNameToCollectionName,
-    testTableNameToCollectionName: getTestTableNameToCollectionName(),
+    testCollectionNameToTypeName,
+    testTypeNameToCollectionName,
+    testTableNameToCollectionName,
   };
 }

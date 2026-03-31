@@ -5,10 +5,25 @@ const {
   collectionNameToTypeName,
   typeNameToCollectionName,
   tableNameToCollectionName: baseTableNameToCollectionName,
+  testCollectionNameToTypeName,
+  testTypeNameToCollectionName,
   testTableNameToCollectionName,
 } = getCollectionTypeNameMaps();
 
-export { collectionNameToTypeName, typeNameToCollectionName };
+export const collectionNameToTypeNameWithTests = {
+  ...collectionNameToTypeName,
+  ...((isAnyTest && !isIntegrationTest) ? testCollectionNameToTypeName : {}),
+};
+
+export const typeNameToCollectionNameWithTests = {
+  ...typeNameToCollectionName,
+  ...((isAnyTest && !isIntegrationTest) ? testTypeNameToCollectionName : {}),
+};
+
+export {
+  collectionNameToTypeNameWithTests as collectionNameToTypeName,
+  typeNameToCollectionNameWithTests as typeNameToCollectionName,
+};
 
 export const tableNameToCollectionName = {
   ...baseTableNameToCollectionName,
