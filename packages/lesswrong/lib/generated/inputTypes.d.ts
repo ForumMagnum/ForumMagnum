@@ -116,6 +116,7 @@ interface Query {
   googleServiceAccountSessions: MultiGoogleServiceAccountSessionOutput | null;
   homePageDesignByPublicId: HomePageDesign | null;
   myHomePageDesigns: Array<HomePageDesign>;
+  myHomePageDesignSummaries: Array<HomePageDesignSummary>;
   iframeWidgetSrcdoc: SingleIframeWidgetSrcdocOutput | null;
   iframeWidgetSrcdocs: MultiIframeWidgetSrcdocOutput | null;
   jargonTerm: SingleJargonTermOutput | null;
@@ -2666,6 +2667,12 @@ interface HomePageDesign {
   source: string;
   modelName: string | null;
   conversationHistory: any;
+}
+
+interface HomePageDesignSummary {
+  publicId: string;
+  title: string;
+  createdAt: Date;
 }
 
 interface IframeWidgetSrcdoc {
@@ -8987,6 +8994,7 @@ interface GraphQLTypeMap {
   MultiGoogleServiceAccountSessionInput: MultiGoogleServiceAccountSessionInput;
   MultiGoogleServiceAccountSessionOutput: MultiGoogleServiceAccountSessionOutput;
   HomePageDesign: HomePageDesign;
+  HomePageDesignSummary: HomePageDesignSummary;
   IframeWidgetSrcdoc: IframeWidgetSrcdoc;
   SingleIframeWidgetSrcdocOutput: SingleIframeWidgetSrcdocOutput;
   IframeWidgetSrcdocSelector: IframeWidgetSrcdocSelector;

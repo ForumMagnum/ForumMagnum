@@ -2340,6 +2340,13 @@ type HomePageDesignMutationOutput = {
   data?: Maybe<HomePageDesign>;
 };
 
+type HomePageDesignSummary = {
+  __typename?: 'HomePageDesignSummary';
+  createdAt: Scalars['Date']['output'];
+  publicId: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
 type HomepageCommunityEventMarker = {
   __typename?: 'HomepageCommunityEventMarker';
   _id: Scalars['String']['output'];
@@ -7019,6 +7026,7 @@ type Query = {
   moderatorViewIPAddress?: Maybe<ModeratorIPAddressInfo>;
   multiDocument?: Maybe<SingleMultiDocumentOutput>;
   multiDocuments?: Maybe<MultiMultiDocumentOutput>;
+  myHomePageDesignSummaries: Array<HomePageDesignSummary>;
   myHomePageDesigns: Array<HomePageDesign>;
   notification?: Maybe<SingleNotificationOutput>;
   notifications?: Maybe<MultiNotificationOutput>;
@@ -12928,6 +12936,28 @@ type HeaderEventSubtitleSpotlightQueryQueryVariables = Exact<{ [key: string]: ne
 
 
 type HeaderEventSubtitleSpotlightQueryQuery = HeaderEventSubtitleSpotlightQueryQuery_Query;
+
+type MyHomePageDesignSummariesQuery_myHomePageDesignSummaries_HomePageDesignSummary = { __typename?: 'HomePageDesignSummary', publicId: string, title: string, createdAt: string };
+
+type MyHomePageDesignSummariesQuery_Query = { __typename?: 'Query', myHomePageDesignSummaries: Array<MyHomePageDesignSummariesQuery_myHomePageDesignSummaries_HomePageDesignSummary> };
+
+
+type MyHomePageDesignSummariesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type MyHomePageDesignSummariesQuery = MyHomePageDesignSummariesQuery_Query;
+
+type HomePageDesignByPublicIdFullQuery_homePageDesignByPublicId_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, publicId: string, html: string, title: string, source: string, conversationHistory: any };
+
+type HomePageDesignByPublicIdFullQuery_Query = { __typename?: 'Query', homePageDesignByPublicId: HomePageDesignByPublicIdFullQuery_homePageDesignByPublicId_HomePageDesign | null };
+
+
+type HomePageDesignByPublicIdFullQueryVariables = Exact<{
+  publicId: Scalars['String']['input'];
+}>;
+
+
+type HomePageDesignByPublicIdFullQuery = HomePageDesignByPublicIdFullQuery_Query;
 
 type PublishHomePageDesignMutation_publishHomePageDesign_HomePageDesignMutationOutput_data_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, publicId: string, commentId: string | null };
 

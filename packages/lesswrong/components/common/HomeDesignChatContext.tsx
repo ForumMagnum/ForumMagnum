@@ -5,10 +5,10 @@ import { createContext, useContext } from 'react';
 interface HomeDesignChatContextType {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  applyDesign: (html: string) => void;
+  applyDesign: (html: string | null) => void;
   customSrcdoc: string | null;
   publicId: string | null;
-  setPublicId: (id: string) => void;
+  setPublicId: (id: string | null) => void;
 }
 
 export const HomeDesignChatContext = createContext<HomeDesignChatContextType | null>(null);

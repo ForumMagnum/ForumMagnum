@@ -51,26 +51,44 @@ async function homePageDesignsByOwnerResolver(
   if (clientId) ownerIds.push(clientId);
   if (ownerIds.length === 0) return [];
 
-  const designs = await HomePageDesigns.find(
-    { ownerId: { $in: ownerIds } },
-    { sort: { createdAt: -1 }, ...(limit ? { limit } : {}) },
-  ).fetch();
+  // Returns the latest revision of each design (grouped by publicId),
+  // ordered by most-recently-updated first.
+  return context.repos.homePageDesigns.getLatestDesignsByOwner(ownerIds, limit);
+}
 
-  // All results are owned by the caller, so access + field filtering is trivial
-  return designs;
+async function homePageDesignSummariesResolver(
+  root: void,
+  _args: Record<string, never>,
+  context: ResolverContext,
+) {
+  const { currentUser, clientId } = context;
+  const ownerIds: string[] = [];
+  if (currentUser) ownerIds.push(currentUser._id);
+  if (clientId) ownerIds.push(clientId);
+  if (ownerIds.length === 0) return [];
+
+  return context.repos.homePageDesigns.getDesignSummariesByOwner(ownerIds);
 }
 
 export const graphqlHomePageDesignQueryTypeDefs = gql`
   type HomePageDesign ${ getAllGraphQLFields(schema) }
 
+  type HomePageDesignSummary {
+    publicId: String!
+    title: String!
+    createdAt: Date!
+  }
+
   extend type Query {
     homePageDesignByPublicId(publicId: String!): HomePageDesign
     myHomePageDesigns(limit: Int): [HomePageDesign!]!
+    myHomePageDesignSummaries: [HomePageDesignSummary!]!
   }
 `;
 
 export const homePageDesignGqlQueryHandlers = {
   homePageDesignByPublicId: homePageDesignByPublicIdResolver,
   myHomePageDesigns: homePageDesignsByOwnerResolver,
+  myHomePageDesignSummaries: homePageDesignSummariesResolver,
 };
 export const homePageDesignGqlFieldResolvers = getFieldGqlResolvers('HomePageDesigns', schema);

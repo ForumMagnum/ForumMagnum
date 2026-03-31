@@ -2,15 +2,43 @@
 
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { useChat } from '@ai-sdk/react';
-import { DefaultChatTransport, DynamicToolUIPart } from 'ai';
+import { DefaultChatTransport, DynamicToolUIPart, UIMessage } from 'ai';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useHomeDesignChat } from './HomeDesignChatContext';
 import { wrapBodyInSrcdoc } from './SandboxedHomePageSrcdoc';
 import classNames from 'classnames';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import CopyIcon from '@/lib/vendor/@material-ui/icons/src/FileCopy';
+import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
 import { useMessages } from './withMessages';
 import PublishDesignDialog from './PublishDesignDialog';
+import { gql } from '@/lib/generated/gql-codegen';
+import { useQuery } from '@/lib/crud/useQuery';
+import { useApolloClient } from '@apollo/client/react';
+import moment from 'moment';
+
+const myHomePageDesignSummariesQuery = gql(`
+  query MyHomePageDesignSummaries {
+    myHomePageDesignSummaries {
+      publicId
+      title
+      createdAt
+    }
+  }
+`);
+
+const homePageDesignByPublicIdFullQuery = gql(`
+  query HomePageDesignByPublicIdFull($publicId: String!) {
+    homePageDesignByPublicId(publicId: $publicId) {
+      _id
+      publicId
+      html
+      title
+      source
+      conversationHistory
+    }
+  }
+`);
 
 const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
   overlay: {
@@ -192,16 +220,115 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
       color: theme.palette.text.normal,
     },
   },
+  headerActions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+  },
+  historyButton: {
+    background: 'none',
+    border: 'none',
+    cursor: 'pointer',
+    padding: 4,
+    display: 'flex',
+    alignItems: 'center',
+    color: theme.palette.icon.dim3,
+    '&:hover': {
+      color: theme.palette.text.normal,
+    },
+  },
+  historyIcon: {
+    fontSize: 20,
+  },
+  historyDropdownAnchor: {
+    position: 'relative',
+  },
+  historyDropdown: {
+    position: 'absolute',
+    top: '100%',
+    right: 0,
+    marginTop: 4,
+    width: 300,
+    maxHeight: 360,
+    overflowY: 'auto',
+    background: theme.palette.panelBackground.default,
+    border: theme.palette.border.normal,
+    borderRadius: 8,
+    boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+    zIndex: 10,
+  },
+  historyItem: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 2,
+    padding: '10px 14px',
+    cursor: 'pointer',
+    borderBottom: theme.palette.border.faint,
+    '&:last-child': {
+      borderBottom: 'none',
+    },
+    '&:hover': {
+      background: theme.palette.panelBackground.hoverHighlightGrey,
+    },
+  },
+  historyItemActive: {
+    background: theme.palette.panelBackground.hoverHighlightGrey,
+  },
+  historyItemTitle: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    fontWeight: 500,
+    color: theme.palette.text.normal,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  historyItemDate: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 11,
+    color: theme.palette.text.dim3,
+  },
+  newConversationItem: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '10px 14px',
+    cursor: 'pointer',
+    borderBottom: theme.palette.border.normal,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    fontWeight: 500,
+    color: '#5f9b65',
+    '&:hover': {
+      background: theme.palette.panelBackground.hoverHighlightGrey,
+    },
+  },
+  historyEmpty: {
+    padding: '16px 14px',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    color: theme.palette.text.dim3,
+    textAlign: 'center' as const,
+  },
 }));
 
 const HomeDesignChatPanel = () => {
   const classes = useStyles(styles);
   const { isOpen, setIsOpen, applyDesign, publicId, setPublicId } = useHomeDesignChat();
   const { flash } = useMessages();
+  const client = useApolloClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const appliedToolCallIds = useRef(new Set<string>());
   const [input, setInput] = useState('');
   const [showPublishDialog, setShowPublishDialog] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const historyAnchorRef = useRef<HTMLDivElement>(null);
+
+  // Fetch conversation summaries when the panel is open
+  const { data: summariesData } = useQuery(myHomePageDesignSummariesQuery, {
+    skip: !isOpen,
+  });
+  const summaries = summariesData?.myHomePageDesignSummaries ?? [];
 
   // Use a ref so the transport's body function always reads the latest value
   const publicIdRef = useRef<string | null>(publicId);
@@ -212,7 +339,7 @@ const HomeDesignChatPanel = () => {
     body: () => ({ publicId: publicIdRef.current }),
   }), []);
 
-  const { messages, sendMessage, status } = useChat({ transport });
+  const { messages, sendMessage, setMessages, status } = useChat({ transport });
 
   const isLoading = status === 'streaming' || status === 'submitted';
 
@@ -247,6 +374,18 @@ const HomeDesignChatPanel = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Close history dropdown on click outside
+  useEffect(() => {
+    if (!showHistory) return;
+    function handleClickOutside(e: MouseEvent) {
+      if (historyAnchorRef.current && !historyAnchorRef.current.contains(e.target as Node)) {
+        setShowHistory(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showHistory]);
+
   const handleClose = useCallback(() => {
     setIsOpen(false);
   }, [setIsOpen]);
@@ -257,6 +396,75 @@ const HomeDesignChatPanel = () => {
     void sendMessage({ text: input });
     setInput('');
   }, [input, isLoading, sendMessage]);
+
+  // Prefetch full design data on hover
+  const handleHistoryItemHover = useCallback((itemPublicId: string) => {
+    void client.query({
+      query: homePageDesignByPublicIdFullQuery,
+      variables: { publicId: itemPublicId },
+      fetchPolicy: 'cache-first',
+    });
+  }, [client]);
+
+  // Load a previous conversation
+  const handleLoadConversation = useCallback(async (itemPublicId: string) => {
+    const { data } = await client.query({
+      query: homePageDesignByPublicIdFullQuery,
+      variables: { publicId: itemPublicId },
+      fetchPolicy: 'cache-first',
+    });
+    const design = data?.homePageDesignByPublicId;
+    if (!design) return;
+
+    let history = design.conversationHistory as UIMessage[] | null;
+
+    // For external designs, synthesize a conversation so the user can
+    // see context and continue chatting from here.
+    if (design.source === 'external' && (!history || history.length === 0)) {
+      const syntheticToolCallId = crypto.randomUUID();
+      // Pre-mark so the tool-watching effect doesn't re-apply
+      appliedToolCallIds.current.add(syntheticToolCallId);
+      history = [
+        {
+          id: crypto.randomUUID(),
+          role: 'user' as const,
+          parts: [{ type: 'text' as const, text: '[Original prompt sent to external agent]' }],
+        },
+        {
+          id: crypto.randomUUID(),
+          role: 'assistant' as const,
+          parts: [
+            {
+              type: 'text' as const,
+              text: `This design ("${design.title}") was created by an external agent. You can ask me to modify it.`,
+            },
+            {
+              type: `tool-submitHomePageDesign` as const,
+              toolCallId: syntheticToolCallId,
+              state: 'output-available' as const,
+              input: { html: design.html },
+              output: { publicId: design.publicId },
+            },
+          ],
+        },
+      ];
+    }
+
+    setMessages(history ?? []);
+    appliedToolCallIds.current.clear();
+    setPublicId(design.publicId);
+    applyDesign(wrapBodyInSrcdoc(design.html, { origin: window.location.origin }));
+    setShowHistory(false);
+  }, [client, setMessages, setPublicId, applyDesign]);
+
+  // Start a fresh conversation
+  const handleNewConversation = useCallback(() => {
+    setMessages([]);
+    appliedToolCallIds.current.clear();
+    setPublicId(null);
+    applyDesign(null);
+    setShowHistory(false);
+  }, [setMessages, setPublicId, applyDesign]);
 
   if (!isOpen) return null;
 
@@ -273,7 +481,44 @@ const HomeDesignChatPanel = () => {
     <div className={classes.overlay}>
       <div className={classes.header}>
         <span className={classes.headerTitle}>Customize Home Page</span>
-        <button className={classes.closeButton} onClick={handleClose}>&times;</button>
+        <div className={classes.headerActions}>
+          <div ref={historyAnchorRef} className={classes.historyDropdownAnchor}>
+            <button
+              className={classes.historyButton}
+              onClick={() => setShowHistory(prev => !prev)}
+              title="Conversation history"
+            >
+              <HistoryIcon className={classes.historyIcon} />
+            </button>
+            {showHistory && (
+              <div className={classes.historyDropdown}>
+                <div className={classes.newConversationItem} onClick={handleNewConversation}>
+                  + New conversation
+                </div>
+                {summaries.length === 0 ? (
+                  <div className={classes.historyEmpty}>No previous conversations</div>
+                ) : (
+                  summaries.map((summary) => (
+                    <div
+                      key={summary.publicId}
+                      className={classNames(classes.historyItem, {
+                        [classes.historyItemActive]: summary.publicId === publicId,
+                      })}
+                      onClick={() => void handleLoadConversation(summary.publicId)}
+                      onMouseEnter={() => handleHistoryItemHover(summary.publicId)}
+                    >
+                      <span className={classes.historyItemTitle}>{summary.title}</span>
+                      <span className={classes.historyItemDate}>
+                        {moment(new Date(summary.createdAt)).fromNow()}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
+          <button className={classes.closeButton} onClick={handleClose}>&times;</button>
+        </div>
       </div>
 
       <div className={classes.messages}>

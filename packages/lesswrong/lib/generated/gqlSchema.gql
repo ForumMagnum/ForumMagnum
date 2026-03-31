@@ -2974,9 +2974,16 @@ type HomePageDesign {
   conversationHistory: JSON!
 }
 
+type HomePageDesignSummary {
+  publicId: String!
+  title: String!
+  createdAt: Date!
+}
+
 extend type Query {
   homePageDesignByPublicId(publicId: String!): HomePageDesign
   myHomePageDesigns(limit: Int): [HomePageDesign!]!
+  myHomePageDesignSummaries: [HomePageDesignSummary!]!
 }
 
 type IframeWidgetSrcdoc {

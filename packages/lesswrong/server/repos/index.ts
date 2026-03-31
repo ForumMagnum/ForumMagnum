@@ -8,6 +8,7 @@ import ConversationsRepo from "./ConversationsRepo";
 import CurationEmailsRepo from "./CurationEmailsRepo";
 import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
 import DebouncerEventsRepo from "./DebouncerEventsRepo";
+import HomePageDesignsRepo from "./HomePageDesignsRepo";
 import JargonTermsRepo from "./JargonTermsRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
 import LWEventsRepo from "./LWEventsRepo";
@@ -55,6 +56,7 @@ const allRepos = {
   curationEmails: CurationEmailsRepo,
   databaseMetadata: DatabaseMetadataRepo,
   debouncerEvents: DebouncerEventsRepo,
+  homePageDesigns: HomePageDesignsRepo,
   jargonTerms: JargonTermsRepo,
   localgroups: LocalgroupsRepo,
   lwEvents: LWEventsRepo,
