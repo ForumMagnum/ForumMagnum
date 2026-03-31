@@ -5,12 +5,6 @@ import gql from "graphql-tag";
 // TODO: Replace with the actual marketplace post ID once created
 const MARKETPLACE_POST_ID = "PLACEHOLDER_POST_ID";
 
-interface PublishHomePageDesignInput {
-  publicId: string;
-  title: string;
-  description: string;
-}
-
 async function publishHomePageDesignResolver(
   root: void,
   { input }: { input: PublishHomePageDesignInput },
@@ -50,31 +44,35 @@ async function publishHomePageDesignResolver(
   const existingPublished = await HomePageDesigns.findOne(
     { publicId, commentId: { $ne: null } },
     undefined,
-    { _id: 1 },
+    { _id: 1, commentId: 1 },
   );
-  if (existingPublished) {
-    throw new Error("This design has already been published");
-  }
 
-  // Create a comment on the marketplace post
-  const linkUrl = `/?theme=${publicId}`;
-  const commentHtml = `<p><strong>${title}</strong></p><p>${description}</p><p><a href="${linkUrl}">Try this design</a></p>`;
+  let commentId;
+  // Create a comment on the marketplace post if no comment already exists for this design
+  if (!existingPublished) {
+    const linkUrl = `/?theme=${publicId}`;
+    const commentHtml = `<p><strong>${title}</strong></p><p>${description}</p><p><a href="${linkUrl}">Try this design</a></p>`;
 
-  const comment = await createComment({
-    data: {
-      postId: MARKETPLACE_POST_ID,
-      contents: {
-        originalContents: {
-          type: "lexical",
-          data: commentHtml,
+    const comment = await createComment({
+      data: {
+        postId: MARKETPLACE_POST_ID,
+        contents: {
+          originalContents: {
+            type: "lexical",
+            data: commentHtml,
+          },
         },
       },
-    },
-  }, context);
+    }, context);
+
+    commentId = comment._id;
+  } else {
+    commentId = existingPublished.commentId;
+  }
 
   await HomePageDesigns.rawUpdateOne(
     { _id: latest._id },
-    { $set: { commentId: comment._id, title } },
+    { $set: { commentId, title } },
   );
 
   const result = await HomePageDesigns.findOne({ _id: latest._id });

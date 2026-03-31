@@ -2969,12 +2969,14 @@ type HomePageDesign {
   title: String!
   verified: Boolean!
   commentId: String
+  source: String!
+  modelName: String
   conversationHistory: JSON!
 }
 
 extend type Query {
   homePageDesignByPublicId(publicId: String!): HomePageDesign
-  myHomePageDesigns: [HomePageDesign!]!
+  myHomePageDesigns(limit: Int): [HomePageDesign!]!
 }
 
 type IframeWidgetSrcdoc {

@@ -78,6 +78,33 @@ const schema = {
     },
   },
 
+  // "internal" (created via embedded chat) or "external" (created via API by
+  // an external agent).
+  source: {
+    database: {
+      type: "TEXT",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String!",
+      canRead: ["guests"],
+    },
+  },
+
+  // The model used to generate the design, e.g. "claude-sonnet-4.6",
+  // "gpt-5.4". Set by us for internal designs, provided by the agent for
+  // external ones.
+  modelName: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+    },
+  },
+
   // Access control for this field is handled by the custom query resolvers,
   // which strip it for non-owners.
   conversationHistory: {

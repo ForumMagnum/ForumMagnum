@@ -2663,6 +2663,8 @@ interface HomePageDesign {
   title: string;
   verified: boolean;
   commentId: string | null;
+  source: string;
+  modelName: string | null;
   conversationHistory: any;
 }
 

@@ -2327,8 +2327,10 @@ type HomePageDesign = {
   conversationHistory: Scalars['JSON']['output'];
   createdAt: Scalars['Date']['output'];
   html: Scalars['String']['output'];
+  modelName?: Maybe<Scalars['String']['output']>;
   ownerId: Scalars['String']['output'];
   publicId: Scalars['String']['output'];
+  source: Scalars['String']['output'];
   title: Scalars['String']['output'];
   verified: Scalars['Boolean']['output'];
 };
@@ -7847,6 +7849,11 @@ type QuerymultiDocumentsArgs = {
 };
 
 
+type QuerymyHomePageDesignsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
 type QuerynotificationArgs = {
   input?: InputMaybe<SingleNotificationInput>;
   selector?: InputMaybe<SelectorInput>;
@@ -12933,6 +12940,18 @@ type HomePageDesignByPublicIdQueryVariables = Exact<{
 
 
 type HomePageDesignByPublicIdQuery = HomePageDesignByPublicIdQuery_Query;
+
+type MyHomePageDesignsQuery_myHomePageDesigns_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, publicId: string, html: string, title: string };
+
+type MyHomePageDesignsQuery_Query = { __typename?: 'Query', myHomePageDesigns: Array<MyHomePageDesignsQuery_myHomePageDesigns_HomePageDesign> };
+
+
+type MyHomePageDesignsQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type MyHomePageDesignsQuery = MyHomePageDesignsQuery_Query;
 
 type PostExcerptQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }

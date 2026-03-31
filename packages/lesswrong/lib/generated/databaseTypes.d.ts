@@ -442,8 +442,10 @@ interface DbHomePageDesign extends DbObject {
   conversationHistory: any
   createdAt: Date
   html: string
+  modelName: string | null
   ownerId: string
   publicId: string
+  source: string
   title: string
   verified: boolean
 }

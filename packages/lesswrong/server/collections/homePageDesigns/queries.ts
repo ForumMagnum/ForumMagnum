@@ -42,7 +42,7 @@ async function homePageDesignByPublicIdResolver(
 
 async function homePageDesignsByOwnerResolver(
   root: void,
-  _args: Record<string, never>,
+  { limit }: { limit?: number },
   context: ResolverContext,
 ) {
   const { currentUser, clientId } = context;
@@ -53,7 +53,7 @@ async function homePageDesignsByOwnerResolver(
 
   const designs = await HomePageDesigns.find(
     { ownerId: { $in: ownerIds } },
-    { sort: { createdAt: -1 } },
+    { sort: { createdAt: -1 }, ...(limit ? { limit } : {}) },
   ).fetch();
 
   // All results are owned by the caller, so access + field filtering is trivial
@@ -65,7 +65,7 @@ export const graphqlHomePageDesignQueryTypeDefs = gql`
 
   extend type Query {
     homePageDesignByPublicId(publicId: String!): HomePageDesign
-    myHomePageDesigns: [HomePageDesign!]!
+    myHomePageDesigns(limit: Int): [HomePageDesign!]!
   }
 `;
 

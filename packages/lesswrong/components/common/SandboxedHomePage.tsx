@@ -22,6 +22,17 @@ const homePageDesignByPublicIdQuery = gql(`
   }
 `);
 
+const myHomePageDesignsQuery = gql(`
+  query MyHomePageDesigns($limit: Int) {
+    myHomePageDesigns(limit: $limit) {
+      _id
+      publicId
+      html
+      title
+    }
+  }
+`);
+
 const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
   root: {
     width: '100%',
@@ -81,6 +92,11 @@ const SandboxedHomePage = () => {
   const { data: themeData } = useQuery(homePageDesignByPublicIdQuery, {
     variables: { publicId: themePublicId! },
     skip: !themePublicId,
+  });
+
+  const { data: myDesignsData } = useQuery(myHomePageDesignsQuery, {
+    variables: { limit: 1 },
+    skip: !!themePublicId,
   });
 
   const handleRpc = useCallback(async (method: string, params: Record<string, unknown>): Promise<unknown> => {
@@ -150,8 +166,10 @@ const SandboxedHomePage = () => {
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const themeHtml = themeData?.homePageDesignByPublicId?.html;
   const themeSrcdoc = themeHtml ? wrapBodyInSrcdoc(themeHtml, { origin }) : null;
+  const latestDesignHtml = myDesignsData?.myHomePageDesigns?.[0]?.html;
+  const userLatestSrcdoc = latestDesignHtml ? wrapBodyInSrcdoc(latestDesignHtml, { origin }) : null;
   const defaultSrcdoc = getSandboxedHomePageSrcdoc({ origin });
-  const srcdoc = customSrcdoc ?? themeSrcdoc ?? defaultSrcdoc;
+  const srcdoc = customSrcdoc ?? themeSrcdoc ?? userLatestSrcdoc ?? defaultSrcdoc;
 
   return (
     <DeferRender ssr={false}>

@@ -22,6 +22,8 @@ export function getSiteUrlFromReq(req: NextRequest): string {
 }
 
 function getPortFromForwardedHeaders(forwardedFor: string | null, forwardedPort: string | null): string {
+  console.log('forwardedFor', forwardedFor);
+  console.log('forwardedPort', forwardedPort);
   if (forwardedFor && isLocalhost(forwardedFor)) {
     return forwardedPort ?? "";
   } else {
@@ -34,6 +36,7 @@ export function isLocalhost(host: string): boolean {
     case "localhost":
     case "127.0.0.1":
     case "::ffff:127.0.0.1":
+    case "::1":
       return true;
     default:
       return false;

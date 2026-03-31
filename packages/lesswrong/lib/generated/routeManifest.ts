@@ -383,6 +383,17 @@ export const routeTrie = {
         "homeDesignChat": {
           "hasRoute": true
         },
+        "homeDesigns": {
+          "staticChildren": {
+            "SKILL.md": {
+              "hasRoute": true
+            }
+          },
+          "lowerCase": {
+            "skill.md": "SKILL.md"
+          },
+          "hasRoute": true
+        },
         "mcp": {
           "hasRoute": true
         },
@@ -485,6 +496,7 @@ export const routeTrie = {
         "getllmfeedback": "getLlmFeedback",
         "health": "health",
         "homedesignchat": "homeDesignChat",
+        "homedesigns": "homeDesigns",
         "mcp": "mcp",
         "notificationcount": "notificationCount",
         "notificationevents": "notificationEvents",

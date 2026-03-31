@@ -787,6 +787,8 @@ CREATE TABLE "HomePageDesigns" (
   "title" TEXT NOT NULL,
   "verified" BOOL NOT NULL DEFAULT FALSE,
   "commentId" VARCHAR(27),
+  "source" TEXT NOT NULL,
+  "modelName" TEXT,
   "conversationHistory" JSONB NOT NULL
 );
 

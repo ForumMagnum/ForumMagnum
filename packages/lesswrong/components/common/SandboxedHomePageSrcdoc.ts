@@ -1286,6 +1286,5 @@ export const defaultHomePageDesigns: Record<string, { label: string; getBody: ()
  * Get the complete default srcdoc (wrapper + default body).
  */
 export function getSandboxedHomePageSrcdoc(options: SrcdocWrapperOptions): string {
-  // return wrapBodyInSrcdoc(getDefaultHomePageBody(), options);
-  return wrapBodyInSrcdoc(getTwitterHomePageBody(), options);
+  return wrapBodyInSrcdoc(getDefaultHomePageBody(), options);
 }

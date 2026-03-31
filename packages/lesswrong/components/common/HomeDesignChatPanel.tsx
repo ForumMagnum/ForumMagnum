@@ -7,6 +7,9 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useHomeDesignChat } from './HomeDesignChatContext';
 import { wrapBodyInSrcdoc } from './SandboxedHomePageSrcdoc';
 import classNames from 'classnames';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import CopyIcon from '@/lib/vendor/@material-ui/icons/src/FileCopy';
+import { useMessages } from './withMessages';
 
 const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
   overlay: {
@@ -155,11 +158,31 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     textAlign: 'center' as const,
     lineHeight: 1.6,
   },
+  byoaLink: {
+    marginTop: 16,
+    fontSize: 12,
+    color: theme.palette.text.dim3,
+    '& a': {
+      color: theme.palette.primary.main,
+      textDecoration: 'none',
+    },
+  },
+  copyIcon: {
+    fontSize: 12,
+    cursor: 'pointer',
+    color: theme.palette.text.dim3,
+    verticalAlign: 'middle',
+    marginLeft: 4,
+    '&:hover': {
+      color: theme.palette.text.normal,
+    },
+  },
 }));
 
 const HomeDesignChatPanel = () => {
   const classes = useStyles(styles);
   const { isOpen, setIsOpen, applyDesign, publicId, setPublicId } = useHomeDesignChat();
+  const { flash } = useMessages();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const appliedToolCallIds = useRef(new Set<string>());
   const [input, setInput] = useState('');
@@ -239,6 +262,16 @@ const HomeDesignChatPanel = () => {
             Describe your ideal LessWrong home page.
             <br /><br />
             Try: "Make it look like Hacker News" or "Newspaper front page layout" or "Dark mode with cards"
+            <div className={classes.byoaLink}>
+              Or, bring your own agent: give them a link to <a href="/api/homeDesigns/SKILL.md" target="_blank" rel="noopener noreferrer">this skill</a>
+              <CopyToClipboard
+                text={`${window.location.origin}/api/homeDesigns/SKILL.md`}
+                onCopy={() => flash({ messageString: "Skill URL copied!" })}
+              >
+                <CopyIcon className={classes.copyIcon} />
+              </CopyToClipboard>
+              {' '}to get started.
+            </div>
           </div>
         )}
         {messages.map((message) => (
