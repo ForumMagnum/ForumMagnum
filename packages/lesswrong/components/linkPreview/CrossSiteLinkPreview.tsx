@@ -17,13 +17,34 @@ import { useCurrentUser } from "@/components/common/withUser";
 import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import ContentStyles from "@/components/common/ContentStyles";
 import CrossSiteLinkPreviewDebug from "@/components/linkPreview/CrossSiteLinkPreviewDebug";
+import { useDialog } from "../common/withDialog";
 
 const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
-  popperCard: {
-    width: 520,
-    maxWidth: "min(520px, 90vw)",
+  noImageCard: {
+    width: 360,
+    maxWidth: "min(360px, 90vw)",
     padding: 12,
     position: "relative",
+  },
+  bannerCard: {
+    width: 360,
+    maxWidth: "min(360, 90vw)",
+    padding: 0,
+    position: "relative",
+  },
+  bannerCardContent: {
+    padding: 12,
+    paddingTop: 6,
+  },
+  sideBySideCard: {
+    padding: 0,
+    position: "relative",
+    display: "flex",
+  },
+  sideBySideCardContent: {
+    padding: 0,
+    margin: 12,
+    overflow: "hidden",
   },
   titleRow: {
     display: "flex",
@@ -42,13 +63,11 @@ const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     marginTop: -2,
   },
-  image: {
+  bannerImage: {
     width: "100%",
-    maxHeight: 220,
+    maxHeight: 215,
     objectFit: "cover",
     borderRadius: theme.borderRadius.default,
-    marginTop: 8,
-    marginBottom: 8,
   },
   contentRow: {
     display: "flex",
@@ -61,11 +80,13 @@ const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
     minWidth: 0,
   },
   sideImage: {
-    width: 120,
-    height: 120,
     borderRadius: theme.borderRadius.default,
     objectFit: "cover",
     flexShrink: 0,
+  },
+  bannerCardHtml: {
+    maxHeight: 160,
+    overflow: "hidden",
   },
   html: {
     "& p": {
@@ -85,12 +106,42 @@ function getDisplayTitle(title: string | null | undefined, href: string): string
 
 type PreviewImageLayout = "banner" | "side";
 
+interface SidePreviewSizing {
+  cardStyle: React.CSSProperties,
+  imageStyle: React.CSSProperties,
+}
+
+function clampNumber(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max);
+}
+
+function getSidePreviewSizing(imageAspectRatio: number): SidePreviewSizing {
+  const cardHeight = 250;
+  const horizontalPadding = 24;
+  const columnGap = 12;
+  const textColumnMinWidth = 240;
+  const imageWidth = clampNumber(cardHeight * imageAspectRatio, 140, 240);
+  const cardWidth = clampNumber(horizontalPadding + columnGap + textColumnMinWidth + imageWidth, 420, 560);
+
+  return {
+    cardStyle: {
+      width: cardWidth,
+      maxWidth: "min(560px, 90vw)",
+      height: cardHeight,
+    },
+    imageStyle: {
+      width: imageWidth,
+      height: "100%",
+    },
+  };
+}
+
 function getPreviewImageLayout(imageWidth: number | null | undefined, imageHeight: number | null | undefined): PreviewImageLayout {
   if (!imageWidth || !imageHeight || imageHeight <= 0) {
     return "banner";
   }
   const aspectRatio = imageWidth / imageHeight;
-  if (aspectRatio >= 1.35) {
+  if (aspectRatio >= 1.25) {
     return "banner";
   }
   return "side";
@@ -129,9 +180,9 @@ export const CrossSiteLinkPreview = ({
   const currentUser = useCurrentUser();
   const canDebug = userIsAdminOrMod(currentUser);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [debugModalOpen, setDebugModalOpen] = useState(false);
+  const { openDialog } = useDialog();
   const menuAnchorRef = useRef<HTMLSpanElement | null>(null);
-  const { eventHandlers, hover, anchorEl } = useHover({
+  const { eventHandlers, hover, anchorEl, forceUnHover } = useHover({
     eventProps: {
       pageElementContext: "linkPreview",
       hoverPreviewType: "CrossSiteLinkPreview",
@@ -152,8 +203,7 @@ export const CrossSiteLinkPreview = ({
 
   const previewData = data?.crossSiteLinkPreview;
   const imageLayout = getPreviewImageLayout(previewData?.imageWidth, previewData?.imageHeight);
-  const showSideImage = !!previewData?.imageUrl && imageLayout === "side";
-  const showBannerImage = !!previewData?.imageUrl && imageLayout === "banner";
+  const hasImage = !!previewData?.imageUrl;
   const hasStructuredPreviewData = !!(previewData?.title || previewData?.html || previewData?.imageUrl);
   const showInlineError = !loading && !!previewData?.error && hasStructuredPreviewData;
 
@@ -166,9 +216,22 @@ export const CrossSiteLinkPreview = ({
   };
 
   const onOpenDebugModal = () => {
-    setDebugModalOpen(true);
+    forceUnHover();
+    openDialog({
+      name: "CrossSiteLinkPreviewDebug",
+      contents: ({onClose}) => <CrossSiteLinkPreviewDebug url={href} open={true} onClose={onClose} />,
+    });
     setMenuOpen(false);
   };
+
+  const debugMenu = canDebug ? (
+    <span ref={menuAnchorRef}>
+      <MoreVertIcon
+        className={classes.menuButton}
+        onClick={() => setMenuOpen((open) => !open)}
+      />
+    </span>
+  ) : <></>;
 
   return (
     <AnalyticsTracker eventType="link" eventProps={{ to: href }}>
@@ -178,88 +241,128 @@ export const CrossSiteLinkPreview = ({
         </a>
 
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-          <Card className={classes.popperCard}>
-            <div className={classes.titleRow}>
-              <h3 className={classes.title}>
-                {getDisplayTitle(previewData?.title, href)}
-              </h3>
-              {canDebug && (
-                <span ref={menuAnchorRef}>
-                  <MoreVertIcon
-                    className={classes.menuButton}
-                    onClick={() => setMenuOpen((open) => !open)}
-                  />
-                </span>
-              )}
+          {previewData && !hasImage && <NoImageStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />}
+          {previewData && hasImage && imageLayout === "banner" && <BannerStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />}
+          {previewData && hasImage && imageLayout === "side" && <SideImageStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />}
+
+          {loading && <Card className={classes.noImageCard}>
+            <div className={classes.loadingOrError}>
+              Loading preview...
             </div>
-
-            {showBannerImage && previewData.imageUrl && (
-              <img src={previewData.imageUrl} alt="" className={classes.image} />
-            )}
-            {(previewData?.html || showSideImage) && (
-              <div className={classNames({ [classes.contentRow]: showSideImage })}>
-                {previewData?.html && (
-                  <ContentStyles
-                    contentType="comment"
-                    className={classNames(classes.html, { [classes.textColumn]: showSideImage })}
-                  >
-                    <div dangerouslySetInnerHTML={{ __html: previewData.html }} />
-                  </ContentStyles>
-                )}
-                {showSideImage && (
-                  <img src={previewData.imageUrl!} alt="" className={classes.sideImage} />
-                )}
-              </div>
-            )}
-
-            {loading && (
-              <div className={classes.loadingOrError}>
-                Loading preview...
-              </div>
-            )}
-
-            {showInlineError && (
-              <div className={classes.loadingOrError}>
-                {previewData.error}
-              </div>
-            )}
-
-          </Card>
+          </Card>}
+          {showInlineError && <Card className={classes.noImageCard}>
+            <div className={classes.loadingOrError}>
+              {previewData.error}
+            </div>
+          </Card>}
         </LWPopper>
 
-        {canDebug && (
-          <PopperCard
-            open={menuOpen}
-            anchorEl={menuAnchorRef.current}
-            placement="bottom-end"
-          >
-            <LWClickAwayListener onClickAway={() => setMenuOpen(false)}>
-              <>
-                <DropdownItem
-                  title="Force refetch"
-                  icon="Autorenew"
-                  onClick={onForceRefetch}
-                />
-                <DropdownItem
-                  title="Open debug view"
-                  icon="Document"
-                  onClick={onOpenDebugModal}
-                />
-              </>
-            </LWClickAwayListener>
-          </PopperCard>
-        )}
-        {canDebug && (
-          <CrossSiteLinkPreviewDebug
-            url={href}
-            open={debugModalOpen}
-            onClose={() => setDebugModalOpen(false)}
-          />
-        )}
+        {canDebug && <PopperCard
+          open={menuOpen}
+          anchorEl={menuAnchorRef.current}
+          placement="bottom-end"
+        >
+          <LWClickAwayListener onClickAway={() => setMenuOpen(false)}>
+            <DropdownItem
+              title="Force refetch"
+              icon="Autorenew"
+              onClick={onForceRefetch}
+            />
+            <DropdownItem
+              title="Open debug view"
+              icon="Document"
+              onClick={onOpenDebugModal}
+            />
+          </LWClickAwayListener>
+        </PopperCard>}
       </span>
     </AnalyticsTracker>
   );
 };
+
+function NoImageStyleCardContent({previewData, href, debugMenu}: {
+  previewData: CrossSiteLinkPreviewData
+  href: string
+  debugMenu: ReactNode
+}) {
+  const classes = useStyles(styles);
+  return <Card className={classes.noImageCard}>
+    <div className={classes.titleRow}>
+      <h3 className={classes.title}>
+        {getDisplayTitle(previewData?.title, href)}
+      </h3>
+      {debugMenu}
+    </div>
+
+    {(previewData.html) && <ContentStyles
+      contentType="comment"
+      className={classes.html}
+    >
+      <div dangerouslySetInnerHTML={{ __html: previewData.html }} />
+    </ContentStyles>}
+  </Card>
+}
+
+function BannerStyleCardContent({previewData, href, debugMenu}: {
+  previewData: CrossSiteLinkPreviewData
+  href: string
+  debugMenu: ReactNode
+}) {
+  const classes = useStyles(styles);
+  return <Card className={classes.bannerCard}>
+    <img src={previewData.imageUrl!} alt="" className={classes.bannerImage} />
+
+    <div className={classes.bannerCardContent}>
+      <div className={classes.titleRow}>
+        <h3 className={classes.title}>
+          {getDisplayTitle(previewData?.title, href)}
+        </h3>
+        {debugMenu}
+      </div>
+
+      {(previewData.html) && <ContentStyles
+        contentType="comment"
+        className={classes.bannerCardHtml}
+      >
+        <div dangerouslySetInnerHTML={{ __html: previewData.html }} />
+      </ContentStyles>}
+    </div>
+  </Card>
+}
+
+function SideImageStyleCardContent({previewData, href, debugMenu}: {
+  previewData: CrossSiteLinkPreviewData
+  href: string
+  debugMenu: ReactNode
+}) {
+  const imageAspectRatio = previewData.imageWidth && previewData.imageHeight
+    ? (previewData.imageWidth / previewData.imageHeight) : 1;
+  const { cardStyle, imageStyle } = getSidePreviewSizing(imageAspectRatio);
+
+  const classes = useStyles(styles);
+  return <Card className={classes.sideBySideCard} style={cardStyle}>
+    <div className={classes.sideBySideCardContent}>
+      <div className={classes.titleRow}>
+        <h3 className={classes.title}>
+          {getDisplayTitle(previewData?.title, href)}
+        </h3>
+        {debugMenu}
+      </div>
+
+      <div className={classes.contentRow}>
+        {previewData?.html && (
+          <ContentStyles
+            contentType="comment"
+            className={classNames(classes.html, classes.textColumn)}
+          >
+            <div dangerouslySetInnerHTML={{ __html: previewData.html }} />
+          </ContentStyles>
+        )}
+      </div>
+    </div>
+    <img src={previewData.imageUrl!} alt="" className={classes.sideImage} style={imageStyle} />
+  </Card>
+}
 
 export default CrossSiteLinkPreview;
 

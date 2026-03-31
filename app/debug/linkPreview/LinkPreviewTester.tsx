@@ -35,6 +35,8 @@ const sampleOnsiteUrls: string[] = [
 ];
 const sampleOffsiteUrls: string[] = [
   "https://en.wikipedia.org/wiki/The_Example",
+  "https://en.wikipedia.org/wiki/Image",
+  "https://en.wikipedia.org/wiki/Francis Bacon",
   "https://arxiv.org/abs/2407.21783",
   "https://thezvi.substack.com/p/zvis-2025-in-movies",
   "https://www.astralcodexten.com/p/sources-say-bay-area-house-party",
@@ -106,6 +108,7 @@ const LinkPreviewTester = () => {
   const [inputUrl, setInputUrl] = useState("");
   const [urlList, setUrlList] = useState<string[]>([...sampleOnsiteUrls, ...sampleOffsiteUrls]);
   const onsiteUrls = useMemo(() => urlList.filter((url) => classifyLink(url) === "onsite"), [urlList]);
+  const offsiteUrls = useMemo(() => urlList.filter((url) => classifyLink(url) !== "onsite"), [urlList]);
 
   const missingOnsiteSchemas = useMemo(() => {
     return onsiteSchemas.filter((schema) => {
@@ -131,9 +134,20 @@ const LinkPreviewTester = () => {
       <h1>Link Preview Tester</h1>
 
       <div className={classes.section}>
-        <h2>Sample URLs</h2>
+        <h2>Sample URLs (On-Site)</h2>
         <ul>
-          {urlList.map((url) => (
+          {onsiteUrls.map((url) => (
+            <li key={url}>
+              <HoverPreviewLink href={url} className={classes.hoverLink}>
+                {url}
+              </HoverPreviewLink>
+            </li>
+          ))}
+        </ul>
+
+        <h2>Sample URLs (Cross-Site)</h2>
+        <ul>
+          {offsiteUrls.map((url) => (
             <li key={url}>
               <HoverPreviewLink href={url} className={classes.hoverLink}>
                 {url}
