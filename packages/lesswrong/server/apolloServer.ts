@@ -63,7 +63,7 @@ import { faviconUrlSetting, isDatadogEnabled, isEAForum, isElasticEnabled, perfo
 import { resolvers, typeDefs } from './vulcan-lib/apollo-server/initGraphQL';
 import { botProtectionCommentRedirectSetting } from './databaseSettings';
 import { getSitemapWithCache } from './sitemap';
-import PostsRepo from './repos/PostsRepo';
+import { addEAFundsPostsRoute } from './eaFundsPosts';
 import { addGivingSeasonEndpoints } from './givingSeason/webhook';
 
 /**
@@ -276,23 +276,7 @@ export function startWebserver() {
   });
 
   if (isEAForum) {
-    addStaticRoute("/api/eafunds-posts", async (props, _req, res) => {
-      try {
-        const slugs = props.query?.slugs?.split(",");
-        if (!slugs?.length) {
-          throw new Error("Missing user slugs");
-        }
-        const posts = await new PostsRepo().fetchEAFundsPosts(slugs);
-        res.statusCode = 200;
-        res.setHeader("Content-Type", "application/json");
-        res.write(JSON.stringify(posts));
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error("Error fetching EA Funds posts:", e);
-        res.statusCode = 500;
-      }
-      res.end();
-    });
+    addEAFundsPostsRoute();
   }
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {
