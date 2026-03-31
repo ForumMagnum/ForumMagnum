@@ -9,6 +9,9 @@ const hideSpoilers = (theme: ThemeType) => ({
   '& code': {
     backgroundColor: theme.palette.panelBackground.spoilerBlock,
   },
+  '& img, & video, & iframe, & svg, & canvas': {
+    opacity: 0,
+  },
 });
 
 const spoilerStyles = (theme: ThemeType) => ({
@@ -257,10 +260,16 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
     margin: '1em 0',
     position: 'relative',
     fontFamily: '"cronos-pro", serif',
-    fontSize: 19.3,
+    fontSize: 19.1,
     fontWeight: 400,
     opacity: 0.94,
     '& h1, & h2, & h3, & h4, & h5, & h6': {
+      fontFamily: 'inherit',
+    },
+    // Prevent baseBodyStyles selectors (which spread postStyle/body1/commentStyle)
+    // from overriding the LLM block's font on these elements. Without this,
+    // list items and blockquotes get the post/comment font instead of cronos-pro.
+    '& li, & blockquote': {
       fontFamily: 'inherit',
     },
     // Render the model label inline so the content starts immediately after it.
@@ -274,6 +283,8 @@ const llmContentBlockStyles = (theme: ThemeType) => ({
       borderRight: `1px solid ${theme.palette.grey[400]}`,
       fontWeight: 600,
       fontVariant: 'small-caps',
+      position: 'relative',
+      top: 2
     },
     '&:has(> .llm-content-block-content > p:first-child)::before': {
       float: 'left',
@@ -691,6 +702,10 @@ export const postBodyStyles = (theme: ThemeType) => {
     '& .footnotes': {
       marginTop: 40,
       fontSize: '0.9em',
+      '& li': {
+        fontSize: '0.9em', // Overwriting default size setting for list items
+        lineHeight: '21.06px',
+      },
       paddingTop: 40,
       borderTop: theme.palette.border.normal,
       '& sup': {
@@ -700,9 +715,6 @@ export const postBodyStyles = (theme: ThemeType) => {
         marginBlockStart: '1em',
         paddingInlineStart: 0,
         marginInlineStart: '1em'
-      },
-      '& li': {
-        fontSize: '0.9em' // Overwriting default size setting for list items
       },
       '& blockquote': {
         fontSize: '0.9em',

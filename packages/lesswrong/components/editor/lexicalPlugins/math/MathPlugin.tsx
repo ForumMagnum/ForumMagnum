@@ -333,11 +333,10 @@ export function MathPlugin(): React.ReactElement {
     );
   }, [editor, openEditor]);
 
-  // Register click handler for editing existing math nodes
+  // Register click handler for editing existing math nodes.
+  // Uses registerRootListener so the handler is properly re-attached if the
+  // root element changes (e.g. when ContentEditable remounts).
   useEffect(() => {
-    const rootElement = editor.getRootElement();
-    if (!rootElement) return;
-
     const handleClick = (event: MouseEvent) => {
       const target = event.target as HTMLElement;
       
@@ -363,10 +362,14 @@ export function MathPlugin(): React.ReactElement {
       }
     };
 
-    rootElement.addEventListener('click', handleClick);
-    return () => {
-      rootElement.removeEventListener('click', handleClick);
-    };
+    // Use the capture phase so this handler fires before any ancestor React
+    // onClick handlers that call stopPropagation (e.g. CommentFrame's expand
+    // handler), which would otherwise prevent the click from reaching a
+    // bubble-phase listener on the root element.
+    return editor.registerRootListener((rootElement, prevRootElement) => {
+      prevRootElement?.removeEventListener('click', handleClick, true);
+      rootElement?.addEventListener('click', handleClick, true);
+    });
   }, [editor]);
 
   return (

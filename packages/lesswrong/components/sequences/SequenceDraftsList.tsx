@@ -53,13 +53,12 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, addDraft, dialogP
 
   const currentSorting = query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified";
 
-  const terms = useMemo(() => ({
+  const terms = useMemo((): PostsDraftsInput => ({
     userId: userId ?? currentUser?._id,
-    limit,
     sortDraftsBy: currentSorting,
     includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : (currentUser?.draftsListShowArchived ?? undefined),
     includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
-  }), [userId, limit, currentSorting, query.includeArchived, query.includeShared, currentUser]);
+  }), [userId, currentSorting, query.includeArchived, query.includeShared, currentUser]);
   
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(PostsListMultiQuery, {
     variables: {

@@ -1,7 +1,7 @@
 import type { NextRequest } from 'next/server';
-import { WebClient } from '@slack/web-api';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import { captureException } from '@/lib/sentryWrapper';
+import { postMessage } from '@/server/slack/client';
 
 interface CurationStatus {
   daysSinceCurated: number;
@@ -101,21 +101,7 @@ function numberToWord(n: number): string {
 
 async function postCurationStatusToSlack(status: CurationStatus) {
   const { daysSinceCurated, lastCurationDate, unpublishedDraftCount, averageDaysPerCuration } = status;
-  
-  const slackBotToken = process.env.AMANUENSIS_SLACK_BOT_TOKEN;
-  const channelId = process.env.CURATION_SLACK_CHANNEL_ID;
-  
-  if (!channelId) {
-    // eslint-disable-next-line no-console
-    console.error('CURATION_SLACK_CHANNEL_ID is not set');
-    return;
-  }
-  if (!slackBotToken) {
-    // eslint-disable-next-line no-console
-    console.error('AMANUENSIS_SLACK_BOT_TOKEN is not set');
-    return;
-  }
-  
+
   // Build the message
   const lines: string[] = [
     `:newspaper: *Curation Report* :rolled_up_newspaper:`,
@@ -149,14 +135,12 @@ async function postCurationStatusToSlack(status: CurationStatus) {
       lines.push(`>Why`);
     }
   }
-  
-  const slack = new WebClient(slackBotToken);
-  
+
   try {
-    await slack.chat.postMessage({
-      channel: channelId,
+    await postMessage({
       text: lines.join('\n'),
-      mrkdwn: true,
+      channelName: "curation",
+      options: { mrkdwn: true },
     });
   } catch (error) {
     // Log to Sentry but don't let Slack failures crash the cron job

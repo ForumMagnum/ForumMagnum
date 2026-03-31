@@ -6,6 +6,7 @@ export type StyleDefinition<T extends string = string, N extends string = string
   styles: (theme: ThemeType) => JssStyles<T>
   options?: StyleOptions
   nameProxy: ClassNameProxy<T>|null
+  styleTag?: React.ReactNode
 }
 export type StyleOptions = {
   // Whether to ignore the presence of colors that don't come from the theme in

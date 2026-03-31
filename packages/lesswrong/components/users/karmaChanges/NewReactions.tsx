@@ -2,20 +2,33 @@ import React from 'react';
 import LWTooltip from '@/components/common/LWTooltip';
 import ReactionIcon from '@/components/votes/ReactionIcon';
 import UsersName from '../UsersName';
-import { styles } from './styles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { defineStyles } from '@/components/hooks/defineStyles';
 import type { ReactionChange } from '@/server/collections/users/karmaChangesGraphQL';
 
+const styles = defineStyles("NewReactions", (theme: ThemeType) => ({
+  individualAddedReact: {
+    marginLeft: 2,
+  },
+  votedItemReacts: {
+    marginLeft: 6,
+  },
+}));
 
 export const NewReactions = ({ reactionChanges }: {
-  reactionChanges: ReactionChange[];
+  reactionChanges: ReactionChange[]|null|undefined;
 }) => {
   const classes = useStyles(styles);
+  if (!reactionChanges || !reactionChanges.length) {
+    return null;
+  }
   const distinctReactionTypes = new Set<string>();
-  for (let reactionChange of reactionChanges)
+  for (let reactionChange of reactionChanges) {
     distinctReactionTypes.add(reactionChange.reactionType);
+  }
 
-  return <span>
+
+  return <span className={classes.votedItemReacts}>
     {[...distinctReactionTypes.keys()].map(reactionType => {
       let disableTooltip = false;
 
@@ -27,7 +40,7 @@ export const NewReactions = ({ reactionChanges }: {
           title={reactionChanges.filter(r => r.reactionType === reactionType)
             .map((r, i) => <>
               {i > 0 && <>{", "}</>}
-              <UsersName documentId={r.userId} />
+              <UsersName documentId={r.userId ?? undefined} />
             </>)}
           disabled={disableTooltip}
         >

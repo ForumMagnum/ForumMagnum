@@ -3,11 +3,12 @@ import { NextRequest, NextResponse } from "next/server";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Map as YMap, Array as YArray, Doc } from "yjs";
 import { randomId } from "@/lib/random";
-import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, waitForProviderSync } from "../editorAgentUtil";
-import { sleep } from "@/lib/utils/asyncUtils";
+import { deriveAgentAuthor, waitForProviderFlush, waitForProviderSync } from "../editorAgentUtil";
+
 import { createCollabComment } from "../commentOnDraft/route";
 import { replyToCommentToolSchema } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
+import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 import { getHocuspocusToken } from "../getHocuspocusToken";
 
 function findThreadCommentsArray(
@@ -31,6 +32,7 @@ export async function POST(req: NextRequest) {
 
   const parseResult = replyToCommentToolSchema.safeParse(body);
   if (!parseResult.success) {
+    captureAgentApiEvent({ route: "replyToComment", postId: body?.postId, userId: context.currentUser?._id, agentName: body?.agentName, status: "validation_error" });
     return NextResponse.json(
       { error: "Invalid request body", details: parseResult.error.format() },
       { status: 400 },
@@ -42,6 +44,7 @@ export async function POST(req: NextRequest) {
   try {
     const token = await getHocuspocusToken(context, postId, key);
     if (!token) {
+      captureAgentApiEvent({ route: "replyToComment", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
       return NextResponse.json(
         { error: "Unauthorized to comment on draft" },
         { status: 403 },
@@ -50,6 +53,7 @@ export async function POST(req: NextRequest) {
 
     const wsUrl = process.env.HOCUSPOCUS_URL;
     if (!wsUrl) {
+      captureAgentApiEvent({ route: "replyToComment", postId, userId: context.currentUser?._id, agentName, status: "internal_error", errorCategory: "missing_config" });
       return NextResponse.json(
         { error: "HOCUSPOCUS_URL is not configured" },
         { status: 500 },
@@ -74,6 +78,7 @@ export async function POST(req: NextRequest) {
       const commentsArray = doc.get("comments", YArray);
       const threadComments = findThreadCommentsArray(commentsArray, threadId);
       if (!threadComments) {
+        captureAgentApiEvent({ route: "replyToComment", postId, userId: context.currentUser?._id, agentName, status: "internal_error", errorCategory: "thread_not_found" });
         return NextResponse.json(
           { error: `Thread not found: ${threadId}` },
           { status: 400 },
@@ -92,8 +97,9 @@ export async function POST(req: NextRequest) {
         threadComments.insert(threadComments.length, [commentMap]);
       }, "agent-reply-to-comment");
 
-      await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+      await waitForProviderFlush(provider);
 
+      captureAgentApiEvent({ route: "replyToComment", postId, userId: context.currentUser?._id, agentName, status: "success" });
       return NextResponse.json({
         ok: true,
         postId,
@@ -109,6 +115,7 @@ export async function POST(req: NextRequest) {
     // eslint-disable-next-line no-console
     console.error(error);
     captureException(error);
+    captureAgentApiFailure("replyToComment", error, { postId, userId: context.currentUser?._id, agentName });
     return NextResponse.json(
       {
         error: "Failed to reply to comment thread",

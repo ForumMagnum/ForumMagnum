@@ -1,10 +1,10 @@
 import React, { useContext } from 'react';
 import moment from 'moment-timezone';
 import { useTimezone } from '../common/withTimezone';
-import { EnvironmentOverrideContext, useCurrentTime } from '../../lib/utils/timeUtil';
 import { formatRelative } from '../../lib/utils/timeFormat';
 import LWTooltip from "./LWTooltip";
 import TimeTag from "./TimeTag";
+import { useCurrentTime } from '@/lib/utils/TimeProvider';
 
 export const ExpandedDate = ({date}: {date: Date | string}) => {
   return <FormatDate date={date} format={"LLL z"} />
@@ -28,17 +28,9 @@ const FormatDate = ({date, format, includeAgo, tooltip=true, granularity="dateti
 }) => {
   const now = useCurrentTime();
   const { timezone } = useTimezone();
-  const { cacheFriendly=false } = useContext(EnvironmentOverrideContext);
   const dateToRender = date||now;
   const dateTimeAttr = granularity === "datetime" ? dateToRender : moment(dateToRender).tz(timezone).format("YYYY-MM-DD")
   let displayFormat = format;
-  if (cacheFriendly && !format) {
-    displayFormat = "MMM D YYYY"
-    // hide the year if it's this year
-    if (moment(now).isSame(moment(date), 'year')) {
-      displayFormat = "MMM D"
-    }
-  }
 
   const formatted = (
     <TimeTag dateTime={dateTimeAttr} className={className}>

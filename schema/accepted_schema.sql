@@ -3085,7 +3085,8 @@ CREATE TABLE "Users" (
   "afApplicationText" TEXT,
   "afSubmittedApplication" BOOL,
   "hideSunshineSidebar" BOOL NOT NULL DEFAULT FALSE,
-  "recommendationSettings" JSONB
+  "recommendationSettings" JSONB,
+  "claudeLinkedAt" TIMESTAMPTZ
 );
 
 -- Index "idx_Users_username"

@@ -5,32 +5,13 @@ import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import {useCurrentUser} from "../common/withUser"
-import {useLocation} from "../../lib/routeUtil";
 import ErrorAccessDenied from "../common/ErrorAccessDenied";
 import SingleColumnSection from "../common/SingleColumnSection";
 import DraftsList from "./DraftsList";
-import { defineStyles } from '@/components/hooks/defineStyles';
-import { useStyles } from '@/components/hooks/useStyles';
-
-const styles = defineStyles('DraftsPage', (theme: ThemeType) => ({
-  checkbox: {
-    padding: "1px 12px 0 0"
-  },
-  checkboxGroup: {
-    display: "flex",
-    alignItems: "center",
-    [theme.breakpoints.down('xs')]: {
-      marginBottom: 16,
-      flex: `1 0 100%`,
-      order: 0
-    }
-  },
-}))
+import CommentsDraftList from "../comments/CommentsDraftList";
 
 const DraftsPage = () => {
-  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
-  const { query } = useLocation();
   
   if (!currentUser) {
     return <ErrorAccessDenied />
@@ -39,6 +20,13 @@ const DraftsPage = () => {
   return <SingleColumnSection>
     <AnalyticsContext listContext={"draftsPage"}>
       <DraftsList limit={50} title={"Drafts & Unpublished Posts"} showAllDraftsLink={false}/>
+      <CommentsDraftList
+        userId={currentUser._id}
+        initialLimit={50}
+        silentIfEmpty
+        sectionTitleStyle
+        quickTakesOnly
+      />
     </AnalyticsContext>
   </SingleColumnSection>
 }

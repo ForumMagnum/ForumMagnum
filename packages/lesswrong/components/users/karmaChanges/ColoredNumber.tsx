@@ -1,6 +1,14 @@
-import { useStyles } from '@/components/hooks/useStyles';
 import React from 'react';
-import { styles } from './styles';
+import { useStyles } from '@/components/hooks/useStyles';
+import { defineStyles } from '@/components/hooks/defineStyles';
+
+const styles = defineStyles("ColoredNumber", (theme: ThemeType) => ({
+  gainedPoints: {
+    color: theme.palette.primary.main,
+  },
+  zeroPoints: {},
+  lostPoints: {},
+}));
 
 // Given a number, return a span of it as a string, with a plus sign if it's
 // positive, and green, red, or black coloring for positive, negative, and

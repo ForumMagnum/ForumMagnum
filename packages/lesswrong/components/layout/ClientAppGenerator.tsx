@@ -6,7 +6,6 @@ import '@/client/publicSettings';
 import React, { Suspense, use, useEffect, useRef, useState, useTransition } from 'react';
 import CookiesProvider from "@/lib/vendor/react-cookie/CookiesProvider";
 import { ABTestGroupsUsedContext, RelevantTestGroupAllocation } from '@/components/common/sharedContexts';
-import { SSRMetadata, EnvironmentOverrideContext } from '@/lib/utils/timeUtil';
 import { ThemeContextProvider } from '@/components/themes/ThemeContextProvider';
 import { LocationContext, NavigationContext, SubscribeLocationContext } from '@/lib/locationContexts';
 import { parsePath } from '@/lib/routeChecks/parseRoute';
@@ -15,14 +14,13 @@ import { UserContextProvider } from '../common/withUser';
 import { usePathname, useRouter, useSearchParams, useParams } from 'next/navigation';
 import Layout from '@/components/layout/Layout';
 import { HelmetProvider } from 'react-helmet-async';
-import { EnableSuspenseContext } from '@/lib/crud/useQuery';
-import { isClient, isServer } from '@/lib/executionEnvironment';
-import Cookies from 'universal-cookie';
+import { isClient } from '@/lib/executionEnvironment';
 import { ApolloWrapper } from '@/components/common/ApolloWrapper';
 
 import type { RouterLocation } from '@/lib/routeChecks/parseRoute';
 import type { AppRouterInstance } from 'next/dist/shared/lib/app-router-context.shared-runtime';
 import { initClientOnce } from '@/client/initClient';
+import { TimeProvider } from '@/lib/utils/TimeProvider';
 
 if (isClient) {
   // This has a downstream call to `googleTagManagerIdSetting.get()`.
@@ -143,17 +141,10 @@ const ClientAppGenerator = ({ abTestGroupsUsed, requestId, children }: {
   requestId: string,
   children: React.ReactNode,
 }) => {
-  const universalCookies = useGetUniversalCookies();
-  const urlSearchParams = useSearchParams();
-  const loginToken = universalCookies.get('loginToken');
-
-  return <EnableSuspenseContext.Provider value={isServer}>
-    <ApolloWrapper
-      loginToken={loginToken ?? null}
-      requestId={requestId}
-      searchParams={Object.fromEntries(urlSearchParams.entries())}
-    >
-      <CookiesProvider cookies={universalCookies}>
+  return <TimeProvider>
+    <Suspense>
+    <ApolloWrapper requestId={requestId}>
+      <CookiesProvider>
         <UserContextProvider>
           <ThemeContextProvider>
             <ABTestGroupsUsedContext.Provider value={abTestGroupsUsed}>
@@ -171,36 +162,8 @@ const ClientAppGenerator = ({ abTestGroupsUsed, requestId, children }: {
         </UserContextProvider>
       </CookiesProvider>
     </ApolloWrapper>
-  </EnableSuspenseContext.Provider>
+    </Suspense>
+  </TimeProvider>
 };
-
-const useGetUniversalCookies = () => {
-  if (isServer) {
-    const { cookies } = use(import('next/headers'));
-    const serverCookies = use(cookies());
-    const parsedCookies = serverCookies.getAll();
-    return new Cookies(Object.fromEntries(parsedCookies.map((cookie) => [cookie.name, cookie.value])));
-  } else {
-    const browserCookies = document.cookie;
-    const parsedCookies = browserCookies.split(';').map((cookie) => {
-      const [name, value] = cookie.split('=');
-      return { name, value };
-    });
-    return new Cookies(browserCookies);
-  }
-}
-
-export const EnvironmentOverrideContextProvider = ({ssrMetadata, children}: {
-  ssrMetadata: SSRMetadata
-  children: React.ReactNode
-}) => {
-  const [envOverride, setEnvOverride] = useState<Partial<SSRMetadata>>(ssrMetadata ? {
-    ...ssrMetadata,
-  } : {});
-
-  return <EnvironmentOverrideContext.Provider value={envOverride}>
-    {children}
-  </EnvironmentOverrideContext.Provider>
-}
 
 export default ClientAppGenerator;

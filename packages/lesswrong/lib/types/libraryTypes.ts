@@ -13,10 +13,6 @@ declare module "markdown-it-sup" {
   export default markdownItSup;
 }
 
-declare module "turndown-plugin-gfm" {
-  export const gfm: AnyBecauseTodo
-}
-
 declare module "gpt-3-encoder" {
   export const encode: AnyBecauseTodo
   export const decode: AnyBecauseTodo

@@ -15,14 +15,15 @@ import {
 } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, paragraphMarkdownStartsWith, plainTextStartsWith, withMainDocEditorSession } from "../editorAgentUtil";
-import { sleep } from "@/lib/utils/asyncUtils";
+import { deriveAgentAuthor, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+
 import { normalizeImportedTopLevelNodes } from "../../(markdown)/editorMarkdownUtils";
-import { buildNodeMarkdownMapForSubtree } from "../mapMarkdownToLexical";
+import { buildNodeMarkdownMapForSubtree, toPlainTextFilter } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { insertBlockToolSchema, type InsertLocation, type ReplaceMode } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
+import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
 interface InsertBlockResult {
   inserted: boolean
@@ -130,19 +131,25 @@ function findInsertionIndexByPrefix(
   prefix: string,
   relation: "before" | "after",
 ): number | null {
-  const mapResult = buildNodeMarkdownMapForSubtree($getRoot().getKey());
+  const textFilter = toPlainTextFilter(prefix);
+  const mapResult = buildNodeMarkdownMapForSubtree($getRoot().getKey(), textFilter);
   for (let i = 0; i < rootChildren.length; i++) {
     const child = rootChildren[i];
     const childMarkdown = mapResult.byKey.get(child.getKey())?.markdown;
+    const textContent = child.getTextContent();
     if (!childMarkdown) {
-      if (plainTextStartsWith(child.getTextContent(), prefix)) {
+      if (
+        plainTextStartsWith(textContent, prefix) ||
+        (textFilter && normalizeText(textContent).startsWith(textFilter))
+      ) {
         return relation === "before" ? i : i + 1;
       }
       continue;
     }
     if (
       paragraphMarkdownStartsWith(childMarkdown, prefix) ||
-      plainTextStartsWith(child.getTextContent(), prefix)
+      plainTextStartsWith(textContent, prefix) ||
+      (textFilter && normalizeText(textContent).startsWith(textFilter))
     ) {
       return relation === "before" ? i : i + 1;
     }
@@ -222,7 +229,7 @@ export async function insertMarkdownBlock({
     postId,
     token,
     operationLabel: "InsertBlock",
-    callback: async ({ editor }) => {
+    callback: async ({ editor, provider }) => {
       let result: InsertBlockResult = { inserted: false, note: "No insertion performed." };
 
       await new Promise<void>((resolve) => {
@@ -232,7 +239,7 @@ export async function insertMarkdownBlock({
       });
 
       if (result.inserted) {
-        await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+        await waitForProviderFlush(provider);
       }
       return result;
     },
@@ -263,6 +270,7 @@ export async function POST(req: NextRequest) {
 
   const parseResult = insertBlockToolSchema.safeParse(body);
   if (!parseResult.success) {
+    captureAgentApiEvent({ route: "insertBlock", postId: body?.postId, userId: context.currentUser?._id, agentName: body?.agentName, status: "validation_error" });
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
 
@@ -271,6 +279,7 @@ export async function POST(req: NextRequest) {
   try {
     const token = await getHocuspocusToken(context, postId, key);
     if (!token) {
+      captureAgentApiEvent({ route: "insertBlock", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
@@ -285,6 +294,7 @@ export async function POST(req: NextRequest) {
       authorId,
     });
 
+    captureAgentApiEvent({ route: "insertBlock", postId, userId: context.currentUser?._id, agentName, status: "success", operationResult: insertResult.inserted ? "inserted" : "not_inserted" });
     return NextResponse.json({
       ok: true,
       postId,
@@ -299,6 +309,7 @@ export async function POST(req: NextRequest) {
     // eslint-disable-next-line no-console
     console.error(error);
     captureException(error);
+    captureAgentApiFailure("insertBlock", error, { postId, userId: context.currentUser?._id, agentName });
     return NextResponse.json(
       {
         error: "Failed to insert markdown block in collaborative draft",

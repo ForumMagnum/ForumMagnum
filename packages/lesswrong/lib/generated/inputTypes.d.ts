@@ -258,6 +258,7 @@ interface Mutation {
   analyticsEvent: boolean | null;
   UpdateSearchSynonyms: Array<string>;
   useEmailToken: any;
+  getClaudeAccessLink: string | null;
   connectCrossposter: string | null;
   unlinkCrossposter: string | null;
   observeRecommendation: boolean | null;
@@ -637,7 +638,6 @@ interface PostKarmaChange {
   title: string | null;
   slug: string;
   addedReacts: Array<ReactionChange> | null;
-  eaAddedReacts: any;
 }
 
 interface CommentKarmaChange {
@@ -654,7 +654,6 @@ interface CommentKarmaChange {
   tagCommentType: TagCommentType | null;
   tagId: string | null;
   addedReacts: Array<ReactionChange> | null;
-  eaAddedReacts: any;
 }
 
 interface RevisionsKarmaChange {
@@ -665,7 +664,6 @@ interface RevisionsKarmaChange {
   tagSlug: string | null;
   tagName: string | null;
   addedReacts: Array<ReactionChange> | null;
-  eaAddedReacts: any;
 }
 
 interface ReactionChange {
@@ -2191,6 +2189,7 @@ interface CommentsDraftCommentsInput {
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
   postId?: string | null;
+  shortform?: boolean | null;
   drafts?: string | null;
 }
 
@@ -6811,6 +6810,7 @@ interface User {
   lastRemovedFromReviewQueueAt: Date | null;
   rejectedContentCount: number | null;
   userRateLimits: Array<UserRateLimit> | null;
+  claudeLinkedAt: Date | null;
 }
 
 interface UserSelectorUniqueInput {

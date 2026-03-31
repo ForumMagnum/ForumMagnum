@@ -1,34 +1,11 @@
 import React from 'react';
 import { getBookAnchor } from '../../lib/collections/books/helpers';
 import type { ToCSection } from '../../lib/tableOfContents';
-import { commentBodyStyles } from '../../themes/stylePiping';
 import TableOfContents from "../posts/TableOfContents/TableOfContents";
-import { defineStyles } from '@/components/hooks/defineStyles';
-import { useStyles } from '@/components/hooks/useStyles';
-
-const styles = defineStyles('CollectionTableOfContents', (theme: ThemeType) => ({
-  root: {
-    ...commentBodyStyles(theme),
-    color: theme.palette.grey[600]
-  },
-  collectionTitle: {
-    borderBottom: theme.palette.border.grey300,
-    paddingBottom: 24
-  },
-  bookTitle: {
-    marginTop: 20,
-    marginBottom: 20
-  },
-  sequenceTitle: {
-    marginTop: 3,
-    marginBottom: 3
-  }
-}));
 
 export const CollectionTableOfContents = ({collection}: {
   collection: CollectionsPageFragment
 }) => {
-  const classes = useStyles(styles);
   const sections: ToCSection[] = [] 
 
   collection.books.forEach(book => {
@@ -62,6 +39,3 @@ export const CollectionTableOfContents = ({collection}: {
 }
 
 export default CollectionTableOfContents;
-
-
-

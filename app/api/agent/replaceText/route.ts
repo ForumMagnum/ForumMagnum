@@ -7,12 +7,13 @@ import { JSDOM } from "jsdom";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { markdownToHtml } from "@/server/editor/conversionUtils";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
-import { deriveAgentAuthor, HOCUSPOCUS_FLUSH_WAIT_MS, withMainDocEditorSession } from "../editorAgentUtil";
-import { sleep } from "@/lib/utils/asyncUtils";
+import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+
 import { locateMarkdownQuoteSelectionInSubtree, markdownQuoteToPlainText, type MarkdownSelectionPoint } from "../mapMarkdownToLexical";
 import { replaceTextToolSchema, type ReplaceMode } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
+import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
 interface ReplaceResult {
   replaced: boolean
@@ -696,7 +697,7 @@ export async function replaceTextInMainDoc({
     postId,
     token,
     operationLabel: "ReplaceText",
-    callback: async ({ editor }) => {
+    callback: async ({ editor, provider }) => {
       let replaced = false;
       let quoteFoundInDocument = false;
       let suggestionId: string | undefined = undefined;
@@ -749,7 +750,7 @@ export async function replaceTextInMainDoc({
       });
 
       if (replaced) {
-        await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+        await waitForProviderFlush(provider);
       }
 
       if (replaced) {
@@ -801,6 +802,7 @@ export async function POST(req: NextRequest) {
 
   const parseResult = replaceTextToolSchema.safeParse(body);
   if (!parseResult.success) {
+    captureAgentApiEvent({ route: "replaceText", postId: body?.postId, userId: context.currentUser?._id, agentName: body?.agentName, status: "validation_error" });
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
 
@@ -809,6 +811,7 @@ export async function POST(req: NextRequest) {
   try {
     const token = await getHocuspocusToken(context, postId, key);
     if (!token) {
+      captureAgentApiEvent({ route: "replaceText", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
@@ -823,6 +826,7 @@ export async function POST(req: NextRequest) {
       authorId,
     });
 
+    captureAgentApiEvent({ route: "replaceText", postId, userId: context.currentUser?._id, agentName, status: "success", operationResult: !result.quoteFoundInDocument ? "quote_not_found" : result.replaced ? "replaced" : "not_replaced" });
     return NextResponse.json({
       ok: true,
       postId,
@@ -835,6 +839,7 @@ export async function POST(req: NextRequest) {
     // eslint-disable-next-line no-console
     console.error(error);
     captureException(error);
+    captureAgentApiFailure("replaceText", error, { postId, userId: context.currentUser?._id, agentName });
     return NextResponse.json(
       {
         error: "Failed to replace text in collaborative draft",

@@ -1,5 +1,5 @@
 import axios from 'axios';
-import cheerio, { type Element, type Cheerio, type Node } from 'cheerio';
+import cheerio, { type Element, type Cheerio, type CheerioAPI, type Node } from 'cheerio';
 import JSZip from 'jszip';
 import path from 'node:path';
 import { convertImagesInHTML, uploadBufferToCloudinary } from '../scripts/convertImagesToCloudinary';
@@ -151,15 +151,20 @@ function googleDocConvertFootnotes(html: string): string {
     }
   });
 
+  const createFootnoteReference = (index: string, id: string) => $(
+    `<span class="footnote-reference" data-footnote-reference="" data-footnote-id="${id}" data-footnote-index="${index}" role="doc-noteref" id="fnref${id}"><sup><a href="#fn${id}">[${index}]</a></sup></span>`
+  );
+
   // Normalize the references by adding attributes and replacing the original <sup> tag
   Object.entries(references).forEach(([index, { item, id }]) => {
-    item.attr('data-footnote-reference', '');
-    item.attr('data-footnote-index', index);
-    item.attr('data-footnote-id', id);
-    item.attr('role', 'doc-noteref');
-    item.parents('sup').replaceWith(item); // Replace the original <sup> tag with `item`
-    item.wrap(`<span class="footnote-reference" id="fnref${id}"></span>`);
-    item.text(`[${index}]`);
+    const reference = createFootnoteReference(index, id);
+    const supParent = item.parents('sup').first();
+
+    if (supParent.length) {
+      supParent.replaceWith(reference);
+    } else {
+      item.replaceWith(reference);
+    }
   });
 
   // Create the footnotes section
@@ -167,15 +172,14 @@ function googleDocConvertFootnotes(html: string): string {
 
   // Normalize the footnotes and put them in the newly created section
   Object.entries(footnotes).forEach(([index, { item, anchor, id }]) => {
-    // Remove e.g. "[1]&nbsp;" from the footnote
-    const anchorHtml = anchor.html();
-    if (anchorHtml && anchorHtml.startsWith('&nbsp;')) {
-      anchor.html(anchorHtml.replace(/^&nbsp;/, ''));
-    } else {
-      anchor.remove();
-    }
+    anchor.remove();
 
     const footnoteContent = item.clone().addClass('footnote-content');
+
+    const firstFootnoteSpan = footnoteContent.find('p span').first();
+    if (firstFootnoteSpan.length) {
+      firstFootnoteSpan.text(firstFootnoteSpan.text().replace(/^[\s\u00A0]+/, ''));
+    }
 
     // Replace bullets in footnotes with regular <p> elements and move them up a level
     const listParent = footnoteContent.find('li').parent('ul, ol');
@@ -187,7 +191,7 @@ function googleDocConvertFootnotes(html: string): string {
 
     const newFootnoteBackLink = $('<span class="footnote-back-link" data-footnote-back-link="" data-footnote-id="' + id + '"><sup><strong><a href="#fnref' + id + '">^</a></strong></sup></span>');
 
-    const newFootnoteContent = $('<div class="footnote-content" data-footnote-content="" data-footnote-id="' + id + '" data-footnote-index="' + index + '"></div>');
+    const newFootnoteContent = $('<div class="footnote-content" data-footnote-content=""></div>');
     newFootnoteContent.append(footnoteContent.contents());
 
     const newFootnoteItem = $('<li class="footnote-item" data-footnote-item="" data-footnote-id="' + id + '" data-footnote-index="' + index + '" role="doc-endnote" id="fn' + id + '"></li>');
@@ -208,7 +212,7 @@ function googleDocConvertFootnotes(html: string): string {
   //
   // Remove everything from the <hr /> to the footnotes section
   const footnotesSection = $('.footnote-section');
-  const hrBeforeFootnotes = footnotesSection.prevAll('hr').last();
+  const hrBeforeFootnotes = footnotesSection.prevAll('hr').first();
   hrBeforeFootnotes.remove();
 
   return $.html();
@@ -247,19 +251,137 @@ function googleDocRemoveRedirects(html: string): string {
  * - Italics
  * - Bold
  */
+interface GoogleDocTextFormattingRule {
+  className: string;
+  fontStyle?: string;
+  fontWeight?: string;
+}
+
+type GoogleDocCssDeclarations = Record<string, string>;
+
+function googleDocParseCssDeclarations(styleText: string): GoogleDocCssDeclarations {
+  return styleText
+    .split(';')
+    .map((declaration) => declaration.trim())
+    .filter(Boolean)
+    .reduce<GoogleDocCssDeclarations>((declarations, declaration) => {
+      const [rawPropertyName, ...rawValueParts] = declaration.split(':');
+      const propertyName = rawPropertyName?.trim().toLowerCase();
+      const propertyValue = rawValueParts.join(':').trim().toLowerCase();
+
+      if (!propertyName || !propertyValue) {
+        return declarations;
+      }
+
+      declarations[propertyName] = propertyValue;
+      return declarations;
+    }, {});
+}
+
+function googleDocGetClassStyleDeclarations($: CheerioAPI): Map<string, GoogleDocCssDeclarations> {
+  const classStyleDeclarations = new Map<string, GoogleDocCssDeclarations>();
+  const cssRulePattern = /([^{}]+)\{([^{}]*)\}/g;
+
+  $('style').each((_: number, styleElement: Element) => {
+    const styleContents = $(styleElement).html();
+
+    if (!styleContents) {
+      return;
+    }
+
+    for (const match of styleContents.matchAll(cssRulePattern)) {
+      const selectors = match[1]?.split(',').map((selector: string) => selector.trim()).filter(Boolean) ?? [];
+      const declarations = match[2];
+
+      if (!declarations) {
+        continue;
+      }
+
+      const parsedDeclarations = googleDocParseCssDeclarations(declarations);
+
+      selectors.forEach((selector: string) => {
+        const classSelectorMatch = selector.match(/^\.(?<className>[-_a-zA-Z0-9]+)$/);
+        const className = classSelectorMatch?.groups?.className;
+        if (!className) {
+          return;
+        }
+
+        classStyleDeclarations.set(className, {
+          ...(classStyleDeclarations.get(className) ?? {}),
+          ...parsedDeclarations,
+        });
+      });
+    }
+  });
+
+  return classStyleDeclarations;
+}
+
+function googleDocGetElementClassNames(element: Cheerio<Element>): string[] {
+  return element.attr('class')?.split(/\s+/).map((className) => className.trim()).filter(Boolean) ?? [];
+}
+
+function googleDocGetElementStyleDeclarations(
+  element: Cheerio<Element>,
+  classStyleDeclarations: Map<string, GoogleDocCssDeclarations>,
+): GoogleDocCssDeclarations {
+  const classDeclarations = googleDocGetElementClassNames(element).reduce<GoogleDocCssDeclarations>((declarations, className) => {
+    return {
+      ...declarations,
+      ...(classStyleDeclarations.get(className) ?? {}),
+    };
+  }, {});
+
+  return {
+    ...classDeclarations,
+    ...googleDocParseCssDeclarations(element.attr('style') ?? ''),
+  };
+}
+
+function googleDocGetSpanTextFormatting(
+  span: Cheerio<Element>,
+  classStyleDeclarations: Map<string, GoogleDocCssDeclarations>,
+): Pick<GoogleDocTextFormattingRule, 'fontStyle' | 'fontWeight'> {
+  const declarations = googleDocGetElementStyleDeclarations(span, classStyleDeclarations);
+
+  return {
+    fontStyle: declarations['font-style'],
+    fontWeight: declarations['font-weight'],
+  };
+}
+
+function googleDocIsItalic(fontStyle?: string): boolean {
+  return fontStyle === 'italic' || fontStyle === 'oblique';
+}
+
+function googleDocIsBold(fontWeight?: string): boolean {
+  if (!fontWeight) {
+    return false;
+  }
+
+  if (fontWeight === 'bold') {
+    return true;
+  }
+
+  const numericFontWeight = Number.parseInt(fontWeight, 10);
+  return !Number.isNaN(numericFontWeight) && numericFontWeight >= 700;
+}
+
 function googleDocTextFormatting(html: string): string {
   const $ = cheerio.load(html);
+  const classStyleDeclarations = googleDocGetClassStyleDeclarations($);
 
   $('span').each((_, element) => {
     const span = $(element);
-    const fontStyle = span.css('font-style');
-    const fontWeight = span.css('font-weight');
+    const { fontStyle, fontWeight } = googleDocGetSpanTextFormatting(span, classStyleDeclarations);
+    const isItalic = googleDocIsItalic(fontStyle);
+    const isBold = googleDocIsBold(fontWeight);
 
-    if (fontStyle === 'italic' && fontWeight === '700') {
+    if (isItalic && isBold) {
       span.wrap('<i><strong></strong></i>');
-    } else if (fontStyle === 'italic') {
+    } else if (isItalic) {
       span.wrap('<i></i>');
-    } else if (fontWeight === '700') {
+    } else if (isBold) {
       span.wrap('<strong></strong>');
     }
   });
@@ -443,9 +565,9 @@ async function googleDocInternalLinks(html: string): Promise<string> {
  * Handle footnotes and internal links. These are bundled together because they must
  * be done in the right order
  */
-function googleDocConvertLinks(html: string) {
+async function googleDocConvertLinks(html: string) {
   const withNormalizedFootnotes = googleDocConvertFootnotes(html);
-  const withInternalLinks = googleDocInternalLinks(withNormalizedFootnotes);
+  const withInternalLinks = await googleDocInternalLinks(withNormalizedFootnotes);
   return withInternalLinks
 }
 
@@ -519,17 +641,73 @@ function googleDocConvertNestedBullets(html: string): string {
 }
 
 /**
- * To fix double spacing, remove all empty <p> tags that are immediate children of <body> from the HTML
+ * To fix Google Docs' double spacing, collapse each run of blank spacer paragraphs by one.
  */
 function removeEmptyBodyParagraphs(html: string): string {
   const $ = cheerio.load(html);
+  const classStyleDeclarations = googleDocGetClassStyleDeclarations($);
 
-  $('body > p').each((_, element) => {
-    const p = $(element);
-    // Allow otherwise empty paragraphs containing images
-    if (p.text().trim() === '' && p.find('img').length === 0) {
-      p.remove();
+  const isZeroCssLength = (value?: string): boolean => {
+    if (!value) {
+      return false;
     }
+
+    const normalizedValue = value.trim().toLowerCase();
+    if (!normalizedValue) {
+      return false;
+    }
+
+    const numericValue = Number.parseFloat(normalizedValue);
+    return !Number.isNaN(numericValue) && numericValue === 0;
+  };
+
+  const hasMeaningfulParagraphContent = (paragraph: Cheerio<Element>): boolean => {
+    if (paragraph.find('img, svg, video, audio, iframe, table, hr, ol, ul, li, blockquote, pre').length > 0) {
+      return true;
+    }
+
+    return paragraph.text().replace(/\u00a0/g, '').trim() !== '';
+  };
+
+  const isGoogleDocSpacerParagraph = (paragraph: Cheerio<Element>): boolean => {
+    if (hasMeaningfulParagraphContent(paragraph)) {
+      return false;
+    }
+
+    const declarations = googleDocGetElementStyleDeclarations(paragraph, classStyleDeclarations);
+    const hasExplicitHeight = declarations.height !== undefined;
+    const hasZeroVerticalPadding = isZeroCssLength(declarations['padding-top']) && isZeroCssLength(declarations['padding-bottom']);
+    const hasLineHeight = declarations['line-height'] !== undefined;
+    const hasNoParagraphStyling = googleDocGetElementClassNames(paragraph).length === 0 && !paragraph.attr('style');
+
+    return hasExplicitHeight || (hasZeroVerticalPadding && hasLineHeight) || hasNoParagraphStyling;
+  };
+
+  const collapseSpacerParagraphRun = (paragraphs: Cheerio<Element>[]) => {
+    if (paragraphs.length > 0) {
+      paragraphs[0].remove();
+    }
+  };
+
+  const collapseSpacerParagraphsInContainer = (container: Cheerio<Element>) => {
+    let spacerParagraphRun: Cheerio<Element>[] = [];
+
+    container.children('p').each((_, element) => {
+      const paragraph = $(element);
+      if (isGoogleDocSpacerParagraph(paragraph)) {
+        spacerParagraphRun.push(paragraph);
+        return;
+      }
+
+      collapseSpacerParagraphRun(spacerParagraphRun);
+      spacerParagraphRun = [];
+    });
+
+    collapseSpacerParagraphRun(spacerParagraphRun);
+  };
+
+  $('body, .footnote-content').each((_, element) => {
+    collapseSpacerParagraphsInContainer($(element));
   });
 
   return $.html();

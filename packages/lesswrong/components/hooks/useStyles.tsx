@@ -314,47 +314,6 @@ function styleNodeToString(theme: ThemeType, styleDefinition: StyleDefinition): 
 }
 
 
-// JSON-serialized theme => style name => style script tag
-const serverEmbeddedStylesCache: Record<string, Record<string,string>> = {};
-
-export function serverEmbeddedStyles(abstractThemeOptions: AbstractThemeOptions, styleDefinitions: StyleDefinition[]) {
-  const themeKey = JSON.stringify(abstractThemeOptions);
-
-  if (!serverEmbeddedStylesCache[themeKey]) {
-    serverEmbeddedStylesCache[themeKey] = {};
-  }
-  
-  const result: string[] = [];
-  for (const styleDefinition of styleDefinitions) {
-    const styleName = styleDefinition.name;
-    if (!serverEmbeddedStylesCache[themeKey][styleName]) {
-      const priority = styleDefinition.options?.stylePriority ?? 0;
-
-      if (themeOptionsAreConcrete(abstractThemeOptions)) {
-        const theme = getForumTheme(abstractThemeOptions);
-        const stylesStr = styleNodeToString(theme, styleDefinition);
-        const priority = styleDefinition.options?.stylePriority ?? 0;
-        const styleScriptTag = `_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})`;
-        serverEmbeddedStylesCache[themeKey][styleName] = styleScriptTag;
-      } else {
-        const lightThemeOptions = abstractThemeToConcrete(abstractThemeOptions, false);
-        const darkThemeOptions = abstractThemeToConcrete(abstractThemeOptions, true);
-        const lightTheme = getForumTheme(lightThemeOptions);
-        const darkTheme = getForumTheme(darkThemeOptions);
-        const lightStylesStr = styleNodeToString(lightTheme, styleDefinition);
-        const darkStylesStr = styleNodeToString(darkTheme, styleDefinition);
-        const stylesStr = (lightStylesStr === darkStylesStr)
-          ? lightStylesStr
-          : `@media (prefers-color-scheme: light) {\n${lightStylesStr}\n}\n@media (prefers-color-scheme: dark) {\n${darkStylesStr}\n}`
-        const styleScriptTag = `_embedStyles(${JSON.stringify(styleDefinition.name)},${priority},${JSON.stringify(stylesStr)})`;
-        serverEmbeddedStylesCache[themeKey][styleName] = styleScriptTag;
-      }
-    }
-    result.push(serverEmbeddedStylesCache[themeKey][styleName]);
-  }
-  return result.join(";");
-}
-
 export function getJss() {
   return jssCreate({
     plugins: [
@@ -367,7 +326,6 @@ export function getJss() {
     ],
   });
 }
-
 
 /**
  * Takes a detached style element, and inserts it into the DOM as a child of

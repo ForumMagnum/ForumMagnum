@@ -7,15 +7,15 @@ import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInMarkNode } from "@lexical/mark";
 import {
   deriveAgentAuthor,
-  HOCUSPOCUS_FLUSH_WAIT_MS,
   normalizeText,
+  waitForProviderFlush,
   waitForProviderSync,
   withMainDocEditorSession,
 } from "../editorAgentUtil";
 import { locateMarkdownQuoteSelectionInSubtree } from "../mapMarkdownToLexical";
-import { sleep } from "@/lib/utils/asyncUtils";
 import { commentOnDraftToolSchema } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
+import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 import { getHocuspocusToken } from "../getHocuspocusToken";
 
 export function createCollabComment({
@@ -103,7 +103,7 @@ async function getMainDocQuoteMatchResult({
     postId,
     token,
     operationLabel: "CommentOnDraftQuoteMatch",
-    callback: async ({ editor }) => {
+    callback: async ({ editor, provider: mainDocProvider }) => {
       let quoteFoundInDocument = false;
       let createdMarkId: string | null = null;
 
@@ -118,7 +118,7 @@ async function getMainDocQuoteMatchResult({
       });
 
       if (createdMarkId) {
-        await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+        await waitForProviderFlush(mainDocProvider);
       }
 
       return { quoteFoundInDocument, createdMarkId };
@@ -202,8 +202,7 @@ export async function insertDraftCommentThread({
       comments.insert(comments.length, [threadMap]);
     }, "agent-comment-on-draft");
 
-    // Give the provider a moment to flush the update over websocket.
-    await sleep(HOCUSPOCUS_FLUSH_WAIT_MS);
+    await waitForProviderFlush(provider);
     return { threadId, commentId, anchorStatus, anchorNote };
   } finally {
     provider.destroy();
@@ -219,6 +218,7 @@ export async function POST(req: NextRequest) {
 
   const parseResult = commentOnDraftToolSchema.safeParse(body);
   if (!parseResult.success) {
+    captureAgentApiEvent({ route: "commentOnDraft", postId: body?.postId, userId: context.currentUser?._id, agentName: body?.agentName, status: "validation_error" });
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
 
@@ -227,6 +227,7 @@ export async function POST(req: NextRequest) {
   try {
     const token = await getHocuspocusToken(context, postId, key);
     if (!token) {
+      captureAgentApiEvent({ route: "commentOnDraft", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
       return NextResponse.json({ error: "Unauthorized to comment on draft" }, { status: 403 });
     }
 
@@ -242,6 +243,7 @@ export async function POST(req: NextRequest) {
       authorId,
     });
 
+    captureAgentApiEvent({ route: "commentOnDraft", postId, userId: context.currentUser?._id, agentName, status: "success", operationResult: anchorStatus });
     return NextResponse.json({
       ok: true,
       postId,
@@ -255,6 +257,7 @@ export async function POST(req: NextRequest) {
     // eslint-disable-next-line no-console
     console.error(error);
     captureException(error);
+    captureAgentApiFailure("commentOnDraft", error, { postId, userId: context.currentUser?._id, agentName });
     return NextResponse.json(
       {
         error: "Failed to write comment to collaborative draft",

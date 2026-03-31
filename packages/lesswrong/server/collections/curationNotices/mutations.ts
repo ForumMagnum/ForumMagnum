@@ -11,7 +11,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { htmlToTextDefault } from "@/lib/htmlToText";
 import { captureException } from "@/lib/sentryWrapper";
-import { WebClient } from "@slack/web-api";
+import { postMessage } from "@/server/slack/client";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -21,20 +21,6 @@ function newCheck(user: DbUser | null, document: CreateCurationNoticeDataInput |
 
 function editCheck(user: DbUser | null, document: DbCurationNotice | null) {
   return userIsAdminOrMod(user)
-}
-
-async function postSlackMessage(text: string) {
-  const slackBotToken = process.env.AMANUENSIS_SLACK_BOT_TOKEN;
-  const channelId = process.env.CURATION_SLACK_CHANNEL_ID;
-  if (!slackBotToken || !channelId) return;
-  try {
-    const slack = new WebClient(slackBotToken);
-    await slack.chat.postMessage({ channel: channelId, text, mrkdwn: true });
-  } catch (error) {
-    captureException(error);
-    // eslint-disable-next-line no-console
-    console.error('Failed to post to curation Slack channel:', error);
-  }
 }
 
 async function postCurationNoticeToSlack(document: DbCurationNotice, context: ResolverContext) {
@@ -49,7 +35,13 @@ async function postCurationNoticeToSlack(document: DbCurationNotice, context: Re
     ``,
     noticeText,
   ];
-  await postSlackMessage(lines.join('\n'));
+  try {
+    await postMessage({ text: lines.join('\n'), channelName: "curation", options: { mrkdwn: true } });
+  } catch (error) {
+    captureException(error);
+    // eslint-disable-next-line no-console
+    console.error('Failed to post to curation Slack channel:', error);
+  }
 }
 
 async function postCurationPublishToSlack(document: DbCurationNotice, context: ResolverContext) {
@@ -57,7 +49,17 @@ async function postCurationPublishToSlack(document: DbCurationNotice, context: R
   if (!post) return;
   const author = await context.loaders.Users.load(document.userId);
   const postUrl = postGetPageUrl(post, { isAbsolute: true });
-  await postSlackMessage(`:tada: *Post curated* by ${author?.displayName ?? 'Unknown'}: <${postUrl}|${post.title}>`);
+  try {
+    await postMessage({
+      text: `:tada: *Post curated* by ${author?.displayName ?? 'Unknown'}: <${postUrl}|${post.title}>`,
+      channelName: "curation",
+      options: { mrkdwn: true },
+    });
+  } catch (error) {
+    captureException(error);
+    // eslint-disable-next-line no-console
+    console.error('Failed to post to curation Slack channel:', error);
+  }
 }
 
 export async function createCurationNotice({ data }: CreateCurationNoticeInput, context: ResolverContext) {

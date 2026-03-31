@@ -3,19 +3,17 @@ import { accessFilterSingle, generateIdResolverSingle } from "../../utils/schema
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { parseDocumentFromString } from "@/lib/domParser";
 import { highlightFromHTML, truncate } from "@/lib/editor/ellipsize";
-import { htmlToTextDefault } from "@/lib/htmlToText";
 import { extractTableOfContents } from "@/lib/tableOfContents";
-import { sanitizeAllowedTags } from "@/lib/utils/sanitize";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
 import { htmlStartingAtHash } from "@/server/extractHighlights";
 import { htmlContainsFootnotes } from "@/server/utils/htmlUtil";
 import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH } from "./revisionConstants";
 import { ContentType } from "./revisionSchemaTypes";
-import sanitizeHtml from "sanitize-html";
 import { compile as compileHtmlToText } from "html-to-text";
 import { getOriginalContents } from "./helpers";
 import { rewritePostLinksForAgentMarkdown } from "@/server/markdownApi/markdownLinks";
 import { truncateMarkdown } from "@/server/markdownApi/markdownTruncation";
+import { getPlaintextMainText } from "./mainTextFilter";
 
 // I _think_ this is a server-side only library, but it doesn't seem to be causing problems living at the top level (yet)
 // TODO: consider moving it to a server-side helper file with a stub, if so
@@ -335,19 +333,7 @@ const schema = {
       canRead: ["guests"],
       resolver: ({ html }) => {
         if (!html) return "";
-        const mainTextHtml = sanitizeHtml(html, {
-          allowedTags: sanitizeAllowedTags.filter((tag) => tag !== "blockquote"),
-          nonTextTags: ["blockquote", "style"],
-          exclusiveFilter: function (element) {
-            return (
-              element.attribs?.class === "spoilers" ||
-              element.attribs?.class === "spoiler" ||
-              element.attribs?.class === "spoiler-v2"
-            );
-          },
-        });
-        const truncatedHtml = truncate(mainTextHtml, PLAINTEXT_HTML_TRUNCATION_LENGTH);
-        return htmlToTextDefault(truncatedHtml, { fallbackToImageText: true }).substring(0, PLAINTEXT_DESCRIPTION_LENGTH);
+        return getPlaintextMainText(html);
       },
     },
   },
