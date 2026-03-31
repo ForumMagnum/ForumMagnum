@@ -1,6 +1,6 @@
 import React from 'react';
 import classNames from 'classnames';
-import { styles } from './LWPostsItem';
+import { styles } from './PostsItem';
 import { useStyles } from '../hooks/useStyles';
 
 const PostsListPlaceholder = ({count}: {
