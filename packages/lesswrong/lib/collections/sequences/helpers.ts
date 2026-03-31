@@ -16,6 +16,7 @@ interface SequenceMinimumForGetPageUrl {
 }
 interface SequenceGetPageUrlOptions {
   isAbsolute?: boolean,
+  isApiVersion?: boolean,
 }
 export const sequenceGetPageUrl = function(sequence: SequenceMinimumForGetPageUrl, options?: SequenceGetPageUrlOptions){
   const isAbsolute = options?.isAbsolute ?? false;

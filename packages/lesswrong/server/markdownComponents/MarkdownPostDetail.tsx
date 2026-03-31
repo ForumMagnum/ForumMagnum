@@ -4,54 +4,8 @@ import { MarkdownNode } from "./MarkdownNode";
 import { MarkdownUserLink } from "./MarkdownUserLink";
 import { MarkdownDate } from "./MarkdownDate";
 import { MarkdownCommentsList } from "./MarkdownCommentsList";
-
-interface MarkdownPostTag {
-  _id: string
-  name: string
-  slug: string
-}
-
-interface MarkdownPostUser {
-  slug: string
-  displayName: string
-}
-
-interface MarkdownPostContents {
-  agentMarkdown?: string | null
-}
-
-interface MarkdownSequenceSummary {
-  _id: string
-  title?: string | null
-}
-
-interface MarkdownSequenceNeighborPost {
-  _id: string
-  slug: string
-  title: string
-}
-
-export interface MarkdownPostDetailData {
-  _id: string
-  slug: string
-  title: string
-  postedAt: string | Date
-  baseScore?: number | null
-  draft?: boolean | null
-  curatedDate?: string | Date | null
-  frontpageDate?: string | Date | null
-  postCategory?: string | null
-  url?: string | null
-  isEvent?: boolean | null
-  location?: string | null
-  startTime?: string | Date | null
-  endTime?: string | Date | null
-  user: MarkdownPostUser | null
-  coauthors?: MarkdownPostUser[] | null
-  tags?: MarkdownPostTag[] | null
-  contents?: MarkdownPostContents | null
-  commentCount?: number | null
-}
+import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 
 export function MarkdownPostDetail({
   post,
@@ -65,13 +19,13 @@ export function MarkdownPostDetail({
   markdownPathOverride,
   commentsMarkdownPathOverride,
 }: {
-  post: MarkdownPostDetailData
+  post: PostMarkdownApiQuery_post_SinglePostOutput_result_Post
   topComments?: CommentsMarkdownFragment[]
   compactMode?: boolean
   bodyMarkdown?: string
-  sequence?: MarkdownSequenceSummary | null
-  prevPost?: MarkdownSequenceNeighborPost | null
-  nextPost?: MarkdownSequenceNeighborPost | null
+  sequence?: PostMarkdownApiQuery_post_SinglePostOutput_result_Post_sequence_Sequence | null
+  prevPost?: PostMarkdownApiQuery_post_SinglePostOutput_result_Post_prevPost_Post | null
+  nextPost?: PostMarkdownApiQuery_post_SinglePostOutput_result_Post_nextPost_Post | null
   htmlPathOverride?: string
   markdownPathOverride?: string
   commentsMarkdownPathOverride?: string
@@ -80,15 +34,10 @@ export function MarkdownPostDetail({
   const frontpageLabel = post.frontpageDate ? "Frontpage" : "Personal Blog";
   const isLinkpost = post.postCategory === "linkpost";
   const isEvent = !!post.isEvent;
-  const htmlPath = htmlPathOverride ?? `/posts/${post._id}/${post.slug}`;
-  const markdownPath = markdownPathOverride ?? `/api/post/${post.slug}`;
+  const htmlPath = htmlPathOverride ?? postGetPageUrl(post, {isAbsolute: true, isApiVersion: false});
+  const markdownPath = markdownPathOverride ?? postGetPageUrl(post, {isAbsolute: true, isApiVersion: true});
   const commentsMarkdownPath = commentsMarkdownPathOverride ?? `/api/post/${post.slug}/comments`;
   const compactPath = markdownPath.includes("?") ? `${markdownPath}&compact=1` : `${markdownPath}?compact=1`;
-
-  const prevHtmlPath = sequence && prevPost ? `/s/${sequence._id}/p/${prevPost._id}` : null;
-  const prevMarkdownPath = sequence && prevPost ? `/api/sequence/${sequence._id}/post/${prevPost._id}` : null;
-  const nextHtmlPath = sequence && nextPost ? `/s/${sequence._id}/p/${nextPost._id}` : null;
-  const nextMarkdownPath = sequence && nextPost ? `/api/sequence/${sequence._id}/post/${nextPost._id}` : null;
 
   return (
     <div>
@@ -144,20 +93,20 @@ export function MarkdownPostDetail({
         </li>
         {sequence ? (
           <li>
-            Sequence: <a href={`/s/${sequence._id}`}>{sequence.title ?? sequence._id}</a>{" "}
-            (<a href={`/api/sequence/${sequence._id}`}>Markdown</a>)
+            Sequence: <a href={sequenceGetPageUrl(sequence, {isAbsolute: true, isApiVersion: false})}>{sequence.title ?? sequence._id}</a>{" "}
+            (<a href={sequenceGetPageUrl(sequence, {isAbsolute: true, isApiVersion: true})}>Markdown</a>)
           </li>
         ) : null}
-        {prevPost && prevHtmlPath && prevMarkdownPath ? (
+        {prevPost ? (
           <li>
-            Previous in sequence: <a href={prevHtmlPath}>{prevPost.title}</a>{" "}
-            (<a href={prevMarkdownPath}>Markdown</a>)
+            Previous in sequence: <a href={postGetPageUrl(prevPost, {isAbsolute: true, isApiVersion: false})}>{prevPost.title}</a>{" "}
+            (<a href={postGetPageUrl(prevPost, {isAbsolute: true, isApiVersion: true})}>Markdown</a>)
           </li>
         ) : null}
-        {nextPost && nextHtmlPath && nextMarkdownPath ? (
+        {nextPost ? (
           <li>
-            Next in sequence: <a href={nextHtmlPath}>{nextPost.title}</a>{" "}
-            (<a href={nextMarkdownPath}>Markdown</a>)
+            Next in sequence: <a href={postGetPageUrl(nextPost, {isAbsolute: true, isApiVersion: false})}>{nextPost.title}</a>{" "}
+            (<a href={postGetPageUrl(nextPost, {isAbsolute: true, isApiVersion: true})}>Markdown</a>)
           </li>
         ) : null}
         {compactMode ? <li>Mode: compact</li> : null}

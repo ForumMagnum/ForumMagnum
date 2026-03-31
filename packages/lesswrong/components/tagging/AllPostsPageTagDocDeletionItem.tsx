@@ -1,6 +1,6 @@
 import React from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
-import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { tagGetPageUrl } from '@/lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import TagsTooltip from "./TagsTooltip";
 import UsersName from "../users/UsersName";
@@ -46,7 +46,7 @@ const DocumentTitle = ({tag, documentDeletion}: {
     const maybeLink = (netChange === 'restored' && docFields?.slug)
       ? <TagsTooltip tagSlug={docFields?.slug} noPrefetch previewPostCount={0}>
           {/* TODO: link styling? */}
-          <Link to={tagGetUrl(tag, { lens: docFields?.slug })}>{titleText}</Link>
+          <Link to={tagGetPageUrl(tag, { lens: docFields?.slug })}>{titleText}</Link>
         </TagsTooltip>
       : titleText;
 

@@ -1,4 +1,4 @@
-import { tagGetUrl } from "../tags/helpers";
+import { tagGetPageUrl } from "../tags/helpers";
 
 export const getSpotlightUrl = <T extends SpotlightDisplay | SpotlightHeaderEventSubtitle>(spotlight: T): string => {
   const { post, sequence, tag } = spotlight;
@@ -7,7 +7,7 @@ export const getSpotlightUrl = <T extends SpotlightDisplay | SpotlightHeaderEven
   } else if (sequence) {
     return `/s/${sequence._id}`;
   } else if (tag) {
-    return tagGetUrl(tag);
+    return tagGetPageUrl(tag);
   } else {
     // eslint-disable-next-line no-console
     console.error("Invalid spotlight", spotlight);

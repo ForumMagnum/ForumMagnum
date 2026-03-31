@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import { Link, QueryLink } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
 import { EditTagForm } from './EditTagPage';
@@ -143,7 +143,7 @@ const TagsDetailsItem = ({tag, showFlags = false, flagId, collapse = false}: {
   );
 
   const linkCard = (
-    <LinkCard to={tagGetUrl(tag, { flagId, edit: !!currentUser })}>
+    <LinkCard to={tagGetPageUrl(tag, { flagId, edit: !!currentUser })}>
       {collapse
         ? (
         <div className={classes.tagName}>
@@ -167,7 +167,7 @@ const TagsDetailsItem = ({tag, showFlags = false, flagId, collapse = false}: {
     </div>
     {!showFlags && <div className={classNames(classes.posts, { [classes.collapsedPosts]: collapse })}>
       <div>
-        <Link to={tagGetUrl(tag)} className={classes.postCount}>
+        <Link to={tagGetPageUrl(tag)} className={classes.postCount}>
           {tag.postCount} posts tagged <em>{tag.name}</em>
         </Link>
         {!tagRels && loading && <Loading />}

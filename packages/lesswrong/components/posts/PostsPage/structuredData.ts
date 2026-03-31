@@ -1,5 +1,5 @@
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
-import { tagGetUrl } from "@/lib/collections/tags/helpers";
+import { tagGetPageUrl } from "@/lib/collections/tags/helpers";
 import { userGetProfileUrl } from "@/lib/collections/users/helpers";
 import { forumTitleSetting, isAF } from "@/lib/instanceSettings";
 import { CommentTreeNode } from "@/lib/utils/unflatten";
@@ -78,7 +78,7 @@ export const getStructuredData = ({
     about: post.tags.filter(tag => !!tag.description?.htmlHighlight).map(tag => ({
       "@type": "Thing",
       name: tag.name,
-      url: tagGetUrl(tag, undefined, true),
+      url: tagGetPageUrl(tag, {isAbsolute: true}),
       description: tag.description?.htmlHighlight,
     })),
     ...(hasUser && {

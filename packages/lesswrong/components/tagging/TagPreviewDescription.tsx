@@ -1,6 +1,6 @@
 import React from 'react';
 import { truncate } from '../../lib/editor/ellipsize';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import { getHashLinkOnClick } from '../common/HashLink';
 import { isLW, isLWorAF } from '../../lib/instanceSettings';
 import { useNavigate } from '../../lib/routeUtil';
@@ -77,7 +77,7 @@ const TagPreviewDescription = ({tag, hash, activeTab}: {
     );
   }
 
-  const tagUrl = tagGetUrl(tag, undefined, undefined, hash);
+  const tagUrl = tagGetPageUrl(tag, {hash});
   const hashLinkOnClick = getHashLinkOnClick({ to: tagUrl, id: 'read-more-button' });
   let html: string | undefined;
 

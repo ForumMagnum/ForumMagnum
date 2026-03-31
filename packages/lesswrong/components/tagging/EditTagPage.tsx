@@ -1,6 +1,6 @@
 "use client";
 import React from 'react';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import { useTagBySlug } from './useTag';
 import { useApolloClient } from "@apollo/client/react";
 import { useNavigate } from "../../lib/routeUtil";
@@ -42,7 +42,7 @@ const EditTagPage = ({slug}: {slug: string}) => {
         tag={tag} 
         successCallback={ async (tag: any) => {
           await client.resetStore()
-          navigate({pathname: tagGetUrl(tag)})
+          navigate({pathname: tagGetPageUrl(tag)})
         }}
       />
     </SingleColumnSection>

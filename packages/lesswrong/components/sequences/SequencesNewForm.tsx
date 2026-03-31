@@ -6,6 +6,7 @@ import { useCurrentUser } from '../common/withUser';
 import { useNavigate } from '../../lib/routeUtil';
 import { SequencesForm } from './SequencesForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { sequenceGetPageUrl } from '@/lib/collections/sequences/helpers';
 
 // Also used by SequencesEditForm
 export const styles = defineStyles("SequencesNewForm", (theme: ThemeType) => ({
@@ -158,8 +159,7 @@ export const styles = defineStyles("SequencesNewForm", (theme: ThemeType) => ({
   },
 }));
 
-const SequencesNewForm = ({ redirect, cancelCallback }: {
-  redirect?: any,
+const SequencesNewForm = ({ cancelCallback }: {
   cancelCallback?: any,
 }) => {
   const classes = useStyles(styles);
@@ -173,7 +173,7 @@ const SequencesNewForm = ({ redirect, cancelCallback }: {
         <SequencesForm
           currentUser={currentUser}
           onSuccess={(sequence) => {
-            navigate({pathname: redirect || '/s/' + sequence._id });
+            navigate(sequenceGetPageUrl(sequence));
             flash({messageString: "Successfully created Sequence", type: "success"});
           }}
           onCancel={cancelCallback}

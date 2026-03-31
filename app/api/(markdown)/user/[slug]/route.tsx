@@ -8,6 +8,7 @@ import { MarkdownUserLink } from "@/server/markdownComponents/MarkdownUserLink";
 import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest } from "next/server";
 import { getPostsListLimit } from "../../postsListUtils";
+import { commentGetPageUrl } from "@/lib/collections/comments/helpers";
 
 const USER_PROFILE_QUERY = gql(`
   query MarkdownUserProfile($slug: String!) {
@@ -64,6 +65,7 @@ const USER_RECENT_COMMENTS_QUERY = gql(`
           slug
           title
         }
+        tag {slug}
         contents {
           agentMarkdown
           plaintextMainText
@@ -170,6 +172,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
             {recentComments.map((comment) => {
               const post = comment.post;
               const postSlugOrId = post?.slug || post?._id;
+              const commentUrlHTML = commentGetPageUrl(comment, { isAbsolute: true, isApiVersion: false });
+              const commentUrlMarkdown = commentGetPageUrl(comment, { isAbsolute: true, isApiVersion: true });
               return (
                 <div key={comment._id}>
                   <h3>
@@ -189,13 +193,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
                     {postSlugOrId ? (
                       <li>
                         Comment URL (Markdown):{" "}
-                        <a href={`/api/post/${postSlugOrId}/comments/${comment._id}`}>{`/api/post/${postSlugOrId}/comments/${comment._id}`}</a>
+                        <a href={commentUrlMarkdown}>{commentUrlMarkdown}</a>
                       </li>
                     ) : null}
                     {post?.slug ? (
                       <li>
                         Comment URL (HTML):{" "}
-                        <a href={`/posts/${post._id}/${post.slug}/comment/${comment._id}`}>{`/posts/${post._id}/${post.slug}/comment/${comment._id}`}</a>
+                        <a href={commentUrlHTML}>{commentUrlHTML}</a>
                       </li>
                     ) : null}
                   </ul>

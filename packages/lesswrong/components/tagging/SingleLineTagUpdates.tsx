@@ -1,7 +1,7 @@
 import React, {useState} from 'react';
 import TagHistory from '@/lib/vendor/@material-ui/icons/src/History';
 import type { ChangeMetrics } from '../../server/collections/revisions/collection';
-import { tagGetUrl, tagGetDiscussionUrl, tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl, tagGetDiscussionUrl, tagGetHistoryUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { ExpandedDate } from '../common/FormatDate';
 import moment from 'moment';
@@ -116,7 +116,7 @@ const SingleLineTagUpdates = ({tag, revisionIds, commentCount, commentIds, users
     <div className={classes.metadata} onClick={_ev => setExpanded(!expanded)}>
 
       <div className={classes.title} >
-        <Link to={tagGetUrl(tag)}>{tag.name}</Link>
+        <Link to={tagGetPageUrl(tag)}>{tag.name}</Link>
       </div>
 
       {/* Show lastRevised date with tooltip*/}

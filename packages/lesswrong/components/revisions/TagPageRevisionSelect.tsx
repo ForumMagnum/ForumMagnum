@@ -2,7 +2,7 @@
 
 import React, { useCallback } from 'react'
 import { useTagBySlug } from '../tagging/useTag';
-import { tagGetRevisionLink, tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetRevisionLink, tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -54,7 +54,7 @@ const TagPageRevisionSelect = ({slug}: {slug: string}) => {
 
   const getRevisionUrl = (rev: RevisionMetadata) => tagGetRevisionLink(tag, rev.version)
   return <SingleColumnSection>
-    <h1><Link to={tagGetUrl(tag)}>{tag.name}</Link></h1>
+    <h1><Link to={tagGetPageUrl(tag)}>{tag.name}</Link></h1>
     
     {loadingTag && <Loading/>}
     {revisions && <div>

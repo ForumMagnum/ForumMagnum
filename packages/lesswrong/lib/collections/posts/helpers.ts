@@ -195,7 +195,7 @@ export const getSocialPreviewSql = (tablePrefix: string) => `JSON_BUILD_OBJECT(
 
 // The set of fields required for calling postGetPageUrl. Could be supplied by
 // either a fragment or a DbPost.
-export type PostsMinimumForGetPageUrl = {
+export type PostMinimumForGetPageUrl = {
   _id: string
   pageUrlRelative: string
 } | {
@@ -210,16 +210,19 @@ export type PostsMinimumForGetPageUrl = {
 
 interface PostGetUrlOptions {
   isAbsolute?: boolean,
-  //sequenceId?: string|null
+  isApiVersion?: boolean,
   sequenceSlug?: string|null
 }
 // Get URL of a post page.
-export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, options?: PostGetUrlOptions): string {
+export const postGetPageUrl = function(post: PostMinimumForGetPageUrl, options?: PostGetUrlOptions): string {
   const isAbsolute = options?.isAbsolute ?? false;
-  //const sequenceId = options?.sequenceId ?? null;
   const sequenceSlug = options?.sequenceSlug ?? null;
+  const isApiVersion = options?.isApiVersion ?? false;
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
+  if (isApiVersion) {
+    return `${prefix}/api/posts/${post._id}`;
+  }
   if (sequenceSlug) {
     if ('slug' in post) {
       return `${prefix}/s/${sequenceSlug}/p/${post.slug}`;
@@ -242,7 +245,7 @@ export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, options?
   }
 };
 
-export const postGetCommentsUrl = (post: PostsMinimumForGetPageUrl, options?: PostGetUrlOptions): string => {
+export const postGetCommentsUrl = (post: PostMinimumForGetPageUrl, options?: PostGetUrlOptions): string => {
   return postGetPageUrl(post, options) + "#comments";
 }
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useHover } from '../common/withHover';
 import { Link } from '../../lib/reactRouterWrapper';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import PopperCard from "../common/PopperCard";
 import TagPreview from "./TagPreview";
 import { defineStyles } from '@/components/hooks/defineStyles';
@@ -48,7 +48,7 @@ const TagsListItem = ({tag, postCount=3}: {
     >
       <div className={classes.hideOnMobile}><TagPreview tag={tag} postCount={postCount}/></div>
     </PopperCard>
-    <Link to={tagGetUrl(tag)}>
+    <Link to={tagGetPageUrl(tag)}>
       {tag.name} { tag.needsReview }
     </Link>
     <span className={classes.count}>

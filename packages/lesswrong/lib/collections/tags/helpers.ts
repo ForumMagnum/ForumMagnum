@@ -1,7 +1,7 @@
 import qs from "qs";
 import { forumSelect } from "../../forumTypeUtils";
 import { siteUrlSetting, allowTypeIIIPlayerSetting } from '@/lib/instanceSettings';
-import { combineUrls } from "../../vulcan-lib/utils";
+import { combineUrls, getLinkPrefix } from "../../vulcan-lib/utils";
 import { TagCommentType } from "../comments/types";
 import type { TagLens } from "@/lib/arbital/useTagLenses";
 import { getSortOrderOptions, SettingsOption } from "../posts/dropdownOptions";
@@ -24,7 +24,12 @@ export const getTagMinimumKarmaPermissions = () => forumSelect({
   }
 })
 
-type GetUrlOptions = {
+export type TagMinimumForGetPageUrl = {
+  slug: string,
+}
+type TagGetPageUrlOptions = {
+  isAbsolute?: boolean,
+  hash?: string,
   edit?: boolean,
   flagId?: string
   lens?: string
@@ -36,16 +41,17 @@ type GetUrlOptions = {
 export const getTagCreateUrl = () => `/w/create`
 export const getTagGradingSchemeUrl = () => `/w/tag-grading-scheme`
 
-export const tagGetUrl = (tag: {slug: string}, urlOptions?: GetUrlOptions, isAbsolute=false, hash?: string) => {
+export const tagGetPageUrl = (tag: TagMinimumForGetPageUrl, urlOptions?: TagGetPageUrlOptions) => {
   const urlSearchParams = urlOptions
+  const isAbsolute = urlOptions?.isAbsolute ?? false;
+  const hash = urlOptions?.hash ?? '';
+  const prefix = getLinkPrefix({isAbsolute});
   const search = qs.stringify(urlSearchParams)
 
   const searchSuffix = search ? `?${search}` : ''
   const hashSuffix = hash ? `#${hash}` : ''
 
-  const url = `/w/${tag.slug}`
-  const urlWithSuffixes = `${url}${searchSuffix}${hashSuffix}`
-  return isAbsolute ? combineUrls(siteUrlSetting.get(), urlWithSuffixes) : urlWithSuffixes
+  return `${prefix}/w/${tag.slug}${searchSuffix}${hashSuffix}`
 }
 
 export const tagGetHistoryUrl = (tag: {slug: string}) => `/w/${tag.slug}/history`
@@ -56,7 +62,7 @@ export const tagGetDiscussionUrl = (tag: {slug: string}, isAbsolute=false) => {
 }
 
 export const tagGetSubforumUrl = (tag: {slug: string}, isAbsolute=false) => {
-  return tagGetUrl(tag, {tab: "posts"}, isAbsolute)
+  return tagGetPageUrl(tag, {tab: "posts", isAbsolute})
 }
 
 export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSSION", isAbsolute=false}: {
@@ -71,7 +77,7 @@ export const tagGetCommentLink = ({tagSlug, commentId, tagCommentType = "DISCUSS
   return commentId ? `${base}${base.includes('?') ? "&" : "?"}commentId=${commentId}` : base
 }
 
-// TODO: Is this necessary if we instead have version as a search param in the main tagGetUrl function?
+// TODO: Is this necessary if we instead have version as a search param in the main tagGetPageUrl function?
 export const tagGetRevisionLink = (tag: DbTag|TagBasicInfo, versionNumber: string, lens?: MultiDocumentContentDisplay|TagLens): string => {
   const lensParam = lens ? `lens=${lens.slug}&` : "";
   return `/w/${tag.slug}?${lensParam}version=${versionNumber}`;

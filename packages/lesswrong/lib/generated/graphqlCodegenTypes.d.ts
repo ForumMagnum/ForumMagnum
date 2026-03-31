@@ -11499,7 +11499,7 @@ type MarkdownCommunityPageQuery = MarkdownCommunityPageQuery_Query;
 
 type MarkdownFrontPageQuery_currentSpotlight_Spotlight_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
 
-type MarkdownFrontPageQuery_currentSpotlight_Spotlight_sequence_Sequence = { __typename?: 'Sequence', _id: string, title: string };
+type MarkdownFrontPageQuery_currentSpotlight_Spotlight_sequence_Sequence = { __typename?: 'Sequence', _id: string, slug: string, title: string };
 
 type MarkdownFrontPageQuery_currentSpotlight_Spotlight_tag_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string };
 
@@ -11621,6 +11621,43 @@ type PostMarkdownCommentsOldQueryVariables = Exact<{
 
 
 type PostMarkdownCommentsOldQuery = PostMarkdownCommentsOldQuery_Query;
+
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_user_User = { __typename?: 'User', slug: string, displayName: string };
+
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_coauthors_User = { __typename?: 'User', slug: string, displayName: string };
+
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_tags_Tag = { __typename?: 'Tag', _id: string, name: string, slug: string };
+
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null };
+
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_sequence_Sequence = { __typename?: 'Sequence', _id: string, slug: string, title: string };
+
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_prevPost_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
+
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post_nextPost_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
+
+type PostMarkdownApiQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, slug: string, commentCount: number, baseScore: number, postedAt: string, draft: boolean | null, curatedDate: string | null, frontpageDate: string | null, postCategory: PostCategory, url: string | null, isEvent: boolean, location: string | null, startTime: string | null, endTime: string | null, title: string, user: PostMarkdownApiQuery_post_SinglePostOutput_result_Post_user_User | null, coauthors: Array<PostMarkdownApiQuery_post_SinglePostOutput_result_Post_coauthors_User> | null, tags: Array<PostMarkdownApiQuery_post_SinglePostOutput_result_Post_tags_Tag>, contents: PostMarkdownApiQuery_post_SinglePostOutput_result_Post_contents_Revision | null, sequence: PostMarkdownApiQuery_post_SinglePostOutput_result_Post_sequence_Sequence | null, prevPost: PostMarkdownApiQuery_post_SinglePostOutput_result_Post_prevPost_Post | null, nextPost: PostMarkdownApiQuery_post_SinglePostOutput_result_Post_nextPost_Post | null };
+
+type PostMarkdownApiQuery_post_SinglePostOutput = { __typename?: 'SinglePostOutput', result: PostMarkdownApiQuery_post_SinglePostOutput_result_Post | null };
+
+type PostMarkdownApiQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsMarkdownFragment
+);
+
+type PostMarkdownApiQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<PostMarkdownApiQuery_comments_MultiCommentOutput_results_Comment> };
+
+type PostMarkdownApiQuery_Query = { __typename?: 'Query', post: PostMarkdownApiQuery_post_SinglePostOutput | null, comments: PostMarkdownApiQuery_comments_MultiCommentOutput | null };
+
+
+type PostMarkdownApiQueryVariables = Exact<{
+  _id: Scalars['String']['input'];
+  commentsLimit: InputMaybe<Scalars['Int']['input']>;
+  sequenceId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type PostMarkdownApiQuery = PostMarkdownApiQuery_Query;
 
 type MarkdownLatestPostsQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
@@ -11749,9 +11786,11 @@ type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_
 
 type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_post_Post = { __typename?: 'Post', _id: string, slug: string, title: string };
 
+type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_tag_Tag = { __typename?: 'Tag', slug: string };
+
 type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextMainText: string };
 
-type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment = { __typename?: 'Comment', _id: string, postedAt: string, baseScore: number | null, voteCount: number, parentCommentId: string | null, user: MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_user_User | null, post: MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_post_Post | null, contents: MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_contents_Revision | null };
+type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment = { __typename?: 'Comment', _id: string, postedAt: string, baseScore: number | null, voteCount: number, parentCommentId: string | null, user: MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_user_User | null, post: MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_post_Post | null, tag: MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_tag_Tag | null, contents: MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment_contents_Revision | null };
 
 type MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<MarkdownUserProfileRecentCommentsQuery_comments_MultiCommentOutput_results_Comment> };
 

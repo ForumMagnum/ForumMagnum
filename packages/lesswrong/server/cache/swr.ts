@@ -1,4 +1,4 @@
-import { PostsMinimumForGetPageUrl, postGetPageUrl } from "../../lib/collections/posts/helpers";
+import { postGetPageUrl, type PostMinimumForGetPageUrl } from "../../lib/collections/posts/helpers";
 import { loggerConstructor } from "../../lib/utils/logging";
 import { serverId } from "@/server/analytics/serverAnalyticsWriter";
 import { swrCachingEnabledSetting, swrCachingInvalidationIntervalMsSetting, awsRegionSetting, awsAccessKeyIdSetting, awsSecretAccessKeySetting, cloudFrontDistributionIdSetting } from "../databaseSettings";
@@ -129,7 +129,7 @@ export const swrInvalidatePostRoute = async (postId: string, context: ResolverCo
   const { Posts } = context;
 
   if (!swrCachingEnabledSetting.get() || invalidationQueue.length > MAX_LENGTH) return;
-  const post = await Posts.findOne({_id: postId, swrCachingEnabled: true}, {}, {_id: 1, slug: 1, isEvent: 1, groupId: 1}) as PostsMinimumForGetPageUrl;
+  const post = await Posts.findOne({_id: postId, swrCachingEnabled: true}, {}, {_id: 1, slug: 1, isEvent: 1, groupId: 1}) as PostMinimumForGetPageUrl;
 
   if (!post) return;
   const url = postGetPageUrl(post, { isAbsolute: true });

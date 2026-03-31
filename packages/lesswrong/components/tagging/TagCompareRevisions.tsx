@@ -2,7 +2,7 @@
 import React from 'react';
 import { useTagBySlug } from './useTag';
 import { useLocation } from '../../lib/routeUtil';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -64,7 +64,7 @@ const TagCompareRevisions = ({slug}: {slug: string}) => {
   const revision = revisionResults[0];
   
   return <SingleColumnSection>
-    <Link to={tagGetUrl(tag)}>
+    <Link to={tagGetPageUrl(tag)}>
       <div className={classes.title}>
         {tag.name}
       </div>

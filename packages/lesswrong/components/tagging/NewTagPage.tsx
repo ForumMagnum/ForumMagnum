@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import { tagGetUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import { isEAForum } from '../../lib/instanceSettings';
 import { slugify } from '@/lib/utils/slugify';
 import { useLocation, useNavigate } from "@/lib/routeUtil";
@@ -106,7 +106,7 @@ const NewTagPage = () => {
                 }
               });
             }
-            navigate({pathname: tagGetUrl(tag)});
+            navigate({pathname: tagGetPageUrl(tag)});
           }}
         />
       )}

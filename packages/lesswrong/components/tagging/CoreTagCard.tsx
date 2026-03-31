@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import { siteImageSetting } from '@/lib/instanceSettings';
 import CloudinaryImage2 from "../common/CloudinaryImage2";
 import SubscribeButton from "./SubscribeButton";
@@ -73,7 +73,7 @@ const CoreTagCard = ({tag}: {
         )}
       </div>
       <div className={classes.tagInfo}>
-        <Link to={tagGetUrl(tag)} className={classes.title}>
+        <Link to={tagGetPageUrl(tag)} className={classes.title}>
           {tag.shortName || tag.name}
         </Link>
         <div className={classes.postCount}>{tag.postCount} posts</div>

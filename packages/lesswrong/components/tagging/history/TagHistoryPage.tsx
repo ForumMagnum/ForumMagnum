@@ -10,7 +10,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { hasWikiLenses } from '@/lib/betas';
-import { defaultTagHistorySettings, tagGetUrl } from '@/lib/collections/tags/helpers';
+import { defaultTagHistorySettings, tagGetPageUrl } from '@/lib/collections/tags/helpers';
 import classNames from 'classnames';
 import DeferRender from '@/components/common/DeferRender';
 import ErrorPage from "../../common/ErrorPage";
@@ -101,7 +101,7 @@ const TagHistoryPage = ({slug}: {slug: string}) => {
   }
   
   return <SingleColumnSection><DeferRender ssr={false}>
-    <SectionTitle title={tag.name} href={tagGetUrl(tag)}>
+    <SectionTitle title={tag.name} href={tagGetPageUrl(tag)}>
       <div onClick={ev => setSettingsExpanded(expanded => !expanded)}>
         <SettingsButton label="Settings" />
       </div>

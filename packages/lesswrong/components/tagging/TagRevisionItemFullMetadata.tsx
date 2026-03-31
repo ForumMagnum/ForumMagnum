@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import FormatDate from "../common/FormatDate";
 import UsersName from "../users/UsersName";
@@ -42,7 +42,7 @@ const TagRevisionItemFullMetadata = ({tag, revision}: {
   revision: RevisionMetadataWithChangeMetrics,
 }) => {
   const classes = useStyles(styles);
-  const tagUrl = tagGetUrl(tag);
+  const tagUrl = tagGetPageUrl(tag);
 
   return <div className={classes.root}>
     <div className={classes.tagName}>

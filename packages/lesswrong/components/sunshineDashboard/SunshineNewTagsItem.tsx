@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import { userGetProfileUrl } from '../../lib/collections/users/helpers';
 import { Link } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
@@ -116,7 +116,7 @@ const SunshineNewTagsItem = ({tag}: {
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
           <ContentStyles contentType="comment" className={classes.tagInfo}>
-            <Link to={tagGetUrl(tag)}>
+            <Link to={tagGetPageUrl(tag)}>
               <b>{tag.name}</b>
             </Link>
             <ContentItemBody dangerouslySetInnerHTML={{__html: tag.description?.html || ""}} description={`tag ${tag._id}`}/>
@@ -129,7 +129,7 @@ const SunshineNewTagsItem = ({tag}: {
           </div>)}
           {!results && loading && <Loading/>}
         </SidebarHoverOver>
-        <Link to={tagGetUrl(tag)}>
+        <Link to={tagGetPageUrl(tag)}>
           {tag.name}
         </Link>
         <div>

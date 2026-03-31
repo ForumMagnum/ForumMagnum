@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import classNames from 'classnames';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../common/withUser';
 import CoreTagIcon, { getCoreTagIconMap } from './CoreTagIcon';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -158,7 +158,7 @@ const FooterTag = ({
     [classes.smallText]: smallText,
     [classes.noBackground]: noBackground,
   })}>
-    {link ? <Link to={tagGetUrl(tag)}>
+    {link ? <Link to={tagGetPageUrl(tag)}>
       {renderedTag}
       {highlightAsAutoApplied && <span className={classes.robotIcon}><ForumIcon icon="Robot" /></span>}
     </Link> : renderedTag}

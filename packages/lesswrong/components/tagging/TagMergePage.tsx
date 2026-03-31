@@ -5,7 +5,7 @@ import { userIsAdminOrMod } from "../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import { Link } from "../../lib/reactRouterWrapper";
-import { tagGetUrl } from "../../lib/collections/tags/helpers";
+import { tagGetPageUrl } from "../../lib/collections/tags/helpers";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { useMessages } from "../common/withMessages";
@@ -151,7 +151,7 @@ const TagMergePage = () => {
             </div>
             {sourceTag ? (
               <div className={classes.tagSummary}>
-                <Link to={tagGetUrl(sourceTag)} target="_blank" rel="noopener noreferrer">
+                <Link to={tagGetPageUrl(sourceTag)} target="_blank" rel="noopener noreferrer">
                   {sourceTag.name}
                 </Link>
                 <div>Slug: {sourceTag.slug}</div>
@@ -169,7 +169,7 @@ const TagMergePage = () => {
             </div>
             {targetTag ? (
               <div className={classes.tagSummary}>
-                <Link to={tagGetUrl(targetTag)} target="_blank" rel="noopener noreferrer">
+                <Link to={tagGetPageUrl(targetTag)} target="_blank" rel="noopener noreferrer">
                   {targetTag.name}
                 </Link>
                 <div>Slug: {targetTag.slug}</div>

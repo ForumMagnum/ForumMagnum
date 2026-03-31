@@ -191,7 +191,7 @@ export const EmailComment = async ({commentId, hideTitle, emailContext}: {
   
   return <div>
     <div>
-      <a href={commentGetPageUrl(comment, true)}>
+      <a href={commentGetPageUrl(comment, {isAbsolute: true})}>
         <EmailFormatDate date={maybeDate(comment.postedAt)}/>
       </a>
       {" by "}

@@ -5,6 +5,9 @@ import { MarkdownPostsList } from "@/server/markdownComponents/MarkdownPostsList
 import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest } from "next/server";
 import { getPostsListLimit } from "../postsListUtils";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
+import { tagGetPageUrl } from "@/lib/collections/tags/helpers";
 
 const FRONT_PAGE_QUERY = gql(`
   query MarkdownFrontPage($recentLimit: Int, $latestLimit: Int) {
@@ -19,6 +22,7 @@ const FRONT_PAGE_QUERY = gql(`
       }
       sequence {
         _id
+        slug
         title
       }
       tag {
@@ -69,11 +73,11 @@ export async function GET(req: NextRequest) {
 
   const spotlightUrl =
     spotlight?.post
-      ? `/posts/${spotlight.post._id}/${spotlight.post.slug}`
+      ? postGetPageUrl(spotlight.post, {isAbsolute: true})
       : spotlight?.sequence
-        ? `/s/${spotlight.sequence._id}`
+        ? sequenceGetPageUrl(spotlight.sequence, {isAbsolute: true})
         : spotlight?.tag
-          ? `/w/${spotlight.tag.slug}`
+          ? tagGetPageUrl(spotlight.tag, {isAbsolute: true})
           : null;
 
   const spotlightApiUrl = spotlight?.post

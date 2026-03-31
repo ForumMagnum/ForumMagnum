@@ -2,7 +2,7 @@ import { isPostAllowedType3Audio, postGetPageUrl } from "@/lib/collections/posts
 import { type3ApiTokenSetting, type3SourceUrlSetting } from "./databaseSettings";
 import { Posts } from "@/server/collections/posts/collection.ts";
 import { serverCaptureEvent as captureEvent } from "@/server/analytics/serverAnalyticsWriter";
-import { isTagAllowedType3Audio, tagGetUrl } from "@/lib/collections/tags/helpers";
+import { isTagAllowedType3Audio, tagGetPageUrl } from "@/lib/collections/tags/helpers";
 import { Tags } from "@/server/collections/tags/collection";
 
 export const hasType3ApiAccess = () => !!type3ApiTokenSetting.get();
@@ -49,7 +49,7 @@ const getPostUrl = (post: DocumentWithAudio) =>
   type3SourceUrlSetting.get() + postGetPageUrl(post);
 
 const getTagUrl = (tag: DocumentWithAudio) =>
-  type3SourceUrlSetting.get() + tagGetUrl(tag);
+  type3SourceUrlSetting.get() + tagGetPageUrl(tag);
 
 const getDocumentUrl = (document: DocumentWithAudio, collectionName: 'Posts' | 'Tags') => {
   if (collectionName === 'Posts') {
