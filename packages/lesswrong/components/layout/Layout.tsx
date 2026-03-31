@@ -88,6 +88,15 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
       willChange: 'auto !important',
       zIndex: theme.zIndexes.styledMapPopup
     },
+    'body[data-home-design-active="true"] .Header-root': {
+      display: 'none',
+    },
+    'body[data-home-design-active="true"] .Header-headerHeight': {
+      '--header-height': '0px',
+    },
+    'body[data-home-design-active="true"] .RouteRootClient-centralColumn': {
+      paddingTop: '0 !important',
+    },
     // Font fallback to ensure that all greek letters just directly render as Arial
     '@font-face': [{
         fontFamily: "GreekFallback",
@@ -317,5 +326,4 @@ function PageBackgroundWrapper({children}: {
 }
 
 export default Layout;
-
 

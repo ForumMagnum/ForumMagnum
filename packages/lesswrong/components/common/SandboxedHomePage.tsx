@@ -10,6 +10,7 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import HomeDesignChatPanel from './HomeDesignChatPanel';
 import DeferRender from './DeferRender';
+import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 
 const homePageDesignByPublicIdQuery = gql(`
   query HomePageDesignByPublicId($publicId: String!) {
@@ -68,6 +69,97 @@ const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
   },
 }));
 
+const UNREAD_NOTIFICATION_COUNTS_QUERY = `
+  query UnreadNotificationCountQuery {
+    unreadNotificationCounts {
+      unreadNotifications
+      unreadPrivateMessages
+      faviconBadgeNumber
+      checkedAt
+    }
+  }
+`;
+
+const USER_NOTIFICATIONS_QUERY = `
+  query HomeDesignNotifications($userId: String!, $limit: Int) {
+    notifications(selector: { userNotifications: { userId: $userId } }, limit: $limit, enableTotal: false) {
+      results {
+        _id
+        documentId
+        documentType
+        createdAt
+        link
+        message
+        type
+        viewed
+        extraData
+      }
+    }
+  }
+`;
+
+const USER_KARMA_CHANGES_QUERY = `
+  query HomeDesignKarmaChanges($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        _id
+        karmaChanges {
+          totalChange
+          updateFrequency
+          startDate
+          endDate
+          nextBatchDate
+          posts {
+            _id
+            scoreChange
+            postId
+            title
+            slug
+            collectionName
+          }
+          comments {
+            _id
+            scoreChange
+            commentId
+            description
+            postId
+            postTitle
+            postSlug
+            tagSlug
+            tagName
+            tagCommentType
+            collectionName
+          }
+          tagRevisions {
+            _id
+            scoreChange
+            tagId
+            tagSlug
+            tagName
+            collectionName
+          }
+        }
+      }
+    }
+  }
+`;
+
+type HomeDesignCurrentUser = {
+  _id: string;
+  displayName: string;
+  slug: string | null;
+  karma: number;
+};
+
+function sanitizeCurrentUserForHomeDesign(currentUser: UsersCurrent): HomeDesignCurrentUser {
+  return {
+    _id: currentUser._id,
+    displayName: currentUser.displayName,
+    slug: currentUser.slug ?? null,
+    karma: currentUser.karma,
+  };
+}
+
 interface RpcRequest {
   type: 'rpc-request';
   id: number;
@@ -85,9 +177,10 @@ const SandboxedHomePage = () => {
   const classes = useStyles(styles);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const currentUser = useCurrentUser();
-  const { isOpen, setIsOpen, customSrcdoc } = useHomeDesignChat();
+  const designChat = useHomeDesignChat();
   const { query } = useLocation();
   const themePublicId = query.theme as string | undefined;
+  const { latestUnreadCount } = useUnreadNotifications();
 
   const { data: themeData } = useQuery(homePageDesignByPublicIdQuery, {
     variables: { publicId: themePublicId! },
@@ -99,8 +192,136 @@ const SandboxedHomePage = () => {
     skip: !!themePublicId,
   });
 
+  const fetchAuthenticatedGraphQL = useCallback(async <T,>(query: string, variables?: Record<string, unknown>): Promise<T> => {
+    const response = await fetch('/graphql', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ query, variables: variables ?? {} }),
+      credentials: 'same-origin',
+    });
+
+    if (!response.ok) {
+      throw new Error(`GraphQL request failed: ${response.status}`);
+    }
+
+    const json = await response.json();
+    if (json.errors?.length) {
+      throw new Error(json.errors[0].message);
+    }
+
+    return json.data as T;
+  }, []);
+
   const handleRpc = useCallback(async (method: string, params: Record<string, unknown>): Promise<unknown> => {
     switch (method) {
+      case 'getCurrentUser': {
+        if (!currentUser) {
+          return { loggedIn: false, user: null };
+        }
+        return {
+          loggedIn: true,
+          user: sanitizeCurrentUserForHomeDesign(currentUser),
+        };
+      }
+      case 'getNotificationCounts': {
+        if (!currentUser) {
+          return {
+            loggedIn: false,
+            unreadNotifications: 0,
+            unreadPrivateMessages: 0,
+            faviconBadgeNumber: 0,
+            checkedAt: null,
+          };
+        }
+
+        const data = await fetchAuthenticatedGraphQL<{
+          unreadNotificationCounts: {
+            unreadNotifications: number;
+            unreadPrivateMessages: number;
+            faviconBadgeNumber: number;
+            checkedAt: string;
+          };
+        }>(UNREAD_NOTIFICATION_COUNTS_QUERY);
+
+        return {
+          loggedIn: true,
+          unreadNotifications: latestUnreadCount ?? data.unreadNotificationCounts.unreadNotifications,
+          unreadPrivateMessages: data.unreadNotificationCounts.unreadPrivateMessages,
+          faviconBadgeNumber: data.unreadNotificationCounts.faviconBadgeNumber,
+          checkedAt: data.unreadNotificationCounts.checkedAt,
+        };
+      }
+      case 'getNotifications': {
+        if (!currentUser) {
+          return { loggedIn: false, notifications: [] };
+        }
+
+        const limit = typeof params.limit === 'number' ? Math.min(Math.max(params.limit, 1), 50) : 10;
+        const data = await fetchAuthenticatedGraphQL<{
+          notifications: {
+            results: Array<{
+              _id: string;
+              documentId: string | null;
+              documentType: string | null;
+              createdAt: string | null;
+              link: string | null;
+              message: string | null;
+              type: string | null;
+              viewed: boolean | null;
+              extraData: unknown;
+            }>;
+          };
+        }>(USER_NOTIFICATIONS_QUERY, { userId: currentUser._id, limit });
+
+        return {
+          loggedIn: true,
+          notifications: data.notifications.results,
+        };
+      }
+      case 'getKarmaNotifications': {
+        if (!currentUser) {
+          return {
+            loggedIn: false,
+            hasNewKarmaChanges: false,
+            karmaChanges: null,
+          };
+        }
+
+        const data = await fetchAuthenticatedGraphQL<{
+          user: {
+            result: {
+              _id: string;
+              karmaChanges: {
+                totalChange: number;
+                updateFrequency: string;
+                startDate: string | null;
+                endDate: string | null;
+                nextBatchDate: string | null;
+                posts: Array<Record<string, unknown>>;
+                comments: Array<Record<string, unknown>>;
+                tagRevisions: Array<Record<string, unknown>>;
+              } | null;
+            } | null;
+          } | null;
+        }>(USER_KARMA_CHANGES_QUERY, { documentId: currentUser._id });
+
+        const karmaChanges = data.user?.result?.karmaChanges ?? null;
+        const hasNewKarmaChanges = !!(
+          karmaChanges &&
+          new Date(currentUser.karmaChangeLastOpened ?? 0) < new Date(karmaChanges.endDate ?? 0) &&
+          (
+            karmaChanges.posts.length > 0 ||
+            karmaChanges.comments.length > 0 ||
+            karmaChanges.tagRevisions.length > 0
+          )
+        );
+
+        return {
+          loggedIn: true,
+          hasNewKarmaChanges,
+          karmaChanges,
+        };
+      }
       case 'getReadStatuses': {
         if (!currentUser) return {};
         const postIds = params.postIds;
@@ -126,7 +347,7 @@ const SandboxedHomePage = () => {
       default:
         throw new Error(`Unknown RPC method: ${method}`);
     }
-  }, [currentUser]);
+  }, [currentUser, fetchAuthenticatedGraphQL, latestUnreadCount]);
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
@@ -169,7 +390,7 @@ const SandboxedHomePage = () => {
   const latestDesignHtml = myDesignsData?.myHomePageDesigns?.[0]?.html;
   const userLatestSrcdoc = latestDesignHtml ? wrapBodyInSrcdoc(latestDesignHtml, { origin }) : null;
   const defaultSrcdoc = getSandboxedHomePageSrcdoc({ origin });
-  const srcdoc = customSrcdoc ?? themeSrcdoc ?? userLatestSrcdoc ?? defaultSrcdoc;
+  const srcdoc = designChat.customSrcdoc ?? themeSrcdoc ?? userLatestSrcdoc ?? defaultSrcdoc;
 
   return (
     <DeferRender ssr={false}>
@@ -181,10 +402,10 @@ const SandboxedHomePage = () => {
           srcDoc={srcdoc}
         />
       </div>
-      {!isOpen && (
+      {!designChat.isOpen && (
         <button
           className={classes.customizeButton}
-          onClick={() => setIsOpen(true)}
+          onClick={() => designChat.setIsOpen(true)}
         >
           ✨ Customize
         </button>

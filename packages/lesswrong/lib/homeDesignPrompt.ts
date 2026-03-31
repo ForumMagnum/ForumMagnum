@@ -39,6 +39,10 @@ root.render(<App />);
 ### window.rpc — RPC Bridge
 The RPC bridge provides methods that require authentication, proxied through the parent frame:
 
+- \`rpc.getCurrentUser()\` — Returns whether the user is logged in and, if so, a sanitized basic user object.
+- \`rpc.getNotificationCounts()\` — Returns unread notification counts for the current user.
+- \`rpc.getNotifications({limit?})\` — Returns recent notifications for the current user.
+- \`rpc.getKarmaNotifications()\` — Returns whether the user has new karma changes, plus the recent karma-change payload.
 - \`rpc.getReadStatuses(postIds)\` — Get read statuses for post IDs. Returns \`{[postId]: boolean}\`.
 - \`rpc.getVoteStatuses({postIds?, commentIds?})\` — Get the user's vote statuses. Returns \`{[documentId]: {voteType: string|null}}\`.
 - \`rpc.castVote({documentId, collectionName, voteType})\` — Cast a vote. collectionName: "Posts" or "Comments". voteType: "smallUpvote", "bigUpvote", "smallDownvote", "bigDownvote", or "neutral" (to clear).
@@ -172,6 +176,10 @@ Call RPCs via: window.parent.postMessage({type:'rpc-request', id, method, params
 Listen for: {type:'rpc-response', id, result, error}
 
 Available methods:
+- getCurrentUser() → {loggedIn, user}
+- getNotificationCounts() → {loggedIn, unreadNotifications, unreadPrivateMessages, faviconBadgeNumber, checkedAt}
+- getNotifications({limit?}) → {loggedIn, notifications}
+- getKarmaNotifications() → {loggedIn, hasNewKarmaChanges, karmaChanges}
 - getReadStatuses({postIds: string[]}) → {[postId]: boolean}
 
 ## Default Design Principles
