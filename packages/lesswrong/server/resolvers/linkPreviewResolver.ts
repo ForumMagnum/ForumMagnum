@@ -330,6 +330,50 @@ function normalizeForComparison(text: string): string {
   return text.trim().replace(/\s+/g, " ").toLowerCase();
 }
 
+function normalizeCompact(text: string): string {
+  return text.toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function containsTwitterOrX(text: string): boolean {
+  const normalized = normalizeForComparison(text);
+  return normalized.includes("twitter") || /\bon x\b/.test(normalized) || normalized === "x";
+}
+
+function shouldIncludeSiteName({
+  title,
+  description,
+  siteName,
+}: {
+  title: string | null;
+  description: string | null;
+  siteName: string | null;
+}): boolean {
+  if (!siteName) {
+    return false;
+  }
+  if (!title && !description) {
+    return true;
+  }
+
+  const compactSiteName = normalizeCompact(siteName);
+  const compactTitle = normalizeCompact(title ?? "");
+  if (compactSiteName && compactTitle.includes(compactSiteName)) {
+    return false;
+  }
+
+  const normalizedDescription = normalizeForComparison(description ?? "");
+  const normalizedSiteName = normalizeForComparison(siteName);
+  if (normalizedDescription.startsWith(normalizedSiteName)) {
+    return false;
+  }
+
+  if (title && containsTwitterOrX(title) && containsTwitterOrX(siteName)) {
+    return false;
+  }
+
+  return true;
+}
+
 function stripTitleFromDescription(title: string | null, description: string | null): string | null {
   if (!description) {
     return null;
@@ -380,7 +424,7 @@ function buildSanitizedPreviewHtml({
 }): string | null {
   const pieces: string[] = [];
   const cleanedDescription = stripTitleFromDescription(title, description);
-  if (siteName) {
+  if (shouldIncludeSiteName({ title, description: cleanedDescription, siteName })) {
     pieces.push(`<div>${escapeHtml(siteName)}</div>`);
   }
   if (cleanedDescription) {

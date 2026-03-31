@@ -208,11 +208,11 @@ export const CrossSiteLinkPreview = ({
   const showInlineError = !loading && !!previewData?.error && hasStructuredPreviewData;
 
   const onForceRefetch = async () => {
+    setMenuOpen(false);
     await refetch({
       url: href,
       forceRefetch: true,
     });
-    setMenuOpen(false);
   };
 
   const onOpenDebugModal = () => {
