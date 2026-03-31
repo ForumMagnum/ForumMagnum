@@ -25,14 +25,13 @@ The \`posts\` query uses a \`selector\` parameter with a named view key. Each vi
 **Basic structure:**
 \`\`\`graphql
 query($limit: Int, $offset: Int) {
-  posts(selector: { <viewName>: { <viewParams> } }, limit: $limit, offset: $offset, enableTotal: true) {
+  posts(selector: { <viewName>: { <viewParams> } }, limit: $limit, offset: $offset) {
     results {
       _id title slug baseScore postedAt curatedDate commentCount wordCount
       voteCount readTimeMinutes
       user { _id displayName slug }
       contents { htmlHighlight plaintextDescription wordCount }
     }
-    totalCount
   }
 }
 \`\`\`
