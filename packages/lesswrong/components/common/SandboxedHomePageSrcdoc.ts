@@ -1,3 +1,5 @@
+import { globalExternalStylesheets } from '@/themes/globalStyles/externalStyles';
+
 /**
  * Srcdoc generation for the sandboxed iframe home page.
  *
@@ -22,17 +24,21 @@ interface SrcdocWrapperOptions {
  */
 export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOptions): string {
   const { origin } = options;
+  const externalStylesheetLinks = globalExternalStylesheets
+    .map((href) => `<link rel="stylesheet" type="text/css" href="${href}">`)
+    .join('\n  ');
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://unpkg.com; style-src 'unsafe-inline'; connect-src ${origin}/; img-src https://res.cloudinary.com data:; font-src 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://unpkg.com; style-src 'unsafe-inline' https://use.typekit.net https://p.typekit.net; connect-src ${origin}/; img-src https://res.cloudinary.com data:; font-src https://use.typekit.net;">
   <style>
     html { font-size: 13px; overflow: hidden; }
     body { overflow: hidden; }
   </style>
+  ${externalStylesheetLinks}
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
