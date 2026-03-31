@@ -2699,6 +2699,15 @@ type ManifoldProbabilitiesCache = {
   year: Scalars['Float']['output'];
 };
 
+type MarketplaceHomePageDesign = {
+  __typename?: 'MarketplaceHomePageDesign';
+  commentBaseScore: Scalars['Int']['output'];
+  html: Scalars['String']['output'];
+  publicId: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  verified: Scalars['Boolean']['output'];
+};
+
 type Message = {
   __typename?: 'Message';
   _id: Scalars['String']['output'];
@@ -7017,6 +7026,7 @@ type Query = {
   llmConversations?: Maybe<MultiLlmConversationOutput>;
   localgroup?: Maybe<SingleLocalgroupOutput>;
   localgroups?: Maybe<MultiLocalgroupOutput>;
+  marketplaceHomePageDesigns: Array<MarketplaceHomePageDesign>;
   message?: Maybe<SingleMessageOutput>;
   messages?: Maybe<MultiMessageOutput>;
   moderationTemplate?: Maybe<SingleModerationTemplateOutput>;
@@ -12958,6 +12968,16 @@ type HomePageDesignByPublicIdFullQueryVariables = Exact<{
 
 
 type HomePageDesignByPublicIdFullQuery = HomePageDesignByPublicIdFullQuery_Query;
+
+type MarketplaceHomePageDesignsQuery_marketplaceHomePageDesigns_MarketplaceHomePageDesign = { __typename?: 'MarketplaceHomePageDesign', publicId: string, title: string, html: string, verified: boolean, commentBaseScore: number };
+
+type MarketplaceHomePageDesignsQuery_Query = { __typename?: 'Query', marketplaceHomePageDesigns: Array<MarketplaceHomePageDesignsQuery_marketplaceHomePageDesigns_MarketplaceHomePageDesign> };
+
+
+type MarketplaceHomePageDesignsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type MarketplaceHomePageDesignsQuery = MarketplaceHomePageDesignsQuery_Query;
 
 type PublishHomePageDesignMutation_publishHomePageDesign_HomePageDesignMutationOutput_data_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, publicId: string, commentId: string | null };
 

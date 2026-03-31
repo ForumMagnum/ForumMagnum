@@ -10,6 +10,9 @@ import classNames from 'classnames';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import CopyIcon from '@/lib/vendor/@material-ui/icons/src/FileCopy';
 import HistoryIcon from '@/lib/vendor/@material-ui/icons/src/History';
+import CheckCircleOutlineIcon from '@/lib/vendor/@material-ui/icons/src/CheckCircleOutline';
+import KeyboardArrowDownIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowDown';
+import KeyboardArrowRightIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowRight';
 import { useMessages } from './withMessages';
 import PublishDesignDialog from './PublishDesignDialog';
 import { gql } from '@/lib/generated/gql-codegen';
@@ -40,6 +43,53 @@ const homePageDesignByPublicIdFullQuery = gql(`
   }
 `);
 
+const marketplaceHomePageDesignsQuery = gql(`
+  query MarketplaceHomePageDesigns {
+    marketplaceHomePageDesigns {
+      publicId
+      title
+      html
+      verified
+      commentBaseScore
+    }
+  }
+`);
+
+type PanelTab = 'chat' | 'marketplace';
+
+function buildSyntheticDesignMessages(
+  userText: string,
+  assistantText: string,
+  html: string,
+  resultPublicId: string | null,
+): { messages: UIMessage[]; toolCallId: string } {
+  const toolCallId = crypto.randomUUID();
+  return {
+    toolCallId,
+    messages: [
+      {
+        id: crypto.randomUUID(),
+        role: 'user' as const,
+        parts: [{ type: 'text' as const, text: userText }],
+      },
+      {
+        id: crypto.randomUUID(),
+        role: 'assistant' as const,
+        parts: [
+          { type: 'text' as const, text: assistantText },
+          {
+            type: 'tool-submitHomePageDesign' as const,
+            toolCallId,
+            state: 'output-available' as const,
+            input: { html },
+            output: { publicId: resultPublicId },
+          },
+        ],
+      },
+    ],
+  };
+}
+
 const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
   overlay: {
     position: 'fixed',
@@ -52,21 +102,36 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     flexDirection: 'column',
     background: theme.palette.panelBackground.default,
     borderLeft: theme.palette.border.normal,
-    boxShadow: '-2px 0 8px rgba(0,0,0,0.1)',
+    boxShadow: `-2px 0 8px ${theme.palette.boxShadowColor(0.1)}`,
   },
   header: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
-    padding: '12px 16px',
+    padding: '8px 16px',
     borderBottom: theme.palette.border.normal,
     flexShrink: 0,
   },
-  headerTitle: {
+  tabBar: {
+    display: 'flex',
+  },
+  tab: {
     fontFamily: theme.typography.fontFamily,
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: 500,
+    padding: '6px 14px',
+    background: 'none',
+    border: 'none',
+    borderBottom: '2px solid transparent',
+    cursor: 'pointer',
+    color: theme.palette.text.dim3,
+    '&:hover': {
+      color: theme.palette.text.normal,
+    },
+  },
+  tabActive: {
     color: theme.palette.text.normal,
+    borderBottomColor: theme.palette.primary.main,
   },
   closeButton: {
     background: 'none',
@@ -114,7 +179,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
       width: 6,
       height: 6,
       borderRadius: '50%',
-      background: '#5f9b65',
+      background: theme.palette.primary.main,
       animation: '$bounce 1.2s infinite',
     },
     '& span:nth-child(2)': {
@@ -131,7 +196,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
   toolApplied: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 12,
-    color: '#5f9b65',
+    color: theme.palette.primary.main,
     fontStyle: 'italic',
     padding: '4px 0',
   },
@@ -167,14 +232,14 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     color: theme.palette.text.normal,
     background: theme.palette.panelBackground.default,
     '&:focus': {
-      border: '1px solid #5f9b65',
+      border: `1px solid ${theme.palette.primary.main}`,
     },
   },
   sendButton: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
     padding: '8px 16px',
-    background: '#5f9b65',
+    background: theme.palette.primary.main,
     color: '#fff',
     border: 'none',
     borderRadius: 4,
@@ -198,7 +263,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     color: theme.palette.text.dim3,
     fontFamily: theme.typography.fontFamily,
     fontSize: 14,
-    textAlign: 'center' as const,
+    textAlign: 'center',
     lineHeight: 1.6,
   },
   byoaLink: {
@@ -254,7 +319,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     background: theme.palette.panelBackground.default,
     border: theme.palette.border.normal,
     borderRadius: 8,
-    boxShadow: '0 4px 16px rgba(0,0,0,0.15)',
+    boxShadow: `0 4px 16px ${theme.palette.boxShadowColor(0.15)}`,
     zIndex: 10,
   },
   historyItem: {
@@ -274,7 +339,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
   historyItemActive: {
     background: theme.palette.panelBackground.hoverHighlightGrey,
   },
-  historyItemTitle: {
+  itemTitle: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 13,
     fontWeight: 500,
@@ -298,7 +363,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     fontFamily: theme.typography.fontFamily,
     fontSize: 13,
     fontWeight: 500,
-    color: '#5f9b65',
+    color: theme.palette.primary.main,
     '&:hover': {
       background: theme.palette.panelBackground.hoverHighlightGrey,
     },
@@ -308,7 +373,67 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     fontFamily: theme.typography.fontFamily,
     fontSize: 13,
     color: theme.palette.text.dim3,
-    textAlign: 'center' as const,
+    textAlign: 'center',
+  },
+  marketplaceList: {
+    flex: 1,
+    overflowY: 'auto',
+    padding: '8px 0',
+  },
+  marketplaceItem: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: '10px 16px',
+    cursor: 'pointer',
+    borderBottom: theme.palette.border.faint,
+    '&:hover': {
+      background: theme.palette.panelBackground.hoverHighlightGrey,
+    },
+  },
+  marketplaceItemLeft: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    minWidth: 0,
+    flex: 1,
+  },
+  verifiedIcon: {
+    fontSize: 16,
+    color: theme.palette.primary.main,
+    flexShrink: 0,
+  },
+  karmaScore: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 12,
+    color: theme.palette.text.dim3,
+    flexShrink: 0,
+    marginLeft: 8,
+  },
+  sectionToggle: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    padding: '8px 16px',
+    cursor: 'pointer',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 12,
+    fontWeight: 500,
+    color: theme.palette.text.dim3,
+    borderTop: theme.palette.border.faint,
+    '&:hover': {
+      color: theme.palette.text.normal,
+    },
+  },
+  sectionToggleIcon: {
+    fontSize: 16,
+  },
+  marketplaceEmpty: {
+    padding: '32px 16px',
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    color: theme.palette.text.dim3,
+    textAlign: 'center',
   },
 }));
 
@@ -322,6 +447,8 @@ const HomeDesignChatPanel = () => {
   const [input, setInput] = useState('');
   const [showPublishDialog, setShowPublishDialog] = useState(false);
   const [showHistory, setShowHistory] = useState(false);
+  const [activeTab, setActiveTab] = useState<PanelTab>('chat');
+  const [showUnverified, setShowUnverified] = useState(false);
   const historyAnchorRef = useRef<HTMLDivElement>(null);
 
   // Fetch conversation summaries when the panel is open
@@ -329,6 +456,14 @@ const HomeDesignChatPanel = () => {
     skip: !isOpen,
   });
   const summaries = summariesData?.myHomePageDesignSummaries ?? [];
+
+  // Fetch marketplace designs when the marketplace tab is active
+  const { data: marketplaceData } = useQuery(marketplaceHomePageDesignsQuery, {
+    skip: !isOpen || activeTab !== 'marketplace',
+  });
+  const allMarketplaceDesigns = marketplaceData?.marketplaceHomePageDesigns ?? [];
+  const verifiedDesigns = allMarketplaceDesigns.filter(d => d.verified);
+  const unverifiedDesigns = allMarketplaceDesigns.filter(d => !d.verified);
 
   // Use a ref so the transport's body function always reads the latest value
   const publicIdRef = useRef<string | null>(publicId);
@@ -421,33 +556,14 @@ const HomeDesignChatPanel = () => {
     // For external designs, synthesize a conversation so the user can
     // see context and continue chatting from here.
     if (design.source === 'external' && (!history || history.length === 0)) {
-      const syntheticToolCallId = crypto.randomUUID();
-      // Pre-mark so the tool-watching effect doesn't re-apply
-      appliedToolCallIds.current.add(syntheticToolCallId);
-      history = [
-        {
-          id: crypto.randomUUID(),
-          role: 'user' as const,
-          parts: [{ type: 'text' as const, text: '[Original prompt sent to external agent]' }],
-        },
-        {
-          id: crypto.randomUUID(),
-          role: 'assistant' as const,
-          parts: [
-            {
-              type: 'text' as const,
-              text: `This design ("${design.title}") was created by an external agent. You can ask me to modify it.`,
-            },
-            {
-              type: `tool-submitHomePageDesign` as const,
-              toolCallId: syntheticToolCallId,
-              state: 'output-available' as const,
-              input: { html: design.html },
-              output: { publicId: design.publicId },
-            },
-          ],
-        },
-      ];
+      const synthetic = buildSyntheticDesignMessages(
+        '[Original prompt sent to external agent]',
+        `This design ("${design.title}") was created by an external agent. You can ask me to modify it.`,
+        design.html,
+        design.publicId,
+      );
+      appliedToolCallIds.current.add(synthetic.toolCallId);
+      history = synthetic.messages;
     }
 
     setMessages(history ?? []);
@@ -455,6 +571,7 @@ const HomeDesignChatPanel = () => {
     setPublicId(design.publicId);
     applyDesign(wrapBodyInSrcdoc(design.html, { origin: window.location.origin }));
     setShowHistory(false);
+    setActiveTab('chat');
   }, [client, setMessages, setPublicId, applyDesign]);
 
   // Start a fresh conversation
@@ -464,6 +581,22 @@ const HomeDesignChatPanel = () => {
     setPublicId(null);
     applyDesign(null);
     setShowHistory(false);
+  }, [setMessages, setPublicId, applyDesign]);
+
+  // Apply a marketplace design and switch to chat tab to allow modifications
+  const handleApplyMarketplaceDesign = useCallback((design: { publicId: string; title: string; html: string }) => {
+    const synthetic = buildSyntheticDesignMessages(
+      `[Applied marketplace design: "${design.title}"]`,
+      `I've applied the "${design.title}" design from the marketplace. You can ask me to modify it.`,
+      design.html,
+      null,
+    );
+    appliedToolCallIds.current.add(synthetic.toolCallId);
+    setMessages(synthetic.messages);
+    // Don't set publicId — modifications will create a new design under the user's ownership
+    setPublicId(null);
+    applyDesign(wrapBodyInSrcdoc(design.html, { origin: window.location.origin }));
+    setActiveTab('chat');
   }, [setMessages, setPublicId, applyDesign]);
 
   if (!isOpen) return null;
@@ -480,7 +613,20 @@ const HomeDesignChatPanel = () => {
   return (
     <div className={classes.overlay}>
       <div className={classes.header}>
-        <span className={classes.headerTitle}>Customize Home Page</span>
+        <div className={classes.tabBar}>
+          <button
+            className={classNames(classes.tab, { [classes.tabActive]: activeTab === 'chat' })}
+            onClick={() => setActiveTab('chat')}
+          >
+            Chat
+          </button>
+          <button
+            className={classNames(classes.tab, { [classes.tabActive]: activeTab === 'marketplace' })}
+            onClick={() => setActiveTab('marketplace')}
+          >
+            Marketplace
+          </button>
+        </div>
         <div className={classes.headerActions}>
           <div ref={historyAnchorRef} className={classes.historyDropdownAnchor}>
             <button
@@ -507,7 +653,7 @@ const HomeDesignChatPanel = () => {
                       onClick={() => void handleLoadConversation(summary.publicId)}
                       onMouseEnter={() => handleHistoryItemHover(summary.publicId)}
                     >
-                      <span className={classes.historyItemTitle}>{summary.title}</span>
+                      <span className={classes.itemTitle}>{summary.title}</span>
                       <span className={classes.historyItemDate}>
                         {moment(new Date(summary.createdAt)).fromNow()}
                       </span>
@@ -521,86 +667,141 @@ const HomeDesignChatPanel = () => {
         </div>
       </div>
 
-      <div className={classes.messages}>
-        {messages.length === 0 && (
-          <div className={classes.emptyState}>
-            Describe your ideal LessWrong home page.
-            <br /><br />
-            Try: "Make it look like Hacker News" or "Newspaper front page layout" or "Dark mode with cards"
-            <div className={classes.byoaLink}>
-              Or, bring your own agent: give them a link to <a href="/api/homeDesigns/SKILL.md" target="_blank" rel="noopener noreferrer">this skill</a>
-              <CopyToClipboard
-                text={`${window.location.origin}/api/homeDesigns/SKILL.md`}
-                onCopy={() => flash({ messageString: "Skill URL copied!" })}
-              >
-                <CopyIcon className={classes.copyIcon} />
-              </CopyToClipboard>
-              {' '}to get started.
-            </div>
-          </div>
-        )}
-        {messages.map((message) => (
-          <div key={message.id}>
-            {message.parts.map((part, i) => {
-              if (part.type === 'text' && part.text.trim()) {
-                return (
-                  <div
-                    key={`${message.id}-${i}`}
-                    className={classNames(classes.message, {
-                      [classes.userMessage]: message.role === 'user',
-                      [classes.assistantMessage]: message.role === 'assistant',
-                    })}
+      {activeTab === 'chat' && (
+        <>
+          <div className={classes.messages}>
+            {messages.length === 0 && (
+              <div className={classes.emptyState}>
+                Describe your ideal LessWrong home page.
+                <br /><br />
+                Try: &quot;Make it look like Hacker News&quot; or &quot;Newspaper front page layout&quot; or &quot;Dark mode with cards&quot;
+                <div className={classes.byoaLink}>
+                  Or, bring your own agent: give them a link to <a href="/api/homeDesigns/SKILL.md" target="_blank" rel="noopener noreferrer">this skill</a>
+                  <CopyToClipboard
+                    text={`${window.location.origin}/api/homeDesigns/SKILL.md`}
+                    onCopy={() => flash({ messageString: "Skill URL copied!" })}
                   >
-                    {part.text}
-                  </div>
-                );
-              }
-              if (part.type === 'tool-submitHomePageDesign') {
-                const isApplied = part.state === 'output-available';
-                return (
-                  <div key={`${message.id}-${i}`}>
-                    <div className={classes.toolApplied}>
-                      {isApplied ? 'Design applied.' : 'Applying design...'}
-                    </div>
-                    {isApplied && publicId && part.toolCallId === lastAppliedToolCallId && (
-                      <button
-                        className={classes.publishButton}
-                        onClick={() => setShowPublishDialog(true)}
+                    <CopyIcon className={classes.copyIcon} />
+                  </CopyToClipboard>
+                  {' '}to get started.
+                </div>
+              </div>
+            )}
+            {messages.map((message) => (
+              <div key={message.id}>
+                {message.parts.map((part, i) => {
+                  if (part.type === 'text' && part.text.trim()) {
+                    return (
+                      <div
+                        key={`${message.id}-${i}`}
+                        className={classNames(classes.message, {
+                          [classes.userMessage]: message.role === 'user',
+                          [classes.assistantMessage]: message.role === 'assistant',
+                        })}
                       >
-                        Publish to marketplace
-                      </button>
-                    )}
-                  </div>
-                );
-              }
-              return null;
-            })}
+                        {part.text}
+                      </div>
+                    );
+                  }
+                  if (part.type === 'tool-submitHomePageDesign') {
+                    const isApplied = part.state === 'output-available';
+                    return (
+                      <div key={`${message.id}-${i}`}>
+                        <div className={classes.toolApplied}>
+                          {isApplied ? 'Design applied.' : 'Applying design...'}
+                        </div>
+                        {isApplied && publicId && part.toolCallId === lastAppliedToolCallId && (
+                          <button
+                            className={classes.publishButton}
+                            onClick={() => setShowPublishDialog(true)}
+                          >
+                            Publish to marketplace
+                          </button>
+                        )}
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+            ))}
+            {showTypingIndicator && (
+              <div className={classes.typingIndicator}>
+                <span /><span /><span />
+              </div>
+            )}
+            <div ref={messagesEndRef} />
           </div>
-        ))}
-        {showTypingIndicator && (
-          <div className={classes.typingIndicator}>
-            <span /><span /><span />
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
 
-      <form className={classes.inputArea} onSubmit={handleSubmit}>
-        <input
-          className={classes.input}
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          placeholder="Describe your home page..."
-          disabled={isLoading}
-        />
-        <button
-          type="submit"
-          className={classes.sendButton}
-          disabled={isLoading || !input.trim()}
-        >
-          {isLoading ? '...' : 'Send'}
-        </button>
-      </form>
+          <form className={classes.inputArea} onSubmit={handleSubmit}>
+            <input
+              className={classes.input}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="Describe your home page..."
+              disabled={isLoading}
+            />
+            <button
+              type="submit"
+              className={classes.sendButton}
+              disabled={isLoading || !input.trim()}
+            >
+              {isLoading ? '...' : 'Send'}
+            </button>
+          </form>
+        </>
+      )}
+
+      {activeTab === 'marketplace' && (
+        <div className={classes.marketplaceList}>
+          {allMarketplaceDesigns.length === 0 ? (
+            <div className={classes.marketplaceEmpty}>No published designs yet</div>
+          ) : (
+            <>
+              {verifiedDesigns.map((design) => (
+                <div
+                  key={design.publicId}
+                  className={classes.marketplaceItem}
+                  onClick={() => handleApplyMarketplaceDesign(design)}
+                >
+                  <div className={classes.marketplaceItemLeft}>
+                    <CheckCircleOutlineIcon className={classes.verifiedIcon} />
+                    <span className={classes.itemTitle}>{design.title}</span>
+                  </div>
+                  <span className={classes.karmaScore}>{design.commentBaseScore}</span>
+                </div>
+              ))}
+              {unverifiedDesigns.length > 0 && (
+                <>
+                  <div
+                    className={classes.sectionToggle}
+                    onClick={() => setShowUnverified(prev => !prev)}
+                  >
+                    {showUnverified
+                      ? <KeyboardArrowDownIcon className={classes.sectionToggleIcon} />
+                      : <KeyboardArrowRightIcon className={classes.sectionToggleIcon} />
+                    }
+                    Unverified ({unverifiedDesigns.length})
+                  </div>
+                  {showUnverified && unverifiedDesigns.map((design) => (
+                    <div
+                      key={design.publicId}
+                      className={classes.marketplaceItem}
+                      onClick={() => handleApplyMarketplaceDesign(design)}
+                    >
+                      <div className={classes.marketplaceItemLeft}>
+                        <span className={classes.itemTitle}>{design.title}</span>
+                      </div>
+                      <span className={classes.karmaScore}>{design.commentBaseScore}</span>
+                    </div>
+                  ))}
+                </>
+              )}
+            </>
+          )}
+        </div>
+      )}
+
       {showPublishDialog && publicId && (
         <PublishDesignDialog
           publicId={publicId}

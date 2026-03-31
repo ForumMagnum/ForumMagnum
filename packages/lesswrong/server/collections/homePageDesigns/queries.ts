@@ -70,6 +70,14 @@ async function homePageDesignSummariesResolver(
   return context.repos.homePageDesigns.getDesignSummariesByOwner(ownerIds);
 }
 
+async function marketplaceHomePageDesignsResolver(
+  root: void,
+  _args: Record<string, never>,
+  _context: ResolverContext,
+) {
+  return _context.repos.homePageDesigns.getPublishedDesigns();
+}
+
 export const graphqlHomePageDesignQueryTypeDefs = gql`
   type HomePageDesign ${ getAllGraphQLFields(schema) }
 
@@ -79,10 +87,19 @@ export const graphqlHomePageDesignQueryTypeDefs = gql`
     createdAt: Date!
   }
 
+  type MarketplaceHomePageDesign {
+    publicId: String!
+    title: String!
+    html: String!
+    verified: Boolean!
+    commentBaseScore: Int!
+  }
+
   extend type Query {
     homePageDesignByPublicId(publicId: String!): HomePageDesign
     myHomePageDesigns(limit: Int): [HomePageDesign!]!
     myHomePageDesignSummaries: [HomePageDesignSummary!]!
+    marketplaceHomePageDesigns: [MarketplaceHomePageDesign!]!
   }
 `;
 
@@ -90,5 +107,6 @@ export const homePageDesignGqlQueryHandlers = {
   homePageDesignByPublicId: homePageDesignByPublicIdResolver,
   myHomePageDesigns: homePageDesignsByOwnerResolver,
   myHomePageDesignSummaries: homePageDesignSummariesResolver,
+  marketplaceHomePageDesigns: marketplaceHomePageDesignsResolver,
 };
 export const homePageDesignGqlFieldResolvers = getFieldGqlResolvers('HomePageDesigns', schema);

@@ -2980,10 +2980,19 @@ type HomePageDesignSummary {
   createdAt: Date!
 }
 
+type MarketplaceHomePageDesign {
+  publicId: String!
+  title: String!
+  html: String!
+  verified: Boolean!
+  commentBaseScore: Int!
+}
+
 extend type Query {
   homePageDesignByPublicId(publicId: String!): HomePageDesign
   myHomePageDesigns(limit: Int): [HomePageDesign!]!
   myHomePageDesignSummaries: [HomePageDesignSummary!]!
+  marketplaceHomePageDesigns: [MarketplaceHomePageDesign!]!
 }
 
 type IframeWidgetSrcdoc {

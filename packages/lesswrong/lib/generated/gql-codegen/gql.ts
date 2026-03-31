@@ -99,6 +99,7 @@ type Documents = {
     "\n  query HeaderEventSubtitleSpotlightQuery {\n    currentSpotlight {\n      ...SpotlightHeaderEventSubtitle\n    }\n  }\n": typeof types.HeaderEventSubtitleSpotlightQueryDocument,
     "\n  query MyHomePageDesignSummaries {\n    myHomePageDesignSummaries {\n      publicId\n      title\n      createdAt\n    }\n  }\n": typeof types.MyHomePageDesignSummariesDocument,
     "\n  query HomePageDesignByPublicIdFull($publicId: String!) {\n    homePageDesignByPublicId(publicId: $publicId) {\n      _id\n      publicId\n      html\n      title\n      source\n      conversationHistory\n    }\n  }\n": typeof types.HomePageDesignByPublicIdFullDocument,
+    "\n  query MarketplaceHomePageDesigns {\n    marketplaceHomePageDesigns {\n      publicId\n      title\n      html\n      verified\n      commentBaseScore\n    }\n  }\n": typeof types.MarketplaceHomePageDesignsDocument,
     "\n  mutation PublishHomePageDesign($input: PublishHomePageDesignInput!) {\n    publishHomePageDesign(input: $input) {\n      data {\n        _id\n        publicId\n        commentId\n      }\n    }\n  }\n": typeof types.PublishHomePageDesignDocument,
     "\n  query HomePageDesignByPublicId($publicId: String!) {\n    homePageDesignByPublicId(publicId: $publicId) {\n      _id\n      publicId\n      html\n      title\n    }\n  }\n": typeof types.HomePageDesignByPublicIdDocument,
     "\n  query MyHomePageDesigns($limit: Int) {\n    myHomePageDesigns(limit: $limit) {\n      _id\n      publicId\n      html\n      title\n    }\n  }\n": typeof types.MyHomePageDesignsDocument,
@@ -927,6 +928,7 @@ const documents: Documents = {
     "\n  query HeaderEventSubtitleSpotlightQuery {\n    currentSpotlight {\n      ...SpotlightHeaderEventSubtitle\n    }\n  }\n": types.HeaderEventSubtitleSpotlightQueryDocument,
     "\n  query MyHomePageDesignSummaries {\n    myHomePageDesignSummaries {\n      publicId\n      title\n      createdAt\n    }\n  }\n": types.MyHomePageDesignSummariesDocument,
     "\n  query HomePageDesignByPublicIdFull($publicId: String!) {\n    homePageDesignByPublicId(publicId: $publicId) {\n      _id\n      publicId\n      html\n      title\n      source\n      conversationHistory\n    }\n  }\n": types.HomePageDesignByPublicIdFullDocument,
+    "\n  query MarketplaceHomePageDesigns {\n    marketplaceHomePageDesigns {\n      publicId\n      title\n      html\n      verified\n      commentBaseScore\n    }\n  }\n": types.MarketplaceHomePageDesignsDocument,
     "\n  mutation PublishHomePageDesign($input: PublishHomePageDesignInput!) {\n    publishHomePageDesign(input: $input) {\n      data {\n        _id\n        publicId\n        commentId\n      }\n    }\n  }\n": types.PublishHomePageDesignDocument,
     "\n  query HomePageDesignByPublicId($publicId: String!) {\n    homePageDesignByPublicId(publicId: $publicId) {\n      _id\n      publicId\n      html\n      title\n    }\n  }\n": types.HomePageDesignByPublicIdDocument,
     "\n  query MyHomePageDesigns($limit: Int) {\n    myHomePageDesigns(limit: $limit) {\n      _id\n      publicId\n      html\n      title\n    }\n  }\n": types.MyHomePageDesignsDocument,
@@ -2024,6 +2026,10 @@ export function gql(source: "\n  query MyHomePageDesignSummaries {\n    myHomePa
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query HomePageDesignByPublicIdFull($publicId: String!) {\n    homePageDesignByPublicId(publicId: $publicId) {\n      _id\n      publicId\n      html\n      title\n      source\n      conversationHistory\n    }\n  }\n"): (typeof documents)["\n  query HomePageDesignByPublicIdFull($publicId: String!) {\n    homePageDesignByPublicId(publicId: $publicId) {\n      _id\n      publicId\n      html\n      title\n      source\n      conversationHistory\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query MarketplaceHomePageDesigns {\n    marketplaceHomePageDesigns {\n      publicId\n      title\n      html\n      verified\n      commentBaseScore\n    }\n  }\n"): (typeof documents)["\n  query MarketplaceHomePageDesigns {\n    marketplaceHomePageDesigns {\n      publicId\n      title\n      html\n      verified\n      commentBaseScore\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

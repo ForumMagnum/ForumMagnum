@@ -117,6 +117,7 @@ interface Query {
   homePageDesignByPublicId: HomePageDesign | null;
   myHomePageDesigns: Array<HomePageDesign>;
   myHomePageDesignSummaries: Array<HomePageDesignSummary>;
+  marketplaceHomePageDesigns: Array<MarketplaceHomePageDesign>;
   iframeWidgetSrcdoc: SingleIframeWidgetSrcdocOutput | null;
   iframeWidgetSrcdocs: MultiIframeWidgetSrcdocOutput | null;
   jargonTerm: SingleJargonTermOutput | null;
@@ -2673,6 +2674,14 @@ interface HomePageDesignSummary {
   publicId: string;
   title: string;
   createdAt: Date;
+}
+
+interface MarketplaceHomePageDesign {
+  publicId: string;
+  title: string;
+  html: string;
+  verified: boolean;
+  commentBaseScore: number;
 }
 
 interface IframeWidgetSrcdoc {
@@ -8995,6 +9004,7 @@ interface GraphQLTypeMap {
   MultiGoogleServiceAccountSessionOutput: MultiGoogleServiceAccountSessionOutput;
   HomePageDesign: HomePageDesign;
   HomePageDesignSummary: HomePageDesignSummary;
+  MarketplaceHomePageDesign: MarketplaceHomePageDesign;
   IframeWidgetSrcdoc: IframeWidgetSrcdoc;
   SingleIframeWidgetSrcdocOutput: SingleIframeWidgetSrcdocOutput;
   IframeWidgetSrcdocSelector: IframeWidgetSrcdocSelector;

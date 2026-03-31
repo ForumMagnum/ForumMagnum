@@ -75,7 +75,7 @@ const styles = defineStyles("PublishDesignDialog", (theme: ThemeType) => ({
     marginTop: 12,
   },
   publishButton: {
-    backgroundColor: '#5f9b65',
+    backgroundColor: theme.palette.primary.main,
     color: '#fff',
     '&:hover': {
       backgroundColor: '#4e8a54',

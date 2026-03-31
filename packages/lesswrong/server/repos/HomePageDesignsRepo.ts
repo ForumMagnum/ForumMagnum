@@ -8,6 +8,14 @@ interface HomePageDesignSummary {
   createdAt: Date;
 }
 
+interface MarketplaceDesign {
+  publicId: string;
+  title: string;
+  html: string;
+  verified: boolean;
+  commentBaseScore: number;
+}
+
 class HomePageDesignsRepo extends AbstractRepo<"HomePageDesigns"> {
   constructor() {
     super(HomePageDesigns);
@@ -29,6 +37,29 @@ class HomePageDesignsRepo extends AbstractRepo<"HomePageDesigns"> {
       ORDER BY "createdAt" DESC
       ${limit ? `LIMIT $(limit)` : ""}
     `, { ownerIds, limit });
+  }
+
+  /**
+   * Returns the latest revision of each published design, joined with the
+   * comment's baseScore, ordered by karma descending.
+   */
+  async getPublishedDesigns(): Promise<MarketplaceDesign[]> {
+    return this.getRawDb().any(`
+      -- HomePageDesignsRepo.getPublishedDesigns
+      SELECT * FROM (
+        SELECT DISTINCT ON (d."publicId")
+          d."publicId",
+          d."title",
+          d."html",
+          d."verified",
+          c."baseScore" AS "commentBaseScore"
+        FROM "HomePageDesigns" d
+        JOIN "Comments" c ON c._id = d."commentId"
+        WHERE d."commentId" IS NOT NULL
+        ORDER BY d."publicId", d."createdAt" DESC
+      ) sub
+      ORDER BY sub."commentBaseScore" DESC
+    `);
   }
 
   /**
