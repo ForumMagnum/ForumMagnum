@@ -3541,6 +3541,7 @@ CREATE TABLE "Users" (
   "userSurveyEmailSentAt" TIMESTAMPTZ,
   "inactiveSummaryEmailSentAt" TIMESTAMPTZ,
   "recommendationSettings" JSONB,
+  "babyBulbyState" JSONB,
   "givingSeason2025DonatedFlair" BOOL NOT NULL DEFAULT FALSE,
   "givingSeason2025VotedFlair" BOOL NOT NULL DEFAULT FALSE
 );

@@ -5024,6 +5024,7 @@ type User {
   inactiveSummaryEmailSentAt: Date
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
+  babyBulbyState: JSON
   givingSeason2025DonatedFlair: Boolean!
   givingSeason2025VotedFlair: Boolean!
 }
@@ -7496,6 +7497,7 @@ input UpdateUserDataInput {
   userSurveyEmailSentAt: Date
   inactiveSummaryEmailSentAt: Date
   recommendationSettings: RecommendationSettingsInput
+  babyBulbyState: JSON
   givingSeason2025DonatedFlair: Boolean
   givingSeason2025VotedFlair: Boolean
 }
@@ -12235,6 +12237,7 @@ fragment UsersCurrent on User {
   viewUnreviewedComments
   recommendationSettings
   theme
+  babyBulbyState
 
   bookmarkedPostsMetadata {
     postId
@@ -12545,6 +12548,7 @@ fragment UsersDefaultFragment on User {
   userSurveyEmailSentAt
   inactiveSummaryEmailSentAt
   recommendationSettings
+  babyBulbyState
   givingSeason2025DonatedFlair
   givingSeason2025VotedFlair
 }

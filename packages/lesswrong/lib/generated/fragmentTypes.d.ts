@@ -4102,6 +4102,7 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     name: "default" | "dark" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   },
+  readonly babyBulbyState: any,
   readonly bookmarkedPostsMetadata: Array<PostMetadataOutput>,
   readonly hiddenPostsMetadata: Array<PostMetadataOutput>,
   readonly auto_subscribe_to_my_posts: boolean,
@@ -4861,6 +4862,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly userSurveyEmailSentAt: Date|null,
   readonly inactiveSummaryEmailSentAt: Date|null,
   readonly recommendationSettings: RecommendationSettingsInput,
+  readonly babyBulbyState: any,
   readonly givingSeason2025DonatedFlair: boolean,
   readonly givingSeason2025VotedFlair: boolean,
 }

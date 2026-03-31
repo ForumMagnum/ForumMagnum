@@ -1833,6 +1833,7 @@ export const UsersDefaultFragment = `
     userSurveyEmailSentAt
     inactiveSummaryEmailSentAt
     recommendationSettings
+    babyBulbyState
     givingSeason2025DonatedFlair
     givingSeason2025VotedFlair
   }

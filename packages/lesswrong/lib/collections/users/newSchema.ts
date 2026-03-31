@@ -4432,6 +4432,20 @@ const schema = {
       canUpdate: [userOwns],
     },
   },
+  babyBulbyState: {
+    database: {
+      type: "JSONB",
+    },
+    graphql: {
+      outputType: "JSON",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: {
+        optional: true,
+        blackbox: true,
+      },
+    },
+  },
   givingSeason2025DonatedFlair: {
     database: {
       type: "BOOL",
