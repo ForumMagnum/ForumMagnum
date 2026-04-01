@@ -409,8 +409,7 @@ const Layout = ({currentUser, children}: {
                 <MaybeCookieBanner isWrapped={isWrapped} />
               </DeferRender>
               <DeferRender ssr={false}>
-                {/* Soft-launch Baby Bulby to admins only. Full release should widen this gate to restore the logged-out egg and non-admin Bulby paths. */}
-                {currentUser?.isAdmin && <BabyBulby currentUser={currentUser} />}
+                <BabyBulby currentUser={currentUser} />
               </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
