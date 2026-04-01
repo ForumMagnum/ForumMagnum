@@ -4804,7 +4804,11 @@ export function getDefaultHomePageBody(): string {
                   <span>2 albums</span>
                 </div>
               </div>
-              <h2 className="headline headline-feature">Fooming Shoggoths (finally) release their second album</h2>
+              <h2 className="headline headline-feature">
+                <a href="/posts/hrZAvpLnBTgRhNmgk/you-have-not-been-a-good-user-lesswrong-s-second-album" target="_top">
+                  Fooming Shoggoths (finally) release their second album
+                </a>
+              </h2>
             </div>
             <div className="shoggoths-player">
               <div className="shoggoths-album-tabs">
