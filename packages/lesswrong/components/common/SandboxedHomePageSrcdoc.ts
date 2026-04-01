@@ -1107,6 +1107,10 @@ export function getDefaultHomePageBody(): string {
       align-self: center;
     }
 
+    .shoggoths-mobile-links-row {
+      display: none;
+    }
+
     .shoggoths-track-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 104px;
@@ -1417,6 +1421,25 @@ export function getDefaultHomePageBody(): string {
         display: inline-flex;
         margin-left: 0;
         flex: 0 0 auto;
+      }
+
+      .shoggoths-album-tabs > .shoggoths-service-links,
+      .shoggoths-album-tabs > .shoggoths-tracklist-toggle {
+        display: none;
+      }
+
+      .shoggoths-mobile-links-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+        margin-top: -2px;
+      }
+
+      .shoggoths-mobile-links-row .shoggoths-service-links {
+        display: inline-flex;
+        margin-left: 0;
       }
 
       .shoggoths-tracklist.is-collapsed {
@@ -4864,6 +4887,43 @@ export function getDefaultHomePageBody(): string {
                   setIsPlaying(false);
                 }}
               />
+              <div className="shoggoths-mobile-links-row">
+                <div className="shoggoths-service-links">
+                  {currentAlbum.streaming && currentAlbum.streaming.spotify ? (
+                    <a
+                      className="shoggoths-service-link"
+                      href={currentAlbum.streaming.spotify}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={currentAlbum.title + ' on Spotify'}
+                      title={currentAlbum.title + ' on Spotify'}
+                    >
+                      <span dangerouslySetInnerHTML={{ __html: spotifySvg }} />
+                    </a>
+                  ) : null}
+                  {currentAlbum.streaming && currentAlbum.streaming.youtubeMusic ? (
+                    <a
+                      className="shoggoths-service-link"
+                      href={currentAlbum.streaming.youtubeMusic}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={currentAlbum.title + ' on YouTube Music'}
+                      title={currentAlbum.title + ' on YouTube Music'}
+                    >
+                      <span dangerouslySetInnerHTML={{ __html: youtubeSvg }} />
+                    </a>
+                  ) : null}
+                </div>
+                <button
+                  type="button"
+                  className="shoggoths-tracklist-toggle"
+                  onClick={function() {
+                    setMobileTracklistOpen(function(current) { return !current; });
+                  }}
+                >
+                  {mobileTracklistOpen ? 'Hide tracks' : 'Show tracks'}
+                </button>
+              </div>
               <div className={'shoggoths-tracklist' + (mobileTracklistOpen ? '' : ' is-collapsed')}>
                 {currentAlbum.tracks.map(function(track, index) {
                   var lyricsData = lyricsByTrack[track.src];
