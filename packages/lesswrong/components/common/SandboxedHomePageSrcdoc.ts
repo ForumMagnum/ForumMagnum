@@ -1730,7 +1730,8 @@ export function getDefaultHomePageBody(): string {
       return (html || '')
         .replace(/<style[^>]*>[\\s\\S]*?<\\/style>/gi, '')
         .replace(/<script[^>]*>[\\s\\S]*?<\\/script>/gi, '')
-        .replace(/<mjx-[^>]*>[\\s\\S]*?<\\/mjx-[^>]*>/gi, '');
+        .replace(/<mjx-[^>]*>[\\s\\S]*?<\\/mjx-[^>]*>/gi, '')
+        .replace(/<img[^>]*>/gi, '');
     }
 
     var RICH_CODE_FONT_FAMILY = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
