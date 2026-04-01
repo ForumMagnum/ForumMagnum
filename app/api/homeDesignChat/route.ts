@@ -40,11 +40,33 @@ export async function POST(req: NextRequest) {
   const clientId = req.cookies.get('clientId')?.value ?? null;
   const ownerId = currentUser?._id ?? clientId;
 
-  // Limit logged-out users to 3 back-and-forths per conversation
-  if (!currentUser) {
-    const userMessageCount = messages.filter((m) => m.role === 'user').length;
-    if (userMessageCount > 3) {
-      return new Response('Message limit reached. Please log in to continue designing.', { status: 429 });
+  // Rate limits: logged-out users get 3 messages / 3 internal designs,
+  // logged-in users get 8 messages / 10 internal designs.
+  const messageLimit = currentUser ? 8 : 3;
+  const designLimit = currentUser ? 10 : 3;
+
+  const userMessageCount = messages.filter((m) => m.role === 'user').length;
+  if (userMessageCount > messageLimit) {
+    const suggestion = currentUser
+      ? 'You\'ve reached your message limit for this conversation. Start a new conversation to continue designing.'
+      : 'Message limit reached. Please log in to continue designing.';
+    return new Response(suggestion, { status: 429 });
+  }
+
+  // Only enforce the design limit when starting a new conversation (no publicId yet).
+  // Iterating on an existing design is always allowed.
+  if (ownerId && !clientPublicId) {
+    const internalDesigns = await HomePageDesigns.find(
+      { ownerId, source: 'internal' },
+      { projection: { publicId: 1 } },
+    ).fetch();
+    const distinctDesignCount = new Set(internalDesigns.map((d) => d.publicId)).size;
+
+    if (distinctDesignCount >= designLimit) {
+      const suggestion = currentUser
+        ? 'You\'ve reached your design limit. You can still iterate on existing designs, or use your own agent.'
+        : 'Design limit reached. Please log in to create more designs, or use your own agent.';
+      return new Response(suggestion, { status: 429 });
     }
   }
 
@@ -65,9 +87,14 @@ export async function POST(req: NextRequest) {
     existingTitle = original.title;
   }
 
-  // NOTE: Model switching for logged-in/out users to be implemented.
-  // const modelId = 'anthropic/claude-sonnet-4-6';
-  const modelId: LanguageModel = 'google/gemini-3-flash';
+  // Publish-eligible users (not banned, and either reviewed or legacy account) get Sonnet
+  const publishCutoffDate = new Date("2026-04-01T07:00:00.000Z");
+  const canPublish = currentUser
+    && !currentUser.banned
+    && (currentUser.reviewedByUserId || currentUser.createdAt < publishCutoffDate);
+  const modelId: LanguageModel = canPublish
+    ? 'anthropic/claude-sonnet-4-6'
+    : 'google/gemini-3-flash';
   const result = streamText({
     model: modelId,
     system: { role: 'system', content: SYSTEM_PROMPT, providerOptions: { anthropic: { cacheControl: { type: 'ephemeral' } } } },
