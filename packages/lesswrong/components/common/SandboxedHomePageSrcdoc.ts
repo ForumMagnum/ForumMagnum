@@ -1,6 +1,16 @@
 import { MARKETPLACE_POST_ID } from '@/lib/collections/homePageDesigns/constants';
 import { globalExternalStylesheets } from '@/themes/globalStyles/externalStyles';
 
+const PRETEXT_MODULE_URL = 'https://unpkg.com/@chenglou/pretext@0.0.3/dist/layout.js';
+const PRETEXT_MODULE_PRELOAD_URLS = [
+  PRETEXT_MODULE_URL,
+  'https://unpkg.com/@chenglou/pretext@0.0.3/dist/bidi.js',
+  'https://unpkg.com/@chenglou/pretext@0.0.3/dist/analysis.js',
+  'https://unpkg.com/@chenglou/pretext@0.0.3/dist/measurement.js',
+  'https://unpkg.com/@chenglou/pretext@0.0.3/dist/line-break.js',
+];
+const INITIAL_CURATED_POSTS_COUNT = 4;
+
 interface SrcdocWrapperOptions {
   origin: string;
   omitRpcBridge?: boolean;
@@ -11,6 +21,11 @@ export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOpti
   const externalStylesheetLinks = globalExternalStylesheets
     .map((href) => `<link rel="stylesheet" type="text/css" href="${href}">`)
     .join('\n  ');
+  const pretextModulePreloadLink = bodyContent.includes(PRETEXT_MODULE_URL)
+    ? PRETEXT_MODULE_PRELOAD_URLS
+        .map((href) => `<link rel="modulepreload" href="${href}" crossorigin>`)
+        .join('\n  ')
+    : '';
   const connectSrc = origin ? `${origin}/ ${origin}/graphql` : `'self'`;
   const mediaSrc = origin ? `${origin}/` : `'self'`;
   const graphqlEndpoint = origin ? `${origin}/graphql` : '/graphql';
@@ -41,12 +56,13 @@ export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOpti
     }
   </style>
   ${externalStylesheetLinks}
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
-  <script src="https://unpkg.com/hyphen@1.14.1/hyphen.js" crossorigin></script>
-  <script src="https://unpkg.com/hyphen@1.14.1/patterns/en-us.js" crossorigin></script>
+  ${pretextModulePreloadLink}
+  <script src="https://cdn.tailwindcss.com" defer></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin defer></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin defer></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin defer></script>
+  <script src="https://unpkg.com/hyphen@1.14.1/hyphen.js" crossorigin defer></script>
+  <script src="https://unpkg.com/hyphen@1.14.1/patterns/en-us.js" crossorigin defer></script>
   <script>
     (function() {
       window.gqlQuery = function(query, variables) {
@@ -1563,7 +1579,7 @@ export function getDefaultHomePageBody(): string {
 
   <script type="module">
     try {
-      var pretextModule = await import('https://unpkg.com/@chenglou/pretext@0.0.3/dist/layout.js');
+      var pretextModule = await import('${PRETEXT_MODULE_URL}');
       window.pretextPrepareWithSegments = pretextModule.prepareWithSegments;
       window.pretextLayoutWithLines = pretextModule.layoutWithLines;
       window.pretextLayoutNextLine = pretextModule.layoutNextLine;
@@ -1576,21 +1592,31 @@ export function getDefaultHomePageBody(): string {
   </script>
 
   <script>
-    try {
-      if (window.createHyphenator && window.hyphenationPatternsEnUs) {
-        window.hyphenateEnglish = window.createHyphenator(window.hyphenationPatternsEnUs, {
-          hyphenChar: '\u00AD',
-          minWordLength: 5,
-        });
-        window.hyphenationReady = true;
-      } else {
-        window.hyphenationReady = false;
+    (function() {
+      function initializeHyphenation() {
+        try {
+          if (window.createHyphenator && window.hyphenationPatternsEnUs) {
+            window.hyphenateEnglish = window.createHyphenator(window.hyphenationPatternsEnUs, {
+              hyphenChar: '\u00AD',
+              minWordLength: 5,
+            });
+            window.hyphenationReady = true;
+          } else {
+            window.hyphenationReady = false;
+          }
+        } catch (error) {
+          console.warn('Hyphenation failed to load, using unhyphenated text:', error);
+          window.hyphenationReady = false;
+        }
+        window.dispatchEvent(new Event('hyphenation-loaded'));
       }
-    } catch (error) {
-      console.warn('Hyphenation failed to load, using unhyphenated text:', error);
-      window.hyphenationReady = false;
-    }
-    window.dispatchEvent(new Event('hyphenation-loaded'));
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeHyphenation, { once: true });
+      } else {
+        initializeHyphenation();
+      }
+    })();
   </script>
 
   <script type="text/babel" data-presets="react" data-plugins="transform-optional-chaining,transform-nullish-coalescing-operator">
@@ -1644,9 +1670,11 @@ export function getDefaultHomePageBody(): string {
       }
     \`;
 
+    var INITIAL_CURATED_POSTS_COUNT = ${INITIAL_CURATED_POSTS_COUNT};
+
     var CURATED_QUERY = \`
       query CuratedPosts {
-        CuratedAndPopularThisWeek(limit: 4) {
+        CuratedAndPopularThisWeek(limit: ${INITIAL_CURATED_POSTS_COUNT}) {
           results {
             _id
             title
@@ -2367,12 +2395,20 @@ export function getDefaultHomePageBody(): string {
         ? options.initialTotalCount
         : null;
       var targetCount = options.targetCount || 0;
+      var hasFetched = false;
 
-      while (options.getDisplayItems(items).length < targetCount) {
+      while (true) {
+        if (items.length || hasFetched || !targetCount) {
+          var displayItems = await options.getDisplayItems(items);
+          if (displayItems.length >= targetCount) break;
+        }
         if (totalCount != null && items.length >= totalCount) break;
 
+        var pageSize = !hasFetched && typeof options.initialPageSize === 'number'
+          ? options.initialPageSize
+          : options.pageSize;
         var data = await gqlQuery(options.query, Object.assign({}, options.variables || {}, {
-          limit: options.pageSize,
+          limit: pageSize,
           offset: items.length,
           enableTotal: true,
         }));
@@ -2384,7 +2420,8 @@ export function getDefaultHomePageBody(): string {
         if (!nextItems.length) break;
 
         items = items.concat(nextItems);
-        if (nextItems.length < options.pageSize) break;
+        hasFetched = true;
+        if (nextItems.length < pageSize) break;
       }
 
       return {
@@ -5123,19 +5160,20 @@ export function getDefaultHomePageBody(): string {
 
         async function loadInitial() {
           try {
-            var curatedResult = await gqlQuery(CURATED_QUERY).catch(function() { return null; });
-            if (cancelled) return;
-
-            var curated = (curatedResult && curatedResult.CuratedAndPopularThisWeek && curatedResult.CuratedAndPopularThisWeek.results) || [];
+            var curatedPromise = gqlQuery(CURATED_QUERY).catch(function() { return null; });
             var results = await Promise.all([
+              curatedPromise,
               gqlQuery(HERO_POST_QUERY, { documentId: MARKETPLACE_POST_ID }).catch(function() { return null; }),
               collectPaginatedResults({
                 query: POSTS_QUERY,
                 pageSize: TOP_POSTS_PAGE_SIZE,
+                initialPageSize: TOP_POSTS_PAGE_SIZE + INITIAL_CURATED_POSTS_COUNT,
                 targetCount: INITIAL_TOP_POSTS_COUNT,
                 getResults: getPostsResults,
                 getTotalCount: getPostsTotalCount,
-                getDisplayItems: function(items) {
+                getDisplayItems: async function(items) {
+                  var curatedResult = await curatedPromise;
+                  var curated = (curatedResult && curatedResult.CuratedAndPopularThisWeek && curatedResult.CuratedAndPopularThisWeek.results) || [];
                   return excludePostById(getTopPostsListPosts(items, curated), MARKETPLACE_POST_ID);
                 },
               }),
@@ -5169,18 +5207,19 @@ export function getDefaultHomePageBody(): string {
             ]);
             if (cancelled) return;
 
+            var curated = (results[0] && results[0].CuratedAndPopularThisWeek && results[0].CuratedAndPopularThisWeek.results) || [];
             setData({
               loading: false,
               error: null,
-              heroPost: (results[0] && results[0].post && results[0].post.result) || null,
-              postResults: results[1].results,
-              postsTotalCount: results[1].totalCount,
+              heroPost: (results[1] && results[1].post && results[1].post.result) || null,
+              postResults: results[2].results,
+              postsTotalCount: results[2].totalCount,
               postsLoadingMore: false,
               curated: curated,
-              quicktakes: (results[2] && results[2].comments && results[2].comments.results) || [],
-              topCommentResults: results[3].results,
-              recentCommentResults: results[4].results,
-              recentCommentsTotalCount: results[4].totalCount,
+              quicktakes: (results[3] && results[3].comments && results[3].comments.results) || [],
+              topCommentResults: results[4].results,
+              recentCommentResults: results[5].results,
+              recentCommentsTotalCount: results[5].totalCount,
               recentCommentsLoadingMore: false,
             });
           } catch (error) {
