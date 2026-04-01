@@ -149,6 +149,8 @@ async function notifyModerationOfFailedReview(designId: string, user: AutoReview
       text: `Home page design failed auto-review: ${designId} by ${user.displayName}`,
       channelName: "moderation",
       options: {
+        unfurl_links: false,
+        unfurl_media: false,
         blocks: [
           {
             type: "header",
