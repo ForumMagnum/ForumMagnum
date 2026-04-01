@@ -21,7 +21,7 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { useApolloClient } from '@apollo/client/react';
 import moment from 'moment';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
+import { HOME_DESIGN_DEFAULT_CLASSIC_VALUE, HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
 
 const myHomePageDesignSummariesQuery = gql(`
   query MyHomePageDesignSummaries {
@@ -764,10 +764,19 @@ const HomeDesignChatPanel = () => {
   }, [setMessages, setPublicId, applyDesign]);
 
   const handleRevertToBuiltInDefault = useCallback(() => {
+    setCookie(HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE, HOME_DESIGN_DEFAULT_CLASSIC_VALUE, {
+      path: '/',
+      expires: moment().add(2, 'years').toDate(),
+    });
     setPublicId(null);
     applyDesign(null);
-    setUseDefaultDesign(true);
-  }, [setPublicId, applyDesign, setUseDefaultDesign]);
+    setUseDefaultDesign(false);
+    setIsOpen(false);
+    const url = new URL(window.location.href);
+    url.searchParams.delete('theme');
+    url.searchParams.delete('classicHome');
+    window.location.assign(`${url.pathname}${url.search}${url.hash}`);
+  }, [setCookie, setPublicId, applyDesign, setUseDefaultDesign, setIsOpen]);
 
   if (!isOpen) return null;
 
@@ -960,7 +969,7 @@ const HomeDesignChatPanel = () => {
               className={classes.marketplaceActionButton}
               onClick={handleRevertToBuiltInDefault}
             >
-              {useDefaultDesign ? 'Using built-in default homepage' : 'Revert to built-in default homepage'}
+              Go back to normal LessWrong
             </button>
           </div>
           {allMarketplaceDesigns.length === 0 ? (

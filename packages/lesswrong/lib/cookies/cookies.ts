@@ -206,6 +206,8 @@ export const HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE = registerCookie({
   description: "Stores the user's preferred homepage design publicId for the April Fools homepage",
 });
 
+export const HOME_DESIGN_DEFAULT_CLASSIC_VALUE = "__classic_home__";
+
 export const HIDE_LLM_CHAT_GUIDE_COOKIE = registerCookie({
   name: "llm_chat_guide_open",
   type: "functional",
