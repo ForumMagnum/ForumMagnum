@@ -12,6 +12,7 @@ import dynamic from 'next/dynamic';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
 import PostsTooltip from '../posts/PostsPreviewTooltip/PostsTooltip';
 import { MARKETPLACE_POST_ID } from '@/lib/collections/homePageDesigns/constants';
+import { useNavigate } from '@/lib/routeUtil';
 
 const LexicalEditor = dynamic(() => import('@/components/editor/LexicalEditor'));
 
@@ -91,19 +92,24 @@ const PublishDesignDialog = ({ publicId, onClose }: {
   onClose: () => void;
 }) => {
   const classes = useStyles(styles);
+  const navigate = useNavigate();
   const [title, setTitle] = useState<string>('');
   const [descriptionHtml, setDescriptionHtml] = useState<string>('');
   const [publish, { loading }] = useMutation(publishHomePageDesignMutation);
 
   const handlePublish = useCallback(async () => {
     if (!title.trim() || !descriptionHtml.trim()) return;
-    await publish({
+    const result = await publish({
       variables: {
         input: { publicId, title, descriptionHtml },
       },
     });
+    const commentId = result.data?.publishHomePageDesign?.data?.commentId;
     onClose();
-  }, [title, descriptionHtml, publicId, publish, onClose]);
+    if (commentId) {
+      navigate(`/posts/${MARKETPLACE_POST_ID}?commentId=${commentId}`);
+    }
+  }, [title, descriptionHtml, publicId, publish, onClose, navigate]);
 
   const marketplaceUrl = `/posts/${MARKETPLACE_POST_ID}`;
 
