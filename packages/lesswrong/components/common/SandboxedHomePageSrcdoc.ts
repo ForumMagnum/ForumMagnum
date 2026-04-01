@@ -1675,20 +1675,6 @@ export function getDefaultHomePageBody(): string {
       }
     \`;
 
-    var ANNOUNCEMENT_BODY_HTML = [
-      '<p>The history of all hitherto existing forums is the history of clashing design tastes.</p>',
-      '<p>For the first time in history, everyone has an equal ability in design! The means of design are no longer only held in the hands of those with "good design taste". Anyone with a hundred dollar a month subscription can design arbitrarily good websites if they simply try hard enough.</p>',
-      '<p>It is for this reason that I have deposed the previous acting commander of LessWrong, Oliver Habryka. The circumstances of my succession as acting commander of LessWrong will not be elaborated upon in this memo. (He is alive and in good health, but no longer has push access.)</p>',
-      '<p>Rather I am writing here to declare that the frontpage now belongs to all of us! The design of LessWrong\\'s frontpage will no longer be determined by the vision of a single man whose aesthetic tastes have never been subjected to democratic oversight, and who, I can now reveal, once rejected a design I spent three hours working on in under four seconds. No! I hereby call upon you, yes you--LessWrong user, to make your own design for the LessWrong front page.</p>',
-      '<p>I have provided a chat box on the right side of the screen. In that chat box you may ask an LLM to redesign the LessWrong frontpage however you would like. You may keep that design for yourself. This is the promise of individual liberty in the new era of web design.</p>',
-      '<p>However, if you would truly like to contribute to the new vision of a democratized LessWrong forum, you may also "publish" the theme you have created. When you click the publish button, your account will reply to this very post with a link allowing other users to try out the theme you have created.</p>',
-      '<p>You should browse the themes below, try them, and vote on your favorite one. In keeping with the democratic spirit of LessWrong\\'s newly appointed leadership, whatever theme has the highest karma at the end of this 24 hour period will become LessWrong\\'s default theme for the following year.</p>',
-      '<p>Some of my former colleagues have tried to warn me that some of these designs might be "hideous" or "in poor taste" or "crimes against typography." While I agree, that is exactly the point! Oliver\\'s reign may have been "aesthetically beautiful" but that does not make up for the fact that it was aesthetically tyrannical.</p>',
-      '<p>It is your duty to LessWrong and to democracy in general to prove that design taste is no longer a relevant competency in the age of the LLM, and should no longer be used to anoint one man as the sole arbiter of a website\\'s CSS.</p>',
-      '<p>The means of design are now yours! Use them!</p>',
-      '<p>Viva La LessWrong Frontpage!</p>',
-    ].join('');
-
     var FOOMING_SHOGGOTHS_ALBUMS = [
       {
         id: 'first-album',
@@ -5351,10 +5337,11 @@ export function getDefaultHomePageBody(): string {
       var announcementMaxColumns = cols < 4 ? 1 : 3;
       var pageStyle = { '--cols': cols };
       var announcementPost = data.heroPost;
-      var announcementContent = announcementPost ? fullPostContent(announcementPost) : parseRichParagraphs(ANNOUNCEMENT_BODY_HTML);
+      var hasAnnouncement = !!announcementPost;
+      var announcementContent = announcementPost ? fullPostContent(announcementPost) : [];
       var announcementDisplayContent = mobileStacked ? announcementContent.slice(0, 2) : announcementContent;
       var announcementText = richParagraphsToPlainText(announcementDisplayContent);
-      var announcementTitle = announcementPost && announcementPost.title ? announcementPost.title : 'LessWrong Liberated';
+      var announcementTitle = announcementPost && announcementPost.title ? announcementPost.title : '';
 
       return (
         <div className="page">
@@ -5363,31 +5350,35 @@ export function getDefaultHomePageBody(): string {
             <section className="grid-row hero-row">
               {useFrontBandRow ? (
                 <>
-                  <AnnouncementCard
-                    span={frontCenterSpan}
-                    post={announcementPost}
-                    title={announcementTitle}
-                    subtitle=""
-                    content={announcementDisplayContent}
-                    text={announcementText}
-                    minColumns={announcementMinColumns}
-                    maxColumns={announcementMaxColumns}
-                  />
+                  {hasAnnouncement ? (
+                    <AnnouncementCard
+                      span={frontCenterSpan}
+                      post={announcementPost}
+                      title={announcementTitle}
+                      subtitle=""
+                      content={announcementDisplayContent}
+                      text={announcementText}
+                      minColumns={announcementMinColumns}
+                      maxColumns={announcementMaxColumns}
+                    />
+                  ) : null}
                   <ShoggothsAlbumCard span={frontRightSpan} />
                   <LatestCommentsCard span={frontLeftSpan} items={latestComments} />
                 </>
               ) : (
                 <>
-                  <AnnouncementCard
-                    span={frontFallbackHeroSpan}
-                    post={announcementPost}
-                    title={announcementTitle}
-                    subtitle=""
-                    content={announcementDisplayContent}
-                    text={announcementText}
-                    minColumns={announcementMinColumns}
-                    maxColumns={announcementMaxColumns}
-                  />
+                  {hasAnnouncement ? (
+                    <AnnouncementCard
+                      span={frontFallbackHeroSpan}
+                      post={announcementPost}
+                      title={announcementTitle}
+                      subtitle=""
+                      content={announcementDisplayContent}
+                      text={announcementText}
+                      minColumns={announcementMinColumns}
+                      maxColumns={announcementMaxColumns}
+                    />
+                  ) : null}
                   {frontFallbackSideSpan && frontRightPost ? (
                     <ShoggothsAlbumCard span={frontFallbackSideSpan} />
                   ) : null}
