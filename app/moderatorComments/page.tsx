@@ -2,6 +2,9 @@ import React from "react";
 import ModeratorComments from '@/components/comments/ModeratorComments';
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+import { getPageTitleFields, mergeMetadata, noIndexMetadata } from "@/server/pageMetadata/sharedMetadata";
+
+export const generateMetadata = () => mergeMetadata(getPageTitleFields("Moderator Comments"));
 
 assertRouteAttributes("/moderatorComments", {
   whiteBackground: false,

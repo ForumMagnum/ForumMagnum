@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import { tagPostTerms } from './TagPageUtils';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useTracking } from "../../lib/analyticsEvents";
@@ -44,7 +44,7 @@ const NewTagItem = ({tag}: {
   tag: TagCreationHistoryFragment,
 }) => {
   const classes = useStyles(styles);
-  const tagUrl = tagGetUrl(tag);
+  const tagUrl = tagGetPageUrl(tag);
   const [truncated, setTruncated] = useState(true);
   const { captureEvent } =  useTracking()
   

@@ -12,7 +12,7 @@ assertRouteAttributes("/revisions/post/[_id]/[slug]", {
   hasMarkdownVersion: false,
 });
 
-export const generateMetadata = getPostPageMetadataFunction<{ _id: string; slug: string }>(({ _id }) => _id);
+export const generateMetadata = getPostPageMetadataFunction<{ _id: string; slug: string }>(({ _id }) => ({_id}));
 
 export default async function Page({ params }: {
   params: Promise<{ _id: string; slug: string }>

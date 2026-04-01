@@ -1,5 +1,5 @@
 import React from "react";
-import { tagGetUrl } from "../../../lib/collections/tags/helpers";
+import { tagGetPageUrl } from "../../../lib/collections/tags/helpers";
 import ContentExcerpt, { CommonExcerptProps } from "./ContentExcerpt";
 
 type ExcerptableTag =
@@ -32,7 +32,7 @@ const TagExcerpt = ({
   return (
     <ContentExcerpt
       contentHtml={contentHtml}
-      moreLink={tagGetUrl(tag)}
+      moreLink={tagGetPageUrl(tag)}
       contentType="tag"
       {...commonExcerptProps}
     />

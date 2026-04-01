@@ -234,7 +234,7 @@ const SharePostPopup = ({post, onClose}: {
     };
   }, []);
 
-  const postUrl = (source: string) => `${postGetPageUrl(post, true)}?utm_campaign=publish_share&utm_source=${source}`
+  const postUrl = (source: string) => `${postGetPageUrl(post, { isAbsolute: true })}?utm_campaign=publish_share&utm_source=${source}`
 
   const copyLink = () => {
     captureEvent("sharePost", { pageElementContext: 'sharePostPopup', postId: post._id, option: "copyLink" });

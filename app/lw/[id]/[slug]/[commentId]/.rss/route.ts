@@ -35,7 +35,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   if (post && comment) {
     redirect(commentGetRSSUrl(comment, true));
   } else if (post) {
-    redirect(postGetPageUrl(post, true));
+    redirect(postGetPageUrl(post, { isAbsolute: true }));
   } else {
     return new Response(`No post or comment found with: id=${id} commentId=${commentId}`, { status: 404 });
   }

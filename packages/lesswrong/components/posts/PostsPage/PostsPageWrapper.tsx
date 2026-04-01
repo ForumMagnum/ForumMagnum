@@ -1,3 +1,4 @@
+"use client";
 import React, { useCallback } from 'react';
 import { isMissingDocumentError, isOperationNotAllowedError } from '../../../lib/utils/errorUtil';
 import { useApolloClient } from '@apollo/client/react';
@@ -10,6 +11,8 @@ import Loading from "../../vulcan-core/Loading";
 import { PostsListWithVotes } from '@/lib/collections/posts/fragments';
 import { SequencesPageFragment } from '@/lib/collections/sequences/fragments';
 import { StatusCodeSetter } from '@/components/next/StatusCodeSetter';
+import { useLocation } from '@/lib/routeUtil';
+import PermanentRedirect from '@/components/common/PermanentRedirect';
 
 const PostsWithNavigationAndRevisionQuery = gql(`
   query PostsPageWrapper1($documentId: String, $sequenceId: String, $version: String) {
@@ -31,7 +34,23 @@ const PostsWithNavigationQuery = gql(`
   }
 `);
 
-const PostsPageWrapper = ({ sequenceId, version, documentId, embedded }: {
+const PostsPageWrapper = ({ sequenceId, version, documentId, embedded, redirectBehavior, canonicalUrl }: {
+  sequenceId: string|null,
+  version?: string,
+  documentId: string,
+  embedded?: boolean,
+  redirectBehavior: "redirectToCanonical" | "noRedirect",
+  canonicalUrl?: string,
+}) => {
+  const { pathname } = useLocation();
+  if (redirectBehavior === "redirectToCanonical" && canonicalUrl && canonicalUrl !== pathname && !embedded) {
+    return <PermanentRedirect url={canonicalUrl} />
+  } else {
+    return <PostsPageWrapperInner sequenceId={sequenceId} version={version} documentId={documentId} embedded={embedded} />
+  }
+}
+
+const PostsPageWrapperInner = ({ sequenceId, version, documentId, embedded }: {
   sequenceId: string|null,
   version?: string,
   documentId: string,

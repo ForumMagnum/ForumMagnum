@@ -12,7 +12,7 @@ import { isProduction } from '../../lib/executionEnvironment';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { createManifoldMarket } from '../../lib/collections/posts/annualReviewMarkets';
 import { revokeUserAFKarmaForCancelledVote, grantUserAFKarmaForVote } from './alignment-forum/callbacks';
-import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { tagGetPageUrl } from '@/lib/collections/tags/helpers';
 import { updatePostDenormalizedTags } from '../tagging/helpers';
 import { recomputeContributorScoresFor } from '../utils/contributorsUtil';
 import { userGetGroups } from '@/lib/vulcan-users/permissions';
@@ -300,8 +300,8 @@ async function maybeCreateReviewMarket({newDocument, vote}: VoteDocTuple, collec
   if (post.postedAt.getFullYear() < (new Date()).getFullYear() - 1) return; // only make markets for posts that haven't had a chance to be reviewed
   if (post.manifoldReviewMarketId) return;
 
-  const annualReviewLink = tagGetUrl({slug: 'lesswrong-review'}, {}, true)
-  const postLink = postGetPageUrl(post, true)
+  const annualReviewLink = tagGetPageUrl({slug: 'lesswrong-review'}, { isAbsolute: true })
+  const postLink = postGetPageUrl(post, { isAbsolute: true })
 
   const year = post.postedAt.getFullYear()
   const initialProb = 14

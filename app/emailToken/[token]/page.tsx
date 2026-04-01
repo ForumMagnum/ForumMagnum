@@ -2,6 +2,9 @@ import React from "react";
 import EmailTokenPage from '@/components/users/EmailTokenPage';
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+import { getPageTitleFields, mergeMetadata } from "@/server/pageMetadata/sharedMetadata";
+
+export const generateMetadata = () => mergeMetadata(getPageTitleFields("Email"));
 
 assertRouteAttributes("/emailToken/[token]", {
   whiteBackground: false,

@@ -85,7 +85,7 @@ const PostsPageRecommendationItem = ({post, disableAnalytics, className}: {
   className?: string,
 }) => {
   const classes = useStyles(styles);
-  const postLink = postGetPageUrl(post, false, post.canonicalSequence?._id);
+  const postLink = postGetPageUrl(post, { isAbsolute: false });
   const {onClick: onClickCell} = useClickableCell({href: postLink});
   const {ref, onClick} = useRecommendationAnalytics(
     post._id,

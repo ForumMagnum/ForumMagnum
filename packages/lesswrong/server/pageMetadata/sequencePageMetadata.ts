@@ -9,10 +9,11 @@ import { makeCloudinaryImageUrl } from "@/components/common/cloudinaryHelpers";
 import { runQuery } from "@/server/vulcan-lib/query";
 
 const SequenceMetadataQuery = gql(`
-  query SequenceMetadata($sequenceId: String) {
-    sequence(selector: { _id: $sequenceId }) {
+  query SequenceMetadata($idOrSlug: String) {
+    sequence(selector: { idOrSlug: $idOrSlug }) {
       result {
         _id
+        slug
         title
         bannerImageId
         gridImageId
@@ -35,7 +36,7 @@ export async function generateSequencePageMetadata({ params, searchParams }: {
   try {
     const { data } = await runQuery(
       SequenceMetadataQuery,
-      { sequenceId: _id },
+      { idOrSlug: _id },
       resolverContext
     );
 
@@ -45,8 +46,8 @@ export async function generateSequencePageMetadata({ params, searchParams }: {
 
     const titleFields = getPageTitleFields(sequence.title);
 
-    const ogUrl = combineUrls(getSiteUrl(), `/s/${_id}`);
-    const canonicalUrl = sequenceGetPageUrl({ _id }, true);
+    const canonicalUrl = sequenceGetPageUrl(sequence, { isAbsolute: true });
+    const ogUrl = combineUrls(getSiteUrl(), canonicalUrl);
 
     const socialImageId = sequence.gridImageId || sequence.bannerImageId;
     const socialImageUrl = socialImageId ? makeCloudinaryImageUrl(socialImageId, {

@@ -37,12 +37,12 @@ export const SequenceNewPostsEmail = ({sequence, posts, emailContext}: {
   return <div className={classes.root}>
     {imgUrl && <img src={imgUrl} className={classes.img} />}
     <p>
-      The following posts have been added to <a href={sequenceGetPageUrl(sequence, true)}>{sequence.title}</a>:
+      The following posts have been added to <a href={sequenceGetPageUrl(sequence, { isAbsolute: true })}>{sequence.title}</a>:
     </p>
     <ul>
       {posts.map(post => {
         return <li key={post._id}>
-          <a href={postGetPageUrl(post, true)}>{post.title}</a>
+          <a href={postGetPageUrl(post, { isAbsolute: true })}>{post.title}</a>
         </li>
       })}
     </ul>

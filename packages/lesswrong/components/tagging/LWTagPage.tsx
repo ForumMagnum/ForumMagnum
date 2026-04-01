@@ -5,7 +5,7 @@ import React, { FC, Fragment, useCallback, useEffect, useRef, useState } from 'r
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from "../../lib/betas";
 import { subscriptionTypes } from '../../lib/collections/subscriptions/helpers';
-import { tagGetUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl, getTagMinimumKarmaPermissions, tagUserHasSufficientKarma, isTagAllowedType3Audio } from '../../lib/collections/tags/helpers';
 import { truncate } from '../../lib/editor/ellipsize';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -434,7 +434,7 @@ let currentPathId: string | null = null;
 
 function startPath() {
   if (currentPathId) {
-    window.location.href = tagGetUrl({slug: currentPathId}) + `/?startPath`;
+    window.location.href = tagGetPageUrl({slug: currentPathId}) + `/?startPath`;
   }
 }
 
@@ -698,7 +698,7 @@ const LWTagPage = ({slug}: {slug: string}) => {
       return <Loading/>
     }
     if (lens?.parentTag) {
-      const baseTagUrl = tagGetUrl(lens.parentTag);
+      const baseTagUrl = tagGetPageUrl(lens.parentTag);
       const newQuery = {
         ...query,
         lens: lens.slug,
@@ -713,7 +713,7 @@ const LWTagPage = ({slug}: {slug: string}) => {
 
   // If the slug in our URL is not the same as the slug on the tag, redirect to the canonical slug page
   if (tag.oldSlugs?.filter(slug => slug !== tag.slug)?.includes(slug)) {
-    const baseTagUrl = tagGetUrl(tag);
+    const baseTagUrl = tagGetPageUrl(tag);
     const queryString = !isEmpty(query) ? `?${qs.stringify(query)}` : '';
     return <PermanentRedirect url={`${baseTagUrl}${queryString}`} />
   }
@@ -746,7 +746,7 @@ const LWTagPage = ({slug}: {slug: string}) => {
     ? (
       <div className={classNames(classes.subHeading,classes.centralColumn)}>
         <div className={classes.subHeadingInner}>
-          {tag.parentTag && <div className={classes.relatedTag}>Parent Wikitag: <Link className={classes.relatedTagLink} to={tagGetUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
+          {tag.parentTag && <div className={classes.relatedTag}>Parent Wikitag: <Link className={classes.relatedTagLink} to={tagGetPageUrl(tag.parentTag)}>{tag.parentTag.name}</Link></div>}
           {/* For subtags it would be better to:
               - put them at the bottom of the page
               - truncate the list
@@ -755,7 +755,7 @@ const LWTagPage = ({slug}: {slug: string}) => {
           {tag.subTags.length ? <div className={classes.relatedTag}><span>Sub-{tag.subTags.length > 1 ? "Wikitags" : "Wikitag"}:&nbsp;{
               tag.subTags.map((subTag, idx) => {
               return <Fragment key={idx}>
-                <Link className={classes.relatedTagLink} to={tagGetUrl(subTag)}>{subTag.name}</Link>
+                <Link className={classes.relatedTagLink} to={tagGetPageUrl(subTag)}>{subTag.name}</Link>
                 {idx < tag.subTags.length - 1 ? <>,&nbsp;</>: <></>}
               </Fragment>
             })}</span>
@@ -882,11 +882,11 @@ const LWTagPage = ({slug}: {slug: string}) => {
         </Link>
         {nextTag && <span onClick={() => setEditing(true)}><Link
           className={classes.nextLink}
-          to={tagGetUrl(nextTag, {flagId: query.flagId, edit: true})}>
+          to={tagGetPageUrl(nextTag, {flagId: query.flagId, edit: true})}>
             Next Tag ({nextTag.name})
         </Link></span>}
       </span>}
-      {revision && <Link to={tagGetUrl(tag, {lens: selectedLens?.slug})} className={classes.revisionNotice}>
+      {revision && <Link to={tagGetPageUrl(tag, {lens: selectedLens?.slug})} className={classes.revisionNotice}>
         <HistoryIcon className={classes.historyIcon} />
         You are viewing version {revision} of this page.
         Click here to view the latest version.

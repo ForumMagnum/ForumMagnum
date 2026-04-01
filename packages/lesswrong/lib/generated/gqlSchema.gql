@@ -21,6 +21,13 @@ input SelectorInput {
   documentId: String
 }
 
+input SelectorInputWithSlug {
+  _id: String
+  documentId: String
+  slug: String
+  idOrSlug: String
+}
+
 input EmptyViewInput {
   _: Boolean @deprecated(reason: "GraphQL doesn't support empty input types, so we need to provide a field.  Don't pass anything in, it doesn't do anything.")
 }
@@ -1676,6 +1683,7 @@ type Chapter {
   subtitle: String
   number: Float
   sequenceId: String
+  sequenceSlug: String
   sequence: Sequence
   postIds: [String!]!
   posts: [Post!]!
@@ -1829,7 +1837,7 @@ type Collection {
 }
 
 input SingleCollectionInput {
-  selector: SelectorInput
+  selector: SelectorInputWithSlug
   resolverArgs: JSON
 }
 
@@ -1858,7 +1866,7 @@ type MultiCollectionOutput {
 }
 
 extend type Query {
-  collection(input: SingleCollectionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleCollectionOutput
+  collection(input: SingleCollectionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInputWithSlug): SingleCollectionOutput
   collections(input: MultiCollectionInput @deprecated(reason: "Use the selector field instead"), selector: CollectionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiCollectionOutput
 }
 
@@ -3578,7 +3586,7 @@ enum MultiDocumentFieldName {
 }
 
 input SingleMultiDocumentInput {
-  selector: SelectorInput
+  selector: SelectorInputWithSlug
   resolverArgs: JSON
 }
 
@@ -3625,7 +3633,7 @@ type MultiMultiDocumentOutput {
 }
 
 extend type Query {
-  multiDocument(input: SingleMultiDocumentInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleMultiDocumentOutput
+  multiDocument(input: SingleMultiDocumentInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInputWithSlug): SingleMultiDocumentOutput
   multiDocuments(input: MultiMultiDocumentInput @deprecated(reason: "Use the selector field instead"), selector: MultiDocumentSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiMultiDocumentOutput
 }
 
@@ -3947,6 +3955,7 @@ type Post {
   customHighlight(version: String): Revision
   customHighlight_latest: String
   slug: String!
+  oldSlugs: [String!]!
   postedAt: Date!
   modifiedAt: Date
   url: String
@@ -3968,7 +3977,8 @@ type Post {
   user: User
   domain: String
   pageUrl: String!
-  pageUrlRelative: String
+  pageUrlRelative: String!
+  overridePageUrl: String
   linkUrl: String
   postedAtFormatted: String
   emailShareUrl: String
@@ -4189,7 +4199,7 @@ enum PostCategory {
 }
 
 input SinglePostInput {
-  selector: SelectorInput
+  selector: SelectorInputWithSlug
   resolverArgs: JSON
   allowNull: Boolean
 }
@@ -5753,7 +5763,7 @@ type MultiPostOutput {
 }
 
 extend type Query {
-  post(input: SinglePostInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput, allowNull: Boolean): SinglePostOutput
+  post(input: SinglePostInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInputWithSlug, allowNull: Boolean): SinglePostOutput
   posts(input: MultiPostInput @deprecated(reason: "Use the selector field instead"), selector: PostSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiPostOutput
 }
 
@@ -6164,11 +6174,15 @@ type Sequence {
   schemaVersion: Float!
   createdAt: Date!
   legacyData: JSON
-  contents(version: String): Revision
+  contents: Revision
   contents_latest: String
   lastUpdated: Date!
   userId: String!
   user: User
+  slug: String!
+  oldSlugs: [String!]!
+  pageUrl: String!
+  pageUrlRelative: String!
   title: String!
   bannerImageId: String
   gridImageId: String
@@ -6188,7 +6202,7 @@ type Sequence {
 }
 
 input SingleSequenceInput {
-  selector: SelectorInput
+  selector: SelectorInputWithSlug
   resolverArgs: JSON
   allowNull: Boolean
 }
@@ -6248,7 +6262,7 @@ type MultiSequenceOutput {
 }
 
 extend type Query {
-  sequence(input: SingleSequenceInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput, allowNull: Boolean): SingleSequenceOutput
+  sequence(input: SingleSequenceInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInputWithSlug, allowNull: Boolean): SingleSequenceOutput
   sequences(input: MultiSequenceInput @deprecated(reason: "Use the selector field instead"), selector: SequenceSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSequenceOutput
 }
 
@@ -6496,7 +6510,7 @@ type TagFlag {
 }
 
 input SingleTagFlagInput {
-  selector: SelectorInput
+  selector: SelectorInputWithSlug
   resolverArgs: JSON
 }
 
@@ -6522,7 +6536,7 @@ type MultiTagFlagOutput {
 }
 
 extend type Query {
-  tagFlag(input: SingleTagFlagInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleTagFlagOutput
+  tagFlag(input: SingleTagFlagInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInputWithSlug): SingleTagFlagOutput
   tagFlags(input: MultiTagFlagInput @deprecated(reason: "Use the selector field instead"), selector: TagFlagSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiTagFlagOutput
 }
 
@@ -6685,7 +6699,7 @@ type Tag {
 }
 
 input SingleTagInput {
-  selector: SelectorInput
+  selector: SelectorInputWithSlug
   resolverArgs: JSON
 }
 
@@ -6821,7 +6835,7 @@ type MultiTagOutput {
 }
 
 extend type Query {
-  tag(input: SingleTagInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleTagOutput
+  tag(input: SingleTagInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInputWithSlug): SingleTagOutput
   tags(input: MultiTagInput @deprecated(reason: "Use the selector field instead"), selector: TagSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiTagOutput
 }
 
@@ -7452,7 +7466,7 @@ type MultiUserOutput {
 }
 
 extend type Query {
-  user(input: SingleUserInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUserOutput
+  user(input: SingleUserInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInputWithSlug): SingleUserOutput
   users(input: MultiUserInput @deprecated(reason: "Use the selector field instead"), selector: UserSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserOutput
 }
 
@@ -8272,6 +8286,7 @@ input CreatePostDataInput {
   sticky: Boolean
   stickyPriority: Int
   userId: String
+  overridePageUrl: String
   question: Boolean
   authorIsUnreviewed: Boolean
   readTimeMinutesOverride: Float
@@ -8388,6 +8403,7 @@ input UpdatePostDataInput {
   sticky: Boolean
   stickyPriority: Int
   userId: String
+  overridePageUrl: String
   question: Boolean
   authorIsUnreviewed: Boolean
   readTimeMinutesOverride: Float
@@ -8620,6 +8636,7 @@ input CreateSequenceDataInput {
   contents: CreateRevisionDataInput
   lastUpdated: Date
   userId: String
+  slug: String
   title: String!
   bannerImageId: String
   gridImageId: String
@@ -8643,6 +8660,7 @@ input UpdateSequenceDataInput {
   contents: CreateRevisionDataInput
   lastUpdated: Date
   userId: String
+  slug: String
   title: String
   bannerImageId: String
   gridImageId: String

@@ -10,8 +10,8 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { useStyles } from '../hooks/useStyles';
 
 const SequencesPageTitleFragmentQuery = gql(`
-  query SequencesPageTitle($documentId: String) {
-    sequence(input: { selector: { documentId: $documentId } }, allowNull: true) {
+  query SequencesPageTitle($idOrSlug: String) {
+    sequence(input: { selector: { idOrSlug: $idOrSlug } }, allowNull: true) {
       result {
         ...SequencesPageTitleFragment
       }
@@ -25,7 +25,7 @@ export const SequencesPageSubtitle = () => {
   const { params: {_id} } = useLocation();
   
   const { loading, data } = useQuery(SequencesPageTitleFragmentQuery, {
-    variables: { documentId: _id },
+    variables: { idOrSlug: _id },
     fetchPolicy: 'cache-first',
   });
   const sequence = data?.sequence?.result;

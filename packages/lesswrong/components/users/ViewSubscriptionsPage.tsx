@@ -4,7 +4,7 @@ import React from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import {
   allowSubscribeToSequencePosts,
   allowSubscribeToUserComments,
@@ -175,7 +175,7 @@ const ViewSubscriptionsList = ({currentUser}: {
         subscriptionType="newTagPosts"
         query={subscribedTagQuery}
         extractDocument={(data) => data?.tag?.result}
-        renderDocument={(tag) => <Link to={tagGetUrl(tag)}>{tag.name}</Link>}
+        renderDocument={(tag) => <Link to={tagGetPageUrl(tag)}>{tag.name}</Link>}
         subscriptionTypeDescription="You will be notified when posts have these tags added"
       />
 

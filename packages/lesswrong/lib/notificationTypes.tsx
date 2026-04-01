@@ -8,7 +8,7 @@ import startCase from 'lodash/startCase';
 import { userGetDisplayName } from './collections/users/helpers'
 import { Link } from './reactRouterWrapper';
 import { sequenceGetPageUrl } from './collections/sequences/helpers';
-import { tagGetUrl } from './collections/tags/helpers';
+import { tagGetPageUrl } from './collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
 import { NotificationChannel } from "./collections/users/notificationFieldHelpers";
 import keyBy from 'lodash/keyBy';
@@ -385,7 +385,7 @@ export const NewSequencePostsNotification = createNotificationType({
     return `Posts added to ${sequence.title}`
   },
   getLink({documentId}) {
-    return documentId ? sequenceGetPageUrl({_id: documentId}) : "#";
+    return documentId ? `/s/${documentId}` : "#";
   },
   Display: ({Sequence}) => <>Posts added to <Sequence /></>,
 });
@@ -587,7 +587,7 @@ export const KarmaPowersGainedNotification = createNotificationType({
     return "Your votes are stronger because your karma went up!"
   },
   getLink() {
-    return tagGetUrl({slug: 'vote-strength'});
+    return tagGetPageUrl({slug: 'vote-strength'});
   },
 })
 export const CancelledRSVPNotification = createNotificationType({

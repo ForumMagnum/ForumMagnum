@@ -1,5 +1,4 @@
 import React from "react";
-import type { UsePostsItem } from "./usePostsItem";
 import ArchiveIcon from "@/lib/vendor/@material-ui/icons/src/Archive";
 import UnarchiveIcon from "@/lib/vendor/@material-ui/icons/src/Unarchive";
 import CloseIcon from "@/lib/vendor/@material-ui/icons/src/Close";
@@ -7,6 +6,7 @@ import { useCurrentUser } from "../common/withUser";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import LWTooltip from "../common/LWTooltip";
 import PostActionsButton from "../dropdowns/posts/PostActionsButton";
+import type { PostsItemConfig } from "./postsItemHelpers";
 
 export const MENU_WIDTH = 18;
 
@@ -49,20 +49,19 @@ const styles = defineStyles("PostsItemTrailingButtons", (theme: ThemeType) => ({
   },
 }));
 
-type PostsItemTrailingButtonsProps = Pick<
-  UsePostsItem,
-  "post" |
-  "showTrailingButtons" |
-  "showMostValuableCheckbox" |
-  "showDismissButton" |
-  "showArchiveButton" |
-  "resumeReading" |
-  "onDismiss" |
-  "onArchive"
->;
+type PostsItemTrailingButtonsProps = {
+  post: PostsItemConfig["post"],
+  showTrailingButtons: boolean,
+  showMostValuableCheckbox: boolean,
+  showDismissButton: boolean,
+  showArchiveButton: boolean,
+  resumeReading?: PostsItemConfig["resumeReading"],
+  onDismiss?: () => void,
+  onArchive?: () => void,
+};
 
 export const DismissButton = ({ onDismiss }: {
-  onDismiss: () => void
+  onDismiss?: () => void
 }) => {
   const classes = useStyles(styles);
   return <LWTooltip title={dismissRecommendationTooltip} placement="right">
@@ -88,10 +87,10 @@ const PostsItemTrailingButtons = ({
   return (
     <>
       <div className={classes.actions}>
-        {showDismissButton && <DismissButton {...{showDismissButton, onDismiss}} />}
+        {showDismissButton && onDismiss && <DismissButton onDismiss={onDismiss} />}
         {!resumeReading && currentUser && <PostActionsButton post={post} vertical autoPlace />}
       </div>
-      {showArchiveButton && <div className={classes.archiveButton}>
+      {showArchiveButton && onArchive && <div className={classes.archiveButton}>
         { post.deletedDraft ?
             <LWTooltip title={restoreDraftTooltip} placement="right">
               <UnarchiveIcon onClick={onArchive} />

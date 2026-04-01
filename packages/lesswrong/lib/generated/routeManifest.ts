@@ -902,6 +902,14 @@ export const routeTrie = {
     "out": {
       "hasRoute": true
     },
+    "p": {
+      "dynamicChild": {
+        "paramName": "slug",
+        "child": {
+          "hasPage": true
+        }
+      }
+    },
     "pastEvents": {
       "hasPage": true
     },
@@ -930,9 +938,6 @@ export const routeTrie = {
       }
     },
     "petrovDayPoll": {
-      "hasPage": true
-    },
-    "petroyDayPoll": {
       "hasPage": true
     },
     "postAnalytics": {
@@ -1284,11 +1289,11 @@ export const routeTrie = {
     "nominations": "nominations",
     "oauth": "oauth",
     "out": "out",
+    "p": "p",
     "pastevents": "pastEvents",
     "payments": "payments",
     "petrov": "petrov",
     "petrovdaypoll": "petrovDayPoll",
-    "petroydaypoll": "petroyDayPoll",
     "postanalytics": "postAnalytics",
     "posts": "posts",
     "postswithapprovedjargon": "postsWithApprovedJargon",

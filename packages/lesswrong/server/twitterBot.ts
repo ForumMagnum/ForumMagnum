@@ -45,7 +45,7 @@ async function writeTweet(post: DbPost): Promise<string> {
     ? preUrlPart.substring(0, TWEET_MAX_LENGTH - URL_LENGTH - 3) + "..."
     : preUrlPart;
 
-  return `${truncatedPreUrlPart}\n${postGetPageUrl(post, true)}`;
+  return `${truncatedPreUrlPart}\n${postGetPageUrl(post, { isAbsolute: true })}`;
 }
 
 async function postTweet(content: string) {

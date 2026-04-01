@@ -1,8 +1,8 @@
 import React from "react";
-import SequencesPost from '@/components/sequences/SequencesPost';
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+import { PostsSingle, type PostPageSearchParams } from "@/components/posts/PostsSingle";
 
 assertRouteAttributes("/s/[_id]/p/[postId]", {
   whiteBackground: true,
@@ -12,13 +12,14 @@ assertRouteAttributes("/s/[_id]/p/[postId]", {
   hasMarkdownVersion: true,
 });
 
-export const generateMetadata = getPostPageMetadataFunction<{ _id: string; postId: string }>(({ postId }) => postId);
+export const generateMetadata = getPostPageMetadataFunction<{ _id: string; postId: string }>(({ postId }) => ({idOrSlug: postId}));
 
-export default async function Page({ params }: {
+export default async function Page({ params, searchParams }: {
   params: Promise<{ _id: string; postId: string }>
+  searchParams: Promise<PostPageSearchParams>
 }) {
   const { _id, postId } = await params;
   return <RouteRoot>
-    <SequencesPost postId={postId} sequenceId={_id} />
+    <PostsSingle idOrSlug={postId} sequenceId={_id} searchParams={searchParams} redirectBehavior="noRedirect" />
   </RouteRoot>;
 }

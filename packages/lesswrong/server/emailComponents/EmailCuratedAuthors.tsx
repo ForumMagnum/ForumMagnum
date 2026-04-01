@@ -31,7 +31,7 @@ export const EmailCuratedAuthors = ({ user, post, emailContext }: {
       </p>
       <p>
         Thank you for contributing to the EA Forum!
-        We were impressed with your post, <a href={postGetPageUrl(post, true)} className={classes.link}>{post.title}</a>,
+        We were impressed with your post, <a href={postGetPageUrl(post, { isAbsolute: true })} className={classes.link}>{post.title}</a>,
         and are excited to let you know that <strong>we’ve decided to curate it</strong>. ⭐️
         Curated posts are pinned to the top of the Forum frontpage so that they can be viewed more widely,
         and are included in our <a href="https://forum.effectivealtruism.org/recommendations" className={classes.link}>list of curated posts</a>.

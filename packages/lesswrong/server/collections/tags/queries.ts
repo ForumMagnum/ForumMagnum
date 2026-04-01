@@ -9,7 +9,7 @@ export const graphqlTagQueryTypeDefs = gql`
   type Tag ${ getAllGraphQLFields(schema) }
   
   input SingleTagInput {
-    selector: SelectorInput
+    selector: SelectorInputWithSlug
     resolverArgs: JSON
   }
   
@@ -147,7 +147,7 @@ export const graphqlTagQueryTypeDefs = gql`
   extend type Query {
     tag(
       input: SingleTagInput @deprecated(reason: "Use the selector field instead"),
-      selector: SelectorInput
+      selector: SelectorInputWithSlug
     ): SingleTagOutput
     tags(
       input: MultiTagInput @deprecated(reason: "Use the selector field instead"),

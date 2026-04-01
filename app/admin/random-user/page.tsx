@@ -1,14 +1,11 @@
 import React from "react";
 import RandomUserPage from '@/components/admin/RandomUserPage';
-import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata, getPageTitleFields, mergeMetadata } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
-import merge from "lodash/merge";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
-export async function generateMetadata(): Promise<Metadata> {
-  return merge({}, await getDefaultMetadata(), getPageTitleFields('Random User'));
-}
+export const generateMetadata = (): Metadata => mergeMetadata(getPageTitleFields('Random User'));
 
 assertRouteAttributes("/admin/random-user", {
   whiteBackground: false,

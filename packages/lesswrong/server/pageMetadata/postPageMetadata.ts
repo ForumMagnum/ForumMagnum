@@ -8,10 +8,11 @@ import { getPostDescription } from "@/components/posts/PostsPage/structuredData"
 import { notFound } from "next/navigation";
 import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { runQuery } from "../vulcan-lib/query";
+import { slugLooksLikeId } from "@/lib/utils/slugify";
 
 const PostMetadataQuery = gql(`
-  query PostMetadata($postId: String) {
-    post(selector: { _id: $postId }) {
+  query PostMetadata($selector: SelectorInputWithSlug) {
+    post(selector: $selector) {
       result {
         _id
         title
@@ -79,27 +80,19 @@ interface PostPageMetadataOptions {
   noIndex?: boolean;
 }
 
-export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (params: Params) => string, options?: PostPageMetadataOptions) {
+export function getPostPageMetadataFunction<Params>(paramsToSelectorConverter: (params: Params) => SelectorInputWithSlug, options?: PostPageMetadataOptions) {
   return async function generateMetadata({ params, searchParams }: { params: Promise<Params>, searchParams: Promise<{ commentId?: string }> }): Promise<Metadata> {
     const [paramValues, searchParamsValues, defaultMetadata] = await Promise.all([params, searchParams, getDefaultMetadata()]);
 
-    const postId = paramsToPostIdConverter(paramValues);
+    const selector = paramsToSelectorConverter(paramValues);
     const commentId = searchParamsValues.commentId;
     const resolverContext = await getResolverContextForGenerateMetadata(searchParamsValues);
 
     try {
       const [{ data: postData }, { data: commentData }] = await Promise.all([
-        runQuery(
-          PostMetadataQuery,
-          { postId },
-          resolverContext
-        ),
+        runQuery(PostMetadataQuery, { selector }, resolverContext),
         commentId
-          ? runQuery(
-              CommentPermalinkMetadataQuery,
-              { commentId },
-              resolverContext
-            )
+          ? runQuery(CommentPermalinkMetadataQuery, { commentId }, resolverContext)
           : { data: null },
       ]);
   
@@ -112,7 +105,7 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
         ? getCommentDescription(comment)
         : getPostDescription(post) ?? defaultMetadata.description;
   
-      const ogUrl = postGetPageUrl(post, true);
+      const ogUrl = postGetPageUrl(post, { isAbsolute: true });
       const canonicalUrl = post.canonicalSource ?? ogUrl;
       const socialPreviewImageUrl = getSocialPreviewImageUrl(post);
       const postNoIndex = post.noIndex || post.rejected || (post.baseScore <= 0 && isEAForum());
@@ -140,4 +133,8 @@ export function getPostPageMetadataFunction<Params>(paramsToPostIdConverter: (pa
       return handleMetadataError('Error generating post page metadata', error);
     }
   }
+}
+
+export function getMetadataForPostPageWithFixedId(getId: () => string) {
+  return getPostPageMetadataFunction<{}>(() => ({_id: getId()}));
 }

@@ -6,7 +6,7 @@ import classNames from 'classnames';
 import { useRecordPostView } from '../hooks/useRecordPostView';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
-import { KARMA_WIDTH } from './LWPostsItem';
+import { KARMA_WIDTH } from './PostsItem';
 import KarmaDisplay from "../common/KarmaDisplay";
 import PostsTitle from "./PostsTitle";
 import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
@@ -152,7 +152,7 @@ const PostsItemIntroSequence = ({
 }) => {
   const classes = useStyles(styles);
   const { isRead } = useRecordPostView(post);
-  const postLink = postGetPageUrl(post, false, sequence?._id);
+  const postLink = postGetPageUrl(post, { isAbsolute: false, sequenceSlug: sequence?.slug });
 
   return (
     <AnalyticsContext pageElementContext="postItem" postId={post._id}>

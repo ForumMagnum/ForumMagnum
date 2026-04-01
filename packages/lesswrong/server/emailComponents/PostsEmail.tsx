@@ -155,7 +155,7 @@ export async function PostsEmail({
       <React.Fragment key={post._id}>
         <div className={classes.heading}>
           <h1>
-            <a href={postGetPageUrl(post, true)} className={classes.headingLink}>
+            <a href={postGetPageUrl(post, { isAbsolute: true })} className={classes.headingLink}>
               {post.title}
             </a>
           </h1>
@@ -198,7 +198,7 @@ export async function PostsEmail({
           </EmailContentStyles>
         )}
 
-        <a href={postGetPageUrl(post, true)}>{truncated ? "Read full post" : "Discuss"}</a>
+        <a href={postGetPageUrl(post, { isAbsolute: true })}>{truncated ? "Read full post" : "Discuss"}</a>
         <hr className={classes.hr} />
       </React.Fragment>
     );

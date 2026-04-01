@@ -22,3 +22,7 @@ export const slugify = function (s: string): string {
 
   return slug;
 };
+
+export function slugLooksLikeId(slug: string): boolean {
+  return !slug.includes('-') && !slug.includes('_') && (slug.length === 17 || slug.length === 24);
+}

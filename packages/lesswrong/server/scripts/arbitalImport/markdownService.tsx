@@ -18,7 +18,7 @@ import { convertImagesInHTML } from '../convertImagesToCloudinary';
 import { ConditionalVisibilitySettings, isConditionallyVisibleBlockVisibleByDefault } from '@/components/editor/conditionalVisibilityBlock/conditionalVisibility';
 import { escapeHtml } from './util';
 import orderBy from 'lodash/orderBy';
-import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { tagGetPageUrl } from '@/lib/collections/tags/helpers';
 import { slugify } from '@/lib/utils/slugify';
 import classNames from 'classnames';
 import { randomId } from '@/lib/random';
@@ -1096,7 +1096,7 @@ function pathToCtaButton(path: PathType, conversionContext: ArbitalConversionCon
   //const url = `/p/${slugs[0]}?path=${slugs.join(",")}`;*/
   
   // Version where URL uses Arbital path ID, which hackily maps to a hardcoded list of pages
-  const url = tagGetUrl({slug: slugs[0]}, {pathId});
+  const url = tagGetPageUrl({slug: slugs[0]}, {pathId});
   
   return `<a class="ck-cta-button" href="${url}">Start Reading</a>`;
 }

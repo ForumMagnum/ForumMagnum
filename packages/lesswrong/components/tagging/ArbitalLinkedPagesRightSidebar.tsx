@@ -2,7 +2,7 @@ import React, { useState, FC } from 'react';
 import type { TagLens } from '@/lib/arbital/useTagLenses';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import classNames from 'classnames';
-import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { tagGetPageUrl } from '@/lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import { SideItemsSidebar } from "../contents/SideItems";
@@ -240,7 +240,7 @@ const LinkedPageDisplay = ({linkedPage, className}: {linkedPage: ArbitalLinkedPa
   const classes = useStyles(styles);
   return <div key={linkedPage.slug} className={classNames(classes.linkedTag, className)}>
     <TagsTooltip placement="left" tagSlug={linkedPage.slug}>
-      <Link to={tagGetUrl(linkedPage)}>{linkedPage.name}</Link>
+      <Link to={tagGetPageUrl(linkedPage)}>{linkedPage.name}</Link>
     </TagsTooltip>
   </div>
 }
@@ -268,7 +268,7 @@ export const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages, selectedLen
               {requirements.map((req: ArbitalLinkedPage, i: number) => (
                 <span key={req.slug} className={classes.spaceAfterWord}>
                   <TagsTooltip tagSlug={req.slug}>
-                    <Link to={tagGetUrl(req)}>{req.name}</Link>
+                    <Link to={tagGetPageUrl(req)}>{req.name}</Link>
                   </TagsTooltip>
                   {i < requirements.length - 1 && ', '}
                 </span>
@@ -281,7 +281,7 @@ export const ArbitalRelationshipsSmallScreen = ({arbitalLinkedPages, selectedLen
               {teachesFiltered.map((subject: ArbitalLinkedPage, i: number) => (
                 <span key={subject.slug} className={classes.spaceAfterWord}>
                   <TagsTooltip tagSlug={subject.slug}>
-                    <Link to={tagGetUrl(subject)}>{subject.name}</Link>
+                    <Link to={tagGetPageUrl(subject)}>{subject.name}</Link>
                   </TagsTooltip>
                   {i < teachesFiltered.length - 1 && ', '}
                 </span>

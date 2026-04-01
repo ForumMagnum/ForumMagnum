@@ -1,8 +1,11 @@
 import React from "react";
-import PostsSingleRoute from '@/components/posts/PostsSingleRoute';
 import RouteRoot from "@/components/layout/RouteRoot";
 import { aboutPostIdSetting } from "@/lib/instanceSettings";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+import { PostsSingle, type PostPageSearchParams } from "@/components/posts/PostsSingle";
+import { getMetadataForPostPageWithFixedId, } from "@/server/pageMetadata/postPageMetadata";
+
+export const generateMetadata = getMetadataForPostPageWithFixedId(() => aboutPostIdSetting.get())
 
 assertRouteAttributes("/about", {
   whiteBackground: true,
@@ -12,8 +15,12 @@ assertRouteAttributes("/about", {
   hasMarkdownVersion: true,
 });
 
-export default function Page() {
-  return <RouteRoot delayedStatusCode>
-    <PostsSingleRoute _id={aboutPostIdSetting.get()} />
+export default async function Page({ params, searchParams }: {
+  params: Promise<{ slug: string }>,
+  searchParams: Promise<PostPageSearchParams>
+}) {
+  const { slug } = await params;
+  return <RouteRoot>
+    <PostsSingle _id={aboutPostIdSetting.get()} searchParams={searchParams} />
   </RouteRoot>;
 }

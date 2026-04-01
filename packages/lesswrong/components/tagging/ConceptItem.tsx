@@ -3,7 +3,7 @@ import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
 import { Link } from '@/lib/reactRouterWrapper';
-import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { tagGetPageUrl } from '@/lib/collections/tags/helpers';
 import { AnalyticsContext } from '@/lib/analyticsEvents';
 import TagsTooltip from "./TagsTooltip";
 import LWTooltip from "../common/LWTooltip";
@@ -172,7 +172,7 @@ const ConceptItem = ({
               previewPostCount={3}
               placement='right-start'
           >
-            <Link to={tagGetUrl({ slug: wikitag.slug })}>
+            <Link to={tagGetPageUrl({ slug: wikitag.slug })}>
               {wikitag.name}
             </Link>
           </TagsTooltip>
@@ -221,7 +221,7 @@ const ConceptItem = ({
                 wikitag.isArbitalImport && showArbitalIcon,
             })}
           >
-            <Link to={tagGetUrl({ slug: wikitag.slug })}>
+            <Link to={tagGetPageUrl({ slug: wikitag.slug })}>
               {wikitag.name}
             </Link>
           </span>

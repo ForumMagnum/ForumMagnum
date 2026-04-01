@@ -45,7 +45,7 @@ const SequencesNavigationLink = ({ post, direction }: {
   );
   
   if (post) {
-    const url = postGetPageUrl(post, false, post.sequence?._id);
+    const url = postGetPageUrl(post, { isAbsolute: false, sequenceSlug: post.sequence?.slug });
     const button = (
       <Link onClick={() => updateContinueReading()} to={url}>
         {icon}

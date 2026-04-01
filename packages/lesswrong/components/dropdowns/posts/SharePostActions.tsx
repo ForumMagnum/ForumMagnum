@@ -28,7 +28,7 @@ const SharePostActions = ({post, onClick}: {
   const { captureEvent } = useTracking()
   const { flash } = useMessages();
   
-  const postUrl = (source: string) => `${postGetPageUrl(post, true)}?utm_campaign=post_share&utm_source=${source}`
+  const postUrl = (source: string) => `${postGetPageUrl(post, { isAbsolute: true })}?utm_campaign=post_share&utm_source=${source}`
   
   const copyLink = () => {
     captureEvent('sharePost', {option: 'copyLink'})

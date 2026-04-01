@@ -13,6 +13,7 @@ export const PostsMinimumInfo = gql(`
     coauthorUserIds
     rejected
     collabEditorDialogue
+    pageUrlRelative
   }
 `)
 
@@ -36,6 +37,7 @@ export const PostsBase = gql(`
     
     # Core fields
     url
+    overridePageUrl
     postedAt
     sticky
     metaSticky
@@ -403,6 +405,7 @@ export const PostsDetails = gql(`
     canonicalBookId
     canonicalSequence {
       _id
+      slug
       title
     }
     canonicalBook {
@@ -548,13 +551,13 @@ export const PostSequenceNavigation = gql(`
     prevPost(sequenceId: $sequenceId) {
       ...PostsListWithVotes
       sequence(sequenceId: $sequenceId, prevOrNext: "prev") {
-        _id
+        _id slug
       }
     }
     nextPost(sequenceId: $sequenceId) {
       ...PostsListWithVotes
       sequence(sequenceId: $sequenceId, prevOrNext: "next") {
-        _id
+        _id slug
       }
     }
   }

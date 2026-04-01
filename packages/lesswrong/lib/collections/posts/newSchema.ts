@@ -332,8 +332,25 @@ const schema = {
         // The cast is somewhat unfortunately but posts can't be missing titles
         getTitle: (post) => post.title!,
         onCollision: "newDocumentGetsSuffix",
-        includesOldSlugs: false,
+        includesOldSlugs: true,
+        shouldAddOldSlug: ({ newDocument }) => !newDocument.draft,
       },
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  oldSlugs: {
+    database: {
+      type: "TEXT[]",
+      defaultValue: [],
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]!",
+      inputType: "[String!]",
+      canRead: ["guests"],
       validation: {
         optional: true,
       },
@@ -699,14 +716,29 @@ const schema = {
     graphql: {
       outputType: "String!",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetPageUrl(post, true),
+      resolver: (post, args, context) => postGetPageUrl(post, { isAbsolute: true }),
     },
   },
   pageUrlRelative: {
     graphql: {
+      outputType: "String!",
+      canRead: ["guests"],
+      resolver: (post, args, context) => postGetPageUrl(post, { isAbsolute: false }),
+    },
+  },
+  overridePageUrl: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (post, args, context) => postGetPageUrl(post, false),
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
     },
   },
   linkUrl: {
@@ -714,7 +746,7 @@ const schema = {
       outputType: "String",
       canRead: ["guests"],
       resolver: (post, args, context) => {
-        return post.url ? post.url : postGetPageUrl(post, true);
+        return post.url ? post.url : postGetPageUrl(post, { isAbsolute: true });
       },
     },
   },

@@ -1,5 +1,5 @@
 import React from 'react';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { Snippet } from 'react-instantsearch-dom';
 import LocalOfferOutlinedIcon from '@/lib/vendor/@material-ui/icons/src/LocalOfferOutlined';
@@ -46,7 +46,7 @@ const TagsSearchHit = ({hit, clickAction, showIcon=false}: SearchHitComponentPro
     {showIcon && <LWTooltip title="Wikitag">
       <LocalOfferOutlinedIcon className={classes.icon}/>
     </LWTooltip>}
-    <Link to={tagGetUrl(tag)} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
+    <Link to={tagGetPageUrl(tag)} onClick={(event: React.MouseEvent) => isLeftClick(event) && clickAction && clickAction()}>
       <div className={classes.name}>
         {tag.name}
       </div>

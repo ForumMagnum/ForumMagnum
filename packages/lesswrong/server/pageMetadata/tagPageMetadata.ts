@@ -2,7 +2,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import type { Metadata } from "next";
 import { CommentPermalinkMetadataQuery, getCommentDescription, getDefaultMetadata, getMetadataDescriptionFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError, noIndexMetadata } from "./sharedMetadata";
 import merge from "lodash/merge";
-import { tagGetDiscussionUrl, tagGetHistoryUrl, tagGetUrl } from "@/lib/collections/tags/helpers";
+import { tagGetDiscussionUrl, tagGetHistoryUrl, tagGetPageUrl } from "@/lib/collections/tags/helpers";
 import { combineUrls, getSiteUrl } from "@/lib/vulcan-lib/utils";
 import { runQuery } from "@/server/vulcan-lib/query";
 
@@ -76,7 +76,7 @@ export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (pa
         ? tagGetHistoryUrl(tag)
         : options?.discussionPage
           ? tagGetDiscussionUrl(tag)
-          : tagGetUrl(tag);
+          : tagGetPageUrl(tag);
 
       const ogUrl = combineUrls(getSiteUrl(), urlBase);
       const canonicalUrl = ogUrl;

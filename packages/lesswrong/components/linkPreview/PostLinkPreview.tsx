@@ -26,8 +26,8 @@ import { getUrlClass } from '@/server/utils/getUrlClass';
 
 
 const SequencePreviewQuery = gql(`
-  query SequencePreview($documentId: String, $allowNull: Boolean) {
-    sequence(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {
+  query SequencePreview($idOrSlug: String, $allowNull: Boolean) {
+    sequence(input: { selector: { idOrSlug: $idOrSlug }, allowNull: true }) {
       result {
         ...SequenceSummaryFragment
       }
@@ -46,8 +46,8 @@ const CommentsListQuery = gql(`
 `);
 
 const PostsListQuery = gql(`
-  query PostLinkPreviewPost($documentId: String, $allowNull: Boolean) {
-    post(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {
+  query PostLinkPreviewPost($selector: SelectorInputWithSlug) {
+    post(input: { selector: $selector, allowNull: true }) {
       result {
         ...PostsList
       }
@@ -76,7 +76,9 @@ function logMissingLinkPreview(message: string) {
   }
 }
 
-export const PostLinkPreview = ({href, originalHref, targetLocation, id, className, children}: {
+export const PostLinkPreview: LinkPreviewComponent<
+ '/posts/[_id]' | '/posts/[_id]/[slug]' | '/p/[slug]' | '/events/[_id]' | '/events/[_id]/[slug]' | '/g/[groupId]/p/[_id]'
+> = ({href, originalHref, targetLocation, id, className, children}: {
   href: string,
   originalHref: string,
   targetLocation: RouterLocation,
@@ -88,8 +90,9 @@ export const PostLinkPreview = ({href, originalHref, targetLocation, id, classNa
 
   const { loading, error, data } = useQuery(PostsListQuery, {
     variables: {
-      documentId: postID,
-      allowNull: true,
+      selector: {
+        idOrSlug: postID,
+      }
     },
     fetchPolicy: 'cache-first',
     ssr: false,
@@ -120,17 +123,19 @@ export const PostLinkPreviewSequencePost: LinkPreviewComponent<'/s/[_id]/p/[post
   className?: string,
   children: ReactNode,
 }) => {
-  const postID = params.postId;
+  const postIdOrSlug = params.postId;
 
   const { loading, error, data } = useQuery(PostsListQuery, {
-    variables: { documentId: postID, allowNull: true },
+    variables: { selector: {
+      idOrSlug: postIdOrSlug,
+    } },
     fetchPolicy: 'cache-first',
     ssr: false,
   });
   const post = data?.post?.result;
 
   if ((!loading && !post) || error ) {
-    logMissingLinkPreview(`Link preview: No post found with ID ${postID}, error: ${error}`);
+    logMissingLinkPreview(`Link preview: No post found with ID ${postIdOrSlug}, error: ${error}`);
   }
 
   return <PostLinkPreviewVariantCheck post={post||null} targetLocation={targetLocation} error={error} href={href} originalHref={originalHref} id={id} className={className}>
@@ -147,10 +152,21 @@ export const PostLinkPreviewSlug: LinkPreviewComponent<'/highlights/[slug]' | '/
   className?: string,
   children: ReactNode,
 }) => {
-  const slug = params.slug;
-  const { post, error } = usePostBySlug({ slug, ssr: false });
+  const postIdOrSlug = params.slug;
+  const { loading, data, error } = useQuery(PostsListQuery, {
+    variables: { selector: {
+      idOrSlug: postIdOrSlug,
+    } },
+    fetchPolicy: 'cache-first',
+    ssr: false,
+  });
+  const post = data?.post?.result;
 
-  return <PostLinkPreviewVariantCheck href={href} originalHref={originalHref} post={post} targetLocation={targetLocation} error={error} id={id} className={className}>
+  if ((!loading && !post) || error ) {
+    logMissingLinkPreview(`Link preview: No post found with ID ${postIdOrSlug}, error: ${error}`);
+  }
+
+  return <PostLinkPreviewVariantCheck href={href} originalHref={originalHref} post={post||null} targetLocation={targetLocation} error={error} id={id} className={className}>
     {children}
   </PostLinkPreviewVariantCheck>
 }
@@ -209,7 +225,9 @@ export const PostCommentLinkPreviewGreaterWrong: LinkPreviewComponent<'/posts/[_
   const commentId = 'commentId' in params ? params.commentId : targetLocation.params.commentId;
 
   const { loading, data, error   } = useQuery(PostsListQuery, {
-    variables: { documentId: postId, allowNull: true },
+    variables: { selector: {
+      idOrSlug: postId,
+    } },
     fetchPolicy: 'cache-first',
     ssr: false,
   });
@@ -377,17 +395,17 @@ export const SequencePreview: LinkPreviewComponent<'/sequences/[_id]' | '/s/[_id
 }) => {
   const classes = useStyles(linkStyles);
   
-  const sequenceId = params._id;
+  const sequenceIdOrSlug = params._id;
 
   const { loading, data, error  } = useQuery(SequencePreviewQuery, {
-    variables: { documentId: sequenceId, allowNull: true },
+    variables: { idOrSlug: sequenceIdOrSlug },
     fetchPolicy: 'cache-first',
     ssr: false,
   });
   const sequence = data?.sequence?.result;
 
   if ((!sequence && !loading) || error) {
-    logMissingLinkPreview(`Link preview: No sequence  found with ID ${sequenceId}, error: ${error}`);
+    logMissingLinkPreview(`Link preview: No sequence found with ID ${sequenceIdOrSlug}, error: ${error}`);
   }
 
   return (
@@ -396,7 +414,7 @@ export const SequencePreview: LinkPreviewComponent<'/sequences/[_id]' | '/s/[_id
       placement="bottom-start"
       allowOverflow
     >
-      <Link className={classNames(classes.link, className)} to={href} id={sequenceId}>
+      <Link className={classNames(classes.link, className)} to={href} id={sequenceIdOrSlug}>
         {children}
       </Link>
     </SequencesTooltip>

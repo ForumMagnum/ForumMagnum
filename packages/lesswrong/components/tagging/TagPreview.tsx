@@ -1,5 +1,5 @@
 import React, { Fragment, useState } from 'react';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPageUtils';
 import { getTagDescriptionHtml } from '../common/excerpts/TagExcerpt';
@@ -255,7 +255,7 @@ const TagPreview = ({
                 Parent topic:{" "}
                 <Link
                   className={classes.relatedTagLink}
-                  to={tagGetUrl(tag.parentTag)}
+                  to={tagGetPageUrl(tag.parentTag)}
                 >
                   {tag.parentTag.name}
                 </Link>
@@ -269,7 +269,7 @@ const TagPreview = ({
                       <Fragment key={idx}>
                         <Link
                           className={classes.relatedTagLink}
-                          to={tagGetUrl(subTag)}
+                          to={tagGetPageUrl(subTag)}
                         >
                           {subTag.name}
                         </Link>
@@ -308,7 +308,7 @@ const TagPreview = ({
               }
               {showCount &&
                 <span>
-                  <Link to={tagGetUrl(tag)}>
+                  <Link to={tagGetPageUrl(tag)}>
                     View all {tag.postCount} posts
                   </Link>
                 </span>

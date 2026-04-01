@@ -12,6 +12,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import Loading from '../vulcan-core/Loading';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { sequenceGetPageUrl } from '@/lib/collections/sequences/helpers';
 
 const GET_SEQUENCE_STATS = gql(`
   query GetSequenceStats($sequenceId: String!) {
@@ -176,7 +177,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
 
     <div className={classes.columns}>
       <div className={classes.left}>
-        <Link className={classes.imageLink} to={`/s/${sequence._id}`}>
+        <Link className={classes.imageLink} to={sequenceGetPageUrl(sequence)}>
           <div className={classes.sequenceImage}>
             <img className={classes.sequenceImageImg}
               src={`https://res.cloudinary.com/${cloudinaryCloudName}/image/upload/c_fill,dpr_2.0,g_custom,h_96,q_auto,w_292/v1/${
@@ -188,7 +189,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
         <div className={classes.text}>
           <div className={classes.titleAndAuthor}>
             <Link
-              to={`/s/${sequence._id}`}
+              to={sequenceGetPageUrl(sequence)}
               className={classes.title}
             >
               {sequence.title}
@@ -225,7 +226,7 @@ export const LargeSequencesItem = ({sequence, showAuthor=false, showChapters=fal
               <SequencesSmallPostLink
                 key={sequence._id + post._id}
                 post={post}
-                sequenceId={sequence._id}
+                sequenceSlug={sequence.slug}
               />
             ))}
           </React.Fragment>

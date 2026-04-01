@@ -112,7 +112,7 @@ export const graphqlUserQueryTypeDefs = gql`
   extend type Query {
     user(
       input: SingleUserInput @deprecated(reason: "Use the selector field instead"),
-      selector: SelectorInput
+      selector: SelectorInputWithSlug
     ): SingleUserOutput
     users(
       input: MultiUserInput @deprecated(reason: "Use the selector field instead"),

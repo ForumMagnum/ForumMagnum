@@ -139,7 +139,7 @@ export const crosspostDetailsCrosspostHandler = getNextHandler(
       throw new InvalidPostError();
     }
     return {
-      canonicalLink: postGetPageUrl(post as DbPost, true),
+      canonicalLink: postGetPageUrl(post as DbPost, { isAbsolute: true }),
       commentCount: Math.max(post.commentCount ?? 0, 0),
     };
   },

@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { useTagBySlug } from './useTag';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import SingleColumnSection from "../common/SingleColumnSection";
 import TagDiscussionSection from "./TagDiscussionSection";
@@ -28,7 +28,7 @@ const TagDiscussionPage = ({slug}: {slug: string}) => {
   const { tag } = useTagBySlug(slug, "TagFragment");
   return (
     <SingleColumnSection>
-      { tag && <Link to={tagGetUrl(tag)}><h1 className={classes.title}>{tag.name}</h1></Link>}
+      { tag && <Link to={tagGetPageUrl(tag)}><h1 className={classes.title}>{tag.name}</h1></Link>}
       <ContentStyles contentType="comment" className={classes.description}>
         Discuss the wikitag on this page.
         Here is the place to ask questions and propose changes.

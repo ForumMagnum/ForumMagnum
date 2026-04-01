@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
 
   const post = await findPostByLegacyAFId(parseInt(id));
   if (post) {
-    redirect(postGetPageUrl(post, true));
+    redirect(postGetPageUrl(post, { isAbsolute: true }));
   } else {
     const comment = await findCommentByLegacyAFId(parseInt(id));
     if (comment) {

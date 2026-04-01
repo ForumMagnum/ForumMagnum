@@ -8,7 +8,7 @@ import { documentIsNotDeleted, userOwns } from "../../vulcan-users/permissions";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { getChaptersInSequence } from "./sequenceServerHelpers";
-import { getCollectionBySlug } from "./helpers";
+import { getCollectionBySlug, sequenceGetPageUrl } from "./helpers";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -28,8 +28,6 @@ const schema = {
       canRead: [documentIsNotDeleted],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
-      editableFieldOptions: { pingbacks: false, normalized: false },
-      arguments: "version: String",
       resolver: getDenormalizedEditableResolver("Sequences", "contents"),
       validation: {
         simpleSchema: RevisionStorageType,
@@ -78,6 +76,58 @@ const schema = {
       outputType: "User",
       canRead: ["guests"],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
+    },
+  },
+  slug: {
+    database: {
+      type: "TEXT",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String!",
+      inputType: "String",
+      canRead: ["guests"],
+      canUpdate: [userOwns, "admins", "sunshineRegiment"],
+      canCreate: ["members"],
+      slugCallbackOptions: {
+        collectionsToAvoidCollisionsWith: ["Sequences"],
+        getTitle: (sequence) => sequence.title!,
+        onCollision: "newDocumentGetsSuffix",
+        includesOldSlugs: true,
+      },
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  oldSlugs: {
+    database: {
+      type: "TEXT[]",
+      defaultValue: [],
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]!",
+      inputType: "[String!]",
+      canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  pageUrl: {
+    graphql: {
+      outputType: "String!",
+      canRead: ["guests"],
+      resolver: (sequence, args, context) => sequenceGetPageUrl(sequence, { isAbsolute: true }),
+    },
+  },
+  pageUrlRelative: {
+    graphql: {
+      outputType: "String!",
+      canRead: ["guests"],
+      resolver: (sequence, args, context) => sequenceGetPageUrl(sequence, { isAbsolute: false }),
     },
   },
   title: {

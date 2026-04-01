@@ -549,7 +549,7 @@ export const PostSharedWithUserNotification = createServerNotificationType({
   emailBody: async ({ user, notifications, emailContext }) => {
     const post = await Posts.findOne(notifications[0].documentId);
     if (!post) throw Error(`Can't find post for notification: ${notifications[0]}`)
-    const link = postGetPageUrl(post, true);
+    const link = postGetPageUrl(post, { isAbsolute: true });
     const name = await postGetAuthorName(post, emailContext.resolverContext);
     return <p>
       {name} shared their {post.draft ? "draft" : "post"} <a href={link}>{post.title}</a> with you.
@@ -606,7 +606,7 @@ export const AlignmentSubmissionApprovalNotification = createServerNotificationT
       </p>
     }
     else {
-      const link = postGetPageUrl(document, true)
+      const link = postGetPageUrl(document, { isAbsolute: true })
       return <p>
         Your post, <a href={link}>{document.title}</a>, has been accepted to the Alignment Forum.
       </p>
@@ -662,7 +662,7 @@ export const NewRSVPNotification = createServerNotificationType({
         {notifications[0].message}
       </p>
       <p>
-        <a href={postGetPageUrl(post,true)}>Event Link</a>
+        <a href={postGetPageUrl(post, { isAbsolute: true })}>Event Link</a>
       </p>
     </div>
   },
@@ -765,7 +765,7 @@ export const PostCoauthorRequestNotification = createServerNotificationType({
     if (!post) {
       throw Error(`Can't find post for notification: ${notifications[0]}`);
     }
-    const link = postGetPageUrl(post, true);
+    const link = postGetPageUrl(post, { isAbsolute: true });
     const name = await postGetAuthorName(post, emailContext.resolverContext);
     return (
       <p>
@@ -790,7 +790,7 @@ export const PostCoauthorAcceptNotification = createServerNotificationType({
     if (!post) {
       throw Error(`Can't find post for notification: ${notifications[0]}`);
     }
-    const link = postGetPageUrl(post, true);
+    const link = postGetPageUrl(post, { isAbsolute: true });
     return (
       <p>
         Your co-author request for <a href={link}>{post.title}</a> was accepted.

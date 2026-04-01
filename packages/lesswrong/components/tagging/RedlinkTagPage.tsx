@@ -1,7 +1,7 @@
 import React from 'react';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { tagGetUrl } from '@/lib/collections/tags/helpers';
+import { tagGetPageUrl } from '@/lib/collections/tags/helpers';
 import { type ErrorLike } from '@apollo/client';
 import { useQuery } from "@/lib/crud/useQuery"
 import { Link } from "../../lib/reactRouterWrapper";
@@ -143,7 +143,7 @@ const RedlinkTagPage = ({tag, slug}: {
   return <SingleColumnSection>
     <StatusCodeSetter status={404}/>
     <Typography variant="display3">
-      <Link className={classes.title} to={tagGetUrl({slug: tagSlug})}>{title}</Link>
+      <Link className={classes.title} to={tagGetPageUrl({slug: tagSlug})}>{title}</Link>
     </Typography>
 
     <ContentStyles contentType="tag">
@@ -154,7 +154,7 @@ const RedlinkTagPage = ({tag, slug}: {
         
         <ul className={classes.pingbacksList}>
           {pingbacks?.map(t => <li key={t._id}>
-            <Link to={tagGetUrl({slug: t.slug})}>{t.name}</Link>
+            <Link to={tagGetPageUrl({slug: t.slug})}>{t.name}</Link>
           </li>)}
         </ul>
       </>}

@@ -965,11 +965,13 @@ interface DbPost extends DbObject {
   noIndex: boolean
   nominationCount2018: number
   nominationCount2019: number
+  oldSlugs: Array<string>
   onlineEvent: boolean
   onlyVisibleToEstablishedAccounts: boolean
   onlyVisibleToLoggedIn: boolean
   organizerIds: Array<string>
   originalPostRelationSourceId: string | null
+  overridePageUrl: string | null
   pingbacks: any | null
   podcastEpisodeId: string | null
   positiveReviewVoteCount: number
@@ -1202,6 +1204,8 @@ interface DbSequence extends DbObject {
   lastUpdated: Date
   legacyData: any | null
   noindex: boolean
+  oldSlugs: Array<string>
+  slug: string
   title: string
   userId: string
   userProfileOrder: number | null

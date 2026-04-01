@@ -4,6 +4,9 @@ import SingleColumnSection from "@/components/common/SingleColumnSection";
 import { escapeHtml } from "@/lib/utils/sanitize";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+import { getPageTitleFields, mergeMetadata } from "@/server/pageMetadata/sharedMetadata";
+
+export const generateMetadata = () => mergeMetadata(getPageTitleFields("Markdown API Explorer"));
 
 assertRouteAttributes("/debug/markdownApi", {
   whiteBackground: false,

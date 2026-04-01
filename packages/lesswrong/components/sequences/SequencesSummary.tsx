@@ -102,7 +102,7 @@ const SequencePosts = ({sequence, chapters, maxPosts, totalPosts}: {
           <SequencesSmallPostLink
             key={sequence._id + post._id}
             post={post}
-            sequenceId={sequence._id}
+            sequenceSlug={sequence.slug}
           />
         ))}
       </div>
@@ -120,7 +120,7 @@ const SequencePosts = ({sequence, chapters, maxPosts, totalPosts}: {
 
 const _SequenceSummaryFragment = gql(`
   fragment SequenceSummaryFragment on Sequence {
-    _id title postsCount canonicalCollectionSlug
+    _id slug title postsCount canonicalCollectionSlug
     user { ...UsersMinimumInfo }
     contents { htmlHighlight wordCount }
   }

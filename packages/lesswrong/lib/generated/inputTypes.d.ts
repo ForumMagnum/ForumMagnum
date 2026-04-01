@@ -342,6 +342,13 @@ interface SelectorInput {
   documentId?: string | null;
 }
 
+interface SelectorInputWithSlug {
+  _id?: string | null;
+  documentId?: string | null;
+  slug?: string | null;
+  idOrSlug?: string | null;
+}
+
 interface EmptyViewInput {
   _?: boolean | null;
 }
@@ -1454,6 +1461,7 @@ interface Chapter {
   subtitle: string | null;
   number: number | null;
   sequenceId: string | null;
+  sequenceSlug: string | null;
   sequence: Sequence | null;
   postIds: Array<string>;
   posts: Array<Post>;
@@ -1592,7 +1600,7 @@ interface Collection {
 }
 
 interface SingleCollectionInput {
-  selector?: SelectorInput | null;
+  selector?: SelectorInputWithSlug | null;
   resolverArgs?: any;
 }
 
@@ -3176,7 +3184,7 @@ interface MultiDocument {
 }
 
 interface SingleMultiDocumentInput {
-  selector?: SelectorInput | null;
+  selector?: SelectorInputWithSlug | null;
   resolverArgs?: any;
 }
 
@@ -3515,6 +3523,7 @@ interface Post {
   customHighlight: Revision | null;
   customHighlight_latest: string | null;
   slug: string;
+  oldSlugs: Array<string>;
   postedAt: Date;
   modifiedAt: Date | null;
   url: string | null;
@@ -3536,7 +3545,8 @@ interface Post {
   user: User | null;
   domain: string | null;
   pageUrl: string;
-  pageUrlRelative: string | null;
+  pageUrlRelative: string;
+  overridePageUrl: string | null;
   linkUrl: string | null;
   postedAtFormatted: string | null;
   emailShareUrl: string | null;
@@ -3751,7 +3761,7 @@ interface FrontpageClassification {
 }
 
 interface SinglePostInput {
-  selector?: SelectorInput | null;
+  selector?: SelectorInputWithSlug | null;
   resolverArgs?: any;
   allowNull?: boolean | null;
 }
@@ -5696,6 +5706,10 @@ interface Sequence {
   lastUpdated: Date;
   userId: string;
   user: User | null;
+  slug: string;
+  oldSlugs: Array<string>;
+  pageUrl: string;
+  pageUrlRelative: string;
   title: string;
   bannerImageId: string | null;
   gridImageId: string | null;
@@ -5715,7 +5729,7 @@ interface Sequence {
 }
 
 interface SingleSequenceInput {
-  selector?: SelectorInput | null;
+  selector?: SelectorInputWithSlug | null;
   resolverArgs?: any;
   allowNull?: boolean | null;
 }
@@ -5997,7 +6011,7 @@ interface TagFlag {
 }
 
 interface SingleTagFlagInput {
-  selector?: SelectorInput | null;
+  selector?: SelectorInputWithSlug | null;
   resolverArgs?: any;
 }
 
@@ -6176,7 +6190,7 @@ interface Tag {
 }
 
 interface SingleTagInput {
-  selector?: SelectorInput | null;
+  selector?: SelectorInputWithSlug | null;
   resolverArgs?: any;
 }
 
@@ -7567,6 +7581,7 @@ interface CreatePostDataInput {
   sticky?: boolean | null;
   stickyPriority?: number | null;
   userId?: string | null;
+  overridePageUrl?: string | null;
   question?: boolean | null;
   authorIsUnreviewed?: boolean | null;
   readTimeMinutesOverride?: number | null;
@@ -7683,6 +7698,7 @@ interface UpdatePostDataInput {
   sticky?: boolean | null;
   stickyPriority?: number | null;
   userId?: string | null;
+  overridePageUrl?: string | null;
   question?: boolean | null;
   authorIsUnreviewed?: boolean | null;
   readTimeMinutesOverride?: number | null;
@@ -7896,6 +7912,7 @@ interface CreateSequenceDataInput {
   contents?: CreateRevisionDataInput | null;
   lastUpdated?: Date | null;
   userId?: string | null;
+  slug?: string | null;
   title: string;
   bannerImageId?: string | null;
   gridImageId?: string | null;
@@ -7919,6 +7936,7 @@ interface UpdateSequenceDataInput {
   contents?: CreateRevisionDataInput | null;
   lastUpdated?: Date | null;
   userId?: string | null;
+  slug?: string | null;
   title?: string | null;
   bannerImageId?: string | null;
   gridImageId?: string | null;
@@ -8642,6 +8660,7 @@ interface GraphQLTypeMap {
   Mutation: Mutation;
   ContentType: ContentType;
   SelectorInput: SelectorInput;
+  SelectorInputWithSlug: SelectorInputWithSlug;
   EmptyViewInput: EmptyViewInput;
   EmailPreview: EmailPreview;
   ArbitalLinkedPage: ArbitalLinkedPage;

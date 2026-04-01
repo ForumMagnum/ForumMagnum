@@ -5,7 +5,7 @@ import classNames from "classnames";
 import type { Placement as PopperPlacementType } from "popper.js"
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { inferRedLinkTitle, useRedLinkPingbacks } from "./RedlinkTagPage";
-import { tagGetUrl } from "@/lib/collections/tags/helpers";
+import { tagGetPageUrl } from "@/lib/collections/tags/helpers";
 import { useTagPageContext } from "./TagPageContext";
 import { MAIN_TAB_ID } from "@/lib/collections/tags/constants";
 import { TagHoverPreview } from "./TagHoverPreview";
@@ -137,10 +137,10 @@ const RedLinksPingbacks = ({tag}: {tag: TagBasicInfo}) => {
         <li key={pingback._id}>
           <TagHoverPreview
             targetLocation={{ params: { slug: pingback.slug }, hash: '', query: {} } as AnyBecauseTodo}
-            href={tagGetUrl({ slug: pingback.slug })}
+            href={tagGetPageUrl({ slug: pingback.slug })}
             noPrefetch
           >
-            <Link to={tagGetUrl({ slug: pingback.slug })}>
+            <Link to={tagGetPageUrl({ slug: pingback.slug })}>
               {pingback.name}
             </Link>
           </TagHoverPreview>

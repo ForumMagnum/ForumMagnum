@@ -30,7 +30,7 @@ export const PostNominatedEmail = async ({documentId, reason, emailContext}: {
   const nominationEndDate = getNominationPhaseEnd(REVIEW_YEAR)
 
   return (<React.Fragment>
-    <p>Your post <a href={postGetPageUrl(post, true)}>{post.title}</a> has received multiple positive votes for the {getReviewNameInSitu()}! On {nominationEndDate.format('MMM Do')}, the nomination vote results will be published, and will be used to help prioritize the Review Phase.</p>
+    <p>Your post <a href={postGetPageUrl(post, { isAbsolute: true })}>{post.title}</a> has received multiple positive votes for the {getReviewNameInSitu()}! On {nominationEndDate.format('MMM Do')}, the nomination vote results will be published, and will be used to help prioritize the Review Phase.</p>
     
     <p>You're encouraged to write a self-review, exploring how you think about the post today. Do you still endorse it? Have you learned anything new that adds more depth? How might you improve the post? What further work do you think should be done exploring the ideas here?</p>
     

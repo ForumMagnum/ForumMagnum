@@ -191,6 +191,12 @@ const selectorInput = gql`
     _id: String
     documentId: String
   }
+  input SelectorInputWithSlug {
+    _id: String
+    documentId: String
+    slug: String
+    idOrSlug: String
+  }
 `;
 
 const emptyViewInput = gql`

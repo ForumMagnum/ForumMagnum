@@ -1,10 +1,10 @@
 import React from "react";
-import PostsSingle from '@/components/posts/PostsSingle';
+import { PostsSingle, type PostPageSearchParams } from '@/components/posts/PostsSingle';
 import { getPostPageMetadataFunction } from "@/server/pageMetadata/postPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
-export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => _id);
+export const generateMetadata = getPostPageMetadataFunction<{ _id: string }>(({ _id }) => ({idOrSlug: _id}));
 
 assertRouteAttributes("/events/[_id]", {
   whiteBackground: true,
@@ -14,12 +14,15 @@ assertRouteAttributes("/events/[_id]", {
   hasMarkdownVersion: true,
 });
 
-export default async function Page({ params }: { params: Promise<{ _id: string }> }) {
+export default async function Page({ params, searchParams }: {
+  params: Promise<{ _id: string }>,
+  searchParams: Promise<PostPageSearchParams>
+}) {
   const { _id } = await params;
   return <RouteRoot
     delayedStatusCode
     subtitle={{ title: 'Community', link: '/community' }}
   >
-    <PostsSingle _id={_id} />
+    <PostsSingle idOrSlug={_id} searchParams={searchParams} />
   </RouteRoot>;
 }

@@ -7,7 +7,7 @@ import { hasGoogleDocImportSetting, isEAForum, isLWorAF } from "@/lib/instanceSe
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
 import { userCanUseSharing } from "@/lib/betas";
-import { tagGetUrl } from "@/lib/collections/tags/helpers";
+import { tagGetPageUrl } from "@/lib/collections/tags/helpers";
 import type { EditorTypeString } from "../editor/Editor";
 import { disconnectCollaborationForPost } from "../lexical/collaboration";
 import ClickAwayListener from "../../lib/vendor/react-click-away-listener";
@@ -1823,7 +1823,7 @@ const EditorSettingsSidebar = ({
       </div>
       }
 
-      {mode === "settings" && <Link to={tagGetUrl({ slug: "guide-to-the-lesswrong-editor" })} className={classes.editorGuideLink}>
+      {mode === "settings" && <Link to={tagGetPageUrl({ slug: "guide-to-the-lesswrong-editor" })} className={classes.editorGuideLink}>
         <ForumIcon icon="QuestionMarkCircle" className={classes.editorGuideIcon} />
         Editor Guide
       </Link>}

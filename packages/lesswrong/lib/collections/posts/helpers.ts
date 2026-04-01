@@ -26,7 +26,7 @@ export const postGetLink = function (post: PostsBase|DbPost, isAbsolute=false): 
   if (post.url) {
     return post.url;
   }
-  return postGetPageUrl(post, isAbsolute);
+  return postGetPageUrl(post, { isAbsolute });
 };
 
 // Whether a post's link should open in a new tab or not
@@ -195,34 +195,58 @@ export const getSocialPreviewSql = (tablePrefix: string) => `JSON_BUILD_OBJECT(
 
 // The set of fields required for calling postGetPageUrl. Could be supplied by
 // either a fragment or a DbPost.
-export interface PostsMinimumForGetPageUrl {
+export type PostMinimumForGetPageUrl = {
+  _id: string
+  pageUrlRelative: string
+} | {
   _id: string
   slug: string
   isEvent?: boolean
   groupId?: string | undefined | null
+  overridePageUrl?: string | undefined | null
+  canonicalSequenceId?: string | undefined | null
+  canonicalCollectionSlug?: string | undefined | null
 }
 
+interface PostGetUrlOptions {
+  isAbsolute?: boolean,
+  isApiVersion?: boolean,
+  sequenceSlug?: string|null
+}
 // Get URL of a post page.
-export const postGetPageUrl = function(post: PostsMinimumForGetPageUrl, isAbsolute=false, sequenceId: string|null=null): string {
+export const postGetPageUrl = function(post: PostMinimumForGetPageUrl, options?: PostGetUrlOptions): string {
+  const isAbsolute = options?.isAbsolute ?? false;
+  const sequenceSlug = options?.sequenceSlug ?? null;
+  const isApiVersion = options?.isApiVersion ?? false;
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
 
-  // LESSWRONG – included event and group post urls
-  if (sequenceId) {
-    return `${prefix}/s/${sequenceId}/p/${post._id}`;
+  if (isApiVersion) {
+    return `${prefix}/api/posts/${post._id}`;
+  }
+  if (sequenceSlug) {
+    if ('slug' in post) {
+      return `${prefix}/s/${sequenceSlug}/p/${post.slug}`;
+    } else {
+      return `${prefix}/s/${sequenceSlug}/p/${post._id}`;
+    }
+  }
+  if ('pageUrlRelative' in post) {
+    return isAbsolute ? `${prefix}/${post.pageUrlRelative}` : post.pageUrlRelative;
+  } else if (post.overridePageUrl) {
+    return `${prefix}/${post.overridePageUrl}`;
+  } else if (post.canonicalCollectionSlug) {
+    return `${prefix}/${post.canonicalCollectionSlug}/${post.slug}`;
   } else if (post.isEvent) {
     return `${prefix}/events/${post._id}/${post.slug}`;
   } else if (post.groupId) {
     return `${prefix}/g/${post.groupId}/p/${post._id}/`;
+  } else {
+    return `${prefix}/posts/${post.slug}`;
   }
-  return `${prefix}/posts/${post._id}/${post.slug}`;
 };
 
-export const postGetCommentsUrl = (
-  post: PostsMinimumForGetPageUrl,
-  isAbsolute = false,
-  sequenceId: string | null = null,
-): string => {
-  return postGetPageUrl(post, isAbsolute, sequenceId) + "#comments";
+export const postGetCommentsUrl = (post: PostMinimumForGetPageUrl, options?: PostGetUrlOptions): string => {
+  return postGetPageUrl(post, options) + "#comments";
 }
 
 

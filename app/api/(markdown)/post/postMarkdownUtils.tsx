@@ -4,6 +4,7 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest } from "next/server";
 import { MarkdownPostDetail } from "@/server/markdownComponents/MarkdownPostDetail";
+import { gql } from "@/lib/generated/gql-codegen";
 
 const truthyValues = new Set(["1", "true", "yes", "on"]);
 
@@ -21,7 +22,7 @@ function compactifyPostMarkdown(markdown: string): string {
     .trim();
 }
 
-const PostMarkdownQuery = `
+const PostMarkdownQuery = gql(`
   query PostMarkdownApi($_id: String!, $commentsLimit: Int, $sequenceId: String) {
     post(selector: {_id: $_id}) {
       result {
@@ -46,6 +47,7 @@ const PostMarkdownQuery = `
         contents { agentMarkdown }
         sequence(sequenceId: $sequenceId) {
           _id
+          slug
           title
         }
         prevPost(sequenceId: $sequenceId) {
@@ -62,19 +64,11 @@ const PostMarkdownQuery = `
     }
     comments(selector: { postCommentsTop: { postId: $_id } }, limit: $commentsLimit) {
       results {
-        _id
-        parentCommentId
-        postedAt
-        baseScore
-        voteCount
-        votingSystem
-        extendedScore
-        user { slug displayName }
-        contents { agentMarkdown plaintextMainText }
+        ...CommentsMarkdownFragment
       }
     }
   }
-`;
+`);
 
 interface RenderPostMarkdownOptions {
   sequenceId?: string

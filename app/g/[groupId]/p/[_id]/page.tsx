@@ -1,5 +1,5 @@
 import React from "react";
-import PostsSingle from '@/components/posts/PostsSingle';
+import { PostsSingle, type PostPageSearchParams } from '@/components/posts/PostsSingle';
 import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sharedMetadata";
 import type { Metadata } from "next";
 import merge from "lodash/merge";
@@ -20,14 +20,15 @@ assertRouteAttributes("/g/[groupId]/p/[_id]", {
   hasMarkdownVersion: false,
 });
 
-export default async function Page({ params }: {
-  params: Promise<{ _id: string, groupId: string }>
+export default async function Page({ params, searchParams }: {
+  params: Promise<{ _id: string, groupId: string }>,
+  searchParams: Promise<PostPageSearchParams>
 }) {
   const { _id, groupId } = await params;
   return <RouteRoot
     delayedStatusCode
     subtitle={{ title: 'Community', link: '/community' }}
   >
-    <PostsSingle _id={_id} />
+    <PostsSingle groupId={groupId} idOrSlug={_id} searchParams={searchParams} />
   </RouteRoot>;
 }

@@ -8,7 +8,7 @@ import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { defaultVisibilityTags } from '@/lib/instanceSettings';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -246,7 +246,7 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
     <AnalyticsContext pageElementContext="tagFilterMode" tagId={tagId} tagName={label}>
       {tag ? (
         <>
-          <Link to={tagGetUrl(tag)} className={classes.hideOnMobile}>
+          <Link to={tagGetPageUrl(tag)} className={classes.hideOnMobile}>
             {tagLabel}
           </Link>
           <span className={classes.hideOnDesktop}>

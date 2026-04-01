@@ -9,7 +9,7 @@ export const graphqlCollectionQueryTypeDefs = gql`
   type Collection ${ getAllGraphQLFields(schema) }
   
   input SingleCollectionInput {
-    selector: SelectorInput
+    selector: SelectorInputWithSlug
     resolverArgs: JSON
   }
   
@@ -40,7 +40,7 @@ export const graphqlCollectionQueryTypeDefs = gql`
   extend type Query {
     collection(
       input: SingleCollectionInput @deprecated(reason: "Use the selector field instead"),
-      selector: SelectorInput
+      selector: SelectorInputWithSlug
     ): SingleCollectionOutput
     collections(
       input: MultiCollectionInput @deprecated(reason: "Use the selector field instead"),

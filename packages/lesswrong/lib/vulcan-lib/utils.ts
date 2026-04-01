@@ -47,6 +47,14 @@ export const getSiteUrl = function (): string {
   return url;
 };
 
+export function getLinkPrefix({isAbsolute}: {isAbsolute?: boolean}): string {
+  if (isAbsolute) {
+    return getSiteUrl().slice(0,-1);
+  } else {
+    return "";
+  }
+}
+
 export function urlIsAbsolute(url: string): boolean {
   // Check if the URL starts with a protocol (http:, https:, ftp:, etc.)
   // or with double slashes (//) which indicates protocol-relative URL
@@ -226,7 +234,7 @@ export type UpdateSelector = {
 };
 
 function isDocumentIdSelector(selector: UpdateSelector): selector is { _id: null; documentId: string } {
-  return !selector._id;
+  return !!selector.documentId && !selector._id;
 }
 
 /**

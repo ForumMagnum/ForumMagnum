@@ -3,7 +3,7 @@ import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
 import { cloudinaryCloudNameSetting } from '@/lib/instanceSettings';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
+import { tagGetPageUrl } from '../../lib/collections/tags/helpers';
 import { useThemeColor } from '../themes/useTheme';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -70,7 +70,7 @@ const ExpandedTagsSearchHit = ({hit}: {
 
   return <div className={classes.root} style={style}>
     <Link
-      to={tagGetUrl(tag)}
+      to={tagGetPageUrl(tag)}
       className={classes.link}
     >
       <div className={classes.titleRow}>
