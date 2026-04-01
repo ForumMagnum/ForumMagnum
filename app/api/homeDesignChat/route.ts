@@ -86,6 +86,8 @@ export async function POST(req: NextRequest) {
             verified: false,
             commentId: null,
             createdAt: new Date(),
+            autoReviewPassed: false,
+            autoReviewMessage: null,
           });
           latestRecordId = newId;
 

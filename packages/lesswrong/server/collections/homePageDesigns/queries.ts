@@ -13,9 +13,12 @@ function isDesignOwner(design: DbHomePageDesign, context: ResolverContext): bool
 }
 
 function canAccessDesign(design: DbHomePageDesign, context: ResolverContext): boolean {
-  if (design.commentId) return true; // published
   if (userIsAdmin(context.currentUser)) return true;
-  return isDesignOwner(design, context);
+  if (isDesignOwner(design, context)) return true;
+  // Published designs are only accessible to non-owners if they've passed
+  // the automated security review
+  if (design.commentId && design.autoReviewPassed) return true;
+  return false;
 }
 
 function filterDesignFields(design: DbHomePageDesign, context: ResolverContext): Partial<DbHomePageDesign> {
@@ -78,6 +81,17 @@ async function marketplaceHomePageDesignsResolver(
   return _context.repos.homePageDesigns.getPublishedDesigns();
 }
 
+async function adminHomePageDesignsResolver(
+  root: void,
+  _args: Record<string, never>,
+  context: ResolverContext,
+) {
+  if (!userIsAdmin(context.currentUser)) {
+    throw new Error("Admin access required");
+  }
+  return context.repos.homePageDesigns.getDesignsForAdminReview();
+}
+
 export const graphqlHomePageDesignQueryTypeDefs = gql`
   type HomePageDesign ${ getAllGraphQLFields(schema) }
 
@@ -95,12 +109,30 @@ export const graphqlHomePageDesignQueryTypeDefs = gql`
     commentBaseScore: Int!
   }
 
+  type AdminHomePageDesign {
+    _id: String!
+    publicId: String!
+    title: String!
+    html: String!
+    verified: Boolean!
+    autoReviewPassed: Boolean
+    autoReviewMessage: String
+    createdAt: Date!
+    source: String!
+    modelName: String
+    commentId: String
+    ownerDisplayName: String!
+    ownerSlug: String!
+  }
+
   extend type Query {
     homePageDesignByPublicId(publicId: String!): HomePageDesign
     myHomePageDesigns(limit: Int): [HomePageDesign!]!
     myHomePageDesignSummaries: [HomePageDesignSummary!]!
     marketplaceHomePageDesigns: [MarketplaceHomePageDesign!]!
+    adminHomePageDesigns: [AdminHomePageDesign!]!
   }
+
 `;
 
 export const homePageDesignGqlQueryHandlers = {
@@ -108,5 +140,6 @@ export const homePageDesignGqlQueryHandlers = {
   myHomePageDesigns: homePageDesignsByOwnerResolver,
   myHomePageDesignSummaries: homePageDesignSummariesResolver,
   marketplaceHomePageDesigns: marketplaceHomePageDesignsResolver,
+  adminHomePageDesigns: adminHomePageDesignsResolver,
 };
 export const homePageDesignGqlFieldResolvers = getFieldGqlResolvers('HomePageDesigns', schema);

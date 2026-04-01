@@ -14,6 +14,7 @@ import CheckCircleOutlineIcon from '@/lib/vendor/@material-ui/icons/src/CheckCir
 import KeyboardArrowDownIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowDown';
 import KeyboardArrowRightIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardArrowRight';
 import { useMessages } from './withMessages';
+import { useCurrentUser } from './withUser';
 import PublishDesignDialog from './PublishDesignDialog';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
@@ -557,6 +558,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
 
 const HomeDesignChatPanel = () => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
   const { isOpen, setIsOpen, applyDesign, useDefaultDesign, setUseDefaultDesign, publicId, setPublicId } = useHomeDesignChat();
   const { flash } = useMessages();
   const client = useApolloClient();
@@ -850,7 +852,9 @@ const HomeDesignChatPanel = () => {
                         <div className={classes.toolApplied}>
                           {isApplied ? 'Design applied.' : 'Applying design...'}
                         </div>
-                        {isApplied && publicId && part.toolCallId === lastAppliedToolCallId && (
+                        {isApplied && publicId && part.toolCallId === lastAppliedToolCallId &&
+                          currentUser && !currentUser.banned &&
+                          (currentUser.isReviewed || new Date(currentUser.createdAt) < new Date("2026-04-01T07:00:00.000Z")) && (
                           <button
                             className={classes.publishButton}
                             onClick={() => setShowPublishDialog(true)}

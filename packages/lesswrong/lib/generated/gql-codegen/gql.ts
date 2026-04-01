@@ -57,6 +57,8 @@ type Documents = {
     "\n  mutation AdminSendTestEmail($input: AdminSendTestEmailInput!) {\n    adminSendTestEmail(input: $input) {\n      ok\n      status\n      email\n      unsubscribeUrl\n    }\n  }\n": typeof types.AdminSendTestEmailDocument,
     "\n  mutation AdminSendBulkEmail($input: AdminSendBulkEmailInput!) {\n    adminSendBulkEmail(input: $input) {\n      ok\n      runId\n      processed\n      batches\n      errors {\n        batch\n        status\n      }\n      lastAfterUserId\n    }\n  }\n": typeof types.AdminSendBulkEmailDocument,
     "\n    query randomUser($userIsAuthor: String!) {\n      GetRandomUser(userIsAuthor: $userIsAuthor) {\n        ...UsersMinimumInfo\n      }\n    }\n  ": typeof types.randomUserDocument,
+    "\n  query AdminHomePageDesigns {\n    adminHomePageDesigns {\n      _id\n      publicId\n      title\n      html\n      verified\n      autoReviewPassed\n      autoReviewMessage\n      createdAt\n      source\n      modelName\n      commentId\n      ownerDisplayName\n      ownerSlug\n    }\n  }\n": typeof types.AdminHomePageDesignsDocument,
+    "\n  mutation SetHomePageDesignVerified($designId: String!, $verified: Boolean!) {\n    setHomePageDesignVerified(designId: $designId, verified: $verified) {\n      _id\n      verified\n    }\n  }\n": typeof types.SetHomePageDesignVerifiedDocument,
     "\n    query MigrationsDashboardQuery {\n      MigrationsDashboard {\n        migrations {\n          name\n          dateWritten\n          runs { name started finished succeeded }\n          lastRun\n        }\n      }\n    }\n  ": typeof types.MigrationsDashboardQueryDocument,
     "\n  query multiCommentAFUnreviewedCommentCountQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SuggestAlignmentComment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentAFUnreviewedCommentCountQueryDocument,
     "\n    mutation alignmentPost($postId: String, $af: Boolean) {\n      alignmentPost(postId: $postId, af: $af) {\n        ...PostsList\n      }\n    }\n  ": typeof types.alignmentPostDocument,
@@ -887,6 +889,8 @@ const documents: Documents = {
     "\n  mutation AdminSendTestEmail($input: AdminSendTestEmailInput!) {\n    adminSendTestEmail(input: $input) {\n      ok\n      status\n      email\n      unsubscribeUrl\n    }\n  }\n": types.AdminSendTestEmailDocument,
     "\n  mutation AdminSendBulkEmail($input: AdminSendBulkEmailInput!) {\n    adminSendBulkEmail(input: $input) {\n      ok\n      runId\n      processed\n      batches\n      errors {\n        batch\n        status\n      }\n      lastAfterUserId\n    }\n  }\n": types.AdminSendBulkEmailDocument,
     "\n    query randomUser($userIsAuthor: String!) {\n      GetRandomUser(userIsAuthor: $userIsAuthor) {\n        ...UsersMinimumInfo\n      }\n    }\n  ": types.randomUserDocument,
+    "\n  query AdminHomePageDesigns {\n    adminHomePageDesigns {\n      _id\n      publicId\n      title\n      html\n      verified\n      autoReviewPassed\n      autoReviewMessage\n      createdAt\n      source\n      modelName\n      commentId\n      ownerDisplayName\n      ownerSlug\n    }\n  }\n": types.AdminHomePageDesignsDocument,
+    "\n  mutation SetHomePageDesignVerified($designId: String!, $verified: Boolean!) {\n    setHomePageDesignVerified(designId: $designId, verified: $verified) {\n      _id\n      verified\n    }\n  }\n": types.SetHomePageDesignVerifiedDocument,
     "\n    query MigrationsDashboardQuery {\n      MigrationsDashboard {\n        migrations {\n          name\n          dateWritten\n          runs { name started finished succeeded }\n          lastRun\n        }\n      }\n    }\n  ": types.MigrationsDashboardQueryDocument,
     "\n  query multiCommentAFUnreviewedCommentCountQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SuggestAlignmentComment\n      }\n      totalCount\n    }\n  }\n": types.multiCommentAFUnreviewedCommentCountQueryDocument,
     "\n    mutation alignmentPost($postId: String, $af: Boolean) {\n      alignmentPost(postId: $postId, af: $af) {\n        ...PostsList\n      }\n    }\n  ": types.alignmentPostDocument,
@@ -1860,6 +1864,14 @@ export function gql(source: "\n  mutation AdminSendBulkEmail($input: AdminSendBu
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    query randomUser($userIsAuthor: String!) {\n      GetRandomUser(userIsAuthor: $userIsAuthor) {\n        ...UsersMinimumInfo\n      }\n    }\n  "): (typeof documents)["\n    query randomUser($userIsAuthor: String!) {\n      GetRandomUser(userIsAuthor: $userIsAuthor) {\n        ...UsersMinimumInfo\n      }\n    }\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query AdminHomePageDesigns {\n    adminHomePageDesigns {\n      _id\n      publicId\n      title\n      html\n      verified\n      autoReviewPassed\n      autoReviewMessage\n      createdAt\n      source\n      modelName\n      commentId\n      ownerDisplayName\n      ownerSlug\n    }\n  }\n"): (typeof documents)["\n  query AdminHomePageDesigns {\n    adminHomePageDesigns {\n      _id\n      publicId\n      title\n      html\n      verified\n      autoReviewPassed\n      autoReviewMessage\n      createdAt\n      source\n      modelName\n      commentId\n      ownerDisplayName\n      ownerSlug\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation SetHomePageDesignVerified($designId: String!, $verified: Boolean!) {\n    setHomePageDesignVerified(designId: $designId, verified: $verified) {\n      _id\n      verified\n    }\n  }\n"): (typeof documents)["\n  mutation SetHomePageDesignVerified($designId: String!, $verified: Boolean!) {\n    setHomePageDesignVerified(designId: $designId, verified: $verified) {\n      _id\n      verified\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

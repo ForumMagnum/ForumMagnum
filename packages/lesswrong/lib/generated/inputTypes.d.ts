@@ -118,6 +118,7 @@ interface Query {
   myHomePageDesigns: Array<HomePageDesign>;
   myHomePageDesignSummaries: Array<HomePageDesignSummary>;
   marketplaceHomePageDesigns: Array<MarketplaceHomePageDesign>;
+  adminHomePageDesigns: Array<AdminHomePageDesign>;
   iframeWidgetSrcdoc: SingleIframeWidgetSrcdocOutput | null;
   iframeWidgetSrcdocs: MultiIframeWidgetSrcdocOutput | null;
   jargonTerm: SingleJargonTermOutput | null;
@@ -290,6 +291,7 @@ interface Mutation {
   createElicitQuestion: ElicitQuestionOutput | null;
   updateElicitQuestion: ElicitQuestionOutput | null;
   publishHomePageDesign: HomePageDesignMutationOutput | null;
+  setHomePageDesignVerified: HomePageDesign | null;
   createJargonTerm: JargonTermOutput | null;
   updateJargonTerm: JargonTermOutput | null;
   createLWEvent: LWEventOutput | null;
@@ -2667,6 +2669,8 @@ interface HomePageDesign {
   commentId: string | null;
   source: string;
   modelName: string | null;
+  autoReviewPassed: boolean | null;
+  autoReviewMessage: string | null;
   conversationHistory: any;
 }
 
@@ -2682,6 +2686,22 @@ interface MarketplaceHomePageDesign {
   html: string;
   verified: boolean;
   commentBaseScore: number;
+}
+
+interface AdminHomePageDesign {
+  _id: string;
+  publicId: string;
+  title: string;
+  html: string;
+  verified: boolean;
+  autoReviewPassed: boolean | null;
+  autoReviewMessage: string | null;
+  createdAt: Date;
+  source: string;
+  modelName: string | null;
+  commentId: string | null;
+  ownerDisplayName: string;
+  ownerSlug: string;
 }
 
 interface IframeWidgetSrcdoc {
@@ -9005,6 +9025,7 @@ interface GraphQLTypeMap {
   HomePageDesign: HomePageDesign;
   HomePageDesignSummary: HomePageDesignSummary;
   MarketplaceHomePageDesign: MarketplaceHomePageDesign;
+  AdminHomePageDesign: AdminHomePageDesign;
   IframeWidgetSrcdoc: IframeWidgetSrcdoc;
   SingleIframeWidgetSrcdocOutput: SingleIframeWidgetSrcdocOutput;
   IframeWidgetSrcdocSelector: IframeWidgetSrcdocSelector;
