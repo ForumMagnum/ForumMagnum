@@ -217,6 +217,18 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     color: '#171411',
     whiteSpace: 'pre-wrap',
   },
+  messageWithHint: {
+    display: 'flex',
+    alignItems: 'baseline',
+    gap: 10,
+    flexWrap: 'wrap',
+  },
+  messageHint: {
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 10,
+    color: '#85776c',
+    whiteSpace: 'normal' as const,
+  },
   typingIndicator: {
     display: 'flex',
     gap: 4,
@@ -237,12 +249,6 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
   },
   typingIndicatorWrap: {
     paddingTop: 10,
-  },
-  typingIndicatorHint: {
-    marginTop: 8,
-    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
-    fontSize: 10,
-    color: '#85776c',
   },
   '@keyframes bounce': {
     '0%, 60%, 100%': { opacity: 0.3 },
@@ -914,6 +920,7 @@ const HomeDesignChatPanel = () => {
               <div key={message.id}>
                 {message.parts.map((part, i) => {
                   if (part.type === 'text' && part.text.trim()) {
+                    const showPendingHint = message.role === 'assistant' && message.id === lastMsg?.id && showTypingIndicator;
                     return (
                       <article
                         key={`${message.id}-${i}`}
@@ -922,7 +929,14 @@ const HomeDesignChatPanel = () => {
                           [classes.assistantMessageCard]: message.role === 'assistant',
                         })}
                       >
-                        <div className={classes.message}>{part.text}</div>
+                        <div className={classNames(classes.message, {
+                          [classes.messageWithHint]: showPendingHint,
+                        })}>
+                          <span>{part.text}</span>
+                          {showPendingHint && (
+                            <span className={classes.messageHint}>This may take 1-3 minutes.</span>
+                          )}
+                        </div>
                       </article>
                     );
                   }
@@ -979,9 +993,6 @@ const HomeDesignChatPanel = () => {
               <div className={classes.typingIndicatorWrap}>
                 <div className={classes.typingIndicator}>
                   <span /><span /><span />
-                </div>
-                <div className={classes.typingIndicatorHint}>
-                  This may take 1-3 minutes.
                 </div>
               </div>
             )}
