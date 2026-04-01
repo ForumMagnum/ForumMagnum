@@ -5082,7 +5082,7 @@ export function getDefaultHomePageBody(): string {
                 </span>
               </>
             ) : (
-              <a href="/auth/login" target="_top">Sign In</a>
+              <a href="/login" target="_top">Sign In</a>
             )}
           </div>
         </nav>
