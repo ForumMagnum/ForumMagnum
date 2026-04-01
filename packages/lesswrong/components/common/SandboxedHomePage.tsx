@@ -6,7 +6,7 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getSandboxedHomePageSrcdoc, wrapBodyInSrcdoc } from './SandboxedHomePageSrcdoc';
 import { useCurrentUser } from '../common/withUser';
 import { useHomeDesignChat } from './HomeDesignChatContext';
-import { useLocation } from '@/lib/routeUtil';
+import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useApolloClient } from '@apollo/client/react';
@@ -219,6 +219,7 @@ function SandboxedHomePageContent() {
   const currentUser = useCurrentUser();
   const designChat = useHomeDesignChat();
   const { query } = useLocation();
+  const navigate = useNavigate();
   const themePublicId = query.theme as string | undefined;
   const { latestUnreadCount } = useUnreadNotifications();
 
@@ -291,6 +292,17 @@ function SandboxedHomePageContent() {
           notifications: data?.notifications?.results ?? [],
         };
       }
+      case 'getTextAsset': {
+        const path = typeof params.path === 'string' ? params.path : '';
+        if (!path.startsWith('/fooming-shoggoths/lyrics/') || !path.endsWith('.txt')) {
+          throw new Error('Invalid text asset path');
+        }
+        const resp = await fetch(path, { credentials: 'same-origin' });
+        if (!resp.ok) {
+          throw new Error(`Text asset request failed: ${resp.status}`);
+        }
+        return await resp.text();
+      }
       case 'getKarmaNotifications': {
         if (!currentUser) {
           return {
@@ -349,6 +361,14 @@ function SandboxedHomePageContent() {
         designChat.setIsOpen(true);
         return { success: true };
       }
+      case 'navigate': {
+        const href = typeof params.href === 'string' ? params.href : null;
+        if (!href) {
+          throw new Error('Missing href');
+        }
+        navigate(href, params.replace === true ? { replace: true } : undefined);
+        return { success: true };
+      }
       case 'revertToNormalHomepage': {
         designChat.setIsOpen(false);
         const url = new URL(window.location.href);
@@ -360,7 +380,7 @@ function SandboxedHomePageContent() {
       default:
         throw new Error(`Unknown RPC method: ${method}`);
     }
-  }, [currentUser, client, designChat, latestUnreadCount]);
+  }, [currentUser, client, designChat, latestUnreadCount, navigate]);
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {

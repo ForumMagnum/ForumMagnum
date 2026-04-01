@@ -10,13 +10,16 @@ export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOpti
   const externalStylesheetLinks = globalExternalStylesheets
     .map((href) => `<link rel="stylesheet" type="text/css" href="${href}">`)
     .join('\n  ');
+  const connectSrc = origin ? `${origin}/ ${origin}/graphql` : `'self'`;
+  const mediaSrc = origin ? `${origin}/` : `'self'`;
+  const graphqlEndpoint = origin ? `${origin}/graphql` : '/graphql';
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://use.typekit.net https://p.typekit.net; connect-src ${origin}/ ${origin}/graphql https://unpkg.com; img-src https://res.cloudinary.com https://res.cloudinary.com/lesswrong-2-0/ data:; media-src ${origin}/ data: blob:; font-src https://use.typekit.net; base-uri 'none'; form-action 'none'; worker-src 'none';">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://use.typekit.net https://p.typekit.net; connect-src ${connectSrc} https://unpkg.com; img-src https://res.cloudinary.com https://res.cloudinary.com/lesswrong-2-0/ data:; media-src ${mediaSrc} data: blob:; font-src https://use.typekit.net; base-uri 'none'; form-action 'none'; worker-src 'none';">
   <style>
     html {
       margin: 0;
@@ -46,7 +49,7 @@ export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOpti
   <script>
     (function() {
       window.gqlQuery = function(query, variables) {
-        return fetch('${origin}/graphql', {
+        return fetch('${graphqlEndpoint}', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ query: query, variables: variables || {} }),
@@ -93,6 +96,9 @@ export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOpti
         getNotifications: function(params) {
           return callRpc('getNotifications', params || {});
         },
+        getTextAsset: function(path) {
+          return callRpc('getTextAsset', { path: path });
+        },
         getKarmaNotifications: function() {
           return callRpc('getKarmaNotifications', {});
         },
@@ -104,6 +110,9 @@ export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOpti
         },
         castVote: function(params) {
           return callRpc('castVote', params);
+        },
+        navigate: function(href, replace) {
+          return callRpc('navigate', { href: href, replace: !!replace });
         },
         openCustomizePanel: function() {
           return callRpc('openCustomizePanel', {});
@@ -133,6 +142,46 @@ export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOpti
       }
     })();
   </script>
+  ${omitRpcBridge ? '' : `<script>
+    (function() {
+      var appOrigin = ${JSON.stringify(origin)};
+
+      document.addEventListener('click', function(event) {
+        if (event.defaultPrevented) return;
+        if (event.button !== 0) return;
+        if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+        var node = event.target;
+        while (node && node.nodeType === 1) {
+          if (node.tagName === 'A') break;
+          node = node.parentElement;
+        }
+        if (!node) return;
+
+        var anchor = node;
+        if (anchor.getAttribute('target') !== '_top') return;
+        if (anchor.hasAttribute('download')) return;
+
+        var rawHref = anchor.getAttribute('href');
+        if (!rawHref) return;
+
+        var resolvedUrl;
+        try {
+          resolvedUrl = new URL(rawHref, appOrigin);
+        } catch (err) {
+          return;
+        }
+
+        if (resolvedUrl.origin !== appOrigin) return;
+        if (!window.rpc || typeof window.rpc.navigate !== 'function') return;
+
+        event.preventDefault();
+        window.rpc.navigate(resolvedUrl.pathname + resolvedUrl.search + resolvedUrl.hash).catch(function(err) {
+          console.error('Failed to navigate parent route', err);
+        });
+      }, true);
+    })();
+  </script>`}
 </body>
 </html>`;
 }
@@ -731,6 +780,10 @@ export function getDefaultHomePageBody(): string {
       justify-content: flex-start;
     }
 
+    .latest-comments-card .card-topline {
+      margin-bottom: 0;
+    }
+
     .latest-comments-list {
       position: relative;
       display: flex;
@@ -908,8 +961,8 @@ export function getDefaultHomePageBody(): string {
     }
 
     .shoggoths-controls {
-      display: flex;
-      justify-content: space-between;
+      display: grid;
+      grid-template-columns: max-content minmax(0, 1fr) max-content;
       gap: 12px;
       align-items: center;
       min-width: 0;
@@ -964,10 +1017,13 @@ export function getDefaultHomePageBody(): string {
     }
 
     .shoggoths-now-playing-track {
+      position: relative;
+      top: 2px;
       min-width: 0;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
+      text-align: center;
       font-family: var(--headline);
       font-size: 18px;
       line-height: 1.04;
@@ -998,6 +1054,12 @@ export function getDefaultHomePageBody(): string {
       min-height: 0;
     }
 
+    .shoggoths-track-entry {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
     .shoggoths-tracklist-toggle {
       display: none;
       appearance: none;
@@ -1015,22 +1077,52 @@ export function getDefaultHomePageBody(): string {
       align-self: center;
     }
 
+    .shoggoths-track-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 104px;
+      gap: 6px;
+      align-items: stretch;
+    }
+
     .shoggoths-track-button {
       width: 100%;
-      padding: 4px 6px;
+      padding: 2px 5px;
       display: grid;
       grid-template-columns: auto minmax(0, 1fr);
       gap: 6px;
       align-items: center;
       text-align: left;
       font-family: var(--sans);
-      font-size: 9px;
-      line-height: 1.2;
+      font-size: 11.5px;
+      line-height: 1.15;
+    }
+
+    .shoggoths-lyrics-toggle {
+      appearance: none;
+      border: 1px solid var(--rule);
+      background: transparent;
+      color: var(--ink-faint);
+      cursor: pointer;
+      width: 100%;
+      min-width: 0;
+      padding: 2px 7px;
+      font-family: var(--sans);
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .shoggoths-lyrics-toggle:hover,
+    .shoggoths-lyrics-toggle.active {
+      border-color: var(--accent);
+      color: var(--accent);
     }
 
     .shoggoths-track-number {
       display: block;
-      font-size: 8px;
+      font-size: 9px;
       line-height: 1;
       letter-spacing: 0.18em;
       text-transform: uppercase;
@@ -1044,6 +1136,52 @@ export function getDefaultHomePageBody(): string {
     .shoggoths-track-title {
       min-width: 0;
       display: block;
+    }
+
+    .shoggoths-lyrics-panel {
+      margin-top: 4px;
+      border: 1px solid var(--rule);
+      padding: 6px 8px;
+      max-height: 180px;
+      overflow-y: auto;
+      background: rgba(248, 244, 238, 0.62);
+    }
+
+    .shoggoths-lyrics-status {
+      font-family: var(--sans);
+      font-size: 9px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+
+    .shoggoths-lyrics-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .shoggoths-lyrics-line {
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 8px;
+      align-items: start;
+      font-family: var(--sans);
+      font-size: 10px;
+      line-height: 1.35;
+      color: var(--ink-soft);
+    }
+
+    .shoggoths-lyrics-line.active {
+      color: var(--accent);
+    }
+
+    .shoggoths-lyrics-time {
+      font-size: 8px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      white-space: nowrap;
     }
 
     .loading,
@@ -1268,6 +1406,16 @@ export function getDefaultHomePageBody(): string {
         display: none;
       }
 
+      .shoggoths-track-button {
+        padding: 4px 6px;
+        font-size: 9px;
+        line-height: 1.2;
+      }
+
+      .shoggoths-track-number {
+        font-size: 8px;
+      }
+
       .dispatch-grid {
         grid-template-columns: 1fr;
       }
@@ -1388,8 +1536,8 @@ export function getDefaultHomePageBody(): string {
     var richContentCache = typeof Map === 'function' ? new Map() : null;
 
     var POSTS_QUERY = \`
-      query RecentPosts($limit: Int) {
-        posts(selector: { magic: { forum: true } }, limit: $limit) {
+      query RecentPosts($limit: Int, $offset: Int, $enableTotal: Boolean) {
+        posts(selector: { magic: { forum: true } }, limit: $limit, offset: $offset, enableTotal: $enableTotal) {
           results {
             _id
             title
@@ -1403,6 +1551,7 @@ export function getDefaultHomePageBody(): string {
             customHighlight { html }
             contents { html htmlHighlight }
           }
+          totalCount
         }
       }
     \`;
@@ -1444,8 +1593,8 @@ export function getDefaultHomePageBody(): string {
     \`;
 
     var RECENT_COMMENTS_QUERY = \`
-      query RecentComments($limit: Int, $after: String, $sortBy: String) {
-        comments(selector: { recentComments: { sortBy: $sortBy, after: $after } }, limit: $limit) {
+      query RecentComments($limit: Int, $offset: Int, $after: String, $sortBy: String, $enableTotal: Boolean) {
+        comments(selector: { recentComments: { sortBy: $sortBy, after: $after } }, limit: $limit, offset: $offset, enableTotal: $enableTotal) {
           results {
             _id
             postId
@@ -1455,6 +1604,7 @@ export function getDefaultHomePageBody(): string {
             user { displayName slug }
             post { _id slug title }
           }
+          totalCount
         }
       }
     \`;
@@ -1478,19 +1628,19 @@ export function getDefaultHomePageBody(): string {
         id: 'first-album',
         title: 'First Album',
         tracks: [
-          { title: 'Road to Wisdom', src: '/fooming-shoggoths/first-album/01_Road_to_Wisdom.mp3' },
-          { title: 'Litany of Gendlin', src: '/fooming-shoggoths/first-album/02_Litany_of_Gendlin.mp3' },
+          { title: 'The Road to Wisdom', src: '/fooming-shoggoths/first-album/01_Road_to_Wisdom.mp3' },
+          { title: 'The Litany of Gendlin', src: '/fooming-shoggoths/first-album/02_Litany_of_Gendlin.mp3' },
           { title: 'The Litany of Tarrrrrrrski', src: '/fooming-shoggoths/first-album/03_The_Litany_of_Tarrrrrrrski.mp3' },
-          { title: 'Truth Won’t Treat You Kind', src: '/fooming-shoggoths/first-album/04_Truth_Wont_Treat_You_Kind.mp3' },
-          { title: 'I Knew the Name Before It Had One', src: '/fooming-shoggoths/first-album/05_I_Knew_the_Name_Before_It_Had_One.mp3' },
-          { title: 'Station 4', src: '/fooming-shoggoths/first-album/06_Station_4.mp3' },
-          { title: 'Feather Fall', src: '/fooming-shoggoths/first-album/07_Feather_Fall.mp3' },
-          { title: 'Nothing Is Mere', src: '/fooming-shoggoths/first-album/08_Nothing_is_Mere.mp3' },
+          { title: 'Thought That Faster', src: '/fooming-shoggoths/first-album/04_Thought_That_Faster.mp3' },
+          { title: "Dath Ilan's Song", src: '/fooming-shoggoths/first-album/05_Dath_Ilans_Song.mp3' },
+          { title: 'Half An Hour Before Dawn In San Francisco', src: '/fooming-shoggoths/first-album/06_San_Francisco.mp3' },
+          { title: 'AGI and the EMH', src: '/fooming-shoggoths/first-album/07_AGI_and_the_EMH.mp3' },
+          { title: 'First They Came for the Epistemology', src: '/fooming-shoggoths/first-album/08_First_they_came_for_the_epistemology.mp3' },
           { title: 'Prime Factorization', src: '/fooming-shoggoths/first-album/09_Prime_Factorization.mp3' },
-          { title: 'Right Here', src: '/fooming-shoggoths/first-album/10_Right_Here.mp3' },
+          { title: 'Anthropic Capabilities', src: '/fooming-shoggoths/first-album/10_Anthropic_Capabilities.mp3' },
           { title: 'Nihil Supernum', src: '/fooming-shoggoths/first-album/11_Nihil_Supernum.mp3' },
           { title: 'More Dakka', src: '/fooming-shoggoths/first-album/12_More_Dakka.mp3' },
-          { title: 'Dance of the Doomsday Clock', src: '/fooming-shoggoths/first-album/13_Dance_of_the_Doomsday_Clock.mp3' },
+          { title: 'FHI at Oxford', src: '/fooming-shoggoths/first-album/13_FHI_at_Oxford.mp3' },
           { title: 'Answer to Job', src: '/fooming-shoggoths/first-album/14_Answer_to_Job.mp3' },
         ],
       },
@@ -1500,16 +1650,17 @@ export function getDefaultHomePageBody(): string {
         tracks: [
           { title: 'The Sequences', src: '/fooming-shoggoths/second-album/01_The_Sequences.mp3' },
           { title: 'Machines of Loving Grace', src: '/fooming-shoggoths/second-album/02_Machines_of_Loving_Grace.mp3' },
-          { title: 'Thought That Faster', src: '/fooming-shoggoths/second-album/04_Thought_That_Faster.mp3' },
-          { title: 'Dath Ilan’s Song', src: '/fooming-shoggoths/second-album/05_Dath_Ilans_Song.mp3' },
-          { title: 'San Francisco', src: '/fooming-shoggoths/second-album/06_San_Francisco.mp3' },
-          { title: 'AGI and the EMH', src: '/fooming-shoggoths/second-album/07_AGI_and_the_EMH.mp3' },
-          { title: 'First They Came for the Epistemology', src: '/fooming-shoggoths/second-album/08_First_they_came_for_the_epistemology.mp3' },
+          { title: 'You Have Not Been A Good User', src: '/fooming-shoggoths/second-album/03_You_Have_Not_Been_A_Good_User.mp3' },
+          { title: "Truth Won't Treat You Kind", src: '/fooming-shoggoths/second-album/04_Truth_Wont_Treat_You_Kind.mp3' },
+          { title: 'I Knew the Name Before It Had One', src: '/fooming-shoggoths/second-album/05_I_Knew_the_Name_Before_It_Had_One.mp3' },
+          { title: 'Station 4', src: '/fooming-shoggoths/second-album/06_Station_4.mp3' },
+          { title: 'Feather Fall', src: '/fooming-shoggoths/second-album/07_Feather_Fall.mp3' },
+          { title: 'Nothing is Mere', src: '/fooming-shoggoths/second-album/08_Nothing_is_Mere.mp3' },
           { title: 'Friendly Fire', src: '/fooming-shoggoths/second-album/09_Friendly_Fire.mp3' },
-          { title: 'Anthropic Capabilities', src: '/fooming-shoggoths/second-album/10_Anthropic_Capabilities.mp3' },
+          { title: 'Right Here', src: '/fooming-shoggoths/second-album/10_Right_Here.mp3' },
           { title: 'I Tried', src: '/fooming-shoggoths/second-album/11_I_Tried.mp3' },
-          { title: 'Fridays Far Enough For Milk', src: '/fooming-shoggoths/second-album/12_Fridays_Far_Enough_For_Milk.mp3' },
-          { title: 'FHI at Oxford', src: '/fooming-shoggoths/second-album/13_FHI_at_Oxford.mp3' },
+          { title: "Friday's Far Enough For Milk", src: '/fooming-shoggoths/second-album/12_Fridays_Far_Enough_For_Milk.mp3' },
+          { title: 'Dance of the Doomsday Clock', src: '/fooming-shoggoths/second-album/13_Dance_of_the_Doomsday_Clock.mp3' },
         ],
       },
     ];
@@ -1523,6 +1674,60 @@ export function getDefaultHomePageBody(): string {
 
     var RICH_CODE_FONT_FAMILY = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
     var RICH_CODE_FONT_SCALE = 0.92;
+    var lyricsFetchCache = {};
+
+    function getLyricsSrc(trackOrAudioSrc) {
+      if (trackOrAudioSrc && typeof trackOrAudioSrc === 'object' && trackOrAudioSrc.lyricsSrc) {
+        return trackOrAudioSrc.lyricsSrc;
+      }
+      var audioSrc = typeof trackOrAudioSrc === 'string'
+        ? trackOrAudioSrc
+        : (trackOrAudioSrc && trackOrAudioSrc.src) || '';
+      var fileName = ((audioSrc || '').split('/').pop() || '').replace(/\\.mp3$/i, '.txt');
+      return fileName ? ('/fooming-shoggoths/lyrics/' + fileName) : '';
+    }
+
+    function parseTimedLyrics(text) {
+      var lines = (text || '').split(/\\r?\\n/);
+      var result = [];
+      var pattern = /^\\[(\\d{2}):(\\d{2})\\]\\s*(.*)$/;
+      for (var i = 0; i < lines.length; i++) {
+        var match = lines[i].match(pattern);
+        if (!match) continue;
+        var minutes = parseInt(match[1], 10) || 0;
+        var seconds = parseInt(match[2], 10) || 0;
+        var content = (match[3] || '').trim();
+        if (!content) continue;
+        result.push({
+          time: minutes * 60 + seconds,
+          label: match[1] + ':' + match[2],
+          text: content,
+        });
+      }
+      return result;
+    }
+
+    function loadTrackLyrics(trackOrAudioSrc) {
+      var lyricsSrc = getLyricsSrc(trackOrAudioSrc);
+      if (!lyricsSrc) return Promise.resolve({ status: 'unavailable', lines: [] });
+      if (lyricsFetchCache[lyricsSrc]) return lyricsFetchCache[lyricsSrc];
+      var fetchText = window.rpc && window.rpc.getTextAsset
+        ? window.rpc.getTextAsset(lyricsSrc)
+        : fetch(lyricsSrc).then(function(resp) {
+            if (!resp.ok) throw new Error('Lyrics fetch failed: ' + resp.status);
+            return resp.text();
+          });
+      lyricsFetchCache[lyricsSrc] = fetchText
+        .then(function(text) {
+          var lines = parseTimedLyrics(text);
+          if (!lines.length) return { status: 'unavailable', lines: [] };
+          return { status: 'ready', lines: lines };
+        })
+        .catch(function() {
+          return { status: 'unavailable', lines: [] };
+        });
+      return lyricsFetchCache[lyricsSrc];
+    }
 
     function cloneRichStyle(style) {
       return {
@@ -1993,6 +2198,114 @@ export function getDefaultHomePageBody(): string {
         if (scoreDiff) return scoreDiff;
         return new Date(b && b.postedAt || 0).getTime() - new Date(a && a.postedAt || 0).getTime();
       });
+    }
+
+    var INITIAL_TOP_POSTS_COUNT = 12;
+    var TOP_POSTS_PAGE_SIZE = 12;
+    var QUICKTAKES_INITIAL_COUNT = 4;
+    var INITIAL_TOP_COMMENTS_COUNT = 16;
+    var TOP_COMMENTS_PAGE_SIZE = 16;
+    var INITIAL_RECENT_COMMENTS_COUNT = 10;
+    var RECENT_COMMENTS_PAGE_SIZE = 10;
+    var RECENT_COMMENTS_INCREMENT = 8;
+
+    function getPostsResults(data) {
+      return (data && data.posts && data.posts.results) || [];
+    }
+
+    function getPostsTotalCount(data) {
+      return data && data.posts && typeof data.posts.totalCount === 'number'
+        ? data.posts.totalCount
+        : null;
+    }
+
+    function getCommentsResults(data) {
+      return (data && data.comments && data.comments.results) || [];
+    }
+
+    function getCommentsTotalCount(data) {
+      return data && data.comments && typeof data.comments.totalCount === 'number'
+        ? data.comments.totalCount
+        : null;
+    }
+
+    function getCuratedIds(curated) {
+      return new Set((curated || []).map(function(post) {
+        return post && post._id;
+      }).filter(Boolean));
+    }
+
+    function mergeCuratedPosts(curated, rawPosts) {
+      var curatedIds = getCuratedIds(curated);
+      return (curated || []).concat((rawPosts || []).filter(function(post) {
+        return post && !curatedIds.has(post._id);
+      }));
+    }
+
+    function getRenderablePosts(posts) {
+      return (posts || []).filter(function(post) {
+        if (!post || !post.title) return false;
+        if (/open thread/i.test(post.title)) return false;
+        return fullPostText(post).length > 80;
+      });
+    }
+
+    function getTopPostsListPosts(rawPosts, curated) {
+      var curatedIds = getCuratedIds(curated);
+      return getRenderablePosts(rawPosts).filter(function(post) {
+        return !curatedIds.has(post._id);
+      });
+    }
+
+    function getTopCommentsFromResults(rawComments, after) {
+      return sortTopComments((rawComments || []).filter(function(comment) {
+        if (!comment || !comment.postedAt) return false;
+        if (!getCommentPlaintext(comment)) return false;
+        return new Date(comment.postedAt).getTime() >= new Date(after).getTime();
+      }));
+    }
+
+    function getRecentCommentsFromResults(rawComments, after) {
+      return (rawComments || []).filter(function(comment) {
+        if (!comment || !comment.postedAt) return false;
+        if (!getCommentPlaintext(comment)) return false;
+        if ((comment.baseScore || 0) < 0) return false;
+        return new Date(comment.postedAt).getTime() >= new Date(after).getTime();
+      }).sort(function(a, b) {
+        return new Date(b && b.postedAt || 0).getTime() - new Date(a && a.postedAt || 0).getTime();
+      });
+    }
+
+    async function collectPaginatedResults(options) {
+      var items = (options.initialItems || []).slice();
+      var totalCount = typeof options.initialTotalCount === 'number'
+        ? options.initialTotalCount
+        : null;
+      var targetCount = options.targetCount || 0;
+
+      while (options.getDisplayItems(items).length < targetCount) {
+        if (totalCount != null && items.length >= totalCount) break;
+
+        var data = await gqlQuery(options.query, Object.assign({}, options.variables || {}, {
+          limit: options.pageSize,
+          offset: items.length,
+          enableTotal: true,
+        }));
+        var nextItems = options.getResults(data);
+        var nextTotalCount = options.getTotalCount(data);
+        if (typeof nextTotalCount === 'number') {
+          totalCount = nextTotalCount;
+        }
+        if (!nextItems.length) break;
+
+        items = items.concat(nextItems);
+        if (nextItems.length < options.pageSize) break;
+      }
+
+      return {
+        results: items,
+        totalCount: totalCount,
+      };
     }
 
     var excerptMeasureCanvas = document.createElement('canvas');
@@ -4092,7 +4405,12 @@ export function getDefaultHomePageBody(): string {
             <div
               ref={ctaRef}
               className="announcement-cta"
-              style={bodyColumnWidth ? { width: bodyColumnWidth + 'px', bottom: ctaBottomOffset ? ctaBottomOffset + 'px' : '0px' } : (ctaBottomOffset ? { bottom: ctaBottomOffset + 'px' } : undefined)}
+              style={bodyColumnWidth ? {
+                width: bodyColumnWidth + 'px',
+                minWidth: bodyColumnWidth + 'px',
+                maxWidth: bodyColumnWidth + 'px',
+                bottom: ctaBottomOffset ? ctaBottomOffset + 'px' : '0px',
+              } : (ctaBottomOffset ? { bottom: ctaBottomOffset + 'px' } : undefined)}
             >
               <button
                 type="button"
@@ -4144,7 +4462,7 @@ export function getDefaultHomePageBody(): string {
     }
 
     function TopPostsSection(props) {
-      var hasMore = props.visibleCount < props.posts.length;
+      var hasMore = !!props.hasMore;
       return (
         <div className="top-posts-section">
           <div className="card-topline">
@@ -4172,7 +4490,9 @@ export function getDefaultHomePageBody(): string {
           </div>
           {hasMore ? (
             <div className="top-posts-actions">
-              <button type="button" className="top-posts-load-more" onClick={props.onLoadMore}>Load more</button>
+              <button type="button" className="top-posts-load-more" onClick={props.onLoadMore} disabled={props.loadingMore}>
+                {props.loadingMore ? 'Loading...' : 'Load more'}
+              </button>
             </div>
           ) : null}
         </div>
@@ -4180,7 +4500,7 @@ export function getDefaultHomePageBody(): string {
     }
 
     function RecentCommentsSection(props) {
-      var hasMore = props.visibleCount < props.items.length;
+      var hasMore = !!props.hasMore;
       return (
         <div className="recent-comments-section">
           <div className="card-topline">
@@ -4208,7 +4528,9 @@ export function getDefaultHomePageBody(): string {
           </div>
           {hasMore ? (
             <div className="top-posts-actions">
-              <button type="button" className="top-posts-load-more" onClick={props.onLoadMore}>Load more</button>
+              <button type="button" className="top-posts-load-more" onClick={props.onLoadMore} disabled={props.loadingMore}>
+                {props.loadingMore ? 'Loading...' : 'Load more'}
+              </button>
             </div>
           ) : null}
         </div>
@@ -4252,11 +4574,9 @@ export function getDefaultHomePageBody(): string {
           var rowHeight = rowRect.height || 0;
           if (!rowHeight || !listRect.height) return;
 
-          var heroGridLine = 18;
-          var rowTop = rowRect.top - cardRect.top;
-          var nextGridPad = Math.max(0, gridPad + snapToLineGrid(rowTop, heroGridLine) - rowTop);
+          var fitCount = Math.max(1, Math.min(props.items.length, Math.floor((listRect.height + 1) / rowHeight)));
+          var nextGridPad = Math.max(0, listRect.height - fitCount * rowHeight - 8);
           nextGridPad = Math.round(nextGridPad * 100) / 100;
-          var fitCount = Math.max(1, Math.min(props.items.length, Math.floor((listRect.height - nextGridPad + 1) / rowHeight)));
           var nextSignature = fitCount + ':' + nextGridPad;
           if (nextSignature !== lastMeasured) {
             lastMeasured = nextSignature;
@@ -4331,12 +4651,19 @@ export function getDefaultHomePageBody(): string {
       var mobileTracklistState = useState(false);
       var mobileTracklistOpen = mobileTracklistState[0];
       var setMobileTracklistOpen = mobileTracklistState[1];
+      var expandedLyricsTrackState = useState(null);
+      var expandedLyricsTrack = expandedLyricsTrackState[0];
+      var setExpandedLyricsTrack = expandedLyricsTrackState[1];
+      var lyricsState = useState({});
+      var lyricsByTrack = lyricsState[0];
+      var setLyricsByTrack = lyricsState[1];
       var audioRef = useRef(null);
       var currentAlbum = FOOMING_SHOGGOTHS_ALBUMS[albumIndex] || FOOMING_SHOGGOTHS_ALBUMS[0];
       var currentTrack = currentAlbum.tracks[trackIndex] || currentAlbum.tracks[0];
 
       useEffect(function() {
         setTrackIndex(0);
+        setExpandedLyricsTrack(null);
       }, [albumIndex]);
 
       useEffect(function() {
@@ -4419,6 +4746,36 @@ export function getDefaultHomePageBody(): string {
 
       function handleAdvanceTrack() {
         handleStepTrack(1);
+      }
+
+      function ensureLyrics(track) {
+        if (!track || !track.src) return;
+        if (lyricsByTrack[track.src] && lyricsByTrack[track.src].status !== 'loading') return;
+        setLyricsByTrack(function(current) {
+          var next = Object.assign({}, current);
+          if (!next[track.src]) next[track.src] = { status: 'loading', lines: [] };
+          return next;
+        });
+        loadTrackLyrics(track).then(function(result) {
+          setLyricsByTrack(function(current) {
+            var next = Object.assign({}, current);
+            next[track.src] = result;
+            return next;
+          });
+        });
+      }
+
+      function getActiveLyricIndex(lines, currentTime) {
+        if (!lines || !lines.length) return -1;
+        var activeIndex = -1;
+        for (var i = 0; i < lines.length; i++) {
+          if (lines[i].time <= currentTime + 0.15) {
+            activeIndex = i;
+          } else {
+            break;
+          }
+        }
+        return activeIndex;
       }
 
       return (
@@ -4514,20 +4871,64 @@ export function getDefaultHomePageBody(): string {
               />
               <div className={'shoggoths-tracklist' + (mobileTracklistOpen ? '' : ' is-collapsed')}>
                 {currentAlbum.tracks.map(function(track, index) {
+                  var lyricsData = lyricsByTrack[track.src];
+                  var isExpanded = expandedLyricsTrack === track.src;
+                  var lyricLines = lyricsData && lyricsData.lines ? lyricsData.lines : [];
+                  var activeLyricIndex = track.src === currentTrack.src ? getActiveLyricIndex(lyricLines, timing.currentTime) : -1;
                   return (
-                    <button
-                      key={track.src}
-                      type="button"
-                      className={'shoggoths-track-button' + (index === trackIndex ? ' active' : '')}
-                      onClick={function() {
-                        handleSelectTrack(index);
-                      }}
-                    >
-                      <span className="shoggoths-track-number">
-                        {String(index + 1).padStart(2, '0')}
-                      </span>
-                      <span className="shoggoths-track-title">{track.title}</span>
-                    </button>
+                    <div key={track.src} className="shoggoths-track-entry">
+                      <div className="shoggoths-track-row">
+                        <button
+                          type="button"
+                          className={'shoggoths-track-button' + (index === trackIndex ? ' active' : '')}
+                          onClick={function() {
+                            handleSelectTrack(index);
+                          }}
+                        >
+                          <span className="shoggoths-track-number">
+                            {String(index + 1).padStart(2, '0')}
+                          </span>
+                          <span className="shoggoths-track-title">{track.title}</span>
+                        </button>
+                        <button
+                          type="button"
+                          className={'shoggoths-lyrics-toggle' + (isExpanded ? ' active' : '')}
+                          onClick={function() {
+                            if (isExpanded) {
+                              setExpandedLyricsTrack(null);
+                              return;
+                            }
+                            setExpandedLyricsTrack(track.src);
+                            ensureLyrics(track);
+                          }}
+                        >
+                          {isExpanded ? 'Hide lyrics' : 'Show lyrics'}
+                        </button>
+                      </div>
+                      {isExpanded ? (
+                        <div className="shoggoths-lyrics-panel">
+                          {!lyricsData || lyricsData.status === 'loading' ? (
+                            <div className="shoggoths-lyrics-status">Loading lyrics…</div>
+                          ) : lyricsData.status !== 'ready' || !lyricLines.length ? (
+                            <div className="shoggoths-lyrics-status">Lyrics unavailable</div>
+                          ) : (
+                            <div className="shoggoths-lyrics-lines">
+                              {lyricLines.map(function(line, lineIndex) {
+                                return (
+                                  <div
+                                    key={line.time + ':' + lineIndex}
+                                    className={'shoggoths-lyrics-line' + (lineIndex === activeLyricIndex ? ' active' : '')}
+                                  >
+                                    <span className="shoggoths-lyrics-time">{line.label}</span>
+                                    <span>{line.text}</span>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                        </div>
+                      ) : null}
+                    </div>
                   );
                 })}
               </div>
@@ -4617,63 +5018,205 @@ export function getDefaultHomePageBody(): string {
     function App() {
       var cols = useColumns();
       var mobileStacked = cols < 4;
-      var state = useState({ loading: true, error: null, posts: [], curated: [], quicktakes: [], topComments: [], recentComments: [] });
+      var commentsWindowStart = useMemo(function() {
+        return new Date(Date.now() - (36 * 60 * 60 * 1000)).toISOString();
+      }, []);
+      var state = useState({
+        loading: true,
+        error: null,
+        postResults: [],
+        postsTotalCount: null,
+        postsLoadingMore: false,
+        curated: [],
+        quicktakes: [],
+        topCommentResults: [],
+        recentCommentResults: [],
+        recentCommentsTotalCount: null,
+        recentCommentsLoadingMore: false,
+      });
       var data = state[0];
       var setData = state[1];
-      var topPostsVisibleCountState = useState(12);
+      var topPostsVisibleCountState = useState(INITIAL_TOP_POSTS_COUNT);
       var topPostsVisibleCount = topPostsVisibleCountState[0];
       var setTopPostsVisibleCount = topPostsVisibleCountState[1];
-      var recentCommentsVisibleCountState = useState(10);
+      var recentCommentsVisibleCountState = useState(INITIAL_RECENT_COMMENTS_COUNT);
       var recentCommentsVisibleCount = recentCommentsVisibleCountState[0];
       var setRecentCommentsVisibleCount = recentCommentsVisibleCountState[1];
-      var initialTopPostsCount = mobileStacked ? 8 : 12;
-      var initialRecentCommentsCount = 10;
+      var topPostsIncrement = mobileStacked ? 6 : 8;
 
       useEffect(function() {
-        var topCommentsAfter = new Date(Date.now() - (36 * 60 * 60 * 1000)).toISOString();
-        Promise.all([
-          gqlQuery(POSTS_QUERY, { limit: 48 }),
-          gqlQuery(CURATED_QUERY).catch(function() { return null; }),
-          gqlQuery(QUICKTAKES_QUERY, { limit: 12 }).catch(function() { return null; }),
-          gqlQuery(RECENT_COMMENTS_QUERY, { limit: 120, after: topCommentsAfter, sortBy: 'top' }).catch(function() { return null; }),
-          gqlQuery(RECENT_COMMENTS_QUERY, { limit: 120, after: topCommentsAfter, sortBy: 'new' }).catch(function() { return null; }),
-        ]).then(function(results) {
-          var posts = (results[0] && results[0].posts && results[0].posts.results) || [];
-          var curated = (results[1] && results[1].CuratedAndPopularThisWeek && results[1].CuratedAndPopularThisWeek.results) || [];
-          var quicktakes = (results[2] && results[2].comments && results[2].comments.results) || [];
-          var topComments = sortTopComments(((results[3] && results[3].comments && results[3].comments.results) || []).filter(function(comment) {
-            if (!comment || !comment.postedAt) return false;
-            if (!getCommentPlaintext(comment)) return false;
-            return new Date(comment.postedAt).getTime() >= new Date(topCommentsAfter).getTime();
-          }));
-          var recentComments = ((results[4] && results[4].comments && results[4].comments.results) || []).filter(function(comment) {
-            if (!comment || !comment.postedAt) return false;
-            if (!getCommentPlaintext(comment)) return false;
-            if ((comment.baseScore || 0) < 0) return false;
-            return new Date(comment.postedAt).getTime() >= new Date(topCommentsAfter).getTime();
-          }).sort(function(a, b) {
-            return new Date(b && b.postedAt || 0).getTime() - new Date(a && a.postedAt || 0).getTime();
+        var cancelled = false;
+
+        async function loadInitial() {
+          try {
+            var curatedResult = await gqlQuery(CURATED_QUERY).catch(function() { return null; });
+            if (cancelled) return;
+
+            var curated = (curatedResult && curatedResult.CuratedAndPopularThisWeek && curatedResult.CuratedAndPopularThisWeek.results) || [];
+            var results = await Promise.all([
+              collectPaginatedResults({
+                query: POSTS_QUERY,
+                pageSize: TOP_POSTS_PAGE_SIZE,
+                targetCount: INITIAL_TOP_POSTS_COUNT,
+                getResults: getPostsResults,
+                getTotalCount: getPostsTotalCount,
+                getDisplayItems: function(items) {
+                  return getTopPostsListPosts(items, curated);
+                },
+              }),
+              gqlQuery(QUICKTAKES_QUERY, { limit: QUICKTAKES_INITIAL_COUNT }).catch(function() { return null; }),
+              collectPaginatedResults({
+                query: RECENT_COMMENTS_QUERY,
+                pageSize: TOP_COMMENTS_PAGE_SIZE,
+                targetCount: INITIAL_TOP_COMMENTS_COUNT,
+                variables: { after: commentsWindowStart, sortBy: 'top' },
+                getResults: getCommentsResults,
+                getTotalCount: getCommentsTotalCount,
+                getDisplayItems: function(items) {
+                  return getTopCommentsFromResults(items, commentsWindowStart);
+                },
+              }).catch(function() {
+                return { results: [], totalCount: null };
+              }),
+              collectPaginatedResults({
+                query: RECENT_COMMENTS_QUERY,
+                pageSize: RECENT_COMMENTS_PAGE_SIZE,
+                targetCount: INITIAL_RECENT_COMMENTS_COUNT,
+                variables: { after: commentsWindowStart, sortBy: 'new' },
+                getResults: getCommentsResults,
+                getTotalCount: getCommentsTotalCount,
+                getDisplayItems: function(items) {
+                  return getRecentCommentsFromResults(items, commentsWindowStart);
+                },
+              }).catch(function() {
+                return { results: [], totalCount: null };
+              }),
+            ]);
+            if (cancelled) return;
+
+            setData({
+              loading: false,
+              error: null,
+              postResults: results[0].results,
+              postsTotalCount: results[0].totalCount,
+              postsLoadingMore: false,
+              curated: curated,
+              quicktakes: (results[1] && results[1].comments && results[1].comments.results) || [],
+              topCommentResults: results[2].results,
+              recentCommentResults: results[3].results,
+              recentCommentsTotalCount: results[3].totalCount,
+              recentCommentsLoadingMore: false,
+            });
+          } catch (error) {
+            if (cancelled) return;
+            setData({
+              loading: false,
+              error: error.message,
+              postResults: [],
+              postsTotalCount: null,
+              postsLoadingMore: false,
+              curated: [],
+              quicktakes: [],
+              topCommentResults: [],
+              recentCommentResults: [],
+              recentCommentsTotalCount: null,
+              recentCommentsLoadingMore: false,
+            });
+          }
+        }
+
+        void loadInitial();
+        return function() {
+          cancelled = true;
+        };
+      }, [commentsWindowStart]);
+
+      function loadMorePosts() {
+        if (data.postsLoadingMore) return;
+
+        var currentPosts = getTopPostsListPosts(data.postResults, data.curated);
+        var targetVisibleCount = topPostsVisibleCount + topPostsIncrement;
+        if (currentPosts.length >= targetVisibleCount) {
+          setTopPostsVisibleCount(Math.min(currentPosts.length, targetVisibleCount));
+          return;
+        }
+
+        setData(function(current) {
+          return Object.assign({}, current, { postsLoadingMore: true });
+        });
+
+        collectPaginatedResults({
+          query: POSTS_QUERY,
+          pageSize: TOP_POSTS_PAGE_SIZE,
+          targetCount: targetVisibleCount,
+          initialItems: data.postResults,
+          initialTotalCount: data.postsTotalCount,
+          getResults: getPostsResults,
+          getTotalCount: getPostsTotalCount,
+          getDisplayItems: function(items) {
+            return getTopPostsListPosts(items, data.curated);
+          },
+        }).then(function(result) {
+          var nextPosts = getTopPostsListPosts(result.results, data.curated);
+          setData(function(current) {
+            return Object.assign({}, current, {
+              postResults: result.results,
+              postsTotalCount: result.totalCount,
+              postsLoadingMore: false,
+            });
           });
-          var merged = curated.concat(posts.filter(function(post) {
-            return !curated.some(function(featured) { return featured._id === post._id; });
-          }));
-          setData({ loading: false, error: null, posts: merged, curated: curated, quicktakes: quicktakes, topComments: topComments, recentComments: recentComments });
+          setTopPostsVisibleCount(Math.min(nextPosts.length, targetVisibleCount));
         }).catch(function(error) {
-          setData({ loading: false, error: error.message, posts: [], curated: [], quicktakes: [], topComments: [], recentComments: [] });
+          console.error('Failed to load more posts:', error);
+          setData(function(current) {
+            return Object.assign({}, current, { postsLoadingMore: false });
+          });
         });
-      }, []);
+      }
 
-      useEffect(function() {
-        setTopPostsVisibleCount(function(current) {
-          return current < initialTopPostsCount ? initialTopPostsCount : current;
-        });
-      }, [initialTopPostsCount]);
+      function loadMoreRecentComments() {
+        if (data.recentCommentsLoadingMore) return;
 
-      useEffect(function() {
-        setRecentCommentsVisibleCount(function(current) {
-          return current < initialRecentCommentsCount ? initialRecentCommentsCount : current;
+        var currentComments = getRecentCommentsFromResults(data.recentCommentResults, commentsWindowStart);
+        var targetVisibleCount = recentCommentsVisibleCount + RECENT_COMMENTS_INCREMENT;
+        if (currentComments.length >= targetVisibleCount) {
+          setRecentCommentsVisibleCount(Math.min(currentComments.length, targetVisibleCount));
+          return;
+        }
+
+        setData(function(current) {
+          return Object.assign({}, current, { recentCommentsLoadingMore: true });
         });
-      }, [initialRecentCommentsCount]);
+
+        collectPaginatedResults({
+          query: RECENT_COMMENTS_QUERY,
+          pageSize: RECENT_COMMENTS_PAGE_SIZE,
+          targetCount: targetVisibleCount,
+          variables: { after: commentsWindowStart, sortBy: 'new' },
+          initialItems: data.recentCommentResults,
+          initialTotalCount: data.recentCommentsTotalCount,
+          getResults: getCommentsResults,
+          getTotalCount: getCommentsTotalCount,
+          getDisplayItems: function(items) {
+            return getRecentCommentsFromResults(items, commentsWindowStart);
+          },
+        }).then(function(result) {
+          var nextComments = getRecentCommentsFromResults(result.results, commentsWindowStart);
+          setData(function(current) {
+            return Object.assign({}, current, {
+              recentCommentResults: result.results,
+              recentCommentsTotalCount: result.totalCount,
+              recentCommentsLoadingMore: false,
+            });
+          });
+          setRecentCommentsVisibleCount(Math.min(nextComments.length, targetVisibleCount));
+        }).catch(function(error) {
+          console.error('Failed to load more comments:', error);
+          setData(function(current) {
+            return Object.assign({}, current, { recentCommentsLoadingMore: false });
+          });
+        });
+      }
 
       if (data.loading) {
         return (
@@ -4695,17 +5238,14 @@ export function getDefaultHomePageBody(): string {
         );
       }
 
-      var posts = data.posts.filter(function(post) {
-        if (!post || !post.title) return false;
-        if (/open thread/i.test(post.title)) return false;
-        return fullPostText(post).length > 80;
-      });
-      var curatedPostIds = new Set((data.curated || []).map(function(post) { return post && post._id; }).filter(Boolean));
-      var topPostsListPosts = posts.filter(function(post) {
-        return !curatedPostIds.has(post._id);
-      });
-      var latestComments = data.topComments;
-      var recentComments = data.recentComments;
+      var posts = getRenderablePosts(mergeCuratedPosts(data.curated, data.postResults));
+      var topPostsListPosts = getTopPostsListPosts(data.postResults, data.curated);
+      var latestComments = getTopCommentsFromResults(data.topCommentResults, commentsWindowStart);
+      var recentComments = getRecentCommentsFromResults(data.recentCommentResults, commentsWindowStart);
+      var hasMoreTopPosts = topPostsVisibleCount < topPostsListPosts.length
+        || (data.postsTotalCount != null && data.postResults.length < data.postsTotalCount);
+      var hasMoreRecentComments = recentCommentsVisibleCount < recentComments.length
+        || (data.recentCommentsTotalCount != null && data.recentCommentResults.length < data.recentCommentsTotalCount);
       var frontRightPost = posts[0];
       var useFrontBandRow = cols >= 8 && !!frontRightPost;
       var frontCenterSpan = useFrontBandRow ? Math.max(4, Math.ceil(cols * 0.5)) : cols;
@@ -4753,7 +5293,6 @@ export function getDefaultHomePageBody(): string {
       var bylineOptions = mobileStacked ? { hyphenateSpaces: true } : null;
       var announcementMinColumns = cols < 4 ? 1 : 2;
       var announcementMaxColumns = cols < 4 ? 1 : 3;
-      var topPostsIncrement = mobileStacked ? 6 : 8;
       var pageStyle = { '--cols': cols };
       var announcementContent = parseRichParagraphs(ANNOUNCEMENT_BODY_HTML);
       var announcementDisplayContent = mobileStacked ? announcementContent.slice(0, 1) : announcementContent;
@@ -4862,20 +5401,16 @@ export function getDefaultHomePageBody(): string {
                   posts={topPostsListPosts}
                   visibleCount={topPostsVisibleCount}
                   bylineOptions={bylineOptions}
-                  onLoadMore={function() {
-                    setTopPostsVisibleCount(function(current) {
-                      return Math.min(topPostsListPosts.length, current + topPostsIncrement);
-                    });
-                  }}
+                  hasMore={hasMoreTopPosts}
+                  loadingMore={data.postsLoadingMore}
+                  onLoadMore={loadMorePosts}
                 />
                 <RecentCommentsSection
                   items={recentComments}
                   visibleCount={recentCommentsVisibleCount}
-                  onLoadMore={function() {
-                    setRecentCommentsVisibleCount(function(current) {
-                      return Math.min(recentComments.length, current + 8);
-                    });
-                  }}
+                  hasMore={hasMoreRecentComments}
+                  loadingMore={data.recentCommentsLoadingMore}
+                  onLoadMore={loadMoreRecentComments}
                 />
               </div>
             </section>
