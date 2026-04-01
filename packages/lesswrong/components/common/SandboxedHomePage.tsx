@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useSyncExternalStore } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getSandboxedHomePageSrcdoc, wrapBodyInSrcdoc } from './SandboxedHomePageSrcdoc';
@@ -11,9 +11,9 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useApolloClient } from '@apollo/client/react';
 import HomeDesignChatPanel from './HomeDesignChatPanel';
-import DeferRender from './DeferRender';
 import { UnreadNotificationCountsQuery, useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { NotificationsListMultiQuery } from '../notifications/NotificationsListMultiQuery';
+import { SuspenseWrapper } from './SuspenseWrapper';
 
 const homePageDesignByPublicIdQuery = gql(`
   query HomePageDesignByPublicId($publicId: String!) {
@@ -154,6 +154,16 @@ const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
   },
 }));
 
+const subscribeNoop = () => () => {};
+
+function useOrigin(): string {
+  return useSyncExternalStore(
+    subscribeNoop,
+    () => window.location.origin,
+    () => ''
+  );
+}
+
 function sanitizeCurrentUserForHomeDesign(currentUser: UsersCurrent): Pick<UsersCurrent, '_id' | 'displayName' | 'slug' | 'karma'> {
   return {
     _id: currentUser._id,
@@ -176,7 +186,34 @@ function isRpcRequest(data: unknown): data is RpcRequest {
   return obj.type === 'rpc-request' && typeof obj.id === 'number' && typeof obj.method === 'string';
 }
 
+/**
+ * Outer shell: renders the fixed-position overlay immediately (never suspends).
+ * The inner content with queries is wrapped in a Suspense boundary so that
+ * the overlay covers the underlying layout even while data is loading.
+ */
 const SandboxedHomePage = () => {
+  const classes = useStyles(styles);
+  const designChat = useHomeDesignChat();
+
+  return (
+    <div className={classes.root}>
+      <div className={classNames(classes.mainViewport, {
+        [classes.mainViewportWithPanel]: designChat.isOpen,
+      })}>
+        <SuspenseWrapper name="SandboxedHomePageContent">
+          <SandboxedHomePageContent/>
+        </SuspenseWrapper>
+      </div>
+      <HomeDesignChatPanel />
+    </div>
+  );
+};
+
+/**
+ * Inner content: does the useQuery calls (which may suspend) and renders
+ * the iframe + customize button.
+ */
+function SandboxedHomePageContent() {
   const classes = useStyles(styles);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const currentUser = useCurrentUser();
@@ -356,7 +393,7 @@ const SandboxedHomePage = () => {
     return () => window.removeEventListener('message', onMessage);
   }, [handleRpc]);
 
-  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const origin = useOrigin();
   const themeHtml = themeData?.homePageDesignByPublicId?.html;
   const themeSrcdoc = themeHtml ? wrapBodyInSrcdoc(themeHtml, { origin }) : null;
   const latestDesignHtml = myDesignsData?.myHomePageDesigns?.[0]?.html;
@@ -365,32 +402,23 @@ const SandboxedHomePage = () => {
   const srcdoc = designChat.customSrcdoc ?? (designChat.useDefaultDesign ? defaultSrcdoc : (themeSrcdoc ?? userLatestSrcdoc ?? defaultSrcdoc));
 
   return (
-    <DeferRender ssr={false}>
-      <div className={classes.root}>
-        <div className={classNames(classes.mainViewport, {
-          [classes.mainViewportWithPanel]: designChat.isOpen,
-        })}>
-          <div className={classes.iframeWrap}>
-            <iframe
-              ref={iframeRef}
-              className={classes.iframe}
-              sandbox="allow-scripts allow-top-navigation-by-user-activation"
-              srcDoc={srcdoc}
-            />
-            {!designChat.isOpen && (
-              <button
-                className={classes.customizeButton}
-                onClick={() => designChat.setIsOpen(true)}
-              >
-                Customize
-              </button>
-            )}
-          </div>
-        </div>
-        <HomeDesignChatPanel />
-      </div>
-    </DeferRender>
+    <div className={classes.iframeWrap}>
+      <iframe
+        ref={iframeRef}
+        className={classes.iframe}
+        sandbox="allow-scripts allow-top-navigation-by-user-activation"
+        srcDoc={srcdoc}
+      />
+      {!designChat.isOpen && (
+        <button
+          className={classes.customizeButton}
+          onClick={() => designChat.setIsOpen(true)}
+        >
+          Customize
+        </button>
+      )}
+    </div>
   );
-};
+}
 
 export default SandboxedHomePage;
