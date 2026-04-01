@@ -33,8 +33,8 @@ export function isLocalhost(host: string): boolean {
   switch (host) {
     case "localhost":
     case "127.0.0.1":
-    case "::1":
     case "::ffff:127.0.0.1":
+    case "::1":
       return true;
     default:
       return false;

@@ -57,6 +57,16 @@ export const routeTrie = {
         "debugHeaders": {
           "hasRoute": true
         },
+        "designReview": {
+          "staticChildren": {
+            "inspector": {
+              "hasPage": true
+            }
+          },
+          "lowerCase": {
+            "inspector": "inspector"
+          }
+        },
         "emailSender": {
           "hasPage": true
         },
@@ -93,6 +103,7 @@ export const routeTrie = {
         "curation": "curation",
         "debugdatabasedifferences": "debugDatabaseDifferences",
         "debugheaders": "debugHeaders",
+        "designreview": "designReview",
         "emailsender": "emailSender",
         "llmconversations": "llmConversations",
         "migrations": "migrations",
@@ -380,6 +391,20 @@ export const routeTrie = {
         "health": {
           "hasRoute": true
         },
+        "homeDesignChat": {
+          "hasRoute": true
+        },
+        "homeDesigns": {
+          "staticChildren": {
+            "SKILL.md": {
+              "hasRoute": true
+            }
+          },
+          "lowerCase": {
+            "skill.md": "SKILL.md"
+          },
+          "hasRoute": true
+        },
         "mcp": {
           "hasRoute": true
         },
@@ -481,6 +506,8 @@ export const routeTrie = {
         "dropandcreatepg": "dropAndCreatePg",
         "getllmfeedback": "getLlmFeedback",
         "health": "health",
+        "homedesignchat": "homeDesignChat",
+        "homedesigns": "homeDesigns",
         "mcp": "mcp",
         "notificationcount": "notificationCount",
         "notificationevents": "notificationEvents",
@@ -876,6 +903,9 @@ export const routeTrie = {
         "2018": "2018",
         "2019": "2019"
       }
+    },
+    "notifications": {
+      "hasPage": true
     },
     "oauth": {
       "staticChildren": {
@@ -1282,6 +1312,7 @@ export const routeTrie = {
     "newpost": "newPost",
     "nominateposts": "nominatePosts",
     "nominations": "nominations",
+    "notifications": "notifications",
     "oauth": "oauth",
     "out": "out",
     "pastevents": "pastEvents",

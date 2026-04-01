@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     code_challenge_methods_supported: ["S256"],
     response_types_supported: ["code"],
     grant_types_supported: ["authorization_code"],
-    scopes_supported: ["lesswrong:access"],
+    scopes_supported: ["lesswrong:access", "lesswrong:home-design"],
     revocation_endpoint: `${siteUrl}/oauth/revoke`,
     token_endpoint_auth_methods_supported: ["client_secret_post", "client_secret_basic"],
     revocation_endpoint_auth_methods_supported: ["client_secret_post", "client_secret_basic"],

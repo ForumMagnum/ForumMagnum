@@ -42,7 +42,8 @@
     "next-start": "NODE_OPTIONS='--inspect --no-deprecation --enable-source-maps' next start"
   },
   "dependencies": {
-    "@ai-sdk/anthropic": "^2.0.26",
+    "@ai-sdk/gateway": "^3.0.84",
+    "@ai-sdk/react": "^3.0.143",
     "@anthropic-ai/sdk": "0.78.0",
     "@apollo/client": "^4.0.4",
     "@apollo/client-integration-nextjs": "^0.13.1",
@@ -148,7 +149,7 @@
     "@types/uuid": "^7.0.2",
     "@types/warning": "^3.0.3",
     "@vercel/functions": "^3.1.0",
-    "ai": "^5.0.68",
+    "ai": "^6.0.141",
     "algoliasearch": "^3.29.0",
     "apollo-errors": "^1.9.0",
     "bcrypt": "^5.0.1",

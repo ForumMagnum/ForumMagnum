@@ -24,6 +24,7 @@ type ElicitQuestionsViewName = never
 type EmailTokensViewName = never
 type FieldChangesViewName = never
 type GoogleServiceAccountSessionsViewName = never
+type HomePageDesignsViewName = never
 type IframeWidgetSrcdocsViewName = never
 type ImagesViewName = never
 type JargonTermsViewName = "glossaryEditAll"|"postEditorJargonTerms"|"postsApprovedJargon";
@@ -109,6 +110,7 @@ interface ViewTermsByCollectionName {
   EmailTokens: ViewTermsBase
   FieldChanges: ViewTermsBase
   GoogleServiceAccountSessions: GoogleServiceAccountSessionsViewTerms
+  HomePageDesigns: ViewTermsBase
   IframeWidgetSrcdocs: ViewTermsBase
   Images: ViewTermsBase
   JargonTerms: JargonTermsViewTerms
