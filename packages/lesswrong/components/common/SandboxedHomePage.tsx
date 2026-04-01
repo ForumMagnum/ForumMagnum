@@ -147,8 +147,9 @@ const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
       color: '#2d5331',
     },
     [theme.breakpoints.down('md')]: {
-      bottom: 16,
-      right: 16,
+      position: 'fixed',
+      bottom: 'calc(16px + env(safe-area-inset-bottom, 0px))',
+      right: 'calc(16px + env(safe-area-inset-right, 0px))',
     },
   },
 }));

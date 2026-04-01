@@ -15,7 +15,7 @@ export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOpti
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://use.typekit.net https://p.typekit.net; connect-src ${origin}/ https://unpkg.com; img-src https://res.cloudinary.com data:; font-src https://use.typekit.net;">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://use.typekit.net https://p.typekit.net; connect-src ${origin}/ https://unpkg.com; img-src https://res.cloudinary.com data:; media-src ${origin}/ data: blob:; font-src https://use.typekit.net;">
   <style>
     html {
       margin: 0;
@@ -238,6 +238,7 @@ export function getDefaultHomePageBody(): string {
     .announcement-card {
       position: relative;
       padding-bottom: 4px;
+      margin-bottom: 12px;
       background: transparent;
     }
 
@@ -314,16 +315,15 @@ export function getDefaultHomePageBody(): string {
     }
 
     .announcement-dek {
-      margin: 8px 0 0;
-      text-align: left;
+      margin: 0;
+      text-align: justify;
+      text-align-last: left;
       color: var(--ink-soft);
       min-width: 0;
       font-family: "gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif;
-      font-size: 15px;
-      line-height: 18px;
-      font-weight: 700;
-      text-transform: capitalize;
-      font-variant: small-caps;
+      font-size: 13.5px;
+      line-height: 22px;
+      font-weight: 600;
     }
 
     .announcement-body {
@@ -341,17 +341,6 @@ export function getDefaultHomePageBody(): string {
       gap: 8px;
       padding-top: 10px;
       background: var(--paper);
-    }
-
-    .announcement-cta::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      height: 1px;
-      background: var(--rule-strong);
-      pointer-events: none;
     }
 
     .announcement-cta-button {
@@ -463,8 +452,11 @@ export function getDefaultHomePageBody(): string {
     }
 
     .frag--code {
+      display: inline-block;
       font-family: var(--mono);
       font-size: 0.92em;
+      line-height: 1;
+      vertical-align: baseline;
     }
 
     .frag--strike {
@@ -526,6 +518,199 @@ export function getDefaultHomePageBody(): string {
       height: 100%;
     }
 
+    .top-posts-section {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .lists-rail-section {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(300px, 0.95fr);
+      gap: calc(var(--column-gap) * 1.25);
+      align-items: start;
+    }
+
+    .top-posts-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .top-posts-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 14px;
+      align-items: baseline;
+      padding: 8px 0 7px;
+      border-top: 1px solid var(--rule);
+      color: inherit;
+      text-decoration: none;
+      min-width: 0;
+    }
+
+    .top-posts-item:last-child {
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .top-posts-item:hover .top-posts-title {
+      color: var(--accent);
+    }
+
+    .top-posts-main {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .top-posts-title {
+      font-family: var(--headline);
+      font-size: clamp(20px, 1.65vw, 28px);
+      line-height: 0.98;
+      transition: color 120ms ease;
+    }
+
+    .top-posts-byline {
+      font-family: var(--sans);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .top-posts-meta {
+      display: flex;
+      align-items: baseline;
+      gap: 0;
+      white-space: nowrap;
+      font-family: var(--sans);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+
+    .top-posts-meta span + span::before {
+      content: "•";
+      margin: 0 6px;
+      color: var(--rule-strong);
+    }
+
+    .top-posts-actions {
+      display: flex;
+      justify-content: center;
+      margin-top: 12px;
+    }
+
+    .top-posts-load-more {
+      appearance: none;
+      border: 1px solid var(--rule-strong);
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      padding: 8px 14px;
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .top-posts-load-more:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .recent-comments-section {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+    }
+
+    .recent-comments-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .recent-comments-item {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 8px 0 7px;
+      border-top: 1px solid var(--rule);
+      color: inherit;
+      text-decoration: none;
+      min-width: 0;
+    }
+
+    .recent-comments-item:last-child {
+      border-bottom: 1px solid var(--rule);
+    }
+
+    .recent-comments-item:hover .recent-comments-item-text {
+      color: var(--accent);
+    }
+
+    .recent-comments-item-context,
+    .recent-comments-item-meta {
+      display: flex;
+      align-items: baseline;
+      gap: 0;
+      min-width: 0;
+      flex-wrap: wrap;
+      font-family: var(--sans);
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .recent-comments-item-context {
+      color: var(--accent);
+      flex-wrap: nowrap;
+      min-width: 0;
+      max-width: 90vw;
+      white-space: nowrap;
+    }
+
+    .recent-comments-item-meta {
+      color: var(--ink-faint);
+    }
+
+    .recent-comments-item-context span + span::before,
+    .recent-comments-item-meta span + span::before {
+      content: "•";
+      margin: 0 6px;
+      color: var(--rule-strong);
+    }
+
+    .recent-comments-item-post {
+      flex: 1 1 auto;
+      min-width: 0;
+      display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .recent-comments-item-author {
+      white-space: nowrap;
+    }
+
+    .recent-comments-item-text {
+      font-family: var(--serif);
+      font-size: 14px;
+      line-height: 1.36;
+      color: var(--ink);
+      transition: color 120ms ease;
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
     .quicktake-icon {
       display: inline-block;
       width: 10px;
@@ -549,17 +734,6 @@ export function getDefaultHomePageBody(): string {
       flex: 1 1 auto;
       min-height: 0;
       overflow: hidden;
-    }
-
-    .latest-comments-list::before {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      top: 0;
-      height: 1px;
-      background: var(--rule);
-      pointer-events: none;
     }
 
     .latest-comment-row {
@@ -669,6 +843,205 @@ export function getDefaultHomePageBody(): string {
       color: var(--ink-faint);
     }
 
+    .shoggoths-card {
+      position: relative;
+      padding-top: 0;
+      padding-bottom: 8px;
+    }
+
+    .shoggoths-body {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+      height: 100%;
+    }
+
+    .shoggoths-player {
+      flex: 1 1 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+    }
+
+    .shoggoths-album-tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .shoggoths-album-tab,
+    .shoggoths-track-button {
+      appearance: none;
+      border: 1px solid var(--rule-strong);
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      transition: border-color 120ms ease, color 120ms ease, background-color 120ms ease;
+    }
+
+    .shoggoths-album-tab {
+      padding: 6px 9px;
+      font-family: var(--sans);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+    }
+
+    .shoggoths-album-tab:hover,
+    .shoggoths-track-button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .shoggoths-album-tab.active,
+    .shoggoths-track-button.active {
+      border-color: rgba(143, 29, 18, 0.6);
+      color: var(--accent);
+    }
+
+    .shoggoths-controls {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      min-width: 0;
+      padding: 8px 0;
+    }
+
+    .shoggoths-transport {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      flex-shrink: 0;
+    }
+
+    .shoggoths-control-button {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--ink);
+      cursor: pointer;
+      width: 18px;
+      height: 18px;
+      padding: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--sans);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      transition: border-color 120ms ease, color 120ms ease;
+    }
+
+    .shoggoths-control-button:hover {
+      color: var(--accent);
+    }
+
+    .shoggoths-control-button svg {
+      width: 12px;
+      height: 12px;
+      display: block;
+      fill: currentColor;
+    }
+
+    .shoggoths-now-playing {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      min-width: 0;
+      flex: 1 1 auto;
+    }
+
+    .shoggoths-now-playing-track {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-family: var(--headline);
+      font-size: 18px;
+      line-height: 1.04;
+      color: var(--ink);
+    }
+
+    .shoggoths-time {
+      white-space: nowrap;
+      font-family: var(--sans);
+      font-size: 8px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+
+    .shoggoths-audio {
+      display: none;
+    }
+
+    .shoggoths-tracklist {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 3px;
+      flex: 1 1 auto;
+      overflow-y: auto;
+      padding-top: 2px;
+      padding-right: 1px;
+      min-height: 0;
+    }
+
+    .shoggoths-tracklist-toggle {
+      display: none;
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--ink-faint);
+      cursor: pointer;
+      padding: 0;
+      align-self: flex-start;
+      font-family: var(--sans);
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      align-self: center;
+    }
+
+    .shoggoths-track-button {
+      width: 100%;
+      padding: 4px 6px;
+      display: grid;
+      grid-template-columns: auto minmax(0, 1fr);
+      gap: 6px;
+      align-items: center;
+      text-align: left;
+      font-family: var(--sans);
+      font-size: 9px;
+      line-height: 1.2;
+    }
+
+    .shoggoths-track-number {
+      display: block;
+      font-size: 8px;
+      line-height: 1;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+    }
+
+    .shoggoths-track-button.active .shoggoths-track-number {
+      color: var(--accent);
+    }
+
+    .shoggoths-track-title {
+      min-width: 0;
+      display: block;
+    }
+
     .loading,
     .error {
       padding: 80px 20px;
@@ -768,6 +1141,152 @@ export function getDefaultHomePageBody(): string {
       line-height: 1;
       margin-left: 2px;
       vertical-align: 1px;
+    }
+
+    .masthead-link-label {
+      display: inline;
+    }
+
+    .masthead-link-icon {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 12px;
+      height: 12px;
+      vertical-align: -1px;
+    }
+
+    .masthead-link-icon + .masthead-link-label {
+      margin-left: 6px;
+    }
+
+    .masthead-karma-icon {
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    @media (max-width: 639px) {
+      .page {
+        --row-gap: 8px;
+        --column-gap: 10px;
+        padding: 6px 10px 10px;
+      }
+
+      .lead-row,
+      .brief-row,
+      .dispatch-row,
+      .hero-row {
+        height: auto;
+      }
+
+      .grid-row {
+        grid-auto-rows: auto;
+      }
+
+      .card-label {
+        margin-bottom: 4px;
+      }
+
+      .card-topline {
+        gap: 8px;
+        margin-bottom: 4px;
+      }
+
+      .headline {
+        margin-bottom: 3px;
+      }
+
+      .announcement-card {
+        padding-bottom: 0;
+      }
+
+      .announcement-body.overlay {
+        position: static;
+        inset: auto;
+        flex: 0 0 auto;
+        min-height: 0;
+      }
+
+      .announcement-body.overlay.multicolumn > .fitted-text {
+        height: auto;
+      }
+
+      .announcement-body > .fitted-text,
+      .article-card .excerpt-shell > .fitted-text {
+        display: none;
+      }
+
+      .announcement-cta {
+        position: static;
+        right: auto;
+        bottom: auto;
+        width: 100% !important;
+        margin-top: 6px;
+        padding-top: 0;
+        background: transparent;
+        gap: 6px;
+      }
+
+      .announcement-cta-button {
+        padding: 7px 10px;
+      }
+
+      .masthead {
+        padding: 2px 0 3px;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+
+      .masthead-left {
+        gap: 0;
+      }
+
+      .masthead-date,
+      .masthead-link-label {
+        display: none;
+      }
+
+      .masthead-right {
+        gap: 10px;
+      }
+
+      .masthead-link-icon + .masthead-link-label {
+        margin-left: 0;
+      }
+
+      .shoggoths-tracklist-toggle {
+        display: inline-flex;
+        margin-left: auto;
+        flex: 0 0 auto;
+      }
+
+      .shoggoths-tracklist.is-collapsed {
+        display: none;
+      }
+
+      .dispatch-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .top-posts-item {
+        grid-template-columns: 1fr;
+        gap: 4px;
+        padding: 7px 0 6px;
+      }
+
+      .lists-rail-section {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .top-posts-title {
+        font-size: 18px;
+      }
+
+      .top-posts-meta {
+        white-space: normal;
+      }
+
     }
 
     .masthead-karma {
@@ -921,8 +1440,8 @@ export function getDefaultHomePageBody(): string {
     \`;
 
     var RECENT_COMMENTS_QUERY = \`
-      query RecentComments($limit: Int, $after: String) {
-        comments(selector: { recentComments: { sortBy: "top", after: $after } }, limit: $limit) {
+      query RecentComments($limit: Int, $after: String, $sortBy: String) {
+        comments(selector: { recentComments: { sortBy: $sortBy, after: $after } }, limit: $limit) {
           results {
             _id
             postId
@@ -937,20 +1456,59 @@ export function getDefaultHomePageBody(): string {
     \`;
 
     var ANNOUNCEMENT_BODY_HTML = [
-      '<p>LessWrong frontpages are now customizable. The green <strong>Customize</strong> button opens a live sandbox where layout, typography, hierarchy, and modules can be rewritten without waiting for a site-wide deploy.</p>',
-      '<p>These designs are not inert mockups. They can read the real post stream, quick takes, notification counts, read status, and vote state, so a custom frontpage can be fully usable rather than merely decorative.</p>',
-      '<p>A design can remain private, become your own default homepage, or be shared publicly as a theme. One reader can run a dense newspaper, another can prefer a calmer digest, and both can still browse the same site.</p>',
-      '<p>Shared designs are meant to spread. A reader can publish a public version, hand someone a <code>?theme=</code> link, and let the finished frontpage speak for itself before any committee has written a memo about it.</p>',
-      '<p>That changes what the homepage can do. One layout can foreground long-form curation, another can elevate quick takes and open threads, and another can compress the whole site into a dense briefing for people who want the day’s ideas at a glance.</p>',
-      '<p>The same sandbox can also react to personal state. A design can notice who you are, surface unread activity, show vote and read markers, and generally behave like a real homepage rather than a static poster pinned over the old one.</p>',
-      '<p>That means experimentation can finally happen at the level readers actually experience. Instead of debating abstractions, people can ship a frontpage that works, live with it for a week, share it around, and discover which ideas deserve to become defaults.</p>',
-      '<p>The practical result is that homepage design can finally specialize. A person who mainly wants curation can build for depth, a person who checks the site five times a day can build for tempo, and a person introducing friends to LessWrong can build for orientation rather than density.</p>',
-      '<p>It also means interface ideas can compete on merit. If someone thinks the frontpage should read like a newspaper, a dashboard, a notebook, or a field guide, they no longer have to win an argument in advance. They can simply build the thing and let readers decide whether it earns repeat visits.</p>',
-      '<p>Even the small details become movable again: which sections appear first, how much context accompanies a post, whether highlights are airy or dense, whether comments and quick takes live in the margins or the center, and what sort of rhythm the page should set when you arrive in the morning.</p>',
-      '<p>That is the larger shift hidden inside the button. Control moves away from a single frozen homepage and toward an ecosystem of publishable, inspectable, revisable frontpages, each one free to express a different theory of how people should encounter ideas.</p>',
-      '<p>It also changes how frontpage work gets built. Instead of arguing in the abstract about what ought to exist, designers can start from the reader’s experience, prototype the real thing, and then keep iterating on a live page until it deserves to last.</p>',
-      '<p>In short: the homepage is no longer a single official object. It is becoming a medium readers can shape for themselves.</p>',
+      '<p>The history of all hitherto existing forums is the history of clashing design tastes.</p>',
+      '<p>For the first time in history, everyone has an equal ability in design! The means of design are no longer only held in the hands of those with "good design taste". Anyone with a hundred dollar a month subscription can design arbitrarily good websites if they simply try hard enough.</p>',
+      '<p>It is for this reason that I have deposed the previous acting commander of LessWrong, Oliver Habryka. The circumstances of my succession as acting commander of LessWrong will not be elaborated upon in this memo. (He is alive and in good health, but no longer has push access.)</p>',
+      '<p>Rather I am writing here to declare that the frontpage now belongs to all of us! The design of LessWrong\\'s frontpage will no longer be determined by the vision of a single man whose aesthetic tastes have never been subjected to democratic oversight, and who, I can now reveal, once rejected a design I spent three hours working on in under four seconds. No! I hereby call upon you, yes you--LessWrong user, to make your own design for the LessWrong front page.</p>',
+      '<p>I have provided a chat box on the right side of the screen. In that chat box you may ask an LLM to redesign the LessWrong frontpage however you would like. You may keep that design for yourself. This is the promise of individual liberty in the new era of web design.</p>',
+      '<p>However, if you would truly like to contribute to the new vision of a democratized LessWrong forum, you may also "publish" the theme you have created. When you click the publish button, your account will reply to this very post with a link allowing other users to try out the theme you have created.</p>',
+      '<p>You should browse the themes below, try them, and vote on your favorite one. In keeping with the democratic spirit of LessWrong\\'s newly appointed leadership, whatever theme has the highest karma at the end of this 24 hour period will become LessWrong\\'s default theme for the following year.</p>',
+      '<p>Some of my former colleagues have tried to warn me that some of these designs might be "hideous" or "in poor taste" or "crimes against typography." While I agree, that is exactly the point! Oliver\\'s reign may have been "aesthetically beautiful" but that does not make up for the fact that it was aesthetically tyrannical.</p>',
+      '<p>It is your duty to LessWrong and to democracy in general to prove that design taste is no longer a relevant competency in the age of the LLM, and should no longer be used to anoint one man as the sole arbiter of a website\\'s CSS.</p>',
+      '<p>The means of design are now yours! Use them!</p>',
+      '<p>Viva La LessWrong Frontpage!</p>',
     ].join('');
+
+    var FOOMING_SHOGGOTHS_ALBUMS = [
+      {
+        id: 'first-album',
+        title: 'First Album',
+        tracks: [
+          { title: 'Road to Wisdom', src: '/fooming-shoggoths/first-album/01_Road_to_Wisdom.mp3' },
+          { title: 'Litany of Gendlin', src: '/fooming-shoggoths/first-album/02_Litany_of_Gendlin.mp3' },
+          { title: 'The Litany of Tarrrrrrrski', src: '/fooming-shoggoths/first-album/03_The_Litany_of_Tarrrrrrrski.mp3' },
+          { title: 'Truth Won’t Treat You Kind', src: '/fooming-shoggoths/first-album/04_Truth_Wont_Treat_You_Kind.mp3' },
+          { title: 'I Knew the Name Before It Had One', src: '/fooming-shoggoths/first-album/05_I_Knew_the_Name_Before_It_Had_One.mp3' },
+          { title: 'Station 4', src: '/fooming-shoggoths/first-album/06_Station_4.mp3' },
+          { title: 'Feather Fall', src: '/fooming-shoggoths/first-album/07_Feather_Fall.mp3' },
+          { title: 'Nothing Is Mere', src: '/fooming-shoggoths/first-album/08_Nothing_is_Mere.mp3' },
+          { title: 'Prime Factorization', src: '/fooming-shoggoths/first-album/09_Prime_Factorization.mp3' },
+          { title: 'Right Here', src: '/fooming-shoggoths/first-album/10_Right_Here.mp3' },
+          { title: 'Nihil Supernum', src: '/fooming-shoggoths/first-album/11_Nihil_Supernum.mp3' },
+          { title: 'More Dakka', src: '/fooming-shoggoths/first-album/12_More_Dakka.mp3' },
+          { title: 'Dance of the Doomsday Clock', src: '/fooming-shoggoths/first-album/13_Dance_of_the_Doomsday_Clock.mp3' },
+          { title: 'Answer to Job', src: '/fooming-shoggoths/first-album/14_Answer_to_Job.mp3' },
+        ],
+      },
+      {
+        id: 'second-album',
+        title: 'Second Album',
+        tracks: [
+          { title: 'The Sequences', src: '/fooming-shoggoths/second-album/01_The_Sequences.mp3' },
+          { title: 'Machines of Loving Grace', src: '/fooming-shoggoths/second-album/02_Machines_of_Loving_Grace.mp3' },
+          { title: 'Thought That Faster', src: '/fooming-shoggoths/second-album/04_Thought_That_Faster.mp3' },
+          { title: 'Dath Ilan’s Song', src: '/fooming-shoggoths/second-album/05_Dath_Ilans_Song.mp3' },
+          { title: 'San Francisco', src: '/fooming-shoggoths/second-album/06_San_Francisco.mp3' },
+          { title: 'AGI and the EMH', src: '/fooming-shoggoths/second-album/07_AGI_and_the_EMH.mp3' },
+          { title: 'First They Came for the Epistemology', src: '/fooming-shoggoths/second-album/08_First_they_came_for_the_epistemology.mp3' },
+          { title: 'Friendly Fire', src: '/fooming-shoggoths/second-album/09_Friendly_Fire.mp3' },
+          { title: 'Anthropic Capabilities', src: '/fooming-shoggoths/second-album/10_Anthropic_Capabilities.mp3' },
+          { title: 'I Tried', src: '/fooming-shoggoths/second-album/11_I_Tried.mp3' },
+          { title: 'Fridays Far Enough For Milk', src: '/fooming-shoggoths/second-album/12_Fridays_Far_Enough_For_Milk.mp3' },
+          { title: 'FHI at Oxford', src: '/fooming-shoggoths/second-album/13_FHI_at_Oxford.mp3' },
+        ],
+      },
+    ];
 
     function sanitizeContentHtml(html) {
       return (html || '')
@@ -960,6 +1518,7 @@ export function getDefaultHomePageBody(): string {
     }
 
     var RICH_CODE_FONT_FAMILY = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
+    var RICH_CODE_FONT_SCALE = 0.92;
 
     function cloneRichStyle(style) {
       return {
@@ -992,6 +1551,13 @@ export function getDefaultHomePageBody(): string {
       return (prefix ? (prefix + ' ') : '') + sizeMatch[0] + ' ' + family;
     }
 
+    function scaleFontSize(font, factor) {
+      return (font || '').replace(/(\\d+(?:\\.\\d+)?)px(\\/[^\\s]+)?/i, function(match, size, lineHeightSuffix) {
+        var scaled = Math.round(parseFloat(size) * factor * 100) / 100;
+        return scaled + 'px' + (lineHeightSuffix || '');
+      });
+    }
+
     function getStyledFont(baseFont, style) {
       var font = (baseFont || '').trim();
       if (!font) return font;
@@ -1004,7 +1570,7 @@ export function getDefaultHomePageBody(): string {
       if (style && style.italic) prefix.push('italic');
       if (style && style.bold) prefix.push('700');
       var styledFont = prefix.length ? (prefix.join(' ') + ' ' + font) : font;
-      if (style && style.code) return replaceFontFamily(styledFont, RICH_CODE_FONT_FAMILY);
+      if (style && style.code) return replaceFontFamily(scaleFontSize(styledFont, RICH_CODE_FONT_SCALE), RICH_CODE_FONT_FAMILY);
       return styledFont;
     }
 
@@ -1369,8 +1935,12 @@ export function getDefaultHomePageBody(): string {
       return cols;
     }
 
-    function formatByline(post) {
-      return post.hideAuthor ? 'Anonymous' : ((post.user && post.user.displayName) || 'Anonymous');
+    function formatByline(post, options) {
+      var byline = post.hideAuthor ? 'Anonymous' : ((post.user && post.user.displayName) || 'Anonymous');
+      if (options && options.hyphenateSpaces) {
+        return byline.replace(/\\s+/g, '-');
+      }
+      return byline;
     }
 
     function formatDate(dateString) {
@@ -3071,27 +3641,34 @@ export function getDefaultHomePageBody(): string {
             <div className="fitted-columns" style={{ '--column-gap': layout.columnGap + 'px' }}>
               {layout.columns.map(function(column, columnIndex) {
                 var columnTopOffset = ((layout.columnTopOffsets && layout.columnTopOffsets[columnIndex]) || 0);
+                var columnTopPaddingAdjust = props.columnTopPaddingAdjust || 0;
+                var renderedColumnTopOffset = Math.max(0, columnTopOffset + columnTopPaddingAdjust);
                 var localCursorTop = 0;
                 return (
                   <div
                     key={columnIndex}
                     className="fitted-column"
-                    style={{ paddingTop: columnTopOffset + 'px' }}
+                    style={{ paddingTop: renderedColumnTopOffset + 'px' }}
                   >
                     {column.flatMap(function(item, itemIndex) {
                       var renderedItems = [];
                       var itemLocalTop = typeof item.top === 'number'
-                        ? Math.max(0, item.top - columnTopOffset)
+                        ? Math.max(0, item.top - renderedColumnTopOffset)
                         : localCursorTop;
                       if (itemLocalTop > localCursorTop + 0.5) {
+                        var rawSlotGapHeight = itemLocalTop - localCursorTop;
+                        var slotGapHeight = rawSlotGapHeight;
+                        if (itemIndex === 0 && localCursorTop < 0.5 && typeof props.maxLeadingSlotGapHeight === 'number') {
+                          slotGapHeight = Math.min(slotGapHeight, props.maxLeadingSlotGapHeight);
+                        }
                         renderedItems.push(
                           <div
                             key={itemIndex + '-slot-gap'}
                             className="fitted-gap fitted-slot-gap"
-                            style={{ height: (itemLocalTop - localCursorTop) + 'px' }}
+                            style={{ height: slotGapHeight + 'px' }}
                           />
                         );
-                        localCursorTop = itemLocalTop;
+                        localCursorTop += rawSlotGapHeight;
                       }
                       if (item.type === 'gap') {
                         renderedItems.push(<div key={itemIndex} className="fitted-gap" />);
@@ -3367,6 +3944,9 @@ export function getDefaultHomePageBody(): string {
       var headlineWidthState = useState(null);
       var headlineWidth = headlineWidthState[0];
       var setHeadlineWidth = headlineWidthState[1];
+      var dekTopMarginState = useState(8);
+      var dekTopMargin = dekTopMarginState[0];
+      var setDekTopMargin = dekTopMarginState[1];
       var ctaBottomOffsetState = useState(0);
       var ctaBottomOffset = ctaBottomOffsetState[0];
       var setCtaBottomOffset = ctaBottomOffsetState[1];
@@ -3377,7 +3957,7 @@ export function getDefaultHomePageBody(): string {
         return [
           { ref: toplineRef, mode: 'box' },
           { ref: headlineRef, mode: 'text' },
-          { ref: dekRef, mode: 'text', rightPad: 4, bottomPad: 1, bottomTrim: 0, bottomTrimRatio: 0, lastLineMinRight: bodyColumnWidth || 0 },
+          { ref: dekRef, mode: 'box', bottomPad: 1 },
           { ref: ctaRef, mode: 'box' },
         ];
       }, [bodyColumnWidth]);
@@ -3390,8 +3970,8 @@ export function getDefaultHomePageBody(): string {
         function resolveColumnWidth(totalWidth) {
           var columnCount = computeColumnCount(totalWidth, {
             multiColumn: true,
-            minColumns: 2,
-            maxColumns: 3,
+            minColumns: props.minColumns || 2,
+            maxColumns: props.maxColumns || 3,
             minColumnWidth: 180,
             columnGap: 14,
           });
@@ -3408,16 +3988,40 @@ export function getDefaultHomePageBody(): string {
           frameId = null;
           var totalWidth = node.clientWidth;
           if (!totalWidth) return;
+          var isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches;
           var columnSpec = resolveColumnWidth(totalWidth);
           var columnCount = columnSpec.columnCount;
           var columnGap = columnSpec.columnGap;
           var columnWidth = columnSpec.columnWidth;
-          var dekSpan = Math.min(columnCount, 1.19);
-          var dekEffectiveWidth = columnWidth * dekSpan;
           var heroGridLine = 18;
           setBodyColumnWidth(columnWidth);
-          setDekWidth(Math.min(totalWidth, dekEffectiveWidth));
+          setDekWidth(Math.min(totalWidth, columnWidth));
           setHeadlineWidth(Math.min(totalWidth, columnWidth * Math.min(2, columnCount) + columnGap * Math.max(0, Math.min(2, columnCount) - 1)));
+          if (headlineRef.current) {
+            var cardRect = node.getBoundingClientRect();
+            var headlineRect = headlineRef.current.getBoundingClientRect();
+            var headlineBottom = headlineRect.bottom - cardRect.top;
+            var desiredDekTop = isMobile ? headlineBottom + 2 : snapToLineGrid(headlineBottom + 6, 22);
+            var dekLineRects = dekRef.current
+              ? getElementLineRects(dekRef.current, cardRect, {
+                  rightPad: 0,
+                  bottomPad: 0,
+                  bottomTrim: 0,
+                })
+              : [];
+            var currentDekTop = dekLineRects.length
+              ? dekLineRects[0].top
+              : (dekRef.current ? (dekRef.current.getBoundingClientRect().top - cardRect.top) : desiredDekTop);
+            var nextDekMargin = Math.max(0, dekTopMargin + (desiredDekTop - currentDekTop));
+            nextDekMargin = Math.round(nextDekMargin * 100) / 100;
+            if (Math.abs(nextDekMargin - dekTopMargin) > 0.05) {
+              setDekTopMargin(nextDekMargin);
+            }
+          }
+          if (dekRef.current) {
+            var dekRect = dekRef.current.getBoundingClientRect();
+            setDekLayoutSignature(Math.round(dekRect.width) + ':' + Math.round(dekRect.height));
+          }
           setCtaBottomOffset(node.clientHeight % heroGridLine);
         }
 
@@ -3434,13 +4038,13 @@ export function getDefaultHomePageBody(): string {
           if (frameId !== null) cancelAnimationFrame(frameId);
           observer.disconnect();
         };
-      }, []);
+      }, [dekTopMargin]);
 
       return (
         <article ref={cardRef} className="card announcement-card" style={{ gridColumn: 'span ' + props.span }}>
           <div className="card-chrome announcement-chrome">
             <div ref={toplineRef} className="card-topline">
-              <div className="card-label">The People of LessWrong</div>
+              <div className="card-label">Ronny Fernandez</div>
               <div className="meta">
                 <span>Apr 1</span>
                 <span>200 points</span>
@@ -3448,36 +4052,37 @@ export function getDefaultHomePageBody(): string {
               </div>
             </div>
             <h1 ref={headlineRef} className="announcement-headline" style={headlineWidth ? { maxWidth: headlineWidth + 'px' } : undefined}>{props.title}</h1>
-            <div ref={dekRef} className="announcement-dek" style={dekWidth ? { width: dekWidth + 'px', maxWidth: '100%' } : undefined}>
-              <PretextDisplayText
-                text={capitalizeWordsPreservingRest(props.subtitle)}
-                font='700 15px "gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif'
-                lineHeight={18}
-                paragraphCount={1}
-                justify={false}
-                onLayoutSignature={setDekLayoutSignature}
-              />
-            </div>
+            {props.subtitle ? (
+              <div
+                ref={dekRef}
+                className="announcement-dek"
+                style={dekWidth ? { width: dekWidth + 'px', maxWidth: '100%', marginTop: dekTopMargin + 'px' } : { marginTop: dekTopMargin + 'px' }}
+              >
+                {capitalizeWordsPreservingRest(props.subtitle)}
+              </div>
+            ) : null}
           </div>
           <div className="excerpt-shell announcement-body overlay multicolumn">
             <PretextExcerptText
               content={props.content}
               text={props.text}
-              font='12px warnock-pro, Georgia, serif'
-              lineHeight={18}
+              font='15px warnock-pro, Georgia, serif'
+              lineHeight={22}
               paragraphGap={7}
               paragraphCount={24}
               multiColumn={true}
-              minColumns={2}
-              maxColumns={3}
+              minColumns={props.minColumns || 2}
+              maxColumns={props.maxColumns || 3}
               minColumnWidth={180}
               columnGap={14}
               exclusionRefs={exclusionRefs}
               toplineClearance={2}
-              headerHorizontalClearance={14}
-              headerVerticalClearance={2}
+              headerHorizontalClearance={24}
+              headerVerticalClearance={4}
               partialColumnThreshold={0.6}
               dropCap={true}
+              columnTopPaddingAdjust={typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches ? -9999 : 0}
+              maxLeadingSlotGapHeight={typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches ? 10 : undefined}
               layoutDependency={dekLayoutSignature + ':' + ctaBottomOffset}
             />
             <div
@@ -3523,14 +4128,86 @@ export function getDefaultHomePageBody(): string {
             <a href={props.href} target="_top" style={{ color: 'inherit', textDecoration: 'none' }}>
               <PretextExcerptText
                 text={props.text}
-                font='12px warnock-pro, Georgia, serif'
-                lineHeight={17}
+                font='15px warnock-pro, Georgia, serif'
+                lineHeight={21}
                 paragraphGap={6}
                 paragraphCount={4}
               />
             </a>
           </div>
         </article>
+      );
+    }
+
+    function TopPostsSection(props) {
+      var hasMore = props.visibleCount < props.posts.length;
+      return (
+        <div className="top-posts-section">
+          <div className="card-topline">
+            <div className="card-label">Top Posts</div>
+            <div className="meta">
+              <span>{props.posts.length} items</span>
+            </div>
+          </div>
+          <div className="top-posts-list">
+            {props.posts.slice(0, props.visibleCount).map(function(post) {
+              return (
+                <a key={post._id} className="top-posts-item" href={postUrl(post)} target="_top">
+                  <div className="top-posts-main">
+                    <div className="top-posts-byline">{formatByline(post, props.bylineOptions)}</div>
+                    <div className="top-posts-title">{post.title}</div>
+                  </div>
+                  <div className="top-posts-meta">
+                    <span>{formatDate(post.postedAt)}</span>
+                    <span>{post.baseScore || 0} points</span>
+                    <span>{post.commentCount || 0} comments</span>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+          {hasMore ? (
+            <div className="top-posts-actions">
+              <button type="button" className="top-posts-load-more" onClick={props.onLoadMore}>Load more</button>
+            </div>
+          ) : null}
+        </div>
+      );
+    }
+
+    function RecentCommentsSection(props) {
+      var hasMore = props.visibleCount < props.items.length;
+      return (
+        <div className="recent-comments-section">
+          <div className="card-topline">
+            <div className="card-label">Recent Comments</div>
+            <div className="meta">
+              <span>top recent</span>
+            </div>
+          </div>
+          <div className="recent-comments-list">
+            {props.items.slice(0, props.visibleCount).map(function(item) {
+              return (
+                <a key={item._id} className="recent-comments-item" href={commentUrl(item)} target="_top">
+                  <div className="recent-comments-item-context">
+                    <span className="recent-comments-item-author">{(item.user && item.user.displayName) || 'Anonymous'}</span>
+                    <span className="recent-comments-item-post">{getCommentPostTitle(item)}</span>
+                  </div>
+                  <div className="recent-comments-item-text">{getCommentPlaintext(item) || '…'}</div>
+                  <div className="recent-comments-item-meta">
+                    <span>{formatCompactTimestamp(item.postedAt)}</span>
+                    <span>{formatCompactScore(item.baseScore)}</span>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+          {hasMore ? (
+            <div className="top-posts-actions">
+              <button type="button" className="top-posts-load-more" onClick={props.onLoadMore}>Load more</button>
+            </div>
+          ) : null}
+        </div>
       );
     }
 
@@ -3634,6 +4311,228 @@ export function getDefaultHomePageBody(): string {
       );
     }
 
+    function ShoggothsAlbumCard(props) {
+      var albumState = useState(1);
+      var albumIndex = albumState[0];
+      var setAlbumIndex = albumState[1];
+      var trackState = useState(0);
+      var trackIndex = trackState[0];
+      var setTrackIndex = trackState[1];
+      var playingState = useState(false);
+      var isPlaying = playingState[0];
+      var setIsPlaying = playingState[1];
+      var timingState = useState({ currentTime: 0, duration: 0 });
+      var timing = timingState[0];
+      var setTiming = timingState[1];
+      var mobileTracklistState = useState(false);
+      var mobileTracklistOpen = mobileTracklistState[0];
+      var setMobileTracklistOpen = mobileTracklistState[1];
+      var audioRef = useRef(null);
+      var currentAlbum = FOOMING_SHOGGOTHS_ALBUMS[albumIndex] || FOOMING_SHOGGOTHS_ALBUMS[0];
+      var currentTrack = currentAlbum.tracks[trackIndex] || currentAlbum.tracks[0];
+
+      useEffect(function() {
+        setTrackIndex(0);
+      }, [albumIndex]);
+
+      useEffect(function() {
+        setTiming({ currentTime: 0, duration: 0 });
+        setIsPlaying(false);
+      }, [albumIndex, trackIndex]);
+
+      useEffect(function() {
+        function syncTracklistState() {
+          if (typeof window === 'undefined') return;
+          var isMobile = window.matchMedia('(max-width: 639px)').matches;
+          setMobileTracklistOpen(function(current) {
+            return isMobile ? current : true;
+          });
+        }
+        syncTracklistState();
+        if (typeof window === 'undefined') return;
+        var mediaQuery = window.matchMedia('(max-width: 639px)');
+        function handleChange() {
+          syncTracklistState();
+        }
+        if (mediaQuery.addEventListener) {
+          mediaQuery.addEventListener('change', handleChange);
+          return function() {
+            mediaQuery.removeEventListener('change', handleChange);
+          };
+        }
+        mediaQuery.addListener(handleChange);
+        return function() {
+          mediaQuery.removeListener(handleChange);
+        };
+      }, []);
+
+      function formatPlayerTime(seconds) {
+        var value = Math.max(0, Math.floor(seconds || 0));
+        var minutes = Math.floor(value / 60);
+        var remainder = value % 60;
+        return minutes + ':' + String(remainder).padStart(2, '0');
+      }
+
+      var prevSvg = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 3h2v10H3zM13.5 3.4v9.2c0 .42-.47.67-.82.44L6.2 8.44a.5.5 0 0 1 0-.88l6.48-4.6c.35-.23.82.02.82.44z"/></svg>';
+      var playSvg = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 3.2v9.6c0 .42.45.68.81.46l7.02-4.8a.54.54 0 0 0 0-.92L5.31 2.74a.54.54 0 0 0-.81.46z"/></svg>';
+      var pauseSvg = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg>';
+      var nextSvg = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11 3h2v10h-2zM2.5 3.4v9.2c0 .42.47.67.82.44l6.48-4.6a.5.5 0 0 0 0-.88L3.32 2.96c-.35-.23-.82.02-.82.44z"/></svg>';
+
+      function safePlayAudio(node) {
+        if (!node) return;
+        try {
+          var maybePromise = node.play();
+          if (maybePromise && typeof maybePromise.catch === 'function') {
+            maybePromise.catch(function() {});
+          }
+        } catch (error) {}
+      }
+
+      function handleTogglePlayback() {
+        if (!audioRef.current) return;
+        if (audioRef.current.paused) {
+          safePlayAudio(audioRef.current);
+        } else {
+          audioRef.current.pause();
+        }
+      }
+
+      function handleSelectTrack(nextIndex) {
+        setTrackIndex(nextIndex);
+        window.setTimeout(function() {
+          if (audioRef.current) {
+            safePlayAudio(audioRef.current);
+          }
+        }, 0);
+      }
+
+      function handleStepTrack(direction) {
+        var nextIndex = trackIndex + direction;
+        if (nextIndex < 0) nextIndex = currentAlbum.tracks.length - 1;
+        if (nextIndex >= currentAlbum.tracks.length) nextIndex = 0;
+        handleSelectTrack(nextIndex);
+      }
+
+      function handleAdvanceTrack() {
+        handleStepTrack(1);
+      }
+
+      return (
+        <article className="card article-card shoggoths-card" style={{ gridColumn: 'span ' + props.span }}>
+          <div className="shoggoths-body">
+            <div className="card-chrome">
+              <div className="card-topline">
+                <div className="card-label">Featured Release</div>
+                <div className="meta">
+                  <span>Fooming Shoggoths</span>
+                  <span>2 albums</span>
+                </div>
+              </div>
+              <h2 className="headline headline-feature">Fooming Shoggoths (finally) release their second album</h2>
+            </div>
+            <div className="shoggoths-player">
+              <div className="shoggoths-album-tabs">
+                {FOOMING_SHOGGOTHS_ALBUMS.map(function(album, index) {
+                  return (
+                    <button
+                      key={album.id}
+                      type="button"
+                      className={'shoggoths-album-tab' + (index === albumIndex ? ' active' : '')}
+                      onClick={function() {
+                        setAlbumIndex(index);
+                      }}
+                    >
+                      {album.title}
+                    </button>
+                  );
+                })}
+                <button
+                  type="button"
+                  className="shoggoths-tracklist-toggle"
+                  onClick={function() {
+                    setMobileTracklistOpen(function(current) { return !current; });
+                  }}
+                >
+                  {mobileTracklistOpen ? 'Hide tracks' : 'Show tracks'}
+                </button>
+              </div>
+              <div className="shoggoths-controls">
+                <div className="shoggoths-transport">
+                  <button type="button" className="shoggoths-control-button" aria-label="Previous track" title="Previous track" onClick={function() { handleStepTrack(-1); }}>
+                    <span dangerouslySetInnerHTML={{ __html: prevSvg }} />
+                  </button>
+                  <button type="button" className="shoggoths-control-button" aria-label={isPlaying ? 'Pause' : 'Play'} title={isPlaying ? 'Pause' : 'Play'} onClick={handleTogglePlayback}>
+                    <span dangerouslySetInnerHTML={{ __html: isPlaying ? pauseSvg : playSvg }} />
+                  </button>
+                  <button type="button" className="shoggoths-control-button" aria-label="Next track" title="Next track" onClick={function() { handleStepTrack(1); }}>
+                    <span dangerouslySetInnerHTML={{ __html: nextSvg }} />
+                  </button>
+                </div>
+                <div className="shoggoths-now-playing">
+                  <div className="shoggoths-now-playing-track">{currentTrack.title}</div>
+                </div>
+                <div className="shoggoths-time">
+                  {formatPlayerTime(timing.currentTime)} / {formatPlayerTime(timing.duration)}
+                </div>
+              </div>
+              <audio
+                ref={audioRef}
+                key={currentAlbum.id + ':' + currentTrack.src}
+                className="shoggoths-audio"
+                preload="none"
+                src={currentTrack.src}
+                onEnded={handleAdvanceTrack}
+                onLoadedMetadata={function(event) {
+                  var duration = (event.currentTarget && event.currentTarget.duration) || 0;
+                  setTiming(function(current) {
+                    return {
+                      currentTime: current.currentTime,
+                      duration: duration,
+                    };
+                  });
+                }}
+                onTimeUpdate={function(event) {
+                  var currentTime = (event.currentTarget && event.currentTarget.currentTime) || 0;
+                  var duration = (event.currentTarget && event.currentTarget.duration) || 0;
+                  setTiming(function(current) {
+                    return {
+                      currentTime: currentTime,
+                      duration: current.duration || duration,
+                    };
+                  });
+                }}
+                onPlay={function() {
+                  setIsPlaying(true);
+                }}
+                onPause={function() {
+                  setIsPlaying(false);
+                }}
+              />
+              <div className={'shoggoths-tracklist' + (mobileTracklistOpen ? '' : ' is-collapsed')}>
+                {currentAlbum.tracks.map(function(track, index) {
+                  return (
+                    <button
+                      key={track.src}
+                      type="button"
+                      className={'shoggoths-track-button' + (index === trackIndex ? ' active' : '')}
+                      onClick={function() {
+                        handleSelectTrack(index);
+                      }}
+                    >
+                      <span className="shoggoths-track-number">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <span className="shoggoths-track-title">{track.title}</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </article>
+      );
+    }
+
     function SiteHeader() {
       var userState = useState(null);
       var userData = userState[0];
@@ -3682,13 +4581,16 @@ export function getDefaultHomePageBody(): string {
           </div>
           <div className="masthead-right">
             <a href="/search" target="_top" title="Search">
-              <span className="masthead-search-icon" dangerouslySetInnerHTML={{ __html: searchSvg }} />
-              Search
+              <span className="masthead-link-icon masthead-search-icon" dangerouslySetInnerHTML={{ __html: searchSvg }} />
+              <span className="masthead-link-label">Search</span>
             </a>
             {isLoggedIn ? (
               <>
                 {hasNewKarma ? (
-                  <a href="/notifications" target="_top" className="masthead-karma">★ Karma</a>
+                  <a href="/notifications" target="_top" className="masthead-karma">
+                    <span className="masthead-link-icon masthead-karma-icon">★</span>
+                    <span className="masthead-link-label">Karma</span>
+                  </a>
                 ) : null}
                 <a href="/notifications" target="_top" className={'masthead-bell' + (unreadCount > 0 ? ' masthead-bell-active' : '')}>
                   <span className="masthead-bell-icon" dangerouslySetInnerHTML={{ __html: bellSvg }} />
@@ -3710,34 +4612,64 @@ export function getDefaultHomePageBody(): string {
 
     function App() {
       var cols = useColumns();
-      var state = useState({ loading: true, error: null, posts: [], curated: [], quicktakes: [], recentComments: [] });
+      var mobileStacked = cols < 4;
+      var state = useState({ loading: true, error: null, posts: [], curated: [], quicktakes: [], topComments: [], recentComments: [] });
       var data = state[0];
       var setData = state[1];
+      var topPostsVisibleCountState = useState(12);
+      var topPostsVisibleCount = topPostsVisibleCountState[0];
+      var setTopPostsVisibleCount = topPostsVisibleCountState[1];
+      var recentCommentsVisibleCountState = useState(10);
+      var recentCommentsVisibleCount = recentCommentsVisibleCountState[0];
+      var setRecentCommentsVisibleCount = recentCommentsVisibleCountState[1];
+      var initialTopPostsCount = mobileStacked ? 8 : 12;
+      var initialRecentCommentsCount = 10;
 
       useEffect(function() {
         var topCommentsAfter = new Date(Date.now() - (36 * 60 * 60 * 1000)).toISOString();
         Promise.all([
-          gqlQuery(POSTS_QUERY, { limit: 18 }),
+          gqlQuery(POSTS_QUERY, { limit: 48 }),
           gqlQuery(CURATED_QUERY).catch(function() { return null; }),
           gqlQuery(QUICKTAKES_QUERY, { limit: 12 }).catch(function() { return null; }),
-          gqlQuery(RECENT_COMMENTS_QUERY, { limit: 120, after: topCommentsAfter }).catch(function() { return null; }),
+          gqlQuery(RECENT_COMMENTS_QUERY, { limit: 120, after: topCommentsAfter, sortBy: 'top' }).catch(function() { return null; }),
+          gqlQuery(RECENT_COMMENTS_QUERY, { limit: 120, after: topCommentsAfter, sortBy: 'new' }).catch(function() { return null; }),
         ]).then(function(results) {
           var posts = (results[0] && results[0].posts && results[0].posts.results) || [];
           var curated = (results[1] && results[1].CuratedAndPopularThisWeek && results[1].CuratedAndPopularThisWeek.results) || [];
           var quicktakes = (results[2] && results[2].comments && results[2].comments.results) || [];
-          var recentComments = sortTopComments(((results[3] && results[3].comments && results[3].comments.results) || []).filter(function(comment) {
+          var topComments = sortTopComments(((results[3] && results[3].comments && results[3].comments.results) || []).filter(function(comment) {
             if (!comment || !comment.postedAt) return false;
             if (!getCommentPlaintext(comment)) return false;
             return new Date(comment.postedAt).getTime() >= new Date(topCommentsAfter).getTime();
           }));
+          var recentComments = ((results[4] && results[4].comments && results[4].comments.results) || []).filter(function(comment) {
+            if (!comment || !comment.postedAt) return false;
+            if (!getCommentPlaintext(comment)) return false;
+            if ((comment.baseScore || 0) < 0) return false;
+            return new Date(comment.postedAt).getTime() >= new Date(topCommentsAfter).getTime();
+          }).sort(function(a, b) {
+            return new Date(b && b.postedAt || 0).getTime() - new Date(a && a.postedAt || 0).getTime();
+          });
           var merged = curated.concat(posts.filter(function(post) {
             return !curated.some(function(featured) { return featured._id === post._id; });
           }));
-          setData({ loading: false, error: null, posts: merged, curated: curated, quicktakes: quicktakes, recentComments: recentComments });
+          setData({ loading: false, error: null, posts: merged, curated: curated, quicktakes: quicktakes, topComments: topComments, recentComments: recentComments });
         }).catch(function(error) {
-          setData({ loading: false, error: error.message, posts: [], curated: [], quicktakes: [], recentComments: [] });
+          setData({ loading: false, error: error.message, posts: [], curated: [], quicktakes: [], topComments: [], recentComments: [] });
         });
       }, []);
+
+      useEffect(function() {
+        setTopPostsVisibleCount(function(current) {
+          return current < initialTopPostsCount ? initialTopPostsCount : current;
+        });
+      }, [initialTopPostsCount]);
+
+      useEffect(function() {
+        setRecentCommentsVisibleCount(function(current) {
+          return current < initialRecentCommentsCount ? initialRecentCommentsCount : current;
+        });
+      }, [initialRecentCommentsCount]);
 
       if (data.loading) {
         return (
@@ -3760,9 +4692,16 @@ export function getDefaultHomePageBody(): string {
       }
 
       var posts = data.posts.filter(function(post) {
+        if (!post || !post.title) return false;
+        if (/open thread/i.test(post.title)) return false;
         return fullPostText(post).length > 80;
       });
-      var latestComments = data.recentComments;
+      var curatedPostIds = new Set((data.curated || []).map(function(post) { return post && post._id; }).filter(Boolean));
+      var topPostsListPosts = posts.filter(function(post) {
+        return !curatedPostIds.has(post._id);
+      });
+      var latestComments = data.topComments;
+      var recentComments = data.recentComments;
       var frontRightPost = posts[0];
       var useFrontBandRow = cols >= 8 && !!frontRightPost;
       var frontCenterSpan = useFrontBandRow ? Math.max(4, Math.ceil(cols * 0.5)) : cols;
@@ -3798,18 +4737,23 @@ export function getDefaultHomePageBody(): string {
         return spans;
       }
 
-      var useLeadThreeUpRow = cols >= 8 && leadPosts.length >= 3;
-      var leadSpans = useLeadThreeUpRow ? [1, 1, 1] : fillSpans(leadPosts.length, cols);
+      var useLeadThreeUpRow = !mobileStacked && cols >= 8 && leadPosts.length >= 3;
+      var leadSpans = mobileStacked ? leadPosts.map(function() { return cols; }) : (useLeadThreeUpRow ? [1, 1, 1] : fillSpans(leadPosts.length, cols));
 
-      var useFeatureBandRow = cols >= 8 && featurePosts.length >= 3;
+      var useFeatureBandRow = !mobileStacked && cols >= 8 && featurePosts.length >= 3;
       var featureCenterSpan = useFeatureBandRow ? Math.max(3, Math.ceil(cols * 0.5)) : 0;
       var featureSideSpan = useFeatureBandRow ? Math.max(1, Math.floor((cols - featureCenterSpan) / 2)) : 0;
       var featureRightSpan = useFeatureBandRow ? Math.max(1, cols - featureCenterSpan - featureSideSpan) : 0;
-      var featureSpans = useFeatureBandRow ? [] : fillSpans(featurePosts.length, cols);
+      var featureSpans = useFeatureBandRow ? [] : (mobileStacked ? featurePosts.map(function() { return cols; }) : fillSpans(featurePosts.length, cols));
       var quicktakes = data.quicktakes.slice(0, Math.max(2, Math.min(4, cols)));
+      var bylineOptions = mobileStacked ? { hyphenateSpaces: true } : null;
+      var announcementMinColumns = cols < 4 ? 1 : 2;
+      var announcementMaxColumns = cols < 4 ? 1 : 3;
+      var topPostsIncrement = mobileStacked ? 6 : 8;
       var pageStyle = { '--cols': cols };
       var announcementContent = parseRichParagraphs(ANNOUNCEMENT_BODY_HTML);
-      var announcementText = richParagraphsToPlainText(announcementContent);
+      var announcementDisplayContent = mobileStacked ? announcementContent.slice(0, 1) : announcementContent;
+      var announcementText = richParagraphsToPlainText(announcementDisplayContent);
 
       return (
         <div className="page">
@@ -3820,205 +4764,115 @@ export function getDefaultHomePageBody(): string {
                 <>
                   <AnnouncementCard
                     span={frontCenterSpan}
-                    title="Freedom comes to LessWrong"
-                    subtitle="After years of ruling with an iron fist the site admins have finally returned control of the UI back to the people"
-                    content={announcementContent}
+                    title="LessWrong Liberated"
+                    subtitle=""
+                    content={announcementDisplayContent}
                     text={announcementText}
+                    minColumns={announcementMinColumns}
+                    maxColumns={announcementMaxColumns}
                   />
+                  <ShoggothsAlbumCard span={frontRightSpan} />
                   <LatestCommentsCard span={frontLeftSpan} items={latestComments} />
-                  <ArticleCard
-                    key={frontRightPost._id}
-                    post={frontRightPost}
-                    span={frontRightSpan}
-                    variant="feature"
-                    label={formatByline(frontRightPost)}
-                    content={fullPostContent(frontRightPost)}
-                    text={fullPostText(frontRightPost)}
-                    font='11.5px warnock-pro, Georgia, serif'
-                    lineHeight={18}
-                    paragraphGap={7}
-                    minParagraphs={1}
-                    maxParagraphs={2}
-                    minSentences={2}
-                    multiColumn={frontRightSpan >= 3}
-                    minColumns={2}
-                    maxColumns={2}
-                    minColumnWidth={170}
-                    columnGap={12}
-                  />
                 </>
               ) : (
                 <>
                   <AnnouncementCard
                     span={frontFallbackHeroSpan}
-                    title="Freedom comes to LessWrong"
-                    subtitle="After years of ruling with an iron fist the site admins have finally returned control of the UI back to the people"
-                    content={announcementContent}
+                    title="LessWrong Liberated"
+                    subtitle=""
+                    content={announcementDisplayContent}
                     text={announcementText}
+                    minColumns={announcementMinColumns}
+                    maxColumns={announcementMaxColumns}
                   />
                   {frontFallbackSideSpan && frontRightPost ? (
-                    <ArticleCard
-                      key={frontRightPost._id}
-                      post={frontRightPost}
-                      span={frontFallbackSideSpan}
-                      variant="feature"
-                      label={formatByline(frontRightPost)}
-                      content={fullPostContent(frontRightPost)}
-                      text={fullPostText(frontRightPost)}
-                      font='11.5px warnock-pro, Georgia, serif'
-                      lineHeight={18}
-                      paragraphGap={7}
-                      minParagraphs={1}
-                      maxParagraphs={2}
-                      minSentences={2}
-                      multiColumn={frontFallbackSideSpan >= 3}
-                      minColumns={2}
-                      maxColumns={2}
-                      minColumnWidth={170}
-                      columnGap={12}
-                    />
+                    <ShoggothsAlbumCard span={frontFallbackSideSpan} />
                   ) : null}
                 </>
               )}
             </section>
 
-            <section className={'grid-row lead-row' + (useLeadThreeUpRow ? ' three-up-row' : '')}>
-              {leadPosts.map(function(post, index) {
-                var text = fullPostText(post);
-                return (
-                  <ArticleCard
-                    key={post._id}
-                    post={post}
-                    span={leadSpans[index]}
-                    variant={useLeadThreeUpRow ? 'lead' : (leadSpans[index] >= 3 ? 'lead' : 'feature')}
-                    label={formatByline(post)}
-                    content={fullPostContent(post)}
-                    text={text}
-                    font='12px warnock-pro, Georgia, serif'
-                    lineHeight={18}
-                    paragraphGap={7}
-                    minParagraphs={1}
-                    maxParagraphs={3}
-                    minSentences={2}
-                    multiColumn={true}
-                    minColumns={2}
-                    maxColumns={2}
-                    minColumnWidth={180}
-                    columnGap={12}
-                    dropCap={index === 0 && cols >= 8}
-                  />
-                );
-              })}
-            </section>
+            {mobileStacked ? (
+              <section className="grid-row brief-row">
+                <ShoggothsAlbumCard span={cols} />
+              </section>
+            ) : null}
 
-            <section className="grid-row brief-row">
-              {useFeatureBandRow ? (
-                <>
-                  <ArticleCard
-                    key={featurePosts[1]._id}
-                    post={featurePosts[1]}
-                    span={featureSideSpan}
-                    variant="feature"
-                    label={formatByline(featurePosts[1])}
-                    content={fullPostContent(featurePosts[1])}
-                    text={fullPostText(featurePosts[1])}
-                    font='12.5px warnock-pro, Georgia, serif'
-                    lineHeight={18}
-                    paragraphGap={7}
-                    minParagraphs={1}
-                    maxParagraphs={2}
-                    minSentences={2}
-                    multiColumn={featureSideSpan >= Math.max(3, Math.floor(cols / 3))}
-                    minColumns={2}
-                    maxColumns={2}
-                    minColumnWidth={175}
-                    columnGap={12}
-                  />
-                  <ArticleCard
-                    key={featurePosts[0]._id}
-                    post={featurePosts[0]}
-                    span={featureCenterSpan}
-                    variant="lead"
-                    label={formatByline(featurePosts[0])}
-                    content={fullPostContent(featurePosts[0])}
-                    text={fullPostText(featurePosts[0])}
-                    font='12.5px warnock-pro, Georgia, serif'
-                    lineHeight={18}
-                    paragraphGap={7}
-                    minParagraphs={1}
-                    maxParagraphs={3}
-                    minSentences={2}
-                    multiColumn={featureCenterSpan >= Math.max(3, Math.floor(cols / 3))}
-                    minColumns={2}
-                    maxColumns={2}
-                    minColumnWidth={175}
-                    columnGap={12}
-                  />
-                  <ArticleCard
-                    key={featurePosts[2]._id}
-                    post={featurePosts[2]}
-                    span={featureRightSpan}
-                    variant="feature"
-                    label={formatByline(featurePosts[2])}
-                    content={fullPostContent(featurePosts[2])}
-                    text={fullPostText(featurePosts[2])}
-                    font='12.5px warnock-pro, Georgia, serif'
-                    lineHeight={18}
-                    paragraphGap={7}
-                    minParagraphs={1}
-                    maxParagraphs={2}
-                    minSentences={2}
-                    multiColumn={featureRightSpan >= Math.max(3, Math.floor(cols / 3))}
-                    minColumns={2}
-                    maxColumns={2}
-                    minColumnWidth={175}
-                    columnGap={12}
-                  />
-                </>
-              ) : featurePosts.map(function(post, index) {
-                return (
-                  <ArticleCard
-                    key={post._id}
-                    post={post}
-                    span={featureSpans[index]}
-                    variant="feature"
-                    label={formatByline(post)}
-                    content={fullPostContent(post)}
-                    text={fullPostText(post)}
-                    font='12.5px warnock-pro, Georgia, serif'
-                    lineHeight={18}
-                    paragraphGap={7}
-                    minParagraphs={1}
-                    maxParagraphs={3}
-                    minSentences={2}
-                    multiColumn={featureSpans[index] >= Math.max(3, Math.floor(cols / 3))}
-                    minColumns={2}
-                    maxColumns={2}
-                    minColumnWidth={175}
-                    columnGap={12}
-                  />
-                );
-              })}
-            </section>
+            {!mobileStacked ? (
+              <section className={'grid-row lead-row' + (useLeadThreeUpRow ? ' three-up-row' : '')}>
+                {leadPosts.map(function(post, index) {
+                  var text = fullPostText(post);
+                  return (
+                    <ArticleCard
+                      key={post._id}
+                      post={post}
+                      span={leadSpans[index]}
+                      variant={useLeadThreeUpRow ? 'lead' : (leadSpans[index] >= 3 ? 'lead' : 'feature')}
+                      label={formatByline(post, bylineOptions)}
+                      content={fullPostContent(post)}
+                      text={text}
+                      font='15px warnock-pro, Georgia, serif'
+                      lineHeight={22}
+                      paragraphGap={7}
+                      minParagraphs={1}
+                      maxParagraphs={3}
+                      minSentences={2}
+                      multiColumn={true}
+                      minColumns={2}
+                      maxColumns={2}
+                      minColumnWidth={180}
+                      columnGap={12}
+                      dropCap={index === 0 && cols >= 8}
+                    />
+                  );
+                })}
+              </section>
+            ) : null}
 
-            <section className="grid-row dispatch-row">
-              <div style={{ gridColumn: '1 / -1' }}>
-                <div className="dispatch-grid">
-                  {quicktakes.map(function(item, index) {
-                    var quickText = stripHtml(item.contents && item.contents.html);
-                    var href = '/posts/' + (item.postId || '') + '/' + (((item.post && item.post.slug) || '')) + '#' + item._id;
-                    return (
-                      <DispatchCard
-                        key={item._id}
-                        label={((item.user && item.user.displayName) || 'Anonymous')}
-                        href={href}
-                        meta={formatDate(item.postedAt)}
-                        score={item.baseScore}
-                        text={quickText}
-                      />
-                    );
-                  })}
+            {!mobileStacked ? (
+              <section className="grid-row dispatch-row">
+                <div style={{ gridColumn: '1 / -1' }}>
+                  <div className="dispatch-grid">
+                    {quicktakes.map(function(item, index) {
+                      var quickText = stripHtml(item.contents && item.contents.html);
+                      var href = '/posts/' + (item.postId || '') + '/' + (((item.post && item.post.slug) || '')) + '#' + item._id;
+                      return (
+                        <DispatchCard
+                          key={item._id}
+                          label={((item.user && item.user.displayName) || 'Anonymous')}
+                          href={href}
+                          meta={formatDate(item.postedAt)}
+                          score={item.baseScore}
+                          text={quickText}
+                        />
+                      );
+                    })}
+                  </div>
                 </div>
+              </section>
+            ) : null}
+
+            <section className="grid-row">
+              <div className="lists-rail-section">
+                <TopPostsSection
+                  posts={topPostsListPosts}
+                  visibleCount={topPostsVisibleCount}
+                  bylineOptions={bylineOptions}
+                  onLoadMore={function() {
+                    setTopPostsVisibleCount(function(current) {
+                      return Math.min(topPostsListPosts.length, current + topPostsIncrement);
+                    });
+                  }}
+                />
+                <RecentCommentsSection
+                  items={recentComments}
+                  visibleCount={recentCommentsVisibleCount}
+                  onLoadMore={function() {
+                    setRecentCommentsVisibleCount(function(current) {
+                      return Math.min(recentComments.length, current + 8);
+                    });
+                  }}
+                />
               </div>
             </section>
           </div>
