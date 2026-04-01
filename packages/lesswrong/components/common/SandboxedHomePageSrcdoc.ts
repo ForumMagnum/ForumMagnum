@@ -1,3 +1,4 @@
+import { MARKETPLACE_POST_ID } from '@/lib/collections/homePageDesigns/constants';
 import { globalExternalStylesheets } from '@/themes/globalStyles/externalStyles';
 
 interface SrcdocWrapperOptions {
@@ -1532,6 +1533,27 @@ export function getDefaultHomePageBody(): string {
     var useState = React.useState;
     var SOFT_HYPHEN = '\u00AD';
     var richContentCache = typeof Map === 'function' ? new Map() : null;
+    var MARKETPLACE_POST_ID = '${MARKETPLACE_POST_ID}';
+
+    var HERO_POST_QUERY = \`
+      query HomeDesignHeroPost($documentId: String!) {
+        post(input: { selector: { documentId: $documentId }, allowNull: true }) {
+          result {
+            _id
+            title
+            slug
+            baseScore
+            commentCount
+            postedAt
+            curatedDate
+            hideAuthor
+            user { displayName slug }
+            customHighlight { html }
+            contents { html htmlHighlight }
+          }
+        }
+      }
+    \`;
 
     var POSTS_QUERY = \`
       query RecentPosts($limit: Int, $offset: Int, $enableTotal: Boolean) {
@@ -2312,6 +2334,7 @@ export function getDefaultHomePageBody(): string {
     var excerptMeasureCanvas = document.createElement('canvas');
     var excerptMeasureCtx = excerptMeasureCanvas.getContext('2d');
     var richFragmentWidthCache = typeof Map === 'function' ? new Map() : null;
+    var DROP_CAP_FONT_FAMILY = 'ETBookRoman, warnock-pro, "Iowan Old Style", Georgia, serif';
 
     function countSpaces(text) {
       var matches = (text || '').match(/ /g);
@@ -2328,6 +2351,24 @@ export function getDefaultHomePageBody(): string {
       var width = excerptMeasureCtx.measureText(text).width;
       if (richFragmentWidthCache) richFragmentWidthCache.set(key, width);
       return width;
+    }
+
+    function measureTextBounds(text, font) {
+      if (!text) return { width: 0, height: 0 };
+      excerptMeasureCtx.font = font;
+      var metrics = excerptMeasureCtx.measureText(text);
+      var boundsWidth =
+        typeof metrics.actualBoundingBoxLeft === 'number' && typeof metrics.actualBoundingBoxRight === 'number'
+          ? metrics.actualBoundingBoxLeft + metrics.actualBoundingBoxRight
+          : metrics.width;
+      var boundsHeight =
+        typeof metrics.actualBoundingBoxAscent === 'number' && typeof metrics.actualBoundingBoxDescent === 'number'
+          ? metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent
+          : 0;
+      return {
+        width: Math.max(metrics.width, boundsWidth),
+        height: boundsHeight,
+      };
     }
 
     function trimTextToWidth(text, maxWidth, font) {
@@ -2479,14 +2520,33 @@ export function getDefaultHomePageBody(): string {
       return match ? parseFloat(match[1]) : 13;
     }
 
-    function getDropCapMetrics(font, lineHeight) {
+    function getDropCapFont(fontSize, style) {
+      var prefix = [];
+      if (style && style.italic) prefix.push('italic');
+      if (style && style.bold) prefix.push('700');
+      prefix.push(fontSize + 'px');
+      prefix.push(DROP_CAP_FONT_FAMILY);
+      return prefix.join(' ');
+    }
+
+    function getDropCapTopOffset(textFontSize, lineHeight) {
+      return Math.max(0, (lineHeight - textFontSize) * 0.4) + 6;
+    }
+
+    function getDropCapMetrics(font, lineHeight, dropCapData) {
       var baseSize = getFontPixelSize(font);
       var lines = 3;
       var fontSize = Math.max(
         Math.round(baseSize * 4.75),
         Math.round(lineHeight * 3.35)
       );
-      var indent = Math.round(fontSize * 0.7);
+      var dropCapFont = getDropCapFont(fontSize, dropCapData && dropCapData.style);
+      var measuredWidth = measureTextBounds((dropCapData && dropCapData.text) || 'W', dropCapFont).width;
+      var sideClearance = Math.max(Math.round(baseSize * 0.4), 5);
+      var indent = Math.max(
+        Math.round(fontSize * 0.7),
+        Math.ceil(measuredWidth + sideClearance * 2)
+      );
       return {
         fontSize: fontSize,
         indent: indent,
@@ -2502,12 +2562,13 @@ export function getDefaultHomePageBody(): string {
     function getDropCapInlineStyle(item, dropCapData, baseFont, lineHeight) {
       var textFontSize = getFontPixelSize(item.layoutFont || baseFont);
       var dropCapText = dropCapData && dropCapData.dropCap ? dropCapData.dropCap.text : '';
-      var dropCapWidth = measureTextWidth(dropCapText || 'W', item.dropCapFontSize + 'px ETBookRoman, warnock-pro, "Iowan Old Style", Georgia, serif');
+      var dropCapStyle = dropCapData && dropCapData.dropCap ? dropCapData.dropCap.style : null;
+      var dropCapWidth = measureTextBounds(dropCapText || 'W', getDropCapFont(item.dropCapFontSize, dropCapStyle)).width;
       var reservedIndent = item.indent || 0;
       var centeredOffset = reservedIndent > 0
         ? Math.max(0, (reservedIndent - dropCapWidth) * 0.5)
         : 0;
-      var topOffset = Math.max(0, (lineHeight - textFontSize) * 0.4) + 6;
+      var topOffset = getDropCapTopOffset(textFontSize, lineHeight);
       return {
         position: 'absolute',
         left: ((item.shift || 0) + centeredOffset) + 'px',
@@ -2902,6 +2963,42 @@ export function getDefaultHomePageBody(): string {
       return graphemes;
     }
 
+    function getFirstTextGrapheme(text) {
+      var normalized = (text || '').replace(/^\\s+/, '');
+      if (!normalized) return '';
+      if (excerptGraphemeSegmenter) {
+        var segments = Array.from(excerptGraphemeSegmenter.segment(normalized), function(entry) {
+          return entry.segment;
+        });
+        return segments[0] || '';
+      }
+      return Array.from(normalized)[0] || '';
+    }
+
+    function getBundleDropCapData(bundleItem) {
+      if (!bundleItem) return null;
+      if (bundleItem.richRuns && bundleItem.richRuns.length) {
+        for (var i = 0; i < bundleItem.richRuns.length; i++) {
+          var run = bundleItem.richRuns[i];
+          var grapheme = getFirstTextGrapheme(run.text);
+          if (grapheme) {
+            return {
+              text: grapheme,
+              style: run.style,
+            };
+          }
+        }
+      }
+
+      var fallbackText = getFirstTextGrapheme(bundleItem.text || bundleItem.layoutText || '');
+      return fallbackText
+        ? {
+            text: fallbackText,
+            style: null,
+          }
+        : null;
+    }
+
     function getPreparedSegmentOffsets(prepared) {
       if (!preparedSegmentOffsetsCache) {
         var adHocOffsets = [];
@@ -3218,7 +3315,7 @@ export function getDefaultHomePageBody(): string {
       }
 
       if (candidate.spaceCount <= 0) {
-        if (!candidate.isTerminal && !candidate.isForced && fillRatio < 0.5) {
+        if (!candidate.isTerminal && !candidate.isForced && fillRatio < 0.4) {
           return Infinity;
         }
         var unbreakableSlack = residual / Math.max(options.spaceWidth, 1);
@@ -3484,7 +3581,8 @@ export function getDefaultHomePageBody(): string {
       var totalGreedyCost = 0;
       var totalHyphenLines = 0;
       var totalLineCount = 0;
-      var dropCapMetrics = options.dropCap ? getDropCapMetrics(options.font, options.lineHeight) : null;
+      var firstParagraphDropCapData = options.dropCap && bundle.length ? getBundleDropCapData(bundle[0]) : null;
+      var dropCapMetrics = options.dropCap ? getDropCapMetrics(options.font, options.lineHeight, firstParagraphDropCapData) : null;
       var paragraphIndent = options.paragraphIndent || getParagraphIndent(options.font);
       var spaceWidth = getSpaceWidth(options.font);
 
@@ -4088,6 +4186,9 @@ export function getDefaultHomePageBody(): string {
     }
 
     function AnnouncementCard(props) {
+      var post = props.post || null;
+      var cardLabel = post ? formatByline(post) : 'LessWrong';
+      var titleHref = post ? postUrl(post) : null;
       var cardRef = useRef(null);
       var toplineRef = useRef(null);
       var headlineRef = useRef(null);
@@ -4190,14 +4291,18 @@ export function getDefaultHomePageBody(): string {
         <article ref={cardRef} className="card announcement-card" style={{ gridColumn: 'span ' + props.span }}>
           <div className="card-chrome announcement-chrome">
             <div ref={toplineRef} className="card-topline">
-              <div className="card-label">Ronny Fernandez</div>
+              <div className="card-label">{cardLabel}</div>
               <div className="meta">
-                <span>Apr 1</span>
-                <span>200 points</span>
-                <span>120 comments</span>
+                {post && post.postedAt ? <span>{formatDate(post.postedAt)}</span> : null}
+                {post ? <span>{post.baseScore || 0} points</span> : null}
+                {post ? <span>{post.commentCount || 0} comments</span> : null}
               </div>
             </div>
-            <h1 ref={headlineRef} className="announcement-headline" style={headlineWidth ? { maxWidth: headlineWidth + 'px' } : undefined}>{props.title}</h1>
+            <h1 ref={headlineRef} className="announcement-headline" style={headlineWidth ? { maxWidth: headlineWidth + 'px' } : undefined}>
+              {titleHref ? (
+                <a href={titleHref} target="_top">{props.title}</a>
+              ) : props.title}
+            </h1>
             {props.subtitle ? (
               <div
                 ref={dekRef}
@@ -4857,6 +4962,7 @@ export function getDefaultHomePageBody(): string {
       var [data, setData] = useState({
         loading: true,
         error: null,
+        heroPost: null,
         postResults: [],
         postsTotalCount: null,
         postsLoadingMore: false,
@@ -4881,6 +4987,7 @@ export function getDefaultHomePageBody(): string {
 
             var curated = (curatedResult && curatedResult.CuratedAndPopularThisWeek && curatedResult.CuratedAndPopularThisWeek.results) || [];
             var results = await Promise.all([
+              gqlQuery(HERO_POST_QUERY, { documentId: MARKETPLACE_POST_ID }).catch(function() { return null; }),
               collectPaginatedResults({
                 query: POSTS_QUERY,
                 pageSize: TOP_POSTS_PAGE_SIZE,
@@ -4924,14 +5031,15 @@ export function getDefaultHomePageBody(): string {
             setData({
               loading: false,
               error: null,
-              postResults: results[0].results,
-              postsTotalCount: results[0].totalCount,
+              heroPost: (results[0] && results[0].post && results[0].post.result) || null,
+              postResults: results[1].results,
+              postsTotalCount: results[1].totalCount,
               postsLoadingMore: false,
               curated: curated,
-              quicktakes: (results[1] && results[1].comments && results[1].comments.results) || [],
-              topCommentResults: results[2].results,
-              recentCommentResults: results[3].results,
-              recentCommentsTotalCount: results[3].totalCount,
+              quicktakes: (results[2] && results[2].comments && results[2].comments.results) || [],
+              topCommentResults: results[3].results,
+              recentCommentResults: results[4].results,
+              recentCommentsTotalCount: results[4].totalCount,
               recentCommentsLoadingMore: false,
             });
           } catch (error) {
@@ -4939,6 +5047,7 @@ export function getDefaultHomePageBody(): string {
             setData({
               loading: false,
               error: error.message,
+              heroPost: null,
               postResults: [],
               postsTotalCount: null,
               postsLoadingMore: false,
@@ -5121,9 +5230,11 @@ export function getDefaultHomePageBody(): string {
       var announcementMinColumns = cols < 4 ? 1 : 2;
       var announcementMaxColumns = cols < 4 ? 1 : 3;
       var pageStyle = { '--cols': cols };
-      var announcementContent = parseRichParagraphs(ANNOUNCEMENT_BODY_HTML);
+      var announcementPost = data.heroPost;
+      var announcementContent = announcementPost ? fullPostContent(announcementPost) : parseRichParagraphs(ANNOUNCEMENT_BODY_HTML);
       var announcementDisplayContent = mobileStacked ? announcementContent.slice(0, 1) : announcementContent;
       var announcementText = richParagraphsToPlainText(announcementDisplayContent);
+      var announcementTitle = announcementPost && announcementPost.title ? announcementPost.title : 'LessWrong Liberated';
 
       return (
         <div className="page">
@@ -5134,7 +5245,8 @@ export function getDefaultHomePageBody(): string {
                 <>
                   <AnnouncementCard
                     span={frontCenterSpan}
-                    title="LessWrong Liberated"
+                    post={announcementPost}
+                    title={announcementTitle}
                     subtitle=""
                     content={announcementDisplayContent}
                     text={announcementText}
@@ -5148,7 +5260,8 @@ export function getDefaultHomePageBody(): string {
                 <>
                   <AnnouncementCard
                     span={frontFallbackHeroSpan}
-                    title="LessWrong Liberated"
+                    post={announcementPost}
+                    title={announcementTitle}
                     subtitle=""
                     content={announcementDisplayContent}
                     text={announcementText}

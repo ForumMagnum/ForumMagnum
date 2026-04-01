@@ -15,7 +15,7 @@ import { UnreadNotificationCountsQuery, useUnreadNotifications } from '../hooks/
 import { NotificationsListMultiQuery } from '../notifications/NotificationsListMultiQuery';
 import { SuspenseWrapper } from './SuspenseWrapper';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
+import { HOME_DESIGN_DEFAULT_BUILT_IN_VALUE, HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
 
 const homePageDesignByPublicIdQuery = gql(`
   query HomePageDesignByPublicId($publicId: String!) {
@@ -227,6 +227,7 @@ function SandboxedHomePageContent() {
   const preferredDesignPublicId = typeof cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE] === 'string'
     ? cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]
     : null;
+  const useBuiltInDefaultFromCookie = preferredDesignPublicId === HOME_DESIGN_DEFAULT_BUILT_IN_VALUE;
   const { latestUnreadCount } = useUnreadNotifications();
 
   const { data: themeData } = useQuery(homePageDesignByPublicIdQuery, {
@@ -241,7 +242,7 @@ function SandboxedHomePageContent() {
 
   const { data: preferredDesignData } = useQuery(homePageDesignByPublicIdQuery, {
     variables: { publicId: preferredDesignPublicId! },
-    skip: !preferredDesignPublicId || !!themePublicId,
+    skip: !preferredDesignPublicId || useBuiltInDefaultFromCookie || !!themePublicId,
   });
 
   const client = useApolloClient();
@@ -435,7 +436,7 @@ function SandboxedHomePageContent() {
   const srcdoc = designChat.customSrcdoc ?? (
     designChat.useDefaultDesign
       ? defaultSrcdoc
-      : (themeSrcdoc ?? preferredDesignSrcdoc ?? userLatestSrcdoc ?? defaultSrcdoc)
+      : (themeSrcdoc ?? (useBuiltInDefaultFromCookie ? defaultSrcdoc : preferredDesignSrcdoc) ?? userLatestSrcdoc ?? defaultSrcdoc)
   );
 
   return (

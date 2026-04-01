@@ -1,4 +1,4 @@
 export const HOME_PAGE_DESIGN_PUBLIC_ID_LENGTH = 6;
 
 // TODO: Replace with the actual marketplace post ID once created
-export const MARKETPLACE_POST_ID = "tCbbMACfGChx5qAiZ";
+export const MARKETPLACE_POST_ID = "Yc8Js4i7X3Fx4oCYb";
