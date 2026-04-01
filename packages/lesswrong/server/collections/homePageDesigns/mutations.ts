@@ -139,6 +139,11 @@ interface AutoReviewContext {
   commentHtml: string;
 }
 
+interface PublishHomePageDesignArgs {
+  input: PublishHomePageDesignInput;
+  context: ResolverContext;
+}
+
 async function notifyModerationOfFailedReview(designId: string, user: AutoReviewContext, message: string) {
   const baseUrl = `https://${process.env.SITE_URL ?? "lesswrong.com"}`;
   const userLink = `${baseUrl}/users/${user.slug}`;
@@ -249,12 +254,11 @@ async function runAutoReview(designId: string, html: string, reviewContext: Auto
   }
 }
 
-async function publishHomePageDesignResolver(
-  root: void,
-  { input }: { input: PublishHomePageDesignInput },
-  context: ResolverContext,
-) {
-  const { currentUser, HomePageDesigns } = context;
+export async function publishHomePageDesign({
+  input,
+  context,
+}: PublishHomePageDesignArgs) {
+  const { currentUser } = context;
   if (!currentUser) {
     throw new Error("You must be logged in to publish a home page design.");
   }
@@ -347,7 +351,7 @@ async function publishHomePageDesignResolver(
 
   const result = await HomePageDesigns.findOne({ _id: latest._id });
   const filtered = await accessFilterSingle(currentUser, 'HomePageDesigns', result, context);
-  return { data: filtered };
+  return filtered;
 }
 
 async function setHomePageDesignVerifiedResolver(
@@ -365,6 +369,15 @@ async function setHomePageDesignVerifiedResolver(
   const design = await HomePageDesigns.findOne({ _id: designId });
   if (!design) throw new Error("Design not found");
   return design;
+}
+
+async function publishHomePageDesignResolver(
+  root: void,
+  { input }: { input: PublishHomePageDesignInput },
+  context: ResolverContext,
+) {
+  const data = await publishHomePageDesign({ input, context });
+  return { data };
 }
 
 export const graphqlHomePageDesignMutationTypeDefs = gql`
