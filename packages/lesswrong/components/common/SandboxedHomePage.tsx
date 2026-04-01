@@ -426,7 +426,7 @@ function SandboxedHomePageContent() {
       <iframe
         ref={iframeRef}
         className={classes.iframe}
-        sandbox="allow-scripts allow-top-navigation-by-user-activation"
+        sandbox="allow-scripts allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation"
         srcDoc={srcdoc}
       />
       {!designChat.isOpen && (
