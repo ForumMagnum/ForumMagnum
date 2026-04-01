@@ -2,7 +2,7 @@ import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
 import React, { FC, ReactNode, useCallback, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
-import { getNotificationTypeByName } from '../../lib/notificationTypes';
+import { getNotificationTypeByName, isNotificationTypeName } from '../../lib/notificationTypes';
 import { parseRouteWithErrors } from '@/lib/routeChecks/parseRouteWithErrors';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useNavigate } from '../../lib/routeUtil';
@@ -26,7 +26,6 @@ import DoneIcon from '@/lib/vendor/@material-ui/icons/src/Done';
 import DebateIcon from '@/lib/vendor/@material-ui/icons/src/Forum';
 import ForumIcon from '@/components/common/ForumIcon';
 import { GiftIcon } from '../icons/giftIcon';
-import { isNotificationTypeName } from '@/lib/notificationTypes';
 
 const styles = defineStyles('NotificationsPageItem', (theme: ThemeType) => ({
   root: {
