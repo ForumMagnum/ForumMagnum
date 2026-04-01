@@ -385,6 +385,15 @@ export function getDefaultHomePageBody(): string {
       min-height: 0;
     }
 
+    .announcement-mobile-body {
+      display: none;
+      margin: 8px 0 0;
+      color: var(--ink);
+      font-family: var(--serif);
+      font-size: 15px;
+      line-height: 1.42;
+    }
+
     .announcement-cta {
       position: absolute;
       right: 0;
@@ -1098,6 +1107,10 @@ export function getDefaultHomePageBody(): string {
       align-self: center;
     }
 
+    .shoggoths-mobile-links-row {
+      display: none;
+    }
+
     .shoggoths-track-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 104px;
@@ -1348,13 +1361,18 @@ export function getDefaultHomePageBody(): string {
         inset: auto;
         flex: 0 0 auto;
         min-height: 0;
+        width: 100%;
       }
 
       .announcement-body.overlay.multicolumn > .fitted-text {
         height: auto;
+        width: 100%;
       }
 
-      .announcement-body > .fitted-text,
+      .announcement-mobile-body {
+        display: block;
+      }
+
       .article-card .excerpt-shell > .fitted-text {
         display: none;
       }
@@ -1368,9 +1386,11 @@ export function getDefaultHomePageBody(): string {
         padding-top: 0;
         background: transparent;
         gap: 6px;
+        flex-direction: row;
       }
 
       .announcement-cta-button {
+        flex: 1 1 0;
         padding: 7px 10px;
       }
 
@@ -1401,6 +1421,25 @@ export function getDefaultHomePageBody(): string {
         display: inline-flex;
         margin-left: 0;
         flex: 0 0 auto;
+      }
+
+      .shoggoths-album-tabs > .shoggoths-service-links,
+      .shoggoths-album-tabs > .shoggoths-tracklist-toggle {
+        display: none;
+      }
+
+      .shoggoths-mobile-links-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        width: 100%;
+        margin-top: -2px;
+      }
+
+      .shoggoths-mobile-links-row .shoggoths-service-links {
+        display: inline-flex;
+        margin-left: 0;
       }
 
       .shoggoths-tracklist.is-collapsed {
@@ -4221,6 +4260,7 @@ export function getDefaultHomePageBody(): string {
       var post = props.post || null;
       var cardLabel = post ? formatByline(post) : 'LessWrong';
       var titleHref = post ? postUrl(post) : null;
+      var isMobile = typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches;
       var cardRef = useRef(null);
       var toplineRef = useRef(null);
       var headlineRef = useRef(null);
@@ -4346,28 +4386,30 @@ export function getDefaultHomePageBody(): string {
             ) : null}
           </div>
           <div className="excerpt-shell announcement-body overlay multicolumn">
-            <PretextExcerptText
-              content={props.content}
-              text={props.text}
-              font='15px warnock-pro, Georgia, serif'
-              lineHeight={22}
-              paragraphGap={7}
-              paragraphCount={24}
-              multiColumn={true}
-              minColumns={props.minColumns || 2}
-              maxColumns={props.maxColumns || 3}
-              minColumnWidth={180}
-              columnGap={14}
-              exclusionRefs={exclusionRefs}
-              toplineClearance={2}
-              headerHorizontalClearance={24}
-              headerVerticalClearance={4}
-              partialColumnThreshold={0.6}
-              dropCap={true}
-              columnTopPaddingAdjust={typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches ? -9999 : 0}
-              maxLeadingSlotGapHeight={typeof window !== 'undefined' && window.matchMedia('(max-width: 639px)').matches ? 10 : undefined}
-              layoutDependency={dekLayoutSignature + ':' + ctaBottomOffset}
-            />
+            {isMobile ? (
+              <div className="announcement-mobile-body">{props.text}</div>
+            ) : (
+              <PretextExcerptText
+                content={props.content}
+                text={props.text}
+                font='15px warnock-pro, Georgia, serif'
+                lineHeight={22}
+                paragraphGap={7}
+                paragraphCount={24}
+                multiColumn={true}
+                minColumns={props.minColumns || 2}
+                maxColumns={props.maxColumns || 3}
+                minColumnWidth={180}
+                columnGap={14}
+                exclusionRefs={exclusionRefs}
+                toplineClearance={2}
+                headerHorizontalClearance={24}
+                headerVerticalClearance={4}
+                partialColumnThreshold={0.6}
+                dropCap={true}
+                layoutDependency={dekLayoutSignature + ':' + ctaBottomOffset}
+              />
+            )}
             <div
               ref={ctaRef}
               className="announcement-cta"
@@ -4845,6 +4887,43 @@ export function getDefaultHomePageBody(): string {
                   setIsPlaying(false);
                 }}
               />
+              <div className="shoggoths-mobile-links-row">
+                <div className="shoggoths-service-links">
+                  {currentAlbum.streaming && currentAlbum.streaming.spotify ? (
+                    <a
+                      className="shoggoths-service-link"
+                      href={currentAlbum.streaming.spotify}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={currentAlbum.title + ' on Spotify'}
+                      title={currentAlbum.title + ' on Spotify'}
+                    >
+                      <span dangerouslySetInnerHTML={{ __html: spotifySvg }} />
+                    </a>
+                  ) : null}
+                  {currentAlbum.streaming && currentAlbum.streaming.youtubeMusic ? (
+                    <a
+                      className="shoggoths-service-link"
+                      href={currentAlbum.streaming.youtubeMusic}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={currentAlbum.title + ' on YouTube Music'}
+                      title={currentAlbum.title + ' on YouTube Music'}
+                    >
+                      <span dangerouslySetInnerHTML={{ __html: youtubeSvg }} />
+                    </a>
+                  ) : null}
+                </div>
+                <button
+                  type="button"
+                  className="shoggoths-tracklist-toggle"
+                  onClick={function() {
+                    setMobileTracklistOpen(function(current) { return !current; });
+                  }}
+                >
+                  {mobileTracklistOpen ? 'Hide tracks' : 'Show tracks'}
+                </button>
+              </div>
               <div className={'shoggoths-tracklist' + (mobileTracklistOpen ? '' : ' is-collapsed')}>
                 {currentAlbum.tracks.map(function(track, index) {
                   var lyricsData = lyricsByTrack[track.src];
@@ -5264,7 +5343,7 @@ export function getDefaultHomePageBody(): string {
       var pageStyle = { '--cols': cols };
       var announcementPost = data.heroPost;
       var announcementContent = announcementPost ? fullPostContent(announcementPost) : parseRichParagraphs(ANNOUNCEMENT_BODY_HTML);
-      var announcementDisplayContent = mobileStacked ? announcementContent.slice(0, 1) : announcementContent;
+      var announcementDisplayContent = mobileStacked ? announcementContent.slice(0, 2) : announcementContent;
       var announcementText = richParagraphsToPlainText(announcementDisplayContent);
       var announcementTitle = announcementPost && announcementPost.title ? announcementPost.title : 'LessWrong Liberated';
 
