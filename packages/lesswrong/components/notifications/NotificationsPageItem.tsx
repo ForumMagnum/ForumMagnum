@@ -96,7 +96,6 @@ const styles = defineStyles('NotificationsPageItem', (theme: ThemeType) => ({
     "-webkit-box-orient": "vertical",
   },
   notificationLabelRead: {
-    color: theme.palette.text.dim55,
   },
   timestamp: {
     ...theme.typography.body2,
@@ -164,7 +163,7 @@ function getPageNotificationIcon(notificationName: string) {
 }
 
 const tooltipProps = {
-  placement: "left-start",
+  placement: "bottom-end",
   pageElementContext: "linkPreview",
   pageElementSubContext: "notificationItem",
   clickable: true,
@@ -184,6 +183,7 @@ const TooltipWrapper: FC<{
           <Card>{title}</Card>
         </span>
       }
+      inlineBlock={false}
     >
       {children}
     </LWTooltip>
