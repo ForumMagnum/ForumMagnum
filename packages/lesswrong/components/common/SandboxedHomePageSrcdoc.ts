@@ -1772,6 +1772,7 @@ export function getDefaultHomePageBody(): string {
           { title: 'I Tried', src: '/fooming-shoggoths/second-album/11_I_Tried.mp3' },
           { title: "Friday's Far Enough For Milk", src: '/fooming-shoggoths/second-album/12_Fridays_Far_Enough_For_Milk.mp3' },
           { title: 'Dance of the Doomsday Clock', src: '/fooming-shoggoths/second-album/13_Dance_of_the_Doomsday_Clock.mp3' },
+          { title: 'The Ninth Night of November', src: '/fooming-shoggoths/second-album/14_The_Ninth_Night_of_November.mp3' },
         ],
       },
     ];
