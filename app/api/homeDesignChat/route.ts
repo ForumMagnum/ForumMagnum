@@ -2,6 +2,7 @@ import { streamText, generateText, UIMessage, convertToModelMessages, LanguageMo
 import { z } from 'zod';
 import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import HomePageDesigns from "@/server/collections/homePageDesigns/collection";
+import { ClientIds } from "@/server/collections/clientIds/collection";
 import { HOME_DESIGN_SHARED_PROMPT } from "@/lib/homeDesignPrompt";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { NextRequest } from "next/server";
@@ -40,6 +41,19 @@ export async function POST(req: NextRequest) {
   const clientId = req.cookies.get('clientId')?.value ?? null;
   const ownerId = currentUser?._id ?? clientId;
 
+  if (!ownerId) {
+    return new Response('No identity found. Please log in or enable cookies.', { status: 401 });
+  }
+
+  // For logged-out users, verify the clientId exists and is at least 10 seconds old
+  if (!currentUser && clientId) {
+    const clientIdRecord = await ClientIds.findOne({ clientId });
+    const minAge = 10 * 1000;
+    if (!clientIdRecord || (Date.now() - clientIdRecord.createdAt.getTime()) < minAge) {
+      return new Response('Rate limit exceeded.', { status: 429 });
+    }
+  }
+
   // Rate limits: logged-out users get 3 messages / 3 internal designs,
   // logged-in users get 8 messages / 10 internal designs.
   const messageLimit = currentUser ? 8 : 3;
@@ -55,7 +69,7 @@ export async function POST(req: NextRequest) {
 
   // Only enforce the design limit when starting a new conversation (no publicId yet).
   // Iterating on an existing design is always allowed.
-  if (ownerId && !clientPublicId) {
+  if (!clientPublicId) {
     const internalDesigns = await HomePageDesigns.find(
       { ownerId, source: 'internal' },
       { projection: { publicId: 1 } },
@@ -75,7 +89,7 @@ export async function POST(req: NextRequest) {
 
   // For existing designs, verify ownership before calling the model
   let existingTitle: string | null = null;
-  if (publicId && ownerId) {
+  if (publicId) {
     const original = await HomePageDesigns.findOne(
       { publicId },
       { sort: { createdAt: 1 } },
@@ -92,9 +106,11 @@ export async function POST(req: NextRequest) {
   const canPublish = currentUser
     && !currentUser.banned
     && (currentUser.reviewedByUserId || currentUser.createdAt < publishCutoffDate);
+    
   const modelId: LanguageModel = canPublish
     ? 'anthropic/claude-sonnet-4-6'
     : 'google/gemini-3-flash';
+
   const result = streamText({
     model: modelId,
     system: { role: 'system', content: SYSTEM_PROMPT, providerOptions: { anthropic: { cacheControl: { type: 'ephemeral' } } } },
@@ -106,10 +122,6 @@ export async function POST(req: NextRequest) {
           html: z.string().describe('Body content: <style> tags, HTML elements, and <script type="text/babel"> tags. Do NOT include <!DOCTYPE>, <html>, <head>, or <body> tags — the wrapper handles those. React, ReactDOM, Babel, and the RPC bridge are already loaded.'),
         }),
         execute: async ({ html }) => {
-          if (!ownerId) {
-            return { success: true, message: 'Design applied (not saved — no identity).', publicId: null };
-          }
-
           const newId = await HomePageDesigns.rawInsert({
             ownerId,
             publicId: publicId ?? "",
@@ -124,6 +136,7 @@ export async function POST(req: NextRequest) {
             autoReviewPassed: false,
             autoReviewMessage: null,
           });
+
           latestRecordId = newId;
 
           const shortId = newId.substring(0, 4);
