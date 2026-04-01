@@ -10,6 +10,7 @@ import { useLocation, useNavigate } from '@/lib/routeUtil';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useApolloClient } from '@apollo/client/react';
+import moment from 'moment';
 import HomeDesignChatPanel from './HomeDesignChatPanel';
 import { UnreadNotificationCountsQuery, useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { NotificationsListMultiQuery } from '../notifications/NotificationsListMultiQuery';
@@ -275,7 +276,7 @@ function SandboxedHomePageContent() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const currentUser = useCurrentUser();
   const designChat = useHomeDesignChat();
-  const [cookies] = useCookiesWithConsent([HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]);
+  const [cookies, setCookie] = useCookiesWithConsent([HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]);
   const { query } = useLocation();
   const navigate = useNavigate();
   const themePublicId = query.theme as string | undefined;
@@ -500,9 +501,13 @@ function SandboxedHomePageContent() {
       }
       case 'revertToNormalHomepage': {
         designChat.setIsOpen(false);
+        setCookie(HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE, HOME_DESIGN_DEFAULT_BUILT_IN_VALUE, {
+          path: '/',
+          expires: moment().add(2, 'years').toDate(),
+        });
         const url = new URL(window.location.href);
         url.searchParams.delete('theme');
-        url.searchParams.set('classicHome', '1');
+        url.searchParams.delete('classicHome');
         window.location.assign(`${url.pathname}${url.search}${url.hash}`);
         return { success: true };
       }
