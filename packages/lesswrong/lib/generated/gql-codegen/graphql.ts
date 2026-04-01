@@ -4491,6 +4491,7 @@ export type ManifoldProbabilitiesCache = {
 export type MarketplaceHomePageDesign = {
   __typename?: 'MarketplaceHomePageDesign';
   commentBaseScore: Scalars['Int']['output'];
+  commentId: Maybe<Scalars['String']['output']>;
   html: Scalars['String']['output'];
   publicId: Scalars['String']['output'];
   title: Scalars['String']['output'];
@@ -14152,7 +14153,7 @@ export type HomePageDesignByPublicIdFullQuery = { __typename?: 'Query', homePage
 export type MarketplaceHomePageDesignsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type MarketplaceHomePageDesignsQuery = { __typename?: 'Query', marketplaceHomePageDesigns: Array<{ __typename?: 'MarketplaceHomePageDesign', publicId: string, title: string, html: string, verified: boolean, commentBaseScore: number }> };
+export type MarketplaceHomePageDesignsQuery = { __typename?: 'Query', marketplaceHomePageDesigns: Array<{ __typename?: 'MarketplaceHomePageDesign', publicId: string, title: string, html: string, verified: boolean, commentId: string | null, commentBaseScore: number }> };
 
 export type PublishHomePageDesignMutationVariables = Exact<{
   input: PublishHomePageDesignInput;
@@ -21600,7 +21601,7 @@ export const multiCommentCommentsListCondensedQueryDocument = _o1(_1,[_o11(_960,
 export const HeaderEventSubtitleSpotlightQueryDocument = _o1(_1,[_o17(_960,_961,_o3(_3,"HeaderEventSubtitleSpotlightQuery"),_o5(_7,[_o6(_8,_1002,_o5(_7,[_o4(_24,_735)]))])),_734,_737]) as unknown as DocumentNode<HeaderEventSubtitleSpotlightQueryQuery, HeaderEventSubtitleSpotlightQueryQueryVariables>;
 export const MyHomePageDesignSummariesDocument = _o1(_1,[_o17(_960,_961,_o3(_3,"MyHomePageDesignSummaries"),_o5(_7,[_o6(_8,_o3(_3,"myHomePageDesignSummaries"),_o5(_7,[_1124,_13,_39]))]))]) as unknown as DocumentNode<MyHomePageDesignSummariesQuery, MyHomePageDesignSummariesQueryVariables>;
 export const HomePageDesignByPublicIdFullDocument = _o1(_1,[_o11(_960,_961,_o3(_3,"HomePageDesignByPublicIdFull"),_1207,_o5(_7,[_o7(_8,_1208,_1209,_o5(_7,[_10,_1124,_167,_13,_1130,_o4(_8,_o3(_3,"conversationHistory"))]))]))]) as unknown as DocumentNode<HomePageDesignByPublicIdFullQuery, HomePageDesignByPublicIdFullQueryVariables>;
-export const MarketplaceHomePageDesignsDocument = _o1(_1,[_o17(_960,_961,_o3(_3,"MarketplaceHomePageDesigns"),_o5(_7,[_o6(_8,_o3(_3,"marketplaceHomePageDesigns"),_o5(_7,[_1124,_13,_167,_1126,_o4(_8,_o3(_3,"commentBaseScore"))]))]))]) as unknown as DocumentNode<MarketplaceHomePageDesignsQuery, MarketplaceHomePageDesignsQueryVariables>;
+export const MarketplaceHomePageDesignsDocument = _o1(_1,[_o17(_960,_961,_o3(_3,"MarketplaceHomePageDesigns"),_o5(_7,[_o6(_8,_o3(_3,"marketplaceHomePageDesigns"),_o5(_7,[_1124,_13,_167,_1126,_508,_o4(_8,_o3(_3,"commentBaseScore"))]))]))]) as unknown as DocumentNode<MarketplaceHomePageDesignsQuery, MarketplaceHomePageDesignsQueryVariables>;
 export const PublishHomePageDesignDocument = _o1(_1,[_o11(_960,_1097,_o3(_3,"PublishHomePageDesign"),[_o12(_962,_1118,_o13(_964,_o4(_5,_o3(_3,"PublishHomePageDesignInput"))))],_o5(_7,[_o7(_8,_o3(_3,"publishHomePageDesign"),_1119,_o5(_7,[_o6(_8,_259,_o5(_7,[_10,_1124,_508]))]))]))]) as unknown as DocumentNode<PublishHomePageDesignMutation, PublishHomePageDesignMutationVariables>;
 export const HomePageDesignByPublicIdDocument = _o1(_1,[_o11(_960,_961,_o3(_3,"HomePageDesignByPublicId"),_1207,_o5(_7,[_o7(_8,_1208,_1209,_1210)]))]) as unknown as DocumentNode<HomePageDesignByPublicIdQuery, HomePageDesignByPublicIdQueryVariables>;
 export const MyHomePageDesignsDocument = _o1(_1,[_o11(_960,_961,_o3(_3,"MyHomePageDesigns"),_1201,_o5(_7,[_o7(_8,_o3(_3,"myHomePageDesigns"),_1202,_1210)]))]) as unknown as DocumentNode<MyHomePageDesignsQuery, MyHomePageDesignsQueryVariables>;

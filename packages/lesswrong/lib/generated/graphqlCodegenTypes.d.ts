@@ -2721,6 +2721,7 @@ type ManifoldProbabilitiesCache = {
 type MarketplaceHomePageDesign = {
   __typename?: 'MarketplaceHomePageDesign';
   commentBaseScore: Scalars['Int']['output'];
+  commentId?: Maybe<Scalars['String']['output']>;
   html: Scalars['String']['output'];
   publicId: Scalars['String']['output'];
   title: Scalars['String']['output'];
@@ -13036,7 +13037,7 @@ type HomePageDesignByPublicIdFullQueryVariables = Exact<{
 
 type HomePageDesignByPublicIdFullQuery = HomePageDesignByPublicIdFullQuery_Query;
 
-type MarketplaceHomePageDesignsQuery_marketplaceHomePageDesigns_MarketplaceHomePageDesign = { __typename?: 'MarketplaceHomePageDesign', publicId: string, title: string, html: string, verified: boolean, commentBaseScore: number };
+type MarketplaceHomePageDesignsQuery_marketplaceHomePageDesigns_MarketplaceHomePageDesign = { __typename?: 'MarketplaceHomePageDesign', publicId: string, title: string, html: string, verified: boolean, commentId: string | null, commentBaseScore: number };
 
 type MarketplaceHomePageDesignsQuery_Query = { __typename?: 'Query', marketplaceHomePageDesigns: Array<MarketplaceHomePageDesignsQuery_marketplaceHomePageDesigns_MarketplaceHomePageDesign> };
 

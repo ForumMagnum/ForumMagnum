@@ -183,7 +183,7 @@ print(f"Access token: {access_token}")
   shuts itself down only after receiving the actual auth code, so the script
   can proceed to the token exchange.
 
-## Submitting a Design
+## Saving a Design
 
     POST ${siteUrl}/api/homeDesigns
     Authorization: Bearer ACCESS_TOKEN
@@ -216,9 +216,51 @@ print(f"Access token: {access_token}")
 The \`publicId\` is a short identifier shared across all revisions of a design.
 Use it in subsequent requests to update the same design.
 
+Saving a design does **not** publish it to the marketplace.
+
+## Publishing to the Marketplace
+
+If you decide the design should be submitted to the marketplace, make a second
+request after saving it:
+
+    POST ${siteUrl}/api/homeDesigns/publish
+    Authorization: Bearer ACCESS_TOKEN
+    Content-Type: application/json
+
+    {
+      "publicId": "a1b2c3",
+      "title": "My Custom Home Page",
+      "descriptionHtml": "<p>A compact magazine-style LessWrong front page with stronger information scent.</p>"
+    }
+
+### Publish request fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| \`publicId\` | string | yes | The saved design to publish. |
+| \`title\` | string | yes | Marketplace display title. |
+| \`descriptionHtml\` | string | yes | HTML for the marketplace comment body below the linked title. Keep it short and descriptive. |
+
+### Publish response
+
+    {
+      "success": true,
+      "publicId": "a1b2c3",
+      "commentId": "COMMENT_ID",
+      "marketplaceUrl": "${siteUrl}/posts/MARKETPLACE_POST_ID?commentId=COMMENT_ID"
+    }
+
+Publishing creates or reuses a comment on the LessWrong home page marketplace
+post and links it to the latest revision of the design.
+
+Important notes:
+- Only publish if the user wants marketplace submission, or if they clearly asked you to submit/share the design publicly.
+- The user must be logged in with an eligible LessWrong account. New unreviewed accounts cannot publish yet.
+- The marketplace comment appears immediately, then goes through an automated review. If the review flags an issue, the comment may be removed and the user will receive a message.
+
 ## Previewing your design
 
-After submitting, visit ${siteUrl} while logged in. Your most recent design
+After saving, visit ${siteUrl} while logged in. Your most recent design
 will be displayed in the home page iframe. You can also share the publicId
 with the user so they can view it.
 

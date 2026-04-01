@@ -2987,6 +2987,7 @@ type MarketplaceHomePageDesign {
   title: String!
   html: String!
   verified: Boolean!
+  commentId: String
   commentBaseScore: Int!
 }
 

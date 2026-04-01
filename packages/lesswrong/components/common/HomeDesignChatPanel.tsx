@@ -22,7 +22,9 @@ import { useApolloClient } from '@apollo/client/react';
 import moment from 'moment';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HOME_DESIGN_DEFAULT_BUILT_IN_VALUE, HOME_DESIGN_DEFAULT_CLASSIC_VALUE, HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
-import { canPublishHomeDesign } from '@/lib/collections/homePageDesigns/constants';
+import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
+import { canPublishHomeDesign, MARKETPLACE_POST_ID } from '@/lib/collections/homePageDesigns/constants';
+import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 
 const myHomePageDesignSummariesQuery = gql(`
   query MyHomePageDesignSummaries {
@@ -54,6 +56,7 @@ const marketplaceHomePageDesignsQuery = gql(`
       title
       html
       verified
+      commentId
       commentBaseScore
     }
   }
@@ -92,6 +95,10 @@ function buildSyntheticDesignMessages(
       },
     ],
   };
+}
+
+function getMarketplaceCommentUrl(commentId: string): string {
+  return commentGetPageUrlFromIds({ postId: MARKETPLACE_POST_ID, commentId });
 }
 
 const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
@@ -583,6 +590,26 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     flexShrink: 0,
   },
+  marketplaceItemActions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    flexShrink: 0,
+    marginLeft: 8,
+  },
+  commentLink: {
+    color: theme.palette.greyAlpha(0.25),
+    padding: 4,
+    margin: -4,
+    "& svg": {
+      fontSize: 17,
+      verticalAlign: 'middle',
+    },
+    '&:hover': {
+      opacity: 1,
+      color: theme.palette.greyAlpha(0.5),
+    },
+  },
   karmaScore: {
     fontFamily: theme.typography.fontFamily,
     fontSize: 12,
@@ -1057,7 +1084,20 @@ const HomeDesignChatPanel = () => {
                     <CheckCircleOutlineIcon className={classes.verifiedIcon} />
                     <span className={classes.itemTitle}>{design.title}</span>
                   </div>
-                  <span className={classes.karmaScore}>{design.commentBaseScore}</span>
+                  <div className={classes.marketplaceItemActions}>
+                    <span className={classes.karmaScore}>{design.commentBaseScore}</span>
+                    {design.commentId && (
+                      <a
+                        href={getMarketplaceCommentUrl(design.commentId)}
+                        className={classes.commentLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(event) => event.stopPropagation()}
+                      >
+                        <CommentIcon />
+                      </a>
+                    )}
+                  </div>
                 </div>
               ))}
               {unverifiedDesigns.length > 0 && (
@@ -1081,7 +1121,20 @@ const HomeDesignChatPanel = () => {
                       <div className={classes.marketplaceItemLeft}>
                         <span className={classes.itemTitle}>{design.title}</span>
                       </div>
-                      <span className={classes.karmaScore}>{design.commentBaseScore}</span>
+                      <div className={classes.marketplaceItemActions}>
+                        <span className={classes.karmaScore}>{design.commentBaseScore}</span>
+                        {design.commentId && (
+                          <a
+                            href={getMarketplaceCommentUrl(design.commentId)}
+                            className={classes.commentLink}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            onClick={(event) => event.stopPropagation()}
+                          >
+                            <CommentIcon />
+                          </a>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </>

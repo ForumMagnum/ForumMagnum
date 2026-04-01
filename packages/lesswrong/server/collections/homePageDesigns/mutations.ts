@@ -19,7 +19,7 @@ export const DESIGN_SECURITY_REVIEW_PROMPT = `You are a security reviewer for us
 
 These designs are HTML/CSS/JSX code that runs inside a sandboxed iframe with these constraints:
 - iframe sandbox="allow-scripts allow-top-navigation-by-user-activation" (NO allow-same-origin, NO allow-forms)
-- CSP restricts network access to: GraphQL endpoint on the origin, images from LessWrong's Cloudinary account, scripts from unpkg.com and cdn.tailwindcss.com, fonts from Typekit
+- CSP restricts network access to: GraphQL endpoint on the origin, images from LessWrong's Cloudinary account, scripts from unpkg.com and cdn.tailwindcss.com, stylesheets from Typekit and fonts.googleapis.com, and font files from Typekit and fonts.gstatic.com
 
 The iframe has access to these APIs, which provide authenticated user data:
 - window.rpc.getCurrentUser() → {loggedIn, user: {_id, displayName, slug, karma}}
@@ -117,6 +117,11 @@ interface AutoReviewContext {
   slug: string;
   commentId: string;
   commentHtml: string;
+}
+
+interface PublishHomePageDesignArgs {
+  input: PublishHomePageDesignInput;
+  context: ResolverContext;
 }
 
 async function notifyModerationOfFailedReview(designId: string, user: AutoReviewContext, message: string) {
@@ -229,12 +234,11 @@ async function runAutoReview(designId: string, html: string, reviewContext: Auto
   }
 }
 
-async function publishHomePageDesignResolver(
-  root: void,
-  { input }: { input: PublishHomePageDesignInput },
-  context: ResolverContext,
-) {
-  const { currentUser, HomePageDesigns } = context;
+export async function publishHomePageDesign({
+  input,
+  context,
+}: PublishHomePageDesignArgs) {
+  const { currentUser } = context;
   if (!currentUser) {
     throw new Error("You must be logged in to publish a home page design.");
   }
@@ -327,7 +331,7 @@ async function publishHomePageDesignResolver(
 
   const result = await HomePageDesigns.findOne({ _id: latest._id });
   const filtered = await accessFilterSingle(currentUser, 'HomePageDesigns', result, context);
-  return { data: filtered };
+  return filtered;
 }
 
 async function setHomePageDesignVerifiedResolver(
@@ -351,6 +355,15 @@ async function setHomePageDesignVerifiedResolver(
   const design = await HomePageDesigns.findOne({ _id: designId });
   if (!design) throw new Error("Design not found");
   return design;
+}
+
+async function publishHomePageDesignResolver(
+  root: void,
+  { input }: { input: PublishHomePageDesignInput },
+  context: ResolverContext,
+) {
+  const data = await publishHomePageDesign({ input, context });
+  return { data };
 }
 
 export const graphqlHomePageDesignMutationTypeDefs = gql`

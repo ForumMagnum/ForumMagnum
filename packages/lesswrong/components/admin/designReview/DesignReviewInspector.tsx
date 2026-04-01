@@ -200,6 +200,7 @@ const styles = defineStyles('DesignReviewInspector', (theme: ThemeType) => ({
   },
   contentTabs: {
     display: 'flex',
+    alignItems: 'center',
     gap: 0,
     borderBottom: theme.palette.greyBorder('1px', 0.12),
     flexShrink: 0,
@@ -221,6 +222,53 @@ const styles = defineStyles('DesignReviewInspector', (theme: ThemeType) => ({
   contentTabActive: {
     color: theme.palette.text.normal,
     borderBottomColor: theme.palette.primary.main,
+  },
+  contentTabsSpacer: {
+    flex: 1,
+  },
+  rpcToggleLabel: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    marginRight: 16,
+    cursor: 'pointer',
+    userSelect: 'none',
+  },
+  rpcToggleText: {
+    fontSize: 12,
+    fontWeight: 500,
+    color: theme.palette.text.normal,
+  },
+  rpcToggleInput: {
+    position: 'absolute',
+    opacity: 0,
+    pointerEvents: 'none',
+  },
+  rpcToggleTrack: {
+    position: 'relative',
+    width: 36,
+    height: 20,
+    borderRadius: 999,
+    background: theme.palette.greyAlpha(0.25),
+    transition: 'background 150ms ease',
+    '&::after': {
+      content: '""',
+      position: 'absolute',
+      top: 2,
+      left: 2,
+      width: 16,
+      height: 16,
+      borderRadius: '50%',
+      background: theme.palette.panelBackground.default,
+      boxShadow: `0 1px 3px ${theme.palette.boxShadowColor(0.25)}`,
+      transition: 'transform 150ms ease',
+    },
+  },
+  rpcToggleTrackChecked: {
+    background: theme.palette.primary.main,
+    '&::after': {
+      transform: 'translateX(16px)',
+    },
   },
   previewFrame: {
     flex: 1,
@@ -287,6 +335,7 @@ const DesignReviewInspector = () => {
   const [filter, setFilter] = useState<FilterTab>('needsReview');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [contentView, setContentView] = useState<'preview' | 'source'>('preview');
+  const [rpcEnabled, setRpcEnabled] = useState(false);
 
   const { data, loading, refetch } = useQuery(adminHomePageDesignsQuery);
   const [designMutate] = useMutation(setHomePageDesignVerifiedMutation);
@@ -400,14 +449,31 @@ const DesignReviewInspector = () => {
               >
                 Source
               </button>
+              <div className={classes.contentTabsSpacer} />
+              <label className={classes.rpcToggleLabel}>
+                <span className={classes.rpcToggleText}>Enable RPC</span>
+                <input
+                  type="checkbox"
+                  className={classes.rpcToggleInput}
+                  checked={rpcEnabled}
+                  onChange={(event) => setRpcEnabled(event.target.checked)}
+                />
+                <span
+                  className={classNames(
+                    classes.rpcToggleTrack,
+                    rpcEnabled && classes.rpcToggleTrackChecked,
+                  )}
+                  aria-hidden
+                />
+              </label>
             </div>
 
             <div className={classes.contentArea}>
               {contentView === 'preview' ? (
                 <iframe
-                  key={selected._id}
+                  key={`${selected._id}-${rpcEnabled ? 'rpc' : 'no-rpc'}`}
                   className={classes.previewFrame}
-                  srcDoc={wrapBodyInSrcdoc(selected.html, { origin, omitRpcBridge: true })}
+                  srcDoc={wrapBodyInSrcdoc(selected.html, { origin, omitRpcBridge: !rpcEnabled })}
                   sandbox="allow-scripts"
                 />
               ) : (
