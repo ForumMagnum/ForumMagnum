@@ -102,7 +102,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     flexShrink: 0,
-    background: '#f8f4ee',
+    background: theme.palette.background.default,
     borderLeft: '1px solid rgba(23, 20, 17, 0.18)',
     boxShadow: 'inset 1px 0 0 rgba(255,255,255,0.35)',
     overflow: 'hidden',
@@ -204,7 +204,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     color: '#85776c',
   },
   userMessageMeta: {
-    color: '#5f9b65',
+    color: theme.palette.primary.main,
   },
   assistantMessageMeta: {
     color: '#8f1d12',
@@ -246,7 +246,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     flexWrap: 'wrap',
     fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
     fontSize: 10,
-    color: '#5f9b65',
+    color: theme.palette.primary.main,
     letterSpacing: '0.16em',
     textTransform: 'uppercase' as const,
     padding: '4px 0',
@@ -581,7 +581,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     color: theme.palette.text.dim3,
     textAlign: 'center',
   },
-}));
+}), { allowNonThemeColors: true });
 
 const HomeDesignChatPanel = () => {
   const classes = useStyles(styles);

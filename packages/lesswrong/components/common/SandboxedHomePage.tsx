@@ -96,7 +96,7 @@ const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
     height: '100dvh',
     overflow: 'hidden',
     overscrollBehavior: 'none',
-    background: '#f8f4ee',
+    background: theme.palette.background.default,
     [theme.breakpoints.down('md')]: {
       flexDirection: 'column',
     },
@@ -154,7 +154,7 @@ const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
       right: 'calc(16px + env(safe-area-inset-right, 0px))',
     },
   },
-}));
+}), { allowNonThemeColors: true });
 
 const subscribeNoop = () => () => {};
 
