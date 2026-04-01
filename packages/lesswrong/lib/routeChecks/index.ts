@@ -33,6 +33,7 @@ export const isFullscreenRoute = (pathname: string) => pathnameMatchesAnyOf(path
 ]);
 
 const routesWithLeftNavigationColumn = [
+  "/",
   "/allPosts",
   "/questions",
   "/quicktakes",

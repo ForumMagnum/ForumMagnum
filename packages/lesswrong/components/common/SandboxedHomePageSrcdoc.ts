@@ -17,8 +17,23 @@ export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOpti
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline' 'unsafe-eval' https://unpkg.com https://cdn.tailwindcss.com; style-src 'unsafe-inline' https://use.typekit.net https://p.typekit.net; connect-src ${origin}/ https://unpkg.com; img-src https://res.cloudinary.com data:; font-src https://use.typekit.net;">
   <style>
-    html, body { margin: 0; font-size: 13px; }
-    body { min-height: 100vh; }
+    html {
+      margin: 0;
+      font-size: 13px;
+      height: 100%;
+      overflow: hidden;
+    }
+    body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+    }
+    #srcdoc-scroll-root {
+      height: 100%;
+      overflow-y: auto;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+    }
   </style>
   ${externalStylesheetLinks}
   <script src="https://cdn.tailwindcss.com"></script>
@@ -86,19 +101,32 @@ export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOpti
         castVote: function(params) {
           return callRpc('castVote', params);
         },
+        openCustomizePanel: function() {
+          return callRpc('openCustomizePanel', {});
+        },
+        revertToNormalHomepage: function() {
+          return callRpc('revertToNormalHomepage', {});
+        },
       };
     })();
   </script>
 </head>
 <body>
-  ${bodyContent}
+  <div id="srcdoc-scroll-root">
+    ${bodyContent}
+  </div>
   <script>
     (function() {
+      var scrollRoot = document.getElementById('srcdoc-scroll-root');
       var ro = new ResizeObserver(function() {
         var height = Math.max(document.documentElement.scrollHeight, document.body.scrollHeight);
         window.parent.postMessage({ type: 'resize', height: height }, '*');
       });
-      ro.observe(document.documentElement);
+      if (scrollRoot) {
+        ro.observe(scrollRoot);
+      } else {
+        ro.observe(document.documentElement);
+      }
     })();
   </script>
 </body>
@@ -123,10 +151,12 @@ export function getDefaultHomePageBody(): string {
       --headline: ETBookRoman, warnock-pro, "Iowan Old Style", Georgia, serif;
       --serif: warnock-pro, "Iowan Old Style", Georgia, serif;
       --sans: "gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif;
+      --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
       --body-size: clamp(12px, 0.9vw, 14px);
       --body-line: 1.42;
       --body-gap: 0.55rem;
       --cols: 8;
+      --hero-grid-line: 18px;
     }
 
     * { box-sizing: border-box; }
@@ -175,6 +205,10 @@ export function getDefaultHomePageBody(): string {
 
     .grid-row > * {
       min-height: 0;
+    }
+
+    .three-up-row {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
     }
 
     .lead-row { height: clamp(240px, 18vw, 340px); }
@@ -297,6 +331,62 @@ export function getDefaultHomePageBody(): string {
       min-height: 0;
     }
 
+    .announcement-cta {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      padding-top: 10px;
+      background: var(--paper);
+    }
+
+    .announcement-cta::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 1px;
+      background: var(--rule-strong);
+      pointer-events: none;
+    }
+
+    .announcement-cta-button {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--rule-strong);
+      background: transparent;
+      color: var(--ink);
+      font-family: var(--sans);
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      text-align: center;
+      cursor: pointer;
+      transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease;
+    }
+
+    .announcement-cta-button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .announcement-cta-button--primary {
+      background: rgba(95, 155, 101, 0.1);
+      border-color: rgba(95, 155, 101, 0.55);
+      color: #37623b;
+    }
+
+    .announcement-cta-button--primary:hover {
+      background: rgba(95, 155, 101, 0.16);
+      border-color: #5f9b65;
+      color: #2d5331;
+    }
+
     .meta {
       margin-bottom: 8px;
       font-family: var(--sans);
@@ -373,8 +463,8 @@ export function getDefaultHomePageBody(): string {
     }
 
     .frag--code {
-      background: color-mix(in srgb, var(--ink) 8%, transparent);
-      border-radius: 4px;
+      font-family: var(--mono);
+      font-size: 0.92em;
     }
 
     .frag--strike {
@@ -446,6 +536,137 @@ export function getDefaultHomePageBody(): string {
     .dispatch-card .fitted-text {
       font-size: clamp(11px, 0.88vw, 13px);
       line-height: 1.38;
+    }
+
+    .latest-comments-card {
+      justify-content: flex-start;
+    }
+
+    .latest-comments-list {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .latest-comments-list::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 1px;
+      background: var(--rule);
+      pointer-events: none;
+    }
+
+    .latest-comment-row {
+      position: relative;
+      display: grid;
+      grid-template-rows: repeat(2, var(--hero-grid-line));
+      align-content: start;
+      min-height: calc(var(--hero-grid-line) * 2);
+      height: calc(var(--hero-grid-line) * 2);
+      padding: 0;
+      color: inherit;
+      text-decoration: none;
+    }
+
+    .latest-comment-row::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 1px;
+      background: var(--rule);
+      pointer-events: none;
+    }
+
+    .latest-comment-context,
+    .latest-comment-summary {
+      display: grid;
+      align-items: start;
+      height: var(--hero-grid-line);
+      min-height: 0;
+      column-gap: 8px;
+      min-width: 0;
+    }
+
+    .latest-comment-context {
+      grid-template-columns: auto minmax(0, 1fr);
+      font-family: var(--sans);
+    }
+
+    .latest-comment-summary {
+      grid-template-columns: minmax(0, 1fr) auto auto;
+      font-family: var(--sans);
+    }
+
+    .latest-comment-post,
+    .latest-comment-author,
+    .latest-comment-text,
+    .latest-comment-score,
+    .latest-comment-time {
+      display: block;
+      height: var(--hero-grid-line);
+      line-height: var(--hero-grid-line);
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .latest-comment-post {
+      font-size: 8px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
+      text-align: right;
+    }
+
+    .latest-comment-author {
+      font-size: 8px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent);
+    }
+
+    .latest-comment-score,
+    .latest-comment-time {
+      white-space: nowrap;
+      font-size: 8px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .latest-comment-score {
+      color: var(--accent);
+    }
+
+    .latest-comment-time {
+      color: var(--ink-faint);
+    }
+
+    .latest-comment-text {
+      font-family: var(--sans);
+      font-size: 11px;
+      line-height: var(--hero-grid-line);
+      font-weight: 400;
+      color: rgba(23, 20, 17, 0.78);
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .latest-comments-empty {
+      padding: 10px 0;
+      font-family: var(--sans);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--ink-faint);
     }
 
     .loading,
@@ -699,6 +920,22 @@ export function getDefaultHomePageBody(): string {
       }
     \`;
 
+    var RECENT_COMMENTS_QUERY = \`
+      query RecentComments($limit: Int, $after: String) {
+        comments(selector: { recentComments: { sortBy: "top", after: $after } }, limit: $limit) {
+          results {
+            _id
+            postId
+            baseScore
+            postedAt
+            contents { html plaintextMainText }
+            user { displayName slug }
+            post { _id slug title }
+          }
+        }
+      }
+    \`;
+
     var ANNOUNCEMENT_BODY_HTML = [
       '<p>LessWrong frontpages are now customizable. The green <strong>Customize</strong> button opens a live sandbox where layout, typography, hierarchy, and modules can be rewritten without waiting for a site-wide deploy.</p>',
       '<p>These designs are not inert mockups. They can read the real post stream, quick takes, notification counts, read status, and vote state, so a custom frontpage can be fully usable rather than merely decorative.</p>',
@@ -722,6 +959,8 @@ export function getDefaultHomePageBody(): string {
         .replace(/<mjx-[^>]*>[\\s\\S]*?<\\/mjx-[^>]*>/gi, '');
     }
 
+    var RICH_CODE_FONT_FAMILY = 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace';
+
     function cloneRichStyle(style) {
       return {
         bold: !!(style && style.bold),
@@ -736,12 +975,21 @@ export function getDefaultHomePageBody(): string {
       return {
         bold: !!(style && style.bold),
         italic: !!(style && style.italic),
+        code: !!(style && style.code),
       };
     }
 
     function richMetricStyleEquals(a, b) {
       return !!(a && a.bold) === !!(b && b.bold) &&
-        !!(a && a.italic) === !!(b && b.italic);
+        !!(a && a.italic) === !!(b && b.italic) &&
+        !!(a && a.code) === !!(b && b.code);
+    }
+
+    function replaceFontFamily(font, family) {
+      var sizeMatch = (font || '').match(/\\d+(?:\\.\\d+)?px(?:\\/[^\\s]+)?/i);
+      if (!sizeMatch || typeof sizeMatch.index !== 'number') return family;
+      var prefix = font.slice(0, sizeMatch.index).trim();
+      return (prefix ? (prefix + ' ') : '') + sizeMatch[0] + ' ' + family;
     }
 
     function getStyledFont(baseFont, style) {
@@ -755,7 +1003,9 @@ export function getDefaultHomePageBody(): string {
       var prefix = [];
       if (style && style.italic) prefix.push('italic');
       if (style && style.bold) prefix.push('700');
-      return prefix.length ? (prefix.join(' ') + ' ' + font) : font;
+      var styledFont = prefix.length ? (prefix.join(' ') + ' ' + font) : font;
+      if (style && style.code) return replaceFontFamily(styledFont, RICH_CODE_FONT_FAMILY);
+      return styledFont;
     }
 
     function getParagraphLayoutStyle(paragraph) {
@@ -1127,8 +1377,48 @@ export function getDefaultHomePageBody(): string {
       return new Date(dateString).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
     }
 
+    function formatCompactTimestamp(dateString) {
+      var date = new Date(dateString);
+      var now = new Date();
+      var diffMs = Math.max(0, now.getTime() - date.getTime());
+      var diffMinutes = Math.floor(diffMs / (60 * 1000));
+      if (diffMinutes < 1) return 'now';
+      if (diffMinutes < 60) return diffMinutes + 'm';
+      var diffHours = Math.floor(diffMinutes / 60);
+      if (diffHours < 48) return diffHours + 'h';
+      var diffDays = Math.floor(diffHours / 24);
+      return diffDays + 'd';
+    }
+
+    function formatCompactScore(score) {
+      var value = score || 0;
+      return value > 0 ? '+' + value : String(value);
+    }
+
     function postUrl(post) {
       return '/posts/' + post._id + '/' + (post.slug || '');
+    }
+
+    function commentUrl(comment) {
+      return '/posts/' + ((comment.postId || (comment.post && comment.post._id)) || '') + '/' + (((comment.post && comment.post.slug) || '')) + '#' + comment._id;
+    }
+
+    function getCommentPlaintext(comment) {
+      return ((comment && comment.contents && comment.contents.plaintextMainText) || stripHtml(comment && comment.contents && comment.contents.html) || '')
+        .replace(/\\s+/g, ' ')
+        .trim();
+    }
+
+    function getCommentPostTitle(comment) {
+      return ((comment && comment.post && comment.post.title) || 'Open thread').replace(/\\s+/g, ' ').trim();
+    }
+
+    function sortTopComments(items) {
+      return (items || []).slice().sort(function(a, b) {
+        var scoreDiff = (b && b.baseScore || 0) - (a && a.baseScore || 0);
+        if (scoreDiff) return scoreDiff;
+        return new Date(b && b.postedAt || 0).getTime() - new Date(a && a.postedAt || 0).getTime();
+      });
     }
 
     var excerptMeasureCanvas = document.createElement('canvas');
@@ -1296,12 +1586,19 @@ export function getDefaultHomePageBody(): string {
       });
     }
 
-    function getDropCapMetrics(font, lineHeight) {
+    function getFontPixelSize(font) {
       var match = /([0-9.]+)px/.exec(font || '');
-      var baseSize = match ? parseFloat(match[1]) : 13;
-      var fontSize = Math.round(baseSize * 3.9);
-      var indent = Math.round(baseSize * 3.15);
-      var lines = Math.max(3, Math.round(fontSize / lineHeight));
+      return match ? parseFloat(match[1]) : 13;
+    }
+
+    function getDropCapMetrics(font, lineHeight) {
+      var baseSize = getFontPixelSize(font);
+      var lines = 3;
+      var fontSize = Math.max(
+        Math.round(baseSize * 4.75),
+        Math.round(lineHeight * 3.35)
+      );
+      var indent = Math.round(fontSize * 0.7);
       return {
         fontSize: fontSize,
         indent: indent,
@@ -1310,9 +1607,32 @@ export function getDefaultHomePageBody(): string {
     }
 
     function getParagraphIndent(font) {
-      var match = /([0-9.]+)px/.exec(font || '');
-      var baseSize = match ? parseFloat(match[1]) : 13;
+      var baseSize = getFontPixelSize(font);
       return Math.round(baseSize * 1.55);
+    }
+
+    function getDropCapInlineStyle(item, dropCapData, baseFont, lineHeight) {
+      var textFontSize = getFontPixelSize(item.layoutFont || baseFont);
+      var dropCapText = dropCapData && dropCapData.dropCap ? dropCapData.dropCap.text : '';
+      var dropCapWidth = measureTextWidth(dropCapText || 'W', item.dropCapFontSize + 'px ETBookRoman, warnock-pro, "Iowan Old Style", Georgia, serif');
+      var reservedIndent = item.indent || 0;
+      var centeredOffset = reservedIndent > 0
+        ? Math.max(0, (reservedIndent - dropCapWidth) * 0.5)
+        : 0;
+      var topOffset = Math.max(0, (lineHeight - textFontSize) * 0.4) + 6;
+      return {
+        position: 'absolute',
+        left: ((item.shift || 0) + centeredOffset) + 'px',
+        top: topOffset + 'px',
+        float: 'none',
+        display: 'block',
+        margin: 0,
+        padding: 0,
+        fontSize: item.dropCapFontSize + 'px',
+        lineHeight: '0.82',
+        fontStyle: dropCapData && dropCapData.dropCap && dropCapData.dropCap.style && dropCapData.dropCap.style.italic ? 'italic' : undefined,
+        fontWeight: dropCapData && dropCapData.dropCap && dropCapData.dropCap.style && dropCapData.dropCap.style.bold ? 700 : undefined,
+      };
     }
 
     function computeColumnCount(totalWidth, props) {
@@ -2804,18 +3124,7 @@ export function getDefaultHomePageBody(): string {
                           {item.dropCap ? (
                             <span
                               className="dropcap"
-                              style={{
-                                position: 'absolute',
-                                left: 0,
-                                top: '-0.05em',
-                                float: 'none',
-                                margin: 0,
-                                padding: 0,
-                                fontSize: item.dropCapFontSize + 'px',
-                                lineHeight: '0.82',
-                                fontStyle: dropCapData && dropCapData.dropCap && dropCapData.dropCap.style && dropCapData.dropCap.style.italic ? 'italic' : undefined,
-                                fontWeight: dropCapData && dropCapData.dropCap && dropCapData.dropCap.style && dropCapData.dropCap.style.bold ? 700 : undefined,
-                              }}
+                              style={getDropCapInlineStyle(item, dropCapData, font, lineHeight)}
                             >
                               {dropCapData && dropCapData.dropCap ? dropCapData.dropCap.text : item.text[0]}
                             </span>
@@ -2973,18 +3282,7 @@ export function getDefaultHomePageBody(): string {
                   {item.dropCap ? (
                     <span
                       className="dropcap"
-                      style={{
-                        position: 'absolute',
-                        left: 0,
-                        top: '-0.05em',
-                        float: 'none',
-                        margin: 0,
-                        padding: 0,
-                        fontSize: item.dropCapFontSize + 'px',
-                        lineHeight: '0.82',
-                        fontStyle: dropCapData && dropCapData.dropCap && dropCapData.dropCap.style && dropCapData.dropCap.style.italic ? 'italic' : undefined,
-                        fontWeight: dropCapData && dropCapData.dropCap && dropCapData.dropCap.style && dropCapData.dropCap.style.bold ? 700 : undefined,
-                      }}
+                      style={getDropCapInlineStyle(item, dropCapData, font, lineHeight)}
                     >
                       {dropCapData && dropCapData.dropCap ? dropCapData.dropCap.text : item.text[0]}
                     </span>
@@ -3059,6 +3357,7 @@ export function getDefaultHomePageBody(): string {
       var toplineRef = useRef(null);
       var headlineRef = useRef(null);
       var dekRef = useRef(null);
+      var ctaRef = useRef(null);
       var dekWidthState = useState(null);
       var dekWidth = dekWidthState[0];
       var setDekWidth = dekWidthState[1];
@@ -3068,6 +3367,9 @@ export function getDefaultHomePageBody(): string {
       var headlineWidthState = useState(null);
       var headlineWidth = headlineWidthState[0];
       var setHeadlineWidth = headlineWidthState[1];
+      var ctaBottomOffsetState = useState(0);
+      var ctaBottomOffset = ctaBottomOffsetState[0];
+      var setCtaBottomOffset = ctaBottomOffsetState[1];
       var dekLayoutSignatureState = useState('');
       var dekLayoutSignature = dekLayoutSignatureState[0];
       var setDekLayoutSignature = dekLayoutSignatureState[1];
@@ -3076,6 +3378,7 @@ export function getDefaultHomePageBody(): string {
           { ref: toplineRef, mode: 'box' },
           { ref: headlineRef, mode: 'text' },
           { ref: dekRef, mode: 'text', rightPad: 4, bottomPad: 1, bottomTrim: 0, bottomTrimRatio: 0, lastLineMinRight: bodyColumnWidth || 0 },
+          { ref: ctaRef, mode: 'box' },
         ];
       }, [bodyColumnWidth]);
 
@@ -3111,9 +3414,11 @@ export function getDefaultHomePageBody(): string {
           var columnWidth = columnSpec.columnWidth;
           var dekSpan = Math.min(columnCount, 1.19);
           var dekEffectiveWidth = columnWidth * dekSpan;
+          var heroGridLine = 18;
           setBodyColumnWidth(columnWidth);
           setDekWidth(Math.min(totalWidth, dekEffectiveWidth));
           setHeadlineWidth(Math.min(totalWidth, columnWidth * Math.min(2, columnCount) + columnGap * Math.max(0, Math.min(2, columnCount) - 1)));
+          setCtaBottomOffset(node.clientHeight % heroGridLine);
         }
 
         function scheduleMeasure() {
@@ -3173,8 +3478,32 @@ export function getDefaultHomePageBody(): string {
               headerVerticalClearance={2}
               partialColumnThreshold={0.6}
               dropCap={true}
-              layoutDependency={dekLayoutSignature}
+              layoutDependency={dekLayoutSignature + ':' + ctaBottomOffset}
             />
+            <div
+              ref={ctaRef}
+              className="announcement-cta"
+              style={bodyColumnWidth ? { width: bodyColumnWidth + 'px', bottom: ctaBottomOffset ? ctaBottomOffset + 'px' : '0px' } : (ctaBottomOffset ? { bottom: ctaBottomOffset + 'px' } : undefined)}
+            >
+              <button
+                type="button"
+                className="announcement-cta-button"
+                onClick={function() {
+                  rpc.revertToNormalHomepage().catch(function() {});
+                }}
+              >
+                Revert to normal
+              </button>
+              <button
+                type="button"
+                className="announcement-cta-button announcement-cta-button--primary"
+                onClick={function() {
+                  rpc.openCustomizePanel().catch(function() {});
+                }}
+              >
+                Start customizing
+              </button>
+            </div>
           </div>
         </article>
       );
@@ -3200,6 +3529,106 @@ export function getDefaultHomePageBody(): string {
                 paragraphCount={4}
               />
             </a>
+          </div>
+        </article>
+      );
+    }
+
+    function LatestCommentsCard(props) {
+      var cardRef = useRef(null);
+      var listRef = useRef(null);
+      var countState = useState(Math.min(props.items.length, 12));
+      var visibleCount = countState[0];
+      var setVisibleCount = countState[1];
+      var gridPadState = useState(0);
+      var gridPad = gridPadState[0];
+      var setGridPad = gridPadState[1];
+
+      useLayoutEffect(function() {
+        var cardNode = cardRef.current;
+        var listNode = listRef.current;
+        if (!cardNode || !listNode) return undefined;
+
+        var frameId = null;
+        var lastMeasured = '';
+
+        function measureVisibleCount() {
+          frameId = null;
+          if (!listRef.current || !cardRef.current) return;
+          var rows = listRef.current.querySelectorAll('.latest-comment-row');
+          if (!rows.length) {
+            if (lastMeasured !== '0:0') {
+              lastMeasured = '0:0';
+              setGridPad(0);
+              setVisibleCount(0);
+            }
+            return;
+          }
+
+          var cardRect = cardRef.current.getBoundingClientRect();
+          var listRect = listRef.current.getBoundingClientRect();
+          var rowRect = rows[0].getBoundingClientRect();
+          var rowHeight = rowRect.height || 0;
+          if (!rowHeight || !listRect.height) return;
+
+          var heroGridLine = 18;
+          var rowTop = rowRect.top - cardRect.top;
+          var nextGridPad = Math.max(0, gridPad + snapToLineGrid(rowTop, heroGridLine) - rowTop);
+          nextGridPad = Math.round(nextGridPad * 100) / 100;
+          var fitCount = Math.max(1, Math.min(props.items.length, Math.floor((listRect.height - nextGridPad + 1) / rowHeight)));
+          var nextSignature = fitCount + ':' + nextGridPad;
+          if (nextSignature !== lastMeasured) {
+            lastMeasured = nextSignature;
+            if (Math.abs(nextGridPad - gridPad) > 0.05) {
+              setGridPad(nextGridPad);
+            }
+            setVisibleCount(fitCount);
+          }
+        }
+
+        function scheduleMeasure() {
+          if (frameId != null) cancelAnimationFrame(frameId);
+          frameId = requestAnimationFrame(measureVisibleCount);
+        }
+
+        scheduleMeasure();
+        var observer = new ResizeObserver(scheduleMeasure);
+        observer.observe(cardNode);
+        observer.observe(listNode);
+        return function() {
+          observer.disconnect();
+          if (frameId != null) cancelAnimationFrame(frameId);
+        };
+      }, [gridPad, props.items]);
+
+      var visibleItems = props.items.slice(0, visibleCount || props.items.length);
+
+      return (
+        <article ref={cardRef} className="card latest-comments-card" style={{ gridColumn: 'span ' + props.span }}>
+          <div className="card-topline">
+            <div className="card-label">Top Comments</div>
+            <div className="meta">
+              <span>36h by karma</span>
+            </div>
+          </div>
+          <div ref={listRef} className="latest-comments-list" style={gridPad ? { paddingTop: gridPad + 'px' } : undefined}>
+            {visibleItems.length ? visibleItems.map(function(item) {
+              return (
+                <a key={item._id} className="latest-comment-row" href={commentUrl(item)} target="_top">
+                  <div className="latest-comment-context">
+                    <span className="latest-comment-author">{(item.user && item.user.displayName) || 'Anonymous'}</span>
+                    <span className="latest-comment-post">{getCommentPostTitle(item)}</span>
+                  </div>
+                  <div className="latest-comment-summary">
+                    <span className="latest-comment-text">{getCommentPlaintext(item) || '…'}</span>
+                    <span className="latest-comment-score">{formatCompactScore(item.baseScore)}</span>
+                    <span className="latest-comment-time">{formatCompactTimestamp(item.postedAt)}</span>
+                  </div>
+                </a>
+              );
+            }) : (
+              <div className="latest-comments-empty">No top comments</div>
+            )}
           </div>
         </article>
       );
@@ -3281,25 +3710,32 @@ export function getDefaultHomePageBody(): string {
 
     function App() {
       var cols = useColumns();
-      var state = useState({ loading: true, error: null, posts: [], curated: [], quicktakes: [] });
+      var state = useState({ loading: true, error: null, posts: [], curated: [], quicktakes: [], recentComments: [] });
       var data = state[0];
       var setData = state[1];
 
       useEffect(function() {
+        var topCommentsAfter = new Date(Date.now() - (36 * 60 * 60 * 1000)).toISOString();
         Promise.all([
           gqlQuery(POSTS_QUERY, { limit: 18 }),
           gqlQuery(CURATED_QUERY).catch(function() { return null; }),
-          gqlQuery(QUICKTAKES_QUERY, { limit: 6 }).catch(function() { return null; }),
+          gqlQuery(QUICKTAKES_QUERY, { limit: 12 }).catch(function() { return null; }),
+          gqlQuery(RECENT_COMMENTS_QUERY, { limit: 120, after: topCommentsAfter }).catch(function() { return null; }),
         ]).then(function(results) {
           var posts = (results[0] && results[0].posts && results[0].posts.results) || [];
           var curated = (results[1] && results[1].CuratedAndPopularThisWeek && results[1].CuratedAndPopularThisWeek.results) || [];
           var quicktakes = (results[2] && results[2].comments && results[2].comments.results) || [];
+          var recentComments = sortTopComments(((results[3] && results[3].comments && results[3].comments.results) || []).filter(function(comment) {
+            if (!comment || !comment.postedAt) return false;
+            if (!getCommentPlaintext(comment)) return false;
+            return new Date(comment.postedAt).getTime() >= new Date(topCommentsAfter).getTime();
+          }));
           var merged = curated.concat(posts.filter(function(post) {
             return !curated.some(function(featured) { return featured._id === post._id; });
           }));
-          setData({ loading: false, error: null, posts: merged, curated: curated, quicktakes: quicktakes });
+          setData({ loading: false, error: null, posts: merged, curated: curated, quicktakes: quicktakes, recentComments: recentComments });
         }).catch(function(error) {
-          setData({ loading: false, error: error.message, posts: [], curated: [], quicktakes: [] });
+          setData({ loading: false, error: error.message, posts: [], curated: [], quicktakes: [], recentComments: [] });
         });
       }, []);
 
@@ -3326,11 +3762,24 @@ export function getDefaultHomePageBody(): string {
       var posts = data.posts.filter(function(post) {
         return fullPostText(post).length > 80;
       });
-      var hero = posts[0];
-      var leadPosts = posts.slice(1, cols >= 8 ? 4 : 3);
-      if (leadPosts.length < 2) leadPosts = posts.slice(0, 2);
-      var heroRailPosts = posts.slice(leadPosts.length + 1, leadPosts.length + 3);
-      var featurePosts = posts.slice(leadPosts.length + 3, leadPosts.length + 6);
+      var latestComments = data.recentComments;
+      var frontRightPost = posts[0];
+      var useFrontBandRow = cols >= 8 && !!frontRightPost;
+      var frontCenterSpan = useFrontBandRow ? Math.max(4, Math.ceil(cols * 0.5)) : cols;
+      var frontLeftSpan = useFrontBandRow ? Math.max(1, Math.floor((cols - frontCenterSpan) / 2)) : 0;
+      var frontRightSpan = useFrontBandRow ? Math.max(1, cols - frontCenterSpan - frontLeftSpan) : 0;
+      var frontFallbackSideSpan = !useFrontBandRow && cols >= 5 && !!frontRightPost
+        ? Math.max(2, Math.min(Math.floor(cols * 0.34), cols - 3))
+        : 0;
+      var frontFallbackHeroSpan = !useFrontBandRow && frontFallbackSideSpan
+        ? cols - frontFallbackSideSpan
+        : cols;
+      var leadStartIndex = (useFrontBandRow || frontFallbackSideSpan) && frontRightPost ? 1 : 0;
+      var leadTargetCount = cols >= 8 ? 3 : 2;
+      var leadPosts = posts.slice(leadStartIndex, leadStartIndex + leadTargetCount);
+      if (leadPosts.length < 2) leadPosts = posts.slice(leadStartIndex, leadStartIndex + 2);
+      var featureStartIndex = leadStartIndex + leadPosts.length;
+      var featurePosts = posts.slice(featureStartIndex, featureStartIndex + 3);
 
       function fillSpans(itemCount, totalCols) {
         var spans = [];
@@ -3349,10 +3798,14 @@ export function getDefaultHomePageBody(): string {
         return spans;
       }
 
-      var leadSpans = fillSpans(leadPosts.length, cols);
-      var heroSpan = Math.max(1, cols - Math.max(1, Math.ceil(cols * 0.32)));
-      var railSpan = cols - heroSpan;
-      var featureSpans = fillSpans(featurePosts.length, cols);
+      var useLeadThreeUpRow = cols >= 8 && leadPosts.length >= 3;
+      var leadSpans = useLeadThreeUpRow ? [1, 1, 1] : fillSpans(leadPosts.length, cols);
+
+      var useFeatureBandRow = cols >= 8 && featurePosts.length >= 3;
+      var featureCenterSpan = useFeatureBandRow ? Math.max(3, Math.ceil(cols * 0.5)) : 0;
+      var featureSideSpan = useFeatureBandRow ? Math.max(1, Math.floor((cols - featureCenterSpan) / 2)) : 0;
+      var featureRightSpan = useFeatureBandRow ? Math.max(1, cols - featureCenterSpan - featureSideSpan) : 0;
+      var featureSpans = useFeatureBandRow ? [] : fillSpans(featurePosts.length, cols);
       var quicktakes = data.quicktakes.slice(0, Math.max(2, Math.min(4, cols)));
       var pageStyle = { '--cols': cols };
       var announcementContent = parseRichParagraphs(ANNOUNCEMENT_BODY_HTML);
@@ -3362,7 +3815,74 @@ export function getDefaultHomePageBody(): string {
         <div className="page">
           <div className="sheet" style={pageStyle}>
             <SiteHeader />
-            <section className="grid-row lead-row">
+            <section className="grid-row hero-row">
+              {useFrontBandRow ? (
+                <>
+                  <AnnouncementCard
+                    span={frontCenterSpan}
+                    title="Freedom comes to LessWrong"
+                    subtitle="After years of ruling with an iron fist the site admins have finally returned control of the UI back to the people"
+                    content={announcementContent}
+                    text={announcementText}
+                  />
+                  <LatestCommentsCard span={frontLeftSpan} items={latestComments} />
+                  <ArticleCard
+                    key={frontRightPost._id}
+                    post={frontRightPost}
+                    span={frontRightSpan}
+                    variant="feature"
+                    label={formatByline(frontRightPost)}
+                    content={fullPostContent(frontRightPost)}
+                    text={fullPostText(frontRightPost)}
+                    font='11.5px warnock-pro, Georgia, serif'
+                    lineHeight={18}
+                    paragraphGap={7}
+                    minParagraphs={1}
+                    maxParagraphs={2}
+                    minSentences={2}
+                    multiColumn={frontRightSpan >= 3}
+                    minColumns={2}
+                    maxColumns={2}
+                    minColumnWidth={170}
+                    columnGap={12}
+                  />
+                </>
+              ) : (
+                <>
+                  <AnnouncementCard
+                    span={frontFallbackHeroSpan}
+                    title="Freedom comes to LessWrong"
+                    subtitle="After years of ruling with an iron fist the site admins have finally returned control of the UI back to the people"
+                    content={announcementContent}
+                    text={announcementText}
+                  />
+                  {frontFallbackSideSpan && frontRightPost ? (
+                    <ArticleCard
+                      key={frontRightPost._id}
+                      post={frontRightPost}
+                      span={frontFallbackSideSpan}
+                      variant="feature"
+                      label={formatByline(frontRightPost)}
+                      content={fullPostContent(frontRightPost)}
+                      text={fullPostText(frontRightPost)}
+                      font='11.5px warnock-pro, Georgia, serif'
+                      lineHeight={18}
+                      paragraphGap={7}
+                      minParagraphs={1}
+                      maxParagraphs={2}
+                      minSentences={2}
+                      multiColumn={frontFallbackSideSpan >= 3}
+                      minColumns={2}
+                      maxColumns={2}
+                      minColumnWidth={170}
+                      columnGap={12}
+                    />
+                  ) : null}
+                </>
+              )}
+            </section>
+
+            <section className={'grid-row lead-row' + (useLeadThreeUpRow ? ' three-up-row' : '')}>
               {leadPosts.map(function(post, index) {
                 var text = fullPostText(post);
                 return (
@@ -3370,7 +3890,7 @@ export function getDefaultHomePageBody(): string {
                     key={post._id}
                     post={post}
                     span={leadSpans[index]}
-                    variant="lead"
+                    variant={useLeadThreeUpRow ? 'lead' : (leadSpans[index] >= 3 ? 'lead' : 'feature')}
                     label={formatByline(post)}
                     content={fullPostContent(post)}
                     text={text}
@@ -3380,7 +3900,7 @@ export function getDefaultHomePageBody(): string {
                     minParagraphs={1}
                     maxParagraphs={3}
                     minSentences={2}
-                    multiColumn={leadSpans[index] >= Math.max(3, Math.floor(cols / 3))}
+                    multiColumn={true}
                     minColumns={2}
                     maxColumns={2}
                     minColumnWidth={180}
@@ -3391,47 +3911,71 @@ export function getDefaultHomePageBody(): string {
               })}
             </section>
 
-            <section className="grid-row hero-row">
-              <AnnouncementCard
-                span={heroSpan}
-                title="Freedom comes to LessWrong"
-                subtitle="After years of ruling with an iron fist the site admins have finally returned control of the UI back to the people"
-                content={announcementContent}
-                text={announcementText}
-              />
-
-              <div style={{ gridColumn: 'span ' + railSpan, minWidth: 0 }}>
-                <div className="rail">
-                  {heroRailPosts.map(function(post, index) {
-                    return (
-                      <ArticleCard
-                        key={post._id}
-                        post={post}
-                        span={railSpan}
-                        variant="feature"
-                        label={formatByline(post)}
-                        content={fullPostContent(post)}
-                        text={fullPostText(post)}
-                        font='11.5px warnock-pro, Georgia, serif'
-                        lineHeight={17}
-                        paragraphGap={7}
-                        minParagraphs={1}
-                        maxParagraphs={2}
-                        minSentences={2}
-                        multiColumn={railSpan >= 3}
-                        minColumns={2}
-                        maxColumns={2}
-                        minColumnWidth={170}
-                        columnGap={12}
-                      />
-                    );
-                  })}
-                </div>
-              </div>
-            </section>
-
             <section className="grid-row brief-row">
-              {featurePosts.map(function(post, index) {
+              {useFeatureBandRow ? (
+                <>
+                  <ArticleCard
+                    key={featurePosts[1]._id}
+                    post={featurePosts[1]}
+                    span={featureSideSpan}
+                    variant="feature"
+                    label={formatByline(featurePosts[1])}
+                    content={fullPostContent(featurePosts[1])}
+                    text={fullPostText(featurePosts[1])}
+                    font='12.5px warnock-pro, Georgia, serif'
+                    lineHeight={18}
+                    paragraphGap={7}
+                    minParagraphs={1}
+                    maxParagraphs={2}
+                    minSentences={2}
+                    multiColumn={featureSideSpan >= Math.max(3, Math.floor(cols / 3))}
+                    minColumns={2}
+                    maxColumns={2}
+                    minColumnWidth={175}
+                    columnGap={12}
+                  />
+                  <ArticleCard
+                    key={featurePosts[0]._id}
+                    post={featurePosts[0]}
+                    span={featureCenterSpan}
+                    variant="lead"
+                    label={formatByline(featurePosts[0])}
+                    content={fullPostContent(featurePosts[0])}
+                    text={fullPostText(featurePosts[0])}
+                    font='12.5px warnock-pro, Georgia, serif'
+                    lineHeight={18}
+                    paragraphGap={7}
+                    minParagraphs={1}
+                    maxParagraphs={3}
+                    minSentences={2}
+                    multiColumn={featureCenterSpan >= Math.max(3, Math.floor(cols / 3))}
+                    minColumns={2}
+                    maxColumns={2}
+                    minColumnWidth={175}
+                    columnGap={12}
+                  />
+                  <ArticleCard
+                    key={featurePosts[2]._id}
+                    post={featurePosts[2]}
+                    span={featureRightSpan}
+                    variant="feature"
+                    label={formatByline(featurePosts[2])}
+                    content={fullPostContent(featurePosts[2])}
+                    text={fullPostText(featurePosts[2])}
+                    font='12.5px warnock-pro, Georgia, serif'
+                    lineHeight={18}
+                    paragraphGap={7}
+                    minParagraphs={1}
+                    maxParagraphs={2}
+                    minSentences={2}
+                    multiColumn={featureRightSpan >= Math.max(3, Math.floor(cols / 3))}
+                    minColumns={2}
+                    maxColumns={2}
+                    minColumnWidth={175}
+                    columnGap={12}
+                  />
+                </>
+              ) : featurePosts.map(function(post, index) {
                 return (
                   <ArticleCard
                     key={post._id}

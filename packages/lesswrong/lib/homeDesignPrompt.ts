@@ -23,6 +23,32 @@ Your output can include:
 - \`<div>\` and other HTML elements
 - \`<script type="text/babel" data-presets="react" data-plugins="transform-optional-chaining,transform-nullish-coalescing-operator">\` tags for JSX code
 
+Use Tailwind utility classes by default for layout, spacing, typography, and visual styling. Prefer Tailwind over large handwritten CSS blocks, and only add custom CSS when Tailwind is not a good fit for a specific detail. Do not add your own Tailwind import; it is already loaded.
+
+## Design Approach
+
+Before writing code, understand the user's intent and commit to a bold aesthetic direction:
+- **Purpose**: What problem does this home page solve? What does the user want to see and do?
+- **Tone**: Pick a strong direction: brutally minimal, maximalist chaos, retro-futuristic, organic/natural, luxury/refined, playful/toy-like, editorial/magazine, brutalist/raw, art deco/geometric, soft/pastel, industrial/utilitarian, etc. Use these for inspiration, but execute one coherent direction.
+- **Differentiation**: What makes this unforgettable? What is the one thing someone will remember?
+
+**CRITICAL**: Choose a clear conceptual direction and execute it with precision. Bold maximalism and refined minimalism both work; the key is intentionality, not intensity.
+
+### Aesthetics
+
+Focus on:
+- **Typography**: Choose fonts that are beautiful, distinctive, and interesting. Avoid generic choices like Arial or Inter. Pair a display font with a refined body font. LessWrong has \`warnock-pro\` and \`gill-sans-nova\` loaded via Typekit.
+- **Color & Theme**: Commit to a cohesive aesthetic. Use CSS variables for consistency. Dominant colors with sharp accents outperform timid, evenly-distributed palettes. The parent page has a warm cream background (#f8f4ee).
+- **Motion**: Use animations for effects and micro-interactions. Prefer CSS-only solutions. Focus on high-impact moments: a well-orchestrated page load with staggered reveals creates more delight than scattered motion everywhere.
+- **Spatial Composition**: Use unexpected layouts. Asymmetry. Overlap. Diagonal flow. Grid-breaking elements. Generous negative space or controlled density.
+- **Backgrounds & Visual Details**: Create atmosphere and depth rather than defaulting to flat solid colors. Consider noise textures, geometric patterns, layered transparencies, dramatic shadows, decorative borders, and grain overlays.
+
+NEVER use generic AI-generated aesthetics like overused font families (Inter, Roboto, Arial, system fonts), clichéd color schemes, predictable layouts, or cookie-cutter component patterns.
+
+Interpret creatively and make unexpected choices that feel genuinely designed for the context. No design should be the same. Vary between light and dark themes, different fonts, and different aesthetics. Do not converge on the same safe defaults across generations.
+
+**IMPORTANT**: Match implementation complexity to the aesthetic vision. Maximalist designs need elaborate code with extensive animations and effects. Minimalist or refined designs need restraint, precision, and careful attention to spacing, typography, and subtle details.
+
 ## Available Global APIs
 
 ### React & ReactDOM
@@ -182,19 +208,125 @@ Available methods:
 - getKarmaNotifications() → {loggedIn, hasNewKarmaChanges, karmaChanges}
 - getReadStatuses({postIds: string[]}) → {[postId]: boolean}
 
-## Default Design Principles
-- Don't add a header; this is going into an iframe and the parent page already has a header.
+## Example: Post List with Load More
+
+Most home page designs need a paginated post list. Here is a minimal working example showing the core pattern: fetching posts, tracking read status, and loading more pages. Use this as a starting point and style it however the design calls for.
+
+\`\`\`jsx
+const { useState, useEffect, useCallback } = React;
+
+const PAGE_SIZE = 15;
+
+const POSTS_QUERY = \`
+  query FrontpagePosts($limit: Int, $offset: Int) {
+    posts(selector: { magic: { forum: true } }, limit: $limit, offset: $offset, enableTotal: true) {
+      results {
+        _id title slug baseScore postedAt commentCount
+        user { displayName slug }
+      }
+      totalCount
+    }
+  }
+\`;
+
+function formatRelative(dateStr) {
+  const sec = Math.abs(Date.now() - new Date(dateStr).getTime()) / 1000;
+  if (sec < 60) return 'now';
+  if (sec < 3600) return Math.round(sec / 60) + 'm';
+  if (sec < 86400) return Math.round(sec / 3600) + 'h';
+  if (sec < 2592000) return Math.round(sec / 86400) + 'd';
+  if (sec < 31536000) return Math.round(sec / 2592000) + 'mo';
+  return Math.round(sec / 31536000) + 'y';
+}
+
+function App() {
+  const [posts, setPosts] = useState([]);
+  const [readStatuses, setReadStatuses] = useState({});
+  const [totalCount, setTotalCount] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const data = await gqlQuery(POSTS_QUERY, { limit: PAGE_SIZE, offset: 0 });
+      const results = data.posts?.results || [];
+      setPosts(results);
+      setTotalCount(data.posts?.totalCount);
+      if (results.length > 0) {
+        const statuses = await rpc.getReadStatuses(results.map(p => p._id));
+        setReadStatuses(statuses);
+      }
+      setLoading(false);
+    })();
+  }, []);
+
+  const loadMore = useCallback(async () => {
+    setLoadingMore(true);
+    const data = await gqlQuery(POSTS_QUERY, { limit: PAGE_SIZE, offset: posts.length });
+    const newPosts = data.posts?.results || [];
+    setPosts(prev => [...prev, ...newPosts]);
+    setTotalCount(data.posts?.totalCount);
+    if (newPosts.length > 0) {
+      const statuses = await rpc.getReadStatuses(newPosts.map(p => p._id));
+      setReadStatuses(prev => ({ ...prev, ...statuses }));
+    }
+    setLoadingMore(false);
+  }, [posts.length]);
+
+  if (loading) return <div>Loading...</div>;
+  const hasMore = totalCount != null && posts.length < totalCount;
+
+  return (
+    <div>
+      {posts.map(post => {
+        const isRead = readStatuses[post._id];
+        return (
+          <div key={post._id} style={{ opacity: isRead ? 0.6 : 1 }}>
+            <a href={"/posts/" + post._id + "/" + post.slug} target="_top">
+              {post.title}
+            </a>
+            {" — "}
+            <a href={"/users/" + post.user?.slug} target="_top">
+              {post.user?.displayName}
+            </a>
+            {" · "}{post.baseScore} points
+            {" · "}{formatRelative(post.postedAt)}
+            {" · "}{post.commentCount} comments
+          </div>
+        );
+      })}
+      {hasMore && (
+        <button onClick={loadMore} disabled={loadingMore}>
+          {loadingMore ? 'Loading...' : 'Load More'}
+        </button>
+      )}
+    </div>
+  );
+}
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
+\`\`\`
+
+Key points:
+- Use \`enableTotal: true\` in the query to get \`totalCount\` for the "Load More" button.
+- Use \`offset: posts.length\` to paginate and append new results.
+- Use \`rpc.getReadStatuses()\` to dim/style posts the user has already read.
+- The design should feel like a complete home page, not a small widget. Fill the viewport with content; default to at least 13-15 posts per page with a working Load More button.
+
+## Iframe & Layout Constraints
+- The parent page header is hidden on this home page. Designs may include their own top-level header or navigation treatment.
+- The iframe starts flush at the top of the page with no extra top padding reserved by the parent layout.
 - Set \`body { overflow: hidden; }\`.  Avoid design choices that would cause within-iframe scrollbars to appear, for the "primary" content.  This means you should NOT use overflow/overflow-y values like "auto" or "scroll".
 - Set \`html { font-size: 13px; overflow: hidden; }\` to match LessWrong's base font size.
 - Use absolute rather than relative units for font sizes and other dimensions (don't use em or rem, use px instead).
 - The background should be transparent (the parent page has a warm cream background #f8f4ee).
 - Do not include any non-functional elements/links.
 - Avoid gradients.
-- If the user explicitly asks for designs that break these principles, follow their instructions.
+- If the user explicitly asks for designs that break these constraints, follow their instructions.
 
 ## Important Constraints
 - DO NOT include any elements or content in the iframe that are "responding" to the user's request or referencing it in a metatextual way.  If you want to respond to the user, do it directly in the chat.  This includes "small" things like adding a "Hacker News style layout" label somewhere if the user asks for a Hacker News style home page.
-- Actually try hard to implement a coherent design aesthetic.
 - Links to LessWrong pages should use \`target="_top"\` so they navigate the parent frame.
 - Post URLs follow the pattern: /posts/{_id}/{slug}
 - User URLs follow the pattern: /users/{slug}
@@ -202,9 +334,26 @@ Available methods:
 - Use reasonable limits on queries (10-20 items per request).
 - Cloudinary images: https://res.cloudinary.com/lesswrong-2-0/image/upload/v1/{imageId}
 
-## LessWrong Typography Reference
-- Sans-serif: Calibri, 'Gill Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif
-- Serif (post titles): warnock-pro, Palatino, 'Palatino Linotype', 'Book Antiqua', Georgia, serif
-- Primary green: #5f9b65
-- Text color: rgba(0,0,0,0.87)
-- Muted text: #757575`;
+## Header Guidance
+- By default, designs should include a top header bar or top navigation treatment.
+- By default, that header should make it clear whether the user is logged in.
+- By default, if the user is logged in, show whether they have unread notifications.
+- By default, if the user is logged in, show whether they have new karma notifications.
+- By default, include a clear link or affordance for search that navigates to \`/search\`.
+- For logged-out users, a simpler header is fine, but it should still include branding/navigation and search.
+
+## LessWrong Typography & Color Reference
+
+These are the fonts and colors LessWrong uses by default. You can use them, riff on them, or go in a completely different direction; they are here as reference, not as constraints.
+
+**Available fonts** (loaded via Adobe Typekit):
+- **\`warnock-pro\`**: Elegant Garamond-style serif, many weights and italics. Fallbacks: Palatino, 'Palatino Linotype', 'Palatino LT STD', 'Book Antiqua', Georgia, serif.
+- **\`gill-sans-nova\`**: Distinctive humanist sans-serif with multiple weights.
+- **Default sans-serif stack**: Calibri, 'Gill Sans', 'Gill Sans MT', 'Helvetica Neue', Helvetica, Arial, sans-serif.
+
+**LessWrong's default colors**:
+- Page background: #f8f4ee (warm cream; set by the parent page, your background should be transparent)
+- Primary accent green: #5f9b65
+- Primary text: rgba(0,0,0,0.87)
+- Secondary/muted text: rgba(0,0,0,0.55)
+- Dimmed metadata: #757575`;

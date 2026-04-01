@@ -97,6 +97,18 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
     'body[data-home-design-active="true"] .RouteRootClient-centralColumn': {
       paddingTop: '0 !important',
     },
+    'body[data-home-design-active="true"] #intercom-outer-frame': {
+      display: 'none !important',
+    },
+    'body[data-home-design-active="true"] #intercom-container': {
+      display: 'none !important',
+    },
+    'body[data-home-design-active="true"] .intercom-lightweight-app': {
+      display: 'none !important',
+    },
+    'body[data-home-design-active="true"] .home-design-hide-llm-chat': {
+      display: 'none !important',
+    },
     // Font fallback to ensure that all greek letters just directly render as Arial
     '@font-face': [{
         fontFamily: "GreekFallback",
@@ -279,7 +291,7 @@ const LlmSidebarWrapper = ({children}: {
       </IsLlmChatSidebarOpenContext.Provider>
     </div>
     {renderLanguageModelChatLauncher && (
-      <div className={classes.llmChatColumn}>
+      <div className={classNames(classes.llmChatColumn, 'home-design-hide-llm-chat')}>
         <DeferRender ssr={false}>
           {showLlmChatSidebar ? (
             <SuspenseWrapper name="SidebarLanguageModelChat">
@@ -326,4 +338,3 @@ function PageBackgroundWrapper({children}: {
 }
 
 export default Layout;
-

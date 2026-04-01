@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useCallback, useEffect, useRef } from 'react';
+import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { getSandboxedHomePageSrcdoc, wrapBodyInSrcdoc } from './SandboxedHomePageSrcdoc';
 import { useCurrentUser } from '../common/withUser';
@@ -84,35 +85,70 @@ const homeDesignKarmaChangesQuery = gql(`
 
 const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
   root: {
+    position: 'fixed',
+    inset: 0,
     width: '100%',
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'stretch',
+    height: '100dvh',
+    overflow: 'hidden',
+    overscrollBehavior: 'none',
+    background: '#f8f4ee',
+    [theme.breakpoints.down('md')]: {
+      flexDirection: 'column',
+    },
+  },
+  mainViewport: {
     position: 'relative',
+    flex: '1 1 auto',
+    minWidth: 0,
+    minHeight: 0,
+    height: '100%',
+  },
+  mainViewportWithPanel: {
+    flexBasis: 'calc(100% - clamp(360px, 30vw, 470px))',
+  },
+  iframeWrap: {
+    position: 'relative',
+    width: '100%',
+    height: '100%',
+    minWidth: 0,
+    minHeight: 0,
   },
   iframe: {
+    display: 'block',
     width: '100%',
+    height: '100%',
     border: 'none',
-    // Height is set dynamically via postMessage from the iframe content
-    minHeight: 500,
   },
   customizeButton: {
-    position: 'fixed',
+    position: 'absolute',
     bottom: 24,
-    right: 80,
+    right: 24,
     zIndex: theme.zIndexes.lwPopper - 1,
     display: 'flex',
     alignItems: 'center',
     gap: 8,
-    padding: '10px 18px',
-    background: '#5f9b65',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 24,
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 14,
-    fontWeight: 500,
+    padding: '9px 16px',
+    background: 'rgba(248, 244, 238, 0.96)',
+    color: '#37623b',
+    border: '1px solid rgba(95, 155, 101, 0.5)',
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 11,
+    fontWeight: 700,
+    letterSpacing: '0.16em',
+    textTransform: 'uppercase',
     cursor: 'pointer',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+    boxShadow: '0 1px 0 rgba(23,20,17,0.06)',
     '&:hover': {
-      background: '#4e8a54',
+      background: 'rgba(95, 155, 101, 0.12)',
+      borderColor: '#5f9b65',
+      color: '#2d5331',
+    },
+    [theme.breakpoints.down('md')]: {
+      bottom: 16,
+      right: 16,
     },
   },
 }));
@@ -271,20 +307,28 @@ const SandboxedHomePage = () => {
         // params: { documentId: string, collectionName: string, voteType: string }
         return { success: false, error: 'Voting not yet implemented' };
       }
+      case 'openCustomizePanel': {
+        designChat.setIsOpen(true);
+        return { success: true };
+      }
+      case 'revertToNormalHomepage': {
+        designChat.setIsOpen(false);
+        const url = new URL(window.location.href);
+        url.searchParams.delete('theme');
+        url.searchParams.set('classicHome', '1');
+        window.location.assign(`${url.pathname}${url.search}${url.hash}`);
+        return { success: true };
+      }
       default:
         throw new Error(`Unknown RPC method: ${method}`);
     }
-  }, [currentUser, client, latestUnreadCount]);
+  }, [currentUser, client, designChat, latestUnreadCount]);
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
       if (event.source !== iframeRef.current?.contentWindow) return;
 
-      // Handle iframe content height updates
-      if (event.data?.type === 'resize' && typeof event.data.height === 'number') {
-        if (iframeRef.current) {
-          iframeRef.current.style.height = `${event.data.height}px`;
-        }
+      if (event.data?.type === 'resize') {
         return;
       }
 
@@ -317,27 +361,33 @@ const SandboxedHomePage = () => {
   const latestDesignHtml = myDesignsData?.myHomePageDesigns?.[0]?.html;
   const userLatestSrcdoc = latestDesignHtml ? wrapBodyInSrcdoc(latestDesignHtml, { origin }) : null;
   const defaultSrcdoc = getSandboxedHomePageSrcdoc({ origin });
-  const srcdoc = designChat.customSrcdoc ?? themeSrcdoc ?? userLatestSrcdoc ?? defaultSrcdoc;
+  const srcdoc = designChat.customSrcdoc ?? (designChat.useDefaultDesign ? defaultSrcdoc : (themeSrcdoc ?? userLatestSrcdoc ?? defaultSrcdoc));
 
   return (
     <DeferRender ssr={false}>
       <div className={classes.root}>
-        <iframe
-          ref={iframeRef}
-          className={classes.iframe}
-          sandbox="allow-scripts allow-top-navigation-by-user-activation"
-          srcDoc={srcdoc}
-        />
+        <div className={classNames(classes.mainViewport, {
+          [classes.mainViewportWithPanel]: designChat.isOpen,
+        })}>
+          <div className={classes.iframeWrap}>
+            <iframe
+              ref={iframeRef}
+              className={classes.iframe}
+              sandbox="allow-scripts allow-top-navigation-by-user-activation"
+              srcDoc={srcdoc}
+            />
+            {!designChat.isOpen && (
+              <button
+                className={classes.customizeButton}
+                onClick={() => designChat.setIsOpen(true)}
+              >
+                Customize
+              </button>
+            )}
+          </div>
+        </div>
+        <HomeDesignChatPanel />
       </div>
-      {!designChat.isOpen && (
-        <button
-          className={classes.customizeButton}
-          onClick={() => designChat.setIsOpen(true)}
-        >
-          ✨ Customize
-        </button>
-      )}
-      <HomeDesignChatPanel />
     </DeferRender>
   );
 };

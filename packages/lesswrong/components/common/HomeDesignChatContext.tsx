@@ -7,6 +7,8 @@ interface HomeDesignChatContextType {
   setIsOpen: (open: boolean) => void;
   applyDesign: (html: string | null) => void;
   customSrcdoc: string | null;
+  useDefaultDesign: boolean;
+  setUseDefaultDesign: (useDefault: boolean) => void;
   publicId: string | null;
   setPublicId: (id: string | null) => void;
 }

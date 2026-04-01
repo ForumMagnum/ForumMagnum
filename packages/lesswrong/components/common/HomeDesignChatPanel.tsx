@@ -91,95 +91,137 @@ function buildSyntheticDesignMessages(
 }
 
 const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
-  overlay: {
-    position: 'fixed',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    width: 420,
+  panel: {
+    width: 'clamp(360px, 30vw, 470px)',
+    minWidth: 0,
+    height: '100%',
     zIndex: 2147483001,
     display: 'flex',
     flexDirection: 'column',
-    background: theme.palette.panelBackground.default,
-    borderLeft: theme.palette.border.normal,
-    boxShadow: `-2px 0 8px ${theme.palette.boxShadowColor(0.1)}`,
+    flexShrink: 0,
+    background: '#f8f4ee',
+    borderLeft: '1px solid rgba(23, 20, 17, 0.18)',
+    boxShadow: 'inset 1px 0 0 rgba(255,255,255,0.35)',
+    overflow: 'hidden',
+    [theme.breakpoints.down('md')]: {
+      width: '100%',
+      height: 'min(48dvh, 460px)',
+      borderLeft: 'none',
+      borderTop: '1px solid rgba(23, 20, 17, 0.18)',
+    },
   },
   header: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '8px 16px',
-    borderBottom: theme.palette.border.normal,
+    padding: '16px 20px 14px',
+    borderBottom: '1px solid rgba(23, 20, 17, 0.18)',
     flexShrink: 0,
+  },
+  headerKicker: {
+    marginBottom: 8,
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 9,
+    letterSpacing: '0.28em',
+    textTransform: 'uppercase' as const,
+    color: '#8f1d12',
+  },
+  headerRow: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    gap: 12,
+  },
+  headerText: {
+    minWidth: 0,
   },
   tabBar: {
     display: 'flex',
+    gap: 4,
   },
   tab: {
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 14,
-    fontWeight: 500,
-    padding: '6px 14px',
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: '0.14em',
+    textTransform: 'uppercase' as const,
+    padding: '6px 0',
+    marginRight: 14,
     background: 'none',
     border: 'none',
     borderBottom: '2px solid transparent',
     cursor: 'pointer',
-    color: theme.palette.text.dim3,
+    color: '#85776c',
     '&:hover': {
-      color: theme.palette.text.normal,
+      color: '#171411',
     },
   },
   tabActive: {
-    color: theme.palette.text.normal,
-    borderBottomColor: theme.palette.primary.main,
+    color: '#171411',
+    borderBottomColor: '#8f1d12',
   },
   closeButton: {
-    background: 'none',
-    border: 'none',
+    padding: '7px 10px',
+    border: '1px solid rgba(23, 20, 17, 0.28)',
+    background: 'transparent',
     cursor: 'pointer',
-    fontSize: 20,
-    color: theme.palette.icon.dim3,
-    padding: 4,
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: '0.16em',
+    textTransform: 'uppercase' as const,
+    color: '#4c433d',
+    flexShrink: 0,
     '&:hover': {
-      color: theme.palette.text.normal,
+      color: '#171411',
+      borderColor: 'rgba(23, 20, 17, 0.42)',
     },
   },
   messages: {
     flex: 1,
     overflowY: 'auto',
-    padding: '12px 16px',
+    padding: '0 20px 18px',
     display: 'flex',
     flexDirection: 'column',
-    gap: 12,
+    gap: 14,
+  },
+  messageCard: {
+    paddingTop: 12,
+    borderTop: '1px solid rgba(23, 20, 17, 0.12)',
+  },
+  assistantMessageCard: {
+    marginRight: 18,
+  },
+  userMessageCard: {
+    marginLeft: 28,
+  },
+  messageMeta: {
+    marginBottom: 6,
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 9,
+    letterSpacing: '0.24em',
+    textTransform: 'uppercase' as const,
+    color: '#85776c',
+  },
+  userMessageMeta: {
+    color: '#5f9b65',
+  },
+  assistantMessageMeta: {
+    color: '#8f1d12',
   },
   message: {
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 14,
-    lineHeight: 1.5,
-    color: theme.palette.text.normal,
+    fontFamily: 'warnock-pro, "Iowan Old Style", Georgia, serif',
+    fontSize: 15,
+    lineHeight: 1.45,
+    color: '#171411',
     whiteSpace: 'pre-wrap',
   },
-  userMessage: {
-    background: theme.palette.panelBackground.hoverHighlightGrey,
-    borderRadius: 8,
-    padding: '8px 12px',
-    alignSelf: 'flex-end',
-    maxWidth: '85%',
-  },
-  assistantMessage: {
-    alignSelf: 'flex-start',
-    maxWidth: '85%',
-  },
   typingIndicator: {
-    alignSelf: 'flex-start',
     display: 'flex',
     gap: 4,
-    padding: '8px 12px',
+    padding: '10px 0 0',
     '& span': {
       width: 6,
       height: 6,
       borderRadius: '50%',
-      background: theme.palette.primary.main,
+      background: '#8f1d12',
       animation: '$bounce 1.2s infinite',
     },
     '& span:nth-child(2)': {
@@ -194,59 +236,78 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     '30%': { opacity: 1 },
   },
   toolApplied: {
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 12,
-    color: theme.palette.primary.main,
-    fontStyle: 'italic',
+    marginTop: 6,
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 10,
+    color: '#5f9b65',
+    letterSpacing: '0.16em',
+    textTransform: 'uppercase' as const,
     padding: '4px 0',
   },
   publishButton: {
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 12,
-    padding: '4px 12px',
-    background: 'none',
-    color: theme.palette.primary.main,
-    border: theme.palette.border.normal,
-    borderRadius: 4,
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: '0.15em',
+    textTransform: 'uppercase' as const,
+    padding: '7px 12px',
+    background: 'rgba(95, 155, 101, 0.08)',
+    color: '#37623b',
+    border: '1px solid rgba(95, 155, 101, 0.45)',
     cursor: 'pointer',
-    marginTop: 4,
+    marginTop: 8,
     '&:hover': {
-      background: theme.palette.panelBackground.hoverHighlightGrey,
+      background: 'rgba(95, 155, 101, 0.14)',
     },
   },
   inputArea: {
-    display: 'flex',
-    padding: '12px 16px',
-    borderTop: theme.palette.border.normal,
-    gap: 8,
+    display: 'grid',
+    gridTemplateColumns: 'minmax(0, 1fr) auto',
+    alignItems: 'end',
+    gap: 10,
+    padding: '14px 20px 18px',
+    borderTop: '1px solid rgba(23, 20, 17, 0.18)',
     flexShrink: 0,
+  },
+  inputLabel: {
+    gridColumn: '1 / -1',
+    marginBottom: -2,
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 9,
+    letterSpacing: '0.22em',
+    textTransform: 'uppercase' as const,
+    color: '#85776c',
   },
   input: {
     flex: 1,
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 14,
-    padding: '8px 12px',
-    border: theme.palette.border.normal,
-    borderRadius: 4,
+    minHeight: 92,
+    resize: 'none' as const,
+    fontFamily: 'warnock-pro, "Iowan Old Style", Georgia, serif',
+    fontSize: 15,
+    lineHeight: 1.45,
+    padding: '10px 12px',
+    border: '1px solid rgba(23, 20, 17, 0.22)',
     outline: 'none',
-    color: theme.palette.text.normal,
-    background: theme.palette.panelBackground.default,
+    color: '#171411',
+    background: 'rgba(255,255,255,0.22)',
     '&:focus': {
-      border: `1px solid ${theme.palette.primary.main}`,
+      border: '1px solid rgba(95, 155, 101, 0.55)',
     },
   },
   sendButton: {
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 14,
-    padding: '8px 16px',
-    background: theme.palette.primary.main,
-    color: '#fff',
-    border: 'none',
-    borderRadius: 4,
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: '0.18em',
+    textTransform: 'uppercase' as const,
+    padding: '10px 14px',
+    background: 'rgba(95, 155, 101, 0.1)',
+    color: '#37623b',
+    border: '1px solid rgba(95, 155, 101, 0.5)',
     cursor: 'pointer',
     flexShrink: 0,
     '&:hover': {
-      background: '#4e8a54',
+      background: 'rgba(95, 155, 101, 0.16)',
     },
     '&:disabled': {
       opacity: 0.5,
@@ -257,32 +318,64 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     flex: 1,
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
     justifyContent: 'center',
-    padding: 32,
-    color: theme.palette.text.dim3,
-    fontFamily: theme.typography.fontFamily,
+    padding: '22px 0 14px',
+    color: '#4c433d',
+  },
+  emptyKicker: {
+    marginBottom: 8,
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 9,
+    letterSpacing: '0.24em',
+    textTransform: 'uppercase' as const,
+    color: '#8f1d12',
+  },
+  emptyTitle: {
+    fontFamily: 'ETBookRoman, warnock-pro, "Iowan Old Style", Georgia, serif',
+    fontSize: 29,
+    lineHeight: 0.98,
+    color: '#171411',
+    maxWidth: 320,
+  },
+  emptyCopy: {
+    marginTop: 12,
+    maxWidth: 340,
+    fontFamily: 'warnock-pro, "Iowan Old Style", Georgia, serif',
+    fontSize: 15,
+    lineHeight: 1.45,
+    color: '#4c433d',
+  },
+  promptExamples: {
+    marginTop: 12,
+    display: 'grid',
+    gap: 6,
+    maxWidth: 360,
+  },
+  promptExample: {
+    fontFamily: 'warnock-pro, "Iowan Old Style", Georgia, serif',
     fontSize: 14,
-    textAlign: 'center',
-    lineHeight: 1.6,
+    lineHeight: 1.35,
+    color: '#171411',
   },
   byoaLink: {
     marginTop: 16,
-    fontSize: 12,
-    color: theme.palette.text.dim3,
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 10,
+    letterSpacing: '0.06em',
+    color: '#85776c',
     '& a': {
-      color: theme.palette.primary.main,
+      color: '#8f1d12',
       textDecoration: 'none',
     },
   },
   copyIcon: {
     fontSize: 12,
     cursor: 'pointer',
-    color: theme.palette.text.dim3,
+    color: '#85776c',
     verticalAlign: 'middle',
     marginLeft: 4,
     '&:hover': {
-      color: theme.palette.text.normal,
+      color: '#171411',
     },
   },
   headerActions: {
@@ -380,6 +473,31 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     overflowY: 'auto',
     padding: '8px 0',
   },
+  marketplaceActions: {
+    display: 'grid',
+    gap: 8,
+    padding: '0 16px 12px',
+    borderBottom: theme.palette.border.faint,
+  },
+  marketplaceActionButton: {
+    width: '100%',
+    padding: '9px 12px',
+    background: 'transparent',
+    border: '1px solid rgba(23, 20, 17, 0.2)',
+    cursor: 'pointer',
+    textAlign: 'left' as const,
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 10,
+    fontWeight: 700,
+    letterSpacing: '0.12em',
+    textTransform: 'uppercase' as const,
+    color: '#4c433d',
+    '&:hover': {
+      color: '#171411',
+      borderColor: 'rgba(23, 20, 17, 0.34)',
+      background: 'rgba(255,255,255,0.35)',
+    },
+  },
   marketplaceItem: {
     display: 'flex',
     alignItems: 'center',
@@ -439,7 +557,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
 
 const HomeDesignChatPanel = () => {
   const classes = useStyles(styles);
-  const { isOpen, setIsOpen, applyDesign, publicId, setPublicId } = useHomeDesignChat();
+  const { isOpen, setIsOpen, applyDesign, useDefaultDesign, setUseDefaultDesign, publicId, setPublicId } = useHomeDesignChat();
   const { flash } = useMessages();
   const client = useApolloClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -532,7 +650,15 @@ const HomeDesignChatPanel = () => {
     setInput('');
   }, [input, isLoading, sendMessage]);
 
-  // Prefetch full design data on hover
+  const handleComposerKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+      e.preventDefault();
+      if (!input.trim() || isLoading) return;
+      void sendMessage({ text: input });
+      setInput('');
+    }
+  }, [input, isLoading, sendMessage]);
+
   const handleHistoryItemHover = useCallback((itemPublicId: string) => {
     void client.query({
       query: homePageDesignByPublicIdFullQuery,
@@ -599,6 +725,12 @@ const HomeDesignChatPanel = () => {
     setActiveTab('chat');
   }, [setMessages, setPublicId, applyDesign]);
 
+  const handleRevertToBuiltInDefault = useCallback(() => {
+    setPublicId(null);
+    applyDesign(null);
+    setUseDefaultDesign(true);
+  }, [setPublicId, applyDesign, setUseDefaultDesign]);
+
   if (!isOpen) return null;
 
   const lastAppliedToolCallId = messages
@@ -611,59 +743,63 @@ const HomeDesignChatPanel = () => {
   ));
 
   return (
-    <div className={classes.overlay}>
+    <aside className={classes.panel}>
       <div className={classes.header}>
-        <div className={classes.tabBar}>
-          <button
-            className={classNames(classes.tab, { [classes.tabActive]: activeTab === 'chat' })}
-            onClick={() => setActiveTab('chat')}
-          >
-            Chat
-          </button>
-          <button
-            className={classNames(classes.tab, { [classes.tabActive]: activeTab === 'marketplace' })}
-            onClick={() => setActiveTab('marketplace')}
-          >
-            Marketplace
-          </button>
-        </div>
-        <div className={classes.headerActions}>
-          <div ref={historyAnchorRef} className={classes.historyDropdownAnchor}>
-            <button
-              className={classes.historyButton}
-              onClick={() => setShowHistory(prev => !prev)}
-              title="Conversation history"
-            >
-              <HistoryIcon className={classes.historyIcon} />
-            </button>
-            {showHistory && (
-              <div className={classes.historyDropdown}>
-                <div className={classes.newConversationItem} onClick={handleNewConversation}>
-                  + New conversation
-                </div>
-                {summaries.length === 0 ? (
-                  <div className={classes.historyEmpty}>No previous conversations</div>
-                ) : (
-                  summaries.map((summary) => (
-                    <div
-                      key={summary.publicId}
-                      className={classNames(classes.historyItem, {
-                        [classes.historyItemActive]: summary.publicId === publicId,
-                      })}
-                      onClick={() => void handleLoadConversation(summary.publicId)}
-                      onMouseEnter={() => handleHistoryItemHover(summary.publicId)}
-                    >
-                      <span className={classes.itemTitle}>{summary.title}</span>
-                      <span className={classes.historyItemDate}>
-                        {moment(new Date(summary.createdAt)).fromNow()}
-                      </span>
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
+        <div className={classes.headerRow}>
+          <div className={classes.headerText}>
+            <div className={classes.tabBar}>
+              <button
+                className={classNames(classes.tab, { [classes.tabActive]: activeTab === 'chat' })}
+                onClick={() => setActiveTab('chat')}
+              >
+                Chat
+              </button>
+              <button
+                className={classNames(classes.tab, { [classes.tabActive]: activeTab === 'marketplace' })}
+                onClick={() => setActiveTab('marketplace')}
+              >
+                Marketplace
+              </button>
+            </div>
           </div>
-          <button className={classes.closeButton} onClick={handleClose}>&times;</button>
+          <div className={classes.headerActions}>
+            <div ref={historyAnchorRef} className={classes.historyDropdownAnchor}>
+              <button
+                className={classes.historyButton}
+                onClick={() => setShowHistory(prev => !prev)}
+                title="Conversation history"
+              >
+                <HistoryIcon className={classes.historyIcon} />
+              </button>
+              {showHistory && (
+                <div className={classes.historyDropdown}>
+                  <div className={classes.newConversationItem} onClick={handleNewConversation}>
+                    + New conversation
+                  </div>
+                  {summaries.length === 0 ? (
+                    <div className={classes.historyEmpty}>No previous conversations</div>
+                  ) : (
+                    summaries.map((summary) => (
+                      <div
+                        key={summary.publicId}
+                        className={classNames(classes.historyItem, {
+                          [classes.historyItemActive]: summary.publicId === publicId,
+                        })}
+                        onClick={() => void handleLoadConversation(summary.publicId)}
+                        onMouseEnter={() => handleHistoryItemHover(summary.publicId)}
+                      >
+                        <span className={classes.itemTitle}>{summary.title}</span>
+                        <span className={classes.historyItemDate}>
+                          {moment(new Date(summary.createdAt)).fromNow()}
+                        </span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+            </div>
+            <button className={classes.closeButton} onClick={handleClose}>&times;</button>
+          </div>
         </div>
       </div>
 
@@ -672,9 +808,10 @@ const HomeDesignChatPanel = () => {
           <div className={classes.messages}>
             {messages.length === 0 && (
               <div className={classes.emptyState}>
-                Describe your ideal LessWrong home page.
-                <br /><br />
-                Try: &quot;Make it look like Hacker News&quot; or &quot;Newspaper front page layout&quot; or &quot;Dark mode with cards&quot;
+                <div className={classes.emptyTitle}>Describe your ideal LessWrong home page.</div>
+                <div className={classes.emptyCopy}>
+                  Try: "Make it look like Hacker News" or "Newspaper front page layout" or "Dark mode with cards"
+                </div>
                 <div className={classes.byoaLink}>
                   Or, bring your own agent: give them a link to <a href="/api/homeDesigns/SKILL.md" target="_blank" rel="noopener noreferrer">this skill</a>
                   <CopyToClipboard
@@ -692,21 +829,24 @@ const HomeDesignChatPanel = () => {
                 {message.parts.map((part, i) => {
                   if (part.type === 'text' && part.text.trim()) {
                     return (
-                      <div
+                      <article
                         key={`${message.id}-${i}`}
-                        className={classNames(classes.message, {
-                          [classes.userMessage]: message.role === 'user',
-                          [classes.assistantMessage]: message.role === 'assistant',
+                        className={classNames(classes.messageCard, {
+                          [classes.userMessageCard]: message.role === 'user',
+                          [classes.assistantMessageCard]: message.role === 'assistant',
                         })}
                       >
-                        {part.text}
-                      </div>
+                        <div className={classes.message}>{part.text}</div>
+                      </article>
                     );
                   }
                   if (part.type === 'tool-submitHomePageDesign') {
                     const isApplied = part.state === 'output-available';
                     return (
-                      <div key={`${message.id}-${i}`}>
+                      <article
+                        key={`${message.id}-${i}`}
+                        className={classNames(classes.messageCard, classes.assistantMessageCard)}
+                      >
                         <div className={classes.toolApplied}>
                           {isApplied ? 'Design applied.' : 'Applying design...'}
                         </div>
@@ -718,7 +858,7 @@ const HomeDesignChatPanel = () => {
                             Publish to marketplace
                           </button>
                         )}
-                      </div>
+                      </article>
                     );
                   }
                   return null;
@@ -734,12 +874,14 @@ const HomeDesignChatPanel = () => {
           </div>
 
           <form className={classes.inputArea} onSubmit={handleSubmit}>
-            <input
+            <textarea
               className={classes.input}
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleComposerKeyDown}
               placeholder="Describe your home page..."
               disabled={isLoading}
+              rows={4}
             />
             <button
               type="submit"
@@ -754,6 +896,15 @@ const HomeDesignChatPanel = () => {
 
       {activeTab === 'marketplace' && (
         <div className={classes.marketplaceList}>
+          <div className={classes.marketplaceActions}>
+            <button
+              type="button"
+              className={classes.marketplaceActionButton}
+              onClick={handleRevertToBuiltInDefault}
+            >
+              {useDefaultDesign ? 'Using built-in default homepage' : 'Revert to built-in default homepage'}
+            </button>
+          </div>
           {allMarketplaceDesigns.length === 0 ? (
             <div className={classes.marketplaceEmpty}>No published designs yet</div>
           ) : (
@@ -801,14 +952,13 @@ const HomeDesignChatPanel = () => {
           )}
         </div>
       )}
-
       {showPublishDialog && publicId && (
         <PublishDesignDialog
           publicId={publicId}
           onClose={() => setShowPublishDialog(false)}
         />
       )}
-    </div>
+    </aside>
   );
 };
 
