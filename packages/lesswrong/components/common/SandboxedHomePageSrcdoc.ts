@@ -583,6 +583,13 @@ export function getDefaultHomePageBody(): string {
       align-items: start;
     }
 
+    @media (max-width: 760px) {
+      .lists-rail-section {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+    }
+
     .top-posts-list {
       display: flex;
       flex-direction: column;
@@ -5285,8 +5292,9 @@ export function getDefaultHomePageBody(): string {
         );
       }
 
-      var posts = getRenderablePosts(mergeCuratedPosts(data.curated, data.postResults));
+      var displayCuratedPosts = getRenderablePosts((data.curated || []).slice(1));
       var topPostsListPosts = getTopPostsListPosts(data.postResults, data.curated);
+      var posts = getRenderablePosts(mergeCuratedPosts(displayCuratedPosts, topPostsListPosts));
       var latestComments = getTopCommentsFromResults(data.topCommentResults, commentsWindowStart);
       var recentComments = getRecentCommentsFromResults(data.recentCommentResults, commentsWindowStart);
       var hasMoreTopPosts = topPostsVisibleCount < topPostsListPosts.length
@@ -5337,6 +5345,7 @@ export function getDefaultHomePageBody(): string {
       var featureRightSpan = useFeatureBandRow ? Math.max(1, cols - featureCenterSpan - featureSideSpan) : 0;
       var featureSpans = useFeatureBandRow ? [] : (mobileStacked ? featurePosts.map(function() { return cols; }) : fillSpans(featurePosts.length, cols));
       var quicktakes = data.quicktakes.slice(0, Math.max(2, Math.min(4, cols)));
+      var quicktakesColumnCount = quicktakes.length === 4 && cols < 10 ? 2 : null;
       var bylineOptions = mobileStacked ? { hyphenateSpaces: true } : null;
       var announcementMinColumns = cols < 4 ? 1 : 2;
       var announcementMaxColumns = cols < 4 ? 1 : 3;
@@ -5426,7 +5435,10 @@ export function getDefaultHomePageBody(): string {
             {!mobileStacked ? (
               <section className="grid-row dispatch-row">
                 <div style={{ gridColumn: '1 / -1' }}>
-                  <div className="dispatch-grid">
+                  <div
+                    className="dispatch-grid"
+                    style={quicktakesColumnCount ? { gridTemplateColumns: 'repeat(' + quicktakesColumnCount + ', minmax(0, 1fr))' } : undefined}
+                  >
                     {quicktakes.map(function(item, index) {
                       var quickText = stripHtml(item.contents && item.contents.html);
                       var href = '/posts/' + (item.postId || '') + '/' + (((item.post && item.post.slug) || '')) + '#' + item._id;
