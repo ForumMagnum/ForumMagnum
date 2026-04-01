@@ -514,7 +514,7 @@ function SandboxedHomePageContent() {
       default:
         throw new Error(`Unknown RPC method: ${method}`);
     }
-  }, [currentUser, client, designChat, latestUnreadCount, navigate]);
+  }, [currentUser, client, designChat, latestUnreadCount, navigate, setCookie]);
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {
