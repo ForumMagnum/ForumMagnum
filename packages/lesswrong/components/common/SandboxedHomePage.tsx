@@ -8,9 +8,11 @@ import { useHomeDesignChat } from './HomeDesignChatContext';
 import { useLocation } from '@/lib/routeUtil';
 import { useQuery } from '@/lib/crud/useQuery';
 import { gql } from '@/lib/generated/gql-codegen';
+import { useApolloClient } from '@apollo/client/react';
 import HomeDesignChatPanel from './HomeDesignChatPanel';
 import DeferRender from './DeferRender';
-import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
+import { UnreadNotificationCountsQuery, useUnreadNotifications } from '../hooks/useUnreadNotifications';
+import { NotificationsListMultiQuery } from '../notifications/NotificationsListMultiQuery';
 
 const homePageDesignByPublicIdQuery = gql(`
   query HomePageDesignByPublicId($publicId: String!) {
@@ -34,73 +36,9 @@ const myHomePageDesignsQuery = gql(`
   }
 `);
 
-const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
-  root: {
-    width: '100%',
-    position: 'relative',
-  },
-  iframe: {
-    width: '100%',
-    border: 'none',
-    // Height is set dynamically via postMessage from the iframe content
-    minHeight: 500,
-  },
-  customizeButton: {
-    position: 'fixed',
-    bottom: 24,
-    right: 80,
-    zIndex: theme.zIndexes.lwPopper - 1,
-    display: 'flex',
-    alignItems: 'center',
-    gap: 8,
-    padding: '10px 18px',
-    background: '#5f9b65',
-    color: '#fff',
-    border: 'none',
-    borderRadius: 24,
-    fontFamily: theme.typography.fontFamily,
-    fontSize: 14,
-    fontWeight: 500,
-    cursor: 'pointer',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
-    '&:hover': {
-      background: '#4e8a54',
-    },
-  },
-}));
-
-const UNREAD_NOTIFICATION_COUNTS_QUERY = `
-  query UnreadNotificationCountQuery {
-    unreadNotificationCounts {
-      unreadNotifications
-      unreadPrivateMessages
-      faviconBadgeNumber
-      checkedAt
-    }
-  }
-`;
-
-const USER_NOTIFICATIONS_QUERY = `
-  query HomeDesignNotifications($userId: String!, $limit: Int) {
-    notifications(selector: { userNotifications: { userId: $userId } }, limit: $limit, enableTotal: false) {
-      results {
-        _id
-        documentId
-        documentType
-        createdAt
-        link
-        message
-        type
-        viewed
-        extraData
-      }
-    }
-  }
-`;
-
-const USER_KARMA_CHANGES_QUERY = `
+const homeDesignKarmaChangesQuery = gql(`
   query HomeDesignKarmaChanges($documentId: String) {
-    user(input: { selector: { documentId: $documentId } }) {
+    user(selector: { documentId: $documentId }) {
       result {
         _id
         karmaChanges {
@@ -142,20 +80,48 @@ const USER_KARMA_CHANGES_QUERY = `
       }
     }
   }
-`;
+`);
 
-type HomeDesignCurrentUser = {
-  _id: string;
-  displayName: string;
-  slug: string | null;
-  karma: number;
-};
+const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
+  root: {
+    width: '100%',
+    position: 'relative',
+  },
+  iframe: {
+    width: '100%',
+    border: 'none',
+    // Height is set dynamically via postMessage from the iframe content
+    minHeight: 500,
+  },
+  customizeButton: {
+    position: 'fixed',
+    bottom: 24,
+    right: 80,
+    zIndex: theme.zIndexes.lwPopper - 1,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '10px 18px',
+    background: '#5f9b65',
+    color: '#fff',
+    border: 'none',
+    borderRadius: 24,
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 14,
+    fontWeight: 500,
+    cursor: 'pointer',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.2)',
+    '&:hover': {
+      background: '#4e8a54',
+    },
+  },
+}));
 
-function sanitizeCurrentUserForHomeDesign(currentUser: UsersCurrent): HomeDesignCurrentUser {
+function sanitizeCurrentUserForHomeDesign(currentUser: UsersCurrent): Pick<UsersCurrent, '_id' | 'displayName' | 'slug' | 'karma'> {
   return {
     _id: currentUser._id,
     displayName: currentUser.displayName,
-    slug: currentUser.slug ?? null,
+    slug: currentUser.slug,
     karma: currentUser.karma,
   };
 }
@@ -192,25 +158,7 @@ const SandboxedHomePage = () => {
     skip: !!themePublicId,
   });
 
-  const fetchAuthenticatedGraphQL = useCallback(async <T,>(query: string, variables?: Record<string, unknown>): Promise<T> => {
-    const response = await fetch('/graphql', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query, variables: variables ?? {} }),
-      credentials: 'same-origin',
-    });
-
-    if (!response.ok) {
-      throw new Error(`GraphQL request failed: ${response.status}`);
-    }
-
-    const json = await response.json();
-    if (json.errors?.length) {
-      throw new Error(json.errors[0].message);
-    }
-
-    return json.data as T;
-  }, []);
+  const client = useApolloClient();
 
   const handleRpc = useCallback(async (method: string, params: Record<string, unknown>): Promise<unknown> => {
     switch (method) {
@@ -234,21 +182,18 @@ const SandboxedHomePage = () => {
           };
         }
 
-        const data = await fetchAuthenticatedGraphQL<{
-          unreadNotificationCounts: {
-            unreadNotifications: number;
-            unreadPrivateMessages: number;
-            faviconBadgeNumber: number;
-            checkedAt: string;
-          };
-        }>(UNREAD_NOTIFICATION_COUNTS_QUERY);
+        const { data } = await client.query({
+          query: UnreadNotificationCountsQuery,
+          fetchPolicy: 'cache-first',
+        });
+        const counts = data?.unreadNotificationCounts;
 
         return {
           loggedIn: true,
-          unreadNotifications: latestUnreadCount ?? data.unreadNotificationCounts.unreadNotifications,
-          unreadPrivateMessages: data.unreadNotificationCounts.unreadPrivateMessages,
-          faviconBadgeNumber: data.unreadNotificationCounts.faviconBadgeNumber,
-          checkedAt: data.unreadNotificationCounts.checkedAt,
+          unreadNotifications: latestUnreadCount ?? counts?.unreadNotifications ?? 0,
+          unreadPrivateMessages: counts?.unreadPrivateMessages ?? 0,
+          faviconBadgeNumber: counts?.faviconBadgeNumber ?? 0,
+          checkedAt: counts?.checkedAt ?? null,
         };
       }
       case 'getNotifications': {
@@ -257,25 +202,19 @@ const SandboxedHomePage = () => {
         }
 
         const limit = typeof params.limit === 'number' ? Math.min(Math.max(params.limit, 1), 50) : 10;
-        const data = await fetchAuthenticatedGraphQL<{
-          notifications: {
-            results: Array<{
-              _id: string;
-              documentId: string | null;
-              documentType: string | null;
-              createdAt: string | null;
-              link: string | null;
-              message: string | null;
-              type: string | null;
-              viewed: boolean | null;
-              extraData: unknown;
-            }>;
-          };
-        }>(USER_NOTIFICATIONS_QUERY, { userId: currentUser._id, limit });
+        const { data } = await client.query({
+          query: NotificationsListMultiQuery,
+          variables: {
+            selector: { userNotifications: { userId: currentUser._id } },
+            limit,
+            enableTotal: false,
+          },
+          fetchPolicy: 'cache-first',
+        });
 
         return {
           loggedIn: true,
-          notifications: data.notifications.results,
+          notifications: data?.notifications?.results ?? [],
         };
       }
       case 'getKarmaNotifications': {
@@ -287,25 +226,13 @@ const SandboxedHomePage = () => {
           };
         }
 
-        const data = await fetchAuthenticatedGraphQL<{
-          user: {
-            result: {
-              _id: string;
-              karmaChanges: {
-                totalChange: number;
-                updateFrequency: string;
-                startDate: string | null;
-                endDate: string | null;
-                nextBatchDate: string | null;
-                posts: Array<Record<string, unknown>>;
-                comments: Array<Record<string, unknown>>;
-                tagRevisions: Array<Record<string, unknown>>;
-              } | null;
-            } | null;
-          } | null;
-        }>(USER_KARMA_CHANGES_QUERY, { documentId: currentUser._id });
+        const { data } = await client.query({
+          query: homeDesignKarmaChangesQuery,
+          variables: { documentId: currentUser._id },
+          fetchPolicy: 'cache-first',
+        });
 
-        const karmaChanges = data.user?.result?.karmaChanges ?? null;
+        const karmaChanges = data?.user?.result?.karmaChanges ?? null;
         const hasNewKarmaChanges = !!(
           karmaChanges &&
           new Date(currentUser.karmaChangeLastOpened ?? 0) < new Date(karmaChanges.endDate ?? 0) &&
@@ -347,7 +274,7 @@ const SandboxedHomePage = () => {
       default:
         throw new Error(`Unknown RPC method: ${method}`);
     }
-  }, [currentUser, fetchAuthenticatedGraphQL, latestUnreadCount]);
+  }, [currentUser, client, latestUnreadCount]);
 
   useEffect(() => {
     function onMessage(event: MessageEvent) {

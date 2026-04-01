@@ -13017,6 +13017,28 @@ type MyHomePageDesignsQueryVariables = Exact<{
 
 type MyHomePageDesignsQuery = MyHomePageDesignsQuery_Query;
 
+type HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User_karmaChanges_KarmaChanges_posts_PostKarmaChange = { __typename?: 'PostKarmaChange', _id: string, scoreChange: number, postId: string, title: string | null, slug: string, collectionName: string };
+
+type HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User_karmaChanges_KarmaChanges_comments_CommentKarmaChange = { __typename?: 'CommentKarmaChange', _id: string, scoreChange: number, commentId: string | null, description: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, tagSlug: string | null, tagName: string | null, tagCommentType: TagCommentType | null, collectionName: string };
+
+type HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User_karmaChanges_KarmaChanges_tagRevisions_RevisionsKarmaChange = { __typename?: 'RevisionsKarmaChange', _id: string, scoreChange: number, tagId: string | null, tagSlug: string | null, tagName: string | null, collectionName: string };
+
+type HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User_karmaChanges_KarmaChanges = { __typename?: 'KarmaChanges', totalChange: number, updateFrequency: string, startDate: string | null, endDate: string | null, nextBatchDate: string | null, posts: Array<HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User_karmaChanges_KarmaChanges_posts_PostKarmaChange>, comments: Array<HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User_karmaChanges_KarmaChanges_comments_CommentKarmaChange>, tagRevisions: Array<HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User_karmaChanges_KarmaChanges_tagRevisions_RevisionsKarmaChange> };
+
+type HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User = { __typename?: 'User', _id: string, karmaChanges: HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User_karmaChanges_KarmaChanges | null };
+
+type HomeDesignKarmaChangesQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User | null };
+
+type HomeDesignKarmaChangesQuery_Query = { __typename?: 'Query', user: HomeDesignKarmaChangesQuery_user_SingleUserOutput | null };
+
+
+type HomeDesignKarmaChangesQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type HomeDesignKarmaChangesQuery = HomeDesignKarmaChangesQuery_Query;
+
 type PostExcerptQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & HighlightWithHash
