@@ -33,6 +33,7 @@ const DRAG_THRESHOLD = 6;
 const HUNGER_DECAY_DURATION_MS = 5 * 60 * 1000;
 const HUNGER_LIVE_UPDATE_INTERVAL_MS = 15 * 1000;
 const HUNGER_PAUSE_AFTER_EATING_MS = 30 * 1000;
+const RETURN_GRACE_MS = 30 * 1000;
 const HUNGER_MAX = 100;
 const HUNGER_DEFAULT = 100;
 const HUNGER_SEGMENT_COUNT = 10;
@@ -40,8 +41,7 @@ const HUNGER_SEGMENT_VALUE = HUNGER_MAX / HUNGER_SEGMENT_COUNT;
 const HUNGER_WARNING_SEGMENT_THRESHOLD = 3;
 const HUNGER_METER_DELTA_DURATION_MS = 800;
 const HUNGER_REFILL_MULTIPLIER = 4;
-const HUNGER_REFILL_MIN = 3;
-const HUNGER_REFILL_MAX = 30;
+const HUNGER_REFILL_MIN = 4;
 const EATING_ANIMATION_ROUTE_NAMES = new Set([
   "posts.single",
   "events.single",
@@ -266,7 +266,6 @@ const styles = (theme: ThemeType) => ({
     boxSizing: "border-box",
     border: `1px solid ${theme.palette.type === "dark" ? theme.palette.grey[500] : theme.palette.grey[400]}`,
     background: "transparent",
-    cursor: "pointer",
     transformOrigin: "center",
   },
   hungerSegmentFilledHealthy: {
@@ -404,7 +403,7 @@ const getHungerRefill = (readTimeMinutes: number | null | undefined) => {
     return 0;
   }
 
-  return Math.min(HUNGER_REFILL_MAX, Math.max(HUNGER_REFILL_MIN, readTimeMinutes * HUNGER_REFILL_MULTIPLIER));
+  return Math.max(HUNGER_REFILL_MIN, readTimeMinutes * HUNGER_REFILL_MULTIPLIER);
 };
 
 const getFilledHungerSegments = (hunger: number | null) => {
@@ -539,7 +538,6 @@ const BabyBulby = ({
   const { openDialog } = useDialog();
   const updateCurrentUser = useUpdateCurrentUser();
   const { explicitConsentGiven, explicitConsentRequired } = useCookiePreferences();
-  const isAdminViewer = !!currentUser?.isAdmin;
   const [position, setPosition] = useState<Position | null>(null);
   const [loadedStorageKey, setLoadedStorageKey] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -567,18 +565,6 @@ const BabyBulby = ({
   const bootstrapRequestedRef = useRef(false);
   const awaySyncCompletedRef = useRef(false);
 
-  /*
-   * Admin-only soft launch: keep the live runtime path Bulby-only for now.
-   * The admin gate still hides the egg path in this branch, but keep displayStage
-   * as a real union so the full-release PR can re-enable egg behavior without
-   * first untangling Bulby-only type narrowing.
-   *
-   * Full-release checklist:
-   * 1. Widen the mount gate in Layout so logged-out users can see the egg and non-admins can see Bulby.
-   * 2. Restore the egg click/signup handler and the egg-specific screenreader copy below.
-   * 3. Decide whether the admin hunger-meter cheat should be deleted or hidden behind an explicit debug flag.
-   * 4. Revisit whether dormant egg-only comments can be replaced with live code again.
-   */
   const displayStage = getDisplayStage(currentUser);
   const isPostPage = (currentRoute?.name && (
     EATING_ANIMATION_ROUTE_NAMES.has(currentRoute.name) ||
@@ -603,7 +589,7 @@ const BabyBulby = ({
         },
       },
       ssr: false,
-      skip: !isAdminViewer || !currentPostId,
+      skip: displayStage !== "bulby" || !currentPostId,
     },
   );
   const currentPost = currentPostData?.post?.result ?? null;
@@ -642,8 +628,10 @@ const BabyBulby = ({
     [animationMode, filledHungerSegments, isDead],
   );
   const activeAnimation = useMemo(
-    () => babyBulbyAnimations.babyBulby[activeAnimationName],
-    [activeAnimationName],
+    () => displayStage === "egg"
+      ? babyBulbyAnimations.egg.idle
+      : babyBulbyAnimations.babyBulby[activeAnimationName],
+    [activeAnimationName, displayStage],
   );
   const currentSpriteGrid = useMemo(() => {
     const sequencePosition = activeAnimation.loop
@@ -786,11 +774,11 @@ const BabyBulby = ({
   }, [isStateHydrated]);
 
   useEffect(() => {
-    if (!isEAForum || !isAdminViewer) {
+    if (!isEAForum) {
       return;
     }
 
-    if (loadedStorageKey === storageKey && position && hungerSnapshotRef.current) {
+    if (loadedStorageKey === storageKey && position && (displayStage === "egg" || hungerSnapshotRef.current)) {
       return;
     }
 
@@ -799,10 +787,8 @@ const BabyBulby = ({
     const storage = getBrowserLocalStorage();
     const fallbackPosition = getDefaultPosition();
 
-    // Pre-release cleanup: Bulby position remains browser-local, but hunger is DB-only.
-    // We intentionally do not read any legacy local hunger here. If the logged-in admin
-    // has no DB state yet, we start from the default snapshot and bootstrap it once below
-    // so cross-device state becomes canonical immediately.
+    // Position remains browser-local for both guests and logged-in users. Hunger is DB-only
+    // for logged-in Bulby, and guests intentionally do not have local hunger state.
     bootstrapRequestedRef.current = false;
     lastPersistedStateKeyRef.current = serverBabyBulbyState
       ? getDbStateComparableKey(serverBabyBulbyState)
@@ -811,9 +797,11 @@ const BabyBulby = ({
     if (!storage) {
       setPosition(fallbackPosition);
       setLoadedStorageKey(storageKey);
-      const nextSnapshot = serverBabyBulbyState
-        ? createSnapshotFromDbState(serverBabyBulbyState, now)
-        : createHungerSnapshot(HUNGER_DEFAULT, now, null, now);
+      const nextSnapshot = displayStage === "bulby"
+        ? (serverBabyBulbyState
+          ? createSnapshotFromDbState(serverBabyBulbyState, now)
+          : createHungerSnapshot(HUNGER_DEFAULT, now, null, now))
+        : null;
       hungerSnapshotRef.current = nextSnapshot;
       setHungerSnapshot(nextSnapshot);
       return;
@@ -825,7 +813,10 @@ const BabyBulby = ({
       const storedPosition = isValidPosition(parsedCurrentValue) ? parsedCurrentValue : null;
 
       setPosition(storedPosition ? clampPosition(storedPosition) : fallbackPosition);
-      if (serverBabyBulbyState) {
+      if (displayStage === "egg") {
+        hungerSnapshotRef.current = null;
+        setHungerSnapshot(null);
+      } else if (serverBabyBulbyState) {
         const nextSnapshot = createSnapshotFromDbState(serverBabyBulbyState, now);
         hungerSnapshotRef.current = nextSnapshot;
         setHungerSnapshot(nextSnapshot);
@@ -837,17 +828,19 @@ const BabyBulby = ({
       setLoadedStorageKey(storageKey);
     } catch {
       setPosition(fallbackPosition);
-      const nextSnapshot = serverBabyBulbyState
-        ? createSnapshotFromDbState(serverBabyBulbyState, now)
-        : createHungerSnapshot(HUNGER_DEFAULT, now, null, now);
+      const nextSnapshot = displayStage === "bulby"
+        ? (serverBabyBulbyState
+          ? createSnapshotFromDbState(serverBabyBulbyState, now)
+          : createHungerSnapshot(HUNGER_DEFAULT, now, null, now))
+        : null;
       hungerSnapshotRef.current = nextSnapshot;
       setHungerSnapshot(nextSnapshot);
       setLoadedStorageKey(storageKey);
     }
-  }, [clampPosition, currentUser?._id, getDefaultPosition, isAdminViewer, loadedStorageKey, position, serverBabyBulbyState, storageKey]);
+  }, [clampPosition, currentUser?._id, displayStage, getDefaultPosition, loadedStorageKey, position, serverBabyBulbyState, storageKey]);
 
   useEffect(() => {
-    if (!isAdminViewer || displayStage !== "bulby" || loadedStorageKey !== storageKey) {
+    if (displayStage !== "bulby" || loadedStorageKey !== storageKey) {
       return;
     }
 
@@ -870,10 +863,10 @@ const BabyBulby = ({
     }
 
     lastPersistedStateKeyRef.current = getDbStateComparableKey(nextSnapshot);
-  }, [applyHungerSnapshotLocally, displayStage, isAdminViewer, loadedStorageKey, serverBabyBulbyState, storageKey]);
+  }, [applyHungerSnapshotLocally, displayStage, loadedStorageKey, serverBabyBulbyState, storageKey]);
 
   useEffect(() => {
-    if (!isAdminViewer || displayStage !== "bulby" || !isStateHydrated || serverBabyBulbyState || bootstrapRequestedRef.current || !currentUser?._id) {
+    if (displayStage !== "bulby" || !isStateHydrated || serverBabyBulbyState || bootstrapRequestedRef.current || !currentUser?._id) {
       return;
     }
 
@@ -888,10 +881,10 @@ const BabyBulby = ({
         bootstrapRequestedRef.current = false;
       }
     });
-  }, [currentUser?._id, displayStage, isAdminViewer, isStateHydrated, persistBabyBulbyState, serverBabyBulbyState]);
+  }, [currentUser?._id, displayStage, isStateHydrated, persistBabyBulbyState, serverBabyBulbyState]);
 
   useEffect(() => {
-    if (!isAdminViewer || displayStage !== "bulby" || !isStateHydrated) {
+    if (displayStage !== "bulby" || !isStateHydrated) {
       return;
     }
 
@@ -902,6 +895,10 @@ const BabyBulby = ({
         window.clearInterval(localClockInterval);
         localClockInterval = null;
       }
+    };
+
+    const refetchBulbyState = () => {
+      void refetchCurrentUser();
     };
 
     const isSiteActive = () => document.visibilityState === "visible" && document.hasFocus();
@@ -929,11 +926,34 @@ const BabyBulby = ({
 
     const refreshDecayMode = () => {
       const now = Date.now();
-      setCurrentTimeMs(now);
-
       if (!isSiteActive()) {
+        setCurrentTimeMs(now);
         clearLocalClock();
         return;
+      }
+
+      const currentSnapshot = hungerSnapshotRef.current;
+      if (currentSnapshot) {
+        const rawDecayedHunger = getDecayedHunger(currentSnapshot, now);
+        const awayNormalizedSnapshot = normalizeHungerSnapshot(currentSnapshot, now, { clampAway: true });
+        const awayClampedVisibleHunger = getDecayedHunger(awayNormalizedSnapshot, now);
+
+        // Product rule: when Bulby returns from an away period that would have killed it,
+        // show the flashing 1-bar warning first and pause active decay briefly so the user
+        // has a chance to react instead of seeing an immediate death on return.
+        if (rawDecayedHunger <= 0 && awayClampedVisibleHunger > 0) {
+          const graceSnapshot = createHungerSnapshot(
+            HUNGER_SEGMENT_VALUE,
+            now,
+            now + RETURN_GRACE_MS,
+            currentSnapshot.updatedAt,
+          );
+          applyHungerSnapshotLocally(graceSnapshot, now);
+        } else {
+          setCurrentTimeMs(now);
+        }
+      } else {
+        setCurrentTimeMs(now);
       }
 
       awaySyncCompletedRef.current = false;
@@ -953,55 +973,37 @@ const BabyBulby = ({
       }
 
       refreshDecayMode();
+      refetchBulbyState();
+    };
+
+    const onFocus = () => {
+      refreshDecayMode();
+      refetchBulbyState();
     };
 
     refreshDecayMode();
-    window.addEventListener("focus", refreshDecayMode);
+    window.addEventListener("focus", onFocus);
     window.addEventListener("pagehide", onPageHide);
     document.addEventListener("visibilitychange", onVisibilityChange);
 
     return () => {
       clearLocalClock();
-      window.removeEventListener("focus", refreshDecayMode);
+      window.removeEventListener("focus", onFocus);
       window.removeEventListener("pagehide", onPageHide);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [currentUser, displayStage, isAdminViewer, isStateHydrated, persistBabyBulbyState]);
+  }, [applyHungerSnapshotLocally, currentUser, displayStage, isStateHydrated, persistBabyBulbyState, refetchCurrentUser]);
 
   useEffect(() => {
-    if (!isAdminViewer || displayStage !== "bulby") {
+    if (displayStage !== "bulby") {
       return;
     }
 
     setCurrentTimeMs(Date.now());
-  }, [pathname, displayStage, isAdminViewer]);
+  }, [pathname, displayStage]);
 
   useEffect(() => {
-    if (!isAdminViewer || displayStage !== "bulby" || !isStateHydrated) {
-      return;
-    }
-
-    const refetchBulbyState = () => {
-      void refetchCurrentUser();
-    };
-
-    const refetchOnVisible = () => {
-      if (document.visibilityState === "visible") {
-        refetchBulbyState();
-      }
-    };
-
-    window.addEventListener("focus", refetchBulbyState);
-    document.addEventListener("visibilitychange", refetchOnVisible);
-
-    return () => {
-      window.removeEventListener("focus", refetchBulbyState);
-      document.removeEventListener("visibilitychange", refetchOnVisible);
-    };
-  }, [displayStage, isAdminViewer, isStateHydrated, refetchCurrentUser]);
-
-  useEffect(() => {
-    if (!isAdminViewer || displayStage !== "bulby" || displayedHunger !== 0 || !hungerSnapshot || hungerSnapshot.hunger === 0) {
+    if (displayStage !== "bulby" || displayedHunger !== 0 || !hungerSnapshot || hungerSnapshot.hunger === 0) {
       return;
     }
 
@@ -1010,10 +1012,10 @@ const BabyBulby = ({
     if (currentUser) {
       void persistBabyBulbyState({}, nextSnapshot);
     }
-  }, [applyHungerSnapshotLocally, currentTimeMs, currentUser, displayedHunger, hungerSnapshot, displayStage, isAdminViewer, persistBabyBulbyState]);
+  }, [applyHungerSnapshotLocally, currentTimeMs, currentUser, displayedHunger, hungerSnapshot, displayStage, persistBabyBulbyState]);
 
   useEffect(() => {
-    if (!isAdminViewer || displayStage !== "bulby" || !isStateHydrated) {
+    if (displayStage !== "bulby" || !isStateHydrated) {
       previousFilledHungerSegmentsRef.current = null;
       setHungerMeterDelta(null);
       if (hungerMeterDeltaTimeoutRef.current !== null) {
@@ -1051,7 +1053,7 @@ const BabyBulby = ({
       setHungerMeterDelta(null);
       hungerMeterDeltaTimeoutRef.current = null;
     }, HUNGER_METER_DELTA_DURATION_MS);
-  }, [filledHungerSegments, displayStage, isAdminViewer, isStateHydrated]);
+  }, [filledHungerSegments, displayStage, isStateHydrated]);
 
   useEffect(() => () => {
     if (hungerMeterDeltaTimeoutRef.current !== null) {
@@ -1060,7 +1062,7 @@ const BabyBulby = ({
   }, []);
 
   useEffect(() => {
-    if (!isAdminViewer || displayStage !== "bulby") {
+    if (displayStage !== "bulby") {
       return;
     }
 
@@ -1076,21 +1078,13 @@ const BabyBulby = ({
     }
 
     setAnimationMode("dead");
-  }, [animationMode, isDead, displayStage, isAdminViewer]);
+  }, [animationMode, isDead, displayStage]);
 
   useEffect(() => {
-    if (!isAdminViewer) {
-      return;
-    }
-
     setFrameIndex(0);
-  }, [activeAnimation, isAdminViewer]);
+  }, [activeAnimation]);
 
   useEffect(() => {
-    if (!isAdminViewer) {
-      return;
-    }
-
     if (!activeAnimation.loop && !activeAnimation.nextMode) {
       setFrameIndex(Math.max(activeAnimation.playOrder.length - 1, 0));
       return;
@@ -1127,10 +1121,10 @@ const BabyBulby = ({
     }, activeAnimation.frameDurationMs);
 
     return () => window.clearInterval(interval);
-  }, [activeAnimation, isAdminViewer]);
+  }, [activeAnimation]);
 
   useEffect(() => {
-    if (!isAdminViewer || displayStage !== "bulby") {
+    if (displayStage !== "bulby") {
       setAnimationMode("idle");
       lastTriggeredPostPageRef.current = null;
       return;
@@ -1177,13 +1171,9 @@ const BabyBulby = ({
       }
     }
     setAnimationMode(isCommunityPost ? "refuse" : "eating");
-  }, [applyHungerSnapshotLocally, currentPost, currentPostLoading, currentPostReadTimeMinutes, currentUser, displayStage, isAdminViewer, isCommunityPost, isDead, isStateHydrated, persistBabyBulbyState, postPageKey]);
+  }, [applyHungerSnapshotLocally, currentPost, currentPostLoading, currentPostReadTimeMinutes, currentUser, displayStage, isCommunityPost, isDead, isStateHydrated, persistBabyBulbyState, postPageKey]);
 
   useEffect(() => {
-    if (!isAdminViewer) {
-      return;
-    }
-
     if (!position || loadedStorageKey !== storageKey) {
       return;
     }
@@ -1198,7 +1188,7 @@ const BabyBulby = ({
     } catch {
       // Ignore localStorage write failures so the overlay still works for the session.
     }
-  }, [displayStage, isAdminViewer, loadedStorageKey, position, serverBabyBulbyState, storageKey]);
+  }, [loadedStorageKey, position, storageKey]);
 
   useEffect(() => {
     const onResize = () => {
@@ -1235,11 +1225,6 @@ const BabyBulby = ({
     });
   }, [clampPosition, showCookieBanner]);
 
-  /*
-   * Full-release note: this handler is restored now, but remains unreachable in the
-   * soft launch because Layout only mounts BabyBulby for admins and this component
-   * returns null for non-admin viewers below.
-   */
   const openClaimPrompt = useCallback(() => {
     openDialog({
       name: "LoginPopup",
@@ -1247,7 +1232,7 @@ const BabyBulby = ({
         <LoginPopup
           onClose={onClose}
           startingState="signup"
-          signupTitle="Hatch the egg by signing up"
+          signupTitle="Sign up to hatch your egg"
         />
       ),
     });
@@ -1323,37 +1308,7 @@ const BabyBulby = ({
     }
   }, [displayStage, openClaimPrompt]);
 
-  // Admin-only soft-launch cheat: keep direct hunger editing available for testers.
-  const setTestHungerFromSegment = useCallback((segmentIndex: number) => {
-    if (displayStage !== "bulby") {
-      return;
-    }
-
-    const now = Date.now();
-    const nextSnapshot = createHungerSnapshot((segmentIndex + 1) * HUNGER_SEGMENT_VALUE, now, null, now);
-    applyHungerSnapshotLocally(nextSnapshot, now);
-    if (currentUser) {
-      void persistBabyBulbyState({}, nextSnapshot);
-    }
-  }, [applyHungerSnapshotLocally, currentUser, displayStage, persistBabyBulbyState]);
-
-  const onHungerSegmentPointerDown = useCallback((event: React.PointerEvent<HTMLSpanElement>, segmentIndex: number) => {
-    event.preventDefault();
-    event.stopPropagation();
-
-    pointerStateRef.current = null;
-    draggingRef.current = false;
-    setIsDragging(false);
-    setTestHungerFromSegment(segmentIndex);
-  }, [setTestHungerFromSegment]);
-
-  const onHungerSegmentClick = useCallback((event: React.MouseEvent<HTMLSpanElement>, segmentIndex: number) => {
-    event.preventDefault();
-    event.stopPropagation();
-    setTestHungerFromSegment(segmentIndex);
-  }, [setTestHungerFromSegment]);
-
-  if (!isEAForum || !isAdminViewer) {
+  if (!isEAForum) {
     return null;
   }
 
@@ -1422,9 +1377,6 @@ const BabyBulby = ({
                         [classes.hungerSegmentGain]: isGainedSegment && shouldApplyGenericMeterAnimation,
                         [classes.hungerSegmentLoss]: isLostSegment && shouldApplyGenericMeterAnimation,
                       })}
-                      onPointerDown={(event) => onHungerSegmentPointerDown(event, index)}
-                      onClick={(event) => onHungerSegmentClick(event, index)}
-                      title={`Set hunger to bar ${index + 1}`}
                     />
                   );
                 })()
@@ -1439,5 +1391,6 @@ const BabyBulby = ({
 
 export default registerComponent("BabyBulby", BabyBulby, {
   styles,
+  // Intentional: the hunger meter warning red should match the sprite-heart pixel color exactly.
   allowNonThemeColors: true,
 });

@@ -311,6 +311,10 @@ export const EALoginPopover = ({
     setLoading(false);
   }, [client, email, action, isSignup, isResettingPassword]);
 
+  const onClose = useCallback(() => {
+    setAction(null);
+  }, [setAction]);
+
   const onSubmit = useCallback(async (ev: FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
@@ -334,7 +338,12 @@ export const EALoginPopover = ({
           ? client.signup(email, password)
           : client.login(email, password)
       );
-      await refetchCurrentUser();
+      try {
+        await refetchCurrentUser();
+        onClose();
+      } catch {
+        window.location.reload();
+      }
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
@@ -354,7 +363,7 @@ export const EALoginPopover = ({
     } finally {
       setLoading(false);
     }
-  }, [isResettingPassword, showFacebookWarning, email, password, onSendPasswordReset, isSignup, client, refetchCurrentUser, action]);
+  }, [isResettingPassword, showFacebookWarning, email, password, onSendPasswordReset, isSignup, client, refetchCurrentUser, action, onClose]);
 
   const onClickGoogle = useCallback(async () => {
     setMessage(null);
@@ -384,10 +393,6 @@ export const EALoginPopover = ({
 
   const onLinkToSignup = useCallback(() => {
     setAction("signup");
-  }, [setAction]);
-
-  const onClose = useCallback(() => {
-    setAction(null);
   }, [setAction]);
 
   useEffect(() => {
