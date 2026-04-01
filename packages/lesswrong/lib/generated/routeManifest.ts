@@ -904,6 +904,9 @@ export const routeTrie = {
         "2019": "2019"
       }
     },
+    "notifications": {
+      "hasPage": true
+    },
     "oauth": {
       "staticChildren": {
         "authorize": {
@@ -1309,6 +1312,7 @@ export const routeTrie = {
     "newpost": "newPost",
     "nominateposts": "nominatePosts",
     "nominations": "nominations",
+    "notifications": "notifications",
     "oauth": "oauth",
     "out": "out",
     "pastevents": "pastEvents",

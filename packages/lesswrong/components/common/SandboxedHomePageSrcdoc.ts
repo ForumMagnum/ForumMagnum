@@ -929,6 +929,39 @@ export function getDefaultHomePageBody(): string {
       align-items: center;
     }
 
+    .shoggoths-service-links {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-left: auto;
+      flex: 0 0 auto;
+    }
+
+    .shoggoths-service-link {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 26px;
+      height: 26px;
+      border: 1px solid var(--rule-strong);
+      border-radius: 999px;
+      background: transparent;
+      color: var(--ink-faint);
+      transition: color 120ms ease, border-color 120ms ease;
+    }
+
+    .shoggoths-service-link:hover {
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .shoggoths-service-link svg {
+      width: 15px;
+      height: 15px;
+      display: block;
+      fill: currentColor;
+    }
+
     .shoggoths-album-tab,
     .shoggoths-track-button {
       appearance: none;
@@ -1398,7 +1431,7 @@ export function getDefaultHomePageBody(): string {
 
       .shoggoths-tracklist-toggle {
         display: inline-flex;
-        margin-left: auto;
+        margin-left: 0;
         flex: 0 0 auto;
       }
 
@@ -1627,6 +1660,10 @@ export function getDefaultHomePageBody(): string {
       {
         id: 'first-album',
         title: 'First Album',
+        streaming: {
+          spotify: 'https://open.spotify.com/album/4FoBw7ajLt76rcePhVoL02',
+          youtubeMusic: 'https://music.youtube.com/playlist?list=OLAK5uy_mow3xE8Dg4xtV9l7A9T-PbriC1ko29s7U',
+        },
         tracks: [
           { title: 'The Road to Wisdom', src: '/fooming-shoggoths/first-album/01_Road_to_Wisdom.mp3' },
           { title: 'The Litany of Gendlin', src: '/fooming-shoggoths/first-album/02_Litany_of_Gendlin.mp3' },
@@ -1647,6 +1684,11 @@ export function getDefaultHomePageBody(): string {
       {
         id: 'second-album',
         title: 'Second Album',
+        streaming: {
+          spotify: 'https://open.spotify.com/album/1C1oO1aNFQH81THn5uSCII',
+          youtubeMusic: 'https://music.youtube.com/playlist?list=OLAK5uy_l2gimdlsLOn7J7TETegH9yMXCQE9jsPbM',
+          youtube: 'https://www.youtube.com/playlist?list=OLAK5uy_mjPzcb2rzQKuupcR7cTJSMiidAhpo15fE',
+        },
         tracks: [
           { title: 'The Sequences', src: '/fooming-shoggoths/second-album/01_The_Sequences.mp3' },
           { title: 'Machines of Loving Grace', src: '/fooming-shoggoths/second-album/02_Machines_of_Loving_Grace.mp3' },
@@ -4708,6 +4750,8 @@ export function getDefaultHomePageBody(): string {
       var playSvg = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 3.2v9.6c0 .42.45.68.81.46l7.02-4.8a.54.54 0 0 0 0-.92L5.31 2.74a.54.54 0 0 0-.81.46z"/></svg>';
       var pauseSvg = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 3h3v10H4zM9 3h3v10H9z"/></svg>';
       var nextSvg = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M11 3h2v10h-2zM2.5 3.4v9.2c0 .42.47.67.82.44l6.48-4.6a.5.5 0 0 0 0-.88L3.32 2.96c-.35-.23-.82.02-.82.44z"/></svg>';
+      var spotifySvg = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M17.53 15.44a.97.97 0 0 1-1.33.32c-2.28-1.39-5.14-1.71-8.49-.95a.97.97 0 1 1-.43-1.89c3.85-.88 7.17-.5 9.93 1.18c.46.28.6.88.32 1.34zm1.9-3.65a1.2 1.2 0 0 1-1.65.39c-2.61-1.6-6.58-2.07-9.67-1.13a1.2 1.2 0 1 1-.7-2.3c3.53-1.08 8.04-.56 11.62 1.64c.57.35.75 1.1.4 1.66zm.19-3.79c-3.13-1.86-8.31-2.03-11.29-1.1a1.44 1.44 0 1 1-.86-2.75c3.41-1.07 9.08-.87 13.61 1.83a1.44 1.44 0 0 1-1.46 2.02z"/></svg>';
+      var youtubeSvg = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.25a8.75 8.75 0 1 0 0 17.5a8.75 8.75 0 0 0 0-17.5zm-1.78 12.33V8.42L15.86 12l-5.64 3.58z"/></svg>';
 
       function safePlayAudio(node) {
         if (!node) return;
@@ -4803,10 +4847,36 @@ export function getDefaultHomePageBody(): string {
                         setAlbumIndex(index);
                       }}
                     >
-                      {album.title}
+                      {album.id === 'first-album' ? 'First Album (Remastered)' : album.title}
                     </button>
                   );
                 })}
+                <div className="shoggoths-service-links">
+                  {currentAlbum.streaming && currentAlbum.streaming.spotify ? (
+                    <a
+                      className="shoggoths-service-link"
+                      href={currentAlbum.streaming.spotify}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={currentAlbum.title + ' on Spotify'}
+                      title={currentAlbum.title + ' on Spotify'}
+                    >
+                      <span dangerouslySetInnerHTML={{ __html: spotifySvg }} />
+                    </a>
+                  ) : null}
+                  {currentAlbum.streaming && currentAlbum.streaming.youtubeMusic ? (
+                    <a
+                      className="shoggoths-service-link"
+                      href={currentAlbum.streaming.youtubeMusic}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={currentAlbum.title + ' on YouTube Music'}
+                      title={currentAlbum.title + ' on YouTube Music'}
+                    >
+                      <span dangerouslySetInnerHTML={{ __html: youtubeSvg }} />
+                    </a>
+                  ) : null}
+                </div>
                 <button
                   type="button"
                   className="shoggoths-tracklist-toggle"

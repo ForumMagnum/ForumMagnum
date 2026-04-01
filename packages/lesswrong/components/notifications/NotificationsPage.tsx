@@ -10,11 +10,12 @@ import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import NotificationsPageList from './NotificationsPageList';
+import NotificationsPageKarmaChangesList from './NotificationsPageKarmaChangesList';
 import { Card } from '../widgets/Paper';
 
-type NotificationTab = 'all' | 'posts' | 'comments' | 'messages';
+type NotificationTab = 'all' | 'posts' | 'comments' | 'messages' | 'karma';
 
-const notificationTabTerms: Record<NotificationTab, Omit<NotificationsViewTerms, 'userId'>> = {
+const notificationTabTerms: Record<Exclude<NotificationTab, 'karma'>, Omit<NotificationsViewTerms, 'userId'>> = {
   all: { view: 'userNotifications' },
   posts: { view: 'userNotifications', type: 'newPost' },
   comments: { view: 'userNotifications', type: 'newComment' },
@@ -26,6 +27,7 @@ const tabLabels: Record<NotificationTab, string> = {
   posts: 'Posts',
   comments: 'Comments',
   messages: 'Messages',
+  karma: 'Karma',
 };
 
 const hashToTab = (hash: string): NotificationTab => {
@@ -36,6 +38,8 @@ const hashToTab = (hash: string): NotificationTab => {
       return 'comments';
     case '#messages':
       return 'messages';
+    case '#karma':
+      return 'karma';
     default:
       return 'all';
   }
@@ -116,6 +120,8 @@ const styles = defineStyles('NotificationsPage', (theme: ThemeType) => ({
   },
 }));
 
+const TABS: readonly NotificationTab[] = ['all', 'posts', 'comments', 'messages', 'karma'];
+
 const NotificationsPage = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -157,7 +163,7 @@ const NotificationsPage = () => {
 
       <Card className={classes.panel}>
         <div className={classes.tabs} role="tablist" aria-label="Notification categories">
-          {(['all', 'posts', 'comments', 'messages'] as const).map((tab) => (
+          {TABS.map((tab) => (
             <button
               key={tab}
               type="button"
@@ -174,12 +180,16 @@ const NotificationsPage = () => {
         </div>
 
         <div className={classes.listWrapper}>
-          <NotificationsPageList
-            terms={{
-              ...notificationTabTerms[activeTab],
-              userId: currentUser._id,
-            }}
-          />
+          {activeTab === 'karma' ? (
+            <NotificationsPageKarmaChangesList />
+          ) : (
+            <NotificationsPageList
+              terms={{
+                ...notificationTabTerms[activeTab],
+                userId: currentUser._id,
+              }}
+            />
+          )}
         </div>
       </Card>
     </SingleColumnSection>
