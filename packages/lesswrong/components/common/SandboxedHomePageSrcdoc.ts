@@ -1,6 +1,15 @@
 import { MARKETPLACE_POST_ID } from '@/lib/collections/homePageDesigns/constants';
 import { globalExternalStylesheets } from '@/themes/globalStyles/externalStyles';
 
+const PRETEXT_MODULE_URL = 'https://unpkg.com/@chenglou/pretext@0.0.3/dist/layout.js';
+const PRETEXT_MODULE_PRELOAD_URLS = [
+  PRETEXT_MODULE_URL,
+  'https://unpkg.com/@chenglou/pretext@0.0.3/dist/bidi.js',
+  'https://unpkg.com/@chenglou/pretext@0.0.3/dist/analysis.js',
+  'https://unpkg.com/@chenglou/pretext@0.0.3/dist/measurement.js',
+  'https://unpkg.com/@chenglou/pretext@0.0.3/dist/line-break.js',
+];
+
 interface SrcdocWrapperOptions {
   origin: string;
   omitRpcBridge?: boolean;
@@ -11,6 +20,11 @@ export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOpti
   const externalStylesheetLinks = globalExternalStylesheets
     .map((href) => `<link rel="stylesheet" type="text/css" href="${href}">`)
     .join('\n  ');
+  const pretextModulePreloadLink = bodyContent.includes(PRETEXT_MODULE_URL)
+    ? PRETEXT_MODULE_PRELOAD_URLS
+        .map((href) => `<link rel="modulepreload" href="${href}" crossorigin>`)
+        .join('\n  ')
+    : '';
   const connectSrc = origin ? `${origin}/ ${origin}/graphql` : `'self'`;
   const mediaSrc = origin ? `${origin}/` : `'self'`;
   const graphqlEndpoint = origin ? `${origin}/graphql` : '/graphql';
@@ -41,12 +55,13 @@ export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOpti
     }
   </style>
   ${externalStylesheetLinks}
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
-  <script src="https://unpkg.com/hyphen@1.14.1/hyphen.js" crossorigin></script>
-  <script src="https://unpkg.com/hyphen@1.14.1/patterns/en-us.js" crossorigin></script>
+  ${pretextModulePreloadLink}
+  <script src="https://cdn.tailwindcss.com" defer></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin defer></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin defer></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin defer></script>
+  <script src="https://unpkg.com/hyphen@1.14.1/hyphen.js" crossorigin defer></script>
+  <script src="https://unpkg.com/hyphen@1.14.1/patterns/en-us.js" crossorigin defer></script>
   <script>
     (function() {
       window.gqlQuery = function(query, variables) {
@@ -1563,7 +1578,7 @@ export function getDefaultHomePageBody(): string {
 
   <script type="module">
     try {
-      var pretextModule = await import('https://unpkg.com/@chenglou/pretext@0.0.3/dist/layout.js');
+      var pretextModule = await import('${PRETEXT_MODULE_URL}');
       window.pretextPrepareWithSegments = pretextModule.prepareWithSegments;
       window.pretextLayoutWithLines = pretextModule.layoutWithLines;
       window.pretextLayoutNextLine = pretextModule.layoutNextLine;
@@ -1576,21 +1591,31 @@ export function getDefaultHomePageBody(): string {
   </script>
 
   <script>
-    try {
-      if (window.createHyphenator && window.hyphenationPatternsEnUs) {
-        window.hyphenateEnglish = window.createHyphenator(window.hyphenationPatternsEnUs, {
-          hyphenChar: '\u00AD',
-          minWordLength: 5,
-        });
-        window.hyphenationReady = true;
-      } else {
-        window.hyphenationReady = false;
+    (function() {
+      function initializeHyphenation() {
+        try {
+          if (window.createHyphenator && window.hyphenationPatternsEnUs) {
+            window.hyphenateEnglish = window.createHyphenator(window.hyphenationPatternsEnUs, {
+              hyphenChar: '\u00AD',
+              minWordLength: 5,
+            });
+            window.hyphenationReady = true;
+          } else {
+            window.hyphenationReady = false;
+          }
+        } catch (error) {
+          console.warn('Hyphenation failed to load, using unhyphenated text:', error);
+          window.hyphenationReady = false;
+        }
+        window.dispatchEvent(new Event('hyphenation-loaded'));
       }
-    } catch (error) {
-      console.warn('Hyphenation failed to load, using unhyphenated text:', error);
-      window.hyphenationReady = false;
-    }
-    window.dispatchEvent(new Event('hyphenation-loaded'));
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeHyphenation, { once: true });
+      } else {
+        initializeHyphenation();
+      }
+    })();
   </script>
 
   <script type="text/babel" data-presets="react" data-plugins="transform-optional-chaining,transform-nullish-coalescing-operator">
