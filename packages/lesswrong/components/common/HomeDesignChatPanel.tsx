@@ -20,6 +20,8 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { useApolloClient } from '@apollo/client/react';
 import moment from 'moment';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
 
 const myHomePageDesignSummariesQuery = gql(`
   query MyHomePageDesignSummaries {
@@ -238,12 +240,37 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
   },
   toolApplied: {
     marginTop: 6,
+    display: 'flex',
+    alignItems: 'center',
+    gap: 10,
+    flexWrap: 'wrap',
     fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
     fontSize: 10,
     color: '#5f9b65',
     letterSpacing: '0.16em',
     textTransform: 'uppercase' as const,
     padding: '4px 0',
+  },
+  toolAppliedAction: {
+    padding: '4px 8px',
+    border: '1px solid rgba(23, 20, 17, 0.22)',
+    background: 'transparent',
+    color: '#4c433d',
+    cursor: 'pointer',
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 9,
+    fontWeight: 700,
+    letterSpacing: '0.14em',
+    textTransform: 'uppercase' as const,
+    '&:hover': {
+      color: '#171411',
+      borderColor: 'rgba(23, 20, 17, 0.42)',
+    },
+    '&:disabled': {
+      cursor: 'default',
+      color: '#8a7d72',
+      borderColor: 'rgba(23, 20, 17, 0.14)',
+    },
   },
   publishButton: {
     fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
@@ -561,6 +588,7 @@ const HomeDesignChatPanel = () => {
   const currentUser = useCurrentUser();
   const { isOpen, setIsOpen, applyDesign, useDefaultDesign, setUseDefaultDesign, publicId, setPublicId } = useHomeDesignChat();
   const { flash } = useMessages();
+  const [cookies, setCookie] = useCookiesWithConsent([HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]);
   const client = useApolloClient();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const appliedToolCallIds = useRef(new Set<string>());
@@ -570,6 +598,9 @@ const HomeDesignChatPanel = () => {
   const [activeTab, setActiveTab] = useState<PanelTab>('chat');
   const [showUnverified, setShowUnverified] = useState(false);
   const historyAnchorRef = useRef<HTMLDivElement>(null);
+  const defaultPublicIdCookie = typeof cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE] === 'string'
+    ? cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]
+    : null;
 
   // Fetch conversation summaries when the panel is open
   const { data: summariesData } = useQuery(myHomePageDesignSummariesQuery, {
@@ -722,7 +753,7 @@ const HomeDesignChatPanel = () => {
       `[Applied marketplace design: "${design.title}"]`,
       `I've applied the "${design.title}" design from the marketplace. You can ask me to modify it.`,
       design.html,
-      null,
+      design.publicId,
     );
     appliedToolCallIds.current.add(synthetic.toolCallId);
     setMessages(synthetic.messages);
@@ -849,6 +880,9 @@ const HomeDesignChatPanel = () => {
                   }
                   if (part.type === 'tool-submitHomePageDesign') {
                     const isApplied = part.state === 'output-available';
+                    const toolOutput = part.output as { publicId?: string } | undefined;
+                    const toolPublicId = toolOutput?.publicId ?? null;
+                    const isDefaultDesign = !!toolPublicId && toolPublicId === defaultPublicIdCookie;
                     return (
                       <article
                         key={`${message.id}-${i}`}
@@ -856,6 +890,21 @@ const HomeDesignChatPanel = () => {
                       >
                         <div className={classes.toolApplied}>
                           {isApplied ? 'Design applied.' : 'Applying design...'}
+                          {isApplied && toolPublicId && (
+                            <button
+                              type="button"
+                              className={classes.toolAppliedAction}
+                              disabled={isDefaultDesign}
+                              onClick={() => {
+                                setCookie(HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE, toolPublicId, {
+                                  path: '/',
+                                  expires: moment().add(2, 'years').toDate(),
+                                });
+                              }}
+                            >
+                              {isDefaultDesign ? 'Default set' : 'Set this as my default'}
+                            </button>
+                          )}
                         </div>
                         {isApplied && publicId && part.toolCallId === lastAppliedToolCallId &&
                           currentUser && !currentUser.banned &&

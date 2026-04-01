@@ -14,6 +14,8 @@ import HomeDesignChatPanel from './HomeDesignChatPanel';
 import { UnreadNotificationCountsQuery, useUnreadNotifications } from '../hooks/useUnreadNotifications';
 import { NotificationsListMultiQuery } from '../notifications/NotificationsListMultiQuery';
 import { SuspenseWrapper } from './SuspenseWrapper';
+import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import { HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
 
 const homePageDesignByPublicIdQuery = gql(`
   query HomePageDesignByPublicId($publicId: String!) {
@@ -218,9 +220,13 @@ function SandboxedHomePageContent() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const currentUser = useCurrentUser();
   const designChat = useHomeDesignChat();
+  const [cookies] = useCookiesWithConsent([HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]);
   const { query } = useLocation();
   const navigate = useNavigate();
   const themePublicId = query.theme as string | undefined;
+  const preferredDesignPublicId = typeof cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE] === 'string'
+    ? cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]
+    : null;
   const { latestUnreadCount } = useUnreadNotifications();
 
   const { data: themeData } = useQuery(homePageDesignByPublicIdQuery, {
@@ -231,6 +237,11 @@ function SandboxedHomePageContent() {
   const { data: myDesignsData } = useQuery(myHomePageDesignsQuery, {
     variables: { limit: 1 },
     skip: !!themePublicId,
+  });
+
+  const { data: preferredDesignData } = useQuery(homePageDesignByPublicIdQuery, {
+    variables: { publicId: preferredDesignPublicId! },
+    skip: !preferredDesignPublicId || !!themePublicId,
   });
 
   const client = useApolloClient();
@@ -416,10 +427,16 @@ function SandboxedHomePageContent() {
   const origin = useOrigin();
   const themeHtml = themeData?.homePageDesignByPublicId?.html;
   const themeSrcdoc = themeHtml ? wrapBodyInSrcdoc(themeHtml, { origin }) : null;
+  const preferredDesignHtml = preferredDesignData?.homePageDesignByPublicId?.html;
+  const preferredDesignSrcdoc = preferredDesignHtml ? wrapBodyInSrcdoc(preferredDesignHtml, { origin }) : null;
   const latestDesignHtml = myDesignsData?.myHomePageDesigns?.[0]?.html;
   const userLatestSrcdoc = latestDesignHtml ? wrapBodyInSrcdoc(latestDesignHtml, { origin }) : null;
   const defaultSrcdoc = getSandboxedHomePageSrcdoc({ origin });
-  const srcdoc = designChat.customSrcdoc ?? (designChat.useDefaultDesign ? defaultSrcdoc : (themeSrcdoc ?? userLatestSrcdoc ?? defaultSrcdoc));
+  const srcdoc = designChat.customSrcdoc ?? (
+    designChat.useDefaultDesign
+      ? defaultSrcdoc
+      : (themeSrcdoc ?? preferredDesignSrcdoc ?? userLatestSrcdoc ?? defaultSrcdoc)
+  );
 
   return (
     <div className={classes.iframeWrap}>
