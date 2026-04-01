@@ -2415,10 +2415,17 @@ export function getDefaultHomePageBody(): string {
     function hyphenateParagraphText(paragraphText) {
       if (!paragraphText || !window.hyphenateEnglish) return paragraphText;
       try {
-        return sanitizeHyphenatedText(window.hyphenateEnglish(paragraphText, { hyphenChar: SOFT_HYPHEN }));
+        return sanitizeBreakablePunctuationText(
+          sanitizeHyphenatedText(window.hyphenateEnglish(paragraphText, { hyphenChar: SOFT_HYPHEN }))
+        );
       } catch (error) {
-        return paragraphText;
+        return sanitizeBreakablePunctuationText(paragraphText);
       }
+    }
+
+    function sanitizeBreakablePunctuationText(text) {
+      if (!text) return text;
+      return text.replace(/([—–])(?=\\S)/g, '$1\\u200B');
     }
 
     function hyphenateRichParagraph(paragraph) {
@@ -3308,8 +3315,11 @@ export function getDefaultHomePageBody(): string {
       }
 
       if (candidate.isTerminal) {
-        var terminalSlack = residual / Math.max(options.spaceWidth * 8, 1);
+        var terminalSlack = residual / Math.max(options.spaceWidth * 4.5, 1);
         var terminalCost = terminalSlack > 0 ? terminalSlack * terminalSlack : 0;
+        if (fillRatio < 0.58) {
+          terminalCost += 180 * Math.pow(0.58 - fillRatio, 2);
+        }
         if (candidate.endsWithHyphen) terminalCost += 120;
         return terminalCost;
       }
@@ -3333,7 +3343,7 @@ export function getDefaultHomePageBody(): string {
         : (extraPerSpace / preferredShrink);
       var badness = 100 * Math.pow(Math.abs(normalizedAdjustment), 3);
       if (!candidate.isTerminal && candidate.spaceCount === 1 && fillRatio < 0.72) {
-        badness += 8000 * Math.pow(0.72 - fillRatio, 2);
+        badness += 1200 * Math.pow(0.72 - fillRatio, 2);
       }
       if (adjustment > 1.4) {
         badness += 160 * Math.pow(adjustment - 1.4, 2);
@@ -3413,6 +3423,27 @@ export function getDefaultHomePageBody(): string {
       return candidates[candidates.length - 1];
     }
 
+    function buildParagraphLineData(slot, candidate, paragraphIndex, layoutFont) {
+      return {
+        type: 'line',
+        text: candidate.text,
+        top: slot.top,
+        naturalWidth: candidate.fitWidth,
+        targetWidth: slot.targetWidth,
+        start: candidate.start,
+        end: candidate.end,
+        indent: slot.indent,
+        shift: slot.shift,
+        dropCap: slot.dropCap,
+        dropCapFontSize: slot.dropCapFontSize,
+        dropCapLinesRemaining: slot.dropCapLinesRemaining,
+        isLast: !!candidate.isTerminal,
+        endsWithHyphen: candidate.endsWithHyphen,
+        layoutFont: layoutFont,
+        paragraphIndex: paragraphIndex,
+      };
+    }
+
     function solveParagraphWithDP(bundleItem, slots, slotStartIndex, paragraphIndex, options) {
       var prepared = bundleItem.prepared;
       var normalizedStart = normalizePreparedCursor(prepared, { segmentIndex: 0, graphemeIndex: 0 });
@@ -3472,24 +3503,7 @@ export function getDefaultHomePageBody(): string {
           });
           if (!isFinite(lineCost)) continue;
 
-          var lineData = {
-            type: 'line',
-            text: candidate.text,
-            top: slot.top,
-            naturalWidth: candidate.fitWidth,
-            targetWidth: slot.targetWidth,
-            start: candidate.start,
-            end: candidate.end,
-            indent: slot.indent,
-            shift: slot.shift,
-            dropCap: slot.dropCap,
-            dropCapFontSize: slot.dropCapFontSize,
-            dropCapLinesRemaining: slot.dropCapLinesRemaining,
-            isLast: !!candidate.isTerminal,
-            endsWithHyphen: candidate.endsWithHyphen,
-            layoutFont: options.layoutFont,
-            paragraphIndex: paragraphIndex,
-          };
+          var lineData = buildParagraphLineData(slot, candidate, paragraphIndex, options.layoutFont);
 
           if (candidate.isTerminal) {
             var terminalResult = {
@@ -3524,6 +3538,7 @@ export function getDefaultHomePageBody(): string {
       if (!optimal) return null;
 
       var greedyLines = [];
+      var greedyLineData = [];
       var greedyCursor = normalizedStart;
       var greedyCost = 0;
       var greedyHyphen = false;
@@ -3538,9 +3553,26 @@ export function getDefaultHomePageBody(): string {
         });
         greedyCost += isFinite(greedyLineCost) ? greedyLineCost : 0;
         greedyLines.push(greedyCandidate);
+        greedyLineData.push(buildParagraphLineData(greedySlot, greedyCandidate, paragraphIndex, options.layoutFont));
         greedyCursor = greedyCandidate.end;
         greedyHyphen = greedyCandidate.endsWithHyphen;
         if (greedyCandidate.isTerminal) break;
+      }
+
+      var greedyComplete = !!(greedyLines.length && greedyLines[greedyLines.length - 1].isTerminal);
+      if (paragraphIndex === 0) {
+        var greedyUsedSlots = greedyLineData.length;
+        if (options.dropCapMetrics && options.dropCapMetrics.lines) {
+          greedyUsedSlots = Math.max(greedyUsedSlots, options.dropCapMetrics.lines);
+        }
+        return {
+          lines: greedyLineData,
+          cost: greedyCost,
+          greedyCost: greedyCost,
+          usedSlots: greedyUsedSlots,
+          greedyUsedSlots: greedyLineData.length,
+          complete: greedyComplete,
+        };
       }
 
       return {
