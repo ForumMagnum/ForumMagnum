@@ -329,14 +329,21 @@ async function publishHomePageDesignResolver(
     { $set: { commentId, title } },
   );
 
-  // Kick off the automated security review in the background
-  backgroundTask(runAutoReview(latest._id, latest.html, {
-    userId: currentUser._id,
-    displayName: currentUser.displayName,
-    slug: currentUser.slug,
-    commentId: commentId!,
-    commentHtml,
-  }));
+  if (userIsAdmin(currentUser)) {
+    await HomePageDesigns.rawUpdateOne(
+      { _id: latest._id },
+      { $set: { autoReviewPassed: true } },
+    );
+  } else {
+    // Kick off the automated security review in the background
+    backgroundTask(runAutoReview(latest._id, latest.html, {
+      userId: currentUser._id,
+      displayName: currentUser.displayName,
+      slug: currentUser.slug,
+      commentId: commentId!,
+      commentHtml,
+    }));
+  }
 
   const result = await HomePageDesigns.findOne({ _id: latest._id });
   const filtered = await accessFilterSingle(currentUser, 'HomePageDesigns', result, context);
