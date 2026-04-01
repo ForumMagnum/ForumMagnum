@@ -100,7 +100,7 @@ const dialogueMatchPreferenceCheckAccess: CheckAccessFunction<'DialogueMatchPref
 const homePageDesignCheckAccess: CheckAccessFunction<'HomePageDesigns'> = async (currentUser, document, context): Promise<boolean> => {
   if (!document) return false;
   // Published designs (have a commentId) are visible to everyone
-  if (document.commentId) return true;
+  if (document.commentId && document.autoReviewPassed) return true;
   // Unpublished designs are only visible to their owner or admins
   if (userIsAdmin(currentUser)) return true;
   const ownerId = document.ownerId;

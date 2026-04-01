@@ -138,7 +138,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "JSON!",
+      outputType: "JSON",
       canRead: ["guests"],
       validation: {
         blackbox: true,

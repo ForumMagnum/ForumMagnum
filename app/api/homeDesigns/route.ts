@@ -88,7 +88,7 @@ export async function POST(req: NextRequest) {
     verified: false,
     commentId: null,
     createdAt: new Date(),
-    autoReviewPassed: false,
+    autoReviewPassed: null,
     autoReviewMessage: null,
   });
 

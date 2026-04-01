@@ -37,7 +37,7 @@ import NavigationEventSender from '@/components/hooks/useOnNavigate';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { gql } from "@/lib/generated/gql-codegen";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
-import { isFullscreenRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
+import { isFullscreenRoute, isHomeRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
 import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { SubtitlePortalProvider } from './SubtitlePortalContext';
@@ -102,6 +102,30 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
     // Hide the CKEditor table alignment menu
     '.ck-table-properties-form__alignment-row': {
       display: "none !important"
+    },
+    // When the sandboxed home page design is active, hide chrome that the
+    // design replaces (header, intercom, LLM chat launcher). The class is
+    // toggled in PageBackgroundWrapper which lives above the Activity
+    // boundary, so it correctly reflects the current route even when
+    // cacheComponents keeps old page trees in the DOM.
+    '.home-design-active .Header-root': {
+      display: 'none !important',
+    },
+    '.home-design-active .Header-headerHeight': {
+      '--header-height': '0px',
+    },
+    '.home-design-active .RouteRootClient-centralColumn': {
+      paddingTop: '0 !important',
+    },
+    '.home-design-active .home-design-hide-llm-chat': {
+      display: 'none !important',
+    },
+    'body:has(.home-design-active)': {
+      overflow: 'hidden !important',
+      height: '100dvh !important',
+    },
+    'body:has(.home-design-active) #intercom-outer-frame, body:has(.home-design-active) #intercom-container, body:has(.home-design-active) .intercom-lightweight-app': {
+      display: 'none !important',
     },
   },
   searchResultsArea: {
@@ -304,12 +328,15 @@ function PageBackgroundWrapper({children}: {
 }) {
   const classes = useStyles(pageBackgroundWrapperStyles);
   const pathname = usePrerenderablePathname();
+  const { query } = useLocation();
+  const isSandboxedHomePage = isLW() && isHomeRoute(pathname) && !query.classicHome;
 
   return <div id="wrapper" className={classNames(
     "wrapper", {
       'alignment-forum': isAF(),
       [classes.fullscreen]: isFullscreenRoute(pathname),
       [classes.wrapper]: isLWorAF(),
+      'home-design-active': isSandboxedHomePage,
     },
   )}>
     {children}

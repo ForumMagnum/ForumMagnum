@@ -4096,7 +4096,7 @@ export type HomePageDesign = {
   autoReviewMessage: Maybe<Scalars['String']['output']>;
   autoReviewPassed: Maybe<Scalars['Boolean']['output']>;
   commentId: Maybe<Scalars['String']['output']>;
-  conversationHistory: Scalars['JSON']['output'];
+  conversationHistory: Maybe<Scalars['JSON']['output']>;
   createdAt: Scalars['Date']['output'];
   html: Scalars['String']['output'];
   modelName: Maybe<Scalars['String']['output']>;
@@ -14120,7 +14120,7 @@ export type HomePageDesignByPublicIdFullQueryVariables = Exact<{
 }>;
 
 
-export type HomePageDesignByPublicIdFullQuery = { __typename?: 'Query', homePageDesignByPublicId: { __typename?: 'HomePageDesign', _id: string, publicId: string, html: string, title: string, source: string, conversationHistory: any } | null };
+export type HomePageDesignByPublicIdFullQuery = { __typename?: 'Query', homePageDesignByPublicId: { __typename?: 'HomePageDesign', _id: string, publicId: string, html: string, title: string, source: string, conversationHistory: any | null } | null };
 
 export type MarketplaceHomePageDesignsQueryVariables = Exact<{ [key: string]: never; }>;
 
