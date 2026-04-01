@@ -2305,6 +2305,13 @@ export function getDefaultHomePageBody(): string {
       });
     }
 
+    function excludePostById(posts, excludedId) {
+      if (!excludedId) return posts || [];
+      return (posts || []).filter(function(post) {
+        return post && post._id !== excludedId;
+      });
+    }
+
     function getTopPostsListPosts(rawPosts, curated) {
       var curatedIds = getCuratedIds(curated);
       return getRenderablePosts(rawPosts).filter(function(post) {
@@ -5099,7 +5106,7 @@ export function getDefaultHomePageBody(): string {
                 getResults: getPostsResults,
                 getTotalCount: getPostsTotalCount,
                 getDisplayItems: function(items) {
-                  return getTopPostsListPosts(items, curated);
+                  return excludePostById(getTopPostsListPosts(items, curated), MARKETPLACE_POST_ID);
                 },
               }),
               gqlQuery(QUICKTAKES_QUERY, { limit: QUICKTAKES_INITIAL_COUNT }).catch(function() { return null; }),
@@ -5174,7 +5181,7 @@ export function getDefaultHomePageBody(): string {
       function loadMorePosts() {
         if (data.postsLoadingMore) return;
 
-        var currentPosts = getTopPostsListPosts(data.postResults, data.curated);
+        var currentPosts = excludePostById(getTopPostsListPosts(data.postResults, data.curated), MARKETPLACE_POST_ID);
         var targetVisibleCount = topPostsVisibleCount + topPostsIncrement;
         if (currentPosts.length >= targetVisibleCount) {
           setTopPostsVisibleCount(Math.min(currentPosts.length, targetVisibleCount));
@@ -5194,10 +5201,10 @@ export function getDefaultHomePageBody(): string {
           getResults: getPostsResults,
           getTotalCount: getPostsTotalCount,
           getDisplayItems: function(items) {
-            return getTopPostsListPosts(items, data.curated);
+            return excludePostById(getTopPostsListPosts(items, data.curated), MARKETPLACE_POST_ID);
           },
         }).then(function(result) {
-          var nextPosts = getTopPostsListPosts(result.results, data.curated);
+          var nextPosts = excludePostById(getTopPostsListPosts(result.results, data.curated), MARKETPLACE_POST_ID);
           setData(function(current) {
             return Object.assign({}, current, {
               postResults: result.results,
@@ -5278,8 +5285,8 @@ export function getDefaultHomePageBody(): string {
         );
       }
 
-      var displayCuratedPosts = getRenderablePosts((data.curated || []).slice(1));
-      var topPostsListPosts = getTopPostsListPosts(data.postResults, data.curated);
+      var displayCuratedPosts = excludePostById(getRenderablePosts((data.curated || []).slice(1)), MARKETPLACE_POST_ID);
+      var topPostsListPosts = excludePostById(getTopPostsListPosts(data.postResults, data.curated), MARKETPLACE_POST_ID);
       var posts = getRenderablePosts(mergeCuratedPosts(displayCuratedPosts, topPostsListPosts));
       var latestComments = getTopCommentsFromResults(data.topCommentResults, commentsWindowStart);
       var recentComments = getRecentCommentsFromResults(data.recentCommentResults, commentsWindowStart);
