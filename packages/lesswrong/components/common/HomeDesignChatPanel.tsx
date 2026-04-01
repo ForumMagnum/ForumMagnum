@@ -21,7 +21,7 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { useApolloClient } from '@apollo/client/react';
 import moment from 'moment';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HOME_DESIGN_DEFAULT_CLASSIC_VALUE, HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
+import { HOME_DESIGN_DEFAULT_BUILT_IN_VALUE, HOME_DESIGN_DEFAULT_CLASSIC_VALUE, HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
 import { canPublishHomeDesign } from '@/lib/collections/homePageDesigns/constants';
 
 const myHomePageDesignSummariesQuery = gql(`
@@ -791,6 +791,17 @@ const HomeDesignChatPanel = () => {
     window.location.assign(`${url.pathname}${url.search}${url.hash}`);
   }, [setCookie, setPublicId, applyDesign, setUseDefaultDesign, setIsOpen]);
 
+  const handleSetBuiltInThemeAsDefault = useCallback(() => {
+    setCookie(HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE, HOME_DESIGN_DEFAULT_BUILT_IN_VALUE, {
+      path: '/',
+      expires: moment().add(2, 'years').toDate(),
+    });
+    const url = new URL(window.location.href);
+    url.searchParams.delete('theme');
+    url.searchParams.delete('classicHome');
+    window.location.assign(`${url.pathname}${url.search}${url.hash}`);
+  }, [setCookie]);
+
   if (!isOpen) return null;
 
   const lastAppliedToolCallId = messages
@@ -987,6 +998,13 @@ const HomeDesignChatPanel = () => {
               onClick={handleRevertToBuiltInDefault}
             >
               Go back to normal LessWrong
+            </button>
+            <button
+              type="button"
+              className={classes.marketplaceActionButton}
+              onClick={handleSetBuiltInThemeAsDefault}
+            >
+              Set current built-in theme as default
             </button>
           </div>
           {allMarketplaceDesigns.length === 0 ? (

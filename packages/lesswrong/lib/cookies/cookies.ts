@@ -207,6 +207,7 @@ export const HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE = registerCookie({
 });
 
 export const HOME_DESIGN_DEFAULT_CLASSIC_VALUE = "__classic_home__";
+export const HOME_DESIGN_DEFAULT_BUILT_IN_VALUE = "__built_in_home_design__";
 
 export const HIDE_LLM_CHAT_GUIDE_COOKIE = registerCookie({
   name: "llm_chat_guide_open",
