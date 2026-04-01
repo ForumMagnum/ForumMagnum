@@ -197,6 +197,15 @@ async function publishHomePageDesignResolver(
   if (!currentUser) {
     throw new Error("You must be logged in to publish a home page design.");
   }
+  if (currentUser.banned) {
+    throw new Error("Banned users cannot publish home page designs.");
+  }
+  // Allow approved users, or legacy accounts created before April 1 2026 Pacific time
+  const publishCutoffDate = new Date("2026-04-01T07:00:00.000Z");
+  const isLegacyAccount = currentUser.createdAt < publishCutoffDate;
+  if (!currentUser.reviewedByUserId && !isLegacyAccount) {
+    throw new Error("Your account must be approved before you can publish home page designs.");
+  }
 
   const { publicId, title, descriptionHtml } = input;
 
