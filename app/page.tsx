@@ -14,7 +14,7 @@ assertRouteAttributes("/", {
 });
 
 export default async function Home() {
-  return <RouteRoot>
+  return <RouteRoot preserveStateWhileUnmounted>
     {forumSelect({
       AlignmentForum: <AlignmentForumHome/>,
       LessWrong: <LWHome/>,
