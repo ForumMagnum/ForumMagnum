@@ -39,7 +39,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { isFullscreenRoute, isHomeRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
 import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
-import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
+import { HOME_DESIGN_DEFAULT_CLASSIC_VALUE, HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { SubtitlePortalProvider } from './SubtitlePortalContext';
 
 import dynamic from 'next/dynamic';
@@ -329,7 +329,11 @@ function PageBackgroundWrapper({children}: {
   const classes = useStyles(pageBackgroundWrapperStyles);
   const pathname = usePrerenderablePathname();
   const { query } = useLocation();
-  const isSandboxedHomePage = isLW() && isHomeRoute(pathname) && !query.classicHome;
+  const [cookies] = useCookiesWithConsent([HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]);
+  const preferredHomeDesignCookie = typeof cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE] === 'string'
+    ? cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]
+    : undefined;
+  const isSandboxedHomePage = isLW() && isHomeRoute(pathname) && !query.classicHome && (preferredHomeDesignCookie !== HOME_DESIGN_DEFAULT_CLASSIC_VALUE || !!query.theme);
 
   return <div id="wrapper" className={classNames(
     "wrapper", {
