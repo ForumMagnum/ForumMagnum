@@ -56,6 +56,7 @@ class HomePageDesignsRepo extends AbstractRepo<"HomePageDesigns"> {
         FROM "HomePageDesigns" d
         JOIN "Comments" c ON c._id = d."commentId"
         WHERE d."commentId" IS NOT NULL
+          AND d."autoReviewPassed" = TRUE
         ORDER BY d."publicId", d."createdAt" DESC
       ) sub
       ORDER BY sub."commentBaseScore" DESC

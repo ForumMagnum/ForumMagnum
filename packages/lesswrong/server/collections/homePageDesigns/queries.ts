@@ -13,9 +13,12 @@ function isDesignOwner(design: DbHomePageDesign, context: ResolverContext): bool
 }
 
 function canAccessDesign(design: DbHomePageDesign, context: ResolverContext): boolean {
-  if (design.commentId) return true; // published
   if (userIsAdmin(context.currentUser)) return true;
-  return isDesignOwner(design, context);
+  if (isDesignOwner(design, context)) return true;
+  // Published designs are only accessible to non-owners if they've passed
+  // the automated security review
+  if (design.commentId && design.autoReviewPassed) return true;
+  return false;
 }
 
 function filterDesignFields(design: DbHomePageDesign, context: ResolverContext): Partial<DbHomePageDesign> {
