@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import HomePageDesigns from "@/server/collections/homePageDesigns/collection";
 import { ClientIds } from "@/server/collections/clientIds/collection";
+import { HOME_PAGE_DESIGN_PUBLIC_ID_LENGTH } from "@/lib/collections/homePageDesigns/constants";
 import { HOME_DESIGN_SHARED_PROMPT } from "@/lib/homeDesignPrompt";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { NextRequest } from "next/server";
@@ -139,7 +140,7 @@ export async function POST(req: NextRequest) {
 
           latestRecordId = newId;
 
-          const shortId = newId.substring(0, 4);
+          const shortId = newId.substring(0, HOME_PAGE_DESIGN_PUBLIC_ID_LENGTH);
 
           if (!publicId) {
             await HomePageDesigns.rawUpdateOne(

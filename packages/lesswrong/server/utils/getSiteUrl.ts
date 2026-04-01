@@ -22,8 +22,6 @@ export function getSiteUrlFromReq(req: NextRequest): string {
 }
 
 function getPortFromForwardedHeaders(forwardedFor: string | null, forwardedPort: string | null): string {
-  console.log('forwardedFor', forwardedFor);
-  console.log('forwardedPort', forwardedPort);
   if (forwardedFor && isLocalhost(forwardedFor)) {
     return forwardedPort ?? "";
   } else {

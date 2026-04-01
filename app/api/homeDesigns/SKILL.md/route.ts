@@ -99,7 +99,7 @@ This returns an access token valid for 90 days.
 
     {
       "success": true,
-      "publicId": "a1b2",
+      "publicId": "a1b2c3",
       "designId": "a1b2c3d4e5f6..."
     }
 

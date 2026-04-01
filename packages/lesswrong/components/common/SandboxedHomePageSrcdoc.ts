@@ -473,9 +473,6 @@ export function getDefaultHomePageBody(): string {
       overflow: hidden;
     }
 
-    .fitted-paragraph {
-      margin-bottom: var(--body-gap);
-    }
 
     .fitted-line {
       display: block;
@@ -549,15 +546,6 @@ export function getDefaultHomePageBody(): string {
       line-height: 0.82;
     }
 
-    .rail {
-      display: grid;
-      height: 100%;
-      grid-template-rows: repeat(2, minmax(0, 1fr));
-      gap: var(--row-gap);
-      min-height: 0;
-    }
-
-    .rail .card,
     .dispatch-grid .card {
       margin-top: 0;
     }
@@ -1101,7 +1089,6 @@ export function getDefaultHomePageBody(): string {
       color: var(--ink-faint);
       cursor: pointer;
       padding: 0;
-      align-self: flex-start;
       font-family: var(--sans);
       font-size: 9px;
       font-weight: 600;
@@ -1296,26 +1283,6 @@ export function getDefaultHomePageBody(): string {
     .masthead .masthead-site-title a,
     .masthead .masthead-site-title a:hover {
       color: #000;
-    }
-
-    .masthead-badge {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 12px;
-      height: 12px;
-      padding: 0 3px;
-      border-radius: 6px;
-      background: var(--accent);
-      color: #fff;
-      font-family: var(--sans);
-      font-size: 7.5px;
-      font-weight: 600;
-      letter-spacing: 0;
-      text-transform: none;
-      line-height: 1;
-      margin-left: 2px;
-      vertical-align: 1px;
     }
 
     .masthead-link-label {
@@ -1521,8 +1488,6 @@ export function getDefaultHomePageBody(): string {
       line-height: 1;
     }
 
-    @media (max-width: 980px) {
-    }
   </style>
 
   <div id="root"></div>
@@ -2035,10 +2000,6 @@ export function getDefaultHomePageBody(): string {
         .trim();
     }
 
-    function excerptText(post) {
-      return stripHtml((post.customHighlight && post.customHighlight.html) || (post.contents && post.contents.htmlHighlight) || '');
-    }
-
     function fullPostContent(post) {
       return parseRichParagraphs((post.contents && post.contents.html) || (post.customHighlight && post.customHighlight.html) || (post.contents && post.contents.htmlHighlight) || '');
     }
@@ -2155,7 +2116,7 @@ export function getDefaultHomePageBody(): string {
     }
 
     function useColumns() {
-      var state = useState(function() {
+      var [cols, setCols] = useState(function() {
         if (typeof window === 'undefined') return 8;
         var width = window.innerWidth;
         if (width < 640) return 2;
@@ -2164,8 +2125,6 @@ export function getDefaultHomePageBody(): string {
         if (width < 1500) return 8;
         return 10;
       });
-      var cols = state[0];
-      var setCols = state[1];
 
       useEffect(function() {
         function update() {
@@ -2804,9 +2763,7 @@ export function getDefaultHomePageBody(): string {
       var paragraphKey = useMemo(function() {
         return makeParagraphPrepareKey(paragraphTexts);
       }, [paragraphTexts]);
-      var state = useState(null);
-      var preparedBundle = state[0];
-      var setPreparedBundle = state[1];
+      var [preparedBundle, setPreparedBundle] = useState(null);
 
       useEffect(function() {
         var cancelled = false;
@@ -3034,10 +2991,6 @@ export function getDefaultHomePageBody(): string {
 
     function makeCursorKey(cursor) {
       return cursor.segmentIndex + ':' + cursor.graphemeIndex;
-    }
-
-    function cursorsEqual(a, b) {
-      return !!a && !!b && a.segmentIndex === b.segmentIndex && a.graphemeIndex === b.graphemeIndex;
     }
 
     function normalizePreparedCursor(prepared, cursor) {
@@ -3869,9 +3822,7 @@ export function getDefaultHomePageBody(): string {
         paragraphCount: paragraphCount,
       });
       var ref = useRef(null);
-      var state = useState(null);
-      var layout = state[0];
-      var setLayout = state[1];
+      var [layout, setLayout] = useState(null);
       var signatureRef = useRef('');
 
       useLayoutEffect(function() {
@@ -4082,158 +4033,6 @@ export function getDefaultHomePageBody(): string {
       );
     }
 
-    function PretextDisplayText(props) {
-      var font = props.font || '13px warnock-pro, Georgia, serif';
-      var lineHeight = props.lineHeight || 18;
-      var paragraphGap = props.paragraphGap || 0;
-      var paragraphCount = props.paragraphCount || 1;
-      var sourceContent = props.content || props.text;
-      var fallbackText = Array.isArray(sourceContent) ? richParagraphsToPlainText(sourceContent) : (props.text || '');
-      var preparedBundle = usePreparedParagraphBundle(sourceContent, {
-        font: font,
-        paragraphCount: paragraphCount,
-      });
-      var ref = useRef(null);
-      var state = useState(null);
-      var layout = state[0];
-      var setLayout = state[1];
-      var signatureRef = useRef('');
-
-      useLayoutEffect(function() {
-        if (!ref.current || !preparedBundle) return;
-        var node = ref.current;
-        var frameId = null;
-
-        function performLayout() {
-          frameId = null;
-          var totalWidth = node.clientWidth;
-          if (!totalWidth) return;
-          var nextLayout = layoutPreparedParagraphs(preparedBundle, {
-            columnCount: 1,
-            columnGap: 0,
-            columnWidth: totalWidth,
-            columnHeight: lineHeight * 32,
-            columnTopOffsets: [0],
-            exclusionRects: [],
-            exclusionBreaks: [],
-            partialColumnThreshold: 1,
-            font: font,
-            lineHeight: lineHeight,
-            paragraphGap: paragraphGap,
-            dropCap: !!props.dropCap,
-          });
-          var nextSignature = makePreparedLayoutSignature(nextLayout);
-          if (nextSignature !== signatureRef.current) {
-            signatureRef.current = nextSignature;
-            setLayout(nextLayout);
-          }
-        }
-
-        function scheduleLayout() {
-          if (frameId !== null) return;
-          frameId = requestAnimationFrame(performLayout);
-        }
-
-        scheduleLayout();
-        var observer = new ResizeObserver(scheduleLayout);
-        observer.observe(node);
-        if (document.fonts && document.fonts.addEventListener) {
-          document.fonts.addEventListener('loadingdone', scheduleLayout);
-        }
-
-        return function() {
-          if (frameId !== null) cancelAnimationFrame(frameId);
-          observer.disconnect();
-          if (document.fonts && document.fonts.removeEventListener) {
-            document.fonts.removeEventListener('loadingdone', scheduleLayout);
-          }
-        };
-      }, [preparedBundle, font, lineHeight, paragraphGap]);
-
-      useLayoutEffect(function() {
-        if (!ref.current || !layout || !props.justify) return;
-        var node = ref.current;
-        var frameIds = [];
-        var timeoutId = null;
-
-        refineRenderedWordSpacing(node);
-        var frameId = requestAnimationFrame(function() {
-          refineRenderedWordSpacing(node);
-        });
-        frameIds.push(frameId);
-        timeoutId = window.setTimeout(function() {
-          refineRenderedWordSpacing(node);
-        }, 80);
-
-        return function() {
-          frameIds.forEach(function(id) {
-            cancelAnimationFrame(id);
-          });
-          if (timeoutId !== null) clearTimeout(timeoutId);
-        };
-      }, [layout, props.justify]);
-
-      useEffect(function() {
-        if (!props.onLayoutSignature) return;
-        props.onLayoutSignature(layout ? makePreparedLayoutSignature(layout) : '');
-      }, [layout, props.onLayoutSignature]);
-
-      return (
-        <div ref={ref} className={props.className || ''} style={{ font: font, lineHeight: lineHeight + 'px' }}>
-          {!layout ? (
-            <div>{clipWords(fallbackText, 24)}</div>
-          ) : (
-            (layout.columns[0] || []).map(function(item, itemIndex) {
-              if (item.type === 'gap') return <div key={itemIndex} className="fitted-gap" />;
-              var spaces = countSpaces(item.text);
-              var richFragments = preparedBundle && preparedBundle[item.paragraphIndex]
-                ? buildPreparedLineFragments(preparedBundle[item.paragraphIndex], item)
-                : null;
-              var dropCapData = item.dropCap
-                ? takeDropCapFromFragments(richFragments || [{ text: item.text, style: cloneRichStyle({}) }])
-                : null;
-              var renderedFragments = richFragments
-                ? (item.dropCap && dropCapData ? dropCapData.fragments : richFragments)
-                : null;
-              var fallbackLeft = shouldFallbackToLeftAlign(item, item.layoutFont || font, renderedFragments && renderedFragments.length
-                ? measureRichFragmentsWidth(renderedFragments, item.layoutFont || font)
-                : item.naturalWidth);
-              var renderedNaturalWidth = renderedFragments && renderedFragments.length
-                ? measureRichFragmentsWidth(renderedFragments, item.layoutFont || font)
-                : item.naturalWidth;
-              var shouldJustify = !!props.justify && !item.isLast && spaces > 0 && !fallbackLeft;
-              var wordSpacing = shouldJustify
-                ? (item.targetWidth - renderedNaturalWidth) / spaces
-                : 0;
-              return (
-                <div
-                  key={itemIndex}
-                  className={'fitted-line' + (item.isLast ? ' last' : '') + (!shouldJustify ? ' fallback-left' : '')}
-                  style={{
-                    paddingLeft: (item.indent || item.shift) ? ((item.indent || 0) + (item.shift || 0)) + 'px' : undefined,
-                    wordSpacing: shouldJustify ? wordSpacing + 'px' : undefined,
-                    position: item.dropCap ? 'relative' : undefined,
-                  }}
-                >
-                  {item.dropCap ? (
-                    <span
-                      className="dropcap"
-                      style={getDropCapInlineStyle(item, dropCapData, font, lineHeight)}
-                    >
-                      {dropCapData && dropCapData.dropCap ? dropCapData.dropCap.text : item.text[0]}
-                    </span>
-                  ) : null}
-                  {renderedFragments
-                    ? renderRichFragments(renderedFragments, 'display-' + itemIndex)
-                    : (item.dropCap ? item.text.slice(1) : item.text)}
-                </div>
-              );
-            })
-          )}
-        </div>
-      );
-    }
-
     function ArticleCard(props) {
       var variant = props.variant || 'brief';
       var cardClass = variant === 'hero' ? 'card article-card hero-card' : 'card article-card';
@@ -4294,24 +4093,12 @@ export function getDefaultHomePageBody(): string {
       var headlineRef = useRef(null);
       var dekRef = useRef(null);
       var ctaRef = useRef(null);
-      var dekWidthState = useState(null);
-      var dekWidth = dekWidthState[0];
-      var setDekWidth = dekWidthState[1];
-      var bodyColumnWidthState = useState(null);
-      var bodyColumnWidth = bodyColumnWidthState[0];
-      var setBodyColumnWidth = bodyColumnWidthState[1];
-      var headlineWidthState = useState(null);
-      var headlineWidth = headlineWidthState[0];
-      var setHeadlineWidth = headlineWidthState[1];
-      var dekTopMarginState = useState(8);
-      var dekTopMargin = dekTopMarginState[0];
-      var setDekTopMargin = dekTopMarginState[1];
-      var ctaBottomOffsetState = useState(0);
-      var ctaBottomOffset = ctaBottomOffsetState[0];
-      var setCtaBottomOffset = ctaBottomOffsetState[1];
-      var dekLayoutSignatureState = useState('');
-      var dekLayoutSignature = dekLayoutSignatureState[0];
-      var setDekLayoutSignature = dekLayoutSignatureState[1];
+      var [dekWidth, setDekWidth] = useState(null);
+      var [bodyColumnWidth, setBodyColumnWidth] = useState(null);
+      var [headlineWidth, setHeadlineWidth] = useState(null);
+      var [dekTopMargin, setDekTopMargin] = useState(8);
+      var [ctaBottomOffset, setCtaBottomOffset] = useState(0);
+      var [dekLayoutSignature, setDekLayoutSignature] = useState('');
       var exclusionRefs = useMemo(function() {
         return [
           { ref: toplineRef, mode: 'box' },
@@ -4582,12 +4369,8 @@ export function getDefaultHomePageBody(): string {
     function LatestCommentsCard(props) {
       var cardRef = useRef(null);
       var listRef = useRef(null);
-      var countState = useState(Math.min(props.items.length, 12));
-      var visibleCount = countState[0];
-      var setVisibleCount = countState[1];
-      var gridPadState = useState(0);
-      var gridPad = gridPadState[0];
-      var setGridPad = gridPadState[1];
+      var [visibleCount, setVisibleCount] = useState(Math.min(props.items.length, 12));
+      var [gridPad, setGridPad] = useState(0);
 
       useLayoutEffect(function() {
         var cardNode = cardRef.current;
@@ -4678,27 +4461,13 @@ export function getDefaultHomePageBody(): string {
     }
 
     function ShoggothsAlbumCard(props) {
-      var albumState = useState(1);
-      var albumIndex = albumState[0];
-      var setAlbumIndex = albumState[1];
-      var trackState = useState(0);
-      var trackIndex = trackState[0];
-      var setTrackIndex = trackState[1];
-      var playingState = useState(false);
-      var isPlaying = playingState[0];
-      var setIsPlaying = playingState[1];
-      var timingState = useState({ currentTime: 0, duration: 0 });
-      var timing = timingState[0];
-      var setTiming = timingState[1];
-      var mobileTracklistState = useState(false);
-      var mobileTracklistOpen = mobileTracklistState[0];
-      var setMobileTracklistOpen = mobileTracklistState[1];
-      var expandedLyricsTrackState = useState(null);
-      var expandedLyricsTrack = expandedLyricsTrackState[0];
-      var setExpandedLyricsTrack = expandedLyricsTrackState[1];
-      var lyricsState = useState({});
-      var lyricsByTrack = lyricsState[0];
-      var setLyricsByTrack = lyricsState[1];
+      var [albumIndex, setAlbumIndex] = useState(1);
+      var [trackIndex, setTrackIndex] = useState(0);
+      var [isPlaying, setIsPlaying] = useState(false);
+      var [timing, setTiming] = useState({ currentTime: 0, duration: 0 });
+      var [mobileTracklistOpen, setMobileTracklistOpen] = useState(false);
+      var [expandedLyricsTrack, setExpandedLyricsTrack] = useState(null);
+      var [lyricsByTrack, setLyricsByTrack] = useState({});
       var audioRef = useRef(null);
       var currentAlbum = FOOMING_SHOGGOTHS_ALBUMS[albumIndex] || FOOMING_SHOGGOTHS_ALBUMS[0];
       var currentTrack = currentAlbum.tracks[trackIndex] || currentAlbum.tracks[0];
@@ -5009,17 +4778,11 @@ export function getDefaultHomePageBody(): string {
     }
 
     function SiteHeader() {
-      var userState = useState(null);
-      var userData = userState[0];
-      var setUserData = userState[1];
+      var [userData, setUserData] = useState(null);
 
-      var notifState = useState(null);
-      var notifData = notifState[0];
-      var setNotifData = notifState[1];
+      var [notifData, setNotifData] = useState(null);
 
-      var karmaState = useState(null);
-      var karmaData = karmaState[0];
-      var setKarmaData = karmaState[1];
+      var [karmaData, setKarmaData] = useState(null);
 
       useEffect(function() {
         rpc.getCurrentUser().then(function(result) {
@@ -5091,7 +4854,7 @@ export function getDefaultHomePageBody(): string {
       var commentsWindowStart = useMemo(function() {
         return new Date(Date.now() - (36 * 60 * 60 * 1000)).toISOString();
       }, []);
-      var state = useState({
+      var [data, setData] = useState({
         loading: true,
         error: null,
         postResults: [],
@@ -5104,14 +4867,8 @@ export function getDefaultHomePageBody(): string {
         recentCommentsTotalCount: null,
         recentCommentsLoadingMore: false,
       });
-      var data = state[0];
-      var setData = state[1];
-      var topPostsVisibleCountState = useState(INITIAL_TOP_POSTS_COUNT);
-      var topPostsVisibleCount = topPostsVisibleCountState[0];
-      var setTopPostsVisibleCount = topPostsVisibleCountState[1];
-      var recentCommentsVisibleCountState = useState(INITIAL_RECENT_COMMENTS_COUNT);
-      var recentCommentsVisibleCount = recentCommentsVisibleCountState[0];
-      var setRecentCommentsVisibleCount = recentCommentsVisibleCountState[1];
+      var [topPostsVisibleCount, setTopPostsVisibleCount] = useState(INITIAL_TOP_POSTS_COUNT);
+      var [recentCommentsVisibleCount, setRecentCommentsVisibleCount] = useState(INITIAL_RECENT_COMMENTS_COUNT);
       var topPostsIncrement = mobileStacked ? 6 : 8;
 
       useEffect(function() {

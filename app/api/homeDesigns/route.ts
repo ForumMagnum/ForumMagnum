@@ -1,4 +1,5 @@
 import { validateAccessToken, OAuthError } from "@/server/oauth/oauthProvider";
+import { HOME_PAGE_DESIGN_PUBLIC_ID_LENGTH } from "@/lib/collections/homePageDesigns/constants";
 import HomePageDesigns from "@/server/collections/homePageDesigns/collection";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -91,7 +92,7 @@ export async function POST(req: NextRequest) {
     autoReviewMessage: null,
   });
 
-  const shortId = newId.substring(0, 4);
+  const shortId = newId.substring(0, HOME_PAGE_DESIGN_PUBLIC_ID_LENGTH);
 
   if (!publicId) {
     await HomePageDesigns.rawUpdateOne(
