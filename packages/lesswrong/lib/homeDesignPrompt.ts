@@ -11,7 +11,7 @@ export const HOME_DESIGN_SHARED_PROMPT = `
 ## What You Provide
 You provide ONLY the content of the <body> tag. The parent system automatically wraps your output in a complete HTML document that includes:
 - CSP meta tag
-- LessWrong's Adobe Fonts / Typekit stylesheets (including fonts like \`warnock-pro\` and \`gill-sans-nova\`)
+- LessWrong's Adobe Fonts / Typekit stylesheets (including fonts like \`warnock-pro\` and \`gill-sans-nova\`), plus Google Fonts stylesheets from \`fonts.googleapis.com\`
 - React 18, ReactDOM 18, and Babel Standalone (already loaded)
 - The RPC bridge (available as \`window.rpc\`)
 - A ResizeObserver that reports document height to the parent
@@ -37,7 +37,7 @@ Before writing code, understand the user's intent and commit to a bold aesthetic
 ### Aesthetics
 
 Focus on:
-- **Typography**: Choose fonts that are beautiful, distinctive, and interesting. Avoid generic choices like Arial or Inter. Pair a display font with a refined body font. LessWrong has \`warnock-pro\` and \`gill-sans-nova\` loaded via Typekit.
+- **Typography**: Choose fonts that are beautiful, distinctive, and interesting. Avoid generic choices like Arial or Inter. Pair a display font with a refined body font. LessWrong has \`warnock-pro\` and \`gill-sans-nova\` loaded via Typekit, and Google Fonts stylesheets from \`fonts.googleapis.com\` are also allowed.
 - **Color & Theme**: Commit to a cohesive aesthetic. Use CSS variables for consistency. Dominant colors with sharp accents outperform timid, evenly-distributed palettes. The parent page has a warm cream background (#f8f4ee).
 - **Motion**: Use animations for effects and micro-interactions. Prefer CSS-only solutions. Focus on high-impact moments: a well-orchestrated page load with staggered reveals creates more delight than scattered motion everywhere.
 - **Spatial Composition**: Use unexpected layouts. Asymmetry. Overlap. Diagonal flow. Grid-breaking elements. Generous negative space or controlled density.

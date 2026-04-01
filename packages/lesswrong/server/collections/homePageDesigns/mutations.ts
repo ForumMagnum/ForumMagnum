@@ -19,7 +19,7 @@ export const DESIGN_SECURITY_REVIEW_PROMPT = `You are a security reviewer for us
 
 These designs are HTML/CSS/JSX code that runs inside a sandboxed iframe with these constraints:
 - iframe sandbox="allow-scripts allow-top-navigation-by-user-activation" (NO allow-same-origin, NO allow-forms)
-- CSP restricts network access to: GraphQL endpoint on the origin, images from LessWrong's Cloudinary account, scripts from unpkg.com and cdn.tailwindcss.com, fonts from Typekit
+- CSP restricts network access to: GraphQL endpoint on the origin, images from LessWrong's Cloudinary account, scripts from unpkg.com and cdn.tailwindcss.com, stylesheets from Typekit and fonts.googleapis.com, and font files from Typekit and fonts.gstatic.com
 
 The iframe has access to these APIs, which provide authenticated user data:
 - window.rpc.getCurrentUser() → {loggedIn, user: {_id, displayName, slug, karma}}
