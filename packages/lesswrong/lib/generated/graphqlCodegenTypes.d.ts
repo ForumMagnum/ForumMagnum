@@ -13089,6 +13089,84 @@ type HomeDesignKarmaChangesQueryVariables = Exact<{
 
 type HomeDesignKarmaChangesQuery = HomeDesignKarmaChangesQuery_Query;
 
+type HomeDesignReadStatusesQuery_posts_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, isRead: boolean | null };
+
+type HomeDesignReadStatusesQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<HomeDesignReadStatusesQuery_posts_MultiPostOutput_results_Post> };
+
+type HomeDesignReadStatusesQuery_Query = { __typename?: 'Query', posts: HomeDesignReadStatusesQuery_posts_MultiPostOutput | null };
+
+
+type HomeDesignReadStatusesQueryVariables = Exact<{
+  postIds: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+type HomeDesignReadStatusesQuery = HomeDesignReadStatusesQuery_Query;
+
+type HomeDesignPostVoteStatusesQuery_posts_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, currentUserVote: string | null };
+
+type HomeDesignPostVoteStatusesQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<HomeDesignPostVoteStatusesQuery_posts_MultiPostOutput_results_Post> };
+
+type HomeDesignPostVoteStatusesQuery_Query = { __typename?: 'Query', posts: HomeDesignPostVoteStatusesQuery_posts_MultiPostOutput | null };
+
+
+type HomeDesignPostVoteStatusesQueryVariables = Exact<{
+  postIds: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+type HomeDesignPostVoteStatusesQuery = HomeDesignPostVoteStatusesQuery_Query;
+
+type HomeDesignCommentVoteStatusesQuery_comments_MultiCommentOutput_results_Comment = { __typename?: 'Comment', _id: string, currentUserVote: string | null };
+
+type HomeDesignCommentVoteStatusesQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<HomeDesignCommentVoteStatusesQuery_comments_MultiCommentOutput_results_Comment> };
+
+type HomeDesignCommentVoteStatusesQuery_Query = { __typename?: 'Query', comments: HomeDesignCommentVoteStatusesQuery_comments_MultiCommentOutput | null };
+
+
+type HomeDesignCommentVoteStatusesQueryVariables = Exact<{
+  commentIds: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+type HomeDesignCommentVoteStatusesQuery = HomeDesignCommentVoteStatusesQuery_Query;
+
+type HomeDesignPerformVotePostMutation_performVotePost_VoteResultPost_document_Post = (
+  { __typename?: 'Post' }
+  & WithVotePost
+);
+
+type HomeDesignPerformVotePostMutation_performVotePost_VoteResultPost = { __typename?: 'VoteResultPost', showVotingPatternWarning: boolean, document: HomeDesignPerformVotePostMutation_performVotePost_VoteResultPost_document_Post };
+
+type HomeDesignPerformVotePostMutation_Mutation = { __typename?: 'Mutation', performVotePost: HomeDesignPerformVotePostMutation_performVotePost_VoteResultPost | null };
+
+
+type HomeDesignPerformVotePostMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type HomeDesignPerformVotePostMutation = HomeDesignPerformVotePostMutation_Mutation;
+
+type HomeDesignPerformVoteCommentMutation_performVoteComment_VoteResultComment_document_Comment = (
+  { __typename?: 'Comment' }
+  & WithVoteComment
+);
+
+type HomeDesignPerformVoteCommentMutation_performVoteComment_VoteResultComment = { __typename?: 'VoteResultComment', showVotingPatternWarning: boolean, document: HomeDesignPerformVoteCommentMutation_performVoteComment_VoteResultComment_document_Comment };
+
+type HomeDesignPerformVoteCommentMutation_Mutation = { __typename?: 'Mutation', performVoteComment: HomeDesignPerformVoteCommentMutation_performVoteComment_VoteResultComment | null };
+
+
+type HomeDesignPerformVoteCommentMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type HomeDesignPerformVoteCommentMutation = HomeDesignPerformVoteCommentMutation_Mutation;
+
 type PostExcerptQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }
   & HighlightWithHash

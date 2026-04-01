@@ -115,7 +115,12 @@ auth_code = None
 class CallbackHandler(BaseHTTPRequestHandler):
     def _handle(self):
         global auth_code
-        params = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+        parsed = urllib.parse.urlparse(self.path)
+        if not parsed.path.startswith("/callback"):
+            self.send_response(404)
+            self.end_headers()
+            return
+        params = urllib.parse.parse_qs(parsed.query)
         if self.command == "POST":
             body = self.rfile.read(int(self.headers.get("Content-Length", 0))).decode()
             params.update(urllib.parse.parse_qs(body))
@@ -131,7 +136,6 @@ class CallbackHandler(BaseHTTPRequestHandler):
     def log_message(self, *a): pass
 
 server = HTTPServer(("localhost", CALLBACK_PORT), CallbackHandler)
-threading.Thread(target=server.serve_forever).start()
 
 # --- Open browser for authorization ---
 state = secrets.token_urlsafe(16)
@@ -148,7 +152,7 @@ auth_url = (
     })
 )
 webbrowser.open(auth_url)
-server.serve_forever()  # blocks until callback received
+server.serve_forever()  # blocks until callback handler calls shutdown()
 
 # --- Exchange code for token ---
 token_data = urllib.parse.urlencode({
@@ -175,8 +179,9 @@ print(f"Access token: {access_token}")
 - PKCE \`code_verifier\` should be 43-128 URL-safe characters. The
   \`code_challenge\` is its SHA-256 hash, base64url-encoded with padding
   stripped.
-- The callback server shuts itself down after receiving the code, so the
-  script can proceed to the token exchange.
+- The callback server ignores non-callback requests (e.g. favicon.ico) and
+  shuts itself down only after receiving the actual auth code, so the script
+  can proceed to the token exchange.
 
 ## Submitting a Design
 

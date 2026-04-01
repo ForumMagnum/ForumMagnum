@@ -85,6 +85,61 @@ const homeDesignKarmaChangesQuery = gql(`
   }
 `);
 
+const homeDesignReadStatusesQuery = gql(`
+  query HomeDesignReadStatuses($postIds: [String!]) {
+    posts(selector: { default: { exactPostIds: $postIds } }, limit: 50) {
+      results {
+        _id
+        isRead
+      }
+    }
+  }
+`);
+
+const homeDesignPostVoteStatusesQuery = gql(`
+  query HomeDesignPostVoteStatuses($postIds: [String!]) {
+    posts(selector: { default: { exactPostIds: $postIds } }, limit: 50) {
+      results {
+        _id
+        currentUserVote
+      }
+    }
+  }
+`);
+
+const homeDesignCommentVoteStatusesQuery = gql(`
+  query HomeDesignCommentVoteStatuses($commentIds: [String!]) {
+    comments(selector: { default: { commentIds: $commentIds } }, limit: 50) {
+      results {
+        _id
+        currentUserVote
+      }
+    }
+  }
+`);
+
+const homeDesignPerformVotePostMutation = gql(`
+  mutation HomeDesignPerformVotePost($documentId: String, $voteType: String) {
+    performVotePost(documentId: $documentId, voteType: $voteType) {
+      document {
+        ...WithVotePost
+      }
+      showVotingPatternWarning
+    }
+  }
+`);
+
+const homeDesignPerformVoteCommentMutation = gql(`
+  mutation HomeDesignPerformVoteComment($documentId: String, $voteType: String) {
+    performVoteComment(documentId: $documentId, voteType: $voteType) {
+      document {
+        ...WithVoteComment
+      }
+      showVotingPatternWarning
+    }
+  }
+`);
+
 const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
   root: {
     position: 'fixed',
@@ -350,24 +405,86 @@ function SandboxedHomePageContent() {
       case 'getReadStatuses': {
         if (!currentUser) return {};
         const postIds = params.postIds;
-        if (!Array.isArray(postIds)) return {};
-        // TODO: Wire up to real read status queries
+        if (!Array.isArray(postIds) || postIds.length === 0) return {};
+
+        const { data } = await client.query({
+          query: homeDesignReadStatusesQuery,
+          variables: { postIds: postIds.slice(0, 50) },
+          fetchPolicy: 'network-only',
+        });
+
         const statuses: Record<string, boolean> = {};
-        for (const id of postIds) {
-          statuses[id] = false;
+        for (const post of data?.posts?.results ?? []) {
+          statuses[post._id] = post.isRead ?? false;
         }
         return statuses;
       }
       case 'getVoteStatuses': {
         if (!currentUser) return {};
-        // TODO: Wire up to real vote status queries
-        return {};
+        const votePostIds = params.postIds;
+        const voteCommentIds = params.commentIds;
+        const result: Record<string, { voteType: string | null }> = {};
+
+        if (Array.isArray(votePostIds) && votePostIds.length > 0) {
+          const { data } = await client.query({
+            query: homeDesignPostVoteStatusesQuery,
+            variables: { postIds: votePostIds.slice(0, 50) },
+            fetchPolicy: 'cache-first',
+          });
+          for (const post of data?.posts?.results ?? []) {
+            result[post._id] = { voteType: post.currentUserVote ?? null };
+          }
+        }
+
+        if (Array.isArray(voteCommentIds) && voteCommentIds.length > 0) {
+          const { data } = await client.query({
+            query: homeDesignCommentVoteStatusesQuery,
+            variables: { commentIds: voteCommentIds.slice(0, 50) },
+            fetchPolicy: 'cache-first',
+          });
+          for (const comment of data?.comments?.results ?? []) {
+            result[comment._id] = { voteType: comment.currentUserVote ?? null };
+          }
+        }
+
+        return result;
       }
       case 'castVote': {
         if (!currentUser) throw new Error('Must be logged in to vote');
-        // TODO: Wire up to real vote mutation
-        // params: { documentId: string, collectionName: string, voteType: string }
-        return { success: false, error: 'Voting not yet implemented' };
+        const { documentId, collectionName, voteType } = params;
+        if (typeof documentId !== 'string') throw new Error('Missing documentId');
+        if (typeof voteType !== 'string') throw new Error('Missing voteType');
+
+        const validVoteTypes = ['smallUpvote', 'bigUpvote', 'smallDownvote', 'bigDownvote', 'neutral'];
+        if (!validVoteTypes.includes(voteType)) {
+          throw new Error(`Invalid voteType: ${voteType}`);
+        }
+
+        if (collectionName === 'Posts') {
+          const { data } = await client.mutate({
+            mutation: homeDesignPerformVotePostMutation,
+            variables: { documentId, voteType },
+          });
+          return {
+            success: true,
+            document: data?.performVotePost?.document
+              ? { _id: data.performVotePost.document._id, currentUserVote: data.performVotePost.document.currentUserVote, baseScore: data.performVotePost.document.baseScore }
+              : null,
+          };
+        } else if (collectionName === 'Comments') {
+          const { data } = await client.mutate({
+            mutation: homeDesignPerformVoteCommentMutation,
+            variables: { documentId, voteType },
+          });
+          return {
+            success: true,
+            document: data?.performVoteComment?.document
+              ? { _id: data.performVoteComment.document._id, currentUserVote: data.performVoteComment.document.currentUserVote, baseScore: data.performVoteComment.document.baseScore }
+              : null,
+          };
+        } else {
+          throw new Error(`Unsupported collectionName: ${collectionName}`);
+        }
       }
       case 'openCustomizePanel': {
         designChat.setIsOpen(true);
