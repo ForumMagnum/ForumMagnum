@@ -121,7 +121,7 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
     logger('multi resolver()')
     logger('multi terms', terms)
 
-    const { input: _input, selector: _selector, ...otherQueryVariables } = info.variableValues;
+    const { input: _input, selector: _selector, limit: _limit, offset: _offset, enableTotal: _enableTotal, ...otherQueryVariables } = info.variableValues;
 
     // Terms and resolverArgs are both passed into the `SelectFragmentQuery` in the same place,
     // so if we have any overlapping keys, they need to have the same value or we're probably doing something wrong by having one clobber the other.
