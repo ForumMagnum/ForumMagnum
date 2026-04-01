@@ -13,6 +13,7 @@ interface MarketplaceDesign {
   title: string;
   html: string;
   verified: boolean;
+  commentId: string | null;
   commentBaseScore: number;
 }
 
@@ -68,6 +69,7 @@ class HomePageDesignsRepo extends AbstractRepo<"HomePageDesigns"> {
           d."title",
           d."html",
           d."verified",
+          d."commentId",
           c."baseScore" AS "commentBaseScore"
         FROM "HomePageDesigns" d
         JOIN "Comments" c ON c._id = d."commentId"

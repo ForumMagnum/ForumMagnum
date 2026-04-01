@@ -2685,6 +2685,7 @@ interface MarketplaceHomePageDesign {
   title: string;
   html: string;
   verified: boolean;
+  commentId: string | null;
   commentBaseScore: number;
 }
 

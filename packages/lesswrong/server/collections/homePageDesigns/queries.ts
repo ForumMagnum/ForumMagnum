@@ -106,6 +106,7 @@ export const graphqlHomePageDesignQueryTypeDefs = gql`
     title: String!
     html: String!
     verified: Boolean!
+    commentId: String
     commentBaseScore: Int!
   }
 
