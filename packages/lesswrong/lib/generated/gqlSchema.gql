@@ -2990,11 +2990,28 @@ type MarketplaceHomePageDesign {
   commentBaseScore: Int!
 }
 
+type AdminHomePageDesign {
+  _id: String!
+  publicId: String!
+  title: String!
+  html: String!
+  verified: Boolean!
+  autoReviewPassed: Boolean
+  autoReviewMessage: String
+  createdAt: Date!
+  source: String!
+  modelName: String
+  commentId: String
+  ownerDisplayName: String!
+  ownerSlug: String!
+}
+
 extend type Query {
   homePageDesignByPublicId(publicId: String!): HomePageDesign
   myHomePageDesigns(limit: Int): [HomePageDesign!]!
   myHomePageDesignSummaries: [HomePageDesignSummary!]!
   marketplaceHomePageDesigns: [MarketplaceHomePageDesign!]!
+  adminHomePageDesigns: [AdminHomePageDesign!]!
 }
 
 type IframeWidgetSrcdoc {
@@ -7963,6 +7980,7 @@ type HomePageDesignMutationOutput {
 
 extend type Mutation {
   publishHomePageDesign(input: PublishHomePageDesignInput!): HomePageDesignMutationOutput
+  setHomePageDesignVerified(designId: String!, verified: Boolean!): HomePageDesign
 }
 
 input CreateJargonTermDataInput {

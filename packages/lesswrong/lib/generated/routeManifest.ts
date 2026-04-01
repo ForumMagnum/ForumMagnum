@@ -57,6 +57,16 @@ export const routeTrie = {
         "debugHeaders": {
           "hasRoute": true
         },
+        "designReview": {
+          "staticChildren": {
+            "inspector": {
+              "hasPage": true
+            }
+          },
+          "lowerCase": {
+            "inspector": "inspector"
+          }
+        },
         "emailSender": {
           "hasPage": true
         },
@@ -93,6 +103,7 @@ export const routeTrie = {
         "curation": "curation",
         "debugdatabasedifferences": "debugDatabaseDifferences",
         "debugheaders": "debugHeaders",
+        "designreview": "designReview",
         "emailsender": "emailSender",
         "llmconversations": "llmConversations",
         "migrations": "migrations",

@@ -16,6 +16,22 @@ interface MarketplaceDesign {
   commentBaseScore: number;
 }
 
+interface AdminDesignReview {
+  _id: string;
+  publicId: string;
+  title: string;
+  html: string;
+  verified: boolean;
+  autoReviewPassed: boolean | null;
+  autoReviewMessage: string | null;
+  createdAt: Date;
+  source: string;
+  modelName: string | null;
+  commentId: string | null;
+  ownerDisplayName: string;
+  ownerSlug: string;
+}
+
 class HomePageDesignsRepo extends AbstractRepo<"HomePageDesigns"> {
   constructor() {
     super(HomePageDesigns);
@@ -60,6 +76,38 @@ class HomePageDesignsRepo extends AbstractRepo<"HomePageDesigns"> {
         ORDER BY d."publicId", d."createdAt" DESC
       ) sub
       ORDER BY sub."commentBaseScore" DESC
+    `);
+  }
+
+  /**
+   * Returns published designs for admin review, with owner user info.
+   * Includes all review statuses (pending, passed, failed) and both
+   * verified and unverified designs.
+   */
+  async getDesignsForAdminReview(): Promise<AdminDesignReview[]> {
+    return this.getRawDb().any(`
+      -- HomePageDesignsRepo.getDesignsForAdminReview
+      SELECT * FROM (
+        SELECT DISTINCT ON (d."publicId")
+          d._id,
+          d."publicId",
+          d."title",
+          d."html",
+          d."verified",
+          d."autoReviewPassed",
+          d."autoReviewMessage",
+          d."createdAt",
+          d."source",
+          d."modelName",
+          d."commentId",
+          COALESCE(u."displayName", '(unknown)') AS "ownerDisplayName",
+          COALESCE(u."slug", '') AS "ownerSlug"
+        FROM "HomePageDesigns" d
+        LEFT JOIN "Users" u ON u._id = d."ownerId"
+        WHERE d."commentId" IS NOT NULL
+        ORDER BY d."publicId", d."createdAt" DESC
+      ) sub
+      ORDER BY sub."createdAt" DESC
     `);
   }
 

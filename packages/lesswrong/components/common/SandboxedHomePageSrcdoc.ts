@@ -2,10 +2,11 @@ import { globalExternalStylesheets } from '@/themes/globalStyles/externalStyles'
 
 interface SrcdocWrapperOptions {
   origin: string;
+  omitRpcBridge?: boolean;
 }
 
 export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOptions): string {
-  const { origin } = options;
+  const { origin, omitRpcBridge } = options;
   const externalStylesheetLinks = globalExternalStylesheets
     .map((href) => `<link rel="stylesheet" type="text/css" href="${href}">`)
     .join('\n  ');
@@ -44,6 +45,23 @@ export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOpti
   <script src="https://unpkg.com/hyphen@1.14.1/patterns/en-us.js" crossorigin></script>
   <script>
     (function() {
+      window.gqlQuery = function(query, variables) {
+        return fetch('${origin}/graphql', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ query: query, variables: variables || {} }),
+        }).then(function(resp) {
+          if (!resp.ok) throw new Error('GraphQL request failed: ' + resp.status);
+          return resp.json();
+        }).then(function(json) {
+          if (json.errors) throw new Error(json.errors[0].message);
+          return json.data;
+        });
+      };
+    })();
+  </script>
+  ${omitRpcBridge ? '' : `<script>
+    (function() {
       var rpcIdCounter = 0;
       var pendingRpcs = {};
 
@@ -64,20 +82,6 @@ export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOpti
           window.parent.postMessage({ type: 'rpc-request', id: id, method: method, params: params }, '*');
         });
       }
-
-      window.gqlQuery = function(query, variables) {
-        return fetch('${origin}/graphql', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ query: query, variables: variables || {} }),
-        }).then(function(resp) {
-          if (!resp.ok) throw new Error('GraphQL request failed: ' + resp.status);
-          return resp.json();
-        }).then(function(json) {
-          if (json.errors) throw new Error(json.errors[0].message);
-          return json.data;
-        });
-      };
 
       window.rpc = {
         getCurrentUser: function() {
@@ -109,7 +113,7 @@ export function wrapBodyInSrcdoc(bodyContent: string, options: SrcdocWrapperOpti
         },
       };
     })();
-  </script>
+  </script>`}
 </head>
 <body>
   <div id="srcdoc-scroll-root">

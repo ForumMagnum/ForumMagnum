@@ -87,6 +87,8 @@ export async function POST(req: NextRequest) {
     verified: false,
     commentId: null,
     createdAt: new Date(),
+    autoReviewPassed: false,
+    autoReviewMessage: null,
   });
 
   const shortId = newId.substring(0, 4);

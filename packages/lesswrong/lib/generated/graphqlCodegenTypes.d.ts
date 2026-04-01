@@ -43,6 +43,23 @@ type AdminEmailPreviewAudienceInput = {
   filter: AdminEmailAudienceFilterInput;
 };
 
+type AdminHomePageDesign = {
+  __typename?: 'AdminHomePageDesign';
+  _id: Scalars['String']['output'];
+  autoReviewMessage?: Maybe<Scalars['String']['output']>;
+  autoReviewPassed?: Maybe<Scalars['Boolean']['output']>;
+  commentId?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Date']['output'];
+  html: Scalars['String']['output'];
+  modelName?: Maybe<Scalars['String']['output']>;
+  ownerDisplayName: Scalars['String']['output'];
+  ownerSlug: Scalars['String']['output'];
+  publicId: Scalars['String']['output'];
+  source: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  verified: Scalars['Boolean']['output'];
+};
+
 type AdminSendBulkEmailError = {
   __typename?: 'AdminSendBulkEmailError';
   batch: Scalars['Int']['output'];
@@ -3781,6 +3798,7 @@ type Mutation = {
   runLlmCheckForDocument: AutomatedContentEvaluation;
   sendEventTriggeredDM: Scalars['Boolean']['output'];
   sendNewDialogueMessageNotification: Scalars['Boolean']['output'];
+  setHomePageDesignVerified?: Maybe<HomePageDesign>;
   setIsBookmarked?: Maybe<SetIsBookmarkedOutput>;
   setIsHidden: User;
   setVoteComment?: Maybe<Comment>;
@@ -4353,6 +4371,12 @@ type MutationsendEventTriggeredDMArgs = {
 type MutationsendNewDialogueMessageNotificationArgs = {
   dialogueHtml: Scalars['String']['input'];
   postId: Scalars['String']['input'];
+};
+
+
+type MutationsetHomePageDesignVerifiedArgs = {
+  designId: Scalars['String']['input'];
+  verified: Scalars['Boolean']['input'];
 };
 
 
@@ -6972,6 +6996,7 @@ type Query = {
   UserReadsPerCoreTag: Array<UserCoreTagReads>;
   UsersReadPostsOfTargetUser?: Maybe<Array<Post>>;
   adminEmailPreviewAudience: AdminEmailAudiencePreview;
+  adminHomePageDesigns: Array<AdminHomePageDesign>;
   arbitalTagContentRel?: Maybe<SingleArbitalTagContentRelOutput>;
   arbitalTagContentRels?: Maybe<MultiArbitalTagContentRelOutput>;
   ban?: Maybe<SingleBanOutput>;
@@ -12243,6 +12268,29 @@ type randomUserQueryVariables = Exact<{
 
 
 type randomUserQuery = randomUserQuery_Query;
+
+type AdminHomePageDesignsQuery_adminHomePageDesigns_AdminHomePageDesign = { __typename?: 'AdminHomePageDesign', _id: string, publicId: string, title: string, html: string, verified: boolean, autoReviewPassed: boolean | null, autoReviewMessage: string | null, createdAt: string, source: string, modelName: string | null, commentId: string | null, ownerDisplayName: string, ownerSlug: string };
+
+type AdminHomePageDesignsQuery_Query = { __typename?: 'Query', adminHomePageDesigns: Array<AdminHomePageDesignsQuery_adminHomePageDesigns_AdminHomePageDesign> };
+
+
+type AdminHomePageDesignsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type AdminHomePageDesignsQuery = AdminHomePageDesignsQuery_Query;
+
+type SetHomePageDesignVerifiedMutation_setHomePageDesignVerified_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, verified: boolean };
+
+type SetHomePageDesignVerifiedMutation_Mutation = { __typename?: 'Mutation', setHomePageDesignVerified: SetHomePageDesignVerifiedMutation_setHomePageDesignVerified_HomePageDesign | null };
+
+
+type SetHomePageDesignVerifiedMutationVariables = Exact<{
+  designId: Scalars['String']['input'];
+  verified: Scalars['Boolean']['input'];
+}>;
+
+
+type SetHomePageDesignVerifiedMutation = SetHomePageDesignVerifiedMutation_Mutation;
 
 type MigrationsDashboardQueryQuery_MigrationsDashboard_MigrationsDashboardData_migrations_MigrationStatus_runs_MigrationRun = { __typename?: 'MigrationRun', name: string, started: string, finished: string | null, succeeded: boolean | null };
 

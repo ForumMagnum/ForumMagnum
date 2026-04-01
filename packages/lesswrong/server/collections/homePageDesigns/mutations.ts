@@ -1,3 +1,4 @@
+import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { createComment } from "@/server/collections/comments/mutations";
 import { backgroundTask } from "@/server/utils/backgroundTask";
@@ -6,6 +7,7 @@ import gql from "graphql-tag";
 import { z } from "zod";
 import { captureException } from "@/lib/sentryWrapper";
 import { MARKETPLACE_POST_ID } from "@/lib/collections/homePageDesigns/constants";
+import { postMessage } from "@/server/slack/client";
 import HomePageDesigns from "./collection";
 
 export const DESIGN_SECURITY_REVIEW_PROMPT = `You are a security reviewer for user-submitted home page designs on LessWrong, a discussion forum about rationality and AI safety.
@@ -124,21 +126,65 @@ async function reviewDesignSecurity(html: string): Promise<{ passed: boolean; me
   return securityVerdictSchema.parse(toolCall.input);
 }
 
-async function runAutoReview(designId: string, html: string) {
+interface AutoReviewUser {
+  displayName: string;
+  slug: string;
+}
+
+async function notifyModerationOfFailedReview(designId: string, user: AutoReviewUser, message: string) {
+  const baseUrl = `https://${process.env.SITE_URL ?? "lesswrong.com"}`;
+  const userLink = `${baseUrl}/users/${user.slug}`;
+  const designLink = `${baseUrl}/?theme=${designId}`;
+
+  try {
+    await postMessage({
+      text: `Home page design failed auto-review: ${designId} by ${user.displayName}`,
+      channelName: "moderation",
+      options: {
+        blocks: [
+          {
+            type: "header",
+            text: {
+              type: "plain_text",
+              text: "Home page design failed auto-review",
+            },
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `*User:* <${userLink}|${user.displayName}>\n*Design:* \`${designId}\` (<${designLink}|preview>)\n*Issue:* ${message}`,
+            },
+          },
+        ],
+      },
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to send Slack notification for design review", designId, err);
+  }
+}
+
+async function runAutoReview(designId: string, html: string, user: AutoReviewUser) {
   try {
     const review = await reviewDesignSecurity(html);
     await HomePageDesigns.rawUpdateOne(
       { _id: designId },
       { $set: { autoReviewPassed: review.passed, autoReviewMessage: review.message } },
     );
+    if (!review.passed) {
+      await notifyModerationOfFailedReview(designId, user, review.message ?? "No details provided");
+    }
   } catch (err) {
     captureException(err);
     // eslint-disable-next-line no-console
     console.error("Auto-review failed for design", designId, err);
+    const errorMessage = `Auto-review error: ${err instanceof Error ? err.message : String(err)}`;
     await HomePageDesigns.rawUpdateOne(
       { _id: designId },
-      { $set: { autoReviewPassed: false, autoReviewMessage: `Auto-review error: ${err instanceof Error ? err.message : String(err)}` } },
+      { $set: { autoReviewPassed: false, autoReviewMessage: errorMessage } },
     );
+    await notifyModerationOfFailedReview(designId, user, errorMessage);
   }
 }
 
@@ -213,11 +259,31 @@ async function publishHomePageDesignResolver(
   );
 
   // Kick off the automated security review in the background
-  backgroundTask(runAutoReview(latest._id, latest.html));
+  backgroundTask(runAutoReview(latest._id, latest.html, {
+    displayName: currentUser.displayName,
+    slug: currentUser.slug,
+  }));
 
   const result = await HomePageDesigns.findOne({ _id: latest._id });
   const filtered = await accessFilterSingle(currentUser, 'HomePageDesigns', result, context);
   return { data: filtered };
+}
+
+async function setHomePageDesignVerifiedResolver(
+  root: void,
+  { designId, verified }: { designId: string; verified: boolean },
+  context: ResolverContext,
+) {
+  if (!userIsAdmin(context.currentUser)) {
+    throw new Error("Admin access required");
+  }
+  await HomePageDesigns.rawUpdateOne(
+    { _id: designId },
+    { $set: { verified } },
+  );
+  const design = await HomePageDesigns.findOne({ _id: designId });
+  if (!design) throw new Error("Design not found");
+  return design;
 }
 
 export const graphqlHomePageDesignMutationTypeDefs = gql`
@@ -233,9 +299,11 @@ export const graphqlHomePageDesignMutationTypeDefs = gql`
 
   extend type Mutation {
     publishHomePageDesign(input: PublishHomePageDesignInput!): HomePageDesignMutationOutput
+    setHomePageDesignVerified(designId: String!, verified: Boolean!): HomePageDesign
   }
 `;
 
 export const homePageDesignGqlMutations = {
   publishHomePageDesign: publishHomePageDesignResolver,
+  setHomePageDesignVerified: setHomePageDesignVerifiedResolver,
 };
