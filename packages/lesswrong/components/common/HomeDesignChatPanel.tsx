@@ -235,6 +235,15 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
       animationDelay: '0.4s',
     },
   },
+  typingIndicatorWrap: {
+    paddingTop: 10,
+  },
+  typingIndicatorHint: {
+    marginTop: 8,
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 10,
+    color: '#85776c',
+  },
   '@keyframes bounce': {
     '0%, 60%, 100%': { opacity: 0.3 },
     '30%': { opacity: 1 },
@@ -251,6 +260,12 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     letterSpacing: '0.16em',
     textTransform: 'uppercase' as const,
     padding: '4px 0',
+  },
+  toolAppliedWarning: {
+    color: '#85776c',
+    letterSpacing: '0.06em',
+    textTransform: 'none' as const,
+    fontSize: 9,
   },
   toolAppliedAction: {
     padding: '4px 8px',
@@ -923,6 +938,11 @@ const HomeDesignChatPanel = () => {
                       >
                         <div className={classes.toolApplied}>
                           {isApplied ? 'Design applied.' : 'Applying design...'}
+                          {!isApplied && (
+                            <span className={classes.toolAppliedWarning}>
+                              This may take 1-3 minutes.
+                            </span>
+                          )}
                           {isApplied && toolPublicId && (
                             <button
                               type="button"
@@ -956,8 +976,13 @@ const HomeDesignChatPanel = () => {
               </div>
             ))}
             {showTypingIndicator && (
-              <div className={classes.typingIndicator}>
-                <span /><span /><span />
+              <div className={classes.typingIndicatorWrap}>
+                <div className={classes.typingIndicator}>
+                  <span /><span /><span />
+                </div>
+                <div className={classes.typingIndicatorHint}>
+                  This may take 1-3 minutes.
+                </div>
               </div>
             )}
             <div ref={messagesEndRef} />
