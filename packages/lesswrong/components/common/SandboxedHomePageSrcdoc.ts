@@ -1291,6 +1291,24 @@ export function getDefaultHomePageBody(): string {
       flex-shrink: 0;
     }
 
+    .masthead-new-post {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 5px 9px 4px;
+      border: 1px solid rgba(143, 29, 18, 0.34);
+      color: var(--accent) !important;
+      line-height: 1;
+      letter-spacing: 0.2em;
+      transition: border-color 0.15s, background-color 0.15s, color 0.15s;
+    }
+
+    .masthead-new-post:hover {
+      border-color: rgba(143, 29, 18, 0.6);
+      background: rgba(143, 29, 18, 0.05);
+      color: var(--accent) !important;
+    }
+
     .masthead a {
       color: var(--ink-faint);
       text-decoration: none;
@@ -1418,6 +1436,10 @@ export function getDefaultHomePageBody(): string {
 
       .masthead-right {
         gap: 10px;
+      }
+
+      .masthead-new-post {
+        display: none;
       }
 
       .masthead-link-icon + .masthead-link-label {
@@ -5035,6 +5057,9 @@ export function getDefaultHomePageBody(): string {
             <span className="masthead-date">{dateStr}</span>
           </div>
           <div className="masthead-right">
+            <a href="/newPost" target="_top" className="masthead-new-post" title="New Post">
+              New Post
+            </a>
             <a href="/search" target="_top" title="Search">
               <span className="masthead-link-icon masthead-search-icon" dangerouslySetInnerHTML={{ __html: searchSvg }} />
               <span className="masthead-link-label">Search</span>
