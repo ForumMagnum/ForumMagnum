@@ -7980,7 +7980,7 @@ type HomePageDesignMutationOutput {
 
 extend type Mutation {
   publishHomePageDesign(input: PublishHomePageDesignInput!): HomePageDesignMutationOutput
-  setHomePageDesignVerified(designId: String!, verified: Boolean!): HomePageDesign
+  setHomePageDesignVerified(designId: String!, verified: Boolean, autoReviewPassed: Boolean): HomePageDesign
 }
 
 input CreateJargonTermDataInput {

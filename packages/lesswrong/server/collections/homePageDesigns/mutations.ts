@@ -332,15 +332,21 @@ async function publishHomePageDesignResolver(
 
 async function setHomePageDesignVerifiedResolver(
   root: void,
-  { designId, verified }: { designId: string; verified: boolean },
+  { designId, verified, autoReviewPassed }: { designId: string; verified?: boolean; autoReviewPassed?: boolean },
   context: ResolverContext,
 ) {
   if (!userIsAdmin(context.currentUser)) {
     throw new Error("Admin access required");
   }
+  const fields: Record<string, boolean | null> = {};
+  if (verified !== undefined) fields.verified = verified;
+  if (autoReviewPassed !== undefined) {
+    fields.autoReviewPassed = autoReviewPassed;
+    if (autoReviewPassed) fields.autoReviewMessage = null;
+  }
   await HomePageDesigns.rawUpdateOne(
     { _id: designId },
-    { $set: { verified } },
+    { $set: fields },
   );
   const design = await HomePageDesigns.findOne({ _id: designId });
   if (!design) throw new Error("Design not found");
@@ -360,7 +366,7 @@ export const graphqlHomePageDesignMutationTypeDefs = gql`
 
   extend type Mutation {
     publishHomePageDesign(input: PublishHomePageDesignInput!): HomePageDesignMutationOutput
-    setHomePageDesignVerified(designId: String!, verified: Boolean!): HomePageDesign
+    setHomePageDesignVerified(designId: String!, verified: Boolean, autoReviewPassed: Boolean): HomePageDesign
   }
 `;
 

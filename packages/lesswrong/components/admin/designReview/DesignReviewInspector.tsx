@@ -8,7 +8,7 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import ErrorAccessDenied from '../../common/ErrorAccessDenied';
 import { defineStyles, useStyles } from '../../hooks/useStyles';
 import { wrapBodyInSrcdoc } from '../../common/SandboxedHomePageSrcdoc';
-import { adminHomePageDesignsQuery, setHomePageDesignVerifiedMutation } from './designReviewQueries';
+import { adminHomePageDesignsQuery, setHomePageDesignVerifiedMutation, updateCommentDeletedMutation } from './designReviewQueries';
 import { MARKETPLACE_POST_ID } from '@/lib/collections/homePageDesigns/constants';
 import { Link } from '@/lib/reactRouterWrapper';
 import classNames from 'classnames';
@@ -266,6 +266,10 @@ const styles = defineStyles('DesignReviewInspector', (theme: ThemeType) => ({
     background: theme.palette.warning.main,
     '&:hover': { background: theme.palette.error.dark },
   },
+  overrideButton: {
+    background: theme.palette.warning.main,
+    '&:hover': { background: theme.palette.error.dark },
+  },
   actionSpacer: {
     flex: 1,
   },
@@ -285,12 +289,22 @@ const DesignReviewInspector = () => {
   const [contentView, setContentView] = useState<'preview' | 'source'>('preview');
 
   const { data, loading, refetch } = useQuery(adminHomePageDesignsQuery);
-  const [mutate] = useMutation(setHomePageDesignVerifiedMutation);
+  const [designMutate] = useMutation(setHomePageDesignVerifiedMutation);
+  const [commentMutate] = useMutation(updateCommentDeletedMutation);
 
   const handleVerify = useCallback(async (designId: string, verified: boolean) => {
-    await mutate({ variables: { designId, verified } });
+    await designMutate({ variables: { designId, verified } });
     void refetch();
-  }, [mutate, refetch]);
+  }, [designMutate, refetch]);
+
+  const handleOverride = useCallback(async (design: Design) => {
+    if (!confirm("Override auto-review? This will restore the design and undelete the marketplace comment.")) return;
+    await designMutate({ variables: { designId: design._id, autoReviewPassed: true } });
+    if (design.commentId) {
+      await commentMutate({ variables: { selector: { _id: design.commentId }, data: { deleted: false } } });
+    }
+    void refetch();
+  }, [designMutate, commentMutate, refetch]);
 
   if (!currentUser || !userIsAdmin(currentUser)) {
     return <ErrorAccessDenied />;
@@ -417,6 +431,14 @@ const DesignReviewInspector = () => {
                   onClick={() => handleVerify(selected._id, false)}
                 >
                   Unverify
+                </button>
+              )}
+              {selected.autoReviewPassed === false && (
+                <button
+                  className={classNames(classes.actionButton, classes.overrideButton)}
+                  onClick={() => handleOverride(selected)}
+                >
+                  Override &amp; Restore
                 </button>
               )}
               <div className={classes.actionSpacer} />
