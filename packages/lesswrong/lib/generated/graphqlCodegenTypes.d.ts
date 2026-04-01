@@ -4376,8 +4376,9 @@ type MutationsendNewDialogueMessageNotificationArgs = {
 
 
 type MutationsetHomePageDesignVerifiedArgs = {
+  autoReviewPassed?: InputMaybe<Scalars['Boolean']['input']>;
   designId: Scalars['String']['input'];
-  verified: Scalars['Boolean']['input'];
+  verified?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -12280,18 +12281,34 @@ type AdminHomePageDesignsQueryVariables = Exact<{ [key: string]: never; }>;
 
 type AdminHomePageDesignsQuery = AdminHomePageDesignsQuery_Query;
 
-type SetHomePageDesignVerifiedMutation_setHomePageDesignVerified_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, verified: boolean };
+type SetHomePageDesignVerifiedMutation_setHomePageDesignVerified_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, verified: boolean, autoReviewPassed: boolean | null, autoReviewMessage: string | null };
 
 type SetHomePageDesignVerifiedMutation_Mutation = { __typename?: 'Mutation', setHomePageDesignVerified: SetHomePageDesignVerifiedMutation_setHomePageDesignVerified_HomePageDesign | null };
 
 
 type SetHomePageDesignVerifiedMutationVariables = Exact<{
   designId: Scalars['String']['input'];
-  verified: Scalars['Boolean']['input'];
+  verified: InputMaybe<Scalars['Boolean']['input']>;
+  autoReviewPassed: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
 type SetHomePageDesignVerifiedMutation = SetHomePageDesignVerifiedMutation_Mutation;
+
+type UpdateCommentDeletedMutation_updateComment_CommentOutput_data_Comment = { __typename?: 'Comment', _id: string, deleted: boolean };
+
+type UpdateCommentDeletedMutation_updateComment_CommentOutput = { __typename?: 'CommentOutput', data: UpdateCommentDeletedMutation_updateComment_CommentOutput_data_Comment | null };
+
+type UpdateCommentDeletedMutation_Mutation = { __typename?: 'Mutation', updateComment: UpdateCommentDeletedMutation_updateComment_CommentOutput | null };
+
+
+type UpdateCommentDeletedMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateCommentDataInput;
+}>;
+
+
+type UpdateCommentDeletedMutation = UpdateCommentDeletedMutation_Mutation;
 
 type MigrationsDashboardQueryQuery_MigrationsDashboard_MigrationsDashboardData_migrations_MigrationStatus_runs_MigrationRun = { __typename?: 'MigrationRun', name: string, started: string, finished: string | null, succeeded: boolean | null };
 

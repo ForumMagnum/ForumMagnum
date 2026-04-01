@@ -21,10 +21,23 @@ export const adminHomePageDesignsQuery = gql(`
 `);
 
 export const setHomePageDesignVerifiedMutation = gql(`
-  mutation SetHomePageDesignVerified($designId: String!, $verified: Boolean!) {
-    setHomePageDesignVerified(designId: $designId, verified: $verified) {
+  mutation SetHomePageDesignVerified($designId: String!, $verified: Boolean, $autoReviewPassed: Boolean) {
+    setHomePageDesignVerified(designId: $designId, verified: $verified, autoReviewPassed: $autoReviewPassed) {
       _id
       verified
+      autoReviewPassed
+      autoReviewMessage
+    }
+  }
+`);
+
+export const updateCommentDeletedMutation = gql(`
+  mutation UpdateCommentDeleted($selector: SelectorInput!, $data: UpdateCommentDataInput!) {
+    updateComment(selector: $selector, data: $data) {
+      data {
+        _id
+        deleted
+      }
     }
   }
 `);
