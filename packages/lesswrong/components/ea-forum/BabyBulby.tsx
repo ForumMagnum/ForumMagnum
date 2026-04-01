@@ -992,7 +992,7 @@ const BabyBulby = ({
       window.removeEventListener("pagehide", onPageHide);
       document.removeEventListener("visibilitychange", onVisibilityChange);
     };
-  }, [currentUser, displayStage, isStateHydrated, persistBabyBulbyState, refetchCurrentUser]);
+  }, [applyHungerSnapshotLocally, currentUser, displayStage, isStateHydrated, persistBabyBulbyState, refetchCurrentUser]);
 
   useEffect(() => {
     if (displayStage !== "bulby") {
