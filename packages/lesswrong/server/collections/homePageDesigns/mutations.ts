@@ -1,6 +1,6 @@
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { createComment } from "@/server/collections/comments/mutations";
+import { createComment, updateComment } from "@/server/collections/comments/mutations";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { generateText, tool } from "ai";
 import gql from "graphql-tag";
@@ -9,6 +9,11 @@ import { captureException } from "@/lib/sentryWrapper";
 import { MARKETPLACE_POST_ID } from "@/lib/collections/homePageDesigns/constants";
 import { postMessage } from "@/server/slack/client";
 import HomePageDesigns from "./collection";
+import { getAdminTeamAccount } from "@/server/utils/adminTeamAccount";
+import { createConversation } from "@/server/collections/conversations/mutations";
+import { createMessage } from "@/server/collections/messages/mutations";
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import { createAnonymousContext } from "@/server/vulcan-lib/createContexts";
 
 export const DESIGN_SECURITY_REVIEW_PROMPT = `You are a security reviewer for user-submitted home page designs on LessWrong, a discussion forum about rationality and AI safety.
 
@@ -126,12 +131,15 @@ async function reviewDesignSecurity(html: string): Promise<{ passed: boolean; me
   return securityVerdictSchema.parse(toolCall.input);
 }
 
-interface AutoReviewUser {
+interface AutoReviewContext {
+  userId: string;
   displayName: string;
   slug: string;
+  commentId: string;
+  commentHtml: string;
 }
 
-async function notifyModerationOfFailedReview(designId: string, user: AutoReviewUser, message: string) {
+async function notifyModerationOfFailedReview(designId: string, user: AutoReviewContext, message: string) {
   const baseUrl = `https://${process.env.SITE_URL ?? "lesswrong.com"}`;
   const userLink = `${baseUrl}/users/${user.slug}`;
   const designLink = `${baseUrl}/?theme=${designId}`;
@@ -165,7 +173,58 @@ async function notifyModerationOfFailedReview(designId: string, user: AutoReview
   }
 }
 
-async function runAutoReview(designId: string, html: string, user: AutoReviewUser) {
+async function notifyUserOfRejection(reviewContext: AutoReviewContext) {
+  try {
+    const context = createAnonymousContext();
+    const adminAccount = await getAdminTeamAccount(context);
+    if (!adminAccount) return;
+
+    const adminContext = computeContextFromUser({ user: adminAccount, isSSR: false });
+
+    const conversation = await createConversation({
+      data: {
+        participantIds: [reviewContext.userId, adminAccount._id],
+        title: "Your home page design submission was removed",
+        moderator: true,
+      },
+    }, adminContext);
+
+    const messageHtml =
+      `<p>Your home page design submission was removed after an automated review. ` +
+      `Your comment has been deleted. The content of the deleted comment was:</p>` +
+      `<blockquote>${reviewContext.commentHtml}</blockquote>`;
+
+    await createMessage({
+      data: {
+        userId: adminAccount._id,
+        contents: {
+          originalContents: { type: "html", data: messageHtml },
+        },
+        conversationId: conversation._id,
+        noEmail: false,
+      },
+    }, adminContext);
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.error("Failed to send rejection DM for design", reviewContext.commentId, err);
+  }
+}
+
+async function handleRejection(designId: string, reviewContext: AutoReviewContext, message: string) {
+  const context = createAnonymousContext();
+  const adminAccount = await getAdminTeamAccount(context);
+  if (adminAccount) {
+    const adminContext = computeContextFromUser({ user: adminAccount, isSSR: false });
+    await updateComment({
+      data: { deleted: true, deletedDate: new Date() },
+      selector: { _id: reviewContext.commentId },
+    }, adminContext);
+  }
+  await notifyUserOfRejection(reviewContext);
+  await notifyModerationOfFailedReview(designId, reviewContext, message);
+}
+
+async function runAutoReview(designId: string, html: string, reviewContext: AutoReviewContext) {
   try {
     const review = await reviewDesignSecurity(html);
     await HomePageDesigns.rawUpdateOne(
@@ -173,7 +232,7 @@ async function runAutoReview(designId: string, html: string, user: AutoReviewUse
       { $set: { autoReviewPassed: review.passed, autoReviewMessage: review.message } },
     );
     if (!review.passed) {
-      await notifyModerationOfFailedReview(designId, user, review.message ?? "No details provided");
+      await handleRejection(designId, reviewContext, review.message ?? "No details provided");
     }
   } catch (err) {
     captureException(err);
@@ -184,7 +243,7 @@ async function runAutoReview(designId: string, html: string, user: AutoReviewUse
       { _id: designId },
       { $set: { autoReviewPassed: false, autoReviewMessage: errorMessage } },
     );
-    await notifyModerationOfFailedReview(designId, user, errorMessage);
+    await handleRejection(designId, reviewContext, errorMessage);
   }
 }
 
@@ -239,11 +298,12 @@ async function publishHomePageDesignResolver(
     { _id: 1, commentId: 1 },
   );
 
+  const linkUrl = `/?theme=${publicId}`;
+  const commentHtml = `<p><a href="${linkUrl}">${title}</a></p>${descriptionHtml}`;
+
   let commentId;
   // Create a comment on the marketplace post if no comment already exists for this design
   if (!existingPublished) {
-    const linkUrl = `/?theme=${publicId}`;
-    const commentHtml = `<p><a href="${linkUrl}">${title}</a></p>${descriptionHtml}`;
 
     const comment = await createComment({
       data: {
@@ -269,8 +329,11 @@ async function publishHomePageDesignResolver(
 
   // Kick off the automated security review in the background
   backgroundTask(runAutoReview(latest._id, latest.html, {
+    userId: currentUser._id,
     displayName: currentUser.displayName,
     slug: currentUser.slug,
+    commentId: commentId!,
+    commentHtml,
   }));
 
   const result = await HomePageDesigns.findOne({ _id: latest._id });
