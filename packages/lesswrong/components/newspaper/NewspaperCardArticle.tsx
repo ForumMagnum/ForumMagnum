@@ -1,0 +1,130 @@
+import React from 'react';
+import type { PostsListWithVotes } from '@/lib/generated/gql-codegen/graphql';
+import { Link } from '@/lib/reactRouterWrapper';
+import { postGetPageUrl } from '@/lib/collections/posts/helpers';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { headerStack, serifStack, sansSerifStack } from '@/themes/defaultPalette';
+import NewspaperJustifiedText from './NewspaperJustifiedText';
+import { formatAuthor, formatScore, getCoreTags, getPostExcerptHtml } from './newspaperHelpers';
+
+const INK = '#1A1A1A';
+const INK_SECONDARY = '#555555';
+const INK_TERTIARY = '#888888';
+const RULE_COLOR = '#DDDDDD';
+
+const styles = defineStyles('NewspaperCardArticle', () => ({
+  card: {
+    padding: '0 20px 20px 20px',
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'flex-start',
+    borderRight: `1px solid ${RULE_COLOR}`,
+    borderBottom: `1px solid ${RULE_COLOR}`,
+    '&:nth-child(3n)': {
+      borderRight: 'none',
+    },
+    '&:nth-child(n+4)': {
+      borderBottom: 'none',
+    },
+    '@media (max-width: 600px)': {
+      borderRight: 'none !important',
+      borderBottom: `1px solid ${RULE_COLOR} !important`,
+      '&:last-child': {
+        borderBottom: 'none !important',
+      },
+    },
+  },
+  cardTitle: {
+    fontFamily: headerStack,
+    fontWeight: 400,
+    lineHeight: 1.25,
+    marginBottom: 8,
+    marginTop: 20,
+    textWrap: 'pretty',
+    minHeight: "unset",
+    color: INK,
+    '& a': {
+      color: INK,
+      textDecoration: 'none',
+    },
+  },
+  cardByline: {
+    fontFamily: headerStack,
+    fontWeight: 700,
+    fontSize: '12px',
+    color: INK_TERTIARY,
+    marginBottom: 12,
+  },
+  cardExcerpt: {
+    fontFamily: serifStack,
+    fontSize: '15px',
+    lineHeight: 1.6,
+    color: INK_SECONDARY,
+    flex: 1,
+    overflow: 'hidden',
+  },
+  cardMeta: {
+    marginTop: "auto",
+    fontFamily: sansSerifStack,
+    fontSize: '11px',
+    color: INK_TERTIARY,
+    paddingTop: 12,
+    display: "flex",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  coreTag: {
+    color: INK_TERTIARY,
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
+  },
+}), { allowNonThemeColors: true });
+
+const titleFontSizeTiers: [number, number][] = [
+  [30, 28],
+  [55, 24],
+  [80, 21],
+  [110, 18],
+];
+
+function getTitleFontSize(title: string): number {
+  const len = title.length;
+  for (const [maxLen, size] of titleFontSizeTiers) {
+    if (len <= maxLen) return size;
+  }
+  return 15;
+}
+
+const NewspaperCardArticle = ({post}:{post: PostsListWithVotes}) => {
+  const classes = useStyles(styles);
+  const url = postGetPageUrl(post);
+  const excerptHtml = getPostExcerptHtml(post);
+  const titleFontSize = getTitleFontSize(post.title);
+
+  return <article className={classes.card}>
+    <div>
+      <h2 className={classes.cardTitle} style={{ fontSize: titleFontSize }}>
+        <Link to={url}>{post.title}</Link>
+      </h2>
+      <div className={classes.cardByline}>
+        {formatAuthor(post)}
+      </div>
+    </div>
+    {excerptHtml && <div className={classes.cardExcerpt}>
+      <NewspaperJustifiedText html={excerptHtml} maxLines={8} />
+    </div>}
+    <div className={classes.cardMeta}>
+      <span>
+        {formatScore(post.baseScore ?? 0)}
+        {getCoreTags(post).map(tag => <React.Fragment key={tag.slug}>{' · '}<Link to={`/tag/${tag.slug}`} className={classes.coreTag}>{tag.name}</Link></React.Fragment>)}
+      </span>
+      <span>
+        {post.commentCount ?? 0} comments
+      </span>
+    </div>
+  </article>;
+};
+
+export default NewspaperCardArticle;

@@ -52,6 +52,7 @@
     "@babel/runtime": "^7.26.10",
     "@breejs/later": "^4.2.0",
     "@centreforeffectivealtruism/umzug": "^3.2.1",
+    "@chenglou/pretext": "^0.0.3",
     "@ckeditor/ckeditor5-core": "^47.3.0",
     "@ckeditor/ckeditor5-engine": "^47.3.0",
     "@ckeditor/ckeditor5-inspector": "^4.1.0",

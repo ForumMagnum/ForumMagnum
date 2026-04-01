@@ -1,6 +1,6 @@
 import React from 'react';
 import { registerComponent } from '@/lib/vulcan-lib/components';
-import { useSubscribedLocation } from '@/lib/routeUtil';
+import { useSubscribedLocation, useLocation } from '@/lib/routeUtil';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
 import { isHomeRoute, isRouteWithLeftNavigationColumn } from '@/lib/routeChecks';
@@ -149,10 +149,24 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
   },
 }));
 
+function isNewspaperActive(query: Record<string, string>, isHomePage: boolean): boolean {
+  if (!isHomePage) return false;
+  if (query.newspaper === 'true') return true;
+  if (query.newspaper === 'false') return false;
+  const now = new Date();
+  return now.getMonth() === 3 && now.getDate() === 1; // April 1st
+}
+
 export const LWBackgroundImage = () => {
   const classes = useStyles(styles);
   const pathname = usePrerenderablePathname();
   const isHomePage = isHomeRoute(pathname);
+  const { query } = useLocation();
+
+  // Hide background art when newspaper frontpage is active
+  if (isNewspaperActive(query, isHomePage)) {
+    return <div className={classes.root} />;
+  }
 
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_SOLSTICE_GLOBE_COOKIE]);
   const hideGlobeCookie = cookies[HIDE_SOLSTICE_GLOBE_COOKIE] === "true";
