@@ -438,6 +438,8 @@ type HomePageDesignsCollection = PgCollection<"HomePageDesigns">;
 
 interface DbHomePageDesign extends DbObject {
   __collectionName?: "HomePageDesigns"
+  autoReviewMessage: string | null
+  autoReviewPassed: boolean | null
   commentId: string | null
   conversationHistory: any
   createdAt: Date

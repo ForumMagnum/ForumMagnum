@@ -2971,6 +2971,8 @@ type HomePageDesign {
   commentId: String
   source: String!
   modelName: String
+  autoReviewPassed: Boolean
+  autoReviewMessage: String
   conversationHistory: JSON!
 }
 

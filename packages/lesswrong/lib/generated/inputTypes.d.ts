@@ -2667,6 +2667,8 @@ interface HomePageDesign {
   commentId: string | null;
   source: string;
   modelName: string | null;
+  autoReviewPassed: boolean | null;
+  autoReviewMessage: string | null;
   conversationHistory: any;
 }
 

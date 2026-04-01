@@ -148,7 +148,7 @@ query($limit: Int) {
 
 | View | Key Parameters | Description |
 |------|---------------|-------------|
-| \`recentComments\` | \`sortBy: String, after: String, before: String\` | Recent comments across the site. sortBy options: "new" (default, newest first), "old" (oldest first), "top" (top comments by baseScore/karma), "magic" (decayed score) |
+| \`recentComments\` | \`sortBy: String, after: String, before: String\` | Recent comments across the site. sortBy options: "new" (default, newest first), "old" (oldest first), "top" (top comments by baseScore/karma - importantly, this _does NOT_ sort by date at all, so should not be used for any date-based sorting), "magic" (decayed score) |
 | \`postCommentsTop\` | \`postId: String!\` | Top comments on a specific post |
 | \`postCommentsNew\` | \`postId: String!\` | Newest comments on a post |
 | \`postCommentsBest\` | \`postId: String!\` | Best comments on a post |

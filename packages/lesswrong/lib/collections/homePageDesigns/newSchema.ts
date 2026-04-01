@@ -105,6 +105,31 @@ const schema = {
     },
   },
 
+  // Result of the automated LLM security review. null = not yet reviewed.
+  autoReviewPassed: {
+    database: {
+      type: "BOOL",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: ["admins"],
+    },
+  },
+
+  // Issue description from the automated review, if it failed. null when
+  // not yet reviewed or when the review passed.
+  autoReviewMessage: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["admins"],
+    },
+  },
+
   // Access control for this field is handled by the custom query resolvers,
   // which strip it for non-owners.
   conversationHistory: {

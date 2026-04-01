@@ -2323,6 +2323,8 @@ type HocuspocusAuth = {
 type HomePageDesign = {
   __typename?: 'HomePageDesign';
   _id: Scalars['String']['output'];
+  autoReviewMessage?: Maybe<Scalars['String']['output']>;
+  autoReviewPassed?: Maybe<Scalars['Boolean']['output']>;
   commentId?: Maybe<Scalars['String']['output']>;
   conversationHistory: Scalars['JSON']['output'];
   createdAt: Scalars['Date']['output'];
