@@ -577,6 +577,7 @@ export const PostsEdit = gql(`
     ...PostsDetails
     sideComments
     myEditorAccess
+    collabEditorEpoch
     version
     coauthorUserIds
     readTimeMinutesOverride

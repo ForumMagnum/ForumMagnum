@@ -1515,6 +1515,7 @@ CREATE TABLE "Posts" (
   "topLevelCommentCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "debate" BOOL NOT NULL DEFAULT FALSE,
   "collabEditorDialogue" BOOL NOT NULL DEFAULT FALSE,
+  "collabEditorEpoch" INTEGER NOT NULL DEFAULT 1,
   "mostRecentPublishedDialogueResponseDate" TIMESTAMPTZ,
   "rejected" BOOL NOT NULL DEFAULT FALSE,
   "rejectedReason" TEXT,

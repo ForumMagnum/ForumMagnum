@@ -889,6 +889,7 @@ interface DbPost extends DbObject {
   coauthorStatuses: Array<CoauthorStatusInput!> | null
   coauthorUserIds: Array<string>
   collabEditorDialogue: boolean
+  collabEditorEpoch: number
   collectionTitle: string | null
   commentCount: number
   commentSortOrder: string | null

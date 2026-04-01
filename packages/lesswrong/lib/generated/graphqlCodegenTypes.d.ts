@@ -1420,6 +1420,7 @@ type CreatePostDataInput = {
   coauthorStatuses?: InputMaybe<Array<CoauthorStatusInput>>;
   coauthorUserIds?: InputMaybe<Array<Scalars['String']['input']>>;
   collabEditorDialogue?: InputMaybe<Scalars['Boolean']['input']>;
+  collabEditorEpoch?: InputMaybe<Scalars['Int']['input']>;
   collectionTitle?: InputMaybe<Scalars['String']['input']>;
   commentSortOrder?: InputMaybe<Scalars['String']['input']>;
   commentsLocked?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4884,6 +4885,7 @@ type Post = {
   coauthorUserIds: Array<Scalars['String']['output']>;
   coauthors?: Maybe<Array<User>>;
   collabEditorDialogue: Scalars['Boolean']['output'];
+  collabEditorEpoch: Scalars['Int']['output'];
   collectionTitle?: Maybe<Scalars['String']['output']>;
   commentCount: Scalars['Float']['output'];
   commentSortOrder?: Maybe<Scalars['String']['output']>;
@@ -7124,6 +7126,7 @@ type QueryGivingSeasonHeartsArgs = {
 
 
 type QueryHocuspocusAuthArgs = {
+  clientCollabEditorEpoch?: InputMaybe<Scalars['Int']['input']>;
   linkSharingKey?: InputMaybe<Scalars['String']['input']>;
   postId: Scalars['String']['input'];
 };
@@ -10275,6 +10278,7 @@ type UpdatePostDataInput = {
   coauthorStatuses?: InputMaybe<Array<CoauthorStatusInput>>;
   coauthorUserIds?: InputMaybe<Array<Scalars['String']['input']>>;
   collabEditorDialogue?: InputMaybe<Scalars['Boolean']['input']>;
+  collabEditorEpoch?: InputMaybe<Scalars['Int']['input']>;
   collectionTitle?: InputMaybe<Scalars['String']['input']>;
   commentSortOrder?: InputMaybe<Scalars['String']['input']>;
   commentsLocked?: InputMaybe<Scalars['Boolean']['input']>;
@@ -13800,6 +13804,20 @@ type autosaveRevisionMutationVariables = Exact<{
 
 
 type autosaveRevisionMutation = autosaveRevisionMutation_Mutation;
+
+type HocuspocusEditorAuthQueryQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string };
+
+type HocuspocusEditorAuthQueryQuery_Query = { __typename?: 'Query', HocuspocusAuth: HocuspocusEditorAuthQueryQuery_HocuspocusAuth_HocuspocusAuth | null };
+
+
+type HocuspocusEditorAuthQueryQueryVariables = Exact<{
+  postId: Scalars['String']['input'];
+  linkSharingKey: InputMaybe<Scalars['String']['input']>;
+  clientCollabEditorEpoch: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type HocuspocusEditorAuthQueryQuery = HocuspocusEditorAuthQueryQuery_Query;
 
 type multiRevisionPostVersionHistoryQueryQuery_revisions_MultiRevisionOutput_results_Revision = (
   { __typename?: 'Revision' }
@@ -22733,7 +22751,7 @@ type PostsEdit_Post_coauthors_User = (
 );
 
 type PostsEdit = (
-  { __typename?: 'Post', sideComments: any | null, myEditorAccess: string, version: string | null, coauthorUserIds: Array<string>, readTimeMinutesOverride: number | null, hideFromRecentDiscussions: boolean, hideFromPopularComments: boolean | null, tableOfContents: any | null, subforumTagId: string | null, socialPreviewImageId: string | null, generateDraftJargon: boolean | null, fmCrosspost: PostsEdit_Post_fmCrosspost_CrosspostOutput | null, moderationGuidelines: PostsEdit_Post_moderationGuidelines_Revision | null, customHighlight: PostsEdit_Post_customHighlight_Revision | null, socialPreview: PostsEdit_Post_socialPreview_SocialPreviewOutput | null, socialPreviewData: PostsEdit_Post_socialPreviewData_SocialPreviewType, user: PostsEdit_Post_user_User | null, usersSharedWith: Array<PostsEdit_Post_usersSharedWith_User> | null, coauthors: Array<PostsEdit_Post_coauthors_User> | null }
+  { __typename?: 'Post', sideComments: any | null, myEditorAccess: string, collabEditorEpoch: number, version: string | null, coauthorUserIds: Array<string>, readTimeMinutesOverride: number | null, hideFromRecentDiscussions: boolean, hideFromPopularComments: boolean | null, tableOfContents: any | null, subforumTagId: string | null, socialPreviewImageId: string | null, generateDraftJargon: boolean | null, fmCrosspost: PostsEdit_Post_fmCrosspost_CrosspostOutput | null, moderationGuidelines: PostsEdit_Post_moderationGuidelines_Revision | null, customHighlight: PostsEdit_Post_customHighlight_Revision | null, socialPreview: PostsEdit_Post_socialPreview_SocialPreviewOutput | null, socialPreviewData: PostsEdit_Post_socialPreviewData_SocialPreviewType, user: PostsEdit_Post_user_User | null, usersSharedWith: Array<PostsEdit_Post_usersSharedWith_User> | null, coauthors: Array<PostsEdit_Post_coauthors_User> | null }
   & PostsDetails
 );
 

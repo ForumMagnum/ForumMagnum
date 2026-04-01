@@ -64,6 +64,20 @@ export async function readYjsState(documentName: string): Promise<Uint8Array | n
 }
 
 /**
+ * Bump the collaboration epoch for a post before performing a destructive
+ * reset of the collaborative document. Existing editors must present their
+ * local epoch when fetching a new Hocuspocus token; once the epoch changes,
+ * stale sessions are forced to clear local Yjs state before reconnecting.
+ */
+export async function bumpCollabEditorEpoch(postId: string): Promise<void> {
+  await Posts.rawUpdateOne({ _id: postId }, {
+    $inc: {
+      collabEditorEpoch: 1,
+    },
+  });
+}
+
+/**
  * When saving a collaborative editor post, the "user ID" from the Hocuspocus
  * context might be from a link-sharing user who isn't logged in. In that case
  * we attribute the revision to the original post author, but mark it as

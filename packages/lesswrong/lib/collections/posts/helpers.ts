@@ -485,6 +485,7 @@ export type EditablePost = UpdatePostDataInput & {
   debate: boolean;
   title: string;
   myEditorAccess?: string;
+  collabEditorEpoch?: number;
 } & Pick<PostsListBase, 'postCategory'>;
 
 export interface PostSubmitMeta {

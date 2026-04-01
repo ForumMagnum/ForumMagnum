@@ -627,7 +627,7 @@ extend type Query {
   LastCuratedDate: LastCuratedDateResult!
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
   HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
-  HocuspocusAuth(postId: String!, linkSharingKey: String): HocuspocusAuth
+  HocuspocusAuth(postId: String!, linkSharingKey: String, clientCollabEditorEpoch: Int): HocuspocusAuth
 }
 
 extend type Mutation {
@@ -4138,6 +4138,7 @@ type Post {
   languageModelSummary: String
   debate: Boolean!
   collabEditorDialogue: Boolean!
+  collabEditorEpoch: Int!
   totalDialogueResponseCount: Int!
   mostRecentPublishedDialogueResponseDate: Date
   unreadDebateResponseCount: Int!
@@ -8355,6 +8356,7 @@ input CreatePostDataInput {
   ignoreRateLimits: Boolean
   hideCommentKarma: Boolean
   collabEditorDialogue: Boolean
+  collabEditorEpoch: Int
   rejected: Boolean
   rejectedReason: String
   rejectedByUserId: String
@@ -8472,6 +8474,7 @@ input UpdatePostDataInput {
   ignoreRateLimits: Boolean
   hideCommentKarma: Boolean
   collabEditorDialogue: Boolean
+  collabEditorEpoch: Int
   rejected: Boolean
   rejectedReason: String
   rejectedByUserId: String

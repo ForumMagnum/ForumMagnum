@@ -8,7 +8,7 @@ import { userCanDo } from '../../lib/vulcan-users/permissions';
 import { restrictViewableFields } from '@/lib/vulcan-users/restrictViewableFields';
 import { revisionIsChange } from '../editor/make_editable_callbacks';
 import { pushRevisionToCkEditor } from './ckEditorApi';
-import { pushRevisionToLexicalCollab } from '../hocuspocus/hocuspocusCallbacks';
+import { bumpCollabEditorEpoch, pushRevisionToLexicalCollab } from '../hocuspocus/hocuspocusCallbacks';
 import gql from 'graphql-tag';
 import { updatePost } from '../collections/posts/mutations';
 
@@ -137,6 +137,7 @@ export const ckEditorCallbacksGraphQLMutations = {
       // to the Hocuspocus server, which replaces the live document state.
       // eslint-disable-next-line no-console
       console.log("Reverting to a Lexical collaborative revision");
+      await bumpCollabEditorEpoch(post._id);
       await pushRevisionToLexicalCollab(post._id, revision._id);
     } else {
       // Non-collaborative post (or cross-format restore on a collab post)

@@ -3926,6 +3926,24 @@ const schema = {
       },
     },
   },
+  collabEditorEpoch: {
+    database: {
+      type: "INTEGER",
+      defaultValue: 1,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Int!",
+      inputType: "Int",
+      canRead: ["guests"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   totalDialogueResponseCount: {
     graphql: {
       outputType: "Int!",
