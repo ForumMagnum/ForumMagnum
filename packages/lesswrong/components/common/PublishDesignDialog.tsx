@@ -115,6 +115,10 @@ const PublishDesignDialog = ({ publicId, onClose }: {
           <div className={classes.description}>
             This will post a comment with a link to your design in
             the <PostsTooltip postId={MARKETPLACE_POST_ID}><a href={marketplaceUrl} target="_blank" rel="noopener noreferrer">home page marketplace</a></PostsTooltip>.
+            Your comment will appear immediately, but your design will go through
+            a brief automated review (usually under a minute). If the review flags
+            an issue, your comment will be removed and you'll receive a message
+            letting you know.
           </div>
           <TextField
             className={classes.titleInput}
