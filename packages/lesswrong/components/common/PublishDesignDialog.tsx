@@ -84,7 +84,7 @@ const styles = defineStyles("PublishDesignDialog", (theme: ThemeType) => ({
       opacity: 0.5,
     },
   },
-}));
+}), { allowNonThemeColors: true });
 
 const PublishDesignDialog = ({ publicId, onClose }: {
   publicId: string;

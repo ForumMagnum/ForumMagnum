@@ -1,5 +1,5 @@
 import { validateAccessToken, OAuthError } from "@/server/oauth/oauthProvider";
-import { HOME_PAGE_DESIGN_PUBLIC_ID_LENGTH } from "@/lib/collections/homePageDesigns/constants";
+import { HOME_PAGE_DESIGN_PUBLIC_ID_LENGTH, HOME_PAGE_DESIGN_MAX_HTML_SIZE } from "@/lib/collections/homePageDesigns/constants";
 import HomePageDesigns from "@/server/collections/homePageDesigns/collection";
 import { NextResponse, type NextRequest } from "next/server";
 
@@ -60,6 +60,13 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  if (html.length > HOME_PAGE_DESIGN_MAX_HTML_SIZE) {
+    return NextResponse.json(
+      { error: "invalid_request", error_description: `"html" exceeds the ${HOME_PAGE_DESIGN_MAX_HTML_SIZE / 1024}KB size limit` },
+      { status: 400 },
+    );
+  }
+
   let publicId = clientPublicId ?? null;
 
   // If updating an existing design, verify ownership
@@ -88,7 +95,7 @@ export async function POST(req: NextRequest) {
     verified: false,
     commentId: null,
     createdAt: new Date(),
-    autoReviewPassed: false,
+    autoReviewPassed: null,
     autoReviewMessage: null,
   });
 

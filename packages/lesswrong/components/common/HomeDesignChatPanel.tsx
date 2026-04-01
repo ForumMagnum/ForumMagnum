@@ -22,6 +22,7 @@ import { useApolloClient } from '@apollo/client/react';
 import moment from 'moment';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HOME_DESIGN_DEFAULT_BUILT_IN_VALUE, HOME_DESIGN_DEFAULT_CLASSIC_VALUE, HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
+import { canPublishHomeDesign } from '@/lib/collections/homePageDesigns/constants';
 
 const myHomePageDesignSummariesQuery = gql(`
   query MyHomePageDesignSummaries {
@@ -102,7 +103,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     flexShrink: 0,
-    background: '#f8f4ee',
+    background: theme.palette.background.default,
     borderLeft: '1px solid rgba(23, 20, 17, 0.18)',
     boxShadow: 'inset 1px 0 0 rgba(255,255,255,0.35)',
     overflow: 'hidden',
@@ -204,7 +205,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     color: '#85776c',
   },
   userMessageMeta: {
-    color: '#5f9b65',
+    color: theme.palette.primary.main,
   },
   assistantMessageMeta: {
     color: '#8f1d12',
@@ -246,7 +247,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     flexWrap: 'wrap',
     fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
     fontSize: 10,
-    color: '#5f9b65',
+    color: theme.palette.primary.main,
     letterSpacing: '0.16em',
     textTransform: 'uppercase' as const,
     padding: '4px 0',
@@ -304,6 +305,18 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     fontSize: 9,
     letterSpacing: '0.22em',
     textTransform: 'uppercase' as const,
+    color: '#85776c',
+  },
+  sendColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 6,
+  },
+  modelLabel: {
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 9,
+    letterSpacing: '0.12em',
     color: '#85776c',
   },
   input: {
@@ -581,7 +594,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     color: theme.palette.text.dim3,
     textAlign: 'center',
   },
-}));
+}), { allowNonThemeColors: true });
 
 const HomeDesignChatPanel = () => {
   const classes = useStyles(styles);
@@ -927,8 +940,7 @@ const HomeDesignChatPanel = () => {
                           )}
                         </div>
                         {isApplied && publicId && part.toolCallId === lastAppliedToolCallId &&
-                          currentUser && !currentUser.banned &&
-                          (currentUser.isReviewed || new Date(currentUser.createdAt) < new Date("2026-04-01T07:00:00.000Z")) && (
+                          canPublishHomeDesign(currentUser) && (
                           <button
                             className={classes.publishButton}
                             onClick={() => setShowPublishDialog(true)}
@@ -961,13 +973,18 @@ const HomeDesignChatPanel = () => {
               disabled={isLoading}
               rows={4}
             />
-            <button
-              type="submit"
-              className={classes.sendButton}
-              disabled={isLoading || !input.trim()}
-            >
-              {isLoading ? '...' : 'Send'}
-            </button>
+            <div className={classes.sendColumn}>
+              <div className={classes.modelLabel}>
+                {canPublishHomeDesign(currentUser) ? 'Sonnet 4.6' : 'Flash 3.0'}
+              </div>
+              <button
+                type="submit"
+                className={classes.sendButton}
+                disabled={isLoading || !input.trim()}
+              >
+                {isLoading ? '...' : 'Send'}
+              </button>
+            </div>
           </form>
         </>
       )}

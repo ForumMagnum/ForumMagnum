@@ -2973,7 +2973,7 @@ type HomePageDesign {
   modelName: String
   autoReviewPassed: Boolean
   autoReviewMessage: String
-  conversationHistory: JSON!
+  conversationHistory: JSON
 }
 
 type HomePageDesignSummary {

@@ -2343,7 +2343,7 @@ type HomePageDesign = {
   autoReviewMessage?: Maybe<Scalars['String']['output']>;
   autoReviewPassed?: Maybe<Scalars['Boolean']['output']>;
   commentId?: Maybe<Scalars['String']['output']>;
-  conversationHistory: Scalars['JSON']['output'];
+  conversationHistory?: Maybe<Scalars['JSON']['output']>;
   createdAt: Scalars['Date']['output'];
   html: Scalars['String']['output'];
   modelName?: Maybe<Scalars['String']['output']>;
@@ -13007,7 +13007,7 @@ type MyHomePageDesignSummariesQueryVariables = Exact<{ [key: string]: never; }>;
 
 type MyHomePageDesignSummariesQuery = MyHomePageDesignSummariesQuery_Query;
 
-type HomePageDesignByPublicIdFullQuery_homePageDesignByPublicId_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, publicId: string, html: string, title: string, source: string, conversationHistory: any };
+type HomePageDesignByPublicIdFullQuery_homePageDesignByPublicId_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, publicId: string, html: string, title: string, source: string, conversationHistory: any | null };
 
 type HomePageDesignByPublicIdFullQuery_Query = { __typename?: 'Query', homePageDesignByPublicId: HomePageDesignByPublicIdFullQuery_homePageDesignByPublicId_HomePageDesign | null };
 

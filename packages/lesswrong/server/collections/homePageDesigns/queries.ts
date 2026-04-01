@@ -26,7 +26,7 @@ function filterDesignFields(design: DbHomePageDesign, context: ResolverContext):
   const isAdmin = userIsAdmin(context.currentUser);
   if (isOwner || isAdmin) return design;
   // Strip conversationHistory for non-owners
-  const { conversationHistory: _, ...rest } = design;
+  const { conversationHistory: _conversationHistory, autoReviewPassed: _autoReviewPassed, autoReviewMessage: _autoReviewMessage, ...rest } = design;
   return rest;
 }
 

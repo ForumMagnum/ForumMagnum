@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import HomePageDesigns from "@/server/collections/homePageDesigns/collection";
 import { ClientIds } from "@/server/collections/clientIds/collection";
-import { HOME_PAGE_DESIGN_PUBLIC_ID_LENGTH } from "@/lib/collections/homePageDesigns/constants";
+import { HOME_PAGE_DESIGN_PUBLIC_ID_LENGTH, HOME_PAGE_DESIGN_MAX_HTML_SIZE, canPublishHomeDesign } from "@/lib/collections/homePageDesigns/constants";
 import { HOME_DESIGN_SHARED_PROMPT } from "@/lib/homeDesignPrompt";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { NextRequest } from "next/server";
@@ -60,7 +60,21 @@ export async function POST(req: NextRequest) {
   const messageLimit = currentUser ? 8 : 3;
   const designLimit = currentUser ? 10 : 3;
 
-  const userMessageCount = messages.filter((m) => m.role === 'user').length;
+  // Count user messages from the server-side conversation history (not the
+  // client-supplied messages array, which can be truncated to bypass limits).
+  // The +1 accounts for the new message being sent in this request.
+  let userMessageCount: number;
+  if (clientPublicId) {
+    const latest = await HomePageDesigns.findOne(
+      { publicId: clientPublicId, ownerId },
+      { sort: { createdAt: -1 } },
+      { conversationHistory: 1 },
+    );
+    const history = (latest?.conversationHistory ?? []) as Array<{ role: string }>;
+    userMessageCount = history.filter((m) => m.role === 'user').length + 1;
+  } else {
+    userMessageCount = 1;
+  }
   if (userMessageCount > messageLimit) {
     const suggestion = currentUser
       ? 'You\'ve reached your message limit for this conversation. Start a new conversation to continue designing.'
@@ -102,13 +116,7 @@ export async function POST(req: NextRequest) {
     existingTitle = original.title;
   }
 
-  // Publish-eligible users (not banned, and either reviewed or legacy account) get Sonnet
-  const publishCutoffDate = new Date("2026-04-01T07:00:00.000Z");
-  const canPublish = currentUser
-    && !currentUser.banned
-    && (currentUser.reviewedByUserId || currentUser.createdAt < publishCutoffDate);
-    
-  const modelId: LanguageModel = canPublish
+  const modelId: LanguageModel = canPublishHomeDesign(currentUser)
     ? 'anthropic/claude-sonnet-4-6'
     : 'google/gemini-3-flash';
 
@@ -123,6 +131,9 @@ export async function POST(req: NextRequest) {
           html: z.string().describe('Body content: <style> tags, HTML elements, and <script type="text/babel"> tags. Do NOT include <!DOCTYPE>, <html>, <head>, or <body> tags — the wrapper handles those. React, ReactDOM, Babel, and the RPC bridge are already loaded.'),
         }),
         execute: async ({ html }) => {
+          if (html.length > HOME_PAGE_DESIGN_MAX_HTML_SIZE) {
+            return { success: false, error: `HTML exceeds the ${HOME_PAGE_DESIGN_MAX_HTML_SIZE / 1024}KB size limit. Simplify the design.` };
+          }
           const newId = await HomePageDesigns.rawInsert({
             ownerId,
             publicId: publicId ?? "",
@@ -134,7 +145,7 @@ export async function POST(req: NextRequest) {
             verified: false,
             commentId: null,
             createdAt: new Date(),
-            autoReviewPassed: false,
+            autoReviewPassed: null,
             autoReviewMessage: null,
           });
 
