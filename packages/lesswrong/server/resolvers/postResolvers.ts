@@ -19,11 +19,12 @@ import { createPost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { PostsViews } from '@/lib/collections/posts/views';
+import { COLLABORATION_EPOCH_MISMATCH_ERROR, getCollabEditorEpoch } from '@/lib/collections/posts/collabEditingEpoch';
 import { getCollaborativeEditorAccessWithKey } from '@/lib/collections/posts/collabEditingPermissions';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { getViewablePostsSelector } from '@/server/repos/helpers';
 import { getUserDefaultRichTextEditor } from '@/lib/editor/defaultRichTextEditor';
-import { resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
+import { bumpCollabEditorEpoch, resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
 import { htmlToYjsStateFromHtml } from '../editor/htmlToYjsState';
 import jwt from 'jsonwebtoken';
 
@@ -420,7 +421,15 @@ export const postGqlQueries = {
     const filteredPosts = await accessFilterMultiple(currentUser, 'Posts', posts, context)
     return { posts: filteredPosts }  
   },
-  async HocuspocusAuth(root: void, { postId, linkSharingKey }: { postId: string, linkSharingKey: string | null }, context: ResolverContext) {
+  async HocuspocusAuth(root: void, {
+    postId,
+    linkSharingKey,
+    clientCollabEditorEpoch,
+  }: {
+    postId: string,
+    linkSharingKey: string | null,
+    clientCollabEditorEpoch?: number | null,
+  }, context: ResolverContext) {
     const { currentUser, loaders, clientId } = context
     
     const post = await loaders.Posts.load(postId);
@@ -436,6 +445,14 @@ export const postGqlQueries = {
     
     if (accessLevel === 'none') {
       throw new Error('Unauthorized: You do not have access to collaborate on this post');
+    }
+
+    if (
+      clientCollabEditorEpoch !== undefined &&
+      clientCollabEditorEpoch !== null &&
+      clientCollabEditorEpoch !== getCollabEditorEpoch(post.collabEditorEpoch)
+    ) {
+      throw new Error(COLLABORATION_EPOCH_MISMATCH_ERROR);
     }
     
     const token = jwt.sign(
@@ -565,6 +582,7 @@ export const postGqlMutations = {
       await createRevision({ data: newRevision }, context);
 
       if (richTextEditorType === "lexical" && yjs) {
+        await bumpCollabEditorEpoch(postId);
         await resetHocuspocusDocument(`post-${postId}`, yjs.yjsBinary);
       }
 
@@ -627,7 +645,7 @@ export const postGqlTypeDefs = gql`
     LastCuratedDate: LastCuratedDateResult!
     HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
     HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
-    HocuspocusAuth(postId: String!, linkSharingKey: String): HocuspocusAuth
+    HocuspocusAuth(postId: String!, linkSharingKey: String, clientCollabEditorEpoch: Int): HocuspocusAuth
   }
 
   extend type Mutation {

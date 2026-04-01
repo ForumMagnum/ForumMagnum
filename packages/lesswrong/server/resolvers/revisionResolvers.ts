@@ -7,7 +7,7 @@ import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/uti
 import gql from 'graphql-tag';
 import { createRevision } from '../collections/revisions/mutations';
 import { updateTag } from '../collections/tags/mutations';
-import { resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
+import { bumpCollabEditorEpoch, resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
 import { htmlToYjsStateFromHtml } from '../editor/htmlToYjsState';
 
 export const revisionResolversGraphQLTypeDefs = gql`
@@ -192,6 +192,7 @@ export const revisionResolversGraphQLMutations = {
     // Hocuspocus so any existing collaborative session is replaced with
     // the converted content (same as restoring a previous revision).
     if (collectionName === 'Posts' && fieldName === 'contents' && targetFormat === 'lexical' && yjsBinary) {
+      await bumpCollabEditorEpoch(documentId);
       await resetHocuspocusDocument(`post-${documentId}`, yjsBinary);
     }
 

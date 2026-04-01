@@ -3706,6 +3706,7 @@ interface Post {
   languageModelSummary: string | null;
   debate: boolean;
   collabEditorDialogue: boolean;
+  collabEditorEpoch: number;
   totalDialogueResponseCount: number;
   mostRecentPublishedDialogueResponseDate: Date | null;
   unreadDebateResponseCount: number;
@@ -7650,6 +7651,7 @@ interface CreatePostDataInput {
   ignoreRateLimits?: boolean | null;
   hideCommentKarma?: boolean | null;
   collabEditorDialogue?: boolean | null;
+  collabEditorEpoch?: number | null;
   rejected?: boolean | null;
   rejectedReason?: string | null;
   rejectedByUserId?: string | null;
@@ -7767,6 +7769,7 @@ interface UpdatePostDataInput {
   ignoreRateLimits?: boolean | null;
   hideCommentKarma?: boolean | null;
   collabEditorDialogue?: boolean | null;
+  collabEditorEpoch?: number | null;
   rejected?: boolean | null;
   rejectedReason?: string | null;
   rejectedByUserId?: string | null;

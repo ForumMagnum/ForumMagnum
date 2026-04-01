@@ -659,6 +659,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         collectionName={collectionName}
         fieldName={this.props.fieldName}
         accessLevel={this.props.accessLevel}
+        collabEditorEpoch={this.props.document?.collabEditorEpoch}
       />
     </div>
   }

@@ -15,13 +15,14 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import WarningBanner from '../common/WarningBanner';
 import { useClientId } from '../hooks/useClientId';
-import type { CollaborationConfig } from '../lexical/collaboration';
+import { disconnectCollaborationForPost, type CollaborationConfig } from '../lexical/collaboration';
 import { useApolloClient } from '@apollo/client/react';
 import { useLocation } from '@/lib/routeUtil';
 import type { ApolloClient } from '@apollo/client/core';
 import Editor from '../lexical/Editor';
 import { LexicalEditorContext } from './LexicalEditorContext';
 import type { CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
+import { COLLABORATION_EPOCH_MISMATCH_ERROR } from '@/lib/collections/posts/collabEditingEpoch';
 import { LexicalExtensionComposer } from '@lexical/react/LexicalExtensionComposer';
 import { SharedHistoryContext } from '../lexical/context/SharedHistoryContext';
 import { TableContext } from '../lexical/plugins/TablePlugin';
@@ -36,9 +37,9 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { HorizontalRuleExtension } from '@lexical/extension';
 import ErrorBoundary from '../common/ErrorBoundary';
 
-const HocuspocusAuthQuery = gql(`
-  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
-    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {
+const HocuspocusEditorAuthQuery = gql(`
+  query HocuspocusEditorAuthQuery($postId: String!, $linkSharingKey: String, $clientCollabEditorEpoch: Int) {
+    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey, clientCollabEditorEpoch: $clientCollabEditorEpoch) {
       token
     }
   }
@@ -301,6 +302,8 @@ interface LexicalEditorProps {
   fieldName?: string;
   /** Collaborative editor access level for suggested edits permissions */
   accessLevel?: CollaborativeEditingAccessLevel;
+  /** Collaboration epoch loaded with the post. Used to invalidate stale local Yjs state. */
+  collabEditorEpoch?: number | null;
 }
 
 const getCodeHighlightClassName = (highlightType: string | null | undefined) => {
@@ -370,17 +373,28 @@ async function fetchHocuspocusToken(
   apolloClient: ApolloClient,
   postId: string,
   linkSharingKey: string | null,
+  collabEditorEpoch: number | null,
 ): Promise<string> {
-  const { data } = await apolloClient.query({
-    query: HocuspocusAuthQuery,
-    variables: { postId, linkSharingKey },
-    fetchPolicy: 'network-only',
-  });
-  const token = data?.HocuspocusAuth?.token;
-  if (!token) {
-    throw new Error('Failed to fetch collaboration token');
+  try {
+    const { data } = await apolloClient.query({
+      query: HocuspocusEditorAuthQuery,
+      variables: { postId, linkSharingKey, clientCollabEditorEpoch: collabEditorEpoch },
+      fetchPolicy: 'network-only',
+    });
+    const token = data?.HocuspocusAuth?.token;
+    if (!token) {
+      throw new Error('Failed to fetch collaboration token');
+    }
+    return token;
+  } catch (error) {
+    const message = error instanceof Error ? error.message : String(error);
+    if (message.includes(COLLABORATION_EPOCH_MISMATCH_ERROR)) {
+      await disconnectCollaborationForPost(postId);
+      window.location.reload();
+      throw new Error('Collaboration session was reset in another editor. Reloading.');
+    }
+    throw error;
   }
-  return token;
 }
 
 const LexicalEditor = ({
@@ -394,6 +408,7 @@ const LexicalEditor = ({
   fieldName = 'contents',
   commentEditor = false,
   accessLevel,
+  collabEditorEpoch = null,
 }: LexicalEditorProps) => {
   const classes = useStyles(lexicalStyles);
   const currentUser = useCurrentUser();
@@ -440,7 +455,7 @@ const LexicalEditor = ({
     return {
       postId: documentId!,
       fieldName,
-      getToken: () => fetchHocuspocusToken(apolloClient, documentId!, linkSharingKey),
+      getToken: () => fetchHocuspocusToken(apolloClient, documentId!, linkSharingKey, collabEditorEpoch),
       user: {
         id: userId,
         name: userName,
@@ -449,7 +464,7 @@ const LexicalEditor = ({
         setCollaborationWarning(error.message);
       },
     };
-  }, [shouldEnableCollaboration, currentUser, clientId, documentId, fieldName, apolloClient, linkSharingKey]);
+  }, [shouldEnableCollaboration, currentUser, clientId, documentId, fieldName, apolloClient, linkSharingKey, collabEditorEpoch]);
 
   useEffect(() => {
     onReady?.();
