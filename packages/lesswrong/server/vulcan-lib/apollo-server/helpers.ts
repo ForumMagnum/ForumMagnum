@@ -190,7 +190,7 @@ export function getFieldGqlResolvers<N extends CollectionNameString, S extends S
                 : accessFilterSingle;
               return filter(
                 context.currentUser,
-                permissionData.collectionName,
+                permissionData.collectionName as CollectionNameString,
                 existingValue as AnyBecauseHard,
                 context,
               );
