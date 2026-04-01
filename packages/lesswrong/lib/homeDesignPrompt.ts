@@ -219,12 +219,11 @@ const PAGE_SIZE = 15;
 
 const POSTS_QUERY = \`
   query FrontpagePosts($limit: Int, $offset: Int) {
-    posts(selector: { magic: { forum: true } }, limit: $limit, offset: $offset, enableTotal: true) {
+    posts(selector: { magic: { forum: true } }, limit: $limit, offset: $offset) {
       results {
         _id title slug baseScore postedAt commentCount
         user { displayName slug }
       }
-      totalCount
     }
   }
 \`;
@@ -242,7 +241,6 @@ function formatRelative(dateStr) {
 function App() {
   const [posts, setPosts] = useState([]);
   const [readStatuses, setReadStatuses] = useState({});
-  const [totalCount, setTotalCount] = useState(null);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
 
@@ -251,7 +249,6 @@ function App() {
       const data = await gqlQuery(POSTS_QUERY, { limit: PAGE_SIZE, offset: 0 });
       const results = data.posts?.results || [];
       setPosts(results);
-      setTotalCount(data.posts?.totalCount);
       if (results.length > 0) {
         const statuses = await rpc.getReadStatuses(results.map(p => p._id));
         setReadStatuses(statuses);
@@ -265,7 +262,6 @@ function App() {
     const data = await gqlQuery(POSTS_QUERY, { limit: PAGE_SIZE, offset: posts.length });
     const newPosts = data.posts?.results || [];
     setPosts(prev => [...prev, ...newPosts]);
-    setTotalCount(data.posts?.totalCount);
     if (newPosts.length > 0) {
       const statuses = await rpc.getReadStatuses(newPosts.map(p => p._id));
       setReadStatuses(prev => ({ ...prev, ...statuses }));
@@ -274,7 +270,6 @@ function App() {
   }, [posts.length]);
 
   if (loading) return <div>Loading...</div>;
-  const hasMore = totalCount != null && posts.length < totalCount;
 
   return (
     <div>
@@ -295,11 +290,9 @@ function App() {
           </div>
         );
       })}
-      {hasMore && (
-        <button onClick={loadMore} disabled={loadingMore}>
-          {loadingMore ? 'Loading...' : 'Load More'}
-        </button>
-      )}
+      <button onClick={loadMore} disabled={loadingMore}>
+        {loadingMore ? 'Loading...' : 'Load More'}
+      </button>
     </div>
   );
 }
@@ -309,10 +302,14 @@ root.render(<App />);
 \`\`\`
 
 Key points:
-- Use \`enableTotal: true\` in the query to get \`totalCount\` for the "Load More" button.
 - Use \`offset: posts.length\` to paginate and append new results.
 - Use \`rpc.getReadStatuses()\` to dim/style posts the user has already read.
 - The design should feel like a complete home page, not a small widget. Fill the viewport with content; default to at least 13-15 posts per page with a working Load More button.
+
+### When to show Load More / use totalCount
+- **Broad queries** (e.g. the \`magic\`, \`new\`, \`top\`, or \`frontpage\` views): There are always more posts/comments. Always render the Load More button unconditionally — do NOT fetch \`totalCount\`.
+- **Tightly scoped queries** (e.g. \`userPosts\` for a specific user, or \`timeframe\` with a narrow date range): The total result set may be small enough that all results fit on one page. For these, you may use \`enableTotal: true\` in the query and conditionally show Load More only when \`posts.length < totalCount\`.
+- **Why**: \`enableTotal: true\` triggers a COUNT query over the entire matching result set, which is very expensive on broad queries that match most records of the relevant table in the database. Never use it on unscoped or lightly-scoped queries.
 
 ## Iframe & Layout Constraints
 - The parent page header is hidden on this home page. Designs may include their own top-level header or navigation treatment.

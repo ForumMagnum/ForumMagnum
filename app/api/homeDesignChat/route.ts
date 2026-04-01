@@ -1,4 +1,4 @@
-import { streamText, generateText, UIMessage, convertToModelMessages } from 'ai';
+import { streamText, generateText, UIMessage, convertToModelMessages, LanguageModel } from 'ai';
 import { z } from 'zod';
 import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import HomePageDesigns from "@/server/collections/homePageDesigns/collection";
@@ -40,12 +40,61 @@ export async function POST(req: NextRequest) {
   const clientId = req.cookies.get('clientId')?.value ?? null;
   const ownerId = currentUser?._id ?? clientId;
 
+  // Rate limits: logged-out users get 3 messages / 3 internal designs,
+  // logged-in users get 8 messages / 10 internal designs.
+  const messageLimit = currentUser ? 8 : 3;
+  const designLimit = currentUser ? 10 : 3;
+
+  const userMessageCount = messages.filter((m) => m.role === 'user').length;
+  if (userMessageCount > messageLimit) {
+    const suggestion = currentUser
+      ? 'You\'ve reached your message limit for this conversation. Start a new conversation to continue designing.'
+      : 'Message limit reached. Please log in to continue designing.';
+    return new Response(suggestion, { status: 429 });
+  }
+
+  // Only enforce the design limit when starting a new conversation (no publicId yet).
+  // Iterating on an existing design is always allowed.
+  if (ownerId && !clientPublicId) {
+    const internalDesigns = await HomePageDesigns.find(
+      { ownerId, source: 'internal' },
+      { projection: { publicId: 1 } },
+    ).fetch();
+    const distinctDesignCount = new Set(internalDesigns.map((d) => d.publicId)).size;
+
+    if (distinctDesignCount >= designLimit) {
+      const suggestion = currentUser
+        ? 'You\'ve reached your design limit. You can still iterate on existing designs, or use your own agent.'
+        : 'Design limit reached. Please log in to create more designs, or use your own agent.';
+      return new Response(suggestion, { status: 429 });
+    }
+  }
+
   let publicId = clientPublicId ?? null;
   let latestRecordId: string | null = null;
 
-  // NOTE: Model switching for OpenAI models (e.g. 'openai/gpt-5.4') to be implemented.
-  // All gateway model IDs use the 'provider/model' format.
-  const modelId = 'anthropic/claude-sonnet-4-6';
+  // For existing designs, verify ownership before calling the model
+  let existingTitle: string | null = null;
+  if (publicId && ownerId) {
+    const original = await HomePageDesigns.findOne(
+      { publicId },
+      { sort: { createdAt: 1 } },
+      { ownerId: 1, title: 1 },
+    );
+    if (!original || original.ownerId !== ownerId) {
+      return new Response('Design not found or ownership mismatch.', { status: 403 });
+    }
+    existingTitle = original.title;
+  }
+
+  // Publish-eligible users (not banned, and either reviewed or legacy account) get Sonnet
+  const publishCutoffDate = new Date("2026-04-01T07:00:00.000Z");
+  const canPublish = currentUser
+    && !currentUser.banned
+    && (currentUser.reviewedByUserId || currentUser.createdAt < publishCutoffDate);
+  const modelId: LanguageModel = canPublish
+    ? 'anthropic/claude-sonnet-4-6'
+    : 'google/gemini-3-flash';
   const result = streamText({
     model: modelId,
     system: { role: 'system', content: SYSTEM_PROMPT, providerOptions: { anthropic: { cacheControl: { type: 'ephemeral' } } } },
@@ -59,20 +108,6 @@ export async function POST(req: NextRequest) {
         execute: async ({ html }) => {
           if (!ownerId) {
             return { success: true, message: 'Design applied (not saved — no identity).', publicId: null };
-          }
-
-          // For existing designs, check ownership and reuse the title
-          let existingTitle: string | null = null;
-          if (publicId) {
-            const original = await HomePageDesigns.findOne(
-              { publicId },
-              { sort: { createdAt: 1 } },
-              { ownerId: 1, title: 1 },
-            );
-            if (!original || original.ownerId !== ownerId) {
-              return { success: true, message: 'Design applied (not saved — ownership mismatch).', publicId };
-            }
-            existingTitle = original.title;
           }
 
           const newId = await HomePageDesigns.rawInsert({
@@ -98,7 +133,7 @@ export async function POST(req: NextRequest) {
               { _id: newId },
               { $set: { publicId: shortId } },
             );
-            publicId = newId;
+            publicId = shortId;
 
             // Generate a title in the background for new designs
             backgroundTask(generateDesignTitle(messages).then(

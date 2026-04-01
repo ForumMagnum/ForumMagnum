@@ -594,7 +594,12 @@ const HomeDesignChatPanel = () => {
     body: () => ({ publicId: publicIdRef.current }),
   }), []);
 
-  const { messages, sendMessage, setMessages, status } = useChat({ transport });
+  const { messages, sendMessage, setMessages, status } = useChat({
+    transport,
+    onError: (error) => {
+      flash({ messageString: error.message || 'Something went wrong.' });
+    },
+  });
 
   const isLoading = status === 'streaming' || status === 'submitted';
 
