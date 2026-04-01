@@ -398,10 +398,14 @@ export const routeTrie = {
           "staticChildren": {
             "SKILL.md": {
               "hasRoute": true
+            },
+            "publish": {
+              "hasRoute": true
             }
           },
           "lowerCase": {
-            "skill.md": "SKILL.md"
+            "skill.md": "SKILL.md",
+            "publish": "publish"
           },
           "hasRoute": true
         },
