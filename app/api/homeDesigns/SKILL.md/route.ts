@@ -73,6 +73,111 @@ requests on the callback endpoint, or it will fail with a 501 error.
 
 This returns an access token valid for 90 days.
 
+### Reference: Complete OAuth Implementation (Python)
+
+Below is a complete working implementation of the OAuth flow for CLI agents.
+It starts a local callback server, generates PKCE values, opens the browser
+for authorization, captures the code, and exchanges it for a token.
+
+\`\`\`python
+import secrets, hashlib, base64, urllib.parse, urllib.request, webbrowser, json
+from http.server import HTTPServer, BaseHTTPRequestHandler
+import threading
+
+SITE_URL = "${siteUrl}"
+CALLBACK_PORT = 9876
+REDIRECT_URI = f"http://localhost:{CALLBACK_PORT}/callback"
+
+# --- PKCE ---
+code_verifier = secrets.token_urlsafe(64)[:96]
+code_challenge = (
+    base64.urlsafe_b64encode(hashlib.sha256(code_verifier.encode()).digest())
+    .rstrip(b"=")
+    .decode()
+)
+
+# --- Register client ---
+reg_data = json.dumps({
+    "client_name": "My Design Agent",
+    "redirect_uris": [REDIRECT_URI],
+}).encode()
+reg_req = urllib.request.Request(
+    f"{SITE_URL}/oauth/register", data=reg_data,
+    headers={"Content-Type": "application/json"},
+)
+reg = json.loads(urllib.request.urlopen(reg_req).read())
+client_id = reg["client_id"]
+client_secret = reg["client_secret"]
+
+# --- Callback server (must handle both GET and POST due to 307 redirect) ---
+auth_code = None
+
+class CallbackHandler(BaseHTTPRequestHandler):
+    def _handle(self):
+        global auth_code
+        params = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
+        if self.command == "POST":
+            body = self.rfile.read(int(self.headers.get("Content-Length", 0))).decode()
+            params.update(urllib.parse.parse_qs(body))
+        auth_code = params.get("code", [None])[0]
+        self.send_response(200)
+        self.send_header("Content-Type", "text/html")
+        self.end_headers()
+        self.wfile.write(b"<h1>Authorized! You can close this tab.</h1>")
+        threading.Thread(target=self.server.shutdown).start()
+
+    do_GET = _handle
+    do_POST = _handle
+    def log_message(self, *a): pass
+
+server = HTTPServer(("localhost", CALLBACK_PORT), CallbackHandler)
+threading.Thread(target=server.serve_forever).start()
+
+# --- Open browser for authorization ---
+state = secrets.token_urlsafe(16)
+auth_url = (
+    f"{SITE_URL}/oauth/authorize?"
+    + urllib.parse.urlencode({
+        "client_id": client_id,
+        "redirect_uri": REDIRECT_URI,
+        "response_type": "code",
+        "scope": "lesswrong:home-design",
+        "state": state,
+        "code_challenge": code_challenge,
+        "code_challenge_method": "S256",
+    })
+)
+webbrowser.open(auth_url)
+server.serve_forever()  # blocks until callback received
+
+# --- Exchange code for token ---
+token_data = urllib.parse.urlencode({
+    "grant_type": "authorization_code",
+    "code": auth_code,
+    "redirect_uri": REDIRECT_URI,
+    "client_id": client_id,
+    "client_secret": client_secret,
+    "code_verifier": code_verifier,
+}).encode()
+token_req = urllib.request.Request(
+    f"{SITE_URL}/oauth/token", data=token_data,
+    headers={"Content-Type": "application/x-www-form-urlencoded"},
+)
+token_resp = json.loads(urllib.request.urlopen(token_req).read())
+access_token = token_resp["access_token"]
+print(f"Access token: {access_token}")
+\`\`\`
+
+**Key implementation notes:**
+- The script uses only Python standard library modules (no \`pip install\` needed).
+- The callback server must handle both GET and POST requests because the
+  authorization redirect uses HTTP 307, which preserves the original method.
+- PKCE \`code_verifier\` should be 43-128 URL-safe characters. The
+  \`code_challenge\` is its SHA-256 hash, base64url-encoded with padding
+  stripped.
+- The callback server shuts itself down after receiving the code, so the
+  script can proceed to the token exchange.
+
 ## Submitting a Design
 
     POST ${siteUrl}/api/homeDesigns
