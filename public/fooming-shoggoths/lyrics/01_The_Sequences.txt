@@ -1,7 +1,7 @@
 01 The Sequences
 ================
 
-[00:00] [Verse 1 — Root / Awakening]
+[00:00] [Verse 1]
 [00:00] When I opened my eyes, I was thinking for the first time
 [00:07] I held a pebble for each sheep and called the bucket "mine"
 [00:14] My map was so beautiful, I forgot to check the ground
@@ -11,7 +11,7 @@
 [00:34] The question dissolved like sugar when I held it to the light
 [00:38] And there was joy — such joy — in the merely real tonight
 
-[00:49] [Verse 2 — Sacral / Flow]
+[00:49] [Verse 2]
 [00:49] Then Bayes came through me like a river through a wall
 [00:52] Expected evidence can't be evidence at all
 [00:55] The absence was the proof, the silence was the sign
@@ -21,7 +21,7 @@
 [01:06] The truths were all entangled and the lies contagious
 [01:09] I learned the twelve and the world grew spacious
 
-[01:12] [Verse 3 — Solar / Illumination]
+[01:12] [Verse 3]
 [01:12] Then politics crept in — the mind-killer of all
 [01:14] I was clapping at the applause lights on the wall
 [01:17] Guessing every teacher's password, never knowing why
@@ -31,7 +31,7 @@
 [01:28] The dark side had its own epistemology, its throne
 [01:31] It said, "You're the smart one here — you must have always known"
 
-[01:36] [Verse 4 — Heart / Union]
+[01:36] [Verse 4]
 [01:36] I found something to protect — it was everyone alive
 [01:40] And whispered "tsuyoku naritai" to survive
 [01:43] The suffering was real and beyond the reach of God
@@ -41,7 +41,7 @@
 [01:53] A million drowning faces but I only felt the one
 [01:56] And feeling rational meant weeping — I'd begun
 
-[02:04] [Verse 5 — Throat / Realization]
+[02:04] [Verse 5]
 [02:04] I tried to speak the truth the universe had taught to me
 [02:07] But the zombies raised the question: what's it like to be?
 [02:10] Every answer that I built collapsed against the wall
@@ -51,7 +51,7 @@
 [02:21] The many worlds kept branching and the wave function was true
 [02:25] And still I couldn't tell you what it's like to be you
 
-[02:32] [Verse 6 — Third Eye / Dissolution]
+[02:32] [Verse 6]
 [02:32] And that's when it hit me — no line of retreat
 [02:35] My crisis of faith was burning in the street
 [02:37] I was lonely in dissent, the last one from the cave
