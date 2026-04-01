@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import HomePageDesigns from "@/server/collections/homePageDesigns/collection";
 import { ClientIds } from "@/server/collections/clientIds/collection";
-import { HOME_PAGE_DESIGN_PUBLIC_ID_LENGTH, HOME_PAGE_DESIGN_MAX_HTML_SIZE } from "@/lib/collections/homePageDesigns/constants";
+import { HOME_PAGE_DESIGN_PUBLIC_ID_LENGTH, HOME_PAGE_DESIGN_MAX_HTML_SIZE, canPublishHomeDesign } from "@/lib/collections/homePageDesigns/constants";
 import { HOME_DESIGN_SHARED_PROMPT } from "@/lib/homeDesignPrompt";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { NextRequest } from "next/server";
@@ -116,13 +116,7 @@ export async function POST(req: NextRequest) {
     existingTitle = original.title;
   }
 
-  // Publish-eligible users (not banned, and either reviewed or legacy account) get Sonnet
-  const publishCutoffDate = new Date("2026-04-01T07:00:00.000Z");
-  const canPublish = currentUser
-    && !currentUser.banned
-    && (currentUser.reviewedByUserId || currentUser.createdAt < publishCutoffDate);
-    
-  const modelId: LanguageModel = canPublish
+  const modelId: LanguageModel = canPublishHomeDesign(currentUser)
     ? 'anthropic/claude-sonnet-4-6'
     : 'google/gemini-3-flash';
 

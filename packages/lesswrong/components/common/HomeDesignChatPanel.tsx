@@ -22,6 +22,7 @@ import { useApolloClient } from '@apollo/client/react';
 import moment from 'moment';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HOME_DESIGN_DEFAULT_CLASSIC_VALUE, HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
+import { canPublishHomeDesign } from '@/lib/collections/homePageDesigns/constants';
 
 const myHomePageDesignSummariesQuery = gql(`
   query MyHomePageDesignSummaries {
@@ -304,6 +305,18 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     fontSize: 9,
     letterSpacing: '0.22em',
     textTransform: 'uppercase' as const,
+    color: '#85776c',
+  },
+  sendColumn: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 6,
+  },
+  modelLabel: {
+    fontFamily: '"gill-sans-nova", "Gill Sans", "Helvetica Neue", sans-serif',
+    fontSize: 9,
+    letterSpacing: '0.12em',
     color: '#85776c',
   },
   input: {
@@ -916,8 +929,7 @@ const HomeDesignChatPanel = () => {
                           )}
                         </div>
                         {isApplied && publicId && part.toolCallId === lastAppliedToolCallId &&
-                          currentUser && !currentUser.banned &&
-                          (currentUser.isReviewed || new Date(currentUser.createdAt) < new Date("2026-04-01T07:00:00.000Z")) && (
+                          canPublishHomeDesign(currentUser) && (
                           <button
                             className={classes.publishButton}
                             onClick={() => setShowPublishDialog(true)}
@@ -950,13 +962,18 @@ const HomeDesignChatPanel = () => {
               disabled={isLoading}
               rows={4}
             />
-            <button
-              type="submit"
-              className={classes.sendButton}
-              disabled={isLoading || !input.trim()}
-            >
-              {isLoading ? '...' : 'Send'}
-            </button>
+            <div className={classes.sendColumn}>
+              <div className={classes.modelLabel}>
+                {canPublishHomeDesign(currentUser) ? 'Sonnet 4.6' : 'Flash 3.0'}
+              </div>
+              <button
+                type="submit"
+                className={classes.sendButton}
+                disabled={isLoading || !input.trim()}
+              >
+                {isLoading ? '...' : 'Send'}
+              </button>
+            </div>
           </form>
         </>
       )}
