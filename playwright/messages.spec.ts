@@ -9,12 +9,14 @@ test("can send and receive messages", async ({browser}) => {
   const pageA = await contextA.newPage();
   const pageB = await contextB.newPage();
 
+  await pageA.goto("/");
   const userA = await loginNewUser(contextA);
+  await pageB.goto("/");
   const userB = await loginNewUser(contextB);
 
   // User A clicks the "message" button on user B's profile
   await pageA.goto(`/users/${userB.slug}`);
-  await pageA.getByText("Message").click();
+  await pageA.getByText("Message").filter({ has: pageA.locator(":visible") }).first().click();
   await pageA.waitForURL("/inbox/**");
 
   // User A sends a message to user B, and can see the message themself

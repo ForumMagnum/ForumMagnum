@@ -40,10 +40,17 @@ const getWebServers = () => {
     });
   }
 
+  const nextjsServerEnvvars = [
+    "PORT=3456",
+    "E2E=true",
+    `PG_URL=${PLAYWRIGHT_DB_URL}`,
+    ...(ENABLE_HOCUSPOCUS ? [
+      `HOCUSPOCUS_URL=${HOCUSPOCUS_URL}`,
+      `HOCUSPOCUS_JWT_SECRET=${HOCUSPOCUS_JWT_SECRET}`
+    ] : []),
+  ];
   webServers.push({
-    command: ENABLE_HOCUSPOCUS
-      ? `PORT=3456 E2E=true PG_URL=${PLAYWRIGHT_DB_URL} HOCUSPOCUS_URL=${HOCUSPOCUS_URL} HOCUSPOCUS_JWT_SECRET=${HOCUSPOCUS_JWT_SECRET} yarn next dev --turbopack`
-      : `PORT=3456 E2E=true PG_URL=${PLAYWRIGHT_DB_URL} yarn next dev --turbopack`,
+    command: `${nextjsServerEnvvars.join(" ")} yarn next dev --turbopack`,
     url: "http://localhost:3456",
     reuseExistingServer: true,
     stdout: ENABLE_HOCUSPOCUS ? "pipe" : "ignore",
