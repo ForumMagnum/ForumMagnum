@@ -1,4 +1,4 @@
-import { streamText, generateText, UIMessage, convertToModelMessages, LanguageModel } from 'ai';
+import { streamText, generateText, UIMessage, convertToModelMessages } from 'ai';
 import { z } from 'zod';
 import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import HomePageDesigns from "@/server/collections/homePageDesigns/collection";
@@ -41,10 +41,11 @@ export async function POST(req: NextRequest) {
   const ownerId = currentUser?._id ?? clientId;
 
   let publicId = clientPublicId ?? null;
+  let latestRecordId: string | null = null;
 
   // NOTE: Model switching for OpenAI models (e.g. 'openai/gpt-5.4') to be implemented.
   // All gateway model IDs use the 'provider/model' format.
-  const modelId: LanguageModel = 'anthropic/claude-sonnet-4-6';
+  const modelId = 'anthropic/claude-sonnet-4-6';
   const result = streamText({
     model: modelId,
     system: { role: 'system', content: SYSTEM_PROMPT, providerOptions: { anthropic: { cacheControl: { type: 'ephemeral' } } } },
@@ -81,11 +82,12 @@ export async function POST(req: NextRequest) {
             title: existingTitle ?? "Untitled Design",
             source: "internal",
             modelName: modelId,
-            conversationHistory: messages,
+            conversationHistory: [], // Placeholder; updated with full conversation in onFinish
             verified: false,
             commentId: null,
             createdAt: new Date(),
           });
+          latestRecordId = newId;
 
           const shortId = newId.substring(0, 4);
 
@@ -102,6 +104,14 @@ export async function POST(req: NextRequest) {
                 { _id: newId },
                 { $set: { title } },
               ),
+            ));
+          } else {
+            // Clear conversation history from older revisions of this design,
+            // since they are strict subsets of the latest and duplicate bulky
+            // HTML from tool call inputs.
+            backgroundTask(HomePageDesigns.rawUpdateMany(
+              { publicId, _id: { $ne: newId } },
+              { $set: { conversationHistory: [] } },
             ));
           }
 
@@ -123,5 +133,15 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  return result.toUIMessageStreamResponse();
+  return result.toUIMessageStreamResponse({
+    originalMessages: messages,
+    onFinish: ({ messages: allMessages }) => {
+      if (latestRecordId) {
+        backgroundTask(HomePageDesigns.rawUpdateOne(
+          { _id: latestRecordId },
+          { $set: { conversationHistory: allMessages } },
+        ));
+      }
+    },
+  });
 }
