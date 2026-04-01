@@ -16,7 +16,7 @@ import { UnreadNotificationCountsQuery, useUnreadNotifications } from '../hooks/
 import { NotificationsListMultiQuery } from '../notifications/NotificationsListMultiQuery';
 import { SuspenseWrapper } from './SuspenseWrapper';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HOME_DESIGN_DEFAULT_BUILT_IN_VALUE, HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
+import { HOME_DESIGN_DEFAULT_BUILT_IN_VALUE, HOME_DESIGN_DEFAULT_CLASSIC_VALUE, HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
 
 const homePageDesignByPublicIdQuery = gql(`
   query HomePageDesignByPublicId($publicId: String!) {
@@ -501,7 +501,7 @@ function SandboxedHomePageContent() {
       }
       case 'revertToNormalHomepage': {
         designChat.setIsOpen(false);
-        setCookie(HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE, HOME_DESIGN_DEFAULT_BUILT_IN_VALUE, {
+        setCookie(HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE, HOME_DESIGN_DEFAULT_CLASSIC_VALUE, {
           path: '/',
           expires: moment().add(2, 'years').toDate(),
         });
