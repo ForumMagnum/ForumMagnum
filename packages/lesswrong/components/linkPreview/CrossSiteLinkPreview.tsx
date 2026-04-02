@@ -25,6 +25,11 @@ const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
     maxWidth: "min(360px, 90vw)",
     padding: 12,
     position: "relative",
+    paddingBottom: 12,
+  },
+  noImageCardContent: {
+    overflow: "hidden",
+    maxHeight: 255,
   },
   bannerCard: {
     width: 360,
@@ -35,6 +40,7 @@ const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
   bannerCardContent: {
     padding: 12,
     paddingTop: 6,
+    maxHeight: 300,
   },
   sideBySideCard: {
     padding: 0,
@@ -88,6 +94,12 @@ const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
     maxHeight: 160,
     overflow: "hidden",
   },
+  topRightFloatImage: {
+    width: 92,
+    float: "right",
+    marginLeft: 10,
+    marginBottom: 6,
+  },
   html: {
     "& p": {
       marginTop: 4,
@@ -105,6 +117,9 @@ function getDisplayTitle(title: string | null | undefined, href: string): string
 }
 
 type PreviewImageLayout = "banner" | "side";
+const TOP_RIGHT_FLOAT_IMAGE_DOMAINS = new Set([
+  "arxiv.org",
+]);
 
 interface SidePreviewSizing {
   cardStyle: React.CSSProperties,
@@ -145,6 +160,15 @@ function getPreviewImageLayout(imageWidth: number | null | undefined, imageHeigh
     return "banner";
   }
   return "side";
+}
+
+function shouldUseTopRightFloatImageLayout(href: string): boolean {
+  try {
+    const host = new URL(href).hostname.toLowerCase().replace(/^www\./, "");
+    return TOP_RIGHT_FLOAT_IMAGE_DOMAINS.has(host);
+  } catch {
+    return false;
+  }
 }
 
 const CrossSiteLinkPreviewQuery = gql(`
@@ -205,6 +229,7 @@ export const CrossSiteLinkPreview = ({
   const previewData = data?.crossSiteLinkPreview;
   const imageLayout = getPreviewImageLayout(previewData?.imageWidth, previewData?.imageHeight);
   const hasImage = !!previewData?.imageUrl;
+  const useTopRightFloatImageLayout = hasImage && imageLayout === "banner" && shouldUseTopRightFloatImageLayout(href);
   const hasStructuredPreviewData = !!(previewData?.title || previewData?.html || previewData?.imageUrl);
   const showInlineError = !loading && !!previewData?.error && hasStructuredPreviewData;
 
@@ -243,7 +268,12 @@ export const CrossSiteLinkPreview = ({
 
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
           {previewData && !hasImage && <NoImageStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />}
-          {previewData && hasImage && imageLayout === "banner" && <BannerStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />}
+          {previewData && hasImage && imageLayout === "banner" && !useTopRightFloatImageLayout && (
+            <BannerStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />
+          )}
+          {previewData && hasImage && useTopRightFloatImageLayout && (
+            <TopRightFloatImageStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />
+          )}
           {previewData && hasImage && imageLayout === "side" && <SideImageStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />}
 
           {loading && <Card className={classes.noImageCard}>
@@ -363,6 +393,33 @@ function SideImageStyleCardContent({previewData, href, debugMenu}: {
     </div>
     <img src={previewData.imageUrl!} alt="" className={classes.sideImage} style={imageStyle} />
   </Card>
+}
+
+function TopRightFloatImageStyleCardContent({previewData, href, debugMenu}: {
+  previewData: CrossSiteLinkPreviewData
+  href: string
+  debugMenu: ReactNode
+}) {
+  const classes = useStyles(styles);
+  return <Card className={classes.noImageCard}>
+    <div className={classes.noImageCardContent}>
+      <img src={previewData.imageUrl!} alt="" className={classes.topRightFloatImage} />
+
+      <div className={classes.titleRow}>
+        <h3 className={classes.title}>
+          {getDisplayTitle(previewData?.title, href)}
+        </h3>
+        {debugMenu}
+      </div>
+
+      {(previewData.html) && <ContentStyles
+        contentType="comment"
+        className={classes.html}
+      >
+        <div dangerouslySetInnerHTML={{ __html: previewData.html }} />
+      </ContentStyles>}
+    </div>
+  </Card>;
 }
 
 export default CrossSiteLinkPreview;

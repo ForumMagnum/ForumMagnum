@@ -167,7 +167,19 @@ function extractTitle($: CheerioAPI): ExtractedValue {
   };
 }
 
-function extractImageUrl($: CheerioAPI): ExtractedValue {
+function toAbsoluteHttpUrl(url: string, baseUrl: string): string {
+  try {
+    const parsed = new URL(url, baseUrl);
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      return parsed.toString();
+    }
+    return url;
+  } catch {
+    return url;
+  }
+}
+
+function extractImageUrl($: CheerioAPI, pageUrl: string): ExtractedValue {
   const fromMeta = extractMetaContent($, [
     "meta[property='og:image']",
     "meta[name='twitter:image']",
@@ -176,13 +188,17 @@ function extractImageUrl($: CheerioAPI): ExtractedValue {
   if (!fromMeta.value) {
     return fromMeta;
   }
-  if (isBlankImageFilename(fromMeta.value)) {
+  const normalizedImageUrl = toAbsoluteHttpUrl(fromMeta.value, pageUrl);
+  if (isBlankImageFilename(normalizedImageUrl)) {
     return {
       value: null,
       source: null,
     };
   }
-  return fromMeta;
+  return {
+    value: normalizedImageUrl,
+    source: fromMeta.source,
+  };
 }
 
 function extractDescription($: CheerioAPI): ExtractedValue {
@@ -343,19 +359,36 @@ function normalizeCompact(text: string): string {
   return text.toLowerCase().replace(/[^a-z0-9]+/g, "");
 }
 
+const HIDE_SITE_NAME_IN_PREVIEW_DOMAINS = new Set([
+  "arxiv.org",
+]);
+
 function containsTwitterOrX(text: string): boolean {
   const normalized = normalizeForComparison(text);
   return normalized.includes("twitter") || /\bon x\b/.test(normalized) || normalized === "x";
+}
+
+function getNormalizedHostname(url: string | null | undefined): string | null {
+  if (!url) {
+    return null;
+  }
+  try {
+    return new URL(url).hostname.toLowerCase().replace(/^www\./, "");
+  } catch {
+    return null;
+  }
 }
 
 function shouldIncludeSiteName({
   title,
   description,
   siteName,
+  pageUrl,
 }: {
   title: string | null;
   description: string | null;
   siteName: string | null;
+  pageUrl: string | null;
 }): boolean {
   if (!siteName) {
     return false;
@@ -377,6 +410,11 @@ function shouldIncludeSiteName({
   }
 
   if (title && containsTwitterOrX(title) && containsTwitterOrX(siteName)) {
+    return false;
+  }
+
+  const hostname = getNormalizedHostname(pageUrl);
+  if (hostname && HIDE_SITE_NAME_IN_PREVIEW_DOMAINS.has(hostname)) {
     return false;
   }
 
@@ -426,14 +464,16 @@ function buildSanitizedPreviewHtml({
   title,
   description,
   siteName,
+  pageUrl,
 }: {
   title: string | null;
   description: string | null;
   siteName: string | null;
+  pageUrl: string | null;
 }): string | null {
   const pieces: string[] = [];
   const cleanedDescription = stripTitleFromDescription(title, description);
-  if (siteName && shouldIncludeSiteName({ title, description: cleanedDescription, siteName })) {
+  if (siteName && shouldIncludeSiteName({ title, description: cleanedDescription, siteName, pageUrl })) {
     pieces.push(`<div>${escapeHtml(siteName)}</div>`);
   }
   if (cleanedDescription) {
@@ -893,7 +933,7 @@ function parsePreviewFromHtml(rawHtml: string, pageUrl: string): {
 } {
   const $ = cheerioParse(rawHtml);
   const title = extractTitle($);
-  const image = extractImageUrl($);
+  const image = extractImageUrl($, pageUrl);
   const description = extractDescriptionWithFallback($, pageUrl);
   const siteName = extractMetaContent($, ["meta[property='og:site_name']"]).value;
 
@@ -904,6 +944,7 @@ function parsePreviewFromHtml(rawHtml: string, pageUrl: string): {
       title: title.value,
       description: description.value,
       siteName,
+      pageUrl,
     }),
     debugTitleSource: title.source,
     debugImageSource: image.source,
