@@ -202,7 +202,6 @@ export default () => createJestConfig({
   moduleNameMapper: {
     // Should match "paths" in tsconfig.json
     "@/client/(.*)": "<rootDir>/packages/lesswrong/stubs/client/$1",
-    "@/viteClient/(.*)": "<rootDir>/packages/lesswrong/stubs/viteClient/$1",
     "@/(.*)": "<rootDir>/packages/lesswrong/$1",
     // An incantation found at https://github.com/axios/axios/issues/5101
     '^axios$': require.resolve('axios'),

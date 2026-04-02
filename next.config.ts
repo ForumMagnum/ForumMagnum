@@ -60,7 +60,6 @@ const nextConfig: NextConfig = {
     resolveAlias: {
       // Replicate the path mappings from tsconfig-client.json
       '@/server/*': { browser: './packages/lesswrong/stubs/server/*' },
-      '@/viteClient/*': { browser: './packages/lesswrong/stubs/viteClient/*' },
       '@/client/*': { browser: './packages/lesswrong/client/*', default: './packages/lesswrong/stubs/client/*' },
       '@/allComponents': './packages/lesswrong/lib/generated/allComponents.ts',
       ...(process.env.NODE_ENV === 'production' ? {

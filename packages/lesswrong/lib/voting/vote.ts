@@ -2,7 +2,7 @@ import { userCanDo } from '../vulcan-users/permissions';
 import { recalculateScore } from '../scoring';
 import { calculateVotePower, isValidVoteType } from './voteTypes';
 import type { VotingSystem } from './votingSystemTypes';
-import { collectionNameToTypeName } from '../generated/collectionTypeNames';
+import { collectionNameToTypeName } from '@/lib/generated/collectionTypeNames';
 import { karmaRewarderId100, karmaRewarderId1000 } from '../instanceSettings';
 
 export interface VoteDocTuple {
