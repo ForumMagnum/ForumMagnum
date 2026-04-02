@@ -40,7 +40,6 @@ export const defaultZIndexes = {
   confirmLogoutModal: 1351,
   overflowNavButtons: 1352,
   languageModelChatButton: 1030,
-  babyBulby: 1305,
   sideCommentBox: 1040,
   languageModelChat: 1041,
   postItemMenu: 1050,

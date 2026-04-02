@@ -4102,7 +4102,6 @@ interface UsersCurrent extends UsersProfile, SharedUserBooleans { // fragment on
     name: "default" | "dark" | "auto" | null,
     siteThemeOverride: any /*{"definitions":[{"blackbox":true}]}*/,
   },
-  readonly babyBulbyState: any,
   readonly bookmarkedPostsMetadata: Array<PostMetadataOutput>,
   readonly hiddenPostsMetadata: Array<PostMetadataOutput>,
   readonly auto_subscribe_to_my_posts: boolean,
