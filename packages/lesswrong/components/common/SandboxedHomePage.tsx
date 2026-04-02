@@ -584,7 +584,11 @@ function SandboxedHomePageContent() {
       {!designChat.isOpen && (
         <button
           className={classes.customizeButton}
-          onClick={() => designChat.setIsOpen(true)}
+          onClick={() => {
+            const url = new URL(window.location.href);
+            url.searchParams.set('openCustomize', '1');
+            navigate(`${url.pathname}${url.search}${url.hash}`, { replace: true });
+          }}
         >
           Customize
         </button>
