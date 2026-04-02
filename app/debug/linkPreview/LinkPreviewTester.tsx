@@ -121,7 +121,7 @@ const LinkPreviewTester = () => {
         }
       });
     });
-  }, [onsiteUrls, onsiteSchemas]);
+  }, [onsiteUrls]);
 
   function addLinkToList() {
     setInputUrl("");

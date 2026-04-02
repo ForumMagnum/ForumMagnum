@@ -411,21 +411,23 @@ export const MessagePreview: LinkPreviewComponent<'/inbox' | '/inbox/[conversati
   className?: string,
   children: ReactNode,
 }) => {
-  void params;
-  return (
-    <LWTooltip
+  const classes = useStyles(linkStyles);
+  const conversationId = 'conversationId' in params ? params.conversationId : targetLocation?.query?.conversation;
+
+  if (conversationId) {
+    return <LWTooltip
       tooltip={false}
-      title={
-        <span>
-          <Card>
-            <ConversationPreview conversationId={targetLocation?.query?.conversation} />
-          </Card>
-        </span>
-      }
+      title={<Card>
+        <ConversationPreview conversationId={conversationId} />
+      </Card>}
     >
-      {children}
-  </LWTooltip>
-  );
+        <Link className={classNames(classes.link, className)} to={href}>
+          {children}
+        </Link>
+    </LWTooltip>
+  } else {
+    return <DefaultPreview href={href} id={id} className={className}>{children}</DefaultPreview>
+  }
 }
 
 const defaultPreviewStyles = defineStyles('DefaultPreview', (theme: ThemeType) => ({
