@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode, useRef, useState } from "react";
+import React, { ReactNode, useEffect, useRef, useState } from "react";
 import { useQuery } from "@/lib/crud/useQuery";
 import classNames from "classnames";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -18,6 +18,7 @@ import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import ContentStyles from "@/components/common/ContentStyles";
 import CrossSiteLinkPreviewDebug from "@/components/linkPreview/CrossSiteLinkPreviewDebug";
 import { useDialog } from "../common/withDialog";
+import { DefaultPreview } from "./PostLinkPreview";
 import { Link } from "@/lib/reactRouterWrapper";
 
 const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
@@ -205,6 +206,7 @@ export const CrossSiteLinkPreview = ({
   const currentUser = useCurrentUser();
   const canDebug = userIsAdminOrMod(currentUser);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [fallbackToDefaultPreview, setFallbackToDefaultPreview] = useState(false);
   const { openDialog } = useDialog();
   const menuAnchorRef = useRef<HTMLSpanElement | null>(null);
   const { eventHandlers, hover, anchorEl, forceUnHover } = useHover({
@@ -233,6 +235,23 @@ export const CrossSiteLinkPreview = ({
   const useTopRightFloatImageLayout = hasImage && imageLayout === "banner" && shouldUseTopRightFloatImageLayout(href);
   const hasStructuredPreviewData = !!(previewData?.title || previewData?.html || previewData?.imageUrl);
   const showInlineError = !loading && !!previewData?.error && hasStructuredPreviewData;
+  const shouldSwitchToDefaultPreview = !loading && !!previewData?.error && !hasStructuredPreviewData;
+
+  useEffect(() => {
+    setFallbackToDefaultPreview(false);
+  }, [href]);
+
+  useEffect(() => {
+    if (shouldSwitchToDefaultPreview) {
+      setFallbackToDefaultPreview(true);
+    }
+  }, [shouldSwitchToDefaultPreview]);
+
+  if (fallbackToDefaultPreview) {
+    return <DefaultPreview href={href} id={id} rel={rel} className={className}>
+      {children}
+    </DefaultPreview>;
+  }
 
   const onForceRefetch = async () => {
     setMenuOpen(false);

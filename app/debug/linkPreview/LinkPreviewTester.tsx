@@ -41,10 +41,17 @@ const sampleOffsiteUrls: string[] = [
   "https://thezvi.substack.com/p/zvis-2025-in-movies",
   "https://www.astralcodexten.com/p/sources-say-bay-area-house-party",
   "https://x.com/dril/status/1935204887153008928",
+  "https://x.com/allTheYud/",
   "https://gwern.net/computers",
   "https://openai.com/index/introducing-gpt-5/",
   "https://benjaminrosshoffman.com/steelmanning-the-eruv/",
   "https://docs.python.org/3/library/asyncio.html",
+  "https://bsky.app/profile/arenamontanus.bsky.social/post/3mihnkih35k26",
+  "https://bsky.app/profile/zachweinersmith.bsky.social",
+  "https://www.threads.com/@lawsofhumannaturequotedaily/post/DIxQuEPTtsQ",
+  "https://github.com/ForumMagnum/ForumMagnum/pull/12085",
+  "https://news.ycombinator.com",
+  "https://news.ycombinator.com/item?id=47556290",
 ];
 
 const styles = defineStyles("LinkPreviewTester", (theme: ThemeType) => ({
