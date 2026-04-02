@@ -35,11 +35,10 @@ import IntercomWrapper from "@/components/layout/IntercomWrapper";
 import CookieBanner from "@/components/common/CookieBanner/CookieBanner";
 import NavigationEventSender from '@/components/hooks/useOnNavigate';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { gql } from "@/lib/generated/gql-codegen";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { isFullscreenRoute, isHomeRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
 import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
-import { HOME_DESIGN_DEFAULT_CLASSIC_VALUE, HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
+import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { SubtitlePortalProvider } from './SubtitlePortalContext';
 
 import dynamic from 'next/dynamic';
