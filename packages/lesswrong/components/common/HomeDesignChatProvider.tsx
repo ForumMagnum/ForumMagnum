@@ -23,7 +23,7 @@ const HomeDesignChatProvider = ({
     if (currentUrlIsOpenCustomize !== isOpen) {
       setIsOpen(currentUrlIsOpenCustomize);
     }
-  }, [currentUrlIsOpenCustomize]);
+  }, [currentUrlIsOpenCustomize, isOpen]);
 
   const value = useMemo(() => ({
     isOpen,
