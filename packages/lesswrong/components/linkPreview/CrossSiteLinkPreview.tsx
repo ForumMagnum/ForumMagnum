@@ -18,6 +18,7 @@ import { userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import ContentStyles from "@/components/common/ContentStyles";
 import CrossSiteLinkPreviewDebug from "@/components/linkPreview/CrossSiteLinkPreviewDebug";
 import { useDialog } from "../common/withDialog";
+import { Link } from "@/lib/reactRouterWrapper";
 
 const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
   noImageCard: {
@@ -254,7 +255,11 @@ export const CrossSiteLinkPreview = ({
     <span ref={menuAnchorRef}>
       <MoreVertIcon
         className={classes.menuButton}
-        onClick={() => setMenuOpen((open) => !open)}
+        onClick={(ev) => {
+          setMenuOpen((open) => !open)
+          ev.stopPropagation();
+          ev.preventDefault();
+        }}
       />
     </span>
   ) : <></>;
@@ -267,25 +272,27 @@ export const CrossSiteLinkPreview = ({
         </a>
 
         <LWPopper open={hover} anchorEl={anchorEl} placement="bottom-start">
-          {previewData && !hasImage && <NoImageStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />}
-          {previewData && hasImage && imageLayout === "banner" && !useTopRightFloatImageLayout && (
-            <BannerStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />
-          )}
-          {previewData && hasImage && useTopRightFloatImageLayout && (
-            <TopRightFloatImageStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />
-          )}
-          {previewData && hasImage && imageLayout === "side" && <SideImageStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />}
+          <Link to={href} id={id} rel={rel} className={className}>
+            {previewData && !hasImage && <NoImageStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />}
+            {previewData && hasImage && imageLayout === "banner" && !useTopRightFloatImageLayout && (
+              <BannerStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />
+            )}
+            {previewData && hasImage && useTopRightFloatImageLayout && (
+              <TopRightFloatImageStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />
+            )}
+            {previewData && hasImage && imageLayout === "side" && <SideImageStyleCardContent href={href} previewData={previewData} debugMenu={debugMenu} />}
 
-          {loading && <Card className={classes.noImageCard}>
-            <div className={classes.loadingOrError}>
-              Loading preview...
-            </div>
-          </Card>}
-          {showInlineError && <Card className={classes.noImageCard}>
-            <div className={classes.loadingOrError}>
-              {previewData.error}
-            </div>
-          </Card>}
+            {loading && <Card className={classes.noImageCard}>
+              <div className={classes.loadingOrError}>
+                Loading preview...
+              </div>
+            </Card>}
+            {showInlineError && <Card className={classes.noImageCard}>
+              <div className={classes.loadingOrError}>
+                {previewData.error}
+              </div>
+            </Card>}
+          </Link>
         </LWPopper>
 
         {canDebug && <PopperCard
