@@ -329,11 +329,7 @@ function PageBackgroundWrapper({children}: {
   const classes = useStyles(pageBackgroundWrapperStyles);
   const pathname = usePrerenderablePathname();
   const { query } = useLocation();
-  const [cookies] = useCookiesWithConsent([HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]);
-  const preferredHomeDesignCookie = typeof cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE] === 'string'
-    ? cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]
-    : undefined;
-  const isSandboxedHomePage = isLW() && isHomeRoute(pathname) && !query.classicHome && (preferredHomeDesignCookie !== HOME_DESIGN_DEFAULT_CLASSIC_VALUE || !!query.theme);
+  const isSandboxedHomePage = isLW() && isHomeRoute(pathname) && !!query.theme;
 
   return <div id="wrapper" className={classNames(
     "wrapper", {
