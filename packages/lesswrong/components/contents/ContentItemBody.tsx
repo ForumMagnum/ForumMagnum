@@ -21,6 +21,8 @@ import { captureException } from '@/lib/sentryWrapper';
 import { getColorReplacementsCache } from '@/themes/userThemes/darkMode';
 import { colorToString, invertColor, parseColor } from '@/themes/colorUtil';
 import { useAbstractThemeOptions } from '../themes/useTheme';
+import { useStyles } from '../hooks/useStyles';
+import { getHighlights, highlightCodeElement, updateHighlightContext, removeHighlightContext, codeHighlightStyles } from '@/lib/codeHighlighting';
 import dynamic from 'next/dynamic';
 
 const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMenu'));
@@ -58,10 +60,13 @@ type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: 
  * we're walking a parsed HTML tree, this is a better place for the
  * functionality that's currently handled by `truncatize`.
  */
+let nextContentContextId = 0;
+
 export const ContentItemBody = (props: ContentItemBodyProps) => {
   const { onContentReady, nofollow, dangerouslySetInnerHTML, replacedSubstrings, className, ref, invertSubstitutionColors } = props;
   const bodyRef = useRef<HTMLDivElement|null>(null);
   const abstractThemeOptions = useAbstractThemeOptions();
+  useStyles(codeHighlightStyles);
   const html = (nofollow
     ? addNofollowToHTML(dangerouslySetInnerHTML.__html)
     : dangerouslySetInnerHTML.__html
@@ -91,7 +96,34 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
       onContentReady?.(bodyRef.current);
     }
   }, [onContentReady]);
-  
+
+  // Apply CSS Custom Highlights API syntax highlighting to code blocks
+  useEffect(() => {
+    const container = bodyRef.current;
+    if (!container || !getHighlights()) return;
+
+    const contextId = `content-${nextContentContextId++}`;
+    const codeBlocks = container.querySelectorAll<HTMLElement>('pre.code-block, code.code-block');
+    if (codeBlocks.length === 0) {
+      return () => {};
+    }
+
+    const rangesByGroup = new Map<string, Range[]>();
+    codeBlocks.forEach((block) => {
+      const language =
+        block.getAttribute('data-language') ||
+        block.getAttribute('data-highlight-language') ||
+        block.className.match(/\blanguage-([a-z0-9_-]+)\b/i)?.[1] ||
+        undefined;
+      highlightCodeElement(block, language, rangesByGroup);
+    });
+    updateHighlightContext(contextId, rangesByGroup);
+
+    return () => {
+      removeHighlightContext(contextId);
+    };
+  }, [html]);
+
   const passedThroughProps: PassedThroughContentItemBodyProps = {
     ...pick(props, ["description", "noHoverPreviewPrefetch", "nofollow", "contentStyleType", "replacedSubstrings", "idInsertions"]),
     themeName: abstractThemeOptions.name,
