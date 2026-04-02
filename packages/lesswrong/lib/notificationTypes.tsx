@@ -618,7 +618,7 @@ export const NewCommentOnDraftNotification = createNotificationType({
   userSettingField: "notificationCommentsOnDraft",
   async getMessage({documentType, documentId, context}: GetMessageProps) {
     const post = await getDocument(documentType, documentId, context) as DbPost;
-    return `New comments on your draft ${post.title}`;
+    return `New comment on the draft "${post.title}"`;
   },
   
   
@@ -634,7 +634,7 @@ export const NewCommentOnDraftNotification = createNotificationType({
     const url = postGetEditUrl(documentId, false, linkSharingKey);
     return url;
   },
-  Display: ({Post}) => <>New comments on your draft <Post /></>,
+  Display: ({Post}) => <>New comment on the draft <Post /></>,
 });
 
 export const CoauthorRequestNotification = createNotificationType({
