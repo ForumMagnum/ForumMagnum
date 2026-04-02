@@ -180,6 +180,14 @@ const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
     height: '100%',
     border: 'none',
   },
+  panelSpacer: {
+    width: 'clamp(360px, 30vw, 470px)',
+    flexShrink: 0,
+    [theme.breakpoints.down('md')]: {
+      width: '100%',
+      height: 'min(48dvh, 460px)',
+    },
+  },
   customizeButton: {
     position: 'absolute',
     bottom: 24,
@@ -249,7 +257,7 @@ function isRpcRequest(data: unknown): data is RpcRequest {
  * The inner content with queries is wrapped in a Suspense boundary so that
  * the overlay covers the underlying layout even while data is loading.
  */
-const SandboxedHomePage = () => {
+const SandboxedHomePage = ({ showPanel = true }: { showPanel?: boolean }) => {
   const classes = useStyles(styles);
   const designChat = useHomeDesignChat();
 
@@ -262,7 +270,11 @@ const SandboxedHomePage = () => {
           <SandboxedHomePageContent/>
         </SuspenseWrapper>
       </div>
-      <HomeDesignChatPanel />
+      {showPanel
+        ? <HomeDesignChatPanel />
+        : designChat.isOpen
+          ? <div className={classes.panelSpacer} />
+          : null}
     </div>
   );
 };

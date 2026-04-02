@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useRef, useState, useCallback, createContext} from 'react';
+import React, {useRef, useState, useCallback, createContext, useSyncExternalStore} from 'react';
 import classNames from 'classnames'
 import { useTheme, useThemeColor } from '@/components/themes/useTheme';
 import { useLocation } from '@/lib/routeUtil';
@@ -47,6 +47,7 @@ import { isBlackBarTitle } from '@/components/seasonal/petrovDay/petrov-day-stor
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { PopperPortalProvider } from '../common/LWPopper';
 import { HideNavigationSidebarContextProvider } from './HideNavigationSidebarContextProvider';
+import { getHomeDesignActiveSnapshot, subscribeToHomeDesignActive } from '../common/HomeDesignChatContext';
 import { usePathname } from 'next/navigation';
 
 const LanguageModelLauncherButton = dynamic(() => import("../languageModels/LanguageModelLauncherButton"), { ssr: false });
@@ -329,7 +330,12 @@ function PageBackgroundWrapper({children}: {
   const classes = useStyles(pageBackgroundWrapperStyles);
   const pathname = usePrerenderablePathname();
   const { query } = useLocation();
-  const isSandboxedHomePage = isLW() && isHomeRoute(pathname) && !!query.theme;
+  const isHomeDesignActive = useSyncExternalStore(
+    subscribeToHomeDesignActive,
+    getHomeDesignActiveSnapshot,
+    () => false
+  );
+  const isSandboxedHomePage = isLW() && isHomeRoute(pathname) && (!!query.theme || isHomeDesignActive);
 
   return <div id="wrapper" className={classNames(
     "wrapper", {
