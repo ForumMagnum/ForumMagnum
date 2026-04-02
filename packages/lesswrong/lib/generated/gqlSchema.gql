@@ -2960,6 +2960,61 @@ extend type Query {
   googleServiceAccountSessions(input: MultiGoogleServiceAccountSessionInput @deprecated(reason: "Use the selector field instead"), selector: GoogleServiceAccountSessionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiGoogleServiceAccountSessionOutput
 }
 
+type HomePageDesign {
+  _id: String!
+  createdAt: Date!
+  ownerId: String!
+  publicId: String!
+  html: String!
+  title: String!
+  verified: Boolean!
+  commentId: String
+  source: String!
+  modelName: String
+  autoReviewPassed: Boolean
+  autoReviewMessage: String
+  conversationHistory: JSON
+}
+
+type HomePageDesignSummary {
+  publicId: String!
+  title: String!
+  createdAt: Date!
+}
+
+type MarketplaceHomePageDesign {
+  publicId: String!
+  title: String!
+  html: String!
+  verified: Boolean!
+  commentId: String
+  commentBaseScore: Int!
+}
+
+type AdminHomePageDesign {
+  _id: String!
+  publicId: String!
+  title: String!
+  html: String!
+  verified: Boolean!
+  autoReviewPassed: Boolean
+  autoReviewMessage: String
+  createdAt: Date!
+  source: String!
+  modelName: String
+  commentId: String
+  ownerDisplayName: String!
+  ownerSlug: String!
+}
+
+extend type Query {
+  homePageDesignByPublicId(publicId: String!): HomePageDesign
+  myHomePageDesigns(limit: Int): [HomePageDesign!]!
+  myHomePageDesignSummaries: [HomePageDesignSummary!]!
+  marketplaceHomePageDesigns: [MarketplaceHomePageDesign!]!
+  adminHomePageDesigns: [AdminHomePageDesign!]!
+}
+
 type IframeWidgetSrcdoc {
   _id: String!
   createdAt: Date!
@@ -7912,6 +7967,21 @@ type ElicitQuestionOutput {
 extend type Mutation {
   createElicitQuestion(data: CreateElicitQuestionDataInput!): ElicitQuestionOutput
   updateElicitQuestion(selector: SelectorInput!, data: UpdateElicitQuestionDataInput!): ElicitQuestionOutput
+}
+
+input PublishHomePageDesignInput {
+  publicId: String!
+  title: String!
+  descriptionHtml: String!
+}
+
+type HomePageDesignMutationOutput {
+  data: HomePageDesign
+}
+
+extend type Mutation {
+  publishHomePageDesign(input: PublishHomePageDesignInput!): HomePageDesignMutationOutput
+  setHomePageDesignVerified(designId: String!, verified: Boolean, autoReviewPassed: Boolean): HomePageDesign
 }
 
 input CreateJargonTermDataInput {

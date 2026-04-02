@@ -114,6 +114,11 @@ interface Query {
   fieldChanges: MultiFieldChangeOutput | null;
   googleServiceAccountSession: SingleGoogleServiceAccountSessionOutput | null;
   googleServiceAccountSessions: MultiGoogleServiceAccountSessionOutput | null;
+  homePageDesignByPublicId: HomePageDesign | null;
+  myHomePageDesigns: Array<HomePageDesign>;
+  myHomePageDesignSummaries: Array<HomePageDesignSummary>;
+  marketplaceHomePageDesigns: Array<MarketplaceHomePageDesign>;
+  adminHomePageDesigns: Array<AdminHomePageDesign>;
   iframeWidgetSrcdoc: SingleIframeWidgetSrcdocOutput | null;
   iframeWidgetSrcdocs: MultiIframeWidgetSrcdocOutput | null;
   jargonTerm: SingleJargonTermOutput | null;
@@ -285,6 +290,8 @@ interface Mutation {
   updateCurationNotice: CurationNoticeOutput | null;
   createElicitQuestion: ElicitQuestionOutput | null;
   updateElicitQuestion: ElicitQuestionOutput | null;
+  publishHomePageDesign: HomePageDesignMutationOutput | null;
+  setHomePageDesignVerified: HomePageDesign | null;
   createJargonTerm: JargonTermOutput | null;
   updateJargonTerm: JargonTermOutput | null;
   createLWEvent: LWEventOutput | null;
@@ -2649,6 +2656,53 @@ interface MultiGoogleServiceAccountSessionInput {
 interface MultiGoogleServiceAccountSessionOutput {
   results: Array<GoogleServiceAccountSession>;
   totalCount: number | null;
+}
+
+interface HomePageDesign {
+  _id: string;
+  createdAt: Date;
+  ownerId: string;
+  publicId: string;
+  html: string;
+  title: string;
+  verified: boolean;
+  commentId: string | null;
+  source: string;
+  modelName: string | null;
+  autoReviewPassed: boolean | null;
+  autoReviewMessage: string | null;
+  conversationHistory: any;
+}
+
+interface HomePageDesignSummary {
+  publicId: string;
+  title: string;
+  createdAt: Date;
+}
+
+interface MarketplaceHomePageDesign {
+  publicId: string;
+  title: string;
+  html: string;
+  verified: boolean;
+  commentId: string | null;
+  commentBaseScore: number;
+}
+
+interface AdminHomePageDesign {
+  _id: string;
+  publicId: string;
+  title: string;
+  html: string;
+  verified: boolean;
+  autoReviewPassed: boolean | null;
+  autoReviewMessage: string | null;
+  createdAt: Date;
+  source: string;
+  modelName: string | null;
+  commentId: string | null;
+  ownerDisplayName: string;
+  ownerSlug: string;
 }
 
 interface IframeWidgetSrcdoc {
@@ -7259,6 +7313,16 @@ interface ElicitQuestionOutput {
   data: ElicitQuestion | null;
 }
 
+interface PublishHomePageDesignInput {
+  publicId: string;
+  title: string;
+  descriptionHtml: string;
+}
+
+interface HomePageDesignMutationOutput {
+  data: HomePageDesign | null;
+}
+
 interface CreateJargonTermDataInput {
   legacyData?: any;
   contents?: CreateRevisionDataInput | null;
@@ -8959,6 +9023,10 @@ interface GraphQLTypeMap {
   GoogleServiceAccountSessionSelector: GoogleServiceAccountSessionSelector;
   MultiGoogleServiceAccountSessionInput: MultiGoogleServiceAccountSessionInput;
   MultiGoogleServiceAccountSessionOutput: MultiGoogleServiceAccountSessionOutput;
+  HomePageDesign: HomePageDesign;
+  HomePageDesignSummary: HomePageDesignSummary;
+  MarketplaceHomePageDesign: MarketplaceHomePageDesign;
+  AdminHomePageDesign: AdminHomePageDesign;
   IframeWidgetSrcdoc: IframeWidgetSrcdoc;
   SingleIframeWidgetSrcdocOutput: SingleIframeWidgetSrcdocOutput;
   IframeWidgetSrcdocSelector: IframeWidgetSrcdocSelector;
@@ -9375,6 +9443,8 @@ interface GraphQLTypeMap {
   UpdateElicitQuestionDataInput: UpdateElicitQuestionDataInput;
   UpdateElicitQuestionInput: UpdateElicitQuestionInput;
   ElicitQuestionOutput: ElicitQuestionOutput;
+  PublishHomePageDesignInput: PublishHomePageDesignInput;
+  HomePageDesignMutationOutput: HomePageDesignMutationOutput;
   CreateJargonTermDataInput: CreateJargonTermDataInput;
   CreateJargonTermInput: CreateJargonTermInput;
   UpdateJargonTermDataInput: UpdateJargonTermDataInput;
@@ -9542,6 +9612,7 @@ interface CreateInputsByCollectionName {
   EmailTokens: never;
   FieldChanges: never;
   GoogleServiceAccountSessions: never;
+  HomePageDesigns: never;
   IframeWidgetSrcdocs: never;
   Images: never;
   LegacyData: never;
@@ -9625,6 +9696,7 @@ interface UpdateInputsByCollectionName {
   EmailTokens: never;
   FieldChanges: never;
   GoogleServiceAccountSessions: never;
+  HomePageDesigns: never;
   IframeWidgetSrcdocs: never;
   Images: never;
   LWEvents: never;

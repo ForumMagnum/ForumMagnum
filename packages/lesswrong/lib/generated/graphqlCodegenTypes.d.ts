@@ -43,6 +43,23 @@ type AdminEmailPreviewAudienceInput = {
   filter: AdminEmailAudienceFilterInput;
 };
 
+type AdminHomePageDesign = {
+  __typename?: 'AdminHomePageDesign';
+  _id: Scalars['String']['output'];
+  autoReviewMessage?: Maybe<Scalars['String']['output']>;
+  autoReviewPassed?: Maybe<Scalars['Boolean']['output']>;
+  commentId?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Date']['output'];
+  html: Scalars['String']['output'];
+  modelName?: Maybe<Scalars['String']['output']>;
+  ownerDisplayName: Scalars['String']['output'];
+  ownerSlug: Scalars['String']['output'];
+  publicId: Scalars['String']['output'];
+  source: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  verified: Scalars['Boolean']['output'];
+};
+
 type AdminSendBulkEmailError = {
   __typename?: 'AdminSendBulkEmailError';
   batch: Scalars['Int']['output'];
@@ -2320,6 +2337,35 @@ type HocuspocusAuth = {
   token: Scalars['String']['output'];
 };
 
+type HomePageDesign = {
+  __typename?: 'HomePageDesign';
+  _id: Scalars['String']['output'];
+  autoReviewMessage?: Maybe<Scalars['String']['output']>;
+  autoReviewPassed?: Maybe<Scalars['Boolean']['output']>;
+  commentId?: Maybe<Scalars['String']['output']>;
+  conversationHistory?: Maybe<Scalars['JSON']['output']>;
+  createdAt: Scalars['Date']['output'];
+  html: Scalars['String']['output'];
+  modelName?: Maybe<Scalars['String']['output']>;
+  ownerId: Scalars['String']['output'];
+  publicId: Scalars['String']['output'];
+  source: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  verified: Scalars['Boolean']['output'];
+};
+
+type HomePageDesignMutationOutput = {
+  __typename?: 'HomePageDesignMutationOutput';
+  data?: Maybe<HomePageDesign>;
+};
+
+type HomePageDesignSummary = {
+  __typename?: 'HomePageDesignSummary';
+  createdAt: Scalars['Date']['output'];
+  publicId: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+};
+
 type HomepageCommunityEventMarker = {
   __typename?: 'HomepageCommunityEventMarker';
   _id: Scalars['String']['output'];
@@ -2670,6 +2716,16 @@ type ManifoldProbabilitiesCache = {
   schemaVersion: Scalars['Float']['output'];
   url?: Maybe<Scalars['String']['output']>;
   year: Scalars['Float']['output'];
+};
+
+type MarketplaceHomePageDesign = {
+  __typename?: 'MarketplaceHomePageDesign';
+  commentBaseScore: Scalars['Int']['output'];
+  commentId?: Maybe<Scalars['String']['output']>;
+  html: Scalars['String']['output'];
+  publicId: Scalars['String']['output'];
+  title: Scalars['String']['output'];
+  verified: Scalars['Boolean']['output'];
 };
 
 type Message = {
@@ -3732,6 +3788,7 @@ type Mutation = {
   performVoteTagRel?: Maybe<VoteResultTagRel>;
   promoteLensToMain?: Maybe<Scalars['Boolean']['output']>;
   publishAndDeDuplicateSpotlight?: Maybe<Spotlight>;
+  publishHomePageDesign?: Maybe<HomePageDesignMutationOutput>;
   rejectContentAndRemoveUserFromQueue: Scalars['Boolean']['output'];
   reorderSummaries?: Maybe<Scalars['Boolean']['output']>;
   rerunLlmCheck: AutomatedContentEvaluation;
@@ -3742,6 +3799,7 @@ type Mutation = {
   runLlmCheckForDocument: AutomatedContentEvaluation;
   sendEventTriggeredDM: Scalars['Boolean']['output'];
   sendNewDialogueMessageNotification: Scalars['Boolean']['output'];
+  setHomePageDesignVerified?: Maybe<HomePageDesign>;
   setIsBookmarked?: Maybe<SetIsBookmarkedOutput>;
   setIsHidden: User;
   setVoteComment?: Maybe<Comment>;
@@ -4251,6 +4309,11 @@ type MutationpublishAndDeDuplicateSpotlightArgs = {
 };
 
 
+type MutationpublishHomePageDesignArgs = {
+  input: PublishHomePageDesignInput;
+};
+
+
 type MutationrejectContentAndRemoveUserFromQueueArgs = {
   collectionName: ContentCollectionName;
   documentId: Scalars['String']['input'];
@@ -4309,6 +4372,13 @@ type MutationsendEventTriggeredDMArgs = {
 type MutationsendNewDialogueMessageNotificationArgs = {
   dialogueHtml: Scalars['String']['input'];
   postId: Scalars['String']['input'];
+};
+
+
+type MutationsetHomePageDesignVerifiedArgs = {
+  autoReviewPassed?: InputMaybe<Scalars['Boolean']['input']>;
+  designId: Scalars['String']['input'];
+  verified?: InputMaybe<Scalars['Boolean']['input']>;
 };
 
 
@@ -6854,6 +6924,12 @@ type ProfilePostDiamond = {
   slug: Scalars['String']['output'];
 };
 
+type PublishHomePageDesignInput = {
+  descriptionHtml: Scalars['String']['input'];
+  publicId: Scalars['String']['input'];
+  title: Scalars['String']['input'];
+};
+
 type Query = {
   __typename?: 'Query';
   ActiveTagCount: Scalars['Int']['output'];
@@ -6922,6 +6998,7 @@ type Query = {
   UserReadsPerCoreTag: Array<UserCoreTagReads>;
   UsersReadPostsOfTargetUser?: Maybe<Array<Post>>;
   adminEmailPreviewAudience: AdminEmailAudiencePreview;
+  adminHomePageDesigns: Array<AdminHomePageDesign>;
   arbitalTagContentRel?: Maybe<SingleArbitalTagContentRelOutput>;
   arbitalTagContentRels?: Maybe<MultiArbitalTagContentRelOutput>;
   ban?: Maybe<SingleBanOutput>;
@@ -6965,6 +7042,7 @@ type Query = {
   getSequenceStats?: Maybe<SequenceStats>;
   googleServiceAccountSession?: Maybe<SingleGoogleServiceAccountSessionOutput>;
   googleServiceAccountSessions?: Maybe<MultiGoogleServiceAccountSessionOutput>;
+  homePageDesignByPublicId?: Maybe<HomePageDesign>;
   iframeWidgetSrcdoc?: Maybe<SingleIframeWidgetSrcdocOutput>;
   iframeWidgetSrcdocs?: Maybe<MultiIframeWidgetSrcdocOutput>;
   jargonTerm?: Maybe<SingleJargonTermOutput>;
@@ -6977,6 +7055,7 @@ type Query = {
   llmConversations?: Maybe<MultiLlmConversationOutput>;
   localgroup?: Maybe<SingleLocalgroupOutput>;
   localgroups?: Maybe<MultiLocalgroupOutput>;
+  marketplaceHomePageDesigns: Array<MarketplaceHomePageDesign>;
   message?: Maybe<SingleMessageOutput>;
   messages?: Maybe<MultiMessageOutput>;
   moderationTemplate?: Maybe<SingleModerationTemplateOutput>;
@@ -6986,6 +7065,8 @@ type Query = {
   moderatorViewIPAddress?: Maybe<ModeratorIPAddressInfo>;
   multiDocument?: Maybe<SingleMultiDocumentOutput>;
   multiDocuments?: Maybe<MultiMultiDocumentOutput>;
+  myHomePageDesignSummaries: Array<HomePageDesignSummary>;
+  myHomePageDesigns: Array<HomePageDesign>;
   notification?: Maybe<SingleNotificationOutput>;
   notifications?: Maybe<MultiNotificationOutput>;
   petrov2024checkIfNuked?: Maybe<Scalars['Boolean']['output']>;
@@ -7659,6 +7740,11 @@ type QuerygoogleServiceAccountSessionsArgs = {
 };
 
 
+type QueryhomePageDesignByPublicIdArgs = {
+  publicId: Scalars['String']['input'];
+};
+
+
 type QueryiframeWidgetSrcdocArgs = {
   selector?: InputMaybe<SelectorInput>;
 };
@@ -7807,6 +7893,11 @@ type QuerymultiDocumentsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<MultiDocumentSelector>;
+};
+
+
+type QuerymyHomePageDesignsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -12180,6 +12271,45 @@ type randomUserQueryVariables = Exact<{
 
 type randomUserQuery = randomUserQuery_Query;
 
+type AdminHomePageDesignsQuery_adminHomePageDesigns_AdminHomePageDesign = { __typename?: 'AdminHomePageDesign', _id: string, publicId: string, title: string, html: string, verified: boolean, autoReviewPassed: boolean | null, autoReviewMessage: string | null, createdAt: string, source: string, modelName: string | null, commentId: string | null, ownerDisplayName: string, ownerSlug: string };
+
+type AdminHomePageDesignsQuery_Query = { __typename?: 'Query', adminHomePageDesigns: Array<AdminHomePageDesignsQuery_adminHomePageDesigns_AdminHomePageDesign> };
+
+
+type AdminHomePageDesignsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type AdminHomePageDesignsQuery = AdminHomePageDesignsQuery_Query;
+
+type SetHomePageDesignVerifiedMutation_setHomePageDesignVerified_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, verified: boolean, autoReviewPassed: boolean | null, autoReviewMessage: string | null };
+
+type SetHomePageDesignVerifiedMutation_Mutation = { __typename?: 'Mutation', setHomePageDesignVerified: SetHomePageDesignVerifiedMutation_setHomePageDesignVerified_HomePageDesign | null };
+
+
+type SetHomePageDesignVerifiedMutationVariables = Exact<{
+  designId: Scalars['String']['input'];
+  verified: InputMaybe<Scalars['Boolean']['input']>;
+  autoReviewPassed: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type SetHomePageDesignVerifiedMutation = SetHomePageDesignVerifiedMutation_Mutation;
+
+type UpdateCommentDeletedMutation_updateComment_CommentOutput_data_Comment = { __typename?: 'Comment', _id: string, deleted: boolean };
+
+type UpdateCommentDeletedMutation_updateComment_CommentOutput = { __typename?: 'CommentOutput', data: UpdateCommentDeletedMutation_updateComment_CommentOutput_data_Comment | null };
+
+type UpdateCommentDeletedMutation_Mutation = { __typename?: 'Mutation', updateComment: UpdateCommentDeletedMutation_updateComment_CommentOutput | null };
+
+
+type UpdateCommentDeletedMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateCommentDataInput;
+}>;
+
+
+type UpdateCommentDeletedMutation = UpdateCommentDeletedMutation_Mutation;
+
 type MigrationsDashboardQueryQuery_MigrationsDashboard_MigrationsDashboardData_migrations_MigrationStatus_runs_MigrationRun = { __typename?: 'MigrationRun', name: string, started: string, finished: string | null, succeeded: boolean | null };
 
 type MigrationsDashboardQueryQuery_MigrationsDashboard_MigrationsDashboardData_migrations_MigrationStatus = { __typename?: 'MigrationStatus', name: string, dateWritten: string | null, lastRun: string | null, runs: Array<MigrationsDashboardQueryQuery_MigrationsDashboard_MigrationsDashboardData_migrations_MigrationStatus_runs_MigrationRun> | null };
@@ -12871,6 +13001,176 @@ type multiCommentCommentsListCondensedQueryQueryVariables = Exact<{
 
 
 type multiCommentCommentsListCondensedQueryQuery = multiCommentCommentsListCondensedQueryQuery_Query;
+
+type MyHomePageDesignSummariesQuery_myHomePageDesignSummaries_HomePageDesignSummary = { __typename?: 'HomePageDesignSummary', publicId: string, title: string, createdAt: string };
+
+type MyHomePageDesignSummariesQuery_Query = { __typename?: 'Query', myHomePageDesignSummaries: Array<MyHomePageDesignSummariesQuery_myHomePageDesignSummaries_HomePageDesignSummary> };
+
+
+type MyHomePageDesignSummariesQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type MyHomePageDesignSummariesQuery = MyHomePageDesignSummariesQuery_Query;
+
+type HomePageDesignByPublicIdFullQuery_homePageDesignByPublicId_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, publicId: string, html: string, title: string, source: string, conversationHistory: any | null };
+
+type HomePageDesignByPublicIdFullQuery_Query = { __typename?: 'Query', homePageDesignByPublicId: HomePageDesignByPublicIdFullQuery_homePageDesignByPublicId_HomePageDesign | null };
+
+
+type HomePageDesignByPublicIdFullQueryVariables = Exact<{
+  publicId: Scalars['String']['input'];
+}>;
+
+
+type HomePageDesignByPublicIdFullQuery = HomePageDesignByPublicIdFullQuery_Query;
+
+type MarketplaceHomePageDesignsQuery_marketplaceHomePageDesigns_MarketplaceHomePageDesign = { __typename?: 'MarketplaceHomePageDesign', publicId: string, title: string, html: string, verified: boolean, commentId: string | null, commentBaseScore: number };
+
+type MarketplaceHomePageDesignsQuery_Query = { __typename?: 'Query', marketplaceHomePageDesigns: Array<MarketplaceHomePageDesignsQuery_marketplaceHomePageDesigns_MarketplaceHomePageDesign> };
+
+
+type MarketplaceHomePageDesignsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type MarketplaceHomePageDesignsQuery = MarketplaceHomePageDesignsQuery_Query;
+
+type PublishHomePageDesignMutation_publishHomePageDesign_HomePageDesignMutationOutput_data_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, publicId: string, commentId: string | null };
+
+type PublishHomePageDesignMutation_publishHomePageDesign_HomePageDesignMutationOutput = { __typename?: 'HomePageDesignMutationOutput', data: PublishHomePageDesignMutation_publishHomePageDesign_HomePageDesignMutationOutput_data_HomePageDesign | null };
+
+type PublishHomePageDesignMutation_Mutation = { __typename?: 'Mutation', publishHomePageDesign: PublishHomePageDesignMutation_publishHomePageDesign_HomePageDesignMutationOutput | null };
+
+
+type PublishHomePageDesignMutationVariables = Exact<{
+  input: PublishHomePageDesignInput;
+}>;
+
+
+type PublishHomePageDesignMutation = PublishHomePageDesignMutation_Mutation;
+
+type HomePageDesignByPublicIdQuery_homePageDesignByPublicId_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, publicId: string, html: string, title: string };
+
+type HomePageDesignByPublicIdQuery_Query = { __typename?: 'Query', homePageDesignByPublicId: HomePageDesignByPublicIdQuery_homePageDesignByPublicId_HomePageDesign | null };
+
+
+type HomePageDesignByPublicIdQueryVariables = Exact<{
+  publicId: Scalars['String']['input'];
+}>;
+
+
+type HomePageDesignByPublicIdQuery = HomePageDesignByPublicIdQuery_Query;
+
+type MyHomePageDesignsQuery_myHomePageDesigns_HomePageDesign = { __typename?: 'HomePageDesign', _id: string, publicId: string, html: string, title: string };
+
+type MyHomePageDesignsQuery_Query = { __typename?: 'Query', myHomePageDesigns: Array<MyHomePageDesignsQuery_myHomePageDesigns_HomePageDesign> };
+
+
+type MyHomePageDesignsQueryVariables = Exact<{
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type MyHomePageDesignsQuery = MyHomePageDesignsQuery_Query;
+
+type HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User_karmaChanges_KarmaChanges_posts_PostKarmaChange = { __typename?: 'PostKarmaChange', _id: string, scoreChange: number, postId: string, title: string | null, slug: string, collectionName: string };
+
+type HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User_karmaChanges_KarmaChanges_comments_CommentKarmaChange = { __typename?: 'CommentKarmaChange', _id: string, scoreChange: number, commentId: string | null, description: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, tagSlug: string | null, tagName: string | null, tagCommentType: TagCommentType | null, collectionName: string };
+
+type HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User_karmaChanges_KarmaChanges_tagRevisions_RevisionsKarmaChange = { __typename?: 'RevisionsKarmaChange', _id: string, scoreChange: number, tagId: string | null, tagSlug: string | null, tagName: string | null, collectionName: string };
+
+type HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User_karmaChanges_KarmaChanges = { __typename?: 'KarmaChanges', totalChange: number, updateFrequency: string, startDate: string | null, endDate: string | null, nextBatchDate: string | null, posts: Array<HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User_karmaChanges_KarmaChanges_posts_PostKarmaChange>, comments: Array<HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User_karmaChanges_KarmaChanges_comments_CommentKarmaChange>, tagRevisions: Array<HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User_karmaChanges_KarmaChanges_tagRevisions_RevisionsKarmaChange> };
+
+type HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User = { __typename?: 'User', _id: string, karmaChanges: HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User_karmaChanges_KarmaChanges | null };
+
+type HomeDesignKarmaChangesQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: HomeDesignKarmaChangesQuery_user_SingleUserOutput_result_User | null };
+
+type HomeDesignKarmaChangesQuery_Query = { __typename?: 'Query', user: HomeDesignKarmaChangesQuery_user_SingleUserOutput | null };
+
+
+type HomeDesignKarmaChangesQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type HomeDesignKarmaChangesQuery = HomeDesignKarmaChangesQuery_Query;
+
+type HomeDesignReadStatusesQuery_posts_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, isRead: boolean | null };
+
+type HomeDesignReadStatusesQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<HomeDesignReadStatusesQuery_posts_MultiPostOutput_results_Post> };
+
+type HomeDesignReadStatusesQuery_Query = { __typename?: 'Query', posts: HomeDesignReadStatusesQuery_posts_MultiPostOutput | null };
+
+
+type HomeDesignReadStatusesQueryVariables = Exact<{
+  postIds: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+type HomeDesignReadStatusesQuery = HomeDesignReadStatusesQuery_Query;
+
+type HomeDesignPostVoteStatusesQuery_posts_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, currentUserVote: string | null };
+
+type HomeDesignPostVoteStatusesQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<HomeDesignPostVoteStatusesQuery_posts_MultiPostOutput_results_Post> };
+
+type HomeDesignPostVoteStatusesQuery_Query = { __typename?: 'Query', posts: HomeDesignPostVoteStatusesQuery_posts_MultiPostOutput | null };
+
+
+type HomeDesignPostVoteStatusesQueryVariables = Exact<{
+  postIds: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+type HomeDesignPostVoteStatusesQuery = HomeDesignPostVoteStatusesQuery_Query;
+
+type HomeDesignCommentVoteStatusesQuery_comments_MultiCommentOutput_results_Comment = { __typename?: 'Comment', _id: string, currentUserVote: string | null };
+
+type HomeDesignCommentVoteStatusesQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<HomeDesignCommentVoteStatusesQuery_comments_MultiCommentOutput_results_Comment> };
+
+type HomeDesignCommentVoteStatusesQuery_Query = { __typename?: 'Query', comments: HomeDesignCommentVoteStatusesQuery_comments_MultiCommentOutput | null };
+
+
+type HomeDesignCommentVoteStatusesQueryVariables = Exact<{
+  commentIds: InputMaybe<Array<Scalars['String']['input']> | Scalars['String']['input']>;
+}>;
+
+
+type HomeDesignCommentVoteStatusesQuery = HomeDesignCommentVoteStatusesQuery_Query;
+
+type HomeDesignPerformVotePostMutation_performVotePost_VoteResultPost_document_Post = (
+  { __typename?: 'Post' }
+  & WithVotePost
+);
+
+type HomeDesignPerformVotePostMutation_performVotePost_VoteResultPost = { __typename?: 'VoteResultPost', showVotingPatternWarning: boolean, document: HomeDesignPerformVotePostMutation_performVotePost_VoteResultPost_document_Post };
+
+type HomeDesignPerformVotePostMutation_Mutation = { __typename?: 'Mutation', performVotePost: HomeDesignPerformVotePostMutation_performVotePost_VoteResultPost | null };
+
+
+type HomeDesignPerformVotePostMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type HomeDesignPerformVotePostMutation = HomeDesignPerformVotePostMutation_Mutation;
+
+type HomeDesignPerformVoteCommentMutation_performVoteComment_VoteResultComment_document_Comment = (
+  { __typename?: 'Comment' }
+  & WithVoteComment
+);
+
+type HomeDesignPerformVoteCommentMutation_performVoteComment_VoteResultComment = { __typename?: 'VoteResultComment', showVotingPatternWarning: boolean, document: HomeDesignPerformVoteCommentMutation_performVoteComment_VoteResultComment_document_Comment };
+
+type HomeDesignPerformVoteCommentMutation_Mutation = { __typename?: 'Mutation', performVoteComment: HomeDesignPerformVoteCommentMutation_performVoteComment_VoteResultComment | null };
+
+
+type HomeDesignPerformVoteCommentMutationVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+  voteType: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type HomeDesignPerformVoteCommentMutation = HomeDesignPerformVoteCommentMutation_Mutation;
 
 type PostExcerptQuery_post_SinglePostOutput_result_Post = (
   { __typename?: 'Post' }

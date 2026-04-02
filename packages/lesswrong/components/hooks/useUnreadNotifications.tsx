@@ -26,7 +26,7 @@ const notificationsCheckedAtLocalStorageKey = "notificationsCheckedAt";
 // Polling interval in milliseconds (5 seconds)
 const POLLING_INTERVAL = 5 * 1000;
 
-const UnreadNotificationCountsQuery = gql(`
+export const UnreadNotificationCountsQuery = gql(`
     query UnreadNotificationCountQuery {
       unreadNotificationCounts {
         unreadNotifications

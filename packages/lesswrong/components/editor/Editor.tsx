@@ -190,14 +190,13 @@ export const styles = (theme: ThemeType) => ({
 
 const autosaveInterval = 3000; //milliseconds
 const validationInterval = 500; //milliseconds
-export const getCkEditorName = () => isEAForum() ? 'EA Forum Docs' : 'LessWrong Docs'
 
 export type EditorTypeString = "html"|"markdown"|"ckEditorMarkup"|"lexical";
 export type LegacyEditorTypeString = EditorTypeString|"draftJS";
 
 export const getEditorTypeToDisplayMap = (): Record<LegacyEditorTypeString,{name: string, postfix?: string}> => ({
   html: {name: 'HTML', postfix: '[Admin Only]'},
-  ckEditorMarkup: {name: getCkEditorName()},
+  ckEditorMarkup: {name: "CkEditor"},
   markdown: {name: 'Markdown'},
   draftJS: {name: "DraftJS"},
   lexical: {name: 'LessWrong Docs'},

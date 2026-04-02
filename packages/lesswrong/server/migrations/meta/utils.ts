@@ -187,7 +187,7 @@ export const createIndex = async <N extends CollectionNameString>(
 
 export const dropTable = async (db: SqlClientOrTx, collectionOrCollectionName: CollectionBase<any>|string): Promise<void> => {
   const tableName = getTableNameFromCollectionNameOrCollection(collectionOrCollectionName);
-  await db.none(`DROP TABLE IF EXISTS ${tableName}`);
+  await db.none(`DROP TABLE IF EXISTS "${tableName}"`);
 }
 
 export const createTable = async <N extends CollectionNameString>(

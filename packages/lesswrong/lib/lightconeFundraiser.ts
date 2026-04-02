@@ -1,6 +1,6 @@
 import { useQuery } from "@/lib/crud/useQuery";
 import { useEffect, useState } from "react";
-import { gql } from "./generated/gql-codegen";
+import { gql } from "@/lib/generated/gql-codegen";
 
 export const useFundraiserStripeTotal = () => {
   const { data } = useQuery(gql(`

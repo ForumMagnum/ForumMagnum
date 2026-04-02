@@ -12,6 +12,8 @@ type SlackChannelName = keyof typeof slackChannels;
 interface PostMessageOptions {
   mrkdwn?: boolean;
   blocks?: (KnownBlock | Block)[];
+  unfurl_links?: boolean;
+  unfurl_media?: boolean;
 }
 
 interface PostMessageArgs {
@@ -50,5 +52,7 @@ export async function postMessage({ text, channelName, options }: PostMessageArg
     text,
     blocks: options?.blocks,
     mrkdwn: options?.mrkdwn,
+    unfurl_links: options?.unfurl_links,
+    unfurl_media: options?.unfurl_media,
   });
 }
