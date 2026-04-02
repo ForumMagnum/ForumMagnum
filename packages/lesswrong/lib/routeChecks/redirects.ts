@@ -462,6 +462,10 @@ export const redirects = [
     source: "/collaborateOnPost",
     destination: "/editPost",
     permanent: true,
+  }, {
+    source: "/auth/login",
+    destination: "/login",
+    permanent: true,
   },
 ] satisfies Redirect[];
 

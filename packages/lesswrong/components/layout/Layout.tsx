@@ -1,6 +1,6 @@
 'use client';
 
-import React, {useRef, useState, useCallback, createContext} from 'react';
+import React, {useRef, useState, useCallback, createContext, useSyncExternalStore} from 'react';
 import classNames from 'classnames'
 import { useTheme, useThemeColor } from '@/components/themes/useTheme';
 import { useLocation } from '@/lib/routeUtil';
@@ -37,9 +37,9 @@ import NavigationEventSender from '@/components/hooks/useOnNavigate';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { gql } from "@/lib/generated/gql-codegen";
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
-import { isFullscreenRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
+import { isFullscreenRoute, isHomeRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
 import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
-import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
+import { HOME_DESIGN_DEFAULT_CLASSIC_VALUE, HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE, SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { SubtitlePortalProvider } from './SubtitlePortalContext';
 
 import dynamic from 'next/dynamic';
@@ -47,6 +47,7 @@ import { isBlackBarTitle } from '@/components/seasonal/petrovDay/petrov-day-stor
 import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 import { PopperPortalProvider } from '../common/LWPopper';
 import { HideNavigationSidebarContextProvider } from './HideNavigationSidebarContextProvider';
+import { getHomeDesignActiveSnapshot, subscribeToHomeDesignActive } from '../common/HomeDesignChatContext';
 import { usePathname } from 'next/navigation';
 
 const LanguageModelLauncherButton = dynamic(() => import("../languageModels/LanguageModelLauncherButton"), { ssr: false });
@@ -102,6 +103,30 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
     // Hide the CKEditor table alignment menu
     '.ck-table-properties-form__alignment-row': {
       display: "none !important"
+    },
+    // When the sandboxed home page design is active, hide chrome that the
+    // design replaces (header, intercom, LLM chat launcher). The class is
+    // toggled in PageBackgroundWrapper which lives above the Activity
+    // boundary, so it correctly reflects the current route even when
+    // cacheComponents keeps old page trees in the DOM.
+    '.home-design-active .Header-root': {
+      display: 'none !important',
+    },
+    '.home-design-active .Header-headerHeight': {
+      '--header-height': '0px',
+    },
+    '.home-design-active .RouteRootClient-centralColumn': {
+      paddingTop: '0 !important',
+    },
+    '.home-design-active .home-design-hide-llm-chat': {
+      display: 'none !important',
+    },
+    'body:has(.home-design-active)': {
+      overflow: 'hidden !important',
+      height: '100dvh !important',
+    },
+    'body:has(.home-design-active) #intercom-outer-frame, body:has(.home-design-active) #intercom-container, body:has(.home-design-active) .intercom-lightweight-app': {
+      display: 'none !important',
     },
   },
   searchResultsArea: {
@@ -270,7 +295,7 @@ const LlmSidebarWrapper = ({children}: {
       </IsLlmChatSidebarOpenContext.Provider>
     </div>
     {renderLanguageModelChatLauncher && (
-      <div className={classes.llmChatColumn}>
+      <div className={classNames(classes.llmChatColumn, 'home-design-hide-llm-chat')}>
         <DeferRender ssr={false}>
           {showLlmChatSidebar ? (
             <SuspenseWrapper name="SidebarLanguageModelChat">
@@ -304,12 +329,20 @@ function PageBackgroundWrapper({children}: {
 }) {
   const classes = useStyles(pageBackgroundWrapperStyles);
   const pathname = usePrerenderablePathname();
+  const { query } = useLocation();
+  const isHomeDesignActive = useSyncExternalStore(
+    subscribeToHomeDesignActive,
+    getHomeDesignActiveSnapshot,
+    () => false
+  );
+  const isSandboxedHomePage = isLW() && isHomeRoute(pathname) && (!!query.theme || isHomeDesignActive);
 
   return <div id="wrapper" className={classNames(
     "wrapper", {
       'alignment-forum': isAF(),
       [classes.fullscreen]: isFullscreenRoute(pathname),
       [classes.wrapper]: isLWorAF(),
+      'home-design-active': isSandboxedHomePage,
     },
   )}>
     {children}
@@ -317,5 +350,3 @@ function PageBackgroundWrapper({children}: {
 }
 
 export default Layout;
-
-

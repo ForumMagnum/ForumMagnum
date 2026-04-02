@@ -31,6 +31,7 @@ import { default as ElicitQuestions } from '../collections/elicitQuestions/newSc
 import { default as EmailTokens } from '../collections/emailTokens/newSchema';
 import { default as FieldChanges } from '../collections/fieldChanges/newSchema';
 import { default as GoogleServiceAccountSessions } from '../collections/googleServiceAccountSessions/newSchema';
+import { default as HomePageDesigns } from '../collections/homePageDesigns/newSchema';
 import { default as IframeWidgetSrcdocs } from '../collections/iframeWidgetSrcdocs/newSchema';
 import { default as Images } from '../collections/images/newSchema';
 import { default as JargonTerms } from '../collections/jargonTerms/newSchema';
@@ -102,8 +103,8 @@ if (isAnyTest || bundleIsCodegen) {
 export const allSchemas = {
   ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
   Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
-  DialogueChecks, DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
-  LlmMessages, LinkPreviewCaches, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
+  DialogueChecks, DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, HomePageDesigns, IframeWidgetSrcdocs, Images, JargonTerms,
+  LWEvents, LegacyData, LlmConversations, LlmMessages, LinkPreviewCaches, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
   Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations,
   PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts,
   ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions,

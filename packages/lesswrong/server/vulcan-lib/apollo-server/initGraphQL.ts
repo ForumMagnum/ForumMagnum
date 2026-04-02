@@ -98,6 +98,7 @@ import { graphqlElicitQuestionQueryTypeDefs, elicitQuestionGqlQueryHandlers, eli
 import { graphqlEmailTokensQueryTypeDefs, emailTokensGqlFieldResolvers } from "@/server/collections/emailTokens/queries";
 import { graphqlFieldChangeQueryTypeDefs, fieldChangeGqlFieldResolvers } from "@/server/collections/fieldChanges/queries";
 import { graphqlGoogleServiceAccountSessionQueryTypeDefs, googleServiceAccountSessionGqlQueryHandlers, googleServiceAccountSessionGqlFieldResolvers } from "@/server/collections/googleServiceAccountSessions/queries";
+import { graphqlHomePageDesignQueryTypeDefs, homePageDesignGqlQueryHandlers, homePageDesignGqlFieldResolvers } from "@/server/collections/homePageDesigns/queries";
 import { graphqlIframeWidgetSrcdocQueryTypeDefs, iframeWidgetSrcdocGqlQueryHandlers, iframeWidgetSrcdocGqlFieldResolvers } from "@/server/collections/iframeWidgetSrcdocs/queries";
 import { graphqlImagesQueryTypeDefs, imagesGqlFieldResolvers } from "@/server/collections/images/queries";
 import { graphqlJargonTermQueryTypeDefs, jargonTermGqlQueryHandlers, jargonTermGqlFieldResolvers } from "@/server/collections/jargonTerms/queries";
@@ -158,6 +159,7 @@ import { createCommentGqlMutation, updateCommentGqlMutation, graphqlCommentTypeD
 import { createConversationGqlMutation, updateConversationGqlMutation, graphqlConversationTypeDefs } from "@/server/collections/conversations/mutations";
 import { createCurationNoticeGqlMutation, updateCurationNoticeGqlMutation, graphqlCurationNoticeTypeDefs } from "@/server/collections/curationNotices/mutations";
 import { createElicitQuestionGqlMutation, updateElicitQuestionGqlMutation, graphqlElicitQuestionTypeDefs } from "@/server/collections/elicitQuestions/mutations";
+import { homePageDesignGqlMutations, graphqlHomePageDesignMutationTypeDefs } from "@/server/collections/homePageDesigns/mutations";
 import { createJargonTermGqlMutation, updateJargonTermGqlMutation, graphqlJargonTermTypeDefs } from "@/server/collections/jargonTerms/mutations";
 import { createLWEventGqlMutation, graphqlLWEventTypeDefs } from "@/server/collections/lwevents/mutations";
 import { graphqlYjsDocumentQueryTypeDefs, yjsDocumentGqlFieldResolvers } from "@/server/collections/yjsDocuments/queries";
@@ -329,6 +331,7 @@ export const getTypeDefs = () => gql`
   ${graphqlEmailTokensQueryTypeDefs}
   ${graphqlFieldChangeQueryTypeDefs}
   ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
+  ${graphqlHomePageDesignQueryTypeDefs}
   ${graphqlIframeWidgetSrcdocQueryTypeDefs}
   ${graphqlImagesQueryTypeDefs}
   ${graphqlJargonTermQueryTypeDefs}
@@ -390,6 +393,7 @@ export const getTypeDefs = () => gql`
   ${graphqlConversationTypeDefs}
   ${graphqlCurationNoticeTypeDefs}
   ${graphqlElicitQuestionTypeDefs}
+  ${graphqlHomePageDesignMutationTypeDefs}
   ${graphqlJargonTermTypeDefs}
   ${graphqlLWEventTypeDefs}
   ${graphqlLlmConversationTypeDefs}
@@ -483,6 +487,7 @@ const getResolvers = () => ({
     ...elicitQuestionPredictionGqlQueryHandlers,
     ...elicitQuestionGqlQueryHandlers,
     ...googleServiceAccountSessionGqlQueryHandlers,
+    ...homePageDesignGqlQueryHandlers,
     ...iframeWidgetSrcdocGqlQueryHandlers,
     ...jargonTermGqlQueryHandlers,
     ...lweventGqlQueryHandlers,
@@ -545,6 +550,7 @@ const getResolvers = () => ({
     ...spotlightGqlMutations,
     ...tagResolversGraphQLMutations,
     ...bookmarkGqlMutations,
+    ...homePageDesignGqlMutations,
     ...hidePostGqlMutations,
     ...markAsUnreadMutations,
     ...cronGraphQLMutations,
@@ -655,6 +661,7 @@ const getResolvers = () => ({
   ...emailTokensGqlFieldResolvers,
   ...fieldChangeGqlFieldResolvers,
   ...googleServiceAccountSessionGqlFieldResolvers,
+  ...homePageDesignGqlFieldResolvers,
   ...iframeWidgetSrcdocGqlFieldResolvers,
   ...imagesGqlFieldResolvers,
   ...jargonTermGqlFieldResolvers,

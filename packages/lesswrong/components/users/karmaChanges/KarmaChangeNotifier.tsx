@@ -43,7 +43,7 @@ const styles = defineStyles("KarmaChangeNotifier", (theme: ThemeType) => ({
   },
 }), { stylePriority: -1 });
 
-const UserKarmaChangesQuery = gql(`
+export const UserKarmaChangesQuery = gql(`
   query KarmaChangeNotifier($documentId: String) {
     user(input: { selector: { documentId: $documentId } }) {
       result {
