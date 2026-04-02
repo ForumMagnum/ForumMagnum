@@ -15,7 +15,7 @@ import {afNonMemberDisplayInitialPopup} from "../../lib/alignment-forum/displayA
 import { DisableNoKibitzContext } from '../common/sharedContexts';
 import { useAdminToggle } from '../admin/useAdminToggle';
 import { isMobile } from '../../lib/utils/isMobile'
-import { isAF, blackBarTitle } from '@/lib/instanceSettings';
+import { isAF, blackBarTitle, isLW } from '@/lib/instanceSettings';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import LWPopper from "../common/LWPopper";
 import LWTooltip from "../common/LWTooltip";
@@ -32,6 +32,7 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
+import { useNavigate } from '@/lib/routeUtil';
 
 const NewDialogueDialog = dynamic(() => import("../posts/NewDialogueDialog"), { ssr: false });
 const NewShortformDialog = dynamic(() => import("../shortform/NewShortformDialog"), { ssr: false });
@@ -110,6 +111,7 @@ const UsersMenu = () => {
   const {disableNoKibitz, setDisableNoKibitz} = useContext(DisableNoKibitzContext );
   const {toggleOn, toggleOff} = useAdminToggle();
   const [cookies, setCookie, removeCookie] = useCookiesWithConsent([HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]);
+  const navigate = useNavigate();
 
   if (!currentUser) return null;
   if (currentUser.usernameUnset) {
@@ -152,6 +154,10 @@ const UsersMenu = () => {
   }
   
   const hasBookmarks = currentUser?.hasAnyBookmarks;
+
+  const openCustomizeSidebar = () => {
+    navigate('/?openCustomize=1');
+  }
 
   return (
     <div className={classes.root} {...eventHandlers}>
@@ -272,6 +278,13 @@ const UsersMenu = () => {
                   iconClassName={classes.icon}
                 />
               </ThemePickerMenu>
+              {isLW() && <>
+                <DropdownItem
+                  title="Custom Front Page"
+                  onClick={openCustomizeSidebar}
+                />
+                <DropdownDivider />
+              </>}
               {hasBookmarks &&<DropdownItem
                 title={"Saved & Read"}
                 to="/bookmarks"
