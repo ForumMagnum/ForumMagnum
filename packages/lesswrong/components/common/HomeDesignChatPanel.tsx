@@ -813,7 +813,7 @@ const HomeDesignChatPanel = () => {
     setShowHistory(false);
   }, [setMessages, setPublicId, applyDesign]);
 
-  // Apply a marketplace design and switch to chat tab to allow modifications
+  // Apply a marketplace design while leaving the marketplace visible
   const handleApplyMarketplaceDesign = useCallback((design: { publicId: string; title: string; html: string }) => {
     const synthetic = buildSyntheticDesignMessages(
       `[Applied marketplace design: "${design.title}"]`,
@@ -826,7 +826,6 @@ const HomeDesignChatPanel = () => {
     // Don't set publicId — modifications will create a new design under the user's ownership
     setPublicId(null);
     applyDesign(wrapBodyInSrcdoc(design.html, { origin: window.location.origin }));
-    setActiveTab('chat');
   }, [setMessages, setPublicId, applyDesign]);
 
   const handleRevertToBuiltInDefault = useCallback(() => {
