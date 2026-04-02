@@ -122,6 +122,7 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
       borderLeft: 'none',
       borderTop: '1px solid rgba(23, 20, 17, 0.18)',
     },
+    colorScheme: "light",
   },
   header: {
     padding: '16px 20px 14px',
