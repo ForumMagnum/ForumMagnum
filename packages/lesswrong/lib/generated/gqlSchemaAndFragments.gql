@@ -12237,7 +12237,6 @@ fragment UsersCurrent on User {
   viewUnreviewedComments
   recommendationSettings
   theme
-  babyBulbyState
 
   bookmarkedPostsMetadata {
     postId

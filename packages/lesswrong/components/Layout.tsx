@@ -44,7 +44,6 @@ import AnalyticsClient from "./common/AnalyticsClient";
 import AnalyticsPageInitializer from "./common/AnalyticsPageInitializer";
 import NavigationEventSender from "./hooks/useOnNavigate";
 import EAOnboardingFlow from "./ea-forum/onboarding/EAOnboardingFlow";
-import BabyBulby from "./ea-forum/BabyBulby";
 import BasicOnboardingFlow from "./onboarding/BasicOnboardingFlow";
 import { CommentOnSelectionPageWrapper } from "./comments/CommentOnSelection";
 import SidebarsWrapper from "./common/SidebarsWrapper";
@@ -408,10 +407,6 @@ const Layout = ({currentUser, children}: {
               <DeferRender ssr={false}>
                 <MaybeCookieBanner isWrapped={isWrapped} />
               </DeferRender>
-              <DeferRender ssr={false}>
-                <BabyBulby currentUser={currentUser} />
-              </DeferRender>
-
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
               {/* Google Tag Manager i-frame fallback */}
               <noscript><iframe src={`https://www.googletagmanager.com/ns.html?id=${googleTagManagerIdSetting.get()}`} height="0" width="0" style={{display:"none", visibility:"hidden"}}/></noscript>

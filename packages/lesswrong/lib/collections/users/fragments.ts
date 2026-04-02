@@ -182,7 +182,6 @@ export const UsersCurrent = () => frag`
     viewUnreviewedComments
     recommendationSettings
     theme
-    babyBulbyState
 
     bookmarkedPostsMetadata {
       postId
