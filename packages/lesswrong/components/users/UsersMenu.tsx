@@ -31,7 +31,7 @@ import dynamic from 'next/dynamic';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { HOME_DESIGN_DEFAULT_CLASSIC_VALUE, HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
+import { HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
 
 const NewDialogueDialog = dynamic(() => import("../posts/NewDialogueDialog"), { ssr: false });
 const NewShortformDialog = dynamic(() => import("../shortform/NewShortformDialog"), { ssr: false });
@@ -127,7 +127,6 @@ const UsersMenu = () => {
   const preferredHomeDesignCookie = typeof cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE] === 'string'
     ? cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]
     : null;
-  const showReenableRevolution = preferredHomeDesignCookie === HOME_DESIGN_DEFAULT_CLASSIC_VALUE;
   // By default, we show the user's display name as the menu button.
   let userButtonNode = <span className={classes.userButtonContents}>
     {userGetDisplayName(currentUser)}
@@ -307,17 +306,6 @@ const UsersMenu = () => {
                   onClick={toggleOn}
                 />
               </div>}
-              {showReenableRevolution && <DropdownItem
-                title="Re-enable Revolution"
-                onClick={() => {
-                  removeCookie(HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE, { path: '/' });
-                  setCookie(HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE, '', {
-                    path: '/',
-                    expires: new Date(0),
-                  });
-                  window.location.assign('/');
-                }}
-              />}
 
               <DropdownDivider />
 
