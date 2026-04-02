@@ -58,6 +58,7 @@ import {
   type LexicalNode,
   type RangeSelection,
   type TextNode,
+  type SiblingCaret,
 } from 'lexical';
 
 // ---------------------------------------------------------------------------
@@ -69,7 +70,7 @@ function $getLastMatchingCodeNode(
   direction: 'previous' | 'next',
 ): LexicalNode {
   let matchingNode = anchor;
-  let caret: ReturnType<typeof $getSiblingCaret> = $getSiblingCaret(anchor, direction);
+  let caret: SiblingCaret | null = $getSiblingCaret(anchor, direction);
   while (caret && ($isTextNode(caret.origin) || $isTabNode(caret.origin))) {
     matchingNode = caret.origin;
     caret = $getAdjacentCaret(caret);

@@ -21,29 +21,52 @@ import {
 
 let nextEditorContextId = 0;
 
-function applyHighlights(editor: LexicalEditor, codeNodeKeys: Set<NodeKey>, contextId: string): void {
+function applyHighlights(
+  editor: LexicalEditor,
+  codeNodeKeys: Set<NodeKey>,
+  dirtyKeys: Set<NodeKey>,
+  rangesPerBlock: Map<NodeKey, Map<string, Range[]>>,
+  contextId: string,
+): void {
   if (!getHighlights()) return;
-  if (codeNodeKeys.size === 0) {
-    updateHighlightContext(contextId, new Map());
-    return;
-  }
 
-  const rangesByGroup = new Map<string, Range[]>();
-
+  // Only re-tokenize dirty blocks; keep cached ranges for clean ones.
   editor.getEditorState().read(() => {
-    for (const key of codeNodeKeys) {
+    for (const key of dirtyKeys) {
+      if (!codeNodeKeys.has(key)) {
+        rangesPerBlock.delete(key);
+        continue;
+      }
       const node = $getNodeByKey(key);
       if (!node || !$isCodeNode(node) || !$isElementNode(node) || !node.isAttached()) {
+        rangesPerBlock.delete(key);
         continue;
       }
       const element = editor.getElementByKey(key);
-      if (!element) continue;
+      if (!element) {
+        rangesPerBlock.delete(key);
+        continue;
+      }
+      const blockRanges = new Map<string, Range[]>();
       const language = node.getLanguage();
-      highlightCodeElement(element, language ?? undefined, rangesByGroup);
+      highlightCodeElement(element, language ?? undefined, blockRanges);
+      rangesPerBlock.set(key, blockRanges);
     }
   });
 
-  updateHighlightContext(contextId, rangesByGroup);
+  // Merge per-block ranges into per-group ranges for the context.
+  const merged = new Map<string, Range[]>();
+  for (const blockRanges of rangesPerBlock.values()) {
+    for (const [group, ranges] of blockRanges) {
+      let existing = merged.get(group);
+      if (!existing) {
+        existing = [];
+        merged.set(group, existing);
+      }
+      existing.push(...ranges);
+    }
+  }
+  updateHighlightContext(contextId, merged);
 }
 
 export default function CodeHighlightCSSPlugin(): JSX.Element | null {
@@ -56,12 +79,16 @@ export default function CodeHighlightCSSPlugin(): JSX.Element | null {
 
     const contextId = `editor-${nextEditorContextId++}`;
     const codeNodeKeys = new Set<NodeKey>();
+    const pendingDirtyKeys = new Set<NodeKey>();
+    const rangesPerBlock = new Map<NodeKey, Map<string, Range[]>>();
 
     const scheduleHighlight = () => {
       if (rafRef.current !== null) return;
       rafRef.current = requestAnimationFrame(() => {
         rafRef.current = null;
-        applyHighlights(editor, codeNodeKeys, contextId);
+        const dirtyKeys = new Set(pendingDirtyKeys);
+        pendingDirtyKeys.clear();
+        applyHighlights(editor, codeNodeKeys, dirtyKeys, rangesPerBlock, contextId);
       });
     };
 
@@ -69,8 +96,10 @@ export default function CodeHighlightCSSPlugin(): JSX.Element | null {
       for (const [key, type] of mutations) {
         if (type === 'destroyed') {
           codeNodeKeys.delete(key);
+          pendingDirtyKeys.add(key);
         } else {
           codeNodeKeys.add(key);
+          pendingDirtyKeys.add(key);
         }
       }
       scheduleHighlight();
@@ -84,11 +113,15 @@ export default function CodeHighlightCSSPlugin(): JSX.Element | null {
 
     const removeUpdateListener = editor.registerUpdateListener(
       ({ dirtyElements }) => {
+        let hasDirtyCode = false;
         for (const key of codeNodeKeys) {
           if (dirtyElements.has(key)) {
-            scheduleHighlight();
-            return;
+            pendingDirtyKeys.add(key);
+            hasDirtyCode = true;
           }
+        }
+        if (hasDirtyCode) {
+          scheduleHighlight();
         }
       },
     );
