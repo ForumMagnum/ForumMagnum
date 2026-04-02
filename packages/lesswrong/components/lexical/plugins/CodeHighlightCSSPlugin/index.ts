@@ -71,7 +71,7 @@ function applyHighlights(
 
 export default function CodeHighlightCSSPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
-  const rafRef = useRef<number | null>(null);
+  const timerRef = useRef<number | null>(null);
   useStyles(codeHighlightStyles);
 
   useEffect(() => {
@@ -82,14 +82,19 @@ export default function CodeHighlightCSSPlugin(): JSX.Element | null {
     const pendingDirtyKeys = new Set<NodeKey>();
     const rangesPerBlock = new Map<NodeKey, Map<string, Range[]>>();
 
+    // Debounce tokenization so it runs during natural typing pauses
+    // (~150ms) rather than on every keystroke.
+    const HIGHLIGHT_DEBOUNCE_MS = 150;
     const scheduleHighlight = () => {
-      if (rafRef.current !== null) return;
-      rafRef.current = requestAnimationFrame(() => {
-        rafRef.current = null;
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+      }
+      timerRef.current = window.setTimeout(() => {
+        timerRef.current = null;
         const dirtyKeys = new Set(pendingDirtyKeys);
         pendingDirtyKeys.clear();
         applyHighlights(editor, codeNodeKeys, dirtyKeys, rangesPerBlock, contextId);
-      });
+      }, HIGHLIGHT_DEBOUNCE_MS);
     };
 
     const trackMutations = (mutations: Map<string, 'created' | 'updated' | 'destroyed'>) => {
@@ -132,9 +137,9 @@ export default function CodeHighlightCSSPlugin(): JSX.Element | null {
       removeCodeMutationListener();
       removeWidgetMutationListener();
       removeUpdateListener();
-      if (rafRef.current !== null) {
-        cancelAnimationFrame(rafRef.current);
-        rafRef.current = null;
+      if (timerRef.current !== null) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
       }
       removeHighlightContext(contextId);
     };
