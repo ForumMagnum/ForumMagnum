@@ -208,7 +208,7 @@ const styles = defineStyles('SandboxedHomePage', (theme: ThemeType) => ({
     cursor: 'pointer',
     boxShadow: '0 1px 0 rgba(23,20,17,0.06)',
     '&:hover': {
-      background: 'rgba(95, 155, 101, 0.12)',
+      background: 'rgba(95, 155, 101, 1.0)',
       borderColor: '#5f9b65',
       color: '#2d5331',
     },
