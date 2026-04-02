@@ -1,13 +1,29 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { HomeDesignChatContext } from './HomeDesignChatContext';
+import { useSubscribedLocation } from '@/lib/routeUtil';
 
-const HomeDesignChatProvider = ({ children }: { children: React.ReactNode }) => {
-  const [isOpen, setIsOpen] = useState(false);
+const HomeDesignChatProvider = ({
+  children,
+  initialIsOpen = false,
+}: {
+  children: React.ReactNode,
+  initialIsOpen?: boolean,
+}) => {
+  const [isOpen, setIsOpen] = useState(initialIsOpen);
   const [customSrcdoc, setCustomSrcdoc] = useState<string | null>(null);
   const [useDefaultDesign, setUseDefaultDesign] = useState(false);
   const [publicId, setPublicId] = useState<string | null>(null);
+
+  const { query } = useSubscribedLocation();
+  const openCustomizeParam = typeof query.openCustomize === 'string' ? query.openCustomize : undefined;
+  const currentUrlIsOpenCustomize = Boolean(openCustomizeParam);
+  useEffect(() => {
+    if (currentUrlIsOpenCustomize !== isOpen) {
+      setIsOpen(currentUrlIsOpenCustomize);
+    }
+  }, [currentUrlIsOpenCustomize]);
 
   const value = useMemo(() => ({
     isOpen,

@@ -24,6 +24,7 @@ import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HOME_DESIGN_DEFAULT_BUILT_IN_VALUE, HOME_DESIGN_DEFAULT_CLASSIC_VALUE, HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { canPublishHomeDesign, MARKETPLACE_POST_ID } from '@/lib/collections/homePageDesigns/constants';
+import { useNavigate } from '@/lib/routeUtil';
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 
 const myHomePageDesignSummariesQuery = gql(`
@@ -658,6 +659,7 @@ const HomeDesignChatPanel = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [activeTab, setActiveTab] = useState<PanelTab>('chat');
   const [showUnverified, setShowUnverified] = useState(false);
+  const navigate = useNavigate();
   const historyAnchorRef = useRef<HTMLDivElement>(null);
   const defaultPublicIdCookie = typeof cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE] === 'string'
     ? cookies[HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE]
@@ -739,8 +741,11 @@ const HomeDesignChatPanel = () => {
   }, [showHistory]);
 
   const handleClose = useCallback(() => {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('openCustomize');
+    navigate(`${url.pathname}${url.search}${url.hash}`, { replace: true });
     setIsOpen(false);
-  }, [setIsOpen]);
+  }, [navigate, setIsOpen]);
 
   const handleSubmit = useCallback((e: React.SyntheticEvent) => {
     e.preventDefault();

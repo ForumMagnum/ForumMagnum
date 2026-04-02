@@ -15,6 +15,28 @@ interface HomeDesignChatContextType {
 
 export const HomeDesignChatContext = createContext<HomeDesignChatContextType | null>(null);
 
+let homeDesignActive = false;
+const homeDesignActiveListeners = new Set<() => void>();
+
+export function getHomeDesignActiveSnapshot() {
+  return homeDesignActive;
+}
+
+export function subscribeToHomeDesignActive(listener: () => void) {
+  homeDesignActiveListeners.add(listener);
+  return () => {
+    homeDesignActiveListeners.delete(listener);
+  };
+}
+
+export function setHomeDesignActive(active: boolean) {
+  if (homeDesignActive === active) {
+    return;
+  }
+  homeDesignActive = active;
+  homeDesignActiveListeners.forEach((listener) => listener());
+}
+
 export function useHomeDesignChat(): HomeDesignChatContextType {
   const context = useContext(HomeDesignChatContext);
   if (!context) {
