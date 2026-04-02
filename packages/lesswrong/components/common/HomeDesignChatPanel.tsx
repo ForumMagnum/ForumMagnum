@@ -21,6 +21,7 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { useApolloClient } from '@apollo/client/react';
 import moment from 'moment';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
+import Loading from '../vulcan-core/Loading';
 import { HOME_DESIGN_DEFAULT_BUILT_IN_VALUE, HOME_DESIGN_DEFAULT_CLASSIC_VALUE, HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE } from '@/lib/cookies/cookies';
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { canPublishHomeDesign, MARKETPLACE_POST_ID } from '@/lib/collections/homePageDesigns/constants';
@@ -538,6 +539,10 @@ const styles = defineStyles('HomeDesignChatPanel', (theme: ThemeType) => ({
     color: theme.palette.text.dim3,
     textAlign: 'center',
   },
+  marketplaceLoading: {
+    marginTop: 32,
+    textAlign: 'center',
+  },
   marketplaceList: {
     flex: 1,
     overflowY: 'auto',
@@ -672,7 +677,7 @@ const HomeDesignChatPanel = () => {
   const summaries = summariesData?.myHomePageDesignSummaries ?? [];
 
   // Fetch marketplace designs when the marketplace tab is active
-  const { data: marketplaceData } = useQuery(marketplaceHomePageDesignsQuery, {
+  const { data: marketplaceData, loading: marketplaceLoading } = useQuery(marketplaceHomePageDesignsQuery, {
     skip: !isOpen || activeTab !== 'marketplace',
   });
   const allMarketplaceDesigns = marketplaceData?.marketplaceHomePageDesigns ?? [];
@@ -1074,7 +1079,11 @@ const HomeDesignChatPanel = () => {
               Set current built-in theme as default
             </button>
           </div>
-          {allMarketplaceDesigns.length === 0 ? (
+          {marketplaceLoading ? (
+            <div className={classes.marketplaceLoading}>
+              <Loading />
+            </div>
+          ) : allMarketplaceDesigns.length === 0 ? (
             <div className={classes.marketplaceEmpty}>No published designs yet</div>
           ) : (
             <>
