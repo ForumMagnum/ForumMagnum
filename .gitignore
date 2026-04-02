@@ -130,5 +130,8 @@ next-env.d.ts
 # Fly
 fly/hocuspocusServer/dist/
 
+# ACX Meetup import runtime state
+acxMeetupImports/
+
 # Claude Code
 .claude

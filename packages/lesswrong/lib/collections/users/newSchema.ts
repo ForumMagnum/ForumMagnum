@@ -2743,6 +2743,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["admins", "sunshineRegiment"],
+      canCreate: ["admins"],
       canUpdate: ["admins", "sunshineRegiment"],
       validation: {
         optional: true,

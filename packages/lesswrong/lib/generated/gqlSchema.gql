@@ -9187,6 +9187,7 @@ input CreateUserDataInput {
   hideFrontpageBook2019Ad: Boolean
   hideFrontpageBook2020Ad: Boolean
   reviewedByUserId: String
+  reviewedAt: Date
   shortformFeedId: String
   viewUnreviewedComments: Boolean
   noExpandUnreadCommentsReview: Boolean

@@ -8401,6 +8401,7 @@ interface CreateUserDataInput {
   hideFrontpageBook2019Ad?: boolean | null;
   hideFrontpageBook2020Ad?: boolean | null;
   reviewedByUserId?: string | null;
+  reviewedAt?: Date | null;
   shortformFeedId?: string | null;
   viewUnreviewedComments?: boolean | null;
   noExpandUnreadCommentsReview?: boolean | null;

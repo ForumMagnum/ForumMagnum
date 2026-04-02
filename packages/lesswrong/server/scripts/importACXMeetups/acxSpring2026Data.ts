@@ -1,275 +1,8 @@
-import { registerMigration } from './migrationUtils';
-import { Posts } from '../../server/collections/posts/collection';
-import { Users } from '../../server/collections/users/collection';
-import { mapsAPIKeySetting } from '@/lib/instanceSettings';
-import { getLocalTime } from '../mapsUtils';
-import { userFindOneByEmail } from "../commonQueries";
-import { writeFile } from 'fs/promises';
-import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
-import { createUser } from '../collections/users/mutations';
-import { createPost } from '../collections/posts/mutations';
-import { createAnonymousContext } from '../vulcan-lib/createContexts';
-import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
-
-const LESSWRONG_USERS_PATH = "/users/";
-
-function acxMeetupProfileLookupKey(raw: string | undefined): string | null {
-  if (raw === undefined) return null;
-  const trimmed = raw.trim();
-  if (!trimmed) return null;
-
-  const collapsedLower = trimmed.toLowerCase().replace(/\s+/g, "");
-  if (
-    collapsedLower === "n/a" ||
-    collapsedLower === "na" ||
-    collapsedLower === "no" ||
-    collapsedLower === "nonusernameselected"
-  ) {
-    return null;
-  }
-
-  const slugFromPathname = (pathname: string): string | null => {
-    const idx = pathname.toLowerCase().indexOf(LESSWRONG_USERS_PATH);
-    if (idx === -1) return null;
-    const after = pathname.slice(idx + LESSWRONG_USERS_PATH.length);
-    const segment = after.split("/").filter(Boolean)[0];
-    if (!segment) return null;
-    try {
-      return decodeURIComponent(segment);
-    } catch {
-      return segment;
-    }
-  };
-
-  if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
-    try {
-      return slugFromPathname(new URL(trimmed).pathname);
-    } catch {
-      return null;
-    }
-  }
-
-  if (trimmed.startsWith("/")) {
-    const fromPath = slugFromPathname(trimmed);
-    if (fromPath) return fromPath;
-  }
-
-  if (/\s/.test(trimmed) || trimmed.length > 64) return null;
-
-  return trimmed;
-}
-
-function userFindOneByProfileSlugOrUsername(slugOrUsername: string): Promise<DbUser | null> {
-  return Users.findOne({
-    $or: [{ slug: slugOrUsername }, { username: slugOrUsername }, { oldSlugs: slugOrUsername }],
-  });
-}
-
-async function coordinatesToGoogleLocation({ lat, lng }: { lat: string, lng: string }) {
-  const requestOptions: any = {
-    method: 'GET',
-    redirect: 'follow'
-  };
-
-  try {
-    const response = await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${mapsAPIKeySetting.get()}`, requestOptions)
-    const responseData = await response.json()
-    if (!responseData.results?.length) {
-      // eslint-disable-next-line no-console
-      console.log(`Geocoding returned no results for ${lat},${lng} (status: ${responseData.status})`);
-      return undefined;
-    }
-    return responseData.results[0]
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.log(`Geocoding failed for ${lat},${lng}:`, err);
-    return undefined;
-  }
-}
-
-export default registerMigration({
-  name: "importACXMeetupsSpring26",
-  dateWritten: "2026-03-30",
-  idempotent: true,
-  action: async () => {
-    const eventCacheContents: { _id: string, lat: number, lng: number }[] = [];
-
-    const adminId = 'XtphY3uYHwruKqDyG';
-
-    // eslint-disable-next-line no-console
-    console.log("Begin importing ACX Meetups");
-    for (const row of acxData) {
-      let eventOrganizer: DbUser;
-      const email = row["Email address"] || undefined;
-      const lookupEmail = email === 'ed@newspeak.house' ? 'edsaperia@gmail.com' : email;
-
-      const profileLookupKey = acxMeetupProfileLookupKey(row["Username"]);
-      const userByProfile = profileLookupKey
-        ? await userFindOneByProfileSlugOrUsername(profileLookupKey)
-        : null;
-      const existingUserByEmail = lookupEmail ? await userFindOneByEmail(lookupEmail) : undefined;
-
-      if (userByProfile) {
-        eventOrganizer = userByProfile;
-        if (existingUserByEmail && existingUserByEmail._id !== userByProfile._id) {
-          // eslint-disable-next-line no-console
-          console.log(
-            { profileLookupKey, email: lookupEmail },
-            "ACX import: profile/slug user differs from email user; using profile user",
-          );
-        }
-      } else if (existingUserByEmail) {
-        eventOrganizer = existingUserByEmail;
-      } else {
-        const username = await getUnusedSlugByCollectionName("Users", row["Name"].toLowerCase());
-        try {
-          const userDoc = {
-            username,
-            displayName: row["Name"],
-            email: email,
-            reviewedByUserId: adminId,
-            reviewedAt: new Date()
-          };
-
-          const newUser = await createUser({ data: userDoc }, createAnonymousContext());
-          eventOrganizer = newUser;
-        } catch (err) {
-          // eslint-disable-next-line no-console
-          console.log({ err, email, row }, 'Error when creating a new user, using a different username');
-
-          const userDoc = {
-            username: `${username}-spring-acx-26`,
-            displayName: row["Name"],
-            email: email,
-            reviewedByUserId: adminId,
-            reviewedAt: new Date()
-          };
-
-          const newUser = await createUser({ data: userDoc }, createAnonymousContext());
-          eventOrganizer = newUser;
-        }
-      }
-      
-      //Use the coordinates to get the location
-      const [latitude, longitude] = row["GPS Coordinates"].split(",");
-      const title = row["Title"] || `${row["City"]}, ${row["Country"]} - ACX Spring Schelling 2026`;
-
-      // Check for existing event links
-      const eventUrl = row["Event Link"];
-      const premadePost = eventUrl?.includes("lesswrong.com");
-      const eventId = eventUrl && premadePost ? new URL(eventUrl).pathname.split('/')[2] : undefined;
-
-      const [googleLocation, existingPost, premadePostObject] = await Promise.all([
-        coordinatesToGoogleLocation({lat: latitude, lng: longitude}),
-        // TODO: THIS ISN'T INDEXED, SO THIS RUNS PRETTY SLOWLY IN PROD SINCE IT'S DOING ~FULL TABLE SCANS
-        Posts.findOne({ title }),
-        eventId ? Posts.findOne(eventId) : Promise.resolve(undefined)
-      ]);
-
-      const eventTimePretendingItsUTC = new Date(`${row["Date"]} ${row["Time"]} UTC`)
-      const localtime = eventTimePretendingItsUTC.getTime() ? await getLocalTime(eventTimePretendingItsUTC, googleLocation) : new Date();
-      const actualTime = new Date(eventTimePretendingItsUTC.getTime() + (eventTimePretendingItsUTC.getTime() - (localtime?.getTime() || eventTimePretendingItsUTC.getTime())))
-      
-      const fbUrlExists = eventUrl?.includes("facebook.com");
-      const meetupUrlExists = eventUrl?.includes("meetup.com");
-
-      let usedPost: DbPost | undefined;
-      
-      //Then create event post with that user as owner, if there's none by that title and the local organizer didn't already make one.
-      if (!existingPost && !premadePostObject) {
-        const newPostData = {
-          title,
-          postedAt: new Date(),
-          userId: eventOrganizer._id,
-          submitToFrontpage: false,
-          activateRSVPs: true,
-          draft: false,
-          meta: false,
-          isEvent: true,
-          contactInfo: row["Email address"],
-          location: `${row["City"]}`,
-          startTime: eventTimePretendingItsUTC.getTime() ? actualTime : undefined,
-          meetupLink: meetupUrlExists ? eventUrl : undefined,
-          facebookLink: fbUrlExists ? eventUrl : undefined,
-          googleLocation,
-          contents: {
-            originalContents: {
-              type: 'ckEditorMarkup',
-              data: `<p>This year's Spring ACX Meetup everywhere in ${row["City"]}.</p>
-                <p>Location: ${row["Location description"]} – <a href="${row["Plus.Code Coordinates"]}">${row["Plus.Code Coordinates"]}</a></p>
-                ${row["Group Link"] ? `<p>Group Link: ${row["Group Link"]}</p>` : ""}
-                ${row["Notes"] ? `<p>${row["Notes"]}</p>` : ""}
-                <p>Contact: ${row["Email address"]} ${row["Additional contact info"] ? `– ${row["Additional contact info"]}` : ""}</p>`
-            },
-            updateType: 'minor',
-            commitMessage: ''
-          },
-          moderationStyle: 'easy-going',
-          af: false,
-          authorIsUnreviewed: false,
-          types: [
-            'SSC'
-          ],
-        };
-        
-        const newPost = await createPost({ data: newPostData }, await computeContextFromUser({ user: eventOrganizer, isSSR: false }));
-
-        // eslint-disable-next-line no-console
-        console.log("Created new ACX Meetup: ", newPost.title);
-        const googleLocationInfo = newPost.googleLocation?.geometry?.location;
-        eventCacheContents.push({ _id: newPost._id, lat: googleLocationInfo?.lat, lng: googleLocationInfo?.lng });
-
-        usedPost = newPost;
-      } else {
-        // eslint-disable-next-line no-console
-        console.log("Meetup already had a LW event. Check ", eventUrl, "or", title);
-        if (existingPost) {
-          const googleLocationInfo = existingPost.googleLocation?.geometry?.location;
-          eventCacheContents.push({ _id: existingPost._id, lat: googleLocationInfo?.lat, lng: googleLocationInfo?.lng });
-          usedPost = existingPost;
-        } else if (premadePostObject) {
-          const googleLocationInfo = premadePostObject.googleLocation?.geometry?.location;
-          eventCacheContents.push({ _id: premadePostObject._id, lat: googleLocationInfo?.lat, lng: googleLocationInfo?.lng });
-          usedPost = premadePostObject;
-        }
-      }
-      const usedPostStartTime = usedPost?.startTime?.getTime();
-      const appliedTime = actualTime.getTime();
-
-      if (usedPostStartTime !== appliedTime) {
-        // eslint-disable-next-line no-console
-        console.log({ usedPostStartTime, appliedTime, row }, 'Created event might have the wrong time');
-      }
-    }
-    // eslint-disable-next-line no-console
-    console.log("End importing ACX meetups.");
-
-    await writeFile('eventCache.json', JSON.stringify(eventCacheContents, null, 2))
-  }
-})
-
-interface ACXMeetup {
-  Region: string
-  "Name": string
-  "Username"?: string
-  "Email address": string
-  "Country": string
-  "City": string
-  "Location description": string
-  "Plus.Code Coordinates": string
-  "Date": string
-  "Time": string
-  "GPS Coordinates": string
-  "Event Link"?: string
-  "Group Link"?: string
-  Notes?: string
-  "Additional contact info"?: string
-  "Title"?: string
-}
+import { ACXMeetup } from '../importACXMeetups';
 
 // Updated 2026-03-30 13:00pm EDT
 
-const acxData: ACXMeetup[] = [
+export const acxSpring2026Data: ACXMeetup[] = [
   {
     "Region": "Europe",
     "Country": "Denmark",
@@ -459,8 +192,8 @@ const acxData: ACXMeetup[] = [
     "Date": "4/10/2026",
     "Time": "02:00 PM",
     "Event Link": "",
-    "Group Link": "Telegram Group -> https://t.me/+n7U-ilkVA_dkNTUy",
-    "Notes": "you must contact me if you are coming, I tried to host the meet up a few times before, and no one came. so if you are coming please inform me so I would actually go."
+    "Group Link": "https://t.me/+n7U-ilkVA_dkNTUy",
+    "Notes": "you must contact me if you are coming, I tried to host the meet up a few times before, and no one came. so if you are coming please inform me so I would actually go.\n\nTelegram Group -> https://t.me/+n7U-ilkVA_dkNTUy"
   },
   {
     "Region": "North America",
@@ -475,8 +208,8 @@ const acxData: ACXMeetup[] = [
     "Date": "5/17/2026",
     "Time": "07:00 PM",
     "Event Link": "",
-    "Group Link": "We have a mailing list and a discord. The mailing list is more for our weekly meetup reminders and the discord is more of a social environment. Here's a link to the discord: https://discord.com/invite/meeUKNBRjX. If you would like to be added to the mailing list, please email me.",
-    "Notes": "Parking is free on the weekend. There will be food and drinks. RSVPs are useful so I know how much food to get, but are not required."
+    "Group Link": "https://discord.com/invite/meeUKNBRjX",
+    "Notes": "Parking is free on the weekend. There will be food and drinks. RSVPs are useful so I know how much food to get, but are not required.\n\nWe have a mailing list and a discord. The mailing list is more for our weekly meetup reminders and the discord is more of a social environment. Here's a link to the discord: https://discord.com/invite/meeUKNBRjX. If you would like to be added to the mailing list, please email me."
   },
   {
     "Region": "Asia-Pacific",
@@ -605,23 +338,6 @@ const acxData: ACXMeetup[] = [
     "Event Link": "",
     "Group Link": "",
     "Notes": "This is an interest check, if you're interest in attending, even if it's just a maybe, let me know by email or LessWrong DM.Venue may shift to a café or bar depending on attendance and weather."
-  },
-  {
-    "Region": "North America",
-    "Country": "USA",
-    "City": "Berkeley",
-    "Name": "Raemon",
-    "Username": "raemon",
-    "Email address": "raemon777@gmail.com",
-    "Location description": "Lighthaven, 2740 Telegraph Ave, Berkeley",
-    "GPS Coordinates": "37.8599375,-122.2595625",
-    "Plus.Code Coordinates": "https://plus.codes/849VVP5R+X5",
-    "Date": "4/1/2026",
-    "Time": "6:00 PM",
-    "Event Link": "",
-    "Group Link": "",
-    "Title": "Raemon's Birthday Party",
-    "Notes": "Hey everyone, it's Raemon's birthday today. Everyone should come by Lighthaven to celebrate with me. No gifts, but if you could compose a bit of poetry or music that makes you think of me, that'd be swell. Short and silly is perfect!"
   },
   {
     "Region": "Europe",
@@ -1116,7 +832,7 @@ const acxData: ACXMeetup[] = [
     "Date": "4/25/2026",
     "Time": "03:00 PM",
     "Event Link": "",
-    "Group Link": "hxxps://chat[dot]whatsapp[dot]com/Ecgu6De4aXkDhAk9FELKGr",
+    "Group Link": "https://chat.whatsapp.com/Ecgu6De4aXkDhAk9FELKGr",
     "Notes": ""
   },
   {
@@ -1173,7 +889,7 @@ const acxData: ACXMeetup[] = [
     "City": "Eindhoven",
     "Name": "Niko",
     "Username": "koderei",
-    "Email address": "hamburger_blues [a t] disroot [period] org",
+    "Email address": "hamburger_blues@disroot.org",
     "Location description": "Community Square at Torenallee, I will have a \"ACX MEETUP\" sign",
     "GPS Coordinates": "51.4466875,5.4586875",
     "Plus.Code Coordinates": "https://plus.codes/9F37CFW5+MF",
@@ -1260,8 +976,8 @@ const acxData: ACXMeetup[] = [
     "Date": "5/17/2026",
     "Time": "02:00 PM",
     "Event Link": "",
-    "Group Link": "Discord server (covers Miami and Palm Beach County as well): https://discord.gg/svZeYP83MQ",
-    "Notes": ""
+    "Group Link": "https://discord.gg/svZeYP83MQ",
+    "Notes": "Discord server (covers Miami and Palm Beach County as well): https://discord.gg/svZeYP83MQ"
   },
   {
     "Region": "Europe",
@@ -1276,7 +992,7 @@ const acxData: ACXMeetup[] = [
     "Date": "4/24/2026",
     "Time": "06:00 PM",
     "Event Link": "",
-    "Group Link": "www.rationality-freiburg.de",
+    "Group Link": "https://www.rationality-freiburg.de",
     "Notes": "If possible, check the event on the website for some reading as preparation. If not, come anyway :-) https://www.rationality-freiburg.de/events/2026-04-24-acx-meetups-everywhere/"
   },
   {
@@ -1372,8 +1088,8 @@ const acxData: ACXMeetup[] = [
     "Date": "4/22/2026",
     "Time": "06:00 PM",
     "Event Link": "",
-    "Group Link": "Meetup.com: https://www.meetup.com/lw-acx-meetup-gothenburg/events/313948821/   lesswrong: https://www.lesswrong.com/events/Z6ZnzTfbeKMng8HdB/acx-everywhere-spring-meetup-2026",
-    "Notes": ""
+    "Group Link": "https://www.meetup.com/lw-acx-meetup-gothenburg/events/313948821/",
+    "Notes": "Meetup.com: https://www.meetup.com/lw-acx-meetup-gothenburg/events/313948821/   lesswrong: https://www.lesswrong.com/events/Z6ZnzTfbeKMng8HdB/acx-everywhere-spring-meetup-2026"
   },
   {
     "Region": "Europe",
@@ -1413,14 +1129,14 @@ const acxData: ACXMeetup[] = [
     "City": "Haifa",
     "Name": "shai",
     "Username": "",
-    "Email address": "Tenastralcodex[at]gmail[period]com",
+    "Email address": "Tenastralcodex@gmail.com",
     "Location description": "We'll be on the second floor of the Goldmund bookstore, on ekron 6 street in the talpiot market area. I will be wearing a batik/Hawaiian shirt and carrying a sign with ACX MEETUP on it.",
     "GPS Coordinates": "32.8101875,35.0008906",
     "Plus.Code Coordinates": "https://plus.codes/8G4QR262+39C",
     "Date": "5/18/2026",
     "Time": "05:00 PM",
     "Event Link": "",
-    "Group Link": "https://chat.whatsapp.com/FSc [remove this bit] lSIRSpdSJ6T5VJT2QAD",
+    "Group Link": "https://chat.whatsapp.com/FSclSIRSpdSJ6T5VJT2QAD",
     "Notes": "Please RSVP on whatsapp/our group email so I know how many people will participate"
   },
   {
@@ -1484,8 +1200,8 @@ const acxData: ACXMeetup[] = [
     "Date": "5/17/2026",
     "Time": "03:00 PM",
     "Event Link": "",
-    "Group Link": "None yet, but questions can be send to annaluisakambas@gmail.com",
-    "Notes": "Would be nice if you RSVP to my mail annaluisakambas@gmail.com, but I’ll be there no matter what, so you can also show up unannounced. I’ll reserve a table for the group size that RSVPd."
+    "Group Link": "",
+    "Notes": "Would be nice if you RSVP to my mail annaluisakambas@gmail.com, but I’ll be there no matter what, so you can also show up unannounced. I’ll reserve a table for the group size that RSVPd.\n\nNone yet, but questions can be send to annaluisakambas@gmail.com"
   },
   {
     "Region": "Asia-Pacific",
@@ -1612,7 +1328,7 @@ const acxData: ACXMeetup[] = [
     "Date": "5/2/2026",
     "Time": "04:00 PM",
     "Event Link": "",
-    "Group Link": "No",
+    "Group Link": "",
     "Notes": ""
   },
   {
@@ -1669,7 +1385,7 @@ const acxData: ACXMeetup[] = [
     "City": "Karlsruhe",
     "Name": "Marcus",
     "Username": "wilm",
-    "Email address": "wilm on LessWrong",
+    "Email address": "",
     "Location description": "Cafe intro am Kronenplatz",
     "GPS Coordinates": "49.0093125,8.409062500000001",
     "Plus.Code Coordinates": "https://plus.codes/8FXC2C55+PJ",
@@ -1724,8 +1440,8 @@ const acxData: ACXMeetup[] = [
     "Date": "5/15/2026",
     "Time": "05:00 PM",
     "Event Link": "",
-    "Group Link": "LessWrong UA, invites via telegram or email",
-    "Notes": ""
+    "Group Link": "",
+    "Notes": "LessWrong UA, invites via telegram or email"
   },
   {
     "Region": "Europe",
@@ -1868,8 +1584,8 @@ const acxData: ACXMeetup[] = [
     "Date": "5/2/2026",
     "Time": "04:00 PM",
     "Event Link": "",
-    "Group Link": "Il y a un groupe télégram, envoyez moi un mail et je vous enverrais le lien. There is a telegram group, shoot me a mail and I'll send you the link",
-    "Notes": "No RSVP needed, if you're reading this you're invited, don't hesitate to come! Most people that came in previous meetups can talk french and english. Pas besoin de RSVP, si vous lisez ça vous êtes invitez, n'hésitez pas à venir ! La plupart des gens qui sont venus aux meetups d'avant peuvent parler français et anglais."
+    "Group Link": "",
+    "Notes": "No RSVP needed, if you're reading this you're invited, don't hesitate to come! Most people that came in previous meetups can talk french and english. Pas besoin de RSVP, si vous lisez ça vous êtes invitez, n'hésitez pas à venir ! La plupart des gens qui sont venus aux meetups d'avant peuvent parler français et anglais.\n\nIl y a un groupe télégram, envoyez moi un mail et je vous enverrais le lien. There is a telegram group, shoot me a mail and I'll send you the link"
   },
   {
     "Region": "North America",
@@ -2172,8 +1888,8 @@ const acxData: ACXMeetup[] = [
     "Date": "5/16/2026",
     "Time": "06:00 PM",
     "Event Link": "",
-    "Group Link": "Email alex[at]alexliebowitz[dot]com to get on mailing list (let me know if you want to be a CC or BCC). There's also a moderately-active Discord that you can join at https://discord.gg/vec [remove this bit] W7TfsPg , where I make the announcements as well.",
-    "Notes": "Guest parking should be along the road leading in (Black Birch Trail), parking to the right as you drive in. There is an Event Parking sign but it is not the most visible. There are disabled spaces directly in front of the Common House (100 Black Birch Trail). If we overflow the road, people can use the resident lots to the left and right."
+    "Group Link": "https://discord.gg/vecW7TfsPg",
+    "Notes": "Guest parking should be along the road leading in (Black Birch Trail), parking to the right as you drive in. There is an Event Parking sign but it is not the most visible. There are disabled spaces directly in front of the Common House (100 Black Birch Trail). If we overflow the road, people can use the resident lots to the left and right. Email alex@alexliebowitz.com to get on the mailing list. There's also a moderately-active Discord (see Group Link)."
   },
   {
     "Region": "North America",
@@ -2204,8 +1920,8 @@ const acxData: ACXMeetup[] = [
     "Date": "5/16/2026",
     "Time": "04:30 PM",
     "Event Link": "",
-    "Group Link": "https://discord.gg/R2RrvVCARe (Orlando Server) https://discord.gg/jHBfgzMsFP (Miami Server, General FL channels exist)",
-    "Notes": "RSVP not required but would be helpful. I'll make it easy to spot. If interested but the day/time doesn't work I'd encourage reaching out."
+    "Group Link": "https://discord.gg/R2RrvVCARe",
+    "Notes": "RSVP not required but would be helpful. I'll make it easy to spot. If interested but the day/time doesn't work I'd encourage reaching out.\n\nhttps://discord.gg/R2RrvVCARe (Orlando Server) https://discord.gg/jHBfgzMsFP (Miami Server, General FL channels exist)"
   },
   {
     "Region": "Europe",
@@ -2236,8 +1952,8 @@ const acxData: ACXMeetup[] = [
     "Date": "5/22/2026",
     "Time": "06:00 PM",
     "Event Link": "",
-    "Group Link": "https://www.lesswrong.com/groups/PB4YL2K54CzmQDtC4 (Attend a meetup for a link to our discord, where all the active online conversation takes place)",
-    "Notes": "Come on out to encounter ACX readers, and to find out what our Rational Ottawa weekly meetup group is like/is all about! Past years have seen attendance range from 1-2 dozen at these events, and I would expect that to continue. Please feel welcome to join us even if you're not quite sure you fit the crowd, or feel awkward about doing meetups! Food to be provided at the event!"
+    "Group Link": "https://www.lesswrong.com/groups/PB4YL2K54CzmQDtC4",
+    "Notes": "Come on out to encounter ACX readers, and to find out what our Rational Ottawa weekly meetup group is like/is all about! Past years have seen attendance range from 1-2 dozen at these events, and I would expect that to continue. Please feel welcome to join us even if you're not quite sure you fit the crowd, or feel awkward about doing meetups! Food to be provided at the event!\n\nhttps://www.lesswrong.com/groups/PB4YL2K54CzmQDtC4 (Attend a meetup for a link to our discord, where all the active online conversation takes place)"
   },
   {
     "Region": "Europe",
@@ -2268,8 +1984,8 @@ const acxData: ACXMeetup[] = [
     "Date": "4/18/2026",
     "Time": "05:30 PM",
     "Event Link": "",
-    "Group Link": "Discord: https://discord.com/invite/JUHTZRYp3k",
-    "Notes": "Here's a link to a partiful event if you want to let me know you're coming :-) https://partiful.com/e/ONsyvq47zkg7zc0EPSVs"
+    "Group Link": "https://discord.com/invite/JUHTZRYp3k",
+    "Notes": "Here's a link to a partiful event if you want to let me know you're coming :-) https://partiful.com/e/ONsyvq47zkg7zc0EPSVs\n\nDiscord: https://discord.com/invite/JUHTZRYp3k"
   },
   {
     "Region": "Asia-Pacific",
@@ -2284,8 +2000,8 @@ const acxData: ACXMeetup[] = [
     "Date": "5/16/2026",
     "Time": "01:30 PM",
     "Event Link": "",
-    "Group Link": "I'm working on generating a WhatsApp group link, but am running into some permissions/accessibility issues. I'll follow up in a couple of days when I have a working link.",
-    "Notes": ""
+    "Group Link": "",
+    "Notes": "I'm working on generating a WhatsApp group link, but am running into some permissions/accessibility issues. I'll follow up in a couple of days when I have a working link."
   },
   {
     "Region": "North America",
@@ -2460,8 +2176,8 @@ const acxData: ACXMeetup[] = [
     "Date": "5/16/2026",
     "Time": "10:00 AM",
     "Event Link": "",
-    "Group Link": "meetups channel in ACXD discord: https://discord.com/channels/289207224075812864/928753873131302953",
-    "Notes": "RSVP to my email if you like so I have a rough idea of who is coming"
+    "Group Link": "https://discord.com/channels/289207224075812864/928753873131302953",
+    "Notes": "RSVP to my email if you like so I have a rough idea of who is coming\n\nmeetups channel in ACXD discord: https://discord.com/channels/289207224075812864/928753873131302953"
   },
   {
     "Region": "North America",
@@ -2748,8 +2464,8 @@ const acxData: ACXMeetup[] = [
     "Date": "5/2/2026",
     "Time": "10:00 AM",
     "Event Link": "",
-    "Group Link": "Please email kevinkanzhang@gmail.com, and I'll create a mailing list/chain.",
-    "Notes": "Feel free to bring games/fun activities. Also, I expect the event to be bilingual (but primarily in English)."
+    "Group Link": "",
+    "Notes": "Feel free to bring games/fun activities. Also, I expect the event to be bilingual (but primarily in English).\n\nPlease email kevinkanzhang@gmail.com, and I'll create a mailing list/chain."
   },
   {
     "Region": "Asia-Pacific",
@@ -2764,8 +2480,8 @@ const acxData: ACXMeetup[] = [
     "Date": "5/10/2026",
     "Time": "03:15 PM",
     "Event Link": "",
-    "Group Link": "Two groups, one at https://www.lesswrong.com/groups/N42bMYFJBBRpkzKqX and one at https://t.me/LessWrong_Singapore",
-    "Notes": "Preferrably RSVP on LessWrong if you're coming. The reservation at MyX is till 5:30 pm, and I will cover snacks till then. If you're planning to stay for dinner as well (I am), please email me so I can extend the reservation. Dinner will be at your own expense."
+    "Group Link": "https://www.lesswrong.com/groups/N42bMYFJBBRpkzKqX",
+    "Notes": "Preferrably RSVP on LessWrong if you're coming. The reservation at MyX is till 5:30 pm, and I will cover snacks till then. If you're planning to stay for dinner as well (I am), please email me so I can extend the reservation. Dinner will be at your own expense.\n\nTwo groups, one at https://www.lesswrong.com/groups/N42bMYFJBBRpkzKqX and one at https://t.me/LessWrong_Singapore"
   },
   {
     "Region": "Europe",
@@ -2844,8 +2560,8 @@ const acxData: ACXMeetup[] = [
     "Date": "4/25/2026",
     "Time": "01:00 PM",
     "Event Link": "",
-    "Group Link": "bayarealesswrong@googlegroups.com",
-    "Notes": "We're meeting outdoors in a park next to a playground, so kids & pets are welcome!"
+    "Group Link": "",
+    "Notes": "We're meeting outdoors in a park next to a playground, so kids & pets are welcome!\n\nbayarealesswrong@googlegroups.com"
   },
   {
     "Region": "Asia-Pacific",
@@ -2924,7 +2640,7 @@ const acxData: ACXMeetup[] = [
     "Date": "4/18/2026",
     "Time": "06:00 PM",
     "Event Link": "",
-    "Group Link": "no",
+    "Group Link": "",
     "Notes": ""
   },
   {
@@ -3228,8 +2944,8 @@ const acxData: ACXMeetup[] = [
     "Date": "4/10/2026",
     "Time": "08:00 PM",
     "Event Link": "",
-    "Group Link": "You can contact me at dt@d11r.eu to be added to the Telegram group",
-    "Notes": "RSVPs on LessWrong are desirable but not mandatory."
+    "Group Link": "",
+    "Notes": "RSVPs on LessWrong are desirable but not mandatory.\n\nYou can contact me at dt@d11r.eu to be added to the Telegram group"
   },
   {
     "Region": "Europe",

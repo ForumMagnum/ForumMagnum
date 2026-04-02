@@ -1842,6 +1842,7 @@ type CreateUserDataInput = {
   programParticipation?: InputMaybe<Array<Scalars['String']['input']>>;
   revealChecksToAdmins?: InputMaybe<Scalars['Boolean']['input']>;
   reviewForAlignmentForumUserId?: InputMaybe<Scalars['String']['input']>;
+  reviewedAt?: InputMaybe<Scalars['Date']['input']>;
   reviewedByUserId?: InputMaybe<Scalars['String']['input']>;
   shortformFeedId?: InputMaybe<Scalars['String']['input']>;
   showCommunityInRecentDiscussion?: InputMaybe<Scalars['Boolean']['input']>;
