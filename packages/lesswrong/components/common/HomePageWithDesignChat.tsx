@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
+import classNames from 'classnames';
 import SandboxedHomePage from './SandboxedHomePage';
 import HomeDesignChatPanel from './HomeDesignChatPanel';
 import HomeDesignChatProvider from './HomeDesignChatProvider';
@@ -22,6 +23,14 @@ const styles = defineStyles('HomePageWithDesignChat', (theme: ThemeType) => ({
       top: 'auto',
       left: 0,
       width: '100%',
+      height: 'min(48dvh, 460px)',
+    },
+  },
+  floatingPanelBelowHeader: {
+    top: 'var(--header-height)',
+    height: 'calc(100dvh - var(--header-height))',
+    [theme.breakpoints.down('md')]: {
+      top: 'auto',
       height: 'min(48dvh, 460px)',
     },
   },
@@ -49,7 +58,9 @@ const HomePageWithDesignChatInner = () => {
     <>
       {shouldShowSandboxedHome ? <SandboxedHomePage showPanel={false} /> : <LWHome />}
       {designChat.isOpen && (
-        <div className={classes.floatingPanel}>
+        <div className={classNames(classes.floatingPanel, {
+          [classes.floatingPanelBelowHeader]: !shouldShowSandboxedHome,
+        })}>
           <HomeDesignChatPanel />
         </div>
       )}
