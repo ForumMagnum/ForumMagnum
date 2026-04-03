@@ -1526,7 +1526,7 @@ CREATE TABLE "Posts" (
   "eventImageId" TEXT,
   "types" TEXT[],
   "metaSticky" BOOL NOT NULL DEFAULT FALSE,
-  "sharingSettings" JSONB,
+  "sharingSettings" JSONB DEFAULT '{"anyoneWithLinkCan":"none","explicitlySharedUsersCan":"comment"}'::JSONB,
   "shareWithUsers" VARCHAR(27) [] NOT NULL DEFAULT '{}',
   "linkSharingKey" TEXT,
   "linkSharingKeyUsedBy" VARCHAR(27) [],
