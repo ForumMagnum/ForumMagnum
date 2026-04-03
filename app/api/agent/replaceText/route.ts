@@ -2,7 +2,6 @@ import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
 import { $createTextNode, $getNodeByKey, $getRoot, $isElementNode, $isTextNode, type LexicalEditor, type LexicalNode } from "lexical";
-import { $generateNodesFromDOM } from "@lexical/html";
 import { JSDOM } from "jsdom";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { markdownToHtml } from "@/server/editor/conversionUtils";
@@ -14,6 +13,7 @@ import { replaceTextToolSchema, type ReplaceMode } from "../toolSchemas";
 import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
+import { generateNodesFromDOMPreservingWhitespace } from "@/lib/editor/generateNodesFromDOMPreservingWhitespace";
 
 interface ReplaceResult {
   replaced: boolean
@@ -40,7 +40,7 @@ interface SuggestionNarrowingResult {
 function $markdownToInlineNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
   const html = markdownToHtml(markdown);
   const dom = new JSDOM(html);
-  const nodes = $generateNodesFromDOM(editor, dom.window.document);
+  const nodes = generateNodesFromDOMPreservingWhitespace(editor, dom.window.document);
   // Markdown typically produces a single paragraph wrapping inline children.
   // Extract the inline children so they stay within the existing paragraph.
   if (nodes.length === 1 && $isElementNode(nodes[0])) {

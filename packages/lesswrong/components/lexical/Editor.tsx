@@ -34,7 +34,7 @@ import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
 import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {Doc} from 'yjs';
 import * as Y from 'yjs';
-import {$generateHtmlFromNodes, $generateNodesFromDOM} from '@lexical/html';
+import {$generateHtmlFromNodes} from '@lexical/html';
 import {$getRoot, $insertNodes} from 'lexical';
 import { CodeBlockPlugin } from '../editor/lexicalPlugins/codeBlock/CodeBlockPlugin';
 import TablesPlugin from '../editor/lexicalPlugins/tables/TablesPlugin';
@@ -136,6 +136,7 @@ import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/coll
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 import { HorizontalRulePlugin } from './plugins/LexicalHorizontalRulePlugin';
 import { EditorUserModeContext } from '@/components/common/sharedContexts';
+import { generateNodesFromDOMPreservingWhitespace } from '@/lib/editor/generateNodesFromDOMPreservingWhitespace';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   '@keyframes sentinelCursorBlink': {
@@ -634,7 +635,7 @@ export default function Editor({
       internalIdsRef.current = internalIds;
       const parser = new DOMParser();
       const dom = parser.parseFromString(html, 'text/html');
-      const nodes = $generateNodesFromDOM(editor, dom);
+      const nodes = generateNodesFromDOMPreservingWhitespace(editor, dom);
       const root = $getRoot();
       root.clear();
       $insertNodes(nodes);
@@ -777,7 +778,7 @@ export default function Editor({
       internalIdsRef.current = internalIds;
       const parser = new DOMParser();
       const dom = parser.parseFromString(html, 'text/html');
-      const nodes = $generateNodesFromDOM(editor, dom);
+      const nodes = generateNodesFromDOMPreservingWhitespace(editor, dom);
       const root = $getRoot();
       root.clear();
       $insertNodes(nodes);
