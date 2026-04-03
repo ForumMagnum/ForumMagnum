@@ -84,9 +84,6 @@ const styles = defineStyles("NamesAttachedReactionsMessageBottom", (theme: Theme
   footerSelectedAnti: {
     background: theme.palette.namesAttachedReactions.selectedAnti,
   },
-  hasQuotes: {
-    border: theme.palette.border.dashed500
-  },
   mouseHoverTrap: {
     position: "absolute",
     right: 0,

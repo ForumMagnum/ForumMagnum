@@ -11,6 +11,7 @@ import SectionTitle from "../../common/SectionTitle";
 import { gql } from '@/lib/generated/gql-codegen';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { greyBorder } from '@/themes/colorUtil';
 
 const styles = defineStyles("MigrationsDashboard", (theme: ThemeType) => ({
   ...rowStyles,
@@ -18,7 +19,7 @@ const styles = defineStyles("MigrationsDashboard", (theme: ThemeType) => ({
     display: 'flex',
     fontWeight: 'bold',
     fontSize: 17,
-    borderBottom: theme.palette.border.tableHeadingDivider,
+    borderBottom: greyBorder("2px", 1.0),
     marginBottom: 4,
   }
 }));
