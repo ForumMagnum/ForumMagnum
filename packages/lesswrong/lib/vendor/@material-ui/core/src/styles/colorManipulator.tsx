@@ -8,6 +8,54 @@ export interface ColorObject {
   values: [number, number, number] | [number, number, number, number];
 }
 
+const LIGHT_DARK_START = 'light-dark(';
+
+function splitLightDarkColor(color: string): [string, string] | null {
+  const trimmedColor = color.trim();
+
+  if (!trimmedColor.startsWith(LIGHT_DARK_START) || !trimmedColor.endsWith(')')) {
+    return null;
+  }
+
+  let depth = 1;
+  let firstArgumentEnd = -1;
+
+  for (let index = LIGHT_DARK_START.length; index < trimmedColor.length - 1; index += 1) {
+    const character = trimmedColor[index];
+
+    if (character === '(') {
+      depth += 1;
+    } else if (character === ')') {
+      depth -= 1;
+      if (depth === 0) {
+        break;
+      }
+    } else if (character === ',' && depth === 1 && firstArgumentEnd === -1) {
+      firstArgumentEnd = index;
+    }
+  }
+
+  if (firstArgumentEnd === -1) {
+    return null;
+  }
+
+  return [
+    trimmedColor.slice(LIGHT_DARK_START.length, firstArgumentEnd).trim(),
+    trimmedColor.slice(firstArgumentEnd + 1, -1).trim(),
+  ];
+}
+
+function recurseLightDarkColor(color: string, transform: (subColor: string) => string): string | null {
+  const splitColor = splitLightDarkColor(color);
+
+  if (!splitColor) {
+    return null;
+  }
+
+  const [lightColor, darkColor] = splitColor;
+  return `light-dark(${transform(lightColor)}, ${transform(darkColor)})`;
+}
+
 /**
  * Returns a number whose value is limited to the given range.
  *
@@ -57,6 +105,11 @@ export function convertHexToRGB(color: string) {
  * @returns {string} A CSS rgb color string, i.e. #nnnnnn
  */
 export function rgbToHex(color: string) {
+  const mappedLightDarkColor = recurseLightDarkColor(color, rgbToHex);
+  if (mappedLightDarkColor) {
+    return mappedLightDarkColor;
+  }
+
   // Pass hex straight through
   if (color.indexOf('#') === 0) {
     return color;
@@ -167,6 +220,13 @@ export function getLuminance(color: string) {
  * @returns {string} A CSS color string. Hex input values are returned as rgb
  */
 export function emphasize(color: string, coefficient = 0.15) {
+  const mappedLightDarkColor = recurseLightDarkColor(color, subColor =>
+    emphasize(subColor, coefficient),
+  );
+  if (mappedLightDarkColor) {
+    return mappedLightDarkColor;
+  }
+
   return getLuminance(color) > 0.5 ? darken(color, coefficient) : lighten(color, coefficient);
 }
 
@@ -182,6 +242,11 @@ export function fade(color: string, value: number) {
   warning(color, `Material-UI: missing color argument in fade(${color}, ${value}).`);
 
   if (!color) return color;
+
+  const mappedLightDarkColor = recurseLightDarkColor(color, subColor => fade(subColor, value));
+  if (mappedLightDarkColor) {
+    return mappedLightDarkColor;
+  }
 
   const decomposedColor = decomposeColor(color);
   value = clamp(value);
@@ -206,6 +271,13 @@ export function darken(color: string, coefficient?: number) {
   warning(color, `Material-UI: missing color argument in darken(${color}, ${coefficient}).`);
 
   if (!color) return color;
+
+  const mappedLightDarkColor = recurseLightDarkColor(color, subColor =>
+    darken(subColor, coefficient),
+  );
+  if (mappedLightDarkColor) {
+    return mappedLightDarkColor;
+  }
 
   const decomposedColor = decomposeColor(color);
   coefficient = clamp(coefficient ?? 0);
@@ -232,6 +304,13 @@ export function lighten(color: string, coefficient?: number) {
   warning(color, `Material-UI: missing color argument in lighten(${color}, ${coefficient}).`);
 
   if (!color) return color;
+
+  const mappedLightDarkColor = recurseLightDarkColor(color, subColor =>
+    lighten(subColor, coefficient),
+  );
+  if (mappedLightDarkColor) {
+    return mappedLightDarkColor;
+  }
 
   const decomposedColor = decomposeColor(color);
   coefficient = clamp(coefficient ?? 0);
