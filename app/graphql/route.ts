@@ -10,7 +10,7 @@ import { fmCrosspostBaseUrlSetting, performanceMetricLoggingEnabled } from '@/li
 import { GraphQLFormattedError } from 'graphql';
 import { inspect } from 'util';
 import { formatError } from 'apollo-errors';
-import { crosspostOptionsHandler, setCorsHeaders } from "@/server/crossposting/cors";
+import { crosspostOptionsHandler, setCorsHeaders, setSandboxedIframeCorsHeaders } from "@/server/crossposting/cors";
 import { NOISY_GRAPHQL_ERROR_MESSAGES, shouldCaptureGraphQLErrorInSentry } from '@/server/utils/graphqlErrorUtil';
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
@@ -84,6 +84,10 @@ const handler = startServerAndCreateNextHandler<NextRequest, ResolverContext>(se
   }
 });
 
+function isSandboxedIframeRequest(request: NextRequest) {
+  return request.headers.get('origin') === 'null';
+}
+
 function isCrossSiteRequest(request: NextRequest) {
   const fmCrosspostBaseUrl = fmCrosspostBaseUrlSetting.get();
   if (!fmCrosspostBaseUrl) {
@@ -110,7 +114,9 @@ async function sharedHandler(request: NextRequest) {
   if (!performanceMetricLoggingEnabled.get()) {
     const res = await handler(request);
 
-    if (isCrossSiteRequest(request)) {
+    if (isSandboxedIframeRequest(request)) {
+      setSandboxedIframeCorsHeaders(res);
+    } else if (isCrossSiteRequest(request)) {
       setCorsHeaders(res);
     }
     return res;
@@ -155,7 +161,9 @@ async function sharedHandler(request: NextRequest) {
       closeRequestPerfMetric();  
     }
 
-    if (isCrossSiteRequest(request)) {
+    if (isSandboxedIframeRequest(request)) {
+      setSandboxedIframeCorsHeaders(res);
+    } else if (isCrossSiteRequest(request)) {
       setCorsHeaders(res);
     }
 
@@ -172,5 +180,10 @@ export async function POST(request: NextRequest) {
 }
 
 export function OPTIONS(req: NextRequest) {
+  if (isSandboxedIframeRequest(req)) {
+    const res = new Response(null, { status: 204 });
+    setSandboxedIframeCorsHeaders(res);
+    return res;
+  }
   return crosspostOptionsHandler(req);
 }

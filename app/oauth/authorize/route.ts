@@ -161,6 +161,17 @@ interface ConsentPageArgs {
   resource: string;
 }
 
+const SCOPE_DESCRIPTIONS: Record<string, string> = {
+  "lesswrong:access": "Read and edit posts you give it links to",
+  "lesswrong:home-design": "Create and update home page designs on your behalf",
+};
+
+function describeScopeForUser(scope: string): string {
+  const scopes = scope.split(" ").filter(Boolean);
+  const descriptions = scopes.map((s) => SCOPE_DESCRIPTIONS[s] ?? s);
+  return descriptions.join("; ");
+}
+
 function escapeHtml(s: string): string {
   return s
     .replace(/&/g, "&amp;")
@@ -223,7 +234,7 @@ function renderConsentPage(args: ConsentPageArgs): string {
       (<strong>${escapeHtml(userName)}</strong>).
     </p>
     <p>This will allow ${escapeHtml(clientName)} to:</p>
-    <div class="scope">Read and edit posts you give it links to</div>
+    <div class="scope">${escapeHtml(describeScopeForUser(scope))}</div>
     <form method="POST" action="/oauth/authorize">
       <input type="hidden" name="client_id" value="${escapeHtml(clientId)}" />
       <input type="hidden" name="redirect_uri" value="${escapeHtml(redirectUri)}" />

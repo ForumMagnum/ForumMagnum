@@ -11,7 +11,7 @@ yarn --silent next typegen >tmp/next_typegen_result.txt 2>&1 &
 next_typegen_pid=$!
 
 yarn --silent \
-  repl ${1:-dev} ${2:-lw} codegen \
+  repl-codegen ${1:-dev} ${2:-lw} codegen \
   "packages/lesswrong/server/codegen/generateTypes.ts" "generateTypesAndSQLSchema('.')"
 codegen_result=$?
 

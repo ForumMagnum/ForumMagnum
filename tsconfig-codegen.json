@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig-repl.json",
+  "compilerOptions": {
+    "paths": {
+      "@/lib/generated/*": ["./packages/lesswrong/stubs/generated/*"],
+      "@/client/*": ["./packages/lesswrong/stubs/client/*"],
+      "@/*": ["./packages/lesswrong/*"]
+    }
+  },
+  "ts-node": {
+    "transpileOnly": true
+  }
+}

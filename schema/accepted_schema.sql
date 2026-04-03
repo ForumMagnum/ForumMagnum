@@ -777,6 +777,32 @@ CREATE TABLE "GoogleServiceAccountSessions" (
   "revoked" BOOL NOT NULL
 );
 
+-- Table "HomePageDesigns"
+CREATE TABLE "HomePageDesigns" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "ownerId" VARCHAR(27) NOT NULL,
+  "publicId" VARCHAR(27) NOT NULL,
+  "html" TEXT NOT NULL,
+  "title" TEXT NOT NULL,
+  "verified" BOOL NOT NULL DEFAULT FALSE,
+  "commentId" VARCHAR(27),
+  "source" TEXT NOT NULL,
+  "modelName" TEXT,
+  "autoReviewPassed" BOOL,
+  "autoReviewMessage" TEXT,
+  "conversationHistory" JSONB NOT NULL
+);
+
+-- Index "idx_HomePageDesigns_publicId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_HomePageDesigns_publicId_createdAt" ON "HomePageDesigns" USING btree ("publicId", "createdAt");
+
+-- Index "idx_HomePageDesigns_ownerId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_HomePageDesigns_ownerId_createdAt" ON "HomePageDesigns" USING btree ("ownerId", "createdAt");
+
+-- Index "idx_HomePageDesigns_commentId"
+CREATE INDEX IF NOT EXISTS "idx_HomePageDesigns_commentId" ON "HomePageDesigns" USING btree ("commentId");
+
 -- Table "IframeWidgetSrcdocs"
 CREATE TABLE "IframeWidgetSrcdocs" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -1500,7 +1526,7 @@ CREATE TABLE "Posts" (
   "eventImageId" TEXT,
   "types" TEXT[],
   "metaSticky" BOOL NOT NULL DEFAULT FALSE,
-  "sharingSettings" JSONB,
+  "sharingSettings" JSONB DEFAULT '{"anyoneWithLinkCan":"none","explicitlySharedUsersCan":"comment"}'::JSONB,
   "shareWithUsers" VARCHAR(27) [] NOT NULL DEFAULT '{}',
   "linkSharingKey" TEXT,
   "linkSharingKeyUsedBy" VARCHAR(27) [],

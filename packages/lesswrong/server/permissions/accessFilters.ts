@@ -10,6 +10,7 @@ import { userCanDo, userIsAdmin, userIsAdminOrMod, userOwns } from "@/lib/vulcan
 
 
 const denyAll: CheckAccessFunction<CollectionNameString> = async () => false;
+
 export const allowAccess: CheckAccessFunction<CollectionNameString> = async () => true;
 const adminOnly: CheckAccessFunction<CollectionNameString> = async (currentUser) => userIsAdmin(currentUser);
 
@@ -93,6 +94,18 @@ const dialogueMatchPreferenceCheckAccess: CheckAccessFunction<'DialogueMatchPref
     return true;
   }
 
+  return false;
+};
+
+const homePageDesignCheckAccess: CheckAccessFunction<'HomePageDesigns'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!document) return false;
+  // Published designs (have a commentId) are visible to everyone
+  if (document.commentId && document.autoReviewPassed) return true;
+  // Unpublished designs are only visible to their owner or admins
+  if (userIsAdmin(currentUser)) return true;
+  const ownerId = document.ownerId;
+  if (currentUser && ownerId === currentUser._id) return true;
+  if (context?.clientId && ownerId === context.clientId) return true;
   return false;
 };
 
@@ -404,6 +417,7 @@ const accessFilters = {
   EmailTokens: allowAccess,
   FieldChanges: allowAccess,
   GoogleServiceAccountSessions: allowAccess,
+  HomePageDesigns: homePageDesignCheckAccess,
   IframeWidgetSrcdocs: iframeWidgetSrcdocCheckAccess,
   Images: allowAccess,
   JargonTerms: jargonTermCheckAccess,

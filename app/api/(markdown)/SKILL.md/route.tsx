@@ -1,6 +1,7 @@
+import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 import { NextRequest } from "next/server";
 
-export const markdownApiDocumentationMarkdown = (hostname: string) => `
+export const markdownApiDocumentationMarkdown = (urlPrefix: string) => `
 ---
 name: lesswrong
 version: 2.0.0
@@ -15,8 +16,8 @@ starting with /api/ are either Markdown or JSON. For routes not starting with
 /api, you can control which version you get with the Accept header or with a
 query parameter ?format=markdown, eg:
 
-    curl -H "Accept: text/markdown" https://${hostname}/
-    curl https://${hostname}/?format=markdown
+    curl -H "Accept: text/markdown" ${urlPrefix}
+    curl ${urlPrefix}/?format=markdown
 
 The Markdown versions of pages are designed to be more AI-agent-friendly than
 the HTML versions. If your "Accept" header is "text/markdown", you will only
@@ -138,7 +139,7 @@ tell the user that they need to use claude.ai or a harness like Codex to use thi
 When making POST requests to the API endpoints below, pipe the JSON body from a heredoc
 to avoid shell escaping issues (some environments mangle characters like ! in
 inline curl -d arguments):
-    cat <<'EOF' | curl -X POST https://${hostname}/api/agent/commentOnDraft -H 'Content-Type: application/json' -d @-
+    cat <<'EOF' | curl -X POST ${urlPrefix}/api/agent/commentOnDraft -H 'Content-Type: application/json' -d @-
     { "postId": "...", "key": "...", "comment": "..." }
     EOF
 
@@ -272,6 +273,6 @@ change is represented as widget-content suggestions.
 `;
 
 export function GET(req: NextRequest) {
-  const hostname = req.nextUrl.hostname;
-  return new Response(markdownApiDocumentationMarkdown(hostname));
+  const urlPrefix = getSiteUrlFromReq(req);
+  return new Response(markdownApiDocumentationMarkdown(urlPrefix));
 }
