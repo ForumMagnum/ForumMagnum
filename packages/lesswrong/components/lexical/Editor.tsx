@@ -479,6 +479,9 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     '& .nested-list-item': {
       listStyleType: 'none',
     },
+    '& figure': {
+      margin: '0em auto',
+    },
   },
   editorContainerComment: {
     background: 'transparent',

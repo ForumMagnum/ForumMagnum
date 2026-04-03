@@ -223,6 +223,10 @@ export class ImageRenderNode extends DecoratorNode<JSX.Element> {
     return false;
   }
 
+  isInline(): boolean {
+    return false;
+  }
+
   decorate(): JSX.Element {
     const parent = this.getParent();
     if (!$isImageNode(parent)) {
