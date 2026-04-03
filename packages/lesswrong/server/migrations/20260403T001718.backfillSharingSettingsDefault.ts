@@ -1,8 +1,9 @@
-import Posts from "@/server/collections/posts/collection";
-import { updateDefaultValue } from "./meta/utils";
-
 export const up = async ({db}: MigrationContext) => {
-  await updateDefaultValue(db, Posts, "sharingSettings");
+  await db.none(`
+    ALTER TABLE "Posts"
+    ALTER COLUMN "sharingSettings"
+    SET DEFAULT '{"anyoneWithLinkCan":"none","explicitlySharedUsersCan":"comment"}'::jsonb
+  `);
 
   await db.none(`
     UPDATE "Posts"
