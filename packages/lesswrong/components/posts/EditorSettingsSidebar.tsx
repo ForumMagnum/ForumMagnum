@@ -1057,7 +1057,12 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
             {(field) => (
               <EditableUsersList
                 value={field.state.value ?? []}
-                setValue={(newUsers) => field.handleChange(newUsers)}
+                setValue={(newUsers) => {
+                  field.handleChange(newUsers);
+                  if (form.state.values.sharingSettings == null) {
+                    form.setFieldValue('sharingSettings', defaultSharingSettings);
+                  }
+                }}
                 label="Add people by name"
               />
             )}
