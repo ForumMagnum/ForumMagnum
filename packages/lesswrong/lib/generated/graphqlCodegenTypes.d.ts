@@ -11915,6 +11915,7 @@ type ProfilePostDiamondDataQueryQuery_Query = { __typename?: 'Query', ProfileDia
 type ProfilePostDiamondDataQueryQueryVariables = Exact<{
   userId: Scalars['String']['input'];
   limit: Scalars['Int']['input'];
+  af?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -11930,6 +11931,7 @@ type ProfileCommentDiamondDataQueryQuery_Query = { __typename?: 'Query', Profile
 type ProfileCommentDiamondDataQueryQueryVariables = Exact<{
   userId: Scalars['String']['input'];
   limit: Scalars['Int']['input'];
+  af?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -11976,7 +11978,7 @@ type ProfilePostsQueryQuery = ProfilePostsQueryQuery_Query;
 type UserProfilePost_Post_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
 
 type UserProfilePost = (
-  { __typename?: 'Post', baseScore: number, postedAt: string, contents: UserProfilePost_Post_contents_Revision | null }
+  { __typename?: 'Post', baseScore: number, afBaseScore: number | null, postedAt: string, contents: UserProfilePost_Post_contents_Revision | null }
   & PostsMinimumInfo
 );
 
@@ -12080,7 +12082,7 @@ type ProfileTopPost_Post_socialPreviewData_SocialPreviewType = { __typename?: 'S
 type ProfileTopPost_Post_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
 
 type ProfileTopPost = (
-  { __typename?: 'Post', baseScore: number, postedAt: string, socialPreviewData: ProfileTopPost_Post_socialPreviewData_SocialPreviewType, contents: ProfileTopPost_Post_contents_Revision | null }
+  { __typename?: 'Post', baseScore: number, afBaseScore: number | null, postedAt: string, socialPreviewData: ProfileTopPost_Post_socialPreviewData_SocialPreviewType, contents: ProfileTopPost_Post_contents_Revision | null }
   & PostsMinimumInfo
 );
 
