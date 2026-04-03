@@ -37,6 +37,7 @@ import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import LWDialog from '../common/LWDialog';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { usePathname } from 'next/navigation';
 
 const hitsPerPage = 10
 
@@ -240,6 +241,8 @@ const ScrollTo: FC<{
 const CustomScrollTo = connectScrollTo(ScrollTo);
 
 const SearchPageTabbed = () => {
+  // HACK: workaround for cacheComponents' background use of <Activity> breaking search in a lot of situations after navigation.
+  const pathname = usePathname();
   const classes = useStyles(styles);
   const scrollToRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -361,7 +364,7 @@ const SearchPageTabbed = () => {
   }
   const HitComponent = hitComponents[tab]
 
-  return <div className={classes.root}>
+  return <div key={pathname} className={classes.root}>
     <InstantSearch
       indexName={getElasticIndexNameWithSorting(tab, sorting)}
       searchClient={getSearchClient({emptyStringSearchResults: "default"})}
