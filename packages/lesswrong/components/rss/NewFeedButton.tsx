@@ -191,7 +191,7 @@ const styles = defineStyles("NewFeedDialog", (theme: ThemeType) => ({
 // Button used to add a new feed to a user profile
 //
 const NewFeedDialog = ({user, onClose}: {
-  user: UsersProfile,
+  user: {_id: string},
   onClose: () => void
 }) => {
   const classes = useStyles(styles);
@@ -226,21 +226,21 @@ const NewFeedDialog = ({user, onClose}: {
   )
 }
 
-export const NewFeedButton = ({user}: {
-  user: UsersProfile
+export const NewFeedButton = ({user, label}: {
+  user: {_id: string}
+  label?: string
 }) => {
   const { openDialog } = useDialog();
   
-  return <a href="#" onClick={() => {
+  return <a href="#" onClick={(event) => {
+    event.preventDefault();
     openDialog({
       name: "NewFeedDialog",
       contents: ({onClose}) => <NewFeedDialog user={user} onClose={onClose}/>
     });
   }}>
-    RSS Crossposting
+    {label ?? "RSS Crossposting"}
   </a>
 }
 
 export default NewFeedButton;
-
-

@@ -6,6 +6,7 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import SettingsSection from './SettingsSection';
 import SettingsTextRow from './SettingsTextRow';
 import SettingsToggleRow from './SettingsToggleRow';
+import RSSImportSection from './RSSImportSection';
 import type { SettingsTabProps } from './settingsTabTypes';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 
@@ -88,6 +89,8 @@ const AccountSettingsTab = ({
           </div>
         </SettingsSection>
       )}
+
+      {isCurrentUser && <RSSImportSection currentUser={currentUser} />}
 
       {!hasAccountDeletionFlow() && (
         <SettingsSection title={"Deactivate Account"}>
