@@ -26,6 +26,7 @@ import { HOME_DESIGN_DEFAULT_BUILT_IN_VALUE, HOME_DESIGN_DEFAULT_CLASSIC_VALUE, 
 import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 import { canPublishHomeDesign, MARKETPLACE_POST_ID } from '@/lib/collections/homePageDesigns/constants';
 import { useNavigate } from '@/lib/routeUtil';
+import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 
 const myHomePageDesignSummariesQuery = gql(`
@@ -944,7 +945,7 @@ const HomeDesignChatPanel = () => {
                 <div className={classes.byoaLink}>
                   Or, bring your own agent: give them a link to <a href="/api/homeDesigns/SKILL.md" target="_blank" rel="noopener noreferrer">this skill</a>
                   <CopyToClipboard
-                    text={`${window.location.origin}/api/homeDesigns/SKILL.md`}
+                    text={`${getSiteUrl()}api/homeDesigns/SKILL.md`}
                     onCopy={() => flash({ messageString: "Skill URL copied!" })}
                   >
                     <CopyIcon className={classes.copyIcon} />
