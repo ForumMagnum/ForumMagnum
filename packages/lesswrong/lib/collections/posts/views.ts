@@ -1060,6 +1060,35 @@ function sunshineAutoClassifiedPosts() {
   };
 }
 
+function sunshineAutoRejectedPosts() {
+  return {
+    selector: {
+      rejected: true,
+      authorIsUnreviewed: null,
+    },
+    options: {
+      sort: {
+        createdAt: -1,
+      }
+    }
+  };
+}
+
+function sunshinePangramPosts() {
+  return {
+    selector: {
+      // Include all non-rejected posts (default view already filters rejected)
+      // Override authorIsUnreviewed to include unreviewed authors
+      authorIsUnreviewed: null,
+    },
+    options: {
+      sort: {
+        createdAt: -1,
+      }
+    }
+  };
+}
+
 function sunshineNewUsersPosts(terms: PostsViewTerms) {
   return {
     selector: {
@@ -1393,6 +1422,8 @@ export const PostsViews = new CollectionViewSet('Posts', {
   communityResourcePosts,
   sunshineNewPosts,
   sunshineAutoClassifiedPosts,
+  sunshineAutoRejectedPosts,
+  sunshinePangramPosts,
   sunshineNewUsersPosts,
   sunshineCuratedSuggestions,
   hasEverDialogued,

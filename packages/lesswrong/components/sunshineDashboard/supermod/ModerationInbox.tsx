@@ -136,10 +136,12 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
   },
 }));
 
-const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, lastCuratedDate, initialOpenedUserId, directUser, currentUser }: {
+const ModerationInboxInner = ({ users, posts, classifiedPosts, autoRejectedPosts, pangramPosts, curationPosts, lastCuratedDate, initialOpenedUserId, directUser, currentUser }: {
   users: SunshineUsersList[];
   posts: SunshinePostsList[];
   classifiedPosts: SunshinePostsList[];
+  autoRejectedPosts: SunshinePostsList[];
+  pangramPosts: SunshinePostsList[];
   curationPosts: SunshineCurationPostsList[];
   lastCuratedDate: string | null;
   initialOpenedUserId: string | null;
@@ -152,15 +154,15 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningLlmCheckId: null },
+    { users: [], posts: [], classifiedPosts: [], autoRejectedPosts: [], pangramPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningLlmCheckId: null },
     (): InboxState => {
       const initialUsers = directUser ? [directUser, ...users] : users;
+      const basePosts = { posts, classifiedPosts, autoRejectedPosts, pangramPosts, curationPosts };
+
       if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
         return {
           users: [],
-          posts: [],
-          classifiedPosts: [],
-          curationPosts: [],
+          ...basePosts,
           activeTab: 'curation',
           focusedUserId: null,
           openedUserId: null,
@@ -175,9 +177,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
       if (initialOpenedUserId) {
         return {
           users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
+          ...basePosts,
           activeTab: 'all',
           focusedUserId: initialOpenedUserId,
           openedUserId: initialOpenedUserId,
@@ -191,7 +191,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
       const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, autoRejectedPosts.length, pangramPosts.length, curationNoticeCount);
 
       // Default to curation when there are no curation notices (so you can add some)
       // Otherwise, find the first non-empty non-curation tab
@@ -201,11 +201,9 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
       const firstTab = firstNonEmptyTab?.group ?? 'curation';
 
       if (firstTab === 'curation') {
-        return { 
+        return {
           users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
+          ...basePosts,
           activeTab: 'curation',
           focusedUserId: null,
           openedUserId: null,
@@ -216,13 +214,11 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           runningLlmCheckId: null,
         };
       }
-      
+
       if (firstTab === 'posts') {
         return {
           users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
+          ...basePosts,
           activeTab: 'posts',
           focusedUserId: null,
           openedUserId: null,
@@ -237,9 +233,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
       if (firstTab === 'classifiedPosts') {
         return {
           users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
+          ...basePosts,
           activeTab: 'classifiedPosts',
           focusedUserId: null,
           openedUserId: null,
@@ -256,9 +250,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
       return {
         users: initialUsers,
-        posts,
-        classifiedPosts,
-        curationPosts,
+        ...basePosts,
         activeTab: firstTab,
         focusedUserId: orderedUsers[0]?._id ?? null,
         openedUserId: initialOpenedUserId,
@@ -309,8 +301,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
   const curationNoticeCount = useMemo(() => sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0), [state.curationPosts]);
 
   const visibleTabs = useMemo((): TabInfo[] => {
-    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
-  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount]);
+    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, state.autoRejectedPosts.length, state.pangramPosts.length, curationNoticeCount);
+  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, state.autoRejectedPosts.length, state.pangramPosts.length, curationNoticeCount]);
 
   const openedUser = useMemo(() => {
     if (!state.openedUserId) return null;
@@ -327,9 +319,9 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const focusedPost = useMemo(() => {
     if (!state.focusedPostId) return null;
-    const allPosts = [...state.posts, ...state.classifiedPosts];
+    const allPosts = [...state.posts, ...state.classifiedPosts, ...state.autoRejectedPosts, ...state.pangramPosts];
     return allPosts.find(p => p._id === state.focusedPostId) ?? null;
-  }, [state.focusedPostId, state.posts, state.classifiedPosts]);
+  }, [state.focusedPostId, state.posts, state.classifiedPosts, state.autoRejectedPosts, state.pangramPosts]);
 
   const focusedCurationPost = useMemo(() => {
     if (!state.focusedPostId || state.activeTab !== 'curation') return null;
@@ -388,7 +380,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
     }
   }, [state.openedUserId, state.focusedUserId, allOrderedUsers]);
 
-  const isPostsTab = state.activeTab === 'posts' || state.activeTab === 'classifiedPosts';
+  const isPostsTab = state.activeTab === 'posts' || state.activeTab === 'classifiedPosts' || state.activeTab === 'autoRejected' || state.activeTab === 'pangram';
   const isCurationTab = state.activeTab === 'curation';
   const isPostLikeTab = isPostsTab || isCurationTab;
 
@@ -472,7 +464,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
               <div className={classes.inboxListContainer}>
                 <ModerationInboxList
                   userGroups={filteredGroups}
-                  posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts}
+                  posts={state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.activeTab === 'autoRejected' ? state.autoRejectedPosts : state.activeTab === 'pangram' ? state.pangramPosts : state.posts}
                   curationPosts={state.curationPosts}
                   focusedUserId={state.focusedUserId}
                   focusedPostId={state.focusedPostId}
@@ -540,6 +532,26 @@ const ModerationInbox = () => {
     fetchPolicy: 'cache-and-network',
   });
 
+  // Reusing SunshineAutoClassifiedPostsListMultiQuery since it has the same shape (posts with SunshinePostsList fragment)
+  // Apollo differentiates cache entries by variable values, so these won't conflict
+  const { data: autoRejectedPostsData, loading: autoRejectedPostsLoading } = useQuery(SunshineAutoClassifiedPostsListMultiQuery, {
+    variables: {
+      selector: { sunshineAutoRejectedPosts: {} } as any,
+      limit: 100,
+      enableTotal: true,
+    },
+    fetchPolicy: 'cache-and-network',
+  });
+
+  const { data: pangramPostsData, loading: pangramPostsLoading } = useQuery(SunshineAutoClassifiedPostsListMultiQuery, {
+    variables: {
+      selector: { sunshinePangramPosts: {} } as any,
+      limit: 200,
+      enableTotal: true,
+    },
+    fetchPolicy: 'cache-and-network',
+  });
+
   const { data: curationData, loading: curationLoading } = useQuery(CurationCandidatePostsQuery, {
     variables: { limit: 200 },
     fetchPolicy: 'cache-and-network',
@@ -565,6 +577,19 @@ const ModerationInbox = () => {
 
   const posts = useMemo(() => postsData?.posts?.results.filter(post => !post.reviewedByUserId) ?? [], [postsData]);
   const classifiedPosts = useMemo(() => classifiedPostsData?.posts?.results ?? [], [classifiedPostsData]);
+  const autoRejectedPosts = useMemo(() => autoRejectedPostsData?.posts?.results ?? [], [autoRejectedPostsData]);
+  // For the pangram tab, filter client-side: pangram score > 0 OR no automated evaluation (pangram hasn't run)
+  const pangramPosts = useMemo(() => {
+    const allPosts = pangramPostsData?.posts?.results ?? [];
+    return allPosts.filter(post => {
+      const eval_ = post.automatedContentEvaluations;
+      if (!eval_) return true; // Pangram hasn't run
+      if (eval_.pangramScore !== null && eval_.pangramScore !== undefined && eval_.pangramScore > 0) return true;
+      // Pangram ran but score is 0 or null - could mean it hasn't been evaluated
+      if (eval_.pangramScore === null || eval_.pangramScore === undefined) return true;
+      return false;
+    });
+  }, [pangramPostsData]);
   const curationPosts = useMemo(() => curationData?.CurationCandidatePosts?.results ?? [], [curationData]);
   const lastCuratedDate = lastCuratedData?.LastCuratedDate?.lastCuratedDate ?? null;
 
@@ -575,6 +600,8 @@ const ModerationInbox = () => {
 
   useHydrateModerationPostCache(posts);
   useHydrateModerationPostCache(classifiedPosts);
+  useHydrateModerationPostCache(autoRejectedPosts);
+  useHydrateModerationPostCache(pangramPosts);
 
   if (!currentUser || !userIsAdminOrMod(currentUser)) {
     return null;
@@ -583,10 +610,12 @@ const ModerationInbox = () => {
   const usersNotReady = usersLoading && !usersData;
   const postsNotReady = postsLoading && !postsData;
   const classifiedPostsNotReady = classifiedPostsLoading && !classifiedPostsData;
+  const autoRejectedPostsNotReady = autoRejectedPostsLoading && !autoRejectedPostsData;
+  const pangramPostsNotReady = pangramPostsLoading && !pangramPostsData;
   const curationNotReady = curationLoading && !curationData;
   const directUserNotReady = shouldFetchDirectUser && directUserLoading && !directUserData;
 
-  if (usersNotReady || postsNotReady || classifiedPostsNotReady || curationNotReady || directUserNotReady) {
+  if (usersNotReady || postsNotReady || classifiedPostsNotReady || autoRejectedPostsNotReady || pangramPostsNotReady || curationNotReady || directUserNotReady) {
     return (
       <div className={classes.loading}>
         <Loading />
@@ -598,6 +627,8 @@ const ModerationInbox = () => {
     users={users}
     posts={posts}
     classifiedPosts={classifiedPosts}
+    autoRejectedPosts={autoRejectedPosts}
+    pangramPosts={pangramPosts}
     curationPosts={curationPosts}
     lastCuratedDate={lastCuratedDate}
     initialOpenedUserId={initialOpenedUserId}

@@ -91,10 +91,13 @@ const ModerationInboxList = ({
             ))}
           </div>
         )
-      ) : (activeTab === 'posts' || activeTab === 'classifiedPosts') ? (
+      ) : (activeTab === 'posts' || activeTab === 'classifiedPosts' || activeTab === 'autoRejected' || activeTab === 'pangram') ? (
         posts.length === 0 ? (
           <div className={classes.empty}>
-            {activeTab === 'classifiedPosts' ? 'No auto-classified posts to review' : 'No posts to review'}
+            {activeTab === 'classifiedPosts' ? 'No auto-classified posts to review'
+              : activeTab === 'autoRejected' ? 'No auto-rejected posts to review'
+              : activeTab === 'pangram' ? 'No posts with pangram flags to review'
+              : 'No posts to review'}
           </div>
         ) : (
           <div className={classes.scrollContainer}>

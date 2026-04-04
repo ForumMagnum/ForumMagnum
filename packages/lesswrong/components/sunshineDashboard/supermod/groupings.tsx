@@ -60,7 +60,7 @@ export const REVIEW_GROUP_TO_PRIORITY = {
 
 type ReviewGroupMap = typeof REVIEW_GROUP_TO_PRIORITY;
 export type ReviewGroup = keyof ReviewGroupMap;
-export type TabId = ReviewGroup | 'all' | 'posts' | 'classifiedPosts' | 'curation';
+export type TabId = ReviewGroup | 'all' | 'posts' | 'classifiedPosts' | 'autoRejected' | 'pangram' | 'curation';
 
 const PRIORITY_TO_REVIEW_GROUP = Object.fromEntries(
   Object.entries(REVIEW_GROUP_TO_PRIORITY).map(([group, priority]) => [priority, group])
@@ -150,6 +150,10 @@ export function getReviewGroupDisplayName(group: TabId): string {
       return 'Posts';
     case 'classifiedPosts':
       return 'Auto-Classified';
+    case 'autoRejected':
+      return 'Auto-Rejected';
+    case 'pangram':
+      return 'Pangram';
     case 'curation':
       return 'Curation';
   }

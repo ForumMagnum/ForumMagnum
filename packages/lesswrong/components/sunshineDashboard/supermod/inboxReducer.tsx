@@ -29,6 +29,10 @@ export type InboxState = {
   posts: SunshinePostsList[];
   // The local copy of auto-classified posts (mutated when actions complete)
   classifiedPosts: SunshinePostsList[];
+  // The local copy of auto-rejected posts
+  autoRejectedPosts: SunshinePostsList[];
+  // The local copy of posts with non-zero pangram score or pangram not run
+  pangramPosts: SunshinePostsList[];
   // The local copy of curation candidate posts
   curationPosts: SunshineCurationPostsList[];
   // Current active tab
@@ -74,6 +78,20 @@ export type InboxAction =
 
 
 
+/** Returns the post list for a post-like tab, or null for user/all tabs */
+function getPostListForTab(tab: TabId, state: InboxState): (SunshinePostsList | SunshineCurationPostsList)[] | null {
+  switch (tab) {
+    case 'posts': return state.posts;
+    case 'classifiedPosts': return state.classifiedPosts;
+    case 'autoRejected': return state.autoRejectedPosts;
+    case 'pangram': return state.pangramPosts;
+    case 'curation': return state.curationPosts;
+    default: return null;
+  }
+}
+
+export const POST_LIKE_TABS: TabId[] = ['posts', 'classifiedPosts', 'autoRejected', 'pangram', 'curation'];
+
 export function getFilteredGroups(
   groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>,
   activeTab: TabId
@@ -92,11 +110,13 @@ export function getVisibleTabsInOrder(
   totalUsers: number,
   totalPosts: number,
   totalClassifiedPosts: number,
+  totalAutoRejectedPosts: number,
+  totalPangramPosts: number,
   totalCurationNotices: number,
 ): TabInfo[] {
   const tabsInOrder = getTabsInPriorityOrder();
   const tabs: TabInfo[] = [{ group: 'curation', count: totalCurationNotices }];
-  
+
   // Always show all tabs, even if empty
   for (const group of tabsInOrder) {
     const count = groupedUsers[group]?.length ?? 0;
@@ -105,7 +125,9 @@ export function getVisibleTabsInOrder(
   tabs.push({ group: 'all', count: totalUsers });
   tabs.push({ group: 'posts', count: totalPosts });
   tabs.push({ group: 'classifiedPosts', count: totalClassifiedPosts });
-  
+  tabs.push({ group: 'autoRejected', count: totalAutoRejectedPosts });
+  tabs.push({ group: 'pangram', count: totalPangramPosts });
+
   return tabs;
 }
 
@@ -227,6 +249,28 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         };
       }
 
+      // Switching to auto-rejected posts tab
+      if (action.tab === 'autoRejected') {
+        return {
+          ...state,
+          activeTab: 'autoRejected',
+          focusedPostId: state.autoRejectedPosts[0]?._id ?? null,
+          focusedUserId: null,
+          focusedContentIndex: 0,
+        };
+      }
+
+      // Switching to pangram posts tab
+      if (action.tab === 'pangram') {
+        return {
+          ...state,
+          activeTab: 'pangram',
+          focusedPostId: state.pangramPosts[0]?._id ?? null,
+          focusedUserId: null,
+          focusedContentIndex: 0,
+        };
+      }
+
       // Switching to curation tab
       if (action.tab === 'curation') {
         return {
@@ -253,8 +297,8 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
     }
 
     case 'NEXT_USER': {
-      // Don't navigate users when on posts tab, classified posts tab, or curation tab
-      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts' || state.activeTab === 'curation') return state;
+      // Don't navigate users when on a post-like tab
+      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts' || state.activeTab === 'autoRejected' || state.activeTab === 'pangram' || state.activeTab === 'curation') return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab);
@@ -275,8 +319,8 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
     }
 
     case 'PREV_USER': {
-      // Don't navigate users when on posts tab, classified posts tab, or curation tab
-      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts' || state.activeTab === 'curation') return state;
+      // Don't navigate users when on a post-like tab
+      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts' || state.activeTab === 'autoRejected' || state.activeTab === 'pangram' || state.activeTab === 'curation') return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab);
@@ -301,12 +345,12 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, state.autoRejectedPosts.length, state.pangramPosts.length, curationNoticeCount);
 
       if (visibleTabs.length === 0) return state;
 
       const currentIndex = visibleTabs.findIndex(tab => tab.group === state.activeTab);
-      
+
       // Find next non-empty tab
       let nextIndex = (currentIndex + 1) % visibleTabs.length;
       let attempts = 0;
@@ -314,40 +358,19 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         nextIndex = (nextIndex + 1) % visibleTabs.length;
         attempts++;
       }
-      
+
       // If all tabs are empty, stay on current tab
       if (attempts >= visibleTabs.length) return state;
-      
+
       const nextTab = visibleTabs[nextIndex].group;
 
-      // If switching to posts tab
-      if (nextTab === 'posts') {
+      // Handle post-like tabs
+      const postListForTab = getPostListForTab(nextTab, state);
+      if (postListForTab !== null) {
         return {
           ...state,
-          activeTab: 'posts',
-          focusedPostId: state.posts[0]?._id ?? null,
-          focusedUserId: null,
-          focusedContentIndex: 0,
-        };
-      }
-
-      // If switching to classified posts tab
-      if (nextTab === 'classifiedPosts') {
-        return {
-          ...state,
-          activeTab: 'classifiedPosts',
-          focusedPostId: state.classifiedPosts[0]?._id ?? null,
-          focusedUserId: null,
-          focusedContentIndex: 0,
-        };
-      }
-
-      // If switching to curation tab
-      if (nextTab === 'curation') {
-        return {
-          ...state,
-          activeTab: 'curation',
-          focusedPostId: state.curationPosts[0]?._id ?? null,
+          activeTab: nextTab,
+          focusedPostId: postListForTab[0]?._id ?? null,
           focusedUserId: null,
           focusedContentIndex: 0,
         };
@@ -371,12 +394,12 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, state.autoRejectedPosts.length, state.pangramPosts.length, curationNoticeCount);
 
       if (visibleTabs.length === 0) return state;
 
       const currentIndex = visibleTabs.findIndex(tab => tab.group === state.activeTab);
-      
+
       // Find previous non-empty tab
       let prevIndex = currentIndex <= 0 ? visibleTabs.length - 1 : currentIndex - 1;
       let attempts = 0;
@@ -384,40 +407,19 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         prevIndex = prevIndex <= 0 ? visibleTabs.length - 1 : prevIndex - 1;
         attempts++;
       }
-      
+
       // If all tabs are empty, stay on current tab
       if (attempts >= visibleTabs.length) return state;
-      
+
       const prevTab = visibleTabs[prevIndex].group;
 
-      // If switching to posts tab
-      if (prevTab === 'posts') {
+      // Handle post-like tabs
+      const postListForTab = getPostListForTab(prevTab, state);
+      if (postListForTab !== null) {
         return {
           ...state,
-          activeTab: 'posts',
-          focusedPostId: state.posts[0]?._id ?? null,
-          focusedUserId: null,
-          focusedContentIndex: 0,
-        };
-      }
-
-      // If switching to classified posts tab
-      if (prevTab === 'classifiedPosts') {
-        return {
-          ...state,
-          activeTab: 'classifiedPosts',
-          focusedPostId: state.classifiedPosts[0]?._id ?? null,
-          focusedUserId: null,
-          focusedContentIndex: 0,
-        };
-      }
-
-      // If switching to curation tab
-      if (prevTab === 'curation') {
-        return {
-          ...state,
-          activeTab: 'curation',
-          focusedPostId: state.curationPosts[0]?._id ?? null,
+          activeTab: prevTab,
+          focusedPostId: postListForTab[0]?._id ?? null,
           focusedUserId: null,
           focusedContentIndex: 0,
         };
@@ -437,23 +439,20 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
     }
 
     case 'UPDATE_POST': {
-      const updatedPosts = state.posts.map(post => post._id === action.postId
-        ? { ...post, ...action.fields }
-        : post
-      );
-      const updatedClassifiedPosts = state.classifiedPosts.map(post => post._id === action.postId
-        ? { ...post, ...action.fields }
-        : post
+      const updatePostList = (posts: SunshinePostsList[]) => posts.map(post =>
+        post._id === action.postId ? { ...post, ...action.fields } : post
       );
       return {
         ...state,
-        posts: updatedPosts,
-        classifiedPosts: updatedClassifiedPosts,
+        posts: updatePostList(state.posts),
+        classifiedPosts: updatePostList(state.classifiedPosts),
+        autoRejectedPosts: updatePostList(state.autoRejectedPosts),
+        pangramPosts: updatePostList(state.pangramPosts),
       };
     }
 
     case 'NEXT_POST': {
-      const currentPosts = state.activeTab === 'curation' ? state.curationPosts : state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts;
+      const currentPosts = getPostListForTab(state.activeTab, state) ?? state.posts;
       if (currentPosts.length === 0) return state;
 
       const currentIndex = currentPosts.findIndex(p => p._id === state.focusedPostId);
@@ -464,7 +463,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
     }
 
     case 'PREV_POST': {
-      const currentPosts = state.activeTab === 'curation' ? state.curationPosts : state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts;
+      const currentPosts = getPostListForTab(state.activeTab, state) ?? state.posts;
       if (currentPosts.length === 0) return state;
 
       const currentIndex = currentPosts.findIndex(p => p._id === state.focusedPostId);
@@ -484,29 +483,23 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
     case 'REMOVE_POST': {
       const newPosts = state.posts.filter(p => p._id !== action.postId);
       const newClassifiedPosts = state.classifiedPosts.filter(p => p._id !== action.postId);
+      const newAutoRejectedPosts = state.autoRejectedPosts.filter(p => p._id !== action.postId);
+      const newPangramPosts = state.pangramPosts.filter(p => p._id !== action.postId);
 
-      const currentPosts = state.activeTab === 'classifiedPosts' ? state.classifiedPosts : state.posts;
-      const newCurrentPosts = state.activeTab === 'classifiedPosts' ? newClassifiedPosts : newPosts;
+      const newState = { ...state, posts: newPosts, classifiedPosts: newClassifiedPosts, autoRejectedPosts: newAutoRejectedPosts, pangramPosts: newPangramPosts };
+
+      const currentPosts = (getPostListForTab(state.activeTab, state) ?? state.posts) as SunshinePostsList[];
+      const newCurrentPosts = (getPostListForTab(state.activeTab, newState) ?? newPosts) as SunshinePostsList[];
 
       if (newCurrentPosts.length === 0) {
-        return {
-          ...state,
-          posts: newPosts,
-          classifiedPosts: newClassifiedPosts,
-          focusedPostId: null,
-        };
+        return { ...newState, focusedPostId: null };
       }
 
       const currentIndex = currentPosts.findIndex(p => p._id === state.focusedPostId);
       const nextIndex = currentIndex >= newCurrentPosts.length ? 0 : Math.max(0, currentIndex);
       const nextPostId = newCurrentPosts[nextIndex]._id;
 
-      return {
-        ...state,
-        posts: newPosts,
-        classifiedPosts: newClassifiedPosts,
-        focusedPostId: nextPostId,
-      };
+      return { ...newState, focusedPostId: nextPostId };
     }
 
     case 'REMOVE_USER': {
@@ -523,8 +516,8 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         };
       }
 
-      // If we're on posts tab, classified posts tab, or curation tab, just remove the user without changing focus
-      if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts' || state.activeTab === 'curation') {
+      // If we're on a post-like tab, just remove the user without changing focus
+      if (POST_LIKE_TABS.includes(state.activeTab)) {
         return {
           ...state,
           users: newUsers,
