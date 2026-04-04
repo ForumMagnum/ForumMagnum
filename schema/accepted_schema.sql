@@ -886,6 +886,44 @@ CREATE TABLE "LegacyData" (
 -- Index "idx_LegacyData_objectId"
 CREATE INDEX IF NOT EXISTS "idx_LegacyData_objectId" ON "LegacyData" USING btree ("objectId");
 
+-- Table "LinkPreviewCaches"
+CREATE TABLE "LinkPreviewCaches" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "url" TEXT NOT NULL,
+  "cacheVersion" INTEGER NOT NULL,
+  "status" TEXT NOT NULL,
+  "requestStartedAt" TIMESTAMPTZ NOT NULL,
+  "fetchedAt" TIMESTAMPTZ,
+  "nextRefreshAt" TIMESTAMPTZ NOT NULL,
+  "title" TEXT,
+  "imageUrl" TEXT,
+  "originalImageUrl" TEXT,
+  "mirroredImageUrl" TEXT,
+  "imageWidth" INTEGER,
+  "imageHeight" INTEGER,
+  "sanitizedHtml" TEXT,
+  "error" TEXT,
+  "remoteHtml" TEXT,
+  "debugTitleSource" TEXT,
+  "debugImageSource" TEXT,
+  "debugHtmlSource" TEXT
+);
+
+-- Index "idx_LinkPreviewCaches_url"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_LinkPreviewCaches_url" ON "LinkPreviewCaches" USING btree ("url");
+
+-- Index "idx_LinkPreviewCaches_nextRefreshAt"
+CREATE INDEX IF NOT EXISTS "idx_LinkPreviewCaches_nextRefreshAt" ON "LinkPreviewCaches" USING btree ("nextRefreshAt");
+
+-- Index "idx_LinkPreviewCaches_fetchedAt"
+CREATE INDEX IF NOT EXISTS "idx_LinkPreviewCaches_fetchedAt" ON "LinkPreviewCaches" USING btree ("fetchedAt");
+
+-- Index "idx_LinkPreviewCaches_cacheVersion"
+CREATE INDEX IF NOT EXISTS "idx_LinkPreviewCaches_cacheVersion" ON "LinkPreviewCaches" USING btree ("cacheVersion");
+
 -- Table "LlmConversations"
 CREATE TABLE "LlmConversations" (
   _id VARCHAR(27) PRIMARY KEY,

@@ -507,6 +507,28 @@ extend type Query {
   ArbitalPageData(pageAlias: String): ArbitalPageData
 }
 
+type CrossSiteLinkPreviewData {
+  title: String
+  imageUrl: String
+  originalImageUrl: String
+  mirroredImageUrl: String
+  imageWidth: Int
+  imageHeight: Int
+  html: String
+  error: String
+  status: String
+  cacheVersion: Int
+  fetchedAt: Date
+  nextRefreshAt: Date
+  debugTitleSource: String
+  debugImageSource: String
+  debugHtmlSource: String
+}
+
+extend type Query {
+  crossSiteLinkPreview(url: String!, forceRefetch: Boolean, includeDebug: Boolean): CrossSiteLinkPreviewData
+}
+
 type ElicitUser {
   isQuestionCreator: Boolean
   displayName: String

@@ -18,6 +18,7 @@ interface Query {
   MultiPostAnalytics: MultiPostAnalyticsResult;
   AnalyticsSeries: Array<AnalyticsSeriesValue | null> | null;
   ArbitalPageData: ArbitalPageData | null;
+  crossSiteLinkPreview: CrossSiteLinkPreviewData | null;
   ElicitBlockData: ElicitBlockData | null;
   unreadNotificationCounts: NotificationCounts;
   NotificationDisplays: NotificationDisplaysResult | null;
@@ -733,6 +734,24 @@ interface AnalyticsSeriesValue {
 interface ArbitalPageData {
   html: string | null;
   title: string | null;
+}
+
+interface CrossSiteLinkPreviewData {
+  title: string | null;
+  imageUrl: string | null;
+  originalImageUrl: string | null;
+  mirroredImageUrl: string | null;
+  imageWidth: number | null;
+  imageHeight: number | null;
+  html: string | null;
+  error: string | null;
+  status: string | null;
+  cacheVersion: number | null;
+  fetchedAt: Date | null;
+  nextRefreshAt: Date | null;
+  debugTitleSource: string | null;
+  debugImageSource: string | null;
+  debugHtmlSource: string | null;
 }
 
 interface ElicitUser {
@@ -8763,6 +8782,7 @@ interface GraphQLTypeMap {
   MultiPostAnalyticsResult: MultiPostAnalyticsResult;
   AnalyticsSeriesValue: AnalyticsSeriesValue;
   ArbitalPageData: ArbitalPageData;
+  CrossSiteLinkPreviewData: CrossSiteLinkPreviewData;
   ElicitUser: ElicitUser;
   ElicitPrediction: ElicitPrediction;
   ElicitBlockData: ElicitBlockData;
@@ -9617,6 +9637,7 @@ interface CreateInputsByCollectionName {
   IframeWidgetSrcdocs: never;
   Images: never;
   LegacyData: never;
+  LinkPreviewCaches: never;
   LlmConversations: never;
   LlmMessages: never;
   LoginTokens: never;
@@ -9702,6 +9723,7 @@ interface UpdateInputsByCollectionName {
   Images: never;
   LWEvents: never;
   LegacyData: never;
+  LinkPreviewCaches: never;
   LlmMessages: never;
   LoginTokens: never;
   MailgunValidations: never;
