@@ -3,7 +3,7 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { NextRequest, NextResponse } from "next/server";
 import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
-import { deriveAgentAuthor, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, isSupportedEditorType, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
 
 import { buildNodeMarkdownMapForSubtree, toPlainTextFilter } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
@@ -160,6 +160,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
     }
 
+    const editorCheck = await isSupportedEditorType(postId, context);
+    if (!editorCheck.supported) {
+      captureAgentApiEvent({ route: "deleteBlock", postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
+      return NextResponse.json({ error: unsupportedEditorMessage(editorCheck.editorType) }, { status: 400 });
+    }
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
 
     const deleteResult = await deleteMarkdownBlock({

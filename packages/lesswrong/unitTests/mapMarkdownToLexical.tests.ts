@@ -13,7 +13,7 @@ import {
 import { markdownToHtml, htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { createHeadlessEditor } from "../../../app/api/agent/editorAgentUtil";
-import { locateMarkdownQuoteSelectionInSubtree } from "../../../app/api/agent/mapMarkdownToLexical";
+import { buildNodeMarkdownMapForSubtree, locateMarkdownQuoteSelectionInSubtree } from "../../../app/api/agent/mapMarkdownToLexical";
 import { runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
 
@@ -99,6 +99,39 @@ async function expectQuoteRoundTripsFromMarkdownDocument({
     .toLowerCase();
   expect(toPlainText(canonicalExtractedMarkdown)).toBe(toPlainText(canonicalQuotedMarkdown));
 }
+
+describe("empty root detection", () => {
+  it("throws when buildNodeMarkdownMapForSubtree is called on an empty root", async () => {
+    const editor = createHeadlessEditor("EmptyRootTest");
+
+    // A headless editor starts with a root that has zero children.
+    // This mirrors the scenario where a headless editor syncs against a
+    // Hocuspocus document with no persisted Yjs state. The empty-root
+    // invariant should be caught earlier (in withMainDocEditorSession),
+    // so buildNodeMarkdownMapForSubtree is expected to throw rather than
+    // silently return empty results.
+    expect(() => {
+      editor.getEditorState().read(() => {
+        const root = $getRoot();
+        buildNodeMarkdownMapForSubtree(root.getKey(), "anything");
+      });
+    }).toThrow(/editor state is empty/i);
+  });
+
+  it("throws when locateMarkdownQuoteSelectionInSubtree is called on an empty root", async () => {
+    const editor = createHeadlessEditor("EmptyRootLocateTest");
+
+    expect(() => {
+      editor.getEditorState().read(() => {
+        const root = $getRoot();
+        locateMarkdownQuoteSelectionInSubtree({
+          rootNodeKey: root.getKey(),
+          markdownQuote: "some quote",
+        });
+      });
+    }).toThrow(/editor state is empty/i);
+  });
+});
 
 describe("findTextRangeInNodeByPlainQuote whitespace normalization", () => {
   it("returns correct offsets when original text has extra whitespace compared to quote", async () => {

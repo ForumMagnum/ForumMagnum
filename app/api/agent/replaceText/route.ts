@@ -7,7 +7,7 @@ import { JSDOM } from "jsdom";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { markdownToHtml } from "@/server/editor/conversionUtils";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
-import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, isSupportedEditorType, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
 
 import { locateMarkdownQuoteSelectionInSubtree, markdownQuoteToPlainText, type MarkdownSelectionPoint } from "../mapMarkdownToLexical";
 import { replaceTextToolSchema, type ReplaceMode } from "../toolSchemas";
@@ -813,6 +813,11 @@ export async function POST(req: NextRequest) {
     if (!token) {
       captureAgentApiEvent({ route: "replaceText", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
+    }
+    const editorCheck = await isSupportedEditorType(postId, context);
+    if (!editorCheck.supported) {
+      captureAgentApiEvent({ route: "replaceText", postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
+      return NextResponse.json({ error: unsupportedEditorMessage(editorCheck.editorType) }, { status: 400 });
     }
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
 

@@ -15,7 +15,7 @@ import {
 } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { deriveAgentAuthor, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, isSupportedEditorType, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
 
 import { normalizeImportedTopLevelNodes } from "../../(markdown)/editorMarkdownUtils";
 import { buildNodeMarkdownMapForSubtree, toPlainTextFilter } from "../mapMarkdownToLexical";
@@ -281,6 +281,11 @@ export async function POST(req: NextRequest) {
     if (!token) {
       captureAgentApiEvent({ route: "insertBlock", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
       return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
+    }
+    const editorCheck = await isSupportedEditorType(postId, context);
+    if (!editorCheck.supported) {
+      captureAgentApiEvent({ route: "insertBlock", postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
+      return NextResponse.json({ error: unsupportedEditorMessage(editorCheck.editorType) }, { status: 400 });
     }
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
 

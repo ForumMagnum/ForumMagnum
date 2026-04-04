@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Map as YMap, Array as YArray, Doc } from "yjs";
 import { randomId } from "@/lib/random";
-import { deriveAgentAuthor, waitForProviderFlush, waitForProviderSync } from "../editorAgentUtil";
+import { deriveAgentAuthor, isSupportedEditorType, unsupportedEditorMessage, waitForProviderFlush, waitForProviderSync } from "../editorAgentUtil";
 
 import { createCollabComment } from "../commentOnDraft/route";
 import { replyToCommentToolSchema } from "../toolSchemas";
@@ -49,6 +49,12 @@ export async function POST(req: NextRequest) {
         { error: "Unauthorized to comment on draft" },
         { status: 403 },
       );
+    }
+
+    const editorCheck = await isSupportedEditorType(postId, context);
+    if (!editorCheck.supported) {
+      captureAgentApiEvent({ route: "replyToComment", postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
+      return NextResponse.json({ error: unsupportedEditorMessage(editorCheck.editorType) }, { status: 400 });
     }
 
     const wsUrl = process.env.HOCUSPOCUS_URL;
