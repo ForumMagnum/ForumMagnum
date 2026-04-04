@@ -8,7 +8,7 @@
 
 import React, { type JSX } from 'react';
 
-import {$isCodeHighlightNode} from '@lexical/code';
+import {$isCodeNode} from '@lexical/code';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
@@ -634,8 +634,10 @@ function useFloatingTextFormatToolbar(
         setIsLink(false);
       }
 
+      const anchorNode = selection.anchor.getNode();
+      const anchorParent = anchorNode.getParent();
       if (
-        !$isCodeHighlightNode(selection.anchor.getNode()) &&
+        !$isCodeNode(anchorNode) && !$isCodeNode(anchorParent) &&
         selection.getTextContent() !== ''
       ) {
         setIsText($isTextNode(node) || $isParagraphNode(node));
