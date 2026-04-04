@@ -102,12 +102,12 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
     const container = bodyRef.current;
     if (!container || !getHighlights()) return;
 
-    const contextId = `content-${nextContentContextId++}`;
     const codeBlocks = container.querySelectorAll<HTMLElement>('pre.code-block, code.code-block');
     if (codeBlocks.length === 0) {
-      return () => {};
+      return;
     }
 
+    const contextId = `content-${nextContentContextId++}`;
     const rangesByGroup = new Map<string, Range[]>();
     codeBlocks.forEach((block) => {
       const language =
