@@ -422,6 +422,7 @@ const accessFilters = {
   Images: allowAccess,
   JargonTerms: jargonTermCheckAccess,
   LegacyData: allowAccess,
+  LinkPreviewCaches: denyAll,
   LlmConversations: llmConversationCheckAccess,
   LlmMessages: llmMessageCheckAccess,
   Localgroups: allowAccess,
