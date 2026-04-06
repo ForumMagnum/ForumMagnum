@@ -592,17 +592,22 @@ export const defaultComponentPalette = (dark: boolean) => ({
     codeActionMenuBackground: "rgb(223, 232, 250)",
     tableCellResizerHover: "#adf",
     codeHighlight: {
-      tokenComment: "slategray",
+      tokenComment: "light-dark(slategray, #8b949e)",
       tokenDeleted: "linear-gradient(to right, #ffcecb 50%, #ffebe9 50%) fill 0/0/0 100vw",
       tokenInserted: "linear-gradient(to right, #aceebb 50%, #dafbe1 50%) fill 0/0/0 100vw",
       tokenUnchanged: "linear-gradient(to right, #ddd 50%, #f0f2f5 50%) fill 0/0/0 100vw",
-      tokenPunctuation: "#999",
-      tokenProperty: "#905",
-      tokenSelector: "#690",
-      tokenOperator: "#9a6e3a",
-      tokenAttr: "#07a",
-      tokenVariable: "#e90",
-      tokenFunction: "#dd4a68",
+      tokenPunctuation: "light-dark(#999, #8b949e)",
+      tokenProperty: "light-dark(#905, #ff7b72)",
+      tokenSelector: "light-dark(#690, #7ee787)",
+      tokenOperator: "light-dark(#9a6e3a, #d2a8ff)",
+      tokenAttr: "light-dark(#07a, #79c0ff)",
+      tokenVariable: "light-dark(#e90, #ffa657)",
+      tokenFunction: "light-dark(#dd4a68, #d2a8ff)",
+      // CSS Custom Highlights API colors for ::highlight() rules.
+      // ::highlight() only supports color/background-color, so diff
+      // tokens use background-color instead of border-image here.
+      hlDeletedBg: "light-dark(#ffcecb, #3d1214)",
+      hlInsertedBg: "light-dark(#aceebb, #1a3524)",
     },
   },
   blockquoteHighlight: {

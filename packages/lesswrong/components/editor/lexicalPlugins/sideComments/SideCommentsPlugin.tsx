@@ -35,6 +35,9 @@ const styles = defineStyles('SideCommentsPlugin', (theme: ThemeType) => ({
     cursor: 'pointer',
     transition: 'background-color 0.15s ease-in-out',
     marginBottom: 12,
+    '&$sideCommentActive': {
+      cursor: 'auto',
+    },
     '&:hover': {
       backgroundColor: theme.palette.type === 'light' ? theme.palette.panelBackground.darken08 : theme.palette.panelBackground.darken15,
       '& $resolveButton, & $threadActions': {
@@ -232,7 +235,7 @@ const SideCommentItem = ({
           classes.sideComment,
           isActive && classes.sideCommentActive,
         )}
-        onClick={onClick}
+        onClick={isActive ? undefined : onClick}
       >
         {isSuggestion && summaryComment && (
           <div className={classes.comment}>

@@ -23,9 +23,12 @@ import {
 import {INSERT_TABLE_COMMAND} from '@lexical/table';
 import { OPEN_TABLE_SELECTOR_COMMAND } from '@/components/editor/lexicalPlugins/tables/TablesPlugin';
 import {
+  $getSelection,
+  $isRangeSelection,
   LexicalEditor,
   TextNode,
 } from 'lexical';
+import { $isCodeNode } from '@lexical/code';
 import {useCallback, useMemo, useState} from 'react';
 import * as ReactDOM from 'react-dom';
 
@@ -306,10 +309,28 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
 
-  const checkForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
+  const baseCheckForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
     allowWhitespace: true,
     minLength: 0,
   });
+
+  // Suppress the slash menu inside code blocks. Previously this was
+  // implicit because CodeHighlightNode.isSimpleText() returned false,
+  // but plain TextNode children pass that check.
+  const checkForTriggerMatch = useCallback(
+    (text: string, editorInstance: LexicalEditor) => {
+      const inCode = editorInstance.getEditorState().read(() => {
+        const selection = $getSelection();
+        if (!$isRangeSelection(selection)) return false;
+        const anchor = selection.anchor.getNode();
+        const parent = anchor.getParent();
+        return $isCodeNode(anchor) || $isCodeNode(parent);
+      });
+      if (inCode) return null;
+      return baseCheckForTriggerMatch(text, editorInstance);
+    },
+    [baseCheckForTriggerMatch],
+  );
 
   const baseOptions = useBaseOptions(editor, openDialog, currentUser);
 

@@ -3,6 +3,7 @@ import { Doc, UndoManager } from "yjs";
 import type { Provider as LexicalProvider } from "@lexical/yjs";
 import { createBinding, syncLexicalUpdateToYjs, syncYjsChangesToLexical } from "@lexical/yjs";
 import {
+  $getRoot,
   createEditor,
   type LexicalEditor,
   SKIP_COLLAB_TAG,
@@ -11,6 +12,8 @@ import PlaygroundNodes from "@/components/lexical/nodes/PlaygroundNodes";
 import { buildTextNodeExportMap } from "@/components/editor/lexicalDomExport";
 import { randomId } from "@/lib/random";
 import { sleep } from "@/lib/utils/asyncUtils";
+import { getLatestRev } from "@/server/editor/utils";
+import { captureException } from "@/lib/sentryWrapper";
 
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const INITIAL_SYNC_SETTLE_MS = 25;
@@ -83,6 +86,26 @@ export function deriveAgentAuthor({ context, args }: DeriveAgentAuthorArgs): Der
   const authorId = context.currentUser?._id ?? context.clientId ?? `agent-${randomId()}`;
   const authorName = args.agentName ?? context.currentUser?.displayName ?? "AI Agent";
   return { authorId, authorName };
+}
+
+interface EditorTypeCheckResult {
+  supported: boolean;
+  editorType: string;
+}
+
+/**
+ * Check whether a post uses the Lexical editor. The agent editing API surface
+ * only works with Lexical collaborative documents; legacy CKEditor posts must
+ * be read via /editPost or /api/editPost instead.
+ */
+export async function isSupportedEditorType(postId: string, context: ResolverContext): Promise<EditorTypeCheckResult> {
+  const rev = await getLatestRev(postId, "contents", context);
+  const editorType = rev?.originalContents?.type ?? "unknown";
+  return { supported: editorType === "lexical", editorType };
+}
+
+export function unsupportedEditorMessage(editorType: string): string {
+  return `This post uses the ${editorType} editor and cannot be edited via the agent API. Only posts created in the Lexical editor are supported.`;
 }
 
 export function waitForProviderSync(provider: HocuspocusProvider): Promise<void> {
@@ -167,7 +190,11 @@ export async function withMainDocEditorSession<T>({
         binding,
         lexicalProvider,
         events as Parameters<typeof syncYjsChangesToLexical>[2],
-        isFromUndoManager
+        isFromUndoManager,
+        // No-op: skip cursor position syncing on the server, since
+        // the default implementation creates DOM elements (spans for
+        // remote cursors) which requires `document` to exist.
+        () => {},
       );
     }
   };
@@ -198,6 +225,25 @@ export async function withMainDocEditorSession<T>({
     await provider.connect();
     await waitForProviderSync(provider);
     await sleep(INITIAL_SYNC_SETTLE_MS);
+
+    // After sync, verify that the Lexical editor actually has content.
+    // A Lexical post should always have a non-empty Yjs document in
+    // Hocuspocus. If the root is empty after sync, something critical
+    // has gone wrong (e.g. missing YjsDocuments row, Hocuspocus data
+    // loss, or a race condition in the sync protocol).
+    let rootChildCount = 0;
+    editor.getEditorState().read(() => {
+      rootChildCount = $getRoot().getChildrenSize();
+    });
+    if (rootChildCount === 0) {
+      const err = new Error(
+        `[${operationLabel}] Lexical editor root is empty after Hocuspocus sync for post ${postId}. ` +
+        `This likely means the Yjs document state is missing or corrupt.`
+      );
+      captureException(err);
+      throw err;
+    }
+
     return await callback({ editor, provider });
   } finally {
     rootSharedType.unobserveDeep(onYjsTreeChanges);

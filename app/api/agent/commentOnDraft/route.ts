@@ -7,7 +7,9 @@ import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInMarkNode } from "@lexical/mark";
 import {
   deriveAgentAuthor,
+  isSupportedEditorType,
   normalizeText,
+  unsupportedEditorMessage,
   waitForProviderFlush,
   waitForProviderSync,
   withMainDocEditorSession,
@@ -231,6 +233,11 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized to comment on draft" }, { status: 403 });
     }
 
+    const editorCheck = await isSupportedEditorType(postId, context);
+    if (!editorCheck.supported) {
+      captureAgentApiEvent({ route: "commentOnDraft", postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
+      return NextResponse.json({ error: unsupportedEditorMessage(editorCheck.editorType) }, { status: 400 });
+    }
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
     const threadQuote = quote ?? "";
 
