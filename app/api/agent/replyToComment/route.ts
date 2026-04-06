@@ -42,19 +42,18 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, threadId, comment } = parseResult.data;
 
   try {
-    const token = await getHocuspocusToken(context, postId, key);
-    if (!token) {
-      captureAgentApiEvent({ route: "replyToComment", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
-      return NextResponse.json(
-        { error: "Unauthorized to comment on draft" },
-        { status: 403 },
-      );
-    }
-
     const editorCheck = await isSupportedEditorType(postId, context);
     if (!editorCheck.supported) {
       captureAgentApiEvent({ route: "replyToComment", postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
       return NextResponse.json({ error: unsupportedEditorMessage(editorCheck.editorType) }, { status: 400 });
+    }
+    const token = await getHocuspocusToken(context, postId, key);
+    if (!token) {
+      captureAgentApiEvent({ route: "replyToComment", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
+      return NextResponse.json(
+        { error: "Unauthorized to comment on draft. Make sure the post's sharing settings have 'Anyone with the link can' set to 'Edit', and that the correct link-sharing key is provided." },
+        { status: 403 },
+      );
     }
 
     const wsUrl = process.env.HOCUSPOCUS_URL;
