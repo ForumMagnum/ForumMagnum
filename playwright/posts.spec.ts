@@ -1,5 +1,5 @@
 import { test, expect, BrowserContext, Page } from "@playwright/test";
-import { createNewPost, expectVisible, loginNewUser, logout, publishPostFromPostEditPage, setPostContent, uniqueId } from "./playwrightUtils";
+import { createNewPost, expectVisible, getUserKarma, loginNewUser, logout, publishPostFromPostEditPage, setPostContent, uniqueId } from "./playwrightUtils";
 
 test("create and edit post", async ({page, context}) => {
   await page.goto("/");
@@ -61,28 +61,23 @@ test("voting on a post gives karma", async ({page, context}) => {
   await page.goto("/");
   await loginNewUser(context);
   const post = await createNewPost();
-
-  // The post author should have no karma
-  const authorPage = `/users/${post.author.slug}`;
-  await page.goto(authorPage);
-  // Commented out: User profile page no longer shows karma if it's zero
-  //await expectVisible(page.locator(".UserMetaInfo-info").getByText("0"));
+  const postAuthorId = post.author._id;
+  expect(await getUserKarma(postAuthorId)).toBe(0);
 
   // Post should start with 1 karma from the author
   await page.goto(post.postPageUrl);
-  const karma = page.locator(".LWPostsPageTopHeaderVote-voteScore");
-  await expect(karma).toContainText("0");
+  const karmaDisplay = page.locator(".LWPostsPageTopHeaderVote-voteScore");
+  await expect(karmaDisplay).toContainText("0");
 
   // Click the upvote button and give time for the page to update
   await page.locator(".VoteArrowIconHollow-up").nth(1).click();
   await page.waitForTimeout(1000);
 
-  // Post should now have 2 karma
-  await expect(karma).toContainText("1");
+  // Post should now display  2 karma
+  await expect(karmaDisplay).toContainText("1");
 
-  // The post author should now have the karma
-  await page.goto(authorPage);
-  await expectVisible(page.locator(".UserMetaInfo-info").getByText("1"));
+  // The post author should now have karma
+  expect(await getUserKarma(postAuthorId)).toBe(1);
 });
 
 test("admins can move posts to draft", async ({page, context}) => {

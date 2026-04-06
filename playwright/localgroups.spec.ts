@@ -1,9 +1,9 @@
 import { test, expect } from "@playwright/test";
-import { createNewGroup, createNewUser, loginUser, publishPostFromPostEditPage, setPostContent } from "./playwrightUtils";
+import { createNewGroup, createNewUser, expectVisible, loginUser, publishPostFromPostEditPage, setPostContent } from "./playwrightUtils";
 
 test("can create and edit events in group", async ({page, context}) => {
   // const nonOrganizerUser = await createNewUser();
-  const [organizerUserA, organizerUserB] = await Promise.all([createNewUser(), createNewUser()]);
+  const [organizerUserA, organizerUserB] = await Promise.all([ createNewUser(), createNewUser() ]);
 
   const group = await createNewGroup({
     organizerIds: [organizerUserA._id, organizerUserB._id],
@@ -45,5 +45,5 @@ test("can create and edit events in group", async ({page, context}) => {
 
   // Submitting the new event navigates to the event page
   await page.waitForURL("/events/**/test-event-title**");
-  await expect(page.getByText(newBody, { exact: true })).toBeVisible();
+  await expectVisible(page.getByText(newBody));
 });

@@ -1,3 +1,4 @@
+import Users from "@/server/collections/users/collection";
 import { createPasswordHash } from "@/server/vulcan-lib/apollo-server/passwordHelpers";
 import { expect, Locator, type Browser, type BrowserContext, type Cookie, type Page } from "@playwright/test";
 import pgp, { IDatabase } from "pg-promise";
@@ -79,6 +80,9 @@ export const uniqueId = new class {
 export const loginUser = async (
   context: BrowserContext,
   {email, password}: PlaywrightUser,
+  options?: {
+    allowFailure?: boolean,
+  }
 ): Promise<void> => {
   await logout(context);
   const response = await context.request.post("/graphql", {
@@ -111,6 +115,9 @@ export const loginUser = async (
   } = await response.json();
   const token = responseData.data?.login?.token;
   if (!token) {
+    if (options?.allowFailure) {
+      return;
+    }
     const errorMessages = responseData.errors?.map(({message}) => message).filter(Boolean).join(", ");
     throw new Error(errorMessages ? `Playwright login failed: ${errorMessages}` : "Playwright login did not return a token");
   }
@@ -134,18 +141,20 @@ export const createNewUserDetails = (): PlaywrightUser => {
   };
 }
 
-type CreateNewUserOptions = Partial<{
-  database: Database,
-  isAdmin: boolean,
-  karma: number,
-  hideSunshineSidebar: boolean,
-}>;
+type CreateNewUserOptions = {
+  database?: Database,
+  isAdmin?: boolean,
+  karma?: number,
+  hideSunshineSidebar?: boolean,
+  isReviewed?: boolean,
+};
 
 export const createNewUser = async ({
   database = db,
   isAdmin = false,
   karma = 0,
   hideSunshineSidebar = false,
+  isReviewed = true,
 }: CreateNewUserOptions = {}): Promise<PlaywrightUser> => {
   const user = createNewUserDetails();
   const {_id, username, email, slug, displayName, password} = user;
@@ -155,6 +164,8 @@ export const createNewUser = async ({
     password: {bcrypt: await createPasswordHash(password)},
     resume: {loginTokens: []},
   };
+
+  const reviewedByUserId = isReviewed ? "playwright-dummy-reviewer" : null;
 
   await database.get().none(`
     INSERT INTO "Users" (
@@ -170,9 +181,10 @@ export const createNewUser = async ({
       "usernameUnset",
       "acceptedTos",
       "services",
-      "hideSunshineSidebar"
-    ) VALUES ($1, $2, $3, $4, $5::JSONB[], $6, $7, $8, $9, FALSE, TRUE, $10::JSONB, $11)
-  `, [_id, username, displayName, email, emails, slug, abtestkey, isAdmin, karma, services, hideSunshineSidebar]);
+      "hideSunshineSidebar",
+      "reviewedByUserId"
+    ) VALUES ($1, $2, $3, $4, $5::JSONB[], $6, $7, $8, $9, FALSE, TRUE, $10::JSONB, $11, $12)
+  `, [_id, username, displayName, email, emails, slug, abtestkey, isAdmin, karma, services, hideSunshineSidebar, reviewedByUserId]);
 
   return user;
 }
@@ -434,6 +446,7 @@ export const setPostContent = async (page: Page, {
 }
 
 export async function publishPostFromPostEditPage({page, context}: {page: Page, context: BrowserContext}) {
+  await page.waitForTimeout(100);
   if (await page.locator(".MobileEditorBottomBar-publishButton").isVisible()) {
     // Mobile screen width
     await expect(page.locator(".MobileEditorBottomBar-publishButton")).toBeVisible();
@@ -459,4 +472,11 @@ export async function publishPostFromPostEditPage({page, context}: {page: Page, 
  */
 export function expectVisible(locator: Locator) {
   return expect(locator.filter({ has: locator.locator(":visible") }).first()).toBeVisible();
+}
+
+export const getUserKarma = async (userId: string) => {
+  const karma = await db.get().oneOrNone(`
+    SELECT "karma" FROM "Users" WHERE "_id" = $1
+  `, [userId]);
+  return karma?.karma ?? 0;
 }

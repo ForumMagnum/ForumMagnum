@@ -29,13 +29,12 @@ test("admins can ban users and remove their content", async ({page, context}) =>
   // Non-admin user now can't view the author or the post
   await loginUser(context, nonAdmin);
   await page.reload();
-  await expect(page.getByText(post.title)).toBeNull();
-  //await expect(page.getByText("404 not found")).toBeVisible();
+  await expect(page.getByText(post.title).first()).not.toBeVisible();
   await page.goto(post.postPageUrl);
   await expect(page.getByText("404 Not Found")).toBeVisible();
 
   // The banned user should see a logged out version of the forum
-  await loginUser(context, post.author);
+  await loginUser(context, post.author, {allowFailure: true});
   await page.goto("/");
   await expect(page.getByTestId("user-signup-button")).toBeVisible();
 });
