@@ -64,7 +64,7 @@ const CommentPermalink = ({
 
   const { data, loading, error, refetch } = useQuery(CommentWithRepliesFragmentQuery, {
     variables: { documentId: documentId },
-    skip: isNotRandomId(documentId),
+    skip: isNotRandomId(documentId) && !/^[0-9a-f]{24}$/.test(documentId),
   });
   const comment = data?.comment?.result;
 
