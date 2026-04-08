@@ -567,8 +567,8 @@ export const defaultComponentPalette = (dark: boolean) => ({
     // highlight bleeds over adjacent lines and covers up descenders. Partially
     // mitigate this by making it a high-intensity color at 50% transparency
     // rather than a low-intensity color at full opacity.
-    commentMarker: "light-dark(rgba(255,241,82,.5),#80792e)",
-    commentMarkerActive: "light-dark(#fdf05d,#cbc14f)",
+    commentMarker: "light-dark(rgba(255,179,120,.45),#7d5030)",
+    commentMarkerActive: "light-dark(#ffb878,#c08050)",
     // Banner ad compatibility - non-affecting default for light mode
     bannerAdBackground: dark ? "rgba(0,0,0,0.5)" : 'transparent',
   },
