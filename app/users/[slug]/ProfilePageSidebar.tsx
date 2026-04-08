@@ -243,7 +243,7 @@ export function ProfilePageSidebar({user, bioNoFollow}: {
 
     <div className={classes.sidebarBioSection}>
       {!hasBio && <div className={classes.sidebarMetaInfo}>
-        <UserMetaInfo user={user} hidePostCount hideCommentCount omegaAlignment="inline" voteReceivedCount={user.voteReceivedCount ?? undefined} />
+        <UserMetaInfo user={user} hidePostCount hideCommentCount omegaAlignment="inline" />
       </div>}
 
       {hasBio && <>
@@ -343,7 +343,7 @@ export function ProfilePageMobileBio({user, bioNoFollow}: {
       </a>
     </div>}
     {user && <div className={classes.mobileMetaInfo}>
-      <UserMetaInfo user={user} voteReceivedCount={user.voteReceivedCount ?? undefined} />
+      <UserMetaInfo user={user} />
     </div>}
   </div>
 }

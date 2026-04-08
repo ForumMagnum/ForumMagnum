@@ -582,6 +582,7 @@ type Documents = {
     "\n    mutation useEmailToken($token: String) {\n      useEmailToken(token: $token)\n    }\n  ": typeof types.useEmailTokenDocument,
     "\n    mutation sendEventTriggeredDM($eventType: String!) {\n      sendEventTriggeredDM(eventType: $eventType)\n    }\n  ": typeof types.sendEventTriggeredDMDocument,
     "\n  query multiPostLWUserTooltipContentQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiPostLWUserTooltipContentQueryDocument,
+    "\n  query userTooltipProfileQuery($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfile\n      }\n    }\n  }\n": typeof types.userTooltipProfileQueryDocument,
     "\n  query TopKarmaUsers($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMinimumInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.TopKarmaUsersDocument,
     "\n  query AirtableLeaderboards {\n    AirtableLeaderboards {\n      name\n      leaderboardAmount\n    }\n  }\n": typeof types.AirtableLeaderboardsDocument,
     "\n        query getNetKarmaChangesForAuthorsOverPeriod($days: Int!, $limit: Int!) {\n          NetKarmaChangesForAuthorsOverPeriod(days: $days, limit: $limit) {\n            userId\n            netKarma\n          }\n        }\n      ": typeof types.getNetKarmaChangesForAuthorsOverPeriodDocument,
@@ -1422,6 +1423,7 @@ const documents: Documents = {
     "\n    mutation useEmailToken($token: String) {\n      useEmailToken(token: $token)\n    }\n  ": types.useEmailTokenDocument,
     "\n    mutation sendEventTriggeredDM($eventType: String!) {\n      sendEventTriggeredDM(eventType: $eventType)\n    }\n  ": types.sendEventTriggeredDMDocument,
     "\n  query multiPostLWUserTooltipContentQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n": types.multiPostLWUserTooltipContentQueryDocument,
+    "\n  query userTooltipProfileQuery($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfile\n      }\n    }\n  }\n": types.userTooltipProfileQueryDocument,
     "\n  query TopKarmaUsers($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMinimumInfo\n      }\n      totalCount\n    }\n  }\n": types.TopKarmaUsersDocument,
     "\n  query AirtableLeaderboards {\n    AirtableLeaderboards {\n      name\n      leaderboardAmount\n    }\n  }\n": types.AirtableLeaderboardsDocument,
     "\n        query getNetKarmaChangesForAuthorsOverPeriod($days: Int!, $limit: Int!) {\n          NetKarmaChangesForAuthorsOverPeriod(days: $days, limit: $limit) {\n            userId\n            netKarma\n          }\n        }\n      ": types.getNetKarmaChangesForAuthorsOverPeriodDocument,
@@ -3980,6 +3982,10 @@ export function gql(source: "\n    mutation sendEventTriggeredDM($eventType: Str
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query multiPostLWUserTooltipContentQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiPostLWUserTooltipContentQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {\n    posts(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...PostsList\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query userTooltipProfileQuery($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfile\n      }\n    }\n  }\n"): (typeof documents)["\n  query userTooltipProfileQuery($documentId: String) {\n    user(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...UsersProfile\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

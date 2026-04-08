@@ -21478,6 +21478,23 @@ type multiPostLWUserTooltipContentQueryQueryVariables = Exact<{
 
 type multiPostLWUserTooltipContentQueryQuery = multiPostLWUserTooltipContentQueryQuery_Query;
 
+type userTooltipProfileQueryQuery_user_SingleUserOutput_result_User = (
+  { __typename?: 'User' }
+  & UsersProfile
+);
+
+type userTooltipProfileQueryQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: userTooltipProfileQueryQuery_user_SingleUserOutput_result_User | null };
+
+type userTooltipProfileQueryQuery_Query = { __typename?: 'Query', user: userTooltipProfileQueryQuery_user_SingleUserOutput | null };
+
+
+type userTooltipProfileQueryQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type userTooltipProfileQueryQuery = userTooltipProfileQueryQuery_Query;
+
 type TopKarmaUsersQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo

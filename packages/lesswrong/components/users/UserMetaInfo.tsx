@@ -50,8 +50,8 @@ const styles = defineStyles('UserMetaInfo', (theme: ThemeType) => ({
   }
 }));
 
-export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hidePostCount, hideCommentCount, omegaAlignment = "legacy", hideInfoOnSmallScreen, infoClassName, voteReceivedCount}: {
-  user: UsersMinimumInfo,
+export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hidePostCount, hideCommentCount, omegaAlignment = "legacy", hideInfoOnSmallScreen, infoClassName}: {
+  user: UsersMinimumInfo & { voteReceivedCount?: number | null },
   hideAfKarma?: boolean,
   hideWikiContribution?: boolean,
   hidePostCount?: boolean,
@@ -59,10 +59,10 @@ export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hidePostC
   omegaAlignment?: "legacy" | "inline",
   hideInfoOnSmallScreen?: boolean,
   infoClassName?: string,
-  voteReceivedCount?: number,
 }) => {
   const classes = useStyles(styles);
   const { createdAt, karma, afKarma, postCount, commentCount, tagRevisionCount: wikiContributionCount } = user;
+  const voteReceivedCount = user.voteReceivedCount;
 
   const infoClasses = classNames(infoClassName, classes.info);
 
