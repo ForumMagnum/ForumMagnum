@@ -81,6 +81,7 @@ export const UsersProfile = gql(`
     conversationsDisabled
     pinnedPostIds
     hideProfileTopPosts
+    voteReceivedCount
   }
 `)
 
