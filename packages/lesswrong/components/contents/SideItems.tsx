@@ -195,13 +195,24 @@ export const SideItemsSidebar = () => {
     // reflow if layout is invalidated.)
     for (let i=0; i<displayContext.sideItems.length; i++) {
       const sideItem = displayContext.sideItems[i];
+      // If the anchor element is no longer in the DOM or has no visible
+      // offsetParent (e.g. inside a display:none container, a collapsed
+      // section, or removed from the document entirely), hide the sidenote
+      // to prevent it from appearing at y=0.
+      if (!sideItem.anchorEl.isConnected || !sideItem.anchorEl.offsetParent) {
+        sideItem.anchorTop = null;
+        sideItem.container.style.display = 'none';
+        continue;
+      }
+      sideItem.container.style.display = '';
       sideItem.anchorTop = getOffsetChainTop(sideItem.anchorEl) - sidebarColumnTop + sideItem.options.offsetTop;
       sideItem.anchorLeft = sideItem.anchorEl.offsetLeft;
       sideItem.sideItemHeight = sideItem.options.measuredElement?.current?.clientHeight ?? sideItem.container.clientHeight;
     }
-    
-    // Sort side-items by their anchor position
-    const sortedSideItems = orderBy(displayContext.sideItems,
+
+    // Sort side-items by their anchor position, excluding hidden ones
+    const sortedSideItems = orderBy(
+      displayContext.sideItems.filter(s => s.anchorTop !== null),
       [s => s.anchorTop, s => s.anchorLeft]
     );
 
