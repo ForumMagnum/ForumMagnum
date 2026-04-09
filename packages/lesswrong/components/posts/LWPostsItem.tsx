@@ -667,7 +667,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
             }}
           />
 
-          {renderComments && <div className={classes.newCommentsSection} onClick={toggleComments}>
+          {renderComments && <div className={classes.newCommentsSection}>
             <PostsItemNewCommentsWrapper
               terms={commentTerms}
               post={post}
@@ -678,7 +678,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
             />
           </div>}
 
-          {renderDialogueMessages && <div className={classes.newCommentsSection} onClick={toggleDialogueMessages}>
+          {renderDialogueMessages && <div className={classes.newCommentsSection}>
             <PostsItemNewDialogueResponses postId={post._id} unreadCount={post.unreadDebateResponseCount} />
           </div>}
         </div>
