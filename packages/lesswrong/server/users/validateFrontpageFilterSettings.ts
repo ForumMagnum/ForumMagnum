@@ -31,7 +31,7 @@ export async function validateFrontpageFilterSettings(
 
   const uniqueTagIds = Array.from(new Set(filterSettings.tags.map((tag) => String(tag.tagId))));
   if (uniqueTagIds.length === 0) {
-    return filterSettings as FilterSettings;
+    return filterSettings as unknown as FilterSettings;
   }
 
   const loadedTags = await loadByIds(context, "Tags", uniqueTagIds);
@@ -41,5 +41,5 @@ export async function validateFrontpageFilterSettings(
     throw new Error(`frontpageFilterSettings contains invalid tagIds: ${invalidTagIds.join(", ")}`);
   }
 
-  return filterSettings as FilterSettings;
+  return filterSettings as unknown as FilterSettings;
 }
