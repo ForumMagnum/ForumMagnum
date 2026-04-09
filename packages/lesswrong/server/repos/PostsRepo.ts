@@ -8,6 +8,7 @@ import { FilterSettings, FilterMode } from "@/lib/filterSettings";
 import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
 import { TIME_DECAY_FACTOR, SCORE_BIAS } from "@/lib/scoring";
 import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
+import { escapeSqlString } from "../utils/sqlUtil";
 
 type DbPostWithContents = DbPost & {contents?: DbRevision | null};
 
@@ -64,7 +65,7 @@ function constructFilteredScoreSql(filterSettings: FilterSettings): string {
 
   const additiveModifiersSql = tagsSoftFiltered.map(tag => `
     (CASE
-      WHEN COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) > 0
+      WHEN COALESCE((p."tagRelevance"->'${escapeSqlString(tag.tagId)}')::INTEGER, 0) > 0
       THEN ${filterModeToAdditiveKarmaModifier(tag.filterMode)}
       ELSE 0
     END)`
@@ -72,7 +73,7 @@ function constructFilteredScoreSql(filterSettings: FilterSettings): string {
 
   const multiplicativeModifiersSql = tagsSoftFiltered.map(tag => `
     (CASE
-      WHEN COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) > 0
+      WHEN COALESCE((p."tagRelevance"->'${escapeSqlString(tag.tagId)}')::INTEGER, 0) > 0
       THEN ${filterModeToMultiplicativeKarmaModifier(tag.filterMode)}
       ELSE 1
     END)`
