@@ -55,7 +55,7 @@ function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
 }
 
 function sqlValue(value: string): string {
-  return getPgPromiseLib().as.value(value);
+  return `'${getPgPromiseLib().as.value(value)}'`;
 }
 
 /**
