@@ -93,6 +93,7 @@ const styles = defineStyles("Leaderboard", (theme: ThemeType) => ({
     margin: "0 auto",
     borderCollapse: "collapse",
     border: `1px solid ${theme.palette.grey[300]}`,
+    tableLayout: "fixed",
     "& th": {
       fontFamily: theme.palette.fonts.sansSerifStack,
       padding: "12px",
@@ -111,6 +112,9 @@ const styles = defineStyles("Leaderboard", (theme: ThemeType) => ({
     },
     "& th:nth-child(2), & td:nth-child(2)": {
       width: "60%",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
+      whiteSpace: "nowrap",
     },
     "& th:nth-child(3), & td:nth-child(3)": {
       width: "30%",
