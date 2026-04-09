@@ -1,10 +1,10 @@
 import { JSDOM } from "jsdom";
-import { $generateNodesFromDOM } from "@lexical/html";
 import { $getRoot, $isElementNode, type LexicalEditor, type LexicalNode } from "lexical";
 import { $isSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { markdownToHtml } from "@/server/editor/conversionUtils";
 import { createHeadlessEditor } from "../../../app/api/agent/editorAgentUtil";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
+import { generateNodesFromDOMPreservingWhitespace } from "@/lib/editor/generateNodesFromDOMPreservingWhitespace";
 
 export async function runEditorUpdate(editor: LexicalEditor, updater: () => void): Promise<void> {
   await new Promise<void>((resolve) => {
@@ -18,7 +18,7 @@ export async function setupEditorWithContent(markdownContent: string, label = "L
 
   await runEditorUpdate(editor, () => {
     const dom = new JSDOM(html);
-    const lexicalNodes = $generateNodesFromDOM(editor, dom.window.document);
+    const lexicalNodes = generateNodesFromDOMPreservingWhitespace(editor, dom.window.document);
     const root = $getRoot();
     root.clear();
     root.append(...normalizeImportedTopLevelNodes(lexicalNodes));
