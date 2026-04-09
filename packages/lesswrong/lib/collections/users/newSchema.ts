@@ -35,6 +35,7 @@ import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificatio
 import { getWithLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
+import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -1085,6 +1086,12 @@ const schema = {
       canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      onCreate: async ({ newDocument, context }) => {
+        return await validateFrontpageFilterSettings(newDocument.frontpageFilterSettings, context);
+      },
+      onUpdate: async ({ data, context }) => {
+        return await validateFrontpageFilterSettings(data.frontpageFilterSettings, context);
+      },
       // The old schema had the below comment:
       // FIXME this isn't filling default values as intended
       // ...schemaDefaultValue(getDefaultFilterSettings),
