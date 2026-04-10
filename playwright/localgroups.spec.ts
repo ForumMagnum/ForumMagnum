@@ -1,9 +1,9 @@
 import { test, expect } from "@playwright/test";
-import { createNewGroup, createNewUser, loginUser, setPostContent } from "./playwrightUtils";
+import { createNewGroup, createNewUser, expectVisible, loginUser, publishPostFromPostEditPage, setPostContent } from "./playwrightUtils";
 
 test("can create and edit events in group", async ({page, context}) => {
   // const nonOrganizerUser = await createNewUser();
-  const [organizerUserA, organizerUserB] = await Promise.all([createNewUser(), createNewUser()]);
+  const [organizerUserA, organizerUserB] = await Promise.all([ createNewUser(), createNewUser() ]);
 
   const group = await createNewGroup({
     organizerIds: [organizerUserA._id, organizerUserB._id],
@@ -27,11 +27,11 @@ test("can create and edit events in group", async ({page, context}) => {
     body: "Test event body",
     titlePlaceholder: "Event name",
   });
-  await page.getByText("Publish").click();
+  await publishPostFromPostEditPage({page, context});
 
   // Submitting the new event navigates to the event page
   await page.waitForURL("/events/**/test-event-title**");
-  await expect(page.getByText(title)).toBeVisible();
+  await expect(page.getByText(title).first()).toBeVisible();
 
   // Login as the second organizer, who should also be able to edit the event
   await loginUser(context, organizerUserB);
@@ -41,9 +41,9 @@ test("can create and edit events in group", async ({page, context}) => {
   await page.waitForURL("/editPost**");
   const newBody = "Edited event body";
   await setPostContent(page, {body: newBody});
-  await page.getByText("Publish changes").click();
+  await publishPostFromPostEditPage({page, context});
 
   // Submitting the new event navigates to the event page
   await page.waitForURL("/events/**/test-event-title**");
-  await expect(page.getByText(newBody)).toBeVisible();
+  await expectVisible(page.getByText(newBody));
 });

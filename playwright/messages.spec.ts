@@ -9,13 +9,15 @@ test("can send and receive messages", async ({browser}) => {
   const pageA = await contextA.newPage();
   const pageB = await contextB.newPage();
 
+  await pageA.goto("/");
   const userA = await loginNewUser(contextA);
+  await pageB.goto("/");
   const userB = await loginNewUser(contextB);
 
   // User A clicks the "message" button on user B's profile
   await pageA.goto(`/users/${userB.slug}`);
-  await pageA.getByText("Message").click();
-  await pageA.waitForURL("/inbox/**");
+  await pageA.locator("a:visible").filter({ hasText: "Message" }).first().click();
+  await pageA.waitForURL("/inbox?conversation=*");
 
   // User A sends a message to user B, and can see the message themself
   const messagesA = pageA.getByTestId("conversation-messages");
@@ -29,7 +31,7 @@ test("can send and receive messages", async ({browser}) => {
   // User B navigates to the conversation in their inbox
   await pageB.goto("/inbox");
   await expect(pageB.getByText(userA.displayName).first()).toBeVisible();
-  await pageB.locator(".ConversationItem-root").click();
+  await pageB.locator(".FriendlyConversationItem-title").getByText(userA.displayName).click();
 
   // User B can see the message that user A sent
   const messagesB = pageB.getByTestId("conversation-messages");
