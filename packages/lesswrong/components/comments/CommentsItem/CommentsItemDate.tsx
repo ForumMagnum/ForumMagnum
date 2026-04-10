@@ -25,6 +25,12 @@ const styles = defineStyles("CommentsItemDate", (theme: ThemeType) => ({
     // narrow/flexbox contexts
     whiteSpace: "nowrap",
 
+    // Pin the font size so the date renders consistently regardless of which
+    // context wraps the comment (post page, /allPosts quick takes, frontpage
+    // quick takes, comment permalink, etc., were inheriting different sizes
+    // from their containers — 13px in some places, 15.08px in others).
+    fontSize: 15.08,
+
     zIndex: theme.zIndexes.commentPermalinkIcon,
     color: theme.palette.text.dim,
   },
