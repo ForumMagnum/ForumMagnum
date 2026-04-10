@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
@@ -10,10 +9,12 @@ import { isEAForum } from '../../lib/instanceSettings';
 import { ForumOptions, forumSelect } from '../../lib/forumTypeUtils';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const getArchiveRecommendationsName = () => isEAForum() ? 'Forum Favorites' : 'Archive Recommendations'
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("RecommendationsAlgorithmPicker", (theme: ThemeType) => ({
   root: {
     display: "flex",
     justifyContent: "space-between",
@@ -29,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 20,
     marginRight: 20
   }
-})
+}))
 
 // Elements here should match switch cases in recommendations.ts
 const recommendationAlgorithms = [
@@ -73,13 +74,13 @@ const forumIncludeExtra: ForumOptions<{humanName: string, machineName: 'includeP
 }
 const getIncludeExtra = () => forumSelect(forumIncludeExtra)
 
-const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAdvanced=false, classes }: {
+const RecommendationsAlgorithmPicker = ({settings, configName, onChange, showAdvanced=false}: {
   settings: DefaultRecommendationsAlgorithm,
   configName: string,
   onChange: (newSettings: DefaultRecommendationsAlgorithm) => void,
   showAdvanced?: boolean,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   function applyChange(newSettings: DefaultRecommendationsAlgorithm) {
@@ -225,6 +226,6 @@ const RecommendationsAlgorithmPicker = ({ settings, configName, onChange, showAd
   </div>;
 }
 
-export default registerComponent("RecommendationsAlgorithmPicker", RecommendationsAlgorithmPicker, {styles});
+export default RecommendationsAlgorithmPicker;
 
 

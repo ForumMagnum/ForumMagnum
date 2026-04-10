@@ -1,32 +1,33 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import classNames from 'classnames';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineListItem', (theme: ThemeType) => ({
   root: {
     position:"relative",
     borderTop: theme.palette.border.faint,
-    paddingTop: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit*2,
-    paddingRight: theme.spacing.unit,
-    paddingBottom: theme.spacing.unit,
+    paddingTop: 8,
+    paddingLeft: 16,
+    paddingRight: 8,
+    paddingBottom: 8,
   },
   content: {
     ...theme.typography.postStyle,
     overflow: "hidden",
-    lineHeight: "1.2rem",
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    lineHeight: "1.2rem"
   },
   hover: {
     backgroundColor: theme.palette.grey[50]
   }
-})
+}))
 
-const SunshineListItem = ({children, classes, hover=false}: {
+const SunshineListItem = ({children, hover=false}: {
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
   hover?: boolean,
 }) => {
+  const classes = useStyles(styles);
+
   return <div className={classNames(classes.root, {[classes.hover]:hover})}>
     <div className={classes.content}>
       { children }
@@ -34,7 +35,7 @@ const SunshineListItem = ({children, classes, hover=false}: {
   </div>
 };
 
-export default registerComponent('SunshineListItem', SunshineListItem, {styles});
+export default SunshineListItem;
 
 
 

@@ -3,7 +3,6 @@ import { useDialog } from '../../common/withDialog';
 import { useMutation } from "@apollo/client/react";
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
-import { preferredHeadingCase } from '../../../themes/forumTheme';
 import { gql } from "@/lib/generated/gql-codegen";
 import LockThreadDialog from "./LockThreadDialog";
 import DropdownItem from "../DropdownItem";
@@ -46,7 +45,7 @@ const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
   if (comment.repliesBlockedUntil) {
     return (
       <DropdownItem
-        title={preferredHeadingCase("Unlock Thread")}
+        title={"Unlock Thread"}
         onClick={handleUnlockThread}
       />
     );
@@ -54,7 +53,7 @@ const LockThreadDropdownItem = ({comment}: {comment: CommentsList}) => {
 
   return (
     <DropdownItem
-      title={preferredHeadingCase("Lock Thread")}
+      title={"Lock Thread"}
       onClick={handleLockThread}
     />
   );

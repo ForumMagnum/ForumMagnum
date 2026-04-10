@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import { userIsAdminOrMod } from '../../../lib/vulcan-users/permissions';
 import { useCurrentUser } from '../../common/withUser';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { commentBodyStyles } from '../../../themes/stylePiping';
 import UserAutoRateLimitsDisplay, { downvoterTooltip, recentKarmaTooltip } from './UserAutoRateLimitsDisplay';
 import { forumSelect } from '../../../lib/forumTypeUtils';
@@ -22,6 +21,8 @@ import SectionFooterCheckbox from "../../form-components/SectionFooterCheckbox";
 import Row from "../../common/Row";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserRecentlyActiveUsersQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -34,7 +35,7 @@ const SunshineUsersListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RecentlyActiveUsers', (theme: ThemeType) => ({
   root: {
     ...commentBodyStyles(theme),
     width: '90%',
@@ -130,14 +131,13 @@ const styles = (theme: ThemeType) => ({
   checkbox: {
     marginRight: 12
   }
-});
+}));
 
 type SortingType = "lastNotificationsCheck"|"last20Karma"|"downvoters"|"karma"|"lastMonthKarma"|"userSortByRateLimitCount";
 
 
-const RecentlyActiveUsers = ({ classes }: {
-  classes: ClassesType<typeof styles>
-}) => {
+const RecentlyActiveUsers = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const [expandId, setExpandId] = useState<string|null>(null);
@@ -353,6 +353,6 @@ const RecentlyActiveUsers = ({ classes }: {
   );
 };
 
-export default registerComponent('RecentlyActiveUsers', RecentlyActiveUsers, { styles });
+export default RecentlyActiveUsers;
 
 

@@ -4,7 +4,7 @@ inputs:
   node-version:
     description: 'Which version of NodeJS to use'
     required: false
-    default: 22.12
+    default: 24.13
 runs:
   using: composite
   steps:
@@ -44,3 +44,7 @@ runs:
     - name: Verify dependencies were installed
       shell: bash
       run: test -d node_modules
+
+    - name: Generate Next.js route types
+      shell: bash
+      run: yarn next typegen .

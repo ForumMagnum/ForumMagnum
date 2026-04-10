@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useCallback } from 'react';
+import React, { useEffect, useState, useMemo, useCallback, Suspense } from 'react';
 import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { getResponseCounts, isDialogueParticipant } from '../../../lib/collections/posts/helpers';
 import { commentGetDefaultView, commentIncludedInCounts } from '../../../lib/collections/comments/helpers'
@@ -6,9 +6,8 @@ import { useCurrentUser } from '../../common/withUser';
 import withErrorBoundary from '../../common/withErrorBoundary'
 import { useRecordPostView } from '../../hooks/useRecordPostView';
 import { AnalyticsContext, useTracking } from "../../../lib/analyticsEvents";
-import { isAF, isEAForum, isLWorAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { isAF, isEAForum, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
-import { hasPostRecommendations, commentsTableOfContentsEnabled, hasSidenotes } from '../../../lib/betas';
 import { useDialog } from '../../common/withDialog';
 import { PostsPageContext } from './PostsPageContext';
 import { useCookiesWithConsent } from '../../hooks/useCookiesWithConsent';
@@ -16,7 +15,6 @@ import { SHOW_PODCAST_PLAYER_COOKIE } from '../../../lib/cookies/cookies';
 import { isValidCommentView } from '../../../lib/commentViewOptions';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs';
-import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { subscriptionTypes } from '../../../lib/collections/subscriptions/helpers';
 import { unflattenComments } from '../../../lib/utils/unflatten';
 import PostsAudioPlayerWrapper, { postHasAudioPlayer } from './PostsAudioPlayerWrapper';
@@ -35,15 +33,12 @@ import { useCurrentTime } from '@/lib/utils/timeUtil';
 import { getReviewPhase, postEligibleForReview, reviewIsActive } from '@/lib/reviewUtils';
 import { BestOfLWPostsPageSplashImage } from './BestOfLessWrong/BestOfLWPostsPageSplashImage';
 import { useNavigate, useSubscribedLocation } from "@/lib/routeUtil";
-import { useCurrentAndRecentForumEvents } from '@/components/hooks/useCurrentForumEvent';
 import SharePostPopup from "../SharePostPopup";
 import { SideItemsSidebar, SideItemsContainer } from "../../contents/SideItems";
 import MultiToCLayout from "../TableOfContents/MultiToCLayout";
-import PostsPagePostHeader from "./PostsPagePostHeader";
 import PostsPagePostFooter from "./PostsPagePostFooter";
 import PostBodyPrefix from "./PostBodyPrefix";
 import CommentPermalink from "../../comments/CommentPermalink";
-import ToCColumn from "../TableOfContents/ToCColumn";
 import WelcomeBox from "./WelcomeBox";
 import TableOfContents from "../TableOfContents/TableOfContents";
 import RSVPs from "./RSVPs";
@@ -53,8 +48,6 @@ import PostBody from "./PostBody";
 import { CommentOnSelectionContentWrapper } from "../../comments/CommentOnSelection";
 import PermanentRedirect from "../../common/PermanentRedirect";
 import DebateBody from "../../comments/DebateBody";
-import PostsPageRecommendationsList from "../../recommendations/PostsPageRecommendationsList";
-import PostSideRecommendations from "../../recommendations/PostSideRecommendations";
 import PostBottomRecommendations from "../../recommendations/PostBottomRecommendations";
 import { NotifyMeDropdownItem } from "../../dropdowns/NotifyMeDropdownItem";
 import Row from "../../common/Row";
@@ -63,9 +56,7 @@ import PostsPageQuestionContent from "../../questions/PostsPageQuestionContent";
 import AFUnreviewedCommentCount from "../../alignment-forum/AFUnreviewedCommentCount";
 import CommentsListSection from "../../comments/CommentsListSection";
 import CommentsTableOfContents from "../../comments/CommentsTableOfContents";
-import { MaybeStickyDigestAd } from "../../ea-forum/digestAd/StickyDigestAd";
 import AttributionInViewTracker from "../../common/AttributionInViewTracker";
-import ForumEventPostPagePollSection from "../../forumEvents/ForumEventPostPagePollSection";
 import NotifyMeButton from "../../notifications/NotifyMeButton";
 import LWTooltip from "../../common/LWTooltip";
 import PostsPageDate from "./PostsPageDate";
@@ -76,7 +67,6 @@ import FixedPositionToCHeading from '../TableOfContents/PostFixedPositionToCHead
 import { CENTRAL_COLUMN_WIDTH, MAX_COLUMN_WIDTH, RECOMBEE_RECOMM_ID_QUERY_PARAM, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES, RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES, RIGHT_COLUMN_WIDTH_XS, SHARE_POPUP_QUERY_PARAM, sidenotesHiddenBreakpoint } from './constants';
 import { getPostDescription, getStructuredData } from './structuredData';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { ReadingProgressBar } from './ReadingProgressBar';
 import { StructuredData } from '@/components/common/StructuredData';
 import { LWCommentCount } from '../TableOfContents/LWCommentCount';
 import { NetworkStatus } from "@apollo/client";
@@ -89,14 +79,12 @@ const HIDE_TOC_WORDCOUNT_LIMIT = 300
 const MAX_ANSWERS_AND_REPLIES_QUERIED = 10000
 const emptyArray: readonly any[] = [];
 
-const getRecommendationsPosition = (): "right" | "underPost" => "underPost";
-
 // Also used in PostsCompareRevisions
 export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   title: {
     marginBottom: 32,
     [theme.breakpoints.down('sm')]: {
-      marginBottom: theme.spacing.titleDividerSpacing,
+      marginBottom: 20,
     }
   },
   titleWithMarket: {
@@ -108,18 +96,8 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     marginLeft: 'auto',
     marginRight: 'auto',
     maxWidth: CENTRAL_COLUMN_WIDTH, // this necessary in both friendly and non-friendly UI to prevent Comment Permalinks from overflowing the page
-    ...(theme.isFriendlyUI && {
-      [theme.breakpoints.down('sm')]: {
-        // This can only be used when display: "block" is applied, otherwise the 100% confuses the
-        // grid layout into adding loads of left margin
-        maxWidth: `min(100%, ${CENTRAL_COLUMN_WIDTH}px)`,
-      }
-    }),
   },
   postBody: {
-    ...(theme.isFriendlyUI && {
-      width: "100%",
-    }),
   },
   audioPlayerHidden: {
     // Only show the play button next to headings if the audio player is visible
@@ -128,7 +106,6 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     },
   },
   postContent: {
-    marginBottom: theme.isFriendlyUI ? 40 : undefined
   },
   betweenPostAndComments: {
     minHeight: 24,
@@ -138,7 +115,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     margin: "0 auto 40px",
   },
   commentsSection: {
-    minHeight: hasPostRecommendations() ? undefined : 'calc(70vh - 100px)',
+    minHeight: 'calc(70vh - 100px)',
     [theme.breakpoints.down('sm')]: {
       paddingRight: 0,
       marginLeft: 0
@@ -146,7 +123,6 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
     background: theme.palette.background.pageActiveAreaBackground,
     position: "relative",
-    paddingTop: theme.isFriendlyUI ? 16 : undefined
   },
   noCommentsPlaceholder: {
     marginTop: 60,
@@ -218,7 +194,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     right: 0,
     bottom: 0,
     height: '100vh',
-    width: '100vw',
+    width: '100%',
     
     "@media print": {
       display: "none",
@@ -248,7 +224,7 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   },
   dateAtBottom: {
     color: theme.palette.text.dim3,
-    fontSize: theme.isFriendlyUI ? undefined : theme.typography.body2.fontSize,
+    fontSize: theme.typography.body2.fontSize,
     cursor: 'default'
   },
   reviewVoting: {
@@ -282,7 +258,8 @@ function usePostCommentTerms<T extends CommentsViewTerms>(currentUser: UsersCurr
 }
 
 
-const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
+const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}: {
+  sequenceIdFromUrl: string|null,
   refetch: () => void,
   embedded?: boolean,
 } & (
@@ -298,7 +275,6 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   const { openDialog } = useDialog();
   const { recordPostView } = useRecordPostView(post);
   const [highlightDate,setHighlightDate] = useState<Date|undefined|null>(post?.lastVisitedAt ? new Date(post.lastVisitedAt) : undefined);
-  const { currentForumEvent } = useCurrentAndRecentForumEvents();
 
   const { captureEvent } = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
@@ -331,15 +307,16 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   }, [post, showEmbeddedPlayer, captureEvent, setCookie]);
 
   const getSequenceId = () => {
-    return params.sequenceId || fullPost?.canonicalSequenceId || null;
+    return sequenceIdFromUrl || fullPost?.canonicalSequenceId || null;
   }
 
   // We don't want to show the splash header if the user is on a `/s/:sequenceId/p/:postId` route
   // We explicitly don't use `getSequenceId` because that also gets the post's canonical sequence ID,
   // and we don't want to hide the splash header for any post that _is_ part of a sequence, since that's many review winners
 
-  const isReviewWinner = ('reviewWinner' in post) && post.reviewWinner;
-  const showSplashPageHeader = isLWorAF() && !!isReviewWinner && !params.sequenceId;
+  const reviewWinner = fullPost?.reviewWinner;
+  const hasReviewWinnerArt = !!reviewWinner?.reviewWinnerArt?.splashArtImageUrl;
+  const showSplashPageHeader = hasReviewWinnerArt && !params.sequenceId;
 
   useEffect(() => {
     if (!query[SHARE_POPUP_QUERY_PARAM]) return;
@@ -452,17 +429,6 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   });
   const htmlWithAnchors = sectionData?.html || fullPost?.contents?.html || postPreload?.contents?.htmlHighlight || "";
 
-  const showRecommendations = hasPostRecommendations() &&
-    !currentUser?.hidePostsRecommendations &&
-    !post.shortform &&
-    !post.draft &&
-    !post.question &&
-    !post.debate &&
-    !post.isEvent &&
-    !sequenceId &&
-    (post.contents?.wordCount ?? 0) >= 500;
-  const recommendationsPosition = getRecommendationsPosition();
-
   const { linkedCommentId: globalLinkedCommentId } = useCommentLinkState();
   const linkedCommentId = globalLinkedCommentId || params.commentId
 
@@ -496,6 +462,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
       limit,
       enableTotal: false,
     },
+    itemsPerPage: 200,
     fetchPolicy: 'cache-and-network' as const,
   });
 
@@ -530,15 +497,12 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   // rewrite crossposting.
   const hasTableOfContents = !!sectionData && !isCrosspostedQuestion;
   const tableOfContents = hasTableOfContents
-    ? (isLWorAF()
-        ? <TableOfContents
-            sectionData={sectionData}
-            title={post.title}
-            heading={<FixedPositionToCHeading post={post}/>}
-            fixedPositionToc={true}
-          />
-        : <TableOfContents sectionData={sectionData} title={post.title} fixedPositionToc={false} />
-      )
+    ? <TableOfContents
+        sectionData={sectionData}
+        title={post.title}
+        heading={<FixedPositionToCHeading post={post}/>}
+        fixedPositionToc={true}
+      />
     : null;
 
   const hashCommentId = location.hash.length >= 1 ? location.hash.slice(1) : null;
@@ -584,7 +548,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
               className={classes.headerImage}
             />
           </div>}
-          {isBookUI() && <LWPostsPageHeader
+          <LWPostsPageHeader
             post={post}
             showEmbeddedPlayer={showEmbeddedPlayer}
             dialogueResponses={debateResponses}
@@ -592,14 +556,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
             annualReviewMarketInfo={marketInfo}
             showSplashPageHeader={showSplashPageHeader}
-            />}
-          {!isBookUI() && <PostsPagePostHeader
-            post={post}
-            answers={answers ?? []}
-            showEmbeddedPlayer={showEmbeddedPlayer}
-            toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-            dialogueResponses={debateResponses} 
-            annualReviewMarketInfo={marketInfo}/>}
+          />
           {(post._id === 'eKGdCNdKjvTBG9i6y') &&
             <FundraisingThermometer onPost />}
         </div>
@@ -607,21 +564,14 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
     </AnalyticsContext>
   </>;
 
-  const welcomeBox = (
+  const rightColumnChildren = <>
     <DeferRender ssr={false}>
       <div className={classes.welcomeBox}>
         <WelcomeBox />
       </div>
     </DeferRender>
-  );
-
-  const rightColumnChildren = (welcomeBox || hasSidenotes() || (showRecommendations && recommendationsPosition === "right")) && <>
-    {welcomeBox}
-    {showRecommendations && recommendationsPosition === "right" && fullPost && <PostSideRecommendations post={fullPost} />}
-    {hasSidenotes() && <>
-      <div className={classes.reserveSpaceForSidenotes}/>
-      <SideItemsSidebar/>
-    </>}
+    <div className={classes.reserveSpaceForSidenotes}/>
+    <SideItemsSidebar/>
   </>;
 
   const postsPageContext = useMemo(() => ({fullPost: fullPost ?? null, postPreload: postPreload ?? null}), [fullPost, postPreload]);
@@ -636,9 +586,6 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
   const userIsDialogueParticipant = currentUser && isDialogueParticipant(currentUser._id, post);
   const showSubscribeToDialogueButton = post.collabEditorDialogue && !userIsDialogueParticipant;
 
-  // Show poll if tagged with the tag of the current forum event
-  const showGlobalForumEventPoll = (currentForumEvent?.tagId ? (post?.tagRelevance?.[currentForumEvent.tagId] ?? 0) : 0) >= 1;
-
   // JB: postBodySection, betweenPostAndCommentsSection, and commentsSection are represented as variables here
   // to support the forum-gating below, because the comments-ToC changes the page structure wrt the ToC column
   // components. When the forum gating is removed, each of these variables should have only a single usage,
@@ -651,9 +598,8 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
       classes.postBody,
       !showEmbeddedPlayer && classes.audioPlayerHidden
     )}>
-      {isBookUI() && header}
+      {header}
       {/* Body */}
-      {fullPost && isEAForum() && <PostsAudioPlayerWrapper showEmbeddedPlayer={showEmbeddedPlayer} post={fullPost}/>}
       {fullPost && post.isEvent && fullPost.activateRSVPs &&  <RSVPs post={fullPost} />}
       {!post.debate && <ContentStyles
         contentType="post"
@@ -671,10 +617,10 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
                 isOldVersion={isOldVersion}
                 voteProps={voteProps}
               />
-              {post.isEvent && isBookUI() && <p className={classes.dateAtBottom}>Posted on: <PostsPageDate post={post} hasMajorRevision={false} /></p>
-              }
-              </>
-            }
+              {post.isEvent && <p className={classes.dateAtBottom}>
+                Posted on: <PostsPageDate post={post} hasMajorRevision={false} />
+              </p>}
+            </>}
           </div>
           </CommentOnSelectionContentWrapper>
           </HoveredReactionContextProvider>
@@ -694,7 +640,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
         </div>
       </Row>}
 
-      {post.isEvent && post.group && isBookUI() &&
+      {post.isEvent && post.group &&
           <Row justifyContent="center">
             <div className={classes.bottomOfPostSubscribe}>
               <LWTooltip title={<div>Subscribed users get emails for future events by<div>{post.group?.name}</div></div>} placement='bottom'>
@@ -717,26 +663,15 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
         />}
 
     </div>
-  const betweenPostAndCommentsSection =
-    <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
+
+  const betweenPostAndCommentsSection = <div className={classNames(classes.centralColumn, classes.betweenPostAndComments)}>
+    <Suspense>
       {reviewIsActive() && postEligibleForReview(post) && getReviewPhase() !== "RESULTS" && <div className={classes.reviewVoting}>
         <PostPageReviewButton post={post} />
       </div>}
       <PostsPagePostFooter post={post} sequenceId={sequenceId} />
-      {showGlobalForumEventPoll && <DeferRender ssr={false}>
-        <ForumEventPostPagePollSection postId={post._id} />
-      </DeferRender>}
-  
-      {showRecommendations && recommendationsPosition === "underPost" &&
-        <AnalyticsContext pageSectionContext="postBottomRecommendations">
-          <div className={classes.recommendations}>
-            <PostsPageRecommendationsList
-              strategy="tagWeightedCollabFilter"
-            />
-          </div>
-        </AnalyticsContext>
-      }
-    </div>
+    </Suspense>
+  </div>
 
   const commentsSection =
     <AnalyticsInViewTracker eventProps={{inViewType: "commentsSection"}}>
@@ -751,6 +686,7 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
         {/* Comments Section */}
         <div className={classes.commentsSection}>
           <AnalyticsContext pageSectionContext="commentsSection">
+          <Suspense>
             {fullPost && <CommentsListSection
               comments={comments ?? []}
               loadMoreComments={loadMore}
@@ -764,13 +700,8 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
               setHighlightDate={setHighlightDate}
             />}
             {isAF() && <AFUnreviewedCommentCount post={post}/>}
+          </Suspense>
           </AnalyticsContext>
-          {isFriendlyUI() && Math.max(post.commentCount, comments?.length ?? 0) < 1 &&
-            <div className={classes.noCommentsPlaceholder}>
-              <div>No comments on this post yet.</div>
-              <div>Be the first to respond.</div>
-            </div>
-          }
         </div>
       </AttributionInViewTracker>
     </AnalyticsInViewTracker>
@@ -790,52 +721,34 @@ const PostsPage = ({fullPost, postPreload, refetch, embedded}: {
     <SideItemsContainer>
     <ImageProvider>
     <SideItemVisibilityContextProvider post={fullPost}>
-    <ReadingProgressBar post={post}/>
     {splashHeaderImage}
-    {commentsTableOfContentsEnabled()
-      ? <MultiToCLayout
-          segments={[
-            {
-              toc: (post.contents?.wordCount || 0) > HIDE_TOC_WORDCOUNT_LIMIT && tableOfContents,
-              centralColumn: postBodySection,
-              rightColumn: rightColumnChildren
-            },
-            {centralColumn: betweenPostAndCommentsSection},
-            {
-              toc: commentsToC,
-              centralColumn: commentsSection,
-              isCommentToC: true
-            },
-            {
-              centralColumn: <PostBottomRecommendations post={post} hasTableOfContents={hasTableOfContents} />
-            }
-          ]}
-          tocRowMap={[0, 0, 2, 2]}
-          showSplashPageHeader={showSplashPageHeader}
-          sharedToCFooter={<LWCommentCount
-            answerCount={answerCount}
-            commentCount={displayedPublicCommentCount}
-          />}
-          embedded={embedded}
-        />
-      : <ToCColumn
-          tableOfContents={tableOfContents}
-          header={header}
-          rightColumnChildren={rightColumnChildren}
-        >
-          {postBodySection}
-          {betweenPostAndCommentsSection}
-          {commentsSection}
-        </ToCColumn>
-    }
-  
-    {isEAForum() && <DeferRender ssr={false}><MaybeStickyDigestAd post={post} /></DeferRender>}
-    {hasPostRecommendations() && fullPost && <AnalyticsInViewTracker eventProps={{inViewType: "postPageFooterRecommendations"}}>
-      <PostBottomRecommendations
-        post={post}
-        hasTableOfContents={hasTableOfContents}
-      />
-    </AnalyticsInViewTracker>}
+    <MultiToCLayout
+      segments={[
+        {
+          toc: (post.contents?.wordCount || 0) > HIDE_TOC_WORDCOUNT_LIMIT && tableOfContents,
+          centralColumn: postBodySection,
+          rightColumn: rightColumnChildren
+        },
+        {centralColumn: betweenPostAndCommentsSection},
+        {
+          toc: commentsToC,
+          centralColumn: commentsSection,
+          isCommentToC: true
+        },
+        {
+          centralColumn: <Suspense>
+            <PostBottomRecommendations post={post} hasTableOfContents={hasTableOfContents} />
+          </Suspense>
+        }
+      ]}
+      tocRowMap={[0, 0, 2, 2]}
+      showSplashPageHeader={showSplashPageHeader}
+      sharedToCFooter={<LWCommentCount
+        answerCount={answerCount}
+        commentCount={totalComments}
+      />}
+      embedded={embedded}
+    />
     </SideItemVisibilityContextProvider>
     </ImageProvider>
     </SideItemsContainer>

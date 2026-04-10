@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import classNames from 'classnames';
@@ -10,7 +9,6 @@ import { useQuery } from "@/lib/crud/useQuery"
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { gql } from "@/lib/generated/gql-codegen";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
@@ -20,6 +18,8 @@ import LoadMore from "../common/LoadMore";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 import LWTooltip from "../common/LWTooltip";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
   query multiRevisionTagVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -44,7 +44,7 @@ const RevisionDisplayQuery = gql(`
 
 const LEFT_COLUMN_WIDTH = 160
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagVersionHistoryButton", (theme: ThemeType) => ({
   root: {
     width: CENTRAL_COLUMN_WIDTH + LEFT_COLUMN_WIDTH + 64, //should import post
     display: "flex",
@@ -82,12 +82,12 @@ const styles = (theme: ThemeType) => ({
   loadMore: {
     paddingLeft: 12
   }
-});
+}));
 
-const TagVersionHistoryButton = ({tagId, classes}: {
+const TagVersionHistoryButton = ({tagId}: {
   tagId: string,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
   const { captureEvent } = useTracking()
 
@@ -99,20 +99,19 @@ const TagVersionHistoryButton = ({tagId, classes}: {
         contents: ({onClose}) => <TagVersionHistory
           onClose={onClose}
           tagId={tagId}
-          classes={classes}
         />
       })
     }}
   >
-    {preferredHeadingCase('Revert To Previous Version')}
+    Revert To Previous Version
   </Button>
 }
 
-const TagVersionHistory = ({tagId, onClose, classes}: {
+const TagVersionHistory = ({tagId, onClose}: {
   tagId: string,
   onClose: () => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [selectedRevisionId,setSelectedRevisionId] = useState<string|null>(null);
   const [revertInProgress,setRevertInProgress] = useState(false);
@@ -202,6 +201,6 @@ const TagVersionHistory = ({tagId, onClose, classes}: {
   </LWDialog>
 }
 
-export default registerComponent("TagVersionHistoryButton", TagVersionHistoryButton, {styles});
+export default TagVersionHistoryButton;
 
 

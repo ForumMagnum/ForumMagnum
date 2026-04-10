@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { useCurrentUser } from "../common/withUser";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
@@ -49,7 +48,7 @@ const styles = defineStyles("AutocompleteModelSettings", (theme: ThemeType) => (
     ...theme.typography.commentStyle,
   },
   section: {
-    marginBottom: theme.spacing.unit * 4,
+    marginBottom: 32,
   },
   list: {
     listStyle: "none",
@@ -61,31 +60,31 @@ const styles = defineStyles("AutocompleteModelSettings", (theme: ThemeType) => (
     position: "relative",
   },
   checkbox: {
-    padding: theme.spacing.unit,
+    padding: 8,
     alignSelf: "center",
   },
   content: {
-    marginLeft: theme.spacing.unit * 2,
+    marginLeft: 16,
     flex: 1,
     width: "400px",
   },
   button: {
-    marginTop: theme.spacing.unit * 2,
+    marginTop: 16,
   },
   progressBarSection: {
     position: "sticky",
     top: 0,
     zIndex: 5,
-    padding: theme.spacing.unit,
+    padding: 8,
     backdropFilter: "blur(5px)",
     mask: `linear-gradient(${theme.palette.text.alwaysBlack} 75%, ${theme.palette.background.transparent})`,
   },
   progressBar: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit,
+    marginTop: 16,
+    marginBottom: 8,
   },
   progressLabel: {
-    marginTop: theme.spacing.unit,
+    marginTop: 8,
     textAlign: "center",
   },
   singleLineCommentWrapper: {
@@ -109,7 +108,7 @@ const styles = defineStyles("AutocompleteModelSettings", (theme: ThemeType) => (
     },
   },
   authorSection: {
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: 16,
     border: `1px solid ${theme.palette.grey[300]}`,
     borderRadius: 4,
   },
@@ -117,28 +116,28 @@ const styles = defineStyles("AutocompleteModelSettings", (theme: ThemeType) => (
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: theme.spacing.unit,
+    padding: 8,
     backgroundColor: theme.palette.grey[100],
     cursor: "pointer",
   },
   authorContent: {
-    padding: theme.spacing.unit * 2,
+    padding: 16,
   },
   sliderContainer: {
-    marginBottom: theme.spacing.unit * 2,
+    marginBottom: 16,
   },
   sliderLabel: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   postItem: {
     display: "flex",
     alignItems: "center",
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   tokenCount: {
     display: "flex",
     justifyContent: "space-between",
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
 }));
 
@@ -163,7 +162,6 @@ type SelectableListProps<T> = {
   onToggle: (newSelectedItems: Record<string, boolean>) => void;
   onSelectAll: (items: T[], currentIndex: number) => void;
   ItemComponent: React.ComponentType<{ item: T }>;
-  classes: Record<string, string>;
 };
 
 const SelectableList = ({
@@ -172,8 +170,8 @@ const SelectableList = ({
   onToggle,
   onSelectAll,
   ItemComponent,
-  classes,
 }: SelectableListProps<PostsList | CommentsList>) => {
+  const classes = useStyles(styles);
   return (
     <div className={classes.list}>
       {items.map((item, i) => (
@@ -208,7 +206,6 @@ type AuthorSectionProps = {
   selectedItems: Record<string, boolean>;
   onToggle: (newSelectedItems: Record<string, boolean>) => void;
   onSelectAll: (items: any[], currentIndex: number) => void;
-  classes: Record<string, string>;
 };
 
 const calculateTokens = (
@@ -270,8 +267,8 @@ const AuthorSection = ({
   selectedItems,
   onToggle,
   onSelectAll,
-  classes,
 }: AuthorSectionProps) => {
+  const classes = useStyles(styles);
   const [expanded, setExpanded] = useState(false);
 
   const postsTokens = useMemo(
@@ -344,7 +341,6 @@ const AuthorSection = ({
             onToggle={onToggle}
             onSelectAll={onSelectAll}
             ItemComponent={({ item }) => <PostsItem post={item as PostsListWithVotes} />}
-            classes={classes}
           />
           <SelectableList
             items={authorContent[author.userId]?.comments ?? []}
@@ -357,7 +353,6 @@ const AuthorSection = ({
                 comment={item as CommentsList}
               />
             )}
-            classes={classes}
           />
         </div>
       )}
@@ -479,7 +474,6 @@ const AutocompleteModelSettingsInner = () => {
                 selectedItems={selectedItems}
                 onToggle={setSelectedItems}
                 onSelectAll={handleSelectAll}
-                classes={classes}
               />
             ))}
           </div>
@@ -492,7 +486,6 @@ const AutocompleteModelSettingsInner = () => {
               onToggle={setSelectedItems}
               onSelectAll={handleSelectAll}
               ItemComponent={({ item }) => <PostsItem post={item as PostsListWithVotes} />}
-              classes={classes}
             />
             <LoadMore {...postsLoadMoreProps} />
           </div>
@@ -510,7 +503,6 @@ const AutocompleteModelSettingsInner = () => {
                   comment={item as CommentsList}
                 />
               )}
-              classes={classes}
             />
             <LoadMore {...commentsLoadMoreProps} />
           </div>

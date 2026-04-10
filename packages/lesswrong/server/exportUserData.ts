@@ -26,17 +26,13 @@ import { writeFile } from "fs/promises";
 import CkEditorUserSessions from "@/server/collections/ckEditorUserSessions/collection";
 import CurationEmails from "@/server/collections/curationEmails/collection";
 import DialogueChecks from "@/server/collections/dialogueChecks/collection";
-import ElectionVotes from "@/server/collections/electionVotes/collection";
 import ElicitQuestionPredictions from "@/server/collections/elicitQuestionPredictions/collection";
-import GardenCodes from "@/server/collections/gardencodes/collection";
 import GoogleServiceAccountSessions from "@/server/collections/googleServiceAccountSessions/collection";
 import { LWEvents } from "@/server/collections/lwevents/collection.ts";
 import PostRecommendations from "@/server/collections/postRecommendations/collection";
 import RecommendationsCaches from "@/server/collections/recommendationsCaches/collection";
 import ReviewVotes from "@/server/collections/reviewVotes/collection";
 import TypingIndicators from "@/server/collections/typingIndicators/collection";
-import UserEAGDetails from "@/server/collections/userEAGDetails/collection";
-import UserJobAds from "@/server/collections/userJobAds/collection";
 import { UserRateLimits } from "@/server/collections/userRateLimits/collection.ts";
 import { createAnonymousContext } from "./vulcan-lib/createContexts";
 
@@ -75,16 +71,12 @@ export const exportUserData = async (
     [Conversations, Conversations.find({participantIds: userId})],
     [CurationEmails, CurationEmails.find({userId})],
     [DialogueChecks, DialogueChecks.find({userId})],
-    [GardenCodes, GardenCodes.find({userId})],
     [GoogleServiceAccountSessions, GoogleServiceAccountSessions.find({email})],
-    [ElectionVotes, ElectionVotes.find({userId})],
     [ElicitQuestionPredictions, ElicitQuestionPredictions.find({userId})],
     [PostRecommendations, PostRecommendations.find({userId})],
     [RecommendationsCaches, RecommendationsCaches.find({userId})],
     [ReviewVotes, ReviewVotes.find({userId})],
     [TypingIndicators, TypingIndicators.find({userId})],
-    [UserEAGDetails, UserEAGDetails.find({userId})],
-    [UserJobAds, UserJobAds.find({userId})],
     [UserRateLimits, UserRateLimits.find({userId})],
     [LWEvents, LWEvents.find({userId})],
     [Localgroups, Localgroups.find({organizerIds: userId})],

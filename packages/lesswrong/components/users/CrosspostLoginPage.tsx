@@ -1,20 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { useCurrentUser } from "../common/withUser";
-import { forumHeaderTitleSetting, hasProminentLogoSetting } from '@/lib/instanceSettings';
+import { forumHeaderTitleSetting } from '@/lib/instanceSettings';
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
-import { isE2E } from "@/lib/executionEnvironment";
 import { useLocation } from "@/lib/routeUtil";
 import LoginForm from "./LoginForm";
-import SiteLogo from "../ea-forum/SiteLogo";
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CrosspostLoginPage", (theme: ThemeType) => ({
   root: {
     display: "flex",
     flexDirection: "column",
@@ -37,11 +36,10 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.error.main,
     marginTop: 16,
   },
-});
+}));
 
-const CrosspostLoginPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const CrosspostLoginPage = () => {
+  const classes = useStyles(styles);
   const [connectCrossposter, loading] = useMutation(gql(`
     mutation connectCrossposter($token: String) {
       connectCrossposter(token: $token)
@@ -70,7 +68,6 @@ const CrosspostLoginPage = ({classes}: {
   return (
     <div className={classes.root}>
       <div className={classes.heading}>
-        {hasProminentLogoSetting.get() && <SiteLogo />}
         <Typography variant="title" className={classes.headingText}>
           {forumHeaderTitleSetting.get()}
         </Typography>
@@ -97,13 +94,13 @@ const CrosspostLoginPage = ({classes}: {
           </>
         )
         : (
-          <LoginForm immediateRedirect={!isE2E} />
+          <LoginForm />
         )
       }
     </div>
   );
 }
 
-export default registerComponent("CrosspostLoginPage", CrosspostLoginPage, {styles});
+export default CrosspostLoginPage;
 
 

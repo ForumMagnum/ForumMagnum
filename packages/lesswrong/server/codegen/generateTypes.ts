@@ -12,6 +12,7 @@ import { DefinitionNode, DocumentNode, FragmentDefinitionNode, Kind, print, visi
 import graphqlCodegenConfig from '@/../../codegen.ts';
 import { generateRouteManifest } from '../scripts/generateRouteManifest';
 import { writeIfChanged } from './typeGenerationUtils';
+import { doJsonCSE } from './commonSubexpressionEliminateJson';
 
 export async function generateTypes(repoRoot?: string) {
   const generatedFilesDir = (repoRoot ?? ".") + "/packages/lesswrong/lib/generated";
@@ -78,11 +79,11 @@ async function generateGraphQLCodegenTypes(): Promise<void> {
   //
   // We could hoist this to `generateTypes` to re-use the list of files in `generateFragmentTypes`,
   // but the scanning is ~100ms and doesn't seem worth it.
-  const filesContainingGql = getFilesMaybeContainingGql("packages/lesswrong");
-  const otherFilesContainingGql = getFilesMaybeContainingGql("app");
+  const filesContainingGql = getFilesMaybeContainingGql(["packages/lesswrong", "app"]);
   const modifiedConfig = {
     ...graphqlCodegenConfig,
-    documents: [...filesContainingGql, ...otherFilesContainingGql],
+    silent: true,
+    documents: filesContainingGql.map(path => escapePathForGraphqlCodegenConfig(path)),
   };
   
   // Generate files, which land in tempPath
@@ -97,6 +98,9 @@ async function generateGraphQLCodegenTypes(): Promise<void> {
     if (outputPath === "./packages/lesswrong/lib/generated/gql-codegen/graphql.ts") {
       outputContent = normalizeFragments(fileOutput.filename);
     }
+    if (outputPath === "./packages/lesswrong/lib/generated/gql-codegen/gql.ts") {
+      outputContent = hardenGeneratedGqlFallback(outputContent);
+    }
     outputContent = outputContent.replace("InputMaybe<T> = Maybe<T>", "InputMaybe<T> = T | null | undefined");
 
     if (outputPath === "./packages/lesswrong/lib/generated/gql-codegen/graphqlCodegenTypes.d.ts") {
@@ -110,12 +114,77 @@ async function generateGraphQLCodegenTypes(): Promise<void> {
   }
 }
 
+function hardenGeneratedGqlFallback(outputContent: string): string {
+  if (!outputContent.includes("export function gql(source: string) {")) {
+    return outputContent;
+  }
+
+  const fallbackCacheDeclarations = `const parsedDocumentCache = new Map<string, unknown>();
+let hasWarnedAboutUnknownDocument = false;`;
+  const unknownOverloadSignature = "export function gql(source: string): unknown;";
+
+  let transformedOutput = outputContent;
+  if (!transformedOutput.includes("import gqlTag from 'graphql-tag';")) {
+    transformedOutput = transformedOutput.replace(
+      /import\s+\{\s*TypedDocumentNode as DocumentNode\s*\}\s+from\s+['"]@graphql-typed-document-node\/core['"];?/,
+      "$&\nimport gqlTag from 'graphql-tag';",
+    );
+  }
+  if (
+    transformedOutput.includes(unknownOverloadSignature) &&
+    !transformedOutput.includes("const parsedDocumentCache = new Map<string, unknown>();")
+  ) {
+    transformedOutput = transformedOutput.replace(
+      unknownOverloadSignature,
+      `${fallbackCacheDeclarations}\n\n${unknownOverloadSignature}`,
+    );
+  }
+
+  transformedOutput = transformedOutput.replace(
+    "export function gql(source: string) {\n  return (documents as any)[source] ?? {};\n}",
+    `export function gql(source: string) {
+  const knownDocument = (documents as Record<string, unknown>)[source];
+  if (knownDocument) {
+    return knownDocument;
+  }
+
+  if (!hasWarnedAboutUnknownDocument && process.env.NODE_ENV !== 'production') {
+    hasWarnedAboutUnknownDocument = true;
+    // eslint-disable-next-line no-console
+    console.warn("Unknown GraphQL document string encountered. Types may be stale; run 'yarn generate'.");
+  }
+
+  let parsedDocument = parsedDocumentCache.get(source);
+  if (!parsedDocument) {
+    parsedDocument = gqlTag(source);
+    parsedDocumentCache.set(source, parsedDocument);
+  }
+  return parsedDocument;
+}`,
+  );
+
+  return transformedOutput;
+}
+
+function escapePathForGraphqlCodegenConfig(path: string) {
+  // We give the graphql-codegen library an exact list of files we want it to look at,
+  // because we have pre-filtered with a search for performance, but the graphql-codegen
+  // config slot that we're putting the paths into takes glob expressions and will get
+  // confused by directory names containing parentheses (ie, nextjs route groups). Work
+  // around this by replacing the parentheses with '*'.
+  if (path.includes('(') || path.includes(')')) {
+    const escaped = path.replace(/(\(|\))/g, '*');
+    return escaped;
+  }
+  return path;
+}
+
 function fileMightIncludeGql(filePath: string) {
   const content = fs.readFileSync(filePath, 'utf-8').toLowerCase();
   return content.includes('gql`') || content.includes('gql(');
 }
 
-function getFilesMaybeContainingGql(dir: string) {
+function getFilesMaybeContainingGql(roots: string|string[]) {
   const files: string[] = [];
   
   function traverse(currentDir: string) {
@@ -139,14 +208,20 @@ function getFilesMaybeContainingGql(dir: string) {
     }
   }
   
-  traverse(dir);
+  if (Array.isArray(roots)) {
+    for (const root of roots) {
+      traverse(root);
+    }
+  } else {
+    traverse(roots);
+  }
   // These two files contain dynamically concatenated gql strings, which graphql-codegen isn't a fan of.
   // Filtering them out is fine as long as we don't define any gql types/operations in them which we need to be codegen'd.
   return files.filter(f => !f.endsWith('paginatedResolver.ts') && !f.endsWith('votingGraphQL.ts'));;
 }
 
 function normalizeFragments(inputPath: string) {
-  const generatedGraphqlFilePath = require.resolve(inputPath);
+  /*const generatedGraphqlFilePath = require.resolve(inputPath);
   require.cache[generatedGraphqlFilePath] = undefined;
   
   // eslint-disable-next-line import/no-dynamic-require
@@ -202,7 +277,53 @@ function normalizeFragments(inputPath: string) {
     fragmentDependencies,
     importsAndTypes,
     originalContent
-  );
+  );*/
+  
+  // The generated graphql produced by @graphql-codegen includes parse trees
+  // for every graphql fragment and query, in the form of lines that look like:
+  //     export const ExampleQueryNameDocument = <parsetree> as unknown as <type>
+  // Where <parsetree> is a JSON object and <type> is a typescript type. These
+  // are extremely large (graphql.ts is 22MB) and very. In order to reduce this
+  // file to a reasonable size, we identify lines that match this pattern and do
+  // common subexpression elimination.
+  const lines = fs.readFileSync(inputPath, "utf-8").split("\n");
+  
+  const cseRegex = /^export const \w*\s*=\s*(.*) as unknown as [a-zA-Z0-9<>, ]*;$/;
+  const jsonBlobs: any[] = [];
+  for (const line of lines) {
+    const match = cseRegex.exec(line);
+    if (match) {
+      const [_,json] = match;
+      try {
+        const parsedJson = JSON.parse(json);
+        if (parsedJson) {
+          jsonBlobs.push(parsedJson);
+        }
+      } catch {
+        // Not JSON
+      }
+    }
+  }
+  
+  const {definitions, replacements} = doJsonCSE(jsonBlobs);
+
+  const transformedLines: string[] = [];
+  for (const line of lines) {
+    const match = cseRegex.exec(line);
+    if (match) {
+      const [_,json] = match;
+      const replacement = replacements[json];
+      if (replacement)
+        transformedLines.push(line.replace(json, replacement));
+      else
+        transformedLines.push(line);
+    } else {
+      transformedLines.push(line);
+    }
+  }
+
+  return definitions.join("\n")
+    + "\n" + transformedLines.join("\n")
 }
 
 function isDocumentNode(obj: any): obj is DocumentNode {

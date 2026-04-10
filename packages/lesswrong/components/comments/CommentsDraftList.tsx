@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Typography } from '../common/Typography';
 import Loading from '../vulcan-core/Loading';
 import LoadMore from '../common/LoadMore';
@@ -11,6 +10,8 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from '../hooks/useQueryWithLoadMore';
 import SectionTitle from '../common/SectionTitle';
 import { DraftCommentsQuery } from './queries';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const LinkedDraftCommentQuery = gql(`
   query LinkedDraftCommentQuery($documentId: String!) {
@@ -22,7 +23,7 @@ const LinkedDraftCommentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentsDraftList', (theme: ThemeType) => ({
   heading: {
     display: 'flex',
     marginBottom: 8,
@@ -38,19 +39,22 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 8,
     color: theme.palette.text.dim4,
   }
-});
+}), { stylePriority: 1 });
 
-const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTotal, silentIfEmpty, sectionTitleStyle, classes}: {
+const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTotal, silentIfEmpty, sectionTitleStyle, title, quickTakesOnly}: {
   userId: string,
   postId?: string,
   initialLimit?: number,
   itemsPerPage?: number,
   showTotal?: boolean,
   silentIfEmpty?: boolean,
-  sectionTitleStyle?: boolean
-  classes: ClassesType<typeof styles>,
+  sectionTitleStyle?: boolean,
+  title?: string,
+  quickTakesOnly?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const { linkedCommentId } = useCommentLinkState();
+  const sectionTitle = title ?? (quickTakesOnly ? "Quick Take drafts" : "Draft comments");
 
   // Usually, there will be no linked comment (`?commentId=...` in the url), and the rawResults below
   // will be displayed directly. If there is a linked comment, bump it to the top of the list so
@@ -70,6 +74,7 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
         draftComments: {
           userId,
           postId,
+          shortform: quickTakesOnly ? true : undefined,
           drafts: "drafts-only",  
         },
       },
@@ -86,6 +91,7 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
   const results = ([linkedComment, ...(rawResults ?? [])]
     .filter(v => !!v)
     .filter(v => v.draft))
+    .filter(comment => !quickTakesOnly || comment.shortform)
     .reduce<DraftComments[]>((acc, comment) => {
       if (!acc.some(existingComment => existingComment._id === comment?._id)) {
         acc.push(comment);
@@ -103,8 +109,8 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
 
   return <AnalyticsContext pageElementContext="commentsDraftList">
     {(!silentIfEmpty || !!results?.length) && (sectionTitleStyle
-      ? <SectionTitle titleClassName={classes.sectionTitle} title='Draft comments'/>
-      : <Typography variant="headline" className={classes.heading}>Draft comments</Typography>
+      ? <SectionTitle titleClassName={classes.sectionTitle} title={sectionTitle}/>
+      : <Typography variant="headline" className={classes.heading}>{sectionTitle}</Typography>
     )}
     {(!silentIfEmpty && !loading && results?.length === 0) && (
       <Typography variant="body2" className={classes.noResults}>
@@ -119,10 +125,11 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
         noAutoScroll={!!(postId && comment.parentCommentId)}
         treeOptions={{
           ...COMMENT_DRAFT_TREE_OPTIONS,
-          singleLinePostTitle: !postId,
-          showPostTitle: !postId,
+          singleLinePostTitle: !postId && !quickTakesOnly,
+          showPostTitle: !postId && !quickTakesOnly,
           post: comment.post || undefined,
-          showEditInContext: !postId,
+          showEditInContext: !postId && !quickTakesOnly,
+          redirectAfterEditSubmit: !!quickTakesOnly,
           // noAutoScroll isn't sufficient to prevent scrolling by itself, probably because there's multiple things that can cause scrolls
           // and clicking on a link with a hash in it might be sufficient by itself.
           noDOMId: true,
@@ -138,8 +145,4 @@ const CommentsDraftList = ({userId, postId, initialLimit, itemsPerPage, showTota
   </AnalyticsContext>;
 }
 
-export default registerComponent(
-  'CommentsDraftList',
-  CommentsDraftList,
-  {styles, stylePriority: 1},
-);
+export default CommentsDraftList;

@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Card } from "@/components/widgets/Paper";
 import { useCurrentUser } from '../common/withUser';
 import { forumTitleSetting } from '../../lib/instanceSettings';
@@ -11,6 +10,8 @@ import LWTooltip from "../common/LWTooltip";
 import ReviewPostButton from "./ReviewPostButton";
 import { useCurrentUserReviewVote } from '../hooks/useCurrentUserReviewVote';
 import Loading from '../vulcan-core/Loading';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const voteTextStyling = (theme: ThemeType) => ({
   ...theme.typography.smallText,
@@ -19,7 +20,7 @@ export const voteTextStyling = (theme: ThemeType) => ({
   width: 40,
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsItemReviewVote', (theme: ThemeType) => ({
   buttonWrapper: {
     cursor: "pointer",
     ...voteTextStyling(theme)
@@ -66,7 +67,7 @@ const styles = (theme: ThemeType) => ({
     display: "inline-block"
   },
   card: {
-    padding: theme.isFriendlyUI ? "8px 24px" : 8,
+    padding: 8,
     textAlign: "center",
   },
   reviewButton: {
@@ -78,13 +79,13 @@ const styles = (theme: ThemeType) => ({
   marginRight: {
     marginLeft: 10
   }
-})
+}))
 
-const PostsItemReviewVote = ({classes, post, marginRight=true}: {
-  classes: ClassesType<typeof styles>,
+const PostsItemReviewVote = ({post, marginRight=true}: {
   post: PostsListBase,
   marginRight?: boolean
 }) => {
+  const classes = useStyles(styles);
   const [anchorEl, setAnchorEl] = useState<any>(null)
 
   const currentUser = useCurrentUser()
@@ -128,6 +129,6 @@ const PostsItemReviewVote = ({classes, post, marginRight=true}: {
   </div>
 }
 
-export default registerComponent('PostsItemReviewVote', PostsItemReviewVote, {styles});
+export default PostsItemReviewVote
 
 

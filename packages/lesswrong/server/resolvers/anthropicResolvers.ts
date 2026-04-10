@@ -104,9 +104,9 @@ const ContextSelectionParameters = z.object({
   strategy_choice: z.union([z.literal('none'), z.literal('query-based'), z.literal('current-post-only'), z.literal('current-post-and-search'), z.literal('both')]).describe(contextSelectionChoiceDescriptions)
 });
 
-export const getContextSelectionResponseFormat = createSingleton(() => {
-  const { zodResponseFormat }: typeof import("openai/helpers/zod") = require("openai/helpers/zod");
-  return zodResponseFormat(ContextSelectionParameters, 'contextLoadingStrategy')
+export const getContextSelectionTextFormat = createSingleton(() => {
+  const { zodTextFormat }: typeof import("openai/helpers/zod") = require("openai/helpers/zod");
+  return zodTextFormat(ContextSelectionParameters, 'contextLoadingStrategy')
 });
 
 async function getQueryContextDecision(args: BasePromptArgs): Promise<RagContextType> {
@@ -115,21 +115,19 @@ async function getQueryContextDecision(args: BasePromptArgs): Promise<RagContext
     return 'error';
   }
 
-  // TODO: come back to this when haiku 3.5 is out to replace it, maybe
-  const toolUseResponse = await openai.beta.chat.completions.parse({
+  const response = await openai.responses.parse({
     model: 'gpt-4o-mini-2024-07-18',
-    messages: [
-      { role: 'system', content: CONTEXT_SELECTION_SYSTEM_PROMPT },
+    instructions: CONTEXT_SELECTION_SYSTEM_PROMPT,
+    input: [
       { role: 'user', content: generateContextSelectionPrompt(args) }
     ],
-    // tools: [contextSelectionTool],
-    response_format: getContextSelectionResponseFormat()
+    text: { format: getContextSelectionTextFormat() },
   });
 
-  const parsedResponse = toolUseResponse.choices[0].message.parsed;
+  const parsedResponse = response.output_parsed;
   if (!parsedResponse) {
     // eslint-disable-next-line no-console
-    console.log('Context selection response seems to be missing tool use arguments', { toolUseResponse: JSON.stringify(toolUseResponse, null, 2) });
+    console.log('Context selection response seems to be missing parsed output', { response: JSON.stringify(response, null, 2) });
     return 'error';
   }
 

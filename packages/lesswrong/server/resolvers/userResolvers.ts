@@ -3,7 +3,7 @@ import pick from 'lodash/pick';
 import SimpleSchema from '@/lib/utils/simpleSchema';
 import { getUserEmail, userCanEditUser } from "../../lib/collections/users/helpers";
 import { isEAForum, airtableApiKeySetting } from '../../lib/instanceSettings';
-import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
+import { userIsAdmin, userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
 import Users from '../../server/collections/users/collection';
 import { userFindOneByEmail } from "../commonQueries";
 import UsersRepo from '../repos/UsersRepo';
@@ -13,6 +13,7 @@ import gql from 'graphql-tag';
 import { updateUser } from '../collections/users/mutations';
 import { accessFilterSingle } from '@/lib/utils/schemaUtils';
 import { backgroundTask } from '../utils/backgroundTask';
+import { invalidateLoginTokensFor } from '../vulcan-lib/apollo-server/authentication';
 
 type NewUserUpdates = {
   username: string
@@ -86,7 +87,6 @@ export const graphqlTypeDefs = gql`
     username: String,
     slug: String,
     displayName: String,
-    subscribedToDigest: Boolean,
     usernameUnset: Boolean
   }
   type UserCoreTagReads {
@@ -94,10 +94,12 @@ export const graphqlTypeDefs = gql`
     userReadCount: Int!
   }
 
-  extend type Mutation{
+  extend type Mutation {
     NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile
     UserExpandFrontpageSection(section: String!, expanded: Boolean!): Boolean
     UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User
+    karmaChangesChecked(startDate: Date, endDate: Date): Boolean!
+    SoftDeleteUser(userId: String!): Boolean!
   }
 
   extend type Query {
@@ -162,7 +164,6 @@ export const graphqlMutations = {
         displayName: username,
         slug: await getUnusedSlugByCollectionName("Users", slugify(username)),
         ...(email ? { email } : {}),
-        subscribedToDigest: subscribeToDigest,
         acceptedTos,
       }, selector: { _id: currentUser._id }
     }, context);
@@ -199,6 +200,77 @@ export const graphqlMutations = {
     }, context)
     
     return updatedUser
+  },
+  async karmaChangesChecked(
+    _root: void,
+    {startDate, endDate}: {startDate?: Date | null, endDate?: Date | null},
+    {currentUser, repos}: ResolverContext,
+  ) {
+    if (!currentUser) {
+      throw new Error("You must login to do this");
+    }
+
+    await repos.users.markKarmaChangesChecked(currentUser._id, startDate, endDate);
+    return true;
+  },
+  async SoftDeleteUser(_root: void, { userId }: { userId: string }, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!userIsAdmin(currentUser)) {
+      throw new Error("Only admins can soft-delete users");
+    }
+    const targetUser = await Users.findOne({ _id: userId });
+    if (!targetUser) {
+      throw new Error(`User not found: ${userId}`);
+    }
+    if (targetUser._id === currentUser._id) {
+      throw new Error("Cannot soft-delete your own account");
+    }
+    const dateStr = new Date().toISOString().replace(/[:.]/g, "-");
+    const deletedLabel = `deleted-${dateStr}`;
+    const deletedSlug = await getUnusedSlugByCollectionName("Users", slugify(deletedLabel));
+    await updateUser({
+      selector: { _id: userId },
+      data: {
+        username: deletedLabel,
+        displayName: deletedLabel,
+        slug: deletedSlug,
+        email: `${deletedLabel}@deleted.invalid`,
+        emails: [],
+        services: {},
+        biography: null,
+        biography_latest: null,
+        deleted: true,
+        fullName: null,
+        previousDisplayName: null,
+        profile: null,
+        profileImageId: null,
+        googleLocation: null,
+        mongoLocation: null,
+        location: null,
+        mapLocation: null,
+        mapLocationSet: false,
+        mapMarkerText: null,
+        htmlMapMarkerText: null,
+        nearbyEventsNotificationsLocation: null,
+        nearbyEventsNotificationsMongoLocation: null,
+        website: null,
+        linkedinProfileURL: null,
+        facebookProfileURL: null,
+        blueskyProfileURL: null,
+        twitterProfileURL: null,
+        twitterProfileURLAdmin: null,
+        githubProfileURL: null,
+        paymentEmail: null,
+        paymentInfo: null,
+        jobTitle: null,
+        organization: null,
+        careerStage: null,
+      },
+    }, context);
+    // The slug callback preserves old slugs for redirects; clear them so the old username isn't discoverable
+    await Users.rawUpdateOne({ _id: userId }, { $set: { oldSlugs: [] } });
+    backgroundTask(invalidateLoginTokensFor(userId));
+    return true;
   },
 }
 

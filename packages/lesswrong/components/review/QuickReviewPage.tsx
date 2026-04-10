@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { getReviewPhase, REVIEW_YEAR, ReviewYear } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import sortBy from 'lodash/sortBy';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { getVotePower } from '@/lib/voting/vote';
 import { useCurrentUser } from '../common/withUser';
 import PostsItem from "../posts/PostsItem";
@@ -11,6 +9,8 @@ import Loading from "../vulcan-core/Loading";
 import PostInteractionStripe from "./PostInteractionStripe";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsReviewVotingListMultiQuery = gql(`
   query multiPostQuickReviewPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -23,7 +23,7 @@ const PostsReviewVotingListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('QuickReviewPage', (theme: ThemeType) => ({
   root: { 
     marginBottom: -20
   },
@@ -53,12 +53,12 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     marginRight: "auto"
   }
-});
+}));
 
-export const QuickReviewPage = ({classes, reviewYear}: {
-  classes: ClassesType<typeof styles>,
+export const QuickReviewPage = ({reviewYear}: {
   reviewYear: ReviewYear
 }) => {
+  const classes = useStyles(styles);
   const [expandedPost, setExpandedPost] = useState<PostsReviewVotingList|null>(null)
   const [truncatePosts, setTruncatePosts] = useState<boolean>(true)
   const currentUser = useCurrentUser()
@@ -113,8 +113,6 @@ export const QuickReviewPage = ({classes, reviewYear}: {
     }
   }
 
-  const loadMoreText = preferredHeadingCase("Load More");
-
   return <div className={classes.root}>
       <div className={loading ? classes.loading : undefined}>
         {truncatedPostsResults.map(post => {
@@ -131,12 +129,12 @@ export const QuickReviewPage = ({classes, reviewYear}: {
       <SectionFooter>
         <div className={classes.loadMore}>
           {loading && <Loading/>}
-          <a onClick={() => handleLoadMore()}>{loadMoreText} ({truncatedPostsResults.length}/{totalCount})</a>
+          <a onClick={() => handleLoadMore()}>Load More ({truncatedPostsResults.length}/{totalCount})</a>
         </div>
       </SectionFooter>
     </div>
 }
 
-export default registerComponent('QuickReviewPage', QuickReviewPage, {styles});
+export default QuickReviewPage;
 
 

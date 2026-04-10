@@ -6,11 +6,12 @@ import {
 } from "../../../lib/instanceSettings";
 import { compassIcon } from "../../icons/compassIcon";
 import { lightbulbIcon } from "../../icons/lightbulbIcon";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import { combineUrls } from "../../../lib/vulcan-lib/utils";
 import LWTooltip from "../../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("CrosspostHeaderIcon", (theme: ThemeType) => ({
   root: {
     display: "inline-block",
   },
@@ -18,15 +19,16 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim3,
     display: "inline-block",
     width: 20,
-    marginLeft: theme.isFriendlyUI ? undefined : -6,
+    marginLeft: -6,
     verticalAlign: "sub",
   },
-});
+}));
 
-const CrosspostHeaderIcon = ({post, classes}: {
+const CrosspostHeaderIcon = ({post}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsList|PostsEdit,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   if (!post.fmCrosspost) {
     return null;
   }
@@ -47,8 +49,6 @@ const CrosspostHeaderIcon = ({post, classes}: {
   );
 }
 
-export default registerComponent(
-  "CrosspostHeaderIcon", CrosspostHeaderIcon, {styles}
-);
+export default CrosspostHeaderIcon;
 
 

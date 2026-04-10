@@ -12,8 +12,11 @@ import SectionSubtitle from "../common/SectionSubtitle";
 import DialoguesSectionFrontpageSettings from "./DialoguesSectionFrontpageSettings";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DialoguesList', (theme: ThemeType) => ({
   content: {
     paddingTop: 0,
     paddingRight: 35,
@@ -34,7 +37,7 @@ const styles = (theme: ThemeType) => ({
     }
   },
   subsection: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   prompt: {
     color: theme.palette.lwTertiary.main,
@@ -85,12 +88,13 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.5,
     padding: 2,
   },
-});
+}));
  
-const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, classes: ClassesType<typeof styles> }) => {
+const DialoguesList = ({currentUser}: { currentUser: UsersCurrent, }) => {
+  const classes = useStyles(styles);
   const [showSettings, setShowSettings] = useState(false);
   const { captureEvent } = useTracking();
-  const currentDate = new Date();
+  const currentDate = useCurrentTime();
   const isEvenDay = currentDate.getUTCDate() % 2 === 0;
   const showReciprocityRecommendations = (currentUser.karma > 100) && isEvenDay; // hide reciprocity recommendations if user has less than 100 karma, or if the current day is not an even number (just a hack to avoid spamming folks)
 
@@ -202,7 +206,6 @@ const DialoguesList = ({ currentUser, classes }: { currentUser: UsersCurrent, cl
 
 export default registerComponent('DialoguesList', DialoguesList, {
   hocs: [withErrorBoundary],
-  styles
 });
 
 

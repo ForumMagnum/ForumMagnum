@@ -162,28 +162,28 @@ export const HIDE_SUBSCRIBED_FEED_SUGGESTED_USERS = registerCookie({
   description: "Whether to hide the suggested users section on the subscribed tab feed"
 });
 
-export const HIDE_SURVEY_SCHEDULE_IDS = registerCookie({
-  name: "hide_survey_schedule_ids",
-  type: "necessary",
-  description: "Stores the ids of survey schedules that the user has hidden"
-});
-
 export const SELECTED_FRONTPAGE_TAB_COOKIE = registerCookie({
   name: "selected_frontpage_tab",
   type: "functional",
   description: "Stores the selected tab for logged out users"
 });
 
+export const SELECTED_PROFILE_TAB_COOKIE = registerCookie({
+  name: "selected_profile_tab",
+  type: "functional",
+  description: "Stores the selected profile page tab (feed, posts, comments, wiki edits, sequences, or quick takes)",
+});
+
+export const PROFILE_TAB_SETTINGS_COOKIE = registerCookie({
+  name: "profile_tab_settings",
+  type: "functional",
+  description: "Stores settings for all profile page tabs, including comments",
+});
+
 export const HIDE_EAG_BANNER_COOKIE = registerCookie({
   name: "hide_eag_banner",
   type: "necessary",
   description: "Don't show any EAG(x) banners",
-});
-
-export const HIDE_EA_FORUM_SURVEY_BANNER_COOKIE = registerCookie({
-  name: "hide_ea_forum_survey_banner",
-  type: "necessary",
-  description: "Don't show the EA Forum survey banner",
 });
 
 export const NAV_MENU_FLAG_COOKIE_PREFIX = "nav_menu_flag_";
@@ -199,6 +199,15 @@ export const SHOW_LLM_CHAT_COOKIE = registerCookie({
   type: "functional",
   description: "Whether the LLM chat conversation UI is open",
 });
+
+export const HOME_DESIGN_DEFAULT_PUBLIC_ID_COOKIE = registerCookie({
+  name: "home_design_default_public_id",
+  type: "necessary",
+  description: "Stores the user's preferred homepage design publicId for the April Fools homepage",
+});
+
+export const HOME_DESIGN_DEFAULT_CLASSIC_VALUE = "__classic_home__";
+export const HOME_DESIGN_DEFAULT_BUILT_IN_VALUE = "__built_in_home_design__";
 
 export const HIDE_LLM_CHAT_GUIDE_COOKIE = registerCookie({
   name: "llm_chat_guide_open",
@@ -387,4 +396,3 @@ registerCookie({
                "The full list of known possible cookies are: __Secure-3PSIDCC, __Secure-1PSIDCC, SIDCC, __Secure-3PAPISID, SSID, " +
                "__Secure-1PAPISID, HSID, __Secure-3PSID, __Secure-1PSID, SID, SAPISID, APISID, NID, OTZ, 1P_JAR, AEC, DV, __Secure-ENID",
 });
-

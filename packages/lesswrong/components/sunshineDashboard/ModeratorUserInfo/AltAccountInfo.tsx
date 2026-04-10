@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
 import { Link } from '../../../lib/reactRouterWrapper';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import LockIcon from '@/lib/vendor/@material-ui/icons/src/Lock'
 import LockOpenIcon from '@/lib/vendor/@material-ui/icons/src/LockOpen'
 import flatMap from 'lodash/flatMap';
@@ -9,6 +8,8 @@ import Loading from "../../vulcan-core/Loading";
 import LWTooltip from "../../common/LWTooltip";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineUsersListMultiQuery = gql(`
   query multiUserAltAccountInfoQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -21,7 +22,7 @@ const SunshineUsersListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AltAccountInfo', (theme: ThemeType) => ({
   root: {
 
   },
@@ -33,12 +34,12 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 2,
     marginTop: 1
   }
-});
+}));
 
-export const AltAccountInfo = ({classes, user}: {
-  classes: ClassesType<typeof styles>,
+export const AltAccountInfo = ({user}: {
   user: SunshineUsersList
 }) => {
+  const classes = useStyles(styles);
   const [showAlternateAccounts, setShowAlternateAccounts] = useState<boolean>(false)
   const associatedUserIds: string[] = user.associatedClientIds
     ? flatMap(user.associatedClientIds, clientId=>(clientId.userIds||[]))
@@ -83,7 +84,7 @@ export const AltAccountInfo = ({classes, user}: {
   </div>;
 }
 
-export default registerComponent('AltAccountInfo', AltAccountInfo, {styles});
+export default AltAccountInfo;
 
 
 

@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useHover } from "../common/withHover";
 import { isMobile } from "../../lib/utils/isMobile";
 import { postGetPageUrl } from "../../lib/collections/posts/helpers";
@@ -11,8 +10,10 @@ import CommentsNode from "../comments/CommentsNode";
 import CommentsItemMeta from "../comments/CommentsItem/CommentsItemMeta";
 import CommentBottomCaveats from "../comments/CommentsItem/CommentBottomCaveats";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWQuickTakesCollapsedListItem", (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.bannerAdOverlay,
     background: theme.palette.panelBackground.bannerAdTranslucentMedium,
@@ -55,7 +56,6 @@ const styles = (theme: ThemeType) => ({
     overflow: "hidden",
     display: "-webkit-box",
     "-webkit-box-orient": "vertical",
-    "-webkit-line-clamp": 2,
   },
   hoverOver: {
     width: 400,
@@ -79,13 +79,14 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     }
   },
-});
+}));
 
-const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
+const LWQuickTakesCollapsedListItem = ({quickTake, setExpanded, linesToDisplay=2}: {
   quickTake: FrontpageShortformComments,
   setExpanded: (expanded: boolean) => void,
-  classes: ClassesType<typeof styles>,
+  linesToDisplay?: number,
 }) => {
+  const classes = useStyles(styles);
   const {eventHandlers, hover, anchorEl} = useHover({
     eventProps: {
       pageElementContext: "shortformItemTooltip",
@@ -185,7 +186,7 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
 
   const body = (
     <div className={classes.bodyWrapper} onClick={expand} {...eventHandlers}>
-      <div  className={classes.body}>
+      <div className={classes.body} style={{WebkitLineClamp: linesToDisplay}}>
         {quickTake.contents?.plaintextMainText}
       </div>
     </div>
@@ -223,10 +224,4 @@ const LWQuickTakesCollapsedListItem = ({ quickTake, setExpanded, classes }: {
   );
 }
 
-export default registerComponent(
-  "LWQuickTakesCollapsedListItem",
-  LWQuickTakesCollapsedListItem,
-  {styles},
-);
-
-
+export default LWQuickTakesCollapsedListItem;

@@ -3,7 +3,7 @@ import SimpleSchema from "@/lib/utils/simpleSchema";
 import {
   userGetProfileUrl,
   getUserEmail,
-  userOwnsAndInGroup, getAuth0Provider,
+  userOwnsAndInGroup,
   karmaChangeUpdateFrequencies,
 } from "./helpers";
 import { userGetEditUrl } from "../../vulcan-users/helpers";
@@ -35,6 +35,7 @@ import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificatio
 import { getWithLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
+import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
 
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
@@ -321,6 +322,40 @@ const schema = {
   },
   biography_latest: DEFAULT_LATEST_REVISION_ID_FIELD,
   
+  // pinnedPostIds: User-customized order of top posts to feature on their profile.
+  // If empty, profile displays top 4 posts by karma (default behavior).
+  // If set, profile displays these 4 posts in this specific order.
+  pinnedPostIds: {
+    database: {
+      type: "VARCHAR(27)[]",
+      defaultValue: [],
+      nullable: false,
+    },
+    graphql: {
+      outputType: "[String!]!",
+      inputType: "[String!]",
+      canRead: ["guests"],
+      canUpdate: [userOwns, "admins"],
+      canCreate: ["admins"],
+    },
+  },
+
+  // hideProfileTopPosts: If true, hide the featured top-posts section on profile pages.
+  hideProfileTopPosts: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean!",
+      inputType: "Boolean",
+      canRead: ["guests"],
+      canUpdate: [userOwns, "admins"],
+      canCreate: ["admins"],
+    },
+  },
+  
   username: {
     database: {
       type: "TEXT",
@@ -414,14 +449,14 @@ const schema = {
       },
     },
   },
-  /** hasAuth0Id: true if they use auth0 with username/password login, false otherwise */
+  /** @deprecated hasAuth0Id: true if they use auth0 with username/password login, false otherwise */
   hasAuth0Id: {
     graphql: {
       outputType: "Boolean",
       // Mods cannot read because they cannot read services, which is a prerequisite
       canRead: [userOwns, "admins"],
       resolver: (user) => {
-        return getAuth0Provider(user) === "auth0";
+        return false;
       },
     },
   },
@@ -896,6 +931,7 @@ const schema = {
       },
     },
   },
+  /** @deprecated */
   hidePostsRecommendations: {
     database: {
       type: "BOOL",
@@ -925,21 +961,6 @@ const schema = {
       outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ["guests"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  optedOutOfSurveys: {
-    database: {
-      type: "BOOL",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Boolean",
-      canRead: [userOwns, "sunshineRegiment", "admins"],
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: ["members"],
       validation: {
@@ -1065,6 +1086,12 @@ const schema = {
       canRead: userOwns,
       canUpdate: [userOwns, "sunshineRegiment", "admins"],
       canCreate: "guests",
+      onCreate: async ({ newDocument, context }) => {
+        return await validateFrontpageFilterSettings(newDocument.frontpageFilterSettings, context);
+      },
+      onUpdate: async ({ data, context }) => {
+        return await validateFrontpageFilterSettings(data.frontpageFilterSettings, context);
+      },
       // The old schema had the below comment:
       // FIXME this isn't filling default values as intended
       // ...schemaDefaultValue(getDefaultFilterSettings),
@@ -1161,6 +1188,7 @@ const schema = {
       },
     },
   },
+  /** @deprecated */
   allPostsHideCommunity: {
     database: {
       type: "BOOL",
@@ -2152,40 +2180,6 @@ const schema = {
       },
     },
   },
-  subscribedToDigest: {
-    database: {
-      type: "BOOL",
-      defaultValue: false,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Boolean",
-      canRead: ["members"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  subscribedToNewsletter: {
-    database: {
-      type: "BOOL",
-      defaultValue: false,
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "Boolean",
-      canRead: ["members"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
   unsubscribeFromAll: {
     database: {
       type: "BOOL",
@@ -2756,6 +2750,7 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: ["admins", "sunshineRegiment"],
+      canCreate: ["admins"],
       canUpdate: ["admins", "sunshineRegiment"],
       validation: {
         optional: true,
@@ -3677,7 +3672,7 @@ const schema = {
       },
     },
   },
-  profileTagIds: {
+  profileTagIds: { //DEPRECATED Was an EA-forum-specific subforum
     database: {
       type: "VARCHAR(27)[]",
       defaultValue: [],
@@ -3904,23 +3899,10 @@ const schema = {
       },
     },
   },
-  // used by the EA Forum to track when a user has dismissed the frontpage job ad
-  hideJobAdUntil: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: [userOwns, "admins"],
-      canUpdate: [userOwns, "admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  // used by the EA Forum to track if a user has dismissed the post page criticism tips card
+  /**
+   * @deprecated
+   * used by the EA Forum to track if a user has dismissed the post page criticism tips card
+   */
   criticismTipsDismissed: {
     database: {
       type: "BOOL",
@@ -4234,38 +4216,6 @@ const schema = {
       },
     },
   },
-  // EA Forum emails the user a survey if they haven't read a post in 4 months
-  inactiveSurveyEmailSentAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: ["admins"],
-      canUpdate: ["admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
-  // Used by EAF to track when we last emailed the user about the annual user survey
-  userSurveyEmailSentAt: {
-    database: {
-      type: "TIMESTAMPTZ",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "Date",
-      canRead: ["admins"],
-      canUpdate: ["admins"],
-      canCreate: ["members"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
   karmaChanges: {
     graphql: {
       outputType: "KarmaChanges",
@@ -4378,6 +4328,17 @@ const schema = {
 
         return userRateLimits;
       },
+    },
+  },
+  // Set when the user completes the Claude onboarding flow (confirming that
+  // their Claude instance can make network requests to LessWrong).
+  claudeLinkedAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+    },
+    graphql: {
+      outputType: "Date",
+      canRead: [userOwns, "admins"],
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"Users">>;

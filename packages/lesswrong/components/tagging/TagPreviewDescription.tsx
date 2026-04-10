@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { truncate } from '../../lib/editor/ellipsize';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { getHashLinkOnClick } from '../common/HashLink';
@@ -9,15 +8,17 @@ import { isFriendlyUI } from '../../themes/forumTheme';
 import TagExcerpt from "../common/excerpts/TagExcerpt";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagPreviewDescription", (theme: ThemeType) => ({
   root: {
     "& a.read-more-button": {
       fontSize: ".85em",
       color: theme.palette.grey[600]
     },
   }
-});
+}));
 
 const CoreTagCustomDescriptions: Record<string, string> = {
   'Rationality': "The <strong>Rationality</strong> tag is for posts about how to think in ways that more reliably result in you having true beliefs and making decisions that result in attainment of your goals.",
@@ -46,27 +47,16 @@ const getTagParagraphTruncationCount = (tag: TagPreviewFragment | TagSectionPrev
   return isLWorAF() ? 8 : 2;
 }
 
-const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
+const TagPreviewDescription = ({tag, hash, activeTab}: {
   tag: (TagPreviewFragment | TagSectionPreviewFragment) & { summaries?: MultiDocumentContentDisplay[] },
   hash?: string,
   activeTab?: number,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
 
   if (!tag) {
     return null
-  }
-
-  if (isFriendlyUI()) {
-    return (
-      <TagExcerpt
-        tag={tag}
-        lines={4}
-        hideMultimedia
-        hideMoreLink
-      />
-    );
   }
 
   const showCustomDescriptionHighlight = isLW() && tag.core && !hash;
@@ -121,6 +111,6 @@ const TagPreviewDescription = ({tag, hash, classes, activeTab}: {
   return <div className={classes.root}><b>{tag.name}</b></div>
 }
 
-export default registerComponent("TagPreviewDescription", TagPreviewDescription, {styles});
+export default TagPreviewDescription;
 
 

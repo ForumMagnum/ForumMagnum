@@ -10,7 +10,6 @@ import { FacebookIcon, MeetupIcon, RoundFacebookIcon, SlackIcon } from './GroupL
 import EmailIcon from '@/lib/vendor/@material-ui/icons/src/Email';
 import LocationIcon from '@/lib/vendor/@material-ui/icons/src/LocationOn';
 import { GROUP_CATEGORIES } from "@/lib/collections/localgroups/groupTypes";
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import Person from '@/lib/vendor/@material-ui/icons/src/Person';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -27,7 +26,6 @@ import GroupFormLink from "./GroupFormLink";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import Error404 from "../common/Error404";
 import CloudinaryImage2 from "../common/CloudinaryImage2";
-import EventCards from "../events/modules/EventCards";
 import LoadMore from "../common/LoadMore";
 import ContentStyles from "../common/ContentStyles";
 import { Typography } from "../common/Typography";
@@ -151,7 +149,7 @@ const styles = defineStyles("LocalGroupPage", (theme: ThemeType) => ({
   groupCategories: {
     display: 'flex',
     columnGap: 10,
-    marginTop: theme.spacing.unit * 2
+    marginTop: 16
   },
   groupCategory: {
     backgroundColor: theme.palette.panelBackground.default,
@@ -164,14 +162,14 @@ const styles = defineStyles("LocalGroupPage", (theme: ThemeType) => ({
     borderRadius: 4
   },
   groupDescription: {
-    marginTop: theme.spacing.unit * 3,
+    marginTop: 24,
     marginBottom: 20,
     [theme.breakpoints.down('xs')]: {
       marginLeft: 0
     }
   },
   groupDescriptionBody: {
-    padding: theme.spacing.unit,
+    padding: 8,
   },
   contactUsSection: {
     display: 'flex',
@@ -218,18 +216,10 @@ const styles = defineStyles("LocalGroupPage", (theme: ThemeType) => ({
   },
   contactUsHeadline: {
     marginBottom: 16,
-    ...(theme.isEAForum && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontWeight: 500,
-    }),
   },
   eventsHeadline: {
     marginTop: 40,
     marginBottom: 16,
-    ...(theme.isEAForum && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontWeight: 500,
-    }),
   },
   eventCards: {
     display: 'grid',
@@ -252,9 +242,6 @@ const styles = defineStyles("LocalGroupPage", (theme: ThemeType) => ({
   pastEventCard: {
     height: 350,
     filter: 'saturate(0.3) opacity(0.8)',
-    '& .EventCards-addToCal': {
-      display: 'none'
-    }
   },
   mapContainer: {
     height: 260,
@@ -357,48 +344,8 @@ const LocalGroupPage = ({ documentId: groupId }: {
   
   const groupHasContactInfo = group.facebookLink || group.facebookPageLink || group.meetupLink || group.slackLink || group.website || group.contactInfo
   
-  // the EA Forum shows the group's events as event cards instead of post list items
   let upcomingEventsList = <PostsList2 terms={{view: 'upcomingEvents', groupId: groupId}} />
-  if (isEAForum()) {
-    upcomingEventsList = !!upcomingEvents?.length ? (
-      <div className={classes.eventCards}>
-        <EventCards
-          events={upcomingEvents}
-          loading={upcomingEventsLoading}
-          numDefaultCards={2}
-          hideSpecialCards
-          hideGroupNames
-        />
-        <LoadMore {...upcomingEventsLoadMoreProps} loadingClassName={classes.loading} />
-      </div>
-    ) : <Typography variant="body2" className={classes.noUpcomingEvents}>No upcoming events.{' '}
-        <NotifyMeButton
-          showIcon={false}
-          document={group}
-          subscribeMessage="Subscribe to be notified when an event is added."
-          componentIfSubscribed={<span>We'll notify you when an event is added.</span>}
-          className={classes.notifyMeButton}
-        />
-      </Typography>
-  }
-  
   let tbdEventsList: React.JSX.Element|null = <PostsList2 terms={{view: 'tbdEvents', groupId: groupId}} showNoResults={false} />
-  if (isEAForum()) {
-    tbdEventsList = tbdEvents?.length ? <>
-      <Typography variant="headline" className={classes.eventsHeadline}>
-        Events yet to be scheduled
-      </Typography>
-      <div className={classes.eventCards}>
-        <EventCards
-          events={tbdEvents}
-          loading={tbdEventsLoading}
-          hideSpecialCards
-          hideGroupNames
-        />
-        <LoadMore {...tbdEventsLoadMoreProps}  />
-      </div>
-    </> : null
-  }
   
   let pastEventsList: React.JSX.Element|null = <>
     <Typography variant="headline" className={classes.eventsHeadline}>
@@ -406,23 +353,6 @@ const LocalGroupPage = ({ documentId: groupId }: {
     </Typography>
     <PostsList2 terms={{view: 'pastEvents', groupId: groupId}} />
   </>
-  if (isEAForum()) {
-    pastEventsList = pastEvents?.length ? <>
-      <Typography variant="headline" className={classes.eventsHeadline}>
-        Past events
-      </Typography>
-      <div className={classes.eventCards}>
-        <EventCards
-          events={pastEvents}
-          loading={pastEventsLoading}
-          hideSpecialCards
-          hideGroupNames
-          cardClassName={classes.pastEventCard}
-        />
-        <LoadMore {...pastEventsLoadMoreProps}  />
-      </div>
-    </> : null
-  }
   
   const canCreateEvent = currentUser && userCanPost(currentUser);
   const canEditGroup = (currentUser && group)
@@ -444,10 +374,10 @@ const LocalGroupPage = ({ documentId: groupId }: {
             {!isEAForum() && <div className={classes.groupOrganizers}>
               <Person className={classes.organizersIcon}/>
               <div className={classes.organizedBy}>
-                Organized by: {group.organizers.map((user, i) => <>
+                Organized by: {group.organizers.map((user, i) => <React.Fragment key={user._id}>
                   {(i>0) && <>,&nbsp;</>}
                   <UsersNameDisplay user={user} tooltipPlacement="bottom-start"/>
-                </>)}
+                </React.Fragment>)}
               </div>
             </div>}
 
@@ -505,7 +435,7 @@ const LocalGroupPage = ({ documentId: groupId }: {
         {(groupHasContactInfo || smallMap) && <div className={classes.contactUsSection}>
           {groupHasContactInfo && <div className={classes.externalLinkBtns}>
             <Typography variant="headline" className={classes.contactUsHeadline}>
-              {preferredHeadingCase("Contact Us")}
+              Contact Us
             </Typography>
             <div>
               {group.facebookLink && <div className={classes.externalLinkBtnRow}>
@@ -575,7 +505,7 @@ const LocalGroupPage = ({ documentId: groupId }: {
         </div>}
 
         <Typography variant="headline" className={classes.eventsHeadline}>
-          {preferredHeadingCase("Upcoming Events")}
+          Upcoming Events
         </Typography>
         {upcomingEventsList}
 

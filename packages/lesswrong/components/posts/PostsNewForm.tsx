@@ -7,7 +7,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser'
 import { isAF } from '../../lib/instanceSettings';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
-import { hasAuthorModeration } from '@/lib/betas';
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -20,6 +19,7 @@ import { Typography } from "../common/Typography";
 import Loading from "../vulcan-core/Loading";
 import { getMeetupMonthInfo } from '../seasonal/meetupMonth/meetupMonthEventUtils';
 import { getUserDefaultEditor } from '../editor/Editor';
+import { getUserDefaultRichTextEditor } from '@/lib/editor/defaultRichTextEditor';
 
 const PostsEditMutation = gql(`
   mutation createPostPostsNewForm($data: CreatePostDataInput!) {
@@ -206,7 +206,7 @@ const PostsNewForm = () => {
   const { data: meetupMonthData, title } = getMeetupMonthInfo(types)
   
   const defaultContents = meetupMonthData
-    ? { originalContents: { type: "ckEditorMarkup", data: meetupMonthData } }
+    ? { originalContents: { type: getUserDefaultRichTextEditor(currentUser), data: meetupMonthData } }
     : { originalContents: { type: getUserDefaultEditor(currentUser), data: "" }};
 
   let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {
@@ -252,7 +252,7 @@ const PostsNewForm = () => {
           : prefilledProps;
 
 
-        const hasModerationGuidelines = currentUserWithModGuidelines.moderationGuidelines?.originalContents && hasAuthorModeration()
+        const hasModerationGuidelines = currentUserWithModGuidelines.moderationGuidelines?.originalContents
 
         const moderationGuidelines = sanitizeEditableFieldValues(currentUserWithModGuidelines, ['moderationGuidelines']).moderationGuidelines
 

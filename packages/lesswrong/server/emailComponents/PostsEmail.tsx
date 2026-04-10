@@ -1,5 +1,4 @@
 import React from 'react';
-import { isFriendlyUI } from '@/themes/forumTheme';
 import { postGetPageUrl, postGetLink, postGetLinkTarget } from '../../lib/collections/posts/helpers';
 import { truncatise } from '@/lib/truncatise';
 import { SMALL_TRUNCATION_CHAR_COUNT } from '@/lib/editor/ellipsize';
@@ -10,9 +9,9 @@ import { EmailFooterRecommendations } from './EmailFooterRecommendations';
 import { EmailPostDate } from './EmailPostDate';
 // import ContentStyles from '@/components/common/ContentStyles';
 import type { PostsRevision } from "@/lib/generated/gql-codegen/graphql";
-import { EmailContextType, useEmailStyles } from './emailContext';
+import { EmailContextType, emailUseStyles } from './emailContext';
 import { PostsRevisionMultiQuery } from './queries';
-import { useEmailQuery } from '../vulcan-lib/query';
+import { emailUseQuery } from '../vulcan-lib/query';
 import { EmailContentStyles } from './EmailContentStyles';
 
 const getPodcastInfoElement = (podcastEpisode: Exclude<PostPodcastEpisode['podcastEpisode'], null>) => {
@@ -94,17 +93,13 @@ const styles = defineStyles("PostsEmail", (theme: ThemeType) => ({
     color: theme.palette.text.maxIntensity,
     textDecoration: "none",
     fontWeight: "normal",
-    fontFamily: theme.typography.headerStyle.fontFamily,
-    ...(theme.isFriendlyUI ? {
-      fontSize: "2.4rem",
-      lineHeight: '1.25em'
-    } : {}),
+    fontFamily: theme.typography.headerStyle.fontFamily
   },
   headingHR: {
     width: 210,
     height: 0,
     borderTop: "none",
-    borderBottom: theme.palette.border.emailHR,
+    borderBottom: "1px solid #aaa",
     marginTop: 50,
     marginBottom: 35,
   },
@@ -125,8 +120,8 @@ export async function PostsEmail({
   hideRecommendations?: boolean;
   emailContext: EmailContextType,
 }) {
-  const classes = useEmailStyles(styles, emailContext);
-  const { data } = await useEmailQuery(PostsRevisionMultiQuery, {
+  const classes = emailUseStyles(styles, emailContext);
+  const { data } = await emailUseQuery(PostsRevisionMultiQuery, {
     variables: {
       selector: { default: { exactPostIds: postIds } },
       limit: 10,

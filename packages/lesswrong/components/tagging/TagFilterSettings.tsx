@@ -1,10 +1,8 @@
 import React from 'react';
 import { FilterSettings, FilterMode as FilterModeType, isCustomFilterMode, FilterTag } from '../../lib/filterSettings';
 import { useCurrentUser } from '../common/withUser';
-import { tagStyle } from './FooterTag';
 import { usePersonalBlogpostInfo } from './usePersonalBlogpostInfo';
 import { userHasNewTagSubscriptions } from '../../lib/betas';
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import AddTagButton from "./AddTagButton";
 import LWTooltip from "../common/LWTooltip";
 import FilterMode, { filteringStyles } from './FilterMode';
@@ -21,13 +19,8 @@ const styles = defineStyles("TagFilterSettings", (theme: ThemeType) => ({
     display: "flex",
     flexWrap: "wrap",
     alignItems: "center",
-    ...(theme.isFriendlyUI
-      ? {
-        marginTop: 8,
-      } : {
-        gap: "4px",
-        marginBottom: 4,
-      }),
+    gap: "4px",
+    marginBottom: 4,
   },
   addButton: {
     backgroundColor: theme.palette.panelBackground.default,
@@ -48,11 +41,9 @@ const styles = defineStyles("TagFilterSettings", (theme: ThemeType) => ({
     ...filteringStyles(theme),
   },
   personalAndPlus: {
-    ...(theme.isFriendlyUI ? {} : {
-      gap: "4px",
-      display: "flex",
-      alignItems: "center"
-    }),
+    gap: "4px",
+    display: "flex",
+    alignItems: "center"
   }
 }));
 
@@ -106,7 +97,7 @@ const TagFilterSettingsInner = ({
           }}
         />
   
-        {<LWTooltip title={`Add ${taggingNameCapitalSetting.get()} Filter`}>
+        {<LWTooltip title={`Add Wikitag Filter`}>
             <AddTagButton hasTooltip={false} onTagSelected={({tagId,tagName}: {tagId: string, tagName: string}) => {
               if (!filterSettings.tags.some(t=>t.tagId===tagId)) {
                 const defaultFilterMode = userHasNewTagSubscriptions(currentUser) ? 25 : "Default"

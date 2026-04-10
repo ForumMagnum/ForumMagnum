@@ -1,5 +1,4 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useDialog } from '../common/withDialog';
 import classNames from 'classnames';
 import { CENTRAL_COLUMN_WIDTH } from '../posts/PostsPage/constants';
@@ -8,8 +7,7 @@ import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { useTracking } from '../../lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
-import { canUserEditPostMetadata, postGetEditUrl, isCollaborative } from '@/lib/collections/posts/helpers';
-import { preferredHeadingCase } from '../../themes/forumTheme';
+import { canUserEditPostMetadata, postGetEditUrl, isCollaborative, EditablePost } from '@/lib/collections/posts/helpers';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -22,6 +20,9 @@ import LoadMore from "../common/LoadMore";
 import ChangeMetricsDisplay from "../tagging/ChangeMetricsDisplay";
 import LWTooltip from "../common/LWTooltip";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { disconnectCollaborationForPost } from "../lexical/collaboration";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const RevisionMetadataWithChangeMetricsMultiQuery = gql(`
   query multiRevisionPostVersionHistoryQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -48,7 +49,7 @@ const RevisionDisplayQuery = gql(`
 
 const LEFT_COLUMN_WIDTH = 160
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostVersionHistory', (theme: ThemeType) => ({
   root: {
     maxWidth: CENTRAL_COLUMN_WIDTH + LEFT_COLUMN_WIDTH + 64,
     display: "flex",
@@ -100,15 +101,6 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "16px",
     marginBottom: 6
   },
-  versionHistoryButton: {
-    color: theme.palette.grey[680],
-    padding: '8px 12px',
-    border: "none",
-    '&:hover': {
-      backgroundColor: theme.palette.panelBackground.darken08,
-      border: "none",
-    }
-  },
   button: {
     whiteSpace: "nowrap"
   },
@@ -124,51 +116,31 @@ const styles = (theme: ThemeType) => ({
   tooltip: {
     marginBottom: 4
   }
-});
-
-const PostVersionHistoryButton = ({post, postId, classes}: {
-  post: PostsBase,
-  postId: string,
-  classes: ClassesType<typeof styles>
-}) => {
-  const { openDialog } = useDialog();
-  const { captureEvent } = useTracking()
-  return <EAButton
-    onClick={() => {
-      captureEvent("versionHistoryButtonClicked", {postId})
-      openDialog({
-        name: "PostVersionHistory",
-        contents: ({onClose}) => <PostVersionHistory
-          onClose={onClose}
-          post={post}
-          postId={postId}
-          classes={classes}
-        />
-      })
-    }}
-    variant={"outlined"}
-    className={classes.versionHistoryButton}
-  >
-    {preferredHeadingCase("Version History")}
-  </EAButton>
-}
+}));
 
 const LIVE_REVISION_TOOLTIP = "This version is currently live"
 const LOAD_VERSION_TOOLTIP = "Load this version into the editor (you will then need to publish it to update the live post)"
 const RESTORE_VERSION_TOOLTIP = "Update the live post to use this version"
 
-const PostVersionHistory = ({post, postId, onClose, classes}: {
-  post: PostsBase,
+export const PostVersionHistoryDialog = ({post, postId, onClose}: {
+  post: EditablePost,
   postId: string,
   onClose: () => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { captureEvent } = useTracking()
   const location = useLocation();
   const navigate = useNavigate();
+  const normalizedPost = {
+    ...post,
+    userId: post.userId ?? null,
+    shareWithUsers: post.shareWithUsers ?? null,
+    sharingSettings: post.sharingSettings ?? null,
+    collabEditorDialogue: post.collabEditorDialogue ?? false,
+  };
 
-  const isCollabEditor = isCollaborative(post, "contents")
+  const isCollabEditor = isCollaborative(normalizedPost, "contents")
 
   const { query } = location;
   const loadedVersion = query.version;
@@ -183,7 +155,7 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
       }
     }
   `));
-  const canRevert = canUserEditPostMetadata(currentUser, post);
+  const canRevert = canUserEditPostMetadata(currentUser, normalizedPost);
 
   const { data, loadMoreProps } = useQueryWithLoadMore(RevisionMetadataWithChangeMetricsMultiQuery, {
     variables: {
@@ -210,6 +182,12 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
     }
     captureEvent("restoreVersionClicked", {postId, revisionId: selectedRevisionId})
     setRevertInProgress(true);
+
+    // Always disconnect local Lexical collaboration providers (if any) before
+    // restore. This is a safe no-op when no provider exists, and prevents
+    // stale local Yjs state from being re-synced right after server reset.
+    await disconnectCollaborationForPost(postId);
+
     await revertMutation({
       variables: {
         postId: postId,
@@ -321,7 +299,3 @@ const PostVersionHistory = ({post, postId, onClose, classes}: {
     </LWDialog>
   );
 }
-
-export default registerComponent("PostVersionHistoryButton", PostVersionHistoryButton, {styles});
-
-

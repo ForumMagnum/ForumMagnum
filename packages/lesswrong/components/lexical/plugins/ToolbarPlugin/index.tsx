@@ -37,7 +37,6 @@ import { IndentIcon } from '../../icons/IndentIcon';
 import { OutdentIcon } from '../../icons/OutdentIcon';
 import { TypeBoldIcon } from '../../icons/TypeBoldIcon';
 import { TypeItalicIcon } from '../../icons/TypeItalicIcon';
-import { TypeUnderlineIcon } from '../../icons/TypeUnderlineIcon';
 import { LinkIcon } from '../../icons/LinkIcon';
 // import { FontColorIcon } from '../../icons/FontColorIcon';
 // import { BgColorIcon } from '../../icons/BgColorIcon';
@@ -72,9 +71,10 @@ import { FontFamilyIcon } from '../../icons/FontFamilyIcon';
 //   normalizeCodeLanguage as normalizeCodeLanguageShiki,
 // } from '@lexical/code-shiki';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
+import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/linkChangeSuggestionCommand';
 import {$isListNode, ListNode} from '@lexical/list';
 import {INSERT_EMBED_COMMAND} from '@lexical/react/LexicalAutoEmbedPlugin';
-import {INSERT_HORIZONTAL_RULE_COMMAND} from '@lexical/react/LexicalHorizontalRuleNode';
+import {INSERT_HORIZONTAL_RULE_COMMAND} from '@lexical/extension';
 import {$isHeadingNode} from '@lexical/rich-text';
 import {
   $getSelectionStyleValueForProperty,
@@ -128,6 +128,7 @@ import {
   useToolbarState,
 } from '../../context/ToolbarContext';
 import useModal from '../../hooks/useModal';
+import { useDialog } from '@/components/common/withDialog';
 // import {$createStickyNode} from '../../nodes/StickyNode';
 import DropDown, {
   DropDownItem,
@@ -750,12 +751,14 @@ export default function ToolbarPlugin({
   activeEditor,
   setActiveEditor,
   setIsLinkEditMode,
+  isSuggestionMode = false,
   isVisible = true,
 }: {
   editor: LexicalEditor;
   activeEditor: LexicalEditor;
   setActiveEditor: Dispatch<LexicalEditor>;
   setIsLinkEditMode: Dispatch<boolean>;
+  isSuggestionMode?: boolean;
   isVisible?: boolean;
 }): JSX.Element {
   const classes = useStyles(styles);
@@ -766,8 +769,8 @@ export default function ToolbarPlugin({
     Array<{id: string; index: number}>
   >([]);
   const [modal, showModal] = useModal();
+  const { openDialog } = useDialog();
   const [isEditable, setIsEditable] = useState(() => editor.isEditable());
-  const [isSuggestionMode, setIsSuggestionMode] = useState(false);
   const {toolbarState, updateToolbarState} = useToolbarState();
 
   const dispatchToolbarCommand = <T extends LexicalCommand<unknown>>(
@@ -935,7 +938,6 @@ export default function ToolbarPlugin({
       // Update text format
       updateToolbarState('isBold', selection.hasFormat('bold'));
       updateToolbarState('isItalic', selection.hasFormat('italic'));
-      updateToolbarState('isUnderline', selection.hasFormat('underline'));
       updateToolbarState(
         'isStrikethrough',
         selection.hasFormat('strikethrough'),
@@ -1112,9 +1114,18 @@ export default function ToolbarPlugin({
       setIsLinkEditMode(true);
     } else {
       setIsLinkEditMode(false);
-      activeEditor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+      if (isSuggestionMode) {
+        activeEditor.dispatchCommand(LINK_CHANGE_COMMAND, {
+          text: null,
+          linkNode: null,
+          url: null,
+          linkTextNode: null,
+        });
+      } else {
+        activeEditor.dispatchCommand(TOGGLE_LINK_COMMAND, null);
+      }
     }
-  }, [activeEditor, setIsLinkEditMode, toolbarState.isLink]);
+  }, [activeEditor, isSuggestionMode, setIsLinkEditMode, toolbarState.isLink]);
 
   const onCodeLanguageSelect = useCallback(
     (value: string) => {
@@ -1303,17 +1314,6 @@ export default function ToolbarPlugin({
             aria-label={`Format text as italics. Shortcut: ${SHORTCUTS.ITALIC}`}>
             <TypeItalicIcon className={classNames(classes.formatIcon, { [classes.activeIcon]: toolbarState.isItalic })} />
           </button>
-          <button
-            disabled={!isEditable}
-            onClick={(e) =>
-              dispatchFormatTextCommand('underline', isKeyboardInput(e))
-            }
-            className={classNames(classes.toolbarItemSpaced, { [classes.toolbarItemActive]: toolbarState.isUnderline })}
-            title={`Underline (${SHORTCUTS.UNDERLINE})`}
-            type="button"
-            aria-label={`Format text to underlined. Shortcut: ${SHORTCUTS.UNDERLINE}`}>
-            <TypeUnderlineIcon className={classNames(classes.formatIcon, { [classes.activeIcon]: toolbarState.isUnderline })} />
-          </button>
           {canViewerSeeInsertCodeButton && (
             <button
               disabled={!isEditable}
@@ -1494,20 +1494,23 @@ export default function ToolbarPlugin({
                     <DropDownItemText>{`Insert footnote ${item.index}`}</DropDownItemText>
                   </DropDownItem>
                 ))}
-                <DropDownItem
+                {/* <DropDownItem
                   onClick={() => dispatchToolbarCommand(INSERT_PAGE_BREAK)}
                   >
                   <ScissorsIcon className={classes.dropdownIcon} />
                   <DropDownItemText>Page Break</DropDownItemText>
-                </DropDownItem>
+                </DropDownItem> */}
                 <DropDownItem
                   onClick={() => {
-                    showModal('Insert Image', (onClose) => (
-                      <InsertImageDialog
-                        activeEditor={activeEditor}
-                        onClose={onClose}
-                      />
-                    ));
+                    openDialog({
+                      name: 'InsertImageDialog',
+                      contents: ({ onClose }) => (
+                        <InsertImageDialog
+                          activeEditor={activeEditor}
+                          onClose={onClose}
+                        />
+                      ),
+                    });
                   }}
                   >
                   <FileImageIcon className={classes.dropdownIcon} />

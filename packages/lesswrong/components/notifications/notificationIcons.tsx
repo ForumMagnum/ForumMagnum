@@ -62,7 +62,6 @@ export function getNotificationIconByNotificationName(notificationName: string) 
     case 'karmaPowersGained': return <ForumIcon icon="Bell" style={iconStyles} />;
     case 'cancelledRSVP': return <EventIcon style={iconStyles} />;
     case 'newGroupOrganizer': return <SupervisedUserCircleIcon style={iconStyles} />;
-    case 'newSubforumMember': return <SupervisedUserCircleIcon style={iconStyles} />;
     case 'newCommentOnDraft': return <CommentsIcon style={iconStyles}/>;
     case 'coauthorRequestNotification': return <GroupAddIcon style={iconStyles} />;
     case 'coauthorAcceptNotification': return <DoneIcon style={iconStyles} />;

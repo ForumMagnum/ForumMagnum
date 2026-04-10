@@ -26,8 +26,7 @@ const styles = defineStyles("FlashMessages", (theme) => ({
   },
   message: {
     padding: '8px 0',
-    color: theme.palette.text.maxIntensity,
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+    color: theme.palette.text.maxIntensity
   },
   action: {
     display: 'flex',
@@ -157,7 +156,7 @@ const FlashMessages = () => {
           elevation={6}
           className={classes.paper}
         >
-          <Typography variant="body1">
+          <Typography variant="body1" component="div">
             {messagesState.messages.map((message,i) => {
               if(typeof message === 'string') {
                 return message;

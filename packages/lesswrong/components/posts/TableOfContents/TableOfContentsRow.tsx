@@ -1,13 +1,12 @@
 import React from 'react';
 import classNames from 'classnames';
-import { fullHeightToCEnabled } from '../../../lib/betas';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import TableOfContentsDivider from "./TableOfContentsDivider";
 
-const getSectionOffsetStyling = () => (fullHeightToCEnabled() ? {
+const getSectionOffsetStyling = () => ({
   display: 'flex',
   flexDirection: 'column-reverse',
-} : {});
+});
 
 const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
   root: {
@@ -23,7 +22,6 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
       color: theme.palette.link.tocLinkHighlighted,
     },
     '& $highlightDot:after': {
-      content: theme.isBookUI ? null : `"•"`,
       marginLeft: 3,
       position: 'relative',
       top: 1
@@ -42,32 +40,25 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
     paddingTop: 6,
     paddingBottom: 6,
     color: theme.palette.link.tocLink,
-    lineHeight: fullHeightToCEnabled() ? "1em" : "1.2em",
+    lineHeight: "1em",
     '&:hover':{
-      color: theme.palette.link.tocLinkHighlighted,
-      opacity: theme.isFriendlyUI ? 1 : undefined
-    },
-    ...(theme.isFriendlyUI && {
-      lineHeight: "1.1rem",
-      fontSize: "1rem",
-    }),
+      color: theme.palette.link.tocLinkHighlighted
+    }
   },
   highlightDot: {},
   // Makes sure that the start of the ToC is in line with the start of the text
   title: {
     paddingTop: 3,
-    paddingBottom: theme.spacing.unit*1.5,
+    paddingBottom: 12,
     borderBottom: theme.palette.border.faint,
-    fontSize: theme.isFriendlyUI ? "1em" : undefined,
     '&:hover': {
       opacity: "unset"
     }
   },
   level0: {
-    display:"block",
     maxWidth: '100%',
-    marginBottom: theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+    marginBottom: 8,
+    marginRight: 8,
     '& $link': {
       whiteSpace: "normal",
     },
@@ -83,19 +74,19 @@ const styles = defineStyles("TableOfContentsRow", (theme: ThemeType) => ({
   },
   level2: {
     fontSize:"1.1rem",
-    paddingLeft: theme.isFriendlyUI ? 16 : 12,
+    paddingLeft: 12,
     ...getSectionOffsetStyling(),
   },
   level3: {
     fontSize:"1.1rem",
     color: theme.palette.text.dim700,
-    paddingLeft: theme.isFriendlyUI ? 32 : 24,
+    paddingLeft: 24,
     ...getSectionOffsetStyling(),
   },
   level4: {
     fontSize:"1.1rem",
     color: theme.palette.text.dim700,
-    paddingLeft: theme.isFriendlyUI ? 48 : 36,
+    paddingLeft: 36,
     ...getSectionOffsetStyling(),
   },
   titleContainer: {

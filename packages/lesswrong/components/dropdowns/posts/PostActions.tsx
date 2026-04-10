@@ -1,6 +1,5 @@
 import React from 'react';
 import { useCurrentUser } from '../../common/withUser';
-import { isBookUI } from '../../../themes/forumTheme';
 import { hasCuratedPostsSetting } from '../../../lib/instanceSettings';
 import MoveToDraftDropdownItem from "./MoveToDraftDropdownItem";
 import BookmarkDropdownItem from "./BookmarkDropdownItem";
@@ -26,6 +25,7 @@ import { PostSubscriptionsDropdownItem } from "./PostSubscriptionsDropdownItem";
 import DislikeRecommendationDropdownItem from "./DislikeRecommendationDropdownItem";
 import HideFrontPageButton from './HideFrontpagePostDropdownItem';
 import LLMScoreDropdownItem from "./LLMScoreDropdownItem";
+import LlmPolicyViolationDropdownItem from "./LlmPolicyViolationDropdownItem";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
@@ -38,7 +38,7 @@ export const IsRecommendationContext = React.createContext<boolean>(false);
 
 const styles = defineStyles("PostActions", (theme: ThemeType) => ({
   root: {
-    minWidth: theme.isFriendlyUI ? undefined : 300,
+    minWidth: 300,
     maxWidth: "calc(100vw - 100px)",
   },
 }))
@@ -87,6 +87,7 @@ const PostActions = ({post, closeMenu, includeBookmark=true}: {
       <ApproveNewUserDropdownItem post={post} />
       <SuggestAlignmentPostDropdownItem post={post}/>
       <MoveToAlignmentPostDropdownItem post={post}/>
+      <LlmPolicyViolationDropdownItem post={post} closeMenu={closeMenu} />
       <LLMScoreDropdownItem post={post} closeMenu={closeMenu} />
     </DropdownMenu>
   );

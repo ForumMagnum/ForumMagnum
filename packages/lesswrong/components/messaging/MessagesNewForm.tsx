@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { getDraftMessageHtml } from "../../lib/collections/messages/helpers";
 import { TemplateQueryStrings } from "./NewConversationButton";
@@ -11,6 +11,7 @@ import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlacehold
 import { useForm } from "@tanstack/react-form";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
+import { getUserDefaultEditor } from "../editor/Editor";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { useCurrentUser } from "../common/withUser";
 import { useFormErrors } from "@/components/tanstack-form-components/BaseAppForm";
@@ -47,7 +48,7 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     padding: "0 2px 0 10px",
     border: theme.palette.border.extraFaint,
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.default : theme.borderRadius.small,
+    borderRadius: theme.borderRadius.small,
     backgroundColor: theme.palette.grey[100],
     width: "100%",
     '& form': {
@@ -67,8 +68,8 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
     },
   },
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   submitMinimalist: {
     height: 'fit-content',
@@ -78,25 +79,12 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
   formButton: {
     fontFamily: theme.typography.fontFamily,
     marginLeft: "5px",
-    ...(theme.isFriendlyUI
-      ? {
-          fontSize: 14,
-          fontWeight: 500,
-          textTransform: "none",
-          background: theme.palette.primary.main,
-          color: theme.palette.text.alwaysWhite, // Dark mode independent
-          "&:hover": {
-            background: theme.palette.primary.light,
-          },
-        }
-      : {
-          paddingBottom: 2,
-          fontSize: 16,
-          color: theme.palette.secondary.main,
-          "&:hover": {
-            background: theme.palette.panelBackground.darken05,
-          },
-        }),
+    paddingBottom: 2,
+    fontSize: 16,
+    color: theme.palette.secondary.main,
+    "&:hover": {
+      background: theme.palette.panelBackground.darken05,
+    },
   },
   formButtonMinimalist: {
     padding: "8px",
@@ -113,6 +101,9 @@ const styles = defineStyles('MessagesNewForm', (theme: ThemeType) => ({
     '&:hover': {
       backgroundColor: theme.palette.background.primaryDim,
     },
+  },
+  messageInputForm: {
+    '--lexical-comment-min-height': '1em',
   },
 }));
 
@@ -201,7 +192,7 @@ const InnerMessagesNewForm = ({
         e.stopPropagation();
         void form.handleSubmit();
       }}>
-        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper)}>
+        <div className={classNames("form-component-EditorFormComponent", classes.fieldWrapper, classes.messageInputForm)}>
           <form.Field name="contents">
             {(field) => (
               <EditorFormComponent
@@ -258,7 +249,9 @@ export const MessagesNewForm = ({
   formStyle?: FormDisplayMode;
 }) => {
   const classes = useStyles(styles);
-  
+  const currentUser = useCurrentUser();
+  const initialEditorType = getUserDefaultEditor(currentUser);
+  const [formKey, setFormKey] = useState(0);
   const skip = !templateQueries?.templateId;
   const isMinimalist = formStyle === "minimalist"
 
@@ -277,7 +270,7 @@ export const MessagesNewForm = ({
     getDraftMessageHtml({ html: template.contents.html, displayName: templateQueries?.displayName });
 
   return (
-    <div className={isMinimalist ? classes.rootMinimalist : classes.root}>
+    <div className={isMinimalist ? classes.rootMinimalist : classes.root} key={formKey}>
       <InnerMessagesNewForm
         isMinimalist={isMinimalist}
         submitLabel={submitLabel}
@@ -286,14 +279,17 @@ export const MessagesNewForm = ({
           conversationId,
           contents: {
             originalContents: {
-              type: "ckEditorMarkup",
+              type: initialEditorType,
               data: templateHtml ?? '',
             },
           },
         }}
         templateQueries={templateQueries}
         conversationId={conversationId}
-        onSuccess={(newMessage) => successEvent(newMessage)}
+        onSuccess={(newMessage) => {
+          setFormKey(formKey => formKey + 1);
+          successEvent(newMessage);
+        }}
       />
     </div>
   );

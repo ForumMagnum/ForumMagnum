@@ -1,17 +1,18 @@
 import React, { useState } from 'react';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogActions } from '../widgets/DialogActions';
 import { useMessages } from '../common/withMessages';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import { useNavigate } from '../../lib/routeUtil';
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
+import { isFriendlyUI } from '../../themes/forumTheme';
 import UserMultiselect from "../form-components/UserMultiselect";
 import LWDialog from "../common/LWDialog";
 import Loading from "../vulcan-core/Loading";
 import EAButton from "../ea-forum/EAButton";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsEditMutation = gql(`
   mutation createPostNewDialogueDialog($data: CreatePostDataInput!) {
@@ -23,14 +24,13 @@ const PostsEditMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NewDialogueDialog', (theme: ThemeType) => ({
   dialog: {
     padding: 24,
-    paddingBottom: theme.isFriendlyUI ? undefined : 12,
+    paddingBottom: 12,
     fontFamily: theme.typography.fontFamily,
     color: theme.palette.text.normal,
     "& .MuiDialogActions-root": {
-      margin: theme.isFriendlyUI ? 0 : undefined,
     },
   },
   inputRow: {
@@ -58,13 +58,13 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body2,
     marginRight: 12
   }
-})
+}))
 
-const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
+const NewDialogueDialog = ({initialParticipantIds, onClose}: {
   initialParticipantIds?: string[],
   onClose: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [title, setTitle] = useState("");
   const {flash} = useMessages();
   const [participants, setParticipants] = useState<string[]>(initialParticipantIds ?? []);
@@ -121,7 +121,7 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
     maxWidth={"sm"}
   >
     <div className={classes.dialog}>
-      <h2 className={classes.header}>{preferredHeadingCase("Start Dialogue")}</h2>
+      <h2 className={classes.header}>Start Dialogue</h2>
       <p className={classes.info}>
         Invite users to a conversation where you can explore ideas, interview each other, or debate a topic. You can edit the transcript, and when you're ready, publish it as a post.
       </p>
@@ -130,7 +130,7 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
       </p>
       <Input
         type="text"
-        placeholder={preferredHeadingCase("Dialogue Title")}
+        placeholder={"Dialogue Title"}
         value={title}
         className={classes.titleInput}
         onChange={ev => setTitle(ev.currentTarget.value)}
@@ -139,20 +139,20 @@ const NewDialogueDialog = ({initialParticipantIds, onClose, classes}: {
         <UserMultiselect
           value={participants}
           setValue={setParticipants}
-          label={preferredHeadingCase("Add Participants")}
+          label={"Add Participants"}
         />
       </div>
 
       <DialogActions>
         {loading && <Loading/>}
         <ButtonComponent onClick={createDialogue} disabled={!!loading}>
-          {preferredHeadingCase("Create Dialogue")}
+          Create Dialogue
         </ButtonComponent>
       </DialogActions>
     </div>
   </LWDialog>
 }
 
-export default registerComponent('NewDialogueDialog', NewDialogueDialog, {styles});
+export default NewDialogueDialog;
 
 

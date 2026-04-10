@@ -1,8 +1,9 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import { SunshineNewUserPostItem } from "./SunshineNewUserPostItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineNewUserPostsList', (theme: ThemeType) => ({
   row: {
     display: "flex",
     justifyContent: "space-between",
@@ -10,8 +11,8 @@ const styles = (theme: ThemeType) => ({
     flexWrap: "wrap"
   },
   post: {
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit*2,
+    marginTop: 16,
+    marginBottom: 16,
     fontSize: "1.1em",
   },
   postBody: {
@@ -65,14 +66,15 @@ const styles = (theme: ThemeType) => ({
     flexWrap: "wrap",
     backgroundColor: theme.palette.grey[200],
   },
-})
+}))
 
 
-const SunshineNewUserPostsList = ({posts, user, classes}: {
+const SunshineNewUserPostsList = ({posts, user}: {
   posts?: SunshinePostsList[],
-  classes: ClassesType<typeof styles>,
   user: SunshineUsersList
 }) => {
+  const classes = useStyles(styles);
+
   // Calculate newPosts early for rendering
   const newPosts = React.useMemo(() => {
     if (!posts) return [];
@@ -88,6 +90,6 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
   )
 }
 
-export default registerComponent('SunshineNewUserPostsList', SunshineNewUserPostsList, {styles});
+export default SunshineNewUserPostsList;
 
 

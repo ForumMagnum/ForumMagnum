@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { FilterMode as FilterModeType, isCustomFilterMode, getStandardFilterModes } from '../../lib/filterSettings';
 import classNames from 'classnames';
 import { useHover } from '../common/withHover';
@@ -8,7 +7,7 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { userHasNewTagSubscriptions } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { taggingNameSetting, defaultVisibilityTags } from '@/lib/instanceSettings';
+import { defaultVisibilityTags } from '@/lib/instanceSettings';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import VisibilityOff from '@/lib/vendor/@material-ui/icons/src/VisibilityOff';
@@ -19,7 +18,8 @@ import LWTooltip from "../common/LWTooltip";
 import PopperCard from "../common/PopperCard";
 import TagPreview from "./TagPreview";
 import ContentStyles from "../common/ContentStyles";
-
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagPreviewFragmentQuery = gql(`
   query FilterMode($documentId: String) {
@@ -46,7 +46,7 @@ export const filteringStyles = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FilterMode", (theme: ThemeType) => ({
   tag: {
     padding: 8,
     paddingLeft: 10,
@@ -59,15 +59,10 @@ const styles = (theme: ThemeType) => ({
     flexGrow: 1,
     textAlign: "center",
     fontWeight: theme.typography.body1.fontWeight,
-    color: theme.isFriendlyUI ? theme.palette.lwTertiary.main : theme.palette.primary.main,
+    color: theme.palette.primary.main,
     boxShadow: theme.palette.boxShadow.default,
-    ...(theme.isFriendlyUI ? {
-      marginBottom: 4,
-      marginRight: 4,
-    } : {
-      maxWidth: 180,
-      whiteSpace: "nowrap",
-    }),
+    maxWidth: 180,
+    whiteSpace: "nowrap",
   },
   description: {
     marginTop: 20
@@ -77,7 +72,7 @@ const styles = (theme: ThemeType) => ({
     alignItems: 'center',
     justifyContent: 'center',
     fontWeight: theme.typography.body1.fontWeight,
-    overflow: theme.isFriendlyUI ? undefined : 'hidden',
+    overflow: 'hidden',
   },
   filterScore: {
     color: theme.palette.primary.main,
@@ -132,11 +127,7 @@ const styles = (theme: ThemeType) => ({
     paddingRight: 8,
     marginTop: -4,
     marginBottom: -4,
-    borderRadius: 2,
-    
-    ...(theme.isFriendlyUI && {
-      color: theme.palette.primary.main
-    }),
+    borderRadius: 2
   },
   input: {
     padding: 0,
@@ -158,9 +149,9 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     },
   },
-});
+}));
 
-const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description, classes}: {
+const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChangeMode, onRemove, description}: {
   tagId?: string,
   label?: string,
   mode: FilterModeType,
@@ -168,8 +159,8 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
   onChangeMode: (mode: FilterModeType) => void,
   onRemove?: () => void,
   description?: React.ReactNode
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { hover, anchorEl, eventHandlers } = useHover({
     eventProps: {tagId, label, mode},
   });
@@ -224,7 +215,11 @@ const FilterModeRawComponent = ({tagId="", label, mode, canRemove=false, onChang
       const value = parsed <= 0 || parsed >= 1
         ? Math.round(parsed)
         : Math.floor(parsed * 100) / 100;
+
+      // Linter incorrectly believes this could be called at render time
+      // eslint-disable-next-line react-hooks/purity
       const now = Date.now();
+
       setMode(value, now);
       if (standardFilterModes.includes(value)) {
         setTimeout(() => {
@@ -334,16 +329,16 @@ function filterModeToTooltip(mode: FilterModeType): React.ReactNode {
   }
   switch (modeWithoutFloat) {
     case "Required":
-      return <div><em>Required.</em> ONLY posts with this {taggingNameSetting.get()} will appear in {getLatestPostsName()}.</div>
+      return <div><em>Required.</em> ONLY posts with this wikitag will appear in {getLatestPostsName()}.</div>
     case "Hidden":
-      return <div><em>Hidden.</em> Posts with this {taggingNameSetting.get()} will be not appear in {getLatestPostsName()}.</div>
+      return <div><em>Hidden.</em> Posts with this wikitag will be not appear in {getLatestPostsName()}.</div>
     case "Reduced":
-      return <div><em>Reduced.</em> Posts with this {taggingNameSetting.get()} with be shown as if they had half as much karma.</div>
+      return <div><em>Reduced.</em> Posts with this wikitag with be shown as if they had half as much karma.</div>
     case "0.5":
-      return <div><em>0.5x</em> Posts with this {taggingNameSetting.get()} with be shown as if they had half as much karma.</div>
+      return <div><em>0.5x</em> Posts with this wikitag with be shown as if they had half as much karma.</div>
     case 0:
     case "Default":
-      return <div>This {taggingNameSetting.get()} will have default filtering and sorting.</div>
+      return <div>This wikitag will have default filtering and sorting.</div>
     default:
       if (typeof mode==="number" && mode<0)
         return <div><em>{mode}.</em> These posts will be shown less often (as though their score were {-mode} points lower).</div>
@@ -404,6 +399,6 @@ function filterModeStrToLabel(filterModeStr: FilterModeString) {
   }
 }
 
-export default registerComponent("FilterMode", FilterModeRawComponent, {styles});
+export default FilterModeRawComponent;
 
 

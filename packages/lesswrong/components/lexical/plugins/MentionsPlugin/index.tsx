@@ -198,23 +198,16 @@ class MentionTypeaheadOption extends MenuOption {
   }
 }
 
-function MentionsTypeaheadMenuItem({
-  index,
-  isSelected,
-  onClick,
-  onMouseEnter,
-  option,
-  classes,
-  content,
-}: {
+function MentionsTypeaheadMenuItem({index, isSelected, onClick, onMouseEnter, option, content}: {
   index: number;
   isSelected: boolean;
   onClick: () => void;
   onMouseEnter: () => void;
   option: MentionTypeaheadOption;
-  classes: Record<string, string>;
   content: React.ReactNode;
 }) {
+  const classes = useStyles(styles);
+
   return (
     <li
       key={option.key}
@@ -420,7 +413,6 @@ export default function MentionsPlugin(): JSX.Element | null {
                         }}
                         key={option.key}
                         option={option}
-                        classes={classes}
                         content={content}
                       />
                     );

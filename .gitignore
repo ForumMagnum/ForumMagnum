@@ -106,6 +106,7 @@ client_meta.json
 client_stats.html
 
 playwright-report
+.playwright-mcp/
 test-results
 .next
 
@@ -128,3 +129,9 @@ next-env.d.ts
 
 # Fly
 fly/hocuspocusServer/dist/
+
+# ACX Meetup import runtime state
+acxMeetupImports/
+
+# Claude Code
+.claude

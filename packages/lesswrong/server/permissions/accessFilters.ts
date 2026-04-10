@@ -1,4 +1,3 @@
-import { userCanUseTags } from "@/lib/betas";
 import { getRootDocument } from "@/lib/collections/multiDocuments/helpers";
 import { accessLevelCan, getCollaborativeEditorAccess, getSharingKeyFromContext } from "@/lib/collections/posts/collabEditingPermissions";
 import { postStatusLabels } from "@/lib/collections/posts/constants";
@@ -11,6 +10,7 @@ import { userCanDo, userIsAdmin, userIsAdminOrMod, userOwns } from "@/lib/vulcan
 
 
 const denyAll: CheckAccessFunction<CollectionNameString> = async () => false;
+
 export const allowAccess: CheckAccessFunction<CollectionNameString> = async () => true;
 const adminOnly: CheckAccessFunction<CollectionNameString> = async (currentUser) => userIsAdmin(currentUser);
 
@@ -97,6 +97,18 @@ const dialogueMatchPreferenceCheckAccess: CheckAccessFunction<'DialogueMatchPref
   return false;
 };
 
+const homePageDesignCheckAccess: CheckAccessFunction<'HomePageDesigns'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!document) return false;
+  // Published designs (have a commentId) are visible to everyone
+  if (document.commentId && document.autoReviewPassed) return true;
+  // Unpublished designs are only visible to their owner or admins
+  if (userIsAdmin(currentUser)) return true;
+  const ownerId = document.ownerId;
+  if (currentUser && ownerId === currentUser._id) return true;
+  if (context?.clientId && ownerId === context.clientId) return true;
+  return false;
+};
+
 const jargonTermCheckAccess: CheckAccessFunction<'JargonTerms'> = async (currentUser, document, context): Promise<boolean> => {
   const post = await context.loaders.Posts.load(document.postId);
 
@@ -106,6 +118,13 @@ const jargonTermCheckAccess: CheckAccessFunction<'JargonTerms'> = async (current
 
   // If a user has read access to the post, they have read access to any jargon terms for that post
   return await postCheckAccess(currentUser, post, context);
+};
+
+const iframeWidgetSrcdocCheckAccess: CheckAccessFunction<'IframeWidgetSrcdocs'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!document) return false;
+  const revision = await context.loaders.Revisions.load(document.revisionId);
+  if (!revision) return false;
+  return revisionCheckAccess(currentUser, revision, context);
 };
 
 const llmConversationCheckAccess: CheckAccessFunction<'LlmConversations'> = async (currentUser, document, context): Promise<boolean> => {
@@ -118,7 +137,6 @@ const llmMessageCheckAccess: CheckAccessFunction<'LlmMessages'> = async (current
 
 const lweventCheckAccess: CheckAccessFunction<'LWEvents'> = async (currentUser, document, context): Promise<boolean> => {
   if (!currentUser || !document) return false;
-  if (document.name === "gatherTownUsersCheck") return true;
 
   return userOwns(currentUser, document)
     ? userCanDo(currentUser, 'events.view.own')
@@ -341,8 +359,7 @@ const subscriptionCheckAccess: CheckAccessFunction<'Subscriptions'> = async (cur
 }
 
 const tagRelCheckAccess: CheckAccessFunction<'TagRels'> = async (currentUser, tagRel, context): Promise<boolean> => {
-  if (userCanUseTags(currentUser)) return true;
-  return !tagRel.deleted;
+  return true;
 }
 
 const tagCheckAccess: CheckAccessFunction<'Tags'> = async (currentUser, tag, context): Promise<boolean> => {
@@ -374,7 +391,6 @@ const voteCheckAccess: CheckAccessFunction<'Votes'> = async (currentUser, vote, 
 }
 
 const accessFilters = {
-  AdvisorRequests: allowAccess,
   ArbitalCaches: allowAccess,
   ArbitalTagContentRels: allowAccess,
   AutomatedContentEvaluations: automatedContentEvaluationCheckAccess,
@@ -396,21 +412,17 @@ const accessFilters = {
   DebouncerEvents: allowAccess,
   DialogueChecks: dialogueCheckCheckAccess,
   DialogueMatchPreferences: dialogueMatchPreferenceCheckAccess,
-  DigestPosts: allowAccess,
-  Digests: allowAccess,
-  ElectionCandidates: allowAccess,
-  ElectionVotes: allowAccess,
   ElicitQuestionPredictions: allowAccess,
   ElicitQuestions: allowAccess,
   EmailTokens: allowAccess,
-  FeaturedResources: allowAccess,
   FieldChanges: allowAccess,
-  ForumEvents: allowAccess,
-  GardenCodes: allowAccess,
   GoogleServiceAccountSessions: allowAccess,
+  HomePageDesigns: homePageDesignCheckAccess,
+  IframeWidgetSrcdocs: iframeWidgetSrcdocCheckAccess,
   Images: allowAccess,
   JargonTerms: jargonTermCheckAccess,
   LegacyData: allowAccess,
+  LinkPreviewCaches: denyAll,
   LlmConversations: llmConversationCheckAccess,
   LlmMessages: llmMessageCheckAccess,
   Localgroups: allowAccess,
@@ -424,7 +436,9 @@ const accessFilters = {
   ModeratorActions: allowAccess,
   MultiDocuments: multiDocumentCheckAccess,
   Notifications: notificationCheckAccess,
-  PageCache: allowAccess,
+  OAuthAccessTokens: denyAll,
+  OAuthAuthorizationCodes: denyAll,
+  OAuthClients: denyAll,
   PetrovDayActions: allowAccess,
   PetrovDayLaunchs: allowAccess,
   PodcastEpisodes: allowAccess,
@@ -449,10 +463,6 @@ const accessFilters = {
   SplashArtCoordinates: allowAccess,
   Spotlights: allowAccess,
   Subscriptions: subscriptionCheckAccess,
-  Surveys: allowAccess,
-  SurveyQuestions: allowAccess,
-  SurveyResponses: allowAccess,
-  SurveySchedules: allowAccess,
   Tags: tagCheckAccess,
   TagFlags: allowAccess,
   TagRels: tagRelCheckAccess,
@@ -460,8 +470,6 @@ const accessFilters = {
   TypingIndicators: typingIndicatorCheckAccess,
   UltraFeedEvents: allowAccess,
   Users: userCheckAccess,
-  UserEAGDetails: allowAccess,
-  UserJobAds: allowAccess,
   UserMostValuablePosts: allowAccess,
   UserRateLimits: allowAccess,
   UserTagRels: userTagRelCheckAccess,

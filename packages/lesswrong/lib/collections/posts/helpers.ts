@@ -1,20 +1,16 @@
 import { aboutPostIdSetting, allowTypeIIIPlayerSetting, isAF, isLWorAF, siteUrlSetting, cloudinaryCloudNameSetting, commentPermalinkStyleSetting, crosspostKarmaThreshold, type3DateCutoffSetting, type3ExplicitlyAllowedPostIdsSetting, type3KarmaCutoffSetting } from '@/lib/instanceSettings';
 import { getSiteUrl } from '../../vulcan-lib/utils';
 import { userOwns, userCanDo, userOverNKarmaFunc, userIsAdminOrMod, userOverNKarmaOrApproved } from '../../vulcan-users/permissions';
-import { userGetDisplayName, userIsSharedOn } from '../users/helpers';
+import { userGetDisplayName, userIsSharedOn, type SharableDocument } from '../users/helpers';
 import { postStatuses, postStatusLabels } from './constants';
 import maxBy from "lodash/maxBy";
 import { TupleSet, UnionOf } from '../../utils/typeGuardUtils';
-import type { Request, Response } from 'express';
-import pathToRegexp from "path-to-regexp";
-import type { RouterLocation } from '../../vulcan-lib/routes';
 import { forumSelect } from '@/lib/forumTypeUtils';
 import { ReviewYear, REVIEW_YEAR, getReviewPeriodStart, getReviewPeriodEnd } from '@/lib/reviewUtils';
 import moment from 'moment';
 import { isServer } from '@/lib/executionEnvironment';
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import { captureException } from '@/lib/sentryWrapper';
-import matchPath from '@/lib/vendor/react-router/matchPath';
 
 export const postCategories = new TupleSet(['post', 'linkpost', 'question'] as const);
 export type PostCategory = UnionOf<typeof postCategories>;
@@ -229,14 +225,6 @@ export const postGetCommentsUrl = (
   return postGetPageUrl(post, isAbsolute, sequenceId) + "#comments";
 }
 
-export const getPostCollaborateUrl = function (postId: string, isAbsolute=false, linkSharingKey?: string): string {
-  const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-  if (linkSharingKey) {
-    return `${prefix}/collaborateOnPost?postId=${postId}&key=${linkSharingKey}`;
-  } else {
-    return `${prefix}/collaborateOnPost?postId=${postId}`;
-  }
-}
 
 export const postGetEditUrl = (postId: string, isAbsolute = false, linkSharingKey?: string, version?: string): string => {
   const prefix = isAbsolute ? getSiteUrl().slice(0, -1) : '';
@@ -331,17 +319,19 @@ export const userIsPostGroupOrganizer = async (user: UsersMinimumInfo|DbUser|nul
 /**
  * Whether the user can make updates to the post document (including both the main post body and most other post fields)
  */
-export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, post: PostsBase|DbPost): boolean => {
+export const canUserEditPostMetadata = (currentUser: UsersCurrent|DbUser|null, post: SharableDocument & HasUserIdType & {
+  group?: { organizerIds: string[] } | null;
+}): boolean => {
   if (!currentUser) return false;
 
-  const organizerIds = (post as PostsBase)?.group?.organizerIds;
+  const organizerIds = post.group?.organizerIds;
   const isPostGroupOrganizer = organizerIds ? organizerIds.some(id => id === currentUser?._id) : false;
   if (isPostGroupOrganizer) return true
 
   if (userOwns(currentUser, post)) return true
   if (userCanDo(currentUser, 'posts.edit.all')) return true
   // Shared as a coauthor? Always give access
-  if (post.coauthorUserIds.includes(currentUser._id)) {
+  if ((post.coauthorUserIds ?? []).includes(currentUser._id)) {
     return true;
   }
 
@@ -452,21 +442,6 @@ export const googleDocIdToUrl = (docId: string): string => {
   return `https://docs.google.com/document/d/${docId}/edit`;
 };
 
-export const postRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {
-  const match = matchPath<any>(req.path, '/posts/:_id/:slug?');
-
-  if (match) {
-    const postId = match.params.postId;
-    if (req.query.commentId && commentPermalinkStyleSetting.get() === 'in-context') {
-      // Will redirect from ?commentId=... to #...
-      return false;
-    }
-
-    return await context.repos.posts.postRouteWillDefinitelyReturn200(postId);
-  }
-  return false;
-}
-
 export const isRecombeeRecommendablePost = (post: Pick<DbPost, keyof PostsBase & keyof DbPost> | PostsBase): boolean => {
   // We explicitly don't check `isFuture` here, because the cron job that "publishes" those posts does a raw update
   // So it won't trigger any of the callbacks, and if we exclude those posts they'll never get recommended
@@ -506,12 +481,15 @@ export type EditablePost = UpdatePostDataInput & {
   commentCount: number;
   afCommentCount: number;
   contents: CreateRevisionDataInput & { html: string | null } | null;
+  contents_latest: string | null;
   debate: boolean;
   title: string;
+  myEditorAccess?: string;
 } & Pick<PostsListBase, 'postCategory'>;
 
 export interface PostSubmitMeta {
   redirectToEditor?: boolean;
+  skipRedirect?: boolean;
   successCallback?: (editedPost: PostsEditMutationFragment) => void;
 }
 
@@ -567,6 +545,12 @@ export function getDefaultVotingSystem() {
 }
 
 export const dateStr = (startDate?: Date) => startDate ? moment(startDate).format('YYYY-MM-DD') : '';
+
+export function getDraftLabel(post: { draft?: boolean | null } | null) {
+  if (!post) return "Save Draft";
+  if (!post.draft) return "Move to Drafts";
+  return "Save Draft";
+}
 
 export const allPostsParams = (reviewYear: ReviewYear = REVIEW_YEAR) => {
   const startDate = getReviewPeriodStart(reviewYear).toDate();

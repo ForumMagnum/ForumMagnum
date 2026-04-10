@@ -3,27 +3,29 @@ import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from '@/lib/generated/gql-codegen';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { taggingNameCapitalSetting, taggingNameIsSet } from '../../lib/instanceSettings';
 import ContentType from "../posts/PostsPage/ContentType";
 import SingleLineTagUpdates from "./SingleLineTagUpdates";
 import LoadMore from "../common/LoadMore";
 import { withDateFields } from '@/lib/utils/dateUtils';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const INITIAL_LIMIT = 5
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TagEditsTimeBlock', (theme: ThemeType) => ({
   subtitle: {
-    marginTop: theme.isFriendlyUI ? 20 : 6,
+    marginTop: 6,
     marginBottom: 6
   },
-});
+}));
 
-const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
+const TagEditsTimeBlock = ({before, after, reportEmpty}: {
   before: Date,
   after: Date,
   reportEmpty: () => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
+
   // TODO: see if we can use a fragment other than TagHistoryFragment to avoid fetching the ToC or other expensive stuff
   const { data, loading } = useQuery(gql(`
     query getTagUpdates($before: Date!, $after: Date!) {
@@ -86,7 +88,7 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
     <div className={classes.subtitle}>
       <ContentType
         type="tags"
-        label={`${taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Wiki/Tag'} Page Edits and Discussion`}
+        label={"Wikitag Page Edits and Discussion"}
       />
     </div>
     {tagUpdatesInTimeBlock.map(tagUpdates => <SingleLineTagUpdates
@@ -108,7 +110,5 @@ const TagEditsTimeBlock = ({before, after, reportEmpty, classes}: {
 }
 
 export default registerComponent('TagEditsTimeBlock', TagEditsTimeBlock, {
-  styles, hocs: [withErrorBoundary]
+  hocs: [withErrorBoundary]
 });
-
-

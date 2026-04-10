@@ -1,21 +1,22 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
-import { ThemeMetadata, getThemeMetadata, getForumType, AbstractThemeOptions } from '../../themes/themeNames';
-import { ForumTypeString, allForumTypes, forumTypeSetting, isEAForum, isLWorAF } from '../../lib/instanceSettings';
+import { ThemeMetadata, getThemeMetadata, AbstractThemeOptions } from '../../themes/themeNames';
+import { isEAForum, isLW, isLWorAF } from '../../lib/instanceSettings';
 import { ThemeContext } from './useTheme';
+import { HomeDesignChatContext } from '../common/HomeDesignChatContext';
 import { useCurrentUser } from '../common/withUser';
 import { isMobile } from '../../lib/utils/isMobile'
+import { useNavigate } from '@/lib/routeUtil';
 import { Paper }from '@/components/widgets/Paper';
-import Info from '@/lib/vendor/@material-ui/icons/src/Info';
 import LWTooltip from "../common/LWTooltip";
-import { Typography } from "../common/Typography";
 import DropdownMenu from "../dropdowns/DropdownMenu";
 import DropdownItem from "../dropdowns/DropdownItem";
 import DropdownDivider from "../dropdowns/DropdownDivider";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ThemePickerMenu', (theme: ThemeType) => ({
   check: {
     width: 20,
     marginRight: 8,
@@ -24,24 +25,18 @@ const styles = (theme: ThemeType) => ({
     width: 20,
     marginRight: 8,
   },
-  siteThemeOverrideLabel: {
-    padding: 8,
-  },
-  infoIcon: {
-    fontSize: 14,
-    marginLeft: theme.isFriendlyUI ? 6 : 0,
-  },
-})
+}))
 
-const ThemePickerMenu = ({children, classes}: {
+const ThemePickerMenu = ({children}: {
   children: React.ReactNode,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const themeContext = React.useContext(ThemeContext)!;
+  const designChat = React.useContext(HomeDesignChatContext);
   const currentThemeOptions = themeContext!.abstractThemeOptions;
   const currentUser = useCurrentUser();
+  const navigate = useNavigate();
   const updateCurrentUser = useUpdateCurrentUser();
-  const selectedForumTheme = getForumType(currentThemeOptions);
 
   const persistUserTheme = (newThemeOptions: AbstractThemeOptions) => {
     if (isEAForum() && currentUser) {
@@ -68,24 +63,26 @@ const ThemePickerMenu = ({children, classes}: {
     persistUserTheme(newThemeOptions);
   }
 
-  const setThemeForum = (event: React.MouseEvent, forumType: ForumTypeString) => {
-    dontCloseMenu(event);
-
-    const newThemeOptions = {
-      ...currentThemeOptions,
-      siteThemeOverride: {
-        ...currentThemeOptions.siteThemeOverride,
-        [forumTypeSetting.get()]: forumType,
-      },
-    };
-    themeContext.setThemeOptions(newThemeOptions);
-    persistUserTheme(newThemeOptions);
+  const openCustomizeSidebar = () => {
+    if (designChat) {
+      designChat.setIsOpen(true);
+      return;
+    }
+    navigate('/?openCustomize=1');
   }
+
   const submenu = (
     <Paper>
       <DropdownMenu>
         {isLWorAF() &&
           <>
+            {isLW() && <>
+              <DropdownItem
+                title="Custom Front Page"
+                onClick={openCustomizeSidebar}
+              />
+              <DropdownDivider />
+            </>}
             {getThemeMetadata().map((themeMetadata: ThemeMetadata) =>
               <DropdownItem
                 key={themeMetadata.name}
@@ -97,37 +94,7 @@ const ThemePickerMenu = ({children, classes}: {
                 }
               />
             )}
-            <DropdownDivider />
           </>
-        }
-
-        {currentUser?.isAdmin &&
-          <div>
-            <div>
-              <Typography variant="body2" className={classes.siteThemeOverrideLabel}>
-                Site Theme Override
-                <LWTooltip title={<p>
-                  Admin only. Makes the site look (for you) like another Forum Magnum
-                  site. Useful for testing themes and component-style changes. Note that
-                  this only overrides the theme; site-specific differences in
-                  functionality will not be affected.
-                </p>}>
-                  <Info className={classes.infoIcon}/>
-                </LWTooltip>
-              </Typography>
-            </div>
-            {[...allForumTypes.keys()].map((forumType: ForumTypeString) =>
-              <DropdownItem
-                key={forumType}
-                title={forumType}
-                onClick={(event) => setThemeForum(event, forumType)}
-                icon={() => selectedForumTheme === forumType
-                  ? <ForumIcon icon="Check" className={classes.check} />
-                  : <div className={classes.notChecked} />
-                }
-              />
-            )}
-          </div>
         }
       </DropdownMenu>
     </Paper>
@@ -144,6 +111,6 @@ const ThemePickerMenu = ({children, classes}: {
   </LWTooltip>
 }
 
-export default registerComponent('ThemePickerMenu', ThemePickerMenu, {styles});
+export default ThemePickerMenu
 
 

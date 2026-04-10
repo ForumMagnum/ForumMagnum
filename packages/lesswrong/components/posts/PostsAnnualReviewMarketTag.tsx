@@ -1,32 +1,28 @@
 import { AnnualReviewMarketInfo, highlightMarket } from '../../lib/collections/posts/annualReviewMarkets';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useMemo } from 'react';
 import { useHover } from '../common/withHover';
 import { highlightReviewWinnerThresholdSetting } from '@/lib/instanceSettings';
 import { tagStyle } from '../tagging/FooterTag';
 import { Card } from "@/components/widgets/Paper";
-import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import HoverOver from "../common/HoverOver";
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const sharedStyles = (theme: ThemeType) => ({
-  fontFamily: theme.typography.fontFamily,
   width: 'fit-content',
   display: 'inline-block',
   padding: '5px',
   boxSizing: 'border-box',
   paddingLeft: 6,
   paddingRight: 6,
-  marginRight: theme.isFriendlyUI ? 3 : undefined,
-  marginBottom: theme.isFriendlyUI ? 8 : undefined,
   fontWeight: theme.typography.body1.fontWeight,
   ...theme.typography.commentStyle,
-  cursor: "pointer",
-  whiteSpace: theme.isFriendlyUI ? "nowrap": undefined,
+  cursor: "pointer"
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsAnnualReviewMarketTag', (theme: ThemeType) => ({
   expectedWinner: {
     ...sharedStyles(theme),
     color: theme.palette.review.winner,
@@ -43,22 +39,15 @@ const styles = (theme: ThemeType) => ({
   },
   card: {
     padding: 16,
-    ...(theme.isFriendlyUI
-      ? {
-        paddingTop: 12,
-        width: FRIENDLY_HOVER_OVER_WIDTH,
-      }
-      : {
-        width: 450,
-        paddingTop: 8,
-      }),
+    width: 450,
+    paddingTop: 8,
   },
-});
+}));
 
-const PostsAnnualReviewMarketTag = ({ annualReviewMarketInfo, classes }: {
+const PostsAnnualReviewMarketTag = ({annualReviewMarketInfo}: {
   annualReviewMarketInfo: AnnualReviewMarketInfo,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { anchorEl, hover, eventHandlers } = useHover();
 
   const year = annualReviewMarketInfo.year
@@ -98,6 +87,6 @@ const PostsAnnualReviewMarketTag = ({ annualReviewMarketInfo, classes }: {
   </span>
 };
 
-export default registerComponent('PostsAnnualReviewMarketTag', PostsAnnualReviewMarketTag, { styles });
+export default PostsAnnualReviewMarketTag
 
 

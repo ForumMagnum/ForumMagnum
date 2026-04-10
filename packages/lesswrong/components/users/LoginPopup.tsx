@@ -1,10 +1,10 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
-import {isFriendlyUI} from '../../themes/forumTheme'
 import LWDialog from "../common/LWDialog";
 import LoginForm from "./LoginForm";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LoginPopup', (theme: ThemeType) => ({
   dialog: {
     zIndex: theme.zIndexes.loginDialog
   },
@@ -15,19 +15,14 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 0,
     marginRight: 0,
   },
-});
+}));
 
 // Makes its child a link (wrapping it in an <a> tag) which opens a login
 // dialog.
-const LoginPopup = ({onClose, classes}: {
+const LoginPopup = ({onClose}: {
   onClose?: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
-  if (isFriendlyUI()) {
-    return (
-      <LoginForm onClose={onClose} />
-    );
-  }
+  const classes = useStyles(styles);
 
   return (
     <LWDialog
@@ -41,6 +36,6 @@ const LoginPopup = ({onClose, classes}: {
   );
 }
 
-export default registerComponent('LoginPopup', LoginPopup, {styles});
+export default LoginPopup
 
 

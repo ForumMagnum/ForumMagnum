@@ -9,8 +9,7 @@ import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import PersonAddIcon from '@/lib/vendor/@material-ui/icons/src/PersonAdd';
 import { moderationEmail } from '@/lib/instanceSettings';
-import { EditablePost, getPostCollaborateUrl, PostSubmitMeta } from '../../lib/collections/posts/helpers';
-import { getCkEditorName } from './Editor';
+import { EditablePost, postGetEditUrl, PostSubmitMeta } from '../../lib/collections/posts/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
 import { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -104,9 +103,10 @@ interface PostSharingSettingsProps {
   post: EditablePost;
   formType: "new" | "edit";
   editorType?: string;
+  iconOnly?: boolean;
 }
 
-export const PostSharingSettings = ({ field, post, formType, editorType }: PostSharingSettingsProps) => {
+export const PostSharingSettings = ({ field, post, formType, editorType, iconOnly }: PostSharingSettingsProps) => {
   const classes = useStyles(styles);
 
   const value = field.state.value;
@@ -136,7 +136,7 @@ export const PostSharingSettings = ({ field, post, formType, editorType }: PostS
       flash("Edit the document first to enable sharing");
       return;
     } else if (derivedEditorType !== "ckEditorMarkup" && derivedEditorType !== "lexical") {
-      flash(`Change the editor type to ${getCkEditorName()} to enable sharing`);
+      flash(`Change the editor type to LessWrong Docs to enable sharing`);
       return;
     }
     
@@ -170,14 +170,20 @@ export const PostSharingSettings = ({ field, post, formType, editorType }: PostS
   }, [openDialog, closeDialog, formType, post, field, initialSharingSettings, flash, editorType]);
   const canUseSharing = userCanUseSharing(currentUser)
 
-  return <LWTooltip title={canUseSharing ? undefined : getNoSharePermissionTooltip()}>
+  const tooltipTitle = !canUseSharing
+    ? getNoSharePermissionTooltip()
+    : iconOnly
+      ? "Share"
+      : undefined;
+
+  return <LWTooltip title={tooltipTitle}>
       <EAButton
         className={classes.friendlyButton}
         onClick={userCanUseSharing(currentUser) ? onClickShare : undefined}
         disabled={!canUseSharing}
       >
-        <PostSharingIcon className={classes.buttonInternalIcon} />
-        Share {post.draft ? " this draft" : ""}
+        <PostSharingIcon className={iconOnly ? undefined : classes.buttonInternalIcon} />
+        {!iconOnly && <>Share {post.draft ? " this draft" : ""}</>}
       </EAButton>
     </LWTooltip>
 }
@@ -206,7 +212,7 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
     setIsChanged(true);
   };
   
-  const collabEditorLink = getPostCollaborateUrl(post._id, true, linkSharingKey)
+  const collabEditorLink = postGetEditUrl(post._id, true, linkSharingKey)
   
   const commentingTooltip = "(suggest changes requires edit permission)"
 

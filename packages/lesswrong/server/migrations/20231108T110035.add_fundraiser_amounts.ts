@@ -36,18 +36,17 @@
 export const acceptsSchemaHash = "ee6df59dfe7fc9440ca415ce5cb2d762";
 
 import { addField, dropField } from "./meta/utils";
-import ElectionCandidates from "../../server/collections/electionCandidates/collection";
 
 export const up = async ({db}: MigrationContext) => {
-  await addField(db, ElectionCandidates, "gwwcId");
-  await addField(db, ElectionCandidates, "amountRaised");
-  await addField(db, ElectionCandidates, "targetAmount");
-  await addField(db, ElectionCandidates, "isElectionFundraiser");
+  await addField(db, "ElectionCandidates", "gwwcId");
+  await addField(db, "ElectionCandidates", "amountRaised");
+  await addField(db, "ElectionCandidates", "targetAmount");
+  await addField(db, "ElectionCandidates", "isElectionFundraiser");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropField(db, ElectionCandidates, "gwwcId");
-  await dropField(db, ElectionCandidates, "amountRaised");
-  await dropField(db, ElectionCandidates, "targetAmount");
-  await dropField(db, ElectionCandidates, "isElectionFundraiser");
+  await dropField(db, "ElectionCandidates", "gwwcId");
+  await dropField(db, "ElectionCandidates", "amountRaised");
+  await dropField(db, "ElectionCandidates", "targetAmount");
+  await dropField(db, "ElectionCandidates", "isElectionFundraiser");
 }

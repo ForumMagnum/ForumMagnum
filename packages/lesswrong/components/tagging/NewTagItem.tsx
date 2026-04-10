@@ -1,19 +1,19 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { tagPostTerms } from './TagPageUtils';
 import { truncate } from '../../lib/editor/ellipsize';
 import { useTracking } from "../../lib/analyticsEvents";
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import UsersName from "../users/UsersName";
 import FormatDate from "../common/FormatDate";
 import PostsList2 from "../posts/PostsList2";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import TagDiscussionButton from "./TagDiscussionButton";
 import ContentStyles from "../common/ContentStyles";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("NewTagItem", (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
@@ -38,12 +38,12 @@ const styles = (theme: ThemeType) => ({
   discussionButtonPositioning: {
     display: "flex",
   }
-});
+}));
 
-const NewTagItem = ({tag, classes}: {
+const NewTagItem = ({tag}: {
   tag: TagCreationHistoryFragment,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const tagUrl = tagGetUrl(tag);
   const [truncated, setTruncated] = useState(true);
   const { captureEvent } =  useTracking()
@@ -58,8 +58,7 @@ const NewTagItem = ({tag, classes}: {
     captureEvent("readMoreClicked", {tagId: tag._id, tagName: tag.name, pageSectionContext: "wikiSection"})
   }
 
-  const readMore = preferredHeadingCase("Read More");
-  const suffix = `<span>...<p><a>(${readMore})</a></p></span>`;
+  const suffix = `<span>...<p><a>(Read More)</a></p></span>`;
   const description = truncated
     ? truncate(tag.description?.html, tag.descriptionTruncationCount || 4, "paragraphs", suffix)
     : tag.description?.html;
@@ -96,6 +95,6 @@ const NewTagItem = ({tag, classes}: {
   </div>;
 }
 
-export default registerComponent("NewTagItem", NewTagItem, {styles});
+export default NewTagItem
 
 

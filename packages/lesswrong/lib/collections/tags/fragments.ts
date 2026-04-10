@@ -78,6 +78,7 @@ export const TagFragment = gql(`
       editedAt
     }
     canVoteOnRels
+    authorOnly
   }
 `)
 
@@ -147,6 +148,7 @@ export const TagPreviewFragment = gql(`
       htmlHighlight
     }
     canVoteOnRels
+    authorOnly
     isArbitalImport
   }
 `)
@@ -166,35 +168,7 @@ export const TagSectionPreviewFragment = gql(`
       htmlHighlightStartingAtHash(hash: $hash)
     }
     canVoteOnRels
-  }
-`)
-
-export const TagSubforumFragment = gql(`
-  fragment TagSubforumFragment on Tag {
-    ...TagPreviewFragment
-    subforumModeratorIds
-    tableOfContents
-    subforumWelcomeText {
-      _id
-      html
-    }
-  }
-`)
-
-// TODO: would prefer to fetch subtags in fewer places
-export const TagSubtagFragment = gql(`
-  fragment TagSubtagFragment on Tag {
-    _id
-    subforumModeratorIds
-    subTags {
-      ...TagPreviewFragment
-    }
-  }
-`)
-
-export const TagSubforumSidebarFragment = gql(`
-  fragment TagSubforumSidebarFragment on Tag {
-    ...TagBasicInfo
+    authorOnly
   }
 `)
 
@@ -300,6 +274,7 @@ export const TagPageFragment = gql(`
       }
     }
     canVoteOnRels
+    authorOnly
     forceAllowType3Audio
     textLastUpdatedAt
   }
@@ -345,6 +320,7 @@ export const TagPageWithRevisionFragment = gql(`
       }
     }
     canVoteOnRels
+    authorOnly
     forceAllowType3Audio
   }
 `)
@@ -386,6 +362,8 @@ export const TagEditFragment = gql(`
     postsDefaultSortOrder
     introSequenceId
     canVoteOnRels
+    removalResistant
+    authorOnly
     
     autoTagModel
     autoTagPrompt
@@ -418,24 +396,6 @@ export const SunshineTagFragment = gql(`
     user {
       ...UsersMinimumInfo
     }
-  }
-`)
-
-export const UserOnboardingTag = gql(`
-  fragment UserOnboardingTag on Tag {
-    _id
-    name
-    slug
-    bannerImageId
-    squareImageId
-  }
-`)
-
-export const TagName = gql(`
-  fragment TagName on Tag {
-    _id
-    name
-    slug
   }
 `)
 

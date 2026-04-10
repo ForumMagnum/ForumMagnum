@@ -720,10 +720,11 @@ export const NewCommentOnDraftNotification = createServerNotificationType({
     const firstNotification = notifications[0];
     const post = await Posts.findOne({_id: firstNotification.documentId});
     if (notifications.length===1) {
-      const { senderUserID, commentHtml } = firstNotification.extraData;
+      const { senderUserID, senderDisplayName } = firstNotification.extraData;
       const senderUser = await Users.findOne({_id: senderUserID});
-      
-      return `${senderUser?.displayName} commented on ${post?.title}`;
+      const senderName = senderUser?.displayName ?? senderDisplayName ?? "[anonymous]";
+
+      return `${senderName} commented on ${post?.title}`;
     } else {
       return `${notifications.length} comments on ${post?.title}`;
     }
@@ -739,7 +740,7 @@ export const NewCommentOnDraftNotification = createServerNotificationType({
     
     return <div>
       {notifications.map((notification,i) => <div key={i}>
-        <div><EmailUsernameByID userID={notification.extraData?.senderUserID} emailContext={emailContext}/> commented on <a href={postLink}>{postTitle}</a>:</div>
+        <div><EmailUsernameByID userID={notification.extraData?.senderUserID} fallbackName={notification.extraData?.senderDisplayName} emailContext={emailContext}/> commented on <a href={postLink}>{postTitle}</a>:</div>
         <div>
           <blockquote dangerouslySetInnerHTML={{__html: notification.extraData?.commentHtml}}/>
         </div>
@@ -795,35 +796,6 @@ export const PostCoauthorAcceptNotification = createServerNotificationType({
         Your co-author request for <a href={link}>{post.title}</a> was accepted.
       </p>
     );
-  },
-});
-
-export const NewSubforumMemberNotification = createServerNotificationType({
-  name: "newSubforumMember",
-  canCombineEmails: false,
-  emailSubject: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const newUser = await Users.findOne(notifications[0].documentId)
-    if (!newUser) throw new Error("Cannot find user for which this notification is being sent")
-    return `New member ${newUser.displayName} has joined your subforum`;
-  },
-  emailBody: async ({ user, notifications }: {user: DbUser, notifications: DbNotification[]}) => {
-    const newUser = await Users.findOne(notifications[0].documentId)
-    const subforum = await Tags.findOne(notifications[0].extraData?.subforumId)
-    if (!newUser) throw new Error(`Cannot find user for which this notification is being sent, user id: ${notifications[0].documentId}`)
-    if (!subforum) throw new Error(`Cannot find subforum for which this notification is being sent, subforum id: ${notifications[0].extraData?.subforumId}`)
-
-    return <div>
-      <p>
-        Hi {user.displayName},
-      </p>
-      <p>
-        Your subforum, <a href={tagGetSubforumUrl(subforum, true)}> {subforum?.name}</a> has a new
-        member: <a href={userGetProfileUrl(newUser, true)}>{newUser?.displayName}</a>.
-      </p>
-      <p>
-        - The {forumTitleSetting.get()} Team
-      </p>
-    </div>
   },
 });
 
@@ -890,7 +862,6 @@ const serverNotificationTypesArray: ServerNotificationType[] = [
   NewCommentOnDraftNotification,
   PostCoauthorRequestNotification,
   PostCoauthorAcceptNotification,
-  NewSubforumMemberNotification,
   NewMentionNotification,
 ];
 const serverNotificationTypes: Record<string,ServerNotificationType> = keyBy(serverNotificationTypesArray, n=>n.name);

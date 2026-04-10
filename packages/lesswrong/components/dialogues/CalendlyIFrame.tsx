@@ -1,12 +1,13 @@
 import React from 'react'
-import { registerComponent } from '../../lib/vulcan-lib/components'
 import { calendlyPreviewStyles } from '../../themes/stylePiping'
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CalendlyIFrame', (theme: ThemeType) => ({
   calendlyEmbed: {
     ...calendlyPreviewStyles(theme)["& div.calendly-preview"]
   }
-})
+}))
 
 export const validatedCalendlyUrl = (url: string) => {
   if (url === "") return {valid: true, url: ""}
@@ -21,7 +22,8 @@ export const validatedCalendlyUrl = (url: string) => {
   }
 }
 
-const CalendlyIFrame = ({url, classes}: {url: string, classes: ClassesType<typeof styles>}) => {
+const CalendlyIFrame = ({url}: {url: string,}) => {
+  const classes = useStyles(styles);
   const valid = validatedCalendlyUrl(url)
   if (!valid.valid) return <div>Invalid Calendly URL</div>
   // The IFrame element is used in the modal, but is stripped out by CKEditor
@@ -39,6 +41,6 @@ const CalendlyIFrame = ({url, classes}: {url: string, classes: ClassesType<typeo
   </div>
 }
 
-export default registerComponent('CalendlyIFrame', CalendlyIFrame, {styles});
+export default CalendlyIFrame;
 
 

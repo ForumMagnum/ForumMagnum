@@ -7,17 +7,17 @@ import { AnalyticsContext } from '../../lib/analyticsEvents'
 import { eligibleToNominate, ReviewPhase } from '../../lib/reviewUtils';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import qs from 'qs';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { SECTION_WIDTH } from '../common/SingleColumnSection';
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "@/lib/routeUtil";
 import ContentStyles from "../common/ContentStyles";
 import LWTooltip from "../common/LWTooltip";
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewVotingPageMenu', (theme: ThemeType) => ({
   root: {
     width: "100%",
     maxWidth: SECTION_WIDTH,
@@ -30,7 +30,7 @@ const styles = (theme: ThemeType) => ({
     justifyContent: "space-between",
     backgroundColor: theme.palette.panelBackground.default,
     zIndex: theme.zIndexes.reviewVotingMenu,
-    padding: theme.spacing.unit,
+    padding: 8,
     background: theme.palette.grey[310],
     borderBottom: theme.palette.border.slightlyFaint,
     flexWrap: "wrap"
@@ -100,7 +100,7 @@ const styles = (theme: ThemeType) => ({
       display: "none"
     }
   }
-});
+}));
 
 export const sortingInfo: Record<string, {title: string, description: string}> = {  
   needsPreliminaryVote: {
@@ -149,8 +149,7 @@ export const sortingInfo: Record<string, {title: string, description: string}> =
   },
 }
 
-export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts, costTotal, setSortPosts, sortPosts, sortReversed, setSortReversed, postsLoading, postsResults}: {
-  classes: ClassesType<typeof styles>,
+export const ReviewVotingPageMenu = ({reviewPhase, loading, sortedPosts, costTotal, setSortPosts, sortPosts, sortReversed, setSortReversed, postsLoading, postsResults}: {
   reviewPhase: ReviewPhase,
   loading: boolean,
   sortedPosts: PostsList[]|null,
@@ -162,8 +161,9 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
   postsLoading: boolean,
   postsResults: PostsList[]|null,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const accountSettings = preferredHeadingCase("Account Settings");
+  const accountSettings = "Account Settings";
 
   const reviewedPosts = sortedPosts?.filter(post=>post.reviewCount > 0)
 
@@ -285,6 +285,6 @@ export const ReviewVotingPageMenu = ({classes, reviewPhase, loading, sortedPosts
   </AnalyticsContext>;
 }
 
-export default registerComponent('ReviewVotingPageMenu', ReviewVotingPageMenu, {styles});
+export default ReviewVotingPageMenu;
 
 

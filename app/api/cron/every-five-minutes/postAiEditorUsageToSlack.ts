@@ -1,0 +1,223 @@
+import { getAnalyticsConnection } from '@/server/analytics/postgresConnection';
+import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
+import { postMessage } from '@/server/slack/client';
+import { captureException } from '@/lib/sentryWrapper';
+import { isDevelopment } from '@/lib/executionEnvironment';
+import { environmentDescriptionSetting } from '@/lib/instanceSettings';
+
+interface RawAnalyticsRow {
+  event_type: string;
+  event: Record<string, unknown>;
+}
+
+async function getPostAuthorNames(postIds: string[]): Promise<Map<string, string>> {
+  if (postIds.length === 0) return new Map();
+  const context = createAnonymousContext();
+  const posts = await context.Posts.find(
+    { _id: { $in: postIds } },
+    undefined,
+    { _id: 1, userId: 1 },
+  ).fetch();
+
+  const authorIds = [...new Set(posts.map(p => p.userId))];
+  const users = await context.Users.find(
+    { _id: { $in: authorIds } },
+    undefined,
+    { _id: 1, displayName: 1 },
+  ).fetch();
+  const userNames = new Map(users.map(u => [u._id, u.displayName]));
+
+  return new Map(posts.map(p => [p._id, userNames.get(p.userId) ?? "Unknown user"]));
+}
+
+async function getUserNames(userIds: string[]): Promise<Map<string, string>> {
+  if (userIds.length === 0) return new Map();
+  const context = createAnonymousContext();
+  const users = await context.Users.find(
+    { _id: { $in: userIds } },
+    undefined,
+    { _id: 1, displayName: 1 },
+  ).fetch();
+  return new Map(users.map(u => [u._id, u.displayName]));
+}
+
+// Known "happy path" operation results that don't need to be called out in the digest
+const HAPPY_RESULTS = new Set(["inserted", "replaced", "deleted", "attached_by_quote_match"]);
+
+function getOperationResult(event: RawAnalyticsRow): string | null {
+  const result = event.event.operationResult;
+  if (typeof result !== "string") return null;
+  if (HAPPY_RESULTS.has(result)) return null;
+  return result;
+}
+
+
+const onboardingLabels: Record<string, string> = {
+  claudeOnboardingStarted: `opened the "Connect Claude to LW Docs" onboarding modal (step 1)`,
+  claudeOnboardingSettingsClicked: `opened the external Claude settings page (step 2)`,
+  claudeOnboardingConfirmClicked: `clicked "Confirm in Claude" (step 3)`,
+  claudeOnboardingConfirmed: `Claude confirmed network access (step 4)`,
+};
+
+function formatAuthorActivity(
+  authorName: string,
+  events: RawAnalyticsRow[],
+): string[] {
+  const lines: string[] = [];
+
+  for (const event of events) {
+    const label = onboardingLabels[event.event_type];
+    if (label) {
+      lines.push(`• *${authorName}* ${label}`);
+    }
+  }
+
+  const claudeClicks = events.filter(e => e.event_type === "shareWithClaudeClicked");
+  if (claudeClicks.length > 0) {
+    const panelCounts = new Map<string, number>();
+    for (const click of claudeClicks) {
+      const panel = (click.event.panel as string) ?? "unknown";
+      panelCounts.set(panel, (panelCounts.get(panel) ?? 0) + 1);
+    }
+    const panelSummary = [...panelCounts.entries()]
+      .map(([panel, count]) => count > 1 ? `${count}× ${panel}` : panel)
+      .join(", ");
+    lines.push(`• *${authorName}* clicked "Claude" button (${panelSummary})`);
+  }
+
+  const apiCalls = events.filter(e => e.event_type === "agentApiCall");
+  if (apiCalls.length === 0) return lines;
+
+  const byAgent = new Map<string, RawAnalyticsRow[]>();
+  for (const call of apiCalls) {
+    const agent = (call.event.agentName as string) ?? "unknown agent";
+    const list = byAgent.get(agent) ?? [];
+    list.push(call);
+    byAgent.set(agent, list);
+  }
+
+  for (const [agentName, agentCalls] of byAgent) {
+    const successes = agentCalls.filter(e => e.event.status === "success");
+    const failures = agentCalls.filter(e => e.event.status !== "success");
+
+    const routeCounts = new Map<string, number>();
+    for (const call of successes) {
+      const route = call.event.route as string;
+      routeCounts.set(route, (routeCounts.get(route) ?? 0) + 1);
+    }
+    const routeSummary = [...routeCounts.entries()]
+      .map(([route, count]) => `${count} ${route}`)
+      .join(", ");
+
+    let line = `• *${authorName}*: agent "${agentName}" made ${successes.length} edit${successes.length !== 1 ? "s" : ""}`;
+    if (routeSummary) line += ` (${routeSummary})`;
+
+    if (failures.length > 0) {
+      const failureCounts = new Map<string, number>();
+      for (const f of failures) {
+        const category = (f.event.errorCategory as string) ?? (f.event.status as string) ?? "unknown";
+        failureCounts.set(category, (failureCounts.get(category) ?? 0) + 1);
+      }
+      const failureSummary = [...failureCounts.entries()]
+        .map(([cat, count]) => `${count} ${cat}`)
+        .join(", ");
+      line += `, ${failures.length} failed (${failureSummary})`;
+    }
+
+    // Collect non-happy operation results (e.g. "quote_not_found", "widget_not_found")
+    const partialCounts = new Map<string, number>();
+    for (const call of successes) {
+      const result = getOperationResult(call);
+      if (result) partialCounts.set(result, (partialCounts.get(result) ?? 0) + 1);
+    }
+    if (partialCounts.size > 0) {
+      const totalPartial = [...partialCounts.values()].reduce((a, b) => a + b, 0);
+      const partialSummary = [...partialCounts.entries()]
+        .map(([label, count]) => `${count} ${label}`)
+        .join(", ");
+      line += `, ${totalPartial} partial (${partialSummary})`;
+    }
+
+    lines.push(line);
+  }
+
+  return lines;
+}
+
+export async function postAiEditorUsageToSlack() {
+  const connection = getAnalyticsConnection();
+  if (!connection) {
+    // eslint-disable-next-line no-console
+    console.error('Analytics DB not configured for ai-editor-usage-to-slack cron');
+    return;
+  }
+
+  const environment = isDevelopment ? "development" : environmentDescriptionSetting.get();
+
+  const events: RawAnalyticsRow[] = await connection.any(`
+    SELECT event_type, event
+    FROM raw
+    WHERE event_type IN ('shareWithClaudeClicked', 'agentApiCall', 'claudeOnboardingStarted', 'claudeOnboardingSettingsClicked', 'claudeOnboardingConfirmClicked', 'claudeOnboardingConfirmed')
+      AND timestamp > NOW() - INTERVAL '5 minutes'
+      AND environment = $(environment)
+    ORDER BY timestamp
+    LIMIT 10000
+  `, { environment });
+
+  if (events.length === 0) return;
+
+  const postIds = [...new Set(
+    events
+      .map(e => (e.event.postId as string | undefined))
+      .filter((id): id is string => !!id)
+  )];
+  const userIds = [...new Set(
+    events
+      .filter(e => !e.event.postId && e.event.userId)
+      .map(e => e.event.userId as string)
+  )];
+  
+  const [postAuthorNames, directUserNames] = await Promise.all([
+    getPostAuthorNames(postIds),
+    getUserNames(userIds),
+  ]);
+
+  const byAuthorName = new Map<string, RawAnalyticsRow[]>();
+  for (const event of events) {
+    const postId = event.event.postId as string | undefined;
+    const userId = event.event.userId as string | undefined;
+    const authorName = (postId && postAuthorNames.get(postId))
+      ?? (userId && directUserNames.get(userId))
+      ?? "Unknown author";
+    const list = byAuthorName.get(authorName) ?? [];
+    list.push(event);
+    byAuthorName.set(authorName, list);
+  }
+
+  const activityLines: string[] = [];
+  for (const [authorName, authorEvents] of byAuthorName) {
+    activityLines.push(...formatAuthorActivity(authorName, authorEvents));
+  }
+
+  if (activityLines.length === 0) return;
+
+  const message = [
+    `:robot_face: *AI Editor Activity (last 5 min)*`,
+    ``,
+    ...activityLines,
+  ].join("\n");
+
+  try {
+    await postMessage({
+      text: message,
+      channelName: "aiEditorUsage",
+      options: { mrkdwn: true },
+    });
+    // eslint-disable-next-line no-console
+    console.log(`Posted AI editor usage to Slack: ${events.length} events, ${byAuthorName.size} authors`);
+  } catch (error) {
+    captureException(error);
+    // eslint-disable-next-line no-console
+    console.error('Failed to post AI editor usage to Slack:', error);
+  }
+}

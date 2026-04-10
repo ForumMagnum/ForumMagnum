@@ -21,7 +21,6 @@ const IMAGE_HEIGHT = 96;
 export const styles = defineStyles("PostsItemIntroSequence", (theme: ThemeType)=> ({
   root: {
     position: "relative",
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : undefined,
     [theme.breakpoints.down('xs')]: {
       width: "100%",
     },
@@ -46,8 +45,8 @@ export const styles = defineStyles("PostsItemIntroSequence", (theme: ThemeType)=
     [theme.breakpoints.down('xs')]: {
       gridTemplateAreas: '"karma title" "karma author"',
       flexWrap: "wrap",
-      paddingTop: theme.spacing.unit,
-      paddingBottom: theme.spacing.unit,
+      paddingTop: 8,
+      paddingBottom: 8,
     },
   },
   postsItemWithImage: {
@@ -77,7 +76,7 @@ export const styles = defineStyles("PostsItemIntroSequence", (theme: ThemeType)=
     },
     [theme.breakpoints.down('xs')]: {
       maxWidth: '80%',
-      paddingRight: theme.spacing.unit,
+      paddingRight: 8,
     },
     '&:hover': {
       opacity: 1,
@@ -87,7 +86,7 @@ export const styles = defineStyles("PostsItemIntroSequence", (theme: ThemeType)=
     overflow: "hidden",
     whiteSpace: "nowrap",
     textOverflow: "ellipsis",
-    marginRight: theme.spacing.unit*1.5,
+    marginRight: 12,
     zIndex: theme.zIndexes.postItemAuthor,
     gridArea: "author",
     width: "min-content",

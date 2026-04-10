@@ -12,7 +12,7 @@ import CommunityMapFilter from "./CommunityMapFilter";
 import LocalEventMarker from "./LocalEventMarker";
 import LocalGroupMarker from "./LocalGroupMarker";
 import StyledMapPopup from "./StyledMapPopup";
-import { WrappedReactMapGL } from '../community/WrappedReactMapGL';
+import { MapboxViewport, WrappedReactMapGL } from '../community/WrappedReactMapGL';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from '../hooks/defineStyles';
@@ -81,7 +81,7 @@ const styles = defineStyles("CommunityMap", (theme: ThemeType) => ({
     cursor: "pointer",
     borderRadius: 2,
     width: 120,
-    marginBottom: theme.spacing.unit
+    marginBottom: 8
   },
   hideMap: {
     width: 34,
@@ -90,7 +90,7 @@ const styles = defineStyles("CommunityMap", (theme: ThemeType) => ({
   mapButtons: {
     alignItems: "flex-end",
     position: "absolute",
-    top: theme.isFriendlyUI ? 40 : 10,
+    top: 10,
     right: 10,
     display: "flex",
     flexDirection: "column",
@@ -226,7 +226,7 @@ const CommunityMap = ({ groupTerms, eventTerms, keywordSearch, initialOpenWindow
         {...viewport}
         width="100%"
         height="100%"
-        onViewportChange={viewport => setViewport(viewport)}
+        onViewportChange={(viewport: MapboxViewport) => setViewport(viewport)}
       >
         {renderedMarkers}
       </WrappedReactMapGL>

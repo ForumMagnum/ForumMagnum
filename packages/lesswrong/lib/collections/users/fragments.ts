@@ -19,8 +19,6 @@ export const UsersMinimumInfo = gql(`
     deleted
     isAdmin
     htmlBio
-    jobTitle
-    organization
     postCount
     commentCount
     sequenceCount
@@ -42,21 +40,10 @@ export const UsersProfile = gql(`
     previousDisplayName
     oldSlugs
     groups
-    jobTitle
-    organization
-    careerStage
     biography {
       ...RevisionDisplay
     }
-    howOthersCanHelpMe {
-      ...RevisionDisplay
-    }
-    howICanHelpOthers {
-      ...RevisionDisplay
-    }
-    profileTagIds
     organizerOfGroupIds
-    programParticipation
     website
     linkedinProfileURL
     facebookProfileURL
@@ -88,11 +75,12 @@ export const UsersProfile = gql(`
     noindex
     paymentEmail
     paymentInfo
-    goodHeartTokens
     postingDisabled
     allCommentingDisabled
     commentingOnOtherUsersDisabled
     conversationsDisabled
+    pinnedPostIds
+    hideProfileTopPosts
   }
 `)
 
@@ -107,10 +95,6 @@ export const UsersCurrent = gql(`
     ...UsersMinimumInfo
     oldSlugs
     groups
-    jobTitle
-    organization
-    careerStage
-    profileTagIds
     organizerOfGroupIds
     moderationStyle
     moderationGuidelines {
@@ -154,7 +138,6 @@ export const UsersCurrent = gql(`
       quickTakesCommunity
       popularComments
     }
-    hidePostsRecommendations
     currentFrontpageFilter
     frontpageSelectedTab
     frontpageFilterSettings
@@ -164,7 +147,6 @@ export const UsersCurrent = gql(`
     allPostsFilter
     allPostsShowLowKarma
     allPostsIncludeEvents
-    allPostsHideCommunity
     allPostsOpenSettings
     draftsListSorting
     draftsListShowArchived
@@ -192,8 +174,6 @@ export const UsersCurrent = gql(`
     nearbyPeopleNotificationThreshold
     hideFrontpageMap
     emailSubscribedToCurated
-    subscribedToDigest
-    subscribedToNewsletter
     unsubscribeFromAll
     whenConfirmationEmailSent
     hideSubscribePoke
@@ -238,10 +218,6 @@ export const UsersCurrent = gql(`
     notificationRepliesToMyComments
     subforumPreferredLayout
     
-    hideJobAdUntil
-    criticismTipsDismissed
-    
-    allowDatadogSessionReplay
     hideFrontpageBook2020Ad
 
     showDialoguesList
@@ -251,10 +227,10 @@ export const UsersCurrent = gql(`
     hideActiveDialogueUsers
 
     hideSunshineSidebar
-    optedOutOfSurveys
     postGlossariesPinned
     generateJargonForDrafts
     generateJargonForPublishedPosts
+    claudeLinkedAt
   }
 `)
 
@@ -297,7 +273,6 @@ export const UserKarmaChanges = gql(`
           reactionType
           userId
         }
-        eaAddedReacts
         collectionName
       }
       comments {
@@ -315,7 +290,6 @@ export const UserKarmaChanges = gql(`
           reactionType
           userId
         }
-        eaAddedReacts
         collectionName
       }
       tagRevisions {
@@ -328,112 +302,9 @@ export const UserKarmaChanges = gql(`
           reactionType
           userId
         }
-        eaAddedReacts
         collectionName
       }
-      todaysKarmaChanges {
-        posts {
-          _id
-          scoreChange
-          postId
-          title
-          slug
-          addedReacts {
-            reactionType
-            userId
-          }
-          eaAddedReacts
-          collectionName
-        }
-        comments {
-          _id
-          scoreChange
-          commentId
-          description
-          postId
-          postTitle
-          postSlug
-          tagSlug
-          tagName
-          tagCommentType
-          addedReacts {
-            reactionType
-            userId
-          }
-          eaAddedReacts
-          collectionName
-        }
-        tagRevisions {
-          _id
-          scoreChange
-          tagId
-          tagSlug
-          tagName
-          addedReacts {
-            reactionType
-            userId
-          }
-          eaAddedReacts
-          collectionName
-        }
-      }
-      thisWeeksKarmaChanges {
-        posts {
-          _id
-          scoreChange
-          postId
-          title
-          slug
-          addedReacts {
-            reactionType
-            userId
-          }
-          eaAddedReacts
-          collectionName
-        }
-        comments {
-          _id
-          scoreChange
-          commentId
-          description
-          postId
-          postTitle
-          postSlug
-          tagSlug
-          tagName
-          tagCommentType
-          addedReacts {
-            reactionType
-            userId
-          }
-          eaAddedReacts
-          collectionName
-        }
-        tagRevisions {
-          _id
-          scoreChange
-          tagId
-          tagSlug
-          tagName
-          addedReacts {
-            reactionType
-            userId
-          }
-          eaAddedReacts
-          collectionName
-        }
-      }
     }
-  }
-`)
-
-export const UsersBannedFromUsersModerationLog = gql(`
-  fragment UsersBannedFromUsersModerationLog on User {
-    _id
-    slug
-    displayName
-    bannedUserIds
-    bannedPersonalUserIds
   }
 `)
 
@@ -569,7 +440,6 @@ export const UsersEdit = gql(`
     noSingleLineComments
     hideCommunitySection
     showCommunityInRecentDiscussion
-    hidePostsRecommendations
     beta
     theme
 
@@ -577,10 +447,7 @@ export const UsersEdit = gql(`
     email
     whenConfirmationEmailSent
     emailSubscribedToCurated
-    subscribedToDigest
-    subscribedToNewsletter
     unsubscribeFromAll
-    hasAuth0Id
 
     # Moderation
     moderatorAssistance
@@ -674,20 +541,10 @@ export const UsersProfileEdit = gql(`
     _id
     slug
     displayName
-    jobTitle
-    organization
-    careerStage
     profileImageId
     biography {
       ...RevisionEdit
     }
-    howOthersCanHelpMe {
-      ...RevisionEdit
-    }
-    howICanHelpOthers {
-      ...RevisionEdit
-    }
-    profileTagIds
     organizerOfGroupIds
     organizerOfGroups {
       ...localGroupsBase
@@ -709,24 +566,6 @@ export const UsersCrosspostInfo = gql(`
     username
     slug
     fmCrosspostUserId
-  }
-`)
-
-export const UserOnboardingAuthor = gql(`
-  fragment UserOnboardingAuthor on User {
-    _id
-    displayName
-    profileImageId
-    karma
-    jobTitle
-    organization
-  }
-`)
-
-export const UsersSocialMediaInfo = gql(`
-  fragment UsersSocialMediaInfo on User {
-    ...UsersProfile
-    twitterProfileURLAdmin
   }
 `)
 

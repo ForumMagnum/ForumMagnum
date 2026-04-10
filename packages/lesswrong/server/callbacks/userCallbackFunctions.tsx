@@ -1,16 +1,14 @@
 import React from "react";
-import { hasDigests, hasNewsletter } from "@/lib/betas";
 import Conversations from "@/server/collections/conversations/collection";
 import Users from "@/server/collections/users/collection";
 import { getUserEmail, userGetLocation, userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
-import { forumTitleSetting, isEAForum, isLW, isLWorAF, verifyEmailsSetting, mailchimpEAForumListIdSetting, mailchimpForumDigestListIdSetting, mailchimpEAForumNewsletterListIdSetting, recombeeEnabledSetting } from '@/lib/instanceSettings';
+import { forumTitleSetting, isEAForum, isLW, isLWorAF, recombeeEnabledSetting } from '@/lib/instanceSettings';
 import { encodeIntlError } from "@/lib/vulcan-lib/utils";
 import { userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
 import { captureException } from "@/lib/sentryWrapper";
-import { getAuth0Profile, updateAuth0Email } from "../authentication/auth0";
 import { userFindOneByEmail } from "../commonQueries";
-import { changesAllowedSetting, forumTeamUserId, sinceDaysAgoSetting, welcomeEmailPostId, mailchimpAPIKeySetting, hasAuth0 } from "../databaseSettings";
+import { changesAllowedSetting, forumTeamUserId, sinceDaysAgoSetting, welcomeEmailPostId } from "../databaseSettings";
 import { EventDebouncer } from "../debouncer";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { fetchFragmentSingle } from "../fetchFragment";
@@ -105,15 +103,11 @@ async function sendWelcomeMessageTo(userId: string) {
 
   await createMessage({ data: messageDocument }, adminAccountContext);
   
-  // the EA Forum has a separate "welcome email" series that is sent via mailchimp,
-  // so we're not sending the email notification for this welcome PM
-  if (!isEAForum()) {
-    await wrapAndSendEmail({
-      user,
-      subject: subjectLine,
-      body: (emailContext) => <EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
-    })
-  }
+  await wrapAndSendEmail({
+    user,
+    subject: subjectLine,
+    body: (emailContext) => <EmailContentItemBody dangerouslySetInnerHTML={{ __html: welcomeMessageBody }}/>
+  })
 }
 
 export const welcomeMessageDelayer = new EventDebouncer({
@@ -209,7 +203,7 @@ const utils = {
   },
 
   sendVerificationEmailConditional: async (user: DbUser) => {
-    if (!isAnyTest && verifyEmailsSetting.get()) {
+    if (!isAnyTest) {
       backgroundTask(sendVerificationEmail(user));
       await bellNotifyEmailVerificationRequired(user);
     }
@@ -261,46 +255,6 @@ export async function subscribeOnSignup(user: DbUser) {
   await utils.sendVerificationEmailConditional(user);
 }
 
-/**
- * This callback adds all new users to an audience in Mailchimp which will be used for a forthcoming
- * (as of 2021-08-11) drip campaign.
- */
-export async function subscribeToEAForumAudience(user: DbUser) {
-  if (isAnyTest || !isEAForum()) {
-    return;
-  }
-  const mailchimpAPIKey = mailchimpAPIKeySetting.get();
-  const mailchimpEAForumListId = mailchimpEAForumListIdSetting.get();
-  if (!mailchimpAPIKey || !mailchimpEAForumListId) {
-    return;
-  }
-  if (!user.email) {
-    captureException(new Error(`Subscription to EA Forum audience failed: no email for user ${user.displayName}`))
-    return;
-  }
-  const { lat: latitude, lng: longitude, known } = userGetLocation(user);
-  backgroundTask((fetch(`https://us8.api.mailchimp.com/3.0/lists/${mailchimpEAForumListId}/members`, {
-    method: 'POST',
-    body: JSON.stringify({
-      email_address: user.email,
-      email_type: 'html', 
-      ...(known && {location: {
-        latitude,
-        longitude,
-      }}),
-      status: "subscribed",
-    }),
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `API_KEY ${mailchimpAPIKey}`,
-    },
-  })).catch(e => {
-    captureException(e);
-    // eslint-disable-next-line no-console
-    console.log(e);
-  }));
-}
-
 export async function sendWelcomingPM(user: DbUser) {
   await welcomeMessageDelayer.recordEvent({
     key: user._id,
@@ -315,109 +269,6 @@ export async function changeDisplayNameRateLimit({ oldDocument, newDocument, cur
 }
 
 /* UPDATE BEFORE */
-
-/**
- * Handle subscribing/unsubscribing in mailchimp when either
- * `subscribedToDigest` or `subscribedToMailchimp` is changed, including cases
- * where this happens implicitly due to changing another field
- */
-export async function updateMailchimpSubscription(data: UpdateUserDataInput, {oldDocument, newDocument}: UpdateCallbackProperties<"Users">) {
-  // Handle cases which force you to unsubscribe from both:
-  // - When a user explicitly unsubscribes from all emails. If they want they
-  //   can then explicitly re-subscribe while keeping "unsubscribeFromAll"
-  //   checked
-  // - When a user deactivates their account
-  const unsubscribedFromAll = data.unsubscribeFromAll && !oldDocument.unsubscribeFromAll
-  const deactivatedAccount = data.deleted && !oldDocument.deleted
-  if (hasDigests() && (unsubscribedFromAll || deactivatedAccount)) {
-    data.subscribedToDigest = false
-  }
-  if (hasNewsletter() && (unsubscribedFromAll || deactivatedAccount)) {
-    data.subscribedToNewsletter = false
-  }
-
-  const handleErrorCase = (errorMessage: string) => {
-    // If the user is deactivating their account, allow the update to continue. Otherwise,
-    // the user is explicitly trying to update their subscription, so throw and block the update
-    const err = new Error(errorMessage)
-    captureException(err)
-    if (!deactivatedAccount) {
-      throw err
-    }
-    data.subscribedToDigest = false
-    data.subscribedToNewsletter = false
-    return data;
-  }
-
-  const noDigestUpdate = !hasDigests() ||
-    data.subscribedToDigest === undefined ||
-    data.subscribedToDigest === oldDocument.subscribedToDigest
-  const noNewsletterUpdate = !hasNewsletter() ||
-    data.subscribedToNewsletter === undefined ||
-    data.subscribedToNewsletter === oldDocument.subscribedToNewsletter
-  if (isAnyTest || (noDigestUpdate && noNewsletterUpdate)) {
-    return data;
-  }
-
-  const mailchimpAPIKey = mailchimpAPIKeySetting.get();
-  const mailchimpForumDigestListId = mailchimpForumDigestListIdSetting.get();
-  const mailchimpEANewsletterListId = mailchimpEAForumNewsletterListIdSetting.get();
-
-  if (!mailchimpAPIKey) {
-    return handleErrorCase("Error updating subscription: Mailchimp not configured")
-  }
-  if (hasDigests() && !mailchimpForumDigestListId) {
-    // eslint-disable-next-line no-console
-    console.error("Digest list not configured, failing to update subscription");
-  }
-  if (hasNewsletter() && !mailchimpEANewsletterListId) {
-    // eslint-disable-next-line no-console
-    console.error("Newsletter list not configured, failing to update subscription");
-  }
-
-  const email = getUserEmail(newDocument)
-  if (!email) {
-    return handleErrorCase(`Error updating subscription: no email for user ${data.displayName}`)
-  }
-
-  const { lat: latitude, lng: longitude, known } = userGetLocation(newDocument);
-  const digestStatus = data.subscribedToDigest ? 'subscribed' : 'unsubscribed';
-  const newsletterStatus = data.subscribedToNewsletter ? 'subscribed' : 'unsubscribed';
-  const emailHash = md5(email!.toLowerCase());
-
-  const updates = [
-    {noUpdate: noDigestUpdate, listId: mailchimpForumDigestListId, status: digestStatus},
-    {noUpdate: noNewsletterUpdate, listId: mailchimpEANewsletterListId, status: newsletterStatus}
-  ].filter((u) => (!!u.listId && !u.noUpdate))
-  for (const update of updates) {
-    const res = await fetch(`https://us8.api.mailchimp.com/3.0/lists/${update.listId}/members/${emailHash}`, {
-      method: 'PUT',
-      body: JSON.stringify({
-        email_address: email,
-        email_type: 'html',
-        ...(known && {location: {
-          latitude,
-          longitude,
-        }}),
-        merge_fields: {
-          SOURCE: 'EAForum',
-          FNAME: data.displayName,
-        },
-        status: update.status,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `API_KEY ${mailchimpAPIKey}`,
-      },
-    });
-    if (res.status !== 200) {
-      const json = await res.json()
-      return handleErrorCase(`Error updating subscription: ${json.detail || res?.statusText || 'Unknown error'}`)
-    }
-  }
-
-  return data;
-}
 
 export async function updateDisplayName(data: UpdateUserDataInput, { oldDocument, newDocument, context }: UpdateCallbackProperties<"Users">) {
   const { Posts } = context;
@@ -489,16 +340,6 @@ export async function usersEditCheckEmail(modifier: MongoModifier, user: DbUser)
       modifier.$set.emails = [{address: newEmail, verified: false}];
       await utils.sendVerificationEmailConditional(user)
     }
-
-    if (hasAuth0()) {
-      await updateAuth0Email(user, newEmail);
-      /*
-       * Be careful here: DbUser does NOT includes services, so overwriting
-       * modifier.$set.services is both very easy and very bad (amongst other
-       * things, it will invalidate the user's session)
-       */
-      modifier.$set["services.auth0"] = await getAuth0Profile(user);
-    }
   }
   return modifier;
 }
@@ -568,39 +409,21 @@ export async function userEditDeleteContentCallbacksAsync({ newDocument, oldDocu
   }
 }
 
-/* EDIT ASYNC */
-export async function newSubforumMemberNotifyMods(user: DbUser, oldUser: DbUser, context: ResolverContext) {
-  const { Tags } = context;
-
-  const newSubforumIds = difference(user.profileTagIds, oldUser.profileTagIds)
-  for (const subforumId of newSubforumIds) {
-    const subforum = await Tags.findOne(subforumId)
-    if (subforum?.isSubforum) {
-      const modIds = subforum.subforumModeratorIds || []
-      await createNotifications({
-        userIds: modIds,
-        notificationType: 'newSubforumMember',
-        documentType: 'user',
-        documentId: user._id,
-        extraData: {subforumId}
-      })
-    }
-  }
-}
-
 export async function approveUnreviewedSubmissions(userId: string, context: ResolverContext) {
   const { Comments, Posts } = context;
 
-  // For each post by this author which has the authorIsUnreviewed flag set,
-  // clear the authorIsUnreviewed flag so it's visible, and update postedAt
-  // to now so that it goes to the right place int he latest posts list.
-  const unreviewedPosts = await Posts.find({userId, authorIsUnreviewed: true}).fetch();
+  // For each non-rejected post by this author which has the authorIsUnreviewed
+  // flag set, clear the flag so it's visible. For non-draft posts, also update
+  // postedAt to now so they appear in the right place in the latest posts list.
+  // Drafts keep their original postedAt since it will be set when they're undrafted.
+  const unreviewedPosts = await Posts.find({userId, authorIsUnreviewed: true, rejected: {$ne: true}}).fetch();
   for (let post of unreviewedPosts) {
+    const data: UpdatePostDataInput = { authorIsUnreviewed: false };
+    if (!post.draft) {
+      data.postedAt = new Date();
+    }
     await updatePost({
-      data: {
-        authorIsUnreviewed: false,
-        postedAt: new Date(),
-      },
+      data,
       selector: { _id: post._id }
     }, context);
   }

@@ -1,14 +1,15 @@
 import React, { useEffect, useRef } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { applePodcastIcon } from '../../icons/ApplePodcastIcon';
 import { spotifyPodcastIcon } from '../../icons/SpotifyPodcastIcon';
 import { useEventListener } from '../../hooks/useEventListener';
 import { useTracking } from '../../../lib/analyticsEvents';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsPodcastPlayer', (theme: ThemeType) => ({
   embeddedPlayer: {
     marginBottom: '2px',
-    opacity: theme.palette.embeddedPlayer.opacity,
+    opacity: theme.dark ? 0.85 : 1,
   },
   podcastIconList: {
     paddingLeft: '0px',
@@ -18,14 +19,14 @@ const styles = (theme: ThemeType) => ({
     display: 'inline-block',
     marginRight: '8px'
   }
-});
+}));
 
-const PostsPodcastPlayer = ({ podcastEpisode, postId, hideIconList = false, classes }: {
+const PostsPodcastPlayer = ({podcastEpisode, postId, hideIconList = false}: {
   podcastEpisode: Exclude<PostPodcastEpisode['podcastEpisode'], null>,
   postId: string,
   hideIconList?: boolean,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const mouseOverDiv = useRef(false);
   const divRef = useRef<HTMLDivElement | null>(null);
   const { captureEvent } = useTracking();
@@ -72,6 +73,6 @@ const PostsPodcastPlayer = ({ podcastEpisode, postId, hideIconList = false, clas
   </>;
 };
 
-export default registerComponent('PostsPodcastPlayer', PostsPodcastPlayer, { styles });
+export default PostsPodcastPlayer
 
 

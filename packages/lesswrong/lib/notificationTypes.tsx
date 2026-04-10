@@ -1,5 +1,5 @@
 import React, { FC } from 'react';
-import { getPostCollaborateUrl, postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
+import { postGetAuthorName, postGetEditUrl } from './collections/posts/helpers';
 import { commentGetAuthorName } from './collections/comments/helpers';
 import { responseToText } from './collections/posts/constants';
 import sortBy from 'lodash/sortBy';
@@ -7,7 +7,6 @@ import { getReviewNameInSitu } from './reviewUtils';
 import startCase from 'lodash/startCase';
 import { userGetDisplayName } from './collections/users/helpers'
 import { Link } from './reactRouterWrapper';
-import { isFriendlyUI } from '../themes/forumTheme';
 import { sequenceGetPageUrl } from './collections/sequences/helpers';
 import { tagGetUrl } from './collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
@@ -447,7 +446,7 @@ export const NewMessageNotification = createNotificationType({
     let conversation = await Conversations.findOne(document.conversationId);
     return (await Users.findOne(document.userId))?.displayName + ' sent you a new message' + (conversation?.title ? (' in the conversation ' + conversation.title) : "") + '!';
   },
-  causesRedBadge: () => !isFriendlyUI(),
+  causesRedBadge: () => true,
 });
 
 export const WrappedNotification = createNotificationType({
@@ -491,7 +490,7 @@ export const PostSharedWithUserNotification = createNotificationType({
     if (!documentId) {
       throw new Error("PostSharedWithUserNotification documentId is missing")
     }
-    return getPostCollaborateUrl(documentId, false)
+    return postGetEditUrl(documentId, false)
   },
   Display: ({User, Post, notification: {post}}) => <>
     <User /> shared their {post?.draft ? "draft" : "post"} <Post /> with you
@@ -614,19 +613,6 @@ export const NewGroupOrganizerNotification = createNotificationType({
   Display: ({Localgroup}) => <>You've been added as an organizer of <Localgroup /></>,
 })
 
-export const NewSubforumMemberNotification = createNotificationType({
-  name: "newSubforumMember",
-  userSettingField: "notificationGroupAdministration",
-  async getMessage({documentType, documentId, context}: GetMessageProps) {
-    const { Users } = context;
-    if (documentType !== 'user') throw new Error("documentType must be user")
-    const newUser = await Users.findOne(documentId)
-    if (!newUser) throw new Error("Cannot find new user for which this notification is being sent")
-    return `A new user has joined your topic: ${newUser.displayName}`
-  },
-  Display: ({User, Tag}) => <><User /> has joined <Tag /></>,
-})
-
 export const NewCommentOnDraftNotification = createNotificationType({
   name: "newCommentOnDraft",
   userSettingField: "notificationCommentsOnDraft",
@@ -728,7 +714,6 @@ const notificationTypesArray = [
   KarmaPowersGainedNotification,
   CancelledRSVPNotification,
   NewGroupOrganizerNotification,
-  NewSubforumMemberNotification,
   NewCommentOnDraftNotification,
   CoauthorRequestNotification,
   CoauthorAcceptNotification,

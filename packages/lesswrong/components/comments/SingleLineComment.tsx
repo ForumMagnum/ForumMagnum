@@ -28,11 +28,10 @@ export const singleLineStyles = (theme: ThemeType) => ({
   },
   marginTop: 0,
   marginBottom: 0,
-  paddingLeft: theme.spacing.unit,
-  paddingRight: theme.spacing.unit,
+  paddingLeft: 8,
+  paddingRight: 8,
   color: theme.palette.text.dim60,
-  whiteSpace: "nowrap",
-  fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : undefined,
+  whiteSpace: "nowrap"
 })
 
 const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
@@ -86,8 +85,8 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
   date: {
     display:"inline-block",
     padding: SINGLE_LINE_PADDING_TOP,
-    paddingRight: theme.spacing.unit,
-    paddingLeft: theme.spacing.unit
+    paddingRight: 8,
+    paddingLeft: 8
   },
   truncatedHighlight: {
     padding: SINGLE_LINE_PADDING_TOP,
@@ -111,25 +110,6 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
       fontWeight: theme.typography.body2.fontWeight
     }
   },
-  highlight: {
-    backgroundColor: theme.palette.panelBackground.default,
-    width: "inherit",
-    maxWidth: 625,
-    position: "absolute",
-    top: "calc(100% - 20px)",
-    right: 0,
-    zIndex: 5,
-    border: theme.palette.border.faint,
-    boxShadow: theme.palette.boxShadow.comment,
-    maxHeight: 500,
-    overflow: "hidden",
-    '& img': {
-      maxHeight: "200px"
-    }
-  },
-  highlightPadding: {
-    padding: theme.spacing.unit*1.5
-  },
   isAnswer: {
     fontSize: theme.typography.body2.fontSize,
     lineHeight: theme.typography.body2.lineHeight,
@@ -147,7 +127,7 @@ const styles = defineStyles("SingleLineComment", (theme: ThemeType) => ({
   },
   metaNotice: {
     ...metaNoticeStyles(theme),
-    marginRight: theme.spacing.unit
+    marginRight: 8
   },
   postTitle: {
     ...metaNoticeStyles(theme),

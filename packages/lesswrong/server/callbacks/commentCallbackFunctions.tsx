@@ -1,16 +1,13 @@
 import React from "react";
 import { commentIsNotPublicForAnyReason } from "@/lib/collections/comments/helpers";
-import { ForumEventCommentMetadata } from "@/lib/collections/forumEvents/types";
 import { REJECTED_COMMENT } from "@/lib/collections/moderatorActions/constants";
-import { tagGetDiscussionUrl, EA_FORUM_COMMUNITY_TOPIC_ID } from "@/lib/collections/tags/helpers";
+import { tagGetDiscussionUrl } from "@/lib/collections/tags/helpers";
 import { userShortformPostTitle } from "@/lib/collections/users/helpers";
 import { isAnyTest } from "@/lib/executionEnvironment";
 import { isEAForum, isLW, recombeeEnabledSetting } from '@/lib/instanceSettings';
-import { randomId } from "@/lib/random";
 import { userCanDo, userIsAdminOrMod } from "@/lib/vulcan-users/permissions";
 import { noDeletionPmReason } from "@/lib/collections/comments/constants";
 import { fetchFragmentSingle } from "../fetchFragment";
-import { checkModGPT } from "../languageModels/modGPT";
 import { CreateCallbackProperties, UpdateCallbackProperties, AfterCreateCallbackProperties } from "../mutationCallbacks";
 import { createNotifications, getSubscribedUsers } from "../notificationCallbacksHelpers";
 import { rateLimitDateWhenUserNextAbleToComment } from "../rateLimitUtils";
@@ -101,39 +98,6 @@ const utils = {
         moment.relativeTimeThreshold('ss', 0);
         throw new Error(`Rate limit: You cannot comment for ${moment(nextEligible).fromNow()} (until ${nextEligible})`);
       }
-    }
-  },
-
-  /**
-   * Run side effects based on the `forumEventMetadata` that is submitted.
-   */
-  forumEventSideEffects: async ({ comment, forumEventMetadata, context }: { comment: DbComment; forumEventMetadata: ForumEventCommentMetadata; context: ResolverContext; }) => {
-    const { repos } = context;
-    if (forumEventMetadata.eventFormat === "STICKERS") {
-      const sticker = forumEventMetadata.sticker
-
-      if (!comment.forumEventId) {
-        throw new Error("Comment must have forumEventId")
-      }
-
-      const {_id, x, y, theta, emoji} = sticker ?? {};
-
-      if (!sticker || !_id || !x || !y || !theta) {
-        throw new Error("Must include sticker")
-      }
-
-      if (!emoji) {
-        throw new Error("No emoji selected")
-      }
-
-      const forumEventId = comment.forumEventId;
-      const stickerData = {_id, x, y, theta, emoji, commentId: comment._id, userId: comment.userId};
-
-      await repos.forumEvents.addSticker({ forumEventId, stickerData });
-      captureEvent("addForumEventSticker", {
-        forumEventId,
-        stickerData,
-      });
     }
   },
 
@@ -530,26 +494,6 @@ export function newCommentsEmptyCheck(comment: CreateCommentDataInput) {
   }
 }
 
-export function newCommentsPollResponseCheck(comment: CreateCommentDataInput) {
-  const { data } = (comment.contents && comment.contents.originalContents) || {}
-  const commentPrompt = (comment.forumEventMetadata as ForumEventCommentMetadata)?.poll?.commentPrompt;
-
-  if (commentPrompt && data) {
-    // commentPrompt will be like `<blockquote>${plaintextQuestion}</blockquote><p></p>`
-    // If unedited, data will be like `<blockquote><p>${plaintextQuestion}</p></blockquote><p>&nbsp;</p>`
-
-    // Normalize both strings by removing HTML tags, replacing &nbsp;, and trimming/collapsing whitespace.
-    const normalize = (html: string) => html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/\s+/g, ' ').trim();
-
-    const normalizedPrompt = normalize(commentPrompt);
-    const normalizedData = normalize(data);
-
-    if (normalizedPrompt && normalizedData === normalizedPrompt) {
-      throw new Error("Cannot submit only the prefilled text");
-    }
-  }
-}
-
 export async function newCommentsRateLimit(newComment: CreateCommentDataInput, currentUser: DbUser, context: ResolverContext) {
   if (!currentUser) {
     throw new Error(`Can't comment while logged out.`);
@@ -749,15 +693,6 @@ export async function commentsNewUserApprovedStatus(comment: CreateCommentDataIn
   return comment;
 }
 
-export async function handleForumEventMetadataNew(comment: CreateCommentDataInput & { _id?: string }, context: ResolverContext) {
-  if (comment.forumEventMetadata) {
-    // Side effects may need to reference the comment, so set the _id now
-    comment._id = comment._id || randomId();
-    await utils.forumEventSideEffects({ comment: comment as DbComment, forumEventMetadata: comment.forumEventMetadata, context });
-  }
-  return comment;
-}
-
 
 /* CREATE AFTER */
 export function invalidatePostOnCommentCreate({ postId }: DbComment, context: ResolverContext) {
@@ -826,41 +761,6 @@ export async function trackCommentRateLimitHit({document, context}: AfterCreateC
       })
     }
   }
-}
-
-export async function checkModGPTOnCommentCreate({document, context}: AfterCreateCallbackProperties<'Comments'>) {
-  // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
-  // We skip comments by unreviewed authors, because those will be reviewed by a human.
-  if (
-    !isEAForum() ||
-    !document.postId ||
-    document.deleted ||
-    document.deletedPublic ||
-    document.spam ||
-    document.needsReview ||
-    document.authorIsUnreviewed ||
-    document.retracted ||
-    document.rejected ||
-    document.shortform ||
-    document.moderatorHat
-  ) {
-    return
-  }
-  
-  // only have ModGPT check comments on posts tagged with "Community"
-  const post = await fetchFragmentSingle({
-    collectionName: "Posts",
-    fragmentDoc: PostsOriginalContents,
-    currentUser: null,
-    skipFiltering: true,
-    selector: {_id: document.postId},
-  });
-  if (!post) return
-  
-  const postTags = post.tagRelevance
-  if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
-  
-  backgroundTask(checkModGPT(document, post, context))
 }
 
 // Elastic callback might go here
@@ -991,14 +891,6 @@ export async function moveToAnswers(modifier: MongoModifier, comment: DbComment,
   return modifier
 }
 
-export async function handleForumEventMetadataEdit(modifier: MongoModifier, comment: DbComment, context: ResolverContext) {
-  const newMetadata = modifier.$set?.forumEventMetadata;
-  if (newMetadata && !isEqual(comment.forumEventMetadata, newMetadata)) {
-    await utils.forumEventSideEffects({ comment, forumEventMetadata: newMetadata, context });
-  }
-  return modifier
-}
-
 /* UPDATE AFTER */
 export function invalidatePostOnCommentUpdate({ postId }: { postId: string | null }, context: ResolverContext) {
   if (!postId) return;
@@ -1044,45 +936,6 @@ export async function updateUserNotesOnCommentRejection({ newDocument, oldDocume
       }
     }, context));
   }
-}
-
-export async function checkModGPTOnCommentUpdate({oldDocument, newDocument, context}: UpdateCallbackProperties<"Comments">) {
-  // On the EA Forum, ModGPT checks earnest comments on posts for norm violations.
-  // We skip comments by unreviewed authors, because those will be reviewed by a human.
-  if (
-    !isEAForum() ||
-    !newDocument.postId ||
-    newDocument.deleted ||
-    newDocument.deletedPublic ||
-    newDocument.spam ||
-    newDocument.needsReview ||
-    newDocument.authorIsUnreviewed ||
-    newDocument.retracted ||
-    newDocument.rejected ||
-    newDocument.shortform ||
-    newDocument.moderatorHat ||
-    !newDocument.contents?.originalContents?.data
-  ) {
-    return
-  }
-  
-  const noChange = oldDocument.contents?.originalContents?.data === newDocument.contents.originalContents.data
-  if (noChange) return
-
-  // only have ModGPT check comments on posts tagged with "Community"
-  const post = await fetchFragmentSingle({
-    collectionName: "Posts",
-    fragmentDoc: PostsOriginalContents,
-    currentUser: null,
-    skipFiltering: true,
-    selector: {_id: newDocument.postId},
-  });
-  if (!post) return
-  
-  const postTags = post.tagRelevance
-  if (!postTags || !Object.keys(postTags).includes(EA_FORUM_COMMUNITY_TOPIC_ID)) return
-  
-  backgroundTask(checkModGPT(newDocument, post, context))
 }
 
 /* EDIT ASYNC */
@@ -1144,12 +997,6 @@ export async function maybeCreateAutomatedContentEvaluationForComment(
     : null;
 
   if (revision) {
-    // For now, only autoreject above threshold for unreviewed users.
-    // Might remove this later after we've had Pangram for a bit longer,
-    // or make the thresholds configurable, or the behavior itself depend
-    // on a user's review state, i.e. have LLM-y posts by reviewed users
-    // trigger a custom moderator action instead of rejecting.
-    const shouldAutoreject = !context.currentUser?.reviewedByUserId;
-    await createAutomatedContentEvaluation(revision, context, { autoreject: shouldAutoreject });
+    await createAutomatedContentEvaluation(revision, context, { autoreject: true });
   }
 }

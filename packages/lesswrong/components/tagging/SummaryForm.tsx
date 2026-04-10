@@ -40,8 +40,8 @@ const formStyles = defineStyles('SummaryForm', (theme: ThemeType) => ({
     flexWrap: 'wrap',
   },
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   submitButtons: {
     display: 'flex',

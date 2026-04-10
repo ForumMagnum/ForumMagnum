@@ -7,7 +7,6 @@ export const createAnonymousContext = (options?: Partial<ResolverContext>): Reso
   return {
     userId: null,
     clientId: null,
-    visitorActivity: null,
     currentUser: null,
     headers: undefined,
     locale: localeSetting.get(),

@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { RecombeeConfiguration } from '../../lib/collections/users/recommendationSettings';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
@@ -8,8 +7,10 @@ import isEqual from 'lodash/isEqual';
 import { randomId } from '../../lib/random';
 import UserSelect from "../form-components/UserSelect";
 import LWTooltip from "../common/LWTooltip";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RecombeePostsListSettings', (theme: ThemeType) => ({
   adminOverrides: {
     display: 'flex',
     flexDirection: 'column',
@@ -34,13 +35,13 @@ const styles = (theme: ThemeType) => ({
     alignSelf: 'center',
     background: theme.palette.greyAlpha(0.1)
   },
-});
+}));
 
-export const RecombeePostsListSettings = ({ settings, updateSettings, classes }: {
+export const RecombeePostsListSettings = ({settings, updateSettings}: {
   settings: RecombeeConfiguration,
   updateSettings: (settings: RecombeeConfiguration) => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [userIdOverride, setUserIdOverride] = useState<string | null>(settings.userId ?? null);
   const [boosterOverride, setBoosterOverride] = useState<string | undefined>(settings.booster);
   const [rotationRateOverride, setRotationRateOverride] = useState<number|undefined>(settings.rotationRate);
@@ -128,6 +129,6 @@ export const RecombeePostsListSettings = ({ settings, updateSettings, classes }:
   );
 }
  
-export default registerComponent('RecombeePostsListSettings', RecombeePostsListSettings, {styles});
+export default RecombeePostsListSettings;
 
 

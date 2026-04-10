@@ -8,15 +8,13 @@ import ConversationsRepo from "./ConversationsRepo";
 import CurationEmailsRepo from "./CurationEmailsRepo";
 import DatabaseMetadataRepo from "./DatabaseMetadataRepo";
 import DebouncerEventsRepo from "./DebouncerEventsRepo";
-import ElectionCandidatesRepo from "./ElectionCandidatesRepo";
-import ElectionVotesRepo from "./ElectionVotesRepo";
-import ForumEventsRepo from "./ForumEventsRepo";
+import HomePageDesignsRepo from "./HomePageDesignsRepo";
 import JargonTermsRepo from "./JargonTermsRepo";
 import LocalgroupsRepo from "./LocalgroupsRepo";
 import LWEventsRepo from "./LWEventsRepo";
 import ManifoldProbabilitiesCachesRepo from "./ManifoldProbabilitiesCachesRepo";
 import NotificationsRepo from "./NotificationsRepo";
-import PageCacheRepo from "./PageCacheRepo";
+import OAuthAuthorizationCodesRepo from "./OAuthAuthorizationCodesRepo";
 import PostEmbeddingsRepo from "./PostEmbeddingsRepo";
 import PostRecommendationsRepo from "./PostRecommendationsRepo";
 import PostRelationsRepo from "./PostRelationsRepo";
@@ -32,8 +30,6 @@ import SequencesRepo from "./SequencesRepo";
 import SideCommentCachesRepo from "./SideCommentCachesRepo";
 import SplashArtCoordinatesRepo from "./SplashArtCoordinatesRepo";
 import SpotlightsRepo from "./SpotlightsRepo";
-import SurveysRepo from "./SurveysRepo";
-import SurveySchedulesRepo from "./SurveySchedulesRepo";
 import TagsRepo from "./TagsRepo";
 import TweetsRepo from "./TweetsRepo";
 import UltraFeedEventsRepo from "./UltraFeedEventsRepo";
@@ -60,15 +56,13 @@ const allRepos = {
   curationEmails: CurationEmailsRepo,
   databaseMetadata: DatabaseMetadataRepo,
   debouncerEvents: DebouncerEventsRepo,
-  electionCandidates: ElectionCandidatesRepo,
-  electionVotes: ElectionVotesRepo,
-  forumEvents: ForumEventsRepo,
+  homePageDesigns: HomePageDesignsRepo,
   jargonTerms: JargonTermsRepo,
   localgroups: LocalgroupsRepo,
   lwEvents: LWEventsRepo,
   manifoldProbabilitiesCachesRepo: ManifoldProbabilitiesCachesRepo,
   notifications: NotificationsRepo,
-  pageCaches: PageCacheRepo,
+  oAuthAuthorizationCodes: OAuthAuthorizationCodesRepo,
   postEmbeddings: PostEmbeddingsRepo,
   postRecommendations: PostRecommendationsRepo,
   postRelations: PostRelationsRepo,
@@ -84,8 +78,6 @@ const allRepos = {
   sideComments: SideCommentCachesRepo,
   splashArtCoordinates: SplashArtCoordinatesRepo,
   spotlights: SpotlightsRepo,
-  surveys: SurveysRepo,
-  surveySchedules: SurveySchedulesRepo,
   tags: TagsRepo,
   tweets: TweetsRepo,
   ultraFeedEvents: UltraFeedEventsRepo,

@@ -1,7 +1,6 @@
 import React from "react";
 import { useExpandedFrontpageSection } from "../hooks/useExpandedFrontpageSection";
 import { SHOW_POPULAR_COMMENTS_SECTION_COOKIE } from "../../lib/cookies/cookies";
-import { preferredHeadingCase } from "../../themes/forumTheme";
 import ExpandableSection from "../common/ExpandableSection";
 import PopularCommentsList from "../comments/PopularCommentsList";
 
@@ -18,7 +17,7 @@ const EAPopularCommentsSection = () => {
       pageSectionContext="popularCommentsSection"
       expanded={expanded}
       toggleExpanded={toggleExpanded}
-      title={preferredHeadingCase("Popular Comments")}
+      title={"Popular Comments"}
     >
       <PopularCommentsList/>
     </ExpandableSection>

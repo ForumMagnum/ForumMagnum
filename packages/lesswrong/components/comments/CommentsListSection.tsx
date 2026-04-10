@@ -13,7 +13,6 @@ import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import CommentsViews from "./CommentsViews";
 import Loading from "../vulcan-core/Loading";
 import CalendarDate from "../common/CalendarDate";
@@ -43,12 +42,6 @@ const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
   },
   maxWidthRoot: {
     maxWidth: 720,
-  },
-  commentsHeadline: {
-    fontSize: 24,
-    lineHeight: '36px',
-    fontWeight: 600,
-    marginBottom: 16
   },
   commentCount: {
     color: theme.palette.grey[600],
@@ -80,17 +73,17 @@ const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
     border: "none",
   },
   newCommentLabel: {
-    paddingLeft: theme.spacing.unit*1.5,
+    paddingLeft: 12,
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
     fontWeight: 600,
     marginTop: 12
   },
   newCommentSublabel: {
-    paddingLeft: theme.spacing.unit*1.5,
+    paddingLeft: 12,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[600],
-    marginTop: theme.isFriendlyUI ? 8 : 4,
+    marginTop: 4,
     fontStyle: "italic",
   }
 }))
@@ -167,11 +160,6 @@ const CommentsListSection = ({
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
       <div id="comments"/>
-      {isFriendlyUI() && (newForm || !!totalComments) && !post?.shortform &&
-        <div className={classes.commentsHeadline}>
-          Comments{commentCountNode}
-        </div>
-      }
 
       {newForm
         && (!currentUser || !post || userIsAllowedToComment(currentUser, post, postAuthor, false))
@@ -183,7 +171,7 @@ const CommentsListSection = ({
             [classes.newQuickTake]: isEAForum() && post?.shortform,
           })}
         >
-          {!isEAForum() && <div className={classes.newCommentLabel}>{preferredHeadingCase("New Comment")}</div>}
+          {!isEAForum() && <div className={classes.newCommentLabel}>New Comment</div>}
           {post?.isEvent && !!post.rsvps?.length && (
             <div className={classes.newCommentSublabel}>
               Everyone who RSVP'd to this event will be notified.
@@ -302,9 +290,6 @@ function CommentsListSectionTitle({
     <span>
       {postGetCommentCountStr(post, totalComments)}, sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} />
     </span>
-  if (isFriendlyUI()) {
-    commentSortNode = <>Sorted by <CommentsViews post={post} setRestoreScrollPos={setRestoreScrollPos} /></>
-  }
 
   const contentType = isEAForum() && post?.shortform
     ? "quick takes"

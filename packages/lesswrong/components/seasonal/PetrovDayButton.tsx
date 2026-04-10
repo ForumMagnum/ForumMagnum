@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import React, { useState } from 'react';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
@@ -19,12 +18,14 @@ import LoginPopupButton from "../users/LoginPopupButton";
 import { Typography } from "../common/Typography";
 import { petrovDayLaunchCode } from '@/lib/collections/petrovDayActions/constants';
 import { WrappedReactMapGL } from '../community/WrappedReactMapGL';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 // This component is (most likely) going to be used once-a-year on Petrov Day (sept 26th)
 // see this post:
 // https://www.lesswrong.com/posts/vvzfFcbmKgEsDBRHh/honoring-petrov-day-on-lesswrong-in-2019
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PetrovDayButton', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     zIndex: theme.zIndexes.petrovDayButton,
@@ -44,10 +45,10 @@ const styles = (theme: ThemeType) => ({
   },
   panel: {
     backgroundColor: theme.palette.grey[100],
-    paddingTop: theme.spacing.unit*2,
-    paddingLeft: theme.spacing.unit*3,
-    paddingRight: theme.spacing.unit*3,
-    paddingBottom: theme.spacing.unit*2,
+    paddingTop: 16,
+    paddingLeft: 24,
+    paddingRight: 24,
+    paddingBottom: 16,
     borderRadius: 5,
     boxShadow: `0 0 10px ${theme.palette.grey[800]}`,
     display: "flex",
@@ -55,18 +56,18 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center"
   },
   title: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit*2
+    marginTop: 8,
+    marginBottom: 16
   },
   karmaThreshold: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit*2,
+    marginTop: 8,
+    marginBottom: 16,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center'
   },
   usersAboveThreshold: {
-    marginTop: theme.spacing.unit*1.5,
+    marginTop: 12,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -110,23 +111,23 @@ const styles = (theme: ThemeType) => ({
     alignItems: "center"
   },
   keyCode: {
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit,
+    marginTop: 16,
+    marginBottom: 8,
     border: theme.palette.border.faint,
     height: 50,
     width: "100%",
     borderRadius: 3,
     boxShadow: `0 0 10px ${theme.palette.grey[200]}`,
-    padding: theme.spacing.unit*1.5
+    padding: "12px"
   },
   incorrectCode: {
     textAlign: "center",
-    marginTop: theme.spacing.unit,
+    marginTop: 8,
     fontSize: 12,
     color: theme.palette.grey[500]
   },
   info: {
-    marginTop: theme.spacing.unit*1.5,
+    marginTop: 12,
     width: 255,
     textAlign: "center",
     lineHeight: "1.4em",
@@ -134,16 +135,16 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1.4rem"
   },
   link: {
-    marginTop: theme.spacing.unit*1.5,
+    marginTop: 12,
     color: theme.palette.primary.main
   }
-})
+}))
 
-const PetrovDayButton = ({classes, alreadyLaunched }: {
-  classes: ClassesType<typeof styles>,
+const PetrovDayButton = ({alreadyLaunched}: {
   refetch?: any,
   alreadyLaunched?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser()
   const { petrovPressedButtonDate } = (currentUser || {}) as any;
   const [pressed, setPressed] = useState(false) //petrovPressedButtonDate)
@@ -265,7 +266,7 @@ const PetrovDayButton = ({classes, alreadyLaunched }: {
   )
 }
 
-export default registerComponent('PetrovDayButton', PetrovDayButton, {styles});
+export default PetrovDayButton;
 
 
 

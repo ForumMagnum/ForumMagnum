@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import classNames from 'classnames';
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
@@ -15,6 +14,8 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { userIsMemberOf } from '@/lib/vulcan-users/permissions';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListMultiQuery = gql(`
   query multiPostsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -38,7 +39,7 @@ const SunshineCurationPostsListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineCuratedSuggestionsList', (theme: ThemeType) => ({
   loadMorePadding: {
     paddingLeft: 16,
   },
@@ -67,7 +68,7 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: `${theme.palette.error.main}30`,
     border: `10px solid ${theme.palette.error.main}`,
   },
-});
+}));
 
 const shouldShow = (atBottom: boolean, timeForCuration: boolean, currentUser: UsersCurrent | null, hasCurationDrafts: boolean) => {
   if (isEAForum()) {
@@ -83,13 +84,13 @@ const hasCurationDrafts = (results: SunshineCurationPostsList[] | undefined): bo
   return results.some(post => post.curationNotices && post.curationNotices.length > 0);
 }
 
-const SunshineCuratedSuggestionsList = ({ limit = 7, atBottom, classes, setCurationPost, setHasDrafts }: {
+const SunshineCuratedSuggestionsList = ({limit = 7, atBottom, setCurationPost, setHasDrafts}: {
   limit?: number,
   atBottom?: boolean,
-  classes: ClassesType<typeof styles>,
   setCurationPost?: (post: PostsList) => void,
   setHasDrafts?: (hasDrafts: boolean) => void,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const [audioOnly, setAudioOnly] = useState<boolean>(false)
@@ -136,17 +137,15 @@ const SunshineCuratedSuggestionsList = ({ limit = 7, atBottom, classes, setCurat
   }
 
   let statusClass = '';
-  if (isLWorAF()) {
-    const daysSinceCurated = Math.floor(
-      (new Date().getTime() - curatedDate.getTime()) / (24 * 60 * 60 * 1000)
-    );
-    if (daysSinceCurated >= 6) {
-      statusClass = classes.urgent;
-    } else if (daysSinceCurated >= 4) {
-      statusClass = classes.alert;
-    } else if (daysSinceCurated >= 3) {
-      statusClass = classes.warning;
-    }
+  const daysSinceCurated = Math.floor(
+    (new Date().getTime() - curatedDate.getTime()) / (24 * 60 * 60 * 1000)
+  );
+  if (daysSinceCurated >= 6) {
+    statusClass = classes.urgent;
+  } else if (daysSinceCurated >= 4) {
+    statusClass = classes.alert;
+  } else if (daysSinceCurated >= 3) {
+    statusClass = classes.warning;
   }
 
   const needsDraftsText = !timeForCuration && !hasDrafts ? " (No drafts!)" : "";
@@ -167,7 +166,7 @@ const SunshineCuratedSuggestionsList = ({ limit = 7, atBottom, classes, setCurat
       </SunshineListTitle>
       {results?.map(post =>
         <div key={post._id} >
-          <SunshineCuratedSuggestionsItem post={post} setCurationPost={setCurationPost} timeForCuration={timeForCuration}/>
+          <SunshineCuratedSuggestionsItem post={post} setCurationPost={setCurationPost}/>
         </div>
       )}
       {showLoadMore && <div className={classes.loadMorePadding}>
@@ -177,6 +176,6 @@ const SunshineCuratedSuggestionsList = ({ limit = 7, atBottom, classes, setCurat
   )
 }
 
-export default registerComponent('SunshineCuratedSuggestionsList', SunshineCuratedSuggestionsList, {styles});
+export default SunshineCuratedSuggestionsList;
 
 

@@ -2,32 +2,35 @@ import React from 'react';
 import LWTooltip from '@/components/common/LWTooltip';
 import ReactionIcon from '@/components/votes/ReactionIcon';
 import UsersName from '../UsersName';
-import { isEAForum } from '@/lib/instanceSettings';
-import { eaAnonymousEmojiPalette, eaEmojiPalette } from '@/lib/voting/eaEmojiPalette';
-import { styles } from './styles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { defineStyles } from '@/components/hooks/defineStyles';
 import type { ReactionChange } from '@/server/collections/users/karmaChangesGraphQL';
 
+const styles = defineStyles("NewReactions", (theme: ThemeType) => ({
+  individualAddedReact: {
+    marginLeft: 2,
+  },
+  votedItemReacts: {
+    marginLeft: 6,
+  },
+}));
 
 export const NewReactions = ({ reactionChanges }: {
-  reactionChanges: ReactionChange[];
+  reactionChanges: ReactionChange[]|null|undefined;
 }) => {
   const classes = useStyles(styles);
+  if (!reactionChanges || !reactionChanges.length) {
+    return null;
+  }
   const distinctReactionTypes = new Set<string>();
-  for (let reactionChange of reactionChanges)
+  for (let reactionChange of reactionChanges) {
     distinctReactionTypes.add(reactionChange.reactionType);
+  }
 
-  return <span>
+
+  return <span className={classes.votedItemReacts}>
     {[...distinctReactionTypes.keys()].map(reactionType => {
       let disableTooltip = false;
-      let EAEmojiComponent = eaEmojiPalette.find(emoji => emoji.name === reactionType)?.Component;
-      // On EAF, if the emoji is not in the list of non-anonymous reacts (eaEmojiPalette),
-      // then make sure not to show any usernames of voters. They should not be available here anyway,
-      // but we also don't want to show [anonymous], so we disable the tooltip altogether.
-      if (!EAEmojiComponent && isEAForum()) {
-        EAEmojiComponent = eaAnonymousEmojiPalette.find(emoji => emoji.name === reactionType)?.Component;
-        disableTooltip = true;
-      }
 
       return <span
         className={classes.individualAddedReact}
@@ -37,12 +40,11 @@ export const NewReactions = ({ reactionChanges }: {
           title={reactionChanges.filter(r => r.reactionType === reactionType)
             .map((r, i) => <>
               {i > 0 && <>{", "}</>}
-              <UsersName documentId={r.userId} />
+              <UsersName documentId={r.userId ?? undefined} />
             </>)}
           disabled={disableTooltip}
         >
-          {(EAEmojiComponent && isEAForum()) ? <EAEmojiComponent /> : <ReactionIcon
-            react={reactionType} />}
+          <ReactionIcon react={reactionType} />
         </LWTooltip>
       </span>;
     })}

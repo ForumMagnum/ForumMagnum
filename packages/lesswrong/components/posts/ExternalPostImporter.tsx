@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMutation } from "@apollo/client/react";
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '../common/withUser';
@@ -14,8 +13,9 @@ import Loading from "../vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { makeEditorConfig } from '../editor/editorConfigs';
-import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import LexicalEditor from '../editor/LexicalEditor';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListUpdateMutation = gql(`
   mutation updatePostExternalPostImporter($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -54,7 +54,7 @@ export type ExternalPostImportData = {
   };
 };
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ExternalPostImporter', (theme: ThemeType) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -144,19 +144,14 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 32,
     fontSize: '1.6rem',
   },
-});
+}));
 
-const ImportedPostEditor = ({
-  post,
-  onContentChange,
-  classes,
-  isAdmin,
-}: {
+const ImportedPostEditor = ({post, onContentChange, useLexical}: {
   post: ExternalPostImportData['post'];
   onContentChange: (updatedContent: string) => void;
-  classes: ClassesType<typeof styles>;
-  isAdmin: boolean;
+  useLexical: boolean;
 }) => {
+  const classes = useStyles(styles);
   const [editorValue, setEditorValue] = useState<string>(post.content || '');
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
   const editorRef = useRef<any>(null);
@@ -168,7 +163,7 @@ const ImportedPostEditor = ({
   return (
     <div className={classes.editorContainer}>
       <ContentStyles contentType="post">
-        {isAdmin ? (
+        {useLexical ? (
           <LexicalEditor
             data={editorValue}
             placeholder="Edit the imported post..."
@@ -198,17 +193,12 @@ const ImportedPostEditor = ({
   );
 };
 
-const CommentEditor = ({
-  onPublish,
-  onCancel,
-  classes,
-  isAdmin,
-}: {
+const CommentEditor = ({onPublish, onCancel, useLexical}: {
   onPublish: (commentContent: string) => void;
   onCancel: () => void;
-  classes: ClassesType<typeof styles>;
-  isAdmin: boolean;
+  useLexical: boolean;
 }) => {
+  const classes = useStyles(styles);
   const [commentValue, setCommentValue] = useState<string>('');
   const ckEditorRef = useRef<CKEditor<any> | null>(null);
   const editorRef = useRef<any>(null);
@@ -218,7 +208,7 @@ const CommentEditor = ({
   return (
     <div className={classes.commentEditorContainer}>
       <ContentStyles contentType="comment">
-        {isAdmin ? (
+        {useLexical ? (
           <LexicalEditor
             data={commentValue}
             placeholder="Write a review about the imported post..."
@@ -265,7 +255,8 @@ const CommentEditor = ({
   );
 };
 
-const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesType<typeof styles>, defaultPostedAt?: Date }) => {
+const ExternalPostImporter = ({defaultPostedAt}: { defaultPostedAt?: Date }) => {
+  const classes = useStyles(styles);
   const [value, setValue] = useState('');
   const [post, setPost] = useState<ExternalPostImportData['post'] | null>(null);
   const [postContent, setPostContent] = useState<string>('');
@@ -275,8 +266,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
   const { flash } = useMessages();
 
   const currentUser = useCurrentUser();
-  const isAdmin = userIsAdmin(currentUser);
-  const editorType = isAdmin ? 'lexical' : 'ckEditorMarkup';
+  const editorType = 'lexical' as const;
 
   const [importUrlAsDraftPost, { data, loading, error }] = useMutation(gql(`
     mutation importUrlAsDraftPost($url: String!) {
@@ -446,8 +436,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
           <ImportedPostEditor
             post={post}
             onContentChange={setPostContent}
-            classes={classes}
-            isAdmin={isAdmin}
+            useLexical={editorType === 'lexical'}
           />
           <Typography variant="body2">
             To nominate a linkpost for the Annual Review, you must write your own review it.<br />
@@ -456,8 +445,7 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
           <CommentEditor
             onPublish={handlePublish}
             onCancel={handleImportDifferentPost}
-            classes={classes}
-            isAdmin={isAdmin}
+            useLexical={editorType === 'lexical'}
           />
           {publishingPost && <Loading />}
         </div>
@@ -466,8 +454,6 @@ const ExternalPostImporter = ({ classes, defaultPostedAt }: { classes: ClassesTy
   );
 };
 
-export default registerComponent('ExternalPostImporter', ExternalPostImporter, {
-  styles,
-});
+export default ExternalPostImporter;
 
 

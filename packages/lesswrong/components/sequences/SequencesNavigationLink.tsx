@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton'
 import NavigateBefore from '@/lib/vendor/@material-ui/icons/src/NavigateBefore'

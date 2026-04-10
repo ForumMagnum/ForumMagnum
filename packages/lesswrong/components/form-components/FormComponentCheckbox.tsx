@@ -8,7 +8,7 @@ import { Typography } from "../common/Typography";
 
 const styles = defineStyles('FormComponentCheckbox', (theme: ThemeType) => ({
   root: {
-    marginRight: theme.spacing.unit * 3,
+    marginRight: 24,
     marginLeft: 0,
     marginTop: 5,
     display: "flex",

@@ -1,7 +1,6 @@
 import {extractVersionsFromSemver} from '../../lib/editor/utils'
 import {htmlToPingbacks} from '../pingbacks'
 import { isEditableField } from './isEditableField'
-import { collectionNameToTypeName } from '../../lib/generated/collectionTypeNames'
 import {notifyUsersAboutMentions, PingbackDocumentPartial} from './mentions-notify'
 import {getLatestRev, getNextVersion, htmlToChangeMetrics, isBeingUndrafted, MaybeDrafteable} from './utils'
 import isEqual from 'lodash/isEqual'
@@ -143,13 +142,15 @@ async function createInitialRevision<N extends CollectionNameString>(
     };
 
     const firstRevision = await createRevision({ data: newRevision }, context);
+    const updatedHtml = firstRevision.html;
 
     return {
       ...doc,
       ...(!normalized && {
         [fieldName]: {
           ...editableField,
-          html, version, userId, editedAt, wordCount,
+          html: updatedHtml,
+          version, userId, editedAt, wordCount,
           updateType: 'initial'
         },
       }),
@@ -233,13 +234,15 @@ async function createUpdateRevision<N extends CollectionNameString>(
 
     const newRevisionDoc = await createRevision({ data: newRevision }, context);
     const newRevisionId = newRevisionDoc._id;
+    const updatedHtml = newRevisionDoc.html;
 
     return {
       ...docData,
       ...(!normalized && {
         [fieldName]: {
           ...editableField,
-          html, version, userId, editedAt, wordCount
+          html: updatedHtml,
+          version, userId, editedAt, wordCount
         },
       }),
       [`${fieldName}_latest`]: newRevisionId,

@@ -1,23 +1,24 @@
 import React from 'react'
-import { EditorContents, EditorTypeString, EditorChangeEvent, nonAdminEditors, adminEditors, getEditorTypeToDisplayMap } from './Editor';
-import { registerComponent } from '../../lib/vulcan-lib/components';
+import { EditorContents, EditorTypeString, EditorChangeEvent, getEditorsForUser, getEditorTypeToDisplayMap } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import { useConvertDocument } from './useConvertDocument';
 import Loading from "../vulcan-core/Loading";
 import { MenuItem } from "../common/Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("EditorTypeSelect", (theme: ThemeType) => ({
   select: {
   },
-});
+}));
 
-const EditorTypeSelect = ({value, setValue, isCollaborative, classes}: {
+const EditorTypeSelect = ({value, setValue, isCollaborative}: {
   value: EditorContents,
   setValue: (change: EditorChangeEvent) => void,
   isCollaborative?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const {convertDocument, loading, error} = useConvertDocument({
     onCompleted: (result: EditorContents) => {
@@ -28,8 +29,8 @@ const EditorTypeSelect = ({value, setValue, isCollaborative, classes}: {
     }
   });
   
-  if (!currentUser?.markDownPostEditor && !currentUser?.isAdmin) return null
-  const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
+  if (!currentUser) return null
+  const editors = getEditorsForUser(currentUser)
   
   return <>
     {loading && <Loading/>}
@@ -57,6 +58,6 @@ const EditorTypeSelect = ({value, setValue, isCollaborative, classes}: {
   </>
 }
 
-export default registerComponent("EditorTypeSelect", EditorTypeSelect, {styles});
+export default EditorTypeSelect;
 
 

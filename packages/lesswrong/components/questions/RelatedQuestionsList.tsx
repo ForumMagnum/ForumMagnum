@@ -3,10 +3,12 @@ import React from 'react';
 import withErrorBoundary from '../common/withErrorBoundary';
 import PostsItem from "../posts/PostsItem";
 import SectionTitle from "../common/SectionTitle";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RelatedQuestionsList', (theme: ThemeType) => ({
   root: {
-    width: 650 + (theme.spacing.unit*4),
+    width: 650 + (32),
     marginBottom: 100,
     [theme.breakpoints.down('md')]: {
       width: "unset",
@@ -16,18 +18,18 @@ const styles = (theme: ThemeType) => ({
   },
   header: {
     ...theme.typography.body2,
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit/2,
+    marginTop: 16,
+    marginBottom: 4,
     color: theme.palette.grey[700]
   },
   subQuestion: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   subSubQuestions: {
-    paddingLeft: theme.spacing.unit,
+    paddingLeft: 8,
     borderLeft: theme.palette.border.slightlyFaint,
   }
-})
+}))
 
 export type PostWithRelations = {
   _id: string;
@@ -43,10 +45,10 @@ export type PostWithRelations = {
   }>;
 };
 
-const RelatedQuestionsList = ({ post, classes }: {
+const RelatedQuestionsList = ({post}: {
   post: PostWithRelations,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const sourcePostRelations = post.sourcePostRelations.filter(rel => !!rel.sourcePost)
   const targetPostRelations = post.targetPostRelations.filter(rel => (rel.sourcePostId === post._id && !!rel.targetPost))
 
@@ -104,7 +106,6 @@ const RelatedQuestionsList = ({ post, classes }: {
 }
 
 export default registerComponent('RelatedQuestionsList', RelatedQuestionsList, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

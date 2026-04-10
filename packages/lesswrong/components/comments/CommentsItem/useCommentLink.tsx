@@ -3,14 +3,13 @@ import { useTracking } from "../../../lib/analyticsEvents";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import qs from "qs";
 import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
-import { EnvironmentOverrideContext } from "@/lib/utils/timeUtil";
 import { Link } from "../../../lib/reactRouterWrapper";
 import { useNavigate, useSubscribedLocation } from "../../../lib/routeUtil";
 import { isSpecialClick } from "@/lib/utils/eventUtils";
 import { useMatchSSR } from "@/components/common/DeferRender";
 
 export type UseCommentLinkProps = {
-  comment: Pick<CommentsList, "_id" | "tagCommentType">,
+  comment: Pick<CommentsList, "_id" | "postId" | "tagCommentType">,
   post?: Pick<PostsMinimumInfo, "_id" | "slug"> | null,
   tag?: TagBasicInfo,
   scrollOnClick?: boolean,
@@ -18,20 +17,21 @@ export type UseCommentLinkProps = {
   permalink?: boolean,
 }
 
-export const useCommentLink = ({
+export const CommentLinkWrapper = ({
   comment,
   post,
   tag,
   scrollOnClick,
   scrollIntoView,
   permalink,
-}: UseCommentLinkProps) => {
+  children
+}: UseCommentLinkProps & { children: React.ReactNode }) => {
   const navigate = useNavigate();
   const {location, query} = useSubscribedLocation();
   const {captureEvent} = useTracking();
 
   const url = commentGetPageUrlFromIds({
-    postId: post?._id,
+    postId: post?._id ?? comment.postId,
     postSlug: post?.slug,
     tagSlug: tag?.slug,
     commentId: comment._id,
@@ -72,19 +72,15 @@ export const useCommentLink = ({
     }
   }
 
-  const Wrapper: FC<PropsWithChildren<{}>> = scrollOnClick
-    ? ({children}) => (
-      <a rel="nofollow" href={url} onClick={handleLinkClick}>
-        {children}
-      </a>
-    )
-    : ({children}) => (
-      <Link rel="nofollow" to={url} eventProps={{furtherContext}}>
-        {children}
-      </Link>
-    );
-
-  return Wrapper;
+  if (scrollOnClick) {
+    return <a rel="nofollow" href={url} onClick={handleLinkClick}>
+      {children}
+    </a>
+  } else {
+    return <Link rel="nofollow" to={url} eventProps={{furtherContext}}>
+      {children}
+    </Link>
+  }
 }
 
 /**

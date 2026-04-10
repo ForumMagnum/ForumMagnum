@@ -1,7 +1,6 @@
 import React from 'react';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
-import { isFriendlyUI, preferredHeadingCase } from '../../themes/forumTheme';
 import { useForm } from '@tanstack/react-form';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -31,8 +30,8 @@ const ConversationsListUpdateMutation = gql(`
 
 const formStyles = defineStyles('ConversationTitleEditForm', (theme: ThemeType) => ({
   fieldWrapper: {
-    marginTop: theme.spacing.unit * 2,
-    marginBottom: theme.spacing.unit * 2,
+    marginTop: 16,
+    marginBottom: 16,
   },
   submitButton: submitButtonStyles(theme),
 }));
@@ -87,7 +86,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
   });
 
   return <LWDialog open onClose={onClose}>
-    <DialogTitle>{preferredHeadingCase("Conversation Options")}</DialogTitle>
+    <DialogTitle>Conversation Options</DialogTitle>
     <DialogContent>
       <form className="vulcan-form" onSubmit={(e) => {
         e.preventDefault();
@@ -100,7 +99,7 @@ const ConversationTitleEditForm = ({ onClose, conversation }: {
             {(field) => (
               <MuiTextField
                 field={field}
-                label={isFriendlyUI() ? "Conversation title (visible to all)" : "Conversation Title"}
+                label={"Conversation Title"}
               />
             )}
           </form.Field>

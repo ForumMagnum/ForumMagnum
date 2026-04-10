@@ -3,20 +3,39 @@ import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useSubscribedLocation } from '@/lib/routeUtil';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import CloudinaryImage2 from "@/components/common/CloudinaryImage2";
-import { isHomeRoute } from '@/lib/routeChecks';
+import { isHomeRoute, isRouteWithLeftNavigationColumn } from '@/lib/routeChecks';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { HIDE_SOLSTICE_GLOBE_COOKIE } from '@/lib/cookies/cookies';
 import { SolsticeSeasonBanner } from '../seasonal/solsticeSeason/SolsticeSeasonBanner';
 import { Inkhaven2026Banner } from '../seasonal/Inkhaven2026Banner';
+import { LessOnline2026Banner } from '../seasonal/LessOnline2026Banner';
 import withErrorBoundary from '@/components/common/withErrorBoundary';
+import { getReviewPhase, reviewIsActive, reviewResultsPostPath } from '@/lib/reviewUtils';
+import ReviewVotingCanvas from '../review/ReviewVotingCanvas';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { Link } from '@/lib/reactRouterWrapper';
+import { usePrerenderablePathname } from '../next/usePrerenderablePathname';
 
 // Inkhaven Cohort #2 banner active period
 const INKHAVEN_2026_START = new Date('2026-01-10T00:00:00-08:00');
 const INKHAVEN_2026_END = new Date('2026-02-01T00:00:00-08:00');
 
-function isInkhaven2026Active(): boolean {
-  const now = new Date();
+function useIsInkhaven2026Active(): boolean {
+  const now = useCurrentTime();
   return now >= INKHAVEN_2026_START && now < INKHAVEN_2026_END;
+}
+
+// LessOnline 2026 banner active period
+const LESSONLINE_2026_START = new Date('2026-03-17T00:00:00-07:00');
+const LESSONLINE_2026_EARLY_BIRD_END = new Date('2026-04-08T00:00:00-07:00');
+const LESSONLINE_2026_END = new Date('2026-03-26T00:00:00-07:00');
+
+function useIsLessOnline2026Active(): { active: boolean; earlyBirdEndDate: Date } {
+  const now = useCurrentTime();
+  return {
+    active: now >= LESSONLINE_2026_START && now < LESSONLINE_2026_END,
+    earlyBirdEndDate: LESSONLINE_2026_EARLY_BIRD_END,
+  };
 }
 
 const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
@@ -69,21 +88,76 @@ const styles = defineStyles("LWBackgroundImage", (theme: ThemeType) => ({
     [theme.breakpoints.down(1425)]: {
       display: 'none',
     },
-  }
+  },
+  reviewVotingCanvas: {
+    position: 'absolute',
+    width: '57vw',
+    height: '100vh',
+    '& img': {
+      width: '100%',
+      height: '100vh',
+      position: 'relative',
+      right: -40,
+      objectFit: 'cover',
+    },
+    maxWidth: '1000px',
+    top: '-57px',
+    right: '-334px',
+    '-webkit-mask-image': `radial-gradient(ellipse at center top, ${theme.palette.text.alwaysBlack} 55%, transparent 70%)`,
+    
+    [theme.breakpoints.up(2000)]: {
+      right: '0px',
+    }
+  },
+  votingResultsLink: {
+    position: 'absolute',
+    zIndex: theme.zIndexes.reviewVotingCanvas,
+    top: 715,
+    right: 250,
+    width: 200,
+    opacity: .6,
+    textAlign: 'center',
+    display: 'block',
+    '&:hover': {
+      opacity: .4,
+    },
+    [theme.breakpoints.down(1600)]: {
+      right: 100,
+      top: 690
+    },
+    [theme.breakpoints.down(1400)]: {
+      right: 35,
+      top: 650
+    },
+    '& h1': {
+      ...theme.typography.headerStyle,
+      fontSize: '2.8rem',
+      lineHeight: '2.6rem',
+      fontWeight: 600,
+      marginTop: 20,
+      marginBottom: 0,
+    },
+    '& h3': {
+      ...theme.typography.commentStyle,
+      fontSize: '1.4rem',
+      lineHeight: '1.2',
+      marginTop: 16,
+      marginBottom: 6,
+      fontStyle: 'italic',
+      opacity: .5,
+    }
+  },
 }));
 
-export const LWBackgroundImage = ({standaloneNavigation}: {
-  standaloneNavigation: boolean,
-}) => {
+export const LWBackgroundImage = () => {
   const classes = useStyles(styles);
-  // TODO: figure out if using usePathname directly is safe or better (concerns about unnecessary rerendering, idk; my guess is that with Next if the pathname changes we're rerendering everything anyways?)
-  const { pathname } = useSubscribedLocation();
-  // const pathname = usePathname();
+  const pathname = usePrerenderablePathname();
   const isHomePage = isHomeRoute(pathname);
 
   const [cookies, setCookie] = useCookiesWithConsent([HIDE_SOLSTICE_GLOBE_COOKIE]);
   const hideGlobeCookie = cookies[HIDE_SOLSTICE_GLOBE_COOKIE] === "true";
 
+  const standaloneNavigation = isRouteWithLeftNavigationColumn(pathname);
   const defaultImage = standaloneNavigation ? <div className={classes.imageColumn}> 
     {/* Background image shown in the top-right corner of LW. The
     * loading="lazy" prevents downloading the image if the
@@ -100,17 +174,44 @@ export const LWBackgroundImage = ({standaloneNavigation}: {
   // TODO: clean up related code in FundraisingThermometer when we disable/remove solstice season.
   // let homePageImage = (standaloneNavigation && isHomePage && !hideGlobeCookie) ? <SolsticeSeasonBanner /> : defaultImage
   
-  // Show Inkhaven Cohort #2 banner on homepage during active period
+  // Show event banners on homepage during active periods. LessOnline takes precedence over Inkhaven.
   let homePageImage = defaultImage;
-  if (isInkhaven2026Active() && standaloneNavigation && isHomePage) {
-    homePageImage = <Inkhaven2026Banner />;
+  const inkhaven2026Active = useIsInkhaven2026Active();
+  const lessOnline2026 = useIsLessOnline2026Active();
+  if (standaloneNavigation && isHomePage) {
+    if (lessOnline2026.active) {
+      homePageImage = <LessOnline2026Banner earlyBirdEndDate={lessOnline2026.earlyBirdEndDate} />;
+    } else if (inkhaven2026Active) {
+      homePageImage = <Inkhaven2026Banner />;
+    }
   }
-  
+
   // if (reviewIsActive() && standaloneNavigation && isHomePage) {
   //   homePageImage = <AnnualReviewSidebarBanner />
   // }
 
   // const showSolsticeButton = standaloneNavigation && isHomePage && hideGlobeCookie
+
+  // if (reviewIsActive() && getReviewPhase() === 'VOTING' && isHomePage && standaloneNavigation) {
+  //   homePageImage = <ReviewVotingCanvas />
+  // }
+
+  const reviewCompleteImage = <div className={classes.imageColumn}>
+    <Link className={classes.votingResultsLink} to={reviewResultsPostPath}>
+      <h1>Thank YOU for Voting!</h1>
+      <h3>View Results</h3>
+    </Link>
+    <CloudinaryImage2
+      loading="lazy"
+      className={classes.backgroundImage}
+      publicId="happyWizard_mmmnjx"
+      darkPublicId={"happyWizard_mmmnjx"}
+    />
+  </div>;
+
+  if (getReviewPhase() === 'RESULTS' && isHomePage && standaloneNavigation) {
+    homePageImage = reviewCompleteImage;
+  }
 
   return <div className={classes.root}>
     {homePageImage}

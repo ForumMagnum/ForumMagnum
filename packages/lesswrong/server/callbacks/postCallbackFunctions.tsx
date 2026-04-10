@@ -8,7 +8,7 @@ import { isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
-import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting, recombeeEnabledSetting, isLW } from '@/lib/instanceSettings';
+import { isEAForum, recombeeEnabledSetting, isLW } from '@/lib/instanceSettings';
 import { asyncForeachSequential } from "@/lib/utils/asyncUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { findUsersToEmail, hydrateCurationEmailsQueue, sendCurationEmail } from "../curationEmails/cron";
@@ -277,32 +277,20 @@ const utils = {
       return;
     }
   
-    const requireFrontpageReview = requireReviewToFrontpagePostsSetting.get();
-    const defaultFrontpageHide = requireFrontpageReview || !eaFrontpageDateDefault(
-      post.isEvent,
-      post.submitToFrontpage,
-      post.draft,
-    )
-    if (requireFrontpageReview !== defaultFrontpageHide) {
-      // The common case this is designed for: requireFrontpageReview is `false` but submitToFrontpage is also `false` (so
-      // defaultFrontpageHide is `true`), so the post is already hidden and there is no need to auto-review
-      return
-    }
-  
     const autoFrontpageReview = await checkFrontpage(postHTML, api, context);
   
     // eslint-disable-next-line no-console
     console.log(
       `Frontpage auto-review result for ${post.title} (${post._id}): ${
-        autoFrontpageReview ? (defaultFrontpageHide ? "Show" : "Hide") : "No action"
+        autoFrontpageReview ? "Show" : "No action"
       }`
     );
   
     if (autoFrontpageReview) {
       await updatePost({
         data: {
-          frontpageDate: defaultFrontpageHide ? new Date() : null,
-          autoFrontpage: defaultFrontpageHide ? "show" : "hide"
+          frontpageDate: new Date(),
+          autoFrontpage: "show"
         },
         selector: { _id: post._id }
       }, context);
@@ -1160,17 +1148,26 @@ export async function oldPostsLastCommentedAt(post: DbPost, context: ResolverCon
 }
 
 export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPost: DbPost, context: ResolverContext) {
-  const shouldEvaluate = isLW() && !post.draft && oldPost.draft;
-  // For now, only autoreject above threshold for unreviewed users.
-  // Might remove this later after we've had Pangram for a bit longer,
-  // or make the thresholds configurable, or the behavior itself depend
-  // on a user's review state, i.e. have LLM-y posts by reviewed users
-  // trigger a custom moderator action instead of rejecting.
-  const shouldAutoreject = !context.currentUser?.reviewedByUserId;
-  if (shouldEvaluate) {
+  if (shouldPerformAutomatedContentEvaluationOnPost(post, oldPost, context)) {
     const revision = await getLatestContentsRevision(post, context);
     if (revision) {
-      await createAutomatedContentEvaluation(revision, context, { autoreject: shouldAutoreject });
+      await createAutomatedContentEvaluation(revision, context, { autoreject: true });
     }
   }
+}
+
+function shouldPerformAutomatedContentEvaluationOnPost(post: DbPost, oldPost: DbPost, context: ResolverContext) {
+  //Only when undrafting
+  if (post.draft || !oldPost.draft) return false;
+
+  // Skip for AF
+  if (!isLW()) return false;
+
+  // Not for event posts (which can legitimately have trivial bodies)
+  if (post.isEvent) return false;
+
+  // Not during unit or playwright tests
+  if (isAnyTest) return false;
+
+  return true;
 }

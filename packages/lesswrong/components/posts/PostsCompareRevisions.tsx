@@ -33,10 +33,9 @@ const PostsWithNavigationQuery = gql(`
   }
 `);
 
-const PostsCompareRevisions = () => {
+const PostsCompareRevisions = ({postId, slug}: {postId: string, slug: string}) => {
   const classes = useStyles(styles);
-  const { params, query } = useLocation();
-  const postId = params._id;
+  const { query } = useLocation();
   const versionBefore = query.before;
   const versionAfter = query.after;
   

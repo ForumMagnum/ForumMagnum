@@ -8,21 +8,13 @@ import LWTooltip from "../../common/LWTooltip";
 import ForumIcon from "../../common/ForumIcon";
 
 const styles = defineStyles("CommentShortformIcon", (theme: ThemeType) => ({
-  smallIcon: theme.isFriendlyUI ? {
-    cursor: "pointer",
-    color: theme.palette.grey[1000],
-    height: 16,
-    marginLeft: -2,
-    marginRight: 3,
-    position: "relative",
-    top: 2
-  } : {
+  smallIcon: {
     cursor: "pointer",
     color: theme.palette.grey[600],
     width: 13,
     height: 13,
     marginLeft: -2,
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     position: "relative",
     top: 2
   },

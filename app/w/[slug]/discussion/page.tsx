@@ -1,20 +1,26 @@
 import React from "react";
 import TagDiscussionPage from '@/components/tagging/TagDiscussionPage';
-import { TagPageTitle } from '@/components/tagging/TagPageTitle';
+import { TagPageSubtitle } from '@/components/tagging/TagPageSubtitle';
 import { getTagPageMetadataFunction } from "@/server/pageMetadata/tagPageMetadata";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ slug }) => slug);
 
-assertRouteHasWhiteBackground("/w/[slug]/discussion");
+assertRouteAttributes("/w/[slug]/discussion", {
+  whiteBackground: true,
+  hasLinkPreview: true,
+  hasPingbacks: true,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
-export default function Page() {
-  return <RouteRoot metadata={{
-    titleComponent: TagPageTitle,
-    subtitleComponent: TagPageTitle
-  }}>
-    <TagDiscussionPage />
+export default async function Page({ params }: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params;
+  return <RouteRoot subtitle={TagPageSubtitle}>
+    <TagDiscussionPage slug={slug} />
   </RouteRoot>;
 }
 

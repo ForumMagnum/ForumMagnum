@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser'
 import {AnalyticsContext} from "../../lib/analyticsEvents";
@@ -18,6 +17,9 @@ import PostsList2 from "../posts/PostsList2";
 import ReviewProgressReviews from "./ReviewProgressReviews";
 import ReviewProgressVoting from "./ReviewProgressVoting";
 import ReviewProgressNominations from "./ReviewProgressNominations";
+import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const commonActionButtonStyle = (theme: ThemeType) => ({
   paddingTop: 7,
@@ -35,7 +37,7 @@ const commonActionButtonStyle = (theme: ThemeType) => ({
   }
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('FrontpageReviewWidget', (theme: ThemeType) => ({
   sectionTitle: {
     alignItems: 'flex-end',
     marginBottom: 12,
@@ -168,10 +170,10 @@ const styles = (theme: ThemeType) => ({
       display: "none"
     }
   }
-})
+}))
 
-function isLastDay(date: moment.Moment) {
-  return date.diff(new Date()) < (24 * 60 * 60 * 1000)
+function isLastDay(now: Date, date: moment.Moment) {
+  return date.diff(now) < (24 * 60 * 60 * 1000)
 }
 
 /**
@@ -232,8 +234,10 @@ export function ReviewOverviewTooltip() {
   </div>
 }
 
-const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, className}: {classes: ClassesType<typeof styles>, showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
+const FrontpageReviewWidget = ({showFrontpageItems=true, reviewYear, className}: {showFrontpageItems?: boolean, reviewYear: ReviewYear, className?: string}) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const now = useCurrentTime();
 
   const nominationStartDate = getReviewStart(reviewYear)
   const nominationEndDate = getNominationPhaseEnd(reviewYear)
@@ -245,7 +249,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
   const voteEndDateDisplay = getVotingPhaseEndDisplay(reviewYear)
 
   // These should be calculated at render
-  const currentDate = moment.utc()
+  const currentDate = moment(now)
   const activeRange = getReviewPhase(reviewYear)
   const isBeforeReviewPhase = activeRange === "NOMINATIONS"
   const isBeforeVotingPhase = activeRange === "REVIEWS" || activeRange === "NOMINATIONS"
@@ -318,7 +322,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
     {currentUser && currentUser.karma >= 1000 && <span className={classes.reviewProgressBar}>
       <ReviewProgressNominations reviewYear={REVIEW_YEAR}/>
     </span>}
-    {showFrontpageItems && isLastDay(nominationEndDate) && <span className={classNames(classes.nominationTimeRemaining, classes.timeRemaining)}>
+    {showFrontpageItems && isLastDay(now, nominationEndDate) && <span className={classNames(classes.nominationTimeRemaining, classes.timeRemaining)}>
       <div>{nominationEndDate.fromNow()} remaining to cast nomination votes</div>
       <div>(posts need two votes to proceed)</div>
     </span>}
@@ -357,7 +361,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
       </Link>
     </LWTooltip>
     {/* If there's less than 24 hours remaining, show the remaining time */}
-    {isLastDay(reviewEndDate) && <span className={classes.timeRemaining}>
+    {isLastDay(now, reviewEndDate) && <span className={classes.timeRemaining}>
       {reviewEndDate.fromNow()} remaining
     </span>}
   </div>
@@ -375,7 +379,7 @@ const FrontpageReviewWidget = ({classes, showFrontpageItems=true, reviewYear, cl
       Cast Final Votes
     </Link>
     {/* If there's less than 24 hours remaining, show the remaining time */}
-    {isLastDay(voteEndDate) && <span className={classes.timeRemaining}>
+    {isLastDay(now, voteEndDate) && <span className={classes.timeRemaining}>
       {voteEndDate.fromNow()} remaining
     </span>}  
   </div>
@@ -460,4 +464,4 @@ const dateFraction = (fractionDate: moment.Moment, startDate: moment.Moment, end
   return result.toFixed(2)
 }
 
-export default registerComponent('FrontpageReviewWidget', FrontpageReviewWidget, {styles});
+export default FrontpageReviewWidget

@@ -19,18 +19,14 @@ import LoginForm from "../users/LoginForm";
 import SignupSubscribeToCurated from "../users/SignupSubscribeToCurated";
 import Loading from "../vulcan-core/Loading";
 import AnalyticsInViewTracker from "../common/AnalyticsInViewTracker";
+import { defineStyles, useStyles } from '../hooks/useStyles';
+import { safeForDarkMode } from '../hooks/defineStyles';
 
-// mailchimp link to sign up for the EA Forum's digest
-export const eaForumDigestSubscribeURL = "https://effectivealtruism.us8.list-manage.com/subscribe/post?u=52b028e7f799cca137ef74763&amp;id=7457c7ff3e&amp;f_id=0086c5e1f0"
-
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("RecentDiscussionSubscribeReminder", (theme: ThemeType) => ({
   root: {
-    marginBottom: theme.spacing.unit*4,
+    marginBottom: 32,
     position: "relative",
-    backgroundColor: theme.isFriendlyUI
-      ? theme.palette.grey[0]
-      : theme.palette.panelBackground.recentDiscussionThread,
-    border: theme.isFriendlyUI ? `1px solid ${theme.palette.grey[200]}` : undefined,
+    backgroundColor: theme.palette.panelBackground.recentDiscussionThread,
 
     padding: 16,
     ...theme.typography.body2,
@@ -86,7 +82,7 @@ const styles = (theme: ThemeType) => ({
     marginRight: 12
   },
   checkIcon: {
-    color: theme.palette.icon.greenCheckmark,
+    color: safeForDarkMode("#4caf50"),
     marginTop: 4,
     marginRight: 12
   },
@@ -108,7 +104,7 @@ const styles = (theme: ThemeType) => ({
   },
   dontAskAgainButton: {
   },
-});
+}));
 
 /**
  * This is the ad that appears in "Recent discussion".
@@ -117,12 +113,9 @@ const styles = (theme: ThemeType) => ({
  * It has some overlap with the Forum Digest ad that appears on the EA Forum home rhs.
  * In particular, both components use currentUser.hideSubscribePoke,
  * so for logged in users, hiding one ad hides the other.
- *
- * See EAHomeRightHandSide.tsx for the other component.
  */
-const RecentDiscussionSubscribeReminder = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const RecentDiscussionSubscribeReminder = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const [hide, setHide] = useState(false);
@@ -162,11 +155,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
 
   // adjust functionality based on forum type
   let currentUserSubscribed
-  if (isLW()) {
-    currentUserSubscribed = currentUser?.emailSubscribedToCurated;
-  } else {
-    currentUserSubscribed = currentUser?.subscribedToDigest;
-  }
+  currentUserSubscribed = currentUser?.emailSubscribedToCurated;
 
   const maybeLaterButton = <Button
     className={classes.maybeLaterButton}
@@ -198,8 +187,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   const updateAndMaybeVerifyEmail = async () => {
     setLoading(true);
     // subscribe to different emails based on forum type
-    const userSubscriptionData: UpdateUserDataInput = isLW() ?
-    {emailSubscribedToCurated: true} : {subscribedToDigest: true};
+    const userSubscriptionData: UpdateUserDataInput = {emailSubscribedToCurated: true};
     // since they chose to subscribe to an email, make sure this is false
     userSubscriptionData.unsubscribeFromAll = false;
 
@@ -215,18 +203,6 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     }
 
     setLoading(false);
-  }
-  
-  // FIXME: Unstable component will lose state on rerender
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const AnalyticsWrapper = ({children, branch}: {children: React.ReactNode, branch: string}) => {
-    return <AnalyticsContext pageElementContext="subscribeReminder" branch={branch}>
-      <AnalyticsInViewTracker eventProps={{inViewType: "subscribeReminder"}}>
-        <div className={classes.root}>
-          {children}
-        </div>
-      </AnalyticsInViewTracker>
-    </AnalyticsContext>
   }
   
   // the EA Forum uses this prompt in most cases
@@ -280,14 +256,9 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
     );
     return <AnalyticsWrapper branch="logged-out">
       {subscribeTextNode}
-      {isEAForum() ? <form action={eaForumDigestSubscribeURL} method="post" className={classes.digestForm}>
-        <TextField label="Email address" name="EMAIL" required className={classes.digestFormInput} />
-        <Button variant="contained" type="submit" color="primary" className={classes.digestFormSubmitBtn}>
-          Sign up
-        </Button>
-      </form> : <div className={classes.loginForm}>
+      <div className={classes.loginForm}>
         <LoginForm startingState="signup" />
-      </div>}
+      </div>
       {adminUiMessage}
     </AnalyticsWrapper>
   } else if (!userHasEmailAddress(currentUser) || adminBranch===1) {
@@ -310,8 +281,7 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
             setLoading(true);
             try {
               // subscribe to different emails based on forum type
-              const userSubscriptionData: UpdateUserDataInput = isEAForum() ?
-                {subscribedToDigest: subscribeChecked} : {emailSubscribedToCurated: subscribeChecked};
+              const userSubscriptionData: UpdateUserDataInput = {emailSubscribedToCurated: subscribeChecked};
               userSubscriptionData.email = emailAddress?.value;
               userSubscriptionData.unsubscribeFromAll = false;
               await updateCurrentUser(userSubscriptionData);
@@ -426,9 +396,19 @@ const RecentDiscussionSubscribeReminder = ({classes}: {
   }
 }
 
+const AnalyticsWrapper = ({children, branch}: {children: React.ReactNode, branch: string}) => {
+  const classes = useStyles(styles);
+  return <AnalyticsContext pageElementContext="subscribeReminder" branch={branch}>
+    <AnalyticsInViewTracker eventProps={{inViewType: "subscribeReminder"}}>
+      <div className={classes.root}>
+        {children}
+      </div>
+    </AnalyticsInViewTracker>
+  </AnalyticsContext>
+}
+
 export default registerComponent(
   'RecentDiscussionSubscribeReminder', RecentDiscussionSubscribeReminder, {
-    styles,
     hocs: [withErrorBoundary],
   }
 );

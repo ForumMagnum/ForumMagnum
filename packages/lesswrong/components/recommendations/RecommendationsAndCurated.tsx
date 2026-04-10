@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import RecommendationsAlgorithmPicker, { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
@@ -21,16 +20,18 @@ import BookmarksList from "../bookmarks/BookmarksList";
 import LWTooltip from "../common/LWTooltip";
 import CuratedPostsList from "./CuratedPostsList";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
-  section: theme.isFriendlyUI ? {} : {
+const styles = defineStyles("RecommendationsAndCurated", (theme: ThemeType) => ({
+  section: {
     marginTop: -12,
   },
   continueReadingList: {
-    marginBottom: theme.spacing.unit*2,
+    marginBottom: 16,
   },
   subsection: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   footerWrapper: {
     display: "flex",
@@ -90,23 +91,11 @@ const styles = (theme: ThemeType) => ({
     fontWeight: 600,
     '@media (max-width: 350px)': {
       display: 'none'
-    },
-    ...(theme.isFriendlyUI && {
-      "&:hover": {
-        color: theme.palette.grey[1000],
-        opacity: 1,
-      },
-    }),
+    }
   },
-});
+}));
 
 const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
-  if (isFriendlyUI()) {
-    return {
-      method: haveCurrentUser ? 'sample' : 'top',
-      count: haveCurrentUser ? 3 : 5
-    }
-  }
   if (isLW()) {
     return {
       lwRationalityOnly: true,
@@ -123,13 +112,10 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
 // NOTE: this component maybe should be deprecated. It first was created for LessWrong, then EA Forum added a bunch of special cases, then LW added
 // more special cases. I split it off into a LWRecommendations component, it looks like EA Forum isn't currently using this component. They could either \
 // create an EARecommendations component, or we can just delete it.
-const RecommendationsAndCurated = ({
-  configName,
-  classes,
-}: {
+const RecommendationsAndCurated = ({configName}: {
   configName: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {expanded, toggleExpanded} = useExpandedFrontpageSection({
     section: "recommendations",
     onExpandEvent: "recommendationsSectionExpanded",
@@ -321,6 +307,6 @@ const RecommendationsAndCurated = ({
   return render();
 }
 
-export default registerComponent("RecommendationsAndCurated", RecommendationsAndCurated, {styles});
+export default RecommendationsAndCurated;
 
 

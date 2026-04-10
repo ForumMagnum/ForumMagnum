@@ -2,7 +2,6 @@ import React, { useState, useCallback, useRef, useMemo } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useGlobalKeydown } from '../common/withGlobalKeydown';
-import { forumSelect } from '../../lib/forumTypeUtils';
 import { AnalyticsContext } from '../../lib/analyticsEvents';
 import { showSubscribeReminderInFeed } from '@/lib/instanceSettings';
 import { ObservableQuery } from '@apollo/client';
@@ -11,10 +10,6 @@ import RecentDiscussionTag from "./RecentDiscussionTag";
 import RecentDiscussionTagRevisionItem from "./RecentDiscussionTagRevisionItem";
 import RecentDiscussionSubscribeReminder from "./RecentDiscussionSubscribeReminder";
 import RecentDiscussionMeetupsPoke from "./RecentDiscussionMeetupsPoke";
-import EARecentDiscussionThread from "./EARecentDiscussionThread";
-import EARecentDiscussionQuickTake from "./EARecentDiscussionQuickTake";
-import EARecentDiscussionTagCommented from "./EARecentDiscussionTagCommented";
-import EARecentDiscussionTagRevision from "./EARecentDiscussionTagRevision";
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import { MixedTypeFeed } from "../common/MixedTypeFeed";
@@ -29,31 +24,19 @@ const styles = defineStyles("RecentDiscussionFeed", (theme: ThemeType) => ({
     columnGap: 10,
     alignItems: 'center',
     width: '100%',
-    ...(theme.isBookUI && {
-      color: theme.palette.text.bannerAdOverlay,
-    }),
+    color: theme.palette.text.bannerAdOverlay,
   },
   titleText: {
   },
 }));
 
-const recentDisucssionFeedComponents = () => forumSelect({
-  LWAF: {
-    ThreadComponent: RecentDiscussionThread,
-    ShortformComponent: RecentDiscussionThread,
-    TagCommentedComponent: RecentDiscussionTag,
-    TagRevisionComponent: RecentDiscussionTagRevisionItem,
-    SubscribeReminderComponent: RecentDiscussionSubscribeReminder,
-    MeetupsPokeComponent: RecentDiscussionMeetupsPoke,
-  },
-  default: {
-    ThreadComponent: EARecentDiscussionThread,
-    ShortformComponent: EARecentDiscussionQuickTake,
-    TagCommentedComponent: EARecentDiscussionTagCommented,
-    TagRevisionComponent: EARecentDiscussionTagRevision,
-    SubscribeReminderComponent: RecentDiscussionSubscribeReminder,
-    MeetupsPokeComponent: () => null,
-  },
+const recentDisucssionFeedComponents = () => ({
+  ThreadComponent: RecentDiscussionThread,
+  ShortformComponent: RecentDiscussionThread,
+  TagCommentedComponent: RecentDiscussionTag,
+  TagRevisionComponent: RecentDiscussionTagRevisionItem,
+  SubscribeReminderComponent: RecentDiscussionSubscribeReminder,
+  MeetupsPokeComponent: RecentDiscussionMeetupsPoke,
 });
 
 const RecentDiscussionFeed = ({

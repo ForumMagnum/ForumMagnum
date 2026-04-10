@@ -62,7 +62,7 @@ type LLMScoreDialogProps = {
   documentId: string;
   automatedContentEvaluations: null;
   contentHtml: string;
-  contentType: 'Post';
+  contentType: 'Post' | 'Comment';
   onLlmCheckComplete?: () => void;
 } | {
   onClose: () => void;

@@ -3,6 +3,17 @@ import { PublicInstanceSetting } from "@/lib/instanceSettings";
 import fs from "fs";
 import path from "path";
 
+// HACK: This test imports every file in app/ and does not exercise auth flows.
+// Mock google-auth-library to avoid importing transitive crypto deps that can
+// crash on some Node versions (e.g. Node 25) during module evaluation.
+jest.mock('google-auth-library', () => ({
+  GoogleAuth: class MockGoogleAuth {
+    fromJSON() {
+      return {};
+    }
+  },
+}));
+
 jest.mock('../lib/forumTypeUtils', () => {
   const originalModule = jest.requireActual('../lib/forumTypeUtils');
   return {

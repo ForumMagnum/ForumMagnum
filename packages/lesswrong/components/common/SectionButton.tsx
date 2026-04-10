@@ -1,18 +1,18 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames'
 import { isAF } from '@/lib/instanceSettings';
 import { Typography } from "./Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SectionButton', (theme: ThemeType) => ({
   root: {
     cursor: "pointer",
     color: theme.palette.lwTertiary.main,
     display: "flex",
     alignItems: "center",
-    ...(theme.isFriendlyUI ? {fontWeight: 600} : {}),
     '& svg': {
-      marginRight: theme.spacing.unit
+      marginRight: 8
     },
     
     ...(isAF() && {
@@ -20,14 +20,15 @@ const styles = (theme: ThemeType) => ({
       fontWeight: 500,
     }),
   }
-})
+}))
 
-const SectionButton = ({children, classes, className, onClick}: {
+const SectionButton = ({children, className, onClick}: {
   children?: React.ReactNode,
-  classes: ClassesType<typeof styles>,
   className?: string,
   onClick?: (event: React.MouseEvent) => void,
 }) => {
+  const classes = useStyles(styles);
+
   return <Typography
     component='span'
     variant='body2'
@@ -38,6 +39,6 @@ const SectionButton = ({children, classes, className, onClick}: {
   </Typography>
 }
 
-export default registerComponent('SectionButton', SectionButton, {styles});
+export default SectionButton;
 
 

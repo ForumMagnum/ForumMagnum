@@ -18,18 +18,14 @@ import TagPreview from "./TagPreview";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 
 const styles = defineStyles("TagsTooltip", theme => ({
-  tooltip: theme.isFriendlyUI
-    ? {}
-    : {
-      padding: 0,
-      background: theme.palette.panelBackground.default,
-      boxShadow: theme.palette.boxShadow.lwTagHoverOver,
-    },
-  tooltipTitle: theme.isFriendlyUI
-    ? {}
-    : {
-      maxWidth: "unset",
-    },
+  tooltip: {
+    padding: 0,
+    background: theme.palette.panelBackground.default,
+    boxShadow: theme.palette.boxShadow.lwTagHoverOver,
+  },
+  tooltipTitle: {
+    maxWidth: "unset",
+  },
   loading: {
     paddingLeft: 16,
     paddingRight: 32,

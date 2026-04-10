@@ -1,6 +1,7 @@
 import chai from 'chai';
 import { QuoteShardSettings, getCommentQuotedBlockID, commentToQuoteShards, annotateMatchedSpans, matchSideComments } from '../server/sideComments';
 import { cheerioParseAndMarkOffsets } from '../server/utils/htmlUtil';
+import { type Element } from 'cheerio';
 
 const testQuoteShardSettings: QuoteShardSettings = {
   minLength: 5,
@@ -151,8 +152,8 @@ describe('annotateMatchedSpans', () => {
 describe('cheerioParseAndMarkOffsets', () => {
   const html = '<p>Lorem <em>ipsum</em> dolor</p>';
   const parsed = cheerioParseAndMarkOffsets(html);
-  const em = parsed('em')[0] as cheerio.TagElement;
-  const p = parsed('p')[0] as cheerio.TagElement;
+  const em = parsed('em')[0] as Element;
+  const p = parsed('p')[0] as Element;
   
   it('marks offsets of text nodes', () => {
     chai.assert.equal((em.children[0] as any).offset, 13);
@@ -188,5 +189,20 @@ describe('matchSideComments', () => {
         sideCommentsByBlock: {"block0": ["comment1"]},
       },
     );
+  });
+
+  it('does not insert spans outside of valid positions in tables', () => {
+    const tableHtml = '<table><tbody><tr><td style="border:1pt solid hsl(0, 0%, 0%);vertical-align:top"><p><strong>[Ngo][11:14]</strong>&nbsp;</p><p>One way that we could take this discussion is by discussing the pivotal act.</p></td></tr></tbody></table>';
+    const result = matchSideComments({
+      html: tableHtml,
+      quoteShardSettings: testQuoteShardSettings,
+      comments: [{
+        _id: "comment1",
+        html: "<blockquote><p>One way that we could take this discussion is by discussing the pivotal act.</p></blockquote><p>I agree.</p>",
+      }],
+    });
+    // The annotated HTML should NOT have spans between table structure tags
+    const hasBadSpan = /<\/td><span/.test(result.html) || /<\/tr><span/.test(result.html) || /<\/tbody><span/.test(result.html);
+    chai.assert.isFalse(hasBadSpan, `Found span in invalid table position: ${result.html}`);
   });
 });

@@ -1,18 +1,19 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { REVIEW_YEAR } from '../../lib/reviewUtils';
 import PopupCommentEditor from "../comments/PopupCommentEditor";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewPostForm', (theme: ThemeType) => ({
   guidelines: {
     cursor: "default",
-    marginTop: theme.spacing.unit,
+    marginTop: 8,
     ...theme.typography.commentStyle,
     color: theme.palette.grey[700],
     fontSize: "1rem",
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
     '& ul': {
       marginTop: 5,
       marginBottom: 5,
@@ -30,15 +31,15 @@ const styles = (theme: ThemeType) => ({
   },
   moderatorsNote: {
     fontStyle: "italic",
-    marginTop: theme.spacing.unit,
+    marginTop: 8,
   }
-})
+}))
 
-const ReviewPostForm = ({classes, post, onClose}: {
-  classes: ClassesType<typeof styles>,
+const ReviewPostForm = ({post, onClose}: {
   post: PostsBase,
   onClose: () => void,
 }) => {
+  const classes = useStyles(styles);
   const [ showPrompt, setShowPrompt ] = useState(true)
   
   return <PopupCommentEditor
@@ -72,6 +73,6 @@ const ReviewPostForm = ({classes, post, onClose}: {
   />
 }
 
-export default registerComponent('ReviewPostForm', ReviewPostForm, {styles});
+export default ReviewPostForm
 
 

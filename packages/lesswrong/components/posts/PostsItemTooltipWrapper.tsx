@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { Placement as PopperPlacementType } from "popper.js"
 import PostsTooltip from "./PostsPreviewTooltip/PostsTooltip";
 
@@ -38,8 +37,4 @@ const PostsItemTooltipWrapper = ({
   );
 }
 
-export default registerComponent('PostsItemTooltipWrapper', PostsItemTooltipWrapper
-);
-
-
-
+export default PostsItemTooltipWrapper;

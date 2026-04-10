@@ -78,7 +78,7 @@ export const styles = defineStyles("MuiSelect", theme => ({
   /* Styles applied to the `Input` component if `variant="outlined"`. */
   outlined: {
     width: 'calc(100% - 46px)',
-    borderRadius: theme.shape.borderRadius,
+    borderRadius: 4,
   },
   /* Styles applied to the `Input` component `selectMenu` class. */
   selectMenu: {
@@ -87,6 +87,7 @@ export const styles = defineStyles("MuiSelect", theme => ({
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     minHeight: '1.1875em', // Reset (19px), match the native input line-height
+    paddingLeft: 8,
   },
   /* Styles applied to the `Input` component `disabled` class. */
   disabled: {},

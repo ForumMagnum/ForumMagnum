@@ -2,12 +2,21 @@ import React from "react";
 import LocalGroupSingle from '@/components/localGroups/LocalGroupSingle';
 import { gql } from "@/lib/generated/gql-codegen";
 import type { Metadata } from "next";
-import { getClient } from "@/lib/apollo/nextApolloClient";
-import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, handleMetadataError } from "@/server/pageMetadata/sharedMetadata";
+import { getDefaultMetadata, getMetadataDescriptionFields, getMetadataImagesFields, getPageTitleFields, getResolverContextForGenerateMetadata, handleMetadataError } from "@/server/pageMetadata/sharedMetadata";
 import merge from "lodash/merge";
 import { cloudinaryCloudNameSetting, taglineSetting } from "@/lib/instanceSettings";
 import RouteRoot from "@/components/layout/RouteRoot";
 import { notFound } from "next/navigation";
+import { runQuery } from "@/server/vulcan-lib/query";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
+
+assertRouteAttributes("/groups/[groupId]", {
+  whiteBackground: false,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
 
 const LocalgroupMetadataQuery = gql(`
   query LocalgroupMetadata($groupId: String) {
@@ -24,18 +33,16 @@ const LocalgroupMetadataQuery = gql(`
   }
 `);
 
-export async function generateMetadata({ params }: { params: Promise<{ groupId: string }> }): Promise<Metadata> {
-  const [paramValues, defaultMetadata] = await Promise.all([params, getDefaultMetadata()]);
-
-  const client = getClient();
+export async function generateMetadata({ params, searchParams }: { params: Promise<{ groupId: string }>, searchParams: Promise<{}> }): Promise<Metadata> {
+  const [paramValues, searchParamsValues, defaultMetadata] = await Promise.all([params, searchParams, getDefaultMetadata()]);
+  const resolverContext = await getResolverContextForGenerateMetadata(searchParamsValues);
 
   try {
-    const { data } = await client.query({
-      query: LocalgroupMetadataQuery,
-      variables: {
-        groupId: paramValues.groupId,
-      },
-    });
+    const { data } = await runQuery(
+      LocalgroupMetadataQuery,
+      { groupId: paramValues.groupId },
+      resolverContext
+    );
   
     const localgroup = data?.localgroup?.result;
   
@@ -58,11 +65,13 @@ export async function generateMetadata({ params }: { params: Promise<{ groupId: 
   }
 }
 
-export default function Page() {
-  return <RouteRoot delayedStatusCode metadata={{
-    subtitle: 'Community',
-    subtitleLink: '/community',
-  }}>
-    <LocalGroupSingle />
+export default async function Page({ params }: {
+  params: Promise<{ groupId: string }>
+}) {
+  const { groupId } = await params;
+  return <RouteRoot delayedStatusCode
+    subtitle={{ title: 'Community', link: '/community' }}
+  >
+    <LocalGroupSingle groupId={groupId} />
   </RouteRoot>;
 }

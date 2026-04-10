@@ -29,18 +29,18 @@ const styles = defineStyles("AddToCalendarButton", (theme: ThemeType) => ({
     background: 'transparent',
     color: theme.palette.grey[600],
     font: 'inherit',
-    fontSize: theme.isFriendlyUI ? undefined : 14,
+    fontSize: 14,
     verticalAlign: 'text-bottom',
     '&:hover': {
       opacity: 0.5
     }
   },
   icon: {
-    height: theme.isFriendlyUI ? 18 : 16,
+    height: 16,
     fill: theme.palette.grey[600]
   },
   label: {
-    marginLeft: theme.isFriendlyUI ? 7 : 8,
+    marginLeft: 8,
   },
   dropdown: {
     background: theme.palette.panelBackground.default,

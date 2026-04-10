@@ -7,11 +7,12 @@ import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
-import { taggingNamePluralSetting } from '@/lib/instanceSettings';
 import LoginPopup from "../users/LoginPopup";
 import LWTooltip from "../common/LWTooltip";
 import PostsItem2MetaInfo from "../posts/PostsItem2MetaInfo";
 import SeparatorBullet from "../common/SeparatorBullet";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const progressBarRoot = (theme: ThemeType) => ({
   background: theme.palette.panelBackground.default,
@@ -32,7 +33,7 @@ export const secondaryInfo = (theme: ThemeType) => ({
   marginTop: 8
 })
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagProgressBar", (theme: ThemeType) => ({
   root: {
     ...progressBarRoot(theme)
   },
@@ -73,14 +74,13 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.text.dim3,
   },
   bar2Background: {
-    backgroundColor: theme.palette.panelBackground.tenPercent,
+    backgroundColor: theme.palette.greyAlpha(.1),
   }
 
-});
+}));
 
-const TagProgressBar = ({ classes }: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const TagProgressBar = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const { openDialog } = useDialog();
@@ -119,7 +119,7 @@ const TagProgressBar = ({ classes }: {
             What's the Import?
             </Link>
           <SeparatorBullet />
-          <Link className={classes.allTagsBarColor} to={`/${taggingNamePluralSetting.get()}/dashboard`}>
+          <Link className={classes.allTagsBarColor} to={`/w/dashboard`}>
             Help Process Pages
           </Link>
         </PostsItem2MetaInfo>
@@ -155,7 +155,7 @@ const TagProgressBar = ({ classes }: {
   </div>
 }
 
-export default registerComponent("TagProgressBar", TagProgressBar, { styles, hocs: [withErrorBoundary] });
+export default registerComponent("TagProgressBar", TagProgressBar, { hocs: [withErrorBoundary] });
 
 
 

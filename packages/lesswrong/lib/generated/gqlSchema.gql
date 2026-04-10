@@ -13,6 +13,7 @@ scalar ContentTypeData
 type ContentType {
   type: String!
   data: ContentTypeData!
+  yjsState: String
 }
 
 input SelectorInput {
@@ -245,7 +246,6 @@ type NewUserCompletedProfile {
   username: String
   slug: String
   displayName: String
-  subscribedToDigest: Boolean
   usernameUnset: Boolean
 }
 
@@ -258,6 +258,8 @@ extend type Mutation {
   NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile
   UserExpandFrontpageSection(section: String!, expanded: Boolean!): Boolean
   UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User
+  karmaChangesChecked(startDate: Date, endDate: Date): Boolean!
+  SoftDeleteUser(userId: String!): Boolean!
 }
 
 extend type Query {
@@ -345,16 +347,6 @@ extend type Mutation {
   performVoteRevision(documentId: String, voteType: String, extendedVote: JSON): VoteResultRevision
 }
 
-type VoteResultElectionCandidate {
-  document: ElectionCandidate!
-  showVotingPatternWarning: Boolean!
-}
-
-extend type Mutation {
-  setVoteElectionCandidate(documentId: String, voteType: String, extendedVote: JSON): ElectionCandidate
-  performVoteElectionCandidate(documentId: String, voteType: String, extendedVote: JSON): VoteResultElectionCandidate
-}
-
 type VoteResultTag {
   document: Tag!
   showVotingPatternWarning: Boolean!
@@ -408,7 +400,6 @@ type PostKarmaChange {
   title: String
   slug: String!
   addedReacts: [ReactionChange!]
-  eaAddedReacts: JSON
 }
 
 type CommentKarmaChange {
@@ -425,7 +416,6 @@ type CommentKarmaChange {
   tagCommentType: TagCommentType
   tagId: String
   addedReacts: [ReactionChange!]
-  eaAddedReacts: JSON
 }
 
 type RevisionsKarmaChange {
@@ -436,7 +426,6 @@ type RevisionsKarmaChange {
   tagSlug: String
   tagName: String
   addedReacts: [ReactionChange!]
-  eaAddedReacts: JSON
 }
 
 type ReactionChange {
@@ -516,6 +505,28 @@ type ArbitalPageData {
 
 extend type Query {
   ArbitalPageData(pageAlias: String): ArbitalPageData
+}
+
+type CrossSiteLinkPreviewData {
+  title: String
+  imageUrl: String
+  originalImageUrl: String
+  mirroredImageUrl: String
+  imageWidth: Int
+  imageHeight: Int
+  html: String
+  error: String
+  status: String
+  cacheVersion: Int
+  fetchedAt: Date
+  nextRefreshAt: Date
+  debugTitleSource: String
+  debugImageSource: String
+  debugHtmlSource: String
+}
+
+extend type Query {
+  crossSiteLinkPreview(url: String!, forceRefetch: Boolean, includeDebug: Boolean): CrossSiteLinkPreviewData
 }
 
 type ElicitUser {
@@ -633,9 +644,9 @@ extend type Query {
   UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!, limit: Int): [Post!]
   UserReadHistory(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
   PostsUserCommentedOn(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
-  PostIsCriticism(args: JSON): Boolean
-  DigestPlannerData(digestId: String, startDate: Date, endDate: Date): [DigestPlannerPost!]!
-  DigestPosts(num: Int): [Post!]
+  ProfileDiamondPosts(userId: String!, limit: Int!): ProfileDiamondPostsResult!
+  ProfileDiamondComments(userId: String!, limit: Int!): ProfileDiamondCommentsResult!
+  LastCuratedDate: LastCuratedDateResult!
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
   HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
   HocuspocusAuth(postId: String!, linkSharingKey: String): HocuspocusAuth
@@ -653,6 +664,10 @@ type PostsUserCommentedOnResult {
   posts: [Post!]
 }
 
+type LastCuratedDateResult {
+  lastCuratedDate: Date
+}
+
 input PostReviewFilter {
   startDate: Date
   endDate: Date
@@ -662,12 +677,6 @@ input PostReviewFilter {
 
 input PostReviewSort {
   karma: Boolean
-}
-
-type DigestPlannerPost {
-  post: Post!
-  digestPost: DigestPost
-  rating: Int!
 }
 
 type RecombeeRecommendedPost {
@@ -682,6 +691,32 @@ type RecombeeRecommendedPost {
 type VertexRecommendedPost {
   post: Post!
   attributionId: String
+}
+
+type ProfileDiamondPostsResult {
+  results: [ProfilePostDiamond!]!
+  totalCount: Int
+}
+
+type ProfileDiamondCommentsResult {
+  results: [ProfileCommentDiamond!]!
+  totalCount: Int
+}
+
+type ProfilePostDiamond {
+  _id: String!
+  slug: String!
+  date: Date!
+  karma: Int!
+  isReviewWinner: Boolean!
+  isCurated: Boolean!
+}
+
+type ProfileCommentDiamond {
+  id: String!
+  date: Date!
+  karma: Int!
+  postId: String!
 }
 
 type PostWithApprovedJargon {
@@ -706,24 +741,6 @@ type HomepageCommunityEventPostsResult {
 
 type HocuspocusAuth {
   token: String!
-  wsUrl: String!
-  documentName: String!
-}
-
-type DigestHighlightsResult {
-  results: [Post!]!
-}
-
-extend type Query {
-  DigestHighlights(limit: Int): DigestHighlightsResult
-}
-
-type DigestPostsThisWeekResult {
-  results: [Post!]!
-}
-
-extend type Query {
-  DigestPostsThisWeek(limit: Int): DigestPostsThisWeekResult
 }
 
 type CuratedAndPopularThisWeekResult {
@@ -731,7 +748,7 @@ type CuratedAndPopularThisWeekResult {
 }
 
 extend type Query {
-  CuratedAndPopularThisWeek(limit: Int): CuratedAndPopularThisWeekResult
+  CuratedAndPopularThisWeek(af: Boolean, limit: Int): CuratedAndPopularThisWeekResult
 }
 
 type RecentlyActiveDialoguesResult {
@@ -796,6 +813,14 @@ type PostsWithApprovedJargonResult {
 
 extend type Query {
   PostsWithApprovedJargon(limit: Int): PostsWithApprovedJargonResult
+}
+
+type CurationCandidatePostsResult {
+  results: [Post!]!
+}
+
+extend type Query {
+  CurationCandidatePosts(limit: Int): CurationCandidatePostsResult
 }
 
 extend type Mutation {
@@ -887,139 +912,35 @@ extend type Query {
   TagHistoryFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!, options: JSON): TagHistoryFeedQueryResults!
 }
 
-type SubforumMagicFeedQueryResults {
+type UserContentFeedQueryResults {
   cutoff: Date
   endOffset: Int!
-  results: [SubforumMagicFeedEntry!]
+  results: [UserContentFeedEntry!]
 }
 
-enum SubforumMagicFeedEntryType {
-  tagSubforumPosts
-  tagSubforumComments
-  tagSubforumStickyComments
+enum UserContentFeedEntryType {
+  profileComment
+  shortformComment
+  userPost
+  wikiEdit
 }
 
-type SubforumMagicFeedEntry {
-  type: SubforumMagicFeedEntryType!
-  tagSubforumPosts: Post
-  tagSubforumComments: Comment
-  tagSubforumStickyComments: Comment
+type UserContentFeedEntry {
+  type: UserContentFeedEntryType!
+  profileComment: Comment
+  shortformComment: Comment
+  userPost: Post
+  wikiEdit: Revision
 }
 
 extend type Query {
-  SubforumMagicFeed(limit: Int, cutoff: Float, offset: Int, tagId: String!, af: Boolean): SubforumMagicFeedQueryResults!
-}
-
-type SubforumTopFeedQueryResults {
-  cutoff: Date
-  endOffset: Int!
-  results: [SubforumTopFeedEntry!]
-}
-
-enum SubforumTopFeedEntryType {
-  tagSubforumPosts
-  tagSubforumComments
-  tagSubforumStickyComments
-}
-
-type SubforumTopFeedEntry {
-  type: SubforumTopFeedEntryType!
-  tagSubforumPosts: Post
-  tagSubforumComments: Comment
-  tagSubforumStickyComments: Comment
-}
-
-extend type Query {
-  SubforumTopFeed(limit: Int, cutoff: Int, offset: Int, tagId: String!, af: Boolean): SubforumTopFeedQueryResults!
-}
-
-type SubforumRecentCommentsFeedQueryResults {
-  cutoff: Date
-  endOffset: Int!
-  results: [SubforumRecentCommentsFeedEntry!]
-}
-
-enum SubforumRecentCommentsFeedEntryType {
-  tagSubforumPosts
-  tagSubforumComments
-  tagSubforumStickyComments
-}
-
-type SubforumRecentCommentsFeedEntry {
-  type: SubforumRecentCommentsFeedEntryType!
-  tagSubforumPosts: Post
-  tagSubforumComments: Comment
-  tagSubforumStickyComments: Comment
-}
-
-extend type Query {
-  SubforumRecentCommentsFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!, af: Boolean): SubforumRecentCommentsFeedQueryResults!
-}
-
-type SubforumNewFeedQueryResults {
-  cutoff: Date
-  endOffset: Int!
-  results: [SubforumNewFeedEntry!]
-}
-
-enum SubforumNewFeedEntryType {
-  tagSubforumPosts
-  tagSubforumComments
-  tagSubforumStickyComments
-}
-
-type SubforumNewFeedEntry {
-  type: SubforumNewFeedEntryType!
-  tagSubforumPosts: Post
-  tagSubforumComments: Comment
-  tagSubforumStickyComments: Comment
-}
-
-extend type Query {
-  SubforumNewFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!, af: Boolean): SubforumNewFeedQueryResults!
-}
-
-type SubforumOldFeedQueryResults {
-  cutoff: Date
-  endOffset: Int!
-  results: [SubforumOldFeedEntry!]
-}
-
-enum SubforumOldFeedEntryType {
-  tagSubforumPosts
-  tagSubforumComments
-  tagSubforumStickyComments
-}
-
-type SubforumOldFeedEntry {
-  type: SubforumOldFeedEntryType!
-  tagSubforumPosts: Post
-  tagSubforumComments: Comment
-  tagSubforumStickyComments: Comment
-}
-
-extend type Query {
-  SubforumOldFeed(limit: Int, cutoff: Date, offset: Int, tagId: String!, af: Boolean): SubforumOldFeedQueryResults!
+  UserContentFeed(userId: String!, limit: Int, cutoff: Date, offset: Int, sortBy: String, filter: String): UserContentFeedQueryResults!
 }
 
 extend type Mutation {
   markConversationRead(conversationId: String!): Boolean!
   sendEventTriggeredDM(eventType: String!): Boolean!
   initiateConversation(participantIds: [String!]!, af: Boolean, moderator: Boolean): Conversation
-}
-
-input SurveyQuestionInfo {
-  _id: String
-  question: String!
-  format: String!
-}
-
-extend type Query {
-  CurrentFrontpageSurvey: SurveySchedule
-}
-
-extend type Mutation {
-  editSurvey(surveyId: String!, name: String!, questions: [SurveyQuestionInfo!]!): Survey
 }
 
 enum DocumentDeletionNetChange {
@@ -1079,83 +1000,6 @@ extend type Query {
   TagsByCoreTagId(coreTagId: String, limit: Int, searchTagIds: [String]): TagWithTotalCount!
 }
 
-type MostReadTopic {
-  slug: String
-  name: String
-  shortName: String
-  count: Int
-}
-
-type TagReadLikelihoodRatio {
-  tagId: String
-  tagName: String
-  tagShortName: String
-  userReadCount: Int
-  readLikelihoodRatio: Float
-}
-
-type MostReadAuthor {
-  _id: String
-  slug: String
-  displayName: String
-  profileImageId: String
-  count: Int
-  engagementPercentile: Float
-}
-
-type TopCommentContents {
-  html: String
-}
-
-type TopComment {
-  _id: String
-  postedAt: Date
-  postId: String
-  postTitle: String
-  postSlug: String
-  baseScore: Int
-  extendedScore: JSON
-  contents: TopCommentContents
-}
-
-type MostReceivedReact {
-  name: String
-  count: Int
-}
-
-type CombinedKarmaVals {
-  date: Date!
-  postKarma: Int!
-  commentKarma: Int!
-}
-
-type WrappedDataByYear {
-  engagementPercentile: Float
-  postsReadCount: Int
-  totalSeconds: Int
-  daysVisited: [String]
-  mostReadTopics: [MostReadTopic]
-  relativeMostReadCoreTopics: [TagReadLikelihoodRatio]
-  mostReadAuthors: [MostReadAuthor]
-  topPosts: [Post]
-  postCount: Int
-  authorPercentile: Float
-  topComment: TopComment
-  commentCount: Int
-  commenterPercentile: Float
-  topShortform: Comment
-  shortformCount: Int
-  shortformPercentile: Float
-  karmaChange: Int
-  combinedKarmaVals: [CombinedKarmaVals]
-  mostReceivedReacts: [MostReceivedReact]
-  personality: String!
-}
-
-extend type Query {
-  UserWrappedDataByYear(userId: String!, year: Int!): WrappedDataByYear
-}
-
 extend type Mutation {
   RefreshDbSettings: Boolean
 }
@@ -1183,12 +1027,6 @@ extend type Mutation {
 
 extend type Query {
   latestDialogueMessages(dialogueId: String!, numMessages: Int!): [String!]
-}
-
-extend type Mutation {
-  AddForumEventVote(forumEventId: String!, x: Float!, delta: Float, postIds: [String]): Boolean
-  RemoveForumEventVote(forumEventId: String!): Boolean
-  RemoveForumEventSticker(forumEventId: String!, stickerId: String!): Boolean
 }
 
 extend type Query {
@@ -1254,6 +1092,12 @@ input AutosaveContentType {
   value: ContentTypeData
 }
 
+enum ConvertibleCollectionName {
+  Posts
+  Comments
+  Tags
+}
+
 extend type Query {
   convertDocument(document: JSON, targetFormat: String): JSON
   latestGoogleDocMetadata(postId: String!, version: String): JSON
@@ -1262,6 +1106,7 @@ extend type Query {
 extend type Mutation {
   revertTagToRevision(tagId: String!, revertToRevisionId: String!): Tag
   autosaveRevision(postId: String!, contents: AutosaveContentType!): Revision
+  convertDocumentEditorType(documentId: String!, collectionName: ConvertibleCollectionName!, fieldName: String!, document: JSON!, targetFormat: String!): JSON
 }
 
 type ModeratorIPAddressInfo {
@@ -1285,6 +1130,7 @@ extend type Mutation {
   approveUserCurrentContentOnly(userId: String!): Boolean!
   rerunLlmCheck(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
   runLlmCheckForDocument(documentId: String!, collectionName: ContentCollectionName!): AutomatedContentEvaluation!
+  unlistLlmPost(postId: String!, modCommentHtml: String!): Boolean!
 }
 
 extend type Mutation {
@@ -1386,6 +1232,7 @@ extend type Mutation {
 
 extend type Mutation {
   useEmailToken(token: String, args: JSON): JSON
+  getClaudeAccessLink: String
 }
 
 extend type Mutation {
@@ -1399,6 +1246,24 @@ extend type Query {
 
 extend type Query {
   RevisionsDiff(collectionName: String!, fieldName: String!, id: String, beforeRev: String, afterRev: String!, trim: Boolean): String
+}
+
+type ReviewResultsPostEntry {
+  rank: Int!
+  title: String!
+  postUrl: String!
+  authorName: String!
+  coauthorNames: [String!]!
+  votes: [Float!]!
+}
+
+type ReviewResultsTableData {
+  year: Int!
+  results: [ReviewResultsPostEntry!]!
+}
+
+extend type Query {
+  ReviewResultsTableData(year: Int!): ReviewResultsTableData
 }
 
 extend type Mutation {
@@ -1487,6 +1352,10 @@ extend type Mutation {
 
 extend type Mutation {
   flipSplashArtImage(reviewWinnerArtId: String!): Boolean
+}
+
+extend type Mutation {
+  upscaleReviewWinnerArt(reviewWinnerArtId: String!): ReviewWinnerArt
 }
 
 type ElicitQuestionPredictionCreator {
@@ -1591,52 +1460,6 @@ extend type Query {
 extend type Mutation {
   adminSendTestEmail(input: AdminSendTestEmailInput!): AdminSendTestEmailResult!
   adminSendBulkEmail(input: AdminSendBulkEmailInput!): AdminSendBulkEmailResult!
-}
-
-type AdvisorRequest {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  userId: String
-  user: User
-  interestedInMetaculus: Boolean
-  jobAds: JSON
-}
-
-input SingleAdvisorRequestInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleAdvisorRequestOutput {
-  result: AdvisorRequest
-}
-
-input AdvisorRequestsRequestsByUserInput {
-  userId: String
-}
-
-input AdvisorRequestSelector {
-  default: EmptyViewInput
-  requestsByUser: AdvisorRequestsRequestsByUserInput
-}
-
-input MultiAdvisorRequestInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiAdvisorRequestOutput {
-  results: [AdvisorRequest!]!
-  totalCount: Int
-}
-
-extend type Query {
-  advisorRequest(input: SingleAdvisorRequestInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleAdvisorRequestOutput
-  advisorRequests(input: MultiAdvisorRequestInput @deprecated(reason: "Use the selector field instead"), selector: AdvisorRequestSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiAdvisorRequestOutput
 }
 
 type ArbitalCaches {
@@ -2132,11 +1955,7 @@ type Comment {
   post: Post
   tagId: String
   tag: Tag
-  forumEventId: String
-  forumEvent: ForumEvent
-  forumEventMetadata: JSON
   tagCommentType: TagCommentType!
-  subforumStickyPriority: Float
   userId: String
   user: User
   userIP: String
@@ -2191,12 +2010,9 @@ type Comment {
   relevantTags: [Tag!]!
   debateResponse: Boolean
   rejected: Boolean!
-  modGPTAnalysis: String
-  modGPTRecommendation: String
   rejectedReason: String
   rejectedByUserId: String
   rejectedByUser: User
-  emojiReactors: JSON
   af: Boolean!
   suggestForAlignmentUserIds: [String!]!
   suggestForAlignmentUsers: [User!]!
@@ -2271,13 +2087,6 @@ input CommentsPostCommentsDeletedInput {
 }
 
 input CommentsAllCommentsDeletedInput {
-  userId: String
-  commentIds: [String!]
-  minimumKarma: Int
-  authorIsUnreviewed: Boolean
-}
-
-input CommentsCheckedByModGPTInput {
   userId: String
   commentIds: [String!]
   minimumKarma: Int
@@ -2373,6 +2182,9 @@ input CommentsAllRecentCommentsInput {
   authorIsUnreviewed: Boolean
   sortBy: String
   limit: String
+  before: String
+  after: String
+  timeField: String
 }
 
 input CommentsRecentCommentsInput {
@@ -2382,6 +2194,9 @@ input CommentsRecentCommentsInput {
   authorIsUnreviewed: Boolean
   sortBy: String
   limit: String
+  before: String
+  after: String
+  timeField: String
 }
 
 input CommentsAfSubmissionsInput {
@@ -2425,6 +2240,7 @@ input CommentsPostsItemCommentsInput {
   authorIsUnreviewed: Boolean
   postId: String
   after: String
+  timeField: String
   limit: String
 }
 
@@ -2492,6 +2308,7 @@ input CommentsTopShortformInput {
   authorIsUnreviewed: Boolean
   before: String
   after: String
+  timeField: String
   shortformFrontpage: Boolean
 }
 
@@ -2629,14 +2446,6 @@ input CommentsRecentDebateResponsesInput {
   limit: String
 }
 
-input CommentsForumEventCommentsInput {
-  userId: String
-  commentIds: [String!]
-  minimumKarma: Int
-  authorIsUnreviewed: Boolean
-  forumEventId: String
-}
-
 input CommentsAlignmentSuggestedCommentsInput {
   userId: String
   commentIds: [String!]
@@ -2658,6 +2467,7 @@ input CommentsDraftCommentsInput {
   minimumKarma: Int
   authorIsUnreviewed: Boolean
   postId: String
+  shortform: Boolean
   drafts: String
 }
 
@@ -2666,7 +2476,6 @@ input CommentSelector {
   commentReplies: CommentsCommentRepliesInput
   postCommentsDeleted: CommentsPostCommentsDeletedInput
   allCommentsDeleted: CommentsAllCommentsDeletedInput
-  checkedByModGPT: CommentsCheckedByModGPTInput
   postCommentsTop: CommentsPostCommentsTopInput
   postCommentsRecentReplies: CommentsPostCommentsRecentRepliesInput
   postCommentsMagic: CommentsPostCommentsMagicInput
@@ -2708,7 +2517,6 @@ input CommentSelector {
   moderatorComments: CommentsModeratorCommentsInput
   debateResponses: CommentsDebateResponsesInput
   recentDebateResponses: CommentsRecentDebateResponsesInput
-  forumEventComments: CommentsForumEventCommentsInput
   alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput
   rss: CommentsRssInput
   draftComments: CommentsDraftCommentsInput
@@ -2850,6 +2658,11 @@ type SingleCurationNoticeOutput {
 input CurationNoticeSelector {
   default: EmptyViewInput
   curationNoticesPage: EmptyViewInput
+  curationNoticesPostView: CurationNoticesPostViewInput
+}
+
+input CurationNoticesPostViewInput {
+  postId: String
 }
 
 input MultiCurationNoticeInput {
@@ -2990,222 +2803,6 @@ extend type Query {
   dialogueMatchPreferences(input: MultiDialogueMatchPreferenceInput @deprecated(reason: "Use the selector field instead"), selector: DialogueMatchPreferenceSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiDialogueMatchPreferenceOutput
 }
 
-type DigestPost {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  digestId: String!
-  digest: Digest!
-  postId: String!
-  post: Post
-  emailDigestStatus: String
-  onsiteDigestStatus: String
-}
-
-input SingleDigestPostInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleDigestPostOutput {
-  result: DigestPost
-}
-
-input DigestPostSelector {
-  default: EmptyViewInput
-}
-
-input MultiDigestPostInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiDigestPostOutput {
-  results: [DigestPost!]!
-  totalCount: Int
-}
-
-extend type Query {
-  digestPost(input: SingleDigestPostInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleDigestPostOutput
-  digestPosts(input: MultiDigestPostInput @deprecated(reason: "Use the selector field instead"), selector: DigestPostSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiDigestPostOutput
-}
-
-type Digest {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  num: Float!
-  startDate: Date!
-  endDate: Date
-  publishedDate: Date
-  onsiteImageId: String
-  onsitePrimaryColor: String
-}
-
-input SingleDigestInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleDigestOutput {
-  result: Digest
-}
-
-input DigestsFindByNumInput {
-  num: Int
-}
-
-input DigestSelector {
-  default: EmptyViewInput
-  findByNum: DigestsFindByNumInput
-  all: EmptyViewInput
-}
-
-input MultiDigestInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiDigestOutput {
-  results: [Digest!]!
-  totalCount: Int
-}
-
-extend type Query {
-  digest(input: SingleDigestInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleDigestOutput
-  digests(input: MultiDigestInput @deprecated(reason: "Use the selector field instead"), selector: DigestSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiDigestOutput
-}
-
-type ElectionCandidate {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  electionName: String!
-  name: String!
-  logoSrc: String!
-  href: String!
-  fundraiserLink: String
-  gwwcLink: String
-  gwwcId: String
-  description: String!
-  userId: String!
-  user: User
-  postCount: Float!
-  tagId: String!
-  tag: Tag
-  isElectionFundraiser: Boolean!
-  amountRaised: Float
-  targetAmount: Float
-  currentUserVote: String
-  currentUserExtendedVote: JSON
-  voteCount: Float!
-  baseScore: Float!
-  extendedScore: JSON
-  score: Float!
-  afBaseScore: Float
-  afExtendedScore: JSON
-  afVoteCount: Float
-}
-
-input SingleElectionCandidateInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleElectionCandidateOutput {
-  result: ElectionCandidate
-}
-
-input ElectionCandidateDefaultViewInput {
-  electionName: String
-  sortBy: String
-}
-
-input ElectionCandidateSelector {
-  default: ElectionCandidateDefaultViewInput
-}
-
-input MultiElectionCandidateInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiElectionCandidateOutput {
-  results: [ElectionCandidate!]!
-  totalCount: Int
-}
-
-extend type Query {
-  electionCandidate(input: SingleElectionCandidateInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleElectionCandidateOutput
-  electionCandidates(input: MultiElectionCandidateInput @deprecated(reason: "Use the selector field instead"), selector: ElectionCandidateSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiElectionCandidateOutput
-}
-
-type ElectionVote {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  electionName: String
-  userId: String
-  user: User
-  compareState: JSON
-  vote: JSON
-  submittedAt: Date
-  submissionComments: JSON
-  userExplanation: String
-  userOtherComments: String
-}
-
-input SingleElectionVoteInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleElectionVoteOutput {
-  result: ElectionVote
-}
-
-input ElectionVoteDefaultViewInput {
-  electionName: String
-  userId: String
-}
-
-input ElectionVotesAllSubmittedVotesInput {
-  electionName: String
-  userId: String
-}
-
-input ElectionVoteSelector {
-  default: ElectionVoteDefaultViewInput
-  allSubmittedVotes: ElectionVotesAllSubmittedVotesInput
-}
-
-input MultiElectionVoteInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiElectionVoteOutput {
-  results: [ElectionVote!]!
-  totalCount: Int
-}
-
-extend type Query {
-  electionVote(input: SingleElectionVoteInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleElectionVoteOutput
-  electionVotes(input: MultiElectionVoteInput @deprecated(reason: "Use the selector field instead"), selector: ElectionVoteSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiElectionVoteOutput
-}
-
 type ElicitQuestionPrediction {
   _id: String!
   predictionId: String
@@ -3300,49 +2897,6 @@ type EmailTokens {
   legacyData: JSON
 }
 
-type FeaturedResource {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  title: String!
-  body: String
-  ctaText: String!
-  ctaUrl: String!
-  expiresAt: Date!
-}
-
-input SingleFeaturedResourceInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleFeaturedResourceOutput {
-  result: FeaturedResource
-}
-
-input FeaturedResourceSelector {
-  default: EmptyViewInput
-  activeResources: EmptyViewInput
-}
-
-input MultiFeaturedResourceInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiFeaturedResourceOutput {
-  results: [FeaturedResource!]!
-  totalCount: Int
-}
-
-extend type Query {
-  featuredResource(input: SingleFeaturedResourceInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleFeaturedResourceOutput
-  featuredResources(input: MultiFeaturedResourceInput @deprecated(reason: "Use the selector field instead"), selector: FeaturedResourceSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiFeaturedResourceOutput
-}
-
 type FieldChange {
   _id: String!
   schemaVersion: Float!
@@ -3386,180 +2940,6 @@ extend type Query {
   fieldChanges(input: MultiFieldChangeInput @deprecated(reason: "Use the selector field instead"), selector: FieldChangeSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiFieldChangeOutput
 }
 
-type ForumEvent {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  frontpageDescription(version: String): Revision
-  frontpageDescription_latest: String
-  frontpageDescriptionMobile(version: String): Revision
-  frontpageDescriptionMobile_latest: String
-  postPageDescription(version: String): Revision
-  postPageDescription_latest: String
-  title: String!
-  startDate: Date!
-  endDate: Date
-  darkColor: String!
-  lightColor: String!
-  bannerTextColor: String!
-  contrastColor: String
-  tagId: String
-  tag: Tag
-  postId: String
-  post: Post
-  commentId: String
-  comment: Comment
-  bannerImageId: String
-  includesPoll: Boolean!
-  isGlobal: Boolean!
-  eventFormat: ForumEventFormat!
-  pollQuestion(version: String): Revision
-  pollQuestion_latest: String
-  pollAgreeWording: String
-  pollDisagreeWording: String
-  maxStickersPerUser: Float!
-  customComponent: ForumEventCustomComponent
-  commentPrompt: String
-  publicData: JSON
-  voteCount: Int!
-}
-
-enum ForumEventCustomComponent {
-  GivingSeason2024Banner
-}
-
-enum ForumEventFormat {
-  BASIC
-  POLL
-  STICKERS
-}
-
-input SingleForumEventInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleForumEventOutput {
-  result: ForumEvent
-}
-
-input ForumEventsUpcomingForumEventsInput {
-  limit: String
-}
-
-input ForumEventsPastForumEventsInput {
-  limit: String
-}
-
-input ForumEventsCurrentAndRecentForumEventsInput {
-  limit: String
-}
-
-input ForumEventSelector {
-  default: EmptyViewInput
-  upcomingForumEvents: ForumEventsUpcomingForumEventsInput
-  pastForumEvents: ForumEventsPastForumEventsInput
-  currentForumEvent: EmptyViewInput
-  currentAndRecentForumEvents: ForumEventsCurrentAndRecentForumEventsInput
-}
-
-input MultiForumEventInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiForumEventOutput {
-  results: [ForumEvent!]!
-  totalCount: Int
-}
-
-extend type Query {
-  forumEvent(input: SingleForumEventInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleForumEventOutput
-  forumEvents(input: MultiForumEventInput @deprecated(reason: "Use the selector field instead"), selector: ForumEventSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiForumEventOutput
-}
-
-type GardenCode {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  contents(version: String): Revision
-  contents_latest: String
-  pingbacks: JSON
-  slug: String!
-  code: String!
-  title: String!
-  userId: String!
-  user: User
-  startTime: Date
-  endTime: Date!
-  fbLink: String
-  type: String!
-  hidden: Boolean!
-  deleted: Boolean!
-  afOnly: Boolean!
-}
-
-input SingleGardenCodeInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleGardenCodeOutput {
-  result: GardenCode
-}
-
-input GardenCodeDefaultViewInput {
-  types: String
-  userId: String
-  code: String
-}
-
-input GardenCodesUsersPrivateGardenCodesInput {
-  types: String
-  userId: String
-  code: String
-}
-
-input GardenCodesPublicGardenCodesInput {
-  types: String
-  userId: String
-  code: String
-}
-
-input GardenCodesGardenCodeByCodeInput {
-  types: String
-  userId: String
-  code: String
-}
-
-input GardenCodeSelector {
-  default: GardenCodeDefaultViewInput
-  usersPrivateGardenCodes: GardenCodesUsersPrivateGardenCodesInput
-  publicGardenCodes: GardenCodesPublicGardenCodesInput
-  gardenCodeByCode: GardenCodesGardenCodeByCodeInput
-}
-
-input MultiGardenCodeInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiGardenCodeOutput {
-  results: [GardenCode!]!
-  totalCount: Int
-}
-
-extend type Query {
-  gardenCode(input: SingleGardenCodeInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleGardenCodeOutput
-  gardenCodes(input: MultiGardenCodeInput @deprecated(reason: "Use the selector field instead"), selector: GardenCodeSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiGardenCodeOutput
-}
-
 type GoogleServiceAccountSession {
   _id: String!
   schemaVersion: Float!
@@ -3600,6 +2980,86 @@ type MultiGoogleServiceAccountSessionOutput {
 extend type Query {
   googleServiceAccountSession(input: SingleGoogleServiceAccountSessionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleGoogleServiceAccountSessionOutput
   googleServiceAccountSessions(input: MultiGoogleServiceAccountSessionInput @deprecated(reason: "Use the selector field instead"), selector: GoogleServiceAccountSessionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiGoogleServiceAccountSessionOutput
+}
+
+type HomePageDesign {
+  _id: String!
+  createdAt: Date!
+  ownerId: String!
+  publicId: String!
+  html: String!
+  title: String!
+  verified: Boolean!
+  commentId: String
+  source: String!
+  modelName: String
+  autoReviewPassed: Boolean
+  autoReviewMessage: String
+  conversationHistory: JSON
+}
+
+type HomePageDesignSummary {
+  publicId: String!
+  title: String!
+  createdAt: Date!
+}
+
+type MarketplaceHomePageDesign {
+  publicId: String!
+  title: String!
+  html: String!
+  verified: Boolean!
+  commentId: String
+  commentBaseScore: Int!
+}
+
+type AdminHomePageDesign {
+  _id: String!
+  publicId: String!
+  title: String!
+  html: String!
+  verified: Boolean!
+  autoReviewPassed: Boolean
+  autoReviewMessage: String
+  createdAt: Date!
+  source: String!
+  modelName: String
+  commentId: String
+  ownerDisplayName: String!
+  ownerSlug: String!
+}
+
+extend type Query {
+  homePageDesignByPublicId(publicId: String!): HomePageDesign
+  myHomePageDesigns(limit: Int): [HomePageDesign!]!
+  myHomePageDesignSummaries: [HomePageDesignSummary!]!
+  marketplaceHomePageDesigns: [MarketplaceHomePageDesign!]!
+  adminHomePageDesigns: [AdminHomePageDesign!]!
+}
+
+type IframeWidgetSrcdoc {
+  _id: String!
+  createdAt: Date!
+  revisionId: String!
+  html: String!
+}
+
+type SingleIframeWidgetSrcdocOutput {
+  result: IframeWidgetSrcdoc
+}
+
+input IframeWidgetSrcdocSelector {
+  default: EmptyViewInput
+}
+
+type MultiIframeWidgetSrcdocOutput {
+  results: [IframeWidgetSrcdoc!]!
+  totalCount: Int
+}
+
+extend type Query {
+  iframeWidgetSrcdoc(selector: SelectorInput): SingleIframeWidgetSrcdocOutput
+  iframeWidgetSrcdocs(selector: IframeWidgetSrcdocSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiIframeWidgetSrcdocOutput
 }
 
 type Images {
@@ -3708,7 +3168,6 @@ input LWEventSelector {
   adminView: LWEventsAdminViewInput
   postVisits: LWEventsPostVisitsInput
   emailHistory: LWEventsEmailHistoryInput
-  gatherTownUsers: EmptyViewInput
 }
 
 input MultiLWEventInput {
@@ -4315,11 +3774,19 @@ extend type Query {
   notifications(input: MultiNotificationInput @deprecated(reason: "Use the selector field instead"), selector: NotificationSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiNotificationOutput
 }
 
-type PageCacheEntry {
+type OAuthAccessToken {
   _id: String!
-  schemaVersion: Float!
   createdAt: Date!
-  legacyData: JSON
+}
+
+type OAuthAuthorizationCode {
+  _id: String!
+  createdAt: Date!
+}
+
+type OAuthClient {
+  _id: String!
+  createdAt: Date!
 }
 
 type PetrovDayAction {
@@ -4751,8 +4218,6 @@ type Post {
   totalDialogueResponseCount: Int!
   mostRecentPublishedDialogueResponseDate: Date
   unreadDebateResponseCount: Int!
-  emojiReactors: JSON
-  commentEmojiReactors: JSON
   rejected: Boolean!
   rejectedReason: String
   rejectedByUserId: String
@@ -6535,7 +6000,7 @@ input ReviewVotesReviewVotesFromUserInput {
 }
 
 input ReviewVotesReviewVotesAdminDashboardInput {
-  year: Int
+  year: String
 }
 
 input ReviewVotesReviewVotesForPostAndUserInput {
@@ -6576,6 +6041,9 @@ type ReviewWinnerArt {
   postId: String!
   splashArtImagePrompt: String!
   splashArtImageUrl: String!
+  midjourneyJobId: String
+  midjourneyImageIndex: Int
+  upscaledImageUrl: String
   activeSplashArtCoordinates: SplashArtCoordinate
 }
 
@@ -6691,6 +6159,8 @@ type Revision {
   originalContents: ContentType!
   html: String
   markdown: String
+  agentMarkdown: String
+  agentMarkdownExcerpt: String
   ckEditorMarkup: String
   wordCount: Float!
   htmlHighlight: String!
@@ -7089,197 +6559,6 @@ extend type Query {
   subscriptions(input: MultiSubscriptionInput @deprecated(reason: "Use the selector field instead"), selector: SubscriptionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSubscriptionOutput
 }
 
-type SurveyQuestion {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  surveyId: String!
-  survey: Survey!
-  question: String!
-  format: SurveyQuestionFormat!
-  order: Float!
-}
-
-enum SurveyQuestionFormat {
-  rank0To10
-  text
-  multilineText
-}
-
-input SingleSurveyQuestionInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleSurveyQuestionOutput {
-  result: SurveyQuestion
-}
-
-input SurveyQuestionSelector {
-  default: EmptyViewInput
-}
-
-input MultiSurveyQuestionInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiSurveyQuestionOutput {
-  results: [SurveyQuestion!]!
-  totalCount: Int
-}
-
-extend type Query {
-  surveyQuestion(input: SingleSurveyQuestionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSurveyQuestionOutput
-  surveyQuestions(input: MultiSurveyQuestionInput @deprecated(reason: "Use the selector field instead"), selector: SurveyQuestionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSurveyQuestionOutput
-}
-
-type SurveyResponse {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  surveyId: String
-  survey: Survey
-  surveyScheduleId: String
-  surveySchedule: SurveySchedule
-  userId: String
-  user: User
-  clientId: String
-  client: ClientId
-  response: JSON
-}
-
-input SingleSurveyResponseInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleSurveyResponseOutput {
-  result: SurveyResponse
-}
-
-input SurveyResponseSelector {
-  default: EmptyViewInput
-}
-
-input MultiSurveyResponseInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiSurveyResponseOutput {
-  results: [SurveyResponse!]!
-  totalCount: Int
-}
-
-extend type Query {
-  surveyResponse(input: SingleSurveyResponseInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSurveyResponseOutput
-  surveyResponses(input: MultiSurveyResponseInput @deprecated(reason: "Use the selector field instead"), selector: SurveyResponseSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSurveyResponseOutput
-}
-
-type SurveySchedule {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  surveyId: String!
-  survey: Survey
-  name: String
-  impressionsLimit: Float
-  maxVisitorPercentage: Float
-  minKarma: Float
-  maxKarma: Float
-  target: SurveyScheduleTarget
-  startDate: Date
-  endDate: Date
-  deactivated: Boolean
-  clientIds: [String!]
-  clients: [ClientId!]
-}
-
-enum SurveyScheduleTarget {
-  allUsers
-  loggedInOnly
-  loggedOutOnly
-}
-
-input SingleSurveyScheduleInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleSurveyScheduleOutput {
-  result: SurveySchedule
-}
-
-input SurveyScheduleSelector {
-  default: EmptyViewInput
-  surveySchedulesByCreatedAt: EmptyViewInput
-}
-
-input MultiSurveyScheduleInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiSurveyScheduleOutput {
-  results: [SurveySchedule!]!
-  totalCount: Int
-}
-
-extend type Query {
-  surveySchedule(input: SingleSurveyScheduleInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSurveyScheduleOutput
-  surveySchedules(input: MultiSurveyScheduleInput @deprecated(reason: "Use the selector field instead"), selector: SurveyScheduleSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSurveyScheduleOutput
-}
-
-type Survey {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  name: String!
-  questions: [SurveyQuestion!]!
-}
-
-input SingleSurveyInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleSurveyOutput {
-  result: Survey
-}
-
-input SurveySelector {
-  default: EmptyViewInput
-  surveysByCreatedAt: EmptyViewInput
-}
-
-input MultiSurveyInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiSurveyOutput {
-  results: [Survey!]!
-  totalCount: Int
-}
-
-extend type Query {
-  survey(input: SingleSurveyInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleSurveyOutput
-  surveys(input: MultiSurveyInput @deprecated(reason: "Use the selector field instead"), selector: SurveySelector, limit: Int, offset: Int, enableTotal: Boolean): MultiSurveyOutput
-}
-
 type TagFlag {
   _id: String!
   schemaVersion: Float!
@@ -7416,6 +6695,8 @@ type Tag {
   userId: String
   user: User
   adminOnly: Boolean!
+  removalResistant: Boolean!
+  authorOnly: Boolean!
   canEditUserIds: [String!]
   charsAdded: Float
   charsRemoved: Float
@@ -7715,105 +6996,6 @@ type UserActivity {
   legacyData: JSON
 }
 
-type UserEAGDetail {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  userId: String
-  user: User
-  careerStage: [String!]
-  countryOrRegion: String
-  nearestCity: String
-  willingnessToRelocate: JSON
-  experiencedIn: [String!]
-  interestedIn: [String!]
-  lastUpdated: Date
-}
-
-input SingleUserEAGDetailInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleUserEAGDetailOutput {
-  result: UserEAGDetail
-}
-
-input UserEAGDetailsDataByUserInput {
-  userId: String
-}
-
-input UserEAGDetailSelector {
-  default: EmptyViewInput
-  dataByUser: UserEAGDetailsDataByUserInput
-}
-
-input MultiUserEAGDetailInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiUserEAGDetailOutput {
-  results: [UserEAGDetail!]!
-  totalCount: Int
-}
-
-extend type Query {
-  userEAGDetail(input: SingleUserEAGDetailInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUserEAGDetailOutput
-  userEAGDetails(input: MultiUserEAGDetailInput @deprecated(reason: "Use the selector field instead"), selector: UserEAGDetailSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserEAGDetailOutput
-}
-
-type UserJobAd {
-  _id: String!
-  schemaVersion: Float!
-  createdAt: Date!
-  legacyData: JSON
-  userId: String
-  user: User
-  jobName: String
-  adState: String
-  reminderSetAt: Date
-  lastUpdated: Date
-}
-
-input SingleUserJobAdInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleUserJobAdOutput {
-  result: UserJobAd
-}
-
-input UserJobAdsAdsByUserInput {
-  userId: String
-}
-
-input UserJobAdSelector {
-  default: EmptyViewInput
-  adsByUser: UserJobAdsAdsByUserInput
-}
-
-input MultiUserJobAdInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiUserJobAdOutput {
-  results: [UserJobAd!]!
-  totalCount: Int
-}
-
-extend type Query {
-  userJobAd(input: SingleUserJobAdInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUserJobAdOutput
-  userJobAds(input: MultiUserJobAdInput @deprecated(reason: "Use the selector field instead"), selector: UserJobAdSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserJobAdOutput
-}
-
 type UserMostValuablePost {
   _id: String!
   schemaVersion: Float!
@@ -7990,6 +7172,8 @@ type User {
   oldSlugs: [String!]!
   biography(version: String): Revision
   biography_latest: String
+  pinnedPostIds: [String!]!
+  hideProfileTopPosts: Boolean!
   username: String
   emails: [JSON!]
   isAdmin: Boolean!
@@ -8027,7 +7211,6 @@ type User {
   showCommunityInRecentDiscussion: Boolean!
   hidePostsRecommendations: Boolean!
   petrovOptOut: Boolean!
-  optedOutOfSurveys: Boolean
   postGlossariesPinned: Boolean
   generateJargonForDrafts: Boolean
   generateJargonForPublishedPosts: Boolean
@@ -8113,8 +7296,6 @@ type User {
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
-  subscribedToDigest: Boolean
-  subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -8223,7 +7404,6 @@ type User {
   acknowledgedNewUserGuidelines: Boolean
   moderatorActions: [ModeratorAction!]
   subforumPreferredLayout: SubforumPreferredLayout
-  hideJobAdUntil: Date
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean!
   allowDatadogSessionReplay: Boolean!
@@ -8239,13 +7419,12 @@ type User {
   recentKarmaInfo: JSON
   mailgunValidation: MailgunValidationResult
   hideSunshineSidebar: Boolean
-  inactiveSurveyEmailSentAt: Date
-  userSurveyEmailSentAt: Date
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
   lastRemovedFromReviewQueueAt: Date
   rejectedContentCount: Int
   userRateLimits: [UserRateLimit!]
+  claudeLinkedAt: Date
 }
 
 enum ReactPaletteStyle {
@@ -8318,11 +7497,6 @@ input UsersUsersProfileInput {
   slug: String
 }
 
-input UsersTagCommunityMembersInput {
-  hasBio: Boolean
-  profileTagId: String
-}
-
 input UserSelector {
   default: EmptyViewInput
   usersByUserIds: UsersUsersByUserIdsInput
@@ -8335,7 +7509,6 @@ input UserSelector {
   recentlyActive: EmptyViewInput
   allUsers: EmptyViewInput
   usersMapLocations: EmptyViewInput
-  tagCommunityMembers: UsersTagCommunityMembersInput
   reviewAdminUsers: EmptyViewInput
   usersWithPaymentInfo: EmptyViewInput
   usersWithOptedInToDialogueFacilitation: EmptyViewInput
@@ -8439,38 +7612,6 @@ extend type Query {
 type YjsDocument {
   _id: String!
   createdAt: Date!
-}
-
-input CreateAdvisorRequestDataInput {
-  legacyData: JSON
-  userId: String!
-  interestedInMetaculus: Boolean
-  jobAds: JSON
-}
-
-input CreateAdvisorRequestInput {
-  data: CreateAdvisorRequestDataInput!
-}
-
-input UpdateAdvisorRequestDataInput {
-  legacyData: JSON
-  userId: String
-  interestedInMetaculus: Boolean
-  jobAds: JSON
-}
-
-input UpdateAdvisorRequestInput {
-  selector: SelectorInput!
-  data: UpdateAdvisorRequestDataInput!
-}
-
-type AdvisorRequestOutput {
-  data: AdvisorRequest
-}
-
-extend type Mutation {
-  createAdvisorRequest(data: CreateAdvisorRequestDataInput!): AdvisorRequestOutput
-  updateAdvisorRequest(selector: SelectorInput!, data: UpdateAdvisorRequestDataInput!): AdvisorRequestOutput
 }
 
 input CreateBookDataInput {
@@ -8640,10 +7781,7 @@ input CreateCommentDataInput {
   topLevelCommentId: String
   postId: String
   tagId: String
-  forumEventId: String
-  forumEventMetadata: JSON
   tagCommentType: TagCommentType
-  subforumStickyPriority: Float
   userId: String
   authorIsUnreviewed: Boolean
   answer: Boolean
@@ -8675,8 +7813,6 @@ input CreateCommentDataInput {
   relevantTagIds: [String!]
   debateResponse: Boolean
   rejected: Boolean
-  modGPTAnalysis: String
-  modGPTRecommendation: String
   rejectedReason: String
   rejectedByUserId: String
   af: Boolean
@@ -8695,7 +7831,6 @@ input UpdateCommentDataInput {
   postedAt: Date
   postId: String
   tagId: String
-  subforumStickyPriority: Float
   authorIsUnreviewed: Boolean
   answer: Boolean
   shortform: Boolean
@@ -8728,8 +7863,6 @@ input UpdateCommentDataInput {
   relevantTagIds: [String!]
   debateResponse: Boolean
   rejected: Boolean
-  modGPTAnalysis: String
-  modGPTRecommendation: String
   rejectedReason: String
   rejectedByUserId: String
   af: Boolean
@@ -8824,172 +7957,6 @@ extend type Mutation {
   updateCurationNotice(selector: SelectorInput!, data: UpdateCurationNoticeDataInput!): CurationNoticeOutput
 }
 
-input CreateDigestPostDataInput {
-  legacyData: JSON
-  digestId: String!
-  postId: String!
-  emailDigestStatus: String
-  onsiteDigestStatus: String
-}
-
-input CreateDigestPostInput {
-  data: CreateDigestPostDataInput!
-}
-
-input UpdateDigestPostDataInput {
-  legacyData: JSON
-  digestId: String
-  postId: String
-  emailDigestStatus: String
-  onsiteDigestStatus: String
-}
-
-input UpdateDigestPostInput {
-  selector: SelectorInput!
-  data: UpdateDigestPostDataInput!
-}
-
-type DigestPostOutput {
-  data: DigestPost
-}
-
-extend type Mutation {
-  createDigestPost(data: CreateDigestPostDataInput!): DigestPostOutput
-  updateDigestPost(selector: SelectorInput!, data: UpdateDigestPostDataInput!): DigestPostOutput
-}
-
-input CreateDigestDataInput {
-  legacyData: JSON
-  num: Float!
-  startDate: Date!
-  endDate: Date
-  publishedDate: Date
-  onsiteImageId: String
-  onsitePrimaryColor: String
-}
-
-input CreateDigestInput {
-  data: CreateDigestDataInput!
-}
-
-input UpdateDigestDataInput {
-  legacyData: JSON
-  num: Float
-  startDate: Date
-  endDate: Date
-  publishedDate: Date
-  onsiteImageId: String
-  onsitePrimaryColor: String
-}
-
-input UpdateDigestInput {
-  selector: SelectorInput!
-  data: UpdateDigestDataInput!
-}
-
-type DigestOutput {
-  data: Digest
-}
-
-extend type Mutation {
-  createDigest(data: CreateDigestDataInput!): DigestOutput
-  updateDigest(selector: SelectorInput!, data: UpdateDigestDataInput!): DigestOutput
-}
-
-input CreateElectionCandidateDataInput {
-  legacyData: JSON
-  electionName: String!
-  name: String!
-  logoSrc: String!
-  href: String!
-  fundraiserLink: String
-  gwwcLink: String
-  gwwcId: String
-  description: String!
-  userId: String
-  tagId: String!
-  isElectionFundraiser: Boolean
-  amountRaised: Float
-  targetAmount: Float
-}
-
-input CreateElectionCandidateInput {
-  data: CreateElectionCandidateDataInput!
-}
-
-input UpdateElectionCandidateDataInput {
-  legacyData: JSON
-  electionName: String
-  name: String
-  logoSrc: String
-  href: String
-  fundraiserLink: String
-  gwwcLink: String
-  gwwcId: String
-  description: String
-  userId: String
-  tagId: String
-  isElectionFundraiser: Boolean
-  amountRaised: Float
-  targetAmount: Float
-}
-
-input UpdateElectionCandidateInput {
-  selector: SelectorInput!
-  data: UpdateElectionCandidateDataInput!
-}
-
-type ElectionCandidateOutput {
-  data: ElectionCandidate
-}
-
-extend type Mutation {
-  createElectionCandidate(data: CreateElectionCandidateDataInput!): ElectionCandidateOutput
-  updateElectionCandidate(selector: SelectorInput!, data: UpdateElectionCandidateDataInput!): ElectionCandidateOutput
-}
-
-input CreateElectionVoteDataInput {
-  legacyData: JSON
-  electionName: String!
-  userId: String!
-  compareState: JSON
-  vote: JSON
-  submittedAt: Date
-  submissionComments: JSON
-  userExplanation: String
-  userOtherComments: String
-}
-
-input CreateElectionVoteInput {
-  data: CreateElectionVoteDataInput!
-}
-
-input UpdateElectionVoteDataInput {
-  legacyData: JSON
-  electionName: String
-  userId: String
-  compareState: JSON
-  vote: JSON
-  submittedAt: Date
-  submissionComments: JSON
-  userExplanation: String
-  userOtherComments: String
-}
-
-input UpdateElectionVoteInput {
-  selector: SelectorInput!
-  data: UpdateElectionVoteDataInput!
-}
-
-type ElectionVoteOutput {
-  data: ElectionVote
-}
-
-extend type Mutation {
-  createElectionVote(data: CreateElectionVoteDataInput!): ElectionVoteOutput
-  updateElectionVote(selector: SelectorInput!, data: UpdateElectionVoteDataInput!): ElectionVoteOutput
-}
-
 input CreateElicitQuestionDataInput {
   legacyData: JSON
   title: String!
@@ -9024,78 +7991,19 @@ extend type Mutation {
   updateElicitQuestion(selector: SelectorInput!, data: UpdateElicitQuestionDataInput!): ElicitQuestionOutput
 }
 
-input CreateForumEventDataInput {
-  legacyData: JSON
-  frontpageDescription: CreateRevisionDataInput
-  frontpageDescriptionMobile: CreateRevisionDataInput
-  postPageDescription: CreateRevisionDataInput
+input PublishHomePageDesignInput {
+  publicId: String!
   title: String!
-  startDate: Date!
-  endDate: Date
-  darkColor: String
-  lightColor: String
-  bannerTextColor: String
-  contrastColor: String
-  tagId: String
-  postId: String
-  commentId: String
-  bannerImageId: String
-  includesPoll: Boolean
-  isGlobal: Boolean
-  eventFormat: ForumEventFormat
-  pollQuestion: CreateRevisionDataInput
-  pollAgreeWording: String
-  pollDisagreeWording: String
-  maxStickersPerUser: Float
-  customComponent: ForumEventCustomComponent
-  commentPrompt: String
-  publicData: JSON
+  descriptionHtml: String!
 }
 
-input CreateForumEventInput {
-  data: CreateForumEventDataInput!
-}
-
-input UpdateForumEventDataInput {
-  legacyData: JSON
-  frontpageDescription: CreateRevisionDataInput
-  frontpageDescriptionMobile: CreateRevisionDataInput
-  postPageDescription: CreateRevisionDataInput
-  title: String
-  startDate: Date
-  endDate: Date
-  darkColor: String
-  lightColor: String
-  bannerTextColor: String
-  contrastColor: String
-  tagId: String
-  postId: String
-  commentId: String
-  bannerImageId: String
-  includesPoll: Boolean
-  isGlobal: Boolean
-  eventFormat: ForumEventFormat
-  pollQuestion: CreateRevisionDataInput
-  pollAgreeWording: String
-  pollDisagreeWording: String
-  maxStickersPerUser: Float
-  customComponent: ForumEventCustomComponent
-  commentPrompt: String
-  publicData: JSON
-}
-
-input UpdateForumEventInput {
-  selector: SelectorInput!
-  data: UpdateForumEventDataInput!
-}
-
-type ForumEventOutput {
-  data: ForumEvent
+type HomePageDesignMutationOutput {
+  data: HomePageDesign
 }
 
 extend type Mutation {
-  createForumEvent(data: CreateForumEventDataInput!): ForumEventOutput
-  updateForumEvent(selector: SelectorInput!, data: UpdateForumEventDataInput!): ForumEventOutput
+  publishHomePageDesign(input: PublishHomePageDesignInput!): HomePageDesignMutationOutput
+  setHomePageDesignVerified(designId: String!, verified: Boolean, autoReviewPassed: Boolean): HomePageDesign
 }
 
 input CreateJargonTermDataInput {
@@ -9770,6 +8678,7 @@ extend type Mutation {
 input ContentTypeInput {
   type: String!
   data: ContentTypeData!
+  yjsState: String
 }
 
 input CreateRevisionDataInput {
@@ -9971,152 +8880,6 @@ extend type Mutation {
   createSubscription(data: CreateSubscriptionDataInput!): SubscriptionOutput
 }
 
-input CreateSurveyQuestionDataInput {
-  legacyData: JSON
-  surveyId: String!
-  question: String!
-  format: SurveyQuestionFormat!
-  order: Float!
-}
-
-input CreateSurveyQuestionInput {
-  data: CreateSurveyQuestionDataInput!
-}
-
-input UpdateSurveyQuestionDataInput {
-  legacyData: JSON
-  surveyId: String
-  question: String
-  format: SurveyQuestionFormat
-  order: Float
-}
-
-input UpdateSurveyQuestionInput {
-  selector: SelectorInput!
-  data: UpdateSurveyQuestionDataInput!
-}
-
-type SurveyQuestionOutput {
-  data: SurveyQuestion
-}
-
-extend type Mutation {
-  createSurveyQuestion(data: CreateSurveyQuestionDataInput!): SurveyQuestionOutput
-  updateSurveyQuestion(selector: SelectorInput!, data: UpdateSurveyQuestionDataInput!): SurveyQuestionOutput
-}
-
-input CreateSurveyResponseDataInput {
-  legacyData: JSON
-  surveyId: String!
-  surveyScheduleId: String!
-  userId: String!
-  clientId: String!
-  response: JSON!
-}
-
-input CreateSurveyResponseInput {
-  data: CreateSurveyResponseDataInput!
-}
-
-input UpdateSurveyResponseDataInput {
-  legacyData: JSON
-  surveyId: String
-  surveyScheduleId: String
-  userId: String
-  clientId: String
-  response: JSON
-}
-
-input UpdateSurveyResponseInput {
-  selector: SelectorInput!
-  data: UpdateSurveyResponseDataInput!
-}
-
-type SurveyResponseOutput {
-  data: SurveyResponse
-}
-
-extend type Mutation {
-  createSurveyResponse(data: CreateSurveyResponseDataInput!): SurveyResponseOutput
-  updateSurveyResponse(selector: SelectorInput!, data: UpdateSurveyResponseDataInput!): SurveyResponseOutput
-}
-
-input CreateSurveyScheduleDataInput {
-  legacyData: JSON
-  surveyId: String!
-  name: String!
-  impressionsLimit: Float
-  maxVisitorPercentage: Float
-  minKarma: Float
-  maxKarma: Float
-  target: SurveyScheduleTarget!
-  startDate: Date
-  endDate: Date
-  deactivated: Boolean
-  clientIds: [String!]
-}
-
-input CreateSurveyScheduleInput {
-  data: CreateSurveyScheduleDataInput!
-}
-
-input UpdateSurveyScheduleDataInput {
-  legacyData: JSON
-  surveyId: String
-  name: String
-  impressionsLimit: Float
-  maxVisitorPercentage: Float
-  minKarma: Float
-  maxKarma: Float
-  target: SurveyScheduleTarget
-  startDate: Date
-  endDate: Date
-  deactivated: Boolean
-  clientIds: [String!]
-}
-
-input UpdateSurveyScheduleInput {
-  selector: SelectorInput!
-  data: UpdateSurveyScheduleDataInput!
-}
-
-type SurveyScheduleOutput {
-  data: SurveySchedule
-}
-
-extend type Mutation {
-  createSurveySchedule(data: CreateSurveyScheduleDataInput!): SurveyScheduleOutput
-  updateSurveySchedule(selector: SelectorInput!, data: UpdateSurveyScheduleDataInput!): SurveyScheduleOutput
-}
-
-input CreateSurveyDataInput {
-  legacyData: JSON
-  name: String!
-}
-
-input CreateSurveyInput {
-  data: CreateSurveyDataInput!
-}
-
-input UpdateSurveyDataInput {
-  legacyData: JSON
-  name: String
-}
-
-input UpdateSurveyInput {
-  selector: SelectorInput!
-  data: UpdateSurveyDataInput!
-}
-
-type SurveyOutput {
-  data: Survey
-}
-
-extend type Mutation {
-  createSurvey(data: CreateSurveyDataInput!): SurveyOutput
-  updateSurvey(selector: SelectorInput!, data: UpdateSurveyDataInput!): SurveyOutput
-}
-
 input CreateTagFlagDataInput {
   legacyData: JSON
   contents: CreateRevisionDataInput
@@ -10168,6 +8931,8 @@ input CreateTagDataInput {
   defaultOrder: Float
   descriptionTruncationCount: Float
   adminOnly: Boolean
+  removalResistant: Boolean
+  authorOnly: Boolean
   canEditUserIds: [String!]
   reviewedByUserId: String
   wikiGrade: Int
@@ -10208,6 +8973,8 @@ input UpdateTagDataInput {
   defaultOrder: Float
   descriptionTruncationCount: Float
   adminOnly: Boolean
+  removalResistant: Boolean
+  authorOnly: Boolean
   canEditUserIds: [String!]
   deleted: Boolean
   needsReview: Boolean
@@ -10285,74 +9052,6 @@ type UltraFeedEventOutput {
 extend type Mutation {
   createUltraFeedEvent(data: CreateUltraFeedEventDataInput!): UltraFeedEventOutput
   updateUltraFeedEvent(selector: String!, data: UpdateUltraFeedEventDataInput!): UltraFeedEventOutput
-}
-
-input CreateUserEAGDetailDataInput {
-  legacyData: JSON
-  lastUpdated: Date
-}
-
-input CreateUserEAGDetailInput {
-  data: CreateUserEAGDetailDataInput!
-}
-
-input UpdateUserEAGDetailDataInput {
-  legacyData: JSON
-  careerStage: [String!]
-  countryOrRegion: String
-  nearestCity: String
-  willingnessToRelocate: JSON
-  experiencedIn: [String!]
-  interestedIn: [String!]
-  lastUpdated: Date
-}
-
-input UpdateUserEAGDetailInput {
-  selector: SelectorInput!
-  data: UpdateUserEAGDetailDataInput!
-}
-
-type UserEAGDetailOutput {
-  data: UserEAGDetail
-}
-
-extend type Mutation {
-  createUserEAGDetail(data: CreateUserEAGDetailDataInput!): UserEAGDetailOutput
-  updateUserEAGDetail(selector: SelectorInput!, data: UpdateUserEAGDetailDataInput!): UserEAGDetailOutput
-}
-
-input CreateUserJobAdDataInput {
-  legacyData: JSON
-  userId: String!
-  jobName: String!
-  adState: String!
-  reminderSetAt: Date
-  lastUpdated: Date
-}
-
-input CreateUserJobAdInput {
-  data: CreateUserJobAdDataInput!
-}
-
-input UpdateUserJobAdDataInput {
-  legacyData: JSON
-  adState: String
-  reminderSetAt: Date
-  lastUpdated: Date
-}
-
-input UpdateUserJobAdInput {
-  selector: SelectorInput!
-  data: UpdateUserJobAdDataInput!
-}
-
-type UserJobAdOutput {
-  data: UserJobAd
-}
-
-extend type Mutation {
-  createUserJobAd(data: CreateUserJobAdDataInput!): UserJobAdOutput
-  updateUserJobAd(selector: SelectorInput!, data: UpdateUserJobAdDataInput!): UserJobAdOutput
 }
 
 input CreateUserMostValuablePostDataInput {
@@ -10466,6 +9165,8 @@ input CreateUserDataInput {
   howICanHelpOthers: CreateRevisionDataInput
   slug: String
   biography: CreateRevisionDataInput
+  pinnedPostIds: [String!]
+  hideProfileTopPosts: Boolean
   username: String
   isAdmin: Boolean
   displayName: String!
@@ -10489,7 +9190,6 @@ input CreateUserDataInput {
   showCommunityInRecentDiscussion: Boolean
   hidePostsRecommendations: Boolean
   petrovOptOut: Boolean
-  optedOutOfSurveys: Boolean
   postGlossariesPinned: Boolean
   acceptedTos: Boolean
   hideNavigationSidebar: Boolean
@@ -10561,8 +9261,6 @@ input CreateUserDataInput {
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
-  subscribedToDigest: Boolean
-  subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -10581,6 +9279,7 @@ input CreateUserDataInput {
   hideFrontpageBook2019Ad: Boolean
   hideFrontpageBook2020Ad: Boolean
   reviewedByUserId: String
+  reviewedAt: Date
   shortformFeedId: String
   viewUnreviewedComments: Boolean
   noExpandUnreadCommentsReview: Boolean
@@ -10605,15 +9304,12 @@ input CreateUserDataInput {
   conversationsDisabled: Boolean
   acknowledgedNewUserGuidelines: Boolean
   subforumPreferredLayout: SubforumPreferredLayout
-  hideJobAdUntil: Date
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean
   allowDatadogSessionReplay: Boolean
   reviewForAlignmentForumUserId: String
   afSubmittedApplication: Boolean
   hideSunshineSidebar: Boolean
-  inactiveSurveyEmailSentAt: Date
-  userSurveyEmailSentAt: Date
 }
 
 input CreateUserInput {
@@ -10627,6 +9323,8 @@ input UpdateUserDataInput {
   howICanHelpOthers: CreateRevisionDataInput
   slug: String
   biography: CreateRevisionDataInput
+  pinnedPostIds: [String!]
+  hideProfileTopPosts: Boolean
   username: String
   isAdmin: Boolean
   displayName: String
@@ -10656,7 +9354,6 @@ input UpdateUserDataInput {
   showCommunityInRecentDiscussion: Boolean
   hidePostsRecommendations: Boolean
   petrovOptOut: Boolean
-  optedOutOfSurveys: Boolean
   postGlossariesPinned: Boolean
   generateJargonForDrafts: Boolean
   generateJargonForPublishedPosts: Boolean
@@ -10733,8 +9430,6 @@ input UpdateUserDataInput {
   karmaChangeLastOpened: Date
   karmaChangeBatchStart: Date
   emailSubscribedToCurated: Boolean
-  subscribedToDigest: Boolean
-  subscribedToNewsletter: Boolean
   unsubscribeFromAll: Boolean
   hideSubscribePoke: Boolean
   hideMeetupsPoke: Boolean
@@ -10802,7 +9497,6 @@ input UpdateUserDataInput {
   conversationsDisabled: Boolean
   acknowledgedNewUserGuidelines: Boolean
   subforumPreferredLayout: SubforumPreferredLayout
-  hideJobAdUntil: Date
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean
   allowDatadogSessionReplay: Boolean
@@ -10810,8 +9504,6 @@ input UpdateUserDataInput {
   afApplicationText: String
   afSubmittedApplication: Boolean
   hideSunshineSidebar: Boolean
-  inactiveSurveyEmailSentAt: Date
-  userSurveyEmailSentAt: Date
   recommendationSettings: RecommendationSettingsInput
 }
 

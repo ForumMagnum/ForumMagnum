@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { userCanDo, userOwns } from '../../lib/vulcan-users/permissions';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -20,6 +19,8 @@ import ErrorBoundary from "../common/ErrorBoundary";
 import CollectionTableOfContents from "./CollectionTableOfContents";
 import ToCColumn from "../posts/TableOfContents/ToCColumn";
 import { CollectionsPageFragmentQuery } from './queries';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CollectionsEditFragmentQuery = gql(`
   query CollectionsEdit($documentId: String) {
@@ -34,7 +35,7 @@ const CollectionsEditFragmentQuery = gql(`
 const PADDING = 36
 const COLLECTION_WIDTH = SECTION_WIDTH + (PADDING * 2)
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CollectionsPage', (theme: ThemeType) => ({
   root: {
     padding: 32,
     position: "relative",
@@ -55,9 +56,15 @@ const styles = (theme: ThemeType) => ({
     marginRight: "auto",
     position: "relative",
     zIndex: theme.zIndexes.singleColumnSection,
-    [theme.breakpoints.up('md')]: {
-      width: COLLECTION_WIDTH // TODO: replace this hacky solution with a more comprehensive refactoring of SingleColumnSection. 
-      // (SingleColumnLayout should probably be replaced by grid-css in Layout.tsx)
+    ["@media (min-width: 960px)"]: {
+      width: 650
+    },
+    ["@media (min-width: 1030px)"]: {
+      width: 780
+    },
+    ["@media (min-width: 1100px)"]: {
+      // HACK
+      width: COLLECTION_WIDTH
     }
   },
   startReadingButton: {
@@ -69,7 +76,7 @@ const styles = (theme: ThemeType) => ({
   title: {
     ...theme.typography.headerStyle,
     fontWeight: "bold",
-    textTransform: theme.isFriendlyUI ? undefined : "uppercase",
+    textTransform: "uppercase",
     borderTopStyle: "solid",
     borderTopWidth: 4,
     paddingTop: 10,
@@ -78,16 +85,19 @@ const styles = (theme: ThemeType) => ({
   },
   description: {
     marginTop: 30,
-    marginBottom: theme.isFriendlyUI ? 0 : 25,
+    marginBottom: 25,
     lineHeight: 1.25,
     maxWidth: 700,
   },
-});
+  tocWrapper: {
+    paddingRight: 10,
+  },
+}));
 
-const CollectionsPage = ({ documentId, classes }: {
+const CollectionsPage = ({documentId}: {
   documentId: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [edit, setEdit] = useState(false);
   const [addingBook, setAddingBook] = useState(false);
@@ -148,7 +158,9 @@ const CollectionsPage = ({ documentId, classes }: {
     return (<ErrorBoundary>
       <div className={classes.root}>
       <ToCColumn
-        tableOfContents={<CollectionTableOfContents collection={document}/>}
+        tableOfContents={<div className={classes.tocWrapper}>
+          <CollectionTableOfContents collection={document}/>
+        </div>}
       >
         <div className={classes.section}>
           {collection.title && <Typography variant="display3" className={classes.title}>{collection.title}</Typography>}
@@ -192,7 +204,7 @@ const CollectionsPage = ({ documentId, classes }: {
   }
 }
 
-export default registerComponent('CollectionsPage', CollectionsPage, {styles});
+export default CollectionsPage
 
 
 

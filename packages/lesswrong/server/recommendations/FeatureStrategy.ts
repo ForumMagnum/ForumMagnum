@@ -18,9 +18,10 @@ class FeatureStrategy extends RecommendationStrategy {
   async recommend(
     currentUser: DbUser|null,
     count: number,
-    {postId, features}: StrategySpecification,
+    strategy: StrategySpecification,
     options?: Partial<FeatureStrategyOptions>,
   ): Promise<RecommendationResult> {
+    const {postId, features} = strategy;
     if (!features) {
       throw new Error("No features supplied to FeatureStrategy");
     }
@@ -29,8 +30,7 @@ class FeatureStrategy extends RecommendationStrategy {
 
     const readFilter = this.getAlreadyReadFilter(currentUser);
     const recommendedFilter = this.getAlreadyRecommendedFilter(currentUser);
-    const postFilter = this.getDefaultPostFilter();
-    const tagFilter = this.getTagFilter();
+    const postFilter = this.getDefaultPostFilter(strategy);
 
     let joins = "";
     let filters = "";
@@ -70,7 +70,6 @@ class FeatureStrategy extends RecommendationStrategy {
           ${filters}
           ${readFilter.filter}
           ${postFilter.filter}
-          ${tagFilter.filter}
         ORDER BY 0 ${score} DESC
         LIMIT $(count) * 10
       ) p
@@ -81,14 +80,13 @@ class FeatureStrategy extends RecommendationStrategy {
       ...readFilter.args,
       ...recommendedFilter.args,
       ...postFilter.args,
-      ...tagFilter.args,
       ...args,
       ...options,
       postId,
       count,
     });
 
-    return {posts, settings: {postId, features}};
+    return {posts, settings: {postId, features, af: strategy.af}};
   }
 }
 

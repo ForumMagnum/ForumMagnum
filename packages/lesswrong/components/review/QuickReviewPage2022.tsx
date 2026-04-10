@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import sortBy from 'lodash/sortBy';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import PostsItem from "../posts/PostsItem";
 import ReviewVotingExpandedPost from "./ReviewVotingExpandedPost";
 import FrontpageReviewWidget from "./FrontpageReviewWidget";
@@ -13,6 +11,8 @@ import ReviewDashboardButtons from "./ReviewDashboardButtons";
 import PostInteractionStripe from "./PostInteractionStripe";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsReviewVotingListMultiQuery = gql(`
   query multiPostQuickReviewPage2022Query($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -25,7 +25,7 @@ const PostsReviewVotingListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('QuickReviewPage2022', (theme: ThemeType) => ({
   grid: {
     display: 'grid',
     gridTemplateColumns: `
@@ -104,11 +104,10 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.primary.main,
     marginRight: "auto"
   }
-});
+}));
 
-export const QuickReviewPage2022 = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+export const QuickReviewPage2022 = () => {
+  const classes = useStyles(styles);
   const reviewYear = REVIEW_YEAR
   const [expandedPost, setExpandedPost] = useState<PostsReviewVotingList|null>(null)
   const [truncatePosts, setTruncatePosts] = useState<boolean>(true)
@@ -139,8 +138,6 @@ export const QuickReviewPage2022 = ({classes}: {
       void loadMore()
     }
   }
-
-  const loadMoreText = preferredHeadingCase("Load More");
 
   return <div className={classes.grid}>
     <div className={classes.leftColumn}>
@@ -177,13 +174,13 @@ export const QuickReviewPage2022 = ({classes}: {
       <SectionFooter>
         <div className={classes.loadMore}>
           {loading && <Loading/>}
-          <a onClick={() => handleLoadMore()}>{loadMoreText} ({truncatedPostsResults.length}/{totalCount})</a>
+          <a onClick={() => handleLoadMore()}>Load More ({truncatedPostsResults.length}/{totalCount})</a>
         </div>
       </SectionFooter>
     </div>
   </div>;
 }
 
-export default registerComponent('QuickReviewPage2022', QuickReviewPage2022, {styles});
+export default QuickReviewPage2022;
 
 

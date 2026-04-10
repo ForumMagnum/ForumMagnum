@@ -1,5 +1,4 @@
 import React, { FC, PropsWithChildren } from 'react'
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person'
 import HomeIcon from '@/lib/vendor/@material-ui/icons/src/Home';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
@@ -7,7 +6,7 @@ import SubjectIcon from '@/lib/vendor/@material-ui/icons/src/Subject';
 import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
 import EventIcon from '@/lib/vendor/@material-ui/icons/src/Event';
 import QuestionAnswerIcon from '@/lib/vendor/@material-ui/icons/src/QuestionAnswer';
-import { forumTitleSetting, siteNameWithArticleSetting, taggingNameCapitalSetting, taggingNameIsSet } from '../../../lib/instanceSettings';
+import { forumTitleSetting, siteNameWithArticleSetting } from '../../../lib/instanceSettings';
 import { curatedUrl } from '@/components/recommendations/constants';
 import { ForumOptions, forumSelect } from '../../../lib/forumTypeUtils';
 import classNames from 'classnames';
@@ -16,28 +15,23 @@ import { isFriendlyUI } from '../../../themes/forumTheme';
 import { Typography } from "../../common/Typography";
 import LWTooltip from "../../common/LWTooltip";
 import SectionTitle from "../../common/SectionTitle";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ContentType', (theme: ThemeType) => ({
   root: {
     textAlign: 'left',
     display: 'inline-block',
     color: theme.palette.text.dim2,
     whiteSpace: "no-wrap",
-    fontSize: theme.typography.body2.fontSize,
-    ...(theme.isFriendlyUI && {
-      color: theme.palette.grey[800],
-      fontWeight: 600
-    }),
+    fontSize: theme.typography.body2.fontSize
   },
   icon: {
     fontSize: "1.3rem",
     color: theme.palette.icon.dim600,
     position: "relative",
     top: 3,
-    marginRight: 4,
-    ...(theme.isFriendlyUI && {
-      color: theme.palette.grey[800]
-    }),
+    marginRight: 4
   },
   tooltipTitle: {
     marginBottom: 8,
@@ -45,7 +39,7 @@ const styles = (theme: ThemeType) => ({
   sectionTitle: {
     fontSize: 14,
   },
-})
+}))
 
 
 export type ContentTypeString = "frontpage"|"personal"|"curated"|"shortform"|"tags"|"subforumDiscussion";
@@ -66,9 +60,6 @@ type ContentTypeRecord = {
 }
 
 export const getContentTypes = (): ForumOptions<ContentTypeRecord> => {
-  const taggingAltName = taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag/Wiki';
-  const taggingAltName2 = taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Tag and wiki';
-
   return {
     LessWrong: {
       frontpage: {
@@ -129,9 +120,9 @@ export const getContentTypes = (): ForumOptions<ContentTypeRecord> => {
         Icon: SubjectIcon
       },
       tags: {
-        tooltipTitle: `${taggingAltName} Edits and Discussion`,
+        tooltipTitle: `Wikitag Edits and Discussion`,
         tooltipBody: <div>
-          {taggingAltName2} pages, which organize LessWrong posts and concepts in a more
+          Wikitag pages, which organize LessWrong posts and concepts in a more
           durable format.
         </div>,
         Icon: TagIcon,
@@ -187,71 +178,14 @@ export const getContentTypes = (): ForumOptions<ContentTypeRecord> => {
         Icon: SubjectIcon
       },
       tags: {
-        tooltipTitle: `${taggingAltName} Edits and Discussion`,
+        tooltipTitle: `Wikitag Edits and Discussion`,
         tooltipBody: <div>
-          {taggingAltName2} pages, which organize {siteNameWithArticleSetting.get()} posts and concepts in
+          Wikitag pages, which organize {siteNameWithArticleSetting.get()} posts and concepts in
           a more durable format.
         </div>,
         Icon: TagIcon,
         linkTarget: getAllTagsPath(),
       },
-    },
-    EAForum: {
-      frontpage: {
-        tooltipTitle: 'Frontpage Post',
-        tooltipBody: <div>
-          Posts that are relevant to doing good effectively.
-        </div>,
-        linkTarget: "/about#Finding_content",
-        Icon: HomeIcon
-      },
-      personal: {
-        tooltipTitle: 'Personal Blog Post',
-        tooltipBody: <React.Fragment>
-          <div>
-            Users can write whatever they want on their personal blog. This category
-            is a good fit for:
-          </div>
-          <ul>
-            <li>topics that aren't closely related to EA</li>
-            <li>topics that are difficult to discuss rationally</li>
-            <li>topics of interest to a small fraction of the Forum’s readers (e.g. local events)</li>
-          </ul>
-        </React.Fragment>,
-        linkTarget: "/posts/5TAwep4tohN7SGp3P/the-frontpage-community-distinction",
-        Icon: PersonIcon
-      },
-      curated: {
-        tooltipTitle: 'Curated Post',
-        tooltipBody: <div>
-          The best 2-3 posts each week, selected by the moderation team. Curated
-          posts are featured at the top of the front page and emailed to subscribers.
-        </div>,
-        linkTarget: curatedUrl,
-        Icon: StarIcon,
-      },
-      shortform: {
-        tooltipTitle: 'Quick take',
-        tooltipBody: <div>
-          Writing that is brief, or written very quickly. Perfect for off-the-cuff
-          thoughts, brainstorming, early stage drafts, etc.
-        </div>,
-        linkTarget: "/quicktakes",
-        Icon: SubjectIcon
-      },
-      tags: {
-        tooltipTitle: `${taggingAltName} Edits and Discussion`,
-        tooltipBody: <div>
-          {taggingAltName2} pages, which organize posts and concepts in a more
-          durable format.
-        </div>,
-        Icon: TagIcon,
-        linkTarget: getAllTagsPath(),
-      },
-      subforumDiscussion: {
-        Icon: QuestionAnswerIcon,
-        linkTarget: null,
-      }
     },
     default: {
       frontpage: {
@@ -304,9 +238,9 @@ export const getContentTypes = (): ForumOptions<ContentTypeRecord> => {
         Icon: SubjectIcon
       },
       tags: {
-        tooltipTitle: `${taggingAltName} Edits and Discussion`,
+        tooltipTitle: `Wikitag Edits and Discussion`,
         tooltipBody: <div>
-          {taggingAltName2} pages, which organize {forumTitleSetting.get()} posts and concepts in a more
+          Wikitag pages, which organize {forumTitleSetting.get()} posts and concepts in a more
           durable format.
         </div>,
         Icon: TagIcon,
@@ -316,12 +250,12 @@ export const getContentTypes = (): ForumOptions<ContentTypeRecord> => {
   }
 };
 
-const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType<typeof styles>, className?: string}>> = ({
-  classes,
+const ContentTypeWrapper: FC<PropsWithChildren<{className?: string}>> = ({
   className,
   children,
-}) =>
-  isFriendlyUI()
+}) => {
+  const classes = useStyles(styles);
+  return isFriendlyUI()
     ? <>{children}</>
     : <Typography
       variant="body1"
@@ -330,13 +264,15 @@ const ContentTypeWrapper: FC<PropsWithChildren<{classes: ClassesType<typeof styl
     >
         {children}
     </Typography>;
+};
 
-const ContentType = ({classes, className, type, label}: {
-  classes: ClassesType<typeof styles>,
+const ContentType = ({className, type, label}: {
   className?: string,
   type: ContentTypeString,
   label?: string
 }) => {
+  const classes = useStyles(styles);
+
   if (!type) {
     throw new Error('ContentType requires type property')
   }
@@ -352,7 +288,7 @@ const ContentType = ({classes, className, type, label}: {
     </span>;
 
   return (
-    <ContentTypeWrapper className={className} classes={classes}>
+    <ContentTypeWrapper className={className}>
       {contentData.tooltipTitle ? (
         <LWTooltip
           title={
@@ -369,6 +305,6 @@ const ContentType = ({classes, className, type, label}: {
   );
 }
 
-export default registerComponent('ContentType', ContentType, {styles});
+export default ContentType
 
 

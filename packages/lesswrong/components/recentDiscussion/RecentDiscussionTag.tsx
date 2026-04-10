@@ -6,20 +6,20 @@ import { tagGetDiscussionUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { truncate } from '../../lib/editor/ellipsize';
 import type { CommentTreeOptions } from '../comments/commentTree';
-import { taggingNameCapitalSetting } from '../../lib/instanceSettings';
 import { TagCommentType } from '../../lib/collections/comments/types';
 import { useOrderPreservingArray } from '../hooks/useOrderPreservingArray';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { useRecentDiscussionViewTracking } from './useRecentDiscussionViewTracking';
 import CommentsNode from "../comments/CommentsNode";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { useTracking } from "../../lib/analyticsEvents";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('RecentDiscussionTag', (theme: ThemeType) => ({
   root: {
-    marginBottom: theme.spacing.unit*4,
+    marginBottom: 32,
     position: "relative",
     minHeight: 58,
     boxShadow: theme.palette.boxShadow.default,
@@ -70,16 +70,16 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim3,
     ...theme.typography.commentStyle,
   },
-});
+}));
 
-const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION", classes }: {
+const RecentDiscussionTag = ({tag, refetch = () => {}, comments, expandAllThreads: initialExpandAllThreads, tagCommentType = "DISCUSSION"}: {
   tag: TagRecentDiscussion,
   refetch?: any,
   comments: Array<CommentsList>,
   expandAllThreads?: boolean
   tagCommentType?: TagCommentType,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const [truncated, setTruncated] = useState(true);
   const [expandAllThreads, setExpandAllThreads] = useState(false);
   const { captureEvent } = useTracking();
@@ -105,7 +105,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
 
   
   const descriptionHtml = tag.description?.html;
-  const readMore = `<a>(${preferredHeadingCase("Read More")})</a>`;
+  const readMore = `<a>(Read More)</a>`;
   const maybeTruncatedDescriptionHtml = truncated
     ? truncate(descriptionHtml, tag.descriptionTruncationCount || 2, "paragraphs", readMore)
     : descriptionHtml;
@@ -119,7 +119,7 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
     condensed: true,
   }
   
-  const metadataWording = tag.wikiOnly ? "Wiki page" : `${taggingNameCapitalSetting.get()} page - ${tag.postCount} posts`;
+  const metadataWording = tag.wikiOnly ? "Wiki page" : `Wikitag page - ${tag.postCount} posts`;
   
   return (
     <div ref={viewTrackingRef} className={classes.root}>
@@ -163,11 +163,6 @@ const RecentDiscussionTag = ({ tag, refetch = () => {}, comments, expandAllThrea
   )
 }
 
-export default registerComponent(
-  'RecentDiscussionTag', RecentDiscussionTag, {
-    styles,
-    hocs: [withErrorBoundary],
-  }
-);
-
-
+export default registerComponent('RecentDiscussionTag', RecentDiscussionTag, {
+  hocs: [withErrorBoundary],
+});

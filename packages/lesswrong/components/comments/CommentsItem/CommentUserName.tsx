@@ -1,16 +1,9 @@
-import { registerComponent } from '../../../lib/vulcan-lib/components';
-import React, { ReactNode } from 'react';
+import React from 'react';
 import classNames from 'classnames';
-import { userGetProfileUrl } from '../../../lib/collections/users/helpers';
-import { Link } from '../../../lib/reactRouterWrapper';
-import { userHasCommentProfileImages } from '../../../lib/betas';
 import { useFilteredCurrentUser } from '../../common/withUser';
-import { isFriendlyUI } from '../../../themes/forumTheme';
 import UserNameDeleted from "../../users/UserNameDeleted";
 import UsersName from "../../users/UsersName";
 import UsersNameWithModal from "../../ultraFeed/UsersNameWithModal";
-import UsersProfileImage from "../../users/UsersProfileImage";
-import UserTooltip from "../../users/UserTooltip";
 import type { Placement as PopperPlacementType } from "popper.js";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
@@ -21,50 +14,15 @@ const styles = defineStyles("CommentUserName", (theme: ThemeType) => ({
   author: {
     ...theme.typography.body2,
     fontWeight: 600,
-    ...(theme.isFriendlyUI && {
-      marginRight: 2,
-    }),
   },
   authorAnswer: {
     ...theme.typography.body2,
-    fontFamily: theme.isFriendlyUI
-      ? theme.palette.fonts.sansSerifStack
-      : theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.postStyle.fontFamily,
     fontWeight: 600,
     '& a, & a:hover': {
       textShadow:"none",
       backgroundImage: "none"
     }
-  },
-  mainWrapper: {
-    display: "flex",
-    alignItems: "center",
-    "&:hover": {
-      opacity: 1,
-    },
-    "& a:hover": {
-      opacity: 1,
-    },
-  },
-  fullWrapper: {
-    borderRadius: theme.borderRadius.default,
-    height: 26, // match height of vote buttons
-    padding: "1px 4px 1px 2px",
-    marginLeft: -6,
-    "&:hover": {
-      background: theme.palette.grey[300],
-    },
-  },
-  profileImage: {
-    minWidth: PROFILE_IMAGE_SIZE,
-    marginLeft: 4,
-    marginRight: 6,
-    ["@media screen and (max-width: 290px)"]: {
-      display: "none",
-    },
-  },
-  profileImagePlaceholder: {
-    marginRight: 4,
   },
 }), {stylePriority: 100});
 
@@ -82,7 +40,6 @@ const CommentUserName = ({
   tooltipPlacement?: PopperPlacementType,
 }) => {
   const classes = useStyles(styles);
-  const currentUserHasProfileImages = useFilteredCurrentUser(u => userHasCommentProfileImages(u));
   const author = comment.user;
 
   const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersName;
@@ -102,44 +59,6 @@ const CommentUserName = ({
           tooltipPlacement={tooltipPlacement}
         />
       </span>
-    );
-  } else if (isFriendlyUI()) {
-    // FIXME: Unstable component will lose state on rerender
-    // eslint-disable-next-line react/no-unstable-nested-components
-    const Wrapper = ({children}: {children: ReactNode}) => simple
-      ? (
-        <div className={classes.mainWrapper}>
-          {children}
-        </div>
-      )
-      : (
-        <UserTooltip user={author}>
-          <Link
-            to={userGetProfileUrl(author)}
-            className={classNames(classes.mainWrapper, classes.fullWrapper, className)}
-          >
-            {children}
-          </Link>
-        </UserTooltip>
-      );
-    return (
-      <Wrapper>
-        {currentUserHasProfileImages
-          ? <UsersProfileImage
-            user={author}
-            size={PROFILE_IMAGE_SIZE}
-            fallback="initials"
-            className={classes.profileImage}
-          />
-          : <div className={classes.profileImagePlaceholder} />
-        }
-        <UsersName
-          user={author}
-          className={classes.author}
-          simple
-          color
-        />
-      </Wrapper>
     );
   }
 

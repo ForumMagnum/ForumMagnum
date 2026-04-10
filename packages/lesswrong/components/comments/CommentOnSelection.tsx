@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import CommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import { useOnNavigate } from '../hooks/useOnNavigate';
 import { useTracking, AnalyticsContext } from "../../lib/analyticsEvents";
-import { hasSideComments } from '../../lib/betas';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useDialog } from '../common/withDialog';
 
@@ -29,7 +28,7 @@ const selectedTextToolbarStyles = defineStyles("CommentOnSelectionContentWrapper
 
     // Hide on mobile to avoid horizontal scrolling
     [theme.breakpoints.down('xs')]: {
-      display: hasSideComments() ? "none" : "initial",
+      display: "none",
     },
   },
 }));
@@ -215,10 +214,6 @@ export const CommentOnSelectionContentWrapper = ({post, children}: {
       }
     }
   }, [onClickComment]);
-  
-  if (!hasSideComments()) {
-    return <>{children}</>;
-  }
   
   return <div className="commentOnSelection" ref={wrapperDivRef}>
     {children}

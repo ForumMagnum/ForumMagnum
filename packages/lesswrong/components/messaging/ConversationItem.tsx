@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { conversationGetTitle } from '../../lib/collections/conversations/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { postsItemLikeStyles } from '../localGroups/LocalGroupsItem'
@@ -13,6 +12,8 @@ import FormatDate from "../common/FormatDate";
 import ConversationPreview from "./ConversationPreview";
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ConversationsListUpdateMutation = gql(`
   mutation updateConversationInboxNavigation($selector: SelectorInput!, $data: UpdateConversationDataInput!) {
@@ -24,7 +25,7 @@ const ConversationsListUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ConversationItem', (theme: ThemeType) => ({
   ...postsItemLikeStyles(theme),
   wrap: {
     flexWrap: "wrap",
@@ -33,7 +34,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: "1.5em",
   },
   leftMargin: {
-    marginLeft: theme.spacing.unit * 2
+    marginLeft: 16
   },
   archivedItem: {
     opacity: 0.5
@@ -49,14 +50,14 @@ const styles = (theme: ThemeType) => ({
   boxShadow: {
     boxShadow: theme.palette.boxShadow.faint,
   },
-});
+}));
 
-const ConversationItem = ({conversation, currentUser, classes, expanded}: {
+const ConversationItem = ({conversation, currentUser, expanded}: {
   conversation: ConversationsList,
   currentUser: UsersCurrent,
-  classes: ClassesType<typeof styles>,
   expanded?: boolean
 }) => {
+  const classes = useStyles(styles);
   const [updateConversation] = useMutation(ConversationsListUpdateMutation);
 
   const isArchived = conversation?.archivedByIds?.includes(currentUser._id)
@@ -101,7 +102,7 @@ const ConversationItem = ({conversation, currentUser, classes, expanded}: {
   )
 }
 
-export default registerComponent('ConversationItem', ConversationItem, {styles});
+export default ConversationItem;
 
 
 

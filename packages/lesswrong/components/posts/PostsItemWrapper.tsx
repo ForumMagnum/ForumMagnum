@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import DragIcon from '@/lib/vendor/@material-ui/icons/src/DragHandle';
 import RemoveIcon from '@/lib/vendor/@material-ui/icons/src/Close';
@@ -10,6 +9,8 @@ import Loading from "../vulcan-core/Loading";
 import PostsTitle from "./PostsTitle";
 import PostsItem2MetaInfo from "./PostsItem2MetaInfo";
 import PostsUserAndCoauthors from "./PostsUserAndCoauthors";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListQuery = gql(`
   query PostsItemWrapper($documentId: String) {
@@ -21,7 +22,7 @@ const PostsListQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsItemWrapper', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -55,7 +56,7 @@ const styles = (theme: ThemeType) => ({
   dragHandle: {
     pointerEvents: "none",
     color: theme.palette.icon.dim,
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     cursor: "pointer",
   },
   addIcon: {
@@ -70,17 +71,17 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.3,
     cursor: "default",
   }
-});
+}));
 
-const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = false, simpleAuthor = false, draggable = true}: {
+const PostsItemWrapper = ({documentId, addItem, removeItem, disabled = false, simpleAuthor = false, draggable = true}: {
   documentId: string,
-  classes: ClassesType<typeof styles>,
   addItem?: any,
   removeItem?: any,
   disabled?: boolean,
   simpleAuthor?: boolean,
   draggable?: boolean
 }) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(PostsListQuery, {
     variables: { documentId: documentId },
   });
@@ -109,7 +110,7 @@ const PostsItemWrapper = ({documentId, classes, addItem, removeItem, disabled = 
   }
 };
 
-export default registerComponent('PostsItemWrapper', PostsItemWrapper, {styles});
+export default PostsItemWrapper;
 
 
 

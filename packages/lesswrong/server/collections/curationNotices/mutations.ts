@@ -8,6 +8,10 @@ import { backgroundTask } from "@/server/utils/backgroundTask";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+import { htmlToTextDefault } from "@/lib/htmlToText";
+import { captureException } from "@/lib/sentryWrapper";
+import { postMessage } from "@/server/slack/client";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -17,6 +21,45 @@ function newCheck(user: DbUser | null, document: CreateCurationNoticeDataInput |
 
 function editCheck(user: DbUser | null, document: DbCurationNotice | null) {
   return userIsAdminOrMod(user)
+}
+
+async function postCurationNoticeToSlack(document: DbCurationNotice, context: ResolverContext) {
+  const post = await context.Posts.findOne({ _id: document.postId });
+  if (!post) return;
+  const author = await context.loaders.Users.load(document.userId);
+  const postUrl = postGetPageUrl(post, true);
+  const noticeText = document.contents?.html ? htmlToTextDefault(document.contents.html) : '(empty)';
+  const lines = [
+    `:pencil: *New curation draft* by ${author?.displayName ?? 'Unknown'}`,
+    `*Post:* <${postUrl}|${post.title}>`,
+    ``,
+    noticeText,
+  ];
+  try {
+    await postMessage({ text: lines.join('\n'), channelName: "curation", options: { mrkdwn: true } });
+  } catch (error) {
+    captureException(error);
+    // eslint-disable-next-line no-console
+    console.error('Failed to post to curation Slack channel:', error);
+  }
+}
+
+async function postCurationPublishToSlack(document: DbCurationNotice, context: ResolverContext) {
+  const post = await context.Posts.findOne({ _id: document.postId });
+  if (!post) return;
+  const author = await context.loaders.Users.load(document.userId);
+  const postUrl = postGetPageUrl(post, true);
+  try {
+    await postMessage({
+      text: `:tada: *Post curated* by ${author?.displayName ?? 'Unknown'}: <${postUrl}|${post.title}>`,
+      channelName: "curation",
+      options: { mrkdwn: true },
+    });
+  } catch (error) {
+    captureException(error);
+    // eslint-disable-next-line no-console
+    console.error('Failed to post to curation Slack channel:', error);
+  }
 }
 
 export async function createCurationNotice({ data }: CreateCurationNoticeInput, context: ResolverContext) {
@@ -60,6 +103,8 @@ export async function createCurationNotice({ data }: CreateCurationNoticeInput, 
     props: asyncProperties,
   });
 
+  backgroundTask(postCurationNoticeToSlack(documentWithId, context));
+
   return documentWithId;
 }
 
@@ -99,6 +144,11 @@ export async function updateCurationNotice({ selector, data }: UpdateCurationNot
   });
 
   backgroundTask(logFieldChanges({ currentUser, collection: CurationNotices, oldDocument, data: origData }));
+
+  const wasJustPublished = !oldDocument.commentId && updatedDocument.commentId;
+  if (wasJustPublished) {
+    backgroundTask(postCurationPublishToSlack(updatedDocument, context));
+  }
 
   return updatedDocument;
 }

@@ -10,8 +10,8 @@ type EditableFieldsOf<T> = {
 export function sanitizeEditableFieldValues<T extends Record<string, AnyBecauseHard>>(data: T, editableFields: Array<EditableFieldsOf<T>>) {
   const sanitized = Object.fromEntries(Object.entries(data).map(([key, value]) => {
     if (editableFields.includes(key as EditableFieldsOf<T>) && typeof value === 'object' && value !== null) {
-      const { originalContents: { type, data }, commitMessage, updateType, dataWithDiscardedSuggestions } = value;
-      return [key, { originalContents: { type, data }, commitMessage, updateType, dataWithDiscardedSuggestions }];
+      const { originalContents: { type, data, yjsState }, commitMessage, updateType, dataWithDiscardedSuggestions } = value;
+      return [key, { originalContents: { type, data, ...(yjsState ? { yjsState } : {}) }, commitMessage, updateType, dataWithDiscardedSuggestions }];
     }
     return [key, value];
   })) as T;
@@ -34,13 +34,13 @@ export function getUpdatedFieldValues<T extends AnyFormApi>(formApi: T, editable
   return recursivelyRemoveTypenameFrom(sanitizeEditableFieldValues(updatedFields, editableFields));
 }
 
-function recursivelyRemoveTypenameFrom<T extends Json>(json: T): T {
+export function recursivelyRemoveTypenameFrom<T>(json: T): T {
   if (!json) {
     return json;
   } else if (Array.isArray(json)) {
     return json.map((el) => recursivelyRemoveTypenameFrom(el)) as unknown as T;
   } else if (typeof json === 'object' && isPlainObject(json)) {
-    const clone = mapValues(json, (v: Json) => recursivelyRemoveTypenameFrom(v));
+    const clone = mapValues(json as Record<string, unknown>, (v) => recursivelyRemoveTypenameFrom(v));
     if ('__typename' in clone) {
       delete clone.__typename;
     }

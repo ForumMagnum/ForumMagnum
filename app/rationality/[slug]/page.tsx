@@ -4,19 +4,27 @@ import { getDefaultMetadata, getPageTitleFields } from "@/server/pageMetadata/sh
 import type { Metadata } from "next";
 import merge from "lodash/merge";
 import RouteRoot from "@/components/layout/RouteRoot";
-import { assertRouteHasWhiteBackground } from "@/components/layout/routeBackgroundColors";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge({}, await getDefaultMetadata(), getPageTitleFields('Rationality: A-Z'));
 }
 
-assertRouteHasWhiteBackground("/rationality/[slug]");
+assertRouteAttributes("/rationality/[slug]", {
+  whiteBackground: true,
+  hasLinkPreview: true,
+  hasPingbacks: true,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: true,
+});
 
-export default function Page() {
-  return <RouteRoot delayedStatusCode metadata={{
-    subtitle: 'Rationality: A-Z',
-    subtitleLink: '/rationality',
-  }}>
-    <PostsSingleSlug />
+export default async function Page({ params }: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params;
+  return <RouteRoot delayedStatusCode
+    subtitle={{ title: 'Rationality: A-Z', link: '/rationality' }}
+  >
+    <PostsSingleSlug slug={slug} />
   </RouteRoot>;
 }

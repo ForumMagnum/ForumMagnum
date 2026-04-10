@@ -6,23 +6,82 @@
  *
  */
 
+import React, { createContext, useCallback, useContext } from 'react';
 import {Provider} from '@lexical/yjs';
 import {HocuspocusProvider} from '@hocuspocus/provider';
-import {Doc} from 'yjs';
+import {Doc, encodeStateAsUpdate} from 'yjs';
 import {IndexeddbPersistence} from 'y-indexeddb';
+import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 
 export interface CollaborationConfig {
   postId: string;
-  token: string;
-  wsUrl: string;
-  documentName: string;
+  fieldName?: string;
+  /** Async function that fetches a fresh JWT for Hocuspocus authentication.
+   * Called on every WebSocket connection attempt (including reconnections),
+   * ensuring the token is always valid at connection time. */
+  getToken: () => Promise<string>;
   user: {
     id: string;
     name: string;
   };
-  /** Called when the initial sync with the server completes. Receives the Y.Doc for bootstrap detection. */
-  onSynced?: (doc: Doc, isFirstSync: boolean) => void;
+  /** Called when sync with the server completes. `docId` is 'main' or a sub-doc id like 'comments'. */
+  onSynced?: (doc: Doc, isFirstSync: boolean, docId: string) => void;
   onError?: (error: Error) => void;
+  /** Called when WebSocket connection status changes (connected/disconnected/connecting). */
+  onConnectionStatusChange?: (connected: boolean) => void;
+}
+
+export interface CollaboratorIdentity {
+  /** Unique user ID (userId for logged-in users, clientId for anonymous) */
+  id: string;
+  /** Display name */
+  name: string;
+  /** Access level for the collaborative document */
+  accessLevel: CollaborativeEditingAccessLevel;
+}
+
+const CollaboratorIdentityContext = createContext<CollaboratorIdentity | null>(null);
+
+export const CollaboratorIdentityProvider = CollaboratorIdentityContext.Provider;
+
+/**
+ * Hook to get the current collaborator's identity.
+ * Returns the user ID, name, and access level from the collaboration context.
+ * Throws if used outside of a CollaboratorIdentityProvider.
+ */
+export function useCollaboratorIdentity(): CollaboratorIdentity {
+  const identity = useContext(CollaboratorIdentityContext);
+  if (!identity) {
+    throw new Error('useCollaboratorIdentity must be used within a CollaboratorIdentityProvider');
+  }
+  return identity;
+}
+
+/**
+ * Hook to get the current collaborator's ID.
+ */
+export function useCurrentCollaboratorId(): string {
+  return useCollaboratorIdentity().id;
+}
+
+/**
+ * Hook that returns a function to check if the current user can reject a suggestion.
+ * The returned function accepts the suggestion's author ID and returns true if:
+ * - The user has "edit" permissions, OR
+ * - The user is the author of the suggestion
+ */
+export function useCanRejectSuggestion(): (suggestionAuthorId: string) => boolean {
+  const { id, accessLevel } = useCollaboratorIdentity();
+  const canAcceptOrReject = accessLevelCan(accessLevel, "edit");
+  
+  return useCallback(
+    (suggestionAuthorId: string | undefined) => {
+      if (canAcceptOrReject) return true;
+      const isOwnSuggestion = suggestionAuthorId != null && suggestionAuthorId === id;
+      return isOwnSuggestion;
+    },
+    [canAcceptOrReject, id]
+  );
 }
 
 // Module-level config storage - set this before rendering the Editor.
@@ -36,7 +95,14 @@ export function setCollaborationConfig(config: CollaborationConfig | null): void
   _collaborationConfig = config;
 }
 
-// Track IndexedDB persistence instances so we can clean them up
+function getCollaborationBaseDocumentName(postId: string, fieldName = 'contents'): string {
+  return fieldName === 'contents'
+    ? `post-${postId}`
+    : `post-${postId}/${fieldName}`;
+}
+
+// Track provider and IndexedDB persistence instances so we can clean them up
+const providerInstances = new Map<string, HocuspocusProvider>();
 const persistenceInstances = new Map<string, IndexeddbPersistence>();
 
 // Version suffix for IndexedDB keys - increment when making breaking changes
@@ -117,7 +183,7 @@ function setupPersistence(
 export function createWebsocketProvider(
   id: string,
   yjsDocMap: Map<string, Doc>,
-): Provider {
+): Provider & HocuspocusProvider {
   let doc = yjsDocMap.get(id);
 
   if (doc === undefined) {
@@ -130,21 +196,31 @@ export function createWebsocketProvider(
   return createWebsocketProviderWithDoc(id, doc);
 }
 
-export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider {
+export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider & HocuspocusProvider {
   const config = _collaborationConfig;
 
   if (!config) {
     throw new Error('[Collaboration] No collaboration config set. Call setCollaborationConfig() before using collaboration features.');
   }
 
-  // For nested editors (captions, etc.), use a unique document name to avoid conflicts.
-  // The main editor typically uses 'main' as the id.
-  const documentName = id === 'main' ? config.documentName : `${config.documentName}/${id}`;
+  const wsUrl = process.env.NEXT_PUBLIC_HOCUSPOCUS_URL;
+  if (!wsUrl) {
+    throw new Error('[Collaboration] HOCUSPOCUS_URL is not configured. Set the HOCUSPOCUS_URL environment variable at build time.');
+  }
+
+  // Document names follow the pattern "post-{postId}" for the main contents
+  // editor, "post-{postId}/{fieldName}" for other editable post fields, or
+  // append a further "/{subDocId}" suffix for nested collaboration docs.
+  const baseDocumentName = getCollaborationBaseDocumentName(
+    config.postId,
+    config.fieldName,
+  );
+  const documentName = id === 'main' ? baseDocumentName : `${baseDocumentName}/${id}`;
 
   // Initialize persistence if needed.
   // For 'main', we wait for IndexedDB to sync (or fail) before connecting.
   // For others, we proceed immediately.
-  const readyPromise = id === 'main' 
+  const readyPromise = id === 'main'
     ? setupPersistence(documentName, doc, config)
     : Promise.resolve();
 
@@ -152,23 +228,27 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider {
   let hasReceivedFirstSync = false;
 
   const provider = new HocuspocusProvider({
-    url: config.wsUrl,
+    url: wsUrl,
     name: documentName,
     document: doc,
-    token: config.token,
+    token: config.getToken,
     // Don't connect automatically - we'll connect after IndexedDB syncs
     connect: false,
 
     onSynced: () => {
       const isFirstSync = !hasReceivedFirstSync;
       hasReceivedFirstSync = true;
-      config.onSynced?.(doc, isFirstSync);
+      config.onSynced?.(doc, isFirstSync, id);
     },
 
     onAuthenticationFailed: ({ reason }) => {
       // eslint-disable-next-line no-console
       console.error('[Collaboration] Authentication failed:', reason);
       config.onError?.(new Error(`Authentication failed: ${reason}`));
+    },
+
+    onStatus: ({ status }) => {
+      config.onConnectionStatusChange?.(status === 'connected');
     },
   });
 
@@ -182,10 +262,64 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider {
     await originalConnect();
   };
 
+  // Track the provider so we can disconnect it during restores
+  providerInstances.set(documentName, provider);
+
   // HocuspocusProvider uses 'document' property, but Lexical's code expects 'doc'
   (provider as AnyBecauseHard).doc = provider.document;
 
   // HocuspocusProvider is compatible with Lexical's Provider at runtime,
   // but has slightly different awareness typing (Awareness | null vs Awareness)
-  return provider as unknown as Provider;
+  return provider as Provider & HocuspocusProvider;
+}
+
+/**
+ * Disconnect all Hocuspocus providers and clear IndexedDB persistence
+ * for the given post. Call this before a restore operation to prevent
+ * the client's old Yjs state from being synced back to the server
+ * when it auto-reconnects.
+ */
+export async function disconnectCollaborationForPost(postId: string): Promise<void> {
+  const baseDocumentName = `post-${postId}`;
+
+  // Disconnect all providers whose document name starts with this post's prefix
+  // (covers the main editor and any sub-documents like comments)
+  for (const [documentName, provider] of providerInstances) {
+    if (documentName === baseDocumentName || documentName.startsWith(`${baseDocumentName}/`)) {
+      provider.configuration.preserveConnection = false;
+      provider.destroy();
+      providerInstances.delete(documentName);
+    }
+  }
+
+  // Clear IndexedDB persistence to prevent stale state from being loaded on page reload
+  for (const [indexedDbKey, persistence] of persistenceInstances) {
+    if (indexedDbKey.startsWith(baseDocumentName)) {
+      await persistence.clearData();
+      await persistence.destroy();
+      persistenceInstances.delete(indexedDbKey);
+    }
+  }
+}
+
+/**
+ * Get the current Yjs state for a post's main document as a base64 string.
+ * Returns null if no active provider exists (e.g., non-collaborative editor).
+ *
+ * Used by the client-side save flow to include the Yjs snapshot in
+ * originalContents so that revisions created by updatePost (manual save,
+ * publish, etc.) also have a restorable Yjs state.
+ */
+export function getYjsStateBase64ForPost(postId: string, fieldName = 'contents'): string | null {
+  const provider = providerInstances.get(getCollaborationBaseDocumentName(postId, fieldName));
+  if (!provider) return null;
+
+  const doc = provider.document;
+  const state = encodeStateAsUpdate(doc);
+  // Browser-safe base64 encoding (btoa operates on binary strings)
+  let binaryStr = '';
+  for (let i = 0; i < state.length; i++) {
+    binaryStr += String.fromCharCode(state[i]);
+  }
+  return btoa(binaryStr);
 }

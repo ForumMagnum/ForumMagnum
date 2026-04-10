@@ -1,8 +1,9 @@
 import React from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { WrappedReactMapGL } from '@/components/community/WrappedReactMapGL';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PetrovWorldmapWrapper', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     zIndex: theme.zIndexes.petrovDayButton,
@@ -22,22 +23,22 @@ const styles = (theme: ThemeType) => ({
   },
   panel: {
     backgroundColor: theme.palette.grey[100],
-    paddingTop: theme.spacing.unit*2,
-    paddingLeft: theme.spacing.unit*3,
-    paddingRight: theme.spacing.unit*3,
-    paddingBottom: theme.spacing.unit*2,
+    paddingTop: 16,
+    paddingLeft: 24,
+    paddingRight: 24,
+    paddingBottom: 16,
     borderRadius: 5,
     boxShadow: `0 0 10px ${theme.palette.grey[800]}`,
     display: "flex",
     flexDirection: "column",
     alignItems: "center"
   },
-});
+}));
 
-export const PetrovWorldmapWrapper = ({classes, children}: {
-  classes: ClassesType<typeof styles>,
+export const PetrovWorldmapWrapper = ({children}: {
   children: React.ReactNode
 }) => {
+  const classes = useStyles(styles);
 
   return <div className={classes.root}>
       <WrappedReactMapGL
@@ -53,6 +54,6 @@ export const PetrovWorldmapWrapper = ({classes, children}: {
   </div>;
 }
 
-export default registerComponent('PetrovWorldmapWrapper', PetrovWorldmapWrapper, {styles});
+export default PetrovWorldmapWrapper;
 
 

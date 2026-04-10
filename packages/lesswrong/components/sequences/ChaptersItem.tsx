@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
 import ChaptersEditForm from "./ChaptersEditForm";
 import ChapterTitle from "./ChapterTitle";
@@ -10,6 +9,8 @@ import ContentStyles from "../common/ContentStyles";
 import PostsItem from "../posts/PostsItem";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ChaptersEditQuery = gql(`
   query ChaptersItem($documentId: String) {
@@ -21,7 +22,7 @@ const ChaptersEditQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ChaptersItem', (theme: ThemeType) => ({
   description: {
     marginLeft: 10,
     marginBottom: 24,
@@ -41,13 +42,13 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     justifyContent: "space-between"
   }
-});
+}));
 
-const ChaptersItem = ({ chapter, canEdit, classes }: {
+const ChaptersItem = ({chapter, canEdit}: {
   chapter: ChaptersFragment,
   canEdit: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [edit,setEdit] = useState(false);
 
   const { data } = useQuery(ChaptersEditQuery, {
@@ -101,6 +102,6 @@ const ChaptersItem = ({ chapter, canEdit, classes }: {
   )
 }
 
-export default registerComponent('ChaptersItem', ChaptersItem, {styles});
+export default ChaptersItem
 
 

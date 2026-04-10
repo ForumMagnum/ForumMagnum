@@ -16,11 +16,11 @@ import type {
 } from 'lexical';
 import React, { type JSX } from 'react';
 
-import {BlockWithAlignableContents} from '@lexical/react/LexicalBlockWithAlignableContents';
 import {
   DecoratorBlockNode,
   SerializedDecoratorBlockNode,
 } from '@lexical/react/LexicalDecoratorBlockNode';
+import { BlockWithAlignableContentsWrapper } from './BlockWithAlignableContentsWrapper';
 
 
 type FigmaComponentProps = Readonly<{
@@ -40,7 +40,7 @@ function FigmaComponent({
   documentID,
 }: FigmaComponentProps) {
   return (
-    <BlockWithAlignableContents
+    <BlockWithAlignableContentsWrapper
       className={className}
       format={format}
       nodeKey={nodeKey}>
@@ -51,7 +51,7 @@ function FigmaComponent({
         https://www.figma.com/file/${documentID}`}
         allowFullScreen={true}
       />
-    </BlockWithAlignableContents>
+    </BlockWithAlignableContentsWrapper>
   );
 }
 

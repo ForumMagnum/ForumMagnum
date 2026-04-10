@@ -13,6 +13,8 @@ import SingleLineComment from "./SingleLineComment";
 import CommentsItem from "./CommentsItem/CommentsItem";
 import RepliesToCommentList from "../shortform/RepliesToCommentList";
 import AnalyticsTracker from "../common/AnalyticsTracker";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const KARMA_COLLAPSE_THRESHOLD = -4;
 
@@ -26,7 +28,7 @@ export const COMMENT_DRAFT_TREE_OPTIONS: CommentTreeOptions = {
   hideReply: true
 };
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('CommentsNode', (theme: ThemeType) => ({
   parentScroll: {
     position: "absolute",
     top:0,
@@ -44,10 +46,10 @@ const styles = (theme: ThemeType) => ({
   gapIndicator: {
     border: theme.palette.border.commentBorder,
     backgroundColor: theme.palette.grey[100],
-    marginLeft: theme.spacing.unit,
-    paddingTop: theme.spacing.unit,
+    marginLeft: 8,
+    paddingTop: 8,
   },
-})
+}))
 
 export interface CommentsNodeProps {
   treeOptions: CommentTreeOptions,
@@ -89,7 +91,6 @@ export interface CommentsNodeProps {
   noAutoScroll?: boolean,
   displayTagIcon?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }
 /**
  * CommentsNode: A node in a comment tree, passes through to CommentsItems to handle rendering a specific comment,
@@ -97,34 +98,8 @@ export interface CommentsNodeProps {
  *
  * Before adding more props to this, consider whether you should instead be adding a field to the CommentTreeOptions interface.
  */
-const CommentsNodeInner = ({
-  treeOptions,
-  comment,
-  startThreadTruncated,
-  truncated,
-  shortform,
-  nestingLevel=1,
-  expandAllThreads,
-  forceUnTruncated,
-  forceUnCollapsed,
-  expandNewComments=true,
-  isChild,
-  parentAnswerId,
-  parentCommentId,
-  showExtraChildrenButton,
-  hoverPreview,
-  childComments,
-  loadChildrenSeparately,
-  loadDirectReplies=false,
-  showPinnedOnProfile=false,
-  enableGuidelines=true,
-  karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD,
-  showParentDefault=false,
-  noAutoScroll=false,
-  displayTagIcon=false,
-  className,
-  classes,
-}: CommentsNodeProps) => {
+const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncated, shortform, nestingLevel=1, expandAllThreads, forceUnTruncated, forceUnCollapsed, expandNewComments=true, isChild, parentAnswerId, parentCommentId, showExtraChildrenButton, hoverPreview, childComments, loadChildrenSeparately, loadDirectReplies=false, showPinnedOnProfile=false, enableGuidelines=true, karmaCollapseThreshold=KARMA_COLLAPSE_THRESHOLD, showParentDefault=false, noAutoScroll=false, displayTagIcon=false, className}: CommentsNodeProps) => {
+  const classes = useStyles(styles);
   const currentUserNoSingleLineCommentsSetting = useFilteredCurrentUser(u => u?.noSingleLineComments);
   const { captureEvent } = useTracking()
   const scrollTargetRef = useRef<HTMLDivElement|null>(null);
@@ -283,7 +258,13 @@ const CommentsNodeInner = ({
     scroll?: boolean;
     scrollBehaviour?: "auto" | "smooth";
   }) => {
-    event?.stopPropagation();
+    // Don't stop propagation if the click is inside an active editor, since
+    // that would prevent Lexical from dispatching CLICK_COMMAND (which is
+    // needed for image selection/resize and other decorator node interactions).
+    const isInsideEditor = event?.target instanceof HTMLElement && event.target.closest('[contenteditable="true"]');
+    if (!isInsideEditor) {
+      event?.stopPropagation();
+    }
     if (isTruncated || isSingleLine) {
       captureEvent("commentExpanded", { postId: comment.postId, commentId: comment._id, draft: comment.draft });
       setTruncated(false);
@@ -376,7 +357,6 @@ const CommentsNodeInner = ({
 }
 
 const CommentsNode = registerComponent('CommentsNode', CommentsNodeInner, {
-  styles,
   areEqual: {
     treeOptions: "shallow",
     childComments: (oldValue: Array<CommentTreeNode<CommentsList>>, newValue: Array<CommentTreeNode<CommentsList>>) => commentTreesEqual(oldValue, newValue)

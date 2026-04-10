@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useDialog } from '../common/withDialog';
 import { ArbitalLogo } from '../icons/ArbitalLogo';
@@ -11,8 +10,10 @@ import LWTooltip from "../common/LWTooltip";
 import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
 import SmallSideVote from "../votes/SmallSideVote";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagRevisionItemShortMetadata", (theme: ThemeType) => ({
   username: {
     ...theme.typography.commentStyle,
     fontWeight: 600,
@@ -34,15 +35,15 @@ const styles = (theme: ThemeType) => ({
     verticalAlign: "middle",
     marginRight: 16,
   },
-});
+}));
 
-const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision, classes}: {
+const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision}: {
   tag: TagBasicInfo,
   url: string,
   itemDescription?: React.ReactNode,
   revision: RevisionHistoryEntry,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
   
   function showArbitalImportDetails() {
@@ -101,6 +102,6 @@ const TagRevisionItemShortMetadata = ({tag, url, itemDescription, revision, clas
   </>;
 }
 
-export default registerComponent("TagRevisionItemShortMetadata", TagRevisionItemShortMetadata, {styles});
+export default TagRevisionItemShortMetadata
 
 

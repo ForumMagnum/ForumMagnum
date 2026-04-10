@@ -6,6 +6,7 @@ import type { UndoHistoryItem, InboxAction, HistoryItem } from './inboxReducer';
 import classNames from 'classnames';
 import KeystrokeDisplay from './KeystrokeDisplay';
 import { UNDO_QUEUE_DURATION } from './constants';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
   root: {
@@ -101,7 +102,8 @@ const styles = defineStyles('ModerationUndoHistory', (theme: ThemeType) => ({
 
 const ProgressBar = ({ expiresAt, totalDuration }: { expiresAt: number; totalDuration: number }) => {
   const classes = useStyles(styles);
-  const [timeRemaining, setTimeRemaining] = useState(Math.max(0, expiresAt - Date.now()));
+  const now = useCurrentTime();
+  const [timeRemaining, setTimeRemaining] = useState(Math.max(0, expiresAt - now.getTime()));
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -123,7 +125,8 @@ const ProgressBar = ({ expiresAt, totalDuration }: { expiresAt: number; totalDur
 
 const TimeRemaining = ({ expiresAt }: { expiresAt: number }) => {
   const classes = useStyles(styles);
-  const [timeRemaining, setTimeRemaining] = useState(Math.max(0, expiresAt - Date.now()));
+  const now = useCurrentTime();
+  const [timeRemaining, setTimeRemaining] = useState(Math.max(0, expiresAt - now.getTime()));
 
   useEffect(() => {
     const interval = setInterval(() => {

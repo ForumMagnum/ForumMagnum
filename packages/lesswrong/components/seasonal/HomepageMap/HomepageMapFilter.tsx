@@ -1,6 +1,5 @@
 import React from 'react';
 import { Paper }from '@/components/widgets/Paper';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../../hooks/useUpdateCurrentUser';
 import { useMessages } from '../../common/withMessages';
 import classNames from 'classnames'
@@ -16,8 +15,10 @@ import { createFallBackDialogHandler } from '@/components/localGroups/CommunityM
 import EventNotificationsDialog from "../../localGroups/EventNotificationsDialog";
 import LWTooltip from "../../common/LWTooltip";
 import SimpleDivider from "../../widgets/SimpleDivider";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('HomepageMapFilter', (theme: ThemeType) => ({
   section: {
     display: "flex",
     alignItems: "center",
@@ -42,7 +43,7 @@ const styles = (theme: ThemeType) => ({
   actionIcon: {
     width: '0.7em',
     height: '0.7em',
-    marginLeft: theme.spacing.unit,
+    marginLeft: 8,
     position: 'relative',
     top: 2,
     cursor: "pointer"
@@ -51,8 +52,8 @@ const styles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.panelBackground.darken05,
   },
   divider: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit
+    marginTop: 8,
+    marginBottom: 8
   },
   subscribeSection: {
     cursor: "pointer",
@@ -63,9 +64,10 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 0,
     top: 0
   }
-});
+}));
 
-const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const HomepageMapFilter = () => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog()
   const currentUser = useCurrentUser()
   const { flash } = useMessages()
@@ -127,7 +129,7 @@ const HomepageMapFilter = ({classes}: {classes: ClassesType<typeof styles>}) => 
   </Paper>
 }
 
-export default registerComponent('HomepageMapFilter', HomepageMapFilter, {styles});
+export default HomepageMapFilter;
 
 
 

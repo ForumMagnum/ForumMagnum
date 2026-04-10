@@ -1,8 +1,7 @@
-import React, { use, createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react';
+import React, { use, createContext, useContext, useState, useCallback, useEffect, useMemo, useSyncExternalStore } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
-import Toolbar from '@/lib/vendor/@material-ui/core/src/Toolbar';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import TocIcon from '@/lib/vendor/@material-ui/icons/src/Toc';
 import { useCurrentUserId, useFilteredCurrentUser, useGetCurrentUser } from '../common/withUser';
@@ -10,16 +9,12 @@ import { SidebarsContext } from './SidebarsWrapper';
 import withErrorBoundary from '../common/withErrorBoundary';
 import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from '../../lib/analyticsEvents';
-import { forumHeaderTitleSetting, forumShortTitleSetting, isAF, hasProminentLogoSetting } from '@/lib/instanceSettings';
+import { forumHeaderTitleSetting, forumShortTitleSetting, isAF } from '@/lib/instanceSettings';
 import { useUnreadNotifications } from '../hooks/useUnreadNotifications';
-import { isBookUI, isFriendlyUI } from '../../themes/forumTheme';
 import { useLocation } from '../../lib/routeUtil';
-import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
-import { makeCloudinaryImageUrl } from '@/components/common/cloudinaryHelpers';
-import { hasForumEvents } from '@/lib/betas';
 import SearchBar from "@/components/common/SearchBar";
 import UsersMenu from "../users/UsersMenu";
-import { LWUsersAccountMenu, EAUsersAccountMenu } from "../users/UsersAccountMenu";
+import { LWUsersAccountMenu } from "../users/UsersAccountMenu";
 import NotificationsMenuButton from "../notifications/NotificationsMenuButton";
 import { ICON_ONLY_NAVIGATION_BREAKPOINT } from "@/components/common/TabNavigationMenu/NavigationStandalone";
 import NavigationDrawer from "@/components/common/TabNavigationMenu/NavigationDrawer";
@@ -27,11 +22,7 @@ import { KarmaChangeNotifier } from "../users/karmaChanges/KarmaChangeNotifier";
 import HeaderSubtitle from "@/components/common/HeaderSubtitle";
 import { Typography } from "@/components/common/Typography";
 import ForumIcon from "@/components/common/ForumIcon";
-import SiteLogo from "../ea-forum/SiteLogo";
-import MessagesMenuButton from "../messaging/MessagesMenuButton";
-import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
 import { isHomeRoute } from '@/lib/routeChecks';
-import { forumSelect } from '@/lib/forumTypeUtils';
 import NotificationsMenu from "../notifications/NotificationsMenu";
 import { IsLlmChatSidebarOpenContext } from './Layout';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
@@ -48,31 +39,19 @@ import { gql } from '@/lib/generated/gql-codegen';
 export const FUNDRAISER_BANNER_HEIGHT = 34;
 export const FUNDRAISER_BANNER_HEIGHT_MOBILE = 32;
 /** Height of top header (without fundraiser banner). On Book UI sites, this is for desktop only */
-const getHeaderHeight = () => isBookUI() ? 64 : 66;
+const getHeaderHeight = () => 64;
 /** Height of top header on mobile (without fundraiser banner). On Friendly UI sites, this is the same as the HEADER_HEIGHT */
-const getMobileHeaderHeight = () => isBookUI() ? 56 : 66;
+const getMobileHeaderHeight = () => 56;
 
 
 const textColorOverrideStyles = ({
   theme,
   color,
   contrastColor,
-  loginButtonBackgroundColor,
-  loginButtonHoverBackgroundColor,
-  loginButtonColor,
-  signupButtonBackgroundColor,
-  signupButtonHoverBackgroundColor,
-  signupButtonColor,
 }: {
   theme: ThemeType,
   color: string,
   contrastColor?: string,
-  loginButtonBackgroundColor?: string,
-  loginButtonHoverBackgroundColor?: string,
-  loginButtonColor?: string,
-  signupButtonBackgroundColor?: string,
-  signupButtonHoverBackgroundColor?: string,
-  signupButtonColor?: string,
 }) => ({
   color,
   boxShadow: 'none',
@@ -94,7 +73,7 @@ const textColorOverrideStyles = ({
   "& .KarmaChangeNotifier-starIcon": {
     color,
   },
-  "& .KarmaChangeNotifier-gainedPoints": {
+  "& .ColoredNumber-gainedPoints": {
     color,
   },
   "& .NotificationsMenuButton-badge": {
@@ -110,17 +89,17 @@ const textColorOverrideStyles = ({
     color,
   },
   "& .EAButton-variantContained": {
-    backgroundColor: signupButtonBackgroundColor ?? color,
-    color: signupButtonColor ?? contrastColor,
+    backgroundColor: color,
+    color: contrastColor,
     "&:hover": {
-      backgroundColor: signupButtonHoverBackgroundColor ?? `color-mix(in oklab, ${signupButtonBackgroundColor ?? color} 90%, ${signupButtonColor ?? contrastColor})`,
+      backgroundColor: `color-mix(in oklab, ${color} 90%, ${contrastColor})`,
     },
   },
   "& .EAButton-greyContained": {
-    backgroundColor: loginButtonBackgroundColor ?? `color-mix(in oklab, ${loginButtonColor ?? color} 15%, ${contrastColor})`,
-    color: loginButtonColor ?? color,
+    backgroundColor: `color-mix(in oklab, ${color} 15%, ${contrastColor})`,
+    color: color,
     "&:hover": {
-      backgroundColor: loginButtonHoverBackgroundColor ?? `color-mix(in oklab, ${loginButtonColor ?? color} 10%, ${theme.palette.background.transparent}) !important`,
+      backgroundColor: `color-mix(in oklab, ${color} 10%, ${theme.palette.background.transparent}) !important`,
     },
   },
 });
@@ -137,28 +116,23 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     boxShadow: theme.palette.boxShadow.appBar,
     color: theme.palette.text.bannerAdOverlay,
 
-    ...(forumSelect({
-      LWAF: (theme.dark
-        ? {
-          background: theme.palette.panelBackground.bannerAdTranslucent,
-          backdropFilter: 'blur(4px) brightness(1.1)',
-          "&$blackBackgroundAppBar": {
-            boxShadow: theme.palette.boxShadow.appBarDarkBackground,
-            background: theme.palette.panelBackground.appBarDarkBackground,
-          },
-        } : {
-          backgroundColor: theme.palette.header.background,
-          backdropFilter: 'blur(4px)',
-          "&$blackBackgroundAppBar": {
-            boxShadow: theme.palette.boxShadow.appBar,
-            background: theme.palette.header.background,
-          },
-        }
-      ) as any,
-      default: {
+    ...(theme.dark
+      ? {
+        background: theme.palette.panelBackground.bannerAdTranslucent,
+        backdropFilter: 'blur(4px) brightness(1.1)',
+        "&$blackBackgroundAppBar": {
+          boxShadow: theme.palette.boxShadow.appBarDarkBackground,
+          background: theme.palette.panelBackground.appBarDarkBackground,
+        },
+      } : {
         backgroundColor: theme.palette.header.background,
-      },
-    })),
+        backdropFilter: 'blur(4px)',
+        "&$blackBackgroundAppBar": {
+          boxShadow: theme.palette.boxShadow.appBar,
+          background: theme.palette.header.background,
+        },
+      }
+    ),
     position: "static",
     width: "100%",
     display: "flex",
@@ -166,17 +140,18 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     boxSizing: "border-box",
     flexShrink: 0,
     flexDirection: "column",
-    ...(theme.isFriendlyUI ? {
-      maxWidth: "100vw",
-      overflow: "hidden",
-      padding: '1px 20px',
-      [theme.breakpoints.down('sm')]: {
-        padding: '1px 11px',
-      },
-      [theme.breakpoints.down('xs')]: {
-        padding: '9px 11px',
-      },
-    } : {}),
+  },
+  toolbar: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    paddingLeft: 16,
+    paddingRight: 16,
+    [theme.breakpoints.up('sm')]: {
+      paddingLeft: 24,
+      paddingRight: 24,
+    },
+    minHeight: "var(--header-height)",
   },
   appBarDarkBackground: {
     ...textColorOverrideStyles({
@@ -196,20 +171,13 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
       display: "none"
     }
   },
-  titleSubtitleContainer: {
-    display: 'flex',
-    alignItems: 'center'
-  },
-  titleFundraiserContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
   title: {
-    flex: 1,
+    display: "flex",
+    overflow: "hidden",
+    flexGrow: 1,
+    flexShrink: 1,
     position: "relative",
     top: 3,
-    paddingRight: theme.spacing.unit,
     color: theme.palette.text.secondary,
   },
   titleLink: {
@@ -221,28 +189,19 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     },
     display: 'flex',
     alignItems: 'center',
-    fontWeight: theme.isFriendlyUI ? 400 : undefined,
-    height: theme.isFriendlyUI ? undefined : '19px',
+    height: '19px',
     
     ...(theme.isAF && {
       top: 0,
     }),
   },
   menuButton: {
-    marginLeft: -theme.spacing.unit,
-    marginRight: theme.spacing.unit,
+    marginLeft: -8,
+    marginRight: 8,
   },
   icon: {
     width: 24,
     height: 24,
-  },
-  siteLogo: {
-    marginLeft:  -7,
-    marginRight: 6,
-    [theme.breakpoints.down('sm')]: {
-      marginLeft: -12,
-      marginRight: 3
-    },
   },
   hideLgUp: {
     [theme.breakpoints.up(ICON_ONLY_NAVIGATION_BREAKPOINT)]: {
@@ -264,16 +223,20 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
       display: "none !important",
     },
   },
+  hideSmUp: {
+    [theme.breakpoints.up('sm')]: {
+      display: "none !important",
+    },
+  },
   hideMdUp: {
     [theme.breakpoints.up('md')]: {
       display: "none !important",
     },
   },
   rightHeaderItems: {
-    marginRight: -theme.spacing.unit,
+    marginRight: -8,
     marginLeft: "auto",
     display: "flex",
-    alignItems: theme.isFriendlyUI ? 'center' : undefined,
   },
   // Prevent rearranging of mobile header when search loads after SSR
   searchSSRStandin: {
@@ -333,17 +296,6 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
   },
 }));
 
-function getForumEventBackgroundStyle(currentForumEvent: ForumEventsDisplay, bannerImageId: string) {
-  const darkColor = currentForumEvent.darkColor;
-  return `top / cover no-repeat url(${makeCloudinaryImageUrl(bannerImageId, {
-    c: "fill",
-    dpr: "auto",
-    q: "auto",
-    f: "auto",
-    g: "north",
-  })})${darkColor ? `, ${darkColor}` : ''}`;
-}
-
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserLayout($selector: SelectorInput!, $data: UpdateUserDataInput!) {
     updateUser(selector: $selector, data: $data) {
@@ -353,6 +305,25 @@ const UsersCurrentUpdateMutation = gql(`
     }
   }
 `);
+
+const subscribeHydration = () => () => {};
+const getHydratedSnapshot = () => true;
+const getServerHydratedSnapshot = () => false;
+
+/**
+ * The ToC drawer (mobile-specific) uses SidebarsContext, but this is updated on load in a
+ * component in a different suspense boundary, which by default would cause SSR mismatches.
+ * Prevent SSR mismatch by always rendering the non-ToC version first.
+ */
+function useGetToC() {
+  const sidebars = useContext(SidebarsContext);
+  const isHydrated = useSyncExternalStore(
+    subscribeHydration,
+    getHydratedSnapshot,
+    getServerHydratedSnapshot,
+  );
+  return isHydrated ? sidebars?.toc : null;
+}
 
 const Header = ({
   standaloneNavigationPresent,
@@ -376,12 +347,10 @@ const Header = ({
   const getCurrentUser = useGetCurrentUser();
   const currentUserId = useCurrentUserId();
   const isLoggedIn = !!currentUserId;
-  const usernameUnset = useFilteredCurrentUser(u => !!u?.usernameUnset);
-  const {toc} = useContext(SidebarsContext)!;
+  const toc = useGetToC();
   const { captureEvent } = useTracking()
   const { notificationsOpened } = useUnreadNotifications();
   const { pathname, hash } = useLocation();
-  const {currentForumEvent} = useCurrentAndRecentForumEvents();
   let headerStyle = { ...(backgroundColor ? { backgroundColor } : {}) };
 
   const { hideNavigationSidebar, setHideNavigationSidebar } = use(HideNavigationSidebarContext)!;
@@ -410,10 +379,6 @@ const Header = ({
     }
   }, [pathname, hash]);
 
-  const hasNotificationsPopover = isFriendlyUI();
-  const hasKarmaChangeNotifier = !isFriendlyUI() && isLoggedIn && !usernameUnset;
-  const hasMessagesButton = isFriendlyUI() && isLoggedIn && !usernameUnset;
-
   const setNavigationOpen = (open: boolean) => {
     setNavigationOpenState(open);
     captureEvent("navigationBarToggle", {open: open})
@@ -435,17 +400,11 @@ const Header = ({
     if (!currentUser) return;
     const { lastNotificationsCheck } = currentUser;
 
-    if (hasNotificationsPopover) {
-      captureEvent("notificationsIconToggle", {
-        previousCheck: lastNotificationsCheck,
-      });
-    } else {
-      captureEvent("notificationsIconToggle", {
-        open: !notificationOpen,
-        previousCheck: lastNotificationsCheck,
-      });
-      void handleSetNotificationDrawerOpen(!notificationOpen);
-    }
+    captureEvent("notificationsIconToggle", {
+      open: !notificationOpen,
+      previousCheck: lastNotificationsCheck,
+    });
+    void handleSetNotificationDrawerOpen(!notificationOpen);
   }
 
   // We do two things when the search is open:
@@ -514,41 +473,32 @@ const Header = ({
         aria-label="Menu"
         onClick={toggleStandaloneNavigation}
       >
-        {(isFriendlyUI() && !hideNavigationSidebar)
-          ? <ForumIcon icon="CloseMenu" className={classes.icon} />
-          : <ForumIcon icon="Menu" className={classes.icon} />}
+        <ForumIcon icon="Menu" className={classes.icon} />
       </IconButton>}
     </React.Fragment>
   )
 
-  const usersMenuClass = isFriendlyUI() ? classes.hideXsDown : classes.hideMdDown
-  const usersMenuNode = isLoggedIn && <div className={searchOpen ? usersMenuClass : undefined}>
-    <AnalyticsContext pageSectionContext="usersMenu">
-      <UsersMenu />
-    </AnalyticsContext>
-  </div>
-
-  const loginButtonNode = isFriendlyUI() ? <EAUsersAccountMenu /> : <LWUsersAccountMenu />;
-
   // the items on the right-hand side (search, notifications, user menu, login/sign up buttons)
   const rightHeaderItemsNode = <div className={classNames(classes.rightHeaderItems)}>
     <SearchBar onSetIsActive={setSearchOpen} searchResultsArea={searchResultsArea} />
-    {!isFriendlyUI() && usersMenuNode}
-    {!isLoggedIn && loginButtonNode}
-    {hasKarmaChangeNotifier && <KarmaChangeNotifier
-      className={(isFriendlyUI() && searchOpen) ? classes.hideXsDown : undefined}
-    />}
-    {isLoggedIn && !usernameUnset && <NotificationsMenuButton
-      toggle={handleNotificationToggle}
-      open={notificationOpen}
-      className={(isFriendlyUI() && searchOpen) ? classes.hideXsDown : undefined}
-    />}
-    {hasMessagesButton && <SuspenseWrapper name="MesagesMenuButton">
-      <MessagesMenuButton
-        className={(isFriendlyUI() && searchOpen) ? classes.hideXsDown : undefined}
+
+    {!isLoggedIn && <LWUsersAccountMenu />}
+
+    {isLoggedIn && <>
+      <div className={searchOpen ? classes.hideMdDown : undefined}>
+        <AnalyticsContext pageSectionContext="usersMenu">
+          <UsersMenu />
+        </AnalyticsContext>
+      </div>
+      <KarmaChangeNotifier
+        onOpen={() => void handleSetNotificationDrawerOpen(false)}
+        notificationOpen={notificationOpen}
       />
-    </SuspenseWrapper>}
-    {isFriendlyUI() && usersMenuNode}
+      <NotificationsMenuButton
+        toggle={handleNotificationToggle}
+        open={notificationOpen}
+      />
+    </>}
   </div>
 
   // the left side nav menu
@@ -560,33 +510,16 @@ const Header = ({
   />
 
   // the right side notifications menu
-  const headerNotificationsMenu = isLoggedIn && !hasNotificationsPopover
-    && (
-      <NotificationsMenu
-        open={notificationOpen}
-        hasOpened={notificationHasOpened}
-        setIsOpen={handleSetNotificationDrawerOpen}
-      />
-    );
-
-  const bannerImageId = currentForumEvent?.bannerImageId
+  const headerNotificationsMenu = isLoggedIn && (
+    <NotificationsMenu
+      open={notificationOpen}
+      hasOpened={notificationHasOpened}
+      setIsOpen={handleSetNotificationDrawerOpen}
+    />
+  );
 
   // Adjust header width when LLM chat sidebar is open and header is fixed
   const llmChatSidebarOpen = useContext(IsLlmChatSidebarOpenContext);
-
-  const setForumEventHeaderStyle = hasForumEvents() && isHomeRoute(pathname) && bannerImageId && currentForumEvent?.eventFormat !== "BASIC" && !backgroundColor;
-  if (setForumEventHeaderStyle) {
-    const forumEventHeaderStyle = setForumEventHeaderStyle ? {
-      background: getForumEventBackgroundStyle(currentForumEvent, bannerImageId),
-      "--header-text-color": currentForumEvent.bannerTextColor ?? undefined,
-      "--header-contrast-color": currentForumEvent.darkColor ?? undefined,
-    } : {};
-
-    headerStyle = {
-      ...headerStyle,
-      ...(setForumEventHeaderStyle ? forumEventHeaderStyle : {}),
-    }
-  }
 
   // Make all the text and icons the same color as the text on the current forum event banner
   const useContrastText = Object.keys(headerStyle).includes('backgroundColor') || Object.keys(headerStyle).includes('background');
@@ -617,29 +550,22 @@ const Header = ({
             )}
             style={headerStyle}
           >
-            <Toolbar disableGutters={isFriendlyUI()}>
+            <div className={classes.toolbar}>
               {navigationMenuButton}
-              <Typography className={classes.title} variant="title">
-                <div className={classes.hideSmDown}>
-                  <div className={classes.titleSubtitleContainer}>
-                    <div className={classes.titleFundraiserContainer}>
-                      <Link to="/" className={classes.titleLink}>
-                        {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
-                        {forumHeaderTitleSetting.get()}
-                      </Link>
-                    </div>
-                    <HeaderSubtitle />
-                  </div>
-                </div>
-                <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
-                  <Link to="/" className={classes.titleLink}>
-                    {hasProminentLogoSetting.get() && <div className={classes.siteLogo}><SiteLogo eaContrast={useContrastText}/></div>}
-                    {forumShortTitleSetting.get()}
-                  </Link>
-                </div>
+
+              <Typography className={classNames(classes.title, classes.hideXsDown)} variant="title">
+                <Link to="/" className={classes.titleLink}>
+                  {forumHeaderTitleSetting.get()}
+                </Link>
+                <HeaderSubtitle />
+              </Typography>
+              <Typography className={classNames(classes.title, classes.hideSmUp)} variant="title">
+                <Link to="/" className={classes.titleLink}>
+                  {forumShortTitleSetting.get()}
+                </Link>
               </Typography>
               {rightHeaderItemsNode}
-            </Toolbar>
+            </div>
           </header>
           {headerNavigationDrawer}
         </Headroom>

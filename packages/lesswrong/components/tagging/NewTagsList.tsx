@@ -1,6 +1,4 @@
 import React from 'react';
-import { taggingNamePluralCapitalSetting } from '../../lib/instanceSettings';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import LoadMore from "../common/LoadMore";
 import TagsListItem from "./TagsListItem";
 import FormatDate from "../common/FormatDate";
@@ -8,6 +6,8 @@ import MetaInfo from "../common/MetaInfo";
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineTagFragmentMultiQuery = gql(`
   query multiTagNewTagsListQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -20,7 +20,7 @@ const SunshineTagFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("NewTagsList", (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     marginBottom: 24,
@@ -43,12 +43,12 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 2,
     marginTop: 6
   }
-})
+}))
 
-const NewTagsList = ({classes, showHeaders = true}: {
-  classes: ClassesType<typeof styles>,
+const NewTagsList = ({showHeaders = true}: {
   showHeaders?: boolean
 }) => {
+  const classes = useStyles(styles);
   const { data, loadMoreProps } = useQueryWithLoadMore(SunshineTagFragmentMultiQuery, {
     variables: {
       selector: { newTags: {} },
@@ -61,7 +61,7 @@ const NewTagsList = ({classes, showHeaders = true}: {
   const results = data?.tags?.results;
 
   return <div className={classes.root}>
-    {showHeaders && <h2>New {taggingNamePluralCapitalSetting.get()}</h2>}
+    {showHeaders && <h2>New Wikitags</h2>}
     <table>
       <tbody>
         {results?.map(tag => <tr key={tag._id}>
@@ -87,7 +87,7 @@ const NewTagsList = ({classes, showHeaders = true}: {
   </div>
 }
 
-export default registerComponent("NewTagsList", NewTagsList, {styles});
+export default NewTagsList
 
 
 

@@ -1,5 +1,4 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useMessages } from '../common/withMessages';
 import { useCurrentUser } from '../common/withUser';
 import { useDialog } from '../common/withDialog';
@@ -8,7 +7,6 @@ import classNames from 'classnames';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
 import { FilterMode } from '../../lib/filterSettings';
 import { useSubscribeUserToTag } from '../hooks/useFilterSettings';
-import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 import { Paper }from '@/components/widgets/Paper';
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -22,6 +20,8 @@ import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionSubscribeButtonQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -44,7 +44,7 @@ const SubscriptionStateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SubscribeButton', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -107,17 +107,9 @@ const styles = (theme: ThemeType) => ({
     fontSize: 13,
     color: theme.palette.primary.main
   },
-})
+}))
 
-const SubscribeButton = ({
-  tag,
-  subscribeMessage,
-  unsubscribeMessage,
-  isSubscribedOverride,
-  subscribeUserToTagOverride,
-  className,
-  classes,
-}: {
+const SubscribeButton = ({tag, subscribeMessage, unsubscribeMessage, isSubscribedOverride, subscribeUserToTagOverride, className}: {
   tag: TagBasicInfo,
   subscriptionType?: string,
   subscribeMessage?: string,
@@ -125,8 +117,9 @@ const SubscribeButton = ({
   isSubscribedOverride?: boolean,
   subscribeUserToTagOverride?: (tag: TagBasicInfo, filterMode: FilterMode) => void,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   // useSubscribeUserToTag ultimately uses a useState to store the filter settings internally,
   // this means that updates here do not affect the isSubscribed of other places this hook is used.
   // This is currently only a problem in TagSubforumPage2, so I have added a way to override the
@@ -209,9 +202,7 @@ const SubscribeButton = ({
     }
   }
 
-  const taggedPostWording = taggingNameIsSet.get()
-    ? `posts on this ${taggingNameSetting.get()}`
-    : "posts with this tag";
+  const taggedPostWording = `posts on this wikitag`
 
   return (
     <div className={classNames(className, classes.root)}>
@@ -265,6 +256,6 @@ const SubscribeButton = ({
   );
 }
 
-export default registerComponent('SubscribeButton', SubscribeButton, {styles});
+export default SubscribeButton;
 
 

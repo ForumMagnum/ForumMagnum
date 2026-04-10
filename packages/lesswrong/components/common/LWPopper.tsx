@@ -23,7 +23,7 @@ const styles = defineStyles("LWPopper", (theme: ThemeType) => ({
     ...theme.typography.commentStyle,
     ...theme.typography.body2,
     fontSize: "1rem",
-    padding: theme.spacing.unit,
+    padding: 8,
     color: theme.palette.text.tooltipText,
     position: "relative",
     zIndex: theme.zIndexes.lwPopperTooltip,

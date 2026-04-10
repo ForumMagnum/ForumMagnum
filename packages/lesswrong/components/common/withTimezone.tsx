@@ -1,24 +1,27 @@
 'use client';
-
-import React, { useState, useEffect } from 'react';
+import React, { createContext, useState, useEffect, useMemo, use } from 'react';
 import moment from '../../lib/moment-timezone';
 import { useCurrentUser } from './withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { TIMEZONE_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
-import { TimezoneContext } from './sharedContexts';
-import { EnvironmentOverrideContext, DEFAULT_TIMEZONE } from '@/lib/utils/timeUtil';
+import { DEFAULT_TIMEZONE } from '@/lib/utils/timeUtil';
+
+const TimezoneContext = createContext<{
+  timezone: string
+  timezoneIsKnown: boolean
+} | null>(null);
 
 // If we know the user's timezone, then timezone is that timezone (a string,
 // for use with moment-timezone, such as "America/New_York") and timezoneIsKnown is true;
 // otherwise timezone is "GMT" and timezoneIsKnown is false.
-export const useTimezone = (): WithTimezoneProps => {
-  const { timezone: overrideTimezone } = React.useContext(EnvironmentOverrideContext);
-  const timezone = React.useContext(TimezoneContext);
-
-  return {
-    timezone: overrideTimezone ?? timezone ?? DEFAULT_TIMEZONE,
-    timezoneIsKnown: !!(overrideTimezone ?? timezone),
+export const useTimezone = (): {
+  timezone: string
+  timezoneIsKnown: boolean
+} => {
+  return use(TimezoneContext) ?? {
+    timezone: DEFAULT_TIMEZONE,
+    timezoneIsKnown: false
   };
 }
 
@@ -46,8 +49,13 @@ export const TimezoneWrapper = ({children}: {
       setTimezone(newTimezone);
     }
   }, [currentUser, timezone, setCookie, updateUser]);
+
+  const value = useMemo(() => ({
+    timezone: timezone ?? DEFAULT_TIMEZONE,
+    timezoneIsKnown: !!timezone,
+  }), [timezone]);
   
-  return <TimezoneContext.Provider value={timezone}>
+  return <TimezoneContext.Provider value={value}>
     {children}
   </TimezoneContext.Provider>
 }

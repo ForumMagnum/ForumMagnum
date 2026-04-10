@@ -25,19 +25,18 @@ const RevisionHistoryEntryMultiQuery = gql(`
 
 const styles = defineStyles('TagCompareRevisions', (theme) => ({
   title: {
-    ...theme.typography[theme.isFriendlyUI ? "display2" : "display3"],
-    ...theme.typography[theme.isFriendlyUI ? "headerStyle" : "commentStyle"],
+    ...theme.typography["display3"],
+    ...theme.typography["commentStyle"],
     marginTop: 0,
-    fontWeight: theme.isFriendlyUI ? 700 : 600,
+    fontWeight: 600,
     ...theme.typography.smallCaps,
   },
   description: {},
 }));
 
-const TagCompareRevisions = () => {
+const TagCompareRevisions = ({slug}: {slug: string}) => {
   const classes = useStyles(styles);
-  const { params, query } = useLocation();
-  const { slug } = params;
+  const { query } = useLocation();
   const versionBefore = query.before;
   const versionAfter = query.after;
   const { tag, loading: loadingTag, error: tagError } = useTagBySlug(slug, "TagFragment");

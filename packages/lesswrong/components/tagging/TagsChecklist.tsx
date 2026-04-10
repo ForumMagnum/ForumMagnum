@@ -1,15 +1,14 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { tagStyle, coreTagStyle, smallTagTextStyle } from './FooterTag';
-import { taggingNameSetting } from '../../lib/instanceSettings';
+import { tagStyle, smallTagTextStyle } from './FooterTag';
 import classNames from 'classnames';
 import LWTooltip from "../common/LWTooltip";
 import LoadMore from "../common/LoadMore";
 import ForumIcon from "../common/ForumIcon";
 import KeystrokeDisplay from "@/components/sunshineDashboard/supermod/KeystrokeDisplay";
-import Loading from "../vulcan-core/Loading";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagsChecklist", (theme: ThemeType) => ({
   root: {
     marginBottom: 8,
     display: "flex",
@@ -31,12 +30,6 @@ const styles = (theme: ThemeType) => ({
       border: theme.palette.border.grey300,
       color: theme.palette.grey[800]
     },
-    ...(theme.isFriendlyUI
-      ? {
-        ...coreTagStyle(theme),
-        opacity: 0.6,
-      }
-      : {}),
   },
   tagWithShortcut: {
     display: 'inline-flex',
@@ -49,7 +42,6 @@ const styles = (theme: ThemeType) => ({
     position: 'relative',
     columnGap: 4,
     ...tagStyle(theme),
-    ...(theme.isFriendlyUI ? coreTagStyle(theme) : {}),
     cursor: 'default'
   },
   smallTag: {
@@ -92,7 +84,7 @@ const styles = (theme: ThemeType) => ({
       height: 14,
     },
   },
-});
+}));
 
 export interface ChecklistTag {
   _id: string;
@@ -106,25 +98,12 @@ interface TagsChecklistItem {
   selected: boolean,
 }
 
-const TagsChecklist = ({
-  onTagSelected = () => {},
-  onTagRemoved = () => {},
-  classes,
-  selectedTagIds: selectedTagIds = [],
-  tags,
-  displaySelected = "hide",
-  tooltips = true,
-  truncate = false,
-  smallText = false,
-  shortNames = false,
-  keyboardShortcuts,
-}: {
+const TagsChecklist = ({onTagSelected = () => {}, onTagRemoved = () => {}, selectedTagIds: selectedTagIds = [], tags, displaySelected = "hide", tooltips = true, truncate = false, smallText = false, shortNames = false, keyboardShortcuts}: {
   onTagSelected?: (
     tag: { tagId: string; tagName: string; parentTagId?: string },
     existingTagIds: Array<string>
   ) => void;
   onTagRemoved?: (tag: { tagId: string; tagName: string; parentTagId?: string }, existingTagIds: Array<string>) => void;
-  classes: ClassesType<typeof styles>;
   selectedTagIds?: Array<string | undefined>;
   tags: Pick<TagFragment, "_id" | "name" | "shortName">[];
   displaySelected?: "highlight" | "hide";
@@ -134,6 +113,7 @@ const TagsChecklist = ({
   shortNames?: boolean,
   keyboardShortcuts?: Record<string, string>,
 }) => {
+  const classes = useStyles(styles);
   const [loadMoreClicked, setLoadMoreClicked] = useState(false);
 
   const getTagsToDisplay = (): TagsChecklistItem[] => {
@@ -201,8 +181,8 @@ const TagsChecklist = ({
             disabled={!tooltips}
             title={
               <div>
-                Click to assign <em>{tagChecklistItem.tag.name}</em> {taggingNameSetting.get()}
-                {!!tagChecklistItem.tag.parentTag && <span>. Its parent {taggingNameSetting.get()} <em>{tagChecklistItem.tag.parentTag.name}</em> will also be assigned automatically</span>}
+                Click to assign <em>{tagChecklistItem.tag.name}</em> {"wikitag"}
+                {!!tagChecklistItem.tag.parentTag && <span>. Its parent {"wikitag"} <em>{tagChecklistItem.tag.parentTag.name}</em> will also be assigned automatically</span>}
               </div>
             }
             hideOnTouchScreens
@@ -235,6 +215,6 @@ const TagsChecklist = ({
 };
 
 
-export default registerComponent("TagsChecklist", TagsChecklist, {styles});
+export default TagsChecklist
 
 

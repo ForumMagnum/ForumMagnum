@@ -20,21 +20,20 @@ const styles = defineStyles("CommentBottom", (theme: ThemeType) => ({
   bottom: {
     display: "flex",
     alignItems: "center",
-    paddingBottom: theme.isFriendlyUI ? 12 : 5,
-    paddingTop: theme.isFriendlyUI ? 4 : undefined,
+    paddingBottom: 5,
     minHeight: 12,
-    ...(theme.isFriendlyUI ? {} : {fontSize: 12}),
+    fontSize: 12,
   },
   leftSection: {
     display: "flex",
     alignItems: "center",
-    columnGap: theme.spacing.unit,
+    columnGap: 8,
     flexWrap: "wrap",
   },
   rightSection: {
     display: "flex",
     alignItems: "center",
-    columnGap: theme.spacing.unit,
+    columnGap: 8,
     marginLeft: "auto",
   },
   answer: {
@@ -45,7 +44,7 @@ const styles = defineStyles("CommentBottom", (theme: ThemeType) => ({
     ...theme.typography.body2,
     fontWeight: 450,
     color: theme.palette.lwTertiary.main,
-    marginLeft: theme.spacing.unit,
+    marginLeft: 8,
   },
 }))
 

@@ -1,9 +1,9 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import PostsItem from "../posts/PostsItem";
-
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListWithVotesQuery = gql(`
   query ProfileShortform($documentId: String) {
@@ -15,16 +15,16 @@ const PostsListWithVotesQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ProfileShortform', (theme: ThemeType) => ({
   root: {
 
   }
-});
+}));
 
-export const ProfileShortform = ({classes, user}: {
-  classes: ClassesType<typeof styles>,
+export const ProfileShortform = ({user}: {
   user: UsersProfile
 }) => {
+  const classes = useStyles(styles);
   const { data } = useQuery(PostsListWithVotesQuery, {
     variables: {
       documentId: user.shortformFeedId
@@ -39,7 +39,7 @@ export const ProfileShortform = ({classes, user}: {
   </div>;
 }
 
-export default registerComponent('ProfileShortform', ProfileShortform, {styles});
+export default ProfileShortform;
 
 
 

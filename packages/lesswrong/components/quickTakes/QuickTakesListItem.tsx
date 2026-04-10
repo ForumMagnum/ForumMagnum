@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useTracking } from "../../lib/analyticsEvents";
 import { isFriendlyUI } from "../../themes/forumTheme";
 import { isLWorAF } from "../../lib/instanceSettings";
@@ -8,8 +7,10 @@ import DeferRender from "../common/DeferRender";
 import CommentsNode from "../comments/CommentsNode";
 import QuickTakesCollapsedListItem from "./QuickTakesCollapsedListItem";
 import LWQuickTakesCollapsedListItem from "./LWQuickTakesCollapsedListItem";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("QuickTakesListItem", (theme: ThemeType) => ({
   expandedRoot: {
     position: "relative",
     "& .comments-node-root": {
@@ -25,12 +26,13 @@ const styles = (theme: ThemeType) => ({
   hidden: {
     display: 'none',
   },
-});
+}));
 
-const QuickTakesListItem = ({quickTake, classes}: {
-  quickTake: ShortformComments,
-  classes: ClassesType<typeof styles>,
+const QuickTakesListItem = ({quickTake, linesToDisplay=2}: {
+  quickTake: FrontpageShortformComments,
+  linesToDisplay?: number,
 }) => {
+  const classes = useStyles(styles);
   const {captureEvent} = useTracking();
   const [expanded, setExpanded] = useState(false);
   const wrappedSetExpanded = useCallback((value: boolean) => {
@@ -62,7 +64,7 @@ const QuickTakesListItem = ({quickTake, classes}: {
 
   const collapsedComment = (
     <div className={classNames({ [classes.hidden]: expanded })}>
-      <CollapsedListItem quickTake={quickTake} setExpanded={wrappedSetExpanded} />
+      <CollapsedListItem quickTake={quickTake} setExpanded={wrappedSetExpanded} linesToDisplay={linesToDisplay} />
     </div>
   );
 
@@ -72,10 +74,4 @@ const QuickTakesListItem = ({quickTake, classes}: {
   </>;
 }
 
-export default registerComponent(
-  "QuickTakesListItem",
-  QuickTakesListItem,
-  {styles},
-);
-
-
+export default QuickTakesListItem;

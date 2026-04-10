@@ -1,10 +1,6 @@
 import { StrategySettings, StrategySpecification } from "../../lib/collections/users/recommendationSettings";
 import { getSqlClientOrThrow } from "../sql/sqlClient";
 import { postStatuses } from "../../lib/collections/posts/constants";
-import {
-  EA_FORUM_COMMUNITY_TOPIC_ID,
-  EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID,
-} from "../../lib/collections/tags/helpers";
 
 export type RecommendationStrategyConfig = {
   maxRecommendationCount: number,
@@ -116,7 +112,8 @@ abstract class RecommendationStrategy {
    * suitable for recommendations, and all of the filters from the default view of the
    * Posts collection.
    */
-  protected getDefaultPostFilter() {
+  protected getDefaultPostFilter(strategy?: StrategySettings) {
+    const afFilter = strategy?.af ? `p."af" IS TRUE AND` : "";
     return {
       join: `
         JOIN "Users" author ON author."_id" = p."userId"
@@ -132,27 +129,11 @@ abstract class RecommendationStrategy {
         p."baseScore" >= $(minimumBaseScore) AND
         p."disableRecommendation" IS NOT TRUE AND
         author."deleted" IS NOT TRUE AND
+        ${afFilter}
       `,
       args: {
         postStatus: postStatuses.STATUS_APPROVED,
         minimumBaseScore: this.config.minimumBaseScore,
-      },
-    };
-  }
-
-  /**
-   * Create SQL query fragments to exclude posts tagged with non-recommendable
-   * tags.
-   */
-  protected getTagFilter() {
-    return {
-      filter: `
-        COALESCE((p."tagRelevance"->>$(communityTagId))::INTEGER, 0) < 1 AND
-        COALESCE((p."tagRelevance"->>$(aprilFoolsDayTagId))::INTEGER, 0) < 1
-      `,
-      args: {
-        communityTagId: EA_FORUM_COMMUNITY_TOPIC_ID,
-        aprilFoolsDayTagId: EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID,
       },
     };
   }
@@ -168,10 +149,11 @@ abstract class RecommendationStrategy {
     filter: string,
     args: Record<string, unknown> = {},
     sort: keyof DbPost = "score",
+    strategy?: StrategySettings,
   ): Promise<DbPost[]> {
     const db = getSqlClientOrThrow();
     const userFilter = this.getUserFilter(currentUser);
-    const postFilter = this.getDefaultPostFilter();
+    const postFilter = this.getDefaultPostFilter(strategy);
     return db.any(`
       SELECT p.*
       FROM "Posts" p

@@ -1,31 +1,9 @@
 import React from 'react';
 import { getBookAnchor } from '../../lib/collections/books/helpers';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import type { ToCSection } from '../../lib/tableOfContents';
-import { commentBodyStyles } from '../../themes/stylePiping';
 import TableOfContents from "../posts/TableOfContents/TableOfContents";
 
-const styles = (theme: ThemeType) => ({
-  root: {
-    ...commentBodyStyles(theme),
-    color: theme.palette.grey[600]
-  },
-  collectionTitle: {
-    borderBottom: theme.palette.border.grey300,
-    paddingBottom: 24
-  },
-  bookTitle: {
-    marginTop: 20,
-    marginBottom: 20
-  },
-  sequenceTitle: {
-    marginTop: 3,
-    marginBottom: 3
-  }
-});
-
-export const CollectionTableOfContents = ({classes, collection}: {
-  classes: ClassesType<typeof styles>,
+export const CollectionTableOfContents = ({collection}: {
   collection: CollectionsPageFragment
 }) => {
   const sections: ToCSection[] = [] 
@@ -60,7 +38,4 @@ export const CollectionTableOfContents = ({classes, collection}: {
   />
 }
 
-export default registerComponent('CollectionTableOfContents', CollectionTableOfContents, {styles});
-
-
-
+export default CollectionTableOfContents;

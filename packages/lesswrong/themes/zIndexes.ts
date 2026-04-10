@@ -33,10 +33,11 @@ export const defaultZIndexes = {
   nextUnread: 999,
   sunshineSidebar: 1000,
   reactionsFooter: 1001,
+  intercomButton: 1030,
+  searchResults: 1100, // higher than intercom
   drawer: 1400,
   modal: 1450,
   ultrafeedModal: 1350, // Below drawer (1400) to allow navigation drawers to appear over this modal
-  intercomButton: 1400,
   blurredBackgroundModal: 1350, // lower than intercom
   confirmLogoutModal: 1351,
   overflowNavButtons: 1352,
@@ -45,7 +46,6 @@ export const defaultZIndexes = {
   languageModelChat: 1041,
   postItemMenu: 1050,
   snackbar: 1400,
-  searchResults: 1450, // higher than intercom
   tabNavigation: 1101,
   hideTableOfContentsButton: 1200,
   header: 1300,
@@ -53,7 +53,6 @@ export const defaultZIndexes = {
   backdrop: 1310,
   notificationsMenu: 1500,
   splashHeaderImageOptions: 2000,
-  gatherTownIframe: 9999, // 1000001 higher than everything except intercom
   afNonMemberPopup: 9999,
   commandPalette: 9999,
   lwPopper: 10000,

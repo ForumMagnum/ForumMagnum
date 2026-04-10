@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -11,6 +10,8 @@ import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersCurrentUpdateMutation = gql(`
   mutation updateUserReviews2019($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -22,15 +23,15 @@ const UsersCurrentUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Reviews2019', (theme: ThemeType) => ({
   setting: {
     ...theme.typography.body2,
     color: theme.palette.grey[600]
   },
   settings: {
-    marginLeft: theme.spacing.unit*2,
-    marginRight: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit*2,
+    marginLeft: 16,
+    marginRight: 16,
+    marginBottom: 16,
     display: "flex",
     justifyContent: "space-between",
     [theme.breakpoints.down('xs')]: {
@@ -38,11 +39,10 @@ const styles = (theme: ThemeType) => ({
       alignItems: "flex-end"
     }
   }
-})
+}))
 
-const Reviews2019 = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const Reviews2019 = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [expandUnread, setExpandUnread] = useState(!!(currentUser ? !currentUser.noExpandUnreadCommentsReview : true));
   const [sortNominatedPosts, setSortNominatedPosts] = useState("fewestReviews")
@@ -129,7 +129,7 @@ const Reviews2019 = ({classes}: {
   )
 }
 
-export default registerComponent('Reviews2019', Reviews2019, {styles});
+export default Reviews2019;
 
 
 

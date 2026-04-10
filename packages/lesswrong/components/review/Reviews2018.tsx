@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
@@ -10,16 +9,18 @@ import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import RecentComments from "../comments/RecentComments";
 import LWTooltip from "../common/LWTooltip";
 import { MenuItem } from "../common/Menus";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Reviews2018', (theme: ThemeType) => ({
   setting: {
     ...theme.typography.body2,
     color: theme.palette.grey[600]
   },
   settings: {
-    marginLeft: theme.spacing.unit*2,
-    marginRight: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit*2,
+    marginLeft: 16,
+    marginRight: 16,
+    marginBottom: 16,
     display: "flex",
     justifyContent: "space-between",
     [theme.breakpoints.down('xs')]: {
@@ -27,11 +28,10 @@ const styles = (theme: ThemeType) => ({
       alignItems: "flex-end"
     }
   }
-})
+}))
 
-const Reviews2018 = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const Reviews2018 = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   const [expandUnread, setExpandUnread] = useState(!!(currentUser ? !currentUser.noExpandUnreadCommentsReview : true));
@@ -110,7 +110,7 @@ const Reviews2018 = ({classes}: {
   )
 }
 
-export default registerComponent('Reviews2018', Reviews2018, {styles});
+export default Reviews2018;
 
 
 

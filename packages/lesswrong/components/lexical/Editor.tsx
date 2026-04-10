@@ -6,7 +6,7 @@
  *
  */
 
-import React, {type JSX} from 'react';
+import React, {useContext, type JSX} from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 
@@ -24,7 +24,6 @@ import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {LexicalErrorBoundary} from '@lexical/react/LexicalErrorBoundary';
 import {HashtagPlugin} from '@lexical/react/LexicalHashtagPlugin';
 import {HistoryPlugin} from '@lexical/react/LexicalHistoryPlugin';
-import {HorizontalRulePlugin} from '@lexical/react/LexicalHorizontalRulePlugin';
 import {ListPlugin} from '@lexical/react/LexicalListPlugin';
 import {PlainTextPlugin} from '@lexical/react/LexicalPlainTextPlugin';
 import {RichTextPlugin} from '@lexical/react/LexicalRichTextPlugin';
@@ -32,7 +31,6 @@ import {SelectionAlwaysOnDisplay} from '@lexical/react/LexicalSelectionAlwaysOnD
 import {TabIndentationPlugin} from '@lexical/react/LexicalTabIndentationPlugin';
 import {TablePlugin} from '@lexical/react/LexicalTablePlugin';
 import {useLexicalEditable} from '@lexical/react/useLexicalEditable';
-import {CAN_USE_DOM} from '@lexical/utils';
 import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {Doc} from 'yjs';
 import * as Y from 'yjs';
@@ -45,7 +43,9 @@ import {
   createWebsocketProvider,
   createWebsocketProviderWithDoc,
   setCollaborationConfig,
+  CollaboratorIdentityProvider,
   type CollaborationConfig,
+  type CollaboratorIdentity,
 } from './collaboration';
 import {useSettings} from './context/SettingsContext';
 import {useSharedHistoryContext} from './context/SharedHistoryContext';
@@ -54,17 +54,19 @@ import AutocompletePlugin from './plugins/AutocompletePlugin';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
-import CodeHighlightPrismPlugin from './plugins/CodeHighlightPrismPlugin';
-// import CodeHighlightShikiPlugin from './plugins/CodeHighlightShikiPlugin';
+import CodeKeyboardPlugin from './plugins/CodeKeyboardPlugin';
+import CodeHighlightCSSPlugin from './plugins/CodeHighlightCSSPlugin';
 import CollapsibleSectionsPlugin from '../editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
+import ContainerQuotePlugin from '../editor/lexicalPlugins/quote/ContainerQuotePlugin';
 import CommentPlugin from './plugins/CommentPlugin';
-import SuggestedEditsPlugin from './plugins/SuggestedEditsPlugin';
+import { CommentStoreProvider } from './commenting/CommentStoreContext';
+import { MarkNodesProvider } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext';
 import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
 import ContextMenuPlugin from './plugins/ContextMenuPlugin';
 import DateTimePlugin from './plugins/DateTimePlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
-import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
+// import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
 import EmojisPlugin from './plugins/EmojisPlugin';
 import { MathPlugin } from '../editor/lexicalPlugins/math/MathPlugin';
 // import ExcalidrawPlugin from './plugins/ExcalidrawPlugin';
@@ -80,6 +82,7 @@ import {MaxLengthPlugin} from './plugins/MaxLengthPlugin';
 import MentionsPlugin from './plugins/MentionsPlugin';
 import PageBreakPlugin from './plugins/PageBreakPlugin';
 import PollPlugin from './plugins/PollPlugin';
+import DisableUnderlinePlugin from './plugins/DisableUnderlinePlugin';
 import ShortcutsPlugin from './plugins/ShortcutsPlugin';
 import SubmitOnCmdEnterPlugin from './plugins/SubmitOnCmdEnterPlugin';
 // import SpecialTextPlugin from './plugins/SpecialTextPlugin';
@@ -94,6 +97,7 @@ import ToolbarPlugin from './plugins/ToolbarPlugin';
 // import TreeViewPlugin from './plugins/TreeViewPlugin';
 // import TwitterPlugin from './embeds/TwitterEmbed/TwitterPlugin';
 import {VersionsPlugin} from './plugins/VersionsPlugin';
+import YjsUndoCursorPlugin from './plugins/YjsUndoCursorPlugin';
 import YouTubePlugin from './embeds/YouTubeEmbed/YouTubePlugin';
 import MetaculusPlugin from './embeds/MetaculusEmbed/MetaculusPlugin';
 import ThoughtsaverPlugin from './embeds/ThoughtsaverEmbed/ThoughtsaverPlugin';
@@ -108,34 +112,55 @@ import CalendlyPlugin from './embeds/CalendlyEmbed/CalendlyPlugin';
 import LWArtifactsPlugin from './embeds/LWArtifactsEmbed/LWArtifactsPlugin';
 import ContentEditable from './ui/ContentEditable';
 import { FootnotesPlugin } from '../editor/lexicalPlugins/footnotes/FootnotesPlugin';
+import { FootnoteSidenotesPlugin } from '../editor/lexicalPlugins/footnotes/FootnoteSidenotesPlugin';
 import SpoilersPlugin from '../editor/lexicalPlugins/spoilers/SpoilersPlugin';
+import LLMContentBlockPlugin from '../editor/lexicalPlugins/llmContentOutput/LLMContentBlockPlugin';
 import ClaimsPlugin from './embeds/ElicitEmbed/ClaimsPlugin';
+import ReviewResultsPlugin from './embeds/ReviewResultsEmbed/ReviewResultsPlugin';
+import IframeWidgetPlugin from './embeds/IframeWidgetEmbed/IframeWidgetPlugin';
 import RemoveRedirectPlugin from '../editor/lexicalPlugins/clipboard/RemoveRedirectPlugin';
 import LLMAutocompletePlugin from '../editor/lexicalPlugins/autocomplete/LLMAutocompletePlugin';
+import SuggestedEditsPlugin from '../editor/lexicalPlugins/suggestedEdits/SuggestedEditsPlugin';
+import { EditorUserMode, getDefaultEditorUserMode, type EditorUserModeType } from '../editor/lexicalPlugins/suggestions/EditorUserMode';
+import { SET_USER_MODE_COMMAND } from '../editor/lexicalPlugins/suggestedEdits/Commands';
+import BlockCursorNavigationPlugin from '../editor/lexicalPlugins/blockCursorNavigation/BlockCursorNavigationPlugin';
+import { SideCommentsPlugin } from '../editor/lexicalPlugins/sideComments/SideCommentsPlugin';
+import HorizontalRuleEnterPlugin from '../editor/lexicalPlugins/horizontalRuleEnter';
 import {
   preprocessHtmlForImport,
   restoreInternalIds,
   InternalIdMap,
 } from '../editor/lexicalPlugins/links/InternalBlockLinksPlugin';
-import { type CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
+import { getDataWithDiscardedSuggestions } from '../editor/lexicalPlugins/suggestedEdits/getDataWithDiscardedSuggestions';
+import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
+import { HorizontalRulePlugin } from './plugins/LexicalHorizontalRulePlugin';
+import { EditorUserModeContext } from '@/components/common/sharedContexts';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
+  '@keyframes sentinelCursorBlink': {
+    to: {
+      visibility: 'hidden',
+    },
+  },
   editorContainer: {
     background: theme.palette.grey[0],
     position: 'relative',
     display: 'block',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
+    // --gutter-chars is set by CodeKeyboardPlugin to the digit count
+    // of the largest line number; padding-left and gutter width adapt accordingly.
     '& .code-block': {
       backgroundColor: theme.palette.grey[100],
       fontFamily: theme.typography.code.fontFamily,
       display: 'block',
-      padding: '8px 8px 8px 36px',
+      padding: '8px 8px 8px calc(var(--gutter-chars, 1) * 1ch + 25px)',
       lineHeight: 1.53,
       fontSize: 13,
       margin: '8px 0',
       overflowX: 'auto',
+      whiteSpace: 'pre',
       position: 'relative',
       tabSize: 2,
     },
@@ -150,7 +175,7 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       color: theme.palette.grey[600],
       whiteSpace: 'pre-wrap',
       textAlign: 'right',
-      minWidth: 25,
+      minWidth: 'calc(var(--gutter-chars, 1) * 1ch)',
     },
     '& .code-token-comment': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenComment,
@@ -184,6 +209,26 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     },
     '& .code-token-function': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenFunction,
+    },
+    // Iframe widget code blocks use the standard .code-block styles (gutter,
+    // font, padding, etc.) inherited from CodeNode. This class adds a visual
+    // border to distinguish them from regular code blocks.
+    '& .iframe-widget-code': {
+      border: theme.palette.greyBorder('1px', 0.2),
+      borderRadius: 4,
+    },
+    // In preview mode the plugin collapses the code element to act as a
+    // height-only spacer while a portaled preview overlay covers it.
+    '& .iframe-widget-code.iframe-widget-preview-mode': {
+      fontSize: '0 !important',
+      lineHeight: '0 !important',
+      overflow: 'hidden !important',
+      padding: '0 !important',
+      minHeight: '0 !important',
+      border: 'none !important',
+      '&::before': {
+        display: 'none !important',
+      },
     },
     '& .image-caption-container': {
       display: 'block',
@@ -267,46 +312,175 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     },
     '& .footnote-content': {
       flex: 1,
-      '& p': {
-        margin: 0,
+    },
+    '& .llm-content-block': {
+      margin: 0,
+    },
+    '& .llm-content-block-header': {
+      display: 'inline-flex',
+      alignItems: 'center',
+      fontSize: '0.85em',
+      color: theme.palette.grey[600],
+      lineHeight: 1.3,
+      paddingRight: 6,
+      borderRight: `1px solid ${theme.palette.grey[400]}`,
+    },
+    '& .llm-content-block:has(> .llm-content-block-content > p:first-child) .llm-content-block-header': {
+      float: 'left',
+      marginRight: 8,
+      marginBottom: 0,
+    },
+    '& .llm-content-block:not(:has(> .llm-content-block-content > p:first-child)) .llm-content-block-header': {
+      float: 'none',
+      marginRight: 0,
+      display: 'block',
+      width: 'fit-content',
+      marginTop: '1em',
+      marginBottom: '1em',
+    },
+    '& .llm-content-block-model-input': {
+      backgroundColor: 'transparent',
+      color: 'inherit',
+      fontSize: 'inherit',
+      fontFamily: 'inherit',
+      fontWeight: 600,
+      fontVariant: 'small-caps',
+      lineHeight: 'inherit',
+      padding: 0,
+      border: 'none',
+      borderRadius: 0,
+      appearance: 'none',
+      WebkitAppearance: 'none',
+      minWidth: 40,
+      '&::-webkit-calendar-picker-indicator': {
+        display: 'none !important',
+      },
+      '&::placeholder': {
+        color: theme.palette.grey[600],
+        opacity: 1,
+      },
+      '&:hover': {
+        color: theme.palette.grey[800],
+      },
+      '&:focus': {
+        color: theme.palette.grey[800],
+        outline: 'none',
       },
     },
-    // Suggested edits styling overrides.
-    '& .editor-mark[data-suggestion-id]': {
-      backgroundColor: 'transparent',
-      boxShadow: 'none',
+    '& .llm-content-block-content': {
+      outline: 'none',
+    },
+    '& ins': {
+      background: theme.palette.background.diffInserted,
       textDecoration: 'none',
-      borderBottom: 'none',
+      '&.insert-image img': {
+        outline: `2px solid ${theme.palette.primary.main}`,
+        outlineOffset: '-2px',
+      },
+      '&.insert-divider hr': {
+        outline: `2px solid ${theme.palette.primary.main}`,
+        outlineOffset: '-2px',
+      },
     },
-    '& .editor-mark.selected[data-suggestion-id]': {
-      backgroundColor: 'transparent',
-      boxShadow: 'none',
-      borderBottom: 'none',
+    '& p:has(> ins.block-type-change.target-paragraph)': {
+      background: theme.palette.background.diffInserted,
+      height: '26px',
     },
-    '& .editor-mark[data-suggestion-id] *': {
-      backgroundColor: 'transparent',
-      boxShadow: 'none',
-      borderBottom: 'none',
+    // Split suggestion: show two horizontal lines stretching from the end
+    // of the text to the right edge of the paragraph, indicating where the
+    // paragraph break will be inserted. The padding/margin overflow trick
+    // extends the inline element visually while the parent clips it.
+    '& p:has(> ins.split), & p:has(> ins.join)': {
+      overflow: 'hidden',
     },
-    '& .editor-mark.lexical-suggestion-insert': {
-      backgroundColor: theme.palette.primary.light,
-      borderRadius: 2,
-      padding: '0 1px',
+    '& ins.split, & ins.join': {
+      display: 'inline-block',
+      position: 'relative',
+      height: '1lh',
+      verticalAlign: 'top',
+      paddingRight: '9999px',
+      marginRight: '-9999px',
+      borderTop: `2px solid ${theme.palette.background.diffInserted}`,
+      borderBottom: `2px solid ${theme.palette.background.diffInserted}`,
+      background: 'transparent',
     },
-    '& .editor-mark.lexical-suggestion-delete': {
-      backgroundColor: theme.palette.error.light,
-      borderRadius: 2,
-      padding: '0 1px',
+    '& ins.join::before': {
+      // pilcrow ("paragraph" character)
+      content: '"\u00B6"',
+      position: 'absolute',
+      left: 0,
+      top: '50%',
+      transform: 'translateY(-59%)',
       textDecoration: 'line-through',
-      color: theme.palette.error.dark,
+      fontFamily: theme.typography.fontFamily,
+      color: theme.palette.background.diffInserted,
     },
-    '& .editor-mark.selected.lexical-suggestion-insert': {
-      backgroundColor: theme.palette.primary.light,
-      borderBottom: 'none',
+    '& li:has(> ins.block-type-change.target-bullet), & li:has(> ins.block-type-change.target-number), & li:has(> ins.block-type-change.target-check)': {
+      background: theme.palette.background.diffInserted,
+      '&::marker': {
+        color: theme.palette.primary.main,
+      },
     },
-    '& .editor-mark.selected.lexical-suggestion-delete': {
-      backgroundColor: theme.palette.error.light,
-      borderBottom: 'none',
+    // Quote wrap suggestion: the blockquote exists with the suggestion marker
+    // inside a child paragraph. Show a green left box-shadow (mimicking the
+    // blockquote's left border) to indicate the quote is being added.
+    '& blockquote:has(ins.quote-wrap)': {
+      borderLeftColor: theme.palette.primary.main,
+    },
+    // Quote unwrap suggestion: the blockquote was removed, so the block is
+    // now at root level. Show a red left box-shadow where the quote border
+    // used to be.
+    '& :has(> ins.quote-unwrap)': {
+      boxShadow: `-3px 0 0 0 ${theme.palette.error.main}`,
+    },
+    '& del': {
+      background: theme.palette.background.diffDeleted,
+      textDecoration: 'none',
+      '&.delete-image img': {
+        outline: `2px solid ${theme.palette.error.main}`,
+        outlineOffset: '-2px',
+      },
+      '&.delete-divider hr': {
+        outline: `2px solid ${theme.palette.error.main}`,
+        outlineOffset: '-2px',
+      },
+    },
+    '& hr.selected': {
+      outline: `2px solid ${theme.palette.lexicalEditor.focusRing}`,
+      outlineOffset: '-2px',
+    },
+    // Sentinel paragraphs are structural gap nodes used for block cursor
+    // navigation. Keep their styles theme-aware so the cursor indicator is
+    // visible in dark mode.
+    '& .sentinel-paragraph': {
+      margin: 0,
+      padding: 0,
+      lineHeight: 0,
+      fontSize: 0,
+      position: 'relative',
+      minHeight: 0,
+      caretColor: 'transparent',
+      outline: 'none',
+    },
+    '& .sentinel-paragraph.sentinel-focused::before': {
+      content: '""',
+      display: 'block',
+      position: 'absolute',
+      top: -1,
+      left: 0,
+      right: 0,
+      borderTop: `1px solid ${theme.palette.text.normal}`,
+      animation: '$sentinelCursorBlink 1.1s steps(2, start) infinite',
+    },
+    // Hide the marker on wrapper list items that only contain a nested list
+    // (no text content of their own). Without this, the wrapper's marker
+    // (e.g. "2.") appears on the same line as the nested list's first item
+    // (e.g. "a."), making them look squished together.
+    '& .nested-list-item': {
+      listStyleType: 'none',
+    },
+    '& figure': {
+      margin: '0em auto',
     },
   },
   editorContainerComment: {
@@ -337,7 +511,8 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   },
   editor: {
     flex: 'auto',
-    maxWidth: '100%',
+    // Account for the -50px left margin so content fills the full container width
+    maxWidth: 'calc(100% + 50px)',
     position: 'relative',
     resize: 'vertical',
     minHeight: '100%',
@@ -369,6 +544,12 @@ export interface EditorProps {
   initialHtml?: string;
   /** Called on any editor change with the current HTML representation */
   onChangeHtml?: (html: string) => void;
+  /**
+   * Called once with a function that generates HTML with all suggestions
+   * rejected. Called with null on unmount. The form wrapper stores this and
+   * invokes it at submit time to populate `dataWithDiscardedSuggestions`.
+   */
+  onGetDataWithDiscardedSuggestions?: (fn: (() => string | undefined) | null) => void;
   /** Placeholder override (otherwise uses built-in placeholder based on settings/collab mode) */
   placeholder?: string;
   /** Render editor in compact comment mode */
@@ -397,6 +578,7 @@ export default function Editor({
   accessLevel,
   initialHtml,
   onChangeHtml,
+  onGetDataWithDiscardedSuggestions,
   placeholder: placeholderOverride,
   commentEditor = false,
 }: EditorProps): JSX.Element {
@@ -405,20 +587,40 @@ export default function Editor({
   const hasLoadedInitialHtmlRef = useRef(false);
   const internalIdsRef = useRef<InternalIdMap>(new Map());
   const [editor] = useLexicalComposerContext();
+
+  // Expose a function that generates HTML with all suggestions rejected.
+  // The form wrapper stores this and calls it at submit time.
+  useEffect(() => {
+    onGetDataWithDiscardedSuggestions?.(() => getDataWithDiscardedSuggestions(editor));
+    return () => {
+      onGetDataWithDiscardedSuggestions?.(null);
+    };
+  }, [editor, onGetDataWithDiscardedSuggestions]);
   
   // Track when collaboration config is ready (set synchronously, not in useEffect)
   const [isCollabConfigReady, setIsCollabConfigReady] = useState(false);
-  
+
+  const externalModeContext = useContext(EditorUserModeContext);
+  const setIsWsConnected = externalModeContext?.setIsWsConnected;
+
   // Store initialHtml in a ref so the onSynced callback can access the latest value
   const initialHtmlRef = useRef(initialHtml);
   initialHtmlRef.current = initialHtml;
   
   // Callback for handling the first sync with the collaboration server.
   // If the Yjs document is empty and we have initial HTML, bootstrap from it.
-  const handleCollaborationSync = useCallback((doc: Doc, isFirstSync: boolean) => {
-    if (!isFirstSync) return;
-    
+  const handleCollaborationSync = useCallback((doc: Doc, isFirstSync: boolean, docId: string) => {
     const htmlToBootstrap = initialHtmlRef.current;
+    const stateSize = Y.encodeStateAsUpdate(doc).length;
+
+    if (docId !== COLLAB_DOC_ID) return;
+    if (!isFirstSync) return;
+
+    // If the synced main doc already has substantive Yjs content, never
+    // bootstrap from initialHtml. This prevents stale page-prop HTML from
+    // overwriting restored server state.
+    if (stateSize > 2) return;
+    
     if (!htmlToBootstrap?.trim()) return;
     if (!isYjsDocEmpty(doc)) return;
     
@@ -443,17 +645,21 @@ export default function Editor({
   }, [editor]);
   
   // Set up collaboration config before rendering collaboration plugins.
-  // Merge in our onSynced handler for bootstrap detection.
+  // Merge in our onSynced and onConnectionStatusChange handlers.
   useLayoutEffect(() => {
     if (collaborationConfig) {
-      const configWithSyncHandler: CollaborationConfig = {
+      const configWithHandlers: CollaborationConfig = {
         ...collaborationConfig,
-        onSynced: (doc, isFirstSync) => {
-          handleCollaborationSync(doc, isFirstSync);
-          collaborationConfig.onSynced?.(doc, isFirstSync);
+        onSynced: (doc, isFirstSync, docId) => {
+          handleCollaborationSync(doc, isFirstSync, docId);
+          collaborationConfig.onSynced?.(doc, isFirstSync, docId);
+        },
+        onConnectionStatusChange: (connected) => {
+          setIsWsConnected?.(connected);
+          collaborationConfig.onConnectionStatusChange?.(connected);
         },
       };
-      setCollaborationConfig(configWithSyncHandler);
+      setCollaborationConfig(configWithHandlers);
     } else {
       setCollaborationConfig(null);
     }
@@ -467,7 +673,8 @@ export default function Editor({
       setCollaborationConfig(null);
       setIsCollabConfigReady(false);
     };
-  }, [collaborationConfig, handleCollaborationSync]);
+  }, [collaborationConfig, handleCollaborationSync, setIsWsConnected]);
+
   const {
     settings: {
       isCodeHighlighted,
@@ -510,6 +717,48 @@ export default function Editor({
   const [activeEditor, setActiveEditor] = useState(editor);
   const [isLinkEditMode, setIsLinkEditMode] = useState<boolean>(false);
   const cursorsContainerRef = useRef<HTMLDivElement>(null);
+  const canEdit = !accessLevel || accessLevelCan(accessLevel, "edit");
+  const canComment = !accessLevel || accessLevelCan(accessLevel, "comment");
+
+  // Use shared context for user mode if available (provided by PostForm),
+  // otherwise fall back to local state (e.g. comment editors).
+  const [localUserMode, setLocalUserMode] = useState<EditorUserModeType>(() => getDefaultEditorUserMode(canEdit, canComment));
+  const userMode = externalModeContext?.userMode ?? localUserMode;
+  const setUserMode = externalModeContext?.setUserMode ?? setLocalUserMode;
+
+  const isSuggestionMode = userMode === EditorUserMode.Suggest;
+  const isViewingMode = userMode === EditorUserMode.View;
+
+  // Set editor editability based on user mode.
+  // In viewing mode the editor is non-editable, which disables toolbars,
+  // image resizers, table hover actions, and other interactive features.
+  useEffect(() => {
+    editor.setEditable(!isViewingMode);
+  }, [editor, isViewingMode]);
+
+  const collaboratorIdentity: CollaboratorIdentity | null = useMemo(() => {
+    if (!collaborationConfig || !accessLevel) return null;
+    return {
+      id: collaborationConfig.user.id,
+      name: collaborationConfig.user.name,
+      accessLevel,
+    };
+  }, [collaborationConfig, accessLevel]);
+
+  const handleUserModeChange = useCallback((mode: EditorUserModeType) => {
+    setUserMode(mode);
+  }, [setUserMode]);
+
+  // When the external context's userMode changes (e.g. from PostForm button),
+  // dispatch the command to the lexical editor so SuggestionModePlugin can apply it.
+  const prevExternalModeRef = useRef(externalModeContext?.userMode);
+  useEffect(() => {
+    const currentExternalMode = externalModeContext?.userMode;
+    if (currentExternalMode && currentExternalMode !== prevExternalModeRef.current) {
+      prevExternalModeRef.current = currentExternalMode;
+      editor.dispatchCommand(SET_USER_MODE_COMMAND, currentExternalMode);
+    }
+  }, [externalModeContext?.userMode, editor]);
 
   const onRef = (_floatingAnchorElem: HTMLDivElement) => {
     if (_floatingAnchorElem !== null) {
@@ -546,6 +795,7 @@ export default function Editor({
           activeEditor={activeEditor}
           setActiveEditor={setActiveEditor}
           setIsLinkEditMode={setIsLinkEditMode}
+          isSuggestionMode={isSuggestionMode}
           isVisible={false}
         />
       )}
@@ -555,6 +805,7 @@ export default function Editor({
           setIsLinkEditMode={setIsLinkEditMode}
         />
       )}
+      <DisableUnderlinePlugin />
       <SubmitOnCmdEnterPlugin />
       <div
         className={classNames(
@@ -570,7 +821,7 @@ export default function Editor({
         {selectionAlwaysOnDisplay && <SelectionAlwaysOnDisplay />}
         <ClearEditorPlugin />
         <ComponentPickerPlugin />
-        <EmojiPickerPlugin />
+        {/* <EmojiPickerPlugin /> */}
         <AutoEmbedPlugin />
         <EmojisPlugin />
         <HashtagPlugin />
@@ -578,40 +829,53 @@ export default function Editor({
         {/* <SpeechToTextPlugin /> */}
         <AutoLinkPlugin />
         <DateTimePlugin />
-        {!isCommentEditor && !(isCollab && useCollabV2) && (
-          <CommentPlugin
-            providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
-          />
-        )}
-        {!isCommentEditor && (
-          <SuggestedEditsPlugin
-            accessLevel={accessLevel}
-            providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
-          />
-        )}
+        <MarkNodesProvider>
+          {collaboratorIdentity && (
+            <CollaboratorIdentityProvider value={collaboratorIdentity}>
+              <CommentStoreProvider
+                providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
+              >
+                {!isCommentEditor && !(isCollab && useCollabV2) && (
+                  <>
+                    <CommentPlugin />
+                    <SideCommentsPlugin />
+                  </>
+                )}
+              <SuggestedEditsPlugin
+                isSuggestionMode={isSuggestionMode}
+                userMode={userMode}
+                onUserModeChange={handleUserModeChange}
+              />
+              </CommentStoreProvider>
+            </CollaboratorIdentityProvider>
+          )}
+        </MarkNodesProvider>
         {isRichText ? (
           <>
             {isCollabConfigReady && collaborationConfig ? (
-              useCollabV2 ? (
-                <>
-                  <CollabV2
+              <>
+                {useCollabV2 ? (
+                  <>
+                    <CollabV2
+                      id={COLLAB_DOC_ID}
+                      shouldBootstrap={false}
+                      username={collaborationConfig.user.name}
+                      cursorsContainerRef={cursorsContainerRef}
+                    />
+                    <VersionsPlugin id={COLLAB_DOC_ID} />
+                  </>
+                ) : (
+                  <CollaborationPlugin
+                    key={`${collaborationConfig.postId}:${collaborationConfig.fieldName ?? COLLAB_DOC_ID}`}
                     id={COLLAB_DOC_ID}
+                    providerFactory={createWebsocketProvider}
                     shouldBootstrap={false}
                     username={collaborationConfig.user.name}
                     cursorsContainerRef={cursorsContainerRef}
                   />
-                  <VersionsPlugin id={COLLAB_DOC_ID} />
-                </>
-              ) : (
-                <CollaborationPlugin
-                  key={collaborationConfig.token}
-                  id={COLLAB_DOC_ID}
-                  providerFactory={createWebsocketProvider}
-                  shouldBootstrap={false}
-                  username={collaborationConfig.user.name}
-                  cursorsContainerRef={cursorsContainerRef}
-                />
-              )
+                )}
+                <YjsUndoCursorPlugin />
+              </>
             ) : (
               <HistoryPlugin externalHistoryState={historyState} />
             )}
@@ -631,6 +895,7 @@ export default function Editor({
                     <ContentEditable
                       placeholder={placeholder}
                       variant={isCommentEditor ? 'comment' : undefined}
+                      isSuggestionMode={isSuggestionMode}
                     />
                   </div>
                 </div>
@@ -652,13 +917,8 @@ export default function Editor({
               />
             )}
             <MarkdownShortcutPlugin />
-            {/* {isCodeHighlighted &&
-              (isCodeShiki ? (
-                <CodeHighlightShikiPlugin />
-              ) : (
-                <CodeHighlightPrismPlugin />
-              ))} */}
-            <CodeHighlightPrismPlugin />
+            <CodeKeyboardPlugin />
+            <CodeHighlightCSSPlugin />
             <ListPlugin hasStrictIndent={listStrictIndent} />
             <CheckListPlugin />
             <TablePlugin
@@ -689,17 +949,24 @@ export default function Editor({
             <FigmaPlugin />
             <ClickableLinkPlugin disabled={isEditable} />
             <HorizontalRulePlugin />
+            <HorizontalRuleEnterPlugin />
+            <BlockCursorNavigationPlugin />
             <MathPlugin />
             {/* <ExcalidrawPlugin /> */}
             <TabFocusPlugin />
             <TabIndentationPlugin maxIndent={7} />
             <CollapsibleSectionsPlugin />
+            <ContainerQuotePlugin />
             <PageBreakPlugin />
             <LayoutPlugin />
             <FootnotesPlugin />
+            <FootnoteSidenotesPlugin contentStyleType={isCommentEditor ? 'comment' : 'postHighlight'} />
             <MentionsPlugin />
-            <SpoilersPlugin />
+            <SpoilersPlugin isSuggestionMode={isSuggestionMode} />
+            <LLMContentBlockPlugin isSuggestionMode={isSuggestionMode} />
             <ClaimsPlugin />
+            <ReviewResultsPlugin />
+            <IframeWidgetPlugin anchorElem={floatingAnchorElem ?? undefined} isSuggestionMode={isSuggestionMode} />
             <RemoveRedirectPlugin />
             <LLMAutocompletePlugin />
             {floatingAnchorElem && (
@@ -708,6 +975,7 @@ export default function Editor({
                   anchorElem={floatingAnchorElem}
                   isLinkEditMode={isLinkEditMode}
                   setIsLinkEditMode={setIsLinkEditMode}
+                  isSuggestionMode={isSuggestionMode}
                 />
                 {/* <TableCellActionMenuPlugin
                   anchorElem={floatingAnchorElem}
@@ -715,9 +983,8 @@ export default function Editor({
                 /> */}
               </>
             )}
-            {floatingAnchorElem && !isSmallWidthViewport && (
+            {floatingAnchorElem && !isSmallWidthViewport && isEditable && (
               <>
-                {!isCommentEditor && <DraggableBlockPlugin anchorElem={floatingAnchorElem} />}
                 <CodeActionMenuPlugin anchorElem={floatingAnchorElem} />
                 <TableHoverActionsV2Plugin anchorElem={floatingAnchorElem} />
               </>
@@ -727,12 +994,13 @@ export default function Editor({
               setIsLinkEditMode={setIsLinkEditMode}
               variant={isCommentEditor ? 'comment' : 'post'}
               showInlineCommentButton={isCollab && !isCommentEditor}
+              isSuggestionMode={isSuggestionMode}
             />}
           </>
         ) : (
           <>
             <PlainTextPlugin
-              contentEditable={<ContentEditable placeholder={placeholder} />}
+              contentEditable={<ContentEditable placeholder={placeholder} isSuggestionMode={isSuggestionMode} />}
               ErrorBoundary={LexicalErrorBoundary}
             />
             <HistoryPlugin externalHistoryState={historyState} />
@@ -746,7 +1014,7 @@ export default function Editor({
         )}
         {isAutocomplete && <AutocompletePlugin />}
         <div>{showTableOfContents && <TableOfContentsPlugin />}</div>
-        {shouldUseLexicalContextMenu && <ContextMenuPlugin />}
+        {shouldUseLexicalContextMenu && <ContextMenuPlugin isSuggestionMode={isSuggestionMode} />}
         {/* {shouldAllowHighlightingWithBrackets && <SpecialTextPlugin />} */}
         {/* <ActionsPlugin
           shouldPreserveNewLinesInMarkdown={shouldPreserveNewLinesInMarkdown}

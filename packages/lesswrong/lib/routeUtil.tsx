@@ -1,12 +1,33 @@
 import qs from 'qs';
 import React, { useCallback, useContext } from 'react';
-import { LocationContext, SubscribeLocationContext, NavigationContext } from './vulcan-core/appContext';
-import type { RouterLocation, SegmentedUrl } from './vulcan-lib/routes';
+import type { RouterLocation, SegmentedUrl } from './routeChecks/parseRoute';
 import { ForumOptions, forumSelect } from './forumTypeUtils';
 import { createPath, type LocationDescriptor, parsePath } from 'history';
+import { parseQuery } from './routeChecks/parseRoute';
 import {siteUrlSetting} from './instanceSettings'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import { urlIsAbsolute } from './vulcan-lib/utils';
+import { LocationContext, NavigationContext, SubscribeLocationContext } from './locationContexts';
+
+type MaybeRelativeLocationDescriptor = LocationDescriptor|1|-1;
+
+/** Argument to the function returned by useNavigate: URL/descriptor, history direction, or callback from current location. */
+export type NavigateTo = | MaybeRelativeLocationDescriptor | ((location: RouterLocation) => MaybeRelativeLocationDescriptor);
+
+function getLocationFromWindow(): RouterLocation {
+  const pathname = window.location.pathname;
+  const search = window.location.search;
+  const hash = window.location.hash;
+  const location = { pathname, search, hash };
+  return {
+    location,
+    pathname,
+    url: pathname + search + hash,
+    hash,
+    params: {},
+    query: parseQuery(location),
+  };
+}
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -65,7 +86,9 @@ export type NavigateFunction = ReturnType<typeof useNavigate>
  */
 export const useNavigate = () => {
   const { history } = useContext(NavigationContext)!;
-  return useCallback((locationDescriptor: LocationDescriptor | -1 | 1, options?: {replace?: boolean, openInNewTab?: boolean, skipRouter?: boolean, scroll?: boolean}) => {
+  return useCallback((to: NavigateTo, options?: {replace?: boolean, openInNewTab?: boolean, skipRouter?: boolean, scroll?: boolean}) => {
+    const locationDescriptor: MaybeRelativeLocationDescriptor = typeof to === 'function' ? to(getLocationFromWindow()) : to;
+
     if (locationDescriptor === -1) {
       history.back();
     } else if (locationDescriptor === 1) {

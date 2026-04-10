@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { userCanQuickTake } from '../../lib/vulcan-users/permissions';
 import LoadMore from "../common/LoadMore";
@@ -7,6 +6,8 @@ import CommentOnPostWithReplies from "../comments/CommentOnPostWithReplies";
 import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentWithRepliesFragmentMultiQuery = gql(`
   query multiCommentShortformThreadListQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -19,21 +20,28 @@ const CommentWithRepliesFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ShortformThreadList', (theme: ThemeType) => ({
   shortformItem: {
-    marginTop: theme.spacing.unit * (theme.isFriendlyUI ? 2 : 4),
+    marginTop: 32,
   }
-})
+}))
 
-const ShortformThreadList = ({ classes }: {
-  classes: ClassesType<typeof styles>,
+const ShortformThreadList = ({userId, showQuickTakeEntry = true, showPostTitle = true, limit = 20}: {
+  userId?: string,
+  showQuickTakeEntry?: boolean,
+  showPostTitle?: boolean,
+  limit?: number,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const shortformSelector = userId
+    ? { shortform: { userId } }
+    : { shortform: {} };
   
   const { data, refetch, loadMoreProps } = useQueryWithLoadMore(CommentWithRepliesFragmentMultiQuery, {
     variables: {
-      selector: { shortform: {} },
-      limit: 20,
+      selector: shortformSelector,
+      limit,
       enableTotal: false,
     },
     fetchPolicy: 'cache-and-network',
@@ -43,7 +51,7 @@ const ShortformThreadList = ({ classes }: {
 
   return (
     <div>
-      {(userCanQuickTake(currentUser) || !currentUser) &&
+      {showQuickTakeEntry && (userCanQuickTake(currentUser) || !currentUser) &&
         <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />
       }
 
@@ -54,6 +62,7 @@ const ShortformThreadList = ({ classes }: {
         return <div key={comment._id} className={classes.shortformItem}>
           <CommentOnPostWithReplies comment={comment} post={comment.post} commentNodeProps={{
             treeOptions: {
+              showPostTitle,
               refetch
             }
           }}/>
@@ -64,6 +73,4 @@ const ShortformThreadList = ({ classes }: {
   )
 }
 
-export default registerComponent('ShortformThreadList', ShortformThreadList, {styles});
-
-
+export default ShortformThreadList;

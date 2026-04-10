@@ -22,7 +22,7 @@ const styles = defineStyles("BigCollectionsCard", (theme: ThemeType) => ({
     },
   },
   card: {
-    padding:theme.spacing.unit*2.5,
+    padding:20,
     display:"flex",
     height:318,
     flexWrap: "wrap",
@@ -33,11 +33,11 @@ const styles = defineStyles("BigCollectionsCard", (theme: ThemeType) => ({
   },
   content: {
     marginLeft: 33,
-    marginBottom:theme.spacing.unit*2,
+    marginBottom:16,
     width: "100%",
     maxWidth: 307,
     borderTop: `solid 4px ${theme.palette.text.maxIntensity}`, // This color gets overwritten by a content-specific color from the database
-    paddingTop: theme.spacing.unit,
+    paddingTop: 8,
     [theme.breakpoints.down('sm')]: {
       marginLeft: 0,
     }
@@ -47,10 +47,7 @@ const styles = defineStyles("BigCollectionsCard", (theme: ThemeType) => ({
   },
   author: {
     ...theme.typography.postStyle,
-    marginBottom:theme.spacing.unit,
-    ...(theme.isFriendlyUI && {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }),
+    marginBottom:8
   },
   media: {
     height:271,

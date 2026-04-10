@@ -1,7 +1,6 @@
 import React from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { taggingNameIsSet, taggingNameSetting } from '../../lib/instanceSettings';
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
 import SingleLineTagUpdates from "./SingleLineTagUpdates";
@@ -10,6 +9,8 @@ import { maybeDate } from '@/lib/utils/dateUtils';
 import { NetworkStatus } from "@apollo/client";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const RevisionTagFragmentMultiQuery = gql(`
   query multiRevisionTagEditsByUserQuery($selector: RevisionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -22,7 +23,7 @@ const RevisionTagFragmentMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TagEditsByUser', (theme: ThemeType) => ({
   root: {
   },
   subtitle: {
@@ -30,19 +31,18 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 6
   },
   wikiEmpty: {
-    marginLeft: theme.spacing.unit,
+    marginLeft: 8,
     fontStyle: "italic",
     color: theme.palette.grey[500]
   }
-});
+}));
 
 
-const TagEditsByUser = ({userId, limit, classes}: {
+const TagEditsByUser = ({userId, limit}: {
   userId: string,
   limit: number,
-  classes: ClassesType<typeof styles>
 }) => {
-
+  const classes = useStyles(styles);
   const { data, networkStatus, loadMoreProps } = useQueryWithLoadMore(RevisionTagFragmentMultiQuery, {
     variables: {
       selector: { revisionsByUser: { userId } },
@@ -70,7 +70,7 @@ const TagEditsByUser = ({userId, limit, classes}: {
 
   if (resultsWithLiveTags.length === 0) {
     return <Typography variant="body2" className={classes.wikiEmpty}>
-      No {taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki'} contributions to display.
+      No wikitag contributions to display.
     </Typography>
   }
 
@@ -90,7 +90,5 @@ const TagEditsByUser = ({userId, limit, classes}: {
 }
 
 export default registerComponent('TagEditsByUser', TagEditsByUser, {
-  styles, hocs: [withErrorBoundary]
+  hocs: [withErrorBoundary]
 });
-
-

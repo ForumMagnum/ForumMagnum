@@ -1,4 +1,6 @@
+import { isProduction } from "@/lib/executionEnvironment";
 import { robotsTxtSetting } from "@/server/databaseSettings";
+import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 import type { NextRequest } from "next/server";
 
 // ea-forum-look-here
@@ -17,19 +19,28 @@ const CRAWLABLE_HEADERS = [
   'X-Is-AlignmentForumOrg',
 ];
 
+const documentationComment = (req: NextRequest) => {
+  const urlPrefix = getSiteUrlFromReq(req);
+  return `# This site has a Markdown version that is more friendly to AI agents than the HTML version. Documentation at: ${urlPrefix}/api/SKILL.md`;
+}
+
+const nonCrawlableMirrorComment = `# This site is a secondary mirror that should not be crawled.`;
+
 function isCrawlable(req: NextRequest) {
   return CRAWLABLE_HOSTS.has(req.nextUrl.host) || CRAWLABLE_HEADERS.some(header => req.headers.get(header));
 }
 
 export async function GET(req: NextRequest) {
-  if (!isCrawlable(req)) {
-    return new Response("User-agent: *\nDisallow: /", {status: 200});
+  if (isProduction && !isCrawlable(req)) {
+    return new Response(`${documentationComment(req)}\n${nonCrawlableMirrorComment}\n\nUser-agent: *\nDisallow: /`, {status: 200});
   } else if (robotsTxtSetting.get()) {
     return new Response(robotsTxtSetting.get(), {status: 200});
   }
 
   return new Response(
-    `User-agent: *
+    `${documentationComment(req)}
+
+User-agent: *
 Disallow: /allPosts?*
 Disallow: /allPosts
 Disallow: /allposts

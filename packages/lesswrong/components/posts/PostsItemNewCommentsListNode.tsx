@@ -1,28 +1,29 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { unflattenComments } from '../../lib/utils/unflatten';
 import { CommentTreeOptions } from '../comments/commentTree';
 import Loading from "../vulcan-core/Loading";
 import CommentsList from "../comments/CommentsList";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsItemNewCommentsListNode', (theme: ThemeType) => ({
   title: {
     fontSize: 10,
     ...theme.typography.commentStyle,
     color: theme.palette.text.dim700,
     marginBottom: 4
   }
-})
+}))
 
-const PostsItemNewCommentsListNode = ({ commentsList, loadingState, title, reverseOrder, post, treeOptions, classes }: {
+const PostsItemNewCommentsListNode = ({commentsList, loadingState, title, reverseOrder, post, treeOptions}: {
   commentsList?: CommentsList[],
   loadingState: boolean,
   title?: string,
   reverseOrder?: boolean
   post: PostsList,
   treeOptions: CommentTreeOptions,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const lastCommentId = commentsList && commentsList[0]?._id
   const nestedComments = commentsList && unflattenComments(commentsList);
 
@@ -47,10 +48,6 @@ const PostsItemNewCommentsListNode = ({ commentsList, loadingState, title, rever
   );
 };
 
-export default registerComponent(
-  'PostsItemNewCommentsListNode', PostsItemNewCommentsListNode, {
-    styles,
-  }
-);
+export default PostsItemNewCommentsListNode;
 
 

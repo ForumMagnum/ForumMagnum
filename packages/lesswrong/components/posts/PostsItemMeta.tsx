@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { FC } from 'react';
 import classNames from 'classnames';
 import { isAF } from '../../lib/instanceSettings';
@@ -12,10 +11,12 @@ import LWTooltip from "../common/LWTooltip";
 import AddToCalendarButton from "./AddToCalendar/AddToCalendarButton";
 import { maybeDate } from '@/lib/utils/dateUtils';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsItemMeta', (theme: ThemeType) => ({
   onGrayBackground: {
-    ...(theme.isBookUI && theme.dark && {
+    ...(theme.dark && {
       color: theme.palette.greyAlpha(1),
     }),
   },
@@ -30,25 +31,25 @@ const styles = (theme: ThemeType) => ({
   info: {
     display: "inline",
     color: theme.palette.text.dim3,
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     fontSize: "1.1rem",
     ...theme.typography.commentStyle
   },
   calendarIcon: {
-    marginRight: theme.spacing.unit
+    marginRight: 8
   }
-})
+}))
 
 export const DateWithoutTime: FC<{date: Date}> = ({date}) => {
   return <FormatDate date={date} granularity='date' format={"MMM Do"} />
 }
 
-const PostsItemMeta = ({post, read, hideTags, classes}: {
+const PostsItemMeta = ({post, read, hideTags}: {
   post: PostsList,
   read?: boolean,
   hideTags?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const baseScore = isAF() ? post.afBaseScore : post.baseScore
   const showAfScore = (!isAF() && post.af);
   const afBaseScore = showAfScore ? post.afBaseScore : null
@@ -109,6 +110,6 @@ const PostsItemMeta = ({post, read, hideTags, classes}: {
     </span>
 };
 
-export default registerComponent('PostsItemMeta', PostsItemMeta, {styles});
+export default PostsItemMeta;
 
 

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { SerializedEditorContents, deserializeEditorContents, EditorContents, nonAdminEditors, adminEditors } from './Editor';
+import { SerializedEditorContents, deserializeEditorContents, EditorContents, getEditorsForUser } from './Editor';
 import { useCurrentUser } from '../common/withUser';
 import { htmlToTextDefault } from '@/lib/htmlToText';
-import { preferredHeadingCase } from '@/themes/forumTheme';
 import ForumIcon from "../common/ForumIcon";
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useEffectOnce } from '../hooks/useEffectOnce';
@@ -12,7 +11,7 @@ const styles = defineStyles("LocalStorageCheck", (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    columnGap: theme.isFriendlyUI ? 8 : 10,
+    columnGap: 10,
     fontFamily: theme.typography.commentStyle.fontFamily,
     color: theme.palette.text.primaryAlert,
     fontSize: 14,
@@ -34,24 +33,15 @@ const styles = defineStyles("LocalStorageCheck", (theme: ThemeType) => ({
     color: theme.palette.text.primaryAlert,
     whiteSpace: 'nowrap',
     paddingLeft: 6,
-    paddingRight: 2,
-    fontWeight: theme.isFriendlyUI ? 600 : undefined,
+    paddingRight: 2
   },
   restoreBody: {
     maxHeight: '1.5em',
     lineHeight: '1.5em',
     fontSize: '1.1rem',
     overflow: 'hidden',
-    ...(theme.isFriendlyUI
-      ? {
-        color: theme.palette.text.primaryAlert,
-        fontWeight: 500,
-        opacity: 0.75,
-      }
-      : {
-        color: theme.palette.grey[500],
-        padding: '0 4px',
-      }),
+    color: theme.palette.grey[500],
+    padding: '0 4px',
   },
   closeIcon: {
     fontSize: 16,
@@ -72,7 +62,7 @@ const restorableStateHasMetadata = (savedState: any) => {
 type GetLocalStorageHandlers = (editorType?: string) => any;
 
 const getRestorableState = (currentUser: UsersCurrent|null, getLocalStorageHandlers: GetLocalStorageHandlers): RestorableState|null => {
-  const editors = currentUser?.isAdmin ? adminEditors : nonAdminEditors
+  const editors = getEditorsForUser(currentUser)
   
   for (const editorType of editors) {
     const savedState = getLocalStorageHandlers(editorType).get();
@@ -150,7 +140,7 @@ const LocalStorageCheckVisible = (props: LocalStorageCheckProps & {
           // eslint-disable-next-line no-console
           console.error("Error restoring from localStorage");
         }
-      }}>{preferredHeadingCase("Restore Autosave")}</a>
+      }}>Restore Autosave</a>
     </div>
     <div className={classes.restoreBody}> {displayedRestore || legacyRestored} </div>
 

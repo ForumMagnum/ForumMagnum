@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import RecommendationsAlgorithmPicker, { getRecommendationSettings } from './RecommendationsAlgorithmPicker'
@@ -18,18 +17,20 @@ import Book2020FrontpageWidget from "../books/Book2020FrontpageWidget";
 import SectionSubtitle from "../common/SectionSubtitle";
 import ContinueReadingList from "./ContinueReadingList";
 import BookmarksList from "../bookmarks/BookmarksList";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 export const curatedUrl = "/recommendations"
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("LWRecommendations", (theme: ThemeType) => ({
   section: {
     marginTop: -12,
   },
   continueReadingList: {
-    marginBottom: theme.spacing.unit*2,
+    marginBottom: 16,
   },
   subsection: {
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
   },
   footerWrapper: {
     display: "flex",
@@ -91,7 +92,7 @@ const styles = (theme: ThemeType) => ({
       display: 'none'
     }
   },
-});
+}));
 
 const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<RecommendationsAlgorithm> => {
   return {
@@ -101,14 +102,10 @@ const getFrontPageOverwrites = (haveCurrentUser: boolean): Partial<Recommendatio
   }
 }
 
-const LWRecommendations = ({
-  configName,
-  classes,
-}: {
+const LWRecommendations = ({configName}: {
   configName: string,
-  classes: ClassesType<typeof styles>,
 }) => {
-
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [showSettings, setShowSettings] = useState(false);
   const [settingsState, setSettings] = useState<any>(null);
@@ -249,6 +246,6 @@ const LWRecommendations = ({
   return render();
 }
 
-export default registerComponent("LWRecommendations", LWRecommendations, {styles});
+export default LWRecommendations;
 
 

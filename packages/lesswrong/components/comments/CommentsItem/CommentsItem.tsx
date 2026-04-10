@@ -33,14 +33,15 @@ import CoreTagIcon from "../../tagging/CoreTagIcon";
 import HoveredReactionContextProvider from "../../votes/lwReactions/HoveredReactionContextProvider";
 import CommentBottom from "./CommentBottom";
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useNavigate } from '@/lib/routeUtil';
 import dynamic from 'next/dynamic';
 
 const RejectedReasonDisplay = dynamic(() => import("../../sunshineDashboard/RejectedReasonDisplay"));
 
 const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
   root: {
-    paddingLeft: theme.spacing.unit*1.5,
-    paddingRight: theme.spacing.unit*1.5,
+    paddingLeft: 12,
+    paddingRight: 12,
     position: "relative",
     "&:hover .CommentsItemMeta-menu": {
       opacity:1
@@ -72,22 +73,21 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
   replyLink: {
     marginRight: 8,
     display: "inline",
-    fontWeight: theme.isFriendlyUI ? 600 : theme.typography.body1.fontWeight,
+    fontWeight: theme.typography.body1.fontWeight,
     color: theme.palette.link.dim,
-    fontSize: theme.isFriendlyUI ? "1.1rem" : undefined,
     "@media print": {
       display: "none",
     },
   },
   firstParentComment: {
-    marginLeft: -theme.spacing.unit*1.5,
-    marginRight: -theme.spacing.unit*1.5
+    marginLeft: -12,
+    marginRight: -12
   },
   replyForm: {
     marginTop: 2,
     marginBottom: 8,
     border: theme.palette.border.normal,
-    borderRadius: theme.isFriendlyUI ? theme.borderRadius.small : 0,
+    borderRadius: 0,
   },
   replyFormMinimalist: {
     borderRadius: theme.borderRadius.small,
@@ -103,15 +103,9 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
     paddingTop: 10,
     marginBottom: '-3px',
   },
-  pinnedIcon: theme.isFriendlyUI
-    ? {
-      width: 16,
-      height: 16,
-      padding: 1.5,
-    }
-    : {
-      "--icon-size": "12px",
-    },
+  pinnedIcon: {
+    "--icon-size": "12px",
+  },
   title: {
     ...theme.typography.display2,
     ...theme.typography.postStyle,
@@ -124,7 +118,7 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
     lineHeight: '1.5em'
   },
   postTitle: {
-    paddingTop: theme.spacing.unit,
+    paddingTop: 8,
     ...theme.typography.commentStyle,
     display: "block",
     color: theme.palette.link.dim2,
@@ -149,13 +143,6 @@ const styles = defineStyles("CommentsItem", (theme: ThemeType) => ({
   flagIcon: {
     height: 13,
     color: theme.palette.error.main,
-    position: "relative",
-    top: 3
-  },
-  replyIcon: {
-    opacity: .3,
-    height: 18,
-    width: 18,
     position: "relative",
     top: 3
   },
@@ -211,6 +198,7 @@ export const CommentsItem = ({
   className?: string,
 }) => {
   const classes = useStyles(styles);
+  const navigate = useNavigate();
   const commentBodyRef = useRef<ContentItemBodyImperative|null>(null); // passed into CommentsItemBody for use in InlineReactSelectionWrapper
   const [replyFormIsOpen, setReplyFormIsOpen] = useState(false);
   const [showEditState, setShowEditState] = useState(treeOptions.initialShowEdit || false);
@@ -251,7 +239,14 @@ export const CommentsItem = ({
     }
   }
 
-  const editSuccessCallback = () => {
+  const editSuccessCallback = (updatedComment: CommentsList) => {
+    if (treeOptions.redirectAfterEditSubmit) {
+      navigate(commentGetPageUrlFromIds({
+        postId: updatedComment.postId ?? comment.postId,
+        commentId: updatedComment._id,
+      }));
+      return;
+    }
     if (refetch) {
       refetch()
     }

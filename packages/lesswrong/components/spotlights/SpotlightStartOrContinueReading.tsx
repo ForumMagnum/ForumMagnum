@@ -4,7 +4,6 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useItemsRead } from '../hooks/useRecordPostView';
 import { postProgressBoxStyles } from '../sequences/BooksProgressBar';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import PostsTooltip from "../posts/PostsPreviewTooltip/PostsTooltip";
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -15,12 +14,7 @@ import { useCurrentUser } from '../common/withUser';
 
 const styles = defineStyles("SpotlightStartOrContinueReading", (theme: ThemeType) => ({
   root: {
-    ...(theme.isFriendlyUI && {
-      [theme.breakpoints.down("xs")]: {
-        marginTop: 8,
-      },
-    }),
-    marginTop: theme.isFriendlyUI ? 0 : 4,
+    marginTop: 4,
     minHeight: 20,
   },
   placeholder: {
@@ -29,7 +23,7 @@ const styles = defineStyles("SpotlightStartOrContinueReading", (theme: ThemeType
   },
   firstPost: {
     ...theme.typography.body2,
-    fontSize: theme.isFriendlyUI ? 13 : "1.1rem",
+    fontSize: "1.1rem",
     ...theme.typography.commentStyle,
     position: "relative",
     zIndex: theme.zIndexes.spotlightItemCloseButton,
@@ -39,21 +33,13 @@ const styles = defineStyles("SpotlightStartOrContinueReading", (theme: ThemeType
     }
   },
   postProgressBox: {
-    ...postProgressBoxStyles(theme),
-    ...(theme.isFriendlyUI && {
-      borderColor: theme.palette.text.alwaysWhite,
-    }),
+    ...postProgressBoxStyles(theme)
   },
-  read: theme.isFriendlyUI
-    ? {
-      backgroundColor: theme.palette.text.alwaysWhite,
-      border: theme.palette.text.alwaysWhite,
-    }
-    : {
-      backgroundColor: theme.palette.primary.main,
-      border: theme.palette.primary.dark,
-      opacity: .4
-    },
+  read: {
+    backgroundColor: theme.palette.primary.main,
+    border: theme.palette.primary.dark,
+    opacity: .4
+  },
 }), {
   stylePriority: -2
 });
@@ -119,8 +105,8 @@ const SpotlightStartOrContinueReadingFirstPost = ({spotlight, firstPost}: {
   const firstPostSequenceId = spotlight.documentId;
 
   const prefix = forumSelect({
-    EAForum: preferredHeadingCase("Start with: "),
-    default: preferredHeadingCase("First Post: ")
+    EAForum: "Start with: ",
+    default: "First Post: "
   });
 
   return <div className={classNames(classes.firstPost, classes.root)}>

@@ -20,6 +20,9 @@ import FormatDate from "../common/FormatDate";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
 import { isEAForum } from '@/lib/instanceSettings';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const SunshineCurationPostsListUpdateMutation = gql(`
   mutation updatePostSunshineCuratedSuggestionsItem($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -31,7 +34,7 @@ const SunshineCurationPostsListUpdateMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineCuratedSuggestionsItem', (theme: ThemeType) => ({
   audioIcon: {
     width: 14,
     height: 14,
@@ -39,42 +42,29 @@ const styles = (theme: ThemeType) => ({
     position: "relative",
     top: 2
   },
-  postTitle: theme.isFriendlyUI ? {} : {
+  postTitle: {
     ...theme.typography.body2,
     ...theme.typography.postStyle,
     fontSize: "1rem",
     fontWeight: 500,
   },
-  titleWithCurationNotice: theme.isFriendlyUI ? {} : {
-    color: 'green',
-    fontWeight: 600,
-  },
+  titleWithCurationNotice: {
+      color: 'green',
+      fontWeight: 600,
+    },
   oldPost: {
     opacity: 0.5,
   },
-});
+}));
 
-const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeForCuration}: {
-  classes: ClassesType<typeof styles>,
+const SunshineCuratedSuggestionsItem = ({post, setCurationPost}: {
   post: SunshineCurationPostsList,
   setCurationPost?: (post: SunshineCurationPostsList) => void,
-  timeForCuration?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { hover, anchorEl, eventHandlers } = useHover();
   const [updatePost] = useMutation(SunshineCurationPostsListUpdateMutation);
-
-  const handleCurate = () => {
-    void updatePost({
-      variables: {
-        selector: { _id: post._id },
-        data: {
-          reviewForCuratedUserId: currentUser!._id,
-          curatedDate: new Date(),
-        }
-      }
-    })
-  }
 
   const handleDisregardForCurated = () => {
     void updatePost({
@@ -118,7 +108,8 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
 
   // De-emphasize posts that are 30+ days old
   const thirtyDaysInMs = 30 * 24 * 60 * 60 * 1000;
-  const isOldPost = post.postedAt && (Date.now() - new Date(post.postedAt).getTime()) > thirtyDaysInMs;
+  const now = useCurrentTime();
+  const isOldPost = post.postedAt && (now.getTime() - new Date(post.postedAt).getTime()) > thirtyDaysInMs;
 
   return (
     <span {...eventHandlers} className={isOldPost ? classes.oldPost : undefined}>
@@ -174,11 +165,6 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
               <ForumIcon icon="Undo"/>
             </SidebarAction>
           }
-          { timeForCuration && canCurate &&
-            <SidebarAction title="Curate Post" onClick={handleCurate}>
-              <ForumIcon icon="Star" />
-            </SidebarAction>
-          }
           { canCurate && <SidebarAction title="Remove from Curation Suggestions" onClick={handleDisregardForCurated}>
               <ForumIcon icon="Clear"/>
             </SidebarAction>
@@ -189,7 +175,7 @@ const SunshineCuratedSuggestionsItem = ({classes, post, setCurationPost, timeFor
   )
 }
 
-export default registerComponent('SunshineCuratedSuggestionsItem', SunshineCuratedSuggestionsItem, {styles, 
+export default registerComponent('SunshineCuratedSuggestionsItem', SunshineCuratedSuggestionsItem, {
   hocs: [withErrorBoundary]
 });
 

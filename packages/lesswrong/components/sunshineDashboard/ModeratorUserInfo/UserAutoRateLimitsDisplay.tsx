@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { forumSelect } from '../../../lib/forumTypeUtils';
 import { autoCommentRateLimits, autoPostRateLimits } from '../../../lib/rateLimits/constants';
 import { getDownvoteRatio, getStrictestActiveRateLimitNames as getStrictestActiveRateLimits } from '../../../lib/rateLimits/utils';
@@ -9,8 +8,10 @@ import MetaInfo from "../../common/MetaInfo";
 import LWTooltip from "../../common/LWTooltip";
 import ForumIcon from '@/components/common/ForumIcon';
 import classNames from 'classnames';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UserAutoRateLimitsDisplay', (theme: ThemeType) => ({
   root: {
     width: 'fit-content',
   },
@@ -58,6 +59,7 @@ const styles = (theme: ThemeType) => ({
   },
   strictestRateLimits: {
     margin: 0,
+    paddingLeft: 16,
   },
   absoluteRoot: {
     position: 'relative',
@@ -72,7 +74,7 @@ const styles = (theme: ThemeType) => ({
   newUserDefault: {
     opacity: 0.5,
   },
-});
+}));
 
 export const recentKarmaTooltip = (user: SunshineUsersList) => {
   return <div>
@@ -96,13 +98,13 @@ export const downvoterTooltip = (user: SunshineUsersList) => {
 
 
 
-export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta = false, absolute, hideIfNoVotes = true, classes}: {
+export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta = false, absolute, hideIfNoVotes = true}: {
   user: SunshineUsersList,
   showKarmaMeta?: boolean,
   absolute?: boolean,
   hideIfNoVotes?: boolean
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const roundedDownvoteRatio = Math.round(getDownvoteRatio(user) * 100)
   const allRateLimits = [...forumSelect(autoPostRateLimits), ...forumSelect(autoCommentRateLimits)]
   const strictestRateLimits = getStrictestActiveRateLimits(user, allRateLimits);
@@ -162,6 +164,4 @@ export const UserAutoRateLimitsDisplay = ({user, showKarmaMeta = false, absolute
   </div>;
 }
 
-export default registerComponent('UserAutoRateLimitsDisplay', UserAutoRateLimitsDisplay, {styles});
-
-
+export default UserAutoRateLimitsDisplay

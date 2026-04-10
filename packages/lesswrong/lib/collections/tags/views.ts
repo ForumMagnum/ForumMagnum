@@ -58,17 +58,6 @@ function userTags(terms: TagsViewTerms) {
   }
 }
 
-function currentUserSubforums(terms: TagsViewTerms, _: ApolloClient, context?: ResolverContext) {
-  return {
-    selector: {
-      // Always show core subforums
-      $or: [{_id: {$in: context?.currentUser?.profileTagIds ?? []}}, {core: true}],
-      isSubforum: true
-    },
-    options: {sort: {createdAt: -1}},
-  }
-}
-
 function allPagesByNewest(terms: TagsViewTerms) {
   return {
     selector: {
@@ -268,7 +257,6 @@ export const TagsViews = new CollectionViewSet('Tags', {
   tagsByTagIds,
   allTagsAlphabetical,
   userTags,
-  currentUserSubforums,
   allPagesByNewest,
   allTagsHierarchical,
   tagBySlug,

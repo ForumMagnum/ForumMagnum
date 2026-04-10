@@ -928,107 +928,118 @@ export function CollapsibleSectionsPlugin(): null {
       ),
 
       // Auto-format: "<details>" or "+++" at start of line creates collapsible section
-      editor.registerNodeTransform(TextNode, (node) => {
-        if (!$isTextNode(node)) return;
+      editor.registerUpdateListener(({dirtyLeaves, dirtyElements, tags}) => {
+        if (tags.has('collaboration')) {
+          return;
+        }
+        editor.update(() => {
+          // Handle TextNode transforms (auto-format)
+          for (const key of dirtyLeaves) {
+            const node = $getNodeByKey(key);
+            if (!$isTextNode(node)) continue;
 
-        const parent = node.getParent();
-        if (!parent || !$isParagraphNode(parent)) return;
+            const parent = node.getParent();
+            if (!parent || !$isParagraphNode(parent)) continue;
 
-        // Only transform if this paragraph contains just this text node
-        if (parent.getChildrenSize() !== 1) return;
+            // Only transform if this paragraph contains just this text node
+            if (parent.getChildrenSize() !== 1) continue;
 
-        const textContent = parent.getTextContent();
-        
-        // Check for autoformat patterns
-        const isDetailsTag = textContent === '<details>';
-        const isPlusPattern = textContent === '+++';
-        
-        if (isDetailsTag || isPlusPattern) {
-          // Don't transform if already in a collapsible section
-          if ($findCollapsibleParent(node)) return;
+            const textContent = parent.getTextContent();
+            
+            // Check for autoformat patterns
+            const isDetailsTag = textContent === '<details>';
+            const isPlusPattern = textContent === '+++';
+            
+            if (isDetailsTag || isPlusPattern) {
+              // Don't transform if already in a collapsible section
+              if ($findCollapsibleParent(node)) continue;
 
-          // Create collapsible section
-          const collapsibleSection = $createCollapsibleSection();
-          
-          // Replace the parent paragraph with the collapsible section
-          parent.replace(collapsibleSection);
-          
-          // Place cursor in the title
-          const title = $findTitleInCollapsible(collapsibleSection);
-          if (title) {
-            const firstChild = title.getFirstChild();
-            if (firstChild) {
-              firstChild.selectStart();
+              // Create collapsible section
+              const collapsibleSection = $createCollapsibleSection();
+              
+              // Replace the parent paragraph with the collapsible section
+              parent.replace(collapsibleSection);
+              
+              // Place cursor in the title
+              const title = $findTitleInCollapsible(collapsibleSection);
+              if (title) {
+                const firstChild = title.getFirstChild();
+                if (firstChild) {
+                  firstChild.selectStart();
+                }
+              }
             }
           }
-        }
-      }),
 
-      // Enforce structure: Title must be inside container
-      editor.registerNodeTransform(CollapsibleSectionTitleNode, (node) => {
-        const parent = node.getParent();
-        if (!$isCollapsibleSectionContainerNode(parent)) {
-          node.replace($createParagraphNode().append(...node.getChildren()));
-          return;
-        }
-      }),
+          // Handle structural transforms
+          for (const key of dirtyElements.keys()) {
+            const node = $getNodeByKey(key);
+            
+            if (!node) continue;
 
-      // Enforce structure: Content must be inside container
-      editor.registerNodeTransform(CollapsibleSectionContentNode, (node) => {
-        const parent = node.getParent();
-        if (!$isCollapsibleSectionContainerNode(parent)) {
-          const children = node.getChildren();
-          for (const child of children) {
-            node.insertBefore(child);
+            // Enforce structure: Title must be inside container
+            if ($isCollapsibleSectionTitleNode(node)) {
+              const parent = node.getParent();
+              if (!$isCollapsibleSectionContainerNode(parent)) {
+                node.replace($createParagraphNode().append(...node.getChildren()));
+              }
+            }
+            // Enforce structure: Content must be inside container
+            else if ($isCollapsibleSectionContentNode(node)) {
+              const parent = node.getParent();
+              if (!$isCollapsibleSectionContainerNode(parent)) {
+                const children = node.getChildren();
+                for (const child of children) {
+                  node.insertBefore(child);
+                }
+                node.remove();
+              }
+            }
+            // Node transform to fix invalid collapsible sections (missing title or content)
+            else if ($isCollapsibleSectionContainerNode(node)) {
+              const title = $findTitleInCollapsible(node);
+              const content = $findContentInCollapsible(node);
+              
+              const children = node.getChildren();
+              const hasValidStructure =
+                children.length === 2 &&
+                title === children[0] &&
+                content === children[1];
+
+              if (!title || !content || !hasValidStructure) {
+                for (const child of children) {
+                  node.insertBefore(child);
+                }
+                node.remove();
+                continue;
+              }
+              
+              // Ensure title has at least one child (paragraph)
+              if (title.getChildrenSize() === 0) {
+                const paragraph = $createParagraphNode();
+                title.append(paragraph);
+              }
+              
+              // Ensure content has at least one child (paragraph)
+              if (content.getChildrenSize() === 0) {
+                const paragraph = $createParagraphNode();
+                content.append(paragraph);
+              }
+
+              // Post-fixer to ensure there's always a paragraph after a collapsible section at the end
+              // Check if this is the last child in its parent
+              const nextSibling = node.getNextSibling();
+              if (!nextSibling) {
+                const parent = node.getParent();
+                // Only add paragraph if parent is root or another shadow root
+                if (parent && ($getRoot() === parent || (parent as ElementNode).isShadowRoot?.())) {
+                  const paragraph = $createParagraphNode();
+                  node.insertAfter(paragraph);
+                }
+              }
+            }
           }
-          node.remove();
-        }
-      }),
-
-      // Node transform to fix invalid collapsible sections (missing title or content)
-      editor.registerNodeTransform(CollapsibleSectionContainerNode, (node) => {
-        const title = $findTitleInCollapsible(node);
-        const content = $findContentInCollapsible(node);
-        
-        const children = node.getChildren();
-        const hasValidStructure =
-          children.length === 2 &&
-          title === children[0] &&
-          content === children[1];
-
-        if (!title || !content || !hasValidStructure) {
-          for (const child of children) {
-            node.insertBefore(child);
-          }
-          node.remove();
-          return;
-        }
-        
-        // Ensure title has at least one child (paragraph)
-        if (title.getChildrenSize() === 0) {
-          const paragraph = $createParagraphNode();
-          title.append(paragraph);
-        }
-        
-        // Ensure content has at least one child (paragraph)
-        if (content.getChildrenSize() === 0) {
-          const paragraph = $createParagraphNode();
-          content.append(paragraph);
-        }
-      }),
-
-      // Post-fixer to ensure there's always a paragraph after a collapsible section at the end
-      editor.registerNodeTransform(CollapsibleSectionContainerNode, (node) => {
-        // Check if this is the last child in its parent
-        const nextSibling = node.getNextSibling();
-        if (!nextSibling) {
-          const parent = node.getParent();
-          // Only add paragraph if parent is root or another shadow root
-          if (parent && ($getRoot() === parent || (parent as ElementNode).isShadowRoot?.())) {
-            const paragraph = $createParagraphNode();
-            node.insertAfter(paragraph);
-          }
-        }
+        });
       }),
 
       // Update visual selection state when selection changes

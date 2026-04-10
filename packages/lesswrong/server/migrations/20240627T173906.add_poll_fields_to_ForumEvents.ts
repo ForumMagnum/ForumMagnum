@@ -42,21 +42,20 @@
  */
 export const acceptsSchemaHash = "af39464b13d09507b438054d15aba060";
 
-import ForumEvents from "@/server/collections/forumEvents/collection";
 import { addField, dropField } from "./meta/utils";
 
 export const up = async ({db}: MigrationContext) => {
-  await addField(db, ForumEvents, "contrastColor");
-  await addField(db, ForumEvents, "includesPoll");
-  await addField(db, ForumEvents, "publicData");
-  await addField(db, ForumEvents, "frontpageDescriptionMobile");
-  await addField(db, ForumEvents, "frontpageDescriptionMobile_latest");
+  await addField(db, "ForumEvents", "contrastColor");
+  await addField(db, "ForumEvents", "includesPoll");
+  await addField(db, "ForumEvents", "publicData");
+  await addField(db, "ForumEvents", "frontpageDescriptionMobile");
+  await addField(db, "ForumEvents", "frontpageDescriptionMobile_latest");
 }
 
 export const down = async ({db}: MigrationContext) => {
-  await dropField(db, ForumEvents, "contrastColor");
-  await dropField(db, ForumEvents, "includesPoll");
-  await dropField(db, ForumEvents, "publicData");
-  await dropField(db, ForumEvents, "frontpageDescriptionMobile");
-  await dropField(db, ForumEvents, "frontpageDescriptionMobile_latest");
+  await dropField(db, "ForumEvents", "contrastColor");
+  await dropField(db, "ForumEvents", "includesPoll");
+  await dropField(db, "ForumEvents", "publicData");
+  await dropField(db, "ForumEvents", "frontpageDescriptionMobile");
+  await dropField(db, "ForumEvents", "frontpageDescriptionMobile_latest");
 }

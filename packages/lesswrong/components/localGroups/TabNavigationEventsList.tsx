@@ -59,7 +59,7 @@ const styles = defineStyles("TabNavigationEventsList", (theme: ThemeType) => ({
     position: "relative",
     top: -1,
     color: theme.palette.text.slightlyIntense,
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
   },
   yesterday: {
     color: "unset"
@@ -73,11 +73,11 @@ const styles = defineStyles("TabNavigationEventsList", (theme: ThemeType) => ({
   tooltipLogisticsTitle: {
     ...theme.typography.tinyText,
     ...theme.typography.italic,
-    marginTop: theme.spacing.unit
+    marginTop: 8
   },
   highlight: {
-    marginTop: theme.spacing.unit,
-    marginBottom: theme.spacing.unit*2,
+    marginTop: 8,
+    marginBottom: 16,
     fontSize: "1.1rem",
     [theme.breakpoints.down('sm')]: {
       display: "none"
@@ -101,8 +101,8 @@ const styles = defineStyles("TabNavigationEventsList", (theme: ThemeType) => ({
   tooltipDivider: {
     borderTop: theme.palette.border.tooltipHR,
     width: 25,
-    marginTop: theme.spacing.unit*2,
-    marginBottom: theme.spacing.unit*2
+    marginTop: 16,
+    marginBottom: 16
   },
   event: {
     textOverflow: "ellipsis",
@@ -152,7 +152,7 @@ const TabNavigationEventsList = ({ terms, onClick }: {
   </div>
 }
 
-const _TabNavigationEventSingleLine = ({event, onClick}: {
+const TabNavigationEventSingleLineInner = ({event, onClick}: {
   event: PostsList,
   onClick: () => void,
 }) => {
@@ -184,11 +184,11 @@ const _TabNavigationEventSingleLine = ({event, onClick}: {
     </TabNavigationSubItem>
   </MenuItemLink>
 };
-const TabNavigationEventSingleLine = registerComponent("TabNavigationEventSingleLine", _TabNavigationEventSingleLine, {
+const TabNavigationEventSingleLine = registerComponent("TabNavigationEventSingleLine", TabNavigationEventSingleLineInner, {
   hocs: [withErrorBoundary]
 });
 
-const _TabNavigationEventTwoLines = ({event, onClick}: {
+const TabNavigationEventTwoLinesInner = ({event, onClick}: {
   event: PostsList,
   onClick: () => void,
 }) => {
@@ -213,7 +213,7 @@ const _TabNavigationEventTwoLines = ({event, onClick}: {
     </TabNavigationSubItem>
   </MenuItemLink>
 };
-const TabNavigationEventTwoLines = registerComponent("TabNavigationEventTwoLines", _TabNavigationEventTwoLines, {
+const TabNavigationEventTwoLines = registerComponent("TabNavigationEventTwoLines", TabNavigationEventTwoLinesInner, {
   hocs: [withErrorBoundary]
 });
 

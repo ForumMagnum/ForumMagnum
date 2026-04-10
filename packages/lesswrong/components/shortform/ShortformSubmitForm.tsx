@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import type {
   CommentCancelCallback,
@@ -8,8 +7,10 @@ import type {
 import { isFriendlyUI } from '../../themes/forumTheme';
 import QuickTakesEntry from "../quickTakes/QuickTakesEntry";
 import ForumIcon from "../common/ForumIcon";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ShortformSubmitForm', (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     border: theme.palette.border.commentBorder,
@@ -27,27 +28,19 @@ const styles = (theme: ThemeType) => ({
   },
   newQuickTake: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    fontWeight: theme.isFriendlyUI ? 700 : 500,
+    fontWeight: 500,
     fontSize: 20,
     color: theme.palette.grey[1000],
-    margin: theme.isFriendlyUI ? 20 : '16px 20px 16px 0px',
+    margin: '16px 20px 16px 0px',
   },
   quickTakesRoot: {
     background: "transparent",
     padding: 0,
     border: "none",
   },
-});
+}));
 
-const ShortformSubmitForm = ({
-  successCallback,
-  cancelCallback,
-  className,
-  defaultExpanded,
-  hideCloseButton,
-  submitButtonAtBottom,
-  classes,
-}: {
+const ShortformSubmitForm = ({successCallback, cancelCallback, className, defaultExpanded, hideCloseButton, submitButtonAtBottom}: {
   successCallback?: CommentSuccessCallback,
   cancelCallback?: CommentCancelCallback,
   prefilledProps?: any,
@@ -56,8 +49,8 @@ const ShortformSubmitForm = ({
   defaultExpanded?: boolean,
   hideCloseButton?: boolean,
   submitButtonAtBottom?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   return (
     <div className={className}>
@@ -80,6 +73,6 @@ const ShortformSubmitForm = ({
   );
 }
 
-export default registerComponent('ShortformSubmitForm', ShortformSubmitForm, {styles});
+export default ShortformSubmitForm;
 
 

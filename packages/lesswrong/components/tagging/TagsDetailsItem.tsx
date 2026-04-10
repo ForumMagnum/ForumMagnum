@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link, QueryLink } from '../../lib/reactRouterWrapper';
 import { useCurrentUser } from '../common/withUser';
@@ -13,6 +12,8 @@ import Loading from "../vulcan-core/Loading";
 import TagFlagItem from "./TagFlagItem";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagRelFragmentMultiQuery = gql(`
   query multiTagRelTagsDetailsItemQuery($selector: TagRelSelector, $limit: Int, $enableTotal: Boolean) {
@@ -35,7 +36,7 @@ const TagEditFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagsDetailsItem", (theme: ThemeType) => ({
   root: {
     background: theme.palette.panelBackground.default,
     ...theme.typography.commentStyle,
@@ -55,9 +56,6 @@ const styles = (theme: ThemeType) => ({
       width: "100%",
       maxWidth: "unset"
     },
-    ...(theme.isFriendlyUI && {
-      maxWidth: 490,
-    }),
   },
   collapsedDescription: {
     display: "flex",
@@ -103,15 +101,15 @@ const styles = (theme: ThemeType) => ({
     fontSize: "1.2rem",
     whiteSpace: "nowrap"
   }
-});
+}));
 
-const TagsDetailsItem = ({ tag, classes, showFlags = false, flagId, collapse = false }: {
+const TagsDetailsItem = ({tag, showFlags = false, flagId, collapse = false}: {
   tag: TagFragment | TagWithFlagsFragment,
-  classes: ClassesType<typeof styles>,
   showFlags?: boolean,
   flagId?: string,
   collapse?: boolean
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [editing, setEditing] = useState(false)
   const { query } = useLocation();
@@ -191,6 +189,6 @@ const TagsDetailsItem = ({ tag, classes, showFlags = false, flagId, collapse = f
   </div>
 }
 
-export default registerComponent("TagsDetailsItem", TagsDetailsItem, { styles });
+export default TagsDetailsItem;
 
 

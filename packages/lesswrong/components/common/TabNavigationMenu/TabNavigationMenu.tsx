@@ -21,17 +21,7 @@ const styles = defineStyles("TabNavigationMenu", (theme: ThemeType) => ({
       flexDirection: "column",
       maxWidth: TAB_NAVIGATION_MENU_WIDTH,
       paddingTop: 15,
-      ...(theme.isFriendlyUI
-        ? {
-          paddingLeft: 6,
-          height: "100%",
-        }
-        : {
-          justifyContent: "space-around",
-        }),
-    },
-    noTopMargin: {
-      paddingTop: "0px !important",
+      justifyContent: "space-around",
     },
     iconOnlyRoot: {
       maxWidth: TAB_NAVIGATION_MENU_ICON_ONLY_WIDTH,
@@ -49,36 +39,21 @@ const styles = defineStyles("TabNavigationMenu", (theme: ThemeType) => ({
     divider: {
       width: 50,
       borderBottom: theme.palette.border.normal,
-      ...(theme.isBookUI && theme.dark && {
+      ...(theme.dark && {
         color: theme.palette.text.bannerAdOverlay,
         background: theme.palette.text.bannerAdOverlay,
       }),
-      marginBottom: theme.spacing.unit * 2.5,
-      ...(theme.isFriendlyUI
-        ? {
-          marginLeft: theme.spacing.unit * 2.5,
-          marginTop: theme.spacing.unit * 2.5,
-        }
-        : {
-          marginLeft: (theme.spacing.unit*2) + (iconWidth + (theme.spacing.unit*2)) - 2,
-          marginTop: theme.spacing.unit * 1.5,
-        }),
+      marginBottom: 20,
+      marginLeft: 16 + (iconWidth + 16) - 2,
+      marginTop: 12,
     },
 }));
 
-type TabNavigationMenuProps = {
+const TabNavigationMenu = ({ onClickSection, transparentBackground, iconOnlyNavigationEnabled }: {
   onClickSection?: (e?: React.BaseSyntheticEvent) => void,
   transparentBackground?: boolean,
-  noTopMargin?: boolean,
   iconOnlyNavigationEnabled?: boolean,
-}
-
-const TabNavigationMenu = ({
-  onClickSection,
-  transparentBackground,
-  noTopMargin,
-  iconOnlyNavigationEnabled,
-}: TabNavigationMenuProps) => {
+}) => {
   const classes = useStyles(styles);
   const currentUserId = useCurrentUserId();
   const { captureEvent } = useTracking()
@@ -105,7 +80,6 @@ const TabNavigationMenu = ({
         <div className={classNames(classes.root, {
           [classes.iconOnlyRoot]: iconOnly,
           [classes.navSidebarTransparent]: transparentBackground,
-          [classes.noTopMargin]: noTopMargin,
         })}>
           {filteredTabs.map(tab => {
             if ('loggedOutOnly' in tab && tab.loggedOutOnly && currentUserId) return null
@@ -132,8 +106,6 @@ const TabNavigationMenu = ({
               iconOnlyNavigationEnabled={iconOnly}
             />
           })}
-          {/* NB: This returns null if you don't have any active resources */}
-          {/* <FeaturedResourceBanner terms={{view: "activeResources"}}/> */}
         </div>
     </AnalyticsContext>  )
 };

@@ -5,7 +5,7 @@ import React, { FC, ReactNode, useCallback, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { getNotificationTypeByName } from '../../lib/notificationTypes';
 import withErrorBoundary from '../common/withErrorBoundary';
-import { parseRouteWithErrors } from '../linkPreview/parseRouteWithErrors';
+import { parseRouteWithErrors } from '@/lib/routeChecks/parseRouteWithErrors';
 import { useTracking } from '../../lib/analyticsEvents';
 import { useNavigate } from '../../lib/routeUtil';
 import { getUrlClass } from '@/server/utils/getUrlClass';
@@ -16,8 +16,10 @@ import PostNominatedNotification from "../review/PostNominatedNotification";
 import TagRelNotificationItem from "./TagRelNotificationItem";
 import { onsiteHoverViewComponents } from '@/lib/notificationTypeComponents';
 import { getNotificationIconByNotificationName } from './notificationIcons';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('NotificationsItem', (theme: ThemeType) => ({
   root: {
     "&:hover": {
       backgroundColor: `${theme.palette.panelBackground.darken02} !important`,
@@ -50,7 +52,7 @@ const styles = (theme: ThemeType) => ({
     ...theme.typography.body2,
     fontSize: "14px",
     lineHeight: "18px",
-    paddingRight: theme.spacing.unit*2,
+    paddingRight: 16,
     color: theme.palette.text.notificationLabel,
     
     // Two-line ellipsis hack. Webkit-specific (doesn't work in Firefox),
@@ -63,7 +65,7 @@ const styles = (theme: ThemeType) => ({
     "-webkit-line-clamp": 2,
     "-webkit-box-orient": "vertical",
   },
-});
+}));
 
 const tooltipProps = {
   placement: "left-start",
@@ -75,8 +77,9 @@ const tooltipProps = {
 const TooltipWrapper: FC<{
   title: ReactNode,
   children: ReactNode,
-  classes: ClassesType<typeof styles>,
-}> = ({title, children, classes}) => {
+}> = ({title, children}) => {
+  const classes = useStyles(styles);
+
   return (
     <LWTooltip
       {...tooltipProps}
@@ -94,11 +97,11 @@ const TooltipWrapper: FC<{
   );
 }
 
-const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
+const NotificationsItem = ({notification, lastNotificationsCheck}: {
   notification: NotificationsList,
   lastNotificationsCheck: any,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [clicked,setClicked] = useState(false);
   const { captureEvent } = useTracking();
   const navigate = useNavigate();
@@ -120,7 +123,6 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
       return (
         <TooltipWrapper
           title={<OnsiteHoverView notification={notification}/>}
-          classes={classes}
         >
           {children}
         </TooltipWrapper>
@@ -131,7 +133,6 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
       return (
         <TooltipWrapper
           title={<PostNominatedNotification postId={documentId}/>}
-          classes={classes}
         >
           {children}
         </TooltipWrapper>
@@ -181,7 +182,6 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
         return (
           <TooltipWrapper
             title={<ConversationPreview conversationId={parsedPath?.query?.conversation} messageId={documentId} count={1} />}
-            classes={classes}
           >
             {children}
           </TooltipWrapper>
@@ -193,7 +193,7 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
     return (
       <>{children}</>
     );
-  }, [classes, notification, notificationLink, notificationType, documentId]);
+  }, [notification, notificationLink, notificationType, documentId]);
 
   const renderMessage = () => {
     switch (notification.documentType) {
@@ -256,7 +256,6 @@ const NotificationsItem = ({notification, lastNotificationsCheck, classes}: {
 }
 
 export default registerComponent('NotificationsItem', NotificationsItem, {
-  styles,
   hocs: [withErrorBoundary]
 });
 

@@ -34,6 +34,7 @@ import {
   DecoratorNode,
   ElementNode,
 } from 'lexical';
+import { dataUriToBlob } from '../utils/cloudinaryUpload';
 
 
 const ImageComponent = React.lazy(() => import('./ImageComponent'));
@@ -87,9 +88,12 @@ function isGoogleDocCheckboxImg(img: HTMLImageElement): boolean {
 
 function $convertImageElement(domNode: Node): null | DOMConversionOutput {
   const img = domNode as HTMLImageElement;
-  const src = img.getAttribute('src');
+  let src = img.getAttribute('src');
   if (!src || src.startsWith('file:///') || isGoogleDocCheckboxImg(img)) {
     return null;
+  }
+  if (src.startsWith('data:')) {
+    src = URL.createObjectURL(dataUriToBlob(src));
   }
   const {alt: altText, width, height} = img;
   const srcset = img.getAttribute('srcset');
@@ -219,6 +223,10 @@ export class ImageRenderNode extends DecoratorNode<JSX.Element> {
     return false;
   }
 
+  isInline(): boolean {
+    return false;
+  }
+
   decorate(): JSX.Element {
     const parent = this.getParent();
     if (!$isImageNode(parent)) {
@@ -329,6 +337,12 @@ export class ImageNode extends ElementNode {
 
   exportDOM(editor: LexicalEditor): DOMExportOutput {
     const imgElement = document.createElement('img');
+    // Set loading="lazy" BEFORE src so the browser defers the fetch until the
+    // element is near the viewport. Since exportDOM elements live in a
+    // detached container (never rendered), the fetch never happens.
+    // This gets stripped out by the server-side sanitization,
+    // so it doesn't affect published documents.
+    imgElement.setAttribute('loading', 'lazy');
     imgElement.setAttribute('src', this.__src);
     imgElement.setAttribute('alt', this.__altText);
     if (typeof this.__width === 'number') {
@@ -370,6 +384,15 @@ export class ImageNode extends ElementNode {
           return {
             after: (childNodes) => {
               const imageNodes = childNodes.filter($isImageNode);
+
+              // CKEditor wraps tables in <figure class="table">.
+              // If the figure has no images, pass through all children
+              // so that table nodes (and any other non-image content)
+              // are not dropped.
+              if (imageNodes.length === 0) {
+                return childNodes;
+              }
+
               const figcaption = node.querySelector('figcaption');
               const figureElement = node as HTMLElement;
               const figureClassList = figureElement.classList;
@@ -544,6 +567,16 @@ export class ImageNode extends ElementNode {
     writable.__altText = altText;
   }
 
+  setSrc(src: string): void {
+    const writable = this.getWritable();
+    writable.__src = src;
+    // Mark the render node dirty so decorate() is re-invoked with the new src
+    const renderNode = writable.getFirstChild();
+    if ($isImageRenderNode(renderNode)) {
+      renderNode.getWritable();
+    }
+  }
+
   setSrcset(srcset: string | null): void {
     const writable = this.getWritable();
     writable.__srcset = srcset;
@@ -688,3 +721,4 @@ export function $isImageNode(
 ): node is ImageNode {
   return node instanceof ImageNode;
 }
+

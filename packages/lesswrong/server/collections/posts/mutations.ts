@@ -7,7 +7,6 @@ import { userCanDo, userIsMemberOf, userIsPodcaster, userOwns } from "@/lib/vulc
 import { swrInvalidatePostRoute } from "@/server/cache/swr";
 import { moveToAFUpdatesUserAFKarma } from "@/server/callbacks/alignment-forum/callbacks";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
-import { upsertPolls } from "@/server/callbacks/forumEventCallbacks";
 import { addLinkSharingKey, addReferrerToPost, applyNewPostTags, assertPostTitleHasNoEmojis, autoTagNewPost, autoTagUndraftedPost, checkRecentRepost, checkTosAccepted, clearCourseEndTime, createNewJargonTermsCallback, eventUpdatedNotifications, extractSocialPreviewImage, fixEventStartAndEndTimes, lwPostsNewUpvoteOwnPost, notifyUsersAddedAsCoauthors, notifyUsersAddedAsPostCoauthors, oldPostsLastCommentedAt, onEditAddLinkSharingKey, onPostPublished, postsNewDefaultLocation, postsNewDefaultTypes, postsNewPostRelation, postsNewRateLimit, postsNewUserApprovedStatus, postsUndraftRateLimit, removeFrontpageDate, removeRedraftNotifications, resetDialogueMatches, resetPostApprovedDate, sendEAFCuratedAuthorsNotification, sendLWAFPostCurationEmails, sendNewPublishedDialogueMessageNotifications, sendPostApprovalNotifications, sendPostSharedWithUserNotifications, maybeSendRejectionPM, sendUsersSharedOnPostNotifications, setPostUndraftedFields, syncTagRelevance, triggerReviewForNewPostIfNeeded, updateCommentHideKarma, updatedPostMaybeTriggerReview, updatePostEmbeddingsOnChange, updatePostShortform, updateRecombeePost, updateUserNotesOnPostDraft, updateUserNotesOnPostRejection, maybeCreateAutomatedContentEvaluation, purgeCurationEmailQueueWhenUncurating } from "@/server/callbacks/postCallbackFunctions";
 import { sendAlignmentSubmissionApprovalNotifications } from "@/server/callbacks/sharedCallbackFunctions";
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds, notifyUsersOfPingbackMentions } from "@/server/editor/make_editable_callbacks";
@@ -113,7 +112,7 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
     backgroundTask(onPostPublished(documentWithId, context));
   }
   documentWithId = await applyNewPostTags(documentWithId, afterCreateProperties);
-  documentWithId = await createNewJargonTermsCallback(documentWithId, afterCreateProperties);
+  // documentWithId = await createNewJargonTermsCallback(documentWithId, afterCreateProperties);
 
   documentWithId = await updateRevisionsDocumentIds({
     newDoc: documentWithId,
@@ -124,12 +123,6 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
     newDoc: documentWithId,
     props: afterCreateProperties,
   });
-
-  await upsertPolls({
-    revisionId: documentWithId.contents_latest,
-    post: documentWithId,
-    context,
-  })
 
   await updateCountOfReferencesOnOtherCollectionsAfterCreate('Posts', documentWithId);
 
@@ -224,18 +217,12 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await swrInvalidatePostRoute(updatedDocument._id, context);
   updatedDocument = await syncTagRelevance(updatedDocument, updateCallbackProperties);
   updatedDocument = await resetDialogueMatches(updatedDocument, updateCallbackProperties);
-  updatedDocument = await createNewJargonTermsCallback(updatedDocument, updateCallbackProperties);
+  // updatedDocument = await createNewJargonTermsCallback(updatedDocument, updateCallbackProperties);
 
   updatedDocument = await notifyUsersOfNewPingbackMentions({
     newDoc: updatedDocument,
     props: updateCallbackProperties,
   });
-
-  await upsertPolls({
-    revisionId: updatedDocument.contents_latest,
-    post: updatedDocument,
-    context,
-  })
 
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Posts', updatedDocument, oldDocument);
 
@@ -256,7 +243,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await sendNewPublishedDialogueMessageNotifications(updatedDocument, oldDocument, context);
   await removeRedraftNotifications(updatedDocument, oldDocument, context);
 
-  if (isEAForum()) {
+  if (isEAForum()) { // TODO UNGATE - LW should probably adopt this
     await sendEAFCuratedAuthorsNotification(updatedDocument, oldDocument, context);
   }
 

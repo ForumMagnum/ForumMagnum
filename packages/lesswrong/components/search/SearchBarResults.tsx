@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Hits, Configure } from 'react-instantsearch-dom';
 import { SearchIndexCollectionName, getSearchIndexName } from '../../lib/search/searchUtil';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -11,8 +10,10 @@ import SequencesSearchHit from "./SequencesSearchHit";
 import UsersSearchHit from "./UsersSearchHit";
 import TagsSearchHit from "./TagsSearchHit";
 import CommentsSearchHit from "./CommentsSearchHit";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SearchBarResults", (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.normal,
     transition: "opacity .1s ease-in-out",
@@ -66,22 +67,22 @@ const styles = (theme: ThemeType) => ({
     display:"flex",
     justifyContent:"space-between",
     alignItems: "center",
-    paddingLeft: theme.spacing.unit,
-    paddingRight: theme.spacing.unit,
+    paddingLeft: 8,
+    paddingRight: 8,
     '& h1': {
       margin:0
     }
   },
-})
+}))
 
-const SearchBarResults = ({closeSearch, currentQuery, classes}: {
+const SearchBarResults = ({closeSearch, currentQuery}: {
   closeSearch: () => void,
   currentQuery: string,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const searchTypes: Array<{
     type: SearchIndexCollectionName;
-    Component: React.ComponentType<Omit<SearchHitComponentProps, "classes">>;
+    Component: React.ComponentType<SearchHitComponentProps>;
   }> = [
     { type: "Users", Component: UsersSearchHit },
     { type: "Posts", Component: PostsSearchHit },
@@ -109,6 +110,6 @@ const SearchBarResults = ({closeSearch, currentQuery, classes}: {
   </div>
 }
 
-export default registerComponent("SearchBarResults", SearchBarResults, {styles});
+export default SearchBarResults;
 
 

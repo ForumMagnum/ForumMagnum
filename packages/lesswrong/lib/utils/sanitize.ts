@@ -48,6 +48,37 @@ const footnoteAttributes = [
   'data-footnote-back-link-href',
 ]
 
+function sanitizeIframeTag(tagName: string, attribs: Record<string, string>) {
+  const srcdoc = attribs.srcdoc;
+  if (srcdoc !== undefined) {
+    if (attribs['data-lexical-iframe-widget'] !== 'true') {
+      return {
+        tagName: 'div',
+        attribs: {},
+        text: '',
+      };
+    }
+
+    const sanitizedAttribs: Record<string, string> = {
+      srcdoc,
+      sandbox: 'allow-scripts',
+      'data-lexical-iframe-widget': 'true',
+    };
+    if (attribs.title) {
+      sanitizedAttribs.title = attribs.title;
+    }
+    return {
+      tagName,
+      attribs: sanitizedAttribs,
+    };
+  }
+
+  return {
+    tagName,
+    attribs,
+  };
+}
+
 export const sanitize = function(s: string): string {
   return sanitizeHtml(s, {
     allowedTags: sanitizeAllowedTags,
@@ -64,12 +95,12 @@ export const sanitize = function(s: string): string {
       th: ['rowspan', 'colspan', 'style'],
       ol: ['start', 'reversed', 'type', 'role'],
       span: ['style', 'id', 'role', 'class'],
-      pre: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck'],
+      pre: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck', 'style'],
       code: ['class', 'data-language', 'data-highlight-language', 'data-theme', 'data-gutter', 'spellcheck'],
-      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug', 'data-props'],
+      div: ['class', 'data-oembed-url', 'data-elicit-id', 'data-metaculus-id', 'data-manifold-slug', 'data-metaforecast-slug', 'data-owid-slug', 'data-viewpoints-slug', 'data-props', 'data-review-results', 'data-model-name'],
       a: ['class', 'href', 'name', 'target', 'rel', 'data-href'],
-      iframe: ['src', 'allowfullscreen', 'allow'],
-      li: ['id', 'role'],
+      iframe: ['src', 'allowfullscreen', 'allow', 'srcdoc', 'sandbox', 'title', 'data-lexical-iframe-widget'],
+      li: ['id', 'role', 'value'],
 
       // Attributes for dialogues
       section: ['class', 'message-id', 'user-id', 'user-order', 'submitted-date', 'display-name'],
@@ -121,6 +152,24 @@ export const sanitize = function(s: string): string {
       'neuronpedia.org',
       'lwartifacts.vercel.app'
     ],
+    transformTags: {
+      iframe: sanitizeIframeTag,
+    },
+    // `transformTags.iframe` may strip invalid iframe src values to empty attrs, and we want those empty wrappers removed.
+    exclusiveFilter: (frame) => {
+      if (frame.tag !== 'iframe') {
+        return false;
+      }
+
+      const attribs = frame.attribs ?? {};
+      const hasSrcdoc = attribs.srcdoc !== undefined;
+      if (hasSrcdoc) {
+        // srcdoc iframes are only allowed for lexical widgets.
+        return attribs['data-lexical-iframe-widget'] !== 'true';
+      }
+
+      return attribs.src === undefined;
+    },
     allowedClasses: {
       span: [
         'footnote-reference',
@@ -163,6 +212,8 @@ export const sanitize = function(s: string): string {
         'detailsBlockContent',
         'calendly-preview',
         'lwartifacts-preview',
+        'youtube-preview',
+        'review-results-table',
         'conditionallyVisibleBlock',
         'defaultVisible',
         'defaultHidden',
@@ -172,6 +223,8 @@ export const sanitize = function(s: string): string {
         'table-scroll-middle',
         'table-cell-action-button-container',
         'table-cell-resizer',
+        'llm-content-block',
+        'llm-content-block-content',
         /arb-custom-script-[a-zA-Z0-9]*/,
       ],
       table: [
@@ -190,7 +243,7 @@ export const sanitize = function(s: string): string {
       button: ['table-add-columns', 'table-add-rows', 'table-cell-action-button'],
       iframe: [ 'thoughtSaverFrame' ],
       ol: [ 'footnotes', 'footnote-section' ],
-      li: [ 'footnote-item' ],
+      li: [ 'footnote-item', 'nested-list-item' ],
       details: ['detailsBlock'],
       summary: ['detailsBlockTitle'],
     },
@@ -216,6 +269,9 @@ export const sanitize = function(s: string): string {
       th: {
         ...allowedTableStyles,
       },
+      pre: {
+        '--gutter-chars': [/^\d+$/],
+      },
       span: {
         // From: https://gist.github.com/olmokramer/82ccce673f86db7cda5e#gistcomment-3119899
         color: [/([a-z]+|#([\da-f]{3}){1,2}|(rgb|hsl)a\((\d{1,3}%?,\s?){3}(1|0?\.\d+)\)|(rgb|hsl)\(\d{1,3}%?(,\s?\d{1,3}%?){2}\))/]
@@ -223,3 +279,12 @@ export const sanitize = function(s: string): string {
     }
   });
 };
+
+export function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}

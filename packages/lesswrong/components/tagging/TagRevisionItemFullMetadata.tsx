@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { isFriendlyUI } from '../../themes/forumTheme';
@@ -7,58 +6,42 @@ import FormatDate from "../common/FormatDate";
 import UsersName from "../users/UsersName";
 import ChangeMetricsDisplay from "./ChangeMetricsDisplay";
 import SmallSideVote from "../votes/SmallSideVote";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagRevisionItemFullMetadata", (theme: ThemeType) => ({
   root: {
-    marginBottom: theme.isFriendlyUI ? 12 : undefined,
+},
+  tagName: {
+    // same as RecentDiscussionThread-title
+    ...theme.typography.display2,
+    ...theme.typography.postStyle,
+    marginTop: 0,
+    marginBottom: 8,
+    display: "block",
+    fontSize: "1.75rem",
   },
-  tagName: theme.isFriendlyUI
-    ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 16,
-      fontWeight: 600,
-      marginBottom: 10,
-    }
-    : {
-      // same as RecentDiscussionThread-title
-      ...theme.typography.display2,
-      ...theme.typography.postStyle,
-      marginTop: 0,
-      marginBottom: 8,
-      display: "block",
-      fontSize: "1.75rem",
-    },
-  metadata: theme.isFriendlyUI
-    ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      fontSize: 14,
-      fontWeight: 500,
-      color: theme.palette.grey[600],
-      marginRight: theme.spacing.unit,
-    }
-    : {
-      color: theme.palette.grey[800],
-      marginRight: theme.spacing.unit,
-      fontSize: "1.1rem",
-      ...theme.typography.commentStyle
-    },
+  metadata: {
+    color: theme.palette.grey[800],
+    marginRight: 8,
+    fontSize: "1.1rem",
+    ...theme.typography.commentStyle
+  },
   metadataText: {
-    fontStyle: theme.isFriendlyUI ? "italic" : undefined,
   },
   username: {
     ...theme.typography.commentStyle,
     color: theme.palette.text.normal,
   },
   changeMetrics: {
-    marginRight: theme.isFriendlyUI ? 8 : undefined,
   },
-});
+}));
 
-const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
+const TagRevisionItemFullMetadata = ({tag, revision}: {
   tag: TagBasicInfo,
   revision: RevisionMetadataWithChangeMetrics,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const tagUrl = tagGetUrl(tag);
 
   return <div className={classes.root}>
@@ -103,6 +86,6 @@ const TagRevisionItemFullMetadata = ({tag, revision, classes}: {
   </div>;
 }
 
-export default registerComponent("TagRevisionItemFullMetadata", TagRevisionItemFullMetadata, {styles});
+export default TagRevisionItemFullMetadata;
 
 

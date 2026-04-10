@@ -1,12 +1,13 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components'
 import { Configure } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
 import { getSearchClient, isSearchEnabled } from '../../lib/search/searchUtil';
 import { connectAutoComplete } from 'react-instantsearch/connectors';
 import Autosuggest, { OnSuggestionSelected } from 'react-autosuggest';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("SearchAutoComplete", (theme: ThemeType) => ({
   autoComplete: {
     '& input': {
       ...theme.typography.body2,
@@ -23,7 +24,7 @@ const styles = (theme: ThemeType) => ({
       paddingLeft: 0,
     },
   }
-});
+}));
 
 export const formatFacetFilters = (
   facetFilters?: Record<string, boolean | string>,
@@ -32,27 +33,18 @@ export const formatFacetFilters = (
     ? [Object.keys(facetFilters).map((key) => `${key}:${facetFilters[key]}`)]
     : undefined;
 
-const SearchAutoComplete = ({
-  clickAction,
-  placeholder,
-  noSearchPlaceholder,
-  renderSuggestion,
-  hitsPerPage=7,
-  indexName,
-  classes,
-  renderInputComponent,
-  facetFilters,
-}: {
+const SearchAutoComplete = ({clickAction, placeholder, noSearchPlaceholder, renderSuggestion, hitsPerPage=7, indexName, renderInputComponent, facetFilters}: {
   clickAction: (_id: string, object: any) => void,
   placeholder: string,
   noSearchPlaceholder: string,
   renderSuggestion: any,
   hitsPerPage?: number,
   indexName: string,
-  classes: ClassesType<typeof styles>,
   renderInputComponent?: any,
   facetFilters?: Record<string, boolean>,
 }) => {
+  const classes = useStyles(styles);
+
   if (!isSearchEnabled()) {
     // Fallback for when search is unavailable (ie, local development installs).
     // This isn't a particularly nice UI, but it's functional enough to be able
@@ -117,7 +109,7 @@ const AutocompleteTextbox = connectAutoComplete(
   }
 );
 
-export default registerComponent("SearchAutoComplete", SearchAutoComplete, {styles});
+export default SearchAutoComplete;
 
 
 

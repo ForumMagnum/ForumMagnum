@@ -1,10 +1,8 @@
 "use client";
 
 import React, { useCallback } from 'react'
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useTagBySlug } from '../tagging/useTag';
 import { tagGetRevisionLink, tagGetUrl } from '../../lib/collections/tags/helpers';
-import { tagUrlBaseSetting } from '../../lib/instanceSettings';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -26,14 +24,8 @@ const RevisionHistoryEntryMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
-});
-
-const TagPageRevisionSelect = ({ classes }: {
-  classes: ClassesType<typeof styles>
-}) => {
-  const { params, query } = useLocation();
-  const { slug } = params;
+const TagPageRevisionSelect = ({slug}: {slug: string}) => {
+  const { query } = useLocation();
   const focusedUser = query.user;
   const navigate = useNavigate();
   const { tag, loading: loadingTag } = useTagBySlug(slug, "TagBasicInfo");
@@ -55,7 +47,7 @@ const TagPageRevisionSelect = ({ classes }: {
   
   const compareRevs = useCallback(({before,after}: {before: RevisionMetadata, after: RevisionMetadata}) => {
     if (!tag) return;
-    navigate(`/compare/${tagUrlBaseSetting.get()}/${tag.slug}?before=${before.version}&after=${after.version}`);
+    navigate(`/compare/w/${tag.slug}?before=${before.version}&after=${after.version}`);
   }, [navigate, tag]);
 
   if (!tag) return null
@@ -90,6 +82,6 @@ const TagPageRevisionSelect = ({ classes }: {
   </SingleColumnSection>
 }
 
-export default registerComponent("TagPageRevisionSelect", TagPageRevisionSelect, {styles});
+export default TagPageRevisionSelect;
 
 

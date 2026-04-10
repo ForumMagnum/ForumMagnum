@@ -1,7 +1,6 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { commentGetPageUrlFromIds } from '../../lib/collections/comments/helpers';
@@ -9,11 +8,10 @@ import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import {
   allowSubscribeToSequencePosts,
   allowSubscribeToUserComments,
-  userHasPeopleDirectory,
   userHasSubscribeTabFeed,
 } from '../../lib/betas';
 import { sequenceGetPageUrl } from '../../lib/collections/sequences/helpers';
-import { isLW, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { isLW } from '../../lib/instanceSettings';
 import { CountItemsContextProvider, useCountItemsContext } from '../hooks/CountItemsContext';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SubscriptionsList from "./SubscriptionsList";
@@ -26,8 +24,10 @@ import {
   subscribedTagQuery,
   subscribedSequenceQuery
 } from './subscriptionQueries';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ViewSubscriptionsPage", (theme: ThemeType) => ({
   noSubscriptions: {
     marginTop: 40,
     fontSize: 16,
@@ -38,36 +38,33 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.primary.main,
     },
   },
-});
+}));
 
-const NoSubscriptionsMessage = ({currentUser, classes}: {
+const NoSubscriptionsMessage = ({currentUser}: {
   currentUser: UsersCurrent,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const context = useCountItemsContext();
   const itemCount = context?.items.current ?? 0;
   if (itemCount > 0) {
     return null;
   }
 
-  const usersLink = userHasPeopleDirectory(currentUser)
-    ? <Link to="/people-directory">users</Link>
-    : "users";
-
   return (
     <div className={classes.noSubscriptions}>
       You have no active subscriptions. Subscribe to{" "}
-      <Link to={`/${taggingNamePluralSetting.get()}`}>{taggingNamePluralSetting.get()}</Link>,{" "}
-      <Link to="/allPosts">posts</Link>, or {usersLink}{" "}
+      <Link to={`/wikitags`}>wikitags</Link>,{" "}
+      <Link to="/allPosts">posts</Link>, or users{" "}
       to receive notifications for new content.
     </div>
   );
 }
 
-const ViewSubscriptionsList = ({currentUser, classes}: {
+const ViewSubscriptionsList = ({currentUser}: {
   currentUser: UsersCurrent,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return (
     <SingleColumnSection>
       {userHasSubscribeTabFeed(currentUser) &&
@@ -192,14 +189,12 @@ const ViewSubscriptionsList = ({currentUser, classes}: {
         subscriptionTypeDescription="You will be notified when new posts are added to these sequences"
       />}
 
-      <NoSubscriptionsMessage currentUser={currentUser} classes={classes} />
+      <NoSubscriptionsMessage currentUser={currentUser} />
     </SingleColumnSection>
   );
 }
 
-const ViewSubscriptionsPage = ({classes}: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const ViewSubscriptionsPage = () => {
   const currentUser = useCurrentUser();
 
   if (!currentUser) {
@@ -210,15 +205,11 @@ const ViewSubscriptionsPage = ({classes}: {
 
   return (
     <CountItemsContextProvider>
-      <ViewSubscriptionsList currentUser={currentUser} classes={classes} />
+      <ViewSubscriptionsList currentUser={currentUser} />
     </CountItemsContextProvider>
   );
 }
 
-export default registerComponent(
-  "ViewSubscriptionsPage",
-  ViewSubscriptionsPage,
-  {styles},
-);
+export default ViewSubscriptionsPage;
 
 

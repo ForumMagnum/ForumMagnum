@@ -18,7 +18,6 @@ import { useTracking } from "../../lib/analyticsEvents";
 import { isEAForum, isLWorAF } from '../../lib/instanceSettings';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { defineStyles, useStyles } from '../hooks/useStyles';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
@@ -35,20 +34,20 @@ const styles = defineStyles("SubscribeDialog", (theme: ThemeType) => ({
     maxWidth: "500px"
   },
   content: {
-    padding: `0 ${theme.spacing.unit * 3}px`,
+    padding: `0 ${24}px`,
     "& .MuiTypography-root": {
       color: theme.palette.text.normal,
     },
   },
   tabbar: {
-    marginBottom: theme.spacing.unit * 3
+    marginBottom: 24
   },
   viewSelector: {
     width: "100%",
-    marginBottom: theme.spacing.unit * 2
+    marginBottom: 16
   },
   RSSLink: {
-    marginTop: theme.spacing.unit * 2
+    marginTop: 16
   },
   errorMsg: {
     color: theme.palette.text.error,
@@ -223,7 +222,7 @@ const SubscribeDialog = (props: {
       {/* TODO: Forum digest */}
       <MenuItem value="curated">Curated</MenuItem>
       <MenuItem value="frontpage" disabled={method === "email"}>Frontpage</MenuItem>
-      <MenuItem value="community" disabled={method === "email"}>{preferredHeadingCase("All Posts")}</MenuItem>
+      <MenuItem value="community" disabled={method === "email"}>All Posts</MenuItem>
     </Select>
   </FormControl>
 

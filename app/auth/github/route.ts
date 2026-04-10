@@ -28,6 +28,6 @@ export async function GET(request: NextRequest) {
     cookieStore.set('github_oauth_return', returnTo, GITHUB_OAUTH_COOKIE_SETTINGS);
   }
   
-  const authUrl = getGitHubAuthUrl(state);
+  const authUrl = getGitHubAuthUrl(request, state);
   return NextResponse.redirect(authUrl);
 }

@@ -22,6 +22,8 @@ import FirstContentIcons from "./FirstContentIcons";
 import UserAutoRateLimitsDisplay from "./ModeratorUserInfo/UserAutoRateLimitsDisplay";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const CommentsListWithParentMetadataMultiQuery = gql(`
   query multiCommentUsersReviewInfoCardQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -36,7 +38,7 @@ const CommentsListWithParentMetadataMultiQuery = gql(`
 
 export const CONTENT_LIMIT = 20
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UsersReviewInfoCard', (theme: ThemeType) => ({
   root: {
     backgroundColor: theme.palette.grey[0],
     boxShadow: theme.palette.boxShadow.eventCard,
@@ -177,17 +179,17 @@ const styles = (theme: ThemeType) => ({
     border: theme.palette.border.intense,
     borderColor: theme.palette.error.main
   }
-})
+}))
 
 export const DEFAULT_BIO_WORDCOUNT = 250
 export const MAX_BIO_WORDCOUNT = 10000
 
-const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
+const UsersReviewInfoCard = ({user, refetch, currentUser}: {
   user: SunshineUsersList,
   currentUser: UsersCurrent,
   refetch: () => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [contentExpanded, setContentExpanded] = useState<boolean>(false)
   const [bioWordcount, setBioWordcount] = useState<number>(DEFAULT_BIO_WORDCOUNT)
   
@@ -283,7 +285,6 @@ const UsersReviewInfoCard = ({ user, refetch, currentUser, classes }: {
 }
 
 export default registerComponent('UsersReviewInfoCard', UsersReviewInfoCard, {
-  styles,
   hocs: [
     withErrorBoundary,
   ],

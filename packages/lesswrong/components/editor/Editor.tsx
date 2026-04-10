@@ -19,6 +19,7 @@ import { MenuItem } from "../common/Menus";
 import Loading from "../vulcan-core/Loading";
 import SectionTitle from "../common/SectionTitle";
 import dynamic from 'next/dynamic';
+import { getYjsStateBase64ForPost } from '../lexical/collaboration';
 
 const CKCommentEditor = dynamic(() => import("./CKCommentEditor"));
 const CKPostEditor = dynamic(() => import("./CKPostEditor"));
@@ -47,6 +48,9 @@ export const styles = (theme: ThemeType) => ({
   },
   sectionTitle: {
     fontSize: 12,
+  },
+  plainEditorContentStyles: {
+    marginTop: 0,
   },
   markdownEditor: {
     fontSize: "inherit",
@@ -141,7 +145,7 @@ export const styles = (theme: ThemeType) => ({
     overflowY: "scroll"
   },
   select: {
-    marginRight: theme.spacing.unit*1.5
+    marginRight: 12
   },
   placeholder: {
     position: "absolute",
@@ -171,7 +175,7 @@ export const styles = (theme: ThemeType) => ({
     flexGrow: 1,
   },
   markdownImgErrText: {
-    margin: `${theme.spacing.unit * 3}px 0`,
+    margin: `${24}px 0`,
     color: theme.palette.error.main,
   },
   // class for the animation transitions of the bot tips card
@@ -186,26 +190,35 @@ export const styles = (theme: ThemeType) => ({
 
 const autosaveInterval = 3000; //milliseconds
 const validationInterval = 500; //milliseconds
-export const getCkEditorName = () => isEAForum() ? 'EA Forum Docs' : 'LessWrong Docs'
 
 export type EditorTypeString = "html"|"markdown"|"ckEditorMarkup"|"lexical";
 export type LegacyEditorTypeString = EditorTypeString|"draftJS";
 
 export const getEditorTypeToDisplayMap = (): Record<LegacyEditorTypeString,{name: string, postfix?: string}> => ({
   html: {name: 'HTML', postfix: '[Admin Only]'},
-  ckEditorMarkup: {name: getCkEditorName()},
+  ckEditorMarkup: {name: "CkEditor"},
   markdown: {name: 'Markdown'},
   draftJS: {name: "DraftJS"},
-  lexical: {name: 'Lexical', postfix: '[Experimental]'},
+  lexical: {name: 'LessWrong Docs'},
 });
 
-export const nonAdminEditors: EditorTypeString[] = ['ckEditorMarkup', 'markdown']
-export const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown', 'lexical']
+const defaultEditors: EditorTypeString[] = ['lexical', 'ckEditorMarkup']
+const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown', 'lexical']
+
+/** Returns the list of editors available to the given user. */
+export function getEditorsForUser(user: UsersCurrent | DbUser | null): EditorTypeString[] {
+  if (user && userIsAdmin(user)) {
+    return adminEditors;
+  }
+  if (userUseMarkdownPostEditor(user)) {
+    return ['markdown', ...defaultEditors];
+  }
+  return defaultEditors;
+}
 
 export const getUserDefaultEditor = (user: UsersCurrent|null): EditorTypeString => {
   if (userUseMarkdownPostEditor(user)) return "markdown"
-  if (user && userIsAdmin(user)) return "lexical"
-  return "ckEditorMarkup"
+  return "lexical"
 }
 
 export function isValidEditorType(editorType: string): editorType is EditorTypeString {
@@ -347,6 +360,20 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   debouncedCheckMarkdownImgErrs;
   debouncedValidateEditor: typeof this.validateCkEditor
 
+  /**
+   * For the Lexical editor: a function that generates HTML with all suggested
+   * edits rejected. Set by the inner Lexical Editor component via a callback,
+   * and invoked in `submitData` to populate `dataWithDiscardedSuggestions`.
+   */
+  private _lexicalGetDataWithDiscardedSuggestions: (() => string | undefined) | null = null;
+
+  /**
+   * The most recent HTML value received from the Lexical editor's onChange
+   * callback. Used by submitData as a fallback because this.props.value may
+   * be stale (React hasn't re-rendered yet after the latest onChange).
+   */
+  private _latestLexicalHtml: string | null = null;
+
   constructor(props: EditorProps) {
     super(props)
 
@@ -391,13 +418,22 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   submitData = async () => {
     let data: any = null
     let dataWithDiscardedSuggestions
+    let yjsState: string | null = null
     const { updateType, commitMessage, ckEditorReference } = this.state
     const type = this.getCurrentEditorType()
     switch(this.props.value.type) {
       case "markdown":
       case "html":
-      case "lexical":
         data = this.props.value.value;
+        break
+      case "lexical":
+        data = this._latestLexicalHtml ?? this.props.value.value;
+        dataWithDiscardedSuggestions = this._lexicalGetDataWithDiscardedSuggestions?.();
+        // For Lexical posts, capture the current Yjs state so
+        // the revision created by updatePost has a restorable snapshot.
+        if (this.props.document?._id) {
+          yjsState = getYjsStateBase64ForPost(this.props.document._id, this.props.fieldName);
+        }
         break
       case "ckEditorMarkup":
         if (!ckEditorReference) throw Error("Can't submit ckEditorMarkup without attached CK Editor")
@@ -412,7 +448,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
 
     return {
-      originalContents: {type, data},
+      originalContents: {type, data, ...(yjsState ? { yjsState } : {})},
       commitMessage, updateType,
       dataWithDiscardedSuggestions
     };
@@ -447,6 +483,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         break;
       }
       case "lexical": {
+        this._latestLexicalHtml = value;
         if (this.props.value.value === value)
           return;
         this.props.onChange({
@@ -597,6 +634,10 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     }
   }
 
+  setLexicalDataWithDiscardedSuggestionsGetter = (fn: (() => string | undefined) | null) => {
+    this._lexicalGetDataWithDiscardedSuggestions = fn;
+  }
+
   renderLexicalEditor = (contents: EditorContents) => {
     const { _classes: classes, placeholder, commentEditor, documentId, collectionName } = this.props;
     const value = (typeof contents?.value === 'string') ? contents.value : "";
@@ -611,9 +652,11 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         onReady={() => {
           // Lexical editor is ready
         }}
+        onGetDataWithDiscardedSuggestions={this.setLexicalDataWithDiscardedSuggestionsGetter}
         commentEditor={commentEditor}
         documentId={documentId}
         collectionName={collectionName}
+        fieldName={this.props.fieldName}
         accessLevel={this.props.accessLevel}
       />
     </div>
@@ -693,7 +736,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const value = contents.value || "";
     return <div>
       { this.renderPlaceholder(!value, false) }
-      <ContentStyles contentType={contentType}  className={classNames({[classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle})}>
+      <ContentStyles contentType={contentType} className={classNames(classes.plainEditorContentStyles, {
+        [classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle
+      })}>
         <Input
           className={classNames(classes.markdownEditor, this.getBodyStyles(), {[classes.questionWidth]: questionStyles, [classes.commentBodyStylesMinimalist]: formProps?.commentMinimalistStyle}
           )}

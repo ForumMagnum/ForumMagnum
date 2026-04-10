@@ -1,14 +1,14 @@
 import React, {useState} from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import withErrorBoundary from '../common/withErrorBoundary'
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { filterWhereFieldsNotNull } from '@/lib/utils/typeGuardUtils';
 import UsersNameDisplay from "../users/UsersNameDisplay";
 import Loading from "../vulcan-core/Loading";
 import LWTooltip from "../common/LWTooltip";
-
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagFullContributorsListQuery = gql(`
   query TagContributorsList($documentId: String) {
@@ -20,7 +20,7 @@ const TagFullContributorsListQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("TagContributorsList", (theme: ThemeType) => ({
   root: {
     fontSize: "1.16rem",
     fontFamily: theme.typography.fontFamily,
@@ -51,13 +51,13 @@ const styles = (theme: ThemeType) => ({
     paddingTop: 8,
     color: theme.palette.grey[600],
   },
-});
+}));
 
-const TagContributorsList = ({tag, onHoverUser, classes}: {
+const TagContributorsList = ({tag, onHoverUser}: {
   tag: TagPageFragment|TagPageWithRevisionFragment,
   onHoverUser?: (userId: string|null) => void,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [expandLoadMore,setExpandLoadMore] = useState(false);
   
   const { loading: loadingMore, data } = useQuery(TagFullContributorsListQuery, {
@@ -109,13 +109,12 @@ const TagContributorsList = ({tag, onHoverUser, classes}: {
     </div>)}
     {expandLoadMore && loadingMore && <Loading/>}
     {hasLoadMore && <div className={classes.loadMore}><a onClick={loadMore}>
-      {preferredHeadingCase("Load More")}
+      Load More
     </a></div>}
   </div>
 }
 
 export default registerComponent("TagContributorsList", TagContributorsList, {
-  styles,
   hocs: [withErrorBoundary],
 });
 

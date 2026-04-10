@@ -1,45 +1,31 @@
 import React from 'react';
-import { Link } from '../../lib/reactRouterWrapper';
-import HeaderEventSubtitle from "./HeaderEventSubtitle";
-import { useRouteMetadata } from '@/components/layout/ClientRouteMetadataContext';
-import { defineStyles, useGetStyles } from '../hooks/useStyles';
+import { defineStyles } from '../hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovConsts';
+import { useSubtitlePortal } from '@/components/layout/SubtitlePortalContext';
 
 export const headerSubtitleStyles = defineStyles("HeaderSubtitle", (theme: ThemeType) => ({
+  subtitleContainer: {
+    flexShrink: 1,
+    whiteSpace: 'nowrap',
+    overflow: 'hidden',
+  },
   subtitle: {
     marginLeft: '1em',
     paddingLeft: '1em',
-    textTransform: theme.isFriendlyUI ? undefined : 'uppercase',
+    textTransform: 'uppercase',
     color: isBlackBarTitle ? theme.palette.text.alwaysWhite : theme.palette.header.text,
     borderLeft: theme.palette.border.appBarSubtitleDivider,
   },
 }));
 
 const HeaderSubtitle = () => {
-  const getClasses = useGetStyles(headerSubtitleStyles);
-  const { metadata: routeMetadata } = useRouteMetadata();
+  const { containerRef } = useSubtitlePortal();
+  const classes = useStyles(headerSubtitleStyles);
 
-  const SubtitleComponent = routeMetadata.subtitleComponent;
-  const subtitleString = routeMetadata.subtitle;
-  const subtitleLink = routeMetadata.subtitleLink;
-
-  if (SubtitleComponent) {
-    return <SubtitleComponent isSubtitle={true} />
-  } else if (subtitleLink) {
-    const classes = getClasses();
-    return <span className={classes.subtitle}>
-      <Link to={subtitleLink}>{subtitleString}</Link>
-    </span>
-  } else if (subtitleString) {
-    const classes = getClasses();
-    return <span className={classes.subtitle}>
-      {subtitleString}
-    </span> 
-  } else {
-    return <HeaderEventSubtitle />;
-  }
+  return <div className={classes.subtitleContainer}>
+    <span ref={containerRef} />
+  </div>
 }
 
 export default HeaderSubtitle;
-
-

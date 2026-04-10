@@ -1,5 +1,4 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import { MAX_COLUMN_WIDTH } from '../PostsPage/constants';
 import { SidebarsContext } from '@/components/layout/SidebarsWrapper';
 import { useTracking } from '../../../lib/analyticsEvents';
@@ -79,7 +78,7 @@ export const styles = defineStyles("ToCColumn", (theme: ThemeType) => ({
     top: 0,
     lineHeight: 1.0,
     marginLeft: 1,
-    paddingLeft: theme.spacing.unit*2,
+    paddingLeft: 16,
     textAlign: "left",
     maxHeight: "100vh",
     overflowY: "auto",

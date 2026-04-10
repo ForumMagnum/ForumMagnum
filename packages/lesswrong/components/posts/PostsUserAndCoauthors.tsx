@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import ModeCommentIcon from '@/lib/vendor/@material-ui/icons/src/ModeComment';
 import classNames from 'classnames';
@@ -8,8 +7,10 @@ import UsersName from "../users/UsersName";
 import UsersNameWithModal from "../ultraFeed/UsersNameWithModal";
 import UserNameDeleted from "../users/UserNameDeleted";
 import UserCommentMarkers from "../users/UserCommentMarkers";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("PostsUserAndCoauthors", (theme: ThemeType) => ({
   lengthLimited: {
     maxWidth: 310,
     textOverflow: "ellipsis",
@@ -36,7 +37,7 @@ const styles = (theme: ThemeType) => ({
   topAuthorIcon: {
     width: 12,
     height: 12,
-    color: theme.palette.icon.topAuthor,
+    color: theme.palette.grey[340],
     position: "relative",
     top: 2,
     marginRight: 4,
@@ -45,23 +46,11 @@ const styles = (theme: ThemeType) => ({
   new: {
     color: theme.palette.primary.main
   },
-});
+}));
 
-const PostsUserAndCoauthors = ({
-  post,
-  abbreviateIfLong=false,
-  classes,
-  simple=false,
-  tooltipPlacement="left",
-  newPromotedComments,
-  showMarkers,
-  useUltraFeedModal=false,
-  compact=false,
-  showSubscribedIcon=false,
-}: {
+const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, simple=false, tooltipPlacement="left", newPromotedComments, showMarkers, useUltraFeedModal=false, compact=false, showSubscribedIcon=false}: {
   post: PostsList | SunshinePostsList,
   abbreviateIfLong?: boolean,
-  classes: ClassesType<typeof styles>,
   simple?: boolean,
   tooltipPlacement?: PopperPlacementType,
   newPromotedComments?: boolean,
@@ -70,6 +59,7 @@ const PostsUserAndCoauthors = ({
   compact?: boolean,
   showSubscribedIcon?: boolean,
 }) => {
+  const classes = useStyles(styles);
   const {isAnon, topCommentAuthor, authors} = usePostsUserAndCoauthors(post);
   const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersName;
   if (isAnon)
@@ -107,6 +97,6 @@ const PostsUserAndCoauthors = ({
   </div>;
 };
 
-export default registerComponent("PostsUserAndCoauthors", PostsUserAndCoauthors, {styles});
+export default PostsUserAndCoauthors
 
 

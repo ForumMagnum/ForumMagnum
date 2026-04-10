@@ -140,7 +140,7 @@ const styles = defineStyles('ReactionsPalette', (theme: ThemeType) => ({
   reactPaletteFooterFeedbackButton: {
     display: "inline",
     color: theme.palette.primary.light,
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     fontSize: "1rem",
     cursor: "pointer",
     '&:hover, &:active, &:focus': {

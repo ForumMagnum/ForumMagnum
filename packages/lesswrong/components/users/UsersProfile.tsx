@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React, { useEffect, useState } from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
@@ -13,14 +12,13 @@ import PencilIcon from '@/lib/vendor/@material-ui/icons/src/Create'
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import {AnalyticsContext} from "../../lib/analyticsEvents";
-import { hasEventsSetting, siteNameWithArticleSetting, taggingNameIsSet, taggingNameCapitalSetting, taggingNameSetting, taglineSetting, isAF, nofollowKarmaThreshold } from '@/lib/instanceSettings';
+import { hasEventsSetting, siteNameWithArticleSetting, taglineSetting, isAF, nofollowKarmaThreshold } from '@/lib/instanceSettings';
 import { separatorBulletStyles } from '../common/SectionFooter';
 import { getSortOrderOptions } from '../../lib/collections/posts/dropdownOptions';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useMessages } from '../common/withMessages';
 import CopyIcon from '@/lib/vendor/@material-ui/icons/src/FileCopy'
-import { getUserStructuredData } from './UsersSingle';
-import { preferredHeadingCase } from '../../themes/forumTheme';
+import { getUserStructuredData } from '../../../../app/users/[slug]/UsersSingle';
 import { COMMENT_SORTING_MODES } from '@/lib/collections/comments/views';
 import { useDialog } from '../common/withDialog';
 import pick from 'lodash/pick';
@@ -59,6 +57,8 @@ import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { StatusCodeSetter } from '../next/StatusCodeSetter';
 import CommentsDraftList from '../comments/CommentsDraftList';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const UsersProfileMultiQuery = gql(`
   query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {
@@ -79,7 +79,7 @@ export const sectionFooterLeftStyles = {
   }
 }
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UsersProfile', (theme: ThemeType) => ({
   profilePage: {
     marginLeft: "auto",
     [theme.breakpoints.down('sm')]: {
@@ -88,7 +88,6 @@ const styles = (theme: ThemeType) => ({
     }
   },
   usernameTitle: {
-    fontSize: "3.2rem",
     ...theme.typography.display3,
     ...theme.typography.headerStyle,
     marginTop: 0,
@@ -112,7 +111,7 @@ const styles = (theme: ThemeType) => ({
     ...sectionFooterLeftStyles,
     [theme.breakpoints.down('sm')]: {
       width: "100%",
-      marginBottom: theme.spacing.unit,
+      marginBottom: 8,
     }
   },
   icon: {
@@ -126,7 +125,7 @@ const styles = (theme: ThemeType) => ({
     marginLeft: 20,
   },
   bio: {
-    marginTop: theme.spacing.unit*3,
+    marginTop: 24,
   },
   postsTitle: {
     cursor: "pointer"
@@ -153,18 +152,18 @@ const styles = (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
   },
-})
+}))
 
 export const getUserFromResults = <T extends UsersMinimumInfo>(results: Array<T>|null|undefined): T|null => {
   // HOTFIX: Filtering out invalid users
   return results?.find(user => !!user.displayName) || results?.[0] || null
 }
 
-const UsersProfileFn = ({terms, slug, classes}: {
+const UsersProfileFn = ({terms, slug}: {
   terms: UsersViewTerms,
   slug: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [showSettings, setShowSettings] = useState(false);
 
   const currentUser = useCurrentUser();
@@ -242,7 +241,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           </MetaInfo>
         </TooltipSpan>
 
-        <TooltipSpan title={`${tagRevisionCount||0} ${taggingNameIsSet.get() ? taggingNameSetting.get() : 'wiki'} edit${tagRevisionCount === 1 ? '' : 's'}`} className={classes.userMetaInfo}>
+        <TooltipSpan title={`${tagRevisionCount||0} wikitag edit${tagRevisionCount === 1 ? '' : 's'}`} className={classes.userMetaInfo}>
           <PencilIcon className={classNames(classes.icon, classes.specificalz)}/>
           <MetaInfo>
             { tagRevisionCount||0 }
@@ -341,7 +340,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
               }
               { currentUser?.isAdmin && <NewFeedButton user={user} /> }
               { currentUser && currentUser._id === user._id && <Link to="/manageSubscriptions">
-                {preferredHeadingCase("Manage Subscriptions")}
+                Manage Subscriptions
               </Link>}
               { showMessageButton && <NewConversationButton user={user} currentUser={currentUser}>
                 <a>Message</a>
@@ -366,7 +365,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
                 className={classes.subscribeButton} 
               /> }
               {userCanEditUser(currentUser, user) && <Link to={userGetEditUrl(user)}>
-                {preferredHeadingCase("Account Settings")}
+                Account Settings
               </Link>}
             </Typography>
 
@@ -441,7 +440,7 @@ const UsersProfileFn = ({terms, slug, classes}: {
           }
           {/* Wiki Section */}
           <SingleColumnSection>
-            <SectionTitle title={`${taggingNameIsSet.get() ? taggingNameCapitalSetting.get() : 'Wiki'} Contributions`} />
+            <SectionTitle title="Wikitag Contributions" />
             <AnalyticsContext listContext={"userPageWiki"}>
               <TagEditsByUser
                 userId={user._id}
@@ -481,8 +480,4 @@ const UsersProfileFn = ({terms, slug, classes}: {
   return render();
 }
 
-export default registerComponent(
-  'UsersProfile', UsersProfileFn, {styles}
-);
-
-
+export default UsersProfileFn;

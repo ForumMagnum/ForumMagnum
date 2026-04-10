@@ -1,14 +1,15 @@
 // TODO: Reconcile this file with user meta info the LW user profile page
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description';
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message';
 import TagIcon from '@/lib/vendor/@material-ui/icons/src/LocalOffer';
 import classNames from 'classnames';
 import ForumIcon from "../common/ForumIcon";
 import FormatDate from "../common/FormatDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('UserMetaInfo', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "center",
@@ -20,7 +21,6 @@ const styles = (theme: ThemeType) => ({
   },
   omegaIcon: {
     fontWeight: 600,
-    marginTop: -4,
     height: "1rem",
     width: "1rem",
     position: "relative",
@@ -30,6 +30,9 @@ const styles = (theme: ThemeType) => ({
       '"Book Antiqua"',
       'Georgia',
       'serif'].join(','),
+  },
+  omegaIconLegacy: {
+    marginTop: -4,
   },
   info: {
     display: "flex",
@@ -44,16 +47,19 @@ const styles = (theme: ThemeType) => ({
       display: "none",
     }
   }
-});
+}));
 
-export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hideInfoOnSmallScreen, infoClassName, classes}: {
+export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hidePostCount, hideCommentCount, omegaAlignment = "legacy", hideInfoOnSmallScreen, infoClassName}: {
   user: UsersMinimumInfo,
   hideAfKarma?: boolean,
   hideWikiContribution?: boolean,
+  hidePostCount?: boolean,
+  hideCommentCount?: boolean,
+  omegaAlignment?: "legacy" | "inline",
   hideInfoOnSmallScreen?: boolean,
   infoClassName?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const { createdAt, karma, afKarma, postCount, commentCount, tagRevisionCount: wikiContributionCount } = user;
 
   const infoClasses = classNames(infoClassName, classes.info);
@@ -64,14 +70,14 @@ export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hideInfoO
         <div>{karma}</div>
       </div>}
       {!hideAfKarma && afKarma > 0 && <div className={infoClasses}>
-        <div className={classes.omegaIcon}>Ω</div>
+        <div className={classNames(classes.omegaIcon, omegaAlignment === "legacy" && classes.omegaIconLegacy)}>Ω</div>
         <div>{afKarma}</div>
       </div>}
-      {(postCount > 0) && <div className={classNames(infoClasses, {[classes.hideOnSmallScreen]: hideInfoOnSmallScreen})}>
+      {!hidePostCount && (postCount > 0) && <div className={classNames(infoClasses, {[classes.hideOnSmallScreen]: hideInfoOnSmallScreen})}>
         <DescriptionIcon className={classes.icon} /> 
         {postCount}
       </div>}
-      {(commentCount > 0) && <div className={classNames(infoClasses, {[classes.hideOnSmallScreen]: hideInfoOnSmallScreen})}>
+      {!hideCommentCount && (commentCount > 0) && <div className={classNames(infoClasses, {[classes.hideOnSmallScreen]: hideInfoOnSmallScreen})}>
         <MessageIcon className={classes.icon} />
         {commentCount}
       </div>}
@@ -85,7 +91,7 @@ export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hideInfoO
     </div>
 }
 
-export default registerComponent('UserMetaInfo', UserMetaInfo, {styles});
+export default UserMetaInfo;
 
 
 

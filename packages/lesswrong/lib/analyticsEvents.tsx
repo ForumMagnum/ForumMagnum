@@ -2,7 +2,6 @@
 
 import { RateLimiter } from './rateLimiter';
 import React, { useContext, useEffect, useState, useRef, useCallback, ReactNode } from 'react'
-import { hookToHoc } from './hocUtils'
 import { isClient, isServer, isE2E } from './executionEnvironment';
 import { ColorHash } from './vendor/colorHash';
 import throttle from 'lodash/throttle';
@@ -78,7 +77,6 @@ export type AnalyticsProps = {
   chapter?: string,
   documentSlug?: string,
   postId?: string,
-  forumEventId?: string,
   documentId?: string,
   collectionName?: string,
   sequenceId?: string,
@@ -139,7 +137,7 @@ following system of context labels for tracking event location:
 USE THIS CONVENTION FOR TRACKING EVENT LOCATION
 * pageContext={page name}> e.g. tagPage, postPage, homePage
     - (only needs to defined once for each page)
-* pageSectionContext={sectionName}, e.g. recentDiscussion, gatherTownWidget, wikiSection, userDrafts
+* pageSectionContext={sectionName}, e.g. recentDiscussion, wikiSection, userDrafts
     - use for larger sections of a page
 * pageSubSectionContext is used when a section meaningfully has subsections (such as bookmarks list within the recommendations section on the frontpage)
 * pageElementContext={elementName}> e.g. hoverPreview, commentItem, answerItem
@@ -241,8 +239,6 @@ export function useTracking({eventType="unnamed", eventProps=emptyEventProps}: {
   }, [trackingContext, eventProps, eventType])
   return {captureEvent: track}
 }
-
-export const withTracking = hookToHoc(useTracking)
 
 export function useOnMountTracking<T extends EventProps>({
   eventType="unnamed",

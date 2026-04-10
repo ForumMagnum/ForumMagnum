@@ -8,9 +8,7 @@ import {
   PLAINTEXT_HTML_TRUNCATION_LENGTH
 } from '@/lib/collections/revisions/revisionConstants';
 import { randomId } from "../../lib/random";
-import { getCkEditorName } from "../editor/Editor";
 import Input from "@/lib/vendor/@material-ui/core/src/Input";
-import { getSiteUrl } from "../../lib/vulcan-lib/utils";
 import { sanitize } from "@/lib/utils/sanitize";
 import type { TypedFieldApi } from '@/components/tanstack-form-components/BaseAppForm';
 import type { EditablePost } from '../../lib/collections/posts/helpers';
@@ -22,89 +20,72 @@ const DESCRIPTION_HEIGHT = 56; // 3 lines
 
 const styles = defineStyles('SocialPreviewUpload', (theme: ThemeType) => ({
   root: {
-    display: "grid",
-    gridTemplateColumns: "minmax(201px, 1fr) minmax(170px, 269px)",
-    gap: 24,
+    display: "flex",
+    flexDirection: "column",
+    gap: 10,
+  },
 
-    [theme.breakpoints.down("xs")]: {
-      display: "flex",
-      flexDirection: "column",
+  // ── Card: mimics a Twitter/X "Summary Card with Large Image" ──
+  card: {
+    borderRadius: 16,
+    border: theme.palette.greyBorder("1px", 0.15),
+    overflow: "hidden",
+    // Force image to always fill the card width at 16:9
+    "& .ImageUpload2-imageBackground": {
+      width: "100%",
+      aspectRatio: "16 / 9",
     },
   },
-  preview: {
-    padding: 16,
-    backgroundColor: theme.palette.grey[100],
-    borderRadius: 6,
-
-    [theme.breakpoints.down("xs")]: {
-      marginBottom: 16,
-    },
+  cardTextArea: {
+    padding: "8px 12px 10px",
+    backgroundColor: theme.palette.panelBackground.default,
   },
-  title: {
-    fontSize: 16,
-    minHeight: 18,
+  cardTitle: {
+    fontSize: 15,
     fontWeight: 700,
-    marginTop: 12,
-    marginBottom: 7,
+    lineHeight: "1.3",
     overflowWrap: "anywhere",
+    overflow: "hidden",
+    display: "-webkit-box",
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: "vertical",
+    marginBottom: 2,
   },
+
+  // ── Description editor ──
   descriptionWrapper: {
     minHeight: DESCRIPTION_HEIGHT,
-    marginBottom: 5,
+    marginBottom: 2,
   },
   description: {
     fontSize: 13,
-    fontWeight: 500,
+    fontWeight: 400,
+    color: theme.palette.greyAlpha(0.55),
     overflowWrap: "anywhere",
     whiteSpace: "pre-line",
     paddingTop: 0,
     paddingBottom: 2,
-    // Allow around 1 line of expansion before scrolling
     maxHeight: DESCRIPTION_HEIGHT + 16,
     alignItems: "baseline",
     width: "100%",
-    borderBottom: `1px solid ${theme.palette.grey[400]}`,
+    borderBottom: "none",
     overflow: "auto",
   },
-  bottomRow: {
-    fontSize: 13,
-    fontWeight: 500,
-    color: theme.palette.grey[600],
+
+  // ── Below-card revert link ──
+  revertRow: {
     display: "flex",
-    justifyContent: "space-between",
+    justifyContent: "flex-end",
   },
   revertButton: {
+    ...theme.typography.commentStyle,
+    fontSize: 12,
     fontWeight: 600,
     fontStyle: "italic",
+    color: theme.palette.greyAlpha(0.5),
+    cursor: "pointer",
     "&:hover": {
-      cursor: "pointer",
-    },
-  },
-  blurb: {
-    marginLeft: 0,
-    marginRight: 0,
-    marginBottom: 28,
-    marginTop: 24,
-    fontSize: 14,
-    lineHeight: "20px",
-    fontWeight: 500,
-    "& a": {
-      color: theme.palette.primary.main,
-    },
-    [theme.breakpoints.down("xs")]: {
-      marginLeft: 8,
-      marginBottom: 0,
-    },
-    // display children at top and bottom of container
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-  },
-  note: {
-    color: theme.palette.grey[600],
-
-    [theme.breakpoints.down("xs")]: {
-      display: "none",
+      color: theme.palette.greyAlpha(0.8),
     },
   },
 }));
@@ -152,9 +133,9 @@ const buildPreviewFromDocument = (
   };
 
   const processContents = (contents: { type: string; data: string }) => {
-    if (!["html", "ckEditorMarkup", "markdown"].includes(contents.type)) {
+    if (!["html", "ckEditorMarkup", "markdown", "lexical"].includes(contents.type)) {
       return {
-        description: `<Description preview not supported for this editor type (${contents.type}), switch to HTML, Markdown, or ${getCkEditorName} to see the description preview>`,
+        description: `<Description preview not supported for this editor type (${contents.type}), switch to HTML, Markdown, or LessWrong Docs to see the description preview>`,
         image: null,
       };
     }
@@ -254,7 +235,6 @@ export const SocialPreviewUpload = ({
 
   const textValue = value?.text ?? undefined;
 
-  const urlHostname = new URL(getSiteUrl()).hostname;
   const { description, fallbackImageUrl } = useMemo(
     () => buildPreviewFromDocument(docWithValue, textValue),
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -276,7 +256,7 @@ export const SocialPreviewUpload = ({
 
   return (
     <div className={classes.root}>
-      <div className={classes.preview}>
+      <div className={classes.card}>
         <ImageUpload2
           name={"socialPreviewImageId"}
           value={post.socialPreviewData?.imageId}
@@ -284,34 +264,23 @@ export const SocialPreviewUpload = ({
           clearField={() => updateImageId(undefined)}
           label={fallbackImageUrl ? "Change preview image" : "Upload preview image"}
           croppingAspectRatio={croppingAspectRatio}
-          // socialPreviewImageUrl falls back to the first image in the post on save
           placeholderUrl={fallbackImageUrl || siteImageSetting.get()}
         />
-        <div className={classes.title}>
-          {post.title || "Title"}
-        </div>
-        <SocialPreviewTextEdit value={description ?? ""} updateValue={updateText} />
-        <div className={classes.bottomRow}>
-          <div>{urlHostname}</div>
-          {textValue !== undefined && (
-            <div className={classes.revertButton} onClick={() => updateText(undefined)}>
-              use default text
-            </div>
-          )}
+        <div className={classes.cardTextArea}>
+          <div className={classes.cardTitle}>
+            {post.title || "Title"}
+          </div>
+          <SocialPreviewTextEdit value={description ?? ""} updateValue={updateText} />
         </div>
       </div>
-      <div className={classes.blurb}>
-        <div>
-          A preview image makes it more likely that people will see your post. Consider using{" "}
-          <a target="_blank" rel="noreferrer" href="https://unsplash.com/">
-            Unsplash
-          </a>{" "}
-          or an AI image generator.
+
+      {textValue !== undefined && (
+        <div className={classes.revertRow}>
+          <div className={classes.revertButton} onClick={() => updateText(undefined)}>
+            use default text
+          </div>
         </div>
-        <div className={classes.note}>
-          <strong>Note:</strong> Text changes here will not affect the post.
-        </div>
-      </div>
+      )}
     </div>
   );
 };

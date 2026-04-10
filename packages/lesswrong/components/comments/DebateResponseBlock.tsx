@@ -1,8 +1,9 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import DebateResponse from "./DebateResponse";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DebateResponseBlock', (theme: ThemeType) => ({
   divider: {
     display: 'flex',
     alignItems: 'center',
@@ -19,20 +20,21 @@ const styles = (theme: ThemeType) => ({
     background: theme.palette.background.pageActiveAreaBackground,
     ...theme.typography.subheading
   },
-});
+}), { stylePriority: 200 });
 
 export interface DebateResponseWithReplies {
   comment: CommentsList;
   replies: CommentsList[];
 }
 
-export const DebateResponseBlock = ({ responses, post, orderedParticipantList, daySeparator, classes }: {
+export const DebateResponseBlock = ({responses, post, orderedParticipantList, daySeparator}: {
   responses: DebateResponseWithReplies[],
   post: PostsWithNavigation | PostsWithNavigationAndRevision,
   orderedParticipantList: string[],
   daySeparator?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
+
   return <div>
     {daySeparator && <div className={classes.divider}>
       <span className={classes.dividerLabel}>{daySeparator}</span>
@@ -50,6 +52,6 @@ export const DebateResponseBlock = ({ responses, post, orderedParticipantList, d
   </div>;
 }
 
-export default registerComponent('DebateResponseBlock', DebateResponseBlock, {styles, stylePriority: 200});
+export default DebateResponseBlock;
 
 

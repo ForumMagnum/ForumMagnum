@@ -1,10 +1,6 @@
 import React, { MouseEvent, useCallback, useState } from 'react';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useTracking } from '../../lib/analyticsEvents';
-import { isFriendlyUI } from '../../themes/forumTheme';
-import { useLoginPopoverContext } from '../hooks/useLoginPopoverContext';
-import EAButton from "../ea-forum/EAButton";
-import EALoginPopover from "../ea-forum/auth/EALoginPopover";
 import LWClickAwayListener from "../common/LWClickAwayListener";
 import LWPopper from "../common/LWPopper";
 import LoginForm from "./LoginForm";
@@ -14,51 +10,15 @@ import { isBlackBarTitle } from '../seasonal/petrovDay/petrov-day-story/petrovCo
 
 const styles = defineStyles('UsersAccountMenu', (theme: ThemeType) => ({
   root: {
-    marginTop: theme.isFriendlyUI ? undefined : 5,
+    marginTop: 5,
   },
   userButton: {
     fontSize: '14px',
-    fontWeight: theme.isFriendlyUI ? undefined : 400,
+    fontWeight: 400,
     opacity: .8,
     color: isBlackBarTitle ? theme.palette.text.alwaysWhite : theme.palette.header.text,
   },
-  login: {
-    marginLeft: 12,
-    marginRight: 8
-  },
-  signUp: {
-    display: 'inline-block',
-    marginRight: 8,
-    '@media (max-width: 540px)': {
-      display: 'none'
-    }
-  },
 }));
-
-export const EAUsersAccountMenu = () => {
-  const classes = useStyles(styles);
-  const {onLogin, onSignup} = useLoginPopoverContext();
-  return (
-    <div className={classes.root}>
-      <EAButton
-        style="grey"
-        onClick={onLogin}
-        data-testid="user-login-button"
-        className={classes.login}
-      >
-        Login
-      </EAButton>
-      <EAButton
-        onClick={onSignup}
-        data-testid="user-signup-button"
-        className={classes.signUp}
-      >
-        Sign up
-      </EAButton>
-      <EALoginPopover />
-    </div>
-  );
-}
 
 export const LWUsersAccountMenu = () => {
   const classes = useStyles(styles);

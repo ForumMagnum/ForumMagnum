@@ -1,7 +1,6 @@
 import React from 'react';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getReviewPhase, REVIEW_YEAR } from '../../lib/reviewUtils';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { postPageTitleStyles } from '../posts/PostsPage/PostsPageTitle';
 import { Link } from '../../lib/reactRouterWrapper';
 import KeyboardBackspaceIcon from '@/lib/vendor/@material-ui/icons/src/KeyboardBackspace';
@@ -12,7 +11,8 @@ import ReviewPostComments from "./ReviewPostComments";
 import PostsHighlight from "../posts/PostsHighlight";
 import PingbacksList from "../posts/PingbacksList";
 import Loading from "../vulcan-core/Loading";
-
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListQuery = gql(`
   query ReviewVotingExpandedPost($documentId: String) {
@@ -24,7 +24,7 @@ const PostsListQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('ReviewVotingExpandedPost', (theme: ThemeType) => ({
   root: {
     maxWidth: CENTRAL_COLUMN_WIDTH,
     margin: "0 auto",
@@ -71,18 +71,18 @@ const styles = (theme: ThemeType) => ({
     transform: "rotate(180deg)",
   },
   reviewVoting: {
-    padding: theme.spacing.unit*2,
-    paddingBottom: theme.spacing.unit*2,
+    padding: 16,
+    paddingBottom: 16,
     position: "relative",
-    right: theme.spacing.unit*4
+    right: 32
   }
-})
+}))
 
-const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
-  classes: ClassesType<typeof styles>,
+const ReviewVotingExpandedPost = ({post, setExpandedPost}: {
   post?: PostsReviewVotingList|null,
   setExpandedPost: (post: PostsReviewVotingList|null) => void
 }) => {
+  const classes = useStyles(styles);
   const { loading, data } = useQuery(PostsListQuery, {
     variables: { documentId: post?._id },
     fetchPolicy: "cache-first",
@@ -127,6 +127,6 @@ const ReviewVotingExpandedPost = ({classes, post, setExpandedPost}: {
   </div>
 }
 
-export default registerComponent('ReviewVotingExpandedPost', ReviewVotingExpandedPost, {styles});
+export default ReviewVotingExpandedPost;
 
 

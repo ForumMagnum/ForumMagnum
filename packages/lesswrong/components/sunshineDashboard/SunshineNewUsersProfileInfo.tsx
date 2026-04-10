@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdminOrMod } from '../../lib/vulcan-users/permissions';
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import DeferRender from '../common/DeferRender';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -28,18 +27,18 @@ const styles = defineStyles("SunshineNewUsersProfileInfo", (theme: ThemeType) =>
   }
 }))
 
-const SunshineNewUsersProfileInfo = ({userId}: {userId: string}) => {
+const SunshineNewUsersProfileInfo = ({userId, startExpanded = false}: {userId: string, startExpanded?: boolean}) => {
   const currentUser = useCurrentUser()
   if (!currentUser || !userIsAdminOrMod(currentUser)) {
     return null
   }
   
-  return <SunshineNewUsersProfileInfoInner userId={userId}/>
+  return <SunshineNewUsersProfileInfoInner userId={userId} startExpanded={startExpanded}/>
 }
 
-const SunshineNewUsersProfileInfoInner = ({userId}: {userId: string}) => {
+const SunshineNewUsersProfileInfoInner = ({userId, startExpanded = false}: {userId: string, startExpanded?: boolean}) => {
   const classes = useStyles(styles);
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(startExpanded);
   const currentUser = useCurrentUser()
 
   const { refetch, data } = useQuery(SunshineUsersListQuery, {
@@ -51,7 +50,7 @@ const SunshineNewUsersProfileInfoInner = ({userId}: {userId: string}) => {
 
   if (user.reviewedByUserId && !user.snoozedUntilContentCount && !expanded) {
     return <div className={classes.root} onClick={() => setExpanded(true)}>
-      <SectionButton>{preferredHeadingCase("Expand Moderation Tools")}</SectionButton>
+      <SectionButton>Expand Moderation Tools</SectionButton>
     </div>
   }
   
@@ -63,5 +62,4 @@ const SunshineNewUsersProfileInfoInner = ({userId}: {userId: string}) => {
 }
 
 export default SunshineNewUsersProfileInfo;
-
 

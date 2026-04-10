@@ -15,11 +15,7 @@ import {
   TOGGLE_LINK_COMMAND,
 } from '@lexical/link';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
-import {
-  $findMatchingParent,
-  $wrapNodeInElement,
-  mergeRegister,
-} from '@lexical/utils';
+import { $findMatchingParent, $wrapNodeInElement, mergeRegister } from '@lexical/utils';
 import {$generateHtmlFromNodes, $generateNodesFromDOM} from '@lexical/html';
 import {
   $createParagraphNode,
@@ -28,23 +24,22 @@ import {
   $getNodeByKey,
   $getSelection,
   $insertNodes,
-  $isNodeSelection,
   $isParagraphNode,
   $isRootOrShadowRoot,
   $setSelection,
   COMMAND_PRIORITY_EDITOR,
   COMMAND_PRIORITY_HIGH,
   COMMAND_PRIORITY_LOW,
+  COMMAND_PRIORITY_NORMAL,
   createCommand,
   DRAGOVER_COMMAND,
   DRAGSTART_COMMAND,
   DROP_COMMAND,
-  getDOMSelectionFromTarget,
-  isHTMLElement,
   LexicalNode,
   LexicalCommand,
   LexicalEditor,
   NodeKey,
+  PASTE_COMMAND,
   ParagraphNode,
   TextNode,
 } from 'lexical';
@@ -62,14 +57,57 @@ import {
   ImageNode,
   ImagePayload,
 } from '../../nodes/ImageNode';
-import Button from '../../ui/Button';
-import {DialogActions, DialogButtonsList} from '../../ui/Dialog';
-import FileInput from '../../ui/FileInput';
-import TextInput from '../../ui/TextInput';
+import { $canDropImage, $getImageNodeInSelection, getDragImageData, getDragSelection, isImageFile } from './ImageUtils';
+import { preloadImage } from '../../nodes/imageCache';
+
+import {
+  SET_IMAGE_CAPTION_VISIBILITY_COMMAND,
+  SET_IMAGE_SIZE_COMMAND,
+  type SetImageCaptionVisibilityPayload,
+  type SetImageSizePayload,
+} from './commands';
 import {
   uploadToCloudinary,
   ImageUploadError,
 } from '../../utils/cloudinaryUpload';
+import { INSERT_FILE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/Events'
+import { useMessages } from '@/components/common/withMessages'
+import { WithMessagesMessage } from '@/components/layout/FlashMessages';
+import LWDialog from '@/components/common/LWDialog';
+import { DialogTitle } from '@/components/widgets/DialogTitle';
+import { DialogContent } from '@/components/widgets/DialogContent';
+import { DialogActions } from '@/components/widgets/DialogActions';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
+import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+
+const imageDialogStyles = defineStyles('InsertImageDialog', (theme: ThemeType) => ({
+  paper: {
+    width: 400,
+  },
+  fileInputWrapper: {
+    display: 'flex',
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  fileInputLabel: {
+    color: theme.palette.grey[600],
+    marginRight: 12,
+    fontSize: 14,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+  },
+  errorText: {
+    color: theme.palette.error.main,
+    marginTop: 8,
+    fontSize: 14,
+  },
+  modeButtonsContainer: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 12,
+  },
+}));
 
 export type InsertImagePayload = Readonly<ImagePayload>;
 
@@ -128,22 +166,27 @@ export function InsertImageUriDialogBody({
 
   return (
     <>
-      <TextInput
+      <TextField
         label="Image URL"
         placeholder="i.e. https://source.unsplash.com/random"
-        onChange={setSrc}
+        onChange={(e) => setSrc(e.target.value)}
         value={src}
+        fullWidth
+        margin="dense"
         data-test-id="image-modal-url-input"
       />
-      <TextInput
+      <TextField
         label="Alt Text"
         placeholder="Random unsplash image"
-        onChange={setAltText}
+        onChange={(e) => setAltText(e.target.value)}
         value={altText}
+        fullWidth
+        margin="dense"
         data-test-id="image-modal-alt-text-input"
       />
       <DialogActions>
         <Button
+          color="primary"
           data-test-id="image-modal-confirm-btn"
           disabled={isDisabled}
           onClick={() => onClick({altText, src})}>
@@ -226,28 +269,36 @@ export function InsertImageUploadedDialogBody({
     };
   }, []);
 
+  const classes = useStyles(imageDialogStyles);
+
   return (
     <>
-      <FileInput
-        label="Image Upload"
-        onChange={handleFileSelect}
-        accept="image/*"
-        data-test-id="image-modal-file-upload"
-      />
-      <TextInput
+      <div className={classes.fileInputWrapper}>
+        <label className={classes.fileInputLabel}>Image Upload</label>
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => handleFileSelect(e.target.files)}
+          data-test-id="image-modal-file-upload"
+        />
+      </div>
+      <TextField
         label="Alt Text"
         placeholder="Descriptive alternative text"
-        onChange={setAltText}
+        onChange={(e) => setAltText(e.target.value)}
         value={altText}
+        fullWidth
+        margin="dense"
         data-test-id="image-modal-alt-text-input"
       />
       {uploadError && (
-        <div style={{color: 'red', marginTop: '8px', fontSize: '14px'}}>
+        <div className={classes.errorText}>
           {uploadError}
         </div>
       )}
       <DialogActions>
         <Button
+          color="primary"
           data-test-id="image-modal-file-upload-btn"
           disabled={isDisabled}
           onClick={handleConfirm}>
@@ -268,6 +319,7 @@ export function InsertImageDialog({
   onError?: (error: Error) => void;
 }): JSX.Element {
   const [mode, setMode] = useState<null | 'url' | 'file'>(null);
+  const classes = useStyles(imageDialogStyles);
   const hasModifier = useRef(false);
 
   useEffect(() => {
@@ -287,27 +339,43 @@ export function InsertImageDialog({
   };
 
   return (
-    <>
-      {!mode && (
-        <DialogButtonsList>
-          <Button
-            data-test-id="image-modal-option-url"
-            onClick={() => setMode('url')}>
-            URL
-          </Button>
-          <Button
-            data-test-id="image-modal-option-file"
-            onClick={() => setMode('file')}>
-            File
-          </Button>
-        </DialogButtonsList>
-      )}
-      {mode === 'url' && <InsertImageUriDialogBody onClick={onClick} />}
-      {mode === 'file' && (
-        <InsertImageUploadedDialogBody onClick={onClick} onError={onError} />
-      )}
-    </>
+    <LWDialog open={true} onClose={onClose} maxWidth={false} paperClassName={classes.paper}>
+      <DialogTitle>Insert Image</DialogTitle>
+      <DialogContent>
+        {!mode && (
+          <div className={classes.modeButtonsContainer}>
+            <Button
+              variant="outlined"
+              data-test-id="image-modal-option-url"
+              onClick={() => setMode('url')}>
+              URL
+            </Button>
+            <Button
+              variant="outlined"
+              data-test-id="image-modal-option-file"
+              onClick={() => setMode('file')}>
+              File
+            </Button>
+          </div>
+        )}
+        {mode === 'url' && <InsertImageUriDialogBody onClick={onClick} />}
+        {mode === 'file' && (
+          <InsertImageUploadedDialogBody onClick={onClick} onError={onError} />
+        )}
+      </DialogContent>
+    </LWDialog>
   );
+}
+
+function flashUploadError(
+  flash: (message: WithMessagesMessage) => void,
+  error: unknown,
+): void {
+  const errorMessage =
+    error instanceof ImageUploadError && error.isUserFacing
+      ? error.message
+      : 'Failed to upload image. Please try again.';
+  flash({ messageString: errorMessage, type: 'error' });
 }
 
 export default function ImagesPlugin({
@@ -316,6 +384,7 @@ export default function ImagesPlugin({
   captionsEnabled?: boolean;
 }): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
+  const { flash } = useMessages();
 
   useEffect(() => {
     if (!editor.hasNodes([ImageNode])) {
@@ -323,6 +392,83 @@ export default function ImagesPlugin({
     }
 
     return mergeRegister(
+      editor.registerCommand<SetImageSizePayload>(
+        SET_IMAGE_SIZE_COMMAND,
+        ({ nodeKey, widthPercent }) => {
+          const node = $getNodeByKey(nodeKey);
+          if (!$isImageNode(node)) {
+            return false;
+          }
+          node.setWidthPercent(widthPercent);
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ),
+      editor.registerCommand<SetImageCaptionVisibilityPayload>(
+        SET_IMAGE_CAPTION_VISIBILITY_COMMAND,
+        ({ nodeKey, showCaption }) => {
+          const node = $getNodeByKey(nodeKey);
+          if (!$isImageNode(node)) {
+            return false;
+          }
+          node.setShowCaption(showCaption);
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ),
+      editor.registerCommand<File | Blob>(
+        INSERT_FILE_COMMAND,
+        (payload) => {
+          if (!isImageFile(payload) || !(payload instanceof File)) {
+            return false;
+          }
+          uploadToCloudinary(payload)
+            .then((result) => {
+              editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+                altText: payload.name,
+                src: result.secure_url,
+                width: result.width,
+                height: result.height,
+              });
+            })
+            .catch((error) => {
+              flashUploadError(flash, error);
+            });
+          return true;
+        },
+        COMMAND_PRIORITY_EDITOR,
+      ),
+      editor.registerCommand(
+        PASTE_COMMAND,
+        (event) => {
+          const clipboardData = 'clipboardData' in event ? event.clipboardData : null;
+          if (!clipboardData) {
+            return false;
+          }
+          const files = Array.from(clipboardData.files);
+          const imageFiles = files.filter(isImageFile);
+          if (imageFiles.length === 0) {
+            return false;
+          }
+          event.preventDefault();
+          for (const file of imageFiles) {
+            uploadToCloudinary(file)
+              .then((result) => {
+                editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
+                  altText: file.name || 'Pasted image',
+                  src: result.secure_url,
+                  width: result.width,
+                  height: result.height,
+                });
+              })
+              .catch((error) => {
+                flashUploadError(flash, error);
+              });
+          }
+          return true;
+        },
+        COMMAND_PRIORITY_NORMAL,
+      ),
       editor.registerCommand<InsertImagePayload>(
         INSERT_IMAGE_COMMAND,
         (payload) => {
@@ -366,9 +512,19 @@ export default function ImagesPlugin({
         },
         COMMAND_PRIORITY_HIGH,
       ),
-      editor.registerNodeTransform(ImageNode, (node) =>
-        enforceImageNodeStructure(node),
-      ),
+      editor.registerUpdateListener(({dirtyElements, tags}) => {
+        if (tags.has('collaboration')) {
+          return;
+        }
+        editor.update(() => {
+          for (const key of dirtyElements.keys()) {
+            const node = $getNodeByKey(key);
+            if ($isImageNode(node)) {
+              enforceImageNodeStructure(node);
+            }
+          }
+        });
+      }),
       editor.registerMutationListener(ImageCaptionNode, (mutations) => {
         editor.getEditorState().read(() => {
           for (const [nodeKey] of mutations) {
@@ -385,8 +541,65 @@ export default function ImagesPlugin({
       editor.registerMutationListener(ParagraphNode, (mutations) => {
         updateCaptionEmptyFromMutations(editor, mutations);
       }),
+      editor.registerMutationListener(ImageNode, (mutations) => {
+        const nodeKeysToRedecorate: string[] = [];
+
+        for (const [nodeKey, mutation] of mutations) {
+          if (mutation === 'destroyed') continue;
+
+          // Ensure the render node re-decorates on any ImageNode change.
+          // This is necessary because collaboration updates modify node
+          // properties directly without going through setter methods like
+          // setSrc(), so the render node isn't automatically marked dirty.
+          nodeKeysToRedecorate.push(nodeKey);
+
+          if (mutation !== 'created') continue;
+
+          editor.getEditorState().read(() => {
+            const node = $getNodeByKey(nodeKey);
+            if (!$isImageNode(node)) return;
+            const src = node.getSrc();
+            if (!src.startsWith('blob:')) return;
+
+            fetch(src)
+              .then(response => response.blob())
+              .then(blob => uploadToCloudinary(blob))
+              .then(async (result) => {
+                await preloadImage(result.secure_url);
+                editor.update(() => {
+                  const currentNode = $getNodeByKey(nodeKey);
+                  if ($isImageNode(currentNode)) {
+                    currentNode.setSrc(result.secure_url);
+                  }
+                });
+                URL.revokeObjectURL(src);
+              })
+              .catch((error) => {
+                // On non-creating clients, the blob URL is unresolvable —
+                // the creating client will handle the upload and propagate
+                // the Cloudinary URL via Yjs.
+                if (error instanceof ImageUploadError) {
+                  flashUploadError(flash, error);
+                }
+              });
+          });
+        }
+
+        if (nodeKeysToRedecorate.length > 0) {
+          editor.update(() => {
+            for (const nodeKey of nodeKeysToRedecorate) {
+              const node = $getNodeByKey(nodeKey);
+              if (!$isImageNode(node)) continue;
+              const renderNode = node.getFirstChild();
+              if ($isImageRenderNode(renderNode)) {
+                renderNode.getWritable();
+              }
+            }
+          });
+        }
+      }),
     );
-  }, [captionsEnabled, editor]);
+  }, [captionsEnabled, editor, flash]);
 
   return null;
 }
@@ -522,7 +735,7 @@ function $onDragover(event: DragEvent): boolean {
   if (!node) {
     return false;
   }
-  if (!canDropImage(event)) {
+  if (!$canDropImage(event)) {
     event.preventDefault();
   }
   return false;
@@ -543,7 +756,7 @@ function $onDrop(event: DragEvent, editor: LexicalEditor): boolean {
       !$isAutoLinkNode(parent) && $isLinkNode(parent),
   );
   event.preventDefault();
-  if (canDropImage(event)) {
+  if ($canDropImage(event)) {
     const range = getDragSelection(event);
     node.remove();
     const rangeSelection = $createRangeSelection();
@@ -563,59 +776,4 @@ function $onDrop(event: DragEvent, editor: LexicalEditor): boolean {
     }
   }
   return true;
-}
-
-function $getImageNodeInSelection(): ImageNode | null {
-  const selection = $getSelection();
-  if (!$isNodeSelection(selection)) {
-    return null;
-  }
-  const nodes = selection.getNodes();
-  const node = nodes[0];
-  return $isImageNode(node) ? node : null;
-}
-
-function getDragImageData(event: DragEvent): null | InsertImagePayload {
-  const dragData = event.dataTransfer?.getData('application/x-lexical-drag');
-  if (!dragData) {
-    return null;
-  }
-  const {type, data} = JSON.parse(dragData);
-  if (type !== 'image') {
-    return null;
-  }
-
-  return data;
-}
-
-declare global {
-  interface DragEvent {
-    rangeOffset?: number;
-    rangeParent?: Node;
-  }
-}
-
-function canDropImage(event: DragEvent): boolean {
-  const target = event.target;
-  return !!(
-    isHTMLElement(target) &&
-    !target.closest('code, figure.editor-image') &&
-    isHTMLElement(target.parentElement) &&
-    target.parentElement.closest('div.ContentEditable__root')
-  );
-}
-
-function getDragSelection(event: DragEvent): Range | null | undefined {
-  let range;
-  const domSelection = getDOMSelectionFromTarget(event.target);
-  if (document.caretRangeFromPoint) {
-    range = document.caretRangeFromPoint(event.clientX, event.clientY);
-  } else if (event.rangeParent && domSelection !== null) {
-    domSelection.collapse(event.rangeParent, event.rangeOffset || 0);
-    range = domSelection.getRangeAt(0);
-  } else {
-    throw Error(`Cannot get the selection when dragging`);
-  }
-
-  return range;
 }

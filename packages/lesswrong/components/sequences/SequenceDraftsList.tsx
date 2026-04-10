@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser';
 import { sortings } from '../posts/DraftsList';
@@ -11,6 +10,8 @@ import LoadMore from "../common/LoadMore";
 import Loading from "../vulcan-core/Loading";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PostsListMultiQuery = gql(`
   query multiPostSequenceDraftsListQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -23,7 +24,7 @@ const PostsListMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SequenceDraftsList', (theme: ThemeType) => ({
   item: {
     listStyle: "none",
     position: "relative",
@@ -36,29 +37,28 @@ const styles = (theme: ThemeType) => ({
       minWidth: 230,
     },
   }
-})
+}))
 
-const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft, dialogPostIds}: {
-  classes: ClassesType<typeof styles>,
+const SequenceDraftsList = ({limit, title="My Drafts", userId, addDraft, dialogPostIds}: {
   limit: number,
   title?: string,
   userId?: string,
   addDraft: Function,
   dialogPostIds: string[],
 }) => {
+  const classes = useStyles(styles);
   const [showSettings, setShowSettings] = useState(false);
   const currentUser = useCurrentUser();
   const { query } = useLocation();
 
   const currentSorting = query.sortDraftsBy ?? query.view ?? currentUser?.draftsListSorting ?? "lastModified";
 
-  const terms = useMemo(() => ({
+  const terms = useMemo((): PostsDraftsInput => ({
     userId: userId ?? currentUser?._id,
-    limit,
     sortDraftsBy: currentSorting,
     includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : (currentUser?.draftsListShowArchived ?? undefined),
     includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
-  }), [userId, limit, currentSorting, query.includeArchived, query.includeShared, currentUser]);
+  }), [userId, currentSorting, query.includeArchived, query.includeShared, currentUser]);
   
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(PostsListMultiQuery, {
     variables: {
@@ -99,8 +99,6 @@ const SequenceDraftsList = ({limit, title="My Drafts", userId, classes, addDraft
   </>
 }
 
-export default registerComponent(
-  'SequenceDraftsList', SequenceDraftsList, {styles}
-);
+export default SequenceDraftsList;
 
 

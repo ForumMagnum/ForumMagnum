@@ -1,12 +1,10 @@
 "use client";
-
 import React, { FC, RefObject, ReactElement, useEffect, useRef, useState, useCallback } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import qs from 'qs';
 import type { SearchState } from 'react-instantsearch/connectors';
 import { Hits, Configure, SearchBox, Pagination, connectStats, connectScrollTo } from 'react-instantsearch-dom';
 import { InstantSearch } from '../../lib/utils/componentsWithChildren';
-import { isEAForum, taggingNameIsSet, taggingNamePluralCapitalSetting, taggingNameSetting } from '../../lib/instanceSettings';
+import { isEAForum } from '../../lib/instanceSettings';
 import Tab from '@/lib/vendor/@material-ui/core/src/Tab';
 import Tabs from '@/lib/vendor/@material-ui/core/src/Tabs';
 import InfoIcon from '@/lib/vendor/@material-ui/icons/src/Info';
@@ -26,7 +24,6 @@ import {
 } from '../../lib/search/searchUtil';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
-import { userHasPeopleDirectory } from '../../lib/betas';
 import { Link } from "../../lib/reactRouterWrapper";
 import { useLocation, useNavigate, useSubscribedLocation } from "../../lib/routeUtil";
 import SearchFilters from "./SearchFilters";
@@ -40,6 +37,7 @@ import LWTooltip from "../common/LWTooltip";
 import ForumIcon from "../common/ForumIcon";
 import LWDialog from '../common/LWDialog';
 import { defineStyles, useStyles } from '../hooks/useStyles';
+import { usePathname } from 'next/navigation';
 
 const hitsPerPage = 10
 
@@ -133,7 +131,6 @@ const styles = defineStyles("SearchPageTabbed", (theme: ThemeType) => ({
       borderStyle: "none",
       boxShadow: "none",
       backgroundColor: "transparent",
-      fontSize: 'inherit',
       "-webkit-appearance": "none",
       cursor: "text",
       ...theme.typography.body2,
@@ -244,6 +241,8 @@ const ScrollTo: FC<{
 const CustomScrollTo = connectScrollTo(ScrollTo);
 
 const SearchPageTabbed = () => {
+  // HACK: workaround for cacheComponents' background use of <Activity> breaking search in a lot of situations after navigation.
+  const pathname = usePathname();
   const classes = useStyles(styles);
   const scrollToRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -365,7 +364,7 @@ const SearchPageTabbed = () => {
   }
   const HitComponent = hitComponents[tab]
 
-  return <div className={classes.root}>
+  return <div key={pathname} className={classes.root}>
     <InstantSearch
       indexName={getElasticIndexNameWithSorting(tab, sorting)}
       searchClient={getSearchClient({emptyStringSearchResults: "default"})}
@@ -400,7 +399,7 @@ const SearchPageTabbed = () => {
             </div>
           </div>
           <LWTooltip
-            title={`"Quotes" and -minus signs are supported. Use user:"Jane Doe" or ${taggingNameSetting.get()}:"Expected value" to filter by user or ${taggingNameSetting.get()}.`}
+            title={`"Quotes" and -minus signs are supported. Use user:"Jane Doe" or wikitag:"Expected value" to filter by user or wikitag.`}
             className={classes.searchHelp}
           >
             <InfoIcon className={classes.infoIcon}/>
@@ -439,7 +438,7 @@ const SearchPageTabbed = () => {
         >
           <Tab label="Posts" value="Posts" />
           <Tab label="Comments" value="Comments" />
-          <Tab label={taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Tags and Wiki'} value="Tags" />
+          <Tab label="Wikitags" value="Tags" />
           <Tab label="Sequences" value="Sequences" />
           <Tab label="Users" value="Users" />
         </Tabs>
@@ -447,14 +446,6 @@ const SearchPageTabbed = () => {
         <ErrorBoundary>
           <Configure hitsPerPage={hitsPerPage} />
           <CustomStats className={classes.resultCount} />
-          {userHasPeopleDirectory(currentUser) && tab === "Users" && searchState?.query &&
-            <Link
-              to={`/people-directory?query=${encodeURIComponent(searchState.query)}`}
-              className={classes.peopleDirectory}
-            >
-              -&gt; View results in People directory (beta)
-            </Link>
-          }
           <CustomScrollTo targetRef={scrollToRef}>
             <Hits hitComponent={HitComponent} />
           </CustomScrollTo>

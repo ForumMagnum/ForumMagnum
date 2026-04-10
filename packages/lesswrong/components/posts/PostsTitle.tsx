@@ -1,5 +1,4 @@
 import React, { CSSProperties, FC, PropsWithChildren } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { useCurrentUser, useCurrentUserId } from "../common/withUser";
 import { useLocation } from '../../lib/routeUtil';
@@ -8,9 +7,6 @@ import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { getCommunityPath } from '@/lib/pathConstants';
 import { InteractionWrapper } from '../common/useClickableCell';
 import { smallTagTextStyle, tagStyle } from '../tagging/FooterTag';
-import { useCurrentAndRecentForumEvents } from '../hooks/useCurrentForumEvent';
-import { tagGetUrl } from '../../lib/collections/tags/helpers';
-import { useTheme } from '../themes/useTheme';
 import { PostsItemIcons, CuratedIcon } from "./PostsItemIcons";
 import ForumIcon from "../common/ForumIcon";
 import TagsTooltip from "../tagging/TagsTooltip";
@@ -20,14 +16,15 @@ import ArrowForwardIcon from '@/lib/vendor/@material-ui/icons/src/ArrowForward';
 import AllInclusiveIcon from '@/lib/vendor/@material-ui/icons/src/AllInclusive';
 import StarIcon from '@/lib/vendor/@material-ui/icons/src/Star';
 import { useIsOnGrayBackground } from '../hooks/useIsOnGrayBackground';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('PostsTitle', (theme: ThemeType) => ({
   root: {
     color: theme.palette.text.normal,
     position: "relative",
     lineHeight: "1.7rem",
-    fontWeight: theme.isFriendlyUI ? 600 : undefined,
-    fontFamily: theme.isFriendlyUI ? theme.palette.fonts.sansSerifStack : theme.typography.postStyle.fontFamily,
+    fontFamily: theme.typography.postStyle.fontFamily,
     zIndex: theme.zIndexes.postItemTitle,
     [theme.breakpoints.down('xs')]: {
       paddingLeft: 2,
@@ -41,10 +38,10 @@ const styles = (theme: ThemeType) => ({
       whiteSpace: "unset",
       lineHeight: "1.8rem",
     },
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
   },
   onGrayBackground: {
-    ...(theme.isBookUI && theme.dark && {
+    ...(theme.dark && {
       color: theme.palette.greyAlpha(1),
     }),
   },
@@ -52,27 +49,19 @@ const styles = (theme: ThemeType) => ({
     whiteSpace: "normal",
   },
   sticky: {
-    paddingLeft: theme.isFriendlyUI ? 2 : undefined,
-    paddingRight: theme.isFriendlyUI ? 8 : 10,
+    paddingRight: 10,
     position: "relative",
     top: 2,
     color: theme.palette.icon["dim4"],
   },
-  stickyIcon: theme.isFriendlyUI
-    ? {
-      width: 16,
-      height: 16,
-      padding: 1.5,
-      color: theme.palette.primary.main,
-    }
-    : {
-      "--icon-size": "1.2rem",
-    },
+  stickyIcon: {
+    "--icon-size": "1.2rem",
+  },
   primaryIcon: {
     color: theme.palette.icon.dim55,
-    paddingRight: theme.spacing.unit,
+    paddingRight: 8,
     top: -2,
-    width: theme.isFriendlyUI ? 26 : "auto",
+    width: "auto",
     position: "relative",
     verticalAlign: "middle",
   },
@@ -82,26 +71,14 @@ const styles = (theme: ThemeType) => ({
       color: theme.palette.text.normal,
     }
   },
-  eaTitleDesktopEllipsis: theme.isFriendlyUI ? {
-    '&:hover': {
-      opacity: 0.5
-    },
-    '& a': {
-      opacity: 1
-    },
-    [theme.breakpoints.up("sm")]: {
-      whiteSpace: "nowrap",
-      overflow: "hidden",
-      textOverflow: "ellipsis",
-    },
-  } : {},
+  eaTitleDesktopEllipsis: {},
   hideXsDown: {
     [theme.breakpoints.down('xs')]: {
       display: "none",
     }
   },
   tag: {
-    marginRight: theme.spacing.unit
+    marginRight: 8
   },
   popper: {
     opacity: 1, // this is because Tooltip has a default opacity less than 1
@@ -145,7 +122,7 @@ const styles = (theme: ThemeType) => ({
   highlightedTagTooltip: {
     marginTop: -2,
   },
-});
+}));
 
 const tagSettingIcons = new Map([
   [amaTagIdSetting, QuestionAnswerIcon], 
@@ -181,42 +158,9 @@ const postIcon = (post: PostsBase|PostsListBase) => {
   return null;
 }
 
-const useTaggedEvent = (showEventTag: boolean, post: PostsBase|PostsListBase) => {
-  const {currentForumEvent, isEventPost} = useCurrentAndRecentForumEvents();
-  if (!showEventTag) {
-    return undefined;
-  }
-  const event = isEventPost(post, {includeRecent: true});
-  if (event?.tag) {
-    if (event.tag._id === currentForumEvent?.tag?._id) {
-      return {event: event, current: true};
-    }
-    return {event: event, current: false};
-  }
-  return undefined;
-}
-
 const DefaultWrapper: FC<PropsWithChildren<{}>> = ({children}) => <>{children}</>;
 
-const PostsTitle = ({
-  post, 
-  postLink, 
-  sticky, 
-  read, 
-  showPersonalIcon=true, 
-  showDraftTag=true, 
-  wrap=false, 
-  showIcons=true,
-  isLink=true,
-  curatedIconLeft=true,
-  strikethroughTitle=false,
-  Wrapper=DefaultWrapper,
-  showEventTag,
-  linkEventProps,
-  postItemHovered,
-  className,
-  classes,
-}: {
+const PostsTitle = ({post, postLink, sticky, read, showPersonalIcon=true, showDraftTag=true, wrap=false, showIcons=true, isLink=true, curatedIconLeft=true, strikethroughTitle=false, Wrapper=DefaultWrapper, showEventTag, linkEventProps, postItemHovered, className}: {
   post: PostsBase|PostsListBase,
   postLink?: string,
   sticky?: boolean,
@@ -233,12 +177,10 @@ const PostsTitle = ({
   linkEventProps?: Record<string, string>,
   postItemHovered?: boolean,
   className?: string,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUserId = useCurrentUserId();
   const { pathname } = useLocation();
-  const {event: taggedEvent, current: taggedEventIsCurrent} = useTaggedEvent(showEventTag ?? false, post) ?? {};
-  const theme = useTheme();
   const shared = post.draft && (post.userId !== currentUserId) && post.shareWithUsers
   const isOnGrayBackground = useIsOnGrayBackground();
 
@@ -291,37 +233,10 @@ const PostsTitle = ({
           />
         </InteractionWrapper>
       </span>}
-      {taggedEvent?.tag &&
-        <InteractionWrapper className={classes.interactionWrapper}>
-          <TagsTooltip
-            tagSlug={taggedEvent.tag.slug}
-            className={classes.highlightedTagTooltip}
-          >
-            <Link doOnDown={true} to={tagGetUrl(taggedEvent.tag)} className={classes.eventTagLink}>
-              <span
-                className={classNames(
-                  classes.eventTag,
-                  {[classes.eventTagBordered]: !taggedEventIsCurrent}
-                )}
-                style={{
-                  "--post-title-tag-background": taggedEventIsCurrent ?
-                    taggedEvent.lightColor :
-                    theme.palette.tag.background,
-                  "--post-title-tag-foreground": taggedEventIsCurrent ?
-                    taggedEvent.darkColor :
-                    theme.palette.tag.text,
-                } as CSSProperties}
-              >
-                {taggedEvent.tag.shortName || taggedEvent.tag.name}
-              </span>
-            </Link>
-          </TagsTooltip>
-        </InteractionWrapper>
-      }
     </span>
   )
 }
 
-export default registerComponent('PostsTitle', PostsTitle, {styles});
+export default PostsTitle;
 
 

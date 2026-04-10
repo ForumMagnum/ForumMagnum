@@ -1,19 +1,21 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { DialogContent } from "@/components/widgets/DialogContent";
 import { DialogTitle } from "@/components/widgets/DialogTitle";
 import LWDialog from "../common/LWDialog";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('VotingPatternsWarningPopup', (theme: ThemeType) => ({
   dismissButton: {
   },
-});
+}));
 
-const VotingPatternsWarningPopup = ({onClose, classes}: {
+const VotingPatternsWarningPopup = ({onClose}: {
   onClose?: () => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
+
   return <LWDialog open={true}>
     <DialogTitle>
       Hang on there
@@ -28,6 +30,6 @@ const VotingPatternsWarningPopup = ({onClose, classes}: {
   </LWDialog>
 }
 
-export default registerComponent('VotingPatternsWarningPopup', VotingPatternsWarningPopup, {styles});
+export default VotingPatternsWarningPopup;
 
 

@@ -1,19 +1,20 @@
 import React from 'react';
-import { registerComponent } from '../../../lib/vulcan-lib/components';
 import type { ToCAnswer } from '../../../lib/tableOfContents';
 import LWTooltip from "../../common/LWTooltip";
 import FormatDate from "../../common/FormatDate";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('AnswerTocRow', (theme: ThemeType) => ({
   root: {
-    marginLeft: -theme.spacing.unit,
+    marginLeft: -8,
     display: "flex"
   },
   karma: {
     display: "inline-block",
     width: 16,
     textAlign: "center",
-    marginRight: theme.spacing.unit,
+    marginRight: 8,
     marginTop: 1,
     fontFamily: theme.typography.commentStyle.fontFamily,
   },
@@ -22,7 +23,7 @@ const styles = (theme: ThemeType) => ({
   },
   tooltipKarma: {
     fontStyle: "italic",
-    marginBottom: theme.spacing.unit*2,
+    marginBottom: 16,
     display:"flex",
     justifyContent: "space-between"
   },
@@ -36,12 +37,12 @@ const styles = (theme: ThemeType) => ({
     fontFamily: theme.typography.commentStyle.fontFamily,
     marginBottom: 4
   }
-})
+}))
 
-const AnswerTocRow = ({classes, answer}: {
-  classes: ClassesType<typeof styles>,
+const AnswerTocRow = ({answer}: {
   answer: ToCAnswer,
 }) => {
+  const classes = useStyles(styles);
   const tooltip = <div>
     <div className={classes.tooltipKarma}>
       <div>
@@ -71,6 +72,6 @@ const AnswerTocRow = ({classes, answer}: {
   </div>
 }
 
-export default registerComponent('AnswerTocRow', AnswerTocRow, {styles});
+export default AnswerTocRow
 
 

@@ -88,8 +88,3 @@ export type ReactBallotStandaloneReaction = {
   label: string;
   icon: string;
 };
-export type EmojiReactionType = {
-  name: string;
-  icon: string;
-};
-

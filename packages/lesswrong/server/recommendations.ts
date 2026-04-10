@@ -12,7 +12,6 @@ import { isEAForum } from '../lib/instanceSettings';
 import SelectQuery from "./sql/SelectQuery";
 import { getPositiveVoteThreshold } from '../lib/reviewUtils';
 import { getDefaultViewSelector } from '../lib/utils/viewUtils';
-import { EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID } from '../lib/collections/tags/helpers';
 import RecommendationService from './recommendations/RecommendationService';
 import PgCollection from './sql/PgCollection';
 import gql from 'graphql-tag';
@@ -152,14 +151,11 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm, res
     disableRecommendation: {$ne: true},
   }
 
-  if (isEAForum()) {
-    recommendationFilter = {$and: [
-      recommendationFilter,
-      {$or: [
-        {[`tagRelevance.${EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID}`]: {$exists: false}},
-        {[`tagRelevance.${EA_FORUM_APRIL_FOOLS_DAY_TOPIC_ID}`]: {$lt: 1}},
-      ]},
-    ]};
+  if (algorithm.af) {
+    recommendationFilter = {
+      ...recommendationFilter,
+      af: true,
+    };
   }
 
   if (algorithm.excludeDefaultRecommendations) {
@@ -171,6 +167,7 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm, res
         {
           ...getDefaultViewSelector(PostsViews, resolverContext), // Ensure drafts are still excluded
           defaultRecommendation: true,
+          ...(algorithm.af ? {af: true} : {}),
         },
       ],
     };
@@ -381,11 +378,14 @@ export const graphqlQueries = {
 
       if (recommendationsAlgorithmHasStrategy(algorithm)) {
         const service = new RecommendationService();
-        return service.recommend(
+        const strategy = algorithm.af
+          ? {...algorithm.strategy, af: true}
+          : algorithm.strategy;
+        return await service.recommend(
           currentUser,
           clientId,
           count,
-          algorithm.strategy,
+          strategy,
           algorithm.disableFallbacks,
         );
       }

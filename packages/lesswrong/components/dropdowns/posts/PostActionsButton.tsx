@@ -20,7 +20,6 @@ const styles = defineStyles("PostActionsButton", (theme: ThemeType) => ({
   },
   icon: {
     verticalAlign: 'middle',
-    color: theme.isFriendlyUI ? theme.palette.grey[400] : undefined,
     cursor: "pointer",
   },
   popper: {

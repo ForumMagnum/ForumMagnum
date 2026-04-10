@@ -186,7 +186,7 @@ function getMouseInfo(event: MouseEvent): {
 
   if (isHTMLElement(target)) {
     const codeDOMNode = target.closest<HTMLElement>(
-      'code.code-block',
+      'code.code-block:not(.iframe-widget-code)',
     );
     const isOutside = !(
       codeDOMNode ||

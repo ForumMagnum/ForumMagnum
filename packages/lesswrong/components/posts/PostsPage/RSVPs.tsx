@@ -13,15 +13,18 @@ import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
 import groupBy from "lodash/groupBy";
 import mapValues from "lodash/mapValues";
-import { registerComponent } from "../../../lib/vulcan-lib/components";
 import ContentStyles from "../../common/ContentStyles";
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { safeForDarkMode } from '@/components/hooks/defineStyles';
 
-const styles = (theme: ThemeType) => ({
+const maybeColor = safeForDarkMode("#d59c00");
+
+const styles = defineStyles("RSVPs", (theme: ThemeType) => ({
   body: {
     marginBottom: 48
   },
   rsvpItem: {
-    width:  theme.isFriendlyUI ? "33%" : "25%",
+    width:  "25%",
     display: "inline-block",
     marginRight: 16,
     paddingTop: 4,
@@ -66,8 +69,8 @@ const styles = (theme: ThemeType) => ({
     marginRight: 8
   },
   maybeButton: {
-    color: theme.palette.text.eventMaybe,
-    borderColor: theme.palette.text.eventMaybe,
+    color: maybeColor,
+    borderColor: maybeColor,
     marginRight: 8
   },
   cantGoButton: {
@@ -97,19 +100,15 @@ const styles = (theme: ThemeType) => ({
       display: "block"
     },
   },
-  rsvpMessage: theme.isFriendlyUI
-    ? {
-      fontFamily: theme.palette.fonts.sansSerifStack,
-    }
-    : {
-      fontStyle: "italic",
-    },
-});
+  rsvpMessage: {
+    fontStyle: "italic",
+  },
+}));
 
-const RSVPs = ({post, classes}: {
+const RSVPs = ({post}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog()
   const { query } = useLocation()
   const currentUser = useCurrentUser()
@@ -184,25 +183,25 @@ const RSVPs = ({post, classes}: {
   </ContentStyles>;
 }
 
-const responseIconStyles = (theme: ThemeType) => ({
+const responseIconStyles = defineStyles("ResponseIcon", (theme: ThemeType) => ({
   goingIcon: {
     height: 14,
     color: theme.palette.primary.main
   },
   maybeIcon: {
     height: 14,
-    color: theme.palette.text.eventMaybe
+    color: maybeColor
   },
   noIcon: {
     height: 14,
     color: theme.palette.grey[500]
   },
-});
+}));
 
-function ResponseIconInner({response, classes}: {
+export function ResponseIcon({response}: {
   response: RsvpResponse
-  classes: ClassesType<typeof responseIconStyles>
 }) {
+  const classes = useStyles(responseIconStyles);
   switch (response) {
     case "yes":
       return <CheckCircleOutlineIcon className={classes.goingIcon} />
@@ -215,8 +214,6 @@ function ResponseIconInner({response, classes}: {
   }
 }
 
-export const ResponseIcon = registerComponent('ResponseIcon', ResponseIconInner, {styles: responseIconStyles});
-
-export default registerComponent('RSVPs', RSVPs, {styles});
+export default RSVPs;
 
 

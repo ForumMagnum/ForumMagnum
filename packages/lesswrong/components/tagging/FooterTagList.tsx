@@ -12,9 +12,8 @@ import { Card } from "@/components/widgets/Paper";
 import { Link } from '../../lib/reactRouterWrapper';
 import { forumSelect } from '../../lib/forumTypeUtils';
 import { useMessages } from '../common/withMessages';
-import { adminAccountSetting, isLWorAF, taggingNamePluralSetting } from '../../lib/instanceSettings';
+import { adminAccountSetting, isLWorAF } from '../../lib/instanceSettings';
 import stringify from 'json-stringify-deterministic';
-import { FRIENDLY_HOVER_OVER_WIDTH } from '../common/FriendlyHoverOver';
 import { AnnualReviewMarketInfo } from '../../lib/collections/posts/annualReviewMarkets';
 import { stableSortTags } from '../../lib/collections/tags/helpers';
 import HoverOver from "../common/HoverOver";
@@ -23,16 +22,13 @@ import Loading from "../vulcan-core/Loading";
 import AddTagButton from "./AddTagButton";
 import CoreTagsChecklist from "./CoreTagsChecklist";
 import PostsAnnualReviewMarketTag from "../posts/PostsAnnualReviewMarketTag";
-import { apolloSSRFlag } from "@/lib/helpers";
 import ForumIcon from '../common/ForumIcon';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
+import { useCurrentTime } from '@/lib/utils/timeUtil';
 
 const styles = defineStyles('FooterTagList', (theme: ThemeType) => ({
-  root: theme.isFriendlyUI ? {
-    marginTop: 8,
-    marginBottom: 8,
-  } : {
+  root: {
     display: 'flex',
     gap: 4,
     flexWrap: 'wrap',
@@ -43,7 +39,7 @@ const styles = defineStyles('FooterTagList', (theme: ThemeType) => ({
     justifyContent: 'flex-end'
   },
   allowTruncate: {
-    display: theme.isFriendlyUI ? "block" : "inline-flex",
+    display: "inline-flex",
     // Truncate to 1 row (webkit-line-clamp would be ideal here but it adds an ellipsis
     // which can't be removed)
     maxHeight: 33,
@@ -54,26 +50,13 @@ const styles = defineStyles('FooterTagList', (theme: ThemeType) => ({
     marginBottom: 0,
   },
   postTypeLink: {
-    "&:hover": theme.isFriendlyUI ? {opacity: 1} : {},
+    "&:hover": {},
   },
   frontpageOrPersonal: {
     ...tagStyle(theme),
     backgroundColor: theme.palette.tag.hollowTagBackground,
-    ...(theme.isFriendlyUI
-      ? {
-        marginBottom: 0,
-        "&:hover": {
-          opacity: 1,
-          backgroundColor: theme.palette.tag.hollowTagBackgroundHover,
-        },
-        "& a:hover": {
-          opacity: 1,
-        },
-      }
-      : {
-        paddingTop: 4.5,
-        paddingBottom: 4.5,
-      }),
+    paddingTop: 4.5,
+    paddingBottom: 4.5,
     border: theme.palette.tag.hollowTagBorder,
     color: theme.palette.text.dim3,
   },
@@ -88,15 +71,8 @@ const styles = defineStyles('FooterTagList', (theme: ThemeType) => ({
   },
   card: {
     padding: 16,
-    ...(theme.isFriendlyUI
-      ? {
-        paddingTop: 12,
-        width: FRIENDLY_HOVER_OVER_WIDTH,
-      }
-      : {
-        width: 450,
-        paddingTop: 8,
-      }),
+    width: 450,
+    paddingTop: 8,
   },
   smallText: {
     ...smallTagTextStyle(theme),
@@ -221,7 +197,7 @@ const FooterTagList = ({
     },
     fetchPolicy: 'cache-and-network',
     // Only fetch this as a follow-up query on the client
-    ssr: apolloSSRFlag(false),
+    ssr: false,
     notifyOnNetworkStatusChange: true,
   });
 
@@ -296,20 +272,6 @@ const FooterTagList = ({
     }
   }, [setIsAwaiting, mutate, refetch, post._id, captureEvent, flash]);
 
-  // FIXME: Unstable component will lose state on rerender
-  // eslint-disable-next-line react/no-unstable-nested-components
-  const MaybeLink = ({to, children, className}: {
-    to: string|null,
-    children: React.ReactNode,
-    className?: string,
-  }) => {
-    if (to) {
-      return <Link to={to} className={className}>{children}</Link>
-    } else {
-      return <>{children}</>;
-    }
-  }
-
   const contentTypeInfo = forumSelect(getContentTypes());
 
   const PostTypeTag = useCallback(({tooltipBody, label, neverCoreStyling, showAutoClassifiedIcon}: {
@@ -367,7 +329,9 @@ const FooterTagList = ({
   </MaybeLink> : null
 
   const sortedTagInfo = results
-    ? stableSortTags(results.filter((tagRel) => !!tagRel?.tag).map((tr) => ({ tag: tr.tag!, tagRel: tr })))
+    ? stableSortTags(results.filter((tagRel) => !!tagRel?.tag).map((tr) => ({ tag: tr.tag!, tagRel: tr })), {
+        coreTags: "last",
+      })
     : post.tags.map((tag) => ({ tag, tagRel: undefined }));
   const menuPlacement = useAltAddTagButton ? "bottom-end" : undefined;
 
@@ -376,7 +340,8 @@ const FooterTagList = ({
   </AddTagButton>
 
   const postYear = post.postedAt ? new Date(post.postedAt).getFullYear() : null; // 2023
-  const currentYear = new Date().getFullYear(); // 2025
+  const now = useCurrentTime();
+  const currentYear = now.getFullYear(); // 2025
   const isRecent = postYear && ((currentYear - postYear) < 2);
 
   const innerContent = (
@@ -420,8 +385,20 @@ const FooterTagList = ({
       {innerContent}
       {appendElement}
     </span>
-    {displayShowAllButton && <div className={classes.showAll} onClick={onClickShowAll}>Show all {taggingNamePluralSetting.get()}</div>}
+    {displayShowAllButton && <div className={classes.showAll} onClick={onClickShowAll}>Show all wikitags</div>}
   </>
 };
+
+const MaybeLink = ({to, children, className}: {
+  to: string|null,
+  children: React.ReactNode,
+  className?: string,
+}) => {
+  if (to) {
+    return <Link to={to} className={className}>{children}</Link>
+  } else {
+    return <>{children}</>;
+  }
+}
 
 export default FooterTagList;

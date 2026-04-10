@@ -18,6 +18,7 @@ import { graphqlTypeDefs as commentTypeDefs, graphqlMutations as commentMutation
 import { karmaChangesTypeDefs, karmaChangesFieldResolvers } from '@/server/collections/users/karmaChangesGraphQL';
 import { analyticsGraphQLQueries, analyticsGraphQLTypeDefs } from '@/server/resolvers/analyticsResolvers';
 import { arbitalGraphQLTypeDefs, arbitalGraphQLQueries } from '@/server/resolvers/arbitalPageData';
+import { crossSiteLinkPreviewGraphQLQueries, crossSiteLinkPreviewGraphQLTypeDefs } from '@/server/resolvers/linkPreviewResolver';
 import { elicitPredictionsGraphQLTypeDefs, elicitPredictionsGraphQLQueries, elicitPredictionsGraphQLFieldResolvers, elicitPredictionsGraphQLMutations } from '@/server/resolvers/elicitPredictions';
 import { notificationResolversGqlTypeDefs, notificationResolversGqlQueries, notificationResolversGqlMutations } from '@/server/resolvers/notificationResolvers'
 import { lightcone2024FundraiserGraphQLTypeDefs, lightcone2024FundraiserGraphQLQueries } from '@/server/resolvers/lightcone2024FundraiserResolvers';
@@ -31,15 +32,13 @@ import { recentDiscussionFeedGraphQLQueries, recentDiscussionFeedGraphQLTypeDefs
 import { ultraFeedGraphQLQueries, ultraFeedGraphQLTypeDefs } from '@/server/resolvers/ultraFeedResolver';
 import { ultraFeedSubscriptionsQueries, ultraFeedSubscriptionsTypeDefs } from '@/server/resolvers/ultraFeedSubscriptionsResolver';
 import { tagHistoryFeedGraphQLQueries, tagHistoryFeedGraphQLTypeDefs } from '@/server/resolvers/tagHistoryFeed';
-import { subForumFeedGraphQLQueries, subForumFeedGraphQLTypeDefs, tagGraphQLTypeDefs, tagResolversGraphQLMutations, tagResolversGraphQLQueries } from '@/server/resolvers/tagResolvers';
+import { userContentFeedGraphQLQueries, userContentFeedGraphQLTypeDefs } from '@/server/resolvers/userContentFeedResolver';
+import { tagGraphQLTypeDefs, tagResolversGraphQLMutations, tagResolversGraphQLQueries } from '@/server/resolvers/tagResolvers';
 import { conversationGqlMutations, conversationGqlTypeDefs } from '@/server/resolvers/conversationResolvers'
-import { surveyResolversGraphQLMutations, surveyResolversGraphQLQueries, surveyResolversGraphQLTypeDefs } from '@/server/resolvers/surveyResolvers';
-import { wrappedResolversGqlTypeDefs, wrappedResolversGraphQLQueries } from '@/server/resolvers/wrappedResolvers';
 import { databaseSettingsGqlTypeDefs, databaseSettingsGqlMutations } from '@/server/resolvers/databaseSettingsResolvers'
 import { siteGraphQLQueries, siteGraphQLTypeDefs } from '../site';
 import { loginDataGraphQLMutations, loginDataGraphQLTypeDefs } from './authentication';
 import { dialogueMessageGqlQueries, dialogueMessageGqlTypeDefs } from '@/server/resolvers/dialogueMessageResolvers';
-import { forumEventGqlMutations, forumEventGqlTypeDefs } from '@/server/resolvers/forumEventResolvers';
 import { ckEditorCallbacksGraphQLMutations, ckEditorCallbacksGraphQLTypeDefs, getLinkSharedPostGraphQLQueries } from '@/server/ckEditor/ckEditorCallbacks';
 import { migrationsDashboardGraphQLQueries, migrationsDashboardGraphQLTypeDefs } from '@/server/manualMigrations/migrationsDashboardGraphql';
 import { reviewWinnerGraphQLQueries, reviewWinnerGraphQLTypeDefs } from '@/server/resolvers/reviewWinnerResolvers';
@@ -62,9 +61,10 @@ import { elasticGqlMutations, elasticGqlQueries, elasticGqlTypeDefs } from '@/se
 import { emailTokensGraphQLMutations, emailTokensGraphQLTypeDefs } from '@/server/emails/emailTokens';
 import { fmCrosspostGraphQLMutations, fmCrosspostGraphQLQueries, fmCrosspostGraphQLTypeDefs } from '@/server/fmCrosspost/resolvers';
 import { diffGqlQueries, diffGqlTypeDefs } from '@/server/resolvers/diffResolvers';
+import { reviewResultsGqlQueries, reviewResultsGqlTypeDefs } from '@/server/resolvers/reviewResultsResolvers';
 import { recommendationsGqlMutations, recommendationsGqlTypeDefs } from '@/server/recommendations/mutations';
 import { extraPostResolversGraphQLMutations, extraPostResolversGraphQLTypeDefs } from '@/server/posts/graphql';
-import { generateCoverImagesForPostGraphQLMutations, generateCoverImagesForPostGraphQLTypeDefs, flipSplashArtImageGraphQLMutations, flipSplashArtImageGraphQLTypeDefs } from '@/server/resolvers/aiArtResolvers/coverImageMutations';
+import { generateCoverImagesForPostGraphQLMutations, generateCoverImagesForPostGraphQLTypeDefs, flipSplashArtImageGraphQLMutations, flipSplashArtImageGraphQLTypeDefs, upscaleReviewWinnerArtGraphQLMutations, upscaleReviewWinnerArtGraphQLTypeDefs } from '@/server/resolvers/aiArtResolvers/coverImageMutations';
 import { elicitQuestionPredictionsGraphQLTypeDefs } from '@/lib/collections/elicitQuestionPredictions/newSchema';
 import { booksResolversTypeDefs, booksResolversQueries } from '@/server/resolvers/booksResolvers';
 import { sequencesResolversTypeDefs, sequencesResolversQueries } from '@/server/resolvers/sequencesResolvers';
@@ -72,7 +72,6 @@ import { reviewPredictionGraphQLTypeDefs, reviewPredictionGraphQLQueries } from 
 import { graphqlMutations as adminEmailSenderGraphQLMutations, graphqlQueries as adminEmailSenderGraphQLQueries, graphqlTypeDefs as adminEmailSenderGraphQLTypeDefs } from "@/server/resolvers/adminEmailSenderResolvers";
 
 // Collection imports
-import { graphqlAdvisorRequestQueryTypeDefs, advisorRequestGqlQueryHandlers, advisorRequestGqlFieldResolvers } from "@/server/collections/advisorRequests/queries";
 import { graphqlArbitalCachesQueryTypeDefs, arbitalCachesGqlFieldResolvers } from "@/server/collections/arbitalCache/queries";
 import { graphqlArbitalTagContentRelQueryTypeDefs, arbitalTagContentRelGqlQueryHandlers, arbitalTagContentRelGqlFieldResolvers } from "@/server/collections/arbitalTagContentRels/queries";
 import { graphqlAutomatedContentEvaluationQueryTypeDefs, automatedContentEvaluationGqlFieldResolvers } from "@/server/collections/automatedContentEvaluations/queries";
@@ -94,18 +93,13 @@ import { graphqlDatabaseMetadataQueryTypeDefs, databaseMetadataGqlFieldResolvers
 import { graphqlDebouncerEventsQueryTypeDefs, debouncerEventsGqlFieldResolvers } from "@/server/collections/debouncerEvents/queries";
 import { graphqlDialogueCheckQueryTypeDefs, dialogueCheckGqlQueryHandlers, dialogueCheckGqlFieldResolvers } from "@/server/collections/dialogueChecks/queries";
 import { graphqlDialogueMatchPreferenceQueryTypeDefs, dialogueMatchPreferenceGqlQueryHandlers, dialogueMatchPreferenceGqlFieldResolvers } from "@/server/collections/dialogueMatchPreferences/queries";
-import { graphqlDigestPostQueryTypeDefs, digestPostGqlQueryHandlers, digestPostGqlFieldResolvers } from "@/server/collections/digestPosts/queries";
-import { graphqlDigestQueryTypeDefs, digestGqlQueryHandlers, digestGqlFieldResolvers } from "@/server/collections/digests/queries";
-import { graphqlElectionCandidateQueryTypeDefs, electionCandidateGqlQueryHandlers, electionCandidateGqlFieldResolvers } from "@/server/collections/electionCandidates/queries";
-import { graphqlElectionVoteQueryTypeDefs, electionVoteGqlQueryHandlers, electionVoteGqlFieldResolvers } from "@/server/collections/electionVotes/queries";
 import { graphqlElicitQuestionPredictionQueryTypeDefs, elicitQuestionPredictionGqlQueryHandlers, elicitQuestionPredictionGqlFieldResolvers } from "@/server/collections/elicitQuestionPredictions/queries";
 import { graphqlElicitQuestionQueryTypeDefs, elicitQuestionGqlQueryHandlers, elicitQuestionGqlFieldResolvers } from "@/server/collections/elicitQuestions/queries";
 import { graphqlEmailTokensQueryTypeDefs, emailTokensGqlFieldResolvers } from "@/server/collections/emailTokens/queries";
-import { graphqlFeaturedResourceQueryTypeDefs, featuredResourceGqlQueryHandlers, featuredResourceGqlFieldResolvers } from "@/server/collections/featuredResources/queries";
 import { graphqlFieldChangeQueryTypeDefs, fieldChangeGqlFieldResolvers } from "@/server/collections/fieldChanges/queries";
-import { graphqlForumEventQueryTypeDefs, forumEventGqlQueryHandlers, forumEventGqlFieldResolvers } from "@/server/collections/forumEvents/queries";
-import { graphqlGardencodeQueryTypeDefs, gardencodeGqlQueryHandlers, gardencodeGqlFieldResolvers } from "@/server/collections/gardencodes/queries";
 import { graphqlGoogleServiceAccountSessionQueryTypeDefs, googleServiceAccountSessionGqlQueryHandlers, googleServiceAccountSessionGqlFieldResolvers } from "@/server/collections/googleServiceAccountSessions/queries";
+import { graphqlHomePageDesignQueryTypeDefs, homePageDesignGqlQueryHandlers, homePageDesignGqlFieldResolvers } from "@/server/collections/homePageDesigns/queries";
+import { graphqlIframeWidgetSrcdocQueryTypeDefs, iframeWidgetSrcdocGqlQueryHandlers, iframeWidgetSrcdocGqlFieldResolvers } from "@/server/collections/iframeWidgetSrcdocs/queries";
 import { graphqlImagesQueryTypeDefs, imagesGqlFieldResolvers } from "@/server/collections/images/queries";
 import { graphqlJargonTermQueryTypeDefs, jargonTermGqlQueryHandlers, jargonTermGqlFieldResolvers } from "@/server/collections/jargonTerms/queries";
 import { graphqlLweventQueryTypeDefs, lweventGqlQueryHandlers, lweventGqlFieldResolvers } from "@/server/collections/lwevents/queries";
@@ -120,7 +114,9 @@ import { graphqlModerationTemplateQueryTypeDefs, moderationTemplateGqlQueryHandl
 import { graphqlModeratorActionQueryTypeDefs, moderatorActionGqlQueryHandlers, moderatorActionGqlFieldResolvers } from "@/server/collections/moderatorActions/queries";
 import { graphqlMultiDocumentQueryTypeDefs, multiDocumentGqlQueryHandlers, multiDocumentGqlFieldResolvers } from "@/server/collections/multiDocuments/queries";
 import { graphqlNotificationQueryTypeDefs, notificationGqlQueryHandlers, notificationGqlFieldResolvers } from "@/server/collections/notifications/queries";
-import { graphqlPageCacheEntryQueryTypeDefs, pageCacheEntryGqlFieldResolvers } from "@/server/collections/pagecache/queries";
+import { graphqlOAuthAccessTokenQueryTypeDefs, oAuthAccessTokenGqlFieldResolvers } from "@/server/collections/oAuthAccessTokens/queries";
+import { graphqlOAuthAuthorizationCodeQueryTypeDefs, oAuthAuthorizationCodeGqlFieldResolvers } from "@/server/collections/oAuthAuthorizationCodes/queries";
+import { graphqlOAuthClientQueryTypeDefs, oAuthClientGqlFieldResolvers } from "@/server/collections/oAuthClients/queries";
 import { graphqlPetrovDayActionQueryTypeDefs, petrovDayActionGqlQueryHandlers, petrovDayActionGqlFieldResolvers } from "@/server/collections/petrovDayActions/queries";
 import { graphqlPetrovDayLaunchQueryTypeDefs, petrovDayLaunchGqlFieldResolvers } from "@/server/collections/petrovDayLaunchs/queries";
 import { graphqlPodcastEpisodeQueryTypeDefs, podcastEpisodeGqlQueryHandlers, podcastEpisodeGqlFieldResolvers } from "@/server/collections/podcastEpisodes/queries";
@@ -142,10 +138,6 @@ import { graphqlSideCommentCacheQueryTypeDefs, sideCommentCacheGqlFieldResolvers
 import { graphqlSplashArtCoordinateQueryTypeDefs, splashArtCoordinateGqlQueryHandlers, splashArtCoordinateGqlFieldResolvers } from "@/server/collections/splashArtCoordinates/queries";
 import { graphqlSpotlightQueryTypeDefs, spotlightGqlQueryHandlers, spotlightGqlFieldResolvers } from "@/server/collections/spotlights/queries";
 import { graphqlSubscriptionQueryTypeDefs, subscriptionGqlQueryHandlers, subscriptionGqlFieldResolvers } from "@/server/collections/subscriptions/queries";
-import { graphqlSurveyQuestionQueryTypeDefs, surveyQuestionGqlQueryHandlers, surveyQuestionGqlFieldResolvers } from "@/server/collections/surveyQuestions/queries";
-import { graphqlSurveyResponseQueryTypeDefs, surveyResponseGqlQueryHandlers, surveyResponseGqlFieldResolvers } from "@/server/collections/surveyResponses/queries";
-import { graphqlSurveyScheduleQueryTypeDefs, surveyScheduleGqlQueryHandlers, surveyScheduleGqlFieldResolvers } from "@/server/collections/surveySchedules/queries";
-import { graphqlSurveyQueryTypeDefs, surveyGqlQueryHandlers, surveyGqlFieldResolvers } from "@/server/collections/surveys/queries";
 import { graphqlTagFlagQueryTypeDefs, tagFlagGqlQueryHandlers, tagFlagGqlFieldResolvers } from "@/server/collections/tagFlags/queries";
 import { graphqlTagRelQueryTypeDefs, tagRelGqlQueryHandlers, tagRelGqlFieldResolvers } from "@/server/collections/tagRels/queries";
 import { graphqlTagQueryTypeDefs, tagGqlQueryHandlers, tagGqlFieldResolvers } from "@/server/collections/tags/queries";
@@ -153,14 +145,11 @@ import { graphqlTweetQueryTypeDefs, tweetGqlFieldResolvers } from "@/server/coll
 import { graphqlTypingIndicatorQueryTypeDefs, typingIndicatorGqlQueryHandlers, typingIndicatorGqlFieldResolvers } from "@/server/collections/typingIndicators/queries";
 import { graphqlUltraFeedEventQueryTypeDefs, ultraFeedEventGqlFieldResolvers } from "@/server/collections/ultraFeedEvents/queries";
 import { graphqlUserActivityQueryTypeDefs, userActivityGqlFieldResolvers } from "@/server/collections/useractivities/queries";
-import { graphqlUserEagDetailQueryTypeDefs, userEagDetailGqlQueryHandlers, userEagDetailGqlFieldResolvers } from "@/server/collections/userEAGDetails/queries";
-import { graphqlUserJobAdQueryTypeDefs, userJobAdGqlQueryHandlers, userJobAdGqlFieldResolvers } from "@/server/collections/userJobAds/queries";
 import { graphqlUserMostValuablePostQueryTypeDefs, userMostValuablePostGqlQueryHandlers, userMostValuablePostGqlFieldResolvers } from "@/server/collections/userMostValuablePosts/queries";
 import { graphqlUserRateLimitQueryTypeDefs, userRateLimitGqlQueryHandlers, userRateLimitGqlFieldResolvers } from "@/server/collections/userRateLimits/queries";
 import { graphqlUserTagRelQueryTypeDefs, userTagRelGqlQueryHandlers, userTagRelGqlFieldResolvers } from "@/server/collections/userTagRels/queries";
 import { graphqlUserQueryTypeDefs, userGqlQueryHandlers, userGqlFieldResolvers } from "@/server/collections/users/queries";
 import { graphqlVoteQueryTypeDefs, voteGqlQueryHandlers, voteGqlFieldResolvers } from "@/server/collections/votes/queries";
-import { createAdvisorRequestGqlMutation, updateAdvisorRequestGqlMutation, graphqlAdvisorRequestTypeDefs } from "@/server/collections/advisorRequests/mutations";
 import { bookmarkGqlTypeDefs, bookmarkGqlMutations } from '@/server/collections/bookmarks/mutations';
 import { createBookGqlMutation, updateBookGqlMutation, graphqlBookTypeDefs } from "@/server/collections/books/mutations";
 import { createChapterGqlMutation, updateChapterGqlMutation, graphqlChapterTypeDefs } from "@/server/collections/chapters/mutations";
@@ -169,12 +158,8 @@ import { createCommentModeratorActionGqlMutation, updateCommentModeratorActionGq
 import { createCommentGqlMutation, updateCommentGqlMutation, graphqlCommentTypeDefs } from "@/server/collections/comments/mutations";
 import { createConversationGqlMutation, updateConversationGqlMutation, graphqlConversationTypeDefs } from "@/server/collections/conversations/mutations";
 import { createCurationNoticeGqlMutation, updateCurationNoticeGqlMutation, graphqlCurationNoticeTypeDefs } from "@/server/collections/curationNotices/mutations";
-import { createDigestPostGqlMutation, updateDigestPostGqlMutation, graphqlDigestPostTypeDefs } from "@/server/collections/digestPosts/mutations";
-import { createDigestGqlMutation, updateDigestGqlMutation, graphqlDigestTypeDefs } from "@/server/collections/digests/mutations";
-import { createElectionCandidateGqlMutation, updateElectionCandidateGqlMutation, graphqlElectionCandidateTypeDefs } from "@/server/collections/electionCandidates/mutations";
-import { createElectionVoteGqlMutation, updateElectionVoteGqlMutation, graphqlElectionVoteTypeDefs } from "@/server/collections/electionVotes/mutations";
 import { createElicitQuestionGqlMutation, updateElicitQuestionGqlMutation, graphqlElicitQuestionTypeDefs } from "@/server/collections/elicitQuestions/mutations";
-import { createForumEventGqlMutation, updateForumEventGqlMutation, graphqlForumEventTypeDefs } from "@/server/collections/forumEvents/mutations";
+import { homePageDesignGqlMutations, graphqlHomePageDesignMutationTypeDefs } from "@/server/collections/homePageDesigns/mutations";
 import { createJargonTermGqlMutation, updateJargonTermGqlMutation, graphqlJargonTermTypeDefs } from "@/server/collections/jargonTerms/mutations";
 import { createLWEventGqlMutation, graphqlLWEventTypeDefs } from "@/server/collections/lwevents/mutations";
 import { graphqlYjsDocumentQueryTypeDefs, yjsDocumentGqlFieldResolvers } from "@/server/collections/yjsDocuments/queries";
@@ -195,15 +180,9 @@ import { createSequenceGqlMutation, updateSequenceGqlMutation, graphqlSequenceTy
 import { createSplashArtCoordinateGqlMutation, graphqlSplashArtCoordinateTypeDefs } from "@/server/collections/splashArtCoordinates/mutations";
 import { createSpotlightGqlMutation, updateSpotlightGqlMutation, graphqlSpotlightTypeDefs } from "@/server/collections/spotlights/mutations";
 import { createSubscriptionGqlMutation, graphqlSubscriptionTypeDefs } from "@/server/collections/subscriptions/mutations";
-import { createSurveyQuestionGqlMutation, updateSurveyQuestionGqlMutation, graphqlSurveyQuestionTypeDefs } from "@/server/collections/surveyQuestions/mutations";
-import { createSurveyResponseGqlMutation, updateSurveyResponseGqlMutation, graphqlSurveyResponseTypeDefs } from "@/server/collections/surveyResponses/mutations";
-import { createSurveyScheduleGqlMutation, updateSurveyScheduleGqlMutation, graphqlSurveyScheduleTypeDefs } from "@/server/collections/surveySchedules/mutations";
-import { createSurveyGqlMutation, updateSurveyGqlMutation, graphqlSurveyTypeDefs } from "@/server/collections/surveys/mutations";
 import { createTagFlagGqlMutation, updateTagFlagGqlMutation, graphqlTagFlagTypeDefs } from "@/server/collections/tagFlags/mutations";
 import { createTagGqlMutation, updateTagGqlMutation, graphqlTagTypeDefs } from "@/server/collections/tags/mutations";
 import { createUltraFeedEventGqlMutation, updateUltraFeedEventGqlMutation, graphqlUltraFeedEventTypeDefs } from "@/server/collections/ultraFeedEvents/mutations";
-import { createUserEAGDetailGqlMutation, updateUserEAGDetailGqlMutation, graphqlUserEAGDetailTypeDefs } from "@/server/collections/userEAGDetails/mutations";
-import { createUserJobAdGqlMutation, updateUserJobAdGqlMutation, graphqlUserJobAdTypeDefs } from "@/server/collections/userJobAds/mutations";
 import { createUserMostValuablePostGqlMutation, updateUserMostValuablePostGqlMutation, graphqlUserMostValuablePostTypeDefs } from "@/server/collections/userMostValuablePosts/mutations";
 import { createUserRateLimitGqlMutation, updateUserRateLimitGqlMutation, graphqlUserRateLimitTypeDefs } from "@/server/collections/userRateLimits/mutations";
 import { createUserTagRelGqlMutation, updateUserTagRelGqlMutation, graphqlUserTagRelTypeDefs } from "@/server/collections/userTagRels/mutations";
@@ -228,7 +207,6 @@ const { graphqlVoteTypeDefs: commentVoteTypeDefs, graphqlVoteMutations: commentV
 const { graphqlVoteTypeDefs: messageVoteTypeDefs, graphqlVoteMutations: messageVoteMutations } = getVoteGraphql('Messages');
 const { graphqlVoteTypeDefs: tagRelVoteTypeDefs, graphqlVoteMutations: tagRelVoteMutations } = getVoteGraphql('TagRels');
 const { graphqlVoteTypeDefs: revisionVoteTypeDefs, graphqlVoteMutations: revisionVoteMutations } = getVoteGraphql('Revisions');
-const { graphqlVoteTypeDefs: electionCandidateVoteTypeDefs, graphqlVoteMutations: electionCandidateVoteMutations } = getVoteGraphql('ElectionCandidates');
 const { graphqlVoteTypeDefs: tagVoteTypeDefs, graphqlVoteMutations: tagVoteMutations } = getVoteGraphql('Tags');
 const { graphqlVoteTypeDefs: multiDocumentVoteTypeDefs, graphqlVoteMutations: multiDocumentVoteMutations } = getVoteGraphql('MultiDocuments');
 
@@ -246,6 +224,7 @@ export const getTypeDefs = () => gql`
   type ContentType {
     type: String!
     data: ContentTypeData!
+    yjsState: String
   }
 
   ${selectorInput}
@@ -263,7 +242,6 @@ export const getTypeDefs = () => gql`
   ${messageVoteTypeDefs}
   ${tagRelVoteTypeDefs}
   ${revisionVoteTypeDefs}
-  ${electionCandidateVoteTypeDefs}
   ${tagVoteTypeDefs}
   ${multiDocumentVoteTypeDefs}
   ${commentTypeDefs}
@@ -271,6 +249,7 @@ export const getTypeDefs = () => gql`
   ${karmaChangesTypeDefs}
   ${analyticsGraphQLTypeDefs}
   ${arbitalGraphQLTypeDefs}
+  ${crossSiteLinkPreviewGraphQLTypeDefs}
   ${elicitPredictionsGraphQLTypeDefs}
   ${notificationResolversGqlTypeDefs}
   ${lightcone2024FundraiserGraphQLTypeDefs}
@@ -282,16 +261,13 @@ export const getTypeDefs = () => gql`
   ${allTagsActivityFeedGraphQLTypeDefs}
   ${recentDiscussionFeedGraphQLTypeDefs}
   ${tagHistoryFeedGraphQLTypeDefs}
-  ${subForumFeedGraphQLTypeDefs}
+  ${userContentFeedGraphQLTypeDefs}
   ${conversationGqlTypeDefs}
-  ${surveyResolversGraphQLTypeDefs}
   ${tagGraphQLTypeDefs}
-  ${wrappedResolversGqlTypeDefs}
   ${databaseSettingsGqlTypeDefs}
   ${siteGraphQLTypeDefs}
   ${loginDataGraphQLTypeDefs}
   ${dialogueMessageGqlTypeDefs}
-  ${forumEventGqlTypeDefs}
   ${ckEditorCallbacksGraphQLTypeDefs}
   ${migrationsDashboardGraphQLTypeDefs}
   ${reviewWinnerGraphQLTypeDefs}
@@ -315,19 +291,20 @@ export const getTypeDefs = () => gql`
   ${emailTokensGraphQLTypeDefs}
   ${fmCrosspostGraphQLTypeDefs}
   ${diffGqlTypeDefs}
+  ${reviewResultsGqlTypeDefs}
   ${recommendationsGqlTypeDefs}
   ${extraPostResolversGraphQLTypeDefs}
   ${ultraFeedGraphQLTypeDefs}
   ${ultraFeedSubscriptionsTypeDefs}
   ${generateCoverImagesForPostGraphQLTypeDefs}
   ${flipSplashArtImageGraphQLTypeDefs}
+  ${upscaleReviewWinnerArtGraphQLTypeDefs}
   ${elicitQuestionPredictionsGraphQLTypeDefs}
   ${booksResolversTypeDefs}
   ${sequencesResolversTypeDefs}
   ${reviewPredictionGraphQLTypeDefs}
   ${adminEmailSenderGraphQLTypeDefs}
   ## CRUD Query typedefs
-  ${graphqlAdvisorRequestQueryTypeDefs}
   ${graphqlArbitalCachesQueryTypeDefs}
   ${graphqlArbitalTagContentRelQueryTypeDefs}
   ${graphqlAutomatedContentEvaluationQueryTypeDefs}
@@ -349,18 +326,13 @@ export const getTypeDefs = () => gql`
   ${graphqlDebouncerEventsQueryTypeDefs}
   ${graphqlDialogueCheckQueryTypeDefs}
   ${graphqlDialogueMatchPreferenceQueryTypeDefs}
-  ${graphqlDigestPostQueryTypeDefs}
-  ${graphqlDigestQueryTypeDefs}
-  ${graphqlElectionCandidateQueryTypeDefs}
-  ${graphqlElectionVoteQueryTypeDefs}
   ${graphqlElicitQuestionPredictionQueryTypeDefs}
   ${graphqlElicitQuestionQueryTypeDefs}
   ${graphqlEmailTokensQueryTypeDefs}
-  ${graphqlFeaturedResourceQueryTypeDefs}
   ${graphqlFieldChangeQueryTypeDefs}
-  ${graphqlForumEventQueryTypeDefs}
-  ${graphqlGardencodeQueryTypeDefs}
   ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
+  ${graphqlHomePageDesignQueryTypeDefs}
+  ${graphqlIframeWidgetSrcdocQueryTypeDefs}
   ${graphqlImagesQueryTypeDefs}
   ${graphqlJargonTermQueryTypeDefs}
   ${graphqlLweventQueryTypeDefs}
@@ -375,7 +347,9 @@ export const getTypeDefs = () => gql`
   ${graphqlModeratorActionQueryTypeDefs}
   ${graphqlMultiDocumentQueryTypeDefs}
   ${graphqlNotificationQueryTypeDefs}
-  ${graphqlPageCacheEntryQueryTypeDefs}
+  ${graphqlOAuthAccessTokenQueryTypeDefs}
+  ${graphqlOAuthAuthorizationCodeQueryTypeDefs}
+  ${graphqlOAuthClientQueryTypeDefs}
   ${graphqlPetrovDayActionQueryTypeDefs}
   ${graphqlPetrovDayLaunchQueryTypeDefs}
   ${graphqlPodcastEpisodeQueryTypeDefs}
@@ -397,10 +371,6 @@ export const getTypeDefs = () => gql`
   ${graphqlSplashArtCoordinateQueryTypeDefs}
   ${graphqlSpotlightQueryTypeDefs}
   ${graphqlSubscriptionQueryTypeDefs}
-  ${graphqlSurveyQuestionQueryTypeDefs}
-  ${graphqlSurveyResponseQueryTypeDefs}
-  ${graphqlSurveyScheduleQueryTypeDefs}
-  ${graphqlSurveyQueryTypeDefs}
   ${graphqlTagFlagQueryTypeDefs}
   ${graphqlTagRelQueryTypeDefs}
   ${graphqlTagQueryTypeDefs}
@@ -408,8 +378,6 @@ export const getTypeDefs = () => gql`
   ${graphqlTypingIndicatorQueryTypeDefs}
   ${graphqlUltraFeedEventQueryTypeDefs}
   ${graphqlUserActivityQueryTypeDefs}
-  ${graphqlUserEagDetailQueryTypeDefs}
-  ${graphqlUserJobAdQueryTypeDefs}
   ${graphqlUserMostValuablePostQueryTypeDefs}
   ${graphqlUserRateLimitQueryTypeDefs}
   ${graphqlUserTagRelQueryTypeDefs}
@@ -417,7 +385,6 @@ export const getTypeDefs = () => gql`
   ${graphqlVoteQueryTypeDefs}
   ${graphqlYjsDocumentQueryTypeDefs}
   ## CRUD Mutation and input typedefs
-  ${graphqlAdvisorRequestTypeDefs}
   ${graphqlBookTypeDefs}
   ${graphqlChapterTypeDefs}
   ${graphqlCollectionTypeDefs}
@@ -425,12 +392,8 @@ export const getTypeDefs = () => gql`
   ${graphqlCommentTypeDefs}
   ${graphqlConversationTypeDefs}
   ${graphqlCurationNoticeTypeDefs}
-  ${graphqlDigestPostTypeDefs}
-  ${graphqlDigestTypeDefs}
-  ${graphqlElectionCandidateTypeDefs}
-  ${graphqlElectionVoteTypeDefs}
   ${graphqlElicitQuestionTypeDefs}
-  ${graphqlForumEventTypeDefs}
+  ${graphqlHomePageDesignMutationTypeDefs}
   ${graphqlJargonTermTypeDefs}
   ${graphqlLWEventTypeDefs}
   ${graphqlLlmConversationTypeDefs}
@@ -450,15 +413,9 @@ export const getTypeDefs = () => gql`
   ${graphqlSplashArtCoordinateTypeDefs}
   ${graphqlSpotlightTypeDefs}
   ${graphqlSubscriptionTypeDefs}
-  ${graphqlSurveyQuestionTypeDefs}
-  ${graphqlSurveyResponseTypeDefs}
-  ${graphqlSurveyScheduleTypeDefs}
-  ${graphqlSurveyTypeDefs}
   ${graphqlTagFlagTypeDefs}
   ${graphqlTagTypeDefs}
   ${graphqlUltraFeedEventTypeDefs}
-  ${graphqlUserEAGDetailTypeDefs}
-  ${graphqlUserJobAdTypeDefs}
   ${graphqlUserMostValuablePostTypeDefs}
   ${graphqlUserRateLimitTypeDefs}
   ${graphqlUserTagRelTypeDefs}
@@ -476,6 +433,7 @@ const getResolvers = () => ({
     ...commentQueries,
     ...analyticsGraphQLQueries,
     ...arbitalGraphQLQueries,
+    ...crossSiteLinkPreviewGraphQLQueries,
     ...elicitPredictionsGraphQLQueries,
     ...notificationResolversGqlQueries,
     ...elicitPredictionsGraphQLQueries,
@@ -487,8 +445,7 @@ const getResolvers = () => ({
     ...allTagsActivityFeedGraphQLQueries,
     ...recentDiscussionFeedGraphQLQueries,
     ...tagHistoryFeedGraphQLQueries,
-    ...subForumFeedGraphQLQueries,
-    ...wrappedResolversGraphQLQueries,
+    ...userContentFeedGraphQLQueries,
     ...siteGraphQLQueries,
     ...dialogueMessageGqlQueries,
     ...getLinkSharedPostGraphQLQueries,
@@ -503,7 +460,7 @@ const getResolvers = () => ({
     ...elasticGqlQueries,
     ...fmCrosspostGraphQLQueries,
     ...diffGqlQueries,
-    ...surveyResolversGraphQLQueries,
+    ...reviewResultsGqlQueries,
     ...tagResolversGraphQLQueries,
     ...ultraFeedGraphQLQueries,
     ...ultraFeedSubscriptionsQueries,
@@ -514,7 +471,6 @@ const getResolvers = () => ({
     ...adminEmailSenderGraphQLQueries,
 
     // CRUD Query Handlers
-    ...advisorRequestGqlQueryHandlers,
     ...arbitalTagContentRelGqlQueryHandlers,
     ...banGqlQueryHandlers,
     ...bookGqlQueryHandlers,
@@ -528,16 +484,11 @@ const getResolvers = () => ({
     ...curationNoticeGqlQueryHandlers,
     ...dialogueCheckGqlQueryHandlers,
     ...dialogueMatchPreferenceGqlQueryHandlers,
-    ...digestPostGqlQueryHandlers,
-    ...digestGqlQueryHandlers,
-    ...electionCandidateGqlQueryHandlers,
-    ...electionVoteGqlQueryHandlers,
     ...elicitQuestionPredictionGqlQueryHandlers,
     ...elicitQuestionGqlQueryHandlers,
-    ...featuredResourceGqlQueryHandlers,
-    ...forumEventGqlQueryHandlers,
-    ...gardencodeGqlQueryHandlers,
     ...googleServiceAccountSessionGqlQueryHandlers,
+    ...homePageDesignGqlQueryHandlers,
+    ...iframeWidgetSrcdocGqlQueryHandlers,
     ...jargonTermGqlQueryHandlers,
     ...lweventGqlQueryHandlers,
     ...llmConversationGqlQueryHandlers,
@@ -562,16 +513,10 @@ const getResolvers = () => ({
     ...splashArtCoordinateGqlQueryHandlers,
     ...spotlightGqlQueryHandlers,
     ...subscriptionGqlQueryHandlers,
-    ...surveyQuestionGqlQueryHandlers,
-    ...surveyResponseGqlQueryHandlers,
-    ...surveyScheduleGqlQueryHandlers,
-    ...surveyGqlQueryHandlers,
     ...tagFlagGqlQueryHandlers,
     ...tagRelGqlQueryHandlers,
     ...tagGqlQueryHandlers,
     ...typingIndicatorGqlQueryHandlers,
-    ...userEagDetailGqlQueryHandlers,
-    ...userJobAdGqlQueryHandlers,
     ...userMostValuablePostGqlQueryHandlers,
     ...userRateLimitGqlQueryHandlers,
     ...userTagRelGqlQueryHandlers,
@@ -586,7 +531,6 @@ const getResolvers = () => ({
     ...messageVoteMutations,
     ...tagRelVoteMutations,
     ...revisionVoteMutations,
-    ...electionCandidateVoteMutations,
     ...tagVoteMutations,
     ...multiDocumentVoteMutations,
     ...commentMutations,
@@ -598,7 +542,6 @@ const getResolvers = () => ({
     ...alignmentForumMutations,
     ...conversationGqlMutations,
     ...databaseSettingsGqlMutations,
-    ...forumEventGqlMutations,
     ...ckEditorCallbacksGraphQLMutations,
     ...importUrlAsDraftPostGqlMutation,
     ...revisionResolversGraphQLMutations,
@@ -607,6 +550,7 @@ const getResolvers = () => ({
     ...spotlightGqlMutations,
     ...tagResolversGraphQLMutations,
     ...bookmarkGqlMutations,
+    ...homePageDesignGqlMutations,
     ...hidePostGqlMutations,
     ...markAsUnreadMutations,
     ...cronGraphQLMutations,
@@ -614,21 +558,19 @@ const getResolvers = () => ({
     ...jargonTermsGraphQLMutations,
     ...generateCoverImagesForPostGraphQLMutations,
     ...flipSplashArtImageGraphQLMutations,
+    ...upscaleReviewWinnerArtGraphQLMutations,
     ...rsvpToEventsMutations,
     ...tagsGqlMutations,
     ...analyticsEventGraphQLMutations,
     ...elasticGqlMutations,
     ...emailTokensGraphQLMutations,
     ...fmCrosspostGraphQLMutations,
-    ...surveyResolversGraphQLMutations, 
     ...recommendationsGqlMutations,
     ...extraPostResolversGraphQLMutations,
     ...loginDataGraphQLMutations,
     ...adminEmailSenderGraphQLMutations,
 
     // CRUD Mutation Handlers
-    createAdvisorRequest: createAdvisorRequestGqlMutation,
-    updateAdvisorRequest: updateAdvisorRequestGqlMutation,
     createBook: createBookGqlMutation,
     updateBook: updateBookGqlMutation,
     createChapter: createChapterGqlMutation,
@@ -643,18 +585,8 @@ const getResolvers = () => ({
     updateConversation: updateConversationGqlMutation,
     createCurationNotice: createCurationNoticeGqlMutation,
     updateCurationNotice: updateCurationNoticeGqlMutation,
-    createDigestPost: createDigestPostGqlMutation,
-    updateDigestPost: updateDigestPostGqlMutation,
-    createDigest: createDigestGqlMutation,
-    updateDigest: updateDigestGqlMutation,
-    createElectionCandidate: createElectionCandidateGqlMutation,
-    updateElectionCandidate: updateElectionCandidateGqlMutation,
-    createElectionVote: createElectionVoteGqlMutation,
-    updateElectionVote: updateElectionVoteGqlMutation,
     createElicitQuestion: createElicitQuestionGqlMutation,
     updateElicitQuestion: updateElicitQuestionGqlMutation,
-    createForumEvent: createForumEventGqlMutation,
-    updateForumEvent: updateForumEventGqlMutation,
     createJargonTerm: createJargonTermGqlMutation,
     updateJargonTerm: updateJargonTermGqlMutation,
     createLWEvent: createLWEventGqlMutation,
@@ -685,24 +617,12 @@ const getResolvers = () => ({
     createSpotlight: createSpotlightGqlMutation,
     updateSpotlight: updateSpotlightGqlMutation,
     createSubscription: createSubscriptionGqlMutation,
-    createSurveyQuestion: createSurveyQuestionGqlMutation,
-    updateSurveyQuestion: updateSurveyQuestionGqlMutation,
-    createSurveyResponse: createSurveyResponseGqlMutation,
-    updateSurveyResponse: updateSurveyResponseGqlMutation,
-    createSurveySchedule: createSurveyScheduleGqlMutation,
-    updateSurveySchedule: updateSurveyScheduleGqlMutation,
-    createSurvey: createSurveyGqlMutation,
-    updateSurvey: updateSurveyGqlMutation,
     createTagFlag: createTagFlagGqlMutation,
     updateTagFlag: updateTagFlagGqlMutation,
     createTag: createTagGqlMutation,
     updateTag: updateTagGqlMutation,
     createUltraFeedEvent: createUltraFeedEventGqlMutation,
     updateUltraFeedEvent: updateUltraFeedEventGqlMutation,
-    createUserEAGDetail: createUserEAGDetailGqlMutation,
-    updateUserEAGDetail: updateUserEAGDetailGqlMutation,
-    createUserJobAd: createUserJobAdGqlMutation,
-    updateUserJobAd: updateUserJobAdGqlMutation,
     createUserMostValuablePost: createUserMostValuablePostGqlMutation,
     updateUserMostValuablePost: updateUserMostValuablePostGqlMutation,
     createUserRateLimit: createUserRateLimitGqlMutation,
@@ -715,7 +635,6 @@ const getResolvers = () => ({
   ...karmaChangesFieldResolvers,
   ...elicitPredictionsGraphQLFieldResolvers,
   // Collection Field Resolvers
-  ...advisorRequestGqlFieldResolvers,
   ...arbitalCachesGqlFieldResolvers,
   ...arbitalTagContentRelGqlFieldResolvers,
   ...automatedContentEvaluationGqlFieldResolvers,
@@ -737,18 +656,13 @@ const getResolvers = () => ({
   ...debouncerEventsGqlFieldResolvers,
   ...dialogueCheckGqlFieldResolvers,
   ...dialogueMatchPreferenceGqlFieldResolvers,
-  ...digestPostGqlFieldResolvers,
-  ...digestGqlFieldResolvers,
-  ...electionCandidateGqlFieldResolvers,
-  ...electionVoteGqlFieldResolvers,
   ...elicitQuestionPredictionGqlFieldResolvers,
   ...elicitQuestionGqlFieldResolvers,
   ...emailTokensGqlFieldResolvers,
-  ...featuredResourceGqlFieldResolvers,
   ...fieldChangeGqlFieldResolvers,
-  ...forumEventGqlFieldResolvers,
-  ...gardencodeGqlFieldResolvers,
   ...googleServiceAccountSessionGqlFieldResolvers,
+  ...homePageDesignGqlFieldResolvers,
+  ...iframeWidgetSrcdocGqlFieldResolvers,
   ...imagesGqlFieldResolvers,
   ...jargonTermGqlFieldResolvers,
   ...lweventGqlFieldResolvers,
@@ -763,7 +677,9 @@ const getResolvers = () => ({
   ...moderatorActionGqlFieldResolvers,
   ...multiDocumentGqlFieldResolvers,
   ...notificationGqlFieldResolvers,
-  ...pageCacheEntryGqlFieldResolvers,
+  ...oAuthAccessTokenGqlFieldResolvers,
+  ...oAuthAuthorizationCodeGqlFieldResolvers,
+  ...oAuthClientGqlFieldResolvers,
   ...petrovDayActionGqlFieldResolvers,
   ...petrovDayLaunchGqlFieldResolvers,
   ...podcastEpisodeGqlFieldResolvers,
@@ -785,10 +701,6 @@ const getResolvers = () => ({
   ...splashArtCoordinateGqlFieldResolvers,
   ...spotlightGqlFieldResolvers,
   ...subscriptionGqlFieldResolvers,
-  ...surveyQuestionGqlFieldResolvers,
-  ...surveyResponseGqlFieldResolvers,
-  ...surveyScheduleGqlFieldResolvers,
-  ...surveyGqlFieldResolvers,
   ...tagFlagGqlFieldResolvers,
   ...tagRelGqlFieldResolvers,
   ...tagGqlFieldResolvers,
@@ -796,8 +708,6 @@ const getResolvers = () => ({
   ...typingIndicatorGqlFieldResolvers,
   ...ultraFeedEventGqlFieldResolvers,
   ...userActivityGqlFieldResolvers,
-  ...userEagDetailGqlFieldResolvers,
-  ...userJobAdGqlFieldResolvers,
   ...userMostValuablePostGqlFieldResolvers,
   ...userRateLimitGqlFieldResolvers,
   ...userTagRelGqlFieldResolvers,

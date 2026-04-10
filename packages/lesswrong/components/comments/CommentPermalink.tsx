@@ -2,7 +2,6 @@ import React from 'react';
 import { commentIsHiddenPendingReview } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { isLWorAF, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
-import { isNotRandomId } from '@/lib/random';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -12,6 +11,7 @@ import CommentOnPostWithReplies from "./CommentOnPostWithReplies";
 import CommentWithReplies from "./CommentWithReplies";
 import { useStyles } from '../hooks/useStyles';
 import { defineStyles } from '../hooks/defineStyles';
+import { useCurrentUserId } from '../common/withUser';
 
 const CommentWithRepliesFragmentQuery = gql(`
   query CommentPermalink($documentId: String) {
@@ -27,9 +27,7 @@ const styles = defineStyles("CommentPermalink", (theme: ThemeType) => ({
   root: {
     ...theme.typography.body2,
     ...theme.typography.commentStyle,
-    ...(theme.isBookUI ? {
-      marginTop: 64
-    } : {}),
+    marginTop: 64
   },
   dividerMargins: {
     marginTop: 150,
@@ -37,10 +35,10 @@ const styles = defineStyles("CommentPermalink", (theme: ThemeType) => ({
   },
   permalinkLabel: {
     color: theme.palette.grey[600],
-    marginBottom: theme.spacing.unit*2,
+    marginBottom: 16,
     marginLeft: 10,
     [theme.breakpoints.down('md')]: {
-      marginTop: theme.spacing.unit*2
+      marginTop: 16
     }
   },
   seeInContext: {
@@ -60,11 +58,11 @@ const CommentPermalink = ({
   silentLoading?: boolean,
 }) => {
   const classes = useStyles(styles);
+  const currentUserId = useCurrentUserId();
   const hasInContextComments = commentPermalinkStyleSetting.get() === 'in-context'
 
   const { data, loading, error, refetch } = useQuery(CommentWithRepliesFragmentQuery, {
     variables: { documentId: documentId },
-    skip: isNotRandomId(documentId),
   });
   const comment = data?.comment?.result;
 
@@ -76,8 +74,11 @@ const CommentPermalink = ({
 
   if (!comment || !documentId) return null
   
+  const hiddenPendingReview = commentIsHiddenPendingReview(comment) && !comment.rejected;
+  const isOwnUnreviewedComment = hiddenPendingReview && currentUserId === comment.userId;
+
   // if the site is currently hiding comments by unreviewed authors, check if we need to hide this comment
-  if (commentIsHiddenPendingReview(comment) && !comment.rejected) return <div className={classes.root}>
+  if (hiddenPendingReview && !isOwnUnreviewedComment) return <div className={classes.root}>
     <div className={classes.permalinkLabel}>
       Comment Permalink 
       <p>Error: Sorry, this comment is hidden</p>

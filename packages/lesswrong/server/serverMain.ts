@@ -1,14 +1,11 @@
 // import { startWebserver } from './apolloServer';
 import { scheduleQueueProcessing } from './cache/swr';
-import { initRenderQueueLogging } from './rendering/requestQueue';
-import { startMemoryUsageMonitor } from './logging';
 // import { initLegacyRoutes } from '@/lib/routes';
 import { startupSanityChecks } from './startupSanityChecks';
 import { refreshKarmaInflationCache } from './karmaInflation/cron';
 // import { addLegacyRssRoutes } from './legacy-redirects/routes';
 // import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
 import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
-import { startSyncedCron } from './cron/startCron';
 import { isAnyTest, isMigrations } from '@/lib/executionEnvironment';
 import chokidar from 'chokidar';
 import fs from 'fs';
@@ -41,8 +38,6 @@ import { backgroundTask } from './utils/backgroundTask';
 
 export async function runServerOnStartupFunctions() {
   scheduleQueueProcessing();
-  initRenderQueueLogging();
-  startMemoryUsageMonitor();
   // initLegacyRoutes();
   backgroundTask(startupSanityChecks());
   backgroundTask(refreshKarmaInflationCache());
@@ -50,7 +45,6 @@ export async function runServerOnStartupFunctions() {
   // backgroundTask(initReviewWinnerCache());
   backgroundTask(updateStripeIntentsCache());
 
-  startSyncedCron();
   captureEvent("serverStarted", {});
 }
 

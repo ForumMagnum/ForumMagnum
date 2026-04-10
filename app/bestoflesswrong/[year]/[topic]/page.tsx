@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import merge from "lodash/merge";
 import { siteNameWithArticleSetting } from "@/lib/instanceSettings";
 import RouteRoot from "@/components/layout/RouteRoot";
+import { assertRouteAttributes } from "@/lib/routeChecks/assertRouteAttributes";
 
 export async function generateMetadata(): Promise<Metadata> {
   return merge(
@@ -16,10 +17,18 @@ export async function generateMetadata(): Promise<Metadata> {
   );
 }
 
+assertRouteAttributes("/bestoflesswrong/[year]/[topic]", {
+  whiteBackground: false,
+  hasLinkPreview: false,
+  hasPingbacks: false,
+  hasLeftNavigationColumn: false,
+  hasMarkdownVersion: false,
+});
+
 export default function Page() {
-  return <RouteRoot metadata={{
-    subtitle: 'The Best of LessWrong',
-    subtitleLink: '/leastwrong',
+  return <RouteRoot subtitle={{
+    title: 'The Best of LessWrong',
+    link: '/leastwrong',
   }}>
     <TopPostsPage />
   </RouteRoot>;

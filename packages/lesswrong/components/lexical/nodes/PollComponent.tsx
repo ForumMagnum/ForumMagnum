@@ -1,3 +1,4 @@
+"use client";
 /**
  * Copyright (c) Meta Platforms, Inc. and affiliates.
  *
@@ -190,14 +191,7 @@ function getTotalVotes(options: Options): number {
   }, 0);
 }
 
-function PollOptionComponent({
-  option,
-  index,
-  options,
-  totalVotes,
-  withPollNode,
-  classes,
-}: {
+function PollOptionComponent({option, index, options, totalVotes, withPollNode}: {
   index: number;
   option: Option;
   options: Options;
@@ -206,8 +200,8 @@ function PollOptionComponent({
     cb: (pollNode: PollNode) => void,
     onSelect?: () => void,
   ) => void;
-  classes: Record<string, string>;
 }): JSX.Element {
+  const classes = useStyles(styles);
   const {name: username} = useCollaborationContext();
   const checkboxRef = useRef(null);
   const votesArray = option.votes;
@@ -363,7 +357,6 @@ export default function PollComponent({
               index={index}
               options={options}
               totalVotes={totalVotes}
-              classes={classes}
             />
           );
         })}

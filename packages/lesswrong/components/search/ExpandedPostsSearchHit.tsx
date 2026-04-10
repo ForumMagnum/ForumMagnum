@@ -1,4 +1,3 @@
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import React from 'react';
 import type { Hit } from 'react-instantsearch-core';
 import { Snippet } from 'react-instantsearch-dom';
@@ -8,8 +7,10 @@ import { Link } from "../../lib/reactRouterWrapper";
 import { useNavigate } from "../../lib/routeUtil";
 import FormatDate from "../common/FormatDate";
 import UserNameDeleted from "../users/UserNameDeleted";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("ExpandedPostsSearchHit", (theme: ThemeType) => ({
   root: {
     maxWidth: 600,
     paddingTop: 2,
@@ -57,12 +58,12 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.grey[700],
     marginTop: 7
   }
-})
+}))
 
-const ExpandedPostsSearchHit = ({hit, classes}: {
+const ExpandedPostsSearchHit = ({hit}: {
   hit: Hit<any>,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const navigate = useNavigate();
   const post: SearchPost = hit
   
@@ -89,7 +90,7 @@ const ExpandedPostsSearchHit = ({hit, classes}: {
   </div>
 }
 
-export default registerComponent("ExpandedPostsSearchHit", ExpandedPostsSearchHit, {styles});
+export default ExpandedPostsSearchHit;
 
 
 

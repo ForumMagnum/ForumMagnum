@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import PersonIcon from '@/lib/vendor/@material-ui/icons/src/Person';
@@ -13,6 +13,7 @@ import KeystrokeDisplay from './KeystrokeDisplay';
 import type { InboxAction } from './inboxReducer';
 import { usePostReviewActions } from './usePostReviewActions';
 import ModeratorCoreTagsChecklist from './ModeratorCoreTagsChecklist';
+import LLMScoreBadge from './LLMScoreBadge';
 
 const styles = defineStyles('ModerationPostSidebar', (theme: ThemeType) => ({
   root: {
@@ -79,10 +80,19 @@ const styles = defineStyles('ModerationPostSidebar', (theme: ThemeType) => ({
     width: 14,
     marginLeft: 4,
   },
+  llmScoreBadge: {
+    display: 'inline-block',
+    padding: '4px 10px',
+    borderRadius: 4,
+    fontSize: '0.85em',
+    fontWeight: 500,
+    marginBottom: 12,
+  },
   postWrapper: {
     flex: 1,
     overflow: 'auto',
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
+    paddingTop: 48
   },
   empty: {
     padding: 40,
@@ -154,6 +164,15 @@ const ModerationPostSidebar = ({
           </div>
         )}
 
+        <LLMScoreBadge
+          documentId={post._id}
+          automatedContentEvaluations={post.automatedContentEvaluations}
+          contentHtml={post.contents?.html ?? ''}
+          contentType="Post"
+          showWhenEmpty
+          className={classes.llmScoreBadge}
+        />
+
         <div className={classes.buttonRow}>
           <Button
             onClick={markAsPersonal}
@@ -198,4 +217,3 @@ const ModerationPostSidebar = ({
 };
 
 export default ModerationPostSidebar;
-

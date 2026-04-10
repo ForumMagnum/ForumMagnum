@@ -1,5 +1,4 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import classNames from 'classnames'
 import Checkbox from '@/lib/vendor/@material-ui/core/src/Checkbox';
@@ -7,17 +6,18 @@ import { QueryLink } from '../../lib/reactRouterWrapper'
 import { useCurrentUser } from '../common/withUser';
 
 import { sortings as defaultSortings } from './DraftsList'
-import { preferredHeadingCase } from '../../themes/forumTheme';
 import { TooltipSpan } from '../common/FMTooltip';
 import MetaInfo from "../common/MetaInfo";
 import SettingsColumn from "../common/SettingsColumn";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('DraftsListSettings', (theme: ThemeType) => ({
   root: {
     display: "flex",
     alignItems: "flex-start",
     justifyContent: "space-between",
-    marginBottom: theme.spacing.unit,
+    marginBottom: 8,
     flexWrap: "wrap",
     background: theme.palette.panelBackground.default,
     padding: "12px 24px 8px 12px"
@@ -33,12 +33,12 @@ const styles = (theme: ThemeType) => ({
     display: "flex",
     alignItems: "center",
     [theme.breakpoints.down('xs')]: {
-      marginBottom: theme.spacing.unit*2,
+      marginBottom: 16,
       flex: `1 0 100%`,
       order: 0
     }
   },
-})
+}))
 
 const USER_SETTING_NAMES = {
   sortDraftsBy: 'draftsListSorting',
@@ -46,23 +46,15 @@ const USER_SETTING_NAMES = {
   showShared: 'draftsListShowShared'
 }
 
-const DraftsListSettings = ({
-  persistentSettings, 
-  hidden, 
-  currentSorting, 
-  currentIncludeArchived,
-  currentIncludeShared,
-  sortings=defaultSortings, 
-  classes
-}: {
+const DraftsListSettings = ({persistentSettings, hidden, currentSorting, currentIncludeArchived, currentIncludeShared, sortings=defaultSortings}: {
   persistentSettings?: any,
   hidden: boolean,
   currentSorting: any,
   currentIncludeArchived: boolean,
   currentIncludeShared: boolean,
   sortings?: any,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const updateCurrentUser = useUpdateCurrentUser();
   
@@ -97,7 +89,7 @@ const DraftsListSettings = ({
             <Checkbox classes={{root: classes.checkbox}} checked={currentIncludeArchived}/>
       
             <MetaInfo>
-              {preferredHeadingCase("Show Archived")}
+              Show Archived
             </MetaInfo>
           </QueryLink>
         </TooltipSpan>
@@ -112,7 +104,7 @@ const DraftsListSettings = ({
             <Checkbox classes={{root: classes.checkbox}} checked={currentIncludeShared}/>
       
             <MetaInfo>
-              {preferredHeadingCase("Show Shared with You")}
+              Show Shared with You
             </MetaInfo>
           </QueryLink>
         </TooltipSpan>
@@ -121,8 +113,6 @@ const DraftsListSettings = ({
   );
 };
 
-export default registerComponent(
-  'DraftsListSettings', DraftsListSettings, { styles }
-);
+export default DraftsListSettings;
 
 

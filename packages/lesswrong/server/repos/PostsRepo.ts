@@ -1,15 +1,13 @@
 import Posts from "../../server/collections/posts/collection";
 import AbstractRepo from "./AbstractRepo";
-import { eaPublicEmojiNames } from "../../lib/voting/eaEmojiPalette";
-import LRU from "lru-cache";
 import { getViewableEventsSelector, getViewablePostsSelector } from "./helpers";
-import { EA_FORUM_COMMUNITY_TOPIC_ID } from "../../lib/collections/tags/helpers";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import { isAF } from "../../lib/instanceSettings";
 import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
 import { FilterSettings, FilterMode } from "@/lib/filterSettings";
 import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
 import { TIME_DECAY_FACTOR, SCORE_BIAS } from "@/lib/scoring";
+import { getPgPromiseLib } from "@/server/sqlConnection";
 import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
 
 type DbPostWithContents = DbPost & {contents?: DbRevision | null};
@@ -18,24 +16,6 @@ type MeanPostKarma = {
   _id: number,
   meanKarma: number,
 }
-
-type PostAndDigestPost = DbPost & {digestPostId: string|null, emailDigestStatus: string|null, onsiteDigestStatus: string|null}
-
-// Map from emoji names to an array of user display names
-type PostEmojiReactors = Record<string, string[]>;
-
-const postEmojiReactorCache = new LRU<string, Promise<PostEmojiReactors>>({
-  maxAge: 30 * 1000, // 30 second TTL
-  updateAgeOnGet: false,
-});
-
-// Map from comment ids to maps from emoji names to an array of user display names
-type CommentEmojiReactors = Record<string, Record<string, string[]>>;
-
-const commentEmojiReactorCache = new LRU<string, Promise<CommentEmojiReactors>>({
-  maxAge: 30 * 1000, // 30 second TTL
-  updateAgeOnGet: false,
-});
 
 const constructFilters = (
   {
@@ -74,6 +54,10 @@ function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
   return 1;
 }
 
+function sqlValue(value: string): string {
+  return `'${getPgPromiseLib().as.value(value)}'`;
+}
+
 /**
  * Constructs a SQL expression for calculating the filteredScore based on filterSettings
  * This mirrors the logic in the "magic" view's filterSettingsToParams function
@@ -85,7 +69,7 @@ function constructFilteredScoreSql(filterSettings: FilterSettings): string {
 
   const additiveModifiersSql = tagsSoftFiltered.map(tag => `
     (CASE
-      WHEN COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) > 0
+      WHEN COALESCE((p."tagRelevance"->${sqlValue(tag.tagId)})::INTEGER, 0) > 0
       THEN ${filterModeToAdditiveKarmaModifier(tag.filterMode)}
       ELSE 0
     END)`
@@ -93,7 +77,7 @@ function constructFilteredScoreSql(filterSettings: FilterSettings): string {
 
   const multiplicativeModifiersSql = tagsSoftFiltered.map(tag => `
     (CASE
-      WHEN COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) > 0
+      WHEN COALESCE((p."tagRelevance"->${sqlValue(tag.tagId)})::INTEGER, 0) > 0
       THEN ${filterModeToMultiplicativeKarmaModifier(tag.filterMode)}
       ELSE 1
     END)`
@@ -147,21 +131,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       )
       WHERE $1 = ANY("coauthorUserIds");
     `, [oldUserId, newUserId]);
-  }
-
-  async postRouteWillDefinitelyReturn200(id: string): Promise<boolean> {
-    const maybeRequireAF = isAF() ? "AND af IS TRUE" : ""
-    const res = await this.getRawDb().oneOrNone<{exists: boolean}>(`
-      -- PostsRepo.postRouteWillDefinitelyReturn200
-      SELECT EXISTS(
-        SELECT 1
-        FROM "Posts"
-        WHERE "_id" = $1 AND ${getViewablePostsSelector()}
-        ${maybeRequireAF}
-      )
-    `, [id]);
-
-    return res?.exists ?? false;
   }
 
   async getEarliestPostTime(): Promise<Date> {
@@ -249,145 +218,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   }
 
 
-  async getEligiblePostsForDigest(digestId: string, startDate: Date, endDate?: Date): Promise<Array<PostAndDigestPost>> {
-    const end = endDate ?? new Date()
-    return this.getRawDb().manyOrNone(`
-      -- PostsRepo.getEligiblePostsForDigest
-      SELECT p.*, dp._id as "digestPostId", dp."emailDigestStatus", dp."onsiteDigestStatus"
-      FROM "Posts" p
-      LEFT JOIN "DigestPosts" dp ON dp."postId" = p."_id" AND dp."digestId" = $1
-      WHERE p."postedAt" > $2 AND
-        p."postedAt" <= $3 AND
-        p."baseScore" > 2 AND
-        p."isEvent" is not true AND
-        p."shortform" is not true AND
-        p."isFuture" is not true AND
-        p."authorIsUnreviewed" is not true AND
-        p."draft" is not true
-      ORDER BY p."baseScore" desc
-      LIMIT 200
-    `, [digestId, startDate, end], "getEligiblePostsForDigest");
-  }
-  
-  async getPostsForOnsiteDigest(num: number): Promise<Array<DbPost>> {
-    return this.manyOrNone(`
-      -- PostsRepo.getPostsForOnsiteDigest
-      SELECT p.*
-      FROM "Posts" p
-      JOIN "DigestPosts" dp ON dp."postId" = p."_id" AND dp."onsiteDigestStatus" = 'yes'
-      JOIN "Digests" d ON d.num = $1 AND dp."digestId" = d._id
-      WHERE
-        p."draft" is not true
-      ORDER BY p."curatedDate" DESC NULLS LAST, p."suggestForCuratedUserIds" DESC NULLS LAST, p."baseScore" desc
-      LIMIT 50
-    `, [num]);
-  }
-
-  async getPostEmojiReactors(postId: string): Promise<PostEmojiReactors> {
-    const {emojiReactors} = await this.getRawDb().one(`
-      -- PostsRepo.getPostEmojiReactors
-      SELECT JSON_OBJECT_AGG("key", "displayNames") AS "emojiReactors"
-      FROM (
-        SELECT
-          "key",
-          (ARRAY_AGG(
-            "displayName" ORDER BY "createdAt" ASC)
-          ) AS "displayNames"
-        FROM (
-          SELECT
-            u."displayName",
-            v."createdAt",
-            (JSONB_EACH(v."extendedVoteType")).*
-          FROM "Votes" v
-          JOIN "Users" u ON u."_id" = v."userId"
-          WHERE
-            v."collectionName" = 'Posts' AND
-            v."documentId" = $1 AND
-            v."cancelled" IS NOT TRUE AND
-            v."isUnvote" IS NOT TRUE AND
-            v."extendedVoteType" IS NOT NULL
-        ) q
-        WHERE "key" IN ($2:csv) AND "value" = TO_JSONB(TRUE)
-        GROUP BY "key"
-      ) q
-    `, [postId, eaPublicEmojiNames]);
-    return emojiReactors;
-  }
-
-  async getPostEmojiReactorsWithCache(postId: string): Promise<PostEmojiReactors> {
-    const cached = postEmojiReactorCache.get(postId);
-    if (cached !== undefined) {
-      return cached;
-    }
-    const emojiReactors = this.getPostEmojiReactors(postId);
-    postEmojiReactorCache.set(postId, emojiReactors);
-    return emojiReactors;
-  }
-
-  async getCommentEmojiReactors(postId: string): Promise<CommentEmojiReactors> {
-    const {emojiReactors} = await this.getRawDb().one(`
-      -- PostsRepo.getCommentEmojiReactors
-      SELECT JSON_OBJECT_AGG("commentId", "reactorDisplayNames") AS "emojiReactors"
-      FROM (
-        SELECT
-          "commentId",
-          JSON_OBJECT_AGG("key", "displayNames")
-            FILTER (WHERE "key" IN ($2:csv))
-            AS "reactorDisplayNames"
-        FROM (
-          SELECT
-            "commentId",
-            "key",
-            (ARRAY_AGG(
-              "displayName" ORDER BY "createdAt" ASC)
-            ) AS "displayNames"
-          FROM (
-            SELECT
-              c."_id" AS "commentId",
-              u."displayName",
-              v."createdAt",
-              (JSONB_EACH(v."extendedVoteType")).*
-            FROM "Comments" c
-            JOIN "Votes" v ON
-              v."collectionName" = 'Comments' AND
-              v."documentId" = c."_id" AND
-              v."cancelled" IS NOT TRUE AND
-              v."isUnvote" IS NOT TRUE AND
-              v."extendedVoteType" IS NOT NULL
-            JOIN "Users" u ON u."_id" = v."userId"
-            WHERE c."postId" = $1
-          ) q
-          WHERE "value" = TO_JSONB(TRUE)
-          GROUP BY "commentId", "key"
-        ) q
-        GROUP BY "commentId"
-      ) q
-    `, [postId, eaPublicEmojiNames]);
-    return emojiReactors;
-  }
-
-  async getCommentEmojiReactorsWithCache(postId: string): Promise<CommentEmojiReactors> {
-    const cached = commentEmojiReactorCache.get(postId);
-    if (cached !== undefined) {
-      return cached;
-    }
-    const emojiReactors = this.getCommentEmojiReactors(postId);
-    commentEmojiReactorCache.set(postId, emojiReactors);
-    return emojiReactors;
-  }
-
-  getTopWeeklyDigestPosts(limit = 3): Promise<DbPost[]> {
-    return this.any(`
-      -- PostsRepo.getTopWeeklyDigestPosts
-      SELECT p.*
-      FROM "Posts" p
-      JOIN "DigestPosts" dp ON p."_id" = dp."postId"
-      JOIN "Digests" d ON d."_id" = dp."digestId"
-      ORDER BY d."num" DESC, p."baseScore" DESC
-      LIMIT $1
-    `, [limit]);
-  }
-
   getRecentlyActiveDialogues(limit = 3): Promise<DbPost[]> {
     return this.any(`
       -- PostsRepo.getRecentlyActiveDialogues
@@ -457,12 +287,14 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     `, [maxAgeInDays, numPostsPerDigest, limit]);
   }
 
-  getCuratedAndPopularPosts({currentUser, days = 7, limit = 3}: {
+  getCuratedAndPopularPosts({currentUser, days = 7, limit = 3, af}: {
     currentUser?: DbUser | null,
     days?: number,
     limit?: number,
+    af?: boolean,
   } = {}) {
     const postFilter = getViewablePostsSelector("p");
+    const afFilter = af ? `p."af" IS TRUE AND` : "";
     const readFilter = currentUser
       ? {
         join: `
@@ -479,6 +311,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       FROM "Posts" p
       ${readFilter.join}
       WHERE
+        ${afFilter}
         p."curatedDate" > NOW() - ($1 || ' days')::INTERVAL AND
         p."disableRecommendation" IS NOT TRUE AND
         ${readFilter.filter}
@@ -489,12 +322,9 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       JOIN "Users" u ON p."userId" = u."_id"
       ${readFilter.join}
       WHERE
+        ${afFilter}
         p."curatedDate" IS NULL AND
         p."frontpageDate" > NOW() - ($1 || ' days')::INTERVAL AND
-        COALESCE(
-          (p."tagRelevance"->'${EA_FORUM_COMMUNITY_TOPIC_ID}')::INTEGER,
-          0
-        ) < 1 AND
         p."groupId" IS NULL AND
         p."disableRecommendation" IS NOT TRUE AND
         u."deleted" IS NOT TRUE AND
@@ -1015,11 +845,11 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     const tagsExcluded = filterSettings.tags.filter(t => t.filterMode === "Hidden");
     
     const tagRequiredConditions = tagsRequired.map(tag => 
-      `COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) >= 1`
+      `COALESCE((p."tagRelevance"->${sqlValue(tag.tagId)})::INTEGER, 0) >= 1`
     ).join(' AND ');
     
     const tagExcludedConditions = tagsExcluded.map(tag => 
-      `COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) < 1`
+      `COALESCE((p."tagRelevance"->${sqlValue(tag.tagId)})::INTEGER, 0) < 1`
     ).join(' AND ');
     
     const tagFilterClause = [
@@ -1202,6 +1032,42 @@ class PostsRepo extends AbstractRepo<"Posts"> {
       AND "googleLocation" -> 'geometry' -> 'location' ->> 'lng' IS NOT NULL
       LIMIT $1
     `, [limit]);
+  }
+  getCurationCandidatePosts(limit: number): Promise<DbPost[]> {
+    return this.any(`
+      -- PostsRepo.getCurationCandidatePosts
+      SELECT p.*
+      FROM "Posts" p
+      WHERE p."draft" IS NOT TRUE
+        AND p."deletedDraft" IS NOT TRUE
+        AND p."status" = 2
+        AND p."curatedDate" IS NULL
+        AND (
+          (p."suggestForCuratedUserIds" IS NOT NULL
+            AND array_length(p."suggestForCuratedUserIds", 1) > 0
+            AND p."postedAt" > NOW() - INTERVAL '60 days')
+          OR
+          (p."baseScore" > 100
+            AND p."postedAt" > NOW() - INTERVAL '30 days')
+        )
+      ORDER BY (CASE WHEN EXISTS (
+        SELECT 1 FROM "CurationNotices" cn WHERE cn."postId" = p."_id" AND cn."deleted" IS NOT TRUE
+      ) THEN 0 ELSE 1 END),
+      COALESCE(array_length(p."suggestForCuratedUserIds", 1), 0) DESC,
+      p."postedAt" DESC
+      LIMIT $(limit)
+    `, { limit });
+  }
+  async getLastCuratedDate(): Promise<Date | null> {
+    const row = await this.oneOrNone(`
+      -- PostsRepo.getLastCuratedDate
+      SELECT p."curatedDate"
+      FROM "Posts" p
+      WHERE p."curatedDate" IS NOT NULL
+      ORDER BY p."curatedDate" DESC
+      LIMIT 1
+    `);
+    return row?.curatedDate ?? null;
   }
 }
 

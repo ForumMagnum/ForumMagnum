@@ -4,7 +4,6 @@ import { CommentTreeNode } from '../../lib/utils/unflatten';
 import { useScrollHighlight } from '../hooks/useScrollHighlight';
 import isEmpty from 'lodash/isEmpty';
 import qs from 'qs'
-import { commentsTableOfContentsEnabled } from '../../lib/betas';
 import classNames from 'classnames';
 import { isAF } from '@/lib/instanceSettings';
 import { commentIdToLandmark, getCurrentSectionMark, getLandmarkY } from '@/lib/scrollUtils';
@@ -32,21 +31,6 @@ const styles = defineStyles("CommentsTableOfContents", (theme: ThemeType) => ({
     textAlign: "right",
     marginRight: 4,
   },
-  collapseButtonWrapper: {
-    marginLeft: 4,
-    height: 24,
-  },
-  collapseButton: {
-    "&:hover": {
-      background: theme.palette.greyAlpha(0.1),
-      borderRadius: 8,
-    },
-  },
-  collapseButtonExpanded: {
-  },
-  collapseButtonCollapsed: {
-    transform: "rotate(-90deg)",
-  },
   postTitle: {
     minHeight: 76,
     paddingTop: 16,
@@ -58,9 +42,6 @@ const styles = defineStyles("CommentsTableOfContents", (theme: ThemeType) => ({
     paddingBottom: 16,
     display: 'flex',
     alignItems: 'center',
-  },
-  tocPostedAt: {
-    color: theme.palette.link.tocLink
   },
   highlightUnread: {
     paddingLeft: 4,
@@ -94,10 +75,6 @@ const CommentsTableOfContents = ({commentTree, answersTree, post, highlightDate}
     return null;
   }
   
-  if (!commentsTableOfContentsEnabled()) {
-    return null;
-  }
-
   return <div className={classes.root}>
     <CommentsTableOfContentsTitle post={post}/>
 

@@ -1,5 +1,4 @@
 import React, { useCallback, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { rootStyles as inputStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import classNames from 'classnames';
@@ -7,8 +6,10 @@ import SingleTagItem from "./SingleTagItem";
 import TagsSearchAutoComplete from "../search/TagsSearchAutoComplete";
 import ErrorBoundary from "../common/ErrorBoundary";
 import SectionTitle from "../common/SectionTitle";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TagMultiselect', (theme: ThemeType) => ({
   label: {
     display: 'block',
     fontSize: 10,
@@ -67,19 +68,9 @@ const styles = (theme: ThemeType) => ({
       cursor: "text"
     }
   },
-});
+}));
 
-const TagMultiselect = ({
-  value,
-  label,
-  placeholder,
-  hidePostCount=false,
-  startWithBorder=false,
-  isVotingContext,
-  updateCurrentValues,
-  variant,
-  classes,
-}: {
+const TagMultiselect = ({value, label, placeholder, hidePostCount=false, startWithBorder=false, isVotingContext, updateCurrentValues, variant}: {
   value: Array<string>,
   label?: React.ReactNode,
   placeholder?: string,
@@ -88,8 +79,8 @@ const TagMultiselect = ({
   isVotingContext?: boolean,
   updateCurrentValues(values: Array<string>): void,
   variant?: "default" | "grey",
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const [focused, setFocused] = useState(startWithBorder)
 
   const onFocus = useCallback(() => setFocused(true), []);
@@ -147,6 +138,6 @@ const TagMultiselect = ({
   )
 }
 
-export default registerComponent('TagMultiselect', TagMultiselect, {styles});
+export default TagMultiselect;
 
 

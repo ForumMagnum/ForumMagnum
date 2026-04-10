@@ -56,7 +56,6 @@ export const PostsBase = gql(`
     voteCount
     baseScore
     extendedScore
-    emojiReactors
     unlisted
     score
     lastVisitedAt
@@ -327,6 +326,22 @@ export const PostsList = gql(`
       foreignPostId
     }
     bannedUserIds
+  }
+`)
+
+export const MarkdownPostsList = gql(`
+  fragment MarkdownPostsList on Post {
+    ...PostsListBase
+    contents {
+      _id
+      agentMarkdownExcerpt
+    }
+    isBookmarked
+    fmCrosspost {
+      isCrosspost
+      hostedHere
+      foreignPostId
+    }
   }
 `)
 
@@ -841,18 +856,6 @@ export const PostsForAutocomplete = gql(`
     }
     contents {
       markdown
-    }
-  }
-`)
-
-export const PostsTwitterAdmin = gql(`
-  fragment PostsTwitterAdmin on Post {
-    ...PostsListWithVotes
-    user {
-      ...UsersSocialMediaInfo
-    }
-    coauthors {
-      ...UsersSocialMediaInfo
     }
   }
 `)

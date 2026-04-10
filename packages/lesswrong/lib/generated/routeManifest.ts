@@ -13,6 +13,27 @@ export type RouteNode = {
 
 export const routeTrie = {
   "staticChildren": {
+    ".well-known": {
+      "staticChildren": {
+        "ai-agents.json": {
+          "hasRoute": true
+        },
+        "oauth-authorization-server": {
+          "hasRoute": true
+        },
+        "oauth-protected-resource": {
+          "hasRoute": true
+        }
+      },
+      "lowerCase": {
+        "ai-agents.json": "ai-agents.json",
+        "oauth-authorization-server": "oauth-authorization-server",
+        "oauth-protected-resource": "oauth-protected-resource"
+      }
+    },
+    "SKILL.md": {
+      "hasRoute": true
+    },
     "abTestGroups": {
       "hasPage": true
     },
@@ -30,11 +51,21 @@ export const routeTrie = {
         "curation": {
           "hasPage": true
         },
-        "debugDatabaseIndexes": {
+        "debugDatabaseDifferences": {
           "hasPage": true
         },
         "debugHeaders": {
           "hasRoute": true
+        },
+        "designReview": {
+          "staticChildren": {
+            "inspector": {
+              "hasPage": true
+            }
+          },
+          "lowerCase": {
+            "inspector": "inspector"
+          }
         },
         "emailSender": {
           "hasPage": true
@@ -49,12 +80,6 @@ export const routeTrie = {
           "hasPage": true
         },
         "moderationTemplates": {
-          "hasPage": true
-        },
-        "modgpt": {
-          "hasPage": true
-        },
-        "onboarding": {
           "hasPage": true
         },
         "random-user": {
@@ -76,15 +101,14 @@ export const routeTrie = {
       "lowerCase": {
         "commentembeddings": "commentEmbeddings",
         "curation": "curation",
-        "debugdatabaseindexes": "debugDatabaseIndexes",
+        "debugdatabasedifferences": "debugDatabaseDifferences",
         "debugheaders": "debugHeaders",
+        "designreview": "designReview",
         "emailsender": "emailSender",
         "llmconversations": "llmConversations",
         "migrations": "migrations",
         "moderation": "moderation",
         "moderationtemplates": "moderationTemplates",
-        "modgpt": "modgpt",
-        "onboarding": "onboarding",
         "random-user": "random-user",
         "recentlyactiveusers": "recentlyActiveUsers",
         "supermod": "supermod",
@@ -110,6 +134,194 @@ export const routeTrie = {
     },
     "api": {
       "staticChildren": {
+        "SKILL.md": {
+          "hasRoute": true
+        },
+        "about": {
+          "hasRoute": true
+        },
+        "codex": {
+          "dynamicChild": {
+            "paramName": "slug",
+            "child": {
+              "hasRoute": true
+            }
+          },
+          "hasRoute": true
+        },
+        "community": {
+          "hasRoute": true
+        },
+        "contact": {
+          "hasRoute": true
+        },
+        "curated": {
+          "hasRoute": true
+        },
+        "editPost": {
+          "hasRoute": true
+        },
+        "events": {
+          "dynamicChild": {
+            "paramName": "id",
+            "child": {
+              "dynamicChild": {
+                "paramName": "slug",
+                "child": {
+                  "hasRoute": true
+                }
+              },
+              "hasRoute": true
+            }
+          }
+        },
+        "faq": {
+          "hasRoute": true
+        },
+        "home": {
+          "hasRoute": true
+        },
+        "hpmor": {
+          "dynamicChild": {
+            "paramName": "slug",
+            "child": {
+              "hasRoute": true
+            }
+          },
+          "hasRoute": true
+        },
+        "latest": {
+          "hasRoute": true
+        },
+        "markdown-unavailable": {
+          "hasRoute": true
+        },
+        "post": {
+          "dynamicChild": {
+            "paramName": "idOrSlug",
+            "child": {
+              "staticChildren": {
+                "comments": {
+                  "dynamicChild": {
+                    "paramName": "commentId",
+                    "child": {
+                      "hasRoute": true
+                    }
+                  },
+                  "hasRoute": true
+                }
+              },
+              "lowerCase": {
+                "comments": "comments"
+              },
+              "hasRoute": true
+            }
+          }
+        },
+        "rationality": {
+          "dynamicChild": {
+            "paramName": "slug",
+            "child": {
+              "hasRoute": true
+            }
+          },
+          "hasRoute": true
+        },
+        "recent": {
+          "hasRoute": true
+        },
+        "sequence": {
+          "dynamicChild": {
+            "paramName": "id",
+            "child": {
+              "staticChildren": {
+                "post": {
+                  "dynamicChild": {
+                    "paramName": "postId",
+                    "child": {
+                      "hasRoute": true
+                    }
+                  }
+                }
+              },
+              "lowerCase": {
+                "post": "post"
+              },
+              "hasRoute": true
+            }
+          }
+        },
+        "tag": {
+          "dynamicChild": {
+            "paramName": "slug",
+            "child": {
+              "hasRoute": true
+            }
+          }
+        },
+        "user": {
+          "dynamicChild": {
+            "paramName": "slug",
+            "child": {
+              "hasRoute": true
+            }
+          }
+        },
+        "agent": {
+          "staticChildren": {
+            "commentOnDraft": {
+              "hasRoute": true
+            },
+            "confirmClaudeAccess": {
+              "dynamicChild": {
+                "paramName": "token",
+                "child": {
+                  "hasRoute": true
+                }
+              }
+            },
+            "deleteBlock": {
+              "hasRoute": true
+            },
+            "feedback": {
+              "hasRoute": true
+            },
+            "insertBlock": {
+              "hasRoute": true
+            },
+            "insertLLMBlock": {
+              "hasRoute": true
+            },
+            "insertWidget": {
+              "hasRoute": true
+            },
+            "ping": {
+              "hasRoute": true
+            },
+            "replaceText": {
+              "hasRoute": true
+            },
+            "replaceWidget": {
+              "hasRoute": true
+            },
+            "replyToComment": {
+              "hasRoute": true
+            }
+          },
+          "lowerCase": {
+            "commentondraft": "commentOnDraft",
+            "confirmclaudeaccess": "confirmClaudeAccess",
+            "deleteblock": "deleteBlock",
+            "feedback": "feedback",
+            "insertblock": "insertBlock",
+            "insertllmblock": "insertLLMBlock",
+            "insertwidget": "insertWidget",
+            "ping": "ping",
+            "replacetext": "replaceText",
+            "replacewidget": "replaceWidget",
+            "replytocomment": "replyToComment"
+          }
+        },
         "autocomplete": {
           "hasRoute": true
         },
@@ -118,6 +330,9 @@ export const routeTrie = {
         },
         "cron": {
           "staticChildren": {
+            "curation-status-to-slack": {
+              "hasRoute": true
+            },
             "every-five-minutes": {
               "hasRoute": true
             },
@@ -153,6 +368,7 @@ export const routeTrie = {
             }
           },
           "lowerCase": {
+            "curation-status-to-slack": "curation-status-to-slack",
             "every-five-minutes": "every-five-minutes",
             "every-hour": "every-hour",
             "every-midnight": "every-midnight",
@@ -173,6 +389,27 @@ export const routeTrie = {
           "hasRoute": true
         },
         "health": {
+          "hasRoute": true
+        },
+        "homeDesignChat": {
+          "hasRoute": true
+        },
+        "homeDesigns": {
+          "staticChildren": {
+            "SKILL.md": {
+              "hasRoute": true
+            },
+            "publish": {
+              "hasRoute": true
+            }
+          },
+          "lowerCase": {
+            "skill.md": "SKILL.md",
+            "publish": "publish"
+          },
+          "hasRoute": true
+        },
+        "mcp": {
           "hasRoute": true
         },
         "notificationCount": {
@@ -247,12 +484,35 @@ export const routeTrie = {
         }
       },
       "lowerCase": {
+        "skill.md": "SKILL.md",
+        "about": "about",
+        "codex": "codex",
+        "community": "community",
+        "contact": "contact",
+        "curated": "curated",
+        "editpost": "editPost",
+        "events": "events",
+        "faq": "faq",
+        "home": "home",
+        "hpmor": "hpmor",
+        "latest": "latest",
+        "markdown-unavailable": "markdown-unavailable",
+        "post": "post",
+        "rationality": "rationality",
+        "recent": "recent",
+        "sequence": "sequence",
+        "tag": "tag",
+        "user": "user",
+        "agent": "agent",
         "autocomplete": "autocomplete",
         "autocomplete405b": "autocomplete405b",
         "cron": "cron",
         "dropandcreatepg": "dropAndCreatePg",
         "getllmfeedback": "getLlmFeedback",
         "health": "health",
+        "homedesignchat": "homeDesignChat",
+        "homedesigns": "homeDesigns",
+        "mcp": "mcp",
         "notificationcount": "notificationCount",
         "notificationevents": "notificationEvents",
         "quit": "quit",
@@ -261,7 +521,14 @@ export const routeTrie = {
         "sendllmchat": "sendLlmChat",
         "streamgraphql": "streamGraphql",
         "v2": "v2"
-      }
+      },
+      "catchAll": {
+        "paramName": "path",
+        "child": {
+          "hasRoute": true
+        }
+      },
+      "hasRoute": true
     },
     "arbital": {
       "hasPage": true
@@ -361,9 +628,6 @@ export const routeTrie = {
       },
       "hasPage": true
     },
-    "collaborateOnPost": {
-      "hasPage": true
-    },
     "collections": {
       "dynamicChild": {
         "paramName": "_id",
@@ -415,6 +679,12 @@ export const routeTrie = {
         "emailHistory": {
           "hasPage": true
         },
+        "linkPreview": {
+          "hasPage": true
+        },
+        "markdownApi": {
+          "hasPage": true
+        },
         "notificationEmailPreview": {
           "hasPage": true
         },
@@ -424,6 +694,8 @@ export const routeTrie = {
       },
       "lowerCase": {
         "emailhistory": "emailHistory",
+        "linkpreview": "linkPreview",
+        "markdownapi": "markdownApi",
         "notificationemailpreview": "notificationEmailPreview",
         "query-waterfall": "query-waterfall"
       }
@@ -521,6 +793,9 @@ export const routeTrie = {
           "hasPage": true
         }
       },
+      "hasPage": true
+    },
+    "hocuspocusWebhook": {
       "hasPage": true
     },
     "hpmor": {
@@ -637,6 +912,31 @@ export const routeTrie = {
         "2019": "2019"
       }
     },
+    "notifications": {
+      "hasPage": true
+    },
+    "oauth": {
+      "staticChildren": {
+        "authorize": {
+          "hasRoute": true
+        },
+        "register": {
+          "hasRoute": true
+        },
+        "revoke": {
+          "hasRoute": true
+        },
+        "token": {
+          "hasRoute": true
+        }
+      },
+      "lowerCase": {
+        "authorize": "authorize",
+        "register": "register",
+        "revoke": "revoke",
+        "token": "token"
+      }
+    },
     "out": {
       "hasRoute": true
     },
@@ -684,8 +984,7 @@ export const routeTrie = {
             "child": {
               "hasPage": true
             }
-          },
-          "hasPage": true
+          }
         }
       },
       "lowerCase": {
@@ -956,6 +1255,8 @@ export const routeTrie = {
     }
   },
   "lowerCase": {
+    ".well-known": ".well-known",
+    "skill.md": "SKILL.md",
     "abtestgroups": "abTestGroups",
     "about": "about",
     "account": "account",
@@ -977,7 +1278,6 @@ export const routeTrie = {
     "ckeditor-token": "ckeditor-token",
     "ckeditor-webhook": "ckeditor-webhook",
     "codex": "codex",
-    "collaborateonpost": "collaborateOnPost",
     "collections": "collections",
     "community": "community",
     "compare": "compare",
@@ -1001,6 +1301,7 @@ export const routeTrie = {
     "groups": "groups",
     "groups-map": "groups-map",
     "highlights": "highlights",
+    "hocuspocuswebhook": "hocuspocusWebhook",
     "hpmor": "hpmor",
     "inbox": "inbox",
     "item": "item",
@@ -1019,6 +1320,8 @@ export const routeTrie = {
     "newpost": "newPost",
     "nominateposts": "nominatePosts",
     "nominations": "nominations",
+    "notifications": "notifications",
+    "oauth": "oauth",
     "out": "out",
     "pastevents": "pastEvents",
     "payments": "payments",

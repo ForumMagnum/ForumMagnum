@@ -1,8 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from './withUser';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox'
-import { isEAForum } from '../../lib/instanceSettings';
 import Loading from "../vulcan-core/Loading";
 import SectionTitle from "./SectionTitle";
 import ShortformListItem from "../shortform/ShortformListItem";
@@ -11,6 +9,8 @@ import SectionButton from "./SectionButton";
 import ShortformSubmitForm from "../shortform/ShortformSubmitForm";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ShortformCommentsMultiQuery = gql(`
   query multiCommentCommentsListCondensedQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -23,7 +23,7 @@ const ShortformCommentsMultiQuery = gql(`
   }
 `);
 
-const styles = (_: ThemeType) => ({
+const styles = defineStyles('CommentsListCondensed', (_: ThemeType) => ({
   subheader: {
     fontSize: 14,
   },
@@ -31,9 +31,9 @@ const styles = (_: ThemeType) => ({
     marginTop: 6,
     marginBottom: 12,
   }
-});
+}), { stylePriority: 1 });
 
-const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTotal=false, hideTag, shortformButton=false, classes}: {
+const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTotal=false, hideTag, shortformButton=false}: {
   label: string,
   terms: CommentsViewTerms
   initialLimit?: number,
@@ -41,8 +41,8 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
   showTotal?: boolean,
   hideTag?: boolean,
   shortformButton?: boolean,
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const [showShortformFeed, setShowShortformFeed] = useState(false);
 
@@ -95,10 +95,6 @@ const CommentsListCondensed = ({label, terms, initialLimit, itemsPerPage, showTo
   </>;
 }
 
-export default registerComponent(
-  'CommentsListCondensed',
-  CommentsListCondensed,
-  {styles, stylePriority: 1},
-);
+export default CommentsListCondensed;
 
 

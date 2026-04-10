@@ -1,16 +1,16 @@
 import React from "react"
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from 'classnames';
 import { useHover } from "../common/withHover";
 import { AnalyticsContext } from "../../lib/analyticsEvents";
 import { Card } from "@/components/widgets/Paper";
 import { useCurrentUser } from "../common/withUser";
-import { taggingNameIsSet, taggingNamePluralCapitalSetting } from "../../lib/instanceSettings";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import LWPopper from "../common/LWPopper";
 import { ContentItemBody } from "../contents/ContentItemBody";
 import ContentStyles from "../common/ContentStyles";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const TagWithFlagsFragmentMultiQuery = gql(`
   query multiTagTagFlagItemQuery($selector: TagSelector, $limit: Int, $enableTotal: Boolean) {
@@ -33,13 +33,13 @@ const TagFlagFragmentQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('TagFlagItem', (theme: ThemeType) => ({
   root: {
     ...theme.typography.commentStyle,
     padding: 4,
     margin: 4,
     borderRadius: 5,
-    backgroundColor: theme.palette.panelBackground.tenPercent,
+    backgroundColor: theme.palette.greyAlpha(.1),
     display: 'inline-block'
   },
   black: {
@@ -53,18 +53,18 @@ const styles = (theme: ThemeType) => ({
   },
   hoverCard: {
     maxWidth: 350,
-    padding: theme.spacing.unit,
+    padding: 8,
   }
-})
+}))
 
 type ItemTypeName = "tagFlagId"|"allPages"|"userPages"
 
-const TagFlagItem = ({documentId, itemType = "tagFlagId", style = "grey", classes }: {
+const TagFlagItem = ({documentId, itemType = "tagFlagId", style = "grey"}: {
   documentId?: string,
   itemType?: ItemTypeName,
   style?: "white"|"grey"|"black",
-  classes: ClassesType<typeof styles>,
 }) => {
+  const classes = useStyles(styles);
   const {eventHandlers, hover, anchorEl } = useHover();
   const currentUser = useCurrentUser();
   const { data } = useQuery(TagFlagFragmentQuery, {
@@ -85,7 +85,7 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", style = "grey", classe
   
   const rootStyles = classNames(classes.root, {[classes.black]: style === "black", [classes.white]: style === "white"});
   
-  const tagsNameAlt = taggingNameIsSet.get() ? taggingNamePluralCapitalSetting.get() : 'Wiki-Tags'
+  const tagsNameAlt = "Wikitags";
   
   const tagFlagDescription = {
     tagFlagId:`tagFlag ${tagFlag?._id}`,
@@ -124,6 +124,6 @@ const TagFlagItem = ({documentId, itemType = "tagFlagId", style = "grey", classe
   </span>
 }
 
-export default registerComponent('TagFlagItem', TagFlagItem, { styles } );
+export default TagFlagItem;
 
 

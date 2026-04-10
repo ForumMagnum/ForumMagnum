@@ -9,25 +9,12 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
-import { ChatPostMessageResponse, WebClient } from "@slack/web-api";
+import { postMessage } from "@/server/slack/client";
+import { captureException } from "@/lib/sentryWrapper";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
 
 
-async function postReportsToSunshine(report: DbReport, context: ResolverContext): Promise<ChatPostMessageResponse | undefined> {
-
-  const slackBotToken = process.env.AMANUENSIS_SLACK_BOT_TOKEN;
-  const moderationChannelId = process.env.MODERATION_CHANNEL_ID;
-  if (!moderationChannelId) {
-    // eslint-disable-next-line no-console
-    console.error('MODERATION_CHANNEL_ID is not set');
-    return;
-  }
-  if (!slackBotToken) {
-    // eslint-disable-next-line no-console
-    console.error('AMANUENSIS_SLACK_BOT_TOKEN is not set');
-    return;
-  }
-
+async function postReportsToSunshine(report: DbReport, context: ResolverContext) {
   const baseUrl = `https://${process.env.SITE_URL ?? 'lesswrong.com'}`;
 
   const user = await context.Users.findOne({ _id: report.userId });
@@ -43,47 +30,53 @@ async function postReportsToSunshine(report: DbReport, context: ResolverContext)
   const userName = userGetDisplayName(user);
   const url = `${baseUrl}${report.link}`;
 
-  const slack = new WebClient(slackBotToken);
-
-  return await slack.chat.postMessage({
-    channel: moderationChannelId,
-    text: `Reported ${contentSlug}: ${description}`,
-    blocks: [
-      {
-        type: "header",
-        text: {
-          type: "plain_text",
-          text: `Reported ${contentSlug}`,
-          emoji: true,
-        },
-      },
-      {
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `*Reported by <${userLink}|${userName}>:* _${description}_`,
-        }
-      },
-      {
-        type: "divider",
-      },
-      {
-        type: "actions",
-        elements: [
+  try {
+    await postMessage({
+      text: `Reported ${contentSlug}: ${description}`,
+      channelName: "moderation",
+      options: {
+        blocks: [
           {
-            type: "button",
+            type: "header",
             text: {
               type: "plain_text",
-              text: `View ${contentSlug} on LessWrong`,
+              text: `Reported ${contentSlug}`,
               emoji: true,
             },
-            value: `view_${contentSlug}_on_lesswrong`,
-            url,
           },
-        ]
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `*Reported by <${userLink}|${userName}>:* _${description}_`,
+            }
+          },
+          {
+            type: "divider",
+          },
+          {
+            type: "actions",
+            elements: [
+              {
+                type: "button",
+                text: {
+                  type: "plain_text",
+                  text: `View ${contentSlug} on LessWrong`,
+                  emoji: true,
+                },
+                value: `view_${contentSlug}_on_lesswrong`,
+                url,
+              },
+            ]
+          },
+        ],
       },
-    ],
-  });
+    });
+  } catch (error) {
+    captureException(error);
+    // eslint-disable-next-line no-console
+    console.error('Failed to post report to Slack:', error);
+  }
 }
 
 function newCheck(user: DbUser | null, document: CreateReportDataInput | null, context: ResolverContext) {

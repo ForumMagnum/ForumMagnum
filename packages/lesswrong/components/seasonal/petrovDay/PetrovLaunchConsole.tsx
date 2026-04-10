@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { registerComponent } from '@/lib/vulcan-lib/components';
 import { useTracking } from '@/lib/analyticsEvents';
 import classNames from 'classnames';
 import TextField from '@/lib/vendor/@material-ui/core/src/TextField';
@@ -9,6 +8,8 @@ import PastWarnings from "./PastWarnings";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery"
 import { gql } from "@/lib/generated/gql-codegen";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const PetrovDayActionInfoMultiQuery = gql(`
   query multiPetrovDayActionPetrovLaunchConsoleQuery($selector: PetrovDayActionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -31,7 +32,18 @@ const PetrovDayActionInfoMutation = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const colors = {
+  red: "#ff0000",
+  darkRed: "#990000",
+  red2: "#cc0000",
+  darkRed2: "#770000",
+  color1: "#aa8080",
+  color2: "#404040",
+  color3: "#998080",
+  color4: "#504040",
+};
+
+const styles = defineStyles("PetrovLaunchConsole", (theme: ThemeType) => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
@@ -56,9 +68,9 @@ const styles = (theme: ThemeType) => ({
     textAlign: 'center',
     fontSize: '1.5rem',
     verticalAlign: 'middle',
-    background: `linear-gradient(45deg, ${theme.palette.petrov.red}, ${theme.palette.petrov.darkRed})`,
+    background: `linear-gradient(45deg, ${colors.red}, ${colors.darkRed})`,
     '&:hover': {
-      background: `linear-gradient(45deg, ${theme.palette.petrov.red2}, ${theme.palette.petrov.darkRed2})`,
+      background: `linear-gradient(45deg, ${colors.red2}, ${colors.darkRed2})`,
     },
   },
   reportsContainer: {
@@ -70,9 +82,9 @@ const styles = (theme: ThemeType) => ({
     }
   },
   disabledLaunchButton: {
-    background: `linear-gradient(45deg, ${theme.palette.petrov.color1}, ${theme.palette.petrov.color2})`,
+    background: `linear-gradient(45deg, ${colors.color1}, ${colors.color2})`,
     '&:hover': {
-      background: `linear-gradient(45deg, ${theme.palette.petrov.color3}, ${theme.palette.petrov.color4})`,
+      background: `linear-gradient(45deg, ${colors.color3}, ${colors.color4})`,
     },
     cursor: 'not-allowed'
   },
@@ -86,13 +98,15 @@ const styles = (theme: ThemeType) => ({
   unreadyLaunchButton: {
     opacity: .5
   }
+}), {
+  allowNonThemeColors: true,
 });
 
-export const PetrovLaunchConsole = ({classes, side, currentUser}: {
-  classes: ClassesType<typeof styles>,
+export const PetrovLaunchConsole = ({side, currentUser}: {
   side: 'east' | 'west',
   currentUser: UsersCurrent
 }) => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking(); //it is virtuous to add analytics tracking to new components
   const [launched, setLaunched] = useState(false)
   const [openCodes, setOpenCodes] = useState(false)
@@ -167,6 +181,6 @@ export const PetrovLaunchConsole = ({classes, side, currentUser}: {
   </PetrovWorldmapWrapper>
 }
 
-export default registerComponent('PetrovLaunchConsole', PetrovLaunchConsole, {styles});
+export default PetrovLaunchConsole;
 
 

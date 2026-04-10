@@ -37,6 +37,7 @@ module.exports = {
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
     "plugin:react/recommended",
+    "plugin:react-hooks/recommended",
 
     // Uncomment to enable cycle-detection. Note that caching doesn't seem to
     // work quite right with this plugin; after fixing some issues, you will
@@ -63,7 +64,6 @@ module.exports = {
         "Optional",
         "OneOf",
         "Maybe",
-        "MailChimpAPI",
         "Juice",
         "Run",
         "AppComposer",
@@ -78,7 +78,7 @@ module.exports = {
     "babel/object-curly-spacing": 0,
     "babel/object-shorthand": 0,
     "babel/arrow-parens": 0,
-    "eol-last": 1,
+    "eol-last": 0,
     "no-await-in-loop": 0,
     "comma-dangle": 0,
     "eqeqeq": [1, "always", {"null": "ignore"}],
@@ -102,6 +102,11 @@ module.exports = {
     "react/no-unescaped-entities": 0,
     "react/display-name": 0,
     "react/jsx-no-comment-textnodes": 1,
+
+    // Disabled warning that would warn on "while (true) { ... }". Whether you
+    // like this idiom or not, it comes up reasonably often in agent-outputs,
+    // and I (Jim) happen to think it's fine.
+    "no-constant-condition": 0,
 
     // Warn if defining a component inside a function, which results in the
     // component's subtree and its state being destroyed on every render
@@ -128,6 +133,17 @@ module.exports = {
     }],
     "react-hooks/rules-of-hooks": "error",
     "react-hooks/exhaustive-deps": "warn",
+
+    "react-hooks/refs": 0,
+    "react-hooks/immutability": 0,
+    "react-hooks/static-components": 0,
+    "react-hooks/set-state-in-effect": 0,
+    "react-hooks/preserve-manual-memoization": 0,
+    
+    // Warns if a .tsx/.jsx file doesn't import "react", because some build
+    // environments need that, but ours doesn't.
+    "react/react-in-jsx-scope": 0,
+
     "import/no-unresolved": 1,
     "import/no-dynamic-require": 1,
     "import/no-self-import": 1,
@@ -424,12 +440,10 @@ module.exports = {
   },
   "ignorePatterns": [
     "build.ts",
-    // Excluded here because it's also excluded in `tsconfig.json`, and they
-    // need to match.
-    "packages/lesswrong/viteClient",
     // You wouldn't have thought this was necessary would you
     ".eslintrc.js",
     "packages/lesswrong/lib/vendor/@material-ui",
-    "packages/lesswrong/lib/generated/gql-codegen"
+    "packages/lesswrong/lib/generated/gql-codegen",
+    "packages/lesswrong/lib/generated"
   ]
 }

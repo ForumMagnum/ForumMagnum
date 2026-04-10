@@ -1,7 +1,9 @@
 import crypto from 'crypto';
 import { githubClientIdSetting, githubOAuthSecretSetting, afGithubClientIdSetting, afGithubOAuthSecretSetting } from '@/server/databaseSettings';
-import { getSiteUrl } from '@/lib/vulcan-lib/utils';
 import { isAF } from '@/lib/instanceSettings';
+import { NextRequest } from 'next/server';
+import { getSiteUrlFromReq } from '@/server/utils/getSiteUrl';
+import { combineUrls } from '../vulcan-lib/utils';
 
 const GITHUB_AUTH_URL = 'https://github.com/login/oauth/authorize';
 const GITHUB_TOKEN_URL = 'https://github.com/login/oauth/access_token';
@@ -41,13 +43,14 @@ export function getGitHubCredentials() {
   return { clientId, clientSecret };
 }
 
-export function getGitHubAuthUrl(state: string): string {
+export function getGitHubAuthUrl(request: NextRequest, state: string): string {
+  const siteUrl = getSiteUrlFromReq(request);
   const { clientId } = getGitHubCredentials();
   if (!clientId) throw new Error('GitHub OAuth not configured');
 
   const params = new URLSearchParams({
     client_id: clientId,
-    redirect_uri: `${getSiteUrl()}auth/github/callback`,
+    redirect_uri: combineUrls(siteUrl, '/auth/github/callback'),
     scope: 'user:email',
     state: state,
   });
@@ -55,7 +58,8 @@ export function getGitHubAuthUrl(state: string): string {
   return `${GITHUB_AUTH_URL}?${params.toString()}`;
 }
 
-export async function exchangeCodeForTokens(code: string): Promise<GitHubTokenResponse> {
+export async function exchangeCodeForTokens(request: NextRequest, code: string): Promise<GitHubTokenResponse> {
+  const siteUrl = getSiteUrlFromReq(request);
   const { clientId, clientSecret } = getGitHubCredentials();
   
   if (!clientId || !clientSecret) {
@@ -72,7 +76,7 @@ export async function exchangeCodeForTokens(code: string): Promise<GitHubTokenRe
       client_id: clientId,
       client_secret: clientSecret,
       code,
-      redirect_uri: `${getSiteUrl()}auth/github/callback`,
+      redirect_uri: combineUrls(siteUrl, '/auth/github/callback'),
     }),
   });
 

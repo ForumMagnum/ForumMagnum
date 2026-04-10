@@ -1,11 +1,13 @@
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentUser } from '../common/withUser';
 import { Link } from '../../lib/reactRouterWrapper';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { hasGoogleDocImportSetting } from '@/lib/instanceSettings';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { useCurrentTime } from '@/lib/utils/timeUtil';
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const GoogleServiceAccountSessionAdminInfoMultiQuery = gql(`
   query multiGoogleServiceAccountSessionSunshineGoogleServiceAccountQuery($selector: GoogleServiceAccountSessionSelector, $limit: Int, $enableTotal: Boolean) {
@@ -18,14 +20,14 @@ const GoogleServiceAccountSessionAdminInfoMultiQuery = gql(`
   }
 `);
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('SunshineGoogleServiceAccount', (theme: ThemeType) => ({
   root: {
     padding: 12,
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontWeight: 500,
     color: theme.palette.warning.main
   }
-});
+}));
 
 const WARN_THRESHOLD = 28 * 24 * 60 * 60 * 1000; // 28 days in milliseconds
 
@@ -34,9 +36,8 @@ const getExpiryMessage = (estimatedExpiry: string) => {
   return `The session for the service account used to handle Google Doc imports will expire soon (${estimatedExpiry} estimated), log in again to ensure the feature keeps working`
 }
 
-const SunshineGoogleServiceAccount = ({ classes }: {
-  classes: ClassesType<typeof styles>,
-}) => {
+const SunshineGoogleServiceAccount = () => {
+  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
 
   const { data, loading } = useQuery(GoogleServiceAccountSessionAdminInfoMultiQuery, {
@@ -52,7 +53,8 @@ const SunshineGoogleServiceAccount = ({ classes }: {
   const serviceAccounts = data?.googleServiceAccountSessions?.results;
   const estimatedExpiry = serviceAccounts?.[0]?.estimatedExpiry
 
-  const shouldWarn = !estimatedExpiry || (new Date(estimatedExpiry).getTime() - Date.now()) < WARN_THRESHOLD
+  const now = useCurrentTime();
+  const shouldWarn = !estimatedExpiry || (new Date(estimatedExpiry).getTime() - now.getTime()) < WARN_THRESHOLD
 
   if (loading || !userIsAdmin(currentUser) || !hasGoogleDocImportSetting.get() || !shouldWarn) {
     return null;
@@ -69,6 +71,6 @@ const SunshineGoogleServiceAccount = ({ classes }: {
   )
 }
 
-export default registerComponent('SunshineGoogleServiceAccount', SunshineGoogleServiceAccount, {styles});
+export default SunshineGoogleServiceAccount
 
 

@@ -3,7 +3,6 @@
 import React from 'react';
 import {getAfterDefault, getBeforeDefault} from './timeframeUtils'
 import { useTimezone } from '../common/withTimezone';
-import { forumAllPostsNumDaysSetting } from '@/lib/instanceSettings';
 import SingleColumnSection from "../common/SingleColumnSection";
 import SectionTitle from "../common/SectionTitle";
 import PostsTimeframeList from "./PostsTimeframeList";
@@ -12,13 +11,13 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles("EventsPast", (theme: ThemeType) => ({
   daily: {
-    padding: theme.spacing.unit
+    padding: 8
   }
 }))
 const EventsPast = () => {
   const classes = useStyles(styles);
   const { timezone } = useTimezone();
-  const numberOfDays = forumAllPostsNumDaysSetting.get();
+  const numberOfDays = 10;
   const terms: PostsViewTerms = {
     view: 'eventsInTimeRange',
     timeField: 'startTime',

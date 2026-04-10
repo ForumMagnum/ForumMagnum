@@ -1,28 +1,29 @@
 import React, { useEffect } from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
-import { getEditorTypeToDisplayMap, EditorTypeString, EditorContents, EditorChangeEvent, type LegacyEditorTypeString } from './Editor';
+import { getEditorTypeToDisplayMap, EditorContents, EditorChangeEvent, type LegacyEditorTypeString } from './Editor';
 import { useConvertDocument } from './useConvertDocument';
 import Loading from "../vulcan-core/Loading";
 import { Typography } from "../common/Typography";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('LastEditedInWarning', (theme: ThemeType) => ({
   lastEditedWarning: {
     color: theme.palette.error.main,
   },
   clickHereColor: {
     color: theme.palette.primary.main
   },
-});
+}));
 
-const LastEditedInWarning = ({autoConvert, initialType, currentType, defaultType, value, setValue, classes}: {
+const LastEditedInWarning = ({autoConvert, initialType, currentType, defaultType, value, setValue}: {
   autoConvert: boolean,
   initialType: LegacyEditorTypeString,
   currentType: LegacyEditorTypeString,
   defaultType: LegacyEditorTypeString,
   value: EditorContents,
   setValue: (change: EditorChangeEvent) => void,
-  classes: ClassesType<typeof styles>
 }) => {
+  const classes = useStyles(styles);
   const {convertDocument, loading, error} = useConvertDocument({
     onCompleted: (result: EditorContents) => {
       setValue({
@@ -35,7 +36,7 @@ const LastEditedInWarning = ({autoConvert, initialType, currentType, defaultType
   useEffect(() => {
     if (autoConvert) {
       setTimeout(() => {
-        convertDocument(value, 'ckEditorMarkup');
+        convertDocument(value, 'lexical');
       }, 0);
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -53,18 +54,18 @@ const LastEditedInWarning = ({autoConvert, initialType, currentType, defaultType
         <a
           className={classes.clickHereColor}
           onClick={() => {
-            convertDocument(value, 'ckEditorMarkup');
+            convertDocument(value, 'lexical');
           }}
         >
           Click here
         </a>
-        {' '}to switch to the {getEditorTypeToDisplayMap()['ckEditorMarkup'].name} editor (the default editor).
+        {' '}to switch to the {getEditorTypeToDisplayMap()['lexical'].name} editor (the default editor).
       </>}
     </Typography>
     <br/>
   </div>
 }
 
-export default registerComponent('LastEditedInWarning', LastEditedInWarning, {styles});
+export default LastEditedInWarning;
 
 

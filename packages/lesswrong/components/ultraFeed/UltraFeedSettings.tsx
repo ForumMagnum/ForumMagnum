@@ -141,7 +141,7 @@ const styles = defineStyles('UltraFeedSettings', (theme: ThemeType) => ({
   },
   buttonGroup: {
     display: 'flex',
-    gap: theme.spacing.unit * 1.5,
+    gap: 12,
   },
   button: {
     minWidth: 100,

@@ -1,17 +1,18 @@
 "use client";
 
 import React from 'react';
-import { registerComponent } from '../../lib/vulcan-lib/components';
 import classNames from 'classnames';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useTracking } from "../../lib/analyticsEvents";
 import Book2019Animation from "./Book2019Animation";
 import LWTooltip from "../common/LWTooltip";
 import ContentStyles from "../common/ContentStyles";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '../hooks/useStyles';
 
 const lw = () => {return (<span style={{fontVariant: "small-caps"}}>LessWrong</span>)}
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles('Book2019Landing', (theme: ThemeType) => ({
   bookAnimationContainer: {
     width: '960px',
     marginLeft: 'auto',
@@ -248,9 +249,10 @@ const styles = (theme: ThemeType) => ({
     marginTop: 8,
     color: theme.palette.primary.main
   }
-})
+}))
 
-const HiddenQuote = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const HiddenQuote = () => {
+  const classes = useStyles(styles);
   return (
     <div className={classes.mainQuoteContainer}>
       <div className={classes.mainQuote}>
@@ -263,14 +265,15 @@ const HiddenQuote = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-const Book2019Landing = ({classes}: {classes: ClassesType<typeof styles>}) => {
+const Book2019Landing = () => {
+  const classes = useStyles(styles);
   const { captureEvent } = useTracking();
 
   return (
     <div>
       <div className={classes.bookAnimationContainer}>
         <Book2019Animation >
-          <HiddenQuote classes={classes} />
+          <HiddenQuote />
         </Book2019Animation>
       </div>
       <div className={classes.wrapper}>
@@ -339,6 +342,6 @@ const Book2019Landing = ({classes}: {classes: ClassesType<typeof styles>}) => {
   )
 }
 
-export default registerComponent('Book2019Landing', Book2019Landing, {styles});
+export default Book2019Landing;
 
 

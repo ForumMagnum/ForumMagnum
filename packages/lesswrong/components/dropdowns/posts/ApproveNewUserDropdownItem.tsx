@@ -1,7 +1,6 @@
 import React from "react";
 import { useCurrentUser } from "../../common/withUser";
 import { userCanDo } from "../../../lib/vulcan-users/permissions";
-import { preferredHeadingCase } from "../../../themes/forumTheme";
 import DropdownItem from "../DropdownItem";
 import { useMutation } from "@apollo/client/react";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -42,7 +41,7 @@ const ApproveNewUserDropdownItem = ({post}: {post: PostsBase}) => {
   }
   return (
     <DropdownItem
-      title={preferredHeadingCase("Approve New User")}
+      title={"Approve New User"}
       onClick={handleApproveUser}
     />
   );

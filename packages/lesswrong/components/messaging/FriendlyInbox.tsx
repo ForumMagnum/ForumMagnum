@@ -1,5 +1,4 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { registerComponent } from "../../lib/vulcan-lib/components";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
 import { useDialog } from "../common/withDialog";
@@ -24,6 +23,8 @@ import SectionFooterCheckbox from "../form-components/SectionFooterCheckbox";
 import ArchiveIcon from "@/lib/vendor/@material-ui/icons/src/Archive";
 import LWTooltip from "../common/LWTooltip";
 import { StatusCodeSetter } from "../next/StatusCodeSetter";
+import { defineStyles } from '@/components/hooks/defineStyles';
+import { useStyles } from '@/components/hooks/useStyles';
 
 const ConversationsListWithReadStatusMultiQuery = gql(`
   query multiConversationFriendlyInboxQuery($selector: ConversationSelector, $limit: Int, $enableTotal: Boolean) {
@@ -48,7 +49,7 @@ const ConversationsListWithReadStatusQuery = gql(`
 
 const MAX_WIDTH = 1100;
 
-const styles = (theme: ThemeType) => ({
+const styles = defineStyles("FriendlyInbox", (theme: ThemeType) => ({
   root: {
     height: "100%",
     display: "flex",
@@ -212,9 +213,7 @@ const styles = (theme: ThemeType) => ({
     textAlign: "center",
   },
   emptyStateButton: {
-    ...(theme.isFriendlyUI
-      ? { color: theme.palette.text.alwaysWhite }
-      : { backgroundColor: theme.palette.background.default }),
+    backgroundColor: theme.palette.background.default,
     fontSize: 14,
   },
   modInboxCheckboxIcon: {
@@ -238,23 +237,12 @@ const styles = (theme: ThemeType) => ({
     marginRight: 6,
     color: theme.palette.grey[500],
   },
-});
+}));
 
-const FriendlyInbox = ({
-  currentUserId,
-  conversationId,
-  view = "userConversations",
-  isModInbox = false,
-  userCanViewModInbox = false,
-  showArchive = false,
-  isAdmin = false,
-  classes,
-}: InboxComponentProps & {
-  conversationId?: string;
-  classes: ClassesType<typeof styles>;
-}) => {
+const FriendlyInbox = ({currentUserId, conversationId, view = "userConversations", isModInbox = false, userCanViewModInbox = false, showArchive = false, isAdmin = false}: InboxComponentProps & { conversationId?: string; }) => {
+  const classes = useStyles(styles);
   const { openDialog } = useDialog();
-  const { location, query } = useLocation();
+  const { query } = useLocation();
   const navigate = useNavigate();
   
   const [sendEmail, setSendEmail] = useState(true);
@@ -267,16 +255,18 @@ const FriendlyInbox = ({
 
   const selectConversationCallback = useCallback(
     (conversationId: string | undefined) => {
-      const newQuery = { ...query };
-      if (conversationId) {
-        newQuery.conversation = conversationId;
-      } else {
-        delete newQuery.conversation;
-      }
-      const search = Object.keys(newQuery).length > 0 ? `?${qs.stringify(newQuery)}` : '';
-      navigate({ ...location, search });
+      navigate(location => {
+        const newQuery = { ...location.query };
+        if (conversationId) {
+          newQuery.conversation = conversationId;
+        } else {
+          delete newQuery.conversation;
+        }
+        const search = Object.keys(newQuery).length > 0 ? `?${qs.stringify(newQuery)}` : '';
+        return { ...location, search };
+      });
     },
-    [navigate, location, query]
+    [navigate]
   );
 
   const openNewConversationDialog = useCallback(() => {
@@ -408,13 +398,13 @@ const FriendlyInbox = ({
             <SectionFooterCheckbox
               label={<ForumIcon className={classes.modInboxCheckboxIcon} icon="Flag" />}
               value={isModInbox}
-              onClick={() => navigate({ ...location, search: modInboxQueryParam })}
+              onClick={() => navigate(location => ({ ...location, search: modInboxQueryParam }))}
               tooltip={isModInbox ? "Hide mod messages" : "Show mod messages"}
             />
             <SectionFooterCheckbox
               label={<ArchiveIcon className={classes.archivedCheckboxIcon} />}
               value={showArchive}
-              onClick={() => navigate({ ...location, search: archiveQueryParam })}
+              onClick={() => navigate(location => ({ ...location, search: archiveQueryParam }))}
               tooltip={showArchive ? "Hide archived messages" : "Show archived messages"}
             />
             <LWTooltip title="Start a new conversation" className={classes.actionIconWrapper}>
@@ -487,6 +477,6 @@ const FriendlyInbox = ({
   );
 };
 
-export default registerComponent("FriendlyInbox", FriendlyInbox, { styles });
+export default FriendlyInbox;
 
 

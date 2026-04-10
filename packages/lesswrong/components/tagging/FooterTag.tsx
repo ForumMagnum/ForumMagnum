@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { AnalyticsContext } from "../../lib/analyticsEvents";
-import { useExperimentalTagStyleSetting } from '@/lib/instanceSettings';
 import classNames from 'classnames';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { useCurrentUser } from '../common/withUser';
@@ -12,31 +11,16 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import ForumIcon from "../common/ForumIcon";
 
 export const tagStyle = (theme: ThemeType) => ({
-  marginRight: theme.isFriendlyUI ? 3 : undefined,
   padding: 5,
   paddingLeft: 6,
   paddingRight: 6,
-  marginBottom: theme.isFriendlyUI ? 8 : undefined,
   fontWeight: theme.typography.body1.fontWeight,
   backgroundColor: theme.palette.tag.background,
   border: theme.palette.tag.border,
   color: theme.palette.tag.text,
   borderRadius: 3,
   ...theme.typography.commentStyle,
-  cursor: "pointer",
-  whiteSpace: theme.isFriendlyUI ? "nowrap": undefined,
-})
-
-const newTagStyle = (theme: ThemeType) => ({
-  marginRight: 4,
-  padding: 5,
-  paddingLeft: 8,
-  paddingRight: 7,
-  marginBottom: 8,
-  borderRadius: 4,
-  boxShadow: theme.palette.tag.boxShadow,
-  color: theme.palette.primary.main,
-  fontSize: 15
+  cursor: "pointer"
 })
 
 export const smallTagTextStyle = (theme: ThemeType) => ({
@@ -47,42 +31,27 @@ export const smallTagTextStyle = (theme: ThemeType) => ({
   marginBottom: 0
 });
 
-export const coreTagStyle = (theme: ThemeType) => ({
-  backgroundColor: theme.palette.tag.coreTagBackground,
-  border: theme.palette.tag.coreTagBorder,
-  color: theme.palette.tag.coreTagText,
-  "&:hover": {
-    backgroundColor: theme.palette.tag.coreTagBackgroundHover,
-    borderColor: theme.palette.tag.coreTagBackgroundHover,
-  },
-});
-
 const styles = defineStyles("FooterTag", (theme: ThemeType) => ({
   root: {
     display: "inline-block",
-    cursor: "pointer",
     ...theme.typography.commentStyle,
     "&:hover": {
       opacity: 1,
-      backgroundColor: theme.palette.tag.backgroundHover,
     },
-    "& a:hover": theme.isFriendlyUI ? {opacity: 1} : {},
-    ...(useExperimentalTagStyleSetting.get() && theme.isBookUI
-      ? newTagStyle(theme)
-      : tagStyle(theme)
-    )
+    "& a:hover": {},
+    ...tagStyle(theme)
   },
   tooltip: {
-    marginTop: theme.isFriendlyUI ? 6 : undefined,
   },
   core: {
-    ...coreTagStyle(theme),
+    backgroundColor: theme.palette.tag.coreTagBackground,
+    border: theme.palette.tag.coreTagBorder,
+    color: theme.palette.tag.coreTagText,
   },
   coreIcon: {
     position: "relative",
     display: "inline-block",
     minWidth: 20,
-    margin: theme.isFriendlyUI ? "0 3px 0 6px" : undefined,
     "& svg": {
       position: "absolute",
       top: -13,

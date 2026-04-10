@@ -44,7 +44,7 @@ const styles = defineStyles("CommunityHome", (theme: ThemeType) => ({
   link: {
     color: theme.palette.primary.main,
     "& + &": {
-      marginTop: theme.spacing.unit,
+      marginTop: 8,
     },
   },
   welcomeText: {

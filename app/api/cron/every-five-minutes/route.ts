@@ -1,5 +1,5 @@
 import type { NextRequest } from 'next/server';
-import PageCacheRepo from '@/server/repos/PageCacheRepo';
+import { postAiEditorUsageToSlack } from './postAiEditorUsageToSlack';
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -7,9 +7,7 @@ export async function GET(request: NextRequest) {
     return new Response('Unauthorized', { status: 401 });
   }
 
-  // Clear expired page cache
-  const pageCacheRepo = new PageCacheRepo();
-  await pageCacheRepo.clearExpiredEntries();
+  await postAiEditorUsageToSlack();
 
   return new Response('OK', { status: 200 });
 }
