@@ -112,7 +112,7 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
     backgroundTask(onPostPublished(documentWithId, context));
   }
   documentWithId = await applyNewPostTags(documentWithId, afterCreateProperties);
-  documentWithId = await createNewJargonTermsCallback(documentWithId, afterCreateProperties);
+  // documentWithId = await createNewJargonTermsCallback(documentWithId, afterCreateProperties);
 
   documentWithId = await updateRevisionsDocumentIds({
     newDoc: documentWithId,
@@ -217,7 +217,7 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await swrInvalidatePostRoute(updatedDocument._id, context);
   updatedDocument = await syncTagRelevance(updatedDocument, updateCallbackProperties);
   updatedDocument = await resetDialogueMatches(updatedDocument, updateCallbackProperties);
-  updatedDocument = await createNewJargonTermsCallback(updatedDocument, updateCallbackProperties);
+  // updatedDocument = await createNewJargonTermsCallback(updatedDocument, updateCallbackProperties);
 
   updatedDocument = await notifyUsersOfNewPingbackMentions({
     newDoc: updatedDocument,

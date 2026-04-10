@@ -93,14 +93,16 @@ export async function getCollaborativeEditorAccessWithKey({formType, post, user,
     accessLevel = strongerAccessLevel(accessLevel, "edit");
   } 
 
+  const sharingSettings = post.sharingSettings ?? defaultSharingSettings;
+
   if (user && post.shareWithUsers.includes(user._id)) {
-    accessLevel = strongerAccessLevel(accessLevel, post.sharingSettings?.explicitlySharedUsersCan);
-  } 
-  
+    accessLevel = strongerAccessLevel(accessLevel, sharingSettings.explicitlySharedUsersCan);
+  }
+
   const canonicalLinkSharingKey = post.linkSharingKey;
   const keysMatch = !!canonicalLinkSharingKey && !!linkSharingKey && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: linkSharingKey });
   if (keysMatch) {
-    accessLevel = strongerAccessLevel(accessLevel, post.sharingSettings?.anyoneWithLinkCan);
+    accessLevel = strongerAccessLevel(accessLevel, sharingSettings.anyoneWithLinkCan);
   }
   
   return accessLevel;

@@ -258,7 +258,13 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
     scroll?: boolean;
     scrollBehaviour?: "auto" | "smooth";
   }) => {
-    event?.stopPropagation();
+    // Don't stop propagation if the click is inside an active editor, since
+    // that would prevent Lexical from dispatching CLICK_COMMAND (which is
+    // needed for image selection/resize and other decorator node interactions).
+    const isInsideEditor = event?.target instanceof HTMLElement && event.target.closest('[contenteditable="true"]');
+    if (!isInsideEditor) {
+      event?.stopPropagation();
+    }
     if (isTruncated || isSingleLine) {
       captureEvent("commentExpanded", { postId: comment.postId, commentId: comment._id, draft: comment.draft });
       setTruncated(false);

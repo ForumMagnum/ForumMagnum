@@ -1,16 +1,18 @@
-import { test, expect } from "@playwright/test";
-import { createNewPost, loginNewUser, logout, setPostContent, uniqueId } from "./playwrightUtils";
+import { test, expect, BrowserContext, Page } from "@playwright/test";
+import { createNewPost, expectVisible, getUserKarma, loginNewUser, logout, publishPostFromPostEditPage, setPostContent, uniqueId } from "./playwrightUtils";
 
 test("create and edit post", async ({page, context}) => {
+  await page.goto("/");
   await loginNewUser(context);
   await page.goto("/newPost");
+  await page.waitForURL("/editPost*");
 
   // Create a post with a title and body
   const n = uniqueId.get();
   const title = `Test post ${n}`;
   const body = `Test body ${n}`;
   await setPostContent(page, {title, body});
-  await page.getByText("Publish").click();
+  await publishPostFromPostEditPage({page, context});
 
   // Submitting navigates to the post page - check our new post is there
   await page.waitForURL(`/posts/**/test-post-${n}**`);
@@ -26,7 +28,7 @@ test("create and edit post", async ({page, context}) => {
   const newTitle = "Edited test post";
   const newBody = "Edited test body";
   await setPostContent(page, {title: newTitle, body: newBody});
-  await page.getByText("Publish changes").click();
+  await publishPostFromPostEditPage({page, context});
 
   // Submitting navigates to the post page - check it has our edits
   await page.waitForURL("/posts/**/edited-test-post**");
@@ -37,13 +39,15 @@ test("create and edit post", async ({page, context}) => {
 });
 
 test("can create 2 posts per day, but not 3", async ({page, context}) => {
+  await page.goto("/");
   await loginNewUser(context);
 
   // Create two posts with a single user
   for (let i = 0; i < 2; i++) {
     await page.goto("/newPost");
+    await page.waitForURL("/editPost*");
     await setPostContent(page, {title: `Test post ${i}`, body: `Test body ${i}`});
-    await page.getByText("Publish").click();
+    await publishPostFromPostEditPage({page, context});
     await page.waitForURL("/posts/**");
   }
 
@@ -54,29 +58,26 @@ test("can create 2 posts per day, but not 3", async ({page, context}) => {
 
 test("voting on a post gives karma", async ({page, context}) => {
   // Create and visit a new post
+  await page.goto("/");
   await loginNewUser(context);
   const post = await createNewPost();
-
-  // The post author should have no karma
-  const authorPage = `/users/${post.author.slug}`;
-  await page.goto(authorPage);
-  await expect(page.locator(".UsersProfile-userMetaInfo").first().getByText("0")).toBeVisible();
+  const postAuthorId = post.author._id;
+  expect(await getUserKarma(postAuthorId)).toBe(0);
 
   // Post should start with 1 karma from the author
   await page.goto(post.postPageUrl);
-  const karma = page.locator(".LWPostsPageTopHeaderVote-voteScore");
-  await expect(karma).toContainText("0");
+  const karmaDisplay = page.locator(".LWPostsPageTopHeaderVote-voteScore");
+  await expect(karmaDisplay).toContainText("0");
 
   // Click the upvote button and give time for the page to update
-  await page.locator(".VoteArrowIconHollow-up").click();
+  await page.locator(".VoteArrowIconHollow-up").nth(1).click();
   await page.waitForTimeout(1000);
 
-  // Post should now have 2 karma
-  await expect(karma).toContainText("1");
+  // Post should now display  2 karma
+  await expect(karmaDisplay).toContainText("1");
 
-  // The post author should now have the karma
-  await page.goto(authorPage);
-  await expect(page.getByText("1 karma")).toBeVisible();
+  // The post author should now have karma
+  expect(await getUserKarma(postAuthorId)).toBe(1);
 });
 
 test("admins can move posts to draft", async ({page, context}) => {
@@ -85,11 +86,12 @@ test("admins can move posts to draft", async ({page, context}) => {
   await page.goto(post.postPageUrl);
 
   // The post is visible
-  await expect(page.getByText(post.title)).toBeVisible();
+  await expect(page.getByText(post.title).first()).toBeVisible();
 
   // An admin can move the post to draft
+  await page.goto("/");
   await loginNewUser(context, {isAdmin: true});
-  await page.reload();
+  await page.goto(post.postPageUrl);
   await page.locator(".PostActionsButton-root").first().click();
   await page.getByText("Move to draft").click();
   await expect(page.getByText("[Draft]")).toBeVisible();
@@ -97,11 +99,12 @@ test("admins can move posts to draft", async ({page, context}) => {
   // Non-admins now can't view the post
   await logout(context);
   await page.reload();
-  await expect(page.getByText("you don't have access")).toBeVisible();
+  await expect(page.getByText("404 Not Found")).toBeVisible();
   await expect(page.getByText(post.title)).not.toBeVisible();
 });
 
 test("cannot create posts with duplicate title", async ({page, context}) => {
+  await page.goto("/");
   await loginNewUser(context);
 
   // Create a post with a title and body
@@ -110,7 +113,7 @@ test("cannot create posts with duplicate title", async ({page, context}) => {
   const title = `Test post ${n}`;
   const body = `Test body ${n}`;
   await setPostContent(page, {title, body});
-  await page.getByText("Publish").click();
+  await publishPostFromPostEditPage({page, context});
 
   // Submitting navigates to the post page - check our new post is there
   // This will have a slug derived from the initial title, rather than the one we just set.
@@ -121,7 +124,7 @@ test("cannot create posts with duplicate title", async ({page, context}) => {
   // Create another post with the same title
   await page.goto("/newPost");
   await setPostContent(page, {title, body});
-  await page.getByText("Publish").click();
+  await publishPostFromPostEditPage({page, context});
 
   // We should get an error
   const error = page.getByText("You recently published another post titled").first();

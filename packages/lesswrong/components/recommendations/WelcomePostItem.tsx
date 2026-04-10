@@ -10,9 +10,9 @@ import { gql } from "@/lib/generated/gql-codegen";
 import PostsItem from "../posts/PostsItem";
 import { HideIfRepeated } from "../posts/HideRepeatedPostsContext";
 
-const PostsListWithVotesQuery = gql(`
+const WelcomePostQuery = gql(`
   query WelcomePostItem($documentId: String) {
-    post(input: { selector: { documentId: $documentId } }) {
+    post(input: { selector: { documentId: $documentId }, allowNull: true }) {
       result {
         ...PostsListWithVotes
       }
@@ -20,14 +20,14 @@ const PostsListWithVotesQuery = gql(`
   }
 `);
 
-const WelcomePostItem = ({repeatedPostsPrecedence}: {
+export default function WelcomePostItem({repeatedPostsPrecedence}: {
   repeatedPostsPrecedence?: number
-}) => {
+}) {
   const currentUser = useCurrentUser();
   const now = useCurrentTime();
   const welcomePostId = aboutPostIdSetting.get();
 
-  const { data } = useQuery(PostsListWithVotesQuery, {
+  const { data } = useQuery(WelcomePostQuery, {
     variables: { documentId: welcomePostId },
   });
   const post = data?.post?.result;
@@ -54,7 +54,5 @@ const WelcomePostItem = ({repeatedPostsPrecedence}: {
     <PostsItem post={post} />
   </HideIfRepeated>
 }
-
-export default registerComponent("WelcomePostItem", WelcomePostItem, {});
 
 

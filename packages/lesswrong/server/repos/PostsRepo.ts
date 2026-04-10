@@ -7,6 +7,7 @@ import {FilterPostsForReview} from '@/components/bookmarks/ReadHistoryTab'
 import { FilterSettings, FilterMode } from "@/lib/filterSettings";
 import { FeedFullPost, FeedItemSourceType } from "@/components/ultraFeed/ultraFeedTypes";
 import { TIME_DECAY_FACTOR, SCORE_BIAS } from "@/lib/scoring";
+import { getPgPromiseLib } from "@/server/sqlConnection";
 import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
 
 type DbPostWithContents = DbPost & {contents?: DbRevision | null};
@@ -53,6 +54,10 @@ function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
   return 1;
 }
 
+function sqlValue(value: string): string {
+  return `'${getPgPromiseLib().as.value(value)}'`;
+}
+
 /**
  * Constructs a SQL expression for calculating the filteredScore based on filterSettings
  * This mirrors the logic in the "magic" view's filterSettingsToParams function
@@ -64,7 +69,7 @@ function constructFilteredScoreSql(filterSettings: FilterSettings): string {
 
   const additiveModifiersSql = tagsSoftFiltered.map(tag => `
     (CASE
-      WHEN COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) > 0
+      WHEN COALESCE((p."tagRelevance"->${sqlValue(tag.tagId)})::INTEGER, 0) > 0
       THEN ${filterModeToAdditiveKarmaModifier(tag.filterMode)}
       ELSE 0
     END)`
@@ -72,7 +77,7 @@ function constructFilteredScoreSql(filterSettings: FilterSettings): string {
 
   const multiplicativeModifiersSql = tagsSoftFiltered.map(tag => `
     (CASE
-      WHEN COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) > 0
+      WHEN COALESCE((p."tagRelevance"->${sqlValue(tag.tagId)})::INTEGER, 0) > 0
       THEN ${filterModeToMultiplicativeKarmaModifier(tag.filterMode)}
       ELSE 1
     END)`
@@ -840,11 +845,11 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     const tagsExcluded = filterSettings.tags.filter(t => t.filterMode === "Hidden");
     
     const tagRequiredConditions = tagsRequired.map(tag => 
-      `COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) >= 1`
+      `COALESCE((p."tagRelevance"->${sqlValue(tag.tagId)})::INTEGER, 0) >= 1`
     ).join(' AND ');
     
     const tagExcludedConditions = tagsExcluded.map(tag => 
-      `COALESCE((p."tagRelevance"->'${tag.tagId}')::INTEGER, 0) < 1`
+      `COALESCE((p."tagRelevance"->${sqlValue(tag.tagId)})::INTEGER, 0) < 1`
     ).join(' AND ');
     
     const tagFilterClause = [

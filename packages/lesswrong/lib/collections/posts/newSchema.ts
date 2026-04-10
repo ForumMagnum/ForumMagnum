@@ -3362,6 +3362,7 @@ const schema = {
   sharingSettings: {
     database: {
       type: "JSONB",
+      defaultValue: { anyoneWithLinkCan: "none", explicitlySharedUsersCan: "comment" },
     },
     graphql: {
       outputType: "JSON",

@@ -54,8 +54,8 @@ import AutocompletePlugin from './plugins/AutocompletePlugin';
 import AutoEmbedPlugin from './plugins/AutoEmbedPlugin';
 import AutoLinkPlugin from './plugins/AutoLinkPlugin';
 import CodeActionMenuPlugin from './plugins/CodeActionMenuPlugin';
-import CodeHighlightPrismPlugin from './plugins/CodeHighlightPrismPlugin';
-// import CodeHighlightShikiPlugin from './plugins/CodeHighlightShikiPlugin';
+import CodeKeyboardPlugin from './plugins/CodeKeyboardPlugin';
+import CodeHighlightCSSPlugin from './plugins/CodeHighlightCSSPlugin';
 import CollapsibleSectionsPlugin from '../editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import ContainerQuotePlugin from '../editor/lexicalPlugins/quote/ContainerQuotePlugin';
 import CommentPlugin from './plugins/CommentPlugin';
@@ -149,7 +149,7 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     display: 'block',
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
-    // --gutter-chars is set by CodeHighlightPrismPlugin to the digit count
+    // --gutter-chars is set by CodeKeyboardPlugin to the digit count
     // of the largest line number; padding-left and gutter width adapt accordingly.
     '& .code-block': {
       backgroundColor: theme.palette.grey[100],
@@ -478,6 +478,9 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     // (e.g. "a."), making them look squished together.
     '& .nested-list-item': {
       listStyleType: 'none',
+    },
+    '& figure': {
+      margin: '0em auto',
     },
   },
   editorContainerComment: {
@@ -914,13 +917,8 @@ export default function Editor({
               />
             )}
             <MarkdownShortcutPlugin />
-            {/* {isCodeHighlighted &&
-              (isCodeShiki ? (
-                <CodeHighlightShikiPlugin />
-              ) : (
-                <CodeHighlightPrismPlugin />
-              ))} */}
-            <CodeHighlightPrismPlugin />
+            <CodeKeyboardPlugin />
+            <CodeHighlightCSSPlugin />
             <ListPlugin hasStrictIndent={listStrictIndent} />
             <CheckListPlugin />
             <TablePlugin

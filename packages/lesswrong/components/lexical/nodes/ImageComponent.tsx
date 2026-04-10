@@ -62,15 +62,16 @@ import { imageCache, ImageStatus } from './imageCache';
 const styles = defineStyles('LexicalImageComponent', (theme: ThemeType) => ({
   imageContainer: {
     position: 'relative',
-    display: 'block',
+    display: 'flex',
+    justifyContent: 'center',
     width: '100%',
-    textAlign: 'center',
   },
   imageWrapper: {
     display: 'inline-block',
     position: 'relative',
   },
   imageElement: {
+    display: 'block',
     height: 'auto',
     maxWidth: '100%',
     minWidth: '100%',

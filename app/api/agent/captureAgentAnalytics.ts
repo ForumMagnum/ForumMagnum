@@ -1,6 +1,6 @@
 import { serverCaptureEvent } from "@/server/analytics/serverAnalyticsWriter";
 
-type AgentApiStatus = "success" | "validation_error" | "unauthorized" | "internal_error";
+type AgentApiStatus = "success" | "validation_error" | "unauthorized" | "unsupported_editor" | "internal_error";
 
 interface AgentApiEventProps {
   route: string;

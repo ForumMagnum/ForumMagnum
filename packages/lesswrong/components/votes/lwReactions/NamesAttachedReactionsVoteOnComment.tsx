@@ -156,7 +156,7 @@ const styles = defineStyles("NamesAttachedReactionsVoteOnComment", (theme: Theme
     fontFamily: theme.typography.commentStyle.fontFamily,
   },
   hasQuotes: {
-    border: theme.palette.border.dashed500
+    border: `dashed 1px ${theme.palette.grey[500]}`,
   },
   invertColors: {
     filter: "invert(1)",

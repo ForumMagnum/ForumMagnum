@@ -490,7 +490,10 @@ const Header = ({
           <UsersMenu />
         </AnalyticsContext>
       </div>
-      <KarmaChangeNotifier />
+      <KarmaChangeNotifier
+        onOpen={() => void handleSetNotificationDrawerOpen(false)}
+        notificationOpen={notificationOpen}
+      />
       <NotificationsMenuButton
         toggle={handleNotificationToggle}
         open={notificationOpen}
