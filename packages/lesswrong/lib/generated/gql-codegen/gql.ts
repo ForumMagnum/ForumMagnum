@@ -99,7 +99,6 @@ type Documents = {
     "\n  query multiCommentRecentCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentRecentCommentsQueryDocument,
     "\n  query multiCommentuseCommentQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentuseCommentQueryDocument,
     "\n  query multiCommentCommentsListCondensedQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ShortformComments\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentCommentsListCondensedQueryDocument,
-    "\n  query HeaderEventSubtitleSpotlightQuery {\n    currentSpotlight {\n      ...SpotlightHeaderEventSubtitle\n    }\n  }\n": typeof types.HeaderEventSubtitleSpotlightQueryDocument,
     "\n  query MyHomePageDesignSummaries {\n    myHomePageDesignSummaries {\n      publicId\n      title\n      createdAt\n    }\n  }\n": typeof types.MyHomePageDesignSummariesDocument,
     "\n  query HomePageDesignByPublicIdFull($publicId: String!) {\n    homePageDesignByPublicId(publicId: $publicId) {\n      _id\n      publicId\n      html\n      title\n      source\n      conversationHistory\n    }\n  }\n": typeof types.HomePageDesignByPublicIdFullDocument,
     "\n  query MarketplaceHomePageDesigns {\n    marketplaceHomePageDesigns {\n      publicId\n      title\n      html\n      verified\n      commentId\n      commentBaseScore\n    }\n  }\n": typeof types.MarketplaceHomePageDesignsDocument,
@@ -939,7 +938,6 @@ const documents: Documents = {
     "\n  query multiCommentRecentCommentsQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsListWithParentMetadata\n      }\n      totalCount\n    }\n  }\n": types.multiCommentRecentCommentsQueryDocument,
     "\n  query multiCommentuseCommentQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...CommentsList\n      }\n      totalCount\n    }\n  }\n": types.multiCommentuseCommentQueryDocument,
     "\n  query multiCommentCommentsListCondensedQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ShortformComments\n      }\n      totalCount\n    }\n  }\n": types.multiCommentCommentsListCondensedQueryDocument,
-    "\n  query HeaderEventSubtitleSpotlightQuery {\n    currentSpotlight {\n      ...SpotlightHeaderEventSubtitle\n    }\n  }\n": types.HeaderEventSubtitleSpotlightQueryDocument,
     "\n  query MyHomePageDesignSummaries {\n    myHomePageDesignSummaries {\n      publicId\n      title\n      createdAt\n    }\n  }\n": types.MyHomePageDesignSummariesDocument,
     "\n  query HomePageDesignByPublicIdFull($publicId: String!) {\n    homePageDesignByPublicId(publicId: $publicId) {\n      _id\n      publicId\n      html\n      title\n      source\n      conversationHistory\n    }\n  }\n": types.HomePageDesignByPublicIdFullDocument,
     "\n  query MarketplaceHomePageDesigns {\n    marketplaceHomePageDesigns {\n      publicId\n      title\n      html\n      verified\n      commentId\n      commentBaseScore\n    }\n  }\n": types.MarketplaceHomePageDesignsDocument,
@@ -2048,10 +2046,6 @@ export function gql(source: "\n  query multiCommentuseCommentQuery($selector: Co
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query multiCommentCommentsListCondensedQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ShortformComments\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiCommentCommentsListCondensedQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...ShortformComments\n      }\n      totalCount\n    }\n  }\n"];
-/**
- * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
- */
-export function gql(source: "\n  query HeaderEventSubtitleSpotlightQuery {\n    currentSpotlight {\n      ...SpotlightHeaderEventSubtitle\n    }\n  }\n"): (typeof documents)["\n  query HeaderEventSubtitleSpotlightQuery {\n    currentSpotlight {\n      ...SpotlightHeaderEventSubtitle\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
