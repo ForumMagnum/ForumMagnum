@@ -216,6 +216,7 @@ export const CrossSiteLinkPreview = ({
       href,
       onsite: false,
     },
+    useLineAnchor: true,
   });
 
   const queryResult = useQuery(CrossSiteLinkPreviewQuery, {

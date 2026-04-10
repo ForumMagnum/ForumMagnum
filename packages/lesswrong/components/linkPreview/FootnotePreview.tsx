@@ -165,6 +165,7 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
     getIsEnabled: () => {
       return !isMobile() && window.innerWidth >= minScreenWidthForTooltips;
     },
+    useLineAnchor: true,
   });
   const { eventHandlers: sidenoteEventHandlers, hover: sidenoteHovered } = useHover();
   const eitherHovered = anchorHovered || sidenoteHovered;

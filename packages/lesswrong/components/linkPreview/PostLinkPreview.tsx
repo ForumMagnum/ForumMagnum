@@ -463,6 +463,7 @@ export const DefaultPreview = ({href, onsite=false, id, rel, className, children
       href,
       onsite,
     },
+    useLineAnchor: true,
   });
   return (
     <span {...eventHandlers}>
@@ -492,7 +493,7 @@ export const OWIDPreview = ({href, id, className, children}: {
   children: ReactNode,
 }) => {
   const classes = useStyles(linkStyles);
-  const { anchorEl, hover, eventHandlers } = useHover();
+  const { anchorEl, hover, eventHandlers } = useHover({ useLineAnchor: true });
   const [match] = href.match(/^http(?:s?):\/\/ourworldindata\.org\/grapher\/.*/) || []
 
   if (!match) {
@@ -524,7 +525,7 @@ export const MetaculusPreview = ({href, id, className, children}: {
 }) => {
   const classes = useStyles(linkStyles);
 
-  const { anchorEl, hover, eventHandlers } = useHover();
+  const { anchorEl, hover, eventHandlers } = useHover({ useLineAnchor: true });
   const [match, www, questionNumber] = href.match(/^http(?:s?):\/\/(www\.)?metaculus\.com\/questions\/(\d+)/) || []
 
   if (!questionNumber) {
@@ -556,7 +557,7 @@ export const FatebookPreview = ({href, id, className, children}: {
 }) => {
   const classes = useStyles(linkStyles);
   
-  const { anchorEl, hover, eventHandlers } = useHover();
+  const { anchorEl, hover, eventHandlers } = useHover({ useLineAnchor: true });
 
   const isEmbed = /^https?:\/\/fatebook\.io\/embed\/q\/[\w-]+$/.test(href);
 
@@ -594,7 +595,7 @@ export const ManifoldPreview = ({href, id, className, children}: {
   children: ReactNode,
 }) => {
   const classes = useStyles(linkStyles);
-  const { anchorEl, hover, eventHandlers } = useHover();
+  const { anchorEl, hover, eventHandlers } = useHover({ useLineAnchor: true });
 
   // test if fits https://manifold.markets/embed/[...]
   const isEmbed = /^https?:\/\/manifold\.markets\/embed\/.+$/.test(href);
@@ -634,7 +635,7 @@ export const NeuronpediaPreview = ({href, id, className, children}: {
   children: ReactNode,
 }) => {
   const classes = useStyles(linkStyles);
-  const { anchorEl, hover, eventHandlers } = useHover();
+  const { anchorEl, hover, eventHandlers } = useHover({ useLineAnchor: true });
 
   // test if it's already an embed url https://[www.]neuronpedia.org/[model]/[layer]/[index]?embed=true[...]
   const isEmbed = /https:\/\/(www\.)?neuronpedia\.org\/[a-zA-Z0-9-]+\/[a-zA-Z0-9-]+\/\d+\?embed=true/.test(href);
@@ -675,7 +676,7 @@ export const MetaforecastPreview = ({href, id, className, children}: {
   children: ReactNode,
 }) => {
   const classes = useStyles(linkStyles);
-  const { anchorEl, hover, eventHandlers } = useHover();
+  const { anchorEl, hover, eventHandlers } = useHover({ useLineAnchor: true });
 
   // test if fits https://metaforecast.org/questions/embed/[...]
   const isEmbed = /^https?:\/\/metaforecast\.org\/questions\/embed\/.+$/.test(href);
@@ -744,7 +745,7 @@ export const ArbitalPreview = ({href, id, className, children}: {
   const classes = useStyles(arbitalStyles);
   const linkClasses = useStyles(linkStyles);
 
-  const { anchorEl, hover, eventHandlers } = useHover();
+  const { anchorEl, hover, eventHandlers } = useHover({ useLineAnchor: true });
   const [match, www, arbitalSlug] = href.match(/^http(?:s?):\/\/(www\.)?arbital\.com\/p\/([a-zA-Z0-9_]+)+/) || []
 
   const { data: rawData, loading } = useQuery(gql(`
@@ -796,7 +797,7 @@ export const EstimakerPreview = ({href, id, className, children}: {
   children: ReactNode,
 }) => {
   const classes = useStyles(linkStyles);
-  const { anchorEl, hover, eventHandlers } = useHover();
+  const { anchorEl, hover, eventHandlers } = useHover({ useLineAnchor: true });
 
   // test if fits https://estimaker.app/_/$user/$slug
   const isEmbed = /^https?:\/\/estimaker\.app\/_\/.+$/.test(href);
@@ -830,7 +831,7 @@ export const ViewpointsPreview = ({href, id, className, children}: {
   children: ReactNode,
 }) => {
   const classes = useStyles(linkStyles);
-  const { anchorEl, hover, eventHandlers } = useHover();
+  const { anchorEl, hover, eventHandlers } = useHover({ useLineAnchor: true });
 
   // test if fits https://viewpoints.xyz/embed/polls/$slug
   const isEmbed = /^https?:\/\/viewpoints\.xyz\/embed\/polls\/.+$/.test(href);
