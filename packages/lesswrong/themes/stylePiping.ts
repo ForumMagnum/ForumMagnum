@@ -202,7 +202,7 @@ const tableStyles = (theme: ThemeType) => ({
 const tableCellStyles = (theme: ThemeType) => ({
   minWidth: "2em",
   padding: ".4em",
-  border: theme.palette.border.tableCell,
+  border: `1px double ${theme.palette.grey[320]}`,
   wordBreak: "normal",
   '& p': {
     marginTop: '0.5em',
@@ -214,7 +214,7 @@ const tableCellStyles = (theme: ThemeType) => ({
 });
 
 const tableHeadingStyles = (theme: ThemeType) => ({
-  background: theme.palette.panelBackground.tableHeading,
+  background: theme.palette.grey[50],
   fontWeight: 700
 });
 
@@ -565,7 +565,6 @@ const baseBodyStyles = (theme: ThemeType) => ({
   '& h1': {
     ...theme.typography.display2,
     ...theme.typography.headerStyle,
-    color: theme.palette.text.contentHeader,
   },
   // If a post starts with a header, it should still be flush with the top of
   // the container
@@ -577,7 +576,6 @@ const baseBodyStyles = (theme: ThemeType) => ({
   '& h2': {
     ...theme.typography.display1,
     ...theme.typography.headerStyle,
-    color: theme.palette.text.contentHeader,
   },
   '& h2:first-child': {
     marginTop: 0,
@@ -586,7 +584,6 @@ const baseBodyStyles = (theme: ThemeType) => ({
   '& h3': {
     ...theme.typography.display0,
     ...theme.typography.headerStyle,
-    color: theme.palette.text.contentHeader,
   },
   '& h3:first-child': {
     marginTop: 0,
@@ -596,13 +593,10 @@ const baseBodyStyles = (theme: ThemeType) => ({
     ...theme.typography.body1,
     ...theme.typography.postStyle,
     fontWeight:600,
-    color: theme.palette.text.contentHeader,
   },
   '& h5': {
-    color: theme.palette.text.contentHeader,
   },
   '& h6': {
-    color: theme.palette.text.contentHeader,
   },
   '& img': {
     maxWidth: "100%",

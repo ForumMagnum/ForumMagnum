@@ -9,7 +9,7 @@ function pathnameMatchesAnyOf(pathname: string, routePaths: NextExistingRoute[])
   return routePaths.some(routePath => pathnameMatchesRoutePath(pathname, routePath));
 }
 
-function pathnameMatchesRoutePath(pathname: string, routePath: NextExistingRoute) {
+export function pathnameMatchesRoutePath(pathname: string, routePath: NextExistingRoute) {
   return !!matchPath(pathname, {
     path: routePatternToReactRouterPath(routePath),
     exact: true,

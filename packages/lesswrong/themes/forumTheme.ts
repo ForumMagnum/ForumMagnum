@@ -1,7 +1,7 @@
 import { getForumType, ThemeOptions } from './themeNames';
 import { baseTheme } from './createThemeDefaults';
 import { getUserTheme } from './userThemes/index';
-import { getSiteTheme } from './siteThemes/index';
+import { getSiteTheme } from './siteThemes';
 import type { ForumTypeString } from '../lib/instanceSettings';
 import deepmerge from 'deepmerge';
 import { forumSelect } from '../lib/forumTypeUtils';
@@ -54,7 +54,7 @@ const buildTheme = (
 ): ThemeType => {
   const dark = userTheme.dark ?? false;
 
-  let componentPalette: ThemeComponentPalette = baseTheme.componentPalette(dark);
+  let componentPalette: ThemePalette = baseTheme.componentPalette(dark);
   if (siteTheme.componentPalette) componentPalette = deepmerge(componentPalette, siteTheme.componentPalette(dark));
   if (userTheme.componentPalette) componentPalette = deepmerge(componentPalette, userTheme.componentPalette(dark));
 

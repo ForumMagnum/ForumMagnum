@@ -99,7 +99,7 @@ const styles = defineStyles("PostsEmail", (theme: ThemeType) => ({
     width: 210,
     height: 0,
     borderTop: "none",
-    borderBottom: theme.palette.border.emailHR,
+    borderBottom: "1px solid #aaa",
     marginTop: 50,
     marginBottom: 35,
   },
