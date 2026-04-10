@@ -13,8 +13,11 @@ import {
 } from '@lexical/extension';
 import {$insertNodeToNearestRoot} from '@lexical/utils';
 import {
+  $createParagraphNode,
   $getSelection,
+  $isParagraphNode,
   $isRangeSelection,
+  $isRootOrShadowRoot,
   COMMAND_PRIORITY_EDITOR,
 } from 'lexical';
 import {useEffect} from 'react';
@@ -34,10 +37,46 @@ export function HorizontalRulePlugin(): null {
 
         const focusNode = selection.focus.getNode();
 
-        if (focusNode !== null) {
-          const horizontalRuleNode = $createHorizontalRuleNode();
-          $insertNodeToNearestRoot(horizontalRuleNode);
+        if (focusNode === null) {
+          return true;
         }
+
+        // If the cursor is collapsed inside an empty top-level paragraph,
+        // replace that paragraph with the HR + a new trailing paragraph
+        // instead of falling through to `$insertNodeToNearestRoot`, which
+        // splits the empty paragraph in half and leaves an undeletable
+        // empty paragraph before the HR.
+        //
+        // The specific symptom of that bug is "insert a divider after an
+        // image leaves an extra space you can't delete": the image plugin
+        // auto-inserts a trailing empty paragraph after every image, so the
+        // user's cursor lands there, and after the HR insertion the leftover
+        // empty paragraph sits between the image (a shadow root that can't
+        // be merged into via Backspace) and the HR, with no way to remove
+        // it. This path also avoids leaving a ghost paragraph for the
+        // general "insert HR into an empty paragraph" case.
+        if (selection.isCollapsed()) {
+          const topLevel = focusNode.getTopLevelElement();
+          const topLevelParent = topLevel?.getParent() ?? null;
+          if (
+            topLevel !== null &&
+            $isParagraphNode(topLevel) &&
+            topLevel.isEmpty() &&
+            topLevelParent !== null &&
+            $isRootOrShadowRoot(topLevelParent)
+          ) {
+            const horizontalRuleNode = $createHorizontalRuleNode();
+            const trailingParagraph = $createParagraphNode();
+            topLevel.insertBefore(horizontalRuleNode);
+            horizontalRuleNode.insertAfter(trailingParagraph);
+            topLevel.remove();
+            trailingParagraph.select();
+            return true;
+          }
+        }
+
+        const horizontalRuleNode = $createHorizontalRuleNode();
+        $insertNodeToNearestRoot(horizontalRuleNode);
 
         return true;
       },
