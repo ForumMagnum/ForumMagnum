@@ -22,7 +22,7 @@ type DeepWiden<T> =
   WidenLiteral<T>;
 
 type InferredThemeComponentPalette = ReturnType<typeof defaultComponentPalette>;
-type BaseThemeComponentPalette = DeepWiden<InferredThemeComponentPalette>;
+type ThemeComponentPalette = DeepWiden<InferredThemeComponentPalette>;
 type ThemeBorderRadius = DeepWiden<ReturnType<typeof defaultBorderRadius>>;
 type ThemeTypography = DeepWiden<ReturnType<typeof defaultTypography>>;
 
@@ -78,19 +78,6 @@ declare global {
     680: ColorString,
     710: ColorString,
   }
-  type ThemeComponentPalette = Omit<BaseThemeComponentPalette, "text"|"link"|"tag"> & {
-    text: BaseThemeComponentPalette["text"] & {
-      contentHeader?: ColorString,
-    },
-    link: BaseThemeComponentPalette["link"] & {
-      visitedHover?: ColorString,
-    },
-    tag: BaseThemeComponentPalette["tag"] & {
-      backgroundHover?: ColorString,
-      coreTagBackgroundHover?: ColorString,
-      hollowTagBackgroundHover?: ColorString,
-    },
-  };
   type ThemePalette = ThemeComponentPalette
   
   type ForumTypeFlags = {

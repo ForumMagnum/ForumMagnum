@@ -13,7 +13,7 @@ import LWPopper from "../common/LWPopper";
 import { Typography } from "../common/Typography";
 import ForumIcon from "../common/ForumIcon";
 import SocialMediaIcon from "../icons/SocialMediaIcon";
-import { defineStyles } from '@/components/hooks/defineStyles';
+import { defineStyles, safeForDarkMode } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
 const ANIMATION_DURATION = 300;
@@ -78,7 +78,7 @@ const styles = defineStyles("SharePostPopup", (theme: ThemeType) => ({
     color: theme.palette.grey[600],
   },
   checkIcon: {
-    color: theme.palette.icon.filledGreenCheckmark,
+    color: safeForDarkMode("#5ECE79"),
     width: 22,
     height: 22,
     marginRight: 10,

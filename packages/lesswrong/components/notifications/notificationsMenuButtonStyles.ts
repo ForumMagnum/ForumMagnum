@@ -21,8 +21,8 @@ export const styles = defineStyles("NotificationsMenuButton", (theme: ThemeType)
   badge1Char: {},
   badge2Chars: {},
   buttonOpen: {
-    backgroundColor: theme.palette.buttons.notificationsBellOpen.background,
-    color: theme.palette.buttons.notificationsBellOpen.icon,
+    backgroundColor: theme.palette.greyAlpha(0.4),
+    color: theme.palette.grey[0],
   },
   buttonClosed: {
     backgroundColor: "transparent",
