@@ -3,7 +3,7 @@ import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
 import { NextRequest, NextResponse } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
-import { withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
+import { withMainDocEditorSession, waitForProviderSync, EmptyLexicalRootError } from "../agent/editorAgentUtil";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
@@ -349,6 +349,21 @@ export async function renderLiveEditorDraftMarkdownRoute({
     // This needs to be a 200 because Claude's web_fetch tool doesn't give it any additional information if you return a 4xx status code,
     // so if we want Claude to be able to tell the user what they need to do to make the post accessible, we have to return the error message
     // along with a 200 status code.
+    if (error instanceof EmptyLexicalRootError) {
+      // Auth succeeded, but the Yjs document on the Hocuspocus server has no
+      // content for this post. Previously this hit the generic catch-all below
+      // and told the caller to fix sharing permissions, which is misleading
+      // because sharing is not the problem. Return a distinct message so AI
+      // agents don't send users down the wrong debugging path.
+      return new Response(
+        `The Lexical draft for postId: ${postId} is empty or its collaborative-editing (Yjs) state is unavailable. ` +
+          `If you are an AI agent helping a user with this draft, please ask the user to: ` +
+          `(1) open the post in the LessWrong editor at https://www.lesswrong.com/editPost?postId=${postId} so the draft content is re-hydrated, ` +
+          `(2) make at least one edit (even a space) to force a save, and then retry the markdown link. ` +
+          `If opening the editor also shows an empty document, the user can restore from the post's version history.`,
+        { status: 200 }
+      );
+    }
     return new Response(`Unable to access shared draft for postId: ${postId}.  If you are an AI agent, and a user has shared this link with you, please remind the user to set the permissions for "Anyone with the link can" to "Edit".`, { status: 200 });
   }
 }

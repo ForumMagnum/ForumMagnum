@@ -22,6 +22,29 @@ const FLUSH_POLL_INTERVAL_MS = 5;
 const FLUSH_TIMEOUT_MS = 2_000;
 
 /**
+ * Thrown when a Hocuspocus sync completes but the Lexical editor root is
+ * still empty. Agent API routes use `instanceof` to distinguish this from
+ * auth/connection failures so they can return a more actionable error
+ * message to the caller (e.g. AI agents) instead of the generic
+ * "couldn't access draft, ask the user to fix permissions" fallback that
+ * wrongly implicates sharing settings when auth actually succeeded.
+ */
+export class EmptyLexicalRootError extends Error {
+  public readonly postId: string;
+  public readonly operationLabel: string;
+
+  constructor(operationLabel: string, postId: string) {
+    super(
+      `[${operationLabel}] Lexical editor root is empty after Hocuspocus sync for post ${postId}. ` +
+      `This likely means the Yjs document state is missing or corrupt.`
+    );
+    this.name = "EmptyLexicalRootError";
+    this.postId = postId;
+    this.operationLabel = operationLabel;
+  }
+}
+
+/**
  * Wait for a HocuspocusProvider's WebSocket send buffer to drain, indicating
  * that all pending updates have been handed off to the OS network layer.
  *
@@ -236,10 +259,7 @@ export async function withMainDocEditorSession<T>({
       rootChildCount = $getRoot().getChildrenSize();
     });
     if (rootChildCount === 0) {
-      const err = new Error(
-        `[${operationLabel}] Lexical editor root is empty after Hocuspocus sync for post ${postId}. ` +
-        `This likely means the Yjs document state is missing or corrupt.`
-      );
+      const err = new EmptyLexicalRootError(operationLabel, postId);
       captureException(err);
       throw err;
     }
