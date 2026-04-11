@@ -1,6 +1,6 @@
 import { getExecutableSchema } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/initGraphQL';
 import { startServerAndCreateNextHandler } from '@as-integrations/next';
-import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext } from '@apollo/server';
+import { ApolloServer, ApolloServerPlugin, GraphQLRequestContext, GraphQLRequestContextWillSendResponse } from '@apollo/server';
 import { configureSentryScope, getContextFromReqAndRes } from '../../packages/lesswrong/server/vulcan-lib/apollo-server/context';
 import type { NextRequest } from 'next/server';
 import { asyncLocalStorage, closePerfMetric, closeRequestPerfMetric, openPerfMetric, setAsyncStoreValue } from '@/server/perfMetrics';
@@ -12,6 +12,15 @@ import { inspect } from 'util';
 import { formatError } from 'apollo-errors';
 import { crosspostOptionsHandler, setCorsHeaders, setSandboxedIframeCorsHeaders } from "@/server/crossposting/cors";
 import { NOISY_GRAPHQL_ERROR_MESSAGES, shouldCaptureGraphQLErrorInSentry } from '@/server/utils/graphqlErrorUtil';
+
+// Vercel's serverless functions drop response bodies larger than ~4.5 MB and
+// return a 200 with a truncated/empty body, which surfaces on the client as a
+// generic "missing response" error (see #m_bugs-channel thread on Chase's
+// draft-save failures, 2026-04-01). Emit a Sentry warning before we cross that
+// line so we can correlate the symptom with a specific GraphQL operation
+// instead of chasing it through client-side error logs.
+const GRAPHQL_RESPONSE_SIZE_WARN_BYTES = 4 * 1024 * 1024; // 4 MB
+const GRAPHQL_RESPONSE_SIZE_HARD_LIMIT_BYTES = 4.5 * 1024 * 1024; // ~Vercel limit
 
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   async requestDidStart({ request, contextValue: context }: GraphQLRequestContext<ResolverContext>) {
@@ -33,13 +42,39 @@ class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
         parent_trace_id: context.perfMetric?.trace_id,
         extra_data: filteredVariables,
         gql_string: query
-      });  
+      });
     }
-    
+
     return {
-      async willSendResponse() { // hook for transaction finished
+      async willSendResponse(requestContext: GraphQLRequestContextWillSendResponse<ResolverContext>) { // hook for transaction finished
         if (performanceMetricLoggingEnabled.get()) {
           closePerfMetric(startedRequestMetric);
+        }
+
+        // Check the response body size and warn when it gets close to
+        // Vercel's serverless response-body cap. We measure by serializing
+        // the `singleResult` payload; batched requests produce one
+        // willSendResponse per operation, so each sub-response is measured
+        // independently (and total batch size is at least the sum).
+        try {
+          const responseBody = requestContext.response.body;
+          if (responseBody.kind === 'single') {
+            const serialized = JSON.stringify(responseBody.singleResult);
+            const byteLength = Buffer.byteLength(serialized, 'utf8');
+            if (byteLength >= GRAPHQL_RESPONSE_SIZE_WARN_BYTES) {
+              const overLimit = byteLength >= GRAPHQL_RESPONSE_SIZE_HARD_LIMIT_BYTES;
+              const message = overLimit
+                ? `GraphQL response OVER Vercel body size limit: ${operationName} = ${byteLength} bytes (limit ~${GRAPHQL_RESPONSE_SIZE_HARD_LIMIT_BYTES})`
+                : `GraphQL response approaching Vercel body size limit: ${operationName} = ${byteLength} bytes (warn ${GRAPHQL_RESPONSE_SIZE_WARN_BYTES}, limit ~${GRAPHQL_RESPONSE_SIZE_HARD_LIMIT_BYTES})`;
+              // eslint-disable-next-line no-console
+              console.warn(`[graphql] ${message}`);
+              const err = new Error(message);
+              err.name = overLimit ? 'GraphQLResponseOverSizeLimit' : 'GraphQLResponseNearSizeLimit';
+              captureException(err);
+            }
+          }
+        } catch {
+          // Measurement must never break the response path.
         }
       }
     };
