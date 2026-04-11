@@ -6,7 +6,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 import type { ContentStyleType } from '@/components/common/ContentStylesValues';
 import ContentStyles from '@/components/common/ContentStyles';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
-import { SideItem, useHasSideItemsSidebar } from '@/components/contents/SideItems';
+import { NoSideItems, SideItem, useHasSideItemsSidebar } from '@/components/contents/SideItems';
 import {
   FOOTNOTE_ATTRIBUTES,
   FOOTNOTE_CLASSES,
@@ -133,7 +133,13 @@ const LexicalFootnoteSidenoteItem = ({
                 {sidenote.footnoteIndex}.
               </span>}
               <div className={classes.sidenoteContent}>
-                <ContentItemBody dangerouslySetInnerHTML={{__html: sidenote.footnoteHTML}} />
+                {/* Suppress SideItem registration for any footnote references
+                    nested inside this sidenote's content, so nested footnotes
+                    don't get registered as sidenotes twice (once from the
+                    regular reference site and once from inside this sidenote). */}
+                <NoSideItems>
+                  <ContentItemBody dangerouslySetInnerHTML={{__html: sidenote.footnoteHTML}} />
+                </NoSideItems>
                 <div className={classes.overflowFade} />
               </div>
             </span>

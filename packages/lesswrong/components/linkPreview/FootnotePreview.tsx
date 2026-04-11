@@ -8,7 +8,7 @@ import { parseDocumentFromString } from '@/lib/domParser';
 import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 import { sidenotesHiddenBreakpoint, RIGHT_COLUMN_WIDTH_WITH_SIDENOTES } from '../posts/PostsPage/constants';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
-import { SideItem, useHasSideItemsSidebar } from '../contents/SideItems';
+import { NoSideItems, SideItem, useHasSideItemsSidebar } from '../contents/SideItems';
 import { useDialog } from '../common/withDialog';
 import { isRegularClick } from "@/components/posts/TableOfContents/TableOfContentsList";
 import { isMobile } from '@/lib/utils/isMobile';
@@ -227,11 +227,20 @@ const FootnotePreview = ({href, id, rel, contentStyleType="postHighlight", child
             )}
           >
             <FootnoteAncestorsContext.Provider value={newFootnoteAncestors}>
-              <SidenoteDisplay
-                footnoteHref={href}
-                footnoteHTML={footnoteHTML}
-                contentStyleType={contentStyleType}
-              />
+              {/* Suppress SideItem registration for any footnote references
+                  nested inside this sidenote's content. Without this, a footnote
+                  whose body references another footnote causes that inner
+                  footnote to be registered as a sidenote twice: once from its
+                  regular reference site and once from the nested reference
+                  inside the outer sidenote. See #m_bugs-channel reports from
+                  Wei Dai and plex. */}
+              <NoSideItems>
+                <SidenoteDisplay
+                  footnoteHref={href}
+                  footnoteHTML={footnoteHTML}
+                  contentStyleType={contentStyleType}
+                />
+              </NoSideItems>
             </FootnoteAncestorsContext.Provider>
           </div>
           <span className={classes.footnoteMobileIndicator} onClick={onClick}>
