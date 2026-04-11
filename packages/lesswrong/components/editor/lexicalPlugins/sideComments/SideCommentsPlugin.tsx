@@ -13,7 +13,7 @@ import { SUGGESTION_SUMMARY_KIND } from '@/components/editor/lexicalPlugins/sugg
 import { formatSuggestionSummary } from '@/components/editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils';
 import { CommentsComposer, SuggestionStatusOrActions, RESOLVE_THREAD_COMMAND, getThreadMarkId, acceptSuggestionThread, rejectSuggestionThread } from '@/components/lexical/plugins/CommentPlugin/CommentPluginComponents';
 import ForumIcon from '@/components/common/ForumIcon';
-import { SideItem, useHasSideItemsSidebar, useSideItemsFocus } from '@/components/contents/SideItems';
+import { SideItem, useHasSideItemsSidebar, useSideItemsFocus, scrollSideItemAnchorIntoViewIfNeeded } from '@/components/contents/SideItems';
 import { useLexicalEditorContext } from '@/components/editor/LexicalEditorContext';
 import { useIsAboveBreakpoint } from '@/components/hooks/useScreenWidth';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
@@ -175,25 +175,6 @@ function sideCommentsAreEqual(
     }
   }
   return true;
-}
-
-const SCROLL_MARGIN = 60;
-
-/**
- * Scrolls the minimum amount needed to make an element visible in the viewport
- * with at least SCROLL_MARGIN pixels of clearance from the top and bottom edges.
- * Does nothing if the element already satisfies that constraint.
- */
-function scrollAnchorIntoViewIfNeeded(anchorEl: HTMLElement): void {
-  const rect = anchorEl.getBoundingClientRect();
-  if (rect.top >= SCROLL_MARGIN && rect.bottom <= window.innerHeight - SCROLL_MARGIN) {
-    return;
-  }
-  if (rect.top < SCROLL_MARGIN) {
-    window.scrollBy({ top: rect.top - SCROLL_MARGIN, behavior: 'smooth' });
-  } else {
-    window.scrollBy({ top: rect.bottom - (window.innerHeight - SCROLL_MARGIN), behavior: 'smooth' });
-  }
 }
 
 const SideCommentItem = ({
@@ -400,7 +381,7 @@ export const SideCommentsPlugin = () => {
       setFocusedAnchor(data.anchorEl);
 
       // Scroll anchor into view with margin
-      scrollAnchorIntoViewIfNeeded(data.anchorEl);
+      scrollSideItemAnchorIntoViewIfNeeded(data.anchorEl);
 
       // Move editor selection to the start of the mark, which will update
       // activeIDs and make the focus state symmetric — clicking away from

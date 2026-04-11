@@ -321,6 +321,26 @@ export const useSideItemsFocus = (): ((anchorEl: HTMLElement | null) => void) | 
   return ctx?.setFocusedAnchor ?? null;
 }
 
+const SIDE_ITEM_SCROLL_MARGIN = 60;
+
+/**
+ * Scrolls the minimum amount needed to make a side-item's anchor element
+ * visible in the viewport with at least SIDE_ITEM_SCROLL_MARGIN pixels of
+ * clearance from the top and bottom edges. Does nothing if the element
+ * already satisfies that constraint.
+ */
+export function scrollSideItemAnchorIntoViewIfNeeded(anchorEl: HTMLElement): void {
+  const rect = anchorEl.getBoundingClientRect();
+  if (rect.top >= SIDE_ITEM_SCROLL_MARGIN && rect.bottom <= window.innerHeight - SIDE_ITEM_SCROLL_MARGIN) {
+    return;
+  }
+  if (rect.top < SIDE_ITEM_SCROLL_MARGIN) {
+    window.scrollBy({ top: rect.top - SIDE_ITEM_SCROLL_MARGIN, behavior: 'smooth' });
+  } else {
+    window.scrollBy({ top: rect.bottom - (window.innerHeight - SIDE_ITEM_SCROLL_MARGIN), behavior: 'smooth' });
+  }
+}
+
 export const NoSideItems = ({children}: {
   children: React.ReactNode
 }) => {

@@ -6,7 +6,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 import type { ContentStyleType } from '@/components/common/ContentStylesValues';
 import ContentStyles from '@/components/common/ContentStyles';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
-import { SideItem, useHasSideItemsSidebar } from '@/components/contents/SideItems';
+import { SideItem, useHasSideItemsSidebar, useSideItemsFocus, scrollSideItemAnchorIntoViewIfNeeded } from '@/components/contents/SideItems';
 import {
   FOOTNOTE_ATTRIBUTES,
   FOOTNOTE_CLASSES,
@@ -28,16 +28,6 @@ type LexicalFootnoteSidenote = {
 function isInteractiveClickTarget(target: EventTarget|null): boolean {
   return target instanceof Element
     && !!target.closest('a, button, input, textarea, select, [role="button"]');
-}
-
-function scrollToFootnote(footnoteHref: string): void {
-  if (!footnoteHref.startsWith('#')) {
-    return;
-  }
-  const footnoteElement = document.getElementById(footnoteHref.slice(1));
-  if (footnoteElement) {
-    footnoteElement.scrollIntoView({ behavior: 'smooth' });
-  }
 }
 
 function isFootnoteContentsNonempty(footnoteContentsElement: Element): boolean {
@@ -108,11 +98,21 @@ const LexicalFootnoteSidenoteItem = ({
 }) => {
   const classes = useStyles(footnotePreviewStyles);
   const [hovered, setHovered] = useState(false);
+  const setFocusedAnchor = useSideItemsFocus();
   const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (isInteractiveClickTarget(event.target)) {
       return;
     }
-    scrollToFootnote(sidenote.footnoteHref);
+    // Align this sidenote with its footnote reference in the text. When
+    // inline comments or other sidenotes push this sidenote down, focusing
+    // the anchor tells the SideItems sidebar to position this sidenote at
+    // its anchor's vertical position and cascade the rest. Then scroll the
+    // anchor reference into view if it's currently off-screen so the
+    // alignment is actually visible.
+    if (setFocusedAnchor) {
+      setFocusedAnchor(sidenote.anchorEl);
+    }
+    scrollSideItemAnchorIntoViewIfNeeded(sidenote.anchorEl);
   };
 
   return (
