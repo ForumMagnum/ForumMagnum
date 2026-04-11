@@ -265,6 +265,27 @@ function $wrapOrUnwrapQuote(selection: ReturnType<typeof $getSelection>): void {
     }
   }
 
+  // When the selection spans a shadow-root container (e.g. an existing
+  // ContainerQuoteNode or CollapsibleSectionContentNode) along with siblings
+  // on the outside, the walk above adds both the container AND the container's
+  // children (whose parent is the shadow root, so they satisfy the predicate).
+  // Wrapping both linearly moves the children out of the container, leaving an
+  // empty container nested inside the new quote while the original contents
+  // become direct children of the new quote. Drop descendants of other entries
+  // so the container is wrapped as a whole, preserving its nested structure.
+  const descendants = new Set<import('lexical').LexicalNode>();
+  for (const element of topLevelElements) {
+    for (const other of topLevelElements) {
+      if (element !== other && other.isParentOf(element)) {
+        descendants.add(element);
+        break;
+      }
+    }
+  }
+  for (const descendant of descendants) {
+    topLevelElements.delete(descendant);
+  }
+
   if (topLevelElements.size === 0) {
     return;
   }
