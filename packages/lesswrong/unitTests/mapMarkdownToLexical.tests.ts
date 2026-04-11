@@ -101,35 +101,44 @@ async function expectQuoteRoundTripsFromMarkdownDocument({
 }
 
 describe("empty root detection", () => {
-  it("throws when buildNodeMarkdownMapForSubtree is called on an empty root", async () => {
+  // A headless editor starts with a root that has zero children. This
+  // mirrors the scenario where a headless editor syncs against a Hocuspocus
+  // document with no persisted Yjs state. `withMainDocEditorSession` has an
+  // upstream empty-root guard, but in practice we were still seeing Lexical
+  // error #38 (`setEditorState: the editor state is empty`) surface from
+  // production `/api/agent/replaceText` calls (bug report: 2026-04-02 in
+  // #m_bugs-channel). Rather than trusting the upstream invariant, the lower
+  // functions now handle the empty-root case as a well-defined "no matches"
+  // result so agents get an actionable response instead of a 500.
+  it("returns empty results when buildNodeMarkdownMapForSubtree is called on an empty root", async () => {
     const editor = createHeadlessEditor("EmptyRootTest");
 
-    // A headless editor starts with a root that has zero children.
-    // This mirrors the scenario where a headless editor syncs against a
-    // Hocuspocus document with no persisted Yjs state. The empty-root
-    // invariant should be caught earlier (in withMainDocEditorSession),
-    // so buildNodeMarkdownMapForSubtree is expected to throw rather than
-    // silently return empty results.
-    expect(() => {
-      editor.getEditorState().read(() => {
-        const root = $getRoot();
-        buildNodeMarkdownMapForSubtree(root.getKey(), "anything");
-      });
-    }).toThrow(/editor state is empty/i);
+    let result: ReturnType<typeof buildNodeMarkdownMapForSubtree> | undefined;
+    editor.getEditorState().read(() => {
+      const root = $getRoot();
+      result = buildNodeMarkdownMapForSubtree(root.getKey(), "anything");
+    });
+
+    expect(result).toBeDefined();
+    // The root itself is collected with empty markdown, but no non-root
+    // entries exist and no quote can match.
+    expect(result!.entries.every((e) => e.markdown === "")).toBe(true);
   });
 
-  it("throws when locateMarkdownQuoteSelectionInSubtree is called on an empty root", async () => {
+  it("reports not-found when locateMarkdownQuoteSelectionInSubtree is called on an empty root", async () => {
     const editor = createHeadlessEditor("EmptyRootLocateTest");
 
-    expect(() => {
-      editor.getEditorState().read(() => {
-        const root = $getRoot();
-        locateMarkdownQuoteSelectionInSubtree({
-          rootNodeKey: root.getKey(),
-          markdownQuote: "some quote",
-        });
+    let result: ReturnType<typeof locateMarkdownQuoteSelectionInSubtree> | undefined;
+    editor.getEditorState().read(() => {
+      const root = $getRoot();
+      result = locateMarkdownQuoteSelectionInSubtree({
+        rootNodeKey: root.getKey(),
+        markdownQuote: "some quote",
       });
-    }).toThrow(/editor state is empty/i);
+    });
+
+    expect(result).toBeDefined();
+    expect(result!.found).toBe(false);
   });
 });
 

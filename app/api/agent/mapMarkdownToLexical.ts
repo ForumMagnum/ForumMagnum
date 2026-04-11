@@ -290,6 +290,14 @@ function serializeNodeSubtreeToMarkdown(node: LexicalNode, editor: LexicalEditor
   const rootChildren = node.getType() === "root" && $isElementNode(node)
     ? node.getChildren().map((child) => exportNodeToJSONRecursive(child))
     : [exportNodeToJSONRecursive(node)];
+  // An empty root (e.g. a blank post body or a transient empty document) would
+  // parse into an EditorState whose nodeMap has only the root and no selection,
+  // i.e. `editorState.isEmpty()` is true, which makes `editor.setEditorState`
+  // below throw Lexical error #38. Short-circuit to an empty serialization so
+  // callers treat this node as non-matching instead of crashing the request.
+  if (rootChildren.length === 0) {
+    return "";
+  }
   const state = {
     root: {
       children: rootChildren,
