@@ -26,10 +26,14 @@ import {
   $addUpdateTag,
   $createParagraphNode,
   $getSelection,
+  $isDecoratorNode,
+  $isElementNode,
   $isRangeSelection,
   $isRootOrShadowRoot,
   $isTextNode,
+  type ElementNode,
   LexicalEditor,
+  type LexicalNode,
   SKIP_DOM_SELECTION_TAG,
   SKIP_SELECTION_FOCUS_TAG,
 } from 'lexical';
@@ -47,6 +51,49 @@ import {
 export enum UpdateFontSizeType {
   increment = 1,
   decrement,
+}
+
+const $isNonInlineBlockElement = (node: LexicalNode): node is ElementNode =>
+  $isElementNode(node) && !node.isInline();
+
+/**
+ * Returns true iff the given (non-collapsed) RangeSelection is "simple enough"
+ * that selection.insertNodes([codeNode]) can reliably wrap just the selected
+ * text in a single new code block.
+ *
+ * The rejected cases are the ones that trigger Lexical error #66 in the code
+ * block path: selections that span multiple top-level blocks (so removeText
+ * has to split and merge across boundaries) and selections that include a
+ * decorator node (image, widget, math, etc.) whose removal can leave another
+ * node orphaned during the subsequent insertParagraph / findMatchingParent
+ * pass.
+ */
+function $isSafeForCodeBlockInsertNodes(
+  selection: ReturnType<typeof $getSelection>,
+): boolean {
+  if (!$isRangeSelection(selection)) {
+    return false;
+  }
+  const anchorBlock = $findMatchingParent(
+    selection.anchor.getNode(),
+    $isNonInlineBlockElement,
+  );
+  const focusBlock = $findMatchingParent(
+    selection.focus.getNode(),
+    $isNonInlineBlockElement,
+  );
+  if (!$isElementNode(anchorBlock) || !$isElementNode(focusBlock)) {
+    return false;
+  }
+  if (!anchorBlock.is(focusBlock)) {
+    return false;
+  }
+  for (const node of selection.getNodes()) {
+    if ($isDecoratorNode(node) || $isDecoratorBlockNode(node)) {
+      return false;
+    }
+  }
+  return true;
 }
 
 export const applyBlockTypeChange = (
@@ -74,14 +121,32 @@ export const applyBlockTypeChange = (
     if (blockType === 'code') {
       if (!$isRangeSelection(selection) || selection.isCollapsed()) {
         $setBlocksType(selection, () => $createCodeNode());
-      } else {
-        const textContent = selection.getTextContent();
-        const codeNode = $createCodeNode();
-        selection.insertNodes([codeNode]);
-        const updatedSelection = $getSelection();
-        if ($isRangeSelection(updatedSelection)) {
-          updatedSelection.insertRawText(textContent);
-        }
+        return;
+      }
+      // Range selection: prefer wrapping only the selected text in a single
+      // new code block via selection.insertNodes. That path is fragile --
+      // when the selection spans multiple top-level blocks or contains a
+      // decorator node (image, widget, math, etc.), Lexical's internal
+      // removeText/insertParagraph sequence can orphan a node and throw
+      // Lexical error #66 ("Expected node to have a parent"), which aborts
+      // the update and leaves the user's click doing nothing (visible in
+      // Sentry as a crash in ToolbarPlugin/utils.ts line 80, triggered from
+      // the floating format toolbar's code button).
+      //
+      // Detect those cases upfront and fall back to $setBlocksType, which
+      // converts each touched top-level block into its own code block. The
+      // result is a slightly different shape (multiple code blocks instead
+      // of one wrapping the selected text) but it doesn't crash.
+      if (!$isSafeForCodeBlockInsertNodes(selection)) {
+        $setBlocksType(selection, () => $createCodeNode());
+        return;
+      }
+      const textContent = selection.getTextContent();
+      const codeNode = $createCodeNode();
+      selection.insertNodes([codeNode]);
+      const updatedSelection = $getSelection();
+      if ($isRangeSelection(updatedSelection)) {
+        updatedSelection.insertRawText(textContent);
       }
       return;
     }
