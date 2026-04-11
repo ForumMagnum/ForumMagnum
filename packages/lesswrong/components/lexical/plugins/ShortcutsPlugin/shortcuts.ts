@@ -22,7 +22,7 @@ export const SHORTCUTS = Object.freeze({
   CHECK_LIST: IS_APPLE ? '⌘+Shift+9' : 'Ctrl+Shift+9',
   CODE_BLOCK: IS_APPLE ? '⌘+Opt+C' : 'Ctrl+Alt+C',
   QUOTE: IS_APPLE ? '⌃+Shift+Q' : 'Ctrl+Shift+Q',
-  ADD_COMMENT: IS_APPLE ? '⌘+Opt+M' : 'Ctrl+Alt+M',
+  ADD_COMMENT: IS_APPLE ? '⌃+Opt+M' : 'Ctrl+Alt+M',
   FOOTNOTE: IS_APPLE ? '⌘+Opt+F' : 'Ctrl+Alt+F',
 
   // (Ctrl|⌘) + Shift + <key> shortcuts
@@ -218,7 +218,11 @@ export function isInsertLink(event: KeyboardEvent): boolean {
 }
 
 export function isAddComment(event: KeyboardEvent): boolean {
-  return isExactShortcutMatch(event, 'm', {...CONTROL_OR_META, altKey: true});
+  // Uses the literal Control key (not Cmd) on Mac because Cmd+Opt+M is
+  // "Minimize All" in Chrome and "Responsive Design Mode" in Firefox on macOS,
+  // so the event never reaches the editor. Matches the existing isFormatQuote
+  // pattern which uses literal ctrlKey for the same reason.
+  return isExactShortcutMatch(event, 'm', {ctrlKey: true, altKey: true});
 }
 
 export function isInsertFootnote(event: KeyboardEvent): boolean {
