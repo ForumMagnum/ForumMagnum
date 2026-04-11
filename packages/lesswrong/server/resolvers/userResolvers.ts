@@ -387,13 +387,56 @@ async function fetchAirtableRecords(): Promise<AirtableLeaderboardResultType[]> 
 
   // Transform "records" into our AirtableLeaderboardResultType format
   return records.map((record: any) => {
-    const name = unpackArray(record.fields?.["Leaderboard Display Name"]) ?? "Unknown";
+    const rawName = unpackArray(record.fields?.["Leaderboard Display Name"]) ?? "Unknown";
+    const name = sanitizeLeaderboardName(rawName, record.id);
     const amountStr = unpackArray(record.fields?.["Leaderboard Amount"]) ?? "";
     return {
       name,
       leaderboardAmount: amountStr === "" ? undefined : parseInt(amountStr, 10),
     };
   });
+}
+
+// Defensive sanitization for the Airtable-sourced donor display name.
+// The upstream field has historically picked up newline-embedded messages and
+// other stray content (see #m_bugs-channel 2026-04-08 "CoderCorgi | also strange
+// request..."), which Robert flagged as a data issue rather than a styling
+// issue. Fixing the underlying Airtable row is still the right long-term move,
+// but the resolver should not pipe arbitrary-length multi-line text into the
+// leaderboard UI in the meantime -- so we collapse whitespace and cap the
+// rendered name at a reasonable length here, and log a warning so dirty rows
+// stay visible.
+const LEADERBOARD_NAME_MAX_LENGTH = 80;
+
+function sanitizeLeaderboardName(rawName: unknown, recordId?: string): string {
+  if (typeof rawName !== "string") {
+    return "Unknown";
+  }
+  // Replace any control characters (incl. newlines/tabs) with a single space,
+  // then collapse runs of whitespace and trim.
+  // eslint-disable-next-line no-control-regex
+  const collapsed = rawName.replace(/[\u0000-\u001F\u007F]+/g, " ").replace(/\s+/g, " ").trim();
+  if (collapsed === "") {
+    return "Unknown";
+  }
+
+  if (collapsed.length > LEADERBOARD_NAME_MAX_LENGTH) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[AirtableLeaderboards] Truncating overlong donor display name from record ${recordId ?? "?"} (length=${collapsed.length}). Check the "Leaderboard Display Name" field in Airtable.`
+    );
+    // Leave room for the ellipsis.
+    return collapsed.slice(0, LEADERBOARD_NAME_MAX_LENGTH - 1).trimEnd() + "…";
+  }
+
+  if (collapsed !== rawName) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[AirtableLeaderboards] Cleaned whitespace/control chars in donor display name from record ${recordId ?? "?"}.`
+    );
+  }
+
+  return collapsed;
 }
 
 let airtableCache: {
