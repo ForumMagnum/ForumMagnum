@@ -142,6 +142,15 @@ export const PostVersionHistoryDialog = ({post, postId, onClose}: {
 
   const isCollabEditor = isCollaborative(normalizedPost, "contents")
 
+  // For Lexical posts, the editor is ALWAYS backed by Yjs/Hocuspocus
+  // (see `shouldEnableCollaboration` in LexicalEditor.tsx), so bootstrapping
+  // from initial HTML is skipped -- meaning a `?version=X` query param on
+  // `/editPost` has no effect on the live editor state. "Load into editor"
+  // would silently do nothing, so hide it for Lexical posts. "Restore" still
+  // works via `revertPostToRevision`, which resets the Yjs document.
+  const editorType = normalizedPost.contents?.originalContents?.type;
+  const isLexicalEditor = editorType === 'lexical';
+
   const { query } = location;
   const loadedVersion = query.version;
 
@@ -270,7 +279,7 @@ export const PostVersionHistoryDialog = ({post, postId, onClose}: {
                       v{revision.version}
                       {isLive(revision) ? " (Live version)" : ""}
                     </div>
-                    {!isCollabEditor && <LWTooltip title={LOAD_VERSION_TOOLTIP} placement="top"  popperClassName={classes.tooltip}>
+                    {!isCollabEditor && !isLexicalEditor && <LWTooltip title={LOAD_VERSION_TOOLTIP} placement="top"  popperClassName={classes.tooltip}>
                       <EAButton
                         variant="outlined"
                         className={classes.button}
