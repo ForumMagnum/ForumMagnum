@@ -31,7 +31,7 @@ import {
   LexicalEditor,
   SELECTION_CHANGE_COMMAND,
 } from 'lexical';
-import {Dispatch, useCallback, useEffect, useRef, useState} from 'react';
+import {Dispatch, useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react';
 
 import {createPortal} from 'react-dom';
 
@@ -183,6 +183,12 @@ function FloatingLinkEditor({
   const classes = useStyles(styles);
   const editorRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  // Last DOMRect used to position the floating editor. Stored in a ref so we
+  // can re-run positioning when the editor's own height changes (e.g. when
+  // toggling into edit mode, which adds the URL input row) without needing
+  // the Lexical selection to be live -- at that point focus has moved into
+  // our own <input>, so the usual $updateLinkEditor path can't recompute it.
+  const lastTargetRectRef = useRef<DOMRect | null>(null);
   const [linkUrl, setLinkUrl] = useState('');
   const [editedLinkUrl, setEditedLinkUrl] = useState('');
   const [linkText, setLinkText] = useState('');
@@ -263,6 +269,7 @@ function FloatingLinkEditor({
       }
 
       if (domRect) {
+        lastTargetRectRef.current = domRect;
         setFloatingElemPositionForLinkEditor(domRect, editorElem, anchorElem);
       }
       setLastSelection(selection);
@@ -270,6 +277,7 @@ function FloatingLinkEditor({
       if (rootElement !== null) {
         setFloatingElemPositionForLinkEditor(null, editorElem, anchorElem);
       }
+      lastTargetRectRef.current = null;
       setLastSelection(null);
       setIsLinkEditMode(false);
       setLinkUrl('');
@@ -344,6 +352,18 @@ function FloatingLinkEditor({
       inputRef.current.focus();
     }
   }, [isLinkEditMode, isLink]);
+
+  // Toggling into edit mode adds the URL input row, which makes the floating
+  // editor taller. Re-run positioning against the last target rect so the
+  // flip-above logic in setFloatingElemPositionForLinkEditor has a chance to
+  // kick in if the taller editor no longer fits below the link.
+  useLayoutEffect(() => {
+    const editorElem = editorRef.current;
+    const targetRect = lastTargetRectRef.current;
+    if (editorElem && targetRect) {
+      setFloatingElemPositionForLinkEditor(targetRect, editorElem, anchorElem);
+    }
+  }, [isLinkEditMode, anchorElem]);
 
   useEffect(() => {
     const editorElement = editorRef.current;
