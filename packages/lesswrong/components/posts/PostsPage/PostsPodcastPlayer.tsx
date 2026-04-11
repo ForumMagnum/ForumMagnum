@@ -34,12 +34,33 @@ const PostsPodcastPlayer = ({podcastEpisode, postId, hideIconList = false}: {
   // Embed a reference to the generated-per-episode buzzsprout script, which is
   // responsible for hydrating the player div (with the id
   // `buzzsprout-player-${externalEpisodeId}`).
+  //
+  // Many legacy `episodeLink`s in the DB (the 349 Rationality: A to Z
+  // episodes imported by `2022-08-19-createPodcastsForPosts`) are stored with
+  // two malformations that now cause the buzzsprout CDN to 404:
+  //   1. A spurious double slash after the domain (`buzzsprout.com//2036194/...`)
+  //   2. The query-string separator HTML-entity-encoded as `&amp;` instead of `&`,
+  //      which buzzsprout's router treats as a single `amp;player` param and
+  //      then refuses to serve the script.
+  // Both issues make `<script src>` loads silently fail, so clicking the
+  // speaker icon brings up an empty, unhydrated player. Sanitize the URL
+  // before use so existing rows keep working without a data migration.
   useEffect(() => {
+    let sanitizedLink = podcastEpisode.episodeLink;
+    try {
+      const parsed = new URL(podcastEpisode.episodeLink.replace(/&amp;/g, '&'));
+      parsed.pathname = parsed.pathname.replace(/\/{2,}/g, '/');
+      sanitizedLink = parsed.toString();
+    } catch {
+      // If the stored URL can't be parsed, fall through to the raw value;
+      // failing loudly here would just break the player for no gain.
+    }
+
     const newScript = document.createElement('script');
     newScript.async=true;
-    newScript.src=podcastEpisode.episodeLink;
+    newScript.src=sanitizedLink;
     document.head.appendChild(newScript);
-    
+
     return () => {
       newScript.parentNode?.removeChild(newScript);
     }
