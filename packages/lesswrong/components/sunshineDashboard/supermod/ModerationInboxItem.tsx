@@ -152,11 +152,49 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   bioPreview: {
     fontSize: 13,
     color: theme.palette.grey[600],
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
+    wordBreak: 'break-word',
+  },
+  bioPreviewRow: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: 6,
+    minWidth: 0,
+  },
+  bioUrlBadge: {
+    fontSize: 11,
+    fontWeight: 600,
+    padding: '1px 5px',
+    borderRadius: 3,
+    backgroundColor: theme.palette.error.light,
+    color: theme.palette.error.contrastText,
+    flexShrink: 0,
+    lineHeight: '16px',
+    marginTop: 1,
     whiteSpace: 'nowrap',
   },
 }));
+
+/**
+ * Counts URLs in a user's HTML bio. Bio spam is overwhelmingly SEO link spam,
+ * so URL count is the strongest single signal a moderator can use to triage
+ * the "Maybe Spam" inbox without clicking into each user. Counts both anchor
+ * tags and bare URLs in the text (spammers also paste plain links), and
+ * returns the larger of the two so a single link counted as both an anchor
+ * and a text URL still reads as 1.
+ */
+function countUrlsInBio(htmlBio: string | null | undefined, plainTextBio: string): number {
+  if (!htmlBio) return 0;
+  const anchorMatches = htmlBio.match(/<a\s[^>]*href\s*=/gi);
+  const anchorCount = anchorMatches?.length ?? 0;
+  const urlMatches = plainTextBio.match(/https?:\/\/[^\s)]+/gi);
+  const urlCount = urlMatches?.length ?? 0;
+  return Math.max(anchorCount, urlCount);
+}
 
 const PreloadUserContents = ({ user }: { user: SunshineUsersList }) => {
   useModeratedUserContents(user._id);
@@ -267,9 +305,23 @@ const ModerationInboxItem = ({
           ? <ContentPreview user={user} />
           : <PreloadUserContents user={user} />
         }
-        {reviewGroup === 'maybeSpam' && (
-          <div className={classes.bioPreview}>{htmlToTextDefault(user.htmlBio)}</div>
-        )}
+        {reviewGroup === 'maybeSpam' && (() => {
+          const plainBio = htmlToTextDefault(user.htmlBio);
+          const urlCount = countUrlsInBio(user.htmlBio, plainBio);
+          return (
+            <div className={classes.bioPreviewRow}>
+              {urlCount > 0 && (
+                <span
+                  className={classes.bioUrlBadge}
+                  title={`Bio contains ${urlCount} link${urlCount === 1 ? '' : 's'}`}
+                >
+                  {urlCount} link{urlCount === 1 ? '' : 's'}
+                </span>
+              )}
+              <div className={classes.bioPreview}>{plainBio}</div>
+            </div>
+          );
+        })()}
       </div>
 
       {showEmail && (
