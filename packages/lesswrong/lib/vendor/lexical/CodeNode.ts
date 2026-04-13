@@ -56,7 +56,9 @@ export const DEFAULT_CODE_LANGUAGE = 'javascript';
 export const getDefaultCodeLanguage = (): string => DEFAULT_CODE_LANGUAGE;
 
 function hasChildDOMNodeTag(node: Node, tagName: string) {
-  for (const child of node.childNodes) {
+  const childNodes = node.childNodes;
+  for (let i = 0; i < childNodes.length; i++) {
+    const child = childNodes[i]!;
     if (isHTMLElement(child) && child.tagName === tagName) {
       return true;
     }
