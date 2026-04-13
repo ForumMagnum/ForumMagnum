@@ -8,7 +8,7 @@
 
 import React, { type JSX } from 'react';
 
-import {$isCodeNode} from '@lexical/code';
+import { $isCodeNode } from '@/lib/vendor/lexical/CodeNode';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
