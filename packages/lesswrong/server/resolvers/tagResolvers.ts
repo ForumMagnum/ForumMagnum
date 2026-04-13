@@ -538,8 +538,17 @@ export const tagResolversGraphQLQueries = {
   async TagUpdatesInTimeBlock(root: void, {before,after}: {before: Date, after: Date}, context: ResolverContext) {
     if (!before) throw new Error("Missing graphql parameter: before");
     if (!after) throw new Error("Missing graphql parameter: after");
-    if(moment.duration(moment(before).diff(after)).as('hours') > 30)
-      throw new Error("TagUpdatesInTimeBlock limited to a one-day interval");
+    // The wikitag-updates section is only meant to render under the daily
+    // grouping on /allPosts (see PostsTimeBlock). If something asks for a
+    // wider window (e.g. weekly/monthly grouping leaking through, or stale
+    // before/after query params), gracefully return [] instead of throwing
+    // a noisy error into Sentry. Reported in #m_bugs-channel:
+    // https://lworg.slack.com/archives/CJUN2UAFN/p1775779693508829
+    if (moment.duration(moment(before).diff(after)).as('hours') > 30) {
+      // eslint-disable-next-line no-console
+      console.warn(`TagUpdatesInTimeBlock called with a window wider than one day (${after.toISOString?.() ?? after} -> ${before.toISOString?.() ?? before}); returning empty result.`);
+      return [];
+    }
     
     const rootCommentsSelector = getRootCommentsInTimeBlockSelector(before, after, context);
 
