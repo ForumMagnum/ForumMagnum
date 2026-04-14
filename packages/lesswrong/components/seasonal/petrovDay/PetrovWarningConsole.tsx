@@ -98,14 +98,13 @@ export const PetrovWarningConsole = ({currentUser, side}: {
   const handleReport = async (incoming: boolean) => {
     if (!canSendNewReport || !reportWindow) return
     const reportActionType = incoming ? (side === 'east' ? 'eastPetrovNukesIncoming' : 'westPetrovNukesIncoming') : (side === 'east' ? 'eastPetrovAllClear' : 'westPetrovAllClear')
-    await createPetrovDayAction({  
+    await createPetrovDayAction({
       variables: {
         data: {
-          userId: currentUser._id,
           actionType: reportActionType,
         }
       }
-    }) 
+    })
     void refetchPetrovDayActions()
     setLastReported(new Date().toISOString())
   }

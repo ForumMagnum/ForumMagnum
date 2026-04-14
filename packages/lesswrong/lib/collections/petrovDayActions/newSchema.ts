@@ -41,9 +41,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      inputType: "String!",
       canRead: ["guests"],
-      canCreate: ["members"],
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"PetrovDayActions">>;

@@ -283,7 +283,7 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: [canReadUser],
-      canCreate: ["members"],
+      canCreate: ["sunshineRegiment", "admins"],
       validation: {
         optional: true,
       },

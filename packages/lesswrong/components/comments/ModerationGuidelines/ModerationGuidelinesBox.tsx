@@ -174,7 +174,6 @@ const ModerationGuidelinesBox = ({commentType = "post", documentId}: {
 
     if (currentUser) {
       const eventProperties = {
-        userId: currentUser._id,
         important: false,
         intercom: true,
         documentId: document?.userId,
