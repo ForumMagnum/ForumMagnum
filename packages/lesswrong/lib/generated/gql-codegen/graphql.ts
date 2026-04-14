@@ -2657,6 +2657,7 @@ export type CommentsProfileCommentsInput = {
   drafts?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['String']['input']>;
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
+  shortform?: InputMaybe<Scalars['Boolean']['input']>;
   sortBy?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
