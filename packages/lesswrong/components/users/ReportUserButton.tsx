@@ -42,7 +42,6 @@ const ReportUserButton = ({user}: {
         onClose={onClose}
         reportedUserId={user._id}
         link={`/users/${user.slug}`}
-        userId={currentUser._id}
         onSubmit={() => {
           flash({messageString: "Your report has been sent to the moderators"})
         }}

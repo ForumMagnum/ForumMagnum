@@ -21,7 +21,6 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["members"],
-      canCreate: ["members"],
       validation: {
         optional: true,
       },

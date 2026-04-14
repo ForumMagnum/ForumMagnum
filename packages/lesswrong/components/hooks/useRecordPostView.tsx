@@ -81,14 +81,13 @@ export const useRecordPostView = (post: ViewablePost) => {
       // Register page-visit event
       if(currentUser) {
         let eventProperties = {
-          userId: currentUser._id,
           important: false,
           intercom: true,
           ...extraEventProperties,
           documentId: post._id,
           postTitle: post.title,
         };
-        
+
         recordEvent('post-view', true, eventProperties);
       }
 
@@ -158,7 +157,6 @@ export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead:
       // Register page-visit event
       if(currentUser) {
         let eventProperties = {
-          userId: currentUser._id,
           important: false,
           intercom: true,
           ...extraEventProperties
@@ -169,7 +167,7 @@ export const useRecordTagView = (tag: TagFragment): {recordTagView: any, isRead:
           documentId: tag._id,
           tagName: tag.name,
         };
-        
+
         recordEvent('tag-view', true, eventProperties);
       }
     } catch(error) {

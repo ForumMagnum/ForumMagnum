@@ -15,10 +15,8 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
-      canCreate: ["members"],
     },
   },
   user: {
