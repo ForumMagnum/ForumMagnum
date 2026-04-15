@@ -22,9 +22,17 @@ type SerializedLLMContentBlockNode = Spread<
  * (DecoratorNode with model name combobox) and a content area
  * (ElementNode shadow root for block-level children).
  *
- * The container itself is contenteditable="false"; the content child
- * re-enables editing with contenteditable="true" (same pattern as
- * ImageNode / ImageCaptionNode).
+ * The container itself intentionally does NOT set contenteditable="false":
+ * the header is a DecoratorNode, which Lexical's reconciler automatically
+ * marks contenteditable="false" on its wrapper, so the model-name input
+ * row stays non-editable as intended. The content child is still marked
+ * contenteditable="true" explicitly. Setting contenteditable="false" on
+ * the whole container (the previous behavior) made the block an atomic
+ * selection boundary at the browser level, so range selections drawn
+ * from text above the block to text below it silently failed to extend
+ * across the block — which made deleting or copy-pasting a region that
+ * included a content block impossible. Bug:
+ * https://lworg.slack.com/archives/CJUN2UAFN/p1774480323543079
  */
 export class LLMContentBlockNode extends ElementNode {
   __modelName: string;
@@ -54,7 +62,6 @@ export class LLMContentBlockNode extends ElementNode {
   createDOM(): HTMLElement {
     const div = document.createElement('div');
     div.className = 'llm-content-block';
-    div.setAttribute('contenteditable', 'false');
     return div;
   }
 
