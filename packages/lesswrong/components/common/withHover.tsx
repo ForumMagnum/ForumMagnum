@@ -6,6 +6,43 @@ function datesDifference(a: Date, b: Date): number {
   return (a as any)-(b as any);
 }
 
+// A popper-compatible anchor. Either a real DOM element (standard case) or a
+// virtual element that implements `getBoundingClientRect()` -- used when the
+// hovered element is an inline box that wraps across multiple lines, so we can
+// anchor the popper to the specific line segment the mouse is over rather than
+// to the union bounding box (which can leave dead space between the hovered
+// line and the popper -- see #m_bugs report 2026-04-09).
+export type HoverAnchor = HTMLElement | {
+  getBoundingClientRect: () => DOMRect,
+  contextElement?: Element,
+};
+
+/**
+ * Given an inline element and a mouse position, pick the `getClientRects()`
+ * rect that contains the cursor and return a popper virtual element bound to
+ * that specific rect. For elements with a single client rect (the common case)
+ * just returns the element itself, preserving existing behavior.
+ */
+function getSegmentAnchor(el: HTMLElement, clientX: number, clientY: number): HoverAnchor {
+  // getClientRects only reports multiple rects for inline boxes that wrap
+  // across lines. For block-level anchors it returns a single rect, so we
+  // fall through to returning the element itself (which preserves behavior
+  // for all the non-inline-link hover call sites).
+  const rects = el.getClientRects();
+  if (rects.length <= 1) return el;
+  for (let i = 0; i < rects.length; i++) {
+    const r = rects[i];
+    if (clientX >= r.left && clientX <= r.right && clientY >= r.top && clientY <= r.bottom) {
+      const snapshot = r;
+      return {
+        getBoundingClientRect: () => snapshot,
+        contextElement: el,
+      };
+    }
+  }
+  return el;
+}
+
 export interface UseHoverEventHandlers {
   onMouseOver: (ev: MouseEvent|React.MouseEvent) => void,
   onMouseLeave: (ev: MouseEvent|React.MouseEvent) => void,
@@ -40,13 +77,13 @@ export const useHover = (options?: {
   eventHandlers: UseHoverEventHandlers,
   hover: boolean,
   everHovered: boolean,
-  anchorEl: HTMLElement | null,
+  anchorEl: HoverAnchor | null,
   forceUnHover: () => void,
 } => {
   const {eventProps, onEnter, onLeave, disabledOnMobile, getIsEnabled} = options ?? {};
   const [hover, setHover] = useState(false)
   const [everHovered, setEverHovered] = useState(false)
-  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null)
+  const [anchorEl, setAnchorEl] = useState<HoverAnchor | null>(null)
   const delayTimer = useRef<any>(null)
   const mouseOverStart = useRef<Date|null>(null)
 
@@ -89,7 +126,12 @@ export const useHover = (options?: {
       return true;
     });
     setEverHovered(true);
-    setAnchorEl(event.currentTarget as HTMLElement);
+    // If the hovered element is an inline anchor that wraps across multiple
+    // lines, anchor the popper to the specific line segment the mouse is over
+    // rather than to the overall bounding box. For non-wrapping elements this
+    // is a no-op (getClientRects returns a single rect).
+    const target = event.currentTarget as HTMLElement;
+    setAnchorEl(getSegmentAnchor(target, event.clientX, event.clientY));
     mouseOverStart.current = new Date()
     clearTimeout(delayTimer.current)
     delayTimer.current = setTimeout(captureHoverEvent,500)
