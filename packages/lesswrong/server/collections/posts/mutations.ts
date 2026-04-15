@@ -21,6 +21,7 @@ import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/serv
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
+import { throwError } from '@/server/vulcan-lib/errors';
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 
@@ -51,7 +52,13 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
   if (userOwns(user, document) && document.rejected) {
     const isRedrafting = !document.draft && previewDocument.draft;
     if (!isRedrafting) {
-      return false;
+      // Throw a user-readable error rather than returning false, which would
+      // surface as the generic "app.operation_not_allowed". The post is rejected
+      // so the only allowed self-edit is moving it back to draft.
+      throwError({
+        id: 'This post has been rejected and cannot be edited. To revise it, first move it back to draft.',
+        data: { documentId: document._id },
+      });
     }
   }
 
