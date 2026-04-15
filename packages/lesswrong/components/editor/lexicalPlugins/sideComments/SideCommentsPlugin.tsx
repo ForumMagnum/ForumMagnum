@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { NodeKey } from 'lexical';
 import { $getNodeByKey, SKIP_SCROLL_INTO_VIEW_TAG } from 'lexical';
 import { $isMarkNode } from '@lexical/mark';
@@ -202,12 +202,18 @@ const SideCommentItem = ({
   onClick,
   submitAddComment,
   onResolve,
+  draft,
+  onDraftChange,
 }: {
   data: SideCommentData;
   isActive: boolean;
   onClick: () => void;
   submitAddComment: (comment: Comment, isInlineComment: boolean, thread?: Thread) => void;
   onResolve: () => void;
+  /** Persisted draft reply text for this thread, preserved across isActive toggles. */
+  draft: string;
+  /** Notified of every draft change; also called with '' on submit. */
+  onDraftChange: (draft: string) => void;
 }) => {
   const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
@@ -303,6 +309,8 @@ const SideCommentItem = ({
               submitAddComment={submitAddComment}
               thread={thread}
               placeholder="Reply..."
+              initialContent={draft}
+              onDraftChange={onDraftChange}
             />
           </div>
         )}
@@ -320,6 +328,25 @@ export const SideCommentsPlugin = () => {
   const shouldShow = useHasSideComments();
 
   const [sideComments, setSideComments] = useState<SideCommentData[]>([]);
+
+  // Per-thread draft-reply text, keyed by markId. Owned here (rather than in
+  // each SideCommentItem's reply composer) so drafts survive the composer
+  // unmounting when the user clicks away from a thread and into another. A
+  // ref rather than state: composer input doesn't need to re-render the
+  // surrounding sidebar on each keystroke; the draft is only read when a
+  // composer mounts.
+  const draftsByMarkIdRef = useRef<Map<string, string>>(new Map());
+  const getDraft = useCallback(
+    (markId: string) => draftsByMarkIdRef.current.get(markId) ?? '',
+    [],
+  );
+  const setDraft = useCallback((markId: string, draft: string) => {
+    if (draft.length > 0) {
+      draftsByMarkIdRef.current.set(markId, draft);
+    } else {
+      draftsByMarkIdRef.current.delete(markId);
+    }
+  }, []);
 
   // Extract threads from comments
   const threads = useMemo(
@@ -445,6 +472,8 @@ export const SideCommentsPlugin = () => {
           onClick={() => handleClickSideComment(data)}
           submitAddComment={submitAddComment}
           onResolve={() => handleResolveThread(data.thread)}
+          draft={getDraft(data.markId)}
+          onDraftChange={(draft) => setDraft(data.markId, draft)}
         />
       ))}
     </>

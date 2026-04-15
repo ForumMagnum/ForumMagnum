@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState, type JSX } from 'react';
 import type { EditorState, LexicalCommand, LexicalEditor } from 'lexical';
-import { CLEAR_EDITOR_COMMAND, COMMAND_PRIORITY_NORMAL, KEY_ESCAPE_COMMAND, createCommand } from 'lexical';
+import { $createParagraphNode, $createTextNode, $getRoot, CLEAR_EDITOR_COMMAND, COMMAND_PRIORITY_NORMAL, KEY_ESCAPE_COMMAND, createCommand } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin';
@@ -188,6 +188,8 @@ export function CommentsComposer({
   submitAddComment,
   thread,
   placeholder,
+  initialContent,
+  onDraftChange,
 }: {
   placeholder?: string;
   submitAddComment: (
@@ -196,15 +198,54 @@ export function CommentsComposer({
     thread?: Thread,
   ) => void;
   thread?: Thread;
+  /**
+   * Initial plain-text content to populate the composer with on mount. Used
+   * by callers that persist draft text across component mount/unmount so a
+   * partially-typed reply isn't lost when the composer gets unmounted (e.g.
+   * a side-comment reply composer that unmounts when the user clicks another
+   * thread).
+   */
+  initialContent?: string;
+  /**
+   * Called whenever the draft text changes. Callers can use this to persist
+   * the draft outside the composer's lifecycle. Fired with the empty string
+   * both when the user clears the editor manually and when a comment is
+   * submitted (which also clears the editor).
+   */
+  onDraftChange?: (draft: string) => void;
 }) {
   const classes = useStyles(styles);
-  const [content, setContent] = useState('');
-  const [canSubmit, setCanSubmit] = useState(false);
+  const [content, setContent] = useState(initialContent ?? '');
+  const [canSubmit, setCanSubmit] = useState(() => !!initialContent);
   const editorRef = useRef<LexicalEditor>(null);
   const author = useCollabAuthorName();
   const authorId = useCurrentCollaboratorId();
 
-  const onChange = useOnChange(setContent, setCanSubmit);
+  const setContentAndNotify = useCallback((text: string) => {
+    setContent(text);
+    onDraftChange?.(text);
+  }, [onDraftChange]);
+
+  const onChange = useOnChange(setContentAndNotify, setCanSubmit);
+
+  // On mount, if we were given an initial draft, populate the empty editor
+  // with it. We only do this once per mount -- subsequent prop changes are
+  // ignored because onChange already keeps the parent's persisted draft in
+  // sync with the editor.
+  const didInitRef = useRef(false);
+  useEffect(() => {
+    if (didInitRef.current) return;
+    didInitRef.current = true;
+    const editor = editorRef.current;
+    if (!editor || !initialContent) return;
+    editor.update(() => {
+      const root = $getRoot();
+      if (!root.isEmpty()) return;
+      const paragraph = $createParagraphNode();
+      paragraph.append($createTextNode(initialContent));
+      root.append(paragraph);
+    });
+  }, [initialContent]);
 
   const submitComment = () => {
     if (canSubmit) {
