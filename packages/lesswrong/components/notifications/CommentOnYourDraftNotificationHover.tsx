@@ -47,17 +47,25 @@ const CommentOnYourDraftNotificationHover = ({notification}: {
 
   const postOrDraft = post?.draft ? "draft" : "post";
 
+  // The server-side callbacks (hocuspocus/ckEditor) mark recipients as
+  // authors (main author or coauthor) vs commenter-only. Fall back to an
+  // author/userId check for older notifications that pre-date this field.
+  const isRecipientAuthor = notification.extraData?.isRecipientAuthor
+    ?? (!!currentUser?._id && currentUser._id === post?.userId);
+
   return <div className={classes.root}>
     <div>
       {senderUserId
         ? <UsersNameWrapper documentId={senderUserId} fallbackName={senderDisplayName}/>
         : "Someone"}
-      {(currentUser?._id !== post?.userId) ? " replied to your comment on " : ` commented on your ${postOrDraft}`}
+      {isRecipientAuthor
+        ? ` commented on your ${postOrDraft} `
+        : ` replied to your comment on `}
       <NotifPopoverLink to={postEditUrl}>
         {post ? post.title : <Loading/>}
       </NotifPopoverLink>
     </div>
-    
+
     {notification.extraData && <blockquote dangerouslySetInnerHTML={{__html: notification.extraData.commentHtml}}/>}
   </div>
 }

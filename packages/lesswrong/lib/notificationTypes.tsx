@@ -616,12 +616,20 @@ export const NewGroupOrganizerNotification = createNotificationType({
 export const NewCommentOnDraftNotification = createNotificationType({
   name: "newCommentOnDraft",
   userSettingField: "notificationCommentsOnDraft",
-  async getMessage({documentType, documentId, context}: GetMessageProps) {
+  async getMessage({documentType, documentId, extraData, context}: GetMessageProps) {
     const post = await getDocument(documentType, documentId, context) as DbPost;
-    return `New comments on your draft ${post.title}`;
+    const postOrDraft = post.draft ? "draft" : "post";
+    // isRecipientAuthor is set by the hocuspocus/ckEditor callbacks when
+    // creating notifications. Older notifications (pre-fix) don't have it, so
+    // fall back to the old "your draft" wording for backwards compatibility.
+    const isRecipientAuthor = extraData?.isRecipientAuthor ?? true;
+    if (isRecipientAuthor) {
+      return `New comments on your ${postOrDraft} ${post.title}`;
+    }
+    return `New replies on comments you made on ${post.title}`;
   },
-  
-  
+
+
   getLink: ({documentType, documentId, extraData}: {
     documentType: string|null,
     documentId: string|null,
@@ -634,7 +642,14 @@ export const NewCommentOnDraftNotification = createNotificationType({
     const url = postGetEditUrl(documentId, false, linkSharingKey);
     return url;
   },
-  Display: ({Post}) => <>New comments on your draft <Post /></>,
+  Display: ({Post, notification: {post, extraData}}) => {
+    const postOrDraft = post?.draft ? "draft" : "post";
+    const isRecipientAuthor = extraData?.isRecipientAuthor ?? true;
+    if (isRecipientAuthor) {
+      return <>New comments on your {postOrDraft} <Post /></>;
+    }
+    return <>New replies on comments you made on <Post /></>;
+  },
 });
 
 export const CoauthorRequestNotification = createNotificationType({

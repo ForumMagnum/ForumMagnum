@@ -175,25 +175,45 @@ async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId,
   if (!post) throw new Error(`Couldn't find post for CkEditor comment notification: ${postId}`);
   
   // Notify the main author of the post, the coauthors if any, and everyone
-  // who's commented in the thread. Then filter out the person who wrote the
-  // comment themself.
-  const usersToNotify = [...new Set(
-    [post.userId, ...post.coauthorUserIds, ...commentersInThread]
-      .filter(u=>(!!u && u!==commenterUserId))
-  )];
-  
+  // who's commented in the thread. Authors/coauthors see "New comments on your
+  // draft"; other commenters see "New replies on comments you made on ..."
+  // (they don't own the draft, so the old wording was misleading -- see Slack
+  // bug report https://lworg.slack.com/archives/CJUN2UAFN/p1775158103466779).
+  const authorIdSet = new Set(
+    [post.userId, ...(post.coauthorUserIds ?? [])]
+      .filter((u): u is string => !!u && u !== commenterUserId)
+  );
+  const commenterOnlyIdSet = new Set(
+    commentersInThread.filter(u => !!u && u !== commenterUserId && !authorIdSet.has(u))
+  );
+  const authorIds = [...authorIdSet];
+  const commenterOnlyIds = [...commenterOnlyIdSet];
+
   // eslint-disable-next-line no-console
-  console.log(`New CkEditor comment. Notifying users: ${JSON.stringify(usersToNotify)}`);
-  
-  await createNotifications({
-    userIds: usersToNotify,
-    notificationType: "newCommentOnDraft",
-    documentType: "post",
-    documentId: postId,
-    extraData: {
-      senderUserID: commenterUserId,
-      commentHtml: commentHtml,
-      linkSharingKey: post.linkSharingKey,
-    },
-  });
+  console.log(`New CkEditor comment. Notifying authors: ${JSON.stringify(authorIds)}, other commenters: ${JSON.stringify(commenterOnlyIds)}`);
+
+  const baseExtraData = {
+    senderUserID: commenterUserId,
+    commentHtml: commentHtml,
+    linkSharingKey: post.linkSharingKey,
+  };
+
+  if (authorIds.length) {
+    await createNotifications({
+      userIds: authorIds,
+      notificationType: "newCommentOnDraft",
+      documentType: "post",
+      documentId: postId,
+      extraData: { ...baseExtraData, isRecipientAuthor: true },
+    });
+  }
+  if (commenterOnlyIds.length) {
+    await createNotifications({
+      userIds: commenterOnlyIds,
+      notificationType: "newCommentOnDraft",
+      documentType: "post",
+      documentId: postId,
+      extraData: { ...baseExtraData, isRecipientAuthor: false },
+    });
+  }
 }
