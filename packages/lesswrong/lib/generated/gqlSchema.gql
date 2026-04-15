@@ -4321,6 +4321,7 @@ input PostsUserPostsInput {
   before: String
   timeField: String
   curatedAfter: String
+  includeRejected: Boolean
 }
 
 input PostsMagicInput {

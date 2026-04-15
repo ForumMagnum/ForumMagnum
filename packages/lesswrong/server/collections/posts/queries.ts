@@ -75,6 +75,7 @@ export const graphqlPostQueryTypeDefs = gql`
     before: String
     timeField: String
     curatedAfter: String
+    includeRejected: Boolean
   }
   
   input PostsMagicInput {

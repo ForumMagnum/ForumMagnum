@@ -8644,6 +8644,7 @@ export type PostsUserPostsInput = {
   filterSettings?: InputMaybe<Scalars['JSON']['input']>;
   groupId?: InputMaybe<Scalars['String']['input']>;
   hideCommunity?: InputMaybe<Scalars['Boolean']['input']>;
+  includeRejected?: InputMaybe<Scalars['Boolean']['input']>;
   includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
   karmaThreshold?: InputMaybe<Scalars['Int']['input']>;
   notPostIds?: InputMaybe<Array<Scalars['String']['input']>>;

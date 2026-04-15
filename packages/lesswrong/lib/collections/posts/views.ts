@@ -82,6 +82,14 @@ declare global {
     requiredUnnominated?: boolean,
     requiredFrontpage?: boolean,
     // END
+    /**
+     * Only respected by the `userPosts` view. When true, rejected posts are
+     * included in the results (overriding the default view's
+     * `rejected: { $ne: true }`). The profile page sets this when the viewer
+     * is the profile owner or an admin; anyone else sees only non-rejected
+     * posts on user profiles.
+     */
+    includeRejected?: boolean,
   }
   type PostSortingMode = UnionOf<typeof POST_SORTING_MODES>;
   type PostSortingModeWithRelevanceOption = PostSortingMode|"relevance"
@@ -402,7 +410,10 @@ function userPosts(terms: PostsViewTerms) {
       shortform: viewFieldAllowAny,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
       $or: [{userId: terms.userId}, {coauthorUserIds: terms.userId}],
-      rejected: null
+      // Rejected posts are only surfaced when the caller explicitly opts in
+      // (profile owner or admin viewing someone's profile). For everyone else
+      // we fall through to the defaultView's `rejected: { $ne: true }`.
+      ...(terms.includeRejected ? { rejected: null } : {}),
     },
     options: {
       limit: 5,

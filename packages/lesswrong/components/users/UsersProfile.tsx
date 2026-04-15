@@ -305,6 +305,11 @@ const UsersProfileFn = ({terms, slug}: {
     const currentShowLowKarma = (parseInt(query.karmaThreshold) !== DEFAULT_LOW_KARMA_THRESHOLD)
     const currentIncludeEvents = (query.includeEvents === 'true')
     postTerms.excludeEvents = !currentIncludeEvents && currentFilter !== 'events'
+    // Only show rejected posts in the profile posts list to the profile's owner
+    // or an admin. Previously `userPosts` unconditionally included rejected
+    // content, so other viewers could see posts that had been rejected by
+    // moderation. (https://lworg.slack.com/archives/CJUN2UAFN/p1776039721668219)
+    postTerms.includeRejected = ownPage || !!currentUser?.isAdmin
     
 
     const username = userGetDisplayName(user)

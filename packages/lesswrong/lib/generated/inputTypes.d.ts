@@ -3879,6 +3879,7 @@ interface PostsUserPostsInput {
   before?: string | null;
   timeField?: string | null;
   curatedAfter?: string | null;
+  includeRejected?: boolean | null;
 }
 
 interface PostsMagicInput {
