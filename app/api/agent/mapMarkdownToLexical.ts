@@ -76,11 +76,34 @@ function normalizeForSemanticMatch(value: string): string {
   return normalizeText(normalizeMathDelimiters(normalizeEmphasisMarkerStyle(value)));
 }
 
+// The plaintext returned here preserves a character-by-character ordering
+// correspondence with the markdown source: each output character appears in
+// the input in the same order, so callers can align plaintext positions back
+// to markdown positions via a two-pointer walk (see `buildPlainToMarkdownMapping`
+// in replaceText). Keep this regex-based — do not swap to a markdown-it render,
+// which adds trailing whitespace and trims input whitespace in ways that break
+// position alignment. For the quote-matching projection (which needs CommonMark
+// semantics for intraword `_`, literal `$`, etc.), use
+// `markdownQuoteToRenderedPlainText` instead.
+export function markdownQuoteToPlainText(value: string): string {
+  return value
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+    .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
+    .replace(/\$([^$]+)\$/g, "$1")
+    .replace(/\\([A-Za-z]+)/g, "$1")
+    .replace(/[*_`~]/g, "");
+}
+
+// Project an agent-supplied markdown quote to the rendered plaintext it
+// represents, via markdown-it's CommonMark implementation. Preserves literal
+// punctuation in content (e.g. `snake_case`, `2*3`, `` `code` ``) while
+// stripping genuine emphasis/code wrappers.
+//
 // Uses the no-mathjax markdown-it variant so `$...$` and `\(...\)` survive as
 // literal text, matching the `$equation$` form that `appendSegments` emits for
 // MathNode segments on the document side. Math delimiters are normalized up
 // front so `\(...\)` and `\[...\]` quotes fold onto the `$...$` shape.
-export function markdownQuoteToPlainText(value: string): string {
+export function markdownQuoteToRenderedPlainText(value: string): string {
   const html = markdownToHtmlNoMath(normalizeMathDelimiters(value));
   const dom = new JSDOM(html);
   return dom.window.document.body.textContent ?? "";
@@ -135,7 +158,7 @@ function findTextRangeInNodeByPlainQuote(
   node: LexicalNode,
   markdownQuote: string
 ): { anchor: MarkdownSelectionPoint, focus: MarkdownSelectionPoint } | null {
-  const plainQuoteRaw = markdownQuoteToPlainText(markdownQuote).trim();
+  const plainQuoteRaw = markdownQuoteToRenderedPlainText(markdownQuote).trim();
   const plainQuote = normalizeText(plainQuoteRaw);
   if (!plainQuoteRaw || !plainQuote) {
     return null;

@@ -14,7 +14,7 @@ import { markdownToHtml, htmlToMarkdown } from "@/server/editor/conversionUtils"
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { createHeadlessEditor } from "../../../app/api/agent/editorAgentUtil";
 import { buildNodeMarkdownMapForSubtree, locateMarkdownQuoteSelectionInSubtree } from "../../../app/api/agent/mapMarkdownToLexical";
-import { runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
+import { runEditorUpdate, setupEditorWithContent, setupEditorWithHtml } from "./lexicalTestHelpers";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
 
 async function selectMarkdownQuoteInEditor(
@@ -263,14 +263,26 @@ describe("mapMarkdownToLexical quote selection", () => {
   });
 
   it("selects and round-trips quote containing inline LaTeX", async () => {
-    const markdownDocument = [
-      "This paragraph contains inline math written as $\\LaTeX$ for testing.",
-      "",
-      "Another paragraph follows.",
-    ].join("\n");
+    // Set up via explicit HTML with a `<span class="math-tex">` wrapper so
+    // that Lexical's DOM importer creates a real MathNode. The markdown→HTML
+    // path (used by `setupEditorWithContent`) can't produce that structure
+    // in a test env because `renderMathInHtml` short-circuits, leaving the
+    // math-it-mathjax output as literal `\(...\)` text.
+    const editor = await setupEditorWithHtml(
+      '<p><span style="white-space: pre-wrap;">This paragraph contains inline math written as </span>' +
+      '<span class="math-tex">\\(\\LaTeX\\)</span>' +
+      '<span style="white-space: pre-wrap;"> for testing.</span></p>' +
+      '<p>Another paragraph follows.</p>'
+    );
     const markdownQuote = "$\\LaTeX$";
 
-    await expectQuoteRoundTripsFromMarkdownDocument({ markdownDocument, markdownQuote });
+    await selectMarkdownQuoteInEditor(editor, markdownQuote);
+    const extractedMarkdown = await deleteEverythingOutsideSelectionAndRoundTripToMarkdown(editor);
+    const toPlainText = (markdown: string): string => markdown
+      .replace(/\$([^$]+)\$/g, "$1")
+      .replace(/\\\(([\s\S]*?)\\\)/g, "$1")
+      .trim();
+    expect(toPlainText(extractedMarkdown)).toBe(toPlainText(markdownQuote));
   });
 
   it("finds a heading when quoted with markdown # prefix", async () => {
