@@ -250,7 +250,7 @@ export async function POST(req: NextRequest) {
       authorId,
     });
 
-    captureAgentApiEvent({ route: "commentOnDraft", postId, userId: context.currentUser?._id, agentName, status: "success", operationResult: anchorStatus });
+    captureAgentApiEvent({ route: "commentOnDraft", postId, userId: context.currentUser?._id, agentName, status: "success", operationResult: anchorStatus, threadId });
     return NextResponse.json({
       ok: true,
       postId,

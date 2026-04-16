@@ -8,10 +8,11 @@ import {
   type LexicalNode,
   type SerializedLexicalNode,
 } from "lexical";
-import { htmlToMarkdown, markdownToHtml } from "@/server/editor/conversionUtils";
+import { htmlToMarkdown, markdownToHtml, markdownToHtmlNoMath } from "@/server/editor/conversionUtils";
 import { JSDOM } from "jsdom";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { createHeadlessEditor, normalizeText } from "./editorAgentUtil";
+import { FOOTNOTE_ELEMENT_TYPES } from "@/components/editor/lexicalPlugins/footnotes/constants";
 
 /**
  * Recursively serialize a Lexical node and its children to JSON.
@@ -75,13 +76,14 @@ function normalizeForSemanticMatch(value: string): string {
   return normalizeText(normalizeMathDelimiters(normalizeEmphasisMarkerStyle(value)));
 }
 
+// Uses the no-mathjax markdown-it variant so `$...$` and `\(...\)` survive as
+// literal text, matching the `$equation$` form that `appendSegments` emits for
+// MathNode segments on the document side. Math delimiters are normalized up
+// front so `\(...\)` and `\[...\]` quotes fold onto the `$...$` shape.
 export function markdownQuoteToPlainText(value: string): string {
-  return value
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
-    .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
-    .replace(/\$([^$]+)\$/g, "$1")
-    .replace(/\\([A-Za-z]+)/g, "$1")
-    .replace(/[*_`~]/g, "");
+  const html = markdownToHtmlNoMath(normalizeMathDelimiters(value));
+  const dom = new JSDOM(html);
+  return dom.window.document.body.textContent ?? "";
 }
 
 /**
@@ -146,6 +148,13 @@ function findTextRangeInNodeByPlainQuote(
   }> = [];
 
   const appendSegments = (currentNode: LexicalNode) => {
+    // Must precede the $isTextNode branch: FootnoteReferenceNode extends
+    // TextNode with content `[N]`, but agents reading via the markdown API
+    // see footnotes as `[^id]` and naturally omit them when quoting.
+    if (currentNode.getType() === FOOTNOTE_ELEMENT_TYPES.footnoteReference) {
+      return;
+    }
+
     if ($isTextNode(currentNode)) {
       segments.push({
         kind: "text",
@@ -314,6 +323,23 @@ function serializeNodeSubtreeToMarkdown(node: LexicalNode, editor: LexicalEditor
   return htmlToMarkdown(html);
 }
 
+// Must mirror the exclusions in `appendSegments` so the filter stage of
+// `buildNodeMarkdownMapForSubtree` sees the same text that the per-paragraph
+// matcher will later search against. Otherwise a paragraph containing a
+// footnote reference gets filtered out before ever reaching the matcher.
+function getTextContentForQuoteMatching(node: LexicalNode): string {
+  if (node.getType() === FOOTNOTE_ELEMENT_TYPES.footnoteReference) {
+    return "";
+  }
+  if ($isTextNode(node)) {
+    return node.getTextContent();
+  }
+  if ($isElementNode(node)) {
+    return node.getChildren().map(getTextContentForQuoteMatching).join("");
+  }
+  return node.getTextContent();
+}
+
 function collectSubtreeNodes(rootNode: LexicalNode): Array<{ node: LexicalNode, depth: number }> {
   const collected: Array<{ node: LexicalNode, depth: number }> = [];
 
@@ -349,7 +375,7 @@ export function buildNodeMarkdownMapForSubtree(rootNodeKey: string, textFilter?:
   const byKey = new Map<string, NodeMarkdownEntry>();
   for (const { node, depth } of collectSubtreeNodes(rootNode)) {
     if (textFilter) {
-      const textContent = normalizeText(node.getTextContent());
+      const textContent = normalizeText(getTextContentForQuoteMatching(node));
       // Skip nodes whose text content is non-empty and clearly doesn't contain
       // the filter. Nodes with empty text content (e.g. decorator/math nodes)
       // are kept to avoid false negatives.
