@@ -16,6 +16,7 @@ const headerStyles = defineStyles('LLMContentBlockHeader', () => ({
 }));
 
 const LLM_MODEL_OPTIONS = [
+  'Claude Opus 4.7',
   'Claude Opus 4.6',
   'Claude Opus 4.5',
   'Claude Opus 3',

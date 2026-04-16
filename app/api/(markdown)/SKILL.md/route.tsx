@@ -165,9 +165,28 @@ and the conversation. You can use the thread ID to reply to existing threads.
 To add Google Docs-style comments to the draft, make a request to:
     POST /api/agent/commentOnDraft
     with JSON body: { postId, key, agentName?, quote?, comment }
-If a quote is provided, the comment will be attached to matching quoted text. The
-quote should be long enough to be unambiguous. If no quote is provided, the
-comment will be top-level. Both the quote and your comment should be in markdown.
+If a quote is provided, the comment will be attached to matching quoted text.
+The quote should be long enough to be unambiguous. If no quote is provided, the
+comment will be top-level.
+
+The comment body is markdown. The quote, however, should be the visible rendered
+text as a reader would see it — not the markdown source of the surrounding paragraph.
+A few things to watch out for:
+ * If the text you want to anchor to contains a link, quote the visible link text,
+   not the URL. URLs inside link targets are not part of the anchorable body text
+   and will never match.
+ * Only the post body is anchorable. The post title and other metadata fields are
+   not part of the anchorable region — a quote matching those will always fail.
+ * Quote verbatim from what the markdown API returned to you. The server handles
+   typographic punctuation folding (smart quotes vs. ASCII, en/em dashes, etc.)
+   and markdown emphasis markers (**, _, \`, ~) automatically, so you do not need
+   to strip or normalize them yourself. But rephrasing, "cleaning up" the text,
+   or quoting from memory rather than from the markdown you just read will miss.
+ * If the call returns a "no match" error, the one possible cause is that the user
+   has edited the draft since you read it. Fetch the current state of the post
+   via /api/editPost and re-derive your quote from the fresh read before retrying.
+   Drafts are a live collaboration surface; text you read a few minutes ago may
+   no longer be present.
 
 To reply to an existing comment thread on the draft:
     POST /api/agent/replyToComment
@@ -178,10 +197,17 @@ This adds a reply to the specified thread, visible in the editor's comment panel
 To replace text inside the draft, make a POST request to:
     POST /api/agent/replaceText
     with JSON body: { postId, key, agentName?, quote, replacement, mode?: "edit"|"suggest" }
-The quote and replacement should be in markdown. If the mode is "edit", the
-change will be applied immediately; if the mode is "suggest", the change will be
-displayed as a suggestion in the post editor. If the user hasn't said whether to
-use edit mode or suggest mode, use suggest mode.
+Note the asymmetry between the two string fields: the replacement should be in
+markdown (it's inserted into the draft and rendered through the editor's markdown
+pipeline), while the quote should be the visible rendered text as a reader would
+see it, not the markdown source. The same quote-matching rules as commentOnDraft
+apply — see that section above for details (visible link text rather than URLs,
+no need to include emphasis markers, quote verbatim from the markdown API,
+re-read the draft before retrying on "no match" errors).
+
+If the mode is "edit", the change will be applied immediately; if the mode is
+"suggest", the change will be displayed as a suggestion in the post editor. If
+the user hasn't said whether to use edit mode or suggest mode, use suggest mode.
 
 To insert new blocks of text into the draft, make a POST request to:
     POST /api/agent/insertBlock
@@ -214,7 +240,7 @@ specific AI model) into the draft, make a POST request to:
       markdown: string,
       location: "start"|"end"|{ before: string }|{ after: string }
     }
-The modelName is displayed in the block header (e.g. "Claude Opus 4.6"). If
+The modelName is displayed in the block header (e.g. "Claude Opus 4.7"). If
 omitted, it defaults to "AI Agent". The markdown is the content
 that will appear inside the block. The location works the same as insertBlock.
 LLM content blocks are always inserted directly (no suggest mode) because they
@@ -222,7 +248,7 @@ are explicitly labeled as AI-generated content.
 
 LLM content blocks (visually distinct blocks attributed to a specific AI model) are
 represented in the markdown output as:
-    %%% llm-output model="Claude Opus 4.6"
+    %%% llm-output model="Claude Opus 4.7"
 
     The markdown content of the block...
 

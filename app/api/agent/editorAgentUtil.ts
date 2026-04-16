@@ -44,18 +44,40 @@ export async function waitForProviderFlush(provider: HocuspocusProvider): Promis
   }
 }
 
+// 1:1 fold of typographic punctuation onto ASCII equivalents. Restricted to
+// length-preserving substitutions so that callers which map positions between
+// pre- and post-normalized strings (e.g. `mapNormalizedIndexToRaw`) remain
+// correct. Intentionally excludes ellipsis (U+2026 → `...`), NFKC, and other
+// length-changing transforms.
+const PUNCTUATION_FOLD_MAP: Record<string, string> = {
+  "\u2018": "'", "\u2019": "'", "\u201A": "'", "\u201B": "'",
+  "\u2032": "'", "\u02B9": "'", "\u02BC": "'",
+  "\u201C": '"', "\u201D": '"', "\u201E": '"', "\u201F": '"',
+  "\u2033": '"', "\u00AB": '"', "\u00BB": '"',
+  "\u2010": "-", "\u2011": "-", "\u2013": "-", "\u2014": "-",
+  "\u2015": "-", "\u2212": "-",
+};
+const PUNCTUATION_FOLD_REGEX = new RegExp(
+  `[${Object.keys(PUNCTUATION_FOLD_MAP).join("")}]`,
+  "g",
+);
+
+export function foldPunctuation(value: string): string {
+  return value.replace(PUNCTUATION_FOLD_REGEX, (ch) => PUNCTUATION_FOLD_MAP[ch]);
+}
+
 export function normalizeText(value: string): string {
-  return value.replace(/\s+/g, " ").trim().toLowerCase();
+  return foldPunctuation(value).replace(/\s+/g, " ").trim().toLowerCase();
 }
 
 export function paragraphMarkdownStartsWith(paragraphMarkdown: string, prefix: string): boolean {
-  const normalizedParagraph = paragraphMarkdown.trimStart().replace(/\s+/g, " ").toLowerCase();
-  const normalizedPrefix = prefix.trim().replace(/\s+/g, " ").toLowerCase();
+  const normalizedParagraph = foldPunctuation(paragraphMarkdown).trimStart().replace(/\s+/g, " ").toLowerCase();
+  const normalizedPrefix = foldPunctuation(prefix).trim().replace(/\s+/g, " ").toLowerCase();
   return normalizedParagraph.startsWith(normalizedPrefix);
 }
 
 export function plainTextStartsWith(nodeTextContent: string, prefix: string): boolean {
-  const prefixPlainText = prefix
+  const prefixPlainText = foldPunctuation(prefix)
     .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
     .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
     .replace(/\$([^$]+)\$/g, "$1")
@@ -64,7 +86,7 @@ export function plainTextStartsWith(nodeTextContent: string, prefix: string): bo
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
-  const normalizedTextContent = nodeTextContent
+  const normalizedTextContent = foldPunctuation(nodeTextContent)
     .replace(/\s+/g, " ")
     .trimStart()
     .toLowerCase();

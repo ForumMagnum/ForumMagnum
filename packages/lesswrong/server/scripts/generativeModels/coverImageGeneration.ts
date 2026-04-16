@@ -39,13 +39,13 @@ import { executePromiseQueue } from '@/lib/utils/asyncUtils';
 const IMAGE_PROVIDER: 'fal' | 'midjourney' = 'midjourney';
 
 type OpenAiModel = 'gpt-5.2' | 'gpt-5-mini';
-type AnthropicModel = 'claude-opus-4-6' | 'claude-sonnet-4-6';
+type AnthropicModel = 'claude-opus-4-7' | 'claude-sonnet-4-6';
 type SupportedLlmModel = OpenAiModel | AnthropicModel;
 type LlmProvider = 'openai' | 'anthropic';
 
 // The LLM model to use for generating illustration descriptions.
 // Change this to experiment with different models.
-export const DEFAULT_ILLUSTRATION_MODEL: SupportedLlmModel = "claude-opus-4-6";
+export const DEFAULT_ILLUSTRATION_MODEL: SupportedLlmModel = "claude-opus-4-7";
 
 // ── Queries ──────────────────────────────────────────────────────────
 
@@ -117,7 +117,7 @@ const MODEL_PRICING: Record<UsageTracker['model'], { input: number; cachedInput:
   "gpt-5.2":      { input: 1.75,  cachedInput: 0.175, output: 14.0 },
   "gpt-5-mini":   { input: 0.25,  cachedInput: 0.025, output: 2.0 },
   "claude-sonnet-4-6": { input: 3.0, cachedInput: 0.3, output: 15.0 },
-  "claude-opus-4-6": { input: 5.0, cachedInput: 0.5, output: 25.0 },
+  "claude-opus-4-7": { input: 5.0, cachedInput: 0.5, output: 25.0 },
 };
 
 // Fal.ai per-request pricing (approximate).

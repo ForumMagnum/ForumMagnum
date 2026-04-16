@@ -7,7 +7,7 @@ import { isAnyTest } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
 import { sanitize } from "@/lib/utils/sanitize";
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
-import { getMarkdownIt } from '@/lib/utils/markdownItPlugins';
+import { getMarkdownIt, getMarkdownItNoMathjax } from '@/lib/utils/markdownItPlugins';
 import type { Cheerio, CheerioAPI, Element as CheerioElement } from 'cheerio';
 import type { DataNode } from 'domhandler';
 import { mathjax } from 'mathjax-full/js/mathjax.js';
@@ -427,6 +427,17 @@ export function ckEditorMarkupToMarkdown(markup: string): string {
 export function markdownToHtmlNoLaTeX(markdown: string): string {
   const id = randomId()
   const renderedMarkdown = getMarkdownIt().render(markdown, {docId: id})
+  return trimLeadingAndTrailingWhiteSpace(renderedMarkdown)
+}
+
+// Unlike `markdownToHtmlNoLaTeX`, this skips the `markdownItMathjax` markdown-it
+// plugin entirely, so `$...$` and `\(...\)` are treated as literal text rather
+// than parsed into math tokens. Used by the agent quote-matching path, where
+// we want the LaTeX delimiters preserved verbatim in the extracted plaintext
+// so they line up with MathNode segments on the document side.
+export function markdownToHtmlNoMath(markdown: string): string {
+  const id = randomId()
+  const renderedMarkdown = getMarkdownItNoMathjax().render(markdown, {docId: id})
   return trimLeadingAndTrailingWhiteSpace(renderedMarkdown)
 }
 

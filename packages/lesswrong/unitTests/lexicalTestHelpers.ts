@@ -12,9 +12,8 @@ export async function runEditorUpdate(editor: LexicalEditor, updater: () => void
   });
 }
 
-export async function setupEditorWithContent(markdownContent: string, label = "LexicalTestHelper"): Promise<LexicalEditor> {
+export async function setupEditorWithHtml(html: string, label = "LexicalTestHelper"): Promise<LexicalEditor> {
   const editor = createHeadlessEditor(label);
-  const html = markdownToHtml(markdownContent);
 
   await runEditorUpdate(editor, () => {
     const dom = new JSDOM(html);
@@ -25,6 +24,11 @@ export async function setupEditorWithContent(markdownContent: string, label = "L
   });
 
   return editor;
+}
+
+export async function setupEditorWithContent(markdownContent: string, label = "LexicalTestHelper"): Promise<LexicalEditor> {
+  const html = markdownToHtml(markdownContent);
+  return setupEditorWithHtml(html, label);
 }
 
 export interface SuggestionInfo {
