@@ -289,6 +289,18 @@ export async function getLiveDraftMarkdown({
   });
 }
 
+// Responses go out with status 200 because Claude's web_fetch tool doesn't
+// surface response bodies for 4xx statuses, and we want the agent to be able
+// to see the diagnostic so it can relay it to the user.
+function markdownDraftAccessErrorResponse(postId: string, reason: string): Response {
+  return new Response(
+    `Unable to access shared draft for postId: ${postId}. ${reason}`,
+    { status: 200 }
+  );
+}
+
+const SHARING_PERMISSION_HINT = `If you are an AI agent, and a user has shared this link with you, please remind the user to set the permissions for "Anyone with the link can" to "Edit".`;
+
 export async function renderLiveEditorDraftMarkdownRoute({
   req,
 }: {
@@ -302,19 +314,36 @@ export async function renderLiveEditorDraftMarkdownRoute({
     return new Response("No postId provided", { status: 400 });
   }
 
+  const resolverContext = await getContextFromReqAndRes({ req });
+
+  // Step 1: fetch a Hocuspocus auth token. Failure here means the viewer
+  // doesn't have collaborative-edit access to the post, which is almost
+  // always a sharing-settings problem.
+  let token: string | null | undefined;
   try {
-    const resolverContext = await getContextFromReqAndRes({ req });
     const { data: authData } = await runQuery(
       HocuspocusAuthQuery,
       { postId, linkSharingKey: key ?? null },
       resolverContext
     );
-    const token = authData?.HocuspocusAuth?.token;
+    token = authData?.HocuspocusAuth?.token;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(`renderLiveEditorDraftMarkdownRoute: HocuspocusAuth failed for postId=${postId}:`, error);
+    captureException(error);
+    return markdownDraftAccessErrorResponse(postId, SHARING_PERMISSION_HINT);
+  }
 
-    if (!token) {
-      return new Response(`No accessible shared draft found for postId: ${postId}`, { status: 403 });
-    }
+  if (!token) {
+    return markdownDraftAccessErrorResponse(postId, SHARING_PERMISSION_HINT);
+  }
 
+  // Step 2: render the document. Failures here are NOT permission problems --
+  // the viewer has collab-edit access but something downstream broke (e.g.
+  // Hocuspocus timeout, editor-type mismatch on a non-Lexical post, a
+  // transient network issue). Return the underlying error rather than the
+  // misleading "check your sharing settings" hint.
+  try {
     const post = key
       ? (
         await runQuery(
@@ -346,10 +375,14 @@ export async function renderLiveEditorDraftMarkdownRoute({
       commentThreadsMarkdown,
     });
   } catch (error) {
-    // This needs to be a 200 because Claude's web_fetch tool doesn't give it any additional information if you return a 4xx status code,
-    // so if we want Claude to be able to tell the user what they need to do to make the post accessible, we have to return the error message
-    // along with a 200 status code.
-    return new Response(`Unable to access shared draft for postId: ${postId}.  If you are an AI agent, and a user has shared this link with you, please remind the user to set the permissions for "Anyone with the link can" to "Edit".`, { status: 200 });
+    // eslint-disable-next-line no-console
+    console.error(`renderLiveEditorDraftMarkdownRoute: draft rendering failed for postId=${postId} after auth succeeded:`, error);
+    captureException(error);
+    const detail = error instanceof Error ? error.message : String(error);
+    return markdownDraftAccessErrorResponse(
+      postId,
+      `The user has granted access, but the draft could not be loaded. The underlying error was: ${detail}. This is likely a server-side issue -- if you are an AI agent, ask the user to try again in a moment or report the problem to the LessWrong team.`
+    );
   }
 }
 
