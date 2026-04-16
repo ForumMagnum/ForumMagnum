@@ -12622,6 +12622,7 @@ fragment UsersEdit on User {
 
   # Admin & Review
   reviewedByUserId
+  needsReview
 
   # Alignment Forum
   reviewForAlignmentForumUserId
