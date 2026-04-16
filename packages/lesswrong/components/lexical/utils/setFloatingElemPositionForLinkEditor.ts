@@ -34,6 +34,20 @@ export function setFloatingElemPositionForLinkEditor(
     left = editorScrollerRect.right - floatingElemRect.width - horizontalOffset;
   }
 
+  // Flip the floating editor above the link when there isn't enough vertical
+  // room below it inside the editor's scroller. Without this, editing a link
+  // near the bottom of a comment causes the URL input row (which only appears
+  // in edit mode, so it wasn't accounted for when the editor was first
+  // positioned) to be hidden behind the comment form's cancel/submit row.
+  // Only flip if there's actually enough space above; otherwise leave it
+  // below and let whatever clipping happens be the least-bad option.
+  if (top + floatingElemRect.height > editorScrollerRect.bottom) {
+    const flippedTop = targetRect.top - floatingElemRect.height - verticalGap;
+    if (flippedTop >= editorScrollerRect.top) {
+      top = flippedTop;
+    }
+  }
+
   top -= anchorElementRect.top;
   left -= anchorElementRect.left;
 
