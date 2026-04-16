@@ -284,7 +284,12 @@ export async function getLiveDraftMarkdown({
         });
         return generated;
       });
-      return convertWidgetIframesToMarkdownFences(htmlToMarkdown(html));
+      // Replace non-breaking spaces with regular spaces before serialization.
+      // turndown otherwise emits nbsp inside emphasis wrappers (e.g.
+      // `**word1<nbsp>word2**`), which subsequent markdown parsing strips
+      // out entirely, producing concatenated words ("word1word2") in the
+      // markdown the agent sees and quotes from.
+      return convertWidgetIframesToMarkdownFences(htmlToMarkdown(html.replace(/\u00A0/g, " ")));
     },
   });
 }

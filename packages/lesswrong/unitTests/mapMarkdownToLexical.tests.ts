@@ -133,6 +133,158 @@ describe("empty root detection", () => {
   });
 });
 
+describe("cosmetic punctuation normalization", () => {
+  it("matches an ASCII-quoted quote against smart-quoted document text", async () => {
+    const editor = createHeadlessEditor("SmartQuoteDocAsciiQuery");
+
+    await runEditorUpdate(editor, () => {
+      const root = $getRoot();
+      root.clear();
+      const paragraph = $createParagraphNode();
+      // Document uses Unicode left/right double quotes and a Unicode apostrophe.
+      const textNode = $createTextNode("She said \u201Cdon\u2019t worry\u201D loudly.");
+      paragraph.append(textNode);
+      root.append(paragraph);
+    });
+
+    let result: ReturnType<typeof locateMarkdownQuoteSelectionInSubtree> | undefined;
+    editor.getEditorState().read(() => {
+      const root = $getRoot();
+      result = locateMarkdownQuoteSelectionInSubtree({
+        rootNodeKey: root.getKey(),
+        // Agent quotes with plain ASCII quotes and apostrophe.
+        markdownQuote: "\"don't worry\"",
+      });
+    });
+
+    expect(result).toBeDefined();
+    expect(result!.found).toBe(true);
+    expect(result!.anchor).toBeDefined();
+    expect(result!.focus).toBeDefined();
+    // "She said " is 9 chars, then the opening smart quote at offset 9.
+    expect(result!.anchor!.offset).toBe(9);
+    // The match runs from the opening smart-quote to (and including) the
+    // closing smart-quote, which is 13 characters: " d o n ' t   w o r r y "
+    expect(result!.focus!.offset).toBe(9 + 13);
+  });
+
+  it("matches a smart-quoted quote against ASCII-quoted document text", async () => {
+    const editor = createHeadlessEditor("AsciiDocSmartQuery");
+
+    await runEditorUpdate(editor, () => {
+      const root = $getRoot();
+      root.clear();
+      const paragraph = $createParagraphNode();
+      const textNode = $createTextNode("She said \"don't worry\" loudly.");
+      paragraph.append(textNode);
+      root.append(paragraph);
+    });
+
+    let result: ReturnType<typeof locateMarkdownQuoteSelectionInSubtree> | undefined;
+    editor.getEditorState().read(() => {
+      const root = $getRoot();
+      result = locateMarkdownQuoteSelectionInSubtree({
+        rootNodeKey: root.getKey(),
+        // Agent quotes with curly quotes.
+        markdownQuote: "\u201Cdon\u2019t worry\u201D",
+      });
+    });
+
+    expect(result).toBeDefined();
+    expect(result!.found).toBe(true);
+  });
+
+  it("matches across non-breaking spaces between words", async () => {
+    const editor = createHeadlessEditor("NbspBetweenWords");
+
+    await runEditorUpdate(editor, () => {
+      const root = $getRoot();
+      root.clear();
+      const paragraph = $createParagraphNode();
+      // The document text uses a non-breaking space between two words.
+      const textNode = $createTextNode("the quick\u00A0brown fox");
+      paragraph.append(textNode);
+      root.append(paragraph);
+    });
+
+    let result: ReturnType<typeof locateMarkdownQuoteSelectionInSubtree> | undefined;
+    editor.getEditorState().read(() => {
+      const root = $getRoot();
+      result = locateMarkdownQuoteSelectionInSubtree({
+        rootNodeKey: root.getKey(),
+        // Agent quotes with a regular space.
+        markdownQuote: "quick brown fox",
+      });
+    });
+
+    expect(result).toBeDefined();
+    expect(result!.found).toBe(true);
+    expect(result!.anchor!.offset).toBe(4);
+    expect(result!.focus!.offset).toBe(4 + "quick brown fox".length);
+  });
+
+  it("preserves mid-word underscores in identifiers when matching", async () => {
+    // Document text contains a literal underscore inside an identifier.
+    // Earlier behaviour stripped ALL underscores from the agent's quote
+    // before substring searching, so a quote of "var_name" was reduced to
+    // "varname" and failed to match the document's "var_name".
+    const editor = createHeadlessEditor("MidWordUnderscore");
+
+    await runEditorUpdate(editor, () => {
+      const root = $getRoot();
+      root.clear();
+      const paragraph = $createParagraphNode();
+      const textNode = $createTextNode("Set the var_name field before saving.");
+      paragraph.append(textNode);
+      root.append(paragraph);
+    });
+
+    let result: ReturnType<typeof locateMarkdownQuoteSelectionInSubtree> | undefined;
+    editor.getEditorState().read(() => {
+      const root = $getRoot();
+      result = locateMarkdownQuoteSelectionInSubtree({
+        rootNodeKey: root.getKey(),
+        markdownQuote: "var_name",
+      });
+    });
+
+    expect(result).toBeDefined();
+    expect(result!.found).toBe(true);
+    expect(result!.anchor!.offset).toBe("Set the ".length);
+    expect(result!.focus!.offset).toBe("Set the ".length + "var_name".length);
+  });
+
+  it("still strips word-boundary underscores used as italic markers", async () => {
+    // The Lexical text content for italicized "emphasis" is just the word
+    // "emphasis" -- the underscores are formatting markers, not part of the
+    // text. The agent's _emphasis_ quote should still locate it.
+    const editor = createHeadlessEditor("ItalicMarkerUnderscore");
+
+    await runEditorUpdate(editor, () => {
+      const root = $getRoot();
+      root.clear();
+      const paragraph = $createParagraphNode();
+      const textNode = $createTextNode("This has emphasis in the middle.");
+      paragraph.append(textNode);
+      root.append(paragraph);
+    });
+
+    let result: ReturnType<typeof locateMarkdownQuoteSelectionInSubtree> | undefined;
+    editor.getEditorState().read(() => {
+      const root = $getRoot();
+      result = locateMarkdownQuoteSelectionInSubtree({
+        rootNodeKey: root.getKey(),
+        markdownQuote: "_emphasis_",
+      });
+    });
+
+    expect(result).toBeDefined();
+    expect(result!.found).toBe(true);
+    expect(result!.anchor!.offset).toBe("This has ".length);
+    expect(result!.focus!.offset).toBe("This has ".length + "emphasis".length);
+  });
+});
+
 describe("findTextRangeInNodeByPlainQuote whitespace normalization", () => {
   it("returns correct offsets when original text has extra whitespace compared to quote", async () => {
     const editor = createHeadlessEditor("WhitespaceNormalizationTest");

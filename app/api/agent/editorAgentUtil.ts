@@ -48,23 +48,53 @@ export function normalizeText(value: string): string {
   return value.replace(/\s+/g, " ").trim().toLowerCase();
 }
 
+/**
+ * Replace characters that vary cosmetically across writing tools so that
+ * agent-supplied markdown can match document text even when one side uses
+ * smart punctuation and the other uses ASCII (or one uses non-breaking spaces
+ * while the other uses regular spaces). Each replacement is one-to-one in
+ * character count so the offset math used by `findTextRangeInNodeByPlainQuote`
+ * (which maps from a normalized index back to the raw lowercased index) keeps
+ * working unchanged.
+ */
+export function normalizeQuoteCharacters(value: string): string {
+  return value
+    .replace(/[\u2018\u2019\u201A\u201B]/g, "'")
+    .replace(/[\u201C\u201D\u201E\u201F]/g, "\"")
+    .replace(/\u00A0/g, " ");
+}
+
+/**
+ * Strip markdown emphasis/code/strikethrough markers from text. Underscores
+ * are only stripped when they sit at a word boundary (i.e. could plausibly be
+ * an italic delimiter); mid-word underscores are preserved so identifiers like
+ * `var_name` survive intact for matching against the raw document text. The
+ * markdown-it parser uses the same word-boundary rule for `_emphasis_`.
+ */
+export function stripMarkdownEmphasisMarkers(value: string): string {
+  return value
+    .replace(/[*`~]+/g, "")
+    .replace(/(?<![A-Za-z0-9])_+|_+(?![A-Za-z0-9])/g, "");
+}
+
 export function paragraphMarkdownStartsWith(paragraphMarkdown: string, prefix: string): boolean {
-  const normalizedParagraph = paragraphMarkdown.trimStart().replace(/\s+/g, " ").toLowerCase();
-  const normalizedPrefix = prefix.trim().replace(/\s+/g, " ").toLowerCase();
+  const normalizedParagraph = normalizeQuoteCharacters(paragraphMarkdown).trimStart().replace(/\s+/g, " ").toLowerCase();
+  const normalizedPrefix = normalizeQuoteCharacters(prefix).trim().replace(/\s+/g, " ").toLowerCase();
   return normalizedParagraph.startsWith(normalizedPrefix);
 }
 
 export function plainTextStartsWith(nodeTextContent: string, prefix: string): boolean {
-  const prefixPlainText = prefix
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
-    .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
-    .replace(/\$([^$]+)\$/g, "$1")
-    .replace(/\\([A-Za-z]+)/g, "$1")
-    .replace(/[*_`~]/g, "")
+  const prefixPlainText = stripMarkdownEmphasisMarkers(
+    normalizeQuoteCharacters(prefix)
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+      .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
+      .replace(/\$([^$]+)\$/g, "$1")
+      .replace(/\\([A-Za-z]+)/g, "$1")
+  )
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
-  const normalizedTextContent = nodeTextContent
+  const normalizedTextContent = normalizeQuoteCharacters(nodeTextContent)
     .replace(/\s+/g, " ")
     .trimStart()
     .toLowerCase();

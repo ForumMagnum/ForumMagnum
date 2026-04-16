@@ -11,7 +11,7 @@ import {
 import { htmlToMarkdown, markdownToHtml } from "@/server/editor/conversionUtils";
 import { JSDOM } from "jsdom";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
-import { createHeadlessEditor, normalizeText } from "./editorAgentUtil";
+import { createHeadlessEditor, normalizeQuoteCharacters, normalizeText, stripMarkdownEmphasisMarkers } from "./editorAgentUtil";
 
 /**
  * Recursively serialize a Lexical node and its children to JSON.
@@ -58,7 +58,7 @@ export interface MarkdownQuoteSelectionResult {
 }
 
 function stripSimpleMarkdownPunctuation(value: string): string {
-  return value.replace(/[*_`~]/g, "");
+  return stripMarkdownEmphasisMarkers(value);
 }
 
 function normalizeEmphasisMarkerStyle(value: string): string {
@@ -72,16 +72,17 @@ function normalizeMathDelimiters(value: string): string {
 }
 
 function normalizeForSemanticMatch(value: string): string {
-  return normalizeText(normalizeMathDelimiters(normalizeEmphasisMarkerStyle(value)));
+  return normalizeText(normalizeQuoteCharacters(normalizeMathDelimiters(normalizeEmphasisMarkerStyle(value))));
 }
 
 export function markdownQuoteToPlainText(value: string): string {
-  return value
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
-    .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
-    .replace(/\$([^$]+)\$/g, "$1")
-    .replace(/\\([A-Za-z]+)/g, "$1")
-    .replace(/[*_`~]/g, "");
+  return stripMarkdownEmphasisMarkers(
+    value
+      .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
+      .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
+      .replace(/\$([^$]+)\$/g, "$1")
+      .replace(/\\([A-Za-z]+)/g, "$1")
+  );
 }
 
 /**
@@ -95,7 +96,7 @@ export function toPlainTextFilter(markdownQuote: string): string {
   const html = markdownToHtml(markdownQuote);
   const dom = new JSDOM(html);
   const textOnly = dom.window.document.body.textContent;
-  return normalizeText(textOnly);
+  return normalizeText(normalizeQuoteCharacters(textOnly));
 }
 
 /**
@@ -133,7 +134,11 @@ function findTextRangeInNodeByPlainQuote(
   node: LexicalNode,
   markdownQuote: string
 ): { anchor: MarkdownSelectionPoint, focus: MarkdownSelectionPoint } | null {
-  const plainQuoteRaw = markdownQuoteToPlainText(markdownQuote).trim();
+  // Normalize cosmetic punctuation (smart quotes, non-breaking spaces) so a
+  // quote written with one variant matches document text written with the
+  // other. The replacement preserves character count, so the offsets we
+  // ultimately return into the original (un-normalized) text are still valid.
+  const plainQuoteRaw = normalizeQuoteCharacters(markdownQuoteToPlainText(markdownQuote)).trim();
   const plainQuote = normalizeText(plainQuoteRaw);
   if (!plainQuoteRaw || !plainQuote) {
     return null;
@@ -143,14 +148,17 @@ function findTextRangeInNodeByPlainQuote(
     kind: "text" | "math"
     key: string
     text: string
+    matchText: string
   }> = [];
 
   const appendSegments = (currentNode: LexicalNode) => {
     if ($isTextNode(currentNode)) {
+      const text = currentNode.getTextContent();
       segments.push({
         kind: "text",
         key: currentNode.getKey(),
-        text: currentNode.getTextContent(),
+        text,
+        matchText: normalizeQuoteCharacters(text),
       });
       return;
     }
@@ -159,10 +167,12 @@ function findTextRangeInNodeByPlainQuote(
       const serializedNode = currentNode.exportJSON() as { equation?: string } | undefined;
       const equation = serializedNode?.equation;
       if (equation) {
+        const text = `$${equation}$`;
         segments.push({
           kind: "math",
           key: currentNode.getKey(),
-          text: `$${equation}$`,
+          text,
+          matchText: normalizeQuoteCharacters(text),
         });
       }
       return;
@@ -180,7 +190,7 @@ function findTextRangeInNodeByPlainQuote(
     return null;
   }
 
-  const combined = segments.map((segment) => segment.text).join("");
+  const combined = segments.map((segment) => segment.matchText).join("");
   let rawStartIndex = combined.toLowerCase().indexOf(plainQuoteRaw.toLowerCase());
   let rawEndExclusive: number;
   if (rawStartIndex === -1) {
@@ -311,7 +321,13 @@ function serializeNodeSubtreeToMarkdown(node: LexicalNode, editor: LexicalEditor
     return generated;
   });
 
-  return htmlToMarkdown(html);
+  // Replace non-breaking spaces with regular spaces before serialization.
+  // turndown otherwise emits nbsp inside emphasis wrappers (e.g.
+  // `**word1<nbsp>word2**`), which subsequent markdown parsing strips out
+  // entirely, producing concatenated words ("word1word2") in the markdown the
+  // agent sees and matches against. Treating nbsp as a regular space keeps
+  // the word boundary intact.
+  return htmlToMarkdown(html.replace(/\u00A0/g, " "));
 }
 
 function collectSubtreeNodes(rootNode: LexicalNode): Array<{ node: LexicalNode, depth: number }> {
@@ -349,7 +365,10 @@ export function buildNodeMarkdownMapForSubtree(rootNodeKey: string, textFilter?:
   const byKey = new Map<string, NodeMarkdownEntry>();
   for (const { node, depth } of collectSubtreeNodes(rootNode)) {
     if (textFilter) {
-      const textContent = normalizeText(node.getTextContent());
+      // Apply the same cosmetic-punctuation normalization to both sides so a
+      // smart-quote/nbsp document doesn't reject ASCII filter strings (and
+      // vice versa) during this fast-path skip check.
+      const textContent = normalizeText(normalizeQuoteCharacters(node.getTextContent()));
       // Skip nodes whose text content is non-empty and clearly doesn't contain
       // the filter. Nodes with empty text content (e.g. decorator/math nodes)
       // are kept to avoid false negatives.
@@ -406,14 +425,19 @@ export function locateMarkdownQuoteSelectionInSubtree({
   markdownQuote: string
   mapResult?: NodeMarkdownMapResult
 }): MarkdownQuoteSelectionResult {
-  const normalizedQuote = normalizeText(markdownQuote);
-  const normalizedQuoteMarkdownInsensitive = toPlainTextFilter(markdownQuote);
-  const normalizedQuoteMarkerStyleInsensitive = normalizeForSemanticMatch(markdownQuote);
+  // Normalize cosmetic punctuation (smart quotes, non-breaking spaces) on
+  // both sides of the comparison. The agent often quotes with ASCII
+  // punctuation even when the document was written with smart quotes (or
+  // vice versa); without this, those quotes never match.
+  const quoteForMatching = normalizeQuoteCharacters(markdownQuote);
+  const normalizedQuote = normalizeText(quoteForMatching);
+  const normalizedQuoteMarkdownInsensitive = toPlainTextFilter(quoteForMatching);
+  const normalizedQuoteMarkerStyleInsensitive = normalizeForSemanticMatch(quoteForMatching);
   if (!normalizedQuote) {
     return { found: false, reason: "Quote was empty after normalization." };
   }
 
-  const plainTextFilter = toPlainTextFilter(markdownQuote);
+  const plainTextFilter = toPlainTextFilter(quoteForMatching);
   const mapping = mapResult ?? buildNodeMarkdownMapForSubtree(rootNodeKey, plainTextFilter);
   if (mapping.entries.length === 0) {
     return { found: false, reason: "No nodes found for subtree." };
@@ -421,7 +445,8 @@ export function locateMarkdownQuoteSelectionInSubtree({
 
   const candidates = mapping.entries
     .filter(({ markdown }) => {
-      const normalizedCandidate = normalizeText(markdown);
+      const candidateForMatching = normalizeQuoteCharacters(markdown);
+      const normalizedCandidate = normalizeText(candidateForMatching);
       if (normalizedCandidate.includes(normalizedQuote)) {
         return true;
       }
@@ -432,7 +457,7 @@ export function locateMarkdownQuoteSelectionInSubtree({
       if (!normalizedQuoteMarkdownInsensitive) {
         return false;
       }
-      return toPlainTextFilter(markdown).includes(normalizedQuoteMarkdownInsensitive);
+      return toPlainTextFilter(candidateForMatching).includes(normalizedQuoteMarkdownInsensitive);
     })
     .sort((a, b) => b.depth - a.depth || a.markdown.length - b.markdown.length);
 
@@ -461,7 +486,13 @@ export function locateMarkdownQuoteSelectionInSubtree({
 
     if ($isTextNode(node)) {
       const rawNodeText = node.getTextContent();
-      const textMatchIdx = rawNodeText.toLowerCase().indexOf(markdownQuote.toLowerCase());
+      // For text-node lookups, normalize cosmetic punctuation on both sides.
+      // Both `normalizeQuoteCharacters` calls preserve character count, so
+      // the offsets we compute against `rawNodeMatchText` are valid offsets
+      // into `rawNodeText` for the Lexical selection.
+      const rawNodeMatchText = normalizeQuoteCharacters(rawNodeText);
+      const quoteForLookup = normalizeQuoteCharacters(markdownQuote);
+      const textMatchIdx = rawNodeMatchText.toLowerCase().indexOf(quoteForLookup.toLowerCase());
       if (textMatchIdx >= 0) {
         return {
           found: true,
@@ -475,15 +506,15 @@ export function locateMarkdownQuoteSelectionInSubtree({
           },
           focus: {
             key: node.getKey(),
-            offset: textMatchIdx + markdownQuote.length,
+            offset: textMatchIdx + quoteForLookup.length,
             type: "text",
           },
         };
       }
 
-      const markdownInsensitiveQuote = stripSimpleMarkdownPunctuation(markdownQuote);
+      const markdownInsensitiveQuote = stripSimpleMarkdownPunctuation(quoteForLookup);
       const markdownInsensitiveMatchIdx = markdownInsensitiveQuote
-        ? rawNodeText.toLowerCase().indexOf(markdownInsensitiveQuote.toLowerCase())
+        ? rawNodeMatchText.toLowerCase().indexOf(markdownInsensitiveQuote.toLowerCase())
         : -1;
       if (markdownInsensitiveMatchIdx >= 0) {
         return {
