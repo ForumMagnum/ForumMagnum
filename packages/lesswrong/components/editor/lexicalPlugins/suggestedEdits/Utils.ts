@@ -5,6 +5,7 @@ import { $isImageCaptionNode, $isImageNode, $isImageRenderNode } from '@/compone
 import type { ProtonNode } from './ProtonNode'
 import { $isSuggestionNode, $createSuggestionNode } from './ProtonNode'
 import { $findMatchingParent, $insertFirst } from '@lexical/utils'
+import { $splitNodeAtPoint } from '@/lib/vendor/proton/splitNodeAtPoint'
 import type { Logger } from '@/lib/vendor/proton/logger'
 import type { TableCellNode, TableRowNode } from '@lexical/table'
 import { $isTableNode } from '@lexical/table'
@@ -213,6 +214,71 @@ export function $wrapSelectionInSuggestionNode(
   }
 
   return createdMarkNodes
+}
+
+/**
+ * Insert an inline suggestion node at the selection's focus, preserving
+ * non-suggestion inline ancestors (e.g. LinkNode).
+ *
+ * `RangeSelection.insertNodes` walks up splitting every ancestor until it
+ * reaches a block element (see `$removeTextAndSplitBlock` in Lexical). For
+ * an inline insertion that lands inside a link, this splits the link in two
+ * and the inserted node ends up between the halves -- the bug Luc Brinkman
+ * filed on 2026-03-31, where a replace suggestion (delete+insert) inside a
+ * hyperlink broke the hyperlink and left the inserted text outside it.
+ *
+ * This helper walks up from the focus splitting text nodes and suggestion
+ * wrappers as usual, but stops when it reaches either a block element or a
+ * non-suggestion inline element. The new node is inserted at the reached
+ * offset inside that container, so the enclosing link (or other inline
+ * wrapper) stays intact.
+ *
+ * The selection is moved to the end of the inserted node to match
+ * `RangeSelection.insertNodes` behavior for inline insertion.
+ */
+export function $insertInlineSuggestionNode(selection: RangeSelection, nodeToInsert: ProtonNode): void {
+  let node: LexicalNode = selection.focus.getNode()
+  let offset = selection.focus.offset
+
+  // Walk up through text nodes and inline ProtonNode wrappers, splitting at
+  // each level. Stop at the first ancestor that is either a block element or
+  // a non-suggestion inline element (e.g. LinkNode), so we don't split it.
+  while (true) {
+    if ($isElementNode(node)) {
+      if (!node.isInline()) {
+        // Block element -- safe to insert at the current offset
+        break
+      }
+      if (!$isSuggestionNode(node)) {
+        // Non-suggestion inline element (e.g. LinkNode). Insert inside it
+        // rather than splitting it in half.
+        break
+      }
+    }
+
+    const prevNode = node
+    const [newNode, newOffset] = $splitNodeAtPoint(node, offset)
+    if (prevNode.is(newNode)) {
+      break
+    }
+    node = newNode
+    offset = newOffset
+  }
+
+  if (!$isElementNode(node)) {
+    // Fallback: shouldn't happen in practice, but insert as a sibling if we
+    // somehow didn't reach an element.
+    node.insertAfter(nodeToInsert)
+  } else {
+    const children = node.getChildren()
+    if (offset >= children.length) {
+      node.append(nodeToInsert)
+    } else {
+      children[offset].insertBefore(nodeToInsert)
+    }
+  }
+
+  nodeToInsert.selectEnd()
 }
 
 /**

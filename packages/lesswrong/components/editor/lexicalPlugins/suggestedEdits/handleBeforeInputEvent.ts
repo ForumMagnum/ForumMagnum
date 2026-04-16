@@ -35,6 +35,7 @@ import {
   $getPreviousNonInlineLeafElement,
   $isSelectionCollapsedAtStartOfElement,
   $isEmptyListItemExceptForSuggestions,
+  $insertInlineSuggestionNode,
 } from './Utils'
 import { $generateNodesFromDOM } from '@lexical/html'
 import type { Logger } from '@/lib/vendor/proton/logger'
@@ -670,7 +671,7 @@ function $handleInsertTextData(
 
   const suggestionNode = $createSuggestionNode(suggestionID, 'insert')
   suggestionNode.append(textNode)
-  selection.insertNodes([suggestionNode])
+  $insertInlineSuggestionNode(selection, suggestionNode)
 
   logger.info('Created and inserted new insert suggestion')
 

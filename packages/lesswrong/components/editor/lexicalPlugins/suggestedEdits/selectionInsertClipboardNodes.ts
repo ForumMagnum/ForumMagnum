@@ -9,7 +9,7 @@ import {
 } from 'lexical'
 import { randomId } from '@/lib/random'
 import { $createSuggestionNode, $isSuggestionNode } from './ProtonNode'
-import { $getDeleteSuggestionType, $wrapSelectionInSuggestionNode, $isNodeNotInline } from './Utils'
+import { $getDeleteSuggestionType, $wrapSelectionInSuggestionNode, $isNodeNotInline, $insertInlineSuggestionNode } from './Utils'
 import type { Logger } from '@/lib/vendor/proton/logger'
 
 /**
@@ -85,7 +85,7 @@ export function $selectionInsertClipboardNodes(
   if (allNodesAreInline) {
     const suggestionNode = $createSuggestionNode(suggestionID, 'insert')
     suggestionNode.append(...nodes)
-    latestSelection.insertNodes([suggestionNode])
+    $insertInlineSuggestionNode(latestSelection, suggestionNode)
     logger.info('Appended all nodes as one suggestion node as all nodes were inline')
     const prevSibling = suggestionNode.getPreviousSibling()
     const nextSibling = suggestionNode.getNextSibling()
