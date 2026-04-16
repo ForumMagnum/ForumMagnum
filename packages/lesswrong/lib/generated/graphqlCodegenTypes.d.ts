@@ -1309,7 +1309,6 @@ type CreateLWEventDataInput = {
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   name: Scalars['String']['input'];
   properties?: InputMaybe<Scalars['JSON']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type CreateLWEventInput = {
@@ -1389,7 +1388,6 @@ type CreateMultiDocumentDataInput = {
   tabSubtitle?: InputMaybe<Scalars['String']['input']>;
   tabTitle: Scalars['String']['input'];
   title?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type CreateMultiDocumentInput = {
@@ -1400,7 +1398,6 @@ type CreatePetrovDayActionDataInput = {
   actionType: Scalars['String']['input'];
   data?: InputMaybe<Scalars['JSON']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  userId: Scalars['String']['input'];
 };
 
 type CreatePetrovDayActionInput = {
@@ -1559,7 +1556,6 @@ type CreateReportDataInput = {
   postId?: InputMaybe<Scalars['String']['input']>;
   reportedAsSpam?: InputMaybe<Scalars['Boolean']['input']>;
   reportedUserId?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type CreateReportInput = {
@@ -1890,7 +1886,6 @@ type CreateUserMostValuablePostDataInput = {
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   postId: Scalars['String']['input'];
-  userId: Scalars['String']['input'];
 };
 
 type CreateUserMostValuablePostInput = {
@@ -1917,7 +1912,6 @@ type CreateUserTagRelDataInput = {
   subforumHideIntroPost?: InputMaybe<Scalars['Boolean']['input']>;
   subforumShowUnreadInSidebar?: InputMaybe<Scalars['Boolean']['input']>;
   tagId: Scalars['String']['input'];
-  userId: Scalars['String']['input'];
 };
 
 type CreateUserTagRelInput = {
@@ -13029,19 +13023,6 @@ type multiCommentCommentsListCondensedQueryQueryVariables = Exact<{
 
 
 type multiCommentCommentsListCondensedQueryQuery = multiCommentCommentsListCondensedQueryQuery_Query;
-
-type HeaderEventSubtitleSpotlightQueryQuery_currentSpotlight_Spotlight = (
-  { __typename?: 'Spotlight' }
-  & SpotlightHeaderEventSubtitle
-);
-
-type HeaderEventSubtitleSpotlightQueryQuery_Query = { __typename?: 'Query', currentSpotlight: HeaderEventSubtitleSpotlightQueryQuery_currentSpotlight_Spotlight | null };
-
-
-type HeaderEventSubtitleSpotlightQueryQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-type HeaderEventSubtitleSpotlightQueryQuery = HeaderEventSubtitleSpotlightQueryQuery_Query;
 
 type MyHomePageDesignSummariesQuery_myHomePageDesignSummaries_HomePageDesignSummary = { __typename?: 'HomePageDesignSummary', publicId: string, title: string, createdAt: string };
 

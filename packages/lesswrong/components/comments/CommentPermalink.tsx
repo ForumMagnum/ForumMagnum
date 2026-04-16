@@ -2,7 +2,6 @@ import React from 'react';
 import { commentIsHiddenPendingReview } from '../../lib/collections/comments/helpers';
 import { postGetPageUrl } from '../../lib/collections/posts/helpers';
 import { isLWorAF, commentPermalinkStyleSetting } from '@/lib/instanceSettings';
-import { isNotRandomId } from '@/lib/random';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
@@ -64,7 +63,6 @@ const CommentPermalink = ({
 
   const { data, loading, error, refetch } = useQuery(CommentWithRepliesFragmentQuery, {
     variables: { documentId: documentId },
-    skip: isNotRandomId(documentId),
   });
   const comment = data?.comment?.result;
 

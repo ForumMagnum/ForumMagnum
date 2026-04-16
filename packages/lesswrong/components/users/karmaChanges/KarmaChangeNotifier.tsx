@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Paper }from '@/components/widgets/Paper';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import { Badge } from "@/components/widgets/Badge";
@@ -59,8 +59,10 @@ const KarmaChangesCheckedMutation = gql(`
   }
 `);
 
-const KarmaChangeNotifierLoaded = ({className}: {
+const KarmaChangeNotifierLoaded = ({className, onOpen, notificationOpen}: {
   className?: string,
+  onOpen?: () => void,
+  notificationOpen?: boolean,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser()!;
@@ -70,17 +72,25 @@ const KarmaChangeNotifierLoaded = ({className}: {
   const anchorEl = useRef<HTMLDivElement|null>(null)
   const { captureEvent } = useTracking()
   const [karmaChangeLastOpened, setKarmaChangeLastOpened] = useState(currentUser?.karmaChangeLastOpened || new Date());
-  
+
   const { data } = useSuspenseQuery(UserKarmaChangesQuery, {
     variables: { documentId: currentUser._id },
   });
   const document = data?.user?.result;
-  
+
   const [stateKarmaChanges,setStateKarmaChanges] = useState(document?.karmaChanges);
+
+  // Close karma panel (without marking as read) when notifications panel opens
+  useEffect(() => {
+    if (notificationOpen) {
+      setOpen(false);
+    }
+  }, [notificationOpen]);
 
   const handleOpen = () => {
     setOpen(true);
     setKarmaChangeLastOpened(new Date());
+    onOpen?.();
   }
 
   const handleClose = () => {
@@ -168,8 +178,10 @@ const KarmaChangeNotifierPlaceholder = ({className}: {
   </div>
 }
 
-export const KarmaChangeNotifier = ({className}: {
+export const KarmaChangeNotifier = ({className, onOpen, notificationOpen}: {
   className?: string,
+  onOpen?: () => void,
+  notificationOpen?: boolean,
 }) => {
   // We no-ssr the KarmaChangeNotifier in the case where we aren't hitting a route we recognize
   // to prevent SSRs caused by 404s from executing the karma change queries if the client doesn't
@@ -187,7 +199,7 @@ export const KarmaChangeNotifier = ({className}: {
       fallback={<KarmaChangeNotifierPlaceholder className={className}/>}
     >
       <DeferRender ssr={shouldSSR} fallback={<KarmaChangeNotifierPlaceholder className={className}/>}>
-        <KarmaChangeNotifierLoaded className={className}/>
+        <KarmaChangeNotifierLoaded className={className} onOpen={onOpen} notificationOpen={notificationOpen}/>
       </DeferRender>
     </SuspenseWrapper>
     </ErrorBoundary>

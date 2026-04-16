@@ -1,4 +1,4 @@
-import React, {ComponentProps, useState, useEffect, useRef, useMemo, Suspense} from 'react';
+import React, {useState, useEffect, useRef, useMemo, Suspense} from 'react';
 import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser'
 import withErrorBoundary from '../common/withErrorBoundary'
@@ -84,7 +84,7 @@ const styles = defineStyles('CommentsNewForm', (theme: ThemeType) => ({
     color: theme.palette.text.dim2,
   },
   moderationGuidelinesWrapper: {
-    backgroundColor: theme.palette.panelBackground.newCommentFormModerationGuidelines,
+    backgroundColor: theme.palette.greyAlpha(.07),
   }
 }));
 
@@ -96,7 +96,7 @@ export type CommentCancelCallback = (...args: unknown[]) => void | Promise<void>
 
 const shouldOpenNewUserGuidelinesDialog = (
   maybeProps: { user: UsersCurrent | null, post?: PostsMinimumInfo }
-): maybeProps is Omit<ComponentProps<typeof NewUserGuidelinesDialog>, "onClose"> => {
+): maybeProps is { user: UsersCurrent, post: PostsMinimumInfo } => {
   const { user, post } = maybeProps;
   return !!user && requireNewUserGuidelinesAck(user) && !!post;
 };
@@ -189,7 +189,7 @@ const CommentsNewForm = ({prefilledProps={}, post, tag, tagCommentType="DISCUSSI
           name: 'NewUserGuidelinesDialog',
           contents: ({onClose}) => <NewUserGuidelinesDialog
             onClose={onClose}
-            {...dialogProps}
+            post={dialogProps.post}
           />
         });
       }

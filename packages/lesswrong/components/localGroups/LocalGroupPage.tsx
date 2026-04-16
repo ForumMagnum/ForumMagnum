@@ -374,10 +374,10 @@ const LocalGroupPage = ({ documentId: groupId }: {
             {!isEAForum() && <div className={classes.groupOrganizers}>
               <Person className={classes.organizersIcon}/>
               <div className={classes.organizedBy}>
-                Organized by: {group.organizers.map((user, i) => <>
+                Organized by: {group.organizers.map((user, i) => <React.Fragment key={user._id}>
                   {(i>0) && <>,&nbsp;</>}
                   <UsersNameDisplay user={user} tooltipPlacement="bottom-start"/>
-                </>)}
+                </React.Fragment>)}
               </div>
             </div>}
 

@@ -23,7 +23,6 @@ const ReportPostDropdownItem = ({post}: {post: PostsBase}) => {
         onClose={onClose}
         postId={post._id}
         link={"/posts/" + post._id}
-        userId={currentUser._id}
       />
     });
   }

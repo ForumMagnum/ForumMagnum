@@ -1148,11 +1148,26 @@ export async function oldPostsLastCommentedAt(post: DbPost, context: ResolverCon
 }
 
 export async function maybeCreateAutomatedContentEvaluation(post: DbPost, oldPost: DbPost, context: ResolverContext) {
-  const shouldEvaluate = isLW() && !post.draft && oldPost.draft;
-  if (shouldEvaluate) {
+  if (shouldPerformAutomatedContentEvaluationOnPost(post, oldPost, context)) {
     const revision = await getLatestContentsRevision(post, context);
     if (revision) {
       await createAutomatedContentEvaluation(revision, context, { autoreject: true });
     }
   }
+}
+
+function shouldPerformAutomatedContentEvaluationOnPost(post: DbPost, oldPost: DbPost, context: ResolverContext) {
+  //Only when undrafting
+  if (post.draft || !oldPost.draft) return false;
+
+  // Skip for AF
+  if (!isLW()) return false;
+
+  // Not for event posts (which can legitimately have trivial bodies)
+  if (post.isEvent) return false;
+
+  // Not during unit or playwright tests
+  if (isAnyTest) return false;
+
+  return true;
 }

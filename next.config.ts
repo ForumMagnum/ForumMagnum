@@ -36,14 +36,16 @@ function loadTsConfig(configPath: string) {
   }
 }
 
+const isE2E = (process.env.E2E === "true");
+
 /** @type {NextConfig} */
 const nextConfig: NextConfig = {
-  cacheComponents: true,
+  cacheComponents: !isE2E,
   reactStrictMode: false,
 
   compiler: {
     define: {
-      ...(process.env.E2E === 'true' ? { 'process.env.E2E': 'true' } : {}),
+      ...(isE2E ? { 'process.env.E2E': 'true' } : {}),
       'process.env.FORUM_TYPE': process.env.FORUM_TYPE ?? 'LessWrong',
       ...(process.env.VERCEL_DEPLOYMENT_ID ? { 'process.env.VERCEL_DEPLOYMENT_ID': 'true' } : {}),
       ...(process.env.HOCUSPOCUS_URL ? { 'process.env.NEXT_PUBLIC_HOCUSPOCUS_URL': process.env.HOCUSPOCUS_URL } : {}),
@@ -237,7 +239,7 @@ module.exports = nextConfig;
 // eslint-disable-next-line no-restricted-imports
 import { withSentryConfig } from "@sentry/nextjs";
 
-module.exports = process.env.E2E ? module.exports : withSentryConfig(
+module.exports = isE2E ? module.exports : withSentryConfig(
   module.exports,
   {
     // For all available options, see:

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
+import isEqual from 'lodash/isEqual';
 import moment from '../../lib/moment-timezone';
 import classNames from 'classnames';
 import { getDateRange, loadMoreTimeframeMessages, timeframeToRange, timeframeToTimeBlock, TimeframeType } from './timeframeUtils'
@@ -20,6 +21,17 @@ const styles = defineStyles('PostsTimeframeList', (theme: ThemeType) => ({
   }
 }))
 
+// Returns a reference-stable copy of `value` that only changes when `value`
+// changes by deep equality, so it can be used as a hook dependency without
+// firing on every render when parents pass freshly-built object literals.
+function useDeepMemo<T>(value: T): T {
+  const ref = useRef(value);
+  if (!isEqual(ref.current, value)) {
+    ref.current = value;
+  }
+  return ref.current;
+}
+
 const PostsTimeframeList = ({after, before, timeframe, numTimeBlocks, postListParameters, dimWhenLoading, reverse, shortform, includeTags=true}: {
   after: Date|string,
   before: Date|string,
@@ -38,12 +50,19 @@ const PostsTimeframeList = ({after, before, timeframe, numTimeBlocks, postListPa
   const [beforeState,setBeforeState] = useState(before);
   const [afterState,setAfterState] = useState(after);
 
+  // `postListParameters` is re-created as a fresh object on every parent
+  // render (e.g. opening the settings panel), so depending on it directly
+  // with reference equality would make the effect below fire spuriously,
+  // re-dimming the list with no actual reload in progress. Stabilize the
+  // reference via deep equality so we only react to real changes.
+  const stablePostListParameters = useDeepMemo(postListParameters);
+
   useOnPropsChanged(() => {
     setBeforeState(before);
     setAfterState(after);
     setDim(!!dimWhenLoading);
     setDisplayedNumTimeBlocks(numTimeBlocks);
-  }, [before, after, timeframe, postListParameters]);
+  }, [before, after, timeframe, stablePostListParameters]);
   
   const loadMoreTimeBlocks = (e: React.MouseEvent) => {
     e.preventDefault();

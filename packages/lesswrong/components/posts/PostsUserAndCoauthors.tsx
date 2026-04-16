@@ -37,7 +37,7 @@ const styles = defineStyles("PostsUserAndCoauthors", (theme: ThemeType) => ({
   topAuthorIcon: {
     width: 12,
     height: 12,
-    color: theme.palette.icon.topAuthor,
+    color: theme.palette.grey[340],
     position: "relative",
     top: 2,
     marginRight: 4,

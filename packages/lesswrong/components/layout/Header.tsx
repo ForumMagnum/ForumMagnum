@@ -2,7 +2,6 @@ import React, { use, createContext, useContext, useState, useCallback, useEffect
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { Link } from '../../lib/reactRouterWrapper';
 import Headroom from '../../lib/react-headroom'
-import Toolbar from '@/lib/vendor/@material-ui/core/src/Toolbar';
 import IconButton from '@/lib/vendor/@material-ui/core/src/IconButton';
 import TocIcon from '@/lib/vendor/@material-ui/icons/src/Toc';
 import { useCurrentUserId, useFilteredCurrentUser, useGetCurrentUser } from '../common/withUser';
@@ -49,22 +48,10 @@ const textColorOverrideStyles = ({
   theme,
   color,
   contrastColor,
-  loginButtonBackgroundColor,
-  loginButtonHoverBackgroundColor,
-  loginButtonColor,
-  signupButtonBackgroundColor,
-  signupButtonHoverBackgroundColor,
-  signupButtonColor,
 }: {
   theme: ThemeType,
   color: string,
   contrastColor?: string,
-  loginButtonBackgroundColor?: string,
-  loginButtonHoverBackgroundColor?: string,
-  loginButtonColor?: string,
-  signupButtonBackgroundColor?: string,
-  signupButtonHoverBackgroundColor?: string,
-  signupButtonColor?: string,
 }) => ({
   color,
   boxShadow: 'none',
@@ -102,17 +89,17 @@ const textColorOverrideStyles = ({
     color,
   },
   "& .EAButton-variantContained": {
-    backgroundColor: signupButtonBackgroundColor ?? color,
-    color: signupButtonColor ?? contrastColor,
+    backgroundColor: color,
+    color: contrastColor,
     "&:hover": {
-      backgroundColor: signupButtonHoverBackgroundColor ?? `color-mix(in oklab, ${signupButtonBackgroundColor ?? color} 90%, ${signupButtonColor ?? contrastColor})`,
+      backgroundColor: `color-mix(in oklab, ${color} 90%, ${contrastColor})`,
     },
   },
   "& .EAButton-greyContained": {
-    backgroundColor: loginButtonBackgroundColor ?? `color-mix(in oklab, ${loginButtonColor ?? color} 15%, ${contrastColor})`,
-    color: loginButtonColor ?? color,
+    backgroundColor: `color-mix(in oklab, ${color} 15%, ${contrastColor})`,
+    color: color,
     "&:hover": {
-      backgroundColor: loginButtonHoverBackgroundColor ?? `color-mix(in oklab, ${loginButtonColor ?? color} 10%, ${theme.palette.background.transparent}) !important`,
+      backgroundColor: `color-mix(in oklab, ${color} 10%, ${theme.palette.background.transparent}) !important`,
     },
   },
 });
@@ -154,6 +141,18 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
     flexShrink: 0,
     flexDirection: "column",
   },
+  toolbar: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    paddingLeft: 16,
+    paddingRight: 16,
+    [theme.breakpoints.up('sm')]: {
+      paddingLeft: 24,
+      paddingRight: 24,
+    },
+    minHeight: "var(--header-height)",
+  },
   appBarDarkBackground: {
     ...textColorOverrideStyles({
       theme,
@@ -172,20 +171,13 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
       display: "none"
     }
   },
-  titleSubtitleContainer: {
-    display: 'flex',
-    alignItems: 'center'
-  },
-  titleFundraiserContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
   title: {
-    flex: 1,
+    display: "flex",
+    overflow: "hidden",
+    flexGrow: 1,
+    flexShrink: 1,
     position: "relative",
     top: 3,
-    paddingRight: 8,
     color: theme.palette.text.secondary,
   },
   titleLink: {
@@ -228,6 +220,11 @@ export const styles = defineStyles("Header", (theme: ThemeType) => ({
   },
   hideXsDown: {
     [theme.breakpoints.down('xs')]: {
+      display: "none !important",
+    },
+  },
+  hideSmUp: {
+    [theme.breakpoints.up('sm')]: {
       display: "none !important",
     },
   },
@@ -493,7 +490,10 @@ const Header = ({
           <UsersMenu />
         </AnalyticsContext>
       </div>
-      <KarmaChangeNotifier />
+      <KarmaChangeNotifier
+        onOpen={() => void handleSetNotificationDrawerOpen(false)}
+        notificationOpen={notificationOpen}
+      />
       <NotificationsMenuButton
         toggle={handleNotificationToggle}
         open={notificationOpen}
@@ -550,27 +550,22 @@ const Header = ({
             )}
             style={headerStyle}
           >
-            <Toolbar>
+            <div className={classes.toolbar}>
               {navigationMenuButton}
-              <Typography className={classes.title} variant="title">
-                <div className={classes.hideSmDown}>
-                  <div className={classes.titleSubtitleContainer}>
-                    <div className={classes.titleFundraiserContainer}>
-                      <Link to="/" className={classes.titleLink}>
-                        {forumHeaderTitleSetting.get()}
-                      </Link>
-                    </div>
-                    <HeaderSubtitle />
-                  </div>
-                </div>
-                <div className={classNames(classes.hideMdUp, classes.titleFundraiserContainer)}>
-                  <Link to="/" className={classes.titleLink}>
-                    {forumShortTitleSetting.get()}
-                  </Link>
-                </div>
+
+              <Typography className={classNames(classes.title, classes.hideXsDown)} variant="title">
+                <Link to="/" className={classes.titleLink}>
+                  {forumHeaderTitleSetting.get()}
+                </Link>
+                <HeaderSubtitle />
+              </Typography>
+              <Typography className={classNames(classes.title, classes.hideSmUp)} variant="title">
+                <Link to="/" className={classes.titleLink}>
+                  {forumShortTitleSetting.get()}
+                </Link>
               </Typography>
               {rightHeaderItemsNode}
-            </Toolbar>
+            </div>
           </header>
           {headerNavigationDrawer}
         </Headroom>

@@ -87,11 +87,33 @@
 
 import { grey, greyAlpha, inverseGreyAlpha, primaryAlpha, boxShadowColor, greyBorder, invertIfDarkMode } from "./colorUtil";
 import { isBlackBarTitle } from '../components/seasonal/petrovDay/petrov-day-story/petrovConsts';
+import { isAF } from '@/lib/instanceSettings';
 
 export const sansSerifStack = [
   'GreekFallback', // Ensures that greek letters render consistently
   'Calibri',
   'gill-sans-nova',
+  '"Gill Sans"',
+  '"Gill Sans MT"',
+  "Myriad Pro",
+  'Myriad',
+  '"Liberation Sans"',
+  '"Nimbus Sans L"',
+  'Tahoma',
+  'Geneva',
+  '"Helvetica Neue"',
+  'Helvetica',
+  'Arial',
+  'sans-serif'
+].join(',')
+
+const afSansSerifStack = [
+  'GreekFallback', // Ensures that greek letters render consistently
+  '"freight-sans-pro"',
+  'Frutiger',
+  '"Frutiger Linotype"',
+  'Univers',
+  'Calibri',
   '"Gill Sans"',
   '"Gill Sans MT"',
   "Myriad Pro",
@@ -119,7 +141,7 @@ const serifStackBody = [
 export const serifStack = serifStackBody.join(',')
 export const headerStack = ["ETBookRoman", ...serifStackBody].join(',')
 
-export const defaultComponentPalette = (dark: boolean) => ({
+export const defaultComponentPalette = (dark: boolean, isAF: boolean) => ({
   type: dark ? "dark" : "light",
   grey,
   greyAlpha,
@@ -129,8 +151,24 @@ export const defaultComponentPalette = (dark: boolean) => ({
   greyBorder,
   invertIfDarkMode,
   fonts: {
-    sansSerifStack,
-    serifStack,
+    sansSerifStack: isAF ? afSansSerifStack : sansSerifStack,
+    serifStack: isAF ? afSansSerifStack : serifStack,
+    headerStack: isAF ? afSansSerifStack : headerStack,
+  },
+  typography: {
+    postStyle: {
+      fontVariantNumeric: isAF ? "lining-nums" : undefined,
+    },
+    commentStyle: {
+      fontVariantNumeric: isAF ? "lining-nums" : undefined,
+      '& b, & strong': isAF ? undefined : { fontWeight: 600 },
+    },
+    display2: {
+      fontWeight: isAF ? 500 : 400,
+    },
+    display3: {
+      fontWeight: isAF ? 500 : 400,
+    },
   },
   text: {
     primary: greyAlpha(.87),
@@ -209,9 +247,9 @@ export const defaultComponentPalette = (dark: boolean) => ({
     grey800: grey[800],
     tocLink: grey[600],
     tocLinkHighlighted: grey[1000],
-    color: "light-dark(#327E09,#788e6a)",
+    color: isAF ? "light-dark(#3f51b5,#7581d1)" : "light-dark(#327E09,#788e6a)",
     primaryDim: "light-dark(#5caab7,#3a7883)",
-    visited: "#798754",
+    visited: isAF ? "light-dark(#8c4298,#798754)" : "#798754",
   },
   linkHover: {
     dim: greyAlpha(.3),
@@ -237,11 +275,8 @@ export const defaultComponentPalette = (dark: boolean) => ({
     loadingDots: greyAlpha(.55),
     loadingDotsAlternate: grey[0],
     horizRuleDots: greyAlpha(.26),
-    greenCheckmark: "#4caf50",
-    filledGreenCheckmark: "#5ECE79",
     onTooltip: "#fff",
     inverted: grey[0],
-    topAuthor: grey[340],
     navigationSidebarIcon: greyAlpha(1.0),
     sprout: '#69886e',
     yellow: '#ffc500',
@@ -274,11 +309,8 @@ export const defaultComponentPalette = (dark: boolean) => ({
     grey400: `1px solid ${grey[400]}`,
     grey800: `1px solid ${grey[800]}`,
     maxIntensity: greyBorder("1px", 1.0),
-    tableHeadingDivider: greyBorder("2px", 1.0),
     table: `1px double ${grey[410]}`,
-    tableCell: `1px double ${grey[320]}`,
     transparent: greyBorder("1px", 0.0),
-    emailHR: "1px solid #aaa",
     sunshineNewUsersInfoHR: "1px solid #ccc",
     appBarSubtitleDivider: `1px solid ${grey[400]}`,
     commentBorder: "1px solid light-dark(rgba(72,94,144,0.16),rgba(255,255,255,.2))",
@@ -289,12 +321,10 @@ export const defaultComponentPalette = (dark: boolean) => ({
     secondaryHighlight: "light-dark(#aedba3,#3e503a)",
     secondaryHighlight2: "light-dark(#d8edd3,#3e503a)",
     primaryTranslucent: 'rgba(12,134,155,.7)',
-    dashed500: `dashed 1px ${grey[500]}`,
     mentionsBaloon: "light-dark(#c4c4c4,#f5f5f5)",
-    eaButtonGreyOutline: "light-dark(#BCC1C9,#5F5F5F)",
   },
   background: {
-    default: "light-dark(#f8f4ee,#262626)",
+    default: isAF ? (dark ? grey[100] : grey[60]) : "light-dark(#f8f4ee,#262626)",
     paper: grey[0], //Used by MUI
     contrastInDarkMode: "light-dark(#ffffff,#f5f5f5)",
     pageActiveAreaBackground: grey[0],
@@ -302,10 +332,8 @@ export const defaultComponentPalette = (dark: boolean) => ({
     hover: '#f0ebe6',
     translucentBackground: "light-dark(rgba(255,255,255,.5),rgba(0,0,0,.5))",
     translucentBackgroundHeavy: "light-dark(rgba(255,255,255,.75),rgba(0,0,0,.75))",
-    loginBackdrop: "rgba(217,217,217,0.5)",
     diffInserted: "light-dark(#d4ead4,#205120)",
     diffDeleted: "light-dark(#f0d3d3,#b92424)",
-    usersListItem: greyAlpha(.05),
     primaryDim: "light-dark(#e2f1f4,#28383e)",
     primarySlightlyDim: "light-dark(#d1ecf1,#00494e)",
     primaryTranslucent: "light-dark(rgba(95,155,101,0.1),rgba(99,141,103,0.3))",
@@ -314,7 +342,6 @@ export const defaultComponentPalette = (dark: boolean) => ({
     // this is used to address a specific iOS Safari-related issue with linear-gradient:
     // https://stackoverflow.com/questions/70446857/safari-linear-gradient
     transparent: inverseGreyAlpha(0),
-    imageOverlay: 'rgba(0,0,0,0.4)',
     digestAdBannerInput: dark ? grey[300] : grey[0],
     glossaryBackground: "light-dark(rgba(190,120,80,.05),rgba(180,160,160,.1))",
     sidenoteBackground: "light-dark(rgba(190,120,80,.05),rgba(180,160,160,.1))",
@@ -339,10 +366,7 @@ export const defaultComponentPalette = (dark: boolean) => ({
     darken25: greyAlpha(.25),
     darken40: greyAlpha(.4),
     
-    adminHomeRecentLogins: "rgba(50,100,50,.1)",
-    adminHomeAllUsers: "rgba(100,50,50,.1)",
     deletedComment: "light-dark(#ffefef,#3a0505)",
-    newCommentFormModerationGuidelines: greyAlpha(.07),
     commentNodeEven: dark ? grey[50] : grey[120],
     commentNodeOdd: grey[25],
     commentNodeRoot: grey[0],
@@ -352,16 +376,12 @@ export const defaultComponentPalette = (dark: boolean) => ({
     metaculusBackground: "#2c3947",
     spoilerBlock: "light-dark(#000,#1b1b1b)",
     revealedSpoilerBlock: greyAlpha(.12),
-    tableHeading: grey[50],
     notificationMenuTabBar: grey[100],
     recentDiscussionThread: "light-dark(#fdfdfd,rgba(0,0,0,0.4))",
     tooltipBackground: "rgba(75,75,75,.94)",
     tooltipBackground2: "#373737",
-    mapboxTooltip: "#fff",
-    modalBackground: "#fff",
     loginInput: "#efefef",
     loginInputHovered: "#e4e4e4",
-    tenPercent: greyAlpha(.1),
     sunshineReportedContent: "rgba(60,0,0,.08)",
     sunshineFlaggedUser: "rgba(150,0,0,.05)",
     sunshineNewPosts: "rgba(0,80,0,.08)",
@@ -382,16 +402,7 @@ export const defaultComponentPalette = (dark: boolean) => ({
     sequencesBanner: greyAlpha(.5),
     cookieBanner: dark ? grey[900] : grey[800],
     strawpoll: "rgba(251, 191, 36, 1)", // Color used by StrawPoll
-    userProfileImageHover: "rgba(0, 0, 0, 0.5)",
-    userProfileImageLoading: `linear-gradient(
-      90deg,
-      rgba(0,0,0,0) 33%,
-      rgba(255,255,255,0.25) 50%,
-      rgba(0,0,0,0) 66%
-    ) ${grey[500]}`,
     reviewGold: 'lch(68 34.48 85.39 / 76%)',
-    onboardingSection: "#f5f5f5",
-    onboardingPodcast: "#e7e7e7",
     placeholderGradient: 'linear-gradient(90deg, #EEE 33%, #E6E6E6 50%, #EEE 66%)',
     tagLensTab: dark ? greyAlpha(.15) : greyAlpha(.1),
     // Banner ad compatibility - backgrounds (set to non-affecting defaults for light mode)
@@ -436,15 +447,6 @@ export const defaultComponentPalette = (dark: boolean) => ({
     recentDiscussionSubscribeButtonText: "#fff",
     featuredResourceCTAtext: "#fff",
     primaryDarkText: "#fff",
-    feedExpandButton: {
-      background: "#fff",
-      plusSign: "#666",
-      border: "1px solid #ddd",
-    },
-    notificationsBellOpen: {
-      background: greyAlpha(0.4),
-      icon: grey[0],
-    },
     
     groupTypesMultiselect: {
       background: "rgba(100,169,105, 0.9)",
@@ -460,7 +462,6 @@ export const defaultComponentPalette = (dark: boolean) => ({
       hoverBackground: 'rgba(0,0,0,0.8)',
     },
     bookCheckoutButton: "#53a55a",
-    eventCardTag: "#CC5500",
     mentions: {
       hover: dark ? grey[100] : "#e6e6e6",
       selected: "light-dark(#198cf0,#0c70c7)",
@@ -529,8 +530,8 @@ export const defaultComponentPalette = (dark: boolean) => ({
     dropdownActiveHoveredBackground: "#ccc",
   },
   review: {
-    activeProgress: 'rgba(127, 175, 131, 0.5)',
-    progressBar: 'rgba(127, 175, 131, 0.7)',
+    activeProgress: isAF ? "rgba(63,81,181, .5)" : 'rgba(127, 175, 131, 0.5)',
+    progressBar: isAF ? "rgba(63,81,181, 1)" : 'rgba(127, 175, 131, 0.7)',
     adminButton: "rgba(200,150,100)",
     winner: "rgba(179, 136, 79, 1)",
   },
@@ -543,17 +544,25 @@ export const defaultComponentPalette = (dark: boolean) => ({
     postBodyScrim: 'rgba(0,0,0,var(--top-posts-page-scrim-opacity))'
   },
   header: {
-    text: greyAlpha(.87),
-    background: dark
-      ? "rgba(50,50,50,.75)"
-      : isBlackBarTitle ? inverseGreyAlpha(.1) : inverseGreyAlpha(.65),
+    text: isAF ? (dark ? "#ffffff" : "rgba(0,0,0,0.87)") : greyAlpha(.87),
+    background: isAF
+      ? (dark ? "rgba(0,0,0,0.5)" : "#ffffff")
+      : (
+        dark
+          ? "rgba(50,50,50,.75)"
+          : isBlackBarTitle ? inverseGreyAlpha(.1) : inverseGreyAlpha(.65)
+      ),
   },
   ultrafeedModalHeader: {
-    background: dark
-      ? "rgba(50,50,50,.98)"
-      : (isBlackBarTitle
-        ? "rgba(255,255,255,.4)"
-        : "rgba(255,255,255,.95)"
+    background: isAF
+      ? (dark ? "rgba(255,255,255,.95)" : "rgba(0,0,0,.98)")
+      : (
+        dark
+          ? "rgba(50,50,50,.98)"
+          : (isBlackBarTitle
+            ? "rgba(255,255,255,.4)"
+            : "rgba(255,255,255,.95)"
+          )
       )
   },
   datePicker: {
@@ -671,20 +680,20 @@ export const defaultComponentPalette = (dark: boolean) => ({
   group: 'rgba(24,68,155,.65)',
   individual: 'rgba(90,90,90,.65)',
   primary: {
-    main: "#5f9b65",
-    dark: "#426c46",
-    light: "#7faf83",
+    main: isAF ? (dark ? "#7581d1" : "#3f51b5") : "#5f9b65",
+    dark: isAF ? (dark ? "#7986cb" : "#303f9f") : "#426c46",
+    light: isAF ? (dark ? "#5968c9" : "#7986cb") : "#7faf83",
     contrastText: grey[0],
   },
   secondary: {
-    main: "#5f9b65",
-    dark: "#426c46",
-    light: "#7faf83",
+    main: isAF ? "#3f51b5" : "#5f9b65",
+    dark: isAF ? "#303f9f" : "#426c46",
+    light: isAF ? "#7986cb" : "#7faf83",
     contrastText: grey[0],
   },
   lwTertiary: {
-    main: "#69886e",
-    dark: "#21672b",
+    main: isAF ? (dark ? "#7799a4" : "#607e88") : "#69886e",
+    dark: isAF ? (dark ? "#7799a4" : "#607e88") : "#21672b",
   },
   action: {
     active: "light-dark(rgba(0, 0, 0, 0.54),#fff)",
@@ -713,7 +722,7 @@ export const defaultComponentPalette = (dark: boolean) => ({
     cardSeparator: dark
       ? `12px solid ${greyAlpha(0.15)}`
       : `12px solid ${greyAlpha(0.005)}`,
-    readBackground: dark ? grey[200] : '#ffffffb3',
+    readBackground: isAF ? (dark ? grey[200] : grey[300]) : (dark ? grey[200] : '#ffffffb3'),
     readBackgroundMobile: grey[100],
     readOpacity: {
       root: dark ? 1 : 0.7,
@@ -722,4 +731,4 @@ export const defaultComponentPalette = (dark: boolean) => ({
       contentMobile: dark ? 1 : 0.7,
     },
   }
-})
+});

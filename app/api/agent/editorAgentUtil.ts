@@ -14,6 +14,7 @@ import { randomId } from "@/lib/random";
 import { sleep } from "@/lib/utils/asyncUtils";
 import { getLatestRev } from "@/server/editor/utils";
 import { captureException } from "@/lib/sentryWrapper";
+import YjsDocuments from "@/server/collections/yjsDocuments/collection";
 
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const INITIAL_SYNC_SETTLE_MS = 25;
@@ -97,11 +98,30 @@ interface EditorTypeCheckResult {
  * Check whether a post uses the Lexical editor. The agent editing API surface
  * only works with Lexical collaborative documents; legacy CKEditor posts must
  * be read via /editPost or /api/editPost instead.
+ *
+ * When a user converts a post from markdown to Lexical in the editor UI, the
+ * Lexical editor opens and syncs to Hocuspocus, but no new revision is saved
+ * until the user actually edits the document. During that window the latest
+ * revision still says "markdown", even though the live document is Lexical.
+ * To handle this, we also check for a YjsDocuments entry -- its existence
+ * means the Lexical collaborative editor has synced state for this post.
  */
 export async function isSupportedEditorType(postId: string, context: ResolverContext): Promise<EditorTypeCheckResult> {
   const rev = await getLatestRev(postId, "contents", context);
   const editorType = rev?.originalContents?.type ?? "unknown";
-  return { supported: editorType === "lexical", editorType };
+  if (editorType === "lexical") {
+    return { supported: true, editorType };
+  }
+
+  // The latest revision isn't Lexical, but the post may have been converted
+  // and opened in the collaborative editor without saving a revision yet.
+  // A YjsDocuments row means Hocuspocus has synced Lexical state for this post.
+  const yjsDoc = await YjsDocuments.findOne({ documentId: postId });
+  if (yjsDoc) {
+    return { supported: true, editorType: "lexical" };
+  }
+
+  return { supported: false, editorType };
 }
 
 export function unsupportedEditorMessage(editorType: string): string {

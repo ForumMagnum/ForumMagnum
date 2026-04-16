@@ -1,5 +1,5 @@
 import transitions from '@/lib/vendor/@material-ui/core/src/styles/transitions';
-import { defaultComponentPalette, headerStack, sansSerifStack, serifStack } from './defaultPalette';
+import { defaultComponentPalette, headerStack } from './defaultPalette';
 import { defaultZIndexes } from "./zIndexes";
 import { isAF, isLW } from '@/lib/instanceSettings';
 
@@ -16,7 +16,7 @@ export const defaultBorderRadius = () => ({
   quickTakesEntry: 3,
 });
 
-export const defaultTypography = (palette: ThemePalette, spacingUnit: number) => ({
+export const defaultTypography = (palette: ThemePalette) => ({
   fontFamily: palette.fonts.sansSerifStack,
   cloudinaryFont: {
     stack: "'Merriweather', serif",
@@ -24,12 +24,20 @@ export const defaultTypography = (palette: ThemePalette, spacingUnit: number) =>
   },
   postStyle: {
     fontFamily: palette.fonts.serifStack,
+    ...(isAF() && {
+      fontVariantNumeric: "lining-nums",
+    })
   },
   commentStyle: {
     fontFamily: palette.fonts.sansSerifStack,
-    '& b, & strong': {
-      fontWeight: 600
-    }
+    ...(!isAF() && {
+      '& b, & strong': {
+        fontWeight: 600
+      }
+    }),
+    ...(isAF() && {
+      fontVariantNumeric: "lining-nums",
+    }),
   },
   ultraFeedMobileStyle: {
     fontFamily: palette.fonts.sansSerifStack,
@@ -110,6 +118,9 @@ export const defaultTypography = (palette: ThemePalette, spacingUnit: number) =>
     fontSize: 36.4,
     marginTop: '1em',
     fontWeight: 400,
+    ...(isAF() && {
+      fontWeight: 500,
+    }),
     fontFamily: palette.fonts.sansSerifStack,
     lineHeight: `1.13333em`,
     marginLeft: '-.02em',
@@ -119,6 +130,9 @@ export const defaultTypography = (palette: ThemePalette, spacingUnit: number) =>
     marginTop: '1.2em',
     fontSize: 39,
     fontWeight: 400,
+    ...(isAF() && {
+      fontWeight: 500,
+    }),
     fontFamily: palette.fonts.sansSerifStack,
     letterSpacing: '-.02em',
     lineHeight: `1.30357em`,
@@ -138,6 +152,10 @@ export const defaultTypography = (palette: ThemePalette, spacingUnit: number) =>
     fontWeight: 500,
     marginBottom: 3,
     fontFamily: headerStack,
+    ...(isAF() && {
+      fontFamily: palette.fonts.sansSerifStack,
+      fontWeight: 500,
+    }),
     lineHeight: `1.16667em`,
     color: palette.text.primary,
   },
@@ -161,22 +179,22 @@ export const defaultTypography = (palette: ThemePalette, spacingUnit: number) =>
   },
   blockquote: {
     fontWeight: 400,
-    paddingTop: spacingUnit*2,
-    paddingRight: spacingUnit*2,
-    paddingBottom: spacingUnit*2,
-    paddingLeft: spacingUnit*2,
+    paddingTop: 16,
+    paddingRight: 16,
+    paddingBottom: 16,
+    paddingLeft: 16,
     borderLeft: `solid 3px ${palette.grey[300]}`,
     margin: 0,
   },
   commentBlockquote: {
     fontWeight: 400,
-    paddingTop: spacingUnit,
-    paddingRight: spacingUnit*3,
-    paddingBottom: spacingUnit,
-    paddingLeft: spacingUnit*2,
+    paddingTop: 8,
+    paddingRight: 24,
+    paddingBottom: 8,
+    paddingLeft: 16,
     borderLeft: `solid 3px ${palette.grey[300]}`,
     margin: 0,
-    marginLeft: spacingUnit*1.5,
+    marginLeft: 12,
   },
   codeblock: {
     backgroundColor: palette.grey[100],
@@ -229,11 +247,8 @@ export const defaultTypography = (palette: ThemePalette, spacingUnit: number) =>
 });
 
 export const baseTheme: BaseThemeSpecification = {
-  componentPalette: (dark: boolean) => defaultComponentPalette(dark),
-  make: (palette: ThemePalette): NativeThemeType => {
-    const spacingUnit = 8
-  
-    return {
+  componentPalette: (dark: boolean) => defaultComponentPalette(dark, isAF()),
+  make: (palette: ThemePalette): NativeThemeType => ({
       dark: false,
       breakpoints: {
         values: {
@@ -248,7 +263,7 @@ export const baseTheme: BaseThemeSpecification = {
         mainLayoutPaddingTop: 50
       },
       borderRadius: defaultBorderRadius(),
-      typography: defaultTypography(palette, spacingUnit),
+      typography: defaultTypography(palette),
       zIndexes: {
         ...defaultZIndexes
       },
@@ -284,6 +299,5 @@ export const baseTheme: BaseThemeSpecification = {
 
       isLW: isLW(),
       isAF: isAF(),
-    };
-  }
+  }),
 };

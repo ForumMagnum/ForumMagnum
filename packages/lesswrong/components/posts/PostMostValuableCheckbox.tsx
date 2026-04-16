@@ -112,7 +112,6 @@ export const PostMostValuableCheckbox = ({post}: {
       void createMostValuable({
         variables: {
           data: {
-            userId: currentUser._id,
             postId: post._id
           }
         }
