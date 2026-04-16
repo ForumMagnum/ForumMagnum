@@ -590,6 +590,7 @@ export const UsersEdit = () => frag`
 
     # Admin & Review
     reviewedByUserId
+    needsReview
 
     # Alignment Forum
     reviewForAlignmentForumUserId
