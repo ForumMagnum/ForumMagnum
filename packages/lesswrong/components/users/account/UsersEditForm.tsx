@@ -113,7 +113,6 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   slug: 'admin',
   twitterProfileURLAdmin: 'admin',
   noindex: 'admin',
-  sunshineNotes: 'admin',
   sunshineFlagged: 'admin',
   needsReview: 'admin',
   sunshineSnoozed: 'admin',
