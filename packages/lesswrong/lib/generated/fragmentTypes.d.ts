@@ -4915,6 +4915,7 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly hideFromPeopleDirectory: boolean,
   readonly allowDatadogSessionReplay: boolean,
   readonly reviewedByUserId: string|null,
+  readonly needsReview: boolean|null,
   readonly reviewForAlignmentForumUserId: string|null,
   readonly groups: Array<string>,
   readonly afApplicationText: string|null,
