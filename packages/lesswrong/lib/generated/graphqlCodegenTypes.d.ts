@@ -21459,6 +21459,23 @@ type multiPostLWUserTooltipContentQueryQueryVariables = Exact<{
 
 type multiPostLWUserTooltipContentQueryQuery = multiPostLWUserTooltipContentQueryQuery_Query;
 
+type userTooltipProfileQueryQuery_user_SingleUserOutput_result_User = (
+  { __typename?: 'User' }
+  & UsersProfile
+);
+
+type userTooltipProfileQueryQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: userTooltipProfileQueryQuery_user_SingleUserOutput_result_User | null };
+
+type userTooltipProfileQueryQuery_Query = { __typename?: 'Query', user: userTooltipProfileQueryQuery_user_SingleUserOutput | null };
+
+
+type userTooltipProfileQueryQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type userTooltipProfileQueryQuery = userTooltipProfileQueryQuery_Query;
+
 type TopKarmaUsersQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
@@ -23914,7 +23931,7 @@ type UsersProfile_User_moderationGuidelines_Revision = (
 );
 
 type UsersProfile = (
-  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, organizerOfGroupIds: Array<string>, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, hideProfileTopPosts: boolean, biography: UsersProfile_User_biography_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
+  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, organizerOfGroupIds: Array<string>, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, hideProfileTopPosts: boolean, voteReceivedCount: number | null, biography: UsersProfile_User_biography_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
   & UsersMinimumInfo
 );
 

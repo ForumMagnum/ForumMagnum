@@ -8,6 +8,7 @@ import ForumIcon from "../common/ForumIcon";
 import FormatDate from "../common/FormatDate";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { TooltipSpan } from '../common/FMTooltip';
 
 const styles = defineStyles('UserMetaInfo', (theme: ThemeType) => ({
   root: {
@@ -50,7 +51,7 @@ const styles = defineStyles('UserMetaInfo', (theme: ThemeType) => ({
 }));
 
 export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hidePostCount, hideCommentCount, omegaAlignment = "legacy", hideInfoOnSmallScreen, infoClassName}: {
-  user: UsersMinimumInfo,
+  user: UsersMinimumInfo & { voteReceivedCount?: number | null },
   hideAfKarma?: boolean,
   hideWikiContribution?: boolean,
   hidePostCount?: boolean,
@@ -61,30 +62,45 @@ export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hidePostC
 }) => {
   const classes = useStyles(styles);
   const { createdAt, karma, afKarma, postCount, commentCount, tagRevisionCount: wikiContributionCount } = user;
+  const voteReceivedCount = user.voteReceivedCount;
 
   const infoClasses = classNames(infoClassName, classes.info);
 
+  const karmaTooltip = voteReceivedCount != null
+    ? `${karma} karma (${Math.round(voteReceivedCount)} votes)`
+    : `${karma} karma`;
+
   return <div className={classes.root}>
-      {(karma !== 0) && <div className={infoClasses}>
-        <ForumIcon icon="Star" className={classes.icon} />
-        <div>{karma}</div>
-      </div>}
-      {!hideAfKarma && afKarma > 0 && <div className={infoClasses}>
-        <div className={classNames(classes.omegaIcon, omegaAlignment === "legacy" && classes.omegaIconLegacy)}>Ω</div>
-        <div>{afKarma}</div>
-      </div>}
-      {!hidePostCount && (postCount > 0) && <div className={classNames(infoClasses, {[classes.hideOnSmallScreen]: hideInfoOnSmallScreen})}>
-        <DescriptionIcon className={classes.icon} /> 
-        {postCount}
-      </div>}
-      {!hideCommentCount && (commentCount > 0) && <div className={classNames(infoClasses, {[classes.hideOnSmallScreen]: hideInfoOnSmallScreen})}>
-        <MessageIcon className={classes.icon} />
-        {commentCount}
-      </div>}
-      {!hideWikiContribution && !!wikiContributionCount && <div className={infoClasses}>
-        <TagIcon className={classes.icon}  /> 
-        {wikiContributionCount}
-      </div>}
+      {(karma !== 0) && <TooltipSpan title={karmaTooltip}>
+        <div className={infoClasses}>
+          <ForumIcon icon="Star" className={classes.icon} />
+          <div>{karma}</div>
+        </div>
+      </TooltipSpan>}
+      {!hideAfKarma && afKarma > 0 && <TooltipSpan title={`${afKarma} alignment karma`}>
+        <div className={infoClasses}>
+          <div className={classNames(classes.omegaIcon, omegaAlignment === "legacy" && classes.omegaIconLegacy)}>Ω</div>
+          <div>{afKarma}</div>
+        </div>
+      </TooltipSpan>}
+      {!hidePostCount && (postCount > 0) && <TooltipSpan title={`${postCount} posts`}>
+        <div className={classNames(infoClasses, {[classes.hideOnSmallScreen]: hideInfoOnSmallScreen})}>
+          <DescriptionIcon className={classes.icon} />
+          {postCount}
+        </div>
+      </TooltipSpan>}
+      {!hideCommentCount && (commentCount > 0) && <TooltipSpan title={`${commentCount} comments`}>
+        <div className={classNames(infoClasses, {[classes.hideOnSmallScreen]: hideInfoOnSmallScreen})}>
+          <MessageIcon className={classes.icon} />
+          {commentCount}
+        </div>
+      </TooltipSpan>}
+      {!hideWikiContribution && !!wikiContributionCount && <TooltipSpan title={`${wikiContributionCount} wiki edits`}>
+        <div className={infoClasses}>
+          <TagIcon className={classes.icon}  />
+          {wikiContributionCount}
+        </div>
+      </TooltipSpan>}
       <div className={infoClasses}>
         <FormatDate date={createdAt}/>
       </div>
@@ -92,6 +108,3 @@ export const UserMetaInfo = ({user, hideAfKarma, hideWikiContribution, hidePostC
 }
 
 export default UserMetaInfo;
-
-
-
