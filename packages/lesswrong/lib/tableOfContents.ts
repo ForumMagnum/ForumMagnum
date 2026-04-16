@@ -114,6 +114,15 @@ export function extractTableOfContents({
     if (!(element instanceof window.HTMLElement)) {
       continue;
     }
+    // Skip headings that are inside <pre> or <code> blocks. These are
+    // literal-content blocks: an <h1>/<strong>/etc. inside them represents
+    // code being displayed (e.g. a Markdown sample, a rendered HTML snippet,
+    // or a syntax-highlighter-emitted bold token), not a real section
+    // heading. Reported case: headings inside a code block inside a
+    // collapsible section leaking into the post's ToC.
+    if (element.closest("pre, code")) {
+      continue;
+    }
     let tagName = element.tagName.toLowerCase();
     if (tagIsHeadingIfWholeParagraph(tagName) && !tagIsWholeParagraph({ element, window })) {
       continue;

@@ -115,6 +115,48 @@ describe("extractTableOfContents", () => {
     });
   });
 
+  it("Regression: headings inside <pre>/<code> blocks are not counted as ToC entries", () => {
+    // Bug report (Ruben, 2026-04-07): "Heading from within code blocks within
+    // collapsible sections show up in the table of the contents". Headings
+    // that appear inside a <pre> or <code> block are literal code content
+    // (e.g. HTML samples, markdown samples, or syntax-highlighter <b>/<strong>
+    // tokens), not section headings, and must not end up in the post ToC.
+    const cases = [
+      // <h1> directly inside a <pre><code> block (e.g. HTML sample)
+      normalizeHtml(`
+        <pre><code>&lt;h1&gt;Not a heading&lt;/h1&gt;</code></pre>
+        <h2>Real heading</h2>
+      `),
+      // <h1> inside a <pre><code> block inside a <details>/<summary>
+      // collapsible section -- the exact shape from the bug report.
+      normalizeHtml(`
+        <details>
+          <summary class="detailsBlockTitle">Collapsed</summary>
+          <div class="detailsBlockContent">
+            <pre><code><h1>Not a heading</h1></code></pre>
+          </div>
+        </details>
+        <h2>Real heading</h2>
+      `),
+      // <strong> that would otherwise count as a heading (whole "paragraph")
+      // is skipped when it's inside an inline <code> block (e.g. a
+      // syntax-highlighted bold keyword token).
+      normalizeHtml(`
+        <pre><code><strong>keyword</strong></code></pre>
+        <h2>Real heading</h2>
+      `),
+    ];
+
+    for (const html of cases) {
+      const { document, window } = parseDocumentFromString(html);
+      const tocData = extractTableOfContents({ document, window });
+      expect(tocData?.sections).toEqual([
+        { title: "Real heading", anchor: "Real_heading", level: 1 },
+        { anchor: "postHeadingsDivider", divider: true, level: 0 },
+      ]);
+    }
+  });
+
   it("Regression: Trailing whitespace counts towards anchor", () => {
     const html = `<p><strong>DanielFilan ($23,544):&#160; Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.&#160; </strong></p>`;
 
