@@ -33,8 +33,8 @@ import {
 import {
   getLexicalMentionFeeds,
   type MentionFeed,
+  type MentionItemWithHit,
 } from '@/components/editor/lexicalPlugins/mentions/lexicalMentionsConfig';
-import type { MentionItem } from '@/components/editor/lexicalPlugins/mentions/MentionDropdown';
 import { userMentionQuery, userMentionValue } from '@/lib/pingback';
 import { useSearchAnalytics, useCaptureSearchResultSelected } from '@/components/search/useSearchAnalytics';
 
@@ -189,10 +189,10 @@ function isSelectionInsideMentionLink(): boolean {
 }
 
 class MentionTypeaheadOption extends MenuOption {
-  item: MentionItem;
+  item: MentionItemWithHit;
   marker: string;
 
-  constructor(item: MentionItem, marker: string) {
+  constructor(item: MentionItemWithHit, marker: string) {
     super(item.id);
     this.item = item;
     this.marker = marker;
@@ -230,7 +230,7 @@ function useMentionLookupService(
   activeFeed: MentionFeed | null,
   dropdownLimit: number
 ) {
-  const [results, setResults] = useState<MentionItem[]>([]);
+  const [results, setResults] = useState<MentionItemWithHit[]>([]);
   const lastRequestIdRef = useRef(0);
   const captureSearch = useSearchAnalytics();
 
@@ -244,31 +244,15 @@ function useMentionLookupService(
     const { feed } = activeFeed;
     const timeoutId = window.setTimeout(() => {
       captureSearch("mentionsEditor", { query: mentionString, marker: activeFeed.marker });
-      const fetchResults = async () => {
+      void (async () => {
         try {
-          let items: MentionItem[];
-          if (typeof feed === 'function') {
-            const response = feed(mentionString);
-            items = response instanceof Promise ? await response : response;
-          } else {
-            items = feed.filter(item => {
-              const searchText = (item.label || item.id).toLowerCase();
-              return searchText.includes(mentionString.toLowerCase());
-            });
-          }
-
-          if (requestId !== lastRequestIdRef.current) {
-            return;
-          }
+          const items = await feed(mentionString);
+          if (requestId !== lastRequestIdRef.current) return;
           setResults(items.slice(0, dropdownLimit));
         } catch {
-          if (requestId === lastRequestIdRef.current) {
-            setResults([]);
-          }
+          if (requestId === lastRequestIdRef.current) setResults([]);
         }
-      };
-
-      void fetchResults();
+      })();
     }, FEED_DEBOUNCE_MS);
 
     return () => {
@@ -309,10 +293,10 @@ export default function MentionsPlugin(): JSX.Element | null {
       nodeToReplace: TextNode | null,
       closeMenu: () => void,
     ) => {
-      const item = selectedOption.item as MentionItem & { hit?: { _id?: string }; type?: string };
+      const item = selectedOption.item;
       captureResultSelected({
         query: queryString ?? undefined,
-        resultId: item.hit?._id,
+        resultId: item.hit._id,
         resultType: item.type,
         context: "mentionsEditor",
         marker: selectedOption.marker,

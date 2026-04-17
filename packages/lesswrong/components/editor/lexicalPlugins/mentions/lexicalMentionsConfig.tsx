@@ -14,16 +14,12 @@ const MARKER = "@";
 export interface MentionFeed {
   /** The marker character that triggers this feed (e.g., '@', '#') */
   marker: string;
-  /** 
-   * Feed data - can be:
-   * - A static array of items
-   * - A function that returns items (sync or async)
-   */
-  feed: MentionItem[] | ((query: string) => MentionItem[] | Promise<MentionItem[]>);
+  /** Async lookup that returns the suggestions for a given query */
+  feed: (query: string) => Promise<MentionItemWithHit[]>;
   /** Minimum characters after marker before showing suggestions (default: 0) */
   minimumCharacters?: number;
   /** Custom item renderer */
-  itemRenderer?: (item: MentionItem) => React.ReactNode;
+  itemRenderer?: (item: MentionItemWithHit) => React.ReactNode;
 }
 
 const styles = defineStyles('LexicalMentionItem', (theme: ThemeType) => ({
@@ -81,7 +77,7 @@ interface MentionItemWithTagHit extends MentionItem {
   hit: SearchTag;
 }
 
-type MentionItemWithHit = MentionItemWithUserHit | MentionItemWithPostHit | MentionItemWithTagHit;
+export type MentionItemWithHit = MentionItemWithUserHit | MentionItemWithPostHit | MentionItemWithTagHit;
 
 /**
  * Type guard to check if hit is a SearchUser
@@ -228,45 +224,12 @@ function TagMentionItem({ hit }: { hit: SearchTag }) {
   );
 }
 
-/**
- * Type guard to check if a MentionItem is a user mention
- */
-function isUserMention(item: MentionItem): item is MentionItemWithUserHit {
-  return 'type' in item && item.type === 'Users' && 'hit' in item;
-}
-
-/**
- * Type guard to check if a MentionItem is a post mention
- */
-function isPostMention(item: MentionItem): item is MentionItemWithPostHit {
-  return 'type' in item && item.type === 'Posts' && 'hit' in item;
-}
-
-/**
- * Type guard to check if a MentionItem is a tag mention
- */
-function isTagMention(item: MentionItem): item is MentionItemWithTagHit {
-  return 'type' in item && item.type === 'Tags' && 'hit' in item;
-}
-
-/**
- * Custom item renderer for mention dropdown
- */
-function mentionItemRenderer(item: MentionItem): React.ReactNode {
-  if (isUserMention(item)) {
-    return <UserMentionItem hit={item.hit} />;
+function mentionItemRenderer(item: MentionItemWithHit): React.ReactNode {
+  switch (item.type) {
+    case 'Users': return <UserMentionItem hit={item.hit} />;
+    case 'Posts': return <PostMentionItem hit={item.hit} />;
+    case 'Tags': return <TagMentionItem hit={item.hit} />;
   }
-  
-  if (isPostMention(item)) {
-    return <PostMentionItem hit={item.hit} />;
-  }
-  
-  if (isTagMention(item)) {
-    return <TagMentionItem hit={item.hit} />;
-  }
-  
-  // Fallback for items without hit data
-  return <div>{item.label || item.id}</div>;
 }
 
 /**
