@@ -30,9 +30,12 @@ import { Typography } from "../common/Typography";
 import SectionButton from "../common/SectionButton";
 import ContentStyles from "../common/ContentStyles";
 import NotifyMeButton from "../notifications/NotifyMeButton";
-import { MARGINAL_FUNDING_SEQUENCE_ID } from '@/lib/givingSeason';
-import { SCALING_SERIES_ID } from '@/lib/collections/forumEvents/helpers';
 import PermanentRedirect from '../common/PermanentRedirect';
+import { MARGINAL_FUNDING_SEQUENCE_ID } from '@/lib/givingSeason';
+import {
+  BETTER_FUTURES_ID,
+  SCALING_SERIES_ID,
+} from '@/lib/collections/forumEvents/helpers';
 
 export const sequencesImageScrim = (theme: ThemeType) => ({
   position: 'absolute',
@@ -209,6 +212,11 @@ const SequencesPage = ({ documentId, classes }: {
   if (documentId === SCALING_SERIES_ID && !currentUser?.isAdmin) {
     return (
       <PermanentRedirect url="/scaling-series" />
+    );
+  }
+  if (documentId === BETTER_FUTURES_ID && !currentUser?.isAdmin) {
+    return (
+      <PermanentRedirect url="/better-futures" />
     );
   }
   if (document?.isDeleted) {

@@ -142,6 +142,7 @@ export const SequenceEventPage = ({
   sharingUrl,
   themeColor,
   hoverColor,
+  order = "score",
 }: {
   sequenceId: string,
   shareTitle: string,
@@ -149,6 +150,7 @@ export const SequenceEventPage = ({
   sharingUrl: (source: string) => string,
   themeColor: string,
   hoverColor: string,
+  order?: "score" | "sequence",
 }) => {
   const currentUser = useCurrentUser();
   const {captureEvent} = useTracking();
@@ -180,18 +182,15 @@ export const SequenceEventPage = ({
 
   const [cardPosts, listPosts] = useMemo(() => {
     const posts = sequence?.chapters.flatMap((chapter) => chapter.posts) ?? [];
-
     if (posts.length === 0) {
       return [[], []]
     }
-
-    const sortedPosts = [
-      posts[0],
-      ...orderBy(posts.slice(1), "baseScore", "desc"),
-    ];
+    const sortedPosts = order === "score"
+      ? [ posts[0], ...orderBy(posts.slice(1), "baseScore", "desc") ]
+      : posts;
     const cardCount = 10;
     return [sortedPosts.slice(0, cardCount), sortedPosts.slice(cardCount)];
-  }, [sequence]);
+  }, [order, sequence]);
 
   const classes = useStyles(styles);
   if (!sequence) {
