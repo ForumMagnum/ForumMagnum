@@ -36,6 +36,7 @@ import {
 } from '@/components/editor/lexicalPlugins/mentions/lexicalMentionsConfig';
 import type { MentionItem } from '@/components/editor/lexicalPlugins/mentions/MentionDropdown';
 import { userMentionQuery, userMentionValue } from '@/lib/pingback';
+import { useSearchAnalytics, useCaptureSearchResultSelected } from '@/components/search/useSearchAnalytics';
 
 const styles = defineStyles('LexicalMentions', (theme: ThemeType) => ({
   popover: {
@@ -231,6 +232,7 @@ function useMentionLookupService(
 ) {
   const [results, setResults] = useState<MentionItem[]>([]);
   const lastRequestIdRef = useRef(0);
+  const captureSearch = useSearchAnalytics();
 
   useEffect(() => {
     if (!mentionString || !activeFeed) {
@@ -241,6 +243,7 @@ function useMentionLookupService(
     const requestId = ++lastRequestIdRef.current;
     const { feed } = activeFeed;
     const timeoutId = window.setTimeout(() => {
+      captureSearch("mentionsEditor", { query: mentionString, marker: activeFeed.marker });
       const fetchResults = async () => {
         try {
           let items: MentionItem[];
@@ -271,13 +274,14 @@ function useMentionLookupService(
     return () => {
       window.clearTimeout(timeoutId);
     };
-  }, [mentionString, activeFeed, dropdownLimit]);
+  }, [mentionString, activeFeed, dropdownLimit, captureSearch]);
 
   return results;
 }
 
 export default function MentionsPlugin(): JSX.Element | null {
   const [editor] = useLexicalComposerContext();
+  const captureResultSelected = useCaptureSearchResultSelected();
   const feeds = useMemo(() => getLexicalMentionFeeds(), []);
 
   const [queryString, setQueryString] = useState<string | null>(null);
@@ -305,6 +309,14 @@ export default function MentionsPlugin(): JSX.Element | null {
       nodeToReplace: TextNode | null,
       closeMenu: () => void,
     ) => {
+      const item = selectedOption.item as MentionItem & { hit?: { _id?: string }; type?: string };
+      captureResultSelected({
+        query: queryString ?? undefined,
+        resultId: item.hit?._id,
+        resultType: item.type,
+        context: "mentionsEditor",
+        marker: selectedOption.marker,
+      });
       editor.update(() => {
         const selection = $getSelection();
         if (!$isRangeSelection(selection)) {
@@ -337,7 +349,7 @@ export default function MentionsPlugin(): JSX.Element | null {
 
       closeMenu();
     },
-    [editor],
+    [editor, captureResultSelected, queryString],
   );
 
   const checkForMentionMatch = useCallback(

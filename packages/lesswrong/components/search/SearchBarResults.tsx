@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Hits, Configure } from 'react-instantsearch-dom';
 import { SearchIndexCollectionName, getSearchIndexName } from '../../lib/search/searchUtil';
 import { Link } from '../../lib/reactRouterWrapper';
@@ -12,6 +12,7 @@ import TagsSearchHit from "./TagsSearchHit";
 import CommentsSearchHit from "./CommentsSearchHit";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useCaptureSearchResultSelected } from './useSearchAnalytics';
 
 const styles = defineStyles("SearchBarResults", (theme: ThemeType) => ({
   root: {
@@ -80,6 +81,7 @@ const SearchBarResults = ({closeSearch, currentQuery}: {
   currentQuery: string,
 }) => {
   const classes = useStyles(styles);
+  const captureResultSelected = useCaptureSearchResultSelected();
   const searchTypes: Array<{
     type: SearchIndexCollectionName;
     Component: React.ComponentType<SearchHitComponentProps>;
@@ -91,6 +93,18 @@ const SearchBarResults = ({closeSearch, currentQuery}: {
     { type: "Sequences", Component: SequencesSearchHit },
   ];
 
+  const makeClickHandler = useCallback((type: SearchIndexCollectionName, hit: Record<string, unknown>) => () => {
+    captureResultSelected({
+      query: currentQuery,
+      resultId: hit._id as string | undefined,
+      resultType: type,
+      position: hit.__position as number | undefined,
+      indexName: getSearchIndexName(type),
+      context: "searchBar",
+    });
+    closeSearch();
+  }, [captureResultSelected, closeSearch, currentQuery]);
+
   return <div className={classes.root}>
     <div className={classes.searchResults}>
         {searchTypes.map(({ type, Component }) => (
@@ -98,7 +112,7 @@ const SearchBarResults = ({closeSearch, currentQuery}: {
             <div className={classes.list}>
               <Index indexName={getSearchIndexName(type)}>
                 <Configure hitsPerPage={3} />
-                <Hits hitComponent={(props) => <Component clickAction={closeSearch} {...props} showIcon/>} />
+                <Hits hitComponent={(props) => <Component clickAction={makeClickHandler(type, props.hit)} {...props} showIcon/>} />
               </Index>
             </div>
           </ErrorBoundary>

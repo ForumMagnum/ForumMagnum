@@ -1,5 +1,6 @@
 import { useRef, useCallback } from "react";
 import { useTracking } from "../../lib/analyticsEvents";
+import type { SearchIndexCollectionName } from "@/lib/search/searchUtil";
 
 /**
  * A new search state is generated each time the user types a character.
@@ -22,4 +23,39 @@ export const useSearchAnalytics = (timeoutMS = 1000) => {
     [captureEvent, timeoutMS],
   );
   return captureSearch;
+}
+
+export interface SearchResultSelectedProps {
+  query?: string;
+  resultId?: string;
+  resultType?: SearchIndexCollectionName | string;
+  position?: number;
+  indexName?: string;
+  context: string;
+  marker?: string;
+}
+
+// Returns a handler for <InstantSearch onSearchStateChange={...}>. Only fires when
+// the query actually changes, so pagination/facet state changes don't reset the
+// useSearchAnalytics 1s debounce or produce duplicate events.
+export function useCaptureSearchStateChange(
+  context: string,
+  resultType: SearchIndexCollectionName,
+  indexName: string,
+) {
+  const captureSearch = useSearchAnalytics();
+  const lastQueryRef = useRef<string | undefined>(undefined);
+  return useCallback((searchState: { query?: string }) => {
+    if (searchState.query && searchState.query !== lastQueryRef.current) {
+      lastQueryRef.current = searchState.query;
+      captureSearch(context, { query: searchState.query, resultType, indexName });
+    }
+  }, [captureSearch, context, resultType, indexName]);
+}
+
+export function useCaptureSearchResultSelected() {
+  const { captureEvent } = useTracking();
+  return useCallback((props: SearchResultSelectedProps) => {
+    captureEvent("searchResultSelected", props);
+  }, [captureEvent]);
 }

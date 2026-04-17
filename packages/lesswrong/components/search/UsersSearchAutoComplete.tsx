@@ -10,6 +10,7 @@ const UsersSearchAutoComplete = ({clickAction, label}: {
 }) => {
   return <SearchAutoComplete
     indexName={getSearchIndexName("Users")}
+    resultType="Users"
     clickAction={clickAction}
     renderSuggestion={(hit: any) => <UsersAutoCompleteHit key={hit._id} document={hit} />}
     renderInputComponent={({key, ...otherProps}: any) => <UsersSearchInput key={key || "users-search-input"} inputProps={otherProps} />}
