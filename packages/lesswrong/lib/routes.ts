@@ -170,6 +170,7 @@ import LeaderboardComponent from '@/components/users/Leaderboard';
 import KeywordsPage from '@/components/keywords/KeywordsPage';
 import KeywordResultsPage from '@/components/keywords/KeywordResultsPage';
 import AdminEventPostEmailPage from '@/components/admin/AdminEventPostEmailPage';
+import BetterFuturesPage from '@/components/forumEvents/BetterFuturesPage';
 import ScalingSeriesPage from '@/components/forumEvents/ScalingSeriesPage';
 import MarginalFundingPage from '@/components/forumEvents/givingSeason/MarginalFundingPage';
 import VotingPortalPage from '@/components/forumEvents/givingSeason/VotingPortalPage';
@@ -1061,6 +1062,14 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       component: Auth0PasswordResetPage,
       title: 'Set password',
       hideFromSitemap: true,
+    },
+    {
+      name: "betterFutures",
+      path: "/better-futures",
+      component: BetterFuturesPage,
+      title: "Better Futures",
+      fullscreen: true,
+      noFooter: true,
     },
     {
       name: "scalingSeries",
