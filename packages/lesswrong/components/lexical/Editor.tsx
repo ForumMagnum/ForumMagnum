@@ -67,7 +67,6 @@ import DateTimePlugin from './plugins/DateTimePlugin';
 import DragDropPaste from './plugins/DragDropPastePlugin';
 import DraggableBlockPlugin from './plugins/DraggableBlockPlugin';
 // import EmojiPickerPlugin from './plugins/EmojiPickerPlugin';
-import EmojisPlugin from './plugins/EmojisPlugin';
 import { MathPlugin } from '../editor/lexicalPlugins/math/MathPlugin';
 // import ExcalidrawPlugin from './plugins/ExcalidrawPlugin';
 import FigmaPlugin from './plugins/FigmaPlugin';
@@ -823,7 +822,6 @@ export default function Editor({
         <ComponentPickerPlugin />
         {/* <EmojiPickerPlugin /> */}
         <AutoEmbedPlugin />
-        <EmojisPlugin />
         <HashtagPlugin />
         {/* <KeywordsPlugin /> */}
         {/* <SpeechToTextPlugin /> */}
