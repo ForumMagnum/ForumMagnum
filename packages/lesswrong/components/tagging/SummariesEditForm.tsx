@@ -1,4 +1,5 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
+import { MouseSensor, PointerSensor, useSensor, useSensors } from "@dnd-kit/core";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import classNames from "classnames";
 import { makeSortableListComponent } from "../form-components/sortableList";
@@ -276,6 +277,9 @@ const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFo
   const classes = useStyles(styles);
   const [newSummaryEditorOpen, setNewSummaryEditorOpen] = useState(false);
   const [reorderedSummaries, setReorderedSummaries] = useState<string[]>();
+  const mouseSensor = useSensor(MouseSensor, { activationConstraint: { distance: 5 } });
+  const pointerSensor = useSensor(PointerSensor, { activationConstraint: { distance: 5 } });
+  const sortableSensors = useSensors(mouseSensor, pointerSensor);
 
   const { data, loading, refetch } = useQuery(MultiDocumentContentDisplayMultiQuery, {
     variables: {
@@ -350,6 +354,7 @@ const SummariesEditForm = ({ parentDocumentId, collectionName }: SummariesEditFo
       value={displayedSummaries.map((summary) => summary._id)}
       axis="xy"
       className={classes.list}
+      sensors={sortableSensors}
       setValue={(newValue: string[]) => {
         void reorderSummaries({
           variables: {
