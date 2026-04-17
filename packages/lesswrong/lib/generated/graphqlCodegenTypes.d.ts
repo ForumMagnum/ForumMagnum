@@ -1760,6 +1760,7 @@ type CreateUserDataInput = {
   email?: InputMaybe<Scalars['String']['input']>;
   emailSubscribedToCurated?: InputMaybe<Scalars['Boolean']['input']>;
   expandedFrontpageSections?: InputMaybe<ExpandedFrontpageSectionsSettingsInput>;
+  exemptFromTotalKarmaAutoRateLimits?: InputMaybe<Scalars['Boolean']['input']>;
   facebookProfileURL?: InputMaybe<Scalars['String']['input']>;
   fmCrosspostUserId?: InputMaybe<Scalars['String']['input']>;
   frontpageFilterSettings?: InputMaybe<Scalars['JSON']['input']>;
@@ -10691,6 +10692,7 @@ type UpdateUserDataInput = {
   email?: InputMaybe<Scalars['String']['input']>;
   emailSubscribedToCurated?: InputMaybe<Scalars['Boolean']['input']>;
   expandedFrontpageSections?: InputMaybe<ExpandedFrontpageSectionsSettingsInput>;
+  exemptFromTotalKarmaAutoRateLimits?: InputMaybe<Scalars['Boolean']['input']>;
   facebookProfileURL?: InputMaybe<Scalars['String']['input']>;
   fmCrosspostUserId?: InputMaybe<Scalars['String']['input']>;
   frontpageFilterSettings?: InputMaybe<Scalars['JSON']['input']>;
@@ -10964,6 +10966,7 @@ type User = {
   emailSubscribedToCurated?: Maybe<Scalars['Boolean']['output']>;
   emails?: Maybe<Array<Scalars['JSON']['output']>>;
   expandedFrontpageSections?: Maybe<ExpandedFrontpageSectionsSettingsOutput>;
+  exemptFromTotalKarmaAutoRateLimits?: Maybe<Scalars['Boolean']['output']>;
   facebookProfileURL?: Maybe<Scalars['String']['output']>;
   fmCrosspostUserId?: Maybe<Scalars['String']['output']>;
   frontpageFilterSettings?: Maybe<Scalars['JSON']['output']>;

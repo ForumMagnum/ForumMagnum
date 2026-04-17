@@ -7396,6 +7396,7 @@ type User {
   programParticipation: [String!]
   postingDisabled: Boolean
   allCommentingDisabled: Boolean
+  exemptFromTotalKarmaAutoRateLimits: Boolean
   commentingOnOtherUsersDisabled: Boolean
   conversationsDisabled: Boolean
   associatedClientId: ClientId
@@ -9294,6 +9295,7 @@ input CreateUserDataInput {
   programParticipation: [String!]
   postingDisabled: Boolean
   allCommentingDisabled: Boolean
+  exemptFromTotalKarmaAutoRateLimits: Boolean
   commentingOnOtherUsersDisabled: Boolean
   conversationsDisabled: Boolean
   acknowledgedNewUserGuidelines: Boolean
@@ -9487,6 +9489,7 @@ input UpdateUserDataInput {
   programParticipation: [String!]
   postingDisabled: Boolean
   allCommentingDisabled: Boolean
+  exemptFromTotalKarmaAutoRateLimits: Boolean
   commentingOnOtherUsersDisabled: Boolean
   conversationsDisabled: Boolean
   acknowledgedNewUserGuidelines: Boolean
