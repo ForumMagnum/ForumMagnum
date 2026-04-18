@@ -46,8 +46,9 @@ export function useCaptureSearchStateChange(
   const captureSearch = useSearchAnalytics();
   const lastQueryRef = useRef<string | undefined>(undefined);
   return useCallback((searchState: { query?: string }) => {
-    if (searchState.query && searchState.query !== lastQueryRef.current) {
-      lastQueryRef.current = searchState.query;
+    if (searchState.query === lastQueryRef.current) return;
+    lastQueryRef.current = searchState.query;
+    if (searchState.query) {
       captureSearch(context, { query: searchState.query, resultType, indexName });
     }
   }, [captureSearch, context, resultType, indexName]);
