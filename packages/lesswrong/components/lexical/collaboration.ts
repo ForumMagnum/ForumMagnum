@@ -298,13 +298,21 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
       // No-op on healthy docs; fixes broken docs in place and syncs the
       // repair back to the server / peers.
       if (id === 'main') {
-        const removed = repairOrphanXmlTextsInRoot(doc);
-        if (removed.length > 0) {
+        try {
+          const removed = repairOrphanXmlTextsInRoot(doc);
+          if (removed.length > 0) {
+            const errorMessage = `[Collaboration] Repaired ${removed.length} orphan XmlText(s) in post ${config.postId}: ${removed.join(', ')}`;
+            // eslint-disable-next-line no-console
+            console.warn(errorMessage);
+            captureException(new Error(errorMessage));
+          }
+        } catch (e) {
+          // Guard against unexpected throws from Yjs so a failed repair can't
+          // prevent config.onSynced below from running (that callback drives
+          // Lexical's bootstrap + first-sync tracking).
           // eslint-disable-next-line no-console
-          const errorMessage = `[Collaboration] Repaired ${removed.length} orphan XmlText(s) in post ${config.postId}: ${removed.join(', ')}`;
-          // eslint-disable-next-line no-console
-          console.warn(errorMessage);
-          captureException(new Error(errorMessage));
+          console.error('[Collaboration] repairOrphanXmlTextsInRoot threw:', e);
+          captureException(e instanceof Error ? e : new Error(String(e)));
         }
       }
       config.onSynced?.(doc, isFirstSync, id);
