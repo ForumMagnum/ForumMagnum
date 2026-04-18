@@ -9,6 +9,7 @@ const PostsSearchAutoComplete = ({clickAction, placeholder='Search for posts'}: 
 }) => {
   return <SearchAutoComplete
     indexName={getSearchIndexName("Posts")}
+    resultType="Posts"
     clickAction={clickAction}
     renderSuggestion={(hit: any) => <PostsListEditorSearchHit hit={hit} />}
     placeholder={placeholder}

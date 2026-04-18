@@ -1,7 +1,8 @@
 import React, { useCallback, useState } from 'react';
 import { useMutation } from "@apollo/client/react";
 import { gql } from '@/lib/generated/gql-codegen';
-import { useTracking } from "../../lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents";
+import { useCaptureSearchStateChange, useCaptureSearchResultSelected } from '../search/useSearchAnalytics';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox';
 import classNames from 'classnames';
 import { useMessages } from '../common/withMessages';
@@ -104,9 +105,12 @@ const AddPostsToTag = ({tag}: {
   const [isAwaiting, setIsAwaiting] = useState(false);
   const { captureEvent } = useTracking()
   const { flash } = useMessages()
-  const [ searchOpen, setSearchOpen ] = useState(false)  
+  const [ searchOpen, setSearchOpen ] = useState(false)
   const currentUser = useCurrentUser();
   const { openDialog } = useDialog();
+  const indexName = getSearchIndexName("Posts");
+  const captureSearchState = useCaptureSearchStateChange("addPostsToTag", "Posts", indexName);
+  const captureResultSelected = useCaptureSearchResultSelected();
   const [mutate] = useMutation(gql(`
     mutation addPostsToTag($tagId: String, $postId: String) {
       addOrUpvoteTag(tagId: $tagId, postId: $postId) {
@@ -123,6 +127,12 @@ const AddPostsToTag = ({tag}: {
       });
       return
     }
+    captureResultSelected({
+      resultId: postId,
+      resultType: "Posts",
+      indexName,
+      context: "addPostsToTag",
+    });
     flash({messageString: `Tagged post with '${tag.name}'`, type: "success"})
     setIsAwaiting(true)
     await mutate({
@@ -130,12 +140,13 @@ const AddPostsToTag = ({tag}: {
         tagId: tag._id,
         postId: postId,
       },
-    });    
+    });
     setIsAwaiting(false)
     captureEvent("tagAddedToItem", {tagId: tag._id, tagName: tag.name})
-  }, [mutate, flash, tag._id, tag.name, captureEvent, openDialog, currentUser]);
-  return <div className={classNames(classes.root, {[classes.open]: searchOpen})}>
-    {!searchOpen && !isAwaiting && <span 
+  }, [mutate, flash, tag._id, tag.name, captureEvent, captureResultSelected, openDialog, currentUser, indexName]);
+  return <AnalyticsContext pageElementContext="addPostsToTag">
+  <div className={classNames(classes.root, {[classes.open]: searchOpen})}>
+    {!searchOpen && !isAwaiting && <span
       onClick={() => setSearchOpen(true)}
       className={classes.addButton}
     >
@@ -143,9 +154,10 @@ const AddPostsToTag = ({tag}: {
     </span> }
     {searchOpen && <div className={classes.search}>
       <InstantSearch
-        indexName={getSearchIndexName("Posts")}
+        indexName={indexName}
         searchClient={getSearchClient()}
-      > 
+        onSearchStateChange={captureSearchState}
+      >
         <div className={classes.searchHeader}>
           <div className={classes.searchBar}>
             {/* Ignored because SearchBox is incorrectly annotated as not taking null for its reset prop, when
@@ -166,6 +178,7 @@ const AddPostsToTag = ({tag}: {
       </InstantSearch>
     </div>}
   </div>
+  </AnalyticsContext>
 }
 
 export default AddPostsToTag

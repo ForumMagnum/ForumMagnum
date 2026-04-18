@@ -18,6 +18,7 @@ const TagsSearchAutoComplete = ({
 }) => {
   return <SearchAutoComplete
     indexName={getSearchIndexName("Tags")}
+    resultType="Tags"
     clickAction={clickAction}
     renderSuggestion={(hit: any) => <TagSearchHit hit={hit} hidePostCount={hidePostCount} isVotingContext={isVotingContext} />}
     placeholder={placeholder}
