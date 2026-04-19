@@ -48,7 +48,7 @@ const styles = defineStyles('LexicalContentEditable', (theme: ThemeType) => ({
     pointerEvents: 'none',
   },
   placeholderComment: {
-    fontSize: 14,
+    fontSize: 13,
     top: 'var(--lexical-comment-placeholder-top, 0px)',
     left: 'var(--lexical-comment-placeholder-left, 0px)',
     transform: 'var(--lexical-comment-placeholder-transform, none)',
