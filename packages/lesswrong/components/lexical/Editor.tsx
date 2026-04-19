@@ -312,63 +312,6 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     '& .footnote-content': {
       flex: 1,
     },
-    '& .llm-content-block': {
-      margin: 0,
-    },
-    '& .llm-content-block-header': {
-      display: 'inline-flex',
-      alignItems: 'center',
-      fontSize: '0.85em',
-      color: theme.palette.grey[600],
-      lineHeight: 1.3,
-      paddingRight: 6,
-      borderRight: `1px solid ${theme.palette.grey[400]}`,
-    },
-    '& .llm-content-block:has(> .llm-content-block-content > p:first-child) .llm-content-block-header': {
-      float: 'left',
-      marginRight: 8,
-      marginBottom: 0,
-    },
-    '& .llm-content-block:not(:has(> .llm-content-block-content > p:first-child)) .llm-content-block-header': {
-      float: 'none',
-      marginRight: 0,
-      display: 'block',
-      width: 'fit-content',
-      marginTop: '1em',
-      marginBottom: '1em',
-    },
-    '& .llm-content-block-model-input': {
-      backgroundColor: 'transparent',
-      color: 'inherit',
-      fontSize: 'inherit',
-      fontFamily: 'inherit',
-      fontWeight: 600,
-      fontVariant: 'small-caps',
-      lineHeight: 'inherit',
-      padding: 0,
-      border: 'none',
-      borderRadius: 0,
-      appearance: 'none',
-      WebkitAppearance: 'none',
-      minWidth: 40,
-      '&::-webkit-calendar-picker-indicator': {
-        display: 'none !important',
-      },
-      '&::placeholder': {
-        color: theme.palette.grey[600],
-        opacity: 1,
-      },
-      '&:hover': {
-        color: theme.palette.grey[800],
-      },
-      '&:focus': {
-        color: theme.palette.grey[800],
-        outline: 'none',
-      },
-    },
-    '& .llm-content-block-content': {
-      outline: 'none',
-    },
     '& ins': {
       background: theme.palette.background.diffInserted,
       textDecoration: 'none',

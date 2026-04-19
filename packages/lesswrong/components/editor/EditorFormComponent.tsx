@@ -3,7 +3,7 @@ import { debateEditorPlaceholder, getDefaultEditorPlaceholder, linkpostEditorPla
 import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles, FormProps, shouldSubmitContents, isValidEditorType, type LegacyEditorTypeString } from './Editor';
+import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, editorStyles, FormProps, shouldSubmitContents, isValidEditorType, type LegacyEditorTypeString } from './Editor';
 import { useMutation } from '@apollo/client/react';
 import { gql } from "@/lib/generated/gql-codegen";
 import { useTracking } from '../../lib/analyticsEvents';
@@ -33,8 +33,6 @@ const getPostPlaceholder = (post: PostsBase) => {
   if (effectiveCategory === "linkpost") return linkpostEditorPlaceholder;
   return getDefaultEditorPlaceholder();
 };
-
-const definedStyles = defineStyles('EditorFormComponent', styles);
 
 type EditorSubmitCallback = () => Promise<void>;
 type EditorSuccessCallback<R> = (result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => void;
@@ -130,7 +128,7 @@ function InnerEditorFormComponent<S, R>({
   addOnSuccessCallback,
   getLocalStorageId,
 }: EditorFormComponentProps<S, R>) {
-  const classes = useStyles(definedStyles);
+  const classes = useStyles(editorStyles);
   const { flash } = useMessages();
   const currentUser = useCurrentUser();
   const editorRef = useRef<Editor|null>(null);

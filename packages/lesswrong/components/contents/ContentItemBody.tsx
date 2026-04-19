@@ -24,6 +24,7 @@ import { useAbstractThemeOptions } from '../themes/useTheme';
 import { useStyles } from '../hooks/useStyles';
 import { getHighlights, highlightCodeElement, updateHighlightContext, removeHighlightContext, codeHighlightStyles } from '@/lib/codeHighlighting';
 import dynamic from 'next/dynamic';
+import LLMContentBlockDisplay from './LLMContentBlockDisplay';
 
 const ContentCodeBlockWithMenu = dynamic(() => import('./ContentCodeBlockWithMenu'));
 
@@ -193,6 +194,10 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
 
       if (classNames.includes("footnotes") && hasCollapsedFootnotes) {
         return <CollapsedFootnotes attributes={attribs} footnoteElements={mappedChildren}/>
+      }
+
+      if (classNames.includes("llm-content-block")) {
+        return <LLMContentBlockDisplay modelName={attribs['data-model-name']}>{mappedChildren}</LLMContentBlockDisplay>
       }
 
       if (attribs["style"]) {
