@@ -30,11 +30,12 @@ import PlaygroundEditorTheme from '../lexical/themes/PlaygroundEditorTheme';
 import { ToolbarContext } from '../lexical/context/ToolbarContext';
 import Settings from '../lexical/Settings';
 import { TableCellNode } from '@lexical/table';
-import { CodeHighlightNode, CodeNode } from '@lexical/code';
+import { CodeHighlightNode } from '@lexical/code';
 import { exportTextNode } from './lexicalDomExport';
 import { gql } from '@/lib/generated/gql-codegen';
 import { HorizontalRuleExtension } from '@lexical/extension';
 import ErrorBoundary from '../common/ErrorBoundary';
+import { CodeNode } from '@/lib/vendor/lexical/CodeNode';
 
 const HocuspocusAuthQuery = gql(`
   query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {

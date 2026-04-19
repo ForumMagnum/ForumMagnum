@@ -1,6 +1,6 @@
 "use client";
 
-import { $createCodeNode, $isCodeNode } from "@lexical/code";
+import { $createCodeNode, $isCodeNode } from "@/lib/vendor/lexical/CodeNode";
 import { $setBlocksType } from "@lexical/selection";
 import {
   $createTextNode,
