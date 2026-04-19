@@ -1,8 +1,8 @@
 import { useMessages } from '@/components/common/withMessages';
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { EditableUser, getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl } from '@/lib/collections/users/helpers';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { useCurrentUser } from '@/components/common/withUser';
+import { useCurrentUser, useRefetchCurrentUser } from '@/components/common/withUser';
 import { useMutation, useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
 import { useLocation, useNavigate } from '@/lib/routeUtil.tsx';
@@ -27,6 +27,7 @@ import NotificationsSettingsTab from './NotificationsSettingsTab';
 import ModerationSettingsTab from './ModerationSettingsTab';
 import AdminSettingsTab from './AdminSettingsTab';
 import type { SettingsFormApi } from './settingsTabTypes';
+import { useAutoSaveUserSettingsFields } from './useAutoSaveUserSettingsFields';
 
 const UsersEditUpdateMutation = gql(`
   mutation updateUserUsersEditForm($selector: SelectorInput!, $data: UpdateUserDataInput!) {
@@ -201,6 +202,7 @@ const UsersForm = ({
   isCurrentUser,
   requestPasswordReset,
   accountManagement,
+  profileSlug,
 }: {
   initialData: EditableUser;
   currentUser: UsersCurrent;
@@ -208,8 +210,11 @@ const UsersForm = ({
   isCurrentUser: boolean;
   requestPasswordReset: () => void;
   accountManagement: React.ReactNode | null;
+  profileSlug: string;
 }) => {
   const classes = useStyles(styles);
+  const client = useApolloClient();
+  const refetchCurrentUser = useRefetchCurrentUser();
   const { query } = useLocation();
   const navigate = useNavigate();
 
@@ -239,9 +244,13 @@ const UsersForm = ({
     onSuccessCallback: onSuccessModerationGuidelinesCallback,
   } = useEditorFormCallbacks<UsersEdit>();
 
-  const [mutate] = useMutation(UsersEditUpdateMutation);
+  const [mutate] = useMutation(UsersEditUpdateMutation, {
+    refetchQueries: [{ query: GetUserBySlugQuery, variables: { slug: profileSlug } }],
+  });
 
   const { setCaughtError, displayedErrorComponent } = useFormErrors();
+
+  const awaitPendingUserSettingsSavesRef = useRef<() => Promise<void>>(async () => {});
 
   const form = useForm({
     defaultValues: {
@@ -259,6 +268,8 @@ const UsersForm = ({
         onSubmitBiographyCallback.current?.(),
         onSubmitModerationGuidelinesCallback.current?.(),
       ]);
+
+      await awaitPendingUserSettingsSavesRef.current();
 
       try {
         let result: UsersEdit;
@@ -284,6 +295,20 @@ const UsersForm = ({
       }
     },
   });
+
+  const onPersistedUserSettings = useCallback(async () => {
+    await client.resetStore();
+    await refetchCurrentUser();
+  }, [client, refetchCurrentUser]);
+
+  const settingsFormForHook = form as unknown as SettingsFormApi;
+  const { awaitPendingSaves } = useAutoSaveUserSettingsFields(
+    settingsFormForHook,
+    initialData?._id,
+    mutate,
+    onPersistedUserSettings,
+  );
+  awaitPendingUserSettingsSavesRef.current = awaitPendingSaves;
 
   if (!initialData) {
     return <Error404 />;
@@ -435,6 +460,7 @@ const UsersEditForm = ({ terms, accountManagement }: {
           isCurrentUser={isCurrentUser}
           requestPasswordReset={requestPasswordReset}
           accountManagement={accountManagement ?? null}
+          profileSlug={terms.slug}
         />
       )}
     </div>
