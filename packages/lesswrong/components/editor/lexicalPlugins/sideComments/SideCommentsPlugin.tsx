@@ -127,6 +127,9 @@ const styles = defineStyles('SideCommentsPlugin', (theme: ThemeType) => ({
     position: 'relative',
     borderTop: theme.palette.greyBorder('1px', 0.08),
   },
+  replyComposerHidden: {
+    display: 'none',
+  },
 }));
 
 export function useHasSideComments(): boolean {
@@ -297,15 +300,16 @@ const SideCommentItem = ({
             </li>
           ))}
         </ul>
-        {isActive && (
-          <div className={classes.replyComposer} onClick={(e) => e.stopPropagation()}>
-            <CommentsComposer
-              submitAddComment={submitAddComment}
-              thread={thread}
-              placeholder="Reply..."
-            />
-          </div>
-        )}
+        <div
+          className={classNames(classes.replyComposer, !isActive && classes.replyComposerHidden)}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <CommentsComposer
+            submitAddComment={submitAddComment}
+            thread={thread}
+            placeholder="Reply..."
+          />
+        </div>
       </div>
     </SideItem>
   );
