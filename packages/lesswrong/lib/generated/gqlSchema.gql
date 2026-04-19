@@ -2171,6 +2171,7 @@ input CommentsProfileCommentsInput {
   minimumKarma: Int
   authorIsUnreviewed: Boolean
   sortBy: String
+  shortform: Boolean
   drafts: String
   limit: String
 }
