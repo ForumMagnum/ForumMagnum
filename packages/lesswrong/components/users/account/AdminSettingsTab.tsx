@@ -206,6 +206,15 @@ const AdminSettingsTab = ({
             <SettingsToggleRow field={field} label="All commenting disabled" />
           )}
         </form.Field>
+        <form.Field name="exemptFromTotalKarmaAutoRateLimits">
+          {(field) => (
+            <SettingsToggleRow
+              field={field}
+              label="Exempt from total-karma auto rate limits"
+              description="Skips auto limits that depend only on account karma (or karma combined with recent activity). Recent-karma-only limits still apply."
+            />
+          )}
+        </form.Field>
         <form.Field name="commentingOnOtherUsersDisabled">
           {(field) => (
             <SettingsToggleRow field={field} label="Commenting on other users disabled" />

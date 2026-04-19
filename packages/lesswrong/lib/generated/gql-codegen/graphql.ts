@@ -3543,6 +3543,7 @@ export type CreateUserDataInput = {
   email?: InputMaybe<Scalars['String']['input']>;
   emailSubscribedToCurated?: InputMaybe<Scalars['Boolean']['input']>;
   expandedFrontpageSections?: InputMaybe<ExpandedFrontpageSectionsSettingsInput>;
+  exemptFromTotalKarmaAutoRateLimits?: InputMaybe<Scalars['Boolean']['input']>;
   facebookProfileURL?: InputMaybe<Scalars['String']['input']>;
   fmCrosspostUserId?: InputMaybe<Scalars['String']['input']>;
   frontpageFilterSettings?: InputMaybe<Scalars['JSON']['input']>;
@@ -12474,6 +12475,7 @@ export type UpdateUserDataInput = {
   email?: InputMaybe<Scalars['String']['input']>;
   emailSubscribedToCurated?: InputMaybe<Scalars['Boolean']['input']>;
   expandedFrontpageSections?: InputMaybe<ExpandedFrontpageSectionsSettingsInput>;
+  exemptFromTotalKarmaAutoRateLimits?: InputMaybe<Scalars['Boolean']['input']>;
   facebookProfileURL?: InputMaybe<Scalars['String']['input']>;
   fmCrosspostUserId?: InputMaybe<Scalars['String']['input']>;
   frontpageFilterSettings?: InputMaybe<Scalars['JSON']['input']>;
@@ -12747,6 +12749,7 @@ export type User = {
   emailSubscribedToCurated: Maybe<Scalars['Boolean']['output']>;
   emails: Maybe<Array<Scalars['JSON']['output']>>;
   expandedFrontpageSections: Maybe<ExpandedFrontpageSectionsSettingsOutput>;
+  exemptFromTotalKarmaAutoRateLimits: Maybe<Scalars['Boolean']['output']>;
   facebookProfileURL: Maybe<Scalars['String']['output']>;
   fmCrosspostUserId: Maybe<Scalars['String']['output']>;
   frontpageFilterSettings: Maybe<Scalars['JSON']['output']>;
@@ -20974,7 +20977,7 @@ export type UserRateLimitDisplay = { __typename?: 'UserRateLimit', _id: string, 
 export type UsersMinimumInfo = { __typename?: 'User', _id: string, slug: string, createdAt: string, username: string | null, displayName: string, profileImageId: string | null, karma: number, afKarma: number, deleted: boolean, isAdmin: boolean, htmlBio: string, postCount: number, commentCount: number, sequenceCount: number, afPostCount: number, afCommentCount: number, spamRiskScore: number, tagRevisionCount: number, reviewedByUserId: string | null };
 
 export type UsersProfile = (
-  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, organizerOfGroupIds: Array<string>, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, hideProfileTopPosts: boolean, voteReceivedCount: number | null, biography: (
+  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, organizerOfGroupIds: Array<string>, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, exemptFromTotalKarmaAutoRateLimits: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, hideProfileTopPosts: boolean, voteReceivedCount: number | null, biography: (
     { __typename?: 'Revision' }
     & RevisionDisplay
   ) | null, moderationGuidelines: (

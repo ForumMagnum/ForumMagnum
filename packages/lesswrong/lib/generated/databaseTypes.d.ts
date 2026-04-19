@@ -1594,6 +1594,7 @@ interface DbUser extends DbObject {
     verified: boolean,
   }> | null
   expandedFrontpageSections: ExpandedFrontpageSectionsSettingsInput | null
+  exemptFromTotalKarmaAutoRateLimits: boolean
   facebookProfileURL: string | null
   fmCrosspostUserId: string | null
   frontpageFilterSettings: any | null

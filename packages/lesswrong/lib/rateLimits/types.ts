@@ -9,7 +9,7 @@ export type RateLimitInfo = {
   rateLimitMessage: string,
 }
 
-export type UserKarmaInfo = Pick<DbUser, "karma"|"smallDownvoteReceivedCount"|"smallUpvoteReceivedCount"|"bigDownvoteReceivedCount"|"bigUpvoteReceivedCount"|"voteReceivedCount">
+export type UserKarmaInfo = Pick<DbUser, "karma"|"smallDownvoteReceivedCount"|"smallUpvoteReceivedCount"|"bigDownvoteReceivedCount"|"bigUpvoteReceivedCount"|"voteReceivedCount"|"exemptFromTotalKarmaAutoRateLimits">
 
 /* 
 Each forum can set a list of automatically applied rate limits. 

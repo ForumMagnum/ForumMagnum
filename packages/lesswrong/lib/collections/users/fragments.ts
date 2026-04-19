@@ -77,6 +77,7 @@ export const UsersProfile = gql(`
     paymentInfo
     postingDisabled
     allCommentingDisabled
+    exemptFromTotalKarmaAutoRateLimits
     commentingOnOtherUsersDisabled
     conversationsDisabled
     pinnedPostIds

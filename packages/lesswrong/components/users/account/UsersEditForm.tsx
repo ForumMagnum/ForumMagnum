@@ -127,6 +127,7 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   hideSunshineSidebar: 'admin',
   postingDisabled: 'admin',
   allCommentingDisabled: 'admin',
+  exemptFromTotalKarmaAutoRateLimits: 'admin',
   commentingOnOtherUsersDisabled: 'admin',
   conversationsDisabled: 'admin',
   nullifyVotes: 'admin',

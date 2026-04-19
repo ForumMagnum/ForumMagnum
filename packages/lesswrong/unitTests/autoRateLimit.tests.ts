@@ -2,7 +2,8 @@ import sum from "lodash/sum";
 import groupBy from "lodash/groupBy";
 import range from "lodash/range";
 import moment from "moment";
-import { CommentAutoRateLimit, RecentVoteInfo, UserKarmaInfo, IsActiveFunction, RateLimitFeatures } from "../lib/rateLimits/types";
+import { CommentAutoRateLimit, RecentVoteInfo, UserKarmaInfo, IsActiveFunction, RateLimitFeatures, RateLimitUser } from "../lib/rateLimits/types";
+import { karmaForDownvoterThresholdBranch, totalKarmaBelow } from "../lib/rateLimits/karmaPredicates";
 import { calculateRecentKarmaInfo, getDownvoteRatio } from "../lib/rateLimits/utils";
 
 function createVote(overrideVoteFields?: Partial<RecentVoteInfo>): RecentVoteInfo {
@@ -54,7 +55,8 @@ function createUserKarmaInfo(overrideFields?: Partial<UserKarmaInfo>): UserKarma
     smallDownvoteReceivedCount: 0,
     voteReceivedCount: 0,
     smallUpvoteReceivedCount: 0,
-    bigUpvoteReceivedCount: 0
+    bigUpvoteReceivedCount: 0,
+    exemptFromTotalKarmaAutoRateLimits: false,
   }
   return { ...defaultUserKarmaInfo, ...overrideFields}
 }
@@ -212,5 +214,28 @@ describe("shouldRateLimitApply", function () {
     
     expect(rateLimit.isActive(user1, featuresOldCommentVotes)).toEqual(false)
     expect(rateLimit.isActive(user1, featuresNewCommentVotes)).toEqual(true)
+  })
+})
+
+describe("exemptFromTotalKarmaAutoRateLimits", function () {
+  it("totalKarmaBelow is false when exempt regardless of karma", () => {
+    const exemptUser = { karma: -100, exemptFromTotalKarmaAutoRateLimits: true } as RateLimitUser
+    expect(totalKarmaBelow(exemptUser, 0)).toEqual(false)
+    expect(totalKarmaBelow(exemptUser, 500)).toEqual(false)
+  })
+  it("karmaForDownvoterThresholdBranch is high when exempt", () => {
+    const exemptUser = { karma: 100, exemptFromTotalKarmaAutoRateLimits: true } as RateLimitUser
+    expect(karmaForDownvoterThresholdBranch(exemptUser)).toEqual(Infinity)
+    const normalUser = { karma: 100, exemptFromTotalKarmaAutoRateLimits: false } as RateLimitUser
+    expect(karmaForDownvoterThresholdBranch(normalUser)).toEqual(100)
+  })
+  it("still applies recent-karma-only limits when exempt", () => {
+    const rateLimit = createCommentRateLimit((user, features) => features.last20Karma <= 0)
+    const user = createUserKarmaInfo({ karma: 5000, exemptFromTotalKarmaAutoRateLimits: true })
+    const recentDownvotes = range(20).map(k => createCommentVote({power: -1}))
+    const featuresOk = calculateFeatures("authorId", user, range(20).map(k => createCommentVote()))
+    const featuresBad = calculateFeatures("authorId", user, recentDownvotes)
+    expect(rateLimit.isActive(user, featuresOk)).toEqual(false)
+    expect(rateLimit.isActive(user, featuresBad)).toEqual(true)
   })
 })
