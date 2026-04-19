@@ -14,6 +14,7 @@ import { filterNonnull } from "@/lib/utils/typeGuardUtils";
 import { cleanPostPreviewText, cssUrl, DEFAULT_PREVIEWS, formatReadableDate, getDefaultPreview, PostWithPreview } from "./userProfilePageUtil";
 import times from "lodash/times";
 import { seededShuffle } from "@/lib/random";
+import { isAF } from "@/lib/instanceSettings";
 
 const userProfileTopPostsSectionUnsharedStyles = defineStyles("UserProfileTopPostsSectionUnshared", (theme: ThemeType) => ({
   topPostsIndicator: {
@@ -314,6 +315,7 @@ const ProfileTopPostsQuery = gql(`
   fragment ProfileTopPost on Post {
     ...PostsMinimumInfo
     baseScore
+    afBaseScore
     postedAt
     socialPreviewData { imageUrl }
     contents { plaintextDescription }
@@ -372,6 +374,10 @@ function getTopPostSummary(post: { contents?: { plaintextDescription?: string | 
   return cleanPostPreviewText(post?.contents?.plaintextDescription ?? "");
 }
 
+function getPostKarmaDisplay(post: { baseScore: number, afBaseScore?: number | null }): number {
+  return isAF() ? (post.afBaseScore ?? 0) : (post.baseScore ?? 0);
+}
+
 export function UserProfileTopPostsSection({user}: {user: UsersProfile}) {
   return <Suspense fallback={<UserProfileTopPostsSectionFallback user={user} />}>
     <UserProfileTopPostsSectionQuery user={user} />
@@ -393,12 +399,13 @@ export function UserProfileTopPostsSectionQuery({user}: {user: UsersProfile}) {
   const pinnedPostIds = user.pinnedPostIds ?? [];
   const hasPinnedPosts = pinnedPostIds.length >= TOP_POSTS_LIMIT;
 
+  const af = isAF();
   const { data } = useSuspenseQuery(ProfileTopPostsQuery, {
     variables: {
       selector: hasPinnedPosts
         ? { default: { exactPostIds: pinnedPostIds } }
         : (userId
-          ? { userPosts: { userId, sortedBy: "top", excludeEvents: true, authorIsUnreviewed: null } }
+          ? { userPosts: { userId, sortedBy: "top", excludeEvents: true, authorIsUnreviewed: null, ...(af ? { af: true } : {}) } }
           : undefined
         ),
       limit: TOP_POSTS_LIMIT,
@@ -472,7 +479,7 @@ function TopPostBigArticle({post, topPostDefaultImages}: {
         </div>
         <div className={classes.postMetaBar}>
           <LWTooltip title="Karma score">
-            <span className={classes.karmaScore}>{post.baseScore ?? 0}</span>
+            <span className={classes.karmaScore}>{getPostKarmaDisplay(post)}</span>
           </LWTooltip>
           <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
             <span className={classes.postDate}>{formatReadableDate(post.postedAt!)}</span>
@@ -523,7 +530,7 @@ function TopPostSmallArticle({post, topPostDefaultImages, idx}: {
           </h3>
           <div className={classes.smallArticleMeta}>
             <LWTooltip title="Karma score">
-              <span className={classes.smallKarma}>{post.baseScore ?? 0}</span>
+              <span className={classes.smallKarma}>{getPostKarmaDisplay(post)}</span>
             </LWTooltip>
             <LWTooltip title={<ExpandedDate date={post.postedAt!} />}>
               <span className={classes.smallDate}>{formatReadableDate(post.postedAt!)}</span>

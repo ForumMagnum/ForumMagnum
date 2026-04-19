@@ -11,6 +11,7 @@ import { commentGetPageUrlFromIds } from "@/lib/collections/comments/helpers";
 import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { profileStyles } from "./profileStyles";
+import { isAF } from "@/lib/instanceSettings";
 
 const profileDiamondSectionsUnsharedStyles = defineStyles("ProfileDiamondSectionsUnshared", (theme: ThemeType) => ({
   diamondsSection: {
@@ -76,8 +77,8 @@ const COMMENT_DIAMONDS_INITIAL = 500;
 const COMMENT_DIAMONDS_SHOW_ALL_LIMIT = 20000;
 
 const ProfilePostDiamondDataQuery = gql(`
-  query ProfilePostDiamondDataQuery($userId: String!, $limit: Int!) {
-    ProfileDiamondPosts(userId: $userId, limit: $limit) {
+  query ProfilePostDiamondDataQuery($userId: String!, $limit: Int!, $af: Boolean) {
+    ProfileDiamondPosts(userId: $userId, limit: $limit, af: $af) {
       results {
         _id
         slug
@@ -92,8 +93,8 @@ const ProfilePostDiamondDataQuery = gql(`
 `);
 
 const ProfileCommentDiamondDataQuery = gql(`
-  query ProfileCommentDiamondDataQuery($userId: String!, $limit: Int!) {
-    ProfileDiamondComments(userId: $userId, limit: $limit) {
+  query ProfileCommentDiamondDataQuery($userId: String!, $limit: Int!, $af: Boolean) {
+    ProfileDiamondComments(userId: $userId, limit: $limit, af: $af) {
       results {
         id
         date
@@ -120,6 +121,7 @@ function getDiamondKarmaStyle(karma: number, isGold: boolean, maxKarmaForFullOpa
 }
 
 function useProfileDiamondDataWithLoadMore(userId: string) {
+  const af = isAF() || undefined;
   const {
     data: postDiamondData,
     previousData: previousPostDiamondData,
@@ -129,6 +131,7 @@ function useProfileDiamondDataWithLoadMore(userId: string) {
     variables: {
       userId,
       limit: DIAMONDS_INITIAL,
+      af,
     },
     fetchPolicy: "cache-and-network",
     itemsPerPage: DIAMONDS_SHOW_ALL_LIMIT - DIAMONDS_INITIAL,
@@ -144,6 +147,7 @@ function useProfileDiamondDataWithLoadMore(userId: string) {
     variables: {
       userId,
       limit: COMMENT_DIAMONDS_INITIAL,
+      af,
     },
     fetchPolicy: "cache-and-network",
     itemsPerPage: COMMENT_DIAMONDS_SHOW_ALL_LIMIT - COMMENT_DIAMONDS_INITIAL,

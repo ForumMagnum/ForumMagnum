@@ -644,8 +644,8 @@ extend type Query {
   UsersReadPostsOfTargetUser(userId: String!, targetUserId: String!, limit: Int): [Post!]
   UserReadHistory(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
   PostsUserCommentedOn(limit: Int, filter: PostReviewFilter, sort: PostReviewSort): UserReadHistoryResult
-  ProfileDiamondPosts(userId: String!, limit: Int!): ProfileDiamondPostsResult!
-  ProfileDiamondComments(userId: String!, limit: Int!): ProfileDiamondCommentsResult!
+  ProfileDiamondPosts(userId: String!, limit: Int!, af: Boolean): ProfileDiamondPostsResult!
+  ProfileDiamondComments(userId: String!, limit: Int!, af: Boolean): ProfileDiamondCommentsResult!
   LastCuratedDate: LastCuratedDateResult!
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
   HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
