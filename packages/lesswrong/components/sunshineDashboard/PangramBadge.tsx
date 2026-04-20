@@ -51,15 +51,15 @@ const styles = (theme: ThemeType) => ({
     border: theme.palette.border.faint,
   },
   scoreLow: {
-    background: theme.palette.background.primarySlightlyDim ?? "#e8f5e9",
+    background: theme.palette.background.primarySlightlyDim,
     color: theme.palette.text.normal,
   },
   scoreMid: {
-    background: "#fff8e1",
+    background: theme.palette.pangram.scoreMidBackground,
     color: theme.palette.text.normal,
   },
   scoreHigh: {
-    background: "#ffebee",
+    background: theme.palette.pangram.scoreHighBackground,
     color: theme.palette.text.normal,
   },
   neutral: {
@@ -67,7 +67,7 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.dim,
   },
   error: {
-    background: "#ffebee",
+    background: theme.palette.pangram.errorBackground,
     color: theme.palette.text.normal,
   },
   loading: {
@@ -82,15 +82,15 @@ const styles = (theme: ThemeType) => ({
     opacity: 0.5,
   },
   aiFraction: {
-    color: "#b71c1c",
+    color: theme.palette.pangram.aiFraction,
     fontWeight: 600,
   },
   assistedFraction: {
-    color: "#ef6c00",
+    color: theme.palette.pangram.assistedFraction,
     fontWeight: 600,
   },
   humanFraction: {
-    color: "#2e7d32",
+    color: theme.palette.pangram.humanFraction,
     fontWeight: 600,
   },
   tooltipHeadline: {

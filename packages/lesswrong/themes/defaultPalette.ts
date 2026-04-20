@@ -676,5 +676,13 @@ export const defaultComponentPalette = (shades: ThemeShadePalette): ThemeCompone
   ultraFeed: {
     dim: shades.grey[600],
     cardSeparator: `8px solid ${shades.greyAlpha(0.05)}`,
+  },
+  pangram: {
+    scoreMidBackground: "#fff8e1",
+    scoreHighBackground: "#ffebee",
+    errorBackground: "#ffebee",
+    aiFraction: "#b71c1c",
+    assistedFraction: "#ef6c00",
+    humanFraction: "#2e7d32",
   }
 })
