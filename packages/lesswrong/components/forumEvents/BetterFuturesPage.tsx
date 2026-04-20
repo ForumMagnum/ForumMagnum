@@ -17,6 +17,7 @@ export const BetterFuturesPage = () => {
       <HeadTags
         title="Better Futures"
         description='To make the future go better, we can either work to avoid near-term catastrophes like human extinction or improve the futures where we survive. This series from Forethought explores that second option. The essays are designed to be read in order, beginning with "Introducing Better Futures".'
+        image="https://res.cloudinary.com/cea/image/upload/v1776673811/SocialPreview/betterfutures.png"
       />
       <SequenceEventPage
         shareTitle="Better Futures"
