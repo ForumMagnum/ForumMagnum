@@ -495,6 +495,67 @@ const schema = {
       },
     }
   },
+  pangramAiScore: {
+    database: {
+      type: "DOUBLE PRECISION",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Float",
+      inputType: "Float",
+      canRead: ["sunshineRegiment", "admins"],
+      canUpdate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  pangramCheckedAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Date",
+      inputType: "Date",
+      canRead: ["sunshineRegiment", "admins"],
+      canUpdate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  pangramStatus: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      inputType: "String",
+      canRead: ["sunshineRegiment", "admins"],
+      canUpdate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  pangramRawResponse: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "JSON",
+      inputType: "JSON",
+      canRead: ["sunshineRegiment", "admins"],
+      canUpdate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+        blackbox: true,
+      },
+    },
+  },
   currentUserVote: DEFAULT_CURRENT_USER_VOTE_FIELD,
   currentUserExtendedVote: DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD,
   voteCount: defaultVoteCountField('Revisions'),

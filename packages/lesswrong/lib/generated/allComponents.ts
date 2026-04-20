@@ -1108,6 +1108,7 @@ import "../../components/sunshineDashboard/ModeratorUserInfo/UserReviewStatus.ts
 import "../../components/sunshineDashboard/NewCommentModerationWarning.tsx"
 import "../../components/sunshineDashboard/NewModeratorActionDialog.tsx"
 import "../../components/sunshineDashboard/NewPostModerationWarning.tsx"
+import "../../components/sunshineDashboard/PangramBadge.tsx"
 import "../../components/sunshineDashboard/PostKarmaWithPreview.tsx"
 import "../../components/sunshineDashboard/RejectContentButton.tsx"
 import "../../components/sunshineDashboard/RejectContentDialog.tsx"
