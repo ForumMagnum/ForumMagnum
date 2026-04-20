@@ -27,3 +27,4 @@ export function stripFootnotes(html: string): string {
 }
 
 export const SCALING_SERIES_ID = "HvynzLsZDJm4vS2gL";
+export const BETTER_FUTURES_ID = "wwqGaWf76xgzDaFes";
