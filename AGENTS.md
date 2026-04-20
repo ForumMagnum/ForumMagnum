@@ -250,6 +250,14 @@ Implications:
 - Styling uses **JSS via `react-jss`**, typically through a `useStyles` hook.
   Site-specific visual behavior often lives in shared theme files rather
   than EA-only directories.
+- Color literals in JSS styles (hex, rgb, color words) will fail
+  `themePalette.tests.ts` unless the component opts out with
+  `allowNonThemeColors`. Add new colors to `theme.palette` in
+  [themeType.ts](packages/lesswrong/themes/themeType.ts),
+  [defaultPalette.ts](packages/lesswrong/themes/defaultPalette.ts), and
+  [darkMode.ts](packages/lesswrong/themes/userThemes/darkMode.ts) instead,
+  so dark mode stays consistent. See the header comment in
+  `defaultPalette.ts` for the full convention.
 - Legacy **Material-UI is being actively removed** (see
   `cleanup-material-ui.js`, `knip-material-ui.json`,
   `remove_unused_material_ui.sh`). Do not introduce new `@material-ui/*`
