@@ -1200,6 +1200,10 @@ export const RevisionsDefaultFragment = `
     changeMetrics
     googleDocMetadata
     skipAttributions
+    pangramAiScore
+    pangramCheckedAt
+    pangramStatus
+    pangramRawResponse
     voteCount
     baseScore
     extendedScore

@@ -1228,6 +1228,23 @@ extend type Mutation {
   unlockThread(commentId: String!): Boolean!
 }
 
+enum PangramStatus {
+  scored
+  too_short
+  skipped_spam
+  error
+}
+
+type PangramRunResult {
+  status: PangramStatus!
+  aiScore: Float
+  rawResponse: JSON
+}
+
+extend type Mutation {
+  runPangramOnDocument(collectionName: String!, documentId: String!): PangramRunResult!
+}
+
 extend type Mutation {
   reorderSummaries(parentDocumentId: String!, parentDocumentCollectionName: String!, summaryIds: [String!]!): Boolean
 }
@@ -3847,6 +3864,10 @@ type Revision {
   lens: MultiDocument
   summary: MultiDocument
   automatedContentEvaluations: AutomatedContentEvaluation
+  pangramAiScore: Float
+  pangramCheckedAt: Date
+  pangramStatus: String
+  pangramRawResponse: JSON
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!
@@ -6467,6 +6488,10 @@ input CreateRevisionDataInput {
 input UpdateRevisionDataInput {
   legacyData: JSON
   skipAttributions: Boolean
+  pangramAiScore: Float
+  pangramCheckedAt: Date
+  pangramStatus: String
+  pangramRawResponse: JSON
 }
 
 input UpdateRevisionInput {
@@ -8057,6 +8082,10 @@ fragment CommentsList on Comment {
     html
     plaintextMainText
     wordCount
+    pangramAiScore
+    pangramStatus
+    pangramCheckedAt
+    pangramRawResponse
   }
   postedAt
   lastEditedAt
@@ -10542,6 +10571,10 @@ fragment RevisionsDefaultFragment on Revision {
   changeMetrics
   googleDocMetadata
   skipAttributions
+  pangramAiScore
+  pangramCheckedAt
+  pangramStatus
+  pangramRawResponse
   voteCount
   baseScore
   extendedScore
@@ -10937,6 +10970,11 @@ fragment SunshinePostsList on Post {
     htmlHighlight
     wordCount
     version
+
+    pangramAiScore
+    pangramStatus
+    pangramCheckedAt
+    pangramRawResponse
 
     automatedContentEvaluations {
       _id

@@ -246,7 +246,7 @@ async function createInitialRevision<N extends CollectionNameString>(
     const editedAt = new Date()
     const changeMetrics = htmlToChangeMetrics("", html);
 
-    const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData"> = {
+    const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData" | "pangramAiScore" | "pangramCheckedAt" | "pangramRawResponse" | "pangramStatus"> = {
       ...revision,
       fieldName,
       collectionName,
@@ -345,7 +345,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
     const version = getNextVersion(previousRev, updateType, (newDocument as DbPost).draft)
     const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
-    const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData" | "googleDocMetadata"> = {
+    const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData" | "googleDocMetadata" | "pangramAiScore" | "pangramCheckedAt" | "pangramRawResponse" | "pangramStatus"> = {
       documentId: document._id,
       ...revision,
       fieldName,

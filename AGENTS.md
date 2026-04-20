@@ -206,6 +206,10 @@ Implications:
   index file.
 - If you add schema fields, collection types, or components, expect codegen to
   be involved.
+- After editing a GraphQL fragment, collection schema, or resolver `typeDefs`,
+  run `yarn generate test && yarn tsc --noEmit` before assuming the change
+  typechecks — the `fragmentTypes.d.ts` / `gqlSchemaAndFragments.gql`
+  artifacts are what downstream `tsc` reads.
 - `yarn generate` takes an env argument (`dev`, `staging`, `prod`, `test`) and
   needs that DB reachable. CI runs `yarn generate test`.
 - Two SQL schema artifacts live under `schema/`:
@@ -232,6 +236,11 @@ Implications:
 - Smart Forms are driven by schema metadata. Before changing a form component,
   inspect the relevant collection schema and the field `control` settings.
 - Rich text / revision-backed fields often go through `makeEditable`.
+- Adding a field to the `Revisions` schema also requires adding it to the
+  two `Omit<DbRevision, ...>` unions in
+  [make_editable_callbacks.ts](packages/lesswrong/server/editor/make_editable_callbacks.ts)
+  (one for new-document creation, one for edits). Missing this produces a
+  non-obvious `tsc` error far from the schema change.
 
 ## Component And Styling Model
 
@@ -262,6 +271,10 @@ Implications:
 - The app has both test-only and forum-specific branching. Confirm whether a
   condition is keyed on `isAnyTest`, `isE2E`, `isEAForum`, or a public/database
   setting before simplifying it.
+- `useMulti` emits queries named `multi${typeName}Query` (e.g.
+  `multiPostsQuery`, `multiCommentsQuery`) — not the component or fragment
+  name. Apollo's `refetchQueries` expects those operation names; passing
+  component names fails silently.
 
 ## Testing Guidance
 

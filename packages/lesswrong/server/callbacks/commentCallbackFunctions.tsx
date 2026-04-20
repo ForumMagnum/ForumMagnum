@@ -18,7 +18,9 @@ import { rateLimitDateWhenUserNextAbleToComment } from "../rateLimitUtils";
 import { recombeeApi } from "../recombee/client";
 import { getCommentAncestorIds, getCommentSubtree } from "../utils/commentTreeUtils";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+import { documentIsEligibleForPangram, extractPangramInputFromComment, pangramIsConfigured, recordPangramSkip, runPangramOnRevision, userIsUnreviewedForPangram } from "../pangram";
 import { captureEvent } from "@/lib/analyticsEvents";
+import { captureException } from "@sentry/core";
 import { akismetKeySetting, commentAncestorsToNotifySetting } from "../databaseSettings";
 import { checkForAkismetSpam } from "../akismet";
 import { getUsersToNotifyAboutEvent } from "../notificationCallbacks";
@@ -878,6 +880,41 @@ export async function checkCommentForSpamWithAkismet(comment: DbComment, current
 /* CREATE ASYNC */
 export async function newCommentTriggerReview({document, context}: AfterCreateCallbackProperties<'Comments'>) {
   await triggerReviewIfNeeded(document.userId, context);
+}
+
+// Must run *after* newCommentTriggerReview / Akismet in the createAsync chain — the re-fetch below relies on spam-marking having already been applied.
+export async function newCommentTriggerPangram({document, context}: AfterCreateCallbackProperties<'Comments'>) {
+  void maybeRunPangramOnComment(document._id, context).catch(captureException);
+}
+
+async function maybeRunPangramOnComment(commentId: string, context: ResolverContext) {
+  if (!pangramIsConfigured()) return;
+
+  // Re-fetch: the Akismet spam check may have soft-deleted the comment after
+  // its initial insert but before this async callback runs.
+  const comment = await context.Comments.findOne({ _id: commentId });
+  if (!comment) return;
+
+  const revisionId = comment.contents_latest;
+  if (!revisionId) return;
+
+  const [author, revision] = await Promise.all([
+    context.loaders.Users.load(comment.userId),
+    context.Revisions.findOne({ _id: revisionId }),
+  ]);
+  if (!author || !userIsUnreviewedForPangram(author)) return;
+  if (!revision || revision.pangramCheckedAt) return;
+
+  const eligibility = documentIsEligibleForPangram(comment);
+  if (!eligibility.eligible) {
+    if (eligibility.skipStatus) {
+      await recordPangramSkip(revisionId, eligibility.skipStatus, context);
+    }
+    return;
+  }
+
+  const text = extractPangramInputFromComment(revision.html);
+  await runPangramOnRevision(revisionId, text, context);
 }
 
 export async function trackCommentRateLimitHit({document, context}: AfterCreateCallbackProperties<'Comments'>) {

@@ -112,6 +112,10 @@ export const slackModFlagsChannelIdSetting = new DatabaseServerSetting<string | 
 export const akismetKeySetting = new DatabaseServerSetting<string | null>('akismet.apiKey', null)
 export const akismetURLSetting = new DatabaseServerSetting<string | null>('akismet.url', null)
 
+// Pangram AI-detection integration
+export const pangramApiKeySetting = new DatabaseServerSetting<string | null>('pangram.apiKey', null)
+export const pangramEnabledSetting = new DatabaseServerSetting<boolean>('pangram.enabled', false)
+
 export const commentAncestorsToNotifySetting = new DatabaseServerSetting<number>('commentAncestorsToNotifySetting', forumSelect({EAForum: 5, default: 1}));
 
 export const changesAllowedSetting = new DatabaseServerSetting<number>('displayNameRateLimit.changesAllowed', 1);
