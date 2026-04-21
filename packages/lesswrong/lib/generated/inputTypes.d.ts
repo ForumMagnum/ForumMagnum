@@ -857,6 +857,12 @@ interface ModeratorIPAddressInfo {
   userIds: Array<string>;
 }
 
+interface PangramRunResult {
+  status: PangramStatus;
+  aiScore: number | null;
+  rawResponse: any;
+}
+
 interface ToggleBookmarkInput {
   documentId: string;
   collectionName: string;
@@ -3143,6 +3149,10 @@ interface Revision {
   lens: MultiDocument | null;
   summary: MultiDocument | null;
   automatedContentEvaluations: AutomatedContentEvaluation | null;
+  pangramAiScore: number | null;
+  pangramCheckedAt: Date | null;
+  pangramStatus: string | null;
+  pangramRawResponse: any;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   voteCount: number;
@@ -5527,6 +5537,10 @@ interface CreateRevisionDataInput {
 interface UpdateRevisionDataInput {
   legacyData?: any;
   skipAttributions?: boolean | null;
+  pangramAiScore?: number | null;
+  pangramCheckedAt?: Date | null;
+  pangramStatus?: string | null;
+  pangramRawResponse?: any;
 }
 
 interface UpdateRevisionInput {
@@ -6623,6 +6637,7 @@ interface GraphQLTypeMap {
   ExternalPostImportData: ExternalPostImportData;
   AutosaveContentType: AutosaveContentType;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
+  PangramRunResult: PangramRunResult;
   ToggleBookmarkInput: ToggleBookmarkInput;
   ToggleBookmarkOutput: ToggleBookmarkOutput;
   RssPostChangeInfo: RssPostChangeInfo;

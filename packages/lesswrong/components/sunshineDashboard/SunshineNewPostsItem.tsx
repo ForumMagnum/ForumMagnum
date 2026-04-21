@@ -27,6 +27,7 @@ import { Typography } from "../common/Typography";
 import ContentStyles from "../common/ContentStyles";
 import SmallSideVote from "../votes/SmallSideVote";
 import ForumIcon from "../common/ForumIcon";
+import PangramBadge from "./PangramBadge";
 
 const styles = (theme: ThemeType) => ({
   icon: {
@@ -56,7 +57,10 @@ const styles = (theme: ThemeType) => ({
   },
   vote: {
     marginRight: 8
-  }
+  },
+  pangramBadge: {
+    marginBottom: 8,
+  },
 })
 
 const SunshineNewPostsItem = ({post, refetch, classes}: {
@@ -138,6 +142,9 @@ const SunshineNewPostsItem = ({post, refetch, classes}: {
     <span {...eventHandlers}>
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl}>
+          <div className={classes.pangramBadge}>
+            <PangramBadge contents={post.contents} collectionName="Posts" documentId={post._id}/>
+          </div>
           <FooterTagList post={post} showCoreTags highlightAutoApplied />
           <div className={classes.buttonRow}>
             <Button onClick={handlePersonal}>

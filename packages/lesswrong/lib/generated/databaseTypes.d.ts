@@ -1261,6 +1261,10 @@ interface DbRevision extends DbObject {
     type: string,
     data: string,
   } | null
+  pangramAiScore: number | null
+  pangramCheckedAt: Date | null
+  pangramRawResponse: any | null
+  pangramStatus: string | null
   score: number
   skipAttributions: boolean
   updateType: "initial" | "patch" | "minor" | "major" | null

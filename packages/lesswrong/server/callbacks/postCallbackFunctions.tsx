@@ -37,6 +37,7 @@ import { cheerioParse } from "../utils/htmlUtil";
 import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+import { documentIsEligibleForPangram, extractPangramInputFromPost, pangramIsConfigured, recordPangramSkip, runPangramOnRevision, userIsUnreviewedForPangram } from "../pangram";
 import { captureException } from "@sentry/core";
 import moment from "moment";
 import _ from "underscore";
@@ -143,6 +144,32 @@ export async function onPostPublished(post: DbPost, context: ResolverContext) {
   const { updateScoreOnPostPublish } = require("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
+  // Deliberately fire-and-forget: Pangram latency (seconds) must not block publish.
+  void maybeRunPangramOnPost(post, context).catch(captureException);
+}
+
+async function maybeRunPangramOnPost(post: DbPost, context: ResolverContext) {
+  if (!pangramIsConfigured()) return;
+
+  const [author, revision] = await Promise.all([
+    context.loaders.Users.load(post.userId),
+    getLatestContentsRevision(post, context),
+  ]);
+  if (!author || !userIsUnreviewedForPangram(author)) return;
+  if (!revision) return;
+  // Avoid re-scoring the same revision when a draft is re-published. Manual rerun still overwrites.
+  if (revision.pangramCheckedAt) return;
+
+  const eligibility = documentIsEligibleForPangram(post);
+  if (!eligibility.eligible) {
+    if (eligibility.skipStatus) {
+      await recordPangramSkip(revision._id, eligibility.skipStatus, context);
+    }
+    return;
+  }
+
+  const text = extractPangramInputFromPost(post, revision.html);
+  await runPangramOnRevision(revision._id, text, context);
 }
 
 const utils = {

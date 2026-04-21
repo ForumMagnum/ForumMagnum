@@ -558,6 +558,10 @@ interface CommentsList_contents { // fragment on Revisions
   readonly html: string|null,
   readonly plaintextMainText: string,
   readonly wordCount: number,
+  readonly pangramAiScore: number|null,
+  readonly pangramStatus: string|null,
+  readonly pangramCheckedAt: Date|null,
+  readonly pangramRawResponse: any,
 }
 
 interface CommentsListWithModGPTAnalysis extends CommentsList { // fragment on Comments
@@ -2711,6 +2715,10 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly changeMetrics: any,
   readonly googleDocMetadata: any,
   readonly skipAttributions: boolean,
+  readonly pangramAiScore: number|null,
+  readonly pangramCheckedAt: Date|null,
+  readonly pangramStatus: string|null,
+  readonly pangramRawResponse: any,
   readonly voteCount: number,
   readonly baseScore: number,
   readonly extendedScore: any,
@@ -3087,6 +3095,10 @@ interface SunshinePostsList_contents { // fragment on Revisions
   readonly htmlHighlight: string,
   readonly wordCount: number,
   readonly version: string,
+  readonly pangramAiScore: number|null,
+  readonly pangramStatus: string|null,
+  readonly pangramCheckedAt: Date|null,
+  readonly pangramRawResponse: any,
   readonly automatedContentEvaluations: SunshinePostsList_contents_automatedContentEvaluations|null,
 }
 
