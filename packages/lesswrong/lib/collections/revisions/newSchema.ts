@@ -18,6 +18,22 @@ import gql from "graphql-tag";
 import { getOriginalContents } from "./helpers";
 import { userIsPostGroupOrganizer } from "../posts/helpers";
 import { isLWorAF } from "@/lib/instanceSettings";
+import { LATEST_REVISION_ID_KEY } from "@/lib/editor/make_editable";
+
+// Pangram columns live only on the `Revisions` row. Posts' `contents` resolver
+// SQL-joins to Revisions so the columns surface on the root. Comments'
+// `contents` resolver is denormalized from JSONB, which doesn't mirror them;
+// for that path `getDenormalizedEditableResolver` stashes the real Revision id
+// as `LATEST_REVISION_ID_KEY` on the root so we can load it here.
+type PangramFieldKey = "pangramAiScore" | "pangramCheckedAt" | "pangramStatus" | "pangramRawResponse";
+const pangramFieldResolver = <K extends PangramFieldKey>(field: K) =>
+  async (root: AnyBecauseHard, _args: AnyBecauseHard, context: ResolverContext): Promise<DbRevision[K] | null> => {
+    if (!(LATEST_REVISION_ID_KEY in root)) return root[field] ?? null;
+    const latestRevisionId: string | null = root[LATEST_REVISION_ID_KEY];
+    if (!latestRevisionId) return null;
+    const revision = await context.loaders.Revisions.load(latestRevisionId);
+    return revision?.[field] ?? null;
+  };
 
 // I _think_ this is a server-side only library, but it doesn't seem to be causing problems living at the top level (yet)
 // TODO: consider moving it to a server-side helper file with a stub, if so
@@ -505,6 +521,7 @@ const schema = {
       inputType: "Float",
       canRead: ["sunshineRegiment", "admins"],
       canUpdate: ["sunshineRegiment", "admins"],
+      resolver: pangramFieldResolver("pangramAiScore"),
       validation: {
         optional: true,
       },
@@ -520,6 +537,7 @@ const schema = {
       inputType: "Date",
       canRead: ["sunshineRegiment", "admins"],
       canUpdate: ["sunshineRegiment", "admins"],
+      resolver: pangramFieldResolver("pangramCheckedAt"),
       validation: {
         optional: true,
       },
@@ -535,6 +553,7 @@ const schema = {
       inputType: "String",
       canRead: ["sunshineRegiment", "admins"],
       canUpdate: ["sunshineRegiment", "admins"],
+      resolver: pangramFieldResolver("pangramStatus"),
       validation: {
         optional: true,
       },
@@ -550,6 +569,7 @@ const schema = {
       inputType: "JSON",
       canRead: ["sunshineRegiment", "admins"],
       canUpdate: ["sunshineRegiment", "admins"],
+      resolver: pangramFieldResolver("pangramRawResponse"),
       validation: {
         optional: true,
         blackbox: true,
