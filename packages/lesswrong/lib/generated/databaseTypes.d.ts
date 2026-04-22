@@ -1593,8 +1593,8 @@ interface DbUser extends DbObject {
     address: string,
     verified: boolean,
   }> | null
-  expandedFrontpageSections: ExpandedFrontpageSectionsSettingsInput | null
   exemptFromTotalKarmaAutoRateLimits: boolean
+  expandedFrontpageSections: ExpandedFrontpageSectionsSettingsInput | null
   facebookProfileURL: string | null
   fmCrosspostUserId: string | null
   frontpageFilterSettings: any | null

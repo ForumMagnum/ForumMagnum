@@ -353,6 +353,7 @@ export const SunshineUsersList = gql(`
     sunshineFlagged
     postingDisabled
     allCommentingDisabled
+    exemptFromTotalKarmaAutoRateLimits
     commentingOnOtherUsersDisabled
     conversationsDisabled
     votingDisabled
