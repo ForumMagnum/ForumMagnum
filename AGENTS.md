@@ -241,6 +241,12 @@ Implications:
   [make_editable_callbacks.ts](packages/lesswrong/server/editor/make_editable_callbacks.ts)
   (one for new-document creation, one for edits). Missing this produces a
   non-obvious `tsc` error far from the schema change.
+- `Posts.contents` uses `getNormalizedEditableResolver` (SQL-joins to the
+  `Revisions` table), while `Comments.contents` uses
+  `getDenormalizedEditableResolver` (builds a Revision-shaped object from the
+  JSONB `contents` column on the Comment, which does **not** mirror every
+  `Revisions` column). A new column added to `Revisions` surfaces on
+  `Post.contents` but returns `null` on `Comment.contents` by default.
 
 ## Component And Styling Model
 

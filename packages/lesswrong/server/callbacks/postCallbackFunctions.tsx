@@ -6,6 +6,7 @@ import { postStatuses } from "@/lib/collections/posts/constants";
 import { TOS_NOT_ACCEPTED_ERROR } from "../fmCrosspost/errors";
 import { isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib/collections/posts/helpers";
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
+import { isBeingUndrafted } from "@/server/editor/utils";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
 import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting } from "@/lib/instanceSettings";
@@ -144,12 +145,24 @@ export async function onPostPublished(post: DbPost, context: ResolverContext) {
   const { updateScoreOnPostPublish } = require("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
-  // Deliberately fire-and-forget: Pangram latency (seconds) must not block publish.
-  void maybeRunPangramOnPost(post, context).catch(captureException);
+}
+
+export async function newPostTriggerPangram({document, context}: AfterCreateCallbackProperties<'Posts'>) {
+  void maybeRunPangramOnPost(document, context).catch(captureException);
+}
+
+export async function undraftedPostTriggerPangram({oldDocument, newDocument, context}: UpdateCallbackProperties<'Posts'>) {
+  if (!isBeingUndrafted(oldDocument, newDocument)) return;
+  void maybeRunPangramOnPost(newDocument, context).catch(captureException);
 }
 
 async function maybeRunPangramOnPost(post: DbPost, context: ResolverContext) {
   if (!pangramIsConfigured()) return;
+
+  const eligibility = documentIsEligibleForPangram(post);
+  // Short-circuit reversible ineligible states (draft, rejected) before the
+  // DataLoader roundtrips — hot path for draft-post creation.
+  if (!eligibility.eligible && !eligibility.skipStatus) return;
 
   const [author, revision] = await Promise.all([
     context.loaders.Users.load(post.userId),
@@ -160,7 +173,6 @@ async function maybeRunPangramOnPost(post: DbPost, context: ResolverContext) {
   // Avoid re-scoring the same revision when a draft is re-published. Manual rerun still overwrites.
   if (revision.pangramCheckedAt) return;
 
-  const eligibility = documentIsEligibleForPangram(post);
   if (!eligibility.eligible) {
     if (eligibility.skipStatus) {
       await recordPangramSkip(revision._id, eligibility.skipStatus, context);
