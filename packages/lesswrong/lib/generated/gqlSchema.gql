@@ -260,6 +260,7 @@ extend type Mutation {
   UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User
   karmaChangesChecked(startDate: Date, endDate: Date): Boolean!
   SoftDeleteUser(userId: String!): Boolean!
+  MergeUserAccounts(sourceUserId: String!, targetUserId: String!, dryRun: Boolean): Boolean!
 }
 
 extend type Query {

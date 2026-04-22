@@ -3723,6 +3723,7 @@ type Mutation = {
   ImportGoogleDoc?: Maybe<Post>;
   MakeElicitPrediction?: Maybe<ElicitBlockData>;
   MarkAllNotificationsAsRead?: Maybe<Scalars['Boolean']['output']>;
+  MergeUserAccounts: Scalars['Boolean']['output'];
   NewUserCompleteProfile?: Maybe<NewUserCompletedProfile>;
   PetrovDayLaunchMissile?: Maybe<PetrovDayLaunchMissileData>;
   RSVPToEvent?: Maybe<Post>;
@@ -3889,6 +3890,13 @@ type MutationImportGoogleDocArgs = {
 type MutationMakeElicitPredictionArgs = {
   prediction?: InputMaybe<Scalars['Int']['input']>;
   questionId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationMergeUserAccountsArgs = {
+  dryRun?: InputMaybe<Scalars['Boolean']['input']>;
+  sourceUserId: Scalars['String']['input'];
+  targetUserId: Scalars['String']['input'];
 };
 
 
@@ -21744,6 +21752,35 @@ type updateUserDeleteAccountSectionMutationVariables = Exact<{
 
 type updateUserDeleteAccountSectionMutation = updateUserDeleteAccountSectionMutation_Mutation;
 
+type MergeAccountsDialogGetUserQuery_user_SingleUserOutput_result_User = (
+  { __typename?: 'User' }
+  & UserMergeCandidateInfo
+);
+
+type MergeAccountsDialogGetUserQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: MergeAccountsDialogGetUserQuery_user_SingleUserOutput_result_User | null };
+
+type MergeAccountsDialogGetUserQuery_Query = { __typename?: 'Query', user: MergeAccountsDialogGetUserQuery_user_SingleUserOutput | null };
+
+
+type MergeAccountsDialogGetUserQueryVariables = Exact<{
+  selector: InputMaybe<SelectorInput>;
+}>;
+
+
+type MergeAccountsDialogGetUserQuery = MergeAccountsDialogGetUserQuery_Query;
+
+type MergeUserAccountsMutation_Mutation = { __typename?: 'Mutation', MergeUserAccounts: boolean };
+
+
+type MergeUserAccountsMutationVariables = Exact<{
+  sourceUserId: Scalars['String']['input'];
+  targetUserId: Scalars['String']['input'];
+  dryRun: InputMaybe<Scalars['Boolean']['input']>;
+}>;
+
+
+type MergeUserAccountsMutation = MergeUserAccountsMutation_Mutation;
+
 type SoftDeleteUserMutation_Mutation = { __typename?: 'Mutation', SoftDeleteUser: boolean };
 
 
@@ -23968,6 +24005,8 @@ type UserKarmaChanges_User_karmaChanges_KarmaChanges_tagRevisions_RevisionsKarma
 type UserKarmaChanges_User_karmaChanges_KarmaChanges = { __typename?: 'KarmaChanges', totalChange: number, updateFrequency: string, startDate: string | null, endDate: string | null, nextBatchDate: string | null, posts: Array<UserKarmaChanges_User_karmaChanges_KarmaChanges_posts_PostKarmaChange>, comments: Array<UserKarmaChanges_User_karmaChanges_KarmaChanges_comments_CommentKarmaChange>, tagRevisions: Array<UserKarmaChanges_User_karmaChanges_KarmaChanges_tagRevisions_RevisionsKarmaChange> };
 
 type UserKarmaChanges = { __typename?: 'User', _id: string, karmaChanges: UserKarmaChanges_User_karmaChanges_KarmaChanges | null };
+
+type UserMergeCandidateInfo = { __typename?: 'User', _id: string, slug: string, username: string | null, displayName: string, createdAt: string, karma: number, postCount: number, commentCount: number, email: string | null, deleted: boolean };
 
 type SunshineUsersList_User_mailgunValidation_MailgunValidationResult = { __typename?: 'MailgunValidationResult', email: string | null, status: string | null, validatedAt: string | null, httpStatus: number | null, error: string | null, isValid: boolean | null, risk: string | null, reason: string | null, didYouMean: string | null, isDisposableAddress: boolean | null, isRoleAddress: boolean | null, sourceUserId: string | null };
 

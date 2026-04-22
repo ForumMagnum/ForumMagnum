@@ -309,6 +309,21 @@ export const UserKarmaChanges = gql(`
   }
 `)
 
+export const UserMergeCandidateInfo = gql(`
+  fragment UserMergeCandidateInfo on User {
+    _id
+    slug
+    username
+    displayName
+    createdAt
+    karma
+    postCount
+    commentCount
+    email
+    deleted
+  }
+`)
+
 export const SunshineUsersList = gql(`
   fragment SunshineUsersList on User {
     ...UsersMinimumInfo

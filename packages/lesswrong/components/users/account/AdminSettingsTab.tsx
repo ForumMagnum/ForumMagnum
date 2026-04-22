@@ -9,6 +9,7 @@ import SettingsSection from './SettingsSection';
 import SettingsTextRow from './SettingsTextRow';
 import SettingsToggleRow from './SettingsToggleRow';
 import SoftDeleteUserSection from './SoftDeleteUserSection';
+import MergeAccountsSection from './MergeAccountsSection';
 import type { SettingsTabProps } from './settingsTabTypes';
 
 const GROUP_OPTIONS = Object.keys(getAllUserGroups())
@@ -252,6 +253,15 @@ const AdminSettingsTab = ({
           <SoftDeleteUserSection userId={form.state.values._id} />
         )}
       </SettingsSection>
+
+      {userIsAdmin(currentUser) && (
+        <SettingsSection title="Merge Accounts">
+          <MergeAccountsSection
+            targetUserId={form.state.values._id}
+            targetDisplayName={form.state.values.displayName ?? form.state.values.username ?? null}
+          />
+        </SettingsSection>
+      )}
 
       {isLWorAF() && userIsAdmin(currentUser) && (
         <SettingsSection title="Prize / Payment Info">

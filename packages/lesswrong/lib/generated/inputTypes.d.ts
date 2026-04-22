@@ -199,6 +199,7 @@ interface Mutation {
   UserUpdateSubforumMembership: User | null;
   karmaChangesChecked: boolean;
   SoftDeleteUser: boolean;
+  MergeUserAccounts: boolean;
   setVotePost: Post | null;
   performVotePost: VoteResultPost | null;
   setVoteComment: Comment | null;

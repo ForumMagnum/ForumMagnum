@@ -14,6 +14,7 @@ import { updateUser } from '../collections/users/mutations';
 import { accessFilterSingle } from '@/lib/utils/schemaUtils';
 import { backgroundTask } from '../utils/backgroundTask';
 import { invalidateLoginTokensFor } from '../vulcan-lib/apollo-server/authentication';
+import { mergeAccounts } from '../scripts/mergeAccounts';
 
 type NewUserUpdates = {
   username: string
@@ -100,6 +101,7 @@ export const graphqlTypeDefs = gql`
     UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User
     karmaChangesChecked(startDate: Date, endDate: Date): Boolean!
     SoftDeleteUser(userId: String!): Boolean!
+    MergeUserAccounts(sourceUserId: String!, targetUserId: String!, dryRun: Boolean): Boolean!
   }
 
   extend type Query {
@@ -270,6 +272,23 @@ export const graphqlMutations = {
     // The slug callback preserves old slugs for redirects; clear them so the old username isn't discoverable
     await Users.rawUpdateOne({ _id: userId }, { $set: { oldSlugs: [] } });
     backgroundTask(invalidateLoginTokensFor(userId));
+    return true;
+  },
+  async MergeUserAccounts(_root: void, { sourceUserId, targetUserId, dryRun }: { sourceUserId: string, targetUserId: string, dryRun?: boolean | null }, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!userIsAdmin(currentUser)) {
+      throw new Error("Only admins can merge user accounts");
+    }
+    if (sourceUserId === targetUserId) {
+      throw new Error("Source and target user must be different");
+    }
+    const [sourceUser, targetUser] = await Promise.all([
+      Users.findOne({ _id: sourceUserId }),
+      Users.findOne({ _id: targetUserId }),
+    ]);
+    if (!sourceUser) throw new Error(`Source user not found: ${sourceUserId}`);
+    if (!targetUser) throw new Error(`Target user not found: ${targetUserId}`);
+    await mergeAccounts({ sourceUserId, targetUserId, dryRun: !!dryRun });
     return true;
   },
 }
