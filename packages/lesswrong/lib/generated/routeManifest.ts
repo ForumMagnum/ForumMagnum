@@ -134,6 +134,9 @@ export const routeTrie = {
     },
     "api": {
       "staticChildren": {
+        "GUIDELINES.md": {
+          "hasRoute": true
+        },
         "SKILL.md": {
           "hasRoute": true
         },
@@ -484,6 +487,7 @@ export const routeTrie = {
         }
       },
       "lowerCase": {
+        "guidelines.md": "GUIDELINES.md",
         "skill.md": "SKILL.md",
         "about": "about",
         "codex": "codex",

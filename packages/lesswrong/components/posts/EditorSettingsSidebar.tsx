@@ -806,9 +806,11 @@ const CLAUDE_BUTTON_TOOLTIP_DISABLED = "Click \"Connect Claude to LW Docs\" belo
 
 function getFeedbackQuery(postId: string, linkSharingKey: string | undefined) {
   const postUrl = postGetEditUrl(postId, true, linkSharingKey);
-  return `I'm writing a post on LessWrong and would appreciate your inline feedback on it.  The post is located at ${postUrl}.
+  return `I'm writing a post on LessWrong, located at ${postUrl}.
 
-Please remember to follow the guidelines and review structure in LessWrong's SKILL.md (https://www.lesswrong.com/api/SKILL.md).`;
+For this request, please remember to follow the guidelines and review structure in LessWrong's GUIDELINES.md (https://www.lesswrong.com/api/GUIDELINES.md).
+
+Please read my post and provide inline feedback on it according to those guidelines, after thinking hard about it.`;
 }
 
 function AccordionSection({ title, defaultOpen = false, children, className, contentClassName }: {
