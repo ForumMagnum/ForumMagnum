@@ -56,9 +56,34 @@ export const SHORTCUTS = Object.freeze({
 
 const CONTROL_OR_META = {ctrlKey: !IS_APPLE, metaKey: IS_APPLE};
 
+const PUNCT_TO_CODE: Record<string, string> = {
+  ',': 'Comma',
+  '.': 'Period',
+  '/': 'Slash',
+  ';': 'Semicolon',
+  "'": 'Quote',
+  '[': 'BracketLeft',
+  ']': 'BracketRight',
+  '\\': 'Backslash',
+  '`': 'Backquote',
+  '-': 'Minus',
+  '=': 'Equal',
+};
+
+function expectedKeyToCode(expectedKey: string): string | null {
+  if (/^[a-z]$/i.test(expectedKey)) return 'Key' + expectedKey.toUpperCase();
+  if (/^[0-9]$/.test(expectedKey)) return 'Digit' + expectedKey;
+  return PUNCT_TO_CODE[expectedKey] ?? null;
+}
+
 /**
- * Vendored from Lexical v0.41.0 (because I didn't want to deal with a version-upgrade right now).
- * Earlier versions contain a function by this name, but it is different/incorrect.
+ * Originally vendored from Lexical v0.41.0, then fixed locally. The upstream
+ * version had two bugs: it constructed the expected `event.code` as
+ * `'Key' + expectedKey.toUpperCase()`, which is only correct for letters
+ * (digits use `Digit*`, punctuation uses `Comma`/`Period`/`BracketLeft`/...);
+ * and it bailed out whenever `event.key` was any ASCII character, which breaks
+ * shortcuts where Shift/Option transforms the produced char (e.g. Cmd+Shift+7
+ * yields `&`, Cmd+Opt+1 on macOS yields `¡`).
  */
 export function isExactShortcutMatch(
   event: KeyboardEvent,
@@ -70,24 +95,33 @@ export function isExactShortcutMatch(
   }
 
   if (event.key.toLowerCase() === expectedKey.toLowerCase()) {
-    // For special keys like Enter, Tab, ArrowUp, etc.
-    // For default keys with English-based keyboard layout.
+    // Special keys like Enter/Tab/ArrowUp, and any layout where the produced
+    // character already equals the expected key.
     return true;
   }
 
   if (expectedKey.length > 1) {
-    // For non English-based keyboard layout but the key is a special key, we must not match it by `event.code`.
+    // Named keys (Enter, Tab, ...) can only be matched via event.key.
     return false;
   }
 
-  if (event.key.length === 1 && event.key.charCodeAt(0) <= 127) {
-    // For ASCII keys we must not match it by `event.code` because it would break remapped layouts (English (US) Dvorak, etc.).
+  const expectedCode = expectedKeyToCode(expectedKey);
+  if (expectedCode === null) {
     return false;
   }
 
-  const expectedCode = 'Key' + expectedKey.toUpperCase();
+  // For letter shortcuts, don't fall through to event.code when the produced
+  // char is a different ASCII letter: that would break deliberately remapped
+  // layouts like Dvorak, where the user expects shortcuts to follow the
+  // layout, not the physical key position.
+  if (
+    /^[a-z]$/i.test(expectedKey) &&
+    event.key.length === 1 &&
+    event.key.charCodeAt(0) <= 127
+  ) {
+    return false;
+  }
 
-  // For default keys with not English-based keyboard layouts where `event.key` is non-ASCII, match by `event.code`.
   return event.code === expectedCode;
 }
 
