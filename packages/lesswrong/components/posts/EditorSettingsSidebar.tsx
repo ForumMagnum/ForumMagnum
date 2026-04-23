@@ -808,7 +808,7 @@ function getFeedbackQuery(postId: string, linkSharingKey: string | undefined) {
   const postUrl = postGetEditUrl(postId, true, linkSharingKey);
   return `I'm writing a post on LessWrong, located at ${postUrl}.
 
-For this request, please remember to follow the guidelines and review structure in LessWrong's GUIDELINES.md (https://www.lesswrong.com/api/GUIDELINES.md).
+For this request, please remember to follow the API documentation, guidelines, and review structure for working with collaborative posts in LessWrong's EDITOR_API_AND_GUIDELINES.md (https://www.lesswrong.com/api/EDITOR_API_AND_GUIDELINES.md).
 
 Please read my post and provide inline feedback on it according to those guidelines, after thinking hard about it.`;
 }
