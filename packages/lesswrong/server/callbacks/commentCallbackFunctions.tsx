@@ -887,6 +887,12 @@ export async function newCommentTriggerPangram({document, context}: AfterCreateC
   void maybeRunPangramOnComment(document._id, context).catch(captureException);
 }
 
+export async function editedCommentTriggerPangram(updatedDocument: DbComment, oldDocument: DbComment, context: ResolverContext) {
+  // Status-only edits (retraction, tag changes) leave contents_latest unchanged and don't need re-scoring.
+  if (updatedDocument.contents_latest === oldDocument.contents_latest) return;
+  void maybeRunPangramOnComment(updatedDocument._id, context).catch(captureException);
+}
+
 async function maybeRunPangramOnComment(commentId: string, context: ResolverContext) {
   if (!pangramIsConfigured()) return;
 
