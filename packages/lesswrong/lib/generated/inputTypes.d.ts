@@ -6841,7 +6841,7 @@ interface User {
   programParticipation: Array<string> | null;
   postingDisabled: boolean | null;
   allCommentingDisabled: boolean | null;
-  exemptFromTotalKarmaAutoRateLimits: boolean | null;
+  exemptFromTotalKarmaAutoRateLimits: boolean;
   commentingOnOtherUsersDisabled: boolean | null;
   conversationsDisabled: boolean | null;
   associatedClientId: ClientId | null;

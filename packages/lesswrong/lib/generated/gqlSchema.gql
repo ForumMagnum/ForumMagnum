@@ -7396,7 +7396,7 @@ type User {
   programParticipation: [String!]
   postingDisabled: Boolean
   allCommentingDisabled: Boolean
-  exemptFromTotalKarmaAutoRateLimits: Boolean
+  exemptFromTotalKarmaAutoRateLimits: Boolean!
   commentingOnOtherUsersDisabled: Boolean
   conversationsDisabled: Boolean
   associatedClientId: ClientId
