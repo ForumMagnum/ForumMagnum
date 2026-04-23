@@ -7,7 +7,6 @@
  * Use a dynamic import() instead.
  */
 import { createEditor, $getRoot, $insertNodes } from 'lexical';
-import { $generateNodesFromDOM } from '@lexical/html';
 import { createBinding, syncLexicalUpdateToYjs } from '@lexical/yjs';
 import type { Provider } from '@lexical/yjs';
 import * as Y from 'yjs';
@@ -15,6 +14,7 @@ import { JSDOM } from 'jsdom';
 import PlaygroundNodes from '@/components/lexical/nodes/PlaygroundNodes';
 import PlaygroundEditorTheme from '@/components/lexical/themes/PlaygroundEditorTheme';
 import { withDomGlobals } from './withDomGlobals';
+import { generateNodesFromDOMPreservingWhitespace } from '@/lib/editor/generateNodesFromDOMPreservingWhitespace';
 
 function createMockProvider(): Provider {
   return {
@@ -73,7 +73,7 @@ export function htmlToYjsBinary(html: string): Uint8Array {
         const root = $getRoot();
         root.clear();
         const dom = new JSDOM(html);
-        const nodes = $generateNodesFromDOM(editor, dom.window.document);
+        const nodes = generateNodesFromDOMPreservingWhitespace(editor, dom.window.document);
         $insertNodes(nodes);
       },
       { discrete: true },

@@ -3,7 +3,6 @@ import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
 import { JSDOM } from "jsdom";
-import { $generateNodesFromDOM } from "@lexical/html";
 import {
   $getRoot,
   $createRangeSelection,
@@ -24,6 +23,7 @@ import { insertBlockToolSchema, type InsertLocation, type ReplaceMode } from "..
 import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
+import { generateNodesFromDOMPreservingWhitespace } from "@/lib/editor/generateNodesFromDOMPreservingWhitespace";
 
 interface InsertBlockResult {
   inserted: boolean
@@ -122,7 +122,7 @@ export function $markdownToNodes(editor: LexicalEditor, markdown: string): Lexic
   const markdownWithWidgetIframes = transformWidgetFencesToInlineIframeHtml(markdown);
   const html = markdownToHtml(markdownWithWidgetIframes);
   const dom = new JSDOM(html);
-  const importedNodes = $generateNodesFromDOM(editor, dom.window.document);
+  const importedNodes = generateNodesFromDOMPreservingWhitespace(editor, dom.window.document);
   return normalizeImportedTopLevelNodes(importedNodes);
 }
 
