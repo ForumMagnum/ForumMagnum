@@ -134,7 +134,7 @@ export const routeTrie = {
     },
     "api": {
       "staticChildren": {
-        "GUIDELINES.md": {
+        "EDITOR_API_AND_GUIDELINES.md": {
           "hasRoute": true
         },
         "SKILL.md": {
@@ -487,7 +487,7 @@ export const routeTrie = {
         }
       },
       "lowerCase": {
-        "guidelines.md": "GUIDELINES.md",
+        "editor_api_and_guidelines.md": "EDITOR_API_AND_GUIDELINES.md",
         "skill.md": "SKILL.md",
         "about": "about",
         "codex": "codex",
