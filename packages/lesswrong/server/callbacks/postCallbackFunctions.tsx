@@ -160,27 +160,31 @@ async function maybeRunPangramOnPost(post: DbPost, context: ResolverContext) {
   if (!pangramIsConfigured()) return;
 
   const eligibility = documentIsEligibleForPangram(post);
-  // Short-circuit reversible ineligible states (draft, rejected) before the
-  // DataLoader roundtrips — hot path for draft-post creation.
   if (!eligibility.eligible && !eligibility.skipStatus) return;
 
-  const [author, revision] = await Promise.all([
-    context.loaders.Users.load(post.userId),
-    getLatestContentsRevision(post, context),
-  ]);
+  const author = await context.loaders.Users.load(post.userId);
   if (!author || !userIsUnreviewedForPangram(author)) return;
-  if (!revision) return;
-  // Avoid re-scoring the same revision when a draft is re-published. Manual rerun still overwrites.
-  if (revision.pangramCheckedAt) return;
 
   if (!eligibility.eligible) {
-    if (eligibility.skipStatus) {
-      await recordPangramSkip(revision._id, eligibility.skipStatus, context);
+    // Preview's `contents_latest` is safe to stamp for terminal states — spam/deleted
+    // posts aren't simultaneously getting a new revision from the same mutation.
+    if (eligibility.skipStatus && post.contents_latest) {
+      await recordPangramSkip(post.contents_latest, eligibility.skipStatus, context);
     }
     return;
   }
 
-  const text = extractPangramInputFromPost(post, revision.html);
+  // On undraft, the passed-in post is a preview built from `{...oldDocument, ...data}`
+  // captured BEFORE `createRevisionsForEditableFields` ran, so `contents_latest` can
+  // still point at the stale draft revision. Re-fetch to pick up the fresh one.
+  const freshPost = await context.Posts.findOne({ _id: post._id });
+  if (!freshPost) return;
+  const revision = await getLatestContentsRevision(freshPost, context);
+  if (!revision) return;
+  // Avoid re-scoring the same revision when a draft is re-published. Manual rerun still overwrites.
+  if (revision.pangramCheckedAt) return;
+
+  const text = extractPangramInputFromPost(freshPost, revision.html);
   await runPangramOnRevision(revision._id, text, context);
 }
 
