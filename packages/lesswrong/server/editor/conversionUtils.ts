@@ -692,8 +692,8 @@ export async function dataToWordCount(data: AnyBecauseTodo, type: string, contex
  * Compact a Yjs binary state by round-tripping through a fresh gc:true doc.
  *
  * Live collaborative Yjs docs (Hocuspocus server, client editors) run with
- * gc:false so Lexical's VersionsPlugin has access to the full deletion
- * history. That state grows unboundedly — every deleted character's content
+ * gc:false so that we can debug document corruption if/when it happens.
+ * That state grows unboundedly — every deleted character's content
  * is retained in tombstones — so before embedding it in a Revision we run it
  * through a gc:true scratch doc which drops deleted-item content during the
  * update transaction. The re-encoded state displays identically but is
