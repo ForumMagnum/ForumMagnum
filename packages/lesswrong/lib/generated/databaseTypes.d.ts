@@ -1192,6 +1192,14 @@ interface DbReviewWinner extends DbObject {
   reviewYear: number
 }
 
+type RevisionOriginalContentsCollection = PgCollection<"RevisionOriginalContents">;
+
+interface DbRevisionOriginalContent extends DbObject {
+  __collectionName?: "RevisionOriginalContents"
+  createdAt: Date
+  originalContents: any
+}
+
 type RevisionsCollection = PgCollection<"Revisions">;
 
 interface DbRevision extends DbObject {
@@ -1215,9 +1223,10 @@ interface DbRevision extends DbObject {
   legacyData: any | null
   originalContents: {
     type: string,
-    data: string,
-    yjsState: string | null,
+    data: AnyBecauseTodo,
+    yjsState?: string | null,
   } | null
+  originalContentsId?: string | null
   score: number
   skipAttributions: boolean
   updateType: "initial" | "patch" | "minor" | "major" | null
@@ -2241,6 +2250,7 @@ interface CollectionsByName {
   ReviewVotes: ReviewVotesCollection
   ReviewWinnerArts: ReviewWinnerArtsCollection
   ReviewWinners: ReviewWinnersCollection
+  RevisionOriginalContents: RevisionOriginalContentsCollection
   Revisions: RevisionsCollection
   Sequences: SequencesCollection
   Sessions: SessionsCollection
@@ -2329,6 +2339,7 @@ interface ObjectsByCollectionName {
   ReviewVotes: DbReviewVote
   ReviewWinnerArts: DbReviewWinnerArt
   ReviewWinners: DbReviewWinner
+  RevisionOriginalContents: DbRevisionOriginalContent
   Revisions: DbRevision
   Sequences: DbSequence
   Sessions: DbSession
@@ -2417,6 +2428,7 @@ interface ObjectsByTypeName {
   ReviewVote: DbReviewVote
   ReviewWinnerArt: DbReviewWinnerArt
   ReviewWinner: DbReviewWinner
+  RevisionOriginalContent: DbRevisionOriginalContent
   Revision: DbRevision
   Sequence: DbSequence
   Session: DbSession

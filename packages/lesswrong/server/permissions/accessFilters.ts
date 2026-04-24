@@ -455,6 +455,7 @@ const accessFilters = {
   ReviewVotes: reviewVoteCheckAccess,
   ReviewWinnerArts: allowAccess,
   ReviewWinners: allowAccess,
+  RevisionOriginalContents: allowAccess,
   Revisions: revisionCheckAccess,
   RSSFeeds: allowAccess,
   Sequences: sequenceCheckAccess,

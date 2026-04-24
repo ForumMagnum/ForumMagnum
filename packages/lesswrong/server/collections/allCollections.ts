@@ -71,6 +71,7 @@ import { Reports } from './reports/collection';
 import { ReviewVotes } from './reviewVotes/collection';
 import { ReviewWinnerArts } from './reviewWinnerArts/collection';
 import { ReviewWinners } from './reviewWinners/collection';
+import { RevisionOriginalContents } from './revisionOriginalContents/collection';
 import { Revisions } from './revisions/collection';
 import { RSSFeeds } from './rssfeeds/collection';
 import { Sequences } from './sequences/collection';
@@ -118,7 +119,7 @@ const allCollections = {
   LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications,
   OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients,
   PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
-  Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,
+  Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, RevisionOriginalContents, Revisions, Sequences,
   Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
   TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserMostValuablePosts, UserRateLimits,
   UserTagRels, Users, Votes, YjsDocuments

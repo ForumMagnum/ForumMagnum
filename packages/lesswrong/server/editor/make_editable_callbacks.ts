@@ -8,6 +8,7 @@ import { fetchFragmentSingle } from '../fetchFragment'
 import { convertImagesInObject } from '../scripts/convertImagesToCloudinary'
 import type { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks'
 import type { MakeEditableOptions } from '@/lib/editor/makeEditableOptions'
+import type { RevisionOriginalContentsData } from '@/lib/collections/revisions/revisionSchemaTypes'
 import { createRevision } from '../collections/revisions/mutations'
 import { buildRevision } from './conversionUtils'
 import { updateDenormalizedHtmlAttributionsDueToRev, upvoteOwnTagRevision } from '../callbacks/revisionCallbacks'
@@ -113,7 +114,7 @@ async function createInitialRevision<N extends CollectionNameString>(
   const editableField = (doc as AnyBecauseHard)[fieldName] as EditableFieldInsertion | undefined;
   if (editableField?.originalContents) {
     if (!currentUser) { throw Error("Can't create document without current user") }
-    const originalContents: DbRevision["originalContents"] = editableField.originalContents
+    const originalContents: RevisionOriginalContentsData = editableField.originalContents
     const commitMessage = editableField.commitMessage ?? null;
     const googleDocMetadata = editableField.googleDocMetadata;
     const revision = await buildRevision({
@@ -127,7 +128,7 @@ async function createInitialRevision<N extends CollectionNameString>(
     const editedAt = new Date()
     const changeMetrics = htmlToChangeMetrics("", html);
 
-    const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData"> = {
+    const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData" | "originalContentsId"> = {
       ...revision,
       fieldName,
       collectionName,
@@ -218,7 +219,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
     const version = getNextVersion(previousRev, updateType, (newDocument as DbPost).draft)
     const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
-    const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData" | "googleDocMetadata"> = {
+    const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData" | "googleDocMetadata" | "originalContentsId"> = {
       documentId: document._id,
       ...revision,
       fieldName,

@@ -10,7 +10,7 @@ import { htmlContainsFootnotes } from "@/server/utils/htmlUtil";
 import { PLAINTEXT_HTML_TRUNCATION_LENGTH, PLAINTEXT_DESCRIPTION_LENGTH } from "./revisionConstants";
 import { ContentType } from "./revisionSchemaTypes";
 import { compile as compileHtmlToText } from "html-to-text";
-import { getOriginalContents } from "./helpers";
+import { getOriginalContents, getStoredOriginalContentsForRevision } from "./helpers";
 import { rewritePostLinksForAgentMarkdown } from "@/server/markdownApi/markdownLinks";
 import { truncateMarkdown } from "@/server/markdownApi/markdownTruncation";
 import { getPlaintextMainText } from "./mainTextFilter";
@@ -192,6 +192,20 @@ const schema = {
       },
     },
   },
+  originalContentsId: {
+    database: {
+      type: "VARCHAR(27)",
+      nullable: true,
+      foreignKey: "RevisionOriginalContents",
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   originalContents: {
     database: {
       type: "JSONB",
@@ -209,12 +223,13 @@ const schema = {
         // suggestion. Original contents is only visible to people who are invited
         // to collaborative editing. (This is only relevant for posts, but supporting
         // it means we need originalContents to default to unviewable)
+        const storedContents = await getStoredOriginalContentsForRevision(document, context);
         let contents: ContentType;
         if (document.collectionName === "Posts" && document.documentId) {
           const post = await context.loaders["Posts"].load(document.documentId);
-          contents = await getOriginalContents(context.currentUser, post, document.originalContents, context);
+          contents = await getOriginalContents(context.currentUser, post, storedContents, context);
         } else {
-          contents = document.originalContents ?? { type: 'ckEditorMarkup', data: '' };
+          contents = storedContents ?? { type: 'ckEditorMarkup', data: '' };
         }
         // Strip yjsState from the GraphQL output — it's a large base64 blob
         // only needed server-side for restore operations, not by clients.
@@ -239,15 +254,18 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: ({ originalContents }) =>
-        originalContents ? dataToMarkdown(originalContents.data, originalContents.type) : null,
+      resolver: async (revision, args, context) => {
+        const originalContents = await getStoredOriginalContentsForRevision(revision, context);
+        return originalContents ? dataToMarkdown(originalContents.data, originalContents.type) : null;
+      },
     },
   },
   agentMarkdown: {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: async ({ originalContents }, args, context) => {
+      resolver: async (revision, args, context) => {
+        const originalContents = await getStoredOriginalContentsForRevision(revision, context);
         if (!originalContents) return null;
         const markdown = dataToMarkdown(originalContents.data, originalContents.type);
         return rewritePostLinksForAgentMarkdown(markdown, context);
@@ -258,7 +276,8 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: async ({ originalContents }, args,context) => {
+      resolver: async (revision, args, context) => {
+        const originalContents = await getStoredOriginalContentsForRevision(revision, context);
         if (!originalContents) return null;
         const markdown = dataToMarkdown(originalContents.data, originalContents.type);
         const truncatedMarkdown = truncateMarkdown(markdown, 1000);
@@ -270,8 +289,11 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: ({ originalContents, html }) =>
-        originalContents ? (originalContents.type === "ckEditorMarkup" ? originalContents.data : html) : null,
+      resolver: async (revision, args, context) => {
+        const originalContents = await getStoredOriginalContentsForRevision(revision, context);
+        const { html } = revision;
+        return originalContents ? (originalContents.type === "ckEditorMarkup" ? originalContents.data : html) : null;
+      },
     },
   },
   wordCount: {

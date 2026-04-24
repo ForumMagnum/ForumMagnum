@@ -69,6 +69,7 @@ import { default as Reports } from '../collections/reports/newSchema';
 import { default as ReviewVotes } from '../collections/reviewVotes/newSchema';
 import { default as ReviewWinnerArts } from '../collections/reviewWinnerArts/newSchema';
 import { default as ReviewWinners } from '../collections/reviewWinners/newSchema';
+import { default as RevisionOriginalContents } from '../collections/revisionOriginalContents/newSchema';
 import { default as Revisions } from '../collections/revisions/newSchema';
 import { default as RSSFeeds } from '../collections/rssfeeds/newSchema';
 import { default as Sequences } from '../collections/sequences/newSchema';
@@ -107,7 +108,7 @@ export const allSchemas = {
   LWEvents, LegacyData, LlmConversations, LlmMessages, LinkPreviewCaches, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
   Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations,
   PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts,
-  ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions,
+  ReviewWinners, RevisionOriginalContents, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions,
   TagFlags, TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents, UserActivities,
   UserMostValuablePosts, UserRateLimits, UserTagRels, Users, Votes, YjsDocuments, ...testSchemas,
 } satisfies Record<CollectionNameString, Record<string, CollectionFieldSpecification<CollectionNameString>>>;

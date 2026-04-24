@@ -19,6 +19,7 @@ import { createRevision } from '../server/collections/revisions/mutations';
 import { createUserRateLimit } from '../server/collections/userRateLimits/mutations';
 import { computeContextFromUser } from '../server/vulcan-lib/apollo-server/context';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
+import type { RevisionOriginalContentsData } from '@/lib/collections/revisions/revisionSchemaTypes';
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
@@ -351,7 +352,7 @@ export const createDummyTag = async (user: DbUser, data?: Partial<DbInsertion<Db
   return newTag;
 }
 
-export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevision>) => {
+export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevision> & { originalContents?: RevisionOriginalContentsData | null }) => {
   const defaultData = {
     _id: randomId(),
     userId: user._id,

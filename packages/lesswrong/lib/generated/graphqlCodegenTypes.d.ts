@@ -8647,6 +8647,7 @@ type Revision = {
   lens?: Maybe<MultiDocument>;
   markdown?: Maybe<Scalars['String']['output']>;
   originalContents: ContentType;
+  originalContentsId?: Maybe<Scalars['String']['output']>;
   plaintextDescription: Scalars['String']['output'];
   plaintextMainText: Scalars['String']['output'];
   post?: Maybe<Post>;
@@ -8666,6 +8667,13 @@ type Revision = {
 
 type RevisionhtmlHighlightStartingAtHashArgs = {
   hash?: InputMaybe<Scalars['String']['input']>;
+};
+
+type RevisionOriginalContent = {
+  __typename?: 'RevisionOriginalContent';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+  originalContents: Scalars['JSON']['output'];
 };
 
 type RevisionOutput = {

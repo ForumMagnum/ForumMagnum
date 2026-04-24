@@ -6,6 +6,7 @@ import type TurndownService from 'turndown';
 import { isAnyTest } from '../../lib/executionEnvironment';
 import { cheerioParse } from '../utils/htmlUtil';
 import { sanitize } from "@/lib/utils/sanitize";
+import type { RevisionOriginalContentsData } from "@/lib/collections/revisions/revisionSchemaTypes";
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { getMarkdownIt, getMarkdownItNoMathjax } from '@/lib/utils/markdownItPlugins';
 import type { Cheerio, CheerioAPI, Element as CheerioElement } from 'cheerio';
@@ -688,7 +689,7 @@ export async function dataToWordCount(data: AnyBecauseTodo, type: string, contex
 }
 
 export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions, context }: {
-  originalContents: DbRevision["originalContents"],
+  originalContents: RevisionOriginalContentsData | null,
   currentUser: DbUser,
   dataWithDiscardedSuggestions?: string,
   context: ResolverContext,
@@ -702,7 +703,7 @@ export async function buildRevision({ originalContents, currentUser, dataWithDis
   });
 }
 export async function buildRevisionWithUser({ originalContents, user, isAdmin, dataWithDiscardedSuggestions, context }: {
-  originalContents: DbRevision["originalContents"],
+  originalContents: RevisionOriginalContentsData | null,
   user: DbUser,
   isAdmin: boolean,
   dataWithDiscardedSuggestions?: string,
@@ -710,13 +711,17 @@ export async function buildRevisionWithUser({ originalContents, user, isAdmin, d
 }) {
   if (!originalContents) throw new Error ("Can't build revision without originalContents")
 
-  const { data, type } = originalContents;
+  const normalizedOriginalContents = {
+    ...originalContents,
+    yjsState: originalContents.yjsState ?? null,
+  };
+  const { data, type } = normalizedOriginalContents;
   const readerVisibleData = dataWithDiscardedSuggestions ?? data
-  const html = await dataToHTML(readerVisibleData, type, context, { sanitize: !isAdmin || originalContents.type !== "html" })
+  const html = await dataToHTML(readerVisibleData, type, context, { sanitize: !isAdmin || normalizedOriginalContents.type !== "html" })
   const wordCount = await dataToWordCount(readerVisibleData, type, context)
 
   return {
-    html, wordCount, originalContents,
+    html, wordCount, originalContents: normalizedOriginalContents,
     editedAt: new Date(),
     userId: user._id,
   };

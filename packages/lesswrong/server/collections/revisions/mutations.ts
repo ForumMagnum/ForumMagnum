@@ -18,6 +18,7 @@ import { backgroundTask } from "@/server/utils/backgroundTask";
 import Posts from "../posts/collection";
 import ModerationTemplates from "../moderationTemplates/collection";
 import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";
+import { randomId } from "@/lib/random";
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
@@ -39,6 +40,17 @@ export async function createRevision({ data }: { data: Partial<DbInsertion<DbRev
   data = callbackProps.document;
 
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+
+  if (data.originalContents) {
+    const { RevisionOriginalContents } = context;
+    const originalContentsId = randomId();
+    await RevisionOriginalContents.rawInsert({
+      _id: originalContentsId,
+      createdAt: new Date(),
+      originalContents: data.originalContents,
+    });
+    data = { ...data, originalContentsId };
+  }
 
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Revisions', callbackProps);
   let documentWithId = afterCreateProperties.document;
