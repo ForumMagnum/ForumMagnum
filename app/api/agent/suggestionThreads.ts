@@ -26,7 +26,7 @@ export async function createSuggestionThreadInCommentsDoc({
     throw new Error("HOCUSPOCUS_URL is not configured");
   }
 
-  const commentsDoc = new Doc();
+  const commentsDoc = new Doc({ gc: false });
   const provider = new HocuspocusProvider({
     url: wsUrl,
     name: `post-${postId}/comments`,

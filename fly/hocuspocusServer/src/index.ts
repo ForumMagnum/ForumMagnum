@@ -78,7 +78,12 @@ const server = new Server({
   address: '0.0.0.0',
   
   quiet: process.env.NODE_ENV === 'production',
-  
+
+  // Preserve Yjs tombstone history so we can better debug
+  // document corruption. Revisions are compacted separately,
+  // via a one-shot gc:true pass in buildRevisionWithUser.
+  yDocOptions: { gc: false, gcFilter: () => false },
+
   extensions,
   
   async onAuthenticate({ token, documentName }) {
@@ -184,7 +189,7 @@ const server = new Server({
         // Step 1: Write the new state to the database FIRST, so that
         // any client that reconnects after eviction loads the restored
         // state (not the old state).
-        const tempDoc = new Y.Doc();
+        const tempDoc = new Y.Doc({ gc: false });
         Y.applyUpdate(tempDoc, newState);
         const newStateVector = Y.encodeStateVector(tempDoc);
         tempDoc.destroy();

@@ -93,7 +93,7 @@ function $syncV1BindingToLexical(binding: Binding): void {
  */
 export function yjsBinaryToHtml(binary: Uint8Array): string {
   return withDomGlobals(() => {
-    const ydoc = new Y.Doc();
+    const ydoc = new Y.Doc({ gc: false });
     Y.applyUpdate(ydoc, binary);
 
     const editor = createHeadlessEditor('yjsBinaryToHtml');

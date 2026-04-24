@@ -35,7 +35,7 @@ function createMockProvider(): Provider {
 
 export function htmlToYjsBinary(html: string): Uint8Array {
   return withDomGlobals(() => {
-    const ydoc = new Y.Doc();
+    const ydoc = new Y.Doc({ gc: false });
     const editor = createEditor({
       nodes: [...PlaygroundNodes],
       theme: PlaygroundEditorTheme,

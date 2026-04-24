@@ -145,7 +145,7 @@ async function readOpenCommentThreads({
   const wsUrl = process.env.HOCUSPOCUS_URL;
   if (!wsUrl) return [];
 
-  const doc = new Doc();
+  const doc = new Doc({ gc: false });
   const provider = new HocuspocusProvider({
     url: wsUrl,
     name: `post-${postId}/comments`,
