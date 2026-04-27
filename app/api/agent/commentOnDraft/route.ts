@@ -6,11 +6,9 @@ import { randomId } from "@/lib/random";
 import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInMarkNode } from "@lexical/mark";
 import {
-  checkEditorTypeAndGetToken,
+  authorizeAgentDraftAccess,
   deriveAgentAuthor,
   normalizeText,
-  UNAUTHORIZED_DRAFT_MESSAGE,
-  unsupportedEditorMessage,
   waitForProviderFlush,
   waitForProviderSync,
   withMainDocEditorSession,
@@ -227,16 +225,9 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, quote, comment } = parseResult.data;
 
   try {
-    const checkResult = await checkEditorTypeAndGetToken({ postId, context, linkSharingKey: key });
-    if (checkResult.kind === "unsupported_editor") {
-      captureAgentApiEvent({ route: "commentOnDraft", postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
-      return NextResponse.json({ error: unsupportedEditorMessage(checkResult.editorType) }, { status: 400 });
-    }
-    if (checkResult.kind === "unauthorized") {
-      captureAgentApiEvent({ route: "commentOnDraft", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
-      return NextResponse.json({ error: UNAUTHORIZED_DRAFT_MESSAGE }, { status: 403 });
-    }
-    const token = checkResult.token;
+    const auth = await authorizeAgentDraftAccess({ route: "commentOnDraft", postId, context, linkSharingKey: key, agentName });
+    if ("errorResponse" in auth) return auth.errorResponse;
+    const { token } = auth;
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
     const threadQuote = quote ?? "";
 

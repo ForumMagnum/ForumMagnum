@@ -15,10 +15,10 @@ import {
 } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { deriveAgentAuthor, isSupportedEditorType, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession, checkEditorTypeAndGetToken, UNAUTHORIZED_DRAFT_MESSAGE } from "../editorAgentUtil";
+import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import { normalizeImportedTopLevelNodes } from "../../(markdown)/editorMarkdownUtils";
-import { buildNodeMarkdownMapForSubtree, toPlainTextFilter } from "../mapMarkdownToLexical";
+import { buildNodeMarkdownMapForSubtree, findBlockToOperateOnByPrefix, toPlainTextFilter } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { insertBlockToolSchema, type InsertLocation, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
@@ -130,30 +130,21 @@ function findInsertionIndexByPrefix(
   prefix: string,
   relation: "before" | "after",
 ): number | null {
+  const root = $getRoot();
   const textFilter = toPlainTextFilter(prefix);
-  const mapResult = buildNodeMarkdownMapForSubtree($getRoot().getKey(), textFilter);
-  for (let i = 0; i < rootChildren.length; i++) {
-    const child = rootChildren[i];
-    const childMarkdown = mapResult.byKey.get(child.getKey())?.markdown;
-    const textContent = child.getTextContent();
-    if (!childMarkdown) {
-      if (
-        plainTextStartsWith(textContent, prefix) ||
-        (textFilter && normalizeText(textContent).startsWith(textFilter))
-      ) {
-        return relation === "before" ? i : i + 1;
-      }
-      continue;
-    }
-    if (
-      paragraphMarkdownStartsWith(childMarkdown, prefix) ||
-      plainTextStartsWith(textContent, prefix) ||
-      (textFilter && normalizeText(textContent).startsWith(textFilter))
-    ) {
-      return relation === "before" ? i : i + 1;
-    }
-  }
-  return null;
+  const mapResult = buildNodeMarkdownMapForSubtree(root.getKey(), textFilter);
+  const matched = findBlockToOperateOnByPrefix({ rootChildren, prefix, mapResult, textFilter });
+  if (!matched) return null;
+  // The locator may descend into list items, but insertion always happens at
+  // the top level — translate a matched list item back to its parent list's
+  // index, so the caller inserts before/after the whole list rather than
+  // splitting the list open.
+  const matchParent = matched.getParent();
+  const topLevelIndex = matchParent === root
+    ? matched.getIndexWithinParent()
+    : matchParent?.getIndexWithinParent() ?? null;
+  if (topLevelIndex === null) return null;
+  return relation === "before" ? topLevelIndex : topLevelIndex + 1;
 }
 
 export function resolveInsertionIndex(location: InsertLocation, rootChildren: LexicalNode[]): number | null {
@@ -276,16 +267,9 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, mode, location, markdown } = parseResult.data;
 
   try {
-    const checkResult = await checkEditorTypeAndGetToken({ postId, context, linkSharingKey: key });
-    if (checkResult.kind === "unsupported_editor") {
-      captureAgentApiEvent({ route: "insertBlock", postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
-      return NextResponse.json({ error: unsupportedEditorMessage(checkResult.editorType) }, { status: 400 });
-    }
-    if (checkResult.kind === "unauthorized") {
-      captureAgentApiEvent({ route: "insertBlock", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
-      return NextResponse.json({ error: UNAUTHORIZED_DRAFT_MESSAGE }, { status: 403 });
-    }
-    const token = checkResult.token;
+    const auth = await authorizeAgentDraftAccess({ route: "insertBlock", postId, context, linkSharingKey: key, agentName });
+    if ("errorResponse" in auth) return auth.errorResponse;
+    const { token } = auth;
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
 
     const insertResult = await insertMarkdownBlock({

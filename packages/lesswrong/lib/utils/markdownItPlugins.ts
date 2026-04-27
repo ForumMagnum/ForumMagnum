@@ -110,9 +110,7 @@ function markdownLlmContentBlocks(md: markdownIt) {
 // Lexical's SpoilerNode and the rendering CSS recognize.
 function parseSpoilerBlock(state: StateBlock, startLine: number, endLine: number, silent: boolean): boolean {
   const lineStart = state.bMarks[startLine] + state.tShift[startLine];
-  // 4-space indent → code block, not spoiler
   if (state.sCount[startLine] - state.blkIndent >= 4) return false;
-  // Must start with `>!`
   if (state.src.charCodeAt(lineStart) !== 0x3E /* > */) return false;
   if (state.src.charCodeAt(lineStart + 1) !== 0x21 /* ! */) return false;
 
@@ -141,8 +139,6 @@ function parseSpoilerBlock(state: StateBlock, startLine: number, endLine: number
   token.map = [startLine, nextLine];
   token.attrSet("class", "spoilers");
 
-  // Parse the prefix-stripped content as fresh markdown, appending child
-  // tokens to the current token stream.
   state.md.block.parse(innerLines.join("\n"), state.md, state.env, state.tokens);
 
   token = state.push("spoiler_block_close", "div", -1);

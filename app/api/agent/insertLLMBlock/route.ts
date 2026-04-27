@@ -10,7 +10,7 @@ import {
 import { $createLLMContentBlockNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockNode";
 import { $createLLMContentBlockContentNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockContentNode";
 import { $createLLMContentBlockHeaderNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockHeaderNode";
-import { isSupportedEditorType, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession, checkEditorTypeAndGetToken, UNAUTHORIZED_DRAFT_MESSAGE } from "../editorAgentUtil";
+import { waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import { $markdownToNodes, resolveInsertionIndex } from "../insertBlock/route";
 import { insertLLMBlockToolSchema, type InsertLocation } from "../toolSchemas";
@@ -132,16 +132,9 @@ export async function POST(req: NextRequest) {
   const { postId, key, modelName, location, markdown } = parseResult.data;
 
   try {
-    const checkResult = await checkEditorTypeAndGetToken({ postId, context, linkSharingKey: key });
-    if (checkResult.kind === "unsupported_editor") {
-      captureAgentApiEvent({ route: "insertLLMBlock", postId, userId: context.currentUser?._id, agentName: modelName, status: "unsupported_editor" });
-      return NextResponse.json({ error: unsupportedEditorMessage(checkResult.editorType) }, { status: 400 });
-    }
-    if (checkResult.kind === "unauthorized") {
-      captureAgentApiEvent({ route: "insertLLMBlock", postId, userId: context.currentUser?._id, agentName: modelName, status: "unauthorized" });
-      return NextResponse.json({ error: UNAUTHORIZED_DRAFT_MESSAGE }, { status: 403 });
-    }
-    const token = checkResult.token;
+    const auth = await authorizeAgentDraftAccess({ route: "insertLLMBlock", postId, context, linkSharingKey: key, agentName: modelName });
+    if ("errorResponse" in auth) return auth.errorResponse;
+    const { token } = auth;
 
     const result = await insertLLMBlock({
       postId,

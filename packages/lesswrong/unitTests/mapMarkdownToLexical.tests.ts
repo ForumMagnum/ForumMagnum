@@ -338,9 +338,7 @@ describe("mapMarkdownToLexical quote selection", () => {
 describe("findBlockToOperateOnByPrefix", () => {
   interface MatchInfo { type: string; text: string; isListItem: boolean }
   function findFor(editor: LexicalEditor, prefix: string): MatchInfo | null {
-    // Use a holder object so the closure-mutated reference isn't narrowed
-    // to `never` by TS flow analysis.
-    const out: { value: MatchInfo | null } = { value: null };
+    let result: MatchInfo | null = null;
     editor.getEditorState().read(() => {
       const root = $getRoot();
       const rootChildren = root.getChildren();
@@ -348,14 +346,14 @@ describe("findBlockToOperateOnByPrefix", () => {
       const mapResult = buildNodeMarkdownMapForSubtree(root.getKey(), textFilter);
       const node = findBlockToOperateOnByPrefix({ rootChildren, prefix, mapResult, textFilter });
       if (node) {
-        out.value = {
+        result = {
           type: node.getType(),
           text: node.getTextContent(),
           isListItem: $isListItemNode(node),
         };
       }
     });
-    return out.value;
+    return result;
   }
 
   it("matches a leading paragraph by prefix", async () => {
@@ -408,16 +406,12 @@ describe("findBlockToOperateOnByPrefix", () => {
   });
 
   it("does not return the list when only a non-first item matches the prefix", async () => {
-    // Demonstrates the descent semantics: the list-as-a-whole is never
-    // matched directly (only its individual items are), so a prefix that
-    // appears mid-list returns the specific list item.
     const editor = await setupEditorWithContent(
       "*   alpha\n*   bravo\n*   charlie"
     );
     const matched = findFor(editor, "bravo");
     expect(matched?.isListItem).toBe(true);
     expect(matched?.text).toBe("bravo");
-    // Sanity: the parent list still wraps it.
     let parentIsList = false;
     editor.getEditorState().read(() => {
       const root = $getRoot();

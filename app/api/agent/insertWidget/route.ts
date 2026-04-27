@@ -6,7 +6,7 @@ import {
   $createTextNode,
 } from "lexical";
 import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
-import { isSupportedEditorType, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession, checkEditorTypeAndGetToken, UNAUTHORIZED_DRAFT_MESSAGE } from "../editorAgentUtil";
+import { waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import { resolveInsertionIndex } from "../insertBlock/route";
 import { insertWidgetToolSchema, type InsertLocation } from "../toolSchemas";
@@ -93,16 +93,9 @@ export async function POST(req: NextRequest) {
   const { postId, key, content, location } = parseResult.data;
 
   try {
-    const checkResult = await checkEditorTypeAndGetToken({ postId, context, linkSharingKey: key });
-    if (checkResult.kind === "unsupported_editor") {
-      captureAgentApiEvent({ route: "insertWidget", postId, userId: context.currentUser?._id, status: "unsupported_editor" });
-      return NextResponse.json({ error: unsupportedEditorMessage(checkResult.editorType) }, { status: 400 });
-    }
-    if (checkResult.kind === "unauthorized") {
-      captureAgentApiEvent({ route: "insertWidget", postId, userId: context.currentUser?._id, status: "unauthorized" });
-      return NextResponse.json({ error: UNAUTHORIZED_DRAFT_MESSAGE }, { status: 403 });
-    }
-    const token = checkResult.token;
+    const auth = await authorizeAgentDraftAccess({ route: "insertWidget", postId, context, linkSharingKey: key });
+    if ("errorResponse" in auth) return auth.errorResponse;
+    const { token } = auth;
 
     const result = await insertWidget({
       postId,

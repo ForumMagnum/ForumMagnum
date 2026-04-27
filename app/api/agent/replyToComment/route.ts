@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Map as YMap, Array as YArray, Doc } from "yjs";
 import { randomId } from "@/lib/random";
-import { deriveAgentAuthor, isSupportedEditorType, unsupportedEditorMessage, waitForProviderFlush, waitForProviderSync, checkEditorTypeAndGetToken, UNAUTHORIZED_DRAFT_MESSAGE } from "../editorAgentUtil";
+import { deriveAgentAuthor, waitForProviderFlush, waitForProviderSync, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import { createCollabComment } from "../commentOnDraft/route";
 import { replyToCommentToolSchema } from "../toolSchemas";
@@ -41,19 +41,9 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, threadId, comment } = parseResult.data;
 
   try {
-    const checkResult = await checkEditorTypeAndGetToken({ postId, context, linkSharingKey: key });
-    if (checkResult.kind === "unsupported_editor") {
-      captureAgentApiEvent({ route: "replyToComment", postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
-      return NextResponse.json({ error: unsupportedEditorMessage(checkResult.editorType) }, { status: 400 });
-    }
-    if (checkResult.kind === "unauthorized") {
-      captureAgentApiEvent({ route: "replyToComment", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
-      return NextResponse.json(
-        { error: UNAUTHORIZED_DRAFT_MESSAGE },
-        { status: 403 },
-      );
-    }
-    const token = checkResult.token;
+    const auth = await authorizeAgentDraftAccess({ route: "replyToComment", postId, context, linkSharingKey: key, agentName });
+    if ("errorResponse" in auth) return auth.errorResponse;
+    const { token } = auth;
 
     const wsUrl = process.env.HOCUSPOCUS_URL;
     if (!wsUrl) {

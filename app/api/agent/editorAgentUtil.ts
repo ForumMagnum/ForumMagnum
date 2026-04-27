@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Doc, UndoManager } from "yjs";
 import type { Provider as LexicalProvider } from "@lexical/yjs";
@@ -16,6 +17,7 @@ import { getLatestRev } from "@/server/editor/utils";
 import { captureException } from "@/lib/sentryWrapper";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
 import { getHocuspocusToken } from "./getHocuspocusToken";
+import { captureAgentApiEvent } from "./captureAgentAnalytics";
 
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const INITIAL_SYNC_SETTLE_MS = 25;
@@ -195,6 +197,49 @@ export async function checkEditorTypeAndGetToken({
     return { kind: "unauthorized" };
   }
   return { kind: "ready", token };
+}
+
+/**
+ * Wrapper around `checkEditorTypeAndGetToken` for the agent write routes:
+ * runs the parallel check, emits the matching analytics event, and returns
+ * either a token to use or an HTTP error response to forward verbatim.
+ *
+ * The non-route `/editPost` markdown caller wants different status codes
+ * and a plaintext body, so it uses `checkEditorTypeAndGetToken` directly.
+ */
+export async function authorizeAgentDraftAccess({
+  route,
+  postId,
+  context,
+  linkSharingKey,
+  agentName,
+}: {
+  route: string
+  postId: string
+  context: ResolverContext
+  linkSharingKey?: string
+  agentName?: string
+}): Promise<{ token: string } | { errorResponse: NextResponse }> {
+  const checkResult = await checkEditorTypeAndGetToken({ postId, context, linkSharingKey });
+  if (checkResult.kind === "unsupported_editor") {
+    captureAgentApiEvent({ route, postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
+    return {
+      errorResponse: NextResponse.json(
+        { error: unsupportedEditorMessage(checkResult.editorType) },
+        { status: 400 },
+      ),
+    };
+  }
+  if (checkResult.kind === "unauthorized") {
+    captureAgentApiEvent({ route, postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
+    return {
+      errorResponse: NextResponse.json(
+        { error: UNAUTHORIZED_DRAFT_MESSAGE },
+        { status: 403 },
+      ),
+    };
+  }
+  return { token: checkResult.token };
 }
 
 export function waitForProviderSync(provider: HocuspocusProvider): Promise<void> {
