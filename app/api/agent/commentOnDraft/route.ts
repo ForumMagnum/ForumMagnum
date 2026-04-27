@@ -6,10 +6,9 @@ import { randomId } from "@/lib/random";
 import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInMarkNode } from "@lexical/mark";
 import {
+  authorizeAgentDraftAccess,
   deriveAgentAuthor,
-  isSupportedEditorType,
   normalizeText,
-  unsupportedEditorMessage,
   waitForProviderFlush,
   waitForProviderSync,
   withMainDocEditorSession,
@@ -18,7 +17,6 @@ import { locateMarkdownQuoteSelectionInSubtree } from "../mapMarkdownToLexical";
 import { commentOnDraftToolSchema } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
-import { getHocuspocusToken } from "../getHocuspocusToken";
 
 export function createCollabComment({
   content,
@@ -227,17 +225,9 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, quote, comment } = parseResult.data;
 
   try {
-    const token = await getHocuspocusToken(context, postId, key);
-    if (!token) {
-      captureAgentApiEvent({ route: "commentOnDraft", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
-      return NextResponse.json({ error: "Unauthorized to comment on draft" }, { status: 403 });
-    }
-
-    const editorCheck = await isSupportedEditorType(postId, context);
-    if (!editorCheck.supported) {
-      captureAgentApiEvent({ route: "commentOnDraft", postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
-      return NextResponse.json({ error: unsupportedEditorMessage(editorCheck.editorType) }, { status: 400 });
-    }
+    const auth = await authorizeAgentDraftAccess({ route: "commentOnDraft", postId, context, linkSharingKey: key, agentName });
+    if ("errorResponse" in auth) return auth.errorResponse;
+    const { token } = auth;
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
     const threadQuote = quote ?? "";
 
