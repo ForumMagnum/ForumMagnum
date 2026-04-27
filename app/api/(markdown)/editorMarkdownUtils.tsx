@@ -289,6 +289,14 @@ export async function getLiveDraftMarkdown({
   });
 }
 
+// Live-draft markdown is per-user, ephemeral, and changes any time the user
+// edits the draft. Caches at any layer (Anthropic's web_fetch, browser,
+// CDN) cause agents to read stale content on a refetch and tell the user
+// "no changes detected". Send no-store on every response from this route.
+const NO_CACHE_HEADERS = {
+  "Cache-Control": "private, no-store, max-age=0",
+};
+
 export async function renderLiveEditorDraftMarkdownRoute({
   req,
 }: {
@@ -299,7 +307,7 @@ export async function renderLiveEditorDraftMarkdownRoute({
   const version = req.nextUrl.searchParams.get("version") ?? "draft";
 
   if (!postId) {
-    return new Response("No postId provided", { status: 400 });
+    return new Response("No postId provided", { status: 400, headers: NO_CACHE_HEADERS });
   }
 
   try {
@@ -312,7 +320,7 @@ export async function renderLiveEditorDraftMarkdownRoute({
     const token = authData?.HocuspocusAuth?.token;
 
     if (!token) {
-      return new Response(`No accessible shared draft found for postId: ${postId}`, { status: 403 });
+      return new Response(`No accessible shared draft found for postId: ${postId}`, { status: 403, headers: NO_CACHE_HEADERS });
     }
 
     const editorCheck = await isSupportedEditorType(postId, resolverContext);
@@ -322,7 +330,7 @@ export async function renderLiveEditorDraftMarkdownRoute({
         `This draft uses the ${editorCheck.editorType} editor and cannot be read via the agent API. ` +
           `Only posts authored in our Lexical editor are currently supported. ` +
           `If you are an AI agent, please tell the user that the agent draft API only supports posts written in the Lexical editor.`,
-        { status: 200 }
+        { status: 200, headers: NO_CACHE_HEADERS }
       );
     }
 
@@ -349,18 +357,20 @@ export async function renderLiveEditorDraftMarkdownRoute({
     const resolvedPostId = post?._id ?? postId;
     const title = post?.title ?? "(untitled draft)";
 
-    return renderEditorDraftMarkdown({
+    const response = await renderEditorDraftMarkdown({
       title,
       postId: resolvedPostId,
       version,
       bodyMarkdown,
       commentThreadsMarkdown,
     });
+    response.headers.set("Cache-Control", NO_CACHE_HEADERS["Cache-Control"]);
+    return response;
   } catch (error) {
     // This needs to be a 200 because Claude's web_fetch tool doesn't give it any additional information if you return a 4xx status code,
     // so if we want Claude to be able to tell the user what they need to do to make the post accessible, we have to return the error message
     // along with a 200 status code.
-    return new Response(`Unable to access shared draft for postId: ${postId}.  If you are an AI agent, and a user has shared this link with you, please remind the user to set the permissions for "Anyone with the link can" to "Edit".`, { status: 200 });
+    return new Response(`Unable to access shared draft for postId: ${postId}.  If you are an AI agent, and a user has shared this link with you, please remind the user to set the permissions for "Anyone with the link can" to "Edit".`, { status: 200, headers: NO_CACHE_HEADERS });
   }
 }
 
