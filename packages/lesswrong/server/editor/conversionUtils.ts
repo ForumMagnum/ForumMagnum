@@ -44,6 +44,19 @@ function iframeWidgetElementToMarkdown(element: Element): string {
   return `\n\n\`\`\`widget[${widgetId}]\n${widgetMarkup}\n\`\`\`\n\n`;
 }
 
+// Strip the srcdoc attribute from iframe widgets. Iframe-widget srcdocs contain HTML
+// markup and an injected resize script, none of which is user-authored prose; leaving
+// them in inflates word-count estimates (and similar markdown-derived analyses) by
+// hundreds or thousands of tokens per widget.
+function stripIframeWidgetSrcdocs(html: string): string {
+  if (!html.includes('data-lexical-iframe-widget')) {
+    return html;
+  }
+  const $ = cheerioParse(html);
+  $('iframe[data-lexical-iframe-widget]').removeAttr('srcdoc');
+  return $.html();
+}
+
 let _turndownService: TurndownService|null = null;
 const TURNDOWN_BUILD_MARKER = 'widget-markdown-v1';
 function getTurndown(): TurndownService {
@@ -655,7 +668,10 @@ export async function dataToWordCount(data: AnyBecauseTodo, type: string, contex
 
   try {
     // Convert to markdown and count words by splitting spaces
-    const markdown = dataToMarkdown(data, type) ?? "";
+    const dataForCounting = (type === "lexical")
+      ? stripIframeWidgetSrcdocs(data)
+      : data;
+    const markdown = dataToMarkdown(dataForCounting, type) ?? "";
     bestWordCount = markdown.trim().split(/[\s]+/g).length;
     
     // Try to remove footnotes and update the count accordingly
