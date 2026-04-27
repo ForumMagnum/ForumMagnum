@@ -3,9 +3,9 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { NextRequest, NextResponse } from "next/server";
 import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
-import { deriveAgentAuthor, isSupportedEditorType, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession, checkEditorTypeAndGetToken, UNAUTHORIZED_DRAFT_MESSAGE } from "../editorAgentUtil";
+import { deriveAgentAuthor, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession, checkEditorTypeAndGetToken, UNAUTHORIZED_DRAFT_MESSAGE } from "../editorAgentUtil";
 
-import { buildNodeMarkdownMapForSubtree, toPlainTextFilter } from "../mapMarkdownToLexical";
+import { buildNodeMarkdownMapForSubtree, findBlockToOperateOnByPrefix, toPlainTextFilter } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deleteBlockToolSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
@@ -47,68 +47,57 @@ export async function deleteMarkdownBlock({
           const textFilter = toPlainTextFilter(prefix);
           const mapResult = buildNodeMarkdownMapForSubtree(root.getKey(), textFilter);
 
-          let deletionIndex: number | null = null;
-          for (let i = 0; i < rootChildren.length; i++) {
-            const child = rootChildren[i];
-            const childMarkdown = mapResult.byKey.get(child.getKey())?.markdown;
-            const textContent = child.getTextContent();
-            if (!childMarkdown) {
-              if (
-                plainTextStartsWith(textContent, prefix) ||
-                (textFilter && normalizeText(textContent).startsWith(textFilter))
-              ) {
-                deletionIndex = i;
-                break;
-              }
-              continue;
-            }
-            if (
-              paragraphMarkdownStartsWith(childMarkdown, prefix) ||
-              plainTextStartsWith(textContent, prefix) ||
-              (textFilter && normalizeText(textContent).startsWith(textFilter))
-            ) {
-              deletionIndex = i;
-              break;
-            }
-          }
+          const nodeToDelete = findBlockToOperateOnByPrefix({
+            rootChildren,
+            prefix,
+            mapResult,
+            textFilter,
+          });
 
-          if (deletionIndex === null) {
-            result = {
-              deleted: false,
-              note: `No paragraph markdown starts with locator text: ${prefix}`,
-            };
-            return;
-          }
-
-          const nodeToDelete = rootChildren[deletionIndex];
           if (!nodeToDelete) {
             result = {
               deleted: false,
-              note: `Matched block index ${deletionIndex} could not be resolved.`,
+              note: `No paragraph or list item markdown starts with locator text: ${prefix}`,
             };
             return;
           }
 
+          const parent = nodeToDelete.getParent();
+          if (!parent) {
+            result = {
+              deleted: false,
+              note: "Matched block has no parent and cannot be deleted.",
+            };
+            return;
+          }
+          const indexInParent = nodeToDelete.getIndexWithinParent();
+
           if (mode === "edit") {
             nodeToDelete.remove();
+            // If we just removed the last list item from a list, drop the
+            // (now-empty) list too — leaving an empty list behind looks like
+            // a rendering glitch in the editor.
+            if (parent !== root && parent.getChildrenSize() === 0) {
+              parent.remove();
+            }
             result = {
               deleted: true,
               note: "Deleted markdown block from collaborative draft.",
-              deletionIndex,
+              deletionIndex: indexInParent,
             };
             return;
           }
 
           const selection = $createRangeSelection();
-          selection.anchor.set(root.getKey(), deletionIndex, "element");
-          selection.focus.set(root.getKey(), deletionIndex + 1, "element");
+          selection.anchor.set(parent.getKey(), indexInParent, "element");
+          selection.focus.set(parent.getKey(), indexInParent + 1, "element");
           $setSelection(selection);
           const suggestionId = randomId();
           $wrapSelectionInSuggestionNode(selection, false, suggestionId, "delete");
           result = {
             deleted: true,
             note: "Marked markdown block as a deletion suggestion.",
-            deletionIndex,
+            deletionIndex: indexInParent,
             suggestionId,
           };
         }, { onUpdate: resolve });

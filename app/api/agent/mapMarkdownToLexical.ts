@@ -11,8 +11,9 @@ import {
 import { htmlToMarkdown, markdownToHtml, markdownToHtmlNoMath } from "@/server/editor/conversionUtils";
 import { JSDOM } from "jsdom";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
-import { createHeadlessEditor, normalizeText } from "./editorAgentUtil";
+import { createHeadlessEditor, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith } from "./editorAgentUtil";
 import { FOOTNOTE_ELEMENT_TYPES } from "@/components/editor/lexicalPlugins/footnotes/constants";
+import { $isListNode } from "@lexical/list";
 
 /**
  * Recursively serialize a Lexical node and its children to JSON.
@@ -416,6 +417,57 @@ export function buildNodeMarkdownMapForSubtree(rootNodeKey: string, textFilter?:
     byKey.set(entry.key, entry);
   }
   return { entries, byKey };
+}
+
+/**
+ * Locate a top-level (or list-item) node whose markdown / plain-text content
+ * starts with the given prefix, for block-level operations like deleteBlock.
+ *
+ * For each top-level child of root:
+ *   - If the child is a list, descend into its list-item children and try to
+ *     match each item individually. Returns the list item if matched, so the
+ *     caller can operate on a single item rather than the whole list (the
+ *     agent API previously matched the list-as-a-whole on its first item's
+ *     text and then deleted the entire list).
+ *   - Otherwise try to match the child itself (paragraphs, tables, headings,
+ *     spoiler blocks, …). Tables are matched as a top-level block — there's
+ *     no useful "delete a single cell" semantics in markdown.
+ *
+ * Must be called inside a Lexical read/update context.
+ */
+export function findBlockToOperateOnByPrefix({
+  rootChildren,
+  prefix,
+  mapResult,
+  textFilter,
+}: {
+  rootChildren: LexicalNode[]
+  prefix: string
+  mapResult: NodeMarkdownMapResult
+  textFilter: string
+}): LexicalNode | null {
+  const matches = (node: LexicalNode): boolean => {
+    const markdown = mapResult.byKey.get(node.getKey())?.markdown;
+    if (markdown && paragraphMarkdownStartsWith(markdown, prefix)) return true;
+    const text = node.getTextContent();
+    if (plainTextStartsWith(text, prefix)) return true;
+    if (textFilter.length > 0 && normalizeText(text).startsWith(textFilter)) return true;
+    return false;
+  };
+
+  for (const child of rootChildren) {
+    if ($isListNode(child)) {
+      for (const item of child.getChildren()) {
+        if (matches(item)) return item;
+      }
+      // No list-item matched: don't fall through to matching the list as a
+      // whole, since that would just match the first item's text and delete
+      // the entire list.
+      continue;
+    }
+    if (matches(child)) return child;
+  }
+  return null;
 }
 
 function createElementRangeAroundNode(node: LexicalNode): MarkdownQuoteSelectionResult {

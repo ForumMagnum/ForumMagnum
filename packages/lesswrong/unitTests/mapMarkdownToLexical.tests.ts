@@ -13,7 +13,8 @@ import {
 import { markdownToHtml, htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { createHeadlessEditor } from "../../../app/api/agent/editorAgentUtil";
-import { buildNodeMarkdownMapForSubtree, locateMarkdownQuoteSelectionInSubtree } from "../../../app/api/agent/mapMarkdownToLexical";
+import { buildNodeMarkdownMapForSubtree, findBlockToOperateOnByPrefix, locateMarkdownQuoteSelectionInSubtree, toPlainTextFilter } from "../../../app/api/agent/mapMarkdownToLexical";
+import { $isListItemNode, $isListNode } from "@lexical/list";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithHtml } from "./lexicalTestHelpers";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
 
@@ -331,5 +332,99 @@ describe("mapMarkdownToLexical quote selection", () => {
 
     expect(result).toBeDefined();
     expect(result!.found).toBe(true);
+  });
+});
+
+describe("findBlockToOperateOnByPrefix", () => {
+  interface MatchInfo { type: string; text: string; isListItem: boolean }
+  function findFor(editor: LexicalEditor, prefix: string): MatchInfo | null {
+    // Use a holder object so the closure-mutated reference isn't narrowed
+    // to `never` by TS flow analysis.
+    const out: { value: MatchInfo | null } = { value: null };
+    editor.getEditorState().read(() => {
+      const root = $getRoot();
+      const rootChildren = root.getChildren();
+      const textFilter = toPlainTextFilter(prefix);
+      const mapResult = buildNodeMarkdownMapForSubtree(root.getKey(), textFilter);
+      const node = findBlockToOperateOnByPrefix({ rootChildren, prefix, mapResult, textFilter });
+      if (node) {
+        out.value = {
+          type: node.getType(),
+          text: node.getTextContent(),
+          isListItem: $isListItemNode(node),
+        };
+      }
+    });
+    return out.value;
+  }
+
+  it("matches a leading paragraph by prefix", async () => {
+    const editor = await setupEditorWithContent(
+      "First paragraph here.\n\nSecond paragraph here.\n\nThird paragraph here."
+    );
+    const matched = findFor(editor, "Second paragraph");
+    expect(matched).not.toBeNull();
+    expect(matched?.type).toBe("paragraph");
+    expect(matched?.text).toContain("Second paragraph");
+  });
+
+  it("matches a specific list item (not the whole list) by its leading text", async () => {
+    const editor = await setupEditorWithContent(
+      "*   alpha item\n*   bravo item\n*   charlie item\n*   delta item"
+    );
+    const matched = findFor(editor, "charlie item");
+    expect(matched?.isListItem).toBe(true);
+    expect(matched?.text).toBe("charlie item");
+  });
+
+  it("matches the first list item as a list item, not as the whole list", async () => {
+    // Regression: previously `plainTextStartsWith` matched the LIST against
+    // its first item's text (since the list's textContent starts there) and
+    // deleteBlock would remove the entire list. The new locator targets
+    // the first item specifically.
+    const editor = await setupEditorWithContent(
+      "*   alpha item\n*   bravo item\n*   charlie item"
+    );
+    const matched = findFor(editor, "alpha item");
+    expect(matched?.isListItem).toBe(true);
+    expect(matched?.text).toBe("alpha item");
+  });
+
+  it("matches a top-level table by its first-cell content", async () => {
+    const editor = await setupEditorWithContent(
+      "| h1 | h2 |\n| --- | --- |\n| cell 0,0 | cell 1,0 |\n| cell 0,1 | cell 1,1 |"
+    );
+    const matched = findFor(editor, "h1");
+    expect(matched).not.toBeNull();
+    expect(matched?.isListItem).toBe(false);
+    expect(matched?.type).toBe("table");
+  });
+
+  it("returns null when no block starts with the prefix", async () => {
+    const editor = await setupEditorWithContent(
+      "Alpha paragraph.\n\nBravo paragraph."
+    );
+    expect(findFor(editor, "no such prefix")).toBeNull();
+  });
+
+  it("does not return the list when only a non-first item matches the prefix", async () => {
+    // Demonstrates the descent semantics: the list-as-a-whole is never
+    // matched directly (only its individual items are), so a prefix that
+    // appears mid-list returns the specific list item.
+    const editor = await setupEditorWithContent(
+      "*   alpha\n*   bravo\n*   charlie"
+    );
+    const matched = findFor(editor, "bravo");
+    expect(matched?.isListItem).toBe(true);
+    expect(matched?.text).toBe("bravo");
+    // Sanity: the parent list still wraps it.
+    let parentIsList = false;
+    editor.getEditorState().read(() => {
+      const root = $getRoot();
+      for (const child of root.getChildren()) {
+        if ($isListNode(child)) { parentIsList = true; break; }
+      }
+    });
+    expect(parentIsList).toBe(true);
   });
 });
