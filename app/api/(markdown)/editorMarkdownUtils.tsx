@@ -3,7 +3,7 @@ import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
 import { NextRequest, NextResponse } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
-import { withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
+import { isSupportedEditorType, withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
@@ -313,6 +313,17 @@ export async function renderLiveEditorDraftMarkdownRoute({
 
     if (!token) {
       return new Response(`No accessible shared draft found for postId: ${postId}`, { status: 403 });
+    }
+
+    const editorCheck = await isSupportedEditorType(postId, resolverContext);
+    if (!editorCheck.supported) {
+      // 200 (not 4xx) so Claude's web_fetch surfaces the body to the model.
+      return new Response(
+        `This draft uses the ${editorCheck.editorType} editor and cannot be read via the agent API. ` +
+          `Only posts authored in our Lexical editor are currently supported. ` +
+          `If you are an AI agent, please tell the user that the agent draft API only supports posts written in the Lexical editor.`,
+        { status: 200 }
+      );
     }
 
     const post = key

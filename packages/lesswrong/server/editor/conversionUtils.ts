@@ -76,6 +76,18 @@ function getTurndown(): TurndownService {
         if (node?.nodeType === ServerSafeNode.ELEMENT_NODE && isBlockTag(node.nodeName)) {
           return '\n\n'
         }
+        // For an inline element whose only content is non-ASCII whitespace
+        // (e.g. <i><span>&nbsp;</span></i> produced by Lexical when a user
+        // italicizes a single space), Turndown's flankingWhitespace pass
+        // doesn't see the whitespace (it only matches [ \r\n\t]), so the
+        // entire element collapses to "" — joining the surrounding words
+        // together. Return the textContent so the whitespace survives.
+        if (node?.nodeType === ServerSafeNode.ELEMENT_NODE) {
+          const text = (node as Element).textContent ?? '';
+          if (text && /^\s+$/.test(text) && !/^[ \r\n\t\f\v]+$/.test(text)) {
+            return text;
+          }
+        }
         return ''
       },
     })

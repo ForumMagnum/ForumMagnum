@@ -1,4 +1,4 @@
-import { markdownToHtml } from "@/server/editor/conversionUtils";
+import { htmlToMarkdown, markdownToHtml } from "@/server/editor/conversionUtils";
 import { JSDOM } from "jsdom";
 
 /**
@@ -126,5 +126,36 @@ describe("markdownToHtml XSS safety", () => {
       const html = markdownToHtml('![alt" onerror="alert(1)](https://example.com/img.png)');
       expect(hasRealAttribute(html, "onerror")).toBe(false);
     });
+  });
+});
+
+/**
+ * Regression: Lexical exports an italic-formatted whitespace-only text node
+ * as `<i><span>&nbsp;</span></i>`, which Turndown classifies as a blank
+ * element (since regex `\s` matches U+00A0) and routes through
+ * `blankReplacement`. Turndown's `flankingWhitespace` pass — which would
+ * normally inject a space outside the (empty) replacement — only matches
+ * `[ \r\n\t]`, so it doesn't fire for NBSP; the `<i>` collapses to "" and
+ * adjacent words around the italic-NBSP get joined together
+ * (`and similar` → `andsimilar`).
+ *
+ * See agent feedback report 2026-04-27 for postId zcGmdQHX66NhC69v6.
+ */
+describe("htmlToMarkdown preserves whitespace inside blank inline formatting", () => {
+  it("does not collide adjacent words around an italic-NBSP", () => {
+    const html =
+      '<p><span style="white-space: pre-wrap">and</span>' +
+      '<i><span style="white-space: pre-wrap"> </span></i>' +
+      '<span style="white-space: pre-wrap">similar results</span></p>';
+    const md = htmlToMarkdown(html);
+    expect(md).not.toContain("andsimilar");
+    expect(md).toMatch(/and\s+similar results/);
+  });
+
+  it("does not collide adjacent words around a blank <em>NBSP</em>", () => {
+    const html = "<p>alpha<em> </em>beta</p>";
+    const md = htmlToMarkdown(html);
+    expect(md).not.toContain("alphabeta");
+    expect(md).toMatch(/alpha\s+beta/);
   });
 });
