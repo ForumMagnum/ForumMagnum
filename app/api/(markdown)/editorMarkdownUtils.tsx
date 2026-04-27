@@ -3,7 +3,7 @@ import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
 import { NextRequest, NextResponse } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
-import { isSupportedEditorType, withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
+import { checkEditorTypeAndGetToken, withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
@@ -35,14 +35,6 @@ export function normalizeImportedTopLevelNodes(nodes: LexicalNode[]): LexicalNod
 export function markdownRouteRedirect(req: NextRequest, path: string): NextResponse {
   return NextResponse.redirect(new URL(path, req.url), 302);
 }
-
-const HocuspocusAuthQuery = `
-  query MarkdownDraftHocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
-    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {
-      token
-    }
-  }
-`;
 
 const MarkdownPostMetadataQuery = `
   query MarkdownPostMetadataQuery($documentId: String) {
@@ -312,27 +304,27 @@ export async function renderLiveEditorDraftMarkdownRoute({
 
   try {
     const resolverContext = await getContextFromReqAndRes({ req });
-    const { data: authData } = await runQuery(
-      HocuspocusAuthQuery,
-      { postId, linkSharingKey: key ?? null },
-      resolverContext
-    );
-    const token = authData?.HocuspocusAuth?.token;
-
-    if (!token) {
-      return new Response(`No accessible shared draft found for postId: ${postId}`, { status: 403, headers: NO_CACHE_HEADERS });
-    }
-
-    const editorCheck = await isSupportedEditorType(postId, resolverContext);
-    if (!editorCheck.supported) {
+    const checkResult = await checkEditorTypeAndGetToken({
+      postId,
+      context: resolverContext,
+      linkSharingKey: key,
+    });
+    if (checkResult.kind === "unsupported_editor") {
       // 200 (not 4xx) so Claude's web_fetch surfaces the body to the model.
       return new Response(
-        `This draft uses the ${editorCheck.editorType} editor and cannot be read via the agent API. ` +
+        `This draft uses the ${checkResult.editorType} editor and cannot be read via the agent API. ` +
           `Only posts authored in our Lexical editor are currently supported. ` +
           `If you are an AI agent, please tell the user that the agent draft API only supports posts written in the Lexical editor.`,
         { status: 200, headers: NO_CACHE_HEADERS }
       );
     }
+    if (checkResult.kind === "unauthorized") {
+      return new Response(
+        `No accessible shared draft found for postId: ${postId}`,
+        { status: 403, headers: NO_CACHE_HEADERS }
+      );
+    }
+    const token = checkResult.token;
 
     const post = key
       ? (

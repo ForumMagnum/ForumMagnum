@@ -6,9 +6,10 @@ import { randomId } from "@/lib/random";
 import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInMarkNode } from "@lexical/mark";
 import {
+  checkEditorTypeAndGetToken,
   deriveAgentAuthor,
-  isSupportedEditorType,
   normalizeText,
+  UNAUTHORIZED_DRAFT_MESSAGE,
   unsupportedEditorMessage,
   waitForProviderFlush,
   waitForProviderSync,
@@ -18,7 +19,6 @@ import { locateMarkdownQuoteSelectionInSubtree } from "../mapMarkdownToLexical";
 import { commentOnDraftToolSchema } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
-import { getHocuspocusToken } from "../getHocuspocusToken";
 
 export function createCollabComment({
   content,
@@ -227,17 +227,16 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, quote, comment } = parseResult.data;
 
   try {
-    const token = await getHocuspocusToken(context, postId, key);
-    if (!token) {
-      captureAgentApiEvent({ route: "commentOnDraft", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
-      return NextResponse.json({ error: "Unauthorized to comment on draft" }, { status: 403 });
-    }
-
-    const editorCheck = await isSupportedEditorType(postId, context);
-    if (!editorCheck.supported) {
+    const checkResult = await checkEditorTypeAndGetToken({ postId, context, linkSharingKey: key });
+    if (checkResult.kind === "unsupported_editor") {
       captureAgentApiEvent({ route: "commentOnDraft", postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
-      return NextResponse.json({ error: unsupportedEditorMessage(editorCheck.editorType) }, { status: 400 });
+      return NextResponse.json({ error: unsupportedEditorMessage(checkResult.editorType) }, { status: 400 });
     }
+    if (checkResult.kind === "unauthorized") {
+      captureAgentApiEvent({ route: "commentOnDraft", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
+      return NextResponse.json({ error: UNAUTHORIZED_DRAFT_MESSAGE }, { status: 403 });
+    }
+    const token = checkResult.token;
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
     const threadQuote = quote ?? "";
 

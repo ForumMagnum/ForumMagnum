@@ -3,12 +3,11 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import { NextRequest, NextResponse } from "next/server";
 import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
-import { deriveAgentAuthor, isSupportedEditorType, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+import { deriveAgentAuthor, isSupportedEditorType, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession, checkEditorTypeAndGetToken, UNAUTHORIZED_DRAFT_MESSAGE } from "../editorAgentUtil";
 
 import { buildNodeMarkdownMapForSubtree, toPlainTextFilter } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deleteBlockToolSchema, type ReplaceMode } from "../toolSchemas";
-import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
@@ -154,17 +153,16 @@ export async function POST(req: NextRequest) {
   const { postId, key, agentName, mode, prefix } = parseResult.data;
 
   try {
-    const token = await getHocuspocusToken(context, postId, key);
-    if (!token) {
-      captureAgentApiEvent({ route: "deleteBlock", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
-      return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
-    }
-
-    const editorCheck = await isSupportedEditorType(postId, context);
-    if (!editorCheck.supported) {
+    const checkResult = await checkEditorTypeAndGetToken({ postId, context, linkSharingKey: key });
+    if (checkResult.kind === "unsupported_editor") {
       captureAgentApiEvent({ route: "deleteBlock", postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
-      return NextResponse.json({ error: unsupportedEditorMessage(editorCheck.editorType) }, { status: 400 });
+      return NextResponse.json({ error: unsupportedEditorMessage(checkResult.editorType) }, { status: 400 });
     }
+    if (checkResult.kind === "unauthorized") {
+      captureAgentApiEvent({ route: "deleteBlock", postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
+      return NextResponse.json({ error: UNAUTHORIZED_DRAFT_MESSAGE }, { status: 403 });
+    }
+    const token = checkResult.token;
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
 
     const deleteResult = await deleteMarkdownBlock({

@@ -10,11 +10,10 @@ import {
 import { $createLLMContentBlockNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockNode";
 import { $createLLMContentBlockContentNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockContentNode";
 import { $createLLMContentBlockHeaderNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockHeaderNode";
-import { isSupportedEditorType, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+import { isSupportedEditorType, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession, checkEditorTypeAndGetToken, UNAUTHORIZED_DRAFT_MESSAGE } from "../editorAgentUtil";
 
 import { $markdownToNodes, resolveInsertionIndex } from "../insertBlock/route";
 import { insertLLMBlockToolSchema, type InsertLocation } from "../toolSchemas";
-import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
@@ -133,17 +132,16 @@ export async function POST(req: NextRequest) {
   const { postId, key, modelName, location, markdown } = parseResult.data;
 
   try {
-    const token = await getHocuspocusToken(context, postId, key);
-    if (!token) {
-      captureAgentApiEvent({ route: "insertLLMBlock", postId, userId: context.currentUser?._id, agentName: modelName, status: "unauthorized" });
-      return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
-    }
-
-    const editorCheck = await isSupportedEditorType(postId, context);
-    if (!editorCheck.supported) {
+    const checkResult = await checkEditorTypeAndGetToken({ postId, context, linkSharingKey: key });
+    if (checkResult.kind === "unsupported_editor") {
       captureAgentApiEvent({ route: "insertLLMBlock", postId, userId: context.currentUser?._id, agentName: modelName, status: "unsupported_editor" });
-      return NextResponse.json({ error: unsupportedEditorMessage(editorCheck.editorType) }, { status: 400 });
+      return NextResponse.json({ error: unsupportedEditorMessage(checkResult.editorType) }, { status: 400 });
     }
+    if (checkResult.kind === "unauthorized") {
+      captureAgentApiEvent({ route: "insertLLMBlock", postId, userId: context.currentUser?._id, agentName: modelName, status: "unauthorized" });
+      return NextResponse.json({ error: UNAUTHORIZED_DRAFT_MESSAGE }, { status: 403 });
+    }
+    const token = checkResult.token;
 
     const result = await insertLLMBlock({
       postId,
