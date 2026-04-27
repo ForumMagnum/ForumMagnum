@@ -233,8 +233,13 @@ spoiler block; a bare \`>!\` line is a paragraph break inside the block:
 To delete an existing block from the draft, make a POST request to:
     POST /api/agent/deleteBlock
     with JSON body: { postId, key, prefix, mode?: "edit"|"suggest" }
-The prefix should be a markdown string that matches the start of a paragraph
-that already exists in the draft.
+The prefix should be a markdown string that matches the start of a top-level
+block in the draft (paragraph, heading, blockquote, table, spoiler block,
+LLM content block, …) or any individual list item. Match a list item by its
+own leading text — the matcher descends into lists, so deleting "second item"
+removes just that item and leaves the surrounding list intact. Match a table
+by the leading text of its first cell; tables are always deleted as a whole
+(there is no per-cell deletion).
 In edit mode, the matched block is removed immediately. In suggest mode, the
 matched block is wrapped as a deletion suggestion.
 
@@ -274,6 +279,12 @@ Deleting a plain paragraph:
 
 Deleting an LLM content block:
     { "postId": "...", "key": "...", "prefix": "%%% llm-output model=\\"GPT-4o\\"", "mode": "edit" }
+
+Deleting a single list item by its own text:
+    { "postId": "...", "key": "...", "prefix": "the second bullet", "mode": "edit" }
+
+Deleting a whole table by its first cell:
+    { "postId": "...", "key": "...", "prefix": "header cell content", "mode": "edit" }
 
 Inserting a paragraph before an LLM content block:
     { "postId": "...", "key": "...", "location": { "before": "%%% llm-output model=\\"GPT-4o\\"" }, "markdown": "New paragraph text.", "mode": "edit" }
