@@ -304,6 +304,35 @@ Custom widgets are represented in markdown with fenced code blocks using:
     \`\`\`
 Newly inserted widgets will have a unique widgetId in the bracket.
 
+Widget layout. Widget iframes always render at 100% of the post-content
+column, whose width varies from ~340px on mobile up to ~700px on desktop.
+Strongly prefer responsive layouts (width: 100%, height: auto, flexbox or
+grid that adapts) over hard-coded pixel widths — a fixed pixel layout that
+fits one viewport almost certainly breaks the other.
+
+The iframe's height is auto-derived from \`document.body.offsetHeight\`
+plus body's vertical margins and re-measured on every layout change via a
+ResizeObserver the editor injects (you do not need to add one yourself).
+Reported height is clamped to 50–5000px and starts at 400px until the
+first measurement arrives, so a responsive widget that reflows taller on
+mobile simply grows to match — no per-viewport height management needed.
+For a fixed-height widget with internal scroll, set \`body { height: Xpx;
+overflow-y: auto }\`; the auto-measurement reports Xpx as expected.
+
+The widget can also override the auto-measured height imperatively from
+inside the iframe:
+    parent.postMessage({ type: 'iframe-widget-resize', height: <px> }, '*');
+In practice every layout-driven height we've seen is expressible with body
+CSS, so this is a backstop rather than a default tool — reach for it only
+when the auto-measurement is genuinely wrong for your widget.
+
+Note that the auto-measurement adds body's vertical margins to
+\`offsetHeight\`, so the browser's default ~8px body margin appears as
+narrow strips of the iframe's background above and below your content.
+If your widget has contrasting body styling (colored background, rounded
+card, etc.) and you want it edge-to-edge, reset \`html, body { margin: 0 }\`
+in the widget's CSS.
+
 To replace the HTML/JS contents of a widget, make a POST request to:
     POST /api/agent/replaceWidget
     with JSON body: {
