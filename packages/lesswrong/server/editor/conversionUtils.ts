@@ -200,6 +200,35 @@ function getTurndown(): TurndownService {
       filter: (node, options) => node.classList?.contains('detailsBlock'),
       replacement: (content) => `${content}\n+++`
     });
+
+    // Spoiler blocks: `<div class="spoilers">…</div>` → `>!`-prefixed lines.
+    // Lexical's SpoilerNode and the legacy DraftJS pipeline both produce this
+    // canonical wrapper. Each line of the inner markdown gets `>! ` prefixed
+    // (or just `>!` for paragraph-separator blank lines).
+    const prefixSpoilerLines = (content: string): string => {
+      const trimmed = content.replace(/^\n+|\n+$/g, '');
+      if (!trimmed) return '';
+      return trimmed.split('\n').map((line) => line ? `>! ${line}` : '>!').join('\n');
+    };
+    turndownService.addRule('spoiler-block', {
+      filter: (node) =>
+        node.nodeName === 'DIV' && !!node.classList?.contains('spoilers'),
+      replacement: (content) => {
+        const prefixed = prefixSpoilerLines(content);
+        return prefixed ? `\n\n${prefixed}\n\n` : '';
+      },
+    });
+    // Backwards-compat: a bare `<p class="spoiler-v2">` (legacy DraftJS form
+    // before `wrapSpoilerTags` runs) should still serialize as a spoiler
+    // line, so it round-trips through the agent API.
+    turndownService.addRule('spoiler-paragraph-v2', {
+      filter: (node) =>
+        node.nodeName === 'P' && !!node.classList?.contains('spoiler-v2'),
+      replacement: (content) => {
+        const prefixed = prefixSpoilerLines(content);
+        return prefixed ? `\n\n${prefixed}\n\n` : '';
+      },
+    });
     (turndownService as AnyBecauseHard).__buildMarker = TURNDOWN_BUILD_MARKER;
     _turndownService = turndownService;
   }

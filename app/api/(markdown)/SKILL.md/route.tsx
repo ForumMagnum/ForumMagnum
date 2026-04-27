@@ -220,8 +220,15 @@ that already exists in the draft. The location can be one of the following:
     "after": insert after the paragraph with the given markdown prefix
 This API is only for inserting new blocks of text that can be expressed in
 traditional markdown.  It supports paragraphs, lists, blockquotes,
-bold/italic/strikethrough (no underline), and code blocks.
+bold/italic/strikethrough (no underline), code blocks, and spoiler blocks.
 Custom block-level elements like LLM content blocks and widgets have dedicated APIs (see below).
+
+Spoiler blocks (text hidden until the reader hovers) are written as one or
+more lines prefixed with \`>!\`. Consecutive \`>!\` lines form a single
+spoiler block; a bare \`>!\` line is a paragraph break inside the block:
+    >! the killer is
+    >!
+    >! the butler
 
 To delete an existing block from the draft, make a POST request to:
     POST /api/agent/deleteBlock

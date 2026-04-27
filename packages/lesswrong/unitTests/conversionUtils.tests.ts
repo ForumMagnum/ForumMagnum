@@ -1,5 +1,6 @@
 import { htmlToMarkdown, markdownToHtml } from "@/server/editor/conversionUtils";
 import { JSDOM } from "jsdom";
+import { getMarkdownIt } from "@/lib/utils/markdownItPlugins";
 
 /**
  * Tests that markdownToHtml does not produce HTML that could execute arbitrary
@@ -157,5 +158,73 @@ describe("htmlToMarkdown preserves whitespace inside blank inline formatting", (
     const md = htmlToMarkdown(html);
     expect(md).not.toContain("alphabeta");
     expect(md).toMatch(/alpha\s+beta/);
+  });
+});
+
+/**
+ * Spoiler blocks (`>!`-prefixed lines) round-trip between Lexical's
+ * `<div class="spoilers">` HTML and Markdown for the agent API.
+ *
+ * See agent feedback report 2026-03-29 for the gap.
+ */
+describe("spoiler block (>!) round-trip", () => {
+  function renderMarkdown(md: string): string {
+    return getMarkdownIt().render(md, { docId: "test" });
+  }
+
+  it("parses a single-line >! into <div class=\"spoilers\">", () => {
+    const html = renderMarkdown(">! hidden secret");
+    expect(html).toContain('<div class="spoilers">');
+    expect(html).toContain("hidden secret");
+    expect(html).toContain("</div>");
+  });
+
+  it("parses consecutive >! lines as one spoiler block", () => {
+    const html = renderMarkdown(">! line one\n>! line two");
+    expect(html.match(/<div class="spoilers">/g)?.length).toBe(1);
+    expect(html.match(/<\/div>/g)?.length).toBe(1);
+    expect(html).toContain("line one");
+    expect(html).toContain("line two");
+  });
+
+  it("treats a bare >! line as a paragraph separator inside the block", () => {
+    const html = renderMarkdown(">! para one\n>!\n>! para two");
+    expect(html.match(/<div class="spoilers">/g)?.length).toBe(1);
+    expect(html.match(/<p>/g)?.length).toBe(2);
+  });
+
+  it("supports inline markdown inside a spoiler line", () => {
+    const html = renderMarkdown(">! the answer is **42**");
+    expect(html).toContain("<strong>42</strong>");
+  });
+
+  it("does not match a bare blockquote `>` (no `!`)", () => {
+    const html = renderMarkdown("> not a spoiler");
+    expect(html).not.toContain('class="spoilers"');
+    expect(html).toContain("<blockquote>");
+  });
+
+  it("serializes <div class=\"spoilers\"> back to >! markdown", () => {
+    const md = htmlToMarkdown('<div class="spoilers"><p>hidden text</p></div>');
+    expect(md.trim()).toBe(">! hidden text");
+  });
+
+  it("serializes a multi-paragraph spoiler with `>!` separator lines", () => {
+    const md = htmlToMarkdown(
+      '<div class="spoilers"><p>para one</p><p>para two</p></div>'
+    );
+    expect(md.trim()).toBe(">! para one\n>!\n>! para two");
+  });
+
+  it("serializes legacy <p class=\"spoiler-v2\"> as a >! line", () => {
+    const md = htmlToMarkdown('<p class="spoiler-v2">old form</p>');
+    expect(md.trim()).toBe(">! old form");
+  });
+
+  it("round-trips: markdown → html → markdown", () => {
+    const original = ">! line one\n>!\n>! line two";
+    const html = renderMarkdown(original);
+    const back = htmlToMarkdown(html);
+    expect(back.trim()).toBe(original);
   });
 });
