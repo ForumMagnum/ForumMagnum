@@ -12,10 +12,10 @@ import {
   COMMAND_PRIORITY_NORMAL,
   FORMAT_TEXT_COMMAND,
   INDENT_CONTENT_COMMAND,
-  isModifierMatch,
   KEY_DOWN_COMMAND,
   LexicalEditor,
   OUTDENT_CONTENT_COMMAND,
+  REDO_COMMAND,
 } from 'lexical';
 import {Dispatch, useEffect} from 'react';
 
@@ -63,6 +63,7 @@ import {
   isSuperscript,
   isUnderline,
   isUppercase,
+  isRedo,
 } from './shortcuts';
 
 export default function ShortcutsPlugin({
@@ -76,9 +77,11 @@ export default function ShortcutsPlugin({
 
   useEffect(() => {
     const keyboardShortcutsHandler = (event: KeyboardEvent) => {
-      // Short-circuit, a least one modifier must be set
-      if (isModifierMatch(event, {})) {
+      // Short-circuit, at least one modifier must be set
+      if (!event.ctrlKey && !event.metaKey && !event.altKey) {
         return false;
+      } else if (isRedo(event)) {
+        editor.dispatchCommand(REDO_COMMAND, undefined);
       } else if (isFormatParagraph(event)) {
         formatParagraph(editor);
       } else if (isFormatHeading(event)) {

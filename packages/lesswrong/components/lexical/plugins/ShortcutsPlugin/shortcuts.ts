@@ -258,3 +258,13 @@ export function isAddComment(event: KeyboardEvent): boolean {
 export function isInsertFootnote(event: KeyboardEvent): boolean {
   return isExactShortcutMatch(event, 'f', {...CONTROL_OR_META, altKey: true});
 }
+
+export function isRedo(event: KeyboardEvent): boolean {
+  if (IS_APPLE) {
+    return isExactShortcutMatch(event, 'z', {metaKey: true, shiftKey: true});
+  }
+  return (
+    isExactShortcutMatch(event, 'y', {ctrlKey: true}) ||
+    isExactShortcutMatch(event, 'z', {ctrlKey: true, shiftKey: true})
+  );
+}
