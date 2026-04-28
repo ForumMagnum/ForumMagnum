@@ -502,6 +502,9 @@ const baseBodyStyles = (theme: ThemeType) => ({
     overflowX: 'auto',
     position: 'relative',
     tabSize: 2,
+    // Explicit pre + normal overflow-wrap overrides parent word-break:break-word, keeping gutter line numbers in sync.
+    whiteSpace: 'pre',
+    overflowWrap: 'normal',
   },
   '& pre.code-block::before, & pre[data-highlight-language]::before': {
     content: 'attr(data-gutter)',
