@@ -8,6 +8,9 @@ import { getCommunityPath } from '@/lib/pathConstants';
 const ICON_ONLY_NAVIGATION_WIDTH = 64;
 export const ICON_ONLY_NAVIGATION_BREAKPOINT = 1424;
 
+// Stable class name used in the @global headroom selector below
+const NAV_SIDEBAR_STICKY_CLASS = 'NavigationStandalone-sticky';
+
 const styles = defineStyles("NavigationStandalone", (theme: ThemeType) => ({
   sidebar: {
     width: TAB_NAVIGATION_MENU_WIDTH,
@@ -37,6 +40,20 @@ const styles = defineStyles("NavigationStandalone", (theme: ThemeType) => ({
       display: "block",
     },
   },
+  stickyContainer: {
+    position: 'sticky',
+    top: 0,
+    alignSelf: 'start',
+    transition: 'top 0.2s ease-in-out',
+  },
+  '@global': {
+    // When the header is visible (pinned = scrolling up, unfixed = at page top),
+    // keep the nav flush below it; when the header is hidden (unpinned), top stays 0.
+    [`body:has(.headroom--pinned) .${NAV_SIDEBAR_STICKY_CLASS},
+      body:has(.headroom--unfixed) .${NAV_SIDEBAR_STICKY_CLASS}`]: {
+      top: 'var(--header-height)',
+    },
+  },
 }))
 
 const NavigationStandalone = ({ sidebarHidden, iconOnlyNavigationEnabled }: {
@@ -48,7 +65,7 @@ const NavigationStandalone = ({ sidebarHidden, iconOnlyNavigationEnabled }: {
 
   const background = location.pathname === getCommunityPath();
 
-  return <div>
+  return <div className={classNames(classes.stickyContainer, NAV_SIDEBAR_STICKY_CLASS)}>
     <Slide slidIn={!sidebarHidden}>
       <div className={classNames(classes.sidebar, {
         [classes.background]: background,
