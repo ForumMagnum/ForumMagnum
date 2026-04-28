@@ -231,6 +231,8 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
       width: 'auto',
       margin: '1em 0',
       border: `1px solid ${theme.palette.grey[300]}`,
+      fontSize: '0.875em',
+      fontFamily: theme.typography.commentStyle.fontFamily,
     },
     '& th, & td': {
       border: `1px solid ${theme.palette.grey[300]}`,
