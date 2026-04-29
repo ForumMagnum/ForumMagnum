@@ -13,6 +13,9 @@
  *    to a real ParagraphNode so the content is serialized normally.
  * 3. FootnoteSection guard: prevents the cursor from being placed after a
  *    FootnoteSectionNode, which must remain fixed at the end of the document.
+ * 4. Table edge click fix: mousedown near a table's top/bottom edge is
+ *    redirected to the adjacent sentinel so Enter creates a paragraph outside
+ *    the table (matching the behaviour of keyboard navigation to the edge).
  */
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
@@ -59,6 +62,12 @@ const SENTINEL_RECONCILE_TAG = 'sentinel-reconcile';
  * elements never receive their own focus event.
  */
 const SENTINEL_FOCUSED_CLASS = 'sentinel-focused';
+
+/**
+ * Pixels above/below a table's bounding box that count as an "edge click".
+ * Clicks in this zone are redirected to the adjacent sentinel paragraph.
+ */
+const TABLE_EDGE_ZONE_PX = 12;
 
 type SentinelTraversalDirection = 'backward' | 'forward';
 
@@ -524,6 +533,62 @@ export default function BlockCursorNavigationPlugin(): null {
         });
       }),
     );
+  }, [editor]);
+
+  // Intercept mousedown events near a table's top/bottom edge and redirect
+  // selection to the adjacent sentinel paragraph. This fixes two issues:
+  // 1. Clicks near the bottom edge can trigger Lexical's cell-selection drag
+  //    rather than placing the cursor; preventDefault stops the drag.
+  // 2. After a plain mouse click at the table edge the selection lands inside
+  //    the table, so pressing Enter inserts a row rather than a new paragraph.
+  //    By selecting the sentinel here we get the same outcome as keyboard nav.
+  useEffect(() => {
+    const rootElement = editor.getRootElement();
+    if (!rootElement) return;
+
+    function handleMouseDown(event: MouseEvent) {
+      if (event.button !== 0) return;
+      const clientY = event.clientY;
+
+      const tables = rootElement!.querySelectorAll('table');
+      for (const tableEl of tables) {
+        const rect = tableEl.getBoundingClientRect();
+
+        let targetPosition: 'before' | 'after' | null = null;
+        if (clientY >= rect.top - TABLE_EDGE_ZONE_PX && clientY <= rect.top + TABLE_EDGE_ZONE_PX) {
+          targetPosition = 'before';
+        } else if (clientY >= rect.bottom - TABLE_EDGE_ZONE_PX && clientY <= rect.bottom + TABLE_EDGE_ZONE_PX) {
+          targetPosition = 'after';
+        }
+
+        if (!targetPosition) continue;
+
+        // Prevent the default mousedown behaviour (starts Lexical's
+        // cell-selection drag and moves the browser cursor into the table).
+        event.preventDefault();
+
+        editor.update(() => {
+          const root = $getRoot();
+          for (const child of root.getChildren()) {
+            const domEl = editor.getElementByKey(child.getKey());
+            if (!domEl || (domEl !== tableEl && !domEl.contains(tableEl))) continue;
+
+            const sibling =
+              targetPosition === 'before'
+                ? child.getPreviousSibling()
+                : child.getNextSibling();
+            if ($isSentinelParagraphNode(sibling)) {
+              sibling.selectEnd();
+            }
+            break;
+          }
+        });
+        break;
+      }
+    }
+
+    rootElement.addEventListener('mousedown', handleMouseDown);
+    return () => rootElement.removeEventListener('mousedown', handleMouseDown);
   }, [editor]);
 
   return null;
