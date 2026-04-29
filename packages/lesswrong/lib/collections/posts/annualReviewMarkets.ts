@@ -104,11 +104,31 @@ export const postGetMarketInfoFromManifold = async (marketId: string, year: numb
 
   const fullMarket = await result.json()
 
+  // Reject any url that doesn't point at manifold.markets over HTTPS. The url
+  // is rendered as a link and may be passed to other consumers; enforcing
+  // shape here guards every consumer regardless of how it's rendered.
+  let url: string | undefined;
+  if (typeof fullMarket.url === "string") {
+    try {
+      const parsed = new URL(fullMarket.url);
+      const isManifoldHost = parsed.hostname === "manifold.markets"
+        || parsed.hostname.endsWith(".manifold.markets");
+      if (parsed.protocol === "https:" && isManifoldHost) {
+        url = fullMarket.url;
+      }
+    } catch {
+      // Invalid URL — fall through to the rejection below.
+    }
+  }
+  if (!url) {
+    return null;
+  }
+
   return {
     probability: fullMarket.probability,
     isResolved: fullMarket.isResolved,
     year,
-    url: fullMarket.url,
+    url,
   }
 }
 
