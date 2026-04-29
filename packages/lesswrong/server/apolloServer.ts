@@ -204,7 +204,7 @@ export function startWebserver() {
 
   app.use(express.urlencoded({ extended: true })); // We send passwords + username via urlencoded form parameters
   app.use('/analyticsEvent', express.json({ limit: '50mb' }), clientIdMiddleware);
-  app.use('/ckeditor-webhook', express.json({ limit: '50mb' }));
+  app.use('/ckeditor-webhook', express.raw({ type: '*/*', limit: '50mb' }));
 
   if (isElasticEnabled) {
     // We register this here (before the auth middleware) to avoid blocking
