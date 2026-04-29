@@ -7,11 +7,47 @@ import CkEditorUserSessions from '../../server/collections/ckEditorUserSessions/
 import { ckEditorUserSessionsEnabled } from '../../lib/betas';
 import { createAdminContext } from "../vulcan-lib/createContexts";
 import { createCkEditorUserSession } from '../collections/ckEditorUserSessions/mutations';
+import { getCkEditorApiSecretKey } from './ckEditorServerConfig';
+import sanitizeHtml from 'sanitize-html';
+import crypto from "crypto";
+
+const ckEditorCommentAllowedTags = [
+  'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's',
+  'ul', 'ol', 'li', 'ins', 'del',
+  'details', 'summary',
+];
+
+// `disallowedTagsMode: 'escape'` so users who type literal angle-bracketed
+// placeholders in prose (e.g. `<link>`, `<invoke name="...">`) see them as text
+// rather than having them silently dropped.
+function sanitizeCkEditorCommentHtml(html: string): string {
+  return sanitizeHtml(html, {
+    allowedTags: ckEditorCommentAllowedTags,
+    allowedAttributes: {},
+    disallowedTagsMode: 'escape',
+  });
+}
 
 interface CkEditorUserConnectionChange {
   user: { id: string },
   document: { id: string },
   connected_users: Array<{ id: string }>,
+}
+
+// https://ckeditor.com/docs/cs/latest/developer-resources/security/request-signature.html
+function computeWebhookSignature(apiKey: string, method: string, path: string, timestamp: string, rawBody: string) {
+  const hmac = crypto.createHmac("sha256", apiKey);
+  hmac.update(`${method.toUpperCase()}${path}${timestamp}${rawBody}`);
+  return hmac.digest("hex");
+}
+
+function signaturesMatch(expected: string, provided: string) {
+  const expectedBuf = Buffer.from(expected, "hex");
+  const providedBuf = Buffer.from(provided, "hex");
+  if (expectedBuf.length === 0 || expectedBuf.length !== providedBuf.length) {
+    return false;
+  }
+  return crypto.timingSafeEqual(expectedBuf, providedBuf);
 }
 
 addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
@@ -20,12 +56,29 @@ addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
     res.end("ckeditor-webhook should receive POST");
     return;
   }
-  
-  const body = (req as any).body; //Type system doesn't know body-parser middleware has filled this in
-  if (body) {
-    await handleCkEditorWebhook(body);
+
+  const apiSecret = getCkEditorApiSecretKey();
+  if (!apiSecret) {
+    throw new Error("ckeditor webhook not configured");
   }
-  
+
+  const signature = req.headers["x-cs-signature"];
+  const timestamp = req.headers["x-cs-timestamp"];
+  if (!signature || !timestamp || Array.isArray(signature) || Array.isArray(timestamp)) {
+    throw new Error("Invalid ckeditor signature headers");
+  }
+
+  const rawBody = (req as any).body.toString('utf8');
+  const path = (req as any).originalUrl;
+  const expectedSignature = computeWebhookSignature(apiSecret, "POST", path, timestamp, rawBody);
+  if (!signaturesMatch(expectedSignature, signature)) {
+    throw new Error("Invalid signature");
+  }
+
+  if (rawBody) {
+    await handleCkEditorWebhook(rawBody);
+  }
+
   res.end("ok");
 });
 
@@ -33,12 +86,12 @@ addStaticRoute('/ckeditor-webhook', async ({query}, req, res, next) => {
 //   https://ckeditor.com/docs/cs/latest/guides/webhooks/events.html
 // Webhook payloads don't seem to have Typescript types exported anywhere, but
 // they're pretty simple so we define them inline.
-async function handleCkEditorWebhook(message: any) {
+const handleCkEditorWebhook = async (body: string) => {
   // eslint-disable-next-line no-console
-  console.log(`Got CkEditor webhook: ${JSON.stringify(message)}`);
-  
-  const {environment_id, event, payload, sent_at} = message;
-  
+  console.log(`Got CkEditor webhook: ${body}`);
+
+  const {environment_id, event, payload, sent_at} = JSON.parse(body);
+
   switch (event) {
     case "commentthread.all.removed":
       break;
@@ -194,7 +247,7 @@ async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId,
     documentId: postId,
     extraData: {
       senderUserID: commenterUserId,
-      commentHtml: commentHtml,
+      commentHtml: sanitizeCkEditorCommentHtml(commentHtml),
       linkSharingKey: post.linkSharingKey,
     },
   });
