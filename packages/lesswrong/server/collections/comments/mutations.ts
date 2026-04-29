@@ -1,6 +1,7 @@
 import schema from "@/lib/collections/comments/newSchema";
 import { userIsAllowedToComment } from "@/lib/collections/users/helpers";
 import { isElasticEnabled } from "@/lib/instanceSettings";
+import { sanitizeRejectionReason } from "@/lib/utils/sanitize";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { addReferrerToComment, assignPostVersion, commentsAlignmentEdit, commentsAlignmentNew, commentsEditSoftDeleteCallback, commentsNewNotifications, commentsNewOperations, commentsNewUserApprovedStatus, commentsPublishedNotifications, createShortformPost, handleReplyToAnswer, invalidatePostOnCommentCreate, invalidatePostOnCommentUpdate, lwCommentsNewUpvoteOwnComment, maybeCreateAutomatedContentEvaluationForComment, moveToAnswers, newCommentsEmptyCheck, newCommentsRateLimit, newCommentTriggerReview, handleDraftState, setTopLevelCommentId, trackCommentRateLimitHit, updatedCommentMaybeTriggerReview, updateDescendentCommentCountsOnCreate, updateDescendentCommentCountsOnEdit, updatePostLastCommentPromotedAt, updateUserNotesOnCommentRejection, validateDeleteOperations } from "@/server/callbacks/commentCallbackFunctions";
@@ -50,6 +51,12 @@ async function editCheck(user: DbUser | null, document: DbComment | null, contex
 
 export async function createComment({ data }: CreateCommentInput, context: ResolverContext) {
   const { currentUser } = context;
+
+  // rejectedReason is rendered raw on the public /moderation page; sanitize on
+  // every write so a compromised mod account can't produce stored XSS.
+  if (data.rejectedReason != null) {
+    data.rejectedReason = sanitizeRejectionReason(data.rejectedReason);
+  }
 
   const callbackProps = await getLegacyCreateCallbackProps('Comments', {
     context,
@@ -128,6 +135,12 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
 
 export async function updateComment({ selector, data }: UpdateCommentInput, context: ResolverContext) {
   const { currentUser, Comments } = context;
+
+  // rejectedReason is rendered raw on the public /moderation page; sanitize on
+  // every write so a compromised mod account can't produce stored XSS.
+  if (data.rejectedReason != null) {
+    data.rejectedReason = sanitizeRejectionReason(data.rejectedReason);
+  }
 
   // Save the original mutation (before callbacks add more changes to it) for
   // logging in FieldChanges

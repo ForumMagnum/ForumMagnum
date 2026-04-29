@@ -280,6 +280,45 @@ export const sanitize = function(s: string): string {
   });
 };
 
+// Allowlist sanitizer for moderator-authored "rejection reason" strings on
+// Posts and Comments. These fields are rendered raw on /moderation, but go
+// through this sanitizer at write time so a compromised mod account cannot
+// produce stored XSS. The allowlist covers basic rich-text formatting that
+// historical CKEditor and current Lexical output produce; in particular
+// Lexical emits <em>/<u>/<s> for italic/underline/strikethrough and adds
+// `target` to outbound links.
+export const sanitizeRejectionReason = function(s: string): string {
+  return sanitizeHtml(s, {
+    allowedTags: [
+      'a', 'b', 'blockquote', 'br', 'em', 'i', 'li', 'ol', 'p', 's', 'span', 'strong', 'u', 'ul',
+    ],
+    allowedAttributes: {
+      a: ['href', 'rel', 'target'],
+      li: ['data-list-item-id', 'value'],
+      p: ['style'],
+      span: ['style'],
+      strong: ['style'],
+    },
+    allowedSchemes: ['http', 'https', 'mailto'],
+    allowedSchemesAppliedToAttributes: ['href'],
+    allowProtocolRelative: false,
+    allowedStyles: {
+      p: {
+        'white-space': [/^(pre-wrap|pre|normal|nowrap)$/],
+        'text-align': [/^(start|end|left|right|center|justify)$/],
+      },
+      span: {
+        'white-space': [/^(pre-wrap|pre|normal|nowrap)$/],
+        'text-align': [/^(start|end|left|right|center|justify)$/],
+      },
+      strong: {
+        'white-space': [/^(pre-wrap|pre|normal|nowrap)$/],
+        'text-align': [/^(start|end|left|right|center|justify)$/],
+      },
+    },
+  });
+};
+
 export function escapeHtml(value: string): string {
   return value
     .replace(/&/g, "&amp;")
