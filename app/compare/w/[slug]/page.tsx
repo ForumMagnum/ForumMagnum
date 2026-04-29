@@ -17,7 +17,7 @@ export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ 
 export default async function Page({ params }: {
   params: Promise<{ slug: string }>
 }) {
-  const { slug } = await params;
+  const slug = decodeURIComponent((await params).slug);
   return <RouteRoot>
     <TagCompareRevisions slug={slug} />
   </RouteRoot>;

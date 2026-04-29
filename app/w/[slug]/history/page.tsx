@@ -18,7 +18,7 @@ export const generateMetadata = getTagPageMetadataFunction<{ slug: string }>(({ 
 export default async function Page({ params }: {
   params: Promise<{ slug: string }>
 }) {
-  const { slug } = await params;
+  const slug = decodeURIComponent((await params).slug);
   
   return <RouteRoot subtitle={TagHistoryPageSubtitle}>
     <TagHistoryPage slug={slug} />

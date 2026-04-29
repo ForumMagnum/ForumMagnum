@@ -33,7 +33,7 @@ export function getTagPageMetadataFunction<Params>(paramsToTagSlugConverter: (pa
   return async function generateMetadata({ params, searchParams }: { params: Promise<Params>, searchParams: Promise<{ commentId?: string }> }): Promise<Metadata> {
     const [paramValues, searchParamsValues, defaultMetadata] = await Promise.all([params, searchParams, getDefaultMetadata()]);
 
-    const slug = paramsToTagSlugConverter(paramValues);
+    const slug = decodeURIComponent(paramsToTagSlugConverter(paramValues));
     const commentId = searchParamsValues.commentId;
 
     const resolverContext = await getResolverContextForGenerateMetadata(searchParamsValues);
