@@ -111,6 +111,18 @@ function escapeHtml(text: string): string {
     .replaceAll("'", "&#39;");
 }
 
+// Maps known privacy-frontend mirror domains to their canonical counterparts.
+// Nitter instances mirror Twitter/X — substituting the domain lets us fetch
+// the real Twitter card so link previews work for nitter.net links.
+const PRIVACY_FRONTEND_HOST_SUBSTITUTIONS: Record<string, string> = {
+  "nitter.net": "x.com",
+  "nitter.privacydev.net": "x.com",
+  "nitter.poast.org": "x.com",
+  "nitter.cz": "x.com",
+  "nitter.1d4.us": "x.com",
+  "nitter.unixfox.eu": "x.com",
+};
+
 function normalizePreviewUrl(url: string): string {
   const trimmed = url.trim();
   if (!trimmed) {
@@ -121,6 +133,10 @@ function normalizePreviewUrl(url: string): string {
     throw new Error("Only http(s) URLs are supported");
   }
   parsed.hash = "";
+  const substitutedHost = PRIVACY_FRONTEND_HOST_SUBSTITUTIONS[parsed.hostname.toLowerCase()];
+  if (substitutedHost) {
+    parsed.hostname = substitutedHost;
+  }
   return parsed.toString();
 }
 
