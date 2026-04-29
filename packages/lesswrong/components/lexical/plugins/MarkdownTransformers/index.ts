@@ -85,7 +85,7 @@ export const HR: ElementTransformer = {
   export: (node: LexicalNode) => {
     return $isHorizontalRuleNode(node) ? '***' : null;
   },
-  regExp: /^(---|\/\*\*|\_\_\_)\s?$/,
+  regExp: /^(---|\*\*\*|___)\s?$/,
   replace: (parentNode, _1, _2, isImport) => {
     const line = $createHorizontalRuleNode();
 
@@ -94,7 +94,6 @@ export const HR: ElementTransformer = {
       parentNode.replace(line);
     } else {
       parentNode.insertBefore(line);
-      // Clear the '---' text so it doesn't remain visible after the HR is inserted
       parentNode.clear();
     }
 
@@ -266,7 +265,7 @@ export const FOOTNOTE: TextMatchTransformer = {
 //
 //     return `<tweet id="${node.getId()}" />`;
 //   },
-//   regExp: /<tweet id="([^"]+?)"\s?\/>\s?$/,
+//   regExp: /<tweet id="([^"]+?)"\s?\/>\.s?$/,
 //   replace: (textNode, _1, match) => {
 //     const [, id] = match;
 //     const tweetNode = $createTweetNode(id);
