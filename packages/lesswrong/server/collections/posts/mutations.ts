@@ -80,6 +80,18 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
 
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
+  // If coauthorStatuses is provided without coauthorUserIds, derive coauthorUserIds from it.
+  if (data.coauthorStatuses && !data.coauthorUserIds) {
+    const statuses = data.coauthorStatuses;
+    const hasPermission = data.hasCoauthorPermission ?? true;
+    data = {
+      ...data,
+      coauthorUserIds: hasPermission
+        ? statuses.map(s => s.userId)
+        : statuses.filter(s => s.confirmed).map(s => s.userId),
+    };
+  }
+
   data = await runSlugCreateBeforeCallback(callbackProps);
 
   // former createBefore
@@ -181,6 +193,24 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   const { oldDocument } = updateCallbackProperties;
 
   data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
+
+  // When coauthorStatuses or hasCoauthorPermission changes without an explicit coauthorUserIds,
+  // sync coauthorUserIds to match (so permissions stay in sync with the displayed coauthor list).
+  if (('coauthorStatuses' in data || 'hasCoauthorPermission' in data) && !('coauthorUserIds' in data)) {
+    const partialData = data as UpdatePostDataInput;
+    const statuses = 'coauthorStatuses' in data
+      ? (partialData.coauthorStatuses ?? [])
+      : (oldDocument.coauthorStatuses ?? []);
+    const hasPermission = 'hasCoauthorPermission' in data
+      ? (partialData.hasCoauthorPermission ?? true)
+      : (oldDocument.hasCoauthorPermission ?? true);
+    data = {
+      ...data,
+      coauthorUserIds: hasPermission
+        ? statuses.map(s => s.userId)
+        : statuses.filter(s => s.confirmed).map(s => s.userId),
+    };
+  }
 
   data = await runSlugUpdateBeforeCallback(updateCallbackProperties);
 
