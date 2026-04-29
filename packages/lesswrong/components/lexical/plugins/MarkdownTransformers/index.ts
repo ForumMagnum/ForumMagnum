@@ -85,7 +85,7 @@ export const HR: ElementTransformer = {
   export: (node: LexicalNode) => {
     return $isHorizontalRuleNode(node) ? '***' : null;
   },
-  regExp: /^(---|\*\*\*|___)\s?$/,
+  regExp: /^(---|\/\*\*|\_\_\_)\s?$/,
   replace: (parentNode, _1, _2, isImport) => {
     const line = $createHorizontalRuleNode();
 
@@ -94,6 +94,8 @@ export const HR: ElementTransformer = {
       parentNode.replace(line);
     } else {
       parentNode.insertBefore(line);
+      // Clear the '---' text so it doesn't remain visible after the HR is inserted
+      parentNode.clear();
     }
 
     line.selectNext();
