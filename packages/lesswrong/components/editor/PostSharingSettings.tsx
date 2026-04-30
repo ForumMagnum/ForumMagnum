@@ -1,7 +1,7 @@
 import React, {FC, useCallback, useState} from 'react';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
-import { userCanUseSharing } from '../../lib/betas';
+import { userCanUseSharing, userCanUseLinkSharing } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { SharingSettings, defaultSharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -95,8 +95,8 @@ const PostSharingIcon: FC<{
 }
 
 const getNoSharePermissionTooltip = () => isFriendlyUI()
-  ? "You need at least 1 karma or to be approved by a moderator to share this post"
-  : "You need at least 1 karma or to be approved by a mod to share";
+  ? "You need to be logged in to share this post"
+  : "You need to be logged in to share";
 
 interface PostSharingSettingsProps {
   field: TypedFieldApi<SharingSettings, EditablePost, PostSubmitMeta>;
@@ -168,9 +168,9 @@ export const PostSharingSettings = ({ field, post, formType, editorType, iconOnl
       />
     });
   }, [openDialog, closeDialog, formType, post, field, initialSharingSettings, flash, editorType]);
-  const canUseSharing = userCanUseSharing(currentUser)
+  const canUseLinkSharing = userCanUseLinkSharing(currentUser)
 
-  const tooltipTitle = !canUseSharing
+  const tooltipTitle = !canUseLinkSharing
     ? getNoSharePermissionTooltip()
     : iconOnly
       ? "Share"
@@ -179,8 +179,8 @@ export const PostSharingSettings = ({ field, post, formType, editorType, iconOnl
   return <LWTooltip title={tooltipTitle}>
       <EAButton
         className={classes.friendlyButton}
-        onClick={userCanUseSharing(currentUser) ? onClickShare : undefined}
-        disabled={!canUseSharing}
+        onClick={canUseLinkSharing ? onClickShare : undefined}
+        disabled={!canUseLinkSharing}
       >
         <PostSharingIcon className={iconOnly ? undefined : classes.buttonInternalIcon} />
         {!iconOnly && <>Share {post.draft ? " this draft" : ""}</>}
@@ -198,6 +198,8 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
   onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => void
 }) => {
   const classes = useStyles(styles);
+  const currentUser = useCurrentUser();
+  const canUseFullSharing = userCanUseSharing(currentUser);
   const [sharingSettings, setSharingSettingsState] = useState({...initialSharingSettings});
   const [shareWithUsers, setShareWithUsersState] = useState(initialShareWithUsers);
   const [isChanged, setIsChanged] = useState(false);
@@ -221,35 +223,37 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
       <h2>Sharing Settings</h2>
 
       
-      <p>Shared With Users:</p>
-      <EditableUsersList
-        value={shareWithUsers}
-        setValue={(newUsers: string[]) => {
-          updateSharedUsers(newUsers);
-        }}
-        label="Shared with these users"
-      />
-      
-      <div className={classes.sharingPermissionsRow}>
-        <span className={classes.sharingPermissionsLabel}>Explicitly shared users can:</span>
-        <Select
-          className={classes.sharingPermissionsDropdown}
-          value={sharingSettings.explicitlySharedUsersCan}
-          onChange={(e) => {
-            updateSharingSettings({...sharingSettings, explicitlySharedUsersCan: e.target.value as any});
+      {canUseFullSharing ? <>
+        <p>Shared With Users:</p>
+        <EditableUsersList
+          value={shareWithUsers}
+          setValue={(newUsers: string[]) => {
+            updateSharedUsers(newUsers);
           }}
-        >
-          <MenuItem value="none" disabled={!!post.collabEditorDialogue}>None</MenuItem>
-          <MenuItem value="read">Read</MenuItem>
-          {/* TODO: Figure out how to wrap a menu item in a tooltip without breaking the Select dropdown */}
-          <MenuItem value="comment">
-            <LWTooltip placement="right" title={commentingTooltip}>
-              <div className={classes.tooltipWrapped}>Comment</div> 
-            </LWTooltip>
-          </MenuItem>
-          <MenuItem value="edit">Edit</MenuItem>
-        </Select>
-      </div>
+          label="Shared with these users"
+        />
+
+        <div className={classes.sharingPermissionsRow}>
+          <span className={classes.sharingPermissionsLabel}>Explicitly shared users can:</span>
+          <Select
+            className={classes.sharingPermissionsDropdown}
+            value={sharingSettings.explicitlySharedUsersCan}
+            onChange={(e) => {
+              updateSharingSettings({...sharingSettings, explicitlySharedUsersCan: e.target.value as any});
+            }}
+          >
+            <MenuItem value="none" disabled={!!post.collabEditorDialogue}>None</MenuItem>
+            <MenuItem value="read">Read</MenuItem>
+            {/* TODO: Figure out how to wrap a menu item in a tooltip without breaking the Select dropdown */}
+            <MenuItem value="comment">
+              <LWTooltip placement="right" title={commentingTooltip}>
+                <div className={classes.tooltipWrapped}>Comment</div>
+              </LWTooltip>
+            </MenuItem>
+            <MenuItem value="edit">Edit</MenuItem>
+          </Select>
+        </div>
+      </> : <p>User-specific sharing requires at least 1 karma or moderator approval.</p>}
       
       <div className={classes.sharingPermissionsRow}>
         <span className={classes.sharingPermissionsLabel}>Anyone with the link can:</span>

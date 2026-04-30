@@ -27,6 +27,7 @@ const adminOrBeta = (user: UsersCurrent|DbUser|null): boolean => adminOnly(user)
 
 export const userCanCreateCommitMessages = moderatorOnly;
 export const userCanUseSharing = (user: UsersCurrent|DbUser|null): boolean => moderatorOnly(user) || userOverNKarmaOrApproved(1)(user);
+export const userCanUseLinkSharing = (user: UsersCurrent|DbUser|null): boolean => !!user;
 export const userHasNewTagSubscriptions: BetaGate = (user) => isEAForum() ? shippedFeature(user) : disabled(user);
 export const userHasDefaultProfilePhotos = disabled
 
