@@ -186,10 +186,16 @@ const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
     display: 'block',
   },
   submitArea: {
+    position: 'sticky',
+    bottom: 0,
+    zIndex: 10,
+    background: theme.palette.background.pageActiveAreaBackground,
+    borderTop: theme.palette.greyBorder('1px', 0.15),
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    paddingTop: 28,
+    paddingTop: 16,
+    paddingBottom: 16,
     marginTop: 32,
   },
 }));
