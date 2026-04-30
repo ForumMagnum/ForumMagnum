@@ -91,6 +91,17 @@ const schema = {
     },
   },
 
+  /**
+   * The rendered-text form of the span the reactor selected. Captured from the
+   * DOM selection (so inline markdown markers like `**`, `_`, `` ` ``, `~` are
+   * absent) and immutable after insert. Backs the cross-user dedup unique
+   * index `(documentId, fieldName, quote)`: as long as two reactors highlight
+   * the same visible span, they collide on the same key.
+   *
+   * Apply-time matching uses `llmCanonicalQuote` instead — the LLM's verdict
+   * may pick a sub-span of the reactor's selection, and that sub-span is in
+   * markdown form (it's matched against the markdown-form document text).
+   */
   quote: {
     database: {
       type: "TEXT",
@@ -98,6 +109,24 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
+      canRead: [userCanReadTypoSuggestion],
+    },
+  },
+
+  /**
+   * The markdown-form span returned by the LLM as the typo to fix. May be a
+   * sub-span of `quote` (e.g. just the misspelled word). Set when the LLM
+   * verdict is `fix_typo`; null otherwise. The apply path matches against
+   * this field, not `quote`, because document edits are computed in markdown
+   * coordinates.
+   */
+  llmCanonicalQuote: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
       canRead: [userCanReadTypoSuggestion],
     },
   },
@@ -203,43 +232,6 @@ const schema = {
     },
   },
 
-  /**
-   * For posts: true if applying the suggestion via mode: "APPLY" would
-   * publish unrelated unpublished changes the author has been working on
-   * in the editor (autosaves, drafts of new content). The hover uses this
-   * to disable the Apply button (and surface a tooltip explaining why)
-   * while keeping "Open in editor" available, since the suggest path
-   * doesn't trigger a publish.
-   *
-   * Heuristic: the post's YjsDocument has been updated more recently
-   * than its latest Revision was saved. False for comments, since
-   * comments don't have a draft/published distinction.
-   */
-  applyWouldRequirePublishingUnrelatedChanges: {
-    graphql: {
-      outputType: "Boolean!",
-      canRead: [userCanReadTypoSuggestion],
-      resolver: async (suggestion, _args, context) => {
-        if (suggestion.collectionName !== "Posts") return false;
-        // Project to just the timestamp fields — Revisions rows in particular
-        // carry the full document HTML, which we don't need.
-        const [yjsDoc, latestRev] = await Promise.all([
-          context.YjsDocuments.findOne(
-            { documentId: suggestion.documentId },
-            undefined,
-            { _id: 1, updatedAt: 1 },
-          ),
-          context.Revisions.findOne(
-            { documentId: suggestion.documentId, fieldName: suggestion.fieldName },
-            { sort: { editedAt: -1 } },
-            { _id: 1, editedAt: 1 },
-          ),
-        ]);
-        if (!yjsDoc || !latestRev) return false;
-        return yjsDoc.updatedAt.getTime() > latestRev.editedAt.getTime();
-      },
-    },
-  },
 } satisfies Record<string, CollectionFieldSpecification<"TypoSuggestions">>;
 
 export default schema;

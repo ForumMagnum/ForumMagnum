@@ -9,7 +9,7 @@ import { createNotifications } from "@/server/notificationCallbacksHelpers";
 import { captureException } from "@/lib/sentryWrapper";
 import { loadHtmlIntoHeadlessEditor } from "./headlessLexical";
 import { $computeNarrowing } from "../../../../app/api/agent/replaceText/route";
-import { locateMarkdownQuoteSelectionInSubtree } from "../../../../app/api/agent/mapMarkdownToLexical";
+import { findRenderedQuoteInMarkdown, locateMarkdownQuoteSelectionInSubtree } from "../../../../app/api/agent/mapMarkdownToLexical";
 
 const TYPO_EVALUATION_MODEL = "anthropic/claude-opus-4-7";
 
@@ -66,9 +66,18 @@ interface LlmNoTypo {
 }
 type LlmResult = LlmFixTypo | LlmNoTypo;
 
-async function callLlm(documentMarkdown: string, quote: string): Promise<LlmResult | null> {
-  const delimited = injectDelimiters(documentMarkdown, quote);
-  const prompt = `Flagged text:\n${quote}\n\n--- DOCUMENT START ---\n${delimited}\n--- DOCUMENT END ---`;
+async function callLlm(documentMarkdown: string, renderedQuote: string): Promise<LlmResult | null> {
+  // The reactor's quote came from a DOM selection on the rendered post and so
+  // omits inline markdown markers (`**`, `_`, `` ` ``, `~`). To anchor the
+  // flagged span inside the markdown we hand to the LLM, project the rendered
+  // quote onto its markdown-form equivalent. Falls back to the rendered quote
+  // verbatim if no projection can be found (block-level structure between the
+  // quote's start/end, etc.) — the LLM still gets the bare flagged text in
+  // the prompt, just without an anchored span in the document body.
+  const located = findRenderedQuoteInMarkdown(documentMarkdown, renderedQuote);
+  const markdownQuote = located?.markdownQuote ?? renderedQuote;
+  const delimited = injectDelimiters(documentMarkdown, markdownQuote);
+  const prompt = `Flagged text:\n${markdownQuote}\n\n--- DOCUMENT START ---\n${delimited}\n--- DOCUMENT END ---`;
 
   const result = await generateText({
     model: TYPO_EVALUATION_MODEL,
@@ -176,25 +185,18 @@ async function loadDocumentForLlm(
   return { html, markdown };
 }
 
-interface DocumentRecipients {
-  authorId: string;
-  coauthorIds: string[];
-}
-
-async function getRecipientsForSuggestion(
+async function getRecipientForSuggestion(
   collectionName: string,
   documentId: string,
   context: ResolverContext,
-): Promise<DocumentRecipients | null> {
+): Promise<string | null> {
   if (collectionName === "Posts") {
     const post = await context.Posts.findOne(documentId);
-    if (!post) return null;
-    return { authorId: post.userId, coauthorIds: post.coauthorUserIds ?? [] };
+    return post?.userId ?? null;
   }
   if (collectionName === "Comments") {
     const comment = await context.Comments.findOne(documentId);
-    if (!comment || !comment.userId) return null;
-    return { authorId: comment.userId, coauthorIds: [] };
+    return comment?.userId ?? null;
   }
   return null;
 }
@@ -282,9 +284,10 @@ export async function evaluateTypoReact(
         $set: {
           status: "pending",
           llmVerdict: "fix_typo",
-          // Store the LLM's `original` as the canonical quote for apply-time
-          // matching; this may differ slightly from the reactor's quote.
-          quote: result.original,
+          // Keep `quote` (reactor's rendered selection) immutable so the
+          // cross-user dedup unique index stays stable; store the LLM's
+          // markdown-form span separately for apply-time matching.
+          llmCanonicalQuote: result.original,
           proposedReplacement: result.replacement,
           narrowedQuote,
           narrowedReplacement,
@@ -293,16 +296,14 @@ export async function evaluateTypoReact(
       },
     );
 
-    // Notify the document's author (and coauthors).
-    const recipients = await getRecipientsForSuggestion(
+    const recipientId = await getRecipientForSuggestion(
       suggestion.collectionName,
       suggestion.documentId,
       context,
     );
-    if (recipients) {
-      const userIds = [recipients.authorId, ...recipients.coauthorIds];
+    if (recipientId) {
       await createNotifications({
-        userIds,
+        userIds: [recipientId],
         notificationType: "typoSuggestion",
         documentType: "typoSuggestion",
         documentId: suggestionId,

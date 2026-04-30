@@ -2,7 +2,8 @@ import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
 import { $createTextNode, $getNodeByKey, $getRoot, $isElementNode, $isTextNode, type LexicalEditor, type LexicalNode } from "lexical";
-import { $generateNodesFromDOM } from "@lexical/html";
+import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
+import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { JSDOM } from "jsdom";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { markdownToHtml } from "@/server/editor/conversionUtils";
@@ -22,6 +23,14 @@ interface ReplaceResult {
   /** The quote/replacement after narrowing, for use in suggestion summaries. */
   summaryQuote?: string
   summaryReplacement?: string
+  /**
+   * For mode `"edit"` only, when `replaced` is true: the live document's HTML
+   * after the edit was applied, serialized from the post-edit Lexical state.
+   * Callers that want to publish the live state as a new revision (rather than
+   * computing the published HTML offline) read this field. Undefined for
+   * `"suggest"` mode and for failed replacements.
+   */
+  postEditHtml?: string
 }
 
 interface SuggestionNarrowingResult {
@@ -753,6 +762,21 @@ export async function replaceTextInMainDoc({
       }
 
       if (replaced) {
+        // For "edit" mode, snapshot the post-edit HTML from the live Lexical
+        // state. Callers that want to publish the live document (rather than
+        // recompute the published HTML by replaying the edit offline) use this
+        // field as their publish source. Suggestion mode doesn't need it —
+        // the suggest path mutates Yjs but doesn't publish.
+        let postEditHtml: string | undefined;
+        if (mode === "edit") {
+          postEditHtml = withDomGlobals(() => {
+            let html = "";
+            editor.getEditorState().read(() => {
+              html = $generateHtmlFromNodes(editor, null);
+            });
+            return html;
+          });
+        }
         return {
           replaced: true,
           quoteFoundInDocument,
@@ -762,6 +786,7 @@ export async function replaceTextInMainDoc({
           suggestionId,
           summaryQuote,
           summaryReplacement,
+          postEditHtml,
         };
       }
 

@@ -2829,6 +2829,7 @@ CREATE TABLE "TypoSuggestions" (
   "voteId" VARCHAR(27) NOT NULL,
   "authorId" VARCHAR(27) NOT NULL,
   "quote" TEXT NOT NULL,
+  "llmCanonicalQuote" TEXT,
   "proposedReplacement" TEXT,
   "narrowedQuote" TEXT,
   "narrowedReplacement" TEXT,

@@ -16,6 +16,7 @@ export const TypoSuggestionsDefaultFragment = gql(`
       ...UsersMinimumInfo
     }
     quote
+    llmCanonicalQuote
     proposedReplacement
     narrowedQuote
     narrowedReplacement
@@ -25,6 +26,5 @@ export const TypoSuggestionsDefaultFragment = gql(`
     resolvedByUserId
     appliedRevisionId
     resolvedAt
-    applyWouldRequirePublishingUnrelatedChanges
   }
 `);

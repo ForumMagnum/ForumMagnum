@@ -17,12 +17,7 @@ const adminOnly: CheckAccessFunction<CollectionNameString> = async (currentUser)
 const typoSuggestionCheckAccess: CheckAccessFunction<'TypoSuggestions'> = async (currentUser, document, context): Promise<boolean> => {
   if (!currentUser || !document) return false;
   if (userIsAdmin(currentUser)) return true;
-  if (currentUser._id === document.authorId) return true;
-  if (document.collectionName === "Posts") {
-    const post = await context.Posts.findOne(document.documentId);
-    if (post?.coauthorUserIds?.includes(currentUser._id)) return true;
-  }
-  return false;
+  return currentUser._id === document.authorId;
 };
 
 const automatedContentEvaluationCheckAccess: CheckAccessFunction<'AutomatedContentEvaluations'> = async (currentUser, document, context): Promise<boolean> => {

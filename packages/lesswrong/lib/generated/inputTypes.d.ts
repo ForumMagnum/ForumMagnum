@@ -2739,6 +2739,7 @@ interface TypoSuggestion {
   authorId: string;
   author: User | null;
   quote: string;
+  llmCanonicalQuote: string | null;
   proposedReplacement: string | null;
   narrowedQuote: string | null;
   narrowedReplacement: string | null;
@@ -2748,7 +2749,6 @@ interface TypoSuggestion {
   resolvedByUserId: string | null;
   appliedRevisionId: string | null;
   resolvedAt: Date | null;
-  applyWouldRequirePublishingUnrelatedChanges: boolean;
 }
 
 interface SingleTypoSuggestionInput {

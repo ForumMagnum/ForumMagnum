@@ -52,7 +52,7 @@ async function findNewTypoReactsByUserOnDocument(
   const { vote } = voteDocTuple;
   const newReacts = getReactsList(vote.extendedVoteType as NamesAttachedReactionsVote | null);
   const newTypos = newReacts.filter(
-    (r) => r.react === TYPO_REACT_NAME && r.quotes && r.quotes[0],
+    (r) => r.react === TYPO_REACT_NAME && r.vote === "created" && r.quotes && r.quotes[0],
   );
   if (newTypos.length === 0) return [];
 
@@ -75,25 +75,17 @@ async function findNewTypoReactsByUserOnDocument(
     .map((r) => ({ quote: r.quotes![0] }));
 }
 
-async function getDocumentMetadata(
-  collectionName: string,
+async function getDocumentAuthorId(
+  collectionName: "Posts" | "Comments",
   documentId: string,
   context: ResolverContext,
-): Promise<{ authorId: string; coauthorIds: string[] } | null> {
+): Promise<string | null> {
   if (collectionName === "Posts") {
     const post = await context.Posts.findOne(documentId);
-    if (!post) return null;
-    return {
-      authorId: post.userId,
-      coauthorIds: post.coauthorUserIds ?? [],
-    };
+    return post?.userId ?? null;
   }
-  if (collectionName === "Comments") {
-    const comment = await context.Comments.findOne(documentId);
-    if (!comment || !comment.userId) return null;
-    return { authorId: comment.userId, coauthorIds: [] };
-  }
-  return null;
+  const comment = await context.Comments.findOne(documentId);
+  return comment?.userId ?? null;
 }
 
 async function isLexicalDocument(
@@ -102,6 +94,30 @@ async function isLexicalDocument(
 ): Promise<boolean> {
   const rev = await getLatestRev(documentId, "contents", context);
   return rev?.originalContents?.type === "lexical";
+}
+
+/**
+ * The Apply path connects a HocuspocusProvider to read the live Yjs state.
+ * If no `YjsDocuments` row exists, Hocuspocus loads an empty document
+ * (`postgres.ts:onLoadDocument` returns without applying anything when the
+ * row is missing), and the post-agent infra throws on the empty-root guard
+ * in `withMainDocEditorSession`. About 8% of recent Lexical posts are in
+ * this state — typically posts that were created via the form-based path
+ * or bulk-imported and never opened in the live collab editor since.
+ *
+ * Rather than risk operating on an empty doc and overwriting the published
+ * revision with a corrupt result, we bail before we ever evaluate or notify.
+ */
+async function hasLiveYjsRecord(
+  documentId: string,
+  context: ResolverContext,
+): Promise<boolean> {
+  const yjsDoc = await context.YjsDocuments.findOne(
+    { documentId },
+    undefined,
+    { _id: 1 },
+  );
+  return !!yjsDoc;
 }
 
 export async function maybeEvaluateTypoReacts(
@@ -118,14 +134,18 @@ export async function maybeEvaluateTypoReacts(
     const newTypos = await findNewTypoReactsByUserOnDocument(voteDocTuple);
     if (newTypos.length === 0) return;
 
-    const docMeta = await getDocumentMetadata(vote.collectionName, vote.documentId, context);
-    if (!docMeta) return;
+    const authorId = await getDocumentAuthorId(vote.collectionName, vote.documentId, context);
+    if (!authorId) return;
 
     // Skip self-flagged typos.
-    if (vote.userId === docMeta.authorId) return;
-    if (docMeta.coauthorIds.includes(vote.userId)) return;
+    if (vote.userId === authorId) return;
 
     if (!(await isLexicalDocument(vote.documentId, context))) return;
+    // Posts go through Hocuspocus on Apply; without a YjsDocuments row, the
+    // live doc loads empty and the post-agent guard throws. Bail upstream
+    // rather than create a suggestion we can't safely apply. Comments don't
+    // touch Hocuspocus (they apply offline against the rev HTML).
+    if (vote.collectionName === "Posts" && !(await hasLiveYjsRecord(vote.documentId, context))) return;
 
     const suggestionIds = await Promise.all(
       newTypos.map(({ quote }) =>
@@ -133,7 +153,7 @@ export async function maybeEvaluateTypoReacts(
           documentId: vote.documentId,
           collectionName: vote.collectionName as TypoSuggestionTargetCollection,
           voteId: vote._id,
-          authorId: docMeta.authorId,
+          authorId,
           quote,
         }),
       ),
@@ -176,6 +196,7 @@ async function tryInsertPendingSuggestion({
       voteId,
       authorId,
       quote,
+      llmCanonicalQuote: null,
       proposedReplacement: null,
       narrowedQuote: null,
       narrowedReplacement: null,

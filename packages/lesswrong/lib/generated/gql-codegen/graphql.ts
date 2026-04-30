@@ -841,7 +841,7 @@ const _822=_o2(_2,_819,_132,_o5(_7,[_789,_705,_o7(_8,_786,[_o8(_518,_820,_821),_
 const _823=_o3(_3,"WithVoteTag")
 const _824=_o2(_2,_823,_132,_144)
 const _825=_o3(_3,"TypoSuggestionsDefaultFragment")
-const _826=_o2(_2,_825,_o4(_5,_o3(_3,"TypoSuggestion")),_o5(_7,[_10,_39,_275,_213,_371,_o4(_8,_o3(_3,"voteId")),_o6(_8,_o3(_3,"reactor"),_61),_o4(_8,_o3(_3,"authorId")),_o6(_8,_o3(_3,"author"),_61),_o4(_8,_o3(_3,"quote")),_o4(_8,_o3(_3,"proposedReplacement")),_o4(_8,_o3(_3,"narrowedQuote")),_o4(_8,_o3(_3,"narrowedReplacement")),_o4(_8,_o3(_3,"explanation")),_o4(_8,_o3(_3,"llmVerdict")),_73,_o4(_8,_o3(_3,"resolvedByUserId")),_o4(_8,_o3(_3,"appliedRevisionId")),_o4(_8,_o3(_3,"resolvedAt")),_o4(_8,_o3(_3,"applyWouldRequirePublishingUnrelatedChanges"))]))
+const _826=_o2(_2,_825,_o4(_5,_o3(_3,"TypoSuggestion")),_o5(_7,[_10,_39,_275,_213,_371,_o4(_8,_o3(_3,"voteId")),_o6(_8,_o3(_3,"reactor"),_61),_o4(_8,_o3(_3,"authorId")),_o6(_8,_o3(_3,"author"),_61),_o4(_8,_o3(_3,"quote")),_o4(_8,_o3(_3,"llmCanonicalQuote")),_o4(_8,_o3(_3,"proposedReplacement")),_o4(_8,_o3(_3,"narrowedQuote")),_o4(_8,_o3(_3,"narrowedReplacement")),_o4(_8,_o3(_3,"explanation")),_o4(_8,_o3(_3,"llmVerdict")),_73,_o4(_8,_o3(_3,"resolvedByUserId")),_o4(_8,_o3(_3,"appliedRevisionId")),_o4(_8,_o3(_3,"resolvedAt"))]))
 const _827=_o3(_3,"UserMostValuablePostInfo")
 const _828=_o2(_2,_827,_o4(_5,_o3(_3,"UserMostValuablePost")),_o5(_7,[_10,_19,_155,_47]))
 const _829=_o3(_3,"UserRateLimitMutationFragment")
@@ -11884,7 +11884,6 @@ export type TypoSuggestion = {
   __typename?: 'TypoSuggestion';
   _id: Scalars['String']['output'];
   appliedRevisionId: Maybe<Scalars['String']['output']>;
-  applyWouldRequirePublishingUnrelatedChanges: Scalars['Boolean']['output'];
   author: Maybe<User>;
   authorId: Scalars['String']['output'];
   collectionName: Scalars['String']['output'];
@@ -11892,6 +11891,7 @@ export type TypoSuggestion = {
   documentId: Scalars['String']['output'];
   explanation: Maybe<Scalars['String']['output']>;
   fieldName: Scalars['String']['output'];
+  llmCanonicalQuote: Maybe<Scalars['String']['output']>;
   llmVerdict: Scalars['String']['output'];
   narrowedQuote: Maybe<Scalars['String']['output']>;
   narrowedReplacement: Maybe<Scalars['String']['output']>;
@@ -21090,7 +21090,7 @@ export type WithVoteTag = (
   & TagBasicInfo
 );
 
-export type TypoSuggestionsDefaultFragment = { __typename?: 'TypoSuggestion', _id: string, createdAt: string, documentId: string, collectionName: string, fieldName: string, voteId: string, authorId: string, quote: string, proposedReplacement: string | null, narrowedQuote: string | null, narrowedReplacement: string | null, explanation: string | null, llmVerdict: string, status: string, resolvedByUserId: string | null, appliedRevisionId: string | null, resolvedAt: string | null, applyWouldRequirePublishingUnrelatedChanges: boolean, reactor: (
+export type TypoSuggestionsDefaultFragment = { __typename?: 'TypoSuggestion', _id: string, createdAt: string, documentId: string, collectionName: string, fieldName: string, voteId: string, authorId: string, quote: string, llmCanonicalQuote: string | null, proposedReplacement: string | null, narrowedQuote: string | null, narrowedReplacement: string | null, explanation: string | null, llmVerdict: string, status: string, resolvedByUserId: string | null, appliedRevisionId: string | null, resolvedAt: string | null, reactor: (
     { __typename?: 'User' }
     & UsersMinimumInfo
   ) | null, author: (

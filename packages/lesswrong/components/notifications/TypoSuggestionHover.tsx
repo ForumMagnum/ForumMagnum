@@ -9,7 +9,6 @@ import { useStyles } from '@/components/hooks/useStyles';
 import { useNavigate } from '@/lib/routeUtil';
 import { postGetEditUrl } from '@/lib/collections/posts/helpers';
 import Loading from '../vulcan-core/Loading';
-import LWTooltip from '../common/LWTooltip';
 
 const TypoSuggestionQuery = gql(`
   query TypoSuggestionHoverQuery($documentId: String) {
@@ -138,7 +137,11 @@ const TypoSuggestionHover = ({notification}: {
   const isPosts = suggestion.collectionName === 'Posts';
   const isResolved = suggestion.status !== 'pending';
   const reactorName = suggestion.reactor?.displayName ?? 'A reader';
-  const fullQuote = suggestion.quote;
+  // Diff display is in markdown coordinates (so the narrowed quote/replacement
+  // align with the LLM's identified span). Fall back to the reactor's
+  // rendered-form quote only if there's no LLM canonical (shouldn't happen
+  // post-evaluation for fix_typo verdicts).
+  const fullQuote = suggestion.llmCanonicalQuote ?? suggestion.quote;
   const fullReplacement = suggestion.proposedReplacement ?? '';
   const narrowedQuote = suggestion.narrowedQuote ?? fullQuote;
   const narrowedReplacement = suggestion.narrowedReplacement ?? fullReplacement;
@@ -167,10 +170,6 @@ const TypoSuggestionHover = ({notification}: {
   };
 
   const buttonsDisabled = isResolved || accepting || rejecting;
-  const blockApplyForUnpublishedEdits = !!suggestion.applyWouldRequirePublishingUnrelatedChanges;
-  const applyDisabledReason = blockApplyForUnpublishedEdits
-    ? "This post has unpublished edits that aren't part of this fix. Publish or discard them first, or use 'Open in editor' to apply this fix as a suggestion alongside your other changes."
-    : null;
 
   return (
     <div className={classes.root}>
@@ -198,16 +197,14 @@ const TypoSuggestionHover = ({notification}: {
       )}
       {!isResolved && (
         <div className={classes.buttons}>
-          <LWTooltip title={applyDisabledReason ?? ''} disabled={!applyDisabledReason}>
-            <button
-              type="button"
-              className={`${classes.button} ${classes.primaryButton}`}
-              onClick={() => handleAction('apply')}
-              disabled={buttonsDisabled || blockApplyForUnpublishedEdits}
-            >
-              Apply
-            </button>
-          </LWTooltip>
+          <button
+            type="button"
+            className={`${classes.button} ${classes.primaryButton}`}
+            onClick={() => handleAction('apply')}
+            disabled={buttonsDisabled}
+          >
+            Apply
+          </button>
           {isPosts && (
             <button
               type="button"

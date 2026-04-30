@@ -4,20 +4,12 @@ import { antiReactToTypoOnOwnContent } from "@/server/typoSuggestions/antiReact"
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import type { TypoAcceptMode, TypoSuggestionTargetCollection } from "@/lib/collections/typoSuggestions/constants";
 
-async function userCanResolveSuggestion(
-  user: DbUser | null,
+function userCanResolveSuggestion(
+  user: DbUser,
   suggestion: DbTypoSuggestion,
-  context: ResolverContext,
-): Promise<boolean> {
-  if (!user) return false;
+): boolean {
   if (userIsAdmin(user)) return true;
-  if (user._id === suggestion.authorId) return true;
-  // Coauthors of the post can also accept/reject.
-  if (suggestion.collectionName === "Posts") {
-    const post = await context.Posts.findOne(suggestion.documentId);
-    if (post?.coauthorUserIds?.includes(user._id)) return true;
-  }
-  return false;
+  return user._id === suggestion.authorId;
 }
 
 async function loadAndAuthorizeSuggestion(
@@ -28,7 +20,7 @@ async function loadAndAuthorizeSuggestion(
   if (!currentUser) throw new Error("Must be logged in to resolve a typo suggestion.");
   const suggestion = await TypoSuggestions.findOne(suggestionId);
   if (!suggestion) throw new Error("TypoSuggestion not found.");
-  if (!(await userCanResolveSuggestion(currentUser, suggestion, context))) {
+  if (!userCanResolveSuggestion(currentUser, suggestion)) {
     throw new Error("You don't have permission to resolve this typo suggestion.");
   }
   // No-op for double-clicks / replays.

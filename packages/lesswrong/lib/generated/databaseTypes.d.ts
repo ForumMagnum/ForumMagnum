@@ -1477,6 +1477,7 @@ interface DbTypoSuggestion extends DbObject {
   documentId: string
   explanation: string | null
   fieldName: string
+  llmCanonicalQuote: string | null
   llmVerdict: string
   narrowedQuote: string | null
   narrowedReplacement: string | null

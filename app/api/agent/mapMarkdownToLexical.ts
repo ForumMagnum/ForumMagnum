@@ -95,6 +95,60 @@ export function markdownQuoteToPlainText(value: string): string {
     .replace(/[*_`~]/g, "");
 }
 
+/**
+ * Locate a rendered-text quote (as captured by a DOM selection on the post's
+ * rendered HTML) in the post's markdown source, returning the markdown
+ * substring that corresponds to the same content. Returns null if the
+ * rendered quote can't be located.
+ *
+ * Why we need this: DOM selections strip inline markdown markers (`**`, `_`,
+ * `` ` ``, `~`), so a quote that spans across a `<strong>...</strong>` boundary
+ * is a contiguous string in rendered form but a discontiguous one in markdown
+ * (the asterisks interrupt it). Plain `markdown.indexOf(renderedQuote)` fails
+ * for such quotes.
+ *
+ * Approach: project the markdown onto its plain-text view via
+ * `markdownQuoteToPlainText` while preserving a 1:1 character-position mapping
+ * back to the markdown source (greedy two-pointer alignment). Find the
+ * rendered quote in the plain text and slice the corresponding markdown range.
+ * The returned markdown substring may include orphan markers (e.g. a closing
+ * `**` with no opener) — that's intentional, the caller uses it for substring
+ * matching only, not for re-rendering.
+ */
+export function findRenderedQuoteInMarkdown(
+  markdown: string,
+  renderedQuote: string,
+): { markdownQuote: string; mdStart: number; mdEnd: number } | null {
+  if (renderedQuote.length === 0) return null;
+  const plainText = markdownQuoteToPlainText(markdown);
+  const startInPlain = plainText.indexOf(renderedQuote);
+  if (startInPlain === -1) return null;
+
+  // Two-pointer walk: advance through markdown, matching characters against
+  // plainText. Markers are skipped automatically because `markdownQuoteToPlainText`
+  // dropped them. mdStart is captured when we reach the quote's first char;
+  // mdEnd is one past the last char.
+  let mdIdx = 0;
+  for (let plainIdx = 0; plainIdx < startInPlain; plainIdx++) {
+    while (mdIdx < markdown.length && markdown[mdIdx] !== plainText[plainIdx]) mdIdx++;
+    if (mdIdx === markdown.length) return null;
+    mdIdx++;
+  }
+  const mdStart = (() => {
+    while (mdIdx < markdown.length && markdown[mdIdx] !== plainText[startInPlain]) mdIdx++;
+    return mdIdx;
+  })();
+  if (mdStart === markdown.length) return null;
+
+  for (let plainIdx = startInPlain; plainIdx < startInPlain + renderedQuote.length; plainIdx++) {
+    while (mdIdx < markdown.length && markdown[mdIdx] !== plainText[plainIdx]) mdIdx++;
+    if (mdIdx === markdown.length) return null;
+    mdIdx++;
+  }
+  const mdEnd = mdIdx;
+  return { markdownQuote: markdown.slice(mdStart, mdEnd), mdStart, mdEnd };
+}
+
 // Project an agent-supplied markdown quote to the rendered plaintext it
 // represents, via markdown-it's CommonMark implementation. Preserves literal
 // punctuation in content (e.g. `snake_case`, `2*3`, `` `code` ``) while
