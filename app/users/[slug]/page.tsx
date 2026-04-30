@@ -8,7 +8,7 @@ export const generateMetadata = generateUserPageMetadata;
 
 assertRouteAttributes("/users/[slug]", {
   whiteBackground: false,
-  hasLinkPreview: false,
+  hasLinkPreview: true,
   hasPingbacks: true,
   hasLeftNavigationColumn: false,
   hasMarkdownVersion: true,
