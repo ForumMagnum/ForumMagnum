@@ -14,6 +14,7 @@ import { NotificationChannel } from "./collections/users/notificationFieldHelper
 import keyBy from 'lodash/keyBy';
 import type { NotificationDocument } from '@/server/collections/notifications/constants';
 import { getCommentParentTitle, getDocument, getDocumentSummary, taggedPostMessage } from './notificationDataHelpers';
+import { getTypoSuggestionNotificationContext } from './collections/typoSuggestions/notificationContext';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -663,41 +664,10 @@ export const CoauthorAcceptNotification = createNotificationType({
 export const TypoSuggestionNotification = createNotificationType({
   name: "typoSuggestion",
   userSettingField: "notificationTypoSuggestions",
-  // Inline the lookup rather than calling the shared
-  // `getTypoSuggestionNotificationContext` helper — this file is in @/lib so
-  // a static import from @/server would get stubbed in client chains. All
-  // collection access here goes through `context` (which is safe in shared
-  // code).
   async getMessage({documentId, context}: GetMessageProps) {
-    if (!documentId) return "A reader flagged a possible typo and AI proposed a fix.";
-    const suggestion = await context.TypoSuggestions.findOne(documentId);
-    if (!suggestion) return "A reader flagged a possible typo and AI proposed a fix.";
-
-    let reactorName = "A reader";
-    if (suggestion.voteId) {
-      const vote = await context.Votes.findOne(suggestion.voteId);
-      if (vote) {
-        const reactor = await context.loaders.Users.load(vote.userId);
-        if (reactor?.displayName) reactorName = reactor.displayName;
-      }
-    }
-
-    let target = "your post";
-    if (suggestion.collectionName === "Posts") {
-      const post = await context.loaders.Posts.load(suggestion.documentId);
-      if (post) target = `your post "${post.title?.trim() || '(untitled)'}"`;
-    } else if (suggestion.collectionName === "Comments") {
-      const comment = await context.loaders.Comments.load(suggestion.documentId);
-      if (comment?.postId) {
-        const post = await context.loaders.Posts.load(comment.postId);
-        target = post
-          ? `your comment on "${post.title?.trim() || '(untitled)'}"`
-          : "your comment";
-      } else {
-        target = "your comment";
-      }
-    }
-    return `${reactorName} flagged a possible typo in ${target}, and AI proposed a fix.`;
+    const ctx = await getTypoSuggestionNotificationContext(documentId ?? null, context);
+    if (!ctx) return "A reader flagged a possible typo and AI proposed a fix.";
+    return `${ctx.reactorName} flagged a possible typo in ${ctx.targetDescription}, and AI proposed a fix.`;
   },
   Display: () => <>A reader flagged a possible typo and AI proposed a fix.</>,
 });

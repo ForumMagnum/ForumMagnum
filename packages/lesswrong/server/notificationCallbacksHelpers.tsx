@@ -15,7 +15,7 @@ import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
 import { createNotification as createNotificationMutator } from './collections/notifications/mutations';
 import { notificationDebouncers } from './notificationBatching';
 import { getDocument } from '@/lib/notificationDataHelpers';
-import { getTypoSuggestionNotificationContext } from '@/server/typoSuggestions/notificationContext';
+import { getTypoSuggestionNotificationContext } from '@/lib/collections/typoSuggestions/notificationContext';
 
 /**
  * Return a list of users (as complete user objects) subscribed to a given

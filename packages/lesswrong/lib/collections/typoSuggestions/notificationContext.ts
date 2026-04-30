@@ -12,7 +12,7 @@ interface TypoSuggestionContext {
  * Resolve the human-readable context (reactor display name, target document
  * description, and target URL) for a typo suggestion notification. Used by
  * both `TypoSuggestionNotification.getMessage` and the `typoSuggestion` case
- * in the `getLink` helper.
+ * in the server-side `getLink` helper.
  */
 export async function getTypoSuggestionNotificationContext(
   suggestionId: string | null,

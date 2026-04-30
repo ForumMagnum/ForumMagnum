@@ -122,7 +122,7 @@ const TypoSuggestionHover = ({notification}: {
   const suggestionId = notification.documentId ?? undefined;
   const [actionError, setActionError] = useState<string | null>(null);
 
-  const { data, loading } = useQuery(TypoSuggestionQuery, {
+  const { data, loading, refetch } = useQuery(TypoSuggestionQuery, {
     variables: { documentId: suggestionId },
     skip: !suggestionId,
   });
@@ -145,12 +145,13 @@ const TypoSuggestionHover = ({notification}: {
   const fullReplacement = suggestion.proposedReplacement ?? '';
   const narrowedQuote = suggestion.narrowedQuote ?? fullQuote;
   const narrowedReplacement = suggestion.narrowedReplacement ?? fullReplacement;
-  // Find where the narrowed change sits within the original reacted span so
-  // the unchanged context renders inline around the diff.
+  // When narrowing produces a strict sub-span of `fullQuote`, render the
+  // unchanged context inline around the diff. Otherwise fall back to the
+  // arrow form (so `old` and `new` don't render adjacent with no separator).
   const narrowedStart = narrowedQuote ? fullQuote.indexOf(narrowedQuote) : -1;
-  const hasContext = narrowedStart >= 0;
-  const contextPrefix = hasContext ? fullQuote.slice(0, narrowedStart) : '';
-  const contextSuffix = hasContext ? fullQuote.slice(narrowedStart + narrowedQuote.length) : '';
+  const isStrictSubSpan = narrowedStart >= 0 && narrowedQuote !== fullQuote;
+  const contextPrefix = isStrictSubSpan ? fullQuote.slice(0, narrowedStart) : '';
+  const contextSuffix = isStrictSubSpan ? fullQuote.slice(narrowedStart + narrowedQuote.length) : '';
 
   const handleAction = async (action: ResolveAction) => {
     if (!suggestionId) return;
@@ -166,6 +167,7 @@ const TypoSuggestionHover = ({notification}: {
       }
     } catch (err) {
       setActionError(err instanceof Error ? err.message : String(err));
+      void refetch();
     }
   };
 
@@ -177,7 +179,7 @@ const TypoSuggestionHover = ({notification}: {
         Flagged by <strong>{reactorName}</strong>
       </div>
       <div className={classes.diff}>
-        {hasContext ? (
+        {isStrictSubSpan ? (
           <>
             {contextPrefix}
             {narrowedQuote && <span className={classes.del}>{narrowedQuote}</span>}

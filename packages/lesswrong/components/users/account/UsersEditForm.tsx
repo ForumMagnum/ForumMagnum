@@ -96,6 +96,7 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   notificationCommentsOnDraft: 'notifications',
   notificationSubforumUnread: 'notifications',
   notificationNewMention: 'notifications',
+  notificationTypoSuggestions: 'notifications',
   notificationDialogueMessages: 'notifications',
   notificationPublishedDialogueMessages: 'notifications',
   notificationAddedAsCoauthor: 'notifications',

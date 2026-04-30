@@ -84,6 +84,10 @@ export async function applyTypoSuggestion({
     });
   }
 
+  if (outcome.message) {
+    throw new Error(outcome.message);
+  }
+
   return TypoSuggestions.findOne(suggestion._id);
 }
 
@@ -206,19 +210,18 @@ async function applyToPost(
   }
 
   try {
-    await updatePost(
+    const updated = await updatePost(
       {
         selector: { _id: suggestion.documentId },
         data: { contents: { originalContents: { type: "lexical", data: livePostEditHtml } } },
       },
       context,
     );
+    return { status: "accepted", appliedRevisionId: updated.contents_latest ?? undefined };
   } catch (err) {
     captureException(err);
     return { status: "accepted", message: "Typo applied to the live editor, but auto-publishing failed." };
   }
-
-  return { status: "accepted" };
 }
 
 /**
@@ -357,7 +360,6 @@ async function persistOutcome(
         resolvedByUserId,
         resolvedAt: new Date(),
         ...(outcome.appliedRevisionId ? { appliedRevisionId: outcome.appliedRevisionId } : {}),
-        ...(outcome.message ? { explanation: outcome.message } : {}),
       },
     },
   );
