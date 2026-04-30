@@ -226,6 +226,7 @@ type Documents = {
     "\n  query PostLinkPreviewComment($documentId: String, $allowNull: Boolean) {\n    comment(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": typeof types.PostLinkPreviewCommentDocument,
     "\n  query PostLinkPreviewPost($documentId: String, $allowNull: Boolean) {\n    post(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.PostLinkPreviewPostDocument,
     "\n    query ArbitalPageRequest($arbitalSlug: String!) {\n      ArbitalPageData(pageAlias: $arbitalSlug) {\n        title\n        html\n      }\n    }\n  ": typeof types.ArbitalPageRequestDocument,
+    "\n  query UserLinkPreview($slug: String) {\n    users(selector: { usersProfile: { slug: $slug } }, limit: 1) {\n      results {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": typeof types.UserLinkPreviewDocument,
     "\n  mutation updateUserCommunityHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n": typeof types.updateUserCommunityHomeDocument,
     "\n  query multiUserCommunityMapQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMapEntry\n      }\n      totalCount\n    }\n  }\n": typeof types.multiUserCommunityMapQueryDocument,
     "\n  query multiLocalgroupCommunityMapQuery($selector: LocalgroupSelector, $limit: Int, $enableTotal: Boolean) {\n    localgroups(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...localGroupsHomeFragment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiLocalgroupCommunityMapQueryDocument,
@@ -1066,6 +1067,7 @@ const documents: Documents = {
     "\n  query PostLinkPreviewComment($documentId: String, $allowNull: Boolean) {\n    comment(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {\n      result {\n        ...CommentsList\n      }\n    }\n  }\n": types.PostLinkPreviewCommentDocument,
     "\n  query PostLinkPreviewPost($documentId: String, $allowNull: Boolean) {\n    post(input: { selector: { documentId: $documentId }, allowNull: $allowNull }) {\n      result {\n        ...PostsList\n      }\n    }\n  }\n": types.PostLinkPreviewPostDocument,
     "\n    query ArbitalPageRequest($arbitalSlug: String!) {\n      ArbitalPageData(pageAlias: $arbitalSlug) {\n        title\n        html\n      }\n    }\n  ": types.ArbitalPageRequestDocument,
+    "\n  query UserLinkPreview($slug: String) {\n    users(selector: { usersProfile: { slug: $slug } }, limit: 1) {\n      results {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n": types.UserLinkPreviewDocument,
     "\n  mutation updateUserCommunityHome($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersProfile\n      }\n    }\n  }\n": types.updateUserCommunityHomeDocument,
     "\n  query multiUserCommunityMapQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMapEntry\n      }\n      totalCount\n    }\n  }\n": types.multiUserCommunityMapQueryDocument,
     "\n  query multiLocalgroupCommunityMapQuery($selector: LocalgroupSelector, $limit: Int, $enableTotal: Boolean) {\n    localgroups(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...localGroupsHomeFragment\n      }\n      totalCount\n    }\n  }\n": types.multiLocalgroupCommunityMapQueryDocument,
@@ -2556,6 +2558,10 @@ export function gql(source: "\n  query PostLinkPreviewPost($documentId: String, 
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n    query ArbitalPageRequest($arbitalSlug: String!) {\n      ArbitalPageData(pageAlias: $arbitalSlug) {\n        title\n        html\n      }\n    }\n  "): (typeof documents)["\n    query ArbitalPageRequest($arbitalSlug: String!) {\n      ArbitalPageData(pageAlias: $arbitalSlug) {\n        title\n        html\n      }\n    }\n  "];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query UserLinkPreview($slug: String) {\n    users(selector: { usersProfile: { slug: $slug } }, limit: 1) {\n      results {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n"): (typeof documents)["\n  query UserLinkPreview($slug: String) {\n    users(selector: { usersProfile: { slug: $slug } }, limit: 1) {\n      results {\n        ...UsersMinimumInfo\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

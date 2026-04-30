@@ -1,4 +1,5 @@
 import { CommentLinkPreviewLegacy, MessagePreview, PostCommentLinkPreviewGreaterWrong, PostLinkPreview, PostLinkPreviewLegacy, PostLinkPreviewSequencePost, PostLinkPreviewSlug, SequencePreview } from '@/components/linkPreview/PostLinkPreview';
+import { UserLinkPreview } from '@/components/linkPreview/UserLinkPreview';
 import { TagHoverPreview } from '@/components/tagging/TagHoverPreview';
 import type { RouterLocation } from '@/lib/routeChecks/parseRoute';
 import type { ParamMap } from '../../../../.next/types/routes';
@@ -42,6 +43,9 @@ export const routePreviewComponentMapping = defineRoutePreviewComponentMapping({
   '/posts/slug/[slug]': PostLinkPreviewSlug,
   '/posts/[_id]/[slug]/comment': PostCommentLinkPreviewGreaterWrong,
   '/posts/[_id]/[slug]/comment/[commentId]': PostCommentLinkPreviewGreaterWrong,
+  '/users/[slug]': UserLinkPreview,
+  '/user/[slug]': UserLinkPreview,
+  '/u/[slug]': UserLinkPreview,
   [`/${legacyRouteAcronym}/[id]`]: PostLinkPreviewLegacy,
   [`/${legacyRouteAcronym}/[id]/[slug]`]: PostLinkPreviewLegacy,
     // TODO: Pingback with getPostPingbackByLegacyId

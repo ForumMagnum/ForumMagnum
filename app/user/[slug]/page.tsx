@@ -6,7 +6,7 @@ import UsersSingle from "app/users/[slug]/UsersSingle";
 
 assertRouteAttributes("/user/[slug]", {
   whiteBackground: false,
-  hasLinkPreview: false,
+  hasLinkPreview: true,
   hasPingbacks: false,
   hasLeftNavigationColumn: false,
   hasMarkdownVersion: false,
