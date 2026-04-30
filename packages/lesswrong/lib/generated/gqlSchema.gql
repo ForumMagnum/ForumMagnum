@@ -6144,7 +6144,7 @@ extend type Query {
 type RevisionOriginalContent {
   _id: String!
   createdAt: Date!
-  originalContents: JSON!
+  originalContents: JSON
 }
 
 type Revision {

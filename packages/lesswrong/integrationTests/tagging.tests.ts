@@ -18,6 +18,7 @@ describe('Tagging', function() {
         fieldName: 'description',
         changeMetrics: {
           added: 10,
+          removed: 0,
         },
       });
       // Creating the revision performs a self-vote, which combined with the vote from the non-author-voter

@@ -23,6 +23,7 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+import { randomId } from "@/lib/random";
 
 
 async function newCheck(user: DbUser | null, document: CreatePostDataInput | null, context: ResolverContext) {
@@ -67,6 +68,7 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
 
 export async function createPost({ data }: { data: CreatePostDataInput & { _id?: string }}, context: ResolverContext) {
   const { currentUser } = context;
+  const documentId = randomId();
 
   const callbackProps = await getLegacyCreateCallbackProps('Posts', {
     context,
@@ -86,6 +88,7 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   data = addReferrerToPost(data, callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });

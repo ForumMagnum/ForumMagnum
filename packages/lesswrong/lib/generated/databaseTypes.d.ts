@@ -1223,10 +1223,10 @@ interface DbRevision extends DbObject {
   legacyData: any | null
   originalContents: {
     type: string,
-    data: AnyBecauseTodo,
-    yjsState?: string | null,
+    data: string,
+    yjsState: string | null,
   } | null
-  originalContentsId?: string | null
+  originalContentsId: string | null
   score: number
   skipAttributions: boolean
   updateType: "initial" | "patch" | "minor" | "major" | null

@@ -30,7 +30,6 @@ const buildNotificationRevision = (prefix: string) =>
   `JSONB_BUILD_OBJECT(
     'html', ${prefix}."html",
     'wordCount', ${prefix}."wordCount",
-    'originalContents', ${prefix}."originalContents",
     'editedAt', ${prefix}."editedAt",
     'userId', ${prefix}."userId",
     'version', ${prefix}."version"

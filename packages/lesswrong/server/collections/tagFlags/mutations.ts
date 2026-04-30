@@ -11,6 +11,7 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+import { randomId } from "@/lib/random";
 
 function newCheck(user: DbUser | null, document: DbTagFlag | null) {
   if (!user || !document) return false;
@@ -23,7 +24,7 @@ function editCheck(user: DbUser | null, document: DbTagFlag | null) {
 }
 
 export async function createTagFlag({ data }: CreateTagFlagInput, context: ResolverContext) {
-  const { currentUser } = context;
+  const documentId = randomId();
 
   const callbackProps = await getLegacyCreateCallbackProps('TagFlags', {
     context,
@@ -38,6 +39,7 @@ export async function createTagFlag({ data }: CreateTagFlagInput, context: Resol
   data = await runSlugCreateBeforeCallback(callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });

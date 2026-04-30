@@ -10456,7 +10456,7 @@ export type RevisionOriginalContent = {
   __typename?: 'RevisionOriginalContent';
   _id: Scalars['String']['output'];
   createdAt: Scalars['Date']['output'];
-  originalContents: Scalars['JSON']['output'];
+  originalContents: Maybe<Scalars['JSON']['output']>;
 };
 
 export type RevisionOutput = {

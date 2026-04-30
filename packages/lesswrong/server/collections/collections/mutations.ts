@@ -1,4 +1,5 @@
 import schema from "@/lib/collections/collections/newSchema";
+import { randomId } from "@/lib/random";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin, userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
@@ -38,6 +39,7 @@ function editCheck(user: DbUser | null, document: DbCollection | null, context: 
 
 export async function createCollection({ data }: CreateCollectionInput, context: ResolverContext) {
   const { currentUser } = context;
+  const documentId = randomId();
 
   const callbackProps = await getLegacyCreateCallbackProps('Collections', {
     context,
@@ -52,6 +54,7 @@ export async function createCollection({ data }: CreateCollectionInput, context:
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });

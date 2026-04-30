@@ -9,6 +9,7 @@ import { restrictViewableFields } from '@/lib/vulcan-users/restrictViewableField
 import { revisionIsChange } from '../editor/make_editable_callbacks';
 import { pushRevisionToCkEditor } from './ckEditorApi';
 import { pushRevisionToLexicalCollab } from '../hocuspocus/hocuspocusCallbacks';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 import gql from 'graphql-tag';
 import { updatePost } from '../collections/posts/mutations';
 
@@ -122,17 +123,18 @@ export const ckEditorCallbacksGraphQLMutations = {
     // Revision must exist and be a revision of the right post
     const revision = await Revisions.findOne({_id: revisionId});
     if (!revision) throw new Error("Invalid revision ID");
-    if (!revision.originalContents) throw new Error("Missing originalContents");
+    const originalContents = await getStoredOriginalContentsForRevision(revision, context);
+    if (!originalContents) throw new Error("Missing originalContents");
     if (revision.documentId !== post._id) throw new Error("Revision is not for this post");
     
     const isCollabPost = isCollaborative(post, "contents");
 
-    if (isCollabPost && revision.originalContents.type === "ckEditorMarkup") {
+    if (isCollabPost && originalContents.type === "ckEditorMarkup") {
       // CKEditor collaborative post: push to CKEditor Cloud Services
       // eslint-disable-next-line no-console
       console.log("Reverting to a CkEditor collaborative revision");
-      await pushRevisionToCkEditor(post._id, revision.originalContents.data);
-    } else if (revision.originalContents.type === "lexical") {
+      await pushRevisionToCkEditor(post._id, originalContents.data);
+    } else if (originalContents.type === "lexical") {
       // Lexical collaborative post: send the revision's stored Yjs state
       // to the Hocuspocus server, which replaces the live document state.
       // eslint-disable-next-line no-console
@@ -150,7 +152,7 @@ export const ckEditorCallbacksGraphQLMutations = {
             // Contents is a resolver only field, but there is handling for it
             // in `createMutator`/`updateMutator`
             contents: {
-              originalContents: revision.originalContents,
+              originalContents,
             },
           },
           selector: { _id: post._id }

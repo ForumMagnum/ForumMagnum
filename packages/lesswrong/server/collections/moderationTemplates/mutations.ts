@@ -10,6 +10,7 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+import { randomId } from "@/lib/random";
 
 
 function newCheck(user: DbUser | null, document: CreateModerationTemplateDataInput | null, context: ResolverContext) {
@@ -24,7 +25,7 @@ function editCheck(user: DbUser | null, document: DbModerationTemplate | null, c
 
 
 export async function createModerationTemplate({ data }: CreateModerationTemplateInput, context: ResolverContext) {
-  const { currentUser } = context;
+  const documentId = randomId();
 
   const callbackProps = await getLegacyCreateCallbackProps('ModerationTemplates', {
     context,
@@ -37,6 +38,7 @@ export async function createModerationTemplate({ data }: CreateModerationTemplat
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });

@@ -24,6 +24,7 @@ import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { getViewablePostsSelector } from '@/server/repos/helpers';
 import { getUserDefaultRichTextEditor } from '@/lib/editor/defaultRichTextEditor';
 import { resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 import { htmlToYjsStateFromHtml } from '../editor/htmlToYjsState';
 import jwt from 'jsonwebtoken';
 
@@ -530,7 +531,10 @@ export const postGqlMutations = {
 
     if (postId) {
       const previousRev = await getLatestRev(postId, "contents", context)
-      const previousEditorType = previousRev?.originalContents?.type;
+      const previousOriginalContents = previousRev
+        ? await getStoredOriginalContentsForRevision(previousRev, context)
+        : null;
+      const previousEditorType = previousOriginalContents?.type;
       const richTextEditorType = (previousEditorType === "lexical" || previousEditorType === "ckEditorMarkup")
         ? previousEditorType
         : fallbackRichTextEditorType;
@@ -546,7 +550,7 @@ export const postGqlMutations = {
       // before the post is undrafted for the first time.
       const revisionType = "minor"
 
-      const newRevision: Partial<DbRevision> = {
+      await createRevision({ data: {
         ...(await buildRevision({
           originalContents,
           currentUser,
@@ -560,9 +564,7 @@ export const postGqlMutations = {
         updateType: revisionType,
         commitMessage,
         changeMetrics: htmlToChangeMetrics(previousRev?.html || "", importedHtml),
-      };
-
-      await createRevision({ data: newRevision }, context);
+      }}, context);;
 
       if (richTextEditorType === "lexical" && yjs) {
         await resetHocuspocusDocument(`post-${postId}`, yjs.yjsBinary);

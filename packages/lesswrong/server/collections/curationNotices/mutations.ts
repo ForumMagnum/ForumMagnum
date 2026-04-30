@@ -14,6 +14,7 @@ import { captureException } from "@/lib/sentryWrapper";
 import { postMessage } from "@/server/slack/client";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+import { randomId } from "@/lib/random";
 
 function newCheck(user: DbUser | null, document: CreateCurationNoticeDataInput | null) {
   return userIsAdminOrMod(user)
@@ -64,7 +65,8 @@ async function postCurationPublishToSlack(document: DbCurationNotice, context: R
 
 export async function createCurationNotice({ data }: CreateCurationNoticeInput, context: ResolverContext) {
   const { currentUser } = context;
-
+  const documentId = randomId();
+  
   const callbackProps = await getLegacyCreateCallbackProps('CurationNotices', {
     context,
     data,
@@ -78,6 +80,7 @@ export async function createCurationNotice({ data }: CreateCurationNoticeInput, 
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });

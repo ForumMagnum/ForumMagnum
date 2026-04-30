@@ -9,13 +9,15 @@ import { convertImagesInObject } from '../scripts/convertImagesToCloudinary'
 import type { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCallbackProperties } from '../mutationCallbacks'
 import type { MakeEditableOptions } from '@/lib/editor/makeEditableOptions'
 import type { RevisionOriginalContentsData } from '@/lib/collections/revisions/revisionSchemaTypes'
-import { createRevision } from '../collections/revisions/mutations'
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers'
+import { createRevision, CreateRevisionOptions } from '../collections/revisions/mutations'
 import { buildRevision } from './conversionUtils'
 import { updateDenormalizedHtmlAttributionsDueToRev, upvoteOwnTagRevision } from '../callbacks/revisionCallbacks'
 import { RevisionMetadata } from '@/lib/collections/revisions/fragments'
 import { backgroundTask } from '../utils/backgroundTask'
 
 interface CreateBeforeEditableCallbackProperties<N extends CollectionNameString> {
+  documentId: string;
   doc: CreateInputsByCollectionName[N]['data'];
   props: CreateCallbackProperties<N>;
 }
@@ -83,7 +85,8 @@ export const revisionIsChange = async (doc: AnyBecauseTodo, fieldName: string, c
   if (!previousVersion)
     return true;
 
-  if (!isEqual(doc[fieldName].originalContents, previousVersion.originalContents)) {
+  const previousOriginalContents = await getStoredOriginalContentsForRevision(previousVersion, context);
+  if (!isEqual(doc[fieldName].originalContents, previousOriginalContents)) {
     return true;
   }
 
@@ -98,6 +101,7 @@ export type EditableCallbackProperties<N extends CollectionNameString> = Pick<Ma
 
 // createBefore
 async function createInitialRevision<N extends CollectionNameString>(
+  documentId: string,
   doc: CreateInputsByCollectionName[N]['data'],
   {currentUser, context}: CreateCallbackProperties<N>,
   options: EditableCallbackProperties<N>,
@@ -108,8 +112,6 @@ async function createInitialRevision<N extends CollectionNameString>(
     normalized,
     collectionName,
   } = options;
-
-  const { Comments, Revisions } = context;
 
   const editableField = (doc as AnyBecauseHard)[fieldName] as EditableFieldInsertion | undefined;
   if (editableField?.originalContents) {
@@ -128,10 +130,11 @@ async function createInitialRevision<N extends CollectionNameString>(
     const editedAt = new Date()
     const changeMetrics = htmlToChangeMetrics("", html);
 
-    const newRevision: Omit<DbRevision, "documentId" | "schemaVersion" | "_id" | "voteCount" | "baseScore" | "extendedScore" | "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData" | "originalContentsId"> = {
+    const firstRevision = await createRevision({ data: {
       ...revision,
-      fieldName,
       collectionName,
+      documentId,
+      fieldName,
       version,
       draft: versionIsDraft(version, collectionName),
       updateType: 'initial',
@@ -140,9 +143,7 @@ async function createInitialRevision<N extends CollectionNameString>(
       skipAttributions: false,
       changeMetrics,
       createdAt: editedAt,
-    };
-
-    const firstRevision = await createRevision({ data: newRevision }, context);
+    } }, context);
     const updatedHtml = firstRevision.html;
 
     return {
@@ -219,7 +220,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
     const version = getNextVersion(previousRev, updateType, (newDocument as DbPost).draft)
     const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
-    const newRevision: Omit<DbRevision, '_id' | 'schemaVersion' | "voteCount" | "baseScore" | "extendedScore"| "score" | "inactive" | "autosaveTimeoutStart" | "afBaseScore" | "afExtendedScore" | "afVoteCount" | "legacyData" | "googleDocMetadata" | "originalContentsId"> = {
+    const newRevision: CreateRevisionOptions = {
       documentId: document._id,
       ...revision,
       fieldName,
@@ -229,7 +230,6 @@ async function createUpdateRevision<N extends CollectionNameString>(
       updateType,
       commitMessage,
       changeMetrics,
-      createdAt: editedAt,
       skipAttributions: false,
     };
 
@@ -351,12 +351,12 @@ async function reuploadImagesInEdit(doc: DbObject, oldDoc: DbObject, options: Ed
 }
 
 export async function createInitialRevisionsForEditableFields<P extends CreateBeforeEditableCallbackProperties<N>, N extends CollectionNameString>(runCallbackStageProperties: P): Promise<P['doc']> {
-  let { props, doc: mutableDoc } = runCallbackStageProperties;
+  let { documentId, props, doc: mutableDoc } = runCallbackStageProperties;
 
   const editableFieldsCallbackProps = getEditableFieldsCallbackProps(props);
 
   for (const editableFieldCallbackProps of editableFieldsCallbackProps) {
-    mutableDoc = await createInitialRevision<N>(mutableDoc, props, editableFieldCallbackProps);
+    mutableDoc = await createInitialRevision<N>(documentId, mutableDoc, props, editableFieldCallbackProps);
   }
 
   return mutableDoc;

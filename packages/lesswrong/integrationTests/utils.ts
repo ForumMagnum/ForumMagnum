@@ -15,7 +15,7 @@ import { createMessage } from '../server/collections/messages/mutations';
 import { createLocalgroup } from '../server/collections/localgroups/mutations';
 import { createVote } from '../server/collections/votes/mutations';
 import { createTag } from '../server/collections/tags/mutations';
-import { createRevision } from '../server/collections/revisions/mutations';
+import { createRevision, CreateRevisionOptions } from '../server/collections/revisions/mutations';
 import { createUserRateLimit } from '../server/collections/userRateLimits/mutations';
 import { computeContextFromUser } from '../server/vulcan-lib/apollo-server/context';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
@@ -179,7 +179,6 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
   const postId = data?._id ?? randomId();
   const postContents = data?.contents ?? { originalContents: { type: 'ckEditorMarkup', data: 'This is a test post', yjsState: null } };
   const revision = await createDummyRevision(user as DbUser, {
-    _id: randomId(),
     collectionName: "Posts",
     documentId: postId,
     fieldName: "contents",
@@ -352,24 +351,19 @@ export const createDummyTag = async (user: DbUser, data?: Partial<DbInsertion<Db
   return newTag;
 }
 
-export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevision> & { originalContents?: RevisionOriginalContentsData | null }) => {
-  const defaultData = {
-    _id: randomId(),
-    userId: user._id,
-    editedAt: new Date(Date.now()),
-    version: "1.0.0",
-    wordCount: 0,
-    changeMetrics: {}, // not nullable field
-    originalContents: {
-      type: 'ckEditorMarkup',
-      data: 'This is a test revision',
-      yjsState: null,
-    },
-  };
-  const revisionData = {...defaultData, ...data};
+const defaultContents: ContentTypeInput = {
+  type: 'ckEditorMarkup',
+  data: 'This is a test revision',
+  yjsState: null,
+};
+
+export const createDummyRevision = async (user: DbUser, data: MakeOptional<CreateRevisionOptions, "originalContents">) => {
   const userContext = await computeContextFromUser({user, isSSR: false});
   const newRevision = await createRevision({
-    data: revisionData
+    data: {
+      ...data,
+      originalContents: data.originalContents ?? defaultContents,
+    }
   }, userContext);
   return newRevision;
 }

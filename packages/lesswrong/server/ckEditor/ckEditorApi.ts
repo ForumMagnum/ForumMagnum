@@ -15,9 +15,10 @@ import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerC
 import { getPostEditorConfig } from './postEditorConfig';
 import { getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
 import { createAdminContext } from "../vulcan-lib/createContexts";
-import { createRevision } from '../collections/revisions/mutations';
+import { createRevision, CreateRevisionOptions, updateOriginalContentsForRevision } from '../collections/revisions/mutations';
 import { updateCkEditorUserSession } from '../collections/ckEditorUserSessions/mutations';
 import { captureException } from '@/lib/sentryWrapper';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 
 // TODO: actually implement these in Zod
 interface CkEditorComment {
@@ -141,8 +142,11 @@ export async function saveDocumentRevision(userId: string, documentId: string, h
     yjsState: null,
   }
   
-  if (!previousRev || !isEqual(newOriginalContents, previousRev.originalContents)) {
-    const newRevision: Partial<DbRevision> = {
+  const previousOriginalContents = previousRev
+    ? await getStoredOriginalContentsForRevision(previousRev, context)
+    : null;
+  if (!previousRev || !isEqual(newOriginalContents, previousOriginalContents)) {
+    const newRevision: CreateRevisionOptions = {
       ...await buildRevisionWithUser({
         originalContents: newOriginalContents,
         user,
@@ -216,13 +220,15 @@ export async function saveOrUpdateDocumentRevision(postId: string, html: string)
     
     // eslint-disable-next-line no-console
     console.log("Updating rev "+previousRev._id);
+    const originalContents = { data: html, type: "ckEditorMarkup", yjsState: null };
+    await updateOriginalContentsForRevision(previousRev, originalContents, context);
     // Update the existing rev
     await Revisions.rawUpdateOne(
       {_id: previousRev._id},
       {$set: {
         editedAt: new Date(),
         autosaveTimeoutStart: previousRev.autosaveTimeoutStart || previousRev.editedAt,
-        originalContents: { data: html, type: "ckEditorMarkup" },
+        originalContents,
         changeMetrics: htmlToChangeMetrics(precedingRev?.html || "", html),
       }}
     )
