@@ -12,6 +12,7 @@ import keyBy from 'lodash/keyBy';
 import Users from '../server/collections/users/collection';
 import { userGetDisplayName, userGetProfileUrl } from '../lib/collections/users/helpers';
 import { taggedPostMessage, getDocumentSummary, getDocument } from '@/lib/notificationDataHelpers';
+import { getTypoSuggestionNotificationContext } from '@/lib/collections/typoSuggestions/notificationContext';
 import type { NotificationDocument } from './collections/notifications/constants';
 import { commentGetPageUrlFromIds } from "../lib/collections/comments/helpers";
 import { getReviewTitle, REVIEW_YEAR } from '../lib/reviewUtils';
@@ -799,6 +800,31 @@ export const PostCoauthorAcceptNotification = createServerNotificationType({
   },
 });
 
+export const TypoSuggestionNotification = createServerNotificationType({
+  name: "typoSuggestion",
+  canCombineEmails: false,
+  emailSubject: async ({ notifications, context }) => {
+    const ctx = await getTypoSuggestionNotificationContext(notifications[0].documentId, context);
+    if (!ctx) return "A reader flagged a possible typo and AI proposed a fix";
+    return `${ctx.reactorName} flagged a possible typo in ${ctx.targetDescription}`;
+  },
+  emailBody: async ({ notifications, emailContext }) => {
+    const notification = notifications[0];
+    const ctx = await getTypoSuggestionNotificationContext(notification.documentId, emailContext.resolverContext);
+    const link = notification.link
+      ? makeAbsolute(notification.link)
+      : makeAbsolute(ctx?.targetUrl ?? "/notifications");
+    const reactorName = ctx?.reactorName ?? "A reader";
+    const targetDescription = ctx?.targetDescription ?? "your content";
+    return (
+      <p>
+        {reactorName} flagged a possible typo in {targetDescription}, and AI proposed a fix.{" "}
+        <a href={link}>Review the suggestion</a> to apply or reject it.
+      </p>
+    );
+  },
+});
+
 export const NewMentionNotification = createServerNotificationType({
   name: "newMention",
   emailSubject: async ({ user, notifications, context }: {user: DbUser, notifications: DbNotification[], context: ResolverContext}) => {
@@ -863,6 +889,7 @@ const serverNotificationTypesArray: ServerNotificationType[] = [
   PostCoauthorRequestNotification,
   PostCoauthorAcceptNotification,
   NewMentionNotification,
+  TypoSuggestionNotification,
 ];
 const serverNotificationTypes: Record<string,ServerNotificationType> = keyBy(serverNotificationTypesArray, n=>n.name);
 

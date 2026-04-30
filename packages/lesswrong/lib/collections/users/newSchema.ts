@@ -1927,7 +1927,7 @@ const schema = {
   notificationTypoSuggestions: {
     database: {
       type: "JSONB",
-      defaultValue: bothChannelsEnabledNotificationTypeSettings,
+      defaultValue: defaultNotificationTypeSettings,
       canAutofillDefault: true,
       nullable: false,
     },
