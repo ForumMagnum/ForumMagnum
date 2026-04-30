@@ -134,13 +134,12 @@ export function findRenderedQuoteInMarkdown(
     if (mdIdx === markdown.length) return null;
     mdIdx++;
   }
-  const mdStart = (() => {
-    while (mdIdx < markdown.length && markdown[mdIdx] !== plainText[startInPlain]) mdIdx++;
-    return mdIdx;
-  })();
-  if (mdStart === markdown.length) return null;
+  while (mdIdx < markdown.length && markdown[mdIdx] !== plainText[startInPlain]) mdIdx++;
+  if (mdIdx === markdown.length) return null;
+  const mdStart = mdIdx;
+  mdIdx++;
 
-  for (let plainIdx = startInPlain; plainIdx < startInPlain + renderedQuote.length; plainIdx++) {
+  for (let plainIdx = startInPlain + 1; plainIdx < startInPlain + renderedQuote.length; plainIdx++) {
     while (mdIdx < markdown.length && markdown[mdIdx] !== plainText[plainIdx]) mdIdx++;
     if (mdIdx === markdown.length) return null;
     mdIdx++;

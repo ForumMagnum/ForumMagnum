@@ -18,7 +18,7 @@ function isPostgresUniqueViolation(err: unknown): boolean {
     !!err &&
     typeof err === "object" &&
     "code" in err &&
-    (err as { code: string }).code === POSTGRES_UNIQUE_VIOLATION
+    err.code === POSTGRES_UNIQUE_VIOLATION
   );
 }
 
@@ -124,54 +124,49 @@ export async function maybeEvaluateTypoReacts(
   voteDocTuple: VoteDocTuple,
   context: ResolverContext,
 ): Promise<void> {
-  try {
-    const { vote } = voteDocTuple;
-    if (vote.collectionName !== "Posts" && vote.collectionName !== "Comments") {
-      return;
-    }
-    if (vote.cancelled) return;
+  const { vote } = voteDocTuple;
+  if (vote.collectionName !== "Posts" && vote.collectionName !== "Comments") {
+    return;
+  }
+  if (vote.cancelled) return;
 
-    const newTypos = await findNewTypoReactsByUserOnDocument(voteDocTuple);
-    if (newTypos.length === 0) return;
+  const newTypos = await findNewTypoReactsByUserOnDocument(voteDocTuple);
+  if (newTypos.length === 0) return;
 
-    const authorId = await getDocumentAuthorId(vote.collectionName, vote.documentId, context);
-    if (!authorId) return;
+  const authorId = await getDocumentAuthorId(vote.collectionName, vote.documentId, context);
+  if (!authorId) return;
 
-    // Skip self-flagged typos.
-    if (vote.userId === authorId) return;
+  // Skip self-flagged typos.
+  if (vote.userId === authorId) return;
 
-    if (!(await isLexicalDocument(vote.documentId, context))) return;
-    // Posts go through Hocuspocus on Apply; without a YjsDocuments row, the
-    // live doc loads empty and the post-agent guard throws. Bail upstream
-    // rather than create a suggestion we can't safely apply. Comments don't
-    // touch Hocuspocus (they apply offline against the rev HTML).
-    if (vote.collectionName === "Posts" && !(await hasLiveYjsRecord(vote.documentId, context))) return;
+  if (!(await isLexicalDocument(vote.documentId, context))) return;
+  // Posts go through Hocuspocus on Apply; without a YjsDocuments row, the
+  // live doc loads empty and the post-agent guard throws. Bail upstream
+  // rather than create a suggestion we can't safely apply. Comments don't
+  // touch Hocuspocus (they apply offline against the rev HTML).
+  if (vote.collectionName === "Posts" && !(await hasLiveYjsRecord(vote.documentId, context))) return;
 
-    const suggestionIds = await Promise.all(
-      newTypos.map(({ quote }) =>
-        tryInsertPendingSuggestion({
-          documentId: vote.documentId,
-          collectionName: vote.collectionName as TypoSuggestionTargetCollection,
-          voteId: vote._id,
-          authorId,
-          quote,
-        }),
-      ),
-    );
-    // `evaluateTypoReact` transitively imports the headless Lexical editor
-    // (`createHeadlessEditor` → `PlaygroundNodes` → CSS), which breaks
-    // codegen's CommonJS loader if imported eagerly. Same pattern as
-    // @/server/editor/htmlToYjsState.ts.
-    for (const suggestionId of suggestionIds.filter((id): id is string => !!id)) {
-      backgroundTask((async () => {
-        const { evaluateTypoReact } = await import("@/server/typoSuggestions/evaluateTypoReact");
-        await evaluateTypoReact(suggestionId, context);
-      })());
-    }
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error("maybeEvaluateTypoReacts failed", err);
-    captureException(err);
+  const suggestionIds = await Promise.all(
+    newTypos.map(({ quote }) =>
+      tryInsertPendingSuggestion({
+        documentId: vote.documentId,
+        collectionName: vote.collectionName as TypoSuggestionTargetCollection,
+        voteId: vote._id,
+        authorId,
+        quote,
+      }),
+    ),
+  );
+  // `evaluateTypoReact` and `applyTypoSuggestion` (loaded in
+  // typoSuggestionResolvers.ts) transitively import the headless Lexical
+  // editor (`createHeadlessEditor` → `PlaygroundNodes` → CSS), which breaks
+  // codegen's CommonJS loader if imported eagerly. Same pattern as
+  // @/server/editor/htmlToYjsState.ts.
+  for (const suggestionId of suggestionIds.filter((id): id is string => !!id)) {
+    backgroundTask((async () => {
+      const { evaluateTypoReact } = await import("@/server/typoSuggestions/evaluateTypoReact");
+      await evaluateTypoReact(suggestionId, context);
+    })());
   }
 }
 

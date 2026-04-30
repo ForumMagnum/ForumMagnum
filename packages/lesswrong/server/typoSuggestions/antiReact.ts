@@ -37,35 +37,38 @@ export async function antiReactToTypoOnOwnContent({
   user: DbUser;
   context: ResolverContext;
 }): Promise<void> {
+  const document = collectionName === "Posts"
+    ? await Posts.findOne({ _id: documentId })
+    : await Comments.findOne({ _id: documentId });
+  if (!document) return;
+  const collection = collectionName === "Posts" ? Posts : Comments;
+
+  // Merge with the user's existing reacts on this document so we don't
+  // wipe other reacts they've previously left.
+  const existingVote = await Votes.findOne(
+    { documentId, collectionName, userId: user._id, cancelled: false },
+    { sort: { votedAt: -1 } },
+  );
+  const existingExtended = existingVote?.extendedVoteType as NamesAttachedReactionsVote | null;
+  const existingReacts: UserVoteOnSingleReaction[] = existingExtended?.reacts ?? [];
+
+  const newReacts: UserVoteOnSingleReaction[] = [
+    ...existingReacts.filter(
+      (r) =>
+        !(r.react === TYPO_REACT_NAME && (r.quotes?.[0] ?? "") === quote),
+    ),
+    { react: TYPO_REACT_NAME, vote: "disagreed", quotes: [quote] },
+  ];
+
+  const newExtended: NamesAttachedReactionsVote = {
+    ...existingExtended,
+    reacts: newReacts,
+  };
+
+  // performVoteServer can throw on validation paths (banned user, debate
+  // coauthor checks, extended-vote validation). Don't fail the whole resolve
+  // flow if those fire — the typo suggestion stands either way.
   try {
-    const document = collectionName === "Posts"
-      ? await Posts.findOne({ _id: documentId })
-      : await Comments.findOne({ _id: documentId });
-    if (!document) return;
-    const collection = collectionName === "Posts" ? Posts : Comments;
-
-    // Merge with the user's existing reacts on this document so we don't
-    // wipe other reacts they've previously left.
-    const existingVote = await Votes.findOne(
-      { documentId, collectionName, userId: user._id, cancelled: false },
-      { sort: { votedAt: -1 } },
-    );
-    const existingExtended = existingVote?.extendedVoteType as NamesAttachedReactionsVote | null;
-    const existingReacts: UserVoteOnSingleReaction[] = existingExtended?.reacts ?? [];
-
-    const newReacts: UserVoteOnSingleReaction[] = [
-      ...existingReacts.filter(
-        (r) =>
-          !(r.react === TYPO_REACT_NAME && (r.quotes?.[0] ?? "") === quote),
-      ),
-      { react: TYPO_REACT_NAME, vote: "disagreed", quotes: [quote] },
-    ];
-
-    const newExtended: NamesAttachedReactionsVote = {
-      ...existingExtended,
-      reacts: newReacts,
-    };
-
     await performVoteServer({
       document,
       voteType: existingVote?.voteType ?? "neutral",
@@ -77,9 +80,6 @@ export async function antiReactToTypoOnOwnContent({
       context,
     });
   } catch (err) {
-    // Don't fail the whole resolve flow if anti-react fails.
-    // eslint-disable-next-line no-console
-    console.error("antiReactToTypoOnOwnContent failed", err);
     captureException(err);
   }
 }

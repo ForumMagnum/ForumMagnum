@@ -11,8 +11,8 @@ import { postGetEditUrl } from '@/lib/collections/posts/helpers';
 import Loading from '../vulcan-core/Loading';
 
 const TypoSuggestionQuery = gql(`
-  query TypoSuggestionHoverQuery($documentId: String) {
-    typoSuggestion(selector: { documentId: $documentId }) {
+  query TypoSuggestionHoverQuery($suggestionId: String) {
+    typoSuggestion(selector: { _id: $suggestionId }) {
       result {
         ...TypoSuggestionsDefaultFragment
       }
@@ -60,11 +60,11 @@ const styles = defineStyles('TypoSuggestionHover', (theme: ThemeType) => ({
     wordBreak: 'break-word',
   },
   del: {
-    background: 'rgba(255, 0, 0, 0.12)',
+    background: theme.palette.background.diffDeleted,
     textDecoration: 'line-through',
   },
   ins: {
-    background: 'rgba(0, 200, 0, 0.18)',
+    background: theme.palette.background.diffInserted,
   },
   arrow: {
     margin: '0 6px',
@@ -123,12 +123,13 @@ const TypoSuggestionHover = ({notification}: {
   const [actionError, setActionError] = useState<string | null>(null);
 
   const { data, loading, refetch } = useQuery(TypoSuggestionQuery, {
-    variables: { documentId: suggestionId },
+    variables: { suggestionId },
     skip: !suggestionId,
   });
 
-  const [accept, { loading: accepting }] = useMutation(AcceptTypoSuggestionMutation);
-  const [reject, { loading: rejecting }] = useMutation(RejectTypoSuggestionMutation);
+  const [accept] = useMutation(AcceptTypoSuggestionMutation);
+  const [reject] = useMutation(RejectTypoSuggestionMutation);
+  const [pending, setPending] = useState(false);
 
   if (loading) return <div className={classes.root}><Loading /></div>;
   const suggestion = data?.typoSuggestion?.result;
@@ -154,8 +155,9 @@ const TypoSuggestionHover = ({notification}: {
   const contextSuffix = isStrictSubSpan ? fullQuote.slice(narrowedStart + narrowedQuote.length) : '';
 
   const handleAction = async (action: ResolveAction) => {
-    if (!suggestionId) return;
+    if (!suggestionId || pending) return;
     setActionError(null);
+    setPending(true);
     try {
       if (action === 'apply') {
         await accept({ variables: { suggestionId, mode: 'APPLY' } });
@@ -167,11 +169,15 @@ const TypoSuggestionHover = ({notification}: {
       }
     } catch (err) {
       setActionError(err instanceof Error ? err.message : String(err));
-      void refetch();
+      // Pull the canonical post-failure status before letting the user retry,
+      // so the buttons reflect whether the action is still applicable.
+      await refetch();
+    } finally {
+      setPending(false);
     }
   };
 
-  const buttonsDisabled = isResolved || accepting || rejecting;
+  const buttonsDisabled = isResolved || pending;
 
   return (
     <div className={classes.root}>

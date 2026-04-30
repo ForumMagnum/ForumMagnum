@@ -1,16 +1,8 @@
 import gql from "graphql-tag";
 import TypoSuggestions from "@/server/collections/typoSuggestions/collection";
 import { antiReactToTypoOnOwnContent } from "@/server/typoSuggestions/antiReact";
-import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { userCanAccessTypoSuggestion } from "@/lib/collections/typoSuggestions/helpers";
 import type { TypoAcceptMode, TypoSuggestionTargetCollection } from "@/lib/collections/typoSuggestions/constants";
-
-function userCanResolveSuggestion(
-  user: DbUser,
-  suggestion: DbTypoSuggestion,
-): boolean {
-  if (userIsAdmin(user)) return true;
-  return user._id === suggestion.authorId;
-}
 
 async function loadAndAuthorizeSuggestion(
   suggestionId: string,
@@ -20,7 +12,7 @@ async function loadAndAuthorizeSuggestion(
   if (!currentUser) throw new Error("Must be logged in to resolve a typo suggestion.");
   const suggestion = await TypoSuggestions.findOne(suggestionId);
   if (!suggestion) throw new Error("TypoSuggestion not found.");
-  if (!userCanResolveSuggestion(currentUser, suggestion)) {
+  if (!userCanAccessTypoSuggestion(currentUser, suggestion)) {
     throw new Error("You don't have permission to resolve this typo suggestion.");
   }
   // No-op for double-clicks / replays.
@@ -43,9 +35,7 @@ async function acceptTypoSuggestionResolver(
     throw new Error("'Open in editor' is not supported for comments. Use 'Apply' instead.");
   }
 
-  // `applyTypoSuggestion` transitively imports the headless Lexical editor
-  // and agent-API helpers, which pull in CSS and break codegen's CommonJS
-  // loader if imported eagerly. Same pattern as @/server/editor/htmlToYjsState.ts.
+  // Dynamic import: see typoSuggestionCallbacks.ts for why.
   const { applyTypoSuggestion } = await import("@/server/typoSuggestions/applyTypoSuggestion");
   const updated = await applyTypoSuggestion({
     suggestion,

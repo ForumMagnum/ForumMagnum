@@ -1484,13 +1484,13 @@ const _1465=_o3(_3,"notificationIds")
 const _1466=_o4(_519,_1465)
 const _1467=_o5(_7,[_o7(_8,_59,_979,_o5(_7,[_o6(_8,_980,_o5(_7,[_o4(_24,_840)]))]))])
 const _1468=_o5(_7,[_o7(_8,_517,_979,_o5(_7,[_o6(_8,_980,_938)]))])
-const _1469=_o5(_7,[_o4(_24,_825)])
-const _1470=_o3(_3,"suggestionId")
-const _1471=_o4(_519,_1470)
-const _1472=_o12(_964,_1471,_968)
+const _1469=_o3(_3,"suggestionId")
+const _1470=_o4(_519,_1469)
+const _1471=_o5(_7,[_o4(_24,_825)])
+const _1472=_o12(_964,_1470,_968)
 const _1473=_o3(_3,"mode")
 const _1474=_o4(_519,_1473)
-const _1475=_o8(_518,_1470,_1471)
+const _1475=_o8(_518,_1469,_1470)
 const _1476=_o5(_7,[_o7(_8,_1163,_1108,_o5(_7,[_o6(_8,_259,_1450)]))])
 const _1477=_o3(_3,"getClaudeAccessLink")
 const _1478=_o3(_3,"fileUrl")
@@ -15977,7 +15977,7 @@ export type TagRelNotificationItemQuery = { __typename?: 'Query', tagRel: { __ty
     ) | null } | null };
 
 export type TypoSuggestionHoverQueryQueryVariables = Exact<{
-  documentId?: InputMaybe<Scalars['String']['input']>;
+  suggestionId?: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -21947,9 +21947,9 @@ export const EmailPreviewQueryDocument = _o1(_1,[_o11(_962,_963,_o3(_3,"EmailPre
 export const multiNotificationNotificationsListQueryDocument = _o1(_1,[_o11(_962,_963,_o3(_3,"multiNotificationNotificationsListQuery"),[_o12(_964,_1028,_o4(_5,_o3(_3,"NotificationSelector"))),_1023,_1081],_o5(_7,[_o7(_8,_o3(_3,"notifications"),_1083,_o5(_7,[_o6(_8,_997,_o5(_7,[_o4(_24,_436)])),_777]))])),_440]) as unknown as DocumentNode<multiNotificationNotificationsListQueryQuery, multiNotificationNotificationsListQueryQueryVariables>;
 export const NotificationsMenuButtonDocument = _o1(_1,[_o11(_962,_963,_o3(_3,"NotificationsMenuButton"),_1147,_1467),_858]) as unknown as DocumentNode<NotificationsMenuButtonQuery, NotificationsMenuButtonQueryVariables>;
 export const TagRelNotificationItemDocument = _o1(_1,[_o11(_962,_963,_o3(_3,"TagRelNotificationItem"),_1147,_1468),_606,_140,_151,_22,_121,_54,_130,_177,_185,_191,_936]) as unknown as DocumentNode<TagRelNotificationItemQuery, TagRelNotificationItemQueryVariables>;
-export const TypoSuggestionHoverQueryDocument = _o1(_1,[_o11(_962,_963,_o3(_3,"TypoSuggestionHoverQuery"),_1147,_o5(_7,[_o7(_8,_o3(_3,"typoSuggestion"),_1185,_o5(_7,[_o6(_8,_980,_1469)]))])),_54,_826]) as unknown as DocumentNode<TypoSuggestionHoverQueryQuery, TypoSuggestionHoverQueryQueryVariables>;
-export const acceptTypoSuggestionFromHoverDocument = _o1(_1,[_o11(_962,_1099,_o3(_3,"acceptTypoSuggestionFromHover"),[_1472,_o12(_964,_1474,_o13(_966,_o4(_5,_o3(_3,"TypoAcceptMode"))))],_o5(_7,[_o7(_8,_o3(_3,"acceptTypoSuggestion"),[_1475,_o8(_518,_1473,_1474)],_1469)])),_54,_826]) as unknown as DocumentNode<acceptTypoSuggestionFromHoverMutation, acceptTypoSuggestionFromHoverMutationVariables>;
-export const rejectTypoSuggestionFromHoverDocument = _o1(_1,[_o11(_962,_1099,_o3(_3,"rejectTypoSuggestionFromHover"),[_1472],_o5(_7,[_o7(_8,_o3(_3,"rejectTypoSuggestion"),[_1475],_1469)])),_54,_826]) as unknown as DocumentNode<rejectTypoSuggestionFromHoverMutation, rejectTypoSuggestionFromHoverMutationVariables>;
+export const TypoSuggestionHoverQueryDocument = _o1(_1,[_o11(_962,_963,_o3(_3,"TypoSuggestionHoverQuery"),[_o12(_964,_1470,_967)],_o5(_7,[_o7(_8,_o3(_3,"typoSuggestion"),[_o8(_518,_975,_o14(_973,[_o8(_974,_9,_1470)]))],_o5(_7,[_o6(_8,_980,_1471)]))])),_54,_826]) as unknown as DocumentNode<TypoSuggestionHoverQueryQuery, TypoSuggestionHoverQueryQueryVariables>;
+export const acceptTypoSuggestionFromHoverDocument = _o1(_1,[_o11(_962,_1099,_o3(_3,"acceptTypoSuggestionFromHover"),[_1472,_o12(_964,_1474,_o13(_966,_o4(_5,_o3(_3,"TypoAcceptMode"))))],_o5(_7,[_o7(_8,_o3(_3,"acceptTypoSuggestion"),[_1475,_o8(_518,_1473,_1474)],_1471)])),_54,_826]) as unknown as DocumentNode<acceptTypoSuggestionFromHoverMutation, acceptTypoSuggestionFromHoverMutationVariables>;
+export const rejectTypoSuggestionFromHoverDocument = _o1(_1,[_o11(_962,_1099,_o3(_3,"rejectTypoSuggestionFromHover"),[_1472],_o5(_7,[_o7(_8,_o3(_3,"rejectTypoSuggestion"),[_1475],_1471)])),_54,_826]) as unknown as DocumentNode<rejectTypoSuggestionFromHoverMutation, rejectTypoSuggestionFromHoverMutationVariables>;
 export const multiUserAdminPaymentsPageQueryDocument = _o1(_1,[_o11(_962,_963,_o3(_3,"multiUserAdminPaymentsPageQuery"),_1082,_1085),_54,_219,_884]) as unknown as DocumentNode<multiUserAdminPaymentsPageQueryQuery, multiUserAdminPaymentsPageQueryQueryVariables>;
 export const updateUserEditPaymentInfoPageDocument = _o1(_1,[_o11(_962,_1099,_o3(_3,"updateUserEditPaymentInfoPage"),_1162,_1476),_54,_219,_884,_913,_263,_921]) as unknown as DocumentNode<updateUserEditPaymentInfoPageMutation, updateUserEditPaymentInfoPageMutationVariables>;
 export const AddToCalendarButtonDocument = _o1(_1,[_o11(_962,_963,_o3(_3,"AddToCalendarButton"),_1147,_o5(_7,[_o7(_8,_203,_979,_o5(_7,[_o6(_8,_980,_o5(_7,[_o4(_24,_528)]))]))])),_530]) as unknown as DocumentNode<AddToCalendarButtonQuery, AddToCalendarButtonQueryVariables>;

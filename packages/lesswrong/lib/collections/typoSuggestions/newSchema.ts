@@ -1,12 +1,6 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
-import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-
-function userCanReadTypoSuggestion(user: DbUser | UsersCurrent | null, suggestion: DbTypoSuggestion): boolean {
-  if (!user) return false;
-  if (userIsAdmin(user)) return true;
-  return user._id === suggestion.authorId;
-}
+import { userCanAccessTypoSuggestion } from "./helpers";
 
 const schema = {
   _id: DEFAULT_ID_FIELD,
@@ -19,7 +13,7 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
     },
   },
 
@@ -30,7 +24,7 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
     },
   },
 
@@ -43,7 +37,7 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
     },
   },
 
@@ -55,14 +49,14 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
     },
   },
 
   reactor: {
     graphql: {
       outputType: "User",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
       resolver: async (suggestion, _args, context) => {
         const vote = await context.loaders.Votes.load(suggestion.voteId);
         if (!vote) return null;
@@ -79,14 +73,14 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
     },
   },
 
   author: {
     graphql: {
       outputType: "User",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
       resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "authorId" }),
     },
   },
@@ -109,7 +103,7 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
     },
   },
 
@@ -127,7 +121,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
     },
   },
 
@@ -138,7 +132,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
     },
   },
 
@@ -149,7 +143,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
     },
   },
 
@@ -160,7 +154,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
     },
   },
 
@@ -171,7 +165,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
     },
   },
 
@@ -182,7 +176,7 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
     },
   },
 
@@ -193,7 +187,7 @@ const schema = {
     },
     graphql: {
       outputType: "String!",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
     },
   },
 
@@ -205,7 +199,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
     },
   },
 
@@ -217,7 +211,7 @@ const schema = {
     },
     graphql: {
       outputType: "String",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
     },
   },
 
@@ -228,7 +222,7 @@ const schema = {
     },
     graphql: {
       outputType: "Date",
-      canRead: [userCanReadTypoSuggestion],
+      canRead: [userCanAccessTypoSuggestion],
     },
   },
 

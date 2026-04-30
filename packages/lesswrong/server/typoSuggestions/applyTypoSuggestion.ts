@@ -65,7 +65,18 @@ export async function applyTypoSuggestion({
   resolvedByUserId: string;
   context: ResolverContext;
 }): Promise<DbTypoSuggestion | null> {
-  const outcome = await runApply(suggestion, mode, context);
+  // State-machine boundary: any unexpected throw inside `runApply` must still
+  // transition the row out of `pending`, otherwise the suggestion is stuck.
+  let outcome: ApplyOutcome;
+  try {
+    outcome = await runApply(suggestion, mode, context);
+  } catch (err) {
+    captureException(err);
+    outcome = {
+      status: "failed",
+      message: err instanceof Error ? err.message : "Typo apply failed.",
+    };
+  }
   await persistOutcome(suggestion._id, outcome, resolvedByUserId);
 
   // On a successful resolution, anti-react to the typo so the original
@@ -96,13 +107,14 @@ async function runApply(
   mode: TypoAcceptMode,
   context: ResolverContext,
 ): Promise<ApplyOutcome> {
-  if (!suggestion.proposedReplacement) {
+  const { proposedReplacement, llmCanonicalQuote } = suggestion;
+  if (!proposedReplacement) {
     return { status: "failed", message: "No proposed replacement on suggestion." };
   }
   // Apply-time matching is in markdown coordinates; the reactor-form `quote`
   // can't drive the edit primitives. If we don't have an LLM canonical span,
   // we never had a `fix_typo` verdict and shouldn't be here.
-  if (!suggestion.llmCanonicalQuote) {
+  if (!llmCanonicalQuote) {
     return { status: "failed", message: "No LLM canonical quote on suggestion." };
   }
 
@@ -116,13 +128,13 @@ async function runApply(
   const latestHtml = latestRev.html ?? "";
 
   if (suggestion.collectionName === "Posts") {
-    return applyToPost(suggestion, mode, latestHtml, context);
+    return applyToPost(suggestion, mode, latestHtml, llmCanonicalQuote, proposedReplacement, context);
   }
   if (suggestion.collectionName === "Comments") {
     if (mode === "SUGGEST") {
       return { status: "failed", message: "'Open in editor' is not supported for comments." };
     }
-    return applyToComment(suggestion, latestHtml, context);
+    return applyToComment(suggestion, latestHtml, llmCanonicalQuote, proposedReplacement, context);
   }
   return { status: "failed", message: `Unknown collectionName: ${suggestion.collectionName}` };
 }
@@ -131,6 +143,8 @@ async function applyToPost(
   suggestion: DbTypoSuggestion,
   mode: TypoAcceptMode,
   latestHtml: string,
+  quote: string,
+  replacement: string,
   context: ResolverContext,
 ): Promise<ApplyOutcome> {
   const auth = await checkEditorTypeAndGetToken({
@@ -152,8 +166,8 @@ async function applyToPost(
   const result = await replaceTextInMainDoc({
     postId: suggestion.documentId,
     token: auth.token,
-    quote: suggestion.llmCanonicalQuote!,
-    replacement: suggestion.proposedReplacement!,
+    quote,
+    replacement,
     mode: replaceMode,
     authorName: "Typo bot",
     authorId: TYPO_BOT_AUTHOR_ID,
@@ -184,32 +198,24 @@ async function applyToPost(
     };
   }
 
-  let referenceHtml: string;
+  // From here, the typo IS already in Yjs. Wrap the rest so any unexpected
+  // throw (offline replay, canonicalization, or the publish call) still
+  // resolves to "applied to live, publish manually" rather than leaving the
+  // row in pending while the live state silently has the fix.
   try {
-    const offlineResult = applyEditOffline(latestHtml, suggestion.llmCanonicalQuote!, suggestion.proposedReplacement!);
+    const offlineResult = applyEditOffline(latestHtml, quote, replacement);
     if (offlineResult.kind !== "replaced") {
       return {
         status: "accepted",
         message: "Typo applied to the live editor, but couldn't compute a reference for auto-publishing. Open the editor and click 'Publish Changes'.",
       };
     }
-    referenceHtml = offlineResult.html;
-  } catch (err) {
-    captureException(err);
-    return {
-      status: "accepted",
-      message: "Typo applied to the live editor, but auto-publishing failed; open the editor and click 'Publish Changes' to push the fix live.",
-    };
-  }
-
-  if (!liveAndReferenceMatch(livePostEditHtml, referenceHtml)) {
-    return {
-      status: "accepted",
-      message: "Typo applied to the live editor, but the post has unpublished edits unrelated to this fix. Open the editor and click 'Publish Changes' to publish all your changes — including this fix — together.",
-    };
-  }
-
-  try {
+    if (!liveAndReferenceMatch(livePostEditHtml, offlineResult.html)) {
+      return {
+        status: "accepted",
+        message: "Typo applied to the live editor, but the post has unpublished edits unrelated to this fix. Open the editor and click 'Publish Changes' to publish all your changes — including this fix — together.",
+      };
+    }
     const updated = await updatePost(
       {
         selector: { _id: suggestion.documentId },
@@ -220,7 +226,10 @@ async function applyToPost(
     return { status: "accepted", appliedRevisionId: updated.contents_latest ?? undefined };
   } catch (err) {
     captureException(err);
-    return { status: "accepted", message: "Typo applied to the live editor, but auto-publishing failed." };
+    return {
+      status: "accepted",
+      message: "Typo applied to the live editor, but auto-publishing failed; open the editor and click 'Publish Changes' to push the fix live.",
+    };
   }
 }
 
@@ -233,14 +242,7 @@ async function applyToPost(
  */
 function liveAndReferenceMatch(liveHtml: string, referenceHtml: string): boolean {
   if (liveHtml === referenceHtml) return true;
-  try {
-    const liveCanon = canonicalizeHtml(liveHtml);
-    const referenceCanon = canonicalizeHtml(referenceHtml);
-    return liveCanon === referenceCanon;
-  } catch (err) {
-    captureException(err);
-    return false;
-  }
+  return canonicalizeHtml(liveHtml) === canonicalizeHtml(referenceHtml);
 }
 
 function canonicalizeHtml(html: string): string {
@@ -257,15 +259,11 @@ function canonicalizeHtml(html: string): string {
 async function applyToComment(
   suggestion: DbTypoSuggestion,
   latestHtml: string,
+  quote: string,
+  replacement: string,
   context: ResolverContext,
 ): Promise<ApplyOutcome> {
-  let offlineResult: OfflineEditOutcome;
-  try {
-    offlineResult = applyEditOffline(latestHtml, suggestion.llmCanonicalQuote!, suggestion.proposedReplacement!);
-  } catch (err) {
-    captureException(err);
-    return { status: "failed", message: err instanceof Error ? err.message : "Headless edit failed." };
-  }
+  const offlineResult = applyEditOffline(latestHtml, quote, replacement);
   if (offlineResult.kind === "stale") {
     return { status: "stale", message: "The flagged text is no longer in the comment." };
   }
@@ -276,19 +274,14 @@ async function applyToComment(
     };
   }
 
-  try {
-    const updated = await updateComment(
-      {
-        selector: { _id: suggestion.documentId },
-        data: { contents: { originalContents: { type: "lexical", data: offlineResult.html } } },
-      },
-      context,
-    );
-    return { status: "accepted", appliedRevisionId: updated.contents_latest ?? undefined };
-  } catch (err) {
-    captureException(err);
-    return { status: "failed", message: err instanceof Error ? err.message : "Failed to save comment edit." };
-  }
+  const updated = await updateComment(
+    {
+      selector: { _id: suggestion.documentId },
+      data: { contents: { originalContents: { type: "lexical", data: offlineResult.html } } },
+    },
+    context,
+  );
+  return { status: "accepted", appliedRevisionId: updated.contents_latest ?? undefined };
 }
 
 /**

@@ -100,15 +100,14 @@ async function callLlm(documentMarkdown: string, renderedQuote: string): Promise
 
   const toolCall = result.toolCalls[0];
   if (!toolCall) return null;
-  if (toolCall.toolName === "fix_typo") {
-    const parsed = fixTypoSchema.parse(toolCall.input);
-    return { kind: "fix_typo", ...parsed };
+  switch (toolCall.toolName) {
+    case "fix_typo":
+      return { kind: "fix_typo", ...fixTypoSchema.parse(toolCall.input) };
+    case "no_typo":
+      return { kind: "no_typo", reason: noTypoSchema.parse(toolCall.input).reason };
+    default:
+      return null;
   }
-  if (toolCall.toolName === "no_typo") {
-    const parsed = noTypoSchema.parse(toolCall.input);
-    return { kind: "no_typo", reason: parsed.reason };
-  }
-  return null;
 }
 
 function injectDelimiters(markdown: string, quote: string): string {
@@ -201,131 +200,130 @@ async function getRecipientForSuggestion(
   return null;
 }
 
+async function markFailed(suggestionId: string, explanation: string): Promise<void> {
+  await TypoSuggestions.rawUpdateOne(
+    { _id: suggestionId },
+    {
+      $set: {
+        status: "failed",
+        llmVerdict: "error",
+        explanation,
+        resolvedAt: new Date(),
+      },
+    },
+  );
+}
+
 export async function evaluateTypoReact(
   suggestionId: string,
   context: ResolverContext,
 ): Promise<void> {
-  let suggestion: DbTypoSuggestion | null = null;
+  const suggestion = await TypoSuggestions.findOne(suggestionId);
+  if (!suggestion || suggestion.status !== "pending") return;
+
+  // htmlToMarkdown (Turndown) can throw on malformed HTML, and we run as a
+  // backgroundTask — if we let the throw escape, the row stays `pending`.
+  let doc: { html: string; markdown: string } | null;
   try {
-    suggestion = await TypoSuggestions.findOne(suggestionId);
-    if (!suggestion || suggestion.status !== "pending") return;
+    doc = await loadDocumentForLlm(suggestion.documentId, context);
+  } catch (err) {
+    captureException(err);
+    await markFailed(suggestionId, err instanceof Error ? err.message : String(err));
+    return;
+  }
+  if (!doc) {
+    await markFailed(suggestionId, "Could not load document for LLM evaluation.");
+    return;
+  }
 
-    const doc = await loadDocumentForLlm(suggestion.documentId, context);
-    if (!doc) {
-      await TypoSuggestions.rawUpdateOne(
-        { _id: suggestionId },
-        { $set: { status: "failed", llmVerdict: "error", resolvedAt: new Date() } },
-      );
-      return;
-    }
+  // Third-party LLM call + Zod parse: same backgroundTask state-machine
+  // requirement as above.
+  let result: LlmResult | null;
+  try {
+    result = await callLlm(doc.markdown, suggestion.quote);
+  } catch (err) {
+    captureException(err);
+    await markFailed(suggestionId, err instanceof Error ? err.message : String(err));
+    return;
+  }
+  if (!result) {
+    await markFailed(suggestionId, "LLM did not return a tool call.");
+    return;
+  }
 
-    const result = await callLlm(doc.markdown, suggestion.quote);
-    if (!result) {
-      await TypoSuggestions.rawUpdateOne(
-        { _id: suggestionId },
-        {
-          $set: {
-            status: "failed",
-            llmVerdict: "error",
-            explanation: "LLM did not return a tool call.",
-            resolvedAt: new Date(),
-          },
-        },
-      );
-      return;
-    }
-
-    if (result.kind === "no_typo") {
-      await TypoSuggestions.rawUpdateOne(
-        { _id: suggestionId },
-        {
-          $set: {
-            status: "rejected",
-            llmVerdict: "no_typo",
-            explanation: result.reason,
-            resolvedAt: new Date(),
-          },
-        },
-      );
-      return;
-    }
-
-    // fix_typo: validate that the LLM's `original` actually appears in the doc.
-    if (!doc.markdown.includes(result.original)) {
-      await TypoSuggestions.rawUpdateOne(
-        { _id: suggestionId },
-        {
-          $set: {
-            status: "rejected",
-            llmVerdict: "no_typo",
-            explanation: `LLM proposed an 'original' string that is not present in the document: ${JSON.stringify(result.original).slice(0, 200)}`,
-            resolvedAt: new Date(),
-          },
-        },
-      );
-      return;
-    }
-
-    // Compute narrowed diff for the tooltip preview. Best-effort — falls
-    // back to the un-narrowed strings if narrowing can't be computed.
-    let narrowedQuote = result.original;
-    let narrowedReplacement = result.replacement;
-    try {
-      const narrowed = computeNarrowedDiff(doc.html, result.original, result.replacement);
-      narrowedQuote = narrowed.narrowedQuote;
-      narrowedReplacement = narrowed.narrowedReplacement;
-    } catch (err) {
-      captureException(err);
-    }
-
+  if (result.kind === "no_typo") {
     await TypoSuggestions.rawUpdateOne(
       { _id: suggestionId },
       {
         $set: {
-          status: "pending",
-          llmVerdict: "fix_typo",
-          // Keep `quote` (reactor's rendered selection) immutable so the
-          // cross-user dedup unique index stays stable; store the LLM's
-          // markdown-form span separately for apply-time matching.
-          llmCanonicalQuote: result.original,
-          proposedReplacement: result.replacement,
-          narrowedQuote,
-          narrowedReplacement,
-          explanation: result.explanation,
+          status: "rejected",
+          llmVerdict: "no_typo",
+          explanation: result.reason,
+          resolvedAt: new Date(),
         },
       },
     );
+    return;
+  }
 
-    const recipientId = await getRecipientForSuggestion(
-      suggestion.collectionName,
-      suggestion.documentId,
-      context,
-    );
-    if (recipientId) {
-      await createNotifications({
-        userIds: [recipientId],
-        notificationType: "typoSuggestion",
-        documentType: "typoSuggestion",
-        documentId: suggestionId,
-        context,
-      });
-    }
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error("evaluateTypoReact failed", suggestionId, err);
-    captureException(err);
-    if (suggestion) {
-      await TypoSuggestions.rawUpdateOne(
-        { _id: suggestionId },
-        {
-          $set: {
-            status: "failed",
-            llmVerdict: "error",
-            explanation: err instanceof Error ? err.message : String(err),
-            resolvedAt: new Date(),
-          },
+  // fix_typo: validate that the LLM's `original` actually appears in the doc.
+  if (!doc.markdown.includes(result.original)) {
+    await TypoSuggestions.rawUpdateOne(
+      { _id: suggestionId },
+      {
+        $set: {
+          status: "rejected",
+          llmVerdict: "no_typo",
+          explanation: `LLM proposed an 'original' string that is not present in the document: ${JSON.stringify(result.original).slice(0, 200)}`,
+          resolvedAt: new Date(),
         },
-      ).catch(() => {});
-    }
+      },
+    );
+    return;
+  }
+
+  // Compute narrowed diff for the tooltip preview. Best-effort — falls
+  // back to the un-narrowed strings if narrowing can't be computed.
+  let narrowedQuote = result.original;
+  let narrowedReplacement = result.replacement;
+  try {
+    const narrowed = computeNarrowedDiff(doc.html, result.original, result.replacement);
+    narrowedQuote = narrowed.narrowedQuote;
+    narrowedReplacement = narrowed.narrowedReplacement;
+  } catch (err) {
+    captureException(err);
+  }
+
+  await TypoSuggestions.rawUpdateOne(
+    { _id: suggestionId },
+    {
+      $set: {
+        status: "pending",
+        llmVerdict: "fix_typo",
+        // Keep `quote` (reactor's rendered selection) immutable so the
+        // cross-user dedup unique index stays stable; store the LLM's
+        // markdown-form span separately for apply-time matching.
+        llmCanonicalQuote: result.original,
+        proposedReplacement: result.replacement,
+        narrowedQuote,
+        narrowedReplacement,
+        explanation: result.explanation,
+      },
+    },
+  );
+
+  const recipientId = await getRecipientForSuggestion(
+    suggestion.collectionName,
+    suggestion.documentId,
+    context,
+  );
+  if (recipientId) {
+    await createNotifications({
+      userIds: [recipientId],
+      notificationType: "typoSuggestion",
+      documentType: "typoSuggestion",
+      documentId: suggestionId,
+      context,
+    });
   }
 }
