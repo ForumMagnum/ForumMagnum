@@ -1840,6 +1840,7 @@ type CreateUserDataInput = {
   notificationSubscribedTagPost?: InputMaybe<Scalars['JSON']['input']>;
   notificationSubscribedUserComment?: InputMaybe<Scalars['JSON']['input']>;
   notificationSubscribedUserPost?: InputMaybe<Scalars['JSON']['input']>;
+  notificationTypoSuggestions?: InputMaybe<Scalars['JSON']['input']>;
   notificationYourTurnMatchForm?: InputMaybe<Scalars['JSON']['input']>;
   nullifyVotes?: InputMaybe<Scalars['Boolean']['input']>;
   optedInToDialogueFacilitation?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3639,6 +3640,19 @@ type MultiTypingIndicatorOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+type MultiTypoSuggestionInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type MultiTypoSuggestionOutput = {
+  __typename?: 'MultiTypoSuggestionOutput';
+  results: Array<TypoSuggestion>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 type MultiUltraFeedEventInput = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
@@ -3732,6 +3746,7 @@ type Mutation = {
   UpdateSearchSynonyms: Array<Scalars['String']['output']>;
   UserExpandFrontpageSection?: Maybe<Scalars['Boolean']['output']>;
   UserUpdateSubforumMembership?: Maybe<User>;
+  acceptTypoSuggestion: TypoSuggestion;
   addOrUpvoteTag?: Maybe<TagRel>;
   addTags?: Maybe<Scalars['Boolean']['output']>;
   adminSendBulkEmail: AdminSendBulkEmailResult;
@@ -3804,6 +3819,7 @@ type Mutation = {
   publishAndDeDuplicateSpotlight?: Maybe<Spotlight>;
   publishHomePageDesign?: Maybe<HomePageDesignMutationOutput>;
   rejectContentAndRemoveUserFromQueue: Scalars['Boolean']['output'];
+  rejectTypoSuggestion: TypoSuggestion;
   reorderSummaries?: Maybe<Scalars['Boolean']['output']>;
   rerunLlmCheck: AutomatedContentEvaluation;
   resetPassword?: Maybe<Scalars['String']['output']>;
@@ -3938,6 +3954,12 @@ type MutationUserExpandFrontpageSectionArgs = {
 type MutationUserUpdateSubforumMembershipArgs = {
   member: Scalars['Boolean']['input'];
   tagId: Scalars['String']['input'];
+};
+
+
+type MutationacceptTypoSuggestionArgs = {
+  mode: TypoAcceptMode;
+  suggestionId: Scalars['String']['input'];
 };
 
 
@@ -4334,6 +4356,11 @@ type MutationrejectContentAndRemoveUserFromQueueArgs = {
   messageContent?: InputMaybe<Scalars['String']['input']>;
   rejectedReason: Scalars['String']['input'];
   userId: Scalars['String']['input'];
+};
+
+
+type MutationrejectTypoSuggestionArgs = {
+  suggestionId: Scalars['String']['input'];
 };
 
 
@@ -7124,6 +7151,8 @@ type Query = {
   tags?: Maybe<MultiTagOutput>;
   typingIndicator?: Maybe<SingleTypingIndicatorOutput>;
   typingIndicators?: Maybe<MultiTypingIndicatorOutput>;
+  typoSuggestion?: Maybe<SingleTypoSuggestionOutput>;
+  typoSuggestions?: Maybe<MultiTypoSuggestionOutput>;
   ultraFeedEvent?: Maybe<SingleUltraFeedEventOutput>;
   ultraFeedEvents?: Maybe<MultiUltraFeedEventOutput>;
   unreadNotificationCounts: NotificationCounts;
@@ -8231,6 +8260,21 @@ type QuerytypingIndicatorsArgs = {
 };
 
 
+type QuerytypoSuggestionArgs = {
+  input?: InputMaybe<SingleTypoSuggestionInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QuerytypoSuggestionsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiTypoSuggestionInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<TypoSuggestionSelector>;
+};
+
+
 type QueryultraFeedEventArgs = {
   input?: InputMaybe<SingleUltraFeedEventInput>;
   selector?: InputMaybe<SelectorInput>;
@@ -9309,6 +9353,16 @@ type SingleTypingIndicatorOutput = {
   result?: Maybe<TypingIndicator>;
 };
 
+type SingleTypoSuggestionInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+type SingleTypoSuggestionOutput = {
+  __typename?: 'SingleTypoSuggestionOutput';
+  result?: Maybe<TypoSuggestion>;
+};
+
 type SingleUltraFeedEventInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
@@ -10027,6 +10081,38 @@ type TypingIndicator = {
 };
 
 type TypingIndicatorSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+};
+
+type TypoAcceptMode =
+  | 'APPLY'
+  | 'SUGGEST';
+
+type TypoSuggestion = {
+  __typename?: 'TypoSuggestion';
+  _id: Scalars['String']['output'];
+  appliedRevisionId?: Maybe<Scalars['String']['output']>;
+  applyWouldRequirePublishingUnrelatedChanges: Scalars['Boolean']['output'];
+  author?: Maybe<User>;
+  authorId: Scalars['String']['output'];
+  collectionName: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+  documentId: Scalars['String']['output'];
+  explanation?: Maybe<Scalars['String']['output']>;
+  fieldName: Scalars['String']['output'];
+  llmVerdict: Scalars['String']['output'];
+  narrowedQuote?: Maybe<Scalars['String']['output']>;
+  narrowedReplacement?: Maybe<Scalars['String']['output']>;
+  proposedReplacement?: Maybe<Scalars['String']['output']>;
+  quote: Scalars['String']['output'];
+  reactor?: Maybe<User>;
+  resolvedAt?: Maybe<Scalars['Date']['output']>;
+  resolvedByUserId?: Maybe<Scalars['String']['output']>;
+  status: Scalars['String']['output'];
+  voteId: Scalars['String']['output'];
+};
+
+type TypoSuggestionSelector = {
   default?: InputMaybe<EmptyViewInput>;
 };
 
@@ -10780,6 +10866,7 @@ type UpdateUserDataInput = {
   notificationSubscribedTagPost?: InputMaybe<Scalars['JSON']['input']>;
   notificationSubscribedUserComment?: InputMaybe<Scalars['JSON']['input']>;
   notificationSubscribedUserPost?: InputMaybe<Scalars['JSON']['input']>;
+  notificationTypoSuggestions?: InputMaybe<Scalars['JSON']['input']>;
   notificationYourTurnMatchForm?: InputMaybe<Scalars['JSON']['input']>;
   nullifyVotes?: InputMaybe<Scalars['Boolean']['input']>;
   optedInToDialogueFacilitation?: InputMaybe<Scalars['Boolean']['input']>;
@@ -11078,6 +11165,7 @@ type User = {
   notificationSubscribedTagPost?: Maybe<Scalars['JSON']['output']>;
   notificationSubscribedUserComment?: Maybe<Scalars['JSON']['output']>;
   notificationSubscribedUserPost?: Maybe<Scalars['JSON']['output']>;
+  notificationTypoSuggestions?: Maybe<Scalars['JSON']['output']>;
   notificationYourTurnMatchForm?: Maybe<Scalars['JSON']['output']>;
   nullifyVotes?: Maybe<Scalars['Boolean']['output']>;
   oldSlugs: Array<Scalars['String']['output']>;
@@ -15846,6 +15934,54 @@ type TagRelNotificationItemQueryVariables = Exact<{
 
 
 type TagRelNotificationItemQuery = TagRelNotificationItemQuery_Query;
+
+type TypoSuggestionHoverQueryQuery_typoSuggestion_SingleTypoSuggestionOutput_result_TypoSuggestion = (
+  { __typename?: 'TypoSuggestion' }
+  & TypoSuggestionsDefaultFragment
+);
+
+type TypoSuggestionHoverQueryQuery_typoSuggestion_SingleTypoSuggestionOutput = { __typename?: 'SingleTypoSuggestionOutput', result: TypoSuggestionHoverQueryQuery_typoSuggestion_SingleTypoSuggestionOutput_result_TypoSuggestion | null };
+
+type TypoSuggestionHoverQueryQuery_Query = { __typename?: 'Query', typoSuggestion: TypoSuggestionHoverQueryQuery_typoSuggestion_SingleTypoSuggestionOutput | null };
+
+
+type TypoSuggestionHoverQueryQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type TypoSuggestionHoverQueryQuery = TypoSuggestionHoverQueryQuery_Query;
+
+type acceptTypoSuggestionFromHoverMutation_acceptTypoSuggestion_TypoSuggestion = (
+  { __typename?: 'TypoSuggestion' }
+  & TypoSuggestionsDefaultFragment
+);
+
+type acceptTypoSuggestionFromHoverMutation_Mutation = { __typename?: 'Mutation', acceptTypoSuggestion: acceptTypoSuggestionFromHoverMutation_acceptTypoSuggestion_TypoSuggestion };
+
+
+type acceptTypoSuggestionFromHoverMutationVariables = Exact<{
+  suggestionId: Scalars['String']['input'];
+  mode: TypoAcceptMode;
+}>;
+
+
+type acceptTypoSuggestionFromHoverMutation = acceptTypoSuggestionFromHoverMutation_Mutation;
+
+type rejectTypoSuggestionFromHoverMutation_rejectTypoSuggestion_TypoSuggestion = (
+  { __typename?: 'TypoSuggestion' }
+  & TypoSuggestionsDefaultFragment
+);
+
+type rejectTypoSuggestionFromHoverMutation_Mutation = { __typename?: 'Mutation', rejectTypoSuggestion: rejectTypoSuggestionFromHoverMutation_rejectTypoSuggestion_TypoSuggestion };
+
+
+type rejectTypoSuggestionFromHoverMutationVariables = Exact<{
+  suggestionId: Scalars['String']['input'];
+}>;
+
+
+type rejectTypoSuggestionFromHoverMutation = rejectTypoSuggestionFromHoverMutation_Mutation;
 
 type multiUserAdminPaymentsPageQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
@@ -23906,6 +24042,18 @@ type WithVoteTag = (
   { __typename?: 'Tag' }
   & TagBasicInfo
 );
+
+type TypoSuggestionsDefaultFragment_TypoSuggestion_reactor_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type TypoSuggestionsDefaultFragment_TypoSuggestion_author_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type TypoSuggestionsDefaultFragment = { __typename?: 'TypoSuggestion', _id: string, createdAt: string, documentId: string, collectionName: string, fieldName: string, voteId: string, authorId: string, quote: string, proposedReplacement: string | null, narrowedQuote: string | null, narrowedReplacement: string | null, explanation: string | null, llmVerdict: string, status: string, resolvedByUserId: string | null, appliedRevisionId: string | null, resolvedAt: string | null, applyWouldRequirePublishingUnrelatedChanges: boolean, reactor: TypoSuggestionsDefaultFragment_TypoSuggestion_reactor_User | null, author: TypoSuggestionsDefaultFragment_TypoSuggestion_author_User | null };
 
 type UserMostValuablePostInfo = { __typename?: 'UserMostValuablePost', _id: string, userId: string | null, postId: string | null, deleted: boolean | null };
 

@@ -15,6 +15,7 @@ import { sequenceGetPageUrl } from '../lib/collections/sequences/helpers';
 import { createNotification as createNotificationMutator } from './collections/notifications/mutations';
 import { notificationDebouncers } from './notificationBatching';
 import { getDocument } from '@/lib/notificationDataHelpers';
+import { getTypoSuggestionNotificationContext } from '@/server/typoSuggestions/notificationContext';
 
 /**
  * Return a list of users (as complete user objects) subscribed to a given
@@ -122,6 +123,10 @@ const getLink = async (context: ResolverContext, notificationTypeName: string, d
   switch(notificationTypeName) {
     case "emailVerificationRequired":
       return "/resendVerificationEmail";
+    case "typoSuggestion": {
+      const ctx = await getTypoSuggestionNotificationContext(documentId, context);
+      return ctx?.targetUrl ?? "/notifications";
+    }
     default:
       // Fall through to based on document-type
       break;

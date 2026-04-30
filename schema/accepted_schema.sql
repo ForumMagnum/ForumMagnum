@@ -2819,6 +2819,36 @@ CREATE TABLE "TypingIndicators" (
 -- Index "idx_TypingIndicators_documentId_userId"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_TypingIndicators_documentId_userId" ON "TypingIndicators" USING btree ("documentId", "userId");
 
+-- Table "TypoSuggestions"
+CREATE TABLE "TypoSuggestions" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "documentId" VARCHAR(27) NOT NULL,
+  "collectionName" TEXT NOT NULL,
+  "fieldName" TEXT NOT NULL DEFAULT 'contents',
+  "voteId" VARCHAR(27) NOT NULL,
+  "authorId" VARCHAR(27) NOT NULL,
+  "quote" TEXT NOT NULL,
+  "proposedReplacement" TEXT,
+  "narrowedQuote" TEXT,
+  "narrowedReplacement" TEXT,
+  "explanation" TEXT,
+  "llmVerdict" TEXT NOT NULL,
+  "status" TEXT NOT NULL,
+  "resolvedByUserId" VARCHAR(27),
+  "appliedRevisionId" VARCHAR(27),
+  "resolvedAt" TIMESTAMPTZ
+);
+
+-- Index "idx_TypoSuggestions_documentId_fieldName_quote"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_TypoSuggestions_documentId_fieldName_quote" ON "TypoSuggestions" USING btree ("documentId", "fieldName", "quote");
+
+-- Index "idx_TypoSuggestions_documentId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_TypoSuggestions_documentId_createdAt" ON "TypoSuggestions" USING btree ("documentId", "createdAt");
+
+-- Index "idx_TypoSuggestions_authorId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_TypoSuggestions_authorId_createdAt" ON "TypoSuggestions" USING btree ("authorId", "createdAt");
+
 -- Table "UltraFeedEvents"
 CREATE TABLE "UltraFeedEvents" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -3023,6 +3053,7 @@ CREATE TABLE "Users" (
   "notificationSubforumUnread" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationNewMention" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationDialogueMessages" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
+  "notificationTypoSuggestions" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationPublishedDialogueMessages" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationAddedAsCoauthor" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":true,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,
   "notificationDebateCommentsOnSubscribedPost" JSONB NOT NULL DEFAULT '{"onsite":{"enabled":true,"batchingFrequency":"daily","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"},"email":{"enabled":false,"batchingFrequency":"realtime","timeOfDayGMT":12,"dayOfWeekGMT":"Monday"}}'::JSONB,

@@ -522,7 +522,7 @@ function $applySuggestionInsertionAtPoint({
  * narrowing isn't applicable (identical plain text, no common affixes, etc.),
  * in which case the caller should use the original anchor/focus/replacement.
  */
-function $computeNarrowing(
+export function $computeNarrowing(
   anchor: MarkdownSelectionPoint,
   focus: MarkdownSelectionPoint,
   quote: string,

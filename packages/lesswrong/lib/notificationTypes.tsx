@@ -660,6 +660,48 @@ export const CoauthorAcceptNotification = createNotificationType({
   Display: ({Post}) => <>Your co-author request for <Post /> was accepted</>,
 })
 
+export const TypoSuggestionNotification = createNotificationType({
+  name: "typoSuggestion",
+  userSettingField: "notificationTypoSuggestions",
+  // Inline the lookup rather than calling the shared
+  // `getTypoSuggestionNotificationContext` helper — this file is in @/lib so
+  // a static import from @/server would get stubbed in client chains. All
+  // collection access here goes through `context` (which is safe in shared
+  // code).
+  async getMessage({documentId, context}: GetMessageProps) {
+    if (!documentId) return "A reader flagged a possible typo and AI proposed a fix.";
+    const suggestion = await context.TypoSuggestions.findOne(documentId);
+    if (!suggestion) return "A reader flagged a possible typo and AI proposed a fix.";
+
+    let reactorName = "A reader";
+    if (suggestion.voteId) {
+      const vote = await context.Votes.findOne(suggestion.voteId);
+      if (vote) {
+        const reactor = await context.loaders.Users.load(vote.userId);
+        if (reactor?.displayName) reactorName = reactor.displayName;
+      }
+    }
+
+    let target = "your post";
+    if (suggestion.collectionName === "Posts") {
+      const post = await context.loaders.Posts.load(suggestion.documentId);
+      if (post) target = `your post "${post.title?.trim() || '(untitled)'}"`;
+    } else if (suggestion.collectionName === "Comments") {
+      const comment = await context.loaders.Comments.load(suggestion.documentId);
+      if (comment?.postId) {
+        const post = await context.loaders.Posts.load(comment.postId);
+        target = post
+          ? `your comment on "${post.title?.trim() || '(untitled)'}"`
+          : "your comment";
+      } else {
+        target = "your comment";
+      }
+    }
+    return `${reactorName} flagged a possible typo in ${target}, and AI proposed a fix.`;
+  },
+  Display: () => <>A reader flagged a possible typo and AI proposed a fix.</>,
+});
+
 export const NewMentionNotification = createNotificationType({
   name: "newMention",
   userSettingField: "notificationNewMention",
@@ -718,6 +760,7 @@ const notificationTypesArray = [
   CoauthorRequestNotification,
   CoauthorAcceptNotification,
   NewMentionNotification,
+  TypoSuggestionNotification,
 ];
 
 export type NotificationTypesByName = {
