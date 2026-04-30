@@ -184,22 +184,6 @@ async function loadDocumentForLlm(
   return { html, markdown };
 }
 
-async function getRecipientForSuggestion(
-  collectionName: string,
-  documentId: string,
-  context: ResolverContext,
-): Promise<string | null> {
-  if (collectionName === "Posts") {
-    const post = await context.Posts.findOne(documentId);
-    return post?.userId ?? null;
-  }
-  if (collectionName === "Comments") {
-    const comment = await context.Comments.findOne(documentId);
-    return comment?.userId ?? null;
-  }
-  return null;
-}
-
 async function markFailed(suggestionId: string, explanation: string): Promise<void> {
   await TypoSuggestions.rawUpdateOne(
     { _id: suggestionId },
@@ -312,18 +296,11 @@ export async function evaluateTypoReact(
     },
   );
 
-  const recipientId = await getRecipientForSuggestion(
-    suggestion.collectionName,
-    suggestion.documentId,
+  await createNotifications({
+    userIds: [suggestion.authorId],
+    notificationType: "typoSuggestion",
+    documentType: "typoSuggestion",
+    documentId: suggestionId,
     context,
-  );
-  if (recipientId) {
-    await createNotifications({
-      userIds: [recipientId],
-      notificationType: "typoSuggestion",
-      documentType: "typoSuggestion",
-      documentId: suggestionId,
-      context,
-    });
-  }
+  });
 }

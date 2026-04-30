@@ -22,34 +22,30 @@ export async function getTypoSuggestionNotificationContext(
   const suggestion = await context.TypoSuggestions.findOne(suggestionId);
   if (!suggestion) return null;
 
-  let reactorName = "A reader";
-  if (suggestion.voteId) {
-    const vote = await context.Votes.findOne(suggestion.voteId);
-    if (vote) {
-      const reactor = await context.loaders.Users.load(vote.userId);
-      if (reactor?.displayName) reactorName = reactor.displayName;
-    }
-  }
+  const [vote, post, comment] = await Promise.all([
+    suggestion.voteId ? context.loaders.Votes.load(suggestion.voteId) : Promise.resolve(null),
+    suggestion.collectionName === "Posts" ? context.loaders.Posts.load(suggestion.documentId) : Promise.resolve(null),
+    suggestion.collectionName === "Comments" ? context.loaders.Comments.load(suggestion.documentId) : Promise.resolve(null),
+  ]);
+
+  const [reactor, parentPost] = await Promise.all([
+    vote ? context.loaders.Users.load(vote.userId) : Promise.resolve(null),
+    comment?.postId ? context.loaders.Posts.load(comment.postId) : Promise.resolve(null),
+  ]);
+
+  const reactorName = reactor?.displayName ?? "A reader";
 
   let targetDescription = "your post";
   let targetUrl = "/notifications";
-  if (suggestion.collectionName === "Posts") {
-    const post = await context.loaders.Posts.load(suggestion.documentId);
-    if (post) {
-      const title = post.title?.trim() || "(untitled)";
-      targetDescription = `your post "${title}"`;
-      targetUrl = postGetPageUrl(post);
-    }
-  } else if (suggestion.collectionName === "Comments") {
-    const comment = await context.loaders.Comments.load(suggestion.documentId);
-    if (comment?.postId) {
-      const post = await context.loaders.Posts.load(comment.postId);
-      targetDescription = post
-        ? `your comment on "${post.title?.trim() || "(untitled)"}"`
-        : "your comment";
-      if (post) {
-        targetUrl = `${postGetPageUrl(post)}?commentId=${comment._id}`;
-      }
+  if (suggestion.collectionName === "Posts" && post) {
+    const title = post.title?.trim() || "(untitled)";
+    targetDescription = `your post "${title}"`;
+    targetUrl = postGetPageUrl(post);
+  } else if (suggestion.collectionName === "Comments" && comment) {
+    if (parentPost) {
+      const title = parentPost.title?.trim() || "(untitled)";
+      targetDescription = `your comment on "${title}"`;
+      targetUrl = `${postGetPageUrl(parentPost)}?commentId=${comment._id}`;
     } else {
       targetDescription = "your comment";
     }

@@ -37,18 +37,19 @@ export async function antiReactToTypoOnOwnContent({
   user: DbUser;
   context: ResolverContext;
 }): Promise<void> {
-  const document = collectionName === "Posts"
-    ? await Posts.findOne({ _id: documentId })
-    : await Comments.findOne({ _id: documentId });
-  if (!document) return;
-  const collection = collectionName === "Posts" ? Posts : Comments;
-
   // Merge with the user's existing reacts on this document so we don't
   // wipe other reacts they've previously left.
-  const existingVote = await Votes.findOne(
-    { documentId, collectionName, userId: user._id, cancelled: false },
-    { sort: { votedAt: -1 } },
-  );
+  const [document, existingVote] = await Promise.all([
+    collectionName === "Posts"
+      ? Posts.findOne({ _id: documentId })
+      : Comments.findOne({ _id: documentId }),
+    Votes.findOne(
+      { documentId, collectionName, userId: user._id, cancelled: false },
+      { sort: { votedAt: -1 } },
+    ),
+  ]);
+  if (!document) return;
+  const collection = collectionName === "Posts" ? Posts : Comments;
   const existingExtended = existingVote?.extendedVoteType as NamesAttachedReactionsVote | null;
   const existingReacts: UserVoteOnSingleReaction[] = existingExtended?.reacts ?? [];
 

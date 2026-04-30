@@ -133,18 +133,25 @@ export async function maybeEvaluateTypoReacts(
   const newTypos = await findNewTypoReactsByUserOnDocument(voteDocTuple);
   if (newTypos.length === 0) return;
 
-  const authorId = await getDocumentAuthorId(vote.collectionName, vote.documentId, context);
-  if (!authorId) return;
+  // The three gating lookups are independent; fan them out before the
+  // sequential bail checks. Posts go through Hocuspocus on Apply; without a
+  // YjsDocuments row, the live doc loads empty and the post-agent guard
+  // throws. Bail upstream rather than create a suggestion we can't safely
+  // apply. Comments don't touch Hocuspocus (they apply offline against the
+  // rev HTML).
+  const [authorId, isLexical, missingYjs] = await Promise.all([
+    getDocumentAuthorId(vote.collectionName, vote.documentId, context),
+    isLexicalDocument(vote.documentId, context),
+    vote.collectionName === "Posts"
+      ? hasLiveYjsRecord(vote.documentId, context).then((hasYjs) => !hasYjs)
+      : Promise.resolve(false),
+  ]);
 
+  if (!authorId) return;
   // Skip self-flagged typos.
   if (vote.userId === authorId) return;
-
-  if (!(await isLexicalDocument(vote.documentId, context))) return;
-  // Posts go through Hocuspocus on Apply; without a YjsDocuments row, the
-  // live doc loads empty and the post-agent guard throws. Bail upstream
-  // rather than create a suggestion we can't safely apply. Comments don't
-  // touch Hocuspocus (they apply offline against the rev HTML).
-  if (vote.collectionName === "Posts" && !(await hasLiveYjsRecord(vote.documentId, context))) return;
+  if (!isLexical) return;
+  if (missingYjs) return;
 
   const suggestionIds = await Promise.all(
     newTypos.map(({ quote }) =>
