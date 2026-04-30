@@ -343,7 +343,9 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       const reasonDenied: {reason?: string} = {reason: undefined};
       const canAccess = await checkAccess(currentUser, doc as AnyBecauseHard, context, reasonDenied)
       if (!canAccess) {
-        if (reasonDenied.reason) {
+        if (allowNull) {
+          return { result: null };
+        } else if (reasonDenied.reason) {
           throwError({
             id: reasonDenied.reason,
             noSentryCapture: context.isGreaterWrong,
