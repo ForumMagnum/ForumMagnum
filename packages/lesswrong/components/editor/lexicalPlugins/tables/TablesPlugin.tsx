@@ -5,8 +5,11 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import {
   $getSelection,
   $isRangeSelection,
+  COMMAND_PRIORITY_HIGH,
   COMMAND_PRIORITY_LOW,
   createCommand,
+  KEY_BACKSPACE_COMMAND,
+  KEY_DELETE_COMMAND,
   LexicalCommand,
   $getNodeByKey,
   NodeKey,
@@ -608,9 +611,111 @@ export function TablesPlugin(): React.ReactElement {
     }, [editor, toolbar.tableKey, closeToolbar]),
   };
 
+  // When Backspace or Delete is pressed with a multi-cell TableSelection that
+  // covers entire rows, delete those rows; if it covers entire columns, delete
+  // those columns. Partial-cell-range selections fall through to the default
+  // handler, which clears cell content.
+  const handleTableDeleteKey = useCallback((event: KeyboardEvent): boolean => {
+    let shouldHandle = false;
+    let isRowDeletion = false;
+
+    editor.getEditorState().read(() => {
+      const selection = $getSelection();
+      if (!$isTableSelection(selection)) return;
+
+      const selectedNodes = selection.getNodes();
+      const selectedCells = selectedNodes.filter($isTableCellNode);
+      if (selectedCells.length === 0) return;
+
+      let tableNode: TableNode | null = null;
+      try {
+        tableNode = $getTableNodeFromLexicalNodeOrThrow(selectedCells[0]);
+      } catch {
+        return;
+      }
+      if (!$isTableNode(tableNode)) return;
+
+      const [tableMap] = $computeTableMapSkipCellCheck(tableNode, selectedCells[0], selectedCells[0]);
+      const totalRows = tableMap.length;
+      const totalCols = totalRows > 0 ? tableMap[0].length : 0;
+      if (totalRows === 0 || totalCols === 0) return;
+
+      const selectedCellKeys = new Set(selectedCells.map(c => c.getKey()));
+
+      // Determine which logical row/col indices are covered by the selection.
+      const selectedRowSet = new Set<number>();
+      const selectedColSet = new Set<number>();
+      for (let r = 0; r < totalRows; r++) {
+        for (let c = 0; c < totalCols; c++) {
+          if (selectedCellKeys.has(tableMap[r][c].cell.getKey())) {
+            selectedRowSet.add(r);
+            selectedColSet.add(c);
+          }
+        }
+      }
+
+      // Entire-row selection: every column is covered for every touched row.
+      let isEntireRowSelection = selectedRowSet.size > 0;
+      for (const r of selectedRowSet) {
+        if (!isEntireRowSelection) break;
+        for (let c = 0; c < totalCols; c++) {
+          if (!selectedCellKeys.has(tableMap[r][c].cell.getKey())) {
+            isEntireRowSelection = false;
+            break;
+          }
+        }
+      }
+
+      // Entire-column selection: every row is covered for every touched column.
+      let isEntireColSelection = !isEntireRowSelection && selectedColSet.size > 0;
+      if (isEntireColSelection) {
+        for (const c of selectedColSet) {
+          if (!isEntireColSelection) break;
+          for (let r = 0; r < totalRows; r++) {
+            if (!selectedCellKeys.has(tableMap[r][c].cell.getKey())) {
+              isEntireColSelection = false;
+              break;
+            }
+          }
+        }
+      }
+
+      if (isEntireRowSelection || isEntireColSelection) {
+        shouldHandle = true;
+        isRowDeletion = isEntireRowSelection;
+      }
+    });
+
+    if (shouldHandle) {
+      event.preventDefault();
+      editor.update(() => {
+        if (isRowDeletion) {
+          $deleteTableRowAtSelection();
+        } else {
+          $deleteTableColumnAtSelection();
+        }
+      });
+      return true;
+    }
+
+    return false;
+  }, [editor]);
+
   // Register commands
   useEffect(() => {
     return mergeRegister(
+      editor.registerCommand(
+        KEY_BACKSPACE_COMMAND,
+        handleTableDeleteKey,
+        COMMAND_PRIORITY_HIGH
+      ),
+
+      editor.registerCommand(
+        KEY_DELETE_COMMAND,
+        handleTableDeleteKey,
+        COMMAND_PRIORITY_HIGH
+      ),
+
       editor.registerCommand(
         OPEN_TABLE_SELECTOR_COMMAND,
         (anchorRect) => {
@@ -652,7 +757,7 @@ export function TablesPlugin(): React.ReactElement {
         COMMAND_PRIORITY_LOW
       )
     );
-  }, [editor, openDimensionSelector, openToolbar]);
+  }, [editor, handleTableDeleteKey, openDimensionSelector, openToolbar]);
 
   // Handle clicks on table cells to show/hide toolbar
   useEffect(() => {
