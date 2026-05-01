@@ -64,7 +64,7 @@ const ReactOrAntireactVote = ({reactionName, quote, netReactionCount, currentUse
     }
   }
 
-  return <div className={classes.reactOrAntireact}>
+  return <div className={classes.reactOrAntireact} onMouseDown={(e) => e.stopPropagation()}>
     <ReactionVoteArrow
       orientation="left"
       onClick={() => onClick("disagreed")}
