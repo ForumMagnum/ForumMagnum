@@ -30,6 +30,15 @@ const clearStyle = (theme: ThemeType) => ({
     fontWeight: 500,
   },
 
+  // The wildcard above resets fontWeight for all heading descendants, which
+  // accidentally overrides <b>/<strong> inside headings (making bold text
+  // visually indistinguishable from the heading text).  The selector below has
+  // higher specificity (0,0,2 vs 0,0,1) so it wins and restores the expected
+  // bold weight.
+  "h1 b, h1 strong, h2 b, h2 strong, h3 b, h3 strong, h4 b, h4 strong": {
+    fontWeight: 700,
+  },
+
   "textarea, textarea:focus, input, input:focus": {
     border: "none",
     outline: "none",
