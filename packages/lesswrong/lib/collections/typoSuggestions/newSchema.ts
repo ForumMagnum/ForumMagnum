@@ -12,7 +12,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: [userCanAccessTypoSuggestion],
     },
   },
@@ -23,7 +23,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: [userCanAccessTypoSuggestion],
     },
   },
@@ -36,7 +36,7 @@ const schema = {
       canAutofillDefault: true,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: [userCanAccessTypoSuggestion],
     },
   },
@@ -48,7 +48,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: [userCanAccessTypoSuggestion],
     },
   },
@@ -72,7 +72,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: [userCanAccessTypoSuggestion],
     },
   },
@@ -102,7 +102,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: [userCanAccessTypoSuggestion],
     },
   },
@@ -175,7 +175,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: [userCanAccessTypoSuggestion],
     },
   },
@@ -186,7 +186,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: [userCanAccessTypoSuggestion],
     },
   },

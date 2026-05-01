@@ -3040,21 +3040,21 @@ extend type Query {
 type TypoSuggestion {
   _id: String!
   createdAt: Date!
-  documentId: String!
-  collectionName: String!
-  fieldName: String!
-  voteId: String!
+  documentId: String
+  collectionName: String
+  fieldName: String
+  voteId: String
   reactor: User
-  authorId: String!
+  authorId: String
   author: User
-  quote: String!
+  quote: String
   llmCanonicalQuote: String
   proposedReplacement: String
   narrowedQuote: String
   narrowedReplacement: String
   explanation: String
-  llmVerdict: String!
-  status: String!
+  llmVerdict: String
+  status: String
   resolvedByUserId: String
   appliedRevisionId: String
   resolvedAt: Date

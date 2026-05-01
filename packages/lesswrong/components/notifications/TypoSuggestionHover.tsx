@@ -142,7 +142,7 @@ const TypoSuggestionHover = ({notification}: {
   // align with the LLM's identified span). Fall back to the reactor's
   // rendered-form quote only if there's no LLM canonical (shouldn't happen
   // post-evaluation for fix_typo verdicts).
-  const fullQuote = suggestion.llmCanonicalQuote ?? suggestion.quote;
+  const fullQuote = suggestion.llmCanonicalQuote ?? suggestion.quote ?? '';
   const fullReplacement = suggestion.proposedReplacement ?? '';
   const narrowedQuote = suggestion.narrowedQuote ?? fullQuote;
   const narrowedReplacement = suggestion.narrowedReplacement ?? fullReplacement;
@@ -163,7 +163,9 @@ const TypoSuggestionHover = ({notification}: {
         await accept({ variables: { suggestionId, mode: 'APPLY' } });
       } else if (action === 'suggest') {
         await accept({ variables: { suggestionId, mode: 'SUGGEST' } });
-        navigate(postGetEditUrl(suggestion.documentId));
+        if (suggestion.documentId) {
+          navigate(postGetEditUrl(suggestion.documentId));
+        }
       } else {
         await reject({ variables: { suggestionId } });
       }

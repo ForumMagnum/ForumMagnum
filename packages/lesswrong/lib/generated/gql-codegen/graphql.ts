@@ -11885,23 +11885,23 @@ export type TypoSuggestion = {
   _id: Scalars['String']['output'];
   appliedRevisionId: Maybe<Scalars['String']['output']>;
   author: Maybe<User>;
-  authorId: Scalars['String']['output'];
-  collectionName: Scalars['String']['output'];
+  authorId: Maybe<Scalars['String']['output']>;
+  collectionName: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
-  documentId: Scalars['String']['output'];
+  documentId: Maybe<Scalars['String']['output']>;
   explanation: Maybe<Scalars['String']['output']>;
-  fieldName: Scalars['String']['output'];
+  fieldName: Maybe<Scalars['String']['output']>;
   llmCanonicalQuote: Maybe<Scalars['String']['output']>;
-  llmVerdict: Scalars['String']['output'];
+  llmVerdict: Maybe<Scalars['String']['output']>;
   narrowedQuote: Maybe<Scalars['String']['output']>;
   narrowedReplacement: Maybe<Scalars['String']['output']>;
   proposedReplacement: Maybe<Scalars['String']['output']>;
-  quote: Scalars['String']['output'];
+  quote: Maybe<Scalars['String']['output']>;
   reactor: Maybe<User>;
   resolvedAt: Maybe<Scalars['Date']['output']>;
   resolvedByUserId: Maybe<Scalars['String']['output']>;
-  status: Scalars['String']['output'];
-  voteId: Scalars['String']['output'];
+  status: Maybe<Scalars['String']['output']>;
+  voteId: Maybe<Scalars['String']['output']>;
 };
 
 export type TypoSuggestionSelector = {
@@ -21090,7 +21090,7 @@ export type WithVoteTag = (
   & TagBasicInfo
 );
 
-export type TypoSuggestionsDefaultFragment = { __typename?: 'TypoSuggestion', _id: string, createdAt: string, documentId: string, collectionName: string, fieldName: string, voteId: string, authorId: string, quote: string, llmCanonicalQuote: string | null, proposedReplacement: string | null, narrowedQuote: string | null, narrowedReplacement: string | null, explanation: string | null, llmVerdict: string, status: string, resolvedByUserId: string | null, appliedRevisionId: string | null, resolvedAt: string | null, reactor: (
+export type TypoSuggestionsDefaultFragment = { __typename?: 'TypoSuggestion', _id: string, createdAt: string, documentId: string | null, collectionName: string | null, fieldName: string | null, voteId: string | null, authorId: string | null, quote: string | null, llmCanonicalQuote: string | null, proposedReplacement: string | null, narrowedQuote: string | null, narrowedReplacement: string | null, explanation: string | null, llmVerdict: string | null, status: string | null, resolvedByUserId: string | null, appliedRevisionId: string | null, resolvedAt: string | null, reactor: (
     { __typename?: 'User' }
     & UsersMinimumInfo
   ) | null, author: (

@@ -268,14 +268,19 @@ export async function evaluateTypoReact(
   }
 
   // fix_typo: validate that the LLM's `original` actually appears in the doc.
+  // If not, the LLM hallucinated a span — keep its verdict and explanation
+  // for forensics, but mark the row failed since it's not actionable.
   if (!doc.markdown.includes(result.original)) {
+    captureException(new Error(
+      `Typo LLM proposed an 'original' string not present in document with id ${suggestion.documentId}: ${JSON.stringify(result.original).slice(0, 200)}`,
+    ));
     await TypoSuggestions.rawUpdateOne(
       { _id: suggestionId },
       {
         $set: {
-          status: "rejected",
-          llmVerdict: "no_typo",
-          explanation: `LLM proposed an 'original' string that is not present in the document: ${JSON.stringify(result.original).slice(0, 200)}`,
+          status: "failed",
+          llmVerdict: "fix_typo",
+          explanation: result.explanation,
           resolvedAt: new Date(),
         },
       },
