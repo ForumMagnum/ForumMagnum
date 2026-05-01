@@ -64,8 +64,7 @@ export function RemoveRedirectPlugin(): null {
   useEffect(() => {
     // Listen for paste events and process links
     const removeListener = editor.registerUpdateListener(({ tags }) => {
-      // Only process on paste operations, and don't process on other users' operations
-      if (!tags.has('paste') || !tags.has('collaboration')) {
+      if (!tags.has('paste')) {
         return;
       }
 
