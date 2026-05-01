@@ -3130,6 +3130,7 @@ CREATE TABLE "Users" (
   "programParticipation" TEXT[],
   "postingDisabled" BOOL,
   "allCommentingDisabled" BOOL,
+  "exemptFromTotalKarmaAutoRateLimits" BOOL NOT NULL DEFAULT FALSE,
   "commentingOnOtherUsersDisabled" BOOL,
   "conversationsDisabled" BOOL,
   "acknowledgedNewUserGuidelines" BOOL,

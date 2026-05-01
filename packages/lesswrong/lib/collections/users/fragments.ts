@@ -77,6 +77,7 @@ export const UsersProfile = gql(`
     paymentInfo
     postingDisabled
     allCommentingDisabled
+    exemptFromTotalKarmaAutoRateLimits
     commentingOnOtherUsersDisabled
     conversationsDisabled
     pinnedPostIds
@@ -352,6 +353,7 @@ export const SunshineUsersList = gql(`
     sunshineFlagged
     postingDisabled
     allCommentingDisabled
+    exemptFromTotalKarmaAutoRateLimits
     commentingOnOtherUsersDisabled
     conversationsDisabled
     votingDisabled

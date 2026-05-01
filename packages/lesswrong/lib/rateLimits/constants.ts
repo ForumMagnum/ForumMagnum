@@ -1,4 +1,5 @@
 import type { ForumOptions } from "../forumTypeUtils";
+import { karmaForDownvoterThresholdBranch, totalKarmaBelow } from "./karmaPredicates";
 import type { AutoRateLimit, CommentAutoRateLimit, PostAutoRateLimit, TimeframeUnitType } from "./types";
 
 /**
@@ -29,7 +30,7 @@ const EA: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
   COMMENTS: [
     {
       ...timeframe('4 Comments per 30 minutes'),
-      isActive: (user) => (user.karma < 30),
+      isActive: (user) => totalKarmaBelow(user, 30),
       rateLimitType: "lowKarma",
       rateLimitCategory: "static",
       rateLimitMessage: `You'll be able to post more comments as your karma increases. ${eaDefaultMessage}`,
@@ -54,14 +55,14 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('2 Posts per 1 weeks'),
       rateLimitType: "newUserDefault",
       rateLimitCategory: "static",
-      isActive: user => (user.karma < 5),
+      isActive: user => totalKarmaBelow(user, 5),
       rateLimitMessage: `Users with less than 5 karma can write up to 2 posts a week.<br/>${lwDefaultMessage}`,
     },
   // 1 post per week rate limits
     {
       ...timeframe('1 Posts per 1 weeks'),
       rateLimitCategory: "static",
-      isActive: user => (user.karma < -2),
+      isActive: user => totalKarmaBelow(user, -2),
       rateLimitMessage: `Users with less than -2 karma can post once per week.<br/>${lwDefaultMessage}`
     },
     {
@@ -87,7 +88,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('1 Posts per 2 weeks'),
       rateLimitCategory: "rolling",
       isActive: (user, features) => (
-        user.karma < 0 &&
+        totalKarmaBelow(user, 0) &&
         features.last20Karma < -30 &&
         features.postDownvoterCount >= 5
       ),
@@ -97,7 +98,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('1 Posts per 3 weeks'),
       rateLimitCategory: "rolling",
       isActive: (user, features) => (
-        user.karma < 0 &&
+        totalKarmaBelow(user, 0) &&
         features.last20PostKarma < -45 &&
         features.postDownvoterCount >= 5
       ),
@@ -107,7 +108,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('1 Posts per 4 weeks'),
       rateLimitCategory: "rolling",
       isActive: (user, features) => (
-        user.karma < 0 &&
+        totalKarmaBelow(user, 0) &&
         features.last20Karma < -60 &&
         features.postDownvoterCount >= 5
       ), // uses last20Karma so it's not too hard to dig your way out
@@ -131,7 +132,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       appliesToOwnPosts: false,
       rateLimitType: "newUserDefault",
       rateLimitCategory: "static",
-      isActive: user => (user.karma < 5),
+      isActive: user => totalKarmaBelow(user, 5),
       rateLimitMessage: `Users with less than 5 karma can write up to 3 comments a day.<br/>${lwDefaultMessage}`,
     },
     {
@@ -139,7 +140,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       appliesToOwnPosts: false,
       rateLimitCategory: "rolling",
       isActive: (user, features) => (
-        user.karma < 2000 &&
+        totalKarmaBelow(user, 2000) &&
         features.last20Karma < 1
       ),  // requires 1 weak upvote from a 1000+ karma user, or two new user upvotes, but at 2000+ karma I trust you more to go on long conversations
       rateLimitMessage: `You've recently posted a lot without getting upvoted. Users are limited to 3 comments/day unless their last ${RECENT_CONTENT_COUNT} posts/comments have at least 2+ net-karma.<br/>${lwDefaultMessage}`,
@@ -149,7 +150,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       ...timeframe('1 Comments per 1 days'),
       appliesToOwnPosts: false,
       rateLimitCategory: "static",
-      isActive: user => (user.karma < -2),
+      isActive: user => totalKarmaBelow(user, -2),
       rateLimitMessage: `Users with less than -2 karma can write up to 1 comment per day.<br/>${lwDefaultMessage}`
     },
     {
@@ -158,7 +159,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       rateLimitCategory: "rolling",
       isActive: (user, features) => (
         features.last20Karma < -5 &&
-        features.downvoterCount >= (user.karma < 2000 ? 4 : 7)
+        features.downvoterCount >= (karmaForDownvoterThresholdBranch(user) < 2000 ? 4 : 7)
       ), // at 2000+ karma, I think your downvotes are more likely to be from people who disagree with you, rather than from people who think you're a troll
       rateLimitMessage: `Users with less than -5 karma on recent posts/comments can write up to 1 comment per day.<br/>${lwDefaultMessage}`
     },
@@ -168,7 +169,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       appliesToOwnPosts: false,
       rateLimitCategory: "rolling",
       isActive: (user, features) => (
-        user.karma < 500 &&
+        totalKarmaBelow(user, 500) &&
         features.last20Karma < -15 &&
         features.downvoterCount >= 5
       ),
@@ -180,7 +181,7 @@ const LW: {POSTS: PostAutoRateLimit[], COMMENTS: CommentAutoRateLimit[]} = {
       appliesToOwnPosts: false,
       rateLimitCategory: "timed",
       isActive: (user, features) => (
-        user.karma < 0 &&
+        totalKarmaBelow(user, 0) &&
         features.last20Karma < -1 &&
         features.lastMonthDownvoterCount >= 5 &&
         features.lastMonthKarma <= -30

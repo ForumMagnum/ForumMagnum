@@ -218,6 +218,18 @@ const AdminSettingsTab = ({
         </form.Field>
       </SettingsSection>
 
+      <SettingsSection title="Rate Limits">
+        <form.Field name="exemptFromTotalKarmaAutoRateLimits">
+          {(field) => (
+            <SettingsToggleRow
+              field={field}
+              label="Exempt from total-karma auto rate limits"
+              description="Skips auto limits that depend only on account karma (or karma combined with recent activity). Recent-karma-only limits still apply."
+            />
+          )}
+        </form.Field>
+      </SettingsSection>
+
       <SettingsSection title="Ban & Purge">
         <form.Field name="nullifyVotes">
           {(field) => (

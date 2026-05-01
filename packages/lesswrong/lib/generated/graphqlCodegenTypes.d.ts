@@ -1759,6 +1759,7 @@ type CreateUserDataInput = {
   draftsListSorting?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   emailSubscribedToCurated?: InputMaybe<Scalars['Boolean']['input']>;
+  exemptFromTotalKarmaAutoRateLimits?: InputMaybe<Scalars['Boolean']['input']>;
   expandedFrontpageSections?: InputMaybe<ExpandedFrontpageSectionsSettingsInput>;
   facebookProfileURL?: InputMaybe<Scalars['String']['input']>;
   fmCrosspostUserId?: InputMaybe<Scalars['String']['input']>;
@@ -10690,6 +10691,7 @@ type UpdateUserDataInput = {
   draftsListSorting?: InputMaybe<Scalars['String']['input']>;
   email?: InputMaybe<Scalars['String']['input']>;
   emailSubscribedToCurated?: InputMaybe<Scalars['Boolean']['input']>;
+  exemptFromTotalKarmaAutoRateLimits?: InputMaybe<Scalars['Boolean']['input']>;
   expandedFrontpageSections?: InputMaybe<ExpandedFrontpageSectionsSettingsInput>;
   facebookProfileURL?: InputMaybe<Scalars['String']['input']>;
   fmCrosspostUserId?: InputMaybe<Scalars['String']['input']>;
@@ -10963,6 +10965,7 @@ type User = {
   email?: Maybe<Scalars['String']['output']>;
   emailSubscribedToCurated?: Maybe<Scalars['Boolean']['output']>;
   emails?: Maybe<Array<Scalars['JSON']['output']>>;
+  exemptFromTotalKarmaAutoRateLimits: Scalars['Boolean']['output'];
   expandedFrontpageSections?: Maybe<ExpandedFrontpageSectionsSettingsOutput>;
   facebookProfileURL?: Maybe<Scalars['String']['output']>;
   fmCrosspostUserId?: Maybe<Scalars['String']['output']>;
@@ -23931,7 +23934,7 @@ type UsersProfile_User_moderationGuidelines_Revision = (
 );
 
 type UsersProfile = (
-  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, organizerOfGroupIds: Array<string>, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, hideProfileTopPosts: boolean, voteReceivedCount: number | null, biography: UsersProfile_User_biography_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
+  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, organizerOfGroupIds: Array<string>, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, exemptFromTotalKarmaAutoRateLimits: boolean, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, hideProfileTopPosts: boolean, voteReceivedCount: number | null, biography: UsersProfile_User_biography_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
   & UsersMinimumInfo
 );
 
@@ -23984,7 +23987,7 @@ type SunshineUsersList_User_userRateLimits_UserRateLimit = (
 );
 
 type SunshineUsersList = (
-  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, usersContactedBeforeReview: Array<string> | null, altAccountsDetected: boolean | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, mailgunValidation: SunshineUsersList_User_mailgunValidation_MailgunValidationResult | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, associatedClientIds: Array<SunshineUsersList_User_associatedClientIds_ClientId> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
+  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, exemptFromTotalKarmaAutoRateLimits: boolean, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, usersContactedBeforeReview: Array<string> | null, altAccountsDetected: boolean | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, mailgunValidation: SunshineUsersList_User_mailgunValidation_MailgunValidationResult | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, associatedClientIds: Array<SunshineUsersList_User_associatedClientIds_ClientId> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
   & UsersMinimumInfo
 );
 

@@ -3772,6 +3772,24 @@ const schema = {
       },
     },
   },
+  exemptFromTotalKarmaAutoRateLimits: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean!",
+      inputType: "Boolean",
+      canRead: ["members"],
+      canUpdate: ["sunshineRegiment", "admins"],
+      canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   commentingOnOtherUsersDisabled: {
     database: {
       type: "BOOL",
