@@ -2327,6 +2327,7 @@ input CommentsShortformFrontpageInput {
   maxAgeDays: Int
   showCommunity: Boolean
   relevantTagId: String
+  sortBy: CommentSortingMode
 }
 
 input CommentsRepliesToCommentThreadInput {

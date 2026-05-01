@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
@@ -76,7 +76,25 @@ const QuickTakesSectionLoaded = ({showCommunity}: {
     },
   });
 
-  const results = data?.comments?.results;
+  // Fetch the single most-recently-posted qualifying quick take so it always gets a slot,
+  // even if its HN-style score hasn't been computed yet by the background job.
+  const { data: newestData } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
+    variables: {
+      selector: { shortformFrontpage: { showCommunity, maxAgeDays, sortBy: 'newest' } },
+      limit: 1,
+    },
+  });
+
+  const scoreSortedResults: FrontpageShortformComments[] = data?.comments?.results ?? [];
+  const newestResult = newestData?.comments?.results?.[0];
+
+  // If the newest quick take isn't already in the top-7 by score, replace the 7th slot with it.
+  const results = useMemo(() => {
+    if (!newestResult || scoreSortedResults.length === 0) return scoreSortedResults;
+    const alreadyShown = scoreSortedResults.some((r) => r._id === newestResult._id);
+    if (alreadyShown) return scoreSortedResults;
+    return [...scoreSortedResults.slice(0, 6), newestResult];
+  }, [scoreSortedResults, newestResult]);
 
   const showLoadMore = !loadMoreProps.hidden;
 
