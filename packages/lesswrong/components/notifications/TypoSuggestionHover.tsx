@@ -158,16 +158,36 @@ const TypoSuggestionHover = ({notification}: {
     if (!suggestionId || pending) return;
     setActionError(null);
     setPending(true);
+    // Optimistically write the resolved status to the cache so the buttons
+    // disable immediately. Survives the popper unmounting on mouseleave —
+    // when it remounts mid-flight the cached status reads as resolved and
+    // the buttons stay disabled, blocking double-submits. On error Apollo
+    // rolls the optimistic write back and the explicit refetch confirms.
     try {
       if (action === 'apply') {
-        await accept({ variables: { suggestionId, mode: 'APPLY' } });
+        await accept({
+          variables: { suggestionId, mode: 'APPLY' },
+          optimisticResponse: {
+            acceptTypoSuggestion: { ...suggestion, status: 'accepted' },
+          },
+        });
       } else if (action === 'suggest') {
-        await accept({ variables: { suggestionId, mode: 'SUGGEST' } });
+        await accept({
+          variables: { suggestionId, mode: 'SUGGEST' },
+          optimisticResponse: {
+            acceptTypoSuggestion: { ...suggestion, status: 'accepted_as_suggestion' },
+          },
+        });
         if (suggestion.documentId) {
           navigate(postGetEditUrl(suggestion.documentId));
         }
       } else {
-        await reject({ variables: { suggestionId } });
+        await reject({
+          variables: { suggestionId },
+          optimisticResponse: {
+            rejectTypoSuggestion: { ...suggestion, status: 'rejected' },
+          },
+        });
       }
     } catch (err) {
       setActionError(err instanceof Error ? err.message : String(err));
