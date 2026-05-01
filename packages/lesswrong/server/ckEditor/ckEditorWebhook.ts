@@ -1,3 +1,4 @@
+import sanitizeHtml from 'sanitize-html';
 import { Posts } from '../../server/collections/posts/collection';
 import { createNotifications } from '../notificationCallbacksHelpers';
 import { ckEditorDocumentIdToPostId, endCkEditorUserSession, fetchCkEditorCloudStorageDocumentHtml, fetchCkEditorCommentThread, saveDocumentRevision, saveOrUpdateDocumentRevision } from './ckEditorApi';
@@ -5,6 +6,23 @@ import CkEditorUserSessions from '../../server/collections/ckEditorUserSessions/
 import { ckEditorUserSessionsEnabled } from '../../lib/betas';
 import { createAdminContext } from "../vulcan-lib/createContexts";
 import { createCkEditorUserSession } from '../collections/ckEditorUserSessions/mutations';
+
+const ckEditorCommentAllowedTags = [
+  'p', 'br', 'strong', 'b', 'em', 'i', 'u', 's',
+  'ul', 'ol', 'li', 'ins', 'del',
+  'details', 'summary',
+];
+
+// `disallowedTagsMode: 'escape'` so users who type literal angle-bracketed
+// placeholders in prose (e.g. `<link>`, `<invoke name="...">`) see them as text
+// rather than having them silently dropped.
+function sanitizeCkEditorCommentHtml(html: string): string {
+  return sanitizeHtml(html, {
+    allowedTags: ckEditorCommentAllowedTags,
+    allowedAttributes: {},
+    disallowedTagsMode: 'escape',
+  });
+}
 
 interface CkEditorUserConnectionChange {
   user: { id: string },
@@ -192,7 +210,7 @@ async function notifyCkEditorCommentAdded({commenterUserId, commentHtml, postId,
     documentId: postId,
     extraData: {
       senderUserID: commenterUserId,
-      commentHtml: commentHtml,
+      commentHtml: sanitizeCkEditorCommentHtml(commentHtml),
       linkSharingKey: post.linkSharingKey,
     },
   });

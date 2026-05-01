@@ -2,6 +2,7 @@ import { canUserEditPostMetadata, userIsPostGroupOrganizer } from "@/lib/collect
 import schema from "@/lib/collections/posts/newSchema";
 import { userCanPost } from "@/lib/collections/users/helpers";
 import { isEAForum, isElasticEnabled, isLWorAF } from "@/lib/instanceSettings";
+import { sanitizeRejectionReason } from "@/lib/utils/sanitize";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userIsMemberOf, userIsPodcaster, userOwns } from "@/lib/vulcan-users/permissions";
 import { swrInvalidatePostRoute } from "@/server/cache/swr";
@@ -69,6 +70,12 @@ async function editCheck(user: DbUser|null, document: DbPost|null, context: Reso
 export async function createPost({ data }: { data: CreatePostDataInput & { _id?: string }}, context: ResolverContext) {
   const { currentUser } = context;
   const documentId = randomId();
+
+  // rejectedReason is rendered raw on the public /moderation page; sanitize on
+  // every write so a compromised mod account can't produce stored XSS.
+  if (data.rejectedReason != null) {
+    data.rejectedReason = sanitizeRejectionReason(data.rejectedReason);
+  }
 
   const callbackProps = await getLegacyCreateCallbackProps('Posts', {
     context,
@@ -171,6 +178,12 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
 
 export async function updatePost({ selector, data }: { data: UpdatePostDataInput | Partial<DbPost>; selector: SelectorInput }, context: ResolverContext) {
   const { currentUser, Posts } = context;
+
+  // rejectedReason is rendered raw on the public /moderation page; sanitize on
+  // every write so a compromised mod account can't produce stored XSS.
+  if (data.rejectedReason != null) {
+    data.rejectedReason = sanitizeRejectionReason(data.rejectedReason);
+  }
 
   // Save the original mutation (before callbacks add more changes to it) for
   // logging in FieldChanges

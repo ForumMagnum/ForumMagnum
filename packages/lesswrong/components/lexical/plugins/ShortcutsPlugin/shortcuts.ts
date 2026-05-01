@@ -76,6 +76,33 @@ function expectedKeyToCode(expectedKey: string): string | null {
   return PUNCT_TO_CODE[expectedKey] ?? null;
 }
 
+// Inverse of the OS's shift transform on US-style layouts. We use this to
+// recover the unshifted character so that shortcuts spelled "Cmd+Shift+7" can
+// match an event whose `event.key` is `&`, etc.
+const SHIFTED_KEY_ALIASES: Record<string, string> = {
+  '~': '`',
+  '!': '1',
+  '@': '2',
+  '#': '3',
+  '$': '4',
+  '%': '5',
+  '^': '6',
+  '&': '7',
+  '*': '8',
+  '(': '9',
+  ')': '0',
+  '_': '-',
+  '+': '=',
+  '{': '[',
+  '}': ']',
+  '|': '\\',
+  ':': ';',
+  '"': "'",
+  '<': ',',
+  '>': '.',
+  '?': '/',
+};
+
 /**
  * Originally vendored from Lexical v0.41.0, then fixed locally. The upstream
  * version had two bugs: it constructed the expected `event.code` as
@@ -84,6 +111,11 @@ function expectedKeyToCode(expectedKey: string): string | null {
  * and it bailed out whenever `event.key` was any ASCII character, which breaks
  * shortcuts where Shift/Option transforms the produced char (e.g. Cmd+Shift+7
  * yields `&`, Cmd+Opt+1 on macOS yields `¡`).
+ *
+ * The Dvorak guard below must apply to all single-char ASCII produced keys,
+ * not just letters: e.g. on US Dvorak the V key sits at QWERTY's Period
+ * position, so falling through to `event.code` for the punctuation shortcut
+ * `Ctrl+.` (isSuperscript) would cause `Ctrl+V` to swallow paste.
  */
 export function isExactShortcutMatch(
   event: KeyboardEvent,
@@ -94,35 +126,37 @@ export function isExactShortcutMatch(
     return false;
   }
 
-  if (event.key.toLowerCase() === expectedKey.toLowerCase()) {
-    // Special keys like Enter/Tab/ArrowUp, and any layout where the produced
-    // character already equals the expected key.
+  if (expectedKey.length > 1) {
+    // Named keys (Enter, Tab, ArrowUp, ...) can only be matched via event.key.
+    return event.key.toLowerCase() === expectedKey.toLowerCase();
+  }
+
+  // Normalize the produced character by inverting the Shift transform (so
+  // `&` → `7`, `>` → `.`, `M` → `m`). After normalization, shifted shortcuts
+  // are matched against their unshifted expected key.
+  const normalizedEventKey =
+    event.key.length === 1
+      ? (SHIFTED_KEY_ALIASES[event.key] ?? event.key).toLowerCase()
+      : event.key;
+
+  if (normalizedEventKey === expectedKey.toLowerCase()) {
     return true;
   }
 
-  if (expectedKey.length > 1) {
-    // Named keys (Enter, Tab, ...) can only be matched via event.key.
+  // The produced character is a printable ASCII character that does not match
+  // the shortcut. This is the Dvorak case: the user pressed a key that their
+  // layout maps to a different printable character (e.g. Ctrl+V on Dvorak
+  // produces `v` at QWERTY's Period position). Don't fall through to
+  // event.code — that would cause Ctrl+V on Dvorak to fire isSuperscript and
+  // swallow paste.
+  if (event.key.length === 1 && event.key.charCodeAt(0) <= 127) {
     return false;
   }
 
+  // The produced character is non-ASCII (macOS Option-modified key, non-Latin
+  // layout, ...). Fall back to physical position so the shortcut still fires.
   const expectedCode = expectedKeyToCode(expectedKey);
-  if (expectedCode === null) {
-    return false;
-  }
-
-  // For letter shortcuts, don't fall through to event.code when the produced
-  // char is a different ASCII letter: that would break deliberately remapped
-  // layouts like Dvorak, where the user expects shortcuts to follow the
-  // layout, not the physical key position.
-  if (
-    /^[a-z]$/i.test(expectedKey) &&
-    event.key.length === 1 &&
-    event.key.charCodeAt(0) <= 127
-  ) {
-    return false;
-  }
-
-  return event.code === expectedCode;
+  return expectedCode !== null && event.code === expectedCode;
 }
 
 export function getFormatHeadingLevel(

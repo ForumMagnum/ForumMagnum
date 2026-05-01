@@ -27,6 +27,7 @@ import { getNestedProperty } from "../../vulcan-lib/utils";
 import { getDenormalizedEditableResolver } from "@/lib/editor/make_editable";
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
+import { sanitize } from "@/lib/utils/sanitize";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
 import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
@@ -165,9 +166,12 @@ function userHasMapMarkerText(data: Partial<DbUser> | CreateUserDataInput | Upda
   return "mapMarkerText" in data;
 }
 
-async function convertMapMarkerTextToHtml(user: DbUser) {
+function convertMapMarkerTextToHtml(user: DbUser) {
   if (!user.mapMarkerText) return "";
-  return await markdownToHtml(user.mapMarkerText);
+  // markdown-it is configured with html:false so it already escapes raw HTML,
+  // but we run sanitize() so the safety of the dangerouslySetInnerHTML site in
+  // CommunityMap doesn't depend on that markdown-it config staying that way.
+  return sanitize(markdownToHtml(user.mapMarkerText));
 }
 
 function userHasNearbyEventsNotificationsLocation(data: Partial<DbUser> | CreateUserDataInput | UpdateUserDataInput) {

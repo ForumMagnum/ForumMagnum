@@ -139,7 +139,7 @@ export const ckEditorCallbacksGraphQLMutations = {
       // to the Hocuspocus server, which replaces the live document state.
       // eslint-disable-next-line no-console
       console.log("Reverting to a Lexical collaborative revision");
-      await pushRevisionToLexicalCollab(post._id, revision._id);
+      await pushRevisionToLexicalCollab(post._id, revision._id, context);
     } else {
       // Non-collaborative post (or cross-format restore on a collab post)
       // eslint-disable-next-line no-console

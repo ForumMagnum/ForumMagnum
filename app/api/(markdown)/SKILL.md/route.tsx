@@ -220,14 +220,26 @@ that already exists in the draft. The location can be one of the following:
     "after": insert after the paragraph with the given markdown prefix
 This API is only for inserting new blocks of text that can be expressed in
 traditional markdown.  It supports paragraphs, lists, blockquotes,
-bold/italic/strikethrough (no underline), and code blocks.
+bold/italic/strikethrough (no underline), code blocks, and spoiler blocks.
 Custom block-level elements like LLM content blocks and widgets have dedicated APIs (see below).
+
+Spoiler blocks (text hidden until the reader hovers) are written as one or
+more lines prefixed with \`>!\`. Consecutive \`>!\` lines form a single
+spoiler block; a bare \`>!\` line is a paragraph break inside the block:
+    >! the killer is
+    >!
+    >! the butler
 
 To delete an existing block from the draft, make a POST request to:
     POST /api/agent/deleteBlock
     with JSON body: { postId, key, prefix, mode?: "edit"|"suggest" }
-The prefix should be a markdown string that matches the start of a paragraph
-that already exists in the draft.
+The prefix should be a markdown string that matches the start of a top-level
+block in the draft (paragraph, heading, blockquote, table, spoiler block,
+LLM content block, …) or any individual list item. Match a list item by its
+own leading text — the matcher descends into lists, so deleting "second item"
+removes just that item and leaves the surrounding list intact. Match a table
+by the leading text of its first cell; tables are always deleted as a whole
+(there is no per-cell deletion).
 In edit mode, the matched block is removed immediately. In suggest mode, the
 matched block is wrapped as a deletion suggestion.
 
@@ -268,6 +280,12 @@ Deleting a plain paragraph:
 Deleting an LLM content block:
     { "postId": "...", "key": "...", "prefix": "%%% llm-output model=\\"GPT-4o\\"", "mode": "edit" }
 
+Deleting a single list item by its own text:
+    { "postId": "...", "key": "...", "prefix": "the second bullet", "mode": "edit" }
+
+Deleting a whole table by its first cell:
+    { "postId": "...", "key": "...", "prefix": "header cell content", "mode": "edit" }
+
 Inserting a paragraph before an LLM content block:
     { "postId": "...", "key": "...", "location": { "before": "%%% llm-output model=\\"GPT-4o\\"" }, "markdown": "New paragraph text.", "mode": "edit" }
 
@@ -285,6 +303,35 @@ Custom widgets are represented in markdown with fenced code blocks using:
     ... html/js content ...
     \`\`\`
 Newly inserted widgets will have a unique widgetId in the bracket.
+
+Widget layout. Widget iframes always render at 100% of the post-content
+column, whose width varies from ~340px on mobile up to ~700px on desktop.
+Strongly prefer responsive layouts (width: 100%, height: auto, flexbox or
+grid that adapts) over hard-coded pixel widths — a fixed pixel layout that
+fits one viewport almost certainly breaks the other.
+
+The iframe's height is auto-derived from \`document.body.offsetHeight\`
+plus body's vertical margins and re-measured on every layout change via a
+ResizeObserver the editor injects (you do not need to add one yourself).
+Reported height is clamped to 50–5000px and starts at 400px until the
+first measurement arrives, so a responsive widget that reflows taller on
+mobile simply grows to match — no per-viewport height management needed.
+For a fixed-height widget with internal scroll, set \`body { height: Xpx;
+overflow-y: auto }\`; the auto-measurement reports Xpx as expected.
+
+The widget can also override the auto-measured height imperatively from
+inside the iframe:
+    parent.postMessage({ type: 'iframe-widget-resize', height: <px> }, '*');
+In practice every layout-driven height we've seen is expressible with body
+CSS, so this is a backstop rather than a default tool — reach for it only
+when the auto-measurement is genuinely wrong for your widget.
+
+Note that the auto-measurement adds body's vertical margins to
+\`offsetHeight\`, so the browser's default ~8px body margin appears as
+narrow strips of the iframe's background above and below your content.
+If your widget has contrasting body styling (colored background, rounded
+card, etc.) and you want it edge-to-edge, reset \`html, body { margin: 0 }\`
+in the widget's CSS.
 
 To replace the HTML/JS contents of a widget, make a POST request to:
     POST /api/agent/replaceWidget

@@ -92,38 +92,48 @@ const truncateGuidelines = (guidelines: string) => {
   });
 }
 
+// Build the header as JSX (so React escapes the user-controlled displayName)
+// and return the rest as an HTML string. The body is composed only of trusted
+// HTML — server-sanitized `post.moderationGuidelines.html` and the hardcoded
+// frontpage/default fallbacks — so it can safely flow to dangerouslySetInnerHTML.
+interface ModerationGuidelinesParts {
+  header: React.ReactNode | null;
+  bodyHtml: string;
+  truncatedBodyHtml: string;
+}
+
 const getPostModerationGuidelines = (
   post: PostsModerationGuidelines,
   classes: ClassesType<typeof styles>,
-) => {
+): ModerationGuidelinesParts => {
   const moderationStyle = post.moderationStyle || (post.user?.moderationStyle || "")
   const moderationStyleClass = (classes as AnyBecauseTodo)[moderationStyle];
 
   const { html = "" } = post.moderationGuidelines || {}
-  const userGuidelines = `${post.user ? `<p><em>${post.user.displayName + "'s commenting guidelines"}</em></p><p class="${moderationStyleClass}">${moderationStyleLookup[moderationStyle] || ""}</p>` : ""}
-  ${html || ""}`
+  const showHeader = !!(post.user && (html || moderationStyle));
+  const header = showHeader ? (
+    <>
+      <p><em>{post.user!.displayName}{"'s commenting guidelines"}</em></p>
+      <p className={moderationStyleClass}>{moderationStyleLookup[moderationStyle] ?? ""}</p>
+    </>
+  ) : null;
 
-  const combinedGuidelines = `
-    ${(html || moderationStyle) ? userGuidelines : ""}
-    ${(html && post.frontpageDate) ? '<hr/>' : ''}
-    ${post.frontpageDate ?
-      getFrontpageGuidelines() :
-      (
-        (html || moderationStyle) ?
-          "" :
-          getDefaultGuidelines()
-      )
-    }
-  `
-  const truncatedGuidelines = truncateGuidelines(combinedGuidelines)
-  return { combinedGuidelines, truncatedGuidelines }
+  let bodyHtml = "";
+  if (html) bodyHtml += html;
+  if (html && post.frontpageDate) bodyHtml += "<hr/>";
+  if (post.frontpageDate) {
+    bodyHtml += getFrontpageGuidelines();
+  } else if (!html && !moderationStyle) {
+    bodyHtml += getDefaultGuidelines();
+  }
+
+  return { header, bodyHtml, truncatedBodyHtml: truncateGuidelines(bodyHtml) };
 }
 
-const getSubforumModerationGuidelines = (tag: TagFragment) => {
+const getSubforumModerationGuidelines = (tag: TagFragment): ModerationGuidelinesParts => {
   const { html } = tag.moderationGuidelines || {}
-  const combinedGuidelines = html ?? ''
-  const truncatedGuidelines = truncateGuidelines(combinedGuidelines)
-  return { combinedGuidelines, truncatedGuidelines }
+  const bodyHtml = html ?? ''
+  return { header: null, bodyHtml, truncatedBodyHtml: truncateGuidelines(bodyHtml) }
 }
 
 const ModerationGuidelinesBox = ({commentType = "post", documentId}: {
@@ -198,10 +208,10 @@ const ModerationGuidelinesBox = ({commentType = "post", documentId}: {
     });
   }
 
-  const { combinedGuidelines, truncatedGuidelines } = isPostType(document) ? getPostModerationGuidelines(document, classes) : getSubforumModerationGuidelines(document)
-  const displayedGuidelines = expanded ? combinedGuidelines : truncatedGuidelines
+  const { header, bodyHtml, truncatedBodyHtml } = isPostType(document) ? getPostModerationGuidelines(document, classes) : getSubforumModerationGuidelines(document)
+  const displayedBodyHtml = expanded ? bodyHtml : truncatedBodyHtml
 
-  const expandable = combinedGuidelines.trim().length !== truncatedGuidelines.trim().length
+  const expandable = bodyHtml.trim().length !== truncatedBodyHtml.trim().length
 
   return (
     <div className={classes.root} onClick={expandable ? handleClick : undefined}>
@@ -217,7 +227,8 @@ const ModerationGuidelinesBox = ({commentType = "post", documentId}: {
         </span>
       }
       <ContentStyles contentType="comment" className={classes.moderationGuidelines}>
-        <div dangerouslySetInnerHTML={{__html: displayedGuidelines}}/>
+        {header}
+        <div dangerouslySetInnerHTML={{__html: displayedBodyHtml}}/>
         {expanded && expandable && <a className={classes.collapse}>(Click to Collapse)</a>}
       </ContentStyles>
     </div>

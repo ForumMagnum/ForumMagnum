@@ -45,6 +45,19 @@ function iframeWidgetElementToMarkdown(element: Element): string {
   return `\n\n\`\`\`widget[${widgetId}]\n${widgetMarkup}\n\`\`\`\n\n`;
 }
 
+// Strip the srcdoc attribute from iframe widgets. Iframe-widget srcdocs contain HTML
+// markup and an injected resize script, none of which is user-authored prose; leaving
+// them in inflates word-count estimates (and similar markdown-derived analyses) by
+// hundreds or thousands of tokens per widget.
+function stripIframeWidgetSrcdocs(html: string): string {
+  if (!html.includes('data-lexical-iframe-widget')) {
+    return html;
+  }
+  const $ = cheerioParse(html);
+  $('iframe[data-lexical-iframe-widget]').removeAttr('srcdoc');
+  return $.html();
+}
+
 let _turndownService: TurndownService|null = null;
 const TURNDOWN_BUILD_MARKER = 'widget-markdown-v1';
 function getTurndown(): TurndownService {
@@ -76,6 +89,18 @@ function getTurndown(): TurndownService {
         }
         if (node?.nodeType === ServerSafeNode.ELEMENT_NODE && isBlockTag(node.nodeName)) {
           return '\n\n'
+        }
+        // For an inline element whose only content is non-ASCII whitespace
+        // (e.g. <i><span>&nbsp;</span></i> produced by Lexical when a user
+        // italicizes a single space), Turndown's flankingWhitespace pass
+        // doesn't see the whitespace (it only matches [ \r\n\t]), so the
+        // entire element collapses to "" — joining the surrounding words
+        // together. Return the textContent so the whitespace survives.
+        if (node?.nodeType === ServerSafeNode.ELEMENT_NODE) {
+          const text = (node as Element).textContent ?? '';
+          if (text && /^\s+$/.test(text) && !/^[ \r\n\t\f\v]+$/.test(text)) {
+            return text;
+          }
         }
         return ''
       },
@@ -188,6 +213,35 @@ function getTurndown(): TurndownService {
     turndownService.addRule('collapsible-section-end', {
       filter: (node, options) => node.classList?.contains('detailsBlock'),
       replacement: (content) => `${content}\n+++`
+    });
+
+    // Spoiler blocks: `<div class="spoilers">…</div>` → `>!`-prefixed lines.
+    // Lexical's SpoilerNode and the legacy DraftJS pipeline both produce this
+    // canonical wrapper. Each line of the inner markdown gets `>! ` prefixed
+    // (or just `>!` for paragraph-separator blank lines).
+    const prefixSpoilerLines = (content: string): string => {
+      const trimmed = content.replace(/^\n+|\n+$/g, '');
+      if (!trimmed) return '';
+      return trimmed.split('\n').map((line) => line ? `>! ${line}` : '>!').join('\n');
+    };
+    turndownService.addRule('spoiler-block', {
+      filter: (node) =>
+        node.nodeName === 'DIV' && !!node.classList?.contains('spoilers'),
+      replacement: (content) => {
+        const prefixed = prefixSpoilerLines(content);
+        return prefixed ? `\n\n${prefixed}\n\n` : '';
+      },
+    });
+    // Backwards-compat: a bare `<p class="spoiler-v2">` (legacy DraftJS form
+    // before `wrapSpoilerTags` runs) should still serialize as a spoiler
+    // line, so it round-trips through the agent API.
+    turndownService.addRule('spoiler-paragraph-v2', {
+      filter: (node) =>
+        node.nodeName === 'P' && !!node.classList?.contains('spoiler-v2'),
+      replacement: (content) => {
+        const prefixed = prefixSpoilerLines(content);
+        return prefixed ? `\n\n${prefixed}\n\n` : '';
+      },
     });
     (turndownService as AnyBecauseHard).__buildMarker = TURNDOWN_BUILD_MARKER;
     _turndownService = turndownService;
@@ -656,7 +710,10 @@ export async function dataToWordCount(data: AnyBecauseTodo, type: string, contex
 
   try {
     // Convert to markdown and count words by splitting spaces
-    const markdown = dataToMarkdown(data, type) ?? "";
+    const dataForCounting = (type === "lexical")
+      ? stripIframeWidgetSrcdocs(data)
+      : data;
+    const markdown = dataToMarkdown(dataForCounting, type) ?? "";
     bestWordCount = markdown.trim().split(/[\s]+/g).length;
     
     // Try to remove footnotes and update the count accordingly

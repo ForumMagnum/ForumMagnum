@@ -790,6 +790,13 @@ export default function ModerationPageContent(props: Props) {
     );
   };
 
+  // deletedReason is plain text (not rich text); render it as such to avoid XSS,
+  // since it's writable by ordinary members on their own comments.
+  const renderPlainTextReason = (reason: string | null | undefined) => {
+    if (!reason) return '—';
+    return <div className={classes.reason}>{reason}</div>;
+  };
+
   const buildPaginationUrl = (section: string, page: number) => {
     const params = new URLSearchParams(searchParams?.toString());
     const newOffset = (page - 1) * limit;
@@ -1103,7 +1110,7 @@ export default function ModerationPageContent(props: Props) {
                         </a>
                       ) : '—'}
                     </td>
-                    <td className={classes.td} data-label="Reason">{renderReason(comment.deletedReason)}</td>
+                    <td className={classes.td} data-label="Reason">{renderPlainTextReason(comment.deletedReason)}</td>
                     <td className={classes.td} data-label="Deleted By">
                       {comment.deletedByUser ? (
                         <a href={userGetProfileUrl(comment.deletedByUser)} className={classes.link}>

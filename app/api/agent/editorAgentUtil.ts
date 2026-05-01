@@ -1,3 +1,4 @@
+import { NextResponse } from "next/server";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Doc, UndoManager } from "yjs";
 import type { Provider as LexicalProvider } from "@lexical/yjs";
@@ -15,6 +16,8 @@ import { sleep } from "@/lib/utils/asyncUtils";
 import { getLatestRev } from "@/server/editor/utils";
 import { captureException } from "@/lib/sentryWrapper";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
+import { getHocuspocusToken } from "./getHocuspocusToken";
+import { captureAgentApiEvent } from "./captureAgentAnalytics";
 
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const INITIAL_SYNC_SETTLE_MS = 25;
@@ -148,6 +151,95 @@ export async function isSupportedEditorType(postId: string, context: ResolverCon
 
 export function unsupportedEditorMessage(editorType: string): string {
   return `This post uses the ${editorType} editor and cannot be edited via the agent API. Only posts created in the Lexical editor are supported.`;
+}
+
+export const UNAUTHORIZED_DRAFT_MESSAGE =
+  "Unauthorized to access this draft. Make sure the post's sharing settings have 'Anyone with the link can' set to 'Edit', and that the correct link-sharing key is provided.";
+
+export type EditorTypeAndTokenCheckResult =
+  | { kind: "unsupported_editor"; editorType: string }
+  | { kind: "unauthorized" }
+  | { kind: "ready"; token: string };
+
+/**
+ * Fire the editor-type check and the Hocuspocus auth-token query in parallel,
+ * then await editor-type first. Lets the token round-trip overlap with the
+ * editor-type DB read while still allowing an early return on unsupported
+ * editor types without waiting for the token.
+ *
+ * Use the discriminated return value to emit per-route analytics events
+ * and respond with the appropriate status code; `unsupportedEditorMessage`
+ * and `UNAUTHORIZED_DRAFT_MESSAGE` are the canonical message texts.
+ */
+export async function checkEditorTypeAndGetToken({
+  postId,
+  context,
+  linkSharingKey,
+}: {
+  postId: string
+  context: ResolverContext
+  linkSharingKey?: string
+}): Promise<EditorTypeAndTokenCheckResult> {
+  const editorCheckPromise = isSupportedEditorType(postId, context);
+  const tokenPromise = getHocuspocusToken(context, postId, linkSharingKey);
+  // If the editor-type check returns "unsupported" first, we early-return
+  // without awaiting tokenPromise. Attach a no-op handler so a later
+  // rejection doesn't bubble up as an unhandled-rejection warning. The
+  // real `await tokenPromise` below still throws on real failures.
+  tokenPromise.catch(() => {});
+
+  const editorCheck = await editorCheckPromise;
+  if (!editorCheck.supported) {
+    return { kind: "unsupported_editor", editorType: editorCheck.editorType };
+  }
+  const token = await tokenPromise;
+  if (!token) {
+    return { kind: "unauthorized" };
+  }
+  return { kind: "ready", token };
+}
+
+/**
+ * Wrapper around `checkEditorTypeAndGetToken` for the agent write routes:
+ * runs the parallel check, emits the matching analytics event, and returns
+ * either a token to use or an HTTP error response to forward verbatim.
+ *
+ * The non-route `/editPost` markdown caller wants different status codes
+ * and a plaintext body, so it uses `checkEditorTypeAndGetToken` directly.
+ */
+export async function authorizeAgentDraftAccess({
+  route,
+  postId,
+  context,
+  linkSharingKey,
+  agentName,
+}: {
+  route: string
+  postId: string
+  context: ResolverContext
+  linkSharingKey?: string
+  agentName?: string
+}): Promise<{ token: string } | { errorResponse: NextResponse }> {
+  const checkResult = await checkEditorTypeAndGetToken({ postId, context, linkSharingKey });
+  if (checkResult.kind === "unsupported_editor") {
+    captureAgentApiEvent({ route, postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
+    return {
+      errorResponse: NextResponse.json(
+        { error: unsupportedEditorMessage(checkResult.editorType) },
+        { status: 400 },
+      ),
+    };
+  }
+  if (checkResult.kind === "unauthorized") {
+    captureAgentApiEvent({ route, postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
+    return {
+      errorResponse: NextResponse.json(
+        { error: UNAUTHORIZED_DRAFT_MESSAGE },
+        { status: 403 },
+      ),
+    };
+  }
+  return { token: checkResult.token };
 }
 
 export function waitForProviderSync(provider: HocuspocusProvider): Promise<void> {

@@ -502,6 +502,14 @@ const baseBodyStyles = (theme: ThemeType) => ({
     overflowX: 'auto',
     position: 'relative',
     tabSize: 2,
+    // Override the parent pre rule's `pre-wrap` and the inherited `word-break: break-word`
+    // so code scrolls horizontally instead of wrapping (which desyncs the absolute-positioned gutter).
+    whiteSpace: 'pre',
+    overflowWrap: 'normal',
+    // Chrome's UA styles for <details> children break our global `* { box-sizing: inherit }`,
+    // leaving `pre` (and its ::before) as content-box inside collapsible sections. That widens
+    // the gutter pseudo-element past the pre's padding-left and clips the first code character.
+    boxSizing: 'border-box',
   },
   '& pre.code-block::before, & pre[data-highlight-language]::before': {
     content: 'attr(data-gutter)',

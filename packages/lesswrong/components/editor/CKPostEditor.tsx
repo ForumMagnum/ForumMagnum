@@ -561,14 +561,14 @@ const CKPostEditor = ({
       }
     },
     cloudServices: ckEditorCloudConfigured ? {
-      tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, userId, formType, key),
+      tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, key),
       uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),
       webSocketUrl: webSocketUrl,
-      documentId: getCKEditorDocumentId(documentId, userId, formType),
+      documentId: getCKEditorDocumentId(documentId),
       bundleVersion: ckEditorBundleVersion,
     } : undefined,
     collaboration: ckEditorCloudConfigured ? {
-      channelId: getCKEditorDocumentId(documentId, userId, formType),
+      channelId: getCKEditorDocumentId(documentId),
     } : undefined,
     comments: {
       editorConfig: {

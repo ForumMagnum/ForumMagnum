@@ -10,11 +10,10 @@ import {
 import { $createLLMContentBlockNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockNode";
 import { $createLLMContentBlockContentNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockContentNode";
 import { $createLLMContentBlockHeaderNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockHeaderNode";
-import { isSupportedEditorType, unsupportedEditorMessage, waitForProviderFlush, withMainDocEditorSession } from "../editorAgentUtil";
+import { waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import { $markdownToNodes, resolveInsertionIndex } from "../insertBlock/route";
 import { insertLLMBlockToolSchema, type InsertLocation } from "../toolSchemas";
-import { getHocuspocusToken } from "../getHocuspocusToken";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
@@ -133,17 +132,9 @@ export async function POST(req: NextRequest) {
   const { postId, key, modelName, location, markdown } = parseResult.data;
 
   try {
-    const token = await getHocuspocusToken(context, postId, key);
-    if (!token) {
-      captureAgentApiEvent({ route: "insertLLMBlock", postId, userId: context.currentUser?._id, agentName: modelName, status: "unauthorized" });
-      return NextResponse.json({ error: "Unauthorized to edit draft" }, { status: 403 });
-    }
-
-    const editorCheck = await isSupportedEditorType(postId, context);
-    if (!editorCheck.supported) {
-      captureAgentApiEvent({ route: "insertLLMBlock", postId, userId: context.currentUser?._id, agentName: modelName, status: "unsupported_editor" });
-      return NextResponse.json({ error: unsupportedEditorMessage(editorCheck.editorType) }, { status: 400 });
-    }
+    const auth = await authorizeAgentDraftAccess({ route: "insertLLMBlock", postId, context, linkSharingKey: key, agentName: modelName });
+    if ("errorResponse" in auth) return auth.errorResponse;
+    const { token } = auth;
 
     const result = await insertLLMBlock({
       postId,
