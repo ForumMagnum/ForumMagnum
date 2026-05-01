@@ -3,7 +3,7 @@ import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
 import { NextRequest, NextResponse } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
-import { checkEditorTypeAndGetToken, withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
+import { checkEditorTypeAndGetToken, withMainDocEditorSession, waitForProviderSync, EmptyLexicalDocumentError } from "../agent/editorAgentUtil";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
@@ -264,21 +264,30 @@ export async function getLiveDraftMarkdown({
   token: string
   operationLabel?: string
 }): Promise<string> {
-  return withMainDocEditorSession({
-    postId,
-    token,
-    operationLabel: operationLabel ?? "MarkdownReadDraft",
-    callback: async ({ editor }) => {
-      const html = withDomGlobals(() => {
-        let generated = "";
-        editor.getEditorState().read(() => {
-          generated = $generateHtmlFromNodes(editor, null);
+  try {
+    return await withMainDocEditorSession({
+      postId,
+      token,
+      operationLabel: operationLabel ?? "MarkdownReadDraft",
+      callback: async ({ editor }) => {
+        const html = withDomGlobals(() => {
+          let generated = "";
+          editor.getEditorState().read(() => {
+            generated = $generateHtmlFromNodes(editor, null);
+          });
+          return generated;
         });
-        return generated;
-      });
-      return convertWidgetIframesToMarkdownFences(htmlToMarkdown(html));
-    },
-  });
+        return convertWidgetIframesToMarkdownFences(htmlToMarkdown(html));
+      },
+    });
+  } catch (error) {
+    if (error instanceof EmptyLexicalDocumentError) {
+      // The post body is blank (no Yjs content yet). Return empty markdown so
+      // the agent sees a blank post rather than a misleading permissions error.
+      return "";
+    }
+    throw error;
+  }
 }
 
 // Live-draft markdown is per-user, ephemeral, and changes any time the user

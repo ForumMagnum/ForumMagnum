@@ -270,6 +270,18 @@ export function getLexicalCompatibleProvider(provider: HocuspocusProvider): Hocu
   return provider as HocuspocusProvider & LexicalProvider;
 }
 
+export class EmptyLexicalDocumentError extends Error {
+  readonly postId: string;
+  constructor(postId: string, operationLabel: string) {
+    super(
+      `[${operationLabel}] Lexical editor root is empty after Hocuspocus sync for post ${postId}. ` +
+      `The post body is blank or the Yjs document has not been initialised yet.`
+    );
+    this.name = "EmptyLexicalDocumentError";
+    this.postId = postId;
+  }
+}
+
 export function createHeadlessEditor(errorLabel: string): LexicalEditor {
   return createEditor({
     namespace: `Agent-${errorLabel}`,
@@ -370,10 +382,7 @@ export async function withMainDocEditorSession<T>({
       rootChildCount = $getRoot().getChildrenSize();
     });
     if (rootChildCount === 0) {
-      const err = new Error(
-        `[${operationLabel}] Lexical editor root is empty after Hocuspocus sync for post ${postId}. ` +
-        `This likely means the Yjs document state is missing or corrupt.`
-      );
+      const err = new EmptyLexicalDocumentError(postId, operationLabel);
       captureException(err);
       throw err;
     }
