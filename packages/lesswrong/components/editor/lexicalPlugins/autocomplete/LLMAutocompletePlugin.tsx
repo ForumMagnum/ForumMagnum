@@ -14,6 +14,8 @@ import {
   createCommand,
   LexicalCommand,
 } from 'lexical';
+import { useCurrentUser } from '@/components/common/withUser';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { $generateHtmlFromNodes } from '@lexical/html';
 import { mergeRegister } from '@lexical/utils';
 
@@ -196,6 +198,8 @@ async function fetchAutocompletion(
 export function LLMAutocompletePlugin(): null {
   const [editor] = useLexicalComposerContext();
   const isAutocompleting = useRef(false);
+  const currentUser = useCurrentUser();
+  const isAdminUser = userIsAdmin(currentUser);
 
   // Get the content before cursor as markdown
   const getPrefix = useCallback((): string => {
@@ -288,10 +292,14 @@ export function LLMAutocompletePlugin(): null {
 
   useEffect(() => {
     return mergeRegister(
-      // Handle Ctrl+Y for autocomplete
+      // Handle Ctrl+Y / Ctrl+Shift+Y for autocomplete — admin-only.
+      // Ctrl+Y is the standard Windows redo shortcut; without this guard it
+      // was swallowed for all users, making redo impossible.
       editor.registerCommand(
         KEY_DOWN_COMMAND,
         (event: KeyboardEvent) => {
+          if (!isAdminUser) return false;
+
           // Ctrl+Y (keyCode 89)
           if (event.ctrlKey && !event.shiftKey && event.key.toLowerCase() === 'y') {
             event.preventDefault();
@@ -299,7 +307,7 @@ export function LLMAutocompletePlugin(): null {
             void autocomplete(false);
             return true;
           }
-          
+
           // Ctrl+Shift+Y for 405b model
           if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'y') {
             event.preventDefault();
@@ -307,7 +315,7 @@ export function LLMAutocompletePlugin(): null {
             void autocomplete(true);
             return true;
           }
-          
+
           return false;
         },
         COMMAND_PRIORITY_HIGH
@@ -332,7 +340,7 @@ export function LLMAutocompletePlugin(): null {
         COMMAND_PRIORITY_HIGH
       )
     );
-  }, [editor, autocomplete]);
+  }, [editor, autocomplete, isAdminUser]);
 
   return null;
 }
