@@ -386,10 +386,13 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       height: '26px',
     },
     // Split suggestion: show two horizontal lines stretching from the end
-    // of the text to the right edge of the paragraph, indicating where the
+    // of the text to the right edge of the block, indicating where the
     // paragraph break will be inserted. The padding/margin overflow trick
     // extends the inline element visually while the parent clips it.
-    '& p:has(> ins.split), & p:has(> ins.join)': {
+    // Must cover headings and list items in addition to <p> — otherwise the
+    // 9999px right padding bleeds off-screen as visible green lines when a
+    // split/join suggestion appears inside a heading or list item.
+    '& :is(p, h1, h2, h3, h4, h5, h6, li):has(> ins.split), & :is(p, h1, h2, h3, h4, h5, h6, li):has(> ins.join)': {
       overflow: 'hidden',
     },
     '& ins.split, & ins.join': {
