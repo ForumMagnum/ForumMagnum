@@ -10,7 +10,10 @@ import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('BottomNavigation', (theme: ThemeType) => ({
   root: {
-    position: "relative"
+    position: "relative",
+    "@media print": {
+      display: "none",
+    },
   },
 
   post: {
@@ -107,6 +110,5 @@ const BottomNavigation = ({post}: {
 export default registerComponent('BottomNavigation', BottomNavigation, {
   hocs: [withErrorBoundary]
 });
-
 
 

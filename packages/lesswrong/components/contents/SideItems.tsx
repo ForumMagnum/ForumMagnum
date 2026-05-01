@@ -55,6 +55,9 @@ export const styles = defineStyles("SideItems", (theme: ThemeType) => ({
   sidebar: {
     position: "relative",
     height: "100%",
+    "@media print": {
+      display: "none",
+    },
   },
 }));
 
@@ -347,4 +350,3 @@ export const NoSideItems = ({children}: {
     </SideItemsDisplayContext.Provider>
   </SideItemsPlacementContext.Provider>
 }
-

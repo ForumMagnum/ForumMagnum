@@ -30,6 +30,10 @@ const clearStyle = (theme: ThemeType) => ({
     fontWeight: 500,
   },
 
+  "h1 b, h1 strong, h2 b, h2 strong, h3 b, h3 strong, h4 b, h4 strong": {
+    fontWeight: 700,
+  },
+
   "textarea, textarea:focus, input, input:focus": {
     border: "none",
     outline: "none",
@@ -126,7 +130,31 @@ const globalStyle = (theme: ThemeType) => ({
   ".ck-powered-by, .ck-powered-by-balloon": {
     display: "none !important",
   },
-  
+
+  // Print styles: hide editor chrome so Cmd+P on /editPost produces a
+  // readable draft rather than a full editor UI dump.
+  "@media print": {
+    // CKEditor toolbar and sidebar (for posts still using CKEditor)
+    ".ck.ck-editor__top": {
+      display: "none !important",
+    },
+    ".ck.ck-sidebar": {
+      display: "none !important",
+    },
+    // Floating format toolbar (Lexical)
+    ".FloatingTextFormatToolbarPlugin-toolbar": {
+      display: "none !important",
+    },
+    // MUI tooltips / popovers that may be open when printing
+    ".MuiTooltip-popper, .MuiPopover-root": {
+      display: "none !important",
+    },
+    // Type III audio player floating bar
+    ".t3a-sticky-player": {
+      display: "none !important",
+    },
+  },
+
   // Mapbox
 });
 

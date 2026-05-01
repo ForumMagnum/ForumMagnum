@@ -56,6 +56,9 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
         0px
       `
     },
+    "@media print": {
+      gridTemplateColumns: `0px 0px 0px minmax(min-content, ${MAX_COLUMN_WIDTH}px) 0px 0px 0px`,
+    },
   },
   onEmbeddedPostPage: {
     gridTemplateColumns: `
@@ -77,6 +80,9 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
       display: "none",
       marginTop: 0,
       marginBottom: 0,
+    },
+    "@media print": {
+      display: "none",
     },
   },
   splashPageHeaderToc: {
@@ -163,6 +169,9 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
     zIndex: 1000,
     [theme.breakpoints.down('sm')]: {
       display: 'none',
+    },
+    "@media print": {
+      display: "none",
     },
   }
 }));
