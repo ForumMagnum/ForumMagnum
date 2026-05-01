@@ -204,6 +204,9 @@ const tableCellStyles = (theme: ThemeType) => ({
   padding: ".4em",
   border: `1px double ${theme.palette.grey[320]}`,
   wordBreak: "normal",
+  fontFamily: theme.palette.fonts.sansSerifStack,
+  fontSize: '0.85em',
+  lineHeight: 1.5,
   '& p': {
     marginTop: '0.5em',
     marginBottom: '0.5em',
