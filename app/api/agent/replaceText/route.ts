@@ -614,6 +614,62 @@ function $applySuggestionForSelection(
 }
 
 /**
+ * Apply an edit replacement with narrowing: strip the common markdown
+ * prefix/suffix between the quote and replacement so that the edit only
+ * touches the minimal diff. Falls back to the wide replacement when
+ * narrowing collapses to a pure insertion (empty narrowed quote) — edit
+ * mode doesn't have a distinct insertion-at-point primitive, and the
+ * wide replacement is functionally equivalent.
+ *
+ * Must be called inside a Lexical update context.
+ */
+export function $applyEditWithNarrowing({
+  editor,
+  anchor,
+  focus,
+  quote,
+  replacement,
+}: {
+  editor: LexicalEditor
+  anchor: MarkdownSelectionPoint
+  focus: MarkdownSelectionPoint
+  quote: string
+  replacement: string
+}): SuggestionNarrowingResult {
+  const narrowing = $computeNarrowing(anchor, focus, quote, replacement);
+
+  if (!narrowing || narrowing.quote.length === 0) {
+    const replaced = $applyEditForSelection(editor, anchor, focus, replacement);
+    return { replaced, narrowedQuote: quote, narrowedReplacement: replacement };
+  }
+
+  const replaced = $applyEditForSelection(
+    editor, narrowing.anchor, narrowing.focus, narrowing.replacement,
+  );
+  return { replaced, narrowedQuote: narrowing.quote, narrowedReplacement: narrowing.replacement };
+}
+
+function $applyEditForSelection(
+  editor: LexicalEditor,
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+  replacement: string,
+): boolean {
+  const sameTextNode =
+    anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
+  if (sameTextNode) {
+    return $applyEditReplacement({
+      editor,
+      matchedNodeKey: anchor.key,
+      startOffset: anchor.offset,
+      endOffset: focus.offset,
+      replacement,
+    });
+  }
+  return $applyEditReplacementMultiNode({ editor, anchor, focus, replacement });
+}
+
+/**
  * Apply a suggestion replacement with narrowing: strip the common
  * markdown prefix/suffix between the quote and replacement so that
  * delete/insert suggestion nodes only wrap the minimal diff.
@@ -725,22 +781,14 @@ export async function replaceTextInMainDoc({
           }
 
           const { anchor, focus } = selectionResult;
-          const sameTextNode = anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
 
           if (mode === "edit") {
-            if (sameTextNode) {
-              replaced = $applyEditReplacement({
-                editor,
-                matchedNodeKey: anchor.key,
-                startOffset: anchor.offset,
-                endOffset: focus.offset,
-                replacement,
-              });
-            } else {
-              replaced = $applyEditReplacementMultiNode({
-                editor, anchor, focus, replacement,
-              });
-            }
+            const editResult = $applyEditWithNarrowing({
+              editor, anchor, focus, quote, replacement,
+            });
+            replaced = editResult.replaced;
+            summaryQuote = editResult.narrowedQuote;
+            summaryReplacement = editResult.narrowedReplacement;
             return;
           }
 

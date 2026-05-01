@@ -10,8 +10,7 @@ import type { TypoAcceptMode, TypoSuggestionStatus, TypoSuggestionTargetCollecti
 import { antiReactToTypoOnOwnContent } from "./antiReact";
 import { loadHtmlIntoHeadlessEditor } from "./headlessLexical";
 import {
-  $applyEditReplacement,
-  $applyEditReplacementMultiNode,
+  $applyEditWithNarrowing,
   replaceTextInMainDoc,
 } from "../../../../app/api/agent/replaceText/route";
 import { checkEditorTypeAndGetToken } from "../../../../app/api/agent/editorAgentUtil";
@@ -310,21 +309,14 @@ function applyEditOffline(html: string, quote: string, replacement: string): Off
         quoteFoundInDocument = selectionResult.found;
         if (!selectionResult.found || !selectionResult.anchor || !selectionResult.focus) return;
 
-        const { anchor, focus } = selectionResult;
-        const sameTextNode =
-          anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
-
-        if (sameTextNode) {
-          replaced = $applyEditReplacement({
-            editor,
-            matchedNodeKey: anchor.key,
-            startOffset: anchor.offset,
-            endOffset: focus.offset,
-            replacement,
-          });
-        } else {
-          replaced = $applyEditReplacementMultiNode({ editor, anchor, focus, replacement });
-        }
+        const editResult = $applyEditWithNarrowing({
+          editor,
+          anchor: selectionResult.anchor,
+          focus: selectionResult.focus,
+          quote,
+          replacement,
+        });
+        replaced = editResult.replaced;
       },
       { discrete: true },
     );

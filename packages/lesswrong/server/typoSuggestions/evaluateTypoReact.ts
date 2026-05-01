@@ -31,12 +31,29 @@ A typo is NOT:
 
 When in doubt, call \`no_typo\`.
 
-If you do call \`fix_typo\`, follow these rules — they match the contract of the underlying replaceText editor API:
+If you call \`fix_typo\`:
 
-1. The \`original\` field must match the *visible rendered text* of the flagged span (or a substring of it), exactly as a reader would see it in the document. Do NOT include markdown source markers (\`**\`, \`_\`, \`\`\`, \`~\`) — they are stripped by the matcher. Do NOT paraphrase, "clean up", or re-type from memory; quote verbatim from the markdown text we provide. Typographic punctuation (smart quotes ↔ ASCII, en/em dashes) is folded automatically; you do not need to normalize it.
-2. The \`original\` must appear in the markdown we provide. If the visible text inside the flagged span doesn't actually contain a typo and you'd be reaching to find one elsewhere, call \`no_typo\` instead.
-3. The \`replacement\` should be in markdown. It is fed back through the same replaceText pipeline that human-driven and agent-driven edits use. Make it the *smallest* change that resolves the typo — do not expand the diff into unrelated rewrites or "while I'm here" cleanups. If the typo is in a word, replace just that word. If it's a missing comma, add just the comma in context.
-4. The \`explanation\` should be one short sentence describing the typo, suitable for showing to the post author (e.g. "'teh' → 'the' — typo").
+1. The \`original\` field is a markdown excerpt from the document. It serves two purposes — locating the typo in the document, and identifying the text to fix. Include just enough surrounding context that:
+    - The excerpt appears exactly once in the document (typically one to a few words is enough), AND
+    - The typo is unambiguous within the excerpt.
+
+   Don't quote the entire sentence or paragraph — just enough to anchor the change. The system computes the minimum substitution from \`original\` and \`replacement\` automatically; your job is only to give it a precise, locatable excerpt.
+
+2. Do NOT include markdown source markers (\`**\`, \`_\`, \`\`\`, \`~\`) in \`original\` — they are stripped by the matcher. Do NOT paraphrase, "clean up", or re-type from memory; quote verbatim from the markdown text we provide. Typographic punctuation (smart quotes ↔ ASCII, en/em dashes) is folded automatically; you do not need to normalize it.
+
+3. The \`original\` must appear in the markdown we provide. If the visible text inside the flagged span doesn't actually contain a typo and you'd be reaching to find one elsewhere, call \`no_typo\` instead.
+
+4. The \`replacement\` is the same excerpt with the typo fixed, in markdown. Match the shape of \`original\` — don't expand the diff into unrelated rewrites or "while I'm here" cleanups.
+
+5. The \`explanation\` should be one short sentence describing the typo, suitable for showing to the post author (e.g. "'teh' → 'the' — typo").
+
+Examples of well-sized \`original\`/\`replacement\` pairs:
+- Misspelling: \`original: "teh"\`, \`replacement: "the"\`. Just the misspelled word.
+- Doubled word: \`original: "the the"\`, \`replacement: "the"\`. Just the duplicated pair.
+- Missing word: for "come along way" → "come a long way", \`original: "come along"\`, \`replacement: "come a long"\`. Two-word window — wide enough to anchor, narrow enough to stay focused. Don't return the whole sentence.
+- Missing punctuation: for "Yes I do" → "Yes, I do", \`original: "Yes I"\`, \`replacement: "Yes, I"\`. Just enough to place the comma.
+- Wrong homophone: for "their the best" → "they're the best", \`original: "their the"\`, \`replacement: "they're the"\`. The bare homophone alone wouldn't be unambiguous in the document.
+- Capitalization at sentence start: for "Yes. then we" → "Yes. Then we", \`original: "Yes. then"\`, \`replacement: "Yes. Then"\`. Include the prior period to make the sentence boundary unambiguous.
 
 You will be shown the full document, with the reader's flagged span explicitly delimited like this:
     ... <<<TYPO?>>>flagged text<<<END>>> ...
@@ -45,8 +62,8 @@ The bare flagged text is also given separately for cross-checking.
 You must call exactly one of the two tools.`;
 
 const fixTypoSchema = z.object({
-  original: z.string().describe("The exact substring of the rendered document text that contains the typo. Must appear verbatim in the markdown we provided. No markdown emphasis markers."),
-  replacement: z.string().describe("The corrected text, in markdown. The smallest change that fixes the typo."),
+  original: z.string().describe("A short markdown excerpt that uniquely locates the typo — typically one to a few words around it. Must appear verbatim in the markdown we provided. No markdown emphasis markers."),
+  replacement: z.string().describe("The same excerpt with the typo fixed, in markdown. Match the shape of `original`; the system computes the minimum substitution automatically."),
   explanation: z.string().describe("One short sentence describing the typo, shown to the author."),
 });
 
