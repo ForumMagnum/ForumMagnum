@@ -232,9 +232,7 @@ function applyMarkdownFootnoteRules(mdi: markdownIt) {
     //return `<sup class="footnote-ref"><a href="#fn${id}" id="fnref${refid}">${caption}</a></sup>`
 
     const footnoteIndex = Number(tokens[idx].meta.id + 1).toString()
-    return `<span data-footnote-reference="" data-footnote-index="${footnoteIndex}" data-footnote-id="${id}" role="doc-noteref" id="fnref${id}" class="footnote-reference">
-      <sup><a href="#fn${id}" class="">${caption}</a></sup>
-    </span>`
+    return `<span data-footnote-reference="" data-footnote-index="${footnoteIndex}" data-footnote-id="${id}" role="doc-noteref" id="fnref${id}" class="footnote-reference"><sup><a href="#fn${id}" class="">${caption}</a></sup></span>`
   };
   mdi.renderer.rules.footnote_block_open = (tokens, idx, options) => {
     // The markdown-it-footnote default here was:
@@ -269,7 +267,7 @@ function applyMarkdownFootnoteRules(mdi: markdownIt) {
     if (tokens[idx].meta.subId > 0) id += `:${tokens[idx].meta.subId}`
   
     /* ↩ with escape code to prevent display as Apple Emoji on iOS */
-    return ` <a href="#fnref${id}" class="footnote-backref">\u21a9\uFE0E</a>`
+    return ` <a href="#fnref${id}" class="footnote-backref">↩︎</a>`
   };
   mdi.renderer.rules.footnote_anchor_name = (tokens, idx, options, env) => {
     const n = Number(tokens[idx].meta.id + 1).toString()
