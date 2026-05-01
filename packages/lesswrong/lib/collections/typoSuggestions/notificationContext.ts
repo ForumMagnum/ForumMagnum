@@ -1,0 +1,54 @@
+import { postGetPageUrl } from "@/lib/collections/posts/helpers";
+
+interface TypoSuggestionContext {
+  reactorName: string;
+  /** Human-readable label for the document the typo is in, e.g. `your post "Foo"`. */
+  targetDescription: string;
+  /** URL the notification row should link to. */
+  targetUrl: string;
+}
+
+/**
+ * Resolve the human-readable context (reactor display name, target document
+ * description, and target URL) for a typo suggestion notification. Used by
+ * both `TypoSuggestionNotification.getMessage` and the `typoSuggestion` case
+ * in the server-side `getLink` helper.
+ */
+export async function getTypoSuggestionNotificationContext(
+  suggestionId: string | null,
+  context: ResolverContext,
+): Promise<TypoSuggestionContext | null> {
+  if (!suggestionId) return null;
+  const suggestion = await context.TypoSuggestions.findOne(suggestionId);
+  if (!suggestion) return null;
+
+  const [vote, post, comment] = await Promise.all([
+    suggestion.voteId ? context.loaders.Votes.load(suggestion.voteId) : Promise.resolve(null),
+    suggestion.collectionName === "Posts" ? context.loaders.Posts.load(suggestion.documentId) : Promise.resolve(null),
+    suggestion.collectionName === "Comments" ? context.loaders.Comments.load(suggestion.documentId) : Promise.resolve(null),
+  ]);
+
+  const [reactor, parentPost] = await Promise.all([
+    vote ? context.loaders.Users.load(vote.userId) : Promise.resolve(null),
+    comment?.postId ? context.loaders.Posts.load(comment.postId) : Promise.resolve(null),
+  ]);
+
+  const reactorName = reactor?.displayName ?? "A reader";
+
+  let targetDescription = "your post";
+  let targetUrl = "/notifications";
+  if (suggestion.collectionName === "Posts" && post) {
+    const title = post.title?.trim() || "(untitled)";
+    targetDescription = `your post "${title}"`;
+    targetUrl = postGetPageUrl(post);
+  } else if (suggestion.collectionName === "Comments" && comment) {
+    if (parentPost) {
+      const title = parentPost.title?.trim() || "(untitled)";
+      targetDescription = `your comment on "${title}"`;
+      targetUrl = `${postGetPageUrl(parentPost)}?commentId=${comment._id}`;
+    } else {
+      targetDescription = "your comment";
+    }
+  }
+  return { reactorName, targetDescription, targetUrl };
+}

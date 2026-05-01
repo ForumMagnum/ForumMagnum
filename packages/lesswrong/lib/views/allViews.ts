@@ -47,6 +47,7 @@ import { SubscriptionsViews } from '../collections/subscriptions/views';
 import { TagsViews } from '../collections/tags/views';
 import { TagFlagsViews } from '../collections/tagFlags/views';
 import { TagRelsViews } from '../collections/tagRels/views';
+import { TypoSuggestionsViews } from '../collections/typoSuggestions/views';
 import { UltraFeedEventsViews } from '../collections/ultraFeedEvents/views';
 import { UsersViews } from '../collections/users/views';
 import { UserMostValuablePostsViews } from '../collections/userMostValuablePosts/views';
@@ -133,6 +134,7 @@ export const allViews = {
   TagRels: TagRelsViews,
   Tweets: new CollectionViewSet('Tweets', {}),
   TypingIndicators: new CollectionViewSet('TypingIndicators', {}),
+  TypoSuggestions: TypoSuggestionsViews,
   UltraFeedEvents: UltraFeedEventsViews,
   Users: UsersViews,
   UserMostValuablePosts: UserMostValuablePostsViews,

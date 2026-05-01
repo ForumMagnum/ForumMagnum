@@ -2,7 +2,8 @@ import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
 import { $createTextNode, $getNodeByKey, $getRoot, $isElementNode, $isTextNode, type LexicalEditor, type LexicalNode } from "lexical";
-import { $generateNodesFromDOM } from "@lexical/html";
+import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
+import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { JSDOM } from "jsdom";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { markdownToHtml } from "@/server/editor/conversionUtils";
@@ -22,6 +23,14 @@ interface ReplaceResult {
   /** The quote/replacement after narrowing, for use in suggestion summaries. */
   summaryQuote?: string
   summaryReplacement?: string
+  /**
+   * For mode `"edit"` only, when `replaced` is true: the live document's HTML
+   * after the edit was applied, serialized from the post-edit Lexical state.
+   * Callers that want to publish the live state as a new revision (rather than
+   * computing the published HTML offline) read this field. Undefined for
+   * `"suggest"` mode and for failed replacements.
+   */
+  postEditHtml?: string
 }
 
 interface SuggestionNarrowingResult {
@@ -522,7 +531,7 @@ function $applySuggestionInsertionAtPoint({
  * narrowing isn't applicable (identical plain text, no common affixes, etc.),
  * in which case the caller should use the original anchor/focus/replacement.
  */
-function $computeNarrowing(
+export function $computeNarrowing(
   anchor: MarkdownSelectionPoint,
   focus: MarkdownSelectionPoint,
   quote: string,
@@ -602,6 +611,62 @@ function $applySuggestionForSelection(
   return $applySuggestionReplacementMultiNode({
     editor, anchor, focus, replacement, replacementNodes, suggestionId,
   });
+}
+
+/**
+ * Apply an edit replacement with narrowing: strip the common markdown
+ * prefix/suffix between the quote and replacement so that the edit only
+ * touches the minimal diff. Falls back to the wide replacement when
+ * narrowing collapses to a pure insertion (empty narrowed quote) — edit
+ * mode doesn't have a distinct insertion-at-point primitive, and the
+ * wide replacement is functionally equivalent.
+ *
+ * Must be called inside a Lexical update context.
+ */
+export function $applyEditWithNarrowing({
+  editor,
+  anchor,
+  focus,
+  quote,
+  replacement,
+}: {
+  editor: LexicalEditor
+  anchor: MarkdownSelectionPoint
+  focus: MarkdownSelectionPoint
+  quote: string
+  replacement: string
+}): SuggestionNarrowingResult {
+  const narrowing = $computeNarrowing(anchor, focus, quote, replacement);
+
+  if (!narrowing || narrowing.quote.length === 0) {
+    const replaced = $applyEditForSelection(editor, anchor, focus, replacement);
+    return { replaced, narrowedQuote: quote, narrowedReplacement: replacement };
+  }
+
+  const replaced = $applyEditForSelection(
+    editor, narrowing.anchor, narrowing.focus, narrowing.replacement,
+  );
+  return { replaced, narrowedQuote: narrowing.quote, narrowedReplacement: narrowing.replacement };
+}
+
+function $applyEditForSelection(
+  editor: LexicalEditor,
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+  replacement: string,
+): boolean {
+  const sameTextNode =
+    anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
+  if (sameTextNode) {
+    return $applyEditReplacement({
+      editor,
+      matchedNodeKey: anchor.key,
+      startOffset: anchor.offset,
+      endOffset: focus.offset,
+      replacement,
+    });
+  }
+  return $applyEditReplacementMultiNode({ editor, anchor, focus, replacement });
 }
 
 /**
@@ -716,22 +781,14 @@ export async function replaceTextInMainDoc({
           }
 
           const { anchor, focus } = selectionResult;
-          const sameTextNode = anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
 
           if (mode === "edit") {
-            if (sameTextNode) {
-              replaced = $applyEditReplacement({
-                editor,
-                matchedNodeKey: anchor.key,
-                startOffset: anchor.offset,
-                endOffset: focus.offset,
-                replacement,
-              });
-            } else {
-              replaced = $applyEditReplacementMultiNode({
-                editor, anchor, focus, replacement,
-              });
-            }
+            const editResult = $applyEditWithNarrowing({
+              editor, anchor, focus, quote, replacement,
+            });
+            replaced = editResult.replaced;
+            summaryQuote = editResult.narrowedQuote;
+            summaryReplacement = editResult.narrowedReplacement;
             return;
           }
 
@@ -753,6 +810,21 @@ export async function replaceTextInMainDoc({
       }
 
       if (replaced) {
+        // For "edit" mode, snapshot the post-edit HTML from the live Lexical
+        // state. Callers that want to publish the live document (rather than
+        // recompute the published HTML by replaying the edit offline) use this
+        // field as their publish source. Suggestion mode doesn't need it —
+        // the suggest path mutates Yjs but doesn't publish.
+        let postEditHtml: string | undefined;
+        if (mode === "edit") {
+          postEditHtml = withDomGlobals(() => {
+            let html = "";
+            editor.getEditorState().read(() => {
+              html = $generateHtmlFromNodes(editor, null);
+            });
+            return html;
+          });
+        }
         return {
           replaced: true,
           quoteFoundInDocument,
@@ -762,6 +834,7 @@ export async function replaceTextInMainDoc({
           suggestionId,
           summaryQuote,
           summaryReplacement,
+          postEditHtml,
         };
       }
 

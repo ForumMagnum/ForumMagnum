@@ -1924,6 +1924,15 @@ const schema = {
     },
     graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
   },
+  notificationTypoSuggestions: {
+    database: {
+      type: "JSONB",
+      defaultValue: defaultNotificationTypeSettings,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+  },
   notificationPublishedDialogueMessages: {
     database: {
       type: "JSONB",
