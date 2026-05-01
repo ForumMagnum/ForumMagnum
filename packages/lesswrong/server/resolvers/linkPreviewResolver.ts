@@ -13,9 +13,22 @@ const LINK_PREVIEW_CACHE_VERSION = 2;
 const LINK_PREVIEW_REQUEST_COOLDOWN_MS = 24 * 60 * 60 * 1000;
 const LINK_PREVIEW_FETCH_TIMEOUT_MS = 8000;
 const LINK_PREVIEW_IMAGE_FETCH_TIMEOUT_MS = 8000;
+const LINK_SHORTENER_RESOLVE_TIMEOUT_MS = 5000;
 const MAX_REMOTE_HTML_LENGTH = 300_000;
 const MAX_IMAGE_PROBE_BYTES = 262_144;
 const MAX_EXCERPT_LENGTH = 3000;
+
+// Domains that are pure link shorteners with no OG metadata of their own.
+// For these we follow the redirect and use the final URL for preview fetching.
+const LINK_SHORTENER_HOSTS = new Set([
+  "t.co",
+  "bit.ly",
+  "tinyurl.com",
+  "ow.ly",
+  "buff.ly",
+  "dlvr.it",
+  "ift.tt",
+]);
 
 interface LinkPreviewResult {
   title: string | null;
@@ -124,6 +137,44 @@ function normalizePreviewUrl(url: string): string {
   return parsed.toString();
 }
 
+function isLinkShortener(url: string): boolean {
+  try {
+    const hostname = new URL(url).hostname.toLowerCase().replace(/^www\./, "");
+    return LINK_SHORTENER_HOSTS.has(hostname);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * For known link-shortener domains, follow the redirect chain and return the
+ * final destination URL (normalised).  Falls back to the original URL on any
+ * network error so the caller can still attempt a regular fetch.
+ */
+async function resolveShortenerRedirect(url: string): Promise<string> {
+  const abortController = new AbortController();
+  const timeout = setTimeout(() => abortController.abort(), LINK_SHORTENER_RESOLVE_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, {
+      method: "HEAD",
+      signal: abortController.signal,
+      redirect: "follow",
+      headers: {
+        "User-Agent": "LessWrong-LinkPreviewBot/1.0 (+https://www.lesswrong.com)",
+      },
+    });
+    const finalUrl = response.url;
+    if (finalUrl && finalUrl !== url) {
+      return normalizePreviewUrl(finalUrl);
+    }
+    return url;
+  } catch {
+    return url;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 function getTagSource($: CheerioAPI, selector: string): string | null {
   const selected = $(selector).first();
   if (!selected || selected.length === 0) {
@@ -217,7 +268,7 @@ function descriptionLooksUseful(description: string | null | undefined): boolean
   if (trimmed.length < 12) {
     return false;
   }
-  if (/^[.\u2026\s-]+$/.test(trimmed)) {
+  if (/^[.…\s-]+$/.test(trimmed)) {
     return false;
   }
   return true;
@@ -935,7 +986,7 @@ function parsePreviewFromHtml(rawHtml: string, pageUrl: string): {
   const title = extractTitle($);
   const image = extractImageUrl($, pageUrl);
   const description = extractDescriptionWithFallback($, pageUrl);
-  const siteName = extractMetaContent($, ["meta[property='og:site_name']"]).value;
+  const siteName = extractMetaContent($, ["meta[property='og:site_name']"]). value;
 
   return {
     title: title.value,
@@ -957,7 +1008,13 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
   forceRefetch: boolean;
   includeDebug: boolean;
 }): Promise<LinkPreviewResult> {
-  const normalizedUrl = normalizePreviewUrl(url);
+  const rawNormalizedUrl = normalizePreviewUrl(url);
+  // For link shorteners (t.co, bit.ly, etc.) follow the redirect first so
+  // that the cache key and fetch target are the canonical destination URL
+  // rather than the opaque shortener URL (which has no OG metadata).
+  const normalizedUrl = isLinkShortener(rawNormalizedUrl)
+    ? await resolveShortenerRedirect(rawNormalizedUrl)
+    : rawNormalizedUrl;
   const now = new Date();
 
   const cachedResult = await getCachedPreview(normalizedUrl, includeDebug);
@@ -1087,4 +1144,3 @@ export const crossSiteLinkPreviewGraphQLQueries = {
     });
   },
 };
-
