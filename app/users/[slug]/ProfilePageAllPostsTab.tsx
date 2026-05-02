@@ -253,7 +253,7 @@ const ProfilePostsQuery = gql(`
 `);
 
 const INITIAL_POSTS_TO_SHOW = 7;
-export const allPostsTabSortingModeSchema = z.enum(["new", "top", "topInflation", "recentComments", "old", "magic"]);
+export const allPostsTabSortingModeSchema = z.enum(["new", "top", "topAdjusted", "recentComments", "old", "magic"]);
 export type AllPostsTabSortingMode = z.infer<typeof allPostsTabSortingModeSchema>;
 
 export const profilePageAllPostsTabSettingsSchema = z.object({
@@ -305,8 +305,8 @@ export function ProfilePageAllPostsTabSettingsForm({
       Top
     </button>
     <button
-      className={classNames(sharedClasses.sortPanelOption, settings.sortBy === "topInflation" && sharedClasses.sortPanelOptionSelected)}
-      onClick={() => onChange({ sortBy: "topInflation" })}
+      className={classNames(sharedClasses.sortPanelOption, settings.sortBy === "topAdjusted" && sharedClasses.sortPanelOptionSelected)}
+      onClick={() => onChange({ sortBy: "topAdjusted" })}
       type="button"
     >
       Top (Inflation Adjusted)
