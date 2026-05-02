@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useMemo, useState } from 'react';
 import { tagGetUrl } from '../../lib/collections/tags/helpers';
 import { Link } from '../../lib/reactRouterWrapper';
 import { tagPostTerms } from './TagPageUtils';
@@ -12,6 +12,7 @@ import TagSmallPostLink from "./TagSmallPostLink";
 import Loading from "../vulcan-core/Loading";
 import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
+import { usePostsPageContext } from '../posts/PostsPage/PostsPageContext';
 
 const PostsListMultiQuery = gql(`
   query multiPostTagPreviewQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -188,19 +189,34 @@ const TagPreview = ({
     setForceOpen?.(true);
   };
 
+  // When viewing a post, boost that post's author to the top of the related-posts list
+  // so authors are rewarded for linking wikitags relevant to their own work.
+  const postsPageContext = usePostsPageContext();
+  const currentAuthorId = postsPageContext?.fullPost?.userId ?? null;
+
   const showPosts = postCount > 0 && !!tag?._id;
   const { view, limit, ...selectorTerms } = tagPostTerms(tag);
+  // Fetch a small buffer of extra posts when an author boost is active so that
+  // author posts don't displace items that were already in the visible set.
+  const fetchLimit = currentAuthorId ? postCount + 3 : postCount;
   const { data } = useQuery(PostsListMultiQuery, {
     variables: {
       selector: { [view]: selectorTerms },
-      limit: postCount,
+      limit: fetchLimit,
       enableTotal: false,
     },
     skip: !showPosts,
     notifyOnNetworkStatusChange: true,
   });
 
-  const results = data?.posts?.results;
+  const rawResults = data?.posts?.results;
+  // Partition so the current post's author floats to the top, then trim to postCount.
+  const results = useMemo(() => {
+    if (!rawResults || !currentAuthorId) return rawResults;
+    const authorPosts = rawResults.filter(p => p?.userId === currentAuthorId);
+    const otherPosts = rawResults.filter(p => p?.userId !== currentAuthorId);
+    return [...authorPosts, ...otherPosts].slice(0, postCount);
+  }, [rawResults, currentAuthorId, postCount]);
 
   // In theory the type system doesn't allow this, but I'm too scared to
   // remove it
