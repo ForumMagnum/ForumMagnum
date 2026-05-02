@@ -935,7 +935,7 @@ function parsePreviewFromHtml(rawHtml: string, pageUrl: string): {
   const title = extractTitle($);
   const image = extractImageUrl($, pageUrl);
   const description = extractDescriptionWithFallback($, pageUrl);
-  const siteName = extractMetaContent($, ["meta[property='og:site_name']")).value;
+  const siteName = extractMetaContent($, ["meta[property='og:site_name']"]).value;
 
   return {
     title: title.value,
