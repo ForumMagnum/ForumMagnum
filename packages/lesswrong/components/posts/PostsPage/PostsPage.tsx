@@ -54,6 +54,7 @@ import Row from "../../common/Row";
 import AnalyticsInViewTracker from "../../common/AnalyticsInViewTracker";
 import PostsPageQuestionContent from "../../questions/PostsPageQuestionContent";
 import AFUnreviewedCommentCount from "../../alignment-forum/AFUnreviewedCommentCount";
+import AFLWCommentNotice from "./AFLWCommentNotice";
 import CommentsListSection from "../../comments/CommentsListSection";
 import CommentsTableOfContents from "../../comments/CommentsTableOfContents";
 import AttributionInViewTracker from "../../common/AttributionInViewTracker";
@@ -689,6 +690,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
         <div className={classes.commentsSection}>
           <AnalyticsContext pageSectionContext="commentsSection">
           <Suspense>
+            {fullPost && <AFLWCommentNotice post={fullPost}/>}
             {fullPost && <CommentsListSection
               comments={comments ?? []}
               loadMoreComments={loadMore}
