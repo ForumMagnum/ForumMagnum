@@ -72,6 +72,7 @@ const INITIAL_TOOLBAR_STATE = {
   isCapitalize: false,
   rootType: 'root' as keyof typeof rootTypeToRootName,
   listStartNumber: null as number | null,
+  orderedListStyleType: 'decimal' as 'decimal' | 'lower-alpha' | 'upper-alpha' | 'lower-roman' | 'upper-roman',
 };
 
 type ToolbarState = typeof INITIAL_TOOLBAR_STATE;

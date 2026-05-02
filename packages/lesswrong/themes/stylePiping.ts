@@ -668,6 +668,10 @@ const baseBodyStyles = (theme: ThemeType) => ({
   '& ol > li > ol > li > ol': {
     listStyle: 'lower-roman',
   },
+  '& ol[type="a"]': { listStyleType: 'lower-alpha' },
+  '& ol[type="A"]': { listStyleType: 'upper-alpha' },
+  '& ol[type="i"]': { listStyleType: 'lower-roman' },
+  '& ol[type="I"]': { listStyleType: 'upper-roman' },
   // Hide the marker on Lexical wrapper list items that only contain a nested
   // list (no text content of their own). Without this, the wrapper's marker
   // (e.g. "2.") appears on the same line as the nested list's first item

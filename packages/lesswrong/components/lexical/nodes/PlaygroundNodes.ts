@@ -12,6 +12,7 @@ import {CodeHighlightNode, CodeNode} from '@lexical/code';
 import {HashtagNode} from '@lexical/hashtag';
 import {AutoLinkNode, LinkNode} from '@lexical/link';
 import {ListItemNode, ListNode} from '@lexical/list';
+import { StyledListNode } from '@/components/editor/lexicalPlugins/list/StyledListNode';
 import {MarkNode} from '@lexical/mark';
 import {OverflowNode} from '@lexical/overflow';
 import {HorizontalRuleNode} from '@lexical/extension';
@@ -79,6 +80,7 @@ const PlaygroundNodes: Array<LexicalNodeConfig> = validateLexicalNodes({
   HeadingNode,
   ListNode,
   ListItemNode,
+  StyledListNode,
   // ContainerQuoteNode replaces the built-in QuoteNode. It acts as a shadow
   // root so block-level content (lists, collapsible sections, etc.) can be
   // nested inside blockquotes. Registered directly (same type 'quote').

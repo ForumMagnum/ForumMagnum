@@ -73,6 +73,12 @@ import { FontFamilyIcon } from '../../icons/FontFamilyIcon';
 import {$isLinkNode, TOGGLE_LINK_COMMAND} from '@lexical/link';
 import { LINK_CHANGE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/linkChangeSuggestionCommand';
 import {$isListNode, ListNode} from '@lexical/list';
+import {
+  StyledListNode,
+  LIST_STYLE_TYPE_OPTIONS,
+  type OrderedListStyleType,
+  applyListStyle,
+} from '@/components/editor/lexicalPlugins/list/StyledListNode';
 import {INSERT_EMBED_COMMAND} from '@lexical/react/LexicalAutoEmbedPlugin';
 import {INSERT_HORIZONTAL_RULE_COMMAND} from '@lexical/extension';
 import {$isHeadingNode} from '@lexical/rich-text';
@@ -544,6 +550,41 @@ function Divider(): JSX.Element {
   return <div className={classes.toolbarDivider} />;
 }
 
+function ListStyleDropDown({
+  editor,
+  value,
+  disabled = false,
+  isSuggestionMode = false,
+}: {
+  editor: LexicalEditor;
+  value: OrderedListStyleType;
+  disabled?: boolean;
+  isSuggestionMode?: boolean;
+}): JSX.Element {
+  const classes = useStyles(styles);
+  const currentLabel = LIST_STYLE_TYPE_OPTIONS.find(([v]) => v === value)?.[1] ?? '1, 2, 3…';
+  return (
+    <DropDown
+      disabled={disabled}
+      buttonLabel={currentLabel}
+      buttonClassName={classes.toolbarItemSpaced}
+      buttonAriaLabel="Ordered list style">
+      {LIST_STYLE_TYPE_OPTIONS.map(([style, label]) => (
+        <DropDownItem
+          key={style}
+          active={value === style}
+          onClick={() => {
+            if (!isSuggestionMode) {
+              applyListStyle(editor, style);
+            }
+          }}>
+          <DropDownItemText>{label}</DropDownItemText>
+        </DropDownItem>
+      ))}
+    </DropDown>
+  );
+}
+
 function FontDropDown({
   editor,
   value,
@@ -892,6 +933,13 @@ export default function ToolbarPlugin({
             : element.getListType();
 
           updateToolbarState('blockType', type);
+          const activeList = parentList ?? element;
+          updateToolbarState(
+            'orderedListStyleType',
+            activeList instanceof StyledListNode
+              ? activeList.getListStyleType()
+              : 'decimal',
+          );
         } else {
           $handleHeadingNode(element);
           $handleCodeNode(element);
@@ -964,6 +1012,12 @@ export default function ToolbarPlugin({
         if (parentList) {
           const type = parentList.getListType();
           updateToolbarState('blockType', type);
+          updateToolbarState(
+            'orderedListStyleType',
+            parentList instanceof StyledListNode
+              ? parentList.getListStyleType()
+              : 'decimal',
+          );
         } else {
           const selectedElement = $findTopLevelElement(selectedNode);
           $handleHeadingNode(selectedElement);
@@ -1195,6 +1249,14 @@ export default function ToolbarPlugin({
               rootType={toolbarState.rootType}
               editor={activeEditor}
             />
+            {toolbarState.blockType === 'number' && (
+              <ListStyleDropDown
+                disabled={!isEditable}
+                value={toolbarState.orderedListStyleType}
+                editor={activeEditor}
+                isSuggestionMode={isSuggestionMode}
+              />
+            )}
             <Divider />
           </>
         )}
