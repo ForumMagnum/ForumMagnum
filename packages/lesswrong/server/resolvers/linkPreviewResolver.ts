@@ -217,7 +217,7 @@ function descriptionLooksUseful(description: string | null | undefined): boolean
   if (trimmed.length < 12) {
     return false;
   }
-  if (/^[.\u2026\s-]+$/.test(trimmed)) {
+  if (/^[.…\s-]+$/.test(trimmed)) {
     return false;
   }
   return true;
@@ -935,7 +935,7 @@ function parsePreviewFromHtml(rawHtml: string, pageUrl: string): {
   const title = extractTitle($);
   const image = extractImageUrl($, pageUrl);
   const description = extractDescriptionWithFallback($, pageUrl);
-  const siteName = extractMetaContent($, ["meta[property='og:site_name']"]).value;
+  const siteName = extractMetaContent($, ["meta[property='og:site_name']")).value;
 
   return {
     title: title.value,
@@ -952,12 +952,30 @@ function parsePreviewFromHtml(rawHtml: string, pageUrl: string): {
   };
 }
 
+// nitter.net is a privacy-focused Twitter/X frontend that serves no og:* metadata.
+// Its URL path structure is identical to x.com, so we substitute the hostname
+// before fetching to get a normal tweet preview card.
+const NITTER_DOMAINS = new Set(["nitter.net"]);
+
+function rewriteCanonicalUrl(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (NITTER_DOMAINS.has(parsed.hostname)) {
+      parsed.hostname = "x.com";
+      return parsed.toString();
+    }
+  } catch {
+    // fall through
+  }
+  return url;
+}
+
 async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
   url: string;
   forceRefetch: boolean;
   includeDebug: boolean;
 }): Promise<LinkPreviewResult> {
-  const normalizedUrl = normalizePreviewUrl(url);
+  const normalizedUrl = rewriteCanonicalUrl(normalizePreviewUrl(url));
   const now = new Date();
 
   const cachedResult = await getCachedPreview(normalizedUrl, includeDebug);
@@ -1046,7 +1064,7 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
 }
 
 export async function debugParseCrossSitePreview(url: string) {
-  const normalizedUrl = normalizePreviewUrl(url);
+  const normalizedUrl = rewriteCanonicalUrl(normalizePreviewUrl(url));
   const remoteHtml = await fetchRemoteHtml(normalizedUrl);
   const parsed = parsePreviewFromHtml(remoteHtml, normalizedUrl);
   const resolvedImage = await resolvePreviewImage(parsed.imageUrl);
@@ -1087,4 +1105,3 @@ export const crossSiteLinkPreviewGraphQLQueries = {
     });
   },
 };
-
