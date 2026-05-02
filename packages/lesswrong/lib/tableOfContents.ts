@@ -85,7 +85,7 @@ const headingSelector = Object.keys(headingTags).join(",");
  * plus a JSON array of sections, where each section has a
  * `title`, `anchor`, and `level`, like this:
  *   {
- *     html: "<a anchor=...">,
+ *     html: "<a anchor=...>",
  *     sections: [
  *       {title: "Preamble", anchor: "preamble", level: 1},
  *       {title: "My Cool Idea", anchor: "mycoolidea", level: 1},
@@ -114,6 +114,13 @@ export function extractTableOfContents({
     if (!(element instanceof window.HTMLElement)) {
       continue;
     }
+
+    // Headings inside collapsible sections (<details>) or code blocks (<pre>)
+    // should not appear in the navigational ToC.
+    if (element.closest('details, pre')) {
+      continue;
+    }
+
     let tagName = element.tagName.toLowerCase();
     if (tagIsHeadingIfWholeParagraph(tagName) && !tagIsWholeParagraph({ element, window })) {
       continue;

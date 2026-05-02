@@ -126,12 +126,36 @@ describe("extractTableOfContents", () => {
       html: `<p><strong id="${expectedAnchor}">DanielFilan ($23,544):&#160; Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.&#160; </strong></p>`,
       sections: [
         {
-          title: "DanielFilan ($23,544):  Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.  ",
+          title: "DanielFilan ($23,544):  Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.  ",
           anchor: expectedAnchor,
           level: 1,
         },
         { anchor: "postHeadingsDivider", divider: true, level: 0 },
       ],
     });
+  });
+
+  it("excludes headings inside collapsible sections and code blocks from ToC", () => {
+    const html = normalizeHtml(`
+      <h1>Real Heading</h1>
+      <p>Normal content</p>
+      <details class="detailsBlock">
+        <summary class="detailsBlockTitle">Click to expand</summary>
+        <div class="detailsBlockContent">
+          <h2>Hidden inside collapsible</h2>
+          <p>Some collapsed content</p>
+          <h3>Also hidden</h3>
+        </div>
+      </details>
+      <pre><code>h1 { color: red; }</code></pre>
+      <h2>Another Real Heading</h2>
+    `);
+    const { document, window } = parseDocumentFromString(html);
+    const tocData = extractTableOfContents({ document, window });
+    const nonDividerSections = tocData?.sections.filter(s => !s.divider) ?? [];
+    expect(nonDividerSections.map(s => s.title)).toEqual([
+      "Real Heading",
+      "Another Real Heading",
+    ]);
   });
 });
