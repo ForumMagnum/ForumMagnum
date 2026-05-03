@@ -515,7 +515,7 @@ const _496=_o3(_3,"qualitativeScore")
 const _497=_o4(_8,_496)
 const _498=_o4(_8,_o3(_3,"quadraticScore"))
 const _499=_o5(_7,[_10,_497,_498])
-const _500=_o2(_2,_495,_6,_o5(_7,[_204,_o4(_8,_o3(_3,"reviewVoteScoreAllKarma")),_o4(_8,_o3(_3,"reviewVotesAllKarma")),_o4(_8,_o3(_3,"reviewVoteScoreHighKarma")),_o4(_8,_o3(_3,"reviewVotesHighKarma")),_o4(_8,_o3(_3,"reviewVoteScoreAF")),_o4(_8,_o3(_3,"reviewVotesAF")),_o6(_8,_o3(_3,"currentUserReviewVote"),_499)]))
+const _500=_o2(_2,_495,_6,_o5(_7,[_204,_o4(_8,_o3(_3,"reviewVoteScoreAllKarma")),_o4(_8,_o3(_3,"reviewVotesAllKarma")),_o4(_8,_o3(_3,"reviewVoteScoreHighKarma")),_o4(_8,_o3(_3,"reviewVotesHighKarma")),_o4(_8,_o3(_3,"reviewVoteScoreAF")),_o4(_8,_o3(_3,"reviewVotesAF")),_o4(_8,_o3(_3,"finalReviewVoteScoreHighKarma")),_o4(_8,_o3(_3,"finalReviewVotesHighKarma")),_o6(_8,_o3(_3,"currentUserReviewVote"),_499)]))
 const _501=_o3(_3,"PostsModerationGuidelines")
 const _502=_o3(_3,"moderationGuidelines")
 const _503=_o2(_2,_501,_6,_o5(_7,[_25,_74,_o6(_8,_59,_o5(_7,[_10,_42,_112])),_112,_o6(_8,_502,_o5(_7,[_10,_167,_261]))]))
@@ -20250,7 +20250,7 @@ export type UltraFeedPostFragment = (
 );
 
 export type PostsReviewVotingList = (
-  { __typename?: 'Post', reviewVoteScoreAllKarma: number, reviewVotesAllKarma: Array<number>, reviewVoteScoreHighKarma: number, reviewVotesHighKarma: Array<number>, reviewVoteScoreAF: number, reviewVotesAF: Array<number>, currentUserReviewVote: { __typename?: 'ReviewVote', _id: string, qualitativeScore: number, quadraticScore: number } | null }
+  { __typename?: 'Post', reviewVoteScoreAllKarma: number, reviewVotesAllKarma: Array<number>, reviewVoteScoreHighKarma: number, reviewVotesHighKarma: Array<number>, reviewVoteScoreAF: number, reviewVotesAF: Array<number>, finalReviewVoteScoreHighKarma: number, finalReviewVotesHighKarma: Array<number>, currentUserReviewVote: { __typename?: 'ReviewVote', _id: string, qualitativeScore: number, quadraticScore: number } | null }
   & PostsListWithVotes
 );
 

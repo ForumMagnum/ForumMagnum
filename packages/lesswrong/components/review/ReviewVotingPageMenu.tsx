@@ -112,8 +112,8 @@ export const sortingInfo: Record<string, {title: string, description: string}> =
     description: "Prioritizes posts you voted on or wrote, which haven't had a review written, and which have at least 4 points. (i.e. emphasizees posts that you'd likely want to prioritize reviewing, so that they make it to the final voting)"
   },
   reviewVoteScoreHighKarma: {
-    title: "Nomination Vote Total",
-    description: "Shows the most likely winners of the review, based on the preliminary vote. Find over/underappreciated posts to review."
+    title: "Nomination Vote Total (Probability of Winning)",
+    description: "Shows the most likely winners of the review based on the nomination-phase vote from high-karma users. Useful for identifying over/underappreciated posts."
   },
   reviewVoteScoreAF: {
     title: "Vote Total (Alignment Forum Users)",
@@ -144,8 +144,8 @@ export const sortingInfo: Record<string, {title: string, description: string}> =
     description: "Sort by the number of positive reviews on the post"
   },
   finalReviewVoteScoreHighKarma: {
-    title: "Final Vote Total",
-    description: "Sort by the total number of votes on the post, weighted by the karma of the users who voted on it"
+    title: "Final Vote Total (Probability of Winning)",
+    description: "Sort by the final vote total weighted by voter karma — the best signal for which posts won (or are most likely to win) the review."
   },
 }
 
@@ -234,11 +234,11 @@ export const ReviewVotingPageMenu = ({reviewPhase, loading, sortedPosts, costTot
                   </LWTooltip>
                 </MenuItem>
               }
-              {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreHighKarma'}>
+              <MenuItem value={'reviewVoteScoreHighKarma'}>
                 <LWTooltip title={sortingInfo['reviewVoteScoreHighKarma'].description} placement="left">
                   <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['reviewVoteScoreHighKarma'].title}</span>
                 </LWTooltip>
-              </MenuItem>}
+              </MenuItem>
               <MenuItem value={'yourVote'}>
                 <LWTooltip title={sortingInfo['yourVote'].description} placement="left">
                   <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['yourVote'].title}</span>
@@ -273,7 +273,7 @@ export const ReviewVotingPageMenu = ({reviewPhase, loading, sortedPosts, costTot
                   </LWTooltip>
                 </MenuItem>
               }
-              {reviewPhase === "COMPLETE" && <MenuItem value={'finalReviewVoteScoreHighKarma'}>
+              {(reviewPhase === "VOTING" || reviewPhase === "COMPLETE") && <MenuItem value={'finalReviewVoteScoreHighKarma'}>
                 <LWTooltip title={sortingInfo['finalReviewVoteScoreHighKarma'].description} placement="left">
                   <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['finalReviewVoteScoreHighKarma'].title}</span>
                 </LWTooltip>

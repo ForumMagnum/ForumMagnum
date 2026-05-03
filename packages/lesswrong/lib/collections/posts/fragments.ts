@@ -223,6 +223,8 @@ export const PostsReviewVotingList = gql(`
     reviewVotesHighKarma
     reviewVoteScoreAF
     reviewVotesAF
+    finalReviewVoteScoreHighKarma
+    finalReviewVotesHighKarma
     currentUserReviewVote {
       _id
       qualitativeScore
