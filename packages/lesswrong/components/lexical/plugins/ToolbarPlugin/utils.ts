@@ -236,6 +236,12 @@ export const updateFontSize = (
  *
  * For unwrapping: moves the quote's children out after the quote and removes
  * the empty quote node.
+ *
+ * Cross-boundary case: if the selection spans both inside and outside an
+ * existing quote, the existing quote is first unwrapped so all blocks are at
+ * root level, then they are all wrapped together into one new quote. Without
+ * this handling, $wrapInQuote receives nodes from different parent containers
+ * (document root and shadow root), causing a freeze.
  */
 function $wrapOrUnwrapQuote(selection: ReturnType<typeof $getSelection>): void {
   if (!$isRangeSelection(selection)) {
@@ -253,7 +259,7 @@ function $wrapOrUnwrapQuote(selection: ReturnType<typeof $getSelection>): void {
 
   // Wrap: find the top-level element(s) in the selection and wrap in a quote
   const nodes = selection.getNodes();
-  // Collect unique top-level block elements
+  // Collect unique top-level block elements (stopping at any shadow-root boundary)
   const topLevelElements = new Set<import('lexical').LexicalNode>();
   for (const node of nodes) {
     const topLevel = $findMatchingParent(node, (n) => {
@@ -273,6 +279,31 @@ function $wrapOrUnwrapQuote(selection: ReturnType<typeof $getSelection>): void {
   const sortedElements = Array.from(topLevelElements).sort((a, b) => {
     return a.isBefore(b) ? -1 : 1;
   });
+
+  // Guard: if the selection spans a ContainerQuoteNode boundary (i.e. sortedElements
+  // contains both the ContainerQuoteNode and blocks inside/outside it), $wrapInQuote
+  // would receive nodes from different parent containers and freeze the editor.
+  // Fix: flatten by extracting each ContainerQuoteNode's children into the list, then
+  // unwrap those ContainerQuoteNodes so everything is at root level before wrapping.
+  if (sortedElements.some($isContainerQuoteNode)) {
+    const flatBlocks: import('lexical').LexicalNode[] = [];
+    for (const el of sortedElements) {
+      if ($isContainerQuoteNode(el)) {
+        flatBlocks.push(...el.getChildren());
+      } else {
+        flatBlocks.push(el);
+      }
+    }
+    for (const el of sortedElements) {
+      if ($isContainerQuoteNode(el)) {
+        $unwrapQuote(el);
+      }
+    }
+    if (flatBlocks.length > 0) {
+      $wrapInQuote(flatBlocks);
+    }
+    return;
+  }
 
   $wrapInQuote(sortedElements);
 }
