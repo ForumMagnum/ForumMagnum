@@ -84,6 +84,14 @@ const styles = defineStyles('ModerationGuidelinesBox', (theme: ThemeType) => ({
 }))
 
 const truncateGuidelines = (guidelines: string) => {
+  // truncatise counts HTML characters including tags, not visible text.
+  // The LW frontpage guidelines are only ~220 visible chars but ~320 HTML
+  // chars due to <ul>/<li> overhead, so the old 300-char limit cut the last
+  // bullet. Measure visible text only; skip truncation for short content.
+  const visibleText = guidelines.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
+  if (visibleText.length <= 300) {
+    return guidelines;
+  }
   return truncatise(guidelines, {
     TruncateLength: 300,
     TruncateBy: "characters",
@@ -244,5 +252,3 @@ const moderationStyleLookup: Partial<Record<string, string>> = {
 export default registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, {
   hocs: [withErrorBoundary]
 });
-
-
