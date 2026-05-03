@@ -6,6 +6,7 @@ import {
   $getSelection,
   $isRangeSelection,
   COMMAND_PRIORITY_LOW,
+  KEY_DOWN_COMMAND,
   createCommand,
   LexicalCommand,
   $getNodeByKey,
@@ -647,6 +648,37 @@ export function TablesPlugin(): React.ReactElement {
           if (element) {
             openToolbar(tableKey, null, element);
           }
+          return true;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+
+      // Keyboard shortcuts for table row/column deletion:
+      // Ctrl/Cmd+Delete or Ctrl/Cmd+Backspace  → delete current row
+      // Ctrl/Cmd+Shift+Delete or Ctrl/Cmd+Shift+Backspace → delete current column
+      editor.registerCommand(
+        KEY_DOWN_COMMAND,
+        (event: KeyboardEvent) => {
+          const { key, ctrlKey, metaKey, shiftKey } = event;
+          if ((key !== 'Backspace' && key !== 'Delete') || (!ctrlKey && !metaKey)) return false;
+
+          let isInTable = false;
+          editor.getEditorState().read(() => {
+            const selection = $getSelection();
+            if (!$isRangeSelection(selection) && !$isTableSelection(selection)) return;
+            const anchorNode = selection.anchor.getNode();
+            isInTable = $findMatchingParent(anchorNode, $isTableNode) !== null;
+          });
+          if (!isInTable) return false;
+
+          event.preventDefault();
+          editor.update(() => {
+            if (shiftKey) {
+              $deleteTableColumnAtSelection();
+            } else {
+              $deleteTableRowAtSelection();
+            }
+          });
           return true;
         },
         COMMAND_PRIORITY_LOW
