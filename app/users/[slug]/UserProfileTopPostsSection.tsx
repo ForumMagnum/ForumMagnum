@@ -407,8 +407,9 @@ export function UserProfileTopPostsSectionQuery({user}: {user: UsersProfile}) {
     fetchPolicy: "cache-and-network",
   });
 
-  // When using pinned posts, reorder results to match the pinned order.
-  const postResults = data?.posts?.results ?? [];
+  // exactPostIds bypasses the default view's rejected/draft filters, so we
+  // filter client-side to prevent rejected or draft posts from appearing here.
+  const postResults = (data?.posts?.results ?? []).filter(p => !p.rejected && !p.draft);
   const topPosts = hasPinnedPosts
     ? filterNonnull(pinnedPostIds.map(id => postResults.find(p => p._id === id)))
     : postResults;
