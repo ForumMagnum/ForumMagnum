@@ -39,6 +39,7 @@ export const getLinkSharedPostGraphQLQueries = {
     
     // Either:
     //  * The logged-in user is explicitly shared on this post
+    //  * The logged-in user is a coauthor of this post
     //  * Link-sharing is enabled and a correct link-sharing key is provided
     //  * Link-sharing is enabled and the post doesn't have a link-sharing key
     //  * Link-sharing is enabled and this user has provided the correct key in
@@ -48,6 +49,7 @@ export const getLinkSharedPostGraphQLQueries = {
 
     if (
       (post.shareWithUsers && currentUser?._id && post.shareWithUsers.includes(currentUser._id))
+      || (currentUser?._id && post.coauthorUserIds?.includes(currentUser._id))
       || (linkSharingEnabled(post) && (!canonicalLinkSharingKey || keysMatch))
       || (linkSharingEnabled(post) && (currentUser && post.linkSharingKeyUsedBy?.includes(currentUser._id)))
       || currentUser?._id === post.userId
