@@ -80,6 +80,17 @@ export const PostSubmit = ({
   };
 
   const submitWithoutConfirmation = async () =>  {
+    const titleEmpty = !document.title?.trim();
+    const bodyText = document.contents?.html?.replace(/<[^>]*>/g, '').trim() ?? '';
+    const bodyEmpty = bodyText.length === 0;
+    if (titleEmpty || bodyEmpty) {
+      const what = titleEmpty && bodyEmpty
+        ? 'no title or body content'
+        : titleEmpty ? 'no title' : 'no body content';
+      if (!confirm(`Your post has ${what}. Are you sure you want to publish it?`)) {
+        return;
+      }
+    }
     formApi.setFieldValue('draft', false);
     await formApi.handleSubmit();
   };
