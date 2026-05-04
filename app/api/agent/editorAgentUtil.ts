@@ -4,7 +4,6 @@ import { Doc, UndoManager } from "yjs";
 import type { Provider as LexicalProvider } from "@lexical/yjs";
 import { createBinding, syncLexicalUpdateToYjs, syncYjsChangesToLexical } from "@lexical/yjs";
 import {
-  $getRoot,
   createEditor,
   type LexicalEditor,
   SKIP_COLLAB_TAG,
@@ -14,7 +13,6 @@ import { buildTextNodeExportMap } from "@/components/editor/lexicalDomExport";
 import { randomId } from "@/lib/random";
 import { sleep } from "@/lib/utils/asyncUtils";
 import { getLatestRev } from "@/server/editor/utils";
-import { captureException } from "@/lib/sentryWrapper";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
 import { getHocuspocusToken } from "./getHocuspocusToken";
 import { captureAgentApiEvent } from "./captureAgentAnalytics";
@@ -359,24 +357,6 @@ export async function withMainDocEditorSession<T>({
     await provider.connect();
     await waitForProviderSync(provider);
     await sleep(INITIAL_SYNC_SETTLE_MS);
-
-    // After sync, verify that the Lexical editor actually has content.
-    // A Lexical post should always have a non-empty Yjs document in
-    // Hocuspocus. If the root is empty after sync, something critical
-    // has gone wrong (e.g. missing YjsDocuments row, Hocuspocus data
-    // loss, or a race condition in the sync protocol).
-    let rootChildCount = 0;
-    editor.getEditorState().read(() => {
-      rootChildCount = $getRoot().getChildrenSize();
-    });
-    if (rootChildCount === 0) {
-      const err = new Error(
-        `[${operationLabel}] Lexical editor root is empty after Hocuspocus sync for post ${postId}. ` +
-        `This likely means the Yjs document state is missing or corrupt.`
-      );
-      captureException(err);
-      throw err;
-    }
 
     return await callback({ editor, provider });
   } finally {
