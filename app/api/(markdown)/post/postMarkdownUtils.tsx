@@ -105,8 +105,7 @@ export async function renderPostMarkdownByIdOrSlug(
   }, resolverContext);
   const post = data?.post?.result;
   const topComments = (data?.comments?.results ?? [])
-    .filter((comment: { parentCommentId?: string | null }) => !comment.parentCommentId)
-    .slice(0, compactMode ? 3 : 5);
+    .slice(0, compactMode ? 5 : 50);
 
   if (!post) {
     return new Response("No post found with ID or slug: " + idOrSlug, { status: 404 });

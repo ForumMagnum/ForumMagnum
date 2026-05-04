@@ -165,7 +165,7 @@ export function MarkdownPostDetail({
       <MarkdownNode markdown={bodyMarkdown ?? post.contents?.agentMarkdown ?? ""} />
       {topComments.length > 0 ? (
         <>
-          <h2>Top Comments Index</h2>
+          <h2>Comments Index</h2>
           <MarkdownCommentsList
             comments={topComments}
             includeBodies={false}
