@@ -64,7 +64,11 @@ const ReactOrAntireactVote = ({reactionName, quote, netReactionCount, currentUse
     }
   }
 
-  return <div className={classes.reactOrAntireact}>
+  return <div
+    className={classes.reactOrAntireact}
+    onClick={(e) => e.stopPropagation()}
+    onMouseDown={(e) => e.stopPropagation()}
+  >
     <ReactionVoteArrow
       orientation="left"
       onClick={() => onClick("disagreed")}
@@ -105,6 +109,3 @@ const ReactionVoteArrow = ({orientation, onClick, className}: {
 
 
 export default ReactOrAntireactVote;
-
-
-
