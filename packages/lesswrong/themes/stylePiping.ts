@@ -366,6 +366,11 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     borderRadius: 8,
     marginTop: 8,
     marginBottom: 8,
+    // Some browsers (notably Safari) reset color-scheme on <details> to their UA
+    // default instead of inheriting. When LW forces `color-scheme: dark only` on
+    // <body> but the OS is in light mode, light-dark() inside the block resolves
+    // to light-mode values — near-black text on a dark background, unreadable.
+    colorScheme: 'inherit',
   },
   '& .detailsBlockTitle': {
     padding: 8,

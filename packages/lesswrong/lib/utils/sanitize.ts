@@ -106,7 +106,7 @@ export const sanitize = function(s: string): string {
       section: ['class', 'message-id', 'user-id', 'user-order', 'submitted-date', 'display-name'],
       
       // Attributes for collapsible sections
-      details: ['class'],
+      details: ['class', 'open'],
       summary: ['class'],
       
       // Attributes for MathML elements
