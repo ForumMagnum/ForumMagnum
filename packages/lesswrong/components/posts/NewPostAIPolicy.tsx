@@ -1,8 +1,11 @@
-import React, { RefObject, useCallback } from "react";
+import React, { RefObject, useCallback, useState } from "react";
 import { parseDocument } from "htmlparser2";
 import serializeDom from "dom-serializer";
+import moment from "moment";
 import type { EditContentsRef } from "../editor/EditorFormComponent";
 import type { EditorContents } from "../editor/Editor";
+import { AI_DISCLOSURE_COOKIE_PREFIX } from "@/lib/cookies/cookies";
+import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import { registerComponent } from "@/lib/vulcan-lib/components";
 import { AnalyticsContext } from "@/lib/analyticsEvents";
 import { Link } from "@/lib/reactRouterWrapper";
@@ -87,12 +90,28 @@ const prependHtml = (documentHtml: string, htmlToPrepend: string): string => {
   return serializeDom(document);
 }
 
-export const NewPostAIPolicy = ({editContentsRef, classes}: {
+export const NewPostAIPolicy = ({postId, editContentsRef, classes}: {
+  postId?: string,
   editContentsRef: RefObject<EditContentsRef | null>,
   classes: ClassesType<typeof styles>,
 }) => {
+  const [cookies, setCookie] = useCookiesWithConsent();
+  const cookieName = postId
+    ?`${AI_DISCLOSURE_COOKIE_PREFIX}${postId}`
+    : null;
+  const [isHidden, setIsHidden] = useState(
+    cookieName ? cookies[cookieName] === "true" : false,
+  );
+
   const onDismiss = useCallback(() => {
-  }, []);
+    setIsHidden(true);
+    if (cookieName) {
+      setCookie(cookieName, "true", {
+        path: "/",
+        expires: moment().add(10, "years").toDate(),
+      });
+    }
+  }, [postId, cookieName, setCookie]);
 
   const onAddDisclosure = useCallback(() => {
     const editContents = editContentsRef.current?.editContents;
@@ -113,6 +132,10 @@ export const NewPostAIPolicy = ({editContentsRef, classes}: {
     });
     onDismiss();
   }, [onDismiss, editContentsRef]);
+
+  if (isHidden) {
+    return null;
+  }
 
   return (
     <AnalyticsContext pageElementContext="newPostAIPolicy">

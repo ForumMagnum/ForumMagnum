@@ -275,7 +275,7 @@ const PostForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
-      <NewPostAIPolicy editContentsRef={editContentsRef} />
+      <NewPostAIPolicy postId={initialData._id} editContentsRef={editContentsRef} />
       {displayedErrorComponent}
       <FormGroupPostTopBar>
         {!(isEvent || isDialogue) && <div className={classNames('form-input', classes.fieldWrapper)}>
