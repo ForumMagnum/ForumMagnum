@@ -22,7 +22,8 @@ const styles = (theme: ThemeType) => ({
     color: theme.palette.text.primaryAlert,
     fontFamily: theme.palette.fonts.sansSerifStack,
     borderRadius: theme.borderRadius.default,
-    padding: 20,
+    margin: "0 16px 16px",
+    padding: 16,
     display: "flex",
     alignItems: "center",
     gap: "16px",
@@ -48,12 +49,16 @@ const styles = (theme: ThemeType) => ({
       flexDirection: "column",
     },
   },
+  buttonContainer: {
+    display: "flex",
+    alignItems: "center",
+  },
   button: {
     whiteSpace: "nowrap",
     minWidth: 120,
   },
   dismiss: {
-    width: 20,
+    width: 16,
     cursor: "pointer",
   },
 });
@@ -74,7 +79,7 @@ const disclosureHtml = `
 </ul>
 `;
 
-const disclosureMarkdown = `Please __edit the below__ so that your disclosure is accurate:
+const disclosureMarkdown = `Please **edit the below** so that your disclosure is accurate:
  - This post is the raw output of an LLM.
  - I wrote this post myself, then asked an LLM to copy-edit it before posting.
  - I used an LLM to help draft this post, but I’ve edited/rewritten it extensively
@@ -161,7 +166,7 @@ export const NewPostAIPolicy = ({postId, editContentsRef, classes}: {
             <Link to={POLICY_LINK}>AI usage policy</Link>{" "}
             requires disclosure at the top of your post.
           </div>
-          <div>
+          <div className={classes.buttonContainer}>
             <EAButton onClick={onAddDisclosure} className={classes.button}>
               Add disclosure
             </EAButton>

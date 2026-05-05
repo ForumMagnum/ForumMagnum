@@ -275,7 +275,6 @@ const PostForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
-      <NewPostAIPolicy postId={initialData._id} editContentsRef={editContentsRef} />
       {displayedErrorComponent}
       <FormGroupPostTopBar>
         {!(isEvent || isDialogue) && <div className={classNames('form-input', classes.fieldWrapper)}>
@@ -340,6 +339,8 @@ const PostForm = ({
           </LegacyFormGroupLayout>
         )}
       </form.Subscribe>
+
+      <NewPostAIPolicy postId={initialData._id} editContentsRef={editContentsRef} />
 
       <LegacyFormGroupLayout
         groupStyling={false}
