@@ -13,8 +13,7 @@ import { Link } from "@/lib/reactRouterWrapper";
 import ForumIcon from "../common/ForumIcon";
 import EAButton from "../ea-forum/EAButton";
 
-// TODO: Add correct policy link
-const POLICY_LINK = "#";
+const POLICY_LINK = "/posts/bxA9fsY9Psgarcq6e/new-ea-forum-llm-use-policy";
 
 const styles = (theme: ThemeType) => ({
   root: {
