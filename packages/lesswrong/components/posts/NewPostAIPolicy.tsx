@@ -1,4 +1,5 @@
 import React, { RefObject, useCallback, useState } from "react";
+import { captureException } from "@sentry/core";
 import { parseDocument } from "htmlparser2";
 import serializeDom from "dom-serializer";
 import moment from "moment";
@@ -7,11 +8,12 @@ import type { EditorContents } from "../editor/Editor";
 import { AI_DISCLOSURE_COOKIE_PREFIX } from "@/lib/cookies/cookies";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { AnalyticsContext } from "@/lib/analyticsEvents";
+import { AnalyticsContext, useTracking } from "@/lib/analyticsEvents";
 import { Link } from "@/lib/reactRouterWrapper";
 import ForumIcon from "../common/ForumIcon";
 import EAButton from "../ea-forum/EAButton";
 
+// TODO: Add correct policy link
 const POLICY_LINK = "#";
 
 const styles = (theme: ThemeType) => ({
@@ -80,21 +82,12 @@ const disclosureMarkdown = `Please __edit the below__ so that your disclosure is
 
 `;
 
-const prependHtml = (documentHtml: string, htmlToPrepend: string): string => {
-  const document = parseDocument(documentHtml);
-  const nodesToPrepend = parseDocument(htmlToPrepend).children;
-  document.children = [...nodesToPrepend, ...document.children];
-  for (const node of nodesToPrepend) {
-    node.parent = document;
-  }
-  return serializeDom(document);
-}
-
 export const NewPostAIPolicy = ({postId, editContentsRef, classes}: {
   postId?: string,
   editContentsRef: RefObject<EditContentsRef | null>,
   classes: ClassesType<typeof styles>,
 }) => {
+  const {captureEvent} = useTracking();
   const [cookies, setCookie] = useCookiesWithConsent();
   const cookieName = postId
     ?`${AI_DISCLOSURE_COOKIE_PREFIX}${postId}`
@@ -103,7 +96,7 @@ export const NewPostAIPolicy = ({postId, editContentsRef, classes}: {
     cookieName ? cookies[cookieName] === "true" : false,
   );
 
-  const onDismiss = useCallback(() => {
+  const hide = useCallback(() => {
     setIsHidden(true);
     if (cookieName) {
       setCookie(cookieName, "true", {
@@ -111,27 +104,48 @@ export const NewPostAIPolicy = ({postId, editContentsRef, classes}: {
         expires: moment().add(10, "years").toDate(),
       });
     }
-  }, [postId, cookieName, setCookie]);
+  }, [cookieName, setCookie]);
+
+  const onDismiss = useCallback(() => {
+    hide();
+    captureEvent("aiDisclosureDismissed", {postId});
+  }, [hide, postId, captureEvent]);
 
   const onAddDisclosure = useCallback(() => {
-    const editContents = editContentsRef.current?.editContents;
-    if (!editContents) {
-      console.warn("Edit contents ref is empty");
+    try {
+      const editContents = editContentsRef.current?.editContents;
+      if (!editContents) {
+        // eslint-disable-next-line no-console
+        console.warn("Edit contents ref is empty");
+        return;
+      }
+      editContents(({type, value}: EditorContents) => {
+        switch (type) {
+          case "markdown":
+            return {type, value: disclosureMarkdown + value};
+          case "html": // Fallthrough
+          case "ckEditorMarkup": {
+            const document = parseDocument(value);
+            const nodesToPrepend = parseDocument(disclosureHtml).children;
+            document.children = [...nodesToPrepend, ...document.children];
+            for (const node of nodesToPrepend) {
+              node.parent = document;
+            }
+            return {type, value: serializeDom(document)};
+          }
+          default:
+            throw new Error("Invalid contents type");
+        }
+      });
+    } catch (e) {
+      // eslint-disable-next-line no-console
+      console.error("Error inserting AI disclosure:", e);
+      captureException(e);
       return;
     }
-    editContents(({type, value}: EditorContents) => {
-      switch (type) {
-        case "markdown":
-          return {type, value: disclosureMarkdown + value};
-        case "html": // Fallthrough
-        case "ckEditorMarkup":
-          return {type, value: prependHtml(value, disclosureHtml)};
-        default:
-          throw new Error("Invalid contents type");
-      }
-    });
-    onDismiss();
-  }, [onDismiss, editContentsRef]);
+    hide();
+    captureEvent("aiDisclosureInserted", {postId});
+  }, [hide, editContentsRef, postId, captureEvent]);
 
   if (isHidden) {
     return null;
