@@ -126,12 +126,29 @@ describe("extractTableOfContents", () => {
       html: `<p><strong id="${expectedAnchor}">DanielFilan ($23,544):&#160; Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.&#160; </strong></p>`,
       sections: [
         {
-          title: "DanielFilan ($23,544):  Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.  ",
+          title: "DanielFilan ($23,544):  Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.  ",
           anchor: expectedAnchor,
           level: 1,
         },
         { anchor: "postHeadingsDivider", divider: true, level: 0 },
       ],
     });
+  });
+
+  it("excludes headings inside <pre>/<code> blocks from the ToC", () => {
+    // Headings inside code blocks are part of code examples, not document structure.
+    // This covers the case reported in #forum_magnum_product where code blocks inside
+    // collapsible sections were leaking into the ToC.
+    const html = normalizeHtml(`
+      <h2>Real Heading</h2>
+      <p>Some content</p>
+      <pre><code><h3>Should Not Appear</h3></code></pre>
+      <details><summary>Collapsible</summary><pre><code><h2>Also Should Not Appear</h2></code></pre></details>
+    `);
+    const { document, window } = parseDocumentFromString(html);
+    const tocData = extractTableOfContents({ document, window });
+    expect(tocData?.sections.filter(s => s.title)).toEqual([
+      { title: "Real Heading", anchor: "Real_Heading", level: 1 },
+    ]);
   });
 });
