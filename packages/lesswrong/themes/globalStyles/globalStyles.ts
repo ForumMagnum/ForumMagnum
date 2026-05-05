@@ -30,6 +30,11 @@ const clearStyle = (theme: ThemeType) => ({
     fontWeight: 500,
   },
 
+  // The h1 * rule above overrides <b>/<strong> to 500; restore bold.
+  "h1 b, h1 strong, h2 b, h2 strong, h3 b, h3 strong, h4 b, h4 strong": {
+    fontWeight: 700,
+  },
+
   "textarea, textarea:focus, input, input:focus": {
     border: "none",
     outline: "none",
