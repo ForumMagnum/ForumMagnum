@@ -1,5 +1,6 @@
 import { useMessages } from '@/components/common/withMessages';
 import React, { useCallback } from 'react';
+import { useAutoSaveUserFields } from './useAutoSaveUserFields';
 import { EditableUser, getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl } from '@/lib/collections/users/helpers';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { useCurrentUser } from '@/components/common/withUser';
@@ -190,8 +191,15 @@ const styles = defineStyles('UsersEditForm', (theme: ThemeType) => ({
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
+    gap: 12,
     paddingTop: 28,
     marginTop: 32,
+  },
+  autosaveStatus: {
+    ...theme.typography.commentStyle,
+    fontSize: 13,
+    color: theme.palette.text.dim3,
+    opacity: 0.75,
   },
 }));
 
@@ -256,6 +264,8 @@ const UsersForm = ({
       defaultToCKEditor: initialData?.defaultToCKEditor ?? null,
     },
     onSubmit: async ({ formApi }) => {
+      await awaitPendingSaves();
+
       await Promise.all([
         onSubmitBiographyCallback.current?.(),
         onSubmitModerationGuidelinesCallback.current?.(),
@@ -285,6 +295,16 @@ const UsersForm = ({
       }
     },
   });
+
+  // Same deep-contravariance issue as `settingsForm` cast below: TanStack Form's
+  // FormListeners type makes the inferred form type incompatible with AnyForm.
+  // The cast is safe — the hook only accesses form.state.values, form.state.fieldMeta,
+  // and form.store.subscribe, none of which are affected by the variance mismatch.
+  const { isSaving, savedAt, awaitPendingSaves } = useAutoSaveUserFields(
+    form as unknown as Parameters<typeof useAutoSaveUserFields>[0],
+    initialData?._id,
+    mutate,
+  );
 
   if (!initialData) {
     return <Error404 />;
@@ -360,14 +380,20 @@ const UsersForm = ({
           )}
 
           <div className={classNames("form-submit", classes.submitArea)}>
+            {isSaving && (
+              <span className={classes.autosaveStatus}>Saving…</span>
+            )}
+            {!isSaving && savedAt && (
+              <span className={classes.autosaveStatus}>Settings saved</span>
+            )}
             <form.Subscribe selector={(s) => [s.canSubmit, s.isSubmitting]}>
               {([canSubmit, isSubmitting]) => (
                 <Button
                   type="submit"
-                  disabled={!canSubmit || isSubmitting}
+                  disabled={!canSubmit || isSubmitting || isSaving}
                   className={classNames("primary-form-submit-button", classes.submitButton)}
                 >
-                  Save Changes
+                  {isSubmitting ? 'Saving…' : 'Save Changes'}
                 </Button>
               )}
             </form.Subscribe>
