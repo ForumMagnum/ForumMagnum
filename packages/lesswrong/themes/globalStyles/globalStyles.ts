@@ -1,5 +1,6 @@
 import type { JssStyles } from "@/lib/jssStyles";
 import { miscStyles } from "./miscStyles";
+import { printStyles } from "./printStyles";
 
 export const maxSmallish = "@media screen and (max-width: 715px)";
 export const maxTiny = "@media screen and (max-width: 400px)";
@@ -28,6 +29,13 @@ const clearStyle = (theme: ThemeType) => ({
   
   "h1, h1 *, h2, h2 *, h3, h3 *, h4, h4 *": {
     fontWeight: 500,
+  },
+
+  // Restore visible bold inside headings: the rule above sets weight 500 on
+  // ALL descendants (including <b>/<strong>), which makes Ctrl+B bold
+  // invisible. The more-specific rule below wins and restores weight 700.
+  "h1 b, h1 strong, h2 b, h2 strong, h3 b, h3 strong, h4 b, h4 strong": {
+    fontWeight: 700,
   },
 
   "textarea, textarea:focus, input, input:focus": {
@@ -384,4 +392,5 @@ export const globalStyles = (theme: ThemeType) => ({
   ...dialogueStyle(theme),
   ...audioPlayerStyles(theme),
   ...miscStyles(theme),
+  ...printStyles(theme),
 });
