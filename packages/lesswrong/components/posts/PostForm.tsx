@@ -1,7 +1,7 @@
 import { hasSidenotes, userCanCreateAndEditJargonTerms } from "@/lib/betas";
 import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
-import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, MINIMUM_COAUTHOR_KARMA, userPassesCrosspostingKarmaThreshold, userCanEditCoauthors } from "@/lib/collections/posts/helpers";
+import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, userPassesCrosspostingKarmaThreshold, userCanEditCoauthors } from "@/lib/collections/posts/helpers";
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
@@ -9,7 +9,7 @@ import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWo
 import { allOf } from "@/lib/utils/functionUtils";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { OwnableDocument, userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved, userOwns } from "@/lib/vulcan-users/permissions";
+import { OwnableDocument, userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOwns } from "@/lib/vulcan-users/permissions";
 import { isFriendlyUI, preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
@@ -48,6 +48,7 @@ import Error404 from "../common/Error404";
 import FormGroupPostTopBar from "../form-components/FormGroupPostTopBar";
 import FooterTagList from "../tagging/FooterTagList";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import NewPostAIPolicy from "./NewPostAIPolicy";
 
 const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -273,6 +274,7 @@ const PostForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
+      <NewPostAIPolicy />
       {displayedErrorComponent}
       <FormGroupPostTopBar>
         {!(isEvent || isDialogue) && <div className={classNames('form-input', classes.fieldWrapper)}>
