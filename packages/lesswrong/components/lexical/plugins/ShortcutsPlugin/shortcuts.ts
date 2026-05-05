@@ -292,3 +292,9 @@ export function isAddComment(event: KeyboardEvent): boolean {
 export function isInsertFootnote(event: KeyboardEvent): boolean {
   return isExactShortcutMatch(event, 'f', {...CONTROL_OR_META, altKey: true});
 }
+
+export function isRedo(event: KeyboardEvent): boolean {
+  // Ctrl+Y — standard Windows/Linux redo. On Mac, Lexical's HistoryPlugin
+  // already handles Cmd+Shift+Z; Ctrl+Y on Mac conflicts with system shortcuts.
+  return !IS_APPLE && isExactShortcutMatch(event, 'y', {ctrlKey: true});
+}
