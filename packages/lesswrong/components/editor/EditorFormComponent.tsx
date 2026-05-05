@@ -553,13 +553,24 @@ function InnerEditorFormComponent<S, R>({
   }, [isCollabEditor, collectionName, fieldName, saveRemoteBackup, setAutosaveEditorState]);
 
   useImperativeHandle(editContentsRef, () => ({
-    editContents: (updateFn: (currentContents: EditorContents) => EditorContents) => {
+    editContents: async (updateFn: (currentContents: EditorContents) => EditorContents) => {
+      let currentValue = contents;
+      // For CkEditor, retrieving the data from `submitData` ensures we also have
+      // any very recent updates that haven't been saved to `contents` yet because
+      // of throttling.
+      if (editorRef.current?.submitData) {
+        const {originalContents} = await editorRef.current.submitData();
+        currentValue = {
+          type: originalContents.type,
+          value: originalContents.data,
+        };
+      }
       wrappedSetContents({
-        contents: updateFn(contents),
+        contents: updateFn(currentValue),
         autosave: true,
       });
     },
-  }), [wrappedSetContents, contents]);
+  }), [editorRef, wrappedSetContents, contents]);
 
   if (!document) return null;
 
