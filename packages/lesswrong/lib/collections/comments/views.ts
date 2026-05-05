@@ -538,6 +538,8 @@ function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?:
   const maxAgeDays = terms.maxAgeDays ?? 5;
   const currentUserId = context?.currentUser?._id;
   const hidePersonalShortforms = !context?.currentUser || context.currentUser.frontpageFilterSettings?.personalBlog === "Hidden";
+  const defaultSort = {score: -1, lastSubthreadActivity: -1, postedAt: -1};
+  const sort = (terms.sortBy && sortings[terms.sortBy]) ? sortings[terms.sortBy] : defaultSort;
   return {
     selector: {
       shortform: true,
@@ -572,7 +574,7 @@ function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?:
         },
       ],
     },
-    options: {sort: {score: -1, lastSubthreadActivity: -1, postedAt: -1}}
+    options: {sort}
   };
 }
 

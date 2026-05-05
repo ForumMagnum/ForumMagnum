@@ -19,6 +19,7 @@ import Loading from "../vulcan-core/Loading";
 import SectionFooter from "../common/SectionFooter";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { useQuery } from "@apollo/client";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { SuspenseWrapper } from "../common/SuspenseWrapper";
@@ -61,6 +62,8 @@ const styles = defineStyles("QuickTakesSection", (theme: ThemeType) => ({
   },
 }));
 
+const QUICK_TAKES_DISPLAY_LIMIT = 7;
+
 const QuickTakesSectionLoaded = ({showCommunity}: {
   showCommunity: boolean
 }) => {
@@ -71,19 +74,37 @@ const QuickTakesSectionLoaded = ({showCommunity}: {
   const { data, loading, refetch, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
     variables: {
       selector: { shortformFrontpage: { showCommunity, maxAgeDays } },
-      limit: 7,
+      limit: QUICK_TAKES_DISPLAY_LIMIT,
       enableTotal: true,
     },
   });
 
-  const results = data?.comments?.results;
+  // Secondary query: fetch only the single most-recently-posted eligible quick
+  // take so we can guarantee it always appears in the list.
+  const { data: recentData } = useQuery(ShortformCommentsMultiQuery, {
+    variables: {
+      selector: { shortformFrontpage: { showCommunity, maxAgeDays, sortBy: 'new' } } as any,
+      limit: 1,
+      enableTotal: false,
+    },
+  });
+
+  const scoreSorted = data?.comments?.results ?? [];
+  const mostRecent = recentData?.comments?.results?.[0];
+  // Reserve the last slot for the most-recent quick take if it isn't already
+  // among the top (QUICK_TAKES_DISPLAY_LIMIT - 1) score-sorted results.
+  const topN = QUICK_TAKES_DISPLAY_LIMIT - 1;
+  const displayResults =
+    mostRecent && !scoreSorted.slice(0, topN).some((r: FrontpageShortformComments) => r._id === mostRecent._id)
+      ? [...scoreSorted.slice(0, topN), mostRecent]
+      : scoreSorted;
 
   const showLoadMore = !loadMoreProps.hidden;
 
   return <>
     {(userCanQuickTake(currentUser) || !currentUser) && <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />}
     <div className={classes.list}>
-      {results?.map((result: FrontpageShortformComments) => (
+      {displayResults?.map((result: FrontpageShortformComments) => (
         <QuickTakesListItem key={result._id} quickTake={result} />
       ))}
       {loading && <Loading />}
@@ -165,5 +186,4 @@ const QuickTakesSection = () => {
 export default registerComponent("QuickTakesSection", QuickTakesSection, {
   areEqual: "auto"
 });
-
 
