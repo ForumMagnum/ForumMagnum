@@ -56,6 +56,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           ROW_NUMBER() OVER (PARTITION BY comment_with_rownumber."postId" ORDER BY comment_with_rownumber."postedAt" DESC) as rn
         FROM "Comments" comment_with_rownumber
         WHERE comment_with_rownumber."postId" IN ($1:csv)
+        AND comment_with_rownumber."rejected" IS NOT TRUE
         AND (
           ${filterWhereClause}
         )
@@ -88,6 +89,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           LIMIT $1
       ) v
       ON c._id = v."documentId"
+      WHERE c."rejected" IS NOT TRUE
       ORDER BY v.most_recent_react DESC;
     `, [limit]);
   }
@@ -144,7 +146,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           "retracted" IS NOT TRUE AND
           "deleted" IS NOT TRUE AND
           "deletedPublic" IS NOT TRUE AND
-          "needsReview" IS NOT TRUE
+          "needsReview" IS NOT TRUE AND
+          "rejected" IS NOT TRUE
           ${afCommentsFilter}
         ORDER BY "postId", "baseScore" DESC
       ) q
@@ -235,6 +238,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     return this.getRawDb().any(`
       -- CommentsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
+      WHERE COALESCE(c."rejected", FALSE) IS FALSE
       ORDER BY c."createdAt" DESC
       LIMIT $1
       OFFSET $2
@@ -244,7 +248,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
   async countSearchDocuments(): Promise<number> {
     const {count} = await this.getRawDb().one(`
       -- CommentsRepo.countSearchDocuents
-      SELECT COUNT(*) FROM "Comments"
+      SELECT COUNT(*) FROM "Comments" WHERE COALESCE("rejected", FALSE) IS FALSE
     `);
     return count;
   }
@@ -262,6 +266,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         AND ($2 IS NULL OR c."postedAt" >= $2)
         AND c."postedAt" <= $3
         AND c."deleted" IS NOT TRUE
+        AND c."rejected" IS NOT TRUE
       GROUP BY
         window_start_key
       ORDER BY
@@ -313,6 +318,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           AND "retracted" IS NOT TRUE
           AND "deletedPublic" IS NOT TRUE
           AND "moderatorHat" IS NOT TRUE
+          AND "rejected" IS NOT TRUE
           AND ${shortformCondition}
           AND "postedAt" > $1
           AND "postedAt" < $2
