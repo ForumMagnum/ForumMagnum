@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useEffect, useContext } from 'react';
+import React, { useState, useCallback, useRef, useEffect, useContext, useImperativeHandle, RefObject } from 'react';
 import { debateEditorPlaceholder, defaultEditorPlaceholder, getDefaultLocalStorageIdGenerator, linkpostEditorPlaceholder, questionEditorPlaceholder } from '../../lib/editor/make_editable';
 import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
 import { userCanCreateCommitMessages, userHasPostAutosave } from '../../lib/betas';
@@ -76,6 +76,12 @@ const definedStyles = defineStyles('EditorFormComponent', styles);
 type EditorSubmitCallback = () => Promise<void>;
 type EditorSuccessCallback<R> = (result: R, submitOptions?: { redirectToEditor?: boolean; noReload?: boolean }) => void;
 
+export type EditContentsRef = {
+  editContents: (
+    updateFn: (currentContents: EditorContents) => EditorContents,
+  ) => void,
+}
+
 interface EditorFormComponentProps<S, R> {
   field: TypedFieldApi<any>;
   commentEditor?: boolean;
@@ -99,6 +105,7 @@ interface EditorFormComponentProps<S, R> {
   addOnSubmitCallback: (fn: EditorSubmitCallback) => () => void;
   addOnSuccessCallback: (fn: EditorSuccessCallback<R>) => () => void;
   getLocalStorageId?: (doc: any, name: string) => { id: string, verify: boolean }
+  editContentsRef?: RefObject<EditContentsRef | null>,
 }
 
 export function useEditorFormCallbacks<R>() {
@@ -150,6 +157,7 @@ function InnerEditorFormComponent<S, R>({
   addOnSubmitCallback,
   addOnSuccessCallback,
   getLocalStorageId,
+  editContentsRef,
 }: EditorFormComponentProps<S, R>) {
   const classes = useStyles(definedStyles);
   const { flash } = useMessages();
@@ -543,6 +551,15 @@ function InnerEditorFormComponent<S, R>({
       setAutosaveEditorState(null);
     }
   }, [isCollabEditor, collectionName, fieldName, saveRemoteBackup, setAutosaveEditorState]);
+
+  useImperativeHandle(editContentsRef, () => ({
+    editContents: (updateFn: (currentContents: EditorContents) => EditorContents) => {
+      wrappedSetContents({
+        contents: updateFn(contents),
+        autosave: true,
+      });
+    },
+  }), [wrappedSetContents, contents]);
 
   if (!document) return null;
 

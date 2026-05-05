@@ -13,7 +13,7 @@ import { OwnableDocument, userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOwn
 import { isFriendlyUI, preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import { useApolloClient } from "@apollo/client";
 import { useCurrentUser } from "../common/withUser";
 import { EditLinkpostUrl } from "../editor/EditLinkpostUrl";
@@ -31,7 +31,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { GlossaryEditFormWrapper } from "../jargon/GlossaryEditFormWrapper";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
-import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
+import { EditContentsRef, EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { LocationFormComponent } from "@/components/form-components/LocationFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
@@ -117,6 +117,7 @@ const PostForm = ({
   const currentUser = useCurrentUser();
   const apolloClient = useApolloClient();
   const [editorType, setEditorType] = useState<string>();
+  const editContentsRef = useRef<EditContentsRef>(null);
 
   // TODO: maybe this is just an edit form?
   const formType = initialData ? 'edit' : 'new';
@@ -274,7 +275,7 @@ const PostForm = ({
       e.stopPropagation();
       void form.handleSubmit();
     }}>
-      <NewPostAIPolicy />
+      <NewPostAIPolicy editContentsRef={editContentsRef} />
       {displayedErrorComponent}
       <FormGroupPostTopBar>
         {!(isEvent || isDialogue) && <div className={classNames('form-input', classes.fieldWrapper)}>
@@ -357,6 +358,7 @@ const PostForm = ({
                 addOnSuccessCallback={addOnSuccessCallback}
                 hasToc={true}
                 hintText={defaultEditorPlaceholder}
+                editContentsRef={editContentsRef}
                 fieldName="contents"
                 collectionName="Posts"
                 commentEditor={false}
