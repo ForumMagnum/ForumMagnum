@@ -167,6 +167,9 @@ const FORBIDDEN_DOCUMENT_MESSAGE =
 const FORBIDDEN_CONVERSATION_MESSAGE =
   "Forbidden: the requested conversation is not in the project this token authorizes.";
 
+const FORBIDDEN_AGENT_SCOPE_MESSAGE =
+  "Forbidden: this endpoint requires a conversation-scoped agent token.";
+
 const UNSUPPORTED_EDITOR_MESSAGE =
   "This research document is not in the Lexical editor format and cannot be edited via the agent API.";
 
@@ -180,6 +183,10 @@ export function forbiddenDocumentResponse(): NextResponse {
 
 export function forbiddenConversationResponse(): NextResponse {
   return NextResponse.json({ error: FORBIDDEN_CONVERSATION_MESSAGE }, { status: 403 });
+}
+
+export function forbiddenAgentScopeResponse(): NextResponse {
+  return NextResponse.json({ error: FORBIDDEN_AGENT_SCOPE_MESSAGE }, { status: 403 });
 }
 
 export function unsupportedEditorResponse(editorType: string): NextResponse {
@@ -250,6 +257,17 @@ export async function authorizeAgentResearchDocumentAccess({
   | { kind: "ok"; document: DbResearchDocument; hocuspocusToken: string }
   | { kind: "errorResponse"; errorResponse: NextResponse }
 > {
+  if (payload.scope !== "agent" || !payload.conversationId) {
+    captureResearchAgentApiEvent({
+      route,
+      status: "forbidden",
+      projectId: payload.projectId,
+      userId: payload.userId,
+      reason: "agent_scope_required",
+    });
+    return { kind: "errorResponse", errorResponse: forbiddenAgentScopeResponse() };
+  }
+
   const document = await context.ResearchDocuments.findOne({ _id: documentId });
   if (!document) {
     captureResearchAgentApiEvent({
