@@ -1032,10 +1032,7 @@ export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPo
 export async function removeRedraftNotifications(newPost: Pick<DbPost, '_id' | 'draft' | 'status' | 'rejected'>, oldPost: DbPost, context: ResolverContext) {
   const { Notifications, TagRels } = context;
 
-  const wasPublic = postIsPublic(oldPost) && !oldPost.rejected;
-  const isPublic = postIsPublic(newPost) && !newPost.rejected;
-
-  if (wasPublic && !isPublic) {
+  if (!postIsPublic(newPost) && postIsPublic(oldPost)) {
       //eslint-disable-next-line no-console
     console.info("Post no longer public, removing notifications");
 

@@ -81,15 +81,15 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       SELECT c.*
       FROM "Comments" c
       JOIN (
-          SELECT "documentId", MIN("votedAt") AS most_recent_react
-          FROM "Votes"
-          WHERE "collectionName" = 'Comments' AND "extendedVoteType"->'reacts' != '[]'::jsonb
-          GROUP BY "documentId"
+          SELECT v."documentId", MIN(v."votedAt") AS most_recent_react
+          FROM "Votes" v
+          JOIN "Comments" target ON target."_id" = v."documentId" AND target."rejected" IS NOT TRUE
+          WHERE v."collectionName" = 'Comments' AND v."extendedVoteType"->'reacts' != '[]'::jsonb
+          GROUP BY v."documentId"
           ORDER BY most_recent_react DESC
           LIMIT $1
       ) v
       ON c._id = v."documentId"
-      WHERE c."rejected" IS NOT TRUE
       ORDER BY v.most_recent_react DESC;
     `, [limit]);
   }
@@ -238,7 +238,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     return this.getRawDb().any(`
       -- CommentsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
-      WHERE COALESCE(c."rejected", FALSE) IS FALSE
+      WHERE c."rejected" IS NOT TRUE
       ORDER BY c."createdAt" DESC
       LIMIT $1
       OFFSET $2
@@ -248,7 +248,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
   async countSearchDocuments(): Promise<number> {
     const {count} = await this.getRawDb().one(`
       -- CommentsRepo.countSearchDocuents
-      SELECT COUNT(*) FROM "Comments" WHERE COALESCE("rejected", FALSE) IS FALSE
+      SELECT COUNT(*) FROM "Comments" WHERE "rejected" IS NOT TRUE
     `);
     return count;
   }
