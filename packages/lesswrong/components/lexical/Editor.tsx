@@ -553,6 +553,7 @@ export interface EditorProps {
   placeholder?: string;
   /** Render editor in compact comment mode */
   commentEditor?: boolean;
+  children?: React.ReactNode;
 }
 
 /**
@@ -580,6 +581,7 @@ export default function Editor({
   onGetDataWithDiscardedSuggestions,
   placeholder: placeholderOverride,
   commentEditor = false,
+  children,
 }: EditorProps): JSX.Element {
   const classes = useStyles(styles);
   const {historyState} = useSharedHistoryContext();
@@ -967,6 +969,7 @@ export default function Editor({
             <IframeWidgetPlugin anchorElem={floatingAnchorElem ?? undefined} isSuggestionMode={isSuggestionMode} />
             <RemoveRedirectPlugin />
             <LLMAutocompletePlugin />
+            {children}
             {floatingAnchorElem && (
               <>
                 <FloatingLinkEditorPlugin

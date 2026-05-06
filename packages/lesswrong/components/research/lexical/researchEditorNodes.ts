@@ -1,5 +1,4 @@
 import type { LexicalNodeConfig } from 'lexical';
-import { MarkNode } from '@lexical/mark';
 import { AgentBlockNode } from './AgentBlockNode';
 
 /**
@@ -8,7 +7,7 @@ import { AgentBlockNode } from './AgentBlockNode';
  *
  *   const nodes = [...PlaygroundNodes, ...researchEditorNodes];
  *
- * `MarkNode` is included in PlaygroundNodes already; we still list it here so
- * a research-only editor (no PlaygroundNodes) can stand alone.
+ * `MarkNode` is included in the shared PlaygroundNodes used by LexicalEditor;
+ * this bundle adds only the research-specific decorator nodes.
  */
-export const researchEditorNodes: LexicalNodeConfig[] = [MarkNode, AgentBlockNode];
+export const researchEditorNodes: LexicalNodeConfig[] = [AgentBlockNode];

@@ -70,7 +70,10 @@ function repairOrphanXmlTextsInRoot(doc: Doc): string[] {
 }
 
 export interface CollaborationConfig {
+  /** Legacy alias for Posts; use collectionName/documentId for new collections. */
   postId: string;
+  collectionName?: CollectionNameString;
+  documentId?: string;
   fieldName?: string;
   /** Async function that fetches a fresh JWT for Hocuspocus authentication.
    * Called on every WebSocket connection attempt (including reconnections),
@@ -151,10 +154,35 @@ export function setCollaborationConfig(config: CollaborationConfig | null): void
   _collaborationConfig = config;
 }
 
-function getCollaborationBaseDocumentName(postId: string, fieldName = 'contents'): string {
+const COLLAB_DOCUMENT_NAME_PREFIXES: Partial<Record<CollectionNameString, string>> = {
+  Posts: 'post-',
+  ResearchDocuments: 'research-doc-',
+};
+
+function getCollaborationBaseDocumentNameForDocument(
+  collectionName: CollectionNameString,
+  documentId: string,
+  fieldName = 'contents',
+): string {
+  const prefix = COLLAB_DOCUMENT_NAME_PREFIXES[collectionName];
+  if (!prefix) {
+    throw new Error(`[Collaboration] Unsupported collaborative collection: ${collectionName}`);
+  }
   return fieldName === 'contents'
-    ? `post-${postId}`
-    : `post-${postId}/${fieldName}`;
+    ? `${prefix}${documentId}`
+    : `${prefix}${documentId}/${fieldName}`;
+}
+
+function getCollaborationBaseDocumentName(postId: string, fieldName = 'contents'): string {
+  return getCollaborationBaseDocumentNameForDocument('Posts', postId, fieldName);
+}
+
+function getCollaborationBaseDocumentNameFromConfig(config: CollaborationConfig): string {
+  return getCollaborationBaseDocumentNameForDocument(
+    config.collectionName ?? 'Posts',
+    config.documentId ?? config.postId,
+    config.fieldName,
+  );
 }
 
 // Track provider and IndexedDB persistence instances so we can clean them up
@@ -264,13 +292,9 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
     throw new Error('[Collaboration] HOCUSPOCUS_URL is not configured. Set the HOCUSPOCUS_URL environment variable at build time.');
   }
 
-  // Document names follow the pattern "post-{postId}" for the main contents
-  // editor, "post-{postId}/{fieldName}" for other editable post fields, or
-  // append a further "/{subDocId}" suffix for nested collaboration docs.
-  const baseDocumentName = getCollaborationBaseDocumentName(
-    config.postId,
-    config.fieldName,
-  );
+  // Document names follow the protocol-layer prefix registered for the
+  // collection, with optional "/{fieldName}" and nested "/{subDocId}" suffixes.
+  const baseDocumentName = getCollaborationBaseDocumentNameFromConfig(config);
   const documentName = id === 'main' ? baseDocumentName : `${baseDocumentName}/${id}`;
 
   // Initialize persistence if needed.
@@ -301,7 +325,7 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
         try {
           const removed = repairOrphanXmlTextsInRoot(doc);
           if (removed.length > 0) {
-            const errorMessage = `[Collaboration] Repaired ${removed.length} orphan XmlText(s) in post ${config.postId}: ${removed.join(', ')}`;
+            const errorMessage = `[Collaboration] Repaired ${removed.length} orphan XmlText(s) in ${config.collectionName ?? 'Posts'} ${config.documentId ?? config.postId}: ${removed.join(', ')}`;
             // eslint-disable-next-line no-console
             console.warn(errorMessage);
             captureException(new Error(errorMessage));

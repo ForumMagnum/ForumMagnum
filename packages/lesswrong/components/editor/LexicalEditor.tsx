@@ -8,6 +8,7 @@ import {
   type DOMExportOutputMap,
   type LexicalEditor as LexicalEditorType,
   type LexicalNode,
+  type LexicalNodeConfig,
   TextNode,
 } from 'lexical';
 import { defineStyles, useStyles } from '../hooks/useStyles';
@@ -37,8 +38,8 @@ import { HorizontalRuleExtension } from '@lexical/extension';
 import ErrorBoundary from '../common/ErrorBoundary';
 
 const HocuspocusAuthQuery = gql(`
-  query HocuspocusAuthQuery($postId: String, $linkSharingKey: String) {
-    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {
+  query HocuspocusAuthQuery($postId: String, $collectionName: String, $documentId: String, $linkSharingKey: String) {
+    HocuspocusAuth(postId: $postId, collectionName: $collectionName, documentId: $documentId, linkSharingKey: $linkSharingKey) {
       token
     }
   }
@@ -301,6 +302,8 @@ interface LexicalEditorProps {
   fieldName?: string;
   /** Collaborative editor access level for suggested edits permissions */
   accessLevel?: CollaborativeEditingAccessLevel;
+  extraNodes?: LexicalNodeConfig[];
+  children?: React.ReactNode;
 }
 
 const getCodeHighlightClassName = (highlightType: string | null | undefined) => {
@@ -368,12 +371,18 @@ const exportCodeNode = (editor: LexicalEditorType, target: LexicalNode): DOMExpo
 
 async function fetchHocuspocusToken(
   apolloClient: ApolloClient,
-  postId: string,
+  collectionName: CollectionNameString,
+  documentId: string,
   linkSharingKey: string | null,
 ): Promise<string> {
   const { data } = await apolloClient.query({
     query: HocuspocusAuthQuery,
-    variables: { postId, linkSharingKey },
+    variables: {
+      postId: collectionName === 'Posts' ? documentId : null,
+      collectionName,
+      documentId,
+      linkSharingKey,
+    },
     fetchPolicy: 'network-only',
   });
   const token = data?.HocuspocusAuth?.token;
@@ -394,6 +403,8 @@ const LexicalEditor = ({
   fieldName = 'contents',
   commentEditor = false,
   accessLevel,
+  extraNodes,
+  children,
 }: LexicalEditorProps) => {
   const classes = useStyles(lexicalStyles);
   const currentUser = useCurrentUser();
@@ -407,7 +418,7 @@ const LexicalEditor = ({
   const [editorVersion, setEditorVersion] = useState(0);
   const [collaborationWarning, setCollaborationWarning] = useState<string | null>(null);
 
-  const collaborationDocumentKey = `${documentId ?? 'lexical-new'}:${fieldName}`;
+  const collaborationDocumentKey = `${collectionName ?? 'local'}:${documentId ?? 'lexical-new'}:${fieldName}`;
 
   if (lastDocumentKeyRef.current !== collaborationDocumentKey) {
     lastDocumentKeyRef.current = collaborationDocumentKey;
@@ -417,18 +428,23 @@ const LexicalEditor = ({
   }
 
   const isPostEditor = collectionName === 'Posts';
+  const collaborationCollectionName = collectionName === 'Posts' || collectionName === 'ResearchDocuments'
+    ? collectionName
+    : null;
   const editorContextValue = useMemo(() => ({
     collectionName,
     isPostEditor,
   }), [collectionName, isPostEditor]);
 
-  // Always enable collaboration for posts (when documentId is available).
+  // Always enable collaboration for supported collections (when documentId is
+  // available). This keeps Posts behavior unchanged and lets ResearchDocuments
+  // use the same Yjs/Hocuspocus path.
   // This ensures we always use Yjs for consistency, even when not sharing with others.
   // Anonymous users can collaborate if they have a clientId (from cookie).
-  const shouldEnableCollaboration = isPostEditor && !!documentId;
+  const shouldEnableCollaboration = !!collaborationCollectionName && !!documentId;
 
   // Build collaboration config directly -- no initial auth query needed.
-  // The wsUrl is a build-time constant, the documentName is derived from the postId,
+  // The wsUrl is a build-time constant, the documentName is derived from the collection/document id,
   // and auth tokens are fetched lazily by getToken on each WebSocket connection attempt.
   const collaborationConfig: CollaborationConfig | null = useMemo(() => {
     if (!shouldEnableCollaboration) {
@@ -439,8 +455,10 @@ const LexicalEditor = ({
     
     return {
       postId: documentId!,
+      collectionName: collaborationCollectionName,
+      documentId: documentId!,
       fieldName,
-      getToken: () => fetchHocuspocusToken(apolloClient, documentId!, linkSharingKey),
+      getToken: () => fetchHocuspocusToken(apolloClient, collaborationCollectionName, documentId!, linkSharingKey),
       user: {
         id: userId,
         name: userName,
@@ -449,7 +467,7 @@ const LexicalEditor = ({
         setCollaborationWarning(error.message);
       },
     };
-  }, [shouldEnableCollaboration, currentUser, clientId, documentId, fieldName, apolloClient, linkSharingKey]);
+  }, [shouldEnableCollaboration, currentUser, clientId, documentId, fieldName, apolloClient, linkSharingKey, collaborationCollectionName]);
 
   useEffect(() => {
     onReady?.();
@@ -489,12 +507,14 @@ const LexicalEditor = ({
         },
         name: '@lexical/playground',
         namespace: 'Playground',
-        nodes: PlaygroundNodes,
+        nodes: extraNodes && extraNodes.length > 0
+          ? [...PlaygroundNodes, ...extraNodes]
+          : PlaygroundNodes,
         theme: PlaygroundEditorTheme,
         dependencies: [HorizontalRuleExtension],
       });
     },
-    [],
+    [extraNodes],
   );
 
   return (
@@ -518,7 +538,9 @@ const LexicalEditor = ({
                   onGetDataWithDiscardedSuggestions={onGetDataWithDiscardedSuggestions}
                   placeholder={placeholder}
                   commentEditor={commentEditor}
-                />
+                >
+                  {children}
+                </Editor>
                 </ErrorBoundary>
               </div>
               {/* {!commentEditor && <Settings />} */}
@@ -537,4 +559,3 @@ const LexicalEditor = ({
 };
 
 export default LexicalEditor;
-

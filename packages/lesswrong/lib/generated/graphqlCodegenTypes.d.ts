@@ -14676,6 +14676,8 @@ type HocuspocusAuthQueryQuery_Query = { __typename?: 'Query', HocuspocusAuth: Ho
 
 type HocuspocusAuthQueryQueryVariables = Exact<{
   postId: InputMaybe<Scalars['String']['input']>;
+  collectionName: InputMaybe<Scalars['String']['input']>;
+  documentId: InputMaybe<Scalars['String']['input']>;
   linkSharingKey: InputMaybe<Scalars['String']['input']>;
 }>;
 
