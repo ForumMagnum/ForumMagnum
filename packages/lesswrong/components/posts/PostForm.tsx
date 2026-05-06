@@ -313,18 +313,20 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
       opacity: 0.6,
     },
   },
+  // Confirm/cancel buttons next to the linkpost URL input — use primary colour
+  // and more padding so they're easy to see and click.
   linkpostConfirmButton: {
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
     background: "none",
     border: "none",
-    padding: 0,
+    padding: "1px 4px",
     margin: 0,
-    marginLeft: 2,
+    marginLeft: 4,
     cursor: "pointer",
-    color: theme.palette.text.dim3,
-    opacity: 0.5,
+    color: theme.palette.primary.main,
+    opacity: 0.85,
     "&:hover": {
       opacity: 1,
     },
@@ -839,6 +841,21 @@ const PostForm = ({
                             }
                           }
                         }}
+                        onBlur={(e) => {
+                          // If focus moved to the confirm/cancel button (a sibling in the wrapper),
+                          // let that button's onClick handler fire instead of auto-confirming here.
+                          const next = e.relatedTarget as HTMLElement | null;
+                          if (next && e.currentTarget.parentElement?.contains(next)) return;
+                          if (linkpostUrlDraft.trim()) {
+                            form.setFieldValue("url", linkpostUrlDraft.trim());
+                            setEditingLinkpostUrl(false);
+                          } else {
+                            // No URL entered — cancel linkpost mode
+                            form.setFieldValue("postCategory", "post");
+                            form.setFieldValue("url", "");
+                            setEditingLinkpostUrl(false);
+                          }
+                        }}
                         autoFocus
                       />
                       <button
@@ -1179,7 +1196,7 @@ const PostForm = ({
         sidebarPortalTarget
       )}
 
-      {/* 
+      {/*
           Technically logged out users should have access to the comments panel
           but they can always just click on a post segment with an inline comment
           to open it, so this only matters if there aren't already any comments
