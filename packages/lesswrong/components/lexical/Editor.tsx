@@ -124,6 +124,7 @@ import { EditorUserMode, getDefaultEditorUserMode, type EditorUserModeType } fro
 import { SET_USER_MODE_COMMAND } from '../editor/lexicalPlugins/suggestedEdits/Commands';
 import BlockCursorNavigationPlugin from '../editor/lexicalPlugins/blockCursorNavigation/BlockCursorNavigationPlugin';
 import { SideCommentsPlugin } from '../editor/lexicalPlugins/sideComments/SideCommentsPlugin';
+import { useLexicalEditorContext } from '../editor/LexicalEditorContext';
 import HorizontalRuleEnterPlugin from '../editor/lexicalPlugins/horizontalRuleEnter';
 import {
   preprocessHtmlForImport,
@@ -705,6 +706,7 @@ export default function Editor({
   // Enable collaboration if config is provided OR if the setting is enabled
   const isCollab = isCollabSetting || !!collaborationConfig;
   const isCommentEditor = commentEditor;
+  const { isPostEditor } = useLexicalEditorContext();
   const hasInitialHtml = Boolean(initialHtml && initialHtml.trim().length > 0);
   const isEditable = useLexicalEditable();
   const placeholder = placeholderOverride ?? (isCollab
@@ -720,6 +722,7 @@ export default function Editor({
   const cursorsContainerRef = useRef<HTMLDivElement>(null);
   const canEdit = !accessLevel || accessLevelCan(accessLevel, "edit");
   const canComment = !accessLevel || accessLevelCan(accessLevel, "comment");
+  const showPostCommentFeatures = isPostEditor && !isCommentEditor;
 
   // Use shared context for user mode if available (provided by PostForm),
   // otherwise fall back to local state (e.g. comment editors).
@@ -830,12 +833,12 @@ export default function Editor({
         <AutoLinkPlugin />
         <DateTimePlugin />
         <MarkNodesProvider>
-          {collaboratorIdentity && (
+          {collaboratorIdentity && showPostCommentFeatures && (
             <CollaboratorIdentityProvider value={collaboratorIdentity}>
               <CommentStoreProvider
                 providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
               >
-                {!isCommentEditor && !(isCollab && useCollabV2) && (
+                {!(isCollab && useCollabV2) && (
                   <>
                     <CommentPlugin />
                     <SideCommentsPlugin />

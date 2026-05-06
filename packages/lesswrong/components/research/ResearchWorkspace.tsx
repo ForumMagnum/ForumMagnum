@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from 'react';
+import classNames from 'classnames';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
 import ErrorAccessDenied from '../common/ErrorAccessDenied';
+import ForumIcon from '../common/ForumIcon';
 import ProjectSidebar from './ProjectSidebar';
 import DocumentPane from './DocumentPane';
 import ChatPane from './ChatPane';
@@ -34,14 +36,50 @@ const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
     height: 'calc(100vh - 64px)',
     background: theme.palette.background.default,
     minHeight: 0,
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
   rootChatHidden: {
     gridTemplateColumns: '260px 1fr 36px',
+  },
+  rootSidebarHidden: {
+    gridTemplateColumns: '36px 1fr 360px',
+  },
+  rootSidebarAndChatHidden: {
+    gridTemplateColumns: '36px 1fr 36px',
   },
   sidebar: {
     borderRight: theme.palette.greyBorder('1px', 0.1),
     overflow: 'hidden',
     minHeight: 0,
+  },
+  sidebarCollapsed: {
+    borderRight: theme.palette.greyBorder('1px', 0.1),
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    paddingTop: 8,
+    gap: 8,
+    background: theme.palette.background.pageActiveAreaBackground ?? theme.palette.background.default,
+  },
+  iconButton: {
+    width: 28,
+    height: 28,
+    border: 'none',
+    borderRadius: 4,
+    background: 'transparent',
+    color: theme.palette.text.dim,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 0,
+    '&:hover': {
+      background: theme.palette.greyAlpha(0.06),
+      color: theme.palette.text.primary,
+    },
+  },
+  icon: {
+    '--icon-size': '16px',
   },
   document: {
     overflow: 'hidden',
@@ -90,13 +128,18 @@ const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
     flex: 1,
   },
   rightPaneClose: {
-    padding: '8px 12px',
+    width: 32,
     cursor: 'pointer',
-    fontSize: 13,
     color: theme.palette.text.dim,
     border: 'none',
     background: 'transparent',
     fontFamily: 'inherit',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    '&:hover': {
+      color: theme.palette.text.primary,
+    },
   },
   rightPaneBody: {
     flex: 1,
@@ -147,6 +190,7 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   const [activeDocumentId, setActiveDocumentId] = useState<string | null>(null);
   const [activeChatConversationId, setActiveChatConversationId] = useState<string | null>(null);
   const [rightPaneMode, setRightPaneMode] = useState<RightPaneMode>('chat');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const { data: firstDocData } = useQuery(FirstDocumentQuery, {
     variables: { projectId },
@@ -180,19 +224,39 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   }
 
   const rightPaneOpen = rightPaneMode !== 'closed';
+  const rootClassName = classNames(classes.root, {
+    [classes.rootChatHidden]: rightPaneOpen === false && sidebarOpen,
+    [classes.rootSidebarHidden]: rightPaneOpen && sidebarOpen === false,
+    [classes.rootSidebarAndChatHidden]: rightPaneOpen === false && sidebarOpen === false,
+  });
 
   return (
-    <div className={rightPaneOpen ? classes.root : `${classes.root} ${classes.rootChatHidden}`}>
-      <div className={classes.sidebar}>
-        <ProjectSidebar
-          projectId={projectId}
-          activeDocumentId={activeDocumentId}
-          activeChatConversationId={activeChatConversationId}
-          onSelectDocument={setActiveDocumentId}
-          onSelectConversation={openChat}
-          onStartNewChat={startNewChat}
-        />
-      </div>
+    <div className={rootClassName}>
+      {sidebarOpen ? (
+        <div className={classes.sidebar}>
+          <ProjectSidebar
+            projectId={projectId}
+            activeDocumentId={activeDocumentId}
+            activeChatConversationId={activeChatConversationId}
+            onSelectDocument={setActiveDocumentId}
+            onSelectConversation={openChat}
+            onStartNewChat={startNewChat}
+            onCollapse={() => setSidebarOpen(false)}
+          />
+        </div>
+      ) : (
+        <div className={classes.sidebarCollapsed}>
+          <button
+            type="button"
+            className={classes.iconButton}
+            onClick={() => setSidebarOpen(true)}
+            title="Open sidebar"
+            aria-label="Open sidebar"
+          >
+            <ForumIcon icon="ChevronRight" className={classes.icon} />
+          </button>
+        </div>
+      )}
       <div className={classes.document}>
         <div className={classes.documentBody}>
           <DocumentPane
@@ -226,7 +290,14 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
               Activity
             </button>
             <div className={classes.rightPaneSpacer} />
-            <button className={classes.rightPaneClose} onClick={closeRightPane} aria-label="Collapse panel">×</button>
+            <button
+              className={classes.rightPaneClose}
+              onClick={closeRightPane}
+              title="Collapse panel"
+              aria-label="Collapse panel"
+            >
+              <ForumIcon icon="Close" className={classes.icon} />
+            </button>
           </div>
           <div className={classes.rightPaneBody}>
             {rightPaneMode === 'chat' ? (

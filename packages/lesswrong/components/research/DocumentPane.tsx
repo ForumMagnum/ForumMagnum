@@ -59,16 +59,44 @@ const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
     fontSize: 14,
   },
   titleBar: {
-    padding: '12px 24px 0',
-    fontSize: 22,
+    padding: '10px 28px 0',
+    fontSize: 15,
     fontWeight: 600,
     color: theme.palette.text.primary,
+    lineHeight: 1.4,
+    fontFamily: theme.palette.fonts.sansSerifStack,
   },
   editorWrap: {
     flex: 1,
-    padding: '12px 24px 24px',
+    padding: '10px 28px 28px',
     overflow: 'auto',
     position: 'relative',
+    '& [contenteditable="true"]': {
+      minHeight: 'calc(100vh - 150px)',
+      fontSize: 14,
+      lineHeight: 1.55,
+      fontFamily: theme.palette.fonts.sansSerifStack,
+      maxWidth: 960,
+      padding: '8px 0 32px',
+    },
+    '& [contenteditable="true"] p': {
+      margin: '0 0 0.75em',
+    },
+    '& [contenteditable="true"] h1': {
+      fontSize: 24,
+      lineHeight: 1.25,
+      margin: '1em 0 0.5em',
+    },
+    '& [contenteditable="true"] h2': {
+      fontSize: 20,
+      lineHeight: 1.3,
+      margin: '1em 0 0.5em',
+    },
+    '& [contenteditable="true"] h3': {
+      fontSize: 17,
+      lineHeight: 1.35,
+      margin: '1em 0 0.5em',
+    },
   },
   loadingWrap: {
     flex: 1,

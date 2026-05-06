@@ -8,6 +8,7 @@ import { useMutation } from '@apollo/client/react';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import Loading from '../vulcan-core/Loading';
+import ForumIcon from '../common/ForumIcon';
 
 interface ProjectSidebarProps {
   projectId: string;
@@ -15,6 +16,7 @@ interface ProjectSidebarProps {
   activeChatConversationId: string | null;
   onSelectDocument: (documentId: string) => void;
   onSelectConversation: (conversationId: string) => void;
+  onCollapse: () => void;
   /**
    * Open the chat pane in "new chat" mode (null conversation), letting the
    * user type their first prompt directly into the ChatPane composer rather
@@ -70,12 +72,20 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
   header: {
     padding: '12px 16px',
     borderBottom: theme.palette.greyBorder('1px', 0.1),
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
   },
   projectTitle: {
     fontSize: 14,
     fontWeight: 600,
     color: theme.palette.text.primary,
     margin: 0,
+    flex: 1,
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
   body: {
     flex: 1,
@@ -98,16 +108,40 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
   },
   sectionAction: {
     border: 'none',
+    borderRadius: 4,
     background: 'transparent',
     color: theme.palette.text.dim,
     cursor: 'pointer',
-    fontSize: 16,
-    lineHeight: 1,
-    padding: '0 4px',
-    fontFamily: 'inherit',
+    width: 24,
+    height: 24,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 0,
     '&:hover': {
+      background: theme.palette.greyAlpha(0.06),
       color: theme.palette.text.primary,
     },
+  },
+  collapseButton: {
+    border: 'none',
+    borderRadius: 4,
+    background: 'transparent',
+    color: theme.palette.text.dim,
+    cursor: 'pointer',
+    width: 24,
+    height: 24,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 0,
+    '&:hover': {
+      background: theme.palette.greyAlpha(0.06),
+      color: theme.palette.text.primary,
+    },
+  },
+  icon: {
+    '--icon-size': '15px',
   },
   list: {
     listStyle: 'none',
@@ -122,9 +156,22 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 8,
     '&:hover': {
       background: theme.palette.greyAlpha(0.06),
     },
+  },
+  itemLabel: {
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  itemIcon: {
+    '--icon-size': '14px',
+    color: theme.palette.text.dim,
   },
   itemActive: {
     background: theme.palette.greyAlpha(0.1),
@@ -144,6 +191,7 @@ const ProjectSidebar = ({
   activeChatConversationId,
   onSelectDocument,
   onSelectConversation,
+  onCollapse,
   onStartNewChat,
 }: ProjectSidebarProps) => {
   const classes = useStyles(styles);
@@ -184,6 +232,15 @@ const ProjectSidebar = ({
     <div className={classes.root}>
       <div className={classes.header}>
         <h2 className={classes.projectTitle}>{project?.title ?? (loading ? 'Loading…' : 'Project')}</h2>
+        <button
+          type="button"
+          className={classes.collapseButton}
+          onClick={onCollapse}
+          title="Collapse sidebar"
+          aria-label="Collapse sidebar"
+        >
+          <ForumIcon icon="ChevronLeft" className={classes.icon} />
+        </button>
       </div>
       <div className={classes.body}>
         <div className={classes.section}>
@@ -194,8 +251,9 @@ const ProjectSidebar = ({
               onClick={handleNewDocument}
               disabled={creatingDoc}
               title="New document"
+              aria-label="New document"
             >
-              +
+              <ForumIcon icon="PlusSmall" className={classes.icon} />
             </button>
           </div>
           {loading && documents.length === 0 ? <Loading /> : null}
@@ -208,7 +266,8 @@ const ProjectSidebar = ({
                 })}
                 onClick={() => onSelectDocument(doc._id)}
               >
-                {doc.title ?? 'Untitled document'}
+                <ForumIcon icon="Document" className={classes.itemIcon} />
+                <span className={classes.itemLabel}>{doc.title ?? 'Untitled document'}</span>
               </li>
             ))}
             {!loading && documents.length === 0 ? (
@@ -223,8 +282,9 @@ const ProjectSidebar = ({
               className={classes.sectionAction}
               onClick={handleNewChat}
               title="New chat"
+              aria-label="New chat"
             >
-              +
+              <ForumIcon icon="PlusSmall" className={classes.icon} />
             </button>
           </div>
           {loading && conversations.length === 0 ? <Loading /> : null}
@@ -237,7 +297,8 @@ const ProjectSidebar = ({
                 })}
                 onClick={() => onSelectConversation(conv._id)}
               >
-                {conv.title ?? 'Untitled chat'}
+                <ForumIcon icon="ChatBubbleLeftRight" className={classes.itemIcon} />
+                <span className={classes.itemLabel}>{conv.title ?? 'Untitled chat'}</span>
               </li>
             ))}
             {!loading && conversations.length === 0 ? (
