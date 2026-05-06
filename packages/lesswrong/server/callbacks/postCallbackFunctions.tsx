@@ -1029,12 +1029,12 @@ export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPo
   }
 }
 
-export async function removeRedraftNotifications(newPost: Pick<DbPost, '_id' | 'draft' | 'status'>, oldPost: DbPost, context: ResolverContext) {
+export async function removeRedraftNotifications(newPost: Pick<DbPost, '_id' | 'draft' | 'status' | 'rejected'>, oldPost: DbPost, context: ResolverContext) {
   const { Notifications, TagRels } = context;
 
   if (!postIsPublic(newPost) && postIsPublic(oldPost)) {
       //eslint-disable-next-line no-console
-    console.info("Post redrafted, removing notifications");
+    console.info("Post no longer public, removing notifications");
 
     // delete post notifications
     const postNotifications = await Notifications.find({documentId: newPost._id}).fetch()

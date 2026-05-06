@@ -28,6 +28,7 @@ import { postGetPageUrl } from "@/lib/collections/posts/helpers";
 import { wrapAndSendEmail } from "../emails/renderEmail";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { swrInvalidatePostRoute } from "../cache/swr";
+import { updateNotification } from "../collections/notifications/mutations";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import _ from "underscore";
 import moment from "moment";
@@ -1223,5 +1224,15 @@ export async function commentsEditSoftDeleteCallback(comment: DbComment, oldComm
 export async function commentsPublishedNotifications(comment: DbComment, oldComment: DbComment, context: ResolverContext) {
   if (commentIsNotPublicForAnyReason(oldComment) && !commentIsNotPublicForAnyReason(comment)) {
     void utils.sendNewCommentNotifications(comment, context)
+  }
+}
+
+export async function removeCommentNotificationsOnHidden(comment: DbComment, oldComment: DbComment, context: ResolverContext) {
+  const { Notifications } = context;
+  if (!commentIsNotPublicForAnyReason(oldComment) && commentIsNotPublicForAnyReason(comment)) {
+    const notifications = await Notifications.find({ documentId: comment._id }).fetch();
+    await Promise.all(notifications.map(notification =>
+      updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context)
+    ));
   }
 }
