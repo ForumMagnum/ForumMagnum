@@ -56,7 +56,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           ROW_NUMBER() OVER (PARTITION BY comment_with_rownumber."postId" ORDER BY comment_with_rownumber."postedAt" DESC) as rn
         FROM "Comments" comment_with_rownumber
         WHERE comment_with_rownumber."postId" IN ($1:csv)
-        AND comment_with_rownumber."rejected" IS NOT TRUE
         AND (
           ${filterWhereClause}
         )
@@ -81,11 +80,10 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
       SELECT c.*
       FROM "Comments" c
       JOIN (
-          SELECT v."documentId", MIN(v."votedAt") AS most_recent_react
-          FROM "Votes" v
-          JOIN "Comments" target ON target."_id" = v."documentId" AND target."rejected" IS NOT TRUE
-          WHERE v."collectionName" = 'Comments' AND v."extendedVoteType"->'reacts' != '[]'::jsonb
-          GROUP BY v."documentId"
+          SELECT "documentId", MIN("votedAt") AS most_recent_react
+          FROM "Votes"
+          WHERE "collectionName" = 'Comments' AND "extendedVoteType"->'reacts' != '[]'::jsonb
+          GROUP BY "documentId"
           ORDER BY most_recent_react DESC
           LIMIT $1
       ) v
