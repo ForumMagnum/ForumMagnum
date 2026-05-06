@@ -5,7 +5,6 @@ import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/v
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
-import { backgroundTask } from "@/server/utils/backgroundTask";
 import { bootstrapResearchDocumentYjsState } from "@/server/research/bootstrapResearchDocument";
 
 async function newCheck(user: DbUser | null, document: { projectId?: string } | null, context: ResolverContext) {
@@ -40,7 +39,7 @@ export async function createResearchDocument({ data }: CreateResearchDocumentInp
   // agent edit (which goes through `withMainDocEditorSession`'s
   // post-sync-emptiness guard) succeeds. See design doc, "Bootstrap
   // requirement for new ResearchDocuments".
-  backgroundTask(bootstrapResearchDocumentYjsState(documentWithId._id));
+  await bootstrapResearchDocumentYjsState(documentWithId._id);
 
   return documentWithId;
 }
