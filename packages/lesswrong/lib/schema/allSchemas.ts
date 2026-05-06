@@ -64,6 +64,11 @@ import { default as PostViewTimes } from '../collections/postViewTimes/newSchema
 import { default as PostViews } from '../collections/postViews/newSchema';
 import { default as Posts } from '../collections/posts/newSchema';
 import { default as ReadStatuses } from '../collections/readStatus/newSchema';
+import { default as ResearchConversationEvents } from '../collections/researchConversationEvents/newSchema';
+import { default as ResearchConversations } from '../collections/researchConversations/newSchema';
+import { default as ResearchDocuments } from '../collections/researchDocuments/newSchema';
+import { default as ResearchProjects } from '../collections/researchProjects/newSchema';
+import { default as ResearchSandboxSessions } from '../collections/researchSandboxSessions/newSchema';
 import { default as RecommendationsCaches } from '../collections/recommendationsCaches/newSchema';
 import { default as Reports } from '../collections/reports/newSchema';
 import { default as ReviewVotes } from '../collections/reviewVotes/newSchema';
@@ -107,7 +112,9 @@ export const allSchemas = {
   DialogueChecks, DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, HomePageDesigns, IframeWidgetSrcdocs, Images, JargonTerms,
   LWEvents, LegacyData, LlmConversations, LlmMessages, LinkPreviewCaches, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
   Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations,
-  PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts,
+  PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
+  ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchProjects, ResearchSandboxSessions,
+  RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts,
   ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions,
   TagFlags, TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities,
   UserMostValuablePosts, UserRateLimits, UserTagRels, Users, Votes, YjsDocuments, ...testSchemas,

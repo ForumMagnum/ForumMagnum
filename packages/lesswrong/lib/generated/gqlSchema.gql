@@ -649,7 +649,7 @@ extend type Query {
   LastCuratedDate: LastCuratedDateResult!
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
   HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
-  HocuspocusAuth(postId: String!, linkSharingKey: String): HocuspocusAuth
+  HocuspocusAuth(postId: String, collectionName: String, documentId: String, linkSharingKey: String): HocuspocusAuth
 }
 
 extend type Mutation {
@@ -941,6 +941,103 @@ extend type Mutation {
   markConversationRead(conversationId: String!): Boolean!
   sendEventTriggeredDM(eventType: String!): Boolean!
   initiateConversation(participantIds: [String!]!, af: Boolean, moderator: Boolean): Conversation
+}
+
+input FireResearchConversationInput {
+  projectId: String!
+  entrypoint: JSON!
+  prompt: String!
+}
+
+type ResearchConversationOutput {
+  conversationId: String!
+  data: ResearchConversation
+}
+
+type ResearchProjectActivityEntry {
+  kind: String!
+  timestamp: Date!
+  conversationId: String
+  documentId: String
+  title: String
+  summary: String
+}
+
+extend type Mutation {
+  fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
+  continueResearchConversation(conversationId: String!, prompt: String!): ResearchConversationOutput
+  cancelResearchConversation(conversationId: String!): ResearchConversationOutput
+}
+
+extend type Query {
+  researchProjectActivity(projectId: String!, since: Date): [ResearchProjectActivityEntry!]!
+  researchConversationTranscript(conversationId: String!, since: Int, limit: Int): [ResearchConversationEvent!]!
+}
+
+input CreateResearchProjectDataInput {
+  userId: String
+  title: String!
+  description: String
+  claudeCodeTokenRef: String
+  settings: JSON
+}
+
+input CreateResearchProjectInput {
+  data: CreateResearchProjectDataInput!
+}
+
+input UpdateResearchProjectDataInput {
+  userId: String
+  title: String
+  description: String
+  claudeCodeTokenRef: String
+  settings: JSON
+}
+
+input UpdateResearchProjectInput {
+  selector: SelectorInput!
+  data: UpdateResearchProjectDataInput!
+}
+
+type ResearchProjectOutput {
+  data: ResearchProject
+}
+
+extend type Mutation {
+  createResearchProject(data: CreateResearchProjectDataInput!): ResearchProjectOutput
+  updateResearchProject(selector: SelectorInput!, data: UpdateResearchProjectDataInput!): ResearchProjectOutput
+}
+
+input CreateResearchDocumentDataInput {
+  userId: String
+  projectId: String!
+  title: String
+  contents: CreateRevisionDataInput
+}
+
+input CreateResearchDocumentInput {
+  data: CreateResearchDocumentDataInput!
+}
+
+input UpdateResearchDocumentDataInput {
+  userId: String
+  projectId: String
+  title: String
+  contents: CreateRevisionDataInput
+}
+
+input UpdateResearchDocumentInput {
+  selector: SelectorInput!
+  data: UpdateResearchDocumentDataInput!
+}
+
+type ResearchDocumentOutput {
+  data: ResearchDocument
+}
+
+extend type Mutation {
+  createResearchDocument(data: CreateResearchDocumentDataInput!): ResearchDocumentOutput
+  updateResearchDocument(selector: SelectorInput!, data: UpdateResearchDocumentDataInput!): ResearchDocumentOutput
 }
 
 enum DocumentDeletionNetChange {
@@ -6019,6 +6116,246 @@ type MultiReportOutput {
 extend type Query {
   report(input: SingleReportInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleReportOutput
   reports(input: MultiReportInput @deprecated(reason: "Use the selector field instead"), selector: ReportSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiReportOutput
+}
+
+type ResearchConversationEvent {
+  _id: String!
+  createdAt: Date!
+  conversationId: String!
+  seq: Int!
+  claudeMessageUuid: String
+  kind: String!
+  payload: JSON!
+}
+
+input SingleResearchConversationEventInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleResearchConversationEventOutput {
+  result: ResearchConversationEvent
+}
+
+input ResearchConversationEventsByConversationInput {
+  conversationId: String
+  sinceSeq: Int
+}
+
+input ResearchConversationEventSelector {
+  default: EmptyViewInput
+  byConversation: ResearchConversationEventsByConversationInput
+}
+
+input MultiResearchConversationEventInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiResearchConversationEventOutput {
+  results: [ResearchConversationEvent!]!
+  totalCount: Int
+}
+
+extend type Query {
+  researchConversationEvent(input: SingleResearchConversationEventInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleResearchConversationEventOutput
+  researchConversationEvents(input: MultiResearchConversationEventInput @deprecated(reason: "Use the selector field instead"), selector: ResearchConversationEventSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchConversationEventOutput
+}
+
+type ResearchConversation {
+  _id: String!
+  createdAt: Date!
+  userId: String!
+  projectId: String!
+  claudeSessionId: String
+  title: String
+  entrypoint: JSON!
+  lastActivityAt: Date!
+}
+
+input SingleResearchConversationInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleResearchConversationOutput {
+  result: ResearchConversation
+}
+
+input ResearchConversationsByProjectInput {
+  projectId: String
+}
+
+input ResearchConversationsByProjectAndEntrypointKindInput {
+  projectId: String
+  kind: String
+}
+
+input ResearchConversationSelector {
+  default: EmptyViewInput
+  byProject: ResearchConversationsByProjectInput
+  byProjectAndEntrypointKind: ResearchConversationsByProjectAndEntrypointKindInput
+}
+
+input MultiResearchConversationInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiResearchConversationOutput {
+  results: [ResearchConversation!]!
+  totalCount: Int
+}
+
+extend type Query {
+  researchConversation(input: SingleResearchConversationInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleResearchConversationOutput
+  researchConversations(input: MultiResearchConversationInput @deprecated(reason: "Use the selector field instead"), selector: ResearchConversationSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchConversationOutput
+}
+
+type ResearchDocument {
+  _id: String!
+  createdAt: Date!
+  userId: String!
+  projectId: String!
+  title: String
+  contents(version: String): Revision
+  contents_latest: String
+  revisions(limit: Int = 5): [Revision!]
+  version: String
+}
+
+input SingleResearchDocumentInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleResearchDocumentOutput {
+  result: ResearchDocument
+}
+
+input ResearchDocumentsByProjectInput {
+  projectId: String
+}
+
+input ResearchDocumentSelector {
+  default: EmptyViewInput
+  byProject: ResearchDocumentsByProjectInput
+}
+
+input MultiResearchDocumentInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiResearchDocumentOutput {
+  results: [ResearchDocument!]!
+  totalCount: Int
+}
+
+extend type Query {
+  researchDocument(input: SingleResearchDocumentInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleResearchDocumentOutput
+  researchDocuments(input: MultiResearchDocumentInput @deprecated(reason: "Use the selector field instead"), selector: ResearchDocumentSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchDocumentOutput
+}
+
+type ResearchProject {
+  _id: String!
+  createdAt: Date!
+  userId: String!
+  title: String!
+  description: String
+  claudeCodeTokenRef: String
+  settings: JSON
+}
+
+input SingleResearchProjectInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleResearchProjectOutput {
+  result: ResearchProject
+}
+
+input ResearchProjectsByUserInput {
+  userId: String
+}
+
+input ResearchProjectSelector {
+  default: EmptyViewInput
+  byUser: ResearchProjectsByUserInput
+}
+
+input MultiResearchProjectInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiResearchProjectOutput {
+  results: [ResearchProject!]!
+  totalCount: Int
+}
+
+extend type Query {
+  researchProject(input: SingleResearchProjectInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleResearchProjectOutput
+  researchProjects(input: MultiResearchProjectInput @deprecated(reason: "Use the selector field instead"), selector: ResearchProjectSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchProjectOutput
+}
+
+type ResearchSandboxSession {
+  _id: String!
+  createdAt: Date!
+  userId: String!
+  projectId: String!
+  vercelSandboxId: String!
+  endpointUrl: String!
+  status: String!
+  supervisorSecret: String!
+  concurrencyCount: Int!
+  lastUsedAt: Date!
+  expiresAt: Date
+}
+
+input SingleResearchSandboxSessionInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleResearchSandboxSessionOutput {
+  result: ResearchSandboxSession
+}
+
+input ResearchSandboxSessionsByUserAndProjectInput {
+  userId: String
+  projectId: String
+}
+
+input ResearchSandboxSessionSelector {
+  default: EmptyViewInput
+  byUserAndProject: ResearchSandboxSessionsByUserAndProjectInput
+}
+
+input MultiResearchSandboxSessionInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiResearchSandboxSessionOutput {
+  results: [ResearchSandboxSession!]!
+  totalCount: Int
+}
+
+extend type Query {
+  researchSandboxSession(input: SingleResearchSandboxSessionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleResearchSandboxSessionOutput
+  researchSandboxSessions(input: MultiResearchSandboxSessionInput @deprecated(reason: "Use the selector field instead"), selector: ResearchSandboxSessionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchSandboxSessionOutput
 }
 
 type ReviewVote {

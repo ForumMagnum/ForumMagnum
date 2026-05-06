@@ -1562,6 +1562,29 @@ type CreateReportInput = {
   data: CreateReportDataInput;
 };
 
+type CreateResearchDocumentDataInput = {
+  contents?: InputMaybe<CreateRevisionDataInput>;
+  projectId: Scalars['String']['input'];
+  title?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type CreateResearchDocumentInput = {
+  data: CreateResearchDocumentDataInput;
+};
+
+type CreateResearchProjectDataInput = {
+  claudeCodeTokenRef?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  settings?: InputMaybe<Scalars['JSON']['input']>;
+  title: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type CreateResearchProjectInput = {
+  data: CreateResearchProjectDataInput;
+};
+
 type CreateRevisionDataInput = {
   commitMessage?: InputMaybe<Scalars['String']['input']>;
   dataWithDiscardedSuggestions?: InputMaybe<Scalars['JSON']['input']>;
@@ -2313,6 +2336,12 @@ type FieldChange = {
 
 type FieldChangeSelector = {
   default?: InputMaybe<EmptyViewInput>;
+};
+
+type FireResearchConversationInput = {
+  entrypoint: Scalars['JSON']['input'];
+  projectId: Scalars['String']['input'];
+  prompt: Scalars['String']['input'];
 };
 
 type FrontpageClassification = {
@@ -3484,6 +3513,71 @@ type MultiReportOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+type MultiResearchConversationEventInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type MultiResearchConversationEventOutput = {
+  __typename?: 'MultiResearchConversationEventOutput';
+  results: Array<ResearchConversationEvent>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+type MultiResearchConversationInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type MultiResearchConversationOutput = {
+  __typename?: 'MultiResearchConversationOutput';
+  results: Array<ResearchConversation>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+type MultiResearchDocumentInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type MultiResearchDocumentOutput = {
+  __typename?: 'MultiResearchDocumentOutput';
+  results: Array<ResearchDocument>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+type MultiResearchProjectInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type MultiResearchProjectOutput = {
+  __typename?: 'MultiResearchProjectOutput';
+  results: Array<ResearchProject>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+type MultiResearchSandboxSessionInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type MultiResearchSandboxSessionOutput = {
+  __typename?: 'MultiResearchSandboxSessionOutput';
+  results: Array<ResearchSandboxSession>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 type MultiReviewVoteInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3756,8 +3850,10 @@ type Mutation = {
   analyticsEvent?: Maybe<Scalars['Boolean']['output']>;
   approveUserCurrentContentOnly: Scalars['Boolean']['output'];
   autosaveRevision?: Maybe<Revision>;
+  cancelResearchConversation?: Maybe<ResearchConversationOutput>;
   clickRecommendation?: Maybe<Scalars['Boolean']['output']>;
   connectCrossposter?: Maybe<Scalars['String']['output']>;
+  continueResearchConversation?: Maybe<ResearchConversationOutput>;
   convertDocumentEditorType?: Maybe<Scalars['JSON']['output']>;
   createBook?: Maybe<BookOutput>;
   createChapter?: Maybe<ChapterOutput>;
@@ -3779,6 +3875,8 @@ type Mutation = {
   createPost?: Maybe<PostOutput>;
   createRSSFeed?: Maybe<RSSFeedOutput>;
   createReport?: Maybe<ReportOutput>;
+  createResearchDocument?: Maybe<ResearchDocumentOutput>;
+  createResearchProject?: Maybe<ResearchProjectOutput>;
   createSequence?: Maybe<SequenceOutput>;
   createSplashArtCoordinate?: Maybe<SplashArtCoordinateOutput>;
   createSpotlight?: Maybe<SpotlightOutput>;
@@ -3791,6 +3889,7 @@ type Mutation = {
   createUserRateLimit?: Maybe<UserRateLimitOutput>;
   createUserTagRel?: Maybe<UserTagRelOutput>;
   dismissRecommendation?: Maybe<Scalars['Boolean']['output']>;
+  fireResearchConversation?: Maybe<ResearchConversationOutput>;
   flipSplashArtImage?: Maybe<Scalars['Boolean']['output']>;
   generateCoverImagesForPost?: Maybe<Array<Maybe<ReviewWinnerArt>>>;
   getClaudeAccessLink?: Maybe<Scalars['String']['output']>;
@@ -3866,6 +3965,8 @@ type Mutation = {
   updatePost?: Maybe<PostOutput>;
   updateRSSFeed?: Maybe<RSSFeedOutput>;
   updateReport?: Maybe<ReportOutput>;
+  updateResearchDocument?: Maybe<ResearchDocumentOutput>;
+  updateResearchProject?: Maybe<ResearchProjectOutput>;
   updateRevision?: Maybe<RevisionOutput>;
   updateSequence?: Maybe<SequenceOutput>;
   updateSpotlight?: Maybe<SpotlightOutput>;
@@ -4014,6 +4115,11 @@ type MutationautosaveRevisionArgs = {
 };
 
 
+type MutationcancelResearchConversationArgs = {
+  conversationId: Scalars['String']['input'];
+};
+
+
 type MutationclickRecommendationArgs = {
   postId: Scalars['String']['input'];
 };
@@ -4021,6 +4127,12 @@ type MutationclickRecommendationArgs = {
 
 type MutationconnectCrossposterArgs = {
   token?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationcontinueResearchConversationArgs = {
+  conversationId: Scalars['String']['input'];
+  prompt: Scalars['String']['input'];
 };
 
 
@@ -4133,6 +4245,16 @@ type MutationcreateReportArgs = {
 };
 
 
+type MutationcreateResearchDocumentArgs = {
+  data: CreateResearchDocumentDataInput;
+};
+
+
+type MutationcreateResearchProjectArgs = {
+  data: CreateResearchProjectDataInput;
+};
+
+
 type MutationcreateSequenceArgs = {
   data: CreateSequenceDataInput;
 };
@@ -4190,6 +4312,11 @@ type MutationcreateUserTagRelArgs = {
 
 type MutationdismissRecommendationArgs = {
   postId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationfireResearchConversationArgs = {
+  input: FireResearchConversationInput;
 };
 
 
@@ -4643,6 +4770,18 @@ type MutationupdateRSSFeedArgs = {
 
 type MutationupdateReportArgs = {
   data: UpdateReportDataInput;
+  selector: SelectorInput;
+};
+
+
+type MutationupdateResearchDocumentArgs = {
+  data: UpdateResearchDocumentDataInput;
+  selector: SelectorInput;
+};
+
+
+type MutationupdateResearchProjectArgs = {
+  data: UpdateResearchProjectDataInput;
   selector: SelectorInput;
 };
 
@@ -7126,6 +7265,18 @@ type Query = {
   rSSFeeds?: Maybe<MultiRSSFeedOutput>;
   report?: Maybe<SingleReportOutput>;
   reports?: Maybe<MultiReportOutput>;
+  researchConversation?: Maybe<SingleResearchConversationOutput>;
+  researchConversationEvent?: Maybe<SingleResearchConversationEventOutput>;
+  researchConversationEvents?: Maybe<MultiResearchConversationEventOutput>;
+  researchConversationTranscript: Array<ResearchConversationEvent>;
+  researchConversations?: Maybe<MultiResearchConversationOutput>;
+  researchDocument?: Maybe<SingleResearchDocumentOutput>;
+  researchDocuments?: Maybe<MultiResearchDocumentOutput>;
+  researchProject?: Maybe<SingleResearchProjectOutput>;
+  researchProjectActivity: Array<ResearchProjectActivityEntry>;
+  researchProjects?: Maybe<MultiResearchProjectOutput>;
+  researchSandboxSession?: Maybe<SingleResearchSandboxSessionOutput>;
+  researchSandboxSessions?: Maybe<MultiResearchSandboxSessionOutput>;
   reviewPredictionPosts: Array<Post>;
   reviewVote?: Maybe<SingleReviewVoteOutput>;
   reviewVotes?: Maybe<MultiReviewVoteOutput>;
@@ -7249,8 +7400,10 @@ type QueryGivingSeasonHeartsArgs = {
 
 
 type QueryHocuspocusAuthArgs = {
+  collectionName?: InputMaybe<Scalars['String']['input']>;
+  documentId?: InputMaybe<Scalars['String']['input']>;
   linkSharingKey?: InputMaybe<Scalars['String']['input']>;
-  postId: Scalars['String']['input'];
+  postId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -8073,6 +8226,94 @@ type QueryreportsArgs = {
 };
 
 
+type QueryresearchConversationArgs = {
+  input?: InputMaybe<SingleResearchConversationInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QueryresearchConversationEventArgs = {
+  input?: InputMaybe<SingleResearchConversationEventInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QueryresearchConversationEventsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiResearchConversationEventInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ResearchConversationEventSelector>;
+};
+
+
+type QueryresearchConversationTranscriptArgs = {
+  conversationId: Scalars['String']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  since?: InputMaybe<Scalars['Int']['input']>;
+};
+
+
+type QueryresearchConversationsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiResearchConversationInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ResearchConversationSelector>;
+};
+
+
+type QueryresearchDocumentArgs = {
+  input?: InputMaybe<SingleResearchDocumentInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QueryresearchDocumentsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiResearchDocumentInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ResearchDocumentSelector>;
+};
+
+
+type QueryresearchProjectArgs = {
+  input?: InputMaybe<SingleResearchProjectInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QueryresearchProjectActivityArgs = {
+  projectId: Scalars['String']['input'];
+  since?: InputMaybe<Scalars['Date']['input']>;
+};
+
+
+type QueryresearchProjectsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiResearchProjectInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ResearchProjectSelector>;
+};
+
+
+type QueryresearchSandboxSessionArgs = {
+  input?: InputMaybe<SingleResearchSandboxSessionInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QueryresearchSandboxSessionsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiResearchSandboxSessionInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<ResearchSandboxSessionSelector>;
+};
+
+
 type QueryreviewPredictionPostsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   year: Scalars['Int']['input'];
@@ -8544,6 +8785,157 @@ type ReportSelector = {
 };
 
 type ReportsAdminClaimedReportsInput = {
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type ResearchConversation = {
+  __typename?: 'ResearchConversation';
+  _id: Scalars['String']['output'];
+  claudeSessionId?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Date']['output'];
+  entrypoint: Scalars['JSON']['output'];
+  lastActivityAt: Scalars['Date']['output'];
+  projectId: Scalars['String']['output'];
+  title?: Maybe<Scalars['String']['output']>;
+  userId: Scalars['String']['output'];
+};
+
+type ResearchConversationEvent = {
+  __typename?: 'ResearchConversationEvent';
+  _id: Scalars['String']['output'];
+  claudeMessageUuid?: Maybe<Scalars['String']['output']>;
+  conversationId: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+  kind: Scalars['String']['output'];
+  payload: Scalars['JSON']['output'];
+  seq: Scalars['Int']['output'];
+};
+
+type ResearchConversationEventSelector = {
+  byConversation?: InputMaybe<ResearchConversationEventsByConversationInput>;
+  default?: InputMaybe<EmptyViewInput>;
+};
+
+type ResearchConversationEventsByConversationInput = {
+  conversationId?: InputMaybe<Scalars['String']['input']>;
+  sinceSeq?: InputMaybe<Scalars['Int']['input']>;
+};
+
+type ResearchConversationOutput = {
+  __typename?: 'ResearchConversationOutput';
+  conversationId: Scalars['String']['output'];
+  data?: Maybe<ResearchConversation>;
+};
+
+type ResearchConversationSelector = {
+  byProject?: InputMaybe<ResearchConversationsByProjectInput>;
+  byProjectAndEntrypointKind?: InputMaybe<ResearchConversationsByProjectAndEntrypointKindInput>;
+  default?: InputMaybe<EmptyViewInput>;
+};
+
+type ResearchConversationsByProjectAndEntrypointKindInput = {
+  kind?: InputMaybe<Scalars['String']['input']>;
+  projectId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type ResearchConversationsByProjectInput = {
+  projectId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type ResearchDocument = {
+  __typename?: 'ResearchDocument';
+  _id: Scalars['String']['output'];
+  contents?: Maybe<Revision>;
+  contents_latest?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Date']['output'];
+  projectId: Scalars['String']['output'];
+  revisions?: Maybe<Array<Revision>>;
+  title?: Maybe<Scalars['String']['output']>;
+  userId: Scalars['String']['output'];
+  version?: Maybe<Scalars['String']['output']>;
+};
+
+
+type ResearchDocumentcontentsArgs = {
+  version?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type ResearchDocumentrevisionsArgs = {
+  limit?: InputMaybe<Scalars['Int']['input']>;
+};
+
+type ResearchDocumentOutput = {
+  __typename?: 'ResearchDocumentOutput';
+  data?: Maybe<ResearchDocument>;
+};
+
+type ResearchDocumentSelector = {
+  byProject?: InputMaybe<ResearchDocumentsByProjectInput>;
+  default?: InputMaybe<EmptyViewInput>;
+};
+
+type ResearchDocumentsByProjectInput = {
+  projectId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type ResearchProject = {
+  __typename?: 'ResearchProject';
+  _id: Scalars['String']['output'];
+  claudeCodeTokenRef?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Date']['output'];
+  description?: Maybe<Scalars['String']['output']>;
+  settings?: Maybe<Scalars['JSON']['output']>;
+  title: Scalars['String']['output'];
+  userId: Scalars['String']['output'];
+};
+
+type ResearchProjectActivityEntry = {
+  __typename?: 'ResearchProjectActivityEntry';
+  conversationId?: Maybe<Scalars['String']['output']>;
+  documentId?: Maybe<Scalars['String']['output']>;
+  kind: Scalars['String']['output'];
+  summary?: Maybe<Scalars['String']['output']>;
+  timestamp: Scalars['Date']['output'];
+  title?: Maybe<Scalars['String']['output']>;
+};
+
+type ResearchProjectOutput = {
+  __typename?: 'ResearchProjectOutput';
+  data?: Maybe<ResearchProject>;
+};
+
+type ResearchProjectSelector = {
+  byUser?: InputMaybe<ResearchProjectsByUserInput>;
+  default?: InputMaybe<EmptyViewInput>;
+};
+
+type ResearchProjectsByUserInput = {
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type ResearchSandboxSession = {
+  __typename?: 'ResearchSandboxSession';
+  _id: Scalars['String']['output'];
+  concurrencyCount: Scalars['Int']['output'];
+  createdAt: Scalars['Date']['output'];
+  endpointUrl: Scalars['String']['output'];
+  expiresAt?: Maybe<Scalars['Date']['output']>;
+  lastUsedAt: Scalars['Date']['output'];
+  projectId: Scalars['String']['output'];
+  status: Scalars['String']['output'];
+  supervisorSecret: Scalars['String']['output'];
+  userId: Scalars['String']['output'];
+  vercelSandboxId: Scalars['String']['output'];
+};
+
+type ResearchSandboxSessionSelector = {
+  byUserAndProject?: InputMaybe<ResearchSandboxSessionsByUserAndProjectInput>;
+  default?: InputMaybe<EmptyViewInput>;
+};
+
+type ResearchSandboxSessionsByUserAndProjectInput = {
+  projectId?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -9230,6 +9622,56 @@ type SingleReportInput = {
 type SingleReportOutput = {
   __typename?: 'SingleReportOutput';
   result?: Maybe<Report>;
+};
+
+type SingleResearchConversationEventInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+type SingleResearchConversationEventOutput = {
+  __typename?: 'SingleResearchConversationEventOutput';
+  result?: Maybe<ResearchConversationEvent>;
+};
+
+type SingleResearchConversationInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+type SingleResearchConversationOutput = {
+  __typename?: 'SingleResearchConversationOutput';
+  result?: Maybe<ResearchConversation>;
+};
+
+type SingleResearchDocumentInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+type SingleResearchDocumentOutput = {
+  __typename?: 'SingleResearchDocumentOutput';
+  result?: Maybe<ResearchDocument>;
+};
+
+type SingleResearchProjectInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+type SingleResearchProjectOutput = {
+  __typename?: 'SingleResearchProjectOutput';
+  result?: Maybe<ResearchProject>;
+};
+
+type SingleResearchSandboxSessionInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+type SingleResearchSandboxSessionOutput = {
+  __typename?: 'SingleResearchSandboxSessionOutput';
+  result?: Maybe<ResearchSandboxSession>;
 };
 
 type SingleReviewVoteInput = {
@@ -10607,6 +11049,31 @@ type UpdateReportInput = {
   selector: SelectorInput;
 };
 
+type UpdateResearchDocumentDataInput = {
+  contents?: InputMaybe<CreateRevisionDataInput>;
+  projectId?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type UpdateResearchDocumentInput = {
+  data: UpdateResearchDocumentDataInput;
+  selector: SelectorInput;
+};
+
+type UpdateResearchProjectDataInput = {
+  claudeCodeTokenRef?: InputMaybe<Scalars['String']['input']>;
+  description?: InputMaybe<Scalars['String']['input']>;
+  settings?: InputMaybe<Scalars['JSON']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type UpdateResearchProjectInput = {
+  data: UpdateResearchProjectDataInput;
+  selector: SelectorInput;
+};
+
 type UpdateRevisionDataInput = {
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   skipAttributions?: InputMaybe<Scalars['Boolean']['input']>;
@@ -11954,18 +12421,20 @@ type MarkdownUserProfileRecentCommentsQueryVariables = Exact<{
 
 type MarkdownUserProfileRecentCommentsQuery = MarkdownUserProfileRecentCommentsQuery_Query;
 
-type HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string };
+type HocuspocusAuthQueryServerQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string };
 
-type HocuspocusAuthQueryQuery_Query = { __typename?: 'Query', HocuspocusAuth: HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth | null };
+type HocuspocusAuthQueryServerQuery_Query = { __typename?: 'Query', HocuspocusAuth: HocuspocusAuthQueryServerQuery_HocuspocusAuth_HocuspocusAuth | null };
 
 
-type HocuspocusAuthQueryQueryVariables = Exact<{
-  postId: Scalars['String']['input'];
+type HocuspocusAuthQueryServerQueryVariables = Exact<{
+  postId: InputMaybe<Scalars['String']['input']>;
+  collectionName: InputMaybe<Scalars['String']['input']>;
+  documentId: InputMaybe<Scalars['String']['input']>;
   linkSharingKey: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
-type HocuspocusAuthQueryQuery = HocuspocusAuthQueryQuery_Query;
+type HocuspocusAuthQueryServerQuery = HocuspocusAuthQueryServerQuery_Query;
 
 type McpPostMetadataQuery_post_SinglePostOutput_result_Post = { __typename?: 'Post', _id: string, title: string, draft: boolean | null };
 
@@ -14197,6 +14666,19 @@ type autosaveRevisionMutationVariables = Exact<{
 
 
 type autosaveRevisionMutation = autosaveRevisionMutation_Mutation;
+
+type HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string };
+
+type HocuspocusAuthQueryQuery_Query = { __typename?: 'Query', HocuspocusAuth: HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth | null };
+
+
+type HocuspocusAuthQueryQueryVariables = Exact<{
+  postId: InputMaybe<Scalars['String']['input']>;
+  linkSharingKey: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type HocuspocusAuthQueryQuery = HocuspocusAuthQueryQuery_Query;
 
 type multiRevisionPostVersionHistoryQueryQuery_revisions_MultiRevisionOutput_results_Revision = (
   { __typename?: 'Revision' }
@@ -17295,6 +17777,213 @@ type RecommendationsQueryQueryVariables = Exact<{
 
 
 type RecommendationsQueryQuery = RecommendationsQueryQuery_Query;
+
+type ResearchProjectActivityQueryQuery_researchProjectActivity_ResearchProjectActivityEntry = { __typename?: 'ResearchProjectActivityEntry', kind: string, timestamp: string, conversationId: string | null, documentId: string | null, title: string | null, summary: string | null };
+
+type ResearchProjectActivityQueryQuery_Query = { __typename?: 'Query', researchProjectActivity: Array<ResearchProjectActivityQueryQuery_researchProjectActivity_ResearchProjectActivityEntry> };
+
+
+type ResearchProjectActivityQueryQueryVariables = Exact<{
+  projectId: Scalars['String']['input'];
+  since: InputMaybe<Scalars['Date']['input']>;
+}>;
+
+
+type ResearchProjectActivityQueryQuery = ResearchProjectActivityQueryQuery_Query;
+
+type FireChatPaneConversationMutation_fireResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', conversationId: string };
+
+type FireChatPaneConversationMutation_Mutation = { __typename?: 'Mutation', fireResearchConversation: FireChatPaneConversationMutation_fireResearchConversation_ResearchConversationOutput | null };
+
+
+type FireChatPaneConversationMutationVariables = Exact<{
+  projectId: Scalars['String']['input'];
+  entrypoint: Scalars['JSON']['input'];
+  prompt: Scalars['String']['input'];
+}>;
+
+
+type FireChatPaneConversationMutation = FireChatPaneConversationMutation_Mutation;
+
+type ContinueResearchConversationFromChatPaneMutation_continueResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', conversationId: string };
+
+type ContinueResearchConversationFromChatPaneMutation_Mutation = { __typename?: 'Mutation', continueResearchConversation: ContinueResearchConversationFromChatPaneMutation_continueResearchConversation_ResearchConversationOutput | null };
+
+
+type ContinueResearchConversationFromChatPaneMutationVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+  prompt: Scalars['String']['input'];
+}>;
+
+
+type ContinueResearchConversationFromChatPaneMutation = ContinueResearchConversationFromChatPaneMutation_Mutation;
+
+type CancelResearchConversationFromChatPaneMutation_cancelResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', conversationId: string };
+
+type CancelResearchConversationFromChatPaneMutation_Mutation = { __typename?: 'Mutation', cancelResearchConversation: CancelResearchConversationFromChatPaneMutation_cancelResearchConversation_ResearchConversationOutput | null };
+
+
+type CancelResearchConversationFromChatPaneMutationVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+}>;
+
+
+type CancelResearchConversationFromChatPaneMutation = CancelResearchConversationFromChatPaneMutation_Mutation;
+
+type ResearchDocumentQueryQuery_researchDocument_SingleResearchDocumentOutput_result_ResearchDocument_contents_Revision_originalContents_ContentType = { __typename?: 'ContentType', type: string, data: any };
+
+type ResearchDocumentQueryQuery_researchDocument_SingleResearchDocumentOutput_result_ResearchDocument_contents_Revision = { __typename?: 'Revision', html: string | null, originalContents: ResearchDocumentQueryQuery_researchDocument_SingleResearchDocumentOutput_result_ResearchDocument_contents_Revision_originalContents_ContentType };
+
+type ResearchDocumentQueryQuery_researchDocument_SingleResearchDocumentOutput_result_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null, contents: ResearchDocumentQueryQuery_researchDocument_SingleResearchDocumentOutput_result_ResearchDocument_contents_Revision | null };
+
+type ResearchDocumentQueryQuery_researchDocument_SingleResearchDocumentOutput = { __typename?: 'SingleResearchDocumentOutput', result: ResearchDocumentQueryQuery_researchDocument_SingleResearchDocumentOutput_result_ResearchDocument | null };
+
+type ResearchDocumentQueryQuery_Query = { __typename?: 'Query', researchDocument: ResearchDocumentQueryQuery_researchDocument_SingleResearchDocumentOutput | null };
+
+
+type ResearchDocumentQueryQueryVariables = Exact<{
+  documentId: Scalars['String']['input'];
+}>;
+
+
+type ResearchDocumentQueryQuery = ResearchDocumentQueryQuery_Query;
+
+type FireDocumentConversationMutation_fireResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', conversationId: string };
+
+type FireDocumentConversationMutation_Mutation = { __typename?: 'Mutation', fireResearchConversation: FireDocumentConversationMutation_fireResearchConversation_ResearchConversationOutput | null };
+
+
+type FireDocumentConversationMutationVariables = Exact<{
+  projectId: Scalars['String']['input'];
+  entrypoint: Scalars['JSON']['input'];
+  prompt: Scalars['String']['input'];
+}>;
+
+
+type FireDocumentConversationMutation = FireDocumentConversationMutation_Mutation;
+
+type ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput_result_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string };
+
+type ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput = { __typename?: 'SingleResearchProjectOutput', result: ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput_result_ResearchProject | null };
+
+type ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null, createdAt: string };
+
+type ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput = { __typename?: 'MultiResearchDocumentOutput', results: Array<ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument> };
+
+type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string };
+
+type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput = { __typename?: 'MultiResearchConversationOutput', results: Array<ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation> };
+
+type ProjectSidebarQueryQuery_Query = { __typename?: 'Query', researchProject: ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput | null, researchDocuments: ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput | null, researchConversations: ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput | null };
+
+
+type ProjectSidebarQueryQueryVariables = Exact<{
+  projectId: Scalars['String']['input'];
+}>;
+
+
+type ProjectSidebarQueryQuery = ProjectSidebarQueryQuery_Query;
+
+type CreateResearchDocumentSidebarMutation_createResearchDocument_ResearchDocumentOutput_data_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null, createdAt: string };
+
+type CreateResearchDocumentSidebarMutation_createResearchDocument_ResearchDocumentOutput = { __typename?: 'ResearchDocumentOutput', data: CreateResearchDocumentSidebarMutation_createResearchDocument_ResearchDocumentOutput_data_ResearchDocument | null };
+
+type CreateResearchDocumentSidebarMutation_Mutation = { __typename?: 'Mutation', createResearchDocument: CreateResearchDocumentSidebarMutation_createResearchDocument_ResearchDocumentOutput | null };
+
+
+type CreateResearchDocumentSidebarMutationVariables = Exact<{
+  projectId: Scalars['String']['input'];
+  title: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type CreateResearchDocumentSidebarMutation = CreateResearchDocumentSidebarMutation_Mutation;
+
+type FireChatConversationMutation_fireResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', conversationId: string };
+
+type FireChatConversationMutation_Mutation = { __typename?: 'Mutation', fireResearchConversation: FireChatConversationMutation_fireResearchConversation_ResearchConversationOutput | null };
+
+
+type FireChatConversationMutationVariables = Exact<{
+  projectId: Scalars['String']['input'];
+  entrypoint: Scalars['JSON']['input'];
+  prompt: Scalars['String']['input'];
+}>;
+
+
+type FireChatConversationMutation = FireChatConversationMutation_Mutation;
+
+type QueryModalReferencePickerQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null };
+
+type QueryModalReferencePickerQuery_researchDocuments_MultiResearchDocumentOutput = { __typename?: 'MultiResearchDocumentOutput', results: Array<QueryModalReferencePickerQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument> };
+
+type QueryModalReferencePickerQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null };
+
+type QueryModalReferencePickerQuery_researchConversations_MultiResearchConversationOutput = { __typename?: 'MultiResearchConversationOutput', results: Array<QueryModalReferencePickerQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation> };
+
+type QueryModalReferencePickerQuery_Query = { __typename?: 'Query', researchDocuments: QueryModalReferencePickerQuery_researchDocuments_MultiResearchDocumentOutput | null, researchConversations: QueryModalReferencePickerQuery_researchConversations_MultiResearchConversationOutput | null };
+
+
+type QueryModalReferencePickerQueryVariables = Exact<{
+  projectId: Scalars['String']['input'];
+}>;
+
+
+type QueryModalReferencePickerQuery = QueryModalReferencePickerQuery_Query;
+
+type FireQueryModalConversationMutation_fireResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', conversationId: string };
+
+type FireQueryModalConversationMutation_Mutation = { __typename?: 'Mutation', fireResearchConversation: FireQueryModalConversationMutation_fireResearchConversation_ResearchConversationOutput | null };
+
+
+type FireQueryModalConversationMutationVariables = Exact<{
+  projectId: Scalars['String']['input'];
+  entrypoint: Scalars['JSON']['input'];
+  prompt: Scalars['String']['input'];
+}>;
+
+
+type FireQueryModalConversationMutation = FireQueryModalConversationMutation_Mutation;
+
+type ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput_results_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string, description: string | null, createdAt: string };
+
+type ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput = { __typename?: 'MultiResearchProjectOutput', results: Array<ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput_results_ResearchProject> };
+
+type ResearchProjectListQueryQuery_Query = { __typename?: 'Query', researchProjects: ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput | null };
+
+
+type ResearchProjectListQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type ResearchProjectListQueryQuery = ResearchProjectListQueryQuery_Query;
+
+type CreateResearchProjectMutation_createResearchProject_ResearchProjectOutput_data_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string, description: string | null, createdAt: string };
+
+type CreateResearchProjectMutation_createResearchProject_ResearchProjectOutput = { __typename?: 'ResearchProjectOutput', data: CreateResearchProjectMutation_createResearchProject_ResearchProjectOutput_data_ResearchProject | null };
+
+type CreateResearchProjectMutation_Mutation = { __typename?: 'Mutation', createResearchProject: CreateResearchProjectMutation_createResearchProject_ResearchProjectOutput | null };
+
+
+type CreateResearchProjectMutationVariables = Exact<{
+  title: Scalars['String']['input'];
+  description: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type CreateResearchProjectMutation = CreateResearchProjectMutation_Mutation;
+
+type ResearchConversationTranscriptQuery_researchConversationTranscript_ResearchConversationEvent = { __typename?: 'ResearchConversationEvent', _id: string, conversationId: string, seq: number, claudeMessageUuid: string | null, kind: string, payload: any, createdAt: string };
+
+type ResearchConversationTranscriptQuery_Query = { __typename?: 'Query', researchConversationTranscript: Array<ResearchConversationTranscriptQuery_researchConversationTranscript_ResearchConversationEvent> };
+
+
+type ResearchConversationTranscriptQueryVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+  since: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type ResearchConversationTranscriptQuery = ResearchConversationTranscriptQuery_Query;
 
 type multiReviewWinnerArtBestOfLessWrongAdminQueryQuery_reviewWinnerArts_MultiReviewWinnerArtOutput_results_ReviewWinnerArt = (
   { __typename?: 'ReviewWinnerArt' }

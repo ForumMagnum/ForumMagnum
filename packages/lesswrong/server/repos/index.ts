@@ -23,6 +23,7 @@ import PostViewsRepo from "./PostViewsRepo";
 import PostsRepo from "./PostsRepo";
 import ReadStatusesRepo from "./ReadStatusesRepo";
 import RecommendationsCachesRepo from "./RecommendationsCachesRepo";
+import ResearchConversationEventsRepo from "./ResearchConversationEventsRepo";
 import ReviewWinnersRepo from "./ReviewWinnersRepo";
 import ReviewWinnerArtsRepo from "./ReviewWinnerArtsRepo";
 import RevisionsRepo from "./RevisionsRepo";
@@ -71,6 +72,7 @@ const allRepos = {
   postViewTimes: PostViewTimesRepo,
   readStatuses: ReadStatusesRepo,
   recommendationsCaches: RecommendationsCachesRepo,
+  researchConversationEvents: ResearchConversationEventsRepo,
   reviewWinnerArts: ReviewWinnerArtsRepo,
   reviewWinners: ReviewWinnersRepo,
   revisions: RevisionsRepo,

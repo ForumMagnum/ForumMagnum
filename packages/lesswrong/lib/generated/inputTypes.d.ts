@@ -51,6 +51,8 @@ interface Query {
   RecentDiscussionFeed: RecentDiscussionFeedQueryResults;
   TagHistoryFeed: TagHistoryFeedQueryResults;
   UserContentFeed: UserContentFeedQueryResults;
+  researchProjectActivity: Array<ResearchProjectActivityEntry>;
+  researchConversationTranscript: Array<ResearchConversationEvent>;
   TagUpdatesInTimeBlock: Array<TagUpdates>;
   TagUpdatesByUser: Array<TagUpdates> | null;
   RandomTag: Tag;
@@ -156,6 +158,16 @@ interface Query {
   rSSFeeds: MultiRSSFeedOutput | null;
   report: SingleReportOutput | null;
   reports: MultiReportOutput | null;
+  researchConversationEvent: SingleResearchConversationEventOutput | null;
+  researchConversationEvents: MultiResearchConversationEventOutput | null;
+  researchConversation: SingleResearchConversationOutput | null;
+  researchConversations: MultiResearchConversationOutput | null;
+  researchDocument: SingleResearchDocumentOutput | null;
+  researchDocuments: MultiResearchDocumentOutput | null;
+  researchProject: SingleResearchProjectOutput | null;
+  researchProjects: MultiResearchProjectOutput | null;
+  researchSandboxSession: SingleResearchSandboxSessionOutput | null;
+  researchSandboxSessions: MultiResearchSandboxSessionOutput | null;
   reviewVote: SingleReviewVoteOutput | null;
   reviewVotes: MultiReviewVoteOutput | null;
   reviewWinnerArt: SingleReviewWinnerArtOutput | null;
@@ -229,6 +241,13 @@ interface Mutation {
   markConversationRead: boolean;
   sendEventTriggeredDM: boolean;
   initiateConversation: Conversation | null;
+  fireResearchConversation: ResearchConversationOutput | null;
+  continueResearchConversation: ResearchConversationOutput | null;
+  cancelResearchConversation: ResearchConversationOutput | null;
+  createResearchProject: ResearchProjectOutput | null;
+  updateResearchProject: ResearchProjectOutput | null;
+  createResearchDocument: ResearchDocumentOutput | null;
+  updateResearchDocument: ResearchDocumentOutput | null;
   mergeTags: boolean | null;
   promoteLensToMain: boolean | null;
   RefreshDbSettings: boolean | null;
@@ -1005,6 +1024,82 @@ interface UserContentFeedEntry {
   shortformComment: Comment | null;
   userPost: Post | null;
   wikiEdit: Revision | null;
+}
+
+interface FireResearchConversationInput {
+  projectId: string;
+  entrypoint?: any;
+  prompt: string;
+}
+
+interface ResearchConversationOutput {
+  conversationId: string;
+  data: ResearchConversation | null;
+}
+
+interface ResearchProjectActivityEntry {
+  kind: string;
+  timestamp: Date;
+  conversationId: string | null;
+  documentId: string | null;
+  title: string | null;
+  summary: string | null;
+}
+
+interface CreateResearchProjectDataInput {
+  userId?: string | null;
+  title: string;
+  description?: string | null;
+  claudeCodeTokenRef?: string | null;
+  settings?: any;
+}
+
+interface CreateResearchProjectInput {
+  data: CreateResearchProjectDataInput;
+}
+
+interface UpdateResearchProjectDataInput {
+  userId?: string | null;
+  title?: string | null;
+  description?: string | null;
+  claudeCodeTokenRef?: string | null;
+  settings?: any;
+}
+
+interface UpdateResearchProjectInput {
+  selector: SelectorInput;
+  data: UpdateResearchProjectDataInput;
+}
+
+interface ResearchProjectOutput {
+  data: ResearchProject | null;
+}
+
+interface CreateResearchDocumentDataInput {
+  userId?: string | null;
+  projectId: string;
+  title?: string | null;
+  contents?: CreateRevisionDataInput | null;
+}
+
+interface CreateResearchDocumentInput {
+  data: CreateResearchDocumentDataInput;
+}
+
+interface UpdateResearchDocumentDataInput {
+  userId?: string | null;
+  projectId?: string | null;
+  title?: string | null;
+  contents?: CreateRevisionDataInput | null;
+}
+
+interface UpdateResearchDocumentInput {
+  selector: SelectorInput;
+  data: UpdateResearchDocumentDataInput;
+}
+
+interface ResearchDocumentOutput {
+  data: ResearchDocument | null;
 }
 
 interface DocumentDeletion {
@@ -5563,6 +5658,221 @@ interface MultiReportOutput {
   totalCount: number | null;
 }
 
+interface ResearchConversationEvent {
+  _id: string;
+  createdAt: Date;
+  conversationId: string;
+  seq: number;
+  claudeMessageUuid: string | null;
+  kind: string;
+  payload: any;
+}
+
+interface SingleResearchConversationEventInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SingleResearchConversationEventOutput {
+  result: ResearchConversationEvent | null;
+}
+
+interface ResearchConversationEventsByConversationInput {
+  conversationId?: string | null;
+  sinceSeq?: number | null;
+}
+
+interface ResearchConversationEventSelector {
+  default: EmptyViewInput | null;
+  byConversation: ResearchConversationEventsByConversationInput | null;
+}
+
+interface MultiResearchConversationEventInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiResearchConversationEventOutput {
+  results: Array<ResearchConversationEvent>;
+  totalCount: number | null;
+}
+
+interface ResearchConversation {
+  _id: string;
+  createdAt: Date;
+  userId: string;
+  projectId: string;
+  claudeSessionId: string | null;
+  title: string | null;
+  entrypoint: any;
+  lastActivityAt: Date;
+}
+
+interface SingleResearchConversationInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SingleResearchConversationOutput {
+  result: ResearchConversation | null;
+}
+
+interface ResearchConversationsByProjectInput {
+  projectId?: string | null;
+}
+
+interface ResearchConversationsByProjectAndEntrypointKindInput {
+  projectId?: string | null;
+  kind?: string | null;
+}
+
+interface ResearchConversationSelector {
+  default: EmptyViewInput | null;
+  byProject: ResearchConversationsByProjectInput | null;
+  byProjectAndEntrypointKind: ResearchConversationsByProjectAndEntrypointKindInput | null;
+}
+
+interface MultiResearchConversationInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiResearchConversationOutput {
+  results: Array<ResearchConversation>;
+  totalCount: number | null;
+}
+
+interface ResearchDocument {
+  _id: string;
+  createdAt: Date;
+  userId: string;
+  projectId: string;
+  title: string | null;
+  contents: Revision | null;
+  contents_latest: string | null;
+  revisions: Array<Revision> | null;
+  version: string | null;
+}
+
+interface SingleResearchDocumentInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SingleResearchDocumentOutput {
+  result: ResearchDocument | null;
+}
+
+interface ResearchDocumentsByProjectInput {
+  projectId?: string | null;
+}
+
+interface ResearchDocumentSelector {
+  default: EmptyViewInput | null;
+  byProject: ResearchDocumentsByProjectInput | null;
+}
+
+interface MultiResearchDocumentInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiResearchDocumentOutput {
+  results: Array<ResearchDocument>;
+  totalCount: number | null;
+}
+
+interface ResearchProject {
+  _id: string;
+  createdAt: Date;
+  userId: string;
+  title: string;
+  description: string | null;
+  claudeCodeTokenRef: string | null;
+  settings: any;
+}
+
+interface SingleResearchProjectInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SingleResearchProjectOutput {
+  result: ResearchProject | null;
+}
+
+interface ResearchProjectsByUserInput {
+  userId?: string | null;
+}
+
+interface ResearchProjectSelector {
+  default: EmptyViewInput | null;
+  byUser: ResearchProjectsByUserInput | null;
+}
+
+interface MultiResearchProjectInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiResearchProjectOutput {
+  results: Array<ResearchProject>;
+  totalCount: number | null;
+}
+
+interface ResearchSandboxSession {
+  _id: string;
+  createdAt: Date;
+  userId: string;
+  projectId: string;
+  vercelSandboxId: string;
+  endpointUrl: string;
+  status: string;
+  supervisorSecret: string;
+  concurrencyCount: number;
+  lastUsedAt: Date;
+  expiresAt: Date | null;
+}
+
+interface SingleResearchSandboxSessionInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SingleResearchSandboxSessionOutput {
+  result: ResearchSandboxSession | null;
+}
+
+interface ResearchSandboxSessionsByUserAndProjectInput {
+  userId?: string | null;
+  projectId?: string | null;
+}
+
+interface ResearchSandboxSessionSelector {
+  default: EmptyViewInput | null;
+  byUserAndProject: ResearchSandboxSessionsByUserAndProjectInput | null;
+}
+
+interface MultiResearchSandboxSessionInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiResearchSandboxSessionOutput {
+  results: Array<ResearchSandboxSession>;
+  totalCount: number | null;
+}
+
 interface ReviewVote {
   _id: string;
   schemaVersion: number;
@@ -8875,6 +9185,19 @@ interface GraphQLTypeMap {
   TagHistoryFeedEntry: TagHistoryFeedEntry;
   UserContentFeedQueryResults: UserContentFeedQueryResults;
   UserContentFeedEntry: UserContentFeedEntry;
+  FireResearchConversationInput: FireResearchConversationInput;
+  ResearchConversationOutput: ResearchConversationOutput;
+  ResearchProjectActivityEntry: ResearchProjectActivityEntry;
+  CreateResearchProjectDataInput: CreateResearchProjectDataInput;
+  CreateResearchProjectInput: CreateResearchProjectInput;
+  UpdateResearchProjectDataInput: UpdateResearchProjectDataInput;
+  UpdateResearchProjectInput: UpdateResearchProjectInput;
+  ResearchProjectOutput: ResearchProjectOutput;
+  CreateResearchDocumentDataInput: CreateResearchDocumentDataInput;
+  CreateResearchDocumentInput: CreateResearchDocumentInput;
+  UpdateResearchDocumentDataInput: UpdateResearchDocumentDataInput;
+  UpdateResearchDocumentInput: UpdateResearchDocumentInput;
+  ResearchDocumentOutput: ResearchDocumentOutput;
   DocumentDeletion: DocumentDeletion;
   TagUpdates: TagUpdates;
   TagPreviewWithSummaries: TagPreviewWithSummaries;
@@ -9312,6 +9635,42 @@ interface GraphQLTypeMap {
   ReportSelector: ReportSelector;
   MultiReportInput: MultiReportInput;
   MultiReportOutput: MultiReportOutput;
+  ResearchConversationEvent: ResearchConversationEvent;
+  SingleResearchConversationEventInput: SingleResearchConversationEventInput;
+  SingleResearchConversationEventOutput: SingleResearchConversationEventOutput;
+  ResearchConversationEventsByConversationInput: ResearchConversationEventsByConversationInput;
+  ResearchConversationEventSelector: ResearchConversationEventSelector;
+  MultiResearchConversationEventInput: MultiResearchConversationEventInput;
+  MultiResearchConversationEventOutput: MultiResearchConversationEventOutput;
+  ResearchConversation: ResearchConversation;
+  SingleResearchConversationInput: SingleResearchConversationInput;
+  SingleResearchConversationOutput: SingleResearchConversationOutput;
+  ResearchConversationsByProjectInput: ResearchConversationsByProjectInput;
+  ResearchConversationsByProjectAndEntrypointKindInput: ResearchConversationsByProjectAndEntrypointKindInput;
+  ResearchConversationSelector: ResearchConversationSelector;
+  MultiResearchConversationInput: MultiResearchConversationInput;
+  MultiResearchConversationOutput: MultiResearchConversationOutput;
+  ResearchDocument: ResearchDocument;
+  SingleResearchDocumentInput: SingleResearchDocumentInput;
+  SingleResearchDocumentOutput: SingleResearchDocumentOutput;
+  ResearchDocumentsByProjectInput: ResearchDocumentsByProjectInput;
+  ResearchDocumentSelector: ResearchDocumentSelector;
+  MultiResearchDocumentInput: MultiResearchDocumentInput;
+  MultiResearchDocumentOutput: MultiResearchDocumentOutput;
+  ResearchProject: ResearchProject;
+  SingleResearchProjectInput: SingleResearchProjectInput;
+  SingleResearchProjectOutput: SingleResearchProjectOutput;
+  ResearchProjectsByUserInput: ResearchProjectsByUserInput;
+  ResearchProjectSelector: ResearchProjectSelector;
+  MultiResearchProjectInput: MultiResearchProjectInput;
+  MultiResearchProjectOutput: MultiResearchProjectOutput;
+  ResearchSandboxSession: ResearchSandboxSession;
+  SingleResearchSandboxSessionInput: SingleResearchSandboxSessionInput;
+  SingleResearchSandboxSessionOutput: SingleResearchSandboxSessionOutput;
+  ResearchSandboxSessionsByUserAndProjectInput: ResearchSandboxSessionsByUserAndProjectInput;
+  ResearchSandboxSessionSelector: ResearchSandboxSessionSelector;
+  MultiResearchSandboxSessionInput: MultiResearchSandboxSessionInput;
+  MultiResearchSandboxSessionOutput: MultiResearchSandboxSessionOutput;
   ReviewVote: ReviewVote;
   SingleReviewVoteInput: SingleReviewVoteInput;
   SingleReviewVoteOutput: SingleReviewVoteOutput;
@@ -9639,6 +9998,8 @@ interface GraphQLTypeMap {
 }
 
 interface CreateInputsByCollectionName {
+  ResearchProjects: CreateResearchProjectInput;
+  ResearchDocuments: CreateResearchDocumentInput;
   Books: CreateBookInput;
   Chapters: CreateChapterInput;
   Collections: CreateCollectionInput;
@@ -9712,6 +10073,9 @@ interface CreateInputsByCollectionName {
   PostViews: never;
   ReadStatuses: never;
   RecommendationsCaches: never;
+  ResearchConversationEvents: never;
+  ResearchConversations: never;
+  ResearchSandboxSessions: never;
   ReviewVotes: never;
   ReviewWinnerArts: never;
   ReviewWinners: never;
@@ -9728,6 +10092,8 @@ interface CreateInputsByCollectionName {
 }
 
 interface UpdateInputsByCollectionName {
+  ResearchProjects: UpdateResearchProjectInput;
+  ResearchDocuments: UpdateResearchDocumentInput;
   Books: UpdateBookInput;
   Chapters: UpdateChapterInput;
   Collections: UpdateCollectionInput;
@@ -9799,6 +10165,9 @@ interface UpdateInputsByCollectionName {
   PostViews: never;
   ReadStatuses: never;
   RecommendationsCaches: never;
+  ResearchConversationEvents: never;
+  ResearchConversations: never;
+  ResearchSandboxSessions: never;
   ReviewVotes: never;
   ReviewWinnerArts: never;
   ReviewWinners: never;

@@ -66,6 +66,11 @@ import { PostViewTimes } from './postViewTimes/collection';
 import { PostViews } from './postViews/collection';
 import { Posts } from './posts/collection';
 import { ReadStatuses } from './readStatus/collection';
+import { ResearchConversationEvents } from './researchConversationEvents/collection';
+import { ResearchConversations } from './researchConversations/collection';
+import { ResearchDocuments } from './researchDocuments/collection';
+import { ResearchProjects } from './researchProjects/collection';
+import { ResearchSandboxSessions } from './researchSandboxSessions/collection';
 import { RecommendationsCaches } from './recommendationsCaches/collection';
 import { Reports } from './reports/collection';
 import { ReviewVotes } from './reviewVotes/collection';
@@ -119,7 +124,9 @@ const allCollections = {
   LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications,
   OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients,
   PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
-  Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,
+  Posts, RSSFeeds, ReadStatuses,
+  ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchProjects, ResearchSandboxSessions,
+  RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, Revisions, Sequences,
   Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
   TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities, UserMostValuablePosts, UserRateLimits,
   UserTagRels, Users, Votes, YjsDocuments

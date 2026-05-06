@@ -37,7 +37,7 @@ import { HorizontalRuleExtension } from '@lexical/extension';
 import ErrorBoundary from '../common/ErrorBoundary';
 
 const HocuspocusAuthQuery = gql(`
-  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
+  query HocuspocusAuthQuery($postId: String, $linkSharingKey: String) {
     HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {
       token
     }

@@ -14,28 +14,67 @@ import { captureException } from '@/lib/sentryWrapper';
 const COLLAB_AUTOSAVE_COMMIT_MESSAGE = 'Collaborative editor autosave';
 
 /**
- * Extracts the post ID from a Hocuspocus document name.
- * Document names follow the pattern "post-{postId}" or "post-{postId}/{subDocId}".
+ * Mapping from a collab-editor-participating collection name to the prefix
+ * used in Hocuspocus document names. Mirrors the table in the Hocuspocus
+ * server's parseDocumentId. The prefix lives only at the protocol layer; the
+ * (collectionName, documentId) pair is what we persist.
  */
-export function documentNameToPostId(documentName: string): string {
-  const match = documentName.match(/^post-([a-zA-Z0-9]+)/);
-  if (!match) {
-    throw new Error(`Invalid document name: ${documentName}`);
-  }
-  return match[1];
+const COLLAB_DOCUMENT_NAME_PREFIXES: ReadonlyArray<{ prefix: string; collectionName: string }> = [
+  { prefix: 'post-', collectionName: 'Posts' },
+  { prefix: 'research-doc-', collectionName: 'ResearchDocuments' },
+];
+
+interface ParsedDocumentName {
+  collectionName: string;
+  documentId: string;
+  /** Sub-document ID after the slash (e.g. 'comments'), or null for the main doc. */
+  subDocId: string | null;
 }
 
 /**
- * Converts a Hocuspocus document name to the YjsDocuments documentId format.
- * Examples:
- *   - "post-abc" -> "abc"
- *   - "post-abc/comments" -> "abc/comments"
+ * Parse a Hocuspocus document name into (collectionName, documentId, subDocId).
+ *
+ * Document names look like:
+ *   - "post-{postId}" / "post-{postId}/{subDocId}"
+ *   - "research-doc-{id}" / "research-doc-{id}/{subDocId}"
  */
-function documentNameToDocumentId(documentName: string): string {
-  if (!documentName.startsWith('post-')) {
-    throw new Error(`Invalid document name: ${documentName}`);
+export function parseHocuspocusDocumentName(documentName: string): ParsedDocumentName {
+  for (const { prefix, collectionName } of COLLAB_DOCUMENT_NAME_PREFIXES) {
+    if (documentName.startsWith(prefix)) {
+      const rest = documentName.slice(prefix.length);
+      const slashIndex = rest.indexOf('/');
+      if (slashIndex === -1) {
+        return { collectionName, documentId: rest, subDocId: null };
+      }
+      return {
+        collectionName,
+        documentId: rest.slice(0, slashIndex),
+        subDocId: rest.slice(slashIndex + 1),
+      };
+    }
   }
-  return documentName.slice('post-'.length);
+  throw new Error(`Invalid document name: ${documentName}`);
+}
+
+export function buildHocuspocusDocumentName(collectionName: string, documentId: string): string {
+  for (const entry of COLLAB_DOCUMENT_NAME_PREFIXES) {
+    if (entry.collectionName === collectionName) {
+      return `${entry.prefix}${documentId}`;
+    }
+  }
+  throw new Error(`buildHocuspocusDocumentName: unsupported collection ${collectionName}`);
+}
+
+/**
+ * Backwards-compat helper. Throws if the document name does not refer to a
+ * Posts document.
+ */
+export function documentNameToPostId(documentName: string): string {
+  const parsed = parseHocuspocusDocumentName(documentName);
+  if (parsed.collectionName !== 'Posts') {
+    throw new Error(`documentNameToPostId: document is not a Post (${documentName})`);
+  }
+  return parsed.documentId;
 }
 
 /**
@@ -57,8 +96,11 @@ export function verifyHocuspocusWebhookSecret(providedSecret: string): boolean {
  * Returns null if the document doesn't exist.
  */
 export async function readYjsState(documentName: string): Promise<Uint8Array | null> {
-  const documentId = documentNameToDocumentId(documentName);
-  const yjsDocument = await YjsDocuments.findOne({ documentId });
+  const { collectionName, documentId, subDocId } = parseHocuspocusDocumentName(documentName);
+  // YjsDocuments stores the path-after-prefix as documentId, so for
+  // "post-abc/comments" the stored documentId is "abc/comments".
+  const storedDocumentId = subDocId ? `${documentId}/${subDocId}` : documentId;
+  const yjsDocument = await YjsDocuments.findOne({ collectionName, documentId: storedDocumentId });
   if (!yjsDocument) return null;
   return new Uint8Array(yjsDocument.yjsState);
 }
@@ -93,9 +135,12 @@ async function getUserForSavedPost(postId: string, userId: string): Promise<{
 }
 
 /**
- * Save a new revision for a collaboratively-edited document, attributed to
- * a specific user. Called by saveOrUpdateLexicalRevision when creating a
+ * Save a new revision for a collaboratively-edited Posts document, attributed
+ * to a specific user. Called by saveOrUpdateLexicalRevision when creating a
  * fresh revision (as opposed to updating an existing autosave in-place).
+ *
+ * Only invoked for the Posts collection; other collections (e.g.
+ * ResearchDocuments) don't currently snapshot revisions through this path.
  */
 async function saveLexicalDocumentRevision(
   userId: string,
@@ -144,23 +189,30 @@ async function saveLexicalDocumentRevision(
 }
 
 /**
- * Save a new revision for a collaboratively-edited document.
+ * Save a new revision for a collaboratively-edited Posts document.
  * Always creates a new revision (no in-place update of previous
  * autosaves) so that every snapshot has its own yjsState and can
  * be restored independently.
+ *
+ * Other collections (ResearchDocuments) don't snapshot revisions through this
+ * path today; the caller should switch on collectionName before invoking.
  *
  * Deduplication is handled inside saveLexicalDocumentRevision: if
  * the HTML content hasn't changed since the last revision, no new
  * revision is created.
  */
 export async function saveOrUpdateLexicalRevision(
-  postId: string,
+  collectionName: string,
+  documentId: string,
   html: string,
   yjsStateBase64: string,
 ): Promise<void> {
-  const post = await Posts.findOne(postId);
+  if (collectionName !== 'Posts') {
+    return;
+  }
+  const post = await Posts.findOne(documentId);
   const userId = post!.userId;
-  await saveLexicalDocumentRevision(userId, postId, html, yjsStateBase64);
+  await saveLexicalDocumentRevision(userId, documentId, html, yjsStateBase64);
 }
 
 /**
@@ -229,19 +281,20 @@ export async function resetHocuspocusDocument(documentName: string, newState: Ui
  * (which has already performed permission checks).
  */
 export async function pushRevisionToLexicalCollab(
-  postId: string,
+  collectionName: string,
+  documentId: string,
   revisionId: string,
 ): Promise<void> {
   // eslint-disable-next-line no-console
-  console.log(`[Hocuspocus] Restoring revision ${revisionId} for post ${postId}`);
+  console.log(`[Hocuspocus] Restoring revision ${revisionId} for ${collectionName} ${documentId}`);
 
   // Load the revision and check that it has a stored Yjs state
   const revision = await Revisions.findOne({ _id: revisionId });
   if (!revision) {
     throw new Error(`[Hocuspocus] Revision not found: ${revisionId}`);
   }
-  if (revision.documentId !== postId) {
-    throw new Error(`[Hocuspocus] Revision ${revisionId} does not belong to post ${postId}`);
+  if (revision.documentId !== documentId) {
+    throw new Error(`[Hocuspocus] Revision ${revisionId} does not belong to ${collectionName} ${documentId}`);
   }
 
   const yjsStateBase64 = revision.originalContents?.yjsState;
@@ -256,10 +309,10 @@ export async function pushRevisionToLexicalCollab(
 
   // Send the Yjs state to the Hocuspocus server, which handles the
   // destructive replacement (evict document + write to DB).
-  await resetHocuspocusDocument(`post-${postId}`, yjsState);
+  await resetHocuspocusDocument(buildHocuspocusDocumentName(collectionName, documentId), yjsState);
 
   // eslint-disable-next-line no-console
-  console.log(`[Hocuspocus] Restore completed for post ${postId}`);
+  console.log(`[Hocuspocus] Restore completed for ${collectionName} ${documentId}`);
 }
 
 export interface HocuspocusCommentData {
@@ -274,13 +327,22 @@ export interface HocuspocusCommentData {
  * Handle the "comment added" callback from Hocuspocus.
  * Notifies the post author, coauthors, and other commenters in the thread.
  *
- * Equivalent of CKEditor's `comment.added` webhook event.
+ * Equivalent of CKEditor's `comment.added` webhook event. Currently only
+ * fires for Posts; other collab-editor-backed collections (e.g.
+ * ResearchDocuments) silently no-op until per-collection notification
+ * mechanics are wired up.
  */
 export async function handleCommentAdded(
   documentName: string,
   comment: HocuspocusCommentData,
 ): Promise<void> {
-  const postId = documentNameToPostId(documentName);
+  const { collectionName, documentId } = parseHocuspocusDocumentName(documentName);
+  if (collectionName !== 'Posts') {
+    // eslint-disable-next-line no-console
+    console.log(`[HocuspocusWebhook] Ignoring comment.added for non-Posts document ${documentName}`);
+    return;
+  }
+  const postId = documentId;
 
   // eslint-disable-next-line no-console
   console.log(`[HocuspocusWebhook] Comment added on ${documentName} by ${comment.authorId}`);

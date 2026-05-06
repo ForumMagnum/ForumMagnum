@@ -16,8 +16,26 @@ import { sleep } from "@/lib/utils/asyncUtils";
 import { getLatestRev } from "@/server/editor/utils";
 import { captureException } from "@/lib/sentryWrapper";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
-import { getHocuspocusToken } from "./getHocuspocusToken";
+import { getHocuspocusToken, getHocuspocusTokenForCollection } from "./getHocuspocusToken";
 import { captureAgentApiEvent } from "./captureAgentAnalytics";
+
+/**
+ * Mapping from a collab-editor-participating collection name to the prefix
+ * used in Hocuspocus document names. Mirrors the table in the Hocuspocus
+ * server's parseDocumentId.
+ */
+const COLLAB_DOCUMENT_NAME_PREFIXES: Record<string, string> = {
+  Posts: "post-",
+  ResearchDocuments: "research-doc-",
+};
+
+export function buildHocuspocusDocumentName(collectionName: string, documentId: string): string {
+  const prefix = COLLAB_DOCUMENT_NAME_PREFIXES[collectionName];
+  if (!prefix) {
+    throw new Error(`buildHocuspocusDocumentName: unsupported collection ${collectionName}`);
+  }
+  return `${prefix}${documentId}`;
+}
 
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const INITIAL_SYNC_SETTLE_MS = 25;
@@ -120,19 +138,30 @@ interface EditorTypeCheckResult {
 }
 
 /**
- * Check whether a post uses the Lexical editor. The agent editing API surface
- * only works with Lexical collaborative documents; legacy CKEditor posts must
- * be read via /editPost or /api/editPost instead.
+ * Check whether a document uses the Lexical editor. The agent editing API
+ * surface only works with Lexical collaborative documents; legacy CKEditor
+ * posts must be read via /editPost or /api/editPost instead.
  *
  * When a user converts a post from markdown to Lexical in the editor UI, the
  * Lexical editor opens and syncs to Hocuspocus, but no new revision is saved
  * until the user actually edits the document. During that window the latest
  * revision still says "markdown", even though the live document is Lexical.
  * To handle this, we also check for a YjsDocuments entry -- its existence
- * means the Lexical collaborative editor has synced state for this post.
+ * means the Lexical collaborative editor has synced state for this document.
+ *
+ * For non-Posts collections (e.g. ResearchDocuments) we always treat the
+ * editor as Lexical (no legacy CKEditor history exists).
  */
-export async function isSupportedEditorType(postId: string, context: ResolverContext): Promise<EditorTypeCheckResult> {
-  const rev = await getLatestRev(postId, "contents", context);
+export async function isSupportedEditorType(
+  collectionName: string,
+  documentId: string,
+  context: ResolverContext,
+): Promise<EditorTypeCheckResult> {
+  if (collectionName !== 'Posts') {
+    return { supported: true, editorType: "lexical" };
+  }
+
+  const rev = await getLatestRev(documentId, "contents", context);
   const editorType = rev?.originalContents?.type ?? "unknown";
   if (editorType === "lexical") {
     return { supported: true, editorType };
@@ -141,7 +170,7 @@ export async function isSupportedEditorType(postId: string, context: ResolverCon
   // The latest revision isn't Lexical, but the post may have been converted
   // and opened in the collaborative editor without saving a revision yet.
   // A YjsDocuments row means Hocuspocus has synced Lexical state for this post.
-  const yjsDoc = await YjsDocuments.findOne({ documentId: postId });
+  const yjsDoc = await YjsDocuments.findOne({ collectionName, documentId });
   if (yjsDoc) {
     return { supported: true, editorType: "lexical" };
   }
@@ -172,16 +201,26 @@ export type EditorTypeAndTokenCheckResult =
  * and `UNAUTHORIZED_DRAFT_MESSAGE` are the canonical message texts.
  */
 export async function checkEditorTypeAndGetToken({
+  collectionName,
+  documentId,
   postId,
   context,
   linkSharingKey,
 }: {
-  postId: string
+  // Either pass {collectionName, documentId} or {postId} (legacy).
+  collectionName?: string
+  documentId?: string
+  postId?: string
   context: ResolverContext
   linkSharingKey?: string
 }): Promise<EditorTypeAndTokenCheckResult> {
-  const editorCheckPromise = isSupportedEditorType(postId, context);
-  const tokenPromise = getHocuspocusToken(context, postId, linkSharingKey);
+  const effectiveCollectionName = collectionName ?? 'Posts';
+  const effectiveDocumentId = documentId ?? postId;
+  if (!effectiveDocumentId) {
+    throw new Error('checkEditorTypeAndGetToken: must pass documentId or postId');
+  }
+  const editorCheckPromise = isSupportedEditorType(effectiveCollectionName, effectiveDocumentId, context);
+  const tokenPromise = getHocuspocusTokenForCollection(context, effectiveCollectionName, effectiveDocumentId, linkSharingKey);
   // If the editor-type check returns "unsupported" first, we early-return
   // without awaiting tokenPromise. Attach a no-op handler so a later
   // rejection doesn't bubble up as an unhandled-rejection warning. The
@@ -209,20 +248,35 @@ export async function checkEditorTypeAndGetToken({
  */
 export async function authorizeAgentDraftAccess({
   route,
+  collectionName,
+  documentId,
   postId,
   context,
   linkSharingKey,
   agentName,
 }: {
   route: string
-  postId: string
+  // Either pass {collectionName, documentId} or {postId} (legacy).
+  collectionName?: string
+  documentId?: string
+  postId?: string
   context: ResolverContext
   linkSharingKey?: string
   agentName?: string
 }): Promise<{ token: string } | { errorResponse: NextResponse }> {
-  const checkResult = await checkEditorTypeAndGetToken({ postId, context, linkSharingKey });
+  const effectiveCollectionName = collectionName ?? 'Posts';
+  const effectiveDocumentId = documentId ?? postId;
+  if (!effectiveDocumentId) {
+    throw new Error('authorizeAgentDraftAccess: must pass documentId or postId');
+  }
+  const checkResult = await checkEditorTypeAndGetToken({
+    collectionName: effectiveCollectionName,
+    documentId: effectiveDocumentId,
+    context,
+    linkSharingKey,
+  });
   if (checkResult.kind === "unsupported_editor") {
-    captureAgentApiEvent({ route, postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
+    captureAgentApiEvent({ route, postId: effectiveDocumentId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
     return {
       errorResponse: NextResponse.json(
         { error: unsupportedEditorMessage(checkResult.editorType) },
@@ -231,7 +285,7 @@ export async function authorizeAgentDraftAccess({
     };
   }
   if (checkResult.kind === "unauthorized") {
-    captureAgentApiEvent({ route, postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
+    captureAgentApiEvent({ route, postId: effectiveDocumentId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
     return {
       errorResponse: NextResponse.json(
         { error: UNAUTHORIZED_DRAFT_MESSAGE },
@@ -285,12 +339,17 @@ export function createHeadlessEditor(errorLabel: string): LexicalEditor {
 }
 
 export async function withMainDocEditorSession<T>({
+  collectionName,
+  documentId,
   postId,
   token,
   operationLabel,
   callback,
 }: {
-  postId: string
+  // Either pass {collectionName, documentId} or {postId} (legacy → Posts).
+  collectionName?: string
+  documentId?: string
+  postId?: string
   token: string
   operationLabel: string
   callback: (args: {
@@ -303,10 +362,17 @@ export async function withMainDocEditorSession<T>({
     throw new Error("HOCUSPOCUS_URL is not configured");
   }
 
+  const effectiveCollectionName = collectionName ?? 'Posts';
+  const effectiveDocumentId = documentId ?? postId;
+  if (!effectiveDocumentId) {
+    throw new Error('withMainDocEditorSession: must pass documentId or postId');
+  }
+  const documentName = buildHocuspocusDocumentName(effectiveCollectionName, effectiveDocumentId);
+
   const doc = new Doc();
   const provider = new HocuspocusProvider({
     url: wsUrl,
-    name: `post-${postId}`,
+    name: documentName,
     document: doc,
     token,
     connect: false,
@@ -371,7 +437,7 @@ export async function withMainDocEditorSession<T>({
     });
     if (rootChildCount === 0) {
       const err = new Error(
-        `[${operationLabel}] Lexical editor root is empty after Hocuspocus sync for post ${postId}. ` +
+        `[${operationLabel}] Lexical editor root is empty after Hocuspocus sync for ${effectiveCollectionName} ${effectiveDocumentId}. ` +
         `This likely means the Yjs document state is missing or corrupt.`
       );
       captureException(err);

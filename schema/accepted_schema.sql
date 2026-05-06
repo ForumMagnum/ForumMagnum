@@ -2335,6 +2335,89 @@ CREATE INDEX IF NOT EXISTS "idx_Reports_claimedUserId_createdAt" ON "Reports" US
 -- Index "idx_Reports_closedAt_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_Reports_closedAt_createdAt" ON "Reports" USING btree ("closedAt", "createdAt");
 
+-- Table "ResearchConversationEvents"
+CREATE TABLE "ResearchConversationEvents" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "conversationId" VARCHAR(27) NOT NULL,
+  "seq" INTEGER NOT NULL,
+  "claudeMessageUuid" TEXT,
+  "kind" TEXT NOT NULL,
+  "payload" JSONB NOT NULL
+);
+
+-- Index "idx_ResearchConversationEvents_conversationId_seq"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_ResearchConversationEvents_conversationId_seq" ON "ResearchConversationEvents" USING btree ("conversationId", "seq");
+
+-- Index "idx_ResearchConversationEvents_conversationId_claudeMessageUuid"
+CREATE INDEX IF NOT EXISTS "idx_ResearchConversationEvents_conversationId_claudeMessageUuid" ON "ResearchConversationEvents" USING btree ("conversationId", "claudeMessageUuid");
+
+-- Table "ResearchConversations"
+CREATE TABLE "ResearchConversations" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "projectId" VARCHAR(27) NOT NULL,
+  "claudeSessionId" TEXT,
+  "title" TEXT,
+  "entrypoint" JSONB NOT NULL,
+  "lastActivityAt" TIMESTAMPTZ NOT NULL
+);
+
+-- Index "idx_ResearchConversations_projectId_lastActivityAt"
+CREATE INDEX IF NOT EXISTS "idx_ResearchConversations_projectId_lastActivityAt" ON "ResearchConversations" USING btree ("projectId", "lastActivityAt");
+
+-- Index "idx_ResearchConversations_userId_lastActivityAt"
+CREATE INDEX IF NOT EXISTS "idx_ResearchConversations_userId_lastActivityAt" ON "ResearchConversations" USING btree ("userId", "lastActivityAt");
+
+-- Table "ResearchDocuments"
+CREATE TABLE "ResearchDocuments" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "projectId" VARCHAR(27) NOT NULL,
+  "title" TEXT,
+  "contents_latest" TEXT
+);
+
+-- Index "idx_ResearchDocuments_projectId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_ResearchDocuments_projectId_createdAt" ON "ResearchDocuments" USING btree ("projectId", "createdAt");
+
+-- Index "idx_ResearchDocuments_userId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_ResearchDocuments_userId_createdAt" ON "ResearchDocuments" USING btree ("userId", "createdAt");
+
+-- Table "ResearchProjects"
+CREATE TABLE "ResearchProjects" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "title" TEXT NOT NULL,
+  "description" TEXT,
+  "claudeCodeTokenRef" TEXT,
+  "settings" JSONB
+);
+
+-- Index "idx_ResearchProjects_userId_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_ResearchProjects_userId_createdAt" ON "ResearchProjects" USING btree ("userId", "createdAt");
+
+-- Table "ResearchSandboxSessions"
+CREATE TABLE "ResearchSandboxSessions" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "projectId" VARCHAR(27) NOT NULL,
+  "vercelSandboxId" TEXT NOT NULL,
+  "endpointUrl" TEXT NOT NULL,
+  "status" TEXT NOT NULL,
+  "supervisorSecret" TEXT NOT NULL,
+  "concurrencyCount" INTEGER NOT NULL DEFAULT 0,
+  "lastUsedAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  "expiresAt" TIMESTAMPTZ
+);
+
+-- Index "idx_ResearchSandboxSessions_userId_projectId_status"
+CREATE INDEX IF NOT EXISTS "idx_ResearchSandboxSessions_userId_projectId_status" ON "ResearchSandboxSessions" USING btree ("userId", "projectId", "status");
+
 -- Table "ReviewVotes"
 CREATE TABLE "ReviewVotes" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -3363,14 +3446,15 @@ CREATE INDEX IF NOT EXISTS "idx_Votes_votedAt" ON "Votes" USING btree ("votedAt"
 CREATE TABLE "YjsDocuments" (
   _id VARCHAR(27) PRIMARY KEY,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "collectionName" TEXT NOT NULL DEFAULT 'Posts',
   "documentId" TEXT NOT NULL,
   "yjsState" BYTEA NOT NULL,
   "yjsStateVector" BYTEA NOT NULL,
   "updatedAt" TIMESTAMPTZ NOT NULL
 );
 
--- Index "idx_YjsDocuments_documentId"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_YjsDocuments_documentId" ON "YjsDocuments" USING btree ("documentId");
+-- Index "idx_YjsDocuments_collectionName_documentId"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_YjsDocuments_collectionName_documentId" ON "YjsDocuments" USING btree ("collectionName", "documentId");
 
 -- CustomIndex "idx_Comments_postId_promotedAt"
 CREATE INDEX IF NOT EXISTS "idx_Comments_postId_promotedAt" ON "Comments" ("postId", "promotedAt")

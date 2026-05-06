@@ -60,6 +60,11 @@ type RSSFeedsViewName = "usersFeed";
 type ReadStatusesViewName = never
 type RecommendationsCachesViewName = never
 type ReportsViewName = "adminClaimedReports"|"allReports"|"claimedReports"|"closedReports"|"sunshineSidebarReports"|"unclaimedReports";
+type ResearchConversationEventsViewName = "byConversation";
+type ResearchConversationsViewName = "byProject"|"byProjectAndEntrypointKind";
+type ResearchDocumentsViewName = "byProject";
+type ResearchProjectsViewName = "byUser";
+type ResearchSandboxSessionsViewName = "byUserAndProject";
 type ReviewVotesViewName = "reviewVotesAdminDashboard"|"reviewVotesForPost"|"reviewVotesForPostAndUser"|"reviewVotesFromUser";
 type ReviewWinnerArtsViewName = "allForYear"|"postArt";
 type ReviewWinnersViewName = "bestOfLessWrongAnnouncement"|"reviewWinnerSingle";
@@ -148,6 +153,11 @@ interface ViewTermsByCollectionName {
   ReadStatuses: ViewTermsBase
   RecommendationsCaches: ViewTermsBase
   Reports: ReportsViewTerms
+  ResearchConversationEvents: ResearchConversationEventsViewTerms
+  ResearchConversations: ResearchConversationsViewTerms
+  ResearchDocuments: ResearchDocumentsViewTerms
+  ResearchProjects: ResearchProjectsViewTerms
+  ResearchSandboxSessions: ResearchSandboxSessionsViewTerms
   ReviewVotes: ReviewVotesViewTerms
   ReviewWinnerArts: ReviewWinnerArtsViewTerms
   ReviewWinners: ReviewWinnersViewTerms
@@ -175,4 +185,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ResearchConversationEvents"|"ResearchConversations"|"ResearchDocuments"|"ResearchProjects"|"ResearchSandboxSessions"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

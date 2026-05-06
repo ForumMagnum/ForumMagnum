@@ -1148,6 +1148,70 @@ interface DbReport extends DbObject {
   userId: string
 }
 
+type ResearchConversationEventsCollection = PgCollection<"ResearchConversationEvents">;
+
+interface DbResearchConversationEvent extends DbObject {
+  __collectionName?: "ResearchConversationEvents"
+  claudeMessageUuid: string | null
+  conversationId: string
+  createdAt: Date
+  kind: string
+  payload: any
+  seq: number
+}
+
+type ResearchConversationsCollection = PgCollection<"ResearchConversations">;
+
+interface DbResearchConversation extends DbObject {
+  __collectionName?: "ResearchConversations"
+  claudeSessionId: string | null
+  createdAt: Date
+  entrypoint: any
+  lastActivityAt: Date
+  projectId: string
+  title: string | null
+  userId: string
+}
+
+type ResearchDocumentsCollection = PgCollection<"ResearchDocuments">;
+
+interface DbResearchDocument extends DbObject {
+  __collectionName?: "ResearchDocuments"
+  contents_latest: string | null
+  createdAt: Date
+  projectId: string
+  title: string | null
+  userId: string
+}
+
+type ResearchProjectsCollection = PgCollection<"ResearchProjects">;
+
+interface DbResearchProject extends DbObject {
+  __collectionName?: "ResearchProjects"
+  claudeCodeTokenRef: string | null
+  createdAt: Date
+  description: string | null
+  settings: any | null
+  title: string
+  userId: string
+}
+
+type ResearchSandboxSessionsCollection = PgCollection<"ResearchSandboxSessions">;
+
+interface DbResearchSandboxSession extends DbObject {
+  __collectionName?: "ResearchSandboxSessions"
+  concurrencyCount: number
+  createdAt: Date
+  endpointUrl: string
+  expiresAt: Date | null
+  lastUsedAt: Date
+  projectId: string
+  status: string
+  supervisorSecret: string
+  userId: string
+  vercelSandboxId: string
+}
+
 type ReviewVotesCollection = PgCollection<"ReviewVotes">;
 
 interface DbReviewVote extends DbObject {
@@ -2205,6 +2269,7 @@ type YjsDocumentsCollection = PgCollection<"YjsDocuments">;
 
 interface DbYjsDocument extends DbObject {
   __collectionName?: "YjsDocuments"
+  collectionName: string
   createdAt: Date
   documentId: string
   updatedAt: Date
@@ -2275,6 +2340,11 @@ interface CollectionsByName {
   ReadStatuses: ReadStatusesCollection
   RecommendationsCaches: RecommendationsCachesCollection
   Reports: ReportsCollection
+  ResearchConversationEvents: ResearchConversationEventsCollection
+  ResearchConversations: ResearchConversationsCollection
+  ResearchDocuments: ResearchDocumentsCollection
+  ResearchProjects: ResearchProjectsCollection
+  ResearchSandboxSessions: ResearchSandboxSessionsCollection
   ReviewVotes: ReviewVotesCollection
   ReviewWinnerArts: ReviewWinnerArtsCollection
   ReviewWinners: ReviewWinnersCollection
@@ -2364,6 +2434,11 @@ interface ObjectsByCollectionName {
   ReadStatuses: DbReadStatus
   RecommendationsCaches: DbRecommendationsCache
   Reports: DbReport
+  ResearchConversationEvents: DbResearchConversationEvent
+  ResearchConversations: DbResearchConversation
+  ResearchDocuments: DbResearchDocument
+  ResearchProjects: DbResearchProject
+  ResearchSandboxSessions: DbResearchSandboxSession
   ReviewVotes: DbReviewVote
   ReviewWinnerArts: DbReviewWinnerArt
   ReviewWinners: DbReviewWinner
@@ -2453,6 +2528,11 @@ interface ObjectsByTypeName {
   ReadStatus: DbReadStatus
   RecommendationsCache: DbRecommendationsCache
   Report: DbReport
+  ResearchConversationEvent: DbResearchConversationEvent
+  ResearchConversation: DbResearchConversation
+  ResearchDocument: DbResearchDocument
+  ResearchProject: DbResearchProject
+  ResearchSandboxSession: DbResearchSandboxSession
   ReviewVote: DbReviewVote
   ReviewWinnerArt: DbReviewWinnerArt
   ReviewWinner: DbReviewWinner

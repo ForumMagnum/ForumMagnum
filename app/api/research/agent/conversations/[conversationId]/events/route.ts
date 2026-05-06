@@ -1,0 +1,289 @@
+import { NextRequest, NextResponse } from "next/server";
+import { z } from "zod";
+import { captureException } from "@/lib/sentryWrapper";
+import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
+import {
+  authorizeAgentRequest,
+  authorizeAgentResearchConversationAccess,
+} from "../../../researchAgentAuth";
+import {
+  captureResearchAgentApiEvent,
+  captureResearchAgentApiFailure,
+} from "../../../captureResearchAgentAnalytics";
+
+const POST_ROUTE = "conversations.events.post";
+const GET_ROUTE = "conversations.events.get";
+
+const eventKindSchema = z.enum([
+  "user",
+  "assistant",
+  "tool_use",
+  "tool_result",
+  "thinking",
+  "system",
+  "error",
+]);
+
+/**
+ * POST body shape — single event per request, contract owned jointly with T2.
+ *
+ * `rawJsonl` is the supervisor's verbatim JSONL line text and is the canonical
+ * payload; we parse it server-side into the JSONB `payload` column. The
+ * envelope fields (`kind`, `claudeMessageUuid`, `claudeSessionId`,
+ * `supervisorEmittedAt`) are extracted by the supervisor for indexing and
+ * could be re-derived from `rawJsonl` — they're sent alongside so the backend
+ * doesn't need a JSONL parser of its own and `rawJsonl` parse failures don't
+ * turn an indexable event into an unindexable one.
+ *
+ * Server assigns `seq` atomically (max+1 per conversation). Idempotent on
+ * `(conversationId, claudeMessageUuid)` when the UUID is non-null — duplicate
+ * POSTs return the existing row's seq with `deduplicated: true`.
+ */
+const postBodySchema = z.object({
+  rawJsonl: z.string().min(1),
+  kind: eventKindSchema,
+  claudeMessageUuid: z.string().nullable(),
+  claudeSessionId: z.string().optional(),
+  supervisorEmittedAt: z.string().datetime().optional(),
+});
+
+/**
+ * POST `/api/research/agent/conversations/:conversationId/events`
+ *
+ * The supervisor's persistence callback. Inserts one ResearchConversationEvent
+ * with server-assigned seq, idempotent on `(conversationId, claudeMessageUuid)`.
+ * Bumps `lastActivityAt` on the conversation when a new row is written
+ * (skipped on dedupe so we don't "renew" activity from a stale retry).
+ */
+export async function POST(
+  req: NextRequest,
+  { params }: { params: Promise<{ conversationId: string }> },
+) {
+  const { conversationId } = await params;
+
+  const auth = authorizeAgentRequest({ req, route: POST_ROUTE });
+  if (auth.kind === "errorResponse") return auth.errorResponse;
+  const { payload } = auth;
+
+  // `agent`-scope tokens are bound to one conversation and must match the
+  // URL. `supervisor`-scope tokens are sandbox-wide — they can post for any
+  // conversation in the project they authorize. We still validate that the
+  // conversation actually lives in that project before accepting writes.
+  if (payload.scope === "agent") {
+    if (payload.conversationId !== conversationId) {
+      captureResearchAgentApiEvent({
+        route: POST_ROUTE,
+        status: "forbidden",
+        conversationId,
+        projectId: payload.projectId,
+        reason: "token_conversation_mismatch",
+      });
+      return NextResponse.json(
+        { error: "Forbidden: the bearer token authorizes a different conversation." },
+        { status: 403 },
+      );
+    }
+  } else {
+    // supervisor scope — verify the conversation belongs to the same project
+    const conv = await (await getContextFromReqAndRes({ req, isSSR: false })).ResearchConversations.findOne({ _id: conversationId });
+    if (!conv || conv.projectId !== payload.projectId) {
+      captureResearchAgentApiEvent({
+        route: POST_ROUTE,
+        status: "forbidden",
+        conversationId,
+        projectId: payload.projectId,
+        reason: "supervisor_token_project_mismatch",
+      });
+      return NextResponse.json(
+        { error: "Forbidden: this conversation is not in the project this supervisor token authorizes." },
+        { status: 403 },
+      );
+    }
+  }
+
+  const [body, context] = await Promise.all([
+    req.json(),
+    getContextFromReqAndRes({ req, isSSR: false }),
+  ]);
+
+  const parseResult = postBodySchema.safeParse(body);
+  if (!parseResult.success) {
+    captureResearchAgentApiEvent({
+      route: POST_ROUTE,
+      status: "validation_error",
+      conversationId,
+      projectId: payload.projectId,
+    });
+    return NextResponse.json(
+      { error: "Invalid request body", details: parseResult.error.format() },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const convAuth = await authorizeAgentResearchConversationAccess({
+      route: POST_ROUTE,
+      conversationId,
+      payload,
+      context,
+    });
+    if (convAuth.kind === "errorResponse") return convAuth.errorResponse;
+
+    const { rawJsonl, kind, claudeMessageUuid } = parseResult.data;
+
+    // Parse the verbatim line into a JSON object for the JSONB column.
+    // A parse failure means the supervisor sent a malformed line — return
+    // 400 so the supervisor can drop (not retry) the bad event.
+    let parsedPayload: unknown;
+    try {
+      parsedPayload = JSON.parse(rawJsonl);
+    } catch {
+      captureResearchAgentApiEvent({
+        route: POST_ROUTE,
+        status: "validation_error",
+        conversationId,
+        projectId: payload.projectId,
+        reason: "rawJsonl_parse_failed",
+      });
+      return NextResponse.json(
+        { error: "Invalid request body: rawJsonl is not valid JSON" },
+        { status: 400 },
+      );
+    }
+
+    const result = await context.repos.researchConversationEvents.persistEvent(
+      conversationId,
+      { claudeMessageUuid, kind, payload: parsedPayload },
+    );
+
+    if (!result.deduplicated) {
+      await context.ResearchConversations.rawUpdateOne(
+        { _id: conversationId },
+        { $set: { lastActivityAt: new Date() } },
+      );
+    }
+
+    captureResearchAgentApiEvent({
+      route: POST_ROUTE,
+      status: "success",
+      conversationId,
+      projectId: payload.projectId,
+      operationResult: result.deduplicated ? "deduplicated" : "persisted",
+    });
+
+    return NextResponse.json({
+      ok: true,
+      seq: result.seq,
+      deduplicated: result.deduplicated,
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    captureException(error);
+    captureResearchAgentApiFailure(POST_ROUTE, error, {
+      conversationId,
+      projectId: payload.projectId,
+    });
+    return NextResponse.json(
+      {
+        error: "Failed to persist conversation events",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    );
+  }
+}
+
+/**
+ * GET `/api/research/agent/conversations/:conversationId/events`
+ *
+ * Cross-referencing endpoint. Returns the persisted event log for a
+ * conversation in the same project as the bearer token, paginated by `seq`.
+ * Used by:
+ *  - Sub-agents looking up sibling conversation context.
+ *  - The bootstrap path that synthesizes a JSONL for `claude --resume`.
+ *
+ * Query params:
+ *  - `sinceSeq`: only return events with seq > sinceSeq (default -1, all).
+ *  - `limit`: max events to return (default 1000, max 5000).
+ */
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ conversationId: string }> },
+) {
+  const { conversationId } = await params;
+
+  const auth = authorizeAgentRequest({ req, route: GET_ROUTE });
+  if (auth.kind === "errorResponse") return auth.errorResponse;
+  const { payload } = auth;
+
+  const url = new URL(req.url);
+  const sinceSeqParam = url.searchParams.get("sinceSeq");
+  const limitParam = url.searchParams.get("limit");
+  const sinceSeq = sinceSeqParam !== null ? Number.parseInt(sinceSeqParam, 10) : undefined;
+  const limit = limitParam !== null ? Math.min(Number.parseInt(limitParam, 10), 5000) : undefined;
+
+  if ((sinceSeq !== undefined && Number.isNaN(sinceSeq)) || (limit !== undefined && Number.isNaN(limit))) {
+    captureResearchAgentApiEvent({
+      route: GET_ROUTE,
+      status: "validation_error",
+      conversationId,
+      projectId: payload.projectId,
+    });
+    return NextResponse.json(
+      { error: "Invalid sinceSeq or limit query parameter" },
+      { status: 400 },
+    );
+  }
+
+  try {
+    const context = await getContextFromReqAndRes({ req, isSSR: false });
+    const convAuth = await authorizeAgentResearchConversationAccess({
+      route: GET_ROUTE,
+      conversationId,
+      payload,
+      context,
+    });
+    if (convAuth.kind === "errorResponse") return convAuth.errorResponse;
+
+    const events = await context.repos.researchConversationEvents.getEventsForConversation(
+      conversationId,
+      { sinceSeq, limit },
+    );
+
+    captureResearchAgentApiEvent({
+      route: GET_ROUTE,
+      status: "success",
+      conversationId,
+      projectId: payload.projectId,
+      operationResult: `returned=${events.length}`,
+    });
+
+    return NextResponse.json({
+      ok: true,
+      conversationId,
+      events: events.map((e) => ({
+        seq: e.seq,
+        claudeMessageUuid: e.claudeMessageUuid,
+        kind: e.kind,
+        payload: e.payload,
+        createdAt: e.createdAt,
+      })),
+    });
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error(error);
+    captureException(error);
+    captureResearchAgentApiFailure(GET_ROUTE, error, {
+      conversationId,
+      projectId: payload.projectId,
+    });
+    return NextResponse.json(
+      {
+        error: "Failed to read conversation events",
+        details: error instanceof Error ? error.message : "Unknown error",
+      },
+      { status: 500 },
+    );
+  }
+}

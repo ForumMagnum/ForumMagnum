@@ -10,7 +10,7 @@ export const YjsDocuments: YjsDocumentsCollection = createCollection({
   // This is where you can add indexes for the collection.
   getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
-    indexSet.addIndex('YjsDocuments', { documentId: 1 }, { unique: true });
+    indexSet.addIndex('YjsDocuments', { collectionName: 1, documentId: 1 }, { unique: true });
     return indexSet;
   },
 });

@@ -427,6 +427,117 @@ export const routeTrie = {
         "registerClientId": {
           "hasRoute": true
         },
+        "research": {
+          "staticChildren": {
+            "agent": {
+              "staticChildren": {
+                "auth": {
+                  "staticChildren": {
+                    "refresh": {
+                      "hasRoute": true
+                    }
+                  },
+                  "lowerCase": {
+                    "refresh": "refresh"
+                  }
+                },
+                "conversations": {
+                  "dynamicChild": {
+                    "paramName": "conversationId",
+                    "child": {
+                      "staticChildren": {
+                        "events": {
+                          "hasRoute": true
+                        }
+                      },
+                      "lowerCase": {
+                        "events": "events"
+                      }
+                    }
+                  },
+                  "hasRoute": true
+                },
+                "documents": {
+                  "staticChildren": {
+                    "deleteBlock": {
+                      "hasRoute": true
+                    },
+                    "insertBlock": {
+                      "hasRoute": true
+                    },
+                    "insertLLMBlock": {
+                      "hasRoute": true
+                    },
+                    "replaceText": {
+                      "hasRoute": true
+                    }
+                  },
+                  "lowerCase": {
+                    "deleteblock": "deleteBlock",
+                    "insertblock": "insertBlock",
+                    "insertllmblock": "insertLLMBlock",
+                    "replacetext": "replaceText"
+                  },
+                  "dynamicChild": {
+                    "paramName": "documentId",
+                    "child": {
+                      "hasRoute": true
+                    }
+                  }
+                },
+                "projects": {
+                  "dynamicChild": {
+                    "paramName": "projectId",
+                    "child": {
+                      "hasRoute": true
+                    }
+                  }
+                },
+                "sandboxes": {
+                  "dynamicChild": {
+                    "paramName": "sandboxId",
+                    "child": {
+                      "staticChildren": {
+                        "heartbeat": {
+                          "hasRoute": true
+                        }
+                      },
+                      "lowerCase": {
+                        "heartbeat": "heartbeat"
+                      }
+                    }
+                  }
+                }
+              },
+              "lowerCase": {
+                "auth": "auth",
+                "conversations": "conversations",
+                "documents": "documents",
+                "projects": "projects",
+                "sandboxes": "sandboxes"
+              }
+            },
+            "conversations": {
+              "dynamicChild": {
+                "paramName": "conversationId",
+                "child": {
+                  "staticChildren": {
+                    "stream-info": {
+                      "hasRoute": true
+                    }
+                  },
+                  "lowerCase": {
+                    "stream-info": "stream-info"
+                  }
+                }
+              }
+            }
+          },
+          "lowerCase": {
+            "agent": "agent",
+            "conversations": "conversations"
+          }
+        },
         "search": {
           "staticChildren": {
             "userFacets": {
@@ -521,6 +632,7 @@ export const routeTrie = {
         "notificationevents": "notificationEvents",
         "quit": "quit",
         "registerclientid": "registerClientId",
+        "research": "research",
         "search": "search",
         "sendllmchat": "sendLlmChat",
         "streamgraphql": "streamGraphql",
@@ -1050,6 +1162,22 @@ export const routeTrie = {
     "recommendations": {
       "hasPage": true
     },
+    "research": {
+      "staticChildren": {
+        "projects": {
+          "dynamicChild": {
+            "paramName": "projectId",
+            "child": {
+              "hasPage": true
+            }
+          }
+        }
+      },
+      "lowerCase": {
+        "projects": "projects"
+      },
+      "hasPage": true
+    },
     "resendVerificationEmail": {
       "hasPage": true
     },
@@ -1340,6 +1468,7 @@ export const routeTrie = {
     "quicktakes": "quicktakes",
     "rationality": "rationality",
     "recommendations": "recommendations",
+    "research": "research",
     "resendverificationemail": "resendVerificationEmail",
     "resetpassword": "resetPassword",
     "reviewadmin": "reviewAdmin",
