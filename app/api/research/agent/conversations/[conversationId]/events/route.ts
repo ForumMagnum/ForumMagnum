@@ -83,44 +83,10 @@ export async function POST(
         { status: 403 },
       );
     }
-  } else {
-    // supervisor scope — verify the conversation belongs to the same project
-    const conv = await (await getContextFromReqAndRes({ req, isSSR: false })).ResearchConversations.findOne({ _id: conversationId });
-    if (!conv || conv.projectId !== payload.projectId) {
-      captureResearchAgentApiEvent({
-        route: POST_ROUTE,
-        status: "forbidden",
-        conversationId,
-        projectId: payload.projectId,
-        reason: "supervisor_token_project_mismatch",
-      });
-      return NextResponse.json(
-        { error: "Forbidden: this conversation is not in the project this supervisor token authorizes." },
-        { status: 403 },
-      );
-    }
-  }
-
-  const [body, context] = await Promise.all([
-    req.json(),
-    getContextFromReqAndRes({ req, isSSR: false }),
-  ]);
-
-  const parseResult = postBodySchema.safeParse(body);
-  if (!parseResult.success) {
-    captureResearchAgentApiEvent({
-      route: POST_ROUTE,
-      status: "validation_error",
-      conversationId,
-      projectId: payload.projectId,
-    });
-    return NextResponse.json(
-      { error: "Invalid request body", details: parseResult.error.format() },
-      { status: 400 },
-    );
   }
 
   try {
+    const context = await getContextFromReqAndRes({ req, isSSR: false });
     const convAuth = await authorizeAgentResearchConversationAccess({
       route: POST_ROUTE,
       conversationId,
@@ -128,6 +94,37 @@ export async function POST(
       context,
     });
     if (convAuth.kind === "errorResponse") return convAuth.errorResponse;
+
+    let body: unknown;
+    try {
+      body = await req.json();
+    } catch {
+      captureResearchAgentApiEvent({
+        route: POST_ROUTE,
+        status: "validation_error",
+        conversationId,
+        projectId: payload.projectId,
+        reason: "invalid_json",
+      });
+      return NextResponse.json(
+        { error: "Invalid request body: expected JSON" },
+        { status: 400 },
+      );
+    }
+
+    const parseResult = postBodySchema.safeParse(body);
+    if (!parseResult.success) {
+      captureResearchAgentApiEvent({
+        route: POST_ROUTE,
+        status: "validation_error",
+        conversationId,
+        projectId: payload.projectId,
+      });
+      return NextResponse.json(
+        { error: "Invalid request body", details: parseResult.error.format() },
+        { status: 400 },
+      );
+    }
 
     const { rawJsonl, kind, claudeMessageUuid } = parseResult.data;
 
@@ -220,10 +217,13 @@ export async function GET(
   const url = new URL(req.url);
   const sinceSeqParam = url.searchParams.get("sinceSeq");
   const limitParam = url.searchParams.get("limit");
-  const sinceSeq = sinceSeqParam !== null ? Number.parseInt(sinceSeqParam, 10) : undefined;
-  const limit = limitParam !== null ? Math.min(Number.parseInt(limitParam, 10), 5000) : undefined;
+  const sinceSeq = sinceSeqParam !== null ? Number(sinceSeqParam) : undefined;
+  const requestedLimit = limitParam !== null ? Number(limitParam) : undefined;
 
-  if ((sinceSeq !== undefined && Number.isNaN(sinceSeq)) || (limit !== undefined && Number.isNaN(limit))) {
+  if (
+    (sinceSeq !== undefined && (!Number.isInteger(sinceSeq) || sinceSeq < -1))
+    || (requestedLimit !== undefined && (!Number.isInteger(requestedLimit) || requestedLimit < 1))
+  ) {
     captureResearchAgentApiEvent({
       route: GET_ROUTE,
       status: "validation_error",
@@ -235,6 +235,8 @@ export async function GET(
       { status: 400 },
     );
   }
+
+  const limit = requestedLimit !== undefined ? Math.min(requestedLimit, 5000) : undefined;
 
   try {
     const context = await getContextFromReqAndRes({ req, isSSR: false });
