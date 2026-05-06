@@ -182,7 +182,12 @@ export const createNotification = async ({
   context: ResolverContext,
 }) => {
   let user = await Users.findOne({ _id:userId });
-  if (!user) throw Error(`Wasn't able to find user to create notification for with id: ${userId}`)
+  if (!user) {
+    // eslint-disable-next-line no-console
+    console.error(`Wasn't able to find user to create notification for with id: ${userId}`)
+    return;
+  }
+
   const userSettingField = getNotificationTypeByName(notificationType).userSettingField;
   const notificationTypeSettings = (userSettingField && user[userSettingField])
     ? legacyToNewNotificationTypeSettings(user[userSettingField])
