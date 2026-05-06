@@ -111,6 +111,13 @@ function escapeHtml(text: string): string {
     .replaceAll("'", "&#39;");
 }
 
+// Known alternative-frontend domains and their canonical replacements.
+// These share the same URL path structure as the original domain, so a simple
+// hostname swap produces a fetchable canonical URL.
+const DOMAIN_SUBSTITUTIONS: Record<string, string> = {
+  "nitter.net": "x.com",
+};
+
 function normalizePreviewUrl(url: string): string {
   const trimmed = url.trim();
   if (!trimmed) {
@@ -119,6 +126,10 @@ function normalizePreviewUrl(url: string): string {
   const parsed = new URL(trimmed);
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
     throw new Error("Only http(s) URLs are supported");
+  }
+  const substitution = DOMAIN_SUBSTITUTIONS[parsed.hostname];
+  if (substitution) {
+    parsed.hostname = substitution;
   }
   parsed.hash = "";
   return parsed.toString();
