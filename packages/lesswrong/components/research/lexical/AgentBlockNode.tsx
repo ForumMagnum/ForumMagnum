@@ -18,6 +18,11 @@ export interface AgentBlockProps {
   producedByConversationId: string | null;
 }
 
+interface AgentBlockConstructorProps {
+  conversationId?: string;
+  producedByConversationId?: string | null;
+}
+
 export type SerializedAgentBlockNode = Spread<
   AgentBlockProps,
   SerializedLexicalNode
@@ -41,7 +46,10 @@ export class AgentBlockNode extends DecoratorNode<React.ReactElement> {
     );
   }
 
-  constructor({ conversationId, producedByConversationId }: AgentBlockProps, key?: NodeKey) {
+  constructor(
+    { conversationId = '', producedByConversationId = null }: AgentBlockConstructorProps = {},
+    key?: NodeKey,
+  ) {
     super(key);
     this.__conversationId = conversationId;
     this.__producedByConversationId = producedByConversationId;
