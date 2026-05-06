@@ -25,20 +25,35 @@ export async function POST(req: NextRequest) {
   try {
     const auth = authorizeAgentRequest({ req, route: ROUTE });
     if (auth.kind === "errorResponse") return auth.errorResponse;
+    const { payload } = auth;
+
+    if (payload.scope !== "agent" || !payload.conversationId) {
+      captureResearchAgentApiEvent({
+        route: ROUTE,
+        status: "forbidden",
+        projectId: payload.projectId,
+        userId: payload.userId,
+        reason: "agent_scope_required",
+      });
+      return NextResponse.json(
+        { error: "Forbidden: only conversation-scoped agent tokens can be refreshed here." },
+        { status: 403 },
+      );
+    }
 
     const newToken = mintSandboxCallbackToken({
-      sandboxId: auth.payload.sandboxId,
-      conversationId: auth.payload.conversationId,
-      projectId: auth.payload.projectId,
-      userId: auth.payload.userId,
+      sandboxId: payload.sandboxId,
+      conversationId: payload.conversationId,
+      projectId: payload.projectId,
+      userId: payload.userId,
     });
 
     captureResearchAgentApiEvent({
       route: ROUTE,
       status: "success",
-      conversationId: auth.payload.conversationId,
-      projectId: auth.payload.projectId,
-      userId: auth.payload.userId,
+      conversationId: payload.conversationId,
+      projectId: payload.projectId,
+      userId: payload.userId,
     });
 
     return NextResponse.json({ ok: true, token: newToken });

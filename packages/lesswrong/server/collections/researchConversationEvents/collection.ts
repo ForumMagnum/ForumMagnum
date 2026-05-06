@@ -10,7 +10,11 @@ export const ResearchConversationEvents: ResearchConversationEventsCollection = 
   getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('ResearchConversationEvents', { conversationId: 1, seq: 1 }, { unique: true });
-    indexSet.addIndex('ResearchConversationEvents', { conversationId: 1, claudeMessageUuid: 1 });
+    indexSet.addCustomPgIndex(`
+      CREATE UNIQUE INDEX IF NOT EXISTS "idx_ResearchConversationEvents_conversationId_claudeMessageUuid"
+      ON "ResearchConversationEvents" ("conversationId", "claudeMessageUuid")
+      WHERE "claudeMessageUuid" IS NOT NULL;
+    `);
     return indexSet;
   },
 });

@@ -199,22 +199,15 @@ async function appendUserTurn(
   prompt: string,
   context: ResolverContext,
 ): Promise<number> {
-  const { ResearchConversationEvents } = context;
-  const events = await ResearchConversationEvents.find(
-    { conversationId },
-    { sort: { seq: -1 }, limit: 1 },
-  ).fetch();
-  const nextSeq = (events[0]?.seq ?? -1) + 1;
-  await ResearchConversationEvents.rawInsert({
-    _id: randomId(),
+  const result = await context.repos.researchConversationEvents.persistEvent(
     conversationId,
-    seq: nextSeq,
-    kind: "user",
-    claudeMessageUuid: null,
-    payload: { type: "user", text: prompt },
-    createdAt: new Date(),
-  });
-  return nextSeq;
+    {
+      claudeMessageUuid: null,
+      kind: "user",
+      payload: { type: "user", text: prompt },
+    },
+  );
+  return result.seq;
 }
 
 export const researchResolversTypeDefs = gql`

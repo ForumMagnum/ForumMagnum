@@ -2339,6 +2339,8 @@ CREATE INDEX IF NOT EXISTS "idx_Reports_closedAt_createdAt" ON "Reports" USING b
 CREATE TABLE "ResearchConversationEvents" (
   _id VARCHAR(27) PRIMARY KEY,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "projectId" VARCHAR(27) NOT NULL,
   "conversationId" VARCHAR(27) NOT NULL,
   "seq" INTEGER NOT NULL,
   "claudeMessageUuid" TEXT,
@@ -2348,9 +2350,6 @@ CREATE TABLE "ResearchConversationEvents" (
 
 -- Index "idx_ResearchConversationEvents_conversationId_seq"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_ResearchConversationEvents_conversationId_seq" ON "ResearchConversationEvents" USING btree ("conversationId", "seq");
-
--- Index "idx_ResearchConversationEvents_conversationId_claudeMessageUuid"
-CREATE INDEX IF NOT EXISTS "idx_ResearchConversationEvents_conversationId_claudeMessageUuid" ON "ResearchConversationEvents" USING btree ("conversationId", "claudeMessageUuid");
 
 -- Table "ResearchConversations"
 CREATE TABLE "ResearchConversations" (
@@ -3633,6 +3632,11 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReadStatuses_userId_postId_tagId" ON publ
   COALESCE("postId", ''::CHARACTER VARYING),
   COALESCE("tagId", ''::CHARACTER VARYING)
 );
+
+-- CustomIndex "idx_ResearchConversationEvents_conversationId_claudeMessageUuid"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_ResearchConversationEvents_conversationId_claudeMessageUuid" ON "ResearchConversationEvents" ("conversationId", "claudeMessageUuid")
+WHERE
+  "claudeMessageUuid" IS NOT NULL;
 
 -- CustomIndex "idx_Spotlights_documentId_createdAt"
 CREATE INDEX IF NOT EXISTS "idx_Spotlights_documentId_createdAt" ON "Spotlights" USING btree ("documentId", "createdAt")

@@ -8808,7 +8808,9 @@ type ResearchConversationEvent = {
   createdAt: Scalars['Date']['output'];
   kind: Scalars['String']['output'];
   payload: Scalars['JSON']['output'];
+  projectId: Scalars['String']['output'];
   seq: Scalars['Int']['output'];
+  userId: Scalars['String']['output'];
 };
 
 type ResearchConversationEventSelector = {
@@ -17899,52 +17901,6 @@ type CreateResearchDocumentSidebarMutationVariables = Exact<{
 
 type CreateResearchDocumentSidebarMutation = CreateResearchDocumentSidebarMutation_Mutation;
 
-type FireChatConversationMutation_fireResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', conversationId: string };
-
-type FireChatConversationMutation_Mutation = { __typename?: 'Mutation', fireResearchConversation: FireChatConversationMutation_fireResearchConversation_ResearchConversationOutput | null };
-
-
-type FireChatConversationMutationVariables = Exact<{
-  projectId: Scalars['String']['input'];
-  entrypoint: Scalars['JSON']['input'];
-  prompt: Scalars['String']['input'];
-}>;
-
-
-type FireChatConversationMutation = FireChatConversationMutation_Mutation;
-
-type QueryModalReferencePickerQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null };
-
-type QueryModalReferencePickerQuery_researchDocuments_MultiResearchDocumentOutput = { __typename?: 'MultiResearchDocumentOutput', results: Array<QueryModalReferencePickerQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument> };
-
-type QueryModalReferencePickerQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null };
-
-type QueryModalReferencePickerQuery_researchConversations_MultiResearchConversationOutput = { __typename?: 'MultiResearchConversationOutput', results: Array<QueryModalReferencePickerQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation> };
-
-type QueryModalReferencePickerQuery_Query = { __typename?: 'Query', researchDocuments: QueryModalReferencePickerQuery_researchDocuments_MultiResearchDocumentOutput | null, researchConversations: QueryModalReferencePickerQuery_researchConversations_MultiResearchConversationOutput | null };
-
-
-type QueryModalReferencePickerQueryVariables = Exact<{
-  projectId: Scalars['String']['input'];
-}>;
-
-
-type QueryModalReferencePickerQuery = QueryModalReferencePickerQuery_Query;
-
-type FireQueryModalConversationMutation_fireResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', conversationId: string };
-
-type FireQueryModalConversationMutation_Mutation = { __typename?: 'Mutation', fireResearchConversation: FireQueryModalConversationMutation_fireResearchConversation_ResearchConversationOutput | null };
-
-
-type FireQueryModalConversationMutationVariables = Exact<{
-  projectId: Scalars['String']['input'];
-  entrypoint: Scalars['JSON']['input'];
-  prompt: Scalars['String']['input'];
-}>;
-
-
-type FireQueryModalConversationMutation = FireQueryModalConversationMutation_Mutation;
-
 type ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput_results_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string, description: string | null, createdAt: string };
 
 type ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput = { __typename?: 'MultiResearchProjectOutput', results: Array<ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput_results_ResearchProject> };
@@ -17967,10 +17923,40 @@ type CreateResearchProjectMutation_Mutation = { __typename?: 'Mutation', createR
 type CreateResearchProjectMutationVariables = Exact<{
   title: Scalars['String']['input'];
   description: InputMaybe<Scalars['String']['input']>;
+  claudeCodeTokenRef: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
 type CreateResearchProjectMutation = CreateResearchProjectMutation_Mutation;
+
+type UpdateResearchProjectTokenMutation_updateResearchProject_ResearchProjectOutput_data_ResearchProject = { __typename?: 'ResearchProject', _id: string };
+
+type UpdateResearchProjectTokenMutation_updateResearchProject_ResearchProjectOutput = { __typename?: 'ResearchProjectOutput', data: UpdateResearchProjectTokenMutation_updateResearchProject_ResearchProjectOutput_data_ResearchProject | null };
+
+type UpdateResearchProjectTokenMutation_Mutation = { __typename?: 'Mutation', updateResearchProject: UpdateResearchProjectTokenMutation_updateResearchProject_ResearchProjectOutput | null };
+
+
+type UpdateResearchProjectTokenMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateResearchProjectDataInput;
+}>;
+
+
+type UpdateResearchProjectTokenMutation = UpdateResearchProjectTokenMutation_Mutation;
+
+type ResearchWorkspaceFirstDocumentQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument = { __typename?: 'ResearchDocument', _id: string };
+
+type ResearchWorkspaceFirstDocumentQuery_researchDocuments_MultiResearchDocumentOutput = { __typename?: 'MultiResearchDocumentOutput', results: Array<ResearchWorkspaceFirstDocumentQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument> };
+
+type ResearchWorkspaceFirstDocumentQuery_Query = { __typename?: 'Query', researchDocuments: ResearchWorkspaceFirstDocumentQuery_researchDocuments_MultiResearchDocumentOutput | null };
+
+
+type ResearchWorkspaceFirstDocumentQueryVariables = Exact<{
+  projectId: Scalars['String']['input'];
+}>;
+
+
+type ResearchWorkspaceFirstDocumentQuery = ResearchWorkspaceFirstDocumentQuery_Query;
 
 type ResearchConversationTranscriptQuery_researchConversationTranscript_ResearchConversationEvent = { __typename?: 'ResearchConversationEvent', _id: string, conversationId: string, seq: number, claudeMessageUuid: string | null, kind: string, payload: any, createdAt: string };
 

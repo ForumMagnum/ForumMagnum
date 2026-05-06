@@ -6121,6 +6121,8 @@ extend type Query {
 type ResearchConversationEvent {
   _id: String!
   createdAt: Date!
+  userId: String!
+  projectId: String!
   conversationId: String!
   seq: Int!
   claudeMessageUuid: String

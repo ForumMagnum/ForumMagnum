@@ -1157,7 +1157,9 @@ interface DbResearchConversationEvent extends DbObject {
   createdAt: Date
   kind: string
   payload: any
+  projectId: string
   seq: number
+  userId: string
 }
 
 type ResearchConversationsCollection = PgCollection<"ResearchConversations">;

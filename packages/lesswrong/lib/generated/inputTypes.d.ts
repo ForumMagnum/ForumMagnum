@@ -5661,6 +5661,8 @@ interface MultiReportOutput {
 interface ResearchConversationEvent {
   _id: string;
   createdAt: Date;
+  userId: string;
+  projectId: string;
   conversationId: string;
   seq: number;
   claudeMessageUuid: string | null;

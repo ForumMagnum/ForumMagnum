@@ -47,24 +47,36 @@ class ResearchConversationEventsRepo extends AbstractRepo<"ResearchConversationE
     conversationId: string,
     event: IncomingResearchConversationEvent,
   ): Promise<PersistEventResult> {
-    // For UUID-bearing events: use ON CONFLICT against the partial unique
-    // index `(conversationId, claudeMessageUuid) WHERE claudeMessageUuid IS NOT NULL`.
-    // The DO UPDATE SET ... is a no-op write that lets RETURNING fire so the
-    // caller sees the existing seq even when no insert happened.
+    // Serialize seq assignment per conversation. Without this, concurrent
+    // callbacks can both compute MAX(seq)+1 and race on the unique index.
+    // For UUID-bearing events: use ON CONFLICT against the unique index on
+    // `(conversationId, claudeMessageUuid)`. Postgres allows multiple nulls in
+    // unique indexes, so UUID-less events still bypass dedupe.
     if (event.claudeMessageUuid !== null) {
       const result = await this.getRawDb().one<{ seq: number; inserted: boolean }>(`
-        WITH next_seq AS (
+        WITH lock AS (
+          SELECT pg_advisory_xact_lock(hashtext($(conversationId))) AS locked
+        ),
+        conversation AS (
+          SELECT "userId", "projectId"
+          FROM "ResearchConversations"
+          WHERE "_id" = $(conversationId)
+        ),
+        next_seq AS (
           SELECT COALESCE(MAX("seq") + 1, 0) AS seq
-          FROM "ResearchConversationEvents"
-          WHERE "conversationId" = $(conversationId)
+          FROM lock
+          LEFT JOIN "ResearchConversationEvents" ON "conversationId" = $(conversationId)
         ),
         inserted AS (
           INSERT INTO "ResearchConversationEvents"
-            ("_id", "conversationId", "seq", "claudeMessageUuid", "kind", "payload", "createdAt")
+            ("_id", "userId", "projectId", "conversationId", "seq", "claudeMessageUuid", "kind", "payload", "createdAt")
           SELECT
-            $(eventId), $(conversationId), next_seq.seq, $(claudeMessageUuid), $(kind), $(payload)::jsonb, NOW()
+            $(eventId), conversation."userId", conversation."projectId", $(conversationId), next_seq.seq, $(claudeMessageUuid), $(kind), $(payload)::jsonb, NOW()
           FROM next_seq
-          ON CONFLICT ("conversationId", "claudeMessageUuid") DO NOTHING
+          CROSS JOIN conversation
+          ON CONFLICT ("conversationId", "claudeMessageUuid")
+          WHERE "claudeMessageUuid" IS NOT NULL
+          DO NOTHING
           RETURNING "seq"
         )
         SELECT
@@ -89,16 +101,25 @@ class ResearchConversationEventsRepo extends AbstractRepo<"ResearchConversationE
     // computes max+1 (or 0 if no rows) and the INSERT pulls one row from it,
     // so the insert always fires even on the first event.
     const result = await this.getRawDb().one<{ seq: number }>(`
-      WITH next_seq AS (
+      WITH lock AS (
+        SELECT pg_advisory_xact_lock(hashtext($(conversationId))) AS locked
+      ),
+      conversation AS (
+        SELECT "userId", "projectId"
+        FROM "ResearchConversations"
+        WHERE "_id" = $(conversationId)
+      ),
+      next_seq AS (
         SELECT COALESCE(MAX("seq") + 1, 0) AS seq
-        FROM "ResearchConversationEvents"
-        WHERE "conversationId" = $(conversationId)
+        FROM lock
+        LEFT JOIN "ResearchConversationEvents" ON "conversationId" = $(conversationId)
       )
       INSERT INTO "ResearchConversationEvents"
-        ("_id", "conversationId", "seq", "claudeMessageUuid", "kind", "payload", "createdAt")
+        ("_id", "userId", "projectId", "conversationId", "seq", "claudeMessageUuid", "kind", "payload", "createdAt")
       SELECT
-        $(eventId), $(conversationId), next_seq.seq, NULL, $(kind), $(payload)::jsonb, NOW()
+        $(eventId), conversation."userId", conversation."projectId", $(conversationId), next_seq.seq, NULL, $(kind), $(payload)::jsonb, NOW()
       FROM next_seq
+      CROSS JOIN conversation
       RETURNING "seq"
     `, {
       eventId: randomId(),

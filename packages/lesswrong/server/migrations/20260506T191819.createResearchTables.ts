@@ -19,6 +19,11 @@ export const up = async ({ db }: MigrationContext) => {
   await createTable(db, ResearchConversations);
   await createTable(db, ResearchSandboxSessions);
   await createTable(db, ResearchConversationEvents);
+  await db.none(`
+    CREATE UNIQUE INDEX IF NOT EXISTS "idx_ResearchConversationEvents_conversationId_claudeMessageUuid"
+    ON "ResearchConversationEvents" ("conversationId", "claudeMessageUuid")
+    WHERE "claudeMessageUuid" IS NOT NULL
+  `);
 };
 
 export const down = async ({ db }: MigrationContext) => {

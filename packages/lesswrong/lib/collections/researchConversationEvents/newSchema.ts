@@ -4,6 +4,32 @@ import { userOwns } from "@/lib/vulcan-users/permissions";
 const schema = {
   _id: DEFAULT_ID_FIELD,
   createdAt: DEFAULT_CREATED_AT_FIELD,
+  userId: {
+    database: {
+      type: "VARCHAR(27)",
+      foreignKey: "Users",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String!",
+      canRead: [userOwns, "admins"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+    },
+  },
+  projectId: {
+    database: {
+      type: "VARCHAR(27)",
+      foreignKey: "ResearchProjects",
+      nullable: false,
+    },
+    graphql: {
+      outputType: "String!",
+      canRead: [userOwns, "admins"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+    },
+  },
   conversationId: {
     database: {
       type: "VARCHAR(27)",

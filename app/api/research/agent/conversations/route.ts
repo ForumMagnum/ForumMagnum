@@ -74,6 +74,20 @@ export async function POST(req: NextRequest) {
   if (auth.kind === "errorResponse") return auth.errorResponse;
   const { payload } = auth;
 
+  if (payload.scope !== "agent" || !payload.conversationId) {
+    captureResearchAgentApiEvent({
+      route: ROUTE,
+      status: "forbidden",
+      projectId: payload.projectId,
+      userId: payload.userId,
+      reason: "agent_scope_required",
+    });
+    return NextResponse.json(
+      { error: "Forbidden: spawning a subagent requires a conversation-scoped agent token." },
+      { status: 403 },
+    );
+  }
+
   const [body, context] = await Promise.all([
     req.json(),
     getContextFromReqAndRes({ req, isSSR: false }),
