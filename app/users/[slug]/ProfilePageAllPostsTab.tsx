@@ -328,11 +328,14 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
   const sharedClasses = useStyles(profileStyles);
   const classes = useStyles(profilePageAllPostsTabUnsharedStyles);
   const userId = user._id;
+  // "topInflation" is the UI label; the view system uses "topAdjusted" as the sort key.
+  // Without this mapping the sort silently falls through and posts appear in DB order.
+  const sortedBy = settings.sortBy === "topInflation" ? "topAdjusted" : settings.sortBy;
 
   const { data: recentPostsData, loading: recentPostsLoading, loadMoreProps } = useQueryWithLoadMore(ProfilePostsQuery, {
     skip: !userId,
     variables: {
-      selector: userId ? { userPosts: { userId, sortedBy: settings.sortBy, excludeEvents: true, authorIsUnreviewed: null } } : undefined,
+      selector: userId ? { userPosts: { userId, sortedBy, excludeEvents: true, authorIsUnreviewed: null } } : undefined,
       limit: INITIAL_POSTS_TO_SHOW,
       enableTotal: true,
     },
