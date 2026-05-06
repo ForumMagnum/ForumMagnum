@@ -3,6 +3,7 @@ import { z } from "zod";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { randomId } from "@/lib/random";
+import { subagentEntrypointSchema } from "@/lib/collections/researchConversations/entrypoint";
 import {
   authorizeAgentRequest,
   authorizeAgentResearchConversationAccess,
@@ -30,9 +31,14 @@ const MAX_CONCURRENT_CHILDREN = 3;
 const ACTIVE_CHILD_WINDOW_MS = 60 * 60 * 1000;
 
 const spawnSubagentBodySchema = z.object({
-  prompt: z.string().min(1).describe("The initial user-turn prompt for the new conversation"),
+  prompt: z.string().trim().min(1).describe("The initial user-turn prompt for the new conversation"),
   title: z.string().optional().describe("Optional user-editable title for the new conversation"),
 });
+
+function getSubagentParentConversationId(conversation: DbResearchConversation): string | null {
+  const result = subagentEntrypointSchema.safeParse(conversation.entrypoint);
+  return result.success ? result.data.parentConversationId : null;
+}
 
 /**
  * Walk the parent chain backwards counting depth. Stops at the first
@@ -47,12 +53,12 @@ async function computeParentChainDepth(
   let current: DbResearchConversation | null = conversation;
   // Bound the walk regardless — defensive against pathological data.
   while (current && depth < MAX_PARENT_CHAIN_DEPTH + 2) {
-    const entrypoint = current.entrypoint as { kind?: string; parentConversationId?: string } | null;
-    if (entrypoint?.kind !== "subagent" || !entrypoint.parentConversationId) {
+    const parentConversationId = getSubagentParentConversationId(current);
+    if (!parentConversationId) {
       return depth;
     }
     depth += 1;
-    current = await context.ResearchConversations.findOne({ _id: entrypoint.parentConversationId });
+    current = await context.ResearchConversations.findOne({ _id: parentConversationId });
   }
   return depth;
 }
@@ -88,10 +94,24 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const [body, context] = await Promise.all([
-    req.json(),
-    getContextFromReqAndRes({ req, isSSR: false }),
-  ]);
+  let body: unknown;
+  try {
+    body = await req.json();
+  } catch {
+    captureResearchAgentApiEvent({
+      route: ROUTE,
+      status: "validation_error",
+      conversationId: payload.conversationId,
+      projectId: payload.projectId,
+      reason: "invalid_json",
+    });
+    return NextResponse.json(
+      { error: "Invalid request body: expected JSON" },
+      { status: 400 },
+    );
+  }
+
+  const context = await getContextFromReqAndRes({ req, isSSR: false });
 
   const parseResult = spawnSubagentBodySchema.safeParse(body);
   if (!parseResult.success) {
@@ -107,7 +127,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { prompt, title } = parseResult.data;
+  const { prompt } = parseResult.data;
+  const title = parseResult.data.title?.trim();
 
   try {
     // Verify the bearer-token's parent conversation exists and is in the
@@ -192,7 +213,7 @@ export async function POST(req: NextRequest) {
       _id: conversationId,
       userId: payload.userId,
       projectId: payload.projectId,
-      title: title ?? null,
+      title: title && title.length > 0 ? title : null,
       claudeSessionId: null,
       entrypoint: {
         kind: "subagent",
