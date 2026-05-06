@@ -1231,8 +1231,6 @@ export async function removeCommentNotificationsOnHidden(comment: DbComment, old
   const { Notifications } = context;
   if (!commentIsNotPublicForAnyReason(oldComment) && commentIsNotPublicForAnyReason(comment)) {
     const notifications = await Notifications.find({ documentId: comment._id }).fetch();
-    await Promise.all(notifications.map(notification =>
-      updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context)
-    ));
+    notifications.forEach(notification => void updateNotification({ data: { deleted: true }, selector: { _id: notification._id } }, context));
   }
 }
