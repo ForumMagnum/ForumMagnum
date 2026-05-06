@@ -238,7 +238,6 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
     return this.getRawDb().any(`
       -- CommentsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
-      WHERE c."rejected" IS NOT TRUE
       ORDER BY c."createdAt" DESC
       LIMIT $1
       OFFSET $2
@@ -248,7 +247,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
   async countSearchDocuments(): Promise<number> {
     const {count} = await this.getRawDb().one(`
       -- CommentsRepo.countSearchDocuents
-      SELECT COUNT(*) FROM "Comments" WHERE "rejected" IS NOT TRUE
+      SELECT COUNT(*) FROM "Comments"
     `);
     return count;
   }

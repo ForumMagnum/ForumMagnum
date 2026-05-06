@@ -586,7 +586,6 @@ class PostsRepo extends AbstractRepo<"Posts"> {
     return this.getRawDb().any(`
       -- PostsRepo.getSearchDocuments
       ${this.getSearchDocumentQuery()}
-      WHERE p."rejected" IS NOT TRUE
       ORDER BY p."createdAt" DESC
       LIMIT $1
       OFFSET $2
@@ -596,7 +595,7 @@ class PostsRepo extends AbstractRepo<"Posts"> {
   async countSearchDocuments(): Promise<number> {
     const {count} = await this.getRawDb().one(`
       -- PostsRepo.countSearchDocuments
-      SELECT COUNT(*) FROM "Posts" WHERE "rejected" IS NOT TRUE
+      SELECT COUNT(*) FROM "Posts"
     `);
     return count;
   }
