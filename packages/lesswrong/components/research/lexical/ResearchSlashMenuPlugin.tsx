@@ -87,8 +87,8 @@ function ResearchSlashMenuItem({
  * conversation via the host environment, then patches the AgentBlock with the
  * new conversationId.
  *
- * This is registered alongside (not in place of) the standard
- * ComponentPickerPlugin. The standard menu still owns text-formatting commands.
+ * The research document host disables the standard ComponentPickerPlugin while
+ * mounting this, so the user sees exactly one slash menu.
  */
 export function ResearchSlashMenuPlugin() {
   const [editor] = useLexicalComposerContext();

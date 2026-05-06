@@ -554,6 +554,8 @@ export interface EditorProps {
   placeholder?: string;
   /** Render editor in compact comment mode */
   commentEditor?: boolean;
+  /** Hide the default slash-command component picker when a host mounts its own menu. */
+  disableComponentPicker?: boolean;
   children?: React.ReactNode;
 }
 
@@ -582,6 +584,7 @@ export default function Editor({
   onGetDataWithDiscardedSuggestions,
   placeholder: placeholderOverride,
   commentEditor = false,
+  disableComponentPicker = false,
   children,
 }: EditorProps): JSX.Element {
   const classes = useStyles(styles);
@@ -824,7 +827,7 @@ export default function Editor({
         <CodeBlockPlugin editor={editor} />
         {selectionAlwaysOnDisplay && <SelectionAlwaysOnDisplay />}
         <ClearEditorPlugin />
-        <ComponentPickerPlugin />
+        {!disableComponentPicker && <ComponentPickerPlugin />}
         {/* <EmojiPickerPlugin /> */}
         <AutoEmbedPlugin />
         <HashtagPlugin />

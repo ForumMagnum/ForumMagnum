@@ -181,6 +181,7 @@ const DocumentPane = ({ projectId, documentId, onOpenChat }: DocumentPaneProps) 
           fieldName="contents"
           accessLevel="edit"
           extraNodes={researchEditorNodes}
+          disableComponentPicker
         >
           <ResearchEditorPlugins
             environment={{

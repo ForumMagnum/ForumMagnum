@@ -303,6 +303,7 @@ interface LexicalEditorProps {
   /** Collaborative editor access level for suggested edits permissions */
   accessLevel?: CollaborativeEditingAccessLevel;
   extraNodes?: LexicalNodeConfig[];
+  disableComponentPicker?: boolean;
   children?: React.ReactNode;
 }
 
@@ -404,6 +405,7 @@ const LexicalEditor = ({
   commentEditor = false,
   accessLevel,
   extraNodes,
+  disableComponentPicker,
   children,
 }: LexicalEditorProps) => {
   const classes = useStyles(lexicalStyles);
@@ -538,6 +540,7 @@ const LexicalEditor = ({
                   onGetDataWithDiscardedSuggestions={onGetDataWithDiscardedSuggestions}
                   placeholder={placeholder}
                   commentEditor={commentEditor}
+                  disableComponentPicker={disableComponentPicker}
                 >
                   {children}
                 </Editor>
