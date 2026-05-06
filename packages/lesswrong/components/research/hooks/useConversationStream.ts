@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useApolloClient } from '@apollo/client/react';
+import { isPlainRecord } from '../conversationEventFormat';
 
 /**
  * Shape of a single conversation event, mirroring `ResearchConversationEvents`
@@ -238,7 +239,7 @@ async function discoverStreamInfo(conversationId: string): Promise<StreamInfo> {
   if (!res.ok) {
     throw new Error(`Failed to discover stream URL: HTTP ${res.status}`);
   }
-  return (await res.json()) as StreamInfo;
+  return parseStreamInfo(await res.json());
 }
 
 async function connectSSE(args: RunStreamArgs) {
@@ -314,7 +315,7 @@ async function connectSSE(args: RunStreamArgs) {
   const handleSseMessage = (msg: MessageEvent) => {
     if (cancelledRef.current) return;
     try {
-      const raw = JSON.parse(msg.data) as unknown;
+      const raw = JSON.parse(msg.data);
       const ev = normalizeStreamedEvent(raw);
       if (!ev) return;
       setEvents((prev) => mergeBySeq(prev, [ev]));
@@ -384,20 +385,36 @@ function teardownSource(eventSourceRef: React.MutableRefObject<EventSource | nul
  * We synthesize an `_id` and `createdAt` so the React component can key off them.
  */
 function normalizeStreamedEvent(raw: unknown): ConversationEvent | null {
-  if (!raw || typeof raw !== 'object') return null;
-  const v = raw as Record<string, unknown>;
-  if (typeof v.seq !== 'number') return null;
-  if (typeof v.kind !== 'string') return null;
-  if (typeof v.conversationId !== 'string') return null;
+  if (!isPlainRecord(raw)) return null;
+  if (typeof raw.seq !== 'number') return null;
+  if (typeof raw.kind !== 'string') return null;
+  if (typeof raw.conversationId !== 'string') return null;
   return {
-    _id: typeof v._id === 'string' ? v._id : `sse:${v.conversationId}:${v.seq}`,
-    conversationId: v.conversationId,
-    seq: v.seq,
-    kind: v.kind as ConversationEvent['kind'],
-    claudeMessageUuid: typeof v.claudeMessageUuid === 'string' ? v.claudeMessageUuid : null,
-    payload: v.payload,
-    createdAt: typeof v.createdAt === 'string' ? v.createdAt : new Date().toISOString(),
+    _id: typeof raw._id === 'string' ? raw._id : `sse:${raw.conversationId}:${raw.seq}`,
+    conversationId: raw.conversationId,
+    seq: raw.seq,
+    kind: raw.kind,
+    claudeMessageUuid: typeof raw.claudeMessageUuid === 'string' ? raw.claudeMessageUuid : null,
+    payload: raw.payload,
+    createdAt: typeof raw.createdAt === 'string' ? raw.createdAt : new Date().toISOString(),
   };
+}
+
+function parseStreamInfo(raw: unknown): StreamInfo {
+  if (!isPlainRecord(raw)) {
+    throw new Error("Invalid stream-info response");
+  }
+  const { sseUrl, token, expiresAt } = raw;
+  if (sseUrl !== null && typeof sseUrl !== 'string') {
+    throw new Error("Invalid stream-info response: sseUrl");
+  }
+  if (token !== null && typeof token !== 'string') {
+    throw new Error("Invalid stream-info response: token");
+  }
+  if (expiresAt !== undefined && expiresAt !== null && typeof expiresAt !== 'string') {
+    throw new Error("Invalid stream-info response: expiresAt");
+  }
+  return { sseUrl, token, expiresAt };
 }
 
 /**
@@ -416,7 +433,7 @@ function mergeBySeq(prev: ConversationEvent[], incoming: ConversationEvent[]): C
 function appendQueryParams(url: string, params: Record<string, string>): string {
   const u = new URL(url);
   for (const [k, v] of Object.entries(params)) {
-    if (v === '' || v === undefined || v === null) continue;
+    if (v === '') continue;
     u.searchParams.set(k, v);
   }
   return u.toString();

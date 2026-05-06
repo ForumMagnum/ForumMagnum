@@ -8,6 +8,7 @@ import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { useConversationStream, type ConversationEvent } from './hooks/useConversationStream';
 import Loading from '../vulcan-core/Loading';
+import { getConversationEventText } from './conversationEventFormat';
 
 interface ChatPaneProps {
   projectId: string;
@@ -294,7 +295,7 @@ interface EventRowClasses {
 }
 
 function EventRow({ event, classes }: { event: ConversationEvent; classes: EventRowClasses }) {
-  const text = extractEventText(event);
+  const text = getConversationEventText(event);
   const className = classNames(classes.event, {
     [classes.eventUser]: event.kind === 'user',
     [classes.eventAssistant]: event.kind === 'assistant',
@@ -303,47 +304,6 @@ function EventRow({ event, classes }: { event: ConversationEvent; classes: Event
     [classes.eventError]: event.kind === 'error',
   });
   return <div className={className}>{text}</div>;
-}
-
-/**
- * Best-effort plain-text rendering of a Claude Code JSONL event payload.
- * The supervisor passes the parsed JSONL line through verbatim, so the shape
- * is whatever Claude Code emits. We probe for common text-bearing fields and
- * fall back to a JSON dump so streamed events are at least visible during
- * development. Real rendering of tool calls, thinking blocks, etc. is up to
- * a future pass once the event corpus is concrete.
- */
-function extractEventText(event: ConversationEvent): string {
-  const payload = event.payload as Record<string, unknown> | string | null | undefined;
-  if (typeof payload === 'string') return payload;
-  if (!payload || typeof payload !== 'object') return `[${event.kind}]`;
-
-  const message = (payload as { message?: { content?: unknown } }).message;
-  if (message && typeof message === 'object') {
-    const content = (message as { content?: unknown }).content;
-    if (typeof content === 'string') return content;
-    if (Array.isArray(content)) {
-      const parts = content
-        .map((part: unknown) => {
-          if (typeof part === 'string') return part;
-          if (part && typeof part === 'object' && 'text' in part && typeof (part as { text?: unknown }).text === 'string') {
-            return (part as { text: string }).text;
-          }
-          return '';
-        })
-        .filter(Boolean);
-      if (parts.length > 0) return parts.join('');
-    }
-  }
-
-  const text = (payload as { text?: unknown }).text;
-  if (typeof text === 'string') return text;
-
-  try {
-    return JSON.stringify(payload, null, 2);
-  } catch {
-    return `[${event.kind}]`;
-  }
 }
 
 function renderStatusLabel(status: string, error: string | null): string {

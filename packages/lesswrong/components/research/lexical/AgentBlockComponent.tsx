@@ -10,6 +10,7 @@ import { $isAgentBlockNode } from './AgentBlockNode';
 import { UPDATE_AGENT_BLOCK_COMMAND } from './AgentBlockPlugin';
 import { useResearchEditorEnvironment } from './ResearchEditorContext';
 import { newResearchAnchorId } from './ResearchAnchorContext';
+import { getConversationEventText, isVisibleAgentBlockEvent } from '../conversationEventFormat';
 
 const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   root: {
@@ -39,7 +40,7 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
     fontStyle: 'italic',
   },
   statusError: {
-    color: '#c33',
+    color: theme.palette.error?.main ?? theme.palette.text.primary,
   },
   events: {
     display: 'flex',
@@ -74,7 +75,7 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
     color: theme.palette.greyAlpha(0.65),
   },
   eventError: {
-    color: '#c33',
+    color: theme.palette.error?.main ?? theme.palette.text.primary,
   },
   empty: {
     color: theme.palette.greyAlpha(0.5),
@@ -133,7 +134,7 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
     },
   },
   errorText: {
-    color: '#c33',
+    color: theme.palette.error?.main ?? theme.palette.text.primary,
     fontSize: '0.9em',
   },
 }));
@@ -328,9 +329,8 @@ function AgentBlockEvents({ events, status }: AgentBlockEventsProps) {
   //   - `result` — Claude Code's final session-result wrapper
   //   - `unknown` — rate-limit notices and other untyped metadata
   // The persistence pipeline keeps the full transcript regardless.
-  const VISIBLE = new Set(['user', 'assistant', 'thinking', 'tool_use', 'tool_result', 'error']);
   const sorted = useMemo(
-    () => [...events].filter((e) => VISIBLE.has(e.kind)).sort((a, b) => a.seq - b.seq),
+    () => [...events].filter(isVisibleAgentBlockEvent).sort((a, b) => a.seq - b.seq),
     [events],
   );
 
@@ -357,7 +357,7 @@ interface EventRowProps {
 
 function EventRow({ event }: EventRowProps) {
   const classes = useStyles(styles);
-  const text = extractDisplayText(event);
+  const text = getConversationEventText(event);
 
   switch (event.kind) {
     case 'user':
@@ -374,63 +374,5 @@ function EventRow({ event }: EventRowProps) {
       return <div className={classNames(classes.event, classes.eventError)}>{text}</div>;
     default:
       return <div className={classes.event}>{text}</div>;
-  }
-}
-
-function extractDisplayText(event: ConversationEvent): string {
-  const payload = event.payload as unknown;
-  if (typeof payload === 'string') return payload;
-  if (!payload || typeof payload !== 'object') return formatJSON(payload);
-
-  const obj = payload as Record<string, unknown>;
-
-  // Claude Code stream-json shape: top-level object has `type` plus a nested
-  // `message` object (for assistant/user) or `content` (for tool_use/tool_result).
-  // Peel one level so the rest of the formatter sees the inner shape.
-  const inner =
-    obj.message && typeof obj.message === 'object'
-      ? (obj.message as Record<string, unknown>)
-      : obj;
-
-  if (typeof inner.text === 'string') return inner.text;
-  if (typeof inner.content === 'string') return inner.content;
-  if (Array.isArray(inner.content)) {
-    const parts = inner.content
-      .map((part) => {
-        if (typeof part === 'string') return part;
-        if (part && typeof part === 'object') {
-          const p = part as Record<string, unknown>;
-          if (typeof p.text === 'string') return p.text;
-          if (p.type === 'tool_use' && typeof p.name === 'string') {
-            return `${p.name}(${formatJSON(p.input)})`;
-          }
-          if (p.type === 'tool_result') {
-            const c = p.content;
-            if (typeof c === 'string') return c;
-            if (Array.isArray(c)) {
-              return c.map((x) => (typeof x === 'object' && x !== null && typeof (x as Record<string, unknown>).text === 'string' ? (x as Record<string, string>).text : formatJSON(x))).join('\n');
-            }
-            return formatJSON(c);
-          }
-        }
-        return '';
-      })
-      .filter(Boolean);
-    if (parts.length > 0) return parts.join('\n');
-  }
-  if (event.kind === 'tool_use' && typeof inner.name === 'string') {
-    return `${inner.name}(${formatJSON(inner.input)})`;
-  }
-  if (event.kind === 'tool_result') {
-    return formatJSON(inner.output ?? inner.result ?? inner);
-  }
-  return formatJSON(payload);
-}
-
-function formatJSON(value: unknown): string {
-  try {
-    return JSON.stringify(value, null, 2);
-  } catch {
-    return String(value);
   }
 }
