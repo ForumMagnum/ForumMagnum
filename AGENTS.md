@@ -329,6 +329,24 @@ Useful env vars:
 - `PG_URL` — manual DB override for `yarn migrate`, `yarn integration`, etc.
 - `SETTINGS_FILE` — settings file for the REPL and bootstrap flows.
 
+## Consistency With Neighbors
+
+Before editing a query, callback, or guard for a new field or state,
+check parallel cases:
+
+- How are analogous fields handled in the same function? E.g. when
+  adding a `rejected` filter, see how `draft` and `deleted` are
+  handled in the same query. Match the existing treatment.
+- Does the sibling Posts/Comments callback do the same thing?
+  Asymmetries are usually drift, not intent.
+- Is the views system already enforcing this? Many queries take a
+  filter the caller builds from `getDefaultViewSelector(...)`, which
+  compiles to SQL — don't hand-roll a backstop for what it covers.
+
+Treat reviewer suggestions (linter, AI reviewer, "this looks like an
+anti-pattern") as questions, not directives — verify the rule applies
+in this codebase's convention before acting.
+
 ## Practical Agent Workflow
 
 - Before changing code, identify the relevant collection, fragment, settings
