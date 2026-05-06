@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useMemo } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { useMutation } from '@apollo/client/react';
@@ -8,7 +8,12 @@ import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { researchEditorNodes } from './lexical/researchEditorNodes';
 import { ResearchEditorPlugins } from './lexical/ResearchEditorPlugins';
-import { type FireQueryResult, type FireDocumentQueryArgs } from './lexical/ResearchEditorContext';
+import {
+  ResearchEditorProvider,
+  type FireQueryResult,
+  type FireDocumentQueryArgs,
+  type ResearchEditorEnvironment,
+} from './lexical/ResearchEditorContext';
 import Loading from '../vulcan-core/Loading';
 import LexicalEditor from '../editor/LexicalEditor';
 
@@ -148,6 +153,14 @@ const DocumentPane = ({ projectId, documentId, onOpenChat }: DocumentPaneProps) 
     [projectId, documentId, fireConversation, onOpenChat],
   );
 
+  const researchEditorEnvironment = useMemo<ResearchEditorEnvironment | null>(() => {
+    if (!documentId) return null;
+    return {
+      documentId,
+      fireDocumentQuery,
+    };
+  }, [documentId, fireDocumentQuery]);
+
   if (!documentId) {
     return (
       <div className={classes.empty}>
@@ -164,7 +177,7 @@ const DocumentPane = ({ projectId, documentId, onOpenChat }: DocumentPaneProps) 
     );
   }
 
-  if (!documentRecord) {
+  if (!documentRecord || !researchEditorEnvironment) {
     return <div className={classes.empty}>Document not found.</div>;
   }
 
@@ -172,24 +185,21 @@ const DocumentPane = ({ projectId, documentId, onOpenChat }: DocumentPaneProps) 
     <div className={classes.root}>
       <div className={classes.titleBar}>{documentRecord.title ?? 'Untitled document'}</div>
       <div className={classes.editorWrap}>
-        <LexicalEditor
-          data={documentRecord.contents?.html ?? ''}
-          onChange={ignoreEditorChange}
-          placeholder="Start writing..."
-          collectionName="ResearchDocuments"
-          documentId={documentId}
-          fieldName="contents"
-          accessLevel="edit"
-          extraNodes={researchEditorNodes}
-          disableComponentPicker
-        >
-          <ResearchEditorPlugins
-            environment={{
-              documentId,
-              fireDocumentQuery,
-            }}
-          />
-        </LexicalEditor>
+        <ResearchEditorProvider environment={researchEditorEnvironment}>
+          <LexicalEditor
+            data={documentRecord.contents?.html ?? ''}
+            onChange={ignoreEditorChange}
+            placeholder="Start writing..."
+            collectionName="ResearchDocuments"
+            documentId={documentId}
+            fieldName="contents"
+            accessLevel="edit"
+            extraNodes={researchEditorNodes}
+            disableComponentPicker
+          >
+            <ResearchEditorPlugins />
+          </LexicalEditor>
+        </ResearchEditorProvider>
       </div>
     </div>
   );
