@@ -172,6 +172,7 @@ import KeywordResultsPage from '@/components/keywords/KeywordResultsPage';
 import AdminEventPostEmailPage from '@/components/admin/AdminEventPostEmailPage';
 import BetterFuturesPage from '@/components/forumEvents/BetterFuturesPage';
 import ScalingSeriesPage from '@/components/forumEvents/ScalingSeriesPage';
+import InDevelopmentPage from '@/components/forumEvents/InDevelopmentPage';
 import MarginalFundingPage from '@/components/forumEvents/givingSeason/MarginalFundingPage';
 import VotingPortalPage from '@/components/forumEvents/givingSeason/VotingPortalPage';
 import AdminElectionCandidates from '@/components/forumEvents/givingSeason/AdminElectionCandidates';
@@ -1076,6 +1077,14 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       path: "/scaling-series",
       component: ScalingSeriesPage,
       title: "The Scaling Series",
+      fullscreen: true,
+      noFooter: true,
+    },
+    {
+      name: "inDevelopmentHighlight",
+      path: "/in-development-highlight",
+      component: InDevelopmentPage,
+      title: "In Development",
       fullscreen: true,
       noFooter: true,
     },
