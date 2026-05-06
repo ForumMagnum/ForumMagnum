@@ -5,7 +5,6 @@ import classNames from 'classnames';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { useMutation } from '@apollo/client/react';
-import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import Loading from '../vulcan-core/Loading';
@@ -22,33 +21,6 @@ interface ProjectSidebarProps {
    * than into a native window.prompt.
    */
   onStartNewChat: () => void;
-}
-
-interface DocumentSummary {
-  _id: string;
-  title: string | null;
-  createdAt: string;
-}
-
-interface ChatConversationSummary {
-  _id: string;
-  title: string | null;
-  lastActivityAt: string | null;
-}
-
-interface ProjectInfo {
-  _id: string;
-  title: string;
-}
-
-interface SidebarQueryResult {
-  researchProject: { result: ProjectInfo } | null;
-  researchDocuments: { results: DocumentSummary[] } | null;
-  researchConversations: { results: ChatConversationSummary[] } | null;
-}
-
-interface SidebarQueryVars {
-  projectId: string;
 }
 
 const ProjectSidebarQuery = gql(`
@@ -74,16 +46,7 @@ const ProjectSidebarQuery = gql(`
       }
     }
   }
-`) as TypedDocumentNode<SidebarQueryResult, SidebarQueryVars>;
-
-interface CreateDocumentResult {
-  createResearchDocument: { data: DocumentSummary } | null;
-}
-
-interface CreateDocumentVars {
-  projectId: string;
-  title: string | null;
-}
+`);
 
 const CreateResearchDocumentMutation = gql(`
   mutation CreateResearchDocumentSidebar($projectId: String!, $title: String) {
@@ -95,7 +58,7 @@ const CreateResearchDocumentMutation = gql(`
       }
     }
   }
-`) as TypedDocumentNode<CreateDocumentResult, CreateDocumentVars>;
+`);
 
 const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
   root: {

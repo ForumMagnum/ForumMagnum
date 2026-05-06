@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useApolloClient } from '@apollo/client/react';
-import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 
 /**
  * Shape of a single conversation event, mirroring `ResearchConversationEvents`
@@ -58,15 +57,6 @@ interface UseConversationStreamResult {
 const RECONNECT_MIN_MS = 1_000;
 const RECONNECT_MAX_MS = 30_000;
 
-interface TranscriptQueryResult {
-  researchConversationTranscript: ConversationEvent[] | null;
-}
-
-interface TranscriptQueryVars {
-  conversationId: string;
-  since: number | null;
-}
-
 /**
  * GraphQL query for the persisted transcript. Owned by T1's
  * `researchConversationTranscript` resolver; field set is the union of
@@ -87,7 +77,7 @@ const ResearchConversationTranscriptQuery = gql(`
       createdAt
     }
   }
-`) as TypedDocumentNode<TranscriptQueryResult, TranscriptQueryVars>;
+`);
 
 interface UseConversationStreamOptions {
   /** Disable live SSE; only load persisted events. */

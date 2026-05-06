@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
-import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
@@ -19,19 +18,13 @@ interface ResearchWorkspaceProps {
 
 type RightPaneMode = 'chat' | 'activity' | 'closed';
 
-interface FirstDocumentQueryResult {
-  researchDocuments: { results: Array<{ _id: string }> } | null;
-}
-interface FirstDocumentQueryVars {
-  projectId: string;
-}
 const FirstDocumentQuery = gql(`
   query ResearchWorkspaceFirstDocument($projectId: String!) {
     researchDocuments(selector: { byProject: { projectId: $projectId } }, limit: 1) {
       results { _id }
     }
   }
-`) as TypedDocumentNode<FirstDocumentQueryResult, FirstDocumentQueryVars>;
+`);
 
 const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
   root: {

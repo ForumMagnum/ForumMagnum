@@ -4,7 +4,6 @@ import React, { useCallback, useMemo } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { useMutation } from '@apollo/client/react';
-import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -28,23 +27,6 @@ interface DocumentPaneProps {
   onOpenChat: (conversationId: string) => void;
 }
 
-interface ResearchDocumentDetail {
-  _id: string;
-  title: string | null;
-  contents: {
-    html: string | null;
-    originalContents: { type: string; data: string } | null;
-  } | null;
-}
-
-interface DocumentQueryResult {
-  researchDocument: { result: ResearchDocumentDetail } | null;
-}
-
-interface DocumentQueryVars {
-  documentId: string;
-}
-
 const ResearchDocumentQuery = gql(`
   query ResearchDocumentQuery($documentId: String!) {
     researchDocument(input: { selector: { _id: $documentId } }) {
@@ -61,17 +43,7 @@ const ResearchDocumentQuery = gql(`
       }
     }
   }
-`) as TypedDocumentNode<DocumentQueryResult, DocumentQueryVars>;
-
-interface FireConversationResult {
-  fireResearchConversation: { conversationId: string } | null;
-}
-
-interface FireConversationVars {
-  projectId: string;
-  entrypoint: { kind: string; documentId?: string; anchorId?: string };
-  prompt: string;
-}
+`);
 
 const FireDocumentConversationMutation = gql(`
   mutation FireDocumentConversation($projectId: String!, $entrypoint: JSON!, $prompt: String!) {
@@ -79,7 +51,7 @@ const FireDocumentConversationMutation = gql(`
       conversationId
     }
   }
-`) as TypedDocumentNode<FireConversationResult, FireConversationVars>;
+`);
 
 const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
   root: {

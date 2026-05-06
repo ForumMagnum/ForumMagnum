@@ -4,7 +4,6 @@ import React, { useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { useMutation } from '@apollo/client/react';
-import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
@@ -21,29 +20,6 @@ interface ResearchProjectSummary {
   createdAt: string;
 }
 
-interface ProjectsQueryResult {
-  researchProjects: { results: ResearchProjectSummary[] } | null;
-}
-
-interface CreateProjectResult {
-  createResearchProject: { data: ResearchProjectSummary } | null;
-}
-
-interface CreateProjectVars {
-  title: string;
-  description: string | null;
-  claudeCodeTokenRef: string | null;
-}
-
-interface UpdateProjectTokenResult {
-  updateResearchProject: { data: { _id: string } } | null;
-}
-
-interface UpdateProjectTokenVars {
-  selector: { _id: string };
-  data: { claudeCodeTokenRef: string };
-}
-
 const ResearchProjectsListQuery = gql(`
   query ResearchProjectListQuery {
     researchProjects(selector: { default: {} }, limit: 100) {
@@ -55,7 +31,7 @@ const ResearchProjectsListQuery = gql(`
       }
     }
   }
-`) as TypedDocumentNode<ProjectsQueryResult, Record<string, never>>;
+`);
 
 const CreateResearchProjectMutation = gql(`
   mutation CreateResearchProject($title: String!, $description: String, $claudeCodeTokenRef: String) {
@@ -68,7 +44,7 @@ const CreateResearchProjectMutation = gql(`
       }
     }
   }
-`) as TypedDocumentNode<CreateProjectResult, CreateProjectVars>;
+`);
 
 const UpdateResearchProjectTokenMutation = gql(`
   mutation UpdateResearchProjectToken($selector: SelectorInput!, $data: UpdateResearchProjectDataInput!) {
@@ -78,7 +54,7 @@ const UpdateResearchProjectTokenMutation = gql(`
       }
     }
   }
-`) as TypedDocumentNode<UpdateProjectTokenResult, UpdateProjectTokenVars>;
+`);
 
 const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
   root: {

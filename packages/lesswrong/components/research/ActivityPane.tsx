@@ -3,31 +3,12 @@
 import React from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
-import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import Loading from '../vulcan-core/Loading';
 
 interface ActivityPaneProps {
   projectId: string;
-}
-
-interface ActivityItem {
-  kind: 'conversation_event' | 'document_edit';
-  timestamp: string;
-  conversationId?: string | null;
-  documentId?: string | null;
-  title?: string | null;
-  summary?: string | null;
-}
-
-interface ActivityQueryResult {
-  researchProjectActivity: ActivityItem[] | null;
-}
-
-interface ActivityQueryVars {
-  projectId: string;
-  since: string | null;
 }
 
 const ResearchProjectActivityQuery = gql(`
@@ -41,7 +22,7 @@ const ResearchProjectActivityQuery = gql(`
       summary
     }
   }
-`) as TypedDocumentNode<ActivityQueryResult, ActivityQueryVars>;
+`);
 
 const styles = defineStyles('ActivityPane', (theme: ThemeType) => ({
   root: {
@@ -132,7 +113,7 @@ const ActivityPane = ({ projectId }: ActivityPaneProps) => {
   );
 };
 
-function labelForKind(kind: ActivityItem['kind']): string {
+function labelForKind(kind: string): string {
   switch (kind) {
     case 'conversation_event': return 'Chat';
     case 'document_edit': return 'Edit';

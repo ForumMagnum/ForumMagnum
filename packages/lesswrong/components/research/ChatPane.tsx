@@ -3,7 +3,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMutation } from '@apollo/client/react';
-import type { TypedDocumentNode } from '@graphql-typed-document-node/core';
 import classNames from 'classnames';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
@@ -16,32 +15,13 @@ interface ChatPaneProps {
   onConversationCreated: (conversationId: string) => void;
 }
 
-interface FireConversationResult {
-  fireResearchConversation: { conversationId: string } | null;
-}
-
-interface FireConversationVars {
-  projectId: string;
-  entrypoint: { kind: string };
-  prompt: string;
-}
-
 const FireChatConversationMutation = gql(`
   mutation FireChatPaneConversation($projectId: String!, $entrypoint: JSON!, $prompt: String!) {
     fireResearchConversation(input: { projectId: $projectId, entrypoint: $entrypoint, prompt: $prompt }) {
       conversationId
     }
   }
-`) as TypedDocumentNode<FireConversationResult, FireConversationVars>;
-
-interface ContinueResult {
-  continueResearchConversation: { conversationId: string } | null;
-}
-
-interface ContinueVars {
-  conversationId: string;
-  prompt: string;
-}
+`);
 
 const ContinueResearchConversationMutation = gql(`
   mutation ContinueResearchConversationFromChatPane($conversationId: String!, $prompt: String!) {
@@ -49,15 +29,7 @@ const ContinueResearchConversationMutation = gql(`
       conversationId
     }
   }
-`) as TypedDocumentNode<ContinueResult, ContinueVars>;
-
-interface CancelResult {
-  cancelResearchConversation: { conversationId: string } | null;
-}
-
-interface CancelVars {
-  conversationId: string;
-}
+`);
 
 const CancelResearchConversationMutation = gql(`
   mutation CancelResearchConversationFromChatPane($conversationId: String!) {
@@ -65,7 +37,7 @@ const CancelResearchConversationMutation = gql(`
       conversationId
     }
   }
-`) as TypedDocumentNode<CancelResult, CancelVars>;
+`);
 
 const styles = defineStyles('ChatPane', (theme: ThemeType) => ({
   root: {
