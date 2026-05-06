@@ -428,7 +428,6 @@ function userPosts(terms: PostsViewTerms) {
       shortform: viewFieldAllowAny,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
       $or: [{userId: terms.userId}, {coauthorUserIds: terms.userId}],
-      rejected: null
     },
     options: {
       limit: 5,
