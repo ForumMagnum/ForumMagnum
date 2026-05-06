@@ -27,12 +27,23 @@ const getAkismetClient = () => {
   return akismetClient;
 }
 
+async function getLatestLoginEventData(userId: string, context: ResolverContext) {
+  const { LWEvents } = context;
+  const events = await LWEvents.find({userId, name: 'login'}, {sort: {createdAt: -1}, limit: 1}).fetch()
+  const latestLogin = events?.[0];
+  return {
+    ip: latestLogin?.properties?.ip,
+    userAgent: latestLogin?.properties?.userAgent,
+    referrer: latestLogin?.properties?.referrer,
+  }
+}
+
 async function constructAkismetReport({document, type="post", context}: {
   document: AnyBecauseTodo
   type: string
   context: ResolverContext
 }) {
-  const { Users, Posts, LWEvents } = context;
+  const { Users, Posts } = context;
   const author = await Users.findOne(document.userId)
   if (!author) throw Error("Couldn't find author for Akismet report")
   let post = document
@@ -40,10 +51,7 @@ async function constructAkismetReport({document, type="post", context}: {
     post = await Posts.findOne(document.postId)
   }
   const link = (post && postGetPageUrl(post)) || ""  // Don't get link if we create a comment without a post
-  const events = await LWEvents.find({userId: author._id, name: 'login'}, {sort: {createdAt: -1}, limit: 1}).fetch()
-  const ip = events && events[0] && events[0].properties && events[0].properties.ip
-  const userAgent = events && events[0] && events[0].properties && events[0].properties.userAgent
-  const referrer = events && events[0] && events[0].properties && events[0].properties.referrer
+  const { ip, userAgent, referrer } = await getLatestLoginEventData(author._id, context)
 
   const content = type === "post"
     ? (await getLatestContentsRevision(document, context))?.html
@@ -62,6 +70,27 @@ async function constructAkismetReport({document, type="post", context}: {
   }
 }
 
+async function constructAkismetBioReport(user: DbUser, context: ResolverContext) {
+  const { ip, userAgent, referrer } = await getLatestLoginEventData(user._id, context)
+  if (!ip) {
+    // eslint-disable-next-line no-console
+    console.log(`Skipping Akismet bio spam check for user ${user._id}: no login IP found.`);
+    return null;
+  }
+
+  const profilePath = user.slug ? `/users/${user.slug}` : "";
+  return {
+    user_ip: ip,
+    user_agent: userAgent,
+    referrer,
+    permalink: akismetURLSetting.get() + profilePath,
+    comment_type: 'signup',
+    comment_author: user.displayName,
+    comment_content: user.biography?.html,
+    is_test: isDevelopment,
+  }
+}
+
 export async function checkForAkismetSpam({document, type, context}: AnyBecauseTodo) {
   try {
     if (document?.contents?.html?.indexOf("spam-test-string-123") >= 0) {
@@ -77,6 +106,28 @@ export async function checkForAkismetSpam({document, type, context}: AnyBecauseT
   } catch (e) {
     // eslint-disable-next-line no-console
     console.error("Akismet spam checker crashed. Classifying as not spam.", e)
+    return false
+  }
+}
+
+export async function checkUserBioForAkismetSpam(user: DbUser, context: ResolverContext) {
+  try {
+    if ((user.biography?.html?.indexOf("spam-test-string-123") ?? -1) >= 0) {
+      // eslint-disable-next-line no-console
+      console.log(`User ${user._id} bio contained Akismet spam filter test string; marking as spam.`);
+      return true;
+    }
+
+    const akismetReport = await constructAkismetBioReport(user, context);
+    if (!akismetReport) return false;
+
+    const spam = await getAkismetClient().checkSpam(akismetReport);
+    // eslint-disable-next-line no-console
+    console.log("Checked user bio for spam: ", { userId: user._id, spam });
+    return spam;
+  } catch (e) {
+    // eslint-disable-next-line no-console
+    console.error("Akismet bio spam checker crashed. Classifying as not spam.", e)
     return false
   }
 }
