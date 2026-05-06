@@ -16,7 +16,12 @@
  * subprocess-runner module (#19) without circular imports.
  */
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
-import { extractBearer, validateSupervisorToken, ValidationResult } from "./auth";
+import {
+  extractBearer,
+  supervisorTokenCanAccessConversation,
+  validateSupervisorToken,
+  ValidationResult,
+} from "./auth";
 
 export interface ConversationState {
   conversationId: string;
@@ -143,21 +148,32 @@ async function handleRequest(
     if (!dispatchReq) {
       return json(res, 400, { error: "missing conversationId or prompt" });
     }
+    if (!supervisorTokenCanAccessConversation(validation.payload, dispatchReq.conversationId)) {
+      return json(res, 403, { error: "forbidden", reason: "conversation scope mismatch" });
+    }
     const result = await deps.dispatchTurn(dispatchReq);
     return json(res, result.accepted ? 202 : 409, result);
   }
 
   const cancelMatch = path.match(/^\/cancel\/([^/]+)$/);
   if (cancelMatch && method === "POST") {
-    await deps.cancelTurn(cancelMatch[1]);
+    const conversationId = cancelMatch[1];
+    if (!supervisorTokenCanAccessConversation(validation.payload, conversationId)) {
+      return json(res, 403, { error: "forbidden", reason: "conversation scope mismatch" });
+    }
+    await deps.cancelTurn(conversationId);
     return json(res, 204, undefined);
   }
 
   const sseMatch = path.match(/^\/sse\/([^/]+)$/);
   if (sseMatch && method === "GET") {
+    const conversationId = sseMatch[1];
+    if (!supervisorTokenCanAccessConversation(validation.payload, conversationId)) {
+      return json(res, 403, { error: "forbidden", reason: "conversation scope mismatch" });
+    }
     const sinceParam = url.searchParams.get("since");
     const sinceSeq = sinceParam !== null ? Number(sinceParam) : undefined;
-    return handleSse(req, res, sseMatch[1], deps, Number.isFinite(sinceSeq) ? sinceSeq : undefined);
+    return handleSse(req, res, conversationId, deps, Number.isFinite(sinceSeq) ? sinceSeq : undefined);
   }
 
   return json(res, 404, { error: "not found", path });

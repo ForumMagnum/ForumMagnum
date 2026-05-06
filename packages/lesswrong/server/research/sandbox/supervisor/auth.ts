@@ -82,6 +82,13 @@ export function validateSupervisorToken(
   return { ok: true, payload };
 }
 
+export function supervisorTokenCanAccessConversation(
+  payload: SupervisorTokenPayload,
+  conversationId: string,
+): boolean {
+  return payload.scope === conversationId;
+}
+
 /**
  * Extract a bearer token from `Authorization` or, as a fallback, a `?token=` query.
  * SSE clients can't easily set headers cross-origin, so the query fallback is
