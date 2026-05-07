@@ -232,7 +232,7 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       right: 6,
     },
-    width: 300,
+    width: 400,
     top: 'var(--editor-right-rail-top)',
     height: 'var(--editor-right-rail-height)',
     backgroundColor: theme.palette.panelBackground.default,
