@@ -3827,6 +3827,7 @@ type Mutation = {
   revertPostToRevision?: Maybe<Post>;
   revertTagToRevision?: Maybe<Tag>;
   runLlmCheckForDocument: AutomatedContentEvaluation;
+  runPangramOnText: PangramTextEvaluationResult;
   sendEventTriggeredDM: Scalars['Boolean']['output'];
   sendNewDialogueMessageNotification: Scalars['Boolean']['output'];
   setHomePageDesignVerified?: Maybe<HomePageDesign>;
@@ -4405,6 +4406,11 @@ type MutationrunLlmCheckForDocumentArgs = {
 };
 
 
+type MutationrunPangramOnTextArgs = {
+  text: Scalars['String']['input'];
+};
+
+
 type MutationsendEventTriggeredDMArgs = {
   eventType: Scalars['String']['input'];
 };
@@ -4813,6 +4819,14 @@ type OAuthClient = {
   __typename?: 'OAuthClient';
   _id: Scalars['String']['output'];
   createdAt: Scalars['Date']['output'];
+};
+
+type PangramTextEvaluationResult = {
+  __typename?: 'PangramTextEvaluationResult';
+  pangramMaxScore?: Maybe<Scalars['Float']['output']>;
+  pangramPrediction?: Maybe<Scalars['String']['output']>;
+  pangramScore: Scalars['Float']['output'];
+  pangramWindowScores?: Maybe<Array<PangramWindowScore>>;
 };
 
 type PangramWindowScore = {
@@ -12013,6 +12027,20 @@ type multiModeratorCommentsQueryQueryVariables = Exact<{
 
 
 type multiModeratorCommentsQueryQuery = multiModeratorCommentsQueryQuery_Query;
+
+type RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult_pangramWindowScores_PangramWindowScore = { __typename?: 'PangramWindowScore', text: string, score: number, startIndex: number, endIndex: number };
+
+type RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult = { __typename?: 'PangramTextEvaluationResult', pangramScore: number, pangramMaxScore: number | null, pangramPrediction: string | null, pangramWindowScores: Array<RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult_pangramWindowScores_PangramWindowScore> | null };
+
+type RunPangramOnTextMutation_Mutation = { __typename?: 'Mutation', runPangramOnText: RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult };
+
+
+type RunPangramOnTextMutationVariables = Exact<{
+  text: Scalars['String']['input'];
+}>;
+
+
+type RunPangramOnTextMutation = RunPangramOnTextMutation_Mutation;
 
 type ProfilePostDiamondDataQueryQuery_ProfileDiamondPosts_ProfileDiamondPostsResult_results_ProfilePostDiamond = { __typename?: 'ProfilePostDiamond', _id: string, slug: string, date: string, karma: number, isReviewWinner: boolean, isCurated: boolean };
 

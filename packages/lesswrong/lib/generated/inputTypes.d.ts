@@ -248,6 +248,7 @@ interface Mutation {
   approveUserCurrentContentOnly: boolean;
   rerunLlmCheck: AutomatedContentEvaluation;
   runLlmCheckForDocument: AutomatedContentEvaluation;
+  runPangramOnText: PangramTextEvaluationResult;
   unlistLlmPost: boolean;
   reorderSummaries: boolean | null;
   publishAndDeDuplicateSpotlight: Spotlight | null;
@@ -1095,6 +1096,13 @@ interface AutosaveContentType {
 interface ModeratorIPAddressInfo {
   ip: string;
   userIds: Array<string>;
+}
+
+interface PangramTextEvaluationResult {
+  pangramScore: number;
+  pangramMaxScore: number | null;
+  pangramPrediction: string | null;
+  pangramWindowScores: Array<PangramWindowScore> | null;
 }
 
 interface ToggleBookmarkInput {
@@ -8888,6 +8896,7 @@ interface GraphQLTypeMap {
   ExternalPostImportData: ExternalPostImportData;
   AutosaveContentType: AutosaveContentType;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
+  PangramTextEvaluationResult: PangramTextEvaluationResult;
   ToggleBookmarkInput: ToggleBookmarkInput;
   SetIsBookmarkedInput: SetIsBookmarkedInput;
   ToggleBookmarkOutput: ToggleBookmarkOutput;

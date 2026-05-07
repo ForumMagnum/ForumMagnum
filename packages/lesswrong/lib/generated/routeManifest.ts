@@ -944,6 +944,9 @@ export const routeTrie = {
     "out": {
       "hasRoute": true
     },
+    "pangram": {
+      "hasPage": true
+    },
     "pastEvents": {
       "hasPage": true
     },
@@ -1327,6 +1330,7 @@ export const routeTrie = {
     "notifications": "notifications",
     "oauth": "oauth",
     "out": "out",
+    "pangram": "pangram",
     "pastevents": "pastEvents",
     "payments": "payments",
     "petrov": "petrov",
