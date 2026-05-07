@@ -30,6 +30,7 @@ import {
   $isRootOrShadowRoot,
   $isTextNode,
   LexicalEditor,
+  LexicalNode,
   SKIP_DOM_SELECTION_TAG,
   SKIP_SELECTION_FOCUS_TAG,
 } from 'lexical';
@@ -251,17 +252,34 @@ function $wrapOrUnwrapQuote(selection: ReturnType<typeof $getSelection>): void {
     return;
   }
 
-  // Wrap: find the top-level element(s) in the selection and wrap in a quote
+  // Wrap: collect the top-level block element(s) for the selection.
+  //
+  // ContainerQuoteNode is a shadow root, so $findMatchingParent stops at its
+  // boundary and returns an internal paragraph rather than the quote itself.
+  // If we naively pass those internal paragraphs alongside root-level nodes
+  // to $wrapInQuote, the function inserts a new quote *inside* the existing
+  // quote and then moves a root-level paragraph into it — producing an invalid
+  // cross-level tree that freezes the editor.
+  //
+  // Fix: walk up manually and, when the immediate shadow-root parent is a
+  // ContainerQuoteNode, add the ContainerQuoteNode itself (not its child) so
+  // every collected element lives at the true document-root level.
   const nodes = selection.getNodes();
-  // Collect unique top-level block elements
-  const topLevelElements = new Set<import('lexical').LexicalNode>();
+  const topLevelElements = new Set<LexicalNode>();
   for (const node of nodes) {
-    const topLevel = $findMatchingParent(node, (n) => {
-      const parent = n.getParent();
-      return parent !== null && $isRootOrShadowRoot(parent);
-    });
-    if (topLevel) {
-      topLevelElements.add(topLevel);
+    let current: LexicalNode = node;
+    while (true) {
+      const parent = current.getParent();
+      if (parent === null) {
+        break;
+      }
+      if ($isRootOrShadowRoot(parent)) {
+        // When the shadow root is a ContainerQuoteNode, use the quote itself
+        // so all collected elements remain at the document-root level.
+        topLevelElements.add($isContainerQuoteNode(parent) ? parent : current);
+        break;
+      }
+      current = parent;
     }
   }
 
