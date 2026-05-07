@@ -79,7 +79,7 @@ type EditorSuccessCallback<R> = (result: R, submitOptions?: { redirectToEditor?:
 export type EditContentsRef = {
   editContents: (
     updateFn: (currentContents: EditorContents) => EditorContents,
-  ) => void,
+  ) => Promise<void>,
 }
 
 interface EditorFormComponentProps<S, R> {

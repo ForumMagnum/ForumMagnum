@@ -115,7 +115,7 @@ export const NewPostAIPolicy = ({postId, editContentsRef, classes}: {
     captureEvent("aiDisclosureDismissed", {postId});
   }, [hide, postId, captureEvent]);
 
-  const onAddDisclosure = useCallback(() => {
+  const onAddDisclosure = useCallback(async () => {
     try {
       const editContents = editContentsRef.current?.editContents;
       if (!editContents) {
@@ -123,7 +123,7 @@ export const NewPostAIPolicy = ({postId, editContentsRef, classes}: {
         console.warn("Edit contents ref is empty");
         return;
       }
-      editContents(({type, value}: EditorContents) => {
+      await editContents(({type, value}: EditorContents) => {
         switch (type) {
           case "markdown":
             return {type, value: disclosureMarkdown + value};
