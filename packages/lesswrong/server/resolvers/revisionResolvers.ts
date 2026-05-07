@@ -95,12 +95,11 @@ export const revisionResolversGraphQLMutations = {
     }
 
     const nextVersion = getNextVersion(previousRev, updateSemverType, post.draft);
-    const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
     const createdRevision = await createRevision({ data: {
       ...await buildRevision({
         originalContents: { type: contents.type, data: contents.value, yjsState: null },
-        currentUser,
+        user: currentUser,
         context,
       }),
       documentId: postId,
@@ -109,7 +108,7 @@ export const revisionResolversGraphQLMutations = {
       version: nextVersion,
       draft: true,
       updateType: updateSemverType,
-      changeMetrics,
+      previousHtmlForChangeMetrics: previousRev?.html || "",
       commitMessage: 'Native editor autosave',
     }}, context);
 
@@ -168,21 +167,19 @@ export const revisionResolversGraphQLMutations = {
     const originalContents = { type: targetFormat, data: convertedData, yjsState };
     const nextVersion = getNextVersion(previousRev, 'minor', isDraft);
 
-    const builtRevision = await buildRevision({
-      originalContents,
-      currentUser,
-      context,
-    });
-
     await createRevision({ data: {
-      ...builtRevision,
+      ...(await buildRevision({
+        originalContents,
+        user: currentUser,
+        context,
+      })),
       documentId,
       fieldName,
       collectionName,
       version: nextVersion,
       draft: isDraft,
       updateType: 'minor',
-      changeMetrics: htmlToChangeMetrics(previousRev?.html || '', builtRevision.html),
+      previousHtmlForChangeMetrics: previousRev?.html || '',
       commitMessage: `Converted from ${sourceType} to ${targetFormat}`,
     }}, context);
 

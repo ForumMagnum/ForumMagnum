@@ -9,7 +9,7 @@ import Users from '../../server/collections/users/collection';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
-import { buildRevisionWithUser } from '../editor/conversionUtils';
+import { buildRevision } from '../editor/conversionUtils';
 import { CkEditorUser, CreateDocumentPayload, DocumentResponse, DocumentResponseSchema, UserSchema } from './ckEditorApiValidators';
 import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { getPostEditorConfig } from './postEditorConfig';
@@ -146,8 +146,8 @@ export async function saveDocumentRevision(userId: string, documentId: string, h
     ? await getStoredOriginalContentsForRevision(previousRev, context)
     : null;
   if (!previousRev || !isEqual(newOriginalContents, previousOriginalContents)) {
-    const newRevision: CreateRevisionOptions = {
-      ...await buildRevisionWithUser({
+    await createRevision({ data: {
+      ...await buildRevision({
         originalContents: newOriginalContents,
         user,
         isAdmin,
@@ -160,10 +160,8 @@ export async function saveDocumentRevision(userId: string, documentId: string, h
       draft: true,
       updateType: "patch",
       commitMessage: cloudEditorAutosaveCommitMessage,
-      changeMetrics: htmlToChangeMetrics(previousRev?.html || "", html),
-    };
-    
-    await createRevision({ data: newRevision }, context);
+      previousHtmlForChangeMetrics: previousRev?.html || "",
+    }}, context);
   }
 }
 

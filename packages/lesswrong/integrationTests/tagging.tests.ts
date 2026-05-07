@@ -16,10 +16,8 @@ describe('Tagging', function() {
         documentId: tag._id,
         collectionName: 'Tags',
         fieldName: 'description',
-        changeMetrics: {
-          added: 10,
-          removed: 0,
-        },
+        html: "",
+        previousHtmlForChangeMetrics: "1234567890",
       });
       // Creating the revision performs a self-vote, which combined with the vote from the non-author-voter
       // gets us an expected contribution score of 2.

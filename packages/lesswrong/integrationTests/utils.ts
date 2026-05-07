@@ -189,6 +189,7 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
     userId: user!._id,
     draft: false,
     ...postContents,
+    html: postContents.html ?? "",
   });
   const defaultData = {
     _id: postId,

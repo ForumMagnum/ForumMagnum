@@ -351,7 +351,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
             ? await buildRevision({
               originalContents: editableField.originalContents,
               dataWithDiscardedSuggestions,
-              currentUser,
+              user: currentUser,
               context: adminContext,
             })
             : {
@@ -365,12 +365,12 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
           revCreated++;
           const revision = await createRevision({
             data: {
+              ...revisionData,
               version: editableField.version || getInitialVersion(document),
-              changeMetrics: {added: 0, removed: 0},
+              previousHtmlForChangeMetrics: "",
               collectionName,
               documentId: document._id,
               fieldName,
-              ...revisionData,
             }
           }, userContext);
     

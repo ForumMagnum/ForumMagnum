@@ -121,14 +121,11 @@ async function createInitialRevision<N extends CollectionNameString>(
     const googleDocMetadata = editableField.googleDocMetadata;
     const revision = await buildRevision({
       originalContents,
-      currentUser,
+      user: currentUser,
       context,
     });
     const { html, wordCount } = revision;
     const version = getInitialVersion(doc)
-    const userId = currentUser._id
-    const editedAt = new Date()
-    const changeMetrics = htmlToChangeMetrics("", html);
 
     const firstRevision = await createRevision({ data: {
       ...revision,
@@ -141,20 +138,13 @@ async function createInitialRevision<N extends CollectionNameString>(
       commitMessage,
       googleDocMetadata,
       skipAttributions: false,
-      changeMetrics,
-      createdAt: editedAt,
+      previousHtmlForChangeMetrics: "",
     } }, context);
-    const updatedHtml = firstRevision.html;
 
     return {
       ...doc,
       ...(!normalized && {
-        [fieldName]: {
-          ...editableField,
-          html: updatedHtml,
-          version, userId, editedAt, wordCount,
-          updateType: 'initial'
-        },
+        [fieldName]: revisionToDenormalizedField(firstRevision, originalContents),
       }),
       [`${fieldName}_latest`]: firstRevision._id,
       ...(pingbacks ? {
@@ -163,6 +153,18 @@ async function createInitialRevision<N extends CollectionNameString>(
     }
   }
   return doc
+}
+
+function revisionToDenormalizedField(revision: DbRevision, originalContents: RevisionOriginalContentsData) {
+  return {
+    html: revision.html,
+    userId: revision.userId,
+    version: revision.version,
+    editedAt: revision.editedAt,
+    wordCount: revision.wordCount,
+    updateType: revision.updateType,
+    originalContents,
+  }
 }
 
 // updateBefore
@@ -199,10 +201,11 @@ async function createUpdateRevision<N extends CollectionNameString>(
       })
       : null;
 
+    const originalContents = (newDocument as AnyBecauseHard)[fieldName].originalContents as RevisionOriginalContentsData;
     const revision = await buildRevision({
-      originalContents: (newDocument as AnyBecauseHard)[fieldName].originalContents,
+      originalContents: originalContents,
       dataWithDiscardedSuggestions,
-      currentUser,
+      user: currentUser,
       context,
     });
     const { html, wordCount } = revision;
@@ -214,13 +217,11 @@ async function createUpdateRevision<N extends CollectionNameString>(
     const { major } = extractVersionsFromSemver(oldRevision?.version ?? null);
     const beingUndrafted = isBeingUndrafted(document as MaybeDrafteable, newDocument as MaybeDrafteable)
     const updateType = (beingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
-    const userId = currentUser._id
-    const editedAt = new Date()
     const previousRev = await getLatestRev(newDocument._id, fieldName, context);
     const version = getNextVersion(previousRev, updateType, (newDocument as DbPost).draft)
     const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
-    const newRevision: CreateRevisionOptions = {
+    const newRevisionDoc = await createRevision({ data: {
       documentId: document._id,
       ...revision,
       fieldName,
@@ -229,22 +230,16 @@ async function createUpdateRevision<N extends CollectionNameString>(
       draft: versionIsDraft(version, collectionName),
       updateType,
       commitMessage,
-      changeMetrics,
+      previousHtmlForChangeMetrics: previousRev?.html || "",
       skipAttributions: false,
-    };
-
-    const newRevisionDoc = await createRevision({ data: newRevision }, context);
+    }}, context);
     const newRevisionId = newRevisionDoc._id;
     const updatedHtml = newRevisionDoc.html;
 
     return {
       ...docData,
       ...(!normalized && {
-        [fieldName]: {
-          ...editableField,
-          html: updatedHtml,
-          version, userId, editedAt, wordCount
-        },
+        [fieldName]: revisionToDenormalizedField(newRevisionDoc, originalContents),
       }),
       [`${fieldName}_latest`]: newRevisionId,
       ...(pingbacks ? {

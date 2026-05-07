@@ -4,7 +4,7 @@ import Users from '../../server/collections/users/collection';
 import { createNotifications } from '@/server/notificationCallbacksHelpers';
 import { createAdminContext } from '@/server/vulcan-lib/createContexts';
 import { createRevision } from '@/server/collections/revisions/mutations';
-import { buildRevisionWithUser } from '../editor/conversionUtils';
+import { buildRevision } from '../editor/conversionUtils';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import { constantTimeCompare } from '../../lib/helpers';
 import isEqual from 'lodash/isEqual';
@@ -127,7 +127,7 @@ async function saveLexicalDocumentRevision(
 
   if (!prevContentsForComparison || !isEqual(newContentsForComparison, prevContentsForComparison)) {
     await createRevision({ data: {
-      ...(await buildRevisionWithUser({
+      ...(await buildRevision({
         originalContents: newOriginalContents,
         user,
         isAdmin,
@@ -140,7 +140,7 @@ async function saveLexicalDocumentRevision(
       draft: true,
       updateType: 'patch',
       commitMessage: COLLAB_AUTOSAVE_COMMIT_MESSAGE,
-      changeMetrics: htmlToChangeMetrics(previousRev?.html || '', html),
+      previousHtmlForChangeMetrics: previousRev?.html || '',
     }}, context);
   }
 }

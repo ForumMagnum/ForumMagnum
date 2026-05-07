@@ -1301,7 +1301,7 @@ async function importRevisions<N extends CollectionNameString>({
             data: ckEditorMarkup,
             yjsState: null,
           },
-          currentUser: revisionCreator,
+          user: revisionCreator,
           context: resolverContext,
         }),
         fieldName,
@@ -1309,7 +1309,7 @@ async function importRevisions<N extends CollectionNameString>({
         documentId: documentId,
         commitMessage: arbRevision.editSummary,
         version: `1.${i+1}.0`,
-        changeMetrics: htmlToChangeMetrics(i>0 ? ckEditorMarkupByRevisionIndex[i-1] : oldestRevCkEditorMarkup, ckEditorMarkup),
+        previousHtmlForChangeMetrics: i>0 ? ckEditorMarkupByRevisionIndex[i-1] : oldestRevCkEditorMarkup,
         legacyData: {
           "arbitalPageId": pageId,
           "arbitalEditNumber": arbRevision.edit,

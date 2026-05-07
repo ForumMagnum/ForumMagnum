@@ -75,7 +75,7 @@ export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, o
             data: newHtml,
             yjsState: null,
           },
-          currentUser: user,
+          user,
           context: resolverContext,
         });
         await Revisions.rawUpdateOne(

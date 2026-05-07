@@ -21,6 +21,7 @@ import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";
 import { randomId } from "@/lib/random";
 import { ChangeMetrics } from "./collection";
 import type { RevisionOriginalContentsData } from "@/lib/collections/revisions/revisionSchemaTypes";
+import { htmlToChangeMetrics } from "@/server/editor/utils";
 
 function editCheck(user: DbUser | null) {
   return userIsAdminOrMod(user);
@@ -31,6 +32,7 @@ function editCheck(user: DbUser | null) {
 // for which collection/_id/field the revision goes with (which are not in the graphql fields
 // list because they are typically implied from context).
 export type CreateRevisionOptions = Omit<CreateRevisionDataInput, "originalContents" | "updateType"> & {
+  html: string,
   originalContents: RevisionOriginalContentsData
   updateType?: DbRevision["updateType"]
   collectionName: CollectionNameString
@@ -38,11 +40,11 @@ export type CreateRevisionOptions = Omit<CreateRevisionDataInput, "originalConte
   fieldName: string
   version?: string
   draft?: boolean
-  changeMetrics?: ChangeMetrics,
   skipAttributions?: boolean
   legacyData?: any,
   userId?: string,
   createdAt?: Date,
+  previousHtmlForChangeMetrics?: string,
 }
 
 type NormalizedCreateRevisionOptions = Omit<CreateRevisionOptions, "originalContents"> & {
@@ -52,7 +54,7 @@ type NormalizedCreateRevisionOptions = Omit<CreateRevisionOptions, "originalCont
 // createRevision is not exposed through the graphql API, but is called from other server-side code
 // and sort of mimics a graphql create mutator (which it at one point used to be). Users create
 // revisions by editing objects with revision-controlled editable fields.
-export async function createRevision({ data }: { data: CreateRevisionOptions }, context: ResolverContext) {
+export async function createRevision({ data }: { data: CreateRevisionOptions }, context: ResolverContext): Promise<DbRevision> {
   const { currentUser } = context;
   const { documentId } = data;
 
@@ -60,8 +62,9 @@ export async function createRevision({ data }: { data: CreateRevisionOptions }, 
     ...data.originalContents,
     yjsState: data.originalContents.yjsState ?? null,
   };
-  let revisionData: NormalizedCreateRevisionOptions = {
+  let revisionData = {
     ...data,
+    changeMetrics: htmlToChangeMetrics(data.previousHtmlForChangeMetrics ?? "", data.html),
     originalContents,
     createdAt: data.createdAt ?? new Date(),
     userId: data.userId ?? currentUser?._id

@@ -553,7 +553,7 @@ export const postGqlMutations = {
       await createRevision({ data: {
         ...(await buildRevision({
           originalContents,
-          currentUser,
+          user: currentUser,
           context
         })),
         documentId: postId,
@@ -563,7 +563,7 @@ export const postGqlMutations = {
         version: getNextVersion(previousRev, revisionType, true),
         updateType: revisionType,
         commitMessage,
-        changeMetrics: htmlToChangeMetrics(previousRev?.html || "", importedHtml),
+        previousHtmlForChangeMetrics: previousRev?.html || "",
       }}, context);;
 
       if (richTextEditorType === "lexical" && yjs) {
