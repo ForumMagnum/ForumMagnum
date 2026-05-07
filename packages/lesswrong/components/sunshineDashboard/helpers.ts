@@ -404,10 +404,6 @@ function findElementsInRange(
  *   38% → ~52% of hue range → yellow-orange
  *   10% → ~20% of hue range → yellow-green
  *    1% → ~4% of hue range → green
- *
- * In dark mode we drop lightness so the (now-light) document text stays
- * readable on top of the highlight, while keeping the hue gradient so
- * red/green still mean what they did in light mode.
  */
 function scoreToColour(score: number): string {
   const adjustedRatio = Math.pow(Math.max(0, Math.min(1, score)), 0.7);
