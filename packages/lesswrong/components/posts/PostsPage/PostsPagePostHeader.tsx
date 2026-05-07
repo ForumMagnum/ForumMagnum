@@ -307,6 +307,9 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
         {crosspostNode}
       </div>
       <div className={classes.secondaryInfoRight}>
+        {userIsAdminOrMod(currentUser) && post.contents && 'pangramStatus' in post.contents && (
+          <PangramBadge contents={post.contents} collectionName="Posts" documentId={post._id} />
+        )}
         <BookmarkButton documentId={post._id} collectionName="Posts" className={classes.bookmarkButton} placement='bottom-start' />
         <SharePostButton post={post} />
         {tripleDotMenuNode}
@@ -334,9 +337,6 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
                 <a href={feedLink}>{rssFeedSource.nickname}</a>
               </LWTooltip>
             }
-            {userIsAdminOrMod(currentUser) && post.contents && 'pangramStatus' in post.contents && (
-              <PangramBadge contents={post.contents} collectionName="Posts" documentId={post._id} />
-            )}
           </div>
           {secondaryInfoNode}
         </div>
