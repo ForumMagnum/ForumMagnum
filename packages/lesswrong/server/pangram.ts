@@ -6,8 +6,8 @@ const PANGRAM_ENDPOINT = "https://text.api.pangram.com/v3";
 const PANGRAM_MIN_WORDS = 50;
 // Pangram v3 rejects overlong payloads; we truncate rather than error out.
 const PANGRAM_MAX_CHARS = 50_000;
-// Pangram v3 calls typically return in 1–3s; 10s is a generous ceiling that still keeps the manual-rerun UX responsive.
-const PANGRAM_TIMEOUT_MS = 10_000;
+// Pangram v3 calls typically return in 1–3s; 30s leaves headroom for tail latency.
+const PANGRAM_TIMEOUT_MS = 30_000;
 
 export type PangramStatus = "scored" | "too_short" | "skipped_spam" | "error";
 

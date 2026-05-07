@@ -9,8 +9,11 @@ import { isBookUI, isFriendlyUI } from '../../../themes/forumTheme';
 import { captureException } from '@sentry/core';
 import type { AnnualReviewMarketInfo } from '../../../lib/collections/posts/annualReviewMarkets';
 import { getUrlClass } from '@/server/utils/getUrlClass';
+import { useCurrentUser } from '../../common/withUser';
+import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
 import PostsPageTitle from "./PostsPageTitle";
 import PostsAuthors from "./PostsAuthors";
+import PangramBadge from "../../sunshineDashboard/PangramBadge";
 import LWTooltip from "../../common/LWTooltip";
 import PostsPageDate from "./PostsPageDate";
 import CrosspostHeaderIcon from "./CrosspostHeaderIcon";
@@ -242,6 +245,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
   classes: ClassesType<typeof styles>,
 }) => {
+  const currentUser = useCurrentUser();
   const hasMajorRevision = ('version' in post) && extractVersionsFromSemver(post.version).major > 1
   const rssFeedSource = ('feed' in post) ? post.feed : null;
   let feedLinkDomain;
@@ -330,6 +334,9 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
                 <a href={feedLink}>{rssFeedSource.nickname}</a>
               </LWTooltip>
             }
+            {userIsAdminOrMod(currentUser) && post.contents && 'pangramStatus' in post.contents && (
+              <PangramBadge contents={post.contents} collectionName="Posts" documentId={post._id} />
+            )}
           </div>
           {secondaryInfoNode}
         </div>

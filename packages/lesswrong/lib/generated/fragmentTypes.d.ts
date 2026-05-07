@@ -2629,6 +2629,10 @@ interface RevisionDisplay { // fragment on Revisions
   readonly wordCount: number,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
+  readonly pangramAiScore: number|null,
+  readonly pangramStatus: string|null,
+  readonly pangramCheckedAt: Date|null,
+  readonly pangramRawResponse: any,
 }
 
 interface RevisionEdit extends RevisionDisplay { // fragment on Revisions
@@ -3804,7 +3808,7 @@ interface UnclaimedReportsList { // fragment on Reports
   readonly commentId: string|null,
   readonly comment: UnclaimedReportsList_comment|null,
   readonly postId: string|null,
-  readonly post: PostsList|null,
+  readonly post: UnclaimedReportsList_post|null,
   readonly reportedUserId: string|null,
   readonly reportedUser: SunshineUsersList|null,
   readonly closedAt: Date|null,
@@ -3820,6 +3824,22 @@ interface UnclaimedReportsList { // fragment on Reports
 interface UnclaimedReportsList_comment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly tag: TagBasicInfo|null,
+}
+
+interface UnclaimedReportsList_post extends PostsList { // fragment on Posts
+  readonly contents: UnclaimedReportsList_post_contents|null,
+}
+
+interface UnclaimedReportsList_post_contents { // fragment on Revisions
+  readonly _id: string,
+  readonly htmlHighlight: string,
+  readonly plaintextDescription: string,
+  readonly wordCount: number,
+  readonly version: string,
+  readonly pangramAiScore: number|null,
+  readonly pangramStatus: string|null,
+  readonly pangramCheckedAt: Date|null,
+  readonly pangramRawResponse: any,
 }
 
 interface UnclaimedReportsList_claimedUser { // fragment on Users
