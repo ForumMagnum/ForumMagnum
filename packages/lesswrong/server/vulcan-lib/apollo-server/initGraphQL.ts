@@ -161,6 +161,8 @@ import { createConversationGqlMutation, updateConversationGqlMutation, graphqlCo
 import { createCurationNoticeGqlMutation, updateCurationNoticeGqlMutation, graphqlCurationNoticeTypeDefs } from "@/server/collections/curationNotices/mutations";
 import { createElicitQuestionGqlMutation, updateElicitQuestionGqlMutation, graphqlElicitQuestionTypeDefs } from "@/server/collections/elicitQuestions/mutations";
 import { homePageDesignGqlMutations, graphqlHomePageDesignMutationTypeDefs } from "@/server/collections/homePageDesigns/mutations";
+import { graphqlTypoSuggestionQueryTypeDefs, typoSuggestionGqlQueryHandlers, typoSuggestionGqlFieldResolvers } from "@/server/collections/typoSuggestions/queries";
+import { graphqlTypoSuggestionMutationTypeDefs, typoSuggestionGqlMutations } from "@/server/resolvers/typoSuggestionResolvers";
 import { createJargonTermGqlMutation, updateJargonTermGqlMutation, graphqlJargonTermTypeDefs } from "@/server/collections/jargonTerms/mutations";
 import { createLWEventGqlMutation, graphqlLWEventTypeDefs } from "@/server/collections/lwevents/mutations";
 import { graphqlYjsDocumentQueryTypeDefs, yjsDocumentGqlFieldResolvers } from "@/server/collections/yjsDocuments/queries";
@@ -333,6 +335,7 @@ export const getTypeDefs = () => gql`
   ${graphqlFieldChangeQueryTypeDefs}
   ${graphqlGoogleServiceAccountSessionQueryTypeDefs}
   ${graphqlHomePageDesignQueryTypeDefs}
+  ${graphqlTypoSuggestionQueryTypeDefs}
   ${graphqlIframeWidgetSrcdocQueryTypeDefs}
   ${graphqlImagesQueryTypeDefs}
   ${graphqlJargonTermQueryTypeDefs}
@@ -396,6 +399,7 @@ export const getTypeDefs = () => gql`
   ${graphqlCurationNoticeTypeDefs}
   ${graphqlElicitQuestionTypeDefs}
   ${graphqlHomePageDesignMutationTypeDefs}
+  ${graphqlTypoSuggestionMutationTypeDefs}
   ${graphqlJargonTermTypeDefs}
   ${graphqlLWEventTypeDefs}
   ${graphqlLlmConversationTypeDefs}
@@ -490,6 +494,7 @@ const getResolvers = () => ({
     ...elicitQuestionGqlQueryHandlers,
     ...googleServiceAccountSessionGqlQueryHandlers,
     ...homePageDesignGqlQueryHandlers,
+    ...typoSuggestionGqlQueryHandlers,
     ...iframeWidgetSrcdocGqlQueryHandlers,
     ...jargonTermGqlQueryHandlers,
     ...lweventGqlQueryHandlers,
@@ -553,6 +558,7 @@ const getResolvers = () => ({
     ...tagResolversGraphQLMutations,
     ...bookmarkGqlMutations,
     ...homePageDesignGqlMutations,
+    ...typoSuggestionGqlMutations,
     ...hidePostGqlMutations,
     ...markAsUnreadMutations,
     ...cronGraphQLMutations,
@@ -664,6 +670,7 @@ const getResolvers = () => ({
   ...fieldChangeGqlFieldResolvers,
   ...googleServiceAccountSessionGqlFieldResolvers,
   ...homePageDesignGqlFieldResolvers,
+  ...typoSuggestionGqlFieldResolvers,
   ...iframeWidgetSrcdocGqlFieldResolvers,
   ...imagesGqlFieldResolvers,
   ...jargonTermGqlFieldResolvers,

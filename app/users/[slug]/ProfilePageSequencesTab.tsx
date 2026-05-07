@@ -1,12 +1,13 @@
 "use client";
 import React from "react";
-import { useQuery } from "@/lib/crud/useQuery";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { Link } from "@/lib/reactRouterWrapper";
 import { defaultSequenceBannerIdSetting } from "@/lib/instanceSettings";
 import { profileStyles, TabPanel } from "./profileStyles";
 import { cssUrl } from "./userProfilePageUtil";
+import LoadMore from "@/components/common/LoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 import { z } from "zod";
 
@@ -57,7 +58,8 @@ const profilePageSequencesTabUnsharedStyles = defineStyles("ProfilePageSequences
   },
 }));
 
-const SEQUENCES_LIMIT = 6;
+const SEQUENCES_INITIAL_LIMIT = 8;
+const SEQUENCES_LOAD_MORE_COUNT = 16;
 
 const ProfileSequencesQuery = gql(`
   query ProfileSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {
@@ -96,13 +98,14 @@ export function ProfilePageSequencesTabContents({user, settings}: {
   const classes = useStyles(profilePageSequencesTabUnsharedStyles);
   const userId = user._id;
 
-  const { data: sequencesData } = useQuery(ProfileSequencesQuery, {
+  const { data: sequencesData, loadMoreProps } = useQueryWithLoadMore(ProfileSequencesQuery, {
     skip: !userId,
     variables: {
       selector: userId ? { userProfile: { userId } } : undefined,
-      limit: SEQUENCES_LIMIT,
-      enableTotal: false,
+      limit: SEQUENCES_INITIAL_LIMIT,
+      enableTotal: true,
     },
+    itemsPerPage: SEQUENCES_LOAD_MORE_COUNT,
     fetchPolicy: "cache-and-network",
   });
   const sequences = sequencesData?.sequences?.results ?? [];
@@ -131,5 +134,6 @@ export function ProfilePageSequencesTabContents({user, settings}: {
         );
       })}
     </div>
+    <LoadMore {...loadMoreProps} />
   </TabPanel>
 }

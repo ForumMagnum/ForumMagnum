@@ -85,6 +85,7 @@ import { TagRels } from './tagRels/collection';
 import { Tags } from './tags/collection';
 import { Tweets } from './tweets/collection';
 import { TypingIndicators } from './typingIndicators/collection';
+import { TypoSuggestions } from './typoSuggestions/collection';
 import { UltraFeedEvents } from './ultraFeedEvents/collection';
 import { UserMostValuablePosts } from './userMostValuablePosts/collection';
 import { UserRateLimits } from './userRateLimits/collection';
@@ -121,7 +122,7 @@ const allCollections = {
   PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
   Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, RevisionOriginalContents, Revisions, Sequences,
   Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
-  TagRels, Tags, Tweets, TypingIndicators, UltraFeedEvents, UserActivities, UserMostValuablePosts, UserRateLimits,
+  TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities, UserMostValuablePosts, UserRateLimits,
   UserTagRels, Users, Votes, YjsDocuments
 } satisfies Record<CollectionNameString, CollectionBase<CollectionNameString>>;
 

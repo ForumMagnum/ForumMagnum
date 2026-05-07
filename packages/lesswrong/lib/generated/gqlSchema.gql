@@ -3037,6 +3037,59 @@ extend type Query {
   adminHomePageDesigns: [AdminHomePageDesign!]!
 }
 
+type TypoSuggestion {
+  _id: String!
+  createdAt: Date!
+  documentId: String
+  collectionName: String
+  fieldName: String
+  voteId: String
+  reactor: User
+  authorId: String
+  author: User
+  quote: String
+  llmCanonicalQuote: String
+  proposedReplacement: String
+  narrowedQuote: String
+  narrowedReplacement: String
+  explanation: String
+  llmVerdict: String
+  status: String
+  resolvedByUserId: String
+  appliedRevisionId: String
+  resolvedAt: Date
+}
+
+input SingleTypoSuggestionInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleTypoSuggestionOutput {
+  result: TypoSuggestion
+}
+
+input TypoSuggestionSelector {
+  default: EmptyViewInput
+}
+
+input MultiTypoSuggestionInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiTypoSuggestionOutput {
+  results: [TypoSuggestion!]!
+  totalCount: Int
+}
+
+extend type Query {
+  typoSuggestion(input: SingleTypoSuggestionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleTypoSuggestionOutput
+  typoSuggestions(input: MultiTypoSuggestionInput @deprecated(reason: "Use the selector field instead"), selector: TypoSuggestionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiTypoSuggestionOutput
+}
+
 type IframeWidgetSrcdoc {
   _id: String!
   createdAt: Date!
@@ -7284,6 +7337,7 @@ type User {
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
   notificationDialogueMessages: JSON
+  notificationTypoSuggestions: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
   notificationDebateCommentsOnSubscribedPost: JSON
@@ -8011,6 +8065,16 @@ type HomePageDesignMutationOutput {
 extend type Mutation {
   publishHomePageDesign(input: PublishHomePageDesignInput!): HomePageDesignMutationOutput
   setHomePageDesignVerified(designId: String!, verified: Boolean, autoReviewPassed: Boolean): HomePageDesign
+}
+
+enum TypoAcceptMode {
+  APPLY
+  SUGGEST
+}
+
+extend type Mutation {
+  acceptTypoSuggestion(suggestionId: String!, mode: TypoAcceptMode!): TypoSuggestion!
+  rejectTypoSuggestion(suggestionId: String!): TypoSuggestion!
 }
 
 input CreateJargonTermDataInput {
@@ -9243,6 +9307,7 @@ input CreateUserDataInput {
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
   notificationDialogueMessages: JSON
+  notificationTypoSuggestions: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
   notificationDebateCommentsOnSubscribedPost: JSON
@@ -9412,6 +9477,7 @@ input UpdateUserDataInput {
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
   notificationDialogueMessages: JSON
+  notificationTypoSuggestions: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
   notificationDebateCommentsOnSubscribedPost: JSON

@@ -1475,6 +1475,29 @@ interface DbTypingIndicator extends DbObject {
   userId: string
 }
 
+type TypoSuggestionsCollection = PgCollection<"TypoSuggestions">;
+
+interface DbTypoSuggestion extends DbObject {
+  __collectionName?: "TypoSuggestions"
+  appliedRevisionId: string | null
+  authorId: string
+  collectionName: string
+  createdAt: Date
+  documentId: string
+  explanation: string | null
+  fieldName: string
+  llmCanonicalQuote: string | null
+  llmVerdict: string
+  narrowedQuote: string | null
+  narrowedReplacement: string | null
+  proposedReplacement: string | null
+  quote: string
+  resolvedAt: Date | null
+  resolvedByUserId: string | null
+  status: string
+  voteId: string
+}
+
 type UltraFeedEventsCollection = PgCollection<"UltraFeedEvents">;
 
 interface DbUltraFeedEvent extends DbObject {
@@ -2062,6 +2085,20 @@ interface DbUser extends DbObject {
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   }
+  notificationTypoSuggestions: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
   notificationYourTurnMatchForm: {
     onsite: {
       enabled: boolean,
@@ -2263,6 +2300,7 @@ interface CollectionsByName {
   Tags: TagsCollection
   Tweets: TweetsCollection
   TypingIndicators: TypingIndicatorsCollection
+  TypoSuggestions: TypoSuggestionsCollection
   UltraFeedEvents: UltraFeedEventsCollection
   UserActivities: UserActivitiesCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
@@ -2352,6 +2390,7 @@ interface ObjectsByCollectionName {
   Tags: DbTag
   Tweets: DbTweet
   TypingIndicators: DbTypingIndicator
+  TypoSuggestions: DbTypoSuggestion
   UltraFeedEvents: DbUltraFeedEvent
   UserActivities: DbUserActivity
   UserMostValuablePosts: DbUserMostValuablePost
@@ -2441,6 +2480,7 @@ interface ObjectsByTypeName {
   Tag: DbTag
   Tweet: DbTweet
   TypingIndicator: DbTypingIndicator
+  TypoSuggestion: DbTypoSuggestion
   UltraFeedEvent: DbUltraFeedEvent
   UserActivity: DbUserActivity
   UserMostValuablePost: DbUserMostValuablePost

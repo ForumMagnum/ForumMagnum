@@ -14,6 +14,7 @@ import { NotificationChannel } from "./collections/users/notificationFieldHelper
 import keyBy from 'lodash/keyBy';
 import type { NotificationDocument } from '@/server/collections/notifications/constants';
 import { getCommentParentTitle, getDocument, getDocumentSummary, taggedPostMessage } from './notificationDataHelpers';
+import { getTypoSuggestionNotificationContext } from './collections/typoSuggestions/notificationContext';
 
 // We need enough fields here to render the user tooltip
 type NotificationDisplayUser = Pick<
@@ -660,6 +661,17 @@ export const CoauthorAcceptNotification = createNotificationType({
   Display: ({Post}) => <>Your co-author request for <Post /> was accepted</>,
 })
 
+export const TypoSuggestionNotification = createNotificationType({
+  name: "typoSuggestion",
+  userSettingField: "notificationTypoSuggestions",
+  async getMessage({documentId, context}: GetMessageProps) {
+    const ctx = await getTypoSuggestionNotificationContext(documentId ?? null, context);
+    if (!ctx) return "A reader flagged a possible typo and AI proposed a fix.";
+    return `${ctx.reactorName} flagged a possible typo in ${ctx.targetDescription}, and AI proposed a fix.`;
+  },
+  Display: () => <>A reader flagged a possible typo and AI proposed a fix.</>,
+});
+
 export const NewMentionNotification = createNotificationType({
   name: "newMention",
   userSettingField: "notificationNewMention",
@@ -718,6 +730,7 @@ const notificationTypesArray = [
   CoauthorRequestNotification,
   CoauthorAcceptNotification,
   NewMentionNotification,
+  TypoSuggestionNotification,
 ];
 
 export type NotificationTypesByName = {

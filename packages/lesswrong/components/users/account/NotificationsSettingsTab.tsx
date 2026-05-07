@@ -130,6 +130,12 @@ const NotificationsSettingsTab = ({
             <NotificationSettingsRow field={field} label="Mentions of me" />
           )}
         </form.Field>
+
+        <form.Field name="notificationTypoSuggestions">
+          {(field) => (
+            <NotificationSettingsRow field={field} label="AI-proposed fixes for typos in my content" />
+          )}
+        </form.Field>
       </SettingsSection>
 
       <SettingsSection title="Messages & Collaboration">

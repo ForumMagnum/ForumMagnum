@@ -7,12 +7,18 @@ import { userIsSharedOn } from "@/lib/collections/users/helpers";
 import { extractVersionsFromSemver } from "@/lib/editor/utils";
 import { constantTimeCompare } from "@/lib/helpers";
 import { userCanDo, userIsAdmin, userIsAdminOrMod, userOwns } from "@/lib/vulcan-users/permissions";
+import { userCanAccessTypoSuggestion } from "@/lib/collections/typoSuggestions/helpers";
 
 
 const denyAll: CheckAccessFunction<CollectionNameString> = async () => false;
 
 export const allowAccess: CheckAccessFunction<CollectionNameString> = async () => true;
 const adminOnly: CheckAccessFunction<CollectionNameString> = async (currentUser) => userIsAdmin(currentUser);
+
+const typoSuggestionCheckAccess: CheckAccessFunction<'TypoSuggestions'> = async (currentUser, document, context): Promise<boolean> => {
+  if (!document) return false;
+  return userCanAccessTypoSuggestion(currentUser, document);
+};
 
 const automatedContentEvaluationCheckAccess: CheckAccessFunction<'AutomatedContentEvaluations'> = async (currentUser, document, context): Promise<boolean> => {
   if (!currentUser || !document) return false;
@@ -469,6 +475,7 @@ const accessFilters = {
   TagRels: tagRelCheckAccess,
   Tweets: allowAccess,
   TypingIndicators: typingIndicatorCheckAccess,
+  TypoSuggestions: typoSuggestionCheckAccess,
   UltraFeedEvents: allowAccess,
   Users: userCheckAccess,
   UserMostValuablePosts: allowAccess,
