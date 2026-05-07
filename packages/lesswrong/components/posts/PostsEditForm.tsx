@@ -153,6 +153,34 @@ const styles = defineStyles("PostsEditForm", (theme: ThemeType) => ({
     paddingRight: 20,
     paddingBottom: 20
   },
+  '@global': {
+    '@media print': {
+      // Hide ToC sidebars — these use hard-coded class names (not JSS-generated)
+      '.MultiToCLayoutStickyBlockScroller, .EditorToCStickyBlockScroller': {
+        display: 'none !important',
+      },
+      // Hide the fixed-position ToC footer so it doesn't repeat on every printed page
+      '[class*="MultiToCLayout-tocFooter"]': {
+        display: 'none !important',
+      },
+      // Hide right-column editor settings and sidenotes sidebar
+      '#editor-settings-portal': {
+        display: 'none',
+      },
+      // Hide Lexical editor toolbar
+      '[class*="LexicalToolbarPlugin-toolbar"]': {
+        display: 'none !important',
+      },
+      // Hide CkEditor toolbar
+      '.ck-editor__top': {
+        display: 'none !important',
+      },
+      // Hide form submit/action buttons
+      '.form-submit': {
+        display: 'none !important',
+      },
+    },
+  },
 }))
 
 const PostsEditFormInner = ({ documentId, version }: {
