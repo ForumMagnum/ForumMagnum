@@ -12,7 +12,7 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-assertRouteAttributes("/pangram", {
+assertRouteAttributes("/admin/pangram", {
   whiteBackground: false,
   hasLinkPreview: false,
   hasPingbacks: false,
