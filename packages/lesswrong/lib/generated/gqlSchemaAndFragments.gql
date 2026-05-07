@@ -1242,7 +1242,7 @@ type PangramRunResult {
 }
 
 extend type Mutation {
-  runPangramOnDocument(collectionName: String!, documentId: String!): PangramRunResult!
+  runPangramOnDocument(collectionName: String!, documentId: String!, revisionId: String): PangramRunResult!
 }
 
 extend type Mutation {
@@ -10473,6 +10473,10 @@ fragment RevisionDisplay on Revision {
   wordCount
   htmlHighlight
   plaintextDescription
+  pangramAiScore
+  pangramStatus
+  pangramCheckedAt
+  pangramRawResponse
 }
 
 fragment RevisionEdit on Revision {
@@ -11828,6 +11832,17 @@ fragment UnclaimedReportsList on Report {
   postId
   post {
     ...PostsList
+    contents {
+      _id
+      htmlHighlight
+      plaintextDescription
+      wordCount
+      version
+      pangramAiScore
+      pangramStatus
+      pangramCheckedAt
+      pangramRawResponse
+    }
   }
   reportedUserId
   reportedUser {

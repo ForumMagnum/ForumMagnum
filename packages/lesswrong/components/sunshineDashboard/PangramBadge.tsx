@@ -10,8 +10,8 @@ type PangramCollection = "Posts" | "Comments";
 const PANGRAM_MAX_CHARS_DISPLAY = 50_000;
 
 const RUN_PANGRAM_MUTATION = gql`
-  mutation runPangramOnDocument($collectionName: String!, $documentId: String!) {
-    runPangramOnDocument(collectionName: $collectionName, documentId: $documentId) {
+  mutation runPangramOnDocument($collectionName: String!, $documentId: String!, $revisionId: String) {
+    runPangramOnDocument(collectionName: $collectionName, documentId: $documentId, revisionId: $revisionId) {
       status
       aiScore
       rawResponse
@@ -119,11 +119,13 @@ const PangramBadge = ({
   contents,
   collectionName,
   documentId,
+  revisionId,
   classes,
 }: {
   contents: PangramFields | null | undefined;
   collectionName: PangramCollection;
   documentId: string;
+  revisionId?: string | null;
   classes: ClassesType<typeof styles>;
 }) => {
   const [runPangram, { loading }] = useMutation(RUN_PANGRAM_MUTATION, {
@@ -150,7 +152,7 @@ const PangramBadge = ({
   const handleClick = async () => {
     if (loading) return;
     try {
-      const result = await runPangram({ variables: { collectionName, documentId } });
+      const result = await runPangram({ variables: { collectionName, documentId, revisionId } });
       const data = result.data?.runPangramOnDocument;
       if (data) {
         setLocalResult({
