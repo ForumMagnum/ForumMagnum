@@ -298,6 +298,10 @@ export const CommentsItemMeta = ({
 
       {post && <CommentOutdatedWarning comment={comment} post={post}/>}
 
+      {userIsAdminOrMod(currentUser) && (
+        <PangramBadge contents={comment.contents} collectionName="Comments" documentId={comment._id} />
+      )}
+
       {comment.nominatedForReview &&
         <Link
           to={`/nominations/${comment.nominatedForReview}`}
@@ -336,9 +340,6 @@ export const CommentsItemMeta = ({
       <CommentPollVote comment={comment} />
 
       <span className={classes.rightSection}>
-        {userIsAdminOrMod(currentUser) && (
-          <PangramBadge contents={comment.contents} collectionName="Comments" documentId={comment._id} />
-        )}
         {rightSectionElements}
         {isFriendlyUI &&
           <CommentLinkWrapper>
