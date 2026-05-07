@@ -6,8 +6,6 @@ import { IN_DEVELOPMENT_SERIES_ID } from "@/lib/collections/forumEvents/helpers"
 import SequenceEventPage from "./sequenceEvent/SequenceEventPage";
 import HeadTags from "@/components/common/HeadTags";
 
-// TODO: Sequence id, description, image, listenURL
-
 export const InDevelopmentPage = () => {
   const sharingUrl = useCallback((source: string) => {
     return makeAbsolute(
@@ -18,8 +16,8 @@ export const InDevelopmentPage = () => {
     <AnalyticsContext pageContext="inDevelopment">
       <HeadTags
         title="In Development Highlight"
-        description="TODO Description"
-        image="https://res.cloudinary.com/cea/image/upload/v1769778867/Grid/lxzkgegdmfwdstr1pfzz.png"
+        description="This week the EA Forum is crossposting the launch articles from In Development magazine."
+        image="https://res.cloudinary.com/cea/image/upload/v1778150192/SocialPreview/in_development.jpg"
       />
       <SequenceEventPage
         shareTitle="In Development Highlight"
