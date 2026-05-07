@@ -167,7 +167,6 @@ type DeletedCommentRow = {
   deletedDate: Date | null;
   deletedReason: string | null;
   deletedPublic: boolean | null;
-  contents: any;
   user__id: string | null;
   user_displayName: string | null;
   user_slug: string | null;
@@ -466,7 +465,7 @@ async function fetchDeletedComments(db: SqlClient, limit: number, offset: number
       WITH paginated_comments AS (
         SELECT
           c._id, c."userId", c."postId", c."deletedDate", c."deletedReason",
-          c."deletedPublic", c.contents, c."deletedByUserId"
+          c."deletedPublic", c."deletedByUserId"
         FROM "Comments" c
         WHERE c.deleted = TRUE AND c."deletedPublic" = TRUE
         ORDER BY c."deletedDate" DESC NULLS LAST
@@ -474,7 +473,7 @@ async function fetchDeletedComments(db: SqlClient, limit: number, offset: number
       )
       SELECT
         c._id, c."userId", c."postId", c."deletedDate", c."deletedReason",
-        c."deletedPublic", c.contents,
+        c."deletedPublic",
         u._id as "user__id", u."displayName" as "user_displayName", u.slug as "user_slug",
         du._id as "deletedByUser__id", du."displayName" as "deletedByUser_displayName", du.slug as "deletedByUser_slug",
         p._id as "post__id", p.title as "post_title", p.slug as "post_slug"
@@ -498,7 +497,6 @@ async function fetchDeletedComments(db: SqlClient, limit: number, offset: number
     deletedDate: row.deletedDate ?? null,
     deletedReason: row.deletedReason ?? null,
     deletedPublic: row.deletedPublic ?? null,
-    contents: row.contents,
     user: row.user__id && row.user_slug ? { _id: row.user__id, displayName: row.user_displayName ?? null, slug: row.user_slug } : null,
     deletedByUser: row.deletedByUser__id && row.deletedByUser_slug ? { _id: row.deletedByUser__id, displayName: row.deletedByUser_displayName ?? null, slug: row.deletedByUser_slug } : null,
     post: row.post__id && row.post_slug && row.post_title ? { _id: row.post__id, title: row.post_title, slug: row.post_slug } : null,
