@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { useQuery } from "@/lib/crud/useQuery";
+import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { sequenceGetPageUrl } from "@/lib/collections/sequences/helpers";
 import { defineStyles, useStyles } from "@/components/hooks/useStyles";
 import { Link } from "@/lib/reactRouterWrapper";
@@ -8,6 +8,7 @@ import { defaultSequenceBannerIdSetting } from "@/lib/instanceSettings";
 import { profileStyles, TabPanel } from "./profileStyles";
 import { cssUrl } from "./userProfilePageUtil";
 import { gql } from "@/lib/generated/gql-codegen";
+import LoadMore from "@/components/common/LoadMore";
 import { z } from "zod";
 
 const profilePageSequencesTabUnsharedStyles = defineStyles("ProfilePageSequencesTabUnshared", (theme: ThemeType) => ({
@@ -96,13 +97,14 @@ export function ProfilePageSequencesTabContents({user, settings}: {
   const classes = useStyles(profilePageSequencesTabUnsharedStyles);
   const userId = user._id;
 
-  const { data: sequencesData } = useQuery(ProfileSequencesQuery, {
+  const { data: sequencesData, loadMoreProps } = useQueryWithLoadMore(ProfileSequencesQuery, {
     skip: !userId,
     variables: {
       selector: userId ? { userProfile: { userId } } : undefined,
       limit: SEQUENCES_LIMIT,
-      enableTotal: false,
+      enableTotal: true,
     },
+    itemsPerPage: SEQUENCES_LIMIT,
     fetchPolicy: "cache-and-network",
   });
   const sequences = sequencesData?.sequences?.results ?? [];
@@ -131,5 +133,6 @@ export function ProfilePageSequencesTabContents({user, settings}: {
         );
       })}
     </div>
+    <LoadMore {...loadMoreProps} />
   </TabPanel>
 }
