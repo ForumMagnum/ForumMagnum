@@ -170,11 +170,13 @@ const PostsEditFormInner = ({ documentId, version }: {
 
   const hasLinkSharingKey = !!query.key;
 
-  // Standard query — used when no link-sharing key is present
+  // Standard query — always runs, giving access to post owners and users with
+  // direct access. When a link-sharing key is in the URL, the result is used as
+  // a fallback in case the link-sharing query fails (eg blank posts whose
+  // linkSharingKey is set but linkSharingEnabled is false).
   const { loading: loadingStandard, data: dataPost } = useQuery(PostsEditFormQuery, {
     variables: { documentId: documentId, version: version ?? 'draft' },
     fetchPolicy: 'network-only',
-    skip: hasLinkSharingKey,
   });
 
   // Link-sharing query — used when a link-sharing key is in the URL. This
@@ -187,9 +189,9 @@ const PostsEditFormInner = ({ documentId, version }: {
     skip: !hasLinkSharingKey,
   });
 
-  const loading = hasLinkSharingKey ? loadingLinkShared : loadingStandard;
+  const loading = (hasLinkSharingKey && !linkSharedError) ? loadingLinkShared : loadingStandard;
   const document = hasLinkSharingKey
-    ? dataLinkShared?.getLinkSharedPost
+    ? (dataLinkShared?.getLinkSharedPost ?? dataPost?.post?.result)
     : dataPost?.post?.result;
 
   const [liveTitle, setLiveTitle] = useState("");
@@ -219,8 +221,9 @@ const PostsEditFormInner = ({ documentId, version }: {
     return <Loading/>
   }
 
-  // Link-sharing query failed (invalid key, or sharing explicitly set to "none")
-  if (hasLinkSharingKey && linkSharedError) {
+  // Link-sharing query failed AND the standard query also has no result: the
+  // key is invalid, or sharing is off and the user has no other access.
+  if (hasLinkSharingKey && linkSharedError && !dataPost?.post?.result && !loadingStandard) {
     if (isMissingDocumentError(linkSharedError)) {
       return <Error404/>
     }
