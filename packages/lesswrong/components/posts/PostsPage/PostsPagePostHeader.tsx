@@ -308,7 +308,7 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
       </div>
       <div className={classes.secondaryInfoRight}>
         {userIsAdminOrMod(currentUser) && post.contents && 'pangramStatus' in post.contents && (
-          <PangramBadge contents={post.contents} collectionName="Posts" documentId={post._id} />
+          <PangramBadge contents={post.contents} collectionName="Posts" documentId={post._id} revisionId={post.contents._id} />
         )}
         <BookmarkButton documentId={post._id} collectionName="Posts" className={classes.bookmarkButton} placement='bottom-start' />
         <SharePostButton post={post} />
@@ -360,5 +360,4 @@ const PostsPagePostHeader = ({post, answers = [], dialogueResponses = [], showEm
 export default registerComponent(
   'PostsPagePostHeader', PostsPagePostHeader, {styles}
 );
-
 

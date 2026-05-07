@@ -1242,7 +1242,7 @@ type PangramRunResult {
 }
 
 extend type Mutation {
-  runPangramOnDocument(collectionName: String!, documentId: String!): PangramRunResult!
+  runPangramOnDocument(collectionName: String!, documentId: String!, revisionId: String): PangramRunResult!
 }
 
 extend type Mutation {

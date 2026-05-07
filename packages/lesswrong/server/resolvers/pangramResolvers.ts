@@ -24,7 +24,7 @@ export const pangramGqlTypeDefs = gql`
   }
 
   extend type Mutation {
-    runPangramOnDocument(collectionName: String!, documentId: String!): PangramRunResult!
+    runPangramOnDocument(collectionName: String!, documentId: String!, revisionId: String): PangramRunResult!
   }
 `;
 
@@ -42,21 +42,31 @@ async function runPangramForManualRequest<T extends PangramEligibleDocument>(
   documentKind: "post" | "comment",
   extractText: (doc: T, html: string | null) => string,
   context: ResolverContext,
+  revisionId?: string | null,
 ) {
   if (!document) throw new Error(`${documentKind} not found`);
-  if (!document.contents_latest) throw new Error(`${documentKind} has no latest revision`);
+  const targetRevisionId = revisionId ?? document.contents_latest;
+  if (!targetRevisionId) throw new Error(`${documentKind} has no target revision`);
 
   const eligibility = documentIsEligibleForPangram(document);
   if (!eligibility.eligible) {
     if (eligibility.skipStatus) {
-      await recordPangramSkip(document.contents_latest, eligibility.skipStatus, context);
+      await recordPangramSkip(targetRevisionId, eligibility.skipStatus, context);
       return { status: eligibility.skipStatus, aiScore: null, rawResponse: null };
     }
     throw new Error(`${documentKind} is not eligible for Pangram (draft or rejected)`);
   }
 
-  const revision = await context.Revisions.findOne({ _id: document.contents_latest });
+  const revision = await context.Revisions.findOne({ _id: targetRevisionId });
   if (!revision) throw new Error(`Revision not found for ${documentKind}`);
+  const expectedCollectionName = documentKind === "post" ? "Posts" : "Comments";
+  if (
+    revision.documentId !== document._id ||
+    revision.fieldName !== "contents" ||
+    (revision.collectionName && revision.collectionName !== expectedCollectionName)
+  ) {
+    throw new Error(`Revision does not belong to ${documentKind}`);
+  }
 
   const text = extractText(document, revision.html);
   const result = await runPangramOnRevision(revision._id, text, context);
@@ -66,7 +76,7 @@ async function runPangramForManualRequest<T extends PangramEligibleDocument>(
 export const pangramGqlMutations = {
   async runPangramOnDocument(
     _root: void,
-    args: { collectionName: string; documentId: string },
+    args: { collectionName: string; documentId: string; revisionId?: string | null },
     context: ResolverContext,
   ) {
     const { currentUser } = context;
@@ -77,16 +87,16 @@ export const pangramGqlMutations = {
       throw new Error("Pangram is not configured on this instance");
     }
 
-    const { collectionName, documentId } = args;
+    const { collectionName, documentId, revisionId } = args;
 
     if (collectionName === "Posts") {
       const post = await context.Posts.findOne({ _id: documentId });
-      return runPangramForManualRequest(post, "post", (p, html) => extractPangramInputFromPost(p, html), context);
+      return runPangramForManualRequest(post, "post", (p, html) => extractPangramInputFromPost(p, html), context, revisionId);
     }
 
     if (collectionName === "Comments") {
       const comment = await context.Comments.findOne({ _id: documentId });
-      return runPangramForManualRequest(comment, "comment", (_c, html) => extractPangramInputFromComment(html), context);
+      return runPangramForManualRequest(comment, "comment", (_c, html) => extractPangramInputFromComment(html), context, revisionId);
     }
 
     throw new Error(`Unsupported collection for Pangram: ${collectionName}`);
