@@ -1,5 +1,6 @@
 "use client";
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useState, useCallback } from "react";
+import classNames from "classnames";
 import { gql } from "@/lib/generated/gql-codegen";
 import { useSuspenseQuery } from "@/lib/crud/useQuery";
 import { userCanEditUser, userGetDisplayName } from "@/lib/collections/users/helpers";
@@ -124,6 +125,11 @@ const profilePageUnsharedStyles = defineStyles("ProfilePageUnshared", (theme: Th
   profileActionIcon: {
     fontSize: 16,
   },
+  profileActionIconButton: {
+    background: "none",
+    border: "none",
+    padding: 0,
+  },
   allPostsSection: {
     marginTop: 30,
     display: "flex",
@@ -225,6 +231,15 @@ function ProfileHeaderActions({user}: {
   const canEditProfile = !!user && userCanEditUser(currentUser, user);
   const canModerateUserProfile = userIsAdminOrMod(currentUser);
   const username = userGetDisplayName(user);
+  const [idCopied, setIdCopied] = useState(false);
+
+  const handleCopyUserId = useCallback(async () => {
+    try {
+      await navigator.clipboard.writeText(user._id);
+      setIdCopied(true);
+      setTimeout(() => setIdCopied(false), 2000);
+    } catch (_) {}
+  }, [user._id]);
 
   if (!canEditProfile && !canModerateUserProfile) return null;
 
@@ -242,15 +257,28 @@ function ProfileHeaderActions({user}: {
         </LWTooltip>
       )}
       {canModerateUserProfile && (
-        <LWTooltip title="Supermod page" placement="bottom">
-          <Link
-            to={`/admin/supermod?user=${user._id}`}
-            className={classes.profileActionIconLink}
-            aria-label={`${username}'s supermod page`}
-          >
-            <VisibilityOutlinedIcon className={classes.profileActionIcon} />
-          </Link>
-        </LWTooltip>
+        <>
+          <LWTooltip title={idCopied ? "Copied!" : `Copy user ID: ${user._id}`} placement="bottom">
+            <button
+              onClick={handleCopyUserId}
+              className={classNames(classes.profileActionIconLink, classes.profileActionIconButton)}
+              aria-label={`Copy ${username}'s user ID`}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className={classes.profileActionIcon}>
+                <path d="M21.41 11.58l-9-9C12.05 2.22 11.55 2 11 2H4c-1.1 0-2 .9-2 2v7c0 .55.22 1.05.59 1.42l9 9c.36.36.86.58 1.41.58.55 0 1.05-.22 1.41-.59l7-7c.37-.36.59-.86.59-1.41 0-.55-.23-1.06-.59-1.42zM5.5 7C4.67 7 4 6.33 4 5.5S4.67 4 5.5 4 7 4.67 7 5.5 6.33 7 5.5 7z"/>
+              </svg>
+            </button>
+          </LWTooltip>
+          <LWTooltip title="Supermod page" placement="bottom">
+            <Link
+              to={`/admin/supermod?user=${user._id}`}
+              className={classes.profileActionIconLink}
+              aria-label={`${username}'s supermod page`}
+            >
+              <VisibilityOutlinedIcon className={classes.profileActionIcon} />
+            </Link>
+          </LWTooltip>
+        </>
       )}
     </div>
   )
