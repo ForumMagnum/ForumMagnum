@@ -1,7 +1,7 @@
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { getSiteUrl } from '../../lib/vulcan-lib/utils';
 import classNames from 'classnames';
-import React, { FC, ReactNode, useCallback, useState } from 'react';
+import React, { FC, ReactNode, useState } from 'react';
 import { Card } from "@/components/widgets/Paper";
 import { getNotificationTypeByName } from '../../lib/notificationTypes';
 import withErrorBoundary from '../common/withErrorBoundary';
@@ -97,6 +97,86 @@ const TooltipWrapper: FC<{
   );
 }
 
+const NotificationsItemPreviewTooltip: FC<{
+  notification: NotificationsList,
+  notificationLink: string,
+  documentId: string,
+  children: ReactNode,
+}> = ({notification, notificationLink, documentId, children}) => {
+  const notificationType = getNotificationTypeByName(notification.type ?? '');
+  const OnsiteHoverView = onsiteHoverViewComponents[notificationType.name]?.() ?? null;
+
+  if (OnsiteHoverView) {
+    return (
+      <TooltipWrapper
+        title={<OnsiteHoverView notification={notification}/>}
+      >
+        {children}
+      </TooltipWrapper>
+    );
+  }
+
+  if (notification.type === "postNominated") {
+    return (
+      <TooltipWrapper
+        title={<PostNominatedNotification postId={documentId}/>}
+      >
+        {children}
+      </TooltipWrapper>
+    );
+  }
+
+  if (notification.type === "newDialogueMessages") {
+    const dialogueMessageInfo = notification.extraData?.dialogueMessageInfo;
+    const postId = notification.documentId ?? undefined;
+    return (
+      <PostsTooltip postId={postId} dialogueMessageInfo={dialogueMessageInfo} {...tooltipProps}>
+        {children}
+      </PostsTooltip>
+    );
+  }
+
+  const parsedPath = parseRouteWithErrors(notificationLink);
+  switch (notification.documentType) {
+    case "tagRel":
+      return (
+        <PostsTooltip tagRelId={documentId} {...tooltipProps}>
+          {children}
+        </PostsTooltip>
+      );
+    case "post":
+      return (
+        <PostsTooltip postId={documentId} {...tooltipProps}>
+          {children}
+        </PostsTooltip>
+      );
+    case "comment": {
+      const postId = parsedPath?.params?._id;
+      return postId
+        ? (
+          <PostsTooltip
+            postId={postId}
+            commentId={documentId}
+            {...tooltipProps}
+          >
+            {children}
+          </PostsTooltip>
+        )
+        : <>{children}</>;
+    }
+    case "message":
+      return (
+        <TooltipWrapper
+          title={<ConversationPreview conversationId={parsedPath?.query?.conversation} messageId={documentId} count={1} />}
+        >
+          {children}
+        </TooltipWrapper>
+      );
+    default:
+      return <>{children}</>;
+  }
+};
+
 const NotificationsItem = ({notification, lastNotificationsCheck}: {
   notification: NotificationsList,
   lastNotificationsCheck: any,
@@ -105,95 +185,16 @@ const NotificationsItem = ({notification, lastNotificationsCheck}: {
   const [clicked,setClicked] = useState(false);
   const { captureEvent } = useTracking();
   const navigate = useNavigate();
-  const notificationType = getNotificationTypeByName(notification.type ?? '');
   const documentId = notification.documentId ?? '';
 
-  const notificationLink = (notificationType.getLink
-    ? notificationType.getLink({
+  const notificationLink = (getNotificationTypeByName(notification.type ?? '').getLink
+    ? getNotificationTypeByName(notification.type ?? '').getLink!({
       documentType: notification.documentType,
       documentId: notification.documentId,
       extraData: notification.extraData,
     })
     : notification.link ?? ''
   );
-
-  const PreviewTooltip: FC<{children: ReactNode}> = useCallback(({children}) => {
-    const OnsiteHoverView = onsiteHoverViewComponents[notificationType.name]?.() ?? null;
-    if (OnsiteHoverView) {
-      return (
-        <TooltipWrapper
-          title={<OnsiteHoverView notification={notification}/>}
-        >
-          {children}
-        </TooltipWrapper>
-      );
-    }
-
-    if (notification.type === "postNominated") {
-      return (
-        <TooltipWrapper
-          title={<PostNominatedNotification postId={documentId}/>}
-        >
-          {children}
-        </TooltipWrapper>
-      );
-    }
-
-    if (notification.type === "newDialogueMessages") {
-      const dialogueMessageInfo = notification.extraData?.dialogueMessageInfo
-      const postId = notification.documentId ?? undefined
-      return (
-        <PostsTooltip postId={postId} dialogueMessageInfo={dialogueMessageInfo} {...tooltipProps}>
-          {children}
-        </PostsTooltip>
-      )
-    }
-
-    const parsedPath = parseRouteWithErrors(notificationLink);
-    switch (notification.documentType) {
-      case "tagRel":
-        return (
-          <PostsTooltip tagRelId={documentId} {...tooltipProps}>
-            {children}
-          </PostsTooltip>
-        );
-      case "post":
-        return (
-          <PostsTooltip postId={documentId} {...tooltipProps}>
-            {children}
-          </PostsTooltip>
-        );
-      case "comment":
-        const postId = parsedPath?.params?._id;
-        return postId
-          ? (
-            <PostsTooltip
-              postId={postId}
-              commentId={documentId}
-              {...tooltipProps}
-            >
-              {children}
-            </PostsTooltip>
-          )
-          : <>
-            {children}
-          </>
-      case "message":
-        return (
-          <TooltipWrapper
-            title={<ConversationPreview conversationId={parsedPath?.query?.conversation} messageId={documentId} count={1} />}
-          >
-            {children}
-          </TooltipWrapper>
-        );
-      default:
-        break;
-    }
-
-    return (
-      <>{children}</>
-    );
-  }, [notification, notificationLink, notificationType, documentId]);
 
   const renderMessage = () => {
     switch (notification.documentType) {
@@ -206,7 +207,11 @@ const NotificationsItem = ({notification, lastNotificationsCheck}: {
   }
   
   return (
-    <PreviewTooltip>
+    <NotificationsItemPreviewTooltip
+      notification={notification}
+      notificationLink={notificationLink}
+      documentId={documentId}
+    >
       <a
         href={notificationLink}
         className={classNames(
@@ -251,12 +256,10 @@ const NotificationsItem = ({notification, lastNotificationsCheck}: {
           {renderMessage()}
         </div>
       </a>
-    </PreviewTooltip>
+    </NotificationsItemPreviewTooltip>
   );
 }
 
 export default registerComponent('NotificationsItem', NotificationsItem, {
   hocs: [withErrorBoundary]
 });
-
-
