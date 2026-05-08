@@ -678,6 +678,12 @@ const baseBodyStyles = (theme: ThemeType) => ({
   "& u": {
     textDecoration: "none",
   },
+  // The global h1/h2/h3/h4 rule sets fontWeight:500 on all heading descendants,
+  // which overrides <b>/<strong> inside headings (making bold text invisible).
+  // Restore the expected bold weight so Ctrl+B on heading text is preserved.
+  '& h1 b, & h1 strong, & h2 b, & h2 strong, & h3 b, & h3 strong, & h4 b, & h4 strong': {
+    fontWeight: 'bold',
+  },
 })
 
 export const postBodyStyles = (theme: ThemeType) => {
