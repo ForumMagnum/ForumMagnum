@@ -9,7 +9,7 @@ import { $isLinkNode, LinkNode } from '@lexical/link';
 // Examples:
 // https://www.google.com/url?q=https://en.wikipedia.org/wiki/Main_Page&sa=D&source=editors&ust=1667922372715536&usg=AOvVaw2NyT5CZhfsrRY_zzMs2UUJ
 // https://www.google.com/url?q=https://en.wikipedia.org/wiki/Main_Page
-const GOOGLE_REDIRECT_PATTERN = /^https:\/\/www\.google\.com\/url\?q=(\S+?)(&|$)/;
+const GOOGLE_REDIRECT_PATTERN = /^\/\/www\.google\.com\/url\?q=(\S+?)(&|$)/;
 
 /**
  * Extract the target URL from a Google redirect URL
@@ -64,8 +64,8 @@ export function RemoveRedirectPlugin(): null {
   useEffect(() => {
     // Listen for paste events and process links
     const removeListener = editor.registerUpdateListener(({ tags }) => {
-      // Only process on paste operations, and don't process on other users' operations
-      if (!tags.has('paste') || !tags.has('collaboration')) {
+      // Only process on paste operations; skip remote collaborative updates
+      if (!tags.has('paste') || tags.has('collaboration')) {
         return;
       }
 
@@ -83,4 +83,3 @@ export function RemoveRedirectPlugin(): null {
 }
 
 export default RemoveRedirectPlugin;
-
