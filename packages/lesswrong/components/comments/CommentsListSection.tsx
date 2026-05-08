@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { registerComponent } from '../../lib/vulcan-lib/components';
 import { useCurrentTime } from '../../lib/utils/timeUtil';
 import moment from 'moment';
@@ -12,6 +12,7 @@ import CommentsNewForm, { CommentsNewFormProps } from './CommentsNewForm';
 import { Link } from '../../lib/reactRouterWrapper';
 import { isEAForum } from '../../lib/instanceSettings';
 import { userIsAdmin } from '../../lib/vulcan-users/permissions';
+import { userNeedsAFNonMemberWarning } from '../../lib/alignment-forum/users/helpers';
 
 import CommentsViews from "./CommentsViews";
 import Loading from "../vulcan-core/Loading";
@@ -85,7 +86,22 @@ const styles = defineStyles("CommentsListSection", (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     marginTop: 4,
     fontStyle: "italic",
-  }
+  },
+  afNonMemberNotice: {
+    padding: '10px 14px',
+    marginBottom: 12,
+    backgroundColor: theme.palette.panelBackground.default,
+    border: theme.palette.border.commentBorder,
+    borderRadius: theme.borderRadius.small,
+    color: theme.palette.text.secondary,
+    fontSize: '0.9em',
+  },
+  afNonMemberNoticeLink: {
+    color: theme.palette.primary.main,
+    marginLeft: 4,
+    textDecoration: 'none',
+    '&:hover': { textDecoration: 'underline' },
+  },
 }))
 
 const CommentsListSection = ({
@@ -129,6 +145,7 @@ const CommentsListSection = ({
   const currentUser = useCurrentUser();
   const commentTree = useMemo(() => unflattenComments(comments), [comments]);
   const [restoreScrollPos, setRestoreScrollPos] = useState(-1);
+  const [hasSubmittedNonAfComment, setHasSubmittedNonAfComment] = useState(false);
 
   useEffect(() => {
     if (restoreScrollPos === -1) return;
@@ -156,6 +173,17 @@ const CommentsListSection = ({
     tag: tag,
     ...treeOptionsOverride,
   }), [highlightDate, post, tag, treeOptionsOverride]);
+
+  // For AF: detect when a non-AF member submits a comment (which goes to LW, not AF)
+  const isAfNonMember = userNeedsAFNonMemberWarning(currentUser);
+  const lwPostUrl = post ? `https://www.lesswrong.com/posts/${post._id}` : null;
+
+  const wrappedSuccessCallback = useCallback((comment: CommentsList) => {
+    if (isAfNonMember && !comment.af) {
+      setHasSubmittedNonAfComment(true);
+    }
+    void newFormProps.successCallback?.(comment);
+  }, [isAfNonMember, newFormProps.successCallback]);
 
   return (
     <div className={classNames(classes.root, {[classes.maxWidthRoot]: !tag})}>
@@ -189,6 +217,7 @@ const CommentsListSection = ({
                 }}
                 interactionType="comment"
                 {...newFormProps}
+                successCallback={wrappedSuccessCallback}
                 {...(userIsDebateParticipant ? { formProps: { post } } : {})}
               />
             )
@@ -199,6 +228,19 @@ const CommentsListSection = ({
         <CantCommentExplanation post={post}/>
       }
       {currentUser && post && <CommentsDraftList userId={currentUser._id} postId={post._id} initialLimit={1} showTotal silentIfEmpty />}
+      {isAfNonMember && hasSubmittedNonAfComment && lwPostUrl && (
+        <div className={classes.afNonMemberNotice}>
+          Your comment was submitted to LessWrong — comments from non-AF members appear there, not here.
+          <a
+            href={lwPostUrl}
+            className={classes.afNonMemberNoticeLink}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            View on LessWrong →
+          </a>
+        </div>
+      )}
       {totalComments ? <CommentsListSectionTitle
         post={post}
         commentCount={commentCount}
@@ -337,5 +379,3 @@ function CommentsListSectionTitle({
 export default registerComponent("CommentsListSection", CommentsListSection, {
   areEqual: "auto"
 });
-
-
