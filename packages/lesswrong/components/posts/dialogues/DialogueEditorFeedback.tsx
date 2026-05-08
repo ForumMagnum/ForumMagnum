@@ -37,12 +37,16 @@ export const DialogueEditorFeedback = ({post}: {
     <div className={classes.feedbackRow}>{clickState === 'unclicked'
       ? <Button className={classes.button} onClick={async _ => { 
           // eslint-disable-next-line
-          window.Intercom(
-            'trackEvent',
-            'requested-feedback',
-            {title: post.title, _id: post._id, url: getSiteUrl() + "posts/" + post._id}
-          );
-          setClickState('success')
+          if (typeof window.Intercom === 'function') {
+            window.Intercom(
+              'trackEvent',
+              'requested-feedback',
+              {title: post.title, _id: post._id, url: getSiteUrl() + "posts/" + post._id}
+            );
+            setClickState('success')
+          } else {
+            setClickState('failure')
+          }
         }}>
           Get feedback or editing help from the {forumTitleSetting.get()} team.
         </Button>
@@ -54,5 +58,4 @@ export const DialogueEditorFeedback = ({post}: {
 }
 
 export default DialogueEditorFeedback;
-
 

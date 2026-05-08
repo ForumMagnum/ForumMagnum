@@ -136,11 +136,13 @@ export const PostSubmit = ({
                           };
 
                           // eslint-disable-next-line
-                          window.Intercom(
-                            'trackEvent',
-                            'requested-feedback',
-                            intercomProps
-                          );
+                          if (typeof window.Intercom === 'function') {
+                            window.Intercom(
+                              'trackEvent',
+                              'requested-feedback',
+                              intercomProps
+                            );
+                          }
                         },
                         // The redirect here is both undesirable and might interfere with Intercom displaying the message prompt
                         skipRedirect: true,
