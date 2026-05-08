@@ -379,6 +379,15 @@ const collapsibleSectionStyles = (theme: ThemeType) => ({
     "&>*": {
       display: "inline",
     },
+    // Headings used as collapsible section titles inherit oversized font-size
+    // and margins from the postBodyStyles h1/h2/h3 rules, making the title bar
+    // appear bloated.  Normalize them so the bar stays compact.
+    "& h1, & h2, & h3, & h4, & h5, & h6": {
+      fontSize: 'inherit',
+      margin: 0,
+      lineHeight: 'inherit',
+      letterSpacing: 'inherit',
+    },
   },
   '& .detailsBlockTitle[open]': {
     borderBottomLeftRadius: 0,
