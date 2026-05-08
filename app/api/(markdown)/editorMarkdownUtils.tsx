@@ -3,7 +3,7 @@ import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
 import { NextRequest, NextResponse } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
-import { checkEditorTypeAndGetToken, withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
+import { checkEditorTypeAndGetToken, EmptyLexicalRootError, withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
@@ -60,7 +60,7 @@ const LinkSharedPostMetadataQuery = `
 
 export function unescapeHtmlAttribute(value: string): string {
   return value
-    .replace(/&quot;/g, "\"")
+    .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
@@ -72,7 +72,7 @@ export function convertWidgetIframesToMarkdownFences(markdown: string): string {
     if (!iframeHtml.includes("data-lexical-iframe-widget")) {
       return iframeHtml;
     }
-    const idMatch = iframeHtml.match(/data-widget-id="([^"]*)"/);
+    const idMatch = iframeHtml.match(/data-widget-id="([^"]*)"/); 
     const widgetId = idMatch?.[1] ?? "";
 
     const srcdocStart = iframeHtml.indexOf('srcdoc="');
@@ -359,6 +359,17 @@ export async function renderLiveEditorDraftMarkdownRoute({
     response.headers.set("Cache-Control", NO_CACHE_HEADERS["Cache-Control"]);
     return response;
   } catch (error) {
+    if (error instanceof EmptyLexicalRootError) {
+      // The post exists and auth succeeded, but the body is blank — no
+      // Lexical content has been written yet. Return a clear explanation
+      // rather than the misleading sharing-settings hint.
+      return new Response(
+        `This post has a blank body — no content has been written to the draft yet (postId: ${postId}). ` +
+        `If you are an AI agent, you can start adding content using the agent editing API ` +
+        `(e.g. POST /api/agent/insertParagraph).`,
+        { status: 200, headers: NO_CACHE_HEADERS }
+      );
+    }
     // This needs to be a 200 because Claude's web_fetch tool doesn't give it any additional information if you return a 4xx status code,
     // so if we want Claude to be able to tell the user what they need to do to make the post accessible, we have to return the error message
     // along with a 200 status code.
