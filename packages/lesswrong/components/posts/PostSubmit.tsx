@@ -79,7 +79,14 @@ export const PostSubmit = ({
     }
   };
 
-  const submitWithoutConfirmation = async () =>  {
+  const submitWithoutConfirmation = async () => {
+    const title = (document.title ?? '').trim();
+    if (title === '' || title === 'Untitled Draft') {
+      const msg = title === ''
+        ? 'You\'re about to publish a post with no title. Are you sure you want to publish?'
+        : 'You\'re about to publish a post with the default title "Untitled Draft". Are you sure you want to publish it?';
+      if (!window.confirm(msg)) return;
+    }
     formApi.setFieldValue('draft', false);
     await formApi.handleSubmit();
   };
