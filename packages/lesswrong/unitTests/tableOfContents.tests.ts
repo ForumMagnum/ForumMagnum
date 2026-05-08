@@ -53,7 +53,9 @@ describe("extractTableOfContents", () => {
     // In the previous (cheerio-based) implementation these all contained a <strong> tag that was counted as a heading.
     // I think these were all wrong, so in the DOM-based I'm asserting that these don't result in headings. There are some
     // cases like this I think it would be good to support though, E.g. I think <p><strong>Visit our </strong><a href="..."><strong>website</strong></a>
-    // should be counted as a heading.
+    // should be counted as a heading because it's a continuous block of bold text making up a full paragraph.
+    // Supporting this naturally would require refactoring for this function to be paragraph level, rather than
+    // tag-level (as the two <strongs> in the above example would currently trigger separate invokations).
     const cases = [
       normalizeHtml(`<p><strong>Here is some additional content (</strong><a href="https://www.youtube.com/watch?v=S7Cu59G1aSQ&t=76s"><strong>11 min video</strong></a><strong>) to consider about if you are the right fit for founding.</strong></p>`),
       normalizeHtml(`<p><a href="https://www.visitdubai.com/en/plan-your-trip/visa-information"><strong>Dubai Visa Information</strong></a><br><br><strong>Why is it such short notice?</strong></p>`),
@@ -126,12 +128,48 @@ describe("extractTableOfContents", () => {
       html: `<p><strong id="${expectedAnchor}">DanielFilan ($23,544):&#160; Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.&#160; </strong></p>`,
       sections: [
         {
-          title: "DanielFilan ($23,544):  Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.  ",
+          title: "DanielFilan ($23,544):  Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.  ",
           anchor: expectedAnchor,
           level: 1,
         },
         { anchor: "postHeadingsDivider", divider: true, level: 0 },
       ],
     });
+  });
+
+  it("excludes headings nested inside collapsible sections (<details>)", () => {
+    const html = normalizeHtml(`
+      <h1>Real heading</h1>
+      <details class="detailsBlock">
+        <summary class="detailsBlockTitle">Collapsed section</summary>
+        <div class="detailsBlockContent">
+          <h2>Should not appear in ToC</h2>
+          <p>Some content inside the collapsible</p>
+        </div>
+      </details>
+      <h2>Another real heading</h2>
+    `);
+    const { document, window } = parseDocumentFromString(html);
+    const tocData = extractTableOfContents({ document, window });
+    expect(tocData?.sections).toEqual([
+      { title: "Real heading", anchor: "Real_heading", level: 1 },
+      { title: "Another real heading", anchor: "Another_real_heading", level: 2 },
+      { anchor: "postHeadingsDivider", divider: true, level: 0 },
+    ]);
+  });
+
+  it("excludes headings nested inside code blocks (<pre>/<code>)", () => {
+    const html = normalizeHtml(`
+      <h1>Real heading</h1>
+      <pre><code><h2>Not a real heading</h2></code></pre>
+      <h2>Real subheading</h2>
+    `);
+    const { document, window } = parseDocumentFromString(html);
+    const tocData = extractTableOfContents({ document, window });
+    expect(tocData?.sections).toEqual([
+      { title: "Real heading", anchor: "Real_heading", level: 1 },
+      { title: "Real subheading", anchor: "Real_subheading", level: 2 },
+      { anchor: "postHeadingsDivider", divider: true, level: 0 },
+    ]);
   });
 });

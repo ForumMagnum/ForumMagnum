@@ -85,7 +85,7 @@ const headingSelector = Object.keys(headingTags).join(",");
  * plus a JSON array of sections, where each section has a
  * `title`, `anchor`, and `level`, like this:
  *   {
- *     html: "<a anchor=...">,
+ *     html: "<a anchor=...>",
  *     sections: [
  *       {title: "Preamble", anchor: "preamble", level: 1},
  *       {title: "My Cool Idea", anchor: "mycoolidea", level: 1},
@@ -112,6 +112,11 @@ export function extractTableOfContents({
   let headingElements = document.querySelectorAll(headingSelector);
   for (const element of Array.from(headingElements)) {
     if (!(element instanceof window.HTMLElement)) {
+      continue;
+    }
+    // Skip headings nested inside code blocks or collapsible sections --
+    // those are not document-structure headings and should not appear in the ToC.
+    if (element.closest('pre, code, details')) {
       continue;
     }
     let tagName = element.tagName.toLowerCase();
