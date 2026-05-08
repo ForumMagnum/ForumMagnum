@@ -313,6 +313,24 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
       opacity: 0.6,
     },
   },
+  // Confirm (✓) button — prominent so users notice it
+  linkpostConfirmButtonPrimary: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "none",
+    border: "none",
+    padding: 0,
+    margin: 0,
+    marginLeft: 4,
+    cursor: "pointer",
+    color: theme.palette.primary.main,
+    opacity: 0.8,
+    "&:hover": {
+      opacity: 1,
+    },
+  },
+  // Cancel (✕) button — kept subtle
   linkpostConfirmButton: {
     display: "inline-flex",
     alignItems: "center",
@@ -330,8 +348,8 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     },
   },
   linkpostConfirmIcon: {
-    width: 14,
-    height: 14,
+    width: 16,
+    height: 16,
   },
   // Inline linkpost display (after URL is set) — matches live post page style
   linkpostDisplay: {
@@ -661,7 +679,7 @@ const PostForm = ({
             <ForumIcon icon="Settings" className={classes.icon} />
           </button>
           </LWTooltip>
-        </>}
+        </> }
         {(commentCount > 0 || showComments) && <LWTooltip title="Comments" placement="left">
         <button
           type="button"
@@ -843,8 +861,8 @@ const PostForm = ({
                       />
                       <button
                         type="button"
-                        className={classes.linkpostConfirmButton}
-                        title="Confirm URL"
+                        className={classes.linkpostConfirmButtonPrimary}
+                        title="Confirm URL (or press Enter)"
                         onClick={() => {
                           if (linkpostUrlDraft.trim()) {
                             form.setFieldValue("url", linkpostUrlDraft.trim());
