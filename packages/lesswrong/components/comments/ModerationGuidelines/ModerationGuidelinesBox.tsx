@@ -85,7 +85,7 @@ const styles = defineStyles('ModerationGuidelinesBox', (theme: ThemeType) => ({
 
 const truncateGuidelines = (guidelines: string) => {
   return truncatise(guidelines, {
-    TruncateLength: 300,
+    TruncateLength: 600,
     TruncateBy: "characters",
     Suffix: `... <a>Read More</a>`,
     Strict: false
@@ -244,5 +244,3 @@ const moderationStyleLookup: Partial<Record<string, string>> = {
 export default registerComponent('ModerationGuidelinesBox', ModerationGuidelinesBox, {
   hocs: [withErrorBoundary]
 });
-
-
