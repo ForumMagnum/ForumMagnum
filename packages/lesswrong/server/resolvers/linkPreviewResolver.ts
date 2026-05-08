@@ -121,6 +121,11 @@ function normalizePreviewUrl(url: string): string {
     throw new Error("Only http(s) URLs are supported");
   }
   parsed.hash = "";
+  // nitter.net is a Twitter/X front-end with the same URL path structure;
+  // substitute x.com so we fetch proper open-graph metadata for tweet previews.
+  if (parsed.hostname === "nitter.net") {
+    parsed.hostname = "x.com";
+  }
   return parsed.toString();
 }
 
@@ -217,7 +222,7 @@ function descriptionLooksUseful(description: string | null | undefined): boolean
   if (trimmed.length < 12) {
     return false;
   }
-  if (/^[.\u2026\s-]+$/.test(trimmed)) {
+  if (/^[.…\s-]+$/.test(trimmed)) {
     return false;
   }
   return true;
@@ -935,7 +940,7 @@ function parsePreviewFromHtml(rawHtml: string, pageUrl: string): {
   const title = extractTitle($);
   const image = extractImageUrl($, pageUrl);
   const description = extractDescriptionWithFallback($, pageUrl);
-  const siteName = extractMetaContent($, ["meta[property='og:site_name']"]).value;
+  const siteName = extractMetaContent($, ["meta[property='og:site_name']"] ).value;
 
   return {
     title: title.value,
@@ -1087,4 +1092,3 @@ export const crossSiteLinkPreviewGraphQLQueries = {
     });
   },
 };
-
