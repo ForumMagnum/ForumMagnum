@@ -102,18 +102,15 @@ const SunshineReportedItem = ({report, updateReport, classes, currentUser, refet
       <SunshineListItem hover={hover}>
         <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
           <Typography variant="body2">
-            {comment && <>
-              <PangramBadge contents={comment.contents} collectionName="Comments" documentId={comment._id} />
-              <CommentsNodeInner
-                treeOptions={{
-                  condensed: false,
-                  post: comment.post || undefined,
-                  tag: comment.tag || undefined,
-                  showPostTitle: true,
-                }}
-                comment={comment}
-              />
-            </>}
+            {comment && <CommentsNodeInner
+              treeOptions={{
+                condensed: false,
+                post: comment.post || undefined,
+                tag: comment.tag || undefined,
+                showPostTitle: true,
+              }}
+              comment={comment}
+            />}
             {post && !comment && <div>
               <PangramBadge contents={post.contents} collectionName="Posts" documentId={post._id} />
               <PostsTitle post={post}/>
