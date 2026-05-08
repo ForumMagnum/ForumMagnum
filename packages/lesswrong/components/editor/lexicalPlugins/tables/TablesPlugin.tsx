@@ -6,6 +6,8 @@ import {
   $getSelection,
   $isRangeSelection,
   COMMAND_PRIORITY_LOW,
+  KEY_BACKSPACE_COMMAND,
+  KEY_DELETE_COMMAND,
   createCommand,
   LexicalCommand,
   $getNodeByKey,
@@ -168,6 +170,37 @@ function getMergeTargetCell(
   }
 
   return adjacentCell;
+}
+
+/**
+ * Returns true and deletes the selected rows if the current TableSelection
+ * covers every cell in each of the affected rows (i.e. an entire-row selection).
+ * Returns false and leaves the selection untouched for partial-row selections,
+ * so the default cell-content-clearing behaviour is preserved.
+ */
+function $maybeDeleteSelectedRows(): boolean {
+  const selection = $getSelection();
+  if (!$isTableSelection(selection)) return false;
+
+  const selectedCells = selection.getNodes().filter($isTableCellNode);
+  if (selectedCells.length === 0) return false;
+
+  const tableNode = $getTableNodeFromLexicalNodeOrThrow(selectedCells[0]);
+  const firstRow = tableNode.getFirstChild();
+  if (!$isTableRowNode(firstRow)) return false;
+  const totalCols = firstRow.getChildrenSize();
+  if (totalCols === 0) return false;
+
+  const selectedRowKeys = new Set<string>();
+  for (const cell of selectedCells) {
+    const row = cell.getParent();
+    if ($isTableRowNode(row)) selectedRowKeys.add(row.getKey());
+  }
+
+  if (selectedCells.length !== selectedRowKeys.size * totalCols) return false;
+
+  $deleteTableRowAtSelection();
+  return true;
 }
 
 /**
@@ -649,6 +682,21 @@ export function TablesPlugin(): React.ReactElement {
           }
           return true;
         },
+        COMMAND_PRIORITY_LOW
+      ),
+
+      // Delete or Backspace on a full-row TableSelection deletes those rows.
+      // Partial-row selections (a few cells) fall through so their content is
+      // cleared by Lexical's default table handler instead.
+      editor.registerCommand(
+        KEY_DELETE_COMMAND,
+        () => $maybeDeleteSelectedRows(),
+        COMMAND_PRIORITY_LOW
+      ),
+
+      editor.registerCommand(
+        KEY_BACKSPACE_COMMAND,
+        () => $maybeDeleteSelectedRows(),
         COMMAND_PRIORITY_LOW
       )
     );
