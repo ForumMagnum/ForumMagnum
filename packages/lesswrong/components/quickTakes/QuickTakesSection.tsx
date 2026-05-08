@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import Checkbox from "@/lib/vendor/@material-ui/core/src/Checkbox";
 import { registerComponent } from "../../lib/vulcan-lib/components";
 import { useCurrentUser } from "../common/withUser";
@@ -30,6 +30,16 @@ const ShortformCommentsMultiQuery = gql(`
         ...FrontpageShortformComments
       }
       totalCount
+    }
+  }
+`);
+
+const RecentShortformCommentsQuery = gql(`
+  query recentCommentQuickTakesSectionQuery($selector: CommentSelector, $limit: Int) {
+    comments(selector: $selector, limit: $limit) {
+      results {
+        ...FrontpageShortformComments
+      }
     }
   }
 `);
@@ -76,7 +86,25 @@ const QuickTakesSectionLoaded = ({showCommunity}: {
     },
   });
 
-  const results = data?.comments?.results;
+  // Fetch the single most-recently-posted qualifying quick take to guarantee it
+  // gets at least one of the 7 frontpage slots even at low karma
+  const { data: recentData } = useQueryWithLoadMore(RecentShortformCommentsQuery, {
+    variables: {
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+      selector: { shortformFrontpage: { showCommunity, maxAgeDays, sortBy: 'new' } } as any,
+      limit: 1,
+    },
+  });
+
+  const topResults: FrontpageShortformComments[] = data?.comments?.results ?? [];
+  const recentResult: FrontpageShortformComments | undefined = recentData?.comments?.results?.[0];
+
+  const results = useMemo(() => {
+    if (!recentResult || topResults.some((r) => r._id === recentResult._id)) {
+      return topResults.slice(0, 7);
+    }
+    return [...topResults.slice(0, 6), recentResult];
+  }, [topResults, recentResult]);
 
   const showLoadMore = !loadMoreProps.hidden;
 
@@ -165,5 +193,3 @@ const QuickTakesSection = () => {
 export default registerComponent("QuickTakesSection", QuickTakesSection, {
   areEqual: "auto"
 });
-
-
