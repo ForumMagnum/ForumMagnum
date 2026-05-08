@@ -31,6 +31,13 @@ class ResearchConversationEventsRepo extends AbstractRepo<"ResearchConversationE
    * supervisor must NOT pre-assign one. This avoids the gap-on-out-of-order-
    * retry bug we'd hit if seq came from the client.
    *
+   * **Ordering invariant**: this function produces the canonical Claude-Code
+   * emission order *only because* `postPersister.ts` serializes POSTs into a
+   * per-conversation FIFO chain (one in-flight at a time). MAX(seq)+1 has no
+   * defense against parallel arrivals; if anyone removes that chain (or runs
+   * multiple supervisors writing the same conversation), seqs will be wrong.
+   * Touch `postPersister`'s in-flight chain at your peril.
+   *
    * Idempotent on `(conversationId, claudeMessageUuid)` when the UUID is
    * non-null. The single-statement form below uses an `INSERT ... ON CONFLICT
    * (conversationId, claudeMessageUuid) DO UPDATE SET seq = seq RETURNING seq`

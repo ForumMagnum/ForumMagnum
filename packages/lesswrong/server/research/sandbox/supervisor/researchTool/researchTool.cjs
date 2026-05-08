@@ -202,12 +202,27 @@ async function cmdFetchEvents(args) {
   printJson(result);
 }
 
-async function cmdListProject(args) {
+async function cmdListDocuments(args) {
   const projectId = args.flags["project-id"] ?? process.env.RESEARCH_PROJECT_ID;
   if (!projectId) {
-    fail(1, "list-project requires --project-id or RESEARCH_PROJECT_ID env var");
+    fail(1, "list-documents requires --project-id or RESEARCH_PROJECT_ID env var");
   }
-  const result = await callApi("GET", `/api/research/agent/projects/${encodeURIComponent(projectId)}`);
+  const result = await callApi(
+    "GET",
+    `/api/research/agent/projects/${encodeURIComponent(projectId)}/documents`,
+  );
+  printJson(result);
+}
+
+async function cmdListConversations(args) {
+  const projectId = args.flags["project-id"] ?? process.env.RESEARCH_PROJECT_ID;
+  if (!projectId) {
+    fail(1, "list-conversations requires --project-id or RESEARCH_PROJECT_ID env var");
+  }
+  const result = await callApi(
+    "GET",
+    `/api/research/agent/projects/${encodeURIComponent(projectId)}/conversations`,
+  );
   printJson(result);
 }
 
@@ -232,7 +247,8 @@ async function cmdHelp() {
     "  edit-doc  <documentId> delete-block   --prefix <text>",
     "  edit-doc  <documentId> insert-llm-block --markdown <md> --model <name> (--location start|end | --before ... | --after ...)",
     "  fetch-events <conversationId> [--since-seq N] [--limit M]",
-    "  list-project [--project-id <id>]",
+    "  list-documents     [--project-id <id>]",
+    "  list-conversations [--project-id <id>]",
     "  spawn --prompt <text> [--title <text>]",
     "",
     "Required env: RESEARCH_BACKEND_BASE_URL, RESEARCH_BACKEND_TOKEN",
@@ -270,8 +286,11 @@ async function main() {
     case "fetch-events":
       await cmdFetchEvents(rest);
       return;
-    case "list-project":
-      await cmdListProject(rest);
+    case "list-documents":
+      await cmdListDocuments(rest);
+      return;
+    case "list-conversations":
+      await cmdListConversations(rest);
       return;
     case "spawn":
       await cmdSpawn(rest);

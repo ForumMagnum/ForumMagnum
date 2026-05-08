@@ -7,6 +7,7 @@ import {
   $getRoot,
   createEditor,
   type LexicalEditor,
+  LexicalNodeConfig,
   SKIP_COLLAB_TAG,
 } from "lexical";
 import PlaygroundNodes from "@/components/lexical/nodes/PlaygroundNodes";
@@ -324,10 +325,20 @@ export function getLexicalCompatibleProvider(provider: HocuspocusProvider): Hocu
   return provider as HocuspocusProvider & LexicalProvider;
 }
 
-export function createHeadlessEditor(errorLabel: string): LexicalEditor {
+export function createHeadlessEditor(
+  errorLabel: string,
+  extraNodes: LexicalNodeConfig[] = [],
+): LexicalEditor {
   return createEditor({
     namespace: `Agent-${errorLabel}`,
-    nodes: PlaygroundNodes,
+    // Without `extraNodes`, custom collection-specific node types (e.g.
+    // `AgentBlockNode` for ResearchDocuments) aren't registered, and any
+    // Yjs state containing them fails to materialize at sync time — the
+    // editor root ends up empty and the post-sync emptiness guard fires
+    // with a misleading "Yjs document state is missing or corrupt"
+    // message. Callers that operate on a collection with custom nodes
+    // must pass them through here.
+    nodes: [...PlaygroundNodes, ...(extraNodes ?? [])],
     html: {
       export: buildTextNodeExportMap(),
     },
@@ -345,6 +356,7 @@ export async function withMainDocEditorSession<T>({
   token,
   operationLabel,
   callback,
+  extraNodes,
 }: {
   // Either pass {collectionName, documentId} or {postId} (legacy → Posts).
   collectionName?: string
@@ -356,6 +368,13 @@ export async function withMainDocEditorSession<T>({
     editor: LexicalEditor
     provider: HocuspocusProvider
   }) => Promise<T>
+  /**
+   * Collection-specific Lexical nodes to register on the headless editor
+   * (e.g. `AgentBlockNode` for ResearchDocuments). Required whenever the
+   * stored Yjs state can contain node types beyond the standard
+   * `PlaygroundNodes` set.
+   */
+  extraNodes?: LexicalNodeConfig[]
 }): Promise<T> {
   const wsUrl = process.env.HOCUSPOCUS_URL;
   if (!wsUrl) {
@@ -377,7 +396,7 @@ export async function withMainDocEditorSession<T>({
     token,
     connect: false,
   });
-  const editor = createHeadlessEditor(operationLabel);
+  const editor = createHeadlessEditor(operationLabel, extraNodes);
   const lexicalProvider = getLexicalCompatibleProvider(provider);
   const docMap = new Map<string, Doc>([["main", doc]]);
   const binding = createBinding(editor, lexicalProvider, "main", doc, docMap);

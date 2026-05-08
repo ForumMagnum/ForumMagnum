@@ -1,9 +1,10 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useApolloClient } from '@apollo/client/react';
 import { isPlainRecord } from '../conversationEventFormat';
+import { randomId } from '@/lib/random';
 
 /**
  * Shape of a single conversation event, mirroring `ResearchConversationEvents`
@@ -52,11 +53,27 @@ interface UseConversationStreamResult {
   latestSeq: number;
   /** Imperatively reload persisted events and reconnect SSE. */
   refresh: () => void;
+  /**
+   * Append a client-side event to the local stream without going through the
+   * backend. Use to render an optimistic user message before its persisted
+   * twin lands. The optimistic copy is wiped on the next `refresh()` (which
+   * replaces the events list with the fresh transcript).
+   */
+  injectOptimisticEvent: (event: ConversationEvent) => void;
 }
 
 /** Min/max backoff for SSE reconnect attempts, in ms. */
 const RECONNECT_MIN_MS = 1_000;
 const RECONNECT_MAX_MS = 30_000;
+
+/**
+ * Polling interval used when the sandbox is idle. Bounded by
+ * `MAX_IDLE_EMPTY_POLLS` so a chat pane left open on an idle conversation
+ * doesn't fire forever — after that many consecutive empty polls the loop
+ * stops; refresh() restarts it.
+ */
+const IDLE_POLL_MS = 2_000;
+const MAX_IDLE_EMPTY_POLLS = 60;
 
 /**
  * GraphQL query for the persisted transcript. Owned by T1's
@@ -115,6 +132,7 @@ export function useConversationStream(
   const reconnectAttemptsRef = useRef(0);
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelledRef = useRef(false);
+  const idleEmptyPollsRef = useRef(0);
 
   const latestSeq = useMemo(() => {
     if (events.length === 0) return -1;
@@ -134,6 +152,7 @@ export function useConversationStream(
     }
 
     cancelledRef.current = false;
+    idleEmptyPollsRef.current = 0;
     setStatus('loading');
     setError(null);
 
@@ -146,6 +165,7 @@ export function useConversationStream(
       reconnectAttemptsRef,
       reconnectTimerRef,
       cancelledRef,
+      idleEmptyPollsRef,
       setEvents,
       setStatus,
       setError,
@@ -159,12 +179,17 @@ export function useConversationStream(
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversationId, liveStreaming, refreshNonce, apollo]);
 
+  const injectOptimisticEvent = useCallback((event: ConversationEvent) => {
+    setEvents((prev) => mergeEvents(prev, [event]));
+  }, []);
+
   return {
     events,
     status,
     error,
     latestSeq,
     refresh: () => setRefreshNonce((n) => n + 1),
+    injectOptimisticEvent,
   };
 }
 
@@ -177,6 +202,7 @@ interface RunStreamArgs {
   reconnectAttemptsRef: React.MutableRefObject<number>;
   reconnectTimerRef: React.MutableRefObject<ReturnType<typeof setTimeout> | null>;
   cancelledRef: React.MutableRefObject<boolean>;
+  idleEmptyPollsRef: React.MutableRefObject<number>;
   setEvents: React.Dispatch<React.SetStateAction<ConversationEvent[]>>;
   setStatus: React.Dispatch<React.SetStateAction<StreamStatus>>;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
@@ -269,12 +295,40 @@ async function connectSSE(args: RunStreamArgs) {
 
   if (cancelledRef.current) return;
 
-  // Sandbox is idle / not provisioned. We have what we have from persisted
-  // events; nothing live to subscribe to. Caller can `refresh()` later.
+  // Sandbox is idle / not yet provisioned. Re-fetch persisted events on a
+  // short timer so a conversation racing sandbox cold-start eventually
+  // surfaces results without manual refresh. Bounded by `MAX_IDLE_EMPTY_POLLS`
+  // to avoid hammering the backend forever on a chat pane left open on a
+  // dead-idle conversation.
   if (!info.sseUrl) {
-    setStatus('idle');
+    const { idleEmptyPollsRef } = args;
+    setStatus('loading');
     setError(null);
     reconnectAttemptsRef.current = 0;
+    let gotNewEvents = false;
+    try {
+      const since = latestSeqRef.current;
+      const replay = await loadPersistedEvents(args.apollo, conversationId, since);
+      if (cancelledRef.current) return;
+      if (replay.length > 0) {
+        gotNewEvents = true;
+        setEvents((prev) => mergeEvents(prev, replay));
+        latestSeqRef.current = Math.max(latestSeqRef.current, replay[replay.length - 1].seq);
+      }
+    } catch {
+      // Swallow — we'll try again on the next poll tick.
+    }
+    if (cancelledRef.current) return;
+    idleEmptyPollsRef.current = gotNewEvents ? 0 : idleEmptyPollsRef.current + 1;
+    if (idleEmptyPollsRef.current >= MAX_IDLE_EMPTY_POLLS) {
+      setStatus('idle');
+      return;
+    }
+    if (reconnectTimerRef.current) clearTimeout(reconnectTimerRef.current);
+    reconnectTimerRef.current = setTimeout(() => {
+      if (cancelledRef.current) return;
+      void connectSSE(args);
+    }, IDLE_POLL_MS);
     return;
   }
 
@@ -285,7 +339,7 @@ async function connectSSE(args: RunStreamArgs) {
     const replay = await loadPersistedEvents(args.apollo, conversationId, since);
     if (cancelledRef.current) return;
     if (replay.length > 0) {
-      setEvents((prev) => mergeBySeq(prev, replay));
+      setEvents((prev) => mergeEvents(prev, replay));
       latestSeqRef.current = Math.max(latestSeqRef.current, replay[replay.length - 1].seq);
     }
   } catch (err) {
@@ -294,8 +348,10 @@ async function connectSSE(args: RunStreamArgs) {
     return;
   }
 
+  // No `since` query param: EventSource sends `Last-Event-ID` automatically
+  // on reconnect, and the supervisor reads that header to replay buffered
+  // events. The supervisor's seq is opaque to us — we don't need to track it.
   const url = appendQueryParams(info.sseUrl, {
-    since: String(latestSeqRef.current),
     token: info.token ?? '',
   });
 
@@ -318,10 +374,7 @@ async function connectSSE(args: RunStreamArgs) {
       const raw = JSON.parse(msg.data);
       const ev = normalizeStreamedEvent(raw);
       if (!ev) return;
-      setEvents((prev) => mergeBySeq(prev, [ev]));
-      if (ev.seq > latestSeqRef.current) {
-        latestSeqRef.current = ev.seq;
-      }
+      setEvents((prev) => mergeEvents(prev, [ev]));
     } catch {
       // Ignore malformed lines; supervisor will retry persistence side.
     }
@@ -380,21 +433,26 @@ function teardownSource(eventSourceRef: React.MutableRefObject<EventSource | nul
 
 /**
  * Coerce a streamed payload from the supervisor into a `ConversationEvent`.
- * The supervisor sends `{conversationId, seq, kind, claudeMessageUuid, payload}`
- * over SSE — the same shape as a persisted row, modulo `_id` and DB createdAt.
- * We synthesize an `_id` and `createdAt` so the React component can key off them.
+ * The supervisor sends `{conversationId, kind, claudeMessageUuid, payload}`
+ * over SSE — no `seq`, since the supervisor's local seq is private buffer-
+ * index state and the persisted seq comes from the GraphQL transcript. We
+ * synthesize `_id`, `createdAt`, and a sentinel `seq` so the React component
+ * can render the row before the persisted twin (if any) arrives.
  */
 function normalizeStreamedEvent(raw: unknown): ConversationEvent | null {
   if (!isPlainRecord(raw)) return null;
-  if (typeof raw.seq !== 'number') return null;
   if (typeof raw.kind !== 'string') return null;
   if (typeof raw.conversationId !== 'string') return null;
+  const uuid = typeof raw.claudeMessageUuid === 'string' ? raw.claudeMessageUuid : null;
   return {
-    _id: typeof raw._id === 'string' ? raw._id : `sse:${raw.conversationId}:${raw.seq}`,
+    // Synthetic id; mergeEvents distinguishes these from persisted rows by
+    // the `sse:` prefix so the persisted version (with the real DB _id) wins
+    // once the postPersister chain catches up.
+    _id: `sse:${raw.conversationId}:${uuid ?? randomId()}`,
     conversationId: raw.conversationId,
-    seq: raw.seq,
+    seq: -1,
     kind: raw.kind,
-    claudeMessageUuid: typeof raw.claudeMessageUuid === 'string' ? raw.claudeMessageUuid : null,
+    claudeMessageUuid: uuid,
     payload: raw.payload,
     createdAt: typeof raw.createdAt === 'string' ? raw.createdAt : new Date().toISOString(),
   };
@@ -418,16 +476,42 @@ function parseStreamInfo(raw: unknown): StreamInfo {
 }
 
 /**
- * Merge new events into an existing list, keeping order by seq and dropping
- * duplicates (last-write-wins on the same seq, since the supervisor may
- * resend an event during reconnect overlap).
+ * Merge new events into an existing list, deduplicating across the two
+ * sources (persisted GraphQL transcript vs. live SSE) and ordering by time.
+ *
+ * SSE messages carry no `seq` (supervisor seq is a private buffer index, not
+ * exposed to clients), so we dedupe by `claudeMessageUuid` when set —
+ * a Claude Code message keeps the same uuid in both its live and persisted
+ * forms. Events without a uuid (our synthesized user prompt) fall back to
+ * the synthetic `_id` we assigned in `normalizeStreamedEvent`.
+ *
+ * When the same uuid arrives from both sources we prefer the persisted copy
+ * (real DB `_id`, authoritative backend seq + createdAt). Sort by `createdAt`
+ * with `seq` as a tiebreaker; persisted events have monotonic backend seqs,
+ * SSE-only events have `seq = -1` and rely on `createdAt`.
  */
-function mergeBySeq(prev: ConversationEvent[], incoming: ConversationEvent[]): ConversationEvent[] {
+function mergeEvents(prev: ConversationEvent[], incoming: ConversationEvent[]): ConversationEvent[] {
   if (incoming.length === 0) return prev;
-  const bySeq = new Map<number, ConversationEvent>();
-  for (const e of prev) bySeq.set(e.seq, e);
-  for (const e of incoming) bySeq.set(e.seq, e);
-  return Array.from(bySeq.values()).sort((a, b) => a.seq - b.seq);
+  const dedupeKey = (e: ConversationEvent): string =>
+    e.claudeMessageUuid ? `uuid:${e.claudeMessageUuid}` : `id:${e._id}`;
+  const isPersisted = (e: ConversationEvent): boolean =>
+    typeof e._id === 'string' && !e._id.startsWith('sse:');
+
+  const merged = new Map<string, ConversationEvent>();
+  for (const e of prev) merged.set(dedupeKey(e), e);
+  for (const e of incoming) {
+    const key = dedupeKey(e);
+    const existing = merged.get(key);
+    if (!existing || (!isPersisted(existing) && isPersisted(e))) {
+      merged.set(key, e);
+    }
+  }
+  return [...merged.values()].sort((a, b) => {
+    const aTime = new Date(a.createdAt).getTime();
+    const bTime = new Date(b.createdAt).getTime();
+    if (aTime !== bTime) return aTime - bTime;
+    return a.seq - b.seq;
+  });
 }
 
 function appendQueryParams(url: string, params: Record<string, string>): string {

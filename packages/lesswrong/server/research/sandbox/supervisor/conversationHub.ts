@@ -33,6 +33,8 @@ interface BufferedEvent {
   seq: number;
   rawJsonl: string;
   kind: string;
+  /** Same uuid the live emit sent over the wire — preserved here so replay can fan out the identical body the live path would have. */
+  claudeMessageUuid: string | null;
   emittedAt: number;
 }
 
@@ -89,14 +91,18 @@ export function createConversationHub(config: ConversationHubConfig) {
       seq,
       rawJsonl: line.raw,
       kind: line.kind,
+      claudeMessageUuid: line.claudeMessageUuid ?? null,
       emittedAt: now(),
     };
     entry.buffer.push(buf);
     if (entry.buffer.length > bufferSize) entry.buffer.shift();
 
-    // Send SSE in the shape the client's `useConversationStream` consumes
-    // (mirrors `ResearchConversationEvent` minus the `_id` and DB createdAt).
-    // The persistence path POSTs the same content separately to the backend.
+    // Send SSE in the shape the client's `useConversationStream` consumes.
+    // The supervisor seq is intentionally NOT included in the body — it's a
+    // private buffer index that historically got mistaken for the persisted
+    // seq the backend assigns. We still send it as the SSE-protocol-level
+    // `id:` line so EventSource's native `Last-Event-ID` resume works on
+    // reconnect; the client sorts by `createdAt` and dedupes by uuid.
     let parsedPayload: unknown = line.raw;
     try {
       parsedPayload = JSON.parse(line.raw);
@@ -105,7 +111,6 @@ export function createConversationHub(config: ConversationHubConfig) {
     }
     const sseData = JSON.stringify({
       conversationId: entry.conversationId,
-      seq,
       kind: line.kind,
       claudeMessageUuid: line.claudeMessageUuid ?? null,
       payload: parsedPayload,
@@ -148,9 +153,8 @@ export function createConversationHub(config: ConversationHubConfig) {
           try { parsedPayload = JSON.parse(r.rawJsonl); } catch { /* string */ }
           const data = JSON.stringify({
             conversationId: entry.conversationId,
-            seq: r.seq,
             kind: r.kind,
-            claudeMessageUuid: null,
+            claudeMessageUuid: r.claudeMessageUuid,
             payload: parsedPayload,
           });
           sink({ event: "jsonl", data, id: String(r.seq) });
@@ -264,9 +268,13 @@ export type ConversationHub = ReturnType<typeof createConversationHub>;
 /**
  * Translate the parser-detected kind into one of T3's accepted persistence
  * kinds. Returns null for kinds we drop on the floor:
- *  - "result"  — the final summary line (we surface this via /status, not events)
  *  - "unknown" — unrecognized line shape; SSE'd but not persisted to keep the
  *               persistence schema strict. Backend can reject these explicitly.
+ *
+ * `result` is persisted because it's the only line Claude Code emits exactly
+ * once per turn regardless of how many intermediate events the turn produced;
+ * the client uses its presence as a turn-end signal. It's filtered back out
+ * in `writeBootstrapJsonl` so it never lands in Claude's resume context.
  */
 function mapKindForPersistence(kind: ClaudeEventKind): BackendEvent["kind"] | null {
   switch (kind) {
@@ -277,8 +285,8 @@ function mapKindForPersistence(kind: ClaudeEventKind): BackendEvent["kind"] | nu
     case "thinking":
     case "system":
     case "error":
-      return kind;
     case "result":
+      return kind;
     case "unknown":
       return null;
     default: {

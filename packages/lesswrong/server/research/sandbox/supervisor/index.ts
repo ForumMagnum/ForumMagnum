@@ -19,10 +19,35 @@
  *                           sent as Bearer on supervisor → backend POSTs
  *  - CLAUDE_CODE_OAUTH_TOKEN — passed through to claude subprocesses
  */
+import * as fs from "node:fs";
 import { createConversationHub } from "./conversationHub";
 import { createPostPersister } from "./postPersister";
 import { startSupervisor, SupervisorDeps } from "./server";
 import { startHeartbeat } from "./heartbeat";
+
+const CLAUDE_MD_PATH = "/vercel/sandbox/CLAUDE.md";
+
+/**
+ * Substitute the `{{RESEARCH_PROJECT_ID}}` placeholder (and any other
+ * provisioning-time placeholders we add later) in the agent's CLAUDE.md so
+ * Claude Code's auto-loaded system prompt knows what project the agent is
+ * scoped to. The shipped file in the snapshot has the literal placeholder;
+ * we rewrite it once at supervisor boot, before any `claude` subprocess
+ * starts. Best-effort: a missing or unwritable file just logs and
+ * continues — the agent loses the project-id hint but otherwise works.
+ */
+function fillClaudeMdTemplate(env: { projectId: string }): void {
+  try {
+    const template = fs.readFileSync(CLAUDE_MD_PATH, "utf8");
+    const filled = template.replace(/\{\{RESEARCH_PROJECT_ID\}\}/g, env.projectId);
+    if (filled !== template) {
+      fs.writeFileSync(CLAUDE_MD_PATH, filled, "utf8");
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn(`[supervisor] could not fill CLAUDE.md template: ${(err as Error).message}`);
+  }
+}
 
 interface SupervisorEnv {
   supervisorSecret: string;
@@ -53,6 +78,7 @@ function readEnv(): SupervisorEnv {
 
 export function bootSupervisor() {
   const env = readEnv();
+  fillClaudeMdTemplate({ projectId: env.projectId });
 
   const postPersister = createPostPersister({
     backendBaseUrl: env.backendBaseUrl,
@@ -69,16 +95,42 @@ export function bootSupervisor() {
       userId: env.userId,
       projectId: env.projectId,
     },
-    dispatchTurn: (req) =>
-      hub.dispatch(
+    dispatchTurn: (req) => {
+      if (!req.agentBackendToken) {
+        // Hard error rather than silently falling back to the supervisor
+        // token: that would 403 on every document/conversation endpoint
+        // (which require an agent-scoped bearer) and we'd just re-create
+        // the very bug this field exists to fix.
+        throw new Error(
+          "supervisor: dispatch missing required agentBackendToken; backend must mint one per dispatch",
+        );
+      }
+      return hub.dispatch(
         {
           conversationId: req.conversationId,
           prompt: req.prompt,
           claudeSessionId: req.claudeSessionId,
           bootstrapJsonl: req.bootstrapJsonl,
         },
-        { CWD: "/vercel/sandbox" },
-      ),
+        {
+          CWD: "/vercel/sandbox",
+          // Put `/vercel/sandbox/bin` (where buildSnapshot.ts drops the
+          // research-tool binary) ahead of the system PATH so the agent can
+          // invoke `research-tool ...` directly from Bash. We can't install
+          // to /usr/local/bin from the snapshot builder (no root on tarball
+          // extract), so this is how the binary becomes "on PATH".
+          PATH: `/vercel/sandbox/bin:${process.env.PATH ?? ""}`,
+          // research-tool's required env. The token is the *agent-scoped*
+          // sandbox-callback bearer the backend mints per dispatch — the
+          // supervisor's own CALLBACK_TOKEN would 403 on every document /
+          // conversation endpoint (those require an agent scope tied to the
+          // current conversationId).
+          RESEARCH_BACKEND_BASE_URL: env.backendBaseUrl,
+          RESEARCH_BACKEND_TOKEN: req.agentBackendToken,
+          RESEARCH_PROJECT_ID: env.projectId,
+        },
+      );
+    },
     cancelTurn: (id) => hub.cancel(id),
     subscribeSse: (id, sink, sinceSeq) => hub.subscribe(id, sink, sinceSeq),
     getStateSnapshot: () => hub.snapshot(),

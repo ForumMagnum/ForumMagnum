@@ -6,7 +6,7 @@ import {
   useBasicTypeaheadTriggerMatch,
 } from '@lexical/react/LexicalTypeaheadMenuPlugin';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import type { TextNode } from 'lexical';
+import { $getSelection, $isRangeSelection, type TextNode } from 'lexical';
 import React, { useCallback, useMemo, useState } from 'react';
 import * as ReactDOM from 'react-dom';
 import classNames from 'classnames';
@@ -19,7 +19,7 @@ import {
   typeaheadItemText,
   componentPickerMenu,
 } from '@/components/lexical/styles/typeaheadStyles';
-import { INSERT_AGENT_BLOCK_COMMAND } from './AgentBlockPlugin';
+import { QUERY_COMMAND_PREFIX } from './QueryCommandPlugin';
 
 const styles = defineStyles('ResearchSlashMenu', (theme: ThemeType) => ({
   popover: {
@@ -83,9 +83,10 @@ function ResearchSlashMenuItem({
 
 /**
  * Slash menu specific to the research workspace. Currently exposes a single
- * `/query` command that creates a new AgentBlock placeholder, fires a
- * conversation via the host environment, then patches the AgentBlock with the
- * new conversationId.
+ * `/query` command. Picking the option doesn't insert a block — it leaves a
+ * `/query ` prefix in the document so the user can type a positional prompt
+ * after it; `QueryCommandPlugin` watches for an Enter at the end of any line
+ * starting with that prefix and fires the actual conversation then.
  *
  * The research document host disables the standard ComponentPickerPlugin while
  * mounting this, so the user sees exactly one slash menu.
@@ -97,10 +98,11 @@ export function ResearchSlashMenuPlugin() {
 
   const checkForTriggerMatch = useBasicTypeaheadTriggerMatch('/', { minLength: 0 });
 
-  const insertEmptyAgentBlock = useCallback(() => {
-    editor.dispatchCommand(INSERT_AGENT_BLOCK_COMMAND, {
-      conversationId: '',
-      placement: 'at-selection',
+  const insertQueryPrefix = useCallback(() => {
+    editor.update(() => {
+      const selection = $getSelection();
+      if (!$isRangeSelection(selection)) return;
+      selection.insertText(QUERY_COMMAND_PREFIX);
     });
   }, [editor]);
 
@@ -108,7 +110,7 @@ export function ResearchSlashMenuPlugin() {
     const base = [
       new ResearchSlashOption('Query (research agent)', {
         keywords: ['query', 'agent', 'ask', 'research', 'claude'],
-        onSelect: insertEmptyAgentBlock,
+        onSelect: insertQueryPrefix,
       }),
     ];
     if (!queryString) return base;
@@ -116,7 +118,7 @@ export function ResearchSlashMenuPlugin() {
     return base.filter(
       (o) => regex.test(o.title) || o.keywords.some((kw) => regex.test(kw)),
     );
-  }, [queryString, insertEmptyAgentBlock]);
+  }, [queryString, insertQueryPrefix]);
 
   const onSelectOption = useCallback(
     (

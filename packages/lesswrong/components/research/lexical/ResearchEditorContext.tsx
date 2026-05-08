@@ -33,6 +33,13 @@ export interface ResearchEditorEnvironment {
    * placeholder AgentBlock.
    */
   fireDocumentQuery: (args: FireDocumentQueryArgs) => Promise<FireQueryResult>;
+
+  /**
+   * Surfaces the full conversation transcript for an AgentBlock in the
+   * workspace's chat pane. AgentBlocks render an "open in chat" icon that
+   * calls this with the block's conversationId.
+   */
+  openConversationInChat: (conversationId: string) => void;
 }
 
 const ResearchEditorContext = createContext<ResearchEditorEnvironment | null>(null);

@@ -4,34 +4,22 @@ import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/conte
 import {
   authorizeAgentRequest,
   authorizeAgentResearchProjectAccess,
-} from "../../researchAgentAuth";
+} from "../../../researchAgentAuth";
 import {
   captureResearchAgentApiEvent,
   captureResearchAgentApiFailure,
-} from "../../captureResearchAgentAnalytics";
+} from "../../../captureResearchAgentAnalytics";
 
-const ROUTE = "projects.index";
+const ROUTE = "projects.conversations.index";
 
-const PROJECT_INDEX_LIMIT = 500;
+const CONVERSATIONS_LIMIT = 500;
 
 /**
- * GET `/api/research/agent/projects/:projectId`
+ * GET `/api/research/agent/projects/:projectId/conversations`
  *
- * The project-level index. Returns lightweight handles for the documents and
- * conversations in the project — just the metadata an agent needs to decide
- * what to fetch in detail next. Agents fetch document contents via
- * `/documents/:id` and conversation events via `/conversations/:id/events`.
- *
- * The handle shape:
- *   document:     { id, kind: 'document', title, createdAt }
- *   conversation: { id, kind: 'conversation', title, lastActivityAt, entrypoint }
- *
- * Documents only carry `createdAt`, not `lastActivityAt`: nothing currently
- * writes a per-document activity timestamp. The Hocuspocus autosave path
- * (`hocuspocusCallbacks.ts:saveOrUpdateLexicalRevision`) early-returns for
- * non-Posts collections, and the Revisions-backed `contents` path doesn't
- * touch the row either. When a research-doc edit path bumps a real per-doc
- * timestamp, add the column and the response field together.
+ * Lightweight conversation handles for the project. Returned newest-first
+ * by `lastActivityAt`. Includes the entrypoint discriminator so the agent
+ * can distinguish chat conversations from document-anchored ones.
  *
  * The bearer token's authorized projectId must match the URL projectId; an
  * agent cannot pivot to other projects via this endpoint.
@@ -51,36 +39,23 @@ export async function GET(
 
   try {
     const context = await getContextFromReqAndRes({ req, isSSR: false });
-    const [documents, conversations] = await Promise.all([
-      context.ResearchDocuments.find(
-        { projectId },
-        { sort: { createdAt: -1 }, limit: PROJECT_INDEX_LIMIT },
-        { _id: 1, title: 1, createdAt: 1 },
-      ).fetch(),
-      context.ResearchConversations.find(
-        { projectId },
-        { sort: { lastActivityAt: -1 }, limit: PROJECT_INDEX_LIMIT },
-        { _id: 1, title: 1, lastActivityAt: 1, entrypoint: 1 },
-      ).fetch(),
-    ]);
+    const conversations = await context.ResearchConversations.find(
+      { projectId },
+      { sort: { lastActivityAt: -1 }, limit: CONVERSATIONS_LIMIT },
+      { _id: 1, title: 1, lastActivityAt: 1, entrypoint: 1 },
+    ).fetch();
 
     captureResearchAgentApiEvent({
       route: ROUTE,
       status: "success",
       conversationId: payload.conversationId,
       projectId,
-      operationResult: `documents=${documents.length},conversations=${conversations.length}`,
+      operationResult: `conversations=${conversations.length}`,
     });
 
     return NextResponse.json({
       ok: true,
       projectId,
-      documents: documents.map((doc) => ({
-        id: doc._id,
-        kind: "document" as const,
-        title: doc.title ?? null,
-        createdAt: doc.createdAt ?? null,
-      })),
       conversations: conversations.map((conv) => ({
         id: conv._id,
         kind: "conversation" as const,
@@ -99,7 +74,7 @@ export async function GET(
     });
     return NextResponse.json(
       {
-        error: "Failed to load project index",
+        error: "Failed to load project conversations",
         details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },

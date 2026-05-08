@@ -7273,7 +7273,6 @@ type Query = {
   researchDocument?: Maybe<SingleResearchDocumentOutput>;
   researchDocuments?: Maybe<MultiResearchDocumentOutput>;
   researchProject?: Maybe<SingleResearchProjectOutput>;
-  researchProjectActivity: Array<ResearchProjectActivityEntry>;
   researchProjects?: Maybe<MultiResearchProjectOutput>;
   researchSandboxSession?: Maybe<SingleResearchSandboxSessionOutput>;
   researchSandboxSessions?: Maybe<MultiResearchSandboxSessionOutput>;
@@ -8284,12 +8283,6 @@ type QueryresearchProjectArgs = {
 };
 
 
-type QueryresearchProjectActivityArgs = {
-  projectId: Scalars['String']['input'];
-  since?: InputMaybe<Scalars['Date']['input']>;
-};
-
-
 type QueryresearchProjectsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
   input?: InputMaybe<MultiResearchProjectInput>;
@@ -8890,16 +8883,6 @@ type ResearchProject = {
   settings?: Maybe<Scalars['JSON']['output']>;
   title: Scalars['String']['output'];
   userId: Scalars['String']['output'];
-};
-
-type ResearchProjectActivityEntry = {
-  __typename?: 'ResearchProjectActivityEntry';
-  conversationId?: Maybe<Scalars['String']['output']>;
-  documentId?: Maybe<Scalars['String']['output']>;
-  kind: Scalars['String']['output'];
-  summary?: Maybe<Scalars['String']['output']>;
-  timestamp: Scalars['Date']['output'];
-  title?: Maybe<Scalars['String']['output']>;
 };
 
 type ResearchProjectOutput = {
@@ -17782,19 +17765,6 @@ type RecommendationsQueryQueryVariables = Exact<{
 
 type RecommendationsQueryQuery = RecommendationsQueryQuery_Query;
 
-type ResearchProjectActivityQueryQuery_researchProjectActivity_ResearchProjectActivityEntry = { __typename?: 'ResearchProjectActivityEntry', kind: string, timestamp: string, conversationId: string | null, documentId: string | null, title: string | null, summary: string | null };
-
-type ResearchProjectActivityQueryQuery_Query = { __typename?: 'Query', researchProjectActivity: Array<ResearchProjectActivityQueryQuery_researchProjectActivity_ResearchProjectActivityEntry> };
-
-
-type ResearchProjectActivityQueryQueryVariables = Exact<{
-  projectId: Scalars['String']['input'];
-  since: InputMaybe<Scalars['Date']['input']>;
-}>;
-
-
-type ResearchProjectActivityQueryQuery = ResearchProjectActivityQueryQuery_Query;
-
 type FireChatPaneConversationMutation_fireResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', conversationId: string };
 
 type FireChatPaneConversationMutation_Mutation = { __typename?: 'Mutation', fireResearchConversation: FireChatPaneConversationMutation_fireResearchConversation_ResearchConversationOutput | null };
@@ -17874,7 +17844,7 @@ type ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput_resu
 
 type ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput = { __typename?: 'MultiResearchDocumentOutput', results: Array<ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument> };
 
-type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string };
+type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string, entrypoint: any };
 
 type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput = { __typename?: 'MultiResearchConversationOutput', results: Array<ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation> };
 

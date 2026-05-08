@@ -954,15 +954,6 @@ type ResearchConversationOutput {
   data: ResearchConversation
 }
 
-type ResearchProjectActivityEntry {
-  kind: String!
-  timestamp: Date!
-  conversationId: String
-  documentId: String
-  title: String
-  summary: String
-}
-
 extend type Mutation {
   fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
   continueResearchConversation(conversationId: String!, prompt: String!): ResearchConversationOutput
@@ -970,7 +961,6 @@ extend type Mutation {
 }
 
 extend type Query {
-  researchProjectActivity(projectId: String!, since: Date): [ResearchProjectActivityEntry!]!
   researchConversationTranscript(conversationId: String!, since: Int, limit: Int): [ResearchConversationEvent!]!
 }
 

@@ -16,11 +16,12 @@ import {
 } from './lexical/ResearchEditorContext';
 import Loading from '../vulcan-core/Loading';
 import LexicalEditor from '../editor/LexicalEditor';
+import ContentStyles from '../common/ContentStyles';
 
 interface DocumentPaneProps {
   projectId: string;
   documentId: string | null;
-  onOpenChat: (conversationId: string) => void;
+  onOpenConversationInChat: (conversationId: string) => void;
 }
 
 const ResearchDocumentQuery = gql(`
@@ -63,45 +64,14 @@ const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
     color: theme.palette.text.dim,
     fontSize: 14,
   },
-  titleBar: {
-    padding: '10px 28px 0',
-    fontSize: 15,
-    fontWeight: 600,
-    color: theme.palette.text.primary,
-    lineHeight: 1.4,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-  },
   editorWrap: {
     flex: 1,
-    padding: '10px 28px 28px',
     overflow: 'auto',
     position: 'relative',
-    '& [contenteditable="true"]': {
-      minHeight: 'calc(100vh - 150px)',
-      fontSize: 14,
-      lineHeight: 1.55,
-      fontFamily: theme.palette.fonts.sansSerifStack,
-      maxWidth: 960,
-      padding: '8px 0 32px',
-    },
-    '& [contenteditable="true"] p': {
-      margin: '0 0 0.75em',
-    },
-    '& [contenteditable="true"] h1': {
-      fontSize: 24,
-      lineHeight: 1.25,
-      margin: '1em 0 0.5em',
-    },
-    '& [contenteditable="true"] h2': {
-      fontSize: 20,
-      lineHeight: 1.3,
-      margin: '1em 0 0.5em',
-    },
-    '& [contenteditable="true"] h3': {
-      fontSize: 17,
-      lineHeight: 1.35,
-      margin: '1em 0 0.5em',
-    },
+    // Editor-content typography (sizing of paragraphs, headings, lists, etc.,
+    // plus placeholder positioning) lives in the `researchDocument` content
+    // type in ContentStylesValues, scoped under `[contenteditable="true"]`
+    // so it doesn't leak onto floating menus or popovers inside this wrap.
   },
   loadingWrap: {
     flex: 1,
@@ -115,7 +85,7 @@ function ignoreEditorChange(_html: string) {
   // ResearchDocument edits persist through the Yjs/Hocuspocus collaboration path.
 }
 
-const DocumentPane = ({ projectId, documentId, onOpenChat }: DocumentPaneProps) => {
+const DocumentPane = ({ projectId, documentId, onOpenConversationInChat }: DocumentPaneProps) => {
   const classes = useStyles(styles);
   const [fireConversation] = useMutation(FireDocumentConversationMutation);
 
@@ -147,10 +117,13 @@ const DocumentPane = ({ projectId, documentId, onOpenChat }: DocumentPaneProps) 
       if (!conversationId) {
         throw new Error('fireResearchConversation returned no conversationId');
       }
-      onOpenChat(conversationId);
+      // Document queries belong to the AgentBlock that fired them; the chat
+      // pane is for stand-alone chat conversations. Surfacing every document
+      // query in the chat pane made the chat appear to mirror whichever
+      // AgentBlock was most recently active.
       return { conversationId };
     },
-    [projectId, documentId, fireConversation, onOpenChat],
+    [projectId, documentId, fireConversation],
   );
 
   const researchEditorEnvironment = useMemo<ResearchEditorEnvironment | null>(() => {
@@ -158,8 +131,9 @@ const DocumentPane = ({ projectId, documentId, onOpenChat }: DocumentPaneProps) 
     return {
       documentId,
       fireDocumentQuery,
+      openConversationInChat: onOpenConversationInChat,
     };
-  }, [documentId, fireDocumentQuery]);
+  }, [documentId, fireDocumentQuery, onOpenConversationInChat]);
 
   if (!documentId) {
     return (
@@ -183,8 +157,7 @@ const DocumentPane = ({ projectId, documentId, onOpenChat }: DocumentPaneProps) 
 
   return (
     <div className={classes.root}>
-      <div className={classes.titleBar}>{documentRecord.title ?? 'Untitled document'}</div>
-      <div className={classes.editorWrap}>
+      <ContentStyles contentType="researchDocument" className={classes.editorWrap}>
         <ResearchEditorProvider environment={researchEditorEnvironment}>
           <LexicalEditor
             data={documentRecord.contents?.html ?? ''}
@@ -200,7 +173,7 @@ const DocumentPane = ({ projectId, documentId, onOpenChat }: DocumentPaneProps) 
             <ResearchEditorPlugins />
           </LexicalEditor>
         </ResearchEditorProvider>
-      </div>
+      </ContentStyles>
     </div>
   );
 };

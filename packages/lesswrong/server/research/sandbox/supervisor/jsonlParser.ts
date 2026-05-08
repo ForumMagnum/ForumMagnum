@@ -91,6 +91,13 @@ function detectKind(parsed: Record<string, unknown> | null): ClaudeEventKind {
   if (typeof t !== "string") return "unknown";
   switch (t) {
     case "user":
+      // Claude Code's stream-json wraps tool_results inside a `user`-typed
+      // line whose `message.content` is an array of `tool_result` parts. The
+      // outer `type` is "user" because the model receives them as if from
+      // the user role, but they aren't a user prompt — re-classifying them
+      // as `tool_result` keeps downstream code (display filters, in-flight
+      // detection that compares user-prompt-count to result-count) honest.
+      return looksLikeToolResultUser(parsed) ? "tool_result" : "user";
     case "assistant":
     case "system":
     case "result":
@@ -102,6 +109,19 @@ function detectKind(parsed: Record<string, unknown> | null): ClaudeEventKind {
     default:
       return "unknown";
   }
+}
+
+function looksLikeToolResultUser(parsed: Record<string, unknown>): boolean {
+  const message = parsed.message;
+  if (!message || typeof message !== "object") return false;
+  const content = (message as Record<string, unknown>).content;
+  if (!Array.isArray(content) || content.length === 0) return false;
+  return content.every(
+    (part) =>
+      part !== null &&
+      typeof part === "object" &&
+      (part as Record<string, unknown>).type === "tool_result",
+  );
 }
 
 function extractMessageUuid(parsed: Record<string, unknown> | null): string | null {

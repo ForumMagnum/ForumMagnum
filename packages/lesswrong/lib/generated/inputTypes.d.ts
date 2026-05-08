@@ -51,7 +51,6 @@ interface Query {
   RecentDiscussionFeed: RecentDiscussionFeedQueryResults;
   TagHistoryFeed: TagHistoryFeedQueryResults;
   UserContentFeed: UserContentFeedQueryResults;
-  researchProjectActivity: Array<ResearchProjectActivityEntry>;
   researchConversationTranscript: Array<ResearchConversationEvent>;
   TagUpdatesInTimeBlock: Array<TagUpdates>;
   TagUpdatesByUser: Array<TagUpdates> | null;
@@ -1035,15 +1034,6 @@ interface FireResearchConversationInput {
 interface ResearchConversationOutput {
   conversationId: string;
   data: ResearchConversation | null;
-}
-
-interface ResearchProjectActivityEntry {
-  kind: string;
-  timestamp: Date;
-  conversationId: string | null;
-  documentId: string | null;
-  title: string | null;
-  summary: string | null;
 }
 
 interface CreateResearchProjectDataInput {
@@ -9189,7 +9179,6 @@ interface GraphQLTypeMap {
   UserContentFeedEntry: UserContentFeedEntry;
   FireResearchConversationInput: FireResearchConversationInput;
   ResearchConversationOutput: ResearchConversationOutput;
-  ResearchProjectActivityEntry: ResearchProjectActivityEntry;
   CreateResearchProjectDataInput: CreateResearchProjectDataInput;
   CreateResearchProjectInput: CreateResearchProjectInput;
   UpdateResearchProjectDataInput: UpdateResearchProjectDataInput;

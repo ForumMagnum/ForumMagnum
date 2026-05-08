@@ -1,14 +1,19 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMutation } from '@apollo/client/react';
 import classNames from 'classnames';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { useConversationStream, type ConversationEvent } from './hooks/useConversationStream';
+import { randomId } from '@/lib/random';
 import Loading from '../vulcan-core/Loading';
-import { getConversationEventText } from './conversationEventFormat';
+import {
+  getConversationEventChunks,
+  isVisibleConversationEvent,
+  type ConversationEventChunk,
+} from './conversationEventFormat';
 
 interface ChatPaneProps {
   projectId: string;
@@ -79,7 +84,6 @@ const styles = defineStyles('ChatPane', (theme: ThemeType) => ({
   event: {
     fontSize: 13,
     lineHeight: 1.5,
-    padding: '8px 12px',
     borderRadius: 6,
     whiteSpace: 'pre-wrap',
     wordBreak: 'break-word',
@@ -88,6 +92,7 @@ const styles = defineStyles('ChatPane', (theme: ThemeType) => ({
     background: theme.palette.greyAlpha(0.06),
     alignSelf: 'flex-end',
     maxWidth: '85%',
+    padding: '4px 8px',
   },
   eventAssistant: {
     background: 'transparent',
@@ -99,6 +104,12 @@ const styles = defineStyles('ChatPane', (theme: ThemeType) => ({
     background: theme.palette.greyAlpha(0.04),
     color: theme.palette.text.dim,
     border: theme.palette.greyBorder('1px', 0.08),
+    '$eventAssistant &': {
+      padding: '4px 8px',
+    },
+    '$eventTool &': {
+      padding: '4px 8px',
+    },
   },
   eventThinking: {
     fontStyle: 'italic',
@@ -126,6 +137,12 @@ const styles = defineStyles('ChatPane', (theme: ThemeType) => ({
     resize: 'vertical',
     background: theme.palette.background.default,
     color: theme.palette.text.primary,
+    // Restate the border in `:focus` so it isn't stripped by the
+    // `textarea:focus` global rule in `globalStyles.ts:33`. Without this,
+    // focusing the input loses its border and the layout shifts by 2px.
+    "&:focus": {
+      border: theme.palette.greyBorder('1px', 0.15),
+    },
   },
   composerActions: {
     display: 'flex',
@@ -160,7 +177,13 @@ const ChatPane = ({ projectId, conversationId, onConversationCreated }: ChatPane
   const [sending, setSending] = useState(false);
   const eventsRef = useRef<HTMLDivElement | null>(null);
 
-  const { events, status, error } = useConversationStream(conversationId);
+  const { events: rawEvents, status, error, refresh, injectOptimisticEvent } = useConversationStream(conversationId);
+  // Hide system init / session-result wrappers / rate-limit notices that the
+  // hook delivers; the chat surface only renders user-facing turn events.
+  const events = useMemo<ConversationEvent[]>(
+    () => rawEvents.filter(isVisibleConversationEvent),
+    [rawEvents],
+  );
   const [fireConversation] = useMutation(FireChatConversationMutation);
   const [continueConversation] = useMutation(ContinueResearchConversationMutation);
   const [cancelConversation] = useMutation(CancelResearchConversationMutation);
@@ -186,13 +209,27 @@ const ChatPane = ({ projectId, conversationId, onConversationCreated }: ChatPane
           setDraft('');
         }
       } else {
-        await continueConversation({ variables: { conversationId, prompt } });
+        // Show the user's message immediately; SSE doesn't broadcast backend
+        // `appendUserTurn` writes, so without this the message would stay
+        // invisible until refresh() pulls the persisted twin.
+        const now = new Date().toISOString();
+        injectOptimisticEvent({
+          _id: `optimistic:user:${randomId()}`,
+          conversationId,
+          seq: -1,
+          kind: 'user',
+          claudeMessageUuid: null,
+          payload: { type: 'user', text: prompt },
+          createdAt: now,
+        });
         setDraft('');
+        await continueConversation({ variables: { conversationId, prompt } });
+        refresh();
       }
     } finally {
       setSending(false);
     }
-  }, [draft, sending, conversationId, projectId, fireConversation, continueConversation, onConversationCreated]);
+  }, [draft, sending, conversationId, projectId, fireConversation, continueConversation, onConversationCreated, refresh, injectOptimisticEvent]);
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -295,15 +332,31 @@ interface EventRowClasses {
 }
 
 function EventRow({ event, classes }: { event: ConversationEvent; classes: EventRowClasses }) {
-  const text = getConversationEventText(event);
-  const className = classNames(classes.event, {
+  const chunks = getConversationEventChunks(event);
+  if (chunks.length === 0) return null;
+  const outerClass = classNames(classes.event, {
     [classes.eventUser]: event.kind === 'user',
     [classes.eventAssistant]: event.kind === 'assistant',
     [classes.eventTool]: event.kind === 'tool_use' || event.kind === 'tool_result',
     [classes.eventThinking]: event.kind === 'thinking',
     [classes.eventError]: event.kind === 'error',
   });
-  return <div className={className}>{text}</div>;
+  return (
+    <div className={outerClass}>
+      {chunks.map((chunk, i) => (
+        <div key={i} className={chunkClass(chunk, classes)}>{chunk.text}</div>
+      ))}
+    </div>
+  );
+}
+
+function chunkClass(chunk: ConversationEventChunk, classes: EventRowClasses): string | undefined {
+  switch (chunk.kind) {
+    case 'thinking': return classes.eventThinking;
+    case 'tool_use':
+    case 'tool_result': return classes.eventTool;
+    default: return undefined;
+  }
 }
 
 function renderStatusLabel(status: string, error: string | null): string {

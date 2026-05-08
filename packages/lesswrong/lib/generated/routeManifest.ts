@@ -489,7 +489,18 @@ export const routeTrie = {
                   "dynamicChild": {
                     "paramName": "projectId",
                     "child": {
-                      "hasRoute": true
+                      "staticChildren": {
+                        "conversations": {
+                          "hasRoute": true
+                        },
+                        "documents": {
+                          "hasRoute": true
+                        }
+                      },
+                      "lowerCase": {
+                        "conversations": "conversations",
+                        "documents": "documents"
+                      }
                     }
                   }
                 },

@@ -52,6 +52,12 @@ export function sessionJsonlPath(target: BootstrapTarget): string {
  *
  * Each event's `payload` is JSON-stringified onto its own line. If `payload`
  * was already stored as a string (raw JSONL line), it's written verbatim.
+ *
+ * `result`-kind events are stripped before writing — they're per-turn
+ * metadata wrappers (`{type:"result", duration_ms, usage, ...}`) that Claude
+ * Code emits to stdout but never writes to its own session file, so leaving
+ * them in the synthesized resume file would feed the model lines it never
+ * sees during a normal session.
  */
 export async function writeBootstrapJsonl(
   target: BootstrapTarget,
@@ -59,15 +65,21 @@ export async function writeBootstrapJsonl(
 ): Promise<{ filePath: string; lineCount: number }> {
   const filePath = sessionJsonlPath(target);
   await fs.mkdir(path.dirname(filePath), { recursive: true });
-  const body = events.map(serializeEvent).filter((s): s is string => s !== null).join("\n");
+  const body = events
+    .map(serializeEvent)
+    .filter((s): s is string => s !== null)
+    .join("\n");
   const withTrailingNewline = body.length > 0 ? body + "\n" : "";
   await fs.writeFile(filePath, withTrailingNewline, "utf8");
   return { filePath, lineCount: withTrailingNewline === "" ? 0 : body.split("\n").length };
 }
 
 function serializeEvent(e: BootstrapEvent): string | null {
-  if (typeof e.payload === "string") return e.payload;
+  if (typeof e.payload === "string") {
+    return isResultLine(e.payload) ? null : e.payload;
+  }
   if (e.payload && typeof e.payload === "object") {
+    if ((e.payload as { type?: unknown }).type === "result") return null;
     try {
       return JSON.stringify(e.payload);
     } catch {
@@ -75,6 +87,17 @@ function serializeEvent(e: BootstrapEvent): string | null {
     }
   }
   return null;
+}
+
+function isResultLine(line: string): boolean {
+  // Cheap pre-check before the full JSON.parse — most lines aren't `result`.
+  if (!line.includes('"type":"result"') && !line.includes('"type": "result"')) return false;
+  try {
+    const parsed = JSON.parse(line) as { type?: unknown };
+    return parsed.type === "result";
+  } catch {
+    return false;
+  }
 }
 
 /**

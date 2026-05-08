@@ -22,7 +22,7 @@ export interface BackendEvent {
   /** Verbatim JSONL line text (canonical) — what the supervisor actually saw on stdout. */
   rawJsonl: string;
   /** One of T3's accepted kinds. */
-  kind: "user" | "assistant" | "tool_use" | "tool_result" | "thinking" | "system" | "error";
+  kind: "user" | "assistant" | "tool_use" | "tool_result" | "thinking" | "system" | "error" | "result";
   /** ID from the JSONL line if present, null otherwise. Used for dedupe. */
   claudeMessageUuid: string | null;
   /** Optional, sent for cross-checking against conversation.claudeSessionId. */

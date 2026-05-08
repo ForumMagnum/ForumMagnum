@@ -68,6 +68,14 @@ export interface DispatchRequest {
   bootstrapJsonl?: string[];
   /** References attached as part of the user turn (file paths, doc handles, etc.). */
   references?: unknown[];
+  /**
+   * Agent-scoped sandbox-callback bearer minted by the backend per dispatch
+   * (≤30min TTL). The supervisor passes this — not its own supervisor-scoped
+   * `CALLBACK_TOKEN` — to the Claude Code subprocess as
+   * `RESEARCH_BACKEND_TOKEN`, so `research-tool` calls hit endpoints that
+   * require an agent scope (e.g. `documents/:id` GET, edit-doc).
+   */
+  agentBackendToken?: string;
 }
 
 export type SseSink = (event: { event?: string; data: string; id?: string }) => void;
@@ -171,9 +179,14 @@ async function handleRequest(
     if (!supervisorTokenCanAccessConversation(validation.payload, conversationId)) {
       return json(res, 403, { error: "forbidden", reason: "conversation scope mismatch" });
     }
-    const sinceParam = url.searchParams.get("since");
-    const sinceSeq = sinceParam !== null ? Number(sinceParam) : undefined;
-    return handleSse(req, res, conversationId, deps, Number.isFinite(sinceSeq) ? sinceSeq : undefined);
+    // Resume position is taken from the SSE protocol's `Last-Event-ID`
+    // header, which EventSource sets automatically on reconnect using the
+    // most recent `id:` value it received. The id is the supervisor's local
+    // buffer seq — opaque to the client, used only here for replay.
+    const lastEventId = req.headers["last-event-id"];
+    const lastEventIdNum = typeof lastEventId === "string" ? Number(lastEventId) : NaN;
+    const sinceSeq = Number.isFinite(lastEventIdNum) ? lastEventIdNum : undefined;
+    return handleSse(req, res, conversationId, deps, sinceSeq);
   }
 
   return json(res, 404, { error: "not found", path });
@@ -245,6 +258,7 @@ function parseDispatchRequest(body: Record<string, unknown>): DispatchRequest | 
     out.bootstrapJsonl = body.bootstrapJsonl.filter((s): s is string => typeof s === "string");
   }
   if (Array.isArray(body.references)) out.references = body.references;
+  if (typeof body.agentBackendToken === "string") out.agentBackendToken = body.agentBackendToken;
   return out;
 }
 

@@ -88,6 +88,12 @@ const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
     fontSize: 14,
     background: theme.palette.background.default,
     color: theme.palette.text.primary,
+    // Restate the border in `:focus` so it isn't stripped by the
+    // `input:focus` global rule in `globalStyles.ts:33`. Without this,
+    // focusing the input loses its border and the layout shifts by 2px.
+    "&:focus": {
+      border: theme.palette.greyBorder('1px', 0.2),
+    },
   },
   inputLabel: {
     fontSize: 12,

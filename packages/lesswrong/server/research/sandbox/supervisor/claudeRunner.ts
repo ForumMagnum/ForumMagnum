@@ -131,7 +131,20 @@ export function startClaudeRunner(opts: ClaudeRunnerOptions): ClaudeRunnerHandle
 }
 
 export function buildArgs(opts: Pick<ClaudeRunnerOptions, "prompt" | "claudeSessionId">): string[] {
-  const args = ["-p", opts.prompt, "--output-format", "stream-json", "--verbose"];
+  // `auto` is Claude Code's classifier-backed auto-approval mode (v2.1.83+).
+  // The classifier model auto-approves safe operations (local edits, reads,
+  // research-tool invocations, etc.) and blocks risky ones (hostile deploys,
+  // mass deletion, force-pushes) — meaningfully safer than the older
+  // `bypassPermissions`, which disables all checks. We need *some* form of
+  // auto-approval because there's no human in the loop inside the sandbox to
+  // answer a per-tool prompt; without it, every `Bash` / `research-tool`
+  // call dead-ends in `permission_denials` (visible on the turn's `result`).
+  const args = [
+    "-p", opts.prompt,
+    "--output-format", "stream-json",
+    "--verbose",
+    "--permission-mode", "auto",
+  ];
   if (opts.claudeSessionId) {
     args.push("--resume", opts.claudeSessionId);
   }

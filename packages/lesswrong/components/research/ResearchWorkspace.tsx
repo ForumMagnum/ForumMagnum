@@ -12,13 +12,12 @@ import ForumIcon from '../common/ForumIcon';
 import ProjectSidebar from './ProjectSidebar';
 import DocumentPane from './DocumentPane';
 import ChatPane from './ChatPane';
-import ActivityPane from './ActivityPane';
 
 interface ResearchWorkspaceProps {
   projectId: string;
 }
 
-type RightPaneMode = 'chat' | 'activity' | 'closed';
+type RightPaneMode = 'chat' | 'closed';
 
 const FirstDocumentQuery = gql(`
   query ResearchWorkspaceFirstDocument($projectId: String!) {
@@ -262,7 +261,7 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
           <DocumentPane
             projectId={projectId}
             documentId={activeDocumentId}
-            onOpenChat={openChat}
+            onOpenConversationInChat={openChat}
           />
         </div>
       </div>
@@ -270,24 +269,10 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
         <div className={classes.rightPane}>
           <div className={classes.rightPaneTabs}>
             <button
-              className={
-                rightPaneMode === 'chat'
-                  ? `${classes.rightPaneTab} ${classes.rightPaneTabActive}`
-                  : classes.rightPaneTab
-              }
+              className={`${classes.rightPaneTab} ${classes.rightPaneTabActive}`}
               onClick={() => setRightPaneMode('chat')}
             >
               Chat
-            </button>
-            <button
-              className={
-                rightPaneMode === 'activity'
-                  ? `${classes.rightPaneTab} ${classes.rightPaneTabActive}`
-                  : classes.rightPaneTab
-              }
-              onClick={() => setRightPaneMode('activity')}
-            >
-              Activity
             </button>
             <div className={classes.rightPaneSpacer} />
             <button
@@ -300,21 +285,16 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
             </button>
           </div>
           <div className={classes.rightPaneBody}>
-            {rightPaneMode === 'chat' ? (
-              <ChatPane
-                projectId={projectId}
-                conversationId={activeChatConversationId}
-                onConversationCreated={setActiveChatConversationId}
-              />
-            ) : (
-              <ActivityPane projectId={projectId} />
-            )}
+            <ChatPane
+              projectId={projectId}
+              conversationId={activeChatConversationId}
+              onConversationCreated={setActiveChatConversationId}
+            />
           </div>
         </div>
       ) : (
         <div className={classes.rightPaneCollapsed}>
           <button className={classes.collapsedTab} onClick={() => setRightPaneMode('chat')}>Chat</button>
-          <button className={classes.collapsedTab} onClick={() => setRightPaneMode('activity')}>Activity</button>
         </div>
       )}
     </div>

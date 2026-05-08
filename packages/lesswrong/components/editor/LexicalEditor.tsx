@@ -202,26 +202,6 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
       margin: '1em 0',
       padding: '0.5em',
     },
-    // Spoiler styles
-    '& .spoilers': {
-      backgroundColor: theme.palette.grey[100],
-      border: `1px solid ${theme.palette.grey[300]}`,
-      borderRadius: 4,
-      padding: '1em',
-      margin: '1em 0',
-      position: 'relative',
-      '&::before': {
-        content: '"Spoiler"',
-        position: 'absolute',
-        top: -10,
-        left: 10,
-        backgroundColor: theme.palette.panelBackground.default,
-        padding: '0 4px',
-        fontSize: '0.75em',
-        color: theme.palette.grey[600],
-        fontWeight: 500,
-      },
-    },
     // Claim/prediction styles
     '& .elicit-binary-prediction-wrapper': {
       margin: '1em 0',

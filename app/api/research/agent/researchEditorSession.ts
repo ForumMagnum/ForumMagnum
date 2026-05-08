@@ -1,14 +1,20 @@
 import type { HocuspocusProvider } from "@hocuspocus/provider";
 import type { LexicalEditor } from "lexical";
+import { AgentBlockNode } from "@/components/research/lexical/AgentBlockNode";
 import { withMainDocEditorSession } from "../../agent/editorAgentUtil";
 
 /**
  * Thin wrapper around the (generalized) `withMainDocEditorSession` that pins
- * `collectionName: 'ResearchDocuments'`. Keeps research route handlers from
- * having to know about the collection-name parameter at every call site.
+ * `collectionName: 'ResearchDocuments'` and registers the research-only
+ * Lexical node types on the headless editor.
  *
- * Per T1's generalization (#5), `withMainDocEditorSession` takes
- * `{ collectionName, documentId, ... }` instead of `{ postId, ... }`.
+ * Why `extraNodes` matters: the persisted Yjs state can contain
+ * `AgentBlockNode`s (inserted from the document via slash menu / pending
+ * prompt form). The default `PlaygroundNodes` set the headless editor
+ * uses doesn't know that type, so a Yjs sync containing one would fail
+ * to materialize and the editor root would be empty — tripping the
+ * post-sync emptiness guard with a misleading "Yjs document state is
+ * missing or corrupt" message.
  */
 export async function withResearchDocEditorSession<T>({
   documentId,
@@ -27,5 +33,6 @@ export async function withResearchDocEditorSession<T>({
     token,
     operationLabel,
     callback,
+    extraNodes: [AgentBlockNode],
   });
 }

@@ -6,6 +6,7 @@ import { ResearchAnchorPlugin } from './ResearchAnchorPlugin';
 import { AgentBlockPlugin } from './AgentBlockPlugin';
 import { ResearchSelectionToolbarPlugin } from './ResearchSelectionToolbarPlugin';
 import { ResearchSlashMenuPlugin } from './ResearchSlashMenuPlugin';
+import { QueryCommandPlugin } from './QueryCommandPlugin';
 
 /**
  * One-stop bundle of every Lexical extension this team owns. Mount inside a
@@ -28,6 +29,7 @@ export function ResearchEditorPlugins() {
       <AgentBlockPlugin />
       <ResearchSelectionToolbarPlugin />
       <ResearchSlashMenuPlugin />
+      <QueryCommandPlugin />
     </ResearchAnchorProvider>
   );
 }

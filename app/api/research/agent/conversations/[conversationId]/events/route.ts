@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
+import { backgroundTask } from "@/server/utils/backgroundTask";
 import {
   authorizeAgentRequest,
   authorizeAgentResearchConversationAccess,
@@ -22,6 +23,12 @@ const eventKindSchema = z.enum([
   "thinking",
   "system",
   "error",
+  // Per-turn metadata wrapper (`subtype`, `duration_ms`, `usage`,
+  // `is_error`). Claude Code emits exactly one per turn, regardless of how
+  // many intermediate events the turn produced, so we use it as a robust
+  // turn-end signal in the UI. Skipped during `writeBootstrapJsonl` so it
+  // never lands back in Claude's resume context.
+  "result",
 ]);
 
 /**
@@ -126,7 +133,7 @@ export async function POST(
       );
     }
 
-    const { rawJsonl, kind, claudeMessageUuid } = parseResult.data;
+    const { rawJsonl, kind, claudeMessageUuid, claudeSessionId } = parseResult.data;
 
     // Parse the verbatim line into a JSON object for the JSONB column.
     // A parse failure means the supervisor sent a malformed line — return
@@ -158,6 +165,16 @@ export async function POST(
         { _id: conversationId },
         { $set: { lastActivityAt: new Date() } },
       );
+    }
+
+    // First-write-wins capture for `--resume`'s session id; the supervisor
+    // sends the same id on every event POST, so the IS NULL filter ensures
+    // only the first one writes.
+    if (claudeSessionId) {
+      backgroundTask(context.ResearchConversations.rawUpdateOne(
+        { _id: conversationId, claudeSessionId: null },
+        { $set: { claudeSessionId } },
+      ));
     }
 
     captureResearchAgentApiEvent({

@@ -1,141 +1,313 @@
 'use client';
 
-import React, { useCallback, useMemo, useState, useRef, useEffect } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey, type NodeKey } from 'lexical';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useConversationStream, type ConversationEvent } from '@/components/research/hooks/useConversationStream';
 import { $isAgentBlockNode } from './AgentBlockNode';
-import { UPDATE_AGENT_BLOCK_COMMAND } from './AgentBlockPlugin';
 import { useResearchEditorEnvironment } from './ResearchEditorContext';
-import { newResearchAnchorId } from './ResearchAnchorContext';
-import { getConversationEventText, isVisibleAgentBlockEvent } from '../conversationEventFormat';
+import {
+  getConversationEventChunks,
+  isVisibleConversationEvent,
+} from '../conversationEventFormat';
+import ForumIcon from '@/components/common/ForumIcon';
+
+/**
+ * Vertical room for ~1–2 paragraphs of body copy at the editor's 14px/1.55
+ * baseline. Scroll kicks in past this; shorter content shrinks the chip
+ * naturally because the inner column is the height contributor.
+ */
+const EXPANDED_MAX_CONTENT_HEIGHT = 200;
+// Visible bottom indicator: a thin gradient hint. The hover target around it
+// is taller (`COLLAPSE_HOVER_HEIGHT`) so users don't have to be pixel-precise
+// to reveal the collapse arrow.
+const COLLAPSE_GRADIENT_HEIGHT = 14;
+const COLLAPSE_HOVER_HEIGHT = 36;
 
 const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   root: {
-    border: theme.palette.greyBorder('1px', 0.15),
+    position: 'relative',
+    border: theme.palette.greyBorder('1px', 0.09),
     borderRadius: 6,
-    padding: '12px 16px',
-    margin: '12px 0',
-    background: theme.palette.greyAlpha(0.02),
+    background: theme.palette.greyAlpha(0.025),
+    padding: '8px 64px 8px 14px',
+    margin: '10px 0',
     fontSize: '0.95em',
-    lineHeight: 1.5,
+    // Pin line-height in pixels so different chunk kinds (which override
+    // font-size and font-family on the inline preview span — e.g. tool_use
+    // is monospace + 0.85em) don't change the row's vertical metrics. A
+    // unitless line-height multiplier inherits per-element by computed
+    // font-size, which causes the AgentBlock to twitch ±2-3px every time a
+    // new event of a different kind streams in.
+    lineHeight: '20px',
+    display: 'flex',
+    // Baseline-align so the small uppercase speaker label and the larger
+    // preview text share a typographic baseline. With `center` they'd both
+    // be vertically centered as line-boxes — and since the smaller font's
+    // glyphs sit higher within their own line-box than the larger font's,
+    // the speaker label visually floats above the preview. The status dot
+    // / checkmark / OpenInNew button each opt out via `alignSelf: center`
+    // so they stay vertically centered (their synthetic baseline would
+    // otherwise be the bottom of the element).
+    alignItems: 'baseline',
+    gap: 10,
+    minHeight: 36,
+    // When the AgentBlock sits inside an unrevealed spoiler, mask its colored
+    // chrome so the spoiler's hide-until-hover semantics apply uniformly. The
+    // chip's own speaker label / preview / pulse dot / border / icon all set
+    // explicit colors that would otherwise punch through the spoiler's
+    // cascading `color: spoilerBlock`. As soon as the user hovers any
+    // descendant — including this block — the parent `.spoilers` matches
+    // `:hover` and the override turns off, revealing the AgentBlock as
+    // normal.
+    '.spoilers:not(:hover) &': {
+      backgroundColor: 'transparent',
+      borderColor: theme.palette.panelBackground.spoilerBlock,
+      color: theme.palette.panelBackground.spoilerBlock,
+      '& *': {
+        color: `${theme.palette.panelBackground.spoilerBlock} !important`,
+        backgroundColor: 'transparent !important',
+        borderColor: `${theme.palette.panelBackground.spoilerBlock} !important`,
+      },
+      '& svg': {
+        opacity: 0,
+      },
+    },
+  },
+  // Expanded layout: vertical stack of events instead of a single row, with
+  // a sticky bottom collapse affordance overlaid on the scroll container.
+  rootExpanded: {
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: 0,
+    padding: '8px 64px 0 14px',
   },
   rootProvenance: {
-    borderLeft: `3px solid ${theme.palette.greyAlpha(0.35)}`,
+    borderColor: theme.palette.greyAlpha(0.16),
     background: theme.palette.greyAlpha(0.04),
+    boxShadow: `inset 3px 0 0 ${theme.palette.primary.main}`,
+    paddingLeft: 17,
   },
-  header: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 8,
-    fontSize: '0.8em',
-    color: theme.palette.greyAlpha(0.6),
+  pulseDot: {
+    flex: 'none',
+    alignSelf: 'center',
+    width: 7,
+    height: 7,
+    borderRadius: '50%',
+    background: theme.palette.primary.main,
+    animation: '$inflightPulse 1.4s ease-in-out infinite',
+  },
+  '@keyframes inflightPulse': {
+    '0%, 100%': { opacity: 0.25, transform: 'scale(0.85)' },
+    '50%': { opacity: 1, transform: 'scale(1)' },
+  },
+  speaker: {
+    flex: 'none',
+    fontSize: '0.7em',
+    fontWeight: 600,
+    letterSpacing: '0.06em',
     textTransform: 'uppercase',
-    letterSpacing: '0.04em',
+    color: theme.palette.greyAlpha(0.5),
+    userSelect: 'none',
   },
-  status: {
-    fontStyle: 'italic',
+  speakerUser: {
+    color: theme.palette.greyAlpha(0.7),
   },
-  statusError: {
+  speakerAssistant: {
+    color: theme.palette.primary.main,
+  },
+  speakerError: {
     color: theme.palette.error?.main ?? theme.palette.text.primary,
   },
-  events: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
+  preview: {
+    flex: 1,
+    minWidth: 0,
+    color: theme.palette.text.primary,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
   },
-  event: {
-    padding: '4px 8px',
-    borderRadius: 4,
-  },
-  eventUser: {
-    background: theme.palette.greyAlpha(0.06),
-    fontWeight: 500,
-  },
-  eventAssistant: {
-    background: 'transparent',
-  },
-  eventThinking: {
+  previewThinking: {
     color: theme.palette.greyAlpha(0.55),
     fontStyle: 'italic',
-    fontSize: '0.9em',
   },
-  eventToolUse: {
-    background: theme.palette.greyAlpha(0.04),
+  previewTool: {
     fontFamily: 'monospace',
     fontSize: '0.85em',
+    color: theme.palette.greyAlpha(0.7),
   },
-  eventToolResult: {
-    background: theme.palette.greyAlpha(0.04),
-    fontFamily: 'monospace',
-    fontSize: '0.85em',
-    color: theme.palette.greyAlpha(0.65),
-  },
-  eventError: {
+  previewError: {
     color: theme.palette.error?.main ?? theme.palette.text.primary,
   },
   empty: {
     color: theme.palette.greyAlpha(0.5),
     fontStyle: 'italic',
+    fontSize: '0.9em',
   },
-  removeButton: {
+  // Pulse-dot replacement once a `result` event has been received and the
+  // agent isn't currently mid-turn. Same hue as the pulse so the chip's
+  // status indicator stays visually in the same column.
+  doneIcon: {
+    flex: 'none',
+    alignSelf: 'center',
+    '--icon-size': '12px',
+    color: theme.palette.primary.main,
+  },
+  iconButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
     background: 'transparent',
     border: 'none',
     cursor: 'pointer',
-    padding: '2px 6px',
-    color: theme.palette.greyAlpha(0.55),
-    fontSize: '0.85em',
+    padding: 4,
+    borderRadius: 4,
+    color: theme.palette.greyAlpha(0.5),
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
     '&:hover': {
-      color: theme.palette.greyAlpha(0.9),
+      color: theme.palette.text.primary,
+      background: theme.palette.greyAlpha(0.06),
     },
   },
-  promptForm: {
+  expandIcon: {
+    '--icon-size': '14px',
+    // ChevronRight rotated to point downward — "expand" means "open below".
+    transform: 'rotate(90deg)',
+  },
+  icon: {
+    '--icon-size': '16px',
+  },
+  statusError: {
+    fontSize: '0.75em',
+    color: theme.palette.error?.main ?? theme.palette.text.primary,
+    textTransform: 'uppercase',
+    letterSpacing: '0.04em',
+    flex: 'none',
+  },
+
+  // --- Expanded body ----------------------------------------------------
+  scrollContainer: {
+    maxHeight: EXPANDED_MAX_CONTENT_HEIGHT,
+    overflowY: 'auto',
+    // Bottom padding leaves room for the gradient indicator so it fades
+    // over empty space at the end of the scroll, not over the last line.
+    padding: `2px 0 ${COLLAPSE_GRADIENT_HEIGHT + 4}px`,
     display: 'flex',
     flexDirection: 'column',
     gap: 8,
+    minWidth: 0,
   },
-  promptInput: {
-    width: '100%',
-    boxSizing: 'border-box',
-    minHeight: 60,
-    resize: 'vertical',
-    padding: 8,
-    fontFamily: 'inherit',
-    fontSize: 'inherit',
-    border: theme.palette.greyBorder('1px', 0.2),
-    borderRadius: 4,
-    background: theme.palette.background.default,
-    color: theme.palette.text.primary,
-    outline: 'none',
-    '&:focus': {
-      borderColor: theme.palette.primary.main,
-    },
+  eventRow: {
+    display: 'grid',
+    gridTemplateColumns: 'auto 1fr',
+    columnGap: 12,
+    alignItems: 'baseline',
   },
-  promptActions: {
+  eventChunks: {
     display: 'flex',
-    justifyContent: 'flex-end',
-    gap: 8,
+    flexDirection: 'column',
+    gap: 4,
+    minWidth: 0,
   },
-  sendButton: {
-    background: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
-    border: 'none',
+  chunkText: {
+    color: theme.palette.text.primary,
+    overflowWrap: 'anywhere',
+    whiteSpace: 'pre-wrap',
+  },
+  chunkThinking: {
+    color: theme.palette.greyAlpha(0.55),
+    fontStyle: 'italic',
+    fontSize: '0.92em',
+    borderLeft: `2px solid ${theme.palette.greyAlpha(0.15)}`,
+    paddingLeft: 10,
+    whiteSpace: 'pre-wrap',
+  },
+  chunkToolUse: {
+    background: theme.palette.greyAlpha(0.04),
+    border: theme.palette.greyBorder('1px', 0.08),
     borderRadius: 4,
-    padding: '6px 14px',
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-    fontSize: '0.95em',
-    '&:disabled': {
-      opacity: 0.5,
-      cursor: 'not-allowed',
+    padding: '6px 10px',
+    fontFamily: 'monospace',
+    fontSize: '0.85em',
+    whiteSpace: 'pre-wrap',
+  },
+  chunkToolResult: {
+    background: theme.palette.greyAlpha(0.04),
+    border: theme.palette.greyBorder('1px', 0.08),
+    borderRadius: 4,
+    padding: '6px 10px',
+    fontFamily: 'monospace',
+    fontSize: '0.85em',
+    color: theme.palette.greyAlpha(0.65),
+    whiteSpace: 'pre-wrap',
+  },
+
+  // --- Bottom-border toggle affordance ---------------------------------
+  // Same slot for both directions — collapse when expanded, expand when
+  // not. The strip is the visual + layout container; the gradient is the
+  // "there's something here" indicator; the button is the actual click
+  // target. All gated on root hover, so a chip at rest reads as clean.
+  // The strip itself is `pointer-events: none` so the user can still
+  // click/hover the chip body underneath; only the button captures clicks.
+  collapseStrip: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: COLLAPSE_HOVER_HEIGHT,
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'flex-end',
+    justifyContent: 'center',
+  },
+  collapseGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: COLLAPSE_GRADIENT_HEIGHT,
+    background: `linear-gradient(to bottom, ${theme.palette.greyAlpha(0)} 0%, ${theme.palette.greyAlpha(0.06)} 60%, ${theme.palette.greyAlpha(0.14)} 100%)`,
+    pointerEvents: 'none',
+    borderRadius: '0 0 6px 6px',
+    opacity: 0,
+    transition: 'opacity 120ms ease',
+    '$root:hover &': {
+      opacity: 1,
     },
   },
-  errorText: {
-    color: theme.palette.error?.main ?? theme.palette.text.primary,
-    fontSize: '0.9em',
+  collapseButton: {
+    position: 'relative',
+    width: 26,
+    height: 16,
+    marginBottom: -8,
+    padding: 0,
+    border: theme.palette.greyBorder('1px', 0.15),
+    borderRadius: 8,
+    background: theme.palette.background.default,
+    color: theme.palette.text.dim,
+    cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    pointerEvents: 'auto',
+    opacity: 0,
+    transition: 'opacity 120ms ease',
+    '$root:hover &': {
+      opacity: 1,
+    },
+    '&:hover': {
+      color: theme.palette.text.primary,
+      background: theme.palette.background.pageActiveAreaBackground ?? theme.palette.background.default,
+    },
+  },
+  collapseIcon: {
+    '--icon-size': '14px',
+    // ChevronRight rotated to point upward — collapse means "fold up".
+    transform: 'rotate(-90deg)',
   },
 }));
 
@@ -148,231 +320,282 @@ interface AgentBlockComponentProps {
 export function AgentBlockComponent({ nodeKey, conversationId, producedByConversationId }: AgentBlockComponentProps) {
   const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
+  const env = useResearchEditorEnvironment();
+
+  const fromAgent = !!producedByConversationId;
 
   const removeBlock = useCallback(() => {
     editor.update(() => {
       const node = $getNodeByKey(nodeKey);
-      if ($isAgentBlockNode(node)) {
-        node.remove();
-      }
+      if ($isAgentBlockNode(node)) node.remove();
     });
   }, [editor, nodeKey]);
 
-  const fromAgent = !!producedByConversationId;
-
   if (!conversationId) {
     return (
-      <div className={classNames(classes.root, fromAgent && classes.rootProvenance)} data-testid="research-agent-block-empty">
-        <div className={classes.header}>
-          <span>Agent</span>
-          <button
-            type="button"
-            className={classes.removeButton}
-            onClick={removeBlock}
-            aria-label="Remove agent block"
-          >
-            ×
-          </button>
-        </div>
-        <PendingPromptForm nodeKey={nodeKey} onCancel={removeBlock} />
+      <div
+        className={classNames(classes.root, fromAgent && classes.rootProvenance)}
+        data-testid="research-agent-block-pending"
+      >
+        <span className={classes.pulseDot} aria-label="Sending query" />
+        <span className={classes.preview}>Sending query…</span>
       </div>
     );
   }
 
   return (
     <ActiveAgentBlock
-      nodeKey={nodeKey}
       conversationId={conversationId}
       fromAgent={fromAgent}
-      removeBlock={removeBlock}
+      onOpenInChat={env.openConversationInChat}
+      onRemove={removeBlock}
     />
   );
 }
 
 interface ActiveAgentBlockProps {
-  nodeKey: NodeKey;
   conversationId: string;
   fromAgent: boolean;
-  removeBlock: () => void;
+  onOpenInChat: (conversationId: string) => void;
+  onRemove: () => void;
 }
 
-function ActiveAgentBlock({ nodeKey: _nodeKey, conversationId, fromAgent, removeBlock }: ActiveAgentBlockProps) {
+function ActiveAgentBlock({ conversationId, fromAgent, onOpenInChat, onRemove: _onRemove }: ActiveAgentBlockProps) {
   const classes = useStyles(styles);
   const { events, status, error } = useConversationStream(conversationId);
 
+  // Single pass over events: count user/result turns, collect visible ones,
+  // and capture the latest. `turnInFlight` is true whenever there are more
+  // user prompts than result markers (Claude Code emits exactly one `result`
+  // per turn, regardless of intermediate tool/thinking events).
+  const { resultCount, turnInFlight, visibleEvents, latestVisible } = useMemo(() => {
+    let userCount = 0;
+    let rc = 0;
+    const visible: ConversationEvent[] = [];
+    for (const e of events) {
+      if (e.kind === 'user') userCount++;
+      else if (e.kind === 'result') rc++;
+      if (isVisibleConversationEvent(e)) visible.push(e);
+    }
+    return {
+      resultCount: rc,
+      turnInFlight: userCount > rc,
+      visibleEvents: visible,
+      latestVisible: visible.length > 0 ? visible[visible.length - 1] : null,
+    };
+  }, [events]);
+
+  // Auto-expand on the falling edge of `turnInFlight` only, so loading a
+  // document with previously-completed blocks (no rising edge) leaves them
+  // collapsed; a turn the user actually watches complete expands.
+  const [expanded, setExpanded] = useState(false);
+  const wasInFlightRef = useRef(false);
+  useEffect(() => {
+    if (wasInFlightRef.current && !turnInFlight) {
+      setExpanded(true);
+    }
+    wasInFlightRef.current = turnInFlight;
+  }, [turnInFlight]);
+
+  const handleOpenInChat = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      // Stop propagation so the click doesn't also bubble to Lexical's
+      // selection handler and move the cursor into the (decorator) block.
+      e.stopPropagation();
+      e.preventDefault();
+      onOpenInChat?.(conversationId);
+    },
+    [conversationId, onOpenInChat],
+  );
+
+  const handleCollapse = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      e.preventDefault();
+      setExpanded(false);
+    },
+    [],
+  );
+
+  const handleExpand = useCallback(
+    (e: React.MouseEvent<HTMLButtonElement>) => {
+      e.stopPropagation();
+      e.preventDefault();
+      setExpanded(true);
+    },
+    [],
+  );
+
   return (
-    <div className={classNames(classes.root, fromAgent && classes.rootProvenance)} data-testid="research-agent-block">
-      <div className={classes.header}>
-        <span>Agent {fromAgent ? '· generated' : ''}</span>
-        <span>
-          <StatusLabel status={status} error={error} />
+    <div
+      className={classNames(
+        classes.root,
+        fromAgent && classes.rootProvenance,
+        expanded && classes.rootExpanded,
+      )}
+      data-testid="research-agent-block"
+    >
+      {expanded ? (
+        <ExpandedBody
+          visibleEvents={visibleEvents}
+          turnInFlight={turnInFlight}
+          status={status}
+          error={error}
+        />
+      ) : (
+        <>
+          {turnInFlight ? (
+            <span className={classes.pulseDot} aria-label="Agent is responding" />
+          ) : resultCount > 0 ? (
+            <ForumIcon icon="Check" className={classes.doneIcon} aria-label="Agent done" />
+          ) : null}
+          <LatestEventPreview event={latestVisible} status={status} />
+          {status === 'error' && error ? (
+            <span className={classes.statusError} title={error}>error</span>
+          ) : null}
+        </>
+      )}
+      <button
+        type="button"
+        className={classes.iconButton}
+        onClick={handleOpenInChat}
+        onMouseDown={(e) => e.preventDefault()}
+        title="Open conversation in chat"
+        aria-label="Open conversation in chat"
+      >
+        <ForumIcon icon="OpenInNew" className={classes.icon} />
+      </button>
+      {expanded || resultCount > 0 ? (
+        <div className={classes.collapseStrip}>
+          <div className={classes.collapseGradient} />
           <button
             type="button"
-            className={classes.removeButton}
-            onClick={removeBlock}
-            aria-label="Remove agent block"
+            className={classes.collapseButton}
+            onClick={expanded ? handleCollapse : handleExpand}
+            onMouseDown={(e) => e.preventDefault()}
+            title={expanded ? 'Collapse' : 'Expand'}
+            aria-label={expanded ? 'Collapse' : 'Expand'}
           >
-            ×
+            <ForumIcon
+              icon="ChevronRight"
+              className={expanded ? classes.collapseIcon : classes.expandIcon}
+            />
           </button>
-        </span>
-      </div>
-      <AgentBlockEvents events={events} status={status} />
+        </div>
+      ) : null}
     </div>
   );
 }
 
-interface PendingPromptFormProps {
-  nodeKey: NodeKey;
-  onCancel: () => void;
-}
-
-function PendingPromptForm({ nodeKey, onCancel }: PendingPromptFormProps) {
-  const classes = useStyles(styles);
-  const [editor] = useLexicalComposerContext();
-  const env = useResearchEditorEnvironment();
-  const [prompt, setPrompt] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [submitError, setSubmitError] = useState<string | null>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  useEffect(() => {
-    textareaRef.current?.focus();
-  }, []);
-
-  const submit = useCallback(async () => {
-    const trimmed = prompt.trim();
-    if (!trimmed || submitting) return;
-    setSubmitting(true);
-    setSubmitError(null);
-    try {
-      const anchorId = newResearchAnchorId();
-      const { conversationId } = await env.fireDocumentQuery({
-        documentId: env.documentId,
-        anchorId,
-        prompt: trimmed,
-      });
-      editor.dispatchCommand(UPDATE_AGENT_BLOCK_COMMAND, { nodeKey, conversationId });
-    } catch (err) {
-      setSubmitError(err instanceof Error ? err.message : String(err));
-      setSubmitting(false);
-    }
-  }, [prompt, submitting, env, editor, nodeKey]);
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // The textarea lives inside a Lexical decorator node. Without stopping
-    // propagation, every keystroke bubbles up to Lexical's KEY_* command
-    // handlers — most visibly breaking Cmd/Opt+Backspace, which Lexical
-    // interprets as document-level deletion before the textarea gets to
-    // perform its native delete-line / delete-word behavior. Stop propagation
-    // for everything; the textarea handles its own input natively.
-    e.stopPropagation();
-    if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-      e.preventDefault();
-      void submit();
-    } else if (e.key === 'Escape') {
-      e.preventDefault();
-      onCancel();
-    }
-  };
-
-  return (
-    <div className={classes.promptForm}>
-      <textarea
-        ref={textareaRef}
-        className={classes.promptInput}
-        placeholder="Ask the agent…  (⌘/Ctrl+Enter to send, Esc to cancel)"
-        value={prompt}
-        onChange={(e) => setPrompt(e.target.value)}
-        onKeyDown={handleKeyDown}
-        disabled={submitting}
-      />
-      {submitError ? <div className={classes.errorText}>{submitError}</div> : null}
-      <div className={classes.promptActions}>
-        <button
-          type="button"
-          className={classes.sendButton}
-          onClick={() => void submit()}
-          disabled={submitting || !prompt.trim()}
-        >
-          {submitting ? 'Sending…' : 'Send'}
-        </button>
-      </div>
-    </div>
-  );
-}
-
-interface StatusLabelProps {
+interface ExpandedBodyProps {
+  visibleEvents: ConversationEvent[];
+  turnInFlight: boolean;
   status: ReturnType<typeof useConversationStream>['status'];
   error: string | null;
 }
 
-function StatusLabel({ status, error }: StatusLabelProps) {
-  const classes = useStyles(styles);
-  if (status === 'error') return <span className={classNames(classes.status, classes.statusError)}>error: {error}</span>;
-  if (status === 'reconnecting') return <span className={classes.status}>reconnecting…</span>;
-  if (status === 'connecting') return <span className={classes.status}>connecting…</span>;
-  if (status === 'streaming') return <span className={classes.status}>streaming</span>;
-  if (status === 'loading') return <span className={classes.status}>loading…</span>;
-  return null;
-}
-
-interface AgentBlockEventsProps {
-  events: ConversationEvent[];
-  status: ReturnType<typeof useConversationStream>['status'];
-}
-
-function AgentBlockEvents({ events, status }: AgentBlockEventsProps) {
+function ExpandedBody({ visibleEvents, turnInFlight, status, error }: ExpandedBodyProps) {
   const classes = useStyles(styles);
 
-  // Filter to user-facing event kinds. Hidden categories:
-  //   - `system` — init handshake, model swap notices
-  //   - `result` — Claude Code's final session-result wrapper
-  //   - `unknown` — rate-limit notices and other untyped metadata
-  // The persistence pipeline keeps the full transcript regardless.
-  const sorted = useMemo(
-    () => [...events].filter(isVisibleAgentBlockEvent).sort((a, b) => a.seq - b.seq),
-    [events],
-  );
+  // Auto-scroll to the latest event whenever the content grows so the user
+  // sees what just arrived without scrolling manually. We pin to bottom only
+  // while a turn is in flight; once it completes the user owns the scroll.
+  const scrollRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!turnInFlight) return;
+    const el = scrollRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [visibleEvents.length, turnInFlight]);
 
-  if (sorted.length === 0) {
+  if (visibleEvents.length === 0) {
     return (
-      <div className={classes.empty}>
-        {status === 'loading' || status === 'connecting' ? 'Waiting for agent response…' : 'No output yet.'}
+      <div className={classNames(classes.scrollContainer)} ref={scrollRef}>
+        <span className={classNames(classes.preview, classes.empty)}>
+          {status === 'loading' || status === 'connecting' ? 'Waiting for agent response…' : 'No output yet.'}
+        </span>
       </div>
     );
   }
 
   return (
-    <div className={classes.events}>
-      {sorted.map((event) => (
-        <EventRow key={`${event.seq}-${event._id}`} event={event} />
+    <div className={classes.scrollContainer} ref={scrollRef}>
+      {visibleEvents.map((event) => (
+        <ExpandedEventRow key={`${event.seq}-${event._id}`} event={event} />
       ))}
+      {status === 'error' && error ? (
+        <span className={classes.statusError} title={error}>error</span>
+      ) : null}
     </div>
   );
 }
 
-interface EventRowProps {
-  event: ConversationEvent;
+function ExpandedEventRow({ event }: { event: ConversationEvent }) {
+  const classes = useStyles(styles);
+  const chunks = getConversationEventChunks(event);
+  if (chunks.length === 0) return null;
+  const speakerLabel = event.kind === 'user' ? 'You' : event.kind === 'error' ? 'Error' : 'Agent';
+  const speakerClass = classNames(classes.speaker, {
+    [classes.speakerUser]: event.kind === 'user',
+    [classes.speakerAssistant]: event.kind === 'assistant',
+    [classes.speakerError]: event.kind === 'error',
+  });
+  const chunkClassByKind: Record<string, string> = {
+    thinking: classes.chunkThinking,
+    tool_use: classes.chunkToolUse,
+    tool_result: classes.chunkToolResult,
+  };
+  return (
+    <div className={classes.eventRow}>
+      <div className={speakerClass}>{speakerLabel}</div>
+      <div className={classes.eventChunks}>
+        {chunks.map((chunk, i) => (
+          <div key={i} className={chunkClassByKind[chunk.kind] ?? classes.chunkText}>{chunk.text}</div>
+        ))}
+      </div>
+    </div>
+  );
 }
 
-function EventRow({ event }: EventRowProps) {
-  const classes = useStyles(styles);
-  const text = getConversationEventText(event);
+interface LatestEventPreviewProps {
+  event: ConversationEvent | null;
+  status: ReturnType<typeof useConversationStream>['status'];
+}
 
-  switch (event.kind) {
-    case 'user':
-      return <div className={classNames(classes.event, classes.eventUser)}>{text}</div>;
-    case 'assistant':
-      return <div className={classNames(classes.event, classes.eventAssistant)}>{text}</div>;
-    case 'thinking':
-      return <div className={classNames(classes.event, classes.eventThinking)}>{text}</div>;
-    case 'tool_use':
-      return <div className={classNames(classes.event, classes.eventToolUse)}>{text}</div>;
-    case 'tool_result':
-      return <div className={classNames(classes.event, classes.eventToolResult)}>{text}</div>;
-    case 'error':
-      return <div className={classNames(classes.event, classes.eventError)}>{text}</div>;
-    default:
-      return <div className={classes.event}>{text}</div>;
+function LatestEventPreview({ event, status }: LatestEventPreviewProps) {
+  const classes = useStyles(styles);
+
+  if (!event) {
+    const placeholder =
+      status === 'loading' || status === 'connecting'
+        ? 'Waiting for agent response…'
+        : 'No output yet.';
+    return <span className={classNames(classes.preview, classes.empty)}>{placeholder}</span>;
   }
+
+  const chunks = getConversationEventChunks(event);
+  // First non-empty chunk's text drives the preview. Multi-chunk events
+  // (e.g. thinking + text) are folded to whichever chunk leads — we render
+  // its kind for styling so a still-thinking event reads as italic-grey
+  // instead of normal text.
+  const chunk = chunks.find((c) => c.text.length > 0);
+  const text = chunk?.text ?? '';
+  const speakerLabel =
+    event.kind === 'user' ? 'You' : event.kind === 'error' ? 'Error' : 'Agent';
+  const speakerClass = classNames(classes.speaker, {
+    [classes.speakerUser]: event.kind === 'user',
+    [classes.speakerAssistant]: event.kind === 'assistant',
+    [classes.speakerError]: event.kind === 'error',
+  });
+  const previewClass = classNames(classes.preview, {
+    [classes.previewThinking]: chunk?.kind === 'thinking',
+    [classes.previewTool]: chunk?.kind === 'tool_use' || chunk?.kind === 'tool_result',
+    [classes.previewError]: event.kind === 'error',
+  });
+
+  return (
+    <>
+      <span className={speakerClass}>{speakerLabel}</span>
+      <span className={previewClass}>{text || '…'}</span>
+    </>
+  );
 }

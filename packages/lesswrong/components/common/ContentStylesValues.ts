@@ -2,6 +2,87 @@ import { defineStyles } from '../hooks/defineStyles';
 import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
 
+/**
+ * Research-document editor styling. Inherits the full postBodyStyles surface
+ * (so spoilers, footnotes, embeds, tables, code blocks, etc. all look right),
+ * then narrows the editor's own typography under `[contenteditable="true"]`:
+ * compact sans-serif sizing for paragraphs / headings / lists / blockquotes,
+ * a fixed content column, and placeholder positioning that lines up with
+ * where the user's first paragraph would actually sit.
+ *
+ * Keep editor-specific rules scoped to the contenteditable so they don't
+ * leak onto floating menus, toolbars, or popovers that share the wrapper.
+ */
+const researchDocumentBodyStyles = (theme: ThemeType) => ({
+  ...postBodyStyles(theme),
+  '& [contenteditable="true"]': {
+    minHeight: 'calc(100vh - var(--header-height, 56px))',
+    fontSize: 14,
+    lineHeight: 1.55,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    maxWidth: 960,
+    padding: '20px 18px 40px',
+  },
+  '& [contenteditable="true"] p': {
+    margin: '0 0 0.75em',
+  },
+  '& [contenteditable="true"] h1': {
+    fontSize: 24,
+    lineHeight: 1.25,
+    margin: '1em 0 0.5em',
+    fontWeight: 600,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+  },
+  '& [contenteditable="true"] h2': {
+    fontSize: 20,
+    lineHeight: 1.3,
+    margin: '1em 0 0.5em',
+    fontWeight: 600,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+  },
+  '& [contenteditable="true"] h3': {
+    fontSize: 17,
+    lineHeight: 1.35,
+    margin: '1em 0 0.5em',
+    fontWeight: 600,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+  },
+  '& [contenteditable="true"] h4': {
+    fontSize: 14,
+    lineHeight: 1.4,
+    margin: '1em 0 0.5em',
+    fontWeight: 600,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+  },
+  '& [contenteditable="true"] li': {
+    fontSize: 14,
+    lineHeight: 1.55,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    color: theme.palette.text.primary,
+  },
+  '& [contenteditable="true"] blockquote': {
+    fontSize: 14,
+    lineHeight: 1.55,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    margin: '0.5em 0',
+    padding: '0.25em 0.75em',
+    borderLeft: `3px solid ${theme.palette.greyAlpha(0.15)}`,
+    color: theme.palette.text.primary,
+    fontStyle: 'normal',
+  },
+  // Placeholder is a sibling of the contenteditable, absolutely positioned
+  // at the top-left of the editor shell, so it doesn't pick up the
+  // contenteditable's padding via inheritance — match offsets explicitly so
+  // the empty-state text lines up with where the first paragraph would.
+  '& .LexicalContentEditable-placeholder': {
+    top: 20,
+    left: 18,
+    fontSize: 14,
+    lineHeight: 1.55,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+  },
+});
+
 export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
   base: {
     ...postBodyStyles(theme)
@@ -126,14 +207,26 @@ export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
       '& blockquote, & li': {
       }
     },
-  }
+  },
+  // Composed from `researchDocumentBodyStyles`, which itself spreads
+  // `postBodyStyles` for full coverage (spoilers, footnotes, embeds, code,
+  // tables, etc.) and then overrides editor-specific typography under
+  // `[contenteditable="true"]`. Combined with `contentStylesClassnames`
+  // skipping `base` for this type, that gives the editor exactly one source
+  // of post-body styling — its own — instead of stacking post-rendering
+  // defaults underneath and fighting them with overrides.
+  researchDocumentBody: researchDocumentBodyStyles(theme),
 }), { stylePriority: -1 });
 
-export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse"|"llmChat"|"ultraFeed"|"ultraFeedPost";
+export type ContentStyleType = "post"|"postHighlight"|"comment"|"commentExceptPointerEvents"|"answer"|"tag"|"debateResponse"|"llmChat"|"ultraFeed"|"ultraFeedPost"|"researchDocument";
 
 export function contentStylesClassnames(classes: ReturnType<typeof styles.styles>, contentType: ContentStyleType) {
+  // The research-document editor opts out of the shared `base` (postBodyStyles)
+  // so its self-contained rule set isn't fighting post-rendering defaults like
+  // serif typography on `& li`. Every other content type still inherits base.
+  const includeBase = contentType !== "researchDocument";
   return classNames(
-    classes.base, "content",
+    includeBase && classes.base, "content",
     contentType==="post" && classes.postBody,
     contentType==="postHighlight" && classes.postHighlight,
     contentType==="comment" && classes.commentBody,
@@ -144,5 +237,6 @@ export function contentStylesClassnames(classes: ReturnType<typeof styles.styles
     contentType==="llmChat" && classes.llmChat,
     contentType==="ultraFeed" && classes.ultraFeed,
     contentType==="ultraFeedPost" && classes.ultraFeedPost,
+    contentType==="researchDocument" && classes.researchDocumentBody,
   );
 }

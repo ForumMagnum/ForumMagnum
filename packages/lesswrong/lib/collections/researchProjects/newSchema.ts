@@ -44,13 +44,10 @@ const schema = {
       validation: { optional: true },
     },
   },
-  // TODO(security, before deployment): Currently stored as plaintext.
-  // Must graduate to at least Tier 2 (app-level AEAD encryption with KEK
-  // from env/managed-store) before any non-internal user touches this.
-  // Tier 1 (external secrets store, column holds an ARN/path) is the
-  // long-term right answer. The "Ref" suffix in the field name was always
-  // intended to mean "reference to a secret store entry" — that's not
-  // what's stored today; fix that.
+  // New writes are encrypted by the ResearchProjects mutation before storage.
+  // Tier 1 (external secrets store, column holds an ARN/path) is still the
+  // long-term right answer; for now the "Ref" points to app-encrypted token
+  // material rather than a separately managed secret-store entry.
   //
   // canRead is admin-only by design: users got this token from
   // `claude setup-token` and should keep their own copy. We never need to

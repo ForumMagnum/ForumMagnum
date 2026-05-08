@@ -1,6 +1,6 @@
 import {
   getConversationEventText,
-  isVisibleAgentBlockEvent,
+  isVisibleConversationEvent,
 } from "../components/research/conversationEventFormat";
 
 describe("research conversation event formatting", () => {
@@ -67,9 +67,9 @@ describe("research conversation event formatting", () => {
   });
 
   it("filters only user-facing inline agent-block event kinds", () => {
-    expect(isVisibleAgentBlockEvent({ kind: "assistant" })).toBe(true);
-    expect(isVisibleAgentBlockEvent({ kind: "tool_result" })).toBe(true);
-    expect(isVisibleAgentBlockEvent({ kind: "system" })).toBe(false);
-    expect(isVisibleAgentBlockEvent({ kind: "unknown" })).toBe(false);
+    expect(isVisibleConversationEvent({ kind: "assistant" })).toBe(true);
+    expect(isVisibleConversationEvent({ kind: "tool_result" })).toBe(true);
+    expect(isVisibleConversationEvent({ kind: "system" })).toBe(false);
+    expect(isVisibleConversationEvent({ kind: "unknown" })).toBe(false);
   });
 });
