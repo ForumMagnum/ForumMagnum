@@ -34,6 +34,7 @@ import PermanentRedirect from '../common/PermanentRedirect';
 import { MARGINAL_FUNDING_SEQUENCE_ID } from '@/lib/givingSeason';
 import {
   BETTER_FUTURES_ID,
+  IN_DEVELOPMENT_SERIES_ID,
   SCALING_SERIES_ID,
 } from '@/lib/collections/forumEvents/helpers';
 
@@ -212,6 +213,11 @@ const SequencesPage = ({ documentId, classes }: {
   if (documentId === SCALING_SERIES_ID && !currentUser?.isAdmin) {
     return (
       <PermanentRedirect url="/scaling-series" />
+    );
+  }
+  if (documentId === IN_DEVELOPMENT_SERIES_ID && !currentUser?.isAdmin) {
+    return (
+      <PermanentRedirect url="/in-development-highlight" />
     );
   }
   if (documentId === BETTER_FUTURES_ID && !currentUser?.isAdmin) {
