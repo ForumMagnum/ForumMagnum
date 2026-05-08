@@ -294,7 +294,9 @@ export function isInsertFootnote(event: KeyboardEvent): boolean {
 }
 
 export function isRedo(event: KeyboardEvent): boolean {
-  // Ctrl+Y — standard Windows/Linux redo. On Mac, Lexical's HistoryPlugin
-  // already handles Cmd+Shift+Z; Ctrl+Y on Mac conflicts with system shortcuts.
+  // On Apple, ⌘+Shift+Z is already handled by Lexical's built-in key bindings.
+  // On Windows/Linux, Lexical only wires up Ctrl+Shift+Z for redo; Ctrl+Y is
+  // the conventional Windows redo shortcut (used by Word, browsers, etc.) and
+  // is what the toolbar tooltip already advertises.
   return !IS_APPLE && isExactShortcutMatch(event, 'y', {ctrlKey: true});
 }
