@@ -8,6 +8,7 @@ import type { Request, Response } from 'express';
 import { MARGINAL_FUNDING_SEQUENCE_ID } from '@/lib/givingSeason';
 import {
   BETTER_FUTURES_ID,
+  IN_DEVELOPMENT_SERIES_ID,
   SCALING_SERIES_ID,
 } from '@/lib/collections/forumEvents/helpers';
 
@@ -27,6 +28,9 @@ export const sequenceGetPageUrl = function(sequence: {_id: string}, isAbsolute =
   }
   if (sequence._id === SCALING_SERIES_ID) {
     return `${prefix}/scaling-series`;
+  }
+  if (sequence._id === IN_DEVELOPMENT_SERIES_ID) {
+    return `${prefix}/in-development-highlight`;
   }
   return `${prefix}/s/${sequence._id}`;
 };
@@ -179,7 +183,8 @@ export const sequenceRouteWillDefinitelyReturn200 = async (req: Request, res: Re
   if (!sequenceId) return false;
   if (
     sequenceId === MARGINAL_FUNDING_SEQUENCE_ID ||
-    sequenceId === SCALING_SERIES_ID
+    sequenceId === SCALING_SERIES_ID ||
+    sequenceId === IN_DEVELOPMENT_SERIES_ID
   ) {
     return false;
   }
