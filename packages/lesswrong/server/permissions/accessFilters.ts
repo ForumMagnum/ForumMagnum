@@ -200,7 +200,8 @@ const postCheckAccess: CheckAccessFunction<'Posts'> = async (currentUser, post, 
   }
   if (userCanDo(currentUser, 'posts.view.all')) {
     return true
-  } else if (userOwns(currentUser, post) || userIsSharedOn(currentUser, post) || await userIsPostGroupOrganizer(currentUser, post, context)) {
+  } else if (userOwns(currentUser, post) || userIsSharedOn(currentUser, post) || await userIsPostGroupOrganizer(currentUser, post, context) ||
+             (currentUser && (post.coauthorUserIds ?? []).includes(currentUser._id))) {
     return true;
   } else if (!currentUser && !!canonicalLinkSharingKey && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: unvalidatedLinkSharingKey })) {
     return true;
