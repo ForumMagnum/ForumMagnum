@@ -9,7 +9,7 @@ import { $isLinkNode, LinkNode } from '@lexical/link';
 // Examples:
 // https://www.google.com/url?q=https://en.wikipedia.org/wiki/Main_Page&sa=D&source=editors&ust=1667922372715536&usg=AOvVaw2NyT5CZhfsrRY_zzMs2UUJ
 // https://www.google.com/url?q=https://en.wikipedia.org/wiki/Main_Page
-const GOOGLE_REDIRECT_PATTERN = /^\/\/www\.google\.com\/url\?q=(\S+?)(&|$)/;
+const GOOGLE_REDIRECT_PATTERN = /^https:\/\/www\.google\.com\/url\?q=(\S+?)(&|$)/;
 
 /**
  * Extract the target URL from a Google redirect URL
