@@ -92,11 +92,15 @@ export const HR: ElementTransformer = {
     // TODO: Get rid of isImport flag
     if (isImport || parentNode.getNextSibling() != null) {
       parentNode.replace(line);
+      line.selectNext();
     } else {
-      parentNode.insertBefore(line);
+      // Typing "---" at the end of the document: replace the paragraph with
+      // the HR and add an empty paragraph after for the cursor to land in.
+      parentNode.replace(line);
+      const paragraph = $createParagraphNode();
+      line.insertAfter(paragraph);
+      paragraph.select();
     }
-
-    line.selectNext();
   },
   type: 'element',
 };
