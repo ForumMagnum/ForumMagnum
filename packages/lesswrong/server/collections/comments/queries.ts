@@ -425,6 +425,14 @@ export const graphqlCommentQueryTypeDefs = gql`
     postId: String
   }
   
+  input CommentsUserNonAfPostCommentsInput {
+    userId: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
+    postId: String
+  }
+  
   input CommentsRssInput {
     userId: String
     commentIds: [String!]
@@ -489,6 +497,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     debateResponses: CommentsDebateResponsesInput
     recentDebateResponses: CommentsRecentDebateResponsesInput
     alignmentSuggestedComments: CommentsAlignmentSuggestedCommentsInput
+    userNonAfPostComments: CommentsUserNonAfPostCommentsInput
     rss: CommentsRssInput
     draftComments: CommentsDraftCommentsInput
   }

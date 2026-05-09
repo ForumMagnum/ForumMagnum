@@ -719,6 +719,17 @@ function recentDebateResponses(terms: CommentsViewTerms) {
   };
 }
 
+function userNonAfPostComments(terms: CommentsViewTerms) {
+  return {
+    selector: {
+      postId: terms.postId,
+      userId: terms.userId,
+      af: false,
+    },
+    options: { sort: { postedAt: -1 } }
+  };
+}
+
 function alignmentSuggestedComments(terms: CommentsViewTerms) {
   return {
     selector: {
@@ -782,6 +793,7 @@ export const CommentsViews = new CollectionViewSet('Comments', {
   moderatorComments,
   debateResponses,
   recentDebateResponses,
+  userNonAfPostComments,
   alignmentSuggestedComments,
   // Copied over from server/rss.ts
   rss: recentComments,
