@@ -320,6 +320,31 @@ const dialogueStyle = (theme: ThemeType) => ({
   }
 });
 
+const printStyles = (_theme: ThemeType) => ({
+  "@media print": {
+    // Editor formatting toolbar (row of bold/italic/heading/etc buttons)
+    ".LexicalToolbarPlugin-toolbar, .LexicalToolbarPlugin-toolbarHidden": {
+      display: "none !important",
+    },
+    // Post-settings sidebar (publish / sharing / tags panel on the right)
+    ".EditorSettingsSidebar-root": {
+      display: "none !important",
+    },
+    // Publish / save-draft / request-feedback buttons at the bottom of the editor form
+    ".PostSubmit-submitButtons, .PostSubmit-cancelButton, .PostSubmit-feedbackRow": {
+      display: "none !important",
+    },
+    // Mobile bottom action bar and its slide-up sheet
+    ".MobileEditorBottomBar-bottomBar, .MobileEditorBottomBar-sheetOverlay, .MobileEditorBottomBar-sheetPanel": {
+      display: "none !important",
+    },
+    // Left-hand navigation sidebar (used on desktop)
+    ".NavigationStandalone-sidebar": {
+      display: "none !important",
+    },
+  },
+});
+
 const audioPlayerStyles = (theme: ThemeType) => ({
   // When the floating audio player is visible, move this ad above it
   'body.t3a-sticky-player-visible .StickyDigestAd-root': {
@@ -383,5 +408,6 @@ export const globalStyles = (theme: ThemeType) => ({
   ...commentsStyle(theme),
   ...dialogueStyle(theme),
   ...audioPlayerStyles(theme),
+  ...printStyles(theme),
   ...miscStyles(theme),
 });
