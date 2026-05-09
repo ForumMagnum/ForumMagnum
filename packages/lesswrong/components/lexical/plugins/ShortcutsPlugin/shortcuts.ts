@@ -292,3 +292,10 @@ export function isAddComment(event: KeyboardEvent): boolean {
 export function isInsertFootnote(event: KeyboardEvent): boolean {
   return isExactShortcutMatch(event, 'f', {...CONTROL_OR_META, altKey: true});
 }
+
+export function isRedo(event: KeyboardEvent): boolean {
+  // Ctrl+Y: Windows/Linux redo alias. The Mac binding (⌘+Shift+Z) is already
+  // handled by Lexical's HistoryPlugin, so we only add the non-Mac alias here.
+  if (IS_APPLE) return false;
+  return isExactShortcutMatch(event, 'y', {ctrlKey: true});
+}
