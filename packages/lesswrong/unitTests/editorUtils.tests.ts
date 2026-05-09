@@ -74,6 +74,29 @@ A sample piece of content[^footnote1] that has complex footnotes[^footnote2]
     expect(wordCountWithoutAppendix).toBe(wordCountWithAppendix);
   });
 
+  it("does not exclude content after a heading that only mentions appendix parenthetically", async () => {
+    // Regression test for: headings like "Recent examples (more in appendix)" used to
+    // cause everything after that heading to be excluded from the word count, because
+    // the old regex matched any heading containing "appendix" anywhere.
+    const preamble = "A sample piece of content.\n\n";
+    const parentheticalAppendixHeading = "Recent examples of reward hacking (more in appendix)\n=========================================================\n\n";
+    const body = "This content should still count towards the word count.\n";
+
+    const wordCountWithParentheticalAppendixMention = await dataToWordCount(
+      preamble + parentheticalAppendixHeading + body,
+      "markdown",
+      createAnonymousContext(),
+    );
+    const wordCountWithoutParentheticalAppendixMention = await dataToWordCount(
+      preamble + body,
+      "markdown",
+      createAnonymousContext(),
+    );
+    // Both should include the body words; the parenthetical mention should NOT cause
+    // the body to be dropped.
+    expect(wordCountWithParentheticalAppendixMention).toBe(wordCountWithoutParentheticalAppendixMention);
+  });
+
   it("excludes collapsible section body but keeps collapsible title", async () => {
     const markdownWithShortCollapsedBody = `
 A sample piece of content.

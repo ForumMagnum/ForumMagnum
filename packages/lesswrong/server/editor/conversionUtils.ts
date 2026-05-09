@@ -688,8 +688,10 @@ export async function dataToCkEditor(data: AnyBecauseTodo, type: string) {
  * is just to find the first place where this occurs and then to ignore to the end of
  * the document.
  *
- * We adopt a similar strategy for ignoring appendices. We find the first header tag that
- * contains the word 'appendix' (case-insensitive), and ignore to the end of the document.
+ * We adopt a similar strategy for ignoring appendices. We find the first header tag where
+ * 'appendix' is one of the first four words (case-insensitive), and ignore to the end of
+ * the document. Requiring "appendix" to appear early avoids false-positives on headings
+ * that merely mention the appendix parenthetically, e.g. "Examples (see appendix)".
  *
  * This function runs when content is saved, not when it's loaded, so it's not too
  * performance sensitive. On the flip side, updates to this function won't affect
@@ -730,8 +732,25 @@ export async function dataToWordCount(data: AnyBecauseTodo, type: string, contex
 
     // Convert to HTML and try removing appendixes and collapsible section bodies.
     const htmlWithoutFootnotes = await dataToHTML(withoutFootnotes, "markdown", context, { skipMathjax: true }) ?? "";
-    const htmlWithoutFootnotesAndAppendices = htmlWithoutFootnotes
-      .split(/<h[1-6]>.*(appendix).*<\/h[1-6]>/i)[0];
+    // Only split at a heading where "appendix" is within the first four words of
+    // the heading text. The original simple regex matched any heading containing
+    // "appendix" anywhere (e.g. "Recent examples (more in appendix)"), which
+    // could exclude the entire body of posts whose headings only mention appendices
+    // parenthetically.
+    const appendixHeadingRegex = /<h[1-6]>([\s\S]*?)<\/h[1-6]>/gi;
+    let appendixSplitIdx = -1;
+    let headingMatch: RegExpExecArray | null;
+    while ((headingMatch = appendixHeadingRegex.exec(htmlWithoutFootnotes)) !== null) {
+      const plainText = headingMatch[1].replace(/<[^>]+>/g, '').trim().toLowerCase();
+      const first4Words = plainText.split(/\s+/).slice(0, 4).map(w => w.replace(/[^\w]/g, ''));
+      if (first4Words.includes('appendix')) {
+        appendixSplitIdx = headingMatch.index;
+        break;
+      }
+    }
+    const htmlWithoutFootnotesAndAppendices = appendixSplitIdx >= 0
+      ? htmlWithoutFootnotes.slice(0, appendixSplitIdx)
+      : htmlWithoutFootnotes;
     const $ = cheerioParse(htmlWithoutFootnotesAndAppendices);
     $('.detailsBlockContent').remove();
     const markdownWithoutFootnotesAndAppendicesOrCollapsedBodies = dataToMarkdown($.html(), "html");
