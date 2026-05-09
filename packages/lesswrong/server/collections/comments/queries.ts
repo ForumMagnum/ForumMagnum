@@ -298,6 +298,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     maxAgeDays: Int
     showCommunity: Boolean
     relevantTagId: String
+    sortBy: String
   }
   
   input CommentsRepliesToCommentThreadInput {

@@ -572,7 +572,10 @@ function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?:
         },
       ],
     },
-    options: {sort: {score: -1, lastSubthreadActivity: -1, postedAt: -1}}
+    options: {sort: terms.sortBy === 'new'
+      ? {postedAt: -1}
+      : {score: -1, lastSubthreadActivity: -1, postedAt: -1}
+    }
   };
 }
 

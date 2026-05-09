@@ -2793,6 +2793,7 @@ export type CommentsShortformFrontpageInput = {
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
   relevantTagId?: InputMaybe<Scalars['String']['input']>;
   showCommunity?: InputMaybe<Scalars['Boolean']['input']>;
+  sortBy?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 

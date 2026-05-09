@@ -19,6 +19,7 @@ import Loading from "../vulcan-core/Loading";
 import SectionFooter from "../common/SectionFooter";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { SuspenseWrapper } from "../common/SuspenseWrapper";
@@ -33,6 +34,25 @@ const ShortformCommentsMultiQuery = gql(`
     }
   }
 `);
+
+const NewestShortformCommentQuery = gql(`
+  query newestCommentQuickTakesSectionQuery($selector: CommentSelector) {
+    comments(selector: $selector, limit: 1) {
+      results {
+        ...FrontpageShortformComments
+      }
+    }
+  }
+`);
+
+function mergeWithFreshnesSlot(
+  scored: FrontpageShortformComments[],
+  newest: FrontpageShortformComments | undefined,
+): FrontpageShortformComments[] {
+  if (!newest || scored.length === 0) return scored;
+  if (scored.slice(0, 7).some(r => r._id === newest._id)) return scored;
+  return [newest, ...scored.slice(0, 6)];
+}
 
 const styles = defineStyles("QuickTakesSection", (theme: ThemeType) => ({
   communityToggle: {
@@ -76,14 +96,22 @@ const QuickTakesSectionLoaded = ({showCommunity}: {
     },
   });
 
-  const results = data?.comments?.results;
+  const { data: newestData } = useQuery(NewestShortformCommentQuery, {
+    variables: {
+      selector: { shortformFrontpage: { showCommunity, maxAgeDays, sortBy: 'new' } },
+    },
+  });
+
+  const scoredResults = data?.comments?.results ?? [];
+  const newestResult = newestData?.comments?.results?.[0];
+  const results = mergeWithFreshnesSlot(scoredResults, newestResult);
 
   const showLoadMore = !loadMoreProps.hidden;
 
   return <>
     {(userCanQuickTake(currentUser) || !currentUser) && <QuickTakesEntry currentUser={currentUser} successCallback={refetch} />}
     <div className={classes.list}>
-      {results?.map((result: FrontpageShortformComments) => (
+      {results.map((result) => (
         <QuickTakesListItem key={result._id} quickTake={result} />
       ))}
       {loading && <Loading />}
