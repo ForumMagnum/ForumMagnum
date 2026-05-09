@@ -405,7 +405,7 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     },
     '& ins.join::before': {
       // pilcrow ("paragraph" character)
-      content: '"\u00B6"',
+      content: '"¶"',
       position: 'absolute',
       left: 0,
       top: '50%',
@@ -447,6 +447,10 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     '& hr.selected': {
       outline: `2px solid ${theme.palette.lexicalEditor.focusRing}`,
       outlineOffset: '-2px',
+    },
+    '& mark': {
+      backgroundColor: 'light-dark(rgba(100, 180, 255, 0.35), rgba(80, 140, 220, 0.4))',
+      color: 'inherit',
     },
     // Sentinel paragraphs are structural gap nodes used for block cursor
     // navigation. Keep their styles theme-aware so the cursor indicator is

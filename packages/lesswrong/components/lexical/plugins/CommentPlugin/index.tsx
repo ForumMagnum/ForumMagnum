@@ -613,7 +613,7 @@ function CommentInputBox({
               elements[i] = elem;
               container.appendChild(elem);
             }
-            const color = '255, 212, 0';
+            const color = '100, 180, 255';
             const style = `position:absolute;top:${
               selectionRect.top +
               (window.pageYOffset || document.documentElement.scrollTop)
