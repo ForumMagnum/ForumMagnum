@@ -101,7 +101,7 @@ export function useQueryWithLoadMore<
   const count = queryResult?.results?.length ?? 0;
   const totalCount = queryResult?.totalCount ?? undefined;
 
-  const showLoadMore = alwaysShowLoadMore || (enableTotal ? (count < (totalCount ?? 0)) : (count >= effectiveLimit));
+  const showLoadMore = alwaysShowLoadMore || (enableTotal && totalCount !== undefined ? count < totalCount : count >= effectiveLimit);
 
   const loadMore = useStabilizedCallbackAsync<void>(async () => {
     const newLimit: number = effectiveLimit + itemsPerPage;
