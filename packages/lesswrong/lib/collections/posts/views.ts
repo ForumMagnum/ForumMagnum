@@ -180,12 +180,16 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverC
     };
   }
   if (terms.sortedBy) {
-    if (terms.sortedBy === 'topAdjusted') {
+    // 'topInflation' is the profile-page UI alias for 'topAdjusted'; normalise
+    // it here so the sort lookup and synthetic-field injection both work.
+    const resolvedSortedBy = (terms.sortedBy as string) === 'topInflation' ? 'topAdjusted' : terms.sortedBy;
+
+    if (resolvedSortedBy === 'topAdjusted') {
       params.syntheticFields = { ...params.syntheticFields, ...buildInflationAdjustedField() }
     }
 
-    if ((sortings as AnyBecauseTodo)[terms.sortedBy]) {
-      params.options = {sort: {...params.options.sort, ...(sortings as AnyBecauseTodo)[terms.sortedBy]}}
+    if ((sortings as AnyBecauseTodo)[resolvedSortedBy]) {
+      params.options = {sort: {...params.options.sort, ...(sortings as AnyBecauseTodo)[resolvedSortedBy]}}
     } else {
       // eslint-disable-next-line no-console
       console.warn(
