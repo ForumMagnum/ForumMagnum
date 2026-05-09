@@ -10,6 +10,8 @@ import {
   LexicalCommand,
   $getNodeByKey,
   NodeKey,
+  KEY_BACKSPACE_COMMAND,
+  KEY_DELETE_COMMAND,
 } from 'lexical';
 import {
   INSERT_TABLE_COMMAND,
@@ -32,6 +34,7 @@ import {
   $getTableNodeFromLexicalNodeOrThrow,
   $computeTableMapSkipCellCheck,
   $getTableCellNodeRect,
+  TableSelection,
 } from '@lexical/table';
 import { mergeRegister, $findMatchingParent } from '@lexical/utils';
 import TableDimensionSelector from './TableDimensionSelector';
@@ -168,6 +171,37 @@ function getMergeTargetCell(
   }
 
   return adjacentCell;
+}
+
+/**
+ * When the user presses Backspace or Delete with a TableSelection active,
+ * determine whether the selection covers entire rows or entire columns and
+ * delete them. Returns true if the key was handled, false to fall through to
+ * Lexical's default behaviour (clear cell content).
+ */
+function $deleteTableRowOrColumnAtKeyboard(selection: TableSelection): boolean {
+  const shape = selection.getShape();
+  const nodes = selection.getNodes();
+  const cellNode = nodes.find($isTableCellNode);
+  if (!cellNode) return false;
+
+  const tableNode = $getTableNodeFromLexicalNodeOrThrow(cellNode);
+  const [tableMap] = $computeTableMapSkipCellCheck(tableNode, null, null);
+  const totalRows = tableMap.length;
+  const totalCols = totalRows > 0 ? tableMap[0].length : 0;
+  if (totalRows === 0 || totalCols === 0) return false;
+
+  // Full rows selected: the selection spans every column
+  if (shape.fromX === 0 && shape.toX >= totalCols - 1) {
+    $deleteTableRowAtSelection();
+    return true;
+  }
+  // Full columns selected: the selection spans every row
+  if (shape.fromY === 0 && shape.toY >= totalRows - 1) {
+    $deleteTableColumnAtSelection();
+    return true;
+  }
+  return false;
 }
 
 /**
@@ -650,7 +684,33 @@ export function TablesPlugin(): React.ReactElement {
           return true;
         },
         COMMAND_PRIORITY_LOW
-      )
+      ),
+
+      // Backspace / Delete on a full-row or full-column TableSelection deletes
+      // the selected rows or columns instead of just clearing cell content.
+      editor.registerCommand(
+        KEY_BACKSPACE_COMMAND,
+        (event: KeyboardEvent) => {
+          const selection = $getSelection();
+          if (!$isTableSelection(selection)) return false;
+          const handled = $deleteTableRowOrColumnAtKeyboard(selection);
+          if (handled) event.preventDefault();
+          return handled;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+
+      editor.registerCommand(
+        KEY_DELETE_COMMAND,
+        (event: KeyboardEvent) => {
+          const selection = $getSelection();
+          if (!$isTableSelection(selection)) return false;
+          const handled = $deleteTableRowOrColumnAtKeyboard(selection);
+          if (handled) event.preventDefault();
+          return handled;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
     );
   }, [editor, openDimensionSelector, openToolbar]);
 
