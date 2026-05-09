@@ -124,6 +124,47 @@ function normalizePreviewUrl(url: string): string {
   return parsed.toString();
 }
 
+// Known URL shorteners whose links should be resolved to the final destination
+// before preview-fetching so the cache is keyed on the real URL.
+const LINK_SHORTENER_HOSTS = new Set(["t.co"]);
+
+async function resolveUrlIfShortener(url: string): Promise<string> {
+  let parsed: URL;
+  try {
+    parsed = new URL(url);
+  } catch {
+    return url;
+  }
+  if (!LINK_SHORTENER_HOSTS.has(parsed.hostname)) {
+    return url;
+  }
+  const abortController = new AbortController();
+  const timeout = setTimeout(() => abortController.abort(), LINK_PREVIEW_FETCH_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, {
+      redirect: "follow",
+      signal: abortController.signal,
+      headers: {
+        "User-Agent": "LessWrong-LinkPreviewBot/1.0 (+https://www.lesswrong.com)",
+        Accept: "text/html,application/xhtml+xml;q=0.9,*/*;q=0.1",
+      },
+    });
+    const finalUrl = response.url;
+    if (finalUrl && finalUrl !== url) {
+      try {
+        return normalizePreviewUrl(finalUrl);
+      } catch {
+        return url;
+      }
+    }
+  } catch {
+    // Network error or timeout — fall through to use the original URL
+  } finally {
+    clearTimeout(timeout);
+  }
+  return url;
+}
+
 function getTagSource($: CheerioAPI, selector: string): string | null {
   const selected = $(selector).first();
   if (!selected || selected.length === 0) {
@@ -217,7 +258,7 @@ function descriptionLooksUseful(description: string | null | undefined): boolean
   if (trimmed.length < 12) {
     return false;
   }
-  if (/^[.\u2026\s-]+$/.test(trimmed)) {
+  if (/^[.…\s-]+$/.test(trimmed)) {
     return false;
   }
   return true;
@@ -935,7 +976,7 @@ function parsePreviewFromHtml(rawHtml: string, pageUrl: string): {
   const title = extractTitle($);
   const image = extractImageUrl($, pageUrl);
   const description = extractDescriptionWithFallback($, pageUrl);
-  const siteName = extractMetaContent($, ["meta[property='og:site_name']"]).value;
+  const siteName = extractMetaContent($, ["meta[property='og:site_name']"] ).value;
 
   return {
     title: title.value,
@@ -957,7 +998,7 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
   forceRefetch: boolean;
   includeDebug: boolean;
 }): Promise<LinkPreviewResult> {
-  const normalizedUrl = normalizePreviewUrl(url);
+  const normalizedUrl = await resolveUrlIfShortener(normalizePreviewUrl(url));
   const now = new Date();
 
   const cachedResult = await getCachedPreview(normalizedUrl, includeDebug);
@@ -1046,7 +1087,7 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
 }
 
 export async function debugParseCrossSitePreview(url: string) {
-  const normalizedUrl = normalizePreviewUrl(url);
+  const normalizedUrl = await resolveUrlIfShortener(normalizePreviewUrl(url));
   const remoteHtml = await fetchRemoteHtml(normalizedUrl);
   const parsed = parsePreviewFromHtml(remoteHtml, normalizedUrl);
   const resolvedImage = await resolvePreviewImage(parsed.imageUrl);
@@ -1087,4 +1128,3 @@ export const crossSiteLinkPreviewGraphQLQueries = {
     });
   },
 };
-
