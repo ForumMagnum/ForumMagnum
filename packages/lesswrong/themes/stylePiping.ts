@@ -495,7 +495,7 @@ const baseBodyStyles = (theme: ThemeType) => ({
     backgroundColor: theme.palette.grey[100],
     fontFamily: theme.typography.code.fontFamily,
     display: 'block',
-    padding: '8px 8px 8px 36px',
+    padding: '8px 8px 8px calc(var(--gutter-chars, 1) * 1ch + 24px)',
     lineHeight: 1.53,
     fontSize: 13,
     margin: '8px 0',
@@ -522,7 +522,7 @@ const baseBodyStyles = (theme: ThemeType) => ({
     color: theme.palette.grey[600],
     whiteSpace: 'pre-wrap',
     textAlign: 'right',
-    minWidth: 25,
+    minWidth: 'calc(var(--gutter-chars, 1) * 1ch + 16px)',
   },
   '& code': {
     ...theme.typography.code
