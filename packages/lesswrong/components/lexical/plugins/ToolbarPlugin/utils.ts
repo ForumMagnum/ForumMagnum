@@ -269,8 +269,22 @@ function $wrapOrUnwrapQuote(selection: ReturnType<typeof $getSelection>): void {
     return;
   }
 
+  // Drop inner nodes whose ancestor ContainerQuoteNode is also in the set; moving them after the parent is moved causes invalid nesting and a freeze.
+  const deduped = Array.from(topLevelElements).filter(elem => {
+    let ancestor = elem.getParent();
+    while (ancestor !== null) {
+      if (topLevelElements.has(ancestor)) return false;
+      ancestor = ancestor.getParent();
+    }
+    return true;
+  });
+
+  if (deduped.length === 0) {
+    return;
+  }
+
   // Sort by position in the document
-  const sortedElements = Array.from(topLevelElements).sort((a, b) => {
+  const sortedElements = deduped.sort((a, b) => {
     return a.isBefore(b) ? -1 : 1;
   });
 
