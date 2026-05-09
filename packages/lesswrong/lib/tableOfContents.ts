@@ -85,7 +85,7 @@ const headingSelector = Object.keys(headingTags).join(",");
  * plus a JSON array of sections, where each section has a
  * `title`, `anchor`, and `level`, like this:
  *   {
- *     html: "<a anchor=...">,
+ *     html: "<a anchor=...>",
  *     sections: [
  *       {title: "Preamble", anchor: "preamble", level: 1},
  *       {title: "My Cool Idea", anchor: "mycoolidea", level: 1},
@@ -112,6 +112,12 @@ export function extractTableOfContents({
   let headingElements = document.querySelectorAll(headingSelector);
   for (const element of Array.from(headingElements)) {
     if (!(element instanceof window.HTMLElement)) {
+      continue;
+    }
+    // Skip headings nested inside code blocks or collapsible-section content.
+    // Collapsible sections export as <details class="detailsBlock">; code
+    // blocks are wrapped in <pre> or <code>.
+    if (element.closest('pre, code, details.detailsBlock')) {
       continue;
     }
     let tagName = element.tagName.toLowerCase();
