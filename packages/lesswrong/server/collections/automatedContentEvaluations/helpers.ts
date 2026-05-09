@@ -166,23 +166,41 @@ export async function getSaplingEvaluation(revision: DbRevision) {
 }
 
 const NO_LLM_AUTOREJECT_TEMPLATE = "No LLM (autoreject)";
+const NO_LLM_AUTOREJECT_ESTABLISHED_TEMPLATE = "No LLM (autoreject - established user)";
+
+// Fallback message for established users when the DB template isn't found.
+// Explains the LLM content block policy and next steps rather than treating
+// them like a first-time user who may not know the rules.
+const ESTABLISHED_USER_LLM_REJECTION_FALLBACK_HTML = `<p>Our automated AI content detection flagged a significant portion of this post as likely AI-generated. LessWrong allows AI-assisted writing, but requires that AI-generated content be placed inside <strong>LLM content blocks</strong> (available in the editor toolbar), so readers can see what's AI-generated vs. your own writing.</p><p>To get this post published, please either: (1) wrap any AI-generated sections in LLM content blocks and resubmit, or (2) if you believe this flag is an error and the post is entirely your own writing, reply to this message and a moderator will review it manually.</p>`;
 
 async function rejectContentForLLM(
   documentId: string,
   collectionName: "Posts" | "Comments",
   context: ResolverContext
 ) {
-  const moderationTemplate = await ModerationTemplates.findOne({ name: NO_LLM_AUTOREJECT_TEMPLATE });
-  if (!moderationTemplate) {
-    // eslint-disable-next-line no-console
-    console.error("Moderation template not found");
-    return;
-  }
-
-  const rejectedReason = moderationTemplate.contents?.html ?? "";
-
   if (collectionName === "Posts") {
     const post = await context.loaders["Posts"].load(documentId);
+
+    // Established users (those who have been reviewed/approved) get a more
+    // informative message explaining the LLM content block system rather than
+    // the generic new-user rejection message.
+    const author = post ? await context.loaders["Users"].load(post.userId) : null;
+    const isEstablishedUser = !!author?.reviewedByUserId;
+
+    let rejectedReason: string;
+    if (isEstablishedUser) {
+      const establishedTemplate = await ModerationTemplates.findOne({ name: NO_LLM_AUTOREJECT_ESTABLISHED_TEMPLATE });
+      rejectedReason = establishedTemplate?.contents?.html ?? ESTABLISHED_USER_LLM_REJECTION_FALLBACK_HTML;
+    } else {
+      const moderationTemplate = await ModerationTemplates.findOne({ name: NO_LLM_AUTOREJECT_TEMPLATE });
+      if (!moderationTemplate) {
+        // eslint-disable-next-line no-console
+        console.error("Moderation template not found");
+        return;
+      }
+      rejectedReason = moderationTemplate.contents?.html ?? "";
+    }
+
     await Posts.rawUpdateOne(
       { _id: documentId },
       { 
@@ -199,6 +217,14 @@ async function rejectContentForLLM(
     // For comments, use updateComment which handles sending the rejection PM via callbacks
     // But the comment rejection DM logic is a bit different, so we need to recreate a resolver context
     // with the lwAccount that we want the DM to come from
+    const moderationTemplate = await ModerationTemplates.findOne({ name: NO_LLM_AUTOREJECT_TEMPLATE });
+    if (!moderationTemplate) {
+      // eslint-disable-next-line no-console
+      console.error("Moderation template not found");
+      return;
+    }
+    const rejectedReason = moderationTemplate.contents?.html ?? "";
+
     const lwAccount = await getAdminTeamAccount(context);
     const lwAccountContext = computeContextFromUser({ user: lwAccount, isSSR: context.isSSR });
 
