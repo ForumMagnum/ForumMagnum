@@ -329,6 +329,23 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
       opacity: 1,
     },
   },
+  // Confirm (save) button for linkpost URL — primary colour so it's easy to spot
+  linkpostSaveButton: {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    background: "none",
+    border: "none",
+    padding: 0,
+    margin: 0,
+    marginLeft: 4,
+    cursor: "pointer",
+    color: theme.palette.primary.main,
+    opacity: 0.85,
+    "&:hover": {
+      opacity: 1,
+    },
+  },
   linkpostConfirmIcon: {
     width: 14,
     height: 14,
@@ -475,6 +492,8 @@ const PostForm = ({
   const [showCoauthorSearch, setShowCoauthorSearch] = useState(false);
   const [editingLinkpostUrl, setEditingLinkpostUrl] = useState(false);
   const [linkpostUrlDraft, setLinkpostUrlDraft] = useState("");
+  const linkpostConfirmRef = useRef<HTMLButtonElement>(null);
+  const linkpostCancelRef = useRef<HTMLButtonElement>(null);
 
   const accessLevel = (initialData.myEditorAccess ?? "edit") as CollaborativeEditingAccessLevel;
   const canEdit = accessLevelCan(accessLevel, "edit") || !!currentUser?.isAdmin;
@@ -839,12 +858,30 @@ const PostForm = ({
                             }
                           }
                         }}
+                        onBlur={(e) => {
+                          if (
+                            e.relatedTarget === linkpostConfirmRef.current ||
+                            e.relatedTarget === linkpostCancelRef.current
+                          ) {
+                            return;
+                          }
+                          if (linkpostUrlDraft.trim()) {
+                            form.setFieldValue("url", linkpostUrlDraft.trim());
+                            setEditingLinkpostUrl(false);
+                          } else if (!url) {
+                            form.setFieldValue("postCategory", "post");
+                            setEditingLinkpostUrl(false);
+                          } else {
+                            setEditingLinkpostUrl(false);
+                          }
+                        }}
                         autoFocus
                       />
                       <button
+                        ref={linkpostConfirmRef}
                         type="button"
-                        className={classes.linkpostConfirmButton}
-                        title="Confirm URL"
+                        className={classes.linkpostSaveButton}
+                        title="Confirm URL (or press Enter / click away)"
                         onClick={() => {
                           if (linkpostUrlDraft.trim()) {
                             form.setFieldValue("url", linkpostUrlDraft.trim());
@@ -855,6 +892,7 @@ const PostForm = ({
                         <ForumIcon icon="Check" className={classes.linkpostConfirmIcon} />
                       </button>
                       <button
+                        ref={linkpostCancelRef}
                         type="button"
                         className={classes.linkpostConfirmButton}
                         title="Remove linkpost"
