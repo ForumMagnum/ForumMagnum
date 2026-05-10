@@ -16,6 +16,7 @@ import {
   KEY_DOWN_COMMAND,
   LexicalEditor,
   OUTDENT_CONTENT_COMMAND,
+  REDO_COMMAND,
 } from 'lexical';
 import {Dispatch, useEffect} from 'react';
 
@@ -58,6 +59,7 @@ import {
   isInsertFootnote,
   isLowercase,
   isOutdent,
+  isRedo,
   isStrikeThrough,
   isSubscript,
   isSuperscript,
@@ -142,6 +144,8 @@ export default function ShortcutsPlugin({
         editor.dispatchCommand(INSERT_INLINE_COMMAND, undefined);
       } else if (isInsertFootnote(event)) {
         editor.dispatchCommand(INSERT_FOOTNOTE_COMMAND, {});
+      } else if (isRedo(event)) {
+        editor.dispatchCommand(REDO_COMMAND, undefined);
       } else {
         // No match for any of the event handlers
         return false;
