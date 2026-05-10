@@ -26,14 +26,12 @@ const AllPostsList = ({
   currentFilter,
   currentShowLowKarma,
   currentIncludeEvents,
-  showSettings,
 }: {
   currentTimeframe: string,
   currentFilter: string,
   currentSorting: PostSortingMode,
   currentShowLowKarma: boolean,
   currentIncludeEvents: boolean,
-  showSettings: boolean,
 }) => {
   const {timezone} = useTimezone();
   const {query} = useLocation();
@@ -62,7 +60,7 @@ const AllPostsList = ({
             ...baseTerms,
             limit: 50
           }}
-          dimWhenLoading={showSettings && !isFriendlyUI()}
+          dimWhenLoading={false}
           showLoading={isFriendlyUI()}
         />
       </AnalyticsContext>
@@ -138,7 +136,7 @@ const AllPostsList = ({
             timeframe={currentTimeframe as TimeframeType}
             postListParameters={postListParameters}
             numTimeBlocks={numTimeBlocks}
-            dimWhenLoading={showSettings && !isFriendlyUI()}
+            dimWhenLoading={false}
             after={after}
             before={before}
             reverse={query.reverse === "true"}
@@ -152,5 +150,3 @@ const AllPostsList = ({
 }
 
 export default AllPostsList;
-
-

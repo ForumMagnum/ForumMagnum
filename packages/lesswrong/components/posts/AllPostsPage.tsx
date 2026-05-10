@@ -100,7 +100,6 @@ const AllPostsPage = ({defaultHideSettings}: {defaultHideSettings?: boolean}) =>
               currentFilter,
               currentShowLowKarma,
               currentIncludeEvents,
-              showSettings,
             }}
           />
         </DeferRender>
@@ -111,6 +110,3 @@ const AllPostsPage = ({defaultHideSettings}: {defaultHideSettings?: boolean}) =>
 }
 
 export default AllPostsPage;
-
-
-
