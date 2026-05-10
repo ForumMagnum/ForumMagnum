@@ -251,7 +251,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
 
     await voteProps.vote({
       document: voteProps.document,
-      voteType: voteProps.document.currentUserVote || null,
+      voteType: voteProps.document.currentUserVote || "neutral",
       extendedVote: newExtendedVote,
     });
   }
@@ -270,7 +270,7 @@ export const useNamesAttachedReactionsVoting = (voteProps: VotingProps<VoteableT
 
     await voteProps.vote({
       document: voteProps.document,
-      voteType: voteProps.document.currentUserVote || null,
+      voteType: voteProps.document.currentUserVote || "neutral",
       extendedVote: newExtendedVote,
     });
   }
@@ -496,7 +496,7 @@ const ReactionOverview = ({voteProps}: {
           return <div key={`${r}`} className={classes.overviewSummaryRow}>
             <Row justifyContent="flex-start">
               <LWTooltip title={<>{
-                reactionDetails.label}{" – "}<ReactionDescription reaction={reactionDetails}/>
+                reactionDetails.label}{", – "}<ReactionDescription reaction={reactionDetails}/>
               </>}>
                 <ReactionIcon react={r}/>
               </LWTooltip>
@@ -622,6 +622,5 @@ export const NamesAttachedReactionsVoteOnComment = registerComponent('NamesAttac
 export const NamesAttachedReactionsCommentBottom = registerComponent('NamesAttachedReactionsCommentBottom', NamesAttachedReactionsCommentBottomInner, {
   hocs: [withErrorBoundary]
 });
-
 
 
