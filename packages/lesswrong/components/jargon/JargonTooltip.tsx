@@ -49,6 +49,12 @@ const styles = defineStyles('JargonTooltip', (theme: ThemeType) => ({
     'a &': {
       // When the span is inside a link, inherit the link's color
       color: 'inherit',
+    },
+    '& $jargonWord': {
+      // Suppress the degree-sign on nested jargon spans (happens when a link's text is also a jargon term)
+      '&:after': {
+        content: '""',
+      }
     }
   },
   pinnedJargonWord: {

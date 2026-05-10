@@ -11,7 +11,7 @@ export const CONDENSED_MARGIN_BOTTOM = 4
 const styles = defineStyles("CommentFrame", (theme: ThemeType) => ({
   node: {
     border: theme.palette.border.commentBorder,
-    cursor: "default",
+    cursor: "auto",
     // Higher specificity to override child class (variant syntax)
     '&$deleted': {
       opacity: 0.6
