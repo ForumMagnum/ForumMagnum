@@ -189,6 +189,7 @@ const styles = defineStyles('LexicalToolbarPlugin', (theme: ThemeType) => ({
     top: 0,
     zIndex: 2,
     overflowY: 'hidden' as const,
+    '@media print': { display: 'none' },
   },
   toolbarHidden: {
     display: 'none',
