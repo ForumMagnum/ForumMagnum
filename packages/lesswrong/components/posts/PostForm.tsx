@@ -90,6 +90,7 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     [theme.breakpoints.down("sm")]: {
       display: "none",
     },
+    "@media print": { display: "none" },
   },
   iconButton: {
     width: ICON_BUTTON_SIZE,

@@ -234,5 +234,9 @@ export const miscStyles = (theme: ThemeType) => ({
     ".rheostat-tooltip": {
       top:-22,
     },
+    "@media print": {
+      "#editor-settings-portal": { display: "none" },
+      ".draggable-block-menu": { display: "none" },
+    },
   }
 });

@@ -32,6 +32,7 @@ const styles = defineStyles("MobileEditorBottomBar", (theme: ThemeType) => ({
     [theme.breakpoints.up("md")]: {
       display: "none",
     },
+    "@media print": { display: "none" },
   },
   draftButton: {
     ...theme.typography.commentStyle,
@@ -175,6 +176,7 @@ const styles = defineStyles("MobileEditorBottomBar", (theme: ThemeType) => ({
     [theme.breakpoints.up("lg")]: {
       display: "none",
     },
+    "@media print": { display: "none" },
   },
   sheetOverlayVisible: {
     opacity: 1,
@@ -200,6 +202,7 @@ const styles = defineStyles("MobileEditorBottomBar", (theme: ThemeType) => ({
     [theme.breakpoints.up("lg")]: {
       display: "none",
     },
+    "@media print": { display: "none" },
   },
   sheetPanelOpen: {
     transform: "translateY(0)",
