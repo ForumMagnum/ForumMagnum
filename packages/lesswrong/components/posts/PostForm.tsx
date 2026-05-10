@@ -313,27 +313,25 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
       opacity: 0.6,
     },
   },
-  // Confirm/cancel buttons next to the linkpost URL input — use primary colour
-  // and more padding so they're easy to see and click.
   linkpostConfirmButton: {
     display: "inline-flex",
     alignItems: "center",
     justifyContent: "center",
     background: "none",
     border: "none",
-    padding: "1px 4px",
+    padding: 0,
     margin: 0,
-    marginLeft: 4,
+    marginLeft: 2,
     cursor: "pointer",
-    color: theme.palette.primary.main,
-    opacity: 0.85,
+    color: theme.palette.text.dim3,
+    opacity: 0.7,
     "&:hover": {
       opacity: 1,
     },
   },
   linkpostConfirmIcon: {
-    width: 14,
-    height: 14,
+    width: 16,
+    height: 16,
   },
   // Inline linkpost display (after URL is set) — matches live post page style
   linkpostDisplay: {
@@ -663,7 +661,8 @@ const PostForm = ({
             <ForumIcon icon="Settings" className={classes.icon} />
           </button>
           </LWTooltip>
-        </>}
+        </>
+        }
         {(commentCount > 0 || showComments) && <LWTooltip title="Comments" placement="left">
         <button
           type="button"
@@ -804,9 +803,11 @@ const PostForm = ({
                 }
 
                 if (isLinkpost && editingLinkpostUrl) {
-                  // Show "Linkpost for" label + inline input
+                  // Show "Linkpost for" label + inline input.
+                  // The wrapper has data-linkpost-wrapper so the onBlur handler
+                  // can detect when focus moves to a sibling button vs. outside.
                   return (
-                    <span className={classes.linkpostInputWrapper}>
+                    <span className={classes.linkpostInputWrapper} data-linkpost-wrapper="">
                       <button
                         type="button"
                         className={classNames(classes.linkpostToggle, classes.linkpostToggleActive)}
@@ -825,6 +826,20 @@ const PostForm = ({
                         placeholder="url"
                         value={linkpostUrlDraft}
                         onChange={(e) => setLinkpostUrlDraft(e.target.value)}
+                        onBlur={(e) => {
+                          // If focus moved to a sibling confirm/cancel button in the
+                          // same wrapper, let that button's onClick handle it instead.
+                          const rt = e.relatedTarget as HTMLElement | null;
+                          if (rt?.closest('[data-linkpost-wrapper]')) return;
+                          if (linkpostUrlDraft.trim()) {
+                            form.setFieldValue("url", linkpostUrlDraft.trim());
+                            setEditingLinkpostUrl(false);
+                          } else {
+                            form.setFieldValue("postCategory", "post");
+                            form.setFieldValue("url", "");
+                            setEditingLinkpostUrl(false);
+                          }
+                        }}
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
@@ -839,21 +854,6 @@ const PostForm = ({
                               form.setFieldValue("postCategory", "post");
                               setEditingLinkpostUrl(false);
                             }
-                          }
-                        }}
-                        onBlur={(e) => {
-                          // If focus moved to the confirm/cancel button (a sibling in the wrapper),
-                          // let that button's onClick handler fire instead of auto-confirming here.
-                          const next = e.relatedTarget as HTMLElement | null;
-                          if (next && e.currentTarget.parentElement?.contains(next)) return;
-                          if (linkpostUrlDraft.trim()) {
-                            form.setFieldValue("url", linkpostUrlDraft.trim());
-                            setEditingLinkpostUrl(false);
-                          } else {
-                            // No URL entered — cancel linkpost mode
-                            form.setFieldValue("postCategory", "post");
-                            form.setFieldValue("url", "");
-                            setEditingLinkpostUrl(false);
                           }
                         }}
                         autoFocus
@@ -1196,7 +1196,7 @@ const PostForm = ({
         sidebarPortalTarget
       )}
 
-      {/*
+      {/* 
           Technically logged out users should have access to the comments panel
           but they can always just click on a post segment with an inline comment
           to open it, so this only matters if there aren't already any comments
