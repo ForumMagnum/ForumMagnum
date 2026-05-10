@@ -544,6 +544,21 @@ const PostForm = ({
     onSubmit: async ({ formApi, meta }) => {
       await awaitPendingSaves();
 
+      // Guard against accidentally publishing with the default placeholder title.
+      // Fires for both the desktop publish button and the mobile bottom-bar publish.
+      if (!formApi.state.values.draft) {
+        const rawTitle = (formApi.state.values.title ?? '').trim();
+        if (rawTitle === '' || rawTitle === 'Untitled Draft') {
+          const msg = rawTitle === ''
+            ? 'Your post has no title. Are you sure you want to publish it?'
+            : 'Your post title is still "Untitled Draft". Are you sure you want to publish it?';
+          if (!window.confirm(msg)) {
+            formApi.setFieldValue('draft', true);
+            return;
+          }
+        }
+      }
+
       await Promise.all([
         onSubmitCallback.current?.(),
         onSubmitCallbackCustomHighlight.current?.(),
