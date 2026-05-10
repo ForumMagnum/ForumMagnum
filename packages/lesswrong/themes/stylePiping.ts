@@ -215,7 +215,18 @@ const tableCellStyles = (theme: ThemeType) => ({
   },
   '& p:first-of-type': {
     marginTop: 0
-  }
+  },
+  // Override the global baseBodyStyles '& li' and '& blockquote' rules that set a
+  // serif postStyle font. Those rules have specificity (.parent li) but these nested
+  // selectors compile to (.parent td li / .parent th li) which is more specific.
+  '& li': {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 'inherit',
+  },
+  '& blockquote': {
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 'inherit',
+  },
 });
 
 const tableHeadingStyles = (theme: ThemeType) => ({
