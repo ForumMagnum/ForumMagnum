@@ -3,7 +3,7 @@ import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
 import { NextRequest, NextResponse } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
-import { checkEditorTypeAndGetToken, withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
+import { checkEditorTypeAndGetToken, withMainDocEditorSession, waitForProviderSync, EmptyDocumentError } from "../agent/editorAgentUtil";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
@@ -60,7 +60,7 @@ const LinkSharedPostMetadataQuery = `
 
 export function unescapeHtmlAttribute(value: string): string {
   return value
-    .replace(/&quot;/g, "\"")
+    .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
@@ -72,7 +72,7 @@ export function convertWidgetIframesToMarkdownFences(markdown: string): string {
     if (!iframeHtml.includes("data-lexical-iframe-widget")) {
       return iframeHtml;
     }
-    const idMatch = iframeHtml.match(/data-widget-id="([^"]*)"/);
+    const idMatch = iframeHtml.match(/data-widget-id="([^"]*)"/)
     const widgetId = idMatch?.[1] ?? "";
 
     const srcdocStart = iframeHtml.indexOf('srcdoc="');
@@ -302,6 +302,11 @@ export async function renderLiveEditorDraftMarkdownRoute({
     return new Response("No postId provided", { status: 400, headers: NO_CACHE_HEADERS });
   }
 
+  // Declared before the try block so they are available in the catch handler
+  // for the blank-post case, where we still want to render a proper page.
+  let title = "(untitled draft)";
+  let resolvedPostId = postId;
+
   try {
     const resolverContext = await getContextFromReqAndRes({ req });
     const checkResult = await checkEditorTypeAndGetToken({
@@ -342,12 +347,13 @@ export async function renderLiveEditorDraftMarkdownRoute({
         )
       ).data?.post?.result;
 
+    resolvedPostId = post?._id ?? postId;
+    title = post?.title ?? "(untitled draft)";
+
     const [bodyMarkdown, commentThreadsMarkdown] = await Promise.all([
       getLiveDraftMarkdown({ postId, token }),
       getOpenCommentThreadsMarkdown({ postId, token }),
     ]);
-    const resolvedPostId = post?._id ?? postId;
-    const title = post?.title ?? "(untitled draft)";
 
     const response = await renderEditorDraftMarkdown({
       title,
@@ -359,6 +365,22 @@ export async function renderLiveEditorDraftMarkdownRoute({
     response.headers.set("Cache-Control", NO_CACHE_HEADERS["Cache-Control"]);
     return response;
   } catch (error) {
+    if (error instanceof EmptyDocumentError) {
+      // The post exists and is accessible, but its Hocuspocus Yjs document
+      // is empty — most likely because the post was just created and has
+      // never been opened in the browser editor. Return a clear "blank post"
+      // page rather than the generic permissions-sounding error.
+      const response = await renderEditorDraftMarkdown({
+        title,
+        postId: resolvedPostId,
+        version,
+        bodyMarkdown:
+          "(This post has a blank body — no content has been written yet. " +
+          "If you are an AI agent, you can add content using the writing API.)",
+      });
+      response.headers.set("Cache-Control", NO_CACHE_HEADERS["Cache-Control"]);
+      return response;
+    }
     // This needs to be a 200 because Claude's web_fetch tool doesn't give it any additional information if you return a 4xx status code,
     // so if we want Claude to be able to tell the user what they need to do to make the post accessible, we have to return the error message
     // along with a 200 status code.

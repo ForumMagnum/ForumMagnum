@@ -26,6 +26,23 @@ const FLUSH_POLL_INTERVAL_MS = 5;
 const FLUSH_TIMEOUT_MS = 2_000;
 
 /**
+ * Thrown when the Lexical editor root is empty after a Hocuspocus sync.
+ * This typically means the post has never been opened in the browser editor
+ * (so the Yjs document has not been initialised), or the document state is
+ * missing / corrupt. Callers that surface content to AI agents should catch
+ * this and return a clear "blank post" message rather than a generic error.
+ */
+export class EmptyDocumentError extends Error {
+  constructor(operationLabel: string, postId: string) {
+    super(
+      `[${operationLabel}] Lexical editor root is empty after Hocuspocus sync for post ${postId}. ` +
+      `This likely means the post has never been opened in the editor, or the Yjs document state is missing or corrupt.`
+    );
+    this.name = "EmptyDocumentError";
+  }
+}
+
+/**
  * Wait for a HocuspocusProvider's WebSocket send buffer to drain, indicating
  * that all pending updates have been handed off to the OS network layer.
  *
@@ -53,12 +70,12 @@ export async function waitForProviderFlush(provider: HocuspocusProvider): Promis
 // correct. Intentionally excludes ellipsis (U+2026 → `...`), NFKC, and other
 // length-changing transforms.
 const PUNCTUATION_FOLD_MAP: Record<string, string> = {
-  "\u2018": "'", "\u2019": "'", "\u201A": "'", "\u201B": "'",
-  "\u2032": "'", "\u02B9": "'", "\u02BC": "'",
-  "\u201C": '"', "\u201D": '"', "\u201E": '"', "\u201F": '"',
-  "\u2033": '"', "\u00AB": '"', "\u00BB": '"',
-  "\u2010": "-", "\u2011": "-", "\u2013": "-", "\u2014": "-",
-  "\u2015": "-", "\u2212": "-",
+  "‘": "'", "’": "'", "‚": "'", "‛": "'",
+  "′": "'", "ʹ": "'", "ʼ": "'",
+  "“": '"', "”": '"', "„": '"', "‟": '"',
+  "″": '"', "«": '"', "»": '"',
+  "‐": "-", "‑": "-", "–": "-", "—": "-",
+  "―": "-", "−": "-",
 };
 const PUNCTUATION_FOLD_REGEX = new RegExp(
   `[${Object.keys(PUNCTUATION_FOLD_MAP).join("")}]`,
@@ -362,18 +379,15 @@ export async function withMainDocEditorSession<T>({
 
     // After sync, verify that the Lexical editor actually has content.
     // A Lexical post should always have a non-empty Yjs document in
-    // Hocuspocus. If the root is empty after sync, something critical
-    // has gone wrong (e.g. missing YjsDocuments row, Hocuspocus data
-    // loss, or a race condition in the sync protocol).
+    // Hocuspocus. If the root is empty after sync, the post was likely
+    // never opened in the browser (Hocuspocus has no stored state for it),
+    // or the Yjs document state is missing or corrupt.
     let rootChildCount = 0;
     editor.getEditorState().read(() => {
       rootChildCount = $getRoot().getChildrenSize();
     });
     if (rootChildCount === 0) {
-      const err = new Error(
-        `[${operationLabel}] Lexical editor root is empty after Hocuspocus sync for post ${postId}. ` +
-        `This likely means the Yjs document state is missing or corrupt.`
-      );
+      const err = new EmptyDocumentError(operationLabel, postId);
       captureException(err);
       throw err;
     }
