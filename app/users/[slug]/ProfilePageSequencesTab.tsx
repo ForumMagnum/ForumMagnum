@@ -62,12 +62,11 @@ const SEQUENCES_INITIAL_LIMIT = 8;
 const SEQUENCES_LOAD_MORE_COUNT = 16;
 
 const ProfileSequencesQuery = gql(`
-  query ProfileSequencesQuery($selector: SequenceSelector, $limit: Int, $enableTotal: Boolean) {
-    sequences(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
+  query ProfileSequencesQuery($selector: SequenceSelector, $limit: Int) {
+    sequences(selector: $selector, limit: $limit) {
       results {
         ...SequenceContinueReadingFragment
       }
-      totalCount
     }
   }
 `);
@@ -103,7 +102,6 @@ export function ProfilePageSequencesTabContents({user, settings}: {
     variables: {
       selector: userId ? { userProfile: { userId } } : undefined,
       limit: SEQUENCES_INITIAL_LIMIT,
-      enableTotal: true,
     },
     itemsPerPage: SEQUENCES_LOAD_MORE_COUNT,
     fetchPolicy: "cache-and-network",
