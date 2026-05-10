@@ -124,6 +124,31 @@ function normalizePreviewUrl(url: string): string {
   return parsed.toString();
 }
 
+// Nitter instances are privacy-preserving Twitter frontends that use the same
+// URL path structure as x.com (e.g. nitter.net/user/status/123 → x.com/user/status/123).
+// Their pages have no og: metadata so previews fail; mapping to x.com fixes this.
+const NITTER_DOMAIN_MAP: Record<string, string> = {
+  'nitter.net': 'x.com',
+  'nitter.privacydev.net': 'x.com',
+  'nitter.1d4.us': 'x.com',
+  'nitter.pussthecat.org': 'x.com',
+  'nitter.ir': 'x.com',
+};
+
+function mapAlternativeDomain(url: string): string {
+  try {
+    const parsed = new URL(url);
+    const mappedHost = NITTER_DOMAIN_MAP[parsed.hostname.toLowerCase()];
+    if (mappedHost) {
+      parsed.hostname = mappedHost;
+      return parsed.toString();
+    }
+  } catch {
+    // ignore parse errors — normalizePreviewUrl will surface them
+  }
+  return url;
+}
+
 function getTagSource($: CheerioAPI, selector: string): string | null {
   const selected = $(selector).first();
   if (!selected || selected.length === 0) {
@@ -217,7 +242,7 @@ function descriptionLooksUseful(description: string | null | undefined): boolean
   if (trimmed.length < 12) {
     return false;
   }
-  if (/^[.\u2026\s-]+$/.test(trimmed)) {
+  if (/^[.…\s-]+$/.test(trimmed)) {
     return false;
   }
   return true;
@@ -957,7 +982,7 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
   forceRefetch: boolean;
   includeDebug: boolean;
 }): Promise<LinkPreviewResult> {
-  const normalizedUrl = normalizePreviewUrl(url);
+  const normalizedUrl = mapAlternativeDomain(normalizePreviewUrl(url));
   const now = new Date();
 
   const cachedResult = await getCachedPreview(normalizedUrl, includeDebug);
@@ -1046,7 +1071,7 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
 }
 
 export async function debugParseCrossSitePreview(url: string) {
-  const normalizedUrl = normalizePreviewUrl(url);
+  const normalizedUrl = mapAlternativeDomain(normalizePreviewUrl(url));
   const remoteHtml = await fetchRemoteHtml(normalizedUrl);
   const parsed = parsePreviewFromHtml(remoteHtml, normalizedUrl);
   const resolvedImage = await resolvePreviewImage(parsed.imageUrl);
@@ -1087,4 +1112,3 @@ export const crossSiteLinkPreviewGraphQLQueries = {
     });
   },
 };
-
