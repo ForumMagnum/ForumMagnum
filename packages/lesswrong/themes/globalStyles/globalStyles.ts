@@ -29,6 +29,9 @@ const clearStyle = (theme: ThemeType) => ({
   "h1, h1 *, h2, h2 *, h3, h3 *, h4, h4 *": {
     fontWeight: 500,
   },
+  "h1 b, h1 strong, h2 b, h2 strong, h3 b, h3 strong, h4 b, h4 strong": {
+    fontWeight: 700,
+  },
 
   "textarea, textarea:focus, input, input:focus": {
     border: "none",

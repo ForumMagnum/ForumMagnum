@@ -77,19 +77,19 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
     },
     '& h1': {
       fontSize: '1.8rem',
-      fontWeight: 600,
+      fontWeight: 400,
       marginBottom: '0.5em',
       marginTop: '1em',
     },
     '& h2': {
       fontSize: '1.5rem',
-      fontWeight: 600,
+      fontWeight: 400,
       marginBottom: '0.5em',
       marginTop: '1em',
     },
     '& h3': {
       fontSize: '1.3rem',
-      fontWeight: 600,
+      fontWeight: 400,
       marginBottom: '0.5em',
       marginTop: '1em',
     },
@@ -537,4 +537,3 @@ const LexicalEditor = ({
 };
 
 export default LexicalEditor;
-
