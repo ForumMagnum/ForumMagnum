@@ -1,7 +1,7 @@
 import React, {FC, useCallback, useState} from 'react';
 import { useDialog } from '../common/withDialog';
 import { useMessages } from '../common/withMessages';
-import { userCanUseSharing } from '../../lib/betas';
+import { userCanUseSharing, userCanUseLinkSharing } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
 import { SharingSettings, defaultSharingSettings } from '../../lib/collections/posts/collabEditingPermissions';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
@@ -115,13 +115,16 @@ export const PostSharingSettings = ({ field, post, formType, editorType, iconOnl
   const currentUser = useCurrentUser();
   const initialSharingSettings = value || defaultSharingSettings;
   const { flash } = useMessages();
-  
+
+  const canUseLinkSharing = userCanUseLinkSharing(currentUser);
+  const canShareWithUsers = userCanUseSharing(currentUser);
+
   const onClickShare = useCallback(() => {
     if (!post.title || !post.title.length) {
       flash("Please give this post a title before sharing.");
       return;
     }
-    
+
     // Check whether we're using CkEditor, or something else.
     // HACK: This isn't stored in a reliable place, until you edit.
     // EditorFormComponent tries to put it in the parent form's state for us on edit, but if the
@@ -139,7 +142,7 @@ export const PostSharingSettings = ({ field, post, formType, editorType, iconOnl
       flash(`Change the editor type to LessWrong Docs to enable sharing`);
       return;
     }
-    
+
     openDialog({
       name: "PostSharingSettingsDialog",
       contents: ({onClose}) => <PostSharingSettingsDialog
@@ -147,11 +150,12 @@ export const PostSharingSettings = ({ field, post, formType, editorType, iconOnl
         post={post}
         linkSharingKey={post.linkSharingKey ?? undefined}
         initialSharingSettings={initialSharingSettings}
+        canShareWithUsers={canShareWithUsers}
         onConfirm={async (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => {
           if (isChanged || formType==="new") {
             field.handleChange(newSharingSettings);
             field.form.setFieldValue('shareWithUsers', newSharedUsers);
-            
+
             // If this is an unbacked post (ie a new-post form,
             // no corresponding document ID yet), we're going to
             // mark it as a draft, then submit the form.
@@ -167,10 +171,9 @@ export const PostSharingSettings = ({ field, post, formType, editorType, iconOnl
         initialShareWithUsers={post.shareWithUsers || []}
       />
     });
-  }, [openDialog, closeDialog, formType, post, field, initialSharingSettings, flash, editorType]);
-  const canUseSharing = userCanUseSharing(currentUser)
+  }, [openDialog, closeDialog, formType, post, field, initialSharingSettings, flash, editorType, canShareWithUsers]);
 
-  const tooltipTitle = !canUseSharing
+  const tooltipTitle = !canUseLinkSharing
     ? getNoSharePermissionTooltip()
     : iconOnly
       ? "Share"
@@ -179,8 +182,8 @@ export const PostSharingSettings = ({ field, post, formType, editorType, iconOnl
   return <LWTooltip title={tooltipTitle}>
       <EAButton
         className={classes.friendlyButton}
-        onClick={userCanUseSharing(currentUser) ? onClickShare : undefined}
-        disabled={!canUseSharing}
+        onClick={canUseLinkSharing ? onClickShare : undefined}
+        disabled={!canUseLinkSharing}
       >
         <PostSharingIcon className={iconOnly ? undefined : classes.buttonInternalIcon} />
         {!iconOnly && <>Share {post.draft ? " this draft" : ""}</>}
@@ -188,12 +191,13 @@ export const PostSharingSettings = ({ field, post, formType, editorType, iconOnl
     </LWTooltip>
 }
 
-const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings, initialShareWithUsers, onClose, onConfirm}: {
+const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings, initialShareWithUsers, canShareWithUsers, onClose, onConfirm}: {
   post: EditablePost,
   // linkSharingKey is only marked nullable for security-mindset reasons; in practice it's filled in by a callback and shouldn't be missing
   linkSharingKey?: string,
   initialSharingSettings: SharingSettings,
   initialShareWithUsers: string[],
+  canShareWithUsers: boolean,
   onClose: () => void,
   onConfirm: (newSharingSettings: SharingSettings, newSharedUsers: string[], isChanged: boolean) => void
 }) => {
@@ -202,7 +206,7 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
   const [shareWithUsers, setShareWithUsersState] = useState(initialShareWithUsers);
   const [isChanged, setIsChanged] = useState(false);
   const { flash } = useMessages();
-  
+
   const updateSharingSettings = (newSettings: SharingSettings) => {
     setSharingSettingsState(newSettings);
     setIsChanged(true);
@@ -211,46 +215,49 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
     setShareWithUsersState(newSharedUsers);
     setIsChanged(true);
   };
-  
+
   const collabEditorLink = postGetEditUrl(post._id, true, linkSharingKey)
-  
+
   const commentingTooltip = "(suggest changes requires edit permission)"
 
   return <LWDialog open={true}>
     <div className={classes.sharingSettingsDialog}>
       <h2>Sharing Settings</h2>
 
-      
-      <p>Shared With Users:</p>
-      <EditableUsersList
-        value={shareWithUsers}
-        setValue={(newUsers: string[]) => {
-          updateSharedUsers(newUsers);
-        }}
-        label="Shared with these users"
-      />
-      
-      <div className={classes.sharingPermissionsRow}>
-        <span className={classes.sharingPermissionsLabel}>Explicitly shared users can:</span>
-        <Select
-          className={classes.sharingPermissionsDropdown}
-          value={sharingSettings.explicitlySharedUsersCan}
-          onChange={(e) => {
-            updateSharingSettings({...sharingSettings, explicitlySharedUsersCan: e.target.value as any});
+      {canShareWithUsers ? <>
+        <p>Shared With Users:</p>
+        <EditableUsersList
+          value={shareWithUsers}
+          setValue={(newUsers: string[]) => {
+            updateSharedUsers(newUsers);
           }}
-        >
-          <MenuItem value="none" disabled={!!post.collabEditorDialogue}>None</MenuItem>
-          <MenuItem value="read">Read</MenuItem>
-          {/* TODO: Figure out how to wrap a menu item in a tooltip without breaking the Select dropdown */}
-          <MenuItem value="comment">
-            <LWTooltip placement="right" title={commentingTooltip}>
-              <div className={classes.tooltipWrapped}>Comment</div> 
-            </LWTooltip>
-          </MenuItem>
-          <MenuItem value="edit">Edit</MenuItem>
-        </Select>
-      </div>
-      
+          label="Shared with these users"
+        />
+
+        <div className={classes.sharingPermissionsRow}>
+          <span className={classes.sharingPermissionsLabel}>Explicitly shared users can:</span>
+          <Select
+            className={classes.sharingPermissionsDropdown}
+            value={sharingSettings.explicitlySharedUsersCan}
+            onChange={(e) => {
+              updateSharingSettings({...sharingSettings, explicitlySharedUsersCan: e.target.value as any});
+            }}
+          >
+            <MenuItem value="none" disabled={!!post.collabEditorDialogue}>None</MenuItem>
+            <MenuItem value="read">Read</MenuItem>
+            {/* TODO: Figure out how to wrap a menu item in a tooltip without breaking the Select dropdown */}
+            <MenuItem value="comment">
+              <LWTooltip placement="right" title={commentingTooltip}>
+                <div className={classes.tooltipWrapped}>Comment</div>
+              </LWTooltip>
+            </MenuItem>
+            <MenuItem value="edit">Edit</MenuItem>
+          </Select>
+        </div>
+      </> : (
+        <p>You need at least 1 karma to share with specific users.</p>
+      )}
+
       <div className={classes.sharingPermissionsRow}>
         <span className={classes.sharingPermissionsLabel}>Anyone with the link can:</span>
         <Select
@@ -270,7 +277,7 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
           <MenuItem value="edit">Edit</MenuItem>
         </Select>
       </div>
-      
+
       <p className={classes.warning}>
         Collaborative Editing features are in beta. Message us on Intercom or email us at{' '}
         {moderationEmail.get()} if you experience issues
@@ -290,9 +297,9 @@ const PostSharingSettingsDialog = ({post, linkSharingKey, initialSharingSettings
               <Button disabled={true}>Copy link</Button>
             </LWTooltip>
         }
-        
+
         <span className={classes.spacer}/>
-        
+
         <Button
           onClick={()=>onClose()}
         >
