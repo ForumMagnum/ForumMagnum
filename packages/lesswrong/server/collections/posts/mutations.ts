@@ -108,7 +108,19 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
   data = await postsNewDefaultTypes(data, currentUser, context);
   data = await postsNewUserApprovedStatus(data, currentUser, context);
   data = await fixEventStartAndEndTimes(data);
-  data = addLinkSharingKey(data);  
+  data = addLinkSharingKey(data);
+
+  // Derive coauthorUserIds from coauthorStatuses so permission checks work correctly
+  if (data.coauthorStatuses !== undefined) {
+    const newStatuses = data.coauthorStatuses ?? [];
+    const hasCoauthorPermission = data.hasCoauthorPermission !== false;
+    data = {
+      ...data,
+      coauthorUserIds: hasCoauthorPermission
+        ? newStatuses.map(s => s.userId)
+        : newStatuses.filter(s => s.confirmed).map(s => s.userId),
+    };
+  }
 
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'Posts', callbackProps);
   let documentWithId = afterCreateProperties.document;
@@ -206,6 +218,18 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
   await checkRecentRepost(updateCallbackProperties.newDocument, currentUser, context);
   data = setPostUndraftedFields(data, updateCallbackProperties);
   data = onEditAddLinkSharingKey(data, updateCallbackProperties);
+
+  // Derive coauthorUserIds from coauthorStatuses so permission checks work correctly
+  if (data.coauthorStatuses !== undefined) {
+    const newStatuses = data.coauthorStatuses ?? [];
+    const hasCoauthorPermission = data.hasCoauthorPermission ?? oldDocument.hasCoauthorPermission;
+    data = {
+      ...data,
+      coauthorUserIds: hasCoauthorPermission
+        ? newStatuses.map(s => s.userId)
+        : newStatuses.filter(s => s.confirmed).map(s => s.userId),
+    };
+  }
 
   data = await createRevisionsForEditableFields({
     docData: data,
