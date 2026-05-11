@@ -5,4 +5,4 @@ export type ActivityItem =
   | { kind: 'comment'; comment: CommentsListWithParentMetadata; postedAt: Date; baseScore: number };
 
 // User-selectable sort modes for an ActivityBucket.
-export type ActivitySortBy = 'top' | 'new' | 'old';
+export type ActivitySortBy = 'top' | 'new' | 'old' | 'magic';
