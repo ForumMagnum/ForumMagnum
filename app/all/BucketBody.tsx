@@ -17,24 +17,28 @@ const styles = defineStyles('BucketBody', (theme: ThemeType) => ({
 }));
 
 // Renders a single feed entry by routing on its discriminator.
-function renderItem(item: ActivityItem, compact: boolean) {
+function renderItem(item: ActivityItem, compact: boolean, expandedItemId: string | null, onToggleExpandedItem: (id: string) => void) {
   if (item.kind === 'post') {
-    return <ActivityPostItem key={item.post._id} post={item.post} postedAt={item.postedAt} baseScore={item.baseScore} compact={compact} />;
+    const id = item.post._id;
+    return <ActivityPostItem key={id} post={item.post} postedAt={item.postedAt} baseScore={item.baseScore} compact={compact} expanded={expandedItemId === id} onToggle={() => onToggleExpandedItem(id)} />;
   }
-  return <ActivityCommentItem key={item.comment._id} comment={item.comment} postedAt={item.postedAt} baseScore={item.baseScore} compact={compact} />;
+  const id = item.comment._id;
+  return <ActivityCommentItem key={id} comment={item.comment} postedAt={item.postedAt} baseScore={item.baseScore} compact={compact} expanded={expandedItemId === id} onToggle={() => onToggleExpandedItem(id)} />;
 }
 
 interface BucketBodyProps {
   items: ActivityItem[];
   isInitialLoading: boolean;
   compact: boolean;
+  expandedItemId: string | null;
+  onToggleExpandedItem: (id: string) => void;
 }
 
-const BucketBody = ({items, isInitialLoading, compact}: BucketBodyProps) => {
+const BucketBody = ({items, isInitialLoading, compact, expandedItemId, onToggleExpandedItem}: BucketBodyProps) => {
   const classes = useStyles(styles);
   if (isInitialLoading) return <Loading />;
   if (items.length === 0) return <div className={classes.empty}>Nothing in this window</div>;
-  return <>{items.map(item => renderItem(item, compact))}</>;
+  return <>{items.map(item => renderItem(item, compact, expandedItemId, onToggleExpandedItem))}</>;
 };
 
 export default BucketBody;

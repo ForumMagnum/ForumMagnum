@@ -11,6 +11,7 @@ import { JustifyIcon } from '@/components/lexical/icons/JustifyIcon';
 // middle, author/date on the right, and a caret indicating expand state.
 const styles = defineStyles('ActivitySummaryRow', (theme: ThemeType) => ({
   summary: {
+    position: 'relative',
     display: 'flex',
     alignItems: 'baseline',
     gap: 10,
@@ -26,7 +27,6 @@ const styles = defineStyles('ActivitySummaryRow', (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
-    position: 'relative',
   },
   karma: {
     textAlign: 'center',
@@ -87,23 +87,6 @@ const styles = defineStyles('ActivitySummaryRow', (theme: ThemeType) => ({
       textDecoration: 'none',
     },
   },
-  caret: {
-    position: 'absolute',
-    top: 'calc(100% + 6px)',
-    left: 0,
-    right: 0,
-    textAlign: 'center',
-    fontSize: 24,
-    lineHeight: 1,
-    color: theme.palette.greyAlpha(0.25),
-    userSelect: 'none',
-    opacity: 0,
-    transition: 'color 120ms ease, transform 120ms ease, opacity 120ms ease',
-  },
-  caretExpanded: {
-    transform: 'rotate(-90deg)',
-    color: theme.palette.greyAlpha(0.55),
-  },
 }));
 
 function stopPropagation(event: React.MouseEvent) {
@@ -141,7 +124,6 @@ const ActivitySummaryRow = ({baseScore, user, postedAt, expanded, onToggle, chil
     >
       <div className={classes.karmaWrap}>
         <span className={classNames(classes.karma, karmaSignClass)}>{baseScore}</span>
-        <span className={classNames(classes.caret, expanded && classes.caretExpanded, 'activity-row-caret')} aria-hidden="true">›</span>
       </div>
       <div className={classes.content}>
         <div className={classNames(classes.meta, isPost && classes.metaPost)} onClick={stopPropagation}>

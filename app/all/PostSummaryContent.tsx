@@ -15,7 +15,6 @@ const styles = defineStyles('PostSummaryContent', (theme: ThemeType) => ({
   postTitle: {
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 16,
-    marginTop: 8,
     fontWeight: 500,
     lineHeight: 1.3,
     '&:hover': {
@@ -29,6 +28,7 @@ const styles = defineStyles('PostSummaryContent', (theme: ThemeType) => ({
     // reads as the section's headline without dwarfing the post body underneath.
     fontSize: 28,
     lineHeight: 1.2,
+    marginTop: 8,
     whiteSpace: 'normal',
     overflow: 'visible',
     textOverflow: 'clip',

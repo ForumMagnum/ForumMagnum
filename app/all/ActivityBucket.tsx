@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import LoadMore from '@/components/common/LoadMore';
 import BucketHeader from './BucketHeader';
@@ -15,7 +15,7 @@ const INITIAL_VISIBLE = 7;
 
 const styles = defineStyles('ActivityBucket', (theme: ThemeType) => ({
   bucket: {
-    marginBottom: 28,
+    marginBottom: 50,
   },
   loadMore: {
     marginTop: 6,
@@ -38,12 +38,16 @@ const ActivityBucket = ({ label, range, after, before, secondaryReady }: Activit
   const { compact, toggleCompact } = useCompactBuckets();
   const { items, isInitialLoading } = useActivityBucketItems({ after, before, secondaryReady, sortBy });
   const { visibleItems, visibleCount, totalCount, hasMore, showAll } = useGradualReveal(items, INITIAL_VISIBLE);
+  const [expandedItemId, setExpandedItemId] = useState<string | null>(null);
+  const toggleExpandedItem = useCallback((id: string) => {
+    setExpandedItemId(prev => prev === id ? null : id);
+  }, []);
   return (
     <div className={classes.bucket}>
       <BucketHeader label={label}>
         <BucketControls sortBy={sortBy} onSortChange={setSortBy} compact={compact} onToggleCompact={toggleCompact} />
       </BucketHeader>
-      <BucketBody items={visibleItems} isInitialLoading={isInitialLoading} compact={compact} />
+      <BucketBody items={visibleItems} isInitialLoading={isInitialLoading} compact={compact} expandedItemId={expandedItemId} onToggleExpandedItem={toggleExpandedItem} />
       {hasMore && (
         <div className={classes.loadMore}>
           <LoadMore loadMore={showAll} count={visibleCount} totalCount={totalCount} />

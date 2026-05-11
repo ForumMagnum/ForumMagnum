@@ -30,7 +30,7 @@ const styles = defineStyles('CommentSummaryContent', (theme: ThemeType) => ({
   },
   commentBody: {
     marginTop: 4,
-    marginBottom: 4,
+    marginBottom: 0,
     overflow: 'hidden',
     maxWidth: 720,
     textOverflow: 'ellipsis',

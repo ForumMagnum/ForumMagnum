@@ -26,5 +26,5 @@ function computeActivityBuckets(): ActivityBucketConfig[] {
 
 // Memoizes bucket time windows so they're computed once per page mount.
 export function useActivityRanges() {
-  return useMemo(computeActivityBuckets, []);
+  return useMemo(() => computeActivityBuckets(), []);
 }
