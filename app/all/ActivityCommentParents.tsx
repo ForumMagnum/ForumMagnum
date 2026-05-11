@@ -46,7 +46,7 @@ const styles = defineStyles('ActivityCommentParents', (theme: ThemeType) => ({
 }));
 
 interface ActivityCommentParentsProps {
-  parentCommentId: string;
+  parentCommentId: string; 
 }
 
 const ActivityCommentParents = ({parentCommentId}: ActivityCommentParentsProps) => {
