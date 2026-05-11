@@ -20,9 +20,6 @@ const styles = defineStyles('ActivitySummaryRow', (theme: ThemeType) => ({
     '&:hover .activity-row-caret': {
       color: theme.palette.greyAlpha(0.55),
     },
-    '&:hover .activity-row-emphasis': {
-      color: theme.palette.primary.main,
-    },
   },
   karma: {
     flex: '0 0 32px',
@@ -54,6 +51,9 @@ const styles = defineStyles('ActivitySummaryRow', (theme: ThemeType) => ({
     color: theme.palette.greyAlpha(0.5),
     fontVariantNumeric: 'tabular-nums',
     lineHeight: 1.4,
+  },
+  metaPost: {
+    marginTop: 8,
   },
   metaPrimary: {
     display: 'flex',
@@ -116,9 +116,10 @@ interface ActivitySummaryRowProps {
   expanded: boolean;
   onToggle: () => void;
   children: React.ReactNode;
+  isPost?: boolean;
 }
 
-const ActivitySummaryRow = ({baseScore, user, postedAt, expanded, onToggle, children}: ActivitySummaryRowProps) => {
+const ActivitySummaryRow = ({baseScore, user, postedAt, expanded, onToggle, children, isPost}: ActivitySummaryRowProps) => {
   const classes = useStyles(styles);
   const karmaSignClass = baseScore > 0 ? classes.karmaPositive : baseScore < 0 ? classes.karmaNegative : undefined;
   return (
@@ -134,7 +135,7 @@ const ActivitySummaryRow = ({baseScore, user, postedAt, expanded, onToggle, chil
 
       <span className={classNames(classes.karma, karmaSignClass)}>{baseScore}</span>
       <div className={classes.content}>
-        <div className={classes.meta} onClick={stopPropagation}>
+        <div className={classNames(classes.meta, isPost && classes.metaPost)} onClick={stopPropagation}>
           <div className={classes.metaPrimary}>
             <span className={classes.author}><UsersNameDisplay user={user} /></span>
             <span className={classes.metaSeparator}>·</span>

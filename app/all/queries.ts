@@ -21,3 +21,27 @@ export const RecentActivityCommentsQuery = gql(`
     }
   }
 `);
+
+// Fetch a comment plus up to four levels of ancestors so an expanded comment
+// row can render its parent chain as SingleLineComments.
+export const ActivityCommentParentsQuery = gql(`
+  query ActivityCommentParentsQuery($commentId: String!) {
+    comment(selector: { _id: $commentId }) {
+      result {
+        ...CommentsList
+        parentComment {
+          ...CommentsList
+          parentComment {
+            ...CommentsList
+            parentComment {
+              ...CommentsList
+              parentComment {
+                ...CommentsList
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`);

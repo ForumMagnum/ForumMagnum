@@ -10,8 +10,7 @@ const styles = defineStyles('BucketHeader', (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'baseline',
     gap: 10,
-    marginBottom: 6,
-    paddingBottom: 4,
+    paddingBottom: 8,
     borderBottom: `1px solid ${theme.palette.greyAlpha(0.08)}`,
   },
   label: {

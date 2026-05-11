@@ -11645,6 +11645,43 @@ type RecentActivityCommentsQueryQueryVariables = Exact<{
 
 type RecentActivityCommentsQueryQuery = RecentActivityCommentsQueryQuery_Query;
 
+type ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsList
+);
+
+type ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment = (
+  { __typename?: 'Comment', parentComment: ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment | null }
+  & CommentsList
+);
+
+type ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment_parentComment_Comment_parentComment_Comment = (
+  { __typename?: 'Comment', parentComment: ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment | null }
+  & CommentsList
+);
+
+type ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment_parentComment_Comment = (
+  { __typename?: 'Comment', parentComment: ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment_parentComment_Comment_parentComment_Comment | null }
+  & CommentsList
+);
+
+type ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment = (
+  { __typename?: 'Comment', parentComment: ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment_parentComment_Comment | null }
+  & CommentsList
+);
+
+type ActivityCommentParentsQueryQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type ActivityCommentParentsQueryQuery_Query = { __typename?: 'Query', comment: ActivityCommentParentsQueryQuery_comment_SingleCommentOutput | null };
+
+
+type ActivityCommentParentsQueryQueryVariables = Exact<{
+  commentId: Scalars['String']['input'];
+}>;
+
+
+type ActivityCommentParentsQueryQuery = ActivityCommentParentsQueryQuery_Query;
+
 type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextDescription: string };
 
 type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence = { __typename?: 'Sequence', _id: string, title: string };

@@ -15,6 +15,7 @@ const styles = defineStyles('ActivityExpandedSection', (theme: ThemeType) => ({
     paddingRight: 8,
     paddingTop: 4,
     paddingBottom: 14,
+    width: 720,
   },
   expandedFooter: {
     marginTop: 10,

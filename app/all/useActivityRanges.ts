@@ -17,7 +17,7 @@ function computeActivityBuckets(): ActivityBucketConfig[] {
   const startOfToday = now.clone().startOf('day');
   const startOfYesterday = startOfToday.clone().subtract(1, 'day');
   return [
-    { label: 'Last Day', range: '0 - 24h', after: oneDayAgo.toISOString(), before: now.toISOString() },
+    { label: 'Today', range: '0 - 24h', after: oneDayAgo.toISOString(), before: now.toISOString() },
     { label: 'Yesterday', range: 'local calendar day', after: startOfYesterday.toISOString(), before: startOfToday.toISOString() },
     { label: 'Last Week', range: '1 - 7 days', after: oneWeekAgo.toISOString(), before: oneDayAgo.toISOString() },
     { label: 'Last Month', range: '7 - 30 days', after: oneMonthAgo.toISOString(), before: oneWeekAgo.toISOString() },

@@ -6,6 +6,7 @@ import ActivityRow from './ActivityRow';
 import ActivitySummaryRow from './ActivitySummaryRow';
 import ActivityExpandedSection from './ActivityExpandedSection';
 import ActivityExpandedBody from './ActivityExpandedBody';
+import ActivityCommentParents from './ActivityCommentParents';
 import CommentSummaryContent from './CommentSummaryContent';
 import { useExpandable } from './useExpandable';
 
@@ -25,6 +26,7 @@ const ActivityCommentItem = ({comment, postedAt, baseScore, compact}: ActivityCo
       </ActivitySummaryRow>
       {expanded && (
         <ActivityExpandedSection permalinkUrl={commentGetPageUrl(comment)} permalinkLabel="View comment →">
+          {comment.parentCommentId && <ActivityCommentParents parentCommentId={comment.parentCommentId} />}
           <ActivityExpandedBody
             html={comment.contents?.html ?? ''}
             contentType="comment"

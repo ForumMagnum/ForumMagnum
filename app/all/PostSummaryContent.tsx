@@ -5,8 +5,7 @@ import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { normalizeWhitespace } from './normalizeWhitespace';
 
-// Title + excerpt shown in the middle of a post row. The title is the
-// "emphasis" element that recolors on row hover (via .activity-row-emphasis).
+// Title + excerpt shown in the middle of a post row.
 const styles = defineStyles('PostSummaryContent', (theme: ThemeType) => ({
   singleLine: {
     overflow: 'hidden',
@@ -16,8 +15,12 @@ const styles = defineStyles('PostSummaryContent', (theme: ThemeType) => ({
   postTitle: {
     fontFamily: theme.typography.postStyle.fontFamily,
     fontSize: 16,
+    marginTop: 8,
     fontWeight: 500,
     lineHeight: 1.3,
+    '&:hover': {
+      color: theme.palette.greyAlpha(0.7),
+    },
     color: theme.palette.greyAlpha(0.9),
     transition: 'font-size 220ms ease, line-height 220ms ease, color 120ms ease',
   },
@@ -62,7 +65,7 @@ const PostSummaryContent = ({post, expanded, compact}: {post: PostsList, expande
   // Hide excerpt when expanded (title takes over) or when compact mode is on.
   const hideExcerpt = expanded || compact;
   return <>
-    <div className={classNames(classes.postTitle, !expanded && classes.singleLine, expanded && classes.postTitleExpanded, 'activity-row-emphasis')}>{title}</div>
+    <div className={classNames(classes.postTitle, !expanded && classes.singleLine, expanded && classes.postTitleExpanded)}>{title}</div>
     {!compact && <div className={classNames(classes.postExcerpt, !excerpt && classes.emptyExcerpt, hideExcerpt && classes.postExcerptHidden)}>
       {excerpt || 'No preview available'}
     </div>}

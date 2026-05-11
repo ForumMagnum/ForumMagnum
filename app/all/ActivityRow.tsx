@@ -19,7 +19,7 @@ const styles = defineStyles('ActivityRow', (theme: ThemeType) => ({
     },
   },
   rowExpanded: {
-    background: theme.palette.greyAlpha(0.025),
+    background: theme.palette.panelBackground.default,
   },
 }));
 

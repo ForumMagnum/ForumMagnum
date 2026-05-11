@@ -20,7 +20,7 @@ const ActivityPostItem = ({post, postedAt, baseScore, compact}: ActivityPostItem
   const { expanded, toggle } = useExpandable();
   return (
     <ActivityRow expanded={expanded}>
-      <ActivitySummaryRow baseScore={baseScore} user={post.user} postedAt={postedAt} expanded={expanded} onToggle={toggle}>
+      <ActivitySummaryRow baseScore={baseScore} user={post.user} postedAt={postedAt} expanded={expanded} onToggle={toggle} isPost>
         <PostSummaryContent post={post} expanded={expanded} compact={compact} />
       </ActivitySummaryRow>
       {expanded && (

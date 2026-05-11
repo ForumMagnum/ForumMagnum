@@ -11,7 +11,6 @@ import { useSecondaryReady } from './useSecondaryReady';
 const styles = defineStyles('RecentActivityPage', (theme: ThemeType) => ({
   page: {
     fontFamily: theme.palette.fonts.sansSerifStack,
-    width: 640,
   },
 }));
 
