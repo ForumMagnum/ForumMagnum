@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
@@ -59,6 +59,28 @@ const CreateResearchDocumentMutation = gql(`
         _id
         title
         createdAt
+      }
+    }
+  }
+`);
+
+const RenameResearchDocumentMutation = gql(`
+  mutation RenameResearchDocumentSidebar($id: String!, $title: String) {
+    updateResearchDocument(selector: { _id: $id }, data: { title: $title }) {
+      data {
+        _id
+        title
+      }
+    }
+  }
+`);
+
+const RenameResearchConversationMutation = gql(`
+  mutation RenameResearchConversationSidebar($id: String!, $title: String) {
+    updateResearchConversation(selector: { _id: $id }, data: { title: $title }) {
+      data {
+        _id
+        title
       }
     }
   }
@@ -156,7 +178,6 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     fontSize: 13,
     color: theme.palette.text.primary,
     overflow: 'hidden',
-    textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     display: 'flex',
     alignItems: 'center',
@@ -164,12 +185,51 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     '&:hover': {
       background: theme.palette.greyAlpha(0.06),
     },
+    '&:hover $itemEditButton': {
+      visibility: 'visible',
+    },
   },
   itemLabel: {
+    flex: 1,
     minWidth: 0,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
+  },
+  itemEditInput: {
+    flex: 1,
+    minWidth: 0,
+    padding: '2px 4px',
+    margin: '-2px -4px',
+    fontSize: 'inherit',
+    fontFamily: 'inherit',
+    color: theme.palette.text.primary,
+    background: theme.palette.background.default,
+    border: theme.palette.greyBorder('1px', 0.2),
+    borderRadius: 3,
+    outline: 'none',
+    '&:focus': {
+      borderColor: theme.palette.primary.main,
+    },
+  },
+  itemEditButton: {
+    flex: 'none',
+    width: 18,
+    height: 18,
+    border: 'none',
+    background: 'transparent',
+    color: theme.palette.text.dim,
+    cursor: 'pointer',
+    padding: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 3,
+    visibility: 'hidden',
+    '&:hover': {
+      color: theme.palette.text.primary,
+      background: theme.palette.greyAlpha(0.08),
+    },
   },
   itemIcon: {
     '--icon-size': '14px',
@@ -266,10 +326,19 @@ const ProjectSidebar = ({
   });
 
   const [createDocument] = useMutation(CreateResearchDocumentMutation);
+  const [renameDocument] = useMutation(RenameResearchDocumentMutation);
+  const [renameConversation] = useMutation(RenameResearchConversationMutation);
 
   const project = data?.researchProject?.result;
   const documents = data?.researchDocuments?.results ?? [];
   const conversations = data?.researchConversations?.results ?? [];
+
+  const handleRenameDocument = async (id: string, title: string | null) => {
+    await renameDocument({ variables: { id, title } });
+  };
+  const handleRenameConversation = async (id: string, title: string | null) => {
+    await renameConversation({ variables: { id, title } });
+  };
 
   // Bucket by entrypoint kind so each subsection only walks its own slice.
   // The order in `KIND_ORDER` defines the visual order of the subsections.
@@ -356,7 +425,12 @@ const ProjectSidebar = ({
                 onClick={() => onSelectDocument(doc._id)}
               >
                 <ForumIcon icon="Document" className={classes.itemIcon} />
-                <span className={classes.itemLabel}>{doc.title ?? 'Untitled document'}</span>
+                <EditableTitle
+                  classes={classes}
+                  title={doc.title}
+                  placeholder="Untitled document"
+                  onRename={(next) => handleRenameDocument(doc._id, next)}
+                />
               </li>
             ))}
             {!loading && documents.length === 0 ? (
@@ -416,7 +490,12 @@ const ProjectSidebar = ({
                         onClick={() => onSelectConversation(conv._id)}
                         title={meta.title}
                       >
-                        <span className={classes.itemLabel}>{conv.title ?? 'Untitled conversation'}</span>
+                        <EditableTitle
+                          classes={classes}
+                          title={conv.title ?? null}
+                          placeholder="Untitled conversation"
+                          onRename={(next) => handleRenameConversation(conv._id, next)}
+                        />
                       </li>
                     ))}
                   </ul>
@@ -427,6 +506,91 @@ const ProjectSidebar = ({
         </div>
       </div>
     </div>
+  );
+};
+
+interface EditableTitleProps {
+  classes: Record<string, string>;
+  title: string | null | undefined;
+  placeholder: string;
+  onRename: (next: string | null) => Promise<unknown>;
+}
+
+const EditableTitle = ({ classes, title, placeholder, onRename }: EditableTitleProps) => {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState('');
+  const [saving, setSaving] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editing && inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, [editing]);
+
+  const startEditing = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    setDraft(title ?? '');
+    setEditing(true);
+  };
+
+  const commit = async () => {
+    if (saving) return;
+    const trimmed = draft.trim();
+    const next = trimmed.length === 0 ? null : trimmed;
+    if (next === (title ?? null)) {
+      setEditing(false);
+      return;
+    }
+    setSaving(true);
+    try {
+      await onRename(next);
+      setEditing(false);
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      void commit();
+    } else if (event.key === 'Escape') {
+      event.preventDefault();
+      setEditing(false);
+    }
+  };
+
+  if (editing) {
+    return (
+      <input
+        ref={inputRef}
+        className={classes.itemEditInput}
+        value={draft}
+        placeholder={placeholder}
+        disabled={saving}
+        onChange={(e) => setDraft(e.target.value)}
+        onClick={(e) => e.stopPropagation()}
+        onKeyDown={handleKeyDown}
+        onBlur={() => void commit()}
+      />
+    );
+  }
+
+  return (
+    <>
+      <span className={classes.itemLabel}>{title ?? placeholder}</span>
+      <button
+        type="button"
+        className={classes.itemEditButton}
+        onClick={startEditing}
+        title="Rename"
+        aria-label="Rename"
+      >
+        <ForumIcon icon="Pencil" className={classes.icon} />
+      </button>
+    </>
   );
 };
 

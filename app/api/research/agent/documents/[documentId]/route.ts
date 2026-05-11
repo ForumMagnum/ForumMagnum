@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { $convertToMarkdownString } from "@lexical/markdown";
+import { $nodesOfType, type LexicalEditor } from "lexical";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
-import { PLAYGROUND_TRANSFORMERS } from "@/components/lexical/plugins/MarkdownTransformers";
+import { AgentBlockNode } from "@/components/research/lexical/AgentBlockNode";
+import { cheerioParse } from "@/server/utils/htmlUtil";
 import {
   authorizeAgentRequest,
   authorizeAgentResearchDocumentAccess,
@@ -11,17 +12,86 @@ import {
   captureResearchAgentApiEvent,
   captureResearchAgentApiFailure,
 } from "../../captureResearchAgentAnalytics";
-import { withResearchDocEditorSession } from "../../researchEditorSession";
+import { getLiveLexicalMarkdown } from "../../../../(markdown)/editorMarkdownUtils";
 
 const ROUTE = "documents.fetch";
+
+interface AgentBlockConversationMetadata {
+  title: string | null;
+  lastActivityAt: Date;
+}
+
+function collectAgentBlockConversationIds(editor: LexicalEditor): string[] {
+  const ids = new Set<string>();
+  editor.getEditorState().read(() => {
+    for (const node of $nodesOfType(AgentBlockNode)) {
+      const id = node.getConversationId();
+      if (id) ids.add(id);
+    }
+  });
+  return Array.from(ids);
+}
+
+async function fetchAgentBlockConversationMetadata(
+  conversationIds: string[],
+  projectId: string,
+  context: ResolverContext,
+): Promise<Map<string, AgentBlockConversationMetadata>> {
+  if (conversationIds.length === 0) return new Map();
+  // `projectId` filter is a defensive bound: a document should only
+  // ever reference conversations from its own project, but we never
+  // want a stray reference to leak metadata from another project.
+  const conversations = await context.ResearchConversations.find(
+    { _id: { $in: conversationIds }, projectId },
+    {},
+    { _id: 1, title: 1, lastActivityAt: 1 },
+  ).fetch();
+  return new Map(
+    conversations.map((c) => [
+      c._id,
+      { title: c.title, lastActivityAt: c.lastActivityAt },
+    ]),
+  );
+}
+
+/**
+ * Annotate `<div class="research-agent-block">` elements in the rendered HTML
+ * with `data-conversation-title` / `data-conversation-last-activity-at`
+ * attributes so the `research-agent-block` Turndown rule can fold them into
+ * its placeholder line in a single pass — avoiding a second post-Turndown
+ * regex sweep over the markdown.
+ */
+function annotateAgentBlocksInHtml(
+  html: string,
+  metadata: Map<string, AgentBlockConversationMetadata>,
+): string {
+  if (metadata.size === 0 || !html.includes("research-agent-block")) return html;
+  const $ = cheerioParse(html);
+  $("div.research-agent-block").each((_, el) => {
+    const $el = $(el);
+    const conversationId = $el.attr("data-conversation-id");
+    if (!conversationId) return;
+    const meta = metadata.get(conversationId);
+    if (!meta) return;
+    $el.attr("data-conversation-title", meta.title ?? "(untitled)");
+    $el.attr("data-conversation-last-activity-at", meta.lastActivityAt.toISOString());
+  });
+  return $.html();
+}
 
 /**
  * GET `/api/research/agent/documents/:documentId`
  *
- * Returns the live ResearchDocument's contents serialized as markdown.
- * Uses `withResearchDocEditorSession` to read the current Yjs state through a
- * headless Lexical editor — same path as the edit endpoints, so what the
- * agent reads exactly matches the substrate it can edit.
+ * Returns the live ResearchDocument's contents serialized as markdown via the
+ * same Lexical → HTML → Turndown pipeline that backs the post-draft agent API
+ * (`getLiveLexicalMarkdown`). Reads through a headless Lexical editor over the
+ * current Yjs state, so what the agent reads exactly matches the substrate it
+ * can edit.
+ *
+ * AgentBlocks are emitted as `%%% agent-block conversationId="..." %%%`
+ * placeholders by the Turndown rule, and then enriched in-place with the
+ * conversation's `title` / `lastActivityAt` so the agent can decide whether
+ * to fetch full contents via /api/research/agent/conversations/:id/events.
  *
  * Why not read `ResearchDocuments.contents` (the persisted snapshot)?
  *   - It can lag the live Yjs state by one Hocuspocus debounce window.
@@ -49,16 +119,20 @@ export async function GET(
     if (docAuth.kind === "errorResponse") return docAuth.errorResponse;
     const { document, hocuspocusToken } = docAuth;
 
-    const markdown = await withResearchDocEditorSession({
+    const markdown = await getLiveLexicalMarkdown({
+      collectionName: "ResearchDocuments",
       documentId,
       token: hocuspocusToken,
       operationLabel: "ResearchFetchDocument",
-      callback: async ({ editor }) => {
-        let result = "";
-        editor.getEditorState().read(() => {
-          result = $convertToMarkdownString(PLAYGROUND_TRANSFORMERS);
-        });
-        return result;
+      extraNodes: [AgentBlockNode],
+      transformHtml: async ({ html, editor }) => {
+        const conversationIds = collectAgentBlockConversationIds(editor);
+        const metadata = await fetchAgentBlockConversationMetadata(
+          conversationIds,
+          document.projectId,
+          context,
+        );
+        return annotateAgentBlocksInHtml(html, metadata);
       },
     });
 

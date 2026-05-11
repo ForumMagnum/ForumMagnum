@@ -11,7 +11,9 @@ import {
   $createParagraphNode,
   $isElementNode,
   $isDecoratorNode,
+  type LexicalEditor,
   type LexicalNode,
+  type LexicalNodeConfig,
 } from "lexical";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Doc, Array as YArray, Map as YMap } from "yjs";
@@ -258,16 +260,62 @@ async function getOpenCommentThreadsMarkdown({
 export async function getLiveDraftMarkdown({
   postId,
   token,
-  operationLabel
+  operationLabel,
 }: {
   postId: string
   token: string
   operationLabel?: string
 }): Promise<string> {
-  return withMainDocEditorSession({
+  return getLiveLexicalMarkdown({
     postId,
     token,
     operationLabel: operationLabel ?? "MarkdownReadDraft",
+  });
+}
+
+/**
+ * Collection-agnostic version of `getLiveDraftMarkdown`. Connects to the
+ * Yjs document for `(collectionName, documentId)`, materializes a headless
+ * Lexical editor (registering any `extraNodes` so collection-specific node
+ * types like `AgentBlockNode` round-trip cleanly), and runs the same
+ * Lexical → HTML → Turndown pipeline used for post drafts.
+ *
+ * Sharing the pipeline (rather than calling `$convertToMarkdownString`
+ * directly) means research documents pick up the same handling for
+ * footnotes, math, spoilers, iframe widgets, and — via the
+ * `research-agent-block` Turndown rule — AgentBlocks.
+ *
+ * `transformHtml` runs between HTML generation and Turndown conversion;
+ * callers can use it to walk the live editor state and inject DB-fetched
+ * metadata onto specific elements as `data-*` attributes (e.g. tagging
+ * AgentBlock divs with conversation title / lastActivityAt before the
+ * `research-agent-block` Turndown rule reads them out).
+ */
+export async function getLiveLexicalMarkdown({
+  collectionName,
+  documentId,
+  postId,
+  token,
+  operationLabel,
+  extraNodes,
+  transformHtml,
+}: {
+  // Either pass {collectionName, documentId} or {postId} (legacy → Posts).
+  collectionName?: string
+  documentId?: string
+  postId?: string
+  token: string
+  operationLabel?: string
+  extraNodes?: LexicalNodeConfig[]
+  transformHtml?: (args: { html: string, editor: LexicalEditor }) => Promise<string> | string
+}): Promise<string> {
+  return withMainDocEditorSession({
+    collectionName,
+    documentId,
+    postId,
+    token,
+    operationLabel: operationLabel ?? "MarkdownReadDraft",
+    extraNodes,
     callback: async ({ editor }) => {
       const html = withDomGlobals(() => {
         let generated = "";
@@ -276,7 +324,8 @@ export async function getLiveDraftMarkdown({
         });
         return generated;
       });
-      return convertWidgetIframesToMarkdownFences(htmlToMarkdown(html));
+      const processedHtml = transformHtml ? await transformHtml({ html, editor }) : html;
+      return convertWidgetIframesToMarkdownFences(htmlToMarkdown(processedHtml));
     },
   });
 }

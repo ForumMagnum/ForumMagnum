@@ -12,6 +12,8 @@ import ForumIcon from '../common/ForumIcon';
 import ProjectSidebar from './ProjectSidebar';
 import DocumentPane from './DocumentPane';
 import ChatPane from './ChatPane';
+import SupervisorHealthBanner from './SupervisorHealthBanner';
+import { SupervisorHealthProvider } from './hooks/SupervisorHealthContext';
 
 interface ResearchWorkspaceProps {
   projectId: string;
@@ -28,14 +30,20 @@ const FirstDocumentQuery = gql(`
 `);
 
 const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
+  outer: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: 'calc(100vh - 64px)',
+    minHeight: 0,
+    background: theme.palette.background.default,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+  },
   root: {
     display: 'grid',
     gridTemplateColumns: '260px 1fr 360px',
     gridTemplateRows: '1fr',
-    height: 'calc(100vh - 64px)',
-    background: theme.palette.background.default,
+    flex: 1,
     minHeight: 0,
-    fontFamily: theme.palette.fonts.sansSerifStack,
   },
   rootChatHidden: {
     gridTemplateColumns: '260px 1fr 36px',
@@ -230,8 +238,11 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   });
 
   return (
-    <div className={rootClassName}>
-      {sidebarOpen ? (
+    <SupervisorHealthProvider>
+      <div className={classes.outer}>
+        <SupervisorHealthBanner />
+        <div className={rootClassName}>
+          {sidebarOpen ? (
         <div className={classes.sidebar}>
           <ProjectSidebar
             projectId={projectId}
@@ -297,7 +308,9 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
           <button className={classes.collapsedTab} onClick={() => setRightPaneMode('chat')}>Chat</button>
         </div>
       )}
-    </div>
+        </div>
+      </div>
+    </SupervisorHealthProvider>
   );
 };
 

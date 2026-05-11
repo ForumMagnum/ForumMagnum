@@ -38,6 +38,7 @@ import { conversationGqlMutations, conversationGqlTypeDefs } from '@/server/reso
 import { researchResolversTypeDefs, researchResolversMutations, researchResolversQueries } from '@/server/resolvers/researchResolvers'
 import { createResearchProjectGqlMutation, updateResearchProjectGqlMutation, graphqlResearchProjectTypeDefs } from "@/server/collections/researchProjects/mutations";
 import { createResearchDocumentGqlMutation, updateResearchDocumentGqlMutation, graphqlResearchDocumentTypeDefs } from "@/server/collections/researchDocuments/mutations";
+import { updateResearchConversationGqlMutation, graphqlResearchConversationTypeDefs } from "@/server/collections/researchConversations/mutations";
 import { databaseSettingsGqlTypeDefs, databaseSettingsGqlMutations } from '@/server/resolvers/databaseSettingsResolvers'
 import { siteGraphQLQueries, siteGraphQLTypeDefs } from '../site';
 import { loginDataGraphQLMutations, loginDataGraphQLTypeDefs } from './authentication';
@@ -276,6 +277,7 @@ export const getTypeDefs = () => gql`
   ${researchResolversTypeDefs}
   ${graphqlResearchProjectTypeDefs}
   ${graphqlResearchDocumentTypeDefs}
+  ${graphqlResearchConversationTypeDefs}
   ${tagGraphQLTypeDefs}
   ${databaseSettingsGqlTypeDefs}
   ${siteGraphQLTypeDefs}
@@ -642,6 +644,7 @@ const getResolvers = () => ({
     updateResearchProject: updateResearchProjectGqlMutation,
     createResearchDocument: createResearchDocumentGqlMutation,
     updateResearchDocument: updateResearchDocumentGqlMutation,
+    updateResearchConversation: updateResearchConversationGqlMutation,
     updateReport: updateReportGqlMutation,
     updateRevision: updateRevisionGqlMutation,
     createSequence: createSequenceGqlMutation,

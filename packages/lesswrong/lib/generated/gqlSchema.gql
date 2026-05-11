@@ -1030,6 +1030,28 @@ extend type Mutation {
   updateResearchDocument(selector: SelectorInput!, data: UpdateResearchDocumentDataInput!): ResearchDocumentOutput
 }
 
+input UpdateResearchConversationDataInput {
+  userId: String
+  projectId: String
+  claudeSessionId: String
+  title: String
+  entrypoint: JSON
+  lastActivityAt: Date
+}
+
+input UpdateResearchConversationInput {
+  selector: SelectorInput!
+  data: UpdateResearchConversationDataInput!
+}
+
+type ResearchConversationOutput {
+  data: ResearchConversation
+}
+
+extend type Mutation {
+  updateResearchConversation(selector: SelectorInput!, data: UpdateResearchConversationDataInput!): ResearchConversationOutput
+}
+
 enum DocumentDeletionNetChange {
   deleted
   restored

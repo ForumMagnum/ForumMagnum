@@ -5,6 +5,7 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { useApolloClient } from '@apollo/client/react';
 import { isPlainRecord } from '../conversationEventFormat';
 import { randomId } from '@/lib/random';
+import { SupervisorHealth, useReportSupervisorHealth } from './SupervisorHealthContext';
 
 /**
  * Shape of a single conversation event, mirroring `ResearchConversationEvents`
@@ -119,6 +120,7 @@ export function useConversationStream(
 ): UseConversationStreamResult {
   const { liveStreaming = true } = options;
   const apollo = useApolloClient();
+  const reportHealth = useReportSupervisorHealth();
 
   const [events, setEvents] = useState<ConversationEvent[]>([]);
   const [status, setStatus] = useState<StreamStatus>('idle');
@@ -133,6 +135,10 @@ export function useConversationStream(
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelledRef = useRef(false);
   const idleEmptyPollsRef = useRef(0);
+  // Pin the health reporter in a ref so the SSE handler can read it without
+  // forcing the effect to retrigger on each render.
+  const reportHealthRef = useRef(reportHealth);
+  useEffect(() => { reportHealthRef.current = reportHealth; }, [reportHealth]);
 
   const latestSeq = useMemo(() => {
     if (events.length === 0) return -1;
@@ -169,6 +175,7 @@ export function useConversationStream(
       setEvents,
       setStatus,
       setError,
+      reportHealthRef,
     });
 
     return () => {
@@ -206,6 +213,7 @@ interface RunStreamArgs {
   setEvents: React.Dispatch<React.SetStateAction<ConversationEvent[]>>;
   setStatus: React.Dispatch<React.SetStateAction<StreamStatus>>;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
+  reportHealthRef: React.MutableRefObject<(snapshot: SupervisorHealth) => void>;
 }
 
 async function runStream(args: RunStreamArgs) {
@@ -381,6 +389,24 @@ async function connectSSE(args: RunStreamArgs) {
   };
   es.onmessage = handleSseMessage;
   es.addEventListener('jsonl', handleSseMessage);
+
+  // Supervisor pushes its own health snapshot on connect and on every
+  // failure / transition. Forward to the workspace-level provider so the
+  // banner can render.
+  const handleHealthEvent = (msg: MessageEvent) => {
+    if (cancelledRef.current) return;
+    try {
+      const raw = JSON.parse(msg.data);
+      if (!isPlainRecord(raw)) return;
+      // Defensive shape check — anything missing the discriminator is
+      // ignored rather than throwing.
+      if (raw.status !== 'healthy' && raw.status !== 'unhealthy') return;
+      args.reportHealthRef.current(raw as unknown as SupervisorHealth);
+    } catch {
+      /* malformed health frame */
+    }
+  };
+  es.addEventListener('health', handleHealthEvent);
 
   es.onerror = () => {
     if (cancelledRef.current) return;

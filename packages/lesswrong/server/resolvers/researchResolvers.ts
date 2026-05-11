@@ -2,6 +2,7 @@ import gql from "graphql-tag";
 import { randomId } from "@/lib/random";
 import { entrypointSchema, type Entrypoint } from "@/lib/collections/researchConversations/entrypoint";
 import { backgroundTask } from "@/server/utils/backgroundTask";
+import { generateConversationTitle } from "@/server/research/titleGeneration";
 import { signSupervisorToken } from "@/server/research/sandbox/supervisor/auth";
 import { mintSandboxCallbackToken } from "../../../../app/api/research/agent/researchAgentAuth";
 import {
@@ -354,6 +355,13 @@ export const researchResolversMutations = {
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error("[research] fireResearchConversation dispatch failed", err);
+      }
+    })());
+
+    backgroundTask((async () => {
+      const title = await generateConversationTitle(prompt);
+      if (title) {
+        await ResearchConversations.rawUpdateOne({ _id }, { $set: { title } });
       }
     })());
 

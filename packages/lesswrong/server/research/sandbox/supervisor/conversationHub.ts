@@ -20,6 +20,7 @@ import { ClaudeRunnerHandle, startClaudeRunner } from "./claudeRunner";
 import { BackendEvent, PostPersister } from "./postPersister";
 import { writeBootstrapJsonl } from "./sessionBootstrap";
 import { ConversationState, SseSink, SseUnsubscribe } from "./server";
+import { HealthTracker, SupervisorHealth } from "./healthTracker";
 
 export interface ConversationHubConfig {
   postPersister: PostPersister;
@@ -27,6 +28,14 @@ export interface ConversationHubConfig {
   bufferSize?: number;
   /** Override clock for tests. */
   now?: () => number;
+  /**
+   * If present, the hub forwards every health transition / failure to every
+   * active SSE subscriber as a `health` event, and sends a current snapshot
+   * to each new subscriber on connect. This is the unbroken supervisor →
+   * browser channel; it's the only way the browser can learn that the
+   * supervisor → backend pipe is degraded.
+   */
+  healthTracker?: HealthTracker;
 }
 
 interface BufferedEvent {
@@ -69,6 +78,27 @@ export function createConversationHub(config: ConversationHubConfig) {
   const bufferSize = config.bufferSize ?? 1024;
   const now = config.now ?? (() => Date.now());
   const conversations = new Map<string, ConversationEntry>();
+
+  // Fan a single health update out to every active subscriber across all
+  // conversations. Health is supervisor-global state, so no per-conversation
+  // routing — any open SSE stream gets the same payload.
+  function broadcastHealth(snapshot: SupervisorHealth) {
+    const data = JSON.stringify(snapshot);
+    for (const entry of conversations.values()) {
+      for (const sink of entry.subscribers) {
+        try {
+          sink({ event: "health", data });
+        } catch (err) {
+          // eslint-disable-next-line no-console
+          console.error(`[hub] health sink threw for conv=${entry.conversationId}:`, err);
+        }
+      }
+    }
+  }
+
+  if (config.healthTracker) {
+    config.healthTracker.subscribe(broadcastHealth);
+  }
 
   function getOrInit(conversationId: string): ConversationEntry {
     const existing = conversations.get(conversationId);
@@ -144,6 +174,19 @@ export function createConversationHub(config: ConversationHubConfig) {
   function subscribe(conversationId: string, sink: SseSink, sinceSeq?: number): SseUnsubscribe {
     const entry = getOrInit(conversationId);
     entry.subscribers.add(sink);
+
+    // Snapshot the current health state to the new subscriber. A page
+    // reload mid-turn loses the in-memory client view, so without this the
+    // banner would silently disappear on refresh even if persistence is
+    // still broken.
+    if (config.healthTracker) {
+      try {
+        sink({ event: "health", data: JSON.stringify(config.healthTracker.getSnapshot()) });
+      } catch (err) {
+        // eslint-disable-next-line no-console
+        console.error(`[hub] initial health snapshot threw for conv=${conversationId}:`, err);
+      }
+    }
 
     if (typeof sinceSeq === "number") {
       const replay = entry.buffer.filter((e) => e.seq > sinceSeq);

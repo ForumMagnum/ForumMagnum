@@ -78,11 +78,13 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   },
   // Expanded layout: vertical stack of events instead of a single row, with
   // a sticky bottom collapse affordance overlaid on the scroll container.
+  // Vertical padding is owned by `scrollContainer` so top and bottom stay
+  // symmetric (the bottom needs gradient clearance; we mirror it on top).
   rootExpanded: {
     flexDirection: 'column',
     alignItems: 'stretch',
     gap: 0,
-    padding: '8px 64px 0 14px',
+    padding: '0 64px 0 14px',
   },
   rootProvenance: {
     borderColor: theme.palette.greyAlpha(0.16),
@@ -195,7 +197,8 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
     overflowY: 'auto',
     // Bottom padding leaves room for the gradient indicator so it fades
     // over empty space at the end of the scroll, not over the last line.
-    padding: `2px 0 ${COLLAPSE_GRADIENT_HEIGHT + 4}px`,
+    // Top padding mirrors it so the chip's interior stays vertically symmetric.
+    padding: `${COLLAPSE_GRADIENT_HEIGHT + 4}px 0`,
     display: 'flex',
     flexDirection: 'column',
     gap: 8,

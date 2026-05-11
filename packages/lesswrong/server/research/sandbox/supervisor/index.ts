@@ -24,6 +24,7 @@ import { createConversationHub } from "./conversationHub";
 import { createPostPersister } from "./postPersister";
 import { startSupervisor, SupervisorDeps } from "./server";
 import { startHeartbeat } from "./heartbeat";
+import { createHealthTracker } from "./healthTracker";
 
 const CLAUDE_MD_PATH = "/vercel/sandbox/CLAUDE.md";
 
@@ -80,12 +81,15 @@ export function bootSupervisor() {
   const env = readEnv();
   fillClaudeMdTemplate({ projectId: env.projectId });
 
+  const healthTracker = createHealthTracker();
+
   const postPersister = createPostPersister({
     backendBaseUrl: env.backendBaseUrl,
     authToken: env.callbackToken,
+    healthTracker,
   });
 
-  const hub = createConversationHub({ postPersister });
+  const hub = createConversationHub({ postPersister, healthTracker });
 
   const deps: SupervisorDeps = {
     env: {
@@ -143,6 +147,7 @@ export function bootSupervisor() {
     backendBaseUrl: env.backendBaseUrl,
     authToken: env.callbackToken,
     getSnapshot: () => hub.snapshot(),
+    healthTracker,
   });
 
   const shutdown = async () => {

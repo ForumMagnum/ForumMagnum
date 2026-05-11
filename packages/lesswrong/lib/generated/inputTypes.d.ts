@@ -247,6 +247,7 @@ interface Mutation {
   updateResearchProject: ResearchProjectOutput | null;
   createResearchDocument: ResearchDocumentOutput | null;
   updateResearchDocument: ResearchDocumentOutput | null;
+  updateResearchConversation: ResearchConversationOutput | null;
   mergeTags: boolean | null;
   promoteLensToMain: boolean | null;
   RefreshDbSettings: boolean | null;
@@ -1090,6 +1091,20 @@ interface UpdateResearchDocumentInput {
 
 interface ResearchDocumentOutput {
   data: ResearchDocument | null;
+}
+
+interface UpdateResearchConversationDataInput {
+  userId?: string | null;
+  projectId?: string | null;
+  claudeSessionId?: string | null;
+  title?: string | null;
+  entrypoint?: any;
+  lastActivityAt?: Date | null;
+}
+
+interface UpdateResearchConversationInput {
+  selector: SelectorInput;
+  data: UpdateResearchConversationDataInput;
 }
 
 interface DocumentDeletion {
@@ -9189,6 +9204,8 @@ interface GraphQLTypeMap {
   UpdateResearchDocumentDataInput: UpdateResearchDocumentDataInput;
   UpdateResearchDocumentInput: UpdateResearchDocumentInput;
   ResearchDocumentOutput: ResearchDocumentOutput;
+  UpdateResearchConversationDataInput: UpdateResearchConversationDataInput;
+  UpdateResearchConversationInput: UpdateResearchConversationInput;
   DocumentDeletion: DocumentDeletion;
   TagUpdates: TagUpdates;
   TagPreviewWithSummaries: TagPreviewWithSummaries;
@@ -10085,6 +10102,7 @@ interface CreateInputsByCollectionName {
 interface UpdateInputsByCollectionName {
   ResearchProjects: UpdateResearchProjectInput;
   ResearchDocuments: UpdateResearchDocumentInput;
+  ResearchConversations: UpdateResearchConversationInput;
   Books: UpdateBookInput;
   Chapters: UpdateChapterInput;
   Collections: UpdateCollectionInput;
@@ -10157,7 +10175,6 @@ interface UpdateInputsByCollectionName {
   ReadStatuses: never;
   RecommendationsCaches: never;
   ResearchConversationEvents: never;
-  ResearchConversations: never;
   ResearchSandboxSessions: never;
   ReviewVotes: never;
   ReviewWinnerArts: never;

@@ -1,4 +1,5 @@
 import { Posts } from '@/server/collections/posts/collection';
+import ResearchDocuments from '@/server/collections/researchDocuments/collection';
 import Revisions from '@/server/collections/revisions/collection';
 import Users from '../../server/collections/users/collection';
 import { createNotifications } from '@/server/notificationCallbacksHelpers';
@@ -10,6 +11,8 @@ import { constantTimeCompare } from '../../lib/helpers';
 import isEqual from 'lodash/isEqual';
 import YjsDocuments from '@/server/collections/yjsDocuments/collection';
 import { captureException } from '@/lib/sentryWrapper';
+import { backgroundTask } from '@/server/utils/backgroundTask';
+import { generateDocumentTitle } from '@/server/research/titleGeneration';
 
 const COLLAB_AUTOSAVE_COMMIT_MESSAGE = 'Collaborative editor autosave';
 
@@ -207,12 +210,37 @@ export async function saveOrUpdateLexicalRevision(
   html: string,
   yjsStateBase64: string,
 ): Promise<void> {
-  if (collectionName !== 'Posts') {
+  if (collectionName === 'Posts') {
+    const post = await Posts.findOne(documentId);
+    const userId = post!.userId;
+    await saveLexicalDocumentRevision(userId, documentId, html, yjsStateBase64);
     return;
   }
-  const post = await Posts.findOne(documentId);
-  const userId = post!.userId;
-  await saveLexicalDocumentRevision(userId, documentId, html, yjsStateBase64);
+  if (collectionName === 'ResearchDocuments') {
+    backgroundTask(maybeGenerateResearchDocumentTitle(documentId, html));
+    return;
+  }
+}
+
+// Generate a title via Haiku only while the doc still has a null title — once
+// a title is set (auto or user-edited), later autosaves short-circuit here.
+async function maybeGenerateResearchDocumentTitle(documentId: string, html: string): Promise<void> {
+  try {
+    const doc = await ResearchDocuments.findOne({ _id: documentId }, undefined, { _id: 1, title: 1 });
+    if (!doc || doc.title !== null) return;
+    const title = await generateDocumentTitle(html);
+    if (!title) return;
+    // title: null in the selector — avoids clobbering a title the user set
+    // between our read and the Haiku response landing.
+    await ResearchDocuments.rawUpdateOne(
+      { _id: documentId, title: null },
+      { $set: { title } },
+    );
+  } catch (err) {
+    captureException(err);
+    // eslint-disable-next-line no-console
+    console.error('[research] maybeGenerateResearchDocumentTitle failed', documentId, err);
+  }
 }
 
 /**

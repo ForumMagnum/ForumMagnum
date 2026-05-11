@@ -16,7 +16,20 @@
  * Endpoint contract (T3): POST /api/research/agent/conversations/:id/events
  *   body: { rawJsonl, kind, claudeMessageUuid, claudeSessionId?, supervisorEmittedAt? }
  *   response: { ok, seq, deduplicated }
+ *
+ * Health reporting: every terminal outcome (success or final-give-up) is
+ * forwarded to the optional `healthTracker` so the SSE server can surface
+ * pipe-degraded state to connected browsers. Suspect successes — 200s whose
+ * response body doesn't match `{ok:true}` — are treated as failures here so
+ * an upstream tunnel returning a 200 interstitial can't masquerade as a
+ * persisted event.
  */
+import {
+  classifyNetworkError,
+  HealthTracker,
+  looksLikeOkResponseBody,
+  snippetOf,
+} from "./healthTracker";
 
 export interface BackendEvent {
   /** Verbatim JSONL line text (canonical) — what the supervisor actually saw on stdout. */
@@ -42,6 +55,8 @@ export interface PostPersisterConfig {
   maxAttempts?: number;
   /** Initial backoff in ms. Default 250. Doubles each attempt up to ~16s. */
   initialBackoffMs?: number;
+  /** Optional health tracker; if present, every terminal outcome is reported. */
+  healthTracker?: HealthTracker;
 }
 
 export interface PostPersister {
@@ -54,6 +69,22 @@ interface PerConvState {
   inFlight: Promise<void>;
 }
 
+interface AttemptOutcome {
+  outcome: "success" | "permanent_failure" | "suspect_success";
+  status?: number;
+  body?: string;
+}
+
+class TransientError extends Error {
+  status: number;
+  body: string;
+  constructor(message: string, status: number, body: string) {
+    super(message);
+    this.status = status;
+    this.body = body;
+  }
+}
+
 export function createPostPersister(config: PostPersisterConfig): PostPersister {
   const fetchImpl = config.fetchImpl ?? fetch;
   const maxAttempts = config.maxAttempts ?? 6;
@@ -64,30 +95,127 @@ export function createPostPersister(config: PostPersisterConfig): PostPersister 
     const url = `${config.backendBaseUrl}/api/research/agent/conversations/${encodeURIComponent(
       conversationId,
     )}/events`;
-    return retrying(async () => {
-      const res = await fetchImpl(url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${config.authToken}`,
-        },
-        body: JSON.stringify(event),
-      });
-      if (res.ok) return;
-      if (res.status === 429 || res.status >= 500) {
-        throw new TransientError(`backend ${res.status}`);
+    let lastFailureSnapshot: {
+      attempts: number;
+      httpStatus: number | null;
+      body: string;
+      networkErr: unknown;
+    } | null = null;
+
+    return retrying(async (attempt) => {
+      try {
+        const res = await fetchImpl(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${config.authToken}`,
+          },
+          body: JSON.stringify(event),
+        });
+        const text = await res.text();
+        if (res.ok) {
+          if (looksLikeOkResponseBody(text)) {
+            return { outcome: "success" } as AttemptOutcome;
+          }
+          // 200 with a body we don't recognize. Almost always means the
+          // request was intercepted by something between us and the backend
+          // (tunnel interstitial, captive portal, debug HTML page). Don't
+          // retry — retrying gets the same interstitial — but flag it.
+          lastFailureSnapshot = {
+            attempts: attempt + 1,
+            httpStatus: res.status,
+            body: text,
+            networkErr: null,
+          };
+          return { outcome: "suspect_success", status: res.status, body: text };
+        }
+        if (res.status === 429 || res.status >= 500) {
+          throw new TransientError(`backend ${res.status}`, res.status, text);
+        }
+        // eslint-disable-next-line no-console
+        console.warn(
+          `[postPersister] permanent ${res.status} for conv=${conversationId} kind=${event.kind} uuid=${event.claudeMessageUuid}; dropping event`,
+        );
+        lastFailureSnapshot = {
+          attempts: attempt + 1,
+          httpStatus: res.status,
+          body: text,
+          networkErr: null,
+        };
+        return { outcome: "permanent_failure", status: res.status, body: text };
+      } catch (err) {
+        if (err instanceof TransientError) {
+          lastFailureSnapshot = {
+            attempts: attempt + 1,
+            httpStatus: err.status,
+            body: err.body,
+            networkErr: null,
+          };
+          throw err;
+        }
+        if (isNetworkError(err)) {
+          lastFailureSnapshot = {
+            attempts: attempt + 1,
+            httpStatus: null,
+            body: "",
+            networkErr: err,
+          };
+          throw new TransientError(
+            (err as Error).message ?? "network",
+            0,
+            "",
+          );
+        }
+        throw err;
       }
-      // eslint-disable-next-line no-console
-      console.warn(
-        `[postPersister] permanent ${res.status} for conv=${conversationId} kind=${event.kind} uuid=${event.claudeMessageUuid}; dropping event`,
-      );
-    }, maxAttempts, initialBackoff).catch((err) => {
-      // eslint-disable-next-line no-console
-      console.error(
-        `[postPersister] giving up on conv=${conversationId} after ${maxAttempts} attempts:`,
-        err,
-      );
-    });
+    }, maxAttempts, initialBackoff)
+      .then((outcome) => {
+        if (outcome?.outcome === "success") {
+          config.healthTracker?.recordSuccess("event_post");
+          return;
+        }
+        // suspect_success or permanent_failure — both surfaced as health failures
+        const snap = lastFailureSnapshot ?? {
+          attempts: maxAttempts,
+          httpStatus: outcome?.status ?? null,
+          body: outcome?.body ?? "",
+          networkErr: null,
+        };
+        config.healthTracker?.recordFailure({
+          kind: outcome?.outcome === "suspect_success" ? "suspect_success" : "event_post",
+          targetUrl: url,
+          httpStatus: snap.httpStatus,
+          networkError: null,
+          responseBodySnippet: snap.body ? snippetOf(snap.body) : null,
+          attempts: snap.attempts,
+          context: {
+            conversationId,
+            eventKind: event.kind,
+            claudeMessageUuid: event.claudeMessageUuid,
+          },
+        });
+      })
+      .catch((err) => {
+        // eslint-disable-next-line no-console
+        console.error(
+          `[postPersister] giving up on conv=${conversationId} after ${maxAttempts} attempts:`,
+          err,
+        );
+        const snap = lastFailureSnapshot;
+        config.healthTracker?.recordFailure({
+          kind: "event_post",
+          targetUrl: url,
+          httpStatus: snap?.httpStatus ?? null,
+          networkError: snap?.networkErr ? classifyNetworkError(snap.networkErr) : null,
+          responseBodySnippet: snap?.body ? snippetOf(snap.body) : null,
+          attempts: snap?.attempts ?? maxAttempts,
+          context: {
+            conversationId,
+            eventKind: event.kind,
+            claudeMessageUuid: event.claudeMessageUuid,
+          },
+        });
+      });
   }
 
   return {
@@ -102,18 +230,15 @@ export function createPostPersister(config: PostPersisterConfig): PostPersister 
   };
 }
 
-class TransientError extends Error {}
-
 async function retrying(
-  fn: () => Promise<void>,
+  fn: (attempt: number) => Promise<AttemptOutcome>,
   maxAttempts: number,
   initialBackoffMs: number,
-): Promise<void> {
+): Promise<AttemptOutcome | undefined> {
   let lastErr: unknown = null;
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
-      await fn();
-      return;
+      return await fn(attempt);
     } catch (err) {
       lastErr = err;
       if (!(err instanceof TransientError) && !isNetworkError(err)) {
@@ -130,10 +255,11 @@ async function retrying(
 }
 
 function isNetworkError(err: unknown): boolean {
+  if (err instanceof TransientError) return false;
   if (err instanceof TypeError) return true;
   if (err instanceof Error) {
     const code = (err as { code?: string }).code;
-    if (code && ["ECONNRESET", "ETIMEDOUT", "ECONNREFUSED", "EAI_AGAIN", "UND_ERR_SOCKET"].includes(code)) {
+    if (code && ["ECONNRESET", "ETIMEDOUT", "ECONNREFUSED", "EAI_AGAIN", "UND_ERR_SOCKET", "ENOTFOUND"].includes(code)) {
       return true;
     }
   }

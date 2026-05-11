@@ -95,6 +95,13 @@ export class AgentBlockNode extends DecoratorNode<React.ReactElement> {
     if (this.__producedByConversationId) {
       wrapper.setAttribute('data-produced-by-conversation-id', this.__producedByConversationId);
     }
+    // Inline a human-readable placeholder so this element survives
+    // round-trips through tools that elide empty divs (Turndown's
+    // blank-replacement, plaintext converters, etc.) and so a copy/paste of
+    // the rendered HTML still says something meaningful out of context.
+    const label = document.createElement('span');
+    label.textContent = `Research agent query (conversation: ${this.__conversationId || 'unassigned'})`;
+    wrapper.appendChild(label);
     return { element: wrapper };
   }
 

@@ -3965,6 +3965,7 @@ type Mutation = {
   updatePost?: Maybe<PostOutput>;
   updateRSSFeed?: Maybe<RSSFeedOutput>;
   updateReport?: Maybe<ReportOutput>;
+  updateResearchConversation?: Maybe<ResearchConversationOutput>;
   updateResearchDocument?: Maybe<ResearchDocumentOutput>;
   updateResearchProject?: Maybe<ResearchProjectOutput>;
   updateRevision?: Maybe<RevisionOutput>;
@@ -4770,6 +4771,12 @@ type MutationupdateRSSFeedArgs = {
 
 type MutationupdateReportArgs = {
   data: UpdateReportDataInput;
+  selector: SelectorInput;
+};
+
+
+type MutationupdateResearchConversationArgs = {
+  data: UpdateResearchConversationDataInput;
   selector: SelectorInput;
 };
 
@@ -11031,6 +11038,20 @@ type UpdateReportDataInput = {
 
 type UpdateReportInput = {
   data: UpdateReportDataInput;
+  selector: SelectorInput;
+};
+
+type UpdateResearchConversationDataInput = {
+  claudeSessionId?: InputMaybe<Scalars['String']['input']>;
+  entrypoint?: InputMaybe<Scalars['JSON']['input']>;
+  lastActivityAt?: InputMaybe<Scalars['Date']['input']>;
+  projectId?: InputMaybe<Scalars['String']['input']>;
+  title?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type UpdateResearchConversationInput = {
+  data: UpdateResearchConversationDataInput;
   selector: SelectorInput;
 };
 
@@ -17872,6 +17893,36 @@ type CreateResearchDocumentSidebarMutationVariables = Exact<{
 
 
 type CreateResearchDocumentSidebarMutation = CreateResearchDocumentSidebarMutation_Mutation;
+
+type RenameResearchDocumentSidebarMutation_updateResearchDocument_ResearchDocumentOutput_data_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null };
+
+type RenameResearchDocumentSidebarMutation_updateResearchDocument_ResearchDocumentOutput = { __typename?: 'ResearchDocumentOutput', data: RenameResearchDocumentSidebarMutation_updateResearchDocument_ResearchDocumentOutput_data_ResearchDocument | null };
+
+type RenameResearchDocumentSidebarMutation_Mutation = { __typename?: 'Mutation', updateResearchDocument: RenameResearchDocumentSidebarMutation_updateResearchDocument_ResearchDocumentOutput | null };
+
+
+type RenameResearchDocumentSidebarMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+  title: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type RenameResearchDocumentSidebarMutation = RenameResearchDocumentSidebarMutation_Mutation;
+
+type RenameResearchConversationSidebarMutation_updateResearchConversation_ResearchConversationOutput_data_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null };
+
+type RenameResearchConversationSidebarMutation_updateResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', data: RenameResearchConversationSidebarMutation_updateResearchConversation_ResearchConversationOutput_data_ResearchConversation | null };
+
+type RenameResearchConversationSidebarMutation_Mutation = { __typename?: 'Mutation', updateResearchConversation: RenameResearchConversationSidebarMutation_updateResearchConversation_ResearchConversationOutput | null };
+
+
+type RenameResearchConversationSidebarMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+  title: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type RenameResearchConversationSidebarMutation = RenameResearchConversationSidebarMutation_Mutation;
 
 type ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput_results_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string, description: string | null, createdAt: string };
 

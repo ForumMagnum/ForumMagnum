@@ -124,6 +124,33 @@ function getTurndown(): TurndownService {
         return `\n\n%%% llm-output model="${modelName}"\n\n${trimmed}\n\n%%% /llm-output\n\n`;
       },
     })
+    // Research-document AgentBlocks. The block is a reference to a
+    // ResearchConversation; we emit a single self-describing line carrying
+    // the conversationId (and any metadata the caller injected as `data-*`
+    // attrs on the element) so an agent reading the doc sees where the
+    // block sits in the prose and can decide whether to fetch full contents
+    // via /api/research/agent/conversations/:id/events. The research-doc
+    // route runs a cheerio pass before Turndown to inject
+    // `data-conversation-title` and `data-conversation-last-activity-at`;
+    // when those are absent the placeholder is just the bare ID form.
+    turndownService.addRule('research-agent-block', {
+      filter: (node) =>
+        node.nodeName === 'DIV' && !!node.classList?.contains('research-agent-block'),
+      replacement: (_content, node) => {
+        const element = node as Element;
+        const conversationId = element.getAttribute('data-conversation-id') ?? '';
+        const producedBy = element.getAttribute('data-produced-by-conversation-id');
+        const title = element.getAttribute('data-conversation-title');
+        const lastActivityAt = element.getAttribute('data-conversation-last-activity-at');
+        const escapeAttr = (value: string) =>
+          value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+        const attrs: string[] = [`conversationId="${escapeAttr(conversationId)}"`];
+        if (title !== null) attrs.push(`title="${escapeAttr(title)}"`);
+        if (lastActivityAt !== null) attrs.push(`lastActivityAt="${escapeAttr(lastActivityAt)}"`);
+        if (producedBy) attrs.push(`producedByConversationId="${escapeAttr(producedBy)}"`);
+        return `\n\n%%% agent-block ${attrs.join(' ')} %%%\n\n`;
+      },
+    })
     turndownService.use(gfm); // Add support for strikethrough and tables
     turndownService.addRule('suggestion-deletion', {
       filter: ['del'],
