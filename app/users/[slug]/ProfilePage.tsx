@@ -74,7 +74,6 @@ const profilePageUnsharedStyles = defineStyles("ProfilePageUnshared", (theme: Th
     alignItems: "center",
   },
   profileName: {
-    gridColumn: 2,
     textAlign: "center",
     fontFamily: theme.typography.headerStyle.fontFamily,
     fontSize: "2.3rem",
@@ -123,6 +122,22 @@ const profilePageUnsharedStyles = defineStyles("ProfilePageUnshared", (theme: Th
   },
   profileActionIcon: {
     fontSize: 16,
+  },
+  profileNameSection: {
+    gridColumn: 2,
+    textAlign: "center" as const,
+  },
+  profileKarmaLine: {
+    margin: "4px 0 0",
+    fontSize: "0.85rem",
+    color: theme.palette.text.dim,
+    fontFamily: theme.typography.commentStyle.fontFamily,
+  },
+  profileUserIdCode: {
+    fontSize: "0.8em",
+    userSelect: "all" as const,
+    fontFamily: "monospace",
+    opacity: 0.8,
   },
   allPostsSection: {
     marginTop: 30,
@@ -188,13 +203,18 @@ function ProfilePageInner({user}: {
       <div className={classes.profileContent}>
         <main className={classes.profileMain}>
           <div className={classes.profileHeader}>
-            <h1 className={classes.profileName}>
-              <UsersNameWithModal
-                user={user}
-                className={classes.profileNameLink}
-                tooltipPlacement="bottom-start"
-              />
-            </h1>
+            <div className={classes.profileNameSection}>
+              <h1 className={classes.profileName}>
+                <UsersNameWithModal
+                  user={user}
+                  className={classes.profileNameLink}
+                  tooltipPlacement="bottom-start"
+                />
+              </h1>
+              <p className={classes.profileKarmaLine}>
+                {user.karma.toLocaleString()} karma
+              </p>
+            </div>
             <Suspense>
               <ProfileHeaderActions user={user} />
             </Suspense>
@@ -242,7 +262,11 @@ function ProfileHeaderActions({user}: {
         </LWTooltip>
       )}
       {canModerateUserProfile && (
-        <LWTooltip title="Supermod page" placement="bottom">
+        <LWTooltip
+          title={<>Supermod page<br/><code className={classes.profileUserIdCode}>{user._id}</code></>}
+          placement="bottom"
+          clickable={true}
+        >
           <Link
             to={`/admin/supermod?user=${user._id}`}
             className={classes.profileActionIconLink}
