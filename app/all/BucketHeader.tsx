@@ -32,13 +32,17 @@ const styles = defineStyles('BucketHeader', (theme: ThemeType) => ({
     color: theme.palette.greyAlpha(0.45),
     fontVariantNumeric: 'tabular-nums',
   },
+  actions: {
+    marginLeft: 'auto',
+  },
 }));
 
-const BucketHeader = ({label}: {label: string}) => {
+const BucketHeader = ({label, children}: {label: string, children?: React.ReactNode}) => {
   const classes = useStyles(styles);
   return (
     <div className={classes.header}>
       <span className={classes.label}>{label}</span>
+      {children && <div className={classes.actions}>{children}</div>}
     </div>
   );
 };

@@ -11,6 +11,7 @@ import { useSecondaryReady } from './useSecondaryReady';
 const styles = defineStyles('RecentActivityPage', (theme: ThemeType) => ({
   page: {
     fontFamily: theme.palette.fonts.sansSerifStack,
+    width: 640,
   },
 }));
 
@@ -21,7 +22,7 @@ const RecentActivityPage = () => {
   return (
     <SingleColumnSection>
       <div className={classes.page}>
-        <SectionTitle title="Recent Activity" />
+        {/* <SectionTitle title="Recent Activity" /> */}
         {buckets.map(bucket => (
           <ActivityBucket
             key={bucket.label}

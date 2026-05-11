@@ -13,14 +13,15 @@ interface ActivityCommentItemProps {
   comment: CommentsListWithParentMetadata;
   postedAt: Date;
   baseScore: number;
+  compact: boolean;
 }
 
-const ActivityCommentItem = ({comment, postedAt, baseScore}: ActivityCommentItemProps) => {
+const ActivityCommentItem = ({comment, postedAt, baseScore, compact}: ActivityCommentItemProps) => {
   const { expanded, toggle } = useExpandable();
   return (
     <ActivityRow expanded={expanded}>
       <ActivitySummaryRow baseScore={baseScore} user={comment.user} postedAt={postedAt} expanded={expanded} onToggle={toggle}>
-        <CommentSummaryContent comment={comment} />
+        <CommentSummaryContent comment={comment} expanded={expanded} compact={compact} />
       </ActivitySummaryRow>
       {expanded && (
         <ActivityExpandedSection permalinkUrl={commentGetPageUrl(comment)} permalinkLabel="View comment →">

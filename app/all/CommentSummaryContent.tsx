@@ -1,6 +1,7 @@
 "use client";
 
 import React from 'react';
+import classNames from 'classnames';
 import { Link } from '@/lib/reactRouterWrapper';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { postGetPageUrl } from '@/lib/collections/posts/helpers';
@@ -31,10 +32,17 @@ const styles = defineStyles('CommentSummaryContent', (theme: ThemeType) => ({
     marginTop: 1,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-    fontSize: 13,
-    lineHeight: 1.45,
+    display: '-webkit-box',
+    WebkitLineClamp: 2,
+    WebkitBoxOrient: 'vertical',
+    fontSize: 14,
+    lineHeight: 1.6,
     color: theme.palette.greyAlpha(0.65),
+  },
+  commentBodyCompact: {
+    marginTop: 0,
+    WebkitLineClamp: 1,
+    whiteSpace: 'nowrap',
   },
 }));
 
@@ -49,19 +57,29 @@ function getParentUrl(comment: CommentsListWithParentMetadata): string | null {
   return null;
 }
 
-const CommentSummaryContent = ({comment}: {comment: CommentsListWithParentMetadata}) => {
+interface CommentSummaryContentProps {
+  comment: CommentsListWithParentMetadata;
+  expanded: boolean;
+  compact: boolean;
+}
+
+const CommentSummaryContent = ({comment, expanded, compact}: CommentSummaryContentProps) => {
   const classes = useStyles(styles);
   const commentText = normalizeWhitespace(comment.contents?.plaintextMainText ?? '') || '(empty comment)';
   const parentTitle = comment.post?.title ?? comment.tag?.name ?? '';
   const parentUrl = getParentUrl(comment);
+  // Compact + collapsed: drop the "on <parent>" line and clamp content to a
+  // single line. Expanding restores the normal multi-line summary so the user
+  // can see context alongside the full body in the expanded section.
+  const compactCollapsed = compact && !expanded;
   return <>
-    {parentTitle && parentUrl && (
+    {!compactCollapsed && parentTitle && parentUrl && (
       <div className={classes.commentParent}>
         <span className={classes.commentParentPrefix}>on</span>
         <Link to={parentUrl} className={classes.commentParentLink} onClick={stopPropagation}>{parentTitle}</Link>
       </div>
     )}
-    <div className={classes.commentBody}>{commentText}</div>
+    {!expanded && <div className={classNames(classes.commentBody, compactCollapsed && classes.commentBodyCompact)}>{commentText}</div>}
   </>;
 };
 

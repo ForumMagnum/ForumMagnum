@@ -5,6 +5,7 @@ import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import UsersNameDisplay from '@/components/users/UsersNameDisplay';
 import FormatDate from '@/components/common/FormatDate';
+import { JustifyIcon } from '@/components/lexical/icons/JustifyIcon';
 
 // The clickable headline row. Karma on the left, type-specific content in the
 // middle, author/date on the right, and a caret indicating expand state.
@@ -25,7 +26,7 @@ const styles = defineStyles('ActivitySummaryRow', (theme: ThemeType) => ({
   },
   karma: {
     flex: '0 0 32px',
-    textAlign: 'right',
+    textAlign: 'center',
     fontVariantNumeric: 'tabular-nums',
     fontWeight: 600,
     fontSize: 13,
@@ -43,7 +44,8 @@ const styles = defineStyles('ActivitySummaryRow', (theme: ThemeType) => ({
     overflow: 'hidden',
   },
   meta: {
-    flex: '0 0 auto',
+    float: 'right',
+    marginLeft: 10,
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'flex-end',
@@ -82,10 +84,13 @@ const styles = defineStyles('ActivitySummaryRow', (theme: ThemeType) => ({
   caret: {
     flex: '0 0 14px',
     width: 14,
-    fontSize: 11,
+    fontSize: 20,
+    position: 'relative',
+    marginLeft: -20,
     color: theme.palette.greyAlpha(0.25),
     userSelect: 'none',
-    transition: 'color 120ms ease, transform 120ms ease',
+    opacity: 0,
+    transition: 'color 120ms ease, transform 120ms ease, opacity 120ms ease',
   },
   caretExpanded: {
     transform: 'rotate(90deg)',
@@ -125,16 +130,19 @@ const ActivitySummaryRow = ({baseScore, user, postedAt, expanded, onToggle, chil
       tabIndex={0}
       onKeyDown={(e) => handleToggleKey(e, onToggle)}
     >
-      <span className={classNames(classes.karma, karmaSignClass)}>{baseScore}</span>
-      <div className={classes.content}>{children}</div>
-      <div className={classes.meta} onClick={stopPropagation}>
-        <div className={classes.metaPrimary}>
-          <span className={classes.author}><UsersNameDisplay user={user} /></span>
-          <span className={classes.metaSeparator}>·</span>
-          <FormatDate date={postedAt} />
-        </div>
-      </div>
       <span className={classNames(classes.caret, expanded && classes.caretExpanded, 'activity-row-caret')} aria-hidden="true">›</span>
+
+      <span className={classNames(classes.karma, karmaSignClass)}>{baseScore}</span>
+      <div className={classes.content}>
+        <div className={classes.meta} onClick={stopPropagation}>
+          <div className={classes.metaPrimary}>
+            <span className={classes.author}><UsersNameDisplay user={user} /></span>
+            <span className={classes.metaSeparator}>·</span>
+            <FormatDate date={postedAt} />
+          </div>
+        </div>
+        {children}
+      </div>
     </div>
   );
 };

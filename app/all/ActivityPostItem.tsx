@@ -13,14 +13,15 @@ interface ActivityPostItemProps {
   post: PostsList;
   postedAt: Date;
   baseScore: number;
+  compact: boolean;
 }
 
-const ActivityPostItem = ({post, postedAt, baseScore}: ActivityPostItemProps) => {
+const ActivityPostItem = ({post, postedAt, baseScore, compact}: ActivityPostItemProps) => {
   const { expanded, toggle } = useExpandable();
   return (
     <ActivityRow expanded={expanded}>
       <ActivitySummaryRow baseScore={baseScore} user={post.user} postedAt={postedAt} expanded={expanded} onToggle={toggle}>
-        <PostSummaryContent post={post} expanded={expanded} />
+        <PostSummaryContent post={post} expanded={expanded} compact={compact} />
       </ActivitySummaryRow>
       {expanded && (
         <ActivityExpandedSection permalinkUrl={postGetPageUrl(post)} permalinkLabel="Read full post →">

@@ -8,8 +8,11 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 // Body content is rendered by the caller; this owns the layout and permalink.
 const styles = defineStyles('ActivityExpandedSection', (theme: ThemeType) => ({
   expandedSection: {
-    paddingLeft: 42,
-    paddingRight: 16,
+    // Align horizontally with the summary row above: the title sits ~4px from
+    // the row's left edge (caret pulled left with negative margin), and the
+    // summary uses 8px of right padding.
+    paddingLeft: 4,
+    paddingRight: 8,
     paddingTop: 4,
     paddingBottom: 14,
   },

@@ -17,23 +17,24 @@ const styles = defineStyles('BucketBody', (theme: ThemeType) => ({
 }));
 
 // Renders a single feed entry by routing on its discriminator.
-function renderItem(item: ActivityItem) {
+function renderItem(item: ActivityItem, compact: boolean) {
   if (item.kind === 'post') {
-    return <ActivityPostItem key={item.post._id} post={item.post} postedAt={item.postedAt} baseScore={item.baseScore} />;
+    return <ActivityPostItem key={item.post._id} post={item.post} postedAt={item.postedAt} baseScore={item.baseScore} compact={compact} />;
   }
-  return <ActivityCommentItem key={item.comment._id} comment={item.comment} postedAt={item.postedAt} baseScore={item.baseScore} />;
+  return <ActivityCommentItem key={item.comment._id} comment={item.comment} postedAt={item.postedAt} baseScore={item.baseScore} compact={compact} />;
 }
 
 interface BucketBodyProps {
   items: ActivityItem[];
   isInitialLoading: boolean;
+  compact: boolean;
 }
 
-const BucketBody = ({items, isInitialLoading}: BucketBodyProps) => {
+const BucketBody = ({items, isInitialLoading, compact}: BucketBodyProps) => {
   const classes = useStyles(styles);
   if (isInitialLoading) return <Loading />;
   if (items.length === 0) return <div className={classes.empty}>Nothing in this window</div>;
-  return <>{items.map(renderItem)}</>;
+  return <>{items.map(item => renderItem(item, compact))}</>;
 };
 
 export default BucketBody;

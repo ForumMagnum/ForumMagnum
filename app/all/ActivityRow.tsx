@@ -10,8 +10,13 @@ const styles = defineStyles('ActivityRow', (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 13,
     lineHeight: 1.45,
+    paddingTop: 4,
+    paddingBottom: 6,
     borderBottom: `1px solid ${theme.palette.greyAlpha(0.08)}`,
     transition: 'background-color 120ms ease',
+    '&:hover .activity-row-caret': {
+      opacity: 1,
+    },
   },
   rowExpanded: {
     background: theme.palette.greyAlpha(0.025),
