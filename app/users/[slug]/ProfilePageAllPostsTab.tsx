@@ -329,10 +329,13 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
   const classes = useStyles(profilePageAllPostsTabUnsharedStyles);
   const userId = user._id;
 
+  // "topInflation" is the profile page's local label for what the backend calls "topAdjusted"
+  const backendSortBy = settings.sortBy === "topInflation" ? "topAdjusted" : settings.sortBy;
+
   const { data: recentPostsData, loading: recentPostsLoading, loadMoreProps } = useQueryWithLoadMore(ProfilePostsQuery, {
     skip: !userId,
     variables: {
-      selector: userId ? { userPosts: { userId, sortedBy: settings.sortBy, excludeEvents: true, authorIsUnreviewed: null } } : undefined,
+      selector: userId ? { userPosts: { userId, sortedBy: backendSortBy, excludeEvents: true, authorIsUnreviewed: null } } : undefined,
       limit: INITIAL_POSTS_TO_SHOW,
       enableTotal: true,
     },
