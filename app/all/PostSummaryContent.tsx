@@ -31,7 +31,8 @@ const styles = defineStyles('PostSummaryContent', (theme: ThemeType) => ({
     textOverflow: 'clip',
   },
   postExcerpt: {
-    marginTop: 1,
+    paddingTop: 4,
+    paddingBottom: 4,
     fontSize: 14,
     lineHeight: 1.6,
     color: theme.palette.greyAlpha(0.55),
@@ -62,9 +63,9 @@ const PostSummaryContent = ({post, expanded, compact}: {post: PostsList, expande
   const hideExcerpt = expanded || compact;
   return <>
     <div className={classNames(classes.postTitle, !expanded && classes.singleLine, expanded && classes.postTitleExpanded, 'activity-row-emphasis')}>{title}</div>
-    <div className={classNames(classes.postExcerpt, !excerpt && classes.emptyExcerpt, hideExcerpt && classes.postExcerptHidden)}>
+    {!compact && <div className={classNames(classes.postExcerpt, !excerpt && classes.emptyExcerpt, hideExcerpt && classes.postExcerptHidden)}>
       {excerpt || 'No preview available'}
-    </div>
+    </div>}
   </>;
 };
 

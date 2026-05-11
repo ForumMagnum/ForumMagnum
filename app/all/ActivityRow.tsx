@@ -10,8 +10,8 @@ const styles = defineStyles('ActivityRow', (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: 13,
     lineHeight: 1.45,
-    paddingTop: 4,
-    paddingBottom: 6,
+    paddingTop: 0,
+    paddingBottom: 3,
     borderBottom: `1px solid ${theme.palette.greyAlpha(0.08)}`,
     transition: 'background-color 120ms ease',
     '&:hover .activity-row-caret': {

@@ -29,7 +29,8 @@ const styles = defineStyles('CommentSummaryContent', (theme: ThemeType) => ({
     },
   },
   commentBody: {
-    marginTop: 1,
+    marginTop: 4,
+    marginBottom: 4,
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     display: '-webkit-box',

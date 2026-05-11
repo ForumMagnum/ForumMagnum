@@ -48,6 +48,7 @@ const SORT_OPTIONS: Array<Option & {value: ActivitySortBy}> = [
   { value: 'top', label: 'Top' },
   { value: 'new', label: 'New' },
   { value: 'old', label: 'Old' },
+  { value: 'magic', label: 'Magic' },
 ];
 
 interface BucketControlsProps {
