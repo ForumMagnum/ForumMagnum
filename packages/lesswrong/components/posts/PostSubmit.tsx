@@ -84,6 +84,11 @@ export const PostSubmit = ({
     await formApi.handleSubmit();
   };
 
+  const publishAndContinueEditing = async () => {
+    formApi.setFieldValue('draft', false);
+    await formApi.handleSubmit({ redirectToEditor: true });
+  };
+
   const requireConfirmation = isLW() && !!document.debate;
 
   const onSubmitClick = requireConfirmation ? submitWithConfirmation : submitWithoutConfirmation;
@@ -116,6 +121,13 @@ export const PostSubmit = ({
           className={classNames("primary-form-submit-button", classes.formButton, classes.submitButton)}
         >
           {submitLabel}
+        </Button>
+        <Button type="submit"
+          className={classNames(classes.formButton, classes.secondaryButton)}
+          onClick={publishAndContinueEditing}
+          disabled={disabled}
+        >
+          {document.draft === false ? "Save and continue editing" : "Publish and continue editing"}
         </Button>
         {(showFeedbackButton || claudeButton) && (
           <div className={classes.feedbackRow}>
