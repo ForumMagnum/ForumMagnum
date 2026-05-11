@@ -114,6 +114,11 @@ export function extractTableOfContents({
     if (!(element instanceof window.HTMLElement)) {
       continue;
     }
+    // Skip headings inside <details> elements (collapsible sections) — they
+    // are hidden by default and should not appear in the table of contents.
+    if (element.closest('details')) {
+      continue;
+    }
     let tagName = element.tagName.toLowerCase();
     if (tagIsHeadingIfWholeParagraph(tagName) && !tagIsWholeParagraph({ element, window })) {
       continue;

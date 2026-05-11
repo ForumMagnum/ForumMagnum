@@ -115,6 +115,26 @@ describe("extractTableOfContents", () => {
     });
   });
 
+  it("excludes headings inside <details> (collapsible sections)", () => {
+    const html = normalizeHtml(`
+      <h2>Visible heading</h2>
+      <details class="detailsBlock">
+        <summary class="detailsBlockTitle">Click to expand</summary>
+        <div class="detailsBlockContent">
+          <h3>Hidden heading</h3>
+          <p>Content inside collapsible</p>
+        </div>
+      </details>
+      <h2>Another visible heading</h2>
+    `);
+    const { document, window } = parseDocumentFromString(html);
+    const tocData = extractTableOfContents({ document, window });
+    expect(tocData?.sections.filter(s => !s.divider).map(s => s.title)).toEqual([
+      "Visible heading",
+      "Another visible heading",
+    ]);
+  });
+
   it("Regression: Trailing whitespace counts towards anchor", () => {
     const html = `<p><strong>DanielFilan ($23,544):&#160; Funding to produce 12 more AXRP episodes, the AI X-risk Podcast.&#160; </strong></p>`;
 
