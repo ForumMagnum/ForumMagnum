@@ -117,6 +117,9 @@ export const routeTrie = {
       },
       "hasPage": true
     },
+    "all": {
+      "hasPage": true
+    },
     "allComments": {
       "hasPage": true
     },
@@ -1265,6 +1268,7 @@ export const routeTrie = {
     "about": "about",
     "account": "account",
     "admin": "admin",
+    "all": "all",
     "allcomments": "allComments",
     "allcommentswithreacts": "allCommentsWithReacts",
     "allposts": "allPosts",
