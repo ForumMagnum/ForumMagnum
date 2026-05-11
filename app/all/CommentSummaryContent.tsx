@@ -74,10 +74,11 @@ const CommentSummaryContent = ({comment, expanded, compact}: CommentSummaryConte
   // single line. Expanding restores the normal multi-line summary so the user
   // can see context alongside the full body in the expanded section.
   const compactCollapsed = compact && !expanded;
+  const isTopLevelShortform = !!comment.shortform && !comment.parentCommentId;
   return <>
     {!compactCollapsed && parentTitle && parentUrl && (
       <div className={classes.commentParent}>
-        <span className={classes.commentParentPrefix}>on</span>
+        {!isTopLevelShortform && <span className={classes.commentParentPrefix}>on</span>}
         <Link to={parentUrl} className={classes.commentParentLink} onClick={stopPropagation}>{parentTitle}</Link>
       </div>
     )}

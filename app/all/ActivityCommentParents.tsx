@@ -3,7 +3,7 @@
 import React from 'react';
 import { useQuery } from '@/lib/crud/useQuery';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import SingleLineComment from '@/components/comments/SingleLineComment';
+import ActivityRowSingleLineComment from './ActivityRowSingleLineComment';
 import { ActivityCommentParentsQuery } from './queries';
 
 // Recursive shape for the chain returned by ActivityCommentParentsQuery. Each
@@ -28,11 +28,20 @@ function flattenAncestorChain(top: ParentChainComment | null | undefined): Comme
 
 const styles = defineStyles('ActivityCommentParents', (theme: ThemeType) => ({
   parentList: {
-    marginLeft: 42,
-    marginBottom: 8,
+    marginBottom: 2,
     display: 'flex',
     flexDirection: 'column',
     gap: 2,
+  },
+  '@keyframes activityCommentParentsPulse': {
+    '0%, 100%': { opacity: 0.5 },
+    '50%': { opacity: 0.85 },
+  },
+  placeholder: {
+    height: 24,
+    borderRadius: 3,
+    background: theme.palette.panelBackground.singleLineComment,
+    animation: '$activityCommentParentsPulse 1.4s ease-in-out infinite',
   },
 }));
 
@@ -42,20 +51,22 @@ interface ActivityCommentParentsProps {
 
 const ActivityCommentParents = ({parentCommentId}: ActivityCommentParentsProps) => {
   const classes = useStyles(styles);
-  const { data } = useQuery(ActivityCommentParentsQuery, {
+  const { data, loading } = useQuery(ActivityCommentParentsQuery, {
     variables: { commentId: parentCommentId },
   });
   const ancestors = flattenAncestorChain(data?.comment?.result);
-  if (ancestors.length === 0) return null;
+  if (ancestors.length === 0) {
+    if (!loading) return null;
+    return (
+      <div className={classes.parentList}>
+        <div className={classes.placeholder} />
+      </div>
+    );
+  }
   return (
     <div className={classes.parentList}>
       {ancestors.map(ancestor => (
-        <SingleLineComment
-          key={ancestor._id}
-          comment={ancestor}
-          treeOptions={{}}
-          nestingLevel={1}
-        />
+        <ActivityRowSingleLineComment key={ancestor._id} comment={ancestor} />
       ))}
     </div>
   );

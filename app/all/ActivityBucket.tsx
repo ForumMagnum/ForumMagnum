@@ -34,7 +34,7 @@ interface ActivityBucketProps {
 
 const ActivityBucket = ({ label, range, after, before, secondaryReady }: ActivityBucketProps) => {
   const classes = useStyles(styles);
-  const [sortBy, setSortBy] = useState<ActivitySortBy>('top');
+  const [sortBy, setSortBy] = useState<ActivitySortBy>('magic');
   const { compact, toggleCompact } = useCompactBuckets();
   const { items, isInitialLoading } = useActivityBucketItems({ after, before, secondaryReady, sortBy });
   const { visibleItems, visibleCount, totalCount, hasMore, showAll } = useGradualReveal(items, INITIAL_VISIBLE);

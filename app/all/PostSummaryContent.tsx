@@ -19,9 +19,9 @@ const styles = defineStyles('PostSummaryContent', (theme: ThemeType) => ({
     fontWeight: 500,
     lineHeight: 1.3,
     '&:hover': {
-      color: theme.palette.greyAlpha(0.7),
+      color: theme.palette.greyAlpha(0.6),
     },
-    color: theme.palette.greyAlpha(0.9),
+    color: theme.palette.greyAlpha(1),
     transition: 'font-size 220ms ease, line-height 220ms ease, color 120ms ease',
   },
   postTitleExpanded: {
@@ -38,7 +38,7 @@ const styles = defineStyles('PostSummaryContent', (theme: ThemeType) => ({
     paddingBottom: 4,
     fontSize: 14,
     lineHeight: 1.6,
-    color: theme.palette.greyAlpha(0.55),
+    color: theme.palette.greyAlpha(0.85),
     maxHeight: 45,
     opacity: 1,
     overflow: 'hidden',

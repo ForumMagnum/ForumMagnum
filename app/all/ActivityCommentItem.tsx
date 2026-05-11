@@ -21,12 +21,12 @@ const ActivityCommentItem = ({comment, postedAt, baseScore, compact}: ActivityCo
   const { expanded, toggle } = useExpandable();
   return (
     <ActivityRow expanded={expanded}>
+      {expanded && comment.parentCommentId && <ActivityCommentParents parentCommentId={comment.parentCommentId} />}
       <ActivitySummaryRow baseScore={baseScore} user={comment.user} postedAt={postedAt} expanded={expanded} onToggle={toggle}>
         <CommentSummaryContent comment={comment} expanded={expanded} compact={compact} />
       </ActivitySummaryRow>
       {expanded && (
         <ActivityExpandedSection permalinkUrl={commentGetPageUrl(comment)} permalinkLabel="View comment →">
-          {comment.parentCommentId && <ActivityCommentParents parentCommentId={comment.parentCommentId} />}
           <ActivityExpandedBody
             html={comment.contents?.html ?? ''}
             contentType="comment"

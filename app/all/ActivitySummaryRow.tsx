@@ -21,8 +21,14 @@ const styles = defineStyles('ActivitySummaryRow', (theme: ThemeType) => ({
       color: theme.palette.greyAlpha(0.55),
     },
   },
+  karmaWrap: {
+    flex: '0 0 40px',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    position: 'relative',
+  },
   karma: {
-    flex: '0 0 32px',
     textAlign: 'center',
     fontVariantNumeric: 'tabular-nums',
     fontWeight: 600,
@@ -30,7 +36,7 @@ const styles = defineStyles('ActivitySummaryRow', (theme: ThemeType) => ({
     color: theme.palette.greyAlpha(0.7),
   },
   karmaPositive: {
-    color: theme.palette.primary.main,
+    color: theme.palette.greyAlpha(0.95),
   },
   karmaNegative: {
     color: theme.palette.greyAlpha(0.4),
@@ -82,18 +88,20 @@ const styles = defineStyles('ActivitySummaryRow', (theme: ThemeType) => ({
     },
   },
   caret: {
-    flex: '0 0 14px',
-    width: 14,
-    fontSize: 20,
-    position: 'relative',
-    marginLeft: -20,
+    position: 'absolute',
+    top: 'calc(100% + 6px)',
+    left: 0,
+    right: 0,
+    textAlign: 'center',
+    fontSize: 24,
+    lineHeight: 1,
     color: theme.palette.greyAlpha(0.25),
     userSelect: 'none',
     opacity: 0,
     transition: 'color 120ms ease, transform 120ms ease, opacity 120ms ease',
   },
   caretExpanded: {
-    transform: 'rotate(90deg)',
+    transform: 'rotate(-90deg)',
     color: theme.palette.greyAlpha(0.55),
   },
 }));
@@ -131,9 +139,10 @@ const ActivitySummaryRow = ({baseScore, user, postedAt, expanded, onToggle, chil
       tabIndex={0}
       onKeyDown={(e) => handleToggleKey(e, onToggle)}
     >
-      <span className={classNames(classes.caret, expanded && classes.caretExpanded, 'activity-row-caret')} aria-hidden="true">›</span>
-
-      <span className={classNames(classes.karma, karmaSignClass)}>{baseScore}</span>
+      <div className={classes.karmaWrap}>
+        <span className={classNames(classes.karma, karmaSignClass)}>{baseScore}</span>
+        <span className={classNames(classes.caret, expanded && classes.caretExpanded, 'activity-row-caret')} aria-hidden="true">›</span>
+      </div>
       <div className={classes.content}>
         <div className={classNames(classes.meta, isPost && classes.metaPost)} onClick={stopPropagation}>
           <div className={classes.metaPrimary}>
