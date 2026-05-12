@@ -1,4 +1,4 @@
-import React, { useContext, useRef } from 'react';
+import React, { useContext, useRef, useState, useEffect } from 'react';
 import { QuoteLocator, NamesAttachedReactionsList } from '@/lib/voting/namesAttachedReactions';
 import { getNormalizedReactionsListFromVoteProps } from '@/lib/voting/reactionDisplayHelpers';
 import classNames from 'classnames';
@@ -16,6 +16,7 @@ import LWTooltip from "../../common/LWTooltip";
 import SideItemLine from "../../contents/SideItemLine";
 import { useLocation } from '@/lib/routeUtil';
 import LWPopper from '@/components/common/LWPopper';
+import { isMobile } from '@/lib/utils/isMobile';
 
 const styles = defineStyles("InlineReactHoverableHighlight", (theme: ThemeType) => ({
   reactionTypeHovered: {
@@ -61,6 +62,19 @@ export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinua
     );
 
   const setHoveredReaction = useContext(SetHoveredReactionContext);
+
+  // On touch/tablet the sidebar-icon tooltip would be anchored near the right
+  // viewport edge; preventOverflow then shifts it leftward over the post text.
+  // Instead, on touch devices we open a separate popup anchored to the
+  // highlighted-text span so it appears below the reacted-to passage.
+  const [touchPopupOpen, setTouchPopupOpen] = useState(false);
+
+  useEffect(() => {
+    if (!touchPopupOpen) return;
+    const handleDocClick = () => setTouchPopupOpen(false);
+    document.addEventListener('click', handleDocClick);
+    return () => document.removeEventListener('click', handleDocClick);
+  }, [touchPopupOpen]);
 
   function updateHoveredReactions(isHovered: boolean) {
     for (const [reactionName, documentReactionInfo] of Object.entries(reactions)) {
@@ -108,10 +122,19 @@ export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinua
           <SideItemLine colorClass={classes.inlineReactSidebarLine}/>
         </span>}
 
-        <span {...iconsEventHandlers} className={classNames(
-          classes.sidebarInlineReactIcons,
-          !isInbox && classes.sidebarInlineReactIconsNonInbox,
-        )}>
+        <span
+          {...iconsEventHandlers}
+          className={classNames(
+            classes.sidebarInlineReactIcons,
+            !isInbox && classes.sidebarInlineReactIconsNonInbox,
+          )}
+          onClick={(e) => {
+            if (isMobile()) {
+              e.stopPropagation();
+              setTouchPopupOpen(v => !v);
+            }
+          }}
+        >
           {reactionsUsed.map(r => <span key={r}>
             <LWTooltip
               title={<InlineReactHoverInfo
@@ -124,6 +147,7 @@ export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinua
               flip={true}
               inlineBlock={false}
               clickable={true}
+              disabledOnMobile={true}
             >
               <ReactionIcon react={r}/>
             </LWTooltip>
@@ -136,6 +160,19 @@ export const InlineReactHoverableHighlight = ({quote, reactions, isSplitContinua
     {sideItemLineHover && <LWPopper
       anchorEl={quotedTextAnchorRef.current}
       open={sideItemLineHover}
+      placement="bottom-start"
+      flip
+    >
+      <InlineReactHoverInfo
+        quote={quote}
+        reactions={reactions}
+        voteProps={voteProps}
+      />
+    </LWPopper>}
+
+    {touchPopupOpen && <LWPopper
+      anchorEl={quotedTextAnchorRef.current}
+      open={touchPopupOpen}
       placement="bottom-start"
       flip
     >
@@ -175,6 +212,3 @@ function atLeastOneQuoteReactHasPositiveScore(reactions: NamesAttachedReactionsL
 }
 
 export default InlineReactHoverableHighlight;
-
-
-
