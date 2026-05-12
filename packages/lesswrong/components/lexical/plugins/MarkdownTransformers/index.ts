@@ -85,7 +85,7 @@ export const HR: ElementTransformer = {
   export: (node: LexicalNode) => {
     return $isHorizontalRuleNode(node) ? '***' : null;
   },
-  regExp: /^(---|\ \*\*\*|___)\ ?$/,
+  regExp: /^(---|[*][*][*]|___)\s?$/,
   replace: (parentNode, _1, _2, isImport) => {
     const line = $createHorizontalRuleNode();
 
