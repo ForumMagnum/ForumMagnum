@@ -14,14 +14,10 @@ import { isPlainRecord } from "@/components/research/conversationEventFormat";
 /**
  * GraphQL custom mutations + resolvers for research conversations.
  *
- * The "user-facing" surface (chat panel, AgentBlock, query modal, fork) all
- * routes through `fireResearchConversation` with different `entrypoint`
- * discriminator values. Once a conversation exists,
- * `continueResearchConversation` adds turns and `cancelResearchConversation`
- * aborts the in-flight one.
- *
- * Activity and transcript resolvers expose the data shapes T5 needs for the
- * sidebar/activity/chat panes.
+ * The user-facing surface (chat panel, AgentBlock, fork) all routes through
+ * `fireResearchConversation` with different `entrypoint` discriminator values.
+ * Once a conversation exists, `continueResearchConversation` adds turns and
+ * `cancelResearchConversation` aborts the in-flight one.
  */
 
 function parseEntrypoint(raw: unknown): Entrypoint {

@@ -11,14 +11,8 @@ export interface FireQueryResult {
   conversationId: string;
 }
 
-/**
- * Document-level entrypoint payload produced by the editor when the user
- * fires a query from a selection or a slash command. T5 / T1 own the actual
- * mutation; the editor only knows how to construct the payload and call back.
- */
 export interface FireDocumentQueryArgs {
   documentId: string;
-  anchorId: string;
   prompt?: string;
 }
 
@@ -27,8 +21,7 @@ export interface ResearchEditorEnvironment {
   documentId: string;
 
   /**
-   * Called when the user triggers "Fire as query" or inserts a fresh AgentBlock
-   * from the slash menu. T5 wires this to T1's `fireResearchConversation`.
+   * Called when the user inserts a fresh AgentBlock from the slash menu.
    * Should resolve with the new conversationId so the editor can patch the
    * placeholder AgentBlock.
    */

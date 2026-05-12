@@ -346,7 +346,6 @@ const ProjectSidebar = ({
     const buckets: Record<EntrypointKind | 'unknown', typeof conversations> = {
       chat: [],
       document: [],
-      query_modal: [],
       subagent: [],
       fork: [],
       unknown: [],
@@ -608,14 +607,13 @@ interface KindMeta {
 const KIND_META: Record<KnownEntrypointKind, KindMeta> = {
   chat: { label: 'Chat', icon: 'ChatBubbleLeftRight', title: 'Started from chat' },
   document: { label: 'Document queries', icon: 'Document', title: 'Started from a document' },
-  query_modal: { label: 'Ad-hoc queries', icon: 'Search', title: 'Ad-hoc query' },
   subagent: { label: 'Sub-agent calls', icon: 'Sparkles', title: 'Spawned by another agent' },
   fork: { label: 'Forks', icon: 'Copy', title: 'Forked from another conversation' },
   unknown: { label: 'Other', icon: 'ChatBubbleLeftRight', title: 'Conversation' },
 };
 
 const KIND_ORDER: ReadonlyArray<KnownEntrypointKind> = [
-  'chat', 'document', 'query_modal', 'subagent', 'fork', 'unknown',
+  'chat', 'document', 'subagent', 'fork', 'unknown',
 ];
 
 // `entrypoint` arrives as opaque `JSON!` over GraphQL; narrow defensively.

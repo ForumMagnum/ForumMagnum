@@ -108,7 +108,6 @@ const DocumentPane = ({ projectId, documentId, onOpenConversationInChat }: Docum
           entrypoint: {
             kind: 'document',
             documentId: args.documentId,
-            anchorId: args.anchorId,
           },
           prompt: args.prompt ?? '',
         },

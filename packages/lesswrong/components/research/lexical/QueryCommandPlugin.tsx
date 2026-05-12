@@ -18,7 +18,6 @@ import {
 import { $createAgentBlockNode, $isAgentBlockNode } from './AgentBlockNode';
 import { UPDATE_AGENT_BLOCK_COMMAND } from './AgentBlockPlugin';
 import { useResearchEditorEnvironment, type ResearchEditorEnvironment } from './ResearchEditorContext';
-import { newResearchAnchorId } from './ResearchAnchorContext';
 
 /**
  * Trailing space is part of the prefix so a bare `/query` (with nothing
@@ -130,10 +129,8 @@ interface FireQueryArgs {
 
 async function fireQuery({ editor, env, agentBlockKey, prompt }: FireQueryArgs): Promise<void> {
   try {
-    const anchorId = newResearchAnchorId();
     const { conversationId } = await env.fireDocumentQuery({
       documentId: env.documentId,
-      anchorId,
       prompt,
     });
     editor.dispatchCommand(UPDATE_AGENT_BLOCK_COMMAND, {
