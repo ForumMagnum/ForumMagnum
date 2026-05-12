@@ -3,7 +3,7 @@ import {
   $getSelection,
   $isRangeSelection,
   KEY_ENTER_COMMAND,
-  COMMAND_PRIORITY_LOW,
+  COMMAND_PRIORITY_NORMAL,
   $createParagraphNode,
   $isParagraphNode,
   type BaseSelection
@@ -75,7 +75,7 @@ export default function HorizontalRuleEnterPlugin() {
         event?.preventDefault();
         return true;
       },
-      COMMAND_PRIORITY_LOW
+      COMMAND_PRIORITY_NORMAL
     );
   }, [editor]);
 
