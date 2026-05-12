@@ -486,6 +486,11 @@ export function buildNodeMarkdownMapForSubtree(rootNodeKey: string, textFilter?:
  *     spoiler blocks, …). Tables are matched as a top-level block — there's
  *     no useful "delete a single cell" semantics in markdown.
  *
+ * When multiple nodes match (e.g. a TOC link paragraph whose link text equals
+ * a body heading's text), heading nodes are preferred over other block types
+ * so that anchor text always resolves to the body heading rather than to an
+ * earlier navigation entry.
+ *
  * Must be called inside a Lexical read/update context.
  */
 export function findBlockToOperateOnByPrefix({
@@ -508,19 +513,28 @@ export function findBlockToOperateOnByPrefix({
     return false;
   };
 
+  const allMatches: LexicalNode[] = [];
+
   for (const child of rootChildren) {
     if ($isListNode(child)) {
       for (const item of child.getChildren()) {
-        if (matches(item)) return item;
+        if (matches(item)) allMatches.push(item);
       }
       // No list-item matched: don't fall through to matching the list as a
       // whole, since that would just match the first item's text and delete
       // the entire list.
       continue;
     }
-    if (matches(child)) return child;
+    if (matches(child)) allMatches.push(child);
   }
-  return null;
+
+  if (allMatches.length === 0) return null;
+
+  // Prefer heading nodes over other block types. When an anchor string matches
+  // both a body heading and an earlier TOC link paragraph whose link text is
+  // the same string, the heading is almost certainly the intended target.
+  const headingMatch = allMatches.find(node => node.getType() === 'heading');
+  return headingMatch ?? allMatches[0];
 }
 
 function createElementRangeAroundNode(node: LexicalNode): MarkdownQuoteSelectionResult {
