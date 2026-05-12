@@ -130,6 +130,7 @@ import {
   restoreInternalIds,
   InternalIdMap,
 } from '../editor/lexicalPlugins/links/InternalBlockLinksPlugin';
+import LinkEscapePlugin from '../editor/lexicalPlugins/links/LinkEscapePlugin';
 import { getDataWithDiscardedSuggestions } from '../editor/lexicalPlugins/suggestedEdits/getDataWithDiscardedSuggestions';
 import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
@@ -930,6 +931,7 @@ export default function Editor({
             <TableScrollShadowPlugin />
             <ImagesPlugin />
             <LinkPlugin hasLinkAttributes={hasLinkAttributes} />
+            <LinkEscapePlugin />
             <PollPlugin />
             {/* <TwitterPlugin /> */}
             <YouTubePlugin />
