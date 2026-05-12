@@ -12,6 +12,7 @@ import { JustifyIcon } from '@/components/lexical/icons/JustifyIcon';
 const styles = defineStyles('ActivitySummaryRow', (theme: ThemeType) => ({
   summary: {
     position: 'relative',
+    zIndex: 1,
     display: 'flex',
     alignItems: 'baseline',
     gap: 10,

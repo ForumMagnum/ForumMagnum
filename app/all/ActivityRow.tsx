@@ -27,6 +27,7 @@ const styles = defineStyles('ActivityRow', (theme: ThemeType) => ({
     bottom: 26,
     left: 0,
     width: 40,
+    zIndex: 0,
     textAlign: 'center',
     fontSize: 24,
     lineHeight: 1,
@@ -39,6 +40,8 @@ const styles = defineStyles('ActivityRow', (theme: ThemeType) => ({
   caretExpanded: {
     transform: 'rotate(-90deg)',
     color: theme.palette.greyAlpha(0.55),
+    opacity: 1,
+    zIndex: 2,
   },
 }));
 

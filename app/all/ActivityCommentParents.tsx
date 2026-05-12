@@ -28,6 +28,8 @@ function flattenAncestorChain(top: ParentChainComment | null | undefined): Comme
 
 const styles = defineStyles('ActivityCommentParents', (theme: ThemeType) => ({
   parentList: {
+    position: 'relative',
+    zIndex: 1,
     marginBottom: 2,
     display: 'flex',
     flexDirection: 'column',

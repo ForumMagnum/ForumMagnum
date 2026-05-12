@@ -8,6 +8,8 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 // Body content is rendered by the caller; this owns the layout and permalink.
 const styles = defineStyles('ActivityExpandedSection', (theme: ThemeType) => ({
   expandedSection: {
+    position: 'relative',
+    zIndex: 1,
     // Align horizontally with the summary row above: the title sits ~4px from
     // the row's left edge (caret pulled left with negative margin), and the
     // summary uses 8px of right padding.
