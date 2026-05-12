@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
+import { z } from 'zod';
 import { getSentry } from '@/lib/sentryWrapper';
 
 /**
@@ -43,6 +44,36 @@ export interface SupervisorHealth {
   lastSuccessAt: number | null;
   droppedEventCount: number;
   lastFailure: SupervisorHealthFailureDetail | null;
+}
+
+const supervisorHealthFailureContextSchema: z.ZodType<SupervisorHealthFailureContext> = z.object({
+  conversationId: z.string().optional(),
+  eventKind: z.string().optional(),
+  claudeMessageUuid: z.string().nullable().optional(),
+});
+
+const supervisorHealthFailureDetailSchema: z.ZodType<SupervisorHealthFailureDetail> = z.object({
+  at: z.number(),
+  kind: z.enum(['event_post', 'heartbeat', 'suspect_success']),
+  targetUrl: z.string(),
+  httpStatus: z.number().nullable(),
+  networkError: z.enum(['dns_unresolved', 'connection_refused', 'timeout', 'tls_failed', 'other']).nullable(),
+  responseBodySnippet: z.string().nullable(),
+  attempts: z.number(),
+  context: supervisorHealthFailureContextSchema,
+});
+
+const supervisorHealthSchema: z.ZodType<SupervisorHealth> = z.object({
+  status: z.enum(['healthy', 'unhealthy']),
+  consecutiveFailures: z.number(),
+  lastSuccessAt: z.number().nullable(),
+  droppedEventCount: z.number(),
+  lastFailure: supervisorHealthFailureDetailSchema.nullable(),
+});
+
+export function parseSupervisorHealth(raw: unknown): SupervisorHealth | null {
+  const result = supervisorHealthSchema.safeParse(raw);
+  return result.success ? result.data : null;
 }
 
 interface SupervisorHealthContextValue {

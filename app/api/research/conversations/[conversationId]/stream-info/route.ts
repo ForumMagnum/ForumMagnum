@@ -66,11 +66,20 @@ export async function GET(
   // Pick the most-recently-active live sandbox for this user/project. The
   // `byUserAndProject` view sorts by lastUsedAt desc; we filter to active rows
   // in code rather than at the view layer to keep that view simple.
+  //
+  // `expiresAt > now` filters out rows that linger as `status:'active'` after
+  // the underlying Vercel sandbox auto-stopped on TTL. The "active" status is
+  // only transitioned to "stopped" via the explicit stop / reuse-detection
+  // paths in sandboxManager, so a sandbox that died on its own (Vercel-side
+  // timeout, runner GC) leaves the row stale. Handing such a row to the
+  // client puts the SSE reconnect loop in an unrecoverable retry-forever
+  // state — see `useConversationStream`'s scheduleReconnect.
   const sessions = await context.ResearchSandboxSessions.find(
     {
       userId: currentUser._id,
       projectId: conversation.projectId,
       status: "active",
+      expiresAt: { $gt: new Date() },
     },
     { sort: { lastUsedAt: -1 }, limit: 5 },
   ).fetch();

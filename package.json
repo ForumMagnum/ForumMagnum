@@ -337,6 +337,7 @@
     "ts-morph": "^25.0.1",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "typescript-eslint-language-service": "^5.0.5",
     "vite": "^5.4.19"
   },
   "resolutions": {

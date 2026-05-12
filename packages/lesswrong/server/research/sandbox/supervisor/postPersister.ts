@@ -245,7 +245,7 @@ async function retrying(
         throw err;
       }
       if (attempt < maxAttempts - 1) {
-        const backoff = initialBackoffMs * 2 ** attempt;
+        const backoff = initialBackoffMs * (2 ** attempt);
         const jitter = Math.floor(Math.random() * (backoff / 4));
         await new Promise((r) => setTimeout(r, backoff + jitter));
       }
