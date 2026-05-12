@@ -6,13 +6,13 @@ import {
   $getSelection,
   $isRangeSelection,
   COMMAND_PRIORITY_LOW,
+  COMMAND_PRIORITY_NORMAL,
+  KEY_DELETE_COMMAND,
+  KEY_BACKSPACE_COMMAND,
   createCommand,
   LexicalCommand,
   $getNodeByKey,
   NodeKey,
-  KEY_BACKSPACE_COMMAND,
-  KEY_DELETE_COMMAND,
-  $createParagraphNode,
 } from 'lexical';
 import {
   INSERT_TABLE_COMMAND,
@@ -733,48 +733,85 @@ export function TablesPlugin(): React.ReactElement {
     });
   }, [editor, toolbar.isOpen, closeToolbar, syncToolbarState]);
 
-  // Handle Backspace/Delete on multi-cell table selections:
-  // - Full row selected (all columns) → delete the row(s)
-  // - Full column selected (all rows) → delete the column(s)
-  // - Partial selection → clear selected cell contents
+  // Delete/Backspace on a full-row or full-column TableSelection deletes those rows/columns.
   useEffect(() => {
-    function handleTableDeleteKey(_event: KeyboardEvent): boolean {
+    function handleTableRowColDelete(event: KeyboardEvent): boolean {
       const selection = $getSelection();
       if (!$isTableSelection(selection)) return false;
 
-      const shape = selection.getShape();
-      const anchorNode = selection.anchor.getNode();
-      const tableNode = $findMatchingParent(anchorNode, $isTableNode);
+      const selectedNodes = selection.getNodes();
+      const selectedCells = selectedNodes.filter((n): n is TableCellNode => $isTableCellNode(n));
+      if (selectedCells.length === 0) return false;
+
+      const tableNode = $findMatchingParent(selectedCells[0], $isTableNode);
       if (!$isTableNode(tableNode)) return false;
 
-      const [tableMap] = $computeTableMapSkipCellCheck(tableNode, null, null);
-      const numRows = tableMap.length;
-      const numCols = numRows > 0 ? tableMap[0].length : 0;
-      if (numCols === 0) return false;
+      const rows = tableNode.getChildren().filter((r): r is TableRowNode => $isTableRowNode(r));
+      if (rows.length === 0) return false;
 
-      const fullRowCoverage = shape.fromX === 0 && shape.toX === numCols - 1;
-      const fullColCoverage = shape.fromY === 0 && shape.toY === numRows - 1;
+      const selectedCellKeys = new Set(selectedCells.map(c => c.getKey()));
 
-      if (fullRowCoverage && !fullColCoverage) {
-        $deleteTableRowAtSelection();
-      } else if (fullColCoverage && !fullRowCoverage) {
-        $deleteTableColumnAtSelection();
-      } else {
-        for (const node of selection.getNodes()) {
-          if ($isTableCellNode(node)) {
-            for (const child of node.getChildren()) {
-              child.remove();
+      // Full row selection: every cell in a row is selected
+      const fullySelectedRows = rows.filter(row => {
+        const rowCells = row.getChildren().filter((c): c is TableCellNode => $isTableCellNode(c));
+        return rowCells.length > 0 && rowCells.every(c => selectedCellKeys.has(c.getKey()));
+      });
+
+      if (fullySelectedRows.length > 0) {
+        event.preventDefault();
+        const deleteAll = fullySelectedRows.length >= rows.length;
+        editor.update(() => {
+          if (deleteAll) {
+            tableNode.remove();
+          } else {
+            for (let i = fullySelectedRows.length - 1; i >= 0; i--) {
+              fullySelectedRows[i].remove();
             }
-            node.append($createParagraphNode());
           }
+        });
+        return true;
+      }
+
+      // Full column selection: every row has its cell at colIdx selected
+      const firstRowCells = rows[0].getChildren().filter((c): c is TableCellNode => $isTableCellNode(c));
+      const totalColumns = firstRowCells.length;
+      if (totalColumns === 0) return false;
+
+      const fullySelectedColIndices: number[] = [];
+      for (let colIdx = 0; colIdx < totalColumns; colIdx++) {
+        if (rows.every(row => {
+          const rowCells = row.getChildren().filter((c): c is TableCellNode => $isTableCellNode(c));
+          return colIdx < rowCells.length && selectedCellKeys.has(rowCells[colIdx].getKey());
+        })) {
+          fullySelectedColIndices.push(colIdx);
         }
       }
-      return true;
+
+      if (fullySelectedColIndices.length > 0) {
+        event.preventDefault();
+        const deleteAll = fullySelectedColIndices.length >= totalColumns;
+        editor.update(() => {
+          if (deleteAll) {
+            tableNode.remove();
+          } else {
+            for (let i = fullySelectedColIndices.length - 1; i >= 0; i--) {
+              const colIdx = fullySelectedColIndices[i];
+              rows.forEach(row => {
+                const rowCells = row.getChildren().filter((c): c is TableCellNode => $isTableCellNode(c));
+                if (colIdx < rowCells.length) rowCells[colIdx].remove();
+              });
+            }
+          }
+        });
+        return true;
+      }
+
+      return false;
     }
 
     return mergeRegister(
-      editor.registerCommand(KEY_BACKSPACE_COMMAND, handleTableDeleteKey, COMMAND_PRIORITY_LOW),
-      editor.registerCommand(KEY_DELETE_COMMAND, handleTableDeleteKey, COMMAND_PRIORITY_LOW),
+      editor.registerCommand(KEY_DELETE_COMMAND, handleTableRowColDelete, COMMAND_PRIORITY_NORMAL),
+      editor.registerCommand(KEY_BACKSPACE_COMMAND, handleTableRowColDelete, COMMAND_PRIORITY_NORMAL),
     );
   }, [editor]);
 
