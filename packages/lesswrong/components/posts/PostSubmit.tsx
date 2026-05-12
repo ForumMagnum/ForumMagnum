@@ -71,15 +71,25 @@ export const PostSubmit = ({
   if (!currentUser) throw Error("must be logged in to post");
   const document = formApi.state.values;
 
+  // Returns true if the publish should proceed, false if the user cancelled.
+  const warnIfNoTitle = (): boolean => {
+    if (!document.title?.trim()) {
+      return window.confirm('This post has no title. Publish without a title?');
+    }
+    return true;
+  };
+
   const submitWithConfirmation = async (e: React.MouseEvent) => {
     e.preventDefault();
+    if (!warnIfNoTitle()) return;
     if (confirm('Warning!  This will publish your dialogue and make it visible to other users.')) {
       formApi.setFieldValue('draft', false);
       await formApi.handleSubmit();
     }
   };
 
-  const submitWithoutConfirmation = async () =>  {
+  const submitWithoutConfirmation = async () => {
+    if (!warnIfNoTitle()) return;
     formApi.setFieldValue('draft', false);
     await formApi.handleSubmit();
   };
