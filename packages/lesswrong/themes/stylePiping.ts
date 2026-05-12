@@ -197,6 +197,8 @@ const tableStyles = (theme: ThemeType) => ({
   height: "100%",
   textAlign: "left",
   width: '100%',
+  fontFamily: theme.palette.fonts.sansSerifStack,
+  fontSize: '0.85em',
 });
 
 const tableCellStyles = (theme: ThemeType) => ({
@@ -204,8 +206,6 @@ const tableCellStyles = (theme: ThemeType) => ({
   padding: ".4em",
   border: `1px double ${theme.palette.grey[320]}`,
   wordBreak: "normal",
-  fontFamily: theme.palette.fonts.sansSerifStack,
-  fontSize: "0.85em",
   '& p': {
     marginTop: '0.5em',
     marginBottom: '0.5em',
@@ -864,7 +864,6 @@ export const ckEditorStyles = (theme: ThemeType) => {
         '--ck-content-font-family': 'initial',
         '--ck-content-font-size': 'initial',
         '--ck-content-font-color': 'initial',
-        '--ck-content-font-weight': 'initial',
         '--ck-content-line-height': 'initial',
         '--ck-content-word-break': 'initial',
 
