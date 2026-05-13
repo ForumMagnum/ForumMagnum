@@ -120,15 +120,8 @@ export class MentionNode extends DecoratorNode<React.ReactElement> {
     return true;
   }
 
-  /**
-   * Treating the chip as a single character is what makes backspace remove the
-   * whole mention rather than chipping characters off its label, and what makes
-   * arrow keys step over it as a unit. `isToken` would also achieve atomic
-   * behaviour but is meant for TextNode subclasses; for an inline DecoratorNode
-   * `isKeyboardSelectable` + `isInline` is the right combination — Lexical
-   * routes selection-modifying keys (arrow, backspace) through the decorator
-   * boundary as a single step.
-   */
+  // Makes the chip a keyboard stop: arrow keys land on it as a NodeSelection
+  // before stepping past, and backspace from that state deletes the whole chip.
   isKeyboardSelectable(): boolean {
     return true;
   }

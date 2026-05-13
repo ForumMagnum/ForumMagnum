@@ -1,10 +1,20 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ForumIcon, { type ForumIconName } from '@/components/common/ForumIcon';
-import type { NodeKey } from 'lexical';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { useLexicalNodeSelection } from '@lexical/react/useLexicalNodeSelection';
+import { mergeRegister } from '@lexical/utils';
+import {
+  $getSelection,
+  $isNodeSelection,
+  CLICK_COMMAND,
+  COMMAND_PRIORITY_LOW,
+  type BaseSelection,
+  type NodeKey,
+} from 'lexical';
 import type { MentionKind } from './mentionFormat';
 
 const KIND_ICON: Record<MentionKind, ForumIconName> = {
@@ -33,6 +43,9 @@ const styles = defineStyles('MentionComponent', (theme: ThemeType) => ({
       background: theme.palette.greyAlpha(0.1),
     },
   },
+  selected: {
+    outline: `2px solid ${theme.palette.primary.main}`,
+  },
   icon: {
     flex: 'none',
     alignSelf: 'center',
@@ -57,10 +70,46 @@ interface MentionComponentProps {
   title: string;
 }
 
-export function MentionComponent({ kind, title }: MentionComponentProps) {
+export function MentionComponent({ nodeKey, kind, title }: MentionComponentProps) {
   const classes = useStyles(styles);
+  const [editor] = useLexicalComposerContext();
+  const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
+  const [selection, setSelection] = useState<BaseSelection | null>(null);
+  const ref = useRef<HTMLSpanElement>(null);
+
+  useEffect(() => {
+    return mergeRegister(
+      editor.registerUpdateListener(({ editorState }) => {
+        setSelection(editorState.read(() => $getSelection()));
+      }),
+      editor.registerCommand<MouseEvent>(
+        CLICK_COMMAND,
+        (event) => {
+          const target = event.target;
+          if (!(target instanceof Node) || !ref.current?.contains(target)) {
+            return false;
+          }
+          if (!event.shiftKey) {
+            clearSelection();
+          }
+          setSelected(!isSelected);
+          return true;
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
+    );
+  }, [clearSelection, editor, isSelected, nodeKey, setSelected]);
+
+  // Only show the outline when the chip is the active NodeSelection; a
+  // RangeSelection that crosses the chip would otherwise also light it up.
+  const isFocused = $isNodeSelection(selection) && isSelected;
+
   return (
-    <span className={classes.root} data-testid="research-mention-chip">
+    <span
+      ref={ref}
+      className={classNames(classes.root, isFocused && classes.selected)}
+      data-testid="research-mention-chip"
+    >
       <ForumIcon icon={KIND_ICON[kind]} className={classes.icon} />
       <span className={classNames(classes.title, !title && classes.empty)}>
         {title || '(untitled)'}
