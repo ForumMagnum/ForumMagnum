@@ -78,7 +78,7 @@ const styles = defineStyles('LWPostsPageHeader', (theme: ThemeType) => ({
   },
   topRight: {
     position: 'absolute',
-    right: 8, 
+    right: 8,
     top: -48,
     display: 'flex',
     [theme.breakpoints.down('sm')]: {
@@ -88,7 +88,10 @@ const styles = defineStyles('LWPostsPageHeader', (theme: ThemeType) => ({
     },
     [theme.breakpoints.down('xs')]: {
       display: 'none'
-    }
+    },
+    '@media print': {
+      display: 'none',
+    },
   },
   audioPlayerWrapper: {
     position: 'absolute',
@@ -129,7 +132,10 @@ const styles = defineStyles('LWPostsPageHeader', (theme: ThemeType) => ({
     marginLeft: 12,
     [theme.breakpoints.up("sm")]: {
       display: 'none'
-    }
+    },
+    '@media print': {
+      display: 'none',
+    },
   },
   date: {
     marginTop: 8,
@@ -140,7 +146,10 @@ const styles = defineStyles('LWPostsPageHeader', (theme: ThemeType) => ({
     alignItems: 'center',
     [theme.breakpoints.up('sm')]: {
       display: 'none'
-    }
+    },
+    '@media print': {
+      display: 'none',
+    },
   },
   audioToggle: {
     marginRight: 12,

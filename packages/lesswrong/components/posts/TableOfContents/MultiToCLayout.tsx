@@ -78,6 +78,9 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
       marginTop: 0,
       marginBottom: 0,
     },
+    '@media print': {
+      display: 'none',
+    },
   },
   splashPageHeaderToc: {
     marginTop: 'calc(-100vh - 64px)'
@@ -121,6 +124,9 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]:{
       display:'none'
     },
+    '@media print': {
+      display: 'none',
+    },
   },
   stickyBlock: {
     // Cancels the direction:rtl in stickyBlockScroller
@@ -162,6 +168,9 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
     backgroundColor: theme.palette.background.pageActiveAreaBackground,
     zIndex: 1000,
     [theme.breakpoints.down('sm')]: {
+      display: 'none',
+    },
+    '@media print': {
       display: 'none',
     },
   }

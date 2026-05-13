@@ -13,7 +13,10 @@ const styles = defineStyles("NavigationStandalone", (theme: ThemeType) => ({
     width: TAB_NAVIGATION_MENU_WIDTH,
     [theme.breakpoints.down('sm')]: {
       display: "none"
-    }
+    },
+    '@media print': {
+      display: 'none',
+    },
   },
   iconOnlySidebar: {
     [`@media (max-width: ${ICON_ONLY_NAVIGATION_BREAKPOINT}px)`]: {

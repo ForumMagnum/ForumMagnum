@@ -24,7 +24,10 @@ const styles = defineStyles("PostsPagePostFooter", (theme: ThemeType) => ({
     display: 'flex',
     columnGap: 20,
     alignItems: 'center',
-    fontSize: '1.4em'
+    fontSize: '1.4em',
+    '@media print': {
+      display: 'none',
+    },
   },
   bookmarkButton: {
     marginBottom: -5,
@@ -64,7 +67,10 @@ const styles = defineStyles("PostsPagePostFooter", (theme: ThemeType) => ({
     [theme.breakpoints.down('sm')]: {
       width:'100%',
       maxWidth: MAX_COLUMN_WIDTH
-    }
+    },
+    '@media print': {
+      display: 'none',
+    },
   },
   lwVote: {
     marginTop: 66,
@@ -75,7 +81,10 @@ const styles = defineStyles("PostsPagePostFooter", (theme: ThemeType) => ({
     marginBottom: 66,
     [theme.breakpoints.up('sm')]: {
       display: 'none',
-    }
+    },
+    '@media print': {
+      display: 'none',
+    },
   }
 }));
 

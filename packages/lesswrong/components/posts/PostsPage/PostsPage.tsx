@@ -109,10 +109,16 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
   },
   betweenPostAndComments: {
     minHeight: 24,
+    '@media print': {
+      display: 'none',
+    },
   },
   recommendations: {
     maxWidth: MAX_COLUMN_WIDTH,
     margin: "0 auto 40px",
+    '@media print': {
+      display: 'none',
+    },
   },
   commentsSection: {
     minHeight: 'calc(70vh - 100px)',
@@ -123,6 +129,9 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     // TODO: This is to prevent the Table of Contents from overlapping with the comments section. Could probably fine-tune the breakpoints and spacing to avoid needing this.
     background: theme.palette.background.pageActiveAreaBackground,
     position: "relative",
+    '@media print': {
+      display: 'none',
+    },
   },
   noCommentsPlaceholder: {
     marginTop: 60,
@@ -177,7 +186,10 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
     maxWidth: 220,
     [theme.breakpoints.down('md')]: {
       display: 'none'
-    }
+    },
+    '@media print': {
+      display: 'none',
+    },
   },
   bottomOfPostSubscribe: {
     marginBottom: 40,
@@ -208,6 +220,9 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
         width: RIGHT_COLUMN_WIDTH_XS,
       },
     },
+    '@media print': {
+      display: 'none',
+    },
   },
   reserveSpaceForIcons: {
     width: 0,
@@ -216,6 +231,9 @@ export const styles = defineStyles("PostsPage", (theme: ThemeType) => ({
       [theme.breakpoints.up('sm')]: {
         width: RIGHT_COLUMN_WIDTH_WITHOUT_SIDENOTES,
       },
+    },
+    '@media print': {
+      display: 'none',
     },
   },
   subscribeToGroup: {
