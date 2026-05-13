@@ -161,7 +161,7 @@ export const NewPostAIPolicy = ({postId, editContentsRef, classes}: {
         <ForumIcon icon="InfoCircle" className={classes.info} />
         <div className={classes.content}>
           <div>
-            Drafted with an LLM? Our{" "}
+            Likely that more than 10% of your post was drafted by an LLM? Our{" "}
             <Link to={POLICY_LINK}>AI usage policy</Link>{" "}
             requires disclosure at the top of your post.
           </div>
