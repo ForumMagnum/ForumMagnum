@@ -9,12 +9,15 @@ import { captureException } from "@/lib/sentryWrapper";
 import type { TypoAcceptMode, TypoSuggestionStatus, TypoSuggestionTargetCollection } from "@/lib/collections/typoSuggestions/constants";
 import { antiReactToTypoOnOwnContent } from "./antiReact";
 import { loadHtmlIntoHeadlessEditor } from "./headlessLexical";
-import {
-  $applyEditWithNarrowing,
-  replaceTextInMainDoc,
-} from "../../../../app/api/agent/replaceText/route";
+import { replaceTextInMainDoc } from "../../../../app/api/agent/replaceText/route";
 import { checkEditorTypeAndGetToken } from "../../../../app/api/agent/editorAgentUtil";
 import { locateMarkdownQuoteSelectionInSubtree } from "../../../../app/api/agent/mapMarkdownToLexical";
+import {
+  $applyEditAtSelection,
+  $computeFinalSelection,
+  $htmlToInlineNodes,
+} from "../../../../app/api/agent/applyEditAtSelection";
+import { markdownToHtml } from "@/server/editor/conversionUtils";
 
 const TYPO_BOT_AUTHOR_ID = "typo-suggestion-bot";
 
@@ -309,14 +312,21 @@ function applyEditOffline(html: string, quote: string, replacement: string): Off
         quoteFoundInDocument = selectionResult.found;
         if (!selectionResult.found || !selectionResult.anchor || !selectionResult.focus) return;
 
-        const editResult = $applyEditWithNarrowing({
-          editor,
-          anchor: selectionResult.anchor,
-          focus: selectionResult.focus,
+        const sel = $computeFinalSelection(
+          selectionResult.anchor,
+          selectionResult.focus,
           quote,
           replacement,
+        );
+        const inlineNodes = sel.narrowedReplacement.length > 0
+          ? $htmlToInlineNodes(editor, markdownToHtml(sel.narrowedReplacement))
+          : [];
+        replaced = $applyEditAtSelection({
+          editor,
+          anchor: sel.anchor,
+          focus: sel.focus,
+          inlineNodes,
         });
-        replaced = editResult.replaced;
       },
       { discrete: true },
     );

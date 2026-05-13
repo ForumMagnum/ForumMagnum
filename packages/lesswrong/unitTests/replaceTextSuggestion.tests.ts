@@ -1,10 +1,12 @@
 import { $getRoot, type LexicalEditor } from "lexical";
+import { $applySuggestionWithNarrowing } from "../../../app/api/agent/replaceText/route";
 import {
-  $applyEditReplacement,
-  $applyEditReplacementMultiNode,
-  $applySuggestionWithNarrowing,
-} from "../../../app/api/agent/replaceText/route";
+  $applyEditAtSelection,
+  $computeFinalSelection,
+  $htmlToInlineNodes,
+} from "../../../app/api/agent/applyEditAtSelection";
 import { locateMarkdownQuoteSelectionInSubtree } from "../../../app/api/agent/mapMarkdownToLexical";
+import { markdownToHtml } from "@/server/editor/conversionUtils";
 import { getAllSuggestions, runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
 
@@ -45,22 +47,13 @@ async function replaceTextInEditMode(
     });
     if (!result.found || !result.anchor || !result.focus) return;
 
-    const { anchor, focus } = result;
-    const sameTextNode = anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
-
-    if (sameTextNode) {
-      replaced = $applyEditReplacement({
-        editor,
-        matchedNodeKey: anchor.key,
-        startOffset: anchor.offset,
-        endOffset: focus.offset,
-        replacement,
-      });
-    } else {
-      replaced = $applyEditReplacementMultiNode({
-        editor, anchor, focus, replacement,
-      });
-    }
+    const sel = $computeFinalSelection(result.anchor, result.focus, quote, replacement);
+    const inlineNodes = sel.narrowedReplacement.length > 0
+      ? $htmlToInlineNodes(editor, markdownToHtml(sel.narrowedReplacement))
+      : [];
+    replaced = $applyEditAtSelection({
+      editor, anchor: sel.anchor, focus: sel.focus, inlineNodes,
+    });
   });
   return replaced;
 }
