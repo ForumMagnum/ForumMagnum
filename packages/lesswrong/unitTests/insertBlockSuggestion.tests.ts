@@ -1,6 +1,6 @@
 import { $getRoot, $isElementNode, type LexicalEditor } from "lexical";
 import { $isSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
-import { $insertMarkdownBlockInEditor } from "../../../app/api/agent/insertBlock/route";
+import { $insertMarkdownBlockInEditor, $postMarkdownToNodes } from "../../../app/api/agent/insertBlock/route";
 import { getAllSuggestions, runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
 import type { InsertLocation } from "../../../app/api/agent/toolSchemas";
 
@@ -11,7 +11,7 @@ async function insertBlock(
   mode: "edit" | "suggest" = "suggest",
 ): Promise<void> {
   await runEditorUpdate(editor, () => {
-    $insertMarkdownBlockInEditor({ editor, mode, location, markdown });
+    $insertMarkdownBlockInEditor({ editor, mode, location, markdown, markdownToNodes: $postMarkdownToNodes });
   });
 }
 

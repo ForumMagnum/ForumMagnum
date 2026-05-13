@@ -5666,12 +5666,12 @@ interface MultiReportOutput {
 interface ResearchConversationEvent {
   _id: string;
   createdAt: Date;
-  userId: string;
-  projectId: string;
-  conversationId: string;
-  seq: number;
+  userId: string | null;
+  projectId: string | null;
+  conversationId: string | null;
+  seq: number | null;
   claudeMessageUuid: string | null;
-  kind: string;
+  kind: string | null;
   payload: any;
 }
 
@@ -5709,12 +5709,12 @@ interface MultiResearchConversationEventOutput {
 interface ResearchConversation {
   _id: string;
   createdAt: Date;
-  userId: string;
-  projectId: string;
+  userId: string | null;
+  projectId: string | null;
   claudeSessionId: string | null;
   title: string | null;
   entrypoint: any;
-  lastActivityAt: Date;
+  lastActivityAt: Date | null;
 }
 
 interface SingleResearchConversationInput {
@@ -5756,8 +5756,8 @@ interface MultiResearchConversationOutput {
 interface ResearchDocument {
   _id: string;
   createdAt: Date;
-  userId: string;
-  projectId: string;
+  userId: string | null;
+  projectId: string | null;
   title: string | null;
   contents: Revision | null;
   contents_latest: string | null;
@@ -5798,8 +5798,8 @@ interface MultiResearchDocumentOutput {
 interface ResearchProject {
   _id: string;
   createdAt: Date;
-  userId: string;
-  title: string;
+  userId: string | null;
+  title: string | null;
   description: string | null;
   claudeCodeTokenRef: string | null;
   settings: any;
@@ -5838,14 +5838,14 @@ interface MultiResearchProjectOutput {
 interface ResearchSandboxSession {
   _id: string;
   createdAt: Date;
-  userId: string;
-  projectId: string;
-  vercelSandboxId: string;
-  endpointUrl: string;
-  status: string;
-  supervisorSecret: string;
-  concurrencyCount: number;
-  lastUsedAt: Date;
+  userId: string | null;
+  projectId: string | null;
+  vercelSandboxId: string | null;
+  endpointUrl: string | null;
+  status: string | null;
+  supervisorSecret: string | null;
+  concurrencyCount: number | null;
+  lastUsedAt: Date | null;
   expiresAt: Date | null;
 }
 

@@ -15,7 +15,7 @@ import Loading from '../vulcan-core/Loading';
 
 interface ResearchProjectSummary {
   _id: string;
-  title: string;
+  title: string | null;
   description: string | null;
   createdAt: string;
 }

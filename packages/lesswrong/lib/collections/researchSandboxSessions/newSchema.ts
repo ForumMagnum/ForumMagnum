@@ -11,7 +11,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -24,7 +25,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -36,7 +38,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -48,7 +51,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -61,7 +65,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -79,7 +84,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
+      inputType: "String!",
       // Admin-only: this is a credential.
       canRead: ["admins"],
       canUpdate: ["admins"],
@@ -97,7 +103,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "Int!",
+      outputType: "Int",
+      inputType: "Int!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],
@@ -111,7 +118,7 @@ const schema = {
       canAutofillDefault: true,
     },
     graphql: {
-      outputType: "Date!",
+      outputType: "Date",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["admins"],

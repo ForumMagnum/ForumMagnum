@@ -73,15 +73,6 @@ export function getConversationEventChunks(event: ResearchConversationEventLike)
   return [];
 }
 
-/**
- * Flatten an event to a single string. Kept for tests and any caller that
- * doesn't care to distinguish thinking from text — UI surfaces should prefer
- * `getConversationEventChunks` so they can style each chunk separately.
- */
-export function getConversationEventText(event: ResearchConversationEventLike): string {
-  return getConversationEventChunks(event).map((c) => c.text).join('\n');
-}
-
 function toContentChunk(part: unknown): ConversationEventChunk | null {
   if (typeof part === 'string') return { kind: 'text', text: part };
   if (!isPlainRecord(part)) return null;

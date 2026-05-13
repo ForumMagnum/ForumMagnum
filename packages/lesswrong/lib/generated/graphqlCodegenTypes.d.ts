@@ -8793,24 +8793,24 @@ type ResearchConversation = {
   _id: Scalars['String']['output'];
   claudeSessionId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
-  entrypoint: Scalars['JSON']['output'];
-  lastActivityAt: Scalars['Date']['output'];
-  projectId: Scalars['String']['output'];
+  entrypoint?: Maybe<Scalars['JSON']['output']>;
+  lastActivityAt?: Maybe<Scalars['Date']['output']>;
+  projectId?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
-  userId: Scalars['String']['output'];
+  userId?: Maybe<Scalars['String']['output']>;
 };
 
 type ResearchConversationEvent = {
   __typename?: 'ResearchConversationEvent';
   _id: Scalars['String']['output'];
   claudeMessageUuid?: Maybe<Scalars['String']['output']>;
-  conversationId: Scalars['String']['output'];
+  conversationId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
-  kind: Scalars['String']['output'];
-  payload: Scalars['JSON']['output'];
-  projectId: Scalars['String']['output'];
-  seq: Scalars['Int']['output'];
-  userId: Scalars['String']['output'];
+  kind?: Maybe<Scalars['String']['output']>;
+  payload?: Maybe<Scalars['JSON']['output']>;
+  projectId?: Maybe<Scalars['String']['output']>;
+  seq?: Maybe<Scalars['Int']['output']>;
+  userId?: Maybe<Scalars['String']['output']>;
 };
 
 type ResearchConversationEventSelector = {
@@ -8850,10 +8850,10 @@ type ResearchDocument = {
   contents?: Maybe<Revision>;
   contents_latest?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
-  projectId: Scalars['String']['output'];
+  projectId?: Maybe<Scalars['String']['output']>;
   revisions?: Maybe<Array<Revision>>;
   title?: Maybe<Scalars['String']['output']>;
-  userId: Scalars['String']['output'];
+  userId?: Maybe<Scalars['String']['output']>;
   version?: Maybe<Scalars['String']['output']>;
 };
 
@@ -8888,8 +8888,8 @@ type ResearchProject = {
   createdAt: Scalars['Date']['output'];
   description?: Maybe<Scalars['String']['output']>;
   settings?: Maybe<Scalars['JSON']['output']>;
-  title: Scalars['String']['output'];
-  userId: Scalars['String']['output'];
+  title?: Maybe<Scalars['String']['output']>;
+  userId?: Maybe<Scalars['String']['output']>;
 };
 
 type ResearchProjectOutput = {
@@ -8909,16 +8909,16 @@ type ResearchProjectsByUserInput = {
 type ResearchSandboxSession = {
   __typename?: 'ResearchSandboxSession';
   _id: Scalars['String']['output'];
-  concurrencyCount: Scalars['Int']['output'];
+  concurrencyCount?: Maybe<Scalars['Int']['output']>;
   createdAt: Scalars['Date']['output'];
-  endpointUrl: Scalars['String']['output'];
+  endpointUrl?: Maybe<Scalars['String']['output']>;
   expiresAt?: Maybe<Scalars['Date']['output']>;
-  lastUsedAt: Scalars['Date']['output'];
-  projectId: Scalars['String']['output'];
-  status: Scalars['String']['output'];
-  supervisorSecret: Scalars['String']['output'];
-  userId: Scalars['String']['output'];
-  vercelSandboxId: Scalars['String']['output'];
+  lastUsedAt?: Maybe<Scalars['Date']['output']>;
+  projectId?: Maybe<Scalars['String']['output']>;
+  status?: Maybe<Scalars['String']['output']>;
+  supervisorSecret?: Maybe<Scalars['String']['output']>;
+  userId?: Maybe<Scalars['String']['output']>;
+  vercelSandboxId?: Maybe<Scalars['String']['output']>;
 };
 
 type ResearchSandboxSessionSelector = {
@@ -17857,7 +17857,7 @@ type FireDocumentConversationMutationVariables = Exact<{
 
 type FireDocumentConversationMutation = FireDocumentConversationMutation_Mutation;
 
-type ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput_result_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string };
+type ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput_result_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string | null };
 
 type ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput = { __typename?: 'SingleResearchProjectOutput', result: ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput_result_ResearchProject | null };
 
@@ -17865,7 +17865,7 @@ type ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput_resu
 
 type ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput = { __typename?: 'MultiResearchDocumentOutput', results: Array<ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument> };
 
-type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string, entrypoint: any };
+type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string | null, entrypoint: any | null };
 
 type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput = { __typename?: 'MultiResearchConversationOutput', results: Array<ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation> };
 
@@ -17924,7 +17924,7 @@ type RenameResearchConversationSidebarMutationVariables = Exact<{
 
 type RenameResearchConversationSidebarMutation = RenameResearchConversationSidebarMutation_Mutation;
 
-type ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput_results_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string, description: string | null, createdAt: string };
+type ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput_results_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string | null, description: string | null, createdAt: string };
 
 type ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput = { __typename?: 'MultiResearchProjectOutput', results: Array<ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput_results_ResearchProject> };
 
@@ -17936,7 +17936,7 @@ type ResearchProjectListQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 type ResearchProjectListQueryQuery = ResearchProjectListQueryQuery_Query;
 
-type CreateResearchProjectMutation_createResearchProject_ResearchProjectOutput_data_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string, description: string | null, createdAt: string };
+type CreateResearchProjectMutation_createResearchProject_ResearchProjectOutput_data_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string | null, description: string | null, createdAt: string };
 
 type CreateResearchProjectMutation_createResearchProject_ResearchProjectOutput = { __typename?: 'ResearchProjectOutput', data: CreateResearchProjectMutation_createResearchProject_ResearchProjectOutput_data_ResearchProject | null };
 
@@ -17981,7 +17981,7 @@ type ResearchWorkspaceFirstDocumentQueryVariables = Exact<{
 
 type ResearchWorkspaceFirstDocumentQuery = ResearchWorkspaceFirstDocumentQuery_Query;
 
-type ResearchConversationTranscriptQuery_researchConversationTranscript_ResearchConversationEvent = { __typename?: 'ResearchConversationEvent', _id: string, conversationId: string, seq: number, claudeMessageUuid: string | null, kind: string, payload: any, createdAt: string };
+type ResearchConversationTranscriptQuery_researchConversationTranscript_ResearchConversationEvent = { __typename?: 'ResearchConversationEvent', _id: string, conversationId: string | null, seq: number | null, claudeMessageUuid: string | null, kind: string | null, payload: any | null, createdAt: string };
 
 type ResearchConversationTranscriptQuery_Query = { __typename?: 'Query', researchConversationTranscript: Array<ResearchConversationTranscriptQuery_researchConversationTranscript_ResearchConversationEvent> };
 
@@ -17998,7 +17998,7 @@ type MentionTypeaheadProjectResourcesQueryQuery_researchDocuments_MultiResearchD
 
 type MentionTypeaheadProjectResourcesQueryQuery_researchDocuments_MultiResearchDocumentOutput = { __typename?: 'MultiResearchDocumentOutput', results: Array<MentionTypeaheadProjectResourcesQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument> };
 
-type MentionTypeaheadProjectResourcesQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string };
+type MentionTypeaheadProjectResourcesQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string | null };
 
 type MentionTypeaheadProjectResourcesQueryQuery_researchConversations_MultiResearchConversationOutput = { __typename?: 'MultiResearchConversationOutput', results: Array<MentionTypeaheadProjectResourcesQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation> };
 

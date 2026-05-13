@@ -6133,13 +6133,13 @@ extend type Query {
 type ResearchConversationEvent {
   _id: String!
   createdAt: Date!
-  userId: String!
-  projectId: String!
-  conversationId: String!
-  seq: Int!
+  userId: String
+  projectId: String
+  conversationId: String
+  seq: Int
   claudeMessageUuid: String
-  kind: String!
-  payload: JSON!
+  kind: String
+  payload: JSON
 }
 
 input SingleResearchConversationEventInput {
@@ -6181,12 +6181,12 @@ extend type Query {
 type ResearchConversation {
   _id: String!
   createdAt: Date!
-  userId: String!
-  projectId: String!
+  userId: String
+  projectId: String
   claudeSessionId: String
   title: String
-  entrypoint: JSON!
-  lastActivityAt: Date!
+  entrypoint: JSON
+  lastActivityAt: Date
 }
 
 input SingleResearchConversationInput {
@@ -6233,8 +6233,8 @@ extend type Query {
 type ResearchDocument {
   _id: String!
   createdAt: Date!
-  userId: String!
-  projectId: String!
+  userId: String
+  projectId: String
   title: String
   contents(version: String): Revision
   contents_latest: String
@@ -6280,8 +6280,8 @@ extend type Query {
 type ResearchProject {
   _id: String!
   createdAt: Date!
-  userId: String!
-  title: String!
+  userId: String
+  title: String
   description: String
   claudeCodeTokenRef: String
   settings: JSON
@@ -6325,14 +6325,14 @@ extend type Query {
 type ResearchSandboxSession {
   _id: String!
   createdAt: Date!
-  userId: String!
-  projectId: String!
-  vercelSandboxId: String!
-  endpointUrl: String!
-  status: String!
-  supervisorSecret: String!
-  concurrencyCount: Int!
-  lastUsedAt: Date!
+  userId: String
+  projectId: String
+  vercelSandboxId: String
+  endpointUrl: String
+  status: String
+  supervisorSecret: String
+  concurrencyCount: Int
+  lastUsedAt: Date
   expiresAt: Date
 }
 

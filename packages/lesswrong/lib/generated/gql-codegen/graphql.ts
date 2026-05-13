@@ -10625,24 +10625,24 @@ export type ResearchConversation = {
   _id: Scalars['String']['output'];
   claudeSessionId: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
-  entrypoint: Scalars['JSON']['output'];
-  lastActivityAt: Scalars['Date']['output'];
-  projectId: Scalars['String']['output'];
+  entrypoint: Maybe<Scalars['JSON']['output']>;
+  lastActivityAt: Maybe<Scalars['Date']['output']>;
+  projectId: Maybe<Scalars['String']['output']>;
   title: Maybe<Scalars['String']['output']>;
-  userId: Scalars['String']['output'];
+  userId: Maybe<Scalars['String']['output']>;
 };
 
 export type ResearchConversationEvent = {
   __typename?: 'ResearchConversationEvent';
   _id: Scalars['String']['output'];
   claudeMessageUuid: Maybe<Scalars['String']['output']>;
-  conversationId: Scalars['String']['output'];
+  conversationId: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
-  kind: Scalars['String']['output'];
-  payload: Scalars['JSON']['output'];
-  projectId: Scalars['String']['output'];
-  seq: Scalars['Int']['output'];
-  userId: Scalars['String']['output'];
+  kind: Maybe<Scalars['String']['output']>;
+  payload: Maybe<Scalars['JSON']['output']>;
+  projectId: Maybe<Scalars['String']['output']>;
+  seq: Maybe<Scalars['Int']['output']>;
+  userId: Maybe<Scalars['String']['output']>;
 };
 
 export type ResearchConversationEventSelector = {
@@ -10682,10 +10682,10 @@ export type ResearchDocument = {
   contents: Maybe<Revision>;
   contents_latest: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
-  projectId: Scalars['String']['output'];
+  projectId: Maybe<Scalars['String']['output']>;
   revisions: Maybe<Array<Revision>>;
   title: Maybe<Scalars['String']['output']>;
-  userId: Scalars['String']['output'];
+  userId: Maybe<Scalars['String']['output']>;
   version: Maybe<Scalars['String']['output']>;
 };
 
@@ -10720,8 +10720,8 @@ export type ResearchProject = {
   createdAt: Scalars['Date']['output'];
   description: Maybe<Scalars['String']['output']>;
   settings: Maybe<Scalars['JSON']['output']>;
-  title: Scalars['String']['output'];
-  userId: Scalars['String']['output'];
+  title: Maybe<Scalars['String']['output']>;
+  userId: Maybe<Scalars['String']['output']>;
 };
 
 export type ResearchProjectOutput = {
@@ -10741,16 +10741,16 @@ export type ResearchProjectsByUserInput = {
 export type ResearchSandboxSession = {
   __typename?: 'ResearchSandboxSession';
   _id: Scalars['String']['output'];
-  concurrencyCount: Scalars['Int']['output'];
+  concurrencyCount: Maybe<Scalars['Int']['output']>;
   createdAt: Scalars['Date']['output'];
-  endpointUrl: Scalars['String']['output'];
+  endpointUrl: Maybe<Scalars['String']['output']>;
   expiresAt: Maybe<Scalars['Date']['output']>;
-  lastUsedAt: Scalars['Date']['output'];
-  projectId: Scalars['String']['output'];
-  status: Scalars['String']['output'];
-  supervisorSecret: Scalars['String']['output'];
-  userId: Scalars['String']['output'];
-  vercelSandboxId: Scalars['String']['output'];
+  lastUsedAt: Maybe<Scalars['Date']['output']>;
+  projectId: Maybe<Scalars['String']['output']>;
+  status: Maybe<Scalars['String']['output']>;
+  supervisorSecret: Maybe<Scalars['String']['output']>;
+  userId: Maybe<Scalars['String']['output']>;
+  vercelSandboxId: Maybe<Scalars['String']['output']>;
 };
 
 export type ResearchSandboxSessionSelector = {
@@ -17394,7 +17394,7 @@ export type ProjectSidebarQueryQueryVariables = Exact<{
 }>;
 
 
-export type ProjectSidebarQueryQuery = { __typename?: 'Query', researchProject: { __typename?: 'SingleResearchProjectOutput', result: { __typename?: 'ResearchProject', _id: string, title: string } | null } | null, researchDocuments: { __typename?: 'MultiResearchDocumentOutput', results: Array<{ __typename?: 'ResearchDocument', _id: string, title: string | null, createdAt: string }> } | null, researchConversations: { __typename?: 'MultiResearchConversationOutput', results: Array<{ __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string, entrypoint: any }> } | null };
+export type ProjectSidebarQueryQuery = { __typename?: 'Query', researchProject: { __typename?: 'SingleResearchProjectOutput', result: { __typename?: 'ResearchProject', _id: string, title: string | null } | null } | null, researchDocuments: { __typename?: 'MultiResearchDocumentOutput', results: Array<{ __typename?: 'ResearchDocument', _id: string, title: string | null, createdAt: string }> } | null, researchConversations: { __typename?: 'MultiResearchConversationOutput', results: Array<{ __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string | null, entrypoint: any | null }> } | null };
 
 export type CreateResearchDocumentSidebarMutationVariables = Exact<{
   projectId: Scalars['String']['input'];
@@ -17423,7 +17423,7 @@ export type RenameResearchConversationSidebarMutation = { __typename?: 'Mutation
 export type ResearchProjectListQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type ResearchProjectListQueryQuery = { __typename?: 'Query', researchProjects: { __typename?: 'MultiResearchProjectOutput', results: Array<{ __typename?: 'ResearchProject', _id: string, title: string, description: string | null, createdAt: string }> } | null };
+export type ResearchProjectListQueryQuery = { __typename?: 'Query', researchProjects: { __typename?: 'MultiResearchProjectOutput', results: Array<{ __typename?: 'ResearchProject', _id: string, title: string | null, description: string | null, createdAt: string }> } | null };
 
 export type CreateResearchProjectMutationVariables = Exact<{
   title: Scalars['String']['input'];
@@ -17432,7 +17432,7 @@ export type CreateResearchProjectMutationVariables = Exact<{
 }>;
 
 
-export type CreateResearchProjectMutation = { __typename?: 'Mutation', createResearchProject: { __typename?: 'ResearchProjectOutput', data: { __typename?: 'ResearchProject', _id: string, title: string, description: string | null, createdAt: string } | null } | null };
+export type CreateResearchProjectMutation = { __typename?: 'Mutation', createResearchProject: { __typename?: 'ResearchProjectOutput', data: { __typename?: 'ResearchProject', _id: string, title: string | null, description: string | null, createdAt: string } | null } | null };
 
 export type UpdateResearchProjectTokenMutationVariables = Exact<{
   selector: SelectorInput;
@@ -17455,14 +17455,14 @@ export type ResearchConversationTranscriptQueryVariables = Exact<{
 }>;
 
 
-export type ResearchConversationTranscriptQuery = { __typename?: 'Query', researchConversationTranscript: Array<{ __typename?: 'ResearchConversationEvent', _id: string, conversationId: string, seq: number, claudeMessageUuid: string | null, kind: string, payload: any, createdAt: string }> };
+export type ResearchConversationTranscriptQuery = { __typename?: 'Query', researchConversationTranscript: Array<{ __typename?: 'ResearchConversationEvent', _id: string, conversationId: string | null, seq: number | null, claudeMessageUuid: string | null, kind: string | null, payload: any | null, createdAt: string }> };
 
 export type MentionTypeaheadProjectResourcesQueryQueryVariables = Exact<{
   projectId: Scalars['String']['input'];
 }>;
 
 
-export type MentionTypeaheadProjectResourcesQueryQuery = { __typename?: 'Query', researchDocuments: { __typename?: 'MultiResearchDocumentOutput', results: Array<{ __typename?: 'ResearchDocument', _id: string, title: string | null, createdAt: string }> } | null, researchConversations: { __typename?: 'MultiResearchConversationOutput', results: Array<{ __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string }> } | null };
+export type MentionTypeaheadProjectResourcesQueryQuery = { __typename?: 'Query', researchDocuments: { __typename?: 'MultiResearchDocumentOutput', results: Array<{ __typename?: 'ResearchDocument', _id: string, title: string | null, createdAt: string }> } | null, researchConversations: { __typename?: 'MultiResearchConversationOutput', results: Array<{ __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string | null }> } | null };
 
 export type multiReviewWinnerArtBestOfLessWrongAdminQueryQueryVariables = Exact<{
   selector?: InputMaybe<ReviewWinnerArtSelector>;

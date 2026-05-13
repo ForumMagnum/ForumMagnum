@@ -143,13 +143,16 @@ export function MentionTypeaheadPlugin({ projectId }: MentionTypeaheadPluginProp
       rankAt: new Date(d.createdAt).getTime(),
       metaText: `Document · ${moment(d.createdAt).fromNow()}`,
     }));
-    const convs = (data?.researchConversations?.results ?? []).map<MentionOption>((c) => ({
-      kind: 'conv',
-      id: c._id,
-      title: c.title && c.title.length > 0 ? c.title : KIND_UNTITLED_LABEL.conv,
-      rankAt: new Date(c.lastActivityAt).getTime(),
-      metaText: `Conversation · ${moment(c.lastActivityAt).fromNow()}`,
-    }));
+    const convs = (data?.researchConversations?.results ?? []).map<MentionOption>((c) => {
+      const lastActivityAt = c.lastActivityAt ?? new Date(0);
+      return {
+        kind: 'conv',
+        id: c._id,
+        title: c.title && c.title.length > 0 ? c.title : KIND_UNTITLED_LABEL.conv,
+        rankAt: new Date(lastActivityAt).getTime(),
+        metaText: `Conversation · ${moment(lastActivityAt).fromNow()}`,
+      };
+    });
     return [...docs, ...convs].sort((a, b) => b.rankAt - a.rankAt);
   }, [data]);
 

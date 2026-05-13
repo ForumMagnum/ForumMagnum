@@ -325,7 +325,20 @@ async function loadPersistedEvents(
     if (queryResult.error) {
       return { ok: false, error: queryResult.error.message };
     }
-    return { ok: true, value: queryResult.data?.researchConversationTranscript ?? [] };
+    const raw = queryResult.data?.researchConversationTranscript ?? [];
+    const value: ConversationEvent[] = raw.flatMap((e) => {
+      if (e.conversationId === null || e.seq === null || e.kind === null) return [];
+      return [{
+        _id: e._id,
+        conversationId: e.conversationId,
+        seq: e.seq,
+        claudeMessageUuid: e.claudeMessageUuid,
+        kind: e.kind,
+        payload: e.payload,
+        createdAt: e.createdAt,
+      }];
+    });
+    return { ok: true, value };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }

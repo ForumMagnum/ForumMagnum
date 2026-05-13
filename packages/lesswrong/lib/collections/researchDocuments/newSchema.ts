@@ -13,7 +13,7 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       inputType: "String",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
@@ -28,7 +28,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwns, "admins"],
       canUpdate: ["admins"],
       canCreate: ["members"],
