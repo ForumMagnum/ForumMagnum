@@ -6,7 +6,7 @@ import { getDefaultEditorPlaceholder } from "@/lib/editor/defaultEditorPlacehold
 import { hasGoogleDocImportSetting, isEAForum, isLWorAF } from "@/lib/instanceSettings";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { userIsAdmin, userIsAdminOrMod, userIsMemberOf } from "@/lib/vulcan-users/permissions";
-import { userCanUseSharing } from "@/lib/betas";
+import { userCanUseLinkSharing, userCanUseSharing } from "@/lib/betas";
 import { tagGetUrl } from "@/lib/collections/tags/helpers";
 import type { EditorTypeString } from "../editor/Editor";
 import { disconnectCollaborationForPost } from "../lexical/collaboration";
@@ -959,8 +959,9 @@ function ClaudeConnectionStatus({ currentUser, postId }: { currentUser: UsersCur
   );
 }
 
-function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: {
+function SharingPanel({ form, canLinkShare, canShare, canEditCoauthors, flash, currentUser }: {
   form: TypedReactFormApi<EditablePost & { title: string }, PostSubmitMeta>;
+  canLinkShare: boolean;
   canShare: boolean;
   canEditCoauthors: boolean;
   flash: (message: string) => void;
@@ -977,8 +978,8 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
         <div className={classes.actionTitle}>Sharing</div>
       </div>
 
-      {canShare ? <>
-        {/* Share link section */}
+      {canLinkShare ? <>
+        {/* Share link section - available to all logged-in users */}
         <div className={classes.sharingSection}>
           <form.Field name="sharingSettings">
             {(field) => {
@@ -1049,48 +1050,54 @@ function SharingPanel({ form, canShare, canEditCoauthors, flash, currentUser }: 
           </form.Field>
         </div>
 
-        {/* Shared users section */}
-        <div className={classes.sharingSectionFlex}>
-          <form.Field name="shareWithUsers">
-            {(field) => (
-              <EditableUsersList
-                value={field.state.value ?? []}
-                setValue={(newUsers) => {
-                  field.handleChange(newUsers);
-                  if (form.state.values.sharingSettings == null) {
-                    form.setFieldValue('sharingSettings', defaultSharingSettings);
-                  }
-                }}
-                label="Add people by name"
-              />
-            )}
-          </form.Field>
-
-          <form.Field name="sharingSettings">
-            {(field) => (
-              <SharingPermissionSelect field={field} settingsKey="explicitlySharedUsersCan" />
-            )}
-          </form.Field>
-        </div>
-
-        {/* Co-Authors */}
-        {canEditCoauthors && <>
-          <div className={classes.sharingDivider} />
-          <div className={classes.sharingSection}>
-            <form.Field name="coauthorUserIds">
+        {/* Shared users section - requires 1 karma to prevent spam */}
+        {canShare ? <>
+          <div className={classes.sharingSectionFlex}>
+            <form.Field name="shareWithUsers">
               {(field) => (
-                <CoauthorsListEditor
-                  field={field}
-                  post={form.state.values}
-                  label="Add co-author"
+                <EditableUsersList
+                  value={field.state.value ?? []}
+                  setValue={(newUsers) => {
+                    field.handleChange(newUsers);
+                    if (form.state.values.sharingSettings == null) {
+                      form.setFieldValue('sharingSettings', defaultSharingSettings);
+                    }
+                  }}
+                  label="Add people by name"
                 />
               )}
             </form.Field>
+
+            <form.Field name="sharingSettings">
+              {(field) => (
+                <SharingPermissionSelect field={field} settingsKey="explicitlySharedUsersCan" />
+              )}
+            </form.Field>
           </div>
-        </>}
+
+          {/* Co-Authors */}
+          {canEditCoauthors && <>
+            <div className={classes.sharingDivider} />
+            <div className={classes.sharingSection}>
+              <form.Field name="coauthorUserIds">
+                {(field) => (
+                  <CoauthorsListEditor
+                    field={field}
+                    post={form.state.values}
+                    label="Add co-author"
+                  />
+                )}
+              </form.Field>
+            </div>
+          </>}
+        </> : (
+          <div className={classes.disabledMessage}>
+            You need at least 1 karma to share with specific users
+          </div>
+        )}
       </> : (
         <div className={classes.disabledMessage}>
-          You need at least 1 karma to use sharing features
+          Log in to use sharing features
         </div>
       )}
     </div>
@@ -1314,6 +1321,7 @@ const EditorSettingsSidebar = ({
   const canSeeAudio = userIsAdmin(currentUser) || userIsMemberOf(currentUser, "podcasters");
   const canSeeTags = !initialData.isEvent && !(isLWorAF() && !!initialData.collabEditorDialogue);
   const canSeeSocialPreview = !((isLWorAF() && !!initialData.collabEditorDialogue) || (isEAForum() && !!initialData.isEvent));
+  const canLinkShare = userCanUseLinkSharing(currentUser);
   const canShare = userCanUseSharing(currentUser);
   const contentType = initialData.contents?.originalContents?.type;
   const postId = initialData._id;
@@ -1403,6 +1411,7 @@ const EditorSettingsSidebar = ({
       {mode === "sharing" && (
         <SharingPanel
           form={form}
+          canLinkShare={canLinkShare}
           canShare={canShare}
           canEditCoauthors={canEditCoauthors}
           flash={flash}

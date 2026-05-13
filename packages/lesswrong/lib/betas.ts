@@ -26,6 +26,9 @@ const adminOrBeta = (user: UsersCurrent|DbUser|null): boolean => adminOnly(user)
 //////////////////////////////////////////////////////////////////////////////
 
 export const userCanCreateCommitMessages = moderatorOnly;
+// Link sharing (anyone-with-link) is available to all logged-in users; direct
+// user sharing (adding specific people) still requires 1 karma to prevent spam.
+export const userCanUseLinkSharing = (user: UsersCurrent|DbUser|null): boolean => !!user;
 export const userCanUseSharing = (user: UsersCurrent|DbUser|null): boolean => moderatorOnly(user) || userOverNKarmaOrApproved(1)(user);
 export const userHasNewTagSubscriptions: BetaGate = (user) => isEAForum() ? shippedFeature(user) : disabled(user);
 export const userHasDefaultProfilePhotos = disabled
