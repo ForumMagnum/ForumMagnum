@@ -344,9 +344,10 @@ async function fetchActiveRateLimits(db: SqlClient, limit: number, offset: numbe
           le."triggeredAt"
         FROM latest_events le
         WHERE
-          ${showExpiredRateLimits
-            ? `le.name = 'rateLimitDeactivated'`
-            : `le.name = 'rateLimitActivated'`
+          ${
+            showExpiredRateLimits
+              ? `le.name = 'rateLimitDeactivated'`
+              : `le.name = 'rateLimitActivated'`
           }
       ),
       users_with_limits AS (
@@ -428,9 +429,10 @@ async function fetchActiveRateLimits(db: SqlClient, limit: number, offset: numbe
         SELECT DISTINCT le."userId"
         FROM latest_events le
         WHERE
-          ${showExpiredRateLimits
-            ? `le.name = 'rateLimitDeactivated'`
-            : `le.name = 'rateLimitActivated'`
+          ${
+            showExpiredRateLimits
+              ? `le.name = 'rateLimitDeactivated'`
+              : `le.name = 'rateLimitActivated'`
           }
       )
       SELECT COUNT(*) as count
@@ -469,6 +471,7 @@ async function fetchDeletedComments(db: SqlClient, limit: number, offset: number
           c."deletedPublic", c.contents, c."deletedByUserId"
         FROM "Comments" c
         WHERE c.deleted = TRUE AND c."deletedPublic" = TRUE
+          AND c."deletedByUserId" IS DISTINCT FROM c."userId"
         ORDER BY c."deletedDate" DESC NULLS LAST
         LIMIT $1 OFFSET $2
       )
@@ -488,6 +491,7 @@ async function fetchDeletedComments(db: SqlClient, limit: number, offset: number
       SELECT COUNT(*) as count
       FROM "Comments"
       WHERE deleted = TRUE AND "deletedPublic" = TRUE
+        AND "deletedByUserId" IS DISTINCT FROM "userId"
     `)
   ]);
 
