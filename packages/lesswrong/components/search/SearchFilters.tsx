@@ -148,6 +148,11 @@ const SearchFilters = ({tab, tagsFilter, handleUpdateTagsFilter, onSortingChange
       setTagsFilter={handleUpdateTagsFilter}
     />
     }
+    {tab === 'Comments' && <ToggleRefinement
+      attribute="shortform"
+      label="Quick Takes only"
+      value={true}
+    />}
     {tab === 'Posts' && <ToggleRefinement
       attribute="curated"
       label="Curated"

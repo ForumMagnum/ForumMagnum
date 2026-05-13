@@ -14,6 +14,7 @@ interface SearchComment extends SearchBase {
   draft: boolean,
   spam: boolean,
   legacy: boolean,
+  shortform: boolean,
   userIP: string | null,
   createdAt: string,
   postedAt: string,

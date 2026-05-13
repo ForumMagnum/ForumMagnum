@@ -171,6 +171,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         COALESCE(c."authorIsUnreviewed", FALSE) AS "authorIsUnreviewed",
         COALESCE(c."retracted", FALSE) AS "retracted",
         COALESCE(c."spam", FALSE) AS "spam",
+        COALESCE(c."shortform", FALSE) AS "shortform",
         c."legacy",
         c."createdAt",
         c."postedAt",
