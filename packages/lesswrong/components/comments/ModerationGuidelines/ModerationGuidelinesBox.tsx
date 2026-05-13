@@ -85,7 +85,7 @@ const styles = defineStyles('ModerationGuidelinesBox', (theme: ThemeType) => ({
 
 const truncateGuidelines = (guidelines: string) => {
   return truncatise(guidelines, {
-    TruncateLength: 300,
+    TruncateLength: 600,
     TruncateBy: "characters",
     Suffix: `... <a>Read More</a>`,
     Strict: false
@@ -211,7 +211,7 @@ const ModerationGuidelinesBox = ({commentType = "post", documentId}: {
   const { header, bodyHtml, truncatedBodyHtml } = isPostType(document) ? getPostModerationGuidelines(document, classes) : getSubforumModerationGuidelines(document)
   const displayedBodyHtml = expanded ? bodyHtml : truncatedBodyHtml
 
-  const expandable = bodyHtml.trim().length !== truncatedBodyHtml.trim().length
+  const expandable = bodyHtml.trim().length - truncatedBodyHtml.trim().length > 30
 
   return (
     <div className={classes.root} onClick={expandable ? handleClick : undefined}>
