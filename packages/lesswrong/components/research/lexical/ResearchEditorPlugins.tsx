@@ -4,26 +4,23 @@ import React from 'react';
 import { AgentBlockPlugin } from './AgentBlockPlugin';
 import { ResearchSlashMenuPlugin } from './ResearchSlashMenuPlugin';
 import { QueryCommandPlugin } from './QueryCommandPlugin';
+import { MentionTypeaheadPlugin } from './MentionTypeaheadPlugin';
+
+interface ResearchEditorPluginsProps {
+  projectId: string;
+}
 
 /**
- * One-stop bundle of every Lexical extension this team owns. Mount inside a
- * `<LexicalComposer>` (after the standard plugins). `ResearchEditorProvider`
- * must wrap the whole editor so decorator nodes can read
- * `useResearchEditorEnvironment`.
- *
- * Example:
- *   <ResearchEditorProvider environment={{ documentId, fireDocumentQuery }}>
- *     <LexicalEditor ...>
- *       <ResearchEditorPlugins />
- *     </LexicalEditor>
- *   </ResearchEditorProvider>
+ * `ResearchEditorProvider` must wrap the whole editor — the decorator nodes
+ * mounted by these plugins read `useResearchEditorEnvironment` at render time.
  */
-export function ResearchEditorPlugins() {
+export function ResearchEditorPlugins({ projectId }: ResearchEditorPluginsProps) {
   return (
     <>
       <AgentBlockPlugin />
       <ResearchSlashMenuPlugin />
       <QueryCommandPlugin />
+      <MentionTypeaheadPlugin projectId={projectId} />
     </>
   );
 }

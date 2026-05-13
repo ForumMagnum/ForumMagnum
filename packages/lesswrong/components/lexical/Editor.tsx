@@ -556,6 +556,12 @@ export interface EditorProps {
   commentEditor?: boolean;
   /** Hide the default slash-command component picker when a host mounts its own menu. */
   disableComponentPicker?: boolean;
+  /**
+   * When true, omit the standard `MentionsPlugin` (user/post/tag mentions).
+   * Research surfaces mount their own resource-mention typeahead and would
+   * otherwise show two competing menus on `@`.
+   */
+  disableMentions?: boolean;
   children?: React.ReactNode;
 }
 
@@ -585,6 +591,7 @@ export default function Editor({
   placeholder: placeholderOverride,
   commentEditor = false,
   disableComponentPicker = false,
+  disableMentions = false,
   children,
 }: EditorProps): JSX.Element {
   const classes = useStyles(styles);
@@ -967,7 +974,7 @@ export default function Editor({
             <LayoutPlugin />
             <FootnotesPlugin />
             <FootnoteSidenotesPlugin contentStyleType={isCommentEditor ? 'comment' : 'postHighlight'} />
-            <MentionsPlugin />
+            {!disableMentions && <MentionsPlugin />}
             <SpoilersPlugin isSuggestionMode={isSuggestionMode} />
             <LLMContentBlockPlugin isSuggestionMode={isSuggestionMode} />
             <ClaimsPlugin />

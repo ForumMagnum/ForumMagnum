@@ -1,18 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import {
-  $getRoot,
-  $createParagraphNode,
-  type LexicalEditor,
-  type LexicalNode,
-} from "lexical";
 import { randomId } from "@/lib/random";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
-import { $createLLMContentBlockNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockNode";
-import { $createLLMContentBlockContentNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockContentNode";
-import { $createLLMContentBlockHeaderNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockHeaderNode";
-import { $markdownToNodes, resolveInsertionIndex } from "../../../../agent/insertBlock/route";
+import { $insertLLMBlockInEditor } from "../../../../agent/insertLLMBlock/route";
+import { $researchMarkdownToNodes } from "../insertBlock/route";
+import { validateAndCanonicalizeMentionsInMarkdown } from "../../researchMentionValidation";
 import {
   authorizeAgentRequest,
   authorizeAgentResearchDocumentAccess,
@@ -31,29 +24,6 @@ interface InsertLLMBlockResult {
   inserted: boolean;
   note: string;
   insertionIndex?: number;
-}
-
-function $createLLMContentBlockFromMarkdown(
-  editor: LexicalEditor,
-  modelName: string,
-  markdown: string,
-): LexicalNode {
-  const containerNode = $createLLMContentBlockNode(modelName);
-  const headerNode = $createLLMContentBlockHeaderNode();
-  const contentNode = $createLLMContentBlockContentNode();
-
-  const contentChildren = $markdownToNodes(editor, markdown);
-  if (contentChildren.length === 0) {
-    contentNode.append($createParagraphNode());
-  } else {
-    for (const child of contentChildren) {
-      contentNode.append(child);
-    }
-  }
-
-  containerNode.append(headerNode);
-  containerNode.append(contentNode);
-  return containerNode;
 }
 
 async function insertLLMBlockInResearchDoc({
@@ -78,22 +48,10 @@ async function insertLLMBlockInResearchDoc({
       await new Promise<void>((resolve) => {
         editor.update(
           () => {
-            const blockNode = $createLLMContentBlockFromMarkdown(editor, modelName, markdown);
-            const root = $getRoot();
-            const insertionIndex = resolveInsertionIndex(location, root.getChildren());
-            if (insertionIndex === null) {
-              result = {
-                inserted: false,
-                note: `No paragraph markdown starts with locator text: ${JSON.stringify(location)}`,
-              };
-              return;
-            }
-            root.splice(insertionIndex, 0, [blockNode]);
-            result = {
-              inserted: true,
-              note: `Inserted LLM content block (model: ${modelName}) at index ${insertionIndex}.`,
-              insertionIndex,
-            };
+            result = $insertLLMBlockInEditor({
+              editor, modelName, location, markdown,
+              markdownToNodes: $researchMarkdownToNodes,
+            });
           },
           { onUpdate: resolve },
         );
@@ -140,14 +98,31 @@ export async function POST(req: NextRequest) {
       context,
     });
     if (docAuth.kind === "errorResponse") return docAuth.errorResponse;
-    const { hocuspocusToken } = docAuth;
+    const { document, hocuspocusToken } = docAuth;
+
+    const mentionResult = await validateAndCanonicalizeMentionsInMarkdown({
+      markdown,
+      projectId: document.projectId,
+      context,
+    });
+    if (!mentionResult.ok) {
+      captureResearchAgentApiEvent({
+        route: ROUTE,
+        status: "validation_error",
+        conversationId: payload.conversationId,
+        projectId: payload.projectId,
+        documentId,
+        reason: "mention_validation_failed",
+      });
+      return NextResponse.json({ error: mentionResult.error }, { status: 400 });
+    }
 
     const result = await insertLLMBlockInResearchDoc({
       documentId,
       hocuspocusToken,
       modelName,
       location,
-      markdown,
+      markdown: mentionResult.markdown,
     });
 
     captureResearchAgentApiEvent({

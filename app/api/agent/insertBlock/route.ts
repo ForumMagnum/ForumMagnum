@@ -1,4 +1,6 @@
-import { markdownToHtml } from "@/server/editor/conversionUtils";
+import { sanitize } from "@/lib/utils/sanitize";
+import { getMarkdownIt } from "@/lib/utils/markdownItPlugins";
+import type markdownIt from "markdown-it";
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
@@ -110,19 +112,28 @@ function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], insertionI
   $wrapSelectionInSuggestionNode(selection, false, suggestionId, "insert");
 }
 
-export function $markdownToNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
-  const widgetFence = parseWholeWidgetFence(markdown);
-  if (widgetFence) {
-    const widgetNode = $createIframeWidgetNode(widgetFence.widgetId);
-    widgetNode.append($createTextNode(widgetFence.widgetMarkup));
+export function $markdownToNodes(
+  editor: LexicalEditor,
+  markdown: string,
+  options: { markdownIt: markdownIt },
+): LexicalNode[] {
+  const id = randomId();
+  const html = sanitize(options.markdownIt.render(markdown, { docId: id }));
+  const dom = new JSDOM(html);
+  const importedNodes = $generateNodesFromDOM(editor, dom.window.document);
+  return normalizeImportedTopLevelNodes(importedNodes);
+}
+
+export function $postMarkdownToNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
+  const wholeFence = parseWholeWidgetFence(markdown);
+  if (wholeFence) {
+    const widgetNode = $createIframeWidgetNode(wholeFence.widgetId);
+    widgetNode.append($createTextNode(wholeFence.widgetMarkup));
     return [widgetNode];
   }
 
   const markdownWithWidgetIframes = transformWidgetFencesToInlineIframeHtml(markdown);
-  const html = markdownToHtml(markdownWithWidgetIframes);
-  const dom = new JSDOM(html);
-  const importedNodes = $generateNodesFromDOM(editor, dom.window.document);
-  return normalizeImportedTopLevelNodes(importedNodes);
+  return $markdownToNodes(editor, markdownWithWidgetIframes, { markdownIt: getMarkdownIt() });
 }
 
 function findInsertionIndexByPrefix(
@@ -165,13 +176,15 @@ export function $insertMarkdownBlockInEditor({
   mode,
   location,
   markdown,
+  markdownToNodes,
 }: {
   editor: LexicalEditor
   mode: ReplaceMode
   location: InsertLocation
   markdown: string
+  markdownToNodes: (editor: LexicalEditor, markdown: string) => LexicalNode[]
 }): InsertBlockResult {
-  const nodesToInsert = $markdownToNodes(editor, markdown);
+  const nodesToInsert = markdownToNodes(editor, markdown);
   if (nodesToInsert.length === 0) {
     return { inserted: false, note: "No insertable nodes were generated from markdown." };
   }
@@ -224,7 +237,10 @@ export async function insertMarkdownBlock({
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
-          result = $insertMarkdownBlockInEditor({ editor, mode, location, markdown });
+          result = $insertMarkdownBlockInEditor({
+            editor, mode, location, markdown,
+            markdownToNodes: $postMarkdownToNodes,
+          });
         }, { onUpdate: resolve });
       });
 

@@ -6,6 +6,7 @@ import markdownItSup from "markdown-it-sup";
 import type { Renderer, StateBlock, Token } from "markdown-it/index.js";
 import markdownItMathjax from './markdownMathjax';
 import { markdownCollapsibleSections } from './markdownCollapsibleSections';
+import { markdownMentions } from './markdownMentions';
 
 const llmOutputOpenRegex = /^%%%[ \t]+llm-output(?:[ \t]+model="([^"]*)")?[ \t]*$/;
 const llmOutputCloseRegex = /^%%%[ \t]+\/llm-output[ \t]*$/;
@@ -160,18 +161,22 @@ function markdownSpoilerBlocks(md: markdownIt) {
   md.renderer.rules.spoiler_block_close = renderToken;
 }
 
+function applyCommonPlugins(mdi: markdownIt): void {
+  mdi.use(markdownLlmContentBlocks);
+  mdi.use(markdownSpoilerBlocks);
+  mdi.use(markdownItContainer as AnyBecauseHard, "spoiler");
+  mdi.use(markdownItFootnote as any);
+  applyMarkdownFootnoteRules(mdi);
+  mdi.use(markdownItSub);
+  mdi.use(markdownItSup);
+}
+
 let _mdi: markdownIt|null = null;
 export function getMarkdownIt(): markdownIt {
   if (!_mdi) {
-    const mdi = markdownIt({linkify: true})
-    mdi.use(markdownItMathjax())
-    mdi.use(markdownLlmContentBlocks)
-    mdi.use(markdownSpoilerBlocks)
-    mdi.use(markdownItContainer as AnyBecauseHard, 'spoiler')
-    mdi.use(markdownItFootnote as any)
-    applyMarkdownFootnoteRules(mdi);
-    mdi.use(markdownItSub)
-    mdi.use(markdownItSup)
+    const mdi = markdownIt({linkify: true});
+    mdi.use(markdownItMathjax());
+    applyCommonPlugins(mdi);
     mdi.use(markdownCollapsibleSections);
     _mdi = mdi;
   }
@@ -181,19 +186,24 @@ export function getMarkdownIt(): markdownIt {
 let _mdiNoMathjax: markdownIt|null = null;
 export function getMarkdownItNoMathjax(): markdownIt {
   if (!_mdiNoMathjax) {
-    // FIXME This is a copy-paste of a markdown config from conversionUtils that has gotten out of sync
     const mdi = markdownIt({ linkify: true });
-    // mdi.use(markdownItMathjax()) // for performance, don't render mathjax
-    mdi.use(markdownLlmContentBlocks);
-    mdi.use(markdownSpoilerBlocks);
-    mdi.use(markdownItContainer as AnyBecauseHard, "spoiler");
-    mdi.use(markdownItFootnote as any);
-    applyMarkdownFootnoteRules(mdi);
-    mdi.use(markdownItSub);
-    mdi.use(markdownItSup);
+    applyCommonPlugins(mdi);
     _mdiNoMathjax = mdi;
   }
   return _mdiNoMathjax;
+}
+
+let _mdiResearch: markdownIt|null = null;
+// Skips mathjax — research docs have no math display path.
+export function getMarkdownItForResearch(): markdownIt {
+  if (!_mdiResearch) {
+    const mdi = markdownIt({linkify: true});
+    applyCommonPlugins(mdi);
+    mdi.use(markdownCollapsibleSections);
+    mdi.use(markdownMentions);
+    _mdiResearch = mdi;
+  }
+  return _mdiResearch;
 }
 
 let _mdiArbital: markdownIt|null = null;

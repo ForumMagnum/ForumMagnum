@@ -7,6 +7,8 @@ import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { JSDOM } from "jsdom";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { markdownToHtml } from "@/server/editor/conversionUtils";
+import { sanitize } from "@/lib/utils/sanitize";
+import type markdownIt from "markdown-it";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
@@ -45,8 +47,14 @@ interface SuggestionNarrowingResult {
  * insertion within an existing paragraph. When the markdown produces a single
  * wrapping paragraph, the inline children are extracted so they stay inline.
  */
-function $markdownToInlineNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
-  const html = markdownToHtml(markdown);
+function $markdownToInlineNodes(
+  editor: LexicalEditor,
+  markdown: string,
+  markdownItOverride?: markdownIt,
+): LexicalNode[] {
+  const html = markdownItOverride
+    ? sanitize(markdownItOverride.render(markdown, { docId: randomId() }))
+    : markdownToHtml(markdown);
   const dom = new JSDOM(html);
   const nodes = $generateNodesFromDOM(editor, dom.window.document);
   // Markdown typically produces a single paragraph wrapping inline children.
@@ -64,7 +72,12 @@ function $markdownToInlineNodes(editor: LexicalEditor, markdown: string): Lexica
  * When the narrowed text is plain (no formatting), a TextNode is created
  * directly. Otherwise the markdown pipeline is used with whitespace patched.
  */
-function $narrowedReplacementToNodes(editor: LexicalEditor, replacement: string, expectedPlainText?: string): LexicalNode[] {
+function $narrowedReplacementToNodes(
+  editor: LexicalEditor,
+  replacement: string,
+  expectedPlainText?: string,
+  markdownItOverride?: markdownIt,
+): LexicalNode[] {
   if (replacement.length === 0) return [];
 
   const plainText = expectedPlainText ?? markdownQuoteToPlainText(replacement);
@@ -72,7 +85,7 @@ function $narrowedReplacementToNodes(editor: LexicalEditor, replacement: string,
     return [$createTextNode(replacement)];
   }
 
-  const nodes = $markdownToInlineNodes(editor, replacement);
+  const nodes = $markdownToInlineNodes(editor, replacement, markdownItOverride);
   const nodesText = nodes.map(n => n.getTextContent()).join("");
 
   const leadingWs = plainText.match(/^(\s+)/)?.[1] ?? "";
@@ -96,12 +109,14 @@ export function $applyEditReplacement({
   startOffset,
   endOffset,
   replacement,
+  markdownItOverride,
 }: {
   editor: LexicalEditor
   matchedNodeKey?: string
   startOffset?: number
   endOffset?: number
   replacement: string
+  markdownItOverride?: markdownIt
 }): boolean {
   if (!matchedNodeKey || startOffset === undefined || endOffset === undefined) {
     return false;
@@ -122,7 +137,7 @@ export function $applyEditReplacement({
   }
 
   if (replacement.length > 0) {
-    const inlineNodes = $markdownToInlineNodes(editor, replacement);
+    const inlineNodes = $markdownToInlineNodes(editor, replacement, markdownItOverride);
     for (const node of inlineNodes) {
       selectedNode.insertBefore(node);
     }
@@ -241,17 +256,19 @@ export function $applyEditReplacementMultiNode({
   anchor,
   focus,
   replacement,
+  markdownItOverride,
 }: {
   editor: LexicalEditor
   anchor: MarkdownSelectionPoint
   focus: MarkdownSelectionPoint
   replacement: string
+  markdownItOverride?: markdownIt
 }): boolean {
   const selectedNodes = $splitAndCollectSelectedNodes(anchor, focus);
   if (!selectedNodes) return false;
 
   if (replacement.length > 0) {
-    const inlineNodes = $markdownToInlineNodes(editor, replacement);
+    const inlineNodes = $markdownToInlineNodes(editor, replacement, markdownItOverride);
     for (const node of inlineNodes) {
       selectedNodes[0].insertBefore(node);
     }
@@ -629,22 +646,24 @@ export function $applyEditWithNarrowing({
   focus,
   quote,
   replacement,
+  markdownItOverride,
 }: {
   editor: LexicalEditor
   anchor: MarkdownSelectionPoint
   focus: MarkdownSelectionPoint
   quote: string
   replacement: string
+  markdownItOverride?: markdownIt
 }): SuggestionNarrowingResult {
   const narrowing = $computeNarrowing(anchor, focus, quote, replacement);
 
   if (!narrowing || narrowing.quote.length === 0) {
-    const replaced = $applyEditForSelection(editor, anchor, focus, replacement);
+    const replaced = $applyEditForSelection(editor, anchor, focus, replacement, markdownItOverride);
     return { replaced, narrowedQuote: quote, narrowedReplacement: replacement };
   }
 
   const replaced = $applyEditForSelection(
-    editor, narrowing.anchor, narrowing.focus, narrowing.replacement,
+    editor, narrowing.anchor, narrowing.focus, narrowing.replacement, markdownItOverride,
   );
   return { replaced, narrowedQuote: narrowing.quote, narrowedReplacement: narrowing.replacement };
 }
@@ -654,6 +673,7 @@ function $applyEditForSelection(
   anchor: MarkdownSelectionPoint,
   focus: MarkdownSelectionPoint,
   replacement: string,
+  markdownItOverride?: markdownIt,
 ): boolean {
   const sameTextNode =
     anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
@@ -664,9 +684,10 @@ function $applyEditForSelection(
       startOffset: anchor.offset,
       endOffset: focus.offset,
       replacement,
+      markdownItOverride,
     });
   }
-  return $applyEditReplacementMultiNode({ editor, anchor, focus, replacement });
+  return $applyEditReplacementMultiNode({ editor, anchor, focus, replacement, markdownItOverride });
 }
 
 /**

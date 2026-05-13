@@ -3,6 +3,7 @@ import { $getRoot } from "lexical";
 import { randomId } from "@/lib/random";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
+import { getMarkdownItForResearch } from "@/lib/utils/markdownItPlugins";
 import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
 import { locateMarkdownQuoteSelectionInSubtree } from "../../../../agent/mapMarkdownToLexical";
 import { $applyEditWithNarrowing } from "../../../../agent/replaceText/route";
@@ -16,6 +17,7 @@ import {
 } from "../../captureResearchAgentAnalytics";
 import { withResearchDocEditorSession } from "../../researchEditorSession";
 import { replaceTextInResearchDocSchema } from "../../researchToolSchemas";
+import { validateAndCanonicalizeMentionsInMarkdown } from "../../researchMentionValidation";
 
 const ROUTE = "documents.replaceText";
 
@@ -62,6 +64,10 @@ async function replaceTextInResearchDoc({
               focus: selectionResult.focus,
               quote,
               replacement,
+              // Research surface uses the mention-aware markdown-it instance
+              // so `@[doc:<id> "..."]` tokens in the replacement render as
+              // `MentionNode` chips rather than plain text.
+              markdownItOverride: getMarkdownItForResearch(),
             });
             replaced = editResult.replaced;
           },
@@ -121,13 +127,32 @@ export async function POST(req: NextRequest) {
       context,
     });
     if (docAuth.kind === "errorResponse") return docAuth.errorResponse;
-    const { hocuspocusToken } = docAuth;
+    const { document, hocuspocusToken } = docAuth;
+
+    // `quote` matches verbatim against `fetch-doc` output and isn't
+    // validated — only the replacement needs canonicalization.
+    const mentionResult = await validateAndCanonicalizeMentionsInMarkdown({
+      markdown: replacement,
+      projectId: document.projectId,
+      context,
+    });
+    if (!mentionResult.ok) {
+      captureResearchAgentApiEvent({
+        route: ROUTE,
+        status: "validation_error",
+        conversationId: payload.conversationId,
+        projectId: payload.projectId,
+        documentId,
+        reason: "mention_validation_failed",
+      });
+      return NextResponse.json({ error: mentionResult.error }, { status: 400 });
+    }
 
     const result = await replaceTextInResearchDoc({
       documentId,
       hocuspocusToken,
       quote,
-      replacement,
+      replacement: mentionResult.markdown,
     });
 
     captureResearchAgentApiEvent({

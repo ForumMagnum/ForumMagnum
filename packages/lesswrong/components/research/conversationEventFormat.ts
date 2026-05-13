@@ -118,3 +118,74 @@ function formatJSON(value: unknown): string {
     return String(value);
   }
 }
+
+export interface TranscriptTurn {
+  seq: number;
+  role: 'user' | 'assistant' | 'thinking' | 'tool_use' | 'tool_result' | 'error';
+  text: string;
+}
+
+export interface TranscriptOptions {
+  withThinking?: boolean;
+  withToolPayloads?: boolean;
+}
+
+interface TranscriptInputEvent {
+  seq: number;
+  kind: string;
+  payload: unknown;
+}
+
+export function getAgentTranscriptTurns(
+  events: TranscriptInputEvent[],
+  options: TranscriptOptions = {},
+): TranscriptTurn[] {
+  const turns: TranscriptTurn[] = [];
+  for (const event of events) {
+    if (!isVisibleConversationEvent(event)) continue;
+    const chunks = getConversationEventChunks(event);
+    if (chunks.length === 0) continue;
+
+    const filtered: ConversationEventChunk[] = [];
+    for (const chunk of chunks) {
+      if (chunk.kind === 'thinking' && !options.withThinking) continue;
+      if (chunk.kind === 'tool_result' && !options.withToolPayloads) continue;
+      if (chunk.kind === 'tool_use' && !options.withToolPayloads) {
+        filtered.push({ kind: chunk.kind, text: stripToolArgs(chunk.text) });
+        continue;
+      }
+      filtered.push(chunk);
+    }
+    if (filtered.length === 0) continue;
+
+    turns.push({
+      seq: event.seq,
+      role: normalizeTranscriptRole(event.kind),
+      text: filtered.map((c) => c.text).join('\n'),
+    });
+  }
+  return turns;
+}
+
+// `getConversationEventChunks` formats tool_use chunk text as
+// `${name}(${formatJSON(input)})`; trim everything from the first `(` onward
+// when the consumer doesn't want payloads.
+function stripToolArgs(text: string): string {
+  const parenIdx = text.indexOf('(');
+  return parenIdx === -1 ? text : text.slice(0, parenIdx);
+}
+
+function normalizeTranscriptRole(kind: string): TranscriptTurn['role'] {
+  switch (kind) {
+    case 'user':
+    case 'assistant':
+    case 'thinking':
+    case 'tool_use':
+    case 'tool_result':
+    case 'error':
+      return kind;
+    default:
+      // Only reachable if `visibleConversationEventKinds` diverges from this role union.
+      return 'assistant';
+  }
+}

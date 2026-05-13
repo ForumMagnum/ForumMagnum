@@ -1,13 +1,13 @@
 import type { LexicalNodeConfig } from 'lexical';
 import { AgentBlockNode } from './AgentBlockNode';
+import { MentionNode } from './MentionNode';
+
+export const researchEditorNodes: LexicalNodeConfig[] = [AgentBlockNode, MentionNode];
 
 /**
- * Lexical nodes the research workspace's editor must register. Spread these
- * into the host editor's nodes config:
- *
- *   const nodes = [...PlaygroundNodes, ...researchEditorNodes];
- *
- * `MarkNode` is included in the shared PlaygroundNodes used by LexicalEditor;
- * this bundle adds only the research-specific decorator nodes.
+ * Strict subset of `researchEditorNodes` — `AgentBlockNode` is omitted
+ * because the chat composer lacks the `ResearchEditorProvider` an
+ * AgentBlock requires to render. Pasted HTML containing an AgentBlock
+ * falls through `importDOM` to plain text rather than crashing.
  */
-export const researchEditorNodes: LexicalNodeConfig[] = [AgentBlockNode];
+export const chatComposerNodes: LexicalNodeConfig[] = [MentionNode];

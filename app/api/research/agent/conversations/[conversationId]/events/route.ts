@@ -13,7 +13,6 @@ import {
 } from "../../../captureResearchAgentAnalytics";
 
 const POST_ROUTE = "conversations.events.post";
-const GET_ROUTE = "conversations.events.get";
 
 const eventKindSchema = z.enum([
   "user",
@@ -208,101 +207,3 @@ export async function POST(
   }
 }
 
-/**
- * GET `/api/research/agent/conversations/:conversationId/events`
- *
- * Cross-referencing endpoint. Returns the persisted event log for a
- * conversation in the same project as the bearer token, paginated by `seq`.
- * Used by:
- *  - Sub-agents looking up sibling conversation context.
- *  - The bootstrap path that synthesizes a JSONL for `claude --resume`.
- *
- * Query params:
- *  - `sinceSeq`: only return events with seq > sinceSeq (default -1, all).
- *  - `limit`: max events to return (default 1000, max 5000).
- */
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ conversationId: string }> },
-) {
-  const { conversationId } = await params;
-
-  const auth = authorizeAgentRequest({ req, route: GET_ROUTE });
-  if (auth.kind === "errorResponse") return auth.errorResponse;
-  const { payload } = auth;
-
-  const url = new URL(req.url);
-  const sinceSeqParam = url.searchParams.get("sinceSeq");
-  const limitParam = url.searchParams.get("limit");
-  const sinceSeq = sinceSeqParam !== null ? Number(sinceSeqParam) : undefined;
-  const requestedLimit = limitParam !== null ? Number(limitParam) : undefined;
-
-  if (
-    (sinceSeq !== undefined && (!Number.isInteger(sinceSeq) || sinceSeq < -1))
-    || (requestedLimit !== undefined && (!Number.isInteger(requestedLimit) || requestedLimit < 1))
-  ) {
-    captureResearchAgentApiEvent({
-      route: GET_ROUTE,
-      status: "validation_error",
-      conversationId,
-      projectId: payload.projectId,
-    });
-    return NextResponse.json(
-      { error: "Invalid sinceSeq or limit query parameter" },
-      { status: 400 },
-    );
-  }
-
-  const limit = requestedLimit !== undefined ? Math.min(requestedLimit, 5000) : undefined;
-
-  try {
-    const context = await getContextFromReqAndRes({ req, isSSR: false });
-    const convAuth = await authorizeAgentResearchConversationAccess({
-      route: GET_ROUTE,
-      conversationId,
-      payload,
-      context,
-    });
-    if (convAuth.kind === "errorResponse") return convAuth.errorResponse;
-
-    const events = await context.repos.researchConversationEvents.getEventsForConversation(
-      conversationId,
-      { sinceSeq, limit },
-    );
-
-    captureResearchAgentApiEvent({
-      route: GET_ROUTE,
-      status: "success",
-      conversationId,
-      projectId: payload.projectId,
-      operationResult: `returned=${events.length}`,
-    });
-
-    return NextResponse.json({
-      ok: true,
-      conversationId,
-      events: events.map((e) => ({
-        seq: e.seq,
-        claudeMessageUuid: e.claudeMessageUuid,
-        kind: e.kind,
-        payload: e.payload,
-        createdAt: e.createdAt,
-      })),
-    });
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error(error);
-    captureException(error);
-    captureResearchAgentApiFailure(GET_ROUTE, error, {
-      conversationId,
-      projectId: payload.projectId,
-    });
-    return NextResponse.json(
-      {
-        error: "Failed to read conversation events",
-        details: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 },
-    );
-  }
-}

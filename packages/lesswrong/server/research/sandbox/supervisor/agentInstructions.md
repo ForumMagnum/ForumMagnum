@@ -73,17 +73,21 @@ turn. Re-fetch before retrying any edit that returned "no match"; the user
 can be typing concurrently.
 
 ```
-research-tool fetch-events <conversationId> [--since-seq N] [--limit M]
+research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]
 ```
-Returns the persisted event log for a sibling conversation in the same
-project (bearer authorizes within-project access only):
+Returns a clean turn-by-turn transcript of a sibling conversation in the
+same project (bearer authorizes within-project access only):
 ```json
-{ "ok": true, "conversationId": "...",
-  "events": [{ "seq": 0, "kind": "user", "claudeMessageUuid": null, "payload": {...}, "createdAt": "..." }, ...] }
+{ "ok": true, "conversationId": "...", "title": "Earlier zoning chat",
+  "turns": [
+    { "seq": 0, "role": "user", "text": "Compare doc A and doc B." },
+    { "seq": 1, "role": "assistant", "text": "Sure, fetching now.\nfetch-doc" },
+    ...
+  ] }
 ```
-`limit` defaults to 1000, capped at 5000. Use `--since-seq` to page through
-long transcripts. The `kind` discriminator is one of
-`user|assistant|tool_use|tool_result|thinking|system|error|result`.
+`role` is one of `user | assistant | thinking | tool_use | tool_result | error`.
+Pass `--with-thinking` to include the assistant's internal reasoning, and
+`--with-tool-payloads` to include full tool args / results.
 
 ### Editing the document
 
@@ -157,16 +161,45 @@ bullet and leaves the surrounding list intact. For tables, match the
 leading text of the first cell; tables always delete as a whole. For
 LLM content blocks, match the `%%% llm-output ...` delimiter line.
 
-### Spawning subagents
+## User-attached context (`@[doc:<id> "<title>"]`, `@[conv:<id> "<title>"]`)
+
+Throughout user prompts, fetched document markdown, and fetched conversation
+transcripts you will encounter inline tokens of the form:
 
 ```
-research-tool spawn --prompt <text> [--title <text>]
+@[doc:abc123 "Zoning notes"]
+@[conv:def456 "Earlier zoning chat"]
 ```
-Create a child research conversation in the same project. The child has
-its own conversationId, transcript, and Claude Code session, and is
-provisioned with its own bearer token. Returns the new conversation's
-metadata. Useful when a task is long enough to benefit from running on a
-parallel agent.
+
+Each token is a typed reference to another resource in the current project:
+- `doc:<id>` — a `ResearchDocument`. Fetch its content with
+  `research-tool fetch-doc <id>` if you need it.
+- `conv:<id>` — a `ResearchConversation`. Fetch its transcript with
+  `research-tool fetch-conversation <id>` if you need it.
+
+The quoted title is for prompt/markdown readability only; rely on the id
+when fetching. Treat tokens identically wherever they appear (a mention in
+a document the user is editing means the same thing as a mention in their
+chat prompt).
+
+### Synthesizing mentions in your own writes
+
+You may include the same `@[kind:id "title"]` form when writing markdown
+into the document via `edit-doc insert-block`, `edit-doc insert-llm-block`,
+or `edit-doc replace-text --with`. Use it to cross-reference resources the
+user has already worked with. Source IDs from:
+- The user's prompt
+- The document you're currently editing (visible in `fetch-doc` output)
+- Any conversations you've fetched with `fetch-conversation`
+
+The server validates each token before applying your write:
+- The id must resolve to a real resource in the current project (cross-project
+  references are rejected).
+- The kind must match (`doc` for documents, `conv` for conversations).
+- On any invalid token, the entire insert/replace is rejected with an error
+  identifying the bad token. Retry with a corrected id.
+- The title field can be approximate; the server replaces it with the
+  canonical current title from the database before storing the chip.
 
 ## Matching rules (replace-text quote, insert-block/delete-block prefix)
 
@@ -193,6 +226,13 @@ These rules come straight from the shared backend matcher:
   structured blocks like LLM content blocks, it's the `%%%` delimiter
   line. For list items it's the item's own leading text; for tables, the
   first cell's leading text.
+- **Anchoring against an `@[...]` mention chip:** quote the verbatim
+  token as it appears in `fetch-doc` output, including the brackets,
+  kind, id, quotes, and title — `@[doc:abc123 "Zoning notes"]`. Quotes
+  that cross *into* a mention from surrounding text (e.g. quoting `notes
+  for context` when the doc reads `@[doc:abc "notes"] for context`) won't
+  match — same boundary class as bold/italic. Pick a quote that lies
+  fully inside or fully outside the chip.
 
 ## Working directory
 

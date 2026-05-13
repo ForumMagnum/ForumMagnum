@@ -12,9 +12,9 @@
  *   research-tool edit-doc <documentId> insert-block --location end --markdown "..."
  *   research-tool edit-doc <documentId> delete-block --prefix "..."
  *   research-tool edit-doc <documentId> insert-llm-block --model "..." --markdown "..." --location end
- *   research-tool fetch-events <conversationId> [--since-seq N] [--limit M]
- *   research-tool list-project [--project-id <id>]
- *   research-tool spawn --prompt "..." [--title "..."]
+ *   research-tool list-documents [--project-id <id>]
+ *   research-tool list-conversations [--project-id <id>]
+ *   research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]
  *
  * Required env (set by the supervisor when launching Claude Code):
  *   RESEARCH_BACKEND_BASE_URL    — e.g. https://forum.example.com
@@ -186,22 +186,6 @@ function parseLocation(flags) {
   return undefined;
 }
 
-async function cmdFetchEvents(args) {
-  const conversationId = args.positional[0];
-  if (!conversationId) fail(1, "fetch-events requires <conversationId>");
-  const sinceSeq = args.flags["since-seq"];
-  const limit = args.flags.limit;
-  const query = {};
-  if (sinceSeq !== undefined) query.sinceSeq = sinceSeq;
-  if (limit !== undefined) query.limit = limit;
-  const result = await callApi(
-    "GET",
-    `/api/research/agent/conversations/${encodeURIComponent(conversationId)}/events`,
-    { query },
-  );
-  printJson(result);
-}
-
 async function cmdListDocuments(args) {
   const projectId = args.flags["project-id"] ?? process.env.RESEARCH_PROJECT_ID;
   if (!projectId) {
@@ -226,13 +210,17 @@ async function cmdListConversations(args) {
   printJson(result);
 }
 
-async function cmdSpawn(args) {
-  const prompt = args.flags.prompt;
-  const title = args.flags.title;
-  if (!prompt) fail(1, "spawn requires --prompt");
-  const body = { prompt };
-  if (title) body.title = title;
-  const result = await callApi("POST", "/api/research/agent/conversations", { body });
+async function cmdFetchConversation(args) {
+  const conversationId = args.positional[0];
+  if (!conversationId) fail(1, "fetch-conversation requires <conversationId>");
+  const query = {};
+  if (args.flags["with-thinking"] !== undefined) query.withThinking = "1";
+  if (args.flags["with-tool-payloads"] !== undefined) query.withToolPayloads = "1";
+  const result = await callApi(
+    "GET",
+    `/api/research/agent/conversations/${encodeURIComponent(conversationId)}/transcript`,
+    { query },
+  );
   printJson(result);
 }
 
@@ -246,10 +234,9 @@ async function cmdHelp() {
     "  edit-doc  <documentId> insert-block   --markdown <md> (--location start|end | --before <text> | --after <text>)",
     "  edit-doc  <documentId> delete-block   --prefix <text>",
     "  edit-doc  <documentId> insert-llm-block --markdown <md> --model <name> (--location start|end | --before ... | --after ...)",
-    "  fetch-events <conversationId> [--since-seq N] [--limit M]",
     "  list-documents     [--project-id <id>]",
     "  list-conversations [--project-id <id>]",
-    "  spawn --prompt <text> [--title <text>]",
+    "  fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]",
     "",
     "Required env: RESEARCH_BACKEND_BASE_URL, RESEARCH_BACKEND_TOKEN",
   ].join("\n");
@@ -283,17 +270,14 @@ async function main() {
     case "edit-doc":
       await cmdEditDoc(rest);
       return;
-    case "fetch-events":
-      await cmdFetchEvents(rest);
-      return;
     case "list-documents":
       await cmdListDocuments(rest);
       return;
     case "list-conversations":
       await cmdListConversations(rest);
       return;
-    case "spawn":
-      await cmdSpawn(rest);
+    case "fetch-conversation":
+      await cmdFetchConversation(rest);
       return;
     default:
       fail(1, `Unknown command: ${command}. Run \`research-tool help\` for usage.`);

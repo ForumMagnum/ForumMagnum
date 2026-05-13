@@ -19,6 +19,11 @@ import { AllPackages } from 'mathjax-full/js/input/tex/AllPackages.js';
 import { type LiteElement } from 'mathjax-full/js/adaptors/lite/Element';
 import IframeWidgetSrcdocs from '@/server/collections/iframeWidgetSrcdocs/collection';
 import { ServerSafeNode } from '@/lib/domParser';
+import {
+  formatMentionToken,
+  isMentionKind,
+  MENTION_DOM_CLASS,
+} from '@/components/research/lexical/mentionFormat';
 
 const blockTags = new Set([
   'ADDRESS', 'ARTICLE', 'ASIDE', 'BLOCKQUOTE', 'DIV', 'DL', 'DT', 'DD', 'FIELDSET',
@@ -58,7 +63,7 @@ function stripIframeWidgetSrcdocs(html: string): string {
 }
 
 let _turndownService: TurndownService|null = null;
-const TURNDOWN_BUILD_MARKER = 'widget-markdown-v1';
+const TURNDOWN_BUILD_MARKER = 'widget-markdown-v2-mentions';
 function getTurndown(): TurndownService {
   const cachedMarker = (_turndownService as AnyBecauseHard | null)?.__buildMarker;
   if (!_turndownService || cachedMarker !== TURNDOWN_BUILD_MARKER) {
@@ -124,15 +129,6 @@ function getTurndown(): TurndownService {
         return `\n\n%%% llm-output model="${modelName}"\n\n${trimmed}\n\n%%% /llm-output\n\n`;
       },
     })
-    // Research-document AgentBlocks. The block is a reference to a
-    // ResearchConversation; we emit a single self-describing line carrying
-    // the conversationId (and any metadata the caller injected as `data-*`
-    // attrs on the element) so an agent reading the doc sees where the
-    // block sits in the prose and can decide whether to fetch full contents
-    // via /api/research/agent/conversations/:id/events. The research-doc
-    // route runs a cheerio pass before Turndown to inject
-    // `data-conversation-title` and `data-conversation-last-activity-at`;
-    // when those are absent the placeholder is just the bare ID form.
     turndownService.addRule('research-agent-block', {
       filter: (node) =>
         node.nodeName === 'DIV' && !!node.classList?.contains('research-agent-block'),
@@ -149,6 +145,18 @@ function getTurndown(): TurndownService {
         if (lastActivityAt !== null) attrs.push(`lastActivityAt="${escapeAttr(lastActivityAt)}"`);
         if (producedBy) attrs.push(`producedByConversationId="${escapeAttr(producedBy)}"`);
         return `\n\n%%% agent-block ${attrs.join(' ')} %%%\n\n`;
+      },
+    })
+    turndownService.addRule('research-mention', {
+      filter: (node) =>
+        node.nodeName === 'SPAN' && !!node.classList?.contains(MENTION_DOM_CLASS),
+      replacement: (_content, node) => {
+        const element = node as Element;
+        const kind = element.getAttribute('data-mention-kind');
+        const id = element.getAttribute('data-mention-id');
+        const title = element.getAttribute('data-mention-title') ?? '';
+        if (!isMentionKind(kind) || !id) return '';
+        return formatMentionToken({ kind, id, title });
       },
     })
     turndownService.use(gfm); // Add support for strikethrough and tables

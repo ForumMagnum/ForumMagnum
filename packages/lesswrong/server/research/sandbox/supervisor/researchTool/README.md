@@ -54,11 +54,7 @@ on the backend. The same token authorizes:
 - The supervisor's own POST persistence callback to
   `/api/research/agent/conversations/:id/events`
 
-The token is per-conversation. When the supervisor spawns a subagent (via
-`research-tool spawn`), the **new** conversation gets a **new** token — the
-spawn endpoint returns the new conversationId; the supervisor mints a new
-sandbox-callback token bound to that conversationId before launching its
-Claude Code subprocess.
+The token is per-conversation.
 
 ## Output format
 

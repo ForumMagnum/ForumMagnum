@@ -91,7 +91,7 @@ function annotateAgentBlocksInHtml(
  * AgentBlocks are emitted as `%%% agent-block conversationId="..." %%%`
  * placeholders by the Turndown rule, and then enriched in-place with the
  * conversation's `title` / `lastActivityAt` so the agent can decide whether
- * to fetch full contents via /api/research/agent/conversations/:id/events.
+ * to fetch its content via the research-tool CLI.
  *
  * Why not read `ResearchDocuments.contents` (the persisted snapshot)?
  *   - It can lag the live Yjs state by one Hocuspocus debounce window.

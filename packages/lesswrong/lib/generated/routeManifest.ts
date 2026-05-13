@@ -448,14 +448,17 @@ export const routeTrie = {
                       "staticChildren": {
                         "events": {
                           "hasRoute": true
+                        },
+                        "transcript": {
+                          "hasRoute": true
                         }
                       },
                       "lowerCase": {
-                        "events": "events"
+                        "events": "events",
+                        "transcript": "transcript"
                       }
                     }
-                  },
-                  "hasRoute": true
+                  }
                 },
                 "documents": {
                   "staticChildren": {

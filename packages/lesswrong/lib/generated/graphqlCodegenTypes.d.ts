@@ -17994,6 +17994,24 @@ type ResearchConversationTranscriptQueryVariables = Exact<{
 
 type ResearchConversationTranscriptQuery = ResearchConversationTranscriptQuery_Query;
 
+type MentionTypeaheadProjectResourcesQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null, createdAt: string };
+
+type MentionTypeaheadProjectResourcesQueryQuery_researchDocuments_MultiResearchDocumentOutput = { __typename?: 'MultiResearchDocumentOutput', results: Array<MentionTypeaheadProjectResourcesQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument> };
+
+type MentionTypeaheadProjectResourcesQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string };
+
+type MentionTypeaheadProjectResourcesQueryQuery_researchConversations_MultiResearchConversationOutput = { __typename?: 'MultiResearchConversationOutput', results: Array<MentionTypeaheadProjectResourcesQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation> };
+
+type MentionTypeaheadProjectResourcesQueryQuery_Query = { __typename?: 'Query', researchDocuments: MentionTypeaheadProjectResourcesQueryQuery_researchDocuments_MultiResearchDocumentOutput | null, researchConversations: MentionTypeaheadProjectResourcesQueryQuery_researchConversations_MultiResearchConversationOutput | null };
+
+
+type MentionTypeaheadProjectResourcesQueryQueryVariables = Exact<{
+  projectId: Scalars['String']['input'];
+}>;
+
+
+type MentionTypeaheadProjectResourcesQueryQuery = MentionTypeaheadProjectResourcesQueryQuery_Query;
+
 type multiReviewWinnerArtBestOfLessWrongAdminQueryQuery_reviewWinnerArts_MultiReviewWinnerArtOutput_results_ReviewWinnerArt = (
   { __typename?: 'ReviewWinnerArt' }
   & ReviewWinnerArtImages

@@ -36,6 +36,7 @@ import { exportTextNode } from './lexicalDomExport';
 import { gql } from '@/lib/generated/gql-codegen';
 import { HorizontalRuleExtension } from '@lexical/extension';
 import ErrorBoundary from '../common/ErrorBoundary';
+import DeferRender from '../common/DeferRender';
 
 const HocuspocusAuthQuery = gql(`
   query HocuspocusAuthQuery($postId: String, $collectionName: String, $documentId: String, $linkSharingKey: String) {
@@ -284,6 +285,7 @@ interface LexicalEditorProps {
   accessLevel?: CollaborativeEditingAccessLevel;
   extraNodes?: LexicalNodeConfig[];
   disableComponentPicker?: boolean;
+  disableMentions?: boolean;
   children?: React.ReactNode;
 }
 
@@ -386,6 +388,7 @@ const LexicalEditor = ({
   accessLevel,
   extraNodes,
   disableComponentPicker,
+  disableMentions,
   children,
 }: LexicalEditorProps) => {
   const classes = useStyles(lexicalStyles);
@@ -500,8 +503,12 @@ const LexicalEditor = ({
   );
 
   return (
+    <DeferRender ssr={false} fallback={<div className={classes.editorContainer} />}>
     <LexicalEditorContext.Provider value={editorContextValue}>
-    <LexicalCollaboration>
+    {/* Keyed so each documentId switch gets a fresh `yjsDocMap`; reusing it
+        across docs would make `createWebsocketProvider('main', yjsDocMap)`
+        bind the previous Doc to the new WebSocket name, mixing content. */}
+    <LexicalCollaboration key={collaborationDocumentKey}>
       <LexicalExtensionComposer extension={app} contentEditable={null}>
         <SharedHistoryContext>
           <TableContext>
@@ -521,6 +528,7 @@ const LexicalEditor = ({
                   placeholder={placeholder}
                   commentEditor={commentEditor}
                   disableComponentPicker={disableComponentPicker}
+                  disableMentions={disableMentions}
                 >
                   {children}
                 </Editor>
@@ -538,6 +546,7 @@ const LexicalEditor = ({
       </LexicalExtensionComposer>
     </LexicalCollaboration>
     </LexicalEditorContext.Provider>
+    </DeferRender>
   );
 };
 

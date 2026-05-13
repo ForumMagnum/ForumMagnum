@@ -168,8 +168,9 @@ const DocumentPane = ({ projectId, documentId, onOpenConversationInChat }: Docum
             accessLevel="edit"
             extraNodes={researchEditorNodes}
             disableComponentPicker
+            disableMentions
           >
-            <ResearchEditorPlugins />
+            <ResearchEditorPlugins projectId={projectId} />
           </LexicalEditor>
         </ResearchEditorProvider>
       </ContentStyles>

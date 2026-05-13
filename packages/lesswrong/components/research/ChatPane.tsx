@@ -9,6 +9,7 @@ import { useStyles } from '../hooks/useStyles';
 import { useConversationStream, type ConversationEvent } from './hooks/useConversationStream';
 import { randomId } from '@/lib/random';
 import Loading from '../vulcan-core/Loading';
+import ChatComposer from './ChatComposer';
 import {
   getConversationEventChunks,
   isVisibleConversationEvent,
@@ -119,61 +120,21 @@ const styles = defineStyles('ChatPane', (theme: ThemeType) => ({
     background: theme.palette.greyAlpha(0.04),
     color: theme.palette.error?.main ?? 'red',
   },
-  composer: {
-    borderTop: theme.palette.greyBorder('1px', 0.1),
-    padding: 12,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-  },
-  textarea: {
-    width: '100%',
-    minHeight: 80,
-    padding: 8,
-    border: theme.palette.greyBorder('1px', 0.15),
-    borderRadius: 4,
-    fontFamily: 'inherit',
-    fontSize: 14,
-    resize: 'vertical',
-    background: theme.palette.background.default,
-    color: theme.palette.text.primary,
-    // Restate the border in `:focus` so it isn't stripped by the
-    // `textarea:focus` global rule in `globalStyles.ts:33`. Without this,
-    // focusing the input loses its border and the layout shifts by 2px.
-    "&:focus": {
-      border: theme.palette.greyBorder('1px', 0.15),
-    },
-  },
-  composerActions: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    gap: 8,
-  },
-  button: {
+  cancelButton: {
     padding: '6px 14px',
-    border: 'none',
     borderRadius: 4,
-    background: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
+    background: 'transparent',
+    color: theme.palette.text.dim,
+    border: theme.palette.greyBorder('1px', 0.15),
     cursor: 'pointer',
     fontSize: 13,
     fontWeight: 500,
     fontFamily: 'inherit',
-    '&:disabled': {
-      opacity: 0.5,
-      cursor: 'not-allowed',
-    },
-  },
-  cancelButton: {
-    background: 'transparent',
-    color: theme.palette.text.dim,
-    border: theme.palette.greyBorder('1px', 0.15),
   },
 }));
 
 const ChatPane = ({ projectId, conversationId, onConversationCreated }: ChatPaneProps) => {
   const classes = useStyles(styles);
-  const [draft, setDraft] = useState('');
   const [sending, setSending] = useState(false);
   const eventsRef = useRef<HTMLDivElement | null>(null);
 
@@ -194,8 +155,8 @@ const ChatPane = ({ projectId, conversationId, onConversationCreated }: ChatPane
     if (el) el.scrollTop = el.scrollHeight;
   }, [events.length]);
 
-  const handleSend = useCallback(async () => {
-    const prompt = draft.trim();
+  const handleSend = useCallback(async (text: string) => {
+    const prompt = text.trim();
     if (!prompt || sending) return;
     setSending(true);
     try {
@@ -206,7 +167,6 @@ const ChatPane = ({ projectId, conversationId, onConversationCreated }: ChatPane
         const newId = result.data?.fireResearchConversation?.conversationId;
         if (newId) {
           onConversationCreated(newId);
-          setDraft('');
         }
       } else {
         // Show the user's message immediately; SSE doesn't broadcast backend
@@ -222,24 +182,13 @@ const ChatPane = ({ projectId, conversationId, onConversationCreated }: ChatPane
           payload: { type: 'user', text: prompt },
           createdAt: now,
         });
-        setDraft('');
         await continueConversation({ variables: { conversationId, prompt } });
         refresh();
       }
     } finally {
       setSending(false);
     }
-  }, [draft, sending, conversationId, projectId, fireConversation, continueConversation, onConversationCreated, refresh, injectOptimisticEvent]);
-
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        void handleSend();
-      }
-    },
-    [handleSend],
-  );
+  }, [sending, conversationId, projectId, fireConversation, continueConversation, onConversationCreated, refresh, injectOptimisticEvent]);
 
   const handleCancel = useCallback(async () => {
     if (!conversationId) return;
@@ -254,25 +203,12 @@ const ChatPane = ({ projectId, conversationId, onConversationCreated }: ChatPane
         <div className={classes.empty}>
           <div>Start a new chat by typing a prompt below.</div>
         </div>
-        <div className={classes.composer}>
-          <textarea
-            className={classes.textarea}
-            placeholder="Ask anything…"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={handleKeyDown}
-            disabled={sending}
-          />
-          <div className={classes.composerActions}>
-            <button
-              className={classes.button}
-              onClick={handleSend}
-              disabled={sending || !draft.trim()}
-            >
-              Send
-            </button>
-          </div>
-        </div>
+        <ChatComposer
+          projectId={projectId}
+          placeholder="Ask anything…"
+          disabled={sending}
+          onSubmit={handleSend}
+        />
       </div>
     );
   }
@@ -291,33 +227,21 @@ const ChatPane = ({ projectId, conversationId, onConversationCreated }: ChatPane
           ))}
         </div>
       )}
-      <div className={classes.composer}>
-        <textarea
-          className={classes.textarea}
-          placeholder="Continue the conversation… (⌘/Ctrl+Enter to send)"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={sending}
-        />
-        <div className={classes.composerActions}>
-          {isStreaming ? (
-            <button
-              className={classNames(classes.button, classes.cancelButton)}
-              onClick={handleCancel}
-            >
-              Cancel turn
-            </button>
-          ) : null}
+      <ChatComposer
+        projectId={projectId}
+        placeholder="Continue the conversation… (⌘/Ctrl+Enter to send)"
+        disabled={sending}
+        onSubmit={handleSend}
+        extraActions={isStreaming ? (
           <button
-            className={classes.button}
-            onClick={handleSend}
-            disabled={sending || !draft.trim()}
+            type="button"
+            className={classes.cancelButton}
+            onClick={handleCancel}
           >
-            Send
+            Cancel turn
           </button>
-        </div>
-      </div>
+        ) : null}
+      />
     </div>
   );
 };
