@@ -197,6 +197,8 @@ const tableStyles = (theme: ThemeType) => ({
   height: "100%",
   textAlign: "left",
   width: '100%',
+  fontFamily: theme.palette.fonts.sansSerifStack,
+  fontSize: "0.85em",
 });
 
 const tableCellStyles = (theme: ThemeType) => ({
