@@ -6,6 +6,10 @@ import {
   $getSelection,
   $isRangeSelection,
   COMMAND_PRIORITY_LOW,
+  COMMAND_PRIORITY_HIGH,
+  KEY_ENTER_COMMAND,
+  $createParagraphNode,
+  ElementNode,
   createCommand,
   LexicalCommand,
   $getNodeByKey,
@@ -650,6 +654,86 @@ export function TablesPlugin(): React.ReactElement {
           return true;
         },
         COMMAND_PRIORITY_LOW
+      ),
+
+      // When the cursor is click-positioned at the very start of the first cell
+      // or the very end of the last cell, pressing Enter inserts a paragraph
+      // outside the table. Keyboard-navigated edge positions already get this
+      // treatment from Lexical's built-in handling; this covers the click case.
+      editor.registerCommand(
+        KEY_ENTER_COMMAND,
+        (event) => {
+          const selection = $getSelection();
+          if (!$isRangeSelection(selection) || !selection.isCollapsed()) return false;
+
+          const anchor = selection.anchor;
+          const anchorNode = anchor.getNode();
+          const cellNode = $getTableCellNodeFromLexicalNode(anchorNode);
+          if (!cellNode) return false;
+
+          const tableNode = $getTableNodeFromLexicalNodeOrThrow(cellNode);
+
+          // Is cursor at the absolute start of the cell's content?
+          const isCursorAtCellStart = (): boolean => {
+            if (anchor.offset !== 0) return false;
+            let node = anchorNode;
+            while (!node.is(cellNode)) {
+              if (node.getPreviousSibling() !== null) return false;
+              const parent = node.getParent();
+              if (!parent) return false;
+              node = parent;
+            }
+            return true;
+          };
+
+          // Is cursor at the absolute end of the cell's content?
+          const isCursorAtCellEnd = (): boolean => {
+            let atNodeEnd: boolean;
+            if (anchor.type === 'text') {
+              atNodeEnd = anchor.offset === anchorNode.getTextContent().length;
+            } else {
+              atNodeEnd = anchor.offset === (anchorNode as ElementNode).getChildrenSize();
+            }
+            if (!atNodeEnd) return false;
+            let node = anchorNode;
+            while (!node.is(cellNode)) {
+              if (node.getNextSibling() !== null) return false;
+              const parent = node.getParent();
+              if (!parent) return false;
+              node = parent;
+            }
+            return true;
+          };
+
+          // Insert paragraph before table when at start of first cell
+          const firstRow = tableNode.getFirstChild();
+          if ($isTableRowNode(firstRow)) {
+            const firstCell = firstRow.getFirstChild();
+            if ($isTableCellNode(firstCell) && firstCell.is(cellNode) && isCursorAtCellStart()) {
+              event?.preventDefault();
+              const paragraph = $createParagraphNode();
+              tableNode.insertBefore(paragraph);
+              paragraph.select();
+              return true;
+            }
+          }
+
+          // Insert paragraph after table when at end of last cell
+          const lastRow = tableNode.getLastChild();
+          if ($isTableRowNode(lastRow)) {
+            const lastCell = lastRow.getLastChild();
+            if ($isTableCellNode(lastCell) && lastCell.is(cellNode) && isCursorAtCellEnd()) {
+              event?.preventDefault();
+              const paragraph = $createParagraphNode();
+              tableNode.insertAfter(paragraph);
+              paragraph.select();
+              return true;
+            }
+          }
+
+          return false;
+        },
+        COMMAND_PRIORITY_HIGH
       )
     );
   }, [editor, openDimensionSelector, openToolbar]);
