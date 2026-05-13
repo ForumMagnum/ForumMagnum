@@ -242,9 +242,9 @@ export function ProfilePageSidebar({user, bioNoFollow}: {
     </div>
 
     <div className={classes.sidebarBioSection}>
-      {!hasBio && <div className={classes.sidebarMetaInfo}>
+      <div className={classes.sidebarMetaInfo}>
         <UserMetaInfo user={user} hidePostCount hideCommentCount omegaAlignment="inline" />
-      </div>}
+      </div>
 
       {hasBio && <>
         <div className={classNames(classes.sidebarBioWrapper, bioExpanded ? classes.sidebarBioExpanded : classes.sidebarBioCollapsed)}>
