@@ -7,7 +7,7 @@ import { $getNodeByKey, type NodeKey } from 'lexical';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useConversationStream, type ConversationEvent } from '@/components/research/hooks/useConversationStream';
 import { $isAgentBlockNode } from './AgentBlockNode';
-import { useResearchEditorEnvironment } from './ResearchEditorContext';
+import { useResearchEditorEnvironment, useResearchNavigationContext } from './ResearchEditorContext';
 import {
   getConversationEventChunks,
   isVisibleConversationEvent,
@@ -323,7 +323,10 @@ interface AgentBlockComponentProps {
 export function AgentBlockComponent({ nodeKey, conversationId, producedByConversationId }: AgentBlockComponentProps) {
   const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
-  const env = useResearchEditorEnvironment();
+  // Required to enforce the structural invariant that AgentBlocks only mount
+  // inside the document editor, where both providers are present.
+  useResearchEditorEnvironment();
+  const nav = useResearchNavigationContext();
 
   const fromAgent = !!producedByConversationId;
 
@@ -350,7 +353,7 @@ export function AgentBlockComponent({ nodeKey, conversationId, producedByConvers
     <ActiveAgentBlock
       conversationId={conversationId}
       fromAgent={fromAgent}
-      onOpenInChat={env.openConversationInChat}
+      onOpenInChat={nav.openConversationInChat}
       onRemove={removeBlock}
     />
   );

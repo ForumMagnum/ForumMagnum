@@ -12,10 +12,12 @@ import {
   $isNodeSelection,
   CLICK_COMMAND,
   COMMAND_PRIORITY_LOW,
+  KEY_ENTER_COMMAND,
   type BaseSelection,
   type NodeKey,
 } from 'lexical';
 import type { MentionKind } from './mentionFormat';
+import { useResearchNavigationContext } from './ResearchEditorContext';
 
 const KIND_ICON: Record<MentionKind, ForumIconName> = {
   doc: 'Document',
@@ -70,12 +72,13 @@ interface MentionComponentProps {
   title: string;
 }
 
-export function MentionComponent({ nodeKey, kind, title }: MentionComponentProps) {
+export function MentionComponent({ nodeKey, kind, id, title }: MentionComponentProps) {
   const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
   const [isSelected, setSelected, clearSelection] = useLexicalNodeSelection(nodeKey);
   const [selection, setSelection] = useState<BaseSelection | null>(null);
   const ref = useRef<HTMLSpanElement>(null);
+  const nav = useResearchNavigationContext();
 
   useEffect(() => {
     return mergeRegister(
@@ -97,8 +100,30 @@ export function MentionComponent({ nodeKey, kind, title }: MentionComponentProps
         },
         COMMAND_PRIORITY_LOW,
       ),
+      editor.registerCommand<KeyboardEvent>(
+        KEY_ENTER_COMMAND,
+        (event) => {
+          // Defer to host shortcuts like Cmd/Ctrl+Enter-to-send.
+          if (event?.metaKey || event?.ctrlKey) return false;
+          const latestSelection = $getSelection();
+          if (!$isNodeSelection(latestSelection)) return false;
+          if (!latestSelection.has(nodeKey) || latestSelection.getNodes().length !== 1) return false;
+          // Self-referential doc nav (already in this doc) is a no-op.
+          if (kind === 'doc' && nav.host?.kind === 'document' && nav.host.documentId === id) return false;
+          // From within a chat composer, block all conversation navigation:
+          // switching would unmount the composer and discard the in-progress
+          // draft. Doc navigation from chat is fine (composer stays mounted in
+          // the right pane).
+          if (kind === 'conv' && nav.host?.kind === 'conversation') return false;
+          event?.preventDefault();
+          if (kind === 'doc') nav.navigateToDocument(id);
+          else if (kind === 'conv') nav.openConversationInChat(id);
+          return true;
+        },
+        COMMAND_PRIORITY_LOW,
+      ),
     );
-  }, [clearSelection, editor, isSelected, nodeKey, setSelected]);
+  }, [clearSelection, editor, id, isSelected, kind, nav, nodeKey, setSelected]);
 
   // Only show the outline when the chip is the active NodeSelection; a
   // RangeSelection that crosses the chip would otherwise also light it up.

@@ -16,6 +16,11 @@ export interface FireDocumentQueryArgs {
   prompt?: string;
 }
 
+/**
+ * Document-editor-only environment. Provided by `DocumentPane` because the
+ * fields are meaningful only inside a Lexical editor that's bound to a
+ * specific ResearchDocument (e.g. firing AgentBlocks against it).
+ */
 export interface ResearchEditorEnvironment {
   /** Required. The ResearchDocument id this editor is bound to. */
   documentId: string;
@@ -26,16 +31,37 @@ export interface ResearchEditorEnvironment {
    * placeholder AgentBlock.
    */
   fireDocumentQuery: (args: FireDocumentQueryArgs) => Promise<FireQueryResult>;
+}
 
-  /**
-   * Surfaces the full conversation transcript for an AgentBlock in the
-   * workspace's chat pane. AgentBlocks render an "open in chat" icon that
-   * calls this with the block's conversationId.
-   */
+/**
+ * Identifies the editor instance this navigation context wraps. Lets nav-aware
+ * components (mention chips, etc.) suppress self-referential actions like
+ * "open conversation X" when the host already *is* conversation X.
+ *
+ * Optional: a brand-new chat composer (no conversation yet) has no host, and
+ * code in that state should just behave as if all targets are external.
+ */
+type ResearchEditorHost =
+  | { kind: 'document'; documentId: string }
+  | { kind: 'conversation'; conversationId: string };
+
+/**
+ * Workspace-level navigation surface available to any editor that mounts mention
+ * chips — both the document editor and the chat composer. Kept separate from
+ * `ResearchEditorEnvironment` so the chat composer can opt into navigation
+ * without pretending to be a document editor.
+ */
+export interface ResearchNavigationContextValue {
+  /** Switch the workspace's active document. */
+  navigateToDocument: (documentId: string) => void;
+  /** Open a conversation in the chat pane. */
   openConversationInChat: (conversationId: string) => void;
+  /** Identifies this editor instance, when available. */
+  host?: ResearchEditorHost;
 }
 
 const ResearchEditorContext = createContext<ResearchEditorEnvironment | null>(null);
+const ResearchNavigationContext = createContext<ResearchNavigationContextValue | null>(null);
 
 export function ResearchEditorProvider({
   environment,
@@ -49,6 +75,18 @@ export function ResearchEditorProvider({
   );
 }
 
+export function ResearchNavigationProvider({
+  value,
+  children,
+}: {
+  value: ResearchNavigationContextValue;
+  children: ReactNode;
+}) {
+  return (
+    <ResearchNavigationContext.Provider value={value}>{children}</ResearchNavigationContext.Provider>
+  );
+}
+
 export function useResearchEditorEnvironment(): ResearchEditorEnvironment {
   const ctx = useContext(ResearchEditorContext);
   if (!ctx) {
@@ -59,6 +97,12 @@ export function useResearchEditorEnvironment(): ResearchEditorEnvironment {
   return ctx;
 }
 
-export function useOptionalResearchEditorEnvironment(): ResearchEditorEnvironment | null {
-  return useContext(ResearchEditorContext);
+export function useResearchNavigationContext(): ResearchNavigationContextValue {
+  const ctx = useContext(ResearchNavigationContext);
+  if (!ctx) {
+    throw new Error(
+      'useResearchNavigationContext must be used inside <ResearchNavigationProvider>',
+    );
+  }
+  return ctx;
 }

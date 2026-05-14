@@ -11,6 +11,10 @@ import { randomId } from '@/lib/random';
 import Loading from '../vulcan-core/Loading';
 import ChatComposer from './ChatComposer';
 import {
+  ResearchNavigationProvider,
+  type ResearchNavigationContextValue,
+} from './lexical/ResearchEditorContext';
+import {
   getConversationEventChunks,
   isVisibleConversationEvent,
   type ConversationEventChunk,
@@ -20,6 +24,8 @@ interface ChatPaneProps {
   projectId: string;
   conversationId: string | null;
   onConversationCreated: (conversationId: string) => void;
+  onSelectDocument: (documentId: string) => void;
+  onOpenConversationInChat: (conversationId: string) => void;
 }
 
 const FireChatConversationMutation = gql(`
@@ -133,7 +139,13 @@ const styles = defineStyles('ChatPane', (theme: ThemeType) => ({
   },
 }));
 
-const ChatPane = ({ projectId, conversationId, onConversationCreated }: ChatPaneProps) => {
+const ChatPane = ({
+  projectId,
+  conversationId,
+  onConversationCreated,
+  onSelectDocument,
+  onOpenConversationInChat,
+}: ChatPaneProps) => {
   const classes = useStyles(styles);
   const [sending, setSending] = useState(false);
   const eventsRef = useRef<HTMLDivElement | null>(null);
@@ -197,18 +209,26 @@ const ChatPane = ({ projectId, conversationId, onConversationCreated }: ChatPane
 
   const isStreaming = status === 'streaming' || status === 'connecting';
 
+  const navigationContext = useMemo<ResearchNavigationContextValue>(() => ({
+    navigateToDocument: onSelectDocument,
+    openConversationInChat: onOpenConversationInChat,
+    host: conversationId ? { kind: 'conversation', conversationId } : undefined,
+  }), [conversationId, onSelectDocument, onOpenConversationInChat]);
+
   if (!conversationId) {
     return (
       <div className={classes.root}>
         <div className={classes.empty}>
           <div>Start a new chat by typing a prompt below.</div>
         </div>
-        <ChatComposer
-          projectId={projectId}
-          placeholder="Ask anything…"
-          disabled={sending}
-          onSubmit={handleSend}
-        />
+        <ResearchNavigationProvider value={navigationContext}>
+          <ChatComposer
+            projectId={projectId}
+            placeholder="Ask anything…"
+            disabled={sending}
+            onSubmit={handleSend}
+          />
+        </ResearchNavigationProvider>
       </div>
     );
   }
@@ -227,21 +247,23 @@ const ChatPane = ({ projectId, conversationId, onConversationCreated }: ChatPane
           ))}
         </div>
       )}
-      <ChatComposer
-        projectId={projectId}
-        placeholder="Continue the conversation… (⌘/Ctrl+Enter to send)"
-        disabled={sending}
-        onSubmit={handleSend}
-        extraActions={isStreaming ? (
-          <button
-            type="button"
-            className={classes.cancelButton}
-            onClick={handleCancel}
-          >
-            Cancel turn
-          </button>
-        ) : null}
-      />
+      <ResearchNavigationProvider value={navigationContext}>
+        <ChatComposer
+          projectId={projectId}
+          placeholder="Continue the conversation… (⌘/Ctrl+Enter to send)"
+          disabled={sending}
+          onSubmit={handleSend}
+          extraActions={isStreaming ? (
+            <button
+              type="button"
+              className={classes.cancelButton}
+              onClick={handleCancel}
+            >
+              Cancel turn
+            </button>
+          ) : null}
+        />
+      </ResearchNavigationProvider>
     </div>
   );
 };

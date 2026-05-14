@@ -10,9 +10,11 @@ import { researchEditorNodes } from './lexical/researchEditorNodes';
 import { ResearchEditorPlugins } from './lexical/ResearchEditorPlugins';
 import {
   ResearchEditorProvider,
+  ResearchNavigationProvider,
   type FireQueryResult,
   type FireDocumentQueryArgs,
   type ResearchEditorEnvironment,
+  type ResearchNavigationContextValue,
 } from './lexical/ResearchEditorContext';
 import Loading from '../vulcan-core/Loading';
 import LexicalEditor from '../editor/LexicalEditor';
@@ -22,6 +24,7 @@ interface DocumentPaneProps {
   projectId: string;
   documentId: string | null;
   onOpenConversationInChat: (conversationId: string) => void;
+  onSelectDocument: (documentId: string) => void;
 }
 
 const ResearchDocumentQuery = gql(`
@@ -85,7 +88,7 @@ function ignoreEditorChange(_html: string) {
   // ResearchDocument edits persist through the Yjs/Hocuspocus collaboration path.
 }
 
-const DocumentPane = ({ projectId, documentId, onOpenConversationInChat }: DocumentPaneProps) => {
+const DocumentPane = ({ projectId, documentId, onOpenConversationInChat, onSelectDocument }: DocumentPaneProps) => {
   const classes = useStyles(styles);
   const [fireConversation] = useMutation(FireDocumentConversationMutation);
 
@@ -127,12 +130,17 @@ const DocumentPane = ({ projectId, documentId, onOpenConversationInChat }: Docum
 
   const researchEditorEnvironment = useMemo<ResearchEditorEnvironment | null>(() => {
     if (!documentId) return null;
+    return { documentId, fireDocumentQuery };
+  }, [documentId, fireDocumentQuery]);
+
+  const researchNavigationContext = useMemo<ResearchNavigationContextValue | null>(() => {
+    if (!documentId) return null;
     return {
-      documentId,
-      fireDocumentQuery,
+      navigateToDocument: onSelectDocument,
       openConversationInChat: onOpenConversationInChat,
+      host: { kind: 'document', documentId },
     };
-  }, [documentId, fireDocumentQuery, onOpenConversationInChat]);
+  }, [documentId, onSelectDocument, onOpenConversationInChat]);
 
   if (!documentId) {
     return (
@@ -150,29 +158,31 @@ const DocumentPane = ({ projectId, documentId, onOpenConversationInChat }: Docum
     );
   }
 
-  if (!documentRecord || !researchEditorEnvironment) {
+  if (!documentRecord || !researchEditorEnvironment || !researchNavigationContext) {
     return <div className={classes.empty}>Document not found.</div>;
   }
 
   return (
     <div className={classes.root}>
       <ContentStyles contentType="researchDocument" className={classes.editorWrap}>
-        <ResearchEditorProvider environment={researchEditorEnvironment}>
-          <LexicalEditor
-            data={documentRecord.contents?.html ?? ''}
-            onChange={ignoreEditorChange}
-            placeholder="Start writing..."
-            collectionName="ResearchDocuments"
-            documentId={documentId}
-            fieldName="contents"
-            accessLevel="edit"
-            extraNodes={researchEditorNodes}
-            disableComponentPicker
-            disableMentions
-          >
-            <ResearchEditorPlugins projectId={projectId} />
-          </LexicalEditor>
-        </ResearchEditorProvider>
+        <ResearchNavigationProvider value={researchNavigationContext}>
+          <ResearchEditorProvider environment={researchEditorEnvironment}>
+            <LexicalEditor
+              data={documentRecord.contents?.html ?? ''}
+              onChange={ignoreEditorChange}
+              placeholder="Start writing..."
+              collectionName="ResearchDocuments"
+              documentId={documentId}
+              fieldName="contents"
+              accessLevel="edit"
+              extraNodes={researchEditorNodes}
+              disableComponentPicker
+              disableMentions
+            >
+              <ResearchEditorPlugins projectId={projectId} />
+            </LexicalEditor>
+          </ResearchEditorProvider>
+        </ResearchNavigationProvider>
       </ContentStyles>
     </div>
   );

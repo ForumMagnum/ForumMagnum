@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import classNames from 'classnames';
+import qs from 'qs';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
+import { useLocation, useNavigate } from '../../lib/routeUtil';
 import ErrorAccessDenied from '../common/ErrorAccessDenied';
 import ForumIcon from '../common/ForumIcon';
 import ProjectSidebar from './ProjectSidebar';
@@ -193,24 +195,59 @@ const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
 const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
+  const location = useLocation();
+  const navigate = useNavigate();
+  // Held in refs so URL-write helpers below can be useCallback'd with no deps —
+  // otherwise they'd churn whenever this component re-renders, cascading new
+  // identities through `researchNavigationContext` and forcing every mention
+  // chip in the editor to tear down and re-register its Lexical commands.
+  const locationRef = useRef(location);
+  locationRef.current = location;
+  const navigateRef = useRef(navigate);
+  navigateRef.current = navigate;
 
-  const [activeDocumentId, setActiveDocumentId] = useState<string | null>(null);
+  // documentId lives in state, not in the URL during render: initializing it
+  // in useEffect avoids mounting the Lexical editor during SSR / first
+  // hydration, which trips a collaboration-config init race inside Editor.tsx.
+  // URL changes go through navigate({skipRouter:true}) so doc switching is
+  // one React state update rather than a full Next route re-render.
+  const [activeDocumentId, setActiveDocumentIdState] = useState<string | null>(null);
   const [activeChatConversationId, setActiveChatConversationId] = useState<string | null>(null);
   const [rightPaneMode, setRightPaneMode] = useState<RightPaneMode>('chat');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
+  useEffect(() => {
+    const readDocIdFromUrl = () => {
+      const params = new URLSearchParams(window.location.search);
+      setActiveDocumentIdState(params.get('documentId'));
+    };
+    readDocIdFromUrl();
+    window.addEventListener('popstate', readDocIdFromUrl);
+    return () => window.removeEventListener('popstate', readDocIdFromUrl);
+  }, []);
+
   const { data: firstDocData } = useQuery(FirstDocumentQuery, {
     variables: { projectId },
+    skip: !!activeDocumentId,
     fetchPolicy: 'cache-and-network',
   });
 
-  // Auto-select the first document in the project once it loads, but only if
-  // the user hasn't already picked something themselves.
   useEffect(() => {
-    if (activeDocumentId) return;
-    const first = firstDocData?.researchDocuments?.results?.[0]?._id;
-    if (first) setActiveDocumentId(first);
-  }, [firstDocData, activeDocumentId]);
+    const firstDocId = firstDocData?.researchDocuments?.results?.[0]?._id;
+    if (!activeDocumentId && firstDocId) {
+      setActiveDocumentIdState(firstDocId);
+      const currentLocation = locationRef.current;
+      const newQuery = { ...currentLocation.query, documentId: firstDocId };
+      navigateRef.current({ ...currentLocation.location, search: `?${qs.stringify(newQuery)}` }, { skipRouter: true, replace: true });
+    }
+  }, [activeDocumentId, firstDocData]);
+
+  const setActiveDocumentId = useCallback((documentId: string) => {
+    setActiveDocumentIdState(documentId);
+    const currentLocation = locationRef.current;
+    const newQuery = { ...currentLocation.query, documentId };
+    navigateRef.current({ ...currentLocation.location, search: `?${qs.stringify(newQuery)}` }, { skipRouter: true });
+  }, []);
 
   const openChat = useCallback((conversationId: string) => {
     setActiveChatConversationId(conversationId);
@@ -273,6 +310,7 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
             projectId={projectId}
             documentId={activeDocumentId}
             onOpenConversationInChat={openChat}
+            onSelectDocument={setActiveDocumentId}
           />
         </div>
       </div>
@@ -300,6 +338,8 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
               projectId={projectId}
               conversationId={activeChatConversationId}
               onConversationCreated={setActiveChatConversationId}
+              onSelectDocument={setActiveDocumentId}
+              onOpenConversationInChat={openChat}
             />
           </div>
         </div>
