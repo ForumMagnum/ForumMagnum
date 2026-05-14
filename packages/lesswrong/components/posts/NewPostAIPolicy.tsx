@@ -63,26 +63,26 @@ const styles = (theme: ThemeType) => ({
 });
 
 const disclosureHtml = `
-<p>Please <strong>edit the below</strong> so that your disclosure is accurate:</p>
+<p>The following are examples. Please <strong>edit the below</strong> so that your disclosure is accurate:</p>
 <ul>
   <li>
-    This post is the raw output of an LLM.
+    <em>This post is the raw output of an LLM.</em>
   </li>
   <li>
-    I wrote this post myself, then asked an LLM to copy-edit it before posting.
+    <em>I used AI to assist in writing this post, and it’s likely that >30% is AI-generated text.</em>
   </li>
   <li>
-    I used an LLM to help draft this post, but I’ve edited/rewritten it extensively
-    and endorse it.
+    <em>I used an LLM to help draft this post and it likely contains >10% AI-generated text, but I’ve edited/rewritten it extensively
+    and endorse it.</em>
   </li>
 </ul>
 `;
 
-const disclosureMarkdown = `Please **edit the below** so that your disclosure is accurate:
- - This post is the raw output of an LLM.
- - I wrote this post myself, then asked an LLM to copy-edit it before posting.
- - I used an LLM to help draft this post, but I’ve edited/rewritten it extensively
-   and endorse it.
+const disclosureMarkdown = `The following are examples. Please **edit the below** so that your disclosure is accurate:
+ - *This post is the raw output of an LLM.*
+ - *I used AI to assist in writing this post, and it’s likely that >30% is AI-generated text.*
+ - *I used an LLM to help draft this post and it likely contains >10% AI-generated text, but I’ve edited/rewritten it extensively
+    and endorse it.*
 
 `;
 
