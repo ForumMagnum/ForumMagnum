@@ -74,6 +74,11 @@ const guides: HowToGuide[] = [
     label: "Guide to norms on the Forum",
     url: "/posts/yND9aGJgobm5dEXqF/guide-to-norms-on-the-forum",
   },
+  {
+    icon: "WarningOutline",
+    label: "LLM-use policy",
+    url: "/posts/bxA9fsY9Psgarcq6e/new-ea-forum-llm-use-policy",
+  },
 ];
 
 export const NewPostHowToGuides = ({classes}: {
@@ -95,7 +100,13 @@ export const NewPostHowToGuides = ({classes}: {
           <ForumIcon icon="Close" />
         </div>
         {guides.map(({icon, label, url}) =>
-          <Link to={url} className={classes.howToGuide} key={label}>
+          <Link
+            to={url}
+            className={classes.howToGuide}
+            key={label}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <ForumIcon icon={icon} /> {label}
           </Link>
         )}
@@ -109,5 +120,4 @@ export default registerComponent(
   NewPostHowToGuides,
   {styles},
 );
-
 

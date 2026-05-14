@@ -42,6 +42,7 @@ import ChatBubbleLeftRightIcon from "@heroicons/react/24/outline/ChatBubbleLeftR
 import ChatBubbleLeftRightFilledIcon from "@heroicons/react/24/solid/ChatBubbleLeftRightIcon";
 import LightbulbIcon from "@heroicons/react/24/outline/LightBulbIcon";
 import WarningIcon from "@heroicons/react/24/solid/ExclamationTriangleIcon";
+import WarningOutlineIcon from "@heroicons/react/24/outline/ExclamationTriangleIcon";
 import ReportIcon from "@heroicons/react/24/outline/ExclamationCircleIcon";
 import ListBulletIcon from "@heroicons/react/24/outline/ListBulletIcon";
 import TagIcon from "@heroicons/react/24/outline/TagIcon";
@@ -216,6 +217,7 @@ export type ForumIconName =
   "ChatBubbleLeftRightFilled" |
   "Shortform" |
   "Warning" |
+  "WarningOutline" |
   "Report" |
   "ListBullet" |
   "Eye" |
@@ -348,6 +350,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ChatBubbleLeftRightFilled: MuiForumIcon,
     Shortform: MuiNotesIcon,
     Warning: MuiWarningIcon,
+    WarningOutline: WarningOutlineIcon,
     ListBullet: ListBulletIcon,
     Report: MuiReportIcon,
     Tag: MuiTagIcon,
@@ -479,6 +482,7 @@ const ICONS: ForumOptions<Record<ForumIconName, IconComponent>> = {
     ChatBubbleLeftRightFilled: ChatBubbleLeftRightFilledIcon,
     Shortform: LightbulbIcon,
     Warning: WarningIcon,
+    WarningOutline: WarningOutlineIcon,
     ListBullet: ListBulletIcon,
     Report: ReportIcon,
     Tag: TagIcon,
