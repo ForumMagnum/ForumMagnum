@@ -2,7 +2,8 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
-import { useMutation } from '@apollo/client/react';
+import { useMutation, useApolloClient } from '@apollo/client/react';
+import { pollForConversationTitle, ProjectSidebarQuery } from './projectSidebarQuery';
 import classNames from 'classnames';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
@@ -147,6 +148,7 @@ const ChatPane = ({
   onOpenConversationInChat,
 }: ChatPaneProps) => {
   const classes = useStyles(styles);
+  const apolloClient = useApolloClient();
   const [sending, setSending] = useState(false);
   const eventsRef = useRef<HTMLDivElement | null>(null);
 
@@ -157,7 +159,9 @@ const ChatPane = ({
     () => rawEvents.filter(isVisibleConversationEvent),
     [rawEvents],
   );
-  const [fireConversation] = useMutation(FireChatConversationMutation);
+  const [fireConversation] = useMutation(FireChatConversationMutation, {
+    refetchQueries: [ProjectSidebarQuery],
+  });
   const [continueConversation] = useMutation(ContinueResearchConversationMutation);
   const [cancelConversation] = useMutation(CancelResearchConversationMutation);
 
@@ -179,6 +183,7 @@ const ChatPane = ({
         const newId = result.data?.fireResearchConversation?.conversationId;
         if (newId) {
           onConversationCreated(newId);
+          void pollForConversationTitle(apolloClient, projectId, newId);
         }
       } else {
         // Show the user's message immediately; SSE doesn't broadcast backend
@@ -200,7 +205,7 @@ const ChatPane = ({
     } finally {
       setSending(false);
     }
-  }, [sending, conversationId, projectId, fireConversation, continueConversation, onConversationCreated, refresh, injectOptimisticEvent]);
+  }, [sending, conversationId, projectId, fireConversation, continueConversation, onConversationCreated, refresh, injectOptimisticEvent, apolloClient]);
 
   const handleCancel = useCallback(async () => {
     if (!conversationId) return;

@@ -17857,28 +17857,6 @@ type FireDocumentConversationMutationVariables = Exact<{
 
 type FireDocumentConversationMutation = FireDocumentConversationMutation_Mutation;
 
-type ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput_result_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string | null };
-
-type ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput = { __typename?: 'SingleResearchProjectOutput', result: ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput_result_ResearchProject | null };
-
-type ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null, createdAt: string };
-
-type ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput = { __typename?: 'MultiResearchDocumentOutput', results: Array<ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument> };
-
-type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string | null, entrypoint: any | null };
-
-type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput = { __typename?: 'MultiResearchConversationOutput', results: Array<ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation> };
-
-type ProjectSidebarQueryQuery_Query = { __typename?: 'Query', researchProject: ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput | null, researchDocuments: ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput | null, researchConversations: ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput | null };
-
-
-type ProjectSidebarQueryQueryVariables = Exact<{
-  projectId: Scalars['String']['input'];
-}>;
-
-
-type ProjectSidebarQueryQuery = ProjectSidebarQueryQuery_Query;
-
 type CreateResearchDocumentSidebarMutation_createResearchDocument_ResearchDocumentOutput_data_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null, createdAt: string };
 
 type CreateResearchDocumentSidebarMutation_createResearchDocument_ResearchDocumentOutput = { __typename?: 'ResearchDocumentOutput', data: CreateResearchDocumentSidebarMutation_createResearchDocument_ResearchDocumentOutput_data_ResearchDocument | null };
@@ -18011,6 +17989,28 @@ type MentionTypeaheadProjectResourcesQueryQueryVariables = Exact<{
 
 
 type MentionTypeaheadProjectResourcesQueryQuery = MentionTypeaheadProjectResourcesQueryQuery_Query;
+
+type ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput_result_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string | null };
+
+type ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput = { __typename?: 'SingleResearchProjectOutput', result: ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput_result_ResearchProject | null };
+
+type ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null, createdAt: string };
+
+type ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput = { __typename?: 'MultiResearchDocumentOutput', results: Array<ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument> };
+
+type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string | null, entrypoint: any | null };
+
+type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput = { __typename?: 'MultiResearchConversationOutput', results: Array<ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation> };
+
+type ProjectSidebarQueryQuery_Query = { __typename?: 'Query', researchProject: ProjectSidebarQueryQuery_researchProject_SingleResearchProjectOutput | null, researchDocuments: ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput | null, researchConversations: ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput | null };
+
+
+type ProjectSidebarQueryQueryVariables = Exact<{
+  projectId: Scalars['String']['input'];
+}>;
+
+
+type ProjectSidebarQueryQuery = ProjectSidebarQueryQuery_Query;
 
 type multiReviewWinnerArtBestOfLessWrongAdminQueryQuery_reviewWinnerArts_MultiReviewWinnerArtOutput_results_ReviewWinnerArt = (
   { __typename?: 'ReviewWinnerArt' }

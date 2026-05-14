@@ -1576,27 +1576,27 @@ const _1557=_o5(_7,[_356])
 const _1558=_o5(_7,[_o7(_8,_o3(_3,"fireResearchConversation"),[_o8(_519,_973,_o14(_974,[_1556,_o8(_975,_1550,_1551),_o8(_975,_1552,_1553)]))],_1557)])
 const _1559=_o8(_519,_1552,_1553)
 const _1560=[_o8(_519,_973,_o14(_974,[_o8(_975,_976,_1185)]))]
-const _1561=[_1549]
-const _1562=_o3(_3,"researchDocuments")
-const _1563=_o8(_519,_976,_o14(_974,[_o8(_975,_o3(_3,"byProject"),_o14(_974,[_1556]))]))
-const _1564=[_1563,_o8(_519,_775,_o3(_1008,"200"))]
-const _1565=_o5(_7,[_10,_14,_40])
-const _1566=_o7(_8,_1562,_1564,_o5(_7,[_o6(_8,_998,_1565)]))
-const _1567=_o3(_3,"researchConversations")
-const _1568=_o4(_8,_o3(_3,"lastActivityAt"))
-const _1569=_o4(_520,_13)
-const _1570=_o12(_965,_1569,_968)
-const _1571=_o8(_975,_13,_1569)
-const _1572=[_1037,_1570]
-const _1573=[_1039,_o8(_519,_260,_o14(_974,[_1571]))]
-const _1574=_o5(_7,[_o6(_8,_260,_222)])
-const _1575=_o5(_7,[_10,_14,_669,_40])
-const _1576=_o4(_520,_149)
-const _1577=_o3(_3,"claudeCodeTokenRef")
-const _1578=_o4(_520,_1577)
-const _1579=_o5(_7,[_o6(_8,_260,_549)])
-const _1580=_o3(_3,"since")
-const _1581=_o4(_520,_1580)
+const _1561=_o4(_520,_13)
+const _1562=_o12(_965,_1561,_968)
+const _1563=_o8(_975,_13,_1561)
+const _1564=_o5(_7,[_10,_14,_40])
+const _1565=[_1037,_1562]
+const _1566=[_1039,_o8(_519,_260,_o14(_974,[_1563]))]
+const _1567=_o5(_7,[_o6(_8,_260,_222)])
+const _1568=_o5(_7,[_10,_14,_669,_40])
+const _1569=_o4(_520,_149)
+const _1570=_o3(_3,"claudeCodeTokenRef")
+const _1571=_o4(_520,_1570)
+const _1572=_o5(_7,[_o6(_8,_260,_549)])
+const _1573=[_1549]
+const _1574=_o3(_3,"researchDocuments")
+const _1575=_o8(_519,_976,_o14(_974,[_o8(_975,_o3(_3,"byProject"),_o14(_974,[_1556]))]))
+const _1576=_o3(_3,"since")
+const _1577=_o4(_520,_1576)
+const _1578=[_1575,_o8(_519,_775,_o3(_1008,"200"))]
+const _1579=_o7(_8,_1574,_1578,_o5(_7,[_o6(_8,_998,_1564)]))
+const _1580=_o3(_3,"researchConversations")
+const _1581=_o4(_8,_o3(_3,"lastActivityAt"))
 const _1582=_o3(_3,"GetAllReviewWinners")
 const _1583=_o5(_7,[_o6(_8,_1582,_o5(_7,[_o4(_25,_470)]))])
 const _1584=_o5(_7,[_o4(_25,_496)])
@@ -1695,7 +1695,7 @@ const _1676=_o5(_7,[_o4(_25,_664)])
 const _1677=_o5(_7,[_o6(_8,_260,_1676)])
 const _1678=_o5(_7,[_o4(_25,_511)])
 const _1679=_o6(_8,_998,_1678)
-const _1680=_o5(_7,[_o7(_8,_1669,_1119,_1579)])
+const _1680=_o5(_7,[_o7(_8,_1669,_1119,_1572)])
 const _1681=[_o12(_965,_1029,_o4(_5,_o3(_3,"TagRelSelector"))),_1024,_1089]
 const _1682=_o5(_7,[_o7(_8,_620,_1091,_o5(_7,[_o6(_8,_998,_939),_778]))])
 const _1683=_o5(_7,[_o4(_25,_809)])
@@ -17389,13 +17389,6 @@ export type FireDocumentConversationMutationVariables = Exact<{
 
 export type FireDocumentConversationMutation = { __typename?: 'Mutation', fireResearchConversation: { __typename?: 'ResearchConversationOutput', conversationId: string } | null };
 
-export type ProjectSidebarQueryQueryVariables = Exact<{
-  projectId: Scalars['String']['input'];
-}>;
-
-
-export type ProjectSidebarQueryQuery = { __typename?: 'Query', researchProject: { __typename?: 'SingleResearchProjectOutput', result: { __typename?: 'ResearchProject', _id: string, title: string | null } | null } | null, researchDocuments: { __typename?: 'MultiResearchDocumentOutput', results: Array<{ __typename?: 'ResearchDocument', _id: string, title: string | null, createdAt: string }> } | null, researchConversations: { __typename?: 'MultiResearchConversationOutput', results: Array<{ __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string | null, entrypoint: any | null }> } | null };
-
 export type CreateResearchDocumentSidebarMutationVariables = Exact<{
   projectId: Scalars['String']['input'];
   title?: InputMaybe<Scalars['String']['input']>;
@@ -17463,6 +17456,13 @@ export type MentionTypeaheadProjectResourcesQueryQueryVariables = Exact<{
 
 
 export type MentionTypeaheadProjectResourcesQueryQuery = { __typename?: 'Query', researchDocuments: { __typename?: 'MultiResearchDocumentOutput', results: Array<{ __typename?: 'ResearchDocument', _id: string, title: string | null, createdAt: string }> } | null, researchConversations: { __typename?: 'MultiResearchConversationOutput', results: Array<{ __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string | null }> } | null };
+
+export type ProjectSidebarQueryQueryVariables = Exact<{
+  projectId: Scalars['String']['input'];
+}>;
+
+
+export type ProjectSidebarQueryQuery = { __typename?: 'Query', researchProject: { __typename?: 'SingleResearchProjectOutput', result: { __typename?: 'ResearchProject', _id: string, title: string | null } | null } | null, researchDocuments: { __typename?: 'MultiResearchDocumentOutput', results: Array<{ __typename?: 'ResearchDocument', _id: string, title: string | null, createdAt: string }> } | null, researchConversations: { __typename?: 'MultiResearchConversationOutput', results: Array<{ __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string | null, entrypoint: any | null }> } | null };
 
 export type multiReviewWinnerArtBestOfLessWrongAdminQueryQueryVariables = Exact<{
   selector?: InputMaybe<ReviewWinnerArtSelector>;
@@ -22672,16 +22672,16 @@ export const ContinueResearchConversationFromChatPaneDocument = _o1(_1,[_o11(_96
 export const CancelResearchConversationFromChatPaneDocument = _o1(_1,[_o11(_963,_1107,_o3(_3,"CancelResearchConversationFromChatPane"),_1387,_o5(_7,[_o7(_8,_o3(_3,"cancelResearchConversation"),_1389,_1557)]))]) as unknown as DocumentNode<CancelResearchConversationFromChatPaneMutation, CancelResearchConversationFromChatPaneMutationVariables>;
 export const ResearchDocumentQueryDocument = _o1(_1,[_o11(_963,_964,_o3(_3,"ResearchDocumentQuery"),_971,_o5(_7,[_o7(_8,_o3(_3,"researchDocument"),_1560,_o5(_7,[_o6(_8,_981,_o5(_7,[_10,_14,_o6(_8,_29,_o5(_7,[_168,_262]))]))]))]))]) as unknown as DocumentNode<ResearchDocumentQueryQuery, ResearchDocumentQueryQueryVariables>;
 export const FireDocumentConversationDocument = _o1(_1,[_o11(_963,_1107,_o3(_3,"FireDocumentConversation"),_1555,_1558)]) as unknown as DocumentNode<FireDocumentConversationMutation, FireDocumentConversationMutationVariables>;
-export const ProjectSidebarQueryDocument = _o1(_1,[_o11(_963,_964,_o3(_3,"ProjectSidebarQuery"),_1561,_o5(_7,[_o7(_8,_o3(_3,"researchProject"),[_o8(_519,_973,_o14(_974,[_o8(_975,_976,_o14(_974,[_o8(_975,_9,_1548)]))]))],_o5(_7,[_o6(_8,_981,_222)])),_1566,_o7(_8,_1567,_1564,_o5(_7,[_o6(_8,_998,_o5(_7,[_10,_14,_1568,_o4(_8,_1550)]))]))]))]) as unknown as DocumentNode<ProjectSidebarQueryQuery, ProjectSidebarQueryQueryVariables>;
-export const CreateResearchDocumentSidebarDocument = _o1(_1,[_o11(_963,_1107,_o3(_3,"CreateResearchDocumentSidebar"),[_1549,_1570],_o5(_7,[_o7(_8,_o3(_3,"createResearchDocument"),[_o8(_519,_260,_o14(_974,[_1556,_1571]))],_o5(_7,[_o6(_8,_260,_1565)]))]))]) as unknown as DocumentNode<CreateResearchDocumentSidebarMutation, CreateResearchDocumentSidebarMutationVariables>;
-export const RenameResearchDocumentSidebarDocument = _o1(_1,[_o11(_963,_1107,_o3(_3,"RenameResearchDocumentSidebar"),_1572,_o5(_7,[_o7(_8,_o3(_3,"updateResearchDocument"),_1573,_1574)]))]) as unknown as DocumentNode<RenameResearchDocumentSidebarMutation, RenameResearchDocumentSidebarMutationVariables>;
-export const RenameResearchConversationSidebarDocument = _o1(_1,[_o11(_963,_1107,_o3(_3,"RenameResearchConversationSidebar"),_1572,_o5(_7,[_o7(_8,_o3(_3,"updateResearchConversation"),_1573,_1574)]))]) as unknown as DocumentNode<RenameResearchConversationSidebarMutation, RenameResearchConversationSidebarMutationVariables>;
-export const ResearchProjectListQueryDocument = _o1(_1,[_o17(_963,_964,_o3(_3,"ResearchProjectListQuery"),_o5(_7,[_o7(_8,_o3(_3,"researchProjects"),[_o8(_519,_976,_o14(_974,[_o8(_975,_1078,_1002)])),_o8(_519,_775,_o3(_1008,"100"))],_o5(_7,[_o6(_8,_998,_1575)]))]))]) as unknown as DocumentNode<ResearchProjectListQueryQuery, ResearchProjectListQueryQueryVariables>;
-export const CreateResearchProjectDocument = _o1(_1,[_o11(_963,_1107,_o3(_3,"CreateResearchProject"),[_o12(_965,_1569,_969),_o12(_965,_1576,_968),_o12(_965,_1578,_968)],_o5(_7,[_o7(_8,_o3(_3,"createResearchProject"),[_o8(_519,_260,_o14(_974,[_1571,_o8(_975,_149,_1576),_o8(_975,_1577,_1578)]))],_o5(_7,[_o6(_8,_260,_1575)]))]))]) as unknown as DocumentNode<CreateResearchProjectMutation, CreateResearchProjectMutationVariables>;
-export const UpdateResearchProjectTokenDocument = _o1(_1,[_o11(_963,_1107,_o3(_3,"UpdateResearchProjectToken"),[_1112,_o12(_965,_1113,_o13(_967,_o4(_5,_o3(_3,"UpdateResearchProjectDataInput"))))],_o5(_7,[_o7(_8,_o3(_3,"updateResearchProject"),_1116,_1579)]))]) as unknown as DocumentNode<UpdateResearchProjectTokenMutation, UpdateResearchProjectTokenMutationVariables>;
-export const ResearchWorkspaceFirstDocumentDocument = _o1(_1,[_o11(_963,_964,_o3(_3,"ResearchWorkspaceFirstDocument"),_1561,_o5(_7,[_o7(_8,_1562,[_1563,_1045],_o5(_7,[_o6(_8,_998,_549)]))]))]) as unknown as DocumentNode<ResearchWorkspaceFirstDocumentQuery, ResearchWorkspaceFirstDocumentQueryVariables>;
-export const ResearchConversationTranscriptDocument = _o1(_1,[_o11(_963,_964,_o3(_3,"ResearchConversationTranscript"),[_1386,_o12(_965,_1581,_985)],_o5(_7,[_o7(_8,_o3(_3,"researchConversationTranscript"),[_1388,_o8(_519,_1580,_1581)],_o5(_7,[_10,_356,_o4(_8,_o3(_3,"seq")),_o4(_8,_o3(_3,"claudeMessageUuid")),_o4(_8,_o3(_3,"kind")),_o4(_8,_o3(_3,"payload")),_40]))]))]) as unknown as DocumentNode<ResearchConversationTranscriptQuery, ResearchConversationTranscriptQueryVariables>;
-export const MentionTypeaheadProjectResourcesQueryDocument = _o1(_1,[_o11(_963,_964,_o3(_3,"MentionTypeaheadProjectResourcesQuery"),_1561,_o5(_7,[_1566,_o7(_8,_1567,_1564,_o5(_7,[_o6(_8,_998,_o5(_7,[_10,_14,_1568]))]))]))]) as unknown as DocumentNode<MentionTypeaheadProjectResourcesQueryQuery, MentionTypeaheadProjectResourcesQueryQueryVariables>;
+export const CreateResearchDocumentSidebarDocument = _o1(_1,[_o11(_963,_1107,_o3(_3,"CreateResearchDocumentSidebar"),[_1549,_1562],_o5(_7,[_o7(_8,_o3(_3,"createResearchDocument"),[_o8(_519,_260,_o14(_974,[_1556,_1563]))],_o5(_7,[_o6(_8,_260,_1564)]))]))]) as unknown as DocumentNode<CreateResearchDocumentSidebarMutation, CreateResearchDocumentSidebarMutationVariables>;
+export const RenameResearchDocumentSidebarDocument = _o1(_1,[_o11(_963,_1107,_o3(_3,"RenameResearchDocumentSidebar"),_1565,_o5(_7,[_o7(_8,_o3(_3,"updateResearchDocument"),_1566,_1567)]))]) as unknown as DocumentNode<RenameResearchDocumentSidebarMutation, RenameResearchDocumentSidebarMutationVariables>;
+export const RenameResearchConversationSidebarDocument = _o1(_1,[_o11(_963,_1107,_o3(_3,"RenameResearchConversationSidebar"),_1565,_o5(_7,[_o7(_8,_o3(_3,"updateResearchConversation"),_1566,_1567)]))]) as unknown as DocumentNode<RenameResearchConversationSidebarMutation, RenameResearchConversationSidebarMutationVariables>;
+export const ResearchProjectListQueryDocument = _o1(_1,[_o17(_963,_964,_o3(_3,"ResearchProjectListQuery"),_o5(_7,[_o7(_8,_o3(_3,"researchProjects"),[_o8(_519,_976,_o14(_974,[_o8(_975,_1078,_1002)])),_o8(_519,_775,_o3(_1008,"100"))],_o5(_7,[_o6(_8,_998,_1568)]))]))]) as unknown as DocumentNode<ResearchProjectListQueryQuery, ResearchProjectListQueryQueryVariables>;
+export const CreateResearchProjectDocument = _o1(_1,[_o11(_963,_1107,_o3(_3,"CreateResearchProject"),[_o12(_965,_1561,_969),_o12(_965,_1569,_968),_o12(_965,_1571,_968)],_o5(_7,[_o7(_8,_o3(_3,"createResearchProject"),[_o8(_519,_260,_o14(_974,[_1563,_o8(_975,_149,_1569),_o8(_975,_1570,_1571)]))],_o5(_7,[_o6(_8,_260,_1568)]))]))]) as unknown as DocumentNode<CreateResearchProjectMutation, CreateResearchProjectMutationVariables>;
+export const UpdateResearchProjectTokenDocument = _o1(_1,[_o11(_963,_1107,_o3(_3,"UpdateResearchProjectToken"),[_1112,_o12(_965,_1113,_o13(_967,_o4(_5,_o3(_3,"UpdateResearchProjectDataInput"))))],_o5(_7,[_o7(_8,_o3(_3,"updateResearchProject"),_1116,_1572)]))]) as unknown as DocumentNode<UpdateResearchProjectTokenMutation, UpdateResearchProjectTokenMutationVariables>;
+export const ResearchWorkspaceFirstDocumentDocument = _o1(_1,[_o11(_963,_964,_o3(_3,"ResearchWorkspaceFirstDocument"),_1573,_o5(_7,[_o7(_8,_1574,[_1575,_1045],_o5(_7,[_o6(_8,_998,_549)]))]))]) as unknown as DocumentNode<ResearchWorkspaceFirstDocumentQuery, ResearchWorkspaceFirstDocumentQueryVariables>;
+export const ResearchConversationTranscriptDocument = _o1(_1,[_o11(_963,_964,_o3(_3,"ResearchConversationTranscript"),[_1386,_o12(_965,_1577,_985)],_o5(_7,[_o7(_8,_o3(_3,"researchConversationTranscript"),[_1388,_o8(_519,_1576,_1577)],_o5(_7,[_10,_356,_o4(_8,_o3(_3,"seq")),_o4(_8,_o3(_3,"claudeMessageUuid")),_o4(_8,_o3(_3,"kind")),_o4(_8,_o3(_3,"payload")),_40]))]))]) as unknown as DocumentNode<ResearchConversationTranscriptQuery, ResearchConversationTranscriptQueryVariables>;
+export const MentionTypeaheadProjectResourcesQueryDocument = _o1(_1,[_o11(_963,_964,_o3(_3,"MentionTypeaheadProjectResourcesQuery"),_1573,_o5(_7,[_1579,_o7(_8,_1580,_1578,_o5(_7,[_o6(_8,_998,_o5(_7,[_10,_14,_1581]))]))]))]) as unknown as DocumentNode<MentionTypeaheadProjectResourcesQueryQuery, MentionTypeaheadProjectResourcesQueryQueryVariables>;
+export const ProjectSidebarQueryDocument = _o1(_1,[_o11(_963,_964,_o3(_3,"ProjectSidebarQuery"),_1573,_o5(_7,[_o7(_8,_o3(_3,"researchProject"),[_o8(_519,_976,_o14(_974,[_o8(_975,_9,_1548)]))],_o5(_7,[_o6(_8,_981,_222)])),_1579,_o7(_8,_1580,_1578,_o5(_7,[_o6(_8,_998,_o5(_7,[_10,_14,_1581,_o4(_8,_1550)]))]))]))]) as unknown as DocumentNode<ProjectSidebarQueryQuery, ProjectSidebarQueryQueryVariables>;
 export const multiReviewWinnerArtBestOfLessWrongAdminQueryDocument = _o1(_1,[_o11(_963,_964,_o3(_3,"multiReviewWinnerArtBestOfLessWrongAdminQuery"),_1520,_1521),_456,_459,_553]) as unknown as DocumentNode<multiReviewWinnerArtBestOfLessWrongAdminQueryQuery, multiReviewWinnerArtBestOfLessWrongAdminQueryQueryVariables>;
 export const BestOfLessWrongAdminDocument = _o1(_1,[_o17(_963,_964,_o3(_3,"BestOfLessWrongAdmin"),_1583),_23,_456,_459,_469,_473]) as unknown as DocumentNode<BestOfLessWrongAdminQuery, BestOfLessWrongAdminQueryVariables>;
 export const FrontpageBestOfLWWidgetDocument = _o1(_1,[_o11(_963,_964,_o3(_3,"FrontpageBestOfLWWidget"),_1153,_1292),_23,_122,_55,_131,_141,_152,_178,_186,_192,_197,_201]) as unknown as DocumentNode<FrontpageBestOfLWWidgetQuery, FrontpageBestOfLWWidgetQueryVariables>;
@@ -22922,8 +22922,8 @@ export const UltraFeedTargetCommentDocument = _o1(_1,[_o11(_963,_964,_o3(_3,"Ult
 export const LocalPostQueryDocument = _o1(_1,[_o11(_963,_964,_o3(_3,"LocalPostQuery"),_971,_o5(_7,[_o7(_8,_204,_1186,_1763)])),_23,_122,_55,_131,_141,_152,_178,_186,_484,_192,_197,_201,_491,_495]) as unknown as DocumentNode<LocalPostQueryQuery, LocalPostQueryQueryVariables>;
 export const UserRecentPostsForCompactCardDocument = _o1(_1,[_o11(_963,_964,_o3(_3,"UserRecentPostsForCompactCard"),_1094,_o5(_7,[_o7(_8,_244,_1091,_1646)])),_23,_122,_55,_131,_141,_152,_178,_186,_192]) as unknown as DocumentNode<UserRecentPostsForCompactCardQuery, UserRecentPostsForCompactCardQueryVariables>;
 export const UltraFeedThreadItemDocument = _o1(_1,[_o11(_963,_964,_o3(_3,"UltraFeedThreadItem"),_1153,_o5(_7,[_o7(_8,_204,_1186,_1291)])),_23,_122,_55,_131,_141,_152,_178,_186,_192,_197,_201]) as unknown as DocumentNode<UltraFeedThreadItemQuery, UltraFeedThreadItemQueryVariables>;
-export const createUltraFeedEventDocument = _o1(_1,[_o11(_963,_1107,_1764,[_o12(_965,_1113,_o13(_967,_o4(_5,_o3(_3,"CreateUltraFeedEventDataInput"))))],_o5(_7,[_o7(_8,_1764,_1119,_1579)]))]) as unknown as DocumentNode<createUltraFeedEventMutation, createUltraFeedEventMutationVariables>;
-export const updateUltraFeedEventDocument = _o1(_1,[_o11(_963,_1107,_1765,[_o12(_965,_1029,_969),_o12(_965,_1113,_o13(_967,_o4(_5,_o3(_3,"UpdateUltraFeedEventDataInput"))))],_o5(_7,[_o7(_8,_1765,_1116,_1579)]))]) as unknown as DocumentNode<updateUltraFeedEventMutation, updateUltraFeedEventMutationVariables>;
+export const createUltraFeedEventDocument = _o1(_1,[_o11(_963,_1107,_1764,[_o12(_965,_1113,_o13(_967,_o4(_5,_o3(_3,"CreateUltraFeedEventDataInput"))))],_o5(_7,[_o7(_8,_1764,_1119,_1572)]))]) as unknown as DocumentNode<createUltraFeedEventMutation, createUltraFeedEventMutationVariables>;
+export const updateUltraFeedEventDocument = _o1(_1,[_o11(_963,_1107,_1765,[_o12(_965,_1029,_969),_o12(_965,_1113,_o13(_967,_o4(_5,_o3(_3,"UpdateUltraFeedEventDataInput"))))],_o5(_7,[_o7(_8,_1765,_1116,_1572)]))]) as unknown as DocumentNode<updateUltraFeedEventMutation, updateUltraFeedEventMutationVariables>;
 export const connectCrossposterDocument = _o1(_1,[_o11(_963,_1107,_1766,_1769,_o5(_7,[_o10(_8,_1766,_1771)]))]) as unknown as DocumentNode<connectCrossposterMutation, connectCrossposterMutationVariables>;
 export const useEmailTokenDocument = _o1(_1,[_o11(_963,_1107,_1772,_1769,_o5(_7,[_o10(_8,_1772,_1771)]))]) as unknown as DocumentNode<useEmailTokenMutation, useEmailTokenMutationVariables>;
 export const sendEventTriggeredDMDocument = _o1(_1,[_o11(_963,_1107,_1773,_1629,_o5(_7,[_o10(_8,_1773,_1630)]))]) as unknown as DocumentNode<sendEventTriggeredDMMutation, sendEventTriggeredDMMutationVariables>;

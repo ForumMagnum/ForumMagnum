@@ -10,6 +10,7 @@ import { useStyles } from '../hooks/useStyles';
 import Loading from '../vulcan-core/Loading';
 import ForumIcon, { type ForumIconName } from '../common/ForumIcon';
 import type { EntrypointKind } from '../../lib/collections/researchConversations/entrypoint';
+import { ProjectSidebarQuery } from './projectSidebarQuery';
 
 interface ProjectSidebarProps {
   projectId: string;
@@ -25,32 +26,6 @@ interface ProjectSidebarProps {
    */
   onStartNewChat: () => void;
 }
-
-const ProjectSidebarQuery = gql(`
-  query ProjectSidebarQuery($projectId: String!) {
-    researchProject(input: { selector: { _id: $projectId } }) {
-      result {
-        _id
-        title
-      }
-    }
-    researchDocuments(selector: { byProject: { projectId: $projectId } }, limit: 200) {
-      results {
-        _id
-        title
-        createdAt
-      }
-    }
-    researchConversations(selector: { byProject: { projectId: $projectId } }, limit: 200) {
-      results {
-        _id
-        title
-        lastActivityAt
-        entrypoint
-      }
-    }
-  }
-`);
 
 const CreateResearchDocumentMutation = gql(`
   mutation CreateResearchDocumentSidebar($projectId: String!, $title: String) {
@@ -331,7 +306,10 @@ const ProjectSidebar = ({
 
   const project = data?.researchProject?.result;
   const documents = data?.researchDocuments?.results ?? [];
-  const conversations = data?.researchConversations?.results ?? [];
+  const conversations = useMemo(
+    () => data?.researchConversations?.results ?? [],
+    [data?.researchConversations?.results],
+  );
 
   const handleRenameDocument = async (id: string, title: string | null) => {
     await renameDocument({ variables: { id, title } });

@@ -3,7 +3,8 @@
 import React, { useCallback, useMemo } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
-import { useMutation } from '@apollo/client/react';
+import { useMutation, useApolloClient } from '@apollo/client/react';
+import { pollForConversationTitle, ProjectSidebarQuery } from './projectSidebarQuery';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { researchEditorNodes } from './lexical/researchEditorNodes';
@@ -90,7 +91,10 @@ function ignoreEditorChange(_html: string) {
 
 const DocumentPane = ({ projectId, documentId, onOpenConversationInChat, onSelectDocument }: DocumentPaneProps) => {
   const classes = useStyles(styles);
-  const [fireConversation] = useMutation(FireDocumentConversationMutation);
+  const apolloClient = useApolloClient();
+  const [fireConversation] = useMutation(FireDocumentConversationMutation, {
+    refetchQueries: [ProjectSidebarQuery],
+  });
 
   const { data, loading } = useQuery(ResearchDocumentQuery, {
     variables: { documentId: documentId ?? '' },
@@ -119,13 +123,14 @@ const DocumentPane = ({ projectId, documentId, onOpenConversationInChat, onSelec
       if (!conversationId) {
         throw new Error('fireResearchConversation returned no conversationId');
       }
+      void pollForConversationTitle(apolloClient, projectId, conversationId);
       // Document queries belong to the AgentBlock that fired them; the chat
       // pane is for stand-alone chat conversations. Surfacing every document
       // query in the chat pane made the chat appear to mirror whichever
       // AgentBlock was most recently active.
       return { conversationId };
     },
-    [projectId, documentId, fireConversation],
+    [projectId, documentId, fireConversation, apolloClient],
   );
 
   const researchEditorEnvironment = useMemo<ResearchEditorEnvironment | null>(() => {
