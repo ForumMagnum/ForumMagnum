@@ -4,8 +4,8 @@ import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
 import { $insertLLMBlockInEditor } from "../../../../agent/insertLLMBlock/route";
-import { $researchMarkdownToNodes } from "../insertBlock/route";
-import { validateAndCanonicalizeMentionsInMarkdown } from "../../researchMentionValidation";
+import { $researchMarkdownToNodes } from "../insertBlock/insertMarkdownBlockInResearchDoc";
+import { validateMentionsOrRespond } from "../../researchMentionValidation";
 import {
   authorizeAgentRequest,
   authorizeAgentResearchDocumentAccess,
@@ -98,24 +98,12 @@ export async function POST(req: NextRequest) {
       context,
     });
     if (docAuth.kind === "errorResponse") return docAuth.errorResponse;
-    const { document, hocuspocusToken } = docAuth;
+    const { hocuspocusToken } = docAuth;
 
-    const mentionResult = await validateAndCanonicalizeMentionsInMarkdown({
-      markdown,
-      projectId: document.projectId,
-      context,
+    const mentionResult = await validateMentionsOrRespond({
+      markdown, context, route: ROUTE, payload, documentId,
     });
-    if (!mentionResult.ok) {
-      captureResearchAgentApiEvent({
-        route: ROUTE,
-        status: "validation_error",
-        conversationId: payload.conversationId,
-        projectId: payload.projectId,
-        documentId,
-        reason: "mention_validation_failed",
-      });
-      return NextResponse.json({ error: mentionResult.error }, { status: 400 });
-    }
+    if (!mentionResult.ok) return mentionResult.response;
 
     const result = await insertLLMBlockInResearchDoc({
       documentId,

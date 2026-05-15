@@ -345,16 +345,32 @@ export async function authorizeAgentResearchConversationAccess({
  * Project-scoped access check (e.g. project index endpoint). Verifies the
  * requested projectId matches the token's authorized project. Returns no
  * extra data — callers already have the projectId.
+ *
+ * Pass `requireAgentScope: true` for state-mutating endpoints; supervisor-scope
+ * tokens are then rejected with `forbidden_agent_scope`. Read-only endpoints
+ * leave it off so both scopes can call them.
  */
 export function authorizeAgentResearchProjectAccess({
   route,
   projectId,
   payload,
+  requireAgentScope,
 }: {
   route: string;
   projectId: string;
   payload: SandboxCallbackTokenPayload;
+  requireAgentScope?: boolean;
 }): { kind: "ok" } | { kind: "errorResponse"; errorResponse: NextResponse } {
+  if (requireAgentScope && payload.scope !== "agent") {
+    captureResearchAgentApiEvent({
+      route,
+      status: "forbidden",
+      projectId: payload.projectId,
+      userId: payload.userId,
+      reason: "agent_scope_required",
+    });
+    return { kind: "errorResponse", errorResponse: forbiddenAgentScopeResponse() };
+  }
   if (projectId !== payload.projectId) {
     captureResearchAgentApiEvent({
       route,

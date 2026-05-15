@@ -2,10 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomId } from "@/lib/random";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
-import type { LexicalEditor, LexicalNode } from "lexical";
-import { getMarkdownItForResearch } from "@/lib/utils/markdownItPlugins";
-import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
-import { $insertMarkdownBlockInEditor, $markdownToNodes } from "../../../../agent/insertBlock/route";
 import {
   authorizeAgentRequest,
   authorizeAgentResearchDocumentAccess,
@@ -14,61 +10,11 @@ import {
   captureResearchAgentApiEvent,
   captureResearchAgentApiFailure,
 } from "../../captureResearchAgentAnalytics";
-import { withResearchDocEditorSession } from "../../researchEditorSession";
 import { insertBlockInResearchDocSchema } from "../../researchToolSchemas";
-import { validateAndCanonicalizeMentionsInMarkdown } from "../../researchMentionValidation";
-import type { InsertLocation } from "../../../../agent/toolSchemas";
+import { validateMentionsOrRespond } from "../../researchMentionValidation";
+import { insertMarkdownBlockInResearchDoc } from "./insertMarkdownBlockInResearchDoc";
 
 const ROUTE = "documents.insertBlock";
-
-export function $researchMarkdownToNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
-  return $markdownToNodes(editor, markdown, { markdownIt: getMarkdownItForResearch() });
-}
-
-interface InsertBlockResult {
-  inserted: boolean;
-  note: string;
-  insertionIndex?: number;
-}
-
-async function insertMarkdownBlockInResearchDoc({
-  documentId,
-  hocuspocusToken,
-  location,
-  markdown,
-}: {
-  documentId: string;
-  hocuspocusToken: string;
-  location: InsertLocation;
-  markdown: string;
-}): Promise<InsertBlockResult> {
-  return withResearchDocEditorSession({
-    documentId,
-    token: hocuspocusToken,
-    operationLabel: "ResearchInsertBlock",
-    callback: async ({ editor, provider }) => {
-      let result: InsertBlockResult = { inserted: false, note: "No insertion performed." };
-      await new Promise<void>((resolve) => {
-        editor.update(
-          () => {
-            // mode 'edit' lands the block directly — research docs don't have
-            // a suggest/accept review surface.
-            const r = $insertMarkdownBlockInEditor({
-              editor, mode: "edit", location, markdown,
-              markdownToNodes: $researchMarkdownToNodes,
-            });
-            result = { inserted: r.inserted, note: r.note, insertionIndex: r.insertionIndex };
-          },
-          { onUpdate: resolve },
-        );
-      });
-      if (result.inserted) {
-        await waitForProviderFlush(provider);
-      }
-      return result;
-    },
-  });
-}
 
 export async function POST(req: NextRequest) {
   const auth = authorizeAgentRequest({ req, route: ROUTE });
@@ -104,24 +50,12 @@ export async function POST(req: NextRequest) {
       context,
     });
     if (docAuth.kind === "errorResponse") return docAuth.errorResponse;
-    const { document, hocuspocusToken } = docAuth;
+    const { hocuspocusToken } = docAuth;
 
-    const mentionResult = await validateAndCanonicalizeMentionsInMarkdown({
-      markdown,
-      projectId: document.projectId,
-      context,
+    const mentionResult = await validateMentionsOrRespond({
+      markdown, context, route: ROUTE, payload, documentId,
     });
-    if (!mentionResult.ok) {
-      captureResearchAgentApiEvent({
-        route: ROUTE,
-        status: "validation_error",
-        conversationId: payload.conversationId,
-        projectId: payload.projectId,
-        documentId,
-        reason: "mention_validation_failed",
-      });
-      return NextResponse.json({ error: mentionResult.error }, { status: 400 });
-    }
+    if (!mentionResult.ok) return mentionResult.response;
 
     const result = await insertMarkdownBlockInResearchDoc({
       documentId,

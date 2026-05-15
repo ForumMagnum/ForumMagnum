@@ -1,7 +1,10 @@
+import { NextResponse } from "next/server";
 import {
   extractMentionTokens,
   rewriteMentionTokens,
 } from "@/components/research/lexical/mentionFormat";
+import { captureResearchAgentApiEvent } from "./captureResearchAgentAnalytics";
+import type { SandboxCallbackTokenPayload } from "./researchAgentAuth";
 
 interface ValidateAndCanonicalizeArgs {
   markdown: string;
@@ -72,5 +75,45 @@ export async function validateAndCanonicalizeMentionsInMarkdown({
   }));
 
   return { ok: true, markdown: rewritten };
+}
+
+/**
+ * Run `validateAndCanonicalizeMentionsInMarkdown` and, on failure, emit the
+ * standard `mention_validation_failed` analytics event and build the 400
+ * NextResponse. Routes that want different analytics shape should call the
+ * underlying function directly.
+ */
+export async function validateMentionsOrRespond({
+  markdown,
+  context,
+  route,
+  payload,
+  documentId,
+}: {
+  markdown: string;
+  context: ResolverContext;
+  route: string;
+  payload: SandboxCallbackTokenPayload;
+  documentId?: string;
+}): Promise<{ ok: true; markdown: string } | { ok: false; response: NextResponse }> {
+  const result = await validateAndCanonicalizeMentionsInMarkdown({
+    markdown,
+    projectId: payload.projectId,
+    context,
+  });
+  if (result.ok) return { ok: true, markdown: result.markdown };
+
+  captureResearchAgentApiEvent({
+    route,
+    status: "validation_error",
+    conversationId: payload.conversationId,
+    projectId: payload.projectId,
+    documentId,
+    reason: "mention_validation_failed",
+  });
+  return {
+    ok: false,
+    response: NextResponse.json({ error: result.error }, { status: 400 }),
+  };
 }
 

@@ -38,3 +38,21 @@ export const insertLLMBlockInResearchDocSchema = z.object({
   markdown: z.string().describe("The markdown content for the LLM content block"),
   location: insertLocationSchema,
 });
+
+export const createResearchDocSchema = z.object({
+  title: z
+    .string()
+    .max(500)
+    .nullish()
+    .transform((t) => {
+      if (t == null) return null;
+      const trimmed = t.trim();
+      return trimmed.length === 0 ? null : trimmed;
+    })
+    .describe("Optional title for the new document; empty/whitespace becomes null"),
+  initialMarkdown: z
+    .string()
+    .max(64_000)
+    .optional()
+    .describe("Optional markdown to insert as initial content at the start of the new document"),
+});

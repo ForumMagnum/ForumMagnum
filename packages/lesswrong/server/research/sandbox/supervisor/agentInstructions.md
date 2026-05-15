@@ -12,10 +12,9 @@ LessWrong research backend with the user's auth already loaded.
 ## Current session
 
 You are working in research project **`{{RESEARCH_PROJECT_ID}}`**. All
-`research-tool` calls default to this project; you don't need to look it
-up or pass `--project-id` unless you genuinely need to reference a
-different one (which you usually shouldn't — your auth is scoped to this
-project).
+`research-tool` calls are scoped to this project automatically (the
+bearer token pins it server-side, so cross-project requests are
+rejected). You can't pivot to a different project from this sandbox.
 
 ## research-tool
 
@@ -43,15 +42,15 @@ response). Errors go to stderr with a non-zero exit code.
 ### Reading the workspace
 
 ```
-research-tool list-documents [--project-id <id>]
+research-tool list-documents
 ```
-Lists the documents in the project (defaults to `RESEARCH_PROJECT_ID`).
+Lists the documents in the current project.
 Returns `{ ok, projectId, documents: [{ id, kind, title, createdAt }, …] }`,
 sorted newest-first by `createdAt`, capped at 500. Use this to discover
 document IDs before fetching contents.
 
 ```
-research-tool list-conversations [--project-id <id>]
+research-tool list-conversations
 ```
 Lists prior agent conversations in the project. Returns
 `{ ok, projectId, conversations: [{ id, kind, title, lastActivityAt, entrypoint }, …] }`,
@@ -88,6 +87,22 @@ same project (bearer authorizes within-project access only):
 `role` is one of `user | assistant | thinking | tool_use | tool_result | error`.
 Pass `--with-thinking` to include the assistant's internal reasoning, and
 `--with-tool-payloads` to include full tool args / results.
+
+### Creating documents
+
+Create a new ResearchDocument inside the current project. The new doc is
+seeded with an empty paragraph so subsequent edits work immediately. Title
+is optional — omit it for an untitled doc; whitespace-only titles are
+stored as null. `--initial-markdown` is optional and follows the same
+markdown rules and mention-chip semantics as `edit-doc insert-block`
+(including server-side `@[doc:...]` / `@[conv:...]` validation). The
+response includes the new `documentId`, which you can pass straight to
+`edit-doc` to keep working on it in the same turn.
+
+```
+research-tool create-doc [--title <text>] [--initial-markdown <md>]
+```
+Returns `{ ok, documentId, title, initialContentInserted }`.
 
 ### Editing the document
 

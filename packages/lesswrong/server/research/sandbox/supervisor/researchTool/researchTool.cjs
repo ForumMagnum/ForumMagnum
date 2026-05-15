@@ -12,14 +12,17 @@
  *   research-tool edit-doc <documentId> insert-block --location end --markdown "..."
  *   research-tool edit-doc <documentId> delete-block --prefix "..."
  *   research-tool edit-doc <documentId> insert-llm-block --model "..." --markdown "..." --location end
- *   research-tool list-documents [--project-id <id>]
- *   research-tool list-conversations [--project-id <id>]
+ *   research-tool create-doc [--title "..."] [--initial-markdown "..."]
+ *   research-tool list-documents
+ *   research-tool list-conversations
  *   research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]
  *
  * Required env (set by the supervisor when launching Claude Code):
  *   RESEARCH_BACKEND_BASE_URL    — e.g. https://forum.example.com
  *   RESEARCH_BACKEND_TOKEN       — sandbox-callback bearer token; ≤30 min TTL
- *   RESEARCH_PROJECT_ID          — convenience for `list-project` (no flag needed)
+ *   RESEARCH_PROJECT_ID          — the project this sandbox is scoped to;
+ *                                  used to build URLs (the bearer token also
+ *                                  pins the project server-side)
  *
  * Output: JSON-serialized API response on stdout (one object per invocation).
  * Errors: human-readable message on stderr + non-zero exit code.
@@ -31,7 +34,7 @@
 
 "use strict";
 
-const REQUIRED_ENV = ["RESEARCH_BACKEND_BASE_URL", "RESEARCH_BACKEND_TOKEN"];
+const REQUIRED_ENV = ["RESEARCH_BACKEND_BASE_URL", "RESEARCH_BACKEND_TOKEN", "RESEARCH_PROJECT_ID"];
 
 function getEnv(name) {
   const v = process.env[name];
@@ -186,11 +189,8 @@ function parseLocation(flags) {
   return undefined;
 }
 
-async function cmdListDocuments(args) {
-  const projectId = args.flags["project-id"] ?? process.env.RESEARCH_PROJECT_ID;
-  if (!projectId) {
-    fail(1, "list-documents requires --project-id or RESEARCH_PROJECT_ID env var");
-  }
+async function cmdListDocuments() {
+  const projectId = getEnv("RESEARCH_PROJECT_ID");
   const result = await callApi(
     "GET",
     `/api/research/agent/projects/${encodeURIComponent(projectId)}/documents`,
@@ -198,14 +198,24 @@ async function cmdListDocuments(args) {
   printJson(result);
 }
 
-async function cmdListConversations(args) {
-  const projectId = args.flags["project-id"] ?? process.env.RESEARCH_PROJECT_ID;
-  if (!projectId) {
-    fail(1, "list-conversations requires --project-id or RESEARCH_PROJECT_ID env var");
-  }
+async function cmdListConversations() {
+  const projectId = getEnv("RESEARCH_PROJECT_ID");
   const result = await callApi(
     "GET",
     `/api/research/agent/projects/${encodeURIComponent(projectId)}/conversations`,
+  );
+  printJson(result);
+}
+
+async function cmdCreateDoc(args) {
+  const projectId = getEnv("RESEARCH_PROJECT_ID");
+  const body = {};
+  if (args.flags.title !== undefined) body.title = args.flags.title;
+  if (args.flags["initial-markdown"] !== undefined) body.initialMarkdown = args.flags["initial-markdown"];
+  const result = await callApi(
+    "POST",
+    `/api/research/agent/projects/${encodeURIComponent(projectId)}/documents`,
+    { body },
   );
   printJson(result);
 }
@@ -234,11 +244,12 @@ async function cmdHelp() {
     "  edit-doc  <documentId> insert-block   --markdown <md> (--location start|end | --before <text> | --after <text>)",
     "  edit-doc  <documentId> delete-block   --prefix <text>",
     "  edit-doc  <documentId> insert-llm-block --markdown <md> --model <name> (--location start|end | --before ... | --after ...)",
-    "  list-documents     [--project-id <id>]",
-    "  list-conversations [--project-id <id>]",
+    "  create-doc        [--title <text>] [--initial-markdown <md>]",
+    "  list-documents",
+    "  list-conversations",
     "  fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]",
     "",
-    "Required env: RESEARCH_BACKEND_BASE_URL, RESEARCH_BACKEND_TOKEN",
+    "Required env: RESEARCH_BACKEND_BASE_URL, RESEARCH_BACKEND_TOKEN, RESEARCH_PROJECT_ID",
   ].join("\n");
   process.stdout.write(help + "\n");
 }
@@ -270,11 +281,14 @@ async function main() {
     case "edit-doc":
       await cmdEditDoc(rest);
       return;
+    case "create-doc":
+      await cmdCreateDoc(rest);
+      return;
     case "list-documents":
-      await cmdListDocuments(rest);
+      await cmdListDocuments();
       return;
     case "list-conversations":
-      await cmdListConversations(rest);
+      await cmdListConversations();
       return;
     case "fetch-conversation":
       await cmdFetchConversation(rest);
