@@ -20,26 +20,28 @@ import {
   isVisibleConversationEvent,
   type ConversationEventChunk,
 } from './conversationEventFormat';
+import { ChunkContent } from './ChunkContent';
 
 interface ChatPaneProps {
   projectId: string;
   conversationId: string | null;
+  activeDocumentId: string | null;
   onConversationCreated: (conversationId: string) => void;
   onSelectDocument: (documentId: string) => void;
   onOpenConversationInChat: (conversationId: string) => void;
 }
 
 const FireChatConversationMutation = gql(`
-  mutation FireChatPaneConversation($projectId: String!, $entrypoint: JSON!, $prompt: String!) {
-    fireResearchConversation(input: { projectId: $projectId, entrypoint: $entrypoint, prompt: $prompt }) {
+  mutation FireChatPaneConversation($projectId: String!, $activeDocumentId: String!, $prompt: String!) {
+    fireResearchConversation(input: { projectId: $projectId, kind: chat, activeDocumentId: $activeDocumentId, prompt: $prompt }) {
       conversationId
     }
   }
 `);
 
 const ContinueResearchConversationMutation = gql(`
-  mutation ContinueResearchConversationFromChatPane($conversationId: String!, $prompt: String!) {
-    continueResearchConversation(conversationId: $conversationId, prompt: $prompt) {
+  mutation ContinueResearchConversationFromChatPane($conversationId: String!, $prompt: String!, $activeDocumentId: String!) {
+    continueResearchConversation(conversationId: $conversationId, prompt: $prompt, activeDocumentId: $activeDocumentId) {
       conversationId
     }
   }
@@ -93,7 +95,6 @@ const styles = defineStyles('ChatPane', (theme: ThemeType) => ({
     fontSize: 13,
     lineHeight: 1.5,
     borderRadius: 6,
-    whiteSpace: 'pre-wrap',
     wordBreak: 'break-word',
   },
   eventUser: {
@@ -143,6 +144,7 @@ const styles = defineStyles('ChatPane', (theme: ThemeType) => ({
 const ChatPane = ({
   projectId,
   conversationId,
+  activeDocumentId,
   onConversationCreated,
   onSelectDocument,
   onOpenConversationInChat,
@@ -174,11 +176,12 @@ const ChatPane = ({
   const handleSend = useCallback(async (text: string) => {
     const prompt = text.trim();
     if (!prompt || sending) return;
+    if (!activeDocumentId) return;
     setSending(true);
     try {
       if (!conversationId) {
         const result = await fireConversation({
-          variables: { projectId, entrypoint: { kind: 'chat' }, prompt },
+          variables: { projectId, activeDocumentId, prompt },
         });
         const newId = result.data?.fireResearchConversation?.conversationId;
         if (newId) {
@@ -199,13 +202,13 @@ const ChatPane = ({
           payload: { type: 'user', text: prompt },
           createdAt: now,
         });
-        await continueConversation({ variables: { conversationId, prompt } });
+        await continueConversation({ variables: { conversationId, prompt, activeDocumentId } });
         refresh();
       }
     } finally {
       setSending(false);
     }
-  }, [sending, conversationId, projectId, fireConversation, continueConversation, onConversationCreated, refresh, injectOptimisticEvent, apolloClient]);
+  }, [sending, conversationId, projectId, activeDocumentId, fireConversation, continueConversation, onConversationCreated, refresh, injectOptimisticEvent, apolloClient]);
 
   const handleCancel = useCallback(async () => {
     if (!conversationId) return;
@@ -230,7 +233,7 @@ const ChatPane = ({
           <ChatComposer
             projectId={projectId}
             placeholder="Ask anything…"
-            disabled={sending}
+            disabled={sending || !activeDocumentId}
             onSubmit={handleSend}
           />
         </ResearchNavigationProvider>
@@ -282,7 +285,7 @@ interface EventRowClasses {
   eventError: string;
 }
 
-function EventRow({ event, classes }: { event: ConversationEvent; classes: EventRowClasses }) {
+const EventRow = React.memo(function EventRow({ event, classes }: { event: ConversationEvent; classes: EventRowClasses }) {
   const chunks = getConversationEventChunks(event);
   if (chunks.length === 0) return null;
   const outerClass = classNames(classes.event, {
@@ -295,11 +298,11 @@ function EventRow({ event, classes }: { event: ConversationEvent; classes: Event
   return (
     <div className={outerClass}>
       {chunks.map((chunk, i) => (
-        <div key={i} className={chunkClass(chunk, classes)}>{chunk.text}</div>
+        <ChunkContent key={i} chunk={chunk} className={chunkClass(chunk, classes)} />
       ))}
     </div>
   );
-}
+});
 
 function chunkClass(chunk: ConversationEventChunk, classes: EventRowClasses): string | undefined {
   switch (chunk.kind) {

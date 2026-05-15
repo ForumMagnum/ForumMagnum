@@ -1,3 +1,7 @@
+import { getMarkdownItNoMathjax } from "@/lib/utils/markdownItPlugins";
+import { sanitize } from "@/lib/utils/sanitize";
+import { stripLeadingSystemReminder } from "@/lib/research/systemReminderFormat";
+
 interface ResearchConversationEventLike {
   kind: string;
   payload: unknown;
@@ -49,15 +53,19 @@ export interface ConversationEventChunk {
   text: string;
 }
 
+export function renderChunkMarkdownToHtml(text: string): string {
+  return sanitize(getMarkdownItNoMathjax().render(text));
+}
+
 export function getConversationEventChunks(event: ResearchConversationEventLike): ConversationEventChunk[] {
   const { payload } = event;
-  if (typeof payload === 'string') return [{ kind: 'text', text: payload }];
+  if (typeof payload === 'string') return [{ kind: 'text', text: stripLeadingSystemReminder(payload) }];
   if (!isPlainRecord(payload)) return [];
 
   const inner = isPlainRecord(payload.message) ? payload.message : payload;
 
-  if (typeof inner.text === 'string') return [{ kind: 'text', text: inner.text }];
-  if (typeof inner.content === 'string') return [{ kind: 'text', text: inner.content }];
+  if (typeof inner.text === 'string') return [{ kind: 'text', text: stripLeadingSystemReminder(inner.text) }];
+  if (typeof inner.content === 'string') return [{ kind: 'text', text: stripLeadingSystemReminder(inner.content) }];
   if (Array.isArray(inner.content)) {
     return inner.content
       .map(toContentChunk)

@@ -137,21 +137,6 @@ class ResearchConversationEventsRepo extends AbstractRepo<"ResearchConversationE
     return { seq: result.seq, deduplicated: false };
   }
 
-  public async getEventsForConversation(
-    conversationId: string,
-    options: { sinceSeq?: number; limit?: number } = {},
-  ): Promise<DbResearchConversationEvent[]> {
-    const sinceSeq = options.sinceSeq ?? -1;
-    const limit = options.limit ?? 1000;
-    return this.any(`
-      SELECT *
-      FROM "ResearchConversationEvents"
-      WHERE "conversationId" = $(conversationId)
-        AND "seq" > $(sinceSeq)
-      ORDER BY "seq" ASC
-      LIMIT $(limit)
-    `, { conversationId, sinceSeq, limit });
-  }
 }
 
 recordPerfMetrics(ResearchConversationEventsRepo);

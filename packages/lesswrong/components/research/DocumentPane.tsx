@@ -47,8 +47,8 @@ const ResearchDocumentQuery = gql(`
 `);
 
 const FireDocumentConversationMutation = gql(`
-  mutation FireDocumentConversation($projectId: String!, $entrypoint: JSON!, $prompt: String!) {
-    fireResearchConversation(input: { projectId: $projectId, entrypoint: $entrypoint, prompt: $prompt }) {
+  mutation FireDocumentConversation($projectId: String!, $activeDocumentId: String!, $prompt: String!) {
+    fireResearchConversation(input: { projectId: $projectId, kind: document, activeDocumentId: $activeDocumentId, prompt: $prompt }) {
       conversationId
     }
   }
@@ -112,10 +112,7 @@ const DocumentPane = ({ projectId, documentId, onOpenConversationInChat, onSelec
       const result = await fireConversation({
         variables: {
           projectId,
-          entrypoint: {
-            kind: 'document',
-            documentId: args.documentId,
-          },
+          activeDocumentId: args.documentId,
           prompt: args.prompt ?? '',
         },
       });
@@ -181,7 +178,6 @@ const DocumentPane = ({ projectId, documentId, onOpenConversationInChat, onSelec
               fieldName="contents"
               accessLevel="edit"
               extraNodes={researchEditorNodes}
-              disableComponentPicker
               disableMentions
             >
               <ResearchEditorPlugins projectId={projectId} />

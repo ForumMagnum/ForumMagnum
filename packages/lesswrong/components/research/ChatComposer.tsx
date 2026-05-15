@@ -1,15 +1,11 @@
 'use client';
 
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useRef } from 'react';
 import classNames from 'classnames';
-import {
-  $getRoot,
-  COMMAND_PRIORITY_HIGH,
-  KEY_ENTER_COMMAND,
-  type LexicalEditor,
-} from 'lexical';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $getRoot, type LexicalEditor } from 'lexical';
+import { EditorRefPlugin } from '@lexical/react/LexicalEditorRefPlugin';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useFormSubmitOnCmdEnter } from '@/components/hooks/useFormSubmitOnCmdEnter';
 import LexicalEditorRoot from '@/components/editor/LexicalEditor';
 import { chatComposerNodes } from './lexical/researchEditorNodes';
 import { MentionTypeaheadPlugin } from './lexical/MentionTypeaheadPlugin';
@@ -98,8 +94,10 @@ const ChatComposer = ({
     });
   }, [disabled, onSubmit]);
 
+  const rootRef = useFormSubmitOnCmdEnter<HTMLDivElement>(handleSend);
+
   return (
-    <div className={classes.root}>
+    <div className={classes.root} ref={rootRef}>
       <div className={classNames(classes.editorShell, disabled && classes.editorShellDisabled)}>
         <LexicalEditorRoot
           data=""
@@ -112,10 +110,7 @@ const ChatComposer = ({
           disableMentions
           commentEditor
         >
-          <ChatComposerControlPlugin
-            registerEditor={(editor) => { editorRef.current = editor; }}
-            onSubmitShortcut={handleSend}
-          />
+          <EditorRefPlugin editorRef={editorRef} />
           <MentionTypeaheadPlugin projectId={projectId} />
         </LexicalEditorRoot>
       </div>
@@ -133,43 +128,5 @@ const ChatComposer = ({
     </div>
   );
 };
-
-interface ChatComposerControlPluginProps {
-  registerEditor: (editor: LexicalEditor) => void;
-  onSubmitShortcut: () => void;
-}
-
-function ChatComposerControlPlugin({
-  registerEditor,
-  onSubmitShortcut,
-}: ChatComposerControlPluginProps) {
-  const [editor] = useLexicalComposerContext();
-
-  useEffect(() => {
-    registerEditor(editor);
-  }, [editor, registerEditor]);
-
-  // Pinned via a ref so the Enter-command registration below stays stable
-  // across renders and doesn't tear down/rebuild on each `onSubmitShortcut`
-  // identity change.
-  const submitShortcutRef = useRef(onSubmitShortcut);
-  useEffect(() => { submitShortcutRef.current = onSubmitShortcut; }, [onSubmitShortcut]);
-  useEffect(() => {
-    return editor.registerCommand(
-      KEY_ENTER_COMMAND,
-      (event) => {
-        if (event && (event.metaKey || event.ctrlKey)) {
-          event.preventDefault();
-          submitShortcutRef.current();
-          return true;
-        }
-        return false;
-      },
-      COMMAND_PRIORITY_HIGH,
-    );
-  }, [editor]);
-
-  return null;
-}
 
 export default ChatComposer;

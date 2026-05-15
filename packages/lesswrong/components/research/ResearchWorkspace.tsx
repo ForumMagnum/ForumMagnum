@@ -337,6 +337,7 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
             <ChatPane
               projectId={projectId}
               conversationId={activeChatConversationId}
+              activeDocumentId={activeDocumentId}
               onConversationCreated={setActiveChatConversationId}
               onSelectDocument={setActiveDocumentId}
               onOpenConversationInChat={openChat}

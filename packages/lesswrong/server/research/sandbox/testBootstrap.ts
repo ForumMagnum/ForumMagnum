@@ -23,7 +23,7 @@ import { buildBootstrapJsonl } from "@/server/resolvers/researchResolvers";
  */
 export default async function testBootstrap() {
   const context = createAdminContext();
-  const { ResearchConversations, repos } = context;
+  const { ResearchConversations } = context;
 
   // Pick the conversation: either from the env var or the most-recently-active
   // one we have. We need a session id to feed `claude --resume`, so we pull
@@ -41,9 +41,12 @@ export default async function testBootstrap() {
   }
   console.log(`[bootstrap-test] using conversation _id=${conv._id} project=${conv.projectId}`);
 
+  const events = await context.ResearchConversationEvents.find(
+    { conversationId: conv._id },
+    { sort: { seq: 1 } },
+  ).fetch();
   let claudeSessionId = conv.claudeSessionId ?? null;
   if (!claudeSessionId) {
-    const events = await repos.researchConversationEvents.getEventsForConversation(conv._id);
     for (const e of events) {
       const p = e.payload;
       if (p && typeof p === "object" && !Array.isArray(p)) {
@@ -65,7 +68,7 @@ export default async function testBootstrap() {
   const testSessionId = randomUUID();
   console.log(`[bootstrap-test] test session id (filename)=${testSessionId}`);
 
-  const lines = await buildBootstrapJsonl(conv._id, claudeSessionId, context);
+  const lines = buildBootstrapJsonl(events, claudeSessionId);
   console.log(`[bootstrap-test] bootstrap line count=${lines.length}`);
   // Sanity print: first + last line for visual diff against a real session
   // jsonl in ~/.claude/projects/.

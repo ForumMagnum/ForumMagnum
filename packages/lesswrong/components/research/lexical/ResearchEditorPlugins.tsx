@@ -2,7 +2,6 @@
 
 import React from 'react';
 import { AgentBlockPlugin } from './AgentBlockPlugin';
-import { ResearchSlashMenuPlugin } from './ResearchSlashMenuPlugin';
 import { QueryCommandPlugin } from './QueryCommandPlugin';
 import { MentionTypeaheadPlugin } from './MentionTypeaheadPlugin';
 
@@ -18,7 +17,6 @@ export function ResearchEditorPlugins({ projectId }: ResearchEditorPluginsProps)
   return (
     <>
       <AgentBlockPlugin />
-      <ResearchSlashMenuPlugin />
       <QueryCommandPlugin />
       <MentionTypeaheadPlugin projectId={projectId} />
     </>

@@ -106,6 +106,11 @@ const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
     color: theme.palette.text.dim,
     marginTop: 2,
   },
+  inputError: {
+    fontSize: 11,
+    color: theme.palette.error.main,
+    marginTop: 2,
+  },
   button: {
     padding: '8px 16px',
     border: 'none',
@@ -182,6 +187,15 @@ const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
 
 const TOKEN_HINT = "Run `claude setup-token` locally and paste the result.";
 
+// Catches stray whitespace (incl. newlines) anywhere in a token after trimming
+// leading/trailing — typically from a copy-paste that grabbed a line break.
+function tokenWhitespaceError(token: string): string | null {
+  if (/\s/.test(token.trim())) {
+    return 'Token contains whitespace; copy without spaces or newlines.';
+  }
+  return null;
+}
+
 const ResearchProjectList = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -189,6 +203,7 @@ const ResearchProjectList = () => {
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [newToken, setNewToken] = useState('');
+  const [newTokenError, setNewTokenError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
   const { data, loading, refetch } = useQuery(ResearchProjectsListQuery, {
@@ -205,6 +220,12 @@ const ResearchProjectList = () => {
 
   const handleCreate = async () => {
     if (!newTitle.trim() || creating) return;
+    const tokenError = newToken.trim() ? tokenWhitespaceError(newToken) : null;
+    if (tokenError) {
+      setNewTokenError(tokenError);
+      return;
+    }
+    setNewTokenError(null);
     setCreating(true);
     try {
       const result = await createProject({
@@ -238,28 +259,36 @@ const ResearchProjectList = () => {
           <div className={classes.newProjectFormRow}>
             <input
               className={classes.input}
+              name="research-project-title"
               placeholder="Project title"
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
               disabled={creating}
+              autoComplete="off"
             />
             <input
               className={classes.input}
+              name="research-project-description"
               placeholder="Description (optional)"
               value={newDescription}
               onChange={(e) => setNewDescription(e.target.value)}
               disabled={creating}
+              autoComplete="off"
             />
           </div>
           <div className={classes.newProjectFormRow}>
             <input
               className={classes.input}
               type="password"
+              name="research-project-claude-token"
               placeholder="Claude Code OAuth token"
               value={newToken}
-              onChange={(e) => setNewToken(e.target.value)}
+              onChange={(e) => {
+                setNewToken(e.target.value);
+                if (newTokenError) setNewTokenError(null);
+              }}
               disabled={creating}
-              autoComplete="off"
+              autoComplete="new-password"
               spellCheck={false}
             />
             <button
@@ -270,7 +299,9 @@ const ResearchProjectList = () => {
               New project
             </button>
           </div>
-          <div className={classes.inputHint}>{TOKEN_HINT}</div>
+          {newTokenError
+            ? <div className={classes.inputError}>{newTokenError}</div>
+            : <div className={classes.inputHint}>{TOKEN_HINT}</div>}
         </div>
         {loading && projects.length === 0 ? <Loading /> : null}
         {!loading && projects.length === 0 ? (
@@ -302,6 +333,7 @@ interface ProjectListItemClasses {
   button: string;
   secondaryButton: string;
   inputHint: string;
+  inputError: string;
 }
 
 function ProjectListItem({
@@ -315,6 +347,7 @@ function ProjectListItem({
 }) {
   const [editingToken, setEditingToken] = useState(false);
   const [tokenDraft, setTokenDraft] = useState('');
+  const [tokenDraftError, setTokenDraftError] = useState<string | null>(null);
   const [savingToken, setSavingToken] = useState(false);
   const [savedAt, setSavedAt] = useState<number | null>(null);
 
@@ -323,6 +356,12 @@ function ProjectListItem({
   const handleSaveToken = async () => {
     const value = tokenDraft.trim();
     if (!value || savingToken) return;
+    const error = tokenWhitespaceError(tokenDraft);
+    if (error) {
+      setTokenDraftError(error);
+      return;
+    }
+    setTokenDraftError(null);
     setSavingToken(true);
     try {
       await updateToken({
@@ -359,26 +398,35 @@ function ProjectListItem({
         </button>
       </div>
       {editingToken ? (
-        <div className={classes.itemTokenForm} onClick={(e) => e.stopPropagation()}>
-          <input
-            className={classes.input}
-            type="password"
-            placeholder="Claude Code OAuth token"
-            value={tokenDraft}
-            onChange={(e) => setTokenDraft(e.target.value)}
-            disabled={savingToken}
-            autoComplete="off"
-            spellCheck={false}
-            autoFocus
-          />
-          <button
-            className={classes.button}
-            onClick={handleSaveToken}
-            disabled={savingToken || !tokenDraft.trim()}
-          >
-            Save
-          </button>
-        </div>
+        <>
+          <div className={classes.itemTokenForm} onClick={(e) => e.stopPropagation()}>
+            <input
+              className={classes.input}
+              type="password"
+              name="research-project-claude-token"
+              placeholder="Claude Code OAuth token"
+              value={tokenDraft}
+              onChange={(e) => {
+                setTokenDraft(e.target.value);
+                if (tokenDraftError) setTokenDraftError(null);
+              }}
+              disabled={savingToken}
+              autoComplete="new-password"
+              spellCheck={false}
+              autoFocus
+            />
+            <button
+              className={classes.button}
+              onClick={handleSaveToken}
+              disabled={savingToken || !tokenDraft.trim()}
+            >
+              Save
+            </button>
+          </div>
+          {tokenDraftError
+            ? <div className={classes.inputError}>{tokenDraftError}</div>
+            : null}
+        </>
       ) : null}
     </li>
   );

@@ -2339,7 +2339,8 @@ type FieldChangeSelector = {
 };
 
 type FireResearchConversationInput = {
-  entrypoint: Scalars['JSON']['input'];
+  activeDocumentId: Scalars['String']['input'];
+  kind: ResearchEntrypointKind;
   projectId: Scalars['String']['input'];
   prompt: Scalars['String']['input'];
 };
@@ -4132,6 +4133,7 @@ type MutationconnectCrossposterArgs = {
 
 
 type MutationcontinueResearchConversationArgs = {
+  activeDocumentId: Scalars['String']['input'];
   conversationId: Scalars['String']['input'];
   prompt: Scalars['String']['input'];
 };
@@ -8880,6 +8882,10 @@ type ResearchDocumentSelector = {
 type ResearchDocumentsByProjectInput = {
   projectId?: InputMaybe<Scalars['String']['input']>;
 };
+
+type ResearchEntrypointKind =
+  | 'chat'
+  | 'document';
 
 type ResearchProject = {
   __typename?: 'ResearchProject';
@@ -17793,7 +17799,7 @@ type FireChatPaneConversationMutation_Mutation = { __typename?: 'Mutation', fire
 
 type FireChatPaneConversationMutationVariables = Exact<{
   projectId: Scalars['String']['input'];
-  entrypoint: Scalars['JSON']['input'];
+  activeDocumentId: Scalars['String']['input'];
   prompt: Scalars['String']['input'];
 }>;
 
@@ -17808,6 +17814,7 @@ type ContinueResearchConversationFromChatPaneMutation_Mutation = { __typename?: 
 type ContinueResearchConversationFromChatPaneMutationVariables = Exact<{
   conversationId: Scalars['String']['input'];
   prompt: Scalars['String']['input'];
+  activeDocumentId: Scalars['String']['input'];
 }>;
 
 
@@ -17850,7 +17857,7 @@ type FireDocumentConversationMutation_Mutation = { __typename?: 'Mutation', fire
 
 type FireDocumentConversationMutationVariables = Exact<{
   projectId: Scalars['String']['input'];
-  entrypoint: Scalars['JSON']['input'];
+  activeDocumentId: Scalars['String']['input'];
   prompt: Scalars['String']['input'];
 }>;
 

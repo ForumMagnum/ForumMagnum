@@ -5,13 +5,14 @@ import classNames from 'classnames';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getNodeByKey, type NodeKey } from 'lexical';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { useConversationStream, type ConversationEvent } from '@/components/research/hooks/useConversationStream';
+import { type StreamStatus, useConversationStream, type ConversationEvent } from '@/components/research/hooks/useConversationStream';
 import { $isAgentBlockNode } from './AgentBlockNode';
 import { useResearchEditorEnvironment, useResearchNavigationContext } from './ResearchEditorContext';
 import {
   getConversationEventChunks,
   isVisibleConversationEvent,
 } from '../conversationEventFormat';
+import { ChunkContent } from '../ChunkContent';
 import ForumIcon from '@/components/common/ForumIcon';
 
 /**
@@ -219,7 +220,7 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   chunkText: {
     color: theme.palette.text.primary,
     overflowWrap: 'anywhere',
-    whiteSpace: 'pre-wrap',
+    whiteSpace: 'normal',
   },
   chunkThinking: {
     color: theme.palette.greyAlpha(0.55),
@@ -517,7 +518,7 @@ function ExpandedBody({ visibleEvents, turnInFlight, status, error }: ExpandedBo
     return (
       <div className={classNames(classes.scrollContainer)} ref={scrollRef}>
         <span className={classNames(classes.preview, classes.empty)}>
-          {status === 'loading' || status === 'connecting' ? 'Waiting for agent response…' : 'No output yet.'}
+          {emptyStatePlaceholder(status)}
         </span>
       </div>
     );
@@ -535,7 +536,7 @@ function ExpandedBody({ visibleEvents, turnInFlight, status, error }: ExpandedBo
   );
 }
 
-function ExpandedEventRow({ event }: { event: ConversationEvent }) {
+const ExpandedEventRow = React.memo(function ExpandedEventRow({ event }: { event: ConversationEvent }) {
   const classes = useStyles(styles);
   const chunks = getConversationEventChunks(event);
   if (chunks.length === 0) return null;
@@ -555,12 +556,12 @@ function ExpandedEventRow({ event }: { event: ConversationEvent }) {
       <div className={speakerClass}>{speakerLabel}</div>
       <div className={classes.eventChunks}>
         {chunks.map((chunk, i) => (
-          <div key={i} className={chunkClassByKind[chunk.kind] ?? classes.chunkText}>{chunk.text}</div>
+          <ChunkContent key={i} chunk={chunk} className={chunkClassByKind[chunk.kind] ?? classes.chunkText} />
         ))}
       </div>
     </div>
   );
-}
+});
 
 interface LatestEventPreviewProps {
   event: ConversationEvent | null;
@@ -571,11 +572,11 @@ function LatestEventPreview({ event, status }: LatestEventPreviewProps) {
   const classes = useStyles(styles);
 
   if (!event) {
-    const placeholder =
-      status === 'loading' || status === 'connecting'
-        ? 'Waiting for agent response…'
-        : 'No output yet.';
-    return <span className={classNames(classes.preview, classes.empty)}>{placeholder}</span>;
+    return (
+      <span className={classNames(classes.preview, classes.empty)}>
+        {emptyStatePlaceholder(status)}
+      </span>
+    );
   }
 
   const chunks = getConversationEventChunks(event);
@@ -604,4 +605,20 @@ function LatestEventPreview({ event, status }: LatestEventPreviewProps) {
       <span className={previewClass}>{text || '…'}</span>
     </>
   );
+}
+
+// `'loading'` = fetching persisted transcript (agent may already be done, or
+// never started for this conversation). `'connecting'` / `'streaming'` /
+// `'reconnecting'` = SSE is or was attached to a live sandbox, so the agent
+// really is expected to produce output.
+function emptyStatePlaceholder(status: StreamStatus): string {
+  switch (status) {
+    case 'loading': return 'Loading…';
+    case 'connecting':
+    case 'streaming':
+    case 'reconnecting':
+      return 'Waiting for agent response…';
+    default:
+      return 'No output yet.';
+  }
 }

@@ -1,6 +1,30 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { userOwns } from "@/lib/vulcan-users/permissions";
 
+// Shape stored in the `entrypoint` JSONB column. Sub-agent / fork variants
+// aren't produced by any user-driven mutation today; they're carried in the
+// union so server-internal spawns (when we add them) and the sidebar's
+// kind-bucketing display can share one type.
+interface ChatEntrypoint {
+  kind: 'chat';
+  activeDocumentId: string;
+}
+interface DocumentEntrypoint {
+  kind: 'document';
+  documentId: string;
+}
+interface SubagentEntrypoint {
+  kind: 'subagent';
+  parentConversationId: string;
+}
+interface ForkEntrypoint {
+  kind: 'fork';
+  parentConversationId: string;
+  forkedAtSeq: number;
+}
+export type Entrypoint = ChatEntrypoint | DocumentEntrypoint | SubagentEntrypoint | ForkEntrypoint;
+export type EntrypointKind = Entrypoint['kind'];
+
 const schema = {
   _id: DEFAULT_ID_FIELD,
   createdAt: DEFAULT_CREATED_AT_FIELD,
@@ -62,8 +86,8 @@ const schema = {
       validation: { optional: true },
     },
   },
-  // Discriminated union — see @/lib/collections/researchConversations/entrypoint.ts.
-  // Stored as JSONB so new entrypoint kinds can ship without migrations.
+  // `Entrypoint` discriminated union above. Stored as JSONB so new entrypoint
+  // kinds can ship without migrations.
   entrypoint: {
     database: {
       type: "JSONB",

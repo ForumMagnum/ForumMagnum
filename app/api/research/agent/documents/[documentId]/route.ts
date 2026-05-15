@@ -3,6 +3,7 @@ import { $nodesOfType, type LexicalEditor } from "lexical";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { AgentBlockNode } from "@/components/research/lexical/AgentBlockNode";
+import { researchEditorNodes } from "@/components/research/lexical/researchEditorNodes";
 import { cheerioParse } from "@/server/utils/htmlUtil";
 import {
   authorizeAgentRequest,
@@ -124,7 +125,7 @@ export async function GET(
       documentId,
       token: hocuspocusToken,
       operationLabel: "ResearchFetchDocument",
-      extraNodes: [AgentBlockNode],
+      extraNodes: researchEditorNodes,
       transformHtml: async ({ html, editor }) => {
         const conversationIds = collectAgentBlockConversationIds(editor);
         const metadata = await fetchAgentBlockConversationMetadata(

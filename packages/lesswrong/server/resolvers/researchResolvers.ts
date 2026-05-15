@@ -1,6 +1,6 @@
 import gql from "graphql-tag";
 import { randomId } from "@/lib/random";
-import { entrypointSchema, type Entrypoint } from "@/lib/collections/researchConversations/entrypoint";
+import { type Entrypoint } from "@/lib/collections/researchConversations/newSchema";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { generateConversationTitle } from "@/server/research/titleGeneration";
 import { signSupervisorToken } from "@/server/research/sandbox/supervisor/auth";
@@ -10,6 +10,10 @@ import {
   type SandboxSessionRecord,
 } from "@/server/research/sandbox/sandboxManager";
 import { isPlainRecord } from "@/components/research/conversationEventFormat";
+import {
+  buildSystemReminderWrap,
+  deriveLastInjectedActiveDocumentId,
+} from "@/server/research/systemReminder";
 
 /**
  * GraphQL custom mutations + resolvers for research conversations.
@@ -20,12 +24,10 @@ import { isPlainRecord } from "@/components/research/conversationEventFormat";
  * `cancelResearchConversation` aborts the in-flight one.
  */
 
-function parseEntrypoint(raw: unknown): Entrypoint {
-  const result = entrypointSchema.safeParse(raw);
-  if (!result.success) {
-    throw new Error(`Invalid entrypoint: ${result.error.message}`);
-  }
-  return result.data;
+function buildEntrypoint(kind: "document" | "chat", activeDocumentId: string): Entrypoint {
+  return kind === "document"
+    ? { kind: "document", documentId: activeDocumentId }
+    : { kind: "chat", activeDocumentId };
 }
 
 async function assertProjectAccess(projectId: string, context: ResolverContext): Promise<void> {
@@ -68,7 +70,7 @@ async function dispatchTurnViaSupervisor(args: {
   claudeSessionId?: string;
   bootstrapJsonl?: string[];
 }): Promise<void> {
-  const tokenExpiresAt = Date.now() + 30 * 60 * 1000;
+  const tokenExpiresAt = Date.now() + (30 * 60 * 1000);
   const bearer = signSupervisorToken(
     { sandboxId: args.record.vercelSandboxId, expiresAt: tokenExpiresAt, scope: args.conversationId },
     args.record.supervisorSecret,
@@ -141,7 +143,7 @@ async function cancelTurnViaSupervisor(
   record: Pick<SandboxSessionRecord, "vercelSandboxId" | "endpointUrl" | "supervisorSecret">,
   conversationId: string,
 ): Promise<void> {
-  const tokenExpiresAt = Date.now() + 30 * 60 * 1000;
+  const tokenExpiresAt = Date.now() + (30 * 60 * 1000);
   const bearer = signSupervisorToken(
     { sandboxId: record.vercelSandboxId, expiresAt: tokenExpiresAt, scope: conversationId },
     record.supervisorSecret,
@@ -155,6 +157,46 @@ async function cancelTurnViaSupervisor(
     console.error(`[research] supervisor /cancel failed: ${response.status}`);
   }
 }
+
+/**
+ * Build the user-turn text to persist + dispatch. On the first turn, or
+ * whenever the user's currently-focused document differs from the one named
+ * in the most recently injected `<system-reminder>` block, wrap the prompt
+ * with a fresh reminder. Otherwise return the raw prompt.
+ */
+async function prepareTurnPrompt(args: {
+  rawPrompt: string;
+  projectId: string;
+  activeDocumentId: string;
+  entrypoint: Entrypoint;
+  priorEvents: DbResearchConversationEvent[];
+  context: ResolverContext;
+}): Promise<string> {
+  const { rawPrompt, projectId, activeDocumentId, entrypoint, priorEvents, context } = args;
+
+  const lastInjected = deriveLastInjectedActiveDocumentId(priorEvents);
+  if (lastInjected === activeDocumentId) return rawPrompt;
+
+  const needsOrigin = entrypoint.kind === "document" && entrypoint.documentId !== activeDocumentId;
+  const [activeDoc, originDoc] = await Promise.all([
+    context.ResearchDocuments.findOne({ _id: activeDocumentId, projectId }),
+    needsOrigin
+      ? context.ResearchDocuments.findOne({ _id: entrypoint.documentId, projectId })
+      : Promise.resolve(null),
+  ]);
+  if (!activeDoc) return rawPrompt;
+
+  return buildSystemReminderWrap(
+    {
+      activeDocument: { id: activeDoc._id, title: activeDoc.title ?? "(untitled)" },
+      originDocument: originDoc
+        ? { id: originDoc._id, title: originDoc.title ?? "(untitled)" }
+        : undefined,
+    },
+    rawPrompt,
+  );
+}
+
 
 async function appendUserTurn(
   conversationId: string,
@@ -181,14 +223,10 @@ async function appendUserTurn(
  * `parentUuid` chain + `timestamp` + `userType`/`entrypoint`/`cwd`).
  * Drops `system`/`result`/`error` — those don't appear in real session files.
  */
-export async function buildBootstrapJsonl(
-  conversationId: string,
+export function buildBootstrapJsonl(
+  events: DbResearchConversationEvent[],
   claudeSessionId: string,
-  context: ResolverContext,
-): Promise<string[]> {
-  const events = await context.repos.researchConversationEvents.getEventsForConversation(
-    conversationId,
-  );
+): string[] {
   // Track chain heads per group: mainline events under MAINLINE_GROUP_KEY, and
   // each sub-agent's events keyed by the parent Task's tool_use id. Without
   // this split, a sidechain event would chain to whatever mainline event
@@ -289,9 +327,15 @@ function toClaudeSessionLine(
 }
 
 export const researchResolversTypeDefs = gql`
+  enum ResearchEntrypointKind {
+    document
+    chat
+  }
+
   input FireResearchConversationInput {
     projectId: String!
-    entrypoint: JSON!
+    kind: ResearchEntrypointKind!
+    activeDocumentId: String!
     prompt: String!
   }
 
@@ -302,7 +346,7 @@ export const researchResolversTypeDefs = gql`
 
   extend type Mutation {
     fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
-    continueResearchConversation(conversationId: String!, prompt: String!): ResearchConversationOutput
+    continueResearchConversation(conversationId: String!, prompt: String!, activeDocumentId: String!): ResearchConversationOutput
     cancelResearchConversation(conversationId: String!): ResearchConversationOutput
   }
 
@@ -314,16 +358,16 @@ export const researchResolversTypeDefs = gql`
 export const researchResolversMutations = {
   async fireResearchConversation(
     _root: void,
-    args: { input: { projectId: string; entrypoint: unknown; prompt: string } },
+    args: { input: { projectId: string; kind: "document" | "chat"; activeDocumentId: string; prompt: string } },
     context: ResolverContext,
   ) {
     const { currentUser, ResearchConversations } = context;
     if (!currentUser) throw new Error("Not logged in");
-    const { projectId, entrypoint: rawEntrypoint, prompt } = args.input;
+    const { projectId, kind, activeDocumentId, prompt } = args.input;
     if (!prompt) throw new Error("prompt required");
 
     await assertProjectAccess(projectId, context);
-    const entrypoint = parseEntrypoint(rawEntrypoint);
+    const entrypoint = buildEntrypoint(kind, activeDocumentId);
 
     const _id = randomId();
     const now = new Date();
@@ -337,7 +381,16 @@ export const researchResolversMutations = {
       lastActivityAt: now,
       createdAt: now,
     });
-    await appendUserTurn(_id, prompt, context);
+
+    const turnPrompt = await prepareTurnPrompt({
+      rawPrompt: prompt,
+      projectId,
+      activeDocumentId,
+      entrypoint,
+      priorEvents: [],
+      context,
+    });
+    await appendUserTurn(_id, turnPrompt, context);
 
     backgroundTask((async () => {
       try {
@@ -346,7 +399,7 @@ export const researchResolversMutations = {
           conversationId: _id,
           projectId,
           userId: currentUser._id,
-          prompt,
+          prompt: turnPrompt,
         });
       } catch (err) {
         // eslint-disable-next-line no-console
@@ -366,20 +419,34 @@ export const researchResolversMutations = {
 
   async continueResearchConversation(
     _root: void,
-    args: { conversationId: string; prompt: string },
+    args: { conversationId: string; prompt: string; activeDocumentId: string },
     context: ResolverContext,
   ) {
     const { ResearchConversations } = context;
     const conv = await loadConversationOrThrow(args.conversationId, context);
 
-    // Build the bootstrap before appending the new user turn so it
-    // represents history-up-to-now; Claude Code sees the new prompt only as
-    // the live `-p` argument.
+    // Fetch history once: used for both the Claude `--resume` bootstrap
+    // (when a session id exists) and the system-reminder cadence check.
+    // Read before appending the new user turn so both consumers see
+    // history-up-to-now.
+    const priorEvents = await context.ResearchConversationEvents.find(
+      { conversationId: conv._id },
+      { sort: { seq: 1 } },
+    ).fetch();
     const bootstrapJsonl = conv.claudeSessionId
-      ? await buildBootstrapJsonl(conv._id, conv.claudeSessionId, context)
+      ? buildBootstrapJsonl(priorEvents, conv.claudeSessionId)
       : undefined;
 
-    await appendUserTurn(conv._id, args.prompt, context);
+    const turnPrompt = await prepareTurnPrompt({
+      rawPrompt: args.prompt,
+      projectId: conv.projectId,
+      activeDocumentId: args.activeDocumentId,
+      entrypoint: conv.entrypoint as Entrypoint,
+      priorEvents,
+      context,
+    });
+
+    await appendUserTurn(conv._id, turnPrompt, context);
     await ResearchConversations.rawUpdateOne({ _id: conv._id }, { $set: { lastActivityAt: new Date() } });
 
     backgroundTask((async () => {
@@ -389,7 +456,7 @@ export const researchResolversMutations = {
           conversationId: conv._id,
           projectId: conv.projectId,
           userId: conv.userId,
-          prompt: args.prompt,
+          prompt: turnPrompt,
           claudeSessionId: conv.claudeSessionId ?? undefined,
           bootstrapJsonl,
         });

@@ -43,10 +43,10 @@ export async function GET(
     if (convAuth.kind === "errorResponse") return convAuth.errorResponse;
     const { conversation } = convAuth;
 
-    const events = await context.repos.researchConversationEvents.getEventsForConversation(
-      conversationId,
-      { limit: 5000 },
-    );
+    const events = await context.ResearchConversationEvents.find(
+      { conversationId },
+      { sort: { seq: 1 }, limit: 5000 },
+    ).fetch();
 
     const turns = getAgentTranscriptTurns(events, options);
 

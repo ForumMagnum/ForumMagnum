@@ -943,9 +943,15 @@ extend type Mutation {
   initiateConversation(participantIds: [String!]!, af: Boolean, moderator: Boolean): Conversation
 }
 
+enum ResearchEntrypointKind {
+  document
+  chat
+}
+
 input FireResearchConversationInput {
   projectId: String!
-  entrypoint: JSON!
+  kind: ResearchEntrypointKind!
+  activeDocumentId: String!
   prompt: String!
 }
 
@@ -956,7 +962,7 @@ type ResearchConversationOutput {
 
 extend type Mutation {
   fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
-  continueResearchConversation(conversationId: String!, prompt: String!): ResearchConversationOutput
+  continueResearchConversation(conversationId: String!, prompt: String!, activeDocumentId: String!): ResearchConversationOutput
   cancelResearchConversation(conversationId: String!): ResearchConversationOutput
 }
 

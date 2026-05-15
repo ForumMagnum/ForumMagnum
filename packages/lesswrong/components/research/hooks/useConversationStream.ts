@@ -132,7 +132,17 @@ export function useConversationStream(
     let idleEmptyPolls = 0;
     const expectActivity = expectActivityRef.current;
     expectActivityRef.current = false;
-    setStatus('loading');
+    // Prime from the Apollo cache before kicking off the network fetch so a
+    // re-mount (e.g. switching back to a previously-loaded research doc)
+    // skips the empty-state flash. The network fetch below still runs and
+    // merges in any newer events.
+    const cachedEvents = readCachedTranscript(apollo, id);
+    if (cachedEvents.length > 0) {
+      setEvents(cachedEvents);
+      latestSeqRef.current = cachedEvents[cachedEvents.length - 1].seq;
+    } else {
+      setStatus('loading');
+    }
     setError(null);
 
     function scheduleReconnect(message: string) {
@@ -274,9 +284,14 @@ export function useConversationStream(
         return;
       }
       const persisted = persistedResult.value;
-      setEvents(persisted);
+      // Merge instead of replace so cache-primed events and any SSE events
+      // received during the network round-trip aren't clobbered.
+      setEvents((prev) => mergeEvents(prev, persisted));
       if (persisted.length > 0) {
-        latestSeqRef.current = persisted[persisted.length - 1].seq;
+        latestSeqRef.current = Math.max(
+          latestSeqRef.current,
+          persisted[persisted.length - 1].seq,
+        );
       }
       if (!liveStreaming) {
         setStatus('idle');
@@ -311,6 +326,45 @@ export function useConversationStream(
   };
 }
 
+type RawTranscriptRow = {
+  _id: string;
+  conversationId: string | null;
+  seq: number | null;
+  claudeMessageUuid?: string | null;
+  kind: string | null;
+  payload: unknown;
+  createdAt: string;
+};
+
+function mapRawTranscriptToEvents(raw: readonly RawTranscriptRow[]): ConversationEvent[] {
+  return raw.flatMap((e) => {
+    if (e.conversationId === null || e.seq === null || e.kind === null) return [];
+    return [{
+      _id: e._id,
+      conversationId: e.conversationId,
+      seq: e.seq,
+      claudeMessageUuid: e.claudeMessageUuid,
+      kind: e.kind,
+      payload: e.payload,
+      createdAt: e.createdAt,
+    }];
+  });
+}
+
+function readCachedTranscript(apollo: ApolloClient, conversationId: string): ConversationEvent[] {
+  try {
+    const cached = apollo.readQuery({
+      query: ResearchConversationTranscriptQuery,
+      variables: { conversationId, since: null },
+    });
+    return mapRawTranscriptToEvents(cached?.researchConversationTranscript ?? []);
+  } catch {
+    // readQuery throws if the query isn't in the cache and `returnPartialData`
+    // isn't set; treat that as "no cache" and let the network fetch populate.
+    return [];
+  }
+}
+
 async function loadPersistedEvents(
   apollo: ApolloClient,
   conversationId: string,
@@ -325,20 +379,7 @@ async function loadPersistedEvents(
     if (queryResult.error) {
       return { ok: false, error: queryResult.error.message };
     }
-    const raw = queryResult.data?.researchConversationTranscript ?? [];
-    const value: ConversationEvent[] = raw.flatMap((e) => {
-      if (e.conversationId === null || e.seq === null || e.kind === null) return [];
-      return [{
-        _id: e._id,
-        conversationId: e.conversationId,
-        seq: e.seq,
-        claudeMessageUuid: e.claudeMessageUuid,
-        kind: e.kind,
-        payload: e.payload,
-        createdAt: e.createdAt,
-      }];
-    });
-    return { ok: true, value };
+    return { ok: true, value: mapRawTranscriptToEvents(queryResult.data?.researchConversationTranscript ?? []) };
   } catch (err) {
     return { ok: false, error: err instanceof Error ? err.message : String(err) };
   }
@@ -403,18 +444,24 @@ function compareEventsByTime(a: ConversationEvent, b: ConversationEvent): number
 }
 
 // SSE events (seq=-1) dedupe against persisted GraphQL events by
-// claudeMessageUuid; persisted always wins.
+// claudeMessageUuid; persisted always wins. Returns `prev` unchanged when the
+// incoming events bring no new entries and no persisted-upgrades, so React
+// state setters can early-out via reference equality and downstream
+// `EventRow`s memoized on the event reference don't churn.
 function mergeEvents(prev: ConversationEvent[], incoming: ConversationEvent[]): ConversationEvent[] {
   if (incoming.length === 0) return prev;
   const merged = new Map<string, ConversationEvent>();
   for (const e of prev) merged.set(eventDedupeKey(e), e);
+  let changed = false;
   for (const e of incoming) {
     const key = eventDedupeKey(e);
     const existing = merged.get(key);
     if (!existing || (!isPersistedEvent(existing) && isPersistedEvent(e))) {
       merged.set(key, e);
+      changed = true;
     }
   }
+  if (!changed) return prev;
   return [...merged.values()].sort(compareEventsByTime);
 }
 

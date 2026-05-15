@@ -9,7 +9,7 @@ import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import Loading from '../vulcan-core/Loading';
 import ForumIcon, { type ForumIconName } from '../common/ForumIcon';
-import type { EntrypointKind } from '../../lib/collections/researchConversations/entrypoint';
+import type { EntrypointKind } from '../../lib/collections/researchConversations/newSchema';
 import { ProjectSidebarQuery } from './projectSidebarQuery';
 
 interface ProjectSidebarProps {

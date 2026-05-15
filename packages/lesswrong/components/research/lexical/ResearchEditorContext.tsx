@@ -97,6 +97,10 @@ export function useResearchEditorEnvironment(): ResearchEditorEnvironment {
   return ctx;
 }
 
+export function useResearchEditorEnvironmentOptional(): ResearchEditorEnvironment | null {
+  return useContext(ResearchEditorContext);
+}
+
 export function useResearchNavigationContext(): ResearchNavigationContextValue {
   const ctx = useContext(ResearchNavigationContext);
   if (!ctx) {

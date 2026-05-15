@@ -1028,7 +1028,8 @@ interface UserContentFeedEntry {
 
 interface FireResearchConversationInput {
   projectId: string;
-  entrypoint?: any;
+  kind: ResearchEntrypointKind;
+  activeDocumentId: string;
   prompt: string;
 }
 

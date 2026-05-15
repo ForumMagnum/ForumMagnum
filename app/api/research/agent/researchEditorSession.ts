@@ -1,6 +1,6 @@
 import type { HocuspocusProvider } from "@hocuspocus/provider";
 import type { LexicalEditor } from "lexical";
-import { AgentBlockNode } from "@/components/research/lexical/AgentBlockNode";
+import { researchEditorNodes } from "@/components/research/lexical/researchEditorNodes";
 import { withMainDocEditorSession } from "../../agent/editorAgentUtil";
 
 /**
@@ -8,13 +8,15 @@ import { withMainDocEditorSession } from "../../agent/editorAgentUtil";
  * `collectionName: 'ResearchDocuments'` and registers the research-only
  * Lexical node types on the headless editor.
  *
- * Why `extraNodes` matters: the persisted Yjs state can contain
- * `AgentBlockNode`s (inserted from the document via slash menu / pending
- * prompt form). The default `PlaygroundNodes` set the headless editor
- * uses doesn't know that type, so a Yjs sync containing one would fail
- * to materialize and the editor root would be empty — tripping the
+ * Why `extraNodes` matters: the persisted Yjs state can contain custom
+ * research node types — `AgentBlockNode` (inserted from the document via
+ * slash menu / pending prompt form) and `MentionNode` (document /
+ * conversation references). The default `PlaygroundNodes` set the headless
+ * editor uses doesn't know those types, so a Yjs sync containing one would
+ * fail to materialize and the editor root would be empty — tripping the
  * post-sync emptiness guard with a misleading "Yjs document state is
- * missing or corrupt" message.
+ * missing or corrupt" message. Use the same node registry as the live
+ * editor so the headless and live sets stay in lockstep.
  */
 export async function withResearchDocEditorSession<T>({
   documentId,
@@ -33,6 +35,6 @@ export async function withResearchDocEditorSession<T>({
     token,
     operationLabel,
     callback,
-    extraNodes: [AgentBlockNode],
+    extraNodes: researchEditorNodes,
   });
 }
