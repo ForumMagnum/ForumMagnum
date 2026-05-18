@@ -471,7 +471,13 @@ export const routeTrie = {
                     "insertLLMBlock": {
                       "hasRoute": true
                     },
+                    "insertWidget": {
+                      "hasRoute": true
+                    },
                     "replaceText": {
+                      "hasRoute": true
+                    },
+                    "replaceWidget": {
                       "hasRoute": true
                     }
                   },
@@ -479,7 +485,9 @@ export const routeTrie = {
                     "deleteblock": "deleteBlock",
                     "insertblock": "insertBlock",
                     "insertllmblock": "insertLLMBlock",
-                    "replacetext": "replaceText"
+                    "insertwidget": "insertWidget",
+                    "replacetext": "replaceText",
+                    "replacewidget": "replaceWidget"
                   },
                   "dynamicChild": {
                     "paramName": "documentId",

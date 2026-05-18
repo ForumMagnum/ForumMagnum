@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { insertLocationSchema } from "../../agent/toolSchemas";
+import { insertLocationSchema, validateReplaceWidgetExclusivity } from "../../agent/toolSchemas";
 
 /**
  * Schemas for the research-agent edit endpoints. Mirror the Posts-side
@@ -38,6 +38,24 @@ export const insertLLMBlockInResearchDocSchema = z.object({
   markdown: z.string().describe("The markdown content for the LLM content block"),
   location: insertLocationSchema,
 });
+
+export const insertWidgetInResearchDocSchema = z.object({
+  documentId: z.string().describe("The ID of the ResearchDocument"),
+  content: z.string().describe("The raw HTML/JS content for the widget"),
+  location: insertLocationSchema,
+});
+
+export const replaceWidgetInResearchDocSchema = z
+  .object({
+    documentId: z.string().describe("The ID of the ResearchDocument"),
+    widgetId: z.string().describe("The widget ID to update"),
+    replacement: z.string().optional().describe("Full replacement widget content"),
+    unifiedDiff: z.string().optional().describe("Unified diff to apply to current widget content"),
+  })
+  .refine((value) => validateReplaceWidgetExclusivity(value) === null, {
+    message: "Provide exactly one of replacement or unifiedDiff",
+    path: ["replacement"],
+  });
 
 export const createResearchDocSchema = z.object({
   title: z

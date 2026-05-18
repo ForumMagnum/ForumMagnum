@@ -12,6 +12,8 @@
  *   research-tool edit-doc <documentId> insert-block --location end --markdown "..."
  *   research-tool edit-doc <documentId> delete-block --prefix "..."
  *   research-tool edit-doc <documentId> insert-llm-block --model "..." --markdown "..." --location end
+ *   research-tool edit-doc <documentId> insert-widget --content "..." --location end
+ *   research-tool edit-doc <documentId> replace-widget --widget-id "..." --replacement "..."
  *   research-tool create-doc [--title "..."] [--initial-markdown "..."]
  *   research-tool list-documents
  *   research-tool list-conversations
@@ -128,7 +130,7 @@ async function cmdEditDoc(args) {
   const subcommand = args.positional[1];
   if (!documentId) fail(1, "edit-doc requires <documentId> as the first positional argument");
   if (!subcommand) {
-    fail(1, "edit-doc requires a subcommand: replace-text | insert-block | delete-block | insert-llm-block");
+    fail(1, "edit-doc requires a subcommand: replace-text | insert-block | delete-block | insert-llm-block | insert-widget | replace-widget");
   }
 
   switch (subcommand) {
@@ -171,6 +173,32 @@ async function cmdEditDoc(args) {
       const result = await callApi("POST", "/api/research/agent/documents/insertLLMBlock", {
         body: { documentId, markdown, modelName, location },
       });
+      printJson(result);
+      return;
+    }
+    case "insert-widget": {
+      const content = args.flags.content;
+      const location = parseLocation(args.flags);
+      if (!content) fail(1, "insert-widget requires --content");
+      const result = await callApi("POST", "/api/research/agent/documents/insertWidget", {
+        body: { documentId, content, location },
+      });
+      printJson(result);
+      return;
+    }
+    case "replace-widget": {
+      const widgetId = args.flags["widget-id"] ?? args.flags.widgetId;
+      const replacement = args.flags.replacement;
+      const unifiedDiff = args.flags["unified-diff"] ?? args.flags.unifiedDiff;
+      if (!widgetId) fail(1, "replace-widget requires --widget-id");
+      const opCount = (replacement !== undefined ? 1 : 0) + (unifiedDiff !== undefined ? 1 : 0);
+      if (opCount !== 1) {
+        fail(1, "replace-widget requires exactly one of --replacement or --unified-diff");
+      }
+      const body = { documentId, widgetId };
+      if (replacement !== undefined) body.replacement = replacement;
+      if (unifiedDiff !== undefined) body.unifiedDiff = unifiedDiff;
+      const result = await callApi("POST", "/api/research/agent/documents/replaceWidget", { body });
       printJson(result);
       return;
     }
@@ -244,6 +272,8 @@ async function cmdHelp() {
     "  edit-doc  <documentId> insert-block   --markdown <md> (--location start|end | --before <text> | --after <text>)",
     "  edit-doc  <documentId> delete-block   --prefix <text>",
     "  edit-doc  <documentId> insert-llm-block --markdown <md> --model <name> (--location start|end | --before ... | --after ...)",
+    "  edit-doc  <documentId> insert-widget  --content <html> (--location start|end | --before <text> | --after <text>)",
+    "  edit-doc  <documentId> replace-widget --widget-id <id> (--replacement <html> | --unified-diff <diff>)",
     "  create-doc        [--title <text>] [--initial-markdown <md>]",
     "  list-documents",
     "  list-conversations",

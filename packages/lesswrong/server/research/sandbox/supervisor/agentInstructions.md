@@ -37,7 +37,7 @@ response). Errors go to stderr with a non-zero exit code.
 | `postId` + `key` link-sharing key | `documentId` only; auth via env-loaded bearer |
 | `agentName` field for provenance | Implicit — captured from the bearer's `conversationId` |
 | `mode: "edit" \| "suggest"` | No mode. Research edits land directly. Provenance is preserved via the `producedByConversationId` attribute on each block |
-| `insertWidget` / `replaceWidget` | **Not available.** No sandboxed-HTML widget surface in the research workspace |
+| `insertWidget` / `replaceWidget` | Available as `edit-doc insert-widget` / `edit-doc replace-widget` |
 
 ### Reading the workspace
 
@@ -132,9 +132,9 @@ Insert a new top-level block. Position the block via exactly one of:
 
 `--markdown` accepts paragraphs, lists, blockquotes, headings,
 bold/italic/strikethrough (no underline), inline code, code blocks, and
-spoiler blocks. **Custom widgets are not supported** in the research
-workspace; do not try to insert raw HTML/JS. LLM content blocks have
-their own subcommand (below).
+spoiler blocks. Do not try to embed raw HTML/JS here — interactive
+widgets have their own subcommand (`insert-widget`, below), and LLM
+content blocks have theirs (`insert-llm-block`, below).
 
 Spoiler blocks (text hidden until the reader hovers) use `>!` line
 prefixes. Consecutive `>!` lines form one block; a bare `>!` is a
@@ -168,13 +168,91 @@ just before an existing LLM block, pass
 `--before '%%% llm-output model="GPT-4o"'`.
 
 ```
+research-tool edit-doc <documentId> insert-widget \
+    --content <html> \
+    (--location start|end | --before <text> | --after <text>)
+```
+Insert an interactive widget — a self-contained block of HTML/JS rendered
+in a sandboxed `<iframe>`. `--content` is the raw widget markup: a complete
+HTML document (or fragment) with its own `<style>`/`<script>`. It is **not**
+markdown, **not** mention-aware, and is **not** passed through the markdown
+pipeline — do not wrap it in code fences or markdown of any kind.
+Location semantics match `insert-block`. A unique `widgetId` is generated
+automatically and returned in the response as `{ widgetId }`; keep it if you
+intend to `replace-widget` later.
+
+How widgets appear in `fetch-doc`: a widget is serialized as a fenced block
+whose info string carries its id, so you can recover the id and current
+content of any existing widget from `fetch-doc` output:
+````
+```widget[abc123XYZ]
+<!doctype html>
+<style>…</style>
+<div>…</div>
+```
+````
+That `` ```widget[<id>] `` delimiter line is also what `--before`,
+`--after`, and `delete-block --prefix` match against if you want to
+position relative to a widget or delete one.
+
+**Widget layout.** The widget iframe renders at 100% of the document
+content column. That column is *variable width* — the research workspace
+splits the document pane against the chat pane and the user can resize the
+divider, so the same widget may render anywhere from a few hundred px wide
+up to ~900px. Strongly prefer responsive layouts (`width: 100%`,
+`height: auto`, flexbox/grid that adapts) over hard-coded pixel widths — a
+fixed-width layout that fits one pane size almost certainly breaks another.
+
+**Widget height.** The iframe's height is auto-derived from
+`document.body.offsetHeight` plus the body's vertical margins, and
+re-measured on every layout change via a `ResizeObserver` the editor
+injects (you do not need to add one). Reported height is clamped to
+50–5000px and starts at 400px until the first measurement arrives, so a
+responsive widget that reflows taller simply grows to match — no
+per-viewport height management needed. For a fixed-height widget with
+internal scroll, set `body { height: Xpx; overflow-y: auto }`; the
+auto-measurement reports Xpx as expected. As a backstop only (when the
+auto-measurement is genuinely wrong), the widget can override the height
+imperatively from inside the iframe:
+```
+parent.postMessage({ type: 'iframe-widget-resize', height: <px> }, '*');
+```
+Because the auto-measurement adds the body's vertical margins to
+`offsetHeight`, the browser's default ~8px body margin shows up as narrow
+strips of the iframe background above and below your content. If your
+widget has contrasting body styling (colored background, card, etc.) and
+you want it edge-to-edge, reset `html, body { margin: 0 }` in the widget CSS.
+
+```
+research-tool edit-doc <documentId> replace-widget \
+    --widget-id <id> \
+    (--replacement <html> | --unified-diff <diff>)
+```
+Replace the HTML/JS content of an existing widget, identified by
+`--widget-id` — the `widgetId` returned by `insert-widget`, or the id in
+the `` ```widget[<id>] `` fence from `fetch-doc` output. Pass exactly one of:
+- `--replacement <html>` — the full new widget markup (same raw-HTML/JS
+  rules as `insert-widget --content`)
+- `--unified-diff <diff>` — a unified diff applied to the widget's current
+  content (the text inside its `` ```widget[<id>] `` fence in `fetch-doc`)
+
+The replacement lands directly (no suggestion surface). The widget keeps
+its id and position; only its content changes. The same layout and height
+rules described for `insert-widget` apply to the replacement. If a unified
+diff doesn't apply cleanly the call reports `replaced: false` with
+`widgetFound: true` — re-fetch the document, re-derive the diff from the
+current content, or fall back to `--replacement` with the full new markup.
+A `widgetFound: false` response means no widget has that id.
+
+```
 research-tool edit-doc <documentId> delete-block --prefix <text>
 ```
 Delete the first block whose markdown begins with `--prefix`. The matcher
 descends into lists — a single bullet's leading text deletes just that
 bullet and leaves the surrounding list intact. For tables, match the
 leading text of the first cell; tables always delete as a whole. For
-LLM content blocks, match the `%%% llm-output ...` delimiter line.
+LLM content blocks, match the `%%% llm-output ...` delimiter line; for
+widgets, match the `` ```widget[<id>] `` delimiter line.
 
 ## User-attached context (`@[doc:<id> "<title>"]`, `@[conv:<id> "<title>"]`)
 
