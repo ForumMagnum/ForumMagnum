@@ -61,11 +61,11 @@ type ReadStatusesViewName = never
 type RecommendationsCachesViewName = never
 type RepoInstallSnapshotsViewName = never
 type ReportsViewName = "adminClaimedReports"|"allReports"|"claimedReports"|"closedReports"|"sunshineSidebarReports"|"unclaimedReports";
-type ResearchConversationEventsViewName = "byConversation";
-type ResearchConversationsViewName = "byProject"|"byProjectAndEntrypointKind";
+type ResearchConversationEventsViewName = never
+type ResearchConversationsViewName = "byProject";
 type ResearchDocumentsViewName = "byProject";
-type ResearchProjectsViewName = "byUser";
-type ResearchSandboxSessionsViewName = "byConversation";
+type ResearchProjectsViewName = never
+type ResearchSandboxSessionsViewName = never
 type ReviewVotesViewName = "reviewVotesAdminDashboard"|"reviewVotesForPost"|"reviewVotesForPostAndUser"|"reviewVotesFromUser";
 type ReviewWinnerArtsViewName = "allForYear"|"postArt";
 type ReviewWinnersViewName = "bestOfLessWrongAnnouncement"|"reviewWinnerSingle";
@@ -158,11 +158,11 @@ interface ViewTermsByCollectionName {
   RecommendationsCaches: ViewTermsBase
   RepoInstallSnapshots: ViewTermsBase
   Reports: ReportsViewTerms
-  ResearchConversationEvents: ResearchConversationEventsViewTerms
+  ResearchConversationEvents: ViewTermsBase
   ResearchConversations: ResearchConversationsViewTerms
   ResearchDocuments: ResearchDocumentsViewTerms
-  ResearchProjects: ResearchProjectsViewTerms
-  ResearchSandboxSessions: ResearchSandboxSessionsViewTerms
+  ResearchProjects: ViewTermsBase
+  ResearchSandboxSessions: ViewTermsBase
   ReviewVotes: ReviewVotesViewTerms
   ReviewWinnerArts: ReviewWinnerArtsViewTerms
   ReviewWinners: ReviewWinnersViewTerms
@@ -193,4 +193,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ResearchConversationEvents"|"ResearchConversations"|"ResearchDocuments"|"ResearchProjects"|"ResearchSandboxSessions"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserSecrets"|"UserTagRels"|"Users"|"Votes"|"WorkspaceRepos"
+type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserSecrets"|"UserTagRels"|"Users"|"Votes"|"WorkspaceRepos"

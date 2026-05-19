@@ -17,14 +17,8 @@ export const graphqlResearchConversationEventQueryTypeDefs = gql`
     result: ResearchConversationEvent
   }
 
-  input ResearchConversationEventsByConversationInput {
-    conversationId: String
-    sinceSeq: Int
-  }
-
   input ResearchConversationEventSelector {
     default: EmptyViewInput
-    byConversation: ResearchConversationEventsByConversationInput
   }
 
   input MultiResearchConversationEventInput {

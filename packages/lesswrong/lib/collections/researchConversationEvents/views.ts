@@ -3,22 +3,12 @@ import { CollectionViewSet } from '@/lib/views/collectionViewSet';
 declare global {
   interface ResearchConversationEventsViewTerms extends ViewTermsBase {
     view: ResearchConversationEventsViewName
-    conversationId?: string
-    sinceSeq?: number
+    // Add your view terms here
   }
 }
 
-function byConversation(terms: ResearchConversationEventsByConversationInput) {
-  const selector: AnyBecauseHard = { conversationId: terms.conversationId };
-  if (typeof terms.sinceSeq === 'number') {
-    selector.seq = { $gt: terms.sinceSeq };
-  }
-  return {
-    selector,
-    options: { sort: { seq: 1 as const } },
-  };
-}
+// Define your view functions here
 
 export const ResearchConversationEventsViews = new CollectionViewSet('ResearchConversationEvents', {
-  byConversation,
+  // Add your view functions here
 });

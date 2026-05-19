@@ -6073,14 +6073,6 @@ extend type Query {
   reports(input: MultiReportInput @deprecated(reason: "Use the selector field instead"), selector: ReportSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiReportOutput
 }
 
-type RepoInstallSnapshot {
-  _id: String!
-  createdAt: Date!
-  workspaceRepoId: String
-  manifestHash: String
-  vercelSnapshotId: String
-}
-
 type ResearchConversationEvent {
   _id: String!
   createdAt: Date!
@@ -6102,14 +6094,8 @@ type SingleResearchConversationEventOutput {
   result: ResearchConversationEvent
 }
 
-input ResearchConversationEventsByConversationInput {
-  conversationId: String
-  sinceSeq: Int
-}
-
 input ResearchConversationEventSelector {
   default: EmptyViewInput
-  byConversation: ResearchConversationEventsByConversationInput
 }
 
 input MultiResearchConversationEventInput {
@@ -6155,15 +6141,9 @@ input ResearchConversationsByProjectInput {
   projectId: String
 }
 
-input ResearchConversationsByProjectAndEntrypointKindInput {
-  projectId: String
-  kind: String
-}
-
 input ResearchConversationSelector {
   default: EmptyViewInput
   byProject: ResearchConversationsByProjectInput
-  byProjectAndEntrypointKind: ResearchConversationsByProjectAndEntrypointKindInput
 }
 
 input MultiResearchConversationInput {
@@ -6249,13 +6229,8 @@ type SingleResearchProjectOutput {
   result: ResearchProject
 }
 
-input ResearchProjectsByUserInput {
-  userId: String
-}
-
 input ResearchProjectSelector {
   default: EmptyViewInput
-  byUser: ResearchProjectsByUserInput
 }
 
 input MultiResearchProjectInput {
@@ -6273,49 +6248,6 @@ type MultiResearchProjectOutput {
 extend type Query {
   researchProject(input: SingleResearchProjectInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleResearchProjectOutput
   researchProjects(input: MultiResearchProjectInput @deprecated(reason: "Use the selector field instead"), selector: ResearchProjectSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchProjectOutput
-}
-
-type ResearchSandboxSession {
-  _id: String!
-  createdAt: Date!
-  conversationId: String
-  supervisorSecret: String
-  devProxySecret: String
-}
-
-input SingleResearchSandboxSessionInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleResearchSandboxSessionOutput {
-  result: ResearchSandboxSession
-}
-
-input ResearchSandboxSessionsByConversationInput {
-  conversationId: String
-}
-
-input ResearchSandboxSessionSelector {
-  default: EmptyViewInput
-  byConversation: ResearchSandboxSessionsByConversationInput
-}
-
-input MultiResearchSandboxSessionInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiResearchSandboxSessionOutput {
-  results: [ResearchSandboxSession!]!
-  totalCount: Int
-}
-
-extend type Query {
-  researchSandboxSession(input: SingleResearchSandboxSessionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleResearchSandboxSessionOutput
-  researchSandboxSessions(input: MultiResearchSandboxSessionInput @deprecated(reason: "Use the selector field instead"), selector: ResearchSandboxSessionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchSandboxSessionOutput
 }
 
 type ReviewVote {
@@ -6584,14 +6516,6 @@ type MultiRevisionOutput {
 extend type Query {
   revision(input: SingleRevisionInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleRevisionOutput
   revisions(input: MultiRevisionInput @deprecated(reason: "Use the selector field instead"), selector: RevisionSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiRevisionOutput
-}
-
-type SandboxBaselineSnapshot {
-  _id: String!
-  createdAt: Date!
-  runtime: String
-  vercelSnapshotId: String
-  builtAt: Date
 }
 
 type Sequence {
@@ -7468,7 +7392,6 @@ extend type Query {
 type UserSecret {
   _id: String!
   createdAt: Date!
-  userId: String
   repoScope: String
   name: String
   value: String
@@ -8049,8 +7972,8 @@ type MultiWorkspaceRepoOutput {
 }
 
 extend type Query {
-  workspaceRepo(input: SingleWorkspaceRepoInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleWorkspaceRepoOutput
-  workspaceRepos(input: MultiWorkspaceRepoInput @deprecated(reason: "Use the selector field instead"), selector: WorkspaceRepoSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiWorkspaceRepoOutput
+  workspaceRepo(selector: SelectorInput): SingleWorkspaceRepoOutput
+  workspaceRepos(selector: WorkspaceRepoSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiWorkspaceRepoOutput
 }
 
 type YjsDocument {
@@ -9664,7 +9587,6 @@ extend type Mutation {
 }
 
 input CreateUserSecretDataInput {
-  userId: String
   repoScope: String
   name: String!
   value: String!
@@ -9675,7 +9597,6 @@ input CreateUserSecretInput {
 }
 
 input UpdateUserSecretDataInput {
-  userId: String
   repoScope: String
   name: String
   value: String

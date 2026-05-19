@@ -17,13 +17,8 @@ export const graphqlResearchProjectQueryTypeDefs = gql`
     result: ResearchProject
   }
 
-  input ResearchProjectsByUserInput {
-    userId: String
-  }
-
   input ResearchProjectSelector {
     default: EmptyViewInput
-    byUser: ResearchProjectsByUserInput
   }
 
   input MultiResearchProjectInput {

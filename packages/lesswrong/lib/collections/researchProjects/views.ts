@@ -3,17 +3,12 @@ import { CollectionViewSet } from '@/lib/views/collectionViewSet';
 declare global {
   interface ResearchProjectsViewTerms extends ViewTermsBase {
     view: ResearchProjectsViewName
-    userId?: string
+    // Add your view terms here
   }
 }
 
-function byUser(terms: ResearchProjectsByUserInput) {
-  return {
-    selector: { userId: terms.userId },
-    options: { sort: { createdAt: -1 as const } },
-  };
-}
+// Define your view functions here
 
 export const ResearchProjectsViews = new CollectionViewSet('ResearchProjects', {
-  byUser,
+  // Add your view functions here
 });

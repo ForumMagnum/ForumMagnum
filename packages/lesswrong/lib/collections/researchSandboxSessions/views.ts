@@ -3,16 +3,12 @@ import { CollectionViewSet } from '@/lib/views/collectionViewSet';
 declare global {
   interface ResearchSandboxSessionsViewTerms extends ViewTermsBase {
     view: ResearchSandboxSessionsViewName
-    conversationId?: string
+    // Add your view terms here
   }
 }
 
-function byConversation(terms: ResearchSandboxSessionsByConversationInput) {
-  return {
-    selector: { conversationId: terms.conversationId },
-  };
-}
+// Define your view functions here
 
 export const ResearchSandboxSessionsViews = new CollectionViewSet('ResearchSandboxSessions', {
-  byConversation,
+  // Add your view functions here
 });

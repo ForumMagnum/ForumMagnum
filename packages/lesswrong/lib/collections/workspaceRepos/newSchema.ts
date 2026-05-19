@@ -1,16 +1,8 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { userOwns } from "@/lib/vulcan-users/permissions";
 
-/**
- * An immutable, user-owned configuration for setting up and running one code
- * repository. Created whole by `createWorkspaceRepo` and never updated or
- * deleted — changing a repo's config means inserting a new row. A coding
- * conversation pins one row, so its configuration is fixed for its lifetime.
- *
- * `(userId, host, owner, name)` is intentionally not unique: several immutable
- * config rows per physical repo are expected, and the *current* config is the
- * most recent row by `createdAt` within that group.
- */
+// Immutable: config changes insert a new row. A coding conversation pins one row
+// for its lifetime. `(userId, host, owner, name)` is intentionally not unique.
 const schema = {
   _id: DEFAULT_ID_FIELD,
   createdAt: DEFAULT_CREATED_AT_FIELD,
@@ -65,8 +57,7 @@ const schema = {
       canCreate: ["members"],
     },
   },
-  // Selects the sandbox runtime (e.g. `node24`, `python3.13`). Cannot be a
-  // GraphQL enum because `python3.13` is not a valid enum identifier.
+  // TEXT not enum: `python3.13` is not a valid GraphQL enum identifier.
   runtime: {
     database: { type: "TEXT", nullable: false },
     graphql: {
@@ -77,8 +68,7 @@ const schema = {
       canCreate: ["members"],
     },
   },
-  // Hashed by `RepoInstallSnapshots.manifestHash`; `dirname(lockfilePath)` is
-  // the working directory for the install/prepare/dev commands.
+  // `dirname(lockfilePath)` is the cwd for install/prepare/dev commands.
   lockfilePath: {
     database: { type: "TEXT", nullable: false },
     graphql: {
@@ -119,7 +109,6 @@ const schema = {
       validation: { optional: true },
     },
   },
-  // Non-null exactly when `devCommand` is.
   devPort: {
     database: { type: "INTEGER", nullable: true },
     graphql: {

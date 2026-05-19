@@ -1,7 +1,6 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
 import { userOwns } from "@/lib/vulcan-users/permissions";
 
-/** How a conversation was started: from the chat pane, or a document's agent block. */
 export type EntrypointKind = 'chat' | 'document';
 
 const schema = {
@@ -36,9 +35,7 @@ const schema = {
       canCreate: ["members"],
     },
   },
-  // Claude Code's session UUID, used with `claude --resume`. May lag
-  // creation by a turn — populated once the first sandbox dispatch reports
-  // back its session id.
+  // Populated after the first sandbox dispatch, not at conversation creation.
   claudeSessionId: {
     database: {
       type: "TEXT",
@@ -65,8 +62,6 @@ const schema = {
       validation: { optional: true },
     },
   },
-  // `chat` — started from the chat pane; `document` — an agent block embedded
-  // in a research document. (See the `EntrypointKind` type above.)
   entrypointKind: {
     database: {
       type: "TEXT",
@@ -80,8 +75,6 @@ const schema = {
       canCreate: ["members"],
     },
   },
-  // The active document at chat creation, or the document the conversation's
-  // agent block lives in.
   entrypointDocumentId: {
     database: {
       type: "VARCHAR(27)",
@@ -96,8 +89,6 @@ const schema = {
       canCreate: ["members"],
     },
   },
-  // The workspace repo a coding conversation runs against. Null for ordinary
-  // (non-coding) research conversations, which have no repo.
   workspaceRepoId: {
     database: {
       type: "VARCHAR(27)",
@@ -113,7 +104,7 @@ const schema = {
       validation: { optional: true },
     },
   },
-  // Denormalized for sidebar sort; written per turn.
+  // Denormalized for sidebar sort.
   lastActivityAt: {
     database: {
       type: "TIMESTAMPTZ",

@@ -1933,7 +1933,6 @@ type CreateUserRateLimitInput = {
 type CreateUserSecretDataInput = {
   name: Scalars['String']['input'];
   repoScope?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
   value: Scalars['String']['input'];
 };
 
@@ -3603,19 +3602,6 @@ type MultiResearchProjectInput = {
 type MultiResearchProjectOutput = {
   __typename?: 'MultiResearchProjectOutput';
   results: Array<ResearchProject>;
-  totalCount?: Maybe<Scalars['Int']['output']>;
-};
-
-type MultiResearchSandboxSessionInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-type MultiResearchSandboxSessionOutput = {
-  __typename?: 'MultiResearchSandboxSessionOutput';
-  results: Array<ResearchSandboxSession>;
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -7387,8 +7373,6 @@ type Query = {
   researchDocuments?: Maybe<MultiResearchDocumentOutput>;
   researchProject?: Maybe<SingleResearchProjectOutput>;
   researchProjects?: Maybe<MultiResearchProjectOutput>;
-  researchSandboxSession?: Maybe<SingleResearchSandboxSessionOutput>;
-  researchSandboxSessions?: Maybe<MultiResearchSandboxSessionOutput>;
   reviewPredictionPosts: Array<Post>;
   reviewVote?: Maybe<SingleReviewVoteOutput>;
   reviewVotes?: Maybe<MultiReviewVoteOutput>;
@@ -8409,21 +8393,6 @@ type QueryresearchProjectsArgs = {
 };
 
 
-type QueryresearchSandboxSessionArgs = {
-  input?: InputMaybe<SingleResearchSandboxSessionInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-type QueryresearchSandboxSessionsArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiResearchSandboxSessionInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<ResearchSandboxSessionSelector>;
-};
-
-
 type QueryreviewPredictionPostsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   year: Scalars['Int']['input'];
@@ -8730,14 +8699,12 @@ type QueryvotesArgs = {
 
 
 type QueryworkspaceRepoArgs = {
-  input?: InputMaybe<SingleWorkspaceRepoInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
 type QueryworkspaceReposArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiWorkspaceRepoInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<WorkspaceRepoSelector>;
@@ -8884,15 +8851,6 @@ type RecommendationsCache = {
   userId?: Maybe<Scalars['String']['output']>;
 };
 
-type RepoInstallSnapshot = {
-  __typename?: 'RepoInstallSnapshot';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  manifestHash?: Maybe<Scalars['String']['output']>;
-  vercelSnapshotId?: Maybe<Scalars['String']['output']>;
-  workspaceRepoId?: Maybe<Scalars['String']['output']>;
-};
-
 type Report = {
   __typename?: 'Report';
   _id: Scalars['String']['output'];
@@ -8963,13 +8921,7 @@ type ResearchConversationEvent = {
 };
 
 type ResearchConversationEventSelector = {
-  byConversation?: InputMaybe<ResearchConversationEventsByConversationInput>;
   default?: InputMaybe<EmptyViewInput>;
-};
-
-type ResearchConversationEventsByConversationInput = {
-  conversationId?: InputMaybe<Scalars['String']['input']>;
-  sinceSeq?: InputMaybe<Scalars['Int']['input']>;
 };
 
 type ResearchConversationOutput = {
@@ -8980,13 +8932,7 @@ type ResearchConversationOutput = {
 
 type ResearchConversationSelector = {
   byProject?: InputMaybe<ResearchConversationsByProjectInput>;
-  byProjectAndEntrypointKind?: InputMaybe<ResearchConversationsByProjectAndEntrypointKindInput>;
   default?: InputMaybe<EmptyViewInput>;
-};
-
-type ResearchConversationsByProjectAndEntrypointKindInput = {
-  kind?: InputMaybe<Scalars['String']['input']>;
-  projectId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type ResearchConversationsByProjectInput = {
@@ -9051,30 +8997,7 @@ type ResearchProjectOutput = {
 };
 
 type ResearchProjectSelector = {
-  byUser?: InputMaybe<ResearchProjectsByUserInput>;
   default?: InputMaybe<EmptyViewInput>;
-};
-
-type ResearchProjectsByUserInput = {
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-type ResearchSandboxSession = {
-  __typename?: 'ResearchSandboxSession';
-  _id: Scalars['String']['output'];
-  conversationId?: Maybe<Scalars['String']['output']>;
-  createdAt: Scalars['Date']['output'];
-  devProxySecret?: Maybe<Scalars['String']['output']>;
-  supervisorSecret?: Maybe<Scalars['String']['output']>;
-};
-
-type ResearchSandboxSessionSelector = {
-  byConversation?: InputMaybe<ResearchSandboxSessionsByConversationInput>;
-  default?: InputMaybe<EmptyViewInput>;
-};
-
-type ResearchSandboxSessionsByConversationInput = {
-  conversationId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type ReviewResultsPostEntry = {
@@ -9287,15 +9210,6 @@ type RssPostChangeInfo = {
   htmlDiff: Scalars['String']['output'];
   isChanged: Scalars['Boolean']['output'];
   newHtml: Scalars['String']['output'];
-};
-
-type SandboxBaselineSnapshot = {
-  __typename?: 'SandboxBaselineSnapshot';
-  _id: Scalars['String']['output'];
-  builtAt?: Maybe<Scalars['Date']['output']>;
-  createdAt: Scalars['Date']['output'];
-  runtime?: Maybe<Scalars['String']['output']>;
-  vercelSnapshotId?: Maybe<Scalars['String']['output']>;
 };
 
 type SelectorInput = {
@@ -9809,16 +9723,6 @@ type SingleResearchProjectInput = {
 type SingleResearchProjectOutput = {
   __typename?: 'SingleResearchProjectOutput';
   result?: Maybe<ResearchProject>;
-};
-
-type SingleResearchSandboxSessionInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-type SingleResearchSandboxSessionOutput = {
-  __typename?: 'SingleResearchSandboxSessionOutput';
-  result?: Maybe<ResearchSandboxSession>;
 };
 
 type SingleReviewVoteInput = {
@@ -11612,7 +11516,6 @@ type UpdateUserRateLimitInput = {
 type UpdateUserSecretDataInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   repoScope?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
   value?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -12109,7 +12012,6 @@ type UserSecret = {
   createdAt: Scalars['Date']['output'];
   name?: Maybe<Scalars['String']['output']>;
   repoScope?: Maybe<Scalars['String']['output']>;
-  userId?: Maybe<Scalars['String']['output']>;
   value?: Maybe<Scalars['String']['output']>;
 };
 

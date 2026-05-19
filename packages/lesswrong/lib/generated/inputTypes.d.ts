@@ -165,8 +165,6 @@ interface Query {
   researchDocuments: MultiResearchDocumentOutput | null;
   researchProject: SingleResearchProjectOutput | null;
   researchProjects: MultiResearchProjectOutput | null;
-  researchSandboxSession: SingleResearchSandboxSessionOutput | null;
-  researchSandboxSessions: MultiResearchSandboxSessionOutput | null;
   reviewVote: SingleReviewVoteOutput | null;
   reviewVotes: MultiReviewVoteOutput | null;
   reviewWinnerArt: SingleReviewWinnerArtOutput | null;
@@ -5623,14 +5621,6 @@ interface MultiReportOutput {
   totalCount: number | null;
 }
 
-interface RepoInstallSnapshot {
-  _id: string;
-  createdAt: Date;
-  workspaceRepoId: string | null;
-  manifestHash: string | null;
-  vercelSnapshotId: string | null;
-}
-
 interface ResearchConversationEvent {
   _id: string;
   createdAt: Date;
@@ -5652,14 +5642,8 @@ interface SingleResearchConversationEventOutput {
   result: ResearchConversationEvent | null;
 }
 
-interface ResearchConversationEventsByConversationInput {
-  conversationId?: string | null;
-  sinceSeq?: number | null;
-}
-
 interface ResearchConversationEventSelector {
   default: EmptyViewInput | null;
-  byConversation: ResearchConversationEventsByConversationInput | null;
 }
 
 interface MultiResearchConversationEventInput {
@@ -5700,15 +5684,9 @@ interface ResearchConversationsByProjectInput {
   projectId?: string | null;
 }
 
-interface ResearchConversationsByProjectAndEntrypointKindInput {
-  projectId?: string | null;
-  kind?: string | null;
-}
-
 interface ResearchConversationSelector {
   default: EmptyViewInput | null;
   byProject: ResearchConversationsByProjectInput | null;
-  byProjectAndEntrypointKind: ResearchConversationsByProjectAndEntrypointKindInput | null;
 }
 
 interface MultiResearchConversationInput {
@@ -5784,13 +5762,8 @@ interface SingleResearchProjectOutput {
   result: ResearchProject | null;
 }
 
-interface ResearchProjectsByUserInput {
-  userId?: string | null;
-}
-
 interface ResearchProjectSelector {
   default: EmptyViewInput | null;
-  byUser: ResearchProjectsByUserInput | null;
 }
 
 interface MultiResearchProjectInput {
@@ -5802,44 +5775,6 @@ interface MultiResearchProjectInput {
 
 interface MultiResearchProjectOutput {
   results: Array<ResearchProject>;
-  totalCount: number | null;
-}
-
-interface ResearchSandboxSession {
-  _id: string;
-  createdAt: Date;
-  conversationId: string | null;
-  supervisorSecret: string | null;
-  devProxySecret: string | null;
-}
-
-interface SingleResearchSandboxSessionInput {
-  selector?: SelectorInput | null;
-  resolverArgs?: any;
-}
-
-interface SingleResearchSandboxSessionOutput {
-  result: ResearchSandboxSession | null;
-}
-
-interface ResearchSandboxSessionsByConversationInput {
-  conversationId?: string | null;
-}
-
-interface ResearchSandboxSessionSelector {
-  default: EmptyViewInput | null;
-  byConversation: ResearchSandboxSessionsByConversationInput | null;
-}
-
-interface MultiResearchSandboxSessionInput {
-  terms?: any;
-  resolverArgs?: any;
-  enableTotal?: boolean | null;
-  enableCache?: boolean | null;
-}
-
-interface MultiResearchSandboxSessionOutput {
-  results: Array<ResearchSandboxSession>;
   totalCount: number | null;
 }
 
@@ -6089,14 +6024,6 @@ interface MultiRevisionInput {
 interface MultiRevisionOutput {
   results: Array<Revision>;
   totalCount: number | null;
-}
-
-interface SandboxBaselineSnapshot {
-  _id: string;
-  createdAt: Date;
-  runtime: string | null;
-  vercelSnapshotId: string | null;
-  builtAt: Date | null;
 }
 
 interface Sequence {
@@ -6900,7 +6827,6 @@ interface MultiUserRateLimitOutput {
 interface UserSecret {
   _id: string;
   createdAt: Date;
-  userId: string | null;
   repoScope: string | null;
   name: string | null;
   value: string | null;
@@ -8818,7 +8744,6 @@ interface UserRateLimitOutput {
 }
 
 interface CreateUserSecretDataInput {
-  userId?: string | null;
   repoScope?: string | null;
   name: string;
   value: string;
@@ -8829,7 +8754,6 @@ interface CreateUserSecretInput {
 }
 
 interface UpdateUserSecretDataInput {
-  userId?: string | null;
   repoScope?: string | null;
   name?: string | null;
   value?: string | null;
@@ -9801,11 +9725,9 @@ interface GraphQLTypeMap {
   ReportSelector: ReportSelector;
   MultiReportInput: MultiReportInput;
   MultiReportOutput: MultiReportOutput;
-  RepoInstallSnapshot: RepoInstallSnapshot;
   ResearchConversationEvent: ResearchConversationEvent;
   SingleResearchConversationEventInput: SingleResearchConversationEventInput;
   SingleResearchConversationEventOutput: SingleResearchConversationEventOutput;
-  ResearchConversationEventsByConversationInput: ResearchConversationEventsByConversationInput;
   ResearchConversationEventSelector: ResearchConversationEventSelector;
   MultiResearchConversationEventInput: MultiResearchConversationEventInput;
   MultiResearchConversationEventOutput: MultiResearchConversationEventOutput;
@@ -9813,7 +9735,6 @@ interface GraphQLTypeMap {
   SingleResearchConversationInput: SingleResearchConversationInput;
   SingleResearchConversationOutput: SingleResearchConversationOutput;
   ResearchConversationsByProjectInput: ResearchConversationsByProjectInput;
-  ResearchConversationsByProjectAndEntrypointKindInput: ResearchConversationsByProjectAndEntrypointKindInput;
   ResearchConversationSelector: ResearchConversationSelector;
   MultiResearchConversationInput: MultiResearchConversationInput;
   MultiResearchConversationOutput: MultiResearchConversationOutput;
@@ -9827,17 +9748,9 @@ interface GraphQLTypeMap {
   ResearchProject: ResearchProject;
   SingleResearchProjectInput: SingleResearchProjectInput;
   SingleResearchProjectOutput: SingleResearchProjectOutput;
-  ResearchProjectsByUserInput: ResearchProjectsByUserInput;
   ResearchProjectSelector: ResearchProjectSelector;
   MultiResearchProjectInput: MultiResearchProjectInput;
   MultiResearchProjectOutput: MultiResearchProjectOutput;
-  ResearchSandboxSession: ResearchSandboxSession;
-  SingleResearchSandboxSessionInput: SingleResearchSandboxSessionInput;
-  SingleResearchSandboxSessionOutput: SingleResearchSandboxSessionOutput;
-  ResearchSandboxSessionsByConversationInput: ResearchSandboxSessionsByConversationInput;
-  ResearchSandboxSessionSelector: ResearchSandboxSessionSelector;
-  MultiResearchSandboxSessionInput: MultiResearchSandboxSessionInput;
-  MultiResearchSandboxSessionOutput: MultiResearchSandboxSessionOutput;
   ReviewVote: ReviewVote;
   SingleReviewVoteInput: SingleReviewVoteInput;
   SingleReviewVoteOutput: SingleReviewVoteOutput;
@@ -9871,7 +9784,6 @@ interface GraphQLTypeMap {
   RevisionSelector: RevisionSelector;
   MultiRevisionInput: MultiRevisionInput;
   MultiRevisionOutput: MultiRevisionOutput;
-  SandboxBaselineSnapshot: SandboxBaselineSnapshot;
   Sequence: Sequence;
   SingleSequenceInput: SingleSequenceInput;
   SingleSequenceOutput: SingleSequenceOutput;

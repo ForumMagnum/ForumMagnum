@@ -3776,7 +3776,6 @@ export type CreateUserRateLimitInput = {
 export type CreateUserSecretDataInput = {
   name: Scalars['String']['input'];
   repoScope?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
   value: Scalars['String']['input'];
 };
 
@@ -5446,19 +5445,6 @@ export type MultiResearchProjectInput = {
 export type MultiResearchProjectOutput = {
   __typename?: 'MultiResearchProjectOutput';
   results: Array<ResearchProject>;
-  totalCount: Maybe<Scalars['Int']['output']>;
-};
-
-export type MultiResearchSandboxSessionInput = {
-  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  terms?: InputMaybe<Scalars['JSON']['input']>;
-};
-
-export type MultiResearchSandboxSessionOutput = {
-  __typename?: 'MultiResearchSandboxSessionOutput';
-  results: Array<ResearchSandboxSession>;
   totalCount: Maybe<Scalars['Int']['output']>;
 };
 
@@ -9230,8 +9216,6 @@ export type Query = {
   researchDocuments: Maybe<MultiResearchDocumentOutput>;
   researchProject: Maybe<SingleResearchProjectOutput>;
   researchProjects: Maybe<MultiResearchProjectOutput>;
-  researchSandboxSession: Maybe<SingleResearchSandboxSessionOutput>;
-  researchSandboxSessions: Maybe<MultiResearchSandboxSessionOutput>;
   reviewPredictionPosts: Array<Post>;
   reviewVote: Maybe<SingleReviewVoteOutput>;
   reviewVotes: Maybe<MultiReviewVoteOutput>;
@@ -10252,21 +10236,6 @@ export type QueryresearchProjectsArgs = {
 };
 
 
-export type QueryresearchSandboxSessionArgs = {
-  input?: InputMaybe<SingleResearchSandboxSessionInput>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-
-export type QueryresearchSandboxSessionsArgs = {
-  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiResearchSandboxSessionInput>;
-  limit?: InputMaybe<Scalars['Int']['input']>;
-  offset?: InputMaybe<Scalars['Int']['input']>;
-  selector?: InputMaybe<ResearchSandboxSessionSelector>;
-};
-
-
 export type QueryreviewPredictionPostsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   year: Scalars['Int']['input'];
@@ -10573,14 +10542,12 @@ export type QueryvotesArgs = {
 
 
 export type QueryworkspaceRepoArgs = {
-  input?: InputMaybe<SingleWorkspaceRepoInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
 export type QueryworkspaceReposArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiWorkspaceRepoInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<WorkspaceRepoSelector>;
@@ -10727,15 +10694,6 @@ export type RecommendationsCache = {
   userId: Maybe<Scalars['String']['output']>;
 };
 
-export type RepoInstallSnapshot = {
-  __typename?: 'RepoInstallSnapshot';
-  _id: Scalars['String']['output'];
-  createdAt: Scalars['Date']['output'];
-  manifestHash: Maybe<Scalars['String']['output']>;
-  vercelSnapshotId: Maybe<Scalars['String']['output']>;
-  workspaceRepoId: Maybe<Scalars['String']['output']>;
-};
-
 export type Report = {
   __typename?: 'Report';
   _id: Scalars['String']['output'];
@@ -10806,13 +10764,7 @@ export type ResearchConversationEvent = {
 };
 
 export type ResearchConversationEventSelector = {
-  byConversation?: InputMaybe<ResearchConversationEventsByConversationInput>;
   default?: InputMaybe<EmptyViewInput>;
-};
-
-export type ResearchConversationEventsByConversationInput = {
-  conversationId?: InputMaybe<Scalars['String']['input']>;
-  sinceSeq?: InputMaybe<Scalars['Int']['input']>;
 };
 
 export type ResearchConversationOutput = {
@@ -10823,13 +10775,7 @@ export type ResearchConversationOutput = {
 
 export type ResearchConversationSelector = {
   byProject?: InputMaybe<ResearchConversationsByProjectInput>;
-  byProjectAndEntrypointKind?: InputMaybe<ResearchConversationsByProjectAndEntrypointKindInput>;
   default?: InputMaybe<EmptyViewInput>;
-};
-
-export type ResearchConversationsByProjectAndEntrypointKindInput = {
-  kind?: InputMaybe<Scalars['String']['input']>;
-  projectId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ResearchConversationsByProjectInput = {
@@ -10894,30 +10840,7 @@ export type ResearchProjectOutput = {
 };
 
 export type ResearchProjectSelector = {
-  byUser?: InputMaybe<ResearchProjectsByUserInput>;
   default?: InputMaybe<EmptyViewInput>;
-};
-
-export type ResearchProjectsByUserInput = {
-  userId?: InputMaybe<Scalars['String']['input']>;
-};
-
-export type ResearchSandboxSession = {
-  __typename?: 'ResearchSandboxSession';
-  _id: Scalars['String']['output'];
-  conversationId: Maybe<Scalars['String']['output']>;
-  createdAt: Scalars['Date']['output'];
-  devProxySecret: Maybe<Scalars['String']['output']>;
-  supervisorSecret: Maybe<Scalars['String']['output']>;
-};
-
-export type ResearchSandboxSessionSelector = {
-  byConversation?: InputMaybe<ResearchSandboxSessionsByConversationInput>;
-  default?: InputMaybe<EmptyViewInput>;
-};
-
-export type ResearchSandboxSessionsByConversationInput = {
-  conversationId?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type ReviewResultsPostEntry = {
@@ -11130,15 +11053,6 @@ export type RssPostChangeInfo = {
   htmlDiff: Scalars['String']['output'];
   isChanged: Scalars['Boolean']['output'];
   newHtml: Scalars['String']['output'];
-};
-
-export type SandboxBaselineSnapshot = {
-  __typename?: 'SandboxBaselineSnapshot';
-  _id: Scalars['String']['output'];
-  builtAt: Maybe<Scalars['Date']['output']>;
-  createdAt: Scalars['Date']['output'];
-  runtime: Maybe<Scalars['String']['output']>;
-  vercelSnapshotId: Maybe<Scalars['String']['output']>;
 };
 
 export type SelectorInput = {
@@ -11652,16 +11566,6 @@ export type SingleResearchProjectInput = {
 export type SingleResearchProjectOutput = {
   __typename?: 'SingleResearchProjectOutput';
   result: Maybe<ResearchProject>;
-};
-
-export type SingleResearchSandboxSessionInput = {
-  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
-  selector?: InputMaybe<SelectorInput>;
-};
-
-export type SingleResearchSandboxSessionOutput = {
-  __typename?: 'SingleResearchSandboxSessionOutput';
-  result: Maybe<ResearchSandboxSession>;
 };
 
 export type SingleReviewVoteInput = {
@@ -13455,7 +13359,6 @@ export type UpdateUserRateLimitInput = {
 export type UpdateUserSecretDataInput = {
   name?: InputMaybe<Scalars['String']['input']>;
   repoScope?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
   value?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -13952,7 +13855,6 @@ export type UserSecret = {
   createdAt: Scalars['Date']['output'];
   name: Maybe<Scalars['String']['output']>;
   repoScope: Maybe<Scalars['String']['output']>;
-  userId: Maybe<Scalars['String']['output']>;
   value: Maybe<Scalars['String']['output']>;
 };
 

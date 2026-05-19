@@ -45,8 +45,6 @@ const schema = {
       validation: { optional: true },
     },
   },
-  // The workspace repo a new coding conversation in this project defaults to.
-  // Null until the user picks one; never required.
   defaultWorkspaceRepoId: {
     database: {
       type: "VARCHAR(27)",
@@ -61,8 +59,7 @@ const schema = {
       validation: { optional: true },
     },
   },
-  // Per-project settings: model defaults, sandbox preferences, etc. Free-form
-  // until specific fields earn schema slots.
+  // Free-form until specific fields earn schema slots.
   settings: {
     database: {
       type: "JSONB",

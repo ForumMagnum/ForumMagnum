@@ -130,17 +130,14 @@ import { graphqlRssfeedQueryTypeDefs, rssfeedGqlQueryHandlers, rssfeedGqlFieldRe
 import { graphqlReadStatusQueryTypeDefs, readStatusGqlFieldResolvers } from "@/server/collections/readStatus/queries";
 import { graphqlRecommendationsCacheQueryTypeDefs, recommendationsCacheGqlFieldResolvers } from "@/server/collections/recommendationsCaches/queries";
 import { graphqlReportQueryTypeDefs, reportGqlQueryHandlers, reportGqlFieldResolvers } from "@/server/collections/reports/queries";
-import { graphqlRepoInstallSnapshotQueryTypeDefs, repoInstallSnapshotGqlFieldResolvers } from "@/server/collections/repoInstallSnapshots/queries";
 import { graphqlResearchConversationEventQueryTypeDefs, researchConversationEventGqlQueryHandlers, researchConversationEventGqlFieldResolvers } from "@/server/collections/researchConversationEvents/queries";
 import { graphqlResearchConversationQueryTypeDefs, researchConversationGqlQueryHandlers, researchConversationGqlFieldResolvers } from "@/server/collections/researchConversations/queries";
 import { graphqlResearchDocumentQueryTypeDefs, researchDocumentGqlQueryHandlers, researchDocumentGqlFieldResolvers } from "@/server/collections/researchDocuments/queries";
 import { graphqlResearchProjectQueryTypeDefs, researchProjectGqlQueryHandlers, researchProjectGqlFieldResolvers } from "@/server/collections/researchProjects/queries";
-import { graphqlResearchSandboxSessionQueryTypeDefs, researchSandboxSessionGqlQueryHandlers, researchSandboxSessionGqlFieldResolvers } from "@/server/collections/researchSandboxSessions/queries";
 import { graphqlReviewVoteQueryTypeDefs, reviewVoteGqlQueryHandlers, reviewVoteGqlFieldResolvers } from "@/server/collections/reviewVotes/queries";
 import { graphqlReviewWinnerArtQueryTypeDefs, reviewWinnerArtGqlQueryHandlers, reviewWinnerArtGqlFieldResolvers } from "@/server/collections/reviewWinnerArts/queries";
 import { graphqlReviewWinnerQueryTypeDefs, reviewWinnerGqlQueryHandlers, reviewWinnerGqlFieldResolvers } from "@/server/collections/reviewWinners/queries";
 import { graphqlRevisionQueryTypeDefs, revisionGqlQueryHandlers, revisionGqlFieldResolvers } from "@/server/collections/revisions/queries";
-import { graphqlSandboxBaselineSnapshotQueryTypeDefs, sandboxBaselineSnapshotGqlFieldResolvers } from "@/server/collections/sandboxBaselineSnapshots/queries";
 import { graphqlSequenceQueryTypeDefs, sequenceGqlQueryHandlers, sequenceGqlFieldResolvers } from "@/server/collections/sequences/queries";
 import { graphqlSessionQueryTypeDefs, sessionGqlFieldResolvers } from "@/server/collections/sessions/queries";
 import { graphqlSideCommentCacheQueryTypeDefs, sideCommentCacheGqlFieldResolvers } from "@/server/collections/sideCommentCaches/queries";
@@ -382,17 +379,14 @@ export const getTypeDefs = () => gql`
   ${graphqlReadStatusQueryTypeDefs}
   ${graphqlRecommendationsCacheQueryTypeDefs}
   ${graphqlReportQueryTypeDefs}
-  ${graphqlRepoInstallSnapshotQueryTypeDefs}
   ${graphqlResearchConversationEventQueryTypeDefs}
   ${graphqlResearchConversationQueryTypeDefs}
   ${graphqlResearchDocumentQueryTypeDefs}
   ${graphqlResearchProjectQueryTypeDefs}
-  ${graphqlResearchSandboxSessionQueryTypeDefs}
   ${graphqlReviewVoteQueryTypeDefs}
   ${graphqlReviewWinnerArtQueryTypeDefs}
   ${graphqlReviewWinnerQueryTypeDefs}
   ${graphqlRevisionQueryTypeDefs}
-  ${graphqlSandboxBaselineSnapshotQueryTypeDefs}
   ${graphqlSequenceQueryTypeDefs}
   ${graphqlSessionQueryTypeDefs}
   ${graphqlSideCommentCacheQueryTypeDefs}
@@ -547,7 +541,6 @@ const getResolvers = () => ({
     ...researchConversationGqlQueryHandlers,
     ...researchDocumentGqlQueryHandlers,
     ...researchProjectGqlQueryHandlers,
-    ...researchSandboxSessionGqlQueryHandlers,
     ...reviewVoteGqlQueryHandlers,
     ...reviewWinnerArtGqlQueryHandlers,
     ...reviewWinnerGqlQueryHandlers,
@@ -748,17 +741,14 @@ const getResolvers = () => ({
   ...readStatusGqlFieldResolvers,
   ...recommendationsCacheGqlFieldResolvers,
   ...reportGqlFieldResolvers,
-  ...repoInstallSnapshotGqlFieldResolvers,
   ...researchConversationEventGqlFieldResolvers,
   ...researchConversationGqlFieldResolvers,
   ...researchDocumentGqlFieldResolvers,
   ...researchProjectGqlFieldResolvers,
-  ...researchSandboxSessionGqlFieldResolvers,
   ...reviewVoteGqlFieldResolvers,
   ...reviewWinnerArtGqlFieldResolvers,
   ...reviewWinnerGqlFieldResolvers,
   ...revisionGqlFieldResolvers,
-  ...sandboxBaselineSnapshotGqlFieldResolvers,
   ...sequenceGqlFieldResolvers,
   ...sessionGqlFieldResolvers,
   ...sideCommentCacheGqlFieldResolvers,
