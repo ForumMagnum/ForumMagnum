@@ -321,15 +321,13 @@ const ProjectSidebar = ({
   // Bucket by entrypoint kind so each subsection only walks its own slice.
   // The order in `KIND_ORDER` defines the visual order of the subsections.
   const conversationsByKind = useMemo(() => {
-    const buckets: Record<EntrypointKind | 'unknown', typeof conversations> = {
+    const buckets: Record<KnownEntrypointKind, typeof conversations> = {
       chat: [],
       document: [],
-      subagent: [],
-      fork: [],
       unknown: [],
     };
     for (const conv of conversations) {
-      buckets[entrypointKindOf(conv.entrypoint)].push(conv);
+      buckets[entrypointKindOf(conv.entrypointKind)].push(conv);
     }
     return buckets;
   }, [conversations]);
@@ -580,34 +578,19 @@ interface KindMeta {
 }
 
 // Order is the visual order of subsections; chat first (the default user
-// entrypoint), agent-internal byproducts (subagent/fork) last. Empty
-// buckets are hidden, so order doesn't introduce blank rows.
+// entrypoint). Empty buckets are hidden, so order doesn't introduce blank rows.
 const KIND_META: Record<KnownEntrypointKind, KindMeta> = {
   chat: { label: 'Chat', icon: 'ChatBubbleLeftRight', title: 'Started from chat' },
   document: { label: 'Document queries', icon: 'Document', title: 'Started from a document' },
-  subagent: { label: 'Sub-agent calls', icon: 'Sparkles', title: 'Spawned by another agent' },
-  fork: { label: 'Forks', icon: 'Copy', title: 'Forked from another conversation' },
   unknown: { label: 'Other', icon: 'ChatBubbleLeftRight', title: 'Conversation' },
 };
 
-const KIND_ORDER: ReadonlyArray<KnownEntrypointKind> = [
-  'chat', 'document', 'subagent', 'fork', 'unknown',
-];
+const KIND_ORDER: ReadonlyArray<KnownEntrypointKind> = ['chat', 'document', 'unknown'];
 
-// `entrypoint` arrives as opaque `JSON!` over GraphQL; narrow defensively.
-function entrypointKindOf(entrypoint: unknown): KnownEntrypointKind {
-  if (
-    entrypoint &&
-    typeof entrypoint === 'object' &&
-    'kind' in entrypoint &&
-    typeof (entrypoint as { kind: unknown }).kind === 'string'
-  ) {
-    const kind = (entrypoint as { kind: string }).kind;
-    if (kind in KIND_META && kind !== 'unknown') {
-      return kind as KnownEntrypointKind;
-    }
-  }
-  return 'unknown';
+// The `entrypointKind` column is `chat`|`document`, but it reads back nullable
+// over GraphQL; fall back defensively.
+function entrypointKindOf(entrypointKind: string | null): KnownEntrypointKind {
+  return entrypointKind === 'chat' || entrypointKind === 'document' ? entrypointKind : 'unknown';
 }
 
 export default ProjectSidebar;

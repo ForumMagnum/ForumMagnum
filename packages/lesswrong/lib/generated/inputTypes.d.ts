@@ -197,12 +197,16 @@ interface Query {
   userMostValuablePosts: MultiUserMostValuablePostOutput | null;
   userRateLimit: SingleUserRateLimitOutput | null;
   userRateLimits: MultiUserRateLimitOutput | null;
+  userSecret: SingleUserSecretOutput | null;
+  userSecrets: MultiUserSecretOutput | null;
   userTagRel: SingleUserTagRelOutput | null;
   userTagRels: MultiUserTagRelOutput | null;
   user: SingleUserOutput | null;
   users: MultiUserOutput | null;
   vote: SingleVoteOutput | null;
   votes: MultiVoteOutput | null;
+  workspaceRepo: SingleWorkspaceRepoOutput | null;
+  workspaceRepos: MultiWorkspaceRepoOutput | null;
 }
 
 interface Mutation {
@@ -243,11 +247,9 @@ interface Mutation {
   fireResearchConversation: ResearchConversationOutput | null;
   continueResearchConversation: ResearchConversationOutput | null;
   cancelResearchConversation: ResearchConversationOutput | null;
-  createResearchProject: ResearchProjectOutput | null;
-  updateResearchProject: ResearchProjectOutput | null;
-  createResearchDocument: ResearchDocumentOutput | null;
-  updateResearchDocument: ResearchDocumentOutput | null;
-  updateResearchConversation: ResearchConversationOutput | null;
+  mintDevPreviewUrl: DevPreviewUrlOutput | null;
+  deleteUserSecret: DeleteUserSecretOutput | null;
+  proposeWorkspaceRepoConfig: WorkspaceRepoConfigProposal | null;
   mergeTags: boolean | null;
   promoteLensToMain: boolean | null;
   RefreshDbSettings: boolean | null;
@@ -339,6 +341,11 @@ interface Mutation {
   updateRSSFeed: RSSFeedOutput | null;
   createReport: ReportOutput | null;
   updateReport: ReportOutput | null;
+  updateResearchConversation: ResearchConversationOutput | null;
+  createResearchDocument: ResearchDocumentOutput | null;
+  updateResearchDocument: ResearchDocumentOutput | null;
+  createResearchProject: ResearchProjectOutput | null;
+  updateResearchProject: ResearchProjectOutput | null;
   updateRevision: RevisionOutput | null;
   createSequence: SequenceOutput | null;
   updateSequence: SequenceOutput | null;
@@ -356,10 +363,13 @@ interface Mutation {
   updateUserMostValuablePost: UserMostValuablePostOutput | null;
   createUserRateLimit: UserRateLimitOutput | null;
   updateUserRateLimit: UserRateLimitOutput | null;
+  createUserSecret: UserSecretOutput | null;
+  updateUserSecret: UserSecretOutput | null;
   createUserTagRel: UserTagRelOutput | null;
   updateUserTagRel: UserTagRelOutput | null;
   createUser: UserOutput | null;
   updateUser: UserOutput | null;
+  createWorkspaceRepo: WorkspaceRepoOutput | null;
 }
 
 interface ContentType {
@@ -1031,6 +1041,7 @@ interface FireResearchConversationInput {
   kind: ResearchEntrypointKind;
   activeDocumentId: string;
   prompt: string;
+  workspaceRepoId?: string | null;
 }
 
 interface ResearchConversationOutput {
@@ -1038,74 +1049,22 @@ interface ResearchConversationOutput {
   data: ResearchConversation | null;
 }
 
-interface CreateResearchProjectDataInput {
-  userId?: string | null;
-  title: string;
-  description?: string | null;
-  claudeCodeTokenRef?: string | null;
-  settings?: any;
+interface DevPreviewUrlOutput {
+  url: string;
 }
 
-interface CreateResearchProjectInput {
-  data: CreateResearchProjectDataInput;
+interface WorkspaceRepoConfigProposal {
+  defaultBranch: string;
+  runtime: string;
+  lockfilePath: string;
+  installCommand: string;
+  prepareCommand: string | null;
+  devCommand: string | null;
+  devPort: number | null;
 }
 
-interface UpdateResearchProjectDataInput {
-  userId?: string | null;
-  title?: string | null;
-  description?: string | null;
-  claudeCodeTokenRef?: string | null;
-  settings?: any;
-}
-
-interface UpdateResearchProjectInput {
-  selector: SelectorInput;
-  data: UpdateResearchProjectDataInput;
-}
-
-interface ResearchProjectOutput {
-  data: ResearchProject | null;
-}
-
-interface CreateResearchDocumentDataInput {
-  userId?: string | null;
-  projectId: string;
-  title?: string | null;
-  contents?: CreateRevisionDataInput | null;
-}
-
-interface CreateResearchDocumentInput {
-  data: CreateResearchDocumentDataInput;
-}
-
-interface UpdateResearchDocumentDataInput {
-  userId?: string | null;
-  projectId?: string | null;
-  title?: string | null;
-  contents?: CreateRevisionDataInput | null;
-}
-
-interface UpdateResearchDocumentInput {
-  selector: SelectorInput;
-  data: UpdateResearchDocumentDataInput;
-}
-
-interface ResearchDocumentOutput {
-  data: ResearchDocument | null;
-}
-
-interface UpdateResearchConversationDataInput {
-  userId?: string | null;
-  projectId?: string | null;
-  claudeSessionId?: string | null;
-  title?: string | null;
-  entrypoint?: any;
-  lastActivityAt?: Date | null;
-}
-
-interface UpdateResearchConversationInput {
-  selector: SelectorInput;
-  data: UpdateResearchConversationDataInput;
+interface DeleteUserSecretOutput {
+  success: boolean;
 }
 
 interface DocumentDeletion {
@@ -5664,6 +5623,14 @@ interface MultiReportOutput {
   totalCount: number | null;
 }
 
+interface RepoInstallSnapshot {
+  _id: string;
+  createdAt: Date;
+  workspaceRepoId: string | null;
+  manifestHash: string | null;
+  vercelSnapshotId: string | null;
+}
+
 interface ResearchConversationEvent {
   _id: string;
   createdAt: Date;
@@ -5714,7 +5681,9 @@ interface ResearchConversation {
   projectId: string | null;
   claudeSessionId: string | null;
   title: string | null;
-  entrypoint: any;
+  entrypointKind: ResearchEntrypointKind | null;
+  entrypointDocumentId: string | null;
+  workspaceRepoId: string | null;
   lastActivityAt: Date | null;
 }
 
@@ -5802,7 +5771,7 @@ interface ResearchProject {
   userId: string | null;
   title: string | null;
   description: string | null;
-  claudeCodeTokenRef: string | null;
+  defaultWorkspaceRepoId: string | null;
   settings: any;
 }
 
@@ -5841,6 +5810,7 @@ interface ResearchSandboxSession {
   createdAt: Date;
   conversationId: string | null;
   supervisorSecret: string | null;
+  devProxySecret: string | null;
 }
 
 interface SingleResearchSandboxSessionInput {
@@ -6119,6 +6089,14 @@ interface MultiRevisionInput {
 interface MultiRevisionOutput {
   results: Array<Revision>;
   totalCount: number | null;
+}
+
+interface SandboxBaselineSnapshot {
+  _id: string;
+  createdAt: Date;
+  runtime: string | null;
+  vercelSnapshotId: string | null;
+  builtAt: Date | null;
 }
 
 interface Sequence {
@@ -6919,6 +6897,40 @@ interface MultiUserRateLimitOutput {
   totalCount: number | null;
 }
 
+interface UserSecret {
+  _id: string;
+  createdAt: Date;
+  userId: string | null;
+  repoScope: string | null;
+  name: string | null;
+  value: string | null;
+}
+
+interface SingleUserSecretInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SingleUserSecretOutput {
+  result: UserSecret | null;
+}
+
+interface UserSecretSelector {
+  mySecrets: EmptyViewInput | null;
+}
+
+interface MultiUserSecretInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiUserSecretOutput {
+  results: Array<UserSecret>;
+  totalCount: number | null;
+}
+
 interface UserTagRel {
   _id: string;
   schemaVersion: number;
@@ -7350,6 +7362,47 @@ interface MultiVoteInput {
 
 interface MultiVoteOutput {
   results: Array<Vote>;
+  totalCount: number | null;
+}
+
+interface WorkspaceRepo {
+  _id: string;
+  createdAt: Date;
+  userId: string | null;
+  host: string | null;
+  owner: string | null;
+  name: string | null;
+  defaultBranch: string | null;
+  runtime: string | null;
+  lockfilePath: string | null;
+  installCommand: string | null;
+  prepareCommand: string | null;
+  devCommand: string | null;
+  devPort: number | null;
+}
+
+interface SingleWorkspaceRepoInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SingleWorkspaceRepoOutput {
+  result: WorkspaceRepo | null;
+}
+
+interface WorkspaceRepoSelector {
+  myRepos: EmptyViewInput | null;
+}
+
+interface MultiWorkspaceRepoInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiWorkspaceRepoOutput {
+  results: Array<WorkspaceRepo>;
   totalCount: number | null;
 }
 
@@ -8305,6 +8358,78 @@ interface ReportOutput {
   data: Report | null;
 }
 
+interface UpdateResearchConversationDataInput {
+  userId?: string | null;
+  projectId?: string | null;
+  claudeSessionId?: string | null;
+  title?: string | null;
+  entrypointKind?: ResearchEntrypointKind | null;
+  entrypointDocumentId?: string | null;
+  workspaceRepoId?: string | null;
+  lastActivityAt?: Date | null;
+}
+
+interface UpdateResearchConversationInput {
+  selector: SelectorInput;
+  data: UpdateResearchConversationDataInput;
+}
+
+interface CreateResearchDocumentDataInput {
+  userId?: string | null;
+  projectId: string;
+  title?: string | null;
+  contents?: CreateRevisionDataInput | null;
+}
+
+interface CreateResearchDocumentInput {
+  data: CreateResearchDocumentDataInput;
+}
+
+interface UpdateResearchDocumentDataInput {
+  userId?: string | null;
+  projectId?: string | null;
+  title?: string | null;
+  contents?: CreateRevisionDataInput | null;
+}
+
+interface UpdateResearchDocumentInput {
+  selector: SelectorInput;
+  data: UpdateResearchDocumentDataInput;
+}
+
+interface ResearchDocumentOutput {
+  data: ResearchDocument | null;
+}
+
+interface CreateResearchProjectDataInput {
+  userId?: string | null;
+  title: string;
+  description?: string | null;
+  defaultWorkspaceRepoId?: string | null;
+  settings?: any;
+}
+
+interface CreateResearchProjectInput {
+  data: CreateResearchProjectDataInput;
+}
+
+interface UpdateResearchProjectDataInput {
+  userId?: string | null;
+  title?: string | null;
+  description?: string | null;
+  defaultWorkspaceRepoId?: string | null;
+  settings?: any;
+}
+
+interface UpdateResearchProjectInput {
+  selector: SelectorInput;
+  data: UpdateResearchProjectDataInput;
+}
+
+interface ResearchProjectOutput {
+  data: ResearchProject | null;
+}
+
 interface ContentTypeInput {
   type: string;
   data: ContentTypeData;
@@ -8690,6 +8815,33 @@ interface UpdateUserRateLimitInput {
 
 interface UserRateLimitOutput {
   data: UserRateLimit | null;
+}
+
+interface CreateUserSecretDataInput {
+  userId?: string | null;
+  repoScope?: string | null;
+  name: string;
+  value: string;
+}
+
+interface CreateUserSecretInput {
+  data: CreateUserSecretDataInput;
+}
+
+interface UpdateUserSecretDataInput {
+  userId?: string | null;
+  repoScope?: string | null;
+  name?: string | null;
+  value?: string | null;
+}
+
+interface UpdateUserSecretInput {
+  selector: SelectorInput;
+  data: UpdateUserSecretDataInput;
+}
+
+interface UserSecretOutput {
+  data: UserSecret | null;
 }
 
 interface CreateUserTagRelDataInput {
@@ -9080,6 +9232,28 @@ interface UserOutput {
   data: User | null;
 }
 
+interface CreateWorkspaceRepoDataInput {
+  userId?: string | null;
+  host: string;
+  owner: string;
+  name: string;
+  defaultBranch: string;
+  runtime: string;
+  lockfilePath: string;
+  installCommand: string;
+  prepareCommand?: string | null;
+  devCommand?: string | null;
+  devPort?: number | null;
+}
+
+interface CreateWorkspaceRepoInput {
+  data: CreateWorkspaceRepoDataInput;
+}
+
+interface WorkspaceRepoOutput {
+  data: WorkspaceRepo | null;
+}
+
 interface GraphQLTypeMap {
   Query: Query;
   Mutation: Mutation;
@@ -9187,18 +9361,9 @@ interface GraphQLTypeMap {
   UserContentFeedEntry: UserContentFeedEntry;
   FireResearchConversationInput: FireResearchConversationInput;
   ResearchConversationOutput: ResearchConversationOutput;
-  CreateResearchProjectDataInput: CreateResearchProjectDataInput;
-  CreateResearchProjectInput: CreateResearchProjectInput;
-  UpdateResearchProjectDataInput: UpdateResearchProjectDataInput;
-  UpdateResearchProjectInput: UpdateResearchProjectInput;
-  ResearchProjectOutput: ResearchProjectOutput;
-  CreateResearchDocumentDataInput: CreateResearchDocumentDataInput;
-  CreateResearchDocumentInput: CreateResearchDocumentInput;
-  UpdateResearchDocumentDataInput: UpdateResearchDocumentDataInput;
-  UpdateResearchDocumentInput: UpdateResearchDocumentInput;
-  ResearchDocumentOutput: ResearchDocumentOutput;
-  UpdateResearchConversationDataInput: UpdateResearchConversationDataInput;
-  UpdateResearchConversationInput: UpdateResearchConversationInput;
+  DevPreviewUrlOutput: DevPreviewUrlOutput;
+  WorkspaceRepoConfigProposal: WorkspaceRepoConfigProposal;
+  DeleteUserSecretOutput: DeleteUserSecretOutput;
   DocumentDeletion: DocumentDeletion;
   TagUpdates: TagUpdates;
   TagPreviewWithSummaries: TagPreviewWithSummaries;
@@ -9636,6 +9801,7 @@ interface GraphQLTypeMap {
   ReportSelector: ReportSelector;
   MultiReportInput: MultiReportInput;
   MultiReportOutput: MultiReportOutput;
+  RepoInstallSnapshot: RepoInstallSnapshot;
   ResearchConversationEvent: ResearchConversationEvent;
   SingleResearchConversationEventInput: SingleResearchConversationEventInput;
   SingleResearchConversationEventOutput: SingleResearchConversationEventOutput;
@@ -9705,6 +9871,7 @@ interface GraphQLTypeMap {
   RevisionSelector: RevisionSelector;
   MultiRevisionInput: MultiRevisionInput;
   MultiRevisionOutput: MultiRevisionOutput;
+  SandboxBaselineSnapshot: SandboxBaselineSnapshot;
   Sequence: Sequence;
   SingleSequenceInput: SingleSequenceInput;
   SingleSequenceOutput: SingleSequenceOutput;
@@ -9814,6 +9981,12 @@ interface GraphQLTypeMap {
   UserRateLimitSelector: UserRateLimitSelector;
   MultiUserRateLimitInput: MultiUserRateLimitInput;
   MultiUserRateLimitOutput: MultiUserRateLimitOutput;
+  UserSecret: UserSecret;
+  SingleUserSecretInput: SingleUserSecretInput;
+  SingleUserSecretOutput: SingleUserSecretOutput;
+  UserSecretSelector: UserSecretSelector;
+  MultiUserSecretInput: MultiUserSecretInput;
+  MultiUserSecretOutput: MultiUserSecretOutput;
   UserTagRel: UserTagRel;
   SingleUserTagRelInput: SingleUserTagRelInput;
   SingleUserTagRelOutput: SingleUserTagRelOutput;
@@ -9838,6 +10011,12 @@ interface GraphQLTypeMap {
   VoteSelector: VoteSelector;
   MultiVoteInput: MultiVoteInput;
   MultiVoteOutput: MultiVoteOutput;
+  WorkspaceRepo: WorkspaceRepo;
+  SingleWorkspaceRepoInput: SingleWorkspaceRepoInput;
+  SingleWorkspaceRepoOutput: SingleWorkspaceRepoOutput;
+  WorkspaceRepoSelector: WorkspaceRepoSelector;
+  MultiWorkspaceRepoInput: MultiWorkspaceRepoInput;
+  MultiWorkspaceRepoOutput: MultiWorkspaceRepoOutput;
   YjsDocument: YjsDocument;
   CreateBookDataInput: CreateBookDataInput;
   CreateBookInput: CreateBookInput;
@@ -9941,6 +10120,18 @@ interface GraphQLTypeMap {
   UpdateReportDataInput: UpdateReportDataInput;
   UpdateReportInput: UpdateReportInput;
   ReportOutput: ReportOutput;
+  UpdateResearchConversationDataInput: UpdateResearchConversationDataInput;
+  UpdateResearchConversationInput: UpdateResearchConversationInput;
+  CreateResearchDocumentDataInput: CreateResearchDocumentDataInput;
+  CreateResearchDocumentInput: CreateResearchDocumentInput;
+  UpdateResearchDocumentDataInput: UpdateResearchDocumentDataInput;
+  UpdateResearchDocumentInput: UpdateResearchDocumentInput;
+  ResearchDocumentOutput: ResearchDocumentOutput;
+  CreateResearchProjectDataInput: CreateResearchProjectDataInput;
+  CreateResearchProjectInput: CreateResearchProjectInput;
+  UpdateResearchProjectDataInput: UpdateResearchProjectDataInput;
+  UpdateResearchProjectInput: UpdateResearchProjectInput;
+  ResearchProjectOutput: ResearchProjectOutput;
   ContentTypeInput: ContentTypeInput;
   CreateRevisionDataInput: CreateRevisionDataInput;
   UpdateRevisionDataInput: UpdateRevisionDataInput;
@@ -9986,6 +10177,11 @@ interface GraphQLTypeMap {
   UpdateUserRateLimitDataInput: UpdateUserRateLimitDataInput;
   UpdateUserRateLimitInput: UpdateUserRateLimitInput;
   UserRateLimitOutput: UserRateLimitOutput;
+  CreateUserSecretDataInput: CreateUserSecretDataInput;
+  CreateUserSecretInput: CreateUserSecretInput;
+  UpdateUserSecretDataInput: UpdateUserSecretDataInput;
+  UpdateUserSecretInput: UpdateUserSecretInput;
+  UserSecretOutput: UserSecretOutput;
   CreateUserTagRelDataInput: CreateUserTagRelDataInput;
   CreateUserTagRelInput: CreateUserTagRelInput;
   UpdateUserTagRelDataInput: UpdateUserTagRelDataInput;
@@ -9996,11 +10192,12 @@ interface GraphQLTypeMap {
   UpdateUserDataInput: UpdateUserDataInput;
   UpdateUserInput: UpdateUserInput;
   UserOutput: UserOutput;
+  CreateWorkspaceRepoDataInput: CreateWorkspaceRepoDataInput;
+  CreateWorkspaceRepoInput: CreateWorkspaceRepoInput;
+  WorkspaceRepoOutput: WorkspaceRepoOutput;
 }
 
 interface CreateInputsByCollectionName {
-  ResearchProjects: CreateResearchProjectInput;
-  ResearchDocuments: CreateResearchDocumentInput;
   Books: CreateBookInput;
   Chapters: CreateChapterInput;
   Collections: CreateCollectionInput;
@@ -10021,6 +10218,8 @@ interface CreateInputsByCollectionName {
   Posts: CreatePostInput;
   RSSFeeds: CreateRSSFeedInput;
   Reports: CreateReportInput;
+  ResearchDocuments: CreateResearchDocumentInput;
+  ResearchProjects: CreateResearchProjectInput;
   Sequences: CreateSequenceInput;
   SplashArtCoordinates: CreateSplashArtCoordinateInput;
   Spotlights: CreateSpotlightInput;
@@ -10030,8 +10229,10 @@ interface CreateInputsByCollectionName {
   UltraFeedEvents: CreateUltraFeedEventInput;
   UserMostValuablePosts: CreateUserMostValuablePostInput;
   UserRateLimits: CreateUserRateLimitInput;
+  UserSecrets: CreateUserSecretInput;
   UserTagRels: CreateUserTagRelInput;
   Users: CreateUserInput;
+  WorkspaceRepos: CreateWorkspaceRepoInput;
   ArbitalCaches: never;
   ArbitalTagContentRels: never;
   AutomatedContentEvaluations: never;
@@ -10074,6 +10275,7 @@ interface CreateInputsByCollectionName {
   PostViews: never;
   ReadStatuses: never;
   RecommendationsCaches: never;
+  RepoInstallSnapshots: never;
   ResearchConversationEvents: never;
   ResearchConversations: never;
   ResearchSandboxSessions: never;
@@ -10081,6 +10283,7 @@ interface CreateInputsByCollectionName {
   ReviewWinnerArts: never;
   ReviewWinners: never;
   Revisions: never;
+  SandboxBaselineSnapshots: never;
   Sessions: never;
   SideCommentCaches: never;
   TagRels: never;
@@ -10093,9 +10296,6 @@ interface CreateInputsByCollectionName {
 }
 
 interface UpdateInputsByCollectionName {
-  ResearchProjects: UpdateResearchProjectInput;
-  ResearchDocuments: UpdateResearchDocumentInput;
-  ResearchConversations: UpdateResearchConversationInput;
   Books: UpdateBookInput;
   Chapters: UpdateChapterInput;
   Collections: UpdateCollectionInput;
@@ -10115,6 +10315,9 @@ interface UpdateInputsByCollectionName {
   Posts: UpdatePostInput;
   RSSFeeds: UpdateRSSFeedInput;
   Reports: UpdateReportInput;
+  ResearchConversations: UpdateResearchConversationInput;
+  ResearchDocuments: UpdateResearchDocumentInput;
+  ResearchProjects: UpdateResearchProjectInput;
   Revisions: UpdateRevisionInput;
   Sequences: UpdateSequenceInput;
   Spotlights: UpdateSpotlightInput;
@@ -10122,6 +10325,7 @@ interface UpdateInputsByCollectionName {
   Tags: UpdateTagInput;
   UserMostValuablePosts: UpdateUserMostValuablePostInput;
   UserRateLimits: UpdateUserRateLimitInput;
+  UserSecrets: UpdateUserSecretInput;
   UserTagRels: UpdateUserTagRelInput;
   Users: UpdateUserInput;
   ArbitalCaches: never;
@@ -10167,11 +10371,13 @@ interface UpdateInputsByCollectionName {
   PostViews: never;
   ReadStatuses: never;
   RecommendationsCaches: never;
+  RepoInstallSnapshots: never;
   ResearchConversationEvents: never;
   ResearchSandboxSessions: never;
   ReviewVotes: never;
   ReviewWinnerArts: never;
   ReviewWinners: never;
+  SandboxBaselineSnapshots: never;
   Sessions: never;
   SideCommentCaches: never;
   SplashArtCoordinates: never;
@@ -10183,5 +10389,6 @@ interface UpdateInputsByCollectionName {
   UltraFeedEvents: never;
   UserActivities: never;
   Votes: never;
+  WorkspaceRepos: never;
   YjsDocuments: never;
 }

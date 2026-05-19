@@ -15,10 +15,25 @@ import { Sandbox, APIError } from "@vercel/sandbox";
 import { randomId, randomSecret } from "@/lib/random";
 import { sleep } from "@/lib/utils/asyncUtils";
 import { mintSupervisorCallbackToken } from "../../../../../app/api/research/agent/researchAgentAuth";
-import { decryptClaudeCodeTokenRef } from "@/server/research/claudeCodeTokens";
+import { decryptUserSecret } from "@/server/research/userSecretsCrypto";
+import { CLAUDE_CODE_OAUTH_TOKEN_SECRET } from "@/lib/collections/userSecrets/userSecretNames";
+import {
+  collectRepoEnvSecrets,
+  resolveCodingSnapshot,
+  runCodingFirstProvision,
+  type CodingSnapshotPlan,
+} from "./codingWorkspace";
+import { REPO_DIR, repoCommandCwd } from "./buildRepoInstallSnapshot";
+import { repoScopeOf } from "../repoUrl";
 
 /** Port the in-sandbox supervisor's HTTP server listens on. */
 const SUPERVISOR_PORT = 3000;
+
+/**
+ * Port the in-sandbox auth-proxy listens on — the public entry point for a
+ * coding conversation's dev server. Exposed only for sandboxes that run one.
+ */
+const AUTH_PROXY_PORT = 3001;
 
 /**
  * Per-session Vercel `timeout`. This is the idle dead-man's switch: activity
@@ -48,6 +63,11 @@ export function supervisorUrlForSandbox(sandbox: Sandbox): string {
   return sandbox.domain(SUPERVISOR_PORT);
 }
 
+/** The auth-proxy's public URL for a sandbox's current session. */
+export function devProxyUrlForSandbox(sandbox: Sandbox): string {
+  return sandbox.domain(AUTH_PROXY_PORT);
+}
+
 /**
  * A conversation's sandbox, resolved live and ready to dispatch to. Nothing
  * here is persisted — the public URL changes every session, so it is always
@@ -64,12 +84,31 @@ export interface ProvisionedSandbox {
   /** Per-sandbox HMAC key, from the `ResearchSandboxSessions` row. */
   supervisorSecret: string;
   /**
+   * Per-sandbox HMAC key for dev-preview tokens; non-null only for a coding
+   * conversation whose repo defines a dev server. `mintDevPreviewUrl` signs
+   * with it.
+   */
+  devProxySecret: string | null;
+  /**
    * True when this call freshly created the sandbox — either a brand-new
    * conversation or a rebuild after an expired snapshot. False for a warm
    * resume or a sandbox that was already running. The dispatch path uses this
    * to decide whether to ship a reconstructed Claude session.
    */
   wasFreshlyCreated: boolean;
+}
+
+/** The dev-server half of the launch env — set only for a coding conversation
+ *  whose repo defines a `devCommand`. */
+interface DevServerLaunchEnv {
+  command: string;
+  port: number;
+  /** Working directory for the dev command — `dirname(lockfilePath)` in the clone. */
+  cwd: string;
+  /** Per-sandbox HMAC key for dev-preview tokens. */
+  proxySecret: string;
+  /** The repo's secrets, applied to the dev server's environment. */
+  repoEnv: Record<string, string>;
 }
 
 interface SupervisorLaunchEnv {
@@ -80,6 +119,10 @@ interface SupervisorLaunchEnv {
   projectId: string;
   sandboxName: string;
   callbackToken: string;
+  /** Agent working directory — the repo root for a coding conversation. */
+  workspaceDir: string;
+  /** Present iff this is a coding conversation with a dev server. */
+  devServer: DevServerLaunchEnv | null;
 }
 
 function isNotFoundError(err: unknown): boolean {
@@ -106,22 +149,32 @@ function isSnapshotNotFoundError(err: unknown): boolean {
  * `nohup setsid … &` so the process outlives the `runCommand` RPC channel.
  */
 async function launchSupervisor(sandbox: Sandbox, env: SupervisorLaunchEnv): Promise<void> {
+  const supervisorEnv: Record<string, string> = {
+    CLAUDE_CODE_OAUTH_TOKEN: env.claudeToken,
+    SUPERVISOR_SECRET: env.supervisorSecret,
+    BACKEND_BASE_URL: env.backendBaseUrl,
+    SUPERVISOR_PORT: String(SUPERVISOR_PORT),
+    USER_ID: env.userId,
+    PROJECT_ID: env.projectId,
+    SANDBOX_ID: env.sandboxName,
+    CALLBACK_TOKEN: env.callbackToken,
+    WORKSPACE_DIR: env.workspaceDir,
+  };
+  if (env.devServer) {
+    supervisorEnv.DEV_COMMAND = env.devServer.command;
+    supervisorEnv.DEV_PORT = String(env.devServer.port);
+    supervisorEnv.DEV_CWD = env.devServer.cwd;
+    supervisorEnv.DEV_PROXY_SECRET = env.devServer.proxySecret;
+    supervisorEnv.AUTH_PROXY_PORT = String(AUTH_PROXY_PORT);
+    supervisorEnv.DEV_ENV_JSON = JSON.stringify(env.devServer.repoEnv);
+  }
   await sandbox.runCommand({
     cmd: "sh",
     args: [
       "-c",
       "nohup setsid node /vercel/sandbox/supervisor.js > /vercel/sandbox/supervisor.log 2>&1 < /dev/null &",
     ],
-    env: {
-      CLAUDE_CODE_OAUTH_TOKEN: env.claudeToken,
-      SUPERVISOR_SECRET: env.supervisorSecret,
-      BACKEND_BASE_URL: env.backendBaseUrl,
-      SUPERVISOR_PORT: String(SUPERVISOR_PORT),
-      USER_ID: env.userId,
-      PROJECT_ID: env.projectId,
-      SANDBOX_ID: env.sandboxName,
-      CALLBACK_TOKEN: env.callbackToken,
-    },
+    env: supervisorEnv,
   });
   await waitForSupervisorReady(supervisorUrlForSandbox(sandbox));
 }
@@ -145,29 +198,28 @@ async function waitForSupervisorReady(endpointUrl: string): Promise<void> {
 }
 
 /**
- * Pulls the user's Claude Code OAuth token from `ResearchProjects.claudeCodeTokenRef`.
- *
- * New writes store encrypted token refs; plaintext refs from earlier prototype
- * rows are still accepted. If the column is unset we fail loudly rather than
- * falling back to a process env var — silently charging a shared backend token
- * is a footgun in a multi-user deployment.
+ * Resolve the user's Claude Code OAuth token from their `UserSecrets` rows.
+ * The token is user-scoped — a global `UserSecrets` row, not per-project. If it
+ * is unset we fail loudly rather than falling back to a process env var:
+ * silently charging a shared backend token is a footgun in a multi-user
+ * deployment.
  */
 async function resolveClaudeCodeToken(
-  projectId: string,
+  userId: string,
   context: ResolverContext,
 ): Promise<string> {
-  const project = await context.ResearchProjects.findOne({ _id: projectId });
-  if (!project) {
-    throw new Error(`Cannot resolve Claude Code token: project ${projectId} not found`);
-  }
-  const ref = project.claudeCodeTokenRef;
-  if (!ref || ref.length === 0) {
+  const row = await context.UserSecrets.findOne({
+    userId,
+    name: CLAUDE_CODE_OAUTH_TOKEN_SECRET,
+    repoScope: null,
+  });
+  if (!row) {
     throw new Error(
-      `Cannot provision sandbox for project ${projectId}: claudeCodeTokenRef is unset. ` +
-        `Set up your Claude Code token on the project before starting a conversation.`,
+      `Cannot provision sandbox: user ${userId} has no ${CLAUDE_CODE_OAUTH_TOKEN_SECRET} secret. ` +
+        `Set up your Claude Code token before starting a conversation.`,
     );
   }
-  return decryptClaudeCodeTokenRef(ref);
+  return decryptUserSecret(row.encryptedValue);
 }
 
 /**
@@ -180,10 +232,11 @@ async function resolveClaudeCodeToken(
 async function provisionOrResume(args: {
   name: string;
   snapshotId: string;
+  ports: number[];
   onCreate: (sandbox: Sandbox) => Promise<void>;
   onResume: (sandbox: Sandbox) => Promise<void>;
 }): Promise<{ sandbox: Sandbox; wasFreshlyCreated: boolean }> {
-  const { name, snapshotId, onCreate, onResume } = args;
+  const { name, snapshotId, ports, onCreate, onResume } = args;
   try {
     // Defaults to resume:true — a stopped sandbox is resumed and `onResume`
     // fires; an already-running sandbox fires neither hook.
@@ -204,7 +257,7 @@ async function provisionOrResume(args: {
     const sandbox = await Sandbox.create({
       name,
       source: { type: "snapshot", snapshotId },
-      ports: [SUPERVISOR_PORT],
+      ports,
       timeout: SESSION_TIMEOUT_MS,
       resources: { vcpus: 2 },
       persistent: true,
@@ -214,6 +267,45 @@ async function provisionOrResume(args: {
     await onCreate(sandbox);
     return { sandbox, wasFreshlyCreated: true };
   }
+}
+
+interface CodingProvision {
+  workspaceRepo: DbWorkspaceRepo;
+  plan: CodingSnapshotPlan;
+}
+
+/**
+ * Resolve the snapshot a conversation's sandbox is created from. A coding
+ * conversation (one with a `workspaceRepoId`) sources from its repo's
+ * install-cache snapshot — repo and dependencies baked in. An ordinary
+ * conversation sources from the default runtime's baseline snapshot
+ * (claude-code + supervisor + research-tool), built offline by `buildResearchSandboxSnapshot`.
+ */
+async function resolveSnapshotSource(
+  conversation: DbResearchConversation,
+  context: ResolverContext,
+): Promise<{ snapshotId: string; codingProvision: CodingProvision | null }> {
+  if (conversation.workspaceRepoId) {
+    const workspaceRepo = await context.WorkspaceRepos.findOne({
+      _id: conversation.workspaceRepoId,
+    });
+    if (!workspaceRepo) {
+      throw new Error(
+        `getOrCreateSandbox: workspace repo ${conversation.workspaceRepoId} not found`,
+      );
+    }
+    const plan = await resolveCodingSnapshot(context, workspaceRepo);
+    return { snapshotId: plan.snapshotId, codingProvision: { workspaceRepo, plan } };
+  }
+  const baselineRuntime = process.env.RESEARCH_DEFAULT_RUNTIME ?? "node24";
+  const baseline = await context.SandboxBaselineSnapshots.findOne({ runtime: baselineRuntime });
+  if (!baseline) {
+    throw new Error(
+      `[sandbox] No SandboxBaselineSnapshots row for runtime "${baselineRuntime}". ` +
+        "Build one with `yarn research-supervisor-build && yarn research-sandbox-build-snapshot`.",
+    );
+  }
+  return { snapshotId: baseline.vercelSnapshotId, codingProvision: null };
 }
 
 /**
@@ -231,17 +323,27 @@ export async function getOrCreateSandbox(
     throw new Error(`getOrCreateSandbox: conversation ${conversationId} not found`);
   }
 
-  // The baseline snapshot (claude-code + supervisor + research-tool) is built
-  // offline by `buildSnapshot.ts`. There is no runtime install/upload fallback.
-  const snapshotId = process.env.RESEARCH_SANDBOX_SNAPSHOT_ID;
-  if (!snapshotId) {
-    throw new Error(
-      "[sandbox] No snapshot configured. Set RESEARCH_SANDBOX_SNAPSHOT_ID after building one " +
-        "with `yarn research-supervisor-build && yarn research-sandbox-build-snapshot`.",
-    );
-  }
-
   const sandboxName = sandboxNameForConversation(conversationId);
+  const existingRow = await ResearchSandboxSessions.findOne({ conversationId });
+
+  // Fast path: the sandbox is already running mid-conversation — the common
+  // case on every turn after the first. Nothing needs launching, so skip the
+  // snapshot-source resolution (a GitHub round-trip for a coding repo) and the
+  // secret decryption that the create/resume paths below need.
+  if (existingRow) {
+    const running = await getRunningSandbox(conversationId);
+    if (running) {
+      return {
+        conversationId,
+        sandboxName,
+        sandbox: running,
+        supervisorUrl: supervisorUrlForSandbox(running),
+        supervisorSecret: existingRow.supervisorSecret,
+        devProxySecret: existingRow.devProxySecret,
+        wasFreshlyCreated: false,
+      };
+    }
+  }
 
   // The supervisor POSTs events/heartbeats here. Localhost won't reach a dev
   // machine from inside a sandbox — point this at a tunnel for local dev.
@@ -250,15 +352,50 @@ export async function getOrCreateSandbox(
     process.env.NEXT_PUBLIC_BASE_URL ??
     "http://localhost:3000";
 
-  // The token decrypt and the row lookup are independent. The supervisorSecret
-  // is generated once and reused for the conversation's life: on a rebuild the
-  // row already exists, so its secret is kept rather than minting one the
-  // backend's signed tokens wouldn't match.
-  const [claudeToken, existingRow] = await Promise.all([
-    resolveClaudeCodeToken(conversation.projectId, context),
-    ResearchSandboxSessions.findOne({ conversationId }),
+  // The token decrypt and the snapshot-source resolution are independent. The
+  // supervisorSecret is generated once and reused for the conversation's life:
+  // on a rebuild the row already exists, so its secret is kept rather than
+  // minting one the backend's tokens wouldn't match.
+  const [claudeToken, snapshotSource] = await Promise.all([
+    resolveClaudeCodeToken(conversation.userId, context),
+    resolveSnapshotSource(conversation, context),
   ]);
+  const { snapshotId, codingProvision } = snapshotSource;
   const supervisorSecret = existingRow?.supervisorSecret ?? randomSecret();
+
+  // Coding conversations run the agent in the repo clone; ordinary ones in the
+  // sandbox root.
+  const workspaceRepo = codingProvision?.workspaceRepo ?? null;
+  const workspaceDir = codingProvision ? REPO_DIR : "/vercel/sandbox";
+
+  // A coding repo with a `devCommand` additionally runs a dev server +
+  // auth-proxy: that needs a per-sandbox HMAC secret and the repo's secrets as
+  // the dev server's environment.
+  let devServerEnv: DevServerLaunchEnv | null = null;
+  let devProxySecret: string | null = null;
+  if (workspaceRepo && workspaceRepo.devCommand && workspaceRepo.devPort !== null) {
+    devProxySecret = existingRow?.devProxySecret ?? randomSecret();
+    // Backfill the secret onto a session row that predates it, so a resume's
+    // token signing matches the secret the supervisor is launched with.
+    if (existingRow && !existingRow.devProxySecret) {
+      await ResearchSandboxSessions.rawUpdateOne(
+        { _id: existingRow._id },
+        { $set: { devProxySecret } },
+      );
+    }
+    const repoScope = repoScopeOf({
+      host: workspaceRepo.host,
+      owner: workspaceRepo.owner,
+      name: workspaceRepo.name,
+    });
+    devServerEnv = {
+      command: workspaceRepo.devCommand,
+      port: workspaceRepo.devPort,
+      cwd: repoCommandCwd(workspaceRepo.lockfilePath),
+      proxySecret: devProxySecret,
+      repoEnv: await collectRepoEnvSecrets(context, conversation.userId, repoScope),
+    };
+  }
 
   // Minted fresh every call: a resume days later needs an unexpired token.
   const callbackToken = mintSupervisorCallbackToken({
@@ -276,12 +413,24 @@ export async function getOrCreateSandbox(
     projectId: conversation.projectId,
     sandboxName,
     callbackToken,
+    workspaceDir,
+    devServer: devServerEnv,
   };
 
   const onResume = async (sandbox: Sandbox) => {
     await launchSupervisor(sandbox, launchEnv);
   };
   const onCreate = async (sandbox: Sandbox) => {
+    // For a coding conversation, bring the repo to HEAD, reconcile dependencies
+    // if the install cache was stale, and run `prepareCommand` — once, here. A
+    // later resume restores this from the auto-snapshot and does not repeat it.
+    if (codingProvision) {
+      await runCodingFirstProvision(sandbox, {
+        workspaceRepo: codingProvision.workspaceRepo,
+        token: codingProvision.plan.token,
+        isStale: codingProvision.plan.isStale,
+      });
+    }
     await launchSupervisor(sandbox, launchEnv);
     // Insert the row only for a brand-new conversation. A rebuild (expired
     // snapshot) re-enters this path with the row already present.
@@ -290,6 +439,7 @@ export async function getOrCreateSandbox(
         _id: randomId(),
         conversationId,
         supervisorSecret,
+        devProxySecret,
         createdAt: new Date(),
       });
     }
@@ -298,6 +448,8 @@ export async function getOrCreateSandbox(
   const { sandbox, wasFreshlyCreated } = await provisionOrResume({
     name: sandboxName,
     snapshotId,
+    // A dev-server sandbox exposes the auth-proxy port as well.
+    ports: devServerEnv ? [SUPERVISOR_PORT, AUTH_PROXY_PORT] : [SUPERVISOR_PORT],
     onCreate,
     onResume,
   });
@@ -308,6 +460,7 @@ export async function getOrCreateSandbox(
     sandbox,
     supervisorUrl: supervisorUrlForSandbox(sandbox),
     supervisorSecret,
+    devProxySecret,
     wasFreshlyCreated,
   };
 }

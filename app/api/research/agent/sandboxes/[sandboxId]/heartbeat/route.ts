@@ -43,7 +43,11 @@ const heartbeatSchema = z.object({
   conversations: z.array(conversationStateSchema),
   memoryPressure: z.number().min(0).max(1),
   cpuPressure: z.number().min(0).max(1),
+  lastDevActivityAt: z.number().optional(),
 });
+
+/** Dev-server use within this window keeps the sandbox from being idle-stopped. */
+const DEV_ACTIVITY_WINDOW_MS = 5 * 60 * 1000;
 
 export async function POST(
   req: NextRequest,
@@ -102,10 +106,16 @@ export async function POST(
 
   try {
     const turnRunning = parseResult.data.conversations.some((c) => c.status === "running");
+    // Recent dev-server traffic counts as activity too, so a sandbox a user is
+    // only previewing (no chat turn) is not idle-stopped under them.
+    const { lastDevActivityAt } = parseResult.data;
+    const devActive =
+      lastDevActivityAt !== undefined &&
+      Date.now() - lastDevActivityAt < DEV_ACTIVITY_WINDOW_MS;
     // The heartbeat came from the supervisor, so the sandbox is running.
     const sandbox = await getRunningSandbox(conversationId);
     if (sandbox) {
-      await maintainSandboxTimeout(sandbox, { turnRunning });
+      await maintainSandboxTimeout(sandbox, { turnRunning: turnRunning || devActive });
     }
 
     captureResearchAgentApiEvent({

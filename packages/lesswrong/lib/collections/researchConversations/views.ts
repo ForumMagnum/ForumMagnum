@@ -19,8 +19,7 @@ function byProjectAndEntrypointKind(terms: ResearchConversationsByProjectAndEntr
   return {
     selector: {
       projectId: terms.projectId,
-      // JSONB path lookup, surfaced into the Mongo→SQL layer.
-      "entrypoint.kind": terms.kind,
+      entrypointKind: terms.kind,
     },
     options: { sort: { lastActivityAt: -1 as const } },
   };

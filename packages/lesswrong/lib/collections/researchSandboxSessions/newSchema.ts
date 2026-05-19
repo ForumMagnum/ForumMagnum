@@ -36,6 +36,23 @@ const schema = {
       canCreate: ["admins"],
     },
   },
+  // Per-sandbox HMAC key for dev-preview tokens, generated when a coding
+  // conversation whose repo defines a dev server is first provisioned; null
+  // otherwise. The backend signs `mintDevPreviewUrl` tokens with it; the
+  // in-sandbox auth-proxy validates them against its `DEV_PROXY_SECRET` env copy.
+  devProxySecret: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["admins"],
+      canUpdate: ["admins"],
+      canCreate: ["admins"],
+      validation: { optional: true },
+    },
+  },
 } satisfies Record<string, CollectionFieldSpecification<"ResearchSandboxSessions">>;
 
 export default schema;

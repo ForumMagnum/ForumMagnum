@@ -2308,6 +2308,19 @@ CREATE TABLE "RecommendationsCaches" (
 -- Index "idx_RecommendationsCaches_userId_postId_source_scenario"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_RecommendationsCaches_userId_postId_source_scenario" ON "RecommendationsCaches" USING btree ("userId", "postId", "source", "scenario");
 
+-- Table "RepoInstallSnapshots"
+CREATE TABLE "RepoInstallSnapshots" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "workspaceRepoId" VARCHAR(27) NOT NULL,
+  "manifestHash" TEXT NOT NULL,
+  "vercelSnapshotId" TEXT NOT NULL,
+  "sizeBytes" DOUBLE PRECISION
+);
+
+-- Index "idx_RepoInstallSnapshots_workspaceRepoId_manifestHash_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_RepoInstallSnapshots_workspaceRepoId_manifestHash_createdAt" ON "RepoInstallSnapshots" USING btree ("workspaceRepoId", "manifestHash", "createdAt");
+
 -- Table "Reports"
 CREATE TABLE "Reports" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -2359,7 +2372,9 @@ CREATE TABLE "ResearchConversations" (
   "projectId" VARCHAR(27) NOT NULL,
   "claudeSessionId" TEXT,
   "title" TEXT,
-  "entrypoint" JSONB NOT NULL,
+  "entrypointKind" TEXT NOT NULL,
+  "entrypointDocumentId" VARCHAR(27) NOT NULL,
+  "workspaceRepoId" VARCHAR(27),
   "lastActivityAt" TIMESTAMPTZ NOT NULL
 );
 
@@ -2392,7 +2407,7 @@ CREATE TABLE "ResearchProjects" (
   "userId" VARCHAR(27) NOT NULL,
   "title" TEXT NOT NULL,
   "description" TEXT,
-  "claudeCodeTokenRef" TEXT,
+  "defaultWorkspaceRepoId" VARCHAR(27),
   "settings" JSONB
 );
 
@@ -2404,7 +2419,8 @@ CREATE TABLE "ResearchSandboxSessions" (
   _id VARCHAR(27) PRIMARY KEY,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
   "conversationId" VARCHAR(27) NOT NULL,
-  "supervisorSecret" TEXT NOT NULL
+  "supervisorSecret" TEXT NOT NULL,
+  "devProxySecret" TEXT
 );
 
 -- Index "idx_ResearchSandboxSessions_conversationId"
@@ -2523,6 +2539,18 @@ CREATE INDEX IF NOT EXISTS "idx_Revisions_collectionName_fieldName_editedAt__id_
 
 -- Index "idx_Revisions_documentId_version_fieldName_editedAt"
 CREATE INDEX IF NOT EXISTS "idx_Revisions_documentId_version_fieldName_editedAt" ON "Revisions" USING btree ("documentId", "version", "fieldName", "editedAt");
+
+-- Table "SandboxBaselineSnapshots"
+CREATE TABLE "SandboxBaselineSnapshots" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "runtime" TEXT NOT NULL,
+  "vercelSnapshotId" TEXT NOT NULL,
+  "builtAt" TIMESTAMPTZ NOT NULL
+);
+
+-- Index "idx_SandboxBaselineSnapshots_runtime"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_SandboxBaselineSnapshots_runtime" ON "SandboxBaselineSnapshots" USING btree ("runtime");
 
 -- Table "Sequences"
 CREATE TABLE "Sequences" (
@@ -3001,6 +3029,16 @@ CREATE TABLE "UserRateLimits" (
 -- Index "idx_UserRateLimits_userId_createdAt_endedAt"
 CREATE INDEX IF NOT EXISTS "idx_UserRateLimits_userId_createdAt_endedAt" ON "UserRateLimits" USING btree ("userId", "createdAt", "endedAt");
 
+-- Table "UserSecrets"
+CREATE TABLE "UserSecrets" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "repoScope" TEXT,
+  "name" TEXT NOT NULL,
+  "encryptedValue" TEXT NOT NULL
+);
+
 -- Table "UserTagRels"
 CREATE TABLE "UserTagRels" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -3434,6 +3472,26 @@ CREATE INDEX IF NOT EXISTS "idx_Votes_documentId" ON "Votes" USING btree ("docum
 -- Index "idx_Votes_votedAt"
 CREATE INDEX IF NOT EXISTS "idx_Votes_votedAt" ON "Votes" USING btree ("votedAt");
 
+-- Table "WorkspaceRepos"
+CREATE TABLE "WorkspaceRepos" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "userId" VARCHAR(27) NOT NULL,
+  "host" TEXT NOT NULL,
+  "owner" TEXT NOT NULL,
+  "name" TEXT NOT NULL,
+  "defaultBranch" TEXT NOT NULL,
+  "runtime" TEXT NOT NULL,
+  "lockfilePath" TEXT NOT NULL,
+  "installCommand" TEXT NOT NULL,
+  "prepareCommand" TEXT,
+  "devCommand" TEXT,
+  "devPort" INTEGER
+);
+
+-- Index "idx_WorkspaceRepos_userId_host_owner_name_createdAt"
+CREATE INDEX IF NOT EXISTS "idx_WorkspaceRepos_userId_host_owner_name_createdAt" ON "WorkspaceRepos" USING btree ("userId", "host", "owner", "name", "createdAt");
+
 -- Table "YjsDocuments"
 CREATE TABLE "YjsDocuments" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -3659,6 +3717,16 @@ CREATE INDEX IF NOT EXISTS ultraFeedEvents_loggedOut_session_idx ON "UltraFeedEv
 WHERE
   "eventType" = 'served' AND
   ((event ->> 'loggedOut')::BOOLEAN IS TRUE);
+
+-- CustomIndex "idx_UserSecrets_global"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserSecrets_global" ON "UserSecrets" ("userId", "name")
+WHERE
+  "repoScope" IS NULL;
+
+-- CustomIndex "idx_UserSecrets_repoScoped"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserSecrets_repoScoped" ON "UserSecrets" ("userId", "repoScope", "name")
+WHERE
+  "repoScope" IS NOT NULL;
 
 -- Function "fm_build_nested_jsonb"
 CREATE OR

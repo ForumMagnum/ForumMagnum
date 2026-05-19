@@ -12,6 +12,7 @@ import SingleColumnSection from '../common/SingleColumnSection';
 import SectionTitle from '../common/SectionTitle';
 import ErrorAccessDenied from '../common/ErrorAccessDenied';
 import Loading from '../vulcan-core/Loading';
+import { CLAUDE_CODE_OAUTH_TOKEN_SECRET } from '@/lib/collections/userSecrets/userSecretNames';
 
 interface ResearchProjectSummary {
   _id: string;
@@ -33,9 +34,21 @@ const ResearchProjectsListQuery = gql(`
   }
 `);
 
+const ResearchUserSecretsQuery = gql(`
+  query ResearchUserSecretsQuery {
+    userSecrets(selector: { mySecrets: {} }, limit: 200) {
+      results {
+        _id
+        name
+        repoScope
+      }
+    }
+  }
+`);
+
 const CreateResearchProjectMutation = gql(`
-  mutation CreateResearchProject($title: String!, $description: String, $claudeCodeTokenRef: String) {
-    createResearchProject(data: { title: $title, description: $description, claudeCodeTokenRef: $claudeCodeTokenRef }) {
+  mutation CreateResearchProject($title: String!, $description: String) {
+    createResearchProject(data: { title: $title, description: $description }) {
       data {
         _id
         title
@@ -46,12 +59,18 @@ const CreateResearchProjectMutation = gql(`
   }
 `);
 
-const UpdateResearchProjectTokenMutation = gql(`
-  mutation UpdateResearchProjectToken($selector: SelectorInput!, $data: UpdateResearchProjectDataInput!) {
-    updateResearchProject(selector: $selector, data: $data) {
-      data {
-        _id
-      }
+const CreateUserSecretMutation = gql(`
+  mutation ResearchCreateUserSecret($name: String!, $value: String!) {
+    createUserSecret(data: { name: $name, value: $value }) {
+      data { _id name }
+    }
+  }
+`);
+
+const UpdateUserSecretMutation = gql(`
+  mutation ResearchUpdateUserSecret($_id: String!, $value: String!) {
+    updateUserSecret(selector: { _id: $_id }, data: { value: $value }) {
+      data { _id name }
     }
   }
 `);
@@ -126,20 +145,6 @@ const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
       cursor: 'not-allowed',
     },
   },
-  secondaryButton: {
-    padding: '4px 10px',
-    border: theme.palette.greyBorder('1px', 0.15),
-    borderRadius: 4,
-    background: 'transparent',
-    color: theme.palette.text.primary,
-    cursor: 'pointer',
-    fontSize: 12,
-    fontFamily: 'inherit',
-    '&:disabled': {
-      opacity: 0.5,
-      cursor: 'not-allowed',
-    },
-  },
   list: {
     listStyle: 'none',
     padding: 0,
@@ -172,12 +177,6 @@ const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
     fontSize: 14,
     color: theme.palette.text.dim,
   },
-  itemTokenForm: {
-    marginTop: 12,
-    display: 'flex',
-    gap: 8,
-    alignItems: 'center',
-  },
   empty: {
     padding: 32,
     textAlign: 'center',
@@ -202,8 +201,6 @@ const ResearchProjectList = () => {
   const navigate = useNavigate();
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
-  const [newToken, setNewToken] = useState('');
-  const [newTokenError, setNewTokenError] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
 
   const { data, loading, refetch } = useQuery(ResearchProjectsListQuery, {
@@ -220,26 +217,18 @@ const ResearchProjectList = () => {
 
   const handleCreate = async () => {
     if (!newTitle.trim() || creating) return;
-    const tokenError = newToken.trim() ? tokenWhitespaceError(newToken) : null;
-    if (tokenError) {
-      setNewTokenError(tokenError);
-      return;
-    }
-    setNewTokenError(null);
     setCreating(true);
     try {
       const result = await createProject({
         variables: {
           title: newTitle.trim(),
           description: newDescription.trim() || null,
-          claudeCodeTokenRef: newToken.trim() || null,
         },
       });
       const created = result.data?.createResearchProject?.data;
       if (created) {
         setNewTitle('');
         setNewDescription('');
-        setNewToken('');
         navigate(`/research/projects/${created._id}`);
       } else {
         await refetch();
@@ -255,6 +244,7 @@ const ResearchProjectList = () => {
         <div className={classes.header}>
           <SectionTitle title="Research Projects" />
         </div>
+        <ClaudeCodeTokenForm classes={classes} />
         <div className={classes.newProjectForm}>
           <div className={classes.newProjectFormRow}>
             <input
@@ -275,22 +265,6 @@ const ResearchProjectList = () => {
               disabled={creating}
               autoComplete="off"
             />
-          </div>
-          <div className={classes.newProjectFormRow}>
-            <input
-              className={classes.input}
-              type="password"
-              name="research-project-claude-token"
-              placeholder="Claude Code OAuth token"
-              value={newToken}
-              onChange={(e) => {
-                setNewToken(e.target.value);
-                if (newTokenError) setNewTokenError(null);
-              }}
-              disabled={creating}
-              autoComplete="new-password"
-              spellCheck={false}
-            />
             <button
               className={classes.button}
               onClick={handleCreate}
@@ -299,9 +273,6 @@ const ResearchProjectList = () => {
               New project
             </button>
           </div>
-          {newTokenError
-            ? <div className={classes.inputError}>{newTokenError}</div>
-            : <div className={classes.inputHint}>{TOKEN_HINT}</div>}
         </div>
         {loading && projects.length === 0 ? <Loading /> : null}
         {!loading && projects.length === 0 ? (
@@ -322,18 +293,100 @@ const ResearchProjectList = () => {
   );
 };
 
+interface TokenFormClasses {
+  newProjectForm: string;
+  newProjectFormRow: string;
+  inputLabel: string;
+  input: string;
+  button: string;
+  inputHint: string;
+  inputError: string;
+}
+
+/**
+ * The Claude Code OAuth token is a single user-global secret (not per-project),
+ * stored in `UserSecrets`. This form sets or replaces it.
+ */
+function ClaudeCodeTokenForm({ classes }: { classes: TokenFormClasses }) {
+  const [tokenDraft, setTokenDraft] = useState('');
+  const [tokenError, setTokenError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const { data, refetch } = useQuery(ResearchUserSecretsQuery, {
+    fetchPolicy: 'cache-and-network',
+  });
+  const [createUserSecret] = useMutation(CreateUserSecretMutation);
+  const [updateUserSecret] = useMutation(UpdateUserSecretMutation);
+
+  const existingTokenSecret = (data?.userSecrets?.results ?? []).find(
+    (secret) => secret.name === CLAUDE_CODE_OAUTH_TOKEN_SECRET && !secret.repoScope,
+  );
+  const tokenIsSet = !!existingTokenSecret;
+
+  const handleSave = async () => {
+    const value = tokenDraft.trim();
+    if (!value || saving) return;
+    const error = tokenWhitespaceError(tokenDraft);
+    if (error) {
+      setTokenError(error);
+      return;
+    }
+    setTokenError(null);
+    setSaving(true);
+    try {
+      if (existingTokenSecret) {
+        await updateUserSecret({ variables: { _id: existingTokenSecret._id, value } });
+      } else {
+        await createUserSecret({ variables: { name: CLAUDE_CODE_OAUTH_TOKEN_SECRET, value } });
+      }
+      setTokenDraft('');
+      await refetch();
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className={classes.newProjectForm}>
+      <div className={classes.inputLabel}>
+        {tokenIsSet ? 'Claude Code token — set ✓' : 'Claude Code token — not set'}
+      </div>
+      <div className={classes.newProjectFormRow}>
+        <input
+          className={classes.input}
+          type="password"
+          name="research-claude-token"
+          placeholder={tokenIsSet ? 'Replace Claude Code OAuth token' : 'Claude Code OAuth token'}
+          value={tokenDraft}
+          onChange={(e) => {
+            setTokenDraft(e.target.value);
+            if (tokenError) setTokenError(null);
+          }}
+          disabled={saving}
+          autoComplete="new-password"
+          spellCheck={false}
+        />
+        <button
+          className={classes.button}
+          onClick={handleSave}
+          disabled={saving || !tokenDraft.trim()}
+        >
+          Save token
+        </button>
+      </div>
+      {tokenError
+        ? <div className={classes.inputError}>{tokenError}</div>
+        : <div className={classes.inputHint}>{TOKEN_HINT}</div>}
+    </div>
+  );
+}
+
 interface ProjectListItemClasses {
   item: string;
   itemHeader: string;
   itemBody: string;
   itemTitle: string;
   itemDescription: string;
-  itemTokenForm: string;
-  input: string;
-  button: string;
-  secondaryButton: string;
-  inputHint: string;
-  inputError: string;
 }
 
 function ProjectListItem({
@@ -345,39 +398,6 @@ function ProjectListItem({
   classes: ProjectListItemClasses;
   onOpen: () => void;
 }) {
-  const [editingToken, setEditingToken] = useState(false);
-  const [tokenDraft, setTokenDraft] = useState('');
-  const [tokenDraftError, setTokenDraftError] = useState<string | null>(null);
-  const [savingToken, setSavingToken] = useState(false);
-  const [savedAt, setSavedAt] = useState<number | null>(null);
-
-  const [updateToken] = useMutation(UpdateResearchProjectTokenMutation);
-
-  const handleSaveToken = async () => {
-    const value = tokenDraft.trim();
-    if (!value || savingToken) return;
-    const error = tokenWhitespaceError(tokenDraft);
-    if (error) {
-      setTokenDraftError(error);
-      return;
-    }
-    setTokenDraftError(null);
-    setSavingToken(true);
-    try {
-      await updateToken({
-        variables: {
-          selector: { _id: project._id },
-          data: { claudeCodeTokenRef: value },
-        },
-      });
-      setTokenDraft('');
-      setEditingToken(false);
-      setSavedAt(Date.now());
-    } finally {
-      setSavingToken(false);
-    }
-  };
-
   return (
     <li className={classes.item}>
       <div className={classes.itemHeader}>
@@ -387,47 +407,7 @@ function ProjectListItem({
             <div className={classes.itemDescription}>{project.description}</div>
           ) : null}
         </div>
-        <button
-          className={classes.secondaryButton}
-          onClick={(e) => {
-            e.stopPropagation();
-            setEditingToken((v) => !v);
-          }}
-        >
-          {editingToken ? 'Cancel' : savedAt ? 'Token saved ✓' : 'Set / replace token'}
-        </button>
       </div>
-      {editingToken ? (
-        <>
-          <div className={classes.itemTokenForm} onClick={(e) => e.stopPropagation()}>
-            <input
-              className={classes.input}
-              type="password"
-              name="research-project-claude-token"
-              placeholder="Claude Code OAuth token"
-              value={tokenDraft}
-              onChange={(e) => {
-                setTokenDraft(e.target.value);
-                if (tokenDraftError) setTokenDraftError(null);
-              }}
-              disabled={savingToken}
-              autoComplete="new-password"
-              spellCheck={false}
-              autoFocus
-            />
-            <button
-              className={classes.button}
-              onClick={handleSaveToken}
-              disabled={savingToken || !tokenDraft.trim()}
-            >
-              Save
-            </button>
-          </div>
-          {tokenDraftError
-            ? <div className={classes.inputError}>{tokenDraftError}</div>
-            : null}
-        </>
-      ) : null}
     </li>
   );
 }

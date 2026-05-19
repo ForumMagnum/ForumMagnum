@@ -1,11 +1,11 @@
 import gql from "graphql-tag";
 import { randomId } from "@/lib/random";
-import { type Entrypoint } from "@/lib/collections/researchConversations/newSchema";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { generateConversationTitle } from "@/server/research/titleGeneration";
-import { signSupervisorToken } from "@/server/research/sandbox/supervisor/auth";
+import { DEVAUTH_SCOPE, signSupervisorToken } from "@/server/research/sandbox/supervisor/auth";
 import { mintSandboxCallbackToken } from "../../../../app/api/research/agent/researchAgentAuth";
 import {
+  devProxyUrlForSandbox,
   getOrCreateSandbox,
   getRunningSandbox,
   sandboxNameForConversation,
@@ -21,17 +21,11 @@ import {
 /**
  * GraphQL custom mutations + resolvers for research conversations.
  *
- * The user-facing surface (chat panel, AgentBlock, fork) all routes through
- * `fireResearchConversation` with different `entrypoint` discriminator values.
- * Once a conversation exists, `continueResearchConversation` adds turns and
- * `cancelResearchConversation` aborts the in-flight one.
+ * The user-facing surface (chat panel, AgentBlock) routes through
+ * `fireResearchConversation`; once a conversation exists,
+ * `continueResearchConversation` adds turns and `cancelResearchConversation`
+ * aborts the in-flight one.
  */
-
-function buildEntrypoint(kind: "document" | "chat", activeDocumentId: string): Entrypoint {
-  return kind === "document"
-    ? { kind: "document", documentId: activeDocumentId }
-    : { kind: "chat", activeDocumentId };
-}
 
 async function assertProjectAccess(projectId: string, context: ResolverContext): Promise<void> {
   const { currentUser, ResearchProjects } = context;
@@ -55,6 +49,9 @@ async function loadConversationOrThrow(conversationId: string, context: Resolver
 }
 
 const SUPERVISOR_TOKEN_TTL_MS = 30 * 60 * 1000;
+
+/** Lifetime of a dev-preview token. Long enough not to interrupt a work session. */
+const DEV_PREVIEW_TOKEN_TTL_MS = 4 * 60 * 60 * 1000;
 
 /** Fields needed to reach a conversation's supervisor and sign a bearer for it. */
 type SupervisorTarget = Pick<
@@ -153,20 +150,21 @@ async function prepareTurnPrompt(args: {
   rawPrompt: string;
   projectId: string;
   activeDocumentId: string;
-  entrypoint: Entrypoint;
+  entrypointKind: string;
+  entrypointDocumentId: string;
   priorEvents: DbResearchConversationEvent[];
   context: ResolverContext;
 }): Promise<string> {
-  const { rawPrompt, projectId, activeDocumentId, entrypoint, priorEvents, context } = args;
+  const { rawPrompt, projectId, activeDocumentId, entrypointKind, entrypointDocumentId, priorEvents, context } = args;
 
   const lastInjected = deriveLastInjectedActiveDocumentId(priorEvents);
   if (lastInjected === activeDocumentId) return rawPrompt;
 
-  const needsOrigin = entrypoint.kind === "document" && entrypoint.documentId !== activeDocumentId;
+  const needsOrigin = entrypointKind === "document" && entrypointDocumentId !== activeDocumentId;
   const [activeDoc, originDoc] = await Promise.all([
     context.ResearchDocuments.findOne({ _id: activeDocumentId, projectId }),
     needsOrigin
-      ? context.ResearchDocuments.findOne({ _id: entrypoint.documentId, projectId })
+      ? context.ResearchDocuments.findOne({ _id: entrypointDocumentId, projectId })
       : Promise.resolve(null),
   ]);
   if (!activeDoc) return rawPrompt;
@@ -322,6 +320,8 @@ export const researchResolversTypeDefs = gql`
     kind: ResearchEntrypointKind!
     activeDocumentId: String!
     prompt: String!
+    # The workspace repo for a coding conversation; omitted for an ordinary one.
+    workspaceRepoId: String
   }
 
   type ResearchConversationOutput {
@@ -329,10 +329,15 @@ export const researchResolversTypeDefs = gql`
     data: ResearchConversation
   }
 
+  type DevPreviewUrlOutput {
+    url: String!
+  }
+
   extend type Mutation {
     fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
     continueResearchConversation(conversationId: String!, prompt: String!, activeDocumentId: String!): ResearchConversationOutput
     cancelResearchConversation(conversationId: String!): ResearchConversationOutput
+    mintDevPreviewUrl(conversationId: String!): DevPreviewUrlOutput
   }
 
   extend type Query {
@@ -343,16 +348,31 @@ export const researchResolversTypeDefs = gql`
 export const researchResolversMutations = {
   async fireResearchConversation(
     _root: void,
-    args: { input: { projectId: string; kind: "document" | "chat"; activeDocumentId: string; prompt: string } },
+    args: {
+      input: {
+        projectId: string;
+        kind: "document" | "chat";
+        activeDocumentId: string;
+        prompt: string;
+        workspaceRepoId?: string | null;
+      };
+    },
     context: ResolverContext,
   ) {
     const { currentUser, ResearchConversations } = context;
     if (!currentUser) throw new Error("Not logged in");
-    const { projectId, kind, activeDocumentId, prompt } = args.input;
+    const { projectId, kind, activeDocumentId, prompt, workspaceRepoId } = args.input;
     if (!prompt) throw new Error("prompt required");
 
     await assertProjectAccess(projectId, context);
-    const entrypoint = buildEntrypoint(kind, activeDocumentId);
+
+    // A coding conversation pins a workspace repo; verify the caller owns it.
+    if (workspaceRepoId) {
+      const repo = await context.WorkspaceRepos.findOne({ _id: workspaceRepoId });
+      if (!repo || repo.userId !== currentUser._id) {
+        throw new Error(`Workspace repo ${workspaceRepoId} not found`);
+      }
+    }
 
     const _id = randomId();
     const now = new Date();
@@ -360,7 +380,9 @@ export const researchResolversMutations = {
       _id,
       userId: currentUser._id,
       projectId,
-      entrypoint,
+      entrypointKind: kind,
+      entrypointDocumentId: activeDocumentId,
+      workspaceRepoId: workspaceRepoId ?? null,
       title: null,
       claudeSessionId: null,
       lastActivityAt: now,
@@ -371,7 +393,8 @@ export const researchResolversMutations = {
       rawPrompt: prompt,
       projectId,
       activeDocumentId,
-      entrypoint,
+      entrypointKind: kind,
+      entrypointDocumentId: activeDocumentId,
       priorEvents: [],
       context,
     });
@@ -419,7 +442,8 @@ export const researchResolversMutations = {
       rawPrompt: args.prompt,
       projectId: conv.projectId,
       activeDocumentId: args.activeDocumentId,
-      entrypoint: conv.entrypoint as Entrypoint,
+      entrypointKind: conv.entrypointKind,
+      entrypointDocumentId: conv.entrypointDocumentId,
       priorEvents,
       context,
     });
@@ -462,6 +486,38 @@ export const researchResolversMutations = {
       }
     }
     return { conversationId: conv._id, data: { _id: conv._id } };
+  },
+
+  /**
+   * Mint a fresh, per-session dev-server preview URL for a coding conversation.
+   * Resumes the sandbox if stopped (the relaunched supervisor restarts the dev
+   * server), signs an HMAC dev-access token, and returns the auth-proxy URL.
+   */
+  async mintDevPreviewUrl(_root: void, args: { conversationId: string }, context: ResolverContext) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    if (!conv.workspaceRepoId) {
+      throw new Error("This conversation has no workspace repo.");
+    }
+    const workspaceRepo = await context.WorkspaceRepos.findOne({ _id: conv.workspaceRepoId });
+    if (!workspaceRepo?.devCommand) {
+      throw new Error("This conversation's repo does not define a dev server.");
+    }
+    // Resumes (or provisions) the sandbox; the relaunched supervisor starts the
+    // dev server and the auth-proxy.
+    const provisioned = await getOrCreateSandbox(conv._id, context);
+    if (!provisioned.devProxySecret) {
+      throw new Error("The sandbox was provisioned without a dev server.");
+    }
+    const token = signSupervisorToken(
+      {
+        sandboxId: provisioned.sandboxName,
+        expiresAt: Date.now() + DEV_PREVIEW_TOKEN_TTL_MS,
+        scope: DEVAUTH_SCOPE,
+      },
+      provisioned.devProxySecret,
+    );
+    const url = `${devProxyUrlForSandbox(provisioned.sandbox)}/_devauth/${encodeURIComponent(token)}`;
+    return { url };
   },
 };
 

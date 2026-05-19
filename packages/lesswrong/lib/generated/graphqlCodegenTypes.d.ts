@@ -1574,7 +1574,7 @@ type CreateResearchDocumentInput = {
 };
 
 type CreateResearchProjectDataInput = {
-  claudeCodeTokenRef?: InputMaybe<Scalars['String']['input']>;
+  defaultWorkspaceRepoId?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   settings?: InputMaybe<Scalars['JSON']['input']>;
   title: Scalars['String']['input'];
@@ -1930,6 +1930,17 @@ type CreateUserRateLimitInput = {
   data: CreateUserRateLimitDataInput;
 };
 
+type CreateUserSecretDataInput = {
+  name: Scalars['String']['input'];
+  repoScope?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  value: Scalars['String']['input'];
+};
+
+type CreateUserSecretInput = {
+  data: CreateUserSecretDataInput;
+};
+
 type CreateUserTagRelDataInput = {
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
   subforumEmailNotifications?: InputMaybe<Scalars['Boolean']['input']>;
@@ -1940,6 +1951,24 @@ type CreateUserTagRelDataInput = {
 
 type CreateUserTagRelInput = {
   data: CreateUserTagRelDataInput;
+};
+
+type CreateWorkspaceRepoDataInput = {
+  defaultBranch: Scalars['String']['input'];
+  devCommand?: InputMaybe<Scalars['String']['input']>;
+  devPort?: InputMaybe<Scalars['Int']['input']>;
+  host: Scalars['String']['input'];
+  installCommand: Scalars['String']['input'];
+  lockfilePath: Scalars['String']['input'];
+  name: Scalars['String']['input'];
+  owner: Scalars['String']['input'];
+  prepareCommand?: InputMaybe<Scalars['String']['input']>;
+  runtime: Scalars['String']['input'];
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type CreateWorkspaceRepoInput = {
+  data: CreateWorkspaceRepoDataInput;
 };
 
 type CronHistory = {
@@ -2060,6 +2089,16 @@ type DebouncerEvents = {
   createdAt: Scalars['Date']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
   schemaVersion: Scalars['Float']['output'];
+};
+
+type DeleteUserSecretOutput = {
+  __typename?: 'DeleteUserSecretOutput';
+  success: Scalars['Boolean']['output'];
+};
+
+type DevPreviewUrlOutput = {
+  __typename?: 'DevPreviewUrlOutput';
+  url: Scalars['String']['output'];
 };
 
 type DialogueCheck = {
@@ -2343,6 +2382,7 @@ type FireResearchConversationInput = {
   kind: ResearchEntrypointKind;
   projectId: Scalars['String']['input'];
   prompt: Scalars['String']['input'];
+  workspaceRepoId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type FrontpageClassification = {
@@ -3799,6 +3839,19 @@ type MultiUserRateLimitOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+type MultiUserSecretInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type MultiUserSecretOutput = {
+  __typename?: 'MultiUserSecretOutput';
+  results: Array<UserSecret>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 type MultiUserTagRelInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3822,6 +3875,19 @@ type MultiVoteInput = {
 type MultiVoteOutput = {
   __typename?: 'MultiVoteOutput';
   results: Array<Vote>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
+type MultiWorkspaceRepoInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type MultiWorkspaceRepoOutput = {
+  __typename?: 'MultiWorkspaceRepoOutput';
+  results: Array<WorkspaceRepo>;
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
@@ -3888,7 +3954,10 @@ type Mutation = {
   createUser?: Maybe<UserOutput>;
   createUserMostValuablePost?: Maybe<UserMostValuablePostOutput>;
   createUserRateLimit?: Maybe<UserRateLimitOutput>;
+  createUserSecret?: Maybe<UserSecretOutput>;
   createUserTagRel?: Maybe<UserTagRelOutput>;
+  createWorkspaceRepo?: Maybe<WorkspaceRepoOutput>;
+  deleteUserSecret?: Maybe<DeleteUserSecretOutput>;
   dismissRecommendation?: Maybe<Scalars['Boolean']['output']>;
   fireResearchConversation?: Maybe<ResearchConversationOutput>;
   flipSplashArtImage?: Maybe<Scalars['Boolean']['output']>;
@@ -3906,6 +3975,7 @@ type Mutation = {
   markConversationRead: Scalars['Boolean']['output'];
   markPostCommentsRead?: Maybe<Scalars['Boolean']['output']>;
   mergeTags?: Maybe<Scalars['Boolean']['output']>;
+  mintDevPreviewUrl?: Maybe<DevPreviewUrlOutput>;
   moderateComment?: Maybe<Comment>;
   observeRecommendation?: Maybe<Scalars['Boolean']['output']>;
   performVoteComment?: Maybe<VoteResultComment>;
@@ -3916,6 +3986,7 @@ type Mutation = {
   performVoteTag?: Maybe<VoteResultTag>;
   performVoteTagRel?: Maybe<VoteResultTagRel>;
   promoteLensToMain?: Maybe<Scalars['Boolean']['output']>;
+  proposeWorkspaceRepoConfig?: Maybe<WorkspaceRepoConfigProposal>;
   publishAndDeDuplicateSpotlight?: Maybe<Spotlight>;
   publishHomePageDesign?: Maybe<HomePageDesignMutationOutput>;
   rejectContentAndRemoveUserFromQueue: Scalars['Boolean']['output'];
@@ -3978,6 +4049,7 @@ type Mutation = {
   updateUser?: Maybe<UserOutput>;
   updateUserMostValuablePost?: Maybe<UserMostValuablePostOutput>;
   updateUserRateLimit?: Maybe<UserRateLimitOutput>;
+  updateUserSecret?: Maybe<UserSecretOutput>;
   updateUserTagRel?: Maybe<UserTagRelOutput>;
   upscaleReviewWinnerArt?: Maybe<ReviewWinnerArt>;
   useEmailToken?: Maybe<Scalars['JSON']['output']>;
@@ -4308,8 +4380,23 @@ type MutationcreateUserRateLimitArgs = {
 };
 
 
+type MutationcreateUserSecretArgs = {
+  data: CreateUserSecretDataInput;
+};
+
+
 type MutationcreateUserTagRelArgs = {
   data: CreateUserTagRelDataInput;
+};
+
+
+type MutationcreateWorkspaceRepoArgs = {
+  data: CreateWorkspaceRepoDataInput;
+};
+
+
+type MutationdeleteUserSecretArgs = {
+  _id: Scalars['String']['input'];
 };
 
 
@@ -4403,6 +4490,11 @@ type MutationmergeTagsArgs = {
 };
 
 
+type MutationmintDevPreviewUrlArgs = {
+  conversationId: Scalars['String']['input'];
+};
+
+
 type MutationmoderateCommentArgs = {
   commentId?: InputMaybe<Scalars['String']['input']>;
   deleted?: InputMaybe<Scalars['Boolean']['input']>;
@@ -4467,6 +4559,12 @@ type MutationperformVoteTagRelArgs = {
 
 type MutationpromoteLensToMainArgs = {
   lensId: Scalars['String']['input'];
+};
+
+
+type MutationproposeWorkspaceRepoConfigArgs = {
+  githubToken?: InputMaybe<Scalars['String']['input']>;
+  repoUrl: Scalars['String']['input'];
 };
 
 
@@ -4845,6 +4943,12 @@ type MutationupdateUserMostValuablePostArgs = {
 
 type MutationupdateUserRateLimitArgs = {
   data: UpdateUserRateLimitDataInput;
+  selector: SelectorInput;
+};
+
+
+type MutationupdateUserSecretArgs = {
+  data: UpdateUserSecretDataInput;
   selector: SelectorInput;
 };
 
@@ -7320,11 +7424,15 @@ type Query = {
   userMostValuablePosts?: Maybe<MultiUserMostValuablePostOutput>;
   userRateLimit?: Maybe<SingleUserRateLimitOutput>;
   userRateLimits?: Maybe<MultiUserRateLimitOutput>;
+  userSecret?: Maybe<SingleUserSecretOutput>;
+  userSecrets?: Maybe<MultiUserSecretOutput>;
   userTagRel?: Maybe<SingleUserTagRelOutput>;
   userTagRels?: Maybe<MultiUserTagRelOutput>;
   users?: Maybe<MultiUserOutput>;
   vote?: Maybe<SingleVoteOutput>;
   votes?: Maybe<MultiVoteOutput>;
+  workspaceRepo?: Maybe<SingleWorkspaceRepoOutput>;
+  workspaceRepos?: Maybe<MultiWorkspaceRepoOutput>;
 };
 
 
@@ -8569,6 +8677,19 @@ type QueryuserRateLimitsArgs = {
 };
 
 
+type QueryuserSecretArgs = {
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QueryuserSecretsArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<UserSecretSelector>;
+};
+
+
 type QueryuserTagRelArgs = {
   input?: InputMaybe<SingleUserTagRelInput>;
   selector?: InputMaybe<SelectorInput>;
@@ -8605,6 +8726,21 @@ type QueryvotesArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<VoteSelector>;
+};
+
+
+type QueryworkspaceRepoArgs = {
+  input?: InputMaybe<SingleWorkspaceRepoInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QueryworkspaceReposArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiWorkspaceRepoInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<WorkspaceRepoSelector>;
 };
 
 type RSSFeed = {
@@ -8748,6 +8884,15 @@ type RecommendationsCache = {
   userId?: Maybe<Scalars['String']['output']>;
 };
 
+type RepoInstallSnapshot = {
+  __typename?: 'RepoInstallSnapshot';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+  manifestHash?: Maybe<Scalars['String']['output']>;
+  vercelSnapshotId?: Maybe<Scalars['String']['output']>;
+  workspaceRepoId?: Maybe<Scalars['String']['output']>;
+};
+
 type Report = {
   __typename?: 'Report';
   _id: Scalars['String']['output'];
@@ -8795,11 +8940,13 @@ type ResearchConversation = {
   _id: Scalars['String']['output'];
   claudeSessionId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
-  entrypoint?: Maybe<Scalars['JSON']['output']>;
+  entrypointDocumentId?: Maybe<Scalars['String']['output']>;
+  entrypointKind?: Maybe<ResearchEntrypointKind>;
   lastActivityAt?: Maybe<Scalars['Date']['output']>;
   projectId?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   userId?: Maybe<Scalars['String']['output']>;
+  workspaceRepoId?: Maybe<Scalars['String']['output']>;
 };
 
 type ResearchConversationEvent = {
@@ -8890,8 +9037,8 @@ type ResearchEntrypointKind =
 type ResearchProject = {
   __typename?: 'ResearchProject';
   _id: Scalars['String']['output'];
-  claudeCodeTokenRef?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
+  defaultWorkspaceRepoId?: Maybe<Scalars['String']['output']>;
   description?: Maybe<Scalars['String']['output']>;
   settings?: Maybe<Scalars['JSON']['output']>;
   title?: Maybe<Scalars['String']['output']>;
@@ -8917,6 +9064,7 @@ type ResearchSandboxSession = {
   _id: Scalars['String']['output'];
   conversationId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
+  devProxySecret?: Maybe<Scalars['String']['output']>;
   supervisorSecret?: Maybe<Scalars['String']['output']>;
 };
 
@@ -9139,6 +9287,15 @@ type RssPostChangeInfo = {
   htmlDiff: Scalars['String']['output'];
   isChanged: Scalars['Boolean']['output'];
   newHtml: Scalars['String']['output'];
+};
+
+type SandboxBaselineSnapshot = {
+  __typename?: 'SandboxBaselineSnapshot';
+  _id: Scalars['String']['output'];
+  builtAt?: Maybe<Scalars['Date']['output']>;
+  createdAt: Scalars['Date']['output'];
+  runtime?: Maybe<Scalars['String']['output']>;
+  vercelSnapshotId?: Maybe<Scalars['String']['output']>;
 };
 
 type SelectorInput = {
@@ -9835,6 +9992,16 @@ type SingleUserRateLimitOutput = {
   result?: Maybe<UserRateLimit>;
 };
 
+type SingleUserSecretInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+type SingleUserSecretOutput = {
+  __typename?: 'SingleUserSecretOutput';
+  result?: Maybe<UserSecret>;
+};
+
 type SingleUserTagRelInput = {
   resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
   selector?: InputMaybe<SelectorInput>;
@@ -9853,6 +10020,16 @@ type SingleVoteInput = {
 type SingleVoteOutput = {
   __typename?: 'SingleVoteOutput';
   result?: Maybe<Vote>;
+};
+
+type SingleWorkspaceRepoInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+type SingleWorkspaceRepoOutput = {
+  __typename?: 'SingleWorkspaceRepoOutput';
+  result?: Maybe<WorkspaceRepo>;
 };
 
 type Site = {
@@ -11041,11 +11218,13 @@ type UpdateReportInput = {
 
 type UpdateResearchConversationDataInput = {
   claudeSessionId?: InputMaybe<Scalars['String']['input']>;
-  entrypoint?: InputMaybe<Scalars['JSON']['input']>;
+  entrypointDocumentId?: InputMaybe<Scalars['String']['input']>;
+  entrypointKind?: InputMaybe<ResearchEntrypointKind>;
   lastActivityAt?: InputMaybe<Scalars['Date']['input']>;
   projectId?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
+  workspaceRepoId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type UpdateResearchConversationInput = {
@@ -11066,7 +11245,7 @@ type UpdateResearchDocumentInput = {
 };
 
 type UpdateResearchProjectDataInput = {
-  claudeCodeTokenRef?: InputMaybe<Scalars['String']['input']>;
+  defaultWorkspaceRepoId?: InputMaybe<Scalars['String']['input']>;
   description?: InputMaybe<Scalars['String']['input']>;
   settings?: InputMaybe<Scalars['JSON']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
@@ -11427,6 +11606,18 @@ type UpdateUserRateLimitDataInput = {
 
 type UpdateUserRateLimitInput = {
   data: UpdateUserRateLimitDataInput;
+  selector: SelectorInput;
+};
+
+type UpdateUserSecretDataInput = {
+  name?: InputMaybe<Scalars['String']['input']>;
+  repoScope?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  value?: InputMaybe<Scalars['String']['input']>;
+};
+
+type UpdateUserSecretInput = {
+  data: UpdateUserSecretDataInput;
   selector: SelectorInput;
 };
 
@@ -11912,6 +12103,25 @@ type UserReadHistoryResult = {
   posts?: Maybe<Array<Post>>;
 };
 
+type UserSecret = {
+  __typename?: 'UserSecret';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+  name?: Maybe<Scalars['String']['output']>;
+  repoScope?: Maybe<Scalars['String']['output']>;
+  userId?: Maybe<Scalars['String']['output']>;
+  value?: Maybe<Scalars['String']['output']>;
+};
+
+type UserSecretOutput = {
+  __typename?: 'UserSecretOutput';
+  data?: Maybe<UserSecret>;
+};
+
+type UserSecretSelector = {
+  mySecrets?: InputMaybe<EmptyViewInput>;
+};
+
 type UserSelector = {
   LWSunshinesList?: InputMaybe<EmptyViewInput>;
   LWTrustLevel1List?: InputMaybe<EmptyViewInput>;
@@ -12072,6 +12282,43 @@ type VotesUserPostVotesInput = {
 
 type VotesUserVotesInput = {
   collectionNames: Array<Scalars['String']['input']>;
+};
+
+type WorkspaceRepo = {
+  __typename?: 'WorkspaceRepo';
+  _id: Scalars['String']['output'];
+  createdAt: Scalars['Date']['output'];
+  defaultBranch?: Maybe<Scalars['String']['output']>;
+  devCommand?: Maybe<Scalars['String']['output']>;
+  devPort?: Maybe<Scalars['Int']['output']>;
+  host?: Maybe<Scalars['String']['output']>;
+  installCommand?: Maybe<Scalars['String']['output']>;
+  lockfilePath?: Maybe<Scalars['String']['output']>;
+  name?: Maybe<Scalars['String']['output']>;
+  owner?: Maybe<Scalars['String']['output']>;
+  prepareCommand?: Maybe<Scalars['String']['output']>;
+  runtime?: Maybe<Scalars['String']['output']>;
+  userId?: Maybe<Scalars['String']['output']>;
+};
+
+type WorkspaceRepoConfigProposal = {
+  __typename?: 'WorkspaceRepoConfigProposal';
+  defaultBranch: Scalars['String']['output'];
+  devCommand?: Maybe<Scalars['String']['output']>;
+  devPort?: Maybe<Scalars['Int']['output']>;
+  installCommand: Scalars['String']['output'];
+  lockfilePath: Scalars['String']['output'];
+  prepareCommand?: Maybe<Scalars['String']['output']>;
+  runtime: Scalars['String']['output'];
+};
+
+type WorkspaceRepoOutput = {
+  __typename?: 'WorkspaceRepoOutput';
+  data?: Maybe<WorkspaceRepo>;
+};
+
+type WorkspaceRepoSelector = {
+  myRepos?: InputMaybe<EmptyViewInput>;
 };
 
 type YjsDocument = {
@@ -17913,6 +18160,18 @@ type ResearchProjectListQueryQueryVariables = Exact<{ [key: string]: never; }>;
 
 type ResearchProjectListQueryQuery = ResearchProjectListQueryQuery_Query;
 
+type ResearchUserSecretsQueryQuery_userSecrets_MultiUserSecretOutput_results_UserSecret = { __typename?: 'UserSecret', _id: string, name: string | null, repoScope: string | null };
+
+type ResearchUserSecretsQueryQuery_userSecrets_MultiUserSecretOutput = { __typename?: 'MultiUserSecretOutput', results: Array<ResearchUserSecretsQueryQuery_userSecrets_MultiUserSecretOutput_results_UserSecret> };
+
+type ResearchUserSecretsQueryQuery_Query = { __typename?: 'Query', userSecrets: ResearchUserSecretsQueryQuery_userSecrets_MultiUserSecretOutput | null };
+
+
+type ResearchUserSecretsQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type ResearchUserSecretsQueryQuery = ResearchUserSecretsQueryQuery_Query;
+
 type CreateResearchProjectMutation_createResearchProject_ResearchProjectOutput_data_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string | null, description: string | null, createdAt: string };
 
 type CreateResearchProjectMutation_createResearchProject_ResearchProjectOutput = { __typename?: 'ResearchProjectOutput', data: CreateResearchProjectMutation_createResearchProject_ResearchProjectOutput_data_ResearchProject | null };
@@ -17923,26 +18182,40 @@ type CreateResearchProjectMutation_Mutation = { __typename?: 'Mutation', createR
 type CreateResearchProjectMutationVariables = Exact<{
   title: Scalars['String']['input'];
   description: InputMaybe<Scalars['String']['input']>;
-  claudeCodeTokenRef: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
 type CreateResearchProjectMutation = CreateResearchProjectMutation_Mutation;
 
-type UpdateResearchProjectTokenMutation_updateResearchProject_ResearchProjectOutput_data_ResearchProject = { __typename?: 'ResearchProject', _id: string };
+type ResearchCreateUserSecretMutation_createUserSecret_UserSecretOutput_data_UserSecret = { __typename?: 'UserSecret', _id: string, name: string | null };
 
-type UpdateResearchProjectTokenMutation_updateResearchProject_ResearchProjectOutput = { __typename?: 'ResearchProjectOutput', data: UpdateResearchProjectTokenMutation_updateResearchProject_ResearchProjectOutput_data_ResearchProject | null };
+type ResearchCreateUserSecretMutation_createUserSecret_UserSecretOutput = { __typename?: 'UserSecretOutput', data: ResearchCreateUserSecretMutation_createUserSecret_UserSecretOutput_data_UserSecret | null };
 
-type UpdateResearchProjectTokenMutation_Mutation = { __typename?: 'Mutation', updateResearchProject: UpdateResearchProjectTokenMutation_updateResearchProject_ResearchProjectOutput | null };
+type ResearchCreateUserSecretMutation_Mutation = { __typename?: 'Mutation', createUserSecret: ResearchCreateUserSecretMutation_createUserSecret_UserSecretOutput | null };
 
 
-type UpdateResearchProjectTokenMutationVariables = Exact<{
-  selector: SelectorInput;
-  data: UpdateResearchProjectDataInput;
+type ResearchCreateUserSecretMutationVariables = Exact<{
+  name: Scalars['String']['input'];
+  value: Scalars['String']['input'];
 }>;
 
 
-type UpdateResearchProjectTokenMutation = UpdateResearchProjectTokenMutation_Mutation;
+type ResearchCreateUserSecretMutation = ResearchCreateUserSecretMutation_Mutation;
+
+type ResearchUpdateUserSecretMutation_updateUserSecret_UserSecretOutput_data_UserSecret = { __typename?: 'UserSecret', _id: string, name: string | null };
+
+type ResearchUpdateUserSecretMutation_updateUserSecret_UserSecretOutput = { __typename?: 'UserSecretOutput', data: ResearchUpdateUserSecretMutation_updateUserSecret_UserSecretOutput_data_UserSecret | null };
+
+type ResearchUpdateUserSecretMutation_Mutation = { __typename?: 'Mutation', updateUserSecret: ResearchUpdateUserSecretMutation_updateUserSecret_UserSecretOutput | null };
+
+
+type ResearchUpdateUserSecretMutationVariables = Exact<{
+  _id: Scalars['String']['input'];
+  value: Scalars['String']['input'];
+}>;
+
+
+type ResearchUpdateUserSecretMutation = ResearchUpdateUserSecretMutation_Mutation;
 
 type ResearchWorkspaceFirstDocumentQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument = { __typename?: 'ResearchDocument', _id: string };
 
@@ -17997,7 +18270,7 @@ type ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput_resu
 
 type ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput = { __typename?: 'MultiResearchDocumentOutput', results: Array<ProjectSidebarQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument> };
 
-type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string | null, entrypoint: any | null };
+type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, lastActivityAt: string | null, entrypointKind: ResearchEntrypointKind | null };
 
 type ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput = { __typename?: 'MultiResearchConversationOutput', results: Array<ProjectSidebarQueryQuery_researchConversations_MultiResearchConversationOutput_results_ResearchConversation> };
 

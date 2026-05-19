@@ -5,7 +5,6 @@ import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/v
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import { createResearchDocument } from "@/server/collections/researchDocuments/mutations";
-import { encryptClaudeCodeTokenForStorage, isEncryptedClaudeCodeTokenRef } from "@/server/research/claudeCodeTokens";
 import gql from "graphql-tag";
 
 function newCheck(user: DbUser | null) {
@@ -15,18 +14,6 @@ function newCheck(user: DbUser | null) {
 function editCheck(user: DbUser | null, document: DbResearchProject | null) {
   if (!user || !document) return false;
   return userIsAdmin(user) || userOwns(user, document);
-}
-
-function prepareClaudeCodeTokenRefForStorage(data: { claudeCodeTokenRef?: string | null }): void {
-  if (!Object.prototype.hasOwnProperty.call(data, "claudeCodeTokenRef")) return;
-  const tokenRef = data.claudeCodeTokenRef;
-  if (tokenRef === null || tokenRef === undefined) return;
-  const trimmedToken = tokenRef.trim();
-  data.claudeCodeTokenRef = trimmedToken
-    ? isEncryptedClaudeCodeTokenRef(trimmedToken)
-      ? trimmedToken
-      : encryptClaudeCodeTokenForStorage(trimmedToken)
-    : null;
 }
 
 export async function createResearchProject({ data }: CreateResearchProjectInput, context: ResolverContext) {
@@ -39,7 +26,6 @@ export async function createResearchProject({ data }: CreateResearchProjectInput
   data = callbackProps.document;
   // Stamp userId from the current user so the client doesn't have to pass it.
   assignUserIdToData(data, context.currentUser, schema);
-  prepareClaudeCodeTokenRefForStorage(data);
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
   const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ResearchProjects', callbackProps);
@@ -65,7 +51,6 @@ export async function updateResearchProject({ selector, data }: { data: UpdateRe
     updateCallbackProperties,
   } = await getLegacyUpdateCallbackProps('ResearchProjects', { selector, context, data, schema });
 
-  prepareClaudeCodeTokenRefForStorage(data);
   data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
   return await updateAndReturnDocument(data, ResearchProjects, documentSelector, context);
 }

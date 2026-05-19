@@ -45,23 +45,17 @@ const schema = {
       validation: { optional: true },
     },
   },
-  // New writes are encrypted by the ResearchProjects mutation before storage.
-  // Tier 1 (external secrets store, column holds an ARN/path) is still the
-  // long-term right answer; for now the "Ref" points to app-encrypted token
-  // material rather than a separately managed secret-store entry.
-  //
-  // canRead is admin-only by design: users got this token from
-  // `claude setup-token` and should keep their own copy. We never need to
-  // hand it back. canUpdate stays [userOwns, "admins"] so the user can
-  // rotate / replace their own token.
-  claudeCodeTokenRef: {
+  // The workspace repo a new coding conversation in this project defaults to.
+  // Null until the user picks one; never required.
+  defaultWorkspaceRepoId: {
     database: {
-      type: "TEXT",
+      type: "VARCHAR(27)",
+      foreignKey: "WorkspaceRepos",
       nullable: true,
     },
     graphql: {
       outputType: "String",
-      canRead: ["admins"],
+      canRead: [userOwns, "admins"],
       canUpdate: [userOwns, "admins"],
       canCreate: ["members"],
       validation: { optional: true },

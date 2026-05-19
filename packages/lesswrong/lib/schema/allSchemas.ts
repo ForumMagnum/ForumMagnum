@@ -64,6 +64,7 @@ import { default as PostViewTimes } from '../collections/postViewTimes/newSchema
 import { default as PostViews } from '../collections/postViews/newSchema';
 import { default as Posts } from '../collections/posts/newSchema';
 import { default as ReadStatuses } from '../collections/readStatus/newSchema';
+import { default as RepoInstallSnapshots } from '../collections/repoInstallSnapshots/newSchema';
 import { default as ResearchConversationEvents } from '../collections/researchConversationEvents/newSchema';
 import { default as ResearchConversations } from '../collections/researchConversations/newSchema';
 import { default as ResearchDocuments } from '../collections/researchDocuments/newSchema';
@@ -76,6 +77,7 @@ import { default as ReviewWinnerArts } from '../collections/reviewWinnerArts/new
 import { default as ReviewWinners } from '../collections/reviewWinners/newSchema';
 import { default as Revisions } from '../collections/revisions/newSchema';
 import { default as RSSFeeds } from '../collections/rssfeeds/newSchema';
+import { default as SandboxBaselineSnapshots } from '../collections/sandboxBaselineSnapshots/newSchema';
 import { default as Sequences } from '../collections/sequences/newSchema';
 import { default as Sessions } from '../collections/sessions/newSchema';
 import { default as SideCommentCaches } from '../collections/sideCommentCaches/newSchema';
@@ -91,10 +93,12 @@ import { default as TypoSuggestions } from '../collections/typoSuggestions/newSc
 import { default as UltraFeedEvents } from '../collections/ultraFeedEvents/newSchema';
 import { default as UserMostValuablePosts } from '../collections/userMostValuablePosts/newSchema';
 import { default as UserRateLimits } from '../collections/userRateLimits/newSchema';
+import { default as UserSecrets } from '../collections/userSecrets/newSchema';
 import { default as UserTagRels } from '../collections/userTagRels/newSchema';
 import { default as UserActivities } from '../collections/useractivities/newSchema';
 import { default as Users } from '../collections/users/newSchema';
 import { default as Votes } from '../collections/votes/newSchema';
+import { default as WorkspaceRepos } from '../collections/workspaceRepos/newSchema';
 import { default as YjsDocuments } from '../collections/yjsDocuments/newSchema';
 
 let testSchemas: Record<never, never>;
@@ -107,16 +111,15 @@ if (isAnyTest || bundleIsCodegen) {
 }
 
 export const allSchemas = {
-  ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
-  Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
-  DialogueChecks, DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, HomePageDesigns, IframeWidgetSrcdocs, Images, JargonTerms,
-  LWEvents, LegacyData, LlmConversations, LlmMessages, LinkPreviewCaches, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments,
-  Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations,
-  PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
-  ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchProjects, ResearchSandboxSessions,
-  RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts,
-  ReviewWinners, Revisions, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions,
-  TagFlags, TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities,
+  ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds, Collections,
+  CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents, DialogueChecks,
+  DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens, FieldChanges, GoogleServiceAccountSessions, HomePageDesigns, IframeWidgetSrcdocs, Images, JargonTerms,
+  LWEvents, LegacyData, LinkPreviewCaches, LlmConversations, LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages,
+  Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
+  PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
+  RecommendationsCaches, RepoInstallSnapshots, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
+  ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
+  TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities, UserSecrets, WorkspaceRepos,
   UserMostValuablePosts, UserRateLimits, UserTagRels, Users, Votes, YjsDocuments, ...testSchemas,
 } satisfies Record<CollectionNameString, Record<string, CollectionFieldSpecification<CollectionNameString>>>;
 

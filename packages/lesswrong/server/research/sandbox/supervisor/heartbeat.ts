@@ -39,6 +39,12 @@ export interface HeartbeatReport {
   conversations: ConversationState[];
   memoryPressure: number;
   cpuPressure: number;
+  /**
+   * Epoch-ms of the most recent auth-proxy request, if a dev server is
+   * running. Lets the backend count dev-server use as activity for the idle
+   * policy. Omitted when there is no dev server or it has seen no traffic.
+   */
+  lastDevActivityAt?: number;
 }
 
 export interface HeartbeatConfig {
@@ -52,6 +58,8 @@ export interface HeartbeatConfig {
     conversations: ConversationState[];
     concurrencyCount: number;
   };
+  /** Epoch-ms of the last auth-proxy request; `0` if no dev server / no traffic. */
+  getLastDevActivityAt?: () => number;
   /** Override clock/instrumentation for tests. */
   now?: () => number;
   cpuCount?: () => number;
@@ -94,6 +102,10 @@ export function startHeartbeat(config: HeartbeatConfig): HeartbeatHandle {
       memoryPressure,
       cpuPressure,
     };
+    const lastDevActivityAt = config.getLastDevActivityAt?.() ?? 0;
+    if (lastDevActivityAt > 0) {
+      report.lastDevActivityAt = lastDevActivityAt;
+    }
 
     const url = `${config.backendBaseUrl}/api/research/agent/sandboxes/${encodeURIComponent(
       config.sandboxId,

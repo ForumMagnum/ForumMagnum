@@ -21,6 +21,12 @@ export interface SupervisorTokenPayload {
   scope?: string;
 }
 
+/**
+ * Token `scope` for a dev-preview token — signed by `mintDevPreviewUrl` and
+ * validated by the in-sandbox auth-proxy. Shared so the two sides cannot drift.
+ */
+export const DEVAUTH_SCOPE = "devauth";
+
 function base64UrlEncode(data: Buffer | string): string {
   const buf = typeof data === "string" ? Buffer.from(data, "utf8") : data;
   return buf

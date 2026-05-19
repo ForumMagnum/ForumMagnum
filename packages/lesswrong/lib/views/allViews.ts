@@ -35,6 +35,7 @@ import { PetrovDayActionsViews } from '../collections/petrovDayActions/views';
 import { PodcastEpisodesViews } from '../collections/podcastEpisodes/views';
 import { PostsViews } from '../collections/posts/views';
 import { PostRelationsViews } from '../collections/postRelations/views';
+import { RepoInstallSnapshotsViews } from '../collections/repoInstallSnapshots/views';
 import { ReportsViews } from '../collections/reports/views';
 import { ResearchConversationEventsViews } from '../collections/researchConversationEvents/views';
 import { ResearchConversationsViews } from '../collections/researchConversations/views';
@@ -46,6 +47,7 @@ import { ReviewWinnerArtsViews } from '../collections/reviewWinnerArts/views';
 import { ReviewWinnersViews } from '../collections/reviewWinners/views';
 import { RevisionsViews } from '../collections/revisions/views';
 import { RSSFeedsViews } from '../collections/rssfeeds/views';
+import { SandboxBaselineSnapshotsViews } from '../collections/sandboxBaselineSnapshots/views';
 import { SequencesViews } from '../collections/sequences/views';
 import { SpotlightsViews } from '../collections/spotlights/views';
 import { SubscriptionsViews } from '../collections/subscriptions/views';
@@ -54,11 +56,13 @@ import { TagFlagsViews } from '../collections/tagFlags/views';
 import { TagRelsViews } from '../collections/tagRels/views';
 import { TypoSuggestionsViews } from '../collections/typoSuggestions/views';
 import { UltraFeedEventsViews } from '../collections/ultraFeedEvents/views';
+import { UserSecretsViews } from '../collections/userSecrets/views';
 import { UsersViews } from '../collections/users/views';
 import { UserMostValuablePostsViews } from '../collections/userMostValuablePosts/views';
 import { UserRateLimitsViews } from '../collections/userRateLimits/views';
 import { UserTagRelsViews } from '../collections/userTagRels/views';
 import { VotesViews } from '../collections/votes/views';
+import { WorkspaceReposViews } from '../collections/workspaceRepos/views';
 import { YjsDocumentsViews } from '../collections/yjsDocuments/views';
 
 export const allViews = {
@@ -122,6 +126,7 @@ export const allViews = {
   PostViews: new CollectionViewSet('PostViews', {}),
   ReadStatuses: new CollectionViewSet('ReadStatuses', {}),
   RecommendationsCaches: new CollectionViewSet('RecommendationsCaches', {}),
+  RepoInstallSnapshots: RepoInstallSnapshotsViews,
   Reports: ReportsViews,
   ResearchConversationEvents: ResearchConversationEventsViews,
   ResearchConversations: ResearchConversationsViews,
@@ -133,6 +138,7 @@ export const allViews = {
   ReviewWinners: ReviewWinnersViews,
   Revisions: RevisionsViews,
   RSSFeeds: RSSFeedsViews,
+  SandboxBaselineSnapshots: SandboxBaselineSnapshotsViews,
   Sequences: SequencesViews,
   Sessions: new CollectionViewSet('Sessions', {}),
   SideCommentCaches: new CollectionViewSet('SideCommentCaches', {}),
@@ -149,8 +155,10 @@ export const allViews = {
   Users: UsersViews,
   UserMostValuablePosts: UserMostValuablePostsViews,
   UserRateLimits: UserRateLimitsViews,
+  UserSecrets: UserSecretsViews,
   UserTagRels: UserTagRelsViews,
   UserActivities: new CollectionViewSet('UserActivities', {}),
   Votes: VotesViews,
+  WorkspaceRepos: WorkspaceReposViews,
   YjsDocuments: YjsDocumentsViews,
 };

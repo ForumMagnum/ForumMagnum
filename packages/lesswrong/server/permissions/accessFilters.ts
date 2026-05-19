@@ -141,6 +141,14 @@ const researchProjectCheckAccess: CheckAccessFunction<'ResearchProjects'> = asyn
   return userIsAdmin(currentUser) || userOwns(currentUser, document);
 };
 
+const workspaceRepoCheckAccess: CheckAccessFunction<'WorkspaceRepos'> = async (currentUser, document, context): Promise<boolean> => {
+  return userIsAdmin(currentUser) || userOwns(currentUser, document);
+};
+
+const userSecretCheckAccess: CheckAccessFunction<'UserSecrets'> = async (currentUser, document, context): Promise<boolean> => {
+  return userIsAdmin(currentUser) || userOwns(currentUser, document);
+};
+
 const researchDocumentCheckAccess: CheckAccessFunction<'ResearchDocuments'> = async (currentUser, document, context): Promise<boolean> => {
   return userIsAdmin(currentUser) || userOwns(currentUser, document);
 };
@@ -487,6 +495,7 @@ const accessFilters = {
   PostViews: allowAccess,
   ReadStatuses: allowAccess,
   RecommendationsCaches: allowAccess,
+  RepoInstallSnapshots: denyAll,
   Reports: reportCheckAccess,
   ResearchConversationEvents: researchConversationEventCheckAccess,
   ResearchConversations: researchConversationCheckAccess,
@@ -498,6 +507,7 @@ const accessFilters = {
   ReviewWinners: allowAccess,
   Revisions: revisionCheckAccess,
   RSSFeeds: allowAccess,
+  SandboxBaselineSnapshots: denyAll,
   Sequences: sequenceCheckAccess,
   Sessions: sessionCheckAccess,
   SideCommentCaches: allowAccess,
@@ -514,9 +524,11 @@ const accessFilters = {
   Users: userCheckAccess,
   UserMostValuablePosts: allowAccess,
   UserRateLimits: allowAccess,
+  UserSecrets: userSecretCheckAccess,
   UserTagRels: userTagRelCheckAccess,
   UserActivities: allowAccess,
   Votes: voteCheckAccess,
+  WorkspaceRepos: workspaceRepoCheckAccess,
   YjsDocuments: denyAll,
 } satisfies Record<CollectionNameString, CheckAccessFunction<CollectionNameString>>;
 

@@ -59,6 +59,7 @@ type PostsViewName = "afRecentDiscussionThreadsList"|"alignmentSuggestedPosts"|"
 type RSSFeedsViewName = "usersFeed";
 type ReadStatusesViewName = never
 type RecommendationsCachesViewName = never
+type RepoInstallSnapshotsViewName = never
 type ReportsViewName = "adminClaimedReports"|"allReports"|"claimedReports"|"closedReports"|"sunshineSidebarReports"|"unclaimedReports";
 type ResearchConversationEventsViewName = "byConversation";
 type ResearchConversationsViewName = "byProject"|"byProjectAndEntrypointKind";
@@ -69,6 +70,7 @@ type ReviewVotesViewName = "reviewVotesAdminDashboard"|"reviewVotesForPost"|"rev
 type ReviewWinnerArtsViewName = "allForYear"|"postArt";
 type ReviewWinnersViewName = "bestOfLessWrongAnnouncement"|"reviewWinnerSingle";
 type RevisionsViewName = "revisionByVersionNumber"|"revisionsByUser"|"revisionsOnDocument";
+type SandboxBaselineSnapshotsViewName = never
 type SequencesViewName = "communitySequences"|"curatedSequences"|"userProfile"|"userProfileAll"|"userProfilePrivate";
 type SessionsViewName = never
 type SideCommentCachesViewName = never
@@ -85,9 +87,11 @@ type UltraFeedEventsViewName = never
 type UserActivitiesViewName = never
 type UserMostValuablePostsViewName = "currentUserMostValuablePosts"|"currentUserPost";
 type UserRateLimitsViewName = "activeUserRateLimits"|"userRateLimits";
+type UserSecretsViewName = "mySecrets";
 type UserTagRelsViewName = "single";
 type UsersViewName = "LWSunshinesList"|"LWTrustLevel1List"|"LWUsersAdmin"|"alignmentSuggestedUsers"|"allUsers"|"recentlyActive"|"reviewAdminUsers"|"sunshineNewUsers"|"usersByUserIds"|"usersMapLocations"|"usersProfile"|"usersTopKarma"|"usersWithBannedUsers"|"usersWithOptedInToDialogueFacilitation"|"usersWithPaymentInfo";
 type VotesViewName = "tagVotes"|"userPostVotes"|"userVotes";
+type WorkspaceReposViewName = "myRepos";
 type YjsDocumentsViewName = never
 
 interface ViewTermsByCollectionName {
@@ -152,6 +156,7 @@ interface ViewTermsByCollectionName {
   RSSFeeds: RSSFeedsViewTerms
   ReadStatuses: ViewTermsBase
   RecommendationsCaches: ViewTermsBase
+  RepoInstallSnapshots: ViewTermsBase
   Reports: ReportsViewTerms
   ResearchConversationEvents: ResearchConversationEventsViewTerms
   ResearchConversations: ResearchConversationsViewTerms
@@ -162,6 +167,7 @@ interface ViewTermsByCollectionName {
   ReviewWinnerArts: ReviewWinnerArtsViewTerms
   ReviewWinners: ReviewWinnersViewTerms
   Revisions: RevisionsViewTerms
+  SandboxBaselineSnapshots: ViewTermsBase
   Sequences: SequencesViewTerms
   Sessions: ViewTermsBase
   SideCommentCaches: ViewTermsBase
@@ -178,11 +184,13 @@ interface ViewTermsByCollectionName {
   UserActivities: ViewTermsBase
   UserMostValuablePosts: UserMostValuablePostsViewTerms
   UserRateLimits: UserRateLimitsViewTerms
+  UserSecrets: UserSecretsViewTerms
   UserTagRels: UserTagRelsViewTerms
   Users: UsersViewTerms
   Votes: VotesViewTerms
+  WorkspaceRepos: WorkspaceReposViewTerms
   YjsDocuments: ViewTermsBase
 }
 
 
-type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ResearchConversationEvents"|"ResearchConversations"|"ResearchDocuments"|"ResearchProjects"|"ResearchSandboxSessions"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ResearchConversationEvents"|"ResearchConversations"|"ResearchDocuments"|"ResearchProjects"|"ResearchSandboxSessions"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserSecrets"|"UserTagRels"|"Users"|"Votes"|"WorkspaceRepos"

@@ -25,8 +25,13 @@ import { createPostPersister } from "./postPersister";
 import { startSupervisor, SupervisorDeps } from "./server";
 import { startHeartbeat } from "./heartbeat";
 import { createHealthTracker } from "./healthTracker";
+import { startDevServer, DevServerHandle } from "./devServer";
+import { startAuthProxy } from "./authProxy";
 
 const CLAUDE_MD_PATH = "/vercel/sandbox/CLAUDE.md";
+
+/** Where the in-sandbox agent runs `claude` — the repo root for a coding conversation. */
+const DEFAULT_WORKSPACE_DIR = "/vercel/sandbox";
 
 /**
  * Substitute the `{{RESEARCH_PROJECT_ID}}` placeholder (and any other
@@ -50,6 +55,21 @@ function fillClaudeMdTemplate(env: { projectId: string }): void {
   }
 }
 
+/**
+ * The dev-server half of the env, present only for a coding conversation whose
+ * repo defines a `devCommand`. All-or-nothing: the dev server + auth-proxy
+ * start only when every field is set.
+ */
+interface DevServerEnv {
+  command: string;
+  port: number;
+  cwd: string;
+  proxySecret: string;
+  authProxyPort: number;
+  /** The repo's `.env` values, injected by the backend at launch (§3.6). */
+  extraEnv: Record<string, string>;
+}
+
 interface SupervisorEnv {
   supervisorSecret: string;
   sandboxId: string;
@@ -58,6 +78,48 @@ interface SupervisorEnv {
   userId: string;
   projectId: string;
   callbackToken: string;
+  /** Agent working directory — the repo root for a coding conversation. */
+  workspaceDir: string;
+  /** Present iff this is a coding conversation with a dev server. */
+  devServer: DevServerEnv | null;
+}
+
+/** Parse `DEV_ENV_JSON` (a JSON object of repo `.env` values) defensively. */
+function readDevExtraEnv(): Record<string, string> {
+  const raw = process.env.DEV_ENV_JSON;
+  if (!raw) return {};
+  try {
+    const parsed: unknown = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return {};
+    const out: Record<string, string> = {};
+    for (const [k, v] of Object.entries(parsed)) {
+      if (typeof v === "string") out[k] = v;
+    }
+    return out;
+  } catch {
+    // eslint-disable-next-line no-console
+    console.warn("[supervisor] DEV_ENV_JSON was not valid JSON — ignoring");
+    return {};
+  }
+}
+
+/** Read the optional dev-server env; null unless every required field is set. */
+function readDevServerEnv(workspaceDir: string): DevServerEnv | null {
+  const command = process.env.DEV_COMMAND;
+  const port = Number(process.env.DEV_PORT);
+  const proxySecret = process.env.DEV_PROXY_SECRET;
+  const authProxyPort = Number(process.env.AUTH_PROXY_PORT);
+  if (!command || !proxySecret || !Number.isFinite(port) || !Number.isFinite(authProxyPort)) {
+    return null;
+  }
+  return {
+    command,
+    port,
+    cwd: process.env.DEV_CWD || workspaceDir,
+    proxySecret,
+    authProxyPort,
+    extraEnv: readDevExtraEnv(),
+  };
 }
 
 function readEnv(): SupervisorEnv {
@@ -66,6 +128,7 @@ function readEnv(): SupervisorEnv {
     if (!v) throw new Error(`supervisor: missing required env ${k}`);
     return v;
   };
+  const workspaceDir = process.env.WORKSPACE_DIR || DEFAULT_WORKSPACE_DIR;
   return {
     supervisorSecret: required("SUPERVISOR_SECRET"),
     sandboxId: required("SANDBOX_ID"),
@@ -74,6 +137,8 @@ function readEnv(): SupervisorEnv {
     userId: required("USER_ID"),
     projectId: required("PROJECT_ID"),
     callbackToken: required("CALLBACK_TOKEN"),
+    workspaceDir,
+    devServer: readDevServerEnv(workspaceDir),
   };
 }
 
@@ -117,8 +182,9 @@ export function bootSupervisor() {
           bootstrapJsonl: req.bootstrapJsonl,
         },
         {
-          CWD: "/vercel/sandbox",
-          // Put `/vercel/sandbox/bin` (where buildSnapshot.ts drops the
+          // The repo root for a coding conversation, `/vercel/sandbox` otherwise.
+          CWD: env.workspaceDir,
+          // Put `/vercel/sandbox/bin` (where buildResearchSandboxSnapshot drops the
           // research-tool binary) ahead of the system PATH so the agent can
           // invoke `research-tool ...` directly from Bash. We can't install
           // to /usr/local/bin from the snapshot builder (no root on tarball
@@ -142,17 +208,45 @@ export function bootSupervisor() {
 
   const server = startSupervisor(deps, env.port);
 
+  // Coding conversations with a `devCommand`: spawn the dev server and the
+  // auth-proxy that gates public access to it. Proxied requests bump
+  // `lastDevActivityAt` so dev-server use counts as activity for the idle
+  // policy even when there is no chat traffic.
+  let devServer: DevServerHandle | null = null;
+  let authProxy: ReturnType<typeof startAuthProxy> | null = null;
+  let lastDevActivityAt = 0;
+  if (env.devServer) {
+    const dev = env.devServer;
+    devServer = startDevServer({
+      command: dev.command,
+      port: dev.port,
+      cwd: dev.cwd,
+      env: dev.extraEnv,
+    });
+    authProxy = startAuthProxy({
+      port: dev.authProxyPort,
+      devPort: dev.port,
+      proxySecret: dev.proxySecret,
+      sandboxId: env.sandboxId,
+      devServer,
+      onActivity: () => { lastDevActivityAt = Date.now(); },
+    });
+  }
+
   const heartbeat = startHeartbeat({
     sandboxId: env.sandboxId,
     backendBaseUrl: env.backendBaseUrl,
     authToken: env.callbackToken,
     getSnapshot: () => hub.snapshot(),
+    getLastDevActivityAt: () => lastDevActivityAt,
     healthTracker,
   });
 
   const shutdown = async () => {
     heartbeat.stop();
     server.close();
+    authProxy?.close();
+    devServer?.stop();
     await postPersister.drain();
     process.exit(0);
   };

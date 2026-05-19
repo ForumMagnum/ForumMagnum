@@ -1130,6 +1130,17 @@ interface DbRecommendationsCache extends DbObject {
   userId: string
 }
 
+type RepoInstallSnapshotsCollection = PgCollection<"RepoInstallSnapshots">;
+
+interface DbRepoInstallSnapshot extends DbObject {
+  __collectionName?: "RepoInstallSnapshots"
+  createdAt: Date
+  manifestHash: string
+  sizeBytes: number | null
+  vercelSnapshotId: string
+  workspaceRepoId: string
+}
+
 type ReportsCollection = PgCollection<"Reports">;
 
 interface DbReport extends DbObject {
@@ -1168,11 +1179,13 @@ interface DbResearchConversation extends DbObject {
   __collectionName?: "ResearchConversations"
   claudeSessionId: string | null
   createdAt: Date
-  entrypoint: any
+  entrypointDocumentId: string
+  entrypointKind: string
   lastActivityAt: Date
   projectId: string
   title: string | null
   userId: string
+  workspaceRepoId: string | null
 }
 
 type ResearchDocumentsCollection = PgCollection<"ResearchDocuments">;
@@ -1190,8 +1203,8 @@ type ResearchProjectsCollection = PgCollection<"ResearchProjects">;
 
 interface DbResearchProject extends DbObject {
   __collectionName?: "ResearchProjects"
-  claudeCodeTokenRef: string | null
   createdAt: Date
+  defaultWorkspaceRepoId: string | null
   description: string | null
   settings: any | null
   title: string
@@ -1204,6 +1217,7 @@ interface DbResearchSandboxSession extends DbObject {
   __collectionName?: "ResearchSandboxSessions"
   conversationId: string
   createdAt: Date
+  devProxySecret: string | null
   supervisorSecret: string
 }
 
@@ -1284,6 +1298,16 @@ interface DbRevision extends DbObject {
   version: string
   voteCount: number
   wordCount: number
+}
+
+type SandboxBaselineSnapshotsCollection = PgCollection<"SandboxBaselineSnapshots">;
+
+interface DbSandboxBaselineSnapshot extends DbObject {
+  __collectionName?: "SandboxBaselineSnapshots"
+  builtAt: Date
+  createdAt: Date
+  runtime: string
+  vercelSnapshotId: string
 }
 
 type SequencesCollection = PgCollection<"Sequences">;
@@ -1596,6 +1620,17 @@ interface DbUserRateLimit extends DbObject {
   intervalUnit: "minutes" | "hours" | "days" | "weeks"
   legacyData: any | null
   type: "allComments" | "allPosts"
+  userId: string
+}
+
+type UserSecretsCollection = PgCollection<"UserSecrets">;
+
+interface DbUserSecret extends DbObject {
+  __collectionName?: "UserSecrets"
+  createdAt: Date
+  encryptedValue: string
+  name: string
+  repoScope: string | null
   userId: string
 }
 
@@ -2260,6 +2295,24 @@ interface DbVote extends DbObject {
   votedAt: Date
 }
 
+type WorkspaceReposCollection = PgCollection<"WorkspaceRepos">;
+
+interface DbWorkspaceRepo extends DbObject {
+  __collectionName?: "WorkspaceRepos"
+  createdAt: Date
+  defaultBranch: string
+  devCommand: string | null
+  devPort: number | null
+  host: string
+  installCommand: string
+  lockfilePath: string
+  name: string
+  owner: string
+  prepareCommand: string | null
+  runtime: string
+  userId: string
+}
+
 type YjsDocumentsCollection = PgCollection<"YjsDocuments">;
 
 interface DbYjsDocument extends DbObject {
@@ -2334,6 +2387,7 @@ interface CollectionsByName {
   RSSFeeds: RSSFeedsCollection
   ReadStatuses: ReadStatusesCollection
   RecommendationsCaches: RecommendationsCachesCollection
+  RepoInstallSnapshots: RepoInstallSnapshotsCollection
   Reports: ReportsCollection
   ResearchConversationEvents: ResearchConversationEventsCollection
   ResearchConversations: ResearchConversationsCollection
@@ -2344,6 +2398,7 @@ interface CollectionsByName {
   ReviewWinnerArts: ReviewWinnerArtsCollection
   ReviewWinners: ReviewWinnersCollection
   Revisions: RevisionsCollection
+  SandboxBaselineSnapshots: SandboxBaselineSnapshotsCollection
   Sequences: SequencesCollection
   Sessions: SessionsCollection
   SideCommentCaches: SideCommentCachesCollection
@@ -2360,9 +2415,11 @@ interface CollectionsByName {
   UserActivities: UserActivitiesCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
   UserRateLimits: UserRateLimitsCollection
+  UserSecrets: UserSecretsCollection
   UserTagRels: UserTagRelsCollection
   Users: UsersCollection
   Votes: VotesCollection
+  WorkspaceRepos: WorkspaceReposCollection
   YjsDocuments: YjsDocumentsCollection
 }
 
@@ -2428,6 +2485,7 @@ interface ObjectsByCollectionName {
   RSSFeeds: DbRSSFeed
   ReadStatuses: DbReadStatus
   RecommendationsCaches: DbRecommendationsCache
+  RepoInstallSnapshots: DbRepoInstallSnapshot
   Reports: DbReport
   ResearchConversationEvents: DbResearchConversationEvent
   ResearchConversations: DbResearchConversation
@@ -2438,6 +2496,7 @@ interface ObjectsByCollectionName {
   ReviewWinnerArts: DbReviewWinnerArt
   ReviewWinners: DbReviewWinner
   Revisions: DbRevision
+  SandboxBaselineSnapshots: DbSandboxBaselineSnapshot
   Sequences: DbSequence
   Sessions: DbSession
   SideCommentCaches: DbSideCommentCache
@@ -2454,9 +2513,11 @@ interface ObjectsByCollectionName {
   UserActivities: DbUserActivity
   UserMostValuablePosts: DbUserMostValuablePost
   UserRateLimits: DbUserRateLimit
+  UserSecrets: DbUserSecret
   UserTagRels: DbUserTagRel
   Users: DbUser
   Votes: DbVote
+  WorkspaceRepos: DbWorkspaceRepo
   YjsDocuments: DbYjsDocument
 }
 
@@ -2522,6 +2583,7 @@ interface ObjectsByTypeName {
   RSSFeed: DbRSSFeed
   ReadStatus: DbReadStatus
   RecommendationsCache: DbRecommendationsCache
+  RepoInstallSnapshot: DbRepoInstallSnapshot
   Report: DbReport
   ResearchConversationEvent: DbResearchConversationEvent
   ResearchConversation: DbResearchConversation
@@ -2532,6 +2594,7 @@ interface ObjectsByTypeName {
   ReviewWinnerArt: DbReviewWinnerArt
   ReviewWinner: DbReviewWinner
   Revision: DbRevision
+  SandboxBaselineSnapshot: DbSandboxBaselineSnapshot
   Sequence: DbSequence
   Session: DbSession
   SideCommentCache: DbSideCommentCache
@@ -2548,9 +2611,11 @@ interface ObjectsByTypeName {
   UserActivity: DbUserActivity
   UserMostValuablePost: DbUserMostValuablePost
   UserRateLimit: DbUserRateLimit
+  UserSecret: DbUserSecret
   UserTagRel: DbUserTagRel
   User: DbUser
   Vote: DbVote
+  WorkspaceRepo: DbWorkspaceRepo
   YjsDocument: DbYjsDocument
 }
 
