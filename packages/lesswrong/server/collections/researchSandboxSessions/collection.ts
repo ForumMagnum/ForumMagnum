@@ -9,7 +9,10 @@ export const ResearchSandboxSessions: ResearchSandboxSessionsCollection = create
 
   getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
-    indexSet.addIndex('ResearchSandboxSessions', { userId: 1, projectId: 1, status: 1 });
+    // One sandbox per conversation — unique so getOrCreateSandbox can rely on
+    // findOne({ conversationId }) and the row's existence as the "provisioned"
+    // signal.
+    indexSet.addIndex('ResearchSandboxSessions', { conversationId: 1 }, { unique: true });
     return indexSet;
   },
 });

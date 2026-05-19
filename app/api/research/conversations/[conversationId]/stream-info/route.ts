@@ -6,24 +6,28 @@
  * uses normal user-session auth, not the supervisor's signed callback token.
  *
  * Returns:
- *   { sseUrl: string, token: string, expiresAt: string }
- *     when a sandbox is currently hosting the conversation. The client should
- *     open `${sseUrl}?token=${token}` and reconnect via this endpoint when
- *     the connection drops or the token is near expiry.
+ *   { sseUrl, token, expiresAt }
+ *     when the conversation's sandbox is currently running. The client opens
+ *     `${sseUrl}?token=${token}` and re-fetches this endpoint when the
+ *     connection drops or the token nears expiry.
  *   { sseUrl: null, token: null, expiresAt: null }
- *     when no live sandbox serves the conversation. The client falls back to
- *     reading `ResearchConversationEvents` and polls/refreshes for a future
- *     sandbox to come up (e.g. after a `continueResearchConversation` call).
+ *     when the sandbox is stopped or was never provisioned. The client falls
+ *     back to reading persisted `ResearchConversationEvents`.
  *
- * The minted token uses the per-sandbox `supervisorSecret` (stored on the
- * `ResearchSandboxSessions` row at provision time). The supervisor inside the
- * sandbox validates incoming tokens against the env-injected copy of the
- * same secret.
+ * The supervisor's public URL changes every session, so it is derived live
+ * from the sandbox handle, never read from a stored column. The minted token
+ * uses the per-sandbox `supervisorSecret` from the `ResearchSandboxSessions`
+ * row; the supervisor validates it against its env-injected copy.
  */
 import { NextResponse, type NextRequest } from "next/server";
 import { getUserFromReq } from "@/server/vulcan-lib/apollo-server/getUserFromReq";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { signSupervisorToken } from "@/server/research/sandbox/supervisor/auth";
+import {
+  getRunningSandbox,
+  sandboxNameForConversation,
+  supervisorUrlForSandbox,
+} from "@/server/research/sandbox/sandboxManager";
 
 const STREAM_TOKEN_TTL_MS = 5 * 60 * 1000;
 
@@ -63,48 +67,29 @@ export async function GET(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
-  // Pick the most-recently-active live sandbox for this user/project. The
-  // `byUserAndProject` view sorts by lastUsedAt desc; we filter to active rows
-  // in code rather than at the view layer to keep that view simple.
-  //
-  // `expiresAt > now` filters out rows that linger as `status:'active'` after
-  // the underlying Vercel sandbox auto-stopped on TTL. The "active" status is
-  // only transitioned to "stopped" via the explicit stop / reuse-detection
-  // paths in sandboxManager, so a sandbox that died on its own (Vercel-side
-  // timeout, runner GC) leaves the row stale. Handing such a row to the
-  // client puts the SSE reconnect loop in an unrecoverable retry-forever
-  // state — see `useConversationStream`'s scheduleReconnect.
-  const sessions = await context.ResearchSandboxSessions.find(
-    {
-      userId: currentUser._id,
-      projectId: conversation.projectId,
-      status: "active",
-      expiresAt: { $gt: new Date() },
-    },
-    { sort: { lastUsedAt: -1 }, limit: 5 },
-  ).fetch();
-
-  if (sessions.length === 0) {
+  // The conversation's sandbox is reachable only while it is running. If it is
+  // stopped or was never provisioned, report idle — the client reads persisted
+  // events and re-polls this endpoint when a future turn brings a sandbox up.
+  const sandbox = await getRunningSandbox(conversationId);
+  if (!sandbox) {
     return NextResponse.json(idle);
   }
 
-  // Live state of "which conversation is on which sandbox" lives in supervisor
-  // memory (per design doc); the DB doesn't track it. For the prototype, we
-  // pick the freshest active sandbox; the client sends along the conversationId
-  // and the supervisor returns 404 if it isn't actually hosting it. In that
-  // case the client falls back to idle.
-  const session = sessions[0];
+  const session = await context.ResearchSandboxSessions.findOne({ conversationId });
+  if (!session) {
+    return NextResponse.json(idle);
+  }
 
   const expiresAt = Date.now() + STREAM_TOKEN_TTL_MS;
   const token = signSupervisorToken(
     {
-      sandboxId: session.vercelSandboxId,
+      sandboxId: sandboxNameForConversation(conversationId),
       expiresAt,
       scope: conversationId,
     },
     session.supervisorSecret,
   );
-  const sseUrl = `${session.endpointUrl.replace(/\/$/, "")}/sse/${encodeURIComponent(conversationId)}`;
+  const sseUrl = `${supervisorUrlForSandbox(sandbox)}/sse/${encodeURIComponent(conversationId)}`;
 
   const response: StreamInfoLive = {
     sseUrl,

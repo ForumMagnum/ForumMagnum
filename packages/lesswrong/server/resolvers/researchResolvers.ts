@@ -7,7 +7,10 @@ import { signSupervisorToken } from "@/server/research/sandbox/supervisor/auth";
 import { mintSandboxCallbackToken } from "../../../../app/api/research/agent/researchAgentAuth";
 import {
   getOrCreateSandbox,
-  type SandboxSessionRecord,
+  getRunningSandbox,
+  sandboxNameForConversation,
+  supervisorUrlForSandbox,
+  type ProvisionedSandbox,
 } from "@/server/research/sandbox/sandboxManager";
 import { isPlainRecord } from "@/components/research/conversationEventFormat";
 import {
@@ -51,18 +54,37 @@ async function loadConversationOrThrow(conversationId: string, context: Resolver
   return conv;
 }
 
+const SUPERVISOR_TOKEN_TTL_MS = 30 * 60 * 1000;
+
+/** Fields needed to reach a conversation's supervisor and sign a bearer for it. */
+type SupervisorTarget = Pick<
+  ProvisionedSandbox,
+  "conversationId" | "sandboxName" | "supervisorUrl" | "supervisorSecret"
+>;
+
+/** Sign a short-lived bearer the supervisor accepts for /dispatch and /cancel. */
+function signSupervisorBearer(target: SupervisorTarget): string {
+  return signSupervisorToken(
+    {
+      sandboxId: target.sandboxName,
+      expiresAt: Date.now() + SUPERVISOR_TOKEN_TTL_MS,
+      scope: target.conversationId,
+    },
+    target.supervisorSecret,
+  );
+}
+
 /**
  * POSTs to the supervisor's /dispatch endpoint with a fresh signed bearer.
  *
- * We don't await the supervisor's response on the GraphQL hot path — by
- * design the dispatch is a fire-and-forget, with persistence happening via
- * the supervisor's POST callbacks back to our backend. Wrapped in
- * `backgroundTask` by the caller so the serverless host doesn't tear down
- * before the dispatch completes.
+ * The supervisor accepts the turn and starts Claude Code asynchronously,
+ * streaming events back via its POST callbacks — so this POST returns quickly
+ * even though the turn itself runs for a while. A non-ok response is a real
+ * dispatch failure surfaced to the caller; there is no row to retire, since a
+ * stopped or unreachable sandbox is simply resumed by the next turn.
  */
 async function dispatchTurnViaSupervisor(args: {
-  context: ResolverContext;
-  record: SandboxSessionRecord;
+  provisioned: ProvisionedSandbox;
   conversationId: string;
   projectId: string;
   userId: string;
@@ -70,23 +92,19 @@ async function dispatchTurnViaSupervisor(args: {
   claudeSessionId?: string;
   bootstrapJsonl?: string[];
 }): Promise<void> {
-  const tokenExpiresAt = Date.now() + (30 * 60 * 1000);
-  const bearer = signSupervisorToken(
-    { sandboxId: args.record.vercelSandboxId, expiresAt: tokenExpiresAt, scope: args.conversationId },
-    args.record.supervisorSecret,
-  );
+  const { provisioned } = args;
+  const bearer = signSupervisorBearer(provisioned);
   // Agent-scoped sandbox-callback bearer for the in-sandbox `research-tool`
-  // CLI. The supervisor's own `CALLBACK_TOKEN` is supervisor-scoped (used
-  // for /events and /heartbeat), but the document/conversation endpoints
-  // require an agent scope tied to *this* conversationId — minted here so
-  // the HMAC secret stays on the backend.
+  // CLI — scoped to *this* conversationId. The supervisor's own
+  // supervisor-scoped CALLBACK_TOKEN can't authorize the document/conversation
+  // endpoints; this one can. Minted here so the HMAC secret stays on the backend.
   const agentBackendToken = mintSandboxCallbackToken({
-    sandboxId: args.record.vercelSandboxId,
+    sandboxId: provisioned.sandboxName,
     conversationId: args.conversationId,
     projectId: args.projectId,
     userId: args.userId,
   });
-  const response = await fetch(`${args.record.endpointUrl}/dispatch`, {
+  const response = await fetch(`${provisioned.supervisorUrl}/dispatch`, {
     method: "POST",
     headers: {
       "Authorization": `Bearer ${bearer}`,
@@ -108,50 +126,17 @@ async function dispatchTurnViaSupervisor(args: {
   console.error(
     `[research] supervisor /dispatch failed: ${response.status}${vercelErr ? ` (${vercelErr})` : ""} ${text}`,
   );
-
-  // Vercel proxy errors (SANDBOX_STOPPED, SANDBOX_NOT_LISTENING, etc.) mean the
-  // sandbox is unreachable, not just that the supervisor said no. Retire the row
-  // so `getOrCreateSandbox` re-provisions on the next request and `stream-info`
-  // stops handing the dead URL to the page. The supervisor's own non-ok
-  // responses (400/401/403/409) don't carry this header and leave the row alone.
-  if (vercelErr) {
-    await retireSandboxSession(args.context, args.record._id, vercelErr);
-  }
-
   throw new Error(
     `supervisor /dispatch failed: ${response.status}${vercelErr ? ` (${vercelErr})` : ""}`,
   );
 }
 
-async function retireSandboxSession(
-  context: ResolverContext,
-  recordId: string,
-  reason: string,
-): Promise<void> {
-  // eslint-disable-next-line no-console
-  console.warn(`[research] retiring sandbox session ${recordId}: ${reason}`);
-  await context.ResearchSandboxSessions.rawUpdateOne(
-    { _id: recordId, status: { $ne: "stopped" } },
-    { $set: { status: "stopped" } },
-  ).catch((err) => {
-    // eslint-disable-next-line no-console
-    console.error(`[research] retire failed for ${recordId}:`, err);
-  });
-}
-
-async function cancelTurnViaSupervisor(
-  record: Pick<SandboxSessionRecord, "vercelSandboxId" | "endpointUrl" | "supervisorSecret">,
-  conversationId: string,
-): Promise<void> {
-  const tokenExpiresAt = Date.now() + (30 * 60 * 1000);
-  const bearer = signSupervisorToken(
-    { sandboxId: record.vercelSandboxId, expiresAt: tokenExpiresAt, scope: conversationId },
-    record.supervisorSecret,
+async function cancelTurnViaSupervisor(target: SupervisorTarget): Promise<void> {
+  const bearer = signSupervisorBearer(target);
+  const response = await fetch(
+    `${target.supervisorUrl}/cancel/${encodeURIComponent(target.conversationId)}`,
+    { method: "POST", headers: { "Authorization": `Bearer ${bearer}` } },
   );
-  const response = await fetch(`${record.endpointUrl}/cancel/${encodeURIComponent(conversationId)}`, {
-    method: "POST",
-    headers: { "Authorization": `Bearer ${bearer}` },
-  });
   if (!response.ok && response.status !== 404) {
     // eslint-disable-next-line no-console
     console.error(`[research] supervisor /cancel failed: ${response.status}`);
@@ -392,20 +377,16 @@ export const researchResolversMutations = {
     });
     await appendUserTurn(_id, turnPrompt, context);
 
-    backgroundTask((async () => {
-      try {
-        await dispatchToSandbox({
-          context,
-          conversationId: _id,
-          projectId,
-          userId: currentUser._id,
-          prompt: turnPrompt,
-        });
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error("[research] fireResearchConversation dispatch failed", err);
-      }
-    })());
+    // A provisioning failure throws from here; the conversation row and user
+    // turn are already persisted, so the client can retry the turn with
+    // `continueResearchConversation`.
+    await dispatchToSandbox({
+      context,
+      conversationId: _id,
+      projectId,
+      userId: currentUser._id,
+      prompt: turnPrompt,
+    });
 
     backgroundTask((async () => {
       const title = await generateConversationTitle(prompt);
@@ -433,9 +414,6 @@ export const researchResolversMutations = {
       { conversationId: conv._id },
       { sort: { seq: 1 } },
     ).fetch();
-    const bootstrapJsonl = conv.claudeSessionId
-      ? buildBootstrapJsonl(priorEvents, conv.claudeSessionId)
-      : undefined;
 
     const turnPrompt = await prepareTurnPrompt({
       rawPrompt: args.prompt,
@@ -449,35 +427,35 @@ export const researchResolversMutations = {
     await appendUserTurn(conv._id, turnPrompt, context);
     await ResearchConversations.rawUpdateOne({ _id: conv._id }, { $set: { lastActivityAt: new Date() } });
 
-    backgroundTask((async () => {
-      try {
-        await dispatchToSandbox({
-          context,
-          conversationId: conv._id,
-          projectId: conv.projectId,
-          userId: conv.userId,
-          prompt: turnPrompt,
-          claudeSessionId: conv.claudeSessionId ?? undefined,
-          bootstrapJsonl,
-        });
-      } catch (err) {
-        // eslint-disable-next-line no-console
-        console.error("[research] continueResearchConversation dispatch failed", err);
-      }
-    })());
+    await dispatchToSandbox({
+      context,
+      conversationId: conv._id,
+      projectId: conv.projectId,
+      userId: conv.userId,
+      prompt: turnPrompt,
+      resumeContext: conv.claudeSessionId
+        ? { claudeSessionId: conv.claudeSessionId, priorEvents }
+        : undefined,
+    });
 
     return { conversationId: conv._id, data: { _id: conv._id } };
   },
 
   async cancelResearchConversation(_root: void, args: { conversationId: string }, context: ResolverContext) {
     const conv = await loadConversationOrThrow(args.conversationId, context);
-    const sessions = await context.ResearchSandboxSessions.find(
-      { userId: conv.userId, projectId: conv.projectId, status: { $in: ["active", "provisioning"] } },
-      { sort: { lastUsedAt: -1 } },
-    ).fetch();
-    for (const s of sessions) {
+    // Only a running sandbox can have a turn to cancel; never resume one to do it.
+    const [sandbox, row] = await Promise.all([
+      getRunningSandbox(conv._id),
+      context.ResearchSandboxSessions.findOne({ conversationId: conv._id }),
+    ]);
+    if (sandbox && row) {
       try {
-        await cancelTurnViaSupervisor(s, conv._id);
+        await cancelTurnViaSupervisor({
+          conversationId: conv._id,
+          sandboxName: sandboxNameForConversation(conv._id),
+          supervisorUrl: supervisorUrlForSandbox(sandbox),
+          supervisorSecret: row.supervisorSecret,
+        });
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error("[research] cancel-via-supervisor failed", err);
@@ -487,50 +465,42 @@ export const researchResolversMutations = {
   },
 };
 
+/**
+ * Provision (or resume) the conversation's persistent sandbox and dispatch one
+ * turn to its supervisor. `resumeContext` is supplied when continuing an
+ * existing conversation; it lets a rebuilt sandbox have its Claude session
+ * reconstructed.
+ */
 async function dispatchToSandbox(args: {
   context: ResolverContext;
   conversationId: string;
   projectId: string;
   userId: string;
   prompt: string;
-  claudeSessionId?: string;
-  bootstrapJsonl?: string[];
+  resumeContext?: { claudeSessionId: string; priorEvents: DbResearchConversationEvent[] };
 }): Promise<void> {
-  const { ResearchSandboxSessions } = args.context;
-  const record = await getOrCreateSandbox(args.userId, args.projectId, args.context);
-  // Bump the sandbox's concurrency count immediately so a near-simultaneous
-  // dispatch sees the new load and can spillover instead of piling onto a
-  // sandbox that's about to hit the cap. The supervisor heartbeat overwrites
-  // this with the authoritative `running` count every ~10s, so any drift from
-  // a failed dispatch self-corrects on the next tick.
-  await ResearchSandboxSessions.rawUpdateOne(
-    { _id: record._id },
-    { $inc: { concurrencyCount: 1 }, $set: { lastUsedAt: new Date() } },
-  );
-  try {
-    await dispatchTurnViaSupervisor({
-      context: args.context,
-      record,
-      conversationId: args.conversationId,
-      projectId: args.projectId,
-      userId: args.userId,
-      prompt: args.prompt,
-      claudeSessionId: args.claudeSessionId,
-      bootstrapJsonl: args.bootstrapJsonl,
-    });
-  } catch (err) {
-    // Roll back the reserve so the cap check stops over-counting until the
-    // next heartbeat arrives. The decrement is best-effort — if it fails,
-    // the next heartbeat will overwrite with the authoritative count anyway.
-    await ResearchSandboxSessions.rawUpdateOne(
-      { _id: record._id },
-      { $inc: { concurrencyCount: -1 } },
-    ).catch((rollbackErr) => {
-      // eslint-disable-next-line no-console
-      console.error("[research] concurrencyCount rollback failed", rollbackErr);
-    });
-    throw err;
+  const provisioned = await getOrCreateSandbox(args.conversationId, args.context);
+
+  // Reconstruct the Claude session only when the sandbox was freshly built (a
+  // rebuild after an expired snapshot). A warm resume still has the session
+  // file on disk, so `claude --resume` reads it directly.
+  let bootstrapJsonl: string[] | undefined;
+  if (provisioned.wasFreshlyCreated && args.resumeContext) {
+    bootstrapJsonl = buildBootstrapJsonl(
+      args.resumeContext.priorEvents,
+      args.resumeContext.claudeSessionId,
+    );
   }
+
+  await dispatchTurnViaSupervisor({
+    provisioned,
+    conversationId: args.conversationId,
+    projectId: args.projectId,
+    userId: args.userId,
+    prompt: args.prompt,
+    claudeSessionId: args.resumeContext?.claudeSessionId,
+    bootstrapJsonl,
+  });
 }
 
 export const researchResolversQueries = {

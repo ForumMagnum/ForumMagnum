@@ -1,25 +1,30 @@
 /**
  * POST /api/research/agent/sandboxes/:sandboxId/heartbeat
  *
- * Supervisor → backend periodic report. The receiving side writes the freshest
- * supervisor-reported numbers (`concurrencyCount`, pressure metrics) onto the
- * `ResearchSandboxSessions` row so `sandboxManager`'s spillover decision uses
- * authoritative data instead of stale or in-memory state.
+ * Supervisor → backend periodic report (~every 10s). It drives the idle/roll
+ * policy: on each heartbeat the backend resolves the live sandbox and either
+ * re-arms its idle timeout (a turn is running) or rolls it (no turn, and the
+ * session is near Vercel's 5h cap). The row is never written.
  *
- * Auth: same sandbox-callback bearer token T3 uses on the events POST. The
- * supervisor receives the token at provision time as `CALLBACK_TOKEN` and
- * sends it on every outbound request. The token's `sandboxId` claim must
- * match the URL `:sandboxId` to prevent one sandbox impersonating another.
+ * `:sandboxId` is the persistent sandbox name (`research-{conversationId}`),
+ * which must match the `sandboxId` claim of the supervisor's callback token.
+ *
+ * Auth: the same sandbox-callback bearer token the supervisor sends on its
+ * events POST, received at provision time as `CALLBACK_TOKEN`.
  */
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { captureException } from "@/lib/sentryWrapper";
-import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { authorizeAgentRequest } from "../../../researchAgentAuth";
 import {
   captureResearchAgentApiEvent,
   captureResearchAgentApiFailure,
 } from "../../../captureResearchAgentAnalytics";
+import {
+  conversationIdFromSandboxName,
+  getRunningSandbox,
+  maintainSandboxTimeout,
+} from "@/server/research/sandbox/sandboxManager";
 
 const ROUTE = "sandboxes.heartbeat.post";
 
@@ -64,12 +69,7 @@ export async function POST(
     );
   }
 
-  const [body, context] = await Promise.all([
-    req.json(),
-    getContextFromReqAndRes({ req, isSSR: false }),
-  ]);
-
-  const parseResult = heartbeatSchema.safeParse(body);
+  const parseResult = heartbeatSchema.safeParse(await req.json());
   if (!parseResult.success) {
     captureResearchAgentApiEvent({
       route: ROUTE,
@@ -95,54 +95,34 @@ export async function POST(
     );
   }
 
-  try {
-    const session = await context.ResearchSandboxSessions.findOne({
-      vercelSandboxId: sandboxId,
-      userId: payload.userId,
-      projectId: payload.projectId,
-    });
-    if (!session) {
-      captureResearchAgentApiEvent({
-        route: ROUTE,
-        status: "not_found",
-        projectId: payload.projectId,
-      });
-      return NextResponse.json(
-        { error: "Sandbox session row not found for this token." },
-        { status: 404 },
-      );
-    }
+  const conversationId = conversationIdFromSandboxName(sandboxId);
+  if (!conversationId) {
+    return NextResponse.json({ error: "Malformed sandbox name." }, { status: 400 });
+  }
 
-    await context.ResearchSandboxSessions.rawUpdateOne(
-      { _id: session._id },
-      {
-        $set: {
-          concurrencyCount: parseResult.data.activeConversationCount,
-          lastUsedAt: new Date(parseResult.data.reportedAt),
-        },
-      },
-    );
+  try {
+    const turnRunning = parseResult.data.conversations.some((c) => c.status === "running");
+    // The heartbeat came from the supervisor, so the sandbox is running.
+    const sandbox = await getRunningSandbox(conversationId);
+    if (sandbox) {
+      await maintainSandboxTimeout(sandbox, { turnRunning });
+    }
 
     captureResearchAgentApiEvent({
       route: ROUTE,
       status: "success",
       projectId: payload.projectId,
-      operationResult: `concurrency=${parseResult.data.activeConversationCount},mem=${parseResult.data.memoryPressure.toFixed(
-        2,
-      )},cpu=${parseResult.data.cpuPressure.toFixed(2)}`,
+      operationResult: `turnRunning=${turnRunning}`,
     });
-
     return NextResponse.json({ ok: true });
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
     captureException(error);
-    captureResearchAgentApiFailure(ROUTE, error, {
-      projectId: payload.projectId,
-    });
+    captureResearchAgentApiFailure(ROUTE, error, { projectId: payload.projectId });
     return NextResponse.json(
       {
-        error: "Failed to record heartbeat",
+        error: "Failed to process heartbeat",
         details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },

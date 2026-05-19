@@ -17,14 +17,13 @@ export const graphqlResearchSandboxSessionQueryTypeDefs = gql`
     result: ResearchSandboxSession
   }
 
-  input ResearchSandboxSessionsByUserAndProjectInput {
-    userId: String
-    projectId: String
+  input ResearchSandboxSessionsByConversationInput {
+    conversationId: String
   }
 
   input ResearchSandboxSessionSelector {
     default: EmptyViewInput
-    byUserAndProject: ResearchSandboxSessionsByUserAndProjectInput
+    byConversation: ResearchSandboxSessionsByConversationInput
   }
 
   input MultiResearchSandboxSessionInput {

@@ -5,16 +5,16 @@
  *
  * Usage:
  *   yarn ts-node --swc -r tsconfig-paths/register --project tsconfig-repl.json \
- *     packages/lesswrong/server/research/sandbox/inspectSandbox.ts <sandboxId>
+ *     packages/lesswrong/server/research/sandbox/inspectSandbox.ts <sandboxName>
  */
 import { Sandbox } from "@vercel/sandbox";
 
 async function main() {
-  const sandboxId = process.argv[2];
-  if (!sandboxId) throw new Error("Usage: inspectSandbox.ts <sandboxId>");
+  const name = process.argv[2];
+  if (!name) throw new Error("Usage: inspectSandbox.ts <sandboxName>");
 
-  console.log(`[inspect] connecting to ${sandboxId}…`);
-  const sandbox = await Sandbox.get({ sandboxId });
+  console.log(`[inspect] connecting to ${name}…`);
+  const sandbox = await Sandbox.get({ name });
   console.log(`[inspect] status=${sandbox.status}`);
 
   console.log("\n[inspect] /vercel/sandbox listing:");

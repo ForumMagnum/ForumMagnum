@@ -2403,19 +2403,12 @@ CREATE INDEX IF NOT EXISTS "idx_ResearchProjects_userId_createdAt" ON "ResearchP
 CREATE TABLE "ResearchSandboxSessions" (
   _id VARCHAR(27) PRIMARY KEY,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "userId" VARCHAR(27) NOT NULL,
-  "projectId" VARCHAR(27) NOT NULL,
-  "vercelSandboxId" TEXT NOT NULL,
-  "endpointUrl" TEXT NOT NULL,
-  "status" TEXT NOT NULL,
-  "supervisorSecret" TEXT NOT NULL,
-  "concurrencyCount" INTEGER NOT NULL DEFAULT 0,
-  "lastUsedAt" TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  "expiresAt" TIMESTAMPTZ
+  "conversationId" VARCHAR(27) NOT NULL,
+  "supervisorSecret" TEXT NOT NULL
 );
 
--- Index "idx_ResearchSandboxSessions_userId_projectId_status"
-CREATE INDEX IF NOT EXISTS "idx_ResearchSandboxSessions_userId_projectId_status" ON "ResearchSandboxSessions" USING btree ("userId", "projectId", "status");
+-- Index "idx_ResearchSandboxSessions_conversationId"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_ResearchSandboxSessions_conversationId" ON "ResearchSandboxSessions" USING btree ("conversationId");
 
 -- Table "ReviewVotes"
 CREATE TABLE "ReviewVotes" (

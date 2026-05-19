@@ -36,8 +36,9 @@ async function main() {
     runtime: "node24",
     timeout: 5 * 60 * 1000,
     resources: { vcpus: 2 },
+    persistent: false,
   });
-  console.log(`[smoke] created: id=${sandbox.sandboxId} status=${sandbox.status}`);
+  console.log(`[smoke] created: name=${sandbox.name} status=${sandbox.status}`);
 
   try {
     console.log("[smoke] echo hello");
@@ -94,7 +95,7 @@ async function main() {
   } finally {
     console.log("[smoke] stopping sandbox");
     try {
-      await sandbox.stop({ blocking: true });
+      await sandbox.stop();
       console.log("[smoke] stopped");
     } catch (err) {
       console.error("[smoke] stop failed:", err);

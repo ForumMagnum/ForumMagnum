@@ -159,7 +159,12 @@ const researchConversationEventCheckAccess: CheckAccessFunction<'ResearchConvers
 };
 
 const researchSandboxSessionCheckAccess: CheckAccessFunction<'ResearchSandboxSessions'> = async (currentUser, document, context): Promise<boolean> => {
-  return userIsAdmin(currentUser) || userOwns(currentUser, document);
+  if (!currentUser) return false;
+  if (userIsAdmin(currentUser)) return true;
+  // The row carries no userId; defer to the conversation it belongs to.
+  const conversation = await context.loaders.ResearchConversations.load(document.conversationId);
+  if (!conversation) return false;
+  return userOwns(currentUser, conversation);
 };
 
 const llmMessageCheckAccess: CheckAccessFunction<'LlmMessages'> = async (currentUser, document, context): Promise<boolean> => {

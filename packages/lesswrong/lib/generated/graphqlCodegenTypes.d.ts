@@ -8915,26 +8915,18 @@ type ResearchProjectsByUserInput = {
 type ResearchSandboxSession = {
   __typename?: 'ResearchSandboxSession';
   _id: Scalars['String']['output'];
-  concurrencyCount?: Maybe<Scalars['Int']['output']>;
+  conversationId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
-  endpointUrl?: Maybe<Scalars['String']['output']>;
-  expiresAt?: Maybe<Scalars['Date']['output']>;
-  lastUsedAt?: Maybe<Scalars['Date']['output']>;
-  projectId?: Maybe<Scalars['String']['output']>;
-  status?: Maybe<Scalars['String']['output']>;
   supervisorSecret?: Maybe<Scalars['String']['output']>;
-  userId?: Maybe<Scalars['String']['output']>;
-  vercelSandboxId?: Maybe<Scalars['String']['output']>;
 };
 
 type ResearchSandboxSessionSelector = {
-  byUserAndProject?: InputMaybe<ResearchSandboxSessionsByUserAndProjectInput>;
+  byConversation?: InputMaybe<ResearchSandboxSessionsByConversationInput>;
   default?: InputMaybe<EmptyViewInput>;
 };
 
-type ResearchSandboxSessionsByUserAndProjectInput = {
-  projectId?: InputMaybe<Scalars['String']['input']>;
-  userId?: InputMaybe<Scalars['String']['input']>;
+type ResearchSandboxSessionsByConversationInput = {
+  conversationId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type ReviewResultsPostEntry = {

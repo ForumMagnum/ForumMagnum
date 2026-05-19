@@ -5839,15 +5839,8 @@ interface MultiResearchProjectOutput {
 interface ResearchSandboxSession {
   _id: string;
   createdAt: Date;
-  userId: string | null;
-  projectId: string | null;
-  vercelSandboxId: string | null;
-  endpointUrl: string | null;
-  status: string | null;
+  conversationId: string | null;
   supervisorSecret: string | null;
-  concurrencyCount: number | null;
-  lastUsedAt: Date | null;
-  expiresAt: Date | null;
 }
 
 interface SingleResearchSandboxSessionInput {
@@ -5859,14 +5852,13 @@ interface SingleResearchSandboxSessionOutput {
   result: ResearchSandboxSession | null;
 }
 
-interface ResearchSandboxSessionsByUserAndProjectInput {
-  userId?: string | null;
-  projectId?: string | null;
+interface ResearchSandboxSessionsByConversationInput {
+  conversationId?: string | null;
 }
 
 interface ResearchSandboxSessionSelector {
   default: EmptyViewInput | null;
-  byUserAndProject: ResearchSandboxSessionsByUserAndProjectInput | null;
+  byConversation: ResearchSandboxSessionsByConversationInput | null;
 }
 
 interface MultiResearchSandboxSessionInput {
@@ -9676,7 +9668,7 @@ interface GraphQLTypeMap {
   ResearchSandboxSession: ResearchSandboxSession;
   SingleResearchSandboxSessionInput: SingleResearchSandboxSessionInput;
   SingleResearchSandboxSessionOutput: SingleResearchSandboxSessionOutput;
-  ResearchSandboxSessionsByUserAndProjectInput: ResearchSandboxSessionsByUserAndProjectInput;
+  ResearchSandboxSessionsByConversationInput: ResearchSandboxSessionsByConversationInput;
   ResearchSandboxSessionSelector: ResearchSandboxSessionSelector;
   MultiResearchSandboxSessionInput: MultiResearchSandboxSessionInput;
   MultiResearchSandboxSessionOutput: MultiResearchSandboxSessionOutput;

@@ -3,18 +3,16 @@ import { CollectionViewSet } from '@/lib/views/collectionViewSet';
 declare global {
   interface ResearchSandboxSessionsViewTerms extends ViewTermsBase {
     view: ResearchSandboxSessionsViewName
-    userId?: string
-    projectId?: string
+    conversationId?: string
   }
 }
 
-function byUserAndProject(terms: ResearchSandboxSessionsByUserAndProjectInput) {
+function byConversation(terms: ResearchSandboxSessionsByConversationInput) {
   return {
-    selector: { userId: terms.userId, projectId: terms.projectId },
-    options: { sort: { lastUsedAt: -1 as const } },
+    selector: { conversationId: terms.conversationId },
   };
 }
 
 export const ResearchSandboxSessionsViews = new CollectionViewSet('ResearchSandboxSessions', {
-  byUserAndProject,
+  byConversation,
 });

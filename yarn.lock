@@ -8737,10 +8737,10 @@
   resolved "https://registry.yarnpkg.com/@vercel/oidc/-/oidc-3.2.0.tgz#5782a4d4904443f015808705b5537cf9c3b68528"
   integrity sha512-UycprH3T6n3jH0k44NHMa7pnFHGu/N05MjojYr+Mc6I7obkoLIJujSWwin1pCvdy/eOxrI/l3uDLQsmcrOb4ug==
 
-"@vercel/sandbox@^1.10.0":
-  version "1.10.0"
-  resolved "https://registry.yarnpkg.com/@vercel/sandbox/-/sandbox-1.10.0.tgz#c5570e45ad6b1a7c09ed6899bbdad19b64f43990"
-  integrity sha512-rGA8KJB5ZwQeygzsndgrbHsys3HGWKHQaRQlmyIEHce2BFuTfQUgivHDj5DCZhWiyjjSEodLHpoJkZBd95K0/Q==
+"@vercel/sandbox@2.0.0-beta.21":
+  version "2.0.0-beta.21"
+  resolved "https://registry.yarnpkg.com/@vercel/sandbox/-/sandbox-2.0.0-beta.21.tgz#8180bde1c27351bc952623109a2fbc0af1d6bce5"
+  integrity sha512-mtX3mJRcLA8koekOxaVRMhgKkdgbTBZAyEfoudq+FP7sYMW0y7v8CuoVTncHu1CLe9e7/EKSsMlfui2MOMJnRA==
   dependencies:
     "@vercel/oidc" "3.2.0"
     "@workflow/serde" "4.1.0-beta.2"

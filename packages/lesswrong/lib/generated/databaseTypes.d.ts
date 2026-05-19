@@ -1202,16 +1202,9 @@ type ResearchSandboxSessionsCollection = PgCollection<"ResearchSandboxSessions">
 
 interface DbResearchSandboxSession extends DbObject {
   __collectionName?: "ResearchSandboxSessions"
-  concurrencyCount: number
+  conversationId: string
   createdAt: Date
-  endpointUrl: string
-  expiresAt: Date | null
-  lastUsedAt: Date
-  projectId: string
-  status: string
   supervisorSecret: string
-  userId: string
-  vercelSandboxId: string
 }
 
 type ReviewVotesCollection = PgCollection<"ReviewVotes">;
