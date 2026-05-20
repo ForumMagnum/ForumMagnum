@@ -1,6 +1,6 @@
 import { generateText, tool, stepCountIs, Output } from "ai";
 import { z } from "zod";
-import type { RepoIdentity } from "./repoUrl";
+import type { RepoIdentity } from "@/lib/research/repoUrl";
 import { fetchRepoFile, fetchRepoTree } from "./githubApi";
 
 /**
@@ -11,9 +11,7 @@ import { fetchRepoFile, fetchRepoTree } from "./githubApi";
  * conversation verifies for real.
  */
 
-// Routed through the AI gateway, same as `titleGeneration`. Adjust if the
-// gateway's model identifier changes.
-const CONFIG_AGENT_MODEL = "anthropic/claude-sonnet-4-6";
+const CONFIG_AGENT_MODEL = "anthropic/claude-opus-4-7";
 const CONFIG_AGENT_MAX_STEPS = 16;
 const MAX_TREE_ENTRIES = 2000;
 const MAX_FILE_CHARS = 20000;
@@ -23,12 +21,7 @@ const proposalSchema = z.object({
   lockfilePath: z.string().describe("Path of the dependency lockfile, relative to the repo root."),
   installCommand: z.string().describe("Concrete install command, any bootstrap folded in."),
   prepareCommand: z.string().nullable().describe("Codegen/migration setup command, or null."),
-  devCommand: z
-    .string()
-    .nullable()
-    .describe(
-      "Command that starts the dev server, or null. The sandbox picks the port at runtime — write the command to read it from $PORT (e.g. 'vite --port $PORT', 'python manage.py runserver 0.0.0.0:$PORT').",
-    ),
+  devCommand: z.string().nullable().describe("Command that starts the dev server, or null. The sandbox picks the port at runtime — write the command to read it from $PORT (e.g. 'vite --port $PORT', 'python manage.py runserver 0.0.0.0:$PORT')."),
 });
 
 export interface WorkspaceRepoConfigProposal {

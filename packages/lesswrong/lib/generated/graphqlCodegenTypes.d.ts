@@ -7305,6 +7305,7 @@ type Query = {
   curationNotices?: Maybe<MultiCurationNoticeOutput>;
   currentSpotlight?: Maybe<Spotlight>;
   currentUser?: Maybe<User>;
+  currentWorkspaceRepos: Array<WorkspaceRepo>;
   dialogueCheck?: Maybe<SingleDialogueCheckOutput>;
   dialogueChecks?: Maybe<MultiDialogueCheckOutput>;
   dialogueMatchPreference?: Maybe<SingleDialogueMatchPreferenceOutput>;
@@ -18108,6 +18109,69 @@ type ResearchUpdateUserSecretMutationVariables = Exact<{
 
 type ResearchUpdateUserSecretMutation = ResearchUpdateUserSecretMutation_Mutation;
 
+type ResearchCurrentWorkspaceReposQueryQuery_currentWorkspaceRepos_WorkspaceRepo = { __typename?: 'WorkspaceRepo', _id: string, host: string | null, owner: string | null, name: string | null, defaultBranch: string | null, runtime: string | null, lockfilePath: string | null, installCommand: string | null, prepareCommand: string | null, devCommand: string | null, createdAt: string };
+
+type ResearchCurrentWorkspaceReposQueryQuery_Query = { __typename?: 'Query', currentWorkspaceRepos: Array<ResearchCurrentWorkspaceReposQueryQuery_currentWorkspaceRepos_WorkspaceRepo> };
+
+
+type ResearchCurrentWorkspaceReposQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type ResearchCurrentWorkspaceReposQueryQuery = ResearchCurrentWorkspaceReposQueryQuery_Query;
+
+type ResearchToolingUserSecretsQueryQuery_userSecrets_MultiUserSecretOutput_results_UserSecret = { __typename?: 'UserSecret', _id: string, name: string | null, repoScope: string | null };
+
+type ResearchToolingUserSecretsQueryQuery_userSecrets_MultiUserSecretOutput = { __typename?: 'MultiUserSecretOutput', results: Array<ResearchToolingUserSecretsQueryQuery_userSecrets_MultiUserSecretOutput_results_UserSecret> };
+
+type ResearchToolingUserSecretsQueryQuery_Query = { __typename?: 'Query', userSecrets: ResearchToolingUserSecretsQueryQuery_userSecrets_MultiUserSecretOutput | null };
+
+
+type ResearchToolingUserSecretsQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type ResearchToolingUserSecretsQueryQuery = ResearchToolingUserSecretsQueryQuery_Query;
+
+type ToolingCreateUserSecretMutation_createUserSecret_UserSecretOutput_data_UserSecret = { __typename?: 'UserSecret', _id: string, name: string | null, repoScope: string | null };
+
+type ToolingCreateUserSecretMutation_createUserSecret_UserSecretOutput = { __typename?: 'UserSecretOutput', data: ToolingCreateUserSecretMutation_createUserSecret_UserSecretOutput_data_UserSecret | null };
+
+type ToolingCreateUserSecretMutation_Mutation = { __typename?: 'Mutation', createUserSecret: ToolingCreateUserSecretMutation_createUserSecret_UserSecretOutput | null };
+
+
+type ToolingCreateUserSecretMutationVariables = Exact<{
+  data: CreateUserSecretDataInput;
+}>;
+
+
+type ToolingCreateUserSecretMutation = ToolingCreateUserSecretMutation_Mutation;
+
+type ToolingUpdateUserSecretMutation_updateUserSecret_UserSecretOutput_data_UserSecret = { __typename?: 'UserSecret', _id: string, name: string | null, repoScope: string | null };
+
+type ToolingUpdateUserSecretMutation_updateUserSecret_UserSecretOutput = { __typename?: 'UserSecretOutput', data: ToolingUpdateUserSecretMutation_updateUserSecret_UserSecretOutput_data_UserSecret | null };
+
+type ToolingUpdateUserSecretMutation_Mutation = { __typename?: 'Mutation', updateUserSecret: ToolingUpdateUserSecretMutation_updateUserSecret_UserSecretOutput | null };
+
+
+type ToolingUpdateUserSecretMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserSecretDataInput;
+}>;
+
+
+type ToolingUpdateUserSecretMutation = ToolingUpdateUserSecretMutation_Mutation;
+
+type ToolingDeleteUserSecretMutation_deleteUserSecret_DeleteUserSecretOutput = { __typename?: 'DeleteUserSecretOutput', success: boolean };
+
+type ToolingDeleteUserSecretMutation_Mutation = { __typename?: 'Mutation', deleteUserSecret: ToolingDeleteUserSecretMutation_deleteUserSecret_DeleteUserSecretOutput | null };
+
+
+type ToolingDeleteUserSecretMutationVariables = Exact<{
+  _id: Scalars['String']['input'];
+}>;
+
+
+type ToolingDeleteUserSecretMutation = ToolingDeleteUserSecretMutation_Mutation;
+
 type ResearchWorkspaceFirstDocumentQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument = { __typename?: 'ResearchDocument', _id: string };
 
 type ResearchWorkspaceFirstDocumentQuery_researchDocuments_MultiResearchDocumentOutput = { __typename?: 'MultiResearchDocumentOutput', results: Array<ResearchWorkspaceFirstDocumentQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument> };
@@ -18121,6 +18185,33 @@ type ResearchWorkspaceFirstDocumentQueryVariables = Exact<{
 
 
 type ResearchWorkspaceFirstDocumentQuery = ResearchWorkspaceFirstDocumentQuery_Query;
+
+type ProposeWorkspaceRepoConfigMutation_proposeWorkspaceRepoConfig_WorkspaceRepoConfigProposal = { __typename?: 'WorkspaceRepoConfigProposal', defaultBranch: string, runtime: string, lockfilePath: string, installCommand: string, prepareCommand: string | null, devCommand: string | null };
+
+type ProposeWorkspaceRepoConfigMutation_Mutation = { __typename?: 'Mutation', proposeWorkspaceRepoConfig: ProposeWorkspaceRepoConfigMutation_proposeWorkspaceRepoConfig_WorkspaceRepoConfigProposal | null };
+
+
+type ProposeWorkspaceRepoConfigMutationVariables = Exact<{
+  repoUrl: Scalars['String']['input'];
+  githubToken: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type ProposeWorkspaceRepoConfigMutation = ProposeWorkspaceRepoConfigMutation_Mutation;
+
+type CreateWorkspaceRepoMutation_createWorkspaceRepo_WorkspaceRepoOutput_data_WorkspaceRepo = { __typename?: 'WorkspaceRepo', _id: string, host: string | null, owner: string | null, name: string | null, defaultBranch: string | null, runtime: string | null, lockfilePath: string | null, installCommand: string | null, prepareCommand: string | null, devCommand: string | null, createdAt: string };
+
+type CreateWorkspaceRepoMutation_createWorkspaceRepo_WorkspaceRepoOutput = { __typename?: 'WorkspaceRepoOutput', data: CreateWorkspaceRepoMutation_createWorkspaceRepo_WorkspaceRepoOutput_data_WorkspaceRepo | null };
+
+type CreateWorkspaceRepoMutation_Mutation = { __typename?: 'Mutation', createWorkspaceRepo: CreateWorkspaceRepoMutation_createWorkspaceRepo_WorkspaceRepoOutput | null };
+
+
+type CreateWorkspaceRepoMutationVariables = Exact<{
+  data: CreateWorkspaceRepoDataInput;
+}>;
+
+
+type CreateWorkspaceRepoMutation = CreateWorkspaceRepoMutation_Mutation;
 
 type ResearchConversationTranscriptQuery_researchConversationTranscript_ResearchConversationEvent = { __typename?: 'ResearchConversationEvent', _id: string, conversationId: string | null, seq: number | null, claudeMessageUuid: string | null, kind: string | null, payload: any | null, createdAt: string };
 

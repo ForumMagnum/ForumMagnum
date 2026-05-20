@@ -24,7 +24,7 @@ import {
   type CodingSnapshotPlan,
 } from "./codingWorkspace";
 import { REPO_DIR, repoCommandCwd } from "./repoSandboxSync";
-import { repoScopeOf } from "../repoUrl";
+import { repoScopeOf } from "@/lib/research/repoUrl";
 
 /** Port the in-sandbox supervisor's HTTP server listens on. */
 const SUPERVISOR_PORT = 3000;

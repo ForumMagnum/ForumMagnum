@@ -8,7 +8,7 @@
  * repo to HEAD, reconcile dependencies if needed, run `prepareCommand`).
  */
 import type { Sandbox } from "@vercel/sandbox";
-import { repoScopeOf, type RepoIdentity } from "../repoUrl";
+import { repoScopeOf, type RepoIdentity } from "@/lib/research/repoUrl";
 import { fetchRepoFile } from "../githubApi";
 import { decryptUserSecret } from "../userSecretsCrypto";
 import { resolveUserSecret } from "../userSecretAccess";

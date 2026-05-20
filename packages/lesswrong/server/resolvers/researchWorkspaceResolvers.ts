@@ -1,19 +1,12 @@
 import gql from "graphql-tag";
 import { randomId } from "@/lib/random";
 import { encryptUserSecret } from "@/server/research/userSecretsCrypto";
-import { parseRepoUrl, repoScopeOf } from "@/server/research/repoUrl";
+import { parseRepoUrl, repoScopeOf } from "@/lib/research/repoUrl";
 import { fetchRepoDefaultBranch } from "@/server/research/githubApi";
 import { inferWorkspaceRepoConfig } from "@/server/research/workspaceConfigAgent";
 import { resolveUserSecret } from "@/server/research/userSecretAccess";
 import { GITHUB_TOKEN_SECRET } from "@/lib/collections/userSecrets/userSecretNames";
-
-/**
- * Custom resolvers for the research coding-workspace feature: the
- * `proposeWorkspaceRepoConfig` agent (which runs an AI loop, not CRUD) and
- * `deleteUserSecret` (the codebase has no default hard-delete pattern; for
- * `UserSecrets` specifically we want one). Create/update/queries for
- * `UserSecrets` and `WorkspaceRepos` live in their collection directories.
- */
+import { accessFilterMultiple } from "@/lib/utils/schemaUtils";
 
 export const researchWorkspaceTypeDefs = gql`
   type WorkspaceRepoConfigProposal {
@@ -29,11 +22,24 @@ export const researchWorkspaceTypeDefs = gql`
     success: Boolean!
   }
 
+  extend type Query {
+    currentWorkspaceRepos: [WorkspaceRepo!]!
+  }
+
   extend type Mutation {
     deleteUserSecret(_id: String!): DeleteUserSecretOutput
     proposeWorkspaceRepoConfig(repoUrl: String!, githubToken: String): WorkspaceRepoConfigProposal
   }
 `;
+
+export const researchWorkspaceQueries = {
+  async currentWorkspaceRepos(_root: void, _args: void, context: ResolverContext) {
+    const { currentUser } = context;
+    if (!currentUser) throw new Error("Not logged in");
+    const rows = await context.repos.workspaceRepos.getCurrentByUserId(currentUser._id);
+    return await accessFilterMultiple(currentUser, 'WorkspaceRepos', rows, context);
+  },
+};
 
 export const researchWorkspaceMutations = {
   async deleteUserSecret(

@@ -36,7 +36,7 @@ import { userContentFeedGraphQLQueries, userContentFeedGraphQLTypeDefs } from '@
 import { tagGraphQLTypeDefs, tagResolversGraphQLMutations, tagResolversGraphQLQueries } from '@/server/resolvers/tagResolvers';
 import { conversationGqlMutations, conversationGqlTypeDefs } from '@/server/resolvers/conversationResolvers'
 import { researchResolversTypeDefs, researchResolversMutations, researchResolversQueries } from '@/server/resolvers/researchResolvers'
-import { researchWorkspaceTypeDefs, researchWorkspaceMutations } from '@/server/resolvers/researchWorkspaceResolvers'
+import { researchWorkspaceTypeDefs, researchWorkspaceMutations, researchWorkspaceQueries } from '@/server/resolvers/researchWorkspaceResolvers'
 import { databaseSettingsGqlTypeDefs, databaseSettingsGqlMutations } from '@/server/resolvers/databaseSettingsResolvers'
 import { siteGraphQLQueries, siteGraphQLTypeDefs } from '../site';
 import { loginDataGraphQLMutations, loginDataGraphQLTypeDefs } from './authentication';
@@ -499,6 +499,7 @@ const getResolvers = () => ({
     ...sequencesResolversQueries,
     ...reviewPredictionGraphQLQueries,
     ...researchResolversQueries,
+    ...researchWorkspaceQueries,
     ...adminEmailSenderGraphQLQueries,
 
     // CRUD Query Handlers

@@ -5,7 +5,7 @@
 import * as path from "path";
 import { createHash } from "crypto";
 import type { Sandbox } from "@vercel/sandbox";
-import type { RepoIdentity } from "../repoUrl";
+import type { RepoIdentity } from "@/lib/research/repoUrl";
 import { runSandboxCommandOrThrow } from "./sandboxCommands";
 
 /**

@@ -1,17 +1,18 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
+import classNames from 'classnames';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { useMutation } from '@apollo/client/react';
+import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
 import { useNavigate } from '@/lib/routeUtil';
-import SingleColumnSection from '../common/SingleColumnSection';
-import SectionTitle from '../common/SectionTitle';
 import ErrorAccessDenied from '../common/ErrorAccessDenied';
 import Loading from '../vulcan-core/Loading';
+import ResearchToolingPanel from './ResearchToolingPanel';
 import { CLAUDE_CODE_OAUTH_TOKEN_SECRET } from '@/lib/collections/userSecrets/userSecretNames';
 
 interface ResearchProjectSummary {
@@ -75,125 +76,237 @@ const UpdateUserSecretMutation = gql(`
   }
 `);
 
-const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
-  root: {
-    padding: 24,
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 24,
-  },
-  newProjectForm: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-    marginBottom: 24,
-    padding: 16,
-    background: theme.palette.greyAlpha(0.04),
-    borderRadius: 4,
-  },
-  newProjectFormRow: {
-    display: 'flex',
-    gap: 8,
-  },
-  input: {
+// While a Repos form is open in the right pane, the layout swaps to focus
+// mode: the right pane animates wider (overlaying the left), and a scrim dims
+// the left so any click out dismisses the form.
+const RIGHT_PANE_RESTING_PCT = 30;
+const RIGHT_PANE_FOCUSED_PCT = 50;
+
+function researchPlainTextInputStyles(theme: ThemeType) {
+  return {
     flex: 1,
-    padding: '8px 12px',
-    border: theme.palette.greyBorder('1px', 0.2),
-    borderRadius: 4,
-    fontFamily: 'inherit',
+    width: '100%',
+    boxSizing: 'border-box' as const,
+    border: theme.palette.border.normal,
+    borderRadius: 6,
+    padding: '9px 12px',
     fontSize: 14,
-    background: theme.palette.background.default,
-    color: theme.palette.text.primary,
-    // Restate the border in `:focus` so it isn't stripped by the
-    // `input:focus` global rule in `globalStyles.ts:33`. Without this,
-    // focusing the input loses its border and the layout shifts by 2px.
-    "&:focus": {
-      border: theme.palette.greyBorder('1px', 0.2),
+    color: theme.palette.grey[900],
+    background: theme.palette.panelBackground.default,
+    fontFamily: theme.typography.fontFamily,
+    outline: 'none',
+    '&:hover': {
+      border: theme.palette.border.slightlyIntense,
     },
-  },
-  inputLabel: {
-    fontSize: 12,
-    fontWeight: 600,
-    color: theme.palette.text.dim,
-    marginBottom: 4,
-  },
-  inputHint: {
-    fontSize: 11,
-    color: theme.palette.text.dim,
-    marginTop: 2,
-  },
-  inputError: {
-    fontSize: 11,
-    color: theme.palette.error.main,
-    marginTop: 2,
-  },
-  button: {
-    padding: '8px 16px',
-    border: 'none',
-    borderRadius: 4,
-    background: theme.palette.primary.main,
-    color: theme.palette.primary.contrastText,
-    cursor: 'pointer',
-    fontSize: 14,
-    fontWeight: 500,
-    fontFamily: 'inherit',
+    '&:focus': {
+      // Global styles zero out input borders on focus; restate the full border or the edge disappears.
+      border: theme.palette.border.slightlyIntense2,
+    },
+    '&::placeholder': { color: theme.palette.grey[400] },
     '&:disabled': {
-      opacity: 0.5,
+      background: theme.palette.greyAlpha(0.04),
+      color: theme.palette.grey[500],
       cursor: 'not-allowed',
     },
+  };
+}
+
+const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
+  outer: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: 'calc(100vh - 64px)',
+    minHeight: 0,
+    background: theme.palette.background.default,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+  },
+  topbar: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 16,
+    padding: '12px 24px',
+    borderBottom: `1px solid ${theme.palette.greyAlpha(0.08)}`,
+    flexShrink: 0,
+  },
+  topbarTitle: {
+    fontSize: 16,
+    fontWeight: 600,
+    color: theme.palette.grey[900],
+    margin: 0,
+  },
+  panes: {
+    flex: 1,
+    minHeight: 0,
+    position: 'relative',
+    overflow: 'hidden',
+  },
+  leftPane: {
+    height: '100%',
+    paddingRight: `${RIGHT_PANE_RESTING_PCT}%`,
+    overflowY: 'auto',
+    boxSizing: 'border-box',
+  },
+  leftPaneInner: {
+    maxWidth: 900,
+    margin: '0 auto',
+    padding: '24px 24px 64px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 20,
+  },
+  scrim: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    background: 'transparent',
+    pointerEvents: 'none',
+    transition: 'background 250ms ease',
+    zIndex: 1,
+  },
+  scrimVisible: {
+    background: theme.palette.greyAlpha(0.35),
+    pointerEvents: 'auto',
+    cursor: 'pointer',
+  },
+  rightPane: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    width: `${RIGHT_PANE_RESTING_PCT}%`,
+    background: theme.palette.background.default,
+    borderLeft: `1px solid ${theme.palette.greyAlpha(0.12)}`,
+    overflowY: 'auto',
+    boxSizing: 'border-box',
+    transition: 'width 250ms ease, box-shadow 250ms ease',
+    zIndex: 2,
+  },
+  rightPaneFocused: {
+    width: `${RIGHT_PANE_FOCUSED_PCT}%`,
+    boxShadow: `-8px 0 24px ${theme.palette.greyAlpha(0.08)}`,
+  },
+  rightPaneInner: {
+    paddingBottom: 64,
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  newProjectRow: {
+    display: 'flex',
+    gap: 10,
+    alignItems: 'flex-start',
+  },
+  textInput: researchPlainTextInputStyles(theme),
+  newProjectTitle: {
+    flex: 2,
+  },
+  newProjectDescription: {
+    flex: 3,
   },
   list: {
     listStyle: 'none',
     padding: 0,
     margin: 0,
-  },
-  item: {
-    padding: '16px 20px',
-    borderBottom: theme.palette.greyBorder('1px', 0.1),
-  },
-  itemHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    gap: 12,
-  },
-  itemBody: {
-    flex: 1,
-    cursor: 'pointer',
-    '&:hover': {
-      opacity: 0.85,
-    },
-  },
-  itemTitle: {
-    fontSize: 16,
-    fontWeight: 600,
-    marginBottom: 4,
-    color: theme.palette.text.primary,
-  },
-  itemDescription: {
-    fontSize: 14,
-    color: theme.palette.text.dim,
+    background: theme.palette.panelBackground.default,
+    border: `1px solid ${theme.palette.greyAlpha(0.08)}`,
+    borderRadius: 8,
+    overflow: 'hidden',
   },
   empty: {
-    padding: 32,
+    padding: 24,
     textAlign: 'center',
-    color: theme.palette.text.dim,
+    color: theme.palette.grey[500],
+    fontSize: 13,
   },
 }));
 
-const TOKEN_HINT = "Run `claude setup-token` locally and paste the result.";
+const claudeCodeTokenStyles = defineStyles('ClaudeCodeToken', (theme: ThemeType) => ({
+  tokenChip: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 8,
+    padding: '4px 10px',
+    borderRadius: 12,
+    background: theme.palette.greyAlpha(0.05),
+    fontSize: 12.5,
+    color: theme.palette.grey[700],
+    fontFamily: theme.typography.fontFamily,
+  },
+  tokenChipReplace: {
+    background: 'transparent',
+    border: 'none',
+    color: theme.palette.grey[500],
+    fontSize: 12.5,
+    padding: 0,
+    cursor: 'pointer',
+    fontFamily: 'inherit',
+    textDecoration: 'underline',
+    '&:hover': {
+      color: theme.palette.grey[700],
+    },
+  },
+  setupCard: {
+    background: theme.palette.panelBackground.default,
+    border: `1px solid ${theme.palette.greyAlpha(0.1)}`,
+    borderRadius: 8,
+    padding: 20,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 4,
+    boxShadow: theme.palette.boxShadow.default,
+  },
+  setupCardLabel: {
+    fontSize: 14,
+    fontWeight: 500,
+    color: theme.palette.grey[800],
+    marginBottom: 2,
+  },
+  setupCardDescription: {
+    fontSize: 12.5,
+    color: theme.palette.grey[500],
+    lineHeight: 1.45,
+    marginBottom: 12,
+  },
+  setupCardRow: {
+    display: 'flex',
+    gap: 10,
+    alignItems: 'flex-start',
+  },
+  textInput: researchPlainTextInputStyles(theme),
+  inlineError: {
+    fontSize: 12,
+    color: theme.palette.error.main,
+    marginTop: 4,
+  },
+}));
 
-// Catches stray whitespace (incl. newlines) anywhere in a token after trimming
-// leading/trailing — typically from a copy-paste that grabbed a line break.
-function tokenWhitespaceError(token: string): string | null {
-  if (/\s/.test(token.trim())) {
-    return 'Token contains whitespace; copy without spaces or newlines.';
-  }
-  return null;
-}
+const projectListItemStyles = defineStyles('ResearchProjectListItem', (theme: ThemeType) => ({
+  item: {
+    padding: '12px 16px',
+    borderBottom: `1px solid ${theme.palette.greyAlpha(0.05)}`,
+    cursor: 'pointer',
+    transition: 'background-color 0.1s ease',
+    '&:last-child': { borderBottom: 'none' },
+    '&:hover': {
+      background: theme.palette.greyAlpha(0.03),
+    },
+  },
+  itemTitle: {
+    fontSize: 15,
+    fontWeight: 500,
+    color: theme.palette.grey[900],
+  },
+  itemDescription: {
+    fontSize: 13,
+    color: theme.palette.grey[500],
+    marginTop: 2,
+    lineHeight: 1.4,
+  },
+}));
+
+const TOKEN_HINT = 'Run `claude setup-token` locally and paste the result.';
 
 const ResearchProjectList = () => {
   const classes = useStyles(styles);
@@ -202,12 +315,33 @@ const ResearchProjectList = () => {
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [creating, setCreating] = useState(false);
+  const [rightPaneFocused, setRightPaneFocused] = useState(false);
+  const [closeRightPaneSignal, setCloseRightPaneSignal] = useState(0);
+  const [replacingToken, setReplacingToken] = useState(false);
 
   const { data, loading, refetch } = useQuery(ResearchProjectsListQuery, {
     fetchPolicy: 'cache-and-network',
   });
+  const {
+    data: secretsData,
+    refetch: refetchSecrets,
+  } = useQuery(ResearchUserSecretsQuery, { fetchPolicy: 'cache-and-network' });
 
   const [createProject] = useMutation(CreateResearchProjectMutation);
+
+  const handleScrimClick = useCallback(() => {
+    setCloseRightPaneSignal((n) => n + 1);
+  }, []);
+
+  const existingTokenSecret = (secretsData?.userSecrets?.results ?? []).find(
+    (secret) => secret.name === CLAUDE_CODE_OAUTH_TOKEN_SECRET && !secret.repoScope,
+  ) ?? null;
+  const tokenIsSet = !!existingTokenSecret;
+
+  const handleTokenSaved = useCallback(() => {
+    setReplacingToken(false);
+    void refetchSecrets();
+  }, [refetchSecrets]);
 
   if (!currentUser) {
     return <ErrorAccessDenied />;
@@ -239,96 +373,130 @@ const ResearchProjectList = () => {
   };
 
   return (
-    <SingleColumnSection>
-      <div className={classes.root}>
-        <div className={classes.header}>
-          <SectionTitle title="Research Projects" />
-        </div>
-        <ClaudeCodeTokenForm classes={classes} />
-        <div className={classes.newProjectForm}>
-          <div className={classes.newProjectFormRow}>
-            <input
-              className={classes.input}
-              name="research-project-title"
-              placeholder="Project title"
-              value={newTitle}
-              onChange={(e) => setNewTitle(e.target.value)}
-              disabled={creating}
-              autoComplete="off"
-            />
-            <input
-              className={classes.input}
-              name="research-project-description"
-              placeholder="Description (optional)"
-              value={newDescription}
-              onChange={(e) => setNewDescription(e.target.value)}
-              disabled={creating}
-              autoComplete="off"
-            />
-            <button
-              className={classes.button}
-              onClick={handleCreate}
-              disabled={creating || !newTitle.trim()}
-            >
-              New project
-            </button>
+    <div className={classes.outer}>
+      {tokenIsSet && !replacingToken && (
+        <ClaudeCodeTokenChip onReplaceClick={() => setReplacingToken(true)} />
+      )}
+      <div className={classes.panes}>
+        <div className={classes.leftPane}>
+          <div className={classes.leftPaneInner}>
+            {(!tokenIsSet || replacingToken) && (
+              <ClaudeCodeTokenSetup
+                existingTokenSecret={existingTokenSecret}
+                onCancel={() => setReplacingToken(false)}
+                onSaved={handleTokenSaved}
+              />
+            )}
+
+            <div className={classes.newProjectRow}>
+              <input
+                className={classNames(classes.textInput, classes.newProjectTitle)}
+                name="research-project-title"
+                placeholder="Project title"
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                disabled={creating}
+                autoComplete="off"
+              />
+              <input
+                className={classNames(classes.textInput, classes.newProjectDescription)}
+                name="research-project-description"
+                placeholder="Description (optional)"
+                value={newDescription}
+                onChange={(e) => setNewDescription(e.target.value)}
+                disabled={creating}
+                autoComplete="off"
+              />
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={handleCreate}
+                disabled={creating || !newTitle.trim()}
+              >
+                {creating ? 'Creating…' : 'New project'}
+              </Button>
+            </div>
+
+            {loading && projects.length === 0 ? <Loading /> : null}
+            {!loading && projects.length === 0 ? (
+              <div className={classes.empty}>
+                No research projects yet — create one above to get started.
+              </div>
+            ) : (
+              <ul className={classes.list}>
+                {projects.map((project) => (
+                  <ProjectListItem
+                    key={project._id}
+                    project={project}
+                    onOpen={() => navigate(`/research/projects/${project._id}`)}
+                  />
+                ))}
+              </ul>
+            )}
           </div>
         </div>
-        {loading && projects.length === 0 ? <Loading /> : null}
-        {!loading && projects.length === 0 ? (
-          <div className={classes.empty}>No research projects yet — create one above to get started.</div>
-        ) : null}
-        <ul className={classes.list}>
-          {projects.map((project) => (
-            <ProjectListItem
-              key={project._id}
-              project={project}
-              classes={classes}
-              onOpen={() => navigate(`/research/projects/${project._id}`)}
+
+        <div
+          className={classNames(classes.scrim, { [classes.scrimVisible]: rightPaneFocused })}
+          onClick={handleScrimClick}
+          aria-hidden={!rightPaneFocused}
+        />
+
+        <div
+          className={classNames(classes.rightPane, { [classes.rightPaneFocused]: rightPaneFocused })}
+        >
+          <div className={classes.rightPaneInner}>
+            <ResearchToolingPanel
+              onFormStateChange={setRightPaneFocused}
+              closeFormSignal={closeRightPaneSignal}
             />
-          ))}
-        </ul>
+          </div>
+        </div>
       </div>
-    </SingleColumnSection>
+    </div>
   );
 };
 
-interface TokenFormClasses {
-  newProjectForm: string;
-  newProjectFormRow: string;
-  inputLabel: string;
-  input: string;
-  button: string;
-  inputHint: string;
-  inputError: string;
+function ClaudeCodeTokenChip({ onReplaceClick }: { onReplaceClick: () => void }) {
+  const classes = useStyles(claudeCodeTokenStyles);
+  return (
+    <span className={classes.tokenChip}>
+      <span>Claude Code token ✓</span>
+      <button
+        type="button"
+        className={classes.tokenChipReplace}
+        onClick={onReplaceClick}
+      >replace</button>
+    </span>
+  );
 }
 
-/**
- * The Claude Code OAuth token is a single user-global secret (not per-project),
- * stored in `UserSecrets`. This form sets or replaces it.
- */
-function ClaudeCodeTokenForm({ classes }: { classes: TokenFormClasses }) {
+interface ExistingTokenSecret { _id: string; }
+
+function ClaudeCodeTokenSetup({
+  existingTokenSecret,
+  onCancel,
+  onSaved,
+}: {
+  existingTokenSecret: ExistingTokenSecret | null;
+  onCancel: () => void;
+  onSaved: () => void;
+}) {
+  const classes = useStyles(claudeCodeTokenStyles);
   const [tokenDraft, setTokenDraft] = useState('');
   const [tokenError, setTokenError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const { data, refetch } = useQuery(ResearchUserSecretsQuery, {
-    fetchPolicy: 'cache-and-network',
-  });
   const [createUserSecret] = useMutation(CreateUserSecretMutation);
   const [updateUserSecret] = useMutation(UpdateUserSecretMutation);
 
-  const existingTokenSecret = (data?.userSecrets?.results ?? []).find(
-    (secret) => secret.name === CLAUDE_CODE_OAUTH_TOKEN_SECRET && !secret.repoScope,
-  );
   const tokenIsSet = !!existingTokenSecret;
 
   const handleSave = async () => {
     const value = tokenDraft.trim();
     if (!value || saving) return;
-    const error = tokenWhitespaceError(tokenDraft);
-    if (error) {
-      setTokenError(error);
+    if (/\s/.test(tokenDraft.trim())) {
+      setTokenError('Token contains whitespace; copy without spaces or newlines.');
       return;
     }
     setTokenError(null);
@@ -340,23 +508,24 @@ function ClaudeCodeTokenForm({ classes }: { classes: TokenFormClasses }) {
         await createUserSecret({ variables: { name: CLAUDE_CODE_OAUTH_TOKEN_SECRET, value } });
       }
       setTokenDraft('');
-      await refetch();
+      onSaved();
     } finally {
       setSaving(false);
     }
   };
 
   return (
-    <div className={classes.newProjectForm}>
-      <div className={classes.inputLabel}>
-        {tokenIsSet ? 'Claude Code token — set ✓' : 'Claude Code token — not set'}
+    <div className={classes.setupCard}>
+      <div className={classes.setupCardLabel}>
+        {tokenIsSet ? 'Replace Claude Code token' : 'Set up your Claude Code token'}
       </div>
-      <div className={classes.newProjectFormRow}>
+      <div className={classes.setupCardDescription}>{TOKEN_HINT}</div>
+      <div className={classes.setupCardRow}>
         <input
-          className={classes.input}
+          className={classes.textInput}
           type="password"
           name="research-claude-token"
-          placeholder={tokenIsSet ? 'Replace Claude Code OAuth token' : 'Claude Code OAuth token'}
+          placeholder="Paste OAuth token"
           value={tokenDraft}
           onChange={(e) => {
             setTokenDraft(e.target.value);
@@ -366,48 +535,42 @@ function ClaudeCodeTokenForm({ classes }: { classes: TokenFormClasses }) {
           autoComplete="new-password"
           spellCheck={false}
         />
-        <button
-          className={classes.button}
+        {tokenIsSet && (
+          <Button
+            onClick={() => { onCancel(); setTokenDraft(''); setTokenError(null); }}
+            disabled={saving}
+          >
+            Cancel
+          </Button>
+        )}
+        <Button
+          variant="contained"
+          color="primary"
           onClick={handleSave}
           disabled={saving || !tokenDraft.trim()}
         >
-          Save token
-        </button>
+          {saving ? 'Saving…' : 'Save token'}
+        </Button>
       </div>
-      {tokenError
-        ? <div className={classes.inputError}>{tokenError}</div>
-        : <div className={classes.inputHint}>{TOKEN_HINT}</div>}
+      {tokenError && <div className={classes.inlineError}>{tokenError}</div>}
     </div>
   );
 }
 
-interface ProjectListItemClasses {
-  item: string;
-  itemHeader: string;
-  itemBody: string;
-  itemTitle: string;
-  itemDescription: string;
-}
-
 function ProjectListItem({
   project,
-  classes,
   onOpen,
 }: {
   project: ResearchProjectSummary;
-  classes: ProjectListItemClasses;
   onOpen: () => void;
 }) {
+  const classes = useStyles(projectListItemStyles);
   return (
-    <li className={classes.item}>
-      <div className={classes.itemHeader}>
-        <div className={classes.itemBody} onClick={onOpen}>
-          <div className={classes.itemTitle}>{project.title}</div>
-          {project.description ? (
-            <div className={classes.itemDescription}>{project.description}</div>
-          ) : null}
-        </div>
-      </div>
+    <li className={classes.item} onClick={onOpen}>
+      <div className={classes.itemTitle}>{project.title}</div>
+      {project.description && (
+        <div className={classes.itemDescription}>{project.description}</div>
+      )}
     </li>
   );
 }

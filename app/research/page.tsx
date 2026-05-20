@@ -21,7 +21,7 @@ assertRouteAttributes("/research", {
 });
 
 export default function Page() {
-  return <RouteRoot>
+  return <RouteRoot fullscreen noFooter>
     <ResearchProjectList />
   </RouteRoot>;
 }

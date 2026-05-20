@@ -13,7 +13,7 @@
  */
 import { Sandbox } from "@vercel/sandbox";
 import { randomId } from "@/lib/random";
-import type { RepoIdentity } from "../repoUrl";
+import type { RepoIdentity } from "@/lib/research/repoUrl";
 import { fetchRepoFile } from "../githubApi";
 import { runSandboxCommandOrThrow } from "./sandboxCommands";
 import {

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { RepoIdentity } from "./repoUrl";
+import type { RepoIdentity } from "@/lib/research/repoUrl";
 
 /**
  * Minimal read-only GitHub REST client — just what the workspace-config agent

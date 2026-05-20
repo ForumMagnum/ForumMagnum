@@ -989,6 +989,10 @@ type DeleteUserSecretOutput {
   success: Boolean!
 }
 
+extend type Query {
+  currentWorkspaceRepos: [WorkspaceRepo!]!
+}
+
 extend type Mutation {
   deleteUserSecret(_id: String!): DeleteUserSecretOutput
   proposeWorkspaceRepoConfig(repoUrl: String!, githubToken: String): WorkspaceRepoConfigProposal

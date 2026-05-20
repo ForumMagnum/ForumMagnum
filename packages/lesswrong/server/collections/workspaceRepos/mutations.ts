@@ -7,7 +7,7 @@ import {
   buildRepoInstallSnapshot,
   persistRepoInstallSnapshot,
 } from "@/server/research/sandbox/buildRepoInstallSnapshot";
-import { repoScopeOf } from "@/server/research/repoUrl";
+import { repoScopeOf } from "@/lib/research/repoUrl";
 import { resolveUserSecret } from "@/server/research/userSecretAccess";
 import { GITHUB_TOKEN_SECRET } from "@/lib/collections/userSecrets/userSecretNames";
 import gql from "graphql-tag";

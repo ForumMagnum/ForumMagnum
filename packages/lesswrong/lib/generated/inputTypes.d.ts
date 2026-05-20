@@ -52,6 +52,7 @@ interface Query {
   TagHistoryFeed: TagHistoryFeedQueryResults;
   UserContentFeed: UserContentFeedQueryResults;
   researchConversationTranscript: Array<ResearchConversationEvent>;
+  currentWorkspaceRepos: Array<WorkspaceRepo>;
   TagUpdatesInTimeBlock: Array<TagUpdates>;
   TagUpdatesByUser: Array<TagUpdates> | null;
   RandomTag: Tag;
