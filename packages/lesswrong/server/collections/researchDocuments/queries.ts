@@ -40,11 +40,9 @@ export const graphqlResearchDocumentQueryTypeDefs = gql`
 
   extend type Query {
     researchDocument(
-      input: SingleResearchDocumentInput @deprecated(reason: "Use the selector field instead"),
       selector: SelectorInput
     ): SingleResearchDocumentOutput
     researchDocuments(
-      input: MultiResearchDocumentInput @deprecated(reason: "Use the selector field instead"),
       selector: ResearchDocumentSelector,
       limit: Int,
       offset: Int,

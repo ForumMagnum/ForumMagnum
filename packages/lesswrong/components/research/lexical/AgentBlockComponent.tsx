@@ -497,7 +497,7 @@ function ActiveAgentBlock({ conversationId, fromAgent, onOpenInChat, onRemove: _
 interface ExpandedBodyProps {
   visibleEvents: ConversationEvent[];
   turnInFlight: boolean;
-  status: ReturnType<typeof useConversationStream>['status'];
+  status: StreamStatus;
   error: string | null;
 }
 
@@ -565,7 +565,7 @@ const ExpandedEventRow = React.memo(function ExpandedEventRow({ event }: { event
 
 interface LatestEventPreviewProps {
   event: ConversationEvent | null;
-  status: ReturnType<typeof useConversationStream>['status'];
+  status: StreamStatus;
 }
 
 function LatestEventPreview({ event, status }: LatestEventPreviewProps) {

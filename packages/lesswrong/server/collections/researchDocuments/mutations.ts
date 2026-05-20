@@ -2,8 +2,8 @@ import schema from "@/lib/collections/researchDocuments/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
+import { getDocumentId, makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
+import { assignUserIdToData, insertAndReturnDocument, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import { bootstrapResearchDocumentYjsState } from "@/server/research/bootstrapResearchDocument";
 
@@ -21,19 +21,17 @@ function editCheck(user: DbUser | null, document: DbResearchDocument | null) {
 }
 
 export async function createResearchDocument({ data }: CreateResearchDocumentInput, context: ResolverContext) {
-  const callbackProps = await getLegacyCreateCallbackProps('ResearchDocuments', {
-    context,
-    data,
-    schema,
-  });
+  const { currentUser } = context;
+  if (!currentUser) throw new Error("Not logged in");
+  if (!data.projectId) throw new Error("projectId required");
+  assignUserIdToData(data, currentUser, schema);
 
-  assignUserIdToData(data, context.currentUser, schema);
-
-  data = callbackProps.document;
-  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
-
-  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ResearchDocuments', callbackProps);
-  const documentWithId = afterCreateProperties.document;
+  const documentWithId = await insertAndReturnDocument({
+    userId: currentUser._id,
+    projectId: data.projectId,
+    title: data.title ?? null,
+    contents_latest: null,
+  }, 'ResearchDocuments', context);
 
   // Seed an empty-but-non-empty Lexical state into YjsDocuments so the first
   // agent edit (which goes through `withMainDocEditorSession`'s
@@ -46,9 +44,8 @@ export async function createResearchDocument({ data }: CreateResearchDocumentInp
 
 export async function updateResearchDocument({ selector, data }: { data: UpdateResearchDocumentDataInput | Partial<DbResearchDocument>; selector: SelectorInput }, context: ResolverContext) {
   const { ResearchDocuments } = context;
-  const { documentSelector, updateCallbackProperties } = await getLegacyUpdateCallbackProps('ResearchDocuments', { selector, context, data, schema });
-  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
-  return await updateAndReturnDocument(data, ResearchDocuments, documentSelector, context);
+  const _id = getDocumentId(selector);
+  return await updateAndReturnDocument(data, ResearchDocuments, { _id }, context);
 }
 
 export const createResearchDocumentGqlMutation = makeGqlCreateMutation('ResearchDocuments', createResearchDocument, {

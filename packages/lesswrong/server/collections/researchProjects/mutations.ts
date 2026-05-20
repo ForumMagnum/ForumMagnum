@@ -2,8 +2,8 @@ import schema from "@/lib/collections/researchProjects/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin, userOwns } from "@/lib/vulcan-users/permissions";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
-import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
+import { getDocumentId, makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
+import { assignUserIdToData, insertAndReturnDocument, updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import { createResearchDocument } from "@/server/collections/researchDocuments/mutations";
 import gql from "graphql-tag";
 
@@ -17,19 +17,17 @@ function editCheck(user: DbUser | null, document: DbResearchProject | null) {
 }
 
 export async function createResearchProject({ data }: CreateResearchProjectInput, context: ResolverContext) {
-  const callbackProps = await getLegacyCreateCallbackProps('ResearchProjects', {
-    context,
-    data,
-    schema,
-  });
+  const { currentUser } = context;
+  if (!currentUser) throw new Error("Not logged in");
+  assignUserIdToData(data, currentUser, schema);
 
-  data = callbackProps.document;
-  // Stamp userId from the current user so the client doesn't have to pass it.
-  assignUserIdToData(data, context.currentUser, schema);
-  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
-
-  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'ResearchProjects', callbackProps);
-  const project = afterCreateProperties.document;
+  const project = await insertAndReturnDocument({
+    userId: currentUser._id,
+    title: data.title,
+    description: data.description ?? null,
+    defaultWorkspaceRepoId: data.defaultWorkspaceRepoId ?? null,
+    settings: data.settings ?? null,
+  }, 'ResearchProjects', context);
 
   // Auto-create an empty default document so a freshly opened project lands
   // straight into editing. Failures here are non-fatal — the project itself
@@ -46,13 +44,8 @@ export async function createResearchProject({ data }: CreateResearchProjectInput
 
 export async function updateResearchProject({ selector, data }: { data: UpdateResearchProjectDataInput | Partial<DbResearchProject>; selector: SelectorInput }, context: ResolverContext) {
   const { ResearchProjects } = context;
-  const {
-    documentSelector,
-    updateCallbackProperties,
-  } = await getLegacyUpdateCallbackProps('ResearchProjects', { selector, context, data, schema });
-
-  data = await runFieldOnUpdateCallbacks(schema, data, updateCallbackProperties);
-  return await updateAndReturnDocument(data, ResearchProjects, documentSelector, context);
+  const _id = getDocumentId(selector);
+  return await updateAndReturnDocument(data, ResearchProjects, { _id }, context);
 }
 
 export const createResearchProjectGqlMutation = makeGqlCreateMutation('ResearchProjects', createResearchProject, {

@@ -6,8 +6,9 @@
  * is relaunched on every provision and resume, the dev server is restored
  * automatically each time with no agent action and no browser trigger.
  *
- * The dev server is expected to bind a localhost port (`DEV_PORT`); the
- * auth-proxy (`./authProxy.ts`) is what exposes it to the internet, gated.
+ * The supervisor picks the dev server's localhost port at boot and forces it
+ * into the spawned command via `PORT=<port>`. The auth-proxy
+ * (`./authProxy.ts`) is what exposes that port to the internet, gated.
  */
 import { ChildProcess, spawn } from "node:child_process";
 import { Socket } from "node:net";

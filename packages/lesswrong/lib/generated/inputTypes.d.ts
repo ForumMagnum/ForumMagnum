@@ -1058,7 +1058,6 @@ interface WorkspaceRepoConfigProposal {
   installCommand: string;
   prepareCommand: string | null;
   devCommand: string | null;
-  devPort: number | null;
 }
 
 interface DeleteUserSecretOutput {
@@ -7304,7 +7303,6 @@ interface WorkspaceRepo {
   installCommand: string | null;
   prepareCommand: string | null;
   devCommand: string | null;
-  devPort: number | null;
 }
 
 interface SingleWorkspaceRepoInput {
@@ -9167,7 +9165,6 @@ interface CreateWorkspaceRepoDataInput {
   installCommand: string;
   prepareCommand?: string | null;
   devCommand?: string | null;
-  devPort?: number | null;
 }
 
 interface CreateWorkspaceRepoInput {

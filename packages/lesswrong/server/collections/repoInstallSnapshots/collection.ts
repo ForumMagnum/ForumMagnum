@@ -9,8 +9,11 @@ export const RepoInstallSnapshots: RepoInstallSnapshotsCollection = createCollec
 
   getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
-    // Cache lookup key; createdAt desc so the newest matching snapshot is first.
-    indexSet.addIndex('RepoInstallSnapshots', { workspaceRepoId: 1, manifestHash: 1, createdAt: -1 });
+    indexSet.addIndex(
+      'RepoInstallSnapshots',
+      { workspaceRepoId: 1, manifestHash: 1 },
+      { unique: true },
+    );
     return indexSet;
   },
 });

@@ -12,8 +12,18 @@ import { repoScopeOf, type RepoIdentity } from "../repoUrl";
 import { fetchRepoFile } from "../githubApi";
 import { decryptUserSecret } from "../userSecretsCrypto";
 import { resolveUserSecret } from "../userSecretAccess";
-import { REPO_DIR, computeManifestHash, repoCommandCwd } from "./buildRepoInstallSnapshot";
+import {
+  persistRepoInstallSnapshot,
+  refreshRepoInstallCache,
+} from "./buildRepoInstallSnapshot";
 import { runSandboxCommandOrThrow } from "./sandboxCommands";
+import {
+  computeManifestHash,
+  repoBranchSyncTargetOf,
+  repoCommandCwd,
+  runRepoInstallCommand,
+  syncRepoToDefaultBranchHead,
+} from "./repoSandboxSync";
 import { GITHUB_TOKEN_SECRET } from "@/lib/collections/userSecrets/userSecretNames";
 
 function repoIdentityOf(repo: DbWorkspaceRepo): RepoIdentity {
@@ -35,9 +45,8 @@ export interface CodingSnapshotPlan {
 
 /**
  * Decide which install-cache snapshot a coding conversation provisions from.
- * Exact lockfile match → that snapshot (a hit). Otherwise the repo's most
- * recent snapshot (a miss): the repo and a warm package cache are already
- * there, so first provision reconciles only the dependency delta.
+ * Exact lockfile match → that snapshot (a hit). On miss, warm-refresh the
+ * install cache synchronously (§3.5), then provision from the new snapshot.
  */
 export async function resolveCodingSnapshot(
   context: ResolverContext,
@@ -56,15 +65,15 @@ export async function resolveCodingSnapshot(
   const manifestHash = lockfile === null ? null : computeManifestHash(lockfile);
 
   if (manifestHash) {
-    const hit = await RepoInstallSnapshots.findOne({
-      workspaceRepoId: workspaceRepo._id,
-      manifestHash,
-    });
-    if (hit) return { snapshotId: hit.vercelSnapshotId, token, isStale: false };
+    const hit = await RepoInstallSnapshots.findOne(
+      { workspaceRepoId: workspaceRepo._id, manifestHash },
+      { sort: { createdAt: -1 } },
+    );
+    if (hit) {
+      return { snapshotId: hit.vercelSnapshotId, token, isStale: false };
+    }
   }
 
-  // Miss (or the lockfile could not be fetched): fall back to the newest
-  // snapshot. `createWorkspaceRepo` always writes one, so this is non-null.
   const mostRecent = await RepoInstallSnapshots.findOne(
     { workspaceRepoId: workspaceRepo._id },
     { sort: { createdAt: -1 } },
@@ -74,6 +83,27 @@ export async function resolveCodingSnapshot(
       `Workspace repo ${workspaceRepo._id} has no install-cache snapshot — it cannot be provisioned.`,
     );
   }
+
+  if (manifestHash) {
+    try {
+      const built = await refreshRepoInstallCache({
+        workspaceRepo,
+        manifestHash,
+        fromSnapshotId: mostRecent.vercelSnapshotId,
+        token,
+      });
+      const row = await persistRepoInstallSnapshot(context, workspaceRepo._id, built);
+      return { snapshotId: row.vercelSnapshotId, token, isStale: false };
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[sandbox] install-cache warm refresh failed for workspace repo ${workspaceRepo._id}, ` +
+          `falling back to incremental install on the conversation sandbox: ` +
+          `${(err as Error).message}`,
+      );
+    }
+  }
+
   return { snapshotId: mostRecent.vercelSnapshotId, token, isStale: true };
 }
 
@@ -110,65 +140,16 @@ export async function runCodingFirstProvision(
   args: { workspaceRepo: DbWorkspaceRepo; token: string | null; isStale: boolean },
 ): Promise<void> {
   const { workspaceRepo, token, isStale } = args;
-  const repo = repoIdentityOf(workspaceRepo);
-  const cleanUrl = `https://${repo.host}/${repo.owner}/${repo.name}.git`;
   const cwd = repoCommandCwd(workspaceRepo.lockfilePath);
 
-  // Advance the (shallow) clone to defaultBranch HEAD. With a token, point the
-  // remote at an authed URL just for the fetch, then scrub it back so the token
-  // is never written into the auto-snapshotted `.git/config`.
-  if (token) {
-    const authedUrl =
-      `https://${encodeURIComponent(token)}@${repo.host}/${repo.owner}/${repo.name}.git`;
-    await runSandboxCommandOrThrow(
-      sandbox,
-      { cmd: "git", args: ["-C", REPO_DIR, "remote", "set-url", "origin", authedUrl] },
-      "git remote set-url (authed)",
-    );
-  }
-  let fetchError: unknown = null;
-  try {
-    await runSandboxCommandOrThrow(
-      sandbox,
-      { cmd: "git", args: ["-C", REPO_DIR, "fetch", "--depth", "1", "origin", workspaceRepo.defaultBranch] },
-      "git fetch",
-    );
-    await runSandboxCommandOrThrow(
-      sandbox,
-      { cmd: "git", args: ["-C", REPO_DIR, "reset", "--hard", "FETCH_HEAD"] },
-      "git reset",
-    );
-  } catch (err) {
-    fetchError = err;
-  }
-
-  // Scrub the token back out of `.git/config` before it can be baked into an
-  // auto-snapshot. On the success path a failed scrub is itself fatal — the
-  // token must not be left in the snapshot. On the failure path it is
-  // best-effort, so a scrub error does not mask the real fetch failure.
-  if (token) {
-    const scrub = runSandboxCommandOrThrow(
-      sandbox,
-      { cmd: "git", args: ["-C", REPO_DIR, "remote", "set-url", "origin", cleanUrl] },
-      "git remote set-url (scrub)",
-    );
-    if (fetchError) {
-      await scrub.catch((err: unknown) => {
-        // eslint-disable-next-line no-console
-        console.warn(`[sandbox] failed to scrub git remote token: ${(err as Error).message}`);
-      });
-    } else {
-      await scrub;
-    }
-  }
-  if (fetchError) throw fetchError;
+  await syncRepoToDefaultBranchHead(
+    sandbox,
+    repoBranchSyncTargetOf(workspaceRepo),
+    token,
+  );
 
   if (isStale) {
-    await runSandboxCommandOrThrow(
-      sandbox,
-      { cmd: "sh", args: ["-c", workspaceRepo.installCommand], cwd },
-      "installCommand",
-    );
+    await runRepoInstallCommand(sandbox, workspaceRepo.installCommand, workspaceRepo.lockfilePath);
   }
   if (workspaceRepo.prepareCommand) {
     await runSandboxCommandOrThrow(

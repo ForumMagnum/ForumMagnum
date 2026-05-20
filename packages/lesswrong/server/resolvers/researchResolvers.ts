@@ -567,8 +567,12 @@ export const researchResolversQueries = {
   ) {
     await loadConversationOrThrow(args.conversationId, context);
     const { ResearchConversationEvents } = context;
-    const selector: AnyBecauseHard = { conversationId: args.conversationId };
-    if (typeof args.since === "number" && args.since >= 0) selector.seq = { $gt: args.since };
+    const selector: { conversationId: string; seq?: { $gt: number } } = {
+      conversationId: args.conversationId,
+    };
+    if (typeof args.since === "number" && args.since >= 0) {
+      selector.seq = { $gt: args.since };
+    }
     const events = await ResearchConversationEvents.find(
       selector,
       { sort: { seq: 1 }, limit: args.limit ?? 200 },

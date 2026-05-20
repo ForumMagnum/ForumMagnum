@@ -5,18 +5,6 @@ interface RecordedCall {
   body: HeartbeatReport;
 }
 
-function mkSnapshot(running: number) {
-  const conversations = [];
-  for (let i = 0; i < running; i++) {
-    conversations.push({
-      conversationId: `cnv_${i}`,
-      status: "running" as const,
-      startedAt: 1700000000000,
-    });
-  }
-  return { conversations, concurrencyCount: running };
-}
-
 function mkFetch(): { fetchImpl: typeof fetch; calls: RecordedCall[] } {
   const calls: RecordedCall[] = [];
   const fetchImpl: typeof fetch = async (input, init) => {
@@ -36,24 +24,18 @@ describe("heartbeat", () => {
       authToken: "tk",
       fetchImpl,
       intervalMs: 60_000,
-      getSnapshot: () => mkSnapshot(2),
-      cpuCount: () => 4,
-      loadAvg: () => [2, 1, 0.5],
-      memInfo: () => ({ total: 4_000_000_000, free: 1_000_000_000 }),
+      getTurnRunning: () => true,
     });
-    // immediate report is fire-and-forget; flush microtasks
     await new Promise((r) => setImmediate(r));
     handle.stop();
     (calls.length as any).should.be.equal(1);
-    (calls[0].body.activeConversationCount as any).should.be.equal(2);
-    (calls[0].body.cpuPressure as any).should.be.equal(0.5);
-    (calls[0].body.memoryPressure as any).should.be.equal(0.75);
+    (calls[0].body.turnRunning as any).should.be.equal(true);
     (calls[0].url as any).should.be.equal(
       "https://backend.test/api/research/agent/sandboxes/sbx_a/heartbeat",
     );
   });
 
-  it("clamps memoryPressure and cpuPressure to [0,1]", async () => {
+  it("includes lastDevActivityAt when the dev server has seen traffic", async () => {
     const { fetchImpl, calls } = mkFetch();
     const handle = startHeartbeat({
       sandboxId: "sbx_b",
@@ -61,15 +43,12 @@ describe("heartbeat", () => {
       authToken: "tk",
       fetchImpl,
       intervalMs: 60_000,
-      getSnapshot: () => mkSnapshot(0),
-      cpuCount: () => 1,
-      loadAvg: () => [9.0, 5, 1],
-      memInfo: () => ({ total: 1, free: 0 }),
+      getTurnRunning: () => false,
+      getLastDevActivityAt: () => 1_700_000_000_000,
     });
     await new Promise((r) => setImmediate(r));
     handle.stop();
-    (calls[0].body.cpuPressure as any).should.be.equal(1);
-    (calls[0].body.memoryPressure as any).should.be.equal(1);
+    (calls[0].body.lastDevActivityAt as any).should.be.equal(1_700_000_000_000);
   });
 
   it("reportOnce can be called explicitly", async () => {
@@ -80,10 +59,7 @@ describe("heartbeat", () => {
       authToken: "tk",
       fetchImpl,
       intervalMs: 60_000,
-      getSnapshot: () => mkSnapshot(1),
-      cpuCount: () => 1,
-      loadAvg: () => [0, 0, 0],
-      memInfo: () => ({ total: 100, free: 50 }),
+      getTurnRunning: () => false,
     });
     await handle.reportOnce();
     handle.stop();
@@ -98,16 +74,12 @@ describe("heartbeat", () => {
       authToken: "tk",
       fetchImpl,
       intervalMs: 1,
-      getSnapshot: () => mkSnapshot(0),
-      cpuCount: () => 1,
-      loadAvg: () => [0, 0, 0],
-      memInfo: () => ({ total: 100, free: 100 }),
+      getTurnRunning: () => false,
     });
     await new Promise((r) => setImmediate(r));
     handle.stop();
     const after = calls.length;
     await new Promise((r) => setTimeout(r, 20));
-    // No additional calls should have arrived after stop()
     (calls.length as any).should.be.equal(after);
   });
 
@@ -121,14 +93,10 @@ describe("heartbeat", () => {
       authToken: "tk",
       fetchImpl: failingFetch,
       intervalMs: 60_000,
-      getSnapshot: () => mkSnapshot(0),
-      cpuCount: () => 1,
-      loadAvg: () => [0, 0, 0],
-      memInfo: () => ({ total: 100, free: 100 }),
+      getTurnRunning: () => false,
     });
-    await handle.reportOnce(); // must not throw
+    await handle.reportOnce();
     handle.stop();
-    // If we reach this line the test passes
     (true as any).should.be.equal(true);
   });
 });

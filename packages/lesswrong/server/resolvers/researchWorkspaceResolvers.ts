@@ -23,7 +23,6 @@ export const researchWorkspaceTypeDefs = gql`
     installCommand: String!
     prepareCommand: String
     devCommand: String
-    devPort: Int
   }
 
   type DeleteUserSecretOutput {

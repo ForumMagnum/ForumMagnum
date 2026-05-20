@@ -28,21 +28,10 @@ import {
 
 const ROUTE = "sandboxes.heartbeat.post";
 
-const conversationStateSchema = z.object({
-  conversationId: z.string(),
-  status: z.enum(["idle", "running", "completed", "errored", "cancelled"]),
-  startedAt: z.number().optional(),
-  endedAt: z.number().optional(),
-  bytesEmitted: z.number().optional(),
-});
-
 const heartbeatSchema = z.object({
   sandboxId: z.string(),
   reportedAt: z.string(),
-  activeConversationCount: z.number().int().nonnegative(),
-  conversations: z.array(conversationStateSchema),
-  memoryPressure: z.number().min(0).max(1),
-  cpuPressure: z.number().min(0).max(1),
+  turnRunning: z.boolean(),
   lastDevActivityAt: z.number().optional(),
 });
 
@@ -105,14 +94,10 @@ export async function POST(
   }
 
   try {
-    const turnRunning = parseResult.data.conversations.some((c) => c.status === "running");
-    // Recent dev-server traffic counts as activity too, so a sandbox a user is
-    // only previewing (no chat turn) is not idle-stopped under them.
-    const { lastDevActivityAt } = parseResult.data;
+    const { turnRunning, lastDevActivityAt } = parseResult.data;
     const devActive =
       lastDevActivityAt !== undefined &&
       Date.now() - lastDevActivityAt < DEV_ACTIVITY_WINDOW_MS;
-    // The heartbeat came from the supervisor, so the sandbox is running.
     const sandbox = await getRunningSandbox(conversationId);
     if (sandbox) {
       await maintainSandboxTimeout(sandbox, { turnRunning: turnRunning || devActive });

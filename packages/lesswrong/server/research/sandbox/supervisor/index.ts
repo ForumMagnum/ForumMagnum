@@ -20,6 +20,8 @@
  *  - CLAUDE_CODE_OAUTH_TOKEN — passed through to claude subprocesses
  */
 import * as fs from "node:fs";
+import type { Server } from "node:http";
+import { createServer as createNetServer } from "node:net";
 import { createConversationHub } from "./conversationHub";
 import { createPostPersister } from "./postPersister";
 import { startSupervisor, SupervisorDeps } from "./server";
@@ -57,12 +59,12 @@ function fillClaudeMdTemplate(env: { projectId: string }): void {
 
 /**
  * The dev-server half of the env, present only for a coding conversation whose
- * repo defines a `devCommand`. All-or-nothing: the dev server + auth-proxy
- * start only when every field is set.
+ * repo defines a `devCommand`. The dev server's localhost port is chosen here
+ * at runtime — not stored in the repo config — and forced into the spawned
+ * command via `PORT=<chosen>`.
  */
 interface DevServerEnv {
   command: string;
-  port: number;
   cwd: string;
   proxySecret: string;
   authProxyPort: number;
@@ -106,20 +108,45 @@ function readDevExtraEnv(): Record<string, string> {
 /** Read the optional dev-server env; null unless every required field is set. */
 function readDevServerEnv(workspaceDir: string): DevServerEnv | null {
   const command = process.env.DEV_COMMAND;
-  const port = Number(process.env.DEV_PORT);
   const proxySecret = process.env.DEV_PROXY_SECRET;
   const authProxyPort = Number(process.env.AUTH_PROXY_PORT);
-  if (!command || !proxySecret || !Number.isFinite(port) || !Number.isFinite(authProxyPort)) {
+  if (!command || !proxySecret || !Number.isFinite(authProxyPort)) {
     return null;
   }
   return {
     command,
-    port,
     cwd: process.env.DEV_CWD || workspaceDir,
     proxySecret,
     authProxyPort,
     extraEnv: readDevExtraEnv(),
   };
+}
+
+/**
+ * Reserve an ephemeral port on `127.0.0.1` by opening and immediately closing a
+ * listener: the OS hands back the port it would have assigned, which we then
+ * pass to the spawned dev server via `PORT`. There is a small race between the
+ * close and the dev server's bind; we accept it because the alternative —
+ * holding the listener open across the dev server's spawn — would itself block
+ * the dev server from binding. On collision the dev server's spawn fails and
+ * its `child.on("exit")` restart loop tries again, so the race is self-healing.
+ */
+function pickEphemeralPort(): Promise<number> {
+  return new Promise((resolve, reject) => {
+    const srv = createNetServer();
+    srv.unref();
+    srv.once("error", reject);
+    srv.listen(0, "127.0.0.1", () => {
+      const addr = srv.address();
+      if (addr === null || typeof addr === "string") {
+        srv.close();
+        reject(new Error("could not determine ephemeral port"));
+        return;
+      }
+      const port = addr.port;
+      srv.close((err) => (err ? reject(err) : resolve(port)));
+    });
+  });
 }
 
 function readEnv(): SupervisorEnv {
@@ -142,7 +169,7 @@ function readEnv(): SupervisorEnv {
   };
 }
 
-export function bootSupervisor() {
+export async function bootSupervisor() {
   const env = readEnv();
   fillClaudeMdTemplate({ projectId: env.projectId });
 
@@ -211,21 +238,26 @@ export function bootSupervisor() {
   // Coding conversations with a `devCommand`: spawn the dev server and the
   // auth-proxy that gates public access to it. Proxied requests bump
   // `lastDevActivityAt` so dev-server use counts as activity for the idle
-  // policy even when there is no chat traffic.
+  // policy even when there is no chat traffic. The dev port is picked here at
+  // boot — passed to the dev process via `PORT` and to the auth-proxy as its
+  // upstream target — so the two sides agree by construction.
   let devServer: DevServerHandle | null = null;
-  let authProxy: ReturnType<typeof startAuthProxy> | null = null;
+  let authProxy: Server | null = null;
   let lastDevActivityAt = 0;
   if (env.devServer) {
     const dev = env.devServer;
+    const devPort = await pickEphemeralPort();
+    // eslint-disable-next-line no-console
+    console.log(`[supervisor] dev server port: ${devPort}`);
     devServer = startDevServer({
       command: dev.command,
-      port: dev.port,
+      port: devPort,
       cwd: dev.cwd,
       env: dev.extraEnv,
     });
     authProxy = startAuthProxy({
       port: dev.authProxyPort,
-      devPort: dev.port,
+      devPort,
       proxySecret: dev.proxySecret,
       sandboxId: env.sandboxId,
       devServer,
@@ -237,7 +269,7 @@ export function bootSupervisor() {
     sandboxId: env.sandboxId,
     backendBaseUrl: env.backendBaseUrl,
     authToken: env.callbackToken,
-    getSnapshot: () => hub.snapshot(),
+    getTurnRunning: () => hub.snapshot().conversations.some((c) => c.status === "running"),
     getLastDevActivityAt: () => lastDevActivityAt,
     healthTracker,
   });
@@ -256,5 +288,9 @@ export function bootSupervisor() {
 }
 
 if (require.main === module) {
-  bootSupervisor();
+  bootSupervisor().catch((err) => {
+    // eslint-disable-next-line no-console
+    console.error("[supervisor] boot failed", err);
+    process.exit(1);
+  });
 }

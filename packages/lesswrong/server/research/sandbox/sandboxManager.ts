@@ -23,7 +23,7 @@ import {
   runCodingFirstProvision,
   type CodingSnapshotPlan,
 } from "./codingWorkspace";
-import { REPO_DIR, repoCommandCwd } from "./buildRepoInstallSnapshot";
+import { REPO_DIR, repoCommandCwd } from "./repoSandboxSync";
 import { repoScopeOf } from "../repoUrl";
 
 /** Port the in-sandbox supervisor's HTTP server listens on. */
@@ -99,10 +99,10 @@ export interface ProvisionedSandbox {
 }
 
 /** The dev-server half of the launch env — set only for a coding conversation
- *  whose repo defines a `devCommand`. */
+ *  whose repo defines a `devCommand`. The port is chosen by the supervisor at
+ *  runtime; it is not stored or shipped from the backend. */
 interface DevServerLaunchEnv {
   command: string;
-  port: number;
   /** Working directory for the dev command — `dirname(lockfilePath)` in the clone. */
   cwd: string;
   /** Per-sandbox HMAC key for dev-preview tokens. */
@@ -162,7 +162,6 @@ async function launchSupervisor(sandbox: Sandbox, env: SupervisorLaunchEnv): Pro
   };
   if (env.devServer) {
     supervisorEnv.DEV_COMMAND = env.devServer.command;
-    supervisorEnv.DEV_PORT = String(env.devServer.port);
     supervisorEnv.DEV_CWD = env.devServer.cwd;
     supervisorEnv.DEV_PROXY_SECRET = env.devServer.proxySecret;
     supervisorEnv.AUTH_PROXY_PORT = String(AUTH_PROXY_PORT);
@@ -370,10 +369,11 @@ export async function getOrCreateSandbox(
 
   // A coding repo with a `devCommand` additionally runs a dev server +
   // auth-proxy: that needs a per-sandbox HMAC secret and the repo's secrets as
-  // the dev server's environment.
+  // the dev server's environment. The supervisor picks the dev server's
+  // localhost port at runtime, so the backend ships no port.
   let devServerEnv: DevServerLaunchEnv | null = null;
   let devProxySecret: string | null = null;
-  if (workspaceRepo && workspaceRepo.devCommand && workspaceRepo.devPort !== null) {
+  if (workspaceRepo && workspaceRepo.devCommand) {
     devProxySecret = existingRow?.devProxySecret ?? randomSecret();
     // Backfill the secret onto a session row that predates it, so a resume's
     // token signing matches the secret the supervisor is launched with.
@@ -390,7 +390,6 @@ export async function getOrCreateSandbox(
     });
     devServerEnv = {
       command: workspaceRepo.devCommand,
-      port: workspaceRepo.devPort,
       cwd: repoCommandCwd(workspaceRepo.lockfilePath),
       proxySecret: devProxySecret,
       repoEnv: await collectRepoEnvSecrets(context, conversation.userId, repoScope),

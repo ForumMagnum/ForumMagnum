@@ -30,7 +30,7 @@ interface DocumentPaneProps {
 
 const ResearchDocumentQuery = gql(`
   query ResearchDocumentQuery($documentId: String!) {
-    researchDocument(input: { selector: { _id: $documentId } }) {
+    researchDocument(selector: { _id: $documentId }) {
       result {
         _id
         title

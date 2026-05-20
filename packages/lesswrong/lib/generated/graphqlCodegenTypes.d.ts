@@ -1955,7 +1955,6 @@ type CreateUserTagRelInput = {
 type CreateWorkspaceRepoDataInput = {
   defaultBranch: Scalars['String']['input'];
   devCommand?: InputMaybe<Scalars['String']['input']>;
-  devPort?: InputMaybe<Scalars['Int']['input']>;
   host: Scalars['String']['input'];
   installCommand: Scalars['String']['input'];
   lockfilePath: Scalars['String']['input'];
@@ -8327,20 +8326,17 @@ type QueryreportsArgs = {
 
 
 type QueryresearchConversationArgs = {
-  input?: InputMaybe<SingleResearchConversationInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
 type QueryresearchConversationEventArgs = {
-  input?: InputMaybe<SingleResearchConversationEventInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
 type QueryresearchConversationEventsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiResearchConversationEventInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<ResearchConversationEventSelector>;
@@ -8356,7 +8352,6 @@ type QueryresearchConversationTranscriptArgs = {
 
 type QueryresearchConversationsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiResearchConversationInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<ResearchConversationSelector>;
@@ -8364,14 +8359,12 @@ type QueryresearchConversationsArgs = {
 
 
 type QueryresearchDocumentArgs = {
-  input?: InputMaybe<SingleResearchDocumentInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
 type QueryresearchDocumentsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiResearchDocumentInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<ResearchDocumentSelector>;
@@ -8379,14 +8372,12 @@ type QueryresearchDocumentsArgs = {
 
 
 type QueryresearchProjectArgs = {
-  input?: InputMaybe<SingleResearchProjectInput>;
   selector?: InputMaybe<SelectorInput>;
 };
 
 
 type QueryresearchProjectsArgs = {
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
-  input?: InputMaybe<MultiResearchProjectInput>;
   limit?: InputMaybe<Scalars['Int']['input']>;
   offset?: InputMaybe<Scalars['Int']['input']>;
   selector?: InputMaybe<ResearchProjectSelector>;
@@ -12192,7 +12183,6 @@ type WorkspaceRepo = {
   createdAt: Scalars['Date']['output'];
   defaultBranch?: Maybe<Scalars['String']['output']>;
   devCommand?: Maybe<Scalars['String']['output']>;
-  devPort?: Maybe<Scalars['Int']['output']>;
   host?: Maybe<Scalars['String']['output']>;
   installCommand?: Maybe<Scalars['String']['output']>;
   lockfilePath?: Maybe<Scalars['String']['output']>;
@@ -12207,7 +12197,6 @@ type WorkspaceRepoConfigProposal = {
   __typename?: 'WorkspaceRepoConfigProposal';
   defaultBranch: Scalars['String']['output'];
   devCommand?: Maybe<Scalars['String']['output']>;
-  devPort?: Maybe<Scalars['Int']['output']>;
   installCommand: Scalars['String']['output'];
   lockfilePath: Scalars['String']['output'];
   prepareCommand?: Maybe<Scalars['String']['output']>;

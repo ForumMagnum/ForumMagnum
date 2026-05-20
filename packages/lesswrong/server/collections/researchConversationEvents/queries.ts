@@ -35,11 +35,9 @@ export const graphqlResearchConversationEventQueryTypeDefs = gql`
 
   extend type Query {
     researchConversationEvent(
-      input: SingleResearchConversationEventInput @deprecated(reason: "Use the selector field instead"),
       selector: SelectorInput
     ): SingleResearchConversationEventOutput
     researchConversationEvents(
-      input: MultiResearchConversationEventInput @deprecated(reason: "Use the selector field instead"),
       selector: ResearchConversationEventSelector,
       limit: Int,
       offset: Int,

@@ -109,16 +109,6 @@ const schema = {
       validation: { optional: true },
     },
   },
-  devPort: {
-    database: { type: "INTEGER", nullable: true },
-    graphql: {
-      outputType: "Int",
-      canRead: [userOwns, "admins"],
-      canUpdate: ["admins"],
-      canCreate: ["members"],
-      validation: { optional: true },
-    },
-  },
 } satisfies Record<string, CollectionFieldSpecification<"WorkspaceRepos">>;
 
 export default schema;

@@ -23,8 +23,12 @@ const proposalSchema = z.object({
   lockfilePath: z.string().describe("Path of the dependency lockfile, relative to the repo root."),
   installCommand: z.string().describe("Concrete install command, any bootstrap folded in."),
   prepareCommand: z.string().nullable().describe("Codegen/migration setup command, or null."),
-  devCommand: z.string().nullable().describe("Command that starts the dev server, or null."),
-  devPort: z.number().int().nullable().describe("Localhost port the dev server binds to, or null."),
+  devCommand: z
+    .string()
+    .nullable()
+    .describe(
+      "Command that starts the dev server, or null. The sandbox picks the port at runtime — write the command to read it from $PORT (e.g. 'vite --port $PORT', 'python manage.py runserver 0.0.0.0:$PORT').",
+    ),
 });
 
 export interface WorkspaceRepoConfigProposal {
@@ -34,7 +38,6 @@ export interface WorkspaceRepoConfigProposal {
   installCommand: string;
   prepareCommand: string | null;
   devCommand: string | null;
-  devPort: number | null;
 }
 
 const SYSTEM_PROMPT = `You configure a code repository so it can be installed and run inside a fresh sandbox.
@@ -55,7 +58,7 @@ Record the actual lockfile path as lockfilePath, and fold any bootstrap step int
 
 For yarn the flag depends on the major version: Yarn 1 (classic) uses "yarn install --frozen-lockfile"; Yarn 2+ (Berry) uses "yarn install --immutable". Yarn 1.x is still the most common — do not assume Berry. Inspect the repo for signals (.yarnrc vs .yarnrc.yml, a packageManager field, the yarn.lock header). With no clear signal, use the classic flag.
 
-prepareCommand is for code-derived setup like codegen or migrations — null if there is none. devCommand/devPort describe a dev server — both null if the repo has none.`;
+prepareCommand is for code-derived setup like codegen or migrations — null if there is none. devCommand starts the repo's dev server — null if it has none. The sandbox picks the dev server's port at runtime and exposes it as the env var $PORT, so write devCommand to honor $PORT (e.g. "next dev --port $PORT", "vite --port $PORT", "python manage.py runserver 0.0.0.0:$PORT", "flask run --port $PORT"). Most Node dev servers honor PORT implicitly; pass it explicitly anyway so a framework upgrade that changes that convention cannot break the preview.`;
 
 /**
  * Run the config agent against a repo. Returns `null` if the agent never

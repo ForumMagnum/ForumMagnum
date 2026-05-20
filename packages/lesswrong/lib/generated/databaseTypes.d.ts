@@ -2302,7 +2302,6 @@ interface DbWorkspaceRepo extends DbObject {
   createdAt: Date
   defaultBranch: string
   devCommand: string | null
-  devPort: number | null
   host: string
   installCommand: string
   lockfilePath: string

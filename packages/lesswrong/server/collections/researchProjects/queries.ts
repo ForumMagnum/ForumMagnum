@@ -35,11 +35,9 @@ export const graphqlResearchProjectQueryTypeDefs = gql`
 
   extend type Query {
     researchProject(
-      input: SingleResearchProjectInput @deprecated(reason: "Use the selector field instead"),
       selector: SelectorInput
     ): SingleResearchProjectOutput
     researchProjects(
-      input: MultiResearchProjectInput @deprecated(reason: "Use the selector field instead"),
       selector: ResearchProjectSelector,
       limit: Int,
       offset: Int,

@@ -983,7 +983,6 @@ type WorkspaceRepoConfigProposal {
   installCommand: String!
   prepareCommand: String
   devCommand: String
-  devPort: Int
 }
 
 type DeleteUserSecretOutput {
@@ -6111,8 +6110,8 @@ type MultiResearchConversationEventOutput {
 }
 
 extend type Query {
-  researchConversationEvent(input: SingleResearchConversationEventInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleResearchConversationEventOutput
-  researchConversationEvents(input: MultiResearchConversationEventInput @deprecated(reason: "Use the selector field instead"), selector: ResearchConversationEventSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchConversationEventOutput
+  researchConversationEvent(selector: SelectorInput): SingleResearchConversationEventOutput
+  researchConversationEvents(selector: ResearchConversationEventSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchConversationEventOutput
 }
 
 type ResearchConversation {
@@ -6159,8 +6158,8 @@ type MultiResearchConversationOutput {
 }
 
 extend type Query {
-  researchConversation(input: SingleResearchConversationInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleResearchConversationOutput
-  researchConversations(input: MultiResearchConversationInput @deprecated(reason: "Use the selector field instead"), selector: ResearchConversationSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchConversationOutput
+  researchConversation(selector: SelectorInput): SingleResearchConversationOutput
+  researchConversations(selector: ResearchConversationSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchConversationOutput
 }
 
 type ResearchDocument {
@@ -6206,8 +6205,8 @@ type MultiResearchDocumentOutput {
 }
 
 extend type Query {
-  researchDocument(input: SingleResearchDocumentInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleResearchDocumentOutput
-  researchDocuments(input: MultiResearchDocumentInput @deprecated(reason: "Use the selector field instead"), selector: ResearchDocumentSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchDocumentOutput
+  researchDocument(selector: SelectorInput): SingleResearchDocumentOutput
+  researchDocuments(selector: ResearchDocumentSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchDocumentOutput
 }
 
 type ResearchProject {
@@ -6246,8 +6245,8 @@ type MultiResearchProjectOutput {
 }
 
 extend type Query {
-  researchProject(input: SingleResearchProjectInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleResearchProjectOutput
-  researchProjects(input: MultiResearchProjectInput @deprecated(reason: "Use the selector field instead"), selector: ResearchProjectSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchProjectOutput
+  researchProject(selector: SelectorInput): SingleResearchProjectOutput
+  researchProjects(selector: ResearchProjectSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchProjectOutput
 }
 
 type ReviewVote {
@@ -7943,7 +7942,6 @@ type WorkspaceRepo {
   installCommand: String
   prepareCommand: String
   devCommand: String
-  devPort: Int
 }
 
 input SingleWorkspaceRepoInput {
@@ -10025,7 +10023,6 @@ input CreateWorkspaceRepoDataInput {
   installCommand: String!
   prepareCommand: String
   devCommand: String
-  devPort: Int
 }
 
 input CreateWorkspaceRepoInput {

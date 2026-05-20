@@ -40,11 +40,9 @@ export const graphqlResearchConversationQueryTypeDefs = gql`
 
   extend type Query {
     researchConversation(
-      input: SingleResearchConversationInput @deprecated(reason: "Use the selector field instead"),
       selector: SelectorInput
     ): SingleResearchConversationOutput
     researchConversations(
-      input: MultiResearchConversationInput @deprecated(reason: "Use the selector field instead"),
       selector: ResearchConversationSelector,
       limit: Int,
       offset: Int,

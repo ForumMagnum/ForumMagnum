@@ -2318,8 +2318,8 @@ CREATE TABLE "RepoInstallSnapshots" (
   "sizeBytes" DOUBLE PRECISION
 );
 
--- Index "idx_RepoInstallSnapshots_workspaceRepoId_manifestHash_createdAt"
-CREATE INDEX IF NOT EXISTS "idx_RepoInstallSnapshots_workspaceRepoId_manifestHash_createdAt" ON "RepoInstallSnapshots" USING btree ("workspaceRepoId", "manifestHash", "createdAt");
+-- Index "idx_RepoInstallSnapshots_workspaceRepoId_manifestHash"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_RepoInstallSnapshots_workspaceRepoId_manifestHash" ON "RepoInstallSnapshots" USING btree ("workspaceRepoId", "manifestHash");
 
 -- Table "Reports"
 CREATE TABLE "Reports" (
@@ -3485,8 +3485,7 @@ CREATE TABLE "WorkspaceRepos" (
   "lockfilePath" TEXT NOT NULL,
   "installCommand" TEXT NOT NULL,
   "prepareCommand" TEXT,
-  "devCommand" TEXT,
-  "devPort" INTEGER
+  "devCommand" TEXT
 );
 
 -- Index "idx_WorkspaceRepos_userId_host_owner_name_createdAt"

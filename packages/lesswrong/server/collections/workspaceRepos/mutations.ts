@@ -1,15 +1,12 @@
 import schema from "@/lib/collections/workspaceRepos/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { randomId } from "@/lib/random";
 import { getCreatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
+import { assignUserIdToData, insertAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import {
-  assignUserIdToData,
-  getLegacyCreateCallbackProps,
-  insertAndReturnCreateAfterProps,
-  runFieldOnCreateCallbacks,
-} from "@/server/vulcan-lib/mutators";
-import { buildRepoInstallSnapshot } from "@/server/research/sandbox/buildRepoInstallSnapshot";
+  buildRepoInstallSnapshot,
+  persistRepoInstallSnapshot,
+} from "@/server/research/sandbox/buildRepoInstallSnapshot";
 import { repoScopeOf } from "@/server/research/repoUrl";
 import { resolveUserSecret } from "@/server/research/userSecretAccess";
 import { GITHUB_TOKEN_SECRET } from "@/lib/collections/userSecrets/userSecretNames";
@@ -31,14 +28,9 @@ export async function createWorkspaceRepo(
   { data }: CreateWorkspaceRepoInput,
   context: ResolverContext,
 ) {
-  const callbackProps = await getLegacyCreateCallbackProps('WorkspaceRepos', {
-    context,
-    data,
-    schema,
-  });
-  data = callbackProps.document;
-  assignUserIdToData(data, context.currentUser, schema);
-  data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
+  const { currentUser } = context;
+  if (!currentUser) throw new Error("Not logged in");
+  assignUserIdToData(data, currentUser, schema);
 
   // Build the install-cache snapshot before the insert: the WorkspaceRepos row
   // and its snapshot are a unit, and we never want a repo row that points at
@@ -50,10 +42,7 @@ export async function createWorkspaceRepo(
   if (!data.defaultBranch || !data.lockfilePath || !data.installCommand || !data.runtime) {
     throw new Error("defaultBranch, runtime, lockfilePath, and installCommand are required");
   }
-  if ((data.devCommand ?? null) === null !== ((data.devPort ?? null) === null)) {
-    throw new Error("devCommand and devPort must be set together, or both left empty");
-  }
-  const token = await resolveUserSecret(context, data.userId!, repoScopeOf(repo), GITHUB_TOKEN_SECRET);
+  const token = await resolveUserSecret(context, currentUser._id, repoScopeOf(repo), GITHUB_TOKEN_SECRET);
   const baseline = await context.SandboxBaselineSnapshots.findOne({ runtime: data.runtime });
   if (!baseline) {
     throw new Error(
@@ -70,17 +59,20 @@ export async function createWorkspaceRepo(
     token,
   });
 
-  const afterCreateProperties = await insertAndReturnCreateAfterProps(data, 'WorkspaceRepos', callbackProps);
-  const workspaceRepo = afterCreateProperties.document;
+  const workspaceRepo = await insertAndReturnDocument({
+    userId: currentUser._id,
+    host: repo.host,
+    owner: repo.owner,
+    name: repo.name,
+    defaultBranch: data.defaultBranch,
+    runtime: data.runtime,
+    lockfilePath: data.lockfilePath,
+    installCommand: data.installCommand,
+    prepareCommand: data.prepareCommand ?? null,
+    devCommand: data.devCommand ?? null,
+  }, 'WorkspaceRepos', context);
 
-  await context.RepoInstallSnapshots.rawInsert({
-    _id: randomId(),
-    createdAt: new Date(),
-    workspaceRepoId: workspaceRepo._id,
-    manifestHash: built.manifestHash,
-    vercelSnapshotId: built.vercelSnapshotId,
-    sizeBytes: built.sizeBytes,
-  });
+  await persistRepoInstallSnapshot(context, workspaceRepo._id, built);
 
   return workspaceRepo;
 }
