@@ -1,6 +1,16 @@
 # AGENTS.md: ForumMagnum Codebase Patterns
 
-This document explains non-standard patterns, conventions, and abstractions used in the ForumMagnum codebase. ForumMagnum is a large web application built on NextJS with Apollo GraphQL and PostgreSQL, which is used to run LessWrong and the Alignment Forum.  (A pre-NextJS fork of the codebase runs the EA Forum.  Work on this codebase does not need to worry about accommodating forums other than LW and AF.) You should use that context to inform your understanding of what features are likely to exist, of the likely relationships between different abstractions, etc.
+This document explains some of the non-standard patterns, conventions, and abstractions used in the ForumMagnum codebase. ForumMagnum is a large web application built on NextJS with Apollo GraphQL and PostgreSQL, which is used to run LessWrong and the Alignment Forum.  (A pre-NextJS fork of the codebase runs the EA Forum.  Work on this codebase does not need to worry about accommodating forums other than LW and AF.) You should use that context to inform your understanding of what features are likely to exist, of the likely relationships between different abstractions, etc.
+
+This document is not comprehensive.  When working on larger features or changes, look for several examples of similar types of code in the codebase to get a sense for the patterns, conventions, and coding style that are not fully described in this document.  Please always read those files yourself, rather than delegating to a subagent.  Here are some "types of code" of the kind that bear looking at previous examples:
+- React components
+- GraphQL query and mutation resolvers
+- API routes
+- Database migrations
+
+One thing to keep in mind is that the codebase has evolved over time, and often has more than one pattern or convention in it for any particular thing.  If the preferred pattern for that concern isn't specified in this document, prefer the more modern one.  If it's not obvious which one is more modern, you can try checking git blame, or pausing and asking the developer.
+
+Do not use deprecated fields or functions defined this codebase, even if existing code uses them in similar contexts.  In almost all such cases, there exist non-deprecated alternatives.  If you can't find an non-deprecated alternative, feel free to write your own but always explicitly leave a TODO comment indicating the developer should review this and flag it for the developer.
 
 Reminder: after you finish making changes, go over them again to check whether any of them violated the style guide, and fix those violations if so.
 
@@ -533,8 +543,8 @@ Strongly prefer to avoid declaring inline functions that capture scope; declare 
 If you need to combine multiple classNames, use `import classNames from 'classnames';` rather than combining them via template string.
 Prefer interfaces to types where possible.
 Do not create barrel import/export files.
-Avoid using `ReturnType<...>` in situations where you could check the return type of the relevant function and use that type directly (with an additional import, if necessary).
-If you have access to the typescript LSP, strongly prefer to use the tools it provides to check for type errors in files that you've changed while in the middle of coding, rather than using the project's top-level `yarn lint` (which runs a full lint and typecheck, and takes ~30 seconds).  You should use the project-level command after finishing an entire feature, if you've made any changes to types/type signatures that might have been used from elsewhere in the codebase.
+Do not use `ReturnType<...>`.  Instead, check the return type of the relevant function and use that type directly (with an additional import, if necessary).
+If you have access to the typescript LSP, strongly prefer to use the tools it provides to check for type errors in files that you've changed while in the middle of coding, rather than using the project's top-level `yarn lint` or `yarn tsc` (which can take up to 30 seconds).  You should use the project-level command after finishing an entire feature, if you've made any changes to types/type signatures that might have been used from elsewhere in the codebase.
 Avoid using `npx [command]`, like `npx jest` or `npx tsc`, if there's an appropriate command in our package.json that seems like it's intended to perform the relevant function.  (In those two cases, it'll be `yarn unit [test-file-path]` and `yarn tsc`.)
 When asked to conduct a code review against `master`, ensure any diffs you perform are against `origin/master`, not against local `master`, which might be out of date.
 

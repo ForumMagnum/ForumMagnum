@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import classNames from 'classnames';
 import { useForm } from '@tanstack/react-form';
 import { gql } from '@/lib/generated/gql-codegen';
@@ -159,14 +159,14 @@ const WorkspaceRepoForm = ({ initialValues, reconfigure, onCancel, onSaved }: Wo
   const [proposeConfig] = useMutation(ProposeWorkspaceRepoConfigMutation);
   const [createRepo] = useMutation(CreateWorkspaceRepoMutation);
 
-  const defaults: WorkspaceRepoFormValues = {
+  const defaultValues = useMemo((): WorkspaceRepoFormValues => ({
     ...EMPTY_VALUES,
     ...initialValues,
     runtime: asRuntime(initialValues?.runtime),
-  };
+  }), [initialValues]);
 
   const form = useForm({
-    defaultValues: defaults,
+    defaultValues,
     onSubmit: async ({ formApi }) => {
       const v = formApi.state.values;
       let parsed;
@@ -213,16 +213,15 @@ const WorkspaceRepoForm = ({ initialValues, reconfigure, onCancel, onSaved }: Wo
         setCaughtError(new Error('The configuration agent returned no proposal — fill the form in by hand.'));
         return;
       }
-      form.reset({
-        repoUrl,
-        githubToken,
-        defaultBranch: proposal.defaultBranch ?? '',
-        runtime: asRuntime(proposal.runtime),
-        lockfilePath: proposal.lockfilePath ?? '',
-        installCommand: proposal.installCommand ?? '',
-        prepareCommand: proposal.prepareCommand ?? '',
-        devCommand: proposal.devCommand ?? '',
-      });
+      // Use setFieldValue rather than reset: reset clears isTouched, and TanStack
+      // Form's per-render update(defaultValues) then overwrites values with the
+      // initial empty defaults when the form is no longer touched.
+      form.setFieldValue('defaultBranch', proposal.defaultBranch ?? '');
+      form.setFieldValue('runtime', asRuntime(proposal.runtime));
+      form.setFieldValue('lockfilePath', proposal.lockfilePath ?? '');
+      form.setFieldValue('installCommand', proposal.installCommand ?? '');
+      form.setFieldValue('prepareCommand', proposal.prepareCommand ?? '');
+      form.setFieldValue('devCommand', proposal.devCommand ?? '');
     } catch (err) {
       setCaughtError(err);
     } finally {

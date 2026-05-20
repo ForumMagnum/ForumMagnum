@@ -75,7 +75,7 @@ export const researchWorkspaceMutations = {
       const existing = await UserSecrets.findOne({ userId: currentUser._id, name: GITHUB_TOKEN_SECRET, repoScope });
       const encryptedValue = encryptUserSecret(args.githubToken);
       if (existing) {
-        await UserSecrets.rawUpdateOne({ _id: existing._id }, { $set: { encryptedValue, updatedAt: now } });
+        await UserSecrets.rawUpdateOne({ _id: existing._id }, { $set: { encryptedValue } });
       } else {
         await UserSecrets.rawInsert({
           _id: randomId(),
