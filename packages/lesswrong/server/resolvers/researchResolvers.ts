@@ -49,6 +49,21 @@ async function loadConversationOrThrow(conversationId: string, context: Resolver
   return conv;
 }
 
+async function loadConversationForTranscript(conversationId: string, context: ResolverContext) {
+  const { currentUser, ResearchConversations } = context;
+  if (!currentUser) throw new Error("Not logged in");
+  const conv = await ResearchConversations.findOne({ _id: conversationId });
+  // The client intentionally generates ids before firing the mutation so a
+  // document-side AgentBlock can bind to the conversation. During that short
+  // optimistic window, the stream hook may ask for a transcript before the row
+  // exists; return an empty transcript instead of logging a GraphQL error.
+  if (!conv) return null;
+  if (conv.userId !== currentUser._id && !currentUser.isAdmin) {
+    throw new Error("Forbidden");
+  }
+  return conv;
+}
+
 const SUPERVISOR_TOKEN_TTL_MS = 30 * 60 * 1000;
 
 /** Lifetime of a dev-preview token. Long enough not to interrupt a work session. */
@@ -586,7 +601,8 @@ export const researchResolversQueries = {
     args: { conversationId: string; since?: number | null; limit?: number | null },
     context: ResolverContext,
   ) {
-    await loadConversationOrThrow(args.conversationId, context);
+    const conv = await loadConversationForTranscript(args.conversationId, context);
+    if (!conv) return [];
     const { ResearchConversationEvents } = context;
     const selector: { conversationId: string; seq?: { $gt: number } } = {
       conversationId: args.conversationId,

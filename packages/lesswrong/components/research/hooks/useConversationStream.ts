@@ -62,6 +62,21 @@ const RECONNECT_MAX_MS = 30_000;
 const IDLE_POLL_MIN_MS = 1_000;
 const IDLE_POLL_MAX_MS = 30_000;
 const MAX_IDLE_EMPTY_POLLS = 6;
+const EXPECTED_ACTIVITY_TTL_MS = 2 * 60 * 1000;
+
+const expectedActivityByConversation = new Map<string, number>();
+
+export function markConversationActivityExpected(conversationId: string): void {
+  expectedActivityByConversation.set(conversationId, Date.now());
+}
+
+function hasRecentExpectedActivity(conversationId: string): boolean {
+  const markedAt = expectedActivityByConversation.get(conversationId);
+  if (markedAt === undefined) return false;
+  if (Date.now() - markedAt <= EXPECTED_ACTIVITY_TTL_MS) return true;
+  expectedActivityByConversation.delete(conversationId);
+  return false;
+}
 
 const ResearchConversationTranscriptQuery = gql(`
   query ResearchConversationTranscript($conversationId: String!, $since: Int) {
@@ -130,7 +145,7 @@ export function useConversationStream(
     let eventSource: EventSource | null = null;
     let timer: NodeJS.Timeout | null = null;
     let idleEmptyPolls = 0;
-    const expectActivity = expectActivityRef.current;
+    const expectActivity = expectActivityRef.current || hasRecentExpectedActivity(id);
     expectActivityRef.current = false;
     // Prime from the Apollo cache before kicking off the network fetch so a
     // re-mount (e.g. switching back to a previously-loaded research doc)
@@ -162,8 +177,8 @@ export function useConversationStream(
       }, backoff + jitter);
     }
 
-    // Entered only after refresh(); stays in 'idle' status the whole loop so
-    // it doesn't churn the UI between ticks.
+    // Entered when the caller expects work to start soon; stays in 'idle'
+    // status the whole loop so it doesn't churn the UI between ticks.
     async function pollIdle() {
       if (cancelled) return;
       if (idleEmptyPolls >= MAX_IDLE_EMPTY_POLLS) return;
@@ -464,4 +479,3 @@ function mergeEvents(prev: ConversationEvent[], incoming: ConversationEvent[]): 
   if (!changed) return prev;
   return [...merged.values()].sort(compareEventsByTime);
 }
-

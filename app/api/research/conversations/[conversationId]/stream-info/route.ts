@@ -60,7 +60,10 @@ export async function GET(
 
   const conversation = await context.ResearchConversations.findOne({ _id: conversationId });
   if (!conversation) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 });
+    // Inline /query creates an AgentBlock with a client-generated conversation id
+    // before the mutation has inserted the row. Treat that short window as idle
+    // so the client can poll without surfacing a transient error.
+    return NextResponse.json(idle);
   }
   const project = await context.ResearchProjects.findOne({ _id: conversation.projectId });
   if (!project || project.userId !== currentUser._id) {

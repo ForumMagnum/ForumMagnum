@@ -44,6 +44,7 @@ import {
   QueryInputContentNode,
 } from './QueryInputContentNode';
 import { useResearchEditorEnvironment, type ResearchEditorEnvironment } from './ResearchEditorContext';
+import { markConversationActivityExpected } from '../hooks/useConversationStream';
 import { useMessages } from '@/components/common/withMessages';
 import { type WithMessagesFunctions } from '@/components/layout/FlashMessages';
 
@@ -268,6 +269,7 @@ export function QueryInputPlugin() {
           // finds the AgentBlock and the server-side row sharing the same id,
           // and the events stream wires up on reload.
           const conversationId = randomId();
+          markConversationActivityExpected(conversationId);
           const agentBlock = $createAgentBlockNode({
             conversationId,
             producedByConversationId: null,
