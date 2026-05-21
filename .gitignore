@@ -76,9 +76,12 @@ typings
 build*
 !build.ts
 !buildUtil.js
+!build*.ts
 yarn-error.log
 public/lesswrong-editor/obj
 ckEditor/obj
+
+packages/lesswrong/server/research/sandbox/dist/
 
 # Created by @shelf/jest-mongodb
 globalConfig.json
@@ -135,3 +138,4 @@ acxMeetupImports/
 
 # Claude Code
 .claude
+
