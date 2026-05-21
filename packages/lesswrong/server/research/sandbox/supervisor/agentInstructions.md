@@ -294,6 +294,33 @@ The server validates each token before applying your write:
 - The title field can be approximate; the server replaces it with the
   canonical current title from the database before storing the chip.
 
+## Query inputs (unsubmitted user questions)
+
+The user can compose a `/query` block in the document — a UI input where they
+draft a question before sending it. Until they explicitly submit it the block
+stays in the document as a `query-input` block. In `fetch-doc` output you'll
+see it wrapped in explicit start/end markers:
+
+```
+%%% query-input workspaceRepoId="abc123"
+
+What I want to ask the agent about <thing>...
+
+%%% /query-input
+```
+
+The `workspaceRepoId` attribute is optional; not all queries are made in the
+context of a repo.
+
+Treat these as read-only context.  In most situations, their contents will be
+a query that the user hasn't finished composing yet.  The contents should
+generally not be understood as being specifically directed at you, unless
+it's clear from context that the user is for some reason trying to communicate
+with you via the text of their unfinished queries in the document.
+
+You cannot create, modify, or delete query-input blocks via the research tool.
+Quotes or prefixes that target text inside a query input will silently fail to match.
+
 ## Matching rules (replace-text quote, insert-block/delete-block prefix)
 
 These rules come straight from the shared backend matcher:

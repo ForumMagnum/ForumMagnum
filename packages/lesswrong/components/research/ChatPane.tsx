@@ -9,6 +9,8 @@ import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { useConversationStream, type ConversationEvent } from './hooks/useConversationStream';
 import { randomId } from '@/lib/random';
+import { htmlToTextDefault } from '@/lib/htmlToText';
+import { useMessages } from '@/components/common/withMessages';
 import Loading from '../vulcan-core/Loading';
 import ChatComposer from './ChatComposer';
 import {
@@ -32,16 +34,16 @@ interface ChatPaneProps {
 }
 
 const FireChatConversationMutation = gql(`
-  mutation FireChatPaneConversation($projectId: String!, $activeDocumentId: String!, $prompt: String!) {
-    fireResearchConversation(input: { projectId: $projectId, kind: chat, activeDocumentId: $activeDocumentId, prompt: $prompt }) {
+  mutation FireChatPaneConversation($conversationId: String!, $projectId: String!, $activeDocumentId: String!, $promptHtml: String!) {
+    fireResearchConversation(input: { conversationId: $conversationId, projectId: $projectId, kind: chat, activeDocumentId: $activeDocumentId, promptHtml: $promptHtml }) {
       conversationId
     }
   }
 `);
 
 const ContinueResearchConversationMutation = gql(`
-  mutation ContinueResearchConversationFromChatPane($conversationId: String!, $prompt: String!, $activeDocumentId: String!) {
-    continueResearchConversation(conversationId: $conversationId, prompt: $prompt, activeDocumentId: $activeDocumentId) {
+  mutation ContinueResearchConversationFromChatPane($conversationId: String!, $promptHtml: String!, $activeDocumentId: String!) {
+    continueResearchConversation(conversationId: $conversationId, promptHtml: $promptHtml, activeDocumentId: $activeDocumentId) {
       conversationId
     }
   }
@@ -151,6 +153,7 @@ const ChatPane = ({
 }: ChatPaneProps) => {
   const classes = useStyles(styles);
   const apolloClient = useApolloClient();
+  const { flash } = useMessages();
   const [sending, setSending] = useState(false);
   const eventsRef = useRef<HTMLDivElement | null>(null);
 
@@ -173,42 +176,45 @@ const ChatPane = ({
     if (el) el.scrollTop = el.scrollHeight;
   }, [events.length]);
 
-  const handleSend = useCallback(async (text: string) => {
-    const prompt = text.trim();
-    if (!prompt || sending) return;
-    if (!activeDocumentId) return;
+  const handleSend = useCallback(async (promptHtml: string) => {
+    if (sending || !activeDocumentId) return;
     setSending(true);
     try {
       if (!conversationId) {
-        const result = await fireConversation({
-          variables: { projectId, activeDocumentId, prompt },
+        // Client-generated id, so a refresh between this call and the
+        // mutation's response still finds the conversation on reload (the
+        // URL/route state will already be pointed at this id).
+        const newId = randomId();
+        onConversationCreated(newId);
+        await fireConversation({
+          variables: { conversationId: newId, projectId, activeDocumentId, promptHtml },
         });
-        const newId = result.data?.fireResearchConversation?.conversationId;
-        if (newId) {
-          onConversationCreated(newId);
-          void pollForConversationTitle(apolloClient, projectId, newId);
-        }
+        void pollForConversationTitle(apolloClient, projectId, newId);
       } else {
-        // Show the user's message immediately; SSE doesn't broadcast backend
-        // `appendUserTurn` writes, so without this the message would stay
-        // invisible until refresh() pulls the persisted twin.
-        const now = new Date().toISOString();
+        // Optimistic plaintext for the in-flight turn; the persisted twin
+        // (with the server's markdown rendering) replaces it on the next
+        // refresh() — SSE doesn't broadcast backend `appendUserTurn` writes.
+        const optimisticText = htmlToTextDefault(promptHtml);
         injectOptimisticEvent({
           _id: `optimistic:user:${randomId()}`,
           conversationId,
           seq: -1,
           kind: 'user',
           claudeMessageUuid: null,
-          payload: { type: 'user', text: prompt },
-          createdAt: now,
+          payload: { type: 'user', text: optimisticText },
+          createdAt: new Date().toISOString(),
         });
-        await continueConversation({ variables: { conversationId, prompt, activeDocumentId } });
+        await continueConversation({ variables: { conversationId, promptHtml, activeDocumentId } });
         refresh();
       }
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[research] chat send failed', err);
+      flash({ messageString: 'Failed to send message — try again.', type: 'error' });
     } finally {
       setSending(false);
     }
-  }, [sending, conversationId, projectId, activeDocumentId, fireConversation, continueConversation, onConversationCreated, refresh, injectOptimisticEvent, apolloClient]);
+  }, [sending, conversationId, projectId, activeDocumentId, fireConversation, continueConversation, onConversationCreated, refresh, injectOptimisticEvent, apolloClient, flash]);
 
   const handleCancel = useCallback(async () => {
     if (!conversationId) return;

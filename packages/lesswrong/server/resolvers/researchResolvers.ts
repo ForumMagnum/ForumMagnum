@@ -1,5 +1,4 @@
 import gql from "graphql-tag";
-import { randomId } from "@/lib/random";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { generateConversationTitle } from "@/server/research/titleGeneration";
 import { DEVAUTH_SCOPE, signSupervisorToken } from "@/server/research/sandbox/supervisor/auth";
@@ -17,6 +16,8 @@ import {
   buildSystemReminderWrap,
   deriveLastInjectedActiveDocumentId,
 } from "@/server/research/systemReminder";
+import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { isPostgresUniqueViolation } from "@/server/utils/postgresErrors";
 
 /**
  * GraphQL custom mutations + resolvers for research conversations.
@@ -316,10 +317,19 @@ export const researchResolversTypeDefs = gql`
   }
 
   input FireResearchConversationInput {
+    # Client-generated conversation id, used as the new row's primary key. The
+    # client writes its own document-side reference (an AgentBlock for
+    # /query, the chat-pane URL for the chat composer) BEFORE awaiting this
+    # mutation, so a refresh mid-flight leaves the doc and the server-side
+    # conversation bound to the same id.
+    conversationId: String!
     projectId: String!
     kind: ResearchEntrypointKind!
     activeDocumentId: String!
-    prompt: String!
+    # The user's input as HTML; the server converts to markdown via the same
+    # Lexical -> HTML -> Turndown pipeline that backs fetch-doc, so mentions,
+    # lists, and formatting survive into the agent's conversation context.
+    promptHtml: String!
     # The workspace repo for a coding conversation; omitted for an ordinary one.
     workspaceRepoId: String
   }
@@ -335,7 +345,7 @@ export const researchResolversTypeDefs = gql`
 
   extend type Mutation {
     fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
-    continueResearchConversation(conversationId: String!, prompt: String!, activeDocumentId: String!): ResearchConversationOutput
+    continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
     cancelResearchConversation(conversationId: String!): ResearchConversationOutput
     mintDevPreviewUrl(conversationId: String!): DevPreviewUrlOutput
   }
@@ -350,10 +360,11 @@ export const researchResolversMutations = {
     _root: void,
     args: {
       input: {
+        conversationId: string;
         projectId: string;
         kind: "document" | "chat";
         activeDocumentId: string;
-        prompt: string;
+        promptHtml: string;
         workspaceRepoId?: string | null;
       };
     },
@@ -361,7 +372,8 @@ export const researchResolversMutations = {
   ) {
     const { currentUser, ResearchConversations } = context;
     if (!currentUser) throw new Error("Not logged in");
-    const { projectId, kind, activeDocumentId, prompt, workspaceRepoId } = args.input;
+    const { conversationId, projectId, kind, activeDocumentId, promptHtml, workspaceRepoId } = args.input;
+    const prompt = htmlToMarkdown(promptHtml).trim();
     if (!prompt) throw new Error("prompt required");
 
     await assertProjectAccess(projectId, context);
@@ -374,20 +386,27 @@ export const researchResolversMutations = {
       }
     }
 
-    const _id = randomId();
+    const _id = conversationId;
     const now = new Date();
-    await ResearchConversations.rawInsert({
-      _id,
-      userId: currentUser._id,
-      projectId,
-      entrypointKind: kind,
-      entrypointDocumentId: activeDocumentId,
-      workspaceRepoId: workspaceRepoId ?? null,
-      title: null,
-      claudeSessionId: null,
-      lastActivityAt: now,
-      createdAt: now,
-    });
+    try {
+      await ResearchConversations.rawInsert({
+        _id,
+        userId: currentUser._id,
+        projectId,
+        entrypointKind: kind,
+        entrypointDocumentId: activeDocumentId,
+        workspaceRepoId: workspaceRepoId ?? null,
+        title: null,
+        claudeSessionId: null,
+        lastActivityAt: now,
+        createdAt: now,
+      });
+    } catch (err) {
+      if (isPostgresUniqueViolation(err)) {
+        throw new Error(`Conversation id ${_id} is already in use`);
+      }
+      throw err;
+    }
 
     const turnPrompt = await prepareTurnPrompt({
       rawPrompt: prompt,
@@ -423,11 +442,13 @@ export const researchResolversMutations = {
 
   async continueResearchConversation(
     _root: void,
-    args: { conversationId: string; prompt: string; activeDocumentId: string },
+    args: { conversationId: string; promptHtml: string; activeDocumentId: string },
     context: ResolverContext,
   ) {
     const { ResearchConversations } = context;
     const conv = await loadConversationOrThrow(args.conversationId, context);
+    const prompt = htmlToMarkdown(args.promptHtml).trim();
+    if (!prompt) throw new Error("prompt required");
 
     // Fetch history once: used for both the Claude `--resume` bootstrap
     // (when a session id exists) and the system-reminder cadence check.
@@ -439,7 +460,7 @@ export const researchResolversMutations = {
     ).fetch();
 
     const turnPrompt = await prepareTurnPrompt({
-      rawPrompt: args.prompt,
+      rawPrompt: prompt,
       projectId: conv.projectId,
       activeDocumentId: args.activeDocumentId,
       entrypointKind: conv.entrypointKind,

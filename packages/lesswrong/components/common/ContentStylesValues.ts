@@ -15,7 +15,7 @@ import classNames from 'classnames';
  */
 const researchDocumentBodyStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),
-  '& [contenteditable="true"]': {
+  '& [contenteditable="true"]:not(.research-query-input-content)': {
     minHeight: 'calc(100vh - var(--header-height, 56px))',
     fontSize: 14,
     lineHeight: 1.55,

@@ -47,8 +47,23 @@ const ResearchDocumentQuery = gql(`
 `);
 
 const FireDocumentConversationMutation = gql(`
-  mutation FireDocumentConversation($projectId: String!, $activeDocumentId: String!, $prompt: String!) {
-    fireResearchConversation(input: { projectId: $projectId, kind: document, activeDocumentId: $activeDocumentId, prompt: $prompt }) {
+  mutation FireDocumentConversation(
+    $conversationId: String!
+    $projectId: String!
+    $activeDocumentId: String!
+    $promptHtml: String!
+    $workspaceRepoId: String
+  ) {
+    fireResearchConversation(
+      input: {
+        conversationId: $conversationId
+        projectId: $projectId
+        kind: document
+        activeDocumentId: $activeDocumentId
+        promptHtml: $promptHtml
+        workspaceRepoId: $workspaceRepoId
+      }
+    ) {
       conversationId
     }
   }
@@ -111,9 +126,11 @@ const DocumentPane = ({ projectId, documentId, onOpenConversationInChat, onSelec
       }
       const result = await fireConversation({
         variables: {
+          conversationId: args.conversationId,
           projectId,
           activeDocumentId: args.documentId,
-          prompt: args.prompt ?? '',
+          promptHtml: args.promptHtml,
+          workspaceRepoId: args.workspaceRepoId ?? null,
         },
       });
       const conversationId = result.data?.fireResearchConversation?.conversationId;

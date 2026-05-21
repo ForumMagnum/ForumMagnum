@@ -136,6 +136,9 @@ import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/coll
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 import { HorizontalRulePlugin } from './plugins/LexicalHorizontalRulePlugin';
 import { EditorUserModeContext } from '@/components/common/sharedContexts';
+import { QUERY_INPUT_DOM_CLASS } from '@/components/research/lexical/QueryInputNode';
+import { QUERY_INPUT_HEADER_DOM_CLASS } from '@/components/research/lexical/QueryInputHeaderNode';
+import { QUERY_INPUT_CONTENT_DOM_CLASS } from '@/components/research/lexical/QueryInputContentNode';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   '@keyframes sentinelCursorBlink': {
@@ -369,6 +372,33 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     },
     '& .llm-content-block-content': {
       outline: 'none',
+    },
+    [`& .${QUERY_INPUT_DOM_CLASS}`]: {
+      position: 'relative',
+      margin: '12px 0',
+      padding: '8px 12px',
+      paddingRight: 240,
+      border: `1px solid ${theme.palette.grey[300]}`,
+      borderRadius: 6,
+      background: theme.palette.grey[50],
+      '& > p:first-of-type': {
+        marginTop: 0,
+      },
+      '& > p:last-of-type': {
+        marginBottom: 0,
+      },
+    },
+    [`& .${QUERY_INPUT_HEADER_DOM_CLASS}`]: {
+      position: 'absolute',
+      top: 4,
+      right: 8,
+      zIndex: 1,
+    },
+    [`& .${QUERY_INPUT_CONTENT_DOM_CLASS}`]: {
+      outline: 0,
+    },
+    [`& .${QUERY_INPUT_CONTENT_DOM_CLASS} p`]: {
+      margin: 0,
     },
     '& ins': {
       background: theme.palette.background.diffInserted,

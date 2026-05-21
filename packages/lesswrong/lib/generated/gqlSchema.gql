@@ -949,10 +949,11 @@ enum ResearchEntrypointKind {
 }
 
 input FireResearchConversationInput {
+  conversationId: String!
   projectId: String!
   kind: ResearchEntrypointKind!
   activeDocumentId: String!
-  prompt: String!
+  promptHtml: String!
   workspaceRepoId: String
 }
 
@@ -967,7 +968,7 @@ type DevPreviewUrlOutput {
 
 extend type Mutation {
   fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
-  continueResearchConversation(conversationId: String!, prompt: String!, activeDocumentId: String!): ResearchConversationOutput
+  continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
   cancelResearchConversation(conversationId: String!): ResearchConversationOutput
   mintDevPreviewUrl(conversationId: String!): DevPreviewUrlOutput
 }

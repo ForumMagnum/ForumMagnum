@@ -12,8 +12,11 @@ export interface FireQueryResult {
 }
 
 export interface FireDocumentQueryArgs {
+  /** Client-generated id for the new conversation; written into the placeholder AgentBlock so the doc binds to the conversation before the mutation returns. */
+  conversationId: string;
   documentId: string;
-  prompt?: string;
+  promptHtml: string;
+  workspaceRepoId?: string | null;
 }
 
 /**

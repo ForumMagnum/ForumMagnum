@@ -13,6 +13,7 @@ import { JSDOM } from "jsdom";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { createHeadlessEditor, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith } from "./editorAgentUtil";
 import { FOOTNOTE_ELEMENT_TYPES } from "@/components/editor/lexicalPlugins/footnotes/constants";
+import { QUERY_INPUT_NODE_TYPE } from "@/components/research/lexical/QueryInputNode";
 import { $isListNode } from "@lexical/list";
 
 /**
@@ -417,10 +418,22 @@ function getTextContentForQuoteMatching(node: LexicalNode): string {
   return node.getTextContent();
 }
 
+const HIDDEN_FROM_AGENT_EDITS_NODE_TYPES = new Set<string>([QUERY_INPUT_NODE_TYPE]);
+
+function isHiddenFromAgentEdits(node: LexicalNode): boolean {
+  // Hidden node types are always elements; cheap pre-check skips the
+  // getType() virtual dispatch for every TextNode in the document.
+  return $isElementNode(node) && HIDDEN_FROM_AGENT_EDITS_NODE_TYPES.has(node.getType());
+}
+
 function collectSubtreeNodes(rootNode: LexicalNode): Array<{ node: LexicalNode, depth: number }> {
   const collected: Array<{ node: LexicalNode, depth: number }> = [];
 
   const visit = (node: LexicalNode, depth: number) => {
+    // Always include the root itself even if its type is hidden — callers
+    // pass a meaningful root (often the document root) and need at least
+    // one entry to map against.
+    if (node !== rootNode && isHiddenFromAgentEdits(node)) return;
     collected.push({ node, depth });
     if ($isElementNode(node)) {
       for (const child of node.getChildren()) {
@@ -509,6 +522,7 @@ export function findBlockToOperateOnByPrefix({
   };
 
   for (const child of rootChildren) {
+    if (isHiddenFromAgentEdits(child)) continue;
     if ($isListNode(child)) {
       for (const item of child.getChildren()) {
         if (matches(item)) return item;

@@ -24,6 +24,14 @@ import {
   isMentionKind,
   MENTION_DOM_CLASS,
 } from '@/components/research/lexical/mentionFormat';
+import {
+  QUERY_INPUT_DOM_CLASS,
+  QUERY_INPUT_WORKSPACE_REPO_ATTR,
+} from '@/components/research/lexical/QueryInputNode';
+
+function escapeMarkerAttr(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
 
 const blockTags = new Set([
   'ADDRESS', 'ARTICLE', 'ASIDE', 'BLOCKQUOTE', 'DIV', 'DL', 'DT', 'DD', 'FIELDSET',
@@ -129,6 +137,17 @@ function getTurndown(): TurndownService {
         return `\n\n%%% llm-output model="${modelName}"\n\n${trimmed}\n\n%%% /llm-output\n\n`;
       },
     })
+    turndownService.addRule('research-query-input', {
+      filter: (node) =>
+        node.nodeName === 'DIV' && !!node.classList?.contains(QUERY_INPUT_DOM_CLASS),
+      replacement: (content, node) => {
+        const element = node as Element;
+        const repoId = element.getAttribute(QUERY_INPUT_WORKSPACE_REPO_ATTR);
+        const attrSuffix = repoId ? ` workspaceRepoId="${escapeMarkerAttr(repoId)}"` : '';
+        const trimmed = content.trim();
+        return `\n\n%%% query-input${attrSuffix}\n\n${trimmed}\n\n%%% /query-input\n\n`;
+      },
+    })
     turndownService.addRule('research-agent-block', {
       filter: (node) =>
         node.nodeName === 'DIV' && !!node.classList?.contains('research-agent-block'),
@@ -138,12 +157,10 @@ function getTurndown(): TurndownService {
         const producedBy = element.getAttribute('data-produced-by-conversation-id');
         const title = element.getAttribute('data-conversation-title');
         const lastActivityAt = element.getAttribute('data-conversation-last-activity-at');
-        const escapeAttr = (value: string) =>
-          value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
-        const attrs: string[] = [`conversationId="${escapeAttr(conversationId)}"`];
-        if (title !== null) attrs.push(`title="${escapeAttr(title)}"`);
-        if (lastActivityAt !== null) attrs.push(`lastActivityAt="${escapeAttr(lastActivityAt)}"`);
-        if (producedBy) attrs.push(`producedByConversationId="${escapeAttr(producedBy)}"`);
+        const attrs: string[] = [`conversationId="${escapeMarkerAttr(conversationId)}"`];
+        if (title !== null) attrs.push(`title="${escapeMarkerAttr(title)}"`);
+        if (lastActivityAt !== null) attrs.push(`lastActivityAt="${escapeMarkerAttr(lastActivityAt)}"`);
+        if (producedBy) attrs.push(`producedByConversationId="${escapeMarkerAttr(producedBy)}"`);
         return `\n\n%%% agent-block ${attrs.join(' ')} %%%\n\n`;
       },
     })

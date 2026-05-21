@@ -1036,10 +1036,11 @@ interface UserContentFeedEntry {
 }
 
 interface FireResearchConversationInput {
+  conversationId: string;
   projectId: string;
   kind: ResearchEntrypointKind;
   activeDocumentId: string;
-  prompt: string;
+  promptHtml: string;
   workspaceRepoId?: string | null;
 }
 

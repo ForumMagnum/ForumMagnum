@@ -16,24 +16,7 @@ import { FormComponentSelect } from '@/components/form-components/FormComponentS
 import { useFormErrors } from '@/components/tanstack-form-components/BaseAppForm';
 import { repoScopeOf } from '@/lib/research/repoUrl';
 import WorkspaceRepoForm, { WorkspaceRepoFormValues } from './WorkspaceRepoForm';
-
-const ResearchCurrentWorkspaceReposQuery = gql(`
-  query ResearchCurrentWorkspaceReposQuery {
-    currentWorkspaceRepos {
-      _id
-      host
-      owner
-      name
-      defaultBranch
-      runtime
-      lockfilePath
-      installCommand
-      prepareCommand
-      devCommand
-      createdAt
-    }
-  }
-`);
+import { CurrentWorkspaceReposQuery } from './currentWorkspaceReposQuery';
 
 const ResearchToolingUserSecretsQuery = gql(`
   query ResearchToolingUserSecretsQuery {
@@ -377,7 +360,7 @@ const ResearchToolingPanel = ({ onFormStateChange, closeFormSignal }: ResearchTo
     data: reposData,
     loading: reposLoading,
     refetch: refetchRepos,
-  } = useQuery(ResearchCurrentWorkspaceReposQuery, { fetchPolicy: 'cache-and-network' });
+  } = useQuery(CurrentWorkspaceReposQuery, { fetchPolicy: 'cache-and-network' });
 
   const {
     data: secretsData,

@@ -1,8 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AgentBlockPlugin } from './AgentBlockPlugin';
-import { QueryCommandPlugin } from './QueryCommandPlugin';
+import { QueryInputPlugin } from './QueryInputPlugin';
 import { MentionTypeaheadPlugin } from './MentionTypeaheadPlugin';
 
 interface ResearchEditorPluginsProps {
@@ -16,8 +15,7 @@ interface ResearchEditorPluginsProps {
 export function ResearchEditorPlugins({ projectId }: ResearchEditorPluginsProps) {
   return (
     <>
-      <AgentBlockPlugin />
-      <QueryCommandPlugin />
+      <QueryInputPlugin />
       <MentionTypeaheadPlugin projectId={projectId} />
     </>
   );

@@ -210,21 +210,26 @@ export async function bootSupervisor() {
         },
         {
           // The repo root for a coding conversation, `/vercel/sandbox` otherwise.
-          CWD: env.workspaceDir,
-          // Put `/vercel/sandbox/bin` (where buildResearchSandboxSnapshot drops the
-          // research-tool binary) ahead of the system PATH so the agent can
-          // invoke `research-tool ...` directly from Bash. We can't install
-          // to /usr/local/bin from the snapshot builder (no root on tarball
-          // extract), so this is how the binary becomes "on PATH".
-          PATH: `/vercel/sandbox/bin:${process.env.PATH ?? ""}`,
-          // research-tool's required env. The token is the *agent-scoped*
-          // sandbox-callback bearer the backend mints per dispatch — the
-          // supervisor's own CALLBACK_TOKEN would 403 on every document /
-          // conversation endpoint (those require an agent scope tied to the
-          // current conversationId).
-          RESEARCH_BACKEND_BASE_URL: env.backendBaseUrl,
-          RESEARCH_BACKEND_TOKEN: req.agentBackendToken,
-          RESEARCH_PROJECT_ID: env.projectId,
+          // This is the *actual* working directory the claude subprocess starts
+          // in — and also the cwd the session-bootstrap JSONL path is derived
+          // from, so `--resume` finds the synthesized history on a fresh sandbox.
+          cwd: env.workspaceDir,
+          env: {
+            // Put `/vercel/sandbox/bin` (where buildResearchSandboxSnapshot drops the
+            // research-tool binary) ahead of the system PATH so the agent can
+            // invoke `research-tool ...` directly from Bash. We can't install
+            // to /usr/local/bin from the snapshot builder (no root on tarball
+            // extract), so this is how the binary becomes "on PATH".
+            PATH: `/vercel/sandbox/bin:${process.env.PATH ?? ""}`,
+            // research-tool's required env. The token is the *agent-scoped*
+            // sandbox-callback bearer the backend mints per dispatch — the
+            // supervisor's own CALLBACK_TOKEN would 403 on every document /
+            // conversation endpoint (those require an agent scope tied to the
+            // current conversationId).
+            RESEARCH_BACKEND_BASE_URL: env.backendBaseUrl,
+            RESEARCH_BACKEND_TOKEN: req.agentBackendToken,
+            RESEARCH_PROJECT_ID: env.projectId,
+          },
         },
       );
     },

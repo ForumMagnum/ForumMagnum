@@ -58,7 +58,7 @@ import classNames from 'classnames';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { useResearchEditorEnvironmentOptional } from '@/components/research/lexical/ResearchEditorContext';
-import { QUERY_COMMAND_PREFIX } from '@/components/research/lexical/QueryCommandPlugin';
+import { INSERT_QUERY_INPUT_COMMAND } from '@/components/research/lexical/QueryInputPlugin';
 import { InsertReviewResultsDialog } from '../../embeds/ReviewResultsEmbed/InsertReviewResultsDialog';
 import { INSERT_IFRAME_WIDGET_COMMAND } from '../../embeds/IframeWidgetEmbed/IframeWidgetPlugin';
 import { INSERT_LLM_CONTENT_BLOCK_COMMAND } from '@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockPlugin';
@@ -314,7 +314,7 @@ interface ResearchSlashCustomizations {
   extras: ComponentPickerOption[];
 }
 
-function useResearchSlashCustomizations(): ResearchSlashCustomizations | null {
+function useResearchSlashCustomizations(editor: LexicalEditor): ResearchSlashCustomizations | null {
   const env = useResearchEditorEnvironmentOptional();
   return useMemo(() => {
     if (!env) return null;
@@ -322,13 +322,11 @@ function useResearchSlashCustomizations(): ResearchSlashCustomizations | null {
       icon: <ForumIcon icon="Robot" style={omit(iconStyle, 'marginTop')} />,
       keywords: ['query', 'agent', 'ask', 'research', 'claude'],
       onSelect: () => {
-        const selection = $getSelection();
-        if (!$isRangeSelection(selection)) return;
-        selection.insertText(QUERY_COMMAND_PREFIX);
+        editor.dispatchCommand(INSERT_QUERY_INPUT_COMMAND, undefined);
       },
     });
     return { extras: [queryOption] };
-  }, [env]);
+  }, [env, editor]);
 }
 
 export default function ComponentPickerMenuPlugin(): JSX.Element {
@@ -336,7 +334,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
   const [queryString, setQueryString] = useState<string | null>(null);
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const researchCustomizations = useResearchSlashCustomizations();
+  const researchCustomizations = useResearchSlashCustomizations(editor);
 
   const baseCheckForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
     allowWhitespace: true,

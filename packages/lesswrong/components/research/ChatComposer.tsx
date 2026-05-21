@@ -3,6 +3,7 @@
 import React, { useCallback, useRef } from 'react';
 import classNames from 'classnames';
 import { $getRoot, type LexicalEditor } from 'lexical';
+import { $generateHtmlFromNodes } from '@lexical/html';
 import { EditorRefPlugin } from '@lexical/react/LexicalEditorRefPlugin';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useFormSubmitOnCmdEnter } from '@/components/hooks/useFormSubmitOnCmdEnter';
@@ -14,7 +15,7 @@ interface ChatComposerProps {
   projectId: string;
   placeholder?: string;
   disabled?: boolean;
-  onSubmit: (text: string) => Promise<void> | void;
+  onSubmit: (promptHtml: string) => Promise<void> | void;
   extraActions?: React.ReactNode;
 }
 
@@ -79,16 +80,21 @@ const ChatComposer = ({
   const editorRef = useRef<LexicalEditor | null>(null);
 
   const ignoreHtmlChange = useCallback((_html: string) => {
-    // Editor state is read directly at submit time via `getTextContent()`.
+    // Editor state is serialized to HTML at submit time via $generateHtmlFromNodes.
   }, []);
 
   const handleSend = useCallback(async () => {
     if (disabled) return;
     const editor = editorRef.current;
     if (!editor) return;
-    const text = editor.read(() => $getRoot().getTextContent());
-    if (text.trim().length === 0) return;
-    await onSubmit(text);
+    let promptHtml = '';
+    let isEmpty = true;
+    editor.read(() => {
+      isEmpty = $getRoot().getTextContent().trim().length === 0;
+      if (!isEmpty) promptHtml = $generateHtmlFromNodes(editor, null);
+    });
+    if (isEmpty) return;
+    await onSubmit(promptHtml);
     editor.update(() => {
       $getRoot().clear();
     });

@@ -2377,9 +2377,10 @@ type FieldChangeSelector = {
 
 type FireResearchConversationInput = {
   activeDocumentId: Scalars['String']['input'];
+  conversationId: Scalars['String']['input'];
   kind: ResearchEntrypointKind;
   projectId: Scalars['String']['input'];
-  prompt: Scalars['String']['input'];
+  promptHtml: Scalars['String']['input'];
   workspaceRepoId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -4192,7 +4193,7 @@ type MutationconnectCrossposterArgs = {
 type MutationcontinueResearchConversationArgs = {
   activeDocumentId: Scalars['String']['input'];
   conversationId: Scalars['String']['input'];
-  prompt: Scalars['String']['input'];
+  promptHtml: Scalars['String']['input'];
 };
 
 
@@ -17929,9 +17930,10 @@ type FireChatPaneConversationMutation_Mutation = { __typename?: 'Mutation', fire
 
 
 type FireChatPaneConversationMutationVariables = Exact<{
+  conversationId: Scalars['String']['input'];
   projectId: Scalars['String']['input'];
   activeDocumentId: Scalars['String']['input'];
-  prompt: Scalars['String']['input'];
+  promptHtml: Scalars['String']['input'];
 }>;
 
 
@@ -17944,7 +17946,7 @@ type ContinueResearchConversationFromChatPaneMutation_Mutation = { __typename?: 
 
 type ContinueResearchConversationFromChatPaneMutationVariables = Exact<{
   conversationId: Scalars['String']['input'];
-  prompt: Scalars['String']['input'];
+  promptHtml: Scalars['String']['input'];
   activeDocumentId: Scalars['String']['input'];
 }>;
 
@@ -17987,9 +17989,11 @@ type FireDocumentConversationMutation_Mutation = { __typename?: 'Mutation', fire
 
 
 type FireDocumentConversationMutationVariables = Exact<{
+  conversationId: Scalars['String']['input'];
   projectId: Scalars['String']['input'];
   activeDocumentId: Scalars['String']['input'];
-  prompt: Scalars['String']['input'];
+  promptHtml: Scalars['String']['input'];
+  workspaceRepoId: InputMaybe<Scalars['String']['input']>;
 }>;
 
 
@@ -18109,16 +18113,6 @@ type ResearchUpdateUserSecretMutationVariables = Exact<{
 
 type ResearchUpdateUserSecretMutation = ResearchUpdateUserSecretMutation_Mutation;
 
-type ResearchCurrentWorkspaceReposQueryQuery_currentWorkspaceRepos_WorkspaceRepo = { __typename?: 'WorkspaceRepo', _id: string, host: string | null, owner: string | null, name: string | null, defaultBranch: string | null, runtime: string | null, lockfilePath: string | null, installCommand: string | null, prepareCommand: string | null, devCommand: string | null, createdAt: string };
-
-type ResearchCurrentWorkspaceReposQueryQuery_Query = { __typename?: 'Query', currentWorkspaceRepos: Array<ResearchCurrentWorkspaceReposQueryQuery_currentWorkspaceRepos_WorkspaceRepo> };
-
-
-type ResearchCurrentWorkspaceReposQueryQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-type ResearchCurrentWorkspaceReposQueryQuery = ResearchCurrentWorkspaceReposQueryQuery_Query;
-
 type ResearchToolingUserSecretsQueryQuery_userSecrets_MultiUserSecretOutput_results_UserSecret = { __typename?: 'UserSecret', _id: string, name: string | null, repoScope: string | null };
 
 type ResearchToolingUserSecretsQueryQuery_userSecrets_MultiUserSecretOutput = { __typename?: 'MultiUserSecretOutput', results: Array<ResearchToolingUserSecretsQueryQuery_userSecrets_MultiUserSecretOutput_results_UserSecret> };
@@ -18212,6 +18206,16 @@ type CreateWorkspaceRepoMutationVariables = Exact<{
 
 
 type CreateWorkspaceRepoMutation = CreateWorkspaceRepoMutation_Mutation;
+
+type ResearchCurrentWorkspaceReposQueryQuery_currentWorkspaceRepos_WorkspaceRepo = { __typename?: 'WorkspaceRepo', _id: string, host: string | null, owner: string | null, name: string | null, defaultBranch: string | null, runtime: string | null, lockfilePath: string | null, installCommand: string | null, prepareCommand: string | null, devCommand: string | null, createdAt: string };
+
+type ResearchCurrentWorkspaceReposQueryQuery_Query = { __typename?: 'Query', currentWorkspaceRepos: Array<ResearchCurrentWorkspaceReposQueryQuery_currentWorkspaceRepos_WorkspaceRepo> };
+
+
+type ResearchCurrentWorkspaceReposQueryQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+type ResearchCurrentWorkspaceReposQueryQuery = ResearchCurrentWorkspaceReposQueryQuery_Query;
 
 type ResearchConversationTranscriptQuery_researchConversationTranscript_ResearchConversationEvent = { __typename?: 'ResearchConversationEvent', _id: string, conversationId: string | null, seq: number | null, claudeMessageUuid: string | null, kind: string | null, payload: any | null, createdAt: string };
 

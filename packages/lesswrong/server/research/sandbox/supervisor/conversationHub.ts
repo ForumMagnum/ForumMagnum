@@ -214,7 +214,7 @@ export function createConversationHub(config: ConversationHubConfig) {
 
   async function dispatch(
     input: DispatchInput,
-    runnerEnv?: Record<string, string>,
+    runnerOpts?: { cwd?: string; env?: Record<string, string> },
   ): Promise<{ accepted: boolean; reason?: string }> {
     const entry = getOrInit(input.conversationId);
     if (entry.runner && entry.state.status === "running") {
@@ -224,7 +224,7 @@ export function createConversationHub(config: ConversationHubConfig) {
     if (input.claudeSessionId && input.bootstrapJsonl && input.bootstrapJsonl.length > 0) {
       try {
         await writeBootstrapJsonl(
-          { claudeSessionId: input.claudeSessionId, cwd: runnerEnv?.CWD },
+          { claudeSessionId: input.claudeSessionId, cwd: runnerOpts?.cwd },
           input.bootstrapJsonl.map((line) => ({ payload: line })),
         );
       } catch (err) {
@@ -244,7 +244,8 @@ export function createConversationHub(config: ConversationHubConfig) {
       conversationId: input.conversationId,
       prompt: input.prompt,
       claudeSessionId: input.claudeSessionId,
-      env: runnerEnv,
+      cwd: runnerOpts?.cwd,
+      env: runnerOpts?.env,
       onLine: (line) => emit(entry, line),
       onExit: ({ code }) => {
         entry.state = {

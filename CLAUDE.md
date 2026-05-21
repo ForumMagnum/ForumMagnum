@@ -531,6 +531,10 @@ Use `useNavigate` for performing client-side navigations.  You need to preserve 
 
 The current default editor provided to users is our implementation of lexical.  Other supported editors are ckEditor (the previous default editor, now only supported for existing documents that were written in ckEditor), markdown, and html (admin-only).  We used to support DraftJS and no longer do, but some older documents may still be written in DraftJS (these are autoconverted to lexical when opened).  If working on editor features, assume lexical is the editor in question unless otherwise specified (or strongly suggested by the surrounding context).  We have a separate [CLAUDE.md](packages/lesswrong/components/editor/CLAUDE.md) with instructions for doing UI testing in the editor; read that if needed.
 
+## Subagent Guidance
+
+We are not token-constrained and do not need to save money.  As such, strongly prefer to use subagents of the same model family and version as you, even for basic exploration tasks, rather than using smaller/cheaper subagents.
+
 ## Style / Conventions
 Never apply `as any` type casts, and try very hard to avoid any other type casts.  Consider whether you are applying a type cast because you've forgotten to run `yarn generate`.  If you absolutely must apply a type cast somewhere, always leave the following comment above it:
 ```typescript

@@ -11,7 +11,7 @@
  * No supervisor and no in-sandbox agent are involved — clone and install are
  * plain `runCommand`s against a builder VM that is discarded after the snapshot.
  */
-import { Sandbox } from "@vercel/sandbox";
+import { Sandbox, APIError } from "@vercel/sandbox";
 import { randomId } from "@/lib/random";
 import type { RepoIdentity } from "@/lib/research/repoUrl";
 import { fetchRepoFile } from "../githubApi";
@@ -23,17 +23,7 @@ import {
   runRepoInstallCommand,
   syncRepoToDefaultBranchHead,
 } from "./repoSandboxSync";
-
-const POSTGRES_UNIQUE_VIOLATION = "23505";
-
-function isPostgresUniqueViolation(err: unknown): boolean {
-  return (
-    !!err &&
-    typeof err === "object" &&
-    "code" in err &&
-    err.code === POSTGRES_UNIQUE_VIOLATION
-  );
-}
+import { isPostgresUniqueViolation } from "@/server/utils/postgresErrors";
 
 /** Generous ceiling for a cold dependency install on a large repo. */
 const BUILD_TIMEOUT_MS = 15 * 60 * 1000;
@@ -140,18 +130,38 @@ export async function refreshRepoInstallCache(args: {
   }
 }
 
+/**
+ * Re-throw a Vercel SDK error with its HTTP status and response body attached.
+ * `APIError.message` is only the generic "Status code N is not ok" — the real
+ * reason (a quota code, a validation message) lives in `.json`/`.text`, which
+ * is otherwise discarded once the error is wrapped in a GraphQLError on the way
+ * back to the client. Non-`APIError`s are re-thrown unchanged.
+ */
+function rethrowWithApiErrorDetail(err: unknown, action: string): never {
+  if (err instanceof APIError) {
+    const body =
+      err.json !== undefined ? JSON.stringify(err.json) : err.text ?? "(no response body)";
+    throw new Error(`${action} failed: HTTP ${err.response.status} — ${body}`, { cause: err });
+  }
+  throw err;
+}
+
 async function snapshotInstallCacheBuilder(
   sandbox: Sandbox,
   manifestHash: string,
 ): Promise<RepoInstallSnapshotResult> {
   // `expiration: 0` — never expire. The install cache is the durable foundation
   // a configured repo provisions from. `snapshot()` stops the builder VM.
-  const snapshot = await sandbox.snapshot({ expiration: 0 });
-  return {
-    vercelSnapshotId: snapshot.snapshotId,
-    manifestHash,
-    sizeBytes: snapshot.sizeBytes,
-  };
+  try {
+    const snapshot = await sandbox.snapshot({ expiration: 0 });
+    return {
+      vercelSnapshotId: snapshot.snapshotId,
+      manifestHash,
+      sizeBytes: snapshot.sizeBytes,
+    };
+  } catch (err) {
+    rethrowWithApiErrorDetail(err, "Repo install-cache snapshot");
+  }
 }
 
 /**

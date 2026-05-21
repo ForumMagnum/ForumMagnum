@@ -44,6 +44,15 @@ export const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
 /** Retention for the per-session auto-snapshots Vercel garbage-collects. */
 export const SNAPSHOT_EXPIRATION_MS = 7 * 24 * 60 * 60 * 1000;
 
+/**
+ * Keep only the most recent auto-snapshot per conversation sandbox. A resume
+ * only ever boots from the sandbox's current snapshot, so older ones are dead
+ * weight — and a coding conversation's snapshot carries the whole installed
+ * repo (multiple GB), so without this cap a week of idle-stops piles up enough
+ * snapshot storage to push the team over its quota. Range is 1-10.
+ */
+const KEEP_LAST_SNAPSHOTS_COUNT = 1;
+
 const SANDBOX_NAME_PREFIX = "research-";
 
 /** The persistent sandbox name for a conversation. Stable across sessions. */
@@ -261,6 +270,7 @@ async function provisionOrResume(args: {
       resources: { vcpus: 2 },
       persistent: true,
       snapshotExpiration: SNAPSHOT_EXPIRATION_MS,
+      keepLastSnapshots: { count: KEEP_LAST_SNAPSHOTS_COUNT },
       onResume,
     });
     await onCreate(sandbox);
