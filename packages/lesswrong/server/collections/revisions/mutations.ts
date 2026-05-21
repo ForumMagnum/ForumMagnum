@@ -9,7 +9,7 @@ import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, insertAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
-import { dataToMarkdown, extractAndReplaceIframeWidgets } from "@/server/editor/conversionUtils";
+import { dataToHTML, dataToMarkdown, dataToWordCount, extractAndReplaceIframeWidgets } from "@/server/editor/conversionUtils";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod"; // Add this import for Zod
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
@@ -42,32 +42,98 @@ export type CreateRevisionOptions = Omit<CreateRevisionDataInput, "originalConte
   draft?: boolean
   skipAttributions?: boolean
   legacyData?: any,
-  userId?: string,
+  user?: DbUser,
+  isAdmin?: boolean,
   createdAt?: Date,
   previousHtmlForChangeMetrics?: string,
+  dataWithDiscardedSuggestions?: string,
+}
+type BuildAndCreateRevisionOptions = Omit<CreateRevisionDataInput, "originalContents" | "updateType"> & {
+  originalContents: RevisionOriginalContentsData
+  updateType?: DbRevision["updateType"]
+  collectionName: CollectionNameString
+  documentId: string
+  fieldName: string
+  version?: string
+  draft?: boolean
+  skipAttributions?: boolean
+  legacyData?: any,
+  user: DbUser,
+  isAdmin?: boolean,
+  createdAt?: Date,
+  previousHtmlForChangeMetrics?: string,
+  dataWithDiscardedSuggestions?: string,
 }
 
 type NormalizedCreateRevisionOptions = Omit<CreateRevisionOptions, "originalContents"> & {
   originalContents: RevisionOriginalContentsData & { yjsState: string | null }
 }
 
+export async function buildAndCreateRevision(data: BuildAndCreateRevisionOptions, context: ResolverContext): Promise<DbRevision> {
+  const { originalContents, user, isAdmin, dataWithDiscardedSuggestions } = data;
+  const revisionData = await buildRevision({originalContents, user, isAdmin, dataWithDiscardedSuggestions, context});
+  return createRevision({ data: {
+    ...revisionData, ...data
+  }}, context);
+}
+
+async function buildRevision({ originalContents, user, isAdmin, dataWithDiscardedSuggestions, context }: {
+  originalContents: RevisionOriginalContentsData | null,
+  user: DbUser,
+  isAdmin?: boolean,
+  dataWithDiscardedSuggestions?: string,
+  context: ResolverContext,
+}): Promise<{
+  html: string,
+  wordCount: number,
+  originalContents: RevisionOriginalContentsData & { yjsState: string | null },
+  editedAt: Date,
+  userId: string,
+}> {
+  if (isAdmin === undefined) {
+    isAdmin = user.isAdmin;
+  }
+  if (!originalContents) throw new Error ("Can't build revision without originalContents")
+
+  const normalizedOriginalContents = {
+    ...originalContents,
+    yjsState: originalContents.yjsState ?? null,
+  };
+  const { data, type } = normalizedOriginalContents;
+  const readerVisibleData = dataWithDiscardedSuggestions ?? data
+  const html = await dataToHTML(readerVisibleData, type, context, { sanitize: !isAdmin || normalizedOriginalContents.type !== "html" })
+  const wordCount = await dataToWordCount(readerVisibleData, type, context)
+
+  return {
+    html, wordCount, originalContents: normalizedOriginalContents,
+    editedAt: new Date(),
+    userId: user._id,
+  };
+}
 // createRevision is not exposed through the graphql API, but is called from other server-side code
 // and sort of mimics a graphql create mutator (which it at one point used to be). Users create
 // revisions by editing objects with revision-controlled editable fields.
 export async function createRevision({ data }: { data: CreateRevisionOptions }, context: ResolverContext): Promise<DbRevision> {
-  const { currentUser } = context;
   const { documentId } = data;
+  const user = data.user ?? context.currentUser;
+  if (!user) throw new Error("Must have a specified user or be logged in to create a revision");
+  const isAdmin = data.isAdmin ?? user.isAdmin;
 
-  const originalContents: NormalizedCreateRevisionOptions["originalContents"] = {
+  const normalizedOriginalContents = {
     ...data.originalContents,
     yjsState: data.originalContents.yjsState ?? null,
   };
+  const readerVisibleData = data.dataWithDiscardedSuggestions ?? data
+  const html = await dataToHTML(readerVisibleData, normalizedOriginalContents.type, context, { sanitize: !isAdmin || normalizedOriginalContents.type !== "html" })
+  const wordCount = await dataToWordCount(readerVisibleData, normalizedOriginalContents.type, context)
+
   let revisionData = {
     ...data,
+    html, wordCount,
     changeMetrics: htmlToChangeMetrics(data.previousHtmlForChangeMetrics ?? "", data.html),
-    originalContents,
+    originalContents: normalizedOriginalContents,
     createdAt: data.createdAt ?? new Date(),
-    userId: data.userId ?? currentUser?._id
+    userId: user._id
   };
 
   const callbackProps = await getLegacyCreateCallbackProps('Revisions', {

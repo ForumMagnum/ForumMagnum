@@ -15,10 +15,8 @@ import { executePromiseQueue, asyncMapSequential } from '@/lib/utils/asyncUtils'
 import path from 'path';
 import { arbitalMarkdownToCkEditorMarkup } from './markdownService';
 import Revisions from '@/server/collections/revisions/collection';
-import { buildRevision } from '@/server/editor/conversionUtils';
 import Papa from 'papaparse';
 import sortBy from 'lodash/sortBy';
-import { htmlToChangeMetrics } from '@/server/editor/utils';
 import { getSqlClientOrThrow, runSqlQuery } from '@/server/sql/sqlClient';
 import { Comments } from '@/server/collections/comments/collection.ts';
 import uniq from 'lodash/uniq';
@@ -42,7 +40,7 @@ import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/contex
 import { createTag, updateTag } from '@/server/collections/tags/mutations';
 import { createComment } from '@/server/collections/comments/mutations';
 import { createUser } from '@/server/collections/users/mutations';
-import { createRevision } from '@/server/collections/revisions/mutations';
+import { buildAndCreateRevision } from '@/server/collections/revisions/mutations';
 import { createMultiDocument, updateMultiDocument } from '@/server/collections/multiDocuments/mutations';
 import { createArbitalTagContentRel } from '@/server/collections/arbitalTagContentRels/mutations';
 
@@ -1293,29 +1291,24 @@ async function importRevisions<N extends CollectionNameString>({
     const revisionCreator = conversionContext.matchedUsers[arbRevision.creatorId] ?? conversionContext.defaultUser;
     const userContext = await computeContextFromUser({ user: revisionCreator, isSSR: false });
 
-    const lwRevision = (await createRevision({
-      data: {
-        ...await buildRevision({
-          originalContents: {
-            type: "ckEditorMarkup",
-            data: ckEditorMarkup,
-            yjsState: null,
-          },
-          user: revisionCreator,
-          context: resolverContext,
-        }),
-        fieldName,
-        collectionName: collection.collectionName,
-        documentId: documentId,
-        commitMessage: arbRevision.editSummary,
-        version: `1.${i+1}.0`,
-        previousHtmlForChangeMetrics: i>0 ? ckEditorMarkupByRevisionIndex[i-1] : oldestRevCkEditorMarkup,
-        legacyData: {
-          "arbitalPageId": pageId,
-          "arbitalEditNumber": arbRevision.edit,
-          "arbitalMarkdown": arbRevision.text,
-        },
-      }
+    const lwRevision = (await buildAndCreateRevision({
+      originalContents: {
+        type: "ckEditorMarkup",
+        data: ckEditorMarkup,
+        yjsState: null,
+      },
+      user: revisionCreator,
+      fieldName,
+      collectionName: collection.collectionName,
+      documentId: documentId,
+      commitMessage: arbRevision.editSummary,
+      version: `1.${i+1}.0`,
+      previousHtmlForChangeMetrics: i>0 ? ckEditorMarkupByRevisionIndex[i-1] : oldestRevCkEditorMarkup,
+      legacyData: {
+        "arbitalPageId": pageId,
+        "arbitalEditNumber": arbRevision.edit,
+        "arbitalMarkdown": arbRevision.text,
+      },
     }, userContext));
     await backDateRevision(lwRevision._id, arbRevision.createdAt);
   }

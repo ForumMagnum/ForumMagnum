@@ -5,6 +5,7 @@ import { performVoteServer } from '../server/voteServer';
 import Tags from '../server/collections/tags/collection';
 import Revisions from '../server/collections/revisions/collection'
 import { createAdminContext } from "@/server/vulcan-lib/createContexts";
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 
 describe('Tagging', function() {
   describe('Contributors List', function() {
@@ -12,13 +13,15 @@ describe('Tagging', function() {
       const user = await createDummyUser();
       const voter = await createDummyUser();
       const tag = await createDummyTag(user, {});
-      const revision = await createDummyRevision(user, {
+      const context = await computeContextFromUser({user: user as DbUser, isSSR: false});
+      const revision = await createDummyRevision({
+        originalContents: { type: 'ckEditorMarkup', data: '', yjsState: null },
         documentId: tag._id,
         collectionName: 'Tags',
         fieldName: 'description',
         html: "",
         previousHtmlForChangeMetrics: "1234567890",
-      });
+      }, context);
       // Creating the revision performs a self-vote, which combined with the vote from the non-author-voter
       // gets us an expected contribution score of 2.
       await performVoteServer({ documentId: revision._id, voteType: 'smallUpvote', collection: Revisions, user: voter, skipRateLimits: false });

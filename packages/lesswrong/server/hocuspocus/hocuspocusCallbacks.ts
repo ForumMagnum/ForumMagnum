@@ -3,9 +3,8 @@ import Revisions from '@/server/collections/revisions/collection';
 import Users from '../../server/collections/users/collection';
 import { createNotifications } from '@/server/notificationCallbacksHelpers';
 import { createAdminContext } from '@/server/vulcan-lib/createContexts';
-import { createRevision } from '@/server/collections/revisions/mutations';
-import { buildRevision } from '../editor/conversionUtils';
-import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
+import { buildAndCreateRevision } from '@/server/collections/revisions/mutations';
+import { getLatestRev, getNextVersion } from '../editor/utils';
 import { constantTimeCompare } from '../../lib/helpers';
 import isEqual from 'lodash/isEqual';
 import YjsDocuments from '@/server/collections/yjsDocuments/collection';
@@ -126,13 +125,10 @@ async function saveLexicalDocumentRevision(
   const newContentsForComparison = { data: html, type: 'lexical' as const };
 
   if (!prevContentsForComparison || !isEqual(newContentsForComparison, prevContentsForComparison)) {
-    await createRevision({ data: {
-      ...(await buildRevision({
-        originalContents: newOriginalContents,
-        user,
-        isAdmin,
-        context,
-      })),
+    await buildAndCreateRevision({
+      originalContents: newOriginalContents,
+      user,
+      isAdmin,
       documentId: postId,
       fieldName,
       collectionName: 'Posts',
@@ -141,7 +137,7 @@ async function saveLexicalDocumentRevision(
       updateType: 'patch',
       commitMessage: COLLAB_AUTOSAVE_COMMIT_MESSAGE,
       previousHtmlForChangeMetrics: previousRev?.html || '',
-    }}, context);
+    }, context);
   }
 }
 

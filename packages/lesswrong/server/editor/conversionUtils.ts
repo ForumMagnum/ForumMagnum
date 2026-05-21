@@ -744,37 +744,3 @@ export async function dataToWordCount(data: AnyBecauseTodo, type: string, contex
 
   return bestWordCount
 }
-
-export async function buildRevision({ originalContents, user, isAdmin, dataWithDiscardedSuggestions, context }: {
-  originalContents: RevisionOriginalContentsData | null,
-  user: DbUser,
-  isAdmin?: boolean,
-  dataWithDiscardedSuggestions?: string,
-  context: ResolverContext,
-}): Promise<{
-  html: string,
-  wordCount: number,
-  originalContents: RevisionOriginalContentsData & { yjsState: string | null },
-  editedAt: Date,
-  userId: string,
-}> {
-  if (isAdmin === undefined) {
-    isAdmin = user.isAdmin;
-  }
-  if (!originalContents) throw new Error ("Can't build revision without originalContents")
-
-  const normalizedOriginalContents = {
-    ...originalContents,
-    yjsState: originalContents.yjsState ?? null,
-  };
-  const { data, type } = normalizedOriginalContents;
-  const readerVisibleData = dataWithDiscardedSuggestions ?? data
-  const html = await dataToHTML(readerVisibleData, type, context, { sanitize: !isAdmin || normalizedOriginalContents.type !== "html" })
-  const wordCount = await dataToWordCount(readerVisibleData, type, context)
-
-  return {
-    html, wordCount, originalContents: normalizedOriginalContents,
-    editedAt: new Date(),
-    userId: user._id,
-  };
-}

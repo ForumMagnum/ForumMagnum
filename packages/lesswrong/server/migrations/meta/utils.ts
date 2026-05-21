@@ -13,8 +13,7 @@ import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { getAllIndexes } from "@/server/databaseIndexes/allIndexes";
 import { getCollection, isValidCollectionName } from "@/server/collections/allCollections";
 import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/createContexts";
-import { buildRevision } from "@/server/editor/conversionUtils";
-import { createRevision } from "@/server/collections/revisions/mutations";
+import { buildAndCreateRevision } from "@/server/collections/revisions/mutations";
 import PgCollectionClass from "@/server/sql/PgCollection";
 import CreateIndexQuery from "@/server/sql/CreateIndexQuery";
 import CreateTableQuery from "@/server/sql/CreateTableQuery";
@@ -347,32 +346,27 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
           const user = await adminContext.loaders.Users.load(userId);
           const userContext = computeContextFromUser({ user, isSSR: false });
 
-          const revisionData = editableField.originalContents
-            ? await buildRevision({
-              originalContents: editableField.originalContents,
-              dataWithDiscardedSuggestions,
-              user: currentUser,
-              context: adminContext,
-            })
-            : {
-              html: "",
-              wordCount: 0,
-              originalContents: {type: "ckEditorMarkup", data: "", yjsState: null},
-              editedAt: new Date(),
-              userId,
-            };
-    
           revCreated++;
-          const revision = await createRevision({
-            data: {
-              ...revisionData,
-              version: editableField.version || getInitialVersion(document),
-              previousHtmlForChangeMetrics: "",
-              collectionName,
-              documentId: document._id,
-              fieldName,
-            }
-          }, userContext);
+          const revision = editableField.originalContents
+            ? await buildAndCreateRevision({
+                originalContents: editableField.originalContents,
+                dataWithDiscardedSuggestions,
+                user: currentUser,
+                version: editableField.version || getInitialVersion(document),
+                previousHtmlForChangeMetrics: "",
+                collectionName,
+                documentId: document._id,
+                fieldName,
+              }, userContext)
+            : await buildAndCreateRevision({
+                originalContents: {type: "ckEditorMarkup", data: "", yjsState: null},
+                user,
+                version: editableField.version || getInitialVersion(document),
+                previousHtmlForChangeMetrics: "",
+                collectionName,
+                documentId: document._id,
+                fieldName,
+              }, userContext);
     
           await collection.rawUpdateOne(
             {_id: document._id},

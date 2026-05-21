@@ -2,7 +2,6 @@ import { Posts } from '../../server/collections/posts/collection';
 import { Comments } from '../../server/collections/comments/collection';
 import { accessFilterMultiple } from '../../lib/utils/schemaUtils';
 import { canUserEditPostMetadata, extractGoogleDocId } from '../../lib/collections/posts/helpers';
-import { buildRevision } from '../editor/conversionUtils';
 import { isAF, twitterBotKarmaThresholdSetting } from '../../lib/instanceSettings';
 import { randomId } from '../../lib/random';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
@@ -16,7 +15,7 @@ import gql from "graphql-tag";
 import { createPaginatedResolver } from './paginatedResolver';
 import { convertImportedGoogleDoc } from '../editor/googleDocUtils';
 import { createPost } from '../collections/posts/mutations';
-import { createRevision } from '../collections/revisions/mutations';
+import { buildAndCreateRevision } from '../collections/revisions/mutations';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { PostsViews } from '@/lib/collections/posts/views';
 import { getCollaborativeEditorAccessWithKey } from '@/lib/collections/posts/collabEditingPermissions';
@@ -550,12 +549,9 @@ export const postGqlMutations = {
       // before the post is undrafted for the first time.
       const revisionType = "minor"
 
-      await createRevision({ data: {
-        ...(await buildRevision({
-          originalContents,
-          user: currentUser,
-          context
-        })),
+      await buildAndCreateRevision({
+        originalContents,
+        user: currentUser,
         documentId: postId,
         draft: true,
         fieldName: "contents",
@@ -564,7 +560,7 @@ export const postGqlMutations = {
         updateType: revisionType,
         commitMessage,
         previousHtmlForChangeMetrics: previousRev?.html || "",
-      }}, context);;
+      }, context);;
 
       if (richTextEditorType === "lexical" && yjs) {
         await resetHocuspocusDocument(`post-${postId}`, yjs.yjsBinary);

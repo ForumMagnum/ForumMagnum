@@ -1,11 +1,11 @@
-import { dataToMarkdown, dataToHTML, dataToCkEditor, buildRevision } from '../editor/conversionUtils'
+import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
 import { getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
 import { EditorContents } from '../../components/editor/Editor';
 import { userOwns, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import gql from 'graphql-tag';
-import { createRevision } from '../collections/revisions/mutations';
+import { buildAndCreateRevision } from '../collections/revisions/mutations';
 import { updateTag } from '../collections/tags/mutations';
 import { resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
 import { htmlToYjsStateFromHtml } from '../editor/htmlToYjsState';
@@ -96,12 +96,9 @@ export const revisionResolversGraphQLMutations = {
 
     const nextVersion = getNextVersion(previousRev, updateSemverType, post.draft);
 
-    const createdRevision = await createRevision({ data: {
-      ...await buildRevision({
-        originalContents: { type: contents.type, data: contents.value, yjsState: null },
-        user: currentUser,
-        context,
-      }),
+    const createdRevision = await buildAndCreateRevision({
+      originalContents: { type: contents.type, data: contents.value, yjsState: null },
+      user: currentUser,
       documentId: postId,
       fieldName: postContentsFieldName,
       collectionName: 'Posts',
@@ -110,7 +107,7 @@ export const revisionResolversGraphQLMutations = {
       updateType: updateSemverType,
       previousHtmlForChangeMetrics: previousRev?.html || "",
       commitMessage: 'Native editor autosave',
-    }}, context);
+    }, context);
 
     return createdRevision;
   },
@@ -167,12 +164,9 @@ export const revisionResolversGraphQLMutations = {
     const originalContents = { type: targetFormat, data: convertedData, yjsState };
     const nextVersion = getNextVersion(previousRev, 'minor', isDraft);
 
-    await createRevision({ data: {
-      ...(await buildRevision({
-        originalContents,
-        user: currentUser,
-        context,
-      })),
+    await buildAndCreateRevision({
+      originalContents,
+      user: currentUser,
       documentId,
       fieldName,
       collectionName,
@@ -181,7 +175,7 @@ export const revisionResolversGraphQLMutations = {
       updateType: 'minor',
       previousHtmlForChangeMetrics: previousRev?.html || '',
       commitMessage: `Converted from ${sourceType} to ${targetFormat}`,
-    }}, context);
+    }, context);
 
     // When converting to lexical on a post, push the new Yjs state to
     // Hocuspocus so any existing collaborative session is replaced with

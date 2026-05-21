@@ -10,8 +10,7 @@ import type { AfterCreateCallbackProperties, CreateCallbackProperties, UpdateCal
 import type { MakeEditableOptions } from '@/lib/editor/makeEditableOptions'
 import type { RevisionOriginalContentsData } from '@/lib/collections/revisions/revisionSchemaTypes'
 import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers'
-import { createRevision, CreateRevisionOptions } from '../collections/revisions/mutations'
-import { buildRevision } from './conversionUtils'
+import { buildAndCreateRevision } from '../collections/revisions/mutations'
 import { updateDenormalizedHtmlAttributionsDueToRev, upvoteOwnTagRevision } from '../callbacks/revisionCallbacks'
 import { RevisionMetadata } from '@/lib/collections/revisions/fragments'
 import { backgroundTask } from '../utils/backgroundTask'
@@ -119,16 +118,11 @@ async function createInitialRevision<N extends CollectionNameString>(
     const originalContents: RevisionOriginalContentsData = editableField.originalContents
     const commitMessage = editableField.commitMessage ?? null;
     const googleDocMetadata = editableField.googleDocMetadata;
-    const revision = await buildRevision({
-      originalContents,
-      user: currentUser,
-      context,
-    });
-    const { html, wordCount } = revision;
     const version = getInitialVersion(doc)
 
-    const firstRevision = await createRevision({ data: {
-      ...revision,
+    const firstRevision = await buildAndCreateRevision({
+      originalContents,
+      user: currentUser,
       collectionName,
       documentId,
       fieldName,
@@ -139,7 +133,8 @@ async function createInitialRevision<N extends CollectionNameString>(
       googleDocMetadata,
       skipAttributions: false,
       previousHtmlForChangeMetrics: "",
-    } }, context);
+    }, context);
+    const html = firstRevision.html;
 
     return {
       ...doc,
@@ -148,7 +143,7 @@ async function createInitialRevision<N extends CollectionNameString>(
       }),
       [`${fieldName}_latest`]: firstRevision._id,
       ...(pingbacks ? {
-        pingbacks: await htmlToPingbacks(html, null),
+        pingbacks: await htmlToPingbacks(html ?? "", null),
       } : null),
     }
   }
@@ -202,13 +197,6 @@ async function createUpdateRevision<N extends CollectionNameString>(
       : null;
 
     const originalContents = (newDocument as AnyBecauseHard)[fieldName].originalContents as RevisionOriginalContentsData;
-    const revision = await buildRevision({
-      originalContents: originalContents,
-      dataWithDiscardedSuggestions,
-      user: currentUser,
-      context,
-    });
-    const { html, wordCount } = revision;
 
     const defaultUpdateType = editableField.updateType ||
       (!oldRevision && 'initial') ||
@@ -219,11 +207,12 @@ async function createUpdateRevision<N extends CollectionNameString>(
     const updateType = (beingUndrafted && (major < 1)) ? 'major' : defaultUpdateType
     const previousRev = await getLatestRev(newDocument._id, fieldName, context);
     const version = getNextVersion(previousRev, updateType, (newDocument as DbPost).draft)
-    const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
-    const newRevisionDoc = await createRevision({ data: {
+    const newRevisionDoc = await buildAndCreateRevision({
       documentId: document._id,
-      ...revision,
+      originalContents: originalContents,
+      dataWithDiscardedSuggestions,
+      user: currentUser,
       fieldName,
       collectionName,
       version,
@@ -232,9 +221,9 @@ async function createUpdateRevision<N extends CollectionNameString>(
       commitMessage,
       previousHtmlForChangeMetrics: previousRev?.html || "",
       skipAttributions: false,
-    }}, context);
+    }, context);
     const newRevisionId = newRevisionDoc._id;
-    const updatedHtml = newRevisionDoc.html;
+    const updatedHtml = newRevisionDoc.html ?? "";
 
     return {
       ...docData,
@@ -243,7 +232,7 @@ async function createUpdateRevision<N extends CollectionNameString>(
       }),
       [`${fieldName}_latest`]: newRevisionId,
       ...(pingbacks ? {
-        pingbacks: await htmlToPingbacks(html, [{
+        pingbacks: await htmlToPingbacks(updatedHtml, [{
             collectionName: collectionName,
             documentId: document._id,
           }]

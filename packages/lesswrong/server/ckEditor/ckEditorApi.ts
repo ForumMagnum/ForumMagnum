@@ -9,13 +9,12 @@ import Users from '../../server/collections/users/collection';
 import { userGetDisplayName } from '../../lib/collections/users/helpers';
 import { filterNonnull } from '../../lib/utils/typeGuardUtils';
 import { ckEditorBundleVersion } from '../../lib/wrapCkEditor';
-import { buildRevision } from '../editor/conversionUtils';
 import { CkEditorUser, CreateDocumentPayload, DocumentResponse, DocumentResponseSchema, UserSchema } from './ckEditorApiValidators';
 import { getCkEditorApiPrefix, getCkEditorApiSecretKey } from './ckEditorServerConfig';
 import { getPostEditorConfig } from './postEditorConfig';
 import { getLatestRev, getNextVersion, getPrecedingRev, htmlToChangeMetrics } from '../editor/utils';
 import { createAdminContext } from "../vulcan-lib/createContexts";
-import { createRevision, CreateRevisionOptions, updateOriginalContentsForRevision } from '../collections/revisions/mutations';
+import { buildAndCreateRevision, updateOriginalContentsForRevision } from '../collections/revisions/mutations';
 import { updateCkEditorUserSession } from '../collections/ckEditorUserSessions/mutations';
 import { captureException } from '@/lib/sentryWrapper';
 import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
@@ -146,13 +145,10 @@ export async function saveDocumentRevision(userId: string, documentId: string, h
     ? await getStoredOriginalContentsForRevision(previousRev, context)
     : null;
   if (!previousRev || !isEqual(newOriginalContents, previousOriginalContents)) {
-    await createRevision({ data: {
-      ...await buildRevision({
-        originalContents: newOriginalContents,
-        user,
-        isAdmin,
-        context,
-      }),
+    await buildAndCreateRevision({
+      originalContents: newOriginalContents,
+      user,
+      isAdmin,
       documentId,
       fieldName,
       collectionName: "Posts",
@@ -161,7 +157,7 @@ export async function saveDocumentRevision(userId: string, documentId: string, h
       updateType: "patch",
       commitMessage: cloudEditorAutosaveCommitMessage,
       previousHtmlForChangeMetrics: previousRev?.html || "",
-    }}, context);
+    }, context);
   }
 }
 

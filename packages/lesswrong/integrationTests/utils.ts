@@ -20,6 +20,7 @@ import { createUserRateLimit } from '../server/collections/userRateLimits/mutati
 import { computeContextFromUser } from '../server/vulcan-lib/apollo-server/context';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
 import type { RevisionOriginalContentsData } from '@/lib/collections/revisions/revisionSchemaTypes';
+import { dataToHTML } from '@/server/editor/conversionUtils';
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
@@ -171,26 +172,26 @@ export const createDefaultUser = async() => {
 // Posts can be created pretty flexibly
 type TestPost = Omit<PartialDeep<DbPost>, 'postedAt'> & {
   postedAt?: Date,
-  contents?: Partial<EditableFieldContents> | null,
+  contents?: { originalContents: RevisionOriginalContentsData } |null,
 }
 
 export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data?: TestPost) => {
   user ||= await createDefaultUser()
   const postId = data?._id ?? randomId();
   const postContents = data?.contents ?? { originalContents: { type: 'ckEditorMarkup', data: 'This is a test post', yjsState: null } };
-  const revision = await createDummyRevision(user as DbUser, {
+  const userContext = await computeContextFromUser({user: user as DbUser, isSSR: false});
+  const html = await dataToHTML(postContents.originalContents.data, postContents.originalContents.type, userContext);
+  const revision = await createDummyRevision({
     collectionName: "Posts",
     documentId: postId,
     fieldName: "contents",
-    editedAt: new Date(),
     updateType: "initial",
     version: "1.0.0",
     commitMessage: "",
-    userId: user!._id,
     draft: false,
     ...postContents,
-    html: postContents.html ?? "",
-  });
+    html,
+  }, userContext);
   const defaultData = {
     _id: postId,
     userId: user!._id,
@@ -200,7 +201,6 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
     createdAt: new Date(),
   }
   const postData = {...defaultData, ...data};
-  const userContext = await computeContextFromUser({user: user as DbUser, isSSR: false});
   const newPost = await createPost({
     data: postData as CreatePostDataInput
   }, userContext);
@@ -358,14 +358,13 @@ const defaultContents: ContentTypeInput = {
   yjsState: null,
 };
 
-export const createDummyRevision = async (user: DbUser, data: MakeOptional<CreateRevisionOptions, "originalContents">) => {
-  const userContext = await computeContextFromUser({user, isSSR: false});
+export const createDummyRevision = async (data: CreateRevisionOptions, context: ResolverContext) => {
   const newRevision = await createRevision({
     data: {
       ...data,
       originalContents: data.originalContents ?? defaultContents,
     }
-  }, userContext);
+  }, context);
   return newRevision;
 }
 
