@@ -175,6 +175,13 @@ A few things to watch out for:
  * If the text you want to anchor to contains a link, quote the visible link text,
    not the URL. URLs inside link targets are not part of the anchorable body text
    and will never match.
+ * If the text you want to anchor to contains a mathematical equation, quote the
+   equation's LaTeX token verbatim, exactly as the markdown API returned it —
+   inline math as \`$...$\`, display math as \`$$...$$\` (occasionally \`\\(...\\)\`
+   or \`\\[...\\]\`). An equation has no separate "visible rendered" form to quote:
+   include the whole token, delimiters and all, and don't retypeset it or change
+   its delimiter style. A longer quote may span an equation, but can't match a
+   fragment of one.
  * Only the post body is anchorable. The post title and other metadata fields are
    not part of the anchorable region — a quote matching those will always fail.
  * Quote verbatim from what the markdown API returned to you. The server handles
@@ -220,7 +227,8 @@ that already exists in the draft. The location can be one of the following:
     "after": insert after the paragraph with the given markdown prefix
 This API is only for inserting new blocks of text that can be expressed in
 traditional markdown.  It supports paragraphs, lists, blockquotes,
-bold/italic/strikethrough (no underline), code blocks, and spoiler blocks.
+bold/italic/strikethrough (no underline), inline and display LaTeX math
+(\`$...$\` and \`$$...$$\`), code blocks, and spoiler blocks.
 Custom block-level elements like LLM content blocks and widgets have dedicated APIs (see below).
 
 Spoiler blocks (text hidden until the reader hovers) are written as one or

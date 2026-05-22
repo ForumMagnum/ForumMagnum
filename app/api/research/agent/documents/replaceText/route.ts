@@ -4,14 +4,9 @@ import { randomId } from "@/lib/random";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { getMarkdownItForResearch } from "@/lib/utils/markdownItPlugins";
-import { sanitize } from "@/lib/utils/sanitize";
 import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
 import { locateMarkdownQuoteSelectionInSubtree } from "../../../../agent/mapMarkdownToLexical";
-import {
-  $applyEditAtSelection,
-  $computeFinalSelection,
-  $htmlToInlineNodes,
-} from "../../../../agent/applyEditAtSelection";
+import { $applyEditModeReplacement } from "../../../../agent/applyEditAtSelection";
 import {
   authorizeAgentRequest,
   authorizeAgentResearchDocumentAccess,
@@ -63,27 +58,17 @@ async function replaceTextInResearchDoc({
             if (!selectionResult.found || !selectionResult.anchor || !selectionResult.focus) {
               return;
             }
-            const sel = $computeFinalSelection(
-              selectionResult.anchor,
-              selectionResult.focus,
+            // The research markdown-it instance is mention-aware, so
+            // `@[doc:<id> "..."]` tokens in the replacement become MentionNode
+            // chips (and `$...$` becomes a MathNode).
+            replaced = $applyEditModeReplacement({
+              editor,
+              anchor: selectionResult.anchor,
+              focus: selectionResult.focus,
               quote,
               replacement,
-            );
-            // Research surface uses the mention-aware markdown-it instance so
-            // `@[doc:<id> "..."]` tokens in the replacement render as
-            // MentionNode chips rather than plain text.
-            const inlineNodes = sel.narrowedReplacement.length > 0
-              ? $htmlToInlineNodes(
-                  editor,
-                  sanitize(getMarkdownItForResearch().render(sel.narrowedReplacement, { docId: randomId() })),
-                )
-              : [];
-            replaced = $applyEditAtSelection({
-              editor,
-              anchor: sel.anchor,
-              focus: sel.focus,
-              inlineNodes,
-            });
+              markdownIt: getMarkdownItForResearch(),
+            }).replaced;
           },
           { onUpdate: resolve },
         );

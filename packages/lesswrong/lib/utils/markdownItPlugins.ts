@@ -171,14 +171,37 @@ function applyCommonPlugins(mdi: markdownIt): void {
   mdi.use(markdownItSup);
 }
 
+// Shared builder for the full-feature markdown-it instances (common plugins +
+// collapsible sections + mathjax). The two axes that vary:
+//  - `mathDialect`: "reader" renders math as bare `\(...\)` text for
+//    `renderMathInHtml` to pre-render; "agent" renders `math-tex` spans (the
+//    editable dialect `MathNode.importDOM` consumes) and recognizes bare
+//    single-backslash delimiters, so agent-supplied math round-trips into real
+//    MathNodes.
+//  - `mentions`: whether `@[doc:...]` mention tokens are recognized (research
+//    surface only).
+function buildFullMarkdownIt({ mathDialect, mentions }: {
+  mathDialect: "reader" | "agent"
+  mentions: boolean
+}): markdownIt {
+  const mdi = markdownIt({ linkify: true });
+  mdi.use(markdownItMathjax(
+    mathDialect === "agent"
+      ? { wrapInMathTex: true, singleBackslashDelimiters: true }
+      : {},
+  ));
+  applyCommonPlugins(mdi);
+  mdi.use(markdownCollapsibleSections);
+  if (mentions) {
+    mdi.use(markdownMentions);
+  }
+  return mdi;
+}
+
 let _mdi: markdownIt|null = null;
 export function getMarkdownIt(): markdownIt {
   if (!_mdi) {
-    const mdi = markdownIt({linkify: true});
-    mdi.use(markdownItMathjax());
-    applyCommonPlugins(mdi);
-    mdi.use(markdownCollapsibleSections);
-    _mdi = mdi;
+    _mdi = buildFullMarkdownIt({ mathDialect: "reader", mentions: false });
   }
   return _mdi;
 }
@@ -193,15 +216,22 @@ export function getMarkdownItNoMathjax(): markdownIt {
   return _mdiNoMathjax;
 }
 
+let _mdiAgentPosts: markdownIt|null = null;
+// The post agent write path: the "agent" math dialect makes agent-supplied
+// math round-trip into real MathNodes.
+export function getMarkdownItForAgentPosts(): markdownIt {
+  if (!_mdiAgentPosts) {
+    _mdiAgentPosts = buildFullMarkdownIt({ mathDialect: "agent", mentions: false });
+  }
+  return _mdiAgentPosts;
+}
+
 let _mdiResearch: markdownIt|null = null;
-// Skips mathjax — research docs have no math display path.
+// The research-document agent write path. Research documents support LaTeX, so
+// the "agent" math dialect (real-MathNode round-tripping) is used here too.
 export function getMarkdownItForResearch(): markdownIt {
   if (!_mdiResearch) {
-    const mdi = markdownIt({linkify: true});
-    applyCommonPlugins(mdi);
-    mdi.use(markdownCollapsibleSections);
-    mdi.use(markdownMentions);
-    _mdiResearch = mdi;
+    _mdiResearch = buildFullMarkdownIt({ mathDialect: "agent", mentions: true });
   }
   return _mdiResearch;
 }

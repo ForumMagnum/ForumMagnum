@@ -131,8 +131,9 @@ Insert a new top-level block. Position the block via exactly one of:
 - `--after  <text>` — immediately after the block whose markdown begins with `<text>`
 
 `--markdown` accepts paragraphs, lists, blockquotes, headings,
-bold/italic/strikethrough (no underline), inline code, code blocks, and
-spoiler blocks. Do not try to embed raw HTML/JS here — interactive
+bold/italic/strikethrough (no underline), inline code, inline and display
+LaTeX math (`$...$` and `$$...$$`), code blocks, and spoiler blocks. Do not
+try to embed raw HTML/JS here — interactive
 widgets have their own subcommand (`insert-widget`, below), and LLM
 content blocks have theirs (`insert-llm-block`, below).
 
@@ -346,6 +347,11 @@ These rules come straight from the shared backend matcher:
   structured blocks like LLM content blocks, it's the `%%%` delimiter
   line. For list items it's the item's own leading text; for tables, the
   first cell's leading text.
+- **Equations are whole LaTeX tokens.** Inline math appears in `fetch-doc`
+  output as `$...$` and display math as `$$...$$` (occasionally `\(...\)` /
+  `\[...\]`). An equation has no separate rendered-text form — quote the whole
+  token verbatim, delimiters included; don't switch delimiter styles or
+  retypeset it. A quote may span an equation but can't match a fragment of one.
 - **Anchoring against an `@[...]` mention chip:** quote the verbatim
   token as it appears in `fetch-doc` output, including the brackets,
   kind, id, quotes, and title — `@[doc:abc123 "Zoning notes"]`. Quotes

@@ -5,17 +5,16 @@ import { $createTextNode, $getNodeByKey, $getRoot, $isTextNode, type LexicalEdit
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
-import { markdownToHtml } from "@/server/editor/conversionUtils";
+import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
-import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
+import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess, renderAgentMarkdownToHtml } from "../editorAgentUtil";
 
 import { locateMarkdownQuoteSelectionInSubtree, markdownQuoteToPlainText, type MarkdownSelectionPoint } from "../mapMarkdownToLexical";
 import { replaceTextToolSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 import {
-  $applyEditAtSelection,
-  $computeFinalSelection,
+  $applyEditModeReplacement,
   $computeNarrowing,
   $htmlToInlineNodes,
   $splitAndCollectSelectedNodes,
@@ -65,7 +64,7 @@ function $narrowedReplacementToNodes(
     return [$createTextNode(replacement)];
   }
 
-  const nodes = $htmlToInlineNodes(editor, markdownToHtml(replacement));
+  const nodes = $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(getMarkdownItForAgentPosts(), replacement));
   const nodesText = nodes.map(n => n.getTextContent()).join("");
 
   const leadingWs = plainText.match(/^(\s+)/)?.[1] ?? "";
@@ -373,15 +372,13 @@ export async function replaceTextInMainDoc({
           const { anchor, focus } = selectionResult;
 
           if (mode === "edit") {
-            const sel = $computeFinalSelection(anchor, focus, quote, replacement);
-            const inlineNodes = sel.narrowedReplacement.length > 0
-              ? $htmlToInlineNodes(editor, markdownToHtml(sel.narrowedReplacement))
-              : [];
-            replaced = $applyEditAtSelection({
-              editor, anchor: sel.anchor, focus: sel.focus, inlineNodes,
+            const editResult = $applyEditModeReplacement({
+              editor, anchor, focus, quote, replacement,
+              markdownIt: getMarkdownItForAgentPosts(),
             });
-            summaryQuote = sel.narrowedQuote;
-            summaryReplacement = sel.narrowedReplacement;
+            replaced = editResult.replaced;
+            summaryQuote = editResult.narrowedQuote;
+            summaryReplacement = editResult.narrowedReplacement;
             return;
           }
 

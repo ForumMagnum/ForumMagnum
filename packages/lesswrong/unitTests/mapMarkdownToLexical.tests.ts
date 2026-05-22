@@ -1,8 +1,6 @@
 import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM, $generateHtmlFromNodes } from "@lexical/html";
 import {
-  $createParagraphNode,
-  $createTextNode,
   $createRangeSelection,
   $getRoot,
   $getSelection,
@@ -12,10 +10,10 @@ import {
 } from "lexical";
 import { markdownToHtml, htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
-import { createHeadlessEditor } from "../../../app/api/agent/editorAgentUtil";
-import { buildNodeMarkdownMapForSubtree, findBlockToOperateOnByPrefix, locateMarkdownQuoteSelectionInSubtree, toPlainTextFilter } from "../../../app/api/agent/mapMarkdownToLexical";
+import { createHeadlessEditor, plainTextStartsWith } from "../../../app/api/agent/editorAgentUtil";
+import { buildNodeMarkdownMapForSubtree, findBlockToOperateOnByPrefix, findRenderedQuoteInMarkdown, locateMarkdownQuoteSelectionInSubtree, markdownQuoteToPlainText, markdownQuoteToRenderedPlainText, toPlainTextFilter, type MarkdownQuoteSelectionResult } from "../../../app/api/agent/mapMarkdownToLexical";
 import { $isListItemNode, $isListNode } from "@lexical/list";
-import { runEditorUpdate, setupEditorWithContent, setupEditorWithHtml } from "./lexicalTestHelpers";
+import { runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
 
 async function selectMarkdownQuoteInEditor(
@@ -136,17 +134,8 @@ describe("empty root detection", () => {
 
 describe("findTextRangeInNodeByPlainQuote whitespace normalization", () => {
   it("returns correct offsets when original text has extra whitespace compared to quote", async () => {
-    const editor = createHeadlessEditor("WhitespaceNormalizationTest");
-
-    await runEditorUpdate(editor, () => {
-      const root = $getRoot();
-      root.clear();
-      const paragraph = $createParagraphNode();
-      // Text with double spaces between words
-      const textNode = $createTextNode("hello  world  foo");
-      paragraph.append(textNode);
-      root.append(paragraph);
-    });
+    // Text with double spaces between words.
+    const editor = await setupEditorWithMathParagraphs([{ text: "hello  world  foo" }]);
 
     let result: ReturnType<typeof locateMarkdownQuoteSelectionInSubtree> | undefined;
     editor.getEditorState().read(() => {
@@ -171,17 +160,8 @@ describe("findTextRangeInNodeByPlainQuote whitespace normalization", () => {
   });
 
   it("returns correct offsets when extra whitespace is in the middle of the text", async () => {
-    const editor = createHeadlessEditor("WhitespaceNormalizationMiddle");
-
-    await runEditorUpdate(editor, () => {
-      const root = $getRoot();
-      root.clear();
-      const paragraph = $createParagraphNode();
-      // Text with prefix, then double spaces in quoted region
-      const textNode = $createTextNode("prefix  alpha   beta  suffix");
-      paragraph.append(textNode);
-      root.append(paragraph);
-    });
+    // Text with a prefix, then double spaces in the quoted region.
+    const editor = await setupEditorWithMathParagraphs([{ text: "prefix  alpha   beta  suffix" }]);
 
     let result: ReturnType<typeof locateMarkdownQuoteSelectionInSubtree> | undefined;
     editor.getEditorState().read(() => {
@@ -264,16 +244,13 @@ describe("mapMarkdownToLexical quote selection", () => {
   });
 
   it("selects and round-trips quote containing inline LaTeX", async () => {
-    // Set up via explicit HTML with a `<span class="math-tex">` wrapper so
-    // that Lexical's DOM importer creates a real MathNode. The markdown→HTML
-    // path (used by `setupEditorWithContent`) can't produce that structure
-    // in a test env because `renderMathInHtml` short-circuits, leaving the
-    // math-it-mathjax output as literal `\(...\)` text.
-    const editor = await setupEditorWithHtml(
-      '<p><span style="white-space: pre-wrap;">This paragraph contains inline math written as </span>' +
-      '<span class="math-tex">\\(\\LaTeX\\)</span>' +
-      '<span style="white-space: pre-wrap;"> for testing.</span></p>' +
-      '<p>Another paragraph follows.</p>'
+    const editor = await setupEditorWithMathParagraphs(
+      [
+        { text: "This paragraph contains inline math written as " },
+        { equation: "\\LaTeX" },
+        { text: " for testing." },
+      ],
+      [{ text: "Another paragraph follows." }],
     );
     const markdownQuote = "$\\LaTeX$";
 
@@ -420,5 +397,78 @@ describe("findBlockToOperateOnByPrefix", () => {
       }
     });
     expect(parentIsList).toBe(true);
+  });
+
+  it("matches a block whose markdown prefix starts with LaTeX", async () => {
+    // The block starts with a MathNode and the locator prefix is `$x^2$ starts`.
+    // `buildNodeMarkdownMapForSubtree`'s text filter is computed from text
+    // content that excludes MathNodes, so the block can be filtered out before
+    // it is serialized/matched.
+    const editor = await setupEditorWithMathParagraphs(
+      [{ equation: "x^2" }, { text: " starts here" }],
+      [{ text: "Another paragraph." }],
+    );
+
+    const matched = findFor(editor, "$x^2$ starts");
+    expect(matched).not.toBeNull();
+    expect(matched?.type).toBe("paragraph");
+  });
+});
+
+describe("findRenderedQuoteInMarkdown with literal dollar text", () => {
+  it("locates a quote sandwiched between literal dollar signs", async () => {
+    // `$5 … $10` is currency; `$5 for teh $` is mis-detected as a math token,
+    // so "teh" vanishes from the projection and can't be located.
+    const result = findRenderedQuoteInMarkdown("I paid $5 for teh $10 item", "teh");
+    expect(result).not.toBeNull();
+  });
+
+  it("preserves literal dollar text in the plain-text projection", async () => {
+    // No real math here, so the projection should be unchanged.
+    expect(markdownQuoteToPlainText("Costs $5 and $10 today.")).toBe("Costs $5 and $10 today.");
+  });
+});
+
+describe("LaTeX correctness regressions", () => {
+  it("matches a prefix that begins with a backslash command", () => {
+    // plainTextStartsWith must project the prefix the same way
+    // markdownQuoteToPlainText projects the node text — it must not strip
+    // `\command` sequences that markdownQuoteToPlainText keeps.
+    expect(plainTextStartsWith("\\alpha decay is real", "\\alpha decay")).toBe(true);
+  });
+
+  it("keeps later equations in a rendered quote when an earlier one is dropped", () => {
+    // `$x$` lands in a link URL (rendered to no visible text); the surviving
+    // `$y$` must restore as $y$, not be mis-paired with the dropped `$x$`.
+    const projected = markdownQuoteToRenderedPlainText("[label]($x$) and $y$");
+    expect(projected).toContain("$y$");
+    expect(projected).not.toContain("$x$");
+  });
+
+  it("locates a quote crossing literal math-delimiter text without overshooting", async () => {
+    // The document text literally contains `$$x$$` (typed dollar signs, not a
+    // MathNode), so `combined` holds the raw 5-character `$$x$$` while the
+    // normalized quote holds the canonical 7-character `$$\nx\n$$`. The double
+    // space before "rose" forces the whitespace fallback (no exact substring
+    // match), whose position mapping only modelled whitespace collapsing — not
+    // the length-changing `canonicalizeMathTokens` step in `normalizeText` —
+    // so the focus offset overshot the real end of the quote.
+    const editor = await setupEditorWithMathParagraphs([{ text: "the price $$x$$  rose sharply" }]);
+
+    let result: MarkdownQuoteSelectionResult | undefined;
+    editor.getEditorState().read(() => {
+      result = locateMarkdownQuoteSelectionInSubtree({
+        rootNodeKey: $getRoot().getKey(),
+        markdownQuote: "$$x$$ rose",
+      });
+    });
+
+    expect(result!.found).toBe(true);
+    // "the price $$x$$  rose sharply" — "$$x$$" starts at index 10, and
+    // "$$x$$  rose" (the document's double-spaced form) ends at index 21.
+    expect(result!.anchor!.type).toBe("text");
+    expect(result!.anchor!.offset).toBe(10);
+    expect(result!.focus!.type).toBe("text");
+    expect(result!.focus!.offset).toBe(21);
   });
 });

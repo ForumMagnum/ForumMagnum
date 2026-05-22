@@ -3,7 +3,7 @@ import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
 import { NextRequest, NextResponse } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
-import { checkEditorTypeAndGetToken, withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
+import { checkEditorTypeAndGetToken, splitParagraphAtDisplayMath, withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
@@ -11,6 +11,7 @@ import {
   $createParagraphNode,
   $isElementNode,
   $isDecoratorNode,
+  $isParagraphNode,
   type LexicalEditor,
   type LexicalNode,
   type LexicalNodeConfig,
@@ -23,6 +24,17 @@ import { captureException } from "@/lib/sentryWrapper";
 export function normalizeImportedTopLevelNodes(nodes: LexicalNode[]): LexicalNode[] {
   const normalized: LexicalNode[] = [];
   for (const node of nodes) {
+    // markdown-it emits a `$$...$$` (or `\[...\]`) display equation as an
+    // inline token, so it lands inside a paragraph — on its own or alongside
+    // surrounding text. A display MathNode is block-level, so split any
+    // wrapping paragraph around it rather than leaving an invalid
+    // block-inside-paragraph node.
+    if ($isParagraphNode(node)) {
+      for (const piece of splitParagraphAtDisplayMath(node)) {
+        normalized.push(piece);
+      }
+      continue;
+    }
     if ($isElementNode(node) || $isDecoratorNode(node)) {
       normalized.push(node);
     } else {

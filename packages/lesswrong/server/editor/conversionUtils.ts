@@ -8,6 +8,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { sanitize } from "@/lib/utils/sanitize";
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { getMarkdownIt, getMarkdownItNoMathjax } from '@/lib/utils/markdownItPlugins';
+import { formatMathToken } from '@/lib/utils/mathTokens';
 import type { Cheerio, CheerioAPI, Element as CheerioElement } from 'cheerio';
 import type { DataNode } from 'domhandler';
 import { mathjax } from 'mathjax-full/js/mathjax.js';
@@ -41,6 +42,32 @@ const blockTags = new Set([
 ]);
 
 const isBlockTag = (nodeName: string): boolean => blockTags.has(nodeName);
+
+/**
+ * The character that immediately follows `node` in document order, ascending
+ * out of inline wrappers. `node.nextSibling` alone is null when a math-tex
+ * span is the last child of an inline element (a styled `<span>`, an `<a>`,
+ * …), which would miss a following digit. Ascent stops at the enclosing
+ * block: a digit that starts the next block cannot fuse with this equation's
+ * closing `$`, so the bare `$…$` form stays safe across a block boundary.
+ */
+function firstCharFollowingNode(node: Node): string | undefined {
+  let current: Node | null = node;
+  while (current) {
+    for (let sibling = current.nextSibling; sibling; sibling = sibling.nextSibling) {
+      const text = sibling.textContent;
+      if (text && text.length > 0) {
+        return text[0];
+      }
+    }
+    const parent: Node | null = current.parentNode;
+    if (!parent || (parent.nodeType === ServerSafeNode.ELEMENT_NODE && isBlockTag(parent.nodeName))) {
+      return undefined;
+    }
+    current = parent;
+  }
+  return undefined;
+}
 
 function isLexicalIframeWidgetElement(node: Node): node is Element {
   if (node?.nodeType !== ServerSafeNode.ELEMENT_NODE) {
@@ -235,15 +262,19 @@ function getTurndown(): TurndownService {
     const unescapeMarkdownInMath = (text: string): string =>
       text.replace(/\\([ \\!"#$%&'()*+,./:;<=>?@[\]^_`{|}~-])/g, '$1');
 
-    const convertMathDelimiters = (text: string): string | null => {
+    const convertMathDelimiters = (text: string, followingChar?: string): string | null => {
       const trimmed = text.trim();
       const inlineMatch = trimmed.match(/^\\\\?\\\(([\s\S]*?)\\\\?\\\)$/);
       if (inlineMatch) {
-        return `$${unescapeMarkdownInMath(inlineMatch[1])}$`;
+        // `followingChar` lets `formatMathToken` fall back to the `\(…\)` form
+        // when the bare `$…$` form would not round-trip (e.g. before a digit).
+        return formatMathToken({ equation: unescapeMarkdownInMath(inlineMatch[1]), inline: true }, followingChar);
       }
       const blockMatch = trimmed.match(/^\\\\?\\\[([\s\S]*?)\\\\?\\\]$/);
       if (blockMatch) {
-        return `\n\n$$\n${unescapeMarkdownInMath(blockMatch[1])}\n$$\n\n`;
+        // Display equations are block-level here: pad with blank lines so the
+        // `$$…$$` sits on its own lines in the surrounding markdown.
+        return `\n\n${formatMathToken({ equation: unescapeMarkdownInMath(blockMatch[1]), inline: false })}\n\n`;
       }
       return null;
     };
@@ -251,8 +282,9 @@ function getTurndown(): TurndownService {
     //If we have a math-tex block, we want to convert it to markdown math delimiters
     turndownService.addRule('latex-spans', {
       filter: (node, options) => node.classList?.contains('math-tex'),
-      replacement: (content) => {
-        const converted = convertMathDelimiters(content);
+      replacement: (content, node) => {
+        const followingChar = firstCharFollowingNode(node);
+        const converted = convertMathDelimiters(content, followingChar);
         return converted ?? content;
       }
     })

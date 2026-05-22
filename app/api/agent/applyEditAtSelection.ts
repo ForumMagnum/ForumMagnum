@@ -2,7 +2,9 @@ import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM } from "@lexical/html";
 import {
   $getNodeByKey,
+  $getRoot,
   $isElementNode,
+  $isParagraphNode,
   $isTextNode,
   type LexicalEditor,
   type LexicalNode,
@@ -11,6 +13,9 @@ import {
   markdownQuoteToPlainText,
   type MarkdownSelectionPoint,
 } from "./mapMarkdownToLexical";
+import { findMathSpansInMarkdown } from "@/lib/utils/mathTokens";
+import { renderAgentMarkdownToHtml, splitParagraphAtDisplayMath } from "./editorAgentUtil";
+import type MarkdownIt from "markdown-it";
 
 export interface FinalSelection {
   anchor: MarkdownSelectionPoint
@@ -152,41 +157,58 @@ function $applyEditMultiNode({
 }
 
 /**
- * Split anchor and focus text nodes at their respective offsets and collect
- * all sibling nodes between them (inclusive). Used when a quote spans across
- * multiple inline nodes (e.g. plain text + inline code).
+ * Resolve a selection anchor to the first node it selects. A text anchor may
+ * `splitText` so the selection starts on a clean node boundary; an element
+ * anchor `{parent, offset}` selects from `parent`'s child at `offset`.
+ */
+function $resolveFirstSelectedNode(anchor: MarkdownSelectionPoint): LexicalNode | null {
+  if (anchor.type === "element") {
+    const parent = $getNodeByKey(anchor.key);
+    if (!$isElementNode(parent)) return null;
+    return parent.getChildren()[anchor.offset] ?? null;
+  }
+  const anchorNode = $getNodeByKey(anchor.key);
+  if (!$isTextNode(anchorNode)) return null;
+  if (anchor.offset === 0) return anchorNode;
+  if (anchor.offset >= anchorNode.getTextContent().length) return anchorNode.getNextSibling();
+  return anchorNode.splitText(anchor.offset)[1] ?? null;
+}
+
+/**
+ * Resolve a selection focus to the last node it selects. An element focus
+ * `{parent, offset}` selects up to `parent`'s child at `offset - 1`.
+ */
+function $resolveLastSelectedNode(focus: MarkdownSelectionPoint): LexicalNode | null {
+  if (focus.type === "element") {
+    const parent = $getNodeByKey(focus.key);
+    if (!$isElementNode(parent)) return null;
+    return parent.getChildren()[focus.offset - 1] ?? null;
+  }
+  const focusNode = $getNodeByKey(focus.key);
+  if (!$isTextNode(focusNode)) return null;
+  if (focus.offset >= focusNode.getTextContent().length) return focusNode;
+  if (focus.offset <= 0) return focusNode.getPreviousSibling();
+  return focusNode.splitText(focus.offset)[0];
+}
+
+/**
+ * Resolve anchor/focus selection points to the run of sibling nodes they
+ * select (inclusive), splitting boundary text nodes as needed. Used when a
+ * quote spans multiple inline nodes — across a bold/code boundary, or across
+ * an atomic node like a MathNode (selected via an element-type point).
  */
 export function $splitAndCollectSelectedNodes(
   anchor: MarkdownSelectionPoint,
   focus: MarkdownSelectionPoint,
 ): LexicalNode[] | null {
-  if (anchor.type !== "text" || focus.type !== "text") return null;
-
-  const anchorNode = $getNodeByKey(anchor.key);
-  const focusNode = $getNodeByKey(focus.key);
-  if (!$isTextNode(anchorNode) || !$isTextNode(focusNode)) return null;
-
-  let firstSelectedNode: LexicalNode | null;
-  if (anchor.offset === 0) {
-    firstSelectedNode = anchorNode;
-  } else if (anchor.offset >= anchorNode.getTextContent().length) {
-    firstSelectedNode = anchorNode.getNextSibling();
-  } else {
-    const splits = anchorNode.splitText(anchor.offset);
-    firstSelectedNode = splits[1] ?? null;
-  }
-  if (!firstSelectedNode) return null;
-
-  let lastSelectedNode: LexicalNode | null;
-  if (focus.offset >= focusNode.getTextContent().length) {
-    lastSelectedNode = focusNode;
-  } else if (focus.offset <= 0) {
-    lastSelectedNode = focusNode.getPreviousSibling();
-  } else {
-    const splits = focusNode.splitText(focus.offset);
-    lastSelectedNode = splits[0];
-  }
-  if (!lastSelectedNode) return null;
+  // Resolve element-typed points first: they are plain child-index lookups,
+  // whereas resolving a text point may `splitText` and shift sibling indices,
+  // which would invalidate a not-yet-resolved element point's offset.
+  let firstSelectedNode = anchor.type === "element" ? $resolveFirstSelectedNode(anchor) : null;
+  let lastSelectedNode = focus.type === "element" ? $resolveLastSelectedNode(focus) : null;
+  if (anchor.type === "text") firstSelectedNode = $resolveFirstSelectedNode(anchor);
+  if (focus.type === "text") lastSelectedNode = $resolveLastSelectedNode(focus);
+  if (!firstSelectedNode || !lastSelectedNode) return null;
 
   const selectedNodes: LexicalNode[] = [];
   let current: LexicalNode | null = firstSelectedNode;
@@ -204,6 +226,41 @@ export function $splitAndCollectSelectedNodes(
   }
 
   return selectedNodes;
+}
+
+/**
+ * Pull a common-prefix boundary back out of any math token. A boundary that
+ * falls strictly inside a `$…$` / `\(…\)` token of either string would split
+ * an equation; snap it to that token's start instead.
+ */
+function snapPrefixOutOfMathTokens(quote: string, replacement: string, prefixLen: number): number {
+  let result = prefixLen;
+  for (const text of [quote, replacement]) {
+    for (const span of findMathSpansInMarkdown(text)) {
+      if (result > span.start && result < span.end) {
+        result = span.start;
+      }
+    }
+  }
+  return result;
+}
+
+/**
+ * Pull a common-suffix boundary forward out of any math token. The boundary
+ * sits at `text.length - suffixLen`; if it falls strictly inside a math token,
+ * snap it to that token's end, shrinking the suffix.
+ */
+function snapSuffixOutOfMathTokens(quote: string, replacement: string, suffixLen: number): number {
+  let result = suffixLen;
+  for (const text of [quote, replacement]) {
+    for (const span of findMathSpansInMarkdown(text)) {
+      const boundary = text.length - result;
+      if (boundary > span.start && boundary < span.end) {
+        result = text.length - span.end;
+      }
+    }
+  }
+  return result;
 }
 
 /**
@@ -231,8 +288,12 @@ export function $computeNarrowing(
   if (markdownQuoteToPlainText(replacement) === matchedPlainText) return null;
 
   // Compare at the markdown level so that formatting/syntax changes
-  // prevent narrowing past them.
-  const { prefixLen: mdPrefixLen, suffixLen: mdSuffixLen } = computeCommonPrefixSuffix(quote, replacement);
+  // prevent narrowing past them. Then pull each boundary out of any math
+  // token, so narrowing never splits a `$…$` into a fragment that can't be
+  // located against the document's atomic MathNode.
+  const rawAffixes = computeCommonPrefixSuffix(quote, replacement);
+  const mdPrefixLen = snapPrefixOutOfMathTokens(quote, replacement, rawAffixes.prefixLen);
+  const mdSuffixLen = snapSuffixOutOfMathTokens(quote, replacement, rawAffixes.suffixLen);
 
   // Convert markdown offsets to plain-text character counts using the
   // quote's mapping (which has full regex context for links, math, etc.)
@@ -424,4 +485,70 @@ function $retreatPoint(
     currentOffset = currentNode.getTextContent().length;
   }
   return { key: currentNode.getKey(), offset: currentOffset, type: "text" };
+}
+
+/**
+ * Apply an "edit" mode replacement at an already-located selection: narrow to
+ * the minimal diff, render the narrowed replacement markdown to inline nodes
+ * (the caller supplies the `math-tex`-emitting markdown-it instance — post or
+ * research — so `$...$` becomes a real MathNode), and splice them in. Shared
+ * by the post and research replaceText routes and the typo-suggestion apply
+ * path. Must be called inside a Lexical update context.
+ */
+export function $applyEditModeReplacement({
+  editor,
+  anchor,
+  focus,
+  quote,
+  replacement,
+  markdownIt,
+}: {
+  editor: LexicalEditor
+  anchor: MarkdownSelectionPoint
+  focus: MarkdownSelectionPoint
+  quote: string
+  replacement: string
+  markdownIt: MarkdownIt
+}): { replaced: boolean, narrowedQuote: string, narrowedReplacement: string } {
+  const sel = $computeFinalSelection(anchor, focus, quote, replacement);
+  const inlineNodes = sel.narrowedReplacement.length > 0
+    ? $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, sel.narrowedReplacement))
+    : [];
+  const replaced = $applyEditAtSelection({
+    editor, anchor: sel.anchor, focus: sel.focus, inlineNodes,
+  });
+  if (replaced) {
+    // A `$$…$$` replacement renders to a block-level (display) MathNode that
+    // `$applyEditAtSelection` splices inline into the surrounding paragraph;
+    // hoist it back out so the document never holds a block-inside-paragraph.
+    $hoistDisplayMathOutOfParagraphs();
+  }
+  return {
+    replaced,
+    narrowedQuote: sel.narrowedQuote,
+    narrowedReplacement: sel.narrowedReplacement,
+  };
+}
+
+/**
+ * After an edit splices a `$$…$$` replacement into a paragraph, a block-level
+ * (display) MathNode is left nested inside that ParagraphNode. Walk the root's
+ * top-level paragraphs and split each one around its display MathNodes, so a
+ * display equation becomes a top-level sibling — matching how the editor's
+ * MathPlugin and `normalizeImportedTopLevelNodes` represent display math.
+ */
+function $hoistDisplayMathOutOfParagraphs(): void {
+  for (const child of $getRoot().getChildren()) {
+    if (!$isParagraphNode(child)) continue;
+    const pieces = splitParagraphAtDisplayMath(child);
+    // `splitParagraphAtDisplayMath` returns `[child]` unchanged when the
+    // paragraph has no display math to hoist.
+    if (pieces.length === 1 && pieces[0] === child) continue;
+    let anchor: LexicalNode = child;
+    for (const piece of pieces) {
+      anchor.insertAfter(piece);
+      anchor = piece;
+    }
+    child.remove();
+  }
 }

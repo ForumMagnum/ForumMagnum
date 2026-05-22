@@ -1,6 +1,6 @@
 import { sanitize } from "@/lib/utils/sanitize";
-import { getMarkdownIt } from "@/lib/utils/markdownItPlugins";
-import type markdownIt from "markdown-it";
+import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
+import type MarkdownIt from "markdown-it";
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
@@ -115,7 +115,7 @@ function $wrapInsertedNodesAsSuggestion(nodesToInsert: LexicalNode[], insertionI
 export function $markdownToNodes(
   editor: LexicalEditor,
   markdown: string,
-  options: { markdownIt: markdownIt },
+  options: { markdownIt: MarkdownIt },
 ): LexicalNode[] {
   const id = randomId();
   const html = sanitize(options.markdownIt.render(markdown, { docId: id }));
@@ -133,7 +133,7 @@ export function $postMarkdownToNodes(editor: LexicalEditor, markdown: string): L
   }
 
   const markdownWithWidgetIframes = transformWidgetFencesToInlineIframeHtml(markdown);
-  return $markdownToNodes(editor, markdownWithWidgetIframes, { markdownIt: getMarkdownIt() });
+  return $markdownToNodes(editor, markdownWithWidgetIframes, { markdownIt: getMarkdownItForAgentPosts() });
 }
 
 function findInsertionIndexByPrefix(

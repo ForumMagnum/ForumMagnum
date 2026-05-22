@@ -4,12 +4,16 @@ import { Doc, UndoManager } from "yjs";
 import type { Provider as LexicalProvider } from "@lexical/yjs";
 import { createBinding, syncLexicalUpdateToYjs, syncYjsChangesToLexical } from "@lexical/yjs";
 import {
+  $createParagraphNode,
   $getRoot,
   createEditor,
   type LexicalEditor,
+  type LexicalNode,
   LexicalNodeConfig,
+  type ParagraphNode,
   SKIP_COLLAB_TAG,
 } from "lexical";
+import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import PlaygroundNodes from "@/components/lexical/nodes/PlaygroundNodes";
 import { buildTextNodeExportMap } from "@/components/editor/lexicalDomExport";
 import { randomId } from "@/lib/random";
@@ -19,6 +23,48 @@ import { captureException } from "@/lib/sentryWrapper";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
 import { getHocuspocusToken, getHocuspocusTokenForCollection } from "./getHocuspocusToken";
 import { captureAgentApiEvent } from "./captureAgentAnalytics";
+import { sanitize } from "@/lib/utils/sanitize";
+import { foldCaseOutsideMath, canonicalizeMathTokens, stripMathTokens } from "@/lib/utils/mathTokens";
+import type MarkdownIt from "markdown-it";
+
+/**
+ * Render agent-supplied markdown to sanitized HTML for import into a Lexical
+ * editor. The caller picks the markdown-it instance (post vs research — both
+ * `math-tex`-emitting). This deliberately never runs `renderMathInHtml`: that
+ * produces reader-facing display HTML (`<mjx-container>`), which Lexical's DOM
+ * importer cannot turn back into editable nodes.
+ */
+export function renderAgentMarkdownToHtml(markdownIt: MarkdownIt, markdown: string): string {
+  return sanitize(markdownIt.render(markdown, { docId: randomId() }));
+}
+
+// Split a paragraph around any display (non-inline) MathNode children: runs of
+// other children become their own paragraphs and each display MathNode becomes
+// a top-level sibling. A display MathNode is block-level — the editor's own
+// MathPlugin inserts it as a direct child of root — so it must not stay nested
+// inside an inline-content paragraph. Returns `[paragraph]` unchanged when the
+// paragraph contains no display math.
+export function splitParagraphAtDisplayMath(paragraph: ParagraphNode): LexicalNode[] {
+  const children = paragraph.getChildren();
+  if (!children.some((child) => $isMathNode(child) && !child.isInline())) {
+    return [paragraph];
+  }
+  const result: LexicalNode[] = [];
+  let currentParagraph: ParagraphNode | null = null;
+  for (const child of children) {
+    if ($isMathNode(child) && !child.isInline()) {
+      result.push(child);
+      currentParagraph = null;
+    } else {
+      if (!currentParagraph) {
+        currentParagraph = $createParagraphNode();
+        result.push(currentParagraph);
+      }
+      currentParagraph.append(child);
+    }
+  }
+  return result;
+}
 
 /**
  * Mapping from a collab-editor-participating collection name to the prefix
@@ -88,22 +134,26 @@ export function foldPunctuation(value: string): string {
   return value.replace(PUNCTUATION_FOLD_REGEX, (ch) => PUNCTUATION_FOLD_MAP[ch]);
 }
 
+// Normalizes a string for lenient quote/prefix matching, but preserves the
+// case of math content (LaTeX is case-sensitive) and canonicalizes math
+// tokens, so the same equation matches regardless of which delimiter shape
+// (`$$…$$`, `\[…\]`, …) it was written with.
 export function normalizeText(value: string): string {
-  return foldPunctuation(value).replace(/\s+/g, " ").trim().toLowerCase();
+  return canonicalizeMathTokens(foldCaseOutsideMath(foldPunctuation(value).replace(/\s+/g, " ").trim()));
 }
 
 export function paragraphMarkdownStartsWith(paragraphMarkdown: string, prefix: string): boolean {
-  const normalizedParagraph = foldPunctuation(paragraphMarkdown).trimStart().replace(/\s+/g, " ").toLowerCase();
-  const normalizedPrefix = foldPunctuation(prefix).trim().replace(/\s+/g, " ").toLowerCase();
-  return normalizedParagraph.startsWith(normalizedPrefix);
+  return normalizeText(paragraphMarkdown).startsWith(normalizeText(prefix));
 }
 
 export function plainTextStartsWith(nodeTextContent: string, prefix: string): boolean {
-  const prefixPlainText = foldPunctuation(prefix)
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
-    .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
-    .replace(/\$([^$]+)\$/g, "$1")
-    .replace(/\\([A-Za-z]+)/g, "$1")
+  // Project the prefix the way `markdownQuoteToPlainText` projects agent
+  // quotes: links unwrap to their text, and math is zero-width — a MathNode
+  // contributes no text content to `nodeTextContent`, so the prefix must drop
+  // equations entirely (not unwrap them to their body) to stay comparable.
+  const prefixPlainText = stripMathTokens(
+    foldPunctuation(prefix).replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1"),
+  )
     .replace(/[*_`~]/g, "")
     .replace(/\s+/g, " ")
     .trim()

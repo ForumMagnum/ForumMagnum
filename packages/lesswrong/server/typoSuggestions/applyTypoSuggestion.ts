@@ -12,12 +12,8 @@ import { loadHtmlIntoHeadlessEditor } from "./headlessLexical";
 import { replaceTextInMainDoc } from "../../../../app/api/agent/replaceText/route";
 import { checkEditorTypeAndGetToken } from "../../../../app/api/agent/editorAgentUtil";
 import { locateMarkdownQuoteSelectionInSubtree } from "../../../../app/api/agent/mapMarkdownToLexical";
-import {
-  $applyEditAtSelection,
-  $computeFinalSelection,
-  $htmlToInlineNodes,
-} from "../../../../app/api/agent/applyEditAtSelection";
-import { markdownToHtml } from "@/server/editor/conversionUtils";
+import { $applyEditModeReplacement } from "../../../../app/api/agent/applyEditAtSelection";
+import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 
 const TYPO_BOT_AUTHOR_ID = "typo-suggestion-bot";
 
@@ -312,21 +308,19 @@ function applyEditOffline(html: string, quote: string, replacement: string): Off
         quoteFoundInDocument = selectionResult.found;
         if (!selectionResult.found || !selectionResult.anchor || !selectionResult.focus) return;
 
-        const sel = $computeFinalSelection(
-          selectionResult.anchor,
-          selectionResult.focus,
+        // Reuse the agent edit primitive so the offline result matches the
+        // live (Hocuspocus) edit byte-for-byte — in particular it renders the
+        // replacement through the `math-tex`-emitting markdown-it instance, so
+        // LaTeX imports as real, editable MathNodes rather than reader-facing
+        // MathJax markup.
+        replaced = $applyEditModeReplacement({
+          editor,
+          anchor: selectionResult.anchor,
+          focus: selectionResult.focus,
           quote,
           replacement,
-        );
-        const inlineNodes = sel.narrowedReplacement.length > 0
-          ? $htmlToInlineNodes(editor, markdownToHtml(sel.narrowedReplacement))
-          : [];
-        replaced = $applyEditAtSelection({
-          editor,
-          anchor: sel.anchor,
-          focus: sel.focus,
-          inlineNodes,
-        });
+          markdownIt: getMarkdownItForAgentPosts(),
+        }).replaced;
       },
       { discrete: true },
     );
