@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { useMutation, useApolloClient } from '@apollo/client/react';
@@ -12,8 +12,10 @@ import { ResearchEditorPlugins } from './lexical/ResearchEditorPlugins';
 import {
   ResearchEditorProvider,
   ResearchNavigationProvider,
+  PendingConversationsProvider,
   type FireQueryResult,
   type FireDocumentQueryArgs,
+  type PendingConversation,
   type ResearchEditorEnvironment,
   type ResearchNavigationContextValue,
 } from './lexical/ResearchEditorContext';
@@ -119,30 +121,46 @@ const DocumentPane = ({ projectId, documentId, onOpenConversationInChat, onSelec
 
   const documentRecord = data?.researchDocument?.result;
 
+  const [pendingConversations, setPendingConversations] = useState<ReadonlyMap<string, PendingConversation>>(new Map<string, PendingConversation>());
+
   const fireDocumentQuery = useCallback(
     async (args: FireDocumentQueryArgs): Promise<FireQueryResult> => {
       if (!documentId) {
         throw new Error('Cannot fire query: no document loaded');
       }
-      const result = await fireConversation({
-        variables: {
-          conversationId: args.conversationId,
-          projectId,
-          activeDocumentId: args.documentId,
-          promptHtml: args.promptHtml,
-          workspaceRepoId: args.workspaceRepoId ?? null,
-        },
+      setPendingConversations((prev) => {
+        const next = new Map(prev);
+        next.set(args.conversationId, { promptHtml: args.promptHtml });
+        return next;
       });
-      const conversationId = result.data?.fireResearchConversation?.conversationId;
-      if (!conversationId) {
-        throw new Error('fireResearchConversation returned no conversationId');
+      try {
+        const result = await fireConversation({
+          variables: {
+            conversationId: args.conversationId,
+            projectId,
+            activeDocumentId: args.documentId,
+            promptHtml: args.promptHtml,
+            workspaceRepoId: args.workspaceRepoId ?? null,
+          },
+        });
+        const conversationId = result.data?.fireResearchConversation?.conversationId;
+        if (!conversationId) {
+          throw new Error('fireResearchConversation returned no conversationId');
+        }
+        void pollForConversationTitle(apolloClient, projectId, conversationId);
+        // Document queries belong to the AgentBlock that fired them; the chat
+        // pane is for stand-alone chat conversations. Surfacing every document
+        // query in the chat pane made the chat appear to mirror whichever
+        // AgentBlock was most recently active.
+        return { conversationId };
+      } finally {
+        setPendingConversations((prev) => {
+          if (!prev.has(args.conversationId)) return prev;
+          const next = new Map(prev);
+          next.delete(args.conversationId);
+          return next;
+        });
       }
-      void pollForConversationTitle(apolloClient, projectId, conversationId);
-      // Document queries belong to the AgentBlock that fired them; the chat
-      // pane is for stand-alone chat conversations. Surfacing every document
-      // query in the chat pane made the chat appear to mirror whichever
-      // AgentBlock was most recently active.
-      return { conversationId };
     },
     [projectId, documentId, fireConversation, apolloClient],
   );
@@ -186,19 +204,21 @@ const DocumentPane = ({ projectId, documentId, onOpenConversationInChat, onSelec
       <ContentStyles contentType="researchDocument" className={classes.editorWrap}>
         <ResearchNavigationProvider value={researchNavigationContext}>
           <ResearchEditorProvider environment={researchEditorEnvironment}>
-            <LexicalEditor
-              data={documentRecord.contents?.html ?? ''}
-              onChange={ignoreEditorChange}
-              placeholder="Start writing..."
-              collectionName="ResearchDocuments"
-              documentId={documentId}
-              fieldName="contents"
-              accessLevel="edit"
-              extraNodes={researchEditorNodes}
-              disableMentions
-            >
-              <ResearchEditorPlugins projectId={projectId} />
-            </LexicalEditor>
+            <PendingConversationsProvider value={pendingConversations}>
+              <LexicalEditor
+                data={documentRecord.contents?.html ?? ''}
+                onChange={ignoreEditorChange}
+                placeholder="Start writing..."
+                collectionName="ResearchDocuments"
+                documentId={documentId}
+                fieldName="contents"
+                accessLevel="edit"
+                extraNodes={researchEditorNodes}
+                disableMentions
+              >
+                <ResearchEditorPlugins projectId={projectId} />
+              </LexicalEditor>
+            </PendingConversationsProvider>
           </ResearchEditorProvider>
         </ResearchNavigationProvider>
       </ContentStyles>

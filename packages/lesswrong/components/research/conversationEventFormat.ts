@@ -37,6 +37,21 @@ export function isVisibleConversationEvent(event: { kind: string }): boolean {
 }
 
 /**
+ * Whether the transcript has an unanswered turn. Claude Code emits exactly one
+ * `result` per turn, so `userCount > resultCount` means a turn is still
+ * running (or queued waiting for its sandbox to start).
+ */
+export function isTurnInFlight(events: readonly { kind: string }[]): boolean {
+  let userCount = 0;
+  let resultCount = 0;
+  for (const event of events) {
+    if (event.kind === 'user') userCount++;
+    else if (event.kind === 'result') resultCount++;
+  }
+  return userCount > resultCount;
+}
+
+/**
  * One renderable piece of an event's payload. Most events produce a single
  * chunk, but assistant turns with extended-thinking can have multiple parts
  * (`thinking` followed by `text`) which we render with different styles so

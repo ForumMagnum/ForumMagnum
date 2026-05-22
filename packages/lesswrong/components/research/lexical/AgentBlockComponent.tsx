@@ -7,13 +7,15 @@ import { $getNodeByKey, type NodeKey } from 'lexical';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { type StreamStatus, useConversationStream, type ConversationEvent } from '@/components/research/hooks/useConversationStream';
 import { $isAgentBlockNode } from './AgentBlockNode';
-import { useResearchEditorEnvironment, useResearchNavigationContext } from './ResearchEditorContext';
+import { useResearchEditorEnvironment, useResearchNavigationContext, usePendingConversation } from './ResearchEditorContext';
 import {
   getConversationEventChunks,
+  isTurnInFlight,
   isVisibleConversationEvent,
 } from '../conversationEventFormat';
 import { ChunkContent } from '../ChunkContent';
 import ForumIcon from '@/components/common/ForumIcon';
+import { htmlToTextDefault } from '@/lib/htmlToText';
 
 /**
  * Vertical room for ~1–2 paragraphs of body copy at the editor's 14px/1.55
@@ -328,6 +330,7 @@ export function AgentBlockComponent({ nodeKey, conversationId, producedByConvers
   // inside the document editor, where both providers are present.
   useResearchEditorEnvironment();
   const nav = useResearchNavigationContext();
+  const pending = usePendingConversation(conversationId);
 
   const fromAgent = !!producedByConversationId;
 
@@ -338,14 +341,21 @@ export function AgentBlockComponent({ nodeKey, conversationId, producedByConvers
     });
   }, [editor, nodeKey]);
 
-  if (!conversationId) {
+  // This placeholder deliberately exposes no conversation navigation: the chat
+  // pane lives outside the pending-conversations registry, so letting the user
+  // open this conversation there would mount a second `useConversationStream`
+  // against the not-yet-created row and reintroduce the "Conversation not
+  // found" race.
+  if (!conversationId || pending) {
     return (
       <div
         className={classNames(classes.root, fromAgent && classes.rootProvenance)}
         data-testid="research-agent-block-pending"
       >
         <span className={classes.pulseDot} aria-label="Sending query" />
-        <span className={classes.preview}>Sending query…</span>
+        <span className={classes.preview}>
+          {pending ? htmlToTextDefault(pending.promptHtml) : 'Sending query…'}
+        </span>
       </div>
     );
   }
@@ -371,22 +381,16 @@ function ActiveAgentBlock({ conversationId, fromAgent, onOpenInChat, onRemove: _
   const classes = useStyles(styles);
   const { events, status, error } = useConversationStream(conversationId);
 
-  // Single pass over events: count user/result turns, collect visible ones,
-  // and capture the latest. `turnInFlight` is true whenever there are more
-  // user prompts than result markers (Claude Code emits exactly one `result`
-  // per turn, regardless of intermediate tool/thinking events).
   const { resultCount, turnInFlight, visibleEvents, latestVisible } = useMemo(() => {
-    let userCount = 0;
     let rc = 0;
     const visible: ConversationEvent[] = [];
     for (const e of events) {
-      if (e.kind === 'user') userCount++;
-      else if (e.kind === 'result') rc++;
+      if (e.kind === 'result') rc++;
       if (isVisibleConversationEvent(e)) visible.push(e);
     }
     return {
       resultCount: rc,
-      turnInFlight: userCount > rc,
+      turnInFlight: isTurnInFlight(events),
       visibleEvents: visible,
       latestVisible: visible.length > 0 ? visible[visible.length - 1] : null,
     };

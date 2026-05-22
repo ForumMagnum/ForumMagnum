@@ -113,3 +113,25 @@ export function useResearchNavigationContext(): ResearchNavigationContextValue {
   }
   return ctx;
 }
+
+export interface PendingConversation {
+  promptHtml: string;
+}
+
+const PendingConversationsContext = createContext<ReadonlyMap<string, PendingConversation>>(new Map<string, PendingConversation>());
+
+export function PendingConversationsProvider({
+  value,
+  children,
+}: {
+  value: ReadonlyMap<string, PendingConversation>;
+  children: ReactNode;
+}) {
+  return (
+    <PendingConversationsContext.Provider value={value}>{children}</PendingConversationsContext.Provider>
+  );
+}
+
+export function usePendingConversation(conversationId: string): PendingConversation | null {
+  return useContext(PendingConversationsContext).get(conversationId) ?? null;
+}

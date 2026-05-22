@@ -155,6 +155,9 @@ const ChatPane = ({
   const apolloClient = useApolloClient();
   const { flash } = useMessages();
   const [sending, setSending] = useState(false);
+  // Optimistic echo of a new chat's first prompt while `fireResearchConversation`
+  // runs — the pane can't switch to the conversation until the row exists.
+  const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
   const eventsRef = useRef<HTMLDivElement | null>(null);
 
   const { events: rawEvents, status, error, refresh, injectOptimisticEvent } = useConversationStream(conversationId);
@@ -181,15 +184,21 @@ const ChatPane = ({
     setSending(true);
     try {
       if (!conversationId) {
-        // Client-generated id, so a refresh between this call and the
-        // mutation's response still finds the conversation on reload (the
-        // URL/route state will already be pointed at this id).
+        // Generate the conversation id client-side, but don't switch the pane
+        // to it until `fireResearchConversation` has created the row —
+        // otherwise `useConversationStream` mounts and queries the transcript
+        // before the row exists and sticks in an error state.
         const newId = randomId();
-        onConversationCreated(newId);
-        await fireConversation({
+        setPendingPrompt(htmlToTextDefault(promptHtml));
+        const result = await fireConversation({
           variables: { conversationId: newId, projectId, activeDocumentId, promptHtml },
         });
-        void pollForConversationTitle(apolloClient, projectId, newId);
+        const createdId = result.data?.fireResearchConversation?.conversationId;
+        if (!createdId) {
+          throw new Error('fireResearchConversation returned no conversationId');
+        }
+        onConversationCreated(createdId);
+        void pollForConversationTitle(apolloClient, projectId, createdId);
       } else {
         // Optimistic plaintext for the in-flight turn; the persisted twin
         // (with the server's markdown rendering) replaces it on the next
@@ -213,6 +222,7 @@ const ChatPane = ({
       flash({ messageString: 'Failed to send message — try again.', type: 'error' });
     } finally {
       setSending(false);
+      setPendingPrompt(null);
     }
   }, [sending, conversationId, projectId, activeDocumentId, fireConversation, continueConversation, onConversationCreated, refresh, injectOptimisticEvent, apolloClient, flash]);
 
@@ -232,9 +242,16 @@ const ChatPane = ({
   if (!conversationId) {
     return (
       <div className={classes.root}>
-        <div className={classes.empty}>
-          <div>Start a new chat by typing a prompt below.</div>
-        </div>
+        {pendingPrompt ? (
+          <div className={classes.events}>
+            <div className={classNames(classes.event, classes.eventUser)}>{pendingPrompt}</div>
+            <Loading />
+          </div>
+        ) : (
+          <div className={classes.empty}>
+            <div>Start a new chat by typing a prompt below.</div>
+          </div>
+        )}
         <ResearchNavigationProvider value={navigationContext}>
           <ChatComposer
             projectId={projectId}

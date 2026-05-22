@@ -1,5 +1,6 @@
 import {
   getAgentTranscriptTurns,
+  isTurnInFlight,
   isVisibleConversationEvent,
 } from "../components/research/conversationEventFormat";
 
@@ -9,6 +10,32 @@ describe("research conversation event formatting", () => {
     expect(isVisibleConversationEvent({ kind: "tool_result" })).toBe(true);
     expect(isVisibleConversationEvent({ kind: "system" })).toBe(false);
     expect(isVisibleConversationEvent({ kind: "unknown" })).toBe(false);
+  });
+
+  describe("isTurnInFlight", () => {
+    it("is false for an empty transcript", () => {
+      expect(isTurnInFlight([])).toBe(false);
+    });
+
+    it("is true for a user turn with no result yet", () => {
+      expect(isTurnInFlight([{ kind: "user" }, { kind: "assistant" }])).toBe(true);
+    });
+
+    it("is false once every user turn has a matching result", () => {
+      expect(isTurnInFlight([{ kind: "user" }, { kind: "assistant" }, { kind: "result" }])).toBe(false);
+    });
+
+    it("is true again when a later turn opens", () => {
+      expect(isTurnInFlight([
+        { kind: "user" },
+        { kind: "result" },
+        { kind: "user" },
+      ])).toBe(true);
+    });
+
+    it("ignores non-user/result kinds", () => {
+      expect(isTurnInFlight([{ kind: "thinking" }, { kind: "tool_use" }])).toBe(false);
+    });
   });
 
   describe("getAgentTranscriptTurns", () => {

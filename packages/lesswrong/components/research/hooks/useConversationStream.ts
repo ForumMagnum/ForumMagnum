@@ -5,7 +5,7 @@ import { z } from 'zod';
 import type { ApolloClient } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useApolloClient } from '@apollo/client/react';
-import { isPlainRecord } from '../conversationEventFormat';
+import { isPlainRecord, isTurnInFlight } from '../conversationEventFormat';
 import { randomId } from '@/lib/random';
 import {
   parseSupervisorHealth,
@@ -57,8 +57,8 @@ interface UseConversationStreamResult {
 const RECONNECT_MIN_MS = 1_000;
 const RECONNECT_MAX_MS = 30_000;
 
-// Exponential-backoff budget for catching a sandbox cold-start after the
-// caller refreshes: 1s → 2s → 4s → 8s → 16s → 30s ≈ 61s total, 6 requests.
+// Exponential-backoff budget for catching a sandbox cold-start while a turn
+// is in flight: 1s → 2s → 4s → 8s → 16s → 30s ≈ 61s total, 6 requests.
 const IDLE_POLL_MIN_MS = 1_000;
 const IDLE_POLL_MAX_MS = 30_000;
 const MAX_IDLE_EMPTY_POLLS = 6;
@@ -97,9 +97,9 @@ export function useConversationStream(
 
   const latestSeqRef = useRef(-1);
   const reconnectAttemptsRef = useRef(0);
-  // Fire-once signal from refresh(); consumed by the next effect run so a
-  // later conversation switch can't inherit it.
-  const expectActivityRef = useRef(false);
+  // A ref (not state) so the SSE/poll closures read the current value without
+  // re-running the effect.
+  const turnInFlightRef = useRef(false);
   // Pinned so the SSE handler reads the latest reporter without retriggering
   // the effect on each render.
   const reportHealthRef = useRef(reportHealth);
@@ -113,6 +113,10 @@ export function useConversationStream(
   useEffect(() => {
     latestSeqRef.current = latestSeq;
   }, [latestSeq]);
+
+  useEffect(() => {
+    turnInFlightRef.current = isTurnInFlight(events);
+  }, [events]);
 
   useEffect(() => {
     if (!conversationId) {
@@ -130,8 +134,6 @@ export function useConversationStream(
     let eventSource: EventSource | null = null;
     let timer: NodeJS.Timeout | null = null;
     let idleEmptyPolls = 0;
-    const expectActivity = expectActivityRef.current;
-    expectActivityRef.current = false;
     // Prime from the Apollo cache before kicking off the network fetch so a
     // re-mount (e.g. switching back to a previously-loaded research doc)
     // skips the empty-state flash. The network fetch below still runs and
@@ -162,8 +164,8 @@ export function useConversationStream(
       }, backoff + jitter);
     }
 
-    // Entered only after refresh(); stays in 'idle' status the whole loop so
-    // it doesn't churn the UI between ticks.
+    // Stays in 'idle' status the whole loop so it doesn't churn the UI
+    // between ticks.
     async function pollIdle() {
       if (cancelled) return;
       if (idleEmptyPolls >= MAX_IDLE_EMPTY_POLLS) return;
@@ -190,7 +192,7 @@ export function useConversationStream(
       }, backoffMs);
     }
 
-    async function connectSSE() {
+    async function connectSSE(turnInFlightHint?: boolean) {
       if (cancelled) return;
       setStatus(reconnectAttemptsRef.current > 0 ? 'reconnecting' : 'connecting');
 
@@ -206,7 +208,9 @@ export function useConversationStream(
         setStatus('idle');
         setError(null);
         reconnectAttemptsRef.current = 0;
-        if (expectActivity) void pollIdle();
+        // `turnInFlightHint` carries the freshly-loaded value into the first
+        // call, before the events effect has updated `turnInFlightRef`.
+        if (turnInFlightHint ?? turnInFlightRef.current) void pollIdle();
         return;
       }
 
@@ -297,7 +301,7 @@ export function useConversationStream(
         setStatus('idle');
         return;
       }
-      await connectSSE();
+      await connectSSE(isTurnInFlight(persisted));
     })();
 
     return () => {
@@ -312,7 +316,6 @@ export function useConversationStream(
   }, []);
 
   const refresh = useCallback(() => {
-    expectActivityRef.current = true;
     setRefreshNonce((n) => n + 1);
   }, []);
 
