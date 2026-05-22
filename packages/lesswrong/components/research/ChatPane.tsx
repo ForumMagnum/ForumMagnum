@@ -17,12 +17,8 @@ import {
   ResearchNavigationProvider,
   type ResearchNavigationContextValue,
 } from './lexical/ResearchEditorContext';
-import {
-  getConversationEventChunks,
-  isVisibleConversationEvent,
-  type ConversationEventChunk,
-} from './conversationEventFormat';
-import { ChunkContent } from './ChunkContent';
+import { isVisibleConversationEvent } from './conversationEventFormat';
+import { ConversationEventRow } from './ConversationEventRow';
 
 interface ChatPaneProps {
   projectId: string;
@@ -93,42 +89,15 @@ const styles = defineStyles('ChatPane', (theme: ThemeType) => ({
     flexDirection: 'column',
     gap: 12,
   },
-  event: {
+  pendingPrompt: {
     fontSize: 13,
     lineHeight: 1.5,
     borderRadius: 6,
     wordBreak: 'break-word',
-  },
-  eventUser: {
     background: theme.palette.greyAlpha(0.06),
     alignSelf: 'flex-end',
     maxWidth: '85%',
     padding: '4px 8px',
-  },
-  eventAssistant: {
-    background: 'transparent',
-    color: theme.palette.text.primary,
-  },
-  eventTool: {
-    fontFamily: 'monospace',
-    fontSize: 12,
-    background: theme.palette.greyAlpha(0.04),
-    color: theme.palette.text.dim,
-    border: theme.palette.greyBorder('1px', 0.08),
-    '$eventAssistant &': {
-      padding: '4px 8px',
-    },
-    '$eventTool &': {
-      padding: '4px 8px',
-    },
-  },
-  eventThinking: {
-    fontStyle: 'italic',
-    color: theme.palette.text.dim,
-  },
-  eventError: {
-    background: theme.palette.greyAlpha(0.04),
-    color: theme.palette.error?.main ?? 'red',
   },
   cancelButton: {
     padding: '6px 14px',
@@ -244,7 +213,7 @@ const ChatPane = ({
       <div className={classes.root}>
         {pendingPrompt ? (
           <div className={classes.events}>
-            <div className={classNames(classes.event, classes.eventUser)}>{pendingPrompt}</div>
+            <div className={classes.pendingPrompt}>{pendingPrompt}</div>
             <Loading />
           </div>
         ) : (
@@ -274,7 +243,7 @@ const ChatPane = ({
       ) : (
         <div className={classes.events} ref={eventsRef}>
           {events.map((event) => (
-            <EventRow key={event._id ?? `${event.conversationId}:${event.seq}`} event={event} classes={classes} />
+            <ConversationEventRow key={event._id ?? `${event.conversationId}:${event.seq}`} event={event} surface="chat" />
           ))}
         </div>
       )}
@@ -298,43 +267,6 @@ const ChatPane = ({
     </div>
   );
 };
-
-interface EventRowClasses {
-  event: string;
-  eventUser: string;
-  eventAssistant: string;
-  eventTool: string;
-  eventThinking: string;
-  eventError: string;
-}
-
-const EventRow = React.memo(function EventRow({ event, classes }: { event: ConversationEvent; classes: EventRowClasses }) {
-  const chunks = getConversationEventChunks(event);
-  if (chunks.length === 0) return null;
-  const outerClass = classNames(classes.event, {
-    [classes.eventUser]: event.kind === 'user',
-    [classes.eventAssistant]: event.kind === 'assistant',
-    [classes.eventTool]: event.kind === 'tool_use' || event.kind === 'tool_result',
-    [classes.eventThinking]: event.kind === 'thinking',
-    [classes.eventError]: event.kind === 'error',
-  });
-  return (
-    <div className={outerClass}>
-      {chunks.map((chunk, i) => (
-        <ChunkContent key={i} chunk={chunk} className={chunkClass(chunk, classes)} />
-      ))}
-    </div>
-  );
-});
-
-function chunkClass(chunk: ConversationEventChunk, classes: EventRowClasses): string | undefined {
-  switch (chunk.kind) {
-    case 'thinking': return classes.eventThinking;
-    case 'tool_use':
-    case 'tool_result': return classes.eventTool;
-    default: return undefined;
-  }
-}
 
 function renderStatusLabel(status: string, error: string | null): string {
   if (error) return `Error: ${error}`;

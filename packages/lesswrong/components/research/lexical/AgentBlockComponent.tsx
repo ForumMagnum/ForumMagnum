@@ -13,7 +13,7 @@ import {
   isTurnInFlight,
   isVisibleConversationEvent,
 } from '../conversationEventFormat';
-import { ChunkContent } from '../ChunkContent';
+import { ConversationEventRow } from '../ConversationEventRow';
 import ForumIcon from '@/components/common/ForumIcon';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 
@@ -87,7 +87,7 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
     flexDirection: 'column',
     alignItems: 'stretch',
     gap: 0,
-    padding: '0 64px 0 14px',
+    padding: '0 32px 0 14px',
   },
   rootProvenance: {
     borderColor: theme.palette.greyAlpha(0.16),
@@ -162,8 +162,8 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   },
   iconButton: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 6,
+    right: 5,
     background: 'transparent',
     border: 'none',
     cursor: 'pointer',
@@ -201,57 +201,12 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
     // Bottom padding leaves room for the gradient indicator so it fades
     // over empty space at the end of the scroll, not over the last line.
     // Top padding mirrors it so the chip's interior stays vertically symmetric.
-    padding: `${COLLAPSE_GRADIENT_HEIGHT + 4}px 0`,
+    padding: `${COLLAPSE_GRADIENT_HEIGHT + 4}px ${COLLAPSE_GRADIENT_HEIGHT + 4}px ${COLLAPSE_GRADIENT_HEIGHT + 4}px 0`,
     display: 'flex',
     flexDirection: 'column',
     gap: 8,
     minWidth: 0,
   },
-  eventRow: {
-    display: 'grid',
-    gridTemplateColumns: 'auto 1fr',
-    columnGap: 12,
-    alignItems: 'baseline',
-  },
-  eventChunks: {
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 4,
-    minWidth: 0,
-  },
-  chunkText: {
-    color: theme.palette.text.primary,
-    overflowWrap: 'anywhere',
-    whiteSpace: 'normal',
-  },
-  chunkThinking: {
-    color: theme.palette.greyAlpha(0.55),
-    fontStyle: 'italic',
-    fontSize: '0.92em',
-    borderLeft: `2px solid ${theme.palette.greyAlpha(0.15)}`,
-    paddingLeft: 10,
-    whiteSpace: 'pre-wrap',
-  },
-  chunkToolUse: {
-    background: theme.palette.greyAlpha(0.04),
-    border: theme.palette.greyBorder('1px', 0.08),
-    borderRadius: 4,
-    padding: '6px 10px',
-    fontFamily: 'monospace',
-    fontSize: '0.85em',
-    whiteSpace: 'pre-wrap',
-  },
-  chunkToolResult: {
-    background: theme.palette.greyAlpha(0.04),
-    border: theme.palette.greyBorder('1px', 0.08),
-    borderRadius: 4,
-    padding: '6px 10px',
-    fontFamily: 'monospace',
-    fontSize: '0.85em',
-    color: theme.palette.greyAlpha(0.65),
-    whiteSpace: 'pre-wrap',
-  },
-
   // --- Bottom-border toggle affordance ---------------------------------
   // Same slot for both directions — collapse when expanded, expand when
   // not. The strip is the visual + layout container; the gradient is the
@@ -531,7 +486,7 @@ function ExpandedBody({ visibleEvents, turnInFlight, status, error }: ExpandedBo
   return (
     <div className={classes.scrollContainer} ref={scrollRef}>
       {visibleEvents.map((event) => (
-        <ExpandedEventRow key={`${event.seq}-${event._id}`} event={event} />
+        <ConversationEventRow key={`${event.seq}-${event._id}`} event={event} surface="agentBlock" />
       ))}
       {status === 'error' && error ? (
         <span className={classes.statusError} title={error}>error</span>
@@ -539,33 +494,6 @@ function ExpandedBody({ visibleEvents, turnInFlight, status, error }: ExpandedBo
     </div>
   );
 }
-
-const ExpandedEventRow = React.memo(function ExpandedEventRow({ event }: { event: ConversationEvent }) {
-  const classes = useStyles(styles);
-  const chunks = getConversationEventChunks(event);
-  if (chunks.length === 0) return null;
-  const speakerLabel = event.kind === 'user' ? 'You' : event.kind === 'error' ? 'Error' : 'Agent';
-  const speakerClass = classNames(classes.speaker, {
-    [classes.speakerUser]: event.kind === 'user',
-    [classes.speakerAssistant]: event.kind === 'assistant',
-    [classes.speakerError]: event.kind === 'error',
-  });
-  const chunkClassByKind: Record<string, string> = {
-    thinking: classes.chunkThinking,
-    tool_use: classes.chunkToolUse,
-    tool_result: classes.chunkToolResult,
-  };
-  return (
-    <div className={classes.eventRow}>
-      <div className={speakerClass}>{speakerLabel}</div>
-      <div className={classes.eventChunks}>
-        {chunks.map((chunk, i) => (
-          <ChunkContent key={i} chunk={chunk} className={chunkClassByKind[chunk.kind] ?? classes.chunkText} />
-        ))}
-      </div>
-    </div>
-  );
-});
 
 interface LatestEventPreviewProps {
   event: ConversationEvent | null;
