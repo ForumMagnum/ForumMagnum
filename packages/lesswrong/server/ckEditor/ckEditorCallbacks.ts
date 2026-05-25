@@ -47,7 +47,7 @@ export const getLinkSharedPostGraphQLQueries = {
     //  * The logged in user is an admin or moderator (or otherwise has edit permissions)
 
     if (
-      (linkSharingEnabled(post) && post.shareWithUsers && currentUser?._id && post.shareWithUsers.includes(currentUser._id))
+      (post.shareWithUsers && currentUser?._id && post.shareWithUsers.includes(currentUser._id) && post.sharingSettings?.explicitlySharedUsersCan !== "none")
       || (linkSharingEnabled(post) && (!canonicalLinkSharingKey || keysMatch))
       || (linkSharingEnabled(post) && (currentUser && post.linkSharingKeyUsedBy?.includes(currentUser._id)))
       || userIsPostCoauthor(currentUser, post)
