@@ -22971,7 +22971,7 @@ type PostsModerationGuidelines = (
 );
 
 type PostsAuthors_Post_user_User = (
-  { __typename?: 'User', profileImageId: string | null, moderationStyle: string | null, bannedUserIds: Array<string> | null, moderatorAssistance: boolean | null, groups: Array<string> | null, banned: string | null, allCommentingDisabled: boolean | null }
+  { __typename?: 'User', profileImageId: string | null, moderationStyle: string | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, moderatorAssistance: boolean | null, groups: Array<string> | null, banned: string | null, allCommentingDisabled: boolean | null }
   & UsersMinimumInfo
 );
 

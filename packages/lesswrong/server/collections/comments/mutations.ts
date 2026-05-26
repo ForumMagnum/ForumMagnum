@@ -1,5 +1,5 @@
 import schema from "@/lib/collections/comments/newSchema";
-import { userIsAllowedToComment } from "@/lib/collections/users/helpers";
+import { getAuthorCommentBanMessage, getAuthorCommentBanReason, userIsAllowedToComment } from "@/lib/collections/users/helpers";
 import { isElasticEnabled } from "@/lib/instanceSettings";
 import { sanitizeRejectionReason } from "@/lib/utils/sanitize";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -16,6 +16,7 @@ import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/v
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
 import gql from "graphql-tag";
+import { GraphQLError } from "graphql";
 import cloneDeep from "lodash/cloneDeep";
 
 async function newCheck(user: DbUser | null, document: CreateCommentDataInput | null, context: ResolverContext) {
@@ -31,6 +32,12 @@ async function newCheck(user: DbUser | null, document: CreateCommentDataInput | 
   const author = await context.loaders.Users.load(post.userId);
   const isReply = !!document.parentCommentId;
   if (!userIsAllowedToComment(user, post, author, isReply)) {
+    const authorBanReason = getAuthorCommentBanReason(user, post, author);
+    if (authorBanReason && !userCanDo(user, `posts.moderate.all`)) {
+      throw new GraphQLError(getAuthorCommentBanMessage(authorBanReason), {
+        extensions: { noSentryCapture: true },
+      });
+    }
     return userCanDo(user, `posts.moderate.all`)
   }
 

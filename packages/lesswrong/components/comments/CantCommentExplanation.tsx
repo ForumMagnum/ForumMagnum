@@ -1,6 +1,6 @@
 import React from 'react';
 import { useCurrentUser } from '../common/withUser';
-import { PermissionsPostMinimumInfo as PostPermissionsMinimumInfo, userIsBannedFromAllPersonalPosts, userIsBannedFromAllPosts, userIsBannedFromPost, userIsNotShortformOwner } from '../../lib/collections/users/helpers';
+import { PermissionsPostMinimumInfo as PostPermissionsMinimumInfo, getAuthorCommentBanMessage, getAuthorCommentBanReason, userIsNotShortformOwner } from '../../lib/collections/users/helpers';
 import classNames from 'classnames';
 import { moderationEmail } from '@/lib/instanceSettings';
 import CalendarDate from "../common/CalendarDate";
@@ -25,16 +25,9 @@ const userBlockedCommentingReason = (user: UsersCurrent|DbUser|null, post: PostP
     return <>Can't recognize user</>
   }
 
-  if (userIsBannedFromPost(user, post, postAuthor)) {
-    return <>This post's author has blocked you from commenting.</>
-  }
-
-  if (userIsBannedFromAllPosts(user, post, postAuthor)) {
-    return <>This post's author has blocked you from commenting.</>
-  }
-
-  if (userIsBannedFromAllPersonalPosts(user, post, postAuthor)) {
-    return <>This post's author has blocked you from commenting on any of their personal blog posts.</>
+  const authorBanReason = getAuthorCommentBanReason(user, post, postAuthor);
+  if (authorBanReason) {
+    return <>{getAuthorCommentBanMessage(authorBanReason)}</>
   }
 
   if (post?.commentsLocked) {
