@@ -63,6 +63,7 @@ type ReportsViewName = "adminClaimedReports"|"allReports"|"claimedReports"|"clos
 type ReviewVotesViewName = "reviewVotesAdminDashboard"|"reviewVotesForPost"|"reviewVotesForPostAndUser"|"reviewVotesFromUser";
 type ReviewWinnerArtsViewName = "allForYear"|"postArt";
 type ReviewWinnersViewName = "bestOfLessWrongAnnouncement"|"reviewWinnerSingle";
+type RevisionOriginalContentsViewName = never
 type RevisionsViewName = "revisionByVersionNumber"|"revisionsByUser"|"revisionsOnDocument";
 type SequencesViewName = "communitySequences"|"curatedSequences"|"userProfile"|"userProfileAll"|"userProfilePrivate";
 type SessionsViewName = never
@@ -151,6 +152,7 @@ interface ViewTermsByCollectionName {
   ReviewVotes: ReviewVotesViewTerms
   ReviewWinnerArts: ReviewWinnerArtsViewTerms
   ReviewWinners: ReviewWinnersViewTerms
+  RevisionOriginalContents: ViewTermsBase
   Revisions: RevisionsViewTerms
   Sequences: SequencesViewTerms
   Sessions: ViewTermsBase

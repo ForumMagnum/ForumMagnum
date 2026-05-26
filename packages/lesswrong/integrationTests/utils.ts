@@ -15,10 +15,12 @@ import { createMessage } from '../server/collections/messages/mutations';
 import { createLocalgroup } from '../server/collections/localgroups/mutations';
 import { createVote } from '../server/collections/votes/mutations';
 import { createTag } from '../server/collections/tags/mutations';
-import { createRevision } from '../server/collections/revisions/mutations';
+import { createRevision, CreateRevisionOptions } from '../server/collections/revisions/mutations';
 import { createUserRateLimit } from '../server/collections/userRateLimits/mutations';
 import { computeContextFromUser } from '../server/vulcan-lib/apollo-server/context';
 import { createAnonymousContext } from '@/server/vulcan-lib/createContexts';
+import type { RevisionOriginalContentsData } from '@/lib/collections/revisions/revisionSchemaTypes';
+import { dataToHTML } from '@/server/editor/conversionUtils';
 
 // Hooks Vulcan's runGraphQL to handle errors differently. By default, Vulcan
 // would dump errors to stderr; instead, we want to (a) suppress that output,
@@ -170,26 +172,26 @@ export const createDefaultUser = async() => {
 // Posts can be created pretty flexibly
 type TestPost = Omit<PartialDeep<DbPost>, 'postedAt'> & {
   postedAt?: Date,
-  contents?: Partial<EditableFieldContents> | null,
+  contents?: { originalContents: RevisionOriginalContentsData } |null,
 }
 
 export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data?: TestPost) => {
   user ||= await createDefaultUser()
   const postId = data?._id ?? randomId();
   const postContents = data?.contents ?? { originalContents: { type: 'ckEditorMarkup', data: 'This is a test post', yjsState: null } };
-  const revision = await createDummyRevision(user as DbUser, {
-    _id: randomId(),
+  const userContext = await computeContextFromUser({user: user as DbUser, isSSR: false});
+  const html = await dataToHTML(postContents.originalContents.data, postContents.originalContents.type, userContext);
+  const revision = await createDummyRevision({
     collectionName: "Posts",
     documentId: postId,
     fieldName: "contents",
-    editedAt: new Date(),
     updateType: "initial",
     version: "1.0.0",
     commitMessage: "",
-    userId: user!._id,
     draft: false,
     ...postContents,
-  });
+    html,
+  }, userContext);
   const defaultData = {
     _id: postId,
     userId: user!._id,
@@ -199,7 +201,6 @@ export const createDummyPost = async (user?: AtLeast<DbUser, '_id'> | null, data
     createdAt: new Date(),
   }
   const postData = {...defaultData, ...data};
-  const userContext = await computeContextFromUser({user: user as DbUser, isSSR: false});
   const newPost = await createPost({
     data: postData as CreatePostDataInput
   }, userContext);
@@ -351,25 +352,19 @@ export const createDummyTag = async (user: DbUser, data?: Partial<DbInsertion<Db
   return newTag;
 }
 
-export const createDummyRevision = async (user: DbUser, data?: Partial<DbRevision>) => {
-  const defaultData = {
-    _id: randomId(),
-    userId: user._id,
-    editedAt: new Date(Date.now()),
-    version: "1.0.0",
-    wordCount: 0,
-    changeMetrics: {}, // not nullable field
-    originalContents: {
-      type: 'ckEditorMarkup',
-      data: 'This is a test revision',
-      yjsState: null,
-    },
-  };
-  const revisionData = {...defaultData, ...data};
-  const userContext = await computeContextFromUser({user, isSSR: false});
+const defaultContents: ContentTypeInput = {
+  type: 'ckEditorMarkup',
+  data: 'This is a test revision',
+  yjsState: null,
+};
+
+export const createDummyRevision = async (data: CreateRevisionOptions, context: ResolverContext) => {
   const newRevision = await createRevision({
-    data: revisionData
-  }, userContext);
+    data: {
+      ...data,
+      originalContents: data.originalContents ?? defaultContents,
+    }
+  }, context);
   return newRevision;
 }
 

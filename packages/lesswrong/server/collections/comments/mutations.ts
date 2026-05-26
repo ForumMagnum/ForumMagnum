@@ -1,6 +1,7 @@
 import schema from "@/lib/collections/comments/newSchema";
 import { userIsAllowedToComment } from "@/lib/collections/users/helpers";
 import { isElasticEnabled } from "@/lib/instanceSettings";
+import { randomId } from "@/lib/random";
 import { sanitizeRejectionReason } from "@/lib/utils/sanitize";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
@@ -51,6 +52,7 @@ async function editCheck(user: DbUser | null, document: DbComment | null, contex
 
 export async function createComment({ data }: CreateCommentInput, context: ResolverContext) {
   const { currentUser } = context;
+  const documentId = randomId();
 
   // rejectedReason is rendered raw on the public /moderation page; sanitize on
   // every write so a compromised mod account can't produce stored XSS.
@@ -77,6 +79,7 @@ export async function createComment({ data }: CreateCommentInput, context: Resol
   data = await setTopLevelCommentId(data, callbackProps);  
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });

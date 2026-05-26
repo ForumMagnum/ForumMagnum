@@ -121,6 +121,7 @@ export const allViews = {
   ReviewVotes: ReviewVotesViews,
   ReviewWinnerArts: ReviewWinnerArtsViews,
   ReviewWinners: ReviewWinnersViews,
+  RevisionOriginalContents: new CollectionViewSet('RevisionOriginalContents', {}),
   Revisions: RevisionsViews,
   RSSFeeds: RSSFeedsViews,
   Sequences: SequencesViews,

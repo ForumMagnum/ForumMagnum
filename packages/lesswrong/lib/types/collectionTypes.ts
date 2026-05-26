@@ -11,6 +11,7 @@ import type { CollectionAggregationOptions, CollationDocument } from 'mongodb';
 import type { ApolloClient, NormalizedCacheObject } from '@apollo/client';
 import type { CollectionVoteOptions } from '../make_voteable';
 import type { DatabaseIndexSet } from '@/lib/utils/databaseIndexSet';
+import type { RevisionOriginalContentsData } from '@/lib/collections/revisions/revisionSchemaTypes';
 
 // These server imports are safe as they use `import type`
 // eslint-disable-next-line import/no-restricted-paths
@@ -373,7 +374,7 @@ type VoteableCollectionName = "Posts"|"Comments"|"TagRels"|"Revisions"|"Tags"|"M
 interface EditableFieldContents {
   html: string
   wordCount: number
-  originalContents: DbRevision["originalContents"]
+  originalContents: RevisionOriginalContentsData | null
   editedAt: Date
   userId: string
   version: string

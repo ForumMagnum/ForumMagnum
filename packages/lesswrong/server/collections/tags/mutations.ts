@@ -14,10 +14,12 @@ import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
 import { newCheck, editCheck } from "./helpers";
 import { backgroundTask } from "@/server/utils/backgroundTask";
+import { randomId } from "@/lib/random";
 
 export async function createTag({ data }: CreateTagInput, context: ResolverContext) {
   const { currentUser } = context;
-
+  const documentId = randomId();
+  
   const callbackProps = await getLegacyCreateCallbackProps('Tags', {
     context,
     data,
@@ -33,6 +35,7 @@ export async function createTag({ data }: CreateTagInput, context: ResolverConte
   data = await runSlugCreateBeforeCallback(callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });

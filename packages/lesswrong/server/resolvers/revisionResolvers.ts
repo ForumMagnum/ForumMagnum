@@ -1,14 +1,15 @@
-import { dataToMarkdown, dataToHTML, dataToCkEditor, buildRevision } from '../editor/conversionUtils'
+import { dataToMarkdown, dataToHTML, dataToCkEditor } from '../editor/conversionUtils'
 import { getTagMinimumKarmaPermissions, tagUserHasSufficientKarma } from '../../lib/collections/tags/helpers';
 import isEqual from 'lodash/isEqual';
 import { EditorContents } from '../../components/editor/Editor';
 import { userOwns, userIsAdmin } from '../../lib/vulcan-users/permissions';
 import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
 import gql from 'graphql-tag';
-import { createRevision } from '../collections/revisions/mutations';
+import { buildAndCreateRevision } from '../collections/revisions/mutations';
 import { updateTag } from '../collections/tags/mutations';
 import { resetHocuspocusDocument } from '../hocuspocus/hocuspocusCallbacks';
 import { htmlToYjsStateFromHtml } from '../editor/htmlToYjsState';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 
 export const revisionResolversGraphQLTypeDefs = gql`
   input AutosaveContentType {
@@ -46,11 +47,11 @@ export const revisionResolversGraphQLMutations = {
       getLatestRev(tagId, 'description', context)
     ]);
 
-    const anyDiff = !isEqual(tag.description?.originalContents, revertToRevision.originalContents);
-
     if (!tag)               throw new Error('Invalid tagId');
     if (!revertToRevision)  throw new Error('Invalid revisionId');
-    if (!revertToRevision.originalContents)
+    const revertToOriginalContents = await getStoredOriginalContentsForRevision(revertToRevision, context);
+    const anyDiff = !isEqual(tag.description?.originalContents, revertToOriginalContents);
+    if (!revertToOriginalContents)
       throw new Error('Revision missing originalContents');
     // I don't think this should be possible if we find a revision to revert to, but...
     if (!latestRevision)    throw new Error('Tag is missing latest revision');
@@ -59,7 +60,7 @@ export const revisionResolversGraphQLMutations = {
     await updateTag({
       data: {
         description: {
-          originalContents: revertToRevision.originalContents,
+          originalContents: revertToOriginalContents,
         },
       }, selector: { _id: tag._id }
     }, context);
@@ -86,31 +87,26 @@ export const revisionResolversGraphQLMutations = {
     // This behavior differs from make_editable's `updateBefore` callback, but in the case of manual user saves it seems fine to create new revisions; they don't happen that often
     // In principle we shouldn't be getting autosave requests from the client when there's no diff, but seems better to avoid creating spurious revisions for autosaves
     // (especially if there's a bug on the client which causes the client-side diff-checking to fail)
-    if (previousRev && isEqual(previousRev.originalContents, contents)) {
+    const previousOriginalContents = previousRev
+      ? await getStoredOriginalContentsForRevision(previousRev, context)
+      : null;
+    if (previousRev && isEqual(previousOriginalContents, contents)) {
       return previousRev;
     }
 
     const nextVersion = getNextVersion(previousRev, updateSemverType, post.draft);
-    const changeMetrics = htmlToChangeMetrics(previousRev?.html || "", html);
 
-    const newRevision: Partial<DbRevision> = {
-      ...await buildRevision({
-        originalContents: { type: contents.type, data: contents.value, yjsState: null },
-        currentUser,
-        context,
-      }),
+    const createdRevision = await buildAndCreateRevision({
+      originalContents: { type: contents.type, data: contents.value, yjsState: null },
+      user: currentUser,
       documentId: postId,
       fieldName: postContentsFieldName,
       collectionName: 'Posts',
       version: nextVersion,
       draft: true,
       updateType: updateSemverType,
-      changeMetrics,
+      previousHtmlForChangeMetrics: previousRev?.html || "",
       commitMessage: 'Native editor autosave',
-    };
-
-    const createdRevision = await createRevision({
-      data: newRevision
     }, context);
 
     return createdRevision;
@@ -168,25 +164,18 @@ export const revisionResolversGraphQLMutations = {
     const originalContents = { type: targetFormat, data: convertedData, yjsState };
     const nextVersion = getNextVersion(previousRev, 'minor', isDraft);
 
-    const builtRevision = await buildRevision({
+    await buildAndCreateRevision({
       originalContents,
-      currentUser,
-      context,
-    });
-
-    const newRevision: Partial<DbRevision> = {
-      ...builtRevision,
+      user: currentUser,
       documentId,
       fieldName,
       collectionName,
       version: nextVersion,
       draft: isDraft,
       updateType: 'minor',
-      changeMetrics: htmlToChangeMetrics(previousRev?.html || '', builtRevision.html),
+      previousHtmlForChangeMetrics: previousRev?.html || '',
       commitMessage: `Converted from ${sourceType} to ${targetFormat}`,
-    };
-
-    await createRevision({ data: newRevision }, context);
+    }, context);
 
     // When converting to lexical on a post, push the new Yjs state to
     // Hocuspocus so any existing collaborative session is replaced with

@@ -2403,6 +2403,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReviewWinners_curatedOrder_category" ON "
 -- Index "idx_ReviewWinners_reviewYear_reviewRanking"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReviewWinners_reviewYear_reviewRanking" ON "ReviewWinners" USING btree ("reviewYear", "reviewRanking");
 
+-- Table "RevisionOriginalContents"
+CREATE TABLE "RevisionOriginalContents" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "originalContents" JSONB NOT NULL
+);
+
 -- Table "Revisions"
 CREATE TABLE "Revisions" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -2419,6 +2426,7 @@ CREATE TABLE "Revisions" (
   "commitMessage" TEXT,
   "userId" VARCHAR(27),
   "draft" BOOL,
+  "originalContentsId" VARCHAR(27),
   "originalContents" JSONB,
   "html" TEXT,
   "wordCount" DOUBLE PRECISION NOT NULL,

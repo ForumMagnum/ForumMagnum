@@ -1,4 +1,5 @@
 import schema from "@/lib/collections/books/newSchema";
+import { randomId } from "@/lib/random";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCollectionLinks } from "@/server/callbacks/bookCallbacks";
@@ -24,7 +25,7 @@ function editCheck(user: DbUser | null, document: DbBook | null, context: Resolv
 
 
 export async function createBook({ data }: CreateBookInput, context: ResolverContext) {
-  const { currentUser } = context;
+  const documentId = randomId();
 
   const callbackProps = await getLegacyCreateCallbackProps('Books', {
     context,
@@ -37,6 +38,7 @@ export async function createBook({ data }: CreateBookInput, context: ResolverCon
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });

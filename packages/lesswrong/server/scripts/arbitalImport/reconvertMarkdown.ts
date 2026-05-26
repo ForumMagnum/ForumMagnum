@@ -13,10 +13,10 @@ import { getLatestRev } from "@/server/editor/utils";
 import pick from "lodash/pick";
 import { updateDenormalizedHtmlAttributions, UpdateDenormalizedHtmlAttributionsOptions } from "@/server/tagging/updateDenormalizedHtmlAttributions";
 import { updateDenormalizedContributorsList } from "@/server/utils/contributorsUtil";
-import { buildRevision } from "@/server/editor/conversionUtils";
 import { Users } from "@/server/collections/users/collection";
 import { getCollection } from "@/server/collections/allCollections";
 import { getEditableFieldInCollection } from '@/server/editor/editableSchemaFieldHelpers';
+import { dataToHTML } from "@/server/editor/conversionUtils";
 
 export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, options: ArbitalImportOptions) => {
   const optionsWithDefaults: ArbitalImportOptions = {...defaultArbitalImportOptions, ...options};
@@ -69,19 +69,11 @@ export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, o
         
         const user = await Users.findOne({_id: rev.userId});
         if (!user) throw new Error(`Could not find user for rev ${rev._id}`);
-        const modifiedRevision = await buildRevision({
-          originalContents: {
-            type: "ckEditorMarkup",
-            data: newHtml,
-            yjsState: null,
-          },
-          currentUser: user,
-          context: resolverContext,
-        });
+        const html = await dataToHTML(newHtml, "ckEditorMarkup", resolverContext);
         await Revisions.rawUpdateOne(
           {_id: rev._id},
           {$set: {
-            html: modifiedRevision.html,
+            html: html,
             originalContents: {
               type: "ckEditorMarkup",
               data: newHtml,

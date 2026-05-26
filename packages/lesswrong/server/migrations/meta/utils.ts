@@ -13,11 +13,12 @@ import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import { getAllIndexes } from "@/server/databaseIndexes/allIndexes";
 import { getCollection, isValidCollectionName } from "@/server/collections/allCollections";
 import { createAdminContext, createAnonymousContext } from "@/server/vulcan-lib/createContexts";
-import { buildRevision } from "@/server/editor/conversionUtils";
-import { createRevision } from "@/server/collections/revisions/mutations";
+import { buildAndCreateRevision } from "@/server/collections/revisions/mutations";
 import PgCollectionClass from "@/server/sql/PgCollection";
 import CreateIndexQuery from "@/server/sql/CreateIndexQuery";
 import CreateTableQuery from "@/server/sql/CreateTableQuery";
+import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
+import Users from "@/server/collections/users/collection";
 
 type SqlClientOrTx = SqlClient | ITask<{}>;
 
@@ -281,7 +282,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
 }) => {
   const db = maybeDb ?? getSqlClientOrThrow();
   const collection = getCollection(collectionName);
-  const context = createAdminContext();
+  const adminContext = createAdminContext();
 
   // First, check if the field is already normalized - this will be the
   // case if we're running the migration on a new forum instance that's been
@@ -308,7 +309,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
   const documentBatches = chunk(documents, 20);
   let existingRevUsed = 0;
   let revCreated = 0;
-  const currentUser = await getAdminTeamAccount(context);
+  const currentUser = await getAdminTeamAccount(adminContext);
   if (!currentUser) {
     throw new Error("Can't find admin user account");
   }
@@ -327,7 +328,7 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
       }
 
       try {
-        const existingLatestRev = await getLatestRev(document._id, "contents", context);
+        const existingLatestRev = await getLatestRev(document._id, "contents", adminContext);
         if (
           existingLatestRev
           && existingLatestRev?.html === editableField?.html
@@ -342,32 +343,30 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
           delete editableField?.dataWithDiscardedSuggestions;
     
           const userId = (document as AnyBecauseHard).userId || currentUser._id;
-    
-          const revisionData = editableField.originalContents
-            ? await buildRevision({
-              originalContents: editableField.originalContents,
-              dataWithDiscardedSuggestions,
-              currentUser,
-              context,
-            })
-            : {
-              html: "",
-              wordCount: 0,
-              originalContents: {type: "ckEditorMarkup", data: "", yjsState: null},
-              editedAt: new Date(),
-              userId,
-            };
-    
+          const user = await adminContext.loaders.Users.load(userId);
+          const userContext = computeContextFromUser({ user, isSSR: false });
+
           revCreated++;
-          const revision = await createRevision({
-            data: {
-              version: editableField.version || getInitialVersion(document),
-              changeMetrics: {added: 0, removed: 0},
-              collectionName,
-              ...revisionData,
-              userId,
-            }
-          }, createAnonymousContext());
+          const revision = editableField.originalContents
+            ? await buildAndCreateRevision({
+                originalContents: editableField.originalContents,
+                dataWithDiscardedSuggestions,
+                user: currentUser,
+                version: editableField.version || getInitialVersion(document),
+                previousHtmlForChangeMetrics: "",
+                collectionName,
+                documentId: document._id,
+                fieldName,
+              }, userContext)
+            : await buildAndCreateRevision({
+                originalContents: {type: "ckEditorMarkup", data: "", yjsState: null},
+                user,
+                version: editableField.version || getInitialVersion(document),
+                previousHtmlForChangeMetrics: "",
+                collectionName,
+                documentId: document._id,
+                fieldName,
+              }, userContext);
     
           await collection.rawUpdateOne(
             {_id: document._id},
@@ -398,10 +397,11 @@ export const normalizeEditableField = async ({ db: maybeDb, collectionName, fiel
       "wordCount" = COALESCE((p."${fieldName}"->>'wordCount')::INTEGER, r."wordCount"),
       "updateType" = COALESCE(p."${fieldName}"->>'updateType', r."updateType"),
       "commitMessage" = COALESCE(p."${fieldName}"->>'commitMessage', r."commitMessage"),
-      "originalContents" = COALESCE(p."${fieldName}"->'originalContents', r."originalContents"),
+      "originalContents" = COALESCE(p."${fieldName}"->'originalContents', roc."originalContents", r."originalContents"),
       "draft" = COALESCE(p."draft", FALSE),
       "collectionName" = $1
     FROM "${collectionName}" AS p
+    LEFT JOIN "RevisionOriginalContents" roc ON roc."_id" = r."originalContentsId"
     WHERE
       r."collectionName" = $1
       AND r."fieldName" = '${fieldName}'
@@ -439,9 +439,10 @@ export const denormalizeEditableField = async <N extends CollectionNameString>(
       'wordCount', r."wordCount",
       'updateType', r."updateType",
       'commitMessage', r."commitMessage",
-      'originalContents', r."originalContents"
+      'originalContents', COALESCE(roc."originalContents", r."originalContents")
     )
     FROM "Revisions" AS r
+    LEFT JOIN "RevisionOriginalContents" roc ON roc."_id" = r."originalContentsId"
     WHERE
       r."collectionName" = '${collectionName}'
       AND r."fieldName" = '${fieldName}'

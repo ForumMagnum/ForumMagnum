@@ -5721,6 +5721,12 @@ interface MultiReviewWinnerOutput {
   totalCount: number | null;
 }
 
+interface RevisionOriginalContent {
+  _id: string;
+  createdAt: Date;
+  originalContents: any;
+}
+
 interface Revision {
   _id: string;
   schemaVersion: number;
@@ -5736,6 +5742,7 @@ interface Revision {
   userId: string | null;
   user: User | null;
   draft: boolean | null;
+  originalContentsId: string | null;
   originalContents: ContentType;
   html: string | null;
   markdown: string | null;
@@ -9336,6 +9343,7 @@ interface GraphQLTypeMap {
   ReviewWinnerSelector: ReviewWinnerSelector;
   MultiReviewWinnerInput: MultiReviewWinnerInput;
   MultiReviewWinnerOutput: MultiReviewWinnerOutput;
+  RevisionOriginalContent: RevisionOriginalContent;
   Revision: Revision;
   SingleRevisionInput: SingleRevisionInput;
   SingleRevisionOutput: SingleRevisionOutput;
@@ -9715,6 +9723,7 @@ interface CreateInputsByCollectionName {
   ReviewVotes: never;
   ReviewWinnerArts: never;
   ReviewWinners: never;
+  RevisionOriginalContents: never;
   Revisions: never;
   Sessions: never;
   SideCommentCaches: never;
@@ -9802,6 +9811,7 @@ interface UpdateInputsByCollectionName {
   ReviewVotes: never;
   ReviewWinnerArts: never;
   ReviewWinners: never;
+  RevisionOriginalContents: never;
   Sessions: never;
   SideCommentCaches: never;
   SplashArtCoordinates: never;
