@@ -454,6 +454,48 @@ export class CollabElementNode {
     }
   }
 
+  _childrenMatchPrevLexicalChildren(prevChildren: Array<NodeKey>): boolean {
+    if (this._children.length !== prevChildren.length) {
+      return false;
+    }
+
+    for (let i = 0; i < prevChildren.length; i++) {
+      if (this._children[i]._key !== prevChildren[i]) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  _rebuildChildrenFromLexical(
+    binding: Binding,
+    nextChildren: Array<NodeKey>,
+  ): void {
+    const collabNodeMap = binding.collabNodeMap;
+
+    for (let i = 0; i < this._children.length; i++) {
+      this._children[i].destroy(binding);
+    }
+    this._children = [];
+
+    if (this._xmlText.length > 0) {
+      this._xmlText.delete(0, this._xmlText.length);
+    }
+
+    for (let i = 0; i < nextChildren.length; i++) {
+      const key = nextChildren[i];
+      const nextChildNode = $getNodeByKeyOrThrow(key);
+      const collabNode = $createCollabNodeFromLexicalNode(
+        binding,
+        nextChildNode,
+        this,
+      );
+      this.append(collabNode);
+      collabNodeMap.set(key, collabNode);
+    }
+  }
+
   syncChildrenFromLexical(
     binding: Binding,
     nextLexicalNode: ElementNode,
@@ -470,6 +512,19 @@ export class CollabElementNode {
     const prevEndIndex = prevChildren.length - 1;
     const nextEndIndex = nextChildren.length - 1;
     const collabNodeMap = binding.collabNodeMap;
+
+    if (
+      prevLexicalNode !== null &&
+      !this._childrenMatchPrevLexicalChildren(prevChildren)
+    ) {
+      // The positional diff below assumes this._children corresponds to the
+      // previous Lexical child list. Text-node normalization can make those
+      // representations drift before the next Lexical -> Yjs sync runs; if we
+      // then splice by position, updates can be applied to the wrong Yjs child.
+      this._rebuildChildrenFromLexical(binding, nextChildren);
+      return;
+    }
+
     let prevChildrenSet: Set<NodeKey> | undefined;
     let nextChildrenSet: Set<NodeKey> | undefined;
     let prevIndex = 0;
