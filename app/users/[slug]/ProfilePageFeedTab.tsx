@@ -107,7 +107,7 @@ export function ProfilePageFeedTabContents({user, settings}: {
   const sharedClasses = useStyles(profileStyles);
   const classes = useStyles(profilePageFeedTabUnsharedStyles);
 
-  const hasPosts = user.postCount > 0;
+  const hasPosts = user.postCount + user.coauthoredPostCount > 0;
   const hasFeedContent = hasPosts || (user?.commentCount ?? 0) > 0 || (user?.tagRevisionCount ?? 0) > 0;
 
   return <TabPanel className={classes.feedList}>

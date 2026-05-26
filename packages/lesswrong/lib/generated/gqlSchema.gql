@@ -7414,6 +7414,7 @@ type User {
   signUpReCaptchaRating: Float
   noExpandUnreadCommentsReview: Boolean!
   postCount: Float!
+  coauthoredPostCount: Float!
   maxPostCount: Float!
   posts(limit: Int = 5): [Post!]
   commentCount: Float!
