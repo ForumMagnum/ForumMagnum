@@ -415,7 +415,12 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     });
   }
 
-  submitData = async () => {
+  /**
+   * `includeYjsState` defaults to false because the Yjs snapshot is only
+   * load-bearing in save/update mutations, which are much less frequent
+   * than submitData calls in general.
+   */
+  submitData = async ({ includeYjsState = false }: { includeYjsState?: boolean } = {}) => {
     let data: any = null
     let dataWithDiscardedSuggestions
     let yjsState: string | null = null
@@ -431,7 +436,7 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         dataWithDiscardedSuggestions = this._lexicalGetDataWithDiscardedSuggestions?.();
         // For Lexical posts, capture the current Yjs state so
         // the revision created by updatePost has a restorable snapshot.
-        if (this.props.document?._id) {
+        if (includeYjsState && this.props.document?._id) {
           yjsState = getYjsStateBase64ForPost(this.props.document._id, this.props.fieldName);
         }
         break

@@ -27,6 +27,7 @@ import ForumIcon from "../common/ForumIcon";
 import { useMutation } from "@apollo/client/react";
 import EditorSettingsSidebar from "./EditorSettingsSidebar";
 import MobileEditorBottomBar from "./MobileEditorBottomBar";
+import { useIsAboveBreakpoint } from "../hooks/useScreenWidth";
 import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
 import { EVENT_TYPES } from "@/lib/collections/posts/constants";
 import { isClient } from "@/lib/executionEnvironment";
@@ -469,6 +470,7 @@ const PostForm = ({
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
   const [editorType, setEditorType] = useState<string | undefined>(initialData.contents?.originalContents.type);
+  const isAboveMobile = useIsAboveBreakpoint("md", false);
   const [sidebarPanel, setSidebarPanel] = useState<"publish" | "settings" | "sharing" | null>(null);
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
@@ -1185,7 +1187,7 @@ const PostForm = ({
           to open it, so this only matters if there aren't already any comments
           and they explicitly want to leave a comment that's not on a quoted segment.
       */}
-      {canEditMetadata && <MobileEditorBottomBar
+      {canEditMetadata && !isAboveMobile && <MobileEditorBottomBar
         form={form}
         initialData={initialData}
         formType={formType}

@@ -386,7 +386,7 @@ function InnerEditorFormComponent<S, R>({
     if (editorRef.current) {
       const cleanupSubmitForm = addOnSubmitCallback(async () => {
         if (editorRef.current && shouldSubmitContents(editorRef.current)) {
-          const updatedEditorData = await editorRef.current.submitData();
+          const updatedEditorData = await editorRef.current.submitData({ includeYjsState: true });
           field.setValue(updatedEditorData);
         }
       });
