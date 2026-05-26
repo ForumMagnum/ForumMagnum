@@ -8,7 +8,7 @@
 
 /*@__INLINE__*/
 export default function warnOnlyOnce(message: string): () => void {
-  if (__DEV__) {
+  //if (__DEV__) {
     let run = false;
     return () => {
       if (!run) {
@@ -16,7 +16,7 @@ export default function warnOnlyOnce(message: string): () => void {
       }
       run = true;
     };
-  } else {
-    return () => {};
-  }
+  //} else {
+    //return () => {};
+  //}
 }

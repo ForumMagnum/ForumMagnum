@@ -38,7 +38,7 @@ const HR: ElementTransformer = {
   },
   triggerOnEnter: true,
   type: 'element',
-};
+} as ElementTransformer;
 export const DEFAULT_TRANSFORMERS = [HR, ...TRANSFORMERS];
 
 export function MarkdownShortcutPlugin({
