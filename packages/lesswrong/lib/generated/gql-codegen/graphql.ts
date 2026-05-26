@@ -13597,6 +13597,7 @@ export type multiModeratorCommentsQueryQuery = { __typename?: 'Query', comments:
 export type ProfilePostDiamondDataQueryQueryVariables = Exact<{
   userId: Scalars['String']['input'];
   limit: Scalars['Int']['input'];
+  af?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -13605,6 +13606,7 @@ export type ProfilePostDiamondDataQueryQuery = { __typename?: 'Query', ProfileDi
 export type ProfileCommentDiamondDataQueryQueryVariables = Exact<{
   userId: Scalars['String']['input'];
   limit: Scalars['Int']['input'];
+  af?: InputMaybe<Scalars['Boolean']['input']>;
 }>;
 
 
@@ -13635,7 +13637,7 @@ export type ProfilePostsQueryQuery = { __typename?: 'Query', posts: { __typename
     )> } | null };
 
 export type UserProfilePost = (
-  { __typename?: 'Post', baseScore: number, postedAt: string, contents: { __typename?: 'Revision', plaintextDescription: string } | null }
+  { __typename?: 'Post', baseScore: number, afBaseScore: number | null, postedAt: string, contents: { __typename?: 'Revision', plaintextDescription: string } | null }
   & PostsMinimumInfo
 );
 
@@ -13700,7 +13702,7 @@ export type ProfileTopPostsQueryQuery = { __typename?: 'Query', posts: { __typen
     )> } | null };
 
 export type ProfileTopPost = (
-  { __typename?: 'Post', baseScore: number, postedAt: string, socialPreviewData: { __typename?: 'SocialPreviewType', imageUrl: string }, contents: { __typename?: 'Revision', plaintextDescription: string } | null }
+  { __typename?: 'Post', baseScore: number, afBaseScore: number | null, postedAt: string, socialPreviewData: { __typename?: 'SocialPreviewType', imageUrl: string }, contents: { __typename?: 'Revision', plaintextDescription: string } | null }
   & PostsMinimumInfo
 );
 

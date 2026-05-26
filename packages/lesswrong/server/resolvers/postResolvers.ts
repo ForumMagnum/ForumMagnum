@@ -254,8 +254,10 @@ interface ProfileCommentDiamondRow {
   postId: string;
 }
 
-async function getProfileDiamondPosts(userId: string, limit: number): Promise<{ results: ProfilePostDiamondRow[], totalCount: number }> {
+async function getProfileDiamondPosts(userId: string, limit: number, af?: boolean): Promise<{ results: ProfilePostDiamondRow[], totalCount: number }> {
   const db = getSqlClientOrThrow();
+  const afFilter = af ? `AND p."af" = true` : '';
+  const karmaColumn = af ? `COALESCE(p."afBaseScore", 0)` : `p."baseScore"`;
   const whereClause = `
     ${getViewablePostsSelector("p")}
     AND (
@@ -263,6 +265,7 @@ async function getProfileDiamondPosts(userId: string, limit: number): Promise<{ 
       OR p."coauthorUserIds" @> ARRAY[$(userId)]::TEXT[]
     )
     AND p."rejected" IS NOT TRUE
+    ${afFilter}
   `;
   const [results, countRow] = await Promise.all([
     db.any<ProfilePostDiamondRow>(`
@@ -271,7 +274,7 @@ async function getProfileDiamondPosts(userId: string, limit: number): Promise<{ 
         p."_id" AS "_id",
         p."slug" AS "slug",
         p."postedAt" AS "date",
-        p."baseScore" AS "karma",
+        ${karmaColumn} AS "karma",
         EXISTS(
           SELECT 1
           FROM "ReviewWinners" rw
@@ -293,8 +296,8 @@ async function getProfileDiamondPosts(userId: string, limit: number): Promise<{ 
   return { results, totalCount: parseInt(countRow.count) };
 }
 
-async function getProfileDiamondComments(userId: string, limit: number): Promise<{ results: ProfileCommentDiamondRow[], totalCount: number }> {
-  const selector = {
+async function getProfileDiamondComments(userId: string, limit: number, af?: boolean): Promise<{ results: ProfileCommentDiamondRow[], totalCount: number }> {
+  const selector: any = {
     userId,
     postId: { $ne: null },
     postedAt: { $ne: null },
@@ -303,6 +306,7 @@ async function getProfileDiamondComments(userId: string, limit: number): Promise
     draft: { $ne: true },
     debateResponse: { $ne: true },
     authorIsUnreviewed: { $ne: true },
+    ...(af ? { af: true } : {}),
   };
 
   const [comments, totalCount] = await Promise.all([
@@ -316,6 +320,7 @@ async function getProfileDiamondComments(userId: string, limit: number): Promise
         _id: 1,
         postedAt: 1,
         baseScore: 1,
+        afBaseScore: 1,
         postId: 1,
       }
     ).fetch(),
@@ -327,7 +332,7 @@ async function getProfileDiamondComments(userId: string, limit: number): Promise
     return {
       id: comment._id,
       date: comment.postedAt,
-      karma: comment.baseScore ?? 0,
+      karma: af ? (comment.afBaseScore ?? 0) : (comment.baseScore ?? 0),
       postId: comment.postId,
     };
   }).filter((comment): comment is ProfileCommentDiamondRow => !!comment);
@@ -381,24 +386,28 @@ export const postGqlQueries = {
     {
       userId,
       limit,
+      af,
     }: {
       userId: string,
       limit: number,
+      af?: boolean,
     },
   ) {
-    return await getProfileDiamondPosts(userId, limit);
+    return await getProfileDiamondPosts(userId, limit, af ?? false);
   },
   async ProfileDiamondComments(
     root: void,
     {
       userId,
       limit,
+      af,
     }: {
       userId: string,
       limit: number,
+      af?: boolean,
     },
   ) {
-    return await getProfileDiamondComments(userId, limit);
+    return await getProfileDiamondComments(userId, limit, af ?? false);
   },
   async HomepageCommunityEvents(root: void, { limit }: { limit: number }, context: ResolverContext): Promise<HomepageCommunityEventMarkersResult> {
     const { repos } = context
@@ -621,8 +630,8 @@ export const postGqlTypeDefs = gql`
       sort: PostReviewSort
     ): UserReadHistoryResult
 
-    ProfileDiamondPosts(userId: String!, limit: Int!): ProfileDiamondPostsResult!
-    ProfileDiamondComments(userId: String!, limit: Int!): ProfileDiamondCommentsResult!
+    ProfileDiamondPosts(userId: String!, limit: Int!, af: Boolean): ProfileDiamondPostsResult!
+    ProfileDiamondComments(userId: String!, limit: Int!, af: Boolean): ProfileDiamondCommentsResult!
 
     LastCuratedDate: LastCuratedDateResult!
     HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
