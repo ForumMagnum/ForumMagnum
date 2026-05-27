@@ -7,6 +7,7 @@ export default registerMigration({
   dateWritten: "2026-05-26",
   idempotent: true,
   action: async () => {
+    // eslint-disable-next-line no-console
     console.log("Filling coauthored post count...");
     await getSqlClientOrThrow().none(`
       UPDATE "Users" u
@@ -27,6 +28,7 @@ export default registerMigration({
     `, {
       approvedStatus: postStatuses.STATUS_APPROVED,
     });
+    // eslint-disable-next-line no-console
     console.log("Done");
   },
 });
