@@ -1,22 +1,28 @@
 #!/bin/bash
 
 # Spins up everything needed to exercise the research-sandbox feature locally:
-#   1. A cloudflared quick tunnel pointing at the Next.js dev server so the
+#   1. A Tailscale Funnel pointing at the Next.js dev server so the
 #      Vercel-hosted supervisor can call back to this machine.
 #   2. The local hocuspocus collab server (fly/hocuspocusServer).
 #   3. The Next.js dev server with RESEARCH_BACKEND_PUBLIC_URL wired to the
-#      tunnel and HOCUSPOCUS_URL wired to ws://localhost:8080.
+#      funnel URL and HOCUSPOCUS_URL wired to ws://localhost:8080.
 #
-# Extra args are forwarded to scripts/runDevInstance.sh (e.g. dev|prod, or
-# nextjs flags like --port).
+# Each developer gets a stable per-machine URL (<host>.<tailnet>.ts.net) from
+# their own tailnet, so no shared infra or per-dev env-var coordination is
+# needed. Extra args are forwarded to scripts/runDevInstance.sh (e.g. dev|prod,
+# or nextjs flags like --port).
 
 print_help () {
   cat <<-END
 		Usage: scripts/runDevWithResearchSandbox.sh [environment-name] [nextjs-options]
 
-		Starts a cloudflared quick tunnel, the local hocuspocus server, and the
-		Next.js dev server with the environment variables needed by the research
-		sandbox feature. Use Ctrl+C to shut everything down.
+		Starts a Tailscale Funnel, the local hocuspocus server, and the Next.js
+		dev server with the environment variables needed by the research sandbox
+		feature. Use Ctrl+C to shut everything down.
+
+		Prerequisites:
+		  - Tailscale installed (brew install tailscale) and signed in.
+		  - HTTPS + Funnel enabled for your tailnet in the admin console.
 	END
 }
 
@@ -25,8 +31,9 @@ if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
   exit 0
 fi
 
-if ! command -v cloudflared >/dev/null 2>&1; then
-  echo "Error: cloudflared not found on PATH. Install with: brew install cloudflared" >&2
+if ! command -v tailscale >/dev/null 2>&1; then
+  echo "Error: tailscale not found on PATH. Install with: brew install tailscale" >&2
+  echo "       (App Store installs require running 'Install CLI' from the menubar.)" >&2
   exit 1
 fi
 
@@ -34,9 +41,14 @@ REPO_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 HOCUSPOCUS_DIR="$REPO_ROOT/fly/hocuspocusServer"
 DEV_PORT=3000
 
-CLOUDFLARED_PID=""
+# Only the supervisor-callback prefix is exposed through the funnel. The
+# tailnet hostname is published in public Certificate Transparency logs the
+# moment its HTTPS cert is issued, so opportunistic scrapers find it within
+# minutes; scoping the funnel to this prefix keeps `/.env`/`/v2/_catalog`/etc.
+# from ever reaching the dev server.
+FUNNEL_PATH="/api/research/agent"
+
 HOCUSPOCUS_PID=""
-TUNNEL_LOG=""
 
 stop_pid_tree () {
   local pid="$1"
@@ -52,40 +64,42 @@ cleanup () {
   echo ""
   echo "[run-research] Stopping background processes..."
   stop_pid_tree "$HOCUSPOCUS_PID"
-  stop_pid_tree "$CLOUDFLARED_PID"
-  if [[ -n "$TUNNEL_LOG" && -f "$TUNNEL_LOG" ]]; then
-    rm -f "$TUNNEL_LOG"
-  fi
+  echo "[run-research] Resetting Tailscale Funnel"
+  tailscale funnel reset >/dev/null 2>&1 || true
 }
 trap cleanup EXIT INT TERM
 
-# 1. Start cloudflare quick tunnel pointing at the dev server.
-TUNNEL_LOG="$(mktemp -t cloudflared-tunnel.XXXXXX)"
-echo "[run-research] Starting cloudflared quick tunnel -> http://localhost:$DEV_PORT"
-cloudflared tunnel --no-autoupdate --url "http://localhost:$DEV_PORT" \
-  >"$TUNNEL_LOG" 2>&1 &
-CLOUDFLARED_PID=$!
-
-# 2. Wait for the trycloudflare.com URL to appear (usually a few seconds).
-TUNNEL_URL=""
-for _ in $(seq 1 60); do
-  if ! kill -0 "$CLOUDFLARED_PID" 2>/dev/null; then
-    echo "[run-research] cloudflared exited before publishing a URL. Log:" >&2
-    cat "$TUNNEL_LOG" >&2
-    exit 1
-  fi
-  TUNNEL_URL="$(grep -oE 'https://[a-z0-9-]+\.trycloudflare\.com' "$TUNNEL_LOG" | head -n 1)"
-  [[ -n "$TUNNEL_URL" ]] && break
-  sleep 1
-done
-
-if [[ -z "$TUNNEL_URL" ]]; then
-  echo "[run-research] Timed out waiting for cloudflare tunnel URL. Last log:" >&2
-  cat "$TUNNEL_LOG" >&2
+# 1. Resolve this machine's stable funnel hostname from tailscaled. The funnel
+#    URL is `https://<Self.DNSName>` (a permanent property of the tailnet
+#    node), so we can compute it before the funnel is even configured.
+TUNNEL_HOST="$(tailscale status --json 2>/dev/null | \
+  python3 -c 'import json, sys
+data = json.load(sys.stdin)
+print(data.get("Self", {}).get("DNSName", "").rstrip("."))' 2>/dev/null)"
+if [[ -z "$TUNNEL_HOST" ]]; then
+  echo "[run-research] Could not resolve Tailscale hostname. Is tailscaled running and signed in?" >&2
   exit 1
 fi
+# The supervisor uses this as its `backendBaseUrl`; it always appends
+# `/api/research/agent/...`, so the public URL must be the funnel host root.
+TUNNEL_URL="https://${TUNNEL_HOST}"
+echo "[run-research] Funnel URL: $TUNNEL_URL (scoped to $FUNNEL_PATH)"
 
-echo "[run-research] Tunnel URL: $TUNNEL_URL"
+# 2. Configure the Tailscale Funnel to proxy a single path prefix to the dev
+#    server. `--bg` writes the config to tailscaled and returns; the funnel
+#    itself is served by tailscaled, so there is no long-running process for
+#    this script to babysit. `--yes` suppresses the interactive enablement
+#    prompt that would otherwise hang the script when the node lacks the
+#    `funnel` ACL attribute — we want a fast failure with a clear error
+#    instead. `--set-path` strips the public prefix before proxying, so the
+#    backend target URL has to include the same prefix to round-trip the path.
+echo "[run-research] Starting Tailscale Funnel ${FUNNEL_PATH} -> http://localhost:${DEV_PORT}${FUNNEL_PATH}"
+if ! tailscale funnel --bg --yes \
+    --set-path="$FUNNEL_PATH" \
+    "http://localhost:${DEV_PORT}${FUNNEL_PATH}" >/dev/null; then
+  echo "[run-research] tailscale funnel failed. Check that HTTPS + Funnel are enabled for your tailnet." >&2
+  exit 1
+fi
 
 # 3. Start the local hocuspocus server in the background.
 echo "[run-research] Starting hocuspocus server (yarn start:dev in fly/hocuspocusServer)"
