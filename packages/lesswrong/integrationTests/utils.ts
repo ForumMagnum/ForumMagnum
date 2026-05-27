@@ -144,7 +144,10 @@ const isPermissionsFlavoredError = (error: any): boolean => {
   return false;
 };
 
-const isPermissionsFlavoredErrorString = (str: any): boolean => {
+const isPermissionsFlavoredErrorString = (str: string): boolean => {
+  if (str.toLowerCase().includes("blocked")) {
+    return true;
+  }
   switch (str)
   {
   case 'errors.disallowed_property_detected':
