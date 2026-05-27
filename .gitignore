@@ -139,3 +139,5 @@ acxMeetupImports/
 # Claude Code
 .claude
 
+harness-cache/
+harness-output/
