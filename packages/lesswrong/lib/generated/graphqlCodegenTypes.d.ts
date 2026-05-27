@@ -11609,6 +11609,79 @@ type YjsDocument = {
   createdAt: Scalars['Date']['output'];
 };
 
+type RecentActivityPostsQueryQuery_posts_MultiPostOutput_results_Post = (
+  { __typename?: 'Post' }
+  & PostsList
+);
+
+type RecentActivityPostsQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<RecentActivityPostsQueryQuery_posts_MultiPostOutput_results_Post> };
+
+type RecentActivityPostsQueryQuery_Query = { __typename?: 'Query', posts: RecentActivityPostsQueryQuery_posts_MultiPostOutput | null };
+
+
+type RecentActivityPostsQueryQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type RecentActivityPostsQueryQuery = RecentActivityPostsQueryQuery_Query;
+
+type RecentActivityCommentsQueryQuery_comments_MultiCommentOutput_results_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsListWithParentMetadata
+);
+
+type RecentActivityCommentsQueryQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<RecentActivityCommentsQueryQuery_comments_MultiCommentOutput_results_Comment> };
+
+type RecentActivityCommentsQueryQuery_Query = { __typename?: 'Query', comments: RecentActivityCommentsQueryQuery_comments_MultiCommentOutput | null };
+
+
+type RecentActivityCommentsQueryQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type RecentActivityCommentsQueryQuery = RecentActivityCommentsQueryQuery_Query;
+
+type ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment = (
+  { __typename?: 'Comment' }
+  & CommentsList
+);
+
+type ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment = (
+  { __typename?: 'Comment', parentComment: ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment | null }
+  & CommentsList
+);
+
+type ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment_parentComment_Comment_parentComment_Comment = (
+  { __typename?: 'Comment', parentComment: ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment_parentComment_Comment_parentComment_Comment_parentComment_Comment | null }
+  & CommentsList
+);
+
+type ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment_parentComment_Comment = (
+  { __typename?: 'Comment', parentComment: ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment_parentComment_Comment_parentComment_Comment | null }
+  & CommentsList
+);
+
+type ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment = (
+  { __typename?: 'Comment', parentComment: ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment_parentComment_Comment | null }
+  & CommentsList
+);
+
+type ActivityCommentParentsQueryQuery_comment_SingleCommentOutput = { __typename?: 'SingleCommentOutput', result: ActivityCommentParentsQueryQuery_comment_SingleCommentOutput_result_Comment | null };
+
+type ActivityCommentParentsQueryQuery_Query = { __typename?: 'Query', comment: ActivityCommentParentsQueryQuery_comment_SingleCommentOutput | null };
+
+
+type ActivityCommentParentsQueryQueryVariables = Exact<{
+  commentId: Scalars['String']['input'];
+}>;
+
+
+type ActivityCommentParentsQueryQuery = ActivityCommentParentsQueryQuery_Query;
+
 type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextDescription: string };
 
 type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_books_Book_sequences_Sequence = { __typename?: 'Sequence', _id: string, title: string };
