@@ -7,6 +7,8 @@
 
 const RESIZE_SCRIPT = `<script>
 (function() {
+  var lastSentHeight = 0;
+  var debounceTimer;
   function postHeight() {
     var body = document.body;
     if (!body) return;
@@ -14,7 +16,18 @@ const RESIZE_SCRIPT = `<script>
     var h = body.offsetHeight
       + (parseFloat(cs.marginTop) || 0)
       + (parseFloat(cs.marginBottom) || 0);
-    parent.postMessage({ type: 'iframe-widget-resize', height: Math.ceil(h) }, '*');
+    h = Math.ceil(h);
+    if (h === lastSentHeight) return;
+    lastSentHeight = h;
+    parent.postMessage({ type: 'iframe-widget-resize', height: h }, '*');
+  }
+  // Wait for layout to settle before measuring.
+  // Setting the iframe height from the parent triggers ResizeObserver
+  // in the iframe, which can cause an infinite resize loop at certain
+  // zoom levels. Debouncing lets the layout stabilize first.
+  function schedulePostHeight() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(postHeight, 150);
   }
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', postHeight);
@@ -22,18 +35,14 @@ const RESIZE_SCRIPT = `<script>
     postHeight();
   }
   if (typeof ResizeObserver !== 'undefined') {
-    var raf;
-    new ResizeObserver(function() {
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(postHeight);
-    }).observe(document.documentElement);
+    new ResizeObserver(schedulePostHeight).observe(document.documentElement);
   }
   window.addEventListener('message', function(event) {
     if (event.data?.type === 'iframe-widget-request-resize') {
       postHeight();
     }
   });
-  window.addEventListener('resize', postHeight);
+  window.addEventListener('resize', schedulePostHeight);
 })();
 </script>`;
 
