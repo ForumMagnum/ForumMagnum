@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, forwardRef, use, useContext, useLayoutEffect } from "react";
+import React, { createContext, forwardRef, use, useLayoutEffect } from "react";
 import type { ClassNameProxy, StyleDefinition, StyleOptions } from "@/server/styleGeneration";
 import type { JssStyles } from "@/lib/jssStyles";
 import { create as jssCreate, SheetsRegistry } from 'jss';
@@ -122,9 +122,7 @@ function removeStyleUsage<T extends string>(context: StylesContextType, styleDef
 }
 
 export const useStyles = <T extends string>(styles: StyleDefinition<T>, overrideClasses?: Partial<JssStyles<T>>): JssStyles<T> => {
-  const stylesContext = useContext(StylesContext);
-  const themeContext = useContext(ThemeContext);
-  const theme = themeContext!.theme;
+  const stylesContext = use(StylesContext);
 
   if (bundleIsServer) {
     if (stylesContext) {
@@ -143,9 +141,12 @@ export const useStyles = <T extends string>(styles: StyleDefinition<T>, override
       }
     }
   } else {
+    const themeContext = use(ThemeContext);
+    const theme = themeContext?.theme;
+
     // eslint-disable-next-line react-hooks/rules-of-hooks
     useLayoutEffect(() => {
-      if (stylesContext) {
+      if (stylesContext && theme) {
         addStyleUsage(stylesContext, theme, styles);
         return () => removeStyleUsage(stylesContext, styles);
       }
