@@ -36,6 +36,7 @@ export const UsersMinimumInfo = gql(`
 export const UsersProfile = gql(`
   fragment UsersProfile on User {
     ...UsersMinimumInfo
+    coauthoredPostCount
     fullName
     previousDisplayName
     oldSlugs

@@ -119,6 +119,13 @@ const profilePageAllPostsTabUnsharedStyles = defineStyles("ProfilePageAllPostsTa
       textDecoration: "none",
     },
   },
+  listArticleAuthors: {
+    fontFamily: theme.typography.fontFamily,
+    fontSize: 13,
+    lineHeight: 1.35,
+    color: theme.palette.text.dim,
+    marginTop: -1,
+  },
   listArticleSummaryWrapper: {
     flex: "1 1 0",
     minHeight: 0,
@@ -247,7 +254,9 @@ const ProfilePostsQuery = gql(`
   }
   fragment UserProfilePost on Post {
     ...PostsMinimumInfo
-    baseScore postedAt
+    baseScore postedAt hideAuthor
+    user { _id displayName }
+    coauthors { _id displayName }
     contents { plaintextDescription }
   }
 `);
@@ -263,6 +272,22 @@ export type ProfilePageAllPostsTabSettings = z.infer<typeof profilePageAllPostsT
 
 export const defaultProfilePageAllPostsTabSettings: ProfilePageAllPostsTabSettings = {
   sortBy: "new",
+};
+
+const formatAuthorNames = (names: string[]) => {
+  if (names.length <= 2) {
+    return names.join(" and ");
+  }
+
+  return `${names.slice(0, -1).join(", ")}, and ${names[names.length - 1]}`;
+};
+
+const getProfilePostAuthorLine = (post: UserProfilePost) => {
+  const primaryAuthorName = (!post.user || post.hideAuthor) ? "Deleted user" : userGetDisplayName(post.user);
+  const coauthorNames = (post.coauthors ?? []).map(userGetDisplayName).filter(Boolean);
+  const authorNames = [primaryAuthorName, ...coauthorNames].filter(Boolean);
+
+  return formatAuthorNames(authorNames);
 };
 
 export function ProfilePageAllPostsTabSettingsForm({
@@ -340,12 +365,12 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
     fetchPolicy: "cache-and-network",
   });
   const recentPosts = recentPostsData?.posts?.results ?? [];
-  const hasPosts = user.postCount > 0;
+  const hasPosts = user.postCount + user.coauthoredPostCount > 0;
 
   return <TabPanel className={classes.postsList}>
     {!hasPosts && !recentPostsLoading && (
       <div className={sharedClasses.emptyStateContainer}>
-        <p className={sharedClasses.emptyStateDescription}>{userGetDisplayName(user)} has not written any posts yet.</p>
+        <p className={sharedClasses.emptyStateDescription}>{userGetDisplayName(user)} has not written or coauthored any posts yet.</p>
         <div className={sharedClasses.emptyStateImage}>
           <img src="/profile-placeholder-2.png" alt="" />
         </div>
@@ -355,6 +380,9 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
       const summary = getPostSummary(post);
       const imageUrl = getListPostImageUrl(post);
       const hasListImage = !!imageUrl;
+      const isCoauthoredOnly = post.userId !== userId && post.coauthorUserIds.includes(userId);
+      const authorLine = isCoauthoredOnly ? getProfilePostAuthorLine(post) : null;
+
       return (
         <article key={post._id} className={classes.listArticle}>
           <Link
@@ -367,6 +395,7 @@ export function ProfilePageAllPostsTabContents({user, settings}: {
                   <h3 className={classes.listArticleTitle}>
                     <span className={classes.listArticleTitleText}>{post.title}</span>
                   </h3>
+                  {authorLine && <div className={classes.listArticleAuthors}>by {authorLine}</div>}
                   {summary && (
                     <div className={classNames(
                       classes.listArticleSummaryWrapper,

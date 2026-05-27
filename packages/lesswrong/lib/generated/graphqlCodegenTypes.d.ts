@@ -11031,6 +11031,7 @@ type User = {
   bookmarksCount?: Maybe<Scalars['Int']['output']>;
   careerStage?: Maybe<Array<Scalars['String']['output']>>;
   claudeLinkedAt?: Maybe<Scalars['Date']['output']>;
+  coauthoredPostCount: Scalars['Float']['output'];
   collapseModerationGuidelines?: Maybe<Scalars['Boolean']['output']>;
   commentCount: Scalars['Float']['output'];
   commentSorting?: Maybe<Scalars['String']['output']>;
@@ -12082,10 +12083,14 @@ type ProfilePostsQueryQueryVariables = Exact<{
 
 type ProfilePostsQueryQuery = ProfilePostsQueryQuery_Query;
 
+type UserProfilePost_Post_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type UserProfilePost_Post_coauthors_User = { __typename?: 'User', _id: string, displayName: string };
+
 type UserProfilePost_Post_contents_Revision = { __typename?: 'Revision', plaintextDescription: string };
 
 type UserProfilePost = (
-  { __typename?: 'Post', baseScore: number, postedAt: string, contents: UserProfilePost_Post_contents_Revision | null }
+  { __typename?: 'Post', baseScore: number, postedAt: string, hideAuthor: boolean, user: UserProfilePost_Post_user_User | null, coauthors: Array<UserProfilePost_Post_coauthors_User> | null, contents: UserProfilePost_Post_contents_Revision | null }
   & PostsMinimumInfo
 );
 
@@ -24079,7 +24084,7 @@ type UsersProfile_User_moderationGuidelines_Revision = (
 );
 
 type UsersProfile = (
-  { __typename?: 'User', fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, organizerOfGroupIds: Array<string>, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, hideProfileTopPosts: boolean, voteReceivedCount: number | null, biography: UsersProfile_User_biography_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
+  { __typename?: 'User', coauthoredPostCount: number, fullName: string | null, previousDisplayName: string | null, oldSlugs: Array<string>, groups: Array<string> | null, organizerOfGroupIds: Array<string>, website: string | null, linkedinProfileURL: string | null, facebookProfileURL: string | null, blueskyProfileURL: string | null, twitterProfileURL: string | null, githubProfileURL: string | null, afSequenceCount: number, afSequenceDraftCount: number, sequenceDraftCount: number, moderationStyle: string | null, bannedUserIds: Array<string> | null, location: string | null, googleLocation: any | null, mapLocation: any | null, mapLocationSet: boolean | null, mapMarkerText: string | null, htmlMapMarkerText: string | null, mongoLocation: any | null, shortformFeedId: string | null, petrovPressedButtonDate: string | null, petrovOptOut: boolean, sortDraftsBy: string | null, email: string | null, emails: Array<any> | null, banned: string | null, noindex: boolean, paymentEmail: string | null, paymentInfo: string | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, pinnedPostIds: Array<string>, hideProfileTopPosts: boolean, voteReceivedCount: number | null, biography: UsersProfile_User_biography_Revision | null, moderationGuidelines: UsersProfile_User_moderationGuidelines_Revision | null }
   & UsersMinimumInfo
 );
 
