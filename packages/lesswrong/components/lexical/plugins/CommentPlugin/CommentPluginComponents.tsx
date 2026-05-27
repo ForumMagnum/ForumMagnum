@@ -26,35 +26,38 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 const styles = defineStyles('CommentPluginComponents', (theme: ThemeType) => ({
   commentInputBoxEditorContainer: {
     position: 'relative',
-    margin: 10,
+    margin: '6px 8px 8px',
     borderRadius: 5,
-    '--lexical-comment-placeholder-top': '10px',
-    '--lexical-comment-placeholder-left': '10px',
-    '--lexical-comment-min-height': '30px',
+    '--lexical-comment-placeholder-top': '7px',
+    '--lexical-comment-placeholder-left': '8px',
+    '--lexical-comment-min-height': '34px',
   },
   editor: {
     position: 'relative',
-    border: theme.palette.greyBorder('1px', 0.14),
+    border: theme.palette.greyBorder('1px', 0.2),
     backgroundColor: theme.palette.background.default,
-    borderRadius: 8,
-    fontSize: 15,
+    borderRadius: 6,
+    fontSize: 13,
+    lineHeight: '1.45',
     caretColor: theme.palette.grey[900],
     display: 'block',
-    padding: '9px 10px 10px 9px',
-    minHeight: 20,
-    '&::before': {
-      content: '""',
-      width: 30,
-      height: 20,
-      float: 'right',
+    padding: '7px 30px 7px 8px',
+    minHeight: 34,
+    transition: 'border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
+    '&:focus-within': {
+      borderColor: theme.palette.primary.main,
+      boxShadow: `0 0 0 1px ${theme.palette.primary.light}`,
     },
   },
   sendButton: {
     position: 'absolute',
     right: 10,
-    top: 8,
+    bottom: 8,
     '&&': {
       background: 'none',
+      padding: 0,
+      minWidth: 'unset',
+      minHeight: 'unset',
     },
     '&:hover': {
       '&&': {
@@ -62,24 +65,23 @@ const styles = defineStyles('CommentPluginComponents', (theme: ThemeType) => ({
       },
       '& $sendIcon': {
         opacity: 1,
-        color: theme.palette.greyAlpha(0.85),
+        color: theme.palette.primary.main,
       },
     },
     '&:disabled $sendIcon': {
-      opacity: 0.3,
+      opacity: 0.2,
     },
     '&:disabled:hover $sendIcon': {
-      opacity: 0.3,
+      opacity: 0.2,
       filter: 'none',
     },
   },
   sendIcon: {
-    display: 'inline-block',
-    height: 20,
-    width: 20,
-    verticalAlign: '-10px',
+    display: 'block',
+    height: 18,
+    width: 18,
     opacity: 0.5,
-    transition: 'opacity 0.2s linear',
+    transition: 'opacity 0.15s ease-in-out, color 0.15s ease-in-out',
   },
   suggestionActions: {
     display: 'flex',
@@ -188,8 +190,10 @@ export function CommentsComposer({
   submitAddComment,
   thread,
   placeholder,
+  autoFocus,
 }: {
   placeholder?: string;
+  autoFocus?: boolean;
   submitAddComment: (
     commentOrThread: Comment,
     isInlineComment: boolean,
@@ -220,7 +224,7 @@ export function CommentsComposer({
     <>
       <PlainTextEditor
         className={classes.editor}
-        autoFocus={false}
+        autoFocus={autoFocus ?? false}
         onEscape={() => {
           return true;
         }}
