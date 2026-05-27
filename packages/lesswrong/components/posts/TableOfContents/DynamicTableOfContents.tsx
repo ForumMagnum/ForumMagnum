@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { EditorContents } from '../../editor/Editor';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import TableOfContents from "./TableOfContents";
@@ -7,7 +7,10 @@ import { DynamicTableOfContentsContext } from '@/components/common/sharedContext
 import { isLWorAF } from '@/lib/instanceSettings';
 import type { ToCData, ToCSection } from '@/lib/tableOfContents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useDebouncedCallback } from '@/components/hooks/useDebouncedCallback';
 import classNames from 'classnames';
+
+const TOC_REFRESH_DEBOUNCE_MS = 300;
 
 const EMPTY_TOC_DATA: ToCData = {
   html: null,
@@ -169,12 +172,29 @@ export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
     syncHeadingIdsToEditorDom(resolvedSectionData.sections);
   }, [useFixedPositionToc, resolvedSectionData]);
 
+  // Debounce TOC refreshes so that typing in the editor doesn't recompute the
+  // ToC (parse-document + extract-sections + re-render every row) on every
+  // keystroke. The first call passes through immediately so the initial ToC
+  // for a loaded post shows up without a delay.
+  const hasInitializedToc = useRef(false);
+  const flushTocHtml = useDebouncedCallback((html: string) => {
+    setLatestHtml(html);
+  }, {
+    rateLimitMs: TOC_REFRESH_DEBOUNCE_MS,
+    callOnLeadingEdge: false,
+    onUnmount: "cancelPending",
+    allowExplicitCallAfterUnmount: false,
+  });
   const setToc = useCallback((document: EditorContents) => {
     // TODO handle markdown and everything else
-    if (document.type === 'ckEditorMarkup' || document.type === 'lexical') {
-      setLatestHtml(document.value)
+    if (document.type !== 'ckEditorMarkup' && document.type !== 'lexical') return;
+    if (!hasInitializedToc.current) {
+      hasInitializedToc.current = true;
+      setLatestHtml(document.value);
+      return;
     }
-  }, []);
+    flushTocHtml(document.value);
+  }, [flushTocHtml]);
 
   const context = useMemo(() => ({setToc: setToc}), [setToc]);
 

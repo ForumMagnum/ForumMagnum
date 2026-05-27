@@ -6858,6 +6858,7 @@ interface User {
   signUpReCaptchaRating: number | null;
   noExpandUnreadCommentsReview: boolean;
   postCount: number;
+  coauthoredPostCount: number;
   maxPostCount: number;
   posts: Array<Post> | null;
   commentCount: number;
