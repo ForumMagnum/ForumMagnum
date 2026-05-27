@@ -19,6 +19,7 @@ import { AllPackages } from 'mathjax-full/js/input/tex/AllPackages.js';
 import { type LiteElement } from 'mathjax-full/js/adaptors/lite/Element';
 import IframeWidgetSrcdocs from '@/server/collections/iframeWidgetSrcdocs/collection';
 import { ServerSafeNode } from '@/lib/domParser';
+import * as Y from 'yjs';
 
 const blockTags = new Set([
   'ADDRESS', 'ARTICLE', 'ASIDE', 'BLOCKQUOTE', 'DIV', 'DL', 'DT', 'DD', 'FIELDSET',
@@ -744,6 +745,33 @@ export async function dataToWordCount(data: AnyBecauseTodo, type: string, contex
   return bestWordCount
 }
 
+/**
+ * Compact a Yjs binary state by round-tripping through a fresh gc:true doc.
+ *
+ * Live collaborative Yjs docs (Hocuspocus server, client editors) run with
+ * gc:false so that we can debug document corruption if/when it happens.
+ * That state grows unboundedly — every deleted character's content
+ * is retained in tombstones — so before embedding it in a Revision we run it
+ * through a gc:true scratch doc which drops deleted-item content during the
+ * update transaction. The re-encoded state displays identically but is
+ * substantially smaller for long-lived posts.
+ *
+ * Note: Restoring a GC'd state to a live doc (via resetHocuspocusDocument) is
+ * intentionally destructive — it replaces the live state, so losing tombstone
+ * history is expected and acceptable for the restore path.
+ */
+function gcYjsStateBase64(yjsStateBase64: string): string {
+  const binary = new Uint8Array(Buffer.from(yjsStateBase64, 'base64'));
+  const scratchDoc = new Y.Doc();
+  try {
+    Y.applyUpdate(scratchDoc, binary);
+    const compacted = Y.encodeStateAsUpdate(scratchDoc);
+    return Buffer.from(compacted).toString('base64');
+  } finally {
+    scratchDoc.destroy();
+  }
+}
+
 export async function buildRevision({ originalContents, currentUser, dataWithDiscardedSuggestions, context }: {
   originalContents: DbRevision["originalContents"],
   currentUser: DbUser,
@@ -772,8 +800,15 @@ export async function buildRevisionWithUser({ originalContents, user, isAdmin, d
   const html = await dataToHTML(readerVisibleData, type, context, { sanitize: !isAdmin || originalContents.type !== "html" })
   const wordCount = await dataToWordCount(readerVisibleData, type, context)
 
+  // For Lexical collab revisions, compact the Yjs state before storing.
+  // See gcYjsStateBase64 above.
+  const compactedOriginalContents = (type === 'lexical' && originalContents.yjsState)
+    ? { ...originalContents, yjsState: gcYjsStateBase64(originalContents.yjsState) }
+    : originalContents;
+
   return {
-    html, wordCount, originalContents,
+    html, wordCount,
+    originalContents: compactedOriginalContents,
     editedAt: new Date(),
     userId: user._id,
   };

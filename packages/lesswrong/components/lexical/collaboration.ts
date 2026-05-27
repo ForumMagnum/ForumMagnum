@@ -243,7 +243,7 @@ export function createWebsocketProvider(
   let doc = yjsDocMap.get(id);
 
   if (doc === undefined) {
-    doc = new Doc();
+    doc = new Doc({ gc: false });
     yjsDocMap.set(id, doc);
   } else {
     doc.load();

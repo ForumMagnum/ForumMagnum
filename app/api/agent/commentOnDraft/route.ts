@@ -152,7 +152,7 @@ export async function insertDraftCommentThread({
     throw new Error("HOCUSPOCUS_URL is not configured");
   }
 
-  const doc = new Doc();
+  const doc = new Doc({ gc: false });
   const provider = new HocuspocusProvider({
     url: wsUrl,
     name: documentName,
