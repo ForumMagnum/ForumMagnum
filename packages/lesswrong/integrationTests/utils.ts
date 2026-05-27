@@ -144,8 +144,8 @@ const isPermissionsFlavoredError = (error: any): boolean => {
   return false;
 };
 
-const isPermissionsFlavoredErrorString = (str: string): boolean => {
-  if (str.toLowerCase().includes("blocked")) {
+const isPermissionsFlavoredErrorString = (str: any): boolean => {
+  if (typeof str === 'string' && str.toLowerCase().includes("blocked")) {
     return true;
   }
   switch (str)
