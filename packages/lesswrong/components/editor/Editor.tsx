@@ -1,6 +1,6 @@
 import React, { Component, MutableRefObject } from 'react';
 import { userUseMarkdownPostEditor } from '../../lib/collections/users/helpers';
-import { editorStyles, ckEditorStyles } from '../../themes/stylePiping'
+import { editorSpoilerStyles, ckEditorStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
 import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
@@ -20,6 +20,8 @@ import Loading from "../vulcan-core/Loading";
 import SectionTitle from "../common/SectionTitle";
 import dynamic from 'next/dynamic';
 import { getYjsStateBase64ForPost } from '../lexical/collaboration';
+import { defineStyles } from '../hooks/defineStyles';
+import { llmContentBlockEditorStyles } from '../contents/llmContentBlockStyles';
 
 const CKCommentEditor = dynamic(() => import("./CKCommentEditor"));
 const CKPostEditor = dynamic(() => import("./CKPostEditor"));
@@ -34,12 +36,13 @@ const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
 const quickTakesEditorHeightRows = 5;
 
-export const styles = (theme: ThemeType) => ({
+export const editorStyles = defineStyles("Editor", (theme: ThemeType) => ({
   root: {
-    position: 'relative'
+    position: 'relative',
   },
   editor: {
     position: 'relative',
+    ...llmContentBlockEditorStyles(theme),
   },
   label: {
     display: 'block',
@@ -57,19 +60,19 @@ export const styles = (theme: ThemeType) => ({
     fontFamily: "inherit",
   },
   postBodyStyles: {
-    ...editorStyles(theme),
+    ...editorSpoilerStyles(theme),
     cursor: "text",
     padding: 0,
   },
 
   answerStyles: {
-    ...editorStyles(theme),
+    ...editorSpoilerStyles(theme),
     cursor: "text",
     maxWidth:620,
   },
 
   commentBodyStyles: {
-    ...editorStyles(theme),
+    ...editorSpoilerStyles(theme),
     cursor: "text",
     marginTop: 0,
     marginBottom: 0,
@@ -77,7 +80,7 @@ export const styles = (theme: ThemeType) => ({
     pointerEvents: 'auto'
   },
   commentBodyStylesMinimalist: {
-    ...editorStyles(theme),
+    ...editorSpoilerStyles(theme),
     cursor: "text",
     marginTop: 0,
     marginBottom: 0,
@@ -178,15 +181,7 @@ export const styles = (theme: ThemeType) => ({
     margin: `${24}px 0`,
     color: theme.palette.error.main,
   },
-  // class for the animation transitions of the bot tips card
-  enteredBotTips: {
-    opacity: 1
-  },
-  enteringBotTips: {},
-  exitingBotTips: {},
-  exitedBotTips: {},
-  unmountedBotTips: {},
-})
+}))
 
 const autosaveInterval = 3000; //milliseconds
 const validationInterval = 500; //milliseconds
@@ -282,7 +277,7 @@ interface EditorProps {
   maxHeight?: boolean|null,
   hasCommitMessages?: boolean,
   document?: any,
-  _classes: ClassesType<typeof styles>,
+  _classes: ClassesType<typeof editorStyles>,
 }
 
 interface EditorComponentState {

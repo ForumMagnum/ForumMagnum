@@ -99,7 +99,7 @@ export function LLMContentBlockHeaderComponent({ modelName, containerNodeKey }: 
   // buffer so editing doesn't clip the final character.
   useEffect(() => {
     if (measureRef.current) {
-      setInputWidth(measureRef.current.offsetWidth + 4);
+      setInputWidth(measureRef.current.offsetWidth + 6);
     }
   }, [localValue]);
 
