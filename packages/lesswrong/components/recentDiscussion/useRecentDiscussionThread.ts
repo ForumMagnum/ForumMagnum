@@ -25,11 +25,14 @@ export const useRecentDiscussionThread = <T extends ThreadableCommentType>({
 
   const markAsRead = useCallback(
     () => {
-      setMarkedAsVisitedAt(new Date());
+      // Don't update markedAsVisitedAt here -- doing so would set highlightDate
+      // to "now", causing all comment highlights to disappear the moment the user
+      // expands the post. The highlight date should stay as post.lastVisitedAt
+      // until the user actually interacts with comments (markCommentsAsRead).
       setExpandAllThreads(true);
       void recordPostView({post, extraEventProperties: {type: "recentDiscussionClick"}, recommendationOptions: {skip: true}})
     },
-    [setMarkedAsVisitedAt, setExpandAllThreads, recordPostView, post],
+    [setExpandAllThreads, recordPostView, post],
   );
   const showHighlight = useCallback(
     () => {
