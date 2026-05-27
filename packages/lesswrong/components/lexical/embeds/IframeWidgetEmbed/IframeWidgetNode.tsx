@@ -12,7 +12,7 @@ import type {
 import {$createTextNode} from 'lexical';
 import { randomId } from '@/lib/random';
 
-import {CodeNode, SerializedCodeNode} from '@lexical/code';
+import {CodeNode, type SerializedCodeNode} from '@/lib/vendor/lexical/CodeNode';
 
 const DEFAULT_HEIGHT = 400;
 

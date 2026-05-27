@@ -17,7 +17,7 @@ import {
   $isTextNode,
   $getRoot,
 } from 'lexical';
-import { $isCodeNode } from '@lexical/code';
+import { $isCodeNode } from '@/lib/vendor/lexical/CodeNode';
 import { $isLinkNode } from '@lexical/link';
 import { mergeRegister } from '@lexical/utils';
 import { MathNode, $createMathNode, $isMathNode } from './MathNode';

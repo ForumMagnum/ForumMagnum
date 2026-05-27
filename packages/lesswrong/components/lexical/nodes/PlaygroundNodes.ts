@@ -8,7 +8,8 @@
 
 import type {Klass, LexicalNode, LexicalNodeConfig} from 'lexical';
 
-import {CodeHighlightNode, CodeNode} from '@lexical/code';
+import {CodeHighlightNode} from '@lexical/code';
+import {CodeNode} from '@/lib/vendor/lexical/CodeNode';
 import {HashtagNode} from '@lexical/hashtag';
 import {AutoLinkNode, LinkNode} from '@lexical/link';
 import {ListItemNode, ListNode} from '@lexical/list';

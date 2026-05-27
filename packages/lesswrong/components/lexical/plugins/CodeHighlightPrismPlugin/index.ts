@@ -8,7 +8,8 @@
 
 import React, { type JSX } from 'react';
 
-import {CodeNode, registerCodeHighlighting} from '@lexical/code';
+import { registerCodeHighlighting } from '@lexical/code';
+import { CodeNode } from '@/lib/vendor/lexical/CodeNode';
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
 import {$getNodeByKey, $isElementNode, $isLineBreakNode, LexicalEditor} from 'lexical';
 import {useEffect} from 'react';

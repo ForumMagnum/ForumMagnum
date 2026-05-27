@@ -9,7 +9,7 @@ import { $createHeadingNode, $isHeadingNode, $isQuoteNode } from '@lexical/rich-
 import { $createContainerQuoteNode } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode';
 import type { ListType } from '@lexical/list';
 import { $createListItemNode, $createListNode, $isListItemNode, $isListNode } from '@lexical/list';
-import { $createCodeNode, $isCodeNode } from '@lexical/code';
+import { $createCodeNode, $isCodeNode } from '@/lib/vendor/lexical/CodeNode';
 
 export type BlockType = 'paragraph' | 'code' | 'quote' | HeadingTagType | ListType;
 

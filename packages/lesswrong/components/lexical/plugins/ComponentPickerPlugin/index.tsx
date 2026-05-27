@@ -28,7 +28,7 @@ import {
   LexicalEditor,
   TextNode,
 } from 'lexical';
-import { $isCodeNode } from '@lexical/code';
+import { $isCodeNode } from '@/lib/vendor/lexical/CodeNode';
 import {useCallback, useMemo, useState} from 'react';
 import * as ReactDOM from 'react-dom';
 

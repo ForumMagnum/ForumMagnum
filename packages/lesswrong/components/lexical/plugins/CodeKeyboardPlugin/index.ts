@@ -22,7 +22,7 @@ import { type JSX } from 'react';
 import { useEffect } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getAdjacentCaret, mergeRegister } from '@lexical/utils';
-import { $isCodeNode, CodeNode } from '@lexical/code';
+import { $isCodeNode, CodeNode } from '@/lib/vendor/lexical/CodeNode';
 import { IframeWidgetNode } from '../../embeds/IframeWidgetEmbed/IframeWidgetNode';
 import {
   $getSelection,

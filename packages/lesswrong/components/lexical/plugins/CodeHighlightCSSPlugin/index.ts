@@ -7,7 +7,7 @@
 import { type JSX } from 'react';
 import { useEffect, useRef } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $isCodeNode, CodeNode } from '@lexical/code';
+import { CodeNode, $isCodeNode } from '@/lib/vendor/lexical/CodeNode';
 import { $getNodeByKey, $isElementNode, type LexicalEditor, type NodeKey } from 'lexical';
 import { IframeWidgetNode } from '../../embeds/IframeWidgetEmbed/IframeWidgetNode';
 import { useStyles } from '@/components/hooks/useStyles';

@@ -10,7 +10,7 @@
 /* eslint-disable import/no-unresolved */
 
 
-import {$isCodeNode} from '@lexical/code';
+import { $isCodeNode } from '@/lib/vendor/lexical/CodeNode';
 import {$getNearestNodeFromDOMNode, LexicalEditor} from 'lexical';
 import {Options} from 'prettier';
 import React, {useState} from 'react';
