@@ -358,7 +358,7 @@ export async function getOrCreateSandbox(
   // machine from inside a sandbox — point this at a tunnel for local dev.
   const backendBaseUrl =
     process.env.RESEARCH_BACKEND_PUBLIC_URL ??
-    process.env.NEXT_PUBLIC_BASE_URL ??
+    process.env.VERCEL_BRANCH_URL ??
     "http://localhost:3000";
 
   // The token decrypt and the snapshot-source resolution are independent. The
