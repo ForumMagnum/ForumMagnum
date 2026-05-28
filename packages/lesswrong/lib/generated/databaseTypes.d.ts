@@ -1604,6 +1604,7 @@ interface DbUser extends DbObject {
   bookmarksCount: number
   careerStage: Array<string> | null
   claudeLinkedAt: Date | null
+  coauthoredPostCount: number
   collapseModerationGuidelines: boolean | null
   commentCount: number
   commentSorting: string | null
