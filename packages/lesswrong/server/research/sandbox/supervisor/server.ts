@@ -3,17 +3,19 @@
  *
  * Endpoints:
  *   POST /dispatch              — start (or resume) a Claude Code turn
- *   GET  /sse/:conversationId   — SSE stream of JSONL events for that turn
  *   POST /cancel/:conversationId — abort the in-flight turn
  *   GET  /status                — heartbeat: per-conversation states + pressure
  *
- * All endpoints validate an HMAC-signed bearer in `Authorization: Bearer ...`
- * (or, for SSE only, `?token=...` on the query). The shared secret comes from
- * the `SUPERVISOR_SECRET` env var injected at sandbox-create time.
+ * The supervisor runs turns and ships their events to the backend; clients read
+ * events from the backend, not from here.
+ *
+ * All endpoints validate an HMAC-signed bearer in `Authorization: Bearer ...`.
+ * The shared secret comes from the `SUPERVISOR_SECRET` env var injected at
+ * sandbox-create time.
  *
  * This module exports `startSupervisor(deps)` rather than calling `listen()`
- * at import time so the dispatch / cancel handlers can be injected from the
- * subprocess-runner module (#19) without circular imports.
+ * at import time so the dispatch / cancel handlers can be injected by the
+ * caller without circular imports.
  */
 import { createServer, IncomingMessage, ServerResponse } from "node:http";
 import {
@@ -40,18 +42,10 @@ export interface SupervisorDeps {
     userId: string;
     projectId: string;
   };
-  /**
-   * Start (or resume) a turn. Implementation lives in #19.
-   * Resolves once the turn is fully streamed/persisted.
-   */
+  /** Start (or resume) a turn. Resolves once the turn is accepted/started, not when it completes. */
   dispatchTurn(req: DispatchRequest): Promise<{ accepted: boolean; reason?: string }>;
   /** Cancel the in-flight turn for a conversation. */
   cancelTurn(conversationId: string): Promise<void>;
-  /**
-   * Subscribe an SSE writer to live events for a conversation. If `sinceSeq`
-   * is provided, replay any buffered events with seq > sinceSeq before tailing.
-   */
-  subscribeSse(conversationId: string, sink: SseSink, sinceSeq?: number): SseUnsubscribe;
   /** Snapshot of per-conversation state for /status. */
   getStateSnapshot(): {
     conversations: ConversationState[];
@@ -64,7 +58,7 @@ export interface DispatchRequest {
   prompt: string;
   /** If set, --resume <claudeSessionId>. */
   claudeSessionId?: string;
-  /** Synthesized JSONL lines to seed the session dir before --resume (#21). */
+  /** Synthesized JSONL lines to seed the session dir before --resume. */
   bootstrapJsonl?: string[];
   /** References attached as part of the user turn (file paths, doc handles, etc.). */
   references?: unknown[];
@@ -77,9 +71,6 @@ export interface DispatchRequest {
    */
   agentBackendToken?: string;
 }
-
-export type SseSink = (event: { event?: string; data: string; id?: string }) => void;
-export type SseUnsubscribe = () => void;
 
 export function startSupervisor(deps: SupervisorDeps, port: number) {
   const { supervisorSecret } = deps.env;
@@ -117,10 +108,8 @@ async function handleRequest(
   const method = req.method ?? "GET";
 
   // Permissive CORS — the supervisor URL is public and the only auth is the
-  // signed token (carried as a query param on SSE, as a Bearer header on
-  // POSTs). Any browser-origin can connect to the SSE stream as long as it
-  // has a valid token. Keeping this open simplifies dev (localhost:3000) and
-  // prod (the deployed app) without an allowlist.
+  // signed Bearer token. Callers are our own backend (dispatch/cancel/status),
+  // not browsers; keeping this open avoids an allowlist across dev and prod.
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Authorization, Content-Type");
@@ -173,22 +162,6 @@ async function handleRequest(
     return json(res, 204, undefined);
   }
 
-  const sseMatch = path.match(/^\/sse\/([^/]+)$/);
-  if (sseMatch && method === "GET") {
-    const conversationId = sseMatch[1];
-    if (!supervisorTokenCanAccessConversation(validation.payload, conversationId)) {
-      return json(res, 403, { error: "forbidden", reason: "conversation scope mismatch" });
-    }
-    // Resume position is taken from the SSE protocol's `Last-Event-ID`
-    // header, which EventSource sets automatically on reconnect using the
-    // most recent `id:` value it received. The id is the supervisor's local
-    // buffer seq — opaque to the client, used only here for replay.
-    const lastEventId = req.headers["last-event-id"];
-    const lastEventIdNum = typeof lastEventId === "string" ? Number(lastEventId) : NaN;
-    const sinceSeq = Number.isFinite(lastEventIdNum) ? lastEventIdNum : undefined;
-    return handleSse(req, res, conversationId, deps, sinceSeq);
-  }
-
   return json(res, 404, { error: "not found", path });
 }
 
@@ -203,46 +176,6 @@ function checkAuth(req: IncomingMessage, secret: string, sandboxId: string): Val
     return { ok: false, reason: "sandboxId mismatch" };
   }
   return result;
-}
-
-function handleSse(
-  req: IncomingMessage,
-  res: ServerResponse,
-  conversationId: string,
-  deps: SupervisorDeps,
-  sinceSeq?: number,
-) {
-  res.statusCode = 200;
-  res.setHeader("Content-Type", "text/event-stream");
-  res.setHeader("Cache-Control", "no-cache, no-transform");
-  res.setHeader("Connection", "keep-alive");
-  res.setHeader("X-Accel-Buffering", "no");
-  res.flushHeaders?.();
-
-  const sink: SseSink = (event) => {
-    if (res.writableEnded) return;
-    if (event.id !== undefined) res.write(`id: ${event.id}\n`);
-    if (event.event) res.write(`event: ${event.event}\n`);
-    for (const line of event.data.split("\n")) {
-      res.write(`data: ${line}\n`);
-    }
-    res.write("\n");
-  };
-
-  const heartbeat = setInterval(() => {
-    if (res.writableEnded) return;
-    res.write(": heartbeat\n\n");
-  }, 15_000);
-
-  const unsubscribe = deps.subscribeSse(conversationId, sink, sinceSeq);
-
-  const cleanup = () => {
-    clearInterval(heartbeat);
-    unsubscribe();
-    if (!res.writableEnded) res.end();
-  };
-  req.on("close", cleanup);
-  req.on("error", cleanup);
 }
 
 function parseDispatchRequest(body: Record<string, unknown>): DispatchRequest | null {

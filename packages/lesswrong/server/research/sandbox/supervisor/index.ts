@@ -5,8 +5,8 @@
  *
  * Wires together:
  *  - HTTP server  (`./server.ts`) — auth-gated endpoints
- *  - Conversation hub (`./conversationHub.ts`) — runner + SSE fanout + buffer
- *  - Post persister (`./postPersister.ts`) — batched POSTs with retry
+ *  - Conversation hub (`./conversationHub.ts`) — per-conversation Claude runner
+ *  - Post persister (`./postPersister.ts`) — durable per-event POSTs with retry
  *  - Heartbeat (`./heartbeat.ts`) — periodic /sandboxes/:id/heartbeat
  *
  * Required env (injected by sandboxManager at create time):
@@ -15,7 +15,7 @@
  *  - BACKEND_BASE_URL     — origin to POST to (events, heartbeats)
  *  - SUPERVISOR_PORT      — port to listen on (default 3000)
  *  - USER_ID, PROJECT_ID  — for context / heartbeat metadata
- *  - CALLBACK_TOKEN       — JWT minted by the backend (T3's mintSandboxCallbackToken),
+ *  - CALLBACK_TOKEN       — JWT minted by the backend (mintSandboxCallbackToken),
  *                           sent as Bearer on supervisor → backend POSTs
  *  - CLAUDE_CODE_OAUTH_TOKEN — passed through to claude subprocesses
  */
@@ -26,7 +26,6 @@ import { createConversationHub } from "./conversationHub";
 import { createPostPersister } from "./postPersister";
 import { startSupervisor, SupervisorDeps } from "./server";
 import { startHeartbeat } from "./heartbeat";
-import { createHealthTracker } from "./healthTracker";
 import { startDevServer, DevServerHandle } from "./devServer";
 import { startAuthProxy } from "./authProxy";
 
@@ -68,7 +67,7 @@ interface DevServerEnv {
   cwd: string;
   proxySecret: string;
   authProxyPort: number;
-  /** The repo's `.env` values, injected by the backend at launch (§3.6). */
+  /** The repo's `.env` values, injected by the backend at launch. */
   extraEnv: Record<string, string>;
 }
 
@@ -173,15 +172,18 @@ export async function bootSupervisor() {
   const env = readEnv();
   fillClaudeMdTemplate({ projectId: env.projectId });
 
-  const healthTracker = createHealthTracker();
-
   const postPersister = createPostPersister({
     backendBaseUrl: env.backendBaseUrl,
     authToken: env.callbackToken,
-    healthTracker,
   });
 
-  const hub = createConversationHub({ postPersister, healthTracker });
+  const hub = createConversationHub({ postPersister });
+
+  // Resume shipping any events a prior session durably queued but never got an
+  // ack for (tunnel was down, or the supervisor stopped mid-drain). The queue
+  // and its acked cursor live on the snapshotted sandbox disk, so a resume into
+  // a restored snapshot picks up exactly where the last session left off.
+  postPersister.recover();
 
   const deps: SupervisorDeps = {
     env: {
@@ -234,7 +236,6 @@ export async function bootSupervisor() {
       );
     },
     cancelTurn: (id) => hub.cancel(id),
-    subscribeSse: (id, sink, sinceSeq) => hub.subscribe(id, sink, sinceSeq),
     getStateSnapshot: () => hub.snapshot(),
   };
 
@@ -276,7 +277,6 @@ export async function bootSupervisor() {
     authToken: env.callbackToken,
     getTurnRunning: () => hub.snapshot().conversations.some((c) => c.status === "running"),
     getLastDevActivityAt: () => lastDevActivityAt,
-    healthTracker,
   });
 
   const shutdown = async () => {

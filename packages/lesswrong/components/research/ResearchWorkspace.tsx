@@ -14,8 +14,6 @@ import ForumIcon from '../common/ForumIcon';
 import ProjectSidebar from './ProjectSidebar';
 import DocumentPane from './DocumentPane';
 import ChatPane from './ChatPane';
-import SupervisorHealthBanner from './SupervisorHealthBanner';
-import { SupervisorHealthProvider } from './hooks/SupervisorHealthContext';
 
 interface ResearchWorkspaceProps {
   projectId: string;
@@ -275,10 +273,8 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   });
 
   return (
-    <SupervisorHealthProvider>
-      <div className={classes.outer}>
-        <SupervisorHealthBanner />
-        <div className={rootClassName}>
+    <div className={classes.outer}>
+      <div className={rootClassName}>
           {sidebarOpen ? (
         <div className={classes.sidebar}>
           <ProjectSidebar
@@ -351,7 +347,6 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
       )}
         </div>
       </div>
-    </SupervisorHealthProvider>
   );
 };
 

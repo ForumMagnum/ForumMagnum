@@ -447,8 +447,8 @@ export async function getOrCreateSandbox(
 /**
  * Resolve the conversation's sandbox handle *without* provisioning or
  * resuming it. Returns `null` when the sandbox does not exist or is not
- * currently running. Used by read/observe paths (heartbeat, stream-info,
- * cancel) that must not bring a sandbox up.
+ * currently running. Used by read/observe paths (heartbeat, cancel) that must
+ * not bring a sandbox up.
  */
 export async function getRunningSandbox(conversationId: string): Promise<Sandbox | null> {
   const name = sandboxNameForConversation(conversationId);

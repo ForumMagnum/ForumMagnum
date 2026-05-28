@@ -137,6 +137,42 @@ class ResearchConversationEventsRepo extends AbstractRepo<"ResearchConversationE
     return { seq: result.seq, deduplicated: false };
   }
 
+  /**
+   * Tail query for the backend → client event stream: given a set of
+   * `(conversationId, sinceSeq)` cursors, return all events with `seq > sinceSeq`
+   * for each, in `seq` order, capped at `limitPerConversation` per conversation.
+   *
+   * One round-trip for every conversation a backend instance is currently
+   * streaming (the per-instance coordinator batches its subscribers' cursors
+   * into a single call). `unnest` pairs the two arrays into cursor rows and the
+   * `LATERAL` subquery rides the `(conversationId, seq)` unique index per
+   * conversation, so this stays an indexed range scan regardless of table size.
+   */
+  public async getEventsBatchSince(
+    cursors: { conversationId: string; sinceSeq: number }[],
+    limitPerConversation: number,
+  ): Promise<DbResearchConversationEvent[]> {
+    if (cursors.length === 0) return [];
+    return this.getRawDb().any<DbResearchConversationEvent>(`
+      -- ResearchConversationEventsRepo.getEventsBatchSince
+      SELECT e.*
+      FROM unnest($(conversationIds)::text[], $(sinceSeqs)::int[]) AS c("conversationId", "sinceSeq")
+      CROSS JOIN LATERAL (
+        SELECT *
+        FROM "ResearchConversationEvents" ev
+        WHERE ev."conversationId" = c."conversationId"
+          AND ev."seq" > c."sinceSeq"
+        ORDER BY ev."seq" ASC
+        LIMIT $(limitPerConversation)
+      ) e
+      ORDER BY e."conversationId" ASC, e."seq" ASC
+    `, {
+      conversationIds: cursors.map((c) => c.conversationId),
+      sinceSeqs: cursors.map((c) => c.sinceSeq),
+      limitPerConversation,
+    });
+  }
+
 }
 
 recordPerfMetrics(ResearchConversationEventsRepo);

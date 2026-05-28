@@ -144,7 +144,7 @@ export function buildArgs(opts: Pick<ClaudeRunnerOptions, "prompt" | "claudeSess
     "--output-format", "stream-json",
     "--verbose",
     "--permission-mode", "auto",
-    "--model", "claude-opus-4-7",
+    "--model", "claude-opus-4-8",
   ];
   if (opts.claudeSessionId) {
     args.push("--resume", opts.claudeSessionId);

@@ -169,9 +169,9 @@ const ChatPane = ({
         onConversationCreated(createdId);
         void pollForConversationTitle(apolloClient, projectId, createdId);
       } else {
-        // Optimistic plaintext for the in-flight turn; the persisted twin
-        // (with the server's markdown rendering) replaces it on the next
-        // refresh() — SSE doesn't broadcast backend `appendUserTurn` writes.
+        // Optimistic plaintext for the in-flight turn; it's dropped on the next
+        // transcript reload (refresh() below) and superseded by the persisted
+        // user row once that streams in from the backend.
         const optimisticText = htmlToTextDefault(promptHtml);
         injectOptimisticEvent({
           _id: `optimistic:user:${randomId()}`,

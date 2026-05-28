@@ -1,40 +1,47 @@
 /**
- * Single-event POST persister with exponential-backoff retry.
+ * Durable single-event POST persister.
  *
  * The supervisor calls `enqueue(conversationId, event)` once per JSONL line.
- * Each event is POSTed as its own request to T3's events endpoint, which
- * server-assigns the seq atomically and dedupes on `(conversationId,
- * claudeMessageUuid)` when the UUID is non-null.
+ * Every event is first appended to a durable on-disk queue (`durableEventQueue`)
+ * and only removed once the backend confirms persistence — so a backend/tunnel
+ * outage or a supervisor restart can't lose events. A per-conversation drain
+ * loop ships pending events in FIFO order to the backend's events endpoint,
+ * which server-assigns the seq atomically and dedupes on `(conversationId,
+ * claudeMessageUuid)`.
  *
- * On transient failure (network/5xx) we retry with exponential backoff. On 4xx
- * (other than 429) we drop the event after one log — 4xx is a permanent
- * contract violation that retrying won't fix.
+ * Retry policy: transient failures (network, 5xx, 429) and "suspect successes"
+ * (200s whose body isn't `{ok:true}` — e.g. a tunnel interstitial while the
+ * dev tunnel is down) are retried **indefinitely** with capped exponential
+ * backoff. The durable queue is the safety net, so there's no attempt cap to
+ * drop events on. Only a genuine permanent 4xx (other than 429) — a malformed
+ * event the backend will never accept — is dropped, loudly, after one log.
  *
- * Per-conversation FIFO ordering is preserved: each conversation has a single
- * in-flight chain of POSTs. Different conversations persist concurrently.
+ * Idempotency (option A): events lacking a Claude message UUID (`system` /
+ * `error` / `result`) would not be deduped on retry, so we synthesize a stable,
+ * namespaced `sup:<localId>` from the durable queue's per-conversation localId
+ * and send it as the `claudeMessageUuid`. It's deterministic across replays
+ * (localId is persisted) and collision-proof, so the existing partial unique
+ * index `(conversationId, claudeMessageUuid)` dedupes these too. No schema
+ * change. `claudeMessageUuid` has no semantic consumers beyond dedup + a debug
+ * string, and the `sup:` prefix keeps synthetic values distinct from real UUIDs.
  *
- * Endpoint contract (T3): POST /api/research/agent/conversations/:id/events
+ * Endpoint contract: POST /api/research/agent/conversations/:id/events
  *   body: { rawJsonl, kind, claudeMessageUuid, claudeSessionId?, supervisorEmittedAt? }
  *   response: { ok, seq, deduplicated }
  *
- * Health reporting: every terminal outcome (success or final-give-up) is
- * forwarded to the optional `healthTracker` so the SSE server can surface
- * pipe-degraded state to connected browsers. Suspect successes — 200s whose
- * response body doesn't match `{ok:true}` — are treated as failures here so
- * an upstream tunnel returning a 200 interstitial can't masquerade as a
- * persisted event.
+ * Failures are logged to the supervisor console.
  */
+import { looksLikeOkResponseBody } from "./backendResponseCheck";
 import {
-  classifyNetworkError,
-  HealthTracker,
-  looksLikeOkResponseBody,
-  snippetOf,
-} from "./healthTracker";
+  createDurableEventQueue,
+  DurableEventQueue,
+  QueuedEntry,
+} from "./durableEventQueue";
 
 export interface BackendEvent {
   /** Verbatim JSONL line text (canonical) — what the supervisor actually saw on stdout. */
   rawJsonl: string;
-  /** One of T3's accepted kinds. */
+  /** One of the backend's accepted kinds. */
   kind: "user" | "assistant" | "tool_use" | "tool_result" | "thinking" | "system" | "error" | "result";
   /** ID from the JSONL line if present, null otherwise. Used for dedupe. */
   claudeMessageUuid: string | null;
@@ -49,219 +56,167 @@ export interface PostPersisterConfig {
   backendBaseUrl: string;
   /** Bearer token sent on each persistence POST (signed callback token). */
   authToken: string;
+  /** Directory backing the durable queue. Default `/vercel/sandbox/.research-event-queue`. */
+  queueDir?: string;
   /** fetch impl override — useful for tests. Defaults to global fetch. */
   fetchImpl?: typeof fetch;
-  /** Max retry attempts before dropping. Default 6 (~31s of total backoff). */
-  maxAttempts?: number;
-  /** Initial backoff in ms. Default 250. Doubles each attempt up to ~16s. */
+  /** Initial backoff in ms. Default 250. Doubles each attempt up to `maxBackoffMs`. */
   initialBackoffMs?: number;
-  /** Optional health tracker; if present, every terminal outcome is reported. */
-  healthTracker?: HealthTracker;
+  /** Cap on per-attempt backoff. Default 30s. */
+  maxBackoffMs?: number;
+  /** Pre-built queue (tests). If absent one is created from `queueDir`. */
+  queue?: DurableEventQueue;
+  /** Clock override (tests). */
+  now?: () => number;
+  /** Sleep override (tests) — lets a test fast-forward backoff. */
+  sleepImpl?: (ms: number) => Promise<void>;
 }
 
 export interface PostPersister {
+  /** Durably enqueue an event and kick its conversation's drain loop. */
   enqueue(conversationId: string, event: BackendEvent): void;
-  /** Wait for all currently-queued POSTs to drain. */
-  drain(): Promise<void>;
+  /** Resume draining any conversations with un-acked events from a prior session. */
+  recover(): void;
+  /** Best-effort wait for in-flight drains to quiesce (bounded; the queue is durable). */
+  drain(deadlineMs?: number): Promise<void>;
 }
 
-interface PerConvState {
-  inFlight: Promise<void>;
-}
+const DEFAULT_QUEUE_DIR = "/vercel/sandbox/.research-event-queue";
 
-interface AttemptOutcome {
-  outcome: "success" | "permanent_failure" | "suspect_success";
-  status?: number;
-  body?: string;
-}
-
-class TransientError extends Error {
-  status: number;
-  body: string;
-  constructor(message: string, status: number, body: string) {
-    super(message);
-    this.status = status;
-    this.body = body;
-  }
-}
+type AttemptResult =
+  | { kind: "success" }
+  | { kind: "transient"; httpStatus: number | null; body: string; networkErr: unknown; suspect: boolean }
+  | { kind: "permanent"; httpStatus: number; body: string };
 
 export function createPostPersister(config: PostPersisterConfig): PostPersister {
   const fetchImpl = config.fetchImpl ?? fetch;
-  const maxAttempts = config.maxAttempts ?? 6;
   const initialBackoff = config.initialBackoffMs ?? 250;
-  const conv = new Map<string, PerConvState>();
+  const maxBackoff = config.maxBackoffMs ?? 30_000;
+  const now = config.now ?? (() => Date.now());
+  const sleep = config.sleepImpl ?? ((ms: number) => new Promise<void>((r) => setTimeout(r, ms)));
+  const queue = config.queue ?? createDurableEventQueue({ dir: config.queueDir ?? DEFAULT_QUEUE_DIR });
 
-  function send(conversationId: string, event: BackendEvent): Promise<void> {
+  // A conversation is "running" while its drain loop is active. `loops` holds
+  // the current loop promise per conversation so `drain()` can await them.
+  const running = new Set<string>();
+  const loops = new Map<string, Promise<void>>();
+
+  async function attempt(conversationId: string, entry: QueuedEntry): Promise<AttemptResult> {
     const url = `${config.backendBaseUrl}/api/research/agent/conversations/${encodeURIComponent(
       conversationId,
     )}/events`;
-    let lastFailureSnapshot: {
-      attempts: number;
-      httpStatus: number | null;
-      body: string;
-      networkErr: unknown;
-    } | null = null;
+    try {
+      const res = await fetchImpl(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${config.authToken}`,
+        },
+        body: JSON.stringify(bodyFor(entry)),
+      });
+      const text = await res.text();
+      if (res.ok) {
+        if (looksLikeOkResponseBody(text)) return { kind: "success" };
+        // 200 with an unrecognized body — almost always an interceptor between
+        // us and the backend (tunnel interstitial, captive portal). Treat it as
+        // transient: the tunnel will come back, and the durable queue means we
+        // lose nothing by waiting it out.
+        return { kind: "transient", httpStatus: res.status, body: text, networkErr: null, suspect: true };
+      }
+      if (res.status === 429 || res.status >= 500) {
+        return { kind: "transient", httpStatus: res.status, body: text, networkErr: null, suspect: false };
+      }
+      // A genuine permanent 4xx: the backend will never accept this event.
+      return { kind: "permanent", httpStatus: res.status, body: text };
+    } catch (err) {
+      if (isNetworkError(err)) {
+        return { kind: "transient", httpStatus: null, body: "", networkErr: err, suspect: false };
+      }
+      throw err;
+    }
+  }
 
-    return retrying(async (attempt) => {
-      try {
-        const res = await fetchImpl(url, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${config.authToken}`,
-          },
-          body: JSON.stringify(event),
-        });
-        const text = await res.text();
-        if (res.ok) {
-          if (looksLikeOkResponseBody(text)) {
-            return { outcome: "success" } as AttemptOutcome;
-          }
-          // 200 with a body we don't recognize. Almost always means the
-          // request was intercepted by something between us and the backend
-          // (tunnel interstitial, captive portal, debug HTML page). Don't
-          // retry — retrying gets the same interstitial — but flag it.
-          lastFailureSnapshot = {
-            attempts: attempt + 1,
-            httpStatus: res.status,
-            body: text,
-            networkErr: null,
-          };
-          return { outcome: "suspect_success", status: res.status, body: text };
-        }
-        if (res.status === 429 || res.status >= 500) {
-          throw new TransientError(`backend ${res.status}`, res.status, text);
-        }
+  // Ship one entry, retrying transient failures indefinitely with capped
+  // backoff. Resolves once the entry is terminal (persisted, or dropped on a
+  // permanent 4xx) — either way the caller advances the cursor past it.
+  async function ship(conversationId: string, entry: QueuedEntry): Promise<void> {
+    for (let attemptNum = 1; ; attemptNum++) {
+      const result = await attempt(conversationId, entry);
+      if (result.kind === "success") return;
+      if (result.kind === "permanent") {
         // eslint-disable-next-line no-console
         console.warn(
-          `[postPersister] permanent ${res.status} for conv=${conversationId} kind=${event.kind} uuid=${event.claudeMessageUuid}; dropping event`,
+          `[postPersister] permanent ${result.httpStatus} for conv=${conversationId} ` +
+            `kind=${entry.event.kind} localId=${entry.localId}; dropping event`,
         );
-        lastFailureSnapshot = {
-          attempts: attempt + 1,
-          httpStatus: res.status,
-          body: text,
-          networkErr: null,
-        };
-        return { outcome: "permanent_failure", status: res.status, body: text };
-      } catch (err) {
-        if (err instanceof TransientError) {
-          lastFailureSnapshot = {
-            attempts: attempt + 1,
-            httpStatus: err.status,
-            body: err.body,
-            networkErr: null,
-          };
-          throw err;
-        }
-        if (isNetworkError(err)) {
-          lastFailureSnapshot = {
-            attempts: attempt + 1,
-            httpStatus: null,
-            body: "",
-            networkErr: err,
-          };
-          throw new TransientError(
-            (err as Error).message ?? "network",
-            0,
-            "",
-          );
-        }
-        throw err;
+        return;
       }
-    }, maxAttempts, initialBackoff)
-      .then((outcome) => {
-        if (outcome?.outcome === "success") {
-          config.healthTracker?.recordSuccess("event_post");
-          return;
+      // Transient: log periodically so a sustained outage is visible in the
+      // supervisor log, then back off and retry indefinitely.
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[postPersister] transient failure (attempt ${attemptNum}) for conv=${conversationId} ` +
+          `kind=${entry.event.kind} localId=${entry.localId} ` +
+          `status=${result.httpStatus ?? "network"}${result.suspect ? " (suspect 200)" : ""}; retrying`,
+      );
+      const backoff = Math.min(maxBackoff, initialBackoff * (2 ** (attemptNum - 1)));
+      const jitter = Math.floor(Math.random() * (backoff / 4));
+      await sleep(backoff + jitter);
+    }
+  }
+
+  function kick(conversationId: string): void {
+    if (running.has(conversationId)) return;
+    running.add(conversationId);
+    const loop = (async () => {
+      try {
+        let pend = queue.pending(conversationId);
+        while (pend.length > 0) {
+          const head = pend[0];
+          await ship(conversationId, head);
+          queue.ack(conversationId, head.localId);
+          pend = queue.pending(conversationId);
         }
-        // suspect_success or permanent_failure — both surfaced as health failures
-        const snap = lastFailureSnapshot ?? {
-          attempts: maxAttempts,
-          httpStatus: outcome?.status ?? null,
-          body: outcome?.body ?? "",
-          networkErr: null,
-        };
-        config.healthTracker?.recordFailure({
-          kind: outcome?.outcome === "suspect_success" ? "suspect_success" : "event_post",
-          targetUrl: url,
-          httpStatus: snap.httpStatus,
-          networkError: null,
-          responseBodySnippet: snap.body ? snippetOf(snap.body) : null,
-          attempts: snap.attempts,
-          context: {
-            conversationId,
-            eventKind: event.kind,
-            claudeMessageUuid: event.claudeMessageUuid,
-          },
-        });
-      })
-      .catch((err) => {
-        // eslint-disable-next-line no-console
-        console.error(
-          `[postPersister] giving up on conv=${conversationId} after ${maxAttempts} attempts:`,
-          err,
-        );
-        const snap = lastFailureSnapshot;
-        config.healthTracker?.recordFailure({
-          kind: "event_post",
-          targetUrl: url,
-          httpStatus: snap?.httpStatus ?? null,
-          networkError: snap?.networkErr ? classifyNetworkError(snap.networkErr) : null,
-          responseBodySnippet: snap?.body ? snippetOf(snap.body) : null,
-          attempts: snap?.attempts ?? maxAttempts,
-          context: {
-            conversationId,
-            eventKind: event.kind,
-            claudeMessageUuid: event.claudeMessageUuid,
-          },
-        });
-      });
+      } finally {
+        running.delete(conversationId);
+        loops.delete(conversationId);
+        // Close the race with a concurrent append between the empty-check and
+        // here: if something arrived, restart the loop so it isn't stranded.
+        if (queue.pending(conversationId).length > 0) kick(conversationId);
+      }
+    })();
+    loops.set(conversationId, loop);
   }
 
   return {
     enqueue(conversationId, event) {
-      const existing = conv.get(conversationId) ?? { inFlight: Promise.resolve() };
-      existing.inFlight = existing.inFlight.then(() => send(conversationId, event));
-      conv.set(conversationId, existing);
+      queue.append(conversationId, event);
+      kick(conversationId);
     },
-    async drain() {
-      await Promise.all([...conv.values()].map((s) => s.inFlight));
+    recover() {
+      for (const conversationId of queue.recover()) kick(conversationId);
+    },
+    async drain(deadlineMs = 10_000) {
+      const start = now();
+      while (running.size > 0) {
+        await Promise.allSettled([...loops.values()]);
+        if (now() - start > deadlineMs) return;
+      }
     },
   };
 }
 
-async function retrying(
-  fn: (attempt: number) => Promise<AttemptOutcome>,
-  maxAttempts: number,
-  initialBackoffMs: number,
-): Promise<AttemptOutcome | undefined> {
-  let lastErr: unknown = null;
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    try {
-      return await fn(attempt);
-    } catch (err) {
-      lastErr = err;
-      if (!(err instanceof TransientError) && !isNetworkError(err)) {
-        throw err;
-      }
-      if (attempt < maxAttempts - 1) {
-        const backoff = initialBackoffMs * (2 ** attempt);
-        const jitter = Math.floor(Math.random() * (backoff / 4));
-        await new Promise((r) => setTimeout(r, backoff + jitter));
-      }
-    }
-  }
-  throw lastErr;
+// The wire body: synthesize a stable idempotency key for UUID-less events.
+function bodyFor(entry: QueuedEntry): BackendEvent {
+  const { event, localId } = entry;
+  if (event.claudeMessageUuid) return event;
+  return { ...event, claudeMessageUuid: `sup:${localId}` };
 }
 
 function isNetworkError(err: unknown): boolean {
-  if (err instanceof TransientError) return false;
   if (err instanceof TypeError) return true;
-  if (err instanceof Error) {
-    const code = (err as { code?: string }).code;
-    if (code && ["ECONNRESET", "ETIMEDOUT", "ECONNREFUSED", "EAI_AGAIN", "UND_ERR_SOCKET", "ENOTFOUND"].includes(code)) {
-      return true;
-    }
+  if (err instanceof Error && "code" in err && typeof err.code === "string") {
+    return ["ECONNRESET", "ETIMEDOUT", "ECONNREFUSED", "EAI_AGAIN", "UND_ERR_SOCKET", "ENOTFOUND"].includes(err.code);
   }
   return false;
 }

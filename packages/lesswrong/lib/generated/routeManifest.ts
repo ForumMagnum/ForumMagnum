@@ -431,16 +431,6 @@ export const routeTrie = {
           "staticChildren": {
             "agent": {
               "staticChildren": {
-                "auth": {
-                  "staticChildren": {
-                    "refresh": {
-                      "hasRoute": true
-                    }
-                  },
-                  "lowerCase": {
-                    "refresh": "refresh"
-                  }
-                },
                 "conversations": {
                   "dynamicChild": {
                     "paramName": "conversationId",
@@ -532,7 +522,6 @@ export const routeTrie = {
                 }
               },
               "lowerCase": {
-                "auth": "auth",
                 "conversations": "conversations",
                 "documents": "documents",
                 "projects": "projects",
@@ -544,12 +533,19 @@ export const routeTrie = {
                 "paramName": "conversationId",
                 "child": {
                   "staticChildren": {
-                    "stream-info": {
-                      "hasRoute": true
+                    "events": {
+                      "staticChildren": {
+                        "stream": {
+                          "hasRoute": true
+                        }
+                      },
+                      "lowerCase": {
+                        "stream": "stream"
+                      }
                     }
                   },
                   "lowerCase": {
-                    "stream-info": "stream-info"
+                    "events": "events"
                   }
                 }
               }

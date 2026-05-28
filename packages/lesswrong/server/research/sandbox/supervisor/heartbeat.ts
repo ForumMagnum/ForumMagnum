@@ -5,10 +5,10 @@
  * Authorization: Bearer <signed callback token>
  *
  * Carries whether a turn is running and recent dev-server activity so the
- * backend can re-arm the idle timeout or roll the session (§3.3). Failures are
- * logged and dropped; each terminal outcome can be reported to `healthTracker`.
+ * backend can re-arm the idle timeout or roll the session. Failures are
+ * logged and dropped (the next tick re-reports).
  */
-import { HealthTracker, classifyNetworkError, looksLikeOkResponseBody, snippetOf } from "./healthTracker";
+import { looksLikeOkResponseBody } from "./backendResponseCheck";
 
 export interface HeartbeatReport {
   sandboxId: string;
@@ -30,7 +30,6 @@ export interface HeartbeatConfig {
   getTurnRunning: () => boolean;
   getLastDevActivityAt?: () => number;
   now?: () => number;
-  healthTracker?: HealthTracker;
 }
 
 export interface HeartbeatHandle {
@@ -73,46 +72,16 @@ export function startHeartbeat(config: HeartbeatConfig): HeartbeatHandle {
       });
       const text = await res.text();
       if (res.ok) {
-        if (looksLikeOkResponseBody(text, { allowEmpty: true })) {
-          config.healthTracker?.recordSuccess("heartbeat");
-          return;
-        }
+        if (looksLikeOkResponseBody(text, { allowEmpty: true })) return;
         // eslint-disable-next-line no-console
         console.warn(`[heartbeat] suspect 200 (body did not match expected shape)`);
-        config.healthTracker?.recordFailure({
-          kind: "suspect_success",
-          targetUrl: url,
-          httpStatus: res.status,
-          networkError: null,
-          responseBodySnippet: snippetOf(text),
-          attempts: 1,
-          context: {},
-        });
         return;
       }
       // eslint-disable-next-line no-console
       console.warn(`[heartbeat] backend ${res.status}`);
-      config.healthTracker?.recordFailure({
-        kind: "heartbeat",
-        targetUrl: url,
-        httpStatus: res.status,
-        networkError: null,
-        responseBodySnippet: snippetOf(text),
-        attempts: 1,
-        context: {},
-      });
     } catch (err) {
       // eslint-disable-next-line no-console
       console.warn(`[heartbeat] post failed:`, err);
-      config.healthTracker?.recordFailure({
-        kind: "heartbeat",
-        targetUrl: url,
-        httpStatus: null,
-        networkError: classifyNetworkError(err),
-        responseBodySnippet: null,
-        attempts: 1,
-        context: {},
-      });
     }
   }
 
