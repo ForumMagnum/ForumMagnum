@@ -9,12 +9,11 @@ import {
   createEditor,
   type LexicalEditor,
   type LexicalNode,
-  LexicalNodeConfig,
   type ParagraphNode,
   SKIP_COLLAB_TAG,
 } from "lexical";
 import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
-import PlaygroundNodes from "@/components/lexical/nodes/PlaygroundNodes";
+import allLexicalNodes from "@/components/lexical/nodes/allLexicalNodes";
 import { buildTextNodeExportMap } from "@/components/editor/lexicalDomExport";
 import { randomId } from "@/lib/random";
 import { sleep } from "@/lib/utils/asyncUtils";
@@ -375,20 +374,15 @@ export function getLexicalCompatibleProvider(provider: HocuspocusProvider): Hocu
   return provider as HocuspocusProvider & LexicalProvider;
 }
 
-export function createHeadlessEditor(
-  errorLabel: string,
-  extraNodes: LexicalNodeConfig[] = [],
-): LexicalEditor {
+export function createHeadlessEditor(errorLabel: string): LexicalEditor {
   return createEditor({
     namespace: `Agent-${errorLabel}`,
-    // Without `extraNodes`, custom collection-specific node types (e.g.
-    // `AgentBlockNode` for ResearchDocuments) aren't registered, and any
-    // Yjs state containing them fails to materialize at sync time — the
-    // editor root ends up empty and the post-sync emptiness guard fires
-    // with a misleading "Yjs document state is missing or corrupt"
-    // message. Callers that operate on a collection with custom nodes
-    // must pass them through here.
-    nodes: [...PlaygroundNodes, ...(extraNodes ?? [])],
+    // `allLexicalNodes` registers every custom node type the codebase defines
+    // across all collections. Headless editors live downstream of arbitrary
+    // collection contexts, and the cost of missing a node type is a hard
+    // parse failure ("parseEditorState: type X + not found"). The universal
+    // registry trades a small init cost for correctness across all callers.
+    nodes: allLexicalNodes,
     html: {
       export: buildTextNodeExportMap(),
     },
@@ -406,7 +400,6 @@ export async function withMainDocEditorSession<T>({
   token,
   operationLabel,
   callback,
-  extraNodes,
 }: {
   // Either pass {collectionName, documentId} or {postId} (legacy → Posts).
   collectionName?: string
@@ -418,13 +411,6 @@ export async function withMainDocEditorSession<T>({
     editor: LexicalEditor
     provider: HocuspocusProvider
   }) => Promise<T>
-  /**
-   * Collection-specific Lexical nodes to register on the headless editor
-   * (e.g. `AgentBlockNode` for ResearchDocuments). Required whenever the
-   * stored Yjs state can contain node types beyond the standard
-   * `PlaygroundNodes` set.
-   */
-  extraNodes?: LexicalNodeConfig[]
 }): Promise<T> {
   const wsUrl = process.env.HOCUSPOCUS_URL;
   if (!wsUrl) {
@@ -446,7 +432,7 @@ export async function withMainDocEditorSession<T>({
     token,
     connect: false,
   });
-  const editor = createHeadlessEditor(operationLabel, extraNodes);
+  const editor = createHeadlessEditor(operationLabel);
   const lexicalProvider = getLexicalCompatibleProvider(provider);
   const docMap = new Map<string, Doc>([["main", doc]]);
   const binding = createBinding(editor, lexicalProvider, "main", doc, docMap);

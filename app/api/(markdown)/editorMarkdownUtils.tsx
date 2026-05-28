@@ -14,7 +14,6 @@ import {
   $isParagraphNode,
   type LexicalEditor,
   type LexicalNode,
-  type LexicalNodeConfig,
 } from "lexical";
 import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Doc, Array as YArray, Map as YMap } from "yjs";
@@ -288,9 +287,8 @@ export async function getLiveDraftMarkdown({
 /**
  * Collection-agnostic version of `getLiveDraftMarkdown`. Connects to the
  * Yjs document for `(collectionName, documentId)`, materializes a headless
- * Lexical editor (registering any `extraNodes` so collection-specific node
- * types like `AgentBlockNode` round-trip cleanly), and runs the same
- * Lexical → HTML → Turndown pipeline used for post drafts.
+ * Lexical editor, and runs the same Lexical → HTML → Turndown pipeline used
+ * for post drafts.
  *
  * Sharing the pipeline (rather than calling `$convertToMarkdownString`
  * directly) means research documents pick up the same handling for
@@ -309,7 +307,6 @@ export async function getLiveLexicalMarkdown({
   postId,
   token,
   operationLabel,
-  extraNodes,
   transformHtml,
 }: {
   // Either pass {collectionName, documentId} or {postId} (legacy → Posts).
@@ -318,7 +315,6 @@ export async function getLiveLexicalMarkdown({
   postId?: string
   token: string
   operationLabel?: string
-  extraNodes?: LexicalNodeConfig[]
   transformHtml?: (args: { html: string, editor: LexicalEditor }) => Promise<string> | string
 }): Promise<string> {
   return withMainDocEditorSession({
@@ -327,7 +323,6 @@ export async function getLiveLexicalMarkdown({
     postId,
     token,
     operationLabel: operationLabel ?? "MarkdownReadDraft",
-    extraNodes,
     callback: async ({ editor }) => {
       const html = withDomGlobals(() => {
         let generated = "";
