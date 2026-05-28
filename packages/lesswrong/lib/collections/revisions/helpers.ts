@@ -10,7 +10,7 @@ const isSharable = (document: any): document is SharableDocument => {
 export const getOriginalContents = async <N extends CollectionNameString>(
   currentUser: DbUser | null,
   document: ObjectsByCollectionName[N],
-  originalContents: EditableFieldContents["originalContents"],
+  originalContents: RevisionOriginalContentsData|null,
   context: ResolverContext,
 ) => {
   const canViewOriginalContents = (user: DbUser | null, doc: DbObject) =>
@@ -40,10 +40,7 @@ export const getOriginalContents = async <N extends CollectionNameString>(
  * column (legacy / dual-write stage).
  */
 export async function getStoredOriginalContentsForRevision(
-  revision: {
-    originalContentsId?: string | null,
-    originalContents?: RevisionOriginalContentsData | null,
-  },
+  revision: Pick<DbRevision, "originalContentsId" | "originalContents">,
   context: ResolverContext,
 ): Promise<RevisionOriginalContentsData | null> {
   if (revision.originalContentsId) {
@@ -53,4 +50,12 @@ export async function getStoredOriginalContentsForRevision(
     }
   }
   return revision.originalContents ?? null;
+}
+
+export async function getRevisionOriginalContentsByRevisionId(
+  revisionId: string,
+  context: ResolverContext,
+): Promise<RevisionOriginalContentsData | null> {
+  const revision = await context.loaders.Revisions.load(revisionId);
+  return getStoredOriginalContentsForRevision(revision, context);
 }

@@ -62,7 +62,7 @@ import { getDenormalizedEditableResolver, getNormalizedEditableResolver, getNorm
 import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { DEFAULT_AF_BASE_SCORE_FIELD, DEFAULT_AF_EXTENDED_SCORE_FIELD, DEFAULT_AF_VOTE_COUNT_FIELD, DEFAULT_BASE_SCORE_FIELD, DEFAULT_CURRENT_USER_EXTENDED_VOTE_FIELD, DEFAULT_CURRENT_USER_VOTE_FIELD, DEFAULT_EXTENDED_SCORE_FIELD, DEFAULT_INACTIVE_FIELD, DEFAULT_SCORE_FIELD, defaultVoteCountField } from "@/lib/make_voteable";
 import { dataToMarkdown } from "@/server/editor/conversionUtils";
-import { getLatestRev } from "@/server/editor/utils";
+import { getLatestNonDraftRev, getLatestRev } from "@/server/editor/utils";
 import { languageModelGenerateText } from "@/server/languageModels/languageModelIntegration";
 import { getLocalTime } from "@/server/mapsUtils";
 import { getDefaultPostLocationFields, getDialogueMessageTimestamps, getPostHTML, getDialogueResponseIds } from "@/server/posts/utils";
@@ -79,6 +79,7 @@ import { votingSystemNames } from "@/lib/voting/votingSystemNames";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { classifyPost } from "@/server/frontpageClassifier/predictions";
 import { getCollectionBySlug } from "../sequences/helpers";
+import { getStoredOriginalContentsForRevision } from "../revisions/helpers";
 
 const rsvpType = new SimpleSchema({
   name: {
@@ -3866,14 +3867,14 @@ const schema = {
         // This replaced the use of a `fetchFragmentSingle` for getting the post contents,
         // in order to eliminate a dependency cycle
         // TODO: test that this works correctly!
-        const postWithContents = await context.repos.posts.getPostWithContents(post._id);
+        const latestRev = await getLatestNonDraftRev(post._id, "contents", context);
+        if (!latestRev) return "";
+        const originalContents = await getStoredOriginalContentsForRevision(latestRev, context);
+        if (!originalContents) return "";
 
-        if (!postWithContents?.contents?.originalContents) {
-          return "";
-        }
         const markdownPostBody = dataToMarkdown(
-          postWithContents.contents?.originalContents?.data,
-          postWithContents.contents?.originalContents?.type
+          originalContents?.data,
+          originalContents?.type
         );
         const authorName = "Authorname"; //TODO
         return await languageModelGenerateText({

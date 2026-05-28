@@ -6,10 +6,10 @@ import { recomputeWhenSkipAttributionChanged, updateDenormalizedHtmlAttributions
 import { logFieldChanges } from "@/server/fieldChanges";
 import { getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
-import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, insertAndReturnDocument } from "@/server/vulcan-lib/mutators";
+import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, insertAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
-import { dataToHTML, dataToMarkdown, dataToWordCount, extractAndReplaceIframeWidgets } from "@/server/editor/conversionUtils";
+import { dataToHTML, dataToWordCount, extractAndReplaceIframeWidgets } from "@/server/editor/conversionUtils";
 import AutomatedContentEvaluations from "../automatedContentEvaluations/collection";
 import { z } from "zod"; // Add this import for Zod
 import { getOpenAI } from "@/server/languageModels/languageModelIntegration";
@@ -19,7 +19,6 @@ import Posts from "../posts/collection";
 import ModerationTemplates from "../moderationTemplates/collection";
 import { sendRejectionPM } from "@/server/callbacks/postCallbackFunctions";
 import { randomId } from "@/lib/random";
-import { ChangeMetrics } from "./collection";
 import type { RevisionOriginalContentsData } from "@/lib/collections/revisions/revisionSchemaTypes";
 import { htmlToChangeMetrics } from "@/server/editor/utils";
 
@@ -63,10 +62,6 @@ type BuildAndCreateRevisionOptions = Omit<CreateRevisionDataInput, "originalCont
   createdAt?: Date,
   previousHtmlForChangeMetrics?: string,
   dataWithDiscardedSuggestions?: string,
-}
-
-type NormalizedCreateRevisionOptions = Omit<CreateRevisionOptions, "originalContents"> & {
-  originalContents: RevisionOriginalContentsData & { yjsState: string | null }
 }
 
 export async function buildAndCreateRevision(data: BuildAndCreateRevisionOptions, context: ResolverContext): Promise<DbRevision> {
@@ -114,7 +109,6 @@ async function buildRevision({ originalContents, user, isAdmin, dataWithDiscarde
 // and sort of mimics a graphql create mutator (which it at one point used to be). Users create
 // revisions by editing objects with revision-controlled editable fields.
 export async function createRevision({ data }: { data: CreateRevisionOptions }, context: ResolverContext): Promise<DbRevision> {
-  const { documentId } = data;
   const user = data.user ?? context.currentUser;
   if (!user) throw new Error("Must have a specified user or be logged in to create a revision");
   const isAdmin = data.isAdmin ?? user.isAdmin;
@@ -123,14 +117,14 @@ export async function createRevision({ data }: { data: CreateRevisionOptions }, 
     ...data.originalContents,
     yjsState: data.originalContents.yjsState ?? null,
   };
-  const readerVisibleData = data.dataWithDiscardedSuggestions ?? data
+  const readerVisibleData = data.dataWithDiscardedSuggestions ?? normalizedOriginalContents.data
   const html = await dataToHTML(readerVisibleData, normalizedOriginalContents.type, context, { sanitize: !isAdmin || normalizedOriginalContents.type !== "html" })
   const wordCount = await dataToWordCount(readerVisibleData, normalizedOriginalContents.type, context)
 
   let revisionData = {
     ...data,
     html, wordCount,
-    changeMetrics: htmlToChangeMetrics(data.previousHtmlForChangeMetrics ?? "", data.html),
+    changeMetrics: htmlToChangeMetrics(data.previousHtmlForChangeMetrics ?? "", html),
     originalContents: normalizedOriginalContents,
     createdAt: data.createdAt ?? new Date(),
     userId: user._id
@@ -152,10 +146,10 @@ export async function createRevision({ data }: { data: CreateRevisionOptions }, 
   let documentWithId = await insertAndReturnDocument(dataWithOriginalContentsId, 'Revisions', context);
 
   if (documentWithId.html?.includes("data-lexical-iframe-widget")) {
-    const extractedHtml = await extractAndReplaceIframeWidgets(documentWithId.html, documentId);
+    const extractedHtml = await extractAndReplaceIframeWidgets(documentWithId.html, documentWithId._id);
     if (extractedHtml !== documentWithId.html) {
       await context.Revisions.rawUpdateOne(
-        { _id: documentId },
+        { _id: documentWithId._id },
         { $set: { html: extractedHtml } },
       );
       documentWithId = {

@@ -18,6 +18,7 @@ import { captureException } from "@/lib/sentryWrapper";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
 import { getHocuspocusToken } from "./getHocuspocusToken";
 import { captureAgentApiEvent } from "./captureAgentAnalytics";
+import { getStoredOriginalContentsForRevision } from "@/lib/collections/revisions/helpers";
 
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const INITIAL_SYNC_SETTLE_MS = 25;
@@ -133,7 +134,10 @@ interface EditorTypeCheckResult {
  */
 export async function isSupportedEditorType(postId: string, context: ResolverContext): Promise<EditorTypeCheckResult> {
   const rev = await getLatestRev(postId, "contents", context);
-  const editorType = rev?.originalContents?.type ?? "unknown";
+  const originalContents = rev
+    ? await getStoredOriginalContentsForRevision(rev, context)
+    : null;
+  const editorType = originalContents?.type ?? "unknown";
   if (editorType === "lexical") {
     return { supported: true, editorType };
   }
