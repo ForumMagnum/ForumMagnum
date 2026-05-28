@@ -207,10 +207,6 @@ const schema = {
     },
   },
   originalContents: {
-    database: {
-      type: "JSONB",
-      // nullable: false,
-    },
     graphql: {
       outputType: "ContentType!",
       canRead: ["guests"],

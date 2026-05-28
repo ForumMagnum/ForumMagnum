@@ -17,6 +17,8 @@ import { Users } from "@/server/collections/users/collection";
 import { getCollection } from "@/server/collections/allCollections";
 import { getEditableFieldInCollection } from '@/server/editor/editableSchemaFieldHelpers';
 import { dataToHTML } from "@/server/editor/conversionUtils";
+import { getStoredOriginalContentsForRevision } from "@/lib/collections/revisions/helpers";
+import { updateOriginalContentsForRevision } from "@/server/collections/revisions/mutations";
 
 export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, options: ArbitalImportOptions) => {
   const optionsWithDefaults: ArbitalImportOptions = {...defaultArbitalImportOptions, ...options};
@@ -62,7 +64,7 @@ export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, o
         conversionContext,
       });
       
-      const oldHtml = rev.originalContents?.data;
+      const oldHtml = (await getStoredOriginalContentsForRevision(rev, resolverContext))?.data;
 
       if (oldHtml !== newHtml) {
         console.log(`Document ${documentId} changed in rev ${rev._id}`);
@@ -74,12 +76,12 @@ export const reconvertArbitalMarkdown  = async (mysqlConnectionString: string, o
           {_id: rev._id},
           {$set: {
             html: html,
-            originalContents: {
-              type: "ckEditorMarkup",
-              data: newHtml,
-            },
           }},
         );
+        await updateOriginalContentsForRevision(rev, {
+          type: "ckEditorMarkup",
+          data: newHtml,
+        }, resolverContext);
         
         switch (collectionName) {
           case "Tags":
@@ -130,7 +132,7 @@ async function updateDenormalizedEditable<N extends CollectionNameString>(docume
         [fieldName]: {
           ...pick(latestRev, [
             "html", "version", "userId", "editedAt", "wordCount",
-            "originalContents", "commitMessage", "googleDocMetadata", "updateType"
+            "commitMessage", "googleDocMetadata", "updateType"
           ])
         }
       }},

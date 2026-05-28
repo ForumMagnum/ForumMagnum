@@ -49,12 +49,15 @@ export const revisionResolversGraphQLMutations = {
 
     if (!tag)               throw new Error('Invalid tagId');
     if (!revertToRevision)  throw new Error('Invalid revisionId');
-    const revertToOriginalContents = await getStoredOriginalContentsForRevision(revertToRevision, context);
-    const anyDiff = !isEqual(tag.description?.originalContents, revertToOriginalContents);
-    if (!revertToOriginalContents)
-      throw new Error('Revision missing originalContents');
     // I don't think this should be possible if we find a revision to revert to, but...
     if (!latestRevision)    throw new Error('Tag is missing latest revision');
+    const [revertToOriginalContents, latestOriginalContents] = await Promise.all([
+      getStoredOriginalContentsForRevision(revertToRevision, context),
+      getStoredOriginalContentsForRevision(latestRevision, context),
+    ]);
+    const anyDiff = !isEqual(latestOriginalContents, revertToOriginalContents);
+    if (!revertToOriginalContents)
+      throw new Error('Revision missing originalContents');
     if (!anyDiff)           throw new Error(`Can't find difference between revisions`);
 
     await updateTag({

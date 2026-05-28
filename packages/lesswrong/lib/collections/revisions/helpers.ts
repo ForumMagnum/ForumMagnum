@@ -37,10 +37,15 @@ export const getOriginalContents = async <N extends CollectionNameString>(
 /**
  * Load editor-format contents for a revision: prefer `RevisionOriginalContents`
  * (via `originalContentsId`) when present, otherwise the inline `originalContents`
- * column (legacy / dual-write stage).
+ * column (may appear in the denormalized-field variant for things that haven't
+ * been migrated yet).
  */
 export async function getStoredOriginalContentsForRevision(
-  revision: Pick<DbRevision, "originalContentsId" | "originalContents">,
+  revision: {
+    _id?: string | null,
+    originalContentsId?: string | null,
+    originalContents?: RevisionOriginalContentsData | null,
+  },
   context: ResolverContext,
 ): Promise<RevisionOriginalContentsData | null> {
   if (revision.originalContentsId) {
@@ -49,7 +54,17 @@ export async function getStoredOriginalContentsForRevision(
       return roc.originalContents;
     }
   }
-  return revision.originalContents ?? null;
+  if (revision.originalContents) {
+    return revision.originalContents;
+  }
+  if (revision._id) {
+    const storedRevision = await context.loaders.Revisions.load(revision._id);
+    if (storedRevision?.originalContentsId) {
+      const roc = await context.loaders.RevisionOriginalContents.load(storedRevision.originalContentsId);
+      return roc?.originalContents ?? null;
+    }
+  }
+  return null;
 }
 
 export async function getRevisionOriginalContentsByRevisionId(

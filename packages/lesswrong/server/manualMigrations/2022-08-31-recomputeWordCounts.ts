@@ -4,6 +4,7 @@ import { getCollection } from "../collections/allCollections";
 import { dataToWordCount } from "../editor/conversionUtils";
 import { Revisions } from "../../server/collections/revisions/collection";
 import { createAnonymousContext } from "../vulcan-lib/createContexts";
+import { getStoredOriginalContentsForRevision } from "@/lib/collections/revisions/helpers";
 
 /**
  * This migration recomputes word counts in batches for all Revisions and editable
@@ -23,8 +24,9 @@ export default registerMigration({
       callback: async (documents: DbRevision[]) => {
         const updates: Array<any> = [];
         for (const doc of documents) {
-          if (!doc.originalContents) continue;
-          const { data, type } = doc.originalContents;
+          const originalContents = await getStoredOriginalContentsForRevision(doc, context);
+          if (!originalContents) continue;
+          const { data, type } = originalContents;
           const wordCount = await dataToWordCount(data, type, context);
           if (wordCount !== doc.wordCount) {
             updates.push({

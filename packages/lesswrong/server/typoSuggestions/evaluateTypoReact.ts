@@ -7,6 +7,7 @@ import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { createNotifications } from "@/server/notificationCallbacksHelpers";
 import { captureException } from "@/lib/sentryWrapper";
+import { getStoredOriginalContentsForRevision } from "@/lib/collections/revisions/helpers";
 import { loadHtmlIntoHeadlessEditor } from "./headlessLexical";
 import { $computeNarrowing } from "../../../../app/api/agent/replaceText/route";
 import { findRenderedQuoteInMarkdown, locateMarkdownQuoteSelectionInSubtree } from "../../../../app/api/agent/mapMarkdownToLexical";
@@ -195,7 +196,10 @@ async function loadDocumentForLlm(
   context: ResolverContext,
 ): Promise<{ html: string; markdown: string } | null> {
   const rev = await getLatestRev(documentId, "contents", context);
-  if (!rev || rev.originalContents?.type !== "lexical") return null;
+  const originalContents = rev
+    ? await getStoredOriginalContentsForRevision(rev, context)
+    : null;
+  if (!rev || originalContents?.type !== "lexical") return null;
   const html = rev.html ?? "";
   const markdown = htmlToMarkdown(html);
   return { html, markdown };

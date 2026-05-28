@@ -2427,7 +2427,6 @@ CREATE TABLE "Revisions" (
   "userId" VARCHAR(27),
   "draft" BOOL,
   "originalContentsId" VARCHAR(27),
-  "originalContents" JSONB,
   "html" TEXT,
   "wordCount" DOUBLE PRECISION NOT NULL,
   "changeMetrics" JSONB NOT NULL,

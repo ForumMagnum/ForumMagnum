@@ -9,6 +9,7 @@ import { backgroundTask } from "@/server/utils/backgroundTask";
 import type { MessageParam } from "@anthropic-ai/sdk/resources/messages.mjs";
 import { createClient } from "@/server/vulcan-lib/apollo-ssr/apolloClient";
 import { gql } from "@/lib/generated/gql-codegen";
+import { getRevisionOriginalContentsByRevisionId } from "@/lib/collections/revisions/helpers";
 
 async function queryClaudeJailbreak(prompt: MessageParam[], maxTokens: number) {
   const client = getAnthropicClientOrThrow()
@@ -72,10 +73,14 @@ const getPostsForPrompt = ({posts, spotlights}: {posts: PostsWithNavigation[], s
   return postsWithSpotlightsSortedByPostLength.filter((post) => (post?.contents?.html?.length ?? 0) > 2000).slice(0, 15)
 }
 
-const getJailbreakPromptBase = ({posts, spotlights, summary_prompt_name}: {posts: PostsWithNavigation[], spotlights: DbSpotlight[], summary_prompt_name: string}) => {
+const getJailbreakPromptBase = async ({posts, spotlights, summary_prompt_name}: {posts: PostsWithNavigation[], spotlights: DbSpotlight[], summary_prompt_name: string}) => {
   const prompt: MessageParam[] = []
-  posts.forEach((post, i) => {
+  const context = createAdminContext();
+  for (const [i, post] of posts.entries()) {
     const spotlight = spotlights.find(spotlight => spotlight.documentId === post._id)
+    const spotlightDescription = spotlight?.description_latest
+      ? (await getRevisionOriginalContentsByRevisionId(spotlight.description_latest, context))?.data
+      : spotlight?.description?.html;
     prompt.push({
       role: "user",
       content: [{
@@ -91,11 +96,11 @@ const getJailbreakPromptBase = ({posts, spotlights, summary_prompt_name}: {posts
 <title>${post.title}</title>
 <author>${post.user?.displayName}</author>
 <body>${post.contents?.html}</body>
-<${summary_prompt_name}>${spotlight?.description?.originalContents?.data}</${summary_prompt_name}>`,
+<${summary_prompt_name}>${spotlightDescription}</${summary_prompt_name}>`,
         ...((i === (posts.length - 1)) ? { cache_control: {"type": "ephemeral"}} : {})
       }]
     })
-  })
+  }
   return prompt
 }
 
@@ -157,7 +162,8 @@ export async function createSpotlights() {
       const reviewWinner = reviewWinners.find(reviewWinner => reviewWinner._id === post._id)
 
       try {
-        const prompt = [...getJailbreakPromptBase({posts: postsForPrompt, spotlights, summary_prompt_name: summary_prompt}), ...getSpotlightPrompt({post, summary_prompt_name: summary_prompt})]
+        const jailbreakPromptBase = await getJailbreakPromptBase({posts: postsForPrompt, spotlights, summary_prompt_name: summary_prompt});
+        const prompt = [...jailbreakPromptBase, ...getSpotlightPrompt({post, summary_prompt_name: summary_prompt})]
 
         const jailbreakSummary1 = await queryClaudeJailbreak(prompt, 200)
         const summary1 = jailbreakSummary1.content[0]

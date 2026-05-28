@@ -2299,9 +2299,6 @@ export async function updateDenormalizedTagDescriptions() {
       console.log(`Html mismatch for tag ${tag.name} (${tag.slug}, id ${tag._id}) and revision ${useRevision._id} (${denormalizedRevision ? 'denormalized' : 'latest'})`);
     }
 
-    if (useRevision.originalContents?.data !== tag.description?.originalContents?.data) {
-      console.log(`Original contents data mismatch for tag ${tag.name} (${tag.slug}, id ${tag._id}) and revision ${useRevision._id} (${denormalizedRevision ? 'denormalized' : 'latest'})`);
-    }
   }), 5);
 }
 

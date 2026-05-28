@@ -1,5 +1,4 @@
 import { documentIsNotDeleted, userOwns } from '../vulcan-users/permissions';
-import { getOriginalContents } from '../collections/revisions/helpers';
 import { accessFilterMultiple } from '../utils/schemaUtils';
 import { getWithLoader } from '../loaders';
 import type { MakeEditableOptions } from './makeEditableOptions';
@@ -139,6 +138,9 @@ export function getDenormalizedEditableResolver<N extends CollectionNameString>(
       return null;
     }
 
+    const latestRevFieldName = `${fieldName}_latest` as keyof ObjectsByCollectionName[N];
+    const latestRevId = doc[latestRevFieldName] as string;
+
     const result = {
       ...docField,
       // we're specifying these fields manually because docField doesn't have
@@ -146,20 +148,20 @@ export function getDenormalizedEditableResolver<N extends CollectionNameString>(
       // The reason we need to return documentId and collectionName is because
       // this entire result gets recursively resolved by revision field
       // resolvers, and those resolvers depend on these fields existing.
-      _id: `${doc._id}_${fieldName}`, //HACK
+      _id: latestRevId,
       documentId: doc._id,
       collectionName,
       editedAt: new Date(docField?.editedAt ?? Date.now()),
-      originalContents: await getOriginalContents(
-        context.currentUser,
-        doc,
-        docField.originalContents,
-        context,
-      ),
-    } as DbRevision;
+      fieldName,
+    };
     // HACK: Pretend that this denormalized field is a DbRevision (even though
-    // it's missing an _id and some other fields)
-    return result
+    // it's missing some fields)
+    return result as Omit<DbRevision,
+      "baseScore"|"extendedScore"|"voteCount"|"afBaseScore"|"afExtendedScore"
+      |"afVoteCount"|"autosaveTimeoutStart"|"skipAttributions"|"changeMetrics"
+      |"score"|"createdAt"|"legacyData"|"schemaVersion"|"draft"|"updateType"
+      |"originalContentsId"
+    > as DbRevision;
   }
 }
 

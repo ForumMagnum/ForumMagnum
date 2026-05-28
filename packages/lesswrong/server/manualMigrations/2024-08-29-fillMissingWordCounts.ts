@@ -1,6 +1,7 @@
 import { createAnonymousContext } from "../vulcan-lib/createContexts";
 import { forEachDocumentBatchInCollection, registerMigration } from "./migrationUtils";
 import { dataToWordCount } from "@/server/editor/conversionUtils";
+import { getStoredOriginalContentsForRevision } from "@/lib/collections/revisions/helpers";
 
 export default registerMigration({
   name: "fillMissingWordCounts",
@@ -23,7 +24,7 @@ export default registerMigration({
 
         const updates: MongoBulkWriteOperations<DbRevision> = [];
         for (const revision of revisions) {
-          const {data, type} = revision.originalContents ?? {};
+          const {data, type} = await getStoredOriginalContentsForRevision(revision, context) ?? {};
           const wordCount = data && type
             ? await dataToWordCount(data, type, context)
             : 0;
