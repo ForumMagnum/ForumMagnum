@@ -230,54 +230,6 @@ async function resolveClaudeCodeToken(
   return decryptUserSecret(row.encryptedValue);
 }
 
-/**
- * Resolve the conversation's sandbox: resume it if it exists, create it from
- * the baseline snapshot if it doesn't, and rebuild it from the baseline if its
- * auto-snapshot has expired (`snapshot_not_found`). Mirrors the SDK's
- * `Sandbox.getOrCreate`, reimplemented here because `getOrCreate`'s parameter
- * type does not admit a snapshot `source`.
- */
-async function provisionOrResume(args: {
-  name: string;
-  snapshotId: string;
-  ports: number[];
-  onCreate: (sandbox: Sandbox) => Promise<void>;
-  onResume: (sandbox: Sandbox) => Promise<void>;
-}): Promise<{ sandbox: Sandbox; wasFreshlyCreated: boolean }> {
-  const { name, snapshotId, ports, onCreate, onResume } = args;
-  try {
-    // Defaults to resume:true — a stopped sandbox is resumed and `onResume`
-    // fires; an already-running sandbox fires neither hook.
-    const sandbox = await Sandbox.get({ name, onResume });
-    return { sandbox, wasFreshlyCreated: false };
-  } catch (err) {
-    if (!isNotFoundError(err) && !isSnapshotNotFoundError(err)) throw err;
-    if (isSnapshotNotFoundError(err)) {
-      // The named sandbox still exists but its filesystem snapshot expired.
-      // Delete the stale record so `create` can reuse the name.
-      try {
-        const stale = await Sandbox.get({ name, resume: false });
-        await stale.delete();
-      } catch (delErr) {
-        if (!isNotFoundError(delErr)) throw delErr;
-      }
-    }
-    const sandbox = await Sandbox.create({
-      name,
-      source: { type: "snapshot", snapshotId },
-      ports,
-      timeout: SESSION_TIMEOUT_MS,
-      resources: { vcpus: 2 },
-      persistent: true,
-      snapshotExpiration: SNAPSHOT_EXPIRATION_MS,
-      keepLastSnapshots: { count: KEEP_LAST_SNAPSHOTS_COUNT },
-      onResume,
-    });
-    await onCreate(sandbox);
-    return { sandbox, wasFreshlyCreated: true };
-  }
-}
-
 interface CodingProvision {
   workspaceRepo: DbWorkspaceRepo;
   plan: CodingSnapshotPlan;
@@ -424,10 +376,13 @@ export async function getOrCreateSandbox(
     devServer: devServerEnv,
   };
 
+  let wasFreshlyCreated = false;
+
   const onResume = async (sandbox: Sandbox) => {
     await launchSupervisor(sandbox, launchEnv);
   };
   const onCreate = async (sandbox: Sandbox) => {
+    wasFreshlyCreated = true;
     // For a coding conversation, bring the repo to HEAD, reconcile dependencies
     // if the install cache was stale, and run `prepareCommand` — once, here. A
     // later resume restores this from the auto-snapshot and does not repeat it.
@@ -452,11 +407,28 @@ export async function getOrCreateSandbox(
     }
   };
 
-  const { sandbox, wasFreshlyCreated } = await provisionOrResume({
+  // `getOrCreate` covers all three branches: resume an existing sandbox,
+  // create a fresh one when none exists, and rebuild (delete + create) when
+  // the existing sandbox's snapshot has expired. `source` is consumed only on
+  // the create path — `Sandbox.get` ignores it — so a warm resume can't
+  // clobber the snapshot we're trying to recover from. `resume: true` is
+  // passed explicitly because the SDK omits the `resume` query param entirely
+  // when it's left undefined, and the backend in that case hands back a
+  // stopped-session handle rather than starting a new session.
+  const sandbox = await Sandbox.getOrCreate({
     name: sandboxName,
-    snapshotId,
+    // The SDK types `getOrCreate`'s `source` as git/tarball only, but at
+    // runtime it forwards `source` to `Sandbox.create` unchanged, which does
+    // accept a snapshot source. Cast until the SDK widens the type.
+    source: { type: "snapshot", snapshotId } as unknown as NonNullable<Parameters<typeof Sandbox.getOrCreate>[0]>["source"],
     // A dev-server sandbox exposes the auth-proxy port as well.
     ports: devServerEnv ? [SUPERVISOR_PORT, AUTH_PROXY_PORT] : [SUPERVISOR_PORT],
+    timeout: SESSION_TIMEOUT_MS,
+    resources: { vcpus: 2 },
+    persistent: true,
+    snapshotExpiration: SNAPSHOT_EXPIRATION_MS,
+    keepLastSnapshots: { count: KEEP_LAST_SNAPSHOTS_COUNT },
+    resume: true,
     onCreate,
     onResume,
   });
