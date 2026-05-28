@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { captureException } from "@/lib/sentryWrapper";
-import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
+import { computeContextFromUser, getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
+import { Users } from "@/server/collections/users/collection";
 import { createResearchDocument } from "@/server/collections/researchDocuments/mutations";
 import {
   authorizeAgentRequest,
@@ -110,10 +111,28 @@ export async function POST(
   });
   if (projectAuth.kind === "errorResponse") return projectAuth.errorResponse;
 
-  const [body, context] = await Promise.all([
+  // Agent requests have no login cookie, so the user must be resolved from
+  // the (already-verified) agent token's `payload.userId` rather than from
+  // the request. Build the context with that user up front so downstream
+  // mutations' `currentUser` checks and `userOwns(user, project)` permission
+  // checks see the right user.
+  const [body, agentUser] = await Promise.all([
     req.json(),
-    getContextFromReqAndRes({ req, isSSR: false }),
+    Users.findOne({ _id: payload.userId }),
   ]);
+  if (!agentUser) {
+    return NextResponse.json(
+      { error: "Agent token references a user that no longer exists." },
+      { status: 403 },
+    );
+  }
+  const context = computeContextFromUser({
+    user: agentUser,
+    headers: req.headers,
+    searchParams: req.nextUrl.searchParams,
+    cookies: req.cookies.getAll(),
+    isSSR: false,
+  });
 
   const parseResult = createResearchDocSchema.safeParse(body);
   if (!parseResult.success) {
@@ -142,7 +161,7 @@ export async function POST(
     }
 
     const newDocument = await createResearchDocument({
-      data: { projectId, title, userId: payload.userId },
+      data: { projectId, title },
     }, context);
 
     let initialContentInserted = false;
