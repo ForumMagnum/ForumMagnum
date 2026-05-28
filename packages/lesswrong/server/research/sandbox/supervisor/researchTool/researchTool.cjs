@@ -21,7 +21,7 @@
  *
  * Required env (set by the supervisor when launching Claude Code):
  *   RESEARCH_BACKEND_BASE_URL    — e.g. https://forum.example.com
- *   RESEARCH_BACKEND_TOKEN       — sandbox-callback bearer token; ≤30 min TTL
+ *   RESEARCH_BACKEND_TOKEN       — sandbox-callback bearer token
  *   RESEARCH_PROJECT_ID          — the project this sandbox is scoped to;
  *                                  used to build URLs (the bearer token also
  *                                  pins the project server-side)

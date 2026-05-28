@@ -390,5 +390,5 @@ intermediate processing; just don't expect them to be there next turn.)
 - Don't print credential values or environment-variable contents back
   to the user.
 - If `research-tool` errors with `Missing required env var:
-  RESEARCH_BACKEND_TOKEN`, the token expired — surface that to the
-  user, don't try to forge or refresh one yourself.
+  RESEARCH_BACKEND_TOKEN`, the env is unset; surface that to the user,
+  don't try to forge a token yourself.

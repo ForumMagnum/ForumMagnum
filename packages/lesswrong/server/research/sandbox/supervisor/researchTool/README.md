@@ -40,8 +40,7 @@ exec node /vercel/sandbox/research-tool.cjs "$@"
 The spawn must set per-subprocess env:
 - `RESEARCH_BACKEND_BASE_URL` — the ForumMagnum backend host
 - `RESEARCH_BACKEND_TOKEN` — the sandbox-callback token for *this conversation*
-  (mint a fresh one per dispatch; the supervisor refreshes via
-  `POST /api/research/agent/auth/refresh` before the 30-min cap)
+  (minted fresh per dispatch with a TTL sized to outlive the sandbox session)
 - `RESEARCH_PROJECT_ID` — convenience for `list-project`
 
 ## Auth contract

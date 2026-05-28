@@ -406,12 +406,10 @@ export async function getOrCreateSandbox(
     };
   }
 
-  // Minted fresh every call: a resume days later needs an unexpired token.
   const callbackToken = mintSupervisorCallbackToken({
     sandboxId: sandboxName,
     projectId: conversation.projectId,
     userId: conversation.userId,
-    ttlSeconds: Math.ceil(SESSION_TIMEOUT_MS / 1000) + 600,
   });
 
   const launchEnv: SupervisorLaunchEnv = {

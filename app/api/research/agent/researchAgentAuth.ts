@@ -6,15 +6,13 @@ import { issueResearchDocumentHocuspocusToken } from "./researchHocuspocusToken"
 /**
  * Sandbox-callback bearer token. Two scopes:
  *
- *   - `scope: "supervisor"` (long-lived, sandbox-wide) — issued at sandbox
- *     provision time, used by the supervisor process to POST events for any
- *     conversation in the project, and to send heartbeats. Lifetime matches
- *     the sandbox lifetime (up to ~1h with our defaults).
+ *   - `scope: "supervisor"` (sandbox-wide) — issued at sandbox provision time,
+ *     used by the supervisor process to POST events for any conversation in
+ *     the project, and to send heartbeats.
  *
- *   - `scope: "agent"` (short-lived, conversation-scoped) — minted per-turn
- *     and given to the Claude Code subprocess so the in-sandbox `research-tool`
- *     CLI can call our document/conversation endpoints scoped to that one
- *     conversation. ≤30 min TTL, refreshable.
+ *   - `scope: "agent"` (conversation-scoped) — minted per-turn and given to the
+ *     Claude Code subprocess so the in-sandbox `research-tool` CLI can call our
+ *     document/conversation endpoints scoped to that one conversation.
  *
  * HMAC-signed (HS256 JWT) with `RESEARCH_SANDBOX_CALLBACK_SECRET`. Payload
  * carries:
@@ -36,7 +34,7 @@ export interface SandboxCallbackTokenPayload {
   exp: number;
 }
 
-const SANDBOX_CALLBACK_TOKEN_MAX_TTL_SECONDS = 30 * 60;
+const SANDBOX_CALLBACK_TOKEN_MAX_TTL_SECONDS = 6 * 60 * 60;
 const SUPERVISOR_TOKEN_MAX_TTL_SECONDS = 6 * 60 * 60;
 
 export type SandboxCallbackValidationResult =
@@ -81,9 +79,6 @@ export function verifySandboxCallbackToken(rawToken: string | undefined): Sandbo
 
   let decoded: unknown;
   try {
-    // The supervisor scope tolerates a longer max-age than the agent scope.
-    // We verify against the larger ceiling here and re-check the per-scope
-    // TTL after decoding so signature/exp invariants are still enforced.
     decoded = jwt.verify(rawToken, getSandboxCallbackSecret(), {
       algorithms: ["HS256"],
       maxAge: SUPERVISOR_TOKEN_MAX_TTL_SECONDS,
@@ -101,9 +96,9 @@ export function verifySandboxCallbackToken(rawToken: string | undefined): Sandbo
 }
 
 /**
- * Mint an agent-scoped sandbox-callback token. Used by the conversation-
- * dispatch path at provision time and by the refresh endpoint to extend a
- * still-valid token's expiry. Conversation-scoped, ≤30 min TTL.
+ * Mint an agent-scoped sandbox-callback token: conversation-scoped, given to
+ * the in-sandbox `research-tool` CLI so it can call our document/conversation
+ * endpoints. Minted per-dispatch so the HMAC secret stays on the backend.
  */
 export function mintSandboxCallbackToken({
   sandboxId,
