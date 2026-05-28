@@ -146,6 +146,17 @@ paragraph break inside the block:
 >! the butler
 ```
 
+Collapsible sections (block content hidden behind a clickable title,
+collapsed by default) use `+++` fences. The opening line is `+++`
+followed by the section title (required, non-empty); the closing line
+is a bare `+++`. The body may contain any block-level markdown:
+```
++++ Caveats and edge cases
+Hidden body content with **emphasis**, lists, and
+other block-level elements.
++++
+```
+
 ```
 research-tool edit-doc <documentId> insert-llm-block \
     --markdown <md> [--model <name>] \

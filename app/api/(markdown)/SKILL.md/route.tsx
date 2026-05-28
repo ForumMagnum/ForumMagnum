@@ -238,6 +238,15 @@ spoiler block; a bare \`>!\` line is a paragraph break inside the block:
     >!
     >! the butler
 
+Collapsible sections (block content hidden behind a clickable title, collapsed
+by default) are written as a \`+++\` fence: the opening line is \`+++\` followed
+by the section title (required, non-empty), and the closing line is a bare
+\`+++\`. The body may contain any block-level markdown:
+    +++ Caveats and edge cases
+    Hidden body content with **emphasis**, lists, and
+    other block-level elements.
+    +++
+
 To delete an existing block from the draft, make a POST request to:
     POST /api/agent/deleteBlock
     with JSON body: { postId, key, prefix, mode?: "edit"|"suggest" }
