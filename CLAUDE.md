@@ -404,6 +404,12 @@ Migrations are run before the new version is deployed, without downtime, so if a
 
 ---
 
+## Scripts
+
+In the course of your work, you may occasionally decide (or be asked) to write and/or run scripts.  Despite being a NextJS codebase, we support running scripts that import arbitrary parts of the codebase via `yarn repl`.  If the script you're writing doesn't import any part of the codebase, then you don't need to use `yarn repl` - run it however you normally would.  If it does (for example, because it wants to talk to our database), then you should write it in the `packages/lesswrong/scripts/` directory and export the entrypoint function so that it can be invoked via the repl.  Default to running scripts against the dev db (via `yarn repl dev lw`) unless explicitly asked to do otherwise.
+
+---
+
 ## Server and Client Code
 
 Files in app/ are React server components and route handlers.
