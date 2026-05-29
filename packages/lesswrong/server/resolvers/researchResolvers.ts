@@ -588,15 +588,13 @@ export const researchResolversQueries = {
   ) {
     await loadConversationOrThrow(args.conversationId, context);
     const { ResearchConversationEvents } = context;
-    const selector: { conversationId: string; seq?: { $gt: number } } = {
+    const selector = {
       conversationId: args.conversationId,
+      ...(args.since ? { seq: { $gt: args.since } } : {}),
     };
-    if (typeof args.since === "number" && args.since >= 0) {
-      selector.seq = { $gt: args.since };
-    }
     const events = await ResearchConversationEvents.find(
       selector,
-      { sort: { seq: 1 }, limit: args.limit ?? 200 },
+      { sort: { seq: 1 }, limit: args.limit ?? 5000 },
     ).fetch();
     return events;
   },

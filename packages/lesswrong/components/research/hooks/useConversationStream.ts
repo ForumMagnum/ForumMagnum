@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ApolloClient } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useApolloClient } from '@apollo/client/react';
+import { useQuery } from '@/lib/crud/useQuery';
 import { isTurnInFlight } from '../conversationEventFormat';
 
 export interface ConversationEvent {
@@ -15,10 +16,6 @@ export interface ConversationEvent {
   payload: unknown;
   createdAt: string;
 }
-
-// Lightweight Result wrapper used by helpers that would otherwise throw for
-// control flow (network failure, schema mismatch). Callers branch on `ok`.
-type Result<T> = { ok: true; value: T } | { ok: false; error: string };
 
 export type StreamStatus =
   | 'idle'
@@ -35,12 +32,12 @@ interface UseConversationStreamResult {
   error: string | null;
   latestSeq: number;
   refresh: () => void;
-  // Optimistic local-only insert (seq < 0); dropped on the next transcript reload.
+  // Optimistic local-only insert (seq < 0); dropped once its persisted twin lands.
   injectOptimisticEvent: (event: ConversationEvent) => void;
 }
 
-// How long to keep slow-polling the transcript while idle, to notice a turn
-// started elsewhere (another tab/device) and re-open the live stream.
+// How often to refetch while idle, to notice a turn started elsewhere (another
+// tab/device) and re-open the live stream.
 const IDLE_POLL_MS = 15_000;
 
 const ResearchConversationTranscriptQuery = gql(`
@@ -58,124 +55,121 @@ const ResearchConversationTranscriptQuery = gql(`
 `);
 
 /**
- * Single-source conversation stream. History comes from the
- * `researchConversationTranscript` query; live updates come from the backend
- * SSE endpoint (`/api/research/conversations/:id/events/stream`). Everything is
- * keyed by the backend-assigned `seq`, so reconciliation is a trivial
- * merge-by-seq with no cross-source dedupe.
+ * Single-source conversation stream. The Apollo cache is the store: history and
+ * live events for a conversation live in one `researchConversationTranscript`
+ * cache entry, read reactively via `useQuery`. Switching `conversationId` just
+ * reads a different entry (no manual reset), and `cache-and-network` shows the
+ * cached entry instantly while refetching, so a conversation that advanced
+ * since it was last loaded refreshes itself rather than sticking stale.
  *
- * The live stream is held open only while a turn is in flight; between turns we
- * close it and slow-poll the transcript to notice a turn started elsewhere.
+ * Live updates: the SSE stream (held open only while a turn is in flight)
+ * appends each persisted event into that cache entry, which `useQuery` picks up
+ * reactively. Between turns we close the stream and slow-poll via refetch.
  */
 export function useConversationStream(
   conversationId: string | null | undefined,
 ): UseConversationStreamResult {
   const apollo = useApolloClient();
 
-  const [events, setEvents] = useState<ConversationEvent[]>([]);
-  const [status, setStatus] = useState<StreamStatus>('idle');
-  const [error, setError] = useState<string | null>(null);
-  const [refreshNonce, setRefreshNonce] = useState(0);
+  const { data, loading, error: queryError, refetch } = useQuery(ResearchConversationTranscriptQuery, {
+    variables: { conversationId: conversationId ?? '', since: null },
+    fetchPolicy: 'cache-and-network',
+    skip: !conversationId,
+  });
+
+  const persisted = useMemo(
+    () => mapRows(data?.researchConversationTranscript ?? []),
+    [data],
+  );
+
+  // Optimistic echoes (seq < 0) live locally, appended after the persisted
+  // history; the cache owns everything real.
+  const [optimistic, setOptimistic] = useState<ConversationEvent[]>([]);
+  const [connectionStatus, setConnectionStatus] = useState<StreamStatus>('idle');
+
+  const events = useMemo(() => [...persisted, ...optimistic], [persisted, optimistic]);
+  const turnInFlight = useMemo(() => isTurnInFlight(events), [events]);
 
   const latestSeq = useMemo(() => {
     let max = -1;
-    for (const e of events) if (e.seq > max) max = e.seq;
+    for (const e of persisted) if (e.seq > max) max = e.seq;
     return max;
-  }, [events]);
-
+  }, [persisted]);
   const latestSeqRef = useRef(latestSeq);
   useEffect(() => { latestSeqRef.current = latestSeq; }, [latestSeq]);
 
-  const turnInFlight = useMemo(() => isTurnInFlight(events), [events]);
+  const refetchRef = useRef(refetch);
+  useEffect(() => { refetchRef.current = refetch; }, [refetch]);
 
-  // Load the conversation's persisted history (re-runs on refresh).
+  // Drop the optimistic echo once a new persisted user turn lands (its real
+  // twin is now in the transcript).
+  const persistedUserCount = useMemo(
+    () => persisted.reduce((n, e) => (e.kind === 'user' ? n + 1 : n), 0),
+    [persisted],
+  );
+  const prevUserCountRef = useRef(persistedUserCount);
+  useEffect(() => {
+    if (persistedUserCount > prevUserCountRef.current) setOptimistic([]);
+    prevUserCountRef.current = persistedUserCount;
+  }, [persistedUserCount]);
+
+  // Live stream lifecycle: hold the SSE open while a turn is in flight; when
+  // idle, close it and slow-poll (refetch) to notice a turn started elsewhere.
   useEffect(() => {
     if (!conversationId) {
-      setEvents([]);
-      setStatus('idle');
-      setError(null);
+      setConnectionStatus('idle');
       return;
     }
     const id = conversationId;
-    let cancelled = false;
-
-    const cached = readCachedTranscript(apollo, id);
-    if (cached.length > 0) {
-      // Drop any prior optimistic entries; merge fresh persisted history.
-      setEvents((prev) => mergeBySeq(prev.filter((e) => e.seq >= 0), cached));
-    } else {
-      setStatus('loading');
-    }
-    setError(null);
-
-    void (async () => {
-      const result = await loadPersistedEvents(apollo, id, -1);
-      if (cancelled) return;
-      if (!result.ok) {
-        setStatus('error');
-        setError(result.error);
-        return;
-      }
-      setEvents((prev) => mergeBySeq(prev.filter((e) => e.seq >= 0), result.value));
-      // Status past 'loading' is owned by the stream effect below (idle vs
-      // connecting/streaming), which reacts to the loaded turn-in-flight state.
-      setStatus((s) => (s === 'loading' ? 'idle' : s));
-    })();
-
-    return () => { cancelled = true; };
-  }, [conversationId, refreshNonce, apollo]);
-
-  // Hold the live stream open while a turn is in flight; when idle, close it
-  // and slow-poll the transcript to notice a turn started elsewhere.
-  useEffect(() => {
-    if (!conversationId) return;
-    const id = conversationId;
 
     if (!turnInFlight) {
-      // A turn started elsewhere flips turnInFlight, which re-runs this effect
-      // into the streaming branch below.
-      setStatus((s) => (s === 'loading' || s === 'error' ? s : 'idle'));
-      const poll = setInterval(() => {
-        void (async () => {
-          const result = await loadPersistedEvents(apollo, id, latestSeqRef.current);
-          if (result.ok && result.value.length > 0) {
-            setEvents((prev) => mergeBySeq(prev, result.value));
-          }
-        })();
-      }, IDLE_POLL_MS);
+      setConnectionStatus('idle');
+      const poll = setInterval(() => { void refetchRef.current(); }, IDLE_POLL_MS);
       return () => clearInterval(poll);
     }
 
     // Native EventSource auto-reconnects (resuming via Last-Event-ID = last
-    // seq), so we don't hand-roll reconnection; we only reflect its state.
-    setStatus('connecting');
-    setError(null);
+    // seq), so we don't hand-roll reconnection; we only reflect its state and
+    // append each delivered event into the transcript cache entry.
+    setConnectionStatus('connecting');
     const url = `/api/research/conversations/${encodeURIComponent(id)}/events/stream?since=${latestSeqRef.current}`;
     const es = new EventSource(url, { withCredentials: true });
 
-    es.onopen = () => setStatus('streaming');
+    es.onopen = () => setConnectionStatus('streaming');
     es.onmessage = (msg) => {
       const ev = parseStreamedRow(msg.data);
-      if (ev) setEvents((prev) => mergeBySeq(prev, [ev]));
+      if (ev) appendEventToCache(apollo, id, ev);
     };
     es.onerror = () => {
       // CLOSED ⇒ a fatal response (e.g. 401/403); won't auto-retry. Otherwise
       // the browser is already reconnecting.
-      setStatus(es.readyState === EventSource.CLOSED ? 'error' : 'reconnecting');
+      setConnectionStatus(es.readyState === EventSource.CLOSED ? 'error' : 'reconnecting');
     };
 
     return () => es.close();
   }, [conversationId, turnInFlight, apollo]);
 
   const injectOptimisticEvent = useCallback((event: ConversationEvent) => {
-    setEvents((prev) => mergeBySeq(prev, [event]));
+    setOptimistic((prev) => [...prev, event]);
   }, []);
 
-  const refresh = useCallback(() => {
-    setRefreshNonce((n) => n + 1);
-  }, []);
+  const refresh = useCallback(() => { void refetchRef.current(); }, []);
 
-  return { events, status, error, latestSeq, refresh, injectOptimisticEvent };
+  const status: StreamStatus = useMemo(() => {
+    if (!conversationId) return 'idle';
+    if (queryError) return 'error';
+    if (loading && persisted.length === 0) return 'loading';
+    return connectionStatus;
+  }, [conversationId, queryError, loading, persisted.length, connectionStatus]);
+
+  return {
+    events,
+    status,
+    error: queryError ? queryError.message : null,
+    latestSeq,
+    refresh,
+    injectOptimisticEvent,
+  };
 }
 
 interface RawTranscriptRow {
@@ -188,7 +182,7 @@ interface RawTranscriptRow {
   createdAt: string;
 }
 
-function mapRawTranscriptToEvents(raw: readonly RawTranscriptRow[]): ConversationEvent[] {
+function mapRows(raw: readonly RawTranscriptRow[]): ConversationEvent[] {
   return raw.flatMap((e) => {
     if (e.conversationId === null || e.seq === null || e.kind === null) return [];
     return [{
@@ -201,38 +195,6 @@ function mapRawTranscriptToEvents(raw: readonly RawTranscriptRow[]): Conversatio
       createdAt: e.createdAt,
     }];
   });
-}
-
-function readCachedTranscript(apollo: ApolloClient, conversationId: string): ConversationEvent[] {
-  try {
-    const cached = apollo.readQuery({
-      query: ResearchConversationTranscriptQuery,
-      variables: { conversationId, since: null },
-    });
-    return mapRawTranscriptToEvents(cached?.researchConversationTranscript ?? []);
-  } catch {
-    return [];
-  }
-}
-
-async function loadPersistedEvents(
-  apollo: ApolloClient,
-  conversationId: string,
-  since: number,
-): Promise<Result<ConversationEvent[]>> {
-  try {
-    const queryResult = await apollo.query({
-      query: ResearchConversationTranscriptQuery,
-      variables: { conversationId, since: since < 0 ? null : since },
-      fetchPolicy: 'network-only',
-    });
-    if (queryResult.error) {
-      return { ok: false, error: queryResult.error.message };
-    }
-    return { ok: true, value: mapRawTranscriptToEvents(queryResult.data?.researchConversationTranscript ?? []) };
-  } catch (err) {
-    return { ok: false, error: err instanceof Error ? err.message : String(err) };
-  }
 }
 
 function parseStreamedRow(data: string): ConversationEvent | null {
@@ -255,25 +217,36 @@ function parseStreamedRow(data: string): ConversationEvent | null {
   }
 }
 
-// Merge by backend `seq`: persisted events (seq >= 0) dedupe by seq and sort
-// ascending; optimistic events (seq < 0) carry no seq yet, so they're kept in
-// insertion order at the tail until the next transcript reload replaces them
-// with their persisted twins. Returns `prev` unchanged when nothing new came
-// in, so memoized rows don't re-render.
-function mergeBySeq(prev: ConversationEvent[], incoming: ConversationEvent[]): ConversationEvent[] {
-  if (incoming.length === 0) return prev;
-  const bySeq = new Map<number, ConversationEvent>();
-  const optimistic: ConversationEvent[] = [];
-  for (const e of prev) {
-    if (e.seq < 0) optimistic.push(e);
-    else bySeq.set(e.seq, e);
-  }
-  let changed = false;
-  for (const e of incoming) {
-    if (e.seq < 0) { optimistic.push(e); changed = true; continue; }
-    if (!bySeq.has(e.seq)) { bySeq.set(e.seq, e); changed = true; }
-  }
-  if (!changed) return prev;
-  const persisted = [...bySeq.values()].sort((a, b) => a.seq - b.seq);
-  return [...persisted, ...optimistic];
+// Append a live event into the conversation's transcript cache entry. Keyed by
+// `_id` so a later refetch merges (rather than duplicates) the same row; guarded
+// on seq so a reconnect replay doesn't double-insert into the list.
+function appendEventToCache(
+  apollo: ApolloClient,
+  conversationId: string,
+  ev: ConversationEvent,
+): void {
+  apollo.cache.updateQuery(
+    { query: ResearchConversationTranscriptQuery, variables: { conversationId, since: null } },
+    (prev) => {
+      const list = prev?.researchConversationTranscript;
+      // Not loaded yet — the in-flight network fetch will include this event.
+      if (!list) return undefined;
+      if (list.some((e) => e?.seq === ev.seq)) return undefined;
+      return {
+        researchConversationTranscript: [
+          ...list,
+          {
+            __typename: 'ResearchConversationEvent' as const,
+            _id: ev._id,
+            conversationId: ev.conversationId,
+            seq: ev.seq,
+            claudeMessageUuid: ev.claudeMessageUuid ?? null,
+            kind: ev.kind,
+            payload: ev.payload,
+            createdAt: ev.createdAt,
+          },
+        ],
+      };
+    },
+  );
 }
