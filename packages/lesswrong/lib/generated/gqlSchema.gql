@@ -650,7 +650,7 @@ extend type Query {
   LastCuratedDate: LastCuratedDateResult!
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
   HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
-  HocuspocusAuth(postId: String!, linkSharingKey: String): HocuspocusAuth
+  HocuspocusAuth(postId: String, collectionName: String, documentId: String, linkSharingKey: String): HocuspocusAuth
 }
 
 extend type Mutation {
@@ -7415,6 +7415,7 @@ type User {
   signUpReCaptchaRating: Float
   noExpandUnreadCommentsReview: Boolean!
   postCount: Float!
+  coauthoredPostCount: Float!
   maxPostCount: Float!
   posts(limit: Int = 5): [Post!]
   commentCount: Float!

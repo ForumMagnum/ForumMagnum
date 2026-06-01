@@ -3131,6 +3131,7 @@ CREATE TABLE "Users" (
   "signUpReCaptchaRating" DOUBLE PRECISION,
   "noExpandUnreadCommentsReview" BOOL NOT NULL DEFAULT FALSE,
   "postCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
+  "coauthoredPostCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "maxPostCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "commentCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
   "maxCommentCount" DOUBLE PRECISION NOT NULL DEFAULT 0,
@@ -3363,6 +3364,7 @@ CREATE INDEX IF NOT EXISTS "idx_Votes_votedAt" ON "Votes" USING btree ("votedAt"
 CREATE TABLE "YjsDocuments" (
   _id VARCHAR(27) PRIMARY KEY,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "collectionName" TEXT NOT NULL DEFAULT 'Posts',
   "documentId" TEXT NOT NULL,
   "yjsState" BYTEA NOT NULL,
   "yjsStateVector" BYTEA NOT NULL,

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { defineStyles, useStyles } from '../../../hooks/useStyles';
 import { renderEquation } from './loadMathJax';
@@ -140,8 +140,8 @@ function MathEditorPanel({
   }, [equation, isInline, isOpen]);
 
   // Auto-resize textarea
-  useEffect(() => {
-    if (inputRef.current) {
+  useLayoutEffect(() => {
+    if (isOpen && inputRef.current) {
       const textarea = inputRef.current;
       textarea.style.height = 'auto';
       textarea.style.height = `${Math.max(textarea.scrollHeight, 24)}px`;
@@ -151,7 +151,7 @@ function MathEditorPanel({
       const maxLength = Math.max(...lines.map(l => l.length), 20);
       textarea.style.width = `${Math.min((maxLength * 8) + 24, 500)}px`;
     }
-  }, [equation]);
+  }, [equation, isOpen]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {

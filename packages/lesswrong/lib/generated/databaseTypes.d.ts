@@ -1595,6 +1595,7 @@ interface DbUser extends DbObject {
   bookmarksCount: number
   careerStage: Array<string> | null
   claudeLinkedAt: Date | null
+  coauthoredPostCount: number
   collapseModerationGuidelines: boolean | null
   commentCount: number
   commentSorting: string | null
@@ -2205,6 +2206,7 @@ type YjsDocumentsCollection = PgCollection<"YjsDocuments">;
 
 interface DbYjsDocument extends DbObject {
   __collectionName?: "YjsDocuments"
+  collectionName: string
   createdAt: Date
   documentId: string
   updatedAt: Date

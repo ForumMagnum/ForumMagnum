@@ -15,14 +15,31 @@ export const spamRiskScoreThreshold = 0.16 // Corresponds to recaptchaScore of 0
 
 export type UserDisplayNameInfo = { username?: string | null, fullName?: string | null, displayName: string | null };
 export interface PermissionsPostMinimumInfo {
-  shortform: boolean,
+  shortform?: boolean | null,
   user?: PostsAuthors['user'],
   userId: string | null,
-  rejected: boolean | null,
-  commentsLocked: boolean | null,
-  commentsLockedToAccountsCreatedAfter: Date | string | null,
-  bannedUserIds: string[] | null,
-  frontpageDate: Date | string | null,
+  rejected?: boolean | null,
+  commentsLocked?: boolean | null,
+  commentsLockedToAccountsCreatedAfter?: Date | string | null,
+  bannedUserIds?: string[] | null,
+  frontpageDate?: Date | string | null,
+}
+
+type PostModerationAuthor = PermissionableUser & {
+  bannedUserIds?: string[] | null,
+  bannedPersonalUserIds?: string[] | null,
+};
+
+export type AuthorCommentBanReason = "post" | "allPosts" | "allPersonalPosts";
+
+export const getAuthorCommentBanMessage = (reason: AuthorCommentBanReason): string => {
+  switch (reason) {
+    case "allPersonalPosts":
+      return "This post's author has blocked you from commenting on any of their personal blog posts.";
+    case "post":
+    case "allPosts":
+      return "This post's author has blocked you from commenting.";
+  }
 }
 
 // Get a user's display name (not unique, can take special characters and spaces)
@@ -207,7 +224,7 @@ export const userCanCommentLock = (user: UsersCurrent|DbUser|null, post: PostsBa
   )
 }
 
-export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PermissionsPostMinimumInfo, postAuthor: PermissionableUser|DbUser|null): boolean => {
+export const userIsBannedFromPost = (user: UsersMinimumInfo|DbUser, post: PermissionsPostMinimumInfo, postAuthor: PostModerationAuthor|DbUser|null): boolean => {
   if (!post) return false;
   return !!(
     post.bannedUserIds?.includes(user._id) &&
@@ -223,27 +240,37 @@ export const userIsNotShortformOwner = (user: UsersCurrent|DbUser, post: Permiss
   )
 }
 
-export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo, postAuthor: PermissionableUser|DbUser|null): boolean => {
+export const userIsBannedFromAllPosts = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo, postAuthor: PostModerationAuthor|DbUser|null): boolean => {
   return !!(
-    // @ts-ignore FIXME: Not enforcing that the fragment includes bannedUserIds
     postAuthor?.bannedUserIds?.includes(user._id) &&
-    // @ts-ignore FIXME: Not enforcing that the fragment includes user.groups
     userCanDo(postAuthor, 'posts.moderate.own') &&
     postAuthor && userOwns(postAuthor, post)
   )
 }
 
-export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo, postAuthor: PermissionableUser|DbUser|null): boolean => {
+export const userIsBannedFromAllPersonalPosts = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo, postAuthor: PostModerationAuthor|DbUser|null): boolean => {
   return !!(
-    // @ts-ignore FIXME: Not enforcing that the fragment includes bannedUserIds
     postAuthor?.bannedPersonalUserIds?.includes(user._id) &&
-    // @ts-ignore FIXME: Not enforcing that the fragment includes user.groups
     userCanDo(postAuthor, 'posts.moderate.own.personal') &&
     postAuthor && userOwns(postAuthor, post)
   )
 }
 
-export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PermissionsPostMinimumInfo|null, postAuthor: PermissionableUser|DbUser|null, isReply: boolean): boolean => {
+export const getAuthorCommentBanReason = (user: UsersCurrent|DbUser, post: PermissionsPostMinimumInfo|null, postAuthor: PostModerationAuthor|DbUser|null): AuthorCommentBanReason | null => {
+  if (!post) return null;
+  if (userIsBannedFromPost(user, post, postAuthor)) {
+    return "post";
+  }
+  if (userIsBannedFromAllPosts(user, post, postAuthor)) {
+    return "allPosts";
+  }
+  if (userIsBannedFromAllPersonalPosts(user, post, postAuthor) && !post.frontpageDate) {
+    return "allPersonalPosts";
+  }
+  return null;
+}
+
+export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: PermissionsPostMinimumInfo|null, postAuthor: PostModerationAuthor|DbUser|null, isReply: boolean): boolean => {
   if (!user) return false
   if (user.deleted) return false
   if (user.allCommentingDisabled) return false
@@ -271,15 +298,7 @@ export const userIsAllowedToComment = (user: UsersCurrent|DbUser|null, post: Per
       return false
     }
   
-    if (userIsBannedFromPost(user, post, postAuthor)) {
-      return false
-    }
-  
-    if (userIsBannedFromAllPosts(user, post, postAuthor)) {
-      return false
-    }
-  
-    if (userIsBannedFromAllPersonalPosts(user, post, postAuthor) && !post.frontpageDate) {
+    if (getAuthorCommentBanReason(user, post, postAuthor)) {
       return false
     }
   }
