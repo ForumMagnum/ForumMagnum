@@ -3364,6 +3364,7 @@ CREATE INDEX IF NOT EXISTS "idx_Votes_votedAt" ON "Votes" USING btree ("votedAt"
 CREATE TABLE "YjsDocuments" (
   _id VARCHAR(27) PRIMARY KEY,
   "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "collectionName" TEXT NOT NULL DEFAULT 'Posts',
   "documentId" TEXT NOT NULL,
   "yjsState" BYTEA NOT NULL,
   "yjsStateVector" BYTEA NOT NULL,

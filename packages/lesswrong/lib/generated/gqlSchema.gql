@@ -649,7 +649,7 @@ extend type Query {
   LastCuratedDate: LastCuratedDateResult!
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
   HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
-  HocuspocusAuth(postId: String!, linkSharingKey: String): HocuspocusAuth
+  HocuspocusAuth(postId: String, collectionName: String, documentId: String, linkSharingKey: String): HocuspocusAuth
 }
 
 extend type Mutation {

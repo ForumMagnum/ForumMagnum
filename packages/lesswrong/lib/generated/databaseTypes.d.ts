@@ -2206,6 +2206,7 @@ type YjsDocumentsCollection = PgCollection<"YjsDocuments">;
 
 interface DbYjsDocument extends DbObject {
   __collectionName?: "YjsDocuments"
+  collectionName: string
   createdAt: Date
   documentId: string
   updatedAt: Date

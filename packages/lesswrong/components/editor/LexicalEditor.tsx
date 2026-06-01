@@ -37,8 +37,8 @@ import { HorizontalRuleExtension } from '@lexical/extension';
 import ErrorBoundary from '../common/ErrorBoundary';
 
 const HocuspocusAuthQuery = gql(`
-  query HocuspocusAuthQuery($postId: String!, $linkSharingKey: String) {
-    HocuspocusAuth(postId: $postId, linkSharingKey: $linkSharingKey) {
+  query HocuspocusAuthQuery($collectionName: String, $documentId: String, $linkSharingKey: String) {
+    HocuspocusAuth(collectionName: $collectionName, documentId: $documentId, linkSharingKey: $linkSharingKey) {
       token
     }
   }
@@ -373,7 +373,7 @@ async function fetchHocuspocusToken(
 ): Promise<string> {
   const { data } = await apolloClient.query({
     query: HocuspocusAuthQuery,
-    variables: { postId, linkSharingKey },
+    variables: { collectionName: 'Posts', documentId: postId, linkSharingKey },
     fetchPolicy: 'network-only',
   });
   const token = data?.HocuspocusAuth?.token;
