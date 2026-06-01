@@ -291,7 +291,10 @@ export async function handleCommentAdded(
   documentName: string,
   comment: HocuspocusCommentData,
 ): Promise<void> {
-  const { documentId: postId } = parseHocuspocusDocumentName(documentName);
+  const { documentId } = parseHocuspocusDocumentName(documentName);
+  // comment.added fires on the comments subdocument, named "post-{id}/comments";
+  // the owning post id is the segment before the slash.
+  const postId = documentId.split('/')[0];
 
   // eslint-disable-next-line no-console
   console.log(`[HocuspocusWebhook] Comment added on ${documentName} by ${comment.authorId}`);
