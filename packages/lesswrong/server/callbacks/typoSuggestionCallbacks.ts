@@ -104,7 +104,7 @@ async function hasLiveYjsRecord(
   context: ResolverContext,
 ): Promise<boolean> {
   const yjsDoc = await context.YjsDocuments.findOne(
-    { documentId },
+    { collectionName: 'Posts', documentId },
     undefined,
     { _id: 1 },
   );

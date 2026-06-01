@@ -19,7 +19,7 @@ import { createPost } from '../collections/posts/mutations';
 import { createRevision } from '../collections/revisions/mutations';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { PostsViews } from '@/lib/collections/posts/views';
-import { getCollaborativeEditorAccessWithKey } from '@/lib/collections/posts/collabEditingPermissions';
+import { getCollaborativeEditorAccessWithKey, type CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
 import { getResearchDocumentAccess } from '@/lib/collections/researchDocuments/permissions';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { getViewablePostsSelector } from '@/server/repos/helpers';
@@ -424,7 +424,7 @@ export const postGqlQueries = {
   async HocuspocusAuth(root: void, args: { postId?: string | null, collectionName?: string | null, documentId?: string | null, linkSharingKey: string | null }, context: ResolverContext) {
     const { currentUser, loaders, clientId } = context
 
-    // Accept either {postId, ...} (legacy) or {collectionName, documentId, ...}.
+    // postId is the legacy argument name, retained for clients on an old bundle.
     const collectionName = args.collectionName ?? 'Posts';
     const documentId = args.documentId ?? args.postId;
     if (!documentId) {
@@ -432,7 +432,7 @@ export const postGqlQueries = {
     }
     const { linkSharingKey } = args;
 
-    let accessLevel: 'none' | 'read' | 'comment' | 'edit';
+    let accessLevel: CollaborativeEditingAccessLevel;
     if (collectionName === 'Posts') {
       const post = await loaders.Posts.load(documentId);
       accessLevel = await getCollaborativeEditorAccessWithKey({
@@ -459,10 +459,6 @@ export const postGqlQueries = {
         displayName: currentUser?.displayName ?? 'Anonymous',
         collectionName,
         documentId,
-        // Kept for backwards-compat with the in-flight-during-deploy Hocuspocus
-        // server, which reads `postId` from the JWT. Safe to remove once the
-        // Hocuspocus deploy is past the rollout window.
-        postId: collectionName === 'Posts' ? documentId : undefined,
         accessLevel,
       },
       process.env.HOCUSPOCUS_JWT_SECRET!,

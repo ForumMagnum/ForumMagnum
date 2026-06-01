@@ -39,8 +39,8 @@ import ErrorBoundary from '../common/ErrorBoundary';
 import DeferRender from '../common/DeferRender';
 
 const HocuspocusAuthQuery = gql(`
-  query HocuspocusAuthQuery($postId: String, $collectionName: String, $documentId: String, $linkSharingKey: String) {
-    HocuspocusAuth(postId: $postId, collectionName: $collectionName, documentId: $documentId, linkSharingKey: $linkSharingKey) {
+  query HocuspocusAuthQuery($collectionName: String, $documentId: String, $linkSharingKey: String) {
+    HocuspocusAuth(collectionName: $collectionName, documentId: $documentId, linkSharingKey: $linkSharingKey) {
       token
     }
   }
@@ -360,12 +360,7 @@ async function fetchHocuspocusToken(
 ): Promise<string> {
   const { data } = await apolloClient.query({
     query: HocuspocusAuthQuery,
-    variables: {
-      postId: collectionName === 'Posts' ? documentId : null,
-      collectionName,
-      documentId,
-      linkSharingKey,
-    },
+    variables: { collectionName, documentId, linkSharingKey },
     fetchPolicy: 'network-only',
   });
   const token = data?.HocuspocusAuth?.token;

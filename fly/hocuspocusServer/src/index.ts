@@ -3,6 +3,7 @@ import { Logger } from '@hocuspocus/extension-logger';
 import { PostgresExtension } from './extensions/postgres';
 import { RevisionSyncExtension } from './extensions/revisionSync';
 import { verifyAuthToken } from './auth';
+import { documentNamePrefixForCollection } from './documentNames';
 import * as Y from 'yjs';
 import crypto from 'crypto';
 
@@ -98,20 +99,7 @@ const server = new Server({
       throw new Error('Access denied');
     }
 
-    // Validate that the document name matches the collection+id the token
-    // authorizes. The Hocuspocus document name is the full
-    // "{prefix}{documentId}" string (or "{prefix}{documentId}/{subDocId}" for
-    // nested docs), where the prefix comes from the same registry the
-    // postgres extension uses to parse documentName -> (collection, id).
-    const collectionPrefixes: Record<string, string> = {
-      Posts: 'post-',
-      ResearchDocuments: 'research-doc-',
-    };
-    const prefix = collectionPrefixes[collectionName];
-    if (!prefix) {
-      throw new Error(`Access denied: unknown collection ${collectionName}`);
-    }
-    const expected = `${prefix}${documentId}`;
+    const expected = `${documentNamePrefixForCollection(collectionName)}${documentId}`;
     if (documentName !== expected && !documentName.startsWith(`${expected}/`)) {
       throw new Error(`Access denied: token for ${collectionName} ${documentId} cannot access document ${documentName}`);
     }

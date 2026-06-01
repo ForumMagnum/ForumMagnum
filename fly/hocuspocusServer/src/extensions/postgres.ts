@@ -2,6 +2,7 @@ import { Extension, onLoadDocumentPayload, onStoreDocumentPayload } from '@hocus
 import { Pool } from 'pg';
 import * as Y from 'yjs';
 import crypto from 'crypto';
+import { parseDocumentName } from '../documentNames';
 
 interface PostgresExtensionConfig {
   connectionString: string;
@@ -16,41 +17,6 @@ function generateId(): string {
     result += chars[randomBytes[i] % chars.length];
   }
   return result;
-}
-
-interface ParsedDocument {
-  collectionName: string;
-  documentId: string;
-}
-
-/**
- * Mapping from Hocuspocus document-name prefix to the ForumMagnum collection
- * the document belongs to. The prefix lives only at the Hocuspocus protocol
- * layer; YjsDocuments rows store the bare documentId plus the explicit
- * collectionName column.
- */
-const DOCUMENT_NAME_PREFIXES: ReadonlyArray<{ prefix: string; collectionName: string }> = [
-  { prefix: 'post-', collectionName: 'Posts' },
-  { prefix: 'research-doc-', collectionName: 'ResearchDocuments' },
-];
-
-/**
- * Parse a Hocuspocus document name into its (collectionName, documentId) pair.
- *
- * Document names look like:
- *   - "post-{postId}" / "post-{postId}/{subDocId}"           → Posts
- *   - "research-doc-{id}" / "research-doc-{id}/{subDocId}"   → ResearchDocuments
- *
- * The prefix table is the single source of truth for which collections
- * participate in the collab editor.
- */
-function parseDocumentId(documentName: string): ParsedDocument {
-  for (const { prefix, collectionName } of DOCUMENT_NAME_PREFIXES) {
-    if (documentName.startsWith(prefix)) {
-      return { collectionName, documentId: documentName.slice(prefix.length) };
-    }
-  }
-  throw new Error(`[PostgresExtension] Unrecognized document name prefix: ${documentName}`);
 }
 
 export class PostgresExtension implements Extension {
@@ -74,7 +40,7 @@ export class PostgresExtension implements Extension {
   }
 
   async onLoadDocument({ documentName, document }: onLoadDocumentPayload): Promise<void> {
-    const { collectionName, documentId } = parseDocumentId(documentName);
+    const { collectionName, documentId } = parseDocumentName(documentName);
 
     try {
       const result = await this.pool.query(
@@ -143,12 +109,12 @@ export class PostgresExtension implements Extension {
     state: Uint8Array,
     stateVector: Uint8Array,
   ): Promise<void> {
-    const { collectionName, documentId } = parseDocumentId(documentName);
+    const { collectionName, documentId } = parseDocumentName(documentName);
     try {
       await this.pool.query(`
         INSERT INTO "YjsDocuments" ("_id", "collectionName", "documentId", "yjsState", "yjsStateVector", "createdAt", "updatedAt")
         VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
-        ON CONFLICT ("collectionName", "documentId") DO UPDATE SET
+        ON CONFLICT ("documentId") DO UPDATE SET
           "yjsState" = EXCLUDED."yjsState",
           "yjsStateVector" = EXCLUDED."yjsStateVector",
           "updatedAt" = NOW()

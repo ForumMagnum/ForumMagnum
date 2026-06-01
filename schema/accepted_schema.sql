@@ -3503,8 +3503,8 @@ CREATE TABLE "YjsDocuments" (
   "updatedAt" TIMESTAMPTZ NOT NULL
 );
 
--- Index "idx_YjsDocuments_collectionName_documentId"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_YjsDocuments_collectionName_documentId" ON "YjsDocuments" USING btree ("collectionName", "documentId");
+-- Index "idx_YjsDocuments_documentId"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_YjsDocuments_documentId" ON "YjsDocuments" USING btree ("documentId");
 
 -- CustomIndex "idx_Comments_postId_promotedAt"
 CREATE INDEX IF NOT EXISTS "idx_Comments_postId_promotedAt" ON "Comments" ("postId", "promotedAt")

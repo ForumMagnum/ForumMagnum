@@ -16,44 +16,22 @@ import { generateDocumentTitle } from '@/server/research/titleGeneration';
 
 const COLLAB_AUTOSAVE_COMMIT_MESSAGE = 'Collaborative editor autosave';
 
-/**
- * Mapping from a collab-editor-participating collection name to the prefix
- * used in Hocuspocus document names. Mirrors the table in the Hocuspocus
- * server's parseDocumentId. The prefix lives only at the protocol layer; the
- * (collectionName, documentId) pair is what we persist.
- */
+// Must be kept in sync with the equivalent table in the (separately deployed)
+// Hocuspocus server's documentNames.ts.
 const COLLAB_DOCUMENT_NAME_PREFIXES: ReadonlyArray<{ prefix: string; collectionName: string }> = [
   { prefix: 'post-', collectionName: 'Posts' },
   { prefix: 'research-doc-', collectionName: 'ResearchDocuments' },
 ];
 
-interface ParsedDocumentName {
-  collectionName: string;
-  documentId: string;
-  /** Sub-document ID after the slash (e.g. 'comments'), or null for the main doc. */
-  subDocId: string | null;
-}
-
-/**
- * Parse a Hocuspocus document name into (collectionName, documentId, subDocId).
- *
- * Document names look like:
- *   - "post-{postId}" / "post-{postId}/{subDocId}"
- *   - "research-doc-{id}" / "research-doc-{id}/{subDocId}"
- */
-export function parseHocuspocusDocumentName(documentName: string): ParsedDocumentName {
+// The documentId is the full path after the prefix, including any "/subDoc"
+// suffix, matching how the Hocuspocus server keys YjsDocuments rows.
+export function parseHocuspocusDocumentName(documentName: string): { collectionName: string; documentId: string } {
   for (const { prefix, collectionName } of COLLAB_DOCUMENT_NAME_PREFIXES) {
     if (documentName.startsWith(prefix)) {
-      const rest = documentName.slice(prefix.length);
-      const slashIndex = rest.indexOf('/');
-      if (slashIndex === -1) {
-        return { collectionName, documentId: rest, subDocId: null };
+      const documentId = documentName.slice(prefix.length);
+      if (documentId) {
+        return { collectionName, documentId };
       }
-      return {
-        collectionName,
-        documentId: rest.slice(0, slashIndex),
-        subDocId: rest.slice(slashIndex + 1),
-      };
     }
   }
   throw new Error(`Invalid document name: ${documentName}`);
@@ -66,18 +44,6 @@ export function buildHocuspocusDocumentName(collectionName: string, documentId: 
     }
   }
   throw new Error(`buildHocuspocusDocumentName: unsupported collection ${collectionName}`);
-}
-
-/**
- * Backwards-compat helper. Throws if the document name does not refer to a
- * Posts document.
- */
-export function documentNameToPostId(documentName: string): string {
-  const parsed = parseHocuspocusDocumentName(documentName);
-  if (parsed.collectionName !== 'Posts') {
-    throw new Error(`documentNameToPostId: document is not a Post (${documentName})`);
-  }
-  return parsed.documentId;
 }
 
 /**
@@ -99,11 +65,8 @@ export function verifyHocuspocusWebhookSecret(providedSecret: string): boolean {
  * Returns null if the document doesn't exist.
  */
 export async function readYjsState(documentName: string): Promise<Uint8Array | null> {
-  const { collectionName, documentId, subDocId } = parseHocuspocusDocumentName(documentName);
-  // YjsDocuments stores the path-after-prefix as documentId, so for
-  // "post-abc/comments" the stored documentId is "abc/comments".
-  const storedDocumentId = subDocId ? `${documentId}/${subDocId}` : documentId;
-  const yjsDocument = await YjsDocuments.findOne({ collectionName, documentId: storedDocumentId });
+  const { collectionName, documentId } = parseHocuspocusDocumentName(documentName);
+  const yjsDocument = await YjsDocuments.findOne({ collectionName, documentId });
   if (!yjsDocument) return null;
   return new Uint8Array(yjsDocument.yjsState);
 }
@@ -210,16 +173,18 @@ export async function saveOrUpdateLexicalRevision(
   html: string,
   yjsStateBase64: string,
 ): Promise<void> {
-  if (collectionName === 'Posts') {
-    const post = await Posts.findOne(documentId);
-    const userId = post!.userId;
-    await saveLexicalDocumentRevision(userId, documentId, html, yjsStateBase64);
-    return;
-  }
   if (collectionName === 'ResearchDocuments') {
     backgroundTask(maybeGenerateResearchDocumentTitle(documentId, html));
     return;
   }
+  if (collectionName !== 'Posts') {
+    throw new Error(`saveOrUpdateLexicalRevision: unsupported collection ${collectionName}`);
+  }
+  const post = await Posts.findOne(documentId);
+  if (!post) {
+    throw new Error(`saveOrUpdateLexicalRevision: no Posts document ${documentId}`);
+  }
+  await saveLexicalDocumentRevision(post.userId, documentId, html, yjsStateBase64);
 }
 
 // Generate a title via Haiku only while the doc still has a null title — once
@@ -370,7 +335,9 @@ export async function handleCommentAdded(
     console.log(`[HocuspocusWebhook] Ignoring comment.added for non-Posts document ${documentName}`);
     return;
   }
-  const postId = documentId;
+  // comment.added fires on the comments subdocument, named "post-{id}/comments";
+  // the owning post id is the segment before the slash.
+  const postId = documentId.split('/')[0];
 
   // eslint-disable-next-line no-console
   console.log(`[HocuspocusWebhook] Comment added on ${documentName} by ${comment.authorId}`);
