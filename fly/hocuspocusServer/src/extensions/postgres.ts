@@ -111,9 +111,6 @@ export class PostgresExtension implements Extension {
   ): Promise<void> {
     const { collectionName, documentId } = parseDocumentName(documentName);
     try {
-      // We keep ON CONFLICT ("documentId") — document ids are globally unique
-      // across collections, so the single-column unique index remains the
-      // conflict target even though we now also persist collectionName.
       await this.pool.query(`
         INSERT INTO "YjsDocuments" ("_id", "collectionName", "documentId", "yjsState", "yjsStateVector", "createdAt", "updatedAt")
         VALUES ($1, $2, $3, $4, $5, NOW(), NOW())
