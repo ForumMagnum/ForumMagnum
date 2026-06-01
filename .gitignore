@@ -73,7 +73,7 @@ typings
 
 *.secret
 
-build*
+build
 !build.ts
 !buildUtil.js
 !build*.ts

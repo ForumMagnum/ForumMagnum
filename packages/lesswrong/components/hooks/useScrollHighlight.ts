@@ -1,6 +1,17 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import isEqual from 'lodash/isEqual';
 import { isServer } from "../../lib/executionEnvironment";
 import { getCurrentSectionMark, getLandmarkY, ScrollHighlightLandmark } from "@/lib/scrollUtils";
+
+const useStableLandmarks = (landmarks: ScrollHighlightLandmark[]) => {
+  const landmarksRef = useRef(landmarks);
+
+  if (!isEqual(landmarksRef.current, landmarks)) {
+    landmarksRef.current = landmarks;
+  }
+
+  return landmarksRef.current;
+};
 
 /**
  * Takes a list of element IDs (the ID attributes of DOM nodes), sorted by
@@ -15,11 +26,12 @@ export function useScrollHighlight(landmarks: ScrollHighlightLandmark[]): {
   landmarkName: string|"above"|"below"|null
 } {
   const [currentLandmark,setCurrentSection] = useState<string|null>("above");
+  const stableLandmarks = useStableLandmarks(landmarks);
 
   const getCurrentSection = useCallback((): string|null => {
     if (isServer)
       return null;
-    if (!landmarks)
+    if (!stableLandmarks)
       return null;
 
     // The current section is whichever section a spot 1/3 of the way down the
@@ -28,16 +40,16 @@ export function useScrollHighlight(landmarks: ScrollHighlightLandmark[]): {
     let currentSectionMark = getCurrentSectionMark();
 
     let current = "above";
-    for(let i=0; i<landmarks.length; i++)
+    for(let i=0; i<stableLandmarks.length; i++)
     {
-      let sectionY = getLandmarkY(landmarks[i]);
+      let sectionY = getLandmarkY(stableLandmarks[i]);
 
       if(sectionY && sectionY < currentSectionMark)
-        current = landmarks[i].elementId;
+        current = stableLandmarks[i].elementId;
     }
 
     return current;
-  }, [landmarks]);
+  }, [stableLandmarks]);
 
   const updateHighlightedSection = useCallback(() => {
     let newCurrentSection = getCurrentSection();

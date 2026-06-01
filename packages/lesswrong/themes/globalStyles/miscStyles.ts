@@ -234,5 +234,10 @@ export const miscStyles = (theme: ThemeType) => ({
     ".rheostat-tooltip": {
       top:-22,
     },
+
+    "@media print": {
+      ".ck-editor__top": { display: 'none' },
+      ".form-submit": { display: 'none' },
+    },
   }
 });

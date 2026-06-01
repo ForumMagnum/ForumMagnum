@@ -35,7 +35,7 @@ import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from
 import {Doc} from 'yjs';
 import * as Y from 'yjs';
 import {$generateHtmlFromNodes, $generateNodesFromDOM} from '@lexical/html';
-import {$getRoot, $insertNodes} from 'lexical';
+import {$getRoot, $insertNodes, EditorState} from 'lexical';
 import { CodeBlockPlugin } from '../editor/lexicalPlugins/codeBlock/CodeBlockPlugin';
 import TablesPlugin from '../editor/lexicalPlugins/tables/TablesPlugin';
 
@@ -92,7 +92,7 @@ import TableCellResizer from './plugins/TableCellResizer';
 import TableHoverActionsV2Plugin from './plugins/TableHoverActionsV2Plugin';
 import TableOfContentsPlugin from './plugins/TableOfContentsPlugin';
 import TableScrollShadowPlugin from './plugins/TableScrollShadowPlugin';
-import ToolbarPlugin from './plugins/ToolbarPlugin';
+import ToolbarStatePlugin from './plugins/ToolbarPlugin/ToolbarStatePlugin';
 // import TreeViewPlugin from './plugins/TreeViewPlugin';
 // import TwitterPlugin from './embeds/TwitterEmbed/TwitterPlugin';
 import {VersionsPlugin} from './plugins/VersionsPlugin';
@@ -139,6 +139,7 @@ import { EditorUserModeContext } from '@/components/common/sharedContexts';
 import { QUERY_INPUT_DOM_CLASS } from '@/components/research/lexical/QueryInputNode';
 import { QUERY_INPUT_HEADER_DOM_CLASS } from '@/components/research/lexical/QueryInputHeaderNode';
 import { QUERY_INPUT_CONTENT_DOM_CLASS } from '@/components/research/lexical/QueryInputContentNode';
+import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   '@keyframes sentinelCursorBlink': {
@@ -831,16 +832,31 @@ export default function Editor({
     });
   }, [editor, hasInitialHtml, initialHtml, isCollab]);
 
+  const onChange = useCallback((editorState: EditorState) => {
+    editorState.read(() => {
+      const html = $generateHtmlFromNodes(editor, null);
+      const restoredHtml = restoreInternalIds(
+        html,
+        internalIdsRef.current
+      );
+      onChangeHtml?.(restoredHtml);
+    });
+  }, [editor, onChangeHtml]);
+
+  const debouncedOnChange = useDebouncedCallback(onChange, {
+    rateLimitMs: 500,
+    callOnLeadingEdge: false,
+    onUnmount: "cancelPending",
+    allowExplicitCallAfterUnmount: false,
+  });
+
   return (
     <>
       {isRichText && (
-        <ToolbarPlugin
+        <ToolbarStatePlugin
           editor={editor}
           activeEditor={activeEditor}
           setActiveEditor={setActiveEditor}
-          setIsLinkEditMode={setIsLinkEditMode}
-          isSuggestionMode={isSuggestionMode}
-          isVisible={false}
         />
       )}
       {isRichText && (
@@ -947,16 +963,7 @@ export default function Editor({
             />
             {onChangeHtml && (
               <OnChangePlugin
-                onChange={(editorState) => {
-                  editorState.read(() => {
-                    const html = $generateHtmlFromNodes(editor, null);
-                    const restoredHtml = restoreInternalIds(
-                      html,
-                      internalIdsRef.current
-                    );
-                    onChangeHtml(restoredHtml);
-                  });
-                }}
+                onChange={isCollab ? debouncedOnChange : onChange}
               />
             )}
             <MarkdownShortcutPlugin />

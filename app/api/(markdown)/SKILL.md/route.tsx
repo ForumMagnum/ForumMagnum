@@ -1,8 +1,7 @@
 import { getSiteUrlFromReq } from "@/server/utils/getSiteUrl";
 import { NextRequest } from "next/server";
 
-export const markdownApiDocumentationMarkdown = (urlPrefix: string) => `
----
+export const markdownApiDocumentationMarkdown = (urlPrefix: string) => `---
 name: lesswrong
 version: 2.0.0
 description: APIs for reading content on LessWrong, and helping users edit posts they share with an agent.

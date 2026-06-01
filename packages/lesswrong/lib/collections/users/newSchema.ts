@@ -38,6 +38,23 @@ import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
 
+const getCoauthoredPostCount = async (user: DbUser) => {
+  const db = getSqlClientOrThrow();
+  const result = await db.one<{count: number | string}>(`
+    SELECT COUNT(*) AS count
+    FROM "Posts"
+    WHERE "coauthorUserIds" @> ARRAY[$(userId)]::TEXT[]
+      AND "draft" IS NOT TRUE
+      AND "rejected" IS NOT TRUE
+      AND "status" = $(approvedStatus)
+  `, {
+    userId: user._id,
+    approvedStatus: postStatuses.STATUS_APPROVED,
+  });
+
+  return Number(result.count);
+};
+
 ///////////////////////////////////////
 // Order for the Schema is as follows. Change as you see fit:
 // 00.
@@ -3195,6 +3212,26 @@ const schema = {
         filterFn: (post) => !post.draft && !post.rejected && post.status === postStatuses.STATUS_APPROVED,
         resyncElastic: false,
       },
+      validation: {
+        optional: true,
+      },
+    },
+  },
+  coauthoredPostCount: {
+    database: {
+      type: "DOUBLE PRECISION",
+      defaultValue: 0,
+      denormalized: true,
+      canAutoDenormalize: true,
+      canAutofillDefault: true,
+      getValue: getCoauthoredPostCount,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Float!",
+      inputType: "Float",
+      canRead: ["guests"],
+      onCreate: () => 0,
       validation: {
         optional: true,
       },
