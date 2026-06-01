@@ -141,7 +141,7 @@ export async function isSupportedEditorType(postId: string, context: ResolverCon
   // The latest revision isn't Lexical, but the post may have been converted
   // and opened in the collaborative editor without saving a revision yet.
   // A YjsDocuments row means Hocuspocus has synced Lexical state for this post.
-  const yjsDoc = await YjsDocuments.findOne({ documentId: postId });
+  const yjsDoc = await YjsDocuments.findOne({ collectionName: 'Posts', documentId: postId });
   if (yjsDoc) {
     return { supported: true, editorType: "lexical" };
   }
