@@ -30,7 +30,16 @@ export type InboxState = {
   // The local copy of auto-classified posts (mutated when actions complete)
   classifiedPosts: SunshinePostsList[];
   // The local copy of curation candidate posts
-  curationPosts: SunshineCurationPostsList[];
+  curationPosts: SunshineCurationPostsListItem[];
+  // Per-list hydration flags. Each list starts unhydrated; HYDRATE_LISTS sets it
+  // once when the corresponding query resolves. After that, the reducer ignores
+  // further hydrations so local mutations (e.g. REMOVE_USER) aren't clobbered.
+  hydratedUsers: boolean;
+  hydratedPosts: boolean;
+  hydratedClassifiedPosts: boolean;
+  hydratedCurationPosts: boolean;
+  // True once the user has manually chosen a tab; stops auto-selection on hydration.
+  userHasPickedTab: boolean;
   // Current active tab
   activeTab: TabId;
   // Focused user in inbox view
@@ -70,7 +79,13 @@ export type InboxAction =
   | { type: 'ADD_TO_UNDO_QUEUE'; item: UndoHistoryItem; }
   | { type: 'UNDO_ACTION'; userId: string; }
   | { type: 'EXPIRE_UNDO_ITEM'; userId: string; }
-  | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; };
+  | { type: 'SET_LLM_CHECK_RUNNING'; documentId: string | null; }
+  | { type: 'HYDRATE_LISTS';
+      users?: SunshineUsersList[];
+      posts?: SunshinePostsList[];
+      classifiedPosts?: SunshinePostsList[];
+      curationPosts?: SunshineCurationPostsListItem[];
+    };
 
 
 
@@ -85,6 +100,51 @@ export function getFilteredGroups(
     return orderedGroups;
   }
   return orderedGroups.filter(([group]) => group === activeTab);
+}
+
+/**
+ * Pick the default active tab and initial focused user/post based on which
+ * lists have data. Mirrors what the original initializer used to compute at
+ * mount, but is now also called when query data arrives later so the page can
+ * mount eagerly with empty lists and settle on a useful default once data
+ * lands. Caller is responsible for not invoking this once the user has picked
+ * a tab.
+ */
+export function pickDefaultTabAndFocus(
+  users: SunshineUsersList[],
+  posts: SunshinePostsList[],
+  classifiedPosts: SunshinePostsList[],
+  curationPosts: SunshineCurationPostsListItem[],
+  initialOpenedUserId: string | null,
+): { activeTab: TabId; focusedUserId: string | null; focusedPostId: string | null } {
+  if (initialOpenedUserId) {
+    return { activeTab: 'all', focusedUserId: initialOpenedUserId, focusedPostId: null };
+  }
+
+  const groupedUsers = groupBy(users, user => getUserReviewGroup(user));
+  const curationNoticeCount = sumBy(curationPosts, p => p.curationNotices?.length ?? 0);
+  const visibleTabs = getVisibleTabsInOrder(groupedUsers, users.length, posts.length, classifiedPosts.length, curationNoticeCount);
+
+  // Default to curation when there are no curation notices (so you can add some).
+  // Otherwise, find the first non-empty non-curation tab.
+  const firstNonEmptyTab = curationNoticeCount === 0
+    ? undefined
+    : visibleTabs.find(tab => tab.group !== 'curation' && tab.count > 0);
+  const firstTab: TabId = firstNonEmptyTab?.group ?? 'curation';
+
+  if (firstTab === 'curation') {
+    return { activeTab: 'curation', focusedUserId: null, focusedPostId: curationPosts[0]?._id ?? null };
+  }
+  if (firstTab === 'posts') {
+    return { activeTab: 'posts', focusedUserId: null, focusedPostId: posts[0]?._id ?? null };
+  }
+  if (firstTab === 'classifiedPosts') {
+    return { activeTab: 'classifiedPosts', focusedUserId: null, focusedPostId: classifiedPosts[0]?._id ?? null };
+  }
+
+  const filteredGroups = getFilteredGroups(groupedUsers, firstTab);
+  const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
+  return { activeTab: firstTab, focusedUserId: orderedUsers[0]?._id ?? null, focusedPostId: null };
 }
 
 export function getVisibleTabsInOrder(
@@ -213,6 +273,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
           focusedPostId: state.posts[0]?._id ?? null,
           focusedUserId: null,
           focusedContentIndex: 0,
+          userHasPickedTab: true,
         };
       }
 
@@ -224,6 +285,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
           focusedPostId: state.classifiedPosts[0]?._id ?? null,
           focusedUserId: null,
           focusedContentIndex: 0,
+          userHasPickedTab: true,
         };
       }
 
@@ -235,6 +297,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
           focusedPostId: state.curationPosts[0]?._id ?? null,
           focusedUserId: null,
           focusedContentIndex: 0,
+          userHasPickedTab: true,
         };
       }
 
@@ -249,6 +312,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         focusedUserId: orderedUsers[0]?._id ?? null,
         focusedPostId: null,
         focusedContentIndex: 0,
+        userHasPickedTab: true,
       };
     }
 
@@ -328,6 +392,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
           focusedPostId: state.posts[0]?._id ?? null,
           focusedUserId: null,
           focusedContentIndex: 0,
+          userHasPickedTab: true,
         };
       }
 
@@ -339,6 +404,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
           focusedPostId: state.classifiedPosts[0]?._id ?? null,
           focusedUserId: null,
           focusedContentIndex: 0,
+          userHasPickedTab: true,
         };
       }
 
@@ -350,6 +416,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
           focusedPostId: state.curationPosts[0]?._id ?? null,
           focusedUserId: null,
           focusedContentIndex: 0,
+          userHasPickedTab: true,
         };
       }
 
@@ -363,6 +430,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         focusedUserId: orderedUsers[0]?._id ?? null,
         focusedPostId: null,
         focusedContentIndex: 0,
+        userHasPickedTab: true,
       };
     }
 
@@ -398,6 +466,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
           focusedPostId: state.posts[0]?._id ?? null,
           focusedUserId: null,
           focusedContentIndex: 0,
+          userHasPickedTab: true,
         };
       }
 
@@ -409,6 +478,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
           focusedPostId: state.classifiedPosts[0]?._id ?? null,
           focusedUserId: null,
           focusedContentIndex: 0,
+          userHasPickedTab: true,
         };
       }
 
@@ -420,6 +490,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
           focusedPostId: state.curationPosts[0]?._id ?? null,
           focusedUserId: null,
           focusedContentIndex: 0,
+          userHasPickedTab: true,
         };
       }
 
@@ -433,6 +504,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         focusedUserId: orderedUsers[0]?._id ?? null,
         focusedPostId: null,
         focusedContentIndex: 0,
+        userHasPickedTab: true,
       };
     }
 
@@ -615,6 +687,45 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         ...state,
         runningLlmCheckId: action.documentId,
       };
+    }
+
+    case 'HYDRATE_LISTS': {
+      // Only accept a list's data the first time it arrives, so we don't clobber
+      // local mutations on `cache-and-network` refetches.
+      const nextUsers = !state.hydratedUsers && action.users ? action.users : state.users;
+      const nextPosts = !state.hydratedPosts && action.posts ? action.posts : state.posts;
+      const nextClassifiedPosts = !state.hydratedClassifiedPosts && action.classifiedPosts ? action.classifiedPosts : state.classifiedPosts;
+      const nextCurationPosts = !state.hydratedCurationPosts && action.curationPosts ? action.curationPosts : state.curationPosts;
+
+      const nextState: InboxState = {
+        ...state,
+        users: nextUsers,
+        posts: nextPosts,
+        classifiedPosts: nextClassifiedPosts,
+        curationPosts: nextCurationPosts,
+        hydratedUsers: state.hydratedUsers || !!action.users,
+        hydratedPosts: state.hydratedPosts || !!action.posts,
+        hydratedClassifiedPosts: state.hydratedClassifiedPosts || !!action.classifiedPosts,
+        hydratedCurationPosts: state.hydratedCurationPosts || !!action.curationPosts,
+      };
+
+      // If the user hasn't picked a tab yet, re-derive the default tab and
+      // focused IDs now that more data is in. Once they pick, leave it alone.
+      if (!state.userHasPickedTab && !state.openedUserId) {
+        const initialOpenedUserId = state.openedUserId;
+        const { activeTab, focusedUserId, focusedPostId } = pickDefaultTabAndFocus(
+          nextUsers,
+          nextPosts,
+          nextClassifiedPosts,
+          nextCurationPosts,
+          initialOpenedUserId,
+        );
+        nextState.activeTab = activeTab;
+        nextState.focusedUserId = focusedUserId;
+        nextState.focusedPostId = focusedPostId;
+      }
+
+      return nextState;
     }
 
     default:

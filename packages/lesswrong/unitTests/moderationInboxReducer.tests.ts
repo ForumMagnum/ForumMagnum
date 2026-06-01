@@ -80,6 +80,11 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        hydratedUsers: true,
+        hydratedPosts: true,
+        hydratedClassifiedPosts: true,
+        hydratedCurationPosts: true,
+        userHasPickedTab: false,
       };
 
       const newState = inboxStateReducer(state, { type: 'CLOSE_DETAIL' });
@@ -111,6 +116,11 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        hydratedUsers: true,
+        hydratedPosts: true,
+        hydratedClassifiedPosts: true,
+        hydratedCurationPosts: true,
+        userHasPickedTab: false,
       };
 
       // Next from last user should wrap to first
@@ -138,6 +148,11 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        hydratedUsers: true,
+        hydratedPosts: true,
+        hydratedClassifiedPosts: true,
+        hydratedCurationPosts: true,
+        userHasPickedTab: false,
       };
 
       // Prev from first user should wrap to last
@@ -167,6 +182,11 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        hydratedUsers: true,
+        hydratedPosts: true,
+        hydratedClassifiedPosts: true,
+        hydratedCurationPosts: true,
+        userHasPickedTab: false,
       };
 
       // Start at newContent (highest priority)
@@ -208,6 +228,11 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        hydratedUsers: true,
+        hydratedPosts: true,
+        hydratedClassifiedPosts: true,
+        hydratedCurationPosts: true,
+        userHasPickedTab: false,
       };
 
       // Start at newContent (highest priority)
@@ -245,6 +270,11 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        hydratedUsers: true,
+        hydratedPosts: true,
+        hydratedClassifiedPosts: true,
+        hydratedCurationPosts: true,
+        userHasPickedTab: false,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -275,6 +305,11 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        hydratedUsers: true,
+        hydratedPosts: true,
+        hydratedClassifiedPosts: true,
+        hydratedCurationPosts: true,
+        userHasPickedTab: false,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -303,6 +338,11 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        hydratedUsers: true,
+        hydratedPosts: true,
+        hydratedClassifiedPosts: true,
+        hydratedCurationPosts: true,
+        userHasPickedTab: false,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -335,6 +375,11 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        hydratedUsers: true,
+        hydratedPosts: true,
+        hydratedClassifiedPosts: true,
+        hydratedCurationPosts: true,
+        userHasPickedTab: false,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user2' });
@@ -365,6 +410,11 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        hydratedUsers: true,
+        hydratedPosts: true,
+        hydratedClassifiedPosts: true,
+        hydratedCurationPosts: true,
+        userHasPickedTab: false,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -394,6 +444,11 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        hydratedUsers: true,
+        hydratedPosts: true,
+        hydratedClassifiedPosts: true,
+        hydratedCurationPosts: true,
+        userHasPickedTab: false,
       };
 
       state = inboxStateReducer(state, { type: 'REMOVE_USER', userId: 'user1' });
@@ -425,6 +480,11 @@ describe('Moderation Inbox Reducer', () => {
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        hydratedUsers: true,
+        hydratedPosts: true,
+        hydratedClassifiedPosts: true,
+        hydratedCurationPosts: true,
+        userHasPickedTab: false,
       };
 
       // Try to change tabs

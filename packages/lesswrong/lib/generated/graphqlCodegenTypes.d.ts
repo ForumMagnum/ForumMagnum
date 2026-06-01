@@ -19910,7 +19910,7 @@ type multiPostAutoClassifiedInboxQueryQuery = multiPostAutoClassifiedInboxQueryQ
 
 type CurationCandidatePostsQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult_results_Post = (
   { __typename?: 'Post' }
-  & SunshineCurationPostsList
+  & SunshineCurationPostsListItem
 );
 
 type CurationCandidatePostsQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult = { __typename?: 'CurationCandidatePostsResult', results: Array<CurationCandidatePostsQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult_results_Post> };
@@ -23058,6 +23058,14 @@ type SunshineCurationPostsList = (
   { __typename?: 'Post', curationNotices: Array<SunshineCurationPostsList_Post_curationNotices_CurationNotice> | null }
   & PostsList
 );
+
+type SunshineCurationPostsListItem_Post_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type SunshineCurationPostsListItem_Post_curationNotices_CurationNotice_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type SunshineCurationPostsListItem_Post_curationNotices_CurationNotice = { __typename?: 'CurationNotice', _id: string, user: SunshineCurationPostsListItem_Post_curationNotices_CurationNotice_user_User | null };
+
+type SunshineCurationPostsListItem = { __typename?: 'Post', _id: string, title: string, postedAt: string, baseScore: number, suggestForCuratedUsernames: string | null, user: SunshineCurationPostsListItem_Post_user_User | null, curationNotices: Array<SunshineCurationPostsListItem_Post_curationNotices_CurationNotice> | null };
 
 type PostsListTag_Post_tagRel_TagRel = (
   { __typename?: 'TagRel' }

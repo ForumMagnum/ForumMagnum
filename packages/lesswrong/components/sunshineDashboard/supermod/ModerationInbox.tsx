@@ -16,7 +16,7 @@ import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY, type TabId } from './groupings';
-import { getFilteredGroups, getVisibleTabsInOrder, InboxState, inboxStateReducer } from './inboxReducer';
+import { getVisibleTabsInOrder, inboxStateReducer } from './inboxReducer';
 import ModerationTabs, { type TabInfo } from './ModerationTabs';
 import { UNDO_QUEUE_DURATION } from './constants';
 import { useHydrateModerationPostCache } from '@/components/hooks/useHydrateModerationPostCache';
@@ -64,7 +64,7 @@ const CurationCandidatePostsQuery = gql(`
   query CurationCandidatePostsQuery($limit: Int) {
     CurationCandidatePosts(limit: $limit) {
       results {
-        ...SunshineCurationPostsList
+        ...SunshineCurationPostsListItem
       }
     }
   }
@@ -128,19 +128,40 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     flex: 1,
     overflow: 'hidden',
   },
-  loading: {
+  deepLinkLoading: {
+    flex: 1,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    height: '100vh',
   },
 }));
 
-const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, lastCuratedDate, initialOpenedUserId, directUser, currentUser }: {
+const ModerationInboxInner = ({
+  users,
+  posts,
+  classifiedPosts,
+  curationPosts,
+  usersReady,
+  postsReady,
+  classifiedPostsReady,
+  curationPostsReady,
+  lastCuratedDate,
+  initialOpenedUserId,
+  directUser,
+  currentUser,
+}: {
   users: SunshineUsersList[];
   posts: SunshinePostsList[];
   classifiedPosts: SunshinePostsList[];
-  curationPosts: SunshineCurationPostsList[];
+  curationPosts: SunshineCurationPostsListItem[];
+  // Each *Ready flag flips true the first time its query resolves. We dispatch
+  // a one-shot HYDRATE_LISTS into the reducer at that point so the reducer
+  // takes ownership of the list (and subsequent cache-and-network refetches
+  // don't clobber local mutations).
+  usersReady: boolean;
+  postsReady: boolean;
+  classifiedPostsReady: boolean;
+  curationPostsReady: boolean;
   lastCuratedDate: string | null;
   initialOpenedUserId: string | null;
   directUser: SunshineUsersList | null;
@@ -152,124 +173,58 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningLlmCheckId: null },
-    (): InboxState => {
-      const initialUsers = directUser ? [directUser, ...users] : users;
-      if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
-        return {
-          users: [],
-          posts: [],
-          classifiedPosts: [],
-          curationPosts: [],
-          activeTab: 'curation',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: null,
-          focusedContentIndex: 0,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-
-      if (initialOpenedUserId) {
-        return {
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'all',
-          focusedUserId: initialOpenedUserId,
-          openedUserId: initialOpenedUserId,
-          focusedPostId: null,
-          focusedContentIndex: 0,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-
-      const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
-      const curationNoticeCount = sumBy(curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount);
-
-      // Default to curation when there are no curation notices (so you can add some)
-      // Otherwise, find the first non-empty non-curation tab
-      const firstNonEmptyTab = curationNoticeCount === 0
-        ? undefined
-        : visibleTabs.find(tab => tab.group !== 'curation' && tab.count > 0);
-      const firstTab = firstNonEmptyTab?.group ?? 'curation';
-
-      if (firstTab === 'curation') {
-        return { 
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'curation',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: curationPosts[0]?._id ?? null,
-          focusedContentIndex: 0,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-      
-      if (firstTab === 'posts') {
-        return {
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'posts',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: posts[0]?._id ?? null,
-          focusedContentIndex: 0,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-
-      if (firstTab === 'classifiedPosts') {
-        return {
-          users: initialUsers,
-          posts,
-          classifiedPosts,
-          curationPosts,
-          activeTab: 'classifiedPosts',
-          focusedUserId: null,
-          openedUserId: null,
-          focusedPostId: classifiedPosts[0]?._id ?? null,
-          focusedContentIndex: 0,
-          undoQueue: [],
-          history: [],
-          runningLlmCheckId: null,
-        };
-      }
-
-      const filteredGroups = getFilteredGroups(groupedUsers, firstTab);
-      const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
-
-      return {
-        users: initialUsers,
-        posts,
-        classifiedPosts,
-        curationPosts,
-        activeTab: firstTab,
-        focusedUserId: orderedUsers[0]?._id ?? null,
-        openedUserId: initialOpenedUserId,
-        focusedPostId: null,
-        focusedContentIndex: 0,
-        undoQueue: [],
-        history: [],
-        runningLlmCheckId: null,
-      };
-    }
+    {
+      users: [],
+      posts: [],
+      classifiedPosts: [],
+      curationPosts: [],
+      hydratedUsers: false,
+      hydratedPosts: false,
+      hydratedClassifiedPosts: false,
+      hydratedCurationPosts: false,
+      userHasPickedTab: false,
+      // When the URL pins a specific user, open them immediately and default to
+      // the 'all' user-tab; otherwise default to 'curation' until data lands.
+      activeTab: initialOpenedUserId ? 'all' : 'curation',
+      focusedUserId: initialOpenedUserId,
+      openedUserId: initialOpenedUserId,
+      focusedPostId: null,
+      focusedContentIndex: 0,
+      undoQueue: [],
+      history: [],
+      runningLlmCheckId: null,
+    },
   );
+
+  // Hydrate each list into the reducer exactly once, when its query resolves.
+  // After that, the reducer is the source of truth (so REMOVE_USER, UPDATE_POST,
+  // etc. survive a `cache-and-network` background refetch).
+  useEffect(() => {
+    if (usersReady && !state.hydratedUsers) {
+      const mergedUsers = directUser && !users.some(u => u._id === directUser._id)
+        ? [directUser, ...users]
+        : users;
+      dispatch({ type: 'HYDRATE_LISTS', users: mergedUsers });
+    }
+  }, [usersReady, state.hydratedUsers, users, directUser]);
+
+  useEffect(() => {
+    if (postsReady && !state.hydratedPosts) {
+      dispatch({ type: 'HYDRATE_LISTS', posts });
+    }
+  }, [postsReady, state.hydratedPosts, posts]);
+
+  useEffect(() => {
+    if (classifiedPostsReady && !state.hydratedClassifiedPosts) {
+      dispatch({ type: 'HYDRATE_LISTS', classifiedPosts });
+    }
+  }, [classifiedPostsReady, state.hydratedClassifiedPosts, classifiedPosts]);
+
+  useEffect(() => {
+    if (curationPostsReady && !state.hydratedCurationPosts) {
+      dispatch({ type: 'HYDRATE_LISTS', curationPosts });
+    }
+  }, [curationPostsReady, state.hydratedCurationPosts, curationPosts]);
 
   // Update URL when reducer's openedUserId changes (using replace + skipRouter to avoid navigation that causes a page reload; we only care so we can send links to other mods)
   useEffect(() => {
@@ -392,6 +347,17 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
   const isCurationTab = state.activeTab === 'curation';
   const isPostLikeTab = isPostsTab || isCurationTab;
 
+  // The active tab is "loading" until its own backing list has been hydrated
+  // into the reducer. For user-group tabs (`all`, `newContent`, etc.) the
+  // backing list is `users`.
+  const activeTabLoading = state.activeTab === 'curation'
+    ? !state.hydratedCurationPosts
+    : state.activeTab === 'classifiedPosts'
+      ? !state.hydratedClassifiedPosts
+      : state.activeTab === 'posts'
+        ? !state.hydratedPosts
+        : !state.hydratedUsers;
+
   const { posts: userPosts, comments: userComments } = useModeratedUserContents(openedUser?._id ?? '');
 
   return (
@@ -437,7 +403,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           dispatch={dispatch}
         />
       )}
-      {!openedUser && (
+      {!openedUser && !(state.openedUserId && !state.hydratedUsers) && (
         <ModerationTabs
           tabs={visibleTabs}
           activeTab={state.activeTab}
@@ -448,7 +414,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
       <div className={classes.mainContent}>
         <div className={classes.leftPanel}>
           {openedUser ? (
-            <ModerationUserDetailView 
+            <ModerationUserDetailView
               currentUser={currentUser}
               user={openedUser}
               posts={userPosts}
@@ -458,6 +424,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
               dispatch={dispatch}
               state={state}
             />
+          ) : state.openedUserId && !state.hydratedUsers ? (
+            // Deep-linked into a user, but the users query hasn't resolved yet.
+            // Show a spinner instead of flashing the inbox.
+            <div className={classes.deepLinkLoading}><Loading/></div>
           ) : (
             <>
               {!isPostLikeTab && (
@@ -480,6 +450,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
                   onOpenUser={handleOpenUser}
                   onFocusPost={handleFocusPost}
                   activeTab={state.activeTab}
+                  activeTabLoading={activeTabLoading}
                 />
               </div>
             </>
@@ -509,11 +480,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 };
 
 const ModerationInbox = () => {
-  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { query } = useLocation();
 
-  const { data: usersData, loading: usersLoading } = useQuery(SunshineUsersListMultiQuery, {
+  const { data: usersData } = useQuery(SunshineUsersListMultiQuery, {
     variables: {
       selector: { sunshineNewUsers: {} },
       limit: 100,
@@ -522,7 +492,7 @@ const ModerationInbox = () => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const { data: postsData, loading: postsLoading } = useQuery(SunshinePostsListMultiQuery, {
+  const { data: postsData } = useQuery(SunshinePostsListMultiQuery, {
     variables: {
       selector: { sunshineNewPosts: {} },
       limit: 100,
@@ -531,7 +501,7 @@ const ModerationInbox = () => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const { data: classifiedPostsData, loading: classifiedPostsLoading } = useQuery(SunshineAutoClassifiedPostsListMultiQuery, {
+  const { data: classifiedPostsData } = useQuery(SunshineAutoClassifiedPostsListMultiQuery, {
     variables: {
       selector: { sunshineAutoClassifiedPosts: {} },
       limit: 100,
@@ -540,7 +510,7 @@ const ModerationInbox = () => {
     fetchPolicy: 'cache-and-network',
   });
 
-  const { data: curationData, loading: curationLoading } = useQuery(CurationCandidatePostsQuery, {
+  const { data: curationData } = useQuery(CurationCandidatePostsQuery, {
     variables: { limit: 200 },
     fetchPolicy: 'cache-and-network',
   });
@@ -580,25 +550,23 @@ const ModerationInbox = () => {
     return null;
   }
 
-  const usersNotReady = usersLoading && !usersData;
-  const postsNotReady = postsLoading && !postsData;
-  const classifiedPostsNotReady = classifiedPostsLoading && !classifiedPostsData;
-  const curationNotReady = curationLoading && !curationData;
-  const directUserNotReady = shouldFetchDirectUser && directUserLoading && !directUserData;
-
-  if (usersNotReady || postsNotReady || classifiedPostsNotReady || curationNotReady || directUserNotReady) {
-    return (
-      <div className={classes.loading}>
-        <Loading />
-      </div>
-    );
-  }
+  // Each list is "ready" once its query has produced data (or definitively
+  // finished). We render the inbox shell immediately and pass these flags down
+  // so each tab can show its own spinner while it's still loading.
+  const usersReady = !!usersData && (!shouldFetchDirectUser || !!directUserData || !directUserLoading);
+  const postsReady = !!postsData;
+  const classifiedPostsReady = !!classifiedPostsData;
+  const curationPostsReady = !!curationData;
 
   return <ModerationInboxInner
     users={users}
     posts={posts}
     classifiedPosts={classifiedPosts}
     curationPosts={curationPosts}
+    usersReady={usersReady}
+    postsReady={postsReady}
+    classifiedPostsReady={classifiedPostsReady}
+    curationPostsReady={curationPostsReady}
     lastCuratedDate={lastCuratedDate}
     initialOpenedUserId={initialOpenedUserId}
     directUser={directUser}

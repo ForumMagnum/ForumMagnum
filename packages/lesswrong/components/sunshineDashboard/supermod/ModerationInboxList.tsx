@@ -3,6 +3,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationInboxItem from './ModerationInboxItem';
 import ModerationPostItem from './ModerationPostItem';
 import CurationPostItem from './CurationPostItem';
+import Loading from '@/components/vulcan-core/Loading';
 import type { ReviewGroup, TabId } from './groupings';
 import classNames from 'classnames';
 
@@ -25,6 +26,12 @@ const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
     textAlign: 'center',
     color: theme.palette.grey[600],
     fontSize: 16,
+  },
+  loading: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 40,
   },
   group: {},
   newContent: {
@@ -59,26 +66,37 @@ const ModerationInboxList = ({
   onOpenUser,
   onFocusPost,
   activeTab,
+  activeTabLoading,
 }: {
   userGroups: GroupEntry[];
   posts: SunshinePostsList[];
-  curationPosts: SunshineCurationPostsList[];
+  curationPosts: SunshineCurationPostsListItem[];
   focusedUserId: string | null;
   focusedPostId: string | null;
   onFocusUser: (userId: string) => void;
   onOpenUser: (userId: string) => void;
   onFocusPost: (postId: string) => void;
   activeTab: TabId;
+  // True iff the query backing the currently-visible tab hasn't resolved yet.
+  // When true and the tab's list is still empty, show a spinner instead of the
+  // "nothing to review" empty state.
+  activeTabLoading: boolean;
 }) => {
   const classes = useStyles(styles);
 
   const userCount = useMemo(() => userGroups.map(([_, users]) => users).flat().length, [userGroups]);
 
+  const loadingPlaceholder = (
+    <div className={classes.loading}><Loading/></div>
+  );
+
   return (
     <div className={classes.root}>
       {activeTab === 'curation' ? (
         curationPosts.length === 0 ? (
-          <div className={classes.empty}>No curation candidates</div>
+          activeTabLoading
+            ? loadingPlaceholder
+            : <div className={classes.empty}>No curation candidates</div>
         ) : (
           <div className={classes.scrollContainer}>
             {curationPosts.map((post) => (
@@ -93,9 +111,11 @@ const ModerationInboxList = ({
         )
       ) : (activeTab === 'posts' || activeTab === 'classifiedPosts') ? (
         posts.length === 0 ? (
-          <div className={classes.empty}>
-            {activeTab === 'classifiedPosts' ? 'No auto-classified posts to review' : 'No posts to review'}
-          </div>
+          activeTabLoading
+            ? loadingPlaceholder
+            : <div className={classes.empty}>
+                {activeTab === 'classifiedPosts' ? 'No auto-classified posts to review' : 'No posts to review'}
+              </div>
         ) : (
           <div className={classes.scrollContainer}>
             {posts.map((post) => (
@@ -110,9 +130,9 @@ const ModerationInboxList = ({
         )
       ) : (
         userCount === 0 ? (
-          <div className={classes.empty}>
-            No users to review
-          </div>
+          activeTabLoading
+            ? loadingPlaceholder
+            : <div className={classes.empty}>No users to review</div>
         ) : (
           <div className={classes.scrollContainer}>
             {userGroups.map(([group, users]) => {
