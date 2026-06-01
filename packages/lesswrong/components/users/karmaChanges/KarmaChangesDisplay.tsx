@@ -23,7 +23,6 @@ import UsersName from '../UsersName';
 import { getKarmaNotificationTimingChoices } from '../KarmaChangeNotifierSettings';
 import { NewReactions } from './NewReactions';
 import { ColoredNumber } from './ColoredNumber';
-import type { ReactionChange } from '@/server/collections/users/karmaChangesGraphQL';
 
 export const styles = defineStyles("KarmaChangesDisplay", (theme: ThemeType) => ({
   title: {
