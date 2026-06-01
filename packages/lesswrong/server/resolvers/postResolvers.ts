@@ -454,9 +454,6 @@ export const postGqlQueries = {
         displayName: currentUser?.displayName ?? 'Anonymous',
         collectionName,
         documentId,
-        // A Hocuspocus server still on the pre-migration build reads postId from
-        // the JWT, not documentId; remove once that build is fully rolled out.
-        postId: documentId,
         accessLevel,
       },
       process.env.HOCUSPOCUS_JWT_SECRET!,
