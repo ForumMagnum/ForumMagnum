@@ -585,19 +585,19 @@ const ModerationInbox = () => {
     return null;
   }
 
-  // Re-mount the inner component as each query's data first arrives, so that
-  // the reducer's initializer re-runs with whatever data is available. This
+  // Re-mount the inner component each time another query's data first arrives, so
+  // the reducer's initializer re-runs with whatever data is now available. This
   // lets each query fill in independently rather than waiting for all of them.
-  const dataKey = [
-    usersData ? '1' : '0',
-    postsData ? '1' : '0',
-    classifiedPostsData ? '1' : '0',
-    curationData ? '1' : '0',
-    directUserData || !shouldFetchDirectUser ? '1' : '0',
-  ].join('');
+  const loadedQueryCount = [
+    usersData,
+    postsData,
+    classifiedPostsData,
+    curationData,
+    directUserData || !shouldFetchDirectUser,
+  ].filter(Boolean).length;
 
   return <ModerationInboxInner
-    key={dataKey}
+    key={loadedQueryCount}
     users={users}
     posts={posts}
     classifiedPosts={classifiedPosts}
