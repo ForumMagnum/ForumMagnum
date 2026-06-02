@@ -1,24 +1,23 @@
 import { createCipheriv, createDecipheriv, createHash, randomBytes } from "crypto";
 
 /**
- * Symmetric encryption for the values stored in the `UserSecrets` table.
+ * Symmetric encryption for the Claude Code OAuth token stored in
+ * `Users.claudeCodeOAuthTokenEncrypted`.
  *
- * AES-256-GCM with a key derived from a single deployment-wide secret; each
- * value gets a random IV and is authenticated by the GCM tag. Generalized from
- * the original project-scoped Claude Code token crypto — the ciphertext format
- * is unchanged, so values encrypted before this module existed stay readable.
+ * AES-256-GCM with a key derived from a single deployment-wide secret
+ * (`RESEARCH_TOKEN_ENCRYPTION_KEY`); each value gets a random IV and is
+ * authenticated by the GCM tag. The ciphertext format is stable, so values
+ * encrypted by earlier versions stay readable as long as the key is unchanged.
  */
 
 const SECRET_REF_PREFIX = "research-token:v1:";
 const AES_GCM_IV_BYTES = 12;
 
 function getEncryptionSecret(): string {
-  const secret =
-    process.env.RESEARCH_TOKEN_ENCRYPTION_KEY ??
-    process.env.RESEARCH_SANDBOX_CALLBACK_SECRET;
+  const secret = process.env.RESEARCH_TOKEN_ENCRYPTION_KEY;
   if (!secret) {
     throw new Error(
-      "RESEARCH_TOKEN_ENCRYPTION_KEY or RESEARCH_SANDBOX_CALLBACK_SECRET must be configured before storing user secrets",
+      "RESEARCH_TOKEN_ENCRYPTION_KEY must be configured to encrypt or decrypt research user tokens",
     );
   }
   return secret;
@@ -67,12 +66,12 @@ export function decryptSecretWithKey(stored: string, secret: string): string {
   ]).toString("utf8");
 }
 
-/** Encrypt a value for storage in `UserSecrets.encryptedValue`. */
+/** Encrypt the Claude Code OAuth token for storage in `Users.claudeCodeOAuthTokenEncrypted`. */
 export function encryptUserSecret(plaintext: string): string {
   return encryptSecretWithKey(plaintext, getEncryptionSecret());
 }
 
-/** Decrypt a stored `UserSecrets.encryptedValue` (legacy plaintext passes through). */
+/** Decrypt a stored Claude Code OAuth token (legacy plaintext passes through). */
 export function decryptUserSecret(stored: string): string {
   return decryptSecretWithKey(stored, getEncryptionSecret());
 }
