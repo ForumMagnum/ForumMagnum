@@ -87,10 +87,10 @@ export function startHeartbeat(config: HeartbeatConfig): HeartbeatHandle {
 
   const tick = () => {
     if (stopped) return;
-    void reportOnce();
+    void reportOnce().catch(() => {});
   };
   const handle = setInterval(tick, interval);
-  void reportOnce();
+  void reportOnce().catch(() => {});
 
   return {
     stop() {
