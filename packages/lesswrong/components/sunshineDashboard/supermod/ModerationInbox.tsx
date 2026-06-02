@@ -64,7 +64,7 @@ const CurationCandidatePostsQuery = gql(`
   query CurationCandidatePostsQuery($limit: Int) {
     CurationCandidatePosts(limit: $limit) {
       results {
-        ...SunshineCurationPostsList
+        ...SunshineCurationPostsListItem
       }
     }
   }
@@ -140,7 +140,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
   users: SunshineUsersList[];
   posts: SunshinePostsList[];
   classifiedPosts: SunshinePostsList[];
-  curationPosts: SunshineCurationPostsList[];
+  curationPosts: SunshineCurationPostsListItem[];
   lastCuratedDate: string | null;
   initialOpenedUserId: string | null;
   directUser: SunshineUsersList | null;
