@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * One-shot ops script to list and stop running Vercel sandboxes.
  *

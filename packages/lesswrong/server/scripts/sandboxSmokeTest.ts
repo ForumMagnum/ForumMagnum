@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Smoke test for @vercel/sandbox SDK integration.
  *
