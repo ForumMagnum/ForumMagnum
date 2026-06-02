@@ -483,6 +483,11 @@ const ModerationInbox = () => {
   const currentUser = useCurrentUser();
   const { query } = useLocation();
 
+  // ssr:false on every query in this admin-only page so the HTML shell ships
+  // immediately on first paint. Without it, useQuery suspends the server render
+  // until every query resolves (see @/lib/crud/useQuery.ts), and the slowest
+  // query (CurationCandidatePosts) dominates time-to-interactive. The lists
+  // hydrate independently on the client and each tab shows its own spinner.
   const { data: usersData } = useQuery(SunshineUsersListMultiQuery, {
     variables: {
       selector: { sunshineNewUsers: {} },
@@ -490,6 +495,7 @@ const ModerationInbox = () => {
       enableTotal: true,
     },
     fetchPolicy: 'cache-and-network',
+    ssr: false,
   });
 
   const { data: postsData } = useQuery(SunshinePostsListMultiQuery, {
@@ -499,6 +505,7 @@ const ModerationInbox = () => {
       enableTotal: true,
     },
     fetchPolicy: 'cache-and-network',
+    ssr: false,
   });
 
   const { data: classifiedPostsData } = useQuery(SunshineAutoClassifiedPostsListMultiQuery, {
@@ -508,15 +515,18 @@ const ModerationInbox = () => {
       enableTotal: true,
     },
     fetchPolicy: 'cache-and-network',
+    ssr: false,
   });
 
   const { data: curationData } = useQuery(CurationCandidatePostsQuery, {
     variables: { limit: 200 },
     fetchPolicy: 'cache-and-network',
+    ssr: false,
   });
 
   const { data: lastCuratedData } = useQuery(LastCuratedDateQuery, {
     fetchPolicy: 'cache-and-network',
+    ssr: false,
   });
 
   const initialOpenedUserId = query.user || null;
@@ -528,10 +538,11 @@ const ModerationInbox = () => {
     variables: { documentId: initialOpenedUserId },
     skip: !shouldFetchDirectUser,
     fetchPolicy: 'cache-and-network',
+    ssr: false,
   });
 
   // This is just to pre-fetch the core tags so that they're available when you open the posts tab
-  useCoreTags();
+  useCoreTags({ fetchPolicy: 'cache-and-network', ssr: false });
 
   const posts = useMemo(() => postsData?.posts?.results.filter(post => !post.reviewedByUserId) ?? [], [postsData]);
   const classifiedPosts = useMemo(() => classifiedPostsData?.posts?.results ?? [], [classifiedPostsData]);
