@@ -78,8 +78,32 @@ export function deriveLastInjectedActiveDocumentId(
   return null;
 }
 
+/**
+ * Extract the user prompt text from a persisted user event. The event is now
+ * Claude's stream-json shape — `{type:"user", message:{content}}` — where
+ * `content` is either the string we fed via stdin or (the canonical message
+ * shape Claude Code often normalizes to) an array of content blocks. Both are
+ * handled, mirroring the display extractor in `conversationEventFormat.ts`, so
+ * the leading `<system-reminder>` is found regardless of which form the replay
+ * uses — otherwise the cadence check would re-inject a reminder every turn. The
+ * legacy backend shape (`{type:"user", text}`) is still read as a fallback for
+ * any pre-reconciliation rows.
+ */
 function userEventText(payload: unknown): string | null {
   if (!isPlainRecord(payload)) return null;
+  const message = payload.message;
+  if (isPlainRecord(message)) {
+    const content = message.content;
+    if (typeof content === "string") return content;
+    if (Array.isArray(content)) {
+      const text = content
+        .filter((part): part is Record<string, unknown> => isPlainRecord(part))
+        .filter((part) => part.type === "text" && typeof part.text === "string")
+        .map((part) => part.text as string)
+        .join("");
+      return text.length > 0 ? text : null;
+    }
+  }
   if (typeof payload.text === "string") return payload.text;
   return null;
 }

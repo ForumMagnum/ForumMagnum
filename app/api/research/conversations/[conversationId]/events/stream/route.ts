@@ -19,6 +19,7 @@
 import { NextRequest } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { getEventStreamCoordinator } from "@/server/research/eventStreamCoordinator";
+import { userIsAdmin } from "@/lib/vulcan-users/permissions";
 
 const KEEPALIVE_MS = 20_000;
 
@@ -55,7 +56,7 @@ export async function GET(
       headers: { "Content-Type": "application/json" },
     });
   }
-  if (conversation.userId !== currentUser._id && !currentUser.isAdmin) {
+  if (conversation.userId !== currentUser._id && !userIsAdmin(currentUser)) {
     return new Response(JSON.stringify({ error: "Forbidden" }), {
       status: 403,
       headers: { "Content-Type": "application/json" },

@@ -12,11 +12,18 @@ import {
   type ProvisionedSandbox,
 } from "@/server/research/sandbox/sandboxManager";
 import { isPlainRecord } from "@/components/research/conversationEventFormat";
+import { accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { buildBootstrapJsonl } from "@/server/research/sessionReconstruction";
 import {
   buildSystemReminderWrap,
   deriveLastInjectedActiveDocumentId,
 } from "@/server/research/systemReminder";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { encryptUserSecret } from "@/server/research/userSecretsCrypto";
+import { buildEnvironmentSnapshot } from "@/server/research/sandbox/saveEnvironment";
+import { randomId } from "@/lib/random";
+import { Snapshot } from "@vercel/sandbox";
 import { isPostgresUniqueViolation } from "@/server/utils/postgresErrors";
 
 /**
@@ -28,24 +35,11 @@ import { isPostgresUniqueViolation } from "@/server/utils/postgresErrors";
  * aborts the in-flight one.
  */
 
-async function assertProjectAccess(projectId: string, context: ResolverContext): Promise<void> {
-  const { currentUser, ResearchProjects } = context;
-  if (!currentUser) throw new Error("Not logged in");
-  const project = await ResearchProjects.findOne({ _id: projectId });
-  if (!project) throw new Error("Project not found");
-  if (project.userId !== currentUser._id && !currentUser.isAdmin) {
-    throw new Error("Forbidden");
-  }
-}
-
 async function loadConversationOrThrow(conversationId: string, context: ResolverContext) {
   const { currentUser, ResearchConversations } = context;
-  if (!currentUser) throw new Error("Not logged in");
+  if (!userIsAdmin(currentUser)) throw new Error("Forbidden");
   const conv = await ResearchConversations.findOne({ _id: conversationId });
   if (!conv) throw new Error("Conversation not found");
-  if (conv.userId !== currentUser._id && !currentUser.isAdmin) {
-    throw new Error("Forbidden");
-  }
   return conv;
 }
 
@@ -182,134 +176,6 @@ async function prepareTurnPrompt(args: {
 }
 
 
-async function appendUserTurn(
-  conversationId: string,
-  prompt: string,
-  context: ResolverContext,
-): Promise<number> {
-  const result = await context.repos.researchConversationEvents.persistEvent(
-    conversationId,
-    {
-      claudeMessageUuid: null,
-      kind: "user",
-      payload: { type: "user", text: prompt },
-    },
-  );
-  return result.seq;
-}
-
-/**
- * Reconstruct a Claude Code session JSONL for `--resume`. Required when
- * resuming a conversation in a fresh sandbox: the original session file
- * lives only in the sandbox that wrote it. We translate (a) backend
- * `appendUserTurn` events to Claude's user envelope, and (b) stream-json
- * events to the on-disk session-jsonl shape (rename `session_id`, add
- * `parentUuid` chain + `timestamp` + `userType`/`entrypoint`/`cwd`).
- * Drops `system`/`result`/`error` — those don't appear in real session files.
- */
-export function buildBootstrapJsonl(
-  events: DbResearchConversationEvent[],
-  claudeSessionId: string,
-): string[] {
-  // Track chain heads per group: mainline events under MAINLINE_GROUP_KEY, and
-  // each sub-agent's events keyed by the parent Task's tool_use id. Without
-  // this split, a sidechain event would chain to whatever mainline event
-  // happened to come before it in seq order, breaking Claude Code's chain
-  // walk when it follows `parentUuid` within a sub-agent.
-  const chainHeads = new Map<string, string | null>();
-  const lines: string[] = [];
-  for (const event of events) {
-    if (!isPlainRecord(event.payload)) continue;
-    const groupKey = chainGroupOf(event.payload);
-    const prevUuid = chainHeads.get(groupKey) ?? null;
-    const result = toClaudeSessionLine(event, claudeSessionId, prevUuid);
-    if (!result) continue;
-    lines.push(JSON.stringify(result.line));
-    chainHeads.set(groupKey, result.uuid);
-  }
-  return lines;
-}
-
-const SANDBOX_CWD = "/vercel/sandbox";
-const SESSION_JSONL_DROPPED_TYPES = new Set(["system", "result", "error"]);
-const MAINLINE_GROUP_KEY = "__mainline__";
-
-/**
- * Group an event into a chain bucket: mainline if its `parent_tool_use_id` is
- * absent/null, otherwise into the sub-agent chain rooted at that tool_use id.
- * Stream-json's `parent_tool_use_id` is set by Claude Code on every event a
- * spawned sub-agent (Task tool) emits, so it doubles as the sidechain marker.
- */
-function chainGroupOf(payload: Record<string, unknown>): string {
-  const ptu = payload.parent_tool_use_id;
-  return typeof ptu === "string" ? ptu : MAINLINE_GROUP_KEY;
-}
-
-function toClaudeSessionLine(
-  event: DbResearchConversationEvent,
-  claudeSessionId: string,
-  prevUuid: string | null,
-): { line: unknown; uuid: string } | null {
-  const payload = event.payload;
-  if (!isPlainRecord(payload)) return null;
-  const type = payload.type;
-  if (typeof type !== "string") return null;
-  if (SESSION_JSONL_DROPPED_TYPES.has(type)) return null;
-
-  const timestamp = event.createdAt instanceof Date
-    ? event.createdAt.toISOString()
-    : String(event.createdAt);
-  const isSidechain = typeof payload.parent_tool_use_id === "string";
-
-  // Backend-shaped user turn from `appendUserTurn`: no `message`, just `text`.
-  // Wrap in Claude's user envelope and stamp the on-disk metadata. These are
-  // never sub-agent events (the supervisor doesn't synthesize backend user
-  // turns inside sub-agents), so isSidechain is always false here.
-  if (type === "user" && typeof payload.text === "string" && !("message" in payload)) {
-    const uuid = event._id;
-    return {
-      line: {
-        parentUuid: prevUuid,
-        isSidechain: false,
-        type: "user",
-        message: { role: "user", content: payload.text },
-        uuid,
-        timestamp,
-        userType: "external",
-        entrypoint: "cli",
-        cwd: SANDBOX_CWD,
-        sessionId: claudeSessionId,
-      },
-      uuid,
-    };
-  }
-
-  // Stream-json event (user/assistant with `message` + `uuid` + `session_id`).
-  // Promote to session-jsonl shape: rename `session_id` → `sessionId`, add
-  // chain + envelope fields, leave the rest (model, requestId, message
-  // content, parent_tool_use_id, etc.) untouched.
-  if (typeof payload.uuid === "string") {
-    const uuid = payload.uuid;
-    const { session_id: _droppedSessionId, ...rest } = payload;
-    void _droppedSessionId;
-    return {
-      line: {
-        ...rest,
-        parentUuid: prevUuid,
-        isSidechain,
-        timestamp,
-        userType: "external",
-        entrypoint: "cli",
-        cwd: SANDBOX_CWD,
-        sessionId: claudeSessionId,
-      },
-      uuid,
-    };
-  }
-
-  return null;
-}
-
 export const researchResolversTypeDefs = gql`
   enum ResearchEntrypointKind {
     document
@@ -330,8 +196,8 @@ export const researchResolversTypeDefs = gql`
     # Lexical -> HTML -> Turndown pipeline that backs fetch-doc, so mentions,
     # lists, and formatting survive into the agent's conversation context.
     promptHtml: String!
-    # The workspace repo for a coding conversation; omitted for an ordinary one.
-    workspaceRepoId: String
+    baseEnvironmentId: String
+    runtime: String
   }
 
   type ResearchConversationOutput {
@@ -343,11 +209,21 @@ export const researchResolversTypeDefs = gql`
     url: String!
   }
 
+  type SetClaudeCodeOAuthTokenOutput {
+    success: Boolean!
+  }
+
+  type SaveResearchEnvironmentOutput {
+    data: ResearchEnvironment
+  }
+
   extend type Mutation {
     fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
     continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
     cancelResearchConversation(conversationId: String!): ResearchConversationOutput
     mintDevPreviewUrl(conversationId: String!): DevPreviewUrlOutput
+    setClaudeCodeOAuthToken(token: String!): SetClaudeCodeOAuthTokenOutput
+    saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput
   }
 
   extend type Query {
@@ -365,24 +241,30 @@ export const researchResolversMutations = {
         kind: "document" | "chat";
         activeDocumentId: string;
         promptHtml: string;
-        workspaceRepoId?: string | null;
+        baseEnvironmentId?: string | null;
+        runtime?: string | null;
       };
     },
     context: ResolverContext,
   ) {
     const { currentUser, ResearchConversations } = context;
-    if (!currentUser) throw new Error("Not logged in");
-    const { conversationId, projectId, kind, activeDocumentId, promptHtml, workspaceRepoId } = args.input;
+    if (!userIsAdmin(currentUser)) throw new Error("Forbidden");
+    const { conversationId, projectId, kind, activeDocumentId, promptHtml } = args.input;
+    const baseEnvironmentId = args.input.baseEnvironmentId ?? null;
+    const runtime = args.input.runtime ?? null;
     const prompt = htmlToMarkdown(promptHtml).trim();
     if (!prompt) throw new Error("prompt required");
 
-    await assertProjectAccess(projectId, context);
-
-    // A coding conversation pins a workspace repo; verify the caller owns it.
-    if (workspaceRepoId) {
-      const repo = await context.WorkspaceRepos.findOne({ _id: workspaceRepoId });
-      if (!repo || repo.userId !== currentUser._id) {
-        throw new Error(`Workspace repo ${workspaceRepoId} not found`);
+    if (!!baseEnvironmentId === !!runtime) {
+      throw new Error(
+        "Exactly one of baseEnvironmentId or runtime must be set when firing a conversation.",
+      );
+    }
+    let environment: DbResearchEnvironment | null = null;
+    if (baseEnvironmentId) {
+      environment = await context.ResearchEnvironments.findOne({ _id: baseEnvironmentId });
+      if (!environment || environment.userId !== currentUser._id || environment.projectId !== projectId) {
+        throw new Error(`Environment ${baseEnvironmentId} not found`);
       }
     }
 
@@ -395,7 +277,8 @@ export const researchResolversMutations = {
         projectId,
         entrypointKind: kind,
         entrypointDocumentId: activeDocumentId,
-        workspaceRepoId: workspaceRepoId ?? null,
+        baseEnvironmentId,
+        runtime,
         title: null,
         claudeSessionId: null,
         lastActivityAt: now,
@@ -408,6 +291,30 @@ export const researchResolversMutations = {
       throw err;
     }
 
+    let firstTurnSessionOnDisk: { claudeSessionId: string } | undefined;
+    if (environment?.sourceEventId) {
+      const sourceEvent = await context.ResearchConversationEvents.findOne({
+        _id: environment.sourceEventId,
+      });
+      if (sourceEvent) {
+        await context.repos.researchConversationEvents.backfillFromBranch({
+          sourceConversationId: sourceEvent.conversationId,
+          targetConversationId: _id,
+          targetUserId: currentUser._id,
+          targetProjectId: projectId,
+          branchSeq: sourceEvent.seq,
+        });
+        // The session id lives in the event payload (`session_id`), not the
+        // source conversation's `claudeSessionId` field — that field is captured
+        // async and may be stale if the env was saved right after a result.
+        const sessionId = sessionIdFromPayload(sourceEvent.payload);
+        if (sessionId) {
+          await ResearchConversations.rawUpdateOne({ _id }, { $set: { claudeSessionId: sessionId } });
+          firstTurnSessionOnDisk = { claudeSessionId: sessionId };
+        }
+      }
+    }
+
     const turnPrompt = await prepareTurnPrompt({
       rawPrompt: prompt,
       projectId,
@@ -417,17 +324,21 @@ export const researchResolversMutations = {
       priorEvents: [],
       context,
     });
-    await appendUserTurn(_id, turnPrompt, context);
 
-    // A provisioning failure throws from here; the conversation row and user
-    // turn are already persisted, so the client can retry the turn with
-    // `continueResearchConversation`.
+    // The supervisor is the single writer of events: with
+    // `--replay-user-messages`, Claude re-emits the user turn on its output
+    // stream and the supervisor ships it through the durable queue, so the
+    // backend does not persist the user turn itself. A pre-Claude failure
+    // (provisioning/launch) therefore leaves a conversation row with no user
+    // event — acceptable only because the client keeps the prompt and re-sends
+    // (it rethrows on dispatch failure).
     await dispatchToSandbox({
       context,
       conversationId: _id,
       projectId,
       userId: currentUser._id,
       prompt: turnPrompt,
+      sessionOnDisk: firstTurnSessionOnDisk,
     });
 
     backgroundTask((async () => {
@@ -469,7 +380,6 @@ export const researchResolversMutations = {
       context,
     });
 
-    await appendUserTurn(conv._id, turnPrompt, context);
     await ResearchConversations.rawUpdateOne({ _id: conv._id }, { $set: { lastActivityAt: new Date() } });
 
     await dispatchToSandbox({
@@ -516,18 +426,9 @@ export const researchResolversMutations = {
    */
   async mintDevPreviewUrl(_root: void, args: { conversationId: string }, context: ResolverContext) {
     const conv = await loadConversationOrThrow(args.conversationId, context);
-    if (!conv.workspaceRepoId) {
-      throw new Error("This conversation has no workspace repo.");
-    }
-    const workspaceRepo = await context.WorkspaceRepos.findOne({ _id: conv.workspaceRepoId });
-    if (!workspaceRepo?.devCommand) {
-      throw new Error("This conversation's repo does not define a dev server.");
-    }
-    // Resumes (or provisions) the sandbox; the relaunched supervisor starts the
-    // dev server and the auth-proxy.
     const provisioned = await getOrCreateSandbox(conv._id, context);
     if (!provisioned.devProxySecret) {
-      throw new Error("The sandbox was provisioned without a dev server.");
+      throw new Error("The sandbox was provisioned without a dev proxy secret.");
     }
     const token = signSupervisorToken(
       {
@@ -540,7 +441,66 @@ export const researchResolversMutations = {
     const url = `${devProxyUrlForSandbox(provisioned.sandbox)}/_devauth/${encodeURIComponent(token)}`;
     return { url };
   },
+
+  async setClaudeCodeOAuthToken(_root: void, args: { token: string }, context: ResolverContext) {
+    const { currentUser, Users } = context;
+    if (!userIsAdmin(currentUser)) throw new Error("Forbidden");
+    const token = args.token.trim();
+    if (!token) throw new Error("token required");
+    await Users.rawUpdateOne(
+      { _id: currentUser._id },
+      { $set: { claudeCodeOAuthTokenEncrypted: encryptUserSecret(token) } },
+    );
+    return { success: true };
+  },
+
+  async saveResearchEnvironment(
+    _root: void,
+    args: { conversationId: string; withConversation: boolean },
+    context: ResolverContext,
+  ) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    const session = await context.ResearchSandboxSessions.findOne({ conversationId: conv._id });
+    if (!session) {
+      throw new Error("This conversation has no sandbox yet — start a turn before saving an environment.");
+    }
+
+    const built = await buildEnvironmentSnapshot({
+      conversationId: conv._id,
+      withConversation: args.withConversation,
+      conversationTitle: conv.title ?? null,
+      supervisorSecret: session.supervisorSecret,
+      context,
+    });
+
+    const _id = randomId();
+    try {
+      await context.ResearchEnvironments.rawInsert({
+        _id,
+        userId: conv.userId,
+        projectId: conv.projectId,
+        label: built.label,
+        vercelSnapshotId: built.vercelSnapshotId,
+        sourceEventId: built.sourceEventId,
+        createdAt: new Date(),
+      });
+    } catch (err) {
+      await Snapshot.get({ snapshotId: built.vercelSnapshotId })
+        .then((s) => s.delete())
+        .catch(() => {});
+      throw err;
+    }
+
+    const created = await context.ResearchEnvironments.findOne({ _id });
+    const filtered = await accessFilterSingle(context.currentUser, "ResearchEnvironments", created, context);
+    return { data: filtered };
+  },
 };
+
+function sessionIdFromPayload(payload: unknown): string | null {
+  if (!isPlainRecord(payload)) return null;
+  return typeof payload.session_id === "string" ? payload.session_id : null;
+}
 
 /**
  * Provision (or resume) the conversation's persistent sandbox and dispatch one
@@ -555,8 +515,22 @@ async function dispatchToSandbox(args: {
   userId: string;
   prompt: string;
   resumeContext?: { claudeSessionId: string; priorEvents: DbResearchConversationEvent[] };
+  sessionOnDisk?: { claudeSessionId: string };
 }): Promise<void> {
   const provisioned = await getOrCreateSandbox(args.conversationId, args.context);
+
+  if (args.sessionOnDisk && provisioned.isFirstProvision) {
+    await dispatchTurnViaSupervisor({
+      provisioned,
+      conversationId: args.conversationId,
+      projectId: args.projectId,
+      userId: args.userId,
+      prompt: args.prompt,
+      claudeSessionId: args.sessionOnDisk.claudeSessionId,
+      bootstrapJsonl: undefined,
+    });
+    return;
+  }
 
   // Reconstruct the Claude session only when the sandbox was freshly built (a
   // rebuild after an expired snapshot). A warm resume still has the session

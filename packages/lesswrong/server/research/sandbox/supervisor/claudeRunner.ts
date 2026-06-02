@@ -1,10 +1,11 @@
 /**
  * Claude Code subprocess runner.
  *
- * Spawns `claude -p "<prompt>" --output-format stream-json [--resume <sessionId>]`,
- * pipes stdout through the JSONL chunker, and emits each `ParsedJsonlLine` to
- * a caller-supplied sink. Manages cancellation, exit-code propagation, and
- * cleanup of per-conversation runner state.
+ * Spawns `claude -p --input-format stream-json --output-format stream-json
+ * --replay-user-messages [--resume <sessionId>]`, feeds the user turn in via
+ * stdin as a stream-json message, pipes stdout through the JSONL chunker, and
+ * emits each `ParsedJsonlLine` to a caller-supplied sink. Manages cancellation,
+ * exit-code propagation, and cleanup of per-conversation runner state.
  *
  * Design constraints:
  * - Multiple conversations may be running concurrently in the same supervisor
@@ -14,7 +15,7 @@
  *   parsed object is provided for routing/dedup convenience only.
  */
 import { ChildProcessByStdio, spawn } from "node:child_process";
-import type { Readable } from "node:stream";
+import type { Readable, Writable } from "node:stream";
 import {
   createJsonlChunker,
   ParsedJsonlLine,
@@ -62,12 +63,12 @@ export function startClaudeRunner(opts: ClaudeRunnerOptions): ClaudeRunnerHandle
     resolveDone = resolve;
   });
 
-  let proc: ChildProcessByStdio<null, Readable, Readable>;
+  let proc: ChildProcessByStdio<Writable, Readable, Readable>;
   try {
     proc = spawn(claudePath, args, {
       cwd,
       env: { ...process.env, ...(opts.env ?? {}) },
-      stdio: ["ignore", "pipe", "pipe"],
+      stdio: ["pipe", "pipe", "pipe"],
     });
   } catch (err) {
     opts.onError(err as Error);
@@ -103,6 +104,18 @@ export function startClaudeRunner(opts: ClaudeRunnerOptions): ClaudeRunnerHandle
     opts.onError(err);
   });
 
+  proc.stdin.on("error", (err) => opts.onError(err));
+  try {
+    const userMessage = JSON.stringify({
+      type: "user",
+      message: { role: "user", content: opts.prompt },
+    });
+    proc.stdin.write(`${userMessage}\n`);
+    proc.stdin.end();
+  } catch (err) {
+    opts.onError(err as Error);
+  }
+
   proc.on("close", (code, signal) => {
     if (exited) return;
     exited = true;
@@ -130,7 +143,7 @@ export function startClaudeRunner(opts: ClaudeRunnerOptions): ClaudeRunnerHandle
   };
 }
 
-export function buildArgs(opts: Pick<ClaudeRunnerOptions, "prompt" | "claudeSessionId">): string[] {
+export function buildArgs(opts: Pick<ClaudeRunnerOptions, "claudeSessionId">): string[] {
   // `auto` is Claude Code's classifier-backed auto-approval mode (v2.1.83+).
   // The classifier model auto-approves safe operations (local edits, reads,
   // research-tool invocations, etc.) and blocks risky ones (hostile deploys,
@@ -140,8 +153,10 @@ export function buildArgs(opts: Pick<ClaudeRunnerOptions, "prompt" | "claudeSess
   // answer a per-tool prompt; without it, every `Bash` / `research-tool`
   // call dead-ends in `permission_denials` (visible on the turn's `result`).
   const args = [
-    "-p", opts.prompt,
+    "-p",
+    "--input-format", "stream-json",
     "--output-format", "stream-json",
+    "--replay-user-messages",
     "--verbose",
     "--permission-mode", "auto",
     "--model", "claude-opus-4-8",

@@ -11,9 +11,9 @@ import { QueryInputHeaderComponent } from './QueryInputHeaderComponent';
 export type SerializedQueryInputHeaderNode = SerializedLexicalNode;
 
 /**
- * The header carries no state of its own; the selected repo lives on the
- * parent QueryInputNode. Header is stripped during container import and
- * re-added by the ensure-structure transform.
+ * The header carries no state of its own; the selected environment/runtime
+ * lives on the parent QueryInputNode. Header is stripped during container
+ * import and re-added by the ensure-structure transform.
  */
 export const QUERY_INPUT_HEADER_NODE_TYPE = 'research-query-input-header';
 export const QUERY_INPUT_HEADER_DOM_CLASS = 'research-query-input-header';
@@ -44,9 +44,9 @@ export class QueryInputHeaderNode extends DecoratorNode<React.ReactElement> {
   }
 
   exportDOM(): DOMExportOutput {
-    // The selected repo is stored on the container's data-workspace-repo-id
-    // attribute; the ensure-structure transform re-creates this header on
-    // import, so we don't emit it.
+    // The selected environment/runtime is stored on the container's
+    // data-base-environment-id / data-runtime attributes; the ensure-structure
+    // transform re-creates this header on import, so we don't emit it.
     return { element: null };
   }
 
@@ -78,7 +78,7 @@ export class QueryInputHeaderNode extends DecoratorNode<React.ReactElement> {
     return (
       <QueryInputHeaderComponent
         containerNodeKey={parent.getKey()}
-        workspaceRepoId={parent.getWorkspaceRepoId()}
+        selection={parent.getSelection()}
       />
     );
   }

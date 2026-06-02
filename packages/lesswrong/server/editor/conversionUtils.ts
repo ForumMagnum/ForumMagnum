@@ -27,7 +27,8 @@ import {
 } from '@/components/research/lexical/mentionFormat';
 import {
   QUERY_INPUT_DOM_CLASS,
-  QUERY_INPUT_WORKSPACE_REPO_ATTR,
+  QUERY_INPUT_BASE_ENVIRONMENT_ATTR,
+  QUERY_INPUT_RUNTIME_ATTR,
 } from '@/components/research/lexical/QueryInputNode';
 
 function escapeMarkerAttr(value: string): string {
@@ -169,8 +170,11 @@ function getTurndown(): TurndownService {
         node.nodeName === 'DIV' && !!node.classList?.contains(QUERY_INPUT_DOM_CLASS),
       replacement: (content, node) => {
         const element = node as Element;
-        const repoId = element.getAttribute(QUERY_INPUT_WORKSPACE_REPO_ATTR);
-        const attrSuffix = repoId ? ` workspaceRepoId="${escapeMarkerAttr(repoId)}"` : '';
+        const baseEnvironmentId = element.getAttribute(QUERY_INPUT_BASE_ENVIRONMENT_ATTR);
+        const runtime = element.getAttribute(QUERY_INPUT_RUNTIME_ATTR);
+        const attrSuffix =
+          (baseEnvironmentId ? ` baseEnvironmentId="${escapeMarkerAttr(baseEnvironmentId)}"` : '') +
+          (runtime ? ` runtime="${escapeMarkerAttr(runtime)}"` : '');
         const trimmed = content.trim();
         return `\n\n%%% query-input${attrSuffix}\n\n${trimmed}\n\n%%% /query-input\n\n`;
       },

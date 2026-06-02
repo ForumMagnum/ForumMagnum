@@ -16,7 +16,8 @@ export interface FireDocumentQueryArgs {
   conversationId: string;
   documentId: string;
   promptHtml: string;
-  workspaceRepoId?: string | null;
+  baseEnvironmentId: string | null;
+  runtime: string | null;
 }
 
 /**
@@ -27,6 +28,8 @@ export interface FireDocumentQueryArgs {
 export interface ResearchEditorEnvironment {
   /** Required. The ResearchDocument id this editor is bound to. */
   documentId: string;
+
+  projectId: string;
 
   /**
    * Called when the user inserts a fresh AgentBlock from the slash menu.

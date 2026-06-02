@@ -66,10 +66,10 @@ import { PostViewTimes } from './postViewTimes/collection';
 import { PostViews } from './postViews/collection';
 import { Posts } from './posts/collection';
 import { ReadStatuses } from './readStatus/collection';
-import { RepoInstallSnapshots } from './repoInstallSnapshots/collection';
 import { ResearchConversationEvents } from './researchConversationEvents/collection';
 import { ResearchConversations } from './researchConversations/collection';
 import { ResearchDocuments } from './researchDocuments/collection';
+import { ResearchEnvironments } from './researchEnvironments/collection';
 import { ResearchProjects } from './researchProjects/collection';
 import { ResearchSandboxSessions } from './researchSandboxSessions/collection';
 import { RecommendationsCaches } from './recommendationsCaches/collection';
@@ -95,12 +95,10 @@ import { TypoSuggestions } from './typoSuggestions/collection';
 import { UltraFeedEvents } from './ultraFeedEvents/collection';
 import { UserMostValuablePosts } from './userMostValuablePosts/collection';
 import { UserRateLimits } from './userRateLimits/collection';
-import { UserSecrets } from './userSecrets/collection';
 import { UserTagRels } from './userTagRels/collection';
 import { UserActivities } from './useractivities/collection';
 import { Users } from './users/collection';
 import { Votes } from './votes/collection';
-import { WorkspaceRepos } from './workspaceRepos/collection';
 import { YjsDocuments } from './yjsDocuments/collection';
 
 function getTestCollections() {
@@ -126,10 +124,10 @@ const allCollections = {
   LWEvents, LegacyData, LinkPreviewCaches, LlmConversations, LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages,
   Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications, OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients, PetrovDayActions, PetrovDayLaunchs,
   PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
-  RecommendationsCaches, RepoInstallSnapshots, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
+  RecommendationsCaches, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
   ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
-  TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities, UserMostValuablePosts, UserRateLimits, UserSecrets,
-  UserTagRels, Users, Votes, WorkspaceRepos, YjsDocuments
+  TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities, UserMostValuablePosts, UserRateLimits,
+  UserTagRels, Users, Votes, YjsDocuments
 } satisfies Record<CollectionNameString, CollectionBase<CollectionNameString>>;
 
 const collectionsByLowercaseName = Object.fromEntries(

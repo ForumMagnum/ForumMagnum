@@ -43,12 +43,32 @@ export async function GET(
     if (convAuth.kind === "errorResponse") return convAuth.errorResponse;
     const { conversation } = convAuth;
 
+    if (parseBoolFlag(url.searchParams.get("danglingCheck"))) {
+      const incompleteTurn = await context.repos.researchConversationEvents.hasIncompleteTurn(conversationId);
+      captureResearchAgentApiEvent({
+        route: ROUTE,
+        status: "success",
+        conversationId,
+        projectId: payload.projectId,
+        operationResult: "danglingCheck",
+      });
+      return NextResponse.json({ ok: true, conversationId, incompleteTurn });
+    }
+
     const events = await context.ResearchConversationEvents.find(
       { conversationId },
       { sort: { seq: 1 }, limit: 5000 },
     ).fetch();
 
     const turns = getAgentTranscriptTurns(events, options);
+
+    let userCount = 0;
+    let resultCount = 0;
+    for (const e of events) {
+      if (e.kind === "user") userCount++;
+      else if (e.kind === "result") resultCount++;
+    }
+    const incompleteTurn = userCount > resultCount;
 
     captureResearchAgentApiEvent({
       route: ROUTE,
@@ -63,6 +83,7 @@ export async function GET(
       conversationId,
       title: conversation.title ?? null,
       turns,
+      incompleteTurn,
     });
   } catch (error) {
     // eslint-disable-next-line no-console

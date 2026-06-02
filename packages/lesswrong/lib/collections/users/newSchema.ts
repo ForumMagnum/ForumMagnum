@@ -4391,6 +4391,22 @@ const schema = {
       canRead: [userOwns, "admins"],
     },
   },
+  // Database-only by design (no `graphql` section): this keeps the token off the
+  // user API — it can never be exposed or writable through the generated
+  // update-user input. Stored AES-encrypted via `userSecretsCrypto.ts`.
+  claudeCodeOAuthTokenEncrypted: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+  },
+  hasClaudeCodeOAuthToken: {
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns],
+      resolver: (user) => !!user.claudeCodeOAuthTokenEncrypted,
+    },
+  },
 } satisfies Record<string, CollectionFieldSpecification<"Users">>;
 
 export default schema;

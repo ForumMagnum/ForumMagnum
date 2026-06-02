@@ -8,8 +8,8 @@
  *                           subdomain-scoped cookie, 302-redirects to `/`.
  *   any other request     — with a valid cookie: proxies to the dev port
  *                           (HTTP and WebSocket upgrades), or serves an
- *                           auto-refreshing "starting…" page while the dev
- *                           server is still binding. Without one: 401.
+ *                           auto-refreshing "no dev server detected" page when
+ *                           nothing is bound on the dev port. Without one: 401.
  *
  * The token is minted by the backend's `mintDevPreviewUrl` over the shared
  * `DEV_PROXY_SECRET`, the same HMAC scheme as the supervisor's own tokens.
@@ -43,10 +43,12 @@ export interface AuthProxyConfig {
   onActivity: () => void;
 }
 
-const STARTING_PAGE = `<!doctype html><html><head><meta charset="utf-8">
-<meta http-equiv="refresh" content="2"><title>Starting…</title></head>
+const NOT_DETECTED_PAGE = `<!doctype html><html><head><meta charset="utf-8">
+<meta http-equiv="refresh" content="2"><title>No dev server detected</title></head>
 <body style="font-family:sans-serif;padding:2rem">
-<h2>Starting the dev server…</h2><p>This page refreshes automatically.</p>
+<h2>No dev server detected yet</h2>
+<p>Nothing is listening on the dev port. Start your dev server (it should bind
+<code>$PORT</code>). This page refreshes automatically.</p>
 </body></html>`;
 
 /** Read one cookie value out of a `Cookie` request header. */
@@ -150,7 +152,7 @@ async function handleRequest(
   if (await config.devServer.isListening()) {
     proxyHttp(req, res, config.devPort);
   } else {
-    send(res, 503, STARTING_PAGE, "text/html");
+    send(res, 503, NOT_DETECTED_PAGE, "text/html");
   }
 }
 

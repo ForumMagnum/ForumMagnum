@@ -16,14 +16,15 @@
  * drop events on. Only a genuine permanent 4xx (other than 429) — a malformed
  * event the backend will never accept — is dropped, loudly, after one log.
  *
- * Idempotency (option A): events lacking a Claude message UUID (`system` /
- * `error` / `result`) would not be deduped on retry, so we synthesize a stable,
+ * Idempotency: events lacking a Claude message UUID (`system` / `error` /
+ * `result`) would not be deduped on retry, so we synthesize a stable,
  * namespaced `sup:<localId>` from the durable queue's per-conversation localId
  * and send it as the `claudeMessageUuid`. It's deterministic across replays
- * (localId is persisted) and collision-proof, so the existing partial unique
- * index `(conversationId, claudeMessageUuid)` dedupes these too. No schema
- * change. `claudeMessageUuid` has no semantic consumers beyond dedup + a debug
- * string, and the `sup:` prefix keeps synthetic values distinct from real UUIDs.
+ * (localId is persisted, and never reused thanks to compaction-aware seeding)
+ * and collision-proof, so the plain unique index `(conversationId,
+ * claudeMessageUuid)` dedupes these too. Every event therefore reaches the
+ * backend with a non-null id (the route now requires it). The `sup:` prefix
+ * keeps synthetic values distinct from real UUIDs.
  *
  * Endpoint contract: POST /api/research/agent/conversations/:id/events
  *   body: { rawJsonl, kind, claudeMessageUuid, claudeSessionId?, supervisorEmittedAt? }
@@ -56,7 +57,8 @@ export interface PostPersisterConfig {
   backendBaseUrl: string;
   /** Bearer token sent on each persistence POST (signed callback token). */
   authToken: string;
-  /** Directory backing the durable queue. Default `/vercel/sandbox/.research-event-queue`. */
+  conversationId: string;
+  /** Directory backing the durable queue. Default `~/.research/queue`. */
   queueDir?: string;
   /** fetch impl override — useful for tests. Defaults to global fetch. */
   fetchImpl?: typeof fetch;
@@ -75,13 +77,14 @@ export interface PostPersisterConfig {
 export interface PostPersister {
   /** Durably enqueue an event and kick its conversation's drain loop. */
   enqueue(conversationId: string, event: BackendEvent): void;
-  /** Resume draining any conversations with un-acked events from a prior session. */
+  /** Resume draining the sandbox's own conversation if it has un-acked events. */
   recover(): void;
   /** Best-effort wait for in-flight drains to quiesce (bounded; the queue is durable). */
   drain(deadlineMs?: number): Promise<void>;
+  pendingCount(): number;
 }
 
-const DEFAULT_QUEUE_DIR = "/vercel/sandbox/.research-event-queue";
+const DEFAULT_QUEUE_DIR = "/root/.research/queue";
 
 type AttemptResult =
   | { kind: "success" }
@@ -194,7 +197,7 @@ export function createPostPersister(config: PostPersisterConfig): PostPersister 
       kick(conversationId);
     },
     recover() {
-      for (const conversationId of queue.recover()) kick(conversationId);
+      if (queue.recover(config.conversationId)) kick(config.conversationId);
     },
     async drain(deadlineMs = 10_000) {
       const start = now();
@@ -202,6 +205,9 @@ export function createPostPersister(config: PostPersisterConfig): PostPersister 
         await Promise.allSettled([...loops.values()]);
         if (now() - start > deadlineMs) return;
       }
+    },
+    pendingCount() {
+      return queue.pendingCount();
     },
   };
 }

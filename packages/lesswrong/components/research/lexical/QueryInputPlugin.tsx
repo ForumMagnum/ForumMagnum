@@ -31,7 +31,9 @@ import { $createAgentBlockNode, $isAgentBlockNode } from './AgentBlockNode';
 import {
   $createPopulatedQueryInputNode,
   $isQueryInputNode,
+  DEFAULT_BLANK_RUNTIME,
   QueryInputNode,
+  type QueryInputSelection,
 } from './QueryInputNode';
 import {
   $createQueryInputHeaderNode,
@@ -62,8 +64,10 @@ export const INSERT_QUERY_INPUT_COMMAND: LexicalCommand<void> = createCommand(
   'INSERT_QUERY_INPUT_COMMAND',
 );
 
-function $insertQueryInputAtSelection(workspaceRepoId: string | null): void {
-  const { node, content } = $createPopulatedQueryInputNode(workspaceRepoId);
+const EMPTY_QUERY_INPUT_SELECTION: QueryInputSelection = { baseEnvironmentId: null, runtime: null };
+
+function $insertQueryInputAtSelection(): void {
+  const { node, content } = $createPopulatedQueryInputNode(EMPTY_QUERY_INPUT_SELECTION);
 
   const selection = $getSelection();
   if ($isRangeSelection(selection)) {
@@ -125,7 +129,7 @@ interface FireQueryArgs {
   conversationId: string;
   agentBlockKey: string;
   promptHtml: string;
-  workspaceRepoId: string | null;
+  selection: QueryInputSelection;
   flash: WithMessagesFunctions['flash'];
 }
 
@@ -135,7 +139,7 @@ async function fireQuery({
   conversationId,
   agentBlockKey,
   promptHtml,
-  workspaceRepoId,
+  selection,
   flash,
 }: FireQueryArgs): Promise<void> {
   try {
@@ -143,7 +147,8 @@ async function fireQuery({
       conversationId,
       documentId: env.documentId,
       promptHtml,
-      workspaceRepoId,
+      baseEnvironmentId: selection.baseEnvironmentId,
+      runtime: selection.runtime,
     });
     // The AgentBlock is already in the doc with the correct conversationId,
     // so a successful mutation needs no further client-side action.
@@ -154,7 +159,7 @@ async function fireQuery({
     editor.update(() => {
       const agentBlock = $getNodeByKey(agentBlockKey);
       if (!$isAgentBlockNode(agentBlock)) return;
-      const restored = $restoreQueryInputFromHtml(editor, promptHtml, workspaceRepoId);
+      const restored = $restoreQueryInputFromHtml(editor, promptHtml, selection);
       agentBlock.replace(restored.node);
       const last = restored.content.getLastDescendant();
       if (last) last.selectEnd();
@@ -166,7 +171,7 @@ async function fireQuery({
 function $restoreQueryInputFromHtml(
   editor: LexicalEditor,
   promptHtml: string,
-  workspaceRepoId: string | null,
+  selection: QueryInputSelection,
 ): { node: QueryInputNode; content: QueryInputContentNode } {
   const dom = new DOMParser().parseFromString(promptHtml, 'text/html');
   const parsed = $generateNodesFromDOM(editor, dom);
@@ -178,7 +183,7 @@ function $restoreQueryInputFromHtml(
     if ($isQueryInputContentNode(n)) contentChildren.push(...n.getChildren());
     else contentChildren.push(n);
   }
-  return $createPopulatedQueryInputNode(workspaceRepoId, contentChildren);
+  return $createPopulatedQueryInputNode(selection, contentChildren);
 }
 
 function $isTopLevelParagraphWithText(
@@ -208,7 +213,7 @@ export function QueryInputPlugin() {
       editor.registerCommand(
         INSERT_QUERY_INPUT_COMMAND,
         () => {
-          editor.update(() => $insertQueryInputAtSelection(null));
+          editor.update(() => $insertQueryInputAtSelection());
           return true;
         },
         COMMAND_PRIORITY_LOW,
@@ -229,7 +234,7 @@ export function QueryInputPlugin() {
         });
         if (!hasMatch) return;
         editor.update(() => {
-          $insertQueryInputAtSelection(null);
+          $insertQueryInputAtSelection();
         });
       }),
 
@@ -261,7 +266,14 @@ export function QueryInputPlugin() {
           contentSelection.anchor.set(contentNode.getKey(), 0, 'element');
           contentSelection.focus.set(contentNode.getKey(), contentNode.getChildrenSize(), 'element');
           const promptHtml = $generateHtmlFromNodes(editor, contentSelection);
-          const workspaceRepoId = queryInput.getWorkspaceRepoId();
+          // Default to a blank baseline if neither field is set (e.g. a submit
+          // before the header finished hydrating), so we never send "neither"
+          // and trip the backend's exactly-one check.
+          const rawSelection = queryInput.getSelection();
+          const querySelection: QueryInputSelection =
+            rawSelection.baseEnvironmentId || rawSelection.runtime
+              ? rawSelection
+              : { baseEnvironmentId: null, runtime: DEFAULT_BLANK_RUNTIME };
 
           // Generate the conversation id client-side so the doc binds to the
           // conversation BEFORE the mutation returns: a refresh mid-flight
@@ -283,7 +295,7 @@ export function QueryInputPlugin() {
 
           event.preventDefault();
           queueMicrotask(() => {
-            void fireQuery({ editor, env, conversationId, agentBlockKey, promptHtml, workspaceRepoId, flash });
+            void fireQuery({ editor, env, conversationId, agentBlockKey, promptHtml, selection: querySelection, flash });
           });
           return true;
         },
@@ -304,7 +316,7 @@ export function QueryInputPlugin() {
           if (block.getTextContent() !== QUERY_BARE) return false;
 
           editor.update(() => {
-            $insertQueryInputAtSelection(null);
+            $insertQueryInputAtSelection();
           });
           event?.preventDefault();
           return true;

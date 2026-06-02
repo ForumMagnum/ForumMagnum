@@ -9,11 +9,10 @@ import Button from '@/lib/vendor/@material-ui/core/src/Button';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { useNavigate } from '@/lib/routeUtil';
 import ErrorAccessDenied from '../common/ErrorAccessDenied';
 import Loading from '../vulcan-core/Loading';
-import ResearchToolingPanel from './ResearchToolingPanel';
-import { CLAUDE_CODE_OAUTH_TOKEN_SECRET } from '@/lib/collections/userSecrets/userSecretNames';
 
 interface ResearchProjectSummary {
   _id: string;
@@ -35,13 +34,12 @@ const ResearchProjectsListQuery = gql(`
   }
 `);
 
-const ResearchUserSecretsQuery = gql(`
-  query ResearchUserSecretsQuery {
-    userSecrets(selector: { mySecrets: {} }, limit: 200) {
-      results {
+const ResearchClaudeTokenStatusQuery = gql(`
+  query ResearchClaudeTokenStatusQuery($userId: String!) {
+    user(selector: { _id: $userId }) {
+      result {
         _id
-        name
-        repoScope
+        hasClaudeCodeOAuthToken
       }
     }
   }
@@ -60,27 +58,13 @@ const CreateResearchProjectMutation = gql(`
   }
 `);
 
-const CreateUserSecretMutation = gql(`
-  mutation ResearchCreateUserSecret($name: String!, $value: String!) {
-    createUserSecret(data: { name: $name, value: $value }) {
-      data { _id name }
+const SetClaudeCodeOAuthTokenMutation = gql(`
+  mutation ResearchSetClaudeCodeOAuthToken($token: String!) {
+    setClaudeCodeOAuthToken(token: $token) {
+      success
     }
   }
 `);
-
-const UpdateUserSecretMutation = gql(`
-  mutation ResearchUpdateUserSecret($_id: String!, $value: String!) {
-    updateUserSecret(selector: { _id: $_id }, data: { value: $value }) {
-      data { _id name }
-    }
-  }
-`);
-
-// While a Repos form is open in the right pane, the layout swaps to focus
-// mode: the right pane animates wider (overlaying the left), and a scrim dims
-// the left so any click out dismisses the form.
-const RIGHT_PANE_RESTING_PCT = 30;
-const RIGHT_PANE_FOCUSED_PCT = 50;
 
 function researchPlainTextInputStyles(theme: ThemeType) {
   return {
@@ -120,32 +104,10 @@ const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
     background: theme.palette.background.default,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
-  topbar: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: 16,
-    padding: '12px 24px',
-    borderBottom: `1px solid ${theme.palette.greyAlpha(0.08)}`,
-    flexShrink: 0,
-  },
-  topbarTitle: {
-    fontSize: 16,
-    fontWeight: 600,
-    color: theme.palette.grey[900],
-    margin: 0,
-  },
   panes: {
     flex: 1,
     minHeight: 0,
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  leftPane: {
-    height: '100%',
-    paddingRight: `${RIGHT_PANE_RESTING_PCT}%`,
     overflowY: 'auto',
-    boxSizing: 'border-box',
   },
   leftPaneInner: {
     maxWidth: 900,
@@ -154,44 +116,6 @@ const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: 20,
-  },
-  scrim: {
-    position: 'absolute',
-    top: 0,
-    bottom: 0,
-    left: 0,
-    right: 0,
-    background: 'transparent',
-    pointerEvents: 'none',
-    transition: 'background 250ms ease',
-    zIndex: 1,
-  },
-  scrimVisible: {
-    background: theme.palette.greyAlpha(0.35),
-    pointerEvents: 'auto',
-    cursor: 'pointer',
-  },
-  rightPane: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    width: `${RIGHT_PANE_RESTING_PCT}%`,
-    background: theme.palette.background.default,
-    borderLeft: `1px solid ${theme.palette.greyAlpha(0.12)}`,
-    overflowY: 'auto',
-    boxSizing: 'border-box',
-    transition: 'width 250ms ease, box-shadow 250ms ease',
-    zIndex: 2,
-  },
-  rightPaneFocused: {
-    width: `${RIGHT_PANE_FOCUSED_PCT}%`,
-    boxShadow: `-8px 0 24px ${theme.palette.greyAlpha(0.08)}`,
-  },
-  rightPaneInner: {
-    paddingBottom: 64,
-    display: 'flex',
-    flexDirection: 'column',
   },
   newProjectRow: {
     display: 'flex',
@@ -223,6 +147,11 @@ const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
 }));
 
 const claudeCodeTokenStyles = defineStyles('ClaudeCodeToken', (theme: ThemeType) => ({
+  tokenChipRow: {
+    display: 'flex',
+    justifyContent: 'flex-end',
+    padding: '8px 24px 0',
+  },
   tokenChip: {
     display: 'inline-flex',
     alignItems: 'center',
@@ -315,35 +244,30 @@ const ResearchProjectList = () => {
   const [newTitle, setNewTitle] = useState('');
   const [newDescription, setNewDescription] = useState('');
   const [creating, setCreating] = useState(false);
-  const [rightPaneFocused, setRightPaneFocused] = useState(false);
-  const [closeRightPaneSignal, setCloseRightPaneSignal] = useState(0);
   const [replacingToken, setReplacingToken] = useState(false);
 
   const { data, loading, refetch } = useQuery(ResearchProjectsListQuery, {
     fetchPolicy: 'cache-and-network',
   });
-  const {
-    data: secretsData,
-    refetch: refetchSecrets,
-  } = useQuery(ResearchUserSecretsQuery, { fetchPolicy: 'cache-and-network' });
+  const { data: tokenStatusData, refetch: refetchTokenStatus } = useQuery(
+    ResearchClaudeTokenStatusQuery,
+    {
+      variables: { userId: currentUser?._id ?? '' },
+      skip: !currentUser,
+      fetchPolicy: 'cache-and-network',
+    },
+  );
 
   const [createProject] = useMutation(CreateResearchProjectMutation);
 
-  const handleScrimClick = useCallback(() => {
-    setCloseRightPaneSignal((n) => n + 1);
-  }, []);
-
-  const existingTokenSecret = (secretsData?.userSecrets?.results ?? []).find(
-    (secret) => secret.name === CLAUDE_CODE_OAUTH_TOKEN_SECRET && !secret.repoScope,
-  ) ?? null;
-  const tokenIsSet = !!existingTokenSecret;
+  const tokenIsSet = !!tokenStatusData?.user?.result?.hasClaudeCodeOAuthToken;
 
   const handleTokenSaved = useCallback(() => {
     setReplacingToken(false);
-    void refetchSecrets();
-  }, [refetchSecrets]);
+    void refetchTokenStatus();
+  }, [refetchTokenStatus]);
 
-  if (!currentUser) {
+  if (!userIsAdmin(currentUser)) {
     return <ErrorAccessDenied />;
   }
 
@@ -378,79 +302,60 @@ const ResearchProjectList = () => {
         <ClaudeCodeTokenChip onReplaceClick={() => setReplacingToken(true)} />
       )}
       <div className={classes.panes}>
-        <div className={classes.leftPane}>
-          <div className={classes.leftPaneInner}>
-            {(!tokenIsSet || replacingToken) && (
-              <ClaudeCodeTokenSetup
-                existingTokenSecret={existingTokenSecret}
-                onCancel={() => setReplacingToken(false)}
-                onSaved={handleTokenSaved}
-              />
-            )}
-
-            <div className={classes.newProjectRow}>
-              <input
-                className={classNames(classes.textInput, classes.newProjectTitle)}
-                name="research-project-title"
-                placeholder="Project title"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                disabled={creating}
-                autoComplete="off"
-              />
-              <input
-                className={classNames(classes.textInput, classes.newProjectDescription)}
-                name="research-project-description"
-                placeholder="Description (optional)"
-                value={newDescription}
-                onChange={(e) => setNewDescription(e.target.value)}
-                disabled={creating}
-                autoComplete="off"
-              />
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleCreate}
-                disabled={creating || !newTitle.trim()}
-              >
-                {creating ? 'Creating…' : 'New project'}
-              </Button>
-            </div>
-
-            {loading && projects.length === 0 ? <Loading /> : null}
-            {!loading && projects.length === 0 ? (
-              <div className={classes.empty}>
-                No research projects yet — create one above to get started.
-              </div>
-            ) : (
-              <ul className={classes.list}>
-                {projects.map((project) => (
-                  <ProjectListItem
-                    key={project._id}
-                    project={project}
-                    onOpen={() => navigate(`/research/projects/${project._id}`)}
-                  />
-                ))}
-              </ul>
-            )}
-          </div>
-        </div>
-
-        <div
-          className={classNames(classes.scrim, { [classes.scrimVisible]: rightPaneFocused })}
-          onClick={handleScrimClick}
-          aria-hidden={!rightPaneFocused}
-        />
-
-        <div
-          className={classNames(classes.rightPane, { [classes.rightPaneFocused]: rightPaneFocused })}
-        >
-          <div className={classes.rightPaneInner}>
-            <ResearchToolingPanel
-              onFormStateChange={setRightPaneFocused}
-              closeFormSignal={closeRightPaneSignal}
+        <div className={classes.leftPaneInner}>
+          {(!tokenIsSet || replacingToken) && (
+            <ClaudeCodeTokenSetup
+              tokenIsSet={tokenIsSet}
+              onCancel={() => setReplacingToken(false)}
+              onSaved={handleTokenSaved}
             />
+          )}
+
+          <div className={classes.newProjectRow}>
+            <input
+              className={classNames(classes.textInput, classes.newProjectTitle)}
+              name="research-project-title"
+              placeholder="Project title"
+              value={newTitle}
+              onChange={(e) => setNewTitle(e.target.value)}
+              disabled={creating}
+              autoComplete="off"
+            />
+            <input
+              className={classNames(classes.textInput, classes.newProjectDescription)}
+              name="research-project-description"
+              placeholder="Description (optional)"
+              value={newDescription}
+              onChange={(e) => setNewDescription(e.target.value)}
+              disabled={creating}
+              autoComplete="off"
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleCreate}
+              disabled={creating || !newTitle.trim()}
+            >
+              {creating ? 'Creating…' : 'New project'}
+            </Button>
           </div>
+
+          {loading && projects.length === 0 ? <Loading /> : null}
+          {!loading && projects.length === 0 ? (
+            <div className={classes.empty}>
+              No research projects yet — create one above to get started.
+            </div>
+          ) : (
+            <ul className={classes.list}>
+              {projects.map((project) => (
+                <ProjectListItem
+                  key={project._id}
+                  project={project}
+                  onOpen={() => navigate(`/research/projects/${project._id}`)}
+                />
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </div>
@@ -460,25 +365,25 @@ const ResearchProjectList = () => {
 function ClaudeCodeTokenChip({ onReplaceClick }: { onReplaceClick: () => void }) {
   const classes = useStyles(claudeCodeTokenStyles);
   return (
-    <span className={classes.tokenChip}>
-      <span>Claude Code token ✓</span>
-      <button
-        type="button"
-        className={classes.tokenChipReplace}
-        onClick={onReplaceClick}
-      >replace</button>
-    </span>
+    <div className={classes.tokenChipRow}>
+      <span className={classes.tokenChip}>
+        <span>Claude Code token ✓</span>
+        <button
+          type="button"
+          className={classes.tokenChipReplace}
+          onClick={onReplaceClick}
+        >replace</button>
+      </span>
+    </div>
   );
 }
 
-interface ExistingTokenSecret { _id: string; }
-
 function ClaudeCodeTokenSetup({
-  existingTokenSecret,
+  tokenIsSet,
   onCancel,
   onSaved,
 }: {
-  existingTokenSecret: ExistingTokenSecret | null;
+  tokenIsSet: boolean;
   onCancel: () => void;
   onSaved: () => void;
 }) {
@@ -487,10 +392,7 @@ function ClaudeCodeTokenSetup({
   const [tokenError, setTokenError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const [createUserSecret] = useMutation(CreateUserSecretMutation);
-  const [updateUserSecret] = useMutation(UpdateUserSecretMutation);
-
-  const tokenIsSet = !!existingTokenSecret;
+  const [setClaudeCodeOAuthToken] = useMutation(SetClaudeCodeOAuthTokenMutation);
 
   const handleSave = async () => {
     const value = tokenDraft.trim();
@@ -502,11 +404,7 @@ function ClaudeCodeTokenSetup({
     setTokenError(null);
     setSaving(true);
     try {
-      if (existingTokenSecret) {
-        await updateUserSecret({ variables: { _id: existingTokenSecret._id, value } });
-      } else {
-        await createUserSecret({ variables: { name: CLAUDE_CODE_OAUTH_TOKEN_SECRET, value } });
-      }
+      await setClaudeCodeOAuthToken({ variables: { token: value } });
       setTokenDraft('');
       onSaved();
     } finally {

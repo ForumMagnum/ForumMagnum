@@ -42,7 +42,7 @@ export async function GET(
     const conversations = await context.ResearchConversations.find(
       { projectId },
       { sort: { lastActivityAt: -1 }, limit: CONVERSATIONS_LIMIT },
-      { _id: 1, title: 1, lastActivityAt: 1, entrypoint: 1 },
+      { _id: 1, title: 1, lastActivityAt: 1, entrypointKind: 1 },
     ).fetch();
 
     captureResearchAgentApiEvent({
@@ -61,7 +61,7 @@ export async function GET(
         kind: "conversation" as const,
         title: conv.title ?? null,
         lastActivityAt: conv.lastActivityAt ?? null,
-        entrypoint: conv.entrypoint ?? null,
+        entrypoint: conv.entrypointKind,
       })),
     });
   } catch (error) {

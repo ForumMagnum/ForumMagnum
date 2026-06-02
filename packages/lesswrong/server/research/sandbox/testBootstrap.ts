@@ -4,7 +4,7 @@ import * as path from "node:path";
 import { homedir } from "node:os";
 import { randomUUID } from "node:crypto";
 import { createAdminContext } from "@/server/vulcan-lib/createContexts";
-import { buildBootstrapJsonl } from "@/server/resolvers/researchResolvers";
+import { buildBootstrapJsonl } from "@/server/research/sessionReconstruction";
 
 /**
  * Local test harness for the bootstrap reconstruction. Picks a real

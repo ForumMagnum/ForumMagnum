@@ -10,30 +10,42 @@
  * `getOrCreateSandbox` is the single entry point. It is lazy (called on a
  * conversation's first turn and every later turn), idempotent, and resolves
  * only once the in-sandbox supervisor process is confirmed up.
+ *
+ * Filesystem layout (design "Sandbox filesystem layout"): the agent's working
+ * directory is `/vercel/sandbox` (the cwd); the platform's own files live
+ * *outside* it under the home dir, so the agent's cwd-scoped cleanup can't reach
+ * them:
+ *   - `~/.research/supervisor.js`, `~/.research/bin/research-tool` — platform
+ *   - `~/.research/queue/` — the durable event queue (durable state)
+ *   - `~/.claude/CLAUDE.md` — agent instructions (auto-loaded globally)
+ *   - `~/.claude/projects/` — Claude Code's session files (agent memory)
+ *
+ * The platform files are **overlaid at every launch** from server-bundled
+ * assets (never run from the snapshot), so a snapshot taken today still runs
+ * today's platform code after future deploys.
  */
 import { Sandbox, APIError } from "@vercel/sandbox";
 import { randomId, randomSecret } from "@/lib/random";
 import { sleep } from "@/lib/utils/asyncUtils";
 import { mintSupervisorCallbackToken } from "../../../../../app/api/research/agent/researchAgentAuth";
 import { decryptUserSecret } from "@/server/research/userSecretsCrypto";
-import { CLAUDE_CODE_OAUTH_TOKEN_SECRET } from "@/lib/collections/userSecrets/userSecretNames";
+import { getPlatformAssets } from "./platformAssets";
 import {
-  collectRepoEnvSecrets,
-  resolveCodingSnapshot,
-  runCodingFirstProvision,
-  type CodingSnapshotPlan,
-} from "./codingWorkspace";
-import { REPO_DIR, repoCommandCwd } from "./repoSandboxSync";
-import { repoScopeOf } from "@/lib/research/repoUrl";
+  AGENT_CWD,
+  CLAUDE_MD_PATH,
+  PLATFORM_DIR,
+  QUEUE_DIR,
+  RESEARCH_TOOL_PATH,
+  SANDBOX_HOME_DIR,
+  SUPERVISOR_PATH,
+} from "./sandboxLayout";
 
 /** Port the in-sandbox supervisor's HTTP server listens on. */
-const SUPERVISOR_PORT = 3000;
+const SUPERVISOR_PORT = 9280;
 
-/**
- * Port the in-sandbox auth-proxy listens on — the public entry point for a
- * coding conversation's dev server. Exposed only for sandboxes that run one.
- */
-const AUTH_PROXY_PORT = 3001;
+const AUTH_PROXY_PORT = 9281;
+
+const DEV_PORT = 9282;
 
 /**
  * Per-session Vercel `timeout`. This is the idle dead-man's switch: activity
@@ -54,6 +66,8 @@ export const SNAPSHOT_EXPIRATION_MS = 7 * 24 * 60 * 60 * 1000;
 const KEEP_LAST_SNAPSHOTS_COUNT = 1;
 
 const SANDBOX_NAME_PREFIX = "research-";
+
+const DEFAULT_RUNTIME = "node24";
 
 /** The persistent sandbox name for a conversation. Stable across sessions. */
 export function sandboxNameForConversation(conversationId: string): string {
@@ -92,11 +106,6 @@ export interface ProvisionedSandbox {
   supervisorUrl: string;
   /** Per-sandbox HMAC key, from the `ResearchSandboxSessions` row. */
   supervisorSecret: string;
-  /**
-   * Per-sandbox HMAC key for dev-preview tokens; non-null only for a coding
-   * conversation whose repo defines a dev server. `mintDevPreviewUrl` signs
-   * with it.
-   */
   devProxySecret: string | null;
   /**
    * True when this call freshly created the sandbox — either a brand-new
@@ -105,19 +114,7 @@ export interface ProvisionedSandbox {
    * to decide whether to ship a reconstructed Claude session.
    */
   wasFreshlyCreated: boolean;
-}
-
-/** The dev-server half of the launch env — set only for a coding conversation
- *  whose repo defines a `devCommand`. The port is chosen by the supervisor at
- *  runtime; it is not stored or shipped from the backend. */
-interface DevServerLaunchEnv {
-  command: string;
-  /** Working directory for the dev command — `dirname(lockfilePath)` in the clone. */
-  cwd: string;
-  /** Per-sandbox HMAC key for dev-preview tokens. */
-  proxySecret: string;
-  /** The repo's secrets, applied to the dev server's environment. */
-  repoEnv: Record<string, string>;
+  isFirstProvision: boolean;
 }
 
 interface SupervisorLaunchEnv {
@@ -126,12 +123,10 @@ interface SupervisorLaunchEnv {
   backendBaseUrl: string;
   userId: string;
   projectId: string;
+  conversationId: string;
   sandboxName: string;
   callbackToken: string;
-  /** Agent working directory — the repo root for a coding conversation. */
-  workspaceDir: string;
-  /** Present iff this is a coding conversation with a dev server. */
-  devServer: DevServerLaunchEnv | null;
+  devProxySecret: string;
 }
 
 function isNotFoundError(err: unknown): boolean {
@@ -150,6 +145,26 @@ function isSnapshotNotFoundError(err: unknown): boolean {
 }
 
 /**
+ * Overlay the current platform files into the sandbox. Run on every fresh
+ * provision and every resume, *before* launching the supervisor — so a snapshot
+ * taken with old platform code runs today's code. Only writes new files; it
+ * never removes old ones. The `{{RESEARCH_PROJECT_ID}}` placeholder in
+ * `CLAUDE.md` is left intact here and filled by the supervisor at boot (after
+ * this overlay, before any `claude` subprocess).
+ *
+ * The durable event queue under `~/.research/queue/` is **not** overlaid — it is
+ * durable state, not code.
+ */
+async function overlayPlatformFiles(sandbox: Sandbox): Promise<void> {
+  const assets = getPlatformAssets();
+  await sandbox.writeFiles([
+    { path: SUPERVISOR_PATH, content: assets.supervisorBundle },
+    { path: RESEARCH_TOOL_PATH, content: assets.researchTool, mode: 0o755 },
+    { path: CLAUDE_MD_PATH, content: assets.claudeMd },
+  ]);
+}
+
+/**
  * Launch the supervisor process inside the sandbox and wait for it to bind.
  *
  * Run on every fresh provision and every resume. Persistent sandboxes restore
@@ -159,28 +174,33 @@ function isSnapshotNotFoundError(err: unknown): boolean {
  */
 async function launchSupervisor(sandbox: Sandbox, env: SupervisorLaunchEnv): Promise<void> {
   const supervisorEnv: Record<string, string> = {
+    // Pin HOME so the supervisor's `homedir()` resolves to the SAME directory
+    // the backend overlays platform files into (SANDBOX_HOME_DIR). Without this,
+    // if the runtime image's default home isn't `/root`, the supervisor would
+    // read `~/.claude/CLAUDE.md` and derive the research-tool PATH from a
+    // different home than the overlay wrote to. (If `/root` isn't writable the
+    // overlay's `writeFiles` fails loudly — better than silent path divergence.)
+    HOME: SANDBOX_HOME_DIR,
     CLAUDE_CODE_OAUTH_TOKEN: env.claudeToken,
     SUPERVISOR_SECRET: env.supervisorSecret,
     BACKEND_BASE_URL: env.backendBaseUrl,
     SUPERVISOR_PORT: String(SUPERVISOR_PORT),
+    AUTH_PROXY_PORT: String(AUTH_PROXY_PORT),
+    DEV_PORT: String(DEV_PORT),
+    DEV_PROXY_SECRET: env.devProxySecret,
     USER_ID: env.userId,
     PROJECT_ID: env.projectId,
+    CONVERSATION_ID: env.conversationId,
     SANDBOX_ID: env.sandboxName,
     CALLBACK_TOKEN: env.callbackToken,
-    WORKSPACE_DIR: env.workspaceDir,
+    QUEUE_DIR,
+    INIT_SCRIPT_PATH: `${AGENT_CWD}/init.sh`,
   };
-  if (env.devServer) {
-    supervisorEnv.DEV_COMMAND = env.devServer.command;
-    supervisorEnv.DEV_CWD = env.devServer.cwd;
-    supervisorEnv.DEV_PROXY_SECRET = env.devServer.proxySecret;
-    supervisorEnv.AUTH_PROXY_PORT = String(AUTH_PROXY_PORT);
-    supervisorEnv.DEV_ENV_JSON = JSON.stringify(env.devServer.repoEnv);
-  }
   await sandbox.runCommand({
     cmd: "sh",
     args: [
       "-c",
-      "nohup setsid node /vercel/sandbox/supervisor.js > /vercel/sandbox/supervisor.log 2>&1 < /dev/null &",
+      `nohup setsid node ${SUPERVISOR_PATH} > ${PLATFORM_DIR}/supervisor.log 2>&1 < /dev/null &`,
     ],
     env: supervisorEnv,
   });
@@ -205,60 +225,37 @@ async function waitForSupervisorReady(endpointUrl: string): Promise<void> {
   );
 }
 
-/**
- * Resolve the user's Claude Code OAuth token from their `UserSecrets` rows.
- * The token is user-scoped — a global `UserSecrets` row, not per-project. If it
- * is unset we fail loudly rather than falling back to a process env var:
- * silently charging a shared backend token is a footgun in a multi-user
- * deployment.
- */
 async function resolveClaudeCodeToken(
   userId: string,
   context: ResolverContext,
 ): Promise<string> {
-  const row = await context.UserSecrets.findOne({
-    userId,
-    name: CLAUDE_CODE_OAUTH_TOKEN_SECRET,
-    repoScope: null,
-  });
-  if (!row) {
+  const user = await context.loaders.Users.load(userId);
+  const stored = user?.claudeCodeOAuthTokenEncrypted ?? null;
+  if (!stored) {
     throw new Error(
-      `Cannot provision sandbox: user ${userId} has no ${CLAUDE_CODE_OAUTH_TOKEN_SECRET} secret. ` +
+      `Cannot provision sandbox: user ${userId} has no Claude Code OAuth token. ` +
         `Set up your Claude Code token before starting a conversation.`,
     );
   }
-  return decryptUserSecret(row.encryptedValue);
+  return decryptUserSecret(stored);
 }
 
-interface CodingProvision {
-  workspaceRepo: DbWorkspaceRepo;
-  plan: CodingSnapshotPlan;
-}
-
-/**
- * Resolve the snapshot a conversation's sandbox is created from. A coding
- * conversation (one with a `workspaceRepoId`) sources from its repo's
- * install-cache snapshot — repo and dependencies baked in. An ordinary
- * conversation sources from the default runtime's baseline snapshot
- * (claude-code + supervisor + research-tool), built offline by `buildResearchSandboxSnapshot`.
- */
 async function resolveSnapshotSource(
   conversation: DbResearchConversation,
   context: ResolverContext,
-): Promise<{ snapshotId: string; codingProvision: CodingProvision | null }> {
-  if (conversation.workspaceRepoId) {
-    const workspaceRepo = await context.WorkspaceRepos.findOne({
-      _id: conversation.workspaceRepoId,
+): Promise<{ snapshotId: string }> {
+  if (conversation.baseEnvironmentId) {
+    const environment = await context.ResearchEnvironments.findOne({
+      _id: conversation.baseEnvironmentId,
     });
-    if (!workspaceRepo) {
+    if (!environment) {
       throw new Error(
-        `getOrCreateSandbox: workspace repo ${conversation.workspaceRepoId} not found`,
+        `getOrCreateSandbox: environment ${conversation.baseEnvironmentId} not found`,
       );
     }
-    const plan = await resolveCodingSnapshot(context, workspaceRepo);
-    return { snapshotId: plan.snapshotId, codingProvision: { workspaceRepo, plan } };
+    return { snapshotId: environment.vercelSnapshotId };
   }
-  const baselineRuntime = process.env.RESEARCH_DEFAULT_RUNTIME ?? "node24";
+  const baselineRuntime = conversation.runtime ?? DEFAULT_RUNTIME;
   const baseline = await context.SandboxBaselineSnapshots.findOne({ runtime: baselineRuntime });
   if (!baseline) {
     throw new Error(
@@ -266,7 +263,7 @@ async function resolveSnapshotSource(
         "Build one with `yarn research-supervisor-build && yarn research-sandbox-build-snapshot`.",
     );
   }
-  return { snapshotId: baseline.vercelSnapshotId, codingProvision: null };
+  return { snapshotId: baseline.vercelSnapshotId };
 }
 
 /**
@@ -302,6 +299,7 @@ export async function getOrCreateSandbox(
         supervisorSecret: existingRow.supervisorSecret,
         devProxySecret: existingRow.devProxySecret,
         wasFreshlyCreated: false,
+        isFirstProvision: false,
       };
     }
   }
@@ -321,41 +319,14 @@ export async function getOrCreateSandbox(
     resolveClaudeCodeToken(conversation.userId, context),
     resolveSnapshotSource(conversation, context),
   ]);
-  const { snapshotId, codingProvision } = snapshotSource;
+  const { snapshotId } = snapshotSource;
   const supervisorSecret = existingRow?.supervisorSecret ?? randomSecret();
-
-  // Coding conversations run the agent in the repo clone; ordinary ones in the
-  // sandbox root.
-  const workspaceRepo = codingProvision?.workspaceRepo ?? null;
-  const workspaceDir = codingProvision ? REPO_DIR : "/vercel/sandbox";
-
-  // A coding repo with a `devCommand` additionally runs a dev server +
-  // auth-proxy: that needs a per-sandbox HMAC secret and the repo's secrets as
-  // the dev server's environment. The supervisor picks the dev server's
-  // localhost port at runtime, so the backend ships no port.
-  let devServerEnv: DevServerLaunchEnv | null = null;
-  let devProxySecret: string | null = null;
-  if (workspaceRepo && workspaceRepo.devCommand) {
-    devProxySecret = existingRow?.devProxySecret ?? randomSecret();
-    // Backfill the secret onto a session row that predates it, so a resume's
-    // token signing matches the secret the supervisor is launched with.
-    if (existingRow && !existingRow.devProxySecret) {
-      await ResearchSandboxSessions.rawUpdateOne(
-        { _id: existingRow._id },
-        { $set: { devProxySecret } },
-      );
-    }
-    const repoScope = repoScopeOf({
-      host: workspaceRepo.host,
-      owner: workspaceRepo.owner,
-      name: workspaceRepo.name,
-    });
-    devServerEnv = {
-      command: workspaceRepo.devCommand,
-      cwd: repoCommandCwd(workspaceRepo.lockfilePath),
-      proxySecret: devProxySecret,
-      repoEnv: await collectRepoEnvSecrets(context, conversation.userId, repoScope),
-    };
+  const devProxySecret = existingRow?.devProxySecret ?? randomSecret();
+  if (existingRow && !existingRow.devProxySecret) {
+    await ResearchSandboxSessions.rawUpdateOne(
+      { _id: existingRow._id },
+      { $set: { devProxySecret } },
+    );
   }
 
   const callbackToken = mintSupervisorCallbackToken({
@@ -370,29 +341,21 @@ export async function getOrCreateSandbox(
     backendBaseUrl,
     userId: conversation.userId,
     projectId: conversation.projectId,
+    conversationId,
     sandboxName,
     callbackToken,
-    workspaceDir,
-    devServer: devServerEnv,
+    devProxySecret,
   };
 
   let wasFreshlyCreated = false;
 
   const onResume = async (sandbox: Sandbox) => {
+    await overlayPlatformFiles(sandbox);
     await launchSupervisor(sandbox, launchEnv);
   };
   const onCreate = async (sandbox: Sandbox) => {
     wasFreshlyCreated = true;
-    // For a coding conversation, bring the repo to HEAD, reconcile dependencies
-    // if the install cache was stale, and run `prepareCommand` — once, here. A
-    // later resume restores this from the auto-snapshot and does not repeat it.
-    if (codingProvision) {
-      await runCodingFirstProvision(sandbox, {
-        workspaceRepo: codingProvision.workspaceRepo,
-        token: codingProvision.plan.token,
-        isStale: codingProvision.plan.isStale,
-      });
-    }
+    await overlayPlatformFiles(sandbox);
     await launchSupervisor(sandbox, launchEnv);
     // Insert the row only for a brand-new conversation. A rebuild (expired
     // snapshot) re-enters this path with the row already present.
@@ -421,8 +384,7 @@ export async function getOrCreateSandbox(
     // runtime it forwards `source` to `Sandbox.create` unchanged, which does
     // accept a snapshot source. Cast until the SDK widens the type.
     source: { type: "snapshot", snapshotId } as unknown as NonNullable<Parameters<typeof Sandbox.getOrCreate>[0]>["source"],
-    // A dev-server sandbox exposes the auth-proxy port as well.
-    ports: devServerEnv ? [SUPERVISOR_PORT, AUTH_PROXY_PORT] : [SUPERVISOR_PORT],
+    ports: [SUPERVISOR_PORT, AUTH_PROXY_PORT],
     timeout: SESSION_TIMEOUT_MS,
     resources: { vcpus: 2 },
     persistent: true,
@@ -441,6 +403,7 @@ export async function getOrCreateSandbox(
     supervisorSecret,
     devProxySecret,
     wasFreshlyCreated,
+    isFirstProvision: !existingRow,
   };
 }
 

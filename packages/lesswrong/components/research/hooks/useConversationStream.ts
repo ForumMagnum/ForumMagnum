@@ -34,11 +34,20 @@ interface UseConversationStreamResult {
   refresh: () => void;
   // Optimistic local-only insert (seq < 0); dropped once its persisted twin lands.
   injectOptimisticEvent: (event: ConversationEvent) => void;
+  clearOptimistic: () => void;
+  // Signal that a turn was just dispatched for this conversation, so the live
+  // stream opens immediately — before the first event is persisted. With the
+  // single-writer design the user turn isn't persisted until Claude echoes it,
+  // so `isTurnInFlight(events)` is briefly false on the first turn; without this
+  // the stream would close into slow polling and the turn would look idle.
+  markTurnExpected: () => void;
 }
 
 // How often to refetch while idle, to notice a turn started elsewhere (another
 // tab/device) and re-open the live stream.
 const IDLE_POLL_MS = 15_000;
+
+const EXPECTING_TURN_TIMEOUT_MS = 120_000;
 
 const ResearchConversationTranscriptQuery = gql(`
   query ResearchConversationTranscript($conversationId: String!, $since: Int) {
@@ -86,9 +95,12 @@ export function useConversationStream(
   // history; the cache owns everything real.
   const [optimistic, setOptimistic] = useState<ConversationEvent[]>([]);
   const [connectionStatus, setConnectionStatus] = useState<StreamStatus>('idle');
+  const [expectingTurn, setExpectingTurn] = useState(false);
+  const expectingTurnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const events = useMemo(() => [...persisted, ...optimistic], [persisted, optimistic]);
   const turnInFlight = useMemo(() => isTurnInFlight(events), [events]);
+  const streamShouldBeOpen = turnInFlight || expectingTurn;
 
   const latestSeq = useMemo(() => {
     let max = -1;
@@ -109,9 +121,17 @@ export function useConversationStream(
   );
   const prevUserCountRef = useRef(persistedUserCount);
   useEffect(() => {
-    if (persistedUserCount > prevUserCountRef.current) setOptimistic([]);
+    if (persistedUserCount > prevUserCountRef.current) {
+      setOptimistic([]);
+      setExpectingTurn(false);
+    }
     prevUserCountRef.current = persistedUserCount;
   }, [persistedUserCount]);
+
+  useEffect(() => {
+    setExpectingTurn(false);
+    if (expectingTurnTimerRef.current) clearTimeout(expectingTurnTimerRef.current);
+  }, [conversationId]);
 
   // Live stream lifecycle: hold the SSE open while a turn is in flight; when
   // idle, close it and slow-poll (refetch) to notice a turn started elsewhere.
@@ -122,7 +142,7 @@ export function useConversationStream(
     }
     const id = conversationId;
 
-    if (!turnInFlight) {
+    if (!streamShouldBeOpen) {
       setConnectionStatus('idle');
       const poll = setInterval(() => { void refetchRef.current(); }, IDLE_POLL_MS);
       return () => clearInterval(poll);
@@ -147,10 +167,25 @@ export function useConversationStream(
     };
 
     return () => es.close();
-  }, [conversationId, turnInFlight, apollo]);
+  }, [conversationId, streamShouldBeOpen, apollo]);
 
   const injectOptimisticEvent = useCallback((event: ConversationEvent) => {
     setOptimistic((prev) => [...prev, event]);
+  }, []);
+
+  const clearOptimistic = useCallback(() => {
+    setOptimistic([]);
+    setExpectingTurn(false);
+    if (expectingTurnTimerRef.current) clearTimeout(expectingTurnTimerRef.current);
+  }, []);
+
+  const markTurnExpected = useCallback(() => {
+    setExpectingTurn(true);
+    if (expectingTurnTimerRef.current) clearTimeout(expectingTurnTimerRef.current);
+    expectingTurnTimerRef.current = setTimeout(
+      () => setExpectingTurn(false),
+      EXPECTING_TURN_TIMEOUT_MS,
+    );
   }, []);
 
   const refresh = useCallback(() => { void refetchRef.current(); }, []);
@@ -169,6 +204,8 @@ export function useConversationStream(
     latestSeq,
     refresh,
     injectOptimisticEvent,
+    clearOptimistic,
+    markTurnExpected,
   };
 }
 

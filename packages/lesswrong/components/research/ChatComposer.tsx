@@ -94,7 +94,15 @@ const ChatComposer = ({
       if (!isEmpty) promptHtml = $generateHtmlFromNodes(editor, null);
     });
     if (isEmpty) return;
-    await onSubmit(promptHtml);
+    // Clear the editor only once the send succeeds. On a dispatch failure
+    // `onSubmit` rethrows (the user turn isn't persisted until Claude echoes
+    // it, so a lost prompt would be lost for good) — keep the prompt so the
+    // user can re-send. `onSubmit` surfaces the error to the user itself.
+    try {
+      await onSubmit(promptHtml);
+    } catch {
+      return;
+    }
     editor.update(() => {
       $getRoot().clear();
     });

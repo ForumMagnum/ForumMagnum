@@ -89,10 +89,24 @@ const schema = {
       canCreate: ["members"],
     },
   },
-  workspaceRepoId: {
+  baseEnvironmentId: {
     database: {
       type: "VARCHAR(27)",
-      foreignKey: "WorkspaceRepos",
+      foreignKey: "ResearchEnvironments",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      inputType: "String",
+      canRead: [userOwns, "admins"],
+      canUpdate: ["admins"],
+      canCreate: ["members"],
+      validation: { optional: true },
+    },
+  },
+  runtime: {
+    database: {
+      type: "TEXT",
       nullable: true,
     },
     graphql: {

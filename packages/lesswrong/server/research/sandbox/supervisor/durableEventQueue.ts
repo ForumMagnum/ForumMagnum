@@ -16,9 +16,14 @@
  *   <dir>/<conversationId>.cursor   last acked localId (plain integer text)
  *
  * `localId` is a per-conversation monotonic counter assigned at append time and
- * persisted in each line. It never resets or repeats within a log (we don't
- * compact), so the post-persister can derive a stable idempotency key from it
- * for events that lack a Claude message UUID.
+ * persisted in each line. It must never reset or repeat within a conversation's
+ * lifetime, so the post-persister can derive a stable idempotency key
+ * (`sup:<localId>`) from it for events that lack a Claude message UUID. Because
+ * the log is compacted (entries at/under the acked cursor are dropped), the
+ * counter is seeded from `max(maxLocalId, cursor) + 1` — seeding from the log's
+ * max alone would reset to 1 once compaction empties the log and re-issue
+ * `sup:1, sup:2, …`, which the backend would dedup against already-persisted
+ * ids, silently dropping genuinely new events.
  *
  * Durability note: appends use `appendFileSync` (a single write of one line) but
  * not `fsync`. That's sufficient for the dominant failure mode (backend
@@ -47,13 +52,18 @@ export interface DurableEventQueue {
   append(conversationId: string, event: BackendEvent): QueuedEntry;
   /** Un-acked entries (localId > cursor) in ascending localId order. */
   pending(conversationId: string): QueuedEntry[];
+  pendingCount(): number;
   /** Advance the persisted acked cursor to `localId` and drop acked entries from memory. */
   ack(conversationId: string, localId: number): void;
   /**
-   * Load all on-disk logs into memory (call once at boot). Returns the
-   * conversationIds that have un-acked entries needing a drain.
+   * Load this sandbox's own conversation log into memory (call once at boot).
+   * Returns whether it has un-acked entries needing a drain. **Conversation-
+   * scoped**: a forked child's snapshot physically contains the *source's* queue
+   * files, so an unscoped recovery could re-ship the source's events
+   * (cross-conversation injection). We only ever recover the sandbox's own
+   * conversation.
    */
-  recover(): string[];
+  recover(conversationId: string): boolean;
 }
 
 interface ConvState {
@@ -63,7 +73,10 @@ interface ConvState {
   nextLocalId: number;
   /** Last acked localId. */
   cursor: number;
+  compactedAtCursor: number;
 }
+
+const COMPACT_THRESHOLD = 64;
 
 // conversationIds are `randomId()` output (alphanumeric); validated so they're
 // safe to use directly as filenames and can't escape the queue dir.
@@ -132,6 +145,13 @@ export function createDurableEventQueue(config: DurableEventQueueConfig): Durabl
     return entries;
   }
 
+  function compact(conversationId: string, pending: QueuedEntry[]): void {
+    const body = pending.map((e) => `${JSON.stringify(e)}\n`).join("");
+    const tmp = `${logPath(conversationId)}.tmp`;
+    fs.writeFileSync(tmp, body, "utf8");
+    fs.renameSync(tmp, logPath(conversationId));
+  }
+
   function load(conversationId: string): ConvState {
     const existing = states.get(conversationId);
     if (existing) return existing;
@@ -141,8 +161,9 @@ export function createDurableEventQueue(config: DurableEventQueueConfig): Durabl
     const maxLocalId = all.reduce((m, e) => Math.max(m, e.localId), 0);
     const state: ConvState = {
       pending: all.filter((e) => e.localId > cursor),
-      nextLocalId: maxLocalId + 1,
+      nextLocalId: Math.max(maxLocalId, cursor) + 1,
       cursor,
+      compactedAtCursor: cursor,
     };
     states.set(conversationId, state);
     return state;
@@ -161,26 +182,30 @@ export function createDurableEventQueue(config: DurableEventQueueConfig): Durabl
       return [...load(conversationId).pending];
     },
 
+    pendingCount() {
+      let total = 0;
+      for (const state of states.values()) total += state.pending.length;
+      return total;
+    },
+
     ack(conversationId, localId) {
       const state = load(conversationId);
       if (localId <= state.cursor) return;
       state.cursor = localId;
       writeCursor(conversationId, localId);
       state.pending = state.pending.filter((e) => e.localId > localId);
+      // Order matters: the cursor is advanced (and fsync-renamed)
+      // first, so a crash before compaction just leaves acked entries the next
+      // load filters out by cursor; never the reverse.
+      if (state.pending.length === 0 || state.cursor - state.compactedAtCursor >= COMPACT_THRESHOLD) {
+        compact(conversationId, state.pending);
+        state.compactedAtCursor = state.cursor;
+      }
     },
 
-    recover() {
-      // `dir` is created in the constructor, so this read is safe; a genuine fs
-      // failure here should surface rather than masquerade as "no pending work".
-      const files = fs.readdirSync(dir);
-      const needDrain: string[] = [];
-      for (const file of files) {
-        if (!file.endsWith(".ndjson")) continue;
-        const conversationId = file.slice(0, -".ndjson".length);
-        if (!CONVERSATION_ID_RE.test(conversationId)) continue;
-        if (load(conversationId).pending.length > 0) needDrain.push(conversationId);
-      }
-      return needDrain;
+    recover(conversationId) {
+      assertValidConversationId(conversationId);
+      return load(conversationId).pending.length > 0;
     },
   };
 }

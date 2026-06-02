@@ -48,7 +48,7 @@ const eventKindSchema = z.enum([
 const postBodySchema = z.object({
   rawJsonl: z.string().min(1),
   kind: eventKindSchema,
-  claudeMessageUuid: z.string().nullable(),
+  claudeMessageUuid: z.string().min(1),
   claudeSessionId: z.string().optional(),
   supervisorEmittedAt: z.string().datetime().optional(),
 });

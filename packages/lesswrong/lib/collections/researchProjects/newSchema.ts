@@ -45,20 +45,6 @@ const schema = {
       validation: { optional: true },
     },
   },
-  defaultWorkspaceRepoId: {
-    database: {
-      type: "VARCHAR(27)",
-      foreignKey: "WorkspaceRepos",
-      nullable: true,
-    },
-    graphql: {
-      outputType: "String",
-      canRead: [userOwns, "admins"],
-      canUpdate: [userOwns, "admins"],
-      canCreate: ["members"],
-      validation: { optional: true },
-    },
-  },
   // Free-form until specific fields earn schema slots.
   settings: {
     database: {

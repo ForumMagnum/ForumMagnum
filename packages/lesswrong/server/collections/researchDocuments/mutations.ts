@@ -7,12 +7,8 @@ import { assignUserIdToData, insertAndReturnDocument, updateAndReturnDocument } 
 import gql from "graphql-tag";
 import { bootstrapResearchDocumentYjsState } from "@/server/research/bootstrapResearchDocument";
 
-async function newCheck(user: DbUser | null, document: { projectId?: string } | null, context: ResolverContext) {
-  if (!user || !document?.projectId) return false;
-  if (userIsAdmin(user)) return true;
-  // The user must own the parent project to create a document under it.
-  const project = await context.ResearchProjects.findOne({ _id: document.projectId });
-  return !!project && userOwns(user, project);
+function newCheck(user: DbUser | null) {
+  return userIsAdmin(user);
 }
 
 function editCheck(user: DbUser | null, document: DbResearchDocument | null) {
@@ -23,7 +19,6 @@ function editCheck(user: DbUser | null, document: DbResearchDocument | null) {
 export async function createResearchDocument({ data }: CreateResearchDocumentInput, context: ResolverContext) {
   const { currentUser } = context;
   if (!currentUser) throw new Error("Not logged in");
-  if (!data.projectId) throw new Error("projectId required");
   assignUserIdToData(data, currentUser, schema);
 
   const documentWithId = await insertAndReturnDocument({

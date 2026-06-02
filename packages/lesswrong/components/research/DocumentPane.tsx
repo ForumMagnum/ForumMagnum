@@ -54,7 +54,8 @@ const FireDocumentConversationMutation = gql(`
     $projectId: String!
     $activeDocumentId: String!
     $promptHtml: String!
-    $workspaceRepoId: String
+    $baseEnvironmentId: String
+    $runtime: String
   ) {
     fireResearchConversation(
       input: {
@@ -63,7 +64,8 @@ const FireDocumentConversationMutation = gql(`
         kind: document
         activeDocumentId: $activeDocumentId
         promptHtml: $promptHtml
-        workspaceRepoId: $workspaceRepoId
+        baseEnvironmentId: $baseEnvironmentId
+        runtime: $runtime
       }
     ) {
       conversationId
@@ -140,7 +142,8 @@ const DocumentPane = ({ projectId, documentId, onOpenConversationInChat, onSelec
             projectId,
             activeDocumentId: args.documentId,
             promptHtml: args.promptHtml,
-            workspaceRepoId: args.workspaceRepoId ?? null,
+            baseEnvironmentId: args.baseEnvironmentId,
+            runtime: args.runtime,
           },
         });
         const conversationId = result.data?.fireResearchConversation?.conversationId;
@@ -167,8 +170,8 @@ const DocumentPane = ({ projectId, documentId, onOpenConversationInChat, onSelec
 
   const researchEditorEnvironment = useMemo<ResearchEditorEnvironment | null>(() => {
     if (!documentId) return null;
-    return { documentId, fireDocumentQuery };
-  }, [documentId, fireDocumentQuery]);
+    return { documentId, projectId, fireDocumentQuery };
+  }, [documentId, projectId, fireDocumentQuery]);
 
   const researchNavigationContext = useMemo<ResearchNavigationContextValue | null>(() => {
     if (!documentId) return null;

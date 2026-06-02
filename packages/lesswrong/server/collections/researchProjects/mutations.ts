@@ -8,7 +8,7 @@ import { createResearchDocument } from "@/server/collections/researchDocuments/m
 import gql from "graphql-tag";
 
 function newCheck(user: DbUser | null) {
-  return !!user;
+  return userIsAdmin(user);
 }
 
 function editCheck(user: DbUser | null, document: DbResearchProject | null) {
@@ -25,7 +25,6 @@ export async function createResearchProject({ data }: CreateResearchProjectInput
     userId: currentUser._id,
     title: data.title,
     description: data.description ?? null,
-    defaultWorkspaceRepoId: data.defaultWorkspaceRepoId ?? null,
     settings: data.settings ?? null,
   }, 'ResearchProjects', context);
 

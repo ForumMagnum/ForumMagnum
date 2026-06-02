@@ -1,47 +1,58 @@
 /**
  * Supervisor entrypoint. This module is the program that runs **inside** the
- * sandbox — sandboxManager copies the supervisor source in (via `sandbox.writeFiles`
- * or a git source) and starts it with `node /vercel/sandbox/supervisor.js`.
+ * sandbox — the backend overlays the bundled supervisor at `~/.research/supervisor.js`
+ * at every launch and starts it with `node ~/.research/supervisor.js`.
  *
  * Wires together:
  *  - HTTP server  (`./server.ts`) — auth-gated endpoints
  *  - Conversation hub (`./conversationHub.ts`) — per-conversation Claude runner
  *  - Post persister (`./postPersister.ts`) — durable per-event POSTs with retry
  *  - Heartbeat (`./heartbeat.ts`) — periodic /sandboxes/:id/heartbeat
+ *  - Auth-proxy (`./authProxy.ts`) — always-on, fronts the dev server
  *
- * Required env (injected by sandboxManager at create time):
+ * Required env (injected by sandboxManager at launch):
  *  - SUPERVISOR_SECRET    — HMAC key for inbound auth
  *  - SANDBOX_ID           — Vercel Sandbox id
  *  - BACKEND_BASE_URL     — origin to POST to (events, heartbeats)
- *  - SUPERVISOR_PORT      — port to listen on (default 3000)
+ *  - SUPERVISOR_PORT      — port to listen on (9280)
+ *  - AUTH_PROXY_PORT      — auth-proxy public port (9281)
+ *  - DEV_PORT             — fixed dev-server port, exported to init.sh as PORT (9282)
+ *  - DEV_PROXY_SECRET     — HMAC key for dev-preview tokens
  *  - USER_ID, PROJECT_ID  — for context / heartbeat metadata
- *  - CALLBACK_TOKEN       — JWT minted by the backend (mintSandboxCallbackToken),
- *                           sent as Bearer on supervisor → backend POSTs
+ *  - CONVERSATION_ID      — this sandbox's conversation (scopes queue recovery)
+ *  - CALLBACK_TOKEN       — JWT minted by the backend, sent as Bearer on supervisor → backend POSTs
  *  - CLAUDE_CODE_OAUTH_TOKEN — passed through to claude subprocesses
+ *  - QUEUE_DIR            — durable event-queue directory (~/.research/queue)
+ *  - INIT_SCRIPT_PATH     — per-boot script path (/vercel/sandbox/init.sh)
  */
 import * as fs from "node:fs";
+import { homedir } from "node:os";
+import * as path from "node:path";
+import { spawn } from "node:child_process";
 import type { Server } from "node:http";
-import { createServer as createNetServer } from "node:net";
 import { createConversationHub } from "./conversationHub";
-import { createPostPersister } from "./postPersister";
+import { createPostPersister, PostPersister } from "./postPersister";
 import { startSupervisor, SupervisorDeps } from "./server";
 import { startHeartbeat } from "./heartbeat";
-import { startDevServer, DevServerHandle } from "./devServer";
+import { startDevPortProbe } from "./devServer";
 import { startAuthProxy } from "./authProxy";
 
-const CLAUDE_MD_PATH = "/vercel/sandbox/CLAUDE.md";
+const CLAUDE_MD_PATH = path.join(homedir(), ".claude", "CLAUDE.md");
 
-/** Where the in-sandbox agent runs `claude` — the repo root for a coding conversation. */
-const DEFAULT_WORKSPACE_DIR = "/vercel/sandbox";
+/** Where the in-sandbox agent runs `claude`. */
+const AGENT_CWD = "/vercel/sandbox";
+
+// init.sh runs non-blocking (it doesn't gate boot or the agent's turn), so this
+// is only a hung-process reaper, not a latency budget. Allow several minutes so a
+// legitimate per-boot dependency reconcile (`npm install` after a pull whose
+// lockfile changed) can finish — the dev-server start comes after it.
+const INIT_SCRIPT_TIMEOUT_MS = 5 * 60 * 1000;
 
 /**
- * Substitute the `{{RESEARCH_PROJECT_ID}}` placeholder (and any other
- * provisioning-time placeholders we add later) in the agent's CLAUDE.md so
- * Claude Code's auto-loaded system prompt knows what project the agent is
- * scoped to. The shipped file in the snapshot has the literal placeholder;
- * we rewrite it once at supervisor boot, before any `claude` subprocess
- * starts. Best-effort: a missing or unwritable file just logs and
- * continues — the agent loses the project-id hint but otherwise works.
+ * Substitute the `{{RESEARCH_PROJECT_ID}}` placeholder in the agent's CLAUDE.md
+ * so Claude Code's auto-loaded system prompt knows what project the agent is
+ * scoped to. Run at boot, *after* the backend's overlay write and *before* any
+ * `claude` subprocess. Best-effort: a missing/unwritable file just logs.
  */
 function fillClaudeMdTemplate(env: { projectId: string }): void {
   try {
@@ -56,96 +67,20 @@ function fillClaudeMdTemplate(env: { projectId: string }): void {
   }
 }
 
-/**
- * The dev-server half of the env, present only for a coding conversation whose
- * repo defines a `devCommand`. The dev server's localhost port is chosen here
- * at runtime — not stored in the repo config — and forced into the spawned
- * command via `PORT=<chosen>`.
- */
-interface DevServerEnv {
-  command: string;
-  cwd: string;
-  proxySecret: string;
-  authProxyPort: number;
-  /** The repo's `.env` values, injected by the backend at launch. */
-  extraEnv: Record<string, string>;
-}
-
 interface SupervisorEnv {
   supervisorSecret: string;
   sandboxId: string;
   backendBaseUrl: string;
   port: number;
+  authProxyPort: number;
+  devPort: number;
+  devProxySecret: string;
   userId: string;
   projectId: string;
+  conversationId: string;
   callbackToken: string;
-  /** Agent working directory — the repo root for a coding conversation. */
-  workspaceDir: string;
-  /** Present iff this is a coding conversation with a dev server. */
-  devServer: DevServerEnv | null;
-}
-
-/** Parse `DEV_ENV_JSON` (a JSON object of repo `.env` values) defensively. */
-function readDevExtraEnv(): Record<string, string> {
-  const raw = process.env.DEV_ENV_JSON;
-  if (!raw) return {};
-  try {
-    const parsed: unknown = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") return {};
-    const out: Record<string, string> = {};
-    for (const [k, v] of Object.entries(parsed)) {
-      if (typeof v === "string") out[k] = v;
-    }
-    return out;
-  } catch {
-    // eslint-disable-next-line no-console
-    console.warn("[supervisor] DEV_ENV_JSON was not valid JSON — ignoring");
-    return {};
-  }
-}
-
-/** Read the optional dev-server env; null unless every required field is set. */
-function readDevServerEnv(workspaceDir: string): DevServerEnv | null {
-  const command = process.env.DEV_COMMAND;
-  const proxySecret = process.env.DEV_PROXY_SECRET;
-  const authProxyPort = Number(process.env.AUTH_PROXY_PORT);
-  if (!command || !proxySecret || !Number.isFinite(authProxyPort)) {
-    return null;
-  }
-  return {
-    command,
-    cwd: process.env.DEV_CWD || workspaceDir,
-    proxySecret,
-    authProxyPort,
-    extraEnv: readDevExtraEnv(),
-  };
-}
-
-/**
- * Reserve an ephemeral port on `127.0.0.1` by opening and immediately closing a
- * listener: the OS hands back the port it would have assigned, which we then
- * pass to the spawned dev server via `PORT`. There is a small race between the
- * close and the dev server's bind; we accept it because the alternative —
- * holding the listener open across the dev server's spawn — would itself block
- * the dev server from binding. On collision the dev server's spawn fails and
- * its `child.on("exit")` restart loop tries again, so the race is self-healing.
- */
-function pickEphemeralPort(): Promise<number> {
-  return new Promise((resolve, reject) => {
-    const srv = createNetServer();
-    srv.unref();
-    srv.once("error", reject);
-    srv.listen(0, "127.0.0.1", () => {
-      const addr = srv.address();
-      if (addr === null || typeof addr === "string") {
-        srv.close();
-        reject(new Error("could not determine ephemeral port"));
-        return;
-      }
-      const port = addr.port;
-      srv.close((err) => (err ? reject(err) : resolve(port)));
-    });
-  });
+  queueDir: string;
+  initScriptPath: string;
 }
 
 function readEnv(): SupervisorEnv {
@@ -154,18 +89,102 @@ function readEnv(): SupervisorEnv {
     if (!v) throw new Error(`supervisor: missing required env ${k}`);
     return v;
   };
-  const workspaceDir = process.env.WORKSPACE_DIR || DEFAULT_WORKSPACE_DIR;
   return {
     supervisorSecret: required("SUPERVISOR_SECRET"),
     sandboxId: required("SANDBOX_ID"),
     backendBaseUrl: required("BACKEND_BASE_URL"),
-    port: Number(process.env.SUPERVISOR_PORT ?? "3000"),
+    port: Number(process.env.SUPERVISOR_PORT ?? "9280"),
+    authProxyPort: Number(process.env.AUTH_PROXY_PORT ?? "9281"),
+    devPort: Number(process.env.DEV_PORT ?? "9282"),
+    devProxySecret: required("DEV_PROXY_SECRET"),
     userId: required("USER_ID"),
     projectId: required("PROJECT_ID"),
+    conversationId: required("CONVERSATION_ID"),
     callbackToken: required("CALLBACK_TOKEN"),
-    workspaceDir,
-    devServer: readDevServerEnv(workspaceDir),
+    queueDir: process.env.QUEUE_DIR || path.join(homedir(), ".research", "queue"),
+    initScriptPath: process.env.INIT_SCRIPT_PATH || `${AGENT_CWD}/init.sh`,
   };
+}
+
+function runInitScript(env: SupervisorEnv, surfaceSystem: (text: string) => void): void {
+  if (!fs.existsSync(env.initScriptPath)) return;
+  const initEnv: NodeJS.ProcessEnv = {
+    NODE_ENV: process.env.NODE_ENV,
+    PORT: String(env.devPort),
+    PATH: `${path.join(homedir(), ".research", "bin")}:${process.env.PATH ?? ""}`,
+    HOME: homedir(),
+  };
+  const child = spawn("sh", [env.initScriptPath], {
+    cwd: AGENT_CWD,
+    env: initEnv,
+    stdio: ["ignore", "ignore", "pipe"],
+  });
+  let stderr = "";
+  child.stderr.setEncoding("utf8");
+  child.stderr.on("data", (chunk: string) => {
+    stderr += chunk;
+    if (stderr.length > 16_000) stderr = stderr.slice(-16_000);
+  });
+  const timer = setTimeout(() => {
+    // eslint-disable-next-line no-console
+    console.warn(`[supervisor] init.sh timed out after ${INIT_SCRIPT_TIMEOUT_MS}ms; continuing`);
+    child.kill("SIGTERM");
+  }, INIT_SCRIPT_TIMEOUT_MS);
+  timer.unref();
+  child.on("error", (err) => {
+    clearTimeout(timer);
+    surfaceSystem(`init.sh failed to start: ${err.message}`);
+  });
+  child.on("close", (code, signal) => {
+    clearTimeout(timer);
+    // Surface a system event only on a genuine failure (non-zero exit or a
+    // timeout kill). `init.sh` runs on *every* resume and benign steps (git pull
+    // progress, dep/deprecation warnings, dev-server banners) write to stderr
+    // without failing — surfacing those would spam the transcript on every boot.
+    // Include the stderr tail when we do surface, since that's where the cause is.
+    if (code !== 0 || signal) {
+      const trimmed = stderr.trim();
+      surfaceSystem(
+        `init.sh ${signal ? `killed (${signal})` : `exited (code ${code})`}` +
+          (trimmed ? `\n${trimmed}` : ""),
+      );
+    }
+  });
+}
+
+async function selfHealDanglingTurn(
+  env: SupervisorEnv,
+  postPersister: PostPersister,
+  isTurnRunning: () => boolean,
+): Promise<void> {
+  try {
+    const url = `${env.backendBaseUrl}/api/research/agent/conversations/${encodeURIComponent(
+      env.conversationId,
+    )}/transcript?danglingCheck=1`;
+    const res = await fetch(url, { headers: { Authorization: `Bearer ${env.callbackToken}` } });
+    if (!res.ok) return;
+    const body = (await res.json()) as { incompleteTurn?: unknown };
+    if (body.incompleteTurn !== true) return;
+    // Re-check AFTER the (async) fetch: if a turn is now actually running in this
+    // supervisor, the "incomplete" turn is the live just-dispatched one, not an
+    // orphan — emitting a synthetic terminal would falsely close it. Skip.
+    if (isTurnRunning()) return;
+    const line = JSON.stringify({
+      type: "result",
+      subtype: "interrupted",
+      is_error: true,
+      result: "Turn interrupted by a sandbox restart.",
+    });
+    postPersister.enqueue(env.conversationId, {
+      rawJsonl: line,
+      kind: "result",
+      claudeMessageUuid: null,
+      supervisorEmittedAt: new Date().toISOString(),
+    });
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn(`[supervisor] dangling-turn self-heal failed: ${(err as Error).message}`);
+  }
 }
 
 export async function bootSupervisor() {
@@ -175,15 +194,25 @@ export async function bootSupervisor() {
   const postPersister = createPostPersister({
     backendBaseUrl: env.backendBaseUrl,
     authToken: env.callbackToken,
+    conversationId: env.conversationId,
+    queueDir: env.queueDir,
   });
 
   const hub = createConversationHub({ postPersister });
 
   // Resume shipping any events a prior session durably queued but never got an
-  // ack for (tunnel was down, or the supervisor stopped mid-drain). The queue
-  // and its acked cursor live on the snapshotted sandbox disk, so a resume into
-  // a restored snapshot picks up exactly where the last session left off.
+  // ack for. Scoped to this sandbox's own conversation, so a forked child can't
+  // re-ship the source conversation's inherited queue files.
   postPersister.recover();
+
+  const surfaceSystem = (text: string) => {
+    postPersister.enqueue(env.conversationId, {
+      rawJsonl: JSON.stringify({ type: "system", subtype: "supervisor", text }),
+      kind: "system",
+      claudeMessageUuid: null,
+      supervisorEmittedAt: new Date().toISOString(),
+    });
+  };
 
   const deps: SupervisorDeps = {
     env: {
@@ -211,23 +240,17 @@ export async function bootSupervisor() {
           bootstrapJsonl: req.bootstrapJsonl,
         },
         {
-          // The repo root for a coding conversation, `/vercel/sandbox` otherwise.
-          // This is the *actual* working directory the claude subprocess starts
-          // in — and also the cwd the session-bootstrap JSONL path is derived
-          // from, so `--resume` finds the synthesized history on a fresh sandbox.
-          cwd: env.workspaceDir,
+          // The cwd the claude subprocess starts in — also the cwd the
+          // session-bootstrap JSONL path is derived from, so `--resume` finds
+          // the synthesized history on a fresh sandbox.
+          cwd: AGENT_CWD,
           env: {
-            // Put `/vercel/sandbox/bin` (where buildResearchSandboxSnapshot drops the
-            // research-tool binary) ahead of the system PATH so the agent can
-            // invoke `research-tool ...` directly from Bash. We can't install
-            // to /usr/local/bin from the snapshot builder (no root on tarball
-            // extract), so this is how the binary becomes "on PATH".
-            PATH: `/vercel/sandbox/bin:${process.env.PATH ?? ""}`,
+            // Put `~/.research/bin` (where the overlay drops the research-tool
+            // binary) ahead of the system PATH so the agent can invoke
+            // `research-tool ...` directly from Bash.
+            PATH: `${path.join(homedir(), ".research", "bin")}:${process.env.PATH ?? ""}`,
             // research-tool's required env. The token is the *agent-scoped*
-            // sandbox-callback bearer the backend mints per dispatch — the
-            // supervisor's own CALLBACK_TOKEN would 403 on every document /
-            // conversation endpoint (those require an agent scope tied to the
-            // current conversationId).
+            // sandbox-callback bearer the backend mints per dispatch.
             RESEARCH_BACKEND_BASE_URL: env.backendBaseUrl,
             RESEARCH_BACKEND_TOKEN: req.agentBackendToken,
             RESEARCH_PROJECT_ID: env.projectId,
@@ -236,40 +259,39 @@ export async function bootSupervisor() {
       );
     },
     cancelTurn: (id) => hub.cancel(id),
-    getStateSnapshot: () => hub.snapshot(),
+    getStateSnapshot: () => {
+      const snap = hub.snapshot();
+      return {
+        conversations: snap.conversations,
+        concurrencyCount: snap.concurrencyCount,
+        turnRunning: snap.conversations.some((c) => c.status === "running"),
+        pendingEvents: postPersister.pendingCount(),
+      };
+    },
   };
 
   const server = startSupervisor(deps, env.port);
 
-  // Coding conversations with a `devCommand`: spawn the dev server and the
-  // auth-proxy that gates public access to it. Proxied requests bump
-  // `lastDevActivityAt` so dev-server use counts as activity for the idle
-  // policy even when there is no chat traffic. The dev port is picked here at
-  // boot — passed to the dev process via `PORT` and to the auth-proxy as its
-  // upstream target — so the two sides agree by construction.
-  let devServer: DevServerHandle | null = null;
-  let authProxy: Server | null = null;
+  // The always-on auth-proxy fronts the localhost dev server. The supervisor
+  // does not spawn the dev server — `init.sh` does — so the proxy just probes
+  // the fixed dev port per request. Proxied requests bump `lastDevActivityAt`
+  // so dev-server use counts as activity for the idle policy.
   let lastDevActivityAt = 0;
-  if (env.devServer) {
-    const dev = env.devServer;
-    const devPort = await pickEphemeralPort();
-    // eslint-disable-next-line no-console
-    console.log(`[supervisor] dev server port: ${devPort}`);
-    devServer = startDevServer({
-      command: dev.command,
-      port: devPort,
-      cwd: dev.cwd,
-      env: dev.extraEnv,
-    });
-    authProxy = startAuthProxy({
-      port: dev.authProxyPort,
-      devPort,
-      proxySecret: dev.proxySecret,
-      sandboxId: env.sandboxId,
-      devServer,
-      onActivity: () => { lastDevActivityAt = Date.now(); },
-    });
-  }
+  const devProbe = startDevPortProbe(env.devPort);
+  const authProxy: Server = startAuthProxy({
+    port: env.authProxyPort,
+    devPort: env.devPort,
+    proxySecret: env.devProxySecret,
+    sandboxId: env.sandboxId,
+    devServer: devProbe,
+    onActivity: () => { lastDevActivityAt = Date.now(); },
+  });
+
+  runInitScript(env, surfaceSystem);
+
+  selfHealDanglingTurn(env, postPersister, () =>
+    hub.snapshot().conversations.some((c) => c.status === "running"),
+  ).catch(() => {});
 
   const heartbeat = startHeartbeat({
     sandboxId: env.sandboxId,
@@ -282,8 +304,7 @@ export async function bootSupervisor() {
   const shutdown = async () => {
     heartbeat.stop();
     server.close();
-    authProxy?.close();
-    devServer?.stop();
+    authProxy.close();
     await postPersister.drain();
     process.exit(0);
   };

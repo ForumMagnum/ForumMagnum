@@ -59,11 +59,11 @@ type PostsViewName = "afRecentDiscussionThreadsList"|"alignmentSuggestedPosts"|"
 type RSSFeedsViewName = "usersFeed";
 type ReadStatusesViewName = never
 type RecommendationsCachesViewName = never
-type RepoInstallSnapshotsViewName = never
 type ReportsViewName = "adminClaimedReports"|"allReports"|"claimedReports"|"closedReports"|"sunshineSidebarReports"|"unclaimedReports";
 type ResearchConversationEventsViewName = never
 type ResearchConversationsViewName = "byProject";
 type ResearchDocumentsViewName = "byProject";
+type ResearchEnvironmentsViewName = "byProject";
 type ResearchProjectsViewName = never
 type ResearchSandboxSessionsViewName = never
 type ReviewVotesViewName = "reviewVotesAdminDashboard"|"reviewVotesForPost"|"reviewVotesForPostAndUser"|"reviewVotesFromUser";
@@ -87,11 +87,9 @@ type UltraFeedEventsViewName = never
 type UserActivitiesViewName = never
 type UserMostValuablePostsViewName = "currentUserMostValuablePosts"|"currentUserPost";
 type UserRateLimitsViewName = "activeUserRateLimits"|"userRateLimits";
-type UserSecretsViewName = "mySecrets";
 type UserTagRelsViewName = "single";
 type UsersViewName = "LWSunshinesList"|"LWTrustLevel1List"|"LWUsersAdmin"|"alignmentSuggestedUsers"|"allUsers"|"recentlyActive"|"reviewAdminUsers"|"sunshineNewUsers"|"usersByUserIds"|"usersMapLocations"|"usersProfile"|"usersTopKarma"|"usersWithBannedUsers"|"usersWithOptedInToDialogueFacilitation"|"usersWithPaymentInfo";
 type VotesViewName = "tagVotes"|"userPostVotes"|"userVotes";
-type WorkspaceReposViewName = "myRepos";
 type YjsDocumentsViewName = never
 
 interface ViewTermsByCollectionName {
@@ -156,11 +154,11 @@ interface ViewTermsByCollectionName {
   RSSFeeds: RSSFeedsViewTerms
   ReadStatuses: ViewTermsBase
   RecommendationsCaches: ViewTermsBase
-  RepoInstallSnapshots: ViewTermsBase
   Reports: ReportsViewTerms
   ResearchConversationEvents: ViewTermsBase
   ResearchConversations: ResearchConversationsViewTerms
   ResearchDocuments: ResearchDocumentsViewTerms
+  ResearchEnvironments: ResearchEnvironmentsViewTerms
   ResearchProjects: ViewTermsBase
   ResearchSandboxSessions: ViewTermsBase
   ReviewVotes: ReviewVotesViewTerms
@@ -184,13 +182,11 @@ interface ViewTermsByCollectionName {
   UserActivities: ViewTermsBase
   UserMostValuablePosts: UserMostValuablePostsViewTerms
   UserRateLimits: UserRateLimitsViewTerms
-  UserSecrets: UserSecretsViewTerms
   UserTagRels: UserTagRelsViewTerms
   Users: UsersViewTerms
   Votes: VotesViewTerms
-  WorkspaceRepos: WorkspaceReposViewTerms
   YjsDocuments: ViewTermsBase
 }
 
 
-type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserSecrets"|"UserTagRels"|"Users"|"Votes"|"WorkspaceRepos"
+type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"

@@ -954,7 +954,8 @@ input FireResearchConversationInput {
   kind: ResearchEntrypointKind!
   activeDocumentId: String!
   promptHtml: String!
-  workspaceRepoId: String
+  baseEnvironmentId: String
+  runtime: String
 }
 
 type ResearchConversationOutput {
@@ -966,37 +967,25 @@ type DevPreviewUrlOutput {
   url: String!
 }
 
+type SetClaudeCodeOAuthTokenOutput {
+  success: Boolean!
+}
+
+type SaveResearchEnvironmentOutput {
+  data: ResearchEnvironment
+}
+
 extend type Mutation {
   fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
   continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
   cancelResearchConversation(conversationId: String!): ResearchConversationOutput
   mintDevPreviewUrl(conversationId: String!): DevPreviewUrlOutput
+  setClaudeCodeOAuthToken(token: String!): SetClaudeCodeOAuthTokenOutput
+  saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput
 }
 
 extend type Query {
   researchConversationTranscript(conversationId: String!, since: Int, limit: Int): [ResearchConversationEvent!]!
-}
-
-type WorkspaceRepoConfigProposal {
-  defaultBranch: String!
-  runtime: String!
-  lockfilePath: String!
-  installCommand: String!
-  prepareCommand: String
-  devCommand: String
-}
-
-type DeleteUserSecretOutput {
-  success: Boolean!
-}
-
-extend type Query {
-  currentWorkspaceRepos: [WorkspaceRepo!]!
-}
-
-extend type Mutation {
-  deleteUserSecret(_id: String!): DeleteUserSecretOutput
-  proposeWorkspaceRepoConfig(repoUrl: String!, githubToken: String): WorkspaceRepoConfigProposal
 }
 
 enum DocumentDeletionNetChange {
@@ -6128,7 +6117,8 @@ type ResearchConversation {
   title: String
   entrypointKind: ResearchEntrypointKind
   entrypointDocumentId: String
-  workspaceRepoId: String
+  baseEnvironmentId: String
+  runtime: String
   lastActivityAt: Date
 }
 
@@ -6214,13 +6204,57 @@ extend type Query {
   researchDocuments(selector: ResearchDocumentSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchDocumentOutput
 }
 
+type ResearchEnvironment {
+  _id: String!
+  createdAt: Date!
+  userId: String
+  projectId: String
+  label: String
+  vercelSnapshotId: String
+  sourceEventId: String
+}
+
+input SingleResearchEnvironmentInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleResearchEnvironmentOutput {
+  result: ResearchEnvironment
+}
+
+input ResearchEnvironmentsByProjectInput {
+  projectId: String
+}
+
+input ResearchEnvironmentSelector {
+  default: EmptyViewInput
+  byProject: ResearchEnvironmentsByProjectInput
+}
+
+input MultiResearchEnvironmentInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiResearchEnvironmentOutput {
+  results: [ResearchEnvironment!]!
+  totalCount: Int
+}
+
+extend type Query {
+  researchEnvironment(selector: SelectorInput): SingleResearchEnvironmentOutput
+  researchEnvironments(selector: ResearchEnvironmentSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchEnvironmentOutput
+}
+
 type ResearchProject {
   _id: String!
   createdAt: Date!
   userId: String
   title: String
   description: String
-  defaultWorkspaceRepoId: String
   settings: JSON
 }
 
@@ -7393,44 +7427,6 @@ extend type Query {
   userRateLimits(input: MultiUserRateLimitInput @deprecated(reason: "Use the selector field instead"), selector: UserRateLimitSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserRateLimitOutput
 }
 
-type UserSecret {
-  _id: String!
-  createdAt: Date!
-  repoScope: String
-  name: String
-  value: String
-}
-
-input SingleUserSecretInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleUserSecretOutput {
-  result: UserSecret
-}
-
-input UserSecretSelector {
-  mySecrets: EmptyViewInput
-}
-
-input MultiUserSecretInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiUserSecretOutput {
-  results: [UserSecret!]!
-  totalCount: Int
-}
-
-extend type Query {
-  userSecret(selector: SelectorInput): SingleUserSecretOutput
-  userSecrets(selector: UserSecretSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserSecretOutput
-}
-
 type UserTagRel {
   _id: String!
   schemaVersion: Float!
@@ -7751,6 +7747,7 @@ type User {
   rejectedContentCount: Int
   userRateLimits: [UserRateLimit!]
   claudeLinkedAt: Date
+  hasClaudeCodeOAuthToken: Boolean
 }
 
 enum ReactPaletteStyle {
@@ -7933,51 +7930,6 @@ type MultiVoteOutput {
 extend type Query {
   vote(input: SingleVoteInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleVoteOutput
   votes(input: MultiVoteInput @deprecated(reason: "Use the selector field instead"), selector: VoteSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiVoteOutput
-}
-
-type WorkspaceRepo {
-  _id: String!
-  createdAt: Date!
-  userId: String
-  host: String
-  owner: String
-  name: String
-  defaultBranch: String
-  runtime: String
-  lockfilePath: String
-  installCommand: String
-  prepareCommand: String
-  devCommand: String
-}
-
-input SingleWorkspaceRepoInput {
-  selector: SelectorInput
-  resolverArgs: JSON
-}
-
-type SingleWorkspaceRepoOutput {
-  result: WorkspaceRepo
-}
-
-input WorkspaceRepoSelector {
-  myRepos: EmptyViewInput
-}
-
-input MultiWorkspaceRepoInput {
-  terms: JSON
-  resolverArgs: JSON
-  enableTotal: Boolean
-  enableCache: Boolean
-}
-
-type MultiWorkspaceRepoOutput {
-  results: [WorkspaceRepo!]!
-  totalCount: Int
-}
-
-extend type Query {
-  workspaceRepo(selector: SelectorInput): SingleWorkspaceRepoOutput
-  workspaceRepos(selector: WorkspaceRepoSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiWorkspaceRepoOutput
 }
 
 type YjsDocument {
@@ -9059,7 +9011,8 @@ input UpdateResearchConversationDataInput {
   title: String
   entrypointKind: ResearchEntrypointKind
   entrypointDocumentId: String
-  workspaceRepoId: String
+  baseEnvironmentId: String
+  runtime: String
   lastActivityAt: Date
 }
 
@@ -9112,7 +9065,6 @@ input CreateResearchProjectDataInput {
   userId: String
   title: String!
   description: String
-  defaultWorkspaceRepoId: String
   settings: JSON
 }
 
@@ -9124,7 +9076,6 @@ input UpdateResearchProjectDataInput {
   userId: String
   title: String
   description: String
-  defaultWorkspaceRepoId: String
   settings: JSON
 }
 
@@ -9590,36 +9541,6 @@ extend type Mutation {
   updateUserRateLimit(selector: SelectorInput!, data: UpdateUserRateLimitDataInput!): UserRateLimitOutput
 }
 
-input CreateUserSecretDataInput {
-  repoScope: String
-  name: String!
-  value: String!
-}
-
-input CreateUserSecretInput {
-  data: CreateUserSecretDataInput!
-}
-
-input UpdateUserSecretDataInput {
-  repoScope: String
-  name: String
-  value: String
-}
-
-input UpdateUserSecretInput {
-  selector: SelectorInput!
-  data: UpdateUserSecretDataInput!
-}
-
-type UserSecretOutput {
-  data: UserSecret
-}
-
-extend type Mutation {
-  createUserSecret(data: CreateUserSecretDataInput!): UserSecretOutput
-  updateUserSecret(selector: SelectorInput!, data: UpdateUserSecretDataInput!): UserSecretOutput
-}
-
 input CreateUserTagRelDataInput {
   legacyData: JSON
   tagId: String!
@@ -10016,29 +9937,4 @@ type UserOutput {
 extend type Mutation {
   createUser(data: CreateUserDataInput!): UserOutput
   updateUser(selector: SelectorInput!, data: UpdateUserDataInput!): UserOutput
-}
-
-input CreateWorkspaceRepoDataInput {
-  userId: String
-  host: String!
-  owner: String!
-  name: String!
-  defaultBranch: String!
-  runtime: String!
-  lockfilePath: String!
-  installCommand: String!
-  prepareCommand: String
-  devCommand: String
-}
-
-input CreateWorkspaceRepoInput {
-  data: CreateWorkspaceRepoDataInput!
-}
-
-type WorkspaceRepoOutput {
-  data: WorkspaceRepo
-}
-
-extend type Mutation {
-  createWorkspaceRepo(data: CreateWorkspaceRepoDataInput!): WorkspaceRepoOutput
 }

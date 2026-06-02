@@ -36,7 +36,6 @@ import TweetsRepo from "./TweetsRepo";
 import UltraFeedEventsRepo from "./UltraFeedEventsRepo";
 import UsersRepo from "./UsersRepo";
 import VotesRepo from "./VotesRepo";
-import WorkspaceReposRepo from "./WorkspaceReposRepo";
 
 declare global {
   type AllRepos = typeof allRepos;
@@ -86,7 +85,6 @@ const allRepos = {
   ultraFeedEvents: UltraFeedEventsRepo,
   users: UsersRepo,
   votes: VotesRepo,
-  workspaceRepos: WorkspaceReposRepo,
 } as const;
 
 /**

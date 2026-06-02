@@ -7,8 +7,16 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useStopLexicalEventPropagation } from '@/components/editor/lexicalPlugins/useStopLexicalEventPropagation';
 import { getBrowserLocalStorage } from '@/components/editor/localStorageHandlers';
-import { CurrentWorkspaceReposQuery } from '../currentWorkspaceReposQuery';
-import { $isQueryInputNode } from './QueryInputNode';
+import { ResearchEnvironmentsByProjectQuery } from '../researchEnvironmentsQuery';
+import { useResearchEditorEnvironmentOptional } from './ResearchEditorContext';
+import {
+  $isQueryInputNode,
+  type QueryInputSelection,
+  RESEARCH_BLANK_RUNTIMES,
+  DEFAULT_BLANK_RUNTIME,
+  encodeSelection,
+  decodeSelection,
+} from './QueryInputNode';
 
 const styles = defineStyles('QueryInputHeader', (theme: ThemeType) => ({
   select: {
@@ -29,24 +37,40 @@ const styles = defineStyles('QueryInputHeader', (theme: ThemeType) => ({
 
 interface QueryInputHeaderComponentProps {
   containerNodeKey: string;
-  workspaceRepoId: string | null;
+  selection: QueryInputSelection;
 }
 
-const STORAGE_KEY = 'research:lastSelectedWorkspaceRepoId';
+function storageKeyForProject(projectId: string): string {
+  return `research:lastSelectedEnvironment:${projectId}`;
+}
+
+function resolveDefaultSelection(projectId: string | null): QueryInputSelection {
+  if (projectId) {
+    const last = getBrowserLocalStorage()?.getItem(storageKeyForProject(projectId)) ?? null;
+    const decoded = last ? decodeSelection(last) : null;
+    if (decoded?.runtime && (RESEARCH_BLANK_RUNTIMES as readonly string[]).includes(decoded.runtime)) {
+      return decoded;
+    }
+  }
+  return { baseEnvironmentId: null, runtime: DEFAULT_BLANK_RUNTIME };
+}
 
 export function QueryInputHeaderComponent({
   containerNodeKey,
-  workspaceRepoId,
+  selection,
 }: QueryInputHeaderComponentProps) {
   const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
   const selectRef = useRef<HTMLSelectElement>(null);
   const hasHydratedRef = useRef(false);
-  // workspaceRepoId lives on the parent QueryInputNode, but decorate() only
+  const env = useResearchEditorEnvironmentOptional();
+  const projectId = env?.projectId ?? null;
+
+  // The selection lives on the parent QueryInputNode, but decorate() only
   // re-runs when this DecoratorNode is dirty — not when the parent mutates.
-  // Track the repo locally for immediate select feedback, and re-read the
-  // parent from editor state so undo/redo and hydration stay in sync.
-  const [selectedRepoId, setSelectedRepoId] = useState<string | null>(workspaceRepoId);
+  // Track it locally for immediate select feedback, and re-read the parent from
+  // editor state so undo/redo and hydration stay in sync.
+  const [selected, setSelected] = useState<QueryInputSelection>(selection);
 
   useStopLexicalEventPropagation(selectRef);
 
@@ -55,69 +79,88 @@ export function QueryInputHeaderComponent({
       editorState.read(() => {
         const parent = $getNodeByKey(containerNodeKey);
         if ($isQueryInputNode(parent)) {
-          const next = parent.getWorkspaceRepoId();
-          setSelectedRepoId((prev) => (prev === next ? prev : next));
+          const next = parent.getSelection();
+          setSelected((prev) =>
+            prev.baseEnvironmentId === next.baseEnvironmentId && prev.runtime === next.runtime
+              ? prev
+              : next,
+          );
         }
       });
     });
   }, [editor, containerNodeKey]);
 
-  const { data } = useQuery(CurrentWorkspaceReposQuery, { fetchPolicy: 'cache-first' });
-  const repos = useMemo(() => data?.currentWorkspaceRepos ?? [], [data]);
-  const hasRepos = repos.length > 0;
-  const knownIds = useMemo(() => new Set(repos.map((r) => r._id)), [repos]);
+  const { data } = useQuery(ResearchEnvironmentsByProjectQuery, {
+    variables: { projectId: projectId ?? '' },
+    skip: !projectId,
+    fetchPolicy: 'cache-first',
+  });
+  const environments = useMemo(() => data?.researchEnvironments?.results ?? [], [data]);
+  const knownEnvIds = useMemo(() => new Set(environments.map((e) => e._id)), [environments]);
 
-  const writeRepoIdToContainer = (next: string | null) => {
+  const writeSelectionToContainer = (next: QueryInputSelection) => {
     editor.update(() => {
       const parent = $getNodeByKey(containerNodeKey);
-      if ($isQueryInputNode(parent)) parent.setWorkspaceRepoId(next);
+      if ($isQueryInputNode(parent)) parent.setSelection(next);
     });
   };
 
   const handleChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const next = event.target.value || null;
-    setSelectedRepoId(next);
-    const ls = getBrowserLocalStorage();
-    if (ls) {
-      if (next === null) {
-        ls.removeItem(STORAGE_KEY);
-      } else {
-        ls.setItem(STORAGE_KEY, next);
-      }
+    const next = decodeSelection(event.target.value) ?? { baseEnvironmentId: null, runtime: DEFAULT_BLANK_RUNTIME };
+    setSelected(next);
+    if (projectId) {
+      getBrowserLocalStorage()?.setItem(storageKeyForProject(projectId), encodeSelection(next));
     }
-    writeRepoIdToContainer(next);
+    writeSelectionToContainer(next);
   };
 
-  // If the persisted workspaceRepoId points at a repo that no longer exists, fall back to "no repo" in the select.
-  const selectValue = selectedRepoId && knownIds.has(selectedRepoId) ? selectedRepoId : '';
+  const effective: QueryInputSelection =
+    selected.baseEnvironmentId && knownEnvIds.has(selected.baseEnvironmentId)
+      ? selected
+      : selected.runtime
+        ? selected
+        : resolveDefaultSelection(projectId);
+  const selectValue = encodeSelection(effective);
 
-  // Hydrate untouched QueryInputs (workspaceRepoId === null) from localStorage
-  // once per mount, after the repo list is available — but never re-hydrate,
-  // so explicit empty selections aren't clobbered.
+  // Hydrate untouched / old query-input nodes (no valid selection) once per
+  // mount, so the node always carries a concrete env-XOR-runtime by submit time.
+  // Never re-hydrate, so an explicit selection isn't clobbered.
+  //
+  // Critically, wait until the env query has *settled* before deciding a node's
+  // saved `baseEnvironmentId` is invalid. On a cold load the cache-first query
+  // hasn't resolved yet (`knownEnvIds` empty), and hydrating then would clobber a
+  // genuine saved-environment selection with a blank baseline. `data !== undefined`
+  // (or no projectId, so the query is skipped and no env could be valid anyway)
+  // means it's safe to decide; the effect re-runs when `data` arrives.
   useEffect(() => {
     if (hasHydratedRef.current) return;
-    if (repos.length === 0) return;
+    const envQuerySettled = !projectId || data !== undefined;
+    if (!envQuerySettled) return;
     hasHydratedRef.current = true;
     editor.getEditorState().read(() => {
       const parent = $getNodeByKey(containerNodeKey);
-      if (!$isQueryInputNode(parent) || parent.getWorkspaceRepoId() !== null) return;
-      const last = getBrowserLocalStorage()?.getItem(STORAGE_KEY) ?? null;
-      if (!last || !knownIds.has(last)) return;
-      setSelectedRepoId(last);
-      editor.update(() => {
-        const node = $getNodeByKey(containerNodeKey);
-        if ($isQueryInputNode(node)) node.setWorkspaceRepoId(last);
-      });
+      if (!$isQueryInputNode(parent)) return;
+      const current = parent.getSelection();
+      const hasValid =
+        (current.baseEnvironmentId && knownEnvIds.has(current.baseEnvironmentId)) ||
+        (!current.baseEnvironmentId && current.runtime);
+      if (hasValid) return;
+      const last = projectId
+        ? getBrowserLocalStorage()?.getItem(storageKeyForProject(projectId)) ?? null
+        : null;
+      const remembered = last ? decodeSelection(last) : null;
+      const next: QueryInputSelection =
+        remembered?.baseEnvironmentId && knownEnvIds.has(remembered.baseEnvironmentId)
+          ? remembered
+          : resolveDefaultSelection(projectId);
+      setSelected(next);
+      writeSelectionToContainer(next);
     });
-  }, [editor, containerNodeKey, repos.length, knownIds]);
-
-  if (!hasRepos) {
-    return (
-      <select className={classes.select} disabled value="">
-        <option value="">No repos configured</option>
-      </select>
-    );
-  }
+    // Hydration is intentionally a once-per-mount effect (guarded by
+    // hasHydratedRef); it tracks the env-query settle (`data`) and `knownEnvIds`,
+    // not the inline `writeSelectionToContainer`/`resolveDefaultSelection` it calls.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editor, containerNodeKey, projectId, data, knownEnvIds]);
 
   return (
     <select
@@ -126,12 +169,25 @@ export function QueryInputHeaderComponent({
       value={selectValue}
       onChange={handleChange}
     >
-      <option value="">No repo</option>
-      {repos.map((repo) => (
-        <option key={repo._id} value={repo._id}>
-          {repo.owner}/{repo.name}
-        </option>
-      ))}
+      <optgroup label="Blank baseline">
+        {RESEARCH_BLANK_RUNTIMES.map((runtime) => (
+          <option key={runtime} value={encodeSelection({ baseEnvironmentId: null, runtime })}>
+            Blank · {runtime}
+          </option>
+        ))}
+      </optgroup>
+      {environments.length > 0 && (
+        <optgroup label="Saved environments">
+          {environments.map((environment) => (
+            <option
+              key={environment._id}
+              value={encodeSelection({ baseEnvironmentId: environment._id, runtime: null })}
+            >
+              {environment.label}
+            </option>
+          ))}
+        </optgroup>
+      )}
     </select>
   );
 }

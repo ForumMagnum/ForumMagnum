@@ -1130,17 +1130,6 @@ interface DbRecommendationsCache extends DbObject {
   userId: string
 }
 
-type RepoInstallSnapshotsCollection = PgCollection<"RepoInstallSnapshots">;
-
-interface DbRepoInstallSnapshot extends DbObject {
-  __collectionName?: "RepoInstallSnapshots"
-  createdAt: Date
-  manifestHash: string
-  sizeBytes: number | null
-  vercelSnapshotId: string
-  workspaceRepoId: string
-}
-
 type ReportsCollection = PgCollection<"Reports">;
 
 interface DbReport extends DbObject {
@@ -1163,7 +1152,7 @@ type ResearchConversationEventsCollection = PgCollection<"ResearchConversationEv
 
 interface DbResearchConversationEvent extends DbObject {
   __collectionName?: "ResearchConversationEvents"
-  claudeMessageUuid: string | null
+  claudeMessageUuid: string
   conversationId: string
   createdAt: Date
   kind: string
@@ -1177,15 +1166,16 @@ type ResearchConversationsCollection = PgCollection<"ResearchConversations">;
 
 interface DbResearchConversation extends DbObject {
   __collectionName?: "ResearchConversations"
+  baseEnvironmentId: string | null
   claudeSessionId: string | null
   createdAt: Date
   entrypointDocumentId: string
   entrypointKind: string
   lastActivityAt: Date
   projectId: string
+  runtime: string | null
   title: string | null
   userId: string
-  workspaceRepoId: string | null
 }
 
 type ResearchDocumentsCollection = PgCollection<"ResearchDocuments">;
@@ -1199,12 +1189,23 @@ interface DbResearchDocument extends DbObject {
   userId: string
 }
 
+type ResearchEnvironmentsCollection = PgCollection<"ResearchEnvironments">;
+
+interface DbResearchEnvironment extends DbObject {
+  __collectionName?: "ResearchEnvironments"
+  createdAt: Date
+  label: string
+  projectId: string
+  sourceEventId: string | null
+  userId: string
+  vercelSnapshotId: string
+}
+
 type ResearchProjectsCollection = PgCollection<"ResearchProjects">;
 
 interface DbResearchProject extends DbObject {
   __collectionName?: "ResearchProjects"
   createdAt: Date
-  defaultWorkspaceRepoId: string | null
   description: string | null
   settings: any | null
   title: string
@@ -1623,17 +1624,6 @@ interface DbUserRateLimit extends DbObject {
   userId: string
 }
 
-type UserSecretsCollection = PgCollection<"UserSecrets">;
-
-interface DbUserSecret extends DbObject {
-  __collectionName?: "UserSecrets"
-  createdAt: Date
-  encryptedValue: string
-  name: string
-  repoScope: string | null
-  userId: string
-}
-
 type UserTagRelsCollection = PgCollection<"UserTagRels">;
 
 interface DbUserTagRel extends DbObject {
@@ -1688,6 +1678,7 @@ interface DbUser extends DbObject {
   blueskyProfileURL: string | null
   bookmarksCount: number
   careerStage: Array<string> | null
+  claudeCodeOAuthTokenEncrypted: string | null
   claudeLinkedAt: Date | null
   coauthoredPostCount: number
   collapseModerationGuidelines: boolean | null
@@ -2296,23 +2287,6 @@ interface DbVote extends DbObject {
   votedAt: Date
 }
 
-type WorkspaceReposCollection = PgCollection<"WorkspaceRepos">;
-
-interface DbWorkspaceRepo extends DbObject {
-  __collectionName?: "WorkspaceRepos"
-  createdAt: Date
-  defaultBranch: string
-  devCommand: string | null
-  host: string
-  installCommand: string
-  lockfilePath: string
-  name: string
-  owner: string
-  prepareCommand: string | null
-  runtime: string
-  userId: string
-}
-
 type YjsDocumentsCollection = PgCollection<"YjsDocuments">;
 
 interface DbYjsDocument extends DbObject {
@@ -2387,11 +2361,11 @@ interface CollectionsByName {
   RSSFeeds: RSSFeedsCollection
   ReadStatuses: ReadStatusesCollection
   RecommendationsCaches: RecommendationsCachesCollection
-  RepoInstallSnapshots: RepoInstallSnapshotsCollection
   Reports: ReportsCollection
   ResearchConversationEvents: ResearchConversationEventsCollection
   ResearchConversations: ResearchConversationsCollection
   ResearchDocuments: ResearchDocumentsCollection
+  ResearchEnvironments: ResearchEnvironmentsCollection
   ResearchProjects: ResearchProjectsCollection
   ResearchSandboxSessions: ResearchSandboxSessionsCollection
   ReviewVotes: ReviewVotesCollection
@@ -2415,11 +2389,9 @@ interface CollectionsByName {
   UserActivities: UserActivitiesCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
   UserRateLimits: UserRateLimitsCollection
-  UserSecrets: UserSecretsCollection
   UserTagRels: UserTagRelsCollection
   Users: UsersCollection
   Votes: VotesCollection
-  WorkspaceRepos: WorkspaceReposCollection
   YjsDocuments: YjsDocumentsCollection
 }
 
@@ -2485,11 +2457,11 @@ interface ObjectsByCollectionName {
   RSSFeeds: DbRSSFeed
   ReadStatuses: DbReadStatus
   RecommendationsCaches: DbRecommendationsCache
-  RepoInstallSnapshots: DbRepoInstallSnapshot
   Reports: DbReport
   ResearchConversationEvents: DbResearchConversationEvent
   ResearchConversations: DbResearchConversation
   ResearchDocuments: DbResearchDocument
+  ResearchEnvironments: DbResearchEnvironment
   ResearchProjects: DbResearchProject
   ResearchSandboxSessions: DbResearchSandboxSession
   ReviewVotes: DbReviewVote
@@ -2513,11 +2485,9 @@ interface ObjectsByCollectionName {
   UserActivities: DbUserActivity
   UserMostValuablePosts: DbUserMostValuablePost
   UserRateLimits: DbUserRateLimit
-  UserSecrets: DbUserSecret
   UserTagRels: DbUserTagRel
   Users: DbUser
   Votes: DbVote
-  WorkspaceRepos: DbWorkspaceRepo
   YjsDocuments: DbYjsDocument
 }
 
@@ -2583,11 +2553,11 @@ interface ObjectsByTypeName {
   RSSFeed: DbRSSFeed
   ReadStatus: DbReadStatus
   RecommendationsCache: DbRecommendationsCache
-  RepoInstallSnapshot: DbRepoInstallSnapshot
   Report: DbReport
   ResearchConversationEvent: DbResearchConversationEvent
   ResearchConversation: DbResearchConversation
   ResearchDocument: DbResearchDocument
+  ResearchEnvironment: DbResearchEnvironment
   ResearchProject: DbResearchProject
   ResearchSandboxSession: DbResearchSandboxSession
   ReviewVote: DbReviewVote
@@ -2611,11 +2581,9 @@ interface ObjectsByTypeName {
   UserActivity: DbUserActivity
   UserMostValuablePost: DbUserMostValuablePost
   UserRateLimit: DbUserRateLimit
-  UserSecret: DbUserSecret
   UserTagRel: DbUserTagRel
   User: DbUser
   Vote: DbVote
-  WorkspaceRepo: DbWorkspaceRepo
   YjsDocument: DbYjsDocument
 }
 

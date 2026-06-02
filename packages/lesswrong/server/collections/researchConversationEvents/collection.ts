@@ -10,11 +10,11 @@ export const ResearchConversationEvents: ResearchConversationEventsCollection = 
   getIndexes: () => {
     const indexSet = new DatabaseIndexSet();
     indexSet.addIndex('ResearchConversationEvents', { conversationId: 1, seq: 1 }, { unique: true });
-    indexSet.addCustomPgIndex(`
-      CREATE UNIQUE INDEX IF NOT EXISTS "idx_ResearchConversationEvents_conversationId_claudeMessageUuid"
-      ON "ResearchConversationEvents" ("conversationId", "claudeMessageUuid")
-      WHERE "claudeMessageUuid" IS NOT NULL;
-    `);
+    // Plain (non-partial) unique index: every event now carries a non-null
+    // claudeMessageUuid, so the old `WHERE … IS NOT NULL` partial index is
+    // replaced by a plain unique one. `persistEvent`'s `ON CONFLICT
+    // ("conversationId","claudeMessageUuid")` targets this index.
+    indexSet.addIndex('ResearchConversationEvents', { conversationId: 1, claudeMessageUuid: 1 }, { unique: true });
     return indexSet;
   },
 });

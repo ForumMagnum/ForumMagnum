@@ -68,6 +68,7 @@ describe("postPersister", () => {
     const p = createPostPersister({
       backendBaseUrl: "https://example.test",
       authToken: "tk",
+      conversationId: "conv1",
       queueDir: tmpQueueDir(),
       fetchImpl,
     });
@@ -88,6 +89,7 @@ describe("postPersister", () => {
     const p = createPostPersister({
       backendBaseUrl: "https://example.test",
       authToken: "tk",
+      conversationId: "conv1",
       queueDir: tmpQueueDir(),
       fetchImpl,
       sleepImpl: instantSleep,
@@ -104,6 +106,7 @@ describe("postPersister", () => {
     const p = createPostPersister({
       backendBaseUrl: "https://example.test",
       authToken: "tk",
+      conversationId: "conv1",
       queueDir: tmpQueueDir(),
       fetchImpl,
       sleepImpl: instantSleep,
@@ -132,6 +135,7 @@ describe("postPersister", () => {
     const p = createPostPersister({
       backendBaseUrl: "https://example.test",
       authToken: "tk",
+      conversationId: "conv1",
       queueDir: tmpQueueDir(),
       fetchImpl,
       sleepImpl: instantSleep,
@@ -146,6 +150,7 @@ describe("postPersister", () => {
     const p = createPostPersister({
       backendBaseUrl: "https://example.test",
       authToken: "tk",
+      conversationId: "conv1",
       queueDir: tmpQueueDir(),
       fetchImpl,
       sleepImpl: instantSleep,
@@ -160,6 +165,7 @@ describe("postPersister", () => {
     const p = createPostPersister({
       backendBaseUrl: "https://example.test",
       authToken: "tk",
+      conversationId: "conv1",
       queueDir: tmpQueueDir(),
       fetchImpl,
       sleepImpl: instantSleep,
@@ -174,6 +180,7 @@ describe("postPersister", () => {
     const p = createPostPersister({
       backendBaseUrl: "https://example.test",
       authToken: "tk",
+      conversationId: "conv1",
       queueDir: tmpQueueDir(),
       fetchImpl,
     });
@@ -187,21 +194,24 @@ describe("postPersister", () => {
     (calls[1].body.claudeMessageUuid as any).should.be.equal("msg_1");
   });
 
-  it("persists to disk and advances the cursor on ack", async () => {
+  it("advances the cursor and compacts the log on ack", async () => {
     const dir = tmpQueueDir();
     const { fetchImpl } = mkFetch({});
     const p = createPostPersister({
       backendBaseUrl: "https://example.test",
       authToken: "tk",
+      conversationId: "conv1",
       queueDir: dir,
       fetchImpl,
     });
     p.enqueue("conv1", mkEvent(0));
     await p.drain();
-    const log = fs.readFileSync(path.join(dir, "conv1.ndjson"), "utf8").trim();
-    (log.includes('"localId":1') as any).should.be.equal(true);
+    // After ack the cursor advances and the log is compacted to drop the
+    // now-acked entry — leaving an empty log + the high-water cursor.
     const cursor = fs.readFileSync(path.join(dir, "conv1.cursor"), "utf8").trim();
     (cursor as any).should.be.equal("1");
+    const log = fs.readFileSync(path.join(dir, "conv1.ndjson"), "utf8").trim();
+    (log as any).should.be.equal("");
   });
 
   it("recovers and ships events left un-acked by a prior session", async () => {
@@ -216,6 +226,7 @@ describe("postPersister", () => {
     const p = createPostPersister({
       backendBaseUrl: "https://example.test",
       authToken: "tk",
+      conversationId: "conv1",
       queueDir: dir,
       fetchImpl,
     });
@@ -234,6 +245,7 @@ describe("postPersister", () => {
     const p = createPostPersister({
       backendBaseUrl: "https://example.test",
       authToken: "tk",
+      conversationId: "conv1",
       queueDir: tmpQueueDir(),
       fetchImpl,
     });
@@ -263,6 +275,7 @@ describe("postPersister", () => {
     const p = createPostPersister({
       backendBaseUrl: "https://example.test",
       authToken: "tk",
+      conversationId: "conv1",
       queueDir: tmpQueueDir(),
       fetchImpl,
       sleepImpl: instantSleep,

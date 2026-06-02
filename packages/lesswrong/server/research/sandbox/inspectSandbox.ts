@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /**
  * Quick debug script: connects to an existing sandbox by id and runs probes
  * (file listing, supervisor process check, manual supervisor invocation) to
@@ -33,12 +34,12 @@ async function main() {
   const ps = await sandbox.runCommand({ cmd: "ps", args: ["-ef"] });
   console.log(await ps.stdout());
 
-  console.log("\n[inspect] netstat -tlnp 3000:");
-  const netstat = await sandbox.runCommand({ cmd: "sh", args: ["-c", "ss -tlnp 2>/dev/null | grep 3000 || echo '(no listener on 3000)'"] });
+  console.log("\n[inspect] listeners on supervisor/auth-proxy/dev ports (9280/9281/9282):");
+  const netstat = await sandbox.runCommand({ cmd: "sh", args: ["-c", "ss -tlnp 2>/dev/null | grep -E '9280|9281|9282' || echo '(no listeners on 9280/9281/9282)'"] });
   console.log(`  ${(await netstat.stdout()).trim()}`);
 
   console.log("\n[inspect] supervisor.log (if any):");
-  const log = await sandbox.runCommand({ cmd: "sh", args: ["-c", "tail -40 /vercel/sandbox/supervisor.log 2>&1 || echo '(no log file)'"] });
+  const log = await sandbox.runCommand({ cmd: "sh", args: ["-c", "tail -40 ~/.research/supervisor.log 2>&1 || echo '(no log file)'"] });
   console.log(await log.stdout());
 
   console.log("\n[inspect] CALLBACK_TOKEN (env-grepped from supervisor process):");

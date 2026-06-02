@@ -8,6 +8,7 @@ import { useQuery } from '@/lib/crud/useQuery';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
+import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
 import ErrorAccessDenied from '../common/ErrorAccessDenied';
 import ForumIcon from '../common/ForumIcon';
@@ -261,7 +262,7 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
     setRightPaneMode('closed');
   }, []);
 
-  if (!currentUser) {
+  if (!userIsAdmin(currentUser)) {
     return <ErrorAccessDenied />;
   }
 

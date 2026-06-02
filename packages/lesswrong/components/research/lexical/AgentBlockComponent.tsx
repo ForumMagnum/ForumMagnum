@@ -286,6 +286,8 @@ export function AgentBlockComponent({ nodeKey, conversationId, producedByConvers
   useResearchEditorEnvironment();
   const nav = useResearchNavigationContext();
   const pending = usePendingConversation(conversationId);
+  const wasPendingRef = useRef(false);
+  if (pending) wasPendingRef.current = true;
 
   const fromAgent = !!producedByConversationId;
 
@@ -319,6 +321,7 @@ export function AgentBlockComponent({ nodeKey, conversationId, producedByConvers
     <ActiveAgentBlock
       conversationId={conversationId}
       fromAgent={fromAgent}
+      justDispatched={wasPendingRef.current}
       onOpenInChat={nav.openConversationInChat}
       onRemove={removeBlock}
     />
@@ -328,13 +331,19 @@ export function AgentBlockComponent({ nodeKey, conversationId, producedByConvers
 interface ActiveAgentBlockProps {
   conversationId: string;
   fromAgent: boolean;
+  justDispatched: boolean;
   onOpenInChat: (conversationId: string) => void;
   onRemove: () => void;
 }
 
-function ActiveAgentBlock({ conversationId, fromAgent, onOpenInChat, onRemove: _onRemove }: ActiveAgentBlockProps) {
+function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, onOpenInChat, onRemove: _onRemove }: ActiveAgentBlockProps) {
   const classes = useStyles(styles);
-  const { events, status, error } = useConversationStream(conversationId);
+  const { events, status, error, markTurnExpected } = useConversationStream(conversationId);
+
+  useEffect(() => {
+    if (justDispatched) markTurnExpected();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const { resultCount, turnInFlight, visibleEvents, latestVisible } = useMemo(() => {
     let rc = 0;

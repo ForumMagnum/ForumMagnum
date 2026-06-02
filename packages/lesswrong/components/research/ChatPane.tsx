@@ -19,6 +19,7 @@ import {
 } from './lexical/ResearchEditorContext';
 import { isVisibleConversationEvent } from './conversationEventFormat';
 import { ConversationEventRow } from './ConversationEventRow';
+import { ConversationActions } from './ConversationActions';
 
 interface ChatPaneProps {
   projectId: string;
@@ -29,9 +30,13 @@ interface ChatPaneProps {
   onOpenConversationInChat: (conversationId: string) => void;
 }
 
+// Sidebar chat isn't wired to the environment selector for now, but the
+// backend's "exactly one of baseEnvironmentId / runtime" check applies to all
+// fireResearchConversation calls — so chat sends a default runtime rather than
+// neither field.
 const FireChatConversationMutation = gql(`
   mutation FireChatPaneConversation($conversationId: String!, $projectId: String!, $activeDocumentId: String!, $promptHtml: String!) {
-    fireResearchConversation(input: { conversationId: $conversationId, projectId: $projectId, kind: chat, activeDocumentId: $activeDocumentId, promptHtml: $promptHtml }) {
+    fireResearchConversation(input: { conversationId: $conversationId, projectId: $projectId, kind: chat, activeDocumentId: $activeDocumentId, promptHtml: $promptHtml, runtime: "node24" }) {
       conversationId
     }
   }
@@ -72,6 +77,10 @@ const styles = defineStyles('ChatPane', (theme: ThemeType) => ({
     textAlign: 'center',
   },
   status: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 12,
     padding: '4px 16px',
     fontSize: 11,
     color: theme.palette.text.dim,
@@ -129,7 +138,14 @@ const ChatPane = ({
   const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
   const eventsRef = useRef<HTMLDivElement | null>(null);
 
-  const { events: rawEvents, status, error, refresh, injectOptimisticEvent } = useConversationStream(conversationId);
+  const { events: rawEvents, status, error, refresh, injectOptimisticEvent, clearOptimistic, markTurnExpected } = useConversationStream(conversationId);
+  const [expectFirstTurnFor, setExpectFirstTurnFor] = useState<string | null>(null);
+  useEffect(() => {
+    if (conversationId && conversationId === expectFirstTurnFor) {
+      markTurnExpected();
+      setExpectFirstTurnFor(null);
+    }
+  }, [conversationId, expectFirstTurnFor, markTurnExpected]);
   // Hide system init / session-result wrappers / rate-limit notices that the
   // hook delivers; the chat surface only renders user-facing turn events.
   const events = useMemo<ConversationEvent[]>(
@@ -166,20 +182,19 @@ const ChatPane = ({
         if (!createdId) {
           throw new Error('fireResearchConversation returned no conversationId');
         }
+        setExpectFirstTurnFor(createdId);
         onConversationCreated(createdId);
         void pollForConversationTitle(apolloClient, projectId, createdId);
       } else {
-        // Optimistic plaintext for the in-flight turn; it's dropped on the next
-        // transcript reload (refresh() below) and superseded by the persisted
-        // user row once that streams in from the backend.
         const optimisticText = htmlToTextDefault(promptHtml);
+        markTurnExpected();
         injectOptimisticEvent({
           _id: `optimistic:user:${randomId()}`,
           conversationId,
           seq: -1,
           kind: 'user',
           claudeMessageUuid: null,
-          payload: { type: 'user', text: optimisticText },
+          payload: { type: 'user', message: { role: 'user', content: optimisticText } },
           createdAt: new Date().toISOString(),
         });
         await continueConversation({ variables: { conversationId, promptHtml, activeDocumentId } });
@@ -189,11 +204,13 @@ const ChatPane = ({
       // eslint-disable-next-line no-console
       console.error('[research] chat send failed', err);
       flash({ messageString: 'Failed to send message — try again.', type: 'error' });
+      clearOptimistic();
+      throw err;
     } finally {
       setSending(false);
       setPendingPrompt(null);
     }
-  }, [sending, conversationId, projectId, activeDocumentId, fireConversation, continueConversation, onConversationCreated, refresh, injectOptimisticEvent, apolloClient, flash]);
+  }, [sending, conversationId, projectId, activeDocumentId, fireConversation, continueConversation, onConversationCreated, refresh, injectOptimisticEvent, clearOptimistic, markTurnExpected, apolloClient, flash]);
 
   const handleCancel = useCallback(async () => {
     if (!conversationId) return;
@@ -236,7 +253,8 @@ const ChatPane = ({
   return (
     <div className={classes.root}>
       <div className={classNames(classes.status, error ? classes.statusError : undefined)}>
-        {renderStatusLabel(status, error)}
+        <span>{renderStatusLabel(status, error)}</span>
+        <ConversationActions conversationId={conversationId} />
       </div>
       {status === 'loading' && events.length === 0 ? (
         <div className={classes.events}><Loading /></div>

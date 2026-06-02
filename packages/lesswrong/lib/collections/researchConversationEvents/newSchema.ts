@@ -61,12 +61,10 @@ const schema = {
       canCreate: ["admins"],
     },
   },
-  // The Claude Code message UUID if the JSONL line carries one. Used to
-  // dedupe events when the supervisor retries a POST.
   claudeMessageUuid: {
     database: {
       type: "TEXT",
-      nullable: true,
+      nullable: false,
     },
     graphql: {
       outputType: "String",

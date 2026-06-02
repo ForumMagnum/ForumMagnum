@@ -35,11 +35,11 @@ import { PetrovDayActionsViews } from '../collections/petrovDayActions/views';
 import { PodcastEpisodesViews } from '../collections/podcastEpisodes/views';
 import { PostsViews } from '../collections/posts/views';
 import { PostRelationsViews } from '../collections/postRelations/views';
-import { RepoInstallSnapshotsViews } from '../collections/repoInstallSnapshots/views';
 import { ReportsViews } from '../collections/reports/views';
 import { ResearchConversationEventsViews } from '../collections/researchConversationEvents/views';
 import { ResearchConversationsViews } from '../collections/researchConversations/views';
 import { ResearchDocumentsViews } from '../collections/researchDocuments/views';
+import { ResearchEnvironmentsViews } from '../collections/researchEnvironments/views';
 import { ResearchProjectsViews } from '../collections/researchProjects/views';
 import { ResearchSandboxSessionsViews } from '../collections/researchSandboxSessions/views';
 import { ReviewVotesViews } from '../collections/reviewVotes/views';
@@ -56,13 +56,11 @@ import { TagFlagsViews } from '../collections/tagFlags/views';
 import { TagRelsViews } from '../collections/tagRels/views';
 import { TypoSuggestionsViews } from '../collections/typoSuggestions/views';
 import { UltraFeedEventsViews } from '../collections/ultraFeedEvents/views';
-import { UserSecretsViews } from '../collections/userSecrets/views';
 import { UsersViews } from '../collections/users/views';
 import { UserMostValuablePostsViews } from '../collections/userMostValuablePosts/views';
 import { UserRateLimitsViews } from '../collections/userRateLimits/views';
 import { UserTagRelsViews } from '../collections/userTagRels/views';
 import { VotesViews } from '../collections/votes/views';
-import { WorkspaceReposViews } from '../collections/workspaceRepos/views';
 import { YjsDocumentsViews } from '../collections/yjsDocuments/views';
 
 export const allViews = {
@@ -126,11 +124,11 @@ export const allViews = {
   PostViews: new CollectionViewSet('PostViews', {}),
   ReadStatuses: new CollectionViewSet('ReadStatuses', {}),
   RecommendationsCaches: new CollectionViewSet('RecommendationsCaches', {}),
-  RepoInstallSnapshots: RepoInstallSnapshotsViews,
   Reports: ReportsViews,
   ResearchConversationEvents: ResearchConversationEventsViews,
   ResearchConversations: ResearchConversationsViews,
   ResearchDocuments: ResearchDocumentsViews,
+  ResearchEnvironments: ResearchEnvironmentsViews,
   ResearchProjects: ResearchProjectsViews,
   ResearchSandboxSessions: ResearchSandboxSessionsViews,
   ReviewVotes: ReviewVotesViews,
@@ -155,10 +153,8 @@ export const allViews = {
   Users: UsersViews,
   UserMostValuablePosts: UserMostValuablePostsViews,
   UserRateLimits: UserRateLimitsViews,
-  UserSecrets: UserSecretsViews,
   UserTagRels: UserTagRelsViews,
   UserActivities: new CollectionViewSet('UserActivities', {}),
   Votes: VotesViews,
-  WorkspaceRepos: WorkspaceReposViews,
   YjsDocuments: YjsDocumentsViews,
 };

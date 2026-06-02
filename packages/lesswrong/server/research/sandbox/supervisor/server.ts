@@ -50,6 +50,8 @@ export interface SupervisorDeps {
   getStateSnapshot(): {
     conversations: ConversationState[];
     concurrencyCount: number;
+    turnRunning: boolean;
+    pendingEvents: number;
   };
 }
 

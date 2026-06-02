@@ -1,8 +1,6 @@
 /**
  * Normalize a user-supplied repository URL into a stable `(host, owner, name)`
- * identity. Used to scope `UserSecrets` rows to a repo and to populate the
- * `WorkspaceRepos` host/owner/name columns — always parsed the same way so a
- * repo-scoped secret and its repo agree on identity.
+ * identity.
  */
 export interface RepoIdentity {
   host: string;

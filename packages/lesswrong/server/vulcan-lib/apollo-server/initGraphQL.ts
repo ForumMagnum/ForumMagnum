@@ -36,7 +36,6 @@ import { userContentFeedGraphQLQueries, userContentFeedGraphQLTypeDefs } from '@
 import { tagGraphQLTypeDefs, tagResolversGraphQLMutations, tagResolversGraphQLQueries } from '@/server/resolvers/tagResolvers';
 import { conversationGqlMutations, conversationGqlTypeDefs } from '@/server/resolvers/conversationResolvers'
 import { researchResolversTypeDefs, researchResolversMutations, researchResolversQueries } from '@/server/resolvers/researchResolvers'
-import { researchWorkspaceTypeDefs, researchWorkspaceMutations, researchWorkspaceQueries } from '@/server/resolvers/researchWorkspaceResolvers'
 import { databaseSettingsGqlTypeDefs, databaseSettingsGqlMutations } from '@/server/resolvers/databaseSettingsResolvers'
 import { siteGraphQLQueries, siteGraphQLTypeDefs } from '../site';
 import { loginDataGraphQLMutations, loginDataGraphQLTypeDefs } from './authentication';
@@ -133,6 +132,7 @@ import { graphqlReportQueryTypeDefs, reportGqlQueryHandlers, reportGqlFieldResol
 import { graphqlResearchConversationEventQueryTypeDefs, researchConversationEventGqlQueryHandlers, researchConversationEventGqlFieldResolvers } from "@/server/collections/researchConversationEvents/queries";
 import { graphqlResearchConversationQueryTypeDefs, researchConversationGqlQueryHandlers, researchConversationGqlFieldResolvers } from "@/server/collections/researchConversations/queries";
 import { graphqlResearchDocumentQueryTypeDefs, researchDocumentGqlQueryHandlers, researchDocumentGqlFieldResolvers } from "@/server/collections/researchDocuments/queries";
+import { graphqlResearchEnvironmentQueryTypeDefs, researchEnvironmentGqlQueryHandlers, researchEnvironmentGqlFieldResolvers } from "@/server/collections/researchEnvironments/queries";
 import { graphqlResearchProjectQueryTypeDefs, researchProjectGqlQueryHandlers, researchProjectGqlFieldResolvers } from "@/server/collections/researchProjects/queries";
 import { graphqlReviewVoteQueryTypeDefs, reviewVoteGqlQueryHandlers, reviewVoteGqlFieldResolvers } from "@/server/collections/reviewVotes/queries";
 import { graphqlReviewWinnerArtQueryTypeDefs, reviewWinnerArtGqlQueryHandlers, reviewWinnerArtGqlFieldResolvers } from "@/server/collections/reviewWinnerArts/queries";
@@ -153,11 +153,9 @@ import { graphqlUltraFeedEventQueryTypeDefs, ultraFeedEventGqlFieldResolvers } f
 import { graphqlUserActivityQueryTypeDefs, userActivityGqlFieldResolvers } from "@/server/collections/useractivities/queries";
 import { graphqlUserMostValuablePostQueryTypeDefs, userMostValuablePostGqlQueryHandlers, userMostValuablePostGqlFieldResolvers } from "@/server/collections/userMostValuablePosts/queries";
 import { graphqlUserRateLimitQueryTypeDefs, userRateLimitGqlQueryHandlers, userRateLimitGqlFieldResolvers } from "@/server/collections/userRateLimits/queries";
-import { graphqlUserSecretQueryTypeDefs, userSecretGqlQueryHandlers, userSecretGqlFieldResolvers } from "@/server/collections/userSecrets/queries";
 import { graphqlUserTagRelQueryTypeDefs, userTagRelGqlQueryHandlers, userTagRelGqlFieldResolvers } from "@/server/collections/userTagRels/queries";
 import { graphqlUserQueryTypeDefs, userGqlQueryHandlers, userGqlFieldResolvers } from "@/server/collections/users/queries";
 import { graphqlVoteQueryTypeDefs, voteGqlQueryHandlers, voteGqlFieldResolvers } from "@/server/collections/votes/queries";
-import { graphqlWorkspaceRepoQueryTypeDefs, workspaceRepoGqlQueryHandlers, workspaceRepoGqlFieldResolvers } from "@/server/collections/workspaceRepos/queries";
 import { bookmarkGqlTypeDefs, bookmarkGqlMutations } from '@/server/collections/bookmarks/mutations';
 import { createBookGqlMutation, updateBookGqlMutation, graphqlBookTypeDefs } from "@/server/collections/books/mutations";
 import { createChapterGqlMutation, updateChapterGqlMutation, graphqlChapterTypeDefs } from "@/server/collections/chapters/mutations";
@@ -198,10 +196,8 @@ import { createTagGqlMutation, updateTagGqlMutation, graphqlTagTypeDefs } from "
 import { createUltraFeedEventGqlMutation, updateUltraFeedEventGqlMutation, graphqlUltraFeedEventTypeDefs } from "@/server/collections/ultraFeedEvents/mutations";
 import { createUserMostValuablePostGqlMutation, updateUserMostValuablePostGqlMutation, graphqlUserMostValuablePostTypeDefs } from "@/server/collections/userMostValuablePosts/mutations";
 import { createUserRateLimitGqlMutation, updateUserRateLimitGqlMutation, graphqlUserRateLimitTypeDefs } from "@/server/collections/userRateLimits/mutations";
-import { createUserSecretGqlMutation, updateUserSecretGqlMutation, graphqlUserSecretTypeDefs } from "@/server/collections/userSecrets/mutations";
 import { createUserTagRelGqlMutation, updateUserTagRelGqlMutation, graphqlUserTagRelTypeDefs } from "@/server/collections/userTagRels/mutations";
 import { createUserGqlMutation, updateUserGqlMutation, graphqlUserTypeDefs } from "@/server/collections/users/mutations";
-import { createWorkspaceRepoGqlMutation, graphqlWorkspaceRepoTypeDefs } from "@/server/collections/workspaceRepos/mutations";
 
 
 const selectorInput = gql`
@@ -279,7 +275,6 @@ export const getTypeDefs = () => gql`
   ${userContentFeedGraphQLTypeDefs}
   ${conversationGqlTypeDefs}
   ${researchResolversTypeDefs}
-  ${researchWorkspaceTypeDefs}
   ${tagGraphQLTypeDefs}
   ${databaseSettingsGqlTypeDefs}
   ${siteGraphQLTypeDefs}
@@ -382,6 +377,7 @@ export const getTypeDefs = () => gql`
   ${graphqlResearchConversationEventQueryTypeDefs}
   ${graphqlResearchConversationQueryTypeDefs}
   ${graphqlResearchDocumentQueryTypeDefs}
+  ${graphqlResearchEnvironmentQueryTypeDefs}
   ${graphqlResearchProjectQueryTypeDefs}
   ${graphqlReviewVoteQueryTypeDefs}
   ${graphqlReviewWinnerArtQueryTypeDefs}
@@ -402,11 +398,9 @@ export const getTypeDefs = () => gql`
   ${graphqlUserActivityQueryTypeDefs}
   ${graphqlUserMostValuablePostQueryTypeDefs}
   ${graphqlUserRateLimitQueryTypeDefs}
-  ${graphqlUserSecretQueryTypeDefs}
   ${graphqlUserTagRelQueryTypeDefs}
   ${graphqlUserQueryTypeDefs}
   ${graphqlVoteQueryTypeDefs}
-  ${graphqlWorkspaceRepoQueryTypeDefs}
   ${graphqlYjsDocumentQueryTypeDefs}
   ## CRUD Mutation and input typedefs
   ${graphqlBookTypeDefs}
@@ -446,10 +440,8 @@ export const getTypeDefs = () => gql`
   ${graphqlUltraFeedEventTypeDefs}
   ${graphqlUserMostValuablePostTypeDefs}
   ${graphqlUserRateLimitTypeDefs}
-  ${graphqlUserSecretTypeDefs}
   ${graphqlUserTagRelTypeDefs}
   ${graphqlUserTypeDefs}
-  ${graphqlWorkspaceRepoTypeDefs}
 `
 
 
@@ -499,7 +491,6 @@ const getResolvers = () => ({
     ...sequencesResolversQueries,
     ...reviewPredictionGraphQLQueries,
     ...researchResolversQueries,
-    ...researchWorkspaceQueries,
     ...adminEmailSenderGraphQLQueries,
 
     // CRUD Query Handlers
@@ -541,6 +532,7 @@ const getResolvers = () => ({
     ...researchConversationEventGqlQueryHandlers,
     ...researchConversationGqlQueryHandlers,
     ...researchDocumentGqlQueryHandlers,
+    ...researchEnvironmentGqlQueryHandlers,
     ...researchProjectGqlQueryHandlers,
     ...reviewVoteGqlQueryHandlers,
     ...reviewWinnerArtGqlQueryHandlers,
@@ -556,11 +548,9 @@ const getResolvers = () => ({
     ...typingIndicatorGqlQueryHandlers,
     ...userMostValuablePostGqlQueryHandlers,
     ...userRateLimitGqlQueryHandlers,
-    ...userSecretGqlQueryHandlers,
     ...userTagRelGqlQueryHandlers,
     ...userGqlQueryHandlers,
     ...voteGqlQueryHandlers,
-    ...workspaceRepoGqlQueryHandlers,
     ...bookmarkGqlQueryHandlers,
   },
   Mutation: {
@@ -581,7 +571,6 @@ const getResolvers = () => ({
     ...alignmentForumMutations,
     ...conversationGqlMutations,
     ...researchResolversMutations,
-    ...researchWorkspaceMutations,
     ...databaseSettingsGqlMutations,
     ...ckEditorCallbacksGraphQLMutations,
     ...importUrlAsDraftPostGqlMutation,
@@ -674,13 +663,10 @@ const getResolvers = () => ({
     updateUserMostValuablePost: updateUserMostValuablePostGqlMutation,
     createUserRateLimit: createUserRateLimitGqlMutation,
     updateUserRateLimit: updateUserRateLimitGqlMutation,
-    createUserSecret: createUserSecretGqlMutation,
-    updateUserSecret: updateUserSecretGqlMutation,
     createUserTagRel: createUserTagRelGqlMutation,
     updateUserTagRel: updateUserTagRelGqlMutation,
     createUser: createUserGqlMutation,
     updateUser: updateUserGqlMutation,
-    createWorkspaceRepo: createWorkspaceRepoGqlMutation,
   },
   ...karmaChangesFieldResolvers,
   ...elicitPredictionsGraphQLFieldResolvers,
@@ -745,6 +731,7 @@ const getResolvers = () => ({
   ...researchConversationEventGqlFieldResolvers,
   ...researchConversationGqlFieldResolvers,
   ...researchDocumentGqlFieldResolvers,
+  ...researchEnvironmentGqlFieldResolvers,
   ...researchProjectGqlFieldResolvers,
   ...reviewVoteGqlFieldResolvers,
   ...reviewWinnerArtGqlFieldResolvers,
@@ -765,11 +752,9 @@ const getResolvers = () => ({
   ...userActivityGqlFieldResolvers,
   ...userMostValuablePostGqlFieldResolvers,
   ...userRateLimitGqlFieldResolvers,
-  ...userSecretGqlFieldResolvers,
   ...userTagRelGqlFieldResolvers,
   ...userGqlFieldResolvers,
   ...voteGqlFieldResolvers,
-  ...workspaceRepoGqlFieldResolvers,
   ...yjsDocumentGqlFieldResolvers,
 } satisfies {
   JSON: typeof GraphQLJSON,

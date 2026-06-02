@@ -2,12 +2,15 @@ import AbstractRepo from "./AbstractRepo";
 import { recordPerfMetrics } from "./perfMetricWrapper";
 import ResearchConversationEvents from "../collections/researchConversationEvents/collection";
 import { randomId } from "@/lib/random";
+import { isPostgresUniqueViolation } from "@/server/utils/postgresErrors";
 
 export interface IncomingResearchConversationEvent {
-  claudeMessageUuid: string | null;
+  claudeMessageUuid: string;
   kind: string;
   payload: unknown;
 }
+
+const SEQ_RETRY_ATTEMPTS = 5;
 
 export interface PersistEventResult {
   /** The seq number of the persisted (or pre-existing, if deduplicated) row. */
@@ -31,110 +34,143 @@ class ResearchConversationEventsRepo extends AbstractRepo<"ResearchConversationE
    * supervisor must NOT pre-assign one. This avoids the gap-on-out-of-order-
    * retry bug we'd hit if seq came from the client.
    *
-   * **Ordering invariant**: this function produces the canonical Claude-Code
-   * emission order *only because* `postPersister.ts` serializes POSTs into a
-   * per-conversation FIFO chain (one in-flight at a time). MAX(seq)+1 has no
-   * defense against parallel arrivals; if anyone removes that chain (or runs
-   * multiple supervisors writing the same conversation), seqs will be wrong.
-   * Touch `postPersister`'s in-flight chain at your peril.
-   *
-   * Idempotent on `(conversationId, claudeMessageUuid)` when the UUID is
-   * non-null. The single-statement form below uses an `INSERT ... ON CONFLICT
-   * (conversationId, claudeMessageUuid) DO UPDATE SET seq = seq RETURNING seq`
-   * trick to (a) get the existing row's seq back when the conflict fires,
-   * (b) atomically claim the next seq when it doesn't. We need DO UPDATE
-   * (not DO NOTHING) so RETURNING fires in both branches.
-   *
-   * If `claudeMessageUuid` is null, no UUID-level dedupe is possible — the
-   * supervisor should retry only when network errors leave it unsure whether
-   * the previous request succeeded, in which case it should re-send with the
-   * same UUID. Events without UUIDs are not retried by the supervisor.
+   * **No advisory lock; single writer in the common case; retry as backstop.**
+   * The supervisor's per-conversation FIFO drain is the sole writer per
+   * conversation, so the common case is correctly ordered and collision-free
+   * with no lock. (The advisory lock was dropped: under RDS Proxy it pins the
+   * connection and defeats pooling.) As a uniqueness backstop, a
+   * `(conversationId, seq)` unique violation — which a stray concurrent writer
+   * could provoke — is retried, re-deriving `MAX(seq)+1`.
    */
   public async persistEvent(
     conversationId: string,
     event: IncomingResearchConversationEvent,
   ): Promise<PersistEventResult> {
-    // Serialize seq assignment per conversation. Without this, concurrent
-    // callbacks can both compute MAX(seq)+1 and race on the unique index.
-    // For UUID-bearing events: use ON CONFLICT against the unique index on
-    // `(conversationId, claudeMessageUuid)`. Postgres allows multiple nulls in
-    // unique indexes, so UUID-less events still bypass dedupe.
-    if (event.claudeMessageUuid !== null) {
-      const result = await this.getRawDb().one<{ seq: number; inserted: boolean }>(`
-        WITH lock AS (
-          SELECT pg_advisory_xact_lock(hashtext($(conversationId))) AS locked
-        ),
-        conversation AS (
-          SELECT "userId", "projectId"
-          FROM "ResearchConversations"
-          WHERE "_id" = $(conversationId)
-        ),
-        next_seq AS (
-          SELECT COALESCE(MAX("seq") + 1, 0) AS seq
-          FROM lock
-          LEFT JOIN "ResearchConversationEvents" ON "conversationId" = $(conversationId)
-        ),
-        inserted AS (
-          INSERT INTO "ResearchConversationEvents"
-            ("_id", "userId", "projectId", "conversationId", "seq", "claudeMessageUuid", "kind", "payload", "createdAt")
-          SELECT
-            $(eventId), conversation."userId", conversation."projectId", $(conversationId), next_seq.seq, $(claudeMessageUuid), $(kind), $(payload)::jsonb, NOW()
-          FROM next_seq
-          CROSS JOIN conversation
-          ON CONFLICT ("conversationId", "claudeMessageUuid")
-          WHERE "claudeMessageUuid" IS NOT NULL
-          DO NOTHING
-          RETURNING "seq"
-        )
-        SELECT
-          COALESCE(
-            (SELECT "seq" FROM inserted),
-            (SELECT "seq" FROM "ResearchConversationEvents"
-              WHERE "conversationId" = $(conversationId)
-                AND "claudeMessageUuid" = $(claudeMessageUuid))
-          ) AS "seq",
-          EXISTS (SELECT 1 FROM inserted) AS "inserted"
-      `, {
-        eventId: randomId(),
-        conversationId,
-        claudeMessageUuid: event.claudeMessageUuid,
-        kind: event.kind,
-        payload: JSON.stringify(event.payload),
-      });
-      return { seq: result.seq, deduplicated: !result.inserted };
+    if (!event.claudeMessageUuid) {
+      throw new Error("persistEvent: claudeMessageUuid is required (non-null)");
     }
+    let lastErr: unknown = null;
+    for (let attempt = 0; attempt < SEQ_RETRY_ATTEMPTS; attempt++) {
+      try {
+        const result = await this.getRawDb().one<{ seq: number; inserted: boolean }>(`
+          WITH conversation AS (
+            SELECT "userId", "projectId"
+            FROM "ResearchConversations"
+            WHERE "_id" = $(conversationId)
+          ),
+          next_seq AS (
+            SELECT COALESCE(MAX("seq") + 1, 0) AS seq
+            FROM "ResearchConversationEvents"
+            WHERE "conversationId" = $(conversationId)
+          ),
+          inserted AS (
+            INSERT INTO "ResearchConversationEvents"
+              ("_id", "userId", "projectId", "conversationId", "seq", "claudeMessageUuid", "kind", "payload", "createdAt")
+            SELECT
+              $(eventId), conversation."userId", conversation."projectId", $(conversationId), next_seq.seq, $(claudeMessageUuid), $(kind), $(payload)::jsonb, NOW()
+            FROM next_seq
+            CROSS JOIN conversation
+            ON CONFLICT ("conversationId", "claudeMessageUuid")
+            DO NOTHING
+            RETURNING "seq"
+          )
+          SELECT
+            COALESCE(
+              (SELECT "seq" FROM inserted),
+              (SELECT "seq" FROM "ResearchConversationEvents"
+                WHERE "conversationId" = $(conversationId)
+                  AND "claudeMessageUuid" = $(claudeMessageUuid))
+            ) AS "seq",
+            EXISTS (SELECT 1 FROM inserted) AS "inserted"
+        `, {
+          eventId: randomId(),
+          conversationId,
+          claudeMessageUuid: event.claudeMessageUuid,
+          kind: event.kind,
+          payload: JSON.stringify(event.payload),
+        });
+        return { seq: result.seq, deduplicated: !result.inserted };
+      } catch (err) {
+        if (isPostgresUniqueViolation(err)) {
+          lastErr = err;
+          continue;
+        }
+        throw err;
+      }
+    }
+    throw lastErr ?? new Error("persistEvent: exhausted seq retries");
+  }
 
-    // No UUID — best-effort assign next seq, no dedupe possible. The CTE
-    // computes max+1 (or 0 if no rows) and the INSERT pulls one row from it,
-    // so the insert always fires even on the first event.
-    const result = await this.getRawDb().one<{ seq: number }>(`
-      WITH lock AS (
-        SELECT pg_advisory_xact_lock(hashtext($(conversationId))) AS locked
-      ),
-      conversation AS (
-        SELECT "userId", "projectId"
-        FROM "ResearchConversations"
-        WHERE "_id" = $(conversationId)
-      ),
-      next_seq AS (
-        SELECT COALESCE(MAX("seq") + 1, 0) AS seq
-        FROM lock
-        LEFT JOIN "ResearchConversationEvents" ON "conversationId" = $(conversationId)
-      )
+  /**
+   * Backfill a "with"-environment branch: copy the source conversation's events
+   * with `seq ≤ branchSeq` into the target conversation `Y`, in one synchronous
+   * `INSERT … SELECT`. Runs before `Y` accepts any turn, so no lock is needed
+   * (single writer). Per the design's "Spawning a conversation from an
+   * environment":
+   *  - a fresh `_id` per row;
+   *  - `conversationId`/`userId`/`projectId` set to `Y`'s;
+   *  - `seq` preserved verbatim (the copied prefix is contiguous `0..N`, so
+   *    `Y`'s first turn gets `N+1` from `MAX(seq)+1`);
+   *  - `createdAt = NOW()` (display orders by `seq`, not insert time);
+   *  - synthetic idempotency ids rewritten to a flat `bf:<source _id>`
+   *    (collision-proof even across repeated branching A→B→C), real Claude
+   *    UUIDs copied through unchanged.
+   */
+  public async backfillFromBranch(args: {
+    sourceConversationId: string;
+    targetConversationId: string;
+    targetUserId: string;
+    targetProjectId: string;
+    branchSeq: number;
+  }): Promise<void> {
+    await this.getRawDb().none(`
+      -- ResearchConversationEventsRepo.backfillFromBranch
       INSERT INTO "ResearchConversationEvents"
         ("_id", "userId", "projectId", "conversationId", "seq", "claudeMessageUuid", "kind", "payload", "createdAt")
       SELECT
-        $(eventId), conversation."userId", conversation."projectId", $(conversationId), next_seq.seq, NULL, $(kind), $(payload)::jsonb, NOW()
-      FROM next_seq
-      CROSS JOIN conversation
-      RETURNING "seq"
+        -- A fresh random _id per row (≤ VARCHAR(27); never read back by _id, so
+        -- the non-app id format is harmless). Random — not derived from the
+        -- source _id — so branching one environment into several conversations
+        -- can't collide on the global _id PK.
+        substr(md5(random()::text || src."_id"), 1, 24),
+        $(targetUserId),
+        $(targetProjectId),
+        $(targetConversationId),
+        src."seq",
+        -- Rewrite synthetic idempotency ids (sup:/bf:) to a flat bf:<source _id>:
+        -- a flat prefix is collision-proof even across repeated branching
+        -- (A-to-B-to-C), where a row may already carry an inherited bf: id from an
+        -- earlier branch. Real Claude UUIDs copy through unchanged.
+        CASE
+          WHEN src."claudeMessageUuid" LIKE 'sup:%' OR src."claudeMessageUuid" LIKE 'bf:%'
+            THEN 'bf:' || src."_id"
+          ELSE src."claudeMessageUuid"
+        END,
+        src."kind",
+        src."payload",
+        NOW()
+      FROM "ResearchConversationEvents" src
+      WHERE src."conversationId" = $(sourceConversationId)
+        AND src."seq" <= $(branchSeq)
     `, {
-      eventId: randomId(),
-      conversationId,
-      kind: event.kind,
-      payload: JSON.stringify(event.payload),
+      sourceConversationId: args.sourceConversationId,
+      targetConversationId: args.targetConversationId,
+      targetUserId: args.targetUserId,
+      targetProjectId: args.targetProjectId,
+      branchSeq: args.branchSeq,
     });
-    return { seq: result.seq, deduplicated: false };
+  }
+
+  public async hasIncompleteTurn(conversationId: string): Promise<boolean> {
+    const row = await this.getRawDb().one<{ userCount: string; resultCount: string }>(`
+      -- ResearchConversationEventsRepo.hasIncompleteTurn
+      SELECT
+        COUNT(*) FILTER (WHERE "kind" = 'user') AS "userCount",
+        COUNT(*) FILTER (WHERE "kind" = 'result') AS "resultCount"
+      FROM "ResearchConversationEvents"
+      WHERE "conversationId" = $(conversationId)
+    `, { conversationId });
+    return Number(row.userCount) > Number(row.resultCount);
   }
 
   /**
