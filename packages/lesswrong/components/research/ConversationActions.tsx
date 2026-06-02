@@ -25,14 +25,19 @@ const MintDevPreviewUrlMutation = gql(`
 const styles = defineStyles('ConversationActions', (theme: ThemeType) => ({
   root: {
     display: 'flex',
-    gap: 8,
+    flexWrap: 'wrap',
+    justifyContent: 'flex-end',
+    gap: 6,
     alignItems: 'center',
   },
   button: {
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
     background: 'transparent',
     border: theme.palette.greyBorder('1px', 0.15),
     borderRadius: 4,
-    fontSize: 12,
+    fontSize: 11,
+    lineHeight: 1.5,
     color: theme.palette.text.dim,
     padding: '2px 8px',
     cursor: 'pointer',
@@ -101,13 +106,31 @@ export function ConversationActions({ conversationId }: { conversationId: string
 
   return (
     <div className={classes.root}>
-      <button type="button" className={classes.button} disabled={busy} onClick={() => handleSave(true)}>
-        Save env (with conversation)
+      <button
+        type="button"
+        className={classes.button}
+        disabled={busy}
+        onClick={() => handleSave(true)}
+        title="Save this sandbox as a reusable environment, including the conversation"
+      >
+        Save (with chat)
       </button>
-      <button type="button" className={classes.button} disabled={busy} onClick={() => handleSave(false)}>
-        Save env (clean)
+      <button
+        type="button"
+        className={classes.button}
+        disabled={busy}
+        onClick={() => handleSave(false)}
+        title="Save this sandbox as a reusable environment, without the conversation"
+      >
+        Save (clean)
       </button>
-      <button type="button" className={classes.button} disabled={busy} onClick={handlePreview}>
+      <button
+        type="button"
+        className={classes.button}
+        disabled={busy}
+        onClick={handlePreview}
+        title="Open the sandbox's dev-server preview"
+      >
         Preview
       </button>
     </div>
