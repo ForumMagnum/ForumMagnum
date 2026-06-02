@@ -696,6 +696,7 @@ interface RevisionsKarmaChange {
 interface ReactionChange {
   reactionType: string;
   userId: string | null;
+  quote: string | null;
 }
 
 interface KarmaChangesSimple {

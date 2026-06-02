@@ -142,6 +142,7 @@ interface FragmentTypes {
   SuggestAlignmentUser: SuggestAlignmentUser
   SunshineCommentsList: SunshineCommentsList
   SunshineCurationPostsList: SunshineCurationPostsList
+  SunshineCurationPostsListItem: SunshineCurationPostsListItem
   SunshinePostsList: SunshinePostsList
   SunshineTagFragment: SunshineTagFragment
   SunshineUsersList: SunshineUsersList
@@ -249,7 +250,7 @@ interface FragmentTypesByCollection {
   PetrovDayActions: "PetrovDayActionInfo"
   PodcastEpisodes: "PodcastEpisodeCreateFragment"|"PodcastEpisodeFull"
   Podcasts: "PodcastSelect"
-  Posts: "ChapterPostSlim"|"HighlightWithHash"|"MarkdownPostsList"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ProfileTopPost"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshinePostsList"|"UltraFeedPostFragment"|"UserProfilePost"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
+  Posts: "ChapterPostSlim"|"HighlightWithHash"|"MarkdownPostsList"|"PostPodcastEpisode"|"PostSequenceNavigation"|"PostWithDialogueMessage"|"PostWithGeneratedSummary"|"PostsAuthors"|"PostsBase"|"PostsBestOfList"|"PostsDetails"|"PostsEdit"|"PostsEditMutationFragment"|"PostsEditQueryFragment"|"PostsExpandedHighlight"|"PostsForAutocomplete"|"PostsHTML"|"PostsList"|"PostsListBase"|"PostsListTag"|"PostsListTagWithVotes"|"PostsListWithVotes"|"PostsListWithVotesAndSequence"|"PostsMinimumInfo"|"PostsModerationGuidelines"|"PostsOriginalContents"|"PostsPage"|"PostsPlaintextDescription"|"PostsRSSFeed"|"PostsRecentDiscussion"|"PostsReviewVotingList"|"PostsRevision"|"PostsRevisionsList"|"PostsTopItemInfo"|"PostsWithNavigation"|"PostsWithNavigationAndRevision"|"PostsWithVotes"|"ProfileTopPost"|"ShortformRecentDiscussion"|"SuggestAlignmentPost"|"SunshineCurationPostsList"|"SunshineCurationPostsListItem"|"SunshinePostsList"|"UltraFeedPostFragment"|"UserProfilePost"|"UsersBannedFromPostsModerationLog"|"WithVotePost"
   RSSFeeds: "RSSFeedMinimumInfo"|"newRSSFeedFragment"
   Reports: "UnclaimedReportsList"
   ReviewVotes: "reviewAdminDashboard"|"reviewVoteFragment"
@@ -405,6 +406,7 @@ interface CollectionNamesByFragmentName {
   SuggestAlignmentUser: "Users"
   SunshineCommentsList: "Comments"
   SunshineCurationPostsList: "Posts"
+  SunshineCurationPostsListItem: "Posts"
   SunshinePostsList: "Posts"
   SunshineTagFragment: "Tags"
   SunshineUsersList: "Users"

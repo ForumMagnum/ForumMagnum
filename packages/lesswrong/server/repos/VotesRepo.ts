@@ -288,6 +288,7 @@ class VotesRepo extends AbstractRepo<"Votes"> {
           reactionChanges.push({
             reactionType: reaction.reactionType,
             userId: userId,
+            quote: reaction.quote ?? null,
           });
         }
       }

@@ -8661,6 +8661,7 @@ type ReactPaletteStyle =
 
 type ReactionChange = {
   __typename?: 'ReactionChange';
+  quote?: Maybe<Scalars['String']['output']>;
   reactionType: Scalars['String']['output'];
   userId?: Maybe<Scalars['String']['output']>;
 };
@@ -20678,7 +20679,7 @@ type multiPostAutoClassifiedInboxQueryQuery = multiPostAutoClassifiedInboxQueryQ
 
 type CurationCandidatePostsQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult_results_Post = (
   { __typename?: 'Post' }
-  & SunshineCurationPostsList
+  & SunshineCurationPostsListItem
 );
 
 type CurationCandidatePostsQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult = { __typename?: 'CurationCandidatePostsResult', results: Array<CurationCandidatePostsQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult_results_Post> };
@@ -22774,6 +22775,40 @@ type karmaChangesCheckedKarmaChangeNotifierMutationVariables = Exact<{
 
 type karmaChangesCheckedKarmaChangeNotifierMutation = karmaChangesCheckedKarmaChangeNotifierMutation_Mutation;
 
+type KarmaChangePostBodiesQuery_posts_MultiPostOutput_results_Post_contents_Revision = { __typename?: 'Revision', _id: string, htmlHighlight: string };
+
+type KarmaChangePostBodiesQuery_posts_MultiPostOutput_results_Post = { __typename?: 'Post', _id: string, contents: KarmaChangePostBodiesQuery_posts_MultiPostOutput_results_Post_contents_Revision | null };
+
+type KarmaChangePostBodiesQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<KarmaChangePostBodiesQuery_posts_MultiPostOutput_results_Post> };
+
+type KarmaChangePostBodiesQuery_Query = { __typename?: 'Query', posts: KarmaChangePostBodiesQuery_posts_MultiPostOutput | null };
+
+
+type KarmaChangePostBodiesQueryVariables = Exact<{
+  selector: InputMaybe<PostSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type KarmaChangePostBodiesQuery = KarmaChangePostBodiesQuery_Query;
+
+type KarmaChangeCommentBodiesQuery_comments_MultiCommentOutput_results_Comment_contents_Revision = { __typename?: 'Revision', _id: string, html: string | null };
+
+type KarmaChangeCommentBodiesQuery_comments_MultiCommentOutput_results_Comment = { __typename?: 'Comment', _id: string, contents: KarmaChangeCommentBodiesQuery_comments_MultiCommentOutput_results_Comment_contents_Revision | null };
+
+type KarmaChangeCommentBodiesQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<KarmaChangeCommentBodiesQuery_comments_MultiCommentOutput_results_Comment> };
+
+type KarmaChangeCommentBodiesQuery_Query = { __typename?: 'Query', comments: KarmaChangeCommentBodiesQuery_comments_MultiCommentOutput | null };
+
+
+type KarmaChangeCommentBodiesQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type KarmaChangeCommentBodiesQuery = KarmaChangeCommentBodiesQuery_Query;
+
 type SubscribedUserQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
   & UsersMinimumInfo
@@ -23826,6 +23861,14 @@ type SunshineCurationPostsList = (
   { __typename?: 'Post', curationNotices: Array<SunshineCurationPostsList_Post_curationNotices_CurationNotice> | null }
   & PostsList
 );
+
+type SunshineCurationPostsListItem_Post_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type SunshineCurationPostsListItem_Post_curationNotices_CurationNotice_user_User = { __typename?: 'User', _id: string, displayName: string };
+
+type SunshineCurationPostsListItem_Post_curationNotices_CurationNotice = { __typename?: 'CurationNotice', _id: string, user: SunshineCurationPostsListItem_Post_curationNotices_CurationNotice_user_User | null };
+
+type SunshineCurationPostsListItem = { __typename?: 'Post', _id: string, title: string, postedAt: string, baseScore: number, suggestForCuratedUsernames: string | null, user: SunshineCurationPostsListItem_Post_user_User | null, curationNotices: Array<SunshineCurationPostsListItem_Post_curationNotices_CurationNotice> | null };
 
 type PostsListTag_Post_tagRel_TagRel = (
   { __typename?: 'TagRel' }
@@ -24891,15 +24934,15 @@ type UsersCurrentCommentRateLimit = { __typename?: 'User', _id: string, rateLimi
 
 type UsersCurrentPostRateLimit = { __typename?: 'User', _id: string, rateLimitNextAbleToPost: any | null };
 
-type UserKarmaChanges_User_karmaChanges_KarmaChanges_posts_PostKarmaChange_addedReacts_ReactionChange = { __typename?: 'ReactionChange', reactionType: string, userId: string | null };
+type UserKarmaChanges_User_karmaChanges_KarmaChanges_posts_PostKarmaChange_addedReacts_ReactionChange = { __typename?: 'ReactionChange', reactionType: string, userId: string | null, quote: string | null };
 
 type UserKarmaChanges_User_karmaChanges_KarmaChanges_posts_PostKarmaChange = { __typename?: 'PostKarmaChange', _id: string, scoreChange: number, postId: string, title: string | null, slug: string, collectionName: string, addedReacts: Array<UserKarmaChanges_User_karmaChanges_KarmaChanges_posts_PostKarmaChange_addedReacts_ReactionChange> | null };
 
-type UserKarmaChanges_User_karmaChanges_KarmaChanges_comments_CommentKarmaChange_addedReacts_ReactionChange = { __typename?: 'ReactionChange', reactionType: string, userId: string | null };
+type UserKarmaChanges_User_karmaChanges_KarmaChanges_comments_CommentKarmaChange_addedReacts_ReactionChange = { __typename?: 'ReactionChange', reactionType: string, userId: string | null, quote: string | null };
 
 type UserKarmaChanges_User_karmaChanges_KarmaChanges_comments_CommentKarmaChange = { __typename?: 'CommentKarmaChange', _id: string, scoreChange: number, commentId: string | null, description: string | null, postId: string | null, postTitle: string | null, postSlug: string | null, tagSlug: string | null, tagName: string | null, tagCommentType: TagCommentType | null, collectionName: string, addedReacts: Array<UserKarmaChanges_User_karmaChanges_KarmaChanges_comments_CommentKarmaChange_addedReacts_ReactionChange> | null };
 
-type UserKarmaChanges_User_karmaChanges_KarmaChanges_tagRevisions_RevisionsKarmaChange_addedReacts_ReactionChange = { __typename?: 'ReactionChange', reactionType: string, userId: string | null };
+type UserKarmaChanges_User_karmaChanges_KarmaChanges_tagRevisions_RevisionsKarmaChange_addedReacts_ReactionChange = { __typename?: 'ReactionChange', reactionType: string, userId: string | null, quote: string | null };
 
 type UserKarmaChanges_User_karmaChanges_KarmaChanges_tagRevisions_RevisionsKarmaChange = { __typename?: 'RevisionsKarmaChange', _id: string, scoreChange: number, tagId: string | null, tagSlug: string | null, tagName: string | null, collectionName: string, addedReacts: Array<UserKarmaChanges_User_karmaChanges_KarmaChanges_tagRevisions_RevisionsKarmaChange_addedReacts_ReactionChange> | null };
 

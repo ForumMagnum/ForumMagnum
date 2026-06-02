@@ -431,6 +431,7 @@ type RevisionsKarmaChange {
 type ReactionChange {
   reactionType: String!
   userId: String
+  quote: String
 }
 
 type KarmaChangesSimple {
