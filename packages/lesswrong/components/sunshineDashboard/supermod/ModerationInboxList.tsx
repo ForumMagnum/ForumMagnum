@@ -3,6 +3,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationInboxItem from './ModerationInboxItem';
 import ModerationPostItem from './ModerationPostItem';
 import CurationPostItem from './CurationPostItem';
+import Loading from '@/components/vulcan-core/Loading';
 import type { ReviewGroup, TabId } from './groupings';
 import classNames from 'classnames';
 
@@ -59,6 +60,9 @@ const ModerationInboxList = ({
   onOpenUser,
   onFocusPost,
   activeTab,
+  usersLoading,
+  postsLoading,
+  curationLoading,
 }: {
   userGroups: GroupEntry[];
   posts: SunshinePostsList[];
@@ -69,6 +73,9 @@ const ModerationInboxList = ({
   onOpenUser: (userId: string) => void;
   onFocusPost: (postId: string) => void;
   activeTab: TabId;
+  usersLoading: boolean;
+  postsLoading: boolean;
+  curationLoading: boolean;
 }) => {
   const classes = useStyles(styles);
 
@@ -77,7 +84,9 @@ const ModerationInboxList = ({
   return (
     <div className={classes.root}>
       {activeTab === 'curation' ? (
-        curationPosts.length === 0 ? (
+        curationLoading ? (
+          <div className={classes.empty}><Loading /></div>
+        ) : curationPosts.length === 0 ? (
           <div className={classes.empty}>No curation candidates</div>
         ) : (
           <div className={classes.scrollContainer}>
@@ -92,7 +101,9 @@ const ModerationInboxList = ({
           </div>
         )
       ) : (activeTab === 'posts' || activeTab === 'classifiedPosts') ? (
-        posts.length === 0 ? (
+        postsLoading ? (
+          <div className={classes.empty}><Loading /></div>
+        ) : posts.length === 0 ? (
           <div className={classes.empty}>
             {activeTab === 'classifiedPosts' ? 'No auto-classified posts to review' : 'No posts to review'}
           </div>
@@ -109,7 +120,9 @@ const ModerationInboxList = ({
           </div>
         )
       ) : (
-        userCount === 0 ? (
+        usersLoading ? (
+          <div className={classes.empty}><Loading /></div>
+        ) : userCount === 0 ? (
           <div className={classes.empty}>
             No users to review
           </div>

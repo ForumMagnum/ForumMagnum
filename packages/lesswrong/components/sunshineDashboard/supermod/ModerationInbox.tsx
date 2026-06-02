@@ -12,7 +12,6 @@ import ModerationUserDetailView from './ModerationUserDetailView';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import ModerationUserKeyboardHandler from './ModerationUserKeyboardHandler';
 import ModerationPostKeyboardHandler from './ModerationPostKeyboardHandler';
-import Loading from '@/components/vulcan-core/Loading';
 import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
 import { getUserReviewGroup, REVIEW_GROUP_TO_PRIORITY, type TabId } from './groupings';
@@ -128,15 +127,9 @@ const styles = defineStyles('ModerationInbox', (theme: ThemeType) => ({
     flex: 1,
     overflow: 'hidden',
   },
-  loading: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100vh',
-  },
 }));
 
-const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, lastCuratedDate, initialOpenedUserId, directUser, currentUser }: {
+const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, lastCuratedDate, initialOpenedUserId, directUser, currentUser, usersLoading, postsLoading, classifiedPostsLoading, curationLoading }: {
   users: SunshineUsersList[];
   posts: SunshinePostsList[];
   classifiedPosts: SunshinePostsList[];
@@ -145,6 +138,10 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
   initialOpenedUserId: string | null;
   directUser: SunshineUsersList | null;
   currentUser: UsersCurrent;
+  usersLoading: boolean;
+  postsLoading: boolean;
+  classifiedPostsLoading: boolean;
+  curationLoading: boolean;
 }) => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
@@ -201,7 +198,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
       const firstTab = firstNonEmptyTab?.group ?? 'curation';
 
       if (firstTab === 'curation') {
-        return { 
+        return {
           users: initialUsers,
           posts,
           classifiedPosts,
@@ -480,6 +477,9 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
                   onOpenUser={handleOpenUser}
                   onFocusPost={handleFocusPost}
                   activeTab={state.activeTab}
+                  usersLoading={usersLoading}
+                  postsLoading={state.activeTab === 'classifiedPosts' ? classifiedPostsLoading : postsLoading}
+                  curationLoading={curationLoading}
                 />
               </div>
             </>
@@ -509,7 +509,6 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 };
 
 const ModerationInbox = () => {
-  const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const { query } = useLocation();
 
@@ -520,6 +519,7 @@ const ModerationInbox = () => {
       enableTotal: true,
     },
     fetchPolicy: 'cache-and-network',
+    ssr: false,
   });
 
   const { data: postsData, loading: postsLoading } = useQuery(SunshinePostsListMultiQuery, {
@@ -529,6 +529,7 @@ const ModerationInbox = () => {
       enableTotal: true,
     },
     fetchPolicy: 'cache-and-network',
+    ssr: false,
   });
 
   const { data: classifiedPostsData, loading: classifiedPostsLoading } = useQuery(SunshineAutoClassifiedPostsListMultiQuery, {
@@ -538,15 +539,18 @@ const ModerationInbox = () => {
       enableTotal: true,
     },
     fetchPolicy: 'cache-and-network',
+    ssr: false,
   });
 
   const { data: curationData, loading: curationLoading } = useQuery(CurationCandidatePostsQuery, {
     variables: { limit: 200 },
     fetchPolicy: 'cache-and-network',
+    ssr: false,
   });
 
   const { data: lastCuratedData } = useQuery(LastCuratedDateQuery, {
     fetchPolicy: 'cache-and-network',
+    ssr: false,
   });
 
   const initialOpenedUserId = query.user || null;
@@ -554,10 +558,11 @@ const ModerationInbox = () => {
   const users = useMemo(() => usersData?.users?.results.filter(user => user.needsReview) ?? [], [usersData]);
   const shouldFetchDirectUser = Boolean(initialOpenedUserId) && !users.some(u => u._id === initialOpenedUserId);
 
-  const { data: directUserData, loading: directUserLoading } = useQuery(SingleUserSupermodQuery, {
+  const { data: directUserData } = useQuery(SingleUserSupermodQuery, {
     variables: { documentId: initialOpenedUserId },
     skip: !shouldFetchDirectUser,
     fetchPolicy: 'cache-and-network',
+    ssr: false,
   });
 
   // This is just to pre-fetch the core tags so that they're available when you open the posts tab
@@ -580,21 +585,19 @@ const ModerationInbox = () => {
     return null;
   }
 
-  const usersNotReady = usersLoading && !usersData;
-  const postsNotReady = postsLoading && !postsData;
-  const classifiedPostsNotReady = classifiedPostsLoading && !classifiedPostsData;
-  const curationNotReady = curationLoading && !curationData;
-  const directUserNotReady = shouldFetchDirectUser && directUserLoading && !directUserData;
-
-  if (usersNotReady || postsNotReady || classifiedPostsNotReady || curationNotReady || directUserNotReady) {
-    return (
-      <div className={classes.loading}>
-        <Loading />
-      </div>
-    );
-  }
+  // Re-mount the inner component as each query's data first arrives, so that
+  // the reducer's initializer re-runs with whatever data is available. This
+  // lets each query fill in independently rather than waiting for all of them.
+  const dataKey = [
+    usersData ? '1' : '0',
+    postsData ? '1' : '0',
+    classifiedPostsData ? '1' : '0',
+    curationData ? '1' : '0',
+    directUserData || !shouldFetchDirectUser ? '1' : '0',
+  ].join('');
 
   return <ModerationInboxInner
+    key={dataKey}
     users={users}
     posts={posts}
     classifiedPosts={classifiedPosts}
@@ -603,6 +606,10 @@ const ModerationInbox = () => {
     initialOpenedUserId={initialOpenedUserId}
     directUser={directUser}
     currentUser={currentUser}
+    usersLoading={usersLoading && !usersData}
+    postsLoading={postsLoading && !postsData}
+    classifiedPostsLoading={classifiedPostsLoading && !classifiedPostsData}
+    curationLoading={curationLoading && !curationData}
   />;
 };
 
