@@ -13,14 +13,19 @@ import { insertWidgetToolSchema, type InsertLocation } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
-interface InsertWidgetResult {
+export interface InsertWidgetResult {
   inserted: boolean
   note: string
   widgetId?: string
   insertionIndex?: number
 }
 
-function $insertWidgetInEditor({
+/**
+ * The core Lexical update logic for inserting a widget. Exported so the
+ * research-agent insert-widget route can reuse it. Must be called inside
+ * an editor.update() callback.
+ */
+export function $insertWidgetInEditor({
   content,
   location,
 }: {

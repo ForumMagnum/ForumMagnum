@@ -9,7 +9,7 @@ import { createNotifications } from "@/server/notificationCallbacksHelpers";
 import { captureException } from "@/lib/sentryWrapper";
 import { getStoredOriginalContentsForRevision } from "@/lib/collections/revisions/helpers";
 import { loadHtmlIntoHeadlessEditor } from "./headlessLexical";
-import { $computeNarrowing } from "../../../../app/api/agent/replaceText/route";
+import { $computeNarrowing } from "../../../../app/api/agent/applyEditAtSelection";
 import { findRenderedQuoteInMarkdown, locateMarkdownQuoteSelectionInSubtree } from "../../../../app/api/agent/mapMarkdownToLexical";
 
 const TYPO_EVALUATION_MODEL = "anthropic/claude-opus-4-7";

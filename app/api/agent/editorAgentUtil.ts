@@ -4,21 +4,85 @@ import { Doc, UndoManager } from "yjs";
 import type { Provider as LexicalProvider } from "@lexical/yjs";
 import { createBinding, syncLexicalUpdateToYjs, syncYjsChangesToLexical } from "@lexical/yjs";
 import {
+  $createParagraphNode,
   $getRoot,
   createEditor,
   type LexicalEditor,
+  type LexicalNode,
+  type ParagraphNode,
   SKIP_COLLAB_TAG,
 } from "lexical";
-import PlaygroundNodes from "@/components/lexical/nodes/PlaygroundNodes";
+import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
+import allLexicalNodes from "@/components/lexical/nodes/allLexicalNodes";
 import { buildTextNodeExportMap } from "@/components/editor/lexicalDomExport";
 import { randomId } from "@/lib/random";
 import { sleep } from "@/lib/utils/asyncUtils";
 import { getLatestRev } from "@/server/editor/utils";
 import { captureException } from "@/lib/sentryWrapper";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
-import { getHocuspocusToken } from "./getHocuspocusToken";
+import { getHocuspocusToken, getHocuspocusTokenForCollection } from "./getHocuspocusToken";
 import { captureAgentApiEvent } from "./captureAgentAnalytics";
 import { getStoredOriginalContentsForRevision } from "@/lib/collections/revisions/helpers";
+import { sanitize } from "@/lib/utils/sanitize";
+import { foldCaseOutsideMath, canonicalizeMathTokens, stripMathTokens } from "@/lib/utils/mathTokens";
+import type MarkdownIt from "markdown-it";
+
+/**
+ * Render agent-supplied markdown to sanitized HTML for import into a Lexical
+ * editor. The caller picks the markdown-it instance (post vs research — both
+ * `math-tex`-emitting). This deliberately never runs `renderMathInHtml`: that
+ * produces reader-facing display HTML (`<mjx-container>`), which Lexical's DOM
+ * importer cannot turn back into editable nodes.
+ */
+export function renderAgentMarkdownToHtml(markdownIt: MarkdownIt, markdown: string): string {
+  return sanitize(markdownIt.render(markdown, { docId: randomId() }));
+}
+
+// Split a paragraph around any display (non-inline) MathNode children: runs of
+// other children become their own paragraphs and each display MathNode becomes
+// a top-level sibling. A display MathNode is block-level — the editor's own
+// MathPlugin inserts it as a direct child of root — so it must not stay nested
+// inside an inline-content paragraph. Returns `[paragraph]` unchanged when the
+// paragraph contains no display math.
+export function splitParagraphAtDisplayMath(paragraph: ParagraphNode): LexicalNode[] {
+  const children = paragraph.getChildren();
+  if (!children.some((child) => $isMathNode(child) && !child.isInline())) {
+    return [paragraph];
+  }
+  const result: LexicalNode[] = [];
+  let currentParagraph: ParagraphNode | null = null;
+  for (const child of children) {
+    if ($isMathNode(child) && !child.isInline()) {
+      result.push(child);
+      currentParagraph = null;
+    } else {
+      if (!currentParagraph) {
+        currentParagraph = $createParagraphNode();
+        result.push(currentParagraph);
+      }
+      currentParagraph.append(child);
+    }
+  }
+  return result;
+}
+
+/**
+ * Mapping from a collab-editor-participating collection name to the prefix
+ * used in Hocuspocus document names. Mirrors the table in the Hocuspocus
+ * server's parseDocumentId.
+ */
+const COLLAB_DOCUMENT_NAME_PREFIXES: Record<string, string> = {
+  Posts: "post-",
+  ResearchDocuments: "research-doc-",
+};
+
+export function buildHocuspocusDocumentName(collectionName: string, documentId: string): string {
+  const prefix = COLLAB_DOCUMENT_NAME_PREFIXES[collectionName];
+  if (!prefix) {
+    throw new Error(`buildHocuspocusDocumentName: unsupported collection ${collectionName}`);
+  }
+  return `${prefix}${documentId}`;
+}
 
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
 const INITIAL_SYNC_SETTLE_MS = 25;
@@ -70,23 +134,27 @@ export function foldPunctuation(value: string): string {
   return value.replace(PUNCTUATION_FOLD_REGEX, (ch) => PUNCTUATION_FOLD_MAP[ch]);
 }
 
+// Normalizes a string for lenient quote/prefix matching, but preserves the
+// case of math content (LaTeX is case-sensitive) and canonicalizes math
+// tokens, so the same equation matches regardless of which delimiter shape
+// (`$$…$$`, `\[…\]`, …) it was written with.
 export function normalizeText(value: string): string {
-  return foldPunctuation(value).replace(/\s+/g, " ").trim().toLowerCase();
+  return canonicalizeMathTokens(foldCaseOutsideMath(foldPunctuation(value).replace(/\s+/g, " ").trim()));
 }
 
 export function paragraphMarkdownStartsWith(paragraphMarkdown: string, prefix: string): boolean {
-  const normalizedParagraph = foldPunctuation(paragraphMarkdown).trimStart().replace(/\s+/g, " ").toLowerCase();
-  const normalizedPrefix = foldPunctuation(prefix).trim().replace(/\s+/g, " ").toLowerCase();
-  return normalizedParagraph.startsWith(normalizedPrefix);
+  return normalizeText(paragraphMarkdown).startsWith(normalizeText(prefix));
 }
 
 export function plainTextStartsWith(nodeTextContent: string, prefix: string): boolean {
-  const prefixPlainText = foldPunctuation(prefix)
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
-    .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
-    .replace(/\$([^$]+)\$/g, "$1")
-    .replace(/\\([A-Za-z]+)/g, "$1")
-    .replace(/[*_`~]/g, "")
+  // Project the prefix the way `markdownQuoteToPlainText` projects agent
+  // quotes: links unwrap to their text, and math is zero-width — a MathNode
+  // contributes no text content to `nodeTextContent`, so the prefix must drop
+  // equations entirely (not unwrap them to their body) to stay comparable.
+  const prefixPlainText = stripMathTokens(
+    foldPunctuation(prefix).replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1"),
+  )
+    .replace(/[*_`~]/g, "") //`
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
@@ -121,19 +189,30 @@ interface EditorTypeCheckResult {
 }
 
 /**
- * Check whether a post uses the Lexical editor. The agent editing API surface
- * only works with Lexical collaborative documents; legacy CKEditor posts must
- * be read via /editPost or /api/editPost instead.
+ * Check whether a document uses the Lexical editor. The agent editing API
+ * surface only works with Lexical collaborative documents; legacy CKEditor
+ * posts must be read via /editPost or /api/editPost instead.
  *
  * When a user converts a post from markdown to Lexical in the editor UI, the
  * Lexical editor opens and syncs to Hocuspocus, but no new revision is saved
  * until the user actually edits the document. During that window the latest
  * revision still says "markdown", even though the live document is Lexical.
  * To handle this, we also check for a YjsDocuments entry -- its existence
- * means the Lexical collaborative editor has synced state for this post.
+ * means the Lexical collaborative editor has synced state for this document.
+ *
+ * For non-Posts collections (e.g. ResearchDocuments) we always treat the
+ * editor as Lexical (no legacy CKEditor history exists).
  */
-export async function isSupportedEditorType(postId: string, context: ResolverContext): Promise<EditorTypeCheckResult> {
-  const rev = await getLatestRev(postId, "contents", context);
+export async function isSupportedEditorType(
+  collectionName: string,
+  documentId: string,
+  context: ResolverContext,
+): Promise<EditorTypeCheckResult> {
+  if (collectionName !== 'Posts') {
+    return { supported: true, editorType: "lexical" };
+  }
+
+  const rev = await getLatestRev(documentId, "contents", context);
   const originalContents = rev
     ? await getStoredOriginalContentsForRevision(rev, context)
     : null;
@@ -145,7 +224,7 @@ export async function isSupportedEditorType(postId: string, context: ResolverCon
   // The latest revision isn't Lexical, but the post may have been converted
   // and opened in the collaborative editor without saving a revision yet.
   // A YjsDocuments row means Hocuspocus has synced Lexical state for this post.
-  const yjsDoc = await YjsDocuments.findOne({ documentId: postId });
+  const yjsDoc = await YjsDocuments.findOne({ collectionName, documentId });
   if (yjsDoc) {
     return { supported: true, editorType: "lexical" };
   }
@@ -176,16 +255,26 @@ export type EditorTypeAndTokenCheckResult =
  * and `UNAUTHORIZED_DRAFT_MESSAGE` are the canonical message texts.
  */
 export async function checkEditorTypeAndGetToken({
+  collectionName,
+  documentId,
   postId,
   context,
   linkSharingKey,
 }: {
-  postId: string
+  // Either pass {collectionName, documentId} or {postId} (legacy).
+  collectionName?: string
+  documentId?: string
+  postId?: string
   context: ResolverContext
   linkSharingKey?: string
 }): Promise<EditorTypeAndTokenCheckResult> {
-  const editorCheckPromise = isSupportedEditorType(postId, context);
-  const tokenPromise = getHocuspocusToken(context, postId, linkSharingKey);
+  const effectiveCollectionName = collectionName ?? 'Posts';
+  const effectiveDocumentId = documentId ?? postId;
+  if (!effectiveDocumentId) {
+    throw new Error('checkEditorTypeAndGetToken: must pass documentId or postId');
+  }
+  const editorCheckPromise = isSupportedEditorType(effectiveCollectionName, effectiveDocumentId, context);
+  const tokenPromise = getHocuspocusTokenForCollection(context, effectiveCollectionName, effectiveDocumentId, linkSharingKey);
   // If the editor-type check returns "unsupported" first, we early-return
   // without awaiting tokenPromise. Attach a no-op handler so a later
   // rejection doesn't bubble up as an unhandled-rejection warning. The
@@ -213,20 +302,35 @@ export async function checkEditorTypeAndGetToken({
  */
 export async function authorizeAgentDraftAccess({
   route,
+  collectionName,
+  documentId,
   postId,
   context,
   linkSharingKey,
   agentName,
 }: {
   route: string
-  postId: string
+  // Either pass {collectionName, documentId} or {postId} (legacy).
+  collectionName?: string
+  documentId?: string
+  postId?: string
   context: ResolverContext
   linkSharingKey?: string
   agentName?: string
 }): Promise<{ token: string } | { errorResponse: NextResponse }> {
-  const checkResult = await checkEditorTypeAndGetToken({ postId, context, linkSharingKey });
+  const effectiveCollectionName = collectionName ?? 'Posts';
+  const effectiveDocumentId = documentId ?? postId;
+  if (!effectiveDocumentId) {
+    throw new Error('authorizeAgentDraftAccess: must pass documentId or postId');
+  }
+  const checkResult = await checkEditorTypeAndGetToken({
+    collectionName: effectiveCollectionName,
+    documentId: effectiveDocumentId,
+    context,
+    linkSharingKey,
+  });
   if (checkResult.kind === "unsupported_editor") {
-    captureAgentApiEvent({ route, postId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
+    captureAgentApiEvent({ route, postId: effectiveDocumentId, userId: context.currentUser?._id, agentName, status: "unsupported_editor" });
     return {
       errorResponse: NextResponse.json(
         { error: unsupportedEditorMessage(checkResult.editorType) },
@@ -235,7 +339,7 @@ export async function authorizeAgentDraftAccess({
     };
   }
   if (checkResult.kind === "unauthorized") {
-    captureAgentApiEvent({ route, postId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
+    captureAgentApiEvent({ route, postId: effectiveDocumentId, userId: context.currentUser?._id, agentName, status: "unauthorized" });
     return {
       errorResponse: NextResponse.json(
         { error: UNAUTHORIZED_DRAFT_MESSAGE },
@@ -277,7 +381,12 @@ export function getLexicalCompatibleProvider(provider: HocuspocusProvider): Hocu
 export function createHeadlessEditor(errorLabel: string): LexicalEditor {
   return createEditor({
     namespace: `Agent-${errorLabel}`,
-    nodes: PlaygroundNodes,
+    // `allLexicalNodes` registers every custom node type the codebase defines
+    // across all collections. Headless editors live downstream of arbitrary
+    // collection contexts, and the cost of missing a node type is a hard
+    // parse failure ("parseEditorState: type X + not found"). The universal
+    // registry trades a small init cost for correctness across all callers.
+    nodes: allLexicalNodes,
     html: {
       export: buildTextNodeExportMap(),
     },
@@ -289,12 +398,17 @@ export function createHeadlessEditor(errorLabel: string): LexicalEditor {
 }
 
 export async function withMainDocEditorSession<T>({
+  collectionName,
+  documentId,
   postId,
   token,
   operationLabel,
   callback,
 }: {
-  postId: string
+  // Either pass {collectionName, documentId} or {postId} (legacy → Posts).
+  collectionName?: string
+  documentId?: string
+  postId?: string
   token: string
   operationLabel: string
   callback: (args: {
@@ -307,10 +421,17 @@ export async function withMainDocEditorSession<T>({
     throw new Error("HOCUSPOCUS_URL is not configured");
   }
 
+  const effectiveCollectionName = collectionName ?? 'Posts';
+  const effectiveDocumentId = documentId ?? postId;
+  if (!effectiveDocumentId) {
+    throw new Error('withMainDocEditorSession: must pass documentId or postId');
+  }
+  const documentName = buildHocuspocusDocumentName(effectiveCollectionName, effectiveDocumentId);
+
   const doc = new Doc();
   const provider = new HocuspocusProvider({
     url: wsUrl,
-    name: `post-${postId}`,
+    name: documentName,
     document: doc,
     token,
     connect: false,
@@ -375,7 +496,7 @@ export async function withMainDocEditorSession<T>({
     });
     if (rootChildCount === 0) {
       const err = new Error(
-        `[${operationLabel}] Lexical editor root is empty after Hocuspocus sync for post ${postId}. ` +
+        `[${operationLabel}] Lexical editor root is empty after Hocuspocus sync for ${effectiveCollectionName} ${effectiveDocumentId}. ` +
         `This likely means the Yjs document state is missing or corrupt.`
       );
       captureException(err);

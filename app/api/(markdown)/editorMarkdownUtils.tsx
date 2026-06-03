@@ -3,7 +3,7 @@ import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
 import { NextRequest, NextResponse } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
-import { checkEditorTypeAndGetToken, withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
+import { checkEditorTypeAndGetToken, splitParagraphAtDisplayMath, withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
@@ -11,6 +11,8 @@ import {
   $createParagraphNode,
   $isElementNode,
   $isDecoratorNode,
+  $isParagraphNode,
+  type LexicalEditor,
   type LexicalNode,
 } from "lexical";
 import { HocuspocusProvider } from "@hocuspocus/provider";
@@ -21,6 +23,17 @@ import { captureException } from "@/lib/sentryWrapper";
 export function normalizeImportedTopLevelNodes(nodes: LexicalNode[]): LexicalNode[] {
   const normalized: LexicalNode[] = [];
   for (const node of nodes) {
+    // markdown-it emits a `$$...$$` (or `\[...\]`) display equation as an
+    // inline token, so it lands inside a paragraph — on its own or alongside
+    // surrounding text. A display MathNode is block-level, so split any
+    // wrapping paragraph around it rather than leaving an invalid
+    // block-inside-paragraph node.
+    if ($isParagraphNode(node)) {
+      for (const piece of splitParagraphAtDisplayMath(node)) {
+        normalized.push(piece);
+      }
+      continue;
+    }
     if ($isElementNode(node) || $isDecoratorNode(node)) {
       normalized.push(node);
     } else {
@@ -258,13 +271,55 @@ async function getOpenCommentThreadsMarkdown({
 export async function getLiveDraftMarkdown({
   postId,
   token,
-  operationLabel
+  operationLabel,
 }: {
   postId: string
   token: string
   operationLabel?: string
 }): Promise<string> {
+  return getLiveLexicalMarkdown({
+    postId,
+    token,
+    operationLabel: operationLabel ?? "MarkdownReadDraft",
+  });
+}
+
+/**
+ * Collection-agnostic version of `getLiveDraftMarkdown`. Connects to the
+ * Yjs document for `(collectionName, documentId)`, materializes a headless
+ * Lexical editor, and runs the same Lexical → HTML → Turndown pipeline used
+ * for post drafts.
+ *
+ * Sharing the pipeline (rather than calling `$convertToMarkdownString`
+ * directly) means research documents pick up the same handling for
+ * footnotes, math, spoilers, iframe widgets, and — via the
+ * `research-agent-block` Turndown rule — AgentBlocks.
+ *
+ * `transformHtml` runs between HTML generation and Turndown conversion;
+ * callers can use it to walk the live editor state and inject DB-fetched
+ * metadata onto specific elements as `data-*` attributes (e.g. tagging
+ * AgentBlock divs with conversation title / lastActivityAt before the
+ * `research-agent-block` Turndown rule reads them out).
+ */
+export async function getLiveLexicalMarkdown({
+  collectionName,
+  documentId,
+  postId,
+  token,
+  operationLabel,
+  transformHtml,
+}: {
+  // Either pass {collectionName, documentId} or {postId} (legacy → Posts).
+  collectionName?: string
+  documentId?: string
+  postId?: string
+  token: string
+  operationLabel?: string
+  transformHtml?: (args: { html: string, editor: LexicalEditor }) => Promise<string> | string
+}): Promise<string> {
   return withMainDocEditorSession({
+    collectionName,
+    documentId,
     postId,
     token,
     operationLabel: operationLabel ?? "MarkdownReadDraft",
@@ -276,7 +331,8 @@ export async function getLiveDraftMarkdown({
         });
         return generated;
       });
-      return convertWidgetIframesToMarkdownFences(htmlToMarkdown(html));
+      const processedHtml = transformHtml ? await transformHtml({ html, editor }) : html;
+      return convertWidgetIframesToMarkdownFences(htmlToMarkdown(processedHtml));
     },
   });
 }

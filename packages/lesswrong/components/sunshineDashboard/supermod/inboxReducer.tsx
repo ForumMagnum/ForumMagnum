@@ -30,7 +30,7 @@ export type InboxState = {
   // The local copy of auto-classified posts (mutated when actions complete)
   classifiedPosts: SunshinePostsList[];
   // The local copy of curation candidate posts
-  curationPosts: SunshineCurationPostsList[];
+  curationPosts: SunshineCurationPostsListItem[];
   // Current active tab
   activeTab: TabId;
   // Focused user in inbox view

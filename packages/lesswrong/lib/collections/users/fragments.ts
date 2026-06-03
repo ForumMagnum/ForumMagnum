@@ -274,6 +274,7 @@ export const UserKarmaChanges = gql(`
         addedReacts {
           reactionType
           userId
+          quote
         }
         collectionName
       }
@@ -291,6 +292,7 @@ export const UserKarmaChanges = gql(`
         addedReacts {
           reactionType
           userId
+          quote
         }
         collectionName
       }
@@ -303,6 +305,7 @@ export const UserKarmaChanges = gql(`
         addedReacts {
           reactionType
           userId
+          quote
         }
         collectionName
       }

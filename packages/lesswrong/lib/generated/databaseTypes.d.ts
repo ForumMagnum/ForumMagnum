@@ -1148,6 +1148,80 @@ interface DbReport extends DbObject {
   userId: string
 }
 
+type ResearchConversationEventsCollection = PgCollection<"ResearchConversationEvents">;
+
+interface DbResearchConversationEvent extends DbObject {
+  __collectionName?: "ResearchConversationEvents"
+  claudeMessageUuid: string
+  conversationId: string
+  createdAt: Date
+  kind: string
+  payload: any
+  projectId: string
+  seq: number
+  userId: string
+}
+
+type ResearchConversationsCollection = PgCollection<"ResearchConversations">;
+
+interface DbResearchConversation extends DbObject {
+  __collectionName?: "ResearchConversations"
+  baseEnvironmentId: string | null
+  claudeSessionId: string | null
+  createdAt: Date
+  entrypointDocumentId: string
+  entrypointKind: string
+  lastActivityAt: Date
+  projectId: string
+  runtime: string | null
+  title: string | null
+  userId: string
+}
+
+type ResearchDocumentsCollection = PgCollection<"ResearchDocuments">;
+
+interface DbResearchDocument extends DbObject {
+  __collectionName?: "ResearchDocuments"
+  contents_latest: string | null
+  createdAt: Date
+  projectId: string
+  title: string | null
+  userId: string
+}
+
+type ResearchEnvironmentsCollection = PgCollection<"ResearchEnvironments">;
+
+interface DbResearchEnvironment extends DbObject {
+  __collectionName?: "ResearchEnvironments"
+  createdAt: Date
+  label: string
+  projectId: string
+  sourceEventId: string | null
+  userId: string
+  vercelSnapshotId: string
+}
+
+type ResearchProjectsCollection = PgCollection<"ResearchProjects">;
+
+interface DbResearchProject extends DbObject {
+  __collectionName?: "ResearchProjects"
+  createdAt: Date
+  description: string | null
+  settings: any | null
+  title: string
+  userId: string
+}
+
+type ResearchSandboxSessionsCollection = PgCollection<"ResearchSandboxSessions">;
+
+interface DbResearchSandboxSession extends DbObject {
+  __collectionName?: "ResearchSandboxSessions"
+  conversationId: string
+  createdAt: Date
+  devProxySecret: string | null
+  supervisorSecret: string
+}
+
 type ReviewVotesCollection = PgCollection<"ReviewVotes">;
 
 interface DbReviewVote extends DbObject {
@@ -1598,6 +1672,7 @@ interface DbUser extends DbObject {
   blueskyProfileURL: string | null
   bookmarksCount: number
   careerStage: Array<string> | null
+  claudeCodeOAuthTokenEncrypted: string | null
   claudeLinkedAt: Date | null
   coauthoredPostCount: number
   collapseModerationGuidelines: boolean | null
@@ -2210,6 +2285,7 @@ type YjsDocumentsCollection = PgCollection<"YjsDocuments">;
 
 interface DbYjsDocument extends DbObject {
   __collectionName?: "YjsDocuments"
+  collectionName: string
   createdAt: Date
   documentId: string
   updatedAt: Date
@@ -2280,6 +2356,12 @@ interface CollectionsByName {
   ReadStatuses: ReadStatusesCollection
   RecommendationsCaches: RecommendationsCachesCollection
   Reports: ReportsCollection
+  ResearchConversationEvents: ResearchConversationEventsCollection
+  ResearchConversations: ResearchConversationsCollection
+  ResearchDocuments: ResearchDocumentsCollection
+  ResearchEnvironments: ResearchEnvironmentsCollection
+  ResearchProjects: ResearchProjectsCollection
+  ResearchSandboxSessions: ResearchSandboxSessionsCollection
   ReviewVotes: ReviewVotesCollection
   ReviewWinnerArts: ReviewWinnerArtsCollection
   ReviewWinners: ReviewWinnersCollection
@@ -2370,6 +2452,12 @@ interface ObjectsByCollectionName {
   ReadStatuses: DbReadStatus
   RecommendationsCaches: DbRecommendationsCache
   Reports: DbReport
+  ResearchConversationEvents: DbResearchConversationEvent
+  ResearchConversations: DbResearchConversation
+  ResearchDocuments: DbResearchDocument
+  ResearchEnvironments: DbResearchEnvironment
+  ResearchProjects: DbResearchProject
+  ResearchSandboxSessions: DbResearchSandboxSession
   ReviewVotes: DbReviewVote
   ReviewWinnerArts: DbReviewWinnerArt
   ReviewWinners: DbReviewWinner
@@ -2460,6 +2548,12 @@ interface ObjectsByTypeName {
   ReadStatus: DbReadStatus
   RecommendationsCache: DbRecommendationsCache
   Report: DbReport
+  ResearchConversationEvent: DbResearchConversationEvent
+  ResearchConversation: DbResearchConversation
+  ResearchDocument: DbResearchDocument
+  ResearchEnvironment: DbResearchEnvironment
+  ResearchProject: DbResearchProject
+  ResearchSandboxSession: DbResearchSandboxSession
   ReviewVote: DbReviewVote
   ReviewWinnerArt: DbReviewWinnerArt
   ReviewWinner: DbReviewWinner

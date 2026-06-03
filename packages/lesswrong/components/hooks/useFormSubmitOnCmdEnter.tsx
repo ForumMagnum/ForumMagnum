@@ -1,7 +1,7 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 
-export function useFormSubmitOnCmdEnter(submitFunction: () => Promise<void>) {
-  const formRef = useRef<HTMLFormElement>(null);
+export function useFormSubmitOnCmdEnter<T extends HTMLElement = HTMLFormElement>(submitFunction: () => Promise<void>): RefObject<T | null> {
+  const formRef = useRef<T>(null);
 
   useEffect(() => {
     const handler = (event: KeyboardEvent) => {

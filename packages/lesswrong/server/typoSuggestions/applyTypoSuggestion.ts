@@ -10,12 +10,11 @@ import type { TypoAcceptMode, TypoSuggestionStatus, TypoSuggestionTargetCollecti
 import { getStoredOriginalContentsForRevision } from "@/lib/collections/revisions/helpers";
 import { antiReactToTypoOnOwnContent } from "./antiReact";
 import { loadHtmlIntoHeadlessEditor } from "./headlessLexical";
-import {
-  $applyEditWithNarrowing,
-  replaceTextInMainDoc,
-} from "../../../../app/api/agent/replaceText/route";
+import { replaceTextInMainDoc } from "../../../../app/api/agent/replaceText/route";
 import { checkEditorTypeAndGetToken } from "../../../../app/api/agent/editorAgentUtil";
 import { locateMarkdownQuoteSelectionInSubtree } from "../../../../app/api/agent/mapMarkdownToLexical";
+import { $applyEditModeReplacement } from "../../../../app/api/agent/applyEditAtSelection";
+import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 
 const TYPO_BOT_AUTHOR_ID = "typo-suggestion-bot";
 
@@ -313,14 +312,19 @@ function applyEditOffline(html: string, quote: string, replacement: string): Off
         quoteFoundInDocument = selectionResult.found;
         if (!selectionResult.found || !selectionResult.anchor || !selectionResult.focus) return;
 
-        const editResult = $applyEditWithNarrowing({
+        // Reuse the agent edit primitive so the offline result matches the
+        // live (Hocuspocus) edit byte-for-byte — in particular it renders the
+        // replacement through the `math-tex`-emitting markdown-it instance, so
+        // LaTeX imports as real, editable MathNodes rather than reader-facing
+        // MathJax markup.
+        replaced = $applyEditModeReplacement({
           editor,
           anchor: selectionResult.anchor,
           focus: selectionResult.focus,
           quote,
           replacement,
-        });
-        replaced = editResult.replaced;
+          markdownIt: getMarkdownItForAgentPosts(),
+        }).replaced;
       },
       { discrete: true },
     );

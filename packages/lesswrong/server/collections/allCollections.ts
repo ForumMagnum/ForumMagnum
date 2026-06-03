@@ -66,6 +66,12 @@ import { PostViewTimes } from './postViewTimes/collection';
 import { PostViews } from './postViews/collection';
 import { Posts } from './posts/collection';
 import { ReadStatuses } from './readStatus/collection';
+import { ResearchConversationEvents } from './researchConversationEvents/collection';
+import { ResearchConversations } from './researchConversations/collection';
+import { ResearchDocuments } from './researchDocuments/collection';
+import { ResearchEnvironments } from './researchEnvironments/collection';
+import { ResearchProjects } from './researchProjects/collection';
+import { ResearchSandboxSessions } from './researchSandboxSessions/collection';
 import { RecommendationsCaches } from './recommendationsCaches/collection';
 import { Reports } from './reports/collection';
 import { ReviewVotes } from './reviewVotes/collection';
@@ -74,6 +80,7 @@ import { ReviewWinners } from './reviewWinners/collection';
 import { RevisionOriginalContents } from './revisionOriginalContents/collection';
 import { Revisions } from './revisions/collection';
 import { RSSFeeds } from './rssfeeds/collection';
+import { SandboxBaselineSnapshots } from './sandboxBaselineSnapshots/collection';
 import { Sequences } from './sequences/collection';
 import { Sessions } from './sessions/collection';
 import { SideCommentCaches } from './sideCommentCaches/collection';
@@ -112,18 +119,99 @@ function getTestCollectionsByTypeName() {
 
 // TODO: maybe put this behind a proxy like `getAllRepos` for performance?
 const allCollections = {
-  ArbitalCaches, ArbitalTagContentRels, AutomatedContentEvaluations, Bans, Bookmarks, Books, Chapters, CkEditorUserSessions, ClientIds,
-  Collections, CommentEmbeddings, CommentModeratorActions, Comments, Conversations, CronHistories, CurationEmails, CurationNotices, DatabaseMetadata, DebouncerEvents,
-  DialogueChecks, DialogueMatchPreferences, ElicitQuestionPredictions, ElicitQuestions, EmailTokens,
-  FieldChanges, GoogleServiceAccountSessions, HomePageDesigns, IframeWidgetSrcdocs, Images, JargonTerms, LWEvents, LegacyData, LlmConversations,
+  ArbitalCaches,
+  ArbitalTagContentRels,
+  AutomatedContentEvaluations,
+  Bans,
+  Bookmarks,
+  Books,
+  Chapters,
+  CkEditorUserSessions,
+  ClientIds,
+  Collections,
+  CommentEmbeddings,
+  CommentModeratorActions,
+  Comments,
+  Conversations,
+  CronHistories,
+  CurationEmails,
+  CurationNotices,
+  DatabaseMetadata,
+  DebouncerEvents,
+  DialogueChecks,
+  DialogueMatchPreferences,
+  ElicitQuestionPredictions,
+  ElicitQuestions,
+  EmailTokens,
+  FieldChanges,
+  GoogleServiceAccountSessions,
+  HomePageDesigns,
+  IframeWidgetSrcdocs,
+  Images,
+  JargonTerms,
+  LWEvents,
+  LegacyData,
   LinkPreviewCaches,
-  LlmMessages, Localgroups, LoginTokens, MailgunValidations, ManifoldProbabilitiesCaches, Messages, Migrations, ModerationTemplates, ModeratorActions, MultiDocuments, Notifications,
-  OAuthAccessTokens, OAuthAuthorizationCodes, OAuthClients,
-  PetrovDayActions, PetrovDayLaunchs, PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews,
-  Posts, RSSFeeds, ReadStatuses, RecommendationsCaches, Reports, ReviewVotes, ReviewWinnerArts, ReviewWinners, RevisionOriginalContents, Revisions, Sequences,
-  Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
-  TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities, UserMostValuablePosts, UserRateLimits,
-  UserTagRels, Users, Votes, YjsDocuments
+  LlmConversations,
+  LlmMessages,
+  Localgroups,
+  LoginTokens,
+  MailgunValidations,
+  ManifoldProbabilitiesCaches,
+  Messages,
+  Migrations,
+  ModerationTemplates,
+  ModeratorActions,
+  MultiDocuments,
+  Notifications,
+  OAuthAccessTokens,
+  OAuthAuthorizationCodes,
+  OAuthClients,
+  PetrovDayActions,
+  PetrovDayLaunchs,
+  PodcastEpisodes,
+  Podcasts,
+  PostEmbeddings,
+  PostRecommendations,
+  PostRelations,
+  PostViewTimes,
+  PostViews,
+  Posts,
+  RSSFeeds,
+  ReadStatuses,
+  RecommendationsCaches,
+  Reports,
+  ResearchConversationEvents,
+  ResearchConversations,
+  ResearchDocuments,
+  ResearchEnvironments,
+  ResearchProjects,
+  ResearchSandboxSessions,
+  ReviewVotes,
+  ReviewWinnerArts,
+  ReviewWinners,
+  RevisionOriginalContents,
+  Revisions,
+  Sequences,
+  Sessions,
+  SideCommentCaches,
+  SplashArtCoordinates,
+  Spotlights,
+  Subscriptions,
+  TagFlags,
+  TagRels,
+  Tags,
+  Tweets,
+  TypingIndicators,
+  TypoSuggestions,
+  UltraFeedEvents,
+  UserActivities,
+  UserMostValuablePosts,
+  UserRateLimits,
+  UserTagRels,
+  Users,
+  Votes,
+  YjsDocuments
 } satisfies Record<CollectionNameString, CollectionBase<CollectionNameString>>;
 
 const collectionsByLowercaseName = Object.fromEntries(
