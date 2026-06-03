@@ -3,6 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMutation, useApolloClient } from '@apollo/client/react';
+import { isSandboxWarmingError } from './sandboxWarming';
 import { pollForConversationTitle, ProjectSidebarQuery } from './projectSidebarQuery';
 import classNames from 'classnames';
 import { defineStyles } from '../hooks/defineStyles';
@@ -201,10 +202,14 @@ const ChatPane = ({
         refresh();
       }
     } catch (err) {
-      // eslint-disable-next-line no-console
-      console.error('[research] chat send failed', err);
-      flash({ messageString: 'Failed to send message — try again.', type: 'error' });
       clearOptimistic();
+      if (isSandboxWarmingError(err)) {
+        flash({ messageString: 'The sandbox is still starting up — try again in a moment.' });
+      } else {
+        // eslint-disable-next-line no-console
+        console.error('[research] chat send failed', err);
+        flash({ messageString: 'Failed to send message — try again.', type: 'error' });
+      }
       throw err;
     } finally {
       setSending(false);

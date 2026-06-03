@@ -23,6 +23,13 @@ interface ConversationEntry {
   state: ConversationState;
   runner: ClaudeRunnerHandle | null;
   claudeSessionId?: string;
+  /**
+   * Monotonic id of the most recently dispatched turn. A runner's callbacks
+   * carry the id they were started with; once a newer turn supersedes them
+   * (the prior turn finished but its process is still alive), the stale
+   * callbacks check this and become no-ops instead of mutating the entry.
+   */
+  activeTurnId: number;
 }
 
 export interface DispatchInput {
@@ -53,12 +60,13 @@ export function createConversationHub(config: ConversationHubConfig) {
       conversationId,
       state: { conversationId, status: "idle" },
       runner: null,
+      activeTurnId: 0,
     };
     conversations.set(conversationId, entry);
     return entry;
   }
 
-  function emit(entry: ConversationEntry, line: ParsedJsonlLine) {
+  function emit(entry: ConversationEntry, line: ParsedJsonlLine, turnId: number) {
     const persistKind = mapKindForPersistence(line.kind);
     if (persistKind) {
       config.postPersister.enqueue(entry.conversationId, {
@@ -68,6 +76,14 @@ export function createConversationHub(config: ConversationHubConfig) {
         claudeSessionId: line.sessionId ?? undefined,
         supervisorEmittedAt: new Date(now()).toISOString(),
       });
+    }
+
+    // The `result` line is the turn's terminal signal — emitted once when the
+    // turn is done, independent of whether the process then exits (a backgrounded
+    // child can keep it alive). Completion is tracked here, not at process exit.
+    // Guarded so a superseded runner's late output can't complete a newer turn.
+    if (line.kind === "result" && entry.activeTurnId === turnId && entry.state.status === "running") {
+      entry.state = { ...entry.state, status: "completed", endedAt: now() };
     }
 
     if (line.sessionId && !entry.claudeSessionId) {
@@ -82,6 +98,13 @@ export function createConversationHub(config: ConversationHubConfig) {
     const entry = getOrInit(input.conversationId);
     if (entry.runner && entry.state.status === "running") {
       return { accepted: false, reason: "already running" };
+    }
+    if (entry.runner) {
+      // The previous turn reached a terminal status but its process is still
+      // alive (a backgrounded child is holding it open). Starting the next turn
+      // is safe; the runner reference is replaced below.
+      // eslint-disable-next-line no-console
+      console.warn(`[hub] conv=${input.conversationId} starting turn with a live prior runner (status=${entry.state.status})`);
     }
 
     if (input.claudeSessionId && input.bootstrapJsonl && input.bootstrapJsonl.length > 0) {
@@ -100,6 +123,8 @@ export function createConversationHub(config: ConversationHubConfig) {
       }
     }
 
+    const turnId = entry.activeTurnId + 1;
+    entry.activeTurnId = turnId;
     entry.state = { conversationId: input.conversationId, status: "running", startedAt: now() };
     entry.claudeSessionId = input.claudeSessionId ?? entry.claudeSessionId;
 
@@ -109,18 +134,20 @@ export function createConversationHub(config: ConversationHubConfig) {
       claudeSessionId: input.claudeSessionId,
       cwd: runnerOpts?.cwd,
       env: runnerOpts?.env,
-      onLine: (line) => emit(entry, line),
+      onLine: (line) => emit(entry, line, turnId),
       onExit: ({ code }) => {
-        entry.state = {
-          ...entry.state,
-          status:
-            entry.state.status === "cancelled"
-              ? "cancelled"
-              : code === 0
-              ? "completed"
-              : "errored",
-          endedAt: now(),
-        };
+        // A runner superseded by a newer turn must not touch the entry.
+        if (entry.activeTurnId !== turnId) return;
+        // Backstop for turns that exit without ever emitting a `result` (crash,
+        // kill). A turn already moved to a terminal status by `emit` (the normal
+        // case) or by `cancel` is left untouched.
+        if (entry.state.status === "running") {
+          entry.state = {
+            ...entry.state,
+            status: code === 0 ? "completed" : "errored",
+            endedAt: now(),
+          };
+        }
         entry.runner = null;
       },
       onError: (err) => {
@@ -139,12 +166,16 @@ export function createConversationHub(config: ConversationHubConfig) {
   async function cancel(conversationId: string): Promise<void> {
     const entry = conversations.get(conversationId);
     if (!entry || !entry.runner) return;
+    // Only an in-progress turn can be cancelled. A completed turn whose process
+    // is still alive (a backgrounded child) must not be torn down here.
+    if (entry.state.status !== "running") return;
+    const cancelledRunner = entry.runner;
     entry.state = { ...entry.state, status: "cancelled" };
-    entry.runner.cancel("SIGTERM");
-    // SIGKILL fallback if still running after grace period
+    cancelledRunner.cancel("SIGTERM");
+    // SIGKILL fallback if still running after grace period — but only if this is
+    // still the same runner, so a turn dispatched in the meantime isn't killed.
     setTimeout(() => {
-      const still = conversations.get(conversationId);
-      if (still?.runner) still.runner.cancel("SIGKILL");
+      if (entry.runner === cancelledRunner) cancelledRunner.cancel("SIGKILL");
     }, 5_000);
   }
 

@@ -16,7 +16,6 @@
  *  - BACKEND_BASE_URL     — origin to POST to (events, heartbeats)
  *  - SUPERVISOR_PORT      — port to listen on (9280)
  *  - AUTH_PROXY_PORT      — auth-proxy public port (9281)
- *  - DEV_PORT             — fixed dev-server port, exported to init.sh as PORT (9282)
  *  - DEV_PROXY_SECRET     — HMAC key for dev-preview tokens
  *  - USER_ID, PROJECT_ID  — for context / heartbeat metadata
  *  - CONVERSATION_ID      — this sandbox's conversation (scopes queue recovery)
@@ -34,13 +33,12 @@ import { createConversationHub } from "./conversationHub";
 import { createPostPersister, PostPersister } from "./postPersister";
 import { startSupervisor, SupervisorDeps } from "./server";
 import { startHeartbeat } from "./heartbeat";
-import { startDevPortProbe } from "./devServer";
+import { createDevServerManager, startDevControlServer, DEV_CONTROL_PORT } from "./devServerManager";
+import { buildScriptBootEnv, researchBinPath } from "./devServer";
 import { startAuthProxy } from "./authProxy";
+import { AGENT_CWD } from "../sandboxLayout";
 
 const CLAUDE_MD_PATH = path.join(homedir(), ".claude", "CLAUDE.md");
-
-/** Where the in-sandbox agent runs `claude`. */
-const AGENT_CWD = "/vercel/sandbox";
 
 // init.sh runs non-blocking (it doesn't gate boot or the agent's turn), so this
 // is only a hung-process reaper, not a latency budget. Allow several minutes so a
@@ -73,7 +71,6 @@ interface SupervisorEnv {
   backendBaseUrl: string;
   port: number;
   authProxyPort: number;
-  devPort: number;
   devProxySecret: string;
   userId: string;
   projectId: string;
@@ -95,7 +92,6 @@ function readEnv(): SupervisorEnv {
     backendBaseUrl: required("BACKEND_BASE_URL"),
     port: Number(process.env.SUPERVISOR_PORT ?? "9280"),
     authProxyPort: Number(process.env.AUTH_PROXY_PORT ?? "9281"),
-    devPort: Number(process.env.DEV_PORT ?? "9282"),
     devProxySecret: required("DEV_PROXY_SECRET"),
     userId: required("USER_ID"),
     projectId: required("PROJECT_ID"),
@@ -106,14 +102,22 @@ function readEnv(): SupervisorEnv {
   };
 }
 
-function runInitScript(env: SupervisorEnv, surfaceSystem: (text: string) => void): void {
-  if (!fs.existsSync(env.initScriptPath)) return;
-  const initEnv: NodeJS.ProcessEnv = {
-    NODE_ENV: process.env.NODE_ENV,
-    PORT: String(env.devPort),
-    PATH: `${path.join(homedir(), ".research", "bin")}:${process.env.PATH ?? ""}`,
-    HOME: homedir(),
+function runInitScript(
+  env: SupervisorEnv,
+  surfaceSystem: (text: string) => void,
+  onComplete: () => void,
+): void {
+  let completed = false;
+  const finish = () => {
+    if (completed) return;
+    completed = true;
+    onComplete();
   };
+  if (!fs.existsSync(env.initScriptPath)) {
+    finish();
+    return;
+  }
+  const initEnv: NodeJS.ProcessEnv = buildScriptBootEnv();
   const child = spawn("sh", [env.initScriptPath], {
     cwd: AGENT_CWD,
     env: initEnv,
@@ -134,14 +138,15 @@ function runInitScript(env: SupervisorEnv, surfaceSystem: (text: string) => void
   child.on("error", (err) => {
     clearTimeout(timer);
     surfaceSystem(`init.sh failed to start: ${err.message}`);
+    finish();
   });
   child.on("close", (code, signal) => {
     clearTimeout(timer);
     // Surface a system event only on a genuine failure (non-zero exit or a
     // timeout kill). `init.sh` runs on *every* resume and benign steps (git pull
-    // progress, dep/deprecation warnings, dev-server banners) write to stderr
-    // without failing — surfacing those would spam the transcript on every boot.
-    // Include the stderr tail when we do surface, since that's where the cause is.
+    // progress, dep/deprecation warnings) write to stderr without failing —
+    // surfacing those would spam the transcript on every boot. Include the
+    // stderr tail when we do surface, since that's where the cause is.
     if (code !== 0 || signal) {
       const trimmed = stderr.trim();
       surfaceSystem(
@@ -149,6 +154,7 @@ function runInitScript(env: SupervisorEnv, surfaceSystem: (text: string) => void
           (trimmed ? `\n${trimmed}` : ""),
       );
     }
+    finish();
   });
 }
 
@@ -248,12 +254,14 @@ export async function bootSupervisor() {
             // Put `~/.research/bin` (where the overlay drops the research-tool
             // binary) ahead of the system PATH so the agent can invoke
             // `research-tool ...` directly from Bash.
-            PATH: `${path.join(homedir(), ".research", "bin")}:${process.env.PATH ?? ""}`,
+            PATH: researchBinPath(),
             // research-tool's required env. The token is the *agent-scoped*
             // sandbox-callback bearer the backend mints per dispatch.
             RESEARCH_BACKEND_BASE_URL: env.backendBaseUrl,
             RESEARCH_BACKEND_TOKEN: req.agentBackendToken,
             RESEARCH_PROJECT_ID: env.projectId,
+            // Lets `research-tool dev …` reach the local dev-server controller.
+            RESEARCH_DEV_CONTROL_URL: `http://127.0.0.1:${DEV_CONTROL_PORT}`,
           },
         },
       );
@@ -272,22 +280,27 @@ export async function bootSupervisor() {
 
   const server = startSupervisor(deps, env.port);
 
-  // The always-on auth-proxy fronts the localhost dev server. The supervisor
-  // does not spawn the dev server — `init.sh` does — so the proxy just probes
-  // the fixed dev port per request. Proxied requests bump `lastDevActivityAt`
-  // so dev-server use counts as activity for the idle policy.
+  // The supervisor owns the dev server: it runs the agent's `dev-server.sh`,
+  // restarts it on exit, and exposes start/stop/restart. The always-on
+  // auth-proxy fronts it and probes the fixed dev port per request; proxied
+  // requests bump `lastDevActivityAt` so dev-server use counts as activity for
+  // the idle policy.
   let lastDevActivityAt = 0;
-  const devProbe = startDevPortProbe(env.devPort);
+  const devServer = createDevServerManager(surfaceSystem);
   const authProxy: Server = startAuthProxy({
     port: env.authProxyPort,
-    devPort: env.devPort,
     proxySecret: env.devProxySecret,
     sandboxId: env.sandboxId,
-    devServer: devProbe,
+    devServer,
     onActivity: () => { lastDevActivityAt = Date.now(); },
   });
+  const devControl: Server = startDevControlServer(devServer);
 
-  runInitScript(env, surfaceSystem);
+  // Run per-boot setup to completion, then bring the dev server up. (A fresh
+  // environment has the server in `dev-server.sh`; an older one may still start
+  // it from `init.sh`, in which case `dev-server.sh` is absent and the manager
+  // stays idle.)
+  runInitScript(env, surfaceSystem, () => devServer.start());
 
   selfHealDanglingTurn(env, postPersister, () =>
     hub.snapshot().conversations.some((c) => c.status === "running"),
@@ -305,6 +318,8 @@ export async function bootSupervisor() {
     heartbeat.stop();
     server.close();
     authProxy.close();
+    devControl.close();
+    devServer.stop();
     await postPersister.drain();
     process.exit(0);
   };

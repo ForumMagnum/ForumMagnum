@@ -8,9 +8,11 @@ import {
   getOrCreateSandbox,
   getRunningSandbox,
   sandboxNameForConversation,
+  SandboxWarmingError,
   supervisorUrlForSandbox,
   type ProvisionedSandbox,
 } from "@/server/research/sandbox/sandboxManager";
+import { GraphQLError } from "graphql";
 import { isPlainRecord } from "@/components/research/conversationEventFormat";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
@@ -380,8 +382,6 @@ export const researchResolversMutations = {
       context,
     });
 
-    await ResearchConversations.rawUpdateOne({ _id: conv._id }, { $set: { lastActivityAt: new Date() } });
-
     await dispatchToSandbox({
       context,
       conversationId: conv._id,
@@ -392,6 +392,9 @@ export const researchResolversMutations = {
         ? { claudeSessionId: conv.claudeSessionId, priorEvents }
         : undefined,
     });
+
+    // Only after a successful dispatch, so a failed turn leaves no advanced timestamp.
+    await ResearchConversations.rawUpdateOne({ _id: conv._id }, { $set: { lastActivityAt: new Date() } });
 
     return { conversationId: conv._id, data: { _id: conv._id } };
   },
@@ -426,7 +429,7 @@ export const researchResolversMutations = {
    */
   async mintDevPreviewUrl(_root: void, args: { conversationId: string }, context: ResolverContext) {
     const conv = await loadConversationOrThrow(args.conversationId, context);
-    const provisioned = await getOrCreateSandbox(conv._id, context);
+    const provisioned = await provisionSandboxOrWarming(conv._id, context);
     if (!provisioned.devProxySecret) {
       throw new Error("The sandbox was provisioned without a dev proxy secret.");
     }
@@ -503,6 +506,29 @@ function sessionIdFromPayload(payload: unknown): string | null {
 }
 
 /**
+ * Provision (or resume) a conversation's sandbox, translating a transient
+ * "supervisor not ready yet" into a retryable `SANDBOX_WARMING` GraphQL error
+ * the client surfaces softly (and which is kept out of Sentry). Used by every
+ * resolver that brings a sandbox up.
+ */
+async function provisionSandboxOrWarming(
+  conversationId: string,
+  context: ResolverContext,
+): Promise<ProvisionedSandbox> {
+  try {
+    return await getOrCreateSandbox(conversationId, context);
+  } catch (err) {
+    if (err instanceof SandboxWarmingError) {
+      throw new GraphQLError(
+        "The sandbox is still starting up. Please try again in a moment.",
+        { extensions: { code: "SANDBOX_WARMING", noSentryCapture: true } },
+      );
+    }
+    throw err;
+  }
+}
+
+/**
  * Provision (or resume) the conversation's persistent sandbox and dispatch one
  * turn to its supervisor. `resumeContext` is supplied when continuing an
  * existing conversation; it lets a rebuilt sandbox have its Claude session
@@ -517,7 +543,7 @@ async function dispatchToSandbox(args: {
   resumeContext?: { claudeSessionId: string; priorEvents: DbResearchConversationEvent[] };
   sessionOnDisk?: { claudeSessionId: string };
 }): Promise<void> {
-  const provisioned = await getOrCreateSandbox(args.conversationId, args.context);
+  const provisioned = await provisionSandboxOrWarming(args.conversationId, args.context);
 
   if (args.sessionOnDisk && provisioned.isFirstProvision) {
     await dispatchTurnViaSupervisor({

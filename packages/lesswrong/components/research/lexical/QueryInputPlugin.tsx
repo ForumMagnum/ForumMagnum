@@ -46,6 +46,7 @@ import {
   QueryInputContentNode,
 } from './QueryInputContentNode';
 import { useResearchEditorEnvironment, type ResearchEditorEnvironment } from './ResearchEditorContext';
+import { isSandboxWarmingError } from '../sandboxWarming';
 import { useMessages } from '@/components/common/withMessages';
 import { type WithMessagesFunctions } from '@/components/layout/FlashMessages';
 
@@ -153,9 +154,13 @@ async function fireQuery({
     // The AgentBlock is already in the doc with the correct conversationId,
     // so a successful mutation needs no further client-side action.
   } catch (err) {
-    // eslint-disable-next-line no-console
-    console.error('[research] /query failed to fire', err);
-    flash({ messageString: 'Failed to send query — try again.', type: 'error' });
+    if (isSandboxWarmingError(err)) {
+      flash({ messageString: 'The sandbox is still starting up — try again in a moment.' });
+    } else {
+      // eslint-disable-next-line no-console
+      console.error('[research] /query failed to fire', err);
+      flash({ messageString: 'Failed to send query — try again.', type: 'error' });
+    }
     editor.update(() => {
       const agentBlock = $getNodeByKey(agentBlockKey);
       if (!$isAgentBlockNode(agentBlock)) return;

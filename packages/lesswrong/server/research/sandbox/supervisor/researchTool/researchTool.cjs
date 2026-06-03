@@ -248,6 +248,36 @@ async function cmdCreateDoc(args) {
   printJson(result);
 }
 
+async function cmdDev(args) {
+  const action = args.positional[0];
+  if (!["start", "stop", "restart"].includes(action)) {
+    fail(1, "dev requires an action: start | stop | restart");
+  }
+  const base = (process.env.RESEARCH_DEV_CONTROL_URL || "http://127.0.0.1:9283").replace(/\/$/, "");
+  let res;
+  try {
+    res = await fetch(`${base}/${action}`, { method: "POST" });
+  } catch (err) {
+    fail(3, `Could not reach the dev-server controller: ${err && err.message ? err.message : String(err)}`);
+  }
+  const text = await res.text();
+  let parsed;
+  try {
+    parsed = text.length > 0 ? JSON.parse(text) : null;
+  } catch (err) {
+    parsed = { raw: text };
+  }
+  if (!res.ok) {
+    fail(res.status >= 500 ? 3 : 4, (parsed && parsed.error) || `HTTP ${res.status}`);
+  }
+  if (parsed && parsed.managed === false) {
+    process.stderr.write(
+      "research-tool: note — no dev-server.sh present, so there is no supervisor-managed dev server (this environment may start one from init.sh).\n",
+    );
+  }
+  printJson(parsed || { ok: true, action });
+}
+
 async function cmdFetchConversation(args) {
   const conversationId = args.positional[0];
   if (!conversationId) fail(1, "fetch-conversation requires <conversationId>");
@@ -278,6 +308,7 @@ async function cmdHelp() {
     "  list-documents",
     "  list-conversations",
     "  fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]",
+    "  dev       start | stop | restart    (control the supervised dev server)",
     "",
     "Required env: RESEARCH_BACKEND_BASE_URL, RESEARCH_BACKEND_TOKEN, RESEARCH_PROJECT_ID",
   ].join("\n");
@@ -287,16 +318,20 @@ async function cmdHelp() {
 // --- main dispatcher -----------------------------------------------------
 
 async function main() {
-  for (const name of REQUIRED_ENV) {
-    // Ensure required env is present early — fast-fail before parsing args.
-    if (!process.env[name]) {
-      fail(1, `Missing required env var: ${name}`);
-    }
-  }
-
   const argv = process.argv.slice(2);
   const command = argv[0];
   const rest = parseArgs(argv.slice(1));
+
+  // `dev` and the help screens talk to the local dev controller (or nothing),
+  // so they don't need the backend env; everything else fast-fails without it.
+  const needsBackendEnv = !["dev", "help", "--help", "-h", undefined].includes(command);
+  if (needsBackendEnv) {
+    for (const name of REQUIRED_ENV) {
+      if (!process.env[name]) {
+        fail(1, `Missing required env var: ${name}`);
+      }
+    }
+  }
 
   switch (command) {
     case undefined:
@@ -322,6 +357,9 @@ async function main() {
       return;
     case "fetch-conversation":
       await cmdFetchConversation(rest);
+      return;
+    case "dev":
+      await cmdDev(rest);
       return;
     default:
       fail(1, `Unknown command: ${command}. Run \`research-tool help\` for usage.`);

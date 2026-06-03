@@ -57,7 +57,7 @@ export async function GET(
       status: "success",
       conversationId: payload.conversationId,
       projectId,
-      operationResult: `documents=${documents.length}`,
+      count: documents.length,
     });
 
     return NextResponse.json({
