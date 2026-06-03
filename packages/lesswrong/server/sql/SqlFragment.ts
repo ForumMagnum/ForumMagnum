@@ -1,5 +1,5 @@
 import { getCollectionByTypeName } from "@/server/collections/allCollections";
-import ProjectionContext, { CustomResolver, PrefixGenerator } from "./ProjectionContext";
+import ProjectionContext, { CodeResolverMap, CustomResolver, PrefixGenerator } from "./ProjectionContext";
 import merge from "lodash/merge";
 
 import type {
@@ -238,11 +238,50 @@ function compilePickEntry(
         context.addProjection(name, result);
       }
     } else {
-      context.addCodeResolver(resolver.fieldName ?? name, resolver.resolver);
+      addCodeResolverForPick(context, pick, resolver);
     }
   } else {
     // No resolver but with subfields: treat as field
     compileFieldEntry(context, { ...pick, type: "field" }, context.getCollection().typeName);
+  }
+}
+
+/**
+ * Register a code resolver for a "pick" field (a field with sub-selections) that
+ * has no SQL resolver. A code resolver returns a whole object with its database
+ * columns populated, so sub-fields which are plain columns come for free. But
+ * sub-fields which are themselves resolved by code resolvers (and have no
+ * column) are absent, so we build a nested code-resolver map for them which is
+ * run against the resolved object (see `executeCodeResolvers`).
+ */
+function addCodeResolverForPick(
+  context: ProjectionContext,
+  pick: SqlFragmentPick,
+  resolver: CustomResolver,
+) {
+  const { name, entries } = pick;
+  const fieldName = resolver.fieldName ?? name;
+
+  let nested: CodeResolverMap | null = null;
+  try {
+    const subCollection = getResolverCollection(resolver);
+    const subcontext = new ProjectionContext(subCollection);
+    compileEntries(subcontext, entries, subCollection.typeName);
+    const subResolvers = subcontext.getCodeResolvers();
+    if (Object.keys(subResolvers).length) {
+      nested = subResolvers;
+    }
+  } catch {
+    // The resolver returns a non-collection type (e.g. a plain JSON object), so
+    // there are no nested code resolvers to run. Fall through to a plain code
+    // resolver.
+    nested = null;
+  }
+
+  if (nested) {
+    context.addCodeResolverWithNested(fieldName, resolver.resolver, nested);
+  } else {
+    context.addCodeResolver(fieldName, resolver.resolver);
   }
 }
 

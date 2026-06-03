@@ -44,6 +44,7 @@ export type CreateRevisionOptions = Omit<CreateRevisionDataInput, "originalConte
   user?: DbUser,
   isAdmin?: boolean,
   createdAt?: Date,
+  editedAt?: Date,
   previousHtmlForChangeMetrics?: string,
   dataWithDiscardedSuggestions?: string,
 }
@@ -127,6 +128,7 @@ export async function createRevision({ data }: { data: CreateRevisionOptions }, 
     changeMetrics: htmlToChangeMetrics(data.previousHtmlForChangeMetrics ?? "", html),
     originalContents: normalizedOriginalContents,
     createdAt: data.createdAt ?? new Date(),
+    editedAt: data.editedAt ?? new Date(),
     userId: user._id
   };
 

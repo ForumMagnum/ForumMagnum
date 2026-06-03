@@ -364,6 +364,7 @@ const defaultContents: ContentTypeInput = {
 export const createDummyRevision = async (data: CreateRevisionOptions, context: ResolverContext) => {
   const newRevision = await createRevision({
     data: {
+      version: "1.0.0",
       ...data,
       originalContents: data.originalContents ?? defaultContents,
     }

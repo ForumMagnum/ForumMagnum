@@ -15,12 +15,12 @@ describe('Tagging', function() {
       const tag = await createDummyTag(user, {});
       const context = await computeContextFromUser({user: user as DbUser, isSSR: false});
       const revision = await createDummyRevision({
-        originalContents: { type: 'ckEditorMarkup', data: '', yjsState: null },
+        originalContents: { type: 'ckEditorMarkup', data: '<p>Test contribution content</p>', yjsState: null },
         documentId: tag._id,
         collectionName: 'Tags',
         fieldName: 'description',
-        html: "",
-        previousHtmlForChangeMetrics: "1234567890",
+        html: "<p>Test contribution content</p>",
+        previousHtmlForChangeMetrics: "",
       }, context);
       // Creating the revision performs a self-vote, which combined with the vote from the non-author-voter
       // gets us an expected contribution score of 2.
