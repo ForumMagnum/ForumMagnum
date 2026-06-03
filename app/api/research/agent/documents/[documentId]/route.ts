@@ -141,7 +141,7 @@ export async function GET(
       conversationId: payload.conversationId,
       projectId: payload.projectId,
       documentId,
-      operationResult: `chars=${markdown.length}`,
+      charCount: markdown.length,
     });
 
     return NextResponse.json({

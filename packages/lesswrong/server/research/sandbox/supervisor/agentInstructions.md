@@ -404,64 +404,78 @@ Two situations you'll find yourself in:
   Orient, then get straight to work on the existing code — don't re-clone or
   reinstall.
 
-### Keeping work alive across turns: `init.sh`
+### Keeping work alive across turns: `init.sh` and `dev-server.sh`
 
 The sandbox doesn't run continuously — it's stopped after idle periods (and
 recycled periodically regardless) and resumed on the next turn. On resume the
-**filesystem is restored but running processes are not**, so a dev server (or
-anything else long-running) you started by hand in one turn can be gone by a
-later turn. `init.sh` is the supervisor's hook to re-establish that live state:
-**you write `/vercel/sandbox/init.sh`**, and the supervisor runs it on every
-boot/resume, before your turn — so you set it up once instead of restarting
-things by hand each turn.
+**filesystem is restored but running processes are not**. Two files you write
+re-establish the live state on every boot, so you set things up once instead of
+restarting them by hand each turn:
 
-**Work out its contents collaboratively.** A repo's dev command, build steps,
+- **`/vercel/sandbox/init.sh`** — per-boot *setup*. The supervisor runs it to
+  completion before your turn. Put cheap, idempotent setup here: fast-forward the
+  checkout, reconcile dependencies, any build step the toolchain doesn't run
+  itself. It must **finish and exit** — don't start a long-running server from it.
+- **`/vercel/sandbox/dev-server.sh`** — the *foreground* command that runs your
+  app's dev server. The supervisor runs this as a managed process: it starts it
+  after `init.sh`, restarts it if it exits, and captures its output to
+  `/vercel/sandbox/dev.log`. Write a plain foreground command — **no `&`, no
+  `nohup`, no `setsid`** — ideally `exec`-ing the server so signals reach it.
+
+**Work out their contents collaboratively.** A repo's dev command, build steps,
 required services, or env vars often aren't obvious from the tree, so don't
-guess — figure out the full per-boot sequence and **confirm it with the user**
-before relying on it. It's usually some variation of:
+guess — figure out the per-boot sequence and **confirm it with the user** before
+relying on it.
 
-1. **Fast-forward the checkout** — `git -C <dir> pull --ff-only`.
-2. **Reconcile dependencies** — e.g. `npm install`. Include this almost always:
-   an environment you were spawned from already has *some* installed
-   dependencies, but if the pull changed the lockfile they need updating. (It's a
-   near-no-op when nothing changed.)
-3. **Optional post-install/build** — only if the repo's own toolchain doesn't
-   already handle it via a post-install hook.
-4. **Start the dev server**, detached, on `$PORT`.
+A few rules:
 
-How to write each part:
+- **Bind `$PORT`** (injected into both scripts; currently 9282) for the dev
+  server — that's the one port the preview proxy fronts; a server on any other
+  port won't be reachable.
+- **Stripped environment.** These scripts get only `PORT` and a PATH that finds
+  `research-tool` — not your Claude token, the supervisor's secrets, or your
+  turn's env. Anything your app needs at boot, the scripts must establish
+  themselves (e.g. load a `.env` you wrote during setup).
+- **Don't run the dev server (or any long-lived service) yourself inside a turn**
+  — not with `&`, `nohup`, or a background task. Processes you start in a turn are
+  tied to that turn and won't reliably outlive it. Let the platform run it via
+  `dev-server.sh` and use the controls below.
+- **Treat in-turn background tasks as turn-scoped** — fine for "kick off a build
+  while I work and check it before the turn ends," not for anything that must
+  survive to a later turn.
 
-- **Stripped environment.** `init.sh` gets only `PORT` (the dev-server port) and
-  a PATH that finds `research-tool` — not your Claude token, the supervisor's
-  secrets, or your turn's env. So anything your app needs at boot, `init.sh` must
-  establish itself (e.g. load a `.env` you wrote during setup).
-- **Detached long-running processes.** The supervisor runs `init.sh` as a
-  subprocess and reaps it (under a ~5-minute timeout, enough for a dependency
-  reconcile), so steps 1–3 run to completion but the dev server in step 4 must be
-  detached with `nohup setsid … &` or it's killed when the script returns.
-- **Bind `$PORT`** (currently 9282) for the dev server — that's the one port the
-  preview proxy fronts; a server on any other port won't be reachable.
+Controlling the dev server:
 
-Example `init.sh` for a cloned Node project at `/vercel/sandbox/app`:
+```
+research-tool dev start      # (re)start supervision and bring it up
+research-tool dev stop       # stop it and leave it stopped
+research-tool dev restart    # restart it (e.g. after a change the app can't hot-reload)
+```
+
+Check on it with ordinary tools — `curl localhost:$PORT`, `tail /vercel/sandbox/dev.log`.
+
+Example files for a cloned Node project at `/vercel/sandbox/app`:
 
 ```sh
+# /vercel/sandbox/init.sh — setup only; runs to completion.
 #!/usr/bin/env sh
 repo=/vercel/sandbox/app
-# 1. Fast-forward to the latest commit (cheap; tolerate being offline).
-git -C "$repo" pull --ff-only || true
-# 2. Reconcile dependencies in case the pull changed the lockfile.
-( cd "$repo" && npm install )
-# 3. Optional: a build/post-install step the toolchain doesn't run itself.
-# ( cd "$repo" && npm run build )
-# 4. Start the dev server detached, bound to the proxied port.
-nohup setsid sh -c 'cd /vercel/sandbox/app && npm run dev -- --port "$PORT"' \
-  >/vercel/sandbox/dev.log 2>&1 &
+git -C "$repo" pull --ff-only || true          # fast-forward (tolerate offline)
+( cd "$repo" && npm install )                   # reconcile deps if the lockfile moved
+# ( cd "$repo" && npm run build )               # only if the toolchain needs it
+```
+
+```sh
+# /vercel/sandbox/dev-server.sh — foreground; the platform supervises it.
+#!/usr/bin/env sh
+cd /vercel/sandbox/app
+exec npm run dev -- --port "$PORT"
 ```
 
 The user opens an authenticated preview link from the UI; you don't manage the
-proxy or hand out URLs. Because `init.sh` doesn't block your turn, just after a
-resume the dev server may take a few seconds to bind and the preview reads "no
-dev server detected yet" until it does — that's normal, not a failure.
+proxy or hand out URLs. Just after a resume the dev server may take a few seconds
+to bind and the preview reads "no dev server detected yet" until it does — that's
+normal, not a failure.
 
 ### Git and GitHub
 

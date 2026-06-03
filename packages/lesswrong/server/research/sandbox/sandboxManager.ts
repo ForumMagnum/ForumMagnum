@@ -30,6 +30,7 @@ import { sleep } from "@/lib/utils/asyncUtils";
 import { mintSupervisorCallbackToken } from "../../../../../app/api/research/agent/researchAgentAuth";
 import { decryptUserSecret } from "@/server/research/userSecretsCrypto";
 import { getSiteUrlFromHeaders } from "@/server/utils/getSiteUrl";
+import { serverCaptureEvent } from "@/server/analytics/serverAnalyticsWriter";
 import { getPlatformAssets } from "./platformAssets";
 import {
   AGENT_CWD,
@@ -45,8 +46,6 @@ import {
 const SUPERVISOR_PORT = 9280;
 
 const AUTH_PROXY_PORT = 9281;
-
-const DEV_PORT = 9282;
 
 /**
  * Per-session Vercel `timeout`. This is the idle dead-man's switch: activity
@@ -187,7 +186,6 @@ async function launchSupervisor(sandbox: Sandbox, env: SupervisorLaunchEnv): Pro
     BACKEND_BASE_URL: env.backendBaseUrl,
     SUPERVISOR_PORT: String(SUPERVISOR_PORT),
     AUTH_PROXY_PORT: String(AUTH_PROXY_PORT),
-    DEV_PORT: String(DEV_PORT),
     DEV_PROXY_SECRET: env.devProxySecret,
     USER_ID: env.userId,
     PROJECT_ID: env.projectId,
@@ -208,8 +206,23 @@ async function launchSupervisor(sandbox: Sandbox, env: SupervisorLaunchEnv): Pro
   await waitForSupervisorReady(supervisorUrlForSandbox(sandbox));
 }
 
+/**
+ * Thrown when a sandbox is provisioning but its supervisor hasn't come up within
+ * the readiness window. Distinct from a hard provisioning failure: the resume
+ * keeps progressing after we give up, so the caller can surface a "still
+ * starting, retry" state and a retry will find it warm.
+ */
+export class SandboxWarmingError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "SandboxWarmingError";
+  }
+}
+
+const SUPERVISOR_READY_TIMEOUT_MS = 30_000;
+
 async function waitForSupervisorReady(endpointUrl: string): Promise<void> {
-  const deadline = Date.now() + 30_000;
+  const deadline = Date.now() + SUPERVISOR_READY_TIMEOUT_MS;
   let lastErr: unknown = null;
   while (Date.now() < deadline) {
     try {
@@ -221,8 +234,8 @@ async function waitForSupervisorReady(endpointUrl: string): Promise<void> {
     }
     await sleep(500);
   }
-  throw new Error(
-    `supervisor not ready within 30s: ${(lastErr as Error)?.message ?? "unknown"}`,
+  throw new SandboxWarmingError(
+    `supervisor not ready within ${SUPERVISOR_READY_TIMEOUT_MS / 1000}s: ${(lastErr as Error)?.message ?? "unknown"}`,
   );
 }
 
@@ -267,6 +280,16 @@ async function resolveSnapshotSource(
   return { snapshotId: baseline.vercelSnapshotId };
 }
 
+function captureSandboxProvision(props: {
+  conversationId: string;
+  projectId: string;
+  path: "warm" | "create" | "resume";
+  durationMs: number;
+  ready: boolean;
+}): void {
+  serverCaptureEvent("researchSandboxProvision", props);
+}
+
 /**
  * Resolve (provisioning lazily on first use) the persistent sandbox for a
  * conversation, with its supervisor confirmed up. Safe to call on every turn.
@@ -282,6 +305,7 @@ export async function getOrCreateSandbox(
     throw new Error(`getOrCreateSandbox: conversation ${conversationId} not found`);
   }
 
+  const provisionStartedAt = Date.now();
   const sandboxName = sandboxNameForConversation(conversationId);
   const existingRow = await ResearchSandboxSessions.findOne({ conversationId });
 
@@ -292,6 +316,17 @@ export async function getOrCreateSandbox(
   if (existingRow) {
     const running = await getRunningSandbox(conversationId);
     if (running) {
+      // A running sandbox doesn't guarantee a ready supervisor — e.g. a retry
+      // after a resume whose supervisor was still booting. Confirm /health so a
+      // not-yet-ready supervisor surfaces as warming, not a generic dispatch error.
+      await waitForSupervisorReady(supervisorUrlForSandbox(running));
+      captureSandboxProvision({
+        conversationId,
+        projectId: conversation.projectId,
+        path: "warm",
+        durationMs: Date.now() - provisionStartedAt,
+        ready: true,
+      });
       return {
         conversationId,
         sandboxName,
@@ -324,11 +359,25 @@ export async function getOrCreateSandbox(
   const { snapshotId } = snapshotSource;
   const supervisorSecret = existingRow?.supervisorSecret ?? randomSecret();
   const devProxySecret = existingRow?.devProxySecret ?? randomSecret();
-  if (existingRow && !existingRow.devProxySecret) {
-    await ResearchSandboxSessions.rawUpdateOne(
-      { _id: existingRow._id },
-      { $set: { devProxySecret } },
-    );
+  // Persist the per-conversation secrets before launching the supervisor: a
+  // readiness timeout in launchSupervisor must not lose the secret the supervisor
+  // booted with, or a retry would mint a new one and fail to authenticate to the
+  // still-running supervisor.
+  if (existingRow) {
+    if (!existingRow.devProxySecret) {
+      await ResearchSandboxSessions.rawUpdateOne(
+        { _id: existingRow._id },
+        { $set: { devProxySecret } },
+      );
+    }
+  } else {
+    await ResearchSandboxSessions.rawInsert({
+      _id: randomId(),
+      conversationId,
+      supervisorSecret,
+      devProxySecret,
+      createdAt: new Date(),
+    });
   }
 
   const callbackToken = mintSupervisorCallbackToken({
@@ -359,17 +408,6 @@ export async function getOrCreateSandbox(
     wasFreshlyCreated = true;
     await overlayPlatformFiles(sandbox);
     await launchSupervisor(sandbox, launchEnv);
-    // Insert the row only for a brand-new conversation. A rebuild (expired
-    // snapshot) re-enters this path with the row already present.
-    if (!existingRow) {
-      await ResearchSandboxSessions.rawInsert({
-        _id: randomId(),
-        conversationId,
-        supervisorSecret,
-        devProxySecret,
-        createdAt: new Date(),
-      });
-    }
   };
 
   // `getOrCreate` covers all three branches: resume an existing sandbox,
@@ -380,21 +418,51 @@ export async function getOrCreateSandbox(
   // passed explicitly because the SDK omits the `resume` query param entirely
   // when it's left undefined, and the backend in that case hands back a
   // stopped-session handle rather than starting a new session.
-  const sandbox = await Sandbox.getOrCreate({
-    name: sandboxName,
-    // The SDK types `getOrCreate`'s `source` as git/tarball only, but at
-    // runtime it forwards `source` to `Sandbox.create` unchanged, which does
-    // accept a snapshot source. Cast until the SDK widens the type.
-    source: { type: "snapshot", snapshotId } as unknown as NonNullable<Parameters<typeof Sandbox.getOrCreate>[0]>["source"],
-    ports: [SUPERVISOR_PORT, AUTH_PROXY_PORT],
-    timeout: SESSION_TIMEOUT_MS,
-    resources: { vcpus: 2 },
-    persistent: true,
-    snapshotExpiration: SNAPSHOT_EXPIRATION_MS,
-    keepLastSnapshots: { count: KEEP_LAST_SNAPSHOTS_COUNT },
-    resume: true,
-    onCreate,
-    onResume,
+  let sandbox: Sandbox;
+  try {
+    // `getOrCreate` covers all three branches: resume an existing sandbox,
+    // create a fresh one when none exists, and rebuild (delete + create) when
+    // the existing sandbox's snapshot has expired. `source` is consumed only on
+    // the create path — `Sandbox.get` ignores it — so a warm resume can't
+    // clobber the snapshot we're trying to recover from. `resume: true` is
+    // passed explicitly because the SDK omits the `resume` query param entirely
+    // when it's left undefined, and the backend in that case hands back a
+    // stopped-session handle rather than starting a new session.
+    sandbox = await Sandbox.getOrCreate({
+      name: sandboxName,
+      // The SDK types `getOrCreate`'s `source` as git/tarball only, but at
+      // runtime it forwards `source` to `Sandbox.create` unchanged, which does
+      // accept a snapshot source. Cast until the SDK widens the type.
+      source: { type: "snapshot", snapshotId } as unknown as NonNullable<Parameters<typeof Sandbox.getOrCreate>[0]>["source"],
+      ports: [SUPERVISOR_PORT, AUTH_PROXY_PORT],
+      timeout: SESSION_TIMEOUT_MS,
+      resources: { vcpus: 4 },
+      persistent: true,
+      snapshotExpiration: SNAPSHOT_EXPIRATION_MS,
+      keepLastSnapshots: { count: KEEP_LAST_SNAPSHOTS_COUNT },
+      resume: true,
+      onCreate,
+      onResume,
+    });
+  } catch (err) {
+    if (err instanceof SandboxWarmingError) {
+      captureSandboxProvision({
+        conversationId,
+        projectId: conversation.projectId,
+        path: wasFreshlyCreated ? "create" : "resume",
+        durationMs: Date.now() - provisionStartedAt,
+        ready: false,
+      });
+    }
+    throw err;
+  }
+
+  captureSandboxProvision({
+    conversationId,
+    projectId: conversation.projectId,
+    path: wasFreshlyCreated ? "create" : "resume",
+    durationMs: Date.now() - provisionStartedAt,
+    ready: true,
   });
 
   return {

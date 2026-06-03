@@ -75,7 +75,7 @@ export async function GET(
       status: "success",
       conversationId,
       projectId: payload.projectId,
-      operationResult: `turns=${turns.length}`,
+      count: turns.length,
     });
 
     return NextResponse.json({
