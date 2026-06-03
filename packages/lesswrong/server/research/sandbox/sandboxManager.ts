@@ -29,6 +29,7 @@ import { randomId, randomSecret } from "@/lib/random";
 import { sleep } from "@/lib/utils/asyncUtils";
 import { mintSupervisorCallbackToken } from "../../../../../app/api/research/agent/researchAgentAuth";
 import { decryptUserSecret } from "@/server/research/userSecretsCrypto";
+import { getSiteUrlFromHeaders } from "@/server/utils/getSiteUrl";
 import { getPlatformAssets } from "./platformAssets";
 import {
   AGENT_CWD,
@@ -304,12 +305,13 @@ export async function getOrCreateSandbox(
     }
   }
 
-  // The supervisor POSTs events/heartbeats here. Localhost won't reach a dev
-  // machine from inside a sandbox — point this at a tunnel for local dev.
-  const backendBaseUrl =
-    process.env.RESEARCH_BACKEND_PUBLIC_URL ??
-    process.env.VERCEL_BRANCH_URL ??
-    "http://localhost:3000";
+  // The supervisor POSTs events/heartbeats from inside the sandbox back to our
+  // backend, so it needs a publicly-reachable absolute URL pointing at *this*
+  // deployment. In local dev the backend is only reachable through a tunnel
+  // (RESEARCH_BACKEND_PUBLIC_URL, set by runDevWithResearchSandbox.sh, since the
+  // configured siteUrl is localhost). Otherwise derive it from the firing
+  // request's forwarded headers.
+  const backendBaseUrl = process.env.RESEARCH_BACKEND_PUBLIC_URL ?? getSiteUrlFromHeaders(context.headers);
 
   // The token decrypt and the snapshot-source resolution are independent. The
   // supervisorSecret is generated once and reused for the conversation's life:
