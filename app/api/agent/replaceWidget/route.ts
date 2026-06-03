@@ -21,7 +21,7 @@ function truncateForSummary(value: string): string {
   return value.slice(0, WIDGET_SUMMARY_MAX_LENGTH) + "... [truncated]";
 }
 
-interface ReplaceWidgetResult {
+export interface ReplaceWidgetResult {
   replaced: boolean
   widgetFound: boolean
   note: string
@@ -86,6 +86,72 @@ function applySuggestionWidgetReplacement(widgetNode: IframeWidgetNode, oldConte
   return suggestionId;
 }
 
+/**
+ * The core Lexical update logic for replacing a widget's content. Exported so
+ * the research-agent replace-widget route can reuse it. Must be called inside
+ * an editor.update() callback.
+ */
+export function $replaceWidgetInEditor({
+  widgetId,
+  replacement,
+  unifiedDiff,
+  mode,
+}: {
+  widgetId: string
+  replacement?: string
+  unifiedDiff?: string
+  mode: ReplaceMode
+}): ReplaceWidgetResult {
+  const root = $getRoot();
+  const widgetNode = findWidgetNodeById(root, widgetId);
+  if (!widgetNode) {
+    return {
+      replaced: false,
+      widgetFound: false,
+      note: `Widget with id ${widgetId} was not found.`,
+    };
+  }
+
+  const currentContent = widgetNode.getTextContent();
+  const replacementResult = computeReplacementContent({
+    currentContent,
+    replacement,
+    unifiedDiff,
+  });
+
+  if (!replacementResult.ok) {
+    return {
+      replaced: false,
+      widgetFound: true,
+      note: replacementResult.note,
+    };
+  }
+
+  if (mode === "edit") {
+    for (const child of widgetNode.getChildren()) {
+      child.remove();
+    }
+    if (replacementResult.content.length > 0) {
+      widgetNode.append($createTextNode(replacementResult.content));
+    }
+    return {
+      replaced: true,
+      widgetFound: true,
+      note: "Replaced widget HTML/JS content directly.",
+    };
+  }
+
+  const suggestionId = applySuggestionWidgetReplacement(widgetNode, currentContent, replacementResult.content);
+  return {
+    replaced: true,
+    widgetFound: true,
+    note: "Created delete/insert suggestion nodes for widget content replacement.",
+    suggestionId,
+    previousContent: currentContent,
+    nextContent: replacementResult.content,
+  };
+}
+
 export async function replaceWidgetInMainDoc({
   postId,
   token,
@@ -118,57 +184,7 @@ export async function replaceWidgetInMainDoc({
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
-          const root = $getRoot();
-          const widgetNode = findWidgetNodeById(root, widgetId);
-          if (!widgetNode) {
-            result = {
-              replaced: false,
-              widgetFound: false,
-              note: `Widget with id ${widgetId} was not found.`,
-            };
-            return;
-          }
-          result.widgetFound = true;
-          const currentContent = widgetNode.getTextContent();
-          const replacementResult = computeReplacementContent({
-            currentContent,
-            replacement,
-            unifiedDiff,
-          });
-
-          if (!replacementResult.ok) {
-            result = {
-              replaced: false,
-              widgetFound: true,
-              note: replacementResult.note,
-            };
-            return;
-          }
-
-          if (mode === "edit") {
-            for (const child of widgetNode.getChildren()) {
-              child.remove();
-            }
-            if (replacementResult.content.length > 0) {
-              widgetNode.append($createTextNode(replacementResult.content));
-            }
-            result = {
-              replaced: true,
-              widgetFound: true,
-              note: "Replaced widget HTML/JS content directly.",
-            };
-            return;
-          }
-
-          const suggestionId = applySuggestionWidgetReplacement(widgetNode, currentContent, replacementResult.content);
-          result = {
-            replaced: true,
-            widgetFound: true,
-            note: "Created delete/insert suggestion nodes for widget content replacement.",
-            suggestionId,
-            previousContent: currentContent,
-            nextContent: replacementResult.content,
-          };
+          result = $replaceWidgetInEditor({ widgetId, replacement, unifiedDiff, mode });
         }, { onUpdate: resolve });
       });
 

@@ -1,5 +1,6 @@
 const DOCUMENT_NAME_PREFIXES: ReadonlyArray<{ prefix: string; collectionName: string }> = [
   { prefix: 'post-', collectionName: 'Posts' },
+  { prefix: 'research-doc-', collectionName: 'ResearchDocuments' },
 ];
 
 export interface ParsedDocument {

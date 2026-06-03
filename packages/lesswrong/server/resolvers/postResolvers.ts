@@ -20,6 +20,7 @@ import { createRevision } from '../collections/revisions/mutations';
 import { getDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { PostsViews } from '@/lib/collections/posts/views';
 import { getCollaborativeEditorAccessWithKey, type CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
+import { getResearchDocumentAccess } from '@/lib/collections/researchDocuments/permissions';
 import { getSqlClientOrThrow } from '@/server/sql/sqlClient';
 import { getViewablePostsSelector } from '@/server/repos/helpers';
 import { getUserDefaultRichTextEditor } from '@/lib/editor/defaultRichTextEditor';
@@ -431,21 +432,25 @@ export const postGqlQueries = {
     }
     const { linkSharingKey } = args;
 
-    if (collectionName !== 'Posts') {
+    let accessLevel: CollaborativeEditingAccessLevel;
+    if (collectionName === 'Posts') {
+      const post = await loaders.Posts.load(documentId);
+      accessLevel = await getCollaborativeEditorAccessWithKey({
+        formType: 'edit',
+        post,
+        user: currentUser,
+        context,
+        useAdminPowers: true,
+        linkSharingKey,
+      });
+    } else if (collectionName === 'ResearchDocuments') {
+      accessLevel = await getResearchDocumentAccess(documentId, currentUser, context);
+    } else {
       throw new Error(`HocuspocusAuth: unsupported collectionName ${collectionName}`);
     }
-    const post = await loaders.Posts.load(documentId);
-    const accessLevel: CollaborativeEditingAccessLevel = await getCollaborativeEditorAccessWithKey({
-      formType: 'edit',
-      post,
-      user: currentUser,
-      context,
-      useAdminPowers: true,
-      linkSharingKey,
-    });
 
     if (accessLevel === 'none') {
-      throw new Error('Unauthorized: You do not have access to collaborate on this post');
+      throw new Error(`Unauthorized: You do not have access to collaborate on this ${collectionName === 'Posts' ? 'post' : 'document'}`);
     }
 
     const token = jwt.sign(

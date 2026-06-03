@@ -86,7 +86,7 @@ const server = new Server({
     if (!token) {
       throw new Error('Authentication required');
     }
-    
+
     const payload = await verifyAuthToken(token);
 
     const { userId, displayName, accessLevel, collectionName, documentId } = payload;
