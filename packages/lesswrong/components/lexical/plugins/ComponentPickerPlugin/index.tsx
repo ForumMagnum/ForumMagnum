@@ -57,6 +57,8 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
+import { useResearchEditorEnvironmentOptional } from '@/components/research/lexical/ResearchEditorContext';
+import { INSERT_QUERY_INPUT_COMMAND } from '@/components/research/lexical/QueryInputPlugin';
 import { InsertReviewResultsDialog } from '../../embeds/ReviewResultsEmbed/InsertReviewResultsDialog';
 import { INSERT_IFRAME_WIDGET_COMMAND } from '../../embeds/IframeWidgetEmbed/IframeWidgetPlugin';
 import { INSERT_LLM_CONTENT_BLOCK_COMMAND } from '@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockPlugin';
@@ -182,7 +184,12 @@ const headingIcons = {
 } as const;
 
 
-function useBaseOptions(editor: LexicalEditor, openDialog: OpenDialogContextType['openDialog'], currentUser: UsersCurrent | null) {
+function useBaseOptions(
+  editor: LexicalEditor,
+  openDialog: OpenDialogContextType['openDialog'],
+  currentUser: UsersCurrent | null,
+  inResearchContext: boolean,
+) {
   const isAdminUser = userIsAdmin(currentUser);
   return [
     new ComponentPickerOption('Table', {
@@ -270,7 +277,7 @@ function useBaseOptions(editor: LexicalEditor, openDialog: OpenDialogContextType
       onSelect: () =>
         applyBlockTypeChange(editor, 'code'),
     }),
-    ...(isAdminUser ? [
+    ...(isAdminUser && !inResearchContext ? [
       new ComponentPickerOption('Review Results Table', {
         icon: <CardChecklistIcon style={iconStyle} />,
         keywords: ['review', 'results', 'annual', 'voting', 'table'],
@@ -303,11 +310,31 @@ function useBaseOptions(editor: LexicalEditor, openDialog: OpenDialogContextType
   ];
 }
 
+interface ResearchSlashCustomizations {
+  extras: ComponentPickerOption[];
+}
+
+function useResearchSlashCustomizations(editor: LexicalEditor): ResearchSlashCustomizations | null {
+  const env = useResearchEditorEnvironmentOptional();
+  return useMemo(() => {
+    if (!env) return null;
+    const queryOption = new ComponentPickerOption('Query (research agent)', {
+      icon: <ForumIcon icon="Robot" style={omit(iconStyle, 'marginTop')} />,
+      keywords: ['query', 'agent', 'ask', 'research', 'claude'],
+      onSelect: () => {
+        editor.dispatchCommand(INSERT_QUERY_INPUT_COMMAND, undefined);
+      },
+    });
+    return { extras: [queryOption] };
+  }, [env, editor]);
+}
+
 export default function ComponentPickerMenuPlugin(): JSX.Element {
   const [editor] = useLexicalComposerContext();
   const [queryString, setQueryString] = useState<string | null>(null);
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
+  const researchCustomizations = useResearchSlashCustomizations(editor);
 
   const baseCheckForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
     allowWhitespace: true,
@@ -332,24 +359,29 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
     [baseCheckForTriggerMatch],
   );
 
-  const baseOptions = useBaseOptions(editor, openDialog, currentUser);
+  const baseOptions = useBaseOptions(editor, openDialog, currentUser, !!researchCustomizations);
 
   const options = useMemo(() => {
+    const allOptions: ComponentPickerOption[] = [
+      ...(researchCustomizations?.extras ?? []),
+      ...baseOptions,
+    ];
+
     if (!queryString) {
-      return baseOptions;
+      return allOptions;
     }
 
     const regex = new RegExp(queryString, 'i');
 
     return [
       ...getDynamicOptions(editor, queryString),
-      ...baseOptions.filter(
+      ...allOptions.filter(
         (option) =>
           regex.test(option.title) ||
           option.keywords.some((keyword) => regex.test(keyword)),
       ),
     ];
-  }, [editor, queryString, baseOptions]);
+  }, [editor, queryString, baseOptions, researchCustomizations]);
 
   const onSelectOption = useCallback(
     (

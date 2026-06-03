@@ -21,7 +21,7 @@ import { $generateHtmlFromNodes } from '@lexical/html';
 import { createBinding } from '@lexical/yjs';
 import type { Provider, Binding } from '@lexical/yjs';
 import * as Y from 'yjs';
-import PlaygroundNodes from '@/components/lexical/nodes/PlaygroundNodes';
+import allLexicalNodes from '@/components/lexical/nodes/allLexicalNodes';
 import PlaygroundEditorTheme from '@/components/lexical/themes/PlaygroundEditorTheme';
 import { withDomGlobals } from '@/server/editor/withDomGlobals';
 
@@ -47,11 +47,11 @@ function createMockProvider(): Provider {
 }
 
 /**
- * Creates a headless Lexical editor configured with all PlaygroundNodes.
+ * Creates a headless Lexical editor configured with the universal node set.
  */
 export function createHeadlessEditor(errorLabel: string) {
   return createEditor({
-    nodes: [...PlaygroundNodes],
+    nodes: allLexicalNodes,
     theme: PlaygroundEditorTheme,
     onError: (error) => {
       // eslint-disable-next-line no-console

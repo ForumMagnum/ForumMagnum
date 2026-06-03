@@ -9,10 +9,29 @@ const HocuspocusAuthQuery = gql(`
   }
 `);
 
-export async function getHocuspocusToken(context: ResolverContext, postId: string, linkSharingKey?: string): Promise<string | null> {
+/**
+ * Fetch a Hocuspocus auth token for a given Posts document.
+ *
+ * For non-Posts collections (e.g. ResearchDocuments) use
+ * `getHocuspocusTokenForCollection` instead.
+ */
+export async function getHocuspocusToken(
+  context: ResolverContext,
+  postId: string,
+  linkSharingKey?: string,
+): Promise<string | null> {
+  return getHocuspocusTokenForCollection(context, 'Posts', postId, linkSharingKey);
+}
+
+export async function getHocuspocusTokenForCollection(
+  context: ResolverContext,
+  collectionName: string,
+  documentId: string,
+  linkSharingKey?: string,
+): Promise<string | null> {
   const { data } = await runQuery(
     HocuspocusAuthQuery,
-    { collectionName: 'Posts', documentId: postId, linkSharingKey: linkSharingKey ?? null },
+    { collectionName, documentId, linkSharingKey: linkSharingKey ?? null },
     context,
   );
   return data?.HocuspocusAuth?.token ?? null;

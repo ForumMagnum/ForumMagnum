@@ -1,4 +1,5 @@
 import { Posts } from '@/server/collections/posts/collection';
+import ResearchDocuments from '@/server/collections/researchDocuments/collection';
 import Revisions from '@/server/collections/revisions/collection';
 import Users from '../../server/collections/users/collection';
 import { createNotifications } from '@/server/notificationCallbacksHelpers';
@@ -10,6 +11,8 @@ import { constantTimeCompare } from '../../lib/helpers';
 import isEqual from 'lodash/isEqual';
 import YjsDocuments from '@/server/collections/yjsDocuments/collection';
 import { captureException } from '@/lib/sentryWrapper';
+import { backgroundTask } from '@/server/utils/backgroundTask';
+import { generateDocumentTitle } from '@/server/research/titleGeneration';
 
 const COLLAB_AUTOSAVE_COMMIT_MESSAGE = 'Collaborative editor autosave';
 
@@ -17,6 +20,7 @@ const COLLAB_AUTOSAVE_COMMIT_MESSAGE = 'Collaborative editor autosave';
 // Hocuspocus server's documentNames.ts.
 const COLLAB_DOCUMENT_NAME_PREFIXES: ReadonlyArray<{ prefix: string; collectionName: string }> = [
   { prefix: 'post-', collectionName: 'Posts' },
+  { prefix: 'research-doc-', collectionName: 'ResearchDocuments' },
 ];
 
 // The documentId is the full path after the prefix, including any "/subDoc"
@@ -97,9 +101,12 @@ async function getUserForSavedPost(postId: string, userId: string): Promise<{
 }
 
 /**
- * Save a new revision for a collaboratively-edited document, attributed to
- * a specific user. Called by saveOrUpdateLexicalRevision when creating a
+ * Save a new revision for a collaboratively-edited Posts document, attributed
+ * to a specific user. Called by saveOrUpdateLexicalRevision when creating a
  * fresh revision (as opposed to updating an existing autosave in-place).
+ *
+ * Only invoked for the Posts collection; other collections (e.g.
+ * ResearchDocuments) don't currently snapshot revisions through this path.
  */
 async function saveLexicalDocumentRevision(
   userId: string,
@@ -148,10 +155,13 @@ async function saveLexicalDocumentRevision(
 }
 
 /**
- * Save a new revision for a collaboratively-edited document.
+ * Save a new revision for a collaboratively-edited Posts document.
  * Always creates a new revision (no in-place update of previous
  * autosaves) so that every snapshot has its own yjsState and can
  * be restored independently.
+ *
+ * Other collections (ResearchDocuments) don't snapshot revisions through this
+ * path today; the caller should switch on collectionName before invoking.
  *
  * Deduplication is handled inside saveLexicalDocumentRevision: if
  * the HTML content hasn't changed since the last revision, no new
@@ -163,6 +173,10 @@ export async function saveOrUpdateLexicalRevision(
   html: string,
   yjsStateBase64: string,
 ): Promise<void> {
+  if (collectionName === 'ResearchDocuments') {
+    backgroundTask(maybeGenerateResearchDocumentTitle(documentId, html));
+    return;
+  }
   if (collectionName !== 'Posts') {
     throw new Error(`saveOrUpdateLexicalRevision: unsupported collection ${collectionName}`);
   }
@@ -171,6 +185,27 @@ export async function saveOrUpdateLexicalRevision(
     throw new Error(`saveOrUpdateLexicalRevision: no Posts document ${documentId}`);
   }
   await saveLexicalDocumentRevision(post.userId, documentId, html, yjsStateBase64);
+}
+
+// Generate a title via Haiku only while the doc still has a null title — once
+// a title is set (auto or user-edited), later autosaves short-circuit here.
+async function maybeGenerateResearchDocumentTitle(documentId: string, html: string): Promise<void> {
+  try {
+    const doc = await ResearchDocuments.findOne({ _id: documentId }, undefined, { _id: 1, title: 1 });
+    if (!doc || doc.title !== null) return;
+    const title = await generateDocumentTitle(html);
+    if (!title) return;
+    // title: null in the selector — avoids clobbering a title the user set
+    // between our read and the Haiku response landing.
+    await ResearchDocuments.rawUpdateOne(
+      { _id: documentId, title: null },
+      { $set: { title } },
+    );
+  } catch (err) {
+    captureException(err);
+    // eslint-disable-next-line no-console
+    console.error('[research] maybeGenerateResearchDocumentTitle failed', documentId, err);
+  }
 }
 
 /**
@@ -285,13 +320,21 @@ export interface HocuspocusCommentData {
  * Handle the "comment added" callback from Hocuspocus.
  * Notifies the post author, coauthors, and other commenters in the thread.
  *
- * Equivalent of CKEditor's `comment.added` webhook event.
+ * Equivalent of CKEditor's `comment.added` webhook event. Currently only
+ * fires for Posts; other collab-editor-backed collections (e.g.
+ * ResearchDocuments) silently no-op until per-collection notification
+ * mechanics are wired up.
  */
 export async function handleCommentAdded(
   documentName: string,
   comment: HocuspocusCommentData,
 ): Promise<void> {
-  const { documentId } = parseHocuspocusDocumentName(documentName);
+  const { collectionName, documentId } = parseHocuspocusDocumentName(documentName);
+  if (collectionName !== 'Posts') {
+    // eslint-disable-next-line no-console
+    console.log(`[HocuspocusWebhook] Ignoring comment.added for non-Posts document ${documentName}`);
+    return;
+  }
   // comment.added fires on the comments subdocument, named "post-{id}/comments";
   // the owning post id is the segment before the slash.
   const postId = documentId.split('/')[0];

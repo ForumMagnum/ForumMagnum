@@ -30,7 +30,7 @@ export class PostgresExtension implements Extension {
    * state with the old in-memory state.
    */
   private skipStoreForDocuments = new Set<string>();
-  
+
   constructor(config: PostgresExtensionConfig) {
     this.pool = new Pool({
       connectionString: config.connectionString,
@@ -38,7 +38,7 @@ export class PostgresExtension implements Extension {
       idleTimeoutMillis: 30000,
     });
   }
-  
+
   async onLoadDocument({ documentName, document }: onLoadDocumentPayload): Promise<void> {
     const { collectionName, documentId } = parseDocumentName(documentName);
 
@@ -67,7 +67,7 @@ export class PostgresExtension implements Extension {
       throw error;
     }
   }
-  
+
   async onStoreDocument({ documentName, document }: onStoreDocumentPayload): Promise<void> {
     if (this.skipStoreForDocuments.delete(documentName)) {
       return;
@@ -125,7 +125,7 @@ export class PostgresExtension implements Extension {
       throw error;
     }
   }
-  
+
   async onDestroy(): Promise<void> {
     await this.pool.end();
   }

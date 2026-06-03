@@ -11,8 +11,11 @@ import {
 import { htmlToMarkdown, markdownToHtml, markdownToHtmlNoMath } from "@/server/editor/conversionUtils";
 import { JSDOM } from "jsdom";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
-import { createHeadlessEditor, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith } from "./editorAgentUtil";
+import { createHeadlessEditor, foldPunctuation, normalizeText, paragraphMarkdownStartsWith, plainTextStartsWith } from "./editorAgentUtil";
 import { FOOTNOTE_ELEMENT_TYPES } from "@/components/editor/lexicalPlugins/footnotes/constants";
+import { QUERY_INPUT_NODE_TYPE } from "@/components/research/lexical/QueryInputNode";
+import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
+import { stripMathTokens, formatMathToken, foldCaseOutsideMath, canonicalizeMathTokens, findMathSpansInMarkdown, type MathSpan } from "@/lib/utils/mathTokens";
 import { $isListNode } from "@lexical/list";
 
 /**
@@ -67,14 +70,10 @@ function normalizeEmphasisMarkerStyle(value: string): string {
   return value.replace(/\*/g, "_");
 }
 
-function normalizeMathDelimiters(value: string): string {
-  return value
-    .replace(/\\\(([\s\S]*?)\\\)/g, "$$$1$")
-    .replace(/\\\[([\s\S]*?)\\\]/g, "$$$1$$");
-}
-
 function normalizeForSemanticMatch(value: string): string {
-  return normalizeText(normalizeMathDelimiters(normalizeEmphasisMarkerStyle(value)));
+  // `normalizeText` canonicalizes math tokens, so all delimiter shapes of an
+  // equation fold together without a separate delimiter-normalization pass.
+  return normalizeText(normalizeEmphasisMarkerStyle(value));
 }
 
 // The plaintext returned here preserves a character-by-character ordering
@@ -86,12 +85,13 @@ function normalizeForSemanticMatch(value: string): string {
 // position alignment. For the quote-matching projection (which needs CommonMark
 // semantics for intraword `_`, literal `$`, etc.), use
 // `markdownQuoteToRenderedPlainText` instead.
+//
+// Math tokens are projected to zero width: an equation is an opaque MathNode
+// that contributes no text content to the Lexical document, so counting the
+// equation body here would desynchronize replaceText narrowing offsets from
+// the document's text-node walk (`$advancePoint`/`$retreatPoint`).
 export function markdownQuoteToPlainText(value: string): string {
-  return value
-    .replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1")
-    .replace(/\$\$([\s\S]*?)\$\$/g, "$1")
-    .replace(/\$([^$]+)\$/g, "$1")
-    .replace(/\\([A-Za-z]+)/g, "$1")
+  return stripMathTokens(value.replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1"))
     .replace(/[*_`~]/g, "");
 }
 
@@ -148,65 +148,160 @@ export function findRenderedQuoteInMarkdown(
   return { markdownQuote: markdown.slice(mdStart, mdEnd), mdStart, mdEnd };
 }
 
+// Sentinel that brackets a math span's index while the surrounding prose is
+// rendered through markdown-it. U+E000 is a private-use character markdown-it
+// treats as ordinary text and never transforms. The index makes restoration
+// position-independent: if markdown-it drops a placeholder (e.g. a math span
+// that landed in a link href, which renders to no visible text), the surviving
+// placeholders still restore to their own equations rather than shifting onto
+// the wrong ones.
+const MATH_PLACEHOLDER_SENTINEL = String.fromCharCode(0xE000);
+function mathPlaceholder(index: number): string {
+  return MATH_PLACEHOLDER_SENTINEL + index + MATH_PLACEHOLDER_SENTINEL;
+}
+const MATH_PLACEHOLDER_REGEXP = new RegExp(
+  MATH_PLACEHOLDER_SENTINEL + "(\\d+)" + MATH_PLACEHOLDER_SENTINEL,
+  "g",
+);
+
 // Project an agent-supplied markdown quote to the rendered plaintext it
 // represents, via markdown-it's CommonMark implementation. Preserves literal
 // punctuation in content (e.g. `snake_case`, `2*3`, `` `code` ``) while
 // stripping genuine emphasis/code wrappers.
 //
-// Uses the no-mathjax markdown-it variant so `$...$` and `\(...\)` survive as
-// literal text, matching the `$equation$` form that `appendSegments` emits for
-// MathNode segments on the document side. Math delimiters are normalized up
-// front so `\(...\)` and `\[...\]` quotes fold onto the `$...$` shape.
+// Math spans are swapped for placeholders before rendering and restored after:
+// markdown-it would otherwise interpret markdown syntax *inside* an equation
+// (`$a*b*$` as emphasis, `$a~b~c$` as a subscript, `\(x\)` as escaped parens)
+// and corrupt it. The restored math is then run through
+// `canonicalizeMathTokens` so every delimiter shape of an equation lands on
+// one form.
 export function markdownQuoteToRenderedPlainText(value: string): string {
-  const html = markdownToHtmlNoMath(normalizeMathDelimiters(value));
-  const dom = new JSDOM(html);
-  return dom.window.document.body.textContent ?? "";
+  const spans = findMathSpansInMarkdown(value);
+  const rawMath: string[] = [];
+  let withPlaceholders = "";
+  let cursor = 0;
+  for (const span of spans) {
+    withPlaceholders += value.slice(cursor, span.start) + mathPlaceholder(rawMath.length);
+    rawMath.push(value.slice(span.start, span.end));
+    cursor = span.end;
+  }
+  withPlaceholders += value.slice(cursor);
+
+  const html = markdownToHtmlNoMath(withPlaceholders);
+  const rendered = new JSDOM(html).window.document.body.textContent ?? "";
+
+  // A placeholder markdown-it dropped (e.g. one that landed in an href) simply
+  // does not appear; the rest still map to the right equations.
+  const restored = rendered.replace(
+    MATH_PLACEHOLDER_REGEXP,
+    (_match: string, index: string) => rawMath[Number(index)] ?? "",
+  );
+  return canonicalizeMathTokens(restored);
 }
 
 /**
  * Parse markdown through the markdown-it pipeline and extract the rendered
- * plain text, producing a filter string suitable for
+ * plain text, producing a fast-reject filter string for
  * `buildNodeMarkdownMapForSubtree`. This handles all block-level and inline
  * markdown syntax (headings, blockquotes, lists, links, emphasis, etc.)
  * without hardcoding individual patterns.
+ *
+ * Math tokens are stripped first: `markdownToHtml` renders them inconsistently
+ * (`\(…\)` in tests, `<mjx-container>` in production), and the node-text side
+ * of the filter excludes math too — so the filter stays reliably math-blind on
+ * both sides, and a block whose markdown starts with an equation is never
+ * wrongly filtered out before the precise matcher runs.
+ *
+ * A consequence: a math-only quote yields an empty filter — see the KNOWN
+ * PERFORMANCE ISSUE note on `buildNodeMarkdownMapForSubtree`.
  */
 export function toPlainTextFilter(markdownQuote: string): string {
-  const html = markdownToHtml(markdownQuote);
+  const html = markdownToHtml(stripMathTokens(markdownQuote));
   const dom = new JSDOM(html);
   const textOnly = dom.window.document.body.textContent;
   return normalizeText(textOnly);
 }
 
 /**
- * Map a character index in a whitespace-normalized (trimmed, collapsed, lowercased)
- * string back to the corresponding index in the original lowercased string.
- * Implements the inverse of `normalizeText` for position tracking in O(n).
+ * Locate `plainQuote` — a `normalizeText`-normalized string (single-space
+ * whitespace, canonical math tokens) — inside `rawLower` (raw text whose case
+ * has already been folded outside math). Tolerates the two ways the strings
+ * can legitimately differ:
+ *
+ *  - whitespace: a run of raw whitespace matches a single normalized space;
+ *  - math delimiter shape: a math token matches by equation + inline-ness, so
+ *    a raw `$$x$$` aligns with a canonical `$$\nx\n$$` even though the two
+ *    differ in length — which a plain index-offset mapping cannot model.
+ *
+ * Returns the matched `[rawStart, rawEnd)` range in `rawLower`, or null. This
+ * is the fallback for `findTextRangeInNodeByPlainQuote`, reached only after an
+ * exact substring search has already failed, so the O(n·m) candidate scan
+ * (each candidate alignment fails fast on the first mismatch) is acceptable.
  */
-function mapNormalizedIndexToRaw(rawLower: string, targetNormalizedIndex: number): number {
-  let normalizedIndex = 0;
-  let inLeadingWhitespace = true;
-  let prevWasWhitespace = false;
-  for (let i = 0; i < rawLower.length; i++) {
-    const ch = rawLower[i];
-    const isWs = /\s/.test(ch);
-    if (inLeadingWhitespace) {
-      if (isWs) continue;
-      inLeadingWhitespace = false;
-    }
-    if (isWs) {
-      if (!prevWasWhitespace) {
-        if (normalizedIndex === targetNormalizedIndex) return i;
-        normalizedIndex++;
-      }
-      prevWasWhitespace = true;
-    } else {
-      if (normalizedIndex === targetNormalizedIndex) return i;
-      normalizedIndex++;
-      prevWasWhitespace = false;
-    }
+function alignNormalizedQuoteInRaw(
+  rawLower: string,
+  plainQuote: string,
+): { rawStart: number, rawEnd: number } | null {
+  // `plainQuote` comes from `normalizeText`, which folds typographic
+  // punctuation (curly quotes, dashes) to ASCII; fold `rawLower` the same way
+  // so the two char streams align. `foldPunctuation` is length-preserving and
+  // never touches math delimiters, so the matched indices stay valid for the
+  // caller's `combined` string and the math spans below are unaffected.
+  const foldedRaw = foldPunctuation(rawLower);
+  const rawSpanByStart = new Map<number, MathSpan>();
+  for (const span of findMathSpansInMarkdown(foldedRaw)) {
+    rawSpanByStart.set(span.start, span);
   }
-  return -1;
+  const quoteSpanByStart = new Map<number, MathSpan>();
+  for (const span of findMathSpansInMarkdown(plainQuote)) {
+    quoteSpanByStart.set(span.start, span);
+  }
+
+  const tryAlignFrom = (rawStart: number): number | null => {
+    let r = rawStart;
+    let q = 0;
+    while (q < plainQuote.length) {
+      const rawSpan = rawSpanByStart.get(r);
+      const quoteSpan = quoteSpanByStart.get(q);
+      if (
+        rawSpan && quoteSpan
+        && rawSpan.equation === quoteSpan.equation
+        && rawSpan.inline === quoteSpan.inline
+      ) {
+        r = rawSpan.end;
+        q = quoteSpan.end;
+        continue;
+      }
+      if (r >= foldedRaw.length) return null;
+      const rawIsWhitespace = /\s/.test(foldedRaw[r]);
+      const quoteIsWhitespace = /\s/.test(plainQuote[q]);
+      if (rawIsWhitespace && quoteIsWhitespace) {
+        while (r < foldedRaw.length && /\s/.test(foldedRaw[r])) r++;
+        q++;
+        continue;
+      }
+      if (foldedRaw[r] !== plainQuote[q]) return null;
+      r++;
+      q++;
+    }
+    return r;
+  };
+
+  for (let start = 0; start < foldedRaw.length; start++) {
+    // A normalized quote is trimmed, so it never starts on whitespace.
+    if (/\s/.test(foldedRaw[start])) continue;
+    const rawEnd = tryAlignFrom(start);
+    if (rawEnd !== null) return { rawStart: start, rawEnd };
+  }
+  return null;
 }
+
+// One run of the matcher's `combined` projection. Math segments carry
+// `equation`/`inline` so the post-collection pass can re-render `text` once
+// the following segment — hence the digit-safety of the `$…$` form — is known.
+type QuoteSegment =
+  | { kind: "text", key: string, text: string }
+  | { kind: "math", key: string, text: string, equation: string, inline: boolean };
 
 function findTextRangeInNodeByPlainQuote(
   node: LexicalNode,
@@ -218,11 +313,7 @@ function findTextRangeInNodeByPlainQuote(
     return null;
   }
 
-  const segments: Array<{
-    kind: "text" | "math"
-    key: string
-    text: string
-  }> = [];
+  const segments: QuoteSegment[] = [];
 
   const appendSegments = (currentNode: LexicalNode) => {
     // Must precede the $isTextNode branch: FootnoteReferenceNode extends
@@ -241,14 +332,18 @@ function findTextRangeInNodeByPlainQuote(
       return;
     }
 
-    if (currentNode.getType() === "math") {
-      const serializedNode = currentNode.exportJSON() as { equation?: string } | undefined;
-      const equation = serializedNode?.equation;
+    if ($isMathNode(currentNode)) {
+      const equation = currentNode.getEquation();
       if (equation) {
+        const inline = currentNode.isInline();
         segments.push({
           kind: "math",
           key: currentNode.getKey(),
-          text: `$${equation}$`,
+          // Provisional — re-rendered by the post-pass below once the
+          // following segment is known (see `formatMathToken`'s digit rule).
+          text: formatMathToken({ equation, inline }),
+          equation,
+          inline,
         });
       }
       return;
@@ -266,87 +361,77 @@ function findTextRangeInNodeByPlainQuote(
     return null;
   }
 
+  // Re-render each math segment now that the following segment is known: an
+  // inline equation immediately followed by a digit must take the digit-safe
+  // `\(…\)` form (see `formatMathToken`), matching what the agent read API
+  // emits and what `canonicalizeMathTokens` produces for the agent's quote.
+  for (let i = 0; i < segments.length; i++) {
+    const segment = segments[i];
+    if (segment.kind === "math") {
+      segment.text = formatMathToken(
+        { equation: segment.equation, inline: segment.inline },
+        segments[i + 1]?.text[0],
+      );
+    }
+  }
+
   const combined = segments.map((segment) => segment.text).join("");
-  let rawStartIndex = combined.toLowerCase().indexOf(plainQuoteRaw.toLowerCase());
+  // `foldCaseOutsideMath` is length-preserving, so indices into `rawLower`
+  // are also valid indices into `combined` (which `locatePoint` walks).
+  const rawLower = foldCaseOutsideMath(combined);
+  let rawStartIndex = rawLower.indexOf(foldCaseOutsideMath(plainQuoteRaw));
   let rawEndExclusive: number;
   if (rawStartIndex === -1) {
-    // Fallback when whitespace normalization is needed.
-    // We need to find the range in the original (un-normalized) text that corresponds
-    // to the normalized quote, correctly mapping offsets despite whitespace differences.
-    // Normalize the full string once and search within it (O(n)), instead of
-    // re-normalizing a suffix at every position (which was O(n²)).
-    const rawLower = combined.toLowerCase();
-    const normalizedCombined = normalizeText(rawLower);
-    const normalizedMatchIdx = normalizedCombined.indexOf(plainQuote);
-    const fallbackStart = normalizedMatchIdx === -1
-      ? -1
-      : mapNormalizedIndexToRaw(rawLower, normalizedMatchIdx);
-    if (fallbackStart === -1) {
+    // The exact search failed — fall back to a whitespace- and math-delimiter-
+    // tolerant alignment of the normalized quote against the raw text. This
+    // covers a quote whose whitespace differs from the document's, and a
+    // document whose text literally contains math-delimiter characters in a
+    // non-canonical shape, where `combined` and the canonical `plainQuote`
+    // disagree on a token's length.
+    const aligned = alignNormalizedQuoteInRaw(rawLower, plainQuote);
+    if (!aligned) {
       return null;
     }
-
-    // Skip any leading whitespace at fallbackStart to find the true start of content,
-    // since normalizeText trims leading whitespace.
-    let trueStart = fallbackStart;
-    while (trueStart < rawLower.length && /\s/.test(rawLower[trueStart])) {
-      trueStart++;
-    }
-    rawStartIndex = trueStart;
-
-    // Walk through the original text to find how many original characters correspond
-    // to the normalized quote. We consume normalized characters one at a time, skipping
-    // extra whitespace in the original.
-    let normalizedConsumed = 0;
-    let rawCursor = rawStartIndex;
-    while (normalizedConsumed < plainQuote.length && rawCursor < rawLower.length) {
-      const rawChar = rawLower[rawCursor];
-      const normalizedChar = plainQuote[normalizedConsumed];
-      if (/\s/.test(rawChar) && normalizedChar === " ") {
-        // Both are whitespace: consume the normalized space, then skip all
-        // remaining whitespace in the original.
-        normalizedConsumed++;
-        rawCursor++;
-        while (rawCursor < rawLower.length && /\s/.test(rawLower[rawCursor])) {
-          rawCursor++;
-        }
-      } else {
-        normalizedConsumed++;
-        rawCursor++;
-      }
-    }
-    rawEndExclusive = rawCursor;
+    rawStartIndex = aligned.rawStart;
+    rawEndExclusive = aligned.rawEnd;
   } else {
     rawEndExclusive = rawStartIndex + plainQuoteRaw.length;
   }
-  const locatePoint = (rawIndex: number, preferAfterMath: boolean): MarkdownSelectionPoint | null => {
+  // `isFocus` distinguishes the selection's end (focus) from its start
+  // (anchor); it decides which side of a math token a boundary that lands on
+  // it falls on.
+  const locatePoint = (rawIndex: number, isFocus: boolean): MarkdownSelectionPoint | null => {
+    // First pass: prefer a text segment. A position at the boundary between a
+    // text and a math segment belongs to the text side, keeping the selection
+    // point a precise text offset.
     let cursor = 0;
-    for (let i = 0; i < segments.length; i++) {
-      const segment = segments[i];
+    for (const segment of segments) {
       const segmentStart = cursor;
       const segmentEnd = cursor + segment.text.length;
-      if (rawIndex >= segmentStart && rawIndex <= segmentEnd) {
-        if (segment.kind === "text") {
-          return {
-            key: segment.key,
-            offset: rawIndex - segmentStart,
-            type: "text",
-          };
-        }
-
-        // For math segments, snap to nearest surrounding text point.
-        if (preferAfterMath) {
-          for (let j = i + 1; j < segments.length; j++) {
-            if (segments[j].kind === "text") {
-              return { key: segments[j].key, offset: 0, type: "text" };
-            }
-          }
-        }
-        for (let j = i - 1; j >= 0; j--) {
-          if (segments[j].kind === "text") {
-            return { key: segments[j].key, offset: segments[j].text.length, type: "text" };
-          }
-        }
-        return null;
+      if (segment.kind === "text" && rawIndex >= segmentStart && rawIndex <= segmentEnd) {
+        return { key: segment.key, offset: rawIndex - segmentStart, type: "text" };
+      }
+      cursor = segmentEnd;
+    }
+    // Second pass: the position is in or on a math segment with no adjacent
+    // text on the relevant side. A MathNode is atomic (no internal text
+    // offsets), so emit an element point on its parent — the equation is
+    // included in or excluded from the range as a whole.
+    cursor = 0;
+    for (const segment of segments) {
+      const segmentStart = cursor;
+      const segmentEnd = cursor + segment.text.length;
+      if (segment.kind === "math" && rawIndex >= segmentStart && rawIndex <= segmentEnd) {
+        const mathNode = $getNodeByKey(segment.key);
+        const parent = mathNode?.getParent();
+        if (!mathNode || !parent) return null;
+        const mathIndex = mathNode.getIndexWithinParent();
+        // focus: ends before the math only if exactly at its start, else after.
+        // anchor: starts after the math only if exactly at its end, else before.
+        const offset = isFocus
+          ? (rawIndex === segmentStart ? mathIndex : mathIndex + 1)
+          : (rawIndex === segmentEnd ? mathIndex + 1 : mathIndex);
+        return { key: parent.getKey(), offset, type: "element" };
       }
       cursor = segmentEnd;
     }
@@ -400,10 +485,12 @@ function serializeNodeSubtreeToMarkdown(node: LexicalNode, editor: LexicalEditor
   return htmlToMarkdown(html);
 }
 
-// Must mirror the exclusions in `appendSegments` so the filter stage of
-// `buildNodeMarkdownMapForSubtree` sees the same text that the per-paragraph
-// matcher will later search against. Otherwise a paragraph containing a
-// footnote reference gets filtered out before ever reaching the matcher.
+// Produces the node-text side of `buildNodeMarkdownMapForSubtree`'s fast-reject
+// filter. Footnote references are excluded so a paragraph containing one isn't
+// filtered out before the matcher runs (agents quote `[^id]`, not `[N]`).
+// MathNodes contribute no text content — math is excluded from this filter on
+// both sides (`toPlainTextFilter` strips math tokens too), keeping the filter
+// reliably math-blind.
 function getTextContentForQuoteMatching(node: LexicalNode): string {
   if (node.getType() === FOOTNOTE_ELEMENT_TYPES.footnoteReference) {
     return "";
@@ -417,10 +504,22 @@ function getTextContentForQuoteMatching(node: LexicalNode): string {
   return node.getTextContent();
 }
 
+const HIDDEN_FROM_AGENT_EDITS_NODE_TYPES = new Set<string>([QUERY_INPUT_NODE_TYPE]);
+
+function isHiddenFromAgentEdits(node: LexicalNode): boolean {
+  // Hidden node types are always elements; cheap pre-check skips the
+  // getType() virtual dispatch for every TextNode in the document.
+  return $isElementNode(node) && HIDDEN_FROM_AGENT_EDITS_NODE_TYPES.has(node.getType());
+}
+
 function collectSubtreeNodes(rootNode: LexicalNode): Array<{ node: LexicalNode, depth: number }> {
   const collected: Array<{ node: LexicalNode, depth: number }> = [];
 
   const visit = (node: LexicalNode, depth: number) => {
+    // Always include the root itself even if its type is hidden — callers
+    // pass a meaningful root (often the document root) and need at least
+    // one entry to map against.
+    if (node !== rootNode && isHiddenFromAgentEdits(node)) return;
     collected.push({ node, depth });
     if ($isElementNode(node)) {
       for (const child of node.getChildren()) {
@@ -440,6 +539,18 @@ function collectSubtreeNodes(rootNode: LexicalNode): Array<{ node: LexicalNode, 
  * When `textFilter` is provided, nodes whose plain-text content clearly cannot
  * contain the filter string are skipped, avoiding expensive markdown serialization
  * (JSDOM + Turndown) for non-matching nodes.
+ *
+ * KNOWN PERFORMANCE ISSUE (deliberately not fixed): a math-only quote — e.g.
+ * `$x^2$` with no surrounding prose — produces an empty `textFilter`, because
+ * `toPlainTextFilter` strips math tokens. An empty filter disables the
+ * fast-reject below, so every element node in the subtree is fully serialized
+ * (`parseEditorState` + `$generateHtmlFromNodes` + Turndown). The cost scales
+ * with element-node count: negligible on short posts, up to roughly a second
+ * on long ones, a timeout risk only on book-length documents. It is one-time
+ * per request and not a correctness issue, and bare-equation quotes are
+ * uncommon (agents are steered to quote phrases with surrounding context), so
+ * it is left as-is. A fix would skip non-root nodes whose subtree contains no
+ * MathNode when the quote is math-only.
  */
 export function buildNodeMarkdownMapForSubtree(rootNodeKey: string, textFilter?: string): NodeMarkdownMapResult {
   const rootNode = $getNodeByKey(rootNodeKey);
@@ -509,6 +620,7 @@ export function findBlockToOperateOnByPrefix({
   };
 
   for (const child of rootChildren) {
+    if (isHiddenFromAgentEdits(child)) continue;
     if ($isListNode(child)) {
       for (const item of child.getChildren()) {
         if (matches(item)) return item;
@@ -672,7 +784,7 @@ export function locateMarkdownQuoteSelectionInSubtree({
     }
 
     const normalizedCandidate = normalizeForSemanticMatch(candidate.markdown);
-    if (normalizedCandidate === normalizedQuote || node.getType() === "math") {
+    if (normalizedCandidate === normalizedQuote || $isMathNode(node)) {
       const elementRange = createElementRangeAroundNode(node);
       if (elementRange.found) {
         return {
