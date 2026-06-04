@@ -28,12 +28,15 @@ import SeeLessFeedback from "./SeeLessFeedback";
 import { useSeeLess } from "./useSeeLess";
 import { UltraFeedCommentItem } from "./UltraFeedCommentItem";
 import type { FeedCommentMetaInfo } from "./ultraFeedTypes";
-import PostsUserAndCoauthors from "../posts/PostsUserAndCoauthors";
 import TruncatedAuthorsList from "../posts/TruncatedAuthorsList";
 import ForumIcon from "../common/ForumIcon";
 import { RecombeeRecommendationsContextWrapper } from "../recommendations/RecombeeRecommendationsContextWrapper";
 import { useUltraFeedContext } from "./UltraFeedContextProvider";
 import { Link } from "@/lib/reactRouterWrapper";
+import { usePostsUserAndCoauthors } from "../posts/usePostsUserAndCoauthors";
+import UsersNameWithModal from "./UsersNameWithModal";
+import UserNameDeleted from "../users/UserNameDeleted";
+import ModeCommentIcon from "@/lib/vendor/@material-ui/icons/src/ModeComment";
 
 const localPostQuery = gql(`
   query LocalPostQuery($documentId: String!) {
@@ -214,7 +217,8 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     flexGrow: 1,
     minWidth: 0,
     order: 2,
-    display: 'block',
+    display: 'flex',
+    alignItems: 'baseline',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     [theme.breakpoints.down('sm')]: {
@@ -233,6 +237,56 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     fontSize: 'inherit',
     color: 'inherit',
     fontFamily: 'inherit',
+  },
+  desktopAuthorsList: {
+    display: 'flex',
+    alignItems: 'baseline',
+    minWidth: 0,
+    maxWidth: '100%',
+    overflow: 'hidden',
+    fontSize: 'inherit',
+    color: 'inherit',
+    fontFamily: 'inherit',
+  },
+  desktopAuthorWrapper: {
+    display: 'block',
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    flexShrink: 1,
+  },
+  desktopAuthorWrapperKeepVisible: {
+    flexShrink: 0,
+  },
+  desktopAuthorName: {
+    display: 'inline-block',
+    maxWidth: '100%',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+    verticalAlign: 'bottom',
+  },
+  desktopAuthorSeparator: {
+    flexShrink: 0,
+  },
+  desktopTopCommentAuthor: {
+    display: 'flex',
+    alignItems: 'baseline',
+    minWidth: 0,
+    overflow: 'hidden',
+    color: theme.palette.grey[500],
+    fontSize: ".95rem",
+  },
+  desktopTopAuthorIcon: {
+    width: 12,
+    height: 12,
+    color: theme.palette.grey[340],
+    position: "relative",
+    top: 2,
+    marginRight: 4,
+    marginLeft: 2,
+    flexShrink: 0,
   },
   newCommentContainer: {
     marginTop: 16,
@@ -289,6 +343,62 @@ const sourceIconMap: Array<{ source: FeedItemSourceType, icon: any, tooltip: str
   { source: 'hacker-news' as FeedItemSourceType, icon: ClockIcon, tooltip: "Latest posts" },
 ];
 
+const UltraFeedDesktopAuthorsList = ({
+  post,
+  showSubscribedIcon,
+}: {
+  post: PostsListWithVotes,
+  showSubscribedIcon: boolean,
+}) => {
+  const classes = useStyles(styles);
+  const { isAnon, topCommentAuthor, authors } = usePostsUserAndCoauthors(post);
+
+  if (isAnon) {
+    return <UserNameDeleted />;
+  }
+
+  return (
+    <div className={classes.desktopAuthorsList}>
+      {authors.map((author, i) => {
+        const keepVisible = authors.length > 1 && i === 0;
+
+        return (
+          <React.Fragment key={author._id}>
+            {i > 0 && <span className={classes.desktopAuthorSeparator}>,&nbsp;</span>}
+            <span className={classnames(
+              classes.desktopAuthorWrapper,
+              { [classes.desktopAuthorWrapperKeepVisible]: keepVisible },
+            )}>
+              <UsersNameWithModal
+                user={author}
+                tooltipPlacement="top"
+                className={classes.desktopAuthorName}
+                showSubscribedIcon={showSubscribedIcon}
+              />
+            </span>
+          </React.Fragment>
+        );
+      })}
+      {topCommentAuthor && (
+        <>
+          <span className={classes.desktopAuthorSeparator}>,&nbsp;</span>
+          <span className={classes.desktopTopCommentAuthor}>
+            <ModeCommentIcon className={classes.desktopTopAuthorIcon} />
+            <span className={classes.desktopAuthorWrapper}>
+              <UsersNameWithModal
+                user={topCommentAuthor}
+                tooltipPlacement="top"
+                className={classes.desktopAuthorName}
+                showSubscribedIcon={showSubscribedIcon}
+              />
+            </span>
+          </span>
+        </>
+      )}
+    </div>
+  );
+};
+
 interface UltraFeedPostItemHeaderProps {
   post: PostsListWithVotes;
   sources: FeedItemSourceType[];
@@ -337,12 +447,8 @@ const UltraFeedPostItemHeader = ({
           />
         </div>
         <div className={classes.authorsListWrapper}>
-          <PostsUserAndCoauthors 
-            post={post} 
-            abbreviateIfLong={true} 
-            tooltipPlacement="top" 
-            compact 
-            useUltraFeedModal 
+          <UltraFeedDesktopAuthorsList
+            post={post}
             showSubscribedIcon={isSubscribedFeed && isFromSubscribedSource}
           />
         </div>
