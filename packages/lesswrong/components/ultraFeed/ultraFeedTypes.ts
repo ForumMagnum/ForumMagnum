@@ -1,6 +1,6 @@
 // Define source type arrays for runtime iteration
 
-export const feedTypes = ["following", "ultraFeed", "userContent", "bookmarksFeed"] as const;
+export const feedTypes = ["following", "ultraFeed", "debug", "userContent", "bookmarksFeed"] as const;
 export type FeedType = typeof feedTypes[number];
 
 export interface PostScoreBreakdownTerms extends Record<string, number> {

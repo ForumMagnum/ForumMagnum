@@ -10,7 +10,6 @@ import type {
   RankableItem,
   PostScoreBreakdown,
   ThreadScoreBreakdown,
-  ScoreBreakdown,
   RankedItemMetadata,
   MappablePreparedThread,
 } from './ultraFeedRankingTypes';
@@ -224,6 +223,7 @@ function scoreThread(
   const isQuicktake = thread.stats.hasShortform;
   const topLevelCommentIsUnread = topLevelComment ? !topLevelComment.isRead : false;
   const quicktakeBonus = (isQuicktake && topLevelCommentIsUnread) ? cfg.quicktakeBonus : 0;
+  const typeMultiplier = isQuicktake ? 1.0 : cfg.typeMultiplier;
 
   const isReadPost = engagement?.isOnReadPost ?? false;
   const readPostContextBonus = isReadPost ? cfg.readPostContextBonus : 0;
@@ -240,7 +240,7 @@ function scoreThread(
     }
   }
 
-  const total = additiveTotal * repetitionPenaltyMultiplier * cfg.typeMultiplier;
+  const total = additiveTotal * repetitionPenaltyMultiplier * typeMultiplier;
 
   return {
     score: total,
@@ -257,17 +257,26 @@ function scoreThread(
         readPostContextBonus,
       },
       repetitionPenaltyMultiplier,
-      typeMultiplier: cfg.typeMultiplier,
+      typeMultiplier,
     },
   };
 }
 
-interface ScoredItem {
+interface PostScoredItem {
   id: string;
   score: number;
-  item: RankableItem;
-  breakdown: ScoreBreakdown;
+  item: PostRankableItem;
+  breakdown: PostScoreBreakdown;
 }
+
+interface ThreadScoredItem {
+  id: string;
+  score: number;
+  item: ThreadRankableItem;
+  breakdown: ThreadScoreBreakdown;
+}
+
+type ScoredItem = PostScoredItem | ThreadScoredItem;
 
 /**
  * Normalize sources array for comparison by sorting.
@@ -430,28 +439,17 @@ export function scoreItems(
   config: RankingConfig = DEFAULT_RANKING_CONFIG
 ): ScoredItem[] {
   return items.map(item => {
-    let scoreResult: { score: number; breakdown: ScoreBreakdown };
-    
     if (item.itemType === 'post') {
-      scoreResult = scorePost(item, config);
-    } else if (item.itemType === 'commentThread') {
-      scoreResult = scoreThread(item, config);
-    } else {
-      // Spotlights get baseline score with minimal breakdown
-      scoreResult = {
-        score: 1,
-        breakdown: {
-          total: 1,
-          terms: {
-            subscribedBonus: 0,
-            karmaBonus: 0,
-            topicAffinityBonus: 0,
-          },
-          typeMultiplier: 1.0,
-        },
+      const scoreResult = scorePost(item, config);
+      return {
+        id: item.id,
+        score: scoreResult.score,
+        item,
+        breakdown: scoreResult.breakdown,
       };
     }
-    
+
+    const scoreResult = scoreThread(item, config);
     return { 
       id: item.id, 
       score: scoreResult.score, 
@@ -459,6 +457,41 @@ export function scoreItems(
       breakdown: scoreResult.breakdown,
     };
   });
+}
+
+function scoredItemToMetadata(
+  scoredItem: ScoredItem,
+  selectionConstraints: string[],
+  position: number,
+): RankedItemMetadata {
+  if (scoredItem.item.itemType === 'commentThread') {
+    return {
+      rankedItemType: 'commentThread',
+      scoreBreakdown: scoredItem.breakdown,
+      selectionConstraints,
+      position,
+    };
+  }
+
+  return {
+    rankedItemType: 'post',
+    scoreBreakdown: scoredItem.breakdown,
+    selectionConstraints,
+    position,
+  };
+}
+
+export function scoreAllUltraFeedItems(
+  items: RankableItem[],
+  config: RankingConfig = DEFAULT_RANKING_CONFIG,
+): Array<{ id: string; metadata: RankedItemMetadata }> {
+  const scoredItems = scoreItems(items, config);
+  scoredItems.sort((a, b) => b.score - a.score);
+
+  return scoredItems.map((scoredItem, position) => ({
+    id: scoredItem.id,
+    metadata: scoredItemToMetadata(scoredItem, [], position),
+  }));
 }
 
 export function rankUltraFeedItems(
@@ -480,26 +513,9 @@ export function rankUltraFeedItems(
       throw new Error(`rankUltraFeedItems: Could not find scored item for id ${id}`);
     }
     
-    if (scoredItem.item.itemType === 'commentThread') {
-      return {
-        id,
-        metadata: {
-          rankedItemType: 'commentThread' as const,
-          scoreBreakdown: scoredItem.breakdown as ThreadScoreBreakdown,
-          selectionConstraints: appliedConstraints,
-          position,
-        },
-      };
-    }
-    
     return {
       id,
-      metadata: {
-        rankedItemType: 'post' as const,
-        scoreBreakdown: scoredItem.breakdown as PostScoreBreakdown,
-        selectionConstraints: appliedConstraints,
-        position,
-      },
+      metadata: scoredItemToMetadata(scoredItem, appliedConstraints, position),
     };
   });
 }

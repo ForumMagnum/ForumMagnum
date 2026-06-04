@@ -81,7 +81,9 @@ const unifiedScoringSchema = z.object({
 
 const resolverSettingsSchema = z.object({
   incognitoMode: z.boolean(),
-  algorithm: z.enum(['scoring', 'sampling']).default('sampling'),
+  enableDebug: z.boolean().default(DEFAULT_SETTINGS.resolverSettings.enableDebug),
+  debugMode: z.boolean().optional(),
+  algorithm: z.enum(['scoring', 'sampling']).optional(),
   sourceWeights: sourceWeightsSchema.default(DEFAULT_SETTINGS.resolverSettings.sourceWeights),
   commentScoring: commentScoringSchema.default(DEFAULT_SETTINGS.resolverSettings.commentScoring),
   threadInterestModel: threadInterestModelSchema.default(DEFAULT_SETTINGS.resolverSettings.threadInterestModel),
