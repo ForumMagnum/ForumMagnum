@@ -7540,6 +7540,7 @@ type User {
   currentFrontpageFilter: String
   frontpageSelectedTab: String
   frontpageFilterSettings: JSON
+  ultraFeedSettings: JSON
   hideFrontpageFilterSettingsDesktop: Boolean
   allPostsTimeframe: String
   allPostsFilter: String
@@ -9613,6 +9614,7 @@ input CreateUserDataInput {
   currentFrontpageFilter: String
   frontpageSelectedTab: String
   frontpageFilterSettings: JSON
+  ultraFeedSettings: JSON
   hideFrontpageFilterSettingsDesktop: Boolean
   allPostsTimeframe: String
   allPostsFilter: String
@@ -9780,6 +9782,7 @@ input UpdateUserDataInput {
   currentFrontpageFilter: String
   frontpageSelectedTab: String
   frontpageFilterSettings: JSON
+  ultraFeedSettings: JSON
   hideFrontpageFilterSettingsDesktop: Boolean
   allPostsTimeframe: String
   allPostsFilter: String

@@ -212,8 +212,10 @@ const UltraFeedContent = ({
   const feedContainerRef = useRef<HTMLDivElement | null>(null);
   const forYouWrapperRef = useRef<HTMLDivElement | null>(null);
   const followingWrapperRef = useRef<HTMLDivElement | null>(null);
+  const debugWrapperRef = useRef<HTMLDivElement | null>(null);
   const [hasRenderedForYou, setHasRenderedForYou] = useState(activeTab === 'ultraFeed');
   const [hasRenderedFollowing, setHasRenderedFollowing] = useState(activeTab === 'following');
+  const [hasRenderedDebug, setHasRenderedDebug] = useState(activeTab === 'debug');
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const handleOpenQuickTakeDialog = () => {
@@ -232,7 +234,10 @@ const UltraFeedContent = ({
     if (activeTab === 'ultraFeed' && !hasRenderedForYou) {
       setHasRenderedForYou(true);
     }
-  }, [activeTab, hasRenderedFollowing, hasRenderedForYou]);
+    if (activeTab === 'debug' && !hasRenderedDebug) {
+      setHasRenderedDebug(true);
+    }
+  }, [activeTab, hasRenderedFollowing, hasRenderedForYou, hasRenderedDebug]);
 
   useEffect(() => {
     setIsTransitioning(true);
@@ -252,18 +257,18 @@ const UltraFeedContent = ({
         <OverflowNavObserverProvider>
             {settingsVisible && (
               <div className={useExternalContainer ? classes.settingsContainerExternal : classes.settingsContainer}>
-                {activeTab === 'ultraFeed' ? (
+                {activeTab === 'following' ? (
+                  <UltraFeedFollowingSettings
+                    settings={settings}
+                    updateSettings={updateSettings}
+                    onClose={() => onCloseSettings?.()}
+                  />
+                ) : (
                   <UltraFeedSettings 
                     settings={settings}
                     updateSettings={updateSettings}
                     onClose={() => onCloseSettings?.()} 
                     truncationMaps={truncationMaps}
-                  />
-                ) : (
-                  <UltraFeedFollowingSettings
-                    settings={settings}
-                    updateSettings={updateSettings}
-                    onClose={() => onCloseSettings?.()}
                   />
                 )}
               </div>
@@ -310,6 +315,23 @@ const UltraFeedContent = ({
                   </UltraFeedContextProvider>
                 </div>
               )}
+              {hasRenderedDebug && (
+                <div
+                  ref={debugWrapperRef}
+                  style={activeTab === 'debug' ? undefined : { position: 'absolute', inset: 0, visibility: 'hidden', pointerEvents: 'none' }}
+                >
+                  <UltraFeedMainFeed
+                    settings={settings}
+                    sessionId={sessionId}
+                    fetchPolicy="cache-first"
+                    firstPageSize={15}
+                    pageSize={15}
+                    isActive={activeTab === 'debug'}
+                    debugMode
+                    feedType="debug"
+                  />
+                </div>
+              )}
             </div>
         </OverflowNavObserverProvider>
         </UltraFeedObserverProvider>
@@ -341,9 +363,20 @@ const UltraFeed = ({
   const [cookies, setCookie] = useCookiesWithConsent([ULTRA_FEED_ACTIVE_TAB_COOKIE]);
   const [internalSettingsVisible, setInternalSettingsVisible] = useState(false);
   const [internalInfoVisible, setInternalInfoVisible] = useState(false);
-  const [activeTab, setActiveTab] = useState<FeedType>(() => (cookies[ULTRA_FEED_ACTIVE_TAB_COOKIE] === 'following' ? 'following' : 'ultraFeed'));
+  const [activeTab, setActiveTab] = useState<FeedType>(() => {
+    const savedTab = cookies[ULTRA_FEED_ACTIVE_TAB_COOKIE];
+    return savedTab === 'following' || savedTab === 'debug' ? savedTab : 'ultraFeed';
+  });
   const { captureEvent } = useTracking();
   const { settings, updateSettings, truncationMaps } = useUltraFeedSettings();
+  const debugTabVisible = settings.resolverSettings.enableDebug && userIsAdminOrMod(currentUser);
+
+  useEffect(() => {
+    if (activeTab === 'debug' && !debugTabVisible) {
+      setActiveTab('ultraFeed');
+      setCookie(ULTRA_FEED_ACTIVE_TAB_COOKIE, 'ultraFeed', { path: '/' });
+    }
+  }, [activeTab, debugTabVisible, setCookie]);
 
   const handleTabChange = (tab: FeedType) => {
     setActiveTab(tab);
@@ -404,9 +437,9 @@ const UltraFeed = ({
           hideTitle={hideTitle}
           activeTab={activeTab}
           onTabChange={handleTabChange}
-          settingsButton={!isControlled && activeTab === 'ultraFeed' ? (
+          settingsButton={!isControlled && activeTab !== 'following' ? (
             <div className={classes.headerButtons}>
-              <InfoButton onClick={toggleInfo} isActive={internalInfoVisible} tooltip="What is the For You feed?" />
+              {activeTab === 'ultraFeed' && <InfoButton onClick={toggleInfo} isActive={internalInfoVisible} tooltip="What is the For You feed?" />}
               <SettingsButton showIcon={true} onClick={toggleSettings} />
             </div>
           ) : undefined}

@@ -1124,6 +1124,22 @@ const schema = {
       },
     },
   },
+  ultraFeedSettings: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "JSON",
+      canRead: userOwns,
+      canUpdate: [userOwns, "admins"],
+      canCreate: "guests",
+      validation: {
+        optional: true,
+        blackbox: true,
+      },
+    },
+  },
   hideFrontpageFilterSettingsDesktop: {
     database: {
       type: "BOOL",

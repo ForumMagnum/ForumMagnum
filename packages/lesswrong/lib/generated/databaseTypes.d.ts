@@ -2252,6 +2252,7 @@ interface DbUser extends DbObject {
   }
   twitterProfileURL: string | null
   twitterProfileURLAdmin: string | null
+  ultraFeedSettings: any | null
   unsubscribeFromAll: boolean | null
   username: string | null
   usernameUnset: boolean

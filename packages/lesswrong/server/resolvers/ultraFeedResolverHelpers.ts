@@ -69,7 +69,7 @@ export function createUltraFeedResponse<T>(
 } {
   return {
     __typename: 'UltraFeedQueryResults' as const,
-    cutoff: cutoff ?? (results.length > 0 ? new Date() : null),
+    cutoff: cutoff === undefined ? (results.length > 0 ? new Date() : null) : cutoff,
     endOffset: offset + results.length,
     results,
     sessionId

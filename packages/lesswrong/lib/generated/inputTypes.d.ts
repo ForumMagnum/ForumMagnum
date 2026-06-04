@@ -6963,6 +6963,7 @@ interface User {
   currentFrontpageFilter: string | null;
   frontpageSelectedTab: string | null;
   frontpageFilterSettings: any;
+  ultraFeedSettings: any;
   hideFrontpageFilterSettingsDesktop: boolean | null;
   allPostsTimeframe: string | null;
   allPostsFilter: string | null;
@@ -8768,6 +8769,7 @@ interface CreateUserDataInput {
   currentFrontpageFilter?: string | null;
   frontpageSelectedTab?: string | null;
   frontpageFilterSettings?: any;
+  ultraFeedSettings?: any;
   hideFrontpageFilterSettingsDesktop?: boolean | null;
   allPostsTimeframe?: string | null;
   allPostsFilter?: string | null;
@@ -8935,6 +8937,7 @@ interface UpdateUserDataInput {
   currentFrontpageFilter?: string | null;
   frontpageSelectedTab?: string | null;
   frontpageFilterSettings?: any;
+  ultraFeedSettings?: any;
   hideFrontpageFilterSettingsDesktop?: boolean | null;
   allPostsTimeframe?: string | null;
   allPostsFilter?: string | null;
