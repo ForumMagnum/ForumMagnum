@@ -13,6 +13,7 @@ import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { useNavigate } from '@/lib/routeUtil';
 import ErrorAccessDenied from '../common/ErrorAccessDenied';
 import Loading from '../vulcan-core/Loading';
+import { useMessages } from '../common/withMessages';
 
 interface ResearchProjectSummary {
   _id: string;
@@ -149,7 +150,9 @@ const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
 const claudeCodeTokenStyles = defineStyles('ClaudeCodeToken', (theme: ThemeType) => ({
   tokenChipRow: {
     display: 'flex',
-    justifyContent: 'flex-end',
+    flexDirection: 'column',
+    alignItems: 'flex-end',
+    gap: 6,
     padding: '8px 24px 0',
   },
   tokenChip: {
@@ -175,6 +178,11 @@ const claudeCodeTokenStyles = defineStyles('ClaudeCodeToken', (theme: ThemeType)
     '&:hover': {
       color: theme.palette.grey[700],
     },
+  },
+  tokenChipSuccess: {
+    fontSize: 12,
+    color: theme.palette.lwTertiary.main,
+    fontFamily: theme.typography.fontFamily,
   },
   setupCard: {
     background: theme.palette.panelBackground.default,
@@ -237,6 +245,14 @@ const projectListItemStyles = defineStyles('ResearchProjectListItem', (theme: Th
 
 const TOKEN_HINT = 'Run `claude setup-token` locally and paste the result.';
 
+function getTokenSaveErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message;
+  }
+
+  return 'Failed to save Claude Code token.';
+}
+
 const ResearchProjectList = () => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -245,6 +261,8 @@ const ResearchProjectList = () => {
   const [newDescription, setNewDescription] = useState('');
   const [creating, setCreating] = useState(false);
   const [replacingToken, setReplacingToken] = useState(false);
+  const [tokenSavedThisSession, setTokenSavedThisSession] = useState(false);
+  const [tokenSaveMessage, setTokenSaveMessage] = useState<string | null>(null);
 
   const { data, loading, refetch } = useQuery(ResearchProjectsListQuery, {
     fetchPolicy: 'cache-and-network',
@@ -260,11 +278,18 @@ const ResearchProjectList = () => {
 
   const [createProject] = useMutation(CreateResearchProjectMutation);
 
-  const tokenIsSet = !!tokenStatusData?.user?.result?.hasClaudeCodeOAuthToken;
+  const tokenIsSet = tokenSavedThisSession ||
+    !!tokenStatusData?.user?.result?.hasClaudeCodeOAuthToken;
 
-  const handleTokenSaved = useCallback(() => {
+  const handleTokenSaved = useCallback(async () => {
+    setTokenSavedThisSession(true);
+    setTokenSaveMessage('Claude Code token saved.');
     setReplacingToken(false);
-    void refetchTokenStatus();
+    try {
+      await refetchTokenStatus();
+    } catch {
+      // The token was saved; leave the optimistic chip visible even if the status refresh fails.
+    }
   }, [refetchTokenStatus]);
 
   if (!userIsAdmin(currentUser)) {
@@ -299,7 +324,13 @@ const ResearchProjectList = () => {
   return (
     <div className={classes.outer}>
       {tokenIsSet && !replacingToken && (
-        <ClaudeCodeTokenChip onReplaceClick={() => setReplacingToken(true)} />
+        <ClaudeCodeTokenChip
+          saveMessage={tokenSaveMessage}
+          onReplaceClick={() => {
+            setTokenSaveMessage(null);
+            setReplacingToken(true);
+          }}
+        />
       )}
       <div className={classes.panes}>
         <div className={classes.leftPaneInner}>
@@ -362,7 +393,13 @@ const ResearchProjectList = () => {
   );
 };
 
-function ClaudeCodeTokenChip({ onReplaceClick }: { onReplaceClick: () => void }) {
+function ClaudeCodeTokenChip({
+  saveMessage,
+  onReplaceClick,
+}: {
+  saveMessage: string | null;
+  onReplaceClick: () => void;
+}) {
   const classes = useStyles(claudeCodeTokenStyles);
   return (
     <div className={classes.tokenChipRow}>
@@ -374,6 +411,7 @@ function ClaudeCodeTokenChip({ onReplaceClick }: { onReplaceClick: () => void })
           onClick={onReplaceClick}
         >replace</button>
       </span>
+      {saveMessage && <span className={classes.tokenChipSuccess}>{saveMessage}</span>}
     </div>
   );
 }
@@ -385,9 +423,10 @@ function ClaudeCodeTokenSetup({
 }: {
   tokenIsSet: boolean;
   onCancel: () => void;
-  onSaved: () => void;
+  onSaved: () => Promise<void>;
 }) {
   const classes = useStyles(claudeCodeTokenStyles);
+  const { flash } = useMessages();
   const [tokenDraft, setTokenDraft] = useState('');
   const [tokenError, setTokenError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -403,12 +442,19 @@ function ClaudeCodeTokenSetup({
     }
     setTokenError(null);
     setSaving(true);
+    let saved = false;
     try {
       await setClaudeCodeOAuthToken({ variables: { token: value } });
+      flash({ messageString: 'Claude Code token saved.', type: 'success' });
       setTokenDraft('');
-      onSaved();
+      saved = true;
+    } catch (error) {
+      setTokenError(getTokenSaveErrorMessage(error));
     } finally {
       setSaving(false);
+    }
+    if (saved) {
+      await onSaved();
     }
   };
 
