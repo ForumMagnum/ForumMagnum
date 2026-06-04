@@ -327,13 +327,13 @@ export const researchResolversMutations = {
       context,
     });
 
-    // The supervisor is the single writer of events: with
-    // `--replay-user-messages`, Claude re-emits the user turn on its output
-    // stream and the supervisor ships it through the durable queue, so the
-    // backend does not persist the user turn itself. A pre-Claude failure
-    // (provisioning/launch) therefore leaves a conversation row with no user
-    // event — acceptable only because the client keeps the prompt and re-sends
-    // (it rethrows on dispatch failure).
+    // The supervisor is the single writer of events: it records the user turn
+    // itself at dispatch time (from the prompt) and ships it through the durable
+    // queue, so the backend does not persist the user turn directly. A pre-launch
+    // failure (provisioning/launch, before the supervisor accepts the dispatch)
+    // therefore leaves a conversation row with no user event — acceptable only
+    // because the client keeps the prompt and re-sends (it rethrows on dispatch
+    // failure).
     await dispatchToSandbox({
       context,
       conversationId: _id,
