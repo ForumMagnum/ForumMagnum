@@ -128,6 +128,26 @@ export function createConversationHub(config: ConversationHubConfig) {
     entry.state = { conversationId: input.conversationId, status: "running", startedAt: now() };
     entry.claudeSessionId = input.claudeSessionId ?? entry.claudeSessionId;
 
+    // Persist the user's turn now, from the prompt we already hold, rather than
+    // waiting for Claude to echo it. Claude Code only re-emits the user message
+    // bundled with its first model output — seconds later, and scaling with turn
+    // complexity (it withholds the echo until inference produces its first
+    // streamed message), so we'd otherwise have no record of the user's turn
+    // until then. Emitting it here, before the runner starts, gives it the
+    // turn's lowest seq and keeps the supervisor the single writer shipping it
+    // through the durable queue → backend webhook. `claudeMessageUuid: null`
+    // lets the persister synthesize a stable `sup:<localId>` idempotency key.
+    config.postPersister.enqueue(input.conversationId, {
+      rawJsonl: JSON.stringify({
+        type: "user",
+        message: { role: "user", content: input.prompt },
+        parent_tool_use_id: null,
+      }),
+      kind: "user",
+      claudeMessageUuid: null,
+      supervisorEmittedAt: new Date(now()).toISOString(),
+    });
+
     const runner = startClaudeRunner({
       conversationId: input.conversationId,
       prompt: input.prompt,

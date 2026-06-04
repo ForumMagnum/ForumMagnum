@@ -2,10 +2,16 @@
  * Claude Code subprocess runner.
  *
  * Spawns `claude -p --input-format stream-json --output-format stream-json
- * --replay-user-messages [--resume <sessionId>]`, feeds the user turn in via
- * stdin as a stream-json message, pipes stdout through the JSONL chunker, and
- * emits each `ParsedJsonlLine` to a caller-supplied sink. Manages cancellation,
- * exit-code propagation, and cleanup of per-conversation runner state.
+ * [--resume <sessionId>]`, feeds the user turn in via stdin as a stream-json
+ * message, pipes stdout through the JSONL chunker, and emits each
+ * `ParsedJsonlLine` to a caller-supplied sink. Manages cancellation, exit-code
+ * propagation, and cleanup of per-conversation runner state.
+ *
+ * Note: we deliberately do NOT pass `--replay-user-messages`. That flag only
+ * re-emits the user turn bundled with the model's first output (gated behind
+ * inference), so the supervisor records the user turn itself at dispatch time
+ * instead (see `conversationHub.dispatch`) — earlier and independent of the
+ * model's response latency.
  *
  * Design constraints:
  * - Multiple conversations may be running concurrently in the same supervisor
@@ -156,7 +162,6 @@ export function buildArgs(opts: Pick<ClaudeRunnerOptions, "claudeSessionId">): s
     "-p",
     "--input-format", "stream-json",
     "--output-format", "stream-json",
-    "--replay-user-messages",
     "--verbose",
     "--permission-mode", "auto",
     "--model", "claude-opus-4-8",
