@@ -161,7 +161,7 @@ const Layout = ({children}: {
 
   // (isLW()) && isHomeRoute(prerenderablePathname) && (!currentUser?.hideFrontpageMap) && !cookies[HIDE_MAP_COOKIE]
   
-  const isInbox = prerenderablePathname.startsWith('/inbox');
+  const hideIntercom = prerenderablePathname.startsWith('/inbox') || prerenderablePathname.startsWith('/research');
 
   let headerBackgroundColor: ColorString|undefined = undefined;
   if (isBlackBarTitle) {
@@ -197,7 +197,7 @@ const Layout = ({children}: {
               <GlobalHotkeys/>
               {/* Only show intercom after they have accepted cookies */}
               <DeferRender ssr={false}>
-                <MaybeCookieBanner hideIntercomButton={isInbox} />
+                <MaybeCookieBanner hideIntercomButton={hideIntercom} />
               </DeferRender>
 
               <noscript className="noscript-warning"> This website requires javascript to properly function. Consider activating javascript to get access to all site functionality. </noscript>
@@ -276,7 +276,7 @@ const LlmSidebarWrapper = ({children}: {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
   const prerenderablePathname = usePrerenderablePathname();
-  const isInbox = prerenderablePathname.startsWith('/inbox');
+  const hideLlmChatButton = prerenderablePathname.startsWith('/inbox') || prerenderablePathname.startsWith('/research');
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_LLM_CHAT_COOKIE]);
 
   const [showLlmChatSidebar, setShowLlmChatSidebar] = useState(false);
@@ -285,7 +285,7 @@ const LlmSidebarWrapper = ({children}: {
     setCookie(SHOW_LLM_CHAT_COOKIE, "false", { path: "/" });
   }, [setCookie]);
 
-  const renderLanguageModelChatLauncher = !!currentUser && userHasLlmChat(currentUser) && !isInbox;
+  const renderLanguageModelChatLauncher = !!currentUser && userHasLlmChat(currentUser) && !hideLlmChatButton;
 
   return <div className={classes.topLevelContainer}>
     <div className={classes.pageContent}>

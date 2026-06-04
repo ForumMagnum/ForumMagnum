@@ -143,6 +143,7 @@ export const UsersCurrent = gql(`
     currentFrontpageFilter
     frontpageSelectedTab
     frontpageFilterSettings
+    ultraFeedSettings
     hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
     allPostsSorting
@@ -274,6 +275,7 @@ export const UserKarmaChanges = gql(`
         addedReacts {
           reactionType
           userId
+          quote
         }
         collectionName
       }
@@ -291,6 +293,7 @@ export const UserKarmaChanges = gql(`
         addedReacts {
           reactionType
           userId
+          quote
         }
         collectionName
       }
@@ -303,6 +306,7 @@ export const UserKarmaChanges = gql(`
         addedReacts {
           reactionType
           userId
+          quote
         }
         collectionName
       }

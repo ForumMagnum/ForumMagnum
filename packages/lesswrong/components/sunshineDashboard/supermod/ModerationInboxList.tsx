@@ -62,7 +62,7 @@ const ModerationInboxList = ({
 }: {
   userGroups: GroupEntry[];
   posts: SunshinePostsList[];
-  curationPosts: SunshineCurationPostsList[];
+  curationPosts: SunshineCurationPostsListItem[];
   focusedUserId: string | null;
   focusedPostId: string | null;
   onFocusUser: (userId: string) => void;

@@ -29,11 +29,12 @@ import { RevisionStorageType } from "../revisions/revisionSchemaTypes";
 import { markdownToHtml, dataToMarkdown } from "@/server/editor/conversionUtils";
 import { sanitize } from "@/lib/utils/sanitize";
 import { getKarmaChangeDateRange, getKarmaChangeNextBatchDate, getKarmaChanges } from "@/server/karmaChanges";
-import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost, getRecentKarmaInfo } from "@/server/rateLimitUtils";
+import { rateLimitDateWhenUserNextAbleToComment, rateLimitDateWhenUserNextAbleToPost } from "@/server/rateLimitUtils";
+import { calculateRecentKarmaInfo } from "@/lib/rateLimits/utils";
 import { getSqlClientOrThrow } from "@/server/sql/sqlClient";
 import GraphQLJSON from "@/lib/vendor/graphql-type-json";
 import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificationSettingOnCreate, defaultNotificationTypeSettings, emailEnabledNotificationSettingOnCreate, notificationTypeSettingsSchema } from "./notificationFieldHelpers";
-import { getWithLoader, loadByIds } from "@/lib/loaders";
+import { getWithLoader, getWithCustomLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
@@ -1117,6 +1118,22 @@ const schema = {
       // FIXME this isn't filling default values as intended
       // ...schemaDefaultValue(getDefaultFilterSettings),
       // It'd need to be converted to an `onCreate`, or something, but it doesn't seem to be causing any problems by its lack.
+      validation: {
+        optional: true,
+        blackbox: true,
+      },
+    },
+  },
+  ultraFeedSettings: {
+    database: {
+      type: "JSONB",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "JSON",
+      canRead: userOwns,
+      canUpdate: [userOwns, "admins"],
+      canCreate: "guests",
       validation: {
         optional: true,
         blackbox: true,
@@ -3869,17 +3886,9 @@ const schema = {
       outputType: "[ClientId!]",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        return await context.ClientIds.find(
-          {
-            userIds: user._id,
-          },
-          {
-            sort: {
-              createdAt: -1,
-            },
-            limit: 100,
-          }
-        ).fetch();
+        return await getWithCustomLoader(context, "associatedClientIds", user._id, (userIds) =>
+          context.repos.clientIds.getClientIdsForUsers(userIds)
+        );
       },
     },
   },
@@ -3888,17 +3897,11 @@ const schema = {
       outputType: "Boolean",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        const clientIds = await context.ClientIds.find(
-          {
-            userIds: user._id,
-          },
-          {
-            sort: {
-              createdAt: -1,
-            },
-            limit: 100,
-          }
-        ).fetch();
+        // Shares the "associatedClientIds" loader (same name + batch fn) so the
+        // ClientIds for the whole moderation queue are fetched in one query.
+        const clientIds = await getWithCustomLoader(context, "associatedClientIds", user._id, (userIds) =>
+          context.repos.clientIds.getClientIdsForUsers(userIds)
+        );
         const userIds = new Set();
         for (let clientId of clientIds) {
           for (let userId of clientId.userIds ?? []) userIds.add(userId);
@@ -3927,10 +3930,14 @@ const schema = {
       outputType: "[ModeratorAction!]",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (doc, args, context) => {
-        const { ModeratorActions, loaders } = context;
-        return ModeratorActions.find({
-          userId: doc._id,
-        }).fetch();
+        return await getWithLoader(
+          context,
+          context.ModeratorActions,
+          "moderatorActionsByUserId",
+          {},
+          "userId",
+          doc._id,
+        );
       },
     },
   },
@@ -4207,7 +4214,10 @@ const schema = {
       outputType: "JSON",
       canRead: [userOwns, "sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        return getRecentKarmaInfo(user._id, context);
+        const allVotes = await getWithCustomLoader(context, "recentKarmaVotes", user._id, (userIds) =>
+          context.repos.votes.getVotesOnRecentContentForUsers(userIds)
+        );
+        return calculateRecentKarmaInfo(user._id, allVotes);
       },
     },
   },
@@ -4222,30 +4232,18 @@ const schema = {
         const email = user.email?.trim().toLowerCase();
         if (!email) return null;
 
-        const db = getSqlClientOrThrow();
-        return db.oneOrNone(
-          `
-            -- Users.mailgunValidation
-            SELECT
-              mv.email,
-              mv.status,
-              mv."validatedAt",
-              mv."httpStatus",
-              mv.error,
-              mv."isValid",
-              mv.risk,
-              mv.reason,
-              mv."didYouMean",
-              mv."isDisposableAddress",
-              mv."isRoleAddress",
-              mv."sourceUserId"
-            FROM "MailgunValidations" mv
-            WHERE lower(mv.email) = $1
-            ORDER BY mv."validatedAt" DESC
-            LIMIT 1
-          `,
-          [email],
+        // Stored emails are always lowercase (every write path normalizes with
+        // .trim().toLowerCase(), see mailgunValidations.ts) and `email` is
+        // unique, so a batched `email IN (...)` lookup returns one row per email.
+        const validations = await getWithLoader(
+          context,
+          context.MailgunValidations,
+          "mailgunValidationsByEmail",
+          {},
+          "email",
+          email,
         );
+        return validations[0] ?? null;
       },
     },
   },
@@ -4354,10 +4352,9 @@ const schema = {
       outputType: "Int",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        const { Posts, Comments } = context;
-        const postCount = await Posts.find({ userId: user._id, rejected: true }).count();
-        const commentCount = await Comments.find({ userId: user._id, rejected: true }).count();
-        return postCount + commentCount;
+        return await getWithCustomLoader(context, "rejectedContentCount", user._id, (userIds) =>
+          context.repos.users.getRejectedContentCounts(userIds)
+        );
       },
     }
   },
@@ -4389,6 +4386,22 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: [userOwns, "admins"],
+    },
+  },
+  // Database-only by design (no `graphql` section): this keeps the token off the
+  // user API — it can never be exposed or writable through the generated
+  // update-user input. Stored AES-encrypted via `userSecretsCrypto.ts`.
+  claudeCodeOAuthTokenEncrypted: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+  },
+  hasClaudeCodeOAuthToken: {
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns],
+      resolver: (user) => !!user.claudeCodeOAuthTokenEncrypted,
     },
   },
 } satisfies Record<string, CollectionFieldSpecification<"Users">>;

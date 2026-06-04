@@ -355,6 +355,27 @@ export const SunshineCurationPostsList = gql(`
   }
 `)
 
+export const SunshineCurationPostsListItem = gql(`
+  fragment SunshineCurationPostsListItem on Post {
+    _id
+    title
+    postedAt
+    baseScore
+    suggestForCuratedUsernames
+    user {
+      _id
+      displayName
+    }
+    curationNotices {
+      _id
+      user {
+        _id
+        displayName
+      }
+    }
+  }
+`)
+
 export const PostsListTag = gql(`
   fragment PostsListTag on Post {
     ...PostsList

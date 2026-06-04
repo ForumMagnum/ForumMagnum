@@ -9,18 +9,9 @@ import { getLatestRev } from "@/server/editor/utils";
 import { backgroundTask } from "@/server/utils/backgroundTask";
 import { captureException } from "@/lib/sentryWrapper";
 import type { TypoSuggestionTargetCollection } from "@/lib/collections/typoSuggestions/constants";
+import { isPostgresUniqueViolation } from "@/server/utils/postgresErrors";
 
 const TYPO_REACT_NAME = "typo";
-const POSTGRES_UNIQUE_VIOLATION = "23505";
-
-function isPostgresUniqueViolation(err: unknown): boolean {
-  return (
-    !!err &&
-    typeof err === "object" &&
-    "code" in err &&
-    err.code === POSTGRES_UNIQUE_VIOLATION
-  );
-}
 
 interface NewTypoReact {
   quote: string;
@@ -113,7 +104,7 @@ async function hasLiveYjsRecord(
   context: ResolverContext,
 ): Promise<boolean> {
   const yjsDoc = await context.YjsDocuments.findOne(
-    { documentId },
+    { collectionName: 'Posts', documentId },
     undefined,
     { _id: 1 },
   );

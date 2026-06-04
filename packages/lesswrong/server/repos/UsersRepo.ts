@@ -402,6 +402,24 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return results.map(({_id}) => _id);
   }
 
+  async getRejectedContentCounts(userIds: string[]): Promise<number[]> {
+    const rows = await this.getRawDb().any<{ userId: string, count: number }>(`
+      -- UsersRepo.getRejectedContentCounts
+      SELECT "userId", SUM("count")::int AS "count" FROM (
+        SELECT "userId", COUNT(*) AS "count" FROM "Posts"
+        WHERE "userId" = ANY($1::text[]) AND "rejected" IS TRUE
+        GROUP BY "userId"
+        UNION ALL
+        SELECT "userId", COUNT(*) AS "count" FROM "Comments"
+        WHERE "userId" = ANY($1::text[]) AND "rejected" IS TRUE
+        GROUP BY "userId"
+      ) "rejectedContent"
+      GROUP BY "userId"
+    `, [userIds]);
+    const countsByUser = new Map(rows.map((row) => [row.userId, row.count]));
+    return userIds.map((userId) => countsByUser.get(userId) ?? 0);
+  }
+
   /**
    * Get suggested users for logged-in users to subscribe to. Finds the top 500 active 
    * authors by karma (posts weighted 5x comments), excluding self and already-subscribed 

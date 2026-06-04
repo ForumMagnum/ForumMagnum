@@ -53,6 +53,13 @@ const nextConfig: NextConfig = {
   },
   productionBrowserSourceMaps: true,
   typedRoutes: true,
+  outputFileTracingIncludes: {
+    '/**': [
+      './packages/lesswrong/server/research/sandbox/dist/supervisor.js',
+      './packages/lesswrong/server/research/sandbox/dist/research-tool.cjs',
+      './packages/lesswrong/server/research/sandbox/supervisor/agentInstructions.md',
+    ],
+  },
   experimental: {
     serverSourceMaps: true,
     turbopackFileSystemCacheForDev: true,

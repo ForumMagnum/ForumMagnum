@@ -30,6 +30,7 @@ export const isFullscreenRoute = (pathname: string) => pathnameMatchesAnyOf(path
   "/inbox",
   "/inbox/[conversationId]",
   "/moderatorInbox",
+  "/research/projects/[projectId]",
 ]);
 
 const routesWithLeftNavigationColumn = [

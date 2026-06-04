@@ -1,11 +1,12 @@
 import { $getRoot, type LexicalEditor } from "lexical";
-import {
-  $applyEditReplacement,
-  $applyEditReplacementMultiNode,
-  $applySuggestionWithNarrowing,
-} from "../../../app/api/agent/replaceText/route";
+import { $generateHtmlFromNodes } from "@lexical/html";
+import { $applySuggestionWithNarrowing } from "../../../app/api/agent/replaceText/route";
+import { $applyEditModeReplacement } from "../../../app/api/agent/applyEditAtSelection";
 import { locateMarkdownQuoteSelectionInSubtree } from "../../../app/api/agent/mapMarkdownToLexical";
-import { getAllSuggestions, runEditorUpdate, setupEditorWithContent } from "./lexicalTestHelpers";
+import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
+import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { withDomGlobals } from "@/server/editor/withDomGlobals";
+import { findMathEquations, firstDisplayMathParentType, getAllSuggestions, runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
 
 async function replaceTextAsSuggestion(
@@ -45,22 +46,10 @@ async function replaceTextInEditMode(
     });
     if (!result.found || !result.anchor || !result.focus) return;
 
-    const { anchor, focus } = result;
-    const sameTextNode = anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
-
-    if (sameTextNode) {
-      replaced = $applyEditReplacement({
-        editor,
-        matchedNodeKey: anchor.key,
-        startOffset: anchor.offset,
-        endOffset: focus.offset,
-        replacement,
-      });
-    } else {
-      replaced = $applyEditReplacementMultiNode({
-        editor, anchor, focus, replacement,
-      });
-    }
+    replaced = $applyEditModeReplacement({
+      editor, anchor: result.anchor, focus: result.focus, quote, replacement,
+      markdownIt: getMarkdownItForAgentPosts(),
+    }).replaced;
   });
   return replaced;
 }
@@ -469,6 +458,240 @@ describe("replaceText narrowing preserves non-plain-text markdown changes", () =
   });
 });
 
+/**
+ * Serialize the live editor state back to markdown via the same
+ * Lexical → HTML → Turndown pipeline the agent read API uses, so these
+ * assertions check what an agent would see if it re-fetched the document.
+ */
+function getMarkdownContent(editor: LexicalEditor): string {
+  let html = "";
+  editor.getEditorState().read(() => {
+    html = withDomGlobals(() => $generateHtmlFromNodes(editor, null));
+  });
+  return htmlToMarkdown(html).trim();
+}
+
+describe("replaceText edit mode with LaTeX", () => {
+  it("edits prose after an equation without corrupting the offset", async () => {
+    // Doc: "the value $x^2$ is large", with $x^2$ a real MathNode. The agent
+    // rewords trailing prose; the equation is unchanged and only along for the
+    // ride inside the quoted context.
+    const editor = await setupEditorWithMathParagraphs([
+      { text: "the value " },
+      { equation: "x^2" },
+      { text: " is large" },
+    ]);
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "the value $x^2$ is large",
+      "the value $x^2$ is small",
+    );
+    expect(replaced).toBe(true);
+
+    // `markdownQuoteToPlainText` projects the MathNode to zero width, matching
+    // `$advancePoint`'s view of it, so the narrowed edit lands on "large".
+    expect(getMarkdownContent(editor)).toBe("the value $x^2$ is small");
+  });
+
+  it("edits an equation that has text on both sides of it", async () => {
+    // Doc: "the result is $x^2$ here". The quoted range has text before and
+    // after the equation, so matching produces a selection spanning the
+    // MathNode and the edit can replace it.
+    const editor = await setupEditorWithMathParagraphs([
+      { text: "the result is " },
+      { equation: "x^2" },
+      { text: " here" },
+    ]);
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "the result is $x^2$ here",
+      "the result is $x^3$ here",
+    );
+    expect(replaced).toBe(true);
+
+    // Narrowing snaps its boundaries out of the `$…$` token, so the whole
+    // equation is replaced by a new MathNode rather than split into a
+    // fragment, and the math-tex agent pipeline turns `$x^3$` into a MathNode.
+    expect(getMarkdownContent(editor)).toBe("the result is $x^3$ here");
+  });
+
+  it("edits an equation at the end of the quote", async () => {
+    // Doc: "value is $x^2$" — the quote ends on the MathNode, with no text
+    // after it. The focus is represented as an element-type selection point
+    // so the equation is inside the range and gets replaced.
+    const editor = await setupEditorWithMathParagraphs([
+      { text: "value is " },
+      { equation: "x^2" },
+    ]);
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "value is $x^2$",
+      "value is $x^3$",
+    );
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("value is $x^3$");
+  });
+
+  it("edits an equation at the start of the quote", async () => {
+    // Doc: "$x^2$ is the answer" — the quote starts on the MathNode, with no
+    // text before it; the anchor is an element-type selection point.
+    const editor = await setupEditorWithMathParagraphs([
+      { equation: "x^2" },
+      { text: " is the answer" },
+    ]);
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "$x^2$ is the answer",
+      "$x^3$ is the answer",
+    );
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("$x^3$ is the answer");
+  });
+
+  it("edits a quote that is exactly an equation", async () => {
+    // Doc: "before $x^2$ after" — the quote is the equation alone, matched as
+    // an element range around the MathNode.
+    const editor = await setupEditorWithMathParagraphs([
+      { text: "before " },
+      { equation: "x^2" },
+      { text: " after" },
+    ]);
+
+    const replaced = await replaceTextInEditMode(editor, "$x^2$", "$y^2$");
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("before $y^2$ after");
+  });
+});
+
+describe("replaceText with LaTeX — correctness regressions", () => {
+  it("edits a quote spanning prose and a display equation", async () => {
+    // A display equation reads from the agent API as `$$\n...\n$$`, but
+    // `appendSegments` serializes every MathNode as inline `$...$`, so the
+    // quote can't be located.
+    const editor = await setupEditorWithMathParagraphs([
+      { text: "The displayed equation " },
+      { equation: "x^2", display: true },
+      { text: " is important." },
+    ]);
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "The displayed equation $$\nx^2\n$$ is important.",
+      "The displayed equation $$\ny^2\n$$ is important.",
+    );
+    expect(replaced).toBe(true);
+    const markdown = getMarkdownContent(editor);
+    expect(markdown).toContain("y^2");
+    expect(markdown).not.toContain("x^2");
+  });
+
+  it("matches equations case-sensitively", async () => {
+    // `$X$` and `$x$` are different equations; a `$x$` quote must replace the
+    // lowercase equation, not the uppercase one.
+    const editor = await setupEditorWithMathParagraphs([
+      { text: "First " },
+      { equation: "X" },
+      { text: " then " },
+      { equation: "x" },
+    ]);
+
+    const replaced = await replaceTextInEditMode(editor, "$x$", "$y$");
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("First $X$ then $y$");
+  });
+
+  it("matches a display equation quoted in compact $$…$$ form", async () => {
+    // The read API emits a display equation as `$$\n…\n$$`, but agents may
+    // quote the compact `$$x^2$$` form — which the write path also accepts.
+    const editor = await setupEditorWithMathParagraphs([
+      { text: "Eq " },
+      { equation: "x^2", display: true },
+      { text: " done" },
+    ]);
+
+    const replaced = await replaceTextInEditMode(editor, "Eq $$x^2$$ done", "Eq $$y^2$$ done");
+    expect(replaced).toBe(true);
+    const markdown = getMarkdownContent(editor);
+    expect(markdown).toContain("y^2");
+    expect(markdown).not.toContain("x^2");
+  });
+
+  it("matches a display equation quoted with \\[…\\] delimiters", async () => {
+    const editor = await setupEditorWithMathParagraphs([
+      { text: "Eq " },
+      { equation: "x^2", display: true },
+      { text: " done" },
+    ]);
+
+    const replaced = await replaceTextInEditMode(editor, "Eq \\[x^2\\] done", "Eq \\[y^2\\] done");
+    expect(replaced).toBe(true);
+    const markdown = getMarkdownContent(editor);
+    expect(markdown).toContain("y^2");
+    expect(markdown).not.toContain("x^2");
+  });
+});
+
+describe("replaceText with LaTeX — equation matching edge cases", () => {
+  it("round-trips an inline equation immediately followed by a digit", async () => {
+    // texMath's currency-disambiguation rule rejects `$x$5`, so the bare
+    // `$...$` form cannot encode "equation x, then a literal 5". The read side
+    // must emit the digit-safe `\(...\)` form instead, and editing via that
+    // form must keep the equation a real MathNode rather than collapsing it to
+    // literal text.
+    const editor = await setupEditorWithMathParagraphs([
+      { equation: "x" },
+      { text: "5 apples" },
+    ]);
+
+    expect(getMarkdownContent(editor)).toBe("\\(x\\)5 apples");
+
+    const replaced = await replaceTextInEditMode(editor, "\\(x\\)5 apples", "\\(y\\)5 apples");
+    expect(replaced).toBe(true);
+    // getMarkdownContent can't distinguish a real MathNode from literal
+    // `\(y\)5 apples` text, so assert on the node tree directly.
+    expect(findMathEquations(editor)).toEqual(["y"]);
+  });
+
+  it("matches a contextual quote whose equation contains markdown emphasis punctuation", async () => {
+    // Reviewer-flagged: `markdownQuoteToRenderedPlainText` renders the quote
+    // through markdown-it, which interprets `*b*` inside the equation as
+    // emphasis, so the projection becomes `$ab$` and no longer matches the
+    // `$a*b*$` MathNode segment. The equation is mid-paragraph (not the whole
+    // paragraph), so the whole-paragraph fallback does not rescue it.
+    const editor = await setupEditorWithMathParagraphs([
+      { text: "Prefix Eq " },
+      { equation: "a*b*" },
+      { text: " done suffix" },
+    ]);
+
+    const replaced = await replaceTextInEditMode(editor, "Eq $a*b*$ done", "Eq $a*c*$ done");
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("Prefix Eq $a*c*$ done suffix");
+  });
+
+  it("matches a contextual quote whose equation contains a tilde", async () => {
+    // Same root cause as the emphasis case, but `~b~` is consumed by the
+    // markdown-it-sub plugin (a separate code path from core emphasis), so a
+    // fix must cover both.
+    const editor = await setupEditorWithMathParagraphs([
+      { text: "Intro text. The relation " },
+      { equation: "a~b~c" },
+      { text: " holds. Outro text." },
+    ]);
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "The relation $a~b~c$ holds",
+      "The relation $a~b~d$ holds",
+    );
+    expect(replaced).toBe(true);
+  });
+});
+
 describe("getAllSuggestions finds suggestions inside nested structures", () => {
   it("finds suggestions inside list items", async () => {
     const editor = await setupEditorWithContent(
@@ -488,5 +711,42 @@ describe("getAllSuggestions finds suggestions inside nested structures", () => {
     // inside list > listitem > text structure (3 levels deep)
     const suggestions = getAllSuggestions(editor);
     expect(suggestions.length).toBeGreaterThanOrEqual(1);
+  });
+});
+
+describe("LaTeX correctness regressions", () => {
+  it("does not leave a replacement's display equation nested inside a paragraph", async () => {
+    // The replaceText apply path renders the replacement to inline nodes and
+    // splices them in; a `$$...$$` replacement yields a block-level display
+    // MathNode that must not stay inside the surrounding ParagraphNode.
+    const editor = await setupEditorWithMathParagraphs([{ text: "the answer is here" }]);
+    const replaced = await replaceTextInEditMode(editor, "answer", "$$x^2$$");
+    expect(replaced).toBe(true);
+
+    expect(firstDisplayMathParentType(editor)).toBe("root");
+  });
+
+  it("narrows an in-equation edit out of math tokens with equations on both sides", async () => {
+    // `snapPrefix/SuffixOutOfMathTokens` snap the common-affix boundary out of
+    // any math token. They run a single pass over `[quote, replacement]` and
+    // carry one `result` across both — which is correct only because the two
+    // strings are byte-identical across the common prefix/suffix, so their
+    // math spans coincide there. This exercises that with equations flanking
+    // the edited one on both sides; the digit edit narrows to just `$x2$`.
+    const editor = await setupEditorWithMathParagraphs([
+      { equation: "a" },
+      { text: " before " },
+      { equation: "x2" },
+      { text: " after " },
+      { equation: "b" },
+    ]);
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "$a$ before $x2$ after $b$",
+      "$a$ before $x3$ after $b$",
+    );
+    expect(replaced).toBe(true);
+    expect(getMarkdownContent(editor)).toBe("$a$ before $x3$ after $b$");
   });
 });
