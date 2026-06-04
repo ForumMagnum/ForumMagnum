@@ -20620,89 +20620,50 @@ type CurationPostViewQueryQueryVariables = Exact<{
 
 type CurationPostViewQueryQuery = CurationPostViewQueryQuery_Query;
 
-type multiUserModerationInboxQueryQuery_users_MultiUserOutput_results_User = (
+type ModerationInboxDataQueryQuery_users_MultiUserOutput_results_User = (
   { __typename?: 'User' }
   & SunshineUsersList
 );
 
-type multiUserModerationInboxQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', totalCount: number | null, results: Array<multiUserModerationInboxQueryQuery_users_MultiUserOutput_results_User> };
+type ModerationInboxDataQueryQuery_users_MultiUserOutput = { __typename?: 'MultiUserOutput', results: Array<ModerationInboxDataQueryQuery_users_MultiUserOutput_results_User> };
 
-type multiUserModerationInboxQueryQuery_Query = { __typename?: 'Query', users: multiUserModerationInboxQueryQuery_users_MultiUserOutput | null };
-
-
-type multiUserModerationInboxQueryQueryVariables = Exact<{
-  selector: InputMaybe<UserSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiUserModerationInboxQueryQuery = multiUserModerationInboxQueryQuery_Query;
-
-type multiPostModerationInboxQueryQuery_posts_MultiPostOutput_results_Post = (
+type ModerationInboxDataQueryQuery_posts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & SunshinePostsList
 );
 
-type multiPostModerationInboxQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<multiPostModerationInboxQueryQuery_posts_MultiPostOutput_results_Post> };
+type ModerationInboxDataQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<ModerationInboxDataQueryQuery_posts_MultiPostOutput_results_Post> };
 
-type multiPostModerationInboxQueryQuery_Query = { __typename?: 'Query', posts: multiPostModerationInboxQueryQuery_posts_MultiPostOutput | null };
-
-
-type multiPostModerationInboxQueryQueryVariables = Exact<{
-  selector: InputMaybe<PostSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiPostModerationInboxQueryQuery = multiPostModerationInboxQueryQuery_Query;
-
-type multiPostAutoClassifiedInboxQueryQuery_posts_MultiPostOutput_results_Post = (
+type ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput_results_Post = (
   { __typename?: 'Post' }
   & SunshinePostsList
 );
 
-type multiPostAutoClassifiedInboxQueryQuery_posts_MultiPostOutput = { __typename?: 'MultiPostOutput', totalCount: number | null, results: Array<multiPostAutoClassifiedInboxQueryQuery_posts_MultiPostOutput_results_Post> };
+type ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput = { __typename?: 'MultiPostOutput', results: Array<ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput_results_Post> };
 
-type multiPostAutoClassifiedInboxQueryQuery_Query = { __typename?: 'Query', posts: multiPostAutoClassifiedInboxQueryQuery_posts_MultiPostOutput | null };
-
-
-type multiPostAutoClassifiedInboxQueryQueryVariables = Exact<{
-  selector: InputMaybe<PostSelector>;
-  limit: InputMaybe<Scalars['Int']['input']>;
-  enableTotal: InputMaybe<Scalars['Boolean']['input']>;
-}>;
-
-
-type multiPostAutoClassifiedInboxQueryQuery = multiPostAutoClassifiedInboxQueryQuery_Query;
-
-type CurationCandidatePostsQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult_results_Post = (
+type ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult_results_Post = (
   { __typename?: 'Post' }
   & SunshineCurationPostsListItem
 );
 
-type CurationCandidatePostsQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult = { __typename?: 'CurationCandidatePostsResult', results: Array<CurationCandidatePostsQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult_results_Post> };
+type ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult = { __typename?: 'CurationCandidatePostsResult', results: Array<ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult_results_Post> };
 
-type CurationCandidatePostsQueryQuery_Query = { __typename?: 'Query', CurationCandidatePosts: CurationCandidatePostsQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null };
+type ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult = { __typename?: 'LastCuratedDateResult', lastCuratedDate: string | null };
+
+type ModerationInboxDataQueryQuery_Query = { __typename?: 'Query', users: ModerationInboxDataQueryQuery_users_MultiUserOutput | null, posts: ModerationInboxDataQueryQuery_posts_MultiPostOutput | null, classifiedPosts: ModerationInboxDataQueryQuery_classifiedPosts_MultiPostOutput | null, CurationCandidatePosts: ModerationInboxDataQueryQuery_CurationCandidatePosts_CurationCandidatePostsResult | null, LastCuratedDate: ModerationInboxDataQueryQuery_LastCuratedDate_LastCuratedDateResult };
 
 
-type CurationCandidatePostsQueryQueryVariables = Exact<{
-  limit: InputMaybe<Scalars['Int']['input']>;
+type ModerationInboxDataQueryQueryVariables = Exact<{
+  userSelector: InputMaybe<UserSelector>;
+  postSelector: InputMaybe<PostSelector>;
+  classifiedPostSelector: InputMaybe<PostSelector>;
+  userLimit: InputMaybe<Scalars['Int']['input']>;
+  postLimit: InputMaybe<Scalars['Int']['input']>;
+  curationLimit: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
-type CurationCandidatePostsQueryQuery = CurationCandidatePostsQueryQuery_Query;
-
-type LastCuratedDateQueryQuery_LastCuratedDate_LastCuratedDateResult = { __typename?: 'LastCuratedDateResult', lastCuratedDate: string | null };
-
-type LastCuratedDateQueryQuery_Query = { __typename?: 'Query', LastCuratedDate: LastCuratedDateQueryQuery_LastCuratedDate_LastCuratedDateResult };
-
-
-type LastCuratedDateQueryQueryVariables = Exact<{ [key: string]: never; }>;
-
-
-type LastCuratedDateQueryQuery = LastCuratedDateQueryQuery_Query;
+type ModerationInboxDataQueryQuery = ModerationInboxDataQueryQuery_Query;
 
 type singleUserSupermodQueryQuery_user_SingleUserOutput_result_User = (
   { __typename?: 'User' }
