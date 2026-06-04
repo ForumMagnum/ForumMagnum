@@ -270,7 +270,8 @@ const ResearchProjectList = () => {
 
   const [createProject] = useMutation(CreateResearchProjectMutation);
 
-  const tokenIsSet = tokenSavedThisSession || !!tokenStatusData?.user?.result?.hasClaudeCodeOAuthToken;
+  const tokenIsSet = tokenSavedThisSession ||
+    !!tokenStatusData?.user?.result?.hasClaudeCodeOAuthToken;
 
   const handleTokenSaved = useCallback(async () => {
     setTokenSavedThisSession(true);
