@@ -81,8 +81,8 @@ export const styles = defineStyles("KarmaChangesDisplay", (theme: ThemeType) => 
   },
   tooltipSubtitle: {
     marginLeft: 2,
-    ...theme.typography.italic,
-    fontFamily: theme.typography.postStyle.fontFamily,
+    ...theme.typography.body2,
+    ...theme.typography.commentStyle,
     fontSize: "1.1rem",
     color: theme.palette.grey[600],
   },
