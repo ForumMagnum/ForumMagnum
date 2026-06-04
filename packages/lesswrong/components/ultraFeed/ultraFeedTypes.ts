@@ -23,12 +23,20 @@ export interface ThreadScoreBreakdownTerms extends Record<string, number> {
 export interface PostScoreBreakdown {
   total: number;
   terms: PostScoreBreakdownTerms;
+  timeDecayKarmaDetails?: {
+    karma: number;
+    timeDecayMultiplier: number;
+  };
   typeMultiplier: number;
 }
 
 export interface ThreadScoreBreakdown {
   total: number;
   terms: ThreadScoreBreakdownTerms;
+  timeDecayKarmaDetails?: {
+    karma: number;
+    timeDecayMultiplier: number;
+  };
   repetitionPenaltyMultiplier: number;
   typeMultiplier: number;
 }

@@ -4,6 +4,9 @@ import { defineStyles, useStyles } from '../hooks/useStyles';
 import { allFeedItemSourceTypes } from './ultraFeedTypes';
 import type { FeedCommentMetaInfo, FeedItemSourceType, FeedPostMetaInfo, RankedItemMetadata } from './ultraFeedTypes';
 import UltraFeedScoreBreakdown from './UltraFeedScoreBreakdown';
+import { Link } from '@/lib/reactRouterWrapper';
+import { postGetPageUrl } from '@/lib/collections/posts/helpers';
+import { commentGetPageUrlFromIds } from '@/lib/collections/comments/helpers';
 
 export type UltraFeedDebugSortField = 'score' | 'type' | 'title' | 'sources';
 export type UltraFeedDebugSortDirection = 'asc' | 'desc';
@@ -38,6 +41,13 @@ const styles = defineStyles('UltraFeedDebugItem', (theme: ThemeType) => ({
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
     color: theme.palette.text.primary,
+  },
+  titleLink: {
+    color: 'inherit',
+    textDecoration: 'none',
+    '&:hover': {
+      textDecoration: 'underline',
+    },
   },
   sources: {
     minWidth: 0,
@@ -92,6 +102,20 @@ const toFeedItemSources = (sources?: readonly string[] | null): FeedItemSourceTy
 
 const truncate = (text: string, maxLength = 160): string => {
   return text.length > maxLength ? `${text.slice(0, maxLength - 3)}...` : text;
+};
+
+const DebugContentLink = ({ url, children }: { url?: string; children: React.ReactNode }) => {
+  const classes = useStyles(styles);
+  
+  if (!url) {
+    return <>{children}</>;
+  }
+  
+  return (
+    <Link to={url} className={classes.titleLink}>
+      {children}
+    </Link>
+  );
 };
 
 export interface UltraFeedDebugResult {
@@ -285,12 +309,15 @@ const DebugScore = ({
 export const UltraFeedDebugPostItem = ({ item }: { item: FeedPostFragment }) => {
   const classes = useStyles(styles);
   const metadata: RankedItemMetadata | undefined = item.postMetaInfo?.rankingMetadata;
+  const url = item.post ? postGetPageUrl(item.post) : undefined;
 
   return (
     <div className={classes.root}>
       <DebugScore metadata={metadata} sources={item.postMetaInfo?.sources} postMetaInfo={item.postMetaInfo} />
       <div className={classes.type}>post</div>
-      <div className={classes.title}>{item.post?.title ?? item._id}</div>
+      <div className={classes.title}>
+        <DebugContentLink url={url}>{item.post?.title ?? item._id}</DebugContentLink>
+      </div>
       <div className={classes.sources}>{formatSources(item.postMetaInfo?.sources)}</div>
     </div>
   );
@@ -304,6 +331,11 @@ export const UltraFeedDebugThreadItem = ({ item }: { item: FeedCommentThreadFrag
   const title = firstComment?.contents?.plaintextMainText
     ? truncate(firstComment.contents.plaintextMainText)
     : item.post?.title ?? item._id;
+  const url = firstComment ? commentGetPageUrlFromIds({
+    postId: firstComment.postId,
+    postSlug: firstComment.post?.slug ?? item.post?.slug,
+    commentId: firstComment.topLevelCommentId ?? firstComment._id,
+  }) : undefined;
 
   return (
     <div className={classes.root}>
@@ -313,7 +345,9 @@ export const UltraFeedDebugThreadItem = ({ item }: { item: FeedCommentThreadFrag
         commentMetaInfo={firstCommentMeta}
       />
       <div className={classes.type}>{firstComment?.shortform ? 'quick take' : 'thread'}</div>
-      <div className={classes.title}>{title}</div>
+      <div className={classes.title}>
+        <DebugContentLink url={url}>{title}</DebugContentLink>
+      </div>
       <div className={classes.sources}>{formatSources(firstCommentMeta?.sources ?? item.postSources)}</div>
     </div>
   );
@@ -328,12 +362,16 @@ export const UltraFeedDebugSpotlightItem = ({ item }: { item: FeedSpotlightFragm
     ?? item.spotlight?.sequence?.title
     ?? item.spotlight?.tag?.name
     ?? item._id;
+  const spotlightPost = item.post ?? item.spotlight?.post;
+  const url = spotlightPost ? postGetPageUrl(spotlightPost) : undefined;
 
   return (
     <div className={classes.root}>
       <DebugScore metadata={metadata} sources={sources} />
       <div className={classes.type}>spotlight</div>
-      <div className={classes.title}>{title}</div>
+      <div className={classes.title}>
+        <DebugContentLink url={url}>{title}</DebugContentLink>
+      </div>
       <div className={classes.sources}>{formatSources(sources)}</div>
     </div>
   );

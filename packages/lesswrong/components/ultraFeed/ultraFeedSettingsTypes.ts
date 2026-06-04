@@ -160,7 +160,7 @@ const DEFAULT_UNIFIED_SCORING_SETTINGS: UnifiedScoringSettings = {
   quicktakeBonus: 5,
   timeDecayHalfLifeHours: 12,
   postsMultiplier: 1.0,
-  threadsMultiplier: 1.0,
+  threadsMultiplier: 1.5,
 };
 
 export const DEFAULT_SETTINGS: UltraFeedSettingsType = {

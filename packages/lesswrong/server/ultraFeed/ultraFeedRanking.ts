@@ -141,6 +141,7 @@ function scorePost(
   const isSubscriptionPost = post.sources.includes('subscriptionsPosts');
   
   let karmaBonus = 0;
+  let timeDecayKarmaDetails: PostScoreBreakdown["timeDecayKarmaDetails"] | undefined;
 
   if (isRecombeePost || isSubscriptionPost || post.ageHrs === null) {
     karmaBonus = Math.min(
@@ -151,7 +152,12 @@ function scorePost(
     const denominator = Math.pow(post.ageHrs + postConfig.timeDecayBias, postConfig.timeDecayExponent);
     const numerator = Math.pow(postConfig.timeDecayScale, postConfig.timeDecayExponent);
     if (denominator > 0 && Number.isFinite(denominator)) {
-      karmaBonus = Math.min(post.karma * numerator / denominator, postConfig.karmaMaxBonus);
+      const timeDecayMultiplier = numerator / denominator;
+      karmaBonus = Math.min(post.karma * timeDecayMultiplier, postConfig.karmaMaxBonus);
+      timeDecayKarmaDetails = {
+        karma: post.karma,
+        timeDecayMultiplier,
+      };
     }
   }
 
@@ -167,6 +173,7 @@ function scorePost(
         karmaBonus,
         topicAffinityBonus,
       },
+      timeDecayKarmaDetails,
       typeMultiplier: postConfig.typeMultiplier,
     },
   };
@@ -208,14 +215,38 @@ function scoreThread(
   const yourPostActivityBonus = isYourPost ? cfg.yourPostBonus : 0;
 
   const unreadComments = thread.comments.filter(c => !c.isRead);
-  let overallKarmaBonus = 0;
   const numerator = Math.pow(cfg.timeDecayScale, cfg.timeDecayExponent);
-  for (const comment of unreadComments) {
-    const denominator = Math.pow(comment.ageHrs + cfg.timeDecayBias, cfg.timeDecayExponent);
-    if (denominator > 0 && Number.isFinite(denominator)) {
-      overallKarmaBonus += comment.karma * numerator / denominator;
+  const decayedCommentScores = unreadComments
+    .map(comment => {
+      const denominator = Math.pow(comment.ageHrs + cfg.timeDecayBias, cfg.timeDecayExponent);
+      if (denominator <= 0 || !Number.isFinite(denominator)) {
+        return null;
+      }
+
+      const timeDecayMultiplier = numerator / denominator;
+      return {
+        karma: comment.karma,
+        decayedKarma: comment.karma * timeDecayMultiplier,
+      };
+    })
+    .filter((commentScore): commentScore is { karma: number; decayedKarma: number } => !!commentScore)
+    .sort((a, b) => b.decayedKarma - a.decayedKarma);
+
+  let rankWeightedKarma = 0;
+  let rankWeightedDecayedKarma = 0;
+  decayedCommentScores.forEach((commentScore, index) => {
+    const rankWeight = Math.pow(0.5, index);
+    rankWeightedKarma += commentScore.karma * rankWeight;
+    rankWeightedDecayedKarma += commentScore.decayedKarma * rankWeight;
+  });
+
+  const timeDecayKarmaDetails: ThreadScoreBreakdown["timeDecayKarmaDetails"] | undefined = decayedCommentScores.length > 0
+    ? {
+      karma: rankWeightedKarma,
+      timeDecayMultiplier: rankWeightedKarma === 0 ? 0 : rankWeightedDecayedKarma / rankWeightedKarma,
     }
-  }
+    : undefined;
+  let overallKarmaBonus = rankWeightedDecayedKarma;
   overallKarmaBonus = Math.min(overallKarmaBonus, cfg.karmaMaxBonus);
 
   const topicAffinityBonus = 0;
@@ -256,6 +287,7 @@ function scoreThread(
         quicktakeBonus,
         readPostContextBonus,
       },
+      timeDecayKarmaDetails,
       repetitionPenaltyMultiplier,
       typeMultiplier,
     },
@@ -263,6 +295,7 @@ function scoreThread(
 }
 
 interface PostScoredItem {
+  itemType: 'post';
   id: string;
   score: number;
   item: PostRankableItem;
@@ -270,6 +303,7 @@ interface PostScoredItem {
 }
 
 interface ThreadScoredItem {
+  itemType: 'commentThread';
   id: string;
   score: number;
   item: ThreadRankableItem;
@@ -442,6 +476,7 @@ export function scoreItems(
     if (item.itemType === 'post') {
       const scoreResult = scorePost(item, config);
       return {
+        itemType: 'post',
         id: item.id,
         score: scoreResult.score,
         item,
@@ -451,6 +486,7 @@ export function scoreItems(
 
     const scoreResult = scoreThread(item, config);
     return { 
+      itemType: 'commentThread',
       id: item.id, 
       score: scoreResult.score, 
       item,
@@ -464,7 +500,7 @@ function scoredItemToMetadata(
   selectionConstraints: string[],
   position: number,
 ): RankedItemMetadata {
-  if (scoredItem.item.itemType === 'commentThread') {
+  if (scoredItem.itemType === 'commentThread') {
     return {
       rankedItemType: 'commentThread',
       scoreBreakdown: scoredItem.breakdown,
