@@ -41,6 +41,7 @@ interface UltraFeedSubscriptionFeedSettings {
 }
 
 export interface UltraFeedSettingsType {
+  lastEditedAt?: string | null;
   displaySettings: UltraFeedDisplaySettings;
   resolverSettings: UltraFeedResolverSettings;
 }

@@ -3109,6 +3109,7 @@ CREATE TABLE "Users" (
   "currentFrontpageFilter" TEXT,
   "frontpageSelectedTab" TEXT,
   "frontpageFilterSettings" JSONB,
+  "ultraFeedSettings" JSONB,
   "hideFrontpageFilterSettingsDesktop" BOOL,
   "allPostsTimeframe" TEXT,
   "allPostsFilter" TEXT,

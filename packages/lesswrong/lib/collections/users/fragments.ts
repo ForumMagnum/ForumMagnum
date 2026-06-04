@@ -143,6 +143,7 @@ export const UsersCurrent = gql(`
     currentFrontpageFilter
     frontpageSelectedTab
     frontpageFilterSettings
+    ultraFeedSettings
     hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
     allPostsSorting
