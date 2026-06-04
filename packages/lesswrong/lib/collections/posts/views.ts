@@ -395,6 +395,13 @@ function filterModeToMultiplicativeKarmaModifier(mode: FilterMode): number {
 // Define standalone view functions
 function userPosts(terms: PostsViewTerms) {
   const sortOverride = terms.sortedBy ? {} : {sort: {postedAt: -1}}
+  const filter = terms.filter && filters[terms.filter] ? filters[terms.filter] : {};
+  if (terms.filter && !filters[terms.filter]) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `Filter '${terms.filter}' not recognized while constructing userPosts view`
+    )
+  }
   return {
     selector: {
       userId: viewFieldAllowAny,
@@ -402,7 +409,8 @@ function userPosts(terms: PostsViewTerms) {
       shortform: viewFieldAllowAny,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
       $or: [{userId: terms.userId}, {coauthorUserIds: terms.userId}],
-      rejected: null
+      rejected: null,
+      ...filter,
     },
     options: {
       limit: 5,
