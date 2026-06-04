@@ -654,7 +654,8 @@ export const ultraFeedGraphQLQueries = {
       const engagementStatsListPromise = userIdOrClientId && commentFetchLimit > 0
         ? context.repos.comments.getThreadEngagementStatsForRecentlyActiveThreads(
             userIdOrClientId,
-            ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays
+            ULTRA_FEED_DATE_CUTOFFS.threadEngagementLookbackDays,
+            sessionId
           )
         : Promise.resolve<ThreadEngagementStats[]>([]);
 
