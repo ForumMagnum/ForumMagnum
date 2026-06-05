@@ -23,12 +23,12 @@ export interface UseUltraFeedSettingsResult {
   truncationMaps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> };
 }
 
-const readStoredSettings = (deviceDefaultSettings: UltraFeedSettingsType): UltraFeedSettingsType | null => {
+export const readStoredSettings = (deviceDefaultSettings: UltraFeedSettingsType): UltraFeedSettingsType | null => {
   const ls = getBrowserLocalStorage();
   if (!ls) return null;
-  const raw = ls.getItem(ULTRA_FEED_SETTINGS_KEY);
-  if (!raw) return null;
   try {
+    const raw = ls.getItem(ULTRA_FEED_SETTINGS_KEY);
+    if (!raw) return null;
     const parsed = JSON.parse(raw);
     // Deep merge user settings with defaults to handle missing fields
     return merge(
@@ -68,10 +68,15 @@ const chooseNewestSettings = (
   return localTimestamp >= userTimestamp ? localSettings : userSettings;
 };
 
-const writeStoredSettings = (next: UltraFeedSettingsType): void => {
+export const writeStoredSettings = (next: UltraFeedSettingsType): boolean => {
   const ls = getBrowserLocalStorage();
-  if (!ls) return;
-  ls.setItem(ULTRA_FEED_SETTINGS_KEY, JSON.stringify(next));
+  if (!ls) return false;
+  try {
+    ls.setItem(ULTRA_FEED_SETTINGS_KEY, JSON.stringify(next));
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 export const useUltraFeedSettings = (): UseUltraFeedSettingsResult => {

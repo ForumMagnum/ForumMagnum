@@ -29,6 +29,8 @@ import { UltraFeedContextProvider } from './UltraFeedContextProvider';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { ULTRA_FEED_ACTIVE_TAB_COOKIE } from '../../lib/cookies/cookies';
 import { FeedType } from './ultraFeedTypes';
+import ErrorBoundary from '../common/ErrorBoundary';
+import UltraFeedErrorFallback from './UltraFeedErrorFallback';
 
 const FEED_MIN_HEIGHT = 1500;
 
@@ -446,19 +448,21 @@ const UltraFeed = ({
           feedSettings={settings}
           updateFeedSettings={updateSettings}
         />
-        <DeferRender ssr={false}>
-          <UltraFeedContent 
-            settings={settings}
-            updateSettings={updateSettings}
-            truncationMaps={truncationMaps}
-            alwaysShow={alwaysShow}
-            settingsVisible={actualSettingsVisible}
-            onCloseSettings={isControlled ? onSettingsToggle : () => setInternalSettingsVisible(false)}
-            infoVisible={internalInfoVisible}
-            useExternalContainer={isControlled}
-            activeTab={activeTab}
-          />
-        </DeferRender>
+        <ErrorBoundary fallback={<UltraFeedErrorFallback message="The feed couldn't load. Try reloading the page." />}>
+          <DeferRender ssr={false}>
+            <UltraFeedContent 
+              settings={settings}
+              updateSettings={updateSettings}
+              truncationMaps={truncationMaps}
+              alwaysShow={alwaysShow}
+              settingsVisible={actualSettingsVisible}
+              onCloseSettings={isControlled ? onSettingsToggle : () => setInternalSettingsVisible(false)}
+              infoVisible={internalInfoVisible}
+              useExternalContainer={isControlled}
+              activeTab={activeTab}
+            />
+          </DeferRender>
+        </ErrorBoundary>
       </SingleColumnSection>
     </>
   );
