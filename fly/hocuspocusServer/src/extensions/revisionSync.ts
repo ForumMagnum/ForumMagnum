@@ -60,6 +60,58 @@ interface PendingRevision {
   maxTimer: NodeJS.Timeout;
 }
 
+function encodeUtf8HeaderValue(value: string): string {
+  return Buffer.from(value, 'utf8').toString('base64');
+}
+
+function canSendLegacyHeaderValue(value: string): boolean {
+  for (let i = 0; i < value.length; i++) {
+    const code = value.charCodeAt(i);
+    if (code > 0xff || code === 0x7f || (code < 0x20 && code !== 0x09)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function addUtf8Header(
+  headers: Record<string, string>,
+  plainHeaderName: string,
+  value: string,
+): void {
+  headers[`${plainHeaderName}-Base64`] = encodeUtf8HeaderValue(value);
+  if (canSendLegacyHeaderValue(value)) {
+    headers[plainHeaderName] = value;
+  }
+}
+
+function buildCommentWebhookHeaders({
+  authorId,
+  authorName,
+  content,
+  threadId,
+  commenters,
+}: {
+  authorId: string;
+  authorName?: string;
+  content: string;
+  threadId: string;
+  commenters: string;
+}): Record<string, string> {
+  const headers: Record<string, string> = {
+    'X-Hocuspocus-Comment-Author-Id': authorId,
+    'X-Hocuspocus-Comment-Thread-Id': threadId,
+    'X-Hocuspocus-Comment-Commenters': commenters,
+  };
+
+  if (authorName) {
+    addUtf8Header(headers, 'X-Hocuspocus-Comment-Author-Name', authorName);
+  }
+  addUtf8Header(headers, 'X-Hocuspocus-Comment-Content', content);
+
+  return headers;
+}
+
 /**
  * Hocuspocus extension that syncs document changes back to ForumMagnum
  * for revision storage and comment notifications.
@@ -295,13 +347,17 @@ export class RevisionSyncExtension implements Extension {
               ? this.getCommentersInThread(parentThread)
               : [];
 
-            await this.sendWebhookEvent('comment.added', documentName, {
-              'X-Hocuspocus-Comment-Author-Id': authorId,
-              ...(authorName ? { 'X-Hocuspocus-Comment-Author-Name': authorName } : {}),
-              'X-Hocuspocus-Comment-Content': content,
-              'X-Hocuspocus-Comment-Thread-Id': parentThread ? parentThread.get('id') : id,
-              'X-Hocuspocus-Comment-Commenters': commentersInThread.join(','),
-            });
+            await this.sendWebhookEvent(
+              'comment.added',
+              documentName,
+              buildCommentWebhookHeaders({
+                authorId,
+                authorName,
+                content,
+                threadId: parentThread ? parentThread.get('id') : id,
+                commenters: commentersInThread.join(','),
+              }),
+            );
           } else if (type === 'thread') {
             // A new thread was created — register all its initial comment IDs
             const threadComments = map.get('comments');
@@ -322,13 +378,17 @@ export class RevisionSyncExtension implements Extension {
               const authorName = firstComment.get('author');
               const content = firstComment.get('content');
               if (authorId && content) {
-                await this.sendWebhookEvent('comment.added', documentName, {
-                  'X-Hocuspocus-Comment-Author-Id': authorId,
-                  ...(authorName ? { 'X-Hocuspocus-Comment-Author-Name': authorName } : {}),
-                  'X-Hocuspocus-Comment-Content': content,
-                  'X-Hocuspocus-Comment-Thread-Id': id,
-                  'X-Hocuspocus-Comment-Commenters': authorId,
-                });
+                await this.sendWebhookEvent(
+                  'comment.added',
+                  documentName,
+                  buildCommentWebhookHeaders({
+                    authorId,
+                    authorName,
+                    content,
+                    threadId: id,
+                    commenters: authorId,
+                  }),
+                );
               }
             }
           }

@@ -8,6 +8,7 @@ import {
 } from '@/server/hocuspocus/hocuspocusCallbacks';
 import WebhookProcessor from './WebhookProcessor';
 import { assertRouteAttributes } from '@/lib/routeChecks/assertRouteAttributes';
+import { readUtf8WebhookHeader } from './commentHeaders';
 
 type WebhookResult =
   | { type: 'error'; message: string }
@@ -52,8 +53,8 @@ async function processWebhookRequest(headersList: Headers): Promise<WebhookResul
 
     case 'comment.added': {
       const authorId = headersList.get('x-hocuspocus-comment-author-id');
-      const authorName = headersList.get('x-hocuspocus-comment-author-name');
-      const content = headersList.get('x-hocuspocus-comment-content');
+      const authorName = readUtf8WebhookHeader(headersList, 'x-hocuspocus-comment-author-name');
+      const content = readUtf8WebhookHeader(headersList, 'x-hocuspocus-comment-content');
       const threadId = headersList.get('x-hocuspocus-comment-thread-id');
       const commentersStr = headersList.get('x-hocuspocus-comment-commenters') ?? '';
 
