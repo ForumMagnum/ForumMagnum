@@ -264,11 +264,6 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     flexShrink: 0,
   },
   desktopAuthorName: {
-    display: 'inline-block',
-    maxWidth: '100%',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
     verticalAlign: 'bottom',
   },
   desktopAuthorSeparator: {
