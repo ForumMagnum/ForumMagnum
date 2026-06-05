@@ -12,39 +12,39 @@ const mockIsLW = jest.fn();
 jest.mock("@/server/collections/posts/collection", () => ({
   __esModule: true,
   default: {
-    findOne: mockPostsFindOne,
-    find: mockPostsFind,
+    findOne: (...args: unknown[]) => mockPostsFindOne(...args),
+    find: (...args: unknown[]) => mockPostsFind(...args),
   },
 }));
 
 jest.mock("@/server/collections/users/collection", () => ({
   __esModule: true,
   default: {
-    findOne: mockUsersFindOne,
+    findOne: (...args: unknown[]) => mockUsersFindOne(...args),
   },
 }));
 
 jest.mock("@/server/collections/posts/mutations", () => ({
-  createPost: mockCreatePost,
-  updatePost: mockUpdatePost,
+  createPost: (...args: unknown[]) => mockCreatePost(...args),
+  updatePost: (...args: unknown[]) => mockUpdatePost(...args),
 }));
 
 jest.mock("@/server/vulcan-lib/apollo-server/context", () => ({
-  computeContextFromUser: mockComputeContextFromUser,
+  computeContextFromUser: (...args: unknown[]) => mockComputeContextFromUser(...args),
 }));
 
 jest.mock("@/server/utils/advisoryLockUtil", () => ({
-  getLockOrAbort: mockGetLockOrAbort,
+  getLockOrAbort: (...args: unknown[]) => mockGetLockOrAbort(...args),
 }));
 
 jest.mock("@/lib/instanceSettings", () => ({
   openThreadTagIdSetting: {
-    get: mockOpenThreadTagIdGet,
+    get: (...args: unknown[]) => mockOpenThreadTagIdGet(...args),
   },
   seasonalOpenThreadAuthorSlugSetting: {
-    get: mockAuthorSlugGet,
+    get: (...args: unknown[]) => mockAuthorSlugGet(...args),
   },
-  isLW: mockIsLW,
+  isLW: (...args: unknown[]) => mockIsLW(...args),
 }));
 
 import { maybeCreateSeasonalOpenThread } from "@/server/posts/seasonalOpenThreadCron";
