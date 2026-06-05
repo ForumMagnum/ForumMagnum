@@ -57,19 +57,15 @@ function stripExcludedContentForAIDetection(html: string): string {
   return $.html();
 }
 
-export async function getPangramEvaluation(revision: DbRevision): Promise<PangramEvaluationResult> {
+export async function getPangramEvaluationForText(text: string): Promise<PangramEvaluationResult> {
   const key = process.env.PANGRAM_API_KEY;
   if (!key) {
     throw new Error("PANGRAM_API_KEY is not configured");
   }
 
-  const htmlWithoutExcludedContent = stripExcludedContentForAIDetection(revision.html ?? '');
-  
-  const markdown = dataToMarkdown(htmlWithoutExcludedContent, "html");
-  // This should get the first 4-5k words.  There are longer posts but
-  // it doesn't seem like it'll often be useful to check them in their
-  // entirety, and every 1k words is more $$$.
-  const textToCheck = markdown.slice(0, 30_000);
+  // Cap at 30k chars (roughly 4-5k words). Longer texts get truncated; checking
+  // an entire long post in one go isn't usually worth the extra $$$.
+  const textToCheck = text.slice(0, 30_000);
 
   const response = await fetch('https://text-extended.api.pangram.com', {
     method: 'POST',
@@ -116,6 +112,12 @@ export async function getPangramEvaluation(revision: DbRevision): Promise<Pangra
       endIndex: w.end_index,
     })) ?? null,
   };
+}
+
+export async function getPangramEvaluation(revision: DbRevision): Promise<PangramEvaluationResult> {
+  const htmlWithoutExcludedContent = stripExcludedContentForAIDetection(revision.html ?? '');
+  const markdown = dataToMarkdown(htmlWithoutExcludedContent, "html");
+  return await getPangramEvaluationForText(markdown);
 }
 
 export async function getSaplingEvaluation(revision: DbRevision) {

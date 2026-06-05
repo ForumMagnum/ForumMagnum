@@ -82,6 +82,9 @@ export const routeTrie = {
         "moderationTemplates": {
           "hasPage": true
         },
+        "pangram": {
+          "hasPage": true
+        },
         "random-user": {
           "hasPage": true
         },
@@ -109,6 +112,7 @@ export const routeTrie = {
         "migrations": "migrations",
         "moderation": "moderation",
         "moderationtemplates": "moderationTemplates",
+        "pangram": "pangram",
         "random-user": "random-user",
         "recentlyactiveusers": "recentlyActiveUsers",
         "supermod": "supermod",

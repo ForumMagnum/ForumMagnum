@@ -3936,6 +3936,7 @@ type Mutation = {
   revertPostToRevision?: Maybe<Post>;
   revertTagToRevision?: Maybe<Tag>;
   runLlmCheckForDocument: AutomatedContentEvaluation;
+  runPangramOnText: PangramTextEvaluationResult;
   saveResearchEnvironment?: Maybe<SaveResearchEnvironmentOutput>;
   sendEventTriggeredDM: Scalars['Boolean']['output'];
   sendNewDialogueMessageNotification: Scalars['Boolean']['output'];
@@ -4551,6 +4552,11 @@ type MutationrunLlmCheckForDocumentArgs = {
 };
 
 
+type MutationrunPangramOnTextArgs = {
+  text: Scalars['String']['input'];
+};
+
+
 type MutationsaveResearchEnvironmentArgs = {
   conversationId: Scalars['String']['input'];
   withConversation: Scalars['Boolean']['input'];
@@ -4988,6 +4994,14 @@ type OAuthClient = {
   __typename?: 'OAuthClient';
   _id: Scalars['String']['output'];
   createdAt: Scalars['Date']['output'];
+};
+
+type PangramTextEvaluationResult = {
+  __typename?: 'PangramTextEvaluationResult';
+  pangramMaxScore?: Maybe<Scalars['Float']['output']>;
+  pangramPrediction?: Maybe<Scalars['String']['output']>;
+  pangramScore: Scalars['Float']['output'];
+  pangramWindowScores?: Maybe<Array<PangramWindowScore>>;
 };
 
 type PangramWindowScore = {
@@ -12101,6 +12115,20 @@ type YjsDocument = {
   _id: Scalars['String']['output'];
   createdAt: Scalars['Date']['output'];
 };
+
+type RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult_pangramWindowScores_PangramWindowScore = { __typename?: 'PangramWindowScore', text: string, score: number, startIndex: number, endIndex: number };
+
+type RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult = { __typename?: 'PangramTextEvaluationResult', pangramScore: number, pangramMaxScore: number | null, pangramPrediction: string | null, pangramWindowScores: Array<RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult_pangramWindowScores_PangramWindowScore> | null };
+
+type RunPangramOnTextMutation_Mutation = { __typename?: 'Mutation', runPangramOnText: RunPangramOnTextMutation_runPangramOnText_PangramTextEvaluationResult };
+
+
+type RunPangramOnTextMutationVariables = Exact<{
+  text: Scalars['String']['input'];
+}>;
+
+
+type RunPangramOnTextMutation = RunPangramOnTextMutation_Mutation;
 
 type MarkdownCollectionByDocumentIdQuery_collection_SingleCollectionOutput_result_Collection_contents_Revision = { __typename?: 'Revision', agentMarkdown: string | null, plaintextDescription: string };
 
