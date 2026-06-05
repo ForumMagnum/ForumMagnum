@@ -81,6 +81,8 @@ export type PostsListConfig = {
   tooltipPlacement?: PopperPlacementType,
   boxShadow?: boolean
   curatedIconLeft?: boolean,
+  /** If the post is curated, whether to show the curation date instead of the postedAt date. Default true. */
+  useCuratedDate?: boolean,
   showFinalBottomBorder?: boolean,
   hideHiddenFrontPagePosts?: boolean
   hideShortform?: boolean,
@@ -136,6 +138,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
   tooltipPlacement=getDefaultTooltipPlacement(),
   boxShadow = true,
   curatedIconLeft = false,
+  useCuratedDate,
   showFinalBottomBorder = false,
   hideHiddenFrontPagePosts = false,
   hideShortform = false,
@@ -283,6 +286,7 @@ export const usePostsList = <TagId extends string | undefined = undefined>({
     hideTag,
     hideTrailingButtons,
     curatedIconLeft: curatedIconLeft,
+    useCuratedDate,
     tagRel: (tagId && !hideTagRelevance) ? (post as PostsListTag).tagRel : undefined,
     defaultToShowUnreadComments,
     showPostedAt,

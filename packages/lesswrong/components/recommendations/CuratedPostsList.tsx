@@ -7,9 +7,10 @@ import moment from "moment";
 import { useCurrentTime } from "../../lib/utils/timeUtil";
 import PostsList2 from "../posts/PostsList2";
 
-const CuratedPostsList = ({overrideLimit, repeatedPostsPrecedence}: {
+const CuratedPostsList = ({overrideLimit, repeatedPostsPrecedence, useCuratedDate}: {
   overrideLimit?: number
   repeatedPostsPrecedence?: number
+  useCuratedDate?: boolean
 }) => {
   const currentCuratedPostCount = useCurrentCuratedPostCount();
   const now = useCurrentTime();
@@ -29,6 +30,7 @@ const CuratedPostsList = ({overrideLimit, repeatedPostsPrecedence}: {
         hideLastUnread={true}
         boxShadow={false}
         curatedIconLeft={true}
+        useCuratedDate={useCuratedDate}
         showFinalBottomBorder
         viewType="fromContext"
         repeatedPostsPrecedence={repeatedPostsPrecedence}

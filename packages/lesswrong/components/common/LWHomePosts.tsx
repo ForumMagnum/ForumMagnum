@@ -597,9 +597,10 @@ const LWHomePosts = ({ children, }: {
                 >
                   <HideRepeatedPostsProvider>
                     <WelcomePostItem repeatedPostsPrecedence={1} />
-                    <CuratedPostsList overrideLimit={2} repeatedPostsPrecedence={2}/>
+                    <CuratedPostsList overrideLimit={2} repeatedPostsPrecedence={2} useCuratedDate={false}/>
                     <PostsList2
                       terms={recentPostsTerms}
+                      useCuratedDate={false}
                       alwaysShowLoadMore
                       hideHiddenFrontPagePosts
                       repeatedPostsPrecedence={3}
@@ -620,13 +621,14 @@ const LWHomePosts = ({ children, }: {
                       fixed: 'forum-classic', 
                       configurable: 'recombee-lesswrong-custom'
                     }
-                  }} 
+                  }}
+                  useCuratedDate={false}
                 />
               </AnalyticsContext>}
 
               {/* JUST RECOMMENDATIONS */}
               {selectedTab === 'recombee-lesswrong-custom' && <AnalyticsContext feedType={selectedTab}>
-                <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} />
+                <RecombeePostsList algorithm={'recombee-lesswrong-custom'} settings={scenarioConfig} useCuratedDate={false} />
               </AnalyticsContext>}
 
               {/* BOOKMARKS */}
@@ -680,6 +682,7 @@ const LWHomePosts = ({ children, }: {
               {(selectedTab === 'forum-chronological') && <AnalyticsContext feedType={selectedTab}>
                 <PostsList2 
                   terms={{...recentPostsTerms, view: "new"}} 
+                  useCuratedDate={false}
                   alwaysShowLoadMore 
                   hideHiddenFrontPagePosts
                 >

@@ -112,10 +112,11 @@ const getLoadMoreSettings = (resolverName: RecombeeResolver, results: getRecombe
   }
 }
 
-const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
+const RecombeePostsListInner = ({ algorithm, settings, limit = 15, useCuratedDate }: {
   algorithm: string,
   settings: RecombeeConfiguration,
   limit?: number,
+  useCuratedDate?: boolean,
 }) => {
   const [loadMoreCount, setLoadMoreCount] = useState(1);
   const currentUser = useCurrentUser();
@@ -196,6 +197,7 @@ const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
           post={post} 
           recombeeRecommId={recommId ?? undefined} 
           curatedIconLeft={curated ?? undefined} 
+          useCuratedDate={useCuratedDate}
           emphasizeIfNew={true}
           terms={stickied ? stickiedPostTerms : undefined}
         />
@@ -231,16 +233,18 @@ const RecombeePostsListInner = ({ algorithm, settings, limit = 15 }: {
   </div>;
 }
 
-const RecombeePostsListWrapper = ({ algorithm, settings, limit = 15 }: {
+const RecombeePostsListWrapper = ({ algorithm, settings, limit = 15, useCuratedDate }: {
   algorithm: string,
   settings: RecombeeConfiguration,
   limit?: number,
+  useCuratedDate?: boolean,
 }) => {
   return <SuspenseWrapper name="RecombeePostsList" fallback={<PostsLoading placeholderCount={limit} loadMore/>}>
     <RecombeePostsListInner
       algorithm={algorithm}
       settings={settings}
       limit={limit}
+      useCuratedDate={useCuratedDate}
     />
   </SuspenseWrapper>
 }

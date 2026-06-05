@@ -59,6 +59,17 @@ const styles = defineStyles("PostsItemDate", (theme: ThemeType) => ({
   },
 }));
 
+export interface PostsItemDateFields {
+  postedAt: string
+  curatedDate?: string|null
+}
+
+export function getPostsItemDateToDisplay(post: PostsItemDateFields, useCuratedDate?: boolean): string {
+  return useCuratedDate
+    ? post.curatedDate || post.postedAt
+    : post.postedAt;
+}
+
 const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfNew}: {
   post: PostsBase,
   noStyles?: boolean,
@@ -107,9 +118,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
     </LWTooltip>
   }
 
-  const dateToDisplay = useCuratedDate
-    ? post.curatedDate || post.postedAt
-    : post.postedAt;
+  const dateToDisplay = getPostsItemDateToDisplay(post, useCuratedDate);
   const timeFromNow = formatRelative(new Date(dateToDisplay), now);
   const ago = includeAgo && timeFromNow !== "now"
     ? <span className={classes.xsHide}>&nbsp;ago</span>
