@@ -217,22 +217,34 @@ const TabNavigationEventTwoLines = registerComponent("TabNavigationEventTwoLines
   hocs: [withErrorBoundary]
 });
 
-export function getCityName(event: PostsBase|PostsList): string|null {
+interface GoogleLocationAddressComponent {
+  long_name?: string | null
+  types?: string[] | null
+}
+
+interface GoogleLocationForEventDisplay {
+  address_components?: GoogleLocationAddressComponent[] | null
+}
+
+interface EventLocationForDisplay {
+  googleLocation?: GoogleLocationForEventDisplay | null
+  location?: string | null
+}
+
+export function getCityName(event: EventLocationForDisplay): string|null {
   try {
     if (event.googleLocation) {
       const locationTypePreferenceOrdering = ["locality", "political", "country"];
       for (let locationType of locationTypePreferenceOrdering) {
         for (let addressComponent of event.googleLocation.address_components) {
-          if (addressComponent.types.indexOf(locationType) >= 0)
-            return addressComponent.long_name;
+          if (addressComponent.types?.indexOf(locationType) >= 0)
+            return addressComponent.long_name ?? null;
         }
       }
-      return null;
-    } else {
-      return "Online";
     }
+    return event.location || null;
   } catch {
-    return null;
+    return event.location || null;
   }
 }
 
