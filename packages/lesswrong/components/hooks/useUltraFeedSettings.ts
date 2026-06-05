@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { getBrowserLocalStorage } from '@/components/editor/localStorageHandlers';
+import { getBrowserLocalStorage, safeStorageGetItem, safeStorageSetItem } from '@/components/editor/localStorageHandlers';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
@@ -27,7 +27,7 @@ export const readStoredSettings = (deviceDefaultSettings: UltraFeedSettingsType)
   const ls = getBrowserLocalStorage();
   if (!ls) return null;
   try {
-    const raw = ls.getItem(ULTRA_FEED_SETTINGS_KEY);
+    const raw = safeStorageGetItem(ls, ULTRA_FEED_SETTINGS_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     // Deep merge user settings with defaults to handle missing fields
@@ -70,13 +70,7 @@ const chooseNewestSettings = (
 
 export const writeStoredSettings = (next: UltraFeedSettingsType): boolean => {
   const ls = getBrowserLocalStorage();
-  if (!ls) return false;
-  try {
-    ls.setItem(ULTRA_FEED_SETTINGS_KEY, JSON.stringify(next));
-    return true;
-  } catch {
-    return false;
-  }
+  return safeStorageSetItem(ls, ULTRA_FEED_SETTINGS_KEY, JSON.stringify(next));
 };
 
 export const useUltraFeedSettings = (): UseUltraFeedSettingsResult => {

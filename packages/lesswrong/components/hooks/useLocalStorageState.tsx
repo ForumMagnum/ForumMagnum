@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { getBrowserLocalStorage } from "../editor/localStorageHandlers";
+import { getBrowserLocalStorage, safeStorageGetItem, safeStorageRemoveItem, safeStorageSetItem } from "../editor/localStorageHandlers";
 import { capitalize } from "@/lib/vulcan-lib/utils";
 
 type LocalPromptExample<Suffix extends string> = {
@@ -41,16 +41,16 @@ export function useLocalStorageState<Suffix extends string>(key: Suffix, getStor
   const lsSetValue = useCallback((value: string) => {
     setValue(value);
     if (value === defaultValue) {
-      ls?.removeItem(storageKey);
+      safeStorageRemoveItem(ls, storageKey);
     } else {
-      ls?.setItem(storageKey, value);
+      safeStorageSetItem(ls, storageKey, value);
     }
   }, [ls, storageKey, defaultValue]);
 
   const capitalizedSuffix = capitalize(key);
 
   useEffect(() => {
-    const storedValue = ls?.getItem(storageKey);
+    const storedValue = safeStorageGetItem(ls, storageKey);
     if (storedValue) setValue(storedValue);
   }, [storageKey, ls]);
 
