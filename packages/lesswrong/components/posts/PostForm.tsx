@@ -325,14 +325,14 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     marginLeft: 2,
     cursor: "pointer",
     color: theme.palette.text.dim3,
-    opacity: 0.5,
+    opacity: 0.75,
     "&:hover": {
       opacity: 1,
     },
   },
   linkpostConfirmIcon: {
-    width: 14,
-    height: 14,
+    width: 16,
+    height: 16,
   },
   // Inline linkpost display (after URL is set) — matches live post page style
   linkpostDisplay: {
@@ -593,6 +593,28 @@ const PostForm = ({
   // changes go through the collaborative editing protocol, not the form mutation.
   const { isSaving, awaitPendingSaves } = useAutoSavePostFields(form, canEditMetadata ? initialData?._id : undefined, mutate);
 
+  const removeLinkpost = useCallback(() => {
+    form.setFieldValue("postCategory", "post");
+    form.setFieldValue("url", "");
+    setEditingLinkpostUrl(false);
+  }, [form]);
+
+  const saveLinkpostUrlDraft = useCallback((currentUrl?: string | null) => {
+    const trimmedUrl = linkpostUrlDraft.trim();
+    if (trimmedUrl) {
+      form.setFieldValue("url", trimmedUrl);
+      setEditingLinkpostUrl(false);
+      return;
+    }
+
+    if (currentUrl) {
+      setEditingLinkpostUrl(false);
+      return;
+    }
+
+    removeLinkpost();
+  }, [form, linkpostUrlDraft, removeLinkpost]);
+
   useEffect(() => {
     if (sidebarPanel) {
       setShowComments(false);
@@ -806,16 +828,21 @@ const PostForm = ({
                 if (isLinkpost && editingLinkpostUrl) {
                   // Show "Linkpost for" label + inline input
                   return (
-                    <span className={classes.linkpostInputWrapper}>
+                    <span
+                      className={classes.linkpostInputWrapper}
+                      onBlur={(e) => {
+                        const nextFocused = e.relatedTarget;
+                        if (nextFocused instanceof HTMLElement && e.currentTarget.contains(nextFocused)) {
+                          return;
+                        }
+                        saveLinkpostUrlDraft(url);
+                      }}
+                    >
                       <button
                         type="button"
                         className={classNames(classes.linkpostToggle, classes.linkpostToggleActive)}
                         title="Remove linkpost"
-                        onClick={() => {
-                          form.setFieldValue("postCategory", "post");
-                          form.setFieldValue("url", "");
-                          setEditingLinkpostUrl(false);
-                        }}
+                        onClick={removeLinkpost}
                       >
                         Linkpost for
                       </button>
@@ -828,16 +855,12 @@ const PostForm = ({
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
-                            if (linkpostUrlDraft.trim()) {
-                              form.setFieldValue("url", linkpostUrlDraft.trim());
-                              setEditingLinkpostUrl(false);
-                            }
+                            saveLinkpostUrlDraft(url);
                           } else if (e.key === "Escape") {
                             if (url) {
                               setEditingLinkpostUrl(false);
                             } else {
-                              form.setFieldValue("postCategory", "post");
-                              setEditingLinkpostUrl(false);
+                              removeLinkpost();
                             }
                           }
                         }}
@@ -846,13 +869,9 @@ const PostForm = ({
                       <button
                         type="button"
                         className={classes.linkpostConfirmButton}
-                        title="Confirm URL"
-                        onClick={() => {
-                          if (linkpostUrlDraft.trim()) {
-                            form.setFieldValue("url", linkpostUrlDraft.trim());
-                            setEditingLinkpostUrl(false);
-                          }
-                        }}
+                        title="Save linkpost URL"
+                        aria-label="Save linkpost URL"
+                        onClick={() => saveLinkpostUrlDraft(url)}
                       >
                         <ForumIcon icon="Check" className={classes.linkpostConfirmIcon} />
                       </button>
@@ -860,11 +879,8 @@ const PostForm = ({
                         type="button"
                         className={classes.linkpostConfirmButton}
                         title="Remove linkpost"
-                        onClick={() => {
-                          form.setFieldValue("postCategory", "post");
-                          form.setFieldValue("url", "");
-                          setEditingLinkpostUrl(false);
-                        }}
+                        aria-label="Remove linkpost"
+                        onClick={removeLinkpost}
                       >
                         <ForumIcon icon="Close" className={classes.linkpostConfirmIcon} />
                       </button>
@@ -883,9 +899,7 @@ const PostForm = ({
                     title={isLinkpost ? "Remove linkpost" : "Make this a linkpost"}
                     onClick={() => {
                       if (isLinkpost) {
-                        form.setFieldValue("postCategory", "post");
-                        form.setFieldValue("url", "");
-                        setEditingLinkpostUrl(false);
+                        removeLinkpost();
                       } else {
                         form.setFieldValue("postCategory", "linkpost");
                         setLinkpostUrlDraft("");
