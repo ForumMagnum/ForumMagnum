@@ -211,11 +211,13 @@ export async function getOrCreateCloudinaryImage({
   const uploadResponse = await upload(credentials);
   logger(`Result of uploading image: ${uploadResponse.secure_url}`);
 
+  const isGifUpload = uploadResponse.format?.toLowerCase() === "gif";
   // Serve all images with automatic quality and format transformations to save on bandwidth
   const autoQualityFormatUrl = cloudinary.v2.url(uploadResponse.public_id, {
     ...credentials,
     quality: "auto",
-    fetch_format: "auto",
+    fetch_format: isGifUpload ? "webp" : "auto",
+    ...(isGifUpload ? {flags: "animated"} : {}),
     secure: true,
   });
 

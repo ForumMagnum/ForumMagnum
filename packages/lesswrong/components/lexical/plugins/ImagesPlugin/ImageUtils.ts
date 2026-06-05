@@ -2,6 +2,8 @@ import { $getSelection, $isNodeSelection, getDOMSelectionFromTarget, isHTMLEleme
 
 import { $isImageNode, type ImageNode, type ImagePayload } from '@/components/lexical/nodes/ImageNode';
 
+const IMAGE_FILE_EXTENSION_REGEX = /\.(avif|gif|heic|heif|jpe?g|png|webp)$/i;
+
 export function $getImageNodeInSelection(): ImageNode | null {
   const selection = $getSelection();
   if (!$isNodeSelection(selection)) {
@@ -51,7 +53,20 @@ export function getDragSelection(event: DragEvent): Range | null | undefined {
 }
 
 export function isImageFile(payload: Blob): boolean {
-  return payload.type.startsWith('image/');
+  const mimeType = payload.type.toLowerCase();
+  if (mimeType && mimeType !== 'application/octet-stream') {
+    return mimeType.startsWith('image/');
+  }
+
+  return typeof File !== 'undefined' &&
+    payload instanceof File &&
+    IMAGE_FILE_EXTENSION_REGEX.test(payload.name);
+}
+
+export function getImageAltText(payload: Blob): string {
+  return typeof File !== 'undefined' && payload instanceof File && payload.name
+    ? payload.name
+    : 'Pasted image';
 }
 
 declare global {

@@ -9,6 +9,30 @@ interface CloudinaryUploadResult {
   height: number;
 }
 
+const ANIMATED_WEBP_TRANSFORMATION = 'f_webp,fl_animated';
+
+function isGifUpload(file: File | Blob): boolean {
+  const mimeType = file.type.toLowerCase();
+  if (mimeType && mimeType !== 'application/octet-stream') {
+    return mimeType === 'image/gif';
+  }
+
+  return typeof File !== 'undefined' &&
+    file instanceof File &&
+    /\.gif$/i.test(file.name);
+}
+
+export function getAnimatedWebpCloudinaryUrl(secureUrl: string): string {
+  const uploadPath = '/upload/';
+  const uploadPathIndex = secureUrl.indexOf(uploadPath);
+  if (uploadPathIndex === -1 || secureUrl.includes(`/${ANIMATED_WEBP_TRANSFORMATION}/`)) {
+    return secureUrl;
+  }
+
+  const uploadPathEnd = uploadPathIndex + uploadPath.length;
+  return `${secureUrl.slice(0, uploadPathEnd)}${ANIMATED_WEBP_TRANSFORMATION}/${secureUrl.slice(uploadPathEnd)}`;
+}
+
 export class ImageUploadError extends Error {
   constructor(message: string, public readonly isUserFacing: boolean = true) {
     super(message);
@@ -81,5 +105,13 @@ export async function uploadToCloudinary(
     throw new ImageUploadError('Failed to upload image. Please try again.');
   }
 
-  return response.json();
+  const result: CloudinaryUploadResult = await response.json();
+  if (isGifUpload(file)) {
+    return {
+      ...result,
+      secure_url: getAnimatedWebpCloudinaryUrl(result.secure_url),
+    };
+  }
+
+  return result;
 }

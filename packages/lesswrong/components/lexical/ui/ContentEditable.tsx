@@ -117,8 +117,8 @@ export default function LexicalContentEditable({
           }
         };
         const handlePaste = (event: ClipboardEvent) => {
-          const [, files, hasTextContent] = eventFiles(event);
-          if (isSuggestionModeRef.current && files.length > 0 && !hasTextContent) {
+          const [, files] = eventFiles(event);
+          if (isSuggestionModeRef.current && files.length > 0) {
             event.preventDefault();
             event.stopImmediatePropagation();
             editor.dispatchCommand(PASTE_COMMAND, event);

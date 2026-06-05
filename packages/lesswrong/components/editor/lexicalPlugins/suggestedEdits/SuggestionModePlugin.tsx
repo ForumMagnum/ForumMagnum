@@ -93,13 +93,9 @@ import { $setElementAlignmentAsSuggestion } from './setElementAlignmentAsSuggest
 import { $insertListAsSuggestion } from './insertListAsSuggestion'
 import { eventFiles } from '@lexical/rich-text'
 import { $createImageNode } from '@/components/lexical/nodes/ImageNode'
-import { isImageFile } from '@/components/lexical/plugins/ImagesPlugin/ImageUtils'
+import { getImageAltText, isImageFile } from '@/components/lexical/plugins/ImagesPlugin/ImageUtils'
 import { ImageUploadError, uploadToCloudinary } from '@/components/lexical/utils/cloudinaryUpload'
 import { useMessages } from '@/components/common/withMessages'
-
-function getImageAltText(payload: Blob): string {
-  return payload instanceof File ? payload.name : ''
-}
 
 function insertImageFileAsSuggestion(
   editor: LexicalEditor,
@@ -107,7 +103,7 @@ function insertImageFileAsSuggestion(
   onSuggestionCreation: (id: string) => void,
   logger: ConsoleLogger,
 ): boolean {
-  if (!isImageFile(payload) || !(payload instanceof File)) {
+  if (!isImageFile(payload)) {
     return false
   }
   uploadToCloudinary(payload)
@@ -696,8 +692,8 @@ export function SuggestionModePlugin({
       editor.registerCommand(
         PASTE_COMMAND,
         (event) => {
-          const [, files, hasTextContent] = eventFiles(event)
-          if (files.length > 0 && !hasTextContent) {
+          const [, files] = eventFiles(event)
+          if (files.length > 0) {
             const imageFiles = files.filter(isImageFile)
             if (imageFiles.length === 0) {
               return false

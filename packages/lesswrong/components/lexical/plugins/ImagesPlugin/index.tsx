@@ -57,7 +57,7 @@ import {
   ImageNode,
   ImagePayload,
 } from '../../nodes/ImageNode';
-import { $canDropImage, $getImageNodeInSelection, getDragImageData, getDragSelection, isImageFile } from './ImageUtils';
+import { $canDropImage, $getImageNodeInSelection, getDragImageData, getDragSelection, getImageAltText, isImageFile } from './ImageUtils';
 import { preloadImage } from '../../nodes/imageCache';
 
 import {
@@ -378,6 +378,42 @@ function flashUploadError(
   flash({ messageString: errorMessage, type: 'error' });
 }
 
+function getImageFilesFromClipboard(clipboardData: DataTransfer): File[] {
+  const imageFiles: File[] = [];
+  const seenFileKeys = new Set<string>();
+
+  const addFile = (file: File) => {
+    if (!isImageFile(file)) {
+      return;
+    }
+
+    const fileKey = `${file.name}:${file.type}:${file.size}:${file.lastModified}`;
+    if (seenFileKeys.has(fileKey)) {
+      return;
+    }
+
+    seenFileKeys.add(fileKey);
+    imageFiles.push(file);
+  };
+
+  for (const file of Array.from(clipboardData.files)) {
+    addFile(file);
+  }
+
+  for (const item of Array.from(clipboardData.items)) {
+    if (item.kind !== 'file') {
+      continue;
+    }
+
+    const file = item.getAsFile();
+    if (file) {
+      addFile(file);
+    }
+  }
+
+  return imageFiles;
+}
+
 export default function ImagesPlugin({
   captionsEnabled,
 }: {
@@ -419,13 +455,13 @@ export default function ImagesPlugin({
       editor.registerCommand<File | Blob>(
         INSERT_FILE_COMMAND,
         (payload) => {
-          if (!isImageFile(payload) || !(payload instanceof File)) {
+          if (!isImageFile(payload)) {
             return false;
           }
           uploadToCloudinary(payload)
             .then((result) => {
               editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-                altText: payload.name,
+                altText: getImageAltText(payload),
                 src: result.secure_url,
                 width: result.width,
                 height: result.height,
@@ -445,8 +481,7 @@ export default function ImagesPlugin({
           if (!clipboardData) {
             return false;
           }
-          const files = Array.from(clipboardData.files);
-          const imageFiles = files.filter(isImageFile);
+          const imageFiles = getImageFilesFromClipboard(clipboardData);
           if (imageFiles.length === 0) {
             return false;
           }
@@ -455,7 +490,7 @@ export default function ImagesPlugin({
             uploadToCloudinary(file)
               .then((result) => {
                 editor.dispatchCommand(INSERT_IMAGE_COMMAND, {
-                  altText: file.name || 'Pasted image',
+                  altText: getImageAltText(file),
                   src: result.secure_url,
                   width: result.width,
                   height: result.height,
