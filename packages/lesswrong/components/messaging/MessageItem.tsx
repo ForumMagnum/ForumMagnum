@@ -22,6 +22,7 @@ import { SideItemsSidebar } from '../contents/SideItems';
 import { commentBodyStyles, postBodyStyles } from '@/themes/stylePiping';
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { invertHexColor, invertIfDarkMode } from '@/themes/colorUtil';
 
 const styles = defineStyles('MessageItem', (theme: ThemeType) => ({
   hoverWrapper: {
@@ -75,13 +76,10 @@ const styles = defineStyles('MessageItem', (theme: ThemeType) => ({
   },
   highlighted: {},
   backgroundIsCurrent: {
-    backgroundColor: theme.palette.grey[700],
-    color: theme.palette.inverseGreyAlpha(.87),
-    '& *, & $messageBody *, & $messageBody li::marker': {
-      color: theme.palette.inverseGreyAlpha(.87),
-    },
+    backgroundColor: theme.dark ? invertHexColor('#616161') : '#616161',
+    colorScheme: theme.dark ? "light" : "dark",
     "&$highlighted": {
-      backgroundColor: theme.palette.grey[500],
+      backgroundColor: theme.dark ? invertHexColor('#9e9e9e') : '#9e9e9e',
     },
     marginLeft:12,
   },
@@ -89,7 +87,7 @@ const styles = defineStyles('MessageItem', (theme: ThemeType) => ({
     marginBottom: 4,
   },
   whiteMeta: {
-    color: theme.palette.inverseGreyAlpha(.93),
+    color: theme.palette.greyAlpha(.93),
   },
   messageBody: {
     ...postBodyStyles(theme),

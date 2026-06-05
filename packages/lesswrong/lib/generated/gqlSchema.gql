@@ -431,6 +431,7 @@ type RevisionsKarmaChange {
 type ReactionChange {
   reactionType: String!
   userId: String
+  quote: String
 }
 
 type KarmaChangesSimple {
@@ -649,7 +650,7 @@ extend type Query {
   LastCuratedDate: LastCuratedDateResult!
   HomepageCommunityEvents(limit: Int!): HomepageCommunityEventMarkersResult!
   HomepageCommunityEventPosts(eventType: String!): HomepageCommunityEventPostsResult!
-  HocuspocusAuth(postId: String!, linkSharingKey: String): HocuspocusAuth
+  HocuspocusAuth(postId: String, collectionName: String, documentId: String, linkSharingKey: String): HocuspocusAuth
 }
 
 extend type Mutation {
@@ -941,6 +942,51 @@ extend type Mutation {
   markConversationRead(conversationId: String!): Boolean!
   sendEventTriggeredDM(eventType: String!): Boolean!
   initiateConversation(participantIds: [String!]!, af: Boolean, moderator: Boolean): Conversation
+}
+
+enum ResearchEntrypointKind {
+  document
+  chat
+}
+
+input FireResearchConversationInput {
+  conversationId: String!
+  projectId: String!
+  kind: ResearchEntrypointKind!
+  activeDocumentId: String!
+  promptHtml: String!
+  baseEnvironmentId: String
+  runtime: String
+}
+
+type ResearchConversationOutput {
+  conversationId: String!
+  data: ResearchConversation
+}
+
+type DevPreviewUrlOutput {
+  url: String!
+}
+
+type SetClaudeCodeOAuthTokenOutput {
+  success: Boolean!
+}
+
+type SaveResearchEnvironmentOutput {
+  data: ResearchEnvironment
+}
+
+extend type Mutation {
+  fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
+  continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
+  cancelResearchConversation(conversationId: String!): ResearchConversationOutput
+  mintDevPreviewUrl(conversationId: String!): DevPreviewUrlOutput
+  setClaudeCodeOAuthToken(token: String!): SetClaudeCodeOAuthTokenOutput
+  saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput
+}
+
+extend type Query {
+  researchConversationTranscript(conversationId: String!, since: Int, limit: Int): [ResearchConversationEvent!]!
 }
 
 enum DocumentDeletionNetChange {
@@ -6029,6 +6075,228 @@ extend type Query {
   reports(input: MultiReportInput @deprecated(reason: "Use the selector field instead"), selector: ReportSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiReportOutput
 }
 
+type ResearchConversationEvent {
+  _id: String!
+  createdAt: Date!
+  userId: String
+  projectId: String
+  conversationId: String
+  seq: Int
+  claudeMessageUuid: String
+  kind: String
+  payload: JSON
+}
+
+input SingleResearchConversationEventInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleResearchConversationEventOutput {
+  result: ResearchConversationEvent
+}
+
+input ResearchConversationEventSelector {
+  default: EmptyViewInput
+}
+
+input MultiResearchConversationEventInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiResearchConversationEventOutput {
+  results: [ResearchConversationEvent!]!
+  totalCount: Int
+}
+
+extend type Query {
+  researchConversationEvent(selector: SelectorInput): SingleResearchConversationEventOutput
+  researchConversationEvents(selector: ResearchConversationEventSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchConversationEventOutput
+}
+
+type ResearchConversation {
+  _id: String!
+  createdAt: Date!
+  userId: String
+  projectId: String
+  claudeSessionId: String
+  title: String
+  entrypointKind: ResearchEntrypointKind
+  entrypointDocumentId: String
+  baseEnvironmentId: String
+  runtime: String
+  lastActivityAt: Date
+}
+
+input SingleResearchConversationInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleResearchConversationOutput {
+  result: ResearchConversation
+}
+
+input ResearchConversationsByProjectInput {
+  projectId: String
+}
+
+input ResearchConversationSelector {
+  default: EmptyViewInput
+  byProject: ResearchConversationsByProjectInput
+}
+
+input MultiResearchConversationInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiResearchConversationOutput {
+  results: [ResearchConversation!]!
+  totalCount: Int
+}
+
+extend type Query {
+  researchConversation(selector: SelectorInput): SingleResearchConversationOutput
+  researchConversations(selector: ResearchConversationSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchConversationOutput
+}
+
+type ResearchDocument {
+  _id: String!
+  createdAt: Date!
+  userId: String
+  projectId: String
+  title: String
+  contents(version: String): Revision
+  contents_latest: String
+  revisions(limit: Int = 5): [Revision!]
+  version: String
+}
+
+input SingleResearchDocumentInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleResearchDocumentOutput {
+  result: ResearchDocument
+}
+
+input ResearchDocumentsByProjectInput {
+  projectId: String
+}
+
+input ResearchDocumentSelector {
+  default: EmptyViewInput
+  byProject: ResearchDocumentsByProjectInput
+}
+
+input MultiResearchDocumentInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiResearchDocumentOutput {
+  results: [ResearchDocument!]!
+  totalCount: Int
+}
+
+extend type Query {
+  researchDocument(selector: SelectorInput): SingleResearchDocumentOutput
+  researchDocuments(selector: ResearchDocumentSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchDocumentOutput
+}
+
+type ResearchEnvironment {
+  _id: String!
+  createdAt: Date!
+  userId: String
+  projectId: String
+  label: String
+  vercelSnapshotId: String
+  sourceEventId: String
+}
+
+input SingleResearchEnvironmentInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleResearchEnvironmentOutput {
+  result: ResearchEnvironment
+}
+
+input ResearchEnvironmentsByProjectInput {
+  projectId: String
+}
+
+input ResearchEnvironmentSelector {
+  default: EmptyViewInput
+  byProject: ResearchEnvironmentsByProjectInput
+}
+
+input MultiResearchEnvironmentInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiResearchEnvironmentOutput {
+  results: [ResearchEnvironment!]!
+  totalCount: Int
+}
+
+extend type Query {
+  researchEnvironment(selector: SelectorInput): SingleResearchEnvironmentOutput
+  researchEnvironments(selector: ResearchEnvironmentSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchEnvironmentOutput
+}
+
+type ResearchProject {
+  _id: String!
+  createdAt: Date!
+  userId: String
+  title: String
+  description: String
+  settings: JSON
+}
+
+input SingleResearchProjectInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleResearchProjectOutput {
+  result: ResearchProject
+}
+
+input ResearchProjectSelector {
+  default: EmptyViewInput
+}
+
+input MultiResearchProjectInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiResearchProjectOutput {
+  results: [ResearchProject!]!
+  totalCount: Int
+}
+
+extend type Query {
+  researchProject(selector: SelectorInput): SingleResearchProjectOutput
+  researchProjects(selector: ResearchProjectSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiResearchProjectOutput
+}
+
 type ReviewVote {
   _id: String!
   schemaVersion: Float!
@@ -7280,6 +7548,7 @@ type User {
   currentFrontpageFilter: String
   frontpageSelectedTab: String
   frontpageFilterSettings: JSON
+  ultraFeedSettings: JSON
   hideFrontpageFilterSettingsDesktop: Boolean
   allPostsTimeframe: String
   allPostsFilter: String
@@ -7422,6 +7691,7 @@ type User {
   signUpReCaptchaRating: Float
   noExpandUnreadCommentsReview: Boolean!
   postCount: Float!
+  coauthoredPostCount: Float!
   maxPostCount: Float!
   posts(limit: Int = 5): [Post!]
   commentCount: Float!
@@ -7487,6 +7757,7 @@ type User {
   rejectedContentCount: Int
   userRateLimits: [UserRateLimit!]
   claudeLinkedAt: Date
+  hasClaudeCodeOAuthToken: Boolean
 }
 
 enum ReactPaletteStyle {
@@ -8743,6 +9014,95 @@ extend type Mutation {
   updateReport(selector: SelectorInput!, data: UpdateReportDataInput!): ReportOutput
 }
 
+input UpdateResearchConversationDataInput {
+  userId: String
+  projectId: String
+  claudeSessionId: String
+  title: String
+  entrypointKind: ResearchEntrypointKind
+  entrypointDocumentId: String
+  baseEnvironmentId: String
+  runtime: String
+  lastActivityAt: Date
+}
+
+input UpdateResearchConversationInput {
+  selector: SelectorInput!
+  data: UpdateResearchConversationDataInput!
+}
+
+type ResearchConversationOutput {
+  data: ResearchConversation
+}
+
+extend type Mutation {
+  updateResearchConversation(selector: SelectorInput!, data: UpdateResearchConversationDataInput!): ResearchConversationOutput
+}
+
+input CreateResearchDocumentDataInput {
+  userId: String
+  projectId: String!
+  title: String
+  contents: CreateRevisionDataInput
+}
+
+input CreateResearchDocumentInput {
+  data: CreateResearchDocumentDataInput!
+}
+
+input UpdateResearchDocumentDataInput {
+  userId: String
+  projectId: String
+  title: String
+  contents: CreateRevisionDataInput
+}
+
+input UpdateResearchDocumentInput {
+  selector: SelectorInput!
+  data: UpdateResearchDocumentDataInput!
+}
+
+type ResearchDocumentOutput {
+  data: ResearchDocument
+}
+
+extend type Mutation {
+  createResearchDocument(data: CreateResearchDocumentDataInput!): ResearchDocumentOutput
+  updateResearchDocument(selector: SelectorInput!, data: UpdateResearchDocumentDataInput!): ResearchDocumentOutput
+}
+
+input CreateResearchProjectDataInput {
+  userId: String
+  title: String!
+  description: String
+  settings: JSON
+}
+
+input CreateResearchProjectInput {
+  data: CreateResearchProjectDataInput!
+}
+
+input UpdateResearchProjectDataInput {
+  userId: String
+  title: String
+  description: String
+  settings: JSON
+}
+
+input UpdateResearchProjectInput {
+  selector: SelectorInput!
+  data: UpdateResearchProjectDataInput!
+}
+
+type ResearchProjectOutput {
+  data: ResearchProject
+}
+
+extend type Mutation {
+  createResearchProject(data: CreateResearchProjectDataInput!): ResearchProjectOutput
+  updateResearchProject(selector: SelectorInput!, data: UpdateResearchProjectDataInput!): ResearchProjectOutput
+}
+
 input ContentTypeInput {
   type: String!
   data: ContentTypeData!
@@ -9262,6 +9622,7 @@ input CreateUserDataInput {
   currentFrontpageFilter: String
   frontpageSelectedTab: String
   frontpageFilterSettings: JSON
+  ultraFeedSettings: JSON
   hideFrontpageFilterSettingsDesktop: Boolean
   allPostsTimeframe: String
   allPostsFilter: String
@@ -9429,6 +9790,7 @@ input UpdateUserDataInput {
   currentFrontpageFilter: String
   frontpageSelectedTab: String
   frontpageFilterSettings: JSON
+  ultraFeedSettings: JSON
   hideFrontpageFilterSettingsDesktop: Boolean
   allPostsTimeframe: String
   allPostsFilter: String

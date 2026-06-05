@@ -36,6 +36,7 @@ export const UsersMinimumInfo = gql(`
 export const UsersProfile = gql(`
   fragment UsersProfile on User {
     ...UsersMinimumInfo
+    coauthoredPostCount
     fullName
     previousDisplayName
     oldSlugs
@@ -142,6 +143,7 @@ export const UsersCurrent = gql(`
     currentFrontpageFilter
     frontpageSelectedTab
     frontpageFilterSettings
+    ultraFeedSettings
     hideFrontpageFilterSettingsDesktop
     allPostsTimeframe
     allPostsSorting
@@ -273,6 +275,7 @@ export const UserKarmaChanges = gql(`
         addedReacts {
           reactionType
           userId
+          quote
         }
         collectionName
       }
@@ -290,6 +293,7 @@ export const UserKarmaChanges = gql(`
         addedReacts {
           reactionType
           userId
+          quote
         }
         collectionName
       }
@@ -302,6 +306,7 @@ export const UserKarmaChanges = gql(`
         addedReacts {
           reactionType
           userId
+          quote
         }
         collectionName
       }

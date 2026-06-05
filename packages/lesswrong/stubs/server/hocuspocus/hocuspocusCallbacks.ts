@@ -1,6 +1,9 @@
 export function saveOrUpdateLexicalRevision() {
   throw new Error('Not implemented on the client');
 }
-export function documentNameToPostId() {
+export function parseHocuspocusDocumentName() {
+  throw new Error('Not implemented on the client');
+}
+export function buildHocuspocusDocumentName() {
   throw new Error('Not implemented on the client');
 }

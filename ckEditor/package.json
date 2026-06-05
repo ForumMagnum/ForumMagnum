@@ -73,7 +73,7 @@
     "eslint": "^8.41.0",
     "eslint-config-ckeditor5": "^9.0.0",
     "lint-staged": "^10.0.7",
-    "postcss": "^8.4.38",
+    "postcss": "^8.5.10",
     "postcss-loader": "^8.1.1",
     "raw-loader": "^4.0.0",
     "style-loader": "^4.0.0",

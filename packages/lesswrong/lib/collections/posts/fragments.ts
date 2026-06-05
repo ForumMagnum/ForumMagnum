@@ -261,6 +261,7 @@ export const PostsAuthors = gql(`
       # Author moderation info
       moderationStyle
       bannedUserIds
+      bannedPersonalUserIds
       moderatorAssistance
       groups
       banned
@@ -350,6 +351,27 @@ export const SunshineCurationPostsList = gql(`
     ...PostsList
     curationNotices {
       ...CurationNoticesFragment
+    }
+  }
+`)
+
+export const SunshineCurationPostsListItem = gql(`
+  fragment SunshineCurationPostsListItem on Post {
+    _id
+    title
+    postedAt
+    baseScore
+    suggestForCuratedUsernames
+    user {
+      _id
+      displayName
+    }
+    curationNotices {
+      _id
+      user {
+        _id
+        displayName
+      }
     }
   }
 `)

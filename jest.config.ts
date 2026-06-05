@@ -256,6 +256,7 @@ export default () => createJestConfig({
     "@csstools/*",
     "parse5",
     "@truto/turndown-plugin-gfm",
+    "@workflow/serde",
   ];
   
   config.transformIgnorePatterns = [

@@ -3,6 +3,7 @@ import { Logger } from '@hocuspocus/extension-logger';
 import { PostgresExtension } from './extensions/postgres';
 import { RevisionSyncExtension } from './extensions/revisionSync';
 import { verifyAuthToken } from './auth';
+import { documentNamePrefixForCollection } from './documentNames';
 import * as Y from 'yjs';
 import crypto from 'crypto';
 
@@ -85,26 +86,24 @@ const server = new Server({
     if (!token) {
       throw new Error('Authentication required');
     }
-    
+
     const payload = await verifyAuthToken(token);
 
-    const { userId, displayName, accessLevel, postId } = payload;
+    const { userId, displayName, accessLevel, collectionName, documentId } = payload;
     if (e2eDebug) {
       // eslint-disable-next-line no-console
-      console.error('[e2e:hocuspocus] authenticate', { documentName, postId, userId, accessLevel });
+      console.error('[e2e:hocuspocus] authenticate', { documentName, collectionName, documentId, userId, accessLevel });
     }
-    
+
     if (accessLevel === 'none') {
       throw new Error('Access denied');
     }
-    
-    // Validate that the document belongs to the post the token authorizes.
-    // Document names are "post-{postId}" or "post-{postId}/{subDocId}" for nested documents.
-    const expectedPrefix = `post-${postId}`;
-    if (documentName !== expectedPrefix && !documentName.startsWith(`${expectedPrefix}/`)) {
-      throw new Error(`Access denied: token for post ${postId} cannot access document ${documentName}`);
+
+    const expected = `${documentNamePrefixForCollection(collectionName)}${documentId}`;
+    if (documentName !== expected && !documentName.startsWith(`${expected}/`)) {
+      throw new Error(`Access denied: token for ${collectionName} ${documentId} cannot access document ${documentName}`);
     }
-    
+
     return {
       user: {
         id: userId,

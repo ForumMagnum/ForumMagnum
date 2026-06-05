@@ -13,6 +13,13 @@ import { formatError } from 'apollo-errors';
 import { crosspostOptionsHandler, setCorsHeaders, setSandboxedIframeCorsHeaders } from "@/server/crossposting/cors";
 import { NOISY_GRAPHQL_ERROR_MESSAGES, shouldCaptureGraphQLErrorInSentry } from '@/server/utils/graphqlErrorUtil';
 
+// The research conversation mutations (`fireResearchConversation` /
+// `continueResearchConversation`) provision or resume a persistent sandbox
+// synchronously before returning, which can take ~5–30s. Raise the route's
+// serverless duration ceiling above Vercel's 60s default so those mutations
+// are not cut off mid-provision.
+export const maxDuration = 120;
+
 class ApolloServerLogging implements ApolloServerPlugin<ResolverContext> {
   async requestDidStart({ request, contextValue: context }: GraphQLRequestContext<ResolverContext>) {
     const { operationName = 'unknownGqlOperation', query, variables } = request;

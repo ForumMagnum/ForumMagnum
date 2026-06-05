@@ -35,7 +35,7 @@ import {useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState} from
 import {Doc} from 'yjs';
 import * as Y from 'yjs';
 import {$generateHtmlFromNodes, $generateNodesFromDOM} from '@lexical/html';
-import {$getRoot, $insertNodes} from 'lexical';
+import {$getRoot, $insertNodes, EditorState} from 'lexical';
 import { CodeBlockPlugin } from '../editor/lexicalPlugins/codeBlock/CodeBlockPlugin';
 import TablesPlugin from '../editor/lexicalPlugins/tables/TablesPlugin';
 
@@ -92,7 +92,7 @@ import TableCellResizer from './plugins/TableCellResizer';
 import TableHoverActionsV2Plugin from './plugins/TableHoverActionsV2Plugin';
 import TableOfContentsPlugin from './plugins/TableOfContentsPlugin';
 import TableScrollShadowPlugin from './plugins/TableScrollShadowPlugin';
-import ToolbarPlugin from './plugins/ToolbarPlugin';
+import ToolbarStatePlugin from './plugins/ToolbarPlugin/ToolbarStatePlugin';
 // import TreeViewPlugin from './plugins/TreeViewPlugin';
 // import TwitterPlugin from './embeds/TwitterEmbed/TwitterPlugin';
 import {VersionsPlugin} from './plugins/VersionsPlugin';
@@ -124,6 +124,7 @@ import { EditorUserMode, getDefaultEditorUserMode, type EditorUserModeType } fro
 import { SET_USER_MODE_COMMAND } from '../editor/lexicalPlugins/suggestedEdits/Commands';
 import BlockCursorNavigationPlugin from '../editor/lexicalPlugins/blockCursorNavigation/BlockCursorNavigationPlugin';
 import { SideCommentsPlugin } from '../editor/lexicalPlugins/sideComments/SideCommentsPlugin';
+import { useLexicalEditorContext } from '../editor/LexicalEditorContext';
 import HorizontalRuleEnterPlugin from '../editor/lexicalPlugins/horizontalRuleEnter';
 import {
   preprocessHtmlForImport,
@@ -135,6 +136,10 @@ import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/coll
 import { useIsAboveBreakpoint } from '../hooks/useScreenWidth';
 import { HorizontalRulePlugin } from './plugins/LexicalHorizontalRulePlugin';
 import { EditorUserModeContext } from '@/components/common/sharedContexts';
+import { QUERY_INPUT_DOM_CLASS } from '@/components/research/lexical/QueryInputNode';
+import { QUERY_INPUT_HEADER_DOM_CLASS } from '@/components/research/lexical/QueryInputHeaderNode';
+import { QUERY_INPUT_CONTENT_DOM_CLASS } from '@/components/research/lexical/QueryInputContentNode';
+import { useDebouncedCallback } from '../hooks/useDebouncedCallback';
 
 const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
   '@keyframes sentinelCursorBlink': {
@@ -369,6 +374,33 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     '& .llm-content-block-content': {
       outline: 'none',
     },
+    [`& .${QUERY_INPUT_DOM_CLASS}`]: {
+      position: 'relative',
+      margin: '12px 0',
+      padding: '8px 12px',
+      paddingRight: 240,
+      border: `1px solid ${theme.palette.grey[300]}`,
+      borderRadius: 6,
+      background: theme.palette.grey[50],
+      '& > p:first-of-type': {
+        marginTop: 0,
+      },
+      '& > p:last-of-type': {
+        marginBottom: 0,
+      },
+    },
+    [`& .${QUERY_INPUT_HEADER_DOM_CLASS}`]: {
+      position: 'absolute',
+      top: 4,
+      right: 8,
+      zIndex: 1,
+    },
+    [`& .${QUERY_INPUT_CONTENT_DOM_CLASS}`]: {
+      outline: 0,
+    },
+    [`& .${QUERY_INPUT_CONTENT_DOM_CLASS} p`]: {
+      margin: 0,
+    },
     '& ins': {
       background: theme.palette.background.diffInserted,
       textDecoration: 'none',
@@ -553,6 +585,15 @@ export interface EditorProps {
   placeholder?: string;
   /** Render editor in compact comment mode */
   commentEditor?: boolean;
+  /** Hide the default slash-command component picker when a host mounts its own menu. */
+  disableComponentPicker?: boolean;
+  /**
+   * When true, omit the standard `MentionsPlugin` (user/post/tag mentions).
+   * Research surfaces mount their own resource-mention typeahead and would
+   * otherwise show two competing menus on `@`.
+   */
+  disableMentions?: boolean;
+  children?: React.ReactNode;
 }
 
 /**
@@ -580,6 +621,9 @@ export default function Editor({
   onGetDataWithDiscardedSuggestions,
   placeholder: placeholderOverride,
   commentEditor = false,
+  disableComponentPicker = false,
+  disableMentions = false,
+  children,
 }: EditorProps): JSX.Element {
   const classes = useStyles(styles);
   const {historyState} = useSharedHistoryContext();
@@ -703,6 +747,7 @@ export default function Editor({
   // Enable collaboration if config is provided OR if the setting is enabled
   const isCollab = isCollabSetting || !!collaborationConfig;
   const isCommentEditor = commentEditor;
+  const { isPostEditor } = useLexicalEditorContext();
   const hasInitialHtml = Boolean(initialHtml && initialHtml.trim().length > 0);
   const isEditable = useLexicalEditable();
   const placeholder = placeholderOverride ?? (isCollab
@@ -718,6 +763,7 @@ export default function Editor({
   const cursorsContainerRef = useRef<HTMLDivElement>(null);
   const canEdit = !accessLevel || accessLevelCan(accessLevel, "edit");
   const canComment = !accessLevel || accessLevelCan(accessLevel, "comment");
+  const showPostCommentFeatures = isPostEditor && !isCommentEditor;
 
   // Use shared context for user mode if available (provided by PostForm),
   // otherwise fall back to local state (e.g. comment editors).
@@ -786,16 +832,31 @@ export default function Editor({
     });
   }, [editor, hasInitialHtml, initialHtml, isCollab]);
 
+  const onChange = useCallback((editorState: EditorState) => {
+    editorState.read(() => {
+      const html = $generateHtmlFromNodes(editor, null);
+      const restoredHtml = restoreInternalIds(
+        html,
+        internalIdsRef.current
+      );
+      onChangeHtml?.(restoredHtml);
+    });
+  }, [editor, onChangeHtml]);
+
+  const debouncedOnChange = useDebouncedCallback(onChange, {
+    rateLimitMs: 500,
+    callOnLeadingEdge: false,
+    onUnmount: "cancelPending",
+    allowExplicitCallAfterUnmount: false,
+  });
+
   return (
     <>
       {isRichText && (
-        <ToolbarPlugin
+        <ToolbarStatePlugin
           editor={editor}
           activeEditor={activeEditor}
           setActiveEditor={setActiveEditor}
-          setIsLinkEditMode={setIsLinkEditMode}
-          isSuggestionMode={isSuggestionMode}
-          isVisible={false}
         />
       )}
       {isRichText && (
@@ -819,7 +880,7 @@ export default function Editor({
         <CodeBlockPlugin editor={editor} />
         {selectionAlwaysOnDisplay && <SelectionAlwaysOnDisplay />}
         <ClearEditorPlugin />
-        <ComponentPickerPlugin />
+        {!disableComponentPicker && <ComponentPickerPlugin />}
         {/* <EmojiPickerPlugin /> */}
         <AutoEmbedPlugin />
         <HashtagPlugin />
@@ -828,12 +889,12 @@ export default function Editor({
         <AutoLinkPlugin />
         <DateTimePlugin />
         <MarkNodesProvider>
-          {collaboratorIdentity && (
+          {collaboratorIdentity && showPostCommentFeatures && (
             <CollaboratorIdentityProvider value={collaboratorIdentity}>
               <CommentStoreProvider
                 providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
               >
-                {!isCommentEditor && !(isCollab && useCollabV2) && (
+                {!(isCollab && useCollabV2) && (
                   <>
                     <CommentPlugin />
                     <SideCommentsPlugin />
@@ -902,16 +963,7 @@ export default function Editor({
             />
             {onChangeHtml && (
               <OnChangePlugin
-                onChange={(editorState) => {
-                  editorState.read(() => {
-                    const html = $generateHtmlFromNodes(editor, null);
-                    const restoredHtml = restoreInternalIds(
-                      html,
-                      internalIdsRef.current
-                    );
-                    onChangeHtml(restoredHtml);
-                  });
-                }}
+                onChange={isCollab ? debouncedOnChange : onChange}
               />
             )}
             <MarkdownShortcutPlugin />
@@ -959,7 +1011,7 @@ export default function Editor({
             <LayoutPlugin />
             <FootnotesPlugin />
             <FootnoteSidenotesPlugin contentStyleType={isCommentEditor ? 'comment' : 'postHighlight'} />
-            <MentionsPlugin />
+            {!disableMentions && <MentionsPlugin />}
             <SpoilersPlugin isSuggestionMode={isSuggestionMode} />
             <LLMContentBlockPlugin isSuggestionMode={isSuggestionMode} />
             <ClaimsPlugin />
@@ -967,6 +1019,7 @@ export default function Editor({
             <IframeWidgetPlugin anchorElem={floatingAnchorElem ?? undefined} isSuggestionMode={isSuggestionMode} />
             <RemoveRedirectPlugin />
             <LLMAutocompletePlugin />
+            {children}
             {floatingAnchorElem && (
               <>
                 <FloatingLinkEditorPlugin

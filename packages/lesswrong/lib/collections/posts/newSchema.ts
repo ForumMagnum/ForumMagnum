@@ -77,7 +77,7 @@ import { CommentsViews } from "../comments/views";
 import { commentIncludedInCounts } from "../comments/helpers";
 import { votingSystemNames } from "@/lib/voting/votingSystemNames";
 import { backgroundTask } from "@/server/utils/backgroundTask";
-import { classifyPost } from "@/server/frontpageClassifier/predictions";
+import { classifyPosts } from "@/server/frontpageClassifier/predictions";
 import { getCollectionBySlug } from "../sequences/helpers";
 
 const rsvpType = new SimpleSchema({
@@ -4320,13 +4320,15 @@ const schema = {
       outputType: "[CurationNotice!]",
       canRead: ["guests"],
       resolver: async (post, args, context) => {
-        const { currentUser, CurationNotices } = context;
-        const curationNotices = await CurationNotices.find({
-          postId: post._id,
-          deleted: {
-            $ne: true,
-          },
-        }).fetch();
+        const { currentUser } = context;
+        const curationNotices = await getWithLoader(
+          context,
+          context.CurationNotices,
+          "curationNoticesByPostId",
+          { deleted: { $ne: true } },
+          "postId",
+          post._id,
+        );
         return await accessFilterMultiple(currentUser, "CurationNotices", curationNotices, context);
       },
     },
@@ -4351,19 +4353,9 @@ const schema = {
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (post, args, context) => {
         if (!isLWorAF()) return null;
-        const {AutomatedContentEvaluations, Revisions} =  context;
-        const revisionIds = (await Revisions.find({
-          documentId: post._id,
-          fieldName: "contents",
-        }, {
-          sort: { editedAt: -1 },
-        }, {_id: 1}).fetch()).map(r => r._id);
-
-        return AutomatedContentEvaluations.findOne({
-          revisionId: {$in:revisionIds},
-        }, {
-          sort: { createdAt: -1 },
-        })
+        return await getWithCustomLoader(context, "latestAutomatedContentEvaluations", post._id, (postIds) =>
+          context.repos.automatedContentEvaluations.getLatestEvaluationsForPosts(postIds)
+        );
       }
     }
   },
@@ -4394,8 +4386,10 @@ const schema = {
         if (!userIsAdmin(context.currentUser)) {
           return null;
         }
-        const prediction = await classifyPost(post._id);
-        return prediction;
+        return await getWithCustomLoader(context, "frontpageClassifications", post._id, async (postIds) => {
+          const predictionsByPostId = await classifyPosts(postIds);
+          return postIds.map((postId) => predictionsByPostId[postId] ?? null);
+        });
       },
     }
   },

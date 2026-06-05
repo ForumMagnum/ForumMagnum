@@ -12,7 +12,7 @@ import { $createLLMContentBlockContentNode } from "@/components/editor/lexicalPl
 import { $createLLMContentBlockHeaderNode } from "@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockHeaderNode";
 import { waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
-import { $markdownToNodes, resolveInsertionIndex } from "../insertBlock/route";
+import { $postMarkdownToNodes, resolveInsertionIndex } from "../insertBlock/route";
 import { insertLLMBlockToolSchema, type InsertLocation } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
@@ -37,12 +37,13 @@ function $createLLMContentBlockFromMarkdown(
   editor: LexicalEditor,
   modelName: string,
   markdown: string,
+  markdownToNodes: (editor: LexicalEditor, markdown: string) => LexicalNode[],
 ): LexicalNode {
   const containerNode = $createLLMContentBlockNode(modelName);
   const headerNode = $createLLMContentBlockHeaderNode();
   const contentNode = $createLLMContentBlockContentNode();
 
-  const contentChildren = $markdownToNodes(editor, markdown);
+  const contentChildren = markdownToNodes(editor, markdown);
   if (contentChildren.length === 0) {
     contentNode.append($createParagraphNode());
   } else {
@@ -56,18 +57,20 @@ function $createLLMContentBlockFromMarkdown(
   return containerNode;
 }
 
-function $insertLLMBlockInEditor({
+export function $insertLLMBlockInEditor({
   editor,
   modelName,
   location,
   markdown,
+  markdownToNodes,
 }: {
   editor: LexicalEditor
   modelName: string
   location: InsertLocation
   markdown: string
+  markdownToNodes: (editor: LexicalEditor, markdown: string) => LexicalNode[]
 }): InsertLLMBlockResult {
-  const blockNode = $createLLMContentBlockFromMarkdown(editor, modelName, markdown);
+  const blockNode = $createLLMContentBlockFromMarkdown(editor, modelName, markdown, markdownToNodes);
 
   const root = $getRoot();
   const insertionIndex = resolveInsertionIndex(location, root.getChildren());
@@ -105,7 +108,10 @@ async function insertLLMBlock({
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
-          result = $insertLLMBlockInEditor({ editor, modelName, location, markdown });
+          result = $insertLLMBlockInEditor({
+            editor, modelName, location, markdown,
+            markdownToNodes: $postMarkdownToNodes,
+          });
         }, { onUpdate: resolve });
       });
 

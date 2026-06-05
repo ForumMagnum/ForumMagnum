@@ -8,6 +8,7 @@ import { cheerioParse } from '../utils/htmlUtil';
 import { sanitize } from "@/lib/utils/sanitize";
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { getMarkdownIt, getMarkdownItNoMathjax } from '@/lib/utils/markdownItPlugins';
+import { formatMathToken } from '@/lib/utils/mathTokens';
 import type { Cheerio, CheerioAPI, Element as CheerioElement } from 'cheerio';
 import type { DataNode } from 'domhandler';
 import { mathjax } from 'mathjax-full/js/mathjax.js';
@@ -19,6 +20,20 @@ import { AllPackages } from 'mathjax-full/js/input/tex/AllPackages.js';
 import { type LiteElement } from 'mathjax-full/js/adaptors/lite/Element';
 import IframeWidgetSrcdocs from '@/server/collections/iframeWidgetSrcdocs/collection';
 import { ServerSafeNode } from '@/lib/domParser';
+import {
+  formatMentionToken,
+  isMentionKind,
+  MENTION_DOM_CLASS,
+} from '@/components/research/lexical/mentionFormat';
+import {
+  QUERY_INPUT_DOM_CLASS,
+  QUERY_INPUT_BASE_ENVIRONMENT_ATTR,
+  QUERY_INPUT_RUNTIME_ATTR,
+} from '@/components/research/lexical/QueryInputNode';
+
+function escapeMarkerAttr(value: string): string {
+  return value.replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+}
 
 const blockTags = new Set([
   'ADDRESS', 'ARTICLE', 'ASIDE', 'BLOCKQUOTE', 'DIV', 'DL', 'DT', 'DD', 'FIELDSET',
@@ -28,6 +43,32 @@ const blockTags = new Set([
 ]);
 
 const isBlockTag = (nodeName: string): boolean => blockTags.has(nodeName);
+
+/**
+ * The character that immediately follows `node` in document order, ascending
+ * out of inline wrappers. `node.nextSibling` alone is null when a math-tex
+ * span is the last child of an inline element (a styled `<span>`, an `<a>`,
+ * …), which would miss a following digit. Ascent stops at the enclosing
+ * block: a digit that starts the next block cannot fuse with this equation's
+ * closing `$`, so the bare `$…$` form stays safe across a block boundary.
+ */
+function firstCharFollowingNode(node: Node): string | undefined {
+  let current: Node | null = node;
+  while (current) {
+    for (let sibling = current.nextSibling; sibling; sibling = sibling.nextSibling) {
+      const text = sibling.textContent;
+      if (text && text.length > 0) {
+        return text[0];
+      }
+    }
+    const parent: Node | null = current.parentNode;
+    if (!parent || (parent.nodeType === ServerSafeNode.ELEMENT_NODE && isBlockTag(parent.nodeName))) {
+      return undefined;
+    }
+    current = parent;
+  }
+  return undefined;
+}
 
 function isLexicalIframeWidgetElement(node: Node): node is Element {
   if (node?.nodeType !== ServerSafeNode.ELEMENT_NODE) {
@@ -58,7 +99,7 @@ function stripIframeWidgetSrcdocs(html: string): string {
 }
 
 let _turndownService: TurndownService|null = null;
-const TURNDOWN_BUILD_MARKER = 'widget-markdown-v1';
+const TURNDOWN_BUILD_MARKER = 'widget-markdown-v2-mentions';
 function getTurndown(): TurndownService {
   const cachedMarker = (_turndownService as AnyBecauseHard | null)?.__buildMarker;
   if (!_turndownService || cachedMarker !== TURNDOWN_BUILD_MARKER) {
@@ -124,6 +165,48 @@ function getTurndown(): TurndownService {
         return `\n\n%%% llm-output model="${modelName}"\n\n${trimmed}\n\n%%% /llm-output\n\n`;
       },
     })
+    turndownService.addRule('research-query-input', {
+      filter: (node) =>
+        node.nodeName === 'DIV' && !!node.classList?.contains(QUERY_INPUT_DOM_CLASS),
+      replacement: (content, node) => {
+        const element = node as Element;
+        const baseEnvironmentId = element.getAttribute(QUERY_INPUT_BASE_ENVIRONMENT_ATTR);
+        const runtime = element.getAttribute(QUERY_INPUT_RUNTIME_ATTR);
+        const attrSuffix =
+          (baseEnvironmentId ? ` baseEnvironmentId="${escapeMarkerAttr(baseEnvironmentId)}"` : '') +
+          (runtime ? ` runtime="${escapeMarkerAttr(runtime)}"` : '');
+        const trimmed = content.trim();
+        return `\n\n%%% query-input${attrSuffix}\n\n${trimmed}\n\n%%% /query-input\n\n`;
+      },
+    })
+    turndownService.addRule('research-agent-block', {
+      filter: (node) =>
+        node.nodeName === 'DIV' && !!node.classList?.contains('research-agent-block'),
+      replacement: (_content, node) => {
+        const element = node as Element;
+        const conversationId = element.getAttribute('data-conversation-id') ?? '';
+        const producedBy = element.getAttribute('data-produced-by-conversation-id');
+        const title = element.getAttribute('data-conversation-title');
+        const lastActivityAt = element.getAttribute('data-conversation-last-activity-at');
+        const attrs: string[] = [`conversationId="${escapeMarkerAttr(conversationId)}"`];
+        if (title !== null) attrs.push(`title="${escapeMarkerAttr(title)}"`);
+        if (lastActivityAt !== null) attrs.push(`lastActivityAt="${escapeMarkerAttr(lastActivityAt)}"`);
+        if (producedBy) attrs.push(`producedByConversationId="${escapeMarkerAttr(producedBy)}"`);
+        return `\n\n%%% agent-block ${attrs.join(' ')} %%%\n\n`;
+      },
+    })
+    turndownService.addRule('research-mention', {
+      filter: (node) =>
+        node.nodeName === 'SPAN' && !!node.classList?.contains(MENTION_DOM_CLASS),
+      replacement: (_content, node) => {
+        const element = node as Element;
+        const kind = element.getAttribute('data-mention-kind');
+        const id = element.getAttribute('data-mention-id');
+        const title = element.getAttribute('data-mention-title') ?? '';
+        if (!isMentionKind(kind) || !id) return '';
+        return formatMentionToken({ kind, id, title });
+      },
+    })
     turndownService.use(gfm); // Add support for strikethrough and tables
     turndownService.addRule('suggestion-deletion', {
       filter: ['del'],
@@ -183,15 +266,19 @@ function getTurndown(): TurndownService {
     const unescapeMarkdownInMath = (text: string): string =>
       text.replace(/\\([ \\!"#$%&'()*+,./:;<=>?@[\]^_`{|}~-])/g, '$1');
 
-    const convertMathDelimiters = (text: string): string | null => {
+    const convertMathDelimiters = (text: string, followingChar?: string): string | null => {
       const trimmed = text.trim();
       const inlineMatch = trimmed.match(/^\\\\?\\\(([\s\S]*?)\\\\?\\\)$/);
       if (inlineMatch) {
-        return `$${unescapeMarkdownInMath(inlineMatch[1])}$`;
+        // `followingChar` lets `formatMathToken` fall back to the `\(…\)` form
+        // when the bare `$…$` form would not round-trip (e.g. before a digit).
+        return formatMathToken({ equation: unescapeMarkdownInMath(inlineMatch[1]), inline: true }, followingChar);
       }
       const blockMatch = trimmed.match(/^\\\\?\\\[([\s\S]*?)\\\\?\\\]$/);
       if (blockMatch) {
-        return `\n\n$$\n${unescapeMarkdownInMath(blockMatch[1])}\n$$\n\n`;
+        // Display equations are block-level here: pad with blank lines so the
+        // `$$…$$` sits on its own lines in the surrounding markdown.
+        return `\n\n${formatMathToken({ equation: unescapeMarkdownInMath(blockMatch[1]), inline: false })}\n\n`;
       }
       return null;
     };
@@ -199,8 +286,9 @@ function getTurndown(): TurndownService {
     //If we have a math-tex block, we want to convert it to markdown math delimiters
     turndownService.addRule('latex-spans', {
       filter: (node, options) => node.classList?.contains('math-tex'),
-      replacement: (content) => {
-        const converted = convertMathDelimiters(content);
+      replacement: (content, node) => {
+        const followingChar = firstCharFollowingNode(node);
+        const converted = convertMathDelimiters(content, followingChar);
         return converted ?? content;
       }
     })
