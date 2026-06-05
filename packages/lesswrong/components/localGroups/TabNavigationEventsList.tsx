@@ -236,8 +236,8 @@ export function getCityName(event: EventLocationForDisplay): string|null {
     if (event.googleLocation) {
       const locationTypePreferenceOrdering = ["locality", "political", "country"];
       for (let locationType of locationTypePreferenceOrdering) {
-        for (let addressComponent of event.googleLocation.address_components) {
-          if (addressComponent.types?.indexOf(locationType) >= 0)
+        for (let addressComponent of event.googleLocation.address_components ?? []) {
+          if (addressComponent.types?.includes(locationType))
             return addressComponent.long_name ?? null;
         }
       }
