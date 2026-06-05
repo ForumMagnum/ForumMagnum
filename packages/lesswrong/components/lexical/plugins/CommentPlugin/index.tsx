@@ -226,13 +226,15 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   commentsPanel: {
     position: 'fixed',
     right: 86,
+    width: 'min(480px, calc(100vw - 112px))',
     [theme.breakpoints.down('md')]: {
       right: 66,
+      width: 'min(420px, calc(100vw - 92px))',
     },
     [theme.breakpoints.down('sm')]: {
       right: 6,
+      width: 'calc(100vw - 12px)',
     },
-    width: 300,
     top: 'var(--editor-right-rail-top)',
     height: 'var(--editor-right-rail-height)',
     backgroundColor: theme.palette.panelBackground.default,
