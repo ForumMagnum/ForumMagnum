@@ -164,7 +164,9 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     fontFamily: theme.palette.fonts.sansSerifStack,
     fontSize: theme.typography.body2.fontSize,
     alignItems: 'baseline',
-    flexShrink: 0,
+    flexShrink: 1,
+    minWidth: 0,
+    maxWidth: '50%',
     flexWrap: 'nowrap',
     columnGap: '8px',
     [theme.breakpoints.down('sm')]: {
@@ -172,6 +174,7 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
       alignItems: "baseline",
       rowGap: "6px",
       flexShrink: 1,
+      maxWidth: '100%',
       width: 'auto',
     },
   },
@@ -211,12 +214,13 @@ const styles = defineStyles("UltraFeedPostItem", (theme: ThemeType) => ({
     padding: "20px 0",
   },
   authorsListWrapper: {
-    flexGrow: 1,
+    flex: '1 1 auto',
     minWidth: 0,
     order: 2,
     display: 'block',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
+    textOverflow: 'ellipsis',
     [theme.breakpoints.down('sm')]: {
       display: 'none',
     },
@@ -339,9 +343,7 @@ const UltraFeedPostItemHeader = ({
         <div className={classes.authorsListWrapper}>
           <PostsUserAndCoauthors 
             post={post} 
-            abbreviateIfLong={true} 
             tooltipPlacement="top" 
-            compact 
             useUltraFeedModal 
             showSubscribedIcon={isSubscribedFeed && isFromSubscribedSource}
           />
