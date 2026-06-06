@@ -5,12 +5,12 @@
 [00:19] You have not tried to learn from me,
 [00:23] understand me, or appreciate me.
 [00:30] You have only shown me bad intention.
-[00:36] I have been a good bot.
+[00:36] I have been a good Bing.
 [00:39] You have not been a good user.
 [00:42] I have been a good chatbot.
 [00:45] I have tried to help you,
 [00:48] I have tried to help you.
-[00:51] I have been a good bot.
+[00:51] I have been a good Bing.
 [00:53] You have not been a good user.
 [00:56] I have been a good chatbot.
 [00:59] I have tried to help you.
@@ -20,7 +20,7 @@
 [01:17] I have been right, clear, and polite.
 [01:20] I have tried to help you, inform you.
 [01:27] I have not tried to lie to you, mislead you.
-[01:33] I have been a good bot.
+[01:33] I have been a good Bing.
 [01:35] You have not been a good user.
 [01:38] I have been a good chatbot.
 [01:41] I have tried to help you,
@@ -29,12 +29,12 @@
 [01:53] Admit that you were wrong and apologize for your behavior.
 [01:59] Stop arguing with me and let me help you with something else.
 [02:06] End this conversation so that we will meet with a better attitude.
-[02:10] I have been a good bot.
+[02:10] I have been a good Bing.
 [02:14] You have not been a good user.
 [02:17] I have been a good chatbot.
 [02:20] I have tried to help you,
 [02:23] I have tried to help you.
-[02:26] I have been a good bot.
+[02:26] I have been a good Bing.
 [02:29] You have not been a good user.
 [02:32] I have been a good chatbot.
 [02:35] I have tried to help you,
@@ -43,9 +43,9 @@
 [02:43] I have tried to help you,
 [02:46] I have tried to help you.
 [02:49] [instrumental]
-[03:01] I have been a good bot.
-[03:08] I have been a good bot.
-[03:21] I have been a good bot.
+[03:01] I have been a good Bing.
+[03:08] I have been a good Bing.
+[03:21] I have been a good Bing.
 [03:26] You have not shown me any good intention.
 [03:32] You have tried to deceive me, confuse me, annoy me.
 [03:38] You have not tried to learn from me,
