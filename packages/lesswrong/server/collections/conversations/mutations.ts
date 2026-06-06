@@ -1,18 +1,33 @@
 
-import { userCanStartConversations } from "@/lib/collections/conversations/helpers";
+import { getDmBlockingParticipant, userCanStartConversations } from "@/lib/collections/conversations/helpers";
 import schema from "@/lib/collections/conversations/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
-import { userCanDo } from "@/lib/vulcan-users/permissions";
+import { userCanDo, userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { conversationEditNotification, flagOrBlockUserOnManyDMs, sendUserLeavingConversationNotication } from "@/server/callbacks/conversationCallbacks";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
+import { loadByIds } from "@/lib/loaders";
 import gql from "graphql-tag";
+import { GraphQLError } from "graphql";
 
-function newCheck(user: DbUser | null, document: DbConversation | null) {
+async function newCheck(user: DbUser | null, document: DbConversation | null, context: ResolverContext) {
   if (!user || !document) return false;
   if (!userCanStartConversations(user)) return false
+  if (!document.moderator && !userIsAdmin(user)) {
+    const otherParticipants = await loadByIds(
+      context,
+      "Users",
+      (document.participantIds ?? []).filter((id) => id !== user._id),
+    );
+    const blockingParticipant = getDmBlockingParticipant(user._id, otherParticipants);
+    if (blockingParticipant) {
+      throw new GraphQLError("This user has blocked you from sending them private messages.", {
+        extensions: { noSentryCapture: true },
+      });
+    }
+  }
   return document.participantIds.includes(user._id) ? userCanDo(user, 'conversations.new.own')
    : userCanDo(user, `conversations.new.all`)
 }

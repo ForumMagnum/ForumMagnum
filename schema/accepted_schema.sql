@@ -3129,6 +3129,7 @@ CREATE TABLE "Users" (
   "collapseModerationGuidelines" BOOL,
   "bannedUserIds" VARCHAR(27) [],
   "bannedPersonalUserIds" VARCHAR(27) [],
+  "blockedUserIds" VARCHAR(27) [] NOT NULL DEFAULT '{}',
   "bookmarksCount" INTEGER NOT NULL DEFAULT 0,
   "hiddenPostsMetadata" JSONB[] NOT NULL DEFAULT '{}',
   "legacyId" TEXT,

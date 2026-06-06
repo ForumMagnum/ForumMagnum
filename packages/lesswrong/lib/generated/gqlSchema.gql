@@ -7568,6 +7568,7 @@ type User {
   collapseModerationGuidelines: Boolean
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
+  blockedUserIds: [String!]!
   bookmarkedPostsMetadata: [PostMetadataOutput!]
   bookmarksCount: Int
   hasAnyBookmarks: Boolean
@@ -9640,6 +9641,7 @@ input CreateUserDataInput {
   collapseModerationGuidelines: Boolean
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
+  blockedUserIds: [String!]
   legacyId: String
   voteBanned: Boolean
   nullifyVotes: Boolean
@@ -9808,6 +9810,7 @@ input UpdateUserDataInput {
   collapseModerationGuidelines: Boolean
   bannedUserIds: [String!]
   bannedPersonalUserIds: [String!]
+  blockedUserIds: [String!]
   hiddenPostsMetadata: [PostMetadataInput!]
   legacyId: String
   deleted: Boolean
