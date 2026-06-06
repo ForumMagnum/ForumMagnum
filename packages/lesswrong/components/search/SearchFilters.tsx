@@ -159,6 +159,11 @@ const SearchFilters = ({tab, tagsFilter, handleUpdateTagsFilter, onSortingChange
       value={false}
       defaultRefinement={true}
     />}
+    {tab === 'Comments' && <ToggleRefinement
+      attribute="shortform"
+      label="Shortform only"
+      value={true}
+    />}
     {tab === 'Tags' && <ToggleRefinement
       attribute="core"
       label="Core topic"

@@ -208,6 +208,7 @@ const elasticSearchConfig: () => Record<SearchIndexCollectionName, IndexConfig> 
       tagId: keywordMapping,
       tagSlug: keywordMapping,
       tagCommentType: keywordMapping,
+      shortform: {type: "boolean"},
     },
     privateFields: [
       "authorIsUnreviewed",

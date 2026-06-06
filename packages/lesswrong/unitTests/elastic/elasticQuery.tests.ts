@@ -105,4 +105,19 @@ describe("ElasticQuery", () => {
 
     expect(hasUserFilter).toBe(true);
   });
+
+  it("Can compile a shortform-only comments facet filter", () => {
+    const compiledQuery = new ElasticQuery({
+      index: "comments",
+      search: "decision theory",
+      filters: [{
+        type: "facet",
+        field: "shortform",
+        value: true,
+        negated: false,
+      }],
+    }).compile();
+
+    expect(JSON.stringify(compiledQuery.body.query)).toContain('"term":{"shortform":true}');
+  });
 });
