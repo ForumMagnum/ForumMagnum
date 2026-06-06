@@ -22,13 +22,11 @@ import type {
 } from 'lexical';
 import React, { type JSX } from 'react';
 
-import {$generateNodesFromDOM} from '@lexical/html';
 import {
   $applyNodeReplacement,
   $createParagraphNode,
   $extendCaretToRange,
   $getChildCaret,
-  $getEditor,
   $isElementNode,
   $setSelection,
   DecoratorNode,
@@ -384,6 +382,7 @@ export class ImageNode extends ElementNode {
           return {
             after: (childNodes) => {
               const imageNodes = childNodes.filter($isImageNode);
+              const captionChildNodes = childNodes.filter((childNode) => !$isImageNode(childNode));
 
               // CKEditor wraps tables in <figure class="table">.
               // If the figure has no images, pass through all children
@@ -404,15 +403,11 @@ export class ImageNode extends ElementNode {
                 ? Number(widthPercentMatch[1])
                 : null;
 
-              if (figcaption) {
-                for (const imgNode of imageNodes) {
-                  const captionNode = imgNode.ensureCaptionNode();
-                  const editor = $getEditor();
-                  const generatedNodes = $generateNodesFromDOM(editor, figcaption);
-                  captionNode.append(...generatedNodes);
-                  imgNode.setShowCaption(true);
-                  $setSelection(null);
-                }
+              if (figcaption && captionChildNodes.length > 0) {
+                const captionNode = imageNodes[0].ensureCaptionNode();
+                captionNode.append(...captionChildNodes);
+                imageNodes[0].setShowCaption(true);
+                $setSelection(null);
               }
               for (const imgNode of imageNodes) {
                 if (hasCkImageClass) {

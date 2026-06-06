@@ -13,7 +13,7 @@ import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { createHeadlessEditor, plainTextStartsWith } from "../../../app/api/agent/editorAgentUtil";
 import { buildNodeMarkdownMapForSubtree, findBlockToOperateOnByPrefix, findRenderedQuoteInMarkdown, locateMarkdownQuoteSelectionInSubtree, markdownQuoteToPlainText, markdownQuoteToRenderedPlainText, toPlainTextFilter, type MarkdownQuoteSelectionResult } from "../../../app/api/agent/mapMarkdownToLexical";
 import { $isListItemNode, $isListNode } from "@lexical/list";
-import { runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
+import { runEditorUpdate, setupEditorWithContent, setupEditorWithHtml, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
 
 async function selectMarkdownQuoteInEditor(
@@ -60,6 +60,14 @@ async function deleteEverythingOutsideSelectionAndRoundTripToMarkdown(
     html = withDomGlobals(() => $generateHtmlFromNodes(editor, null));
   });
 
+  return htmlToMarkdown(html).trim();
+}
+
+function exportEditorToMarkdown(editor: LexicalEditor): string {
+  let html = "";
+  editor.getEditorState().read(() => {
+    html = withDomGlobals(() => $generateHtmlFromNodes(editor, null));
+  });
   return htmlToMarkdown(html).trim();
 }
 
@@ -412,6 +420,23 @@ describe("findBlockToOperateOnByPrefix", () => {
     const matched = findFor(editor, "$x^2$ starts");
     expect(matched).not.toBeNull();
     expect(matched?.type).toBe("paragraph");
+  });
+});
+
+describe("Lexical image figure import/export", () => {
+  it("does not duplicate a figure caption when round-tripping imported HTML", async () => {
+    const caption = "This image is poking fun at the claim that AGI is impossible.";
+    const editor = await setupEditorWithHtml(
+      `<figure class="image">
+        <img src="https://example.com/agi.png" alt="">
+        <figcaption>${caption}</figcaption>
+      </figure>`
+    );
+
+    const markdown = exportEditorToMarkdown(editor);
+
+    expect(markdown.match(new RegExp(caption, "g"))).toHaveLength(1);
+    expect(markdown).toContain("![](https://example.com/agi.png)");
   });
 });
 
