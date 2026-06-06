@@ -87,7 +87,7 @@ const ConversationDetails = ({conversation, hideOptions = false}: {
       <span className={classes.actions}>
         {showBlockUserOption && <span onClick={() => void updateBlockedUser()}>
           <MetaInfo button>
-            {otherParticipantIsBlocked ? "Unblock DMs" : "Block DMs"}
+            {otherParticipantIsBlocked ? "Unblock" : "Block"}
           </MetaInfo>
         </span>}
         {!hideOptions && <span onClick={openConversationOptions}>
