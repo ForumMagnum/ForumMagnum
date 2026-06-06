@@ -38,7 +38,7 @@ const ConversationDetails = ({conversation, hideOptions = false}: {
     : null;
   const blockedUserIds = currentUser?.blockedUserIds ?? [];
   const otherParticipantIsBlocked = !!otherParticipant && blockedUserIds.includes(otherParticipant._id);
-  const showBlockUserOption = !!currentUser && !!otherParticipant && !conversation.moderator && !hideOptions;
+  const showBlockUserOption = !!currentUser && !!otherParticipant && !conversation.moderator;
 
   const openConversationOptions = () => {
     openDialog({
