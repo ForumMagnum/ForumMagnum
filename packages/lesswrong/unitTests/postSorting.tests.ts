@@ -33,6 +33,6 @@ describe("post sorting", () => {
     expect(tagRelevanceParameters.options?.sort).toMatchObject({
       karmaInflationAdjustedScore: -1,
     });
-    expect(defaultParameters.syntheticFields).toHaveProperty("karmaInflationAdjustedScore");
+    expect(defaultParameters).toHaveProperty("syntheticFields.karmaInflationAdjustedScore");
   });
 });
