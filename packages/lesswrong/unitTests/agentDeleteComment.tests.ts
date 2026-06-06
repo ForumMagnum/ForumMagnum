@@ -1,4 +1,4 @@
-import { Array as YArray, Map as YMap } from "yjs";
+import { Array as YArray, Doc, Map as YMap } from "yjs";
 import { createCollabComment } from "../../../app/api/agent/commentOnDraft/route";
 import { deleteDraftCommentFromCommentsArray } from "../../../app/api/agent/deleteComment/route";
 
@@ -37,9 +37,14 @@ function getCommentMap(threadComments: YArray<unknown>, index: number): YMap<unk
   return commentMap;
 }
 
+function createCommentsArray(): YArray<unknown> {
+  const doc = new Doc();
+  return doc.get("comments", YArray<unknown>);
+}
+
 describe("deleteDraftCommentFromCommentsArray", () => {
   it("deletes a token-authorized single-comment thread", () => {
-    const commentsArray = new YArray<unknown>();
+    const commentsArray = createCommentsArray();
     const comment = createCollabComment({
       content: "Mis-anchored comment",
       author: "Claude",
@@ -66,7 +71,7 @@ describe("deleteDraftCommentFromCommentsArray", () => {
   });
 
   it("soft-deletes a comment but keeps the thread when other replies remain", () => {
-    const commentsArray = new YArray<unknown>();
+    const commentsArray = createCommentsArray();
     const agentComment = createCollabComment({
       content: "Agent comment",
       author: "Claude",
@@ -105,7 +110,7 @@ describe("deleteDraftCommentFromCommentsArray", () => {
   });
 
   it("allows deletion by matching stored authorId without a deletion token", () => {
-    const commentsArray = new YArray<unknown>();
+    const commentsArray = createCommentsArray();
     const comment = createCollabComment({
       content: "Old agent comment",
       author: "Claude",
@@ -126,7 +131,7 @@ describe("deleteDraftCommentFromCommentsArray", () => {
   });
 
   it("rejects deletion of another author's comment without its deletion token", () => {
-    const commentsArray = new YArray<unknown>();
+    const commentsArray = createCommentsArray();
     const comment = createCollabComment({
       content: "User comment",
       author: "Post author",
