@@ -92,6 +92,16 @@ const truncateGuidelines = (guidelines: string) => {
   });
 }
 
+export const getGuidelinesBodyHtmlForDisplay = ({
+  bodyHtml,
+  shouldTruncate,
+}: {
+  bodyHtml: string,
+  shouldTruncate: boolean,
+}) => {
+  return shouldTruncate ? truncateGuidelines(bodyHtml) : bodyHtml
+}
+
 // Build the header as JSX (so React escapes the user-controlled displayName)
 // and return the rest as an HTML string. The body is composed only of trusted
 // HTML — server-sanitized `post.moderationGuidelines.html` and the hardcoded
@@ -127,13 +137,27 @@ const getPostModerationGuidelines = (
     bodyHtml += getDefaultGuidelines();
   }
 
-  return { header, bodyHtml, truncatedBodyHtml: truncateGuidelines(bodyHtml) };
+  return {
+    header,
+    bodyHtml,
+    truncatedBodyHtml: getGuidelinesBodyHtmlForDisplay({
+      bodyHtml,
+      shouldTruncate: !!html,
+    }),
+  };
 }
 
 const getSubforumModerationGuidelines = (tag: TagFragment): ModerationGuidelinesParts => {
   const { html } = tag.moderationGuidelines || {}
   const bodyHtml = html ?? ''
-  return { header: null, bodyHtml, truncatedBodyHtml: truncateGuidelines(bodyHtml) }
+  return {
+    header: null,
+    bodyHtml,
+    truncatedBodyHtml: getGuidelinesBodyHtmlForDisplay({
+      bodyHtml,
+      shouldTruncate: true,
+    }),
+  }
 }
 
 const ModerationGuidelinesBox = ({commentType = "post", documentId}: {
