@@ -8,6 +8,7 @@ import { defaultSequenceBannerIdSetting } from "@/lib/instanceSettings";
 import { profileStyles, TabPanel } from "./profileStyles";
 import { cssUrl } from "./userProfilePageUtil";
 import LoadMore from "@/components/common/LoadMore";
+import Loading from "@/components/vulcan-core/Loading";
 import { gql } from "@/lib/generated/gql-codegen";
 import { z } from "zod";
 
@@ -56,6 +57,9 @@ const profilePageSequencesTabUnsharedStyles = defineStyles("ProfilePageSequences
     borderTop: "none",
     borderRadius: "0 0 8px 8px",
   },
+  loadMore: {
+    marginTop: 8,
+  },
 }));
 
 const SEQUENCES_INITIAL_LIMIT = 8;
@@ -76,6 +80,26 @@ export const profilePageSequencesTabSettingsSchema = z.object({});
 export type ProfilePageSequencesTabSettings = z.infer<typeof profilePageSequencesTabSettingsSchema>;
 
 export const defaultProfilePageSequencesTabSettings: ProfilePageSequencesTabSettings = {};
+
+export function getProfileSequencesLoadMoreProps({
+  loadedCount,
+  userSequenceCount,
+  queryTotalCount,
+  hidden,
+}: {
+  loadedCount: number,
+  userSequenceCount: number,
+  queryTotalCount?: number,
+  hidden?: boolean,
+}) {
+  const totalCount = Math.max(userSequenceCount, queryTotalCount ?? 0);
+  const hasKnownTotal = totalCount > 0 || queryTotalCount !== undefined;
+
+  return {
+    totalCount: totalCount || queryTotalCount,
+    hidden: hasKnownTotal ? loadedCount >= totalCount : hidden,
+  };
+}
 
 export function ProfilePageSequencesTabSettingsForm({
   settings,
@@ -98,7 +122,7 @@ export function ProfilePageSequencesTabContents({user, settings}: {
   const classes = useStyles(profilePageSequencesTabUnsharedStyles);
   const userId = user._id;
 
-  const { data: sequencesData, loadMoreProps } = useQueryWithLoadMore(ProfileSequencesQuery, {
+  const { data: sequencesData, loading, loadMoreProps } = useQueryWithLoadMore(ProfileSequencesQuery, {
     skip: !userId,
     variables: {
       selector: userId ? { userProfile: { userId } } : undefined,
@@ -109,8 +133,18 @@ export function ProfilePageSequencesTabContents({user, settings}: {
     fetchPolicy: "cache-and-network",
   });
   const sequences = sequencesData?.sequences?.results ?? [];
+  const sequenceLoadMoreProps = {
+    ...loadMoreProps,
+    ...getProfileSequencesLoadMoreProps({
+      loadedCount: sequences.length,
+      userSequenceCount: user.sequenceCount,
+      queryTotalCount: loadMoreProps.totalCount,
+      hidden: loadMoreProps.hidden,
+    }),
+  };
 
   return <TabPanel className={classes.sequencesList}>
+    {loading && !sequences.length && <Loading />}
     <div className={classes.sequencesGrid}>
       {sequences.map((sequence) => {
         const imageId = sequence.gridImageId || defaultSequenceBannerIdSetting.get();
@@ -134,6 +168,10 @@ export function ProfilePageSequencesTabContents({user, settings}: {
         );
       })}
     </div>
-    <LoadMore {...loadMoreProps} />
+    <LoadMore
+      {...sequenceLoadMoreProps}
+      className={classes.loadMore}
+      message="Load More Sequences"
+    />
   </TabPanel>
 }
