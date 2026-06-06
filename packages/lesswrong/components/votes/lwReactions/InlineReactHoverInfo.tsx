@@ -8,6 +8,14 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 
 const styles = defineStyles('InlineReactHoverInfo', (theme: ThemeType) => ({
+  root: {
+    background: theme.palette.panelBackground.default,
+    border: theme.palette.border.faint,
+    boxShadow: theme.palette.boxShadow.default,
+    color: theme.palette.text.primary,
+    maxWidth: "calc(100vw - 24px)",
+    width: 300,
+  },
 }))
 
 /**
@@ -25,7 +33,7 @@ const InlineReactHoverInfo = ({quote, reactions, voteProps}: {
   const classes = useStyles(styles);
   const reactionNames = Object.keys(reactions);
 
-  return <Card>
+  return <Card className={classes.root}>
     {reactionNames.map(reactionName => <div key={reactionName}>
       <ReactionHoverTopRow
         reactionName={reactionName}
