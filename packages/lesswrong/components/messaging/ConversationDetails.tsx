@@ -18,6 +18,11 @@ const styles = defineStyles("ConversationDetails", (theme: ThemeType) => ({
     display: "flex",
     justifyContent: "space-between",
     flexWrap: "wrap",
+  },
+  actions: {
+    display: "inline-flex",
+    gap: 8,
+    flexShrink: 0,
   }
 }))
 
@@ -79,10 +84,10 @@ const ConversationDetails = ({conversation, hideOptions = false}: {
           { i < (conversation.participants?.length ?? 0) - 1 && ","}
         </MetaInfo>)}
       </span>
-      <span>
+      <span className={classes.actions}>
         {showBlockUserOption && <span onClick={() => void updateBlockedUser()}>
           <MetaInfo button>
-            {otherParticipantIsBlocked ? "Unblock User" : "Block User"}
+            {otherParticipantIsBlocked ? "Unblock DMs" : "Block DMs"}
           </MetaInfo>
         </span>}
         {!hideOptions && <span onClick={openConversationOptions}>
