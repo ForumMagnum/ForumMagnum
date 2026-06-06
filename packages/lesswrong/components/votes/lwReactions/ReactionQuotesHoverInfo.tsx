@@ -15,7 +15,7 @@ const styles = defineStyles("ReactionQuotesHoverInfo", (theme: ThemeType) => ({
     fontFamily: theme.typography.commentStyle.fontFamily,
   },
   quote: {
-    background: theme.palette.panelBackground.default,
+    background: theme.palette.background.paper,
     borderTop: theme.palette.border.faint,
     paddingTop: 8,
     paddingBottom: 8,

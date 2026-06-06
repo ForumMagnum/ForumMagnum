@@ -15,7 +15,7 @@ import { useStyles } from '@/components/hooks/useStyles';
 const styles = defineStyles("ReactionHoverTopRow", (theme: ThemeType) => ({
   hoverBallotEntry: {
     fontFamily: theme.typography.commentStyle.fontFamily,
-    background: theme.palette.panelBackground.default,
+    background: theme.palette.background.paper,
     cursor: "pointer",
     paddingTop: 8,
     paddingBottom: 8,
