@@ -182,7 +182,8 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       );
     }
 
-    if (collectionName === "Posts" && terms.sortedBy === "topAdjusted") {
+    const sortedBy = "sortedBy" in terms ? terms.sortedBy : undefined;
+    if (collectionName === "Posts" && sortedBy === "topAdjusted") {
       await ensureKarmaInflationCache();
     }
 

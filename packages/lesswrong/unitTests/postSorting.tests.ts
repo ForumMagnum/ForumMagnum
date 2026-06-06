@@ -1,6 +1,5 @@
 import { PostsViews } from "../lib/collections/posts/views";
 import { nullKarmaInflationSeries, setKarmaInflationSeries } from "../lib/collections/posts/karmaInflation";
-import { viewTermsToQuery } from "../lib/utils/viewUtils";
 
 describe("post sorting", () => {
   afterEach(() => {
@@ -15,7 +14,7 @@ describe("post sorting", () => {
       values: [2, 0.5],
     });
 
-    const parameters = viewTermsToQuery(PostsViews, {
+    const terms: PostsViewTerms = {
       view: "tagRelevance",
       tagId,
       sortedBy: "topAdjusted",
@@ -23,11 +22,17 @@ describe("post sorting", () => {
         tags: [{ tagId, tagName: "Test tag", filterMode: "Required" }],
       },
       limit: 15,
-    }, {});
+    };
+    const defaultView = PostsViews.getDefaultView();
+    if (!defaultView) {
+      throw new Error("PostsViews is missing a default view");
+    }
+    const defaultParameters = defaultView(terms);
+    const tagRelevanceParameters = PostsViews.getView("tagRelevance")(terms);
 
-    expect(parameters.options.sort).toMatchObject({
+    expect(tagRelevanceParameters.options?.sort).toMatchObject({
       karmaInflationAdjustedScore: -1,
     });
-    expect(parameters.syntheticFields).toHaveProperty("karmaInflationAdjustedScore");
+    expect(defaultParameters.syntheticFields).toHaveProperty("karmaInflationAdjustedScore");
   });
 });
