@@ -1,5 +1,10 @@
 import { canAccessPostFromLinkSharingEditQuery } from "@/server/ckEditor/ckEditorCallbacks";
 
+type LinkSharedPostAccessArgs = Parameters<typeof canAccessPostFromLinkSharingEditQuery>[0];
+type LinkSharedPostAccessPost = LinkSharedPostAccessArgs["post"] & {
+  linkSharingKeyUsedBy: string[]
+};
+
 const basePost = {
   userId: "author",
   linkSharingKey: "current-key",
@@ -9,9 +14,9 @@ const basePost = {
     anyoneWithLinkCan: "edit",
     explicitlySharedUsersCan: "comment",
   },
-};
+} satisfies LinkSharedPostAccessPost;
 
-function canAccess(overrides: Partial<Parameters<typeof canAccessPostFromLinkSharingEditQuery>[0]> = {}) {
+function canAccess(overrides: Partial<LinkSharedPostAccessArgs> = {}) {
   return canAccessPostFromLinkSharingEditQuery({
     post: basePost,
     currentUserId: "visitor",
