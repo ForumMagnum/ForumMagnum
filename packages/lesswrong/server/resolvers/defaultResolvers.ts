@@ -19,6 +19,7 @@ import UserActivities from "../collections/useractivities/collection";
 import { visitorGetsDynamicFrontpage } from "@/lib/betas";
 import { getWithCustomLoader } from "@/lib/loaders";
 import { enableCustomSqlResolvers } from "../sql/ProjectionContext";
+import { ensureKarmaInflationCache } from "../karmaInflation/cron";
 
 
 const getFragmentInfo = ({ fieldName, fieldNodes, fragments }: GraphQLResolveInfo, resultFieldName: string, typeName: string) => {
@@ -179,6 +180,10 @@ export const getDefaultResolvers = <N extends CollectionNameString>(
       context.visitorActivity = await getWithCustomLoader(context, "visitorActivityLoader", "_",
         async () => [await getUserActivity(currentUser, context.clientId)]
       );
+    }
+
+    if (collectionName === "Posts" && terms.sortedBy === "topAdjusted") {
+      await ensureKarmaInflationCache();
     }
 
     // Get selector and options from terms and perform Mongo query

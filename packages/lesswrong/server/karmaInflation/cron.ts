@@ -5,6 +5,8 @@ import DatabaseMetadataRepo from '../repos/DatabaseMetadataRepo';
 import { backgroundTask } from "../utils/backgroundTask";
 
 const AVERAGING_WINDOW_MS = 1000 * 60 * 60 * 24 * 28; // 28 days
+let hasAttemptedKarmaInflationCacheRefresh = false;
+let karmaInflationCacheRefreshPromise: Promise<void>|null = null;
 
 // Exported to allow running manually with "yarn repl"
 export async function refreshKarmaInflation() {
@@ -60,4 +62,17 @@ export async function refreshKarmaInflation() {
 export async function refreshKarmaInflationCache() {
   const karmaInflationSeries = await DatabaseMetadata.findOne({ name: "karmaInflationSeries" });
   setKarmaInflationSeries(karmaInflationSeries?.value || nullKarmaInflationSeries);
+  hasAttemptedKarmaInflationCacheRefresh = true;
+}
+
+export async function ensureKarmaInflationCache() {
+  if (hasAttemptedKarmaInflationCacheRefresh) {
+    return;
+  }
+
+  karmaInflationCacheRefreshPromise ??= refreshKarmaInflationCache().finally(() => {
+    karmaInflationCacheRefreshPromise = null;
+  });
+
+  await karmaInflationCacheRefreshPromise;
 }
