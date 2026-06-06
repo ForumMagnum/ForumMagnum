@@ -8,10 +8,11 @@ import { MarkdownUserLink } from "@/server/markdownComponents/MarkdownUserLink";
 import { runQuery } from "@/server/vulcan-lib/query";
 import { NextRequest } from "next/server";
 import { getPostsListLimit } from "../../postsListUtils";
+import { selectMarkdownUserProfile } from "./userProfileSelection";
 
 const USER_PROFILE_QUERY = gql(`
   query MarkdownUserProfile($slug: String!) {
-    users(selector: { usersProfile: { slug: $slug } }, limit: 1) {
+    users(selector: { usersProfile: { slug: $slug } }, limit: 25) {
       results {
         _id
         slug
@@ -101,7 +102,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ slug
   const postsLimit = Math.min(getPostsListLimit(req), 20);
   const { data } = await runQuery(USER_PROFILE_QUERY, { slug }, resolverContext);
 
-  const user = data?.users?.results?.[0];
+  const user = selectMarkdownUserProfile(slug, data?.users?.results ?? []);
   if (!user) {
     const markdown = await renderReactToMarkdown(
       <div>
