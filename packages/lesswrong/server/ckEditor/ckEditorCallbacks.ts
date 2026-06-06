@@ -11,6 +11,7 @@ import { pushRevisionToCkEditor } from './ckEditorApi';
 import { pushRevisionToLexicalCollab } from '../hocuspocus/hocuspocusCallbacks';
 import gql from 'graphql-tag';
 import { updatePost } from '../collections/posts/mutations';
+import type { SharingSettings } from '@/lib/collections/posts/collabEditingPermissions';
 
 export const ckEditorCallbacksGraphQLTypeDefs = gql`
   extend type Query {
@@ -34,26 +35,20 @@ export const getLinkSharedPostGraphQLQueries = {
       throw new Error("Invalid postId or not shared with you");
     }
 
-    const canonicalLinkSharingKey = post.linkSharingKey;
-    const keysMatch = !!canonicalLinkSharingKey && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: linkSharingKey });  
-    
     // Either:
     //  * The logged-in user is explicitly shared on this post
     //  * Link-sharing is enabled and a correct link-sharing key is provided
     //  * Link-sharing is enabled and the post doesn't have a link-sharing key
-    //  * Link-sharing is enabled and this user has provided the correct key in
-    //    the past
     //  * The logged-in user is the post author or co-author
     //  * The logged in user is an admin or moderator (or otherwise has edit permissions)
 
-    if (
-      (post.shareWithUsers && currentUser?._id && post.shareWithUsers.includes(currentUser._id) && post.sharingSettings?.explicitlySharedUsersCan !== "none")
-      || (linkSharingEnabled(post) && (!canonicalLinkSharingKey || keysMatch))
-      || (linkSharingEnabled(post) && (currentUser && post.linkSharingKeyUsedBy?.includes(currentUser._id)))
-      || userIsPostCoauthor(currentUser, post)
-      || currentUser?._id === post.userId
-      || userCanDo(currentUser, 'posts.edit.all')
-    ) {
+    if (canAccessPostFromLinkSharingEditQuery({
+      post,
+      currentUserId: currentUser?._id,
+      linkSharingKey,
+      userIsCoauthor: userIsPostCoauthor(currentUser, post),
+      userCanEditAll: userCanDo(currentUser, 'posts.edit.all'),
+    })) {
       // Add the user to linkSharingKeyUsedBy, if not already there
       if (currentUser && (!post.linkSharingKeyUsedBy || !post.linkSharingKeyUsedBy.includes(currentUser._id))) {
         // FIXME: This is a workaround for the fact that $addToSet hasn't yet been implemented for postgres. We should
@@ -71,6 +66,42 @@ export const getLinkSharedPostGraphQLQueries = {
       throw new Error("Invalid postId or not shared with you");
     }
   }
+}
+
+interface LinkSharedPostAccessPost {
+  linkSharingKey?: string | null
+  shareWithUsers?: string[] | null
+  sharingSettings?: SharingSettings | null
+  userId: string
+}
+
+export function canAccessPostFromLinkSharingEditQuery({
+  post,
+  currentUserId,
+  linkSharingKey,
+  userIsCoauthor,
+  userCanEditAll,
+}: {
+  post: LinkSharedPostAccessPost
+  currentUserId?: string
+  linkSharingKey: string
+  userIsCoauthor: boolean
+  userCanEditAll: boolean
+}): boolean {
+  const canonicalLinkSharingKey = post.linkSharingKey;
+  const keysMatch = !!canonicalLinkSharingKey && !!linkSharingKey && constantTimeCompare({ correctValue: canonicalLinkSharingKey, unknownValue: linkSharingKey });
+  const isExplicitlyShared = !!currentUserId
+    && !!post.shareWithUsers?.includes(currentUserId)
+    && post.sharingSettings?.explicitlySharedUsersCan !== "none";
+  const hasCurrentLinkKey = linkSharingEnabled(post) && (!canonicalLinkSharingKey || keysMatch);
+
+  return (
+    isExplicitlyShared
+    || hasCurrentLinkKey
+    || userIsCoauthor
+    || (!!currentUserId && currentUserId === post.userId)
+    || userCanEditAll
+  );
 }
 
 export const ckEditorCallbacksGraphQLMutations = {
@@ -167,6 +198,6 @@ export const ckEditorCallbacksGraphQLMutations = {
   }
 }
 
-function linkSharingEnabled(post: DbPost) {
-  return post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan!=="none";
+function linkSharingEnabled(post: LinkSharedPostAccessPost): boolean {
+  return !!post.sharingSettings?.anyoneWithLinkCan && post.sharingSettings.anyoneWithLinkCan !== "none";
 }
