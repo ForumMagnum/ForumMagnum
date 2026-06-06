@@ -80,11 +80,13 @@ export async function POST(req: NextRequest) {
       }
 
       const commentId = randomId();
+      const deletionToken = randomId();
       const commentMap = createCollabComment({
         content: comment,
         author: authorName,
         authorId,
         id: commentId,
+        deletionToken,
       });
 
       doc.transact(() => {
@@ -99,6 +101,7 @@ export async function POST(req: NextRequest) {
         postId,
         threadId,
         commentId,
+        deletionToken,
         note: "Reply added to thread.",
       });
     } finally {

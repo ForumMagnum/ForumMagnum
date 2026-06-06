@@ -167,6 +167,9 @@ To add Google Docs-style comments to the draft, make a request to:
 If a quote is provided, the comment will be attached to matching quoted text.
 The quote should be long enough to be unambiguous. If no quote is provided, the
 comment will be top-level.
+The response includes \`threadId\`, \`commentId\`, and \`deletionToken\`. Store
+these if you might need to retract the comment later; \`deletionToken\` is not
+shown in the editPost markdown output.
 
 The comment body is markdown. The quote, however, should be the visible rendered
 text as a reader would see it — not the markdown source of the surrounding paragraph.
@@ -199,6 +202,17 @@ To reply to an existing comment thread on the draft:
     with JSON body: { postId, key, agentName?, threadId, comment }
 The threadId comes from the Comment Threads section of the editPost response.
 This adds a reply to the specified thread, visible in the editor's comment panel.
+The response includes \`commentId\` and \`deletionToken\`.
+
+To delete a comment you created through the agent API:
+    POST /api/agent/deleteComment
+    with JSON body: { postId, key, agentName?, threadId, commentId, deletionToken? }
+Use the \`threadId\`, \`commentId\`, and \`deletionToken\` returned by
+commentOnDraft or replyToComment. If your request is still associated with the
+same logged-in user or browser client that created the comment, \`deletionToken\`
+may be omitted; otherwise include it. This endpoint only deletes comments you
+created. If the deleted comment was the last visible comment in its thread, the
+empty thread is removed too.
 
 To replace text inside the draft, make a POST request to:
     POST /api/agent/replaceText

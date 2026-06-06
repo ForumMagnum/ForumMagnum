@@ -18,16 +18,20 @@ import { commentOnDraftToolSchema } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
+export const AGENT_COMMENT_DELETION_TOKEN_FIELD = "agentDeletionToken";
+
 export function createCollabComment({
   content,
   author,
   authorId,
   id,
+  deletionToken,
 }: {
   content: string
   author: string
   authorId: string
   id: string
+  deletionToken?: string
 }): YMap<unknown> {
   const commentMap = new YMap<unknown>();
   commentMap.set("type", "comment");
@@ -37,6 +41,9 @@ export function createCollabComment({
   commentMap.set("content", content);
   commentMap.set("deleted", false);
   commentMap.set("timeStamp", Date.now());
+  if (deletionToken) {
+    commentMap.set(AGENT_COMMENT_DELETION_TOKEN_FIELD, deletionToken);
+  }
   return commentMap;
 }
 
@@ -143,6 +150,7 @@ export async function insertDraftCommentThread({
 }): Promise<{
   threadId: string
   commentId: string
+  deletionToken: string
   anchorStatus: "attached_by_quote_match" | "top_level_no_match" | "top_level_no_quote"
   anchorNote: string
 }> {
@@ -167,6 +175,7 @@ export async function insertDraftCommentThread({
 
     const commentId = randomId();
     const threadId = randomId();
+    const deletionToken = randomId();
     const comments = doc.get("comments", YArray<unknown>);
     const hasQuote = !!normalizeText(quote);
 
@@ -195,7 +204,7 @@ export async function insertDraftCommentThread({
       }
     }
 
-    const commentMap = createCollabComment({ content: comment, author, authorId, id: commentId });
+    const commentMap = createCollabComment({ content: comment, author, authorId, id: commentId, deletionToken });
     const threadMap = createCollabThread({ quote, firstComment: commentMap, threadId });
 
     doc.transact(() => {
@@ -203,7 +212,7 @@ export async function insertDraftCommentThread({
     }, "agent-comment-on-draft");
 
     await waitForProviderFlush(provider);
-    return { threadId, commentId, anchorStatus, anchorNote };
+    return { threadId, commentId, deletionToken, anchorStatus, anchorNote };
   } finally {
     provider.destroy();
     doc.destroy();
@@ -231,7 +240,7 @@ export async function POST(req: NextRequest) {
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
     const threadQuote = quote ?? "";
 
-    const { threadId, commentId, anchorStatus, anchorNote } = await insertDraftCommentThread({
+    const { threadId, commentId, deletionToken, anchorStatus, anchorNote } = await insertDraftCommentThread({
       postId,
       token,
       comment,
@@ -246,6 +255,7 @@ export async function POST(req: NextRequest) {
       postId,
       threadId,
       commentId,
+      deletionToken,
       anchorStatus,
       anchorNote,
       mode: "lexical-collaboration-comment-thread",
