@@ -160,6 +160,28 @@ describe("htmlToMarkdown preserves whitespace inside blank inline formatting", (
     expect(md).not.toContain("alphabeta");
     expect(md).toMatch(/alpha\s+beta/);
   });
+
+  it("does not collide adjacent words around a blank <strong>NBSP</strong>", () => {
+    const html =
+      '<p><span style="white-space: pre-wrap;">Lorem ipsum dolor sit amet, with</span>' +
+      '<strong class="text-bold" style="white-space: pre-wrap;">&nbsp;</strong>' +
+      '<span style="white-space: pre-wrap;">the consectetur adipiscing elit.</span></p>';
+    const md = htmlToMarkdown(html);
+
+    expect(md).toContain("with the");
+    expect(md).not.toMatch(/withthe/);
+  });
+
+  it("does not collide adjacent words around nested blank bold wrappers", () => {
+    const html =
+      '<p><span style="white-space: pre-wrap;">alpha</span>' +
+      '<b><strong class="text-bold" style="white-space: pre-wrap;">&nbsp;</strong></b>' +
+      '<span style="white-space: pre-wrap;">beta</span></p>';
+    const md = htmlToMarkdown(html);
+
+    expect(md).toMatch(/alpha\s+beta/);
+    expect(md).not.toContain("alphabeta");
+  });
 });
 
 /**

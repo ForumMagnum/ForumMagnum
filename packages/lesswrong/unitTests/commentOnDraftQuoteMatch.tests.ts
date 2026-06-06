@@ -6,7 +6,6 @@ import {
 } from "lexical";
 import { $isMarkNode } from "@lexical/mark";
 import { $attachMarkToQuote, type QuoteMarkResult } from "../../../app/api/agent/commentOnDraft/route";
-import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithHtml } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
 
@@ -305,29 +304,3 @@ describe("commentOnDraft quote matching", () => {
   });
 });
 
-// This describe block covers htmlToMarkdown (Turndown) behavior rather than
-// the commentOnDraft quote-matching logic itself. Could move to a dedicated
-// htmlToMarkdown test file.
-describe("htmlToMarkdown inter-word spacing", () => {
-  // When inter-word spacing is encoded as `&nbsp;` inside a bold/italic
-  // formatting wrapper (e.g. `word1<b><strong>&nbsp;</strong></b>word2`),
-  // Turndown's default emphasis rules drop the whitespace-only wrapper
-  // entirely, producing "word1word2" in the markdown output.
-  //
-  // Skipped: a fix requires overriding Turndown's default `strong`/`em`
-  // rules, which has a wider blast radius on other `htmlToMarkdown` callers
-  // and only triggers on the rare `&nbsp;`-as-word-separator-inside-bold
-  // pattern. Kept as `.skip` so the regression case stays documented for
-  // whoever picks up the Turndown work.
-  it.skip("preserves space between words when nbsp is inside a bold wrapper between spans", () => {
-    const html =
-      '<p><span style="white-space: pre-wrap;">Lorem ipsum dolor sit amet, with</span>' +
-      '<b><strong class="text-bold" style="white-space: pre-wrap;">&nbsp;</strong></b>' +
-      '<span style="white-space: pre-wrap;">the consectetur adipiscing elit.</span></p>';
-
-    const md = htmlToMarkdown(html);
-
-    expect(md).toContain("with the");
-    expect(md).not.toMatch(/withthe/);
-  });
-});
