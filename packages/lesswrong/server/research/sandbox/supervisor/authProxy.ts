@@ -82,10 +82,7 @@ function isNextDevInternalEndpoint(requestUrl: string | undefined): boolean {
   return !!requestUrl && (requestUrl.includes("/_next") || requestUrl.includes("/__nextjs"));
 }
 
-function rewriteHeaderUrl(header: string | string[] | undefined, localOrigin: string): string | string[] | undefined {
-  if (Array.isArray(header)) {
-    return header.map((value) => rewriteHeaderUrl(value, localOrigin) ?? localOrigin);
-  }
+function rewriteHeaderUrl(header: string | undefined, localOrigin: string): string | undefined {
   if (!header) return header;
 
   try {
