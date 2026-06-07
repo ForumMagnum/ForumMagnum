@@ -112,83 +112,67 @@ const observeScrollFocusMutations = (callback: () => void) => {
   return observer;
 };
 
-/**
- * To handle layout shift after scroll: Re-scroll to the given element until any user-initiated
- * input events occur, 5s passes, or the element is removed from the DOM
- *
- * @param id The `id` attribute of the element
- */
-export function scrollFocusOnElement({ id, options = {} }: { id: string; options?: ScrollToOptions }) {
-  window.killPreloadScroll?.();
+const startScrollFocusOnElement = (element: HTMLElement, options: ScrollToOptions) => {
+  let targetScrollTop = calculateCommentScrollTop(element);
 
-  clearCurrentScrollFocus();
+  // Initial scroll
+  // Note: Currently this is calibrated for comments, although the default offset for comments is a good
+  // first guess for any element
+  window.scrollTo({ top: targetScrollTop, ...options });
 
-  const attachToElement = (element: HTMLElement) => {
-    let targetScrollTop = calculateCommentScrollTop(element);
-
-    // Initial scroll
-    // Note: Currently this is calibrated for comments, although the default offset for comments is a good
-    // first guess for any element
-    window.scrollTo({ top: targetScrollTop, ...options });
-
-    // Local ref required because functions using cleanup need to
-    // be defined before cleanup is instantiated
-    const ref = {
-      cleanup: () => {},
-    };
-
-    const observer = observeScrollFocusMutations(() => {
-      // Check if the element is still in the DOM
-      if (!element.isConnected) {
-        ref.cleanup();
-        return;
-      }
-
-      const newScrollTop = calculateCommentScrollTop(element);
-
-      if (Math.abs(newScrollTop - targetScrollTop) <= 40) {
-        return;
-      }
-
-      targetScrollTop = newScrollTop;
-
-      // Override initial behaviour and just scroll instantly if re-scrolling, to avoid inertia resetting
-      window.scrollTo({ top: targetScrollTop, ...options, behavior: "auto"});
-    });
-
-    const userEventListener = function (_: Event) {
-      ref.cleanup();
-    };
-
-    // Event listeners for user-initiated actions
-    SCROLL_CANCEL_EVENTS.forEach((eventType) => {
-      window.addEventListener(eventType, userEventListener, { passive: true });
-    });
-
-    const timeout = setTimeout(() => ref.cleanup(), SCROLL_FOCUS_TIMEOUT_MS);
-
-    ref.cleanup = () => {
-      clearTimeout(timeout);
-      observer.disconnect();
-      SCROLL_CANCEL_EVENTS.forEach((eventType) => {
-        window.removeEventListener(eventType, userEventListener);
-      });
-
-      // Clear currentScrollFocus if it's still pointing to this instance
-      if (currentScrollFocus && currentScrollFocus.cleanup === ref.cleanup) {
-        currentScrollFocus = null;
-      }
-    };
-
-    runWithScrollFocus(ref.cleanup);
+  // Local ref required because functions using cleanup need to
+  // be defined before cleanup is instantiated
+  const ref = {
+    cleanup: () => {},
   };
 
-  const element = document.getElementById(id);
-  if (element) {
-    attachToElement(element);
-    return;
-  }
+  const observer = observeScrollFocusMutations(() => {
+    // Check if the element is still in the DOM
+    if (!element.isConnected) {
+      ref.cleanup();
+      return;
+    }
 
+    const newScrollTop = calculateCommentScrollTop(element);
+
+    if (Math.abs(newScrollTop - targetScrollTop) <= 40) {
+      return;
+    }
+
+    targetScrollTop = newScrollTop;
+
+    // Override initial behaviour and just scroll instantly if re-scrolling, to avoid inertia resetting
+    window.scrollTo({ top: targetScrollTop, ...options, behavior: "auto"});
+  });
+
+  const userEventListener = function (_: Event) {
+    ref.cleanup();
+  };
+
+  // Event listeners for user-initiated actions
+  SCROLL_CANCEL_EVENTS.forEach((eventType) => {
+    window.addEventListener(eventType, userEventListener, { passive: true });
+  });
+
+  const timeout = setTimeout(() => ref.cleanup(), SCROLL_FOCUS_TIMEOUT_MS);
+
+  ref.cleanup = () => {
+    clearTimeout(timeout);
+    observer.disconnect();
+    SCROLL_CANCEL_EVENTS.forEach((eventType) => {
+      window.removeEventListener(eventType, userEventListener);
+    });
+
+    // Clear currentScrollFocus if it's still pointing to this instance
+    if (currentScrollFocus && currentScrollFocus.cleanup === ref.cleanup) {
+      currentScrollFocus = null;
+    }
+  };
+
+  runWithScrollFocus(ref.cleanup);
+};
+
+const waitForScrollFocusTarget = (id: string, options: ScrollToOptions) => {
   // Comment links can ask us to scroll while collapsed ancestors are still
   // expanding, so keep the request alive until the target comment is mounted.
   const ref = {
@@ -201,7 +185,7 @@ export function scrollFocusOnElement({ id, options = {} }: { id: string; options
     }
 
     ref.cleanup();
-    attachToElement(element);
+    startScrollFocusOnElement(element, options);
   });
   const userEventListener = function (_: Event) {
     ref.cleanup();
@@ -222,6 +206,26 @@ export function scrollFocusOnElement({ id, options = {} }: { id: string; options
     }
   };
   runWithScrollFocus(ref.cleanup);
+};
+
+/**
+ * To handle layout shift after scroll: Re-scroll to the given element until any user-initiated
+ * input events occur, 5s passes, or the element is removed from the DOM
+ *
+ * @param id The `id` attribute of the element
+ */
+export function scrollFocusOnElement({ id, options = {} }: { id: string; options?: ScrollToOptions }) {
+  window.killPreloadScroll?.();
+
+  clearCurrentScrollFocus();
+
+  const element = document.getElementById(id);
+  if (element) {
+    startScrollFocusOnElement(element, options);
+    return;
+  }
+
+  waitForScrollFocusTarget(id, options);
 }
 
 /**
