@@ -646,6 +646,7 @@ type CommentSelector = {
   tagDiscussionComments?: InputMaybe<CommentsTagDiscussionCommentsInput>;
   tagSubforumComments?: InputMaybe<CommentsTagSubforumCommentsInput>;
   topShortform?: InputMaybe<CommentsTopShortformInput>;
+  userPostLWComments?: InputMaybe<CommentsUserPostLWCommentsInput>;
 };
 
 type CommentSortingMode =
@@ -1057,6 +1058,14 @@ type CommentsTopShortformInput = {
   minimumKarma?: InputMaybe<Scalars['Int']['input']>;
   shortformFrontpage?: InputMaybe<Scalars['Boolean']['input']>;
   timeField?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type CommentsUserPostLWCommentsInput = {
+  authorIsUnreviewed?: InputMaybe<Scalars['Boolean']['input']>;
+  commentIds?: InputMaybe<Array<Scalars['String']['input']>>;
+  minimumKarma?: InputMaybe<Scalars['Int']['input']>;
+  postId?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
 
@@ -12978,6 +12987,21 @@ type multiCommentAFUnreviewedCommentCountQueryQueryVariables = Exact<{
 
 
 type multiCommentAFUnreviewedCommentCountQueryQuery = multiCommentAFUnreviewedCommentCountQueryQuery_Query;
+
+type AFUserLWCommentNoticeQuery_comments_MultiCommentOutput_results_Comment = { __typename?: 'Comment', _id: string };
+
+type AFUserLWCommentNoticeQuery_comments_MultiCommentOutput = { __typename?: 'MultiCommentOutput', results: Array<AFUserLWCommentNoticeQuery_comments_MultiCommentOutput_results_Comment> };
+
+type AFUserLWCommentNoticeQuery_Query = { __typename?: 'Query', comments: AFUserLWCommentNoticeQuery_comments_MultiCommentOutput | null };
+
+
+type AFUserLWCommentNoticeQueryVariables = Exact<{
+  selector: InputMaybe<CommentSelector>;
+  limit: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+type AFUserLWCommentNoticeQuery = AFUserLWCommentNoticeQuery_Query;
 
 type alignmentPostMutation_alignmentPost_Post = (
   { __typename?: 'Post' }

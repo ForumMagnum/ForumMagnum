@@ -54,6 +54,7 @@ import Row from "../../common/Row";
 import AnalyticsInViewTracker from "../../common/AnalyticsInViewTracker";
 import PostsPageQuestionContent from "../../questions/PostsPageQuestionContent";
 import AFUnreviewedCommentCount from "../../alignment-forum/AFUnreviewedCommentCount";
+import AFUserLWCommentNotice from "../../alignment-forum/AFUserLWCommentNotice";
 import CommentsListSection from "../../comments/CommentsListSection";
 import CommentsTableOfContents from "../../comments/CommentsTableOfContents";
 import AttributionInViewTracker from "../../common/AttributionInViewTracker";
@@ -701,6 +702,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
               highlightDate={highlightDate ?? undefined}
               setHighlightDate={setHighlightDate}
             />}
+            {isAF() && fullPost && <AFUserLWCommentNotice post={fullPost}/>}
             {isAF() && <AFUnreviewedCommentCount post={post}/>}
           </Suspense>
           </AnalyticsContext>

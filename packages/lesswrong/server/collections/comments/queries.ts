@@ -128,6 +128,14 @@ export const graphqlCommentQueryTypeDefs = gql`
     postId: String
   }
   
+  input CommentsUserPostLWCommentsInput {
+    userId: String
+    commentIds: [String!]
+    minimumKarma: Int
+    authorIsUnreviewed: Boolean
+    postId: String
+  }
+
   input CommentsProfileRecentCommentsInput {
     userId: String
     commentIds: [String!]
@@ -455,6 +463,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     postCommentsNew: CommentsPostCommentsNewInput
     postCommentsBest: CommentsPostCommentsBestInput
     postLWComments: CommentsPostLWCommentsInput
+    userPostLWComments: CommentsUserPostLWCommentsInput
     profileRecentComments: CommentsProfileRecentCommentsInput
     profileComments: CommentsProfileCommentsInput
     allRecentComments: CommentsAllRecentCommentsInput

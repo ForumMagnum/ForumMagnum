@@ -2211,6 +2211,14 @@ input CommentsPostLWCommentsInput {
   postId: String
 }
 
+input CommentsUserPostLWCommentsInput {
+  userId: String
+  commentIds: [String!]
+  minimumKarma: Int
+  authorIsUnreviewed: Boolean
+  postId: String
+}
+
 input CommentsProfileRecentCommentsInput {
   userId: String
   commentIds: [String!]
@@ -2538,6 +2546,7 @@ input CommentSelector {
   postCommentsNew: CommentsPostCommentsNewInput
   postCommentsBest: CommentsPostCommentsBestInput
   postLWComments: CommentsPostLWCommentsInput
+  userPostLWComments: CommentsUserPostLWCommentsInput
   profileRecentComments: CommentsProfileRecentCommentsInput
   profileComments: CommentsProfileCommentsInput
   allRecentComments: CommentsAllRecentCommentsInput

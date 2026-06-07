@@ -297,6 +297,19 @@ function postLWComments(terms: CommentsViewTerms) {
   };
 }
 
+function userPostLWComments(terms: CommentsViewTerms) {
+  return {
+    selector: {
+      postId: terms.postId,
+      userId: terms.userId,
+      af: false,
+      answer: false,
+      parentAnswerId: viewFieldNullOrMissing,
+    },
+    options: {sort: {postedAt: -1}},
+  };
+}
+
 export const profileCommentsSortings: Partial<Record<CommentSortingMode,MongoSelector<DbComment>>> = {
   "new" :  { isPinnedOnProfile: -1, postedAt: -1},
   "magic": { score: -1 },
@@ -750,6 +763,7 @@ export const CommentsViews = new CollectionViewSet('Comments', {
   postCommentsNew,
   postCommentsBest,
   postLWComments,
+  userPostLWComments,
   profileRecentComments,
   profileComments,
   draftComments,

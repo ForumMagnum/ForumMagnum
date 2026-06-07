@@ -63,6 +63,7 @@ type Documents = {
     "\n  mutation UpdateCommentDeleted($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        _id\n        deleted\n      }\n    }\n  }\n": typeof types.UpdateCommentDeletedDocument,
     "\n    query MigrationsDashboardQuery {\n      MigrationsDashboard {\n        migrations {\n          name\n          dateWritten\n          runs { name started finished succeeded }\n          lastRun\n        }\n      }\n    }\n  ": typeof types.MigrationsDashboardQueryDocument,
     "\n  query multiCommentAFUnreviewedCommentCountQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SuggestAlignmentComment\n      }\n      totalCount\n    }\n  }\n": typeof types.multiCommentAFUnreviewedCommentCountQueryDocument,
+    "\n  query AFUserLWCommentNotice($selector: CommentSelector, $limit: Int) {\n    comments(selector: $selector, limit: $limit) {\n      results {\n        _id\n      }\n    }\n  }\n": typeof types.AFUserLWCommentNoticeDocument,
     "\n    mutation alignmentPost($postId: String, $af: Boolean) {\n      alignmentPost(postId: $postId, af: $af) {\n        ...PostsList\n      }\n    }\n  ": typeof types.alignmentPostDocument,
     "\n  query multiUserAuthorAnalyticsPageQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMinimumInfo\n      }\n      totalCount\n    }\n  }\n": typeof types.multiUserAuthorAnalyticsPageQueryDocument,
     "\n  query PostsAnalyticsPage($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": typeof types.PostsAnalyticsPageDocument,
@@ -927,6 +928,7 @@ const documents: Documents = {
     "\n  mutation UpdateCommentDeleted($selector: SelectorInput!, $data: UpdateCommentDataInput!) {\n    updateComment(selector: $selector, data: $data) {\n      data {\n        _id\n        deleted\n      }\n    }\n  }\n": types.UpdateCommentDeletedDocument,
     "\n    query MigrationsDashboardQuery {\n      MigrationsDashboard {\n        migrations {\n          name\n          dateWritten\n          runs { name started finished succeeded }\n          lastRun\n        }\n      }\n    }\n  ": types.MigrationsDashboardQueryDocument,
     "\n  query multiCommentAFUnreviewedCommentCountQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SuggestAlignmentComment\n      }\n      totalCount\n    }\n  }\n": types.multiCommentAFUnreviewedCommentCountQueryDocument,
+    "\n  query AFUserLWCommentNotice($selector: CommentSelector, $limit: Int) {\n    comments(selector: $selector, limit: $limit) {\n      results {\n        _id\n      }\n    }\n  }\n": types.AFUserLWCommentNoticeDocument,
     "\n    mutation alignmentPost($postId: String, $af: Boolean) {\n      alignmentPost(postId: $postId, af: $af) {\n        ...PostsList\n      }\n    }\n  ": types.alignmentPostDocument,
     "\n  query multiUserAuthorAnalyticsPageQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersMinimumInfo\n      }\n      totalCount\n    }\n  }\n": types.multiUserAuthorAnalyticsPageQueryDocument,
     "\n  query PostsAnalyticsPage($documentId: String) {\n    post(input: { selector: { documentId: $documentId } }) {\n      result {\n        ...PostsPage\n      }\n    }\n  }\n": types.PostsAnalyticsPageDocument,
@@ -1952,6 +1954,10 @@ export function gql(source: "\n    query MigrationsDashboardQuery {\n      Migra
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  query multiCommentAFUnreviewedCommentCountQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SuggestAlignmentComment\n      }\n      totalCount\n    }\n  }\n"): (typeof documents)["\n  query multiCommentAFUnreviewedCommentCountQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {\n    comments(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...SuggestAlignmentComment\n      }\n      totalCount\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query AFUserLWCommentNotice($selector: CommentSelector, $limit: Int) {\n    comments(selector: $selector, limit: $limit) {\n      results {\n        _id\n      }\n    }\n  }\n"): (typeof documents)["\n  query AFUserLWCommentNotice($selector: CommentSelector, $limit: Int) {\n    comments(selector: $selector, limit: $limit) {\n      results {\n        _id\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

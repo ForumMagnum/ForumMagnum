@@ -1959,6 +1959,14 @@ interface CommentsPostLWCommentsInput {
   postId?: string | null;
 }
 
+interface CommentsUserPostLWCommentsInput {
+  userId?: string | null;
+  commentIds?: Array<string> | null;
+  minimumKarma?: number | null;
+  authorIsUnreviewed?: boolean | null;
+  postId?: string | null;
+}
+
 interface CommentsProfileRecentCommentsInput {
   userId?: string | null;
   commentIds?: Array<string> | null;
@@ -2286,6 +2294,7 @@ interface CommentSelector {
   postCommentsNew: CommentsPostCommentsNewInput | null;
   postCommentsBest: CommentsPostCommentsBestInput | null;
   postLWComments: CommentsPostLWCommentsInput | null;
+  userPostLWComments: CommentsUserPostLWCommentsInput | null;
   profileRecentComments: CommentsProfileRecentCommentsInput | null;
   profileComments: CommentsProfileCommentsInput | null;
   allRecentComments: CommentsAllRecentCommentsInput | null;
@@ -9330,6 +9339,7 @@ interface GraphQLTypeMap {
   CommentsPostCommentsNewInput: CommentsPostCommentsNewInput;
   CommentsPostCommentsBestInput: CommentsPostCommentsBestInput;
   CommentsPostLWCommentsInput: CommentsPostLWCommentsInput;
+  CommentsUserPostLWCommentsInput: CommentsUserPostLWCommentsInput;
   CommentsProfileRecentCommentsInput: CommentsProfileRecentCommentsInput;
   CommentsProfileCommentsInput: CommentsProfileCommentsInput;
   CommentsAllRecentCommentsInput: CommentsAllRecentCommentsInput;
