@@ -93,6 +93,13 @@ export const replyToCommentToolSchema = z.object({
   comment: z.string().describe("The reply text in markdown"),
 });
 
+export const deleteCommentToolSchema = z.object({
+  postId: z.string().describe("The ID of the post"),
+  key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),
+  agentName: z.string().optional().describe("Name of the agent deleting the comment thread"),
+  threadId: z.string().describe("The ID of the comment thread to delete (from commentOnDraft or the Comment Threads section of the editPost response)"),
+});
+
 export const deleteBlockToolSchema = z.object({
   postId: z.string().describe("The ID of the post"),
   key: z.string().optional().describe("Optional link-sharing key for collaborative draft access"),

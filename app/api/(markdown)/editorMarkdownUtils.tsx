@@ -222,7 +222,7 @@ function serializeThreadsToMarkdown(threads: SerializedThread[]): string {
   lines.push(`## Comment Threads`);
   lines.push("");
   lines.push(
-    `${threads.length} open thread${threads.length !== 1 ? "s" : ""}. To reply: POST /api/agent/replyToComment { postId, key, threadId, comment }`
+    `${threads.length} open thread${threads.length !== 1 ? "s" : ""}. To reply: POST /api/agent/replyToComment { postId, key, threadId, comment }. To delete a thread: POST /api/agent/deleteComment { postId, key, threadId }`
   );
 
   for (const thread of threads) {
