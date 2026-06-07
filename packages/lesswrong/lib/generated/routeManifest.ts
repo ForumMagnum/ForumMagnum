@@ -290,6 +290,9 @@ export const routeTrie = {
             "deleteBlock": {
               "hasRoute": true
             },
+            "deleteComment": {
+              "hasRoute": true
+            },
             "feedback": {
               "hasRoute": true
             },
@@ -319,6 +322,7 @@ export const routeTrie = {
             "commentondraft": "commentOnDraft",
             "confirmclaudeaccess": "confirmClaudeAccess",
             "deleteblock": "deleteBlock",
+            "deletecomment": "deleteComment",
             "feedback": "feedback",
             "insertblock": "insertBlock",
             "insertllmblock": "insertLLMBlock",
