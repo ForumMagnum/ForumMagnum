@@ -11,10 +11,11 @@ import {
 import { markdownToHtml, htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { createHeadlessEditor, plainTextStartsWith } from "../../../app/api/agent/editorAgentUtil";
-import { buildNodeMarkdownMapForSubtree, findBlockToOperateOnByPrefix, findRenderedQuoteInMarkdown, locateMarkdownQuoteSelectionInSubtree, markdownQuoteToPlainText, markdownQuoteToRenderedPlainText, toPlainTextFilter, type MarkdownQuoteSelectionResult } from "../../../app/api/agent/mapMarkdownToLexical";
+import { $createSelectionAroundBlockForSuggestion, buildNodeMarkdownMapForSubtree, findBlockToOperateOnByPrefix, findRenderedQuoteInMarkdown, locateMarkdownQuoteSelectionInSubtree, markdownQuoteToPlainText, markdownQuoteToRenderedPlainText, toPlainTextFilter, type MarkdownQuoteSelectionResult } from "../../../app/api/agent/mapMarkdownToLexical";
 import { $isListItemNode, $isListNode } from "@lexical/list";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
+import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 
 async function selectMarkdownQuoteInEditor(
   editor: LexicalEditor,
@@ -333,6 +334,52 @@ describe("findBlockToOperateOnByPrefix", () => {
     return result;
   }
 
+  async function deleteBlockLikeRoute(editor: LexicalEditor, prefix: string, mode: "edit" | "suggest"): Promise<boolean> {
+    let deleted = false;
+    await runEditorUpdate(editor, () => {
+      const root = $getRoot();
+      const rootChildren = root.getChildren();
+      const textFilter = toPlainTextFilter(prefix);
+      const mapResult = buildNodeMarkdownMapForSubtree(root.getKey(), textFilter);
+      const nodeToDelete = findBlockToOperateOnByPrefix({ rootChildren, prefix, mapResult, textFilter });
+      if (!nodeToDelete) return;
+
+      const parent = nodeToDelete.getParent();
+      if (!parent) return;
+      const indexInParent = nodeToDelete.getIndexWithinParent();
+
+      if (mode === "edit") {
+        nodeToDelete.remove();
+        if (parent !== root && parent.getChildrenSize() === 0) {
+          parent.remove();
+        }
+      } else {
+        const selection = $createSelectionAroundBlockForSuggestion(nodeToDelete);
+        if (!selection) return;
+        $setSelection(selection);
+        $wrapSelectionInSuggestionNode(selection, false, "test-suggestion", "delete");
+      }
+      deleted = true;
+    });
+    return deleted;
+  }
+
+  function editorToMarkdown(editor: LexicalEditor): string {
+    let html = "";
+    editor.getEditorState().read(() => {
+      html = withDomGlobals(() => $generateHtmlFromNodes(editor, null));
+    });
+    return htmlToMarkdown(html).trim();
+  }
+
+  function editorToHtml(editor: LexicalEditor): string {
+    let html = "";
+    editor.getEditorState().read(() => {
+      html = withDomGlobals(() => $generateHtmlFromNodes(editor, null));
+    });
+    return html;
+  }
+
   it("matches a leading paragraph by prefix", async () => {
     const editor = await setupEditorWithContent(
       "First paragraph here.\n\nSecond paragraph here.\n\nThird paragraph here."
@@ -412,6 +459,45 @@ describe("findBlockToOperateOnByPrefix", () => {
     const matched = findFor(editor, "$x^2$ starts");
     expect(matched).not.toBeNull();
     expect(matched?.type).toBe("paragraph");
+  });
+
+  it("matches ordered list items by their markdown marker prefix", async () => {
+    const editor = await setupEditorWithContent(
+      "1. alpha item\n2. bravo item\n3. charlie item"
+    );
+
+    const firstMatched = findFor(editor, "1. alpha item");
+    expect(firstMatched?.isListItem).toBe(true);
+    expect(firstMatched?.text).toBe("alpha item");
+
+    const secondMatched = findFor(editor, "2. bravo item");
+    expect(secondMatched?.isListItem).toBe(true);
+    expect(secondMatched?.text).toBe("bravo item");
+  });
+
+  it("deletes a non-first ordered list item by markdown marker prefix in edit mode", async () => {
+    const editor = await setupEditorWithContent(
+      "1. alpha item\n2. bravo item\n3. charlie item"
+    );
+
+    await expect(deleteBlockLikeRoute(editor, "2. bravo item", "edit")).resolves.toBe(true);
+
+    const markdown = editorToMarkdown(editor);
+    expect(markdown).toContain("1.  alpha item");
+    expect(markdown).not.toContain("bravo item");
+    expect(markdown).toContain("2.  charlie item");
+  });
+
+  it("marks an ordered list item as a deletion suggestion by markdown marker prefix", async () => {
+    const editor = await setupEditorWithContent(
+      "1. alpha item\n2. bravo item\n3. charlie item"
+    );
+
+    await expect(deleteBlockLikeRoute(editor, "2. bravo item", "suggest")).resolves.toBe(true);
+
+    const html = editorToHtml(editor);
+    expect(html).not.toContain('<span style="white-space: pre-wrap;">b</span><del');
+    expect(html).toContain('<del class="Lexical__Suggestion delete" data-suggestion-id="test-suggestion" spellcheck="false"><span style="white-space: pre-wrap;">bravo item</span></del>');
   });
 });
 

@@ -1,9 +1,11 @@
 import { $generateHtmlFromNodes } from "@lexical/html";
 import {
+  $createRangeSelection,
   $getNodeByKey,
   $isDecoratorNode,
   $isElementNode,
   $isTextNode,
+  type RangeSelection,
   type LexicalEditor,
   type LexicalNode,
   type SerializedLexicalNode,
@@ -17,6 +19,7 @@ import { QUERY_INPUT_NODE_TYPE } from "@/components/research/lexical/QueryInputN
 import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import { stripMathTokens, formatMathToken, foldCaseOutsideMath, canonicalizeMathTokens, findMathSpansInMarkdown, type MathSpan } from "@/lib/utils/mathTokens";
 import { $isListNode } from "@lexical/list";
+import { $isTableNode } from "@lexical/table";
 
 /**
  * Recursively serialize a Lexical node and its children to JSON.
@@ -633,6 +636,34 @@ export function findBlockToOperateOnByPrefix({
     if (matches(child)) return child;
   }
   return null;
+}
+
+export function $createSelectionAroundBlockForSuggestion(node: LexicalNode): RangeSelection | null {
+  const parent = node.getParent();
+  if (!parent) {
+    return null;
+  }
+
+  const selection = $createRangeSelection();
+  const firstDescendant = $isElementNode(node) ? node.getFirstDescendant() : null;
+  const lastDescendant = $isElementNode(node) ? node.getLastDescendant() : null;
+
+  if (
+    !$isTableNode(node)
+    && firstDescendant
+    && lastDescendant
+    && $isTextNode(firstDescendant)
+    && $isTextNode(lastDescendant)
+  ) {
+    selection.anchor.set(firstDescendant.getKey(), 0, "text");
+    selection.focus.set(lastDescendant.getKey(), lastDescendant.getTextContentSize(), "text");
+    return selection;
+  }
+
+  const indexInParent = node.getIndexWithinParent();
+  selection.anchor.set(parent.getKey(), indexInParent, "element");
+  selection.focus.set(parent.getKey(), indexInParent + 1, "element");
+  return selection;
 }
 
 function createElementRangeAroundNode(node: LexicalNode): MarkdownQuoteSelectionResult {

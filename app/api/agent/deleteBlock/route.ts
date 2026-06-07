@@ -1,11 +1,11 @@
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
-import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
+import { $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
-import { buildNodeMarkdownMapForSubtree, findBlockToOperateOnByPrefix, toPlainTextFilter } from "../mapMarkdownToLexical";
+import { $createSelectionAroundBlockForSuggestion, buildNodeMarkdownMapForSubtree, findBlockToOperateOnByPrefix, toPlainTextFilter } from "../mapMarkdownToLexical";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deleteBlockToolSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
@@ -88,9 +88,14 @@ export async function deleteMarkdownBlock({
             return;
           }
 
-          const selection = $createRangeSelection();
-          selection.anchor.set(parent.getKey(), indexInParent, "element");
-          selection.focus.set(parent.getKey(), indexInParent + 1, "element");
+          const selection = $createSelectionAroundBlockForSuggestion(nodeToDelete);
+          if (!selection) {
+            result = {
+              deleted: false,
+              note: "Matched block has no parent and cannot be suggested for deletion.",
+            };
+            return;
+          }
           $setSelection(selection);
           const suggestionId = randomId();
           $wrapSelectionInSuggestionNode(selection, false, suggestionId, "delete");
