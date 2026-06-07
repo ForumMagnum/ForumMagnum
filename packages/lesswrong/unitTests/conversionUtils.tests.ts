@@ -230,6 +230,31 @@ describe("spoiler block (>!) round-trip", () => {
   });
 });
 
+describe("markdown footnote rendering", () => {
+  it("renders markdown footnotes with native footnote content wrappers", () => {
+    const html = markdownToHtml(
+      "Text with a footnote.[^1]\n\n[^1]: Footnote body."
+    );
+    const dom = new JSDOM(`<body>${html}</body>`);
+    const reference = dom.window.document.querySelector(".footnote-reference");
+    const item = dom.window.document.querySelector(".footnote-item");
+    const content = dom.window.document.querySelector(".footnote-content");
+    const backLink = dom.window.document.querySelector(".footnote-back-link");
+
+    expect(reference?.getAttribute("data-footnote-reference")).toBe("");
+    expect(reference?.getAttribute("data-footnote-id")).toBe("1");
+    expect(reference?.getAttribute("data-footnote-index")).toBe("1");
+    expect(item?.getAttribute("data-footnote-item")).toBe("");
+    expect(item?.getAttribute("data-footnote-id")).toBe("1");
+    expect(content?.getAttribute("data-footnote-content")).toBe("");
+    expect(content?.textContent?.trim()).toBe("Footnote body.");
+    expect(backLink?.getAttribute("data-footnote-back-link")).toBe("");
+    expect(backLink?.getAttribute("data-footnote-id")).toBe("1");
+    expect(backLink?.querySelector("a")?.getAttribute("href")).toBe("#fnref1");
+    expect(dom.window.document.querySelector(".footnote-backref")).toBeNull();
+  });
+});
+
 describe("LaTeX correctness regressions", () => {
   it("keeps math round-trippable when a digit follows math nested in an inline wrapper", () => {
     // The `latex-spans` Turndown rule reads the character after the equation
