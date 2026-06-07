@@ -19,9 +19,12 @@ import Loading from "../vulcan-core/Loading";
 import SectionFooter from "../common/SectionFooter";
 import LoadMore from "../common/LoadMore";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
+import { useQuery } from "@/lib/crud/useQuery";
 import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { SuspenseWrapper } from "../common/SuspenseWrapper";
+
+const QUICK_TAKES_INITIAL_LIMIT = 7;
 
 const ShortformCommentsMultiQuery = gql(`
   query multiCommentQuickTakesSectionQuery($selector: CommentSelector, $limit: Int, $enableTotal: Boolean) {
@@ -61,6 +64,36 @@ const styles = defineStyles("QuickTakesSection", (theme: ThemeType) => ({
   },
 }));
 
+export function mergeQuickTakesWithFreshSlot<T extends {_id: string}>(
+  rankedResults: readonly T[],
+  freshResult: T | null | undefined,
+  initialLimit = QUICK_TAKES_INITIAL_LIMIT,
+): T[] {
+  if (!freshResult) {
+    return [...rankedResults];
+  }
+
+  const initiallyVisibleResults = rankedResults.slice(0, initialLimit);
+  if (initiallyVisibleResults.some((result) => result._id === freshResult._id)) {
+    return [...rankedResults];
+  }
+
+  if (rankedResults.length < initialLimit) {
+    return [
+      ...rankedResults.filter((result) => result._id !== freshResult._id),
+      freshResult,
+    ];
+  }
+
+  return [
+    ...rankedResults.slice(0, initialLimit - 1),
+    freshResult,
+    ...rankedResults
+      .slice(initialLimit - 1)
+      .filter((result) => result._id !== freshResult._id),
+  ];
+}
+
 const QuickTakesSectionLoaded = ({showCommunity}: {
   showCommunity: boolean
 }) => {
@@ -71,12 +104,24 @@ const QuickTakesSectionLoaded = ({showCommunity}: {
   const { data, loading, refetch, loadMoreProps } = useQueryWithLoadMore(ShortformCommentsMultiQuery, {
     variables: {
       selector: { shortformFrontpage: { showCommunity, maxAgeDays } },
-      limit: 7,
+      limit: QUICK_TAKES_INITIAL_LIMIT,
       enableTotal: true,
     },
   });
 
-  const results = data?.comments?.results;
+  const { data: freshData } = useQuery(ShortformCommentsMultiQuery, {
+    variables: {
+      selector: { shortformFrontpage: { showCommunity, maxAgeDays, minimumKarma: 0, sortBy: "new" } },
+      limit: 1,
+      enableTotal: false,
+    },
+  });
+
+  const results = mergeQuickTakesWithFreshSlot(
+    data?.comments?.results ?? [],
+    freshData?.comments?.results?.[0],
+    QUICK_TAKES_INITIAL_LIMIT,
+  );
 
   const showLoadMore = !loadMoreProps.hidden;
 

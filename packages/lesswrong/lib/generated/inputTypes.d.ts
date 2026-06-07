@@ -2129,6 +2129,7 @@ interface CommentsShortformFrontpageInput {
   maxAgeDays?: number | null;
   showCommunity?: boolean | null;
   relevantTagId?: string | null;
+  sortBy?: CommentSortingMode | null;
 }
 
 interface CommentsRepliesToCommentThreadInput {

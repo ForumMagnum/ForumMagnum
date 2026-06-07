@@ -46,6 +46,7 @@ declare global {
     showCommunity?: boolean,
     commentIds?: string[],
     minimumKarma?: number,
+    sortBy?: CommentSortingMode,
   }
 }
 
@@ -533,6 +534,12 @@ function shortform(terms: CommentsViewTerms) {
   };
 }
 
+export function getShortformFrontpageSort(sortBy?: CommentSortingMode): MongoSelector<DbComment> {
+  return sortBy === "new"
+    ? {postedAt: -1}
+    : {score: -1, lastSubthreadActivity: -1, postedAt: -1};
+}
+
 function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?: ResolverContext) {
   const twoHoursAgo = moment().subtract(2, 'hours').toDate();
   const maxAgeDays = terms.maxAgeDays ?? 5;
@@ -558,6 +565,9 @@ function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?:
             {userId: currentUserId},
           ]
         },
+        typeof terms.minimumKarma === 'number'
+          ? {baseScore: {$gte: terms.minimumKarma}}
+          : {},
       ],
       // Quick takes older than 2 hours must have at least 1 karma, quick takes
       // younger than 2 hours must have at least -5 karma
@@ -572,7 +582,7 @@ function shortformFrontpage(terms: CommentsViewTerms, _: ApolloClient, context?:
         },
       ],
     },
-    options: {sort: {score: -1, lastSubthreadActivity: -1, postedAt: -1}}
+    options: {sort: getShortformFrontpageSort(terms.sortBy)}
   };
 }
 
