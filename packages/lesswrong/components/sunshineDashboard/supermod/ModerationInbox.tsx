@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -26,6 +26,7 @@ import ModerationPostSidebar from './ModerationPostSidebar';
 import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
+import NewContentPangramProbe from './NewContentPangramProbe';
 
 // All of the moderation inbox's initial data is fetched in a single query so
 // that its root fields (users/posts/classifiedPosts/curation/lastCurated)
@@ -134,7 +135,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const [state, dispatch] = useReducer(
     inboxStateReducer,
-    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningLlmCheckId: null },
+    { users: [], posts: [], classifiedPosts: [], curationPosts: [], activeTab: 'all', focusedUserId: null, openedUserId: initialOpenedUserId, focusedPostId: null, focusedContentIndex: 0, undoQueue: [], history: [], runningLlmCheckId: null, pangramQualifyingUserIds: [] },
     (): InboxState => {
       const initialUsers = directUser ? [directUser, ...users] : users;
       if (initialUsers.length === 0 && posts.length === 0 && classifiedPosts.length === 0 && curationPosts.length === 0) {
@@ -151,6 +152,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          pangramQualifyingUserIds: [],
         };
       }
 
@@ -168,12 +170,13 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          pangramQualifyingUserIds: [],
         };
       }
 
       const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount, new Set());
 
       // Default to curation when there are no curation notices (so you can add some)
       // Otherwise, find the first non-empty non-curation tab
@@ -196,6 +199,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          pangramQualifyingUserIds: [],
         };
       }
       
@@ -213,6 +217,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          pangramQualifyingUserIds: [],
         };
       }
 
@@ -230,10 +235,11 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
           undoQueue: [],
           history: [],
           runningLlmCheckId: null,
+          pangramQualifyingUserIds: [],
         };
       }
 
-      const filteredGroups = getFilteredGroups(groupedUsers, firstTab);
+      const filteredGroups = getFilteredGroups(groupedUsers, firstTab, new Set());
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       return {
@@ -249,6 +255,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
         undoQueue: [],
         history: [],
         runningLlmCheckId: null,
+        pangramQualifyingUserIds: [],
       };
     }
   );
@@ -279,20 +286,37 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const allOrderedUsers = useMemo(() => orderedGroups.map(([_, users]) => users).flat(), [orderedGroups]);
 
-  const filteredGroups = useMemo(() => {
-    if (state.activeTab === 'all') {
-      return orderedGroups;
-    }
-    return orderedGroups.filter(([group]) => group === state.activeTab);
-  }, [orderedGroups, state.activeTab]);
+  const pangramQualifyingUserIdSet = useMemo(() => new Set(state.pangramQualifyingUserIds), [state.pangramQualifyingUserIds]);
+
+  const filteredGroups = useMemo(() => getFilteredGroups(groupedUsers, state.activeTab, pangramQualifyingUserIdSet), [groupedUsers, state.activeTab, pangramQualifyingUserIdSet]);
 
   const orderedUsers = useMemo(() => filteredGroups.map(([_, users]) => users).flat(), [filteredGroups]);
 
   const curationNoticeCount = useMemo(() => sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0), [state.curationPosts]);
 
   const visibleTabs = useMemo((): TabInfo[] => {
-    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount);
-  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount]);
+    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, pangramQualifyingUserIdSet);
+  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, pangramQualifyingUserIdSet]);
+
+  // New-content users start out in the New Content tab; as each user's content
+  // loads client-side, the probes report whether they qualify for the Pangram
+  // tab, and qualifying users migrate over.
+  const newContentUsers = useMemo(() => groupedUsers.newContent ?? [], [groupedUsers]);
+
+  const [pangramQualification, setPangramQualification] = useState<Record<string, boolean>>({});
+
+  const handlePangramProbeResult = useCallback((userId: string, qualifies: boolean) => {
+    setPangramQualification(prev => (prev[userId] === qualifies ? prev : { ...prev, [userId]: qualifies }));
+  }, []);
+
+  const pangramQualifyingUserIds = useMemo(
+    () => newContentUsers.filter(user => pangramQualification[user._id]).map(user => user._id),
+    [newContentUsers, pangramQualification]
+  );
+
+  useEffect(() => {
+    dispatch({ type: 'SET_PANGRAM_QUALIFYING_USERS', userIds: pangramQualifyingUserIds });
+  }, [pangramQualifyingUserIds]);
 
   const openedUser = useMemo(() => {
     if (!state.openedUserId) return null;
@@ -379,6 +403,9 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
   return (
     <CoreTagsKeyboardProvider>
     <div className={classes.root}>
+      {newContentUsers.map(user => (
+        <NewContentPangramProbe key={user._id} userId={user._id} onResult={handlePangramProbeResult} />
+      ))}
       {isCurationTab ? (
         <CurationKeyboardHandler
           onNextPost={handleNextPost}

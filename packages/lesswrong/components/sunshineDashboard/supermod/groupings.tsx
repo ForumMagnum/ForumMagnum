@@ -60,7 +60,29 @@ export const REVIEW_GROUP_TO_PRIORITY = {
 
 type ReviewGroupMap = typeof REVIEW_GROUP_TO_PRIORITY;
 export type ReviewGroup = keyof ReviewGroupMap;
-export type TabId = ReviewGroup | 'all' | 'posts' | 'classifiedPosts' | 'curation';
+export type TabId = ReviewGroup | 'all' | 'pangram' | 'posts' | 'classifiedPosts' | 'curation';
+
+// A new-content user is pulled out into the dedicated "Pangram" tab if any of
+// their content scores above this Pangram AI-detection threshold.
+export const HIGH_PANGRAM_SCORE_THRESHOLD = 0.5;
+
+// A new-content user qualifies for the Pangram tab if their content looks
+// AI-generated (high Pangram score on any post/comment) or if all of their
+// content has already been rejected. Evaluated client-side from the user's
+// loaded posts and comments.
+export function userContentQualifiesForPangram(posts: SunshinePostsList[], comments: SunshineCommentsList[]): boolean {
+  const pangramScores = [
+    ...posts.map(post => post.automatedContentEvaluations?.pangramScore ?? 0),
+    ...comments.map(comment => comment.automatedContentEvaluations?.pangramScore ?? 0),
+  ];
+  const hasHighPangramScore = pangramScores.some(score => score > HIGH_PANGRAM_SCORE_THRESHOLD);
+  if (hasHighPangramScore) {
+    return true;
+  }
+
+  const allContent = [...posts, ...comments];
+  return allContent.length > 0 && allContent.every(content => content.rejected);
+}
 
 const PRIORITY_TO_REVIEW_GROUP = Object.fromEntries(
   Object.entries(REVIEW_GROUP_TO_PRIORITY).map(([group, priority]) => [priority, group])
@@ -146,6 +168,8 @@ export function getReviewGroupDisplayName(group: TabId): string {
       return 'Unknown';
     case 'all':
       return 'All';
+    case 'pangram':
+      return 'Pangram';
     case 'posts':
       return 'Posts';
     case 'classifiedPosts':

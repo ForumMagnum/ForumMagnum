@@ -116,7 +116,7 @@ const ModerationInboxList = ({
         ) : (
           <div className={classes.scrollContainer}>
             {userGroups.map(([group, users]) => {
-              const groupStyling = activeTab === 'all' ? classes[group] : undefined;
+              const groupStyling = (activeTab === 'all' || activeTab === 'pangram') ? classes[group] : undefined;
               return <div key={group} className={classNames(classes.group, groupStyling)}>
                 {users.map((user) => (
                   <ModerationInboxItem
