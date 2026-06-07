@@ -62,6 +62,20 @@ export interface MarkdownQuoteSelectionResult {
   reason?: string
 }
 
+export interface QuoteMatchDiagnosticMatch {
+  nodeType: string
+  markdown: string
+  normalizedText: string
+  score: number
+}
+
+export interface QuoteMatchDiagnostics {
+  reason: string
+  renderedQuote: string
+  normalizedQuote: string
+  closestMatches: QuoteMatchDiagnosticMatch[]
+}
+
 function stripSimpleMarkdownPunctuation(value: string): string {
   return value.replace(/[*_`~]/g, "");
 }
@@ -656,6 +670,91 @@ function createElementRangeAroundNode(node: LexicalNode): MarkdownQuoteSelection
       offset: indexWithinParent + 1,
       type: "element",
     },
+  };
+}
+
+function truncateDiagnosticText(value: string, maxLength: number): string {
+  const singleLine = value.replace(/\s+/g, " ").trim();
+  if (singleLine.length <= maxLength) {
+    return singleLine;
+  }
+  return singleLine.slice(0, maxLength - 3).trimEnd() + "...";
+}
+
+function tokenizeForDiagnostics(value: string): Set<string> {
+  return new Set(
+    value
+      .split(/[^a-z0-9$\\_^{}]+/i)
+      .map((token) => token.trim().toLowerCase())
+      .filter((token) => token.length >= 2)
+  );
+}
+
+function scoreDiagnosticCandidate(quoteTokens: Set<string>, candidateTokens: Set<string>): number {
+  if (quoteTokens.size === 0 || candidateTokens.size === 0) {
+    return 0;
+  }
+
+  let overlap = 0;
+  for (const token of quoteTokens) {
+    if (candidateTokens.has(token)) {
+      overlap++;
+    }
+  }
+  return (2 * overlap) / (quoteTokens.size + candidateTokens.size);
+}
+
+function getNormalizedCandidateText(markdown: string): string {
+  return toPlainTextFilter(markdown) || normalizeText(markdown);
+}
+
+export function getMarkdownQuoteMatchDiagnosticsInSubtree({
+  rootNodeKey,
+  markdownQuote,
+  reason,
+  mapResult,
+}: {
+  rootNodeKey: string
+  markdownQuote: string
+  reason: string
+  mapResult?: NodeMarkdownMapResult
+}): QuoteMatchDiagnostics {
+  const renderedQuote = markdownQuoteToRenderedPlainText(markdownQuote).trim();
+  const normalizedQuote = normalizeText(renderedQuote || markdownQuote);
+  const mapping = mapResult ?? buildNodeMarkdownMapForSubtree(rootNodeKey);
+  const quoteTokens = tokenizeForDiagnostics(normalizedQuote);
+  const seenMarkdown = new Set<string>();
+  const closestMatches = mapping.entries
+    .filter(({ markdown }) => {
+      const normalizedMarkdown = normalizeText(markdown);
+      if (!normalizedMarkdown || seenMarkdown.has(normalizedMarkdown)) {
+        return false;
+      }
+      seenMarkdown.add(normalizedMarkdown);
+      return true;
+    })
+    .map((entry) => {
+      const normalizedText = getNormalizedCandidateText(entry.markdown);
+      const score = scoreDiagnosticCandidate(
+        quoteTokens,
+        tokenizeForDiagnostics(normalizedText),
+      );
+      return {
+        nodeType: entry.type,
+        markdown: truncateDiagnosticText(entry.markdown, 240),
+        normalizedText: truncateDiagnosticText(normalizedText, 240),
+        score,
+      };
+    })
+    .filter((match) => match.score > 0)
+    .sort((a, b) => b.score - a.score || a.markdown.length - b.markdown.length)
+    .slice(0, 3);
+
+  return {
+    reason,
+    renderedQuote: truncateDiagnosticText(renderedQuote, 240),
+    normalizedQuote: truncateDiagnosticText(normalizedQuote, 240),
+    closestMatches,
   };
 }
 

@@ -113,6 +113,23 @@ describe("commentOnDraft quote matching", () => {
     expect(getAllMarkIds(editor)).toContain(markId);
   });
 
+  it("returns nearby markdown snippets when a quote does not match", async () => {
+    const editor = await setupEditorWithContent(
+      "I think sometimes, I feel like I need something to defend myself from x-risk."
+    );
+    const markId = randomId();
+    const { quoteFoundInDocument, markCreated, quoteMatchDiagnostics } = await attachCommentMark(
+      editor,
+      "I think sometimes, I feel like I need something to defend myself from AI risk.",
+      markId,
+    );
+
+    expect(quoteFoundInDocument).toBe(false);
+    expect(markCreated).toBe(false);
+    expect(quoteMatchDiagnostics?.closestMatches[0]?.markdown).toContain("x-risk");
+    expect(quoteMatchDiagnostics?.closestMatches[0]?.normalizedText).toContain("defend myself");
+  });
+
   it("attaches a mark when quote includes markdown formatting markers", async () => {
     // Emphasis markers in the quote should be projected away before matching,
     // since they aren't present as literal characters in the document's text.

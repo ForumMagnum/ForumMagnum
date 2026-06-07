@@ -167,6 +167,11 @@ To add Google Docs-style comments to the draft, make a request to:
 If a quote is provided, the comment will be attached to matching quoted text.
 The quote should be long enough to be unambiguous. If no quote is provided, the
 comment will be top-level.
+The response includes anchorStatus. If anchorStatus is "top_level_no_match",
+the comment was still created as a top-level thread, and the response may include
+quoteMatchDiagnostics.closestMatches: nearby markdown snippets from the draft
+that shared words with your quote. Use those snippets to re-read the current
+draft and derive a corrected quote before retrying.
 
 The comment body is markdown. The quote, however, should be the visible rendered
 text as a reader would see it — not the markdown source of the surrounding paragraph.

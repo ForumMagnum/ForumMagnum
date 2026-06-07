@@ -13,7 +13,11 @@ import {
   waitForProviderSync,
   withMainDocEditorSession,
 } from "../editorAgentUtil";
-import { locateMarkdownQuoteSelectionInSubtree } from "../mapMarkdownToLexical";
+import {
+  getMarkdownQuoteMatchDiagnosticsInSubtree,
+  locateMarkdownQuoteSelectionInSubtree,
+  type QuoteMatchDiagnostics,
+} from "../mapMarkdownToLexical";
 import { commentOnDraftToolSchema } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
@@ -64,6 +68,7 @@ function createCollabThread({
 export interface QuoteMarkResult {
   quoteFoundInDocument: boolean
   markCreated: boolean
+  quoteMatchDiagnostics?: QuoteMatchDiagnostics
 }
 
 /**
@@ -77,7 +82,15 @@ export function $attachMarkToQuote(quote: string, markId: string): QuoteMarkResu
     markdownQuote: quote,
   });
   if (!result.found || !result.anchor || !result.focus) {
-    return { quoteFoundInDocument: result.found, markCreated: false };
+    return {
+      quoteFoundInDocument: result.found,
+      markCreated: false,
+      quoteMatchDiagnostics: getMarkdownQuoteMatchDiagnosticsInSubtree({
+        rootNodeKey: root.getKey(),
+        markdownQuote: quote,
+        reason: result.reason ?? "Quote could not be anchored.",
+      }),
+    };
   }
 
   const selection = $createRangeSelection();
@@ -98,7 +111,7 @@ async function getMainDocQuoteMatchResult({
   token: string
   quote: string
   markId: string
-}): Promise<{ quoteFoundInDocument: boolean, createdMarkId: string | null }> {
+}): Promise<{ quoteFoundInDocument: boolean, createdMarkId: string | null, quoteMatchDiagnostics?: QuoteMatchDiagnostics }> {
   return withMainDocEditorSession({
     postId,
     token,
@@ -106,11 +119,13 @@ async function getMainDocQuoteMatchResult({
     callback: async ({ editor, provider: mainDocProvider }) => {
       let quoteFoundInDocument = false;
       let createdMarkId: string | null = null;
+      let quoteMatchDiagnostics: QuoteMatchDiagnostics | undefined;
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
           const markResult = $attachMarkToQuote(quote, markId);
           quoteFoundInDocument = markResult.quoteFoundInDocument;
+          quoteMatchDiagnostics = markResult.quoteMatchDiagnostics;
           if (markResult.markCreated) {
             createdMarkId = markId;
           }
@@ -121,7 +136,7 @@ async function getMainDocQuoteMatchResult({
         await waitForProviderFlush(mainDocProvider);
       }
 
-      return { quoteFoundInDocument, createdMarkId };
+      return { quoteFoundInDocument, createdMarkId, quoteMatchDiagnostics };
     },
   });
 }
@@ -145,6 +160,7 @@ export async function insertDraftCommentThread({
   commentId: string
   anchorStatus: "attached_by_quote_match" | "top_level_no_match" | "top_level_no_quote"
   anchorNote: string
+  quoteMatchDiagnostics?: QuoteMatchDiagnostics
 }> {
   const documentName = `post-${postId}/comments`;
   const wsUrl = process.env.HOCUSPOCUS_URL;
@@ -172,22 +188,25 @@ export async function insertDraftCommentThread({
 
     let anchorStatus: "attached_by_quote_match" | "top_level_no_match" | "top_level_no_quote";
     let anchorNote: string;
+    let quoteMatchDiagnostics: QuoteMatchDiagnostics | undefined;
 
     if (!hasQuote) {
       anchorStatus = "top_level_no_quote";
       anchorNote = "No quote provided; created top-level comment thread.";
     } else {
-      const { quoteFoundInDocument, createdMarkId } = await getMainDocQuoteMatchResult({
+      const matchResult = await getMainDocQuoteMatchResult({
         postId,
         token,
         quote,
         markId: threadId,
       });
+      const { quoteFoundInDocument, createdMarkId } = matchResult;
 
       if (createdMarkId) {
         anchorStatus = "attached_by_quote_match";
         anchorNote = "Inserted a new text-range mark around quote text and attached the thread.";
       } else {
+        quoteMatchDiagnostics = matchResult.quoteMatchDiagnostics;
         anchorStatus = "top_level_no_match";
         anchorNote = quoteFoundInDocument
           ? "Quote text found in the document, but could not create a simple text-node anchor; created top-level comment thread."
@@ -203,7 +222,7 @@ export async function insertDraftCommentThread({
     }, "agent-comment-on-draft");
 
     await waitForProviderFlush(provider);
-    return { threadId, commentId, anchorStatus, anchorNote };
+    return { threadId, commentId, anchorStatus, anchorNote, quoteMatchDiagnostics };
   } finally {
     provider.destroy();
     doc.destroy();
@@ -231,7 +250,7 @@ export async function POST(req: NextRequest) {
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
     const threadQuote = quote ?? "";
 
-    const { threadId, commentId, anchorStatus, anchorNote } = await insertDraftCommentThread({
+    const { threadId, commentId, anchorStatus, anchorNote, quoteMatchDiagnostics } = await insertDraftCommentThread({
       postId,
       token,
       comment,
@@ -248,6 +267,7 @@ export async function POST(req: NextRequest) {
       commentId,
       anchorStatus,
       anchorNote,
+      quoteMatchDiagnostics,
       mode: "lexical-collaboration-comment-thread",
     });
   } catch (error) {
