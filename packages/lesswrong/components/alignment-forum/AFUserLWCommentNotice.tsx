@@ -57,7 +57,7 @@ const AFUserLWCommentNotice = ({ post }: {
 
   return (
     <ContentStyles contentType="comment" className={classes.root}>
-      You have a LessWrong comment on this post that is not shown on the Alignment Forum.
+      You have a LessWrong comment on this post that is not shown on the Alignment Forum.{" "}
       <a
         href={`https://www.lesswrong.com/posts/${post._id}/${post.slug}#${commentId}`}
         className={classes.viewLink}
