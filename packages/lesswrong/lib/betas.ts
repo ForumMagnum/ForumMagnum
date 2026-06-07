@@ -7,10 +7,16 @@
 // Beta-feature test functions must handle the case where user is null.
 
 import { testServerSetting, isEAForum, isLWorAF, isLW, userIdsWithAccessToLlmChat } from './instanceSettings';
-import { isAdmin, userOverNKarmaOrApproved } from "./vulcan-users/permissions";
+import { isAdmin } from "./vulcan-users/permissions";
 import {isFriendlyUI} from '../themes/forumTheme'
 
 type BetaGate = (user: UsersCurrent | DbUser | null) => boolean;
+export interface SharingGateUser {
+  isAdmin?: boolean | null;
+  groups?: string[] | null;
+  karma?: number | null;
+  reviewedByUserId?: string | null;
+}
 
 // States for in-progress features
 const adminOnly = (user: UsersCurrent|DbUser|null): boolean => !!user?.isAdmin; // eslint-disable-line no-unused-vars
@@ -20,13 +26,16 @@ const shippedFeature = (user: UsersCurrent|DbUser|null): boolean => true; // esl
 const disabled = (user: UsersCurrent|DbUser|null): boolean => false; // eslint-disable-line no-unused-vars
 const testServerOnly = (_: UsersCurrent|DbUser|null): boolean => testServerSetting.get();
 const adminOrBeta = (user: UsersCurrent|DbUser|null): boolean => adminOnly(user) || optInOnly(user);
+const sharingGateModerator = (user: SharingGateUser|null): boolean => !!(user?.isAdmin || user?.groups?.includes('sunshineRegiment'));
+const userOverOneKarmaOrApproved = (user: SharingGateUser|null): boolean => !!user && ((user.karma ?? 0) > 1 || !!user.reviewedByUserId);
 
 //////////////////////////////////////////////////////////////////////////////
 // Features in progress                                                     //
 //////////////////////////////////////////////////////////////////////////////
 
 export const userCanCreateCommitMessages = moderatorOnly;
-export const userCanUseSharing = (user: UsersCurrent|DbUser|null): boolean => moderatorOnly(user) || userOverNKarmaOrApproved(1)(user);
+export const userCanUseSharing = (user: SharingGateUser|null): boolean => !!user;
+export const userCanShareWithUsers = (user: SharingGateUser|null): boolean => sharingGateModerator(user) || userOverOneKarmaOrApproved(user);
 export const userHasNewTagSubscriptions: BetaGate = (user) => isEAForum() ? shippedFeature(user) : disabled(user);
 export const userHasDefaultProfilePhotos = disabled
 
