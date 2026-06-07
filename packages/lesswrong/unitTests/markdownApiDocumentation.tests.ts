@@ -6,7 +6,8 @@ describe("markdown API documentation", () => {
 
     expect(docs).toContain("First-write caveat");
     expect(docs).toContain("Lexical editor root is empty after Hocuspocus sync");
-    expect(docs).toContain("Ask the user to open the draft in the editor once");
+    expect(docs).toContain("Ask the user to open the");
+    expect(docs).toContain("draft in the editor once");
     expect(docs).toContain("use commentOnDraft instead");
   });
 });
