@@ -240,17 +240,18 @@ describe("markdown footnote rendering", () => {
     const item = dom.window.document.querySelector(".footnote-item");
     const content = dom.window.document.querySelector(".footnote-content");
     const backLink = dom.window.document.querySelector(".footnote-back-link");
+    const footnoteId = reference?.getAttribute("data-footnote-id");
 
     expect(reference?.getAttribute("data-footnote-reference")).toBe("");
-    expect(reference?.getAttribute("data-footnote-id")).toBe("1");
+    expect(footnoteId).toMatch(/-1$/);
     expect(reference?.getAttribute("data-footnote-index")).toBe("1");
     expect(item?.getAttribute("data-footnote-item")).toBe("");
-    expect(item?.getAttribute("data-footnote-id")).toBe("1");
+    expect(item?.getAttribute("data-footnote-id")).toBe(footnoteId);
     expect(content?.getAttribute("data-footnote-content")).toBe("");
     expect(content?.textContent?.trim()).toBe("Footnote body.");
     expect(backLink?.getAttribute("data-footnote-back-link")).toBe("");
-    expect(backLink?.getAttribute("data-footnote-id")).toBe("1");
-    expect(backLink?.querySelector("a")?.getAttribute("href")).toBe("#fnref1");
+    expect(backLink?.getAttribute("data-footnote-id")).toBe(footnoteId);
+    expect(backLink?.querySelector("a")?.getAttribute("href")).toBe(`#fnref${footnoteId}`);
     expect(dom.window.document.querySelector(".footnote-backref")).toBeNull();
   });
 });
