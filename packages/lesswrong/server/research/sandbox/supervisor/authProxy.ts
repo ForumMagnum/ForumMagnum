@@ -17,6 +17,7 @@
 import {
   createServer,
   IncomingMessage,
+  IncomingHttpHeaders,
   ServerResponse,
   request as httpRequest,
   Server,
@@ -77,10 +78,49 @@ function send(res: ServerResponse, status: number, body: string, contentType: st
   res.end(body);
 }
 
+function isNextDevInternalEndpoint(requestUrl: string | undefined): boolean {
+  return !!requestUrl && (requestUrl.includes("/_next") || requestUrl.includes("/__nextjs"));
+}
+
+function rewriteHeaderUrl(header: string | string[] | undefined, localOrigin: string): string | string[] | undefined {
+  if (Array.isArray(header)) {
+    return header.map((value) => rewriteHeaderUrl(value, localOrigin) ?? localOrigin);
+  }
+  if (!header) return header;
+
+  try {
+    const url = new URL(header);
+    return `${localOrigin}${url.pathname}${url.search}${url.hash}`;
+  } catch {
+    return localOrigin;
+  }
+}
+
+export function buildDevServerProxyHeaders(
+  headers: IncomingHttpHeaders,
+  requestUrl: string | undefined,
+  devPort: number,
+): IncomingHttpHeaders {
+  if (!isNextDevInternalEndpoint(requestUrl)) return headers;
+
+  const localOrigin = `http://localhost:${devPort}`;
+  return {
+    ...headers,
+    origin: localOrigin,
+    referer: rewriteHeaderUrl(headers.referer, localOrigin) ?? localOrigin,
+  };
+}
+
 /** Proxy an HTTP request through to the localhost dev server. */
 function proxyHttp(req: IncomingMessage, res: ServerResponse, devPort: number): void {
   const upstream = httpRequest(
-    { host: "127.0.0.1", port: devPort, method: req.method, path: req.url, headers: req.headers },
+    {
+      host: "127.0.0.1",
+      port: devPort,
+      method: req.method,
+      path: req.url,
+      headers: buildDevServerProxyHeaders(req.headers, req.url, devPort),
+    },
     (upstreamRes) => {
       res.writeHead(upstreamRes.statusCode ?? 502, upstreamRes.headers);
       upstreamRes.pipe(res);
@@ -103,7 +143,8 @@ function proxyUpgrade(req: IncomingMessage, clientSocket: Duplex, head: Buffer, 
   upstream.on("close", () => clientSocket.destroy());
   clientSocket.on("close", () => upstream.destroy());
   upstream.connect(devPort, "127.0.0.1", () => {
-    const headerLines = Object.entries(req.headers).map(([k, v]) =>
+    const proxyHeaders = buildDevServerProxyHeaders(req.headers, req.url, devPort);
+    const headerLines = Object.entries(proxyHeaders).map(([k, v]) =>
       `${k}: ${Array.isArray(v) ? v.join(", ") : v}`,
     );
     upstream.write(`${req.method} ${req.url} HTTP/1.1\r\n${headerLines.join("\r\n")}\r\n\r\n`);
