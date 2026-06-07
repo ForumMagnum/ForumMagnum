@@ -12,6 +12,7 @@ import ContentStyles from "@/components/common/ContentStyles";
 import { ContentItemBody } from "@/components/contents/ContentItemBody";
 import ProfileDiamondSections from "./ProfileDiamondSections";
 import { userGetDisplayName } from "@/lib/collections/users/helpers";
+import NewFeedButton from "@/components/rss/NewFeedButton";
 
 const profilePageSidebarUnsharedStyles = defineStyles("ProfilePageSidebarUnshared", (theme: ThemeType) => ({
   postsSidebar: {
@@ -219,6 +220,7 @@ export function ProfilePageSidebar({user, bioNoFollow}: {
   const isOwnProfile = !!currentUser && user && currentUser._id === user._id;
   const canSubscribeToUser = !isOwnProfile;
   const canMessageUser = !!currentUser && !isOwnProfile;
+  const canManageRssFeeds = !!currentUser?.isAdmin;
 
   return <aside className={classNames(classes.postsSidebar)}>
     <div className={classes.sidebarAuthorBlock}>
@@ -238,6 +240,7 @@ export function ProfilePageSidebar({user, bioNoFollow}: {
         {canMessageUser && <NewConversationButton user={user} currentUser={currentUser}>
           <a className={classes.sidebarMore}>Message</a>
         </NewConversationButton>}
+        {canManageRssFeeds && <NewFeedButton user={user} className={classes.sidebarMore}/>}
       </div>
     </div>
 
@@ -298,6 +301,7 @@ export function ProfilePageMobileBio({user, bioNoFollow}: {
   const isOwnProfile = !!currentUser && user && currentUser._id === user._id;
   const canSubscribeToUser = !isOwnProfile;
   const canMessageUser = !!currentUser && !isOwnProfile;
+  const canManageRssFeeds = !!currentUser?.isAdmin;
 
   if (!bioHtml && !user) return null;
 
@@ -321,6 +325,7 @@ export function ProfilePageMobileBio({user, bioNoFollow}: {
         ) : (
           <span className={classNames(classes.sidebarMore, classes.sidebarActionDisabled)}>Message</span>
         )}
+        {canManageRssFeeds && <NewFeedButton user={user} className={classes.sidebarMore}/>}
       </div>
     </div>
     {bioHtml && <ContentStyles contentType="post" className={classes.sidebarAuthorBioContent}>

@@ -226,12 +226,14 @@ const NewFeedDialog = ({user, onClose}: {
   )
 }
 
-export const NewFeedButton = ({user}: {
+export const NewFeedButton = ({user, className}: {
   user: UsersProfile
+  className?: string
 }) => {
   const { openDialog } = useDialog();
   
-  return <a href="#" onClick={() => {
+  return <a href="#" className={className} onClick={(ev) => {
+    ev.preventDefault();
     openDialog({
       name: "NewFeedDialog",
       contents: ({onClose}) => <NewFeedDialog user={user} onClose={onClose}/>
