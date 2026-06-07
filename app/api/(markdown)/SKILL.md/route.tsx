@@ -230,6 +230,15 @@ bold/italic/strikethrough (no underline), inline and display LaTeX math
 (\`$...$\` and \`$$...$$\`), code blocks, and spoiler blocks.
 Custom block-level elements like LLM content blocks and widgets have dedicated APIs (see below).
 
+First-write caveat: on a brand-new draft that has never been opened in the
+Lexical editor, insertBlock and insertLLMBlock may fail with
+\`Lexical editor root is empty after Hocuspocus sync\`. This means the live
+collaborative document has not been initialized yet. Ask the user to open the
+draft in the editor once, wait for it to load, and retry after re-reading
+\`/editPost?postId=[id]&key=[linkSharingKey]\`. If you only need to leave
+feedback before the user opens the draft, use commentOnDraft instead; it does
+not require the same initialized editor document.
+
 Spoiler blocks (text hidden until the reader hovers) are written as one or
 more lines prefixed with \`>!\`. Consecutive \`>!\` lines form a single
 spoiler block; a bare \`>!\` line is a paragraph break inside the block:
