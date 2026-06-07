@@ -46,7 +46,6 @@ declare global {
     showCommunity?: boolean,
     commentIds?: string[],
     minimumKarma?: number,
-    sortBy?: CommentSortingMode,
   }
 }
 
