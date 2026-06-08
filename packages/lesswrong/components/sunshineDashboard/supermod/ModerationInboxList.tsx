@@ -3,7 +3,7 @@ import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ModerationInboxItem from './ModerationInboxItem';
 import ModerationPostItem from './ModerationPostItem';
 import CurationPostItem from './CurationPostItem';
-import type { ReviewGroup, TabId } from './groupings';
+import type { TabId } from './groupings';
 import classNames from 'classnames';
 
 const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({

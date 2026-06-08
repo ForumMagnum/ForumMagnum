@@ -7735,6 +7735,7 @@ type User {
   altAccountsDetected: Boolean
   acknowledgedNewUserGuidelines: Boolean
   moderatorActions: [ModeratorAction!]
+  reviewGroup: ReviewGroup
   subforumPreferredLayout: SubforumPreferredLayout
   criticismTipsDismissed: Boolean
   hideFromPeopleDirectory: Boolean!
@@ -7804,6 +7805,15 @@ enum TagRelVoteGroup {
 enum SubforumPreferredLayout {
   card
   list
+}
+
+enum ReviewGroup {
+  newContent
+  highContext
+  maybeSpam
+  automod
+  snoozeExpired
+  unknown
 }
 
 input UserSelectorUniqueInput {

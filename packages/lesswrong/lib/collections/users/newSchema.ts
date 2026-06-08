@@ -37,6 +37,7 @@ import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificatio
 import { getWithLoader, getWithCustomLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
+import { getReviewGroupFromActions } from "./reviewGroups";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
 
 const getCoauthoredPostCount = async (user: DbUser) => {
@@ -3938,6 +3939,44 @@ const schema = {
           "userId",
           doc._id,
         );
+      },
+    },
+  },
+  // Which supermod review queue tab this user belongs to, computed server-side.
+  // Reuses the same loaders as the `moderatorActions` and
+  // `lastRemovedFromReviewQueueAt` fields, so selecting it alongside them adds
+  // no extra database round trips.
+  reviewGroup: {
+    graphql: {
+      outputType: "ReviewGroup",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (doc, args, context) => {
+        const moderatorActions = await getWithLoader(
+          context,
+          context.ModeratorActions,
+          "moderatorActionsByUserId",
+          {},
+          "userId",
+          doc._id,
+        );
+
+        const fieldChanges = await getWithLoader(
+          context,
+          context.FieldChanges,
+          "needsReviewFieldChanges",
+          { documentId: doc._id, fieldName: "needsReview", newValue: 'false' },
+          "documentId",
+          doc._id,
+          { sort: { createdAt: -1 }, limit: 1 },
+        );
+        const lastRemovedFromReviewQueueAt = fieldChanges[0]?.createdAt ?? null;
+
+        const actionsWithActiveStatus = moderatorActions.map(action => ({
+          type: action.type,
+          active: isActionActive(action),
+          createdAt: action.createdAt,
+        }));
+        return getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
       },
     },
   },

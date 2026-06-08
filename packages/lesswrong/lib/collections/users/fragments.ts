@@ -367,6 +367,7 @@ export const SunshineUsersList = gql(`
     moderatorActions {
       ...ModeratorActionDisplay
     }
+    reviewGroup
     usersContactedBeforeReview
     associatedClientIds {
       clientId
