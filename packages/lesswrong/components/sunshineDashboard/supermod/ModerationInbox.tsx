@@ -176,7 +176,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
       const groupedUsers = groupBy(initialUsers, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount, new Set());
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, initialUsers.length, posts.length, classifiedPosts.length, curationNoticeCount, []);
 
       // Default to curation when there are no curation notices (so you can add some)
       // Otherwise, find the first non-empty non-curation tab
@@ -239,7 +239,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
         };
       }
 
-      const filteredGroups = getFilteredGroups(groupedUsers, firstTab, new Set());
+      const filteredGroups = getFilteredGroups(groupedUsers, firstTab, []);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       return {
@@ -286,18 +286,6 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const allOrderedUsers = useMemo(() => orderedGroups.map(([_, users]) => users).flat(), [orderedGroups]);
 
-  const pangramQualifyingUserIdSet = useMemo(() => new Set(state.pangramQualifyingUserIds), [state.pangramQualifyingUserIds]);
-
-  const filteredGroups = useMemo(() => getFilteredGroups(groupedUsers, state.activeTab, pangramQualifyingUserIdSet), [groupedUsers, state.activeTab, pangramQualifyingUserIdSet]);
-
-  const orderedUsers = useMemo(() => filteredGroups.map(([_, users]) => users).flat(), [filteredGroups]);
-
-  const curationNoticeCount = useMemo(() => sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0), [state.curationPosts]);
-
-  const visibleTabs = useMemo((): TabInfo[] => {
-    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, pangramQualifyingUserIdSet);
-  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, pangramQualifyingUserIdSet]);
-
   // New-content users start out in the New Content tab; as each user's content
   // loads client-side, the probes report whether they qualify for the Pangram
   // tab, and qualifying users migrate over.
@@ -314,9 +302,20 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
     [newContentUsers, pangramQualification]
   );
 
+  // Mirror the qualifying IDs into reducer state so keyboard tab navigation stays in sync.
   useEffect(() => {
     dispatch({ type: 'SET_PANGRAM_QUALIFYING_USERS', userIds: pangramQualifyingUserIds });
   }, [pangramQualifyingUserIds]);
+
+  const filteredGroups = useMemo(() => getFilteredGroups(groupedUsers, state.activeTab, pangramQualifyingUserIds), [groupedUsers, state.activeTab, pangramQualifyingUserIds]);
+
+  const orderedUsers = useMemo(() => filteredGroups.map(([_, users]) => users).flat(), [filteredGroups]);
+
+  const curationNoticeCount = useMemo(() => sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0), [state.curationPosts]);
+
+  const visibleTabs = useMemo((): TabInfo[] => {
+    return getVisibleTabsInOrder(groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, pangramQualifyingUserIds);
+  }, [groupedUsers, allOrderedUsers.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, pangramQualifyingUserIds]);
 
   const openedUser = useMemo(() => {
     if (!state.openedUserId) return null;

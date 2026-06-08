@@ -47,9 +47,8 @@ export type InboxState = {
   history: HistoryItem[];
   // Document ID for which an LLM detection check is currently running
   runningLlmCheckId: string | null;
-  // IDs of new-content users whose loaded content qualifies them for the Pangram
-  // tab (high pangram score or all content rejected). Populated client-side as
-  // each user's content loads, so users start in New Content and migrate over.
+  // New-content user IDs that have migrated to the Pangram tab, populated client-side
+  // as each user's content loads. See userContentQualifiesForPangram.
   pangramQualifyingUserIds: string[];
 };
 
@@ -82,23 +81,22 @@ export type InboxAction =
 export function getFilteredGroups(
   groupedUsers: Partial<Record<ReviewGroup, SunshineUsersList[]>>,
   activeTab: TabId,
-  pangramQualifyingUserIds: Set<string>
+  pangramQualifyingUserIds: string[]
 ): GroupEntry[] {
+  const pangramUserIdSet = new Set(pangramQualifyingUserIds);
   const orderedGroups = (Object.entries(groupedUsers) as GroupEntry[])
     .sort(([a]: GroupEntry, [b]: GroupEntry) => REVIEW_GROUP_TO_PRIORITY[b] - REVIEW_GROUP_TO_PRIORITY[a]);
   
-  // The Pangram tab is a subtab of New Content: it only shows new-content users
-  // whose loaded content looks AI-generated or has been entirely rejected.
+  // Pangram is a subtab of New Content showing only qualifying new-content users.
   if (activeTab === 'pangram') {
-    const pangramUsers = (groupedUsers.newContent ?? []).filter(user => pangramQualifyingUserIds.has(user._id));
+    const pangramUsers = (groupedUsers.newContent ?? []).filter(user => pangramUserIdSet.has(user._id));
     return pangramUsers.length > 0 ? [['newContent', pangramUsers]] : [];
   }
 
-  // Pangram-flagged users are reviewed in the dedicated Pangram tab, so they're
-  // excluded from the New Content group everywhere else.
+  // Qualifying users live in the Pangram tab, so exclude them from New Content elsewhere.
   const groupsWithoutPangramNewContent = orderedGroups
     .map(([group, users]): GroupEntry => (
-      group === 'newContent' ? [group, users.filter(user => !pangramQualifyingUserIds.has(user._id))] : [group, users]
+      group === 'newContent' ? [group, users.filter(user => !pangramUserIdSet.has(user._id))] : [group, users]
     ))
     .filter(([, users]) => users.length > 0);
 
@@ -114,21 +112,21 @@ export function getVisibleTabsInOrder(
   totalPosts: number,
   totalClassifiedPosts: number,
   totalCurationNotices: number,
-  pangramQualifyingUserIds: Set<string>,
+  pangramQualifyingUserIds: string[],
 ): TabInfo[] {
+  const pangramUserIdSet = new Set(pangramQualifyingUserIds);
   const tabsInOrder = getTabsInPriorityOrder();
-  const pangramUserCount = sumBy(getFilteredGroups(groupedUsers, 'pangram', pangramQualifyingUserIds), ([, users]) => users.length);
-  const qualifyingInNewContent = (groupedUsers.newContent ?? []).filter(user => pangramQualifyingUserIds.has(user._id)).length;
+  const qualifyingInNewContent = (groupedUsers.newContent ?? []).filter(user => pangramUserIdSet.has(user._id)).length;
   const tabs: TabInfo[] = [{ group: 'curation', count: totalCurationNotices }];
   
-  // Always show all tabs, even if empty. The Pangram tab sits right after New
-  // Content, and its users are excluded from the New Content (and All) counts.
+  // Always show all tabs, even if empty. Pangram sits right after New Content,
+  // and its users are excluded from the New Content (and All) counts.
   for (const group of tabsInOrder) {
     const baseCount = groupedUsers[group]?.length ?? 0;
     const count = group === 'newContent' ? baseCount - qualifyingInNewContent : baseCount;
     tabs.push({ group, count });
     if (group === 'newContent') {
-      tabs.push({ group: 'pangram', count: pangramUserCount });
+      tabs.push({ group: 'pangram', count: qualifyingInNewContent });
     }
   }
   tabs.push({ group: 'all', count: totalUsers - qualifyingInNewContent });
@@ -139,7 +137,6 @@ export function getVisibleTabsInOrder(
 }
 
 export function inboxStateReducer(state: InboxState, action: InboxAction): InboxState {
-  const pangramQualifyingUserIds = new Set(state.pangramQualifyingUserIds);
   switch (action.type) {
     case 'ADD_TO_UNDO_QUEUE': {
       return {
@@ -270,7 +267,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
 
       // Switching to a user tab
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const filteredGroups = getFilteredGroups(groupedUsers, action.tab, pangramQualifyingUserIds);
+      const filteredGroups = getFilteredGroups(groupedUsers, action.tab, state.pangramQualifyingUserIds);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       return {
@@ -287,7 +284,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts' || state.activeTab === 'curation') return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab, pangramQualifyingUserIds);
+      const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab, state.pangramQualifyingUserIds);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       if (orderedUsers.length === 0) return state;
@@ -309,7 +306,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       if (state.activeTab === 'posts' || state.activeTab === 'classifiedPosts' || state.activeTab === 'curation') return state;
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-      const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab, pangramQualifyingUserIds);
+      const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab, state.pangramQualifyingUserIds);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       if (orderedUsers.length === 0) return state;
@@ -331,7 +328,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, pangramQualifyingUserIds);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.pangramQualifyingUserIds);
 
       if (visibleTabs.length === 0) return state;
 
@@ -384,7 +381,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       }
 
       // Switching to a user tab
-      const filteredGroups = getFilteredGroups(groupedUsers, nextTab, pangramQualifyingUserIds);
+      const filteredGroups = getFilteredGroups(groupedUsers, nextTab, state.pangramQualifyingUserIds);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       return {
@@ -401,7 +398,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
 
       const groupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
       const curationNoticeCount = sumBy(state.curationPosts, p => p.curationNotices?.length ?? 0);
-      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, pangramQualifyingUserIds);
+      const visibleTabs = getVisibleTabsInOrder(groupedUsers, state.users.length, state.posts.length, state.classifiedPosts.length, curationNoticeCount, state.pangramQualifyingUserIds);
 
       if (visibleTabs.length === 0) return state;
 
@@ -454,7 +451,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
       }
 
       // Switching to a user tab
-      const filteredGroups = getFilteredGroups(groupedUsers, prevTab, pangramQualifyingUserIds);
+      const filteredGroups = getFilteredGroups(groupedUsers, prevTab, state.pangramQualifyingUserIds);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       return {
@@ -563,14 +560,14 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
 
       // Recalculate groups and tabs
       const groupedUsers = groupBy(newUsers, user => getUserReviewGroup(user));
-      const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab, pangramQualifyingUserIds);
+      const filteredGroups = getFilteredGroups(groupedUsers, state.activeTab, state.pangramQualifyingUserIds);
       const orderedUsers = filteredGroups.flatMap(([_, users]) => users);
 
       // If current tab still has users
       if (orderedUsers.length > 0) {
         // Find where we were in the list
         const oldGroupedUsers = groupBy(state.users, user => getUserReviewGroup(user));
-        const oldFilteredGroups = getFilteredGroups(oldGroupedUsers, state.activeTab, pangramQualifyingUserIds);
+        const oldFilteredGroups = getFilteredGroups(oldGroupedUsers, state.activeTab, state.pangramQualifyingUserIds);
         const oldOrderedUsers = oldFilteredGroups.flatMap(([_, users]) => users);
 
         const currentId = state.openedUserId ?? state.focusedUserId;
@@ -611,7 +608,7 @@ export function inboxStateReducer(state: InboxState, action: InboxAction): Inbox
         }
       }
 
-      const nextFilteredGroups = getFilteredGroups(groupedUsers, nextTab, pangramQualifyingUserIds);
+      const nextFilteredGroups = getFilteredGroups(groupedUsers, nextTab, state.pangramQualifyingUserIds);
       const nextOrderedUsers = nextFilteredGroups.flatMap(([_, users]) => users);
 
       if (nextOrderedUsers.length > 0) {
