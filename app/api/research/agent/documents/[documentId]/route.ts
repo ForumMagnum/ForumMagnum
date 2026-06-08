@@ -147,7 +147,6 @@ export async function GET(
     return NextResponse.json({
       ok: true,
       documentId,
-      callerConversationId: payload.conversationId,
       title: document.title ?? null,
       markdown,
     });

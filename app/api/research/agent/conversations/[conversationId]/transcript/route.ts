@@ -55,8 +55,6 @@ export async function GET(
       return NextResponse.json({
         ok: true,
         conversationId,
-        callerConversationId: payload.conversationId,
-        isCurrentConversation: conversationId === payload.conversationId,
         incompleteTurn,
       });
     }
@@ -87,8 +85,6 @@ export async function GET(
     return NextResponse.json({
       ok: true,
       conversationId,
-      callerConversationId: payload.conversationId,
-      isCurrentConversation: conversationId === payload.conversationId,
       title: conversation.title ?? null,
       turns,
       incompleteTurn,
