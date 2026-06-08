@@ -5,8 +5,11 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import {
   $getSelection,
   $isRangeSelection,
+  COMMAND_PRIORITY_CRITICAL,
   COMMAND_PRIORITY_LOW,
   createCommand,
+  KEY_BACKSPACE_COMMAND,
+  KEY_DELETE_COMMAND,
   LexicalCommand,
   $getNodeByKey,
   NodeKey,
@@ -30,8 +33,10 @@ import {
   $getTableCellNodeFromLexicalNode,
   $createTableNodeWithDimensions,
   $getTableNodeFromLexicalNodeOrThrow,
+  $computeTableMap,
   $computeTableMapSkipCellCheck,
   $getTableCellNodeRect,
+  type TableSelection,
 } from '@lexical/table';
 import { mergeRegister, $findMatchingParent } from '@lexical/utils';
 import TableDimensionSelector from './TableDimensionSelector';
@@ -62,6 +67,26 @@ interface DimensionSelectorState {
   isOpen: boolean;
   anchorRect: DOMRect | null;
 }
+
+interface DeleteTableAction {
+  type: 'table';
+  table: TableNode;
+}
+
+interface DeleteTableRowsAction {
+  type: 'rows';
+  rows: TableRowNode[];
+}
+
+interface DeleteTableColumnsAction {
+  type: 'columns';
+  cells: TableCellNode[];
+}
+
+export type CompleteTableSelectionDeleteAction =
+  | DeleteTableAction
+  | DeleteTableRowsAction
+  | DeleteTableColumnsAction;
 
 /**
  * Get adjacent cell in a specific direction from the table map
@@ -168,6 +193,77 @@ function getMergeTargetCell(
   }
 
   return adjacentCell;
+}
+
+export function $getCompleteTableSelectionDeleteAction(
+  selection: TableSelection | null = $getSelection()
+): CompleteTableSelectionDeleteAction | null {
+  if (!$isTableSelection(selection) || !selection.isValid()) return null;
+
+  const tableNode = $getNodeByKey<TableNode>(selection.tableKey);
+  if (!$isTableNode(tableNode)) return null;
+
+  const anchorCell = $getTableCellNodeFromLexicalNode(selection.anchor.getNode());
+  const focusCell = $getTableCellNodeFromLexicalNode(selection.focus.getNode());
+  if (!anchorCell || !focusCell) return null;
+
+  const [tableMap] = $computeTableMap(tableNode, anchorCell, focusCell);
+  if (tableMap.length === 0 || tableMap[0].length === 0) return null;
+
+  const shape = selection.getShape();
+  const rowCount = tableMap.length;
+  const columnCount = tableMap[0].length;
+  const selectsFullRows = shape.fromX === 0 && shape.toX === columnCount - 1;
+  const selectsFullColumns = shape.fromY === 0 && shape.toY === rowCount - 1;
+
+  if (selectsFullRows && selectsFullColumns) {
+    return { type: 'table', table: tableNode };
+  }
+
+  if (selectsFullRows) {
+    const rows: TableRowNode[] = [];
+    for (let rowIndex = shape.fromY; rowIndex <= shape.toY; rowIndex++) {
+      const row = tableNode.getChildAtIndex(rowIndex);
+      if ($isTableRowNode(row)) {
+        rows.push(row);
+      }
+    }
+    return rows.length > 0 ? { type: 'rows', rows } : null;
+  }
+
+  if (selectsFullColumns) {
+    const cells: TableCellNode[] = [];
+    const seenCellKeys = new Set<NodeKey>();
+    for (let columnIndex = shape.fromX; columnIndex <= shape.toX; columnIndex++) {
+      const cell = tableMap[0][columnIndex].cell;
+      const cellKey = cell.getKey();
+      if (!seenCellKeys.has(cellKey)) {
+        seenCellKeys.add(cellKey);
+        cells.push(cell);
+      }
+    }
+    return cells.length > 0 ? { type: 'columns', cells } : null;
+  }
+
+  return null;
+}
+
+export function $deleteCompleteTableSelection(): boolean {
+  const action = $getCompleteTableSelectionDeleteAction();
+  if (!action) return false;
+
+  if (action.type === 'table') {
+    action.table.remove();
+    return true;
+  }
+
+  if (action.type === 'rows') {
+    $deleteTableRowAtSelection();
+    return true;
+  }
+
+  $deleteTableColumnAtSelection();
+  return true;
 }
 
 /**
@@ -638,6 +734,28 @@ export function TablesPlugin(): React.ReactElement {
           return true;
         },
         COMMAND_PRIORITY_LOW
+      ),
+      
+      editor.registerCommand(
+        KEY_BACKSPACE_COMMAND,
+        (event) => {
+          if (!$deleteCompleteTableSelection()) return false;
+          event.preventDefault();
+          event.stopPropagation();
+          return true;
+        },
+        COMMAND_PRIORITY_CRITICAL
+      ),
+      
+      editor.registerCommand(
+        KEY_DELETE_COMMAND,
+        (event) => {
+          if (!$deleteCompleteTableSelection()) return false;
+          event.preventDefault();
+          event.stopPropagation();
+          return true;
+        },
+        COMMAND_PRIORITY_CRITICAL
       ),
       
       editor.registerCommand(

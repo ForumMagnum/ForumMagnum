@@ -84,6 +84,7 @@ import {
   $suggestTableDeletion,
   $suggestTableRowDeletion,
 } from './handleTables'
+import { $getCompleteTableSelectionDeleteAction } from '@/components/editor/lexicalPlugins/tables/TablesPlugin'
 import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils'
 import { $setBlocksTypeAsSuggestion, $wrapInQuoteAsSuggestion } from './setBlocksTypeAsSuggestion'
 import { INSERT_HORIZONTAL_RULE_COMMAND } from '@lexical/extension'
@@ -166,6 +167,29 @@ function $removeParagraphAndInsertDividerSuggestion(
   paragraph.remove()
   $insertDividerAsSuggestion(onSuggestionCreation)
   return true
+}
+
+function $deleteCompleteTableSelectionAsSuggestion(editor: LexicalEditor): boolean {
+  const action = $getCompleteTableSelectionDeleteAction()
+  if (!action) return false
+
+  if (action.type === 'table') {
+    return editor.dispatchCommand(DELETE_TABLE_COMMAND, action.table.getKey())
+  }
+
+  if (action.type === 'rows') {
+    let handled = true
+    for (const row of action.rows) {
+      handled = editor.dispatchCommand(DELETE_TABLE_ROW_COMMAND, row) && handled
+    }
+    return handled
+  }
+
+  let handled = true
+  for (const cell of action.cells) {
+    handled = editor.dispatchCommand(DELETE_TABLE_COLUMN_COMMAND, cell) && handled
+  }
+  return handled
 }
 
 export function SuggestionModePlugin({
@@ -627,6 +651,9 @@ export function SuggestionModePlugin({
             return false
           }
           event.preventDefault()
+          if ($deleteCompleteTableSelectionAsSuggestion(editor)) {
+            return true
+          }
           const selection = $getSelection()
           if ($isNodeSelection(selection)) {
             let handled = true
@@ -660,6 +687,9 @@ export function SuggestionModePlugin({
             return false
           }
           event.preventDefault()
+          if ($deleteCompleteTableSelectionAsSuggestion(editor)) {
+            return true
+          }
           const selection = $getSelection()
           if ($isNodeSelection(selection)) {
             let handled = true
