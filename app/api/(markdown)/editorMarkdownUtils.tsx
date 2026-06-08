@@ -345,6 +345,58 @@ const NO_CACHE_HEADERS = {
   "Cache-Control": "private, no-store, max-age=0",
 };
 
+export function liveDraftReadFailureMessage(postId: string, error: unknown): string {
+  const errorMessage = error instanceof Error ? error.message : `${error}`;
+  const isUninitializedDraft = errorMessage.includes("Lexical editor root is empty");
+  const isLiveEditorUnavailable = errorMessage.includes("HOCUSPOCUS_URL")
+    || errorMessage.includes("Timed out waiting for Hocuspocus sync")
+    || errorMessage.includes("WebSocket");
+
+  if (isUninitializedDraft) {
+    return `Access to shared draft ${postId} was authorized, but the live Lexical document appears to be uninitialized. If you are an AI agent, please ask the user to open the draft in the LessWrong editor once, wait for it to load, and then retry.`;
+  }
+
+  if (isLiveEditorUnavailable) {
+    return `Access to shared draft ${postId} was authorized, but the live editor service is currently unavailable. If you are an AI agent, please retry later or tell the user that the draft-sharing permissions were accepted but the live draft could not be read.`;
+  }
+
+  return `Access to shared draft ${postId} was authorized, but the live draft could not be read. If you are an AI agent, please tell the user that the draft-sharing permissions were accepted, but LessWrong could not read the current live editor contents.`;
+}
+
+async function getEditorDraftMetadata({
+  postId,
+  key,
+  resolverContext,
+}: {
+  postId: string
+  key?: string
+  resolverContext: ResolverContext
+}) {
+  try {
+    return key
+      ? (
+        await runQuery(
+          LinkSharedPostMetadataQuery,
+          { postId, linkSharingKey: key },
+          resolverContext
+        )
+      ).data?.getLinkSharedPost
+      : (
+        await runQuery(
+          MarkdownPostMetadataQuery,
+          { documentId: postId },
+          resolverContext
+        )
+      ).data?.post?.result;
+  } catch (error) {
+    // The metadata lookup is only used for title display. If editor access was
+    // already authorized, don't turn a metadata-query mismatch into a false
+    // "sharing permissions are wrong" response for agents.
+    captureException(error);
+    return null;
+  }
+}
+
 export async function renderLiveEditorDraftMarkdownRoute({
   req,
 }: {
@@ -382,26 +434,20 @@ export async function renderLiveEditorDraftMarkdownRoute({
     }
     const token = checkResult.token;
 
-    const post = key
-      ? (
-        await runQuery(
-          LinkSharedPostMetadataQuery,
-          { postId, linkSharingKey: key },
-          resolverContext
-        )
-      ).data?.getLinkSharedPost
-      : (
-        await runQuery(
-          MarkdownPostMetadataQuery,
-          { documentId: postId },
-          resolverContext
-        )
-      ).data?.post?.result;
+    const post = await getEditorDraftMetadata({ postId, key, resolverContext });
 
-    const [bodyMarkdown, commentThreadsMarkdown] = await Promise.all([
-      getLiveDraftMarkdown({ postId, token }),
-      getOpenCommentThreadsMarkdown({ postId, token }),
-    ]);
+    let bodyMarkdown: string;
+    let commentThreadsMarkdown: string;
+    try {
+      [bodyMarkdown, commentThreadsMarkdown] = await Promise.all([
+        getLiveDraftMarkdown({ postId, token }),
+        getOpenCommentThreadsMarkdown({ postId, token }),
+      ]);
+    } catch (error) {
+      captureException(error);
+      return new Response(liveDraftReadFailureMessage(postId, error), { status: 200, headers: NO_CACHE_HEADERS });
+    }
+
     const resolvedPostId = post?._id ?? postId;
     const title = post?.title ?? "(untitled draft)";
 
