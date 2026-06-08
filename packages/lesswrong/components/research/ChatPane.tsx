@@ -168,6 +168,7 @@ const ChatPane = ({
   const isPinnedToBottomRef = useRef(true);
   const previousConversationIdRef = useRef<string | null>(null);
   const previousVisibleEventCountRef = useRef(0);
+  const previousScrollHeightRef = useRef(0);
   const [newMessageCount, setNewMessageCount] = useState(0);
 
   const { events: rawEvents, status, error, refresh, injectOptimisticEvent, clearOptimistic, markTurnExpected } = useConversationStream(conversationId);
@@ -195,6 +196,7 @@ const ChatPane = ({
     if (!el) return;
     el.scrollTop = el.scrollHeight;
     isPinnedToBottomRef.current = true;
+    previousScrollHeightRef.current = el.scrollHeight;
     setNewMessageCount(0);
   }, []);
 
@@ -220,18 +222,29 @@ const ChatPane = ({
     previousVisibleEventCountRef.current = events.length;
 
     if (!el) return;
+    const wasPinnedToBottomBeforeRender = isScrolledNearBottom({
+      scrollHeight: previousScrollHeightRef.current || el.scrollHeight,
+      scrollTop: el.scrollTop,
+      clientHeight: el.clientHeight,
+    });
 
     if (previousConversationId !== conversationId || events.length < previousVisibleEventCount) {
       scrollEventsToBottom();
+      previousScrollHeightRef.current = el.scrollHeight;
       return;
     }
-    if (newVisibleEventCount === 0) return;
+    if (newVisibleEventCount === 0) {
+      previousScrollHeightRef.current = el.scrollHeight;
+      return;
+    }
 
-    if (isPinnedToBottomRef.current) {
+    if (wasPinnedToBottomBeforeRender) {
       scrollEventsToBottom();
     } else {
+      isPinnedToBottomRef.current = false;
       setNewMessageCount((count) => count + newVisibleEventCount);
     }
+    previousScrollHeightRef.current = el.scrollHeight;
   }, [conversationId, events.length, scrollEventsToBottom]);
 
   const handleSend = useCallback(async (promptHtml: string) => {
