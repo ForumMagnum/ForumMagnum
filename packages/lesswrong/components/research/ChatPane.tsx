@@ -169,7 +169,8 @@ const ChatPane = ({
   const previousConversationIdRef = useRef<string | null>(null);
   const previousVisibleEventCountRef = useRef(0);
   const previousScrollHeightRef = useRef(0);
-  const [newMessageCount, setNewMessageCount] = useState(0);
+  const [lastSeenVisibleEventCount, setLastSeenVisibleEventCount] = useState(0);
+  const [isScrolledAwayFromBottom, setIsScrolledAwayFromBottom] = useState(false);
 
   const { events: rawEvents, status, error, refresh, injectOptimisticEvent, clearOptimistic, markTurnExpected } = useConversationStream(conversationId);
   const [expectFirstTurnFor, setExpectFirstTurnFor] = useState<string | null>(null);
@@ -185,6 +186,7 @@ const ChatPane = ({
     () => rawEvents.filter(isVisibleConversationEvent),
     [rawEvents],
   );
+  const newMessageCount = Math.max(0, events.length - lastSeenVisibleEventCount);
   const [fireConversation] = useMutation(FireChatConversationMutation, {
     refetchQueries: [ProjectSidebarQuery],
   });
@@ -197,18 +199,20 @@ const ChatPane = ({
     el.scrollTop = el.scrollHeight;
     isPinnedToBottomRef.current = true;
     previousScrollHeightRef.current = el.scrollHeight;
-    setNewMessageCount(0);
-  }, []);
+    setIsScrolledAwayFromBottom(false);
+    setLastSeenVisibleEventCount(events.length);
+  }, [events.length]);
 
   const handleEventsScroll = useCallback(() => {
     const el = eventsRef.current;
     if (!el) return;
     const pinnedToBottom = isScrolledNearBottom(el);
     isPinnedToBottomRef.current = pinnedToBottom;
+    setIsScrolledAwayFromBottom(!pinnedToBottom);
     if (pinnedToBottom) {
-      setNewMessageCount(0);
+      setLastSeenVisibleEventCount(events.length);
     }
-  }, []);
+  }, [events.length]);
 
   useEffect(() => {
     const el = eventsRef.current;
@@ -242,7 +246,7 @@ const ChatPane = ({
       scrollEventsToBottom();
     } else {
       isPinnedToBottomRef.current = false;
-      setNewMessageCount((count) => count + newVisibleEventCount);
+      setIsScrolledAwayFromBottom(true);
     }
     previousScrollHeightRef.current = el.scrollHeight;
   }, [conversationId, events.length, scrollEventsToBottom]);
@@ -354,7 +358,7 @@ const ChatPane = ({
               <ConversationEventRow key={event._id ?? `${event.conversationId}:${event.seq}`} event={event} surface="chat" />
             ))}
           </div>
-          {newMessageCount > 0 ? (
+          {isScrolledAwayFromBottom && newMessageCount > 0 ? (
             <button
               type="button"
               className={classes.newMessagesButton}
