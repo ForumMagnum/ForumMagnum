@@ -36,9 +36,10 @@ import { startHeartbeat } from "./heartbeat";
 import { createDevServerManager, startDevControlServer, DEV_CONTROL_PORT } from "./devServerManager";
 import { buildScriptBootEnv, researchBinPath } from "./devServer";
 import { startAuthProxy } from "./authProxy";
-import { AGENT_CWD } from "../sandboxLayout";
+import { AGENT_CWD, AGENT_HOME_DIR } from "../sandboxLayout";
 
-const CLAUDE_MD_PATH = path.join(homedir(), ".claude", "CLAUDE.md");
+const PLATFORM_CLAUDE_MD_PATH = path.join(homedir(), ".claude", "CLAUDE.md");
+const AGENT_CLAUDE_MD_PATH = path.join(AGENT_HOME_DIR, ".claude", "CLAUDE.md");
 
 // init.sh runs non-blocking (it doesn't gate boot or the agent's turn), so this
 // is only a hung-process reaper, not a latency budget. Allow several minutes so a
@@ -52,16 +53,30 @@ const INIT_SCRIPT_TIMEOUT_MS = 5 * 60 * 1000;
  * scoped to. Run at boot, *after* the backend's overlay write and *before* any
  * `claude` subprocess. Best-effort: a missing/unwritable file just logs.
  */
-function fillClaudeMdTemplate(env: { projectId: string }): void {
+function fillClaudeMdTemplate(env: { projectId: string }): string | null {
   try {
-    const template = fs.readFileSync(CLAUDE_MD_PATH, "utf8");
+    const template = fs.readFileSync(PLATFORM_CLAUDE_MD_PATH, "utf8");
     const filled = template.replace(/\{\{RESEARCH_PROJECT_ID\}\}/g, env.projectId);
     if (filled !== template) {
-      fs.writeFileSync(CLAUDE_MD_PATH, filled, "utf8");
+      fs.writeFileSync(PLATFORM_CLAUDE_MD_PATH, filled, "utf8");
     }
+    return filled;
   } catch (err) {
     // eslint-disable-next-line no-console
     console.warn(`[supervisor] could not fill CLAUDE.md template: ${(err as Error).message}`);
+    return null;
+  }
+}
+
+function prepareAgentHome(filledClaudeMd: string | null): void {
+  try {
+    fs.mkdirSync(path.dirname(AGENT_CLAUDE_MD_PATH), { recursive: true });
+    if (filledClaudeMd !== null) {
+      fs.writeFileSync(AGENT_CLAUDE_MD_PATH, filledClaudeMd, "utf8");
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn(`[supervisor] could not prepare agent home: ${(err as Error).message}`);
   }
 }
 
@@ -195,7 +210,7 @@ async function selfHealDanglingTurn(
 
 export async function bootSupervisor() {
   const env = readEnv();
-  fillClaudeMdTemplate({ projectId: env.projectId });
+  prepareAgentHome(fillClaudeMdTemplate({ projectId: env.projectId }));
 
   const postPersister = createPostPersister({
     backendBaseUrl: env.backendBaseUrl,
@@ -251,6 +266,7 @@ export async function bootSupervisor() {
           // the synthesized history on a fresh sandbox.
           cwd: AGENT_CWD,
           env: {
+            HOME: AGENT_HOME_DIR,
             // Put `~/.research/bin` (where the overlay drops the research-tool
             // binary) ahead of the system PATH so the agent can invoke
             // `research-tool ...` directly from Bash.

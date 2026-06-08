@@ -1,13 +1,13 @@
 import { Socket } from "node:net";
-import { homedir } from "node:os";
 import * as path from "node:path";
+import { AGENT_HOME_DIR, PLATFORM_DIR } from "../sandboxLayout";
 
 /** Port the agent's dev server binds (exported to its scripts as `$PORT`) and the auth-proxy fronts. */
 export const DEV_PORT = 9282;
 
 /** PATH that finds the overlaid `research-tool` binary, prepended to the inherited PATH. */
 export function researchBinPath(): string {
-  return `${path.join(homedir(), ".research", "bin")}:${process.env.PATH ?? ""}`;
+  return `${path.join(PLATFORM_DIR, "bin")}:${process.env.PATH ?? ""}`;
 }
 
 /** Environment the supervisor hands the agent's boot scripts (`init.sh`, `dev-server.sh`). */
@@ -16,7 +16,7 @@ export function buildScriptBootEnv(): NodeJS.ProcessEnv {
     NODE_ENV: process.env.NODE_ENV,
     PORT: String(DEV_PORT),
     PATH: researchBinPath(),
-    HOME: homedir(),
+    HOME: AGENT_HOME_DIR,
   };
 }
 

@@ -4,16 +4,23 @@
  * `buildResearchSandboxSnapshot` (which seeds them into the baseline snapshot),
  * so the two can't drift onto different paths.
  *
- * The sandbox's home directory: the runtime image runs as root, so this is
- * `/root`. The platform files live under here, *outside* the agent's cwd
- * (`/vercel/sandbox`), so the agent's cwd-scoped cleanup can't reach them. (The
- * in-sandbox supervisor pins `HOME=SANDBOX_HOME_DIR` so its `homedir()` resolves
- * to the same place the backend writes to.)
+ * Platform files live under `/root`, *outside* the agent's cwd
+ * (`/vercel/sandbox`), so the agent's cwd-scoped cleanup can't reach them. The
+ * supervisor pins its own `HOME=SANDBOX_HOME_DIR` so `homedir()` resolves to the
+ * same place the backend writes platform files.
  */
 export const SANDBOX_HOME_DIR = "/root";
 
 /** Agent working directory (cwd) — where `init.sh` lives. */
 export const AGENT_CWD = "/vercel/sandbox";
+
+/**
+ * Writable home for agent-facing processes. Vercel sandbox commands run as the
+ * unprivileged `vercel-sandbox` user, so using `/root` as the agent's `$HOME`
+ * makes global tool setup (`git config --global`, `~/.git-credentials`, etc.)
+ * fail with permissions errors.
+ */
+export const AGENT_HOME_DIR = `${AGENT_CWD}/.home`;
 
 export const PLATFORM_DIR = `${SANDBOX_HOME_DIR}/.research`;
 export const SUPERVISOR_PATH = `${PLATFORM_DIR}/supervisor.js`;

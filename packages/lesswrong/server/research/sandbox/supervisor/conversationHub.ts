@@ -110,7 +110,7 @@ export function createConversationHub(config: ConversationHubConfig) {
     if (input.claudeSessionId && input.bootstrapJsonl && input.bootstrapJsonl.length > 0) {
       try {
         await writeBootstrapJsonl(
-          { claudeSessionId: input.claudeSessionId, cwd: runnerOpts?.cwd },
+          { claudeSessionId: input.claudeSessionId, cwd: runnerOpts?.cwd, homeDir: runnerOpts?.env?.HOME },
           input.bootstrapJsonl.map((line) => ({ payload: line })),
         );
       } catch (err) {
