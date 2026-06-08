@@ -160,6 +160,12 @@ The editPost response includes a "Comment Threads" section after the post body
 if there are any open comment or suggestion threads on the draft. Each thread
 shows its ID, type (comment or suggestion), the quoted anchor text (if any),
 and the conversation. You can use the thread ID to reply to existing threads.
+If you need a machine-readable version of the same data, including full reply
+lists and legacy top-level comments, fetch:
+    GET /api/editPost/comments?postId=[id]&key=[linkSharingKey]
+The JSON response is { postId, threads }, where each thread has { id, threadType,
+quote, status?, canReply, isTopLevelComment?, comments }. Only use thread IDs
+with canReply=true when calling replyToComment.
 
 To add Google Docs-style comments to the draft, make a request to:
     POST /api/agent/commentOnDraft

@@ -103,7 +103,8 @@ export function convertWidgetIframesToMarkdownFences(markdown: string): string {
   });
 }
 
-interface SerializedComment {
+export interface SerializedComment {
+  id: string
   author: string
   content: string
   timeStamp: number
@@ -111,36 +112,81 @@ interface SerializedComment {
   deleted: boolean
 }
 
-interface SerializedThread {
+export interface SerializedThread {
   id: string
   threadType: ThreadType
   quote: string
   status?: ThreadStatus
+  canReply: boolean
+  isTopLevelComment?: boolean
   comments: SerializedComment[]
+}
+
+function readCommentFromYMap(commentMap: YMap<unknown>): SerializedComment {
+  return {
+    id: (commentMap.get("id") as string) ?? "",
+    author: (commentMap.get("author") as string) ?? "Unknown",
+    content: (commentMap.get("content") as string) ?? "",
+    timeStamp: (commentMap.get("timeStamp") as number) ?? 0,
+    commentKind: commentMap.get("commentKind") as string | undefined,
+    deleted: (commentMap.get("deleted") as boolean) ?? false,
+  };
 }
 
 function readThreadFromYMap(threadMap: YMap<unknown>): SerializedThread {
   const commentsArray = threadMap.get("comments") as YArray<unknown> | undefined;
-  const serializedComments: SerializedComment[] = commentsArray?.toArray().map((comment: YMap<unknown>) => {
-    return {
-      author: (comment.get("author") as string) ?? "Unknown",
-      content: (comment.get("content") as string) ?? "",
-      timeStamp: (comment.get("timeStamp") as number) ?? 0,
-      commentKind: comment.get("commentKind") as string | undefined,
-      deleted: (comment.get("deleted") as boolean) ?? false,
-    };
-  }) ?? [];
+  const serializedComments: SerializedComment[] = commentsArray?.toArray().map((comment: YMap<unknown>) =>
+    readCommentFromYMap(comment)
+  ) ?? [];
 
   return {
     id: (threadMap.get("id") as string) ?? "",
     threadType: (threadMap.get("threadType") as ThreadType | undefined) ?? "comment",
     quote: (threadMap.get("quote") as string) ?? "",
     status: threadMap.get("status") as ThreadStatus | undefined,
+    canReply: true,
     comments: serializedComments,
   };
 }
 
-async function readOpenCommentThreads({
+function readStandaloneCommentFromYMap(commentMap: YMap<unknown>): SerializedThread {
+  const comment = readCommentFromYMap(commentMap);
+  return {
+    id: comment.id,
+    threadType: "comment",
+    quote: "",
+    canReply: false,
+    isTopLevelComment: true,
+    comments: [comment],
+  };
+}
+
+function readCommentThreadEntryFromYMap(entryMap: YMap<unknown>): SerializedThread | null {
+  const type = entryMap.get("type");
+  if (type === "thread") {
+    return readThreadFromYMap(entryMap);
+  }
+  if (type === "comment") {
+    return readStandaloneCommentFromYMap(entryMap);
+  }
+  return null;
+}
+
+export function readOpenCommentThreadsFromYArray(commentsArray: YArray<unknown>): SerializedThread[] {
+  const threads: SerializedThread[] = [];
+
+  for (let i = 0; i < commentsArray.length; i++) {
+    const entryMap = commentsArray.get(i) as YMap<unknown>;
+    const thread = readCommentThreadEntryFromYMap(entryMap);
+    if (!thread) continue;
+    if (thread.status && thread.status !== "open") continue;
+    threads.push(thread);
+  }
+
+  return threads;
+}
+
+export async function readOpenCommentThreads({
   postId,
   token,
 }: {
@@ -164,19 +210,7 @@ async function readOpenCommentThreads({
     await waitForProviderSync(provider);
 
     const commentsArray = doc.get("comments", YArray);
-    const threads: SerializedThread[] = [];
-
-    for (let i = 0; i < commentsArray.length; i++) {
-      const threadMap = commentsArray.get(i) as YMap<unknown>;
-      if (threadMap.get("type") !== "thread") continue;
-      // Only include open threads (status undefined or "open")
-      const status = threadMap.get("status") as ThreadStatus | undefined;
-      if (status && status !== "open") continue;
-      const thread = readThreadFromYMap(threadMap);
-      threads.push(thread);
-    }
-
-    return threads;
+    return readOpenCommentThreadsFromYArray(commentsArray);
   } finally {
     provider.destroy();
     doc.destroy();
@@ -215,19 +249,21 @@ function formatSuggestionSummaryForMarkdown(content: string): string {
   }
 }
 
-function serializeThreadsToMarkdown(threads: SerializedThread[]): string {
+export function serializeThreadsToMarkdown(threads: SerializedThread[]): string {
   if (threads.length === 0) return "";
 
   const lines: string[] = [];
   lines.push(`## Comment Threads`);
   lines.push("");
   lines.push(
-    `${threads.length} open thread${threads.length !== 1 ? "s" : ""}. To reply: POST /api/agent/replyToComment { postId, key, threadId, comment }`
+    `${threads.length} open thread${threads.length !== 1 ? "s" : ""}. To reply: POST /api/agent/replyToComment { postId, key, threadId, comment }. ` +
+    `For JSON, GET /api/editPost/comments?postId=[id]&key=[linkSharingKey].`
   );
 
   for (const thread of threads) {
     lines.push("");
-    lines.push(`### Thread \`${thread.id}\` · ${thread.threadType}`);
+    const replyNote = thread.canReply ? "" : " · top-level comment (not replyable by threadId)";
+    lines.push(`### Thread \`${thread.id}\` · ${thread.threadType}${replyNote}`);
 
     if (thread.quote) {
       const quotedLines = thread.quote.split("\n").map((line) => `> ${line}`).join("\n");
