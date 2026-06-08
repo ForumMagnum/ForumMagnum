@@ -21,6 +21,7 @@ import {
 import { isVisibleConversationEvent } from './conversationEventFormat';
 import { ConversationEventRow } from './ConversationEventRow';
 import { ConversationActions } from './ConversationActions';
+import { shouldInterruptBeforeResearchChatSend } from './researchChatSubmit';
 
 interface ChatPaneProps {
   projectId: string;
@@ -139,7 +140,7 @@ const ChatPane = ({
   const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
   const eventsRef = useRef<HTMLDivElement | null>(null);
 
-  const { events: rawEvents, status, error, refresh, injectOptimisticEvent, clearOptimistic, markTurnExpected } = useConversationStream(conversationId);
+  const { events: rawEvents, status, error, refresh, turnInFlight, injectOptimisticEvent, clearOptimistic, markTurnExpected } = useConversationStream(conversationId);
   const [expectFirstTurnFor, setExpectFirstTurnFor] = useState<string | null>(null);
   useEffect(() => {
     if (conversationId && conversationId === expectFirstTurnFor) {
@@ -158,6 +159,11 @@ const ChatPane = ({
   });
   const [continueConversation] = useMutation(ContinueResearchConversationMutation);
   const [cancelConversation] = useMutation(CancelResearchConversationMutation);
+  const shouldInterruptBeforeSend = shouldInterruptBeforeResearchChatSend({
+    conversationId,
+    streamStatus: status,
+    turnInFlight,
+  });
 
   // Auto-scroll to bottom when new events arrive.
   useEffect(() => {
@@ -188,6 +194,9 @@ const ChatPane = ({
         void pollForConversationTitle(apolloClient, projectId, createdId);
       } else {
         const optimisticText = htmlToTextDefault(promptHtml);
+        if (shouldInterruptBeforeSend) {
+          await cancelConversation({ variables: { conversationId } });
+        }
         markTurnExpected();
         injectOptimisticEvent({
           _id: `optimistic:user:${randomId()}`,
@@ -215,14 +224,12 @@ const ChatPane = ({
       setSending(false);
       setPendingPrompt(null);
     }
-  }, [sending, conversationId, projectId, activeDocumentId, fireConversation, continueConversation, onConversationCreated, refresh, injectOptimisticEvent, clearOptimistic, markTurnExpected, apolloClient, flash]);
+  }, [sending, conversationId, projectId, activeDocumentId, fireConversation, continueConversation, cancelConversation, shouldInterruptBeforeSend, onConversationCreated, refresh, injectOptimisticEvent, clearOptimistic, markTurnExpected, apolloClient, flash]);
 
   const handleCancel = useCallback(async () => {
     if (!conversationId) return;
     await cancelConversation({ variables: { conversationId } });
   }, [cancelConversation, conversationId]);
-
-  const isStreaming = status === 'streaming' || status === 'connecting';
 
   const navigationContext = useMemo<ResearchNavigationContextValue>(() => ({
     navigateToDocument: onSelectDocument,
@@ -275,12 +282,14 @@ const ChatPane = ({
           projectId={projectId}
           placeholder="Continue the conversation… (⌘/Ctrl+Enter to send)"
           disabled={sending}
+          sendButtonLabel={shouldInterruptBeforeSend ? 'Interrupt & send' : 'Send'}
           onSubmit={handleSend}
-          extraActions={isStreaming ? (
+          extraActions={shouldInterruptBeforeSend ? (
             <button
               type="button"
               className={classes.cancelButton}
               onClick={handleCancel}
+              disabled={sending}
             >
               Cancel turn
             </button>

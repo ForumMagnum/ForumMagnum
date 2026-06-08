@@ -15,6 +15,7 @@ interface ChatComposerProps {
   projectId: string;
   placeholder?: string;
   disabled?: boolean;
+  sendButtonLabel?: string;
   onSubmit: (promptHtml: string) => Promise<void> | void;
   extraActions?: React.ReactNode;
 }
@@ -73,6 +74,7 @@ const ChatComposer = ({
   projectId,
   placeholder = 'Ask anything…',
   disabled = false,
+  sendButtonLabel = 'Send',
   onSubmit,
   extraActions,
 }: ChatComposerProps) => {
@@ -136,7 +138,7 @@ const ChatComposer = ({
           onClick={handleSend}
           disabled={disabled}
         >
-          Send
+          {sendButtonLabel}
         </button>
       </div>
     </div>

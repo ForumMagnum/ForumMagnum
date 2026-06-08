@@ -31,6 +31,7 @@ interface UseConversationStreamResult {
   status: StreamStatus;
   error: string | null;
   latestSeq: number;
+  turnInFlight: boolean;
   refresh: () => void;
   // Optimistic local-only insert (seq < 0); dropped once its persisted twin lands.
   injectOptimisticEvent: (event: ConversationEvent) => void;
@@ -210,6 +211,7 @@ export function useConversationStream(
     status,
     error: queryError ? queryError.message : null,
     latestSeq,
+    turnInFlight,
     refresh,
     injectOptimisticEvent,
     clearOptimistic,
