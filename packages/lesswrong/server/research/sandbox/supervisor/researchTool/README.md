@@ -42,6 +42,8 @@ The spawn must set per-subprocess env:
 - `RESEARCH_BACKEND_TOKEN` — the sandbox-callback token for *this conversation*
   (minted fresh per dispatch with a TTL sized to outlive the sandbox session)
 - `RESEARCH_PROJECT_ID` — convenience for `list-project`
+- `RESEARCH_CONVERSATION_ID` — the current conversation id, for disambiguating
+  fetched document/transcript references that point back to this same session
 
 ## Auth contract
 

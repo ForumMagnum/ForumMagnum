@@ -47,21 +47,25 @@ const CLAUDE_MD_PATH = path.join(homedir(), ".claude", "CLAUDE.md");
 const INIT_SCRIPT_TIMEOUT_MS = 5 * 60 * 1000;
 
 /**
- * Substitute the `{{RESEARCH_PROJECT_ID}}` placeholder in the agent's CLAUDE.md
- * so Claude Code's auto-loaded system prompt knows what project the agent is
+ * Substitute session placeholders in the agent's CLAUDE.md so Claude Code's
+ * auto-loaded system prompt knows what project and conversation the agent is
  * scoped to. Run at boot, *after* the backend's overlay write and *before* any
  * `claude` subprocess. Best-effort: a missing/unwritable file just logs.
  */
-function fillClaudeMdTemplate(env: { projectId: string }): void {
+function fillClaudeMdTemplate(env: { projectId: string; conversationId: string }): void {
   try {
     const template = fs.readFileSync(CLAUDE_MD_PATH, "utf8");
-    const filled = template.replace(/\{\{RESEARCH_PROJECT_ID\}\}/g, env.projectId);
+    const filled = template
+      .replace(/\{\{RESEARCH_PROJECT_ID\}\}/g, env.projectId)
+      .replace(/\{\{RESEARCH_CONVERSATION_ID\}\}/g, env.conversationId);
     if (filled !== template) {
       fs.writeFileSync(CLAUDE_MD_PATH, filled, "utf8");
     }
   } catch (err) {
     // eslint-disable-next-line no-console
-    console.warn(`[supervisor] could not fill CLAUDE.md template: ${(err as Error).message}`);
+    console.warn(
+      `[supervisor] could not fill CLAUDE.md template: ${err instanceof Error ? err.message : String(err)}`,
+    );
   }
 }
 
@@ -195,7 +199,7 @@ async function selfHealDanglingTurn(
 
 export async function bootSupervisor() {
   const env = readEnv();
-  fillClaudeMdTemplate({ projectId: env.projectId });
+  fillClaudeMdTemplate({ projectId: env.projectId, conversationId: env.conversationId });
 
   const postPersister = createPostPersister({
     backendBaseUrl: env.backendBaseUrl,
@@ -260,6 +264,7 @@ export async function bootSupervisor() {
             RESEARCH_BACKEND_BASE_URL: env.backendBaseUrl,
             RESEARCH_BACKEND_TOKEN: req.agentBackendToken,
             RESEARCH_PROJECT_ID: env.projectId,
+            RESEARCH_CONVERSATION_ID: req.conversationId,
             // Lets `research-tool dev …` reach the local dev-server controller.
             RESEARCH_DEV_CONTROL_URL: `http://127.0.0.1:${DEV_CONTROL_PORT}`,
           },

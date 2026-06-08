@@ -52,7 +52,11 @@ export async function GET(
         projectId: payload.projectId,
         operationResult: "danglingCheck",
       });
-      return NextResponse.json({ ok: true, conversationId, incompleteTurn });
+      return NextResponse.json({
+        ok: true,
+        conversationId,
+        incompleteTurn,
+      });
     }
 
     const events = await context.ResearchConversationEvents.find(

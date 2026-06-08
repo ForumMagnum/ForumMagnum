@@ -25,6 +25,9 @@
  *   RESEARCH_PROJECT_ID          — the project this sandbox is scoped to;
  *                                  used to build URLs (the bearer token also
  *                                  pins the project server-side)
+ *   RESEARCH_CONVERSATION_ID     — the current conversation id; useful when
+ *                                  comparing fetched transcript/document
+ *                                  references against the active session
  *
  * Output: JSON-serialized API response on stdout (one object per invocation).
  * Errors: human-readable message on stderr + non-zero exit code.

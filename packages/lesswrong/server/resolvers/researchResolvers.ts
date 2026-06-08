@@ -146,13 +146,23 @@ async function cancelTurnViaSupervisor(target: SupervisorTarget): Promise<void> 
 async function prepareTurnPrompt(args: {
   rawPrompt: string;
   projectId: string;
+  conversationId: string;
   activeDocumentId: string;
   entrypointKind: string;
   entrypointDocumentId: string;
   priorEvents: DbResearchConversationEvent[];
   context: ResolverContext;
 }): Promise<string> {
-  const { rawPrompt, projectId, activeDocumentId, entrypointKind, entrypointDocumentId, priorEvents, context } = args;
+  const {
+    rawPrompt,
+    projectId,
+    conversationId,
+    activeDocumentId,
+    entrypointKind,
+    entrypointDocumentId,
+    priorEvents,
+    context,
+  } = args;
 
   const lastInjected = deriveLastInjectedActiveDocumentId(priorEvents);
   if (lastInjected === activeDocumentId) return rawPrompt;
@@ -169,6 +179,7 @@ async function prepareTurnPrompt(args: {
   return buildSystemReminderWrap(
     {
       activeDocument: { id: activeDoc._id, title: activeDoc.title ?? "(untitled)" },
+      conversationId,
       originDocument: originDoc
         ? { id: originDoc._id, title: originDoc.title ?? "(untitled)" }
         : undefined,
@@ -320,6 +331,7 @@ export const researchResolversMutations = {
     const turnPrompt = await prepareTurnPrompt({
       rawPrompt: prompt,
       projectId,
+      conversationId,
       activeDocumentId,
       entrypointKind: kind,
       entrypointDocumentId: activeDocumentId,
@@ -375,6 +387,7 @@ export const researchResolversMutations = {
     const turnPrompt = await prepareTurnPrompt({
       rawPrompt: prompt,
       projectId: conv.projectId,
+      conversationId: conv._id,
       activeDocumentId: args.activeDocumentId,
       entrypointKind: conv.entrypointKind,
       entrypointDocumentId: conv.entrypointDocumentId,
