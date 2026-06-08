@@ -21,6 +21,7 @@ describe("liveDraftReadFailureMessage", () => {
 
     expect(message).toContain("Access to shared draft testPostId was authorized");
     expect(message).toContain("live editor service is currently unavailable");
-    expect(message).not.toContain("sharing permissions");
+    expect(message).toContain("draft-sharing permissions were accepted");
+    expect(message).not.toContain("Anyone with the link can");
   });
 });
