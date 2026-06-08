@@ -16,6 +16,8 @@ export interface ConversationHubConfig {
   postPersister: PostPersister;
   /** Override clock for tests. */
   now?: () => number;
+  /** Override runner creation for tests. */
+  startRunner?: typeof startClaudeRunner;
 }
 
 interface ConversationEntry {
@@ -51,6 +53,7 @@ export interface DispatchInput {
 
 export function createConversationHub(config: ConversationHubConfig) {
   const now = config.now ?? (() => Date.now());
+  const startRunner = config.startRunner ?? startClaudeRunner;
   const conversations = new Map<string, ConversationEntry>();
 
   function getOrInit(conversationId: string): ConversationEntry {
@@ -67,6 +70,8 @@ export function createConversationHub(config: ConversationHubConfig) {
   }
 
   function emit(entry: ConversationEntry, line: ParsedJsonlLine, turnId: number) {
+    if (entry.activeTurnId !== turnId) return;
+
     const persistKind = mapKindForPersistence(line.kind);
     if (persistKind) {
       config.postPersister.enqueue(entry.conversationId, {
@@ -81,8 +86,7 @@ export function createConversationHub(config: ConversationHubConfig) {
     // The `result` line is the turn's terminal signal — emitted once when the
     // turn is done, independent of whether the process then exits (a backgrounded
     // child can keep it alive). Completion is tracked here, not at process exit.
-    // Guarded so a superseded runner's late output can't complete a newer turn.
-    if (line.kind === "result" && entry.activeTurnId === turnId && entry.state.status === "running") {
+    if (line.kind === "result" && entry.state.status === "running") {
       entry.state = { ...entry.state, status: "completed", endedAt: now() };
     }
 
@@ -102,9 +106,11 @@ export function createConversationHub(config: ConversationHubConfig) {
     if (entry.runner) {
       // The previous turn reached a terminal status but its process is still
       // alive (a backgrounded child is holding it open). Starting the next turn
-      // is safe; the runner reference is replaced below.
+      // is safe, but the old runner must be stopped before its stale context can
+      // emit more events into this conversation.
       // eslint-disable-next-line no-console
       console.warn(`[hub] conv=${input.conversationId} starting turn with a live prior runner (status=${entry.state.status})`);
+      entry.runner.cancel("SIGTERM");
     }
 
     if (input.claudeSessionId && input.bootstrapJsonl && input.bootstrapJsonl.length > 0) {
@@ -148,7 +154,7 @@ export function createConversationHub(config: ConversationHubConfig) {
       supervisorEmittedAt: new Date(now()).toISOString(),
     });
 
-    const runner = startClaudeRunner({
+    const runner = startRunner({
       conversationId: input.conversationId,
       prompt: input.prompt,
       claudeSessionId: input.claudeSessionId,
