@@ -1,4 +1,4 @@
-import React, { FC, MouseEvent, PropsWithChildren, useContext, useSyncExternalStore } from "react";
+import React, { FC, MouseEvent, PropsWithChildren, useContext } from "react";
 import { useTracking } from "../../../lib/analyticsEvents";
 import { commentGetPageUrlFromIds } from "../../../lib/collections/comments/helpers";
 import qs from "qs";
@@ -91,17 +91,17 @@ export const CommentLinkWrapper = ({
  */
 export const useCommentLinkState = () => {
   const { query, hash } = useSubscribedLocation();
+  const matchSSR = useMatchSSR();
 
   const queryId = query.commentId
   const hashId = hash.slice(1);
+  const hasInContextComments = commentPermalinkStyleSetting.get() === 'in-context';
 
-  // Hash is only available on the client, not the server; useSyncExternalStore suppresses
-  // the SSR mismatch
-  const scrollToCommentId = useSyncExternalStore(
-    ()=>()=>{},
-    () => commentPermalinkStyleSetting.get() === 'in-context' ? (queryId ?? hashId) : hashId,
-    () => commentPermalinkStyleSetting.get() === 'in-context' ? queryId : "",
-  ) ?? "";
+  // Hash is only available on the client, not the server. Keep hash-based scroll targets
+  // empty until after hydration to avoid an SSR mismatch.
+  const scrollToCommentId = matchSSR
+    ? (hasInContextComments ? queryId : "")
+    : (hasInContextComments ? (queryId ?? hashId) : hashId);
 
   return { linkedCommentId: queryId, scrollToCommentId }
 }
