@@ -33,7 +33,33 @@ describe("research conversation event formatting", () => {
       ])).toBe(true);
     });
 
-    it("ignores non-user/result kinds", () => {
+    it("is false when a user turn ends with an error event and no result", () => {
+      expect(isTurnInFlight([
+        { kind: "user" },
+        { kind: "assistant" },
+        { kind: "tool_use" },
+        { kind: "error" },
+      ])).toBe(false);
+    });
+
+    it("is true when a later turn opens after an errored turn", () => {
+      expect(isTurnInFlight([
+        { kind: "user" },
+        { kind: "error" },
+        { kind: "user" },
+      ])).toBe(true);
+    });
+
+    it("does not let duplicate terminal events close a later turn", () => {
+      expect(isTurnInFlight([
+        { kind: "user" },
+        { kind: "error" },
+        { kind: "result" },
+        { kind: "user" },
+      ])).toBe(true);
+    });
+
+    it("ignores non-user/non-terminal kinds", () => {
       expect(isTurnInFlight([{ kind: "thinking" }, { kind: "tool_use" }])).toBe(false);
     });
   });

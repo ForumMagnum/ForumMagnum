@@ -37,18 +37,18 @@ export function isVisibleConversationEvent(event: { kind: string }): boolean {
 }
 
 /**
- * Whether the transcript has an unanswered turn. Claude Code emits exactly one
- * `result` per turn, so `userCount > resultCount` means a turn is still
- * running (or queued waiting for its sandbox to start).
+ * Whether the transcript has an unanswered turn. Claude Code normally emits
+ * exactly one `result` per turn, but a terminal `error` can end a turn without
+ * a matching `result`. Terminal events close one pending user turn, so extra
+ * terminals can't accidentally mark a later turn complete.
  */
 export function isTurnInFlight(events: readonly { kind: string }[]): boolean {
-  let userCount = 0;
-  let resultCount = 0;
+  let pendingTurns = 0;
   for (const event of events) {
-    if (event.kind === 'user') userCount++;
-    else if (event.kind === 'result') resultCount++;
+    if (event.kind === 'user') pendingTurns++;
+    else if ((event.kind === 'result' || event.kind === 'error') && pendingTurns > 0) pendingTurns--;
   }
-  return userCount > resultCount;
+  return pendingTurns > 0;
 }
 
 /**
