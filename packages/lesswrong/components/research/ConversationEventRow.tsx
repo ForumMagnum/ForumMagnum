@@ -4,7 +4,7 @@ import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
 import ForumIcon from '@/components/common/ForumIcon';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { getConversationEventChunks, type ConversationEventChunk } from './conversationEventFormat';
+import { formatConversationEventTimestamp, getConversationEventChunks, type ConversationEventChunk } from './conversationEventFormat';
 import { ChunkContent } from './ChunkContent';
 import type { ConversationEvent } from './hooks/useConversationStream';
 
@@ -238,9 +238,10 @@ function ChatEventRow({
     [classes.chatAssistant]: event.kind === 'assistant' && hasMessageChunk,
     [classes.chatMetaOnly]: !hasMessageChunk,
   });
+  const timestampTitle = formatConversationEventTimestamp(event.createdAt);
 
   return (
-    <div className={rootClass}>
+    <div className={rootClass} title={timestampTitle || undefined}>
       {chunks.map((chunk, i) => (
         <EventChunk key={i} event={event} chunk={chunk} classes={classes} surface="chat" />
       ))}

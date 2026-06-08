@@ -36,6 +36,21 @@ export function isVisibleConversationEvent(event: { kind: string }): boolean {
   return visibleConversationEventKinds.has(event.kind);
 }
 
+export function formatConversationEventTimestamp(
+  createdAt: string,
+  locale?: string,
+  timeZone?: string,
+): string {
+  const date = new Date(createdAt);
+  if (Number.isNaN(date.getTime())) return '';
+
+  return new Intl.DateTimeFormat(locale, {
+    dateStyle: 'medium',
+    timeStyle: 'medium',
+    ...(timeZone ? { timeZone } : {}),
+  }).format(date);
+}
+
 /**
  * Whether the transcript has an unanswered turn. Claude Code emits exactly one
  * `result` per turn, so `userCount > resultCount` means a turn is still

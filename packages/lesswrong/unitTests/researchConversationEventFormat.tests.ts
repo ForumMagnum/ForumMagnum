@@ -1,4 +1,5 @@
 import {
+  formatConversationEventTimestamp,
   getAgentTranscriptTurns,
   isTurnInFlight,
   isVisibleConversationEvent,
@@ -10,6 +11,11 @@ describe("research conversation event formatting", () => {
     expect(isVisibleConversationEvent({ kind: "tool_result" })).toBe(true);
     expect(isVisibleConversationEvent({ kind: "system" })).toBe(false);
     expect(isVisibleConversationEvent({ kind: "unknown" })).toBe(false);
+  });
+
+  it("formats native tooltip timestamps for conversation events", () => {
+    expect(formatConversationEventTimestamp("2026-06-08T21:06:13.000Z", "en-US", "UTC")).toBe("Jun 8, 2026, 9:06:13 PM");
+    expect(formatConversationEventTimestamp("not-a-date", "en-US", "UTC")).toBe("");
   });
 
   describe("isTurnInFlight", () => {
