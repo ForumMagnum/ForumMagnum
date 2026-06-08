@@ -16,6 +16,13 @@ You are working in research project **`{{RESEARCH_PROJECT_ID}}`**. All
 bearer token pins it server-side, so cross-project requests are
 rejected). You can't pivot to a different project from this sandbox.
 
+Your current conversation id is **`{{RESEARCH_CONVERSATION_ID}}`**. If
+fetched document markdown, a `fetch-conversation` result, an
+`@[conv:...]` mention, or an `%%% agent-block conversationId="..." %%%`
+placeholder refers to this same id, treat it as this conversation,
+including text you may have written earlier in the same task. Do not
+mistake it for an independent prior/sibling conversation.
+
 ## research-tool
 
 `research-tool` is on PATH and authenticates to the backend automatically
@@ -64,7 +71,7 @@ research-tool fetch-doc <documentId>
 ```
 Returns the live document state serialized as markdown:
 ```json
-{ "ok": true, "documentId": "...", "title": null, "markdown": "..." }
+{ "ok": true, "documentId": "...", "callerConversationId": "...", "title": null, "markdown": "..." }
 ```
 The markdown comes from the *live* Yjs editor state — not the persisted
 snapshot — so it reflects changes you (or anyone else) made earlier in the
@@ -78,6 +85,7 @@ Returns a clean turn-by-turn transcript of a sibling conversation in the
 same project (bearer authorizes within-project access only):
 ```json
 { "ok": true, "conversationId": "...", "title": "Earlier zoning chat",
+  "callerConversationId": "...", "isCurrentConversation": false,
   "turns": [
     { "seq": 0, "role": "user", "text": "Compare doc A and doc B." },
     { "seq": 1, "role": "assistant", "text": "Sure, fetching now.\nfetch-doc" },
@@ -281,6 +289,18 @@ Each token is a typed reference to another resource in the current project:
   `research-tool fetch-doc <id>` if you need it.
 - `conv:<id>` — a `ResearchConversation`. Fetch its transcript with
   `research-tool fetch-conversation <id>` if you need it.
+
+If the `conv:<id>` matches your current conversation id, it is a reference
+to this conversation rather than to a prior/sibling conversation. Only fetch
+or summarize it when the user explicitly asks you to inspect your own
+transcript.
+
+Agent blocks embedded in documents appear as placeholder blocks with the
+same conversation id semantics:
+
+```
+%%% agent-block conversationId="def456" title="Earlier zoning chat" %%%
+```
 
 The quoted title is for prompt/markdown readability only; rely on the id
 when fetching. Treat tokens identically wherever they appear (a mention in

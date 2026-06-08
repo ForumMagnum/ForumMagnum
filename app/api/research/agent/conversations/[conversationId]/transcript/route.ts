@@ -52,7 +52,13 @@ export async function GET(
         projectId: payload.projectId,
         operationResult: "danglingCheck",
       });
-      return NextResponse.json({ ok: true, conversationId, incompleteTurn });
+      return NextResponse.json({
+        ok: true,
+        conversationId,
+        callerConversationId: payload.conversationId,
+        isCurrentConversation: conversationId === payload.conversationId,
+        incompleteTurn,
+      });
     }
 
     const events = await context.ResearchConversationEvents.find(
@@ -81,6 +87,8 @@ export async function GET(
     return NextResponse.json({
       ok: true,
       conversationId,
+      callerConversationId: payload.conversationId,
+      isCurrentConversation: conversationId === payload.conversationId,
       title: conversation.title ?? null,
       turns,
       incompleteTurn,
