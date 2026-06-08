@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useReducer, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdminOrMod } from '@/lib/vulcan-users/permissions';
@@ -27,6 +27,7 @@ import CurationPostView from './CurationView';
 import CurationKeyboardHandler from './CurationKeyboardHandler';
 import ModerationUndoHistory from './ModerationUndoHistory';
 import NewContentPangramProbe from './NewContentPangramProbe';
+import { usePangramQualification } from './usePangramQualification';
 
 // All of the moderation inbox's initial data is fetched in a single query so
 // that its root fields (users/posts/classifiedPosts/curation/lastCurated)
@@ -286,26 +287,7 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
 
   const allOrderedUsers = useMemo(() => orderedGroups.map(([_, users]) => users).flat(), [orderedGroups]);
 
-  // New-content users start out in the New Content tab; as each user's content
-  // loads client-side, the probes report whether they qualify for the Pangram
-  // tab, and qualifying users migrate over.
-  const newContentUsers = useMemo(() => groupedUsers.newContent ?? [], [groupedUsers]);
-
-  const [pangramQualification, setPangramQualification] = useState<Record<string, boolean>>({});
-
-  const handlePangramProbeResult = useCallback((userId: string, qualifies: boolean) => {
-    setPangramQualification(prev => (prev[userId] === qualifies ? prev : { ...prev, [userId]: qualifies }));
-  }, []);
-
-  const pangramQualifyingUserIds = useMemo(
-    () => newContentUsers.filter(user => pangramQualification[user._id]).map(user => user._id),
-    [newContentUsers, pangramQualification]
-  );
-
-  // Mirror the qualifying IDs into reducer state so keyboard tab navigation stays in sync.
-  useEffect(() => {
-    dispatch({ type: 'SET_PANGRAM_QUALIFYING_USERS', userIds: pangramQualifyingUserIds });
-  }, [pangramQualifyingUserIds]);
+  const { newContentUsers, handlePangramProbeResult, pangramQualifyingUserIds } = usePangramQualification(groupedUsers, dispatch);
 
   const filteredGroups = useMemo(() => getFilteredGroups(groupedUsers, state.activeTab, pangramQualifyingUserIds), [groupedUsers, state.activeTab, pangramQualifyingUserIds]);
 
