@@ -196,21 +196,22 @@ function getMergeTargetCell(
 }
 
 export function $getCompleteTableSelectionDeleteAction(
-  selection: TableSelection | null = $getSelection()
+  selection?: TableSelection | null
 ): CompleteTableSelectionDeleteAction | null {
-  if (!$isTableSelection(selection) || !selection.isValid()) return null;
+  const currentSelection = selection ?? $getSelection();
+  if (!$isTableSelection(currentSelection) || !currentSelection.isValid()) return null;
 
-  const tableNode = $getNodeByKey<TableNode>(selection.tableKey);
+  const tableNode = $getNodeByKey<TableNode>(currentSelection.tableKey);
   if (!$isTableNode(tableNode)) return null;
 
-  const anchorCell = $getTableCellNodeFromLexicalNode(selection.anchor.getNode());
-  const focusCell = $getTableCellNodeFromLexicalNode(selection.focus.getNode());
+  const anchorCell = $getTableCellNodeFromLexicalNode(currentSelection.anchor.getNode());
+  const focusCell = $getTableCellNodeFromLexicalNode(currentSelection.focus.getNode());
   if (!anchorCell || !focusCell) return null;
 
   const [tableMap] = $computeTableMap(tableNode, anchorCell, focusCell);
   if (tableMap.length === 0 || tableMap[0].length === 0) return null;
 
-  const shape = selection.getShape();
+  const shape = currentSelection.getShape();
   const rowCount = tableMap.length;
   const columnCount = tableMap[0].length;
   const selectsFullRows = shape.fromX === 0 && shape.toX === columnCount - 1;
