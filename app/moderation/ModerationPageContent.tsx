@@ -1089,42 +1089,35 @@ export default function ModerationPageContent(props: Props) {
             </thead>
             <tbody>
               {deletedComments.map((comment) => (
-                <React.Fragment key={comment._id}>
-                  <tr className={classes.tr} onClick={() => toggleRowExpanded(comment._id)}>
-                    <td className={classes.td} data-label="Date">
-                      <span className={classes.date}>
-                        {comment.deletedDate ? new Date(comment.deletedDate).toLocaleDateString() : '—'}
-                      </span>
-                    </td>
-                    <td className={classes.td} data-label="Author">
-                      {comment.user ? (
-                        <a href={userGetProfileUrl(comment.user)} className={classes.link}>
-                          {comment.user.displayName}
-                        </a>
-                      ) : '—'}
-                    </td>
-                    <td className={classes.td} data-label="Post">
-                      {comment.post ? (
-                        <a href={postGetPageUrl(comment.post)} className={classes.titleLink}>
-                          {comment.post.title}
-                        </a>
-                      ) : '—'}
-                    </td>
-                    <td className={classes.td} data-label="Reason">{renderPlainTextReason(comment.deletedReason)}</td>
-                    <td className={classes.td} data-label="Deleted By">
-                      {comment.deletedByUser ? (
-                        <a href={userGetProfileUrl(comment.deletedByUser)} className={classes.link}>
-                          {comment.deletedByUser.displayName}
-                        </a>
-                      ) : '—'}
-                    </td>
-                  </tr>
-                  {expandedRows.has(comment._id) && (
-                    <tr>
-                      <td colSpan={5}>{renderContent(comment.contents)}</td>
-                    </tr>
-                  )}
-                </React.Fragment>
+                <tr key={comment._id} className={classes.trNonExpandable}>
+                  <td className={classes.td} data-label="Date">
+                    <span className={classes.date}>
+                      {comment.deletedDate ? new Date(comment.deletedDate).toLocaleDateString() : '—'}
+                    </span>
+                  </td>
+                  <td className={classes.td} data-label="Author">
+                    {comment.user ? (
+                      <a href={userGetProfileUrl(comment.user)} className={classes.link}>
+                        {comment.user.displayName}
+                      </a>
+                    ) : '—'}
+                  </td>
+                  <td className={classes.td} data-label="Post">
+                    {comment.post ? (
+                      <a href={postGetPageUrl(comment.post)} className={classes.titleLink}>
+                        {comment.post.title}
+                      </a>
+                    ) : '—'}
+                  </td>
+                  <td className={classes.td} data-label="Reason">{renderPlainTextReason(comment.deletedReason)}</td>
+                  <td className={classes.td} data-label="Deleted By">
+                    {comment.deletedByUser ? (
+                      <a href={userGetProfileUrl(comment.deletedByUser)} className={classes.link}>
+                        {comment.deletedByUser.displayName}
+                      </a>
+                    ) : '—'}
+                  </td>
+                </tr>
               ))}
             </tbody>
           </table>
