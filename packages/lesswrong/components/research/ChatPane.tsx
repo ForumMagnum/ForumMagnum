@@ -21,6 +21,7 @@ import {
 import { isVisibleConversationEvent } from './conversationEventFormat';
 import { ConversationEventRow } from './ConversationEventRow';
 import { ConversationActions } from './ConversationActions';
+import { shouldShowAgentActivity } from './conversationActivity';
 
 interface ChatPaneProps {
   projectId: string;
@@ -109,6 +110,28 @@ const styles = defineStyles('ChatPane', (theme: ThemeType) => ({
     maxWidth: '85%',
     padding: '4px 8px',
   },
+  activityIndicator: {
+    display: 'inline-flex',
+    alignItems: 'center',
+    gap: 8,
+    alignSelf: 'flex-start',
+    color: theme.palette.text.dim,
+    fontSize: 12,
+    lineHeight: '18px',
+    padding: '2px 0',
+  },
+  pulseDot: {
+    flex: 'none',
+    width: 7,
+    height: 7,
+    borderRadius: '50%',
+    background: theme.palette.primary.main,
+    animation: '$inflightPulse 1.4s ease-in-out infinite',
+  },
+  '@keyframes inflightPulse': {
+    '0%, 100%': { opacity: 0.25, transform: 'scale(0.85)' },
+    '50%': { opacity: 1, transform: 'scale(1)' },
+  },
   cancelButton: {
     padding: '6px 14px',
     borderRadius: 4,
@@ -139,7 +162,16 @@ const ChatPane = ({
   const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
   const eventsRef = useRef<HTMLDivElement | null>(null);
 
-  const { events: rawEvents, status, error, refresh, injectOptimisticEvent, clearOptimistic, markTurnExpected } = useConversationStream(conversationId);
+  const {
+    events: rawEvents,
+    status,
+    error,
+    turnInFlight,
+    refresh,
+    injectOptimisticEvent,
+    clearOptimistic,
+    markTurnExpected,
+  } = useConversationStream(conversationId);
   const [expectFirstTurnFor, setExpectFirstTurnFor] = useState<string | null>(null);
   useEffect(() => {
     if (conversationId && conversationId === expectFirstTurnFor) {
@@ -223,6 +255,7 @@ const ChatPane = ({
   }, [cancelConversation, conversationId]);
 
   const isStreaming = status === 'streaming' || status === 'connecting';
+  const showAgentActivity = shouldShowAgentActivity({ status, turnInFlight });
 
   const navigationContext = useMemo<ResearchNavigationContextValue>(() => ({
     navigateToDocument: onSelectDocument,
@@ -268,6 +301,12 @@ const ChatPane = ({
           {events.map((event) => (
             <ConversationEventRow key={event._id ?? `${event.conversationId}:${event.seq}`} event={event} surface="chat" />
           ))}
+          {showAgentActivity ? (
+            <div className={classes.activityIndicator} role="status" aria-live="polite">
+              <span className={classes.pulseDot} aria-hidden="true" />
+              <span>Agent is working…</span>
+            </div>
+          ) : null}
         </div>
       )}
       <ResearchNavigationProvider value={navigationContext}>
