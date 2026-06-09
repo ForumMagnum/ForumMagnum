@@ -511,6 +511,7 @@ extend type Query {
 type CrossSiteLinkPreviewData {
   title: String
   imageUrl: String
+  redirectedUrl: String
   originalImageUrl: String
   mirroredImageUrl: String
   imageWidth: Int

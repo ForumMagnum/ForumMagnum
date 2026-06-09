@@ -53,6 +53,12 @@ const schema = {
       nullable: true,
     },
   },
+  redirectedUrl: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+  },
   originalImageUrl: {
     database: {
       type: "TEXT",

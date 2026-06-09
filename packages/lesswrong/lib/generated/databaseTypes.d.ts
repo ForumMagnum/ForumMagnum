@@ -530,6 +530,7 @@ interface DbLinkPreviewCaches extends DbObject {
   mirroredImageUrl: string | null
   nextRefreshAt: Date
   originalImageUrl: string | null
+  redirectedUrl: string | null
   remoteHtml: string | null
   requestStartedAt: Date
   sanitizedHtml: string | null

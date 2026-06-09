@@ -20,6 +20,7 @@ const MAX_EXCERPT_LENGTH = 3000;
 interface LinkPreviewResult {
   title: string | null;
   imageUrl: string | null;
+  redirectedUrl?: string | null;
   originalImageUrl?: string | null;
   mirroredImageUrl?: string | null;
   imageWidth?: number | null;
@@ -38,6 +39,7 @@ interface LinkPreviewResult {
 interface LinkPreviewCacheRow {
   title: string | null;
   imageUrl: string | null;
+  redirectedUrl?: string | null;
   originalImageUrl?: string | null;
   mirroredImageUrl?: string | null;
   imageWidth?: number | null;
@@ -75,6 +77,7 @@ export const crossSiteLinkPreviewGraphQLTypeDefs = gql`
   type CrossSiteLinkPreviewData {
     title: String
     imageUrl: String
+    redirectedUrl: String
     originalImageUrl: String
     mirroredImageUrl: String
     imageWidth: Int
@@ -721,6 +724,7 @@ function getPreviewProjection(includeDebug: boolean): string {
     SELECT
       "title",
       "imageUrl",
+      "redirectedUrl",
       "originalImageUrl",
       "mirroredImageUrl",
       "imageWidth",
@@ -749,6 +753,7 @@ function toResolverResult(row: LinkPreviewCacheRow | null): LinkPreviewResult | 
   return {
     title: row.title,
     imageUrl: row.imageUrl,
+    redirectedUrl: row.redirectedUrl ?? null,
     originalImageUrl: row.originalImageUrl ?? null,
     mirroredImageUrl: row.mirroredImageUrl ?? null,
     imageWidth: row.imageWidth ?? null,
@@ -821,7 +826,7 @@ async function claimFetchSlot(url: string, now: Date, forceRefetch: boolean): Pr
   return !!acquired;
 }
 
-async function fetchRemoteHtml(url: string): Promise<string> {
+async function fetchRemoteHtml(url: string): Promise<{ html: string; finalUrl: string }> {
   const abortController = new AbortController();
   const timeout = setTimeout(() => abortController.abort(), LINK_PREVIEW_FETCH_TIMEOUT_MS);
 
@@ -842,7 +847,10 @@ async function fetchRemoteHtml(url: string): Promise<string> {
       throw new Error(`Unsupported content type: ${contentType}`);
     }
     const html = await response.text();
-    return html.length > MAX_REMOTE_HTML_LENGTH ? html.slice(0, MAX_REMOTE_HTML_LENGTH) : html;
+    return {
+      html: html.length > MAX_REMOTE_HTML_LENGTH ? html.slice(0, MAX_REMOTE_HTML_LENGTH) : html,
+      finalUrl: normalizePreviewUrl(response.url || url),
+    };
   } finally {
     clearTimeout(timeout);
   }
@@ -852,6 +860,7 @@ async function writeResultToCache({
   url,
   title,
   imageUrl,
+  redirectedUrl,
   originalImageUrl,
   mirroredImageUrl,
   imageWidth,
@@ -867,6 +876,7 @@ async function writeResultToCache({
   url: string;
   title: string | null;
   imageUrl: string | null;
+  redirectedUrl: string | null;
   originalImageUrl: string | null;
   mirroredImageUrl: string | null;
   imageWidth: number | null;
@@ -889,6 +899,7 @@ async function writeResultToCache({
       "status" = $(status),
       "title" = $(title),
       "imageUrl" = $(imageUrl),
+      "redirectedUrl" = $(redirectedUrl),
       "originalImageUrl" = $(originalImageUrl),
       "mirroredImageUrl" = $(mirroredImageUrl),
       "imageWidth" = $(imageWidth),
@@ -907,6 +918,7 @@ async function writeResultToCache({
     status,
     title,
     imageUrl,
+    redirectedUrl,
     originalImageUrl,
     mirroredImageUrl,
     imageWidth,
@@ -985,8 +997,9 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
   }
 
   try {
-    const remoteHtml = await fetchRemoteHtml(normalizedUrl);
-    const parsed = parsePreviewFromHtml(remoteHtml, normalizedUrl);
+    const { html: remoteHtml, finalUrl } = await fetchRemoteHtml(normalizedUrl);
+    const redirectedUrl = finalUrl !== normalizedUrl ? finalUrl : null;
+    const parsed = parsePreviewFromHtml(remoteHtml, finalUrl);
     const resolvedImage = await resolvePreviewImage(parsed.imageUrl);
     const hasPreviewData = !!(parsed.title || resolvedImage.imageUrl || parsed.sanitizedHtml);
     if (!hasPreviewData) {
@@ -997,6 +1010,7 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
       url: normalizedUrl,
       title: parsed.title,
       imageUrl: resolvedImage.imageUrl,
+      redirectedUrl,
       originalImageUrl: resolvedImage.originalImageUrl,
       mirroredImageUrl: resolvedImage.mirroredImageUrl,
       imageWidth: resolvedImage.imageWidth,
@@ -1014,6 +1028,7 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
       url: normalizedUrl,
       title: null,
       imageUrl: null,
+      redirectedUrl: null,
       originalImageUrl: null,
       mirroredImageUrl: null,
       imageWidth: null,
@@ -1047,11 +1062,13 @@ async function resolveCrossSitePreview({ url, forceRefetch, includeDebug }: {
 
 export async function debugParseCrossSitePreview(url: string) {
   const normalizedUrl = normalizePreviewUrl(url);
-  const remoteHtml = await fetchRemoteHtml(normalizedUrl);
-  const parsed = parsePreviewFromHtml(remoteHtml, normalizedUrl);
+  const { html: remoteHtml, finalUrl } = await fetchRemoteHtml(normalizedUrl);
+  const redirectedUrl = finalUrl !== normalizedUrl ? finalUrl : null;
+  const parsed = parsePreviewFromHtml(remoteHtml, finalUrl);
   const resolvedImage = await resolvePreviewImage(parsed.imageUrl);
   return {
     url: normalizedUrl,
+    redirectedUrl,
     title: parsed.title,
     imageUrl: resolvedImage.imageUrl,
     originalImageUrl: resolvedImage.originalImageUrl,

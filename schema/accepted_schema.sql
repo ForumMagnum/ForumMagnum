@@ -900,6 +900,7 @@ CREATE TABLE "LinkPreviewCaches" (
   "nextRefreshAt" TIMESTAMPTZ NOT NULL,
   "title" TEXT,
   "imageUrl" TEXT,
+  "redirectedUrl" TEXT,
   "originalImageUrl" TEXT,
   "mirroredImageUrl" TEXT,
   "imageWidth" INTEGER,

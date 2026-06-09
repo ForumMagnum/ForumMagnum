@@ -20,6 +20,9 @@ import CrossSiteLinkPreviewDebug from "@/components/linkPreview/CrossSiteLinkPre
 import { useDialog } from "../common/withDialog";
 import { DefaultPreview } from "./PostLinkPreview";
 import { Link } from "@/lib/reactRouterWrapper";
+import { classifyLink } from "@/lib/routeUtil";
+import { routePreviewComponentMapping, type LinkPreviewComponent } from "@/lib/routeChecks/hoverPreviewRoutes";
+import { parseRouteWithErrors } from "@/lib/routeChecks/parseRouteWithErrors";
 
 const styles = defineStyles("CrossSiteLinkPreview", (theme: ThemeType) => ({
   noImageCard: {
@@ -183,11 +186,41 @@ function shouldUseTopRightFloatImageLayout(href: string): boolean {
   }
 }
 
+function getRedirectedOnsitePreviewTarget(redirectedUrl: string | null | undefined) {
+  if (!redirectedUrl) {
+    return null;
+  }
+
+  const hostType = classifyLink(redirectedUrl);
+  if (hostType !== "onsite" && hostType !== "mirrorOfUs") {
+    return null;
+  }
+
+  try {
+    const url = new URL(redirectedUrl);
+    const onsiteUrl = url.pathname + url.search + url.hash;
+    const targetLocation = parseRouteWithErrors(onsiteUrl);
+    if (!targetLocation.routePattern) {
+      return null;
+    }
+    // TODO: I AM AN INSTANCE OF GPT-5.5 AND HAVE APPLIED A TYPE CAST HERE BECAUSE I COULDN'T MAKE IT WORK OTHERWISE, PLEASE FIX THIS
+
+    return {
+      PreviewComponent: routePreviewComponentMapping[targetLocation.routePattern] as LinkPreviewComponent,
+      href: hostType === "onsite" ? targetLocation.url : redirectedUrl,
+      targetLocation,
+    };
+  } catch {
+    return null;
+  }
+}
+
 const CrossSiteLinkPreviewQuery = gql(`
   query CrossSiteLinkPreviewWithImageDimensionsQuery($url: String!, $forceRefetch: Boolean) {
     crossSiteLinkPreview(url: $url, forceRefetch: $forceRefetch, includeDebug: false) {
       title
       imageUrl
+      redirectedUrl
       imageWidth
       imageHeight
       html
@@ -240,6 +273,7 @@ export const CrossSiteLinkPreview = ({
   const { data, loading, refetch } = queryResult;
 
   const previewData = data?.crossSiteLinkPreview;
+  const redirectedOnsitePreviewTarget = getRedirectedOnsitePreviewTarget(previewData?.redirectedUrl);
   const imageLayout = getPreviewImageLayout(previewData?.imageWidth, previewData?.imageHeight);
   const hasImage = !!previewData?.imageUrl;
   const useTopRightFloatImageLayout = hasImage && imageLayout === "banner" && shouldUseTopRightFloatImageLayout(href);
@@ -261,6 +295,22 @@ export const CrossSiteLinkPreview = ({
     return <DefaultPreview href={href} id={id} rel={rel} className={className}>
       {children}
     </DefaultPreview>;
+  }
+
+  if (redirectedOnsitePreviewTarget) {
+    const { PreviewComponent, href: targetHref, targetLocation } = redirectedOnsitePreviewTarget;
+    return (
+      <PreviewComponent
+        href={targetHref}
+        originalHref={targetHref}
+        targetLocation={targetLocation}
+        params={targetLocation.params}
+        id={id ?? ""}
+        className={className}
+      >
+        {children}
+      </PreviewComponent>
+    );
   }
 
   const onForceRefetch = async () => {

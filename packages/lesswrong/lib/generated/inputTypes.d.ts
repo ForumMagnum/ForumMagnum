@@ -767,6 +767,7 @@ interface ArbitalPageData {
 interface CrossSiteLinkPreviewData {
   title: string | null;
   imageUrl: string | null;
+  redirectedUrl: string | null;
   originalImageUrl: string | null;
   mirroredImageUrl: string | null;
   imageWidth: number | null;

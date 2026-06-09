@@ -61,6 +61,7 @@ const CrossSiteLinkPreviewDebugQuery = gql(`
     crossSiteLinkPreview(url: $url, forceRefetch: $forceRefetch, includeDebug: true) {
       title
       imageUrl
+      redirectedUrl
       imageWidth
       imageHeight
       html
@@ -107,6 +108,7 @@ const CrossSiteLinkPreviewDebugContent = ({ url }: { url: string }) => {
         <div className={classes.metaLine}>
           Status: {previewData?.status || "unknown"}
           {previewData?.error ? ` | Error: ${previewData.error}` : ""}
+          {previewData?.redirectedUrl ? ` | Redirected URL: ${previewData.redirectedUrl}` : ""}
         </div>
       )}
       <div className={classes.debugBlock}>

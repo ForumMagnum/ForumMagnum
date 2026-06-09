@@ -1967,6 +1967,7 @@ type CrossSiteLinkPreviewData = {
   mirroredImageUrl?: Maybe<Scalars['String']['output']>;
   nextRefreshAt?: Maybe<Scalars['Date']['output']>;
   originalImageUrl?: Maybe<Scalars['String']['output']>;
+  redirectedUrl?: Maybe<Scalars['String']['output']>;
   status?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
 };
@@ -15825,7 +15826,7 @@ type GetReviewResultsTableDataQueryVariables = Exact<{
 
 type GetReviewResultsTableDataQuery = GetReviewResultsTableDataQuery_Query;
 
-type CrossSiteLinkPreviewWithImageDimensionsQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData = { __typename?: 'CrossSiteLinkPreviewData', title: string | null, imageUrl: string | null, imageWidth: number | null, imageHeight: number | null, html: string | null, error: string | null, status: string | null, fetchedAt: string | null, nextRefreshAt: string | null };
+type CrossSiteLinkPreviewWithImageDimensionsQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData = { __typename?: 'CrossSiteLinkPreviewData', title: string | null, imageUrl: string | null, redirectedUrl: string | null, imageWidth: number | null, imageHeight: number | null, html: string | null, error: string | null, status: string | null, fetchedAt: string | null, nextRefreshAt: string | null };
 
 type CrossSiteLinkPreviewWithImageDimensionsQueryQuery_Query = { __typename?: 'Query', crossSiteLinkPreview: CrossSiteLinkPreviewWithImageDimensionsQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData | null };
 
@@ -15838,7 +15839,7 @@ type CrossSiteLinkPreviewWithImageDimensionsQueryQueryVariables = Exact<{
 
 type CrossSiteLinkPreviewWithImageDimensionsQueryQuery = CrossSiteLinkPreviewWithImageDimensionsQueryQuery_Query;
 
-type CrossSiteLinkPreviewDebugQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData = { __typename?: 'CrossSiteLinkPreviewData', title: string | null, imageUrl: string | null, imageWidth: number | null, imageHeight: number | null, html: string | null, error: string | null, status: string | null, fetchedAt: string | null, nextRefreshAt: string | null, debugTitleSource: string | null, debugImageSource: string | null, debugHtmlSource: string | null };
+type CrossSiteLinkPreviewDebugQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData = { __typename?: 'CrossSiteLinkPreviewData', title: string | null, imageUrl: string | null, redirectedUrl: string | null, imageWidth: number | null, imageHeight: number | null, html: string | null, error: string | null, status: string | null, fetchedAt: string | null, nextRefreshAt: string | null, debugTitleSource: string | null, debugImageSource: string | null, debugHtmlSource: string | null };
 
 type CrossSiteLinkPreviewDebugQueryQuery_Query = { __typename?: 'Query', crossSiteLinkPreview: CrossSiteLinkPreviewDebugQueryQuery_crossSiteLinkPreview_CrossSiteLinkPreviewData | null };
 
