@@ -7158,6 +7158,7 @@ interface User {
   altAccountsDetected: boolean | null;
   acknowledgedNewUserGuidelines: boolean | null;
   moderatorActions: Array<ModeratorAction> | null;
+  reviewGroup: ReviewGroup | null;
   subforumPreferredLayout: SubforumPreferredLayout | null;
   criticismTipsDismissed: boolean | null;
   hideFromPeopleDirectory: boolean;

@@ -1,5 +1,4 @@
 import { inboxStateReducer, type InboxState } from '@/components/sunshineDashboard/supermod/inboxReducer';
-import type { ReviewGroup } from '../components/sunshineDashboard/supermod/groupings';
 import {
   UNREVIEWED_FIRST_POST,
   MANUAL_FLAG_ALERT,
@@ -44,6 +43,7 @@ function createMockUser(
 
   return {
     ...baseUser,
+    reviewGroup,
     moderatorActions: [{
       __typename: 'ModeratorAction' as const,
       _id: `action-${id}`,

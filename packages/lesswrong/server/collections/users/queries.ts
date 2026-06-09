@@ -54,6 +54,15 @@ export const graphqlUserQueryTypeDefs = gql`
     list
   }
 
+  enum ReviewGroup {
+    newContent
+    highContext
+    maybeSpam
+    automod
+    snoozeExpired
+    unknown
+  }
+
   input UserSelectorUniqueInput {
     _id: String
     documentId: String

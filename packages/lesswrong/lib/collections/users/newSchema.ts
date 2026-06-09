@@ -37,6 +37,7 @@ import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificatio
 import { getWithLoader, getWithCustomLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
+import { getReviewGroupFromActions } from "./reviewGroups";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
 
 const getCoauthoredPostCount = async (user: DbUser) => {
@@ -54,6 +55,32 @@ const getCoauthoredPostCount = async (user: DbUser) => {
   });
 
   return Number(result.count);
+};
+
+const getModeratorActionsForUser = (context: ResolverContext, userId: string) => {
+  return getWithLoader(
+    context,
+    context.ModeratorActions,
+    "moderatorActionsByUserId",
+    {},
+    "userId",
+    userId,
+  );
+};
+
+// Get last time user's `needsReview` flag was set to false (or null if never).
+const getLastRemovedFromReviewQueueAt = async (context: ResolverContext, userId: string): Promise<Date | null> => {
+  const fieldChanges = await getWithLoader(
+    context,
+    context.FieldChanges,
+    "needsReviewFieldChanges",
+    { documentId: userId, fieldName: "needsReview", newValue: 'false' },
+    "documentId",
+    userId,
+    { sort: { createdAt: -1 }, limit: 1 },
+  );
+
+  return fieldChanges[0]?.createdAt ?? null;
 };
 
 ///////////////////////////////////////
@@ -3930,14 +3957,27 @@ const schema = {
       outputType: "[ModeratorAction!]",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (doc, args, context) => {
-        return await getWithLoader(
-          context,
-          context.ModeratorActions,
-          "moderatorActionsByUserId",
-          {},
-          "userId",
-          doc._id,
-        );
+        return await getModeratorActionsForUser(context, doc._id);
+      },
+    },
+  },
+  // Which supermod review queue tab this user belongs to, computed server-side.
+  reviewGroup: {
+    graphql: {
+      outputType: "ReviewGroup",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (doc, args, context) => {
+        const [moderatorActions, lastRemovedFromReviewQueueAt] = await Promise.all([
+          getModeratorActionsForUser(context, doc._id),
+          getLastRemovedFromReviewQueueAt(context, doc._id),
+        ]);
+
+        const actionsWithActiveStatus = moderatorActions.map(action => ({
+          type: action.type,
+          active: isActionActive(action),
+          createdAt: action.createdAt,
+        }));
+        return getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
       },
     },
   },
@@ -4330,20 +4370,7 @@ const schema = {
       outputType: "Date",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        const { FieldChanges } = context;
-
-        // TODO: use a custom data loader here?
-        const fieldChanges = await getWithLoader(
-          context,
-          FieldChanges,
-          'needsReviewFieldChanges',
-          { documentId: user._id, fieldName: "needsReview", newValue: 'false' },
-          'documentId',
-          user._id,
-          { sort: { createdAt: -1 }, limit: 1 },
-        );
-
-        return fieldChanges[0]?.createdAt;
+        return await getLastRemovedFromReviewQueueAt(context, user._id);
       },
     },
   },
