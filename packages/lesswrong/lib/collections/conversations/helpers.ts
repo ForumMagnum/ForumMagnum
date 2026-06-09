@@ -48,17 +48,18 @@ export const conversationGetPageUrl = (conversation: HasIdType, isAbsolute=false
   return `${prefix}/inbox?conversation=${conversation._id}`;
 }
 
-export interface DmBlockParticipant {
-  _id: string;
-  blockedUserIds?: string[] | null;
+export interface DmBlock {
+  userId: string;
+  blockedUserId: string;
+  blocked: boolean;
 }
 
-export const getDmBlockingParticipant = (
+export const getActiveDmBlock = (
   senderId: string,
-  participants: Array<DmBlockParticipant | null>,
-): DmBlockParticipant | null => {
-  return participants.find((participant): participant is DmBlockParticipant => (
-    !!participant && participant._id !== senderId && (participant.blockedUserIds?.includes(senderId) ?? false)
+  blocks: Array<DmBlock | null>,
+): DmBlock | null => {
+  return blocks.find((block): block is DmBlock => (
+    !!block && block.userId !== senderId && block.blockedUserId === senderId && block.blocked
   )) ?? null;
 }
 

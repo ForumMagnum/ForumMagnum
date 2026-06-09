@@ -29,7 +29,7 @@ const formStyles = defineStyles('ReportsForm', (theme: ThemeType) => ({
   submitButton: submitButtonStyles(theme),
 }));
 
-const ReportForm = ({ postId, commentId, reportedUserId, onClose, onSubmit, title, link }: {
+const ReportForm = ({ postId, commentId, reportedUserId, onClose, onSubmit, title, link, placeholder = "What are you reporting this comment for?" }: {
   postId?: string,
   commentId?: string,
   reportedUserId?: string,
@@ -37,6 +37,7 @@ const ReportForm = ({ postId, commentId, reportedUserId, onClose, onSubmit, titl
   onSubmit?: () => void,
   title?: string,
   link: string,
+  placeholder?: string,
 }) => {
   const classes = useStyles(formStyles);
 
@@ -94,7 +95,7 @@ const ReportForm = ({ postId, commentId, reportedUserId, onClose, onSubmit, titl
               {(field) => (
                 <MuiTextField<string>
                   field={field}
-                  placeholder="What are you reporting this comment for?"
+                  placeholder={placeholder}
                   label="Reason"
                 />
               )}

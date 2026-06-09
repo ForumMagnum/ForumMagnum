@@ -518,6 +518,7 @@ const accessFilters = {
   TypoSuggestions: typoSuggestionCheckAccess,
   UltraFeedEvents: allowAccess,
   Users: userCheckAccess,
+  UserBlocks: allowAccess,
   UserMostValuablePosts: allowAccess,
   UserRateLimits: allowAccess,
   UserTagRels: userTagRelCheckAccess,

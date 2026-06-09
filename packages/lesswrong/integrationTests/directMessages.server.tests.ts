@@ -2,6 +2,7 @@ import "./integrationTestSetup";
 import { expect } from "chai";
 import { runQuery } from "../server/vulcan-lib/query";
 import { catchGraphQLErrors, createDummyConversation, createDummyUser } from "./utils";
+import { UserBlocks } from "@/server/collections/userBlocks/collection";
 
 const expectBlockedDmError = async (response: Promise<unknown>, graphQLerrors: ReturnType<typeof catchGraphQLErrors>) => {
   let rejected = false;
@@ -20,7 +21,12 @@ describe("Direct message user blocks", () => {
 
   it("prevents starting a conversation with someone who blocked you", async () => {
     const sender = await createDummyUser();
-    const blocker = await createDummyUser({blockedUserIds: [sender._id]});
+    const blocker = await createDummyUser();
+    await UserBlocks.rawInsert({
+      userId: blocker._id,
+      blockedUserId: sender._id,
+      blocked: true,
+    });
 
     const response = runQuery(`
       mutation StartBlockedConversation {
@@ -35,7 +41,12 @@ describe("Direct message user blocks", () => {
 
   it("prevents sending a message after another participant blocks you", async () => {
     const sender = await createDummyUser();
-    const blocker = await createDummyUser({blockedUserIds: [sender._id]});
+    const blocker = await createDummyUser();
+    await UserBlocks.rawInsert({
+      userId: blocker._id,
+      blockedUserId: sender._id,
+      blocked: true,
+    });
     const conversation = await createDummyConversation(sender, {
       participantIds: [sender._id, blocker._id],
     });

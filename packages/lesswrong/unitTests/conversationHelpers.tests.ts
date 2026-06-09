@@ -1,23 +1,23 @@
-import { getDmBlockingParticipant } from "../lib/collections/conversations/helpers";
+import { getActiveDmBlock } from "../lib/collections/conversations/helpers";
 
-describe("getDmBlockingParticipant", () => {
-  it("returns null when no participant has blocked the sender", () => {
-    expect(getDmBlockingParticipant("sender", [
-      {_id: "sender", blockedUserIds: ["recipient"]},
-      {_id: "recipient", blockedUserIds: []},
+describe("getActiveDmBlock", () => {
+  it("returns null when there is no active block against the sender", () => {
+    expect(getActiveDmBlock("sender", [
+      {userId: "sender", blockedUserId: "recipient", blocked: true},
+      {userId: "recipient", blockedUserId: "sender", blocked: false},
     ])).toBeNull();
   });
 
-  it("returns the participant who has blocked the sender", () => {
-    expect(getDmBlockingParticipant("sender", [
-      {_id: "sender"},
-      {_id: "recipient", blockedUserIds: ["sender"]},
-    ])).toEqual({_id: "recipient", blockedUserIds: ["sender"]});
+  it("returns the active block against the sender", () => {
+    expect(getActiveDmBlock("sender", [
+      null,
+      {userId: "recipient", blockedUserId: "sender", blocked: true},
+    ])).toEqual({userId: "recipient", blockedUserId: "sender", blocked: true});
   });
 
   it("ignores a sender blocking themselves", () => {
-    expect(getDmBlockingParticipant("sender", [
-      {_id: "sender", blockedUserIds: ["sender"]},
+    expect(getActiveDmBlock("sender", [
+      {userId: "sender", blockedUserId: "sender", blocked: true},
     ])).toBeNull();
   });
 });

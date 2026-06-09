@@ -1,6 +1,5 @@
 
 import schema from "@/lib/collections/messages/newSchema";
-import { getDmBlockingParticipant } from "@/lib/collections/conversations/helpers";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userIsAdmin } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
@@ -9,7 +8,6 @@ import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFields
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
-import { loadByIds } from "@/lib/loaders";
 import gql from "graphql-tag";
 import { GraphQLError } from "graphql";
 
@@ -19,16 +17,19 @@ async function newCheck(user: DbUser | null, document: DbMessage | null, context
   const conversation = await Conversations.findOne({_id: document.conversationId})
   if (!conversation) return false;
 
-  const participants = await loadByIds(context, "Users", conversation.participantIds);
-
   if (user.conversationsDisabled) {
+    const participants = await context.Users.find({ _id: { $in: conversation.participantIds } }).fetch();
     const hasAdminParticipant = participants.some(userIsAdmin);
     if (!hasAdminParticipant) return false;
   }
 
   if (!conversation.moderator && !userIsAdmin(user)) {
-    const blockingParticipant = getDmBlockingParticipant(user._id, participants);
-    if (blockingParticipant) {
+    const blockingBlock = await context.UserBlocks.findOne({
+      userId: { $in: conversation.participantIds.filter((id) => id !== user._id) },
+      blockedUserId: user._id,
+      blocked: true,
+    });
+    if (blockingBlock) {
       throw new GraphQLError("This user has blocked you from sending them private messages.", {
         extensions: { noSentryCapture: true },
       });

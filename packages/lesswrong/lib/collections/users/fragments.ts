@@ -157,7 +157,6 @@ export const UsersCurrent = gql(`
     lastNotificationsCheck
     bannedUserIds
     bannedPersonalUserIds
-    blockedUserIds
     moderationStyle
     noKibitz
     showHideKarmaOption

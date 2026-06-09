@@ -1,5 +1,5 @@
 
-import { getDmBlockingParticipant, userCanStartConversations } from "@/lib/collections/conversations/helpers";
+import { userCanStartConversations } from "@/lib/collections/conversations/helpers";
 import schema from "@/lib/collections/conversations/newSchema";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userIsAdmin } from "@/lib/vulcan-users/permissions";
@@ -8,7 +8,6 @@ import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfRefe
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
-import { loadByIds } from "@/lib/loaders";
 import gql from "graphql-tag";
 import { GraphQLError } from "graphql";
 
@@ -16,13 +15,12 @@ async function newCheck(user: DbUser | null, document: DbConversation | null, co
   if (!user || !document) return false;
   if (!userCanStartConversations(user)) return false
   if (!document.moderator && !userIsAdmin(user)) {
-    const otherParticipants = await loadByIds(
-      context,
-      "Users",
-      (document.participantIds ?? []).filter((id) => id !== user._id),
-    );
-    const blockingParticipant = getDmBlockingParticipant(user._id, otherParticipants);
-    if (blockingParticipant) {
+    const blockingBlock = await context.UserBlocks.findOne({
+      userId: { $in: (document.participantIds ?? []).filter((id) => id !== user._id) },
+      blockedUserId: user._id,
+      blocked: true,
+    });
+    if (blockingBlock) {
       throw new GraphQLError("This user has blocked you from sending them private messages.", {
         extensions: { noSentryCapture: true },
       });

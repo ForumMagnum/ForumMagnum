@@ -8,8 +8,41 @@ import UsersName from "../users/UsersName";
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
-import { useUpdateCurrentUser } from '../hooks/useUpdateCurrentUser';
 import { useMessages } from '../common/withMessages';
+import { useMutation } from "@apollo/client/react";
+import { useQuery } from "@/lib/crud/useQuery";
+import { gql } from "@/lib/generated/gql-codegen";
+import ReportForm from "../sunshineDashboard/ReportForm";
+
+const ConversationDetailsUserBlockQuery = gql(`
+  query ConversationDetailsUserBlock($selector: UserBlockSelector) {
+    userBlocks(selector: $selector, limit: 1) {
+      results {
+        ...UserBlockFragment
+      }
+    }
+  }
+`);
+
+const CreateUserBlockMutation = gql(`
+  mutation CreateUserBlockConversationDetails($data: CreateUserBlockDataInput!) {
+    createUserBlock(data: $data) {
+      data {
+        ...UserBlockFragment
+      }
+    }
+  }
+`);
+
+const UpdateUserBlockMutation = gql(`
+  mutation UpdateUserBlockConversationDetails($selector: SelectorInput!, $data: UpdateUserBlockDataInput!) {
+    updateUserBlock(selector: $selector, data: $data) {
+      data {
+        ...UserBlockFragment
+      }
+    }
+  }
+`);
 
 const styles = defineStyles("ConversationDetails", (theme: ThemeType) => ({
   root: {
@@ -33,17 +66,29 @@ const ConversationDetails = ({conversation, hideOptions = false}: {
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const updateCurrentUser = useUpdateCurrentUser();
   const { flash } = useMessages();
   const { openDialog } = useDialog();
-  if (!conversation?.participants?.length) return <Loading />
 
-  const otherParticipant = conversation.participants.length === 2
-    ? conversation.participants.find((participant) => participant._id !== currentUser?._id)
+  const participants = conversation?.participants ?? [];
+  const otherParticipant = participants.length === 2
+    ? participants.find((participant) => participant._id !== currentUser?._id)
     : null;
-  const blockedUserIds = currentUser?.blockedUserIds ?? [];
-  const otherParticipantIsBlocked = !!otherParticipant && blockedUserIds.includes(otherParticipant._id);
   const showBlockUserOption = !!currentUser && !!otherParticipant && !conversation.moderator;
+  const { data: userBlockData, refetch: refetchUserBlock } = useQuery(ConversationDetailsUserBlockQuery, {
+    variables: {
+      selector: {
+        userAndBlockedUser: {
+          userId: currentUser?._id,
+          blockedUserId: otherParticipant?._id,
+        },
+      },
+    },
+    skip: !showBlockUserOption,
+  });
+  const userBlock = userBlockData?.userBlocks?.results?.[0] ?? null;
+  const otherParticipantIsBlocked = userBlock?.blocked ?? false;
+  const [createUserBlock] = useMutation(CreateUserBlockMutation);
+  const [updateUserBlock] = useMutation(UpdateUserBlockMutation);
 
   const openConversationOptions = () => {
     openDialog({
@@ -59,20 +104,60 @@ const ConversationDetails = ({conversation, hideOptions = false}: {
     if (!currentUser || !otherParticipant) return;
 
     if (otherParticipantIsBlocked) {
-      await updateCurrentUser({
-        blockedUserIds: blockedUserIds.filter((userId) => userId !== otherParticipant._id),
+      if (!userBlock) return;
+      await updateUserBlock({
+        variables: {
+          selector: { _id: userBlock._id },
+          data: { blocked: false },
+        },
       });
       flash({ messageString: `Unblocked ${otherParticipant.displayName}.` });
+      void refetchUserBlock();
       return;
     }
 
     if (confirm(`Block ${otherParticipant.displayName} from sending you private messages?`)) {
-      await updateCurrentUser({
-        blockedUserIds: [...blockedUserIds, otherParticipant._id],
-      });
+      if (userBlock) {
+        await updateUserBlock({
+          variables: {
+            selector: { _id: userBlock._id },
+            data: { blocked: true },
+          },
+        });
+      } else {
+        await createUserBlock({
+          variables: {
+            data: {
+              blockedUserId: otherParticipant._id,
+              blocked: true,
+            },
+          },
+        });
+      }
       flash({ messageString: `${otherParticipant.displayName} can no longer send you private messages.` });
+      void refetchUserBlock();
     }
   }
+
+  const reportConversation = () => {
+    if (!currentUser || !otherParticipant) return;
+
+    openDialog({
+      name: "ReportForm",
+      contents: ({onClose}) => <ReportForm
+        onClose={onClose}
+        reportedUserId={otherParticipant._id}
+        link={`/inbox?conversation=${conversation._id}`}
+        title={`Report conversation with ${otherParticipant.displayName}`}
+        placeholder="What are you reporting this conversation for?"
+        onSubmit={() => {
+          flash({ messageString: "Your report has been sent to the moderators." });
+        }}
+      />,
+    });
+  }
+
+  if (!conversation?.participants?.length) return <Loading />
 
   return (
     <div className={classes.root}>
@@ -88,6 +173,11 @@ const ConversationDetails = ({conversation, hideOptions = false}: {
         {showBlockUserOption && <span onClick={() => void updateBlockedUser()}>
           <MetaInfo button>
             {otherParticipantIsBlocked ? "Unblock" : "Block"}
+          </MetaInfo>
+        </span>}
+        {showBlockUserOption && <span onClick={reportConversation}>
+          <MetaInfo button>
+            Report
           </MetaInfo>
         </span>}
         {!hideOptions && <span onClick={openConversationOptions}>

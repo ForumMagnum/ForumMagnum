@@ -85,6 +85,7 @@ type TypingIndicatorsViewName = never
 type TypoSuggestionsViewName = never
 type UltraFeedEventsViewName = never
 type UserActivitiesViewName = never
+type UserBlocksViewName = never
 type UserMostValuablePostsViewName = "currentUserMostValuablePosts"|"currentUserPost";
 type UserRateLimitsViewName = "activeUserRateLimits"|"userRateLimits";
 type UserTagRelsViewName = "single";
@@ -180,6 +181,7 @@ interface ViewTermsByCollectionName {
   TypoSuggestions: ViewTermsBase
   UltraFeedEvents: ViewTermsBase
   UserActivities: ViewTermsBase
+  UserBlocks: ViewTermsBase
   UserMostValuablePosts: UserMostValuablePostsViewTerms
   UserRateLimits: UserRateLimitsViewTerms
   UserTagRels: UserTagRelsViewTerms

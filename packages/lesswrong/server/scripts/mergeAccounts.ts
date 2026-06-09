@@ -28,6 +28,7 @@ type TransferableCollectionName =
  | 'PetrovDayLaunchs'
  | 'Reports'
  | 'ModeratorActions'
+| 'UserBlocks'
  | 'UserRateLimits'
  | 'Messages'
  | 'Notifications'
@@ -137,6 +138,10 @@ const getUpdateMutator = ((collectionName: TransferableCollectionName) => {
     case 'ModeratorActions': {
       const { updateModeratorAction }: typeof import("../collections/moderatorActions/mutations") = require("../collections/moderatorActions/mutations");
       return updateModeratorAction;
+    }
+    case 'UserBlocks': {
+      const { updateUserBlock }: typeof import("../collections/userBlocks/mutations") = require("../collections/userBlocks/mutations");
+      return updateUserBlock;
     }
     case 'UserRateLimits': {
       const { updateUserRateLimit }: typeof import("../collections/userRateLimits/mutations") = require("../collections/userRateLimits/mutations");
@@ -304,6 +309,9 @@ export const mergeAccounts = async ({sourceUserId, targetUserId, dryRun}: {
   // Transfer moderator actions
   await transferCollection({sourceUserId, targetUserId, collectionName: "ModeratorActions", dryRun})
   
+  // Transfer private-message block settings
+  await transferCollection({sourceUserId, targetUserId, collectionName: "UserBlocks", dryRun})
+
   // Transfer user rate limits
   await transferCollection({sourceUserId, targetUserId, collectionName: "UserRateLimits", dryRun})
 

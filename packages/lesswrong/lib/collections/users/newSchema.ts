@@ -1415,25 +1415,6 @@ const schema = {
       },
     },
   },
-  // blockedUserIds: users who are not allowed to send this user private messages
-  blockedUserIds: {
-    database: {
-      type: "VARCHAR(27)[]",
-      defaultValue: [],
-      canAutofillDefault: true,
-      nullable: false,
-    },
-    graphql: {
-      outputType: "[String!]!",
-      inputType: "[String!]",
-      canRead: [userOwns, "sunshineRegiment", "admins"],
-      canUpdate: [userOwns, "sunshineRegiment", "admins"],
-      canCreate: ["members", "sunshineRegiment", "admins"],
-      validation: {
-        optional: true,
-      },
-    },
-  },
   bookmarkedPostsMetadata: {
     graphql: {
       outputType: "[PostMetadataOutput!]",
