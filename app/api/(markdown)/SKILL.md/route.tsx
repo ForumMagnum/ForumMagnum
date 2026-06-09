@@ -183,6 +183,11 @@ A few things to watch out for:
    fragment of one.
  * Only the post body is anchorable. The post title and other metadata fields are
    not part of the anchorable region — a quote matching those will always fail.
+ * If the draft contains an inlined table of contents, don't anchor comments or
+   replacements on heading text alone. The same visible heading may also appear
+   in the table-of-contents links near the top of the document, and the earlier
+   navigation copy can win the match. Prefer body-unique prose near the target,
+   or include enough surrounding text to distinguish the body occurrence.
  * Quote verbatim from what the markdown API returned to you. The server handles
    typographic punctuation folding (smart quotes vs. ASCII, en/em dashes, etc.)
    and markdown emphasis markers (**, _, \`, ~) automatically, so you do not need
@@ -208,8 +213,9 @@ markdown (it's inserted into the draft and rendered through the editor's markdow
 pipeline), while the quote should be the visible rendered text as a reader would
 see it, not the markdown source. The same quote-matching rules as commentOnDraft
 apply — see that section above for details (visible link text rather than URLs,
-no need to include emphasis markers, quote verbatim from the markdown API,
-re-read the draft before retrying on "no match" errors).
+avoid heading-only anchors in drafts with inlined tables of contents, no need to
+include emphasis markers, quote verbatim from the markdown API, re-read the
+draft before retrying on "no match" errors).
 
 If the mode is "edit", the change will be applied immediately; if the mode is
 "suggest", the change will be displayed as a suggestion in the post editor. If
@@ -229,6 +235,11 @@ traditional markdown.  It supports paragraphs, lists, blockquotes,
 bold/italic/strikethrough (no underline), inline and display LaTeX math
 (\`$...$\` and \`$$...$$\`), code blocks, and spoiler blocks.
 Custom block-level elements like LLM content blocks and widgets have dedicated APIs (see below).
+If the draft includes an inlined table of contents, avoid using bare heading
+text as a location prefix: the table-of-contents entry may match before the
+body heading. For heading-adjacent insertions, use a more specific markdown
+prefix if possible, or anchor to nearby body text that is unique to the target
+section.
 
 Spoiler blocks (text hidden until the reader hovers) are written as one or
 more lines prefixed with \`>!\`. Consecutive \`>!\` lines form a single
