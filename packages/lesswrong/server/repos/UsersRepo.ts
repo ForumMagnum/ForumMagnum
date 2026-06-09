@@ -417,28 +417,21 @@ class UsersRepo extends AbstractRepo<"Users"> {
     const rows = await this.getRawDb().any<{ userId: string }>(`
       -- UsersRepo.getOffboardCandidateUserIds
       WITH content AS (
-        SELECT p."_id" AS "documentId", p."userId", p."rejected", FALSE AS "isComment"
+        SELECT p."_id" AS "documentId", p."userId", p."rejected", FALSE AS "isComment",
+          (p."draft" IS NOT TRUE) AS "isCurrent"
         FROM "Posts" p
-        WHERE p."userId" = ANY($1::text[]) AND p."draft" IS NOT TRUE AND p."deletedDraft" IS NOT TRUE
+        WHERE p."userId" = ANY($(userIds)::text[]) AND p."deletedDraft" IS NOT TRUE
         UNION ALL
-        SELECT c."_id", c."userId", c."rejected", TRUE
+        SELECT c."_id", c."userId", c."rejected", TRUE, TRUE
         FROM "Comments" c
-        WHERE c."userId" = ANY($1::text[]) AND c."deleted" IS NOT TRUE
+        WHERE c."userId" = ANY($(userIds)::text[]) AND c."deleted" IS NOT TRUE
       ),
       highPangramRejections AS (
-        SELECT x."userId"
-        FROM (
-          SELECT p."_id" AS "documentId", p."userId"
-          FROM "Posts" p
-          WHERE p."userId" = ANY($1::text[]) AND p."rejected" IS TRUE AND p."deletedDraft" IS NOT TRUE
-          UNION ALL
-          SELECT c."_id", c."userId"
-          FROM "Comments" c
-          WHERE c."userId" = ANY($1::text[]) AND c."rejected" IS TRUE AND c."deleted" IS NOT TRUE
-        ) x
-        JOIN "Revisions" r ON r."documentId" = x."documentId" AND r."fieldName" = 'contents'
+        SELECT c."userId"
+        FROM content c
+        JOIN "Revisions" r ON r."documentId" = c."documentId" AND r."fieldName" = 'contents'
         JOIN "AutomatedContentEvaluations" ace ON ace."revisionId" = r."_id"
-        WHERE ace."pangramScore" > 0.8
+        WHERE c."rejected" IS TRUE AND ace."pangramScore" > 0.6
       )
       -- (1) a rejected item (including re-drafted posts) with a high Pangram autoreject score
       SELECT "userId" FROM highPangramRejections
@@ -446,10 +439,11 @@ class UsersRepo extends AbstractRepo<"Users"> {
       -- (2) at least two rejected comments, or (3) all current content rejected
       SELECT c."userId"
       FROM content c
+      WHERE c."isCurrent"
       GROUP BY c."userId"
       HAVING COUNT(*) FILTER (WHERE c."isComment" AND c."rejected" IS TRUE) >= 2
         OR COUNT(*) FILTER (WHERE c."rejected" IS NOT TRUE) = 0
-    `, [userIds]);
+    `, { userIds });
     return rows.map((row) => row.userId);
   }
 
