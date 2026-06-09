@@ -34,6 +34,9 @@ export interface SandboxCallbackTokenPayload {
   exp: number;
 }
 
+// Must stay longer than the sandbox session lifetime cap (5h on Vercel): the
+// agent-scoped token is handed to the long-lived claude process as spawn-time
+// env, so it has to outlive any process that could receive it.
 const SANDBOX_CALLBACK_TOKEN_MAX_TTL_SECONDS = 6 * 60 * 60;
 const SUPERVISOR_TOKEN_MAX_TTL_SECONDS = 6 * 60 * 60;
 

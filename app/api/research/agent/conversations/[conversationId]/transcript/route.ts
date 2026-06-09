@@ -11,6 +11,7 @@ import {
 } from "../../../captureResearchAgentAnalytics";
 import {
   getAgentTranscriptTurns,
+  isTurnInFlight,
   type TranscriptOptions,
 } from "@/components/research/conversationEventFormat";
 
@@ -65,14 +66,7 @@ export async function GET(
     ).fetch();
 
     const turns = getAgentTranscriptTurns(events, options);
-
-    let userCount = 0;
-    let resultCount = 0;
-    for (const e of events) {
-      if (e.kind === "user") userCount++;
-      else if (e.kind === "result") resultCount++;
-    }
-    const incompleteTurn = userCount > resultCount;
+    const incompleteTurn = isTurnInFlight(events, Date.now());
 
     captureResearchAgentApiEvent({
       route: ROUTE,

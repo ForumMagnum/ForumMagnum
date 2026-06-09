@@ -30,16 +30,20 @@ interface UseConversationStreamResult {
   events: ConversationEvent[];
   status: StreamStatus;
   error: string | null;
+  // Derived once here (with a render-safe clock) so every consumer agrees;
+  // see isTurnInFlight for the derivation.
+  turnInFlight: boolean;
   latestSeq: number;
   refresh: () => void;
   // Optimistic local-only insert (seq < 0); dropped once its persisted twin lands.
   injectOptimisticEvent: (event: ConversationEvent) => void;
   clearOptimistic: () => void;
   // Signal that a turn was just dispatched for this conversation, so the live
-  // stream opens immediately — before the first event is persisted. With the
-  // single-writer design the user turn isn't persisted until Claude echoes it,
-  // so `isTurnInFlight(events)` is briefly false on the first turn; without this
-  // the stream would close into slow polling and the turn would look idle.
+  // stream opens immediately — before the first event is persisted. The
+  // supervisor records the user turn at dispatch, but it reaches the backend
+  // (and then this client) asynchronously, so `isTurnInFlight(events)` is
+  // briefly false; without this the stream would close into slow polling and
+  // the turn would look idle.
   markTurnExpected: () => void;
 }
 
@@ -107,7 +111,22 @@ export function useConversationStream(
     () => [...persisted, ...optimistic.filter((e) => e.conversationId === conversationId)],
     [persisted, optimistic, conversationId],
   );
-  const turnInFlight = useMemo(() => isTurnInFlight(events), [events]);
+
+  // Clock for isTurnInFlight's queued-turn recency check. Render must stay
+  // pure (Next prerender forbids Date.now() in components), so the time lives
+  // in state and ticks in an effect — null until hydration, which just means
+  // the queued-turn clause kicks in a moment later on the client.
+  const [nowMs, setNowMs] = useState<number | null>(null);
+  useEffect(() => {
+    setNowMs(Date.now());
+    const tick = setInterval(() => setNowMs(Date.now()), 60_000);
+    return () => clearInterval(tick);
+  }, []);
+
+  const turnInFlight = useMemo(
+    () => isTurnInFlight(events, nowMs ?? undefined),
+    [events, nowMs],
+  );
   const streamShouldBeOpen = turnInFlight || expectingTurn;
 
   const latestSeq = useMemo(() => {
@@ -209,6 +228,7 @@ export function useConversationStream(
     events,
     status,
     error: queryError ? queryError.message : null,
+    turnInFlight,
     latestSeq,
     refresh,
     injectOptimisticEvent,

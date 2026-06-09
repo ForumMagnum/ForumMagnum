@@ -10,7 +10,6 @@ import { $isAgentBlockNode } from './AgentBlockNode';
 import { useResearchEditorEnvironment, useResearchNavigationContext, usePendingConversation } from './ResearchEditorContext';
 import {
   getConversationEventChunks,
-  isTurnInFlight,
   isVisibleConversationEvent,
 } from '../conversationEventFormat';
 import { ConversationEventRow } from '../ConversationEventRow';
@@ -338,39 +337,61 @@ interface ActiveAgentBlockProps {
 
 function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, onOpenInChat, onRemove: _onRemove }: ActiveAgentBlockProps) {
   const classes = useStyles(styles);
-  const { events, status, error, markTurnExpected } = useConversationStream(conversationId);
+  const { events, status, error, turnInFlight, markTurnExpected } = useConversationStream(conversationId);
 
   useEffect(() => {
     if (justDispatched) markTurnExpected();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { resultCount, turnInFlight, visibleEvents, latestVisible } = useMemo(() => {
+  const { resultCount, userEventCount, visibleEvents, latestVisible } = useMemo(() => {
     let rc = 0;
+    let uc = 0;
     const visible: ConversationEvent[] = [];
     for (const e of events) {
       if (e.kind === 'result') rc++;
+      if (e.kind === 'user') uc++;
       if (isVisibleConversationEvent(e)) visible.push(e);
     }
     return {
       resultCount: rc,
-      turnInFlight: isTurnInFlight(events),
+      userEventCount: uc,
       visibleEvents: visible,
       latestVisible: visible.length > 0 ? visible[visible.length - 1] : null,
     };
   }, [events]);
 
-  // Auto-expand on the falling edge of `turnInFlight` only, so loading a
-  // document with previously-completed blocks (no rising edge) leaves them
-  // collapsed; a turn the user actually watches complete expands.
+  // Auto-expand on the falling edge of `turnInFlight`, but only when a user
+  // message arrived since the baseline: loading a document with
+  // previously-completed blocks (no rising edge) leaves them collapsed, and
+  // turns that start with no user action — background-task re-invocations,
+  // synthetic supervisor results closing a crashed turn — don't pop a
+  // collapsed block open while the user is passively reading.
   const [expanded, setExpanded] = useState(false);
   const wasInFlightRef = useRef(false);
+  // Baseline of the user-event count: established from the first non-empty
+  // transcript observation — even one that's already mid-turn, so a block
+  // mounted while a re-invocation runs doesn't count the whole history as
+  // "new" at the falling edge — then kept current while idle. The message
+  // that created a just-dispatched block is excluded from its own baseline,
+  // so the turn the user just fired still expands on completion. `null`
+  // means "history not loaded yet"; no expand decisions until it is.
+  const userCountBaselineRef = useRef<number | null>(null);
   useEffect(() => {
+    if (userCountBaselineRef.current === null) {
+      if (events.length === 0) return;
+      userCountBaselineRef.current = Math.max(0, userEventCount - (justDispatched ? 1 : 0));
+    }
     if (wasInFlightRef.current && !turnInFlight) {
-      setExpanded(true);
+      if (userEventCount > userCountBaselineRef.current) {
+        setExpanded(true);
+      }
+    }
+    if (!turnInFlight) {
+      userCountBaselineRef.current = userEventCount;
     }
     wasInFlightRef.current = turnInFlight;
-  }, [turnInFlight]);
+  }, [turnInFlight, userEventCount, events.length, justDispatched]);
 
   const handleOpenInChat = useCallback(
     (e: React.MouseEvent<HTMLButtonElement>) => {

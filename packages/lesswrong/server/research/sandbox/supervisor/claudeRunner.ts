@@ -1,11 +1,30 @@
 /**
  * Claude Code subprocess runner.
  *
- * Spawns `claude -p --input-format stream-json --output-format stream-json
- * [--resume <sessionId>]`, feeds the user turn in via stdin as a stream-json
- * message, pipes stdout through the JSONL chunker, and emits each
- * `ParsedJsonlLine` to a caller-supplied sink. Manages cancellation, exit-code
- * propagation, and cleanup of per-conversation runner state.
+ * Spawns one long-lived `claude -p --input-format stream-json --output-format
+ * stream-json` process per conversation and keeps its stdin open for the life
+ * of the conversation (until the sandbox stops, the process crashes, or it is
+ * deliberately killed). User turns are fed in over time as stream-json user
+ * messages; Claude Code queues a message that arrives mid-turn and runs it as
+ * its own turn after the current one completes.
+ *
+ * This single-process model is what makes background Bash tasks safe: when a
+ * harness-tracked background task finishes, Claude Code re-invokes the agent
+ * loop *inside this same process*, so the continuation shares one context with
+ * any user turns dispatched while the task was pending. (The previous
+ * process-per-turn design spawned a concurrent `--resume` of the same session
+ * while the old process was still alive waiting on its background task; the
+ * woken process then continued from a stale context and forked the session
+ * file's parentUuid chain, permanently orphaning the interleaved turns.)
+ * Corollary: at most one live process may ever hold a given Claude session.
+ * The hub enforces that invariant; nothing in this module may spawn without it.
+ *
+ * Cancellation uses the stream-json control protocol (`control_request` /
+ * `interrupt`) rather than signals: the CLI aborts the in-flight turn, records
+ * a "[Request interrupted by user]" user turn, and emits a normal `result`
+ * line, leaving the session file consistent and the process alive for the
+ * next turn. SIGTERM/SIGKILL remain as an escalation path only; after a kill
+ * the next dispatch respawns with `--resume`.
  *
  * Note: we deliberately do NOT pass `--replay-user-messages`. That flag only
  * re-emits the user turn bundled with the model's first output (gated behind
@@ -13,12 +32,9 @@
  * instead (see `conversationHub.dispatch`) — earlier and independent of the
  * model's response latency.
  *
- * Design constraints:
- * - Multiple conversations may be running concurrently in the same supervisor
- *   process; each gets its own `claudeSessionId` and its own subprocess. The
- *   supervisor enforces the per-sandbox concurrency cap before calling here.
- * - We do not parse the JSONL into our own shapes; emission is verbatim. The
- *   parsed object is provided for routing/dedup convenience only.
+ * The control protocol is undocumented but is the same wire protocol the
+ * official Agent SDK speaks to this binary; the sandbox image pins the CLI
+ * version, so treat CLI upgrades as a compatibility surface.
  */
 import { ChildProcessByStdio, spawn } from "node:child_process";
 import type { Readable, Writable } from "node:stream";
@@ -26,12 +42,20 @@ import {
   createJsonlChunker,
   ParsedJsonlLine,
 } from "./jsonlParser";
+import { RESEARCH_AGENT_MODEL } from "../sandboxLayout";
 
-export interface ClaudeRunnerOptions {
+export interface ClaudeProcessOptions {
   conversationId: string;
-  prompt: string;
-  /** If provided, runs `claude -p ... --resume <claudeSessionId>`. */
-  claudeSessionId?: string;
+  /**
+   * The Claude session this process owns. With `sessionMode: "new"` the
+   * process is started with `--session-id` (fresh session under this exact
+   * id); with `"resume"` it's started with `--resume` (session JSONL must
+   * already exist on disk, possibly synthesized by the bootstrap step).
+   */
+  claudeSessionId: string;
+  sessionMode: "new" | "resume";
+  /** Appended to Claude Code's default system prompt (per-conversation context). */
+  appendSystemPrompt?: string;
   /** Path to the claude binary. Defaults to `claude` (must be on PATH). */
   claudePath?: string;
   /** Working directory of the subprocess. Defaults to `/vercel/sandbox`. */
@@ -48,17 +72,31 @@ export interface ClaudeRunnerOptions {
   onStderr?: (chunk: string) => void;
 }
 
-export interface ClaudeRunnerHandle {
+export interface ClaudeProcessHandle {
   conversationId: string;
+  claudeSessionId: string;
   /** PID once spawned; null if spawn failed. */
   pid: number | null;
-  /** Send a signal to the subprocess. Default: SIGTERM. */
-  cancel(signal?: NodeJS.Signals): void;
+  /** True until the process has exited (or failed to spawn). */
+  alive(): boolean;
+  /**
+   * Feed one user turn as a stream-json message. Returns false if the process
+   * is no longer writable (caller should respawn and retry).
+   */
+  sendUserMessage(content: string): boolean;
+  /**
+   * Send an `interrupt` control_request. The CLI acks with a
+   * `control_response` line and ends the in-flight turn with a `result`.
+   * Returns false if the process is no longer writable.
+   */
+  interrupt(requestId: string): boolean;
+  /** Escalation path; prefer `interrupt`. Default: SIGTERM. */
+  kill(signal?: NodeJS.Signals): void;
   /** Resolves when the subprocess has fully exited and onExit has been called. */
   done: Promise<void>;
 }
 
-export function startClaudeRunner(opts: ClaudeRunnerOptions): ClaudeRunnerHandle {
+export function startClaudeProcess(opts: ClaudeProcessOptions): ClaudeProcessHandle {
   const claudePath = opts.claudePath ?? "claude";
   const cwd = opts.cwd ?? "/vercel/sandbox";
   const args = buildArgs(opts);
@@ -77,14 +115,19 @@ export function startClaudeRunner(opts: ClaudeRunnerOptions): ClaudeRunnerHandle
       stdio: ["pipe", "pipe", "pipe"],
     });
   } catch (err) {
+    exited = true;
     opts.onError(err as Error);
     opts.onExit({ code: null, signal: null });
     resolveDone!();
     return {
       conversationId: opts.conversationId,
+      claudeSessionId: opts.claudeSessionId,
       pid: null,
-      cancel() {
-        /* nothing to cancel */
+      alive: () => false,
+      sendUserMessage: () => false,
+      interrupt: () => false,
+      kill() {
+        /* nothing to kill */
       },
       done,
     };
@@ -111,16 +154,6 @@ export function startClaudeRunner(opts: ClaudeRunnerOptions): ClaudeRunnerHandle
   });
 
   proc.stdin.on("error", (err) => opts.onError(err));
-  try {
-    const userMessage = JSON.stringify({
-      type: "user",
-      message: { role: "user", content: opts.prompt },
-    });
-    proc.stdin.write(`${userMessage}\n`);
-    proc.stdin.end();
-  } catch (err) {
-    opts.onError(err as Error);
-  }
 
   proc.on("close", (code, signal) => {
     if (exited) return;
@@ -134,10 +167,36 @@ export function startClaudeRunner(opts: ClaudeRunnerOptions): ClaudeRunnerHandle
     resolveDone!();
   });
 
+  function writeLine(payload: unknown): boolean {
+    if (exited || !proc.stdin.writable) return false;
+    try {
+      proc.stdin.write(`${JSON.stringify(payload)}\n`);
+      return true;
+    } catch (err) {
+      opts.onError(err as Error);
+      return false;
+    }
+  }
+
   return {
     conversationId: opts.conversationId,
+    claudeSessionId: opts.claudeSessionId,
     pid: proc.pid ?? null,
-    cancel(signal: NodeJS.Signals = "SIGTERM") {
+    alive: () => !exited,
+    sendUserMessage(content: string): boolean {
+      return writeLine({
+        type: "user",
+        message: { role: "user", content },
+      });
+    },
+    interrupt(requestId: string): boolean {
+      return writeLine({
+        type: "control_request",
+        request_id: requestId,
+        request: { subtype: "interrupt" },
+      });
+    },
+    kill(signal: NodeJS.Signals = "SIGTERM") {
       if (exited) return;
       try {
         proc.kill(signal);
@@ -149,7 +208,9 @@ export function startClaudeRunner(opts: ClaudeRunnerOptions): ClaudeRunnerHandle
   };
 }
 
-export function buildArgs(opts: Pick<ClaudeRunnerOptions, "claudeSessionId">): string[] {
+export function buildArgs(
+  opts: Pick<ClaudeProcessOptions, "claudeSessionId" | "sessionMode" | "appendSystemPrompt">,
+): string[] {
   // `auto` is Claude Code's classifier-backed auto-approval mode (v2.1.83+).
   // The classifier model auto-approves safe operations (local edits, reads,
   // research-tool invocations, etc.) and blocks risky ones (hostile deploys,
@@ -164,10 +225,15 @@ export function buildArgs(opts: Pick<ClaudeRunnerOptions, "claudeSessionId">): s
     "--output-format", "stream-json",
     "--verbose",
     "--permission-mode", "auto",
-    "--model", "claude-opus-4-8",
+    "--model", RESEARCH_AGENT_MODEL,
   ];
-  if (opts.claudeSessionId) {
+  if (opts.sessionMode === "resume") {
     args.push("--resume", opts.claudeSessionId);
+  } else {
+    args.push("--session-id", opts.claudeSessionId);
+  }
+  if (opts.appendSystemPrompt) {
+    args.push("--append-system-prompt", opts.appendSystemPrompt);
   }
   return args;
 }

@@ -7,21 +7,9 @@ WebSearch, Task, etc.) plus a custom `research-tool` CLI that talks to the
 LessWrong research backend with the user's auth already loaded.
 
 > This file is shipped into the sandbox as `CLAUDE.md` so Claude Code
-> auto-loads it. Do not look for a different system prompt.
-
-## Current session
-
-You are working in research project **`{{RESEARCH_PROJECT_ID}}`**. All
-`research-tool` calls are scoped to this project automatically (the
-bearer token pins it server-side, so cross-project requests are
-rejected). You can't pivot to a different project from this sandbox.
-
-Your current conversation id is **`{{RESEARCH_CONVERSATION_ID}}`**. If
-fetched document markdown, a `fetch-conversation` result, an
-`@[conv:...]` mention, or an `%%% agent-block conversationId="..." %%%`
-placeholder refers to this same id, treat it as this conversation,
-including text you may have written earlier in the same task. Do not
-mistake it for an independent prior/sibling conversation.
+> auto-loads it. Do not look for a different system prompt. Your current
+> project and conversation ids arrive as appended system-prompt context
+> (see `buildAppendSystemPrompt` in the supervisor), not in this file.
 
 ## research-tool
 
@@ -444,12 +432,16 @@ A few rules:
   turn's env. Anything your app needs at boot, the scripts must establish
   themselves (e.g. load a `.env` you wrote during setup).
 - **Don't run the dev server (or any long-lived service) yourself inside a turn**
-  — not with `&`, `nohup`, or a background task. Processes you start in a turn are
-  tied to that turn and won't reliably outlive it. Let the platform run it via
+  — not with `&`, `nohup`, or a background task. Let the platform run it via
   `dev-server.sh` and use the controls below.
-- **Treat in-turn background tasks as turn-scoped** — fine for "kick off a build
-  while I work and check it before the turn ends," not for anything that must
-  survive to a later turn.
+- **Background tasks survive across turns.** A Bash task started with
+  `run_in_background` keeps running after your turn ends; when it finishes
+  you're re-invoked automatically with its output, with full memory of any
+  turns the user ran with you in the meantime. Use this freely for long
+  scrapes/builds: kick it off, tell the user you'll continue when it's done,
+  and keep working with them while it runs. A pending task also keeps the
+  sandbox awake — but sandbox sessions have a hard cap of a few hours, so
+  design jobs that could run longer than that to checkpoint and be resumable.
 
 Controlling the dev server:
 

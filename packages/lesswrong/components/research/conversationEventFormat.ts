@@ -1,10 +1,16 @@
 import { getMarkdownItNoMathjax } from "@/lib/utils/markdownItPlugins";
 import { sanitize } from "@/lib/utils/sanitize";
 import { stripLeadingSystemReminder } from "@/lib/research/systemReminderFormat";
+import {
+  isTurnActivity,
+  FLUSH_RESULT_SUBTYPE,
+  TURN_OPENING_SYSTEM_SUBTYPE,
+} from "@/lib/research/turnActivity";
 
 interface ResearchConversationEventLike {
   kind: string;
   payload: unknown;
+  createdAt?: string | Date;
 }
 
 /**
@@ -37,18 +43,77 @@ export function isVisibleConversationEvent(event: { kind: string }): boolean {
 }
 
 /**
- * Whether the transcript has an unanswered turn. Claude Code emits exactly one
- * `result` per turn, so `userCount > resultCount` means a turn is still
- * running (or queued waiting for its sandbox to start).
+ * A user message dispatched while another turn runs is persisted immediately
+ * but queued by Claude Code, so it can sit *before* the running turn's
+ * `result` in seq order — masked from the since-last-result scan below. Such
+ * a message counts as in flight while recent. The time bound exists because
+ * older transcripts (from the per-turn supervisor era) don't reliably contain
+ * a `system:init` after every user event, and an unbounded "user turn never
+ * started" clause would wedge them as permanently in flight; the real
+ * queued-turn gap is seconds, so fifteen minutes is generous.
  */
-export function isTurnInFlight(events: readonly { kind: string }[]): boolean {
-  let userCount = 0;
-  let resultCount = 0;
-  for (const event of events) {
-    if (event.kind === 'user') userCount++;
-    else if (event.kind === 'result') resultCount++;
+const RECENT_UNSTARTED_USER_TURN_MS = 15 * 60 * 1000;
+
+/**
+ * Whether the transcript currently has a running (or queued) turn. Claude
+ * Code emits exactly one `result` per turn, but turns aren't always
+ * user-initiated — a finishing background task re-invokes the agent with no
+ * user event, and a crashed process gets its turn closed by a synthetic
+ * supervisor result — so counting user events against results drifts apart
+ * over a conversation's lifetime. Instead:
+ *
+ *  1. any turn content since the most recent `result` (shared definition in
+ *     `@/lib/research/turnActivity`, mirrored by the supervisor's busy state
+ *     and the repo's `hasIncompleteTurn`) means a turn is in flight;
+ *  2. a recent user message that no turn-opening `system:init` or synthetic
+ *     flush result has answered yet means a turn is queued (see above).
+ *
+ * Clause 2 needs the current time, which the caller must supply — calling
+ * `Date.now()` here would run during React render (this is computed in
+ * useMemo) and trip Next's prerender purity check. With `nowMs` omitted the
+ * queued-turn clause is skipped, which only under-reports during the brief
+ * gap before a queued turn opens.
+ */
+export function isTurnInFlight(
+  events: readonly ResearchConversationEventLike[],
+  nowMs?: number,
+): boolean {
+  let lastResultIdx = -1;
+  let lastActivityIdx = -1;
+  let lastUserIdx = -1;
+  let lastTurnStartOrFlushIdx = -1;
+  let lastUserEvent: ResearchConversationEventLike | null = null;
+
+  for (let i = 0; i < events.length; i++) {
+    const event = events[i];
+    const subtype = isPlainRecord(event.payload) && typeof event.payload.subtype === 'string'
+      ? event.payload.subtype
+      : undefined;
+    if (event.kind === 'result') {
+      lastResultIdx = i;
+      if (subtype === FLUSH_RESULT_SUBTYPE) lastTurnStartOrFlushIdx = i;
+      continue;
+    }
+    if (isTurnActivity(event.kind, subtype)) lastActivityIdx = i;
+    if (event.kind === 'user') {
+      lastUserIdx = i;
+      lastUserEvent = event;
+    }
+    if (event.kind === 'system' && subtype === TURN_OPENING_SYSTEM_SUBTYPE) {
+      lastTurnStartOrFlushIdx = i;
+    }
   }
-  return userCount > resultCount;
+
+  if (lastActivityIdx > lastResultIdx) return true;
+
+  if (nowMs !== undefined && lastUserIdx >= 0 && lastUserIdx > lastTurnStartOrFlushIdx && lastUserEvent?.createdAt) {
+    const createdMs = new Date(lastUserEvent.createdAt).valueOf();
+    if (!Number.isNaN(createdMs) && nowMs - createdMs < RECENT_UNSTARTED_USER_TURN_MS) {
+      return true;
+    }
+  }
+
+  return false;
 }
 
 /**

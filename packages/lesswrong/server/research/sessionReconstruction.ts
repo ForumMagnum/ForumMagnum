@@ -1,6 +1,23 @@
+import { v5 as uuidv5 } from "uuid";
 import { isPlainRecord } from "@/components/research/conversationEventFormat";
 
 const SANDBOX_CWD = "/vercel/sandbox";
+
+/** Fixed UUIDv5 namespace for deriving Claude session ids from conversation ids. */
+const CLAUDE_SESSION_ID_NAMESPACE = "48734f38-9434-422d-b942-88b21da4fac2";
+
+/**
+ * The Claude session id a conversation owns, derived deterministically from
+ * its id (the CLI requires a UUID; conversation ids are 17-char random
+ * strings). Set on the conversation row at creation and passed on every
+ * dispatch, so the supervisor never has to mint one and the backend never has
+ * to capture one back out of the event stream. Conversations created before
+ * this scheme keep their stored (captured) id; environment forks reuse the
+ * source conversation's id when its session file is on the snapshot.
+ */
+export function claudeSessionIdForConversation(conversationId: string): string {
+  return uuidv5(conversationId, CLAUDE_SESSION_ID_NAMESPACE);
+}
 const SESSION_JSONL_DROPPED_TYPES = new Set(["system", "result", "error"]);
 const MAINLINE_GROUP_KEY = "__mainline__";
 

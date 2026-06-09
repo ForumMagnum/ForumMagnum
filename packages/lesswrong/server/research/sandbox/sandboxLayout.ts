@@ -21,3 +21,21 @@ export const RESEARCH_TOOL_PATH = `${PLATFORM_DIR}/bin/research-tool`;
 export const QUEUE_DIR = `${PLATFORM_DIR}/queue`;
 export const CLAUDE_DIR = `${SANDBOX_HOME_DIR}/.claude`;
 export const CLAUDE_MD_PATH = `${CLAUDE_DIR}/CLAUDE.md`;
+
+/**
+ * The Claude Code version every sandbox runs. Pinned because the supervisor
+ * speaks the CLI's stream-json + control protocol (undocumented; this is the
+ * compatibility surface flagged in claudeRunner.ts) and because the agent
+ * model below may require a minimum CLI version. Enforcement is two-sided:
+ * `buildResearchSandboxSnapshot` installs exactly this version into fresh
+ * baselines, and `sandboxManager.reconcileClaudeCodeVersion` upgrades any
+ * older sandbox/environment snapshot at launch, before the supervisor starts —
+ * snapshots otherwise carry their build-time CLI forever. To upgrade: bump
+ * this, rebuild the baseline snapshots, and existing sandboxes reconcile on
+ * their next launch.
+ */
+export const PINNED_CLAUDE_CODE_VERSION = "2.1.170";
+
+/** The model the research agent runs (`claude --model ...`). Requires a CLI
+ * version that knows the model family — see PINNED_CLAUDE_CODE_VERSION. */
+export const RESEARCH_AGENT_MODEL = "claude-fable-5";

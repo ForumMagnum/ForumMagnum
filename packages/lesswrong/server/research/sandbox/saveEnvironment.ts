@@ -54,7 +54,10 @@ async function quiesce(supervisorUrl: string, bearer: string): Promise<void> {
     const status = await fetchSupervisorStatus(supervisorUrl, bearer);
     if (status) {
       if (status.turnRunning) {
-        throw new Error("Can't save an environment while a turn is running. Wait for it to finish.");
+        // `turnRunning` also covers pending background tasks: snapshotting
+        // stops the sandbox, which would kill the task and the agent's
+        // promised continuation.
+        throw new Error("Can't save an environment while a turn or background task is running. Wait for it to finish.");
       }
       if (status.pendingEvents === 0) return;
     }
