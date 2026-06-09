@@ -6,12 +6,11 @@ import FlagIcon from '@/lib/vendor/@material-ui/icons/src/Flag';
 import { getUserEmail } from '@/lib/collections/users/helpers';
 import DescriptionIcon from '@/lib/vendor/@material-ui/icons/src/Description'
 import MessageIcon from '@/lib/vendor/@material-ui/icons/src/Message'
-import { getDisplayedReasonForGroupAssignment } from './groupings';
+import { getDisplayedReasonForGroupAssignment, userHasAllContentRejected, userHasHighPangramContent } from './groupings';
 import ForumIcon from '@/components/common/ForumIcon';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import ReviewTriggerBadge from './ReviewTriggerBadge';
-import { userHasAllContentRejected, userHasHighPangramContent } from './groupings';
 
 const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   root: {

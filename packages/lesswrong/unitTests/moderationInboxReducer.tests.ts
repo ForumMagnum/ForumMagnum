@@ -231,7 +231,11 @@ describe('Moderation Inbox Reducer', () => {
       expect(state.activeTab).toBe('all');
 
       // After 'all', posts tab would come but it's empty (count: 0) so it gets skipped
-      // Next from 'all' wraps to first non-empty tab
+      // Next from 'all' wraps to the first non-empty tab, which is Priority when
+      // there are first-content users without slop markers.
+      state = inboxStateReducer(state, { type: 'NEXT_TAB' });
+      expect(state.activeTab).toBe('priority');
+
       state = inboxStateReducer(state, { type: 'NEXT_TAB' });
       expect(state.activeTab).toBe('newContent');
     });
@@ -261,8 +265,11 @@ describe('Moderation Inbox Reducer', () => {
       // Start at newContent (highest priority)
       expect(state.activeTab).toBe('newContent');
 
-      // Prev from first tab should wrap to last non-empty tab
-      // 'posts' is empty (count: 0) so it gets skipped, wrapping to 'all'
+      // Prev from the first review-group tab lands on the non-empty Priority tab
+      // before wrapping around to All.
+      state = inboxStateReducer(state, { type: 'PREV_TAB' });
+      expect(state.activeTab).toBe('priority');
+
       state = inboxStateReducer(state, { type: 'PREV_TAB' });
       expect(state.activeTab).toBe('all');
 
