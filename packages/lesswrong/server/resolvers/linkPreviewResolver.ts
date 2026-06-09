@@ -111,7 +111,7 @@ function escapeHtml(text: string): string {
     .replaceAll("'", "&#39;");
 }
 
-function normalizePreviewUrl(url: string): string {
+export function normalizePreviewUrl(url: string): string {
   const trimmed = url.trim();
   if (!trimmed) {
     throw new Error("URL is empty");
@@ -119,6 +119,10 @@ function normalizePreviewUrl(url: string): string {
   const parsed = new URL(trimmed);
   if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
     throw new Error("Only http(s) URLs are supported");
+  }
+  if (parsed.hostname.toLowerCase().replace(/^www\./, "") === "nitter.net") {
+    parsed.protocol = "https:";
+    parsed.hostname = "x.com";
   }
   parsed.hash = "";
   return parsed.toString();
