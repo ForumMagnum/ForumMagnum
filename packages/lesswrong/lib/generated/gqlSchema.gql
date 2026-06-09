@@ -7330,11 +7330,11 @@ type UserBlock {
   schemaVersion: Float!
   createdAt: Date!
   legacyData: JSON
-  userId: String!
+  userId: String
   user: User
-  blockedUserId: String!
+  blockedUserId: String
   blockedUser: User
-  blocked: Boolean!
+  blocked: Boolean
 }
 
 input SingleUserBlockInput {
@@ -9533,9 +9533,8 @@ extend type Mutation {
 
 input CreateUserBlockDataInput {
   legacyData: JSON
-  userId: String!
   blockedUserId: String!
-  blocked: Boolean!
+  blocked: Boolean
 }
 
 input CreateUserBlockInput {

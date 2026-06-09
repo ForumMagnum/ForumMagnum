@@ -6784,11 +6784,11 @@ interface UserBlock {
   schemaVersion: number;
   createdAt: Date;
   legacyData: any;
-  userId: string;
+  userId: string | null;
   user: User | null;
-  blockedUserId: string;
+  blockedUserId: string | null;
   blockedUser: User | null;
-  blocked: boolean;
+  blocked: boolean | null;
 }
 
 interface SingleUserBlockInput {
@@ -8702,9 +8702,8 @@ interface UltraFeedEventOutput {
 
 interface CreateUserBlockDataInput {
   legacyData?: any;
-  userId: string;
   blockedUserId: string;
-  blocked: boolean;
+  blocked?: boolean | null;
 }
 
 interface CreateUserBlockInput {

@@ -17,9 +17,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
       canRead: [userOwnsBlock, "sunshineRegiment", "admins"],
-      canCreate: ["members"],
     },
   },
   user: {
@@ -36,7 +35,8 @@ const schema = {
       nullable: false,
     },
     graphql: {
-      outputType: "String!",
+      outputType: "String",
+      inputType: "String!",
       canRead: [userOwnsBlock, "sunshineRegiment", "admins"],
       canCreate: ["members"],
     },
@@ -56,7 +56,7 @@ const schema = {
       canAutofillDefault: true,
     },
     graphql: {
-      outputType: "Boolean!",
+      outputType: "Boolean",
       canRead: [userOwnsBlock, "sunshineRegiment", "admins"],
       canUpdate: [userOwnsBlock, "sunshineRegiment", "admins"],
       canCreate: ["members"],

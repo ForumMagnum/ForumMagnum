@@ -1747,10 +1747,9 @@ type CreateUltraFeedEventInput = {
 };
 
 type CreateUserBlockDataInput = {
-  blocked: Scalars['Boolean']['input'];
+  blocked?: InputMaybe<Scalars['Boolean']['input']>;
   blockedUserId: Scalars['String']['input'];
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  userId: Scalars['String']['input'];
 };
 
 type CreateUserBlockInput = {
@@ -11889,14 +11888,14 @@ type UserActivity = {
 type UserBlock = {
   __typename?: 'UserBlock';
   _id: Scalars['String']['output'];
-  blocked: Scalars['Boolean']['output'];
+  blocked?: Maybe<Scalars['Boolean']['output']>;
   blockedUser?: Maybe<User>;
-  blockedUserId: Scalars['String']['output'];
+  blockedUserId?: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
   schemaVersion: Scalars['Float']['output'];
   user?: Maybe<User>;
-  userId: Scalars['String']['output'];
+  userId?: Maybe<Scalars['String']['output']>;
 };
 
 type UserBlockOutput = {
@@ -25035,7 +25034,7 @@ type TypoSuggestionsDefaultFragment_TypoSuggestion_author_User = (
 
 type TypoSuggestionsDefaultFragment = { __typename?: 'TypoSuggestion', _id: string, createdAt: string, documentId: string | null, collectionName: string | null, fieldName: string | null, voteId: string | null, authorId: string | null, quote: string | null, llmCanonicalQuote: string | null, proposedReplacement: string | null, narrowedQuote: string | null, narrowedReplacement: string | null, explanation: string | null, llmVerdict: string | null, status: string | null, resolvedByUserId: string | null, appliedRevisionId: string | null, resolvedAt: string | null, reactor: TypoSuggestionsDefaultFragment_TypoSuggestion_reactor_User | null, author: TypoSuggestionsDefaultFragment_TypoSuggestion_author_User | null };
 
-type UserBlockFragment = { __typename?: 'UserBlock', _id: string, userId: string, blockedUserId: string, blocked: boolean };
+type UserBlockFragment = { __typename?: 'UserBlock', _id: string, userId: string | null, blockedUserId: string | null, blocked: boolean | null };
 
 type UserMostValuablePostInfo = { __typename?: 'UserMostValuablePost', _id: string, userId: string | null, postId: string | null, deleted: boolean | null };
 

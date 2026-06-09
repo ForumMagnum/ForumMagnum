@@ -1,8 +1,8 @@
 import { CollectionViewSet } from "@/lib/views/collectionViewSet";
 
 declare global {
-  interface UserBlocksViewTerms extends ViewTermsBase {
-    view?: UserBlocksViewName
+  type UserBlocksViewTerms = Omit<ViewTermsBase, "view"> & {
+    view: "userAndBlockedUser"
     userId?: string
     blockedUserId?: string
     blocked?: boolean

@@ -57,6 +57,7 @@ import { TagRelsViews } from '../collections/tagRels/views';
 import { TypoSuggestionsViews } from '../collections/typoSuggestions/views';
 import { UltraFeedEventsViews } from '../collections/ultraFeedEvents/views';
 import { UsersViews } from '../collections/users/views';
+import { UserBlocksViews } from '../collections/userBlocks/views';
 import { UserMostValuablePostsViews } from '../collections/userMostValuablePosts/views';
 import { UserRateLimitsViews } from '../collections/userRateLimits/views';
 import { UserTagRelsViews } from '../collections/userTagRels/views';
@@ -151,6 +152,7 @@ export const allViews = {
   TypoSuggestions: TypoSuggestionsViews,
   UltraFeedEvents: UltraFeedEventsViews,
   Users: UsersViews,
+  UserBlocks: UserBlocksViews,
   UserMostValuablePosts: UserMostValuablePostsViews,
   UserRateLimits: UserRateLimitsViews,
   UserTagRels: UserTagRelsViews,

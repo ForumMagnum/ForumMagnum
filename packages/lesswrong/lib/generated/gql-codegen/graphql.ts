@@ -3618,10 +3618,9 @@ export type CreateUltraFeedEventInput = {
 };
 
 export type CreateUserBlockDataInput = {
-  blocked: Scalars['Boolean']['input'];
+  blocked?: InputMaybe<Scalars['Boolean']['input']>;
   blockedUserId: Scalars['String']['input'];
   legacyData?: InputMaybe<Scalars['JSON']['input']>;
-  userId: Scalars['String']['input'];
 };
 
 export type CreateUserBlockInput = {
@@ -13760,14 +13759,14 @@ export type UserActivity = {
 export type UserBlock = {
   __typename?: 'UserBlock';
   _id: Scalars['String']['output'];
-  blocked: Scalars['Boolean']['output'];
+  blocked: Maybe<Scalars['Boolean']['output']>;
   blockedUser: Maybe<User>;
-  blockedUserId: Scalars['String']['output'];
+  blockedUserId: Maybe<Scalars['String']['output']>;
   createdAt: Scalars['Date']['output'];
   legacyData: Maybe<Scalars['JSON']['output']>;
   schemaVersion: Scalars['Float']['output'];
   user: Maybe<User>;
-  userId: Scalars['String']['output'];
+  userId: Maybe<Scalars['String']['output']>;
 };
 
 export type UserBlockOutput = {
@@ -21973,7 +21972,7 @@ export type TypoSuggestionsDefaultFragment = { __typename?: 'TypoSuggestion', _i
     & UsersMinimumInfo
   ) | null };
 
-export type UserBlockFragment = { __typename?: 'UserBlock', _id: string, userId: string, blockedUserId: string, blocked: boolean };
+export type UserBlockFragment = { __typename?: 'UserBlock', _id: string, userId: string | null, blockedUserId: string | null, blocked: boolean | null };
 
 export type UserMostValuablePostInfo = { __typename?: 'UserMostValuablePost', _id: string, userId: string | null, postId: string | null, deleted: boolean | null };
 

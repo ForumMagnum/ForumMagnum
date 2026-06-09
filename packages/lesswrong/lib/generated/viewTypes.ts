@@ -85,7 +85,7 @@ type TypingIndicatorsViewName = never
 type TypoSuggestionsViewName = never
 type UltraFeedEventsViewName = never
 type UserActivitiesViewName = never
-type UserBlocksViewName = never
+type UserBlocksViewName = "userAndBlockedUser";
 type UserMostValuablePostsViewName = "currentUserMostValuablePosts"|"currentUserPost";
 type UserRateLimitsViewName = "activeUserRateLimits"|"userRateLimits";
 type UserTagRelsViewName = "single";
@@ -181,7 +181,7 @@ interface ViewTermsByCollectionName {
   TypoSuggestions: ViewTermsBase
   UltraFeedEvents: ViewTermsBase
   UserActivities: ViewTermsBase
-  UserBlocks: ViewTermsBase
+  UserBlocks: UserBlocksViewTerms
   UserMostValuablePosts: UserMostValuablePostsViewTerms
   UserRateLimits: UserRateLimitsViewTerms
   UserTagRels: UserTagRelsViewTerms
@@ -191,4 +191,4 @@ interface ViewTermsByCollectionName {
 }
 
 
-type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
+type NameOfCollectionWithViews = "Bookmarks"|"Chapters"|"ClientIds"|"CommentModeratorActions"|"Comments"|"Conversations"|"CurationNotices"|"DialogueChecks"|"DialogueMatchPreferences"|"JargonTerms"|"LWEvents"|"LlmConversations"|"Localgroups"|"Messages"|"ModerationTemplates"|"ModeratorActions"|"MultiDocuments"|"Notifications"|"PetrovDayActions"|"PodcastEpisodes"|"PostRelations"|"Posts"|"RSSFeeds"|"Reports"|"ResearchConversations"|"ResearchDocuments"|"ResearchEnvironments"|"ReviewVotes"|"ReviewWinnerArts"|"ReviewWinners"|"Revisions"|"Sequences"|"Spotlights"|"Subscriptions"|"TagFlags"|"TagRels"|"Tags"|"UserBlocks"|"UserMostValuablePosts"|"UserRateLimits"|"UserTagRels"|"Users"|"Votes"
