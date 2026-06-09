@@ -37,7 +37,7 @@ import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificatio
 import { getWithLoader, getWithCustomLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
-import { getReviewGroupFromActions, isOffboardCandidate, OFFBOARD_PANGRAM_THRESHOLD, type OffboardStats } from "./reviewGroups";
+import { getReviewGroupFromActions } from "./reviewGroups";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
 
 const getCoauthoredPostCount = async (user: DbUser) => {
@@ -68,12 +68,13 @@ const getModeratorActionsForUser = (context: ResolverContext, userId: string) =>
   );
 };
 
-// Batched per-request lookup of the stats used to decide whether a `newContent`
-// user should instead be surfaced in the supermod "offboard" review group.
-const getOffboardStats = (context: ResolverContext, userId: string): Promise<OffboardStats> => {
-  return getWithCustomLoader(context, "offboardStats", userId, (userIds) =>
-    context.repos.users.getOffboardStatsForUsers(userIds, OFFBOARD_PANGRAM_THRESHOLD)
-  );
+// Batched per-request check of whether a `newContent` user should instead be
+// surfaced in the supermod "offboard" review group.
+const getIsOffboardCandidate = (context: ResolverContext, userId: string): Promise<boolean> => {
+  return getWithCustomLoader(context, "offboardCandidates", userId, async (userIds) => {
+    const candidateIds = new Set(await context.repos.users.getOffboardCandidateUserIds(userIds));
+    return userIds.map((id) => candidateIds.has(id));
+  });
 };
 
 // Get last time user's `needsReview` flag was set to false (or null if never).
@@ -3989,11 +3990,8 @@ const schema = {
 
         // Users who would otherwise be in `newContent` get pulled into the
         // `offboard` group if their content matches the offboarding criteria.
-        if (baseGroup === 'newContent') {
-          const offboardStats = await getOffboardStats(context, doc._id);
-          if (isOffboardCandidate(offboardStats)) {
-            return 'offboard';
-          }
+        if (baseGroup === 'newContent' && await getIsOffboardCandidate(context, doc._id)) {
+          return 'offboard';
         }
 
         return baseGroup;

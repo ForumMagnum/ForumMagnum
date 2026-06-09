@@ -31,7 +31,7 @@ const styles = defineStyles('ModerationInboxList', (theme: ThemeType) => ({
     background: theme.palette.panelBackground.sunshineNewContentGroup,
   },
   offboard: {
-    background: theme.palette.panelBackground.sunshineOffboardGroup,
+    background: theme.palette.panelBackground.sunshineWarningHighlight,
   },
   highContext: {
     background: theme.palette.panelBackground.sunshineHighContextGroup,

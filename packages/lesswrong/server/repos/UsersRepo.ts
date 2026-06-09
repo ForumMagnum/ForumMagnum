@@ -5,7 +5,6 @@ import { isEAForum } from "../../lib/instanceSettings";
 import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFieldSearch";
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "./helpers";
-import type { OffboardStats } from "@/lib/collections/users/reviewGroups";
 
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
@@ -404,66 +403,36 @@ class UsersRepo extends AbstractRepo<"Users"> {
   }
 
   /**
-   * For each requested user, compute the stats used to decide whether they
-   * belong in the supermod "offboard" review group (see `isOffboardCandidate`).
-   * "Content" here means non-draft posts and non-deleted comments. For rejected
-   * items we look up the latest Pangram AI-detection score (via their content
-   * revisions) to detect high-confidence autorejects.
+   * Of the requested users, return the ids of those who belong in the supermod
+   * "offboard" review group: their (non-draft post / non-deleted comment) content
+   * either (1) includes a rejected item with a high Pangram autoreject score,
+   * (2) includes at least two rejected comments, or (3) is entirely rejected.
    */
-  async getOffboardStatsForUsers(userIds: string[], pangramThreshold: number): Promise<OffboardStats[]> {
-    const rows = await this.getRawDb().any<{
-      userId: string,
-      rejectedCommentCount: number,
-      totalContentCount: number,
-      liveContentCount: number,
-      hasHighPangramAutoreject: boolean,
-    }>(`
-      -- UsersRepo.getOffboardStatsForUsers
+  async getOffboardCandidateUserIds(userIds: string[]): Promise<string[]> {
+    const rows = await this.getRawDb().any<{ userId: string }>(`
+      -- UsersRepo.getOffboardCandidateUserIds
       WITH content AS (
         SELECT p."_id" AS "documentId", p."userId", p."rejected", FALSE AS "isComment"
         FROM "Posts" p
-        WHERE p."userId" = ANY($1::text[])
-          AND p."draft" IS NOT TRUE
-          AND p."deletedDraft" IS NOT TRUE
+        WHERE p."userId" = ANY($1::text[]) AND p."draft" IS NOT TRUE AND p."deletedDraft" IS NOT TRUE
         UNION ALL
-        SELECT c."_id" AS "documentId", c."userId", c."rejected", TRUE AS "isComment"
+        SELECT c."_id", c."userId", c."rejected", TRUE
         FROM "Comments" c
-        WHERE c."userId" = ANY($1::text[])
-          AND c."deleted" IS NOT TRUE
-      ),
-      content_with_pangram AS (
-        SELECT
-          ct.*,
-          CASE WHEN ct."rejected" IS TRUE THEN (
-            SELECT ace."pangramScore"
-            FROM "Revisions" r
-            JOIN "AutomatedContentEvaluations" ace ON ace."revisionId" = r."_id"
-            WHERE r."documentId" = ct."documentId" AND r."fieldName" = 'contents'
-            ORDER BY ace."createdAt" DESC
-            LIMIT 1
-          ) ELSE NULL END AS "pangramScore"
-        FROM content ct
+        WHERE c."userId" = ANY($1::text[]) AND c."deleted" IS NOT TRUE
       )
-      SELECT
-        "userId",
-        COUNT(*) FILTER (WHERE "isComment" AND "rejected" IS TRUE)::int AS "rejectedCommentCount",
-        COUNT(*)::int AS "totalContentCount",
-        COUNT(*) FILTER (WHERE "rejected" IS NOT TRUE)::int AS "liveContentCount",
-        COALESCE(BOOL_OR("rejected" IS TRUE AND "pangramScore" > $2), FALSE) AS "hasHighPangramAutoreject"
-      FROM content_with_pangram
-      GROUP BY "userId"
-    `, [userIds, pangramThreshold]);
-
-    const statsByUser = new Map(rows.map((row) => [row.userId, row]));
-    return userIds.map((userId) => {
-      const stats = statsByUser.get(userId);
-      return {
-        rejectedCommentCount: stats?.rejectedCommentCount ?? 0,
-        liveContentCount: stats?.liveContentCount ?? 0,
-        totalContentCount: stats?.totalContentCount ?? 0,
-        hasHighPangramAutoreject: stats?.hasHighPangramAutoreject ?? false,
-      };
-    });
+      SELECT c."userId"
+      FROM content c
+      GROUP BY c."userId"
+      HAVING COUNT(*) FILTER (WHERE c."isComment" AND c."rejected" IS TRUE) >= 2
+        OR COUNT(*) FILTER (WHERE c."rejected" IS NOT TRUE) = 0
+        OR EXISTS (
+          SELECT 1 FROM content c2
+          JOIN "Revisions" r ON r."documentId" = c2."documentId" AND r."fieldName" = 'contents'
+          JOIN "AutomatedContentEvaluations" ace ON ace."revisionId" = r."_id"
+          WHERE c2."userId" = c."userId" AND c2."rejected" IS TRUE AND ace."pangramScore" > 0.8
+        )
+    `, [userIds]);
+    return rows.map((row) => row.userId);
   }
 
   async getRejectedContentCounts(userIds: string[]): Promise<number[]> {
