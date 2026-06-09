@@ -120,6 +120,13 @@ export interface CommentTreeOptions {
    * shortform comments on the All Posts page, and in the yearly review.
    */
   forceSingleLine?: boolean,
+
+  /**
+   * If passed, forceSingleLine trees stay single-line even for users with
+   * the "Expand single-line comments" preference enabled. Use for index
+   * views where the collapsed row is the primary UI, not just a truncation.
+   */
+  ignoreNoSingleLineCommentsSetting?: boolean,
   
   /**
    * If passed, never start comments collapsed to single line.
@@ -208,4 +215,33 @@ export interface CommentTreeOptions {
    * If set, navigating to the edited comment's permalink happens after a successful edit submit.
    */
   redirectAfterEditSubmit?: boolean,
+}
+
+export interface ShouldRenderSingleLineCommentArgs {
+  singleLine: boolean,
+  currentUserNoSingleLineCommentsSetting?: boolean,
+  forceSingleLine?: boolean,
+  forceNotSingleLine?: boolean,
+  ignoreNoSingleLineCommentsSetting?: boolean,
+  isTruncated: boolean,
+  expandNewComments?: boolean,
+  isNewComment?: boolean,
+}
+
+export const shouldRenderSingleLineComment = ({
+  singleLine,
+  currentUserNoSingleLineCommentsSetting,
+  forceSingleLine,
+  forceNotSingleLine,
+  ignoreNoSingleLineCommentsSetting,
+  isTruncated,
+  expandNewComments,
+  isNewComment,
+}: ShouldRenderSingleLineCommentArgs): boolean => {
+  if (!singleLine) return false;
+  if (currentUserNoSingleLineCommentsSetting && !ignoreNoSingleLineCommentsSetting) return false;
+  if (forceSingleLine) return true;
+  if (forceNotSingleLine) return false;
+
+  return isTruncated && !(expandNewComments && isNewComment);
 }

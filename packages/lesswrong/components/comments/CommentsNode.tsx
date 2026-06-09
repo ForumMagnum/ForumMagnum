@@ -4,7 +4,7 @@ import withErrorBoundary from '../common/withErrorBoundary';
 import { useFilteredCurrentUser } from '../common/withUser';
 import { AnalyticsContext, useTracking } from "../../lib/analyticsEvents"
 import { CommentTreeNode, commentTreesEqual, flattenCommentBranch } from '../../lib/utils/unflatten';
-import type { CommentTreeOptions } from './commentTree';
+import { shouldRenderSingleLineComment, type CommentTreeOptions } from './commentTree';
 import CommentFrame, { HIGHLIGHT_DURATION } from './CommentFrame';
 import { scrollFocusOnElement } from '@/lib/scrollUtils';
 import { commentPermalinkStyleSetting } from '@/lib/instanceSettings';
@@ -108,7 +108,7 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
 
   const { linkedCommentId, scrollToCommentId } = useCommentLinkState();
 
-  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, expandOnlyCommentIds, noDOMId, onToggleCollapsed } = treeOptions;
+  const { lastCommentId, condensed, postPage, post, highlightDate, scrollOnExpand, forceSingleLine, forceNotSingleLine, ignoreNoSingleLineCommentsSetting, expandOnlyCommentIds, noDOMId, onToggleCollapsed } = treeOptions;
 
   const shouldUncollapseForAutoScroll = useCallback(() => {
     const commentAndChildren = [
@@ -217,13 +217,16 @@ const CommentsNodeInner = ({treeOptions, comment, startThreadTruncated, truncate
 
   const isNewComment = !!(highlightDate && (new Date(comment.postedAt).getTime() > new Date(highlightDate).getTime()))
 
-  const isSingleLine = ((): boolean => {
-    if (!singleLine || currentUserNoSingleLineCommentsSetting) return false;
-    if (forceSingleLine) return true;
-    if (forceNotSingleLine) return false
-
-    return isTruncated && !(expandNewComments && isNewComment);
-  })();
+  const isSingleLine = shouldRenderSingleLineComment({
+    singleLine,
+    currentUserNoSingleLineCommentsSetting,
+    forceSingleLine,
+    forceNotSingleLine,
+    ignoreNoSingleLineCommentsSetting,
+    isTruncated,
+    expandNewComments,
+    isNewComment,
+  });
   const updatedNestingLevel = nestingLevel + (!!comment.gapIndicator ? 1 : 0)
 
   const passedThroughItemProps = { comment, collapsed, showPinnedOnProfile, enableGuidelines, showParentDefault }

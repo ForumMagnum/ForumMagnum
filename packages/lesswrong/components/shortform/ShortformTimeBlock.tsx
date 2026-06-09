@@ -39,7 +39,8 @@ const ShortformItem: FC<{comment: ShortformComments}> = ({comment}) => {
     <CommentsNode
       treeOptions={{
         post: comment.post || undefined,
-        forceSingleLine: true
+        forceSingleLine: true,
+        ignoreNoSingleLineCommentsSetting: true,
       }}
       comment={comment}
       loadChildrenSeparately
