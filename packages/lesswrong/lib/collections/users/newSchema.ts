@@ -39,6 +39,7 @@ import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
 import { getReviewGroupFromActions } from "./reviewGroups";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
+import { getRevisionOriginalContentsByRevisionId } from "../revisions/helpers";
 
 const getCoauthoredPostCount = async (user: DbUser) => {
   const db = getSqlClientOrThrow();
@@ -3642,10 +3643,12 @@ const schema = {
     graphql: {
       outputType: "String",
       canRead: ["guests"],
-      resolver: (user, args, { Users }) => {
-        const bio = user.biography?.originalContents;
-        if (!bio) return "";
-        return dataToMarkdown(bio.data, bio.type);
+      resolver: async (user, _, context) => {
+        const bioRevisionId = user.biography_latest;
+        if (!bioRevisionId) return "";
+        const bioRevisionOriginalContents = await getRevisionOriginalContentsByRevisionId(bioRevisionId, context);
+        if (!bioRevisionOriginalContents) return "";
+        return dataToMarkdown(bioRevisionOriginalContents.data, bioRevisionOriginalContents.type);
       },
     },
   },

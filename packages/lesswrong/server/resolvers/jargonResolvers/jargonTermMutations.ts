@@ -21,6 +21,7 @@ import { createJargonTerm } from "../../collections/jargonTerms/mutations";
 import { PostsPage } from '@/lib/collections/posts/fragments';
 import zodToJsonSchema, { JsonSchema7ObjectType, JsonSchema7Type } from 'zod-to-json-schema';
 import type { MessageParam } from '@anthropic-ai/sdk/resources/messages.mjs';
+import { getRevisionOriginalContentsByRevisionId } from '@/lib/collections/revisions/helpers';
 
 interface JargonTermGenerationExampleParams {
   glossaryPrompt?: string;
@@ -368,18 +369,25 @@ export const createNewJargonTerms = async ({ postId, currentUser, context, ...ex
             }
           }, botContext)
         ),
-        ...jargonTermsToCopy.map((jargonTerm) =>
-          createJargonTerm({
+        ...jargonTermsToCopy.map(async (jargonTerm) => {
+          const originalContents = jargonTerm.contents_latest
+            ? await getRevisionOriginalContentsByRevisionId(jargonTerm.contents_latest, botContext)
+            : null;
+          if (!originalContents) {
+            throw new Error(`Could not find original contents for jargon term ${jargonTerm._id}`);
+          }
+
+          return createJargonTerm({
             data: {
               postId: postId,
               term: jargonTerm.term,
               approved: jargonTerm.approved,
               deleted: jargonTerm.deleted,
-              contents: { originalContents: jargonTerm.contents!.originalContents! },
+              contents: { originalContents },
               altTerms: jargonTerm.altTerms,
             }
-          }, botContext)
-        ),
+          }, botContext);
+        }),
       ]);
       
       return createdTerms;

@@ -4,13 +4,13 @@ import Revisions from '@/server/collections/revisions/collection';
 import Users from '../../server/collections/users/collection';
 import { createNotifications } from '@/server/notificationCallbacksHelpers';
 import { createAdminContext } from '@/server/vulcan-lib/createContexts';
-import { createRevision } from '@/server/collections/revisions/mutations';
-import { buildRevisionWithUser } from '../editor/conversionUtils';
-import { getLatestRev, getNextVersion, htmlToChangeMetrics } from '../editor/utils';
+import { buildAndCreateRevision } from '@/server/collections/revisions/mutations';
+import { getLatestRev, getNextVersion } from '../editor/utils';
 import { constantTimeCompare } from '../../lib/helpers';
 import isEqual from 'lodash/isEqual';
 import YjsDocuments from '@/server/collections/yjsDocuments/collection';
 import { captureException } from '@/lib/sentryWrapper';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 import { backgroundTask } from '@/server/utils/backgroundTask';
 import { generateDocumentTitle } from '@/server/research/titleGeneration';
 
@@ -127,19 +127,19 @@ async function saveLexicalDocumentRevision(
 
   // Compare only data+type for deduplication (yjsState changes even when
   // text content is identical due to CRDT metadata)
-  const prevContentsForComparison = previousRev?.originalContents
-    ? { data: previousRev.originalContents.data, type: previousRev.originalContents.type }
+  const previousOriginalContents = previousRev
+    ? await getStoredOriginalContentsForRevision(previousRev, context)
+    : null;
+  const prevContentsForComparison = previousOriginalContents
+    ? { data: previousOriginalContents.data, type: previousOriginalContents.type }
     : null;
   const newContentsForComparison = { data: html, type: 'lexical' as const };
 
   if (!prevContentsForComparison || !isEqual(newContentsForComparison, prevContentsForComparison)) {
-    const newRevision: Partial<DbRevision> = {
-      ...(await buildRevisionWithUser({
-        originalContents: newOriginalContents,
-        user,
-        isAdmin,
-        context,
-      })),
+    await buildAndCreateRevision({
+      originalContents: newOriginalContents,
+      user,
+      isAdmin,
       documentId: postId,
       fieldName,
       collectionName: 'Posts',
@@ -147,10 +147,8 @@ async function saveLexicalDocumentRevision(
       draft: true,
       updateType: 'patch',
       commitMessage: COLLAB_AUTOSAVE_COMMIT_MESSAGE,
-      changeMetrics: htmlToChangeMetrics(previousRev?.html || '', html),
-    };
-
-    await createRevision({ data: newRevision }, context);
+      previousHtmlForChangeMetrics: previousRev?.html || '',
+    }, context);
   }
 }
 
@@ -277,6 +275,7 @@ export async function pushRevisionToLexicalCollab(
   collectionName: string,
   documentId: string,
   revisionId: string,
+  context: ResolverContext,
 ): Promise<void> {
   // eslint-disable-next-line no-console
   console.log(`[Hocuspocus] Restoring revision ${revisionId} for ${collectionName} ${documentId}`);
@@ -290,7 +289,8 @@ export async function pushRevisionToLexicalCollab(
     throw new Error(`[Hocuspocus] Revision ${revisionId} does not belong to ${collectionName} ${documentId}`);
   }
 
-  const yjsStateBase64 = revision.originalContents?.yjsState;
+  const originalContents = await getStoredOriginalContentsForRevision(revision, context);
+  const yjsStateBase64 = originalContents?.yjsState;
   if (!yjsStateBase64) {
     throw new Error(
       `[Hocuspocus] Revision ${revisionId} has no yjsState in originalContents — ` +

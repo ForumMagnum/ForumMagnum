@@ -6470,6 +6470,12 @@ extend type Query {
   reviewWinners(input: MultiReviewWinnerInput @deprecated(reason: "Use the selector field instead"), selector: ReviewWinnerSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiReviewWinnerOutput
 }
 
+type RevisionOriginalContent {
+  _id: String!
+  createdAt: Date!
+  originalContents: JSON
+}
+
 type Revision {
   _id: String!
   schemaVersion: Float!
@@ -6485,6 +6491,7 @@ type Revision {
   userId: String
   user: User
   draft: Boolean
+  originalContentsId: String
   originalContents: ContentType!
   html: String
   markdown: String

@@ -89,7 +89,7 @@ async function sendWelcomeMessageTo(userId: string) {
   const adminAccountContext = computeContextFromUser({ user: adminsAccount, isSSR: context.isSSR });
   const conversation = await createConversation({ data: conversationData }, adminAccountContext);
   
-  const messageDocument = {
+  const messageDocument: CreateMessageDataInput = {
     userId: adminsAccount._id,
     contents: {
       originalContents: {
@@ -532,7 +532,7 @@ export async function newAlignmentUserSendPMAsync(newUser: DbUser, oldUser: DbUs
             </ul>
         </div>`
 
-    const firstMessageData = {
+    const firstMessageData: CreateMessageDataInput = {
       userId: lwAccount._id,
       contents: {
         originalContents: {

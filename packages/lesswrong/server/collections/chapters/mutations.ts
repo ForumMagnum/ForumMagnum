@@ -1,4 +1,5 @@
 import schema from "@/lib/collections/chapters/newSchema";
+import { randomId } from "@/lib/random";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo, userOwns } from "@/lib/vulcan-users/permissions";
 import { canonizeChapterPostInfo, notifyUsersOfNewPosts, updateSequenceLastUpdated } from "@/server/callbacks/chapterCallbacks";
@@ -29,7 +30,7 @@ async function editCheck(user: DbUser|null, document: DbChapter|null, context: R
 }
 
 export async function createChapter({ data }: CreateChapterInput, context: ResolverContext) {
-  const { currentUser } = context;
+  const documentId = randomId();
 
   const callbackProps = await getLegacyCreateCallbackProps('Chapters', {
     context,
@@ -42,6 +43,7 @@ export async function createChapter({ data }: CreateChapterInput, context: Resol
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });

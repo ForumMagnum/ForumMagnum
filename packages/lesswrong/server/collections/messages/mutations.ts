@@ -10,6 +10,7 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
 import { loadByIds } from "@/lib/loaders";
 import gql from "graphql-tag";
+import { randomId } from "@/lib/random";
 
 async function newCheck(user: DbUser | null, document: DbMessage | null, context: ResolverContext) {
   const { Conversations } = context;
@@ -39,7 +40,8 @@ async function editCheck(user: DbUser | null, document: DbMessage | null, contex
 
 export async function createMessage({ data }: CreateMessageInput, context: ResolverContext) {
   const { currentUser } = context;
-
+  const documentId = randomId();
+  
   const callbackProps = await getLegacyCreateCallbackProps('Messages', {
     context,
     data,
@@ -55,6 +57,7 @@ export async function createMessage({ data }: CreateMessageInput, context: Resol
   data = await runFieldOnCreateCallbacks(schema, data, callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });

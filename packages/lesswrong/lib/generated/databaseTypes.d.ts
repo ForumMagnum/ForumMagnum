@@ -1266,6 +1266,14 @@ interface DbReviewWinner extends DbObject {
   reviewYear: number
 }
 
+type RevisionOriginalContentsCollection = PgCollection<"RevisionOriginalContents">;
+
+interface DbRevisionOriginalContent extends DbObject {
+  __collectionName?: "RevisionOriginalContents"
+  createdAt: Date
+  originalContents: any
+}
+
 type RevisionsCollection = PgCollection<"Revisions">;
 
 interface DbRevision extends DbObject {
@@ -1287,11 +1295,7 @@ interface DbRevision extends DbObject {
   googleDocMetadata: any | null
   html: string | null
   legacyData: any | null
-  originalContents: {
-    type: string,
-    data: string,
-    yjsState: string | null,
-  } | null
+  originalContentsId: string | null
   score: number
   skipAttributions: boolean
   updateType: "initial" | "patch" | "minor" | "major" | null
@@ -1299,16 +1303,6 @@ interface DbRevision extends DbObject {
   version: string
   voteCount: number
   wordCount: number
-}
-
-type SandboxBaselineSnapshotsCollection = PgCollection<"SandboxBaselineSnapshots">;
-
-interface DbSandboxBaselineSnapshot extends DbObject {
-  __collectionName?: "SandboxBaselineSnapshots"
-  builtAt: Date
-  createdAt: Date
-  runtime: string
-  vercelSnapshotId: string
 }
 
 type SequencesCollection = PgCollection<"Sequences">;
@@ -2372,8 +2366,8 @@ interface CollectionsByName {
   ReviewVotes: ReviewVotesCollection
   ReviewWinnerArts: ReviewWinnerArtsCollection
   ReviewWinners: ReviewWinnersCollection
+  RevisionOriginalContents: RevisionOriginalContentsCollection
   Revisions: RevisionsCollection
-  SandboxBaselineSnapshots: SandboxBaselineSnapshotsCollection
   Sequences: SequencesCollection
   Sessions: SessionsCollection
   SideCommentCaches: SideCommentCachesCollection
@@ -2468,8 +2462,8 @@ interface ObjectsByCollectionName {
   ReviewVotes: DbReviewVote
   ReviewWinnerArts: DbReviewWinnerArt
   ReviewWinners: DbReviewWinner
+  RevisionOriginalContents: DbRevisionOriginalContent
   Revisions: DbRevision
-  SandboxBaselineSnapshots: DbSandboxBaselineSnapshot
   Sequences: DbSequence
   Sessions: DbSession
   SideCommentCaches: DbSideCommentCache
@@ -2564,8 +2558,8 @@ interface ObjectsByTypeName {
   ReviewVote: DbReviewVote
   ReviewWinnerArt: DbReviewWinnerArt
   ReviewWinner: DbReviewWinner
+  RevisionOriginalContent: DbRevisionOriginalContent
   Revision: DbRevision
-  SandboxBaselineSnapshot: DbSandboxBaselineSnapshot
   Sequence: DbSequence
   Session: DbSession
   SideCommentCache: DbSideCommentCache

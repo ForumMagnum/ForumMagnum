@@ -13,6 +13,7 @@ import {
 } from "@/lib/fmCrosspost/routes";
 import { makeV2CrossSiteRequest } from "@/server/crossposting/crossSiteRequest";
 import { getLatestContentsRevision } from '../collections/revisions/helpers';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 import schema from "@/lib/collections/posts/newSchema";
 import Revisions from '../collections/revisions/collection';
 
@@ -67,6 +68,9 @@ const performCrosspost = async (
   if (!contents) {
     throw new Error("Couldn't find contents for crosspost");
   }
+  const originalContents = "originalContentsId" in contents || "__collectionName" in contents
+    ? await getStoredOriginalContentsForRevision(contents as DbRevision, context)
+    : contents.originalContents;
 
   const postWithDefaultValues = {
     ...post,
@@ -83,7 +87,7 @@ const performCrosspost = async (
     postId: (post as unknown as DbPost)._id,
     ...extractDenormalizedData(postWithDefaultValues),
     contents: {
-      originalContents: contents?.originalContents,
+      originalContents,
       draft: (contents as DbRevision)?.draft ?? post.draft ?? false,
     },
   });
@@ -99,6 +103,7 @@ const performCrosspost = async (
 }
 
 const updateCrosspost = async (
+  context: ResolverContext,
   foreignPostId: string,
   latestRevisionId: string | null,
   denormalizedData: DenormalizedCrosspostData,
@@ -106,11 +111,14 @@ const updateCrosspost = async (
   const revision = latestRevisionId
     ? await Revisions.findOne({_id: latestRevisionId})
     : null;
+  const originalContents = revision
+    ? await getStoredOriginalContentsForRevision(revision, context)
+    : null;
   const token = await updateCrosspostToken.create({
     ...denormalizedData,
     postId: foreignPostId,
     contents: {
-      originalContents: revision?.originalContents,
+      originalContents,
       draft: revision?.draft ?? false,
     },
   });
@@ -125,13 +133,13 @@ const updateCrosspost = async (
  * TODO-HACK: We will kick the can down the road on actually removing the
  * crosspost data from the foreign server -- set it as a draft.
  */
-const removeCrosspost = async <T extends Crosspost>(post: T) => {
+const removeCrosspost = async <T extends Crosspost>(context: ResolverContext, post: T) => {
   if (!post.fmCrosspost || !post.fmCrosspost.foreignPostId) {
     // eslint-disable-next-line no-console
     console.warn("Cannot remove crosspost that doesn't exist");
     return;
   }
-  await updateCrosspost(post.fmCrosspost.foreignPostId, post.contents_latest, {
+  await updateCrosspost(context, post.fmCrosspost.foreignPostId, post.contents_latest, {
     ...extractDenormalizedData(post),
     draft: true,
   });
@@ -147,7 +155,7 @@ export const handleCrosspostUpdate = async (
     (oldDocument.fmCrosspost && data.fmCrosspost === null) ||
     (oldDocument.fmCrosspost?.isCrosspost && data.fmCrosspost?.isCrosspost === false)
   if (shouldRemoveCrosspost) {
-    await removeCrosspost(newDocument);
+    await removeCrosspost(context, newDocument);
   }
   if (!fmCrosspost?.isCrosspost) {
     return data;
@@ -175,7 +183,7 @@ export const handleCrosspostUpdate = async (
       (data as AnyBecauseHard).contents_latest ??
       newDocument.contents_latest ??
       oldDocument.contents_latest;
-    await updateCrosspost(fmCrosspost.foreignPostId, latestRevisionId, denormalizedData);
+    await updateCrosspost(context, fmCrosspost.foreignPostId, latestRevisionId, denormalizedData);
     // TODO-HACK: Drafts are very bad news for crossposts, so we will unlink in
     // such cases. See sad message to users in ForeignCrosspostEditForm.tsx.
     if (newDocument.draft && !oldDocument.draft) {

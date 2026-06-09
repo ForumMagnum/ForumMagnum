@@ -30,6 +30,7 @@ import { updateTag } from '../collections/tags/mutations';
 import { mergeWithDefaultViewSelector } from '@/lib/utils/viewUtils';
 import { CommentsViews } from '@/lib/collections/comments/views';
 import { backgroundTask } from '../utils/backgroundTask';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 
 export const tagGraphQLTypeDefs = gql`
   enum DocumentDeletionNetChange {
@@ -472,14 +473,19 @@ export const tagResolversGraphQLMutations = {
       )
     ]);
     
+    const latestLensOriginalContents = latestLensRevision
+      ? await getStoredOriginalContentsForRevision(latestLensRevision, context)
+      : null;
+
     await Tags.rawUpdateOne(
       {_id: tag._id},
       {$set: {
         description: {
           ...pick(latestLensRevision, [
             "html", "version", "userId", "editedAt", "wordCount",
-            "originalContents", "commitMessage", "googleDocMetadata", "updateType"
-          ])
+            "commitMessage", "googleDocMetadata", "updateType"
+          ]),
+          originalContents: latestLensOriginalContents,
         }
       }},
     );
@@ -722,14 +728,16 @@ export const recomputeDenormalizedContentsFor = async (tagSlug: string) => {
   if (!tag) throw new Error(`No such tag: ${tagSlug}`);
   const latestRev = await getLatestRev(tag._id, "description", context);
   if (!latestRev) throw new Error("Could not get latest rev");
+  const originalContents = await getStoredOriginalContentsForRevision(latestRev, context);
   await Tags.rawUpdateOne(
     {_id: tag._id},
     {$set: {
       description: {
         ...pick(latestRev, [
           "html", "version", "userId", "editedAt", "wordCount",
-          "originalContents", "commitMessage", "googleDocMetadata", "updateType"
-        ])
+          "commitMessage", "googleDocMetadata", "updateType"
+        ]),
+        originalContents,
       }
     }},
   );

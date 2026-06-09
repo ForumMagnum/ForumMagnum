@@ -76,7 +76,6 @@ export default registerMigration({
                 wordCount: actualLatestRev.wordCount,
                 updateType: actualLatestRev.updateType,
                 commitMessage: actualLatestRev.commitMessage,
-                originalContents: actualLatestRev.originalContents,
               },
               description_latest: actualLatestRev._id,
             }}

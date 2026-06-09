@@ -137,6 +137,7 @@ import { graphqlResearchProjectQueryTypeDefs, researchProjectGqlQueryHandlers, r
 import { graphqlReviewVoteQueryTypeDefs, reviewVoteGqlQueryHandlers, reviewVoteGqlFieldResolvers } from "@/server/collections/reviewVotes/queries";
 import { graphqlReviewWinnerArtQueryTypeDefs, reviewWinnerArtGqlQueryHandlers, reviewWinnerArtGqlFieldResolvers } from "@/server/collections/reviewWinnerArts/queries";
 import { graphqlReviewWinnerQueryTypeDefs, reviewWinnerGqlQueryHandlers, reviewWinnerGqlFieldResolvers } from "@/server/collections/reviewWinners/queries";
+import { graphqlRevisionOriginalContentsQueryTypeDefs, revisionOriginalContentsGqlFieldResolvers } from "@/server/collections/revisionOriginalContents/queries";
 import { graphqlRevisionQueryTypeDefs, revisionGqlQueryHandlers, revisionGqlFieldResolvers } from "@/server/collections/revisions/queries";
 import { graphqlSequenceQueryTypeDefs, sequenceGqlQueryHandlers, sequenceGqlFieldResolvers } from "@/server/collections/sequences/queries";
 import { graphqlSessionQueryTypeDefs, sessionGqlFieldResolvers } from "@/server/collections/sessions/queries";
@@ -382,6 +383,7 @@ export const getTypeDefs = () => gql`
   ${graphqlReviewVoteQueryTypeDefs}
   ${graphqlReviewWinnerArtQueryTypeDefs}
   ${graphqlReviewWinnerQueryTypeDefs}
+  ${graphqlRevisionOriginalContentsQueryTypeDefs}
   ${graphqlRevisionQueryTypeDefs}
   ${graphqlSequenceQueryTypeDefs}
   ${graphqlSessionQueryTypeDefs}
@@ -736,6 +738,7 @@ const getResolvers = () => ({
   ...reviewVoteGqlFieldResolvers,
   ...reviewWinnerArtGqlFieldResolvers,
   ...reviewWinnerGqlFieldResolvers,
+  ...revisionOriginalContentsGqlFieldResolvers,
   ...revisionGqlFieldResolvers,
   ...sequenceGqlFieldResolvers,
   ...sessionGqlFieldResolvers,

@@ -7,6 +7,7 @@ import { syncDocumentWithLatestRevision } from "../server/editor/utils";
 import { fetchFragmentSingle } from "../server/fetchFragment";
 import { createAnonymousContext } from "../server/vulcan-lib/createContexts";
 import { PostsOriginalContents } from "@/lib/collections/posts/fragments";
+import { getStoredOriginalContentsForRevision } from "@/lib/collections/revisions/helpers";
 async function updatePost(user: DbUser, postId: string, newMarkup: string) {
   const query = `
     mutation PostsEdit {
@@ -53,7 +54,10 @@ describe("syncDocumentWithLatestRevision", () => {
 
     const revisions = await Revisions.find({documentId: post._id}, {sort: {editedAt: 1}}).fetch()
     const lastRevision = revisions[revisions.length-1]
-    expect(lastRevision?.originalContents?.data).toMatch(/version 3/)
+    const lastRevisionOriginalContents = lastRevision
+      ? await getStoredOriginalContentsForRevision(lastRevision, createAnonymousContext())
+      : null;
+    expect(lastRevisionOriginalContents?.data).toMatch(/version 3/)
     await Revisions.rawRemove({_id: lastRevision._id})
 
     // Function we're actually testing

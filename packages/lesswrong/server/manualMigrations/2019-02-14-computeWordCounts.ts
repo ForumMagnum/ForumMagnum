@@ -4,6 +4,7 @@ import { getCollection } from '../collections/allCollections';
 import { dataToWordCount } from '../editor/conversionUtils';
 import { Revisions } from '../../server/collections/revisions/collection';
 import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 
 export default registerMigration({
   name: "computeWordCounts",
@@ -24,8 +25,9 @@ export default registerMigration({
         let updates: Array<any> = [];
         
         for (let doc of documents) {
-          if (!doc.originalContents) continue;
-          const { data, type } = doc.originalContents;
+          const originalContents = await getStoredOriginalContentsForRevision(doc, context);
+          if (!originalContents) continue;
+          const { data, type } = originalContents;
           const wordCount = await dataToWordCount(data, type, context);
           
           updates.push({

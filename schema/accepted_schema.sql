@@ -2498,6 +2498,13 @@ CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReviewWinners_curatedOrder_category" ON "
 -- Index "idx_ReviewWinners_reviewYear_reviewRanking"
 CREATE UNIQUE INDEX IF NOT EXISTS "idx_ReviewWinners_reviewYear_reviewRanking" ON "ReviewWinners" USING btree ("reviewYear", "reviewRanking");
 
+-- Table "RevisionOriginalContents"
+CREATE TABLE "RevisionOriginalContents" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "originalContents" JSONB NOT NULL
+);
+
 -- Table "Revisions"
 CREATE TABLE "Revisions" (
   _id VARCHAR(27) PRIMARY KEY,
@@ -2514,7 +2521,7 @@ CREATE TABLE "Revisions" (
   "commitMessage" TEXT,
   "userId" VARCHAR(27),
   "draft" BOOL,
-  "originalContents" JSONB,
+  "originalContentsId" VARCHAR(27),
   "html" TEXT,
   "wordCount" DOUBLE PRECISION NOT NULL,
   "changeMetrics" JSONB NOT NULL,
@@ -2543,18 +2550,6 @@ CREATE INDEX IF NOT EXISTS "idx_Revisions_collectionName_fieldName_editedAt__id_
 
 -- Index "idx_Revisions_documentId_version_fieldName_editedAt"
 CREATE INDEX IF NOT EXISTS "idx_Revisions_documentId_version_fieldName_editedAt" ON "Revisions" USING btree ("documentId", "version", "fieldName", "editedAt");
-
--- Table "SandboxBaselineSnapshots"
-CREATE TABLE "SandboxBaselineSnapshots" (
-  _id VARCHAR(27) PRIMARY KEY,
-  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
-  "runtime" TEXT NOT NULL,
-  "vercelSnapshotId" TEXT NOT NULL,
-  "builtAt" TIMESTAMPTZ NOT NULL
-);
-
--- Index "idx_SandboxBaselineSnapshots_runtime"
-CREATE UNIQUE INDEX IF NOT EXISTS "idx_SandboxBaselineSnapshots_runtime" ON "SandboxBaselineSnapshots" USING btree ("runtime");
 
 -- Table "Sequences"
 CREATE TABLE "Sequences" (

@@ -22,6 +22,7 @@ import { captureException } from "@/lib/sentryWrapper";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
 import { getHocuspocusToken, getHocuspocusTokenForCollection } from "./getHocuspocusToken";
 import { captureAgentApiEvent } from "./captureAgentAnalytics";
+import { getStoredOriginalContentsForRevision } from "@/lib/collections/revisions/helpers";
 import { sanitize } from "@/lib/utils/sanitize";
 import { foldCaseOutsideMath, canonicalizeMathTokens, stripMathTokens } from "@/lib/utils/mathTokens";
 import type MarkdownIt from "markdown-it";
@@ -153,7 +154,7 @@ export function plainTextStartsWith(nodeTextContent: string, prefix: string): bo
   const prefixPlainText = stripMathTokens(
     foldPunctuation(prefix).replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1"),
   )
-    .replace(/[*_`~]/g, "")
+    .replace(/[*_`~]/g, "") //`
     .replace(/\s+/g, " ")
     .trim()
     .toLowerCase();
@@ -212,7 +213,10 @@ export async function isSupportedEditorType(
   }
 
   const rev = await getLatestRev(documentId, "contents", context);
-  const editorType = rev?.originalContents?.type ?? "unknown";
+  const originalContents = rev
+    ? await getStoredOriginalContentsForRevision(rev, context)
+    : null;
+  const editorType = originalContents?.type ?? "unknown";
   if (editorType === "lexical") {
     return { supported: true, editorType };
   }

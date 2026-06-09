@@ -1,5 +1,5 @@
 import SelectQuery from "./SelectQuery";
-import type { CodeResolverMap, PrefixGenerator } from "./ProjectionContext";
+import type { CodeResolverMap, CodeResolverWithNested, PrefixGenerator } from "./ProjectionContext";
 import type { ParsedSqlFragment } from "./SqlFragment";
 
 /**
@@ -131,6 +131,19 @@ class SelectFragmentQuery<
             context,
           );
           obj[resolverName as keyof T] = result;
+          // If the requested sub-fields of this field include their own code
+          // resolvers (e.g. a `Revision`'s `originalContents`), run them against
+          // the object(s) we just resolved.
+          const nested = (resolver as CodeResolverWithNested).nestedCodeResolvers;
+          if (nested && result && typeof result === "object") {
+            if (Array.isArray(result)) {
+              await Promise.all(result.map(
+                (item) => this.executeCodeResolvers(item as DbObject, context, nested),
+              ));
+            } else {
+              await this.executeCodeResolvers(result as DbObject, context, nested);
+            }
+          }
         }
         promises.push(generator());
       } else {

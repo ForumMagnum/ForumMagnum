@@ -15,6 +15,7 @@ import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-li
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData, dataToModifier, modifierToData } from '@/server/vulcan-lib/mutators';
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+import { randomId } from "@/lib/random";
 
 function newCheck() {
   return true;
@@ -34,8 +35,8 @@ function editCheck(user: DbUser | null, document: DbUser) {
 }
 
 export async function createUser({ data }: CreateUserInput, context: ResolverContext) {
-  const { currentUser } = context;
-
+  const documentId = randomId();
+  
   const callbackProps = await getLegacyCreateCallbackProps('Users', {
     context,
     data,
@@ -49,6 +50,7 @@ export async function createUser({ data }: CreateUserInput, context: ResolverCon
   data = await runSlugCreateBeforeCallback(callbackProps);
 
   data = await createInitialRevisionsForEditableFields({
+    documentId,
     doc: data,
     props: callbackProps,
   });

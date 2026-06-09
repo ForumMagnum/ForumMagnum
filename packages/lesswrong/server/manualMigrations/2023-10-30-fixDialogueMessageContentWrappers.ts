@@ -8,6 +8,8 @@ import { CreateDocumentPayload } from '../ckEditor/ckEditorApiValidators';
 import { cheerioWrapAll } from '../editor/conversionUtils';
 import { cheerioParse } from '../utils/htmlUtil';
 import { registerMigration } from './migrationUtils';
+import { createAnonymousContext } from '../vulcan-lib/createContexts';
+import { getStoredOriginalContentsForRevision } from '@/lib/collections/revisions/helpers';
 
 function wrapMessageContents(html: string) {
   const $ = cheerioParse(html);
@@ -38,8 +40,9 @@ function fixMessageContents(html: string) {
   return $.html();
 }
 
-function revisionHasContentWrapper(revision: DbRevision) {
-  const $ = cheerioParse(revision.originalContents?.data ?? '');
+async function revisionHasContentWrapper(revision: DbRevision, context: ResolverContext) {
+  const originalContents = await getStoredOriginalContentsForRevision(revision, context);
+  const $ = cheerioParse(originalContents?.data ?? '');
   return $('.dialogue-message-content').length > 0;
 }
 
@@ -76,12 +79,13 @@ async function migrateDialogue(dialogue: DbPost) {
   const ckEditorId = postIdToCkEditorDocumentId(postId);
 
   const revisions = await Revisions.find({ documentId: postId, fieldName: 'contents' }, { sort: { editedAt: -1 } }).fetch();
+  const context = createAnonymousContext();
 
   if (revisions.length === 0) return;
 
   if (revisions[0].editedAt! > new Date("2023-10-30 21:48:16.529+00")) {
     // Do something else
-    const originalHtml = revisions[0].originalContents?.data;
+    const originalHtml = (await getStoredOriginalContentsForRevision(revisions[0], context))?.data;
     const migratedHtml = fixMessageContents(originalHtml!);
 
     if (originalHtml !== migratedHtml) {
@@ -90,14 +94,20 @@ async function migrateDialogue(dialogue: DbPost) {
     return;
   }
 
-  const lastRevisionWithoutContentWrapper = revisions.find((revision) => !revisionHasContentWrapper(revision));
+  let lastRevisionWithoutContentWrapper: DbRevision | null = null;
+  for (const revision of revisions) {
+    if (!(await revisionHasContentWrapper(revision, context))) {
+      lastRevisionWithoutContentWrapper = revision;
+      break;
+    }
+  }
   if (!lastRevisionWithoutContentWrapper) {
     // eslint-disable-next-line no-console
     console.log('no lastRevisionWithoutContentWrapper', { postId });
     return;
   }
 
-  const originalHtml = lastRevisionWithoutContentWrapper.originalContents?.data;
+  const originalHtml = (await getStoredOriginalContentsForRevision(lastRevisionWithoutContentWrapper, context))?.data;
   const migratedHtml = wrapMessageContents(originalHtml!);
 
   if (originalHtml !== migratedHtml) {

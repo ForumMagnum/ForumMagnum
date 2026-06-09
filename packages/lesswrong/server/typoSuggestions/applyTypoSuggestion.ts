@@ -7,6 +7,7 @@ import { updateComment } from "@/server/collections/comments/mutations";
 import { updatePost } from "@/server/collections/posts/mutations";
 import { captureException } from "@/lib/sentryWrapper";
 import type { TypoAcceptMode, TypoSuggestionStatus, TypoSuggestionTargetCollection } from "@/lib/collections/typoSuggestions/constants";
+import { getStoredOriginalContentsForRevision } from "@/lib/collections/revisions/helpers";
 import { antiReactToTypoOnOwnContent } from "./antiReact";
 import { loadHtmlIntoHeadlessEditor } from "./headlessLexical";
 import { replaceTextInMainDoc } from "../../../../app/api/agent/replaceText/route";
@@ -117,7 +118,10 @@ async function runApply(
   }
 
   const latestRev = await getLatestRev(suggestion.documentId, suggestion.fieldName, context);
-  if (!latestRev || latestRev.originalContents?.type !== "lexical") {
+  const originalContents = latestRev
+    ? await getStoredOriginalContentsForRevision(latestRev, context)
+    : null;
+  if (!latestRev || originalContents?.type !== "lexical") {
     return {
       status: "failed",
       message: "This document is no longer using the Lexical editor; auto-apply isn't supported.",

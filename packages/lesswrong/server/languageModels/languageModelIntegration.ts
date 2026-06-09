@@ -4,6 +4,7 @@ import { dataToMarkdown } from '../editor/conversionUtils';
 import { openAIApiKey, openAIOrganizationId } from '../databaseSettings';
 import drop from 'lodash/drop';
 import take from 'lodash/take';
+import { getRevisionOriginalContentsByRevisionId } from "@/lib/collections/revisions/helpers";
 
 let openAIApi: OpenAI|null = null;
 export async function getOpenAI(): Promise<OpenAI|null> {
@@ -77,7 +78,7 @@ async function getLMConfigForTask(task: LanguageModelTask, context: ResolverCont
   const tag = await Tags.findOne({slug: wikiPageSlug});
   
   if (tag) {
-    return tagToLMConfig(tag, task);
+    return await tagToLMConfig(tag, task, context);
   } else {
     return {
       task,
@@ -91,10 +92,10 @@ async function getLMConfigForTask(task: LanguageModelTask, context: ResolverCont
   }
 }
 
-function tagToLMConfig(tag: DbTag, task: LanguageModelTask): LanguageModelConfig {
+async function tagToLMConfig(tag: DbTag, task: LanguageModelTask, context: ResolverContext): Promise<LanguageModelConfig> {
   if (!tag) throw new Error("Tag not found");
   
-  const template = wikiPageToTemplate(tag);
+  const template = await wikiPageToTemplate(tag, context);
   const {header, body} = template;
   return {
     api: (header["api"] ?? "disabled") as LanguageModelAPI,
@@ -107,16 +108,18 @@ export async function wikiSlugToTemplate(slug: string, context: ResolverContext)
   const { Tags } = context;
   const wikiConfig = await Tags.findOne({slug});
   if (!wikiConfig) throw new Error(`No LM config page ${slug}`);
-  return wikiPageToTemplate(wikiConfig);
+  return await wikiPageToTemplate(wikiConfig, context);
 }
 
-export function wikiPageToTemplate(wikiPage: DbTag): LanguageModelTemplate {
+export async function wikiPageToTemplate(wikiPage: DbTag, context: ResolverContext): Promise<LanguageModelTemplate> {
   let header: Record<string,string> = {};
   let body = "";
 
-  if (!wikiPage.description?.originalContents?.type) throw new Error("Missing description type")
+  if (!wikiPage.description_latest) throw new Error("Missing description");
+  const descriptionOriginalContents = await getRevisionOriginalContentsByRevisionId(wikiPage.description_latest, context);
+  if (!descriptionOriginalContents?.type) throw new Error("Missing description type")
   
-  const descriptionMarkdown = dataToMarkdown(wikiPage.description?.originalContents?.data, wikiPage.description.originalContents.type);
+  const descriptionMarkdown = dataToMarkdown(descriptionOriginalContents.data, descriptionOriginalContents.type);
   const lines = descriptionMarkdown
     .trim()
     .split('\n')
