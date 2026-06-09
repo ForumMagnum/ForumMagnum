@@ -16,6 +16,8 @@ export interface ConversationHubConfig {
   postPersister: PostPersister;
   /** Override clock for tests. */
   now?: () => number;
+  /** Override Claude Code process spawning for tests. */
+  startRunner?: typeof startClaudeRunner;
 }
 
 interface ConversationEntry {
@@ -51,6 +53,7 @@ export interface DispatchInput {
 
 export function createConversationHub(config: ConversationHubConfig) {
   const now = config.now ?? (() => Date.now());
+  const startRunner = config.startRunner ?? startClaudeRunner;
   const conversations = new Map<string, ConversationEntry>();
 
   function getOrInit(conversationId: string): ConversationEntry {
@@ -78,12 +81,20 @@ export function createConversationHub(config: ConversationHubConfig) {
       });
     }
 
-    // The `result` line is the turn's terminal signal — emitted once when the
-    // turn is done, independent of whether the process then exits (a backgrounded
-    // child can keep it alive). Completion is tracked here, not at process exit.
+    // The `result` line is the normal terminal signal; `error` is the terminal
+    // failure signal. Track both independently of process exit, since a
+    // backgrounded child can keep the runner alive after the turn is over.
     // Guarded so a superseded runner's late output can't complete a newer turn.
-    if (line.kind === "result" && entry.activeTurnId === turnId && entry.state.status === "running") {
-      entry.state = { ...entry.state, status: "completed", endedAt: now() };
+    if (
+      (line.kind === "result" || line.kind === "error") &&
+      entry.activeTurnId === turnId &&
+      entry.state.status === "running"
+    ) {
+      entry.state = {
+        ...entry.state,
+        status: line.kind === "result" ? "completed" : "errored",
+        endedAt: now(),
+      };
     }
 
     if (line.sessionId && !entry.claudeSessionId) {
@@ -148,7 +159,7 @@ export function createConversationHub(config: ConversationHubConfig) {
       supervisorEmittedAt: new Date(now()).toISOString(),
     });
 
-    const runner = startClaudeRunner({
+    const runner = startRunner({
       conversationId: input.conversationId,
       prompt: input.prompt,
       claudeSessionId: input.claudeSessionId,
