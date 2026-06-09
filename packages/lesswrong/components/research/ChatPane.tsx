@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMutation, useApolloClient } from '@apollo/client/react';
 import { isSandboxWarmingError } from './sandboxWarming';
@@ -21,6 +21,18 @@ import {
 import { isVisibleConversationEvent } from './conversationEventFormat';
 import { ConversationEventRow } from './ConversationEventRow';
 import { ConversationActions } from './ConversationActions';
+
+const CHAT_PANE_BOTTOM_THRESHOLD_PX = 64;
+
+function isScrolledNearBottom(el: HTMLElement): boolean {
+  return el.scrollHeight - el.scrollTop - el.clientHeight <= CHAT_PANE_BOTTOM_THRESHOLD_PX;
+}
+
+// Only user/assistant turns count toward the unread pill; tool calls and
+// thinking blocks would inflate the count well past what reads as "messages".
+function countMessageEvents(events: ConversationEvent[]): number {
+  return events.filter((event) => event.kind === 'user' || event.kind === 'assistant').length;
+}
 
 interface ChatPaneProps {
   projectId: string;
@@ -99,6 +111,32 @@ const styles = defineStyles('ChatPane', (theme: ThemeType) => ({
     flexDirection: 'column',
     gap: 12,
   },
+  eventsWrapper: {
+    flex: 1,
+    minHeight: 0,
+    position: 'relative',
+    display: 'flex',
+  },
+  newMessagesButton: {
+    position: 'absolute',
+    left: '50%',
+    bottom: 12,
+    transform: 'translateX(-50%)',
+    border: 'none',
+    borderRadius: 999,
+    padding: '6px 12px',
+    background: theme.palette.primary.main,
+    color: theme.palette.text.alwaysWhite,
+    boxShadow: `0 2px 8px ${theme.palette.boxShadowColor(0.25)}`,
+    cursor: 'pointer',
+    fontSize: 12,
+    fontWeight: 600,
+    fontFamily: 'inherit',
+    zIndex: 1,
+    '&:hover': {
+      background: theme.palette.primary.dark,
+    },
+  },
   pendingPrompt: {
     fontSize: 13,
     lineHeight: 1.5,
@@ -138,6 +176,9 @@ const ChatPane = ({
   // runs — the pane can't switch to the conversation until the row exists.
   const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
   const eventsRef = useRef<HTMLDivElement | null>(null);
+  const isPinnedToBottomRef = useRef(true);
+  const previousConversationIdRef = useRef<string | null>(null);
+  const [lastSeenMessageCount, setLastSeenMessageCount] = useState(0);
 
   const { events: rawEvents, status, error, refresh, injectOptimisticEvent, clearOptimistic, markTurnExpected } = useConversationStream(conversationId);
   const [expectFirstTurnFor, setExpectFirstTurnFor] = useState<string | null>(null);
@@ -153,17 +194,43 @@ const ChatPane = ({
     () => rawEvents.filter(isVisibleConversationEvent),
     [rawEvents],
   );
+  const messageCount = useMemo(() => countMessageEvents(events), [events]);
+  const newMessageCount = Math.max(0, messageCount - lastSeenMessageCount);
   const [fireConversation] = useMutation(FireChatConversationMutation, {
     refetchQueries: [ProjectSidebarQuery],
   });
   const [continueConversation] = useMutation(ContinueResearchConversationMutation);
   const [cancelConversation] = useMutation(CancelResearchConversationMutation);
 
-  // Auto-scroll to bottom when new events arrive.
-  useEffect(() => {
+  const scrollEventsToBottom = useCallback(() => {
+    // Update the bookkeeping even when the scroll container isn't mounted
+    // (conversation still loading), so the pane starts pinned once it appears.
+    isPinnedToBottomRef.current = true;
+    setLastSeenMessageCount(messageCount);
     const el = eventsRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [events.length]);
+  }, [messageCount]);
+
+  const handleEventsScroll = useCallback(() => {
+    const el = eventsRef.current;
+    if (!el) return;
+    isPinnedToBottomRef.current = isScrolledNearBottom(el);
+    if (isPinnedToBottomRef.current) {
+      setLastSeenMessageCount(messageCount);
+    }
+  }, [messageCount]);
+
+  // Keep the transcript pinned to the bottom as events stream in, unless the
+  // user has scrolled up to read history — then leave them be and let the
+  // unread pill take over. Layout effect so the jump (and the pill state
+  // reset on conversation switch) happens before paint.
+  useLayoutEffect(() => {
+    const conversationChanged = previousConversationIdRef.current !== conversationId;
+    previousConversationIdRef.current = conversationId;
+    if (conversationChanged || isPinnedToBottomRef.current) {
+      scrollEventsToBottom();
+    }
+  }, [conversationId, events.length, scrollEventsToBottom]);
 
   const handleSend = useCallback(async (promptHtml: string) => {
     if (sending || !activeDocumentId) return;
@@ -264,10 +331,21 @@ const ChatPane = ({
       {status === 'loading' && events.length === 0 ? (
         <div className={classes.events}><Loading /></div>
       ) : (
-        <div className={classes.events} ref={eventsRef}>
-          {events.map((event) => (
-            <ConversationEventRow key={event._id ?? `${event.conversationId}:${event.seq}`} event={event} surface="chat" />
-          ))}
+        <div className={classes.eventsWrapper}>
+          <div className={classes.events} ref={eventsRef} onScroll={handleEventsScroll}>
+            {events.map((event) => (
+              <ConversationEventRow key={event._id ?? `${event.conversationId}:${event.seq}`} event={event} surface="chat" />
+            ))}
+          </div>
+          {newMessageCount > 0 ? (
+            <button
+              type="button"
+              className={classes.newMessagesButton}
+              onClick={scrollEventsToBottom}
+            >
+              {newMessageCount} new message{newMessageCount === 1 ? '' : 's'}
+            </button>
+          ) : null}
         </div>
       )}
       <ResearchNavigationProvider value={navigationContext}>
