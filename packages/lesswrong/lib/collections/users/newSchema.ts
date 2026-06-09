@@ -37,7 +37,7 @@ import { bothChannelsEnabledNotificationTypeSettings, dailyEmailBatchNotificatio
 import { getWithLoader, getWithCustomLoader, loadByIds } from "@/lib/loaders";
 import { VOTING_DISABLED } from "../moderatorActions/constants";
 import { isActionActive } from "../moderatorActions/helpers";
-import { getReviewGroupFromActions } from "./reviewGroups";
+import { getReviewGroupFromActions, isOffboardCandidate, OFFBOARD_PANGRAM_THRESHOLD, type OffboardStats } from "./reviewGroups";
 import { validateFrontpageFilterSettings } from "@/server/users/validateFrontpageFilterSettings";
 
 const getCoauthoredPostCount = async (user: DbUser) => {
@@ -65,6 +65,14 @@ const getModeratorActionsForUser = (context: ResolverContext, userId: string) =>
     {},
     "userId",
     userId,
+  );
+};
+
+// Batched per-request lookup of the stats used to decide whether a `newContent`
+// user should instead be surfaced in the supermod "offboard" review group.
+const getOffboardStats = (context: ResolverContext, userId: string): Promise<OffboardStats> => {
+  return getWithCustomLoader(context, "offboardStats", userId, (userIds) =>
+    context.repos.users.getOffboardStatsForUsers(userIds, OFFBOARD_PANGRAM_THRESHOLD)
   );
 };
 
@@ -3977,7 +3985,18 @@ const schema = {
           active: isActionActive(action),
           createdAt: action.createdAt,
         }));
-        return getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
+        const baseGroup = getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
+
+        // Users who would otherwise be in `newContent` get pulled into the
+        // `offboard` group if their content matches the offboarding criteria.
+        if (baseGroup === 'newContent') {
+          const offboardStats = await getOffboardStats(context, doc._id);
+          if (isOffboardCandidate(offboardStats)) {
+            return 'offboard';
+          }
+        }
+
+        return baseGroup;
       },
     },
   },

@@ -389,6 +389,7 @@ export const defaultComponentPalette = (dark: boolean, isAF: boolean) => ({
     sunshineNewTags: "rgba(80,80,0,.08)",
     sunshineWarningHighlight: "rgba(255,50,0,.2)",
     sunshineNewContentGroup: "light-dark(linear-gradient(135deg, rgba(0,80,0,.20) 0%, rgba(0,80,0,0) 100%),linear-gradient(135deg, rgba(0,80,0,.50) 0%, rgba(0,80,0,0) 100%))",
+    sunshineOffboardGroup: "light-dark(linear-gradient(135deg, rgba(160,0,0,.20) 0%, rgba(160,0,0,0) 100%),linear-gradient(135deg, rgba(160,0,0,.50) 0%, rgba(160,0,0,0) 100%))",
     sunshineHighContextGroup: "light-dark(linear-gradient(135deg, rgba(120,120,0,.20) 0%, rgba(120,120,0,0) 100%),linear-gradient(135deg, rgba(120,120,0,.50) 0%, rgba(36, 36, 9, 0) 100%))",
     sunshineMaybeSpamGroup: "light-dark(linear-gradient(135deg, rgba(120,0,120,.20) 0%, rgba(120,0,120,0) 100%),linear-gradient(135deg, rgba(120,0,120,.50) 0%, rgba(120,0,120,0) 100%))",
     sunshineAutomodGroup: "light-dark(linear-gradient(135deg, rgba(120,120,0,.20) 0%, rgba(120,120,0,0) 100%),linear-gradient(135deg, rgba(120,120,0,.50) 0%, rgba(120,120,0,0) 100%))",

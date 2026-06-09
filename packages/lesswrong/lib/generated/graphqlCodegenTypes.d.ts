@@ -8954,6 +8954,7 @@ type ReviewGroup =
   | 'highContext'
   | 'maybeSpam'
   | 'newContent'
+  | 'offboard'
   | 'snoozeExpired'
   | 'unknown';
 

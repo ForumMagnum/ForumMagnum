@@ -8,13 +8,50 @@ import maxBy from "lodash/maxBy";
  * highest-priority fresh review-trigger group.
  */
 export const REVIEW_GROUP_TO_PRIORITY = {
-  newContent: 6,
+  newContent: 7,
+  offboard: 6,
   highContext: 5,
   maybeSpam: 4,
   automod: 3,
   snoozeExpired: 2,
   unknown: 1,
 } as const satisfies Record<ReviewGroup, number>;
+
+/**
+ * Pangram AI-detection score above which a rejected post/comment counts as an
+ * "autoreject" strong enough to flag the user for offboarding (criterion 1).
+ */
+export const OFFBOARD_PANGRAM_THRESHOLD = 0.8;
+
+/**
+ * Per-user stats (computed server-side from the user's posts & comments) used to
+ * decide whether a user who would otherwise be in `newContent` should instead be
+ * surfaced in the `offboard` review group.
+ */
+export interface OffboardStats {
+  /** Number of the user's rejected (non-deleted) comments. */
+  rejectedCommentCount: number;
+  /** Number of the user's non-rejected current posts + comments. */
+  liveContentCount: number;
+  /** Number of the user's current (non-draft/non-deleted) posts + comments. */
+  totalContentCount: number;
+  /** Whether any rejected post/comment has a Pangram score above the threshold. */
+  hasHighPangramAutoreject: boolean;
+}
+
+/**
+ * A `newContent` user is moved to the `offboard` group if any of:
+ *   1) they have a rejected post/comment with a high Pangram autoreject score
+ *   2) they have at least two rejected comments
+ *   3) all of their current posts/comments have already been rejected
+ */
+export function isOffboardCandidate(stats: OffboardStats): boolean {
+  return (
+    stats.hasHighPangramAutoreject ||
+    stats.rejectedCommentCount >= 2 ||
+    (stats.totalContentCount > 0 && stats.liveContentCount === 0)
+  );
+}
 
 /**
  * Ensures that we don't forget to add new review-trigger moderator action types
