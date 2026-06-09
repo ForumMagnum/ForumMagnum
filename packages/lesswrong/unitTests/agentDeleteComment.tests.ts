@@ -1,4 +1,4 @@
-import { Array as YArray, Map as YMap } from "yjs";
+import { Array as YArray, Doc, Map as YMap } from "yjs";
 import { createCollabComment } from "../../../app/api/agent/commentOnDraft/route";
 import { deleteCommentFromCommentsArray } from "../../../app/api/agent/deleteComment/route";
 
@@ -36,7 +36,8 @@ function createTestThread(threadId: string, commentIds: string[]): YMap<unknown>
 
 describe("deleteCommentFromCommentsArray", () => {
   it("deletes an entire thread when commentId is omitted", () => {
-    const commentsArray = new YArray<unknown>();
+    const doc = new Doc();
+    const commentsArray = doc.get("comments", YArray<unknown>);
     commentsArray.insert(0, [
       createTestThread("thread-a", ["comment-a"]),
       createTestThread("thread-b", ["comment-b"]),
@@ -54,7 +55,8 @@ describe("deleteCommentFromCommentsArray", () => {
   });
 
   it("removes the thread when deleting its last comment", () => {
-    const commentsArray = new YArray<unknown>();
+    const doc = new Doc();
+    const commentsArray = doc.get("comments", YArray<unknown>);
     commentsArray.insert(0, [createTestThread("thread-a", ["comment-a"])]);
 
     const result = deleteCommentFromCommentsArray({
@@ -72,7 +74,8 @@ describe("deleteCommentFromCommentsArray", () => {
   });
 
   it("marks a single comment deleted when other thread comments remain", () => {
-    const commentsArray = new YArray<unknown>();
+    const doc = new Doc();
+    const commentsArray = doc.get("comments", YArray<unknown>);
     commentsArray.insert(0, [createTestThread("thread-a", ["comment-a", "comment-b"])]);
 
     const result = deleteCommentFromCommentsArray({
@@ -100,7 +103,8 @@ describe("deleteCommentFromCommentsArray", () => {
   });
 
   it("returns not deleted when the target is absent", () => {
-    const commentsArray = new YArray<unknown>();
+    const doc = new Doc();
+    const commentsArray = doc.get("comments", YArray<unknown>);
     commentsArray.insert(0, [createTestThread("thread-a", ["comment-a"])]);
 
     const result = deleteCommentFromCommentsArray({
