@@ -169,7 +169,7 @@ function createMcpServer(): McpServer {
       }
 
       const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName: args.agentName } });
-      const threadQuote = args.quote ?? "(No quote provided)";
+      const threadQuote = args.quote ?? "";
 
       const result = await insertDraftCommentThread({
         postId: args.postId,

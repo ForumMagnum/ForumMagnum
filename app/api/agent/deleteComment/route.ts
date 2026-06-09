@@ -210,7 +210,7 @@ export async function deleteDraftCommentOrThread({
   token: string
   threadId: string
   commentId?: string
-}): Promise<DeleteDraftCommentResult & { removedMarkCount: number }> {
+}): Promise<DeleteDraftCommentResult & { removedMarkCount: number, markRemovalError?: string }> {
   const wsUrl = process.env.HOCUSPOCUS_URL;
   if (!wsUrl) {
     throw new Error("HOCUSPOCUS_URL is not configured");
@@ -235,11 +235,18 @@ export async function deleteDraftCommentOrThread({
       await waitForProviderFlush(provider);
     }
 
-    const removedMarkCount = result.threadDeleted
-      ? await removeThreadMarkFromMainDoc({ postId, token, threadId })
-      : 0;
+    let removedMarkCount = 0;
+    let markRemovalError: string | undefined;
+    if (result.threadDeleted) {
+      try {
+        removedMarkCount = await removeThreadMarkFromMainDoc({ postId, token, threadId });
+      } catch (error) {
+        captureException(error);
+        markRemovalError = error instanceof Error ? error.message : "Unknown error";
+      }
+    }
 
-    return { ...result, removedMarkCount };
+    return { ...result, removedMarkCount, markRemovalError };
   } finally {
     provider.destroy();
     doc.destroy();
