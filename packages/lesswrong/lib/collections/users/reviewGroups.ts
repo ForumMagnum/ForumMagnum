@@ -1,11 +1,11 @@
 import { AUTO_BLOCKED_FROM_SENDING_DMS, FLAGGED_FOR_N_DMS, MANUAL_FLAG_ALERT, MANUAL_NEEDS_REVIEW, MANUAL_RATE_LIMIT_EXPIRED, POTENTIAL_TARGETED_DOWNVOTING, RECEIVED_VOTING_PATTERN_WARNING, reviewTriggerModeratorActions, SNOOZE_EXPIRED, STRICTER_COMMENT_AUTOMOD_RATE_LIMIT, STRICTER_POST_AUTOMOD_RATE_LIMIT, UNREVIEWED_BIO_UPDATE, UNREVIEWED_COMMENT, UNREVIEWED_FIRST_COMMENT, UNREVIEWED_FIRST_POST, UNREVIEWED_MAP_LOCATION_UPDATE, UNREVIEWED_POST, UNREVIEWED_PROFILE_IMAGE_UPDATE } from "@/lib/collections/moderatorActions/constants";
 import { maybeDate } from "@/lib/utils/dateUtils";
 import { UnionOf } from "@/lib/utils/typeGuardUtils";
+import maxBy from "lodash/maxBy";
 
 /**
  * Maps each supermod review group to its priority; a user is assigned to their
- * highest-priority fresh review-trigger group. Must stay in sync with the
- * `ReviewGroup` GraphQL enum in `@/server/collections/users/queries.ts`.
+ * highest-priority fresh review-trigger group.
  */
 export const REVIEW_GROUP_TO_PRIORITY = {
   newContent: 6,
@@ -15,14 +15,6 @@ export const REVIEW_GROUP_TO_PRIORITY = {
   snoozeExpired: 2,
   unknown: 1,
 } as const satisfies Record<ReviewGroup, number>;
-
-type ReviewGroupMap = typeof REVIEW_GROUP_TO_PRIORITY;
-
-const PRIORITY_TO_REVIEW_GROUP = Object.fromEntries(
-  Object.entries(REVIEW_GROUP_TO_PRIORITY).map(([group, priority]) => [priority, group])
-) as {
-  [key in ReviewGroup as ReviewGroupMap[key]]: key;
-};
 
 /**
  * Ensures that we don't forget to add new review-trigger moderator action types
@@ -86,11 +78,6 @@ export function getReviewGroupFromActions(
   lastRemovedFromReviewQueueAt: Date | string | null | undefined,
 ): ReviewGroup {
   const fresh = getFreshReviewTriggerActions(moderatorActions, lastRemovedFromReviewQueueAt);
-  if (fresh.length === 0) {
-    return 'unknown';
-  }
-
   const freshModeratorActionGroups = fresh.map(action => getModeratorActionGroup(action.type));
-  const highestPriority = Math.max(...freshModeratorActionGroups.map(group => REVIEW_GROUP_TO_PRIORITY[group])) as ReviewGroupMap[ReviewGroup];
-  return PRIORITY_TO_REVIEW_GROUP[highestPriority];
+  return maxBy(freshModeratorActionGroups, group => REVIEW_GROUP_TO_PRIORITY[group]) ?? 'unknown';
 }

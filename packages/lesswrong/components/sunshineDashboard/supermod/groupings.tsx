@@ -1,11 +1,10 @@
 import React from 'react';
 import { AUTO_BLOCKED_FROM_SENDING_DMS, FLAGGED_FOR_N_DMS, MANUAL_FLAG_ALERT, MANUAL_NEEDS_REVIEW, MANUAL_RATE_LIMIT_EXPIRED, POTENTIAL_TARGETED_DOWNVOTING, RECEIVED_VOTING_PATTERN_WARNING, reviewTriggerModeratorActions, SNOOZE_EXPIRED, STRICTER_COMMENT_AUTOMOD_RATE_LIMIT, STRICTER_POST_AUTOMOD_RATE_LIMIT, UNREVIEWED_BIO_UPDATE, UNREVIEWED_COMMENT, UNREVIEWED_FIRST_COMMENT, UNREVIEWED_FIRST_POST, UNREVIEWED_MAP_LOCATION_UPDATE, UNREVIEWED_POST, UNREVIEWED_PROFILE_IMAGE_UPDATE } from "@/lib/collections/moderatorActions/constants";
-import { maybeDate } from "@/lib/utils/dateUtils";
 import partition from 'lodash/partition';
 import ForumIcon, { ForumIconName } from '@/components/common/ForumIcon'
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
-import { REVIEW_GROUP_TO_PRIORITY, getModeratorActionGroup, typeAssertModeratorActionTypeIsNotReviewTrigger } from '@/lib/collections/users/reviewGroups';
+import { getFreshReviewTriggerActions, getModeratorActionGroup, typeAssertModeratorActionTypeIsNotReviewTrigger } from '@/lib/collections/users/reviewGroups';
 
 function getActiveModeratorActions(moderatorActions: ModeratorActionDisplay[]): ModeratorActionDisplay[] {
   return moderatorActions.filter(action => action.active).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) ?? [];
@@ -21,14 +20,8 @@ export function partitionModeratorActions(user: SunshineUsersList): PartitionedM
   const [triggerActions, nonTriggerActions] = partition(user.moderatorActions ?? [], action => reviewTriggerModeratorActions.has(action.type));
 
   const activeModeratorActions = getActiveModeratorActions(triggerActions);
-  const [fresh, stale] = partition(
-    activeModeratorActions,
-    action => {
-      const actionCreatedAtTs = new Date(action.createdAt).getTime();
-      const lastRemovedFromReviewQueueAtTs = maybeDate(user.lastRemovedFromReviewQueueAt)?.getTime() ?? 0;
-      return actionCreatedAtTs > lastRemovedFromReviewQueueAtTs;
-    }
-  );
+  const fresh = getFreshReviewTriggerActions(activeModeratorActions, user.lastRemovedFromReviewQueueAt);
+  const stale = activeModeratorActions.filter(action => !fresh.includes(action));
 
   return { fresh, stale, nonTriggerActions };
 }
@@ -41,20 +34,14 @@ export function getUserReviewGroup(user: SunshineUsersList): ReviewGroup {
 }
 
 export function getDisplayedReasonForGroupAssignment(user: SunshineUsersList): React.ReactNode {
+  const reviewGroup = getUserReviewGroup(user);
   const { fresh } = partitionModeratorActions(user);
-  if (fresh.length === 0) {
+  const actionForGroup = fresh.find(action => getModeratorActionGroup(action.type) === reviewGroup);
+  if (!actionForGroup) {
     return undefined;
   }
 
-  const highestPriorityAction = fresh
-    .sort((a, b) => REVIEW_GROUP_TO_PRIORITY[getModeratorActionGroup(b.type)] - REVIEW_GROUP_TO_PRIORITY[getModeratorActionGroup(a.type)])
-    .at(0);
-
-  if (!highestPriorityAction) {
-    return undefined;
-  }
-
-  return getPrimaryDisplayedModeratorAction(highestPriorityAction.type);
+  return getPrimaryDisplayedModeratorAction(actionForGroup.type);
 }
 
 export function getTabsInPriorityOrder(): ReviewGroup[] {
