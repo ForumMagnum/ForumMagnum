@@ -404,9 +404,14 @@ class UsersRepo extends AbstractRepo<"Users"> {
 
   /**
    * Of the requested users, return the ids of those who belong in the supermod
-   * "offboard" review group: their (non-draft post / non-deleted comment) content
-   * either (1) includes a rejected item with a high Pangram autoreject score,
-   * (2) includes at least two rejected comments, or (3) is entirely rejected.
+   * "offboard" review group, because they either:
+   *   (1) have a rejected post/comment with a high Pangram autoreject score, or
+   *   (2) have at least two rejected comments, or
+   *   (3) have all of their current content rejected.
+   * Criteria (2) and (3) consider "current" content (non-draft posts / non-deleted
+   * comments). Criterion (1) also counts posts that have since been re-drafted: a
+   * high-scoring autoreject still counts even if the user pulled the post back to
+   * drafts.
    */
   async getOffboardCandidateUserIds(userIds: string[]): Promise<string[]> {
     const rows = await this.getRawDb().any<{ userId: string }>(`
@@ -419,18 +424,31 @@ class UsersRepo extends AbstractRepo<"Users"> {
         SELECT c."_id", c."userId", c."rejected", TRUE
         FROM "Comments" c
         WHERE c."userId" = ANY($1::text[]) AND c."deleted" IS NOT TRUE
+      ),
+      highPangramRejections AS (
+        SELECT x."userId"
+        FROM (
+          SELECT p."_id" AS "documentId", p."userId"
+          FROM "Posts" p
+          WHERE p."userId" = ANY($1::text[]) AND p."rejected" IS TRUE AND p."deletedDraft" IS NOT TRUE
+          UNION ALL
+          SELECT c."_id", c."userId"
+          FROM "Comments" c
+          WHERE c."userId" = ANY($1::text[]) AND c."rejected" IS TRUE AND c."deleted" IS NOT TRUE
+        ) x
+        JOIN "Revisions" r ON r."documentId" = x."documentId" AND r."fieldName" = 'contents'
+        JOIN "AutomatedContentEvaluations" ace ON ace."revisionId" = r."_id"
+        WHERE ace."pangramScore" > 0.8
       )
+      -- (1) a rejected item (including re-drafted posts) with a high Pangram autoreject score
+      SELECT "userId" FROM highPangramRejections
+      UNION
+      -- (2) at least two rejected comments, or (3) all current content rejected
       SELECT c."userId"
       FROM content c
       GROUP BY c."userId"
       HAVING COUNT(*) FILTER (WHERE c."isComment" AND c."rejected" IS TRUE) >= 2
         OR COUNT(*) FILTER (WHERE c."rejected" IS NOT TRUE) = 0
-        OR EXISTS (
-          SELECT 1 FROM content c2
-          JOIN "Revisions" r ON r."documentId" = c2."documentId" AND r."fieldName" = 'contents'
-          JOIN "AutomatedContentEvaluations" ace ON ace."revisionId" = r."_id"
-          WHERE c2."userId" = c."userId" AND c2."rejected" IS TRUE AND ace."pangramScore" > 0.8
-        )
     `, [userIds]);
     return rows.map((row) => row.userId);
   }
