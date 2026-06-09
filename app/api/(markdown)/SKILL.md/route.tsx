@@ -200,6 +200,15 @@ To reply to an existing comment thread on the draft:
 The threadId comes from the Comment Threads section of the editPost response.
 This adds a reply to the specified thread, visible in the editor's comment panel.
 
+To delete a draft comment thread or clean up a mistaken comment you created:
+    POST /api/agent/deleteComment
+    with JSON body: { postId, key, agentName?, threadId, commentId? }
+If commentId is omitted, the whole thread is deleted. This is the right cleanup
+operation for an accidentally-created top-level/orphan thread. If commentId is
+provided, only that comment is deleted; if other replies remain in the thread,
+the comment is replaced by a deleted-comment placeholder so the conversation
+structure is preserved.
+
 To replace text inside the draft, make a POST request to:
     POST /api/agent/replaceText
     with JSON body: { postId, key, agentName?, quote, replacement, mode?: "edit"|"suggest" }

@@ -10,6 +10,7 @@ import { replaceTextInMainDoc } from "../agent/replaceText/route";
 import { insertMarkdownBlock } from "../agent/insertBlock/route";
 import { replaceWidgetInMainDoc } from "../agent/replaceWidget/route";
 import { deleteMarkdownBlock } from "../agent/deleteBlock/route";
+import { deleteDraftCommentOrThread } from "../agent/deleteComment/route";
 import { getLiveDraftMarkdown } from "../(markdown)/editorMarkdownUtils";
 import { getHocuspocusToken } from "../agent/getHocuspocusToken";
 import { deriveAgentAuthor } from "../agent/editorAgentUtil";
@@ -17,6 +18,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import {
   commentOnDraftToolSchema,
   deleteBlockToolSchema,
+  deleteCommentToolSchema,
   insertBlockToolSchema,
   replaceTextToolSchema,
   replaceWidgetToolSchema,
@@ -40,6 +42,7 @@ const REQUIRED_SCOPE = "lesswrong:access";
 const TOOL_REQUIRED_SCOPES: Record<string, string[]> = {
   read_post: [REQUIRED_SCOPE],
   comment_on_draft: [REQUIRED_SCOPE],
+  delete_comment: [REQUIRED_SCOPE],
   replace_text: [REQUIRED_SCOPE],
   replace_widget: [REQUIRED_SCOPE],
   delete_block: [REQUIRED_SCOPE],
@@ -177,6 +180,38 @@ function createMcpServer(): McpServer {
         authorId,
       });
 
+      return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
+    },
+  );
+
+  server.registerTool(
+    "delete_comment",
+    {
+      description: "Delete a draft comment thread, or mark a single comment deleted within a thread. Use this to clean up comments the agent created by mistake.",
+      inputSchema: deleteCommentToolSchema.shape,
+      annotations: {
+        openWorldHint: false,
+        destructiveHint: true,
+      },
+    },
+    async (args, extra) => {
+      assertToolScopes("delete_comment", extra.authInfo);
+      const context = await contextFromAuth(extra.authInfo);
+      const token = await getHocuspocusToken(context, args.postId, args.key);
+      if (!token) {
+        return toolError("Unauthorized to access this post's draft");
+      }
+
+      const result = await deleteDraftCommentOrThread({
+        postId: args.postId,
+        token,
+        threadId: args.threadId,
+        commentId: args.commentId,
+      });
+
+      if (!result.deleted) {
+        return toolError(JSON.stringify(result));
+      }
       return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
     },
   );
