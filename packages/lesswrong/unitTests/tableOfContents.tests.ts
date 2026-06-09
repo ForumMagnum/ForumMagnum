@@ -134,4 +134,69 @@ describe("extractTableOfContents", () => {
       ],
     });
   });
+
+  it("does not count headings inside multi-column table rows", () => {
+    const html = normalizeHtml(`
+      <h1>A</h1>
+      <table>
+        <tbody>
+          <tr>
+            <td><p><strong>1</strong></p></td>
+            <td><h2>Table heading</h2></td>
+          </tr>
+        </tbody>
+      </table>
+      <h1>B</h1>
+    `);
+    const { document, window } = parseDocumentFromString(html);
+    const tocData = extractTableOfContents({ document, window });
+    expect(tocData).toEqual({
+      html: normalizeHtml(`
+        <h1 id="A">A</h1>
+        <table>
+          <tbody>
+            <tr>
+              <td><p><strong>1</strong></p></td>
+              <td><h2>Table heading</h2></td>
+            </tr>
+          </tbody>
+        </table>
+        <h1 id="B">B</h1>
+      `),
+      sections: [
+        { title: "A", anchor: "A", level: 1 },
+        { title: "B", anchor: "B", level: 1 },
+        { anchor: "postHeadingsDivider", divider: true, level: 0 },
+      ],
+    });
+  });
+
+  it("still counts headings inside single-column layout tables", () => {
+    const html = normalizeHtml(`
+      <table>
+        <tbody>
+          <tr>
+            <td><p><strong>Layout Table Heading</strong></p></td>
+          </tr>
+        </tbody>
+      </table>
+    `);
+    const { document, window } = parseDocumentFromString(html);
+    const tocData = extractTableOfContents({ document, window });
+    expect(tocData).toEqual({
+      html: normalizeHtml(`
+        <table>
+          <tbody>
+            <tr>
+              <td><p><strong id="Layout_Table_Heading">Layout Table Heading</strong></p></td>
+            </tr>
+          </tbody>
+        </table>
+      `),
+      sections: [
+        { title: "Layout Table Heading", anchor: "Layout_Table_Heading", level: 1 },
+        { anchor: "postHeadingsDivider", divider: true, level: 0 },
+      ],
+    });
+  });
 });

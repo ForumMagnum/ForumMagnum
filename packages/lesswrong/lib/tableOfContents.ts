@@ -119,6 +119,9 @@ export function extractTableOfContents({
     if (element.closest('.spoilers, .spoiler, pre')) {
       continue;
     }
+    if (elementIsInMultiColumnTableRow({ element, window })) {
+      continue;
+    }
     let tagName = element.tagName.toLowerCase();
     if (tagIsHeadingIfWholeParagraph(tagName) && !tagIsWholeParagraph({ element, window })) {
       continue;
@@ -205,6 +208,48 @@ function elementToToCTitle(element: HTMLElement): string {
   } else {
     return element.textContent ?? "";
   }
+}
+
+function elementIsInMultiColumnTableRow({
+  element,
+  window,
+}: {
+  element: HTMLElement;
+  window: WindowType;
+}): boolean {
+  let currentElement: HTMLElement | null = element;
+  while (currentElement) {
+    if (
+      currentElement.tagName.toLowerCase() === "tr" &&
+      getTableRowColumnCount({ row: currentElement, window }) > 1
+    ) {
+      return true;
+    }
+    currentElement = currentElement.parentElement;
+  }
+  return false;
+}
+
+function getTableRowColumnCount({
+  row,
+  window,
+}: {
+  row: HTMLElement;
+  window: WindowType;
+}): number {
+  let columnCount = 0;
+  for (const child of Array.from(row.children)) {
+    if (!(child instanceof window.HTMLElement)) {
+      continue;
+    }
+    const tagName = child.tagName.toLowerCase();
+    if (tagName !== "td" && tagName !== "th") {
+      continue;
+    }
+    const parsedColSpan = Number.parseInt(child.getAttribute("colspan") ?? "1", 10);
+    columnCount += Number.isFinite(parsedColSpan) && parsedColSpan > 0 ? parsedColSpan : 1;
+  }
+  return columnCount;
 }
 
 type CommentType = CommentsList | DbComment
