@@ -5,7 +5,8 @@ import {
   $getRoot,
 } from "lexical";
 import { $isMarkNode } from "@lexical/mark";
-import { $attachMarkToQuote, type QuoteMarkResult } from "../../../app/api/agent/commentOnDraft/route";
+import { $attachMarkToQuote, getRequiredQuoteMatchFailure, type QuoteMarkResult } from "../../../app/api/agent/commentOnDraft/route";
+import { commentOnDraftToolSchema } from "../../../app/api/agent/toolSchemas";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithHtml } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
@@ -302,6 +303,84 @@ describe("commentOnDraft quote matching", () => {
     expect(quoteFoundInDocument).toBe(true);
     expect(markCreated).toBe(true);
     expect(getAllMarkIds(editor)).toContain(markId);
+  });
+});
+
+describe("commentOnDraft requireQuoteMatch", () => {
+  it("defaults requireQuoteMatch to false for backwards compatibility", () => {
+    const parsed = commentOnDraftToolSchema.parse({
+      postId: "post-id",
+      comment: "This is a comment.",
+    });
+
+    expect(parsed.requireQuoteMatch).toBe(false);
+  });
+
+  it("allows the existing top-level fallback when requireQuoteMatch is false", () => {
+    const failure = getRequiredQuoteMatchFailure({
+      requireQuoteMatch: false,
+      hasQuote: true,
+      quoteFoundInDocument: false,
+      createdMarkId: null,
+    });
+
+    expect(failure).toBeNull();
+  });
+
+  it("skips comment creation when a required quote is missing", () => {
+    const failure = getRequiredQuoteMatchFailure({
+      requireQuoteMatch: true,
+      hasQuote: false,
+      quoteFoundInDocument: false,
+      createdMarkId: null,
+    });
+
+    expect(failure).toEqual({
+      commentCreated: false,
+      anchorStatus: "required_quote_missing",
+      anchorNote: "requireQuoteMatch was true but no quote was provided; no comment thread was created.",
+    });
+  });
+
+  it("skips comment creation when a required quote is not found", () => {
+    const failure = getRequiredQuoteMatchFailure({
+      requireQuoteMatch: true,
+      hasQuote: true,
+      quoteFoundInDocument: false,
+      createdMarkId: null,
+    });
+
+    expect(failure).toEqual({
+      commentCreated: false,
+      anchorStatus: "required_quote_not_found",
+      anchorNote: "Quote text was not found in the document; no comment thread was created.",
+    });
+  });
+
+  it("skips comment creation when a required quote is found but not anchorable", () => {
+    const failure = getRequiredQuoteMatchFailure({
+      requireQuoteMatch: true,
+      hasQuote: true,
+      quoteFoundInDocument: true,
+      createdMarkId: null,
+    });
+
+    expect(failure).toEqual({
+      commentCreated: false,
+      anchorStatus: "required_quote_not_anchorable",
+      anchorNote: "Quote text was found in the document, but could not create a simple text-node anchor; no comment thread was created.",
+    });
+  });
+
+  it("continues comment creation when a required quote is anchored", () => {
+    const failure = getRequiredQuoteMatchFailure({
+      requireQuoteMatch: true,
+      hasQuote: true,
+      quoteFoundInDocument: true,
+      createdMarkId: "thread-id",
+    });
+
+    expect(failure).toBeNull();
   });
 });
 

@@ -66,6 +66,63 @@ export interface QuoteMarkResult {
   markCreated: boolean
 }
 
+type CreatedCommentAnchorStatus = "attached_by_quote_match" | "top_level_no_match" | "top_level_no_quote";
+type RequiredQuoteMatchFailureStatus = "required_quote_missing" | "required_quote_not_found" | "required_quote_not_anchorable";
+
+interface CreatedDraftCommentThreadResult {
+  commentCreated: true
+  threadId: string
+  commentId: string
+  anchorStatus: CreatedCommentAnchorStatus
+  anchorNote: string
+}
+
+interface SkippedDraftCommentThreadResult {
+  commentCreated: false
+  anchorStatus: RequiredQuoteMatchFailureStatus
+  anchorNote: string
+}
+
+type DraftCommentThreadResult = CreatedDraftCommentThreadResult | SkippedDraftCommentThreadResult;
+
+export function getRequiredQuoteMatchFailure({
+  requireQuoteMatch,
+  hasQuote,
+  quoteFoundInDocument,
+  createdMarkId,
+}: {
+  requireQuoteMatch: boolean
+  hasQuote: boolean
+  quoteFoundInDocument: boolean
+  createdMarkId: string | null
+}): SkippedDraftCommentThreadResult | null {
+  if (!requireQuoteMatch || createdMarkId) {
+    return null;
+  }
+
+  if (!hasQuote) {
+    return {
+      commentCreated: false,
+      anchorStatus: "required_quote_missing",
+      anchorNote: "requireQuoteMatch was true but no quote was provided; no comment thread was created.",
+    };
+  }
+
+  if (quoteFoundInDocument) {
+    return {
+      commentCreated: false,
+      anchorStatus: "required_quote_not_anchorable",
+      anchorNote: "Quote text was found in the document, but could not create a simple text-node anchor; no comment thread was created.",
+    };
+  }
+
+  return {
+    commentCreated: false,
+    anchorStatus: "required_quote_not_found",
+    anchorNote: "Quote text was not found in the document; no comment thread was created.",
+  };
+}
+
 /**
  * Locate a markdown quote in the current editor state and wrap the matched
  * range in a MarkNode. Must be called inside a Lexical update context.
@@ -133,6 +190,7 @@ export async function insertDraftCommentThread({
   quote,
   author,
   authorId,
+  requireQuoteMatch,
 }: {
   postId: string
   token: string
@@ -140,12 +198,53 @@ export async function insertDraftCommentThread({
   quote: string
   author: string
   authorId: string
-}): Promise<{
-  threadId: string
-  commentId: string
-  anchorStatus: "attached_by_quote_match" | "top_level_no_match" | "top_level_no_quote"
-  anchorNote: string
-}> {
+  requireQuoteMatch: boolean
+}): Promise<DraftCommentThreadResult> {
+  const hasQuote = !!normalizeText(quote);
+  const commentId = randomId();
+  const threadId = randomId();
+
+  let anchorStatus: CreatedCommentAnchorStatus;
+  let anchorNote: string;
+
+  if (!hasQuote) {
+    const requireQuoteFailure = getRequiredQuoteMatchFailure({
+      requireQuoteMatch,
+      hasQuote,
+      quoteFoundInDocument: false,
+      createdMarkId: null,
+    });
+    if (requireQuoteFailure) return requireQuoteFailure;
+
+    anchorStatus = "top_level_no_quote";
+    anchorNote = "No quote provided; created top-level comment thread.";
+  } else {
+    const { quoteFoundInDocument, createdMarkId } = await getMainDocQuoteMatchResult({
+      postId,
+      token,
+      quote,
+      markId: threadId,
+    });
+
+    const requireQuoteFailure = getRequiredQuoteMatchFailure({
+      requireQuoteMatch,
+      hasQuote,
+      quoteFoundInDocument,
+      createdMarkId,
+    });
+    if (requireQuoteFailure) return requireQuoteFailure;
+
+    if (createdMarkId) {
+      anchorStatus = "attached_by_quote_match";
+      anchorNote = "Inserted a new text-range mark around quote text and attached the thread.";
+    } else {
+      anchorStatus = "top_level_no_match";
+      anchorNote = quoteFoundInDocument
+        ? "Quote text found in the document, but could not create a simple text-node anchor; created top-level comment thread."
+        : "Quote text was not found in the document; created top-level comment thread.";
+    }
+  }
+
   const documentName = `post-${postId}/comments`;
   const wsUrl = process.env.HOCUSPOCUS_URL;
   if (!wsUrl) {
@@ -165,35 +264,7 @@ export async function insertDraftCommentThread({
     await provider.connect();
     await waitForProviderSync(provider);
 
-    const commentId = randomId();
-    const threadId = randomId();
     const comments = doc.get("comments", YArray<unknown>);
-    const hasQuote = !!normalizeText(quote);
-
-    let anchorStatus: "attached_by_quote_match" | "top_level_no_match" | "top_level_no_quote";
-    let anchorNote: string;
-
-    if (!hasQuote) {
-      anchorStatus = "top_level_no_quote";
-      anchorNote = "No quote provided; created top-level comment thread.";
-    } else {
-      const { quoteFoundInDocument, createdMarkId } = await getMainDocQuoteMatchResult({
-        postId,
-        token,
-        quote,
-        markId: threadId,
-      });
-
-      if (createdMarkId) {
-        anchorStatus = "attached_by_quote_match";
-        anchorNote = "Inserted a new text-range mark around quote text and attached the thread.";
-      } else {
-        anchorStatus = "top_level_no_match";
-        anchorNote = quoteFoundInDocument
-          ? "Quote text found in the document, but could not create a simple text-node anchor; created top-level comment thread."
-          : "Quote text was not found in the document; created top-level comment thread.";
-      }
-    }
 
     const commentMap = createCollabComment({ content: comment, author, authorId, id: commentId });
     const threadMap = createCollabThread({ quote, firstComment: commentMap, threadId });
@@ -203,7 +274,7 @@ export async function insertDraftCommentThread({
     }, "agent-comment-on-draft");
 
     await waitForProviderFlush(provider);
-    return { threadId, commentId, anchorStatus, anchorNote };
+    return { commentCreated: true, threadId, commentId, anchorStatus, anchorNote };
   } finally {
     provider.destroy();
     doc.destroy();
@@ -222,7 +293,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
 
-  const { postId, key, agentName, quote, comment } = parseResult.data;
+  const { postId, key, agentName, quote, comment, requireQuoteMatch } = parseResult.data;
 
   try {
     const auth = await authorizeAgentDraftAccess({ route: "commentOnDraft", postId, context, linkSharingKey: key, agentName });
@@ -231,23 +302,44 @@ export async function POST(req: NextRequest) {
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
     const threadQuote = quote ?? "";
 
-    const { threadId, commentId, anchorStatus, anchorNote } = await insertDraftCommentThread({
+    const result = await insertDraftCommentThread({
       postId,
       token,
       comment,
       quote: threadQuote,
       author: authorName,
       authorId,
+      requireQuoteMatch,
     });
 
-    captureAgentApiEvent({ route: "commentOnDraft", postId, userId: context.currentUser?._id, agentName, status: "success", operationResult: anchorStatus, threadId });
+    captureAgentApiEvent({
+      route: "commentOnDraft",
+      postId,
+      userId: context.currentUser?._id,
+      agentName,
+      status: "success",
+      operationResult: result.anchorStatus,
+      threadId: result.commentCreated ? result.threadId : undefined,
+    });
+    if (!result.commentCreated) {
+      return NextResponse.json({
+        ok: true,
+        postId,
+        commentCreated: false,
+        anchorStatus: result.anchorStatus,
+        anchorNote: result.anchorNote,
+        mode: "lexical-collaboration-comment-thread",
+      });
+    }
+
     return NextResponse.json({
       ok: true,
       postId,
-      threadId,
-      commentId,
-      anchorStatus,
-      anchorNote,
+      commentCreated: true,
+      threadId: result.threadId,
+      commentId: result.commentId,
+      anchorStatus: result.anchorStatus,
+      anchorNote: result.anchorNote,
       mode: "lexical-collaboration-comment-thread",
     });
   } catch (error) {

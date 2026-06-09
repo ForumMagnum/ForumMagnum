@@ -163,17 +163,26 @@ and the conversation. You can use the thread ID to reply to existing threads.
 
 To add Google Docs-style comments to the draft, make a request to:
     POST /api/agent/commentOnDraft
-    with JSON body: { postId, key, agentName?, quote?, comment }
+    with JSON body: { postId, key, agentName?, quote?, comment, requireQuoteMatch? }
 If a quote is provided, the comment will be attached to matching quoted text.
 The quote should be long enough to be unambiguous. If no quote is provided, the
 comment will be top-level.
+
+By default, if the quote is missing or cannot be anchored, the endpoint creates
+a top-level comment thread and returns an \`anchorStatus\` explaining what
+happened. If you are probing anchors and do not want orphan top-level comments,
+set \`requireQuoteMatch: true\`. In that mode, quote misses return
+\`commentCreated: false\` with \`anchorStatus\` \`required_quote_missing\`,
+\`required_quote_not_found\`, or \`required_quote_not_anchorable\`; no thread is
+created.
 
 The comment body is markdown. The quote, however, should be the visible rendered
 text as a reader would see it — not the markdown source of the surrounding paragraph.
 A few things to watch out for:
  * If the text you want to anchor to contains a link, quote the visible link text,
    not the URL. URLs inside link targets are not part of the anchorable body text
-   and will never match.
+   and will never match. A quote may span into or out of a link, but the link
+   contributes only its visible text.
  * If the text you want to anchor to contains a mathematical equation, quote the
    equation's LaTeX token verbatim, exactly as the markdown API returned it —
    inline math as \`$...$\`, display math as \`$$...$$\` (occasionally \`\\(...\\)\`
