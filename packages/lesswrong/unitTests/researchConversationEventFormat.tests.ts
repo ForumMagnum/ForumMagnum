@@ -13,28 +13,70 @@ describe("research conversation event formatting", () => {
   });
 
   describe("isTurnInFlight", () => {
+    const now = Date.parse("2026-06-09T12:00:00Z");
+    const recent = new Date(now - 10_000).toISOString();
+    const stale = new Date(now - (60 * 60 * 1000)).toISOString();
+
+    const user = { kind: "user", payload: {}, createdAt: recent };
+    const assistant = { kind: "assistant", payload: {} };
+    const result = { kind: "result", payload: {} };
+    const flushResult = { kind: "result", payload: { type: "result", subtype: "interrupted" } };
+    const errorEvent = { kind: "error", payload: {} };
+    const init = { kind: "system", payload: { type: "system", subtype: "init" } };
+    const taskNotification = { kind: "system", payload: { type: "system", subtype: "task_notification" } };
+
     it("is false for an empty transcript", () => {
-      expect(isTurnInFlight([])).toBe(false);
+      expect(isTurnInFlight([], now)).toBe(false);
     });
 
     it("is true for a user turn with no result yet", () => {
-      expect(isTurnInFlight([{ kind: "user" }, { kind: "assistant" }])).toBe(true);
+      expect(isTurnInFlight([user, assistant], now)).toBe(true);
     });
 
-    it("is false once every user turn has a matching result", () => {
-      expect(isTurnInFlight([{ kind: "user" }, { kind: "assistant" }, { kind: "result" }])).toBe(false);
+    it("is false once the turn has its result", () => {
+      expect(isTurnInFlight([user, init, assistant, result], now)).toBe(false);
     });
 
     it("is true again when a later turn opens", () => {
-      expect(isTurnInFlight([
-        { kind: "user" },
-        { kind: "result" },
-        { kind: "user" },
-      ])).toBe(true);
+      expect(isTurnInFlight([user, init, result, user], now)).toBe(true);
     });
 
-    it("ignores non-user/result kinds", () => {
-      expect(isTurnInFlight([{ kind: "thinking" }, { kind: "tool_use" }])).toBe(false);
+    it("is true during a background-task re-invocation (no user event)", () => {
+      expect(isTurnInFlight([user, init, result, taskNotification, init, assistant], now)).toBe(true);
+      expect(isTurnInFlight([user, init, result, taskNotification, init, assistant, result], now)).toBe(false);
+    });
+
+    it("does not drift when results outnumber user turns", () => {
+      // A re-invocation's extra result must not mask the next real turn.
+      expect(isTurnInFlight([user, init, result, init, assistant, result, user], now)).toBe(true);
+    });
+
+    it("treats non-init system events between turns as idle", () => {
+      expect(isTurnInFlight([user, init, result, taskNotification], now)).toBe(false);
+    });
+
+    it("keeps a recent queued user turn in flight past the running turn's result", () => {
+      // Message B dispatched mid-turn-A is persisted before A's result; the
+      // turn is still queued until B's own init arrives.
+      expect(isTurnInFlight([user, init, assistant, user, assistant, result], now)).toBe(true);
+      expect(isTurnInFlight([user, init, assistant, user, assistant, result, init], now)).toBe(true);
+    });
+
+    it("ages out an unstarted user turn so legacy transcripts can't wedge", () => {
+      // Old per-turn-supervisor conversations don't reliably have an init
+      // after every user event; a stale unstarted user turn reads idle.
+      const staleUser = { kind: "user", payload: {}, createdAt: stale };
+      expect(isTurnInFlight([staleUser, assistant, result], now)).toBe(false);
+    });
+
+    it("treats a synthetic interrupted result as flushing queued user turns", () => {
+      expect(isTurnInFlight([user, flushResult], now)).toBe(false);
+    });
+
+    it("does not count error events as turn activity", () => {
+      // Matches the supervisor: an out-of-turn error line must not wedge the
+      // conversation as busy forever.
+      expect(isTurnInFlight([user, init, result, errorEvent], now)).toBe(false);
     });
   });
 

@@ -58,15 +58,23 @@ export interface SupervisorDeps {
 export interface DispatchRequest {
   conversationId: string;
   prompt: string;
-  /** If set, --resume <claudeSessionId>. */
+  /** The Claude session this conversation owns. */
   claudeSessionId?: string;
+  /**
+   * True when a Claude session for this conversation already exists
+   * (backend-derived from persisted events). Picks `--resume` over
+   * `--session-id` at spawn; see DispatchInput.sessionHasHistory.
+   */
+  sessionHasHistory?: boolean;
   /** Synthesized JSONL lines to seed the session dir before --resume. */
   bootstrapJsonl?: string[];
   /** References attached as part of the user turn (file paths, doc handles, etc.). */
   references?: unknown[];
   /**
    * Agent-scoped sandbox-callback bearer minted by the backend per dispatch
-   * (≤30min TTL). The supervisor passes this — not its own supervisor-scoped
+   * (6h TTL — deliberately longer than the 5h sandbox session cap, so the
+   * token a long-lived claude process received at spawn always outlives it).
+   * The supervisor passes this — not its own supervisor-scoped
    * `CALLBACK_TOKEN` — to the Claude Code subprocess as
    * `RESEARCH_BACKEND_TOKEN`, so `research-tool` calls hit endpoints that
    * require an agent scope (e.g. `documents/:id` GET, edit-doc).
@@ -189,6 +197,7 @@ function parseDispatchRequest(body: Record<string, unknown>): DispatchRequest | 
     prompt: body.prompt,
   };
   if (typeof body.claudeSessionId === "string") out.claudeSessionId = body.claudeSessionId;
+  if (typeof body.sessionHasHistory === "boolean") out.sessionHasHistory = body.sessionHasHistory;
   if (Array.isArray(body.bootstrapJsonl)) {
     out.bootstrapJsonl = body.bootstrapJsonl.filter((s): s is string => typeof s === "string");
   }

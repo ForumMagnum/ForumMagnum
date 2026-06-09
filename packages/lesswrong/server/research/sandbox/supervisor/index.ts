@@ -29,7 +29,7 @@ import { homedir } from "node:os";
 import * as path from "node:path";
 import { spawn } from "node:child_process";
 import type { Server } from "node:http";
-import { createConversationHub } from "./conversationHub";
+import { createConversationHub, enqueueSyntheticInterruptedResult } from "./conversationHub";
 import { createPostPersister, PostPersister } from "./postPersister";
 import { startSupervisor, SupervisorDeps } from "./server";
 import { startHeartbeat } from "./heartbeat";
@@ -38,8 +38,6 @@ import { buildScriptBootEnv, researchBinPath } from "./devServer";
 import { startAuthProxy } from "./authProxy";
 import { AGENT_CWD } from "../sandboxLayout";
 
-const CLAUDE_MD_PATH = path.join(homedir(), ".claude", "CLAUDE.md");
-
 // init.sh runs non-blocking (it doesn't gate boot or the agent's turn), so this
 // is only a hung-process reaper, not a latency budget. Allow several minutes so a
 // legitimate per-boot dependency reconcile (`npm install` after a pull whose
@@ -47,26 +45,27 @@ const CLAUDE_MD_PATH = path.join(homedir(), ".claude", "CLAUDE.md");
 const INIT_SCRIPT_TIMEOUT_MS = 5 * 60 * 1000;
 
 /**
- * Substitute session placeholders in the agent's CLAUDE.md so Claude Code's
- * auto-loaded system prompt knows what project and conversation the agent is
- * scoped to. Run at boot, *after* the backend's overlay write and *before* any
- * `claude` subprocess. Best-effort: a missing/unwritable file just logs.
+ * Per-conversation context appended to Claude Code's default system prompt
+ * (`--append-system-prompt`) at process spawn. This replaces the old scheme of
+ * substituting `{{...}}` placeholders into the overlaid CLAUDE.md at boot:
+ * the values are per-conversation constants known from env, and keeping them
+ * out of the on-disk file means a re-launch can never observe a stale fill.
+ * The static agent instructions still ship as CLAUDE.md and are auto-loaded.
  */
-function fillClaudeMdTemplate(env: { projectId: string; conversationId: string }): void {
-  try {
-    const template = fs.readFileSync(CLAUDE_MD_PATH, "utf8");
-    const filled = template
-      .replace(/\{\{RESEARCH_PROJECT_ID\}\}/g, env.projectId)
-      .replace(/\{\{RESEARCH_CONVERSATION_ID\}\}/g, env.conversationId);
-    if (filled !== template) {
-      fs.writeFileSync(CLAUDE_MD_PATH, filled, "utf8");
-    }
-  } catch (err) {
-    // eslint-disable-next-line no-console
-    console.warn(
-      `[supervisor] could not fill CLAUDE.md template: ${err instanceof Error ? err.message : String(err)}`,
-    );
-  }
+function buildAppendSystemPrompt(env: { projectId: string; conversationId: string }): string {
+  return [
+    `You are working in research project \`${env.projectId}\`. All`,
+    `\`research-tool\` calls are scoped to this project automatically (the`,
+    `bearer token pins it server-side, so cross-project requests are`,
+    `rejected). You can't pivot to a different project from this sandbox.`,
+    ``,
+    `Your current conversation id is \`${env.conversationId}\`. If fetched`,
+    `document markdown, a \`fetch-conversation\` result, an \`@[conv:...]\``,
+    `mention, or an \`%%% agent-block conversationId="..." %%%\` placeholder`,
+    `refers to this same id, treat it as this conversation, including text you`,
+    `may have written earlier in the same task. Do not mistake it for an`,
+    `independent prior/sibling conversation.`,
+  ].join("\n");
 }
 
 interface SupervisorEnv {
@@ -179,18 +178,12 @@ async function selfHealDanglingTurn(
     // supervisor, the "incomplete" turn is the live just-dispatched one, not an
     // orphan — emitting a synthetic terminal would falsely close it. Skip.
     if (isTurnRunning()) return;
-    const line = JSON.stringify({
-      type: "result",
-      subtype: "interrupted",
-      is_error: true,
-      result: "Turn interrupted by a sandbox restart.",
-    });
-    postPersister.enqueue(env.conversationId, {
-      rawJsonl: line,
-      kind: "result",
-      claudeMessageUuid: null,
-      supervisorEmittedAt: new Date().toISOString(),
-    });
+    enqueueSyntheticInterruptedResult(
+      postPersister,
+      env.conversationId,
+      "Turn interrupted by a sandbox restart.",
+      Date.now(),
+    );
   } catch (err) {
     // eslint-disable-next-line no-console
     console.warn(`[supervisor] dangling-turn self-heal failed: ${(err as Error).message}`);
@@ -199,7 +192,10 @@ async function selfHealDanglingTurn(
 
 export async function bootSupervisor() {
   const env = readEnv();
-  fillClaudeMdTemplate({ projectId: env.projectId, conversationId: env.conversationId });
+  const appendSystemPrompt = buildAppendSystemPrompt({
+    projectId: env.projectId,
+    conversationId: env.conversationId,
+  });
 
   const postPersister = createPostPersister({
     backendBaseUrl: env.backendBaseUrl,
@@ -247,6 +243,7 @@ export async function bootSupervisor() {
           conversationId: req.conversationId,
           prompt: req.prompt,
           claudeSessionId: req.claudeSessionId,
+          sessionHasHistory: req.sessionHasHistory,
           bootstrapJsonl: req.bootstrapJsonl,
         },
         {
@@ -254,6 +251,12 @@ export async function bootSupervisor() {
           // session-bootstrap JSONL path is derived from, so `--resume` finds
           // the synthesized history on a fresh sandbox.
           cwd: AGENT_CWD,
+          appendSystemPrompt,
+          // Spawn-time env for the long-lived claude process. The agent token
+          // is minted per dispatch but only the one in effect at spawn is
+          // visible to the process; that's safe because its TTL (6h) exceeds
+          // the sandbox session lifetime cap (5h), so a spawn-time token
+          // always outlives the process that received it.
           env: {
             // Put `~/.research/bin` (where the overlay drops the research-tool
             // binary) ahead of the system PATH so the agent can invoke
@@ -277,7 +280,11 @@ export async function bootSupervisor() {
       return {
         conversations: snap.conversations,
         concurrencyCount: snap.concurrencyCount,
-        turnRunning: snap.conversations.some((c) => c.status === "running"),
+        // Includes pending background tasks, matching the heartbeat: the
+        // /status consumer that matters is saveEnvironment's quiesce gate,
+        // and snapshotting stops the sandbox — which would kill a pending
+        // task and its promised re-invocation.
+        turnRunning: hub.hasPendingWork(),
         pendingEvents: postPersister.pendingCount(),
       };
     },
@@ -315,7 +322,10 @@ export async function bootSupervisor() {
     sandboxId: env.sandboxId,
     backendBaseUrl: env.backendBaseUrl,
     authToken: env.callbackToken,
-    getTurnRunning: () => hub.snapshot().conversations.some((c) => c.status === "running"),
+    // Includes pending background tasks, not just running turns: a finished
+    // task re-invokes the agent inside the long-lived claude process, so the
+    // sandbox must not idle-stop (or roll) out from under it.
+    getTurnRunning: () => hub.hasPendingWork(),
     getLastDevActivityAt: () => lastDevActivityAt,
   });
 
@@ -325,6 +335,10 @@ export async function bootSupervisor() {
     authProxy.close();
     devControl.close();
     devServer.stop();
+    // Stop the long-lived claude process(es) first: a kill mid-turn enqueues a
+    // synthetic terminal `result` (see the hub's onExit), which the drain below
+    // then ships — so a turn cut short by sandbox stop isn't left dangling.
+    await hub.shutdown();
     await postPersister.drain();
     process.exit(0);
   };

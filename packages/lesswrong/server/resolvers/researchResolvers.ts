@@ -16,7 +16,10 @@ import { GraphQLError } from "graphql";
 import { isPlainRecord } from "@/components/research/conversationEventFormat";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userIsAdmin } from "@/lib/vulcan-users/permissions";
-import { buildBootstrapJsonl } from "@/server/research/sessionReconstruction";
+import {
+  buildBootstrapJsonl,
+  claudeSessionIdForConversation,
+} from "@/server/research/sessionReconstruction";
 import {
   buildSystemReminderWrap,
   deriveLastInjectedActiveDocumentId,
@@ -83,7 +86,8 @@ async function dispatchTurnViaSupervisor(args: {
   projectId: string;
   userId: string;
   prompt: string;
-  claudeSessionId?: string;
+  claudeSessionId: string;
+  sessionHasHistory: boolean;
   bootstrapJsonl?: string[];
 }): Promise<void> {
   const { provisioned } = args;
@@ -108,6 +112,7 @@ async function dispatchTurnViaSupervisor(args: {
       conversationId: args.conversationId,
       prompt: args.prompt,
       claudeSessionId: args.claudeSessionId,
+      sessionHasHistory: args.sessionHasHistory,
       bootstrapJsonl: args.bootstrapJsonl,
       agentBackendToken,
     }),
@@ -282,6 +287,20 @@ export const researchResolversMutations = {
     }
 
     const _id = conversationId;
+
+    // An environment fork reuses the source conversation's session id when it
+    // can be recovered: the env snapshot's disk carries the source session
+    // file, so `--resume` under that id restores the branch history at full
+    // fidelity. (The id lives in the event payload's `session_id`, not the
+    // source conversation's `claudeSessionId` field — that field may lag.)
+    // Everything else — including a fork whose source id can't be recovered —
+    // gets the conversation's own deterministic session id.
+    const sourceEvent = environment?.sourceEventId
+      ? await context.ResearchConversationEvents.findOne({ _id: environment.sourceEventId })
+      : null;
+    const sourceSessionId = sourceEvent ? sessionIdFromPayload(sourceEvent.payload) : null;
+    const claudeSessionId = sourceSessionId ?? claudeSessionIdForConversation(_id);
+
     const now = new Date();
     try {
       await ResearchConversations.rawInsert({
@@ -293,7 +312,7 @@ export const researchResolversMutations = {
         baseEnvironmentId,
         runtime,
         title: null,
-        claudeSessionId: null,
+        claudeSessionId,
         lastActivityAt: now,
         createdAt: now,
       });
@@ -304,27 +323,22 @@ export const researchResolversMutations = {
       throw err;
     }
 
-    let firstTurnSessionOnDisk: { claudeSessionId: string } | undefined;
-    if (environment?.sourceEventId) {
-      const sourceEvent = await context.ResearchConversationEvents.findOne({
-        _id: environment.sourceEventId,
+    let bootstrapEvents: DbResearchConversationEvent[] | undefined;
+    if (sourceEvent) {
+      await context.repos.researchConversationEvents.backfillFromBranch({
+        sourceConversationId: sourceEvent.conversationId,
+        targetConversationId: _id,
+        targetUserId: currentUser._id,
+        targetProjectId: projectId,
+        branchSeq: sourceEvent.seq,
       });
-      if (sourceEvent) {
-        await context.repos.researchConversationEvents.backfillFromBranch({
-          sourceConversationId: sourceEvent.conversationId,
-          targetConversationId: _id,
-          targetUserId: currentUser._id,
-          targetProjectId: projectId,
-          branchSeq: sourceEvent.seq,
-        });
-        // The session id lives in the event payload (`session_id`), not the
-        // source conversation's `claudeSessionId` field — that field is captured
-        // async and may be stale if the env was saved right after a result.
-        const sessionId = sessionIdFromPayload(sourceEvent.payload);
-        if (sessionId) {
-          await ResearchConversations.rawUpdateOne({ _id }, { $set: { claudeSessionId: sessionId } });
-          firstTurnSessionOnDisk = { claudeSessionId: sessionId };
-        }
+      if (!sourceSessionId) {
+        // No session file to resume on the snapshot — synthesize one from the
+        // backfilled branch events so the fork still starts with its history.
+        bootstrapEvents = await context.ResearchConversationEvents.find(
+          { conversationId: _id },
+          { sort: { seq: 1 } },
+        ).fetch();
       }
     }
 
@@ -352,7 +366,13 @@ export const researchResolversMutations = {
       projectId,
       userId: currentUser._id,
       prompt: turnPrompt,
-      sessionOnDisk: firstTurnSessionOnDisk,
+      claudeSessionId,
+      // A fork that recovered its source session resumes the session file on
+      // the env snapshot; everything else is a brand-new session (a fork
+      // without a recoverable source id resumes via the synthesized bootstrap
+      // instead, which the supervisor accounts for on its own).
+      sessionHasHistory: !!sourceSessionId,
+      bootstrapEvents,
     });
 
     backgroundTask((async () => {
@@ -376,9 +396,8 @@ export const researchResolversMutations = {
     if (!prompt) throw new Error("prompt required");
 
     // Fetch history once: used for both the Claude `--resume` bootstrap
-    // (when a session id exists) and the system-reminder cadence check.
-    // Read before appending the new user turn so both consumers see
-    // history-up-to-now.
+    // and the system-reminder cadence check. Read before appending the new
+    // user turn so both consumers see history-up-to-now.
     const priorEvents = await context.ResearchConversationEvents.find(
       { conversationId: conv._id },
       { sort: { seq: 1 } },
@@ -395,15 +414,36 @@ export const researchResolversMutations = {
       context,
     });
 
+    // Legacy conversations (created before deterministic session ids) whose
+    // first-event capture never landed get a derived id now, persisted so
+    // later turns agree on it. Their derived id has no session file anywhere,
+    // so the bootstrap must run even on a warm sandbox.
+    const claudeSessionId = conv.claudeSessionId ?? claudeSessionIdForConversation(conv._id);
+    if (!conv.claudeSessionId) {
+      await ResearchConversations.rawUpdateOne({ _id: conv._id }, { $set: { claudeSessionId } });
+    }
+
     await dispatchToSandbox({
       context,
       conversationId: conv._id,
       projectId: conv.projectId,
       userId: conv.userId,
       prompt: turnPrompt,
-      resumeContext: conv.claudeSessionId
-        ? { claudeSessionId: conv.claudeSessionId, priorEvents }
-        : undefined,
+      claudeSessionId,
+      // "THIS session has run before" = some persisted event carries this
+      // exact session id (claude-emitted; supervisor-synthesized events have
+      // none). Matching the dispatched id — not just any session_id — matters
+      // for forks: their backfilled branch events carry the SOURCE
+      // conversation's session id, which must not make a fork whose own
+      // session never started claim history (--resume of a nonexistent
+      // session hard-fails). A conversation whose first turn never reached
+      // claude, or whose legacy id was just derived, correctly reads false —
+      // the shipped bootstrap is what makes those resumable.
+      sessionHasHistory: priorEvents.some(
+        (e) => sessionIdFromPayload(e.payload) === claudeSessionId,
+      ),
+      bootstrapEvents: priorEvents,
+      bootstrapEvenIfWarm: !conv.claudeSessionId,
     });
 
     // Only after a successful dispatch, so a failed turn leaves no advanced timestamp.
@@ -543,9 +583,16 @@ async function provisionSandboxOrWarming(
 
 /**
  * Provision (or resume) the conversation's persistent sandbox and dispatch one
- * turn to its supervisor. `resumeContext` is supplied when continuing an
- * existing conversation; it lets a rebuilt sandbox have its Claude session
- * reconstructed.
+ * turn to its supervisor.
+ *
+ * `bootstrapEvents` is the conversation's persisted history, shipped so a
+ * sandbox without the session file on disk can have the Claude session
+ * reconstructed. It's sent when the sandbox was freshly built (a rebuild
+ * after an expired snapshot, or a fork whose source session couldn't be
+ * recovered) — a warm resume still has the file on disk, so `--resume` reads
+ * it directly. `bootstrapEvenIfWarm` ships it regardless, for conversations
+ * whose session id was just derived and so can't have a file anywhere; the
+ * supervisor only writes the reconstruction when the file is actually absent.
  */
 async function dispatchToSandbox(args: {
   context: ResolverContext;
@@ -553,34 +600,23 @@ async function dispatchToSandbox(args: {
   projectId: string;
   userId: string;
   prompt: string;
-  resumeContext?: { claudeSessionId: string; priorEvents: DbResearchConversationEvent[] };
-  sessionOnDisk?: { claudeSessionId: string };
+  claudeSessionId: string;
+  /**
+   * Whether a Claude session for this conversation has ever actually run —
+   * forwarded to the supervisor, which uses it (not a filesystem probe, which
+   * races snapshot restore on a fresh resume) to pick `--resume` vs
+   * `--session-id`.
+   */
+  sessionHasHistory: boolean;
+  bootstrapEvents?: DbResearchConversationEvent[];
+  bootstrapEvenIfWarm?: boolean;
 }): Promise<void> {
   const provisioned = await provisionSandboxOrWarming(args.conversationId, args.context);
 
-  if (args.sessionOnDisk && provisioned.isFirstProvision) {
-    await dispatchTurnViaSupervisor({
-      provisioned,
-      conversationId: args.conversationId,
-      projectId: args.projectId,
-      userId: args.userId,
-      prompt: args.prompt,
-      claudeSessionId: args.sessionOnDisk.claudeSessionId,
-      bootstrapJsonl: undefined,
-    });
-    return;
-  }
-
-  // Reconstruct the Claude session only when the sandbox was freshly built (a
-  // rebuild after an expired snapshot). A warm resume still has the session
-  // file on disk, so `claude --resume` reads it directly.
-  let bootstrapJsonl: string[] | undefined;
-  if (provisioned.wasFreshlyCreated && args.resumeContext) {
-    bootstrapJsonl = buildBootstrapJsonl(
-      args.resumeContext.priorEvents,
-      args.resumeContext.claudeSessionId,
-    );
-  }
+  const shipBootstrap = provisioned.wasFreshlyCreated || args.bootstrapEvenIfWarm;
+  const bootstrapJsonl = shipBootstrap && args.bootstrapEvents?.length
+    ? buildBootstrapJsonl(args.bootstrapEvents, args.claudeSessionId)
+    : undefined;
 
   await dispatchTurnViaSupervisor({
     provisioned,
@@ -588,7 +624,8 @@ async function dispatchToSandbox(args: {
     projectId: args.projectId,
     userId: args.userId,
     prompt: args.prompt,
-    claudeSessionId: args.resumeContext?.claudeSessionId,
+    claudeSessionId: args.claudeSessionId,
+    sessionHasHistory: args.sessionHasHistory,
     bootstrapJsonl,
   });
 }

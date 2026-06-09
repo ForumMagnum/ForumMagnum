@@ -35,6 +35,7 @@ import { getPlatformAssets } from "./platformAssets";
 import {
   AGENT_CWD,
   CLAUDE_MD_PATH,
+  PINNED_CLAUDE_CODE_VERSION,
   PLATFORM_DIR,
   QUEUE_DIR,
   RESEARCH_TOOL_PATH,
@@ -114,7 +115,6 @@ export interface ProvisionedSandbox {
    * to decide whether to ship a reconstructed Claude session.
    */
   wasFreshlyCreated: boolean;
-  isFirstProvision: boolean;
 }
 
 interface SupervisorLaunchEnv {
@@ -148,9 +148,9 @@ function isSnapshotNotFoundError(err: unknown): boolean {
  * Overlay the current platform files into the sandbox. Run on every fresh
  * provision and every resume, *before* launching the supervisor — so a snapshot
  * taken with old platform code runs today's code. Only writes new files; it
- * never removes old ones. The `{{RESEARCH_PROJECT_ID}}` placeholder in
- * `CLAUDE.md` is left intact here and filled by the supervisor at boot (after
- * this overlay, before any `claude` subprocess).
+ * never removes old ones. `CLAUDE.md` is static; per-conversation context
+ * (project/conversation ids) reaches the agent via `--append-system-prompt`
+ * at claude-process spawn instead.
  *
  * The durable event queue under `~/.research/queue/` is **not** overlaid — it is
  * durable state, not code.
@@ -162,6 +162,58 @@ async function overlayPlatformFiles(sandbox: Sandbox): Promise<void> {
     { path: RESEARCH_TOOL_PATH, content: assets.researchTool, mode: 0o755 },
     { path: CLAUDE_MD_PATH, content: assets.claudeMd },
   ]);
+}
+
+/**
+ * Bring the sandbox's Claude Code install to the pinned version. Run on every
+ * launch (provision and resume), after the platform-file overlay and before
+ * the supervisor starts, so the supervisor's claude subprocess can never run
+ * a version older than the model/protocol it expects. Snapshots freeze the
+ * CLI at their build time and have no other upgrade affordance — without this,
+ * every pre-existing conversation sandbox and saved environment would be
+ * stuck on whatever version its baseline was built with.
+ *
+ * Fast path (version already matches) is one `claude --version` (~1s) with no
+ * network dependency. The upgrade path npm-installs the pinned version (tens
+ * of seconds, once per stale sandbox) and re-verifies the version afterward,
+ * so an install that "succeeds" without changing what's first on PATH fails
+ * loudly instead of silently launching the stale CLI. The non-sudo attempt
+ * covers the node* images (user-writable npm prefix); the sudo retry covers
+ * dnf-installed Node (system prefix) on python images.
+ *
+ * On failure the sandbox is stopped before the error propagates: the launch
+ * hooks only run on create/resume, so leaving a freshly-resumed sandbox
+ * running without a supervisor would wedge every retry in the
+ * supervisor-not-ready path until the session times out. Stopped, the next
+ * attempt resumes and re-runs the whole launch sequence.
+ */
+async function reconcileClaudeCodeVersion(sandbox: Sandbox): Promise<void> {
+  const script =
+    `current="$(claude --version 2>/dev/null | cut -d' ' -f1)"; ` +
+    `if [ "$current" = "${PINNED_CLAUDE_CODE_VERSION}" ]; then exit 0; fi; ` +
+    `echo "upgrading claude-code $current -> ${PINNED_CLAUDE_CODE_VERSION}"; ` +
+    `npm install -g @anthropic-ai/claude-code@${PINNED_CLAUDE_CODE_VERSION} && ` +
+    `installed="$(claude --version 2>/dev/null | cut -d' ' -f1)"; ` +
+    `[ "$installed" = "${PINNED_CLAUDE_CODE_VERSION}" ] || { echo "still on $installed after install" >&2; exit 1; }`;
+  let result = await sandbox.runCommand({ cmd: "sh", args: ["-c", script] });
+  if (result.exitCode !== 0) {
+    result = await sandbox.runCommand({ cmd: "sh", args: ["-c", script], sudo: true });
+  }
+  if (result.exitCode !== 0) {
+    const stderr = await result.stderr();
+    await sandbox.stop().catch((stopErr: unknown) => {
+      // eslint-disable-next-line no-console
+      console.warn(`[sandbox] stop after failed reconcile failed: ${(stopErr as Error).message}`);
+    });
+    throw new Error(
+      `claude-code version reconcile failed (exit ${result.exitCode}): ${stderr.slice(0, 500)}`,
+    );
+  }
+  const stdout = await result.stdout();
+  if (stdout.includes("upgrading claude-code")) {
+    // eslint-disable-next-line no-console
+    console.log(`[sandbox] ${sandbox.name}: ${stdout.split("\n")[0]}`);
+  }
 }
 
 /**
@@ -335,7 +387,6 @@ export async function getOrCreateSandbox(
         supervisorSecret: existingRow.supervisorSecret,
         devProxySecret: existingRow.devProxySecret,
         wasFreshlyCreated: false,
-        isFirstProvision: false,
       };
     }
   }
@@ -402,22 +453,16 @@ export async function getOrCreateSandbox(
 
   const onResume = async (sandbox: Sandbox) => {
     await overlayPlatformFiles(sandbox);
+    await reconcileClaudeCodeVersion(sandbox);
     await launchSupervisor(sandbox, launchEnv);
   };
   const onCreate = async (sandbox: Sandbox) => {
     wasFreshlyCreated = true;
     await overlayPlatformFiles(sandbox);
+    await reconcileClaudeCodeVersion(sandbox);
     await launchSupervisor(sandbox, launchEnv);
   };
 
-  // `getOrCreate` covers all three branches: resume an existing sandbox,
-  // create a fresh one when none exists, and rebuild (delete + create) when
-  // the existing sandbox's snapshot has expired. `source` is consumed only on
-  // the create path — `Sandbox.get` ignores it — so a warm resume can't
-  // clobber the snapshot we're trying to recover from. `resume: true` is
-  // passed explicitly because the SDK omits the `resume` query param entirely
-  // when it's left undefined, and the backend in that case hands back a
-  // stopped-session handle rather than starting a new session.
   let sandbox: Sandbox;
   try {
     // `getOrCreate` covers all three branches: resume an existing sandbox,
@@ -473,7 +518,6 @@ export async function getOrCreateSandbox(
     supervisorSecret,
     devProxySecret,
     wasFreshlyCreated,
-    isFirstProvision: !existingRow,
   };
 }
 
