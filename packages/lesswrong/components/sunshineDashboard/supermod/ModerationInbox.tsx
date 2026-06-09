@@ -281,11 +281,8 @@ const ModerationInboxInner = ({ users, posts, classifiedPosts, curationPosts, la
   const allOrderedUsers = useMemo(() => orderedGroups.map(([_, users]) => users).flat(), [orderedGroups]);
 
   const filteredGroups = useMemo(() => {
-    if (state.activeTab === 'all') {
-      return orderedGroups;
-    }
-    return orderedGroups.filter(([group]) => group === state.activeTab);
-  }, [orderedGroups, state.activeTab]);
+    return getFilteredGroups(groupedUsers, state.activeTab);
+  }, [groupedUsers, state.activeTab]);
 
   const orderedUsers = useMemo(() => filteredGroups.map(([_, users]) => users).flat(), [filteredGroups]);
 
