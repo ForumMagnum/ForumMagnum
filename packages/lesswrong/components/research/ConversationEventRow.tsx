@@ -2,7 +2,7 @@
 
 import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
-import moment from 'moment-timezone';
+import moment from '@/lib/moment-timezone';
 import ForumIcon from '@/components/common/ForumIcon';
 import { useTimezone } from '@/components/common/withTimezone';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
