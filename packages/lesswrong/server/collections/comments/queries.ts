@@ -142,6 +142,7 @@ export const graphqlCommentQueryTypeDefs = gql`
     minimumKarma: Int
     authorIsUnreviewed: Boolean
     sortBy: String
+    shortform: Boolean
     drafts: String
     limit: String
   }

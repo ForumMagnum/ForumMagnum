@@ -1973,6 +1973,7 @@ interface CommentsProfileCommentsInput {
   minimumKarma?: number | null;
   authorIsUnreviewed?: boolean | null;
   sortBy?: string | null;
+  shortform?: boolean | null;
   drafts?: string | null;
   limit?: string | null;
 }
