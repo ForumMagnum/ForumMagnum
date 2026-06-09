@@ -388,6 +388,7 @@ export const SunshineUsersList = gql(`
     
     lastRemovedFromReviewQueueAt
     rejectedContentCount
+    maxPangramScore
     userRateLimits {
       ...UserRateLimitDisplay
     }

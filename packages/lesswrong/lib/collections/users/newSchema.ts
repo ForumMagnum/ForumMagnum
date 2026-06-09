@@ -4385,6 +4385,17 @@ const schema = {
       },
     }
   },
+  maxPangramScore: {
+    graphql: {
+      outputType: "Float",
+      canRead: ["sunshineRegiment", "admins"],
+      resolver: async (user, args, context) => {
+        return await getWithCustomLoader(context, "maxPangramScore", user._id, (userIds) =>
+          context.repos.users.getMaxPangramScoresByUserIds(userIds)
+        );
+      },
+    }
+  },
   userRateLimits: {
     graphql: {
       outputType: "[UserRateLimit!]",

@@ -7179,6 +7179,7 @@ interface User {
   recommendationSettings: any;
   lastRemovedFromReviewQueueAt: Date | null;
   rejectedContentCount: number | null;
+  maxPangramScore: number | null;
   userRateLimits: Array<UserRateLimit> | null;
   claudeLinkedAt: Date | null;
   hasClaudeCodeOAuthToken: boolean | null;

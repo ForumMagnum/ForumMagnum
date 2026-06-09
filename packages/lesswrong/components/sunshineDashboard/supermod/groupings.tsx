@@ -6,6 +6,8 @@ import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
 import { getFreshReviewTriggerActions, getModeratorActionGroup, typeAssertModeratorActionTypeIsNotReviewTrigger } from '@/lib/collections/users/reviewGroups';
 
+export const HIGH_PANGRAM_SCORE_FOR_PRIORITY_TAB = 0.5;
+
 function getActiveModeratorActions(moderatorActions: ModeratorActionDisplay[]): ModeratorActionDisplay[] {
   return moderatorActions.filter(action => action.active).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()) ?? [];
 }
@@ -26,11 +28,28 @@ export function partitionModeratorActions(user: SunshineUsersList): PartitionedM
   return { fresh, stale, nonTriggerActions };
 }
 
-export type TabId = ReviewGroup | 'all' | 'posts' | 'classifiedPosts' | 'curation';
+export type TabId = ReviewGroup | 'priority' | 'all' | 'posts' | 'classifiedPosts' | 'curation';
 
 // Computed server-side via the `reviewGroup` resolver on the User schema.
 export function getUserReviewGroup(user: SunshineUsersList): ReviewGroup {
   return user.reviewGroup ?? 'unknown';
+}
+
+export function userHasAllContentRejected(user: SunshineUsersList): boolean {
+  const contentCount = (user.postCount ?? 0) + (user.commentCount ?? 0);
+  return contentCount > 0 && (user.rejectedContentCount ?? 0) >= contentCount;
+}
+
+export function userHasHighPangramContent(user: SunshineUsersList): boolean {
+  return (user.maxPangramScore ?? 0) >= HIGH_PANGRAM_SCORE_FOR_PRIORITY_TAB;
+}
+
+export function userIsLikelySlop(user: SunshineUsersList): boolean {
+  return userHasAllContentRejected(user) || userHasHighPangramContent(user);
+}
+
+export function userIsPriorityReviewCandidate(user: SunshineUsersList): boolean {
+  return getUserReviewGroup(user) === 'newContent' && !userIsLikelySlop(user);
 }
 
 export function getDisplayedReasonForGroupAssignment(user: SunshineUsersList): React.ReactNode {
@@ -62,6 +81,8 @@ export function getReviewGroupDisplayName(group: TabId): string {
       return 'Snooze Expired';
     case 'unknown':
       return 'Unknown';
+    case 'priority':
+      return 'Priority';
     case 'all':
       return 'All';
     case 'posts':

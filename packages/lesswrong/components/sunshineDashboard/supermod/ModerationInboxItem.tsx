@@ -11,6 +11,7 @@ import ForumIcon from '@/components/common/ForumIcon';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { useModeratedUserContents } from '@/components/hooks/useModeratedUserContents';
 import ReviewTriggerBadge from './ReviewTriggerBadge';
+import { userHasAllContentRejected, userHasHighPangramContent } from './groupings';
 
 const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
   root: {
@@ -156,6 +157,18 @@ const styles = defineStyles('ModerationInboxItem', (theme: ThemeType) => ({
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
   },
+  likelySlopBadge: {
+    fontSize: 11,
+    padding: '2px 6px',
+    borderRadius: 3,
+    marginRight: 8,
+    textTransform: 'uppercase',
+    fontWeight: 600,
+    flexShrink: 0,
+    whiteSpace: 'nowrap',
+    backgroundColor: theme.palette.error.light,
+    color: theme.palette.error.dark,
+  },
 }));
 
 const PreloadUserContents = ({ user }: { user: SunshineUsersList }) => {
@@ -219,6 +232,13 @@ const ModerationInboxItem = ({
   const karmaClass = karma < 0 ? classes.karmaNegative : karma < 10 ? classes.karmaLow : classes.karmaPositive;
 
   const showEmail = !user.reviewedByUserId;
+  const slopReasons: string[] = [];
+  if (userHasAllContentRejected(user)) {
+    slopReasons.push('all content rejected');
+  }
+  if (userHasHighPangramContent(user)) {
+    slopReasons.push(`max Pangram ${(user.maxPangramScore ?? 0).toFixed(2)}`);
+  }
 
   return (
     <div
@@ -260,6 +280,11 @@ const ModerationInboxItem = ({
       </div>
       {likelyReviewTrigger && (
         <ReviewTriggerBadge badge={likelyReviewTrigger} />
+      )}
+      {slopReasons.length > 0 && (
+        <div className={classes.likelySlopBadge} title={slopReasons.join('; ')}>
+          Slop
+        </div>
       )}
 
       <div className={classes.contextualInfo}>

@@ -420,6 +420,34 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return userIds.map((userId) => countsByUser.get(userId) ?? 0);
   }
 
+  async getMaxPangramScoresByUserIds(userIds: string[]): Promise<(number | null)[]> {
+    const rows = await this.getRawDb().any<{ userId: string, maxPangramScore: number }>(`
+      -- UsersRepo.getMaxPangramScoresByUserIds
+      WITH content AS (
+        SELECT "_id", "userId"
+        FROM "Posts"
+        WHERE "userId" = ANY($1::text[])
+        UNION ALL
+        SELECT "_id", "userId"
+        FROM "Comments"
+        WHERE "userId" = ANY($1::text[])
+      )
+      SELECT
+        content."userId",
+        MAX(ace."pangramScore") AS "maxPangramScore"
+      FROM content
+      JOIN "Revisions" r
+        ON r."documentId" = content."_id"
+        AND r."fieldName" = 'contents'
+      JOIN "AutomatedContentEvaluations" ace
+        ON ace."revisionId" = r."_id"
+      WHERE ace."pangramScore" IS NOT NULL
+      GROUP BY content."userId"
+    `, [userIds]);
+    const scoresByUser = new Map(rows.map((row) => [row.userId, row.maxPangramScore]));
+    return userIds.map((userId) => scoresByUser.get(userId) ?? null);
+  }
+
   /**
    * Get suggested users for logged-in users to subscribe to. Finds the top 500 active 
    * authors by karma (posts weighted 5x comments), excluding self and already-subscribed 

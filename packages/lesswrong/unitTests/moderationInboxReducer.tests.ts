@@ -1,4 +1,4 @@
-import { inboxStateReducer, type InboxState } from '@/components/sunshineDashboard/supermod/inboxReducer';
+import { getFilteredGroups, getVisibleTabsInOrder, inboxStateReducer, type InboxState } from '@/components/sunshineDashboard/supermod/inboxReducer';
 import {
   UNREVIEWED_FIRST_POST,
   MANUAL_FLAG_ALERT,
@@ -37,6 +37,7 @@ function createMockUser(
     commentCount: 0,
     usersContactedBeforeReview: [],
     rejectedContentCount: 0,
+    maxPangramScore: null,
     htmlBio: '',
     lastRemovedFromReviewQueueAt: null,
   };
@@ -59,6 +60,53 @@ function createMockUser(
 }
 
 describe('Moderation Inbox Reducer', () => {
+  describe('Priority tab', () => {
+    test('counts only new-content users without all-rejected or high-Pangram history', () => {
+      const users = [
+        createMockUser('human', 'newContent', { postCount: 1, commentCount: 0, rejectedContentCount: 0 }),
+        createMockUser('allRejected', 'newContent', { postCount: 1, commentCount: 1, rejectedContentCount: 2 }),
+        createMockUser('highPangram', 'newContent', { postCount: 1, commentCount: 0, maxPangramScore: 0.91 }),
+        createMockUser('flagged', 'highContext', { postCount: 1, commentCount: 0, rejectedContentCount: 0 }),
+      ];
+      const groupedUsers = {
+        newContent: users.filter(user => user.reviewGroup === 'newContent'),
+        highContext: users.filter(user => user.reviewGroup === 'highContext'),
+      };
+
+      const tabs = getVisibleTabsInOrder(groupedUsers, users.length, 0, 0, 0);
+      expect(tabs.find(tab => tab.group === 'priority')?.count).toBe(1);
+
+      const priorityGroups = getFilteredGroups(groupedUsers, 'priority');
+      expect(priorityGroups).toHaveLength(1);
+      expect(priorityGroups[0][1].map(user => user._id)).toEqual(['human']);
+    });
+
+    test('changing to Priority focuses the first priority user', () => {
+      const users = [
+        createMockUser('allRejected', 'newContent', { postCount: 2, commentCount: 0, rejectedContentCount: 2 }),
+        createMockUser('human', 'newContent', { postCount: 1, commentCount: 0, rejectedContentCount: 0 }),
+      ];
+      const state: InboxState = {
+        users,
+        posts: [],
+        classifiedPosts: [],
+        curationPosts: [],
+        activeTab: 'all',
+        focusedUserId: null,
+        openedUserId: null,
+        focusedPostId: null,
+        focusedContentIndex: 0,
+        undoQueue: [],
+        history: [],
+        runningLlmCheckId: null,
+      };
+
+      const newState = inboxStateReducer(state, { type: 'CHANGE_TAB', tab: 'priority' });
+      expect(newState.activeTab).toBe('priority');
+      expect(newState.focusedUserId).toBe('human');
+    });
+  });
+
   describe('CLOSE_DETAIL', () => {
     test('preserves focused user and active tab when exiting detail view via ESC', () => {
       const users = [

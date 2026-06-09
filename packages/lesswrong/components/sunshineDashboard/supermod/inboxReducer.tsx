@@ -2,7 +2,7 @@
 
 import groupBy from 'lodash/groupBy';
 import sumBy from 'lodash/sumBy';
-import { getUserReviewGroup, getTabsInPriorityOrder, type TabId } from './groupings';
+import { getUserReviewGroup, getTabsInPriorityOrder, type TabId, userIsPriorityReviewCandidate } from './groupings';
 import { REVIEW_GROUP_TO_PRIORITY } from '@/lib/collections/users/reviewGroups';
 import type { GroupEntry } from './ModerationInboxList';
 import type { TabInfo } from './ModerationTabs';
@@ -85,6 +85,11 @@ export function getFilteredGroups(
   if (activeTab === 'all') {
     return orderedGroups;
   }
+  if (activeTab === 'priority') {
+    return orderedGroups
+      .map(([group, users]): GroupEntry => [group, users.filter(userIsPriorityReviewCandidate)])
+      .filter(([_, users]) => users.length > 0);
+  }
   return orderedGroups.filter(([group]) => group === activeTab);
 }
 
@@ -97,6 +102,8 @@ export function getVisibleTabsInOrder(
 ): TabInfo[] {
   const tabsInOrder = getTabsInPriorityOrder();
   const tabs: TabInfo[] = [{ group: 'curation', count: totalCurationNotices }];
+  const priorityCount = Object.values(groupedUsers).flat().filter(userIsPriorityReviewCandidate).length;
+  tabs.push({ group: 'priority', count: priorityCount });
   
   // Always show all tabs, even if empty
   for (const group of tabsInOrder) {
