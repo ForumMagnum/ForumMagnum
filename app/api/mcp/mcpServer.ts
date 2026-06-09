@@ -166,7 +166,7 @@ function createMcpServer(): McpServer {
       }
 
       const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName: args.agentName } });
-      const threadQuote = args.quote ?? "(No quote provided)";
+      const threadQuote = args.quote ?? "";
 
       const result = await insertDraftCommentThread({
         postId: args.postId,
@@ -175,6 +175,7 @@ function createMcpServer(): McpServer {
         quote: threadQuote,
         author: authorName,
         authorId,
+        requireQuoteMatch: args.requireQuoteMatch,
       });
 
       return { content: [{ type: "text" as const, text: JSON.stringify(result) }] };
