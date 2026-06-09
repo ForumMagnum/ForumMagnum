@@ -117,8 +117,12 @@ const styles = defineStyles('ChatPane', (theme: ThemeType) => ({
     alignSelf: 'flex-start',
     color: theme.palette.text.dim,
     fontSize: 12,
+    fontWeight: 500,
     lineHeight: '18px',
-    padding: '2px 0',
+    padding: '4px 8px',
+    borderRadius: 999,
+    border: theme.palette.greyBorder('1px', 0.08),
+    background: theme.palette.greyAlpha(0.03),
   },
   pulseDot: {
     flex: 'none',
