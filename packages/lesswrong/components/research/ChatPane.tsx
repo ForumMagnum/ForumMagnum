@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMutation, useApolloClient } from '@apollo/client/react';
 import { isSandboxWarmingError } from './sandboxWarming';
@@ -21,7 +21,18 @@ import {
 import { isVisibleConversationEvent } from './conversationEventFormat';
 import { ConversationEventRow } from './ConversationEventRow';
 import { ConversationActions } from './ConversationActions';
-import { countNewVisibleEvents, isScrolledNearBottom, newMessagePillLabel } from './chatPaneScroll';
+
+const CHAT_PANE_BOTTOM_THRESHOLD_PX = 64;
+
+function isScrolledNearBottom(el: HTMLElement): boolean {
+  return el.scrollHeight - el.scrollTop - el.clientHeight <= CHAT_PANE_BOTTOM_THRESHOLD_PX;
+}
+
+// Only user/assistant turns count toward the unread pill; tool calls and
+// thinking blocks would inflate the count well past what reads as "messages".
+function countMessageEvents(events: ConversationEvent[]): number {
+  return events.filter((event) => event.kind === 'user' || event.kind === 'assistant').length;
+}
 
 interface ChatPaneProps {
   projectId: string;
@@ -167,10 +178,7 @@ const ChatPane = ({
   const eventsRef = useRef<HTMLDivElement | null>(null);
   const isPinnedToBottomRef = useRef(true);
   const previousConversationIdRef = useRef<string | null>(null);
-  const previousVisibleEventCountRef = useRef(0);
-  const previousScrollHeightRef = useRef(0);
-  const [lastSeenVisibleEventCount, setLastSeenVisibleEventCount] = useState(0);
-  const [isScrolledAwayFromBottom, setIsScrolledAwayFromBottom] = useState(false);
+  const [lastSeenMessageCount, setLastSeenMessageCount] = useState(0);
 
   const { events: rawEvents, status, error, refresh, injectOptimisticEvent, clearOptimistic, markTurnExpected } = useConversationStream(conversationId);
   const [expectFirstTurnFor, setExpectFirstTurnFor] = useState<string | null>(null);
@@ -186,7 +194,8 @@ const ChatPane = ({
     () => rawEvents.filter(isVisibleConversationEvent),
     [rawEvents],
   );
-  const newMessageCount = Math.max(0, events.length - lastSeenVisibleEventCount);
+  const messageCount = useMemo(() => countMessageEvents(events), [events]);
+  const newMessageCount = Math.max(0, messageCount - lastSeenMessageCount);
   const [fireConversation] = useMutation(FireChatConversationMutation, {
     refetchQueries: [ProjectSidebarQuery],
   });
@@ -194,61 +203,33 @@ const ChatPane = ({
   const [cancelConversation] = useMutation(CancelResearchConversationMutation);
 
   const scrollEventsToBottom = useCallback(() => {
-    const el = eventsRef.current;
-    if (!el) return;
-    el.scrollTop = el.scrollHeight;
+    // Update the bookkeeping even when the scroll container isn't mounted
+    // (conversation still loading), so the pane starts pinned once it appears.
     isPinnedToBottomRef.current = true;
-    previousScrollHeightRef.current = el.scrollHeight;
-    setIsScrolledAwayFromBottom(false);
-    setLastSeenVisibleEventCount(events.length);
-  }, [events.length]);
+    setLastSeenMessageCount(messageCount);
+    const el = eventsRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [messageCount]);
 
   const handleEventsScroll = useCallback(() => {
     const el = eventsRef.current;
     if (!el) return;
-    const pinnedToBottom = isScrolledNearBottom(el);
-    isPinnedToBottomRef.current = pinnedToBottom;
-    setIsScrolledAwayFromBottom(!pinnedToBottom);
-    if (pinnedToBottom) {
-      setLastSeenVisibleEventCount(events.length);
+    isPinnedToBottomRef.current = isScrolledNearBottom(el);
+    if (isPinnedToBottomRef.current) {
+      setLastSeenMessageCount(messageCount);
     }
-  }, [events.length]);
+  }, [messageCount]);
 
-  useEffect(() => {
-    const el = eventsRef.current;
-    const previousConversationId = previousConversationIdRef.current;
-    const previousVisibleEventCount = previousConversationId === conversationId
-      ? previousVisibleEventCountRef.current
-      : 0;
-    const newVisibleEventCount = countNewVisibleEvents(previousVisibleEventCount, events.length);
-
+  // Keep the transcript pinned to the bottom as events stream in, unless the
+  // user has scrolled up to read history — then leave them be and let the
+  // unread pill take over. Layout effect so the jump (and the pill state
+  // reset on conversation switch) happens before paint.
+  useLayoutEffect(() => {
+    const conversationChanged = previousConversationIdRef.current !== conversationId;
     previousConversationIdRef.current = conversationId;
-    previousVisibleEventCountRef.current = events.length;
-
-    if (!el) return;
-    const wasPinnedToBottomBeforeRender = isScrolledNearBottom({
-      scrollHeight: previousScrollHeightRef.current || el.scrollHeight,
-      scrollTop: el.scrollTop,
-      clientHeight: el.clientHeight,
-    });
-
-    if (previousConversationId !== conversationId || events.length < previousVisibleEventCount) {
+    if (conversationChanged || isPinnedToBottomRef.current) {
       scrollEventsToBottom();
-      previousScrollHeightRef.current = el.scrollHeight;
-      return;
     }
-    if (newVisibleEventCount === 0) {
-      previousScrollHeightRef.current = el.scrollHeight;
-      return;
-    }
-
-    if (wasPinnedToBottomBeforeRender) {
-      scrollEventsToBottom();
-    } else {
-      isPinnedToBottomRef.current = false;
-      setIsScrolledAwayFromBottom(true);
-    }
-    previousScrollHeightRef.current = el.scrollHeight;
   }, [conversationId, events.length, scrollEventsToBottom]);
 
   const handleSend = useCallback(async (promptHtml: string) => {
@@ -348,9 +329,7 @@ const ChatPane = ({
         <ConversationActions conversationId={conversationId} />
       </div>
       {status === 'loading' && events.length === 0 ? (
-        <div className={classes.eventsWrapper}>
-          <div className={classes.events}><Loading /></div>
-        </div>
+        <div className={classes.events}><Loading /></div>
       ) : (
         <div className={classes.eventsWrapper}>
           <div className={classes.events} ref={eventsRef} onScroll={handleEventsScroll}>
@@ -358,13 +337,13 @@ const ChatPane = ({
               <ConversationEventRow key={event._id ?? `${event.conversationId}:${event.seq}`} event={event} surface="chat" />
             ))}
           </div>
-          {isScrolledAwayFromBottom && newMessageCount > 0 ? (
+          {newMessageCount > 0 ? (
             <button
               type="button"
               className={classes.newMessagesButton}
               onClick={scrollEventsToBottom}
             >
-              {newMessagePillLabel(newMessageCount)}
+              {newMessageCount} new message{newMessageCount === 1 ? '' : 's'}
             </button>
           ) : null}
         </div>

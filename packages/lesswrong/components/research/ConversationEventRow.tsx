@@ -2,9 +2,11 @@
 
 import React, { useCallback, useMemo, useState } from 'react';
 import classNames from 'classnames';
+import moment from 'moment-timezone';
 import ForumIcon from '@/components/common/ForumIcon';
+import { useTimezone } from '@/components/common/withTimezone';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { formatConversationEventTimestamp, getConversationEventChunks, type ConversationEventChunk } from './conversationEventFormat';
+import { getConversationEventChunks, type ConversationEventChunk } from './conversationEventFormat';
 import { ChunkContent } from './ChunkContent';
 import type { ConversationEvent } from './hooks/useConversationStream';
 
@@ -238,10 +240,11 @@ function ChatEventRow({
     [classes.chatAssistant]: event.kind === 'assistant' && hasMessageChunk,
     [classes.chatMetaOnly]: !hasMessageChunk,
   });
-  const timestampTitle = formatConversationEventTimestamp(event.createdAt);
+  const { timezone } = useTimezone();
+  const timestampTitle = moment(event.createdAt).tz(timezone).format('LLL z');
 
   return (
-    <div className={rootClass} title={timestampTitle || undefined}>
+    <div className={rootClass} title={timestampTitle}>
       {chunks.map((chunk, i) => (
         <EventChunk key={i} event={event} chunk={chunk} classes={classes} surface="chat" />
       ))}
