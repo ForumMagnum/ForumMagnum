@@ -32,6 +32,19 @@ type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description
   bodyRef: React.RefObject<HTMLDivElement|null>,
 }
 
+export const rootTagShouldBeHorizontallyScrollable = (tagName: string, attribs: Record<string, AnyBecauseHard>): boolean => {
+  if (['p','div','table','figure'].includes(tagName)) {
+    return true;
+  } else if (tagName === "span") {
+    const classes = (attribs.className ?? "").split(" ");
+    return classes.includes("math-tex");
+  } else if (tagName === 'mjx-container') {
+    return attribs.display === 'true';
+  } else {
+    return false;
+  }
+}
+
 type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean, invertColors?: boolean}>;
 
 /**
@@ -310,7 +323,7 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
         );
       }
 
-      if (root && ['p','div','table','figure'].includes(TagName)) {
+      if (root && rootTagShouldBeHorizontallyScrollable(TagName, attribs)) {
         return <MaybeScrollableBlock TagName={TagName} attribs={attribs} bodyRef={passedThroughProps.bodyRef}>
           {result}
         </MaybeScrollableBlock>
