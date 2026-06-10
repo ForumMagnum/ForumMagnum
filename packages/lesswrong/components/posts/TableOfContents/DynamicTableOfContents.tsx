@@ -125,6 +125,10 @@ const editorStyles = defineStyles("DynamicTableOfContents", (theme: ThemeType) =
  * Scoped to `.ck-editor__editable` to avoid picking up headings from other parts of the
  * page (e.g. moderation warnings rendered above the editor).
  */
+function isTocEligibleHeading(heading: Element): boolean {
+  return !heading.closest('.spoilers, .spoiler, .detailsBlockContent, pre, code');
+}
+
 function syncHeadingIdsToEditorDom(sections: ToCSection[]) {
   const editorContent = (
     document.querySelector('#postContent .ck-editor__editable')
@@ -133,7 +137,8 @@ function syncHeadingIdsToEditorDom(sections: ToCSection[]) {
   );
   if (!editorContent) return;
 
-  const headings = Array.from(editorContent.querySelectorAll('h1, h2, h3, h4'));
+  const headings = Array.from(editorContent.querySelectorAll('h1, h2, h3, h4'))
+    .filter(isTocEligibleHeading);
   const contentSections = sections.filter(s => s.title && !s.divider && !s.answer);
 
   headings.forEach((heading, idx) => {
