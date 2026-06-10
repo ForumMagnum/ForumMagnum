@@ -4,9 +4,9 @@ If you are new to LessWrong, here's the place to introduce yourself. Personal st
 
 If you're new to the community, you can start reading the [Highlights from the Sequences](/highlights), a collection of posts about the core ideas of LessWrong.
 
-If you want to explore the community more, I recommend [reading the Library](/library), [checking recent Curated posts](/api/home?view=curated), [seeing if there are any meetups in your area](/api/community), and checking out the [Getting Started](/api/faq#Getting_Started) section of the [LessWrong FAQ](/api/faq). If you want to orient to the content on the site, you can also check out the [Concepts section](/tags/all).
+If you want to explore the community more, I recommend [reading the Library](/library), [checking recent Curated posts](/curated), [seeing if there are any meetups in your area](/community), and checking out the [Getting Started](/faq#Getting_Started) section of the [LessWrong FAQ](/faq). If you want to orient to the content on the site, you can also check out the [Concepts section](/tags/all).
 
-The Open Thread tag is [here](/api/tag/open-threads?sortedBy=new). The Open Thread sequence is [here](/api/sequence/yai5mppkuCHPQmzpN).`;
+The Open Thread tag is [here](/tag/open-threads?sortedBy=new). The Open Thread sequence is [here](/s/yai5mppkuCHPQmzpN).`;
 
 export type OpenThreadSeasonName = "Spring" | "Summer" | "Autumn" | "Winter";
 
