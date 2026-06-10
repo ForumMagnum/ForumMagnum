@@ -243,11 +243,11 @@ export const ReviewVotingPageMenu = ({reviewPhase, loading, sortedPosts, costTot
                   <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['reviewVoteScoreHighKarma'].title}</span>
                 </LWTooltip>
               </MenuItem>}
-              {reviewPhase !== "COMPLETE" && <MenuItem value={'annualReviewMarketProbability'}>
+              <MenuItem value={'annualReviewMarketProbability'}>
                 <LWTooltip title={sortingInfo['annualReviewMarketProbability'].description} placement="left">
                   <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['annualReviewMarketProbability'].title}</span>
                 </LWTooltip>
-              </MenuItem>}
+              </MenuItem>
               <MenuItem value={'yourVote'}>
                 <LWTooltip title={sortingInfo['yourVote'].description} placement="left">
                   <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['yourVote'].title}</span>
