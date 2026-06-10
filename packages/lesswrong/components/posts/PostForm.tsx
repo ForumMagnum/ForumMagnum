@@ -768,7 +768,7 @@ const PostForm = ({
 
                   return <>
                     by{" "}
-                    {primaryUserId === initialData.userId
+                    {!primaryUserId || primaryUserId === initialData.userId
                       ? <span className={classes.metaAuthorName}>{initialData.user?.displayName ?? currentUser?.displayName}</span>
                       : <UsersNameWrapper documentId={primaryUserId} simple className={classes.metaAuthorName} />
                     }
