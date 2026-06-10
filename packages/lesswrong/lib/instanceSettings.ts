@@ -332,6 +332,8 @@ type AccountInfo = {
 };
 export const adminAccountSetting = new PublicInstanceSetting<AccountInfo | null>('adminAccount', null, "optional");
 
+export const seasonalOpenThreadAuthorSlugSetting = new PublicInstanceSetting<string>('seasonalOpenThread.authorSlug', 'habryka4', "optional");
+
 export const crosspostKarmaThreshold = new PublicInstanceSetting<number | null>('crosspostKarmaThreshold', 100, "optional");
 
 export const hasCookieConsentSetting = new PublicInstanceSetting<boolean>('hasCookieConsent', false, "optional");
