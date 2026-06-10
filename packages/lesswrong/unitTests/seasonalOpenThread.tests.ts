@@ -30,6 +30,6 @@ describe("seasonal open thread helpers", () => {
   it("contains the standard open thread body links", () => {
     expect(OPEN_THREAD_BODY_MARKDOWN).toContain("If it's worth saying");
     expect(OPEN_THREAD_BODY_MARKDOWN).toContain("[Highlights from the Sequences](/highlights)");
-    expect(OPEN_THREAD_BODY_MARKDOWN).toContain("The Open Thread sequence is [here](/api/sequence/yai5mppkuCHPQmzpN)");
+    expect(OPEN_THREAD_BODY_MARKDOWN).toContain("The Open Thread sequence is [here](/s/yai5mppkuCHPQmzpN)");
   });
 });
