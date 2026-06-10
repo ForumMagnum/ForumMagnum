@@ -3,7 +3,7 @@ import { debateEditorPlaceholder, getDefaultEditorPlaceholder, linkpostEditorPla
 import { getLSHandlers, getLSKeyPrefix } from '../editor/localStorageHandlers';
 import { userCanCreateCommitMessages } from '../../lib/betas';
 import { useCurrentUser } from '../common/withUser';
-import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, serializeEditorContents, EditorTypeString, styles, shouldSubmitContents, isValidEditorType, type LegacyEditorTypeString } from './Editor';
+import { Editor, EditorChangeEvent, getUserDefaultEditor, getInitialEditorContents, getBlankEditorContents, EditorContents, isBlank, EditorTypeString, styles, shouldSubmitContents, isValidEditorType, autosaveInterval, type LegacyEditorTypeString } from './Editor';
 import { isCollaborative, PostCategory } from '../../lib/collections/posts/helpers';
 import { DynamicTableOfContentsContext } from '../common/sharedContexts';
 import { AppendToEditorContext } from './AppendToEditorContext';
@@ -16,8 +16,6 @@ import LastEditedInWarning from "./LastEditedInWarning";
 import LocalStorageCheck from "./LocalStorageCheck";
 import EditorTypeSelect from "./EditorTypeSelect";
 import ErrorBoundary from "../common/ErrorBoundary";
-
-const autosaveInterval = 3000; //milliseconds
 
 const getPostPlaceholder = (post: PostsBase) => {
   const { question, postCategory } = post;
@@ -182,15 +180,17 @@ function InnerEditorFormComponent<S, R>({
   const showEditorWarning = (formType !== "new") && (currentEditorType === 'html' || (currentEditorType as LegacyEditorTypeString) === 'draftJS')
 
   const saveBackup = useCallback((newContents: EditorContents) => {
-    const sameAsSaved = newContents.value === document?.[fieldName]?.ckEditorMarkup
+    const savedOriginalContents = document?.[fieldName]?.originalContents;
+    const sameAsSaved = !!savedOriginalContents
+      && savedOriginalContents.type === newContents.type
+      && savedOriginalContents.data === newContents.value;
 
     if (isBlank(newContents) || sameAsSaved) {
       getLocalStorageHandlers(currentEditorType).reset();
       hasUnsavedDataRef.current.hasUnsavedData = false;
     } else {
-      const serialized = serializeEditorContents(newContents);
-      const success = getLocalStorageHandlers(newContents.type).set(serialized);
-      
+      const success = getLocalStorageHandlers(newContents.type).set(newContents);
+
       if (success) {
         hasUnsavedDataRef.current.hasUnsavedData = false;
       }

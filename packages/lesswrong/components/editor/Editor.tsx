@@ -156,19 +156,19 @@ export const styles = (theme: ThemeType) => ({
   },
 })
 
-const autosaveInterval = 3000; //milliseconds
+export const autosaveInterval = 3000; //milliseconds
 const validationInterval = 500; //milliseconds
 
 export type EditorTypeString = "html"|"markdown"|"ckEditorMarkup"|"lexical";
 export type LegacyEditorTypeString = EditorTypeString|"draftJS";
 
-export const getEditorTypeToDisplayMap = (): Record<LegacyEditorTypeString,{name: string, postfix?: string}> => ({
+export const editorTypeToDisplayMap: Record<LegacyEditorTypeString,{name: string, postfix?: string}> = {
   html: {name: 'HTML', postfix: '[Admin Only]'},
   ckEditorMarkup: {name: "CkEditor"},
   markdown: {name: 'Markdown'},
   draftJS: {name: "DraftJS"},
   lexical: {name: 'LessWrong Docs'},
-});
+};
 
 const defaultEditors: EditorTypeString[] = ['lexical', 'ckEditorMarkup']
 const adminEditors: EditorTypeString[] = ['html', 'ckEditorMarkup', 'markdown', 'lexical']
@@ -190,27 +190,21 @@ export const getUserDefaultEditor = (user: UsersCurrent|null): EditorTypeString 
 }
 
 export function isValidEditorType(editorType: string): editorType is EditorTypeString {
-  return editorType in getEditorTypeToDisplayMap() && editorType !== 'draftJS';
+  return editorType in editorTypeToDisplayMap && editorType !== 'draftJS';
 }
 
 // Contents of an editor, with `value` in the native format of the editor
-// (whichever editor that is). For DraftJS in particular, this means `value` is
-// a DraftJS EditorState object.
+// (whichever editor that is): markdown for markdown, HTML for everything
+// else. Caveat: a legacy draftJS document holds its raw draftJS JSON here
+// (typed loosely upstream) until LastEditedInWarning auto-converts it.
 export interface EditorContents {
   type: EditorTypeString,
-  value: any,
+  value: string,
 }
 
 export interface EditorChangeEvent {
   contents: EditorContents,
   autosave: boolean,
-}
-
-
-// Contents of an editor, with `value` in a JSON-serializable format.
-export interface SerializedEditorContents {
-  type: EditorTypeString,
-  value: any,
 }
 
 export interface FormProps {
@@ -275,29 +269,14 @@ export const isBlank = (editorContents: EditorContents): boolean => {
 
 export const getInitialEditorContents = (value: any, document: any, fieldName: string, currentUser: UsersCurrent|null): EditorContents => {
   const initialValue = value?.originalContents || document?.[fieldName]?.originalContents;
-  if (initialValue) {
-    const result = deserializeEditorContents({
+  if (initialValue?.type) {
+    return {
       type: initialValue.type,
       value: initialValue.data,
-    });
-    if (result) {
-      return result;
-    }
+    };
   }
-  
+
   return getBlankEditorContents(getUserDefaultEditor(currentUser));
-}
-
-export const serializeEditorContents = (contents: EditorContents): SerializedEditorContents => {
-  return contents;
-}
-
-export const deserializeEditorContents = (contents: SerializedEditorContents): EditorContents|null => {
-  if (!contents?.type) {
-    return null;
-  } else {
-    return contents;
-  }
 }
 
 /**
@@ -387,8 +366,8 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
    * than submitData calls in general.
    */
   submitData = async ({ includeYjsState = false }: { includeYjsState?: boolean } = {}) => {
-    let data: any = null
-    let dataWithDiscardedSuggestions
+    let data: string | null = null
+    let dataWithDiscardedSuggestions: string | undefined
     let yjsState: string | null = null
     const { updateType, commitMessage, ckEditorReference } = this.state
     const type = this.getCurrentEditorType()

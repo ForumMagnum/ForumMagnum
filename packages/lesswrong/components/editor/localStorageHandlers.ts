@@ -69,8 +69,8 @@ export function safeStorageRemoveItem(storage: Storage|null|undefined, key: stri
 
 // Return a wrapper around localStorage, with get, set, and reset functions
 // which handle the (document, field-name, prefix) => key mapping.
-export const getLSHandlers = (getLocalStorageId: any, doc: any, name: string, prefix: string) => {
-  const { id, verify } = getLocalStorageId(doc, name)
+export const getLSHandlers = (getLocalStorageId: (doc: any, name: string) => {id: string, verify: boolean}, doc: any, name: string, prefix: string) => {
+  const { id } = getLocalStorageId(doc, name)
   const prefixedId = prefix+id;
   
   return {

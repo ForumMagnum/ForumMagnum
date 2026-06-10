@@ -337,7 +337,7 @@ export type ConnectedUserInfo = {
 const readOnlyPermissionsLock = Symbol("ckEditorReadOnlyPermissions");
 const readOnlyLlmFeedbackLoadingLock = Symbol("ckEditorReadOnlyLlmFeedbackLoading");
 
-const getPostEditorToolbarConfig = () => ({
+const postEditorToolbarConfig = {
   blockToolbar: {
     items: [
       'imageUpload',
@@ -380,7 +380,7 @@ const getPostEditorToolbarConfig = () => ({
     ],
     shouldNotGroupWhenFull: true,
   },
-});
+};
 
 
 /**
@@ -549,7 +549,7 @@ const CKPostEditor = ({
   // added to the EditorConfig type via augmentations, but we don't get those
   // augmentations because we're only importing those in the CkEditor bundle.
   const editorConfig = makeEditorConfig({
-    ...getPostEditorToolbarConfig(),
+    ...postEditorToolbarConfig,
     cloudServices: ckEditorCloudConfigured ? {
       tokenUrl: generateTokenRequest(collectionName, fieldName, documentId, key),
       uploadUrl: ckEditorUploadUrlOverrideSetting.get() || ckEditorUploadUrlSetting.get(),

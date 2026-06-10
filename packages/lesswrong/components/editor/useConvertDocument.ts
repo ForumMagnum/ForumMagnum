@@ -1,4 +1,4 @@
-import { EditorContents, EditorTypeString, deserializeEditorContents, serializeEditorContents } from './Editor';
+import { EditorContents, EditorTypeString } from './Editor';
 import { useLazyQuery } from '@apollo/client/react';
 import { gql } from '@/lib/generated/gql-codegen';
 
@@ -19,11 +19,11 @@ export function useConvertDocument({onCompleted}: {
     convertDocument: async (doc: EditorContents, targetFormat: EditorTypeString) => {
       const { data } = await convertDocument({
         variables: {
-          document: serializeEditorContents(doc),
+          document: doc,
           targetFormat: targetFormat,
         }
       });
-      const result = data?.convertDocument && deserializeEditorContents(data.convertDocument);
+      const result: EditorContents|null = data?.convertDocument?.type ? data.convertDocument : null;
       if (result) {
         onCompleted(result);
       } else {

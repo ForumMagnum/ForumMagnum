@@ -21,7 +21,7 @@ import { makeEditorConfig } from './editorConfigs';
 // Uncomment the import and the line below to activate the debugger
 // import CKEditorInspector from '@ckeditor/ckeditor5-inspector';
 
-const getCommentEditorToolbarConfig = () => ({
+const commentEditorToolbarConfig = {
   toolbar: [
     'heading',
     '|',
@@ -42,7 +42,7 @@ const getCommentEditorToolbarConfig = () => ({
     'collapsibleSectionButton',
     'insertClaimButton',
   ],
-});
+};
 
 const CKCommentEditor = ({
   data,
@@ -76,7 +76,7 @@ const CKCommentEditor = ({
   const openCommandPalette = useCommandPalette();
 
   const editorConfig = makeEditorConfig({
-    ...getCommentEditorToolbarConfig(),
+    ...commentEditorToolbarConfig,
     cloudServices: ckEditorCloudConfigured ? {
       // A tokenUrl token is needed here in order for image upload to work.
       // (It's accessible via drag-and-drop onto the comment box, and is
