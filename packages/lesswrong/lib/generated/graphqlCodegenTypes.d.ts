@@ -207,11 +207,6 @@ type AutomatedContentEvaluation = {
   sentenceScores?: Maybe<Array<SentenceScore>>;
 };
 
-type AutosaveContentType = {
-  type?: InputMaybe<Scalars['String']['input']>;
-  value?: InputMaybe<Scalars['ContentTypeData']['input']>;
-};
-
 type Ban = {
   __typename?: 'Ban';
   _id: Scalars['String']['output'];
@@ -3858,7 +3853,6 @@ type Mutation = {
   alignmentPost?: Maybe<Post>;
   analyticsEvent?: Maybe<Scalars['Boolean']['output']>;
   approveUserCurrentContentOnly: Scalars['Boolean']['output'];
-  autosaveRevision?: Maybe<Revision>;
   cancelResearchConversation?: Maybe<ResearchConversationOutput>;
   clickRecommendation?: Maybe<Scalars['Boolean']['output']>;
   connectCrossposter?: Maybe<Scalars['String']['output']>;
@@ -4120,12 +4114,6 @@ type MutationanalyticsEventArgs = {
 
 type MutationapproveUserCurrentContentOnlyArgs = {
   userId: Scalars['String']['input'];
-};
-
-
-type MutationautosaveRevisionArgs = {
-  contents: AutosaveContentType;
-  postId: Scalars['String']['input'];
 };
 
 
@@ -14716,22 +14704,6 @@ type updatePostEditTitleMutationVariables = Exact<{
 
 
 type updatePostEditTitleMutation = updatePostEditTitleMutation_Mutation;
-
-type autosaveRevisionMutation_autosaveRevision_Revision = (
-  { __typename?: 'Revision' }
-  & RevisionEdit
-);
-
-type autosaveRevisionMutation_Mutation = { __typename?: 'Mutation', autosaveRevision: autosaveRevisionMutation_autosaveRevision_Revision | null };
-
-
-type autosaveRevisionMutationVariables = Exact<{
-  postId: Scalars['String']['input'];
-  contents: AutosaveContentType;
-}>;
-
-
-type autosaveRevisionMutation = autosaveRevisionMutation_Mutation;
 
 type HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string };
 

@@ -14,7 +14,7 @@ import { pBodyStyle } from '../../themes/stylePiping';
 import { googleTagManagerIdSetting, isLW, isLWorAF, isAF } from '@/lib/instanceSettings';
 import { globalStyles } from '../../themes/globalStyles/globalStyles';
 import { Helmet } from "@/components/layout/Helmet";
-import { AutosaveEditorStateContextProvider, DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
+import { DisableNoKibitzContextProvider } from '@/components/common/sharedContexts';
 // enable during ACX Everywhere
 // import { HIDE_MAP_COOKIE } from '@/lib/cookies/cookies';
 import Header, { HeaderHeightProvider } from '@/components/layout/Header';
@@ -183,7 +183,6 @@ const Layout = ({children}: {
       <SidebarsWrapper>
       <HideNavigationSidebarContextProvider>
       <EditorCommandsContextProvider>
-      <AutosaveEditorStateContextProvider>
       <LlmChatWrapper>
       <DisableNoKibitzContextProvider>
       <CommentOnSelectionPageWrapper>
@@ -235,7 +234,6 @@ const Layout = ({children}: {
       </CommentOnSelectionPageWrapper>
       </DisableNoKibitzContextProvider>
       </LlmChatWrapper>
-      </AutosaveEditorStateContextProvider>
       </EditorCommandsContextProvider>
       </HideNavigationSidebarContextProvider>
       </SidebarsWrapper>

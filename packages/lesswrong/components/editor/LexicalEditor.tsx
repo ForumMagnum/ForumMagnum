@@ -29,7 +29,6 @@ import { TableContext } from '../lexical/plugins/TablePlugin';
 import PlaygroundNodes from '../lexical/nodes/PlaygroundNodes';
 import PlaygroundEditorTheme from '../lexical/themes/PlaygroundEditorTheme';
 import { ToolbarContext } from '../lexical/context/ToolbarContext';
-import Settings from '../lexical/Settings';
 import { TableCellNode } from '@lexical/table';
 import { CodeHighlightNode, CodeNode } from '@lexical/code';
 import { exportTextNode } from './lexicalDomExport';
@@ -529,12 +528,6 @@ const LexicalEditor = ({
                 </Editor>
                 </ErrorBoundary>
               </div>
-              {/* {!commentEditor && <Settings />} */}
-              {/* {isDevPlayground ? <DocsPlugin /> : null}
-              {isDevPlayground ? <PasteLogPlugin /> : null}
-              {isDevPlayground ? <TestRecorderPlugin /> : null}
-
-              {measureTypingPerf ? <TypingPerfPlugin /> : null} */}
             </ToolbarContext>
           </TableContext>
         </SharedHistoryContext>

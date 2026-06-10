@@ -45,8 +45,6 @@ export const userHasLlmChat = (currentUser: UsersCurrent|DbUser|null): currentUs
   return isLW() && (isAdmin(currentUser) || userIdsWithAccess.includes(currentUser._id));
 }
 
-export const userHasPostAutosave: BetaGate = (user) => isLWorAF() ? adminOnly(user) : disabled(user);
-
 // Non-user-specific features
 export const dialoguesEnabled = () => true;
 export const ckEditorUserSessionsEnabled = () => isLWorAF();

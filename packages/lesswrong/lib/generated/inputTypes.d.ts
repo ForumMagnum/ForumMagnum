@@ -257,7 +257,6 @@ interface Mutation {
   revertPostToRevision: Post | null;
   importUrlAsDraftPost: ExternalPostImportData;
   revertTagToRevision: Tag | null;
-  autosaveRevision: Revision | null;
   convertDocumentEditorType: any;
   lockThread: boolean;
   unlockThread: boolean;
@@ -1136,11 +1135,6 @@ interface ExternalPost {
 interface ExternalPostImportData {
   alreadyExists: boolean | null;
   post: ExternalPost | null;
-}
-
-interface AutosaveContentType {
-  type: string | null;
-  value: ContentTypeData | null;
 }
 
 interface ModeratorIPAddressInfo {
@@ -9223,7 +9217,6 @@ interface GraphQLTypeMap {
   MigrationRun: MigrationRun;
   ExternalPost: ExternalPost;
   ExternalPostImportData: ExternalPostImportData;
-  AutosaveContentType: AutosaveContentType;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
   PangramTextEvaluationResult: PangramTextEvaluationResult;
   ToggleBookmarkInput: ToggleBookmarkInput;

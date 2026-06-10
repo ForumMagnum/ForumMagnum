@@ -6,10 +6,8 @@ import Input from '@/lib/vendor/@material-ui/core/src/Input';
 import Select from '@/lib/vendor/@material-ui/core/src/Select';
 import debounce from 'lodash/debounce';
 import { isClient } from '../../lib/executionEnvironment';
-import { isEAForum } from '../../lib/instanceSettings';
 import type { CollaborativeEditingAccessLevel } from '../../lib/collections/posts/collabEditingPermissions';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
-import { rootStyles as greyEditorStyles } from "../ea-forum/onboarding/EAOnboardingInput";
 import FormLabel from '@/lib/vendor/@material-ui/core/src/FormLabel';
 import {checkEditorValid} from './validation'
 import ContentStyles from "../common/ContentStyles";
@@ -17,7 +15,6 @@ import WarningBanner from "../common/WarningBanner";
 import { Typography } from "../common/Typography";
 import { MenuItem } from "../common/Menus";
 import Loading from "../vulcan-core/Loading";
-import SectionTitle from "../common/SectionTitle";
 import dynamic from 'next/dynamic';
 import { getYjsStateBase64ForPost } from '../lexical/collaboration';
 
@@ -25,14 +22,11 @@ const CKCommentEditor = dynamic(() => import("./CKCommentEditor"));
 const CKPostEditor = dynamic(() => import("./CKPostEditor"));
 const LexicalEditor = dynamic(() => import("./LexicalEditor"));
 
-const getPostEditorHeight = () => isEAForum() ? 250 : 400;
-const getQuestionEditorHeight = () => isEAForum() ? 150 : 400;
+const postEditorHeight = 400;
 const commentEditorHeight = 100;
-const quickTakesEditorHeight = 100;
 const commentMinimalistEditorHeight = 28;
 const postEditorHeightRows = 15;
 const commentEditorHeightRows = 5;
-const quickTakesEditorHeightRows = 5;
 
 export const styles = (theme: ThemeType) => ({
   root: {
@@ -45,9 +39,6 @@ export const styles = (theme: ThemeType) => ({
     display: 'block',
     fontSize: 10,
     marginBottom: 6,
-  },
-  sectionTitle: {
-    fontSize: 12,
   },
   plainEditorContentStyles: {
     marginTop: 0,
@@ -96,9 +87,6 @@ export const styles = (theme: ThemeType) => ({
   ckEditorStyles: {
     ...ckEditorStyles(theme),
   },
-  ckEditorGrey: {
-    ...greyEditorStyles(theme),
-  },
   questionWidth: {
     width: 640,
     [theme.breakpoints.down('sm')]: {
@@ -106,9 +94,9 @@ export const styles = (theme: ThemeType) => ({
     }
   },
   postEditorHeight: {
-    minHeight: getPostEditorHeight(),
+    minHeight: postEditorHeight,
     '& .ck.ck-content': {
-      minHeight: getPostEditorHeight(),
+      minHeight: postEditorHeight,
     },
     '& .ck-sidebar .ck-content': {
       minHeight: "unset"
@@ -120,12 +108,6 @@ export const styles = (theme: ThemeType) => ({
       minHeight: commentEditorHeight,
     }
   },
-  quickTakesEditorHeight: {
-    minHeight: quickTakesEditorHeight,
-    '& .ck.ck-content': {
-      minHeight: quickTakesEditorHeight,
-    }
-  },
   commentMinimalistEditorHeight: {
     '& .ck-editor__editable': {
       maxHeight: "300px"
@@ -133,12 +115,6 @@ export const styles = (theme: ThemeType) => ({
     '& .ck.ck-editor__editable_inline>:last-child': {
       marginBottom: 0
     },
-  },
-  questionEditorHeight: {
-    minHeight: getQuestionEditorHeight(),
-    '& .ck.ck-content': {
-      minHeight: getQuestionEditorHeight(),
-    }
   },
   maxHeight: {
     maxHeight: "calc(100vh - 450px)",
@@ -178,14 +154,6 @@ export const styles = (theme: ThemeType) => ({
     margin: `${24}px 0`,
     color: theme.palette.error.main,
   },
-  // class for the animation transitions of the bot tips card
-  enteredBotTips: {
-    opacity: 1
-  },
-  enteringBotTips: {},
-  exitingBotTips: {},
-  exitedBotTips: {},
-  unmountedBotTips: {},
 })
 
 const autosaveInterval = 3000; //milliseconds
@@ -254,7 +222,6 @@ interface EditorProps {
   ref?: MutableRefObject<Editor|null>,
   currentUser: UsersCurrent|null,
   label?: string,
-  formVariant?: "default" | "grey",
   formType: "edit"|"new",
   documentId?: string,
   collectionName: CollectionNameString,
@@ -274,7 +241,6 @@ interface EditorProps {
   onFocus?: (event: AnyBecauseTodo, editor: AnyBecauseTodo) => void,
   placeholder?: string,
   commentStyles?: boolean,
-  quickTakesStyles?: boolean,
   answerStyles?: boolean,
   questionStyles?: boolean,
   commentEditor?: boolean,
@@ -545,8 +511,8 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
 
-  renderEditorComponent = (contents: EditorContents, forceType?: EditorTypeString) => {
-    switch (forceType ?? contents.type) {
+  renderEditorComponent = (contents: EditorContents) => {
+    switch (contents.type) {
       case "ckEditorMarkup":
         return this.renderCkEditor(contents)
       case "markdown":
@@ -623,7 +589,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         className={classNames(
           this.getHeightClass(),
           classes.ckEditorStyles,
-          this.props.formVariant === "grey" && classes.ckEditorGrey,
         )}
         onClick={this.interceptDetailsBlockClick.bind(this)}
       >
@@ -724,12 +689,9 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
   }
 
   getRows() {
-    const {commentStyles, quickTakesStyles} = this.props;
+    const {commentStyles} = this.props;
     if (commentStyles) {
       return commentEditorHeightRows;
-    }
-    if (quickTakesStyles) {
-      return quickTakesEditorHeightRows;
     }
     return postEditorHeightRows;
   }
@@ -771,7 +733,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
       _classes: classes,
       commentStyles,
       answerStyles,
-      quickTakesStyles,
     } = this.props
     if (commentStyles && answerStyles) {
       return {
@@ -785,12 +746,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
         contentType: "comment",
       }
     }
-    if (quickTakesStyles) {
-      return {
-        className: classes.postBodyStyles,
-        contentType: "comment",
-      }
-    }
     return {
       className: classes.postBodyStyles,
       contentType: "post",
@@ -801,8 +756,6 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
     const {
       _classes: classes,
       commentStyles,
-      quickTakesStyles,
-      questionStyles,
       maxHeight,
       formProps,
     } = this.props;
@@ -813,36 +766,28 @@ export class Editor extends Component<EditorProps,EditorComponentState> {
 
     return classNames({
       [classes.commentEditorHeight]: commentStyles,
-      [classes.quickTakesEditorHeight]: quickTakesStyles,
-      [classes.questionEditorHeight]: questionStyles && !commentStyles,
-      [classes.postEditorHeight]: !commentStyles && !questionStyles,
+      [classes.postEditorHeight]: !commentStyles,
       [classes.maxHeight]: maxHeight,
     });
   }
 
   render() {
     const { loading } = this.state
-    const {label, formVariant, _classes: classes} = this.props;
+    const {label, _classes: classes} = this.props;
     const {className, contentType} = this.getBodyStyles();
 
-    const isGrey = formVariant === "grey";
-    const forceEditorType = isGrey ? "ckEditorMarkup" : undefined;
-
     return <div>
-      {label && isGrey &&
-        <SectionTitle title={label} noTopMargin titleClassName={classes.sectionTitle} />
-      }
       <ContentStyles className={classNames(classes.editor, className)} contentType={contentType}>
-        {label && !isGrey &&
+        {label &&
           <FormLabel className={classes.label}>{label}</FormLabel>
         }
         {loading
           ? <Loading/>
-          : this.renderEditorComponent(this.props.value, forceEditorType)
+          : this.renderEditorComponent(this.props.value)
         }
-        {!isGrey && this.renderUpdateTypeSelect()}
+        {this.renderUpdateTypeSelect()}
       </ContentStyles>
-      {!isGrey && this.renderCommitMessageInput()}
+      {this.renderCommitMessageInput()}
     </div>
   }
 };
