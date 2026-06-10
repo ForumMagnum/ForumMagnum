@@ -24,6 +24,7 @@ import PostsTagsList from "../tagging/PostsTagsList";
 import LWTooltip from "../common/LWTooltip";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { compareReviewMarketProbability } from './reviewVotingSort';
 
 const PostsReviewVotingListMultiQuery = gql(`
   query multiPostReviewVotingPageQuery($selector: PostSelector, $limit: Int, $enableTotal: Boolean) {
@@ -318,6 +319,10 @@ const ReviewVotingPage = ({reviewYear, expandedPost, setExpandedPost}: {
           const reviewedNotVoted2 = post2.reviewCount > 0 && !post2Score
           if (reviewedNotVoted1 && !reviewedNotVoted2) return -1
           if (!reviewedNotVoted1 && reviewedNotVoted2) return 1
+        }
+        if (sortPosts === "annualReviewMarketProbability") {
+          const marketProbabilitySort = compareReviewMarketProbability(post1, post2);
+          if (marketProbabilitySort !== 0) return marketProbabilitySort;
         }
         if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] > post2[sortPosts]) return -1
         if (fieldIn(sortPosts, post1, post2) && post1[sortPosts] < post2[sortPosts]) return 1

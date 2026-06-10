@@ -115,6 +115,10 @@ export const sortingInfo: Record<string, {title: string, description: string}> =
     title: "Nomination Vote Total",
     description: "Shows the most likely winners of the review, based on the preliminary vote. Find over/underappreciated posts to review."
   },
+  annualReviewMarketProbability: {
+    title: "Manifold Probability",
+    description: "Sort by Manifold's current predicted probability that the post will make the LessWrong Review top 50."
+  },
   reviewVoteScoreAF: {
     title: "Vote Total (Alignment Forum Users)",
     description: "See what Alignment Forum users thought were the best posts."
@@ -237,6 +241,11 @@ export const ReviewVotingPageMenu = ({reviewPhase, loading, sortedPosts, costTot
               {reviewPhase === "REVIEWS" && <MenuItem value={'reviewVoteScoreHighKarma'}>
                 <LWTooltip title={sortingInfo['reviewVoteScoreHighKarma'].description} placement="left">
                   <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['reviewVoteScoreHighKarma'].title}</span>
+                </LWTooltip>
+              </MenuItem>}
+              {reviewPhase !== "COMPLETE" && <MenuItem value={'annualReviewMarketProbability'}>
+                <LWTooltip title={sortingInfo['annualReviewMarketProbability'].description} placement="left">
+                  <span><span className={classes.sortBy}>Sort by</span> {sortingInfo['annualReviewMarketProbability'].title}</span>
                 </LWTooltip>
               </MenuItem>}
               <MenuItem value={'yourVote'}>
