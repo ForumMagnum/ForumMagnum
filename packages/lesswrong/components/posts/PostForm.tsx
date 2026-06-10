@@ -243,17 +243,17 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     display: "inline",
     background: "none",
     border: "none",
-    padding: 0,
+    padding: "0 3px",
     margin: 0,
     marginLeft: 4,
     cursor: "pointer",
     color: theme.palette.text.dim3,
-    opacity: 0.35,
+    opacity: 0.6,
     fontSize: "0.85em",
     lineHeight: "inherit",
     verticalAlign: "baseline",
     "&:hover": {
-      opacity: 0.85,
+      opacity: 1,
       textDecoration: "underline",
     },
   },
@@ -795,7 +795,7 @@ const PostForm = ({
                                   field.handleChange(transferFields.coauthorUserIds);
                                 }}
                               >
-                                make primary
+                                (make primary)
                               </button>
                             )}
                           </span>
