@@ -19,31 +19,49 @@ export function getBrowserSessionStorage() {
   }
 }
 
-export function safeStorageGetItem(storage: Storage | null | undefined, key: string): string | null {
+/**
+ * Read a value from localStorage. If this throws something, console-log it,
+ * but don't let the exception escape or send it to sentry, because some amount
+ * of localStorage failure is expected (especially inside of bots that execute
+ * JS).
+ */
+export function safeStorageGetItem(storage: Storage|null|undefined, key: string): string|null {
   if (!storage) return null;
   try {
     return storage.getItem(key);
-  } catch {
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.error(e);
     return null;
   }
 }
 
-export function safeStorageSetItem(storage: Storage | null | undefined, key: string, value: string): boolean {
+/**
+ * Save a value to localStorage. If this throws something, console-log it and
+ * return false, but don't let the exception escape or send it to sentry,
+ * because some amount of localStorage failure is expected (especially inside
+ * of bots that execute JS).
+ */
+export function safeStorageSetItem(storage: Storage|null|undefined, key: string, value: string): boolean {
   if (!storage) return false;
   try {
     storage.setItem(key, value);
     return true;
-  } catch {
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.error(e);
     return false;
   }
 }
 
-export function safeStorageRemoveItem(storage: Storage | null | undefined, key: string): boolean {
+export function safeStorageRemoveItem(storage: Storage|null|undefined, key: string): boolean {
   if (!storage) return false;
   try {
     storage.removeItem(key);
     return true;
-  } catch {
+  } catch(e) {
+    // eslint-disable-next-line no-console
+    console.error(e);
     return false;
   }
 }
