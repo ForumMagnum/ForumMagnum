@@ -524,6 +524,9 @@ const baseBodyStyles = (theme: ThemeType) => ({
     textAlign: 'right',
     minWidth: 25,
   },
+  '& span.math-tex': {
+    display: "inline-block",
+  },
   '& code': {
     ...theme.typography.code
   },

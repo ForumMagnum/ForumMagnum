@@ -35,9 +35,14 @@ type PassedThroughContentItemBodyProps = Pick<ContentItemBodyProps, "description
 export const rootTagShouldBeHorizontallyScrollable = (tagName: string, attribs: Record<string, AnyBecauseHard>): boolean => {
   if (['p','div','table','figure'].includes(tagName)) {
     return true;
+  } else if (tagName === "span") {
+    const classes = (attribs.className ?? "").split(" ");
+    return classes.includes("math-tex");
+  } else if (tagName === 'mjx-container') {
+    return attribs.display === 'true';
+  } else {
+    return false;
   }
-
-  return tagName === 'mjx-container' && attribs.display === 'true';
 }
 
 type SubstitutionsAttr = Array<{substitutionIndex: number, isSplitContinuation: boolean, invertColors?: boolean}>;
