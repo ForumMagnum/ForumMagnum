@@ -13,6 +13,9 @@ Sentry?.init({
   environment: process.env.NODE_ENV ?? "development",
 
   integrations: [
+    Sentry.breadcrumbsIntegration({
+      console: false,
+    }),
     Sentry.dedupeIntegration(),
     Sentry.extraErrorDataIntegration(),
   ],
