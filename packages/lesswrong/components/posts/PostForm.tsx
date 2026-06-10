@@ -3,7 +3,7 @@ import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlacehold
 import { isLWorAF, isEAForum } from "@/lib/instanceSettings";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useMemo, useEffect, useState, useRef, useCallback } from "react";
+import React, { useContext, useMemo, useEffect, useState, useRef, useCallback } from "react";
 import { createPortal } from "react-dom";
 import { useCurrentUser } from "../common/withUser";
 import { EditTitle } from "../editor/EditTitle";
@@ -44,6 +44,7 @@ import { LW_POST_TITLE_FONT_SIZE } from "../posts/PostsPage/PostsPageTitle";
 import CollabEditorPermissionsNotices from "../editor/CollabEditorPermissionsNotices";
 import { gql } from "@/lib/generated/gql-codegen";
 import type { EditorTypeString } from "../editor/Editor";
+import { SidebarsContext } from "../layout/SidebarsWrapper";
 
 const PostsEditMutationFragmentUpdateMutation = gql(`
   mutation updatePostPostForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -471,6 +472,7 @@ const PostForm = ({
   const currentUser = useCurrentUser();
   const [editorType, setEditorType] = useState<string | undefined>(initialData.contents?.originalContents.type);
   const isAboveMobile = useIsAboveBreakpoint("md", false);
+  const setSideCommentsActive = useContext(SidebarsContext)?.setSideCommentsActive;
   const [sidebarPanel, setSidebarPanel] = useState<"publish" | "settings" | "sharing" | null>(null);
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
@@ -598,6 +600,11 @@ const PostForm = ({
       setShowComments(false);
     }
   }, [sidebarPanel]);
+
+  useEffect(() => {
+    setSideCommentsActive?.(showComments);
+    return () => setSideCommentsActive?.(false);
+  }, [setSideCommentsActive, showComments]);
 
   const inlineCommentsContext = useMemo(() => ({
     showComments, setShowComments, commentCount, setCommentCount,

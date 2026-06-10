@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { EditorContents } from '../../editor/Editor';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import TableOfContents from "./TableOfContents";
@@ -9,6 +9,7 @@ import type { ToCData, ToCSection } from '@/lib/tableOfContents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useDebouncedCallback } from '@/components/hooks/useDebouncedCallback';
 import classNames from 'classnames';
+import { SidebarsContext } from '@/components/layout/SidebarsWrapper';
 
 const TOC_REFRESH_DEBOUNCE_MS = 300;
 
@@ -154,6 +155,7 @@ export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
   children: React.ReactNode,
 }) => {
   const classes = useStyles(editorStyles);
+  const sidebarsContext = useContext(SidebarsContext);
   const [latestHtml, setLatestHtml] = useState<string | null>(null);
   useEffect(() => {
     const scroller = document.querySelector<HTMLElement>('.ToCColumn-stickyBlockScroller');
@@ -221,6 +223,7 @@ export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
         }]}
         tocRowMap={[0]}
         tocContext="post"
+        reserveRightRail={sidebarsContext?.sideCommentsActive}
       />
     </DynamicTableOfContentsContext.Provider>
   </div>;

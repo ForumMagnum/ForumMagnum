@@ -57,6 +57,42 @@ const styles = defineStyles("MultiToCLayout", (theme: ThemeType) => ({
       `
     },
   },
+  rightRailActive: {
+    gridTemplateColumns: `
+      0px
+      0px
+      minmax(24px, 1fr)
+      minmax(0, ${MAX_COLUMN_WIDTH}px)
+      minmax(0px, 24px)
+      0px
+      minmax(578px, 578px)
+    `,
+    '& $toc, & $rhs': {
+      display: 'none',
+    },
+    [theme.breakpoints.down('md')]: {
+      gridTemplateColumns: `
+        0px
+        0px
+        minmax(24px, 1fr)
+        minmax(0, ${MAX_COLUMN_WIDTH}px)
+        minmax(0px, 12px)
+        0px
+        minmax(498px, 498px)
+      `,
+    },
+    [theme.breakpoints.down('sm')]: {
+      gridTemplateColumns: `
+        0px
+        0px
+        1fr
+        minmax(0,${MAX_COLUMN_WIDTH}px)
+        minmax(5px,1fr)
+        0px
+        0px
+      `,
+    },
+  },
   onEmbeddedPostPage: {
     gridTemplateColumns: `
       0px
@@ -174,13 +210,14 @@ export type ToCLayoutSegment = {
   isCommentToC?: boolean,
 };
 
-const MultiToCLayout = ({segments, tocRowMap = [], showSplashPageHeader = false, tocContext, sharedToCFooter, embedded}: {
+const MultiToCLayout = ({segments, tocRowMap = [], showSplashPageHeader = false, tocContext, sharedToCFooter, embedded, reserveRightRail = false}: {
   segments: ToCLayoutSegment[],
   tocRowMap?: number[], // This allows you to specify which row each ToC should be in, where maybe you want a ToC to span more than one row
   showSplashPageHeader?: boolean,
   tocContext?: 'tag' | 'post',
   sharedToCFooter?: React.ReactNode,
-  embedded?: boolean
+  embedded?: boolean,
+  reserveRightRail?: boolean
 }) => {
   const classes = useStyles(styles);
   const tocVisible = true;
@@ -205,7 +242,11 @@ const MultiToCLayout = ({segments, tocRowMap = [], showSplashPageHeader = false,
   }, []);
 
   return <div className={classes.root} ref={rootRef}>
-    <div className={classNames(classes.tableOfContents, embedded && classes.onEmbeddedPostPage)} style={{ gridTemplateAreas, gridTemplateRows }}>
+    <div className={classNames(
+      classes.tableOfContents,
+      embedded && classes.onEmbeddedPostPage,
+      reserveRightRail && classes.rightRailActive,
+    )} style={{ gridTemplateAreas, gridTemplateRows }}>
       {segments.map((segment,i) => <React.Fragment key={i}>
         {segment.toc && tocVisible && <>
           <div
