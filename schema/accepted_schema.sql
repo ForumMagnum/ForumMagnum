@@ -2999,6 +2999,23 @@ CREATE TABLE "UserActivities" (
 -- Index "idx_UserActivities_visitorId_type"
 CREATE INDEX IF NOT EXISTS "idx_UserActivities_visitorId_type" ON "UserActivities" USING btree ("visitorId", "type");
 
+-- Table "UserBlocks"
+CREATE TABLE "UserBlocks" (
+  _id VARCHAR(27) PRIMARY KEY,
+  "schemaVersion" DOUBLE PRECISION NOT NULL DEFAULT 1,
+  "createdAt" TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP NOT NULL,
+  "legacyData" JSONB,
+  "userId" VARCHAR(27) NOT NULL,
+  "blockedUserId" VARCHAR(27) NOT NULL,
+  "blocked" BOOL NOT NULL DEFAULT TRUE
+);
+
+-- Index "idx_UserBlocks_userId_blockedUserId"
+CREATE UNIQUE INDEX IF NOT EXISTS "idx_UserBlocks_userId_blockedUserId" ON "UserBlocks" USING btree ("userId", "blockedUserId");
+
+-- Index "idx_UserBlocks_blockedUserId_blocked"
+CREATE INDEX IF NOT EXISTS "idx_UserBlocks_blockedUserId_blocked" ON "UserBlocks" USING btree ("blockedUserId", "blocked");
+
 -- Table "UserMostValuablePosts"
 CREATE TABLE "UserMostValuablePosts" (
   _id VARCHAR(27) PRIMARY KEY,

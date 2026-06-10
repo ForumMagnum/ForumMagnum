@@ -1599,6 +1599,17 @@ interface DbUserActivity extends DbObject {
   visitorId: string
 }
 
+type UserBlocksCollection = PgCollection<"UserBlocks">;
+
+interface DbUserBlock extends DbObject {
+  __collectionName?: "UserBlocks"
+  blocked: boolean
+  blockedUserId: string
+  createdAt: Date
+  legacyData: any | null
+  userId: string
+}
+
 type UserMostValuablePostsCollection = PgCollection<"UserMostValuablePosts">;
 
 interface DbUserMostValuablePost extends DbObject {
@@ -2388,6 +2399,7 @@ interface CollectionsByName {
   TypoSuggestions: TypoSuggestionsCollection
   UltraFeedEvents: UltraFeedEventsCollection
   UserActivities: UserActivitiesCollection
+  UserBlocks: UserBlocksCollection
   UserMostValuablePosts: UserMostValuablePostsCollection
   UserRateLimits: UserRateLimitsCollection
   UserTagRels: UserTagRelsCollection
@@ -2484,6 +2496,7 @@ interface ObjectsByCollectionName {
   TypoSuggestions: DbTypoSuggestion
   UltraFeedEvents: DbUltraFeedEvent
   UserActivities: DbUserActivity
+  UserBlocks: DbUserBlock
   UserMostValuablePosts: DbUserMostValuablePost
   UserRateLimits: DbUserRateLimit
   UserTagRels: DbUserTagRel
@@ -2580,6 +2593,7 @@ interface ObjectsByTypeName {
   TypoSuggestion: DbTypoSuggestion
   UltraFeedEvent: DbUltraFeedEvent
   UserActivity: DbUserActivity
+  UserBlock: DbUserBlock
   UserMostValuablePost: DbUserMostValuablePost
   UserRateLimit: DbUserRateLimit
   UserTagRel: DbUserTagRel

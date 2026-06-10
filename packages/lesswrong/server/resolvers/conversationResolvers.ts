@@ -7,6 +7,8 @@ import { createConversation, createConversationGqlMutation } from '../collection
 import { createMessage } from '../collections/messages/mutations';
 import { computeContextFromUser } from '../vulcan-lib/apollo-server/context';
 import { ACCESS_FILTERED, accessFilterSingle } from "@/lib/utils/schemaUtils";
+import { userIsAdmin } from "@/lib/vulcan-users/permissions";
+import { GraphQLError } from "graphql";
 import { backgroundTask } from "../utils/backgroundTask";
 
 export const dmTriggeringEvents = new TupleSet(['newFollowSubscription'] as const)
@@ -121,6 +123,19 @@ export const conversationGqlMutations = {
 
     if (!currentUser) {
       throw new Error("You must be logged in to do this");
+    }
+
+    if (!moderator && !userIsAdmin(currentUser)) {
+      const blockingBlock = await context.UserBlocks.findOne({
+        userId: { $in: participantIds.filter((id) => id !== currentUser._id) },
+        blockedUserId: currentUser._id,
+        blocked: true,
+      });
+      if (blockingBlock) {
+        throw new GraphQLError("This user has blocked you from sending them private messages.", {
+          extensions: { noSentryCapture: true },
+        });
+      }
     }
 
     const afField = isAF() ? { af: true } : {};

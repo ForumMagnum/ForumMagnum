@@ -93,6 +93,7 @@ import { Tweets } from './tweets/collection';
 import { TypingIndicators } from './typingIndicators/collection';
 import { TypoSuggestions } from './typoSuggestions/collection';
 import { UltraFeedEvents } from './ultraFeedEvents/collection';
+import { UserBlocks } from './userBlocks/collection';
 import { UserMostValuablePosts } from './userMostValuablePosts/collection';
 import { UserRateLimits } from './userRateLimits/collection';
 import { UserTagRels } from './userTagRels/collection';
@@ -126,7 +127,7 @@ const allCollections = {
   PodcastEpisodes, Podcasts, PostEmbeddings, PostRecommendations, PostRelations, PostViewTimes, PostViews, Posts, RSSFeeds, ReadStatuses,
   RecommendationsCaches, Reports, ResearchConversationEvents, ResearchConversations, ResearchDocuments, ResearchEnvironments, ResearchProjects, ResearchSandboxSessions, ReviewVotes, ReviewWinnerArts,
   ReviewWinners, Revisions, SandboxBaselineSnapshots, Sequences, Sessions, SideCommentCaches, SplashArtCoordinates, Spotlights, Subscriptions, TagFlags,
-  TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities, UserMostValuablePosts, UserRateLimits,
+  TagRels, Tags, Tweets, TypingIndicators, TypoSuggestions, UltraFeedEvents, UserActivities, UserBlocks, UserMostValuablePosts, UserRateLimits,
   UserTagRels, Users, Votes, YjsDocuments
 } satisfies Record<CollectionNameString, CollectionBase<CollectionNameString>>;
 

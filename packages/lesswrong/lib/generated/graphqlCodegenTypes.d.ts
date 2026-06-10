@@ -1746,6 +1746,16 @@ type CreateUltraFeedEventInput = {
   data: CreateUltraFeedEventDataInput;
 };
 
+type CreateUserBlockDataInput = {
+  blocked?: InputMaybe<Scalars['Boolean']['input']>;
+  blockedUserId: Scalars['String']['input'];
+  legacyData?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type CreateUserBlockInput = {
+  data: CreateUserBlockDataInput;
+};
+
 type CreateUserDataInput = {
   acceptedTos?: InputMaybe<Scalars['Boolean']['input']>;
   acknowledgedNewUserGuidelines?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3768,6 +3778,19 @@ type MultiUltraFeedEventOutput = {
   totalCount?: Maybe<Scalars['Int']['output']>;
 };
 
+type MultiUserBlockInput = {
+  enableCache?: InputMaybe<Scalars['Boolean']['input']>;
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  terms?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type MultiUserBlockOutput = {
+  __typename?: 'MultiUserBlockOutput';
+  results: Array<UserBlock>;
+  totalCount?: Maybe<Scalars['Int']['output']>;
+};
+
 type MultiUserInput = {
   enableCache?: InputMaybe<Scalars['Boolean']['input']>;
   enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
@@ -3894,6 +3917,7 @@ type Mutation = {
   createTagFlag?: Maybe<TagFlagOutput>;
   createUltraFeedEvent?: Maybe<UltraFeedEventOutput>;
   createUser?: Maybe<UserOutput>;
+  createUserBlock?: Maybe<UserBlockOutput>;
   createUserMostValuablePost?: Maybe<UserMostValuablePostOutput>;
   createUserRateLimit?: Maybe<UserRateLimitOutput>;
   createUserTagRel?: Maybe<UserTagRelOutput>;
@@ -3988,6 +4012,7 @@ type Mutation = {
   updateTagFlag?: Maybe<TagFlagOutput>;
   updateUltraFeedEvent?: Maybe<UltraFeedEventOutput>;
   updateUser?: Maybe<UserOutput>;
+  updateUserBlock?: Maybe<UserBlockOutput>;
   updateUserMostValuablePost?: Maybe<UserMostValuablePostOutput>;
   updateUserRateLimit?: Maybe<UserRateLimitOutput>;
   updateUserTagRel?: Maybe<UserTagRelOutput>;
@@ -4307,6 +4332,11 @@ type MutationcreateUltraFeedEventArgs = {
 
 type MutationcreateUserArgs = {
   data: CreateUserDataInput;
+};
+
+
+type MutationcreateUserBlockArgs = {
+  data: CreateUserBlockDataInput;
 };
 
 
@@ -4866,6 +4896,12 @@ type MutationupdateUltraFeedEventArgs = {
 
 type MutationupdateUserArgs = {
   data: UpdateUserDataInput;
+  selector: SelectorInput;
+};
+
+
+type MutationupdateUserBlockArgs = {
+  data: UpdateUserBlockDataInput;
   selector: SelectorInput;
 };
 
@@ -7357,6 +7393,8 @@ type Query = {
   ultraFeedEvents?: Maybe<MultiUltraFeedEventOutput>;
   unreadNotificationCounts: NotificationCounts;
   user?: Maybe<SingleUserOutput>;
+  userBlock?: Maybe<SingleUserBlockOutput>;
+  userBlocks?: Maybe<MultiUserBlockOutput>;
   userMostValuablePost?: Maybe<SingleUserMostValuablePostOutput>;
   userMostValuablePosts?: Maybe<MultiUserMostValuablePostOutput>;
   userRateLimit?: Maybe<SingleUserRateLimitOutput>;
@@ -8567,6 +8605,21 @@ type QueryultraFeedEventsArgs = {
 type QueryuserArgs = {
   input?: InputMaybe<SingleUserInput>;
   selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QueryuserBlockArgs = {
+  input?: InputMaybe<SingleUserBlockInput>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+
+type QueryuserBlocksArgs = {
+  enableTotal?: InputMaybe<Scalars['Boolean']['input']>;
+  input?: InputMaybe<MultiUserBlockInput>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+  offset?: InputMaybe<Scalars['Int']['input']>;
+  selector?: InputMaybe<UserBlockSelector>;
 };
 
 
@@ -9841,6 +9894,16 @@ type SingleUltraFeedEventInput = {
 type SingleUltraFeedEventOutput = {
   __typename?: 'SingleUltraFeedEventOutput';
   result?: Maybe<UltraFeedEvent>;
+};
+
+type SingleUserBlockInput = {
+  resolverArgs?: InputMaybe<Scalars['JSON']['input']>;
+  selector?: InputMaybe<SelectorInput>;
+};
+
+type SingleUserBlockOutput = {
+  __typename?: 'SingleUserBlockOutput';
+  result?: Maybe<UserBlock>;
 };
 
 type SingleUserInput = {
@@ -11246,6 +11309,16 @@ type UpdateUltraFeedEventDataInput = {
   event?: InputMaybe<Scalars['JSON']['input']>;
 };
 
+type UpdateUserBlockDataInput = {
+  blocked?: InputMaybe<Scalars['Boolean']['input']>;
+  legacyData?: InputMaybe<Scalars['JSON']['input']>;
+};
+
+type UpdateUserBlockInput = {
+  data: UpdateUserBlockDataInput;
+  selector: SelectorInput;
+};
+
 type UpdateUserDataInput = {
   abTestKey?: InputMaybe<Scalars['String']['input']>;
   abTestOverrides?: InputMaybe<Scalars['JSON']['input']>;
@@ -11819,6 +11892,35 @@ type UserActivity = {
   createdAt: Scalars['Date']['output'];
   legacyData?: Maybe<Scalars['JSON']['output']>;
   schemaVersion: Scalars['Float']['output'];
+};
+
+type UserBlock = {
+  __typename?: 'UserBlock';
+  _id: Scalars['String']['output'];
+  blocked?: Maybe<Scalars['Boolean']['output']>;
+  blockedUser?: Maybe<User>;
+  blockedUserId?: Maybe<Scalars['String']['output']>;
+  createdAt: Scalars['Date']['output'];
+  legacyData?: Maybe<Scalars['JSON']['output']>;
+  schemaVersion: Scalars['Float']['output'];
+  user?: Maybe<User>;
+  userId?: Maybe<Scalars['String']['output']>;
+};
+
+type UserBlockOutput = {
+  __typename?: 'UserBlockOutput';
+  data?: Maybe<UserBlock>;
+};
+
+type UserBlockSelector = {
+  default?: InputMaybe<EmptyViewInput>;
+  userAndBlockedUser?: InputMaybe<UserBlocksUserAndBlockedUserInput>;
+};
+
+type UserBlocksUserAndBlockedUserInput = {
+  blocked?: InputMaybe<Scalars['Boolean']['input']>;
+  blockedUserId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
 };
 
 type UserContentFeedEntry = {
@@ -16172,6 +16274,58 @@ type multiMessageConversationContentsQueryQueryVariables = Exact<{
 
 
 type multiMessageConversationContentsQueryQuery = multiMessageConversationContentsQueryQuery_Query;
+
+type ConversationDetailsUserBlockQuery_userBlocks_MultiUserBlockOutput_results_UserBlock = (
+  { __typename?: 'UserBlock' }
+  & UserBlockFragment
+);
+
+type ConversationDetailsUserBlockQuery_userBlocks_MultiUserBlockOutput = { __typename?: 'MultiUserBlockOutput', results: Array<ConversationDetailsUserBlockQuery_userBlocks_MultiUserBlockOutput_results_UserBlock> };
+
+type ConversationDetailsUserBlockQuery_Query = { __typename?: 'Query', userBlocks: ConversationDetailsUserBlockQuery_userBlocks_MultiUserBlockOutput | null };
+
+
+type ConversationDetailsUserBlockQueryVariables = Exact<{
+  selector: InputMaybe<UserBlockSelector>;
+}>;
+
+
+type ConversationDetailsUserBlockQuery = ConversationDetailsUserBlockQuery_Query;
+
+type CreateUserBlockConversationDetailsMutation_createUserBlock_UserBlockOutput_data_UserBlock = (
+  { __typename?: 'UserBlock' }
+  & UserBlockFragment
+);
+
+type CreateUserBlockConversationDetailsMutation_createUserBlock_UserBlockOutput = { __typename?: 'UserBlockOutput', data: CreateUserBlockConversationDetailsMutation_createUserBlock_UserBlockOutput_data_UserBlock | null };
+
+type CreateUserBlockConversationDetailsMutation_Mutation = { __typename?: 'Mutation', createUserBlock: CreateUserBlockConversationDetailsMutation_createUserBlock_UserBlockOutput | null };
+
+
+type CreateUserBlockConversationDetailsMutationVariables = Exact<{
+  data: CreateUserBlockDataInput;
+}>;
+
+
+type CreateUserBlockConversationDetailsMutation = CreateUserBlockConversationDetailsMutation_Mutation;
+
+type UpdateUserBlockConversationDetailsMutation_updateUserBlock_UserBlockOutput_data_UserBlock = (
+  { __typename?: 'UserBlock' }
+  & UserBlockFragment
+);
+
+type UpdateUserBlockConversationDetailsMutation_updateUserBlock_UserBlockOutput = { __typename?: 'UserBlockOutput', data: UpdateUserBlockConversationDetailsMutation_updateUserBlock_UserBlockOutput_data_UserBlock | null };
+
+type UpdateUserBlockConversationDetailsMutation_Mutation = { __typename?: 'Mutation', updateUserBlock: UpdateUserBlockConversationDetailsMutation_updateUserBlock_UserBlockOutput | null };
+
+
+type UpdateUserBlockConversationDetailsMutationVariables = Exact<{
+  selector: SelectorInput;
+  data: UpdateUserBlockDataInput;
+}>;
+
+
+type UpdateUserBlockConversationDetailsMutation = UpdateUserBlockConversationDetailsMutation_Mutation;
 
 type updateConversationInboxNavigationMutation_updateConversation_ConversationOutput_data_Conversation = (
   { __typename?: 'Conversation' }
@@ -24888,6 +25042,8 @@ type TypoSuggestionsDefaultFragment_TypoSuggestion_author_User = (
 );
 
 type TypoSuggestionsDefaultFragment = { __typename?: 'TypoSuggestion', _id: string, createdAt: string, documentId: string | null, collectionName: string | null, fieldName: string | null, voteId: string | null, authorId: string | null, quote: string | null, llmCanonicalQuote: string | null, proposedReplacement: string | null, narrowedQuote: string | null, narrowedReplacement: string | null, explanation: string | null, llmVerdict: string | null, status: string | null, resolvedByUserId: string | null, appliedRevisionId: string | null, resolvedAt: string | null, reactor: TypoSuggestionsDefaultFragment_TypoSuggestion_reactor_User | null, author: TypoSuggestionsDefaultFragment_TypoSuggestion_author_User | null };
+
+type UserBlockFragment = { __typename?: 'UserBlock', _id: string, userId: string | null, blockedUserId: string | null, blocked: boolean | null };
 
 type UserMostValuablePostInfo = { __typename?: 'UserMostValuablePost', _id: string, userId: string | null, postId: string | null, deleted: boolean | null };
 

@@ -193,6 +193,8 @@ interface Query {
   typingIndicators: MultiTypingIndicatorOutput | null;
   ultraFeedEvent: SingleUltraFeedEventOutput | null;
   ultraFeedEvents: MultiUltraFeedEventOutput | null;
+  userBlock: SingleUserBlockOutput | null;
+  userBlocks: MultiUserBlockOutput | null;
   userMostValuablePost: SingleUserMostValuablePostOutput | null;
   userMostValuablePosts: MultiUserMostValuablePostOutput | null;
   userRateLimit: SingleUserRateLimitOutput | null;
@@ -356,6 +358,8 @@ interface Mutation {
   updateTag: TagOutput | null;
   createUltraFeedEvent: UltraFeedEventOutput | null;
   updateUltraFeedEvent: UltraFeedEventOutput | null;
+  createUserBlock: UserBlockOutput | null;
+  updateUserBlock: UserBlockOutput | null;
   createUserMostValuablePost: UserMostValuablePostOutput | null;
   updateUserMostValuablePost: UserMostValuablePostOutput | null;
   createUserRateLimit: UserRateLimitOutput | null;
@@ -6775,6 +6779,50 @@ interface UserActivity {
   legacyData: any;
 }
 
+interface UserBlock {
+  _id: string;
+  schemaVersion: number;
+  createdAt: Date;
+  legacyData: any;
+  userId: string | null;
+  user: User | null;
+  blockedUserId: string | null;
+  blockedUser: User | null;
+  blocked: boolean | null;
+}
+
+interface SingleUserBlockInput {
+  selector?: SelectorInput | null;
+  resolverArgs?: any;
+}
+
+interface SingleUserBlockOutput {
+  result: UserBlock | null;
+}
+
+interface UserBlocksUserAndBlockedUserInput {
+  userId?: string | null;
+  blockedUserId?: string | null;
+  blocked?: boolean | null;
+}
+
+interface UserBlockSelector {
+  default: EmptyViewInput | null;
+  userAndBlockedUser: UserBlocksUserAndBlockedUserInput | null;
+}
+
+interface MultiUserBlockInput {
+  terms?: any;
+  resolverArgs?: any;
+  enableTotal?: boolean | null;
+  enableCache?: boolean | null;
+}
+
+interface MultiUserBlockOutput {
+  results: Array<UserBlock>;
+  totalCount: number | null;
+}
+
 interface UserMostValuablePost {
   _id: string;
   schemaVersion: number;
@@ -8653,6 +8701,30 @@ interface UltraFeedEventOutput {
   data: UltraFeedEvent | null;
 }
 
+interface CreateUserBlockDataInput {
+  legacyData?: any;
+  blockedUserId: string;
+  blocked?: boolean | null;
+}
+
+interface CreateUserBlockInput {
+  data: CreateUserBlockDataInput;
+}
+
+interface UpdateUserBlockDataInput {
+  legacyData?: any;
+  blocked?: boolean | null;
+}
+
+interface UpdateUserBlockInput {
+  selector: SelectorInput;
+  data: UpdateUserBlockDataInput;
+}
+
+interface UserBlockOutput {
+  data: UserBlock | null;
+}
+
 interface CreateUserMostValuablePostDataInput {
   legacyData?: any;
   postId: string;
@@ -9811,6 +9883,13 @@ interface GraphQLTypeMap {
   MultiUltraFeedEventInput: MultiUltraFeedEventInput;
   MultiUltraFeedEventOutput: MultiUltraFeedEventOutput;
   UserActivity: UserActivity;
+  UserBlock: UserBlock;
+  SingleUserBlockInput: SingleUserBlockInput;
+  SingleUserBlockOutput: SingleUserBlockOutput;
+  UserBlocksUserAndBlockedUserInput: UserBlocksUserAndBlockedUserInput;
+  UserBlockSelector: UserBlockSelector;
+  MultiUserBlockInput: MultiUserBlockInput;
+  MultiUserBlockOutput: MultiUserBlockOutput;
   UserMostValuablePost: UserMostValuablePost;
   SingleUserMostValuablePostInput: SingleUserMostValuablePostInput;
   SingleUserMostValuablePostOutput: SingleUserMostValuablePostOutput;
@@ -9999,6 +10078,11 @@ interface GraphQLTypeMap {
   CreateUltraFeedEventInput: CreateUltraFeedEventInput;
   UpdateUltraFeedEventDataInput: UpdateUltraFeedEventDataInput;
   UltraFeedEventOutput: UltraFeedEventOutput;
+  CreateUserBlockDataInput: CreateUserBlockDataInput;
+  CreateUserBlockInput: CreateUserBlockInput;
+  UpdateUserBlockDataInput: UpdateUserBlockDataInput;
+  UpdateUserBlockInput: UpdateUserBlockInput;
+  UserBlockOutput: UserBlockOutput;
   CreateUserMostValuablePostDataInput: CreateUserMostValuablePostDataInput;
   CreateUserMostValuablePostInput: CreateUserMostValuablePostInput;
   UpdateUserMostValuablePostDataInput: UpdateUserMostValuablePostDataInput;
@@ -10051,6 +10135,7 @@ interface CreateInputsByCollectionName {
   TagFlags: CreateTagFlagInput;
   Tags: CreateTagInput;
   UltraFeedEvents: CreateUltraFeedEventInput;
+  UserBlocks: CreateUserBlockInput;
   UserMostValuablePosts: CreateUserMostValuablePostInput;
   UserRateLimits: CreateUserRateLimitInput;
   UserTagRels: CreateUserTagRelInput;
@@ -10145,6 +10230,7 @@ interface UpdateInputsByCollectionName {
   Spotlights: UpdateSpotlightInput;
   TagFlags: UpdateTagFlagInput;
   Tags: UpdateTagInput;
+  UserBlocks: UpdateUserBlockInput;
   UserMostValuablePosts: UpdateUserMostValuablePostInput;
   UserRateLimits: UpdateUserRateLimitInput;
   UserTagRels: UpdateUserTagRelInput;

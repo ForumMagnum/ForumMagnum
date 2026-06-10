@@ -33,6 +33,7 @@ import PostRecommendations from "@/server/collections/postRecommendations/collec
 import RecommendationsCaches from "@/server/collections/recommendationsCaches/collection";
 import ReviewVotes from "@/server/collections/reviewVotes/collection";
 import TypingIndicators from "@/server/collections/typingIndicators/collection";
+import { UserBlocks } from "@/server/collections/userBlocks/collection";
 import { UserRateLimits } from "@/server/collections/userRateLimits/collection.ts";
 import { createAnonymousContext } from "./vulcan-lib/createContexts";
 
@@ -77,6 +78,7 @@ export const exportUserData = async (
     [RecommendationsCaches, RecommendationsCaches.find({userId})],
     [ReviewVotes, ReviewVotes.find({userId})],
     [TypingIndicators, TypingIndicators.find({userId})],
+    [UserBlocks, UserBlocks.find({userId})],
     [UserRateLimits, UserRateLimits.find({userId})],
     [LWEvents, LWEvents.find({userId})],
     [Localgroups, Localgroups.find({organizerIds: userId})],

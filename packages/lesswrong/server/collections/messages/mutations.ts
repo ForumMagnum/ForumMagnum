@@ -8,8 +8,8 @@ import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFields
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
 import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndReturnCreateAfterProps, runFieldOnCreateCallbacks, runFieldOnUpdateCallbacks, updateAndReturnDocument, assignUserIdToData } from "@/server/vulcan-lib/mutators";
-import { loadByIds } from "@/lib/loaders";
 import gql from "graphql-tag";
+import { GraphQLError } from "graphql";
 
 async function newCheck(user: DbUser | null, document: DbMessage | null, context: ResolverContext) {
   const { Conversations } = context;
@@ -18,9 +18,22 @@ async function newCheck(user: DbUser | null, document: DbMessage | null, context
   if (!conversation) return false;
 
   if (user.conversationsDisabled) {
-    const participants = await loadByIds(context, "Users", conversation.participantIds);
+    const participants = await context.Users.find({ _id: { $in: conversation.participantIds } }).fetch();
     const hasAdminParticipant = participants.some(userIsAdmin);
     if (!hasAdminParticipant) return false;
+  }
+
+  if (!conversation.moderator && !userIsAdmin(user)) {
+    const blockingBlock = await context.UserBlocks.findOne({
+      userId: { $in: conversation.participantIds.filter((id) => id !== user._id) },
+      blockedUserId: user._id,
+      blocked: true,
+    });
+    if (blockingBlock) {
+      throw new GraphQLError("This user has blocked you from sending them private messages.", {
+        extensions: { noSentryCapture: true },
+      });
+    }
   }
 
   return conversation.participantIds.includes(user._id)

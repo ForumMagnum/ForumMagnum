@@ -104,6 +104,8 @@ export const membersGroup = new UserGroup('members', [
   'usermostvaluableposts.new',
   'usermostvaluableposts.edit.own',
   'usermostvaluableposts.remove.own',
+  'userblocks.new',
+  'userblocks.edit.own',
 ]);
 
 export const adminsGroup = new UserGroup('admins', [
@@ -173,6 +175,7 @@ export const adminsGroup = new UserGroup('admins', [
   'tagFlags.edit.all',
   'usermostvaluableposts.edit.all',
   'usermostvaluableposts.remove.all',
+  "userblocks.edit.all",
   "userratelimits.new",
   "userratelimits.edit.all",
 ]);
@@ -199,6 +202,7 @@ export const sunshineRegimentGroup = new UserGroup("sunshineRegiment", [
   'reviewVotes.remove.all',
   'reviewVotes.view.all',
   'spotlights.edit.all',
+  "userblocks.edit.all",
   "userratelimits.new",
   "userratelimits.edit.all",
   'users.edit.all',

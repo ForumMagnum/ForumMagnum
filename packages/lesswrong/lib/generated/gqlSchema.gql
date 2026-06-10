@@ -7325,6 +7325,55 @@ type UserActivity {
   legacyData: JSON
 }
 
+type UserBlock {
+  _id: String!
+  schemaVersion: Float!
+  createdAt: Date!
+  legacyData: JSON
+  userId: String
+  user: User
+  blockedUserId: String
+  blockedUser: User
+  blocked: Boolean
+}
+
+input SingleUserBlockInput {
+  selector: SelectorInput
+  resolverArgs: JSON
+}
+
+type SingleUserBlockOutput {
+  result: UserBlock
+}
+
+input UserBlocksUserAndBlockedUserInput {
+  userId: String
+  blockedUserId: String
+  blocked: Boolean
+}
+
+input UserBlockSelector {
+  default: EmptyViewInput
+  userAndBlockedUser: UserBlocksUserAndBlockedUserInput
+}
+
+input MultiUserBlockInput {
+  terms: JSON
+  resolverArgs: JSON
+  enableTotal: Boolean
+  enableCache: Boolean
+}
+
+type MultiUserBlockOutput {
+  results: [UserBlock!]!
+  totalCount: Int
+}
+
+extend type Query {
+  userBlock(input: SingleUserBlockInput @deprecated(reason: "Use the selector field instead"), selector: SelectorInput): SingleUserBlockOutput
+  userBlocks(input: MultiUserBlockInput @deprecated(reason: "Use the selector field instead"), selector: UserBlockSelector, limit: Int, offset: Int, enableTotal: Boolean): MultiUserBlockOutput
+}
+
 type UserMostValuablePost {
   _id: String!
   schemaVersion: Float!
@@ -9490,6 +9539,35 @@ type UltraFeedEventOutput {
 extend type Mutation {
   createUltraFeedEvent(data: CreateUltraFeedEventDataInput!): UltraFeedEventOutput
   updateUltraFeedEvent(selector: String!, data: UpdateUltraFeedEventDataInput!): UltraFeedEventOutput
+}
+
+input CreateUserBlockDataInput {
+  legacyData: JSON
+  blockedUserId: String!
+  blocked: Boolean
+}
+
+input CreateUserBlockInput {
+  data: CreateUserBlockDataInput!
+}
+
+input UpdateUserBlockDataInput {
+  legacyData: JSON
+  blocked: Boolean
+}
+
+input UpdateUserBlockInput {
+  selector: SelectorInput!
+  data: UpdateUserBlockDataInput!
+}
+
+type UserBlockOutput {
+  data: UserBlock
+}
+
+extend type Mutation {
+  createUserBlock(data: CreateUserBlockDataInput!): UserBlockOutput
+  updateUserBlock(selector: SelectorInput!, data: UpdateUserBlockDataInput!): UserBlockOutput
 }
 
 input CreateUserMostValuablePostDataInput {
