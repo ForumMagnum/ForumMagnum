@@ -44,6 +44,7 @@ import { LW_POST_TITLE_FONT_SIZE } from "../posts/PostsPage/PostsPageTitle";
 import CollabEditorPermissionsNotices from "../editor/CollabEditorPermissionsNotices";
 import { gql } from "@/lib/generated/gql-codegen";
 import type { EditorTypeString } from "../editor/Editor";
+import { getPrimaryAuthorTransferFields } from "@/lib/collections/posts/primaryAuthor";
 
 const PostsEditMutationFragmentUpdateMutation = gql(`
   mutation updatePostPostForm($selector: SelectorInput!, $data: UpdatePostDataInput!) {
@@ -235,6 +236,25 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     opacity: 0.35,
     "&:hover": {
       opacity: 0.7,
+    },
+  },
+  metaCoauthorPromote: {
+    ...theme.typography.commentStyle,
+    display: "inline",
+    background: "none",
+    border: "none",
+    padding: 0,
+    margin: 0,
+    marginLeft: 4,
+    cursor: "pointer",
+    color: theme.palette.text.dim3,
+    opacity: 0.35,
+    fontSize: "0.85em",
+    lineHeight: "inherit",
+    verticalAlign: "baseline",
+    "&:hover": {
+      opacity: 0.85,
+      textDecoration: "underline",
     },
   },
   addCoauthorButton: {
@@ -741,29 +761,59 @@ const PostForm = ({
         <LegacyFormGroupLayout groupStyling={false} paddingStyling={false}>
           <div className={classes.metadataRow}>
             <span className={classes.metaAuthorInfo}>
-              by{" "}
-              <span className={classes.metaAuthorName}>{initialData.user?.displayName ?? currentUser?.displayName}</span>
-              <form.Field name="coauthorUserIds">
-                {(field) => <>
-                  {(field.state.value ?? []).map((userId) => (
-                    <span key={userId}>
-                      , <UsersNameWrapper documentId={userId} simple className={classes.metaCoauthorName} />
-                      {canEditMetadata && <span className={classes.metaCoauthorRemove} onClick={() => {
-                        field.handleChange((field.state.value ?? []).filter((uid) => uid !== userId));
-                      }}>&times;</span>}
-                    </span>
-                  ))}
-                  {canEditMetadata && userCanEditCoauthors(currentUser) && (
-                    <button
-                      type="button"
-                      className={classes.addCoauthorButton}
-                      title="Add co-author"
-                      onClick={() => setShowCoauthorSearch((v) => !v)}
-                    >
-                      {" +"}
-                    </button>
-                  )}
-                </>}
+              <form.Field name="userId">
+                {(primaryAuthorField) => {
+                  const primaryUserId = primaryAuthorField.state.value ?? initialData.userId;
+                  const canChangePrimaryAuthor = !!currentUser?.isAdmin && !!primaryUserId;
+
+                  return <>
+                    by{" "}
+                    {primaryUserId === initialData.userId
+                      ? <span className={classes.metaAuthorName}>{initialData.user?.displayName ?? currentUser?.displayName}</span>
+                      : <UsersNameWrapper documentId={primaryUserId} simple className={classes.metaAuthorName} />
+                    }
+                    <form.Field name="coauthorUserIds">
+                      {(field) => <>
+                        {(field.state.value ?? []).map((userId) => (
+                          <span key={userId}>
+                            , <UsersNameWrapper documentId={userId} simple className={classes.metaCoauthorName} />
+                            {canEditMetadata && <span className={classes.metaCoauthorRemove} onClick={() => {
+                              field.handleChange((field.state.value ?? []).filter((uid) => uid !== userId));
+                            }}>&times;</span>}
+                            {canEditMetadata && canChangePrimaryAuthor && (
+                              <button
+                                type="button"
+                                className={classes.metaCoauthorPromote}
+                                title="Make primary author"
+                                onClick={() => {
+                                  const transferFields = getPrimaryAuthorTransferFields({
+                                    currentPrimaryUserId: primaryUserId,
+                                    coauthorUserIds: field.state.value ?? [],
+                                    promotedUserId: userId,
+                                  });
+                                  primaryAuthorField.handleChange(transferFields.userId);
+                                  field.handleChange(transferFields.coauthorUserIds);
+                                }}
+                              >
+                                make primary
+                              </button>
+                            )}
+                          </span>
+                        ))}
+                        {canEditMetadata && userCanEditCoauthors(currentUser) && (
+                          <button
+                            type="button"
+                            className={classes.addCoauthorButton}
+                            title="Add co-author"
+                            onClick={() => setShowCoauthorSearch((v) => !v)}
+                          >
+                            {" +"}
+                          </button>
+                        )}
+                      </>}
+                    </form.Field>
+                  </>;
+                }}
               </form.Field>
             </span>
 
