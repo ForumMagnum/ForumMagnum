@@ -15,19 +15,30 @@ export function getPrimaryAuthorTransferFields({
   promotedUserId,
 }: PrimaryAuthorTransferInput): PrimaryAuthorTransferFields {
   const promotedIndex = coauthorUserIds.indexOf(promotedUserId);
-  const nextCoauthorUserIds = coauthorUserIds.filter((userId) =>
-    userId !== promotedUserId && userId !== currentPrimaryUserId
-  );
+  const nextCoauthorUserIds = coauthorUserIds.filter((userId) => userId !== promotedUserId);
 
-  if (currentPrimaryUserId && currentPrimaryUserId !== promotedUserId) {
+  if (
+    currentPrimaryUserId &&
+    currentPrimaryUserId !== promotedUserId &&
+    !nextCoauthorUserIds.includes(currentPrimaryUserId)
+  ) {
     const insertionIndex = promotedIndex >= 0
       ? Math.min(promotedIndex, nextCoauthorUserIds.length)
       : 0;
     nextCoauthorUserIds.splice(insertionIndex, 0, currentPrimaryUserId);
   }
 
+  const seenUserIds = new Set<string>();
+  const dedupedCoauthorUserIds = nextCoauthorUserIds.filter((userId) => {
+    if (seenUserIds.has(userId)) {
+      return false;
+    }
+    seenUserIds.add(userId);
+    return true;
+  });
+
   return {
     userId: promotedUserId,
-    coauthorUserIds: nextCoauthorUserIds,
+    coauthorUserIds: dedupedCoauthorUserIds,
   };
 }
