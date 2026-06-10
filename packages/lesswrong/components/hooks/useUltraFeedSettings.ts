@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { getBrowserLocalStorage } from '@/components/editor/localStorageHandlers';
+import { getBrowserLocalStorage, safeStorageGetItem, safeStorageSetItem } from '@/components/editor/localStorageHandlers';
 import { useTracking } from '@/lib/analyticsEvents';
 import { useCurrentUser } from '../common/withUser';
 import { useUpdateCurrentUser } from './useUpdateCurrentUser';
@@ -23,12 +23,12 @@ export interface UseUltraFeedSettingsResult {
   truncationMaps: { commentMap: Record<TruncationLevel, number>, postMap: Record<TruncationLevel, number> };
 }
 
-const readStoredSettings = (deviceDefaultSettings: UltraFeedSettingsType): UltraFeedSettingsType | null => {
+export const readStoredSettings = (deviceDefaultSettings: UltraFeedSettingsType): UltraFeedSettingsType | null => {
   const ls = getBrowserLocalStorage();
   if (!ls) return null;
-  const raw = ls.getItem(ULTRA_FEED_SETTINGS_KEY);
-  if (!raw) return null;
   try {
+    const raw = safeStorageGetItem(ls, ULTRA_FEED_SETTINGS_KEY);
+    if (!raw) return null;
     const parsed = JSON.parse(raw);
     // Deep merge user settings with defaults to handle missing fields
     return merge(
@@ -68,10 +68,9 @@ const chooseNewestSettings = (
   return localTimestamp >= userTimestamp ? localSettings : userSettings;
 };
 
-const writeStoredSettings = (next: UltraFeedSettingsType): void => {
+export const writeStoredSettings = (next: UltraFeedSettingsType): boolean => {
   const ls = getBrowserLocalStorage();
-  if (!ls) return;
-  ls.setItem(ULTRA_FEED_SETTINGS_KEY, JSON.stringify(next));
+  return safeStorageSetItem(ls, ULTRA_FEED_SETTINGS_KEY, JSON.stringify(next));
 };
 
 export const useUltraFeedSettings = (): UseUltraFeedSettingsResult => {

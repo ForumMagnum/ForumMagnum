@@ -8,6 +8,7 @@ import { CLIENT_ID_COOKIE } from '../../lib/cookies/cookies';
 import { useCookiesWithConsent } from '../hooks/useCookiesWithConsent';
 import { isLWorAF } from '../../lib/instanceSettings';
 import { getAllUserABTestGroups } from '@/lib/abTestImpl';
+import { getBrowserSessionStorage, safeStorageGetItem, safeStorageSetItem } from '../editor/localStorageHandlers';
 
 export const AnalyticsClient = () => {
   const currentUser = useCurrentUser();
@@ -35,9 +36,10 @@ export const AnalyticsClient = () => {
     
     const tabId = window.tabId;
     if (!tabId) return;
+    const storage = getBrowserSessionStorage();
     const firedKey = `tabStartedFired:${tabId}`;
-    if (sessionStorage.getItem(firedKey)) return;
-    sessionStorage.setItem(firedKey, "1");
+    if (safeStorageGetItem(storage, firedKey)) return;
+    safeStorageSetItem(storage, firedKey, "1");
 
     const userAgent = navigator.userAgent ?? null;
     const abTestGroups = getAllUserABTestGroups(currentUser ? { user: currentUser } : { clientId });
