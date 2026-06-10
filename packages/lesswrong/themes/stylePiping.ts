@@ -12,6 +12,10 @@ const hideSpoilers = (theme: ThemeType) => ({
   '& img, & video, & iframe, & svg, & canvas': {
     opacity: 0,
   },
+  '& .llm-content-block::before': {
+    color: theme.palette.panelBackground.spoilerBlock,
+    borderRightColor: theme.palette.panelBackground.spoilerBlock,
+  },
 });
 
 const spoilerStyles = (theme: ThemeType) => ({
