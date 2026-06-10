@@ -79,6 +79,39 @@ describe("commentOnDraft quote matching", () => {
     expect(getMarkedTextContent(editor, markId)).toBe("This is a test post.");
   });
 
+  it("attaches a mark when quote is within a non-first ordered list item", async () => {
+    const editor = await setupEditorWithContent(
+      "1. First item.\n2. Second item has the exact quoted phrase inside it."
+    );
+    const markId = randomId();
+    const { quoteFoundInDocument, markCreated } = await attachCommentMark(
+      editor,
+      "exact quoted phrase",
+      markId,
+    );
+
+    expect(quoteFoundInDocument).toBe(true);
+    expect(markCreated).toBe(true);
+    expect(getAllMarkIds(editor)).toContain(markId);
+    expect(getMarkedTextContent(editor, markId)).toBe("exact quoted phrase");
+  });
+
+  it("attaches a mark when structured quote includes an ordered list continuation paragraph", async () => {
+    const editor = await setupEditorWithContent(
+      "1. First item.\n\n   Continuation paragraph has the exact quoted phrase inside it.\n2. Second item."
+    );
+    const markId = randomId();
+    const { quoteFoundInDocument, markCreated } = await attachCommentMark(
+      editor,
+      "1. First item.\n\n   Continuation paragraph has the exact quoted phrase",
+      markId,
+    );
+
+    expect(quoteFoundInDocument).toBe(true);
+    expect(markCreated).toBe(true);
+    expect(getAllMarkIds(editor)).toContain(markId);
+  });
+
   it("attaches a mark when quote spans a link boundary", async () => {
     // Quote starts in plain text, crosses into a link's visible text, and
     // exits back into plain text.

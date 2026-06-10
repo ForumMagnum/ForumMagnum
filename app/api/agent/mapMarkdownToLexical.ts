@@ -3,6 +3,7 @@ import {
   $getNodeByKey,
   $isDecoratorNode,
   $isElementNode,
+  $isLineBreakNode,
   $isTextNode,
   type LexicalEditor,
   type LexicalNode,
@@ -301,6 +302,7 @@ function alignNormalizedQuoteInRaw(
 // the following segment — hence the digit-safety of the `$…$` form — is known.
 type QuoteSegment =
   | { kind: "text", key: string, text: string }
+  | { kind: "linebreak", key: string, text: string }
   | { kind: "math", key: string, text: string, equation: string, inline: boolean };
 
 function findTextRangeInNodeByPlainQuote(
@@ -328,6 +330,15 @@ function findTextRangeInNodeByPlainQuote(
         kind: "text",
         key: currentNode.getKey(),
         text: currentNode.getTextContent(),
+      });
+      return;
+    }
+
+    if ($isLineBreakNode(currentNode)) {
+      segments.push({
+        kind: "linebreak",
+        key: currentNode.getKey(),
+        text: "\n",
       });
       return;
     }
