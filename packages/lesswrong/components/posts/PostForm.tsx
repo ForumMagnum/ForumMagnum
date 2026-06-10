@@ -472,7 +472,9 @@ const PostForm = ({
   const currentUser = useCurrentUser();
   const [editorType, setEditorType] = useState<string | undefined>(initialData.contents?.originalContents.type);
   const isAboveMobile = useIsAboveBreakpoint("md", false);
-  const setSideCommentsActive = useContext(SidebarsContext)?.setSideCommentsActive;
+  const sidebarsContext = useContext(SidebarsContext);
+  const sideCommentsActive = sidebarsContext?.sideCommentsActive ?? false;
+  const setSideCommentsActive = sidebarsContext?.setSideCommentsActive;
   const [sidebarPanel, setSidebarPanel] = useState<"publish" | "settings" | "sharing" | null>(null);
   const [showComments, setShowComments] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
@@ -602,9 +604,13 @@ const PostForm = ({
   }, [sidebarPanel]);
 
   useEffect(() => {
-    setSideCommentsActive?.(showComments);
+    if (!setSideCommentsActive || sideCommentsActive === showComments) return;
+    setSideCommentsActive(showComments);
+  }, [setSideCommentsActive, sideCommentsActive, showComments]);
+
+  useEffect(() => {
     return () => setSideCommentsActive?.(false);
-  }, [setSideCommentsActive, showComments]);
+  }, [setSideCommentsActive]);
 
   const inlineCommentsContext = useMemo(() => ({
     showComments, setShowComments, commentCount, setCommentCount,
