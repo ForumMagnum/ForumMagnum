@@ -1,16 +1,19 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { EditorContents } from '../../editor/Editor';
 import { useDynamicTableOfContents } from '../../hooks/useDynamicTableOfContents';
 import TableOfContents from "./TableOfContents";
 import MultiToCLayout, { HOVER_CLASSNAME } from "./MultiToCLayout";
-import { DynamicTableOfContentsContext } from '@/components/common/sharedContexts';
+import { DynamicTableOfContentsContext, InlineCommentsPanelContext } from '@/components/common/sharedContexts';
 import { isLWorAF } from '@/lib/instanceSettings';
 import type { ToCData, ToCSection } from '@/lib/tableOfContents';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useDebouncedCallback } from '@/components/hooks/useDebouncedCallback';
 import classNames from 'classnames';
+import { CENTRAL_COLUMN_WIDTH } from '../PostsPage/constants';
 
 const TOC_REFRESH_DEBOUNCE_MS = 300;
+// 420px comments panel + 66px right offset at the md editor breakpoint.
+const EDITOR_COMMENTS_RAIL_WIDTH = 486;
 
 const EMPTY_TOC_DATA: ToCData = {
   html: null,
@@ -104,6 +107,25 @@ const editorStyles = defineStyles("DynamicTableOfContents", (theme: ThemeType) =
       },
     },
   },
+  editorLayoutCommentsOpen: {
+    [`@media (min-width: ${theme.breakpoints.values.md}px) and (max-width: ${theme.breakpoints.values.lg - 0.05}px)`]: {
+      '& .ToCColumn-tocActivated': {
+        gridTemplateColumns: `
+          0px
+          0px
+          minmax(20px, 0.5fr)
+          minmax(0, ${CENTRAL_COLUMN_WIDTH}px)
+          minmax(10px, 24px)
+          ${EDITOR_COMMENTS_RAIL_WIDTH}px
+          minmax(0px, 0.5fr)
+          0px
+        `,
+      },
+      '& .ToCColumn-toc': {
+        display: 'none',
+      },
+    },
+  },
   '@global': {
     [`body:has(.headroom--pinned) .${EDITOR_TOC_SCROLLER_CLASS_NAME}, body:has(.headroom--unfixed) .${EDITOR_TOC_SCROLLER_CLASS_NAME}`]: {
       top: 'var(--header-height)',
@@ -154,6 +176,7 @@ export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
   children: React.ReactNode,
 }) => {
   const classes = useStyles(editorStyles);
+  const { showComments } = useContext(InlineCommentsPanelContext);
   const [latestHtml, setLatestHtml] = useState<string | null>(null);
   useEffect(() => {
     const scroller = document.querySelector<HTMLElement>('.ToCColumn-stickyBlockScroller');
@@ -211,7 +234,10 @@ export const DynamicTableOfContents = ({title, rightColumnChildren, children}: {
     fixedPositionToc={true}
   />;
 
-  return <div className={classNames(useFixedPositionToc && classes.editorLayout)}>
+  return <div className={classNames(
+    useFixedPositionToc && classes.editorLayout,
+    useFixedPositionToc && showComments && classes.editorLayoutCommentsOpen,
+  )}>
     <DynamicTableOfContentsContext.Provider value={context}>
       <MultiToCLayout
         segments={[{
