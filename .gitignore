@@ -138,6 +138,3 @@ acxMeetupImports/
 
 # Claude Code
 .claude
-
-# Quote-locator harness local data (post contents/quotes; sensitive)
-quoteMatchHarnessData/
