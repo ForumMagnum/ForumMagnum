@@ -1,9 +1,6 @@
-import { $generateHtmlFromNodes } from "@lexical/html";
-import type { LexicalEditor } from "lexical";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
-import { withDomGlobals } from "@/server/editor/withDomGlobals";
 
-export function unescapeHtmlAttribute(value: string): string {
+function unescapeHtmlAttribute(value: string): string {
   return value
     .replace(/&quot;/g, "\"")
     .replace(/&#39;/g, "'")
@@ -39,25 +36,9 @@ export function convertWidgetIframesToMarkdownFences(markdown: string): string {
  * Convert editor-exported HTML (from `$generateHtmlFromNodes`) into the
  * markdown the agent read API serves: Turndown conversion plus widget-iframe
  * fence rewriting. This is the canonical agent-visible projection of a
- * Lexical document — quote-matching code and its test harness rely on
- * reproducing exactly this output.
+ * Lexical document; quotes sent to the agent write APIs are sliced from it.
  */
 export function agentMarkdownFromEditorHtml(html: string): string {
   return convertWidgetIframesToMarkdownFences(htmlToMarkdown(html));
 }
 
-/**
- * Serialize a (headless) Lexical editor's current state to agent-visible
- * markdown, identically to the live read path (`getLiveLexicalMarkdown`)
- * minus its `transformHtml` hook.
- */
-export function lexicalEditorToAgentMarkdown(editor: LexicalEditor): string {
-  const html = withDomGlobals(() => {
-    let generated = "";
-    editor.getEditorState().read(() => {
-      generated = $generateHtmlFromNodes(editor, null);
-    });
-    return generated;
-  });
-  return agentMarkdownFromEditorHtml(html);
-}

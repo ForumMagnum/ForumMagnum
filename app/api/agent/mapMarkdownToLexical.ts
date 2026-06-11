@@ -15,8 +15,6 @@ export interface MarkdownQuoteSelectionResult {
   anchor?: MarkdownSelectionPoint
   focus?: MarkdownSelectionPoint
   matchedNodeKey?: string
-  matchedNodeType?: string
-  matchedMarkdown?: string
   reason?: string
 }
 

@@ -90,7 +90,7 @@ function $syncV1BindingToLexical(binding: Binding): void {
  * (from Y.encodeStateAsUpdate) via the @lexical/yjs V1 binding and a mock
  * provider. Replaces the editor's current document with the Yjs content.
  */
-export function hydrateEditorFromYjsBinary(editor: LexicalEditor, binary: Uint8Array): void {
+function hydrateEditorFromYjsBinary(editor: LexicalEditor, binary: Uint8Array): void {
   const ydoc = new Y.Doc();
   Y.applyUpdate(ydoc, binary);
 
