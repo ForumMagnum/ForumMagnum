@@ -74,10 +74,7 @@ export interface QuoteMarkResult {
  */
 export function $attachMarkToQuote(quote: string, markId: string): QuoteMarkResult {
   const root = $getRoot();
-  const result = $locateQuoteWithTextIndex({
-    rootNodeKey: root.getKey(),
-    markdownQuote: quote,
-  });
+  const result = $locateQuoteWithTextIndex(quote);
   if (!result.found || !result.anchor || !result.focus) {
     return { quoteFoundInDocument: result.found, markCreated: false, locateFailureReason: result.reason };
   }

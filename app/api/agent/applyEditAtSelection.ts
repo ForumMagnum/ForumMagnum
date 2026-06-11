@@ -140,7 +140,7 @@ function $blockOfPoint(point: MarkdownSelectionPoint, isFocus: boolean): Lexical
 }
 
 /** Whether both selection points sit inside the same block-level node. */
-export function $pointsShareBlock(
+function $pointsShareBlock(
   anchor: MarkdownSelectionPoint,
   focus: MarkdownSelectionPoint,
 ): boolean {
@@ -265,7 +265,7 @@ function $resolveLastSelectedNode(focus: MarkdownSelectionPoint): LexicalNode | 
  * quote spans multiple inline nodes — across a bold/code boundary, or across
  * an atomic node like a MathNode (selected via an element-type point).
  */
-export function $splitAndCollectSelectedNodes(
+function $splitAndCollectSelectedNodes(
   anchor: MarkdownSelectionPoint,
   focus: MarkdownSelectionPoint,
 ): LexicalNode[] | null {

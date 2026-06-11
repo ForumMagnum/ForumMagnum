@@ -19,10 +19,7 @@ async function locate(editor: LexicalEditor, quote: string): Promise<LocateOutco
   let result: MarkdownQuoteSelectionResult = { found: false };
   let coveredText: string | null = null;
   await runEditorUpdate(editor, () => {
-    result = $locateQuoteWithTextIndex({
-      rootNodeKey: $getRoot().getKey(),
-      markdownQuote: quote,
-    });
+    result = $locateQuoteWithTextIndex(quote);
     if (result.found && result.anchor && result.focus) {
       coveredText = $selectionCoveredText(result.anchor, result.focus)?.text ?? null;
     }

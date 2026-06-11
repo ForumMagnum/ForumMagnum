@@ -51,10 +51,7 @@ async function replaceTextInResearchDoc({
         editor.update(
           () => {
             const root = $getRoot();
-            const selectionResult = $locateQuoteWithTextIndex({
-              rootNodeKey: root.getKey(),
-              markdownQuote: quote,
-            });
+            const selectionResult = $locateQuoteWithTextIndex(quote);
             quoteFoundInDocument = selectionResult.found;
             if (!selectionResult.found || !selectionResult.anchor || !selectionResult.focus) {
               locateFailureReason = selectionResult.reason;

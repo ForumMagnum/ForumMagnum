@@ -1,4 +1,4 @@
-import { $getNodeByKey, $isElementNode, $isRootNode, type LexicalNode } from "lexical";
+import { $getRoot, $isElementNode, $isRootNode, type LexicalNode } from "lexical";
 import { $isListItemNode } from "@lexical/list";
 import { foldPunctuation } from "./editorAgentUtil";
 import { findMathSpansInMarkdown, formatMathToken, type MathSpan } from "@/lib/utils/mathTokens";
@@ -11,7 +11,6 @@ import {
   $projectDocumentText,
   type DocumentProjection,
   type ProjectionSegment,
-  type QuoteLocator,
 } from "./quoteLocator";
 
 /**
@@ -66,7 +65,11 @@ export function projectQuoteToRenderedText(
     // read-path syntax that markdown-it would otherwise render literally.
     .replace(/^\+\+\+ ?/gm, "")
     // LLM-content-block fences (`%%% llm-output …` / `%%% /llm-output`).
-    .replace(/^%%%[^\n]*$/gm, "");
+    .replace(/^%%%[^\n]*$/gm, "")
+    // Widget fences embed raw srcdoc HTML; the corresponding iframe node
+    // projects to zero width on the document side, so a quote spanning a
+    // widget must drop the fence to stay matchable.
+    .replace(/```widget\[[^\]]*\][\s\S]*?```/g, "");
   return markdownQuoteToRenderedPlainText(withoutAgentSyntax, {
     bracketDisplayMath: options?.bracketDisplayMath ?? false,
   });
@@ -209,9 +212,10 @@ function stripInlineMarkers(value: string): StrippedText {
 
 const MAX_COUNTED_OCCURRENCES = 9;
 
-function countOccurrences(haystack: string, needle: string): number {
-  let count = 0;
-  let index = haystack.indexOf(needle);
+/** Occurrence count given an already-found first match index. */
+function countOccurrencesFrom(haystack: string, needle: string, firstIndex: number): number {
+  let count = 1;
+  let index = haystack.indexOf(needle, firstIndex + 1);
   while (index !== -1 && count <= MAX_COUNTED_OCCURRENCES) {
     count++;
     index = haystack.indexOf(needle, index + 1);
@@ -297,26 +301,50 @@ function $buildNormalizedDocument(): NormalizedDocument {
 
 type LocateOutcome = "found" | "not_found" | "ambiguous" | "empty";
 
-function locateNormalizedQuote(
-  projection: DocumentProjection,
-  normalizedDocument: TrackedNormalization,
-  normalizedQuote: string,
-): { outcome: LocateOutcome, result: MarkdownQuoteSelectionResult } {
-  if (!normalizedQuote) {
+interface LocateAttempt {
+  outcome: LocateOutcome
+  result: MarkdownQuoteSelectionResult
+}
+
+/**
+ * Search a haystack for the needle, enforce uniqueness, and resolve the
+ * match to selection points. `toNormalizedIndex` maps a haystack character
+ * index back to an index in the normalized document — the identity for the
+ * primary tier, and the marker-blind tier's source map for the fallback —
+ * after which `toRawStart`/`toRawEnd` map into the projection.
+ * `ambiguityQualifier` is appended to the occurrence count in the error
+ * (e.g. "(matching with formatting markers ignored)").
+ */
+function locateInSearchSpace({
+  projection,
+  normalizedDocument,
+  haystack,
+  needle,
+  toNormalizedIndex,
+  ambiguityQualifier,
+}: {
+  projection: DocumentProjection
+  normalizedDocument: TrackedNormalization
+  haystack: string
+  needle: string
+  toNormalizedIndex: (haystackIndex: number) => number
+  ambiguityQualifier?: string
+}): LocateAttempt {
+  if (!needle) {
     return {
       outcome: "empty",
       result: { found: false, reason: "Quote was empty after normalization." },
     };
   }
 
-  const matchIndex = normalizedDocument.text.indexOf(normalizedQuote);
+  const matchIndex = haystack.indexOf(needle);
   if (matchIndex === -1) {
     return {
       outcome: "not_found",
       result: { found: false, reason: "Quote not found in document." },
     };
   }
-  const occurrences = countOccurrences(normalizedDocument.text, normalizedQuote);
+  const occurrences = countOccurrencesFrom(haystack, needle, matchIndex);
   if (occurrences > 1) {
     const countDescription = occurrences > MAX_COUNTED_OCCURRENCES
       ? `at least ${MAX_COUNTED_OCCURRENCES}`
@@ -325,14 +353,15 @@ function locateNormalizedQuote(
       outcome: "ambiguous",
       result: {
         found: false,
-        reason: `Quote is ambiguous: it appears ${countDescription} times in the document. `
+        reason: `Quote is ambiguous: it appears ${countDescription} times in the document`
+          + `${ambiguityQualifier ? ` ${ambiguityQualifier}` : ""}. `
           + `Provide a longer quote with more surrounding context to disambiguate.`,
       },
     };
   }
 
-  const rawStart = normalizedDocument.toRawStart[matchIndex];
-  const rawEnd = normalizedDocument.toRawEnd[matchIndex + normalizedQuote.length - 1];
+  const rawStart = normalizedDocument.toRawStart[toNormalizedIndex(matchIndex)];
+  const rawEnd = normalizedDocument.toRawEnd[toNormalizedIndex(matchIndex + needle.length - 1)];
   const anchor = resolveRawIndexToPoint(projection, rawStart, false);
   const focus = resolveRawIndexToPoint(projection, rawEnd, true);
   if (!anchor || !focus) {
@@ -351,64 +380,52 @@ function locateNormalizedQuote(
   };
 }
 
+function locateNormalizedQuote(
+  projection: DocumentProjection,
+  normalizedDocument: TrackedNormalization,
+  normalizedQuote: string,
+): LocateAttempt {
+  return locateInSearchSpace({
+    projection,
+    normalizedDocument,
+    haystack: normalizedDocument.text,
+    needle: normalizedQuote,
+    toNormalizedIndex: (index) => index,
+  });
+}
+
 /**
  * Marker-blind fallback: strip inline formatting markers from both the
- * normalized document and the normalized quote, search there, and map the
- * match back through both index layers. Returns null when this tier finds
- * nothing either.
+ * normalized document and the normalized quote, and search there.
  */
 function locateMarkerBlindQuote(
   projection: DocumentProjection,
   normalizedDocument: TrackedNormalization,
   normalizedQuote: string,
-): MarkdownQuoteSelectionResult | null {
-  const blindQuote = stripInlineMarkers(normalizedQuote).text;
-  if (!blindQuote) return null;
+): LocateAttempt {
   const blindDocument = stripInlineMarkers(normalizedDocument.text);
-
-  const matchIndex = blindDocument.text.indexOf(blindQuote);
-  if (matchIndex === -1) return null;
-  const occurrences = countOccurrences(blindDocument.text, blindQuote);
-  if (occurrences > 1) {
-    const countDescription = occurrences > MAX_COUNTED_OCCURRENCES
-      ? `at least ${MAX_COUNTED_OCCURRENCES}`
-      : String(occurrences);
-    return {
-      found: false,
-      reason: `Quote is ambiguous: it appears ${countDescription} times in the document `
-        + `(matching with formatting markers ignored). `
-        + `Provide a longer quote with more surrounding context to disambiguate.`,
-    };
-  }
-
-  const normalizedStart = blindDocument.toSourceIndex[matchIndex];
-  const normalizedEnd = blindDocument.toSourceIndex[matchIndex + blindQuote.length - 1];
-  const rawStart = normalizedDocument.toRawStart[normalizedStart];
-  const rawEnd = normalizedDocument.toRawEnd[normalizedEnd];
-  const anchor = resolveRawIndexToPoint(projection, rawStart, false);
-  const focus = resolveRawIndexToPoint(projection, rawEnd, true);
-  if (!anchor || !focus) {
-    return {
-      found: true,
-      reason: "Quote text was found, but its boundaries could not be resolved to selection points.",
-    };
-  }
-  return { found: true, anchor, focus, matchedNodeKey: anchor.key };
+  return locateInSearchSpace({
+    projection,
+    normalizedDocument,
+    haystack: blindDocument.text,
+    needle: stripInlineMarkers(normalizedQuote).text,
+    toNormalizedIndex: (index) => blindDocument.toSourceIndex[index],
+    ambiguityQualifier: "(matching with formatting markers ignored)",
+  });
 }
 
 /**
- * The text-index implementation of `QuoteLocator`.
+ * Locate a markdown quote in the current document via the text index.
  *
  * Tiers: (1) exact search in normalized rendered-text space; (2) when the
  * quote contains `\[`, the LaTeX display-math reading of it; (3) marker-blind
  * search. Each tier is a strictly more tolerant reading of the same quote;
  * ambiguity at any tier is an error, never a guess.
  *
- * Note: the projection always covers the whole document; `rootNodeKey` is
- * accepted for interface compatibility (every production caller passes the
- * root key) but subtree-restricted location is not supported.
+ * Must be called inside a Lexical read/update context; always searches the
+ * whole document.
  */
-export const $locateQuoteWithTextIndex: QuoteLocator = ({ markdownQuote }) => {
+export function $locateQuoteWithTextIndex(markdownQuote: string): MarkdownQuoteSelectionResult {
   const { projection, normalizedDocument } = $buildNormalizedDocument();
   const normalizedQuote = normalizeTracked(projectQuoteToRenderedText(markdownQuote)).text;
 
@@ -418,24 +435,26 @@ export const $locateQuoteWithTextIndex: QuoteLocator = ({ markdownQuote }) => {
   }
 
   // The primary pass read `\[…\]` as escaped brackets. When that reading
-  // finds nothing and the quote contains the bracket form, retry with the
-  // LaTeX display-math reading (hand-written `\[…\]` math in quotes).
-  if (markdownQuote.includes("\\[")) {
-    const retry = locateNormalizedQuote(
-      projection,
-      normalizedDocument,
-      normalizeTracked(projectQuoteToRenderedText(markdownQuote, { bracketDisplayMath: true })).text,
-    );
-    if (retry.outcome !== "not_found" && retry.outcome !== "empty") {
-      return retry.result;
+  // finds nothing and the quote contains a complete bracket pair, retry with
+  // the LaTeX display-math reading (hand-written `\[…\]` math in quotes).
+  if (markdownQuote.includes("\\[") && markdownQuote.includes("\\]")) {
+    const retryQuote =
+      normalizeTracked(projectQuoteToRenderedText(markdownQuote, { bracketDisplayMath: true })).text;
+    if (retryQuote !== normalizedQuote) {
+      const retry = locateNormalizedQuote(projection, normalizedDocument, retryQuote);
+      if (retry.outcome !== "not_found" && retry.outcome !== "empty") {
+        return retry.result;
+      }
     }
   }
 
   const blind = locateMarkerBlindQuote(projection, normalizedDocument, normalizedQuote);
-  if (blind) return blind;
+  if (blind.outcome !== "not_found" && blind.outcome !== "empty") {
+    return blind.result;
+  }
 
   return primary.result;
-};
+}
 
 export interface BlockPrefixResult {
   node: LexicalNode | null
@@ -449,21 +468,39 @@ export interface BlockPrefixResult {
  * remove one item rather than the whole list; everything else (paragraphs,
  * headings, tables, blockquotes, …) resolves to the top-level block.
  */
-function $blockAncestorOfPoint(point: MarkdownSelectionPoint): LexicalNode | null {
-  let current = $getNodeByKey(point.key);
-  if (!current) return null;
-  // An element point references the parent; the matched node is the child at
-  // the boundary (e.g. a top-level display MathNode under the root).
-  if (point.type === "element" && $isElementNode(current)) {
-    current = current.getChildren()[point.offset] ?? current;
-  }
-  while (current) {
-    if ($isListItemNode(current)) return current;
-    const parent: LexicalNode | null = current.getParent();
-    if (parent && $isRootNode(parent)) return current;
-    current = parent;
-  }
-  return null;
+interface BlockCandidate {
+  node: LexicalNode
+  /** End (exclusive) of the block's span in the raw projected text. */
+  spanEnd: number
+}
+
+/**
+ * Enumerate the prefix-addressable blocks — top-level children plus list
+ * items at any nesting depth — keyed by the raw projection offset of each
+ * block's first content character (its span start plus any leading
+ * whitespace, which normalization skips). When an outer block's first
+ * content coincides with a nested item's (an item that opens with a
+ * sub-list), the innermost block wins, matching deleteBlock's most-specific
+ * targeting.
+ */
+function $enumerateBlocksByContentStart(projection: DocumentProjection): Map<number, BlockCandidate> {
+  const blocks = new Map<number, BlockCandidate>();
+  const addBlock = (node: LexicalNode): void => {
+    const span = projection.spans.get(node.getKey());
+    if (!span || span.start === span.end) return;
+    const leadingWhitespace = /^\s*/.exec(projection.text.slice(span.start, span.end))![0].length;
+    blocks.set(span.start + leadingWhitespace, { node, spanEnd: span.end });
+  };
+  const visit = (node: LexicalNode, isBlock: boolean): void => {
+    if (isBlock) addBlock(node);
+    if ($isElementNode(node)) {
+      for (const child of node.getChildren()) {
+        visit(child, $isListItemNode(child) || $isRootNode(node));
+      }
+    }
+  };
+  visit($getRoot(), false);
+  return blocks;
 }
 
 /**
@@ -483,27 +520,22 @@ export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
     return { node: null, reason: "Prefix was empty after normalization." };
   }
 
+  // A match counts only when it begins at a block's first content character
+  // AND the prefix ends inside that block — a prefix continuing into the
+  // next block would otherwise silently operate on just this one. Keying by
+  // content start makes each occurrence a single Map probe instead of a
+  // point-resolution walk.
+  const blocksByContentStart = $enumerateBlocksByContentStart(projection);
   const matchedKeys = new Set<string>();
   const matchedBlocks: LexicalNode[] = [];
   let matchIndex = normalizedDocument.text.indexOf(normalizedPrefix);
   while (matchIndex !== -1) {
     const rawStart = normalizedDocument.toRawStart[matchIndex];
     const rawEnd = normalizedDocument.toRawEnd[matchIndex + normalizedPrefix.length - 1];
-    const anchor = resolveRawIndexToPoint(projection, rawStart, false);
-    const block = anchor ? $blockAncestorOfPoint(anchor) : null;
-    if (block && !matchedKeys.has(block.getKey())) {
-      const blockSpan = projection.spans.get(block.getKey());
-      // The match counts only when the block starts with the prefix (modulo
-      // leading whitespace, which normalization skips) AND the prefix ends
-      // inside the block — a prefix continuing into the next block would
-      // otherwise silently operate on just this one.
-      const startsAtBlockStart = blockSpan !== undefined
-        && rawStart >= blockSpan.start
-        && projection.text.slice(blockSpan.start, rawStart).trim() === "";
-      if (startsAtBlockStart && blockSpan !== undefined && rawEnd <= blockSpan.end) {
-        matchedKeys.add(block.getKey());
-        matchedBlocks.push(block);
-      }
+    const candidate = blocksByContentStart.get(rawStart);
+    if (candidate && rawEnd <= candidate.spanEnd && !matchedKeys.has(candidate.node.getKey())) {
+      matchedKeys.add(candidate.node.getKey());
+      matchedBlocks.push(candidate.node);
     }
     matchIndex = normalizedDocument.text.indexOf(normalizedPrefix, matchIndex + 1);
   }

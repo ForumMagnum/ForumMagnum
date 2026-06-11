@@ -119,9 +119,13 @@ const MATH_PLACEHOLDER_REGEXP = new RegExp(
 // one form.
 export function markdownQuoteToRenderedPlainText(
   value: string,
-  options?: { bracketDisplayMath?: boolean },
+  // Required (no default): the two adjacent layers default this flag in
+  // opposite directions (the scanner to the LaTeX reading, the quote
+  // projection to the escaped-bracket reading), so a silent default here
+  // would be wrong for one of them.
+  options: { bracketDisplayMath: boolean },
 ): string {
-  const spans = findMathSpansInMarkdown(value, { bracketDisplayForm: options?.bracketDisplayMath ?? true });
+  const spans = findMathSpansInMarkdown(value, { bracketDisplayForm: options.bracketDisplayMath });
   const rawMath: string[] = [];
   let withPlaceholders = "";
   let cursor = 0;

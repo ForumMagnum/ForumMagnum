@@ -43,6 +43,14 @@ describe("htmlToMarkdown text fidelity", () => {
       .toBe("now **supercharged** our supply");
   });
 
+  it("unwraps bold flanked by curly quotes that CommonMark cannot reparse", () => {
+    // Flanking rules use Unicode punctuation: `word**\u201Cquoted\u201D**` is not
+    // left-flanking (delimiter preceded by alphanumeric, followed by
+    // punctuation), so the markers must be dropped, not emitted.
+    expect(htmlToMarkdown("<p>word<b>\u201Cquoted\u201D</b></p>"))
+      .toBe("word\u201Cquoted\u201D");
+  });
+
   it("keeps intraword-adjacent emphasis that CommonMark accepts", () => {
     expect(htmlToMarkdown("<p>a <em>fully</em>-fledged plan</p>"))
       .toBe("a *fully*-fledged plan");

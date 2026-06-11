@@ -164,10 +164,7 @@ function computeNarrowedDiff(
     let narrowedReplacement = replacement;
     editor.getEditorState().read(() => {
       const root = $getRoot();
-      const selectionResult = $locateQuoteWithTextIndex({
-        rootNodeKey: root.getKey(),
-        markdownQuote: quote,
-      });
+      const selectionResult = $locateQuoteWithTextIndex(quote);
       if (
         !selectionResult.found ||
         !selectionResult.anchor ||

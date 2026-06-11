@@ -301,10 +301,7 @@ function applyEditOffline(html: string, quote: string, replacement: string): Off
     editor.update(
       () => {
         const root = $getRoot();
-        const selectionResult = $locateQuoteWithTextIndex({
-          rootNodeKey: root.getKey(),
-          markdownQuote: quote,
-        });
+        const selectionResult = $locateQuoteWithTextIndex(quote);
         quoteFoundInDocument = selectionResult.found;
         if (!selectionResult.found || !selectionResult.anchor || !selectionResult.focus) return;
 

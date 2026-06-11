@@ -89,8 +89,11 @@ function lastCharPrecedingNode(node: Node): string | undefined {
   return undefined;
 }
 
-// CommonMark's ASCII punctuation set, used by its emphasis flanking rules.
-const COMMONMARK_PUNCTUATION = /[!-/:-@[-`{-~]/;
+// CommonMark's punctuation set, used by its emphasis flanking rules: the
+// Unicode P and S general categories (the spec's "Unicode punctuation
+// character"). ASCII-only matching here would emit unparseable emphasis next
+// to curly quotes and other typographic punctuation.
+const COMMONMARK_PUNCTUATION = /[\p{P}\p{S}]/u;
 
 const isFlankingWhitespaceOrBoundary = (ch: string | undefined): boolean =>
   ch === undefined || /\s/.test(ch);
@@ -677,6 +680,9 @@ function foldNbspInTextNodes(html: string): string {
   }
   const $ = cheerioParse(html);
   $.root().find('*').addBack().contents().each((_index, node) => {
+    // domhandler's isText guard can't be used here: cheerio bundles its own
+    // domhandler copy, so the guard's Node type doesn't unify with the nodes
+    // cheerio yields. The type/cast pair matches the emptyParagraph check above.
     if (node.type === 'text') {
       const dataNode = node as DataNode;
       dataNode.data = dataNode.data.replace(/\u00A0/g, ' ');

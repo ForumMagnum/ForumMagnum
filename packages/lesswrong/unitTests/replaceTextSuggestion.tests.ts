@@ -17,11 +17,7 @@ async function replaceTextAsSuggestion(
 ): Promise<boolean> {
   let replaced = false;
   await runEditorUpdate(editor, () => {
-    const root = $getRoot();
-    const result = $locateQuoteWithTextIndex({
-      rootNodeKey: root.getKey(),
-      markdownQuote: quote,
-    });
+    const result = $locateQuoteWithTextIndex(quote);
     if (!result.found || !result.anchor || !result.focus) return;
 
     const { anchor, focus } = result;
@@ -40,11 +36,7 @@ async function replaceTextInEditMode(
 ): Promise<boolean> {
   let replaced = false;
   await runEditorUpdate(editor, () => {
-    const root = $getRoot();
-    const result = $locateQuoteWithTextIndex({
-      rootNodeKey: root.getKey(),
-      markdownQuote: quote,
-    });
+    const result = $locateQuoteWithTextIndex(quote);
     if (!result.found || !result.anchor || !result.focus) return;
 
     replaced = $applyEditModeReplacement({

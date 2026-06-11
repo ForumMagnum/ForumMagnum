@@ -29,11 +29,7 @@ async function selectMarkdownQuoteInEditor(
   markdownQuote: string
 ): Promise<void> {
   await runEditorUpdate(editor, () => {
-    const root = $getRoot();
-    const result = $locateQuoteWithTextIndex({
-      rootNodeKey: root.getKey(),
-      markdownQuote,
-    });
+    const result = $locateQuoteWithTextIndex(markdownQuote);
     if (!result.found || !result.anchor || !result.focus) {
       throw new Error(`Quote not found: ${markdownQuote}; reason=${result.reason ?? "unknown"}`);
     }
@@ -110,10 +106,7 @@ async function expectQuoteRoundTripsFromMarkdownDocument({
 function locateInEditor(editor: LexicalEditor, markdownQuote: string): MarkdownQuoteSelectionResult {
   let result: MarkdownQuoteSelectionResult = { found: false };
   editor.getEditorState().read(() => {
-    result = $locateQuoteWithTextIndex({
-      rootNodeKey: $getRoot().getKey(),
-      markdownQuote,
-    });
+    result = $locateQuoteWithTextIndex(markdownQuote);
   });
   return result;
 }
@@ -438,7 +431,7 @@ describe("LaTeX correctness regressions", () => {
   it("keeps later equations in a rendered quote when an earlier one is dropped", () => {
     // `$x$` lands in a link URL (rendered to no visible text); the surviving
     // `$y$` must restore as $y$, not be mis-paired with the dropped `$x$`.
-    const projected = markdownQuoteToRenderedPlainText("[label]($x$) and $y$");
+    const projected = markdownQuoteToRenderedPlainText("[label]($x$) and $y$", { bracketDisplayMath: true });
     expect(projected).toContain("$y$");
     expect(projected).not.toContain("$x$");
   });

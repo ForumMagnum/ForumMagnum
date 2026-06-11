@@ -84,9 +84,22 @@ export function findMathSpansInMarkdown(markdown: string, options?: FindMathSpan
   let parenExhausted = false;
   let bracketExhausted = false;
 
+  // Blank-line positions, computed once: per-span indexOf scans would be
+  // quadratic on inputs with many spans and no blank lines (e.g. the
+  // matcher's normalized projections, where all whitespace is collapsed).
+  const blankLinePositions: number[] = [];
+  for (let p = markdown.indexOf("\n\n"); p >= 0; p = markdown.indexOf("\n\n", p + 1)) {
+    blankLinePositions.push(p);
+  }
   const crossesBlankLine = (from: number, to: number): boolean => {
-    const blankLine = markdown.indexOf("\n\n", from);
-    return blankLine >= 0 && blankLine < to;
+    let low = 0;
+    let high = blankLinePositions.length - 1;
+    while (low <= high) {
+      const mid = (low + high) >> 1;
+      if (blankLinePositions[mid] < from) low = mid + 1;
+      else high = mid - 1;
+    }
+    return low < blankLinePositions.length && blankLinePositions[low] < to;
   };
 
   const looksLikeCurrency = (contentStart: number, contentEnd: number): boolean => {

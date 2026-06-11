@@ -13,23 +13,8 @@ import { FOOTNOTE_ELEMENT_TYPES } from "@/components/editor/lexicalPlugins/footn
 import { formatMathToken } from "@/lib/utils/mathTokens";
 import {
   isHiddenFromAgentEdits,
-  type MarkdownQuoteSelectionResult,
   type MarkdownSelectionPoint,
 } from "./mapMarkdownToLexical";
-
-export interface QuoteLocatorArgs {
-  rootNodeKey: string
-  markdownQuote: string
-}
-
-/**
- * Signature of a quote-locating implementation (`$locateQuoteWithTextIndex`).
- * Kept as an interface so the offline comparison harness can run alternative
- * implementations side by side.
- *
- * Must be called inside a Lexical read/update context.
- */
-export type QuoteLocator = (args: QuoteLocatorArgs) => MarkdownQuoteSelectionResult;
 
 export type ProjectionSegmentKind = "text" | "linebreak" | "math" | "mention" | "separator";
 
@@ -80,11 +65,30 @@ function isBlockLevelChild(node: LexicalNode): boolean {
  * immediately followed by a digit must render as `\(…\)` (see
  * `formatMathToken`), matching what the agent read API emits.
  */
+function firstCharOfSubtree(node: LexicalNode): string | undefined {
+  if ($isTextNode(node)) {
+    const text = node.getTextContent();
+    return text.length > 0 ? text[0] : undefined;
+  }
+  if ($isElementNode(node)) {
+    for (const child of node.getChildren()) {
+      const ch = firstCharOfSubtree(child);
+      if (ch !== undefined) return ch;
+    }
+    return undefined;
+  }
+  const text = node.getTextContent();
+  return text.length > 0 ? text[0] : undefined;
+}
+
 function firstFollowingChar(node: LexicalNode): string | undefined {
+  // Descend to the first text leaf rather than materializing whole-subtree
+  // text content (`getTextContent()` would build the entire following
+  // block's string just to read one character).
   let sibling = node.getNextSibling();
   while (sibling) {
-    const text = sibling.getTextContent();
-    if (text.length > 0) return text[0];
+    const ch = firstCharOfSubtree(sibling);
+    if (ch !== undefined) return ch;
     sibling = sibling.getNextSibling();
   }
   return undefined;
