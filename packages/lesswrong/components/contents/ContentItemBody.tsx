@@ -157,10 +157,21 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
   );
 }
 
-const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
+function getParsedTextContent(parsedHtml: DomHandlerNode): string {
+  if (parsedHtml.type === htmlparser2.ElementType.Text) {
+    return (parsedHtml as DomHandlerText).data;
+  }
+  if ('childNodes' in parsedHtml) {
+    return parsedHtml.childNodes.map(getParsedTextContent).join('');
+  }
+  return '';
+}
+
+const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false, insideCodeBlock=false}: {
   parsedHtml: DomHandlerChildNode,
   passedThroughProps: PassedThroughContentItemBodyProps,
   root?: boolean,
+  insideCodeBlock?: boolean,
 }) => {
   const { replacedSubstrings, themeName } = passedThroughProps;
   const { captureEvent } = useTracking();
@@ -197,11 +208,17 @@ const ContentItemBodyInner = ({parsedHtml, passedThroughProps, root=false}: {
       const attribs = translateAttribs(parsedHtml.attribs);
       const id = attribs.id;
       const classNames = parsedHtml.attribs.class?.split(' ') ?? [];
+      const isCodeBlockElement = classNames.includes("code-block") && (TagName === 'pre' || TagName === 'code');
+
+      if (insideCodeBlock && isCodeBlockElement) {
+        return getParsedTextContent(parsedHtml);
+      }
 
       let mappedChildren: React.ReactNode[] = parsedHtml.childNodes.map((c,i) => <ContentItemBodyInner
         key={i}
         parsedHtml={c}
         passedThroughProps={passedThroughProps}
+        insideCodeBlock={insideCodeBlock || isCodeBlockElement}
       />)
 
       if (classNames.includes("footnotes") && hasCollapsedFootnotes) {

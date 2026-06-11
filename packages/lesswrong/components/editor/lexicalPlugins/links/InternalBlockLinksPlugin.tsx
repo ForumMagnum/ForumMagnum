@@ -1,5 +1,7 @@
 "use client";
 
+import { flattenNestedCodeBlocks } from '@/lib/editor/htmlImportUtils';
+
 /**
  * Utilities for preserving data-internal-id attributes on block elements
  * during HTML import/export in Lexical.
@@ -67,6 +69,7 @@ export function preprocessHtmlForImport(html: string): { html: string; internalI
   // (Lexical's default nodes don't know how to handle this attribute)
   const parser = new DOMParser();
   const doc = parser.parseFromString(html, 'text/html');
+  flattenNestedCodeBlocks(doc.body);
   
   const elementsWithId = doc.querySelectorAll('[data-internal-id]');
   elementsWithId.forEach((el) => {

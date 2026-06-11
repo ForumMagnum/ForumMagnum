@@ -15,6 +15,7 @@ import { JSDOM } from 'jsdom';
 import allLexicalNodes from '@/components/lexical/nodes/allLexicalNodes';
 import PlaygroundEditorTheme from '@/components/lexical/themes/PlaygroundEditorTheme';
 import { withDomGlobals } from './withDomGlobals';
+import { flattenNestedCodeBlocks } from '@/lib/editor/htmlImportUtils';
 
 function createMockProvider(): Provider {
   return {
@@ -73,6 +74,7 @@ export function htmlToYjsBinary(html: string): Uint8Array {
         const root = $getRoot();
         root.clear();
         const dom = new JSDOM(html);
+        flattenNestedCodeBlocks(dom.window.document.body);
         const nodes = $generateNodesFromDOM(editor, dom.window.document);
         $insertNodes(nodes);
       },
