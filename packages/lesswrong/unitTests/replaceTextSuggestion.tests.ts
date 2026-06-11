@@ -1,5 +1,6 @@
-import { $getRoot, $isElementNode, type LexicalEditor, type LexicalNode } from "lexical";
+import { $createRangeSelection, $getRoot, $isElementNode, type LexicalEditor, type LexicalNode } from "lexical";
 import { $generateHtmlFromNodes } from "@lexical/html";
+import { $wrapSelectionInMarkNode } from "@lexical/mark";
 import { $applySuggestionWithNarrowing } from "../../../app/api/agent/replaceText/route";
 import { $wrapBlockAsDeletionSuggestion } from "../../../app/api/agent/deleteBlock/route";
 import { $createMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
@@ -24,7 +25,7 @@ async function replaceTextAsSuggestion(
 
     const { anchor, focus } = result;
     const narrowingResult = $applySuggestionWithNarrowing({
-      editor, anchor, focus, quote, replacement, suggestionId: randomId(),
+      editor, anchor, focus, quote, replacement, range: result.range, suggestionId: randomId(),
     });
     replaced = narrowingResult.replaced;
   });
@@ -43,10 +44,28 @@ async function replaceTextInEditMode(
 
     replaced = $applyEditModeReplacement({
       editor, anchor: result.anchor, focus: result.focus, quote, replacement,
+      range: result.range,
       markdownIt: getMarkdownItForAgentPosts(),
     }).replaced;
   });
   return replaced;
+}
+
+/**
+ * Wrap the text matched by `quote` in a MarkNode, the way a comment thread
+ * anchors to a text range in the live editor.
+ */
+async function wrapQuoteInMark(editor: LexicalEditor, quote: string): Promise<void> {
+  await runEditorUpdate(editor, () => {
+    const target = $locateQuoteWithTextIndex(quote);
+    if (!target.found || !target.anchor || !target.focus) {
+      throw new Error(`wrapQuoteInMark: quote not found: ${quote}`);
+    }
+    const selection = $createRangeSelection();
+    selection.anchor.set(target.anchor.key, target.anchor.offset, target.anchor.type);
+    selection.focus.set(target.focus.key, target.focus.offset, target.focus.type);
+    $wrapSelectionInMarkNode(selection, false, randomId());
+  });
 }
 
 function getPlainTextContent(editor: LexicalEditor): string {
@@ -618,6 +637,88 @@ describe("replaceText narrowing preserves non-plain-text markdown changes", () =
     expect(deleteSuggestions[0].textContent).toBe("beta gamma");
     expect(insertSuggestions.length).toBe(1);
     expect(insertSuggestions[0].textContent).toBe("theta gamma");
+  });
+});
+
+describe("replaceText narrowing across comment-anchor marks", () => {
+  // Comment threads anchor to text by wrapping it in a MarkNode (an inline
+  // element), so a draft with comments has its paragraphs split into nested
+  // inline structure. Narrowing resolves positions through the document
+  // projection, which is flat over inline nesting, so marks anywhere in or
+  // around the match must not prevent a minimal diff.
+
+  it("narrows when the match starts inside a comment-anchor mark", async () => {
+    const editor = await setupEditorWithContent("Alpha beta gamma delta epsilon.");
+    await wrapQuoteInMark(editor, "Alpha");
+
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "Alpha beta gamma delta",
+      "Alpha beta led delta",
+    );
+
+    expect(replaced).toBe(true);
+    const suggestions = getAllSuggestions(editor);
+    expect(suggestions).toEqual([
+      { type: "delete", textContent: "gamma" },
+      { type: "insert", textContent: "led" },
+    ]);
+  });
+
+  it("narrows when the narrowed range falls inside a comment-anchor mark", async () => {
+    const editor = await setupEditorWithContent("Alpha beta gamma delta epsilon.");
+    await wrapQuoteInMark(editor, "delta epsilon");
+
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "gamma delta epsilon",
+      "gamma fish epsilon",
+    );
+
+    expect(replaced).toBe(true);
+    const suggestions = getAllSuggestions(editor);
+    expect(suggestions).toEqual([
+      { type: "delete", textContent: "delta" },
+      { type: "insert", textContent: "fish" },
+    ]);
+  });
+
+  it("narrows when a comment-anchor mark sits in the middle of the match", async () => {
+    const editor = await setupEditorWithContent("Alpha beta gamma delta epsilon.");
+    await wrapQuoteInMark(editor, "gamma");
+
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "beta gamma delta",
+      "beta gamma fish",
+    );
+
+    expect(replaced).toBe(true);
+    const suggestions = getAllSuggestions(editor);
+    expect(suggestions).toEqual([
+      { type: "delete", textContent: "delta" },
+      { type: "insert", textContent: "fish" },
+    ]);
+  });
+
+  it("falls back to the full range when quote and document lengths diverge", async () => {
+    // The document has a one-character ellipsis where the quote (matched via
+    // NFKC normalization) has a three-character "...": positions no longer
+    // correspond 1:1, so narrowing must conservatively use the full range.
+    const editor = await setupEditorWithContent("Alpha beta… gamma delta.");
+
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "beta... gamma",
+      "beta... led",
+    );
+
+    expect(replaced).toBe(true);
+    const suggestions = getAllSuggestions(editor);
+    expect(suggestions).toEqual([
+      { type: "delete", textContent: "beta… gamma" },
+      { type: "insert", textContent: "beta... led" },
+    ]);
   });
 });
 
