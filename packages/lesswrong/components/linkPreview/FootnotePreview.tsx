@@ -124,8 +124,10 @@ export const footnotePreviewStyles = defineStyles("FootnotePreview", (theme: The
   },
   
   sidenoteHover: {
-    background: theme.palette.background.sidenoteBackground,
+    backgroundColor: theme.palette.background.pageActiveAreaBackground,
     borderRadius: 3,
+    outline: theme.palette.greyBorder("1px", 0.12),
+    boxShadow: `0 2px 12px ${theme.palette.boxShadowColor(0.12)}`,
     
     "& $sidenoteContent": {
       maxHeight: "unset",
