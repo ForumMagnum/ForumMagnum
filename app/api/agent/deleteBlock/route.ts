@@ -10,6 +10,8 @@ import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deleteBlockToolSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
+import { $isTableNode } from "@lexical/table";
+import { $suggestTableDeletion } from "@/components/editor/lexicalPlugins/suggestedEdits/handleTables";
 
 interface DeleteBlockResult {
   deleted: boolean
@@ -84,6 +86,30 @@ export async function deleteMarkdownBlock({
               deleted: true,
               note: "Deleted markdown block from collaborative draft.",
               deletionIndex: indexInParent,
+            };
+            return;
+          }
+
+          if ($isTableNode(nodeToDelete)) {
+            let suggestionId: string | undefined;
+            $suggestTableDeletion(
+              nodeToDelete.getKey(),
+              (createdSuggestionId) => {
+                suggestionId = createdSuggestionId;
+              },
+              {
+                info: () => {},
+                warn: () => {},
+                error: () => {},
+              },
+            );
+            result = {
+              deleted: true,
+              note: suggestionId
+                ? "Marked table as a deletion suggestion."
+                : "Table was already marked as a deletion suggestion.",
+              deletionIndex: indexInParent,
+              suggestionId,
             };
             return;
           }

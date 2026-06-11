@@ -13,8 +13,10 @@ import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { createHeadlessEditor, plainTextStartsWith } from "../../../app/api/agent/editorAgentUtil";
 import { buildNodeMarkdownMapForSubtree, findBlockToOperateOnByPrefix, findRenderedQuoteInMarkdown, locateMarkdownQuoteSelectionInSubtree, markdownQuoteToPlainText, markdownQuoteToRenderedPlainText, toPlainTextFilter, type MarkdownQuoteSelectionResult } from "../../../app/api/agent/mapMarkdownToLexical";
 import { $isListItemNode, $isListNode } from "@lexical/list";
-import { runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
+import { getAllSuggestions, runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
+import { $isTableNode } from "@lexical/table";
+import { $suggestTableDeletion } from "@/components/editor/lexicalPlugins/suggestedEdits/handleTables";
 
 async function selectMarkdownQuoteInEditor(
   editor: LexicalEditor,
@@ -373,6 +375,42 @@ describe("findBlockToOperateOnByPrefix", () => {
     expect(matched).not.toBeNull();
     expect(matched?.isListItem).toBe(false);
     expect(matched?.type).toBe("table");
+  });
+
+  it("can mark a matched table as a table deletion suggestion", async () => {
+    const editor = await setupEditorWithContent(
+      "| h1 | h2 |\n| --- | --- |\n| cell 0,0 | cell 1,0 |\n| cell 0,1 | cell 1,1 |"
+    );
+    let suggestionId: string | undefined;
+
+    await runEditorUpdate(editor, () => {
+      const root = $getRoot();
+      const rootChildren = root.getChildren();
+      const prefix = "h1";
+      const textFilter = toPlainTextFilter(prefix);
+      const mapResult = buildNodeMarkdownMapForSubtree(root.getKey(), textFilter);
+      const node = findBlockToOperateOnByPrefix({ rootChildren, prefix, mapResult, textFilter });
+      if (!$isTableNode(node)) {
+        throw new Error(`Expected a table node, got ${node?.getType() ?? "null"}`);
+      }
+
+      $suggestTableDeletion(
+        node.getKey(),
+        (createdSuggestionId) => {
+          suggestionId = createdSuggestionId;
+        },
+        {
+          info: () => {},
+          warn: () => {},
+          error: () => {},
+        },
+      );
+    });
+
+    expect(suggestionId).toBeDefined();
+    const suggestions = getAllSuggestions(editor);
+    expect(suggestions.length).toBeGreaterThan(0);
+    expect(suggestions.every((suggestion) => suggestion.type === "delete-table")).toBe(true);
   });
 
   it("returns null when no block starts with the prefix", async () => {
