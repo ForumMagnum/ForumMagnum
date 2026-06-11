@@ -12,7 +12,6 @@ import type {
   DOMExportOutput,
   BaseSelection,
   EditorConfig,
-  LexicalEditor,
   LexicalNode,
   LexicalUpdateJSON,
   NodeKey,
@@ -26,10 +25,7 @@ import {$generateNodesFromDOM} from '@lexical/html';
 import {
   $applyNodeReplacement,
   $createParagraphNode,
-  $extendCaretToRange,
-  $getChildCaret,
   $getEditor,
-  $isElementNode,
   $setSelection,
   DecoratorNode,
   ElementNode,
@@ -105,6 +101,10 @@ export function $isCaptionNodeEmpty(node: ImageCaptionNode): boolean {
   return node.getTextContent().trim().length === 0;
 }
 
+function figcaptionHasContent(figcaption: HTMLElement): boolean {
+  return (figcaption.textContent ?? '').trim().length > 0;
+}
+
 export class ImageCaptionNode extends ElementNode {
   static getType(): string {
     return 'image-caption';
@@ -139,6 +139,9 @@ export class ImageCaptionNode extends ElementNode {
   }
 
   exportDOM(): DOMExportOutput {
+    if (this.isEmpty()) {
+      return {element: null};
+    }
     const element = document.createElement('figcaption');
     element.className = 'image-caption-container';
     return {element};
@@ -335,7 +338,7 @@ export class ImageNode extends ElementNode {
     return node;
   }
 
-  exportDOM(editor: LexicalEditor): DOMExportOutput {
+  exportDOM(): DOMExportOutput {
     const imgElement = document.createElement('img');
     // Set loading="lazy" BEFORE src so the browser defers the fetch until the
     // element is near the viewport. Since exportDOM elements live in a
@@ -365,11 +368,8 @@ export class ImageNode extends ElementNode {
     figureElement.setAttribute('class', classNames.join(' '));
     figureElement.appendChild(imgElement);
 
-    const figcaptionElement = buildCaptionElement(editor, this.getCaptionNode());
-    if (figcaptionElement) {
-      figureElement.appendChild(figcaptionElement);
-    }
-
+    // The figcaption is contributed by the ImageCaptionNode child during the
+    // normal export traversal; appending one here too would duplicate it.
     return {element: figureElement};
   }
 
@@ -393,7 +393,11 @@ export class ImageNode extends ElementNode {
                 return childNodes;
               }
 
-              const figcaption = node.querySelector('figcaption');
+              // Documents saved while exportDOM duplicated captions contain a
+              // spurious empty figcaption before the real one, so prefer the
+              // first figcaption with content.
+              const figcaptions = Array.from(node.querySelectorAll('figcaption'));
+              const figcaption = figcaptions.find(figcaptionHasContent) ?? figcaptions[0] ?? null;
               const figureElement = node as HTMLElement;
               const figureClassList = figureElement.classList;
               const hasCkImageClass = figureClassList.contains('image');
@@ -656,31 +660,6 @@ export class ImageNode extends ElementNode {
   ): boolean {
     return false;
   }
-}
-
-function buildCaptionElement(
-  editor: LexicalEditor,
-  captionNode: ImageCaptionNode | null,
-): HTMLElement | null {
-  if (!captionNode || captionNode.isEmpty()) {
-    return null;
-  }
-  const figcaptionElement = document.createElement('figcaption');
-  figcaptionElement.className = 'image-caption-container';
-  const fragment = document.createDocumentFragment();
-  for (const child of captionNode.getChildren()) {
-    const exportOutput = child.exportDOM(editor) as DOMExportOutput;
-    const childElement = exportOutput.element;
-    if (!childElement) {
-      continue;
-    }
-    const appended = exportOutput.after ? exportOutput.after(childElement) : childElement;
-    if (appended) {
-      fragment.appendChild(appended);
-    }
-  }
-  figcaptionElement.appendChild(fragment);
-  return figcaptionElement;
 }
 
 export function $createImageNode({
