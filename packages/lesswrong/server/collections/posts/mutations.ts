@@ -1,5 +1,6 @@
 import { canUserEditPostMetadata, userIsPostGroupOrganizer } from "@/lib/collections/posts/helpers";
 import { postStatuses } from "@/lib/collections/posts/constants";
+import { assertPostCanBePublished } from "@/lib/collections/posts/publishValidation";
 import schema from "@/lib/collections/posts/newSchema";
 import { userCanPost } from "@/lib/collections/users/helpers";
 import { isEAForum, isElasticEnabled, isLWorAF } from "@/lib/instanceSettings";
@@ -130,6 +131,7 @@ export async function createPost({ data }: { data: CreatePostDataInput & { _id?:
     doc: data,
     props: callbackProps,
   });
+  assertPostCanBePublished(data);
 
   // former newSync callbacks
   if (isEAForum()) {
@@ -245,6 +247,13 @@ export async function updatePost({ selector, data }: { data: UpdatePostDataInput
     docData: data,
     props: updateCallbackProperties,
   });
+  if (oldDocument.draft && data.draft === false) {
+    assertPostCanBePublished({
+      ...oldDocument,
+      ...data,
+      draft: false,
+    });
+  }
 
   // Explicitly don't assign back to partial post here, since it returns the value fetched from the database
   // TODO: that above comment might be wrong, i'm confused about what's supposed to be happening here
