@@ -10,7 +10,7 @@ import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess, renderAgentMarkdownToHtml } from "../editorAgentUtil";
 
 import { markdownQuoteToPlainText, type MarkdownSelectionPoint } from "../mapMarkdownToLexical";
-import { $locateQuoteWithTextIndex } from "../textIndexQuoteLocator";
+import { $locateQuoteWithTextIndex, type LocatedQuoteRange } from "../textIndexQuoteLocator";
 import { replaceTextToolSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
@@ -263,6 +263,7 @@ export function $applySuggestionWithNarrowing({
   focus,
   quote,
   replacement,
+  range,
   suggestionId,
 }: {
   editor: LexicalEditor
@@ -270,9 +271,10 @@ export function $applySuggestionWithNarrowing({
   focus: MarkdownSelectionPoint
   quote: string
   replacement: string
+  range: LocatedQuoteRange | undefined
   suggestionId: string
 }): SuggestionNarrowingResult {
-  const narrowing = $computeNarrowing(anchor, focus, quote, replacement);
+  const narrowing = $computeNarrowing(anchor, focus, quote, replacement, range);
 
   if (!narrowing) {
     const replaced = $applySuggestionForSelection(editor, anchor, focus, replacement, suggestionId);
@@ -331,6 +333,7 @@ export async function replaceTextInMainDoc({
           if (mode === "edit") {
             const editResult = $applyEditModeReplacement({
               editor, anchor, focus, quote, replacement,
+              range: selectionResult.range,
               markdownIt: getMarkdownItForAgentPosts(),
             });
             replaced = editResult.replaced;
@@ -341,7 +344,9 @@ export async function replaceTextInMainDoc({
 
           suggestionId = randomId();
           const narrowingResult = $applySuggestionWithNarrowing({
-            editor, anchor, focus, quote, replacement, suggestionId,
+            editor, anchor, focus, quote, replacement,
+            range: selectionResult.range,
+            suggestionId,
           });
           replaced = narrowingResult.replaced;
           summaryQuote = narrowingResult.narrowedQuote;

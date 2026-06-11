@@ -177,6 +177,7 @@ function computeNarrowedDiff(
         selectionResult.focus,
         quote,
         replacement,
+        selectionResult.range,
       );
       if (narrowing) {
         narrowedQuote = narrowing.quote;

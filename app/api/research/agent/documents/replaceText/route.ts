@@ -66,6 +66,7 @@ async function replaceTextInResearchDoc({
               focus: selectionResult.focus,
               quote,
               replacement,
+              range: selectionResult.range,
               markdownIt: getMarkdownItForResearch(),
             }).replaced;
           },

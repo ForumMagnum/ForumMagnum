@@ -316,6 +316,7 @@ function applyEditOffline(html: string, quote: string, replacement: string): Off
           focus: selectionResult.focus,
           quote,
           replacement,
+          range: selectionResult.range,
           markdownIt: getMarkdownItForAgentPosts(),
         }).replaced;
       },

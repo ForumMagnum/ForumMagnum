@@ -250,7 +250,7 @@ function elementPointAroundSegment(
  * well-formed match — normalized quotes are trimmed, so both boundaries map
  * to content characters — and resolve to null.
  */
-function resolveRawIndexToPoint(
+export function resolveRawIndexToPoint(
   projection: DocumentProjection,
   rawIndex: number,
   isFocus: boolean,
@@ -301,9 +301,25 @@ function $buildNormalizedDocument(): NormalizedDocument {
 
 type LocateOutcome = "found" | "not_found" | "ambiguous" | "empty";
 
+/**
+ * The matched range in document-projection space: the projection itself plus
+ * the raw [start, end) character range of the match within its text. Carried
+ * on successful locate results so that downstream narrowing can compute
+ * positions by index arithmetic instead of walking the node tree.
+ */
+export interface LocatedQuoteRange {
+  projection: DocumentProjection
+  rawStart: number
+  rawEnd: number
+}
+
+export interface TextIndexQuoteResult extends MarkdownQuoteSelectionResult {
+  range?: LocatedQuoteRange
+}
+
 interface LocateAttempt {
   outcome: LocateOutcome
-  result: MarkdownQuoteSelectionResult
+  result: TextIndexQuoteResult
 }
 
 /**
@@ -376,7 +392,13 @@ function locateInSearchSpace({
 
   return {
     outcome: "found",
-    result: { found: true, anchor, focus, matchedNodeKey: anchor.key },
+    result: {
+      found: true,
+      anchor,
+      focus,
+      matchedNodeKey: anchor.key,
+      range: { projection, rawStart, rawEnd },
+    },
   };
 }
 
@@ -425,7 +447,7 @@ function locateMarkerBlindQuote(
  * Must be called inside a Lexical read/update context; always searches the
  * whole document.
  */
-export function $locateQuoteWithTextIndex(markdownQuote: string): MarkdownQuoteSelectionResult {
+export function $locateQuoteWithTextIndex(markdownQuote: string): TextIndexQuoteResult {
   const { projection, normalizedDocument } = $buildNormalizedDocument();
   const normalizedQuote = normalizeTracked(projectQuoteToRenderedText(markdownQuote)).text;
 
