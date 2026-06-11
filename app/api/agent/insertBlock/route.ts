@@ -136,32 +136,34 @@ export function $postMarkdownToNodes(editor: LexicalEditor, markdown: string): L
   return $markdownToNodes(editor, markdownWithWidgetIframes, { markdownIt: getMarkdownItForAgentPosts() });
 }
 
-function findInsertionIndexByPrefix(
-  rootChildren: LexicalNode[],
-  prefix: string,
-  relation: "before" | "after",
-): number | null {
-  const root = $getRoot();
-  const matched = $locateBlockByPrefix(prefix).node;
-  if (!matched) return null;
-  // The locator may descend into list items, but insertion always happens at
-  // the top level — translate a matched list item back to its parent list's
-  // index, so the caller inserts before/after the whole list rather than
-  // splitting the list open.
-  const matchParent = matched.getParent();
-  const topLevelIndex = matchParent === root
-    ? matched.getIndexWithinParent()
-    : matchParent?.getIndexWithinParent() ?? null;
-  if (topLevelIndex === null) return null;
-  return relation === "before" ? topLevelIndex : topLevelIndex + 1;
+export interface InsertionIndexResult {
+  index: number | null
+  /** Why no index could be resolved (e.g. an ambiguous prefix). */
+  reason?: string
 }
 
-export function resolveInsertionIndex(location: InsertLocation, rootChildren: LexicalNode[]): number | null {
+function findInsertionIndexByPrefix(
+  prefix: string,
+  relation: "before" | "after",
+): InsertionIndexResult {
+  const blockResult = $locateBlockByPrefix(prefix);
+  const matched = blockResult.node;
+  if (!matched) return { index: null, reason: blockResult.reason };
+  // The locator may descend into list items (at any nesting depth), but
+  // insertion always happens at the top level — translate the match back to
+  // its top-level ancestor's index, so the caller inserts before/after the
+  // whole list rather than splitting the list open.
+  const topLevel = matched.getTopLevelElement() ?? matched;
+  const topLevelIndex = topLevel.getIndexWithinParent();
+  return { index: relation === "before" ? topLevelIndex : topLevelIndex + 1 };
+}
+
+export function resolveInsertionIndex(location: InsertLocation, rootChildren: LexicalNode[]): InsertionIndexResult {
   const target = getInsertionIndexByLocation(location);
   if (target.mode === "fixed") {
-    return target.index === Number.MAX_SAFE_INTEGER ? rootChildren.length : target.index;
+    return { index: target.index === Number.MAX_SAFE_INTEGER ? rootChildren.length : target.index };
   }
-  return findInsertionIndexByPrefix(rootChildren, target.prefix, target.relation);
+  return findInsertionIndexByPrefix(target.prefix, target.relation);
 }
 
 /**
@@ -188,9 +190,9 @@ export function $insertMarkdownBlockInEditor({
   }
 
   const root = $getRoot();
-  const insertionIndex = resolveInsertionIndex(location, root.getChildren());
+  const { index: insertionIndex, reason } = resolveInsertionIndex(location, root.getChildren());
   if (insertionIndex === null) {
-    return { inserted: false, note: `No paragraph markdown starts with locator text: ${JSON.stringify(location)}` };
+    return { inserted: false, note: reason ?? `No block starts with locator text: ${JSON.stringify(location)}` };
   }
 
   root.splice(insertionIndex, 0, nodesToInsert);

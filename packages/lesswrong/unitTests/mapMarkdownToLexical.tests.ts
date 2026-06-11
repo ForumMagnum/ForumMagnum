@@ -18,8 +18,10 @@ import {
   type MarkdownQuoteSelectionResult,
 } from "../../../app/api/agent/mapMarkdownToLexical";
 import { $locateBlockByPrefix, $locateQuoteWithTextIndex } from "../../../app/api/agent/textIndexQuoteLocator";
+import { resolveInsertionIndex } from "../../../app/api/agent/insertBlock/route";
 import { $isListItemNode, $isListNode } from "@lexical/list";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithMathParagraphs } from "./lexicalTestHelpers";
+import { $createMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
 import { normalizeImportedTopLevelNodes } from "../../../app/api/(markdown)/editorMarkdownUtils";
 
 async function selectMarkdownQuoteInEditor(
@@ -359,6 +361,39 @@ describe("$locateBlockByPrefix", () => {
     expect(matched?.type).toBe("paragraph");
   });
 
+  it("rejects a prefix that extends past the end of the block", async () => {
+    const editor = await setupEditorWithContent(
+      "Short first block.\n\nSecond block follows."
+    );
+    let result: { node: unknown, reason?: string } = { node: null };
+    editor.getEditorState().read(() => {
+      result = $locateBlockByPrefix("Short first block. Second block");
+    });
+    expect(result.node).toBeNull();
+  });
+
+  it("matches a block whose text begins with leading whitespace", async () => {
+    const editor = await setupEditorWithMathParagraphs(
+      [{ text: " Alpha begins with a space" }],
+      [{ text: "Beta paragraph." }],
+    );
+    const matched = findFor(editor, "Alpha begins");
+    expect(matched).not.toBeNull();
+    expect(matched?.type).toBe("paragraph");
+  });
+
+  it("matches a top-level display equation block by its prefix", async () => {
+    const editor = await setupEditorWithMathParagraphs([{ text: "Intro paragraph." }]);
+    await runEditorUpdate(editor, () => {
+      // A display equation hoisted to the top level, as
+      // $hoistDisplayMathOutOfParagraphs produces.
+      $getRoot().append($createMathNode("E=mc^2", false));
+    });
+    const matched = findFor(editor, "$$\nE=mc^2\n$$");
+    expect(matched).not.toBeNull();
+    expect(matched?.type).toBe("math");
+  });
+
   it("matches an item of a nested sub-list", async () => {
     const editor = await setupEditorWithContent(
       "*   outer item\n    *   nested needle item\n*   second outer"
@@ -366,6 +401,22 @@ describe("$locateBlockByPrefix", () => {
     const matched = findFor(editor, "nested needle");
     expect(matched?.isListItem).toBe(true);
     expect(matched?.text).toBe("nested needle item");
+  });
+});
+
+describe("resolveInsertionIndex with nested structures", () => {
+  it("translates a nested list-item match to its top-level list index", async () => {
+    const editor = await setupEditorWithContent(
+      "Intro paragraph.\n\n*   outer item\n    *   nested needle item\n*   second outer\n\nClosing paragraph."
+    );
+    let result: { index: number | null } = { index: null };
+    editor.getEditorState().read(() => {
+      result = resolveInsertionIndex({ after: "nested needle" }, $getRoot().getChildren());
+    });
+    // Document top level: [paragraph, list, paragraph] — "after" the matched
+    // nested item must insert after the whole list (index 2), not at a
+    // root position derived from inner-list indices.
+    expect(result.index).toBe(2);
   });
 });
 

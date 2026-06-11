@@ -661,15 +661,32 @@ export async function draftJSToHtmlWithLatex(draftJS: AnyBecauseTodo) {
   return wrapSpoilerTags(trimmedHtml)
 }
 
+// Fold non-breaking spaces in TEXT content to plain spaces. Turndown's
+// whitespace machinery (collapse + flankingWhitespace) only recognizes ASCII
+// whitespace; Lexical exports boundary spaces as &nbsp;, which Turndown
+// mishandles — in some configurations dropping the space entirely (e.g.
+// `<i>a</i><span>&nbsp;b c </span><i>d</i>` → `*a*b c *d*`). Markdown has no
+// meaningful non-breaking space in prose, so fold them before conversion and
+// let Turndown's native handling place them. The fold operates on parsed text
+// nodes, not the raw string: attribute values (most importantly widget
+// iframes' srcdoc, which round-trips verbatim through the agent read/write
+// path) must keep their NBSPs.
+function foldNbspInTextNodes(html: string): string {
+  if (!/&nbsp;|&#0*160;|&#[xX]0*[aA]0;|\u00A0/.test(html)) {
+    return html;
+  }
+  const $ = cheerioParse(html);
+  $.root().find('*').addBack().contents().each((_index, node) => {
+    if (node.type === 'text') {
+      const dataNode = node as DataNode;
+      dataNode.data = dataNode.data.replace(/\u00A0/g, ' ');
+    }
+  });
+  return $.html();
+}
+
 export function htmlToMarkdown(html: string): string {
-  // Turndown's whitespace machinery (collapse + flankingWhitespace) only
-  // recognizes ASCII whitespace. Lexical exports boundary spaces as &nbsp;,
-  // which Turndown mishandles — in some configurations dropping the space
-  // entirely (e.g. `<i>a</i><span>&nbsp;b c </span><i>d</i>` → `*a*b c *d*`).
-  // Markdown has no meaningful non-breaking space, so fold them to plain
-  // spaces before conversion and let Turndown's native handling place them.
-  const withoutNbsp = html.replace(/&nbsp;|&#0*160;|&#[xX]0*[aA]0;|\u00A0/g, ' ');
-  return getTurndown().turndown(withoutNbsp)
+  return getTurndown().turndown(foldNbspInTextNodes(html))
 }
 
 export function ckEditorMarkupToMarkdown(markup: string): string {

@@ -68,6 +68,8 @@ describe("findMathSpansInMarkdown", () => {
   it("still recognizes digit-leading real math", () => {
     expect(findMathSpansInMarkdown("the bound $2^{100}$ holds")).toHaveLength(1);
     expect(findMathSpansInMarkdown("we get $2x$ as expected")).toHaveLength(1);
+    // Math operators distinguish a spaced equation from prose currency.
+    expect(findMathSpansInMarkdown("so $2 + 2 = 4$ holds")).toHaveLength(1);
   });
 });
 

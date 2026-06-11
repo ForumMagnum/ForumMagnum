@@ -57,6 +57,15 @@ describe("htmlToMarkdown text fidelity", () => {
     expect(htmlToMarkdown(html)).toBe("[![image.png](https://example.com/img.png)](https://example.com/post)");
   });
 
+  it("keeps non-breaking spaces inside widget srcdoc attributes", () => {
+    // The NBSP fold must only touch text content: widget source round-trips
+    // verbatim through the agent read/write path.
+    const html = '<p>a&nbsp;b</p><iframe data-lexical-iframe-widget="" data-widget-id="w1" srcdoc="x&nbsp;y"></iframe>';
+    const markdown = htmlToMarkdown(html);
+    expect(markdown).toContain("a b");
+    expect(markdown).toContain("x\u00A0y");
+  });
+
   it("keeps ordinary inline links unchanged", () => {
     expect(htmlToMarkdown('<p>see <a href="https://example.com" title="the site">this link</a> here</p>'))
       .toBe('see [this link](https://example.com "the site") here');

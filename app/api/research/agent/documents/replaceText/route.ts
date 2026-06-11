@@ -45,6 +45,7 @@ async function replaceTextInResearchDoc({
     callback: async ({ editor, provider }) => {
       let replaced = false;
       let quoteFoundInDocument = false;
+      let locateFailureReason: string | undefined;
 
       await new Promise<void>((resolve) => {
         editor.update(
@@ -56,6 +57,7 @@ async function replaceTextInResearchDoc({
             });
             quoteFoundInDocument = selectionResult.found;
             if (!selectionResult.found || !selectionResult.anchor || !selectionResult.focus) {
+              locateFailureReason = selectionResult.reason;
               return;
             }
             // The research markdown-it instance is mention-aware, so
@@ -85,8 +87,9 @@ async function replaceTextInResearchDoc({
         replaced: false,
         quoteFoundInDocument,
         note: quoteFoundInDocument
-          ? "Quote was found in the document but spans multiple formatted regions (e.g. bold/italic/link boundaries), so the replacement could not be applied. Try quoting a smaller segment that falls within a single paragraph and formatting style."
-          : "Quote not found in document.",
+          ? locateFailureReason
+            ?? "Quote was found in the document, but the replacement could not be applied to its range. Try quoting a smaller segment."
+          : locateFailureReason ?? "Quote not found in document.",
       };
     },
   });

@@ -73,8 +73,9 @@ export interface FindMathSpansOptions {
  *  - a `$…$`/`$$…$$` span must not cross a blank line. markdown-it's inline
  *    tokenizer runs per-paragraph, so this matches what it could ever parse;
  *  - a `$` opener followed by a digit is read as currency (`$2B and ($)`)
- *    when the would-be equation contains whitespace but no LaTeX syntax
- *    characters; digit-leading real math (`$2^{100}$`, `$2x$`) is unaffected.
+ *    when the would-be equation contains whitespace but no LaTeX syntax or
+ *    math-operator characters; digit-leading real math (`$2^{100}$`,
+ *    `$2 + 2 = 4$`) is unaffected.
  */
 export function findMathSpansInMarkdown(markdown: string, options?: FindMathSpansOptions): MathSpan[] {
   const bracketDisplayForm = options?.bracketDisplayForm ?? true;
@@ -91,7 +92,10 @@ export function findMathSpansInMarkdown(markdown: string, options?: FindMathSpan
   const looksLikeCurrency = (contentStart: number, contentEnd: number): boolean => {
     if (!isAsciiDigit(markdown[contentStart])) return false;
     const content = markdown.slice(contentStart, contentEnd);
-    return /\s/.test(content) && !/[\\^_{}]/.test(content);
+    // Math operators mark digit-leading content as a real equation
+    // (`$2 + 2 = 4$`); without them, digit-leading content with word breaks
+    // is prose currency (`$2B from investors ($`).
+    return /\s/.test(content) && !/[\\^_{}=+*/<>|]/.test(content);
   };
 
   let i = 0;

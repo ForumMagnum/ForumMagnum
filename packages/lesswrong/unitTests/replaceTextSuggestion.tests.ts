@@ -1,8 +1,9 @@
-import { $getRoot, type LexicalEditor } from "lexical";
+import { $getRoot, $isElementNode, type LexicalEditor, type LexicalNode } from "lexical";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { $applySuggestionWithNarrowing } from "../../../app/api/agent/replaceText/route";
 import { $applyEditModeReplacement } from "../../../app/api/agent/applyEditAtSelection";
 import { $locateQuoteWithTextIndex } from "../../../app/api/agent/textIndexQuoteLocator";
+import { $isListItemNode, $isListNode } from "@lexical/list";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
@@ -119,6 +120,78 @@ describe("replaceText across block boundaries", () => {
     );
     expect(inserts.length).toBe(1);
     expect(inserts[0].textContent).toBe("ends differently. A new start,");
+  });
+});
+
+describe("replaceText within nested block structures", () => {
+  it("edits a quote spanning two list items of one list", async () => {
+    const editor = await setupEditorWithContent(
+      "*   alpha item ending\n*   bravo item starting here",
+    );
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "item ending\n\nbravo item",
+      "item finishing, bravo entry",
+    );
+    expect(replaced).toBe(true);
+    expect(getPlainTextContent(editor)).toContain("item finishing, bravo entry starting here");
+  });
+
+  it("edits a quote spanning two paragraphs inside a blockquote", async () => {
+    const editor = await setupEditorWithContent(
+      "> First quoted paragraph ends.\n>\n> Second quoted paragraph starts.",
+    );
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "paragraph ends.\n\nSecond quoted",
+      "paragraph closes. Next quoted",
+    );
+    expect(replaced).toBe(true);
+    expect(getPlainTextContent(editor)).toContain("paragraph closes. Next quoted paragraph starts.");
+  });
+
+  it("suggests across a paragraph and a list without wrapping block nodes", async () => {
+    const editor = await setupEditorWithContent(
+      "Intro paragraph tail.\n\n*   alpha item\n*   bravo item",
+    );
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "paragraph tail.\n\nalpha item",
+      "replacement text",
+    );
+    expect(replaced).toBe(true);
+    // Suggestion wrappers are inline nodes; they must never become direct
+    // children of a ListNode (which requires ListItemNode children).
+    editor.getEditorState().read(() => {
+      const walk = (node: LexicalNode): void => {
+        if ($isListNode(node)) {
+          for (const child of node.getChildren()) {
+            expect($isListItemNode(child)).toBe(true);
+          }
+        }
+        if ($isElementNode(node)) {
+          for (const child of node.getChildren()) walk(child);
+        }
+      };
+      walk($getRoot());
+    });
+  });
+
+  it("covers the full anchor block when the quote starts inside a link", async () => {
+    const editor = await setupEditorWithContent(
+      "Read [a great post](https://example.com) about X.\n\nIt explains things.",
+    );
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "great post about X.\n\nIt explains",
+      "replacement",
+    );
+    expect(replaced).toBe(true);
+    const deletes = getAllSuggestions(editor).filter((s) => s.type === "delete");
+    const deletedText = deletes.map((s) => s.textContent).join(" ");
+    // The tail of the first paragraph after the link must be covered too.
+    expect(deletedText).toContain("about X.");
+    expect(deletedText).toContain("It explains");
   });
 });
 

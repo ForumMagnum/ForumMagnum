@@ -2,6 +2,7 @@ import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM } from "@lexical/html";
 import {
   $createRangeSelection,
+  $isDecoratorNode,
   $getNodeByKey,
   $getRoot,
   $isElementNode,
@@ -113,22 +114,32 @@ export function $applyEditAtSelection({
 }
 
 /**
- * The top-level block a selection point belongs to. A root-element point
- * (e.g. around a top-level display equation) resolves to the child the
- * boundary sits against: before it for an anchor, after it for a focus.
+ * The nearest block-level node containing a selection point: the first
+ * non-inline element or decorator ancestor (a paragraph inside a blockquote,
+ * a list item, a top-level display equation), not the top-level element.
+ * Sibling-walk application can only operate within one such block, so this
+ * is the boundary that decides same-block vs cross-block dispatch. An
+ * element point keyed on an element resolves to the child the boundary sits
+ * against: before it for an anchor, after it for a focus.
  */
 function $blockOfPoint(point: MarkdownSelectionPoint, isFocus: boolean): LexicalNode | null {
-  const node = $getNodeByKey(point.key);
+  let node = $getNodeByKey(point.key);
   if (!node) return null;
-  if (point.type === "element" && $isRootNode(node)) {
+  if (point.type === "element" && $isElementNode(node)) {
     const children = node.getChildren();
     const index = Math.max(0, Math.min(isFocus ? point.offset - 1 : point.offset, children.length - 1));
-    return children[index] ?? null;
+    node = children[index] ?? node;
   }
-  return $isRootNode(node) ? null : node.getTopLevelElement();
+  let current: LexicalNode | null = node;
+  while (current && !$isRootNode(current)) {
+    const isBlock = ($isElementNode(current) || $isDecoratorNode(current)) && !current.isInline();
+    if (isBlock) return current;
+    current = current.getParent();
+  }
+  return null;
 }
 
-/** Whether both selection points sit inside the same top-level block. */
+/** Whether both selection points sit inside the same block-level node. */
 export function $pointsShareBlock(
   anchor: MarkdownSelectionPoint,
   focus: MarkdownSelectionPoint,
@@ -283,68 +294,6 @@ export function $splitAndCollectSelectedNodes(
   }
 
   return selectedNodes;
-}
-
-/**
- * Collect the nodes a cross-block selection covers, as one run of sibling
- * nodes per block: the anchor node's trailing siblings in the first block,
- * each intermediate element block's children, and the leading nodes up to
- * the focus in the last block. Intermediate decorator blocks (images, display
- * math) are left out — a text-range suggestion keeps them. Used by suggest
- * mode to wrap each run in a delete-suggestion node.
- *
- * Returns null when the blocks aren't top-level siblings or a point can't be
- * resolved. Must be called inside a Lexical update context.
- */
-export function $collectCoveredRunsAcrossBlocks(
-  anchor: MarkdownSelectionPoint,
-  focus: MarkdownSelectionPoint,
-): LexicalNode[][] | null {
-  const anchorBlock = $blockOfPoint(anchor, false);
-  const focusBlock = $blockOfPoint(focus, true);
-  if (!anchorBlock || !focusBlock || anchorBlock.getKey() === focusBlock.getKey()) return null;
-
-  const blocks: LexicalNode[] = [];
-  let currentBlock: LexicalNode | null = anchorBlock;
-  while (currentBlock) {
-    blocks.push(currentBlock);
-    if (currentBlock.getKey() === focusBlock.getKey()) break;
-    currentBlock = currentBlock.getNextSibling();
-  }
-  if (blocks[blocks.length - 1]?.getKey() !== focusBlock.getKey()) return null;
-
-  const runs: LexicalNode[][] = [];
-
-  const firstSelected = $resolveFirstSelectedNode(anchor);
-  if (!firstSelected) return null;
-  const firstRun: LexicalNode[] = [];
-  for (let node: LexicalNode | null = firstSelected; node; node = node.getNextSibling()) {
-    firstRun.push(node);
-  }
-  if (firstRun.length > 0) runs.push(firstRun);
-
-  for (const block of blocks.slice(1, -1)) {
-    if (!$isElementNode(block)) continue;
-    const children = block.getChildren();
-    if (children.length > 0) runs.push(children);
-  }
-
-  const lastSelected = $resolveLastSelectedNode(focus);
-  if (!lastSelected) return null;
-  const lastRun: LexicalNode[] = [];
-  const lastBlockStart = $isElementNode(focusBlock) ? focusBlock.getFirstChild() : focusBlock;
-  let reachedLast = false;
-  for (let node: LexicalNode | null = lastBlockStart; node; node = node.getNextSibling()) {
-    lastRun.push(node);
-    if (node.getKey() === lastSelected.getKey()) {
-      reachedLast = true;
-      break;
-    }
-  }
-  if (!reachedLast) return null;
-  if (lastRun.length > 0) runs.push(lastRun);
-
-  return runs.length > 0 ? runs : null;
 }
 
 /**

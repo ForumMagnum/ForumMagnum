@@ -4,7 +4,7 @@ import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Map as YMap, Array as YArray, Doc } from "yjs";
 import { randomId } from "@/lib/random";
 import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
-import { $createMarkNode, $wrapSelectionInMarkNode } from "@lexical/mark";
+import { $wrapSelectionInMarkNode } from "@lexical/mark";
 import {
   authorizeAgentDraftAccess,
   deriveAgentAuthor,
@@ -15,7 +15,6 @@ import {
 } from "../editorAgentUtil";
 import { $locateQuoteWithTextIndex } from "../textIndexQuoteLocator";
 import { commentOnDraftToolSchema } from "../toolSchemas";
-import { $collectCoveredRunsAcrossBlocks, $pointsShareBlock } from "../applyEditAtSelection";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
@@ -65,6 +64,8 @@ function createCollabThread({
 export interface QuoteMarkResult {
   quoteFoundInDocument: boolean
   markCreated: boolean
+  /** Why locating failed (e.g. the quote is ambiguous), when it did. */
+  locateFailureReason?: string
 }
 
 /**
@@ -78,25 +79,7 @@ export function $attachMarkToQuote(quote: string, markId: string): QuoteMarkResu
     markdownQuote: quote,
   });
   if (!result.found || !result.anchor || !result.focus) {
-    return { quoteFoundInDocument: result.found, markCreated: false };
-  }
-
-  // `$wrapSelectionInMarkNode` only wraps within the focus block for a
-  // selection spanning block boundaries; wrap each block's covered run in
-  // its own MarkNode (sharing the id) instead.
-  if (!$pointsShareBlock(result.anchor, result.focus)) {
-    const runs = $collectCoveredRunsAcrossBlocks(result.anchor, result.focus);
-    if (!runs) {
-      return { quoteFoundInDocument: true, markCreated: false };
-    }
-    for (const run of runs) {
-      const mark = $createMarkNode([markId]);
-      run[0].insertBefore(mark);
-      for (const node of run) {
-        mark.append(node);
-      }
-    }
-    return { quoteFoundInDocument: true, markCreated: true };
+    return { quoteFoundInDocument: result.found, markCreated: false, locateFailureReason: result.reason };
   }
 
   const selection = $createRangeSelection();
@@ -117,7 +100,7 @@ async function getMainDocQuoteMatchResult({
   token: string
   quote: string
   markId: string
-}): Promise<{ quoteFoundInDocument: boolean, createdMarkId: string | null }> {
+}): Promise<{ quoteFoundInDocument: boolean, createdMarkId: string | null, locateFailureReason?: string }> {
   return withMainDocEditorSession({
     postId,
     token,
@@ -125,11 +108,13 @@ async function getMainDocQuoteMatchResult({
     callback: async ({ editor, provider: mainDocProvider }) => {
       let quoteFoundInDocument = false;
       let createdMarkId: string | null = null;
+      let locateFailureReason: string | undefined;
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
           const markResult = $attachMarkToQuote(quote, markId);
           quoteFoundInDocument = markResult.quoteFoundInDocument;
+          locateFailureReason = markResult.locateFailureReason;
           if (markResult.markCreated) {
             createdMarkId = markId;
           }
@@ -140,7 +125,7 @@ async function getMainDocQuoteMatchResult({
         await waitForProviderFlush(mainDocProvider);
       }
 
-      return { quoteFoundInDocument, createdMarkId };
+      return { quoteFoundInDocument, createdMarkId, locateFailureReason };
     },
   });
 }
@@ -196,7 +181,7 @@ export async function insertDraftCommentThread({
       anchorStatus = "top_level_no_quote";
       anchorNote = "No quote provided; created top-level comment thread.";
     } else {
-      const { quoteFoundInDocument, createdMarkId } = await getMainDocQuoteMatchResult({
+      const { quoteFoundInDocument, createdMarkId, locateFailureReason } = await getMainDocQuoteMatchResult({
         postId,
         token,
         quote,
@@ -208,9 +193,10 @@ export async function insertDraftCommentThread({
         anchorNote = "Inserted a new text-range mark around quote text and attached the thread.";
       } else {
         anchorStatus = "top_level_no_match";
-        anchorNote = quoteFoundInDocument
-          ? "Quote text found in the document, but could not create a simple text-node anchor; created top-level comment thread."
-          : "Quote text was not found in the document; created top-level comment thread.";
+        const fallbackNote = quoteFoundInDocument
+          ? "Quote text found in the document, but could not create a text-range anchor."
+          : "Quote text was not found in the document.";
+        anchorNote = `${locateFailureReason ?? fallbackNote} Created top-level comment thread.`;
       }
     }
 

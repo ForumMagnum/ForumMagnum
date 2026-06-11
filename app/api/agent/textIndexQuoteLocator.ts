@@ -1,4 +1,4 @@
-import { $getNodeByKey, $isRootNode, type LexicalNode } from "lexical";
+import { $getNodeByKey, $isElementNode, $isRootNode, type LexicalNode } from "lexical";
 import { $isListItemNode } from "@lexical/list";
 import { foldPunctuation } from "./editorAgentUtil";
 import { findMathSpansInMarkdown, formatMathToken, type MathSpan } from "@/lib/utils/mathTokens";
@@ -449,8 +449,14 @@ export interface BlockPrefixResult {
  * remove one item rather than the whole list; everything else (paragraphs,
  * headings, tables, blockquotes, …) resolves to the top-level block.
  */
-function $blockAncestorOfKey(key: string): LexicalNode | null {
-  let current = $getNodeByKey(key);
+function $blockAncestorOfPoint(point: MarkdownSelectionPoint): LexicalNode | null {
+  let current = $getNodeByKey(point.key);
+  if (!current) return null;
+  // An element point references the parent; the matched node is the child at
+  // the boundary (e.g. a top-level display MathNode under the root).
+  if (point.type === "element" && $isElementNode(current)) {
+    current = current.getChildren()[point.offset] ?? current;
+  }
   while (current) {
     if ($isListItemNode(current)) return current;
     const parent: LexicalNode | null = current.getParent();
@@ -482,13 +488,19 @@ export function $locateBlockByPrefix(prefix: string): BlockPrefixResult {
   let matchIndex = normalizedDocument.text.indexOf(normalizedPrefix);
   while (matchIndex !== -1) {
     const rawStart = normalizedDocument.toRawStart[matchIndex];
+    const rawEnd = normalizedDocument.toRawEnd[matchIndex + normalizedPrefix.length - 1];
     const anchor = resolveRawIndexToPoint(projection, rawStart, false);
-    const block = anchor ? $blockAncestorOfKey(anchor.key) : null;
+    const block = anchor ? $blockAncestorOfPoint(anchor) : null;
     if (block && !matchedKeys.has(block.getKey())) {
-      // Only a match at the very start of the block's projected text counts
-      // as "the block starts with this prefix".
       const blockSpan = projection.spans.get(block.getKey());
-      if (blockSpan && blockSpan.start === rawStart) {
+      // The match counts only when the block starts with the prefix (modulo
+      // leading whitespace, which normalization skips) AND the prefix ends
+      // inside the block — a prefix continuing into the next block would
+      // otherwise silently operate on just this one.
+      const startsAtBlockStart = blockSpan !== undefined
+        && rawStart >= blockSpan.start
+        && projection.text.slice(blockSpan.start, rawStart).trim() === "";
+      if (startsAtBlockStart && blockSpan !== undefined && rawEnd <= blockSpan.end) {
         matchedKeys.add(block.getKey());
         matchedBlocks.push(block);
       }
