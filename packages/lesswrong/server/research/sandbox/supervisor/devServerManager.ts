@@ -13,7 +13,7 @@
  * arrangement untouched.
  */
 import { createServer, Server } from "node:http";
-import { spawn, ChildProcess } from "node:child_process";
+import { spawn, SpawnOptions } from "node:child_process";
 import { existsSync, openSync, closeSync, readFileSync } from "node:fs";
 import { AGENT_CWD } from "../sandboxLayout";
 import { startDevPortProbe, DevServerHandle, DEV_PORT, buildScriptBootEnv } from "./devServer";
@@ -48,6 +48,28 @@ export interface DevServerManager extends DevServerHandle {
 /** Emits a one-line system event to the transcript (e.g. crash-loop notices). */
 type SurfaceFn = (text: string) => void;
 
+type SpawnDevProcess = (
+  command: string,
+  args: string[],
+  options: SpawnOptions,
+) => ManagedDevProcess;
+
+interface ManagedDevProcess {
+  pid?: number;
+  on(event: "error", listener: (err: Error) => void): this;
+  on(event: "exit", listener: (code: number | null, signal: NodeJS.Signals | null) => void): this;
+  unref(): void;
+}
+
+interface DevServerManagerOptions {
+  devScriptPath?: string;
+  devLogPath?: string;
+  cwd?: string;
+  spawnProcess?: SpawnDevProcess;
+  probe?: DevServerHandle;
+  now?: () => number;
+}
+
 function signalGroup(pid: number, signal: NodeJS.Signals): void {
   // The child is spawned `detached`, so it leads its own process group; the
   // negative pid signals the whole tree even when the script doesn't `exec`.
@@ -78,11 +100,19 @@ function closeFdSafely(fd: number): void {
   }
 }
 
-export function createDevServerManager(surface: SurfaceFn): DevServerManager {
-  const probe = startDevPortProbe(DEV_PORT);
+export function createDevServerManager(
+  surface: SurfaceFn,
+  options: DevServerManagerOptions = {},
+): DevServerManager {
+  const probe = options.probe ?? startDevPortProbe(DEV_PORT);
   const childEnv = buildScriptBootEnv();
+  const devScriptPath = options.devScriptPath ?? DEV_SCRIPT_PATH;
+  const devLogPath = options.devLogPath ?? DEV_LOG_PATH;
+  const cwd = options.cwd ?? AGENT_CWD;
+  const spawnProcess = options.spawnProcess ?? spawn;
+  const now = options.now ?? Date.now;
 
-  let child: ChildProcess | null = null;
+  let child: ManagedDevProcess | null = null;
   /** Whether we want the server up. start/restart set true; stop sets false. */
   let desiredRunning = false;
   /** True between issuing a kill and seeing its exit, so the exit isn't crash-counted. */
@@ -95,7 +125,7 @@ export function createDevServerManager(surface: SurfaceFn): DevServerManager {
   const recentStarts: number[] = [];
 
   function hasScript(): boolean {
-    return existsSync(DEV_SCRIPT_PATH);
+    return existsSync(devScriptPath);
   }
 
   function clearRestartTimer(): void {
@@ -112,19 +142,19 @@ export function createDevServerManager(surface: SurfaceFn): DevServerManager {
     let fd: number;
     try {
       // Truncate per launch so the log reflects the current run.
-      fd = openSync(DEV_LOG_PATH, "w");
+      fd = openSync(devLogPath, "w");
     } catch (err) {
-      surface(`dev server: could not open ${DEV_LOG_PATH}: ${(err as Error).message}`);
+      surface(`dev server: could not open ${devLogPath}: ${(err as Error).message}`);
       return;
     }
 
-    launchedAt = Date.now();
+    launchedAt = now();
     recentStarts.push(launchedAt);
 
-    let proc: ChildProcess;
+    let proc: ManagedDevProcess;
     try {
-      proc = spawn("sh", [DEV_SCRIPT_PATH], {
-        cwd: AGENT_CWD,
+      proc = spawnProcess("sh", [devScriptPath], {
+        cwd,
         env: childEnv,
         stdio: ["ignore", fd, fd],
         detached: true,
@@ -136,6 +166,9 @@ export function createDevServerManager(surface: SurfaceFn): DevServerManager {
     }
     closeFdSafely(fd);
     child = proc;
+    // The supervisor still tracks the child for exit/stop/restart, but the child
+    // should not keep the supervisor event loop alive or inherit its lifetime.
+    proc.unref();
 
     proc.on("error", (err) => {
       surface(`dev server failed to start: ${err.message}`);
@@ -143,7 +176,11 @@ export function createDevServerManager(surface: SurfaceFn): DevServerManager {
     proc.on("exit", (code, signal) => onChildExit(proc, code, signal));
   }
 
-  function onChildExit(proc: ChildProcess, code: number | null, signal: NodeJS.Signals | null): void {
+  function onChildExit(
+    proc: ManagedDevProcess,
+    code: number | null,
+    signal: NodeJS.Signals | null,
+  ): void {
     if (child !== proc) return;
     child = null;
     if (killGraceTimer) {
@@ -165,17 +202,17 @@ export function createDevServerManager(surface: SurfaceFn): DevServerManager {
   function scheduleRestartAfterCrash(code: number | null, signal: NodeJS.Signals | null): void {
     // A run that lasted long enough to be healthy earns a fresh crash budget, so
     // a stable stretch isn't tripped by crashes from before it.
-    if (Date.now() - launchedAt > HEALTHY_RUN_MS) {
+    if (now() - launchedAt > HEALTHY_RUN_MS) {
       consecutiveFailures = 0;
       recentStarts.length = 0;
     }
 
-    const cutoff = Date.now() - CRASH_WINDOW_MS;
+    const cutoff = now() - CRASH_WINDOW_MS;
     while (recentStarts.length > 0 && recentStarts[0] < cutoff) recentStarts.shift();
     if (recentStarts.length >= CRASH_LIMIT) {
       desiredRunning = false;
       const how = signal ? `signal ${signal}` : `code ${code}`;
-      const log = tailFile(DEV_LOG_PATH);
+      const log = tailFile(devLogPath);
       surface(
         `Dev server is crash-looping (exited ${how} ${recentStarts.length} times in ` +
           `${CRASH_WINDOW_MS / 1000}s); supervision paused. Fix dev-server.sh and run ` +
