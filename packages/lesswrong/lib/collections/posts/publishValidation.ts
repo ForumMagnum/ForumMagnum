@@ -10,6 +10,7 @@ interface PostPublishValidationFields {
   url?: string | null;
   contents?: {
     wordCount?: number | null;
+    [key: string]: unknown;
   } | null;
 }
 
