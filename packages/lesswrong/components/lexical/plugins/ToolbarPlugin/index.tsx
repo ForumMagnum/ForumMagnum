@@ -470,7 +470,13 @@ function BlockFormatDropDown({
       <DropDownItem
         wide
         active={blockType === 'number' && listStyleType === 'decimal'}
-        onClick={() => formatNumberedList(editor, blockType)}>
+        onClick={() => {
+          if (blockType === 'number' && listStyleType !== 'decimal') {
+            formatNumberedListStyle(editor, blockType, 'decimal');
+            return;
+          }
+          formatNumberedList(editor, blockType);
+        }}>
         <DropDownItemIconTextContainer>
           <ListOlIcon className={classes.dropdownIcon} />
           <DropDownItemText>Numbered List</DropDownItemText>
