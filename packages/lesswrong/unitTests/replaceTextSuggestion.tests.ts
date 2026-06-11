@@ -1,8 +1,10 @@
 import { $getRoot, $isElementNode, type LexicalEditor, type LexicalNode } from "lexical";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { $applySuggestionWithNarrowing } from "../../../app/api/agent/replaceText/route";
+import { $wrapBlockAsDeletionSuggestion } from "../../../app/api/agent/deleteBlock/route";
+import { $createMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
+import { $locateBlockByPrefix, $locateQuoteWithTextIndex } from "../../../app/api/agent/textIndexQuoteLocator";
 import { $applyEditModeReplacement } from "../../../app/api/agent/applyEditAtSelection";
-import { $locateQuoteWithTextIndex } from "../../../app/api/agent/textIndexQuoteLocator";
 import { $isListItemNode, $isListNode } from "@lexical/list";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
@@ -184,6 +186,42 @@ describe("replaceText within nested block structures", () => {
     // The tail of the first paragraph after the link must be covered too.
     expect(deletedText).toContain("about X.");
     expect(deletedText).toContain("It explains");
+  });
+});
+
+describe("deleteBlock suggest-mode wrapping", () => {
+  async function wrapBlockByPrefix(editor: LexicalEditor, prefix: string): Promise<boolean> {
+    let wrapped = false;
+    await runEditorUpdate(editor, () => {
+      const block = $locateBlockByPrefix(prefix).node;
+      if (!block) throw new Error(`No block matched prefix: ${prefix}`);
+      wrapped = $wrapBlockAsDeletionSuggestion(block, randomId());
+    });
+    return wrapped;
+  }
+
+  it("wraps a paragraph block and creates delete suggestions", async () => {
+    const editor = await setupEditorWithContent("First paragraph.\n\nSecond paragraph.");
+    expect(await wrapBlockByPrefix(editor, "Second paragraph")).toBe(true);
+    expect(getAllSuggestions(editor).filter((s) => s.type === "delete").length).toBeGreaterThan(0);
+  });
+
+  it("wraps a table block via per-cell suggestion nodes", async () => {
+    const editor = await setupEditorWithContent(
+      "| h1 | h2 |\n| --- | --- |\n| a | b |",
+    );
+    expect(await wrapBlockByPrefix(editor, "h1")).toBe(true);
+  });
+
+  it("reports failure for a top-level display equation it cannot wrap", async () => {
+    // $wrapSelectionInSuggestionNode has no case for block-level decorators
+    // and silently creates nothing; the route must not report success.
+    const editor = await setupEditorWithContent("Intro paragraph.");
+    await runEditorUpdate(editor, () => {
+      $getRoot().append($createMathNode("E=mc^2", false));
+    });
+    expect(await wrapBlockByPrefix(editor, "$$\nE=mc^2\n$$")).toBe(false);
+    expect(getAllSuggestions(editor).length).toBe(0);
   });
 });
 

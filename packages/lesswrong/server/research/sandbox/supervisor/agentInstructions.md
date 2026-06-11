@@ -109,10 +109,12 @@ research-tool edit-doc <documentId> replace-text \
     --quote <visible-text> --with <markdown>
 ```
 Find `--quote` in the document and replace it with `--with` (markdown).
-Returns `{ ok, replaced, quoteFoundInDocument, note }`. If `replaced` is
-false but `quoteFoundInDocument` is true, your quote spans multiple
-formatting boundaries (e.g. crosses a bold/italic/link boundary) and you
-need to pick a smaller, more uniform fragment.
+Returns `{ ok, replaced, quoteFoundInDocument, note }`. Quotes may span
+formatting boundaries (bold/italic/link) and even paragraph boundaries.
+When `replaced` is false, the `note` says why: an ambiguous quote (one
+that appears more than once) asks you to provide a longer quote with more
+surrounding context; a quote that isn't found usually means the document
+changed since you read it — re-fetch and re-derive the quote.
 
 ```
 research-tool edit-doc <documentId> insert-block \
@@ -254,9 +256,12 @@ A `widgetFound: false` response means no widget has that id.
 ```
 research-tool edit-doc <documentId> delete-block --prefix <text>
 ```
-Delete the first block whose markdown begins with `--prefix`. The matcher
-descends into lists — a single bullet's leading text deletes just that
-bullet and leaves the surrounding list intact. For tables, match the
+Delete the block whose markdown begins with `--prefix`. The prefix must
+match exactly one block — if several blocks start with it, the call fails
+and asks for a longer prefix — and must end within that block (a prefix
+spanning two blocks never matches). The matcher descends into lists at any
+nesting depth — a single bullet's leading text deletes just that bullet and
+leaves the surrounding list intact. For tables, match the
 leading text of the first cell; tables always delete as a whole. For
 LLM content blocks, match the `%%% llm-output ...` delimiter line; for
 widgets, match the `` ```widget[<id>] `` delimiter line.
@@ -345,6 +350,9 @@ These rules come straight from the shared backend matcher:
   markdown emphasis markers (`**`, `_`, `` ` ``, `~`) automatically.
   Don't pre-normalize. Do not paraphrase or "clean up" the text — quote
   exactly what `fetch-doc` returned.
+- **Quotes must be unambiguous.** A quote or prefix that matches more than
+  one place fails with a count of the occurrences; lengthen it with more
+  surrounding context rather than guessing.
 - **Re-fetch on miss.** Documents are a live collaboration surface; if a
   quote that should match returns "no match", call `fetch-doc` again
   before retrying. The user may have edited concurrently.
@@ -361,11 +369,10 @@ These rules come straight from the shared backend matcher:
   retypeset it. A quote may span an equation but can't match a fragment of one.
 - **Anchoring against an `@[...]` mention chip:** quote the verbatim
   token as it appears in `fetch-doc` output, including the brackets,
-  kind, id, quotes, and title — `@[doc:abc123 "Zoning notes"]`. Quotes
-  that cross *into* a mention from surrounding text (e.g. quoting `notes
-  for context` when the doc reads `@[doc:abc "notes"] for context`) won't
-  match — same boundary class as bold/italic. Pick a quote that lies
-  fully inside or fully outside the chip.
+  kind, id, quotes, and title — `@[doc:abc123 "Zoning notes"]`. Chips are
+  atomic: a quote whose boundary falls partway through a chip resolves to
+  cover the whole chip, so for precise edits keep quote boundaries fully
+  inside or fully outside the chip token.
 
 ## Working directory and the sandbox filesystem
 
