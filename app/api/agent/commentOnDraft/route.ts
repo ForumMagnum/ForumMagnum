@@ -4,7 +4,7 @@ import { HocuspocusProvider } from "@hocuspocus/provider";
 import { Map as YMap, Array as YArray, Doc } from "yjs";
 import { randomId } from "@/lib/random";
 import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
-import { $wrapSelectionInMarkNode } from "@lexical/mark";
+import { $createMarkNode, $wrapSelectionInMarkNode } from "@lexical/mark";
 import {
   authorizeAgentDraftAccess,
   deriveAgentAuthor,
@@ -13,8 +13,9 @@ import {
   waitForProviderSync,
   withMainDocEditorSession,
 } from "../editorAgentUtil";
-import { locateMarkdownQuoteSelectionInSubtree } from "../mapMarkdownToLexical";
+import { $locateQuoteWithTextIndex } from "../textIndexQuoteLocator";
 import { commentOnDraftToolSchema } from "../toolSchemas";
+import { $collectCoveredRunsAcrossBlocks, $pointsShareBlock } from "../applyEditAtSelection";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 
@@ -72,12 +73,30 @@ export interface QuoteMarkResult {
  */
 export function $attachMarkToQuote(quote: string, markId: string): QuoteMarkResult {
   const root = $getRoot();
-  const result = locateMarkdownQuoteSelectionInSubtree({
+  const result = $locateQuoteWithTextIndex({
     rootNodeKey: root.getKey(),
     markdownQuote: quote,
   });
   if (!result.found || !result.anchor || !result.focus) {
     return { quoteFoundInDocument: result.found, markCreated: false };
+  }
+
+  // `$wrapSelectionInMarkNode` only wraps within the focus block for a
+  // selection spanning block boundaries; wrap each block's covered run in
+  // its own MarkNode (sharing the id) instead.
+  if (!$pointsShareBlock(result.anchor, result.focus)) {
+    const runs = $collectCoveredRunsAcrossBlocks(result.anchor, result.focus);
+    if (!runs) {
+      return { quoteFoundInDocument: true, markCreated: false };
+    }
+    for (const run of runs) {
+      const mark = $createMarkNode([markId]);
+      run[0].insertBefore(mark);
+      for (const node of run) {
+        mark.append(node);
+      }
+    }
+    return { quoteFoundInDocument: true, markCreated: true };
   }
 
   const selection = $createRangeSelection();

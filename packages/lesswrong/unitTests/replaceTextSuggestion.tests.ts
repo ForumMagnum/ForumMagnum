@@ -2,7 +2,7 @@ import { $getRoot, type LexicalEditor } from "lexical";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { $applySuggestionWithNarrowing } from "../../../app/api/agent/replaceText/route";
 import { $applyEditModeReplacement } from "../../../app/api/agent/applyEditAtSelection";
-import { locateMarkdownQuoteSelectionInSubtree } from "../../../app/api/agent/mapMarkdownToLexical";
+import { $locateQuoteWithTextIndex } from "../../../app/api/agent/textIndexQuoteLocator";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
@@ -17,7 +17,7 @@ async function replaceTextAsSuggestion(
   let replaced = false;
   await runEditorUpdate(editor, () => {
     const root = $getRoot();
-    const result = locateMarkdownQuoteSelectionInSubtree({
+    const result = $locateQuoteWithTextIndex({
       rootNodeKey: root.getKey(),
       markdownQuote: quote,
     });
@@ -40,7 +40,7 @@ async function replaceTextInEditMode(
   let replaced = false;
   await runEditorUpdate(editor, () => {
     const root = $getRoot();
-    const result = locateMarkdownQuoteSelectionInSubtree({
+    const result = $locateQuoteWithTextIndex({
       rootNodeKey: root.getKey(),
       markdownQuote: quote,
     });
@@ -61,6 +61,66 @@ function getPlainTextContent(editor: LexicalEditor): string {
   });
   return text;
 }
+
+describe("replaceText across block boundaries", () => {
+  it("edits a quote spanning two paragraphs in edit mode", async () => {
+    const editor = await setupEditorWithContent(
+      "First paragraph ends here.\n\nSecond paragraph starts now, and continues.",
+    );
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "ends here.\n\nSecond paragraph starts now,",
+      "ends differently. The replacement starts now,",
+    );
+
+    expect(replaced).toBe(true);
+    const text = getPlainTextContent(editor);
+    expect(text).toContain("ends differently. The replacement starts now,");
+    expect(text).not.toContain("Second paragraph");
+  });
+
+  it("deletes a quote spanning two paragraphs in edit mode (empty replacement)", async () => {
+    const editor = await setupEditorWithContent(
+      "Alpha tail to remove.\n\nBeta head to remove, beta tail stays.",
+    );
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "tail to remove.\n\nBeta head to remove,",
+      "",
+    );
+
+    expect(replaced).toBe(true);
+    const text = getPlainTextContent(editor);
+    expect(text).toContain("beta tail stays");
+    expect(text).not.toContain("Beta head");
+  });
+
+  it("creates per-block delete suggestions for a cross-paragraph quote in suggest mode", async () => {
+    const editor = await setupEditorWithContent(
+      "First paragraph ends here.\n\nSecond paragraph starts now, and continues.",
+    );
+
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "ends here.\n\nSecond paragraph starts now,",
+      "ends differently. A new start,",
+    );
+
+    expect(replaced).toBe(true);
+    const suggestions = getAllSuggestions(editor);
+    const deletes = suggestions.filter((s) => s.type === "delete");
+    const inserts = suggestions.filter((s) => s.type === "insert");
+    // One delete run per covered block, one insert with the replacement.
+    expect(deletes.length).toBe(2);
+    expect(deletes.map((s) => s.textContent).join(" | ")).toBe(
+      "ends here. | Second paragraph starts now,",
+    );
+    expect(inserts.length).toBe(1);
+    expect(inserts[0].textContent).toBe("ends differently. A new start,");
+  });
+});
 
 describe("replaceText suggest mode", () => {
   it("preserves markdown formatting in the replacement text", async () => {

@@ -20,7 +20,7 @@ import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidge
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import { normalizeImportedTopLevelNodes } from "../../(markdown)/editorMarkdownUtils";
-import { buildNodeMarkdownMapForSubtree, findBlockToOperateOnByPrefix, toPlainTextFilter } from "../mapMarkdownToLexical";
+import { $locateBlockByPrefix } from "../textIndexQuoteLocator";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { insertBlockToolSchema, type InsertLocation, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
@@ -142,9 +142,7 @@ function findInsertionIndexByPrefix(
   relation: "before" | "after",
 ): number | null {
   const root = $getRoot();
-  const textFilter = toPlainTextFilter(prefix);
-  const mapResult = buildNodeMarkdownMapForSubtree(root.getKey(), textFilter);
-  const matched = findBlockToOperateOnByPrefix({ rootChildren, prefix, mapResult, textFilter });
+  const matched = $locateBlockByPrefix(prefix).node;
   if (!matched) return null;
   // The locator may descend into list items, but insertion always happens at
   // the top level — translate a matched list item back to its parent list's

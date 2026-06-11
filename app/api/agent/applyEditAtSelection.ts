@@ -1,10 +1,12 @@
 import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM } from "@lexical/html";
 import {
+  $createRangeSelection,
   $getNodeByKey,
   $getRoot,
   $isElementNode,
   $isParagraphNode,
+  $isRootNode,
   $isTextNode,
   type LexicalEditor,
   type LexicalNode,
@@ -94,6 +96,9 @@ export function $applyEditAtSelection({
   focus: MarkdownSelectionPoint
   inlineNodes: LexicalNode[]
 }): boolean {
+  if (!$pointsShareBlock(anchor, focus)) {
+    return $applyEditAcrossBlocks({ anchor, focus, inlineNodes });
+  }
   const sameTextNode =
     anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
   if (sameTextNode) {
@@ -105,6 +110,58 @@ export function $applyEditAtSelection({
     });
   }
   return $applyEditMultiNode({ anchor, focus, inlineNodes });
+}
+
+/**
+ * The top-level block a selection point belongs to. A root-element point
+ * (e.g. around a top-level display equation) resolves to the child the
+ * boundary sits against: before it for an anchor, after it for a focus.
+ */
+function $blockOfPoint(point: MarkdownSelectionPoint, isFocus: boolean): LexicalNode | null {
+  const node = $getNodeByKey(point.key);
+  if (!node) return null;
+  if (point.type === "element" && $isRootNode(node)) {
+    const children = node.getChildren();
+    const index = Math.max(0, Math.min(isFocus ? point.offset - 1 : point.offset, children.length - 1));
+    return children[index] ?? null;
+  }
+  return $isRootNode(node) ? null : node.getTopLevelElement();
+}
+
+/** Whether both selection points sit inside the same top-level block. */
+export function $pointsShareBlock(
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+): boolean {
+  const anchorBlock = $blockOfPoint(anchor, false);
+  const focusBlock = $blockOfPoint(focus, true);
+  return !!anchorBlock && !!focusBlock && anchorBlock.getKey() === focusBlock.getKey();
+}
+
+/**
+ * Apply an edit whose range spans block boundaries, via Lexical's own
+ * range-selection editing (the paste path): removing a cross-block range
+ * merges the boundary blocks, and inserting nodes splits blocks as needed
+ * when the replacement itself is multi-block.
+ */
+function $applyEditAcrossBlocks({
+  anchor,
+  focus,
+  inlineNodes,
+}: {
+  anchor: MarkdownSelectionPoint
+  focus: MarkdownSelectionPoint
+  inlineNodes: LexicalNode[]
+}): boolean {
+  const selection = $createRangeSelection();
+  selection.anchor.set(anchor.key, anchor.offset, anchor.type);
+  selection.focus.set(focus.key, focus.offset, focus.type);
+  if (inlineNodes.length === 0) {
+    selection.removeText();
+  } else {
+    selection.insertNodes(inlineNodes);
+  }
+  return true;
 }
 
 function $applyEditSingleNode({
@@ -229,6 +286,68 @@ export function $splitAndCollectSelectedNodes(
 }
 
 /**
+ * Collect the nodes a cross-block selection covers, as one run of sibling
+ * nodes per block: the anchor node's trailing siblings in the first block,
+ * each intermediate element block's children, and the leading nodes up to
+ * the focus in the last block. Intermediate decorator blocks (images, display
+ * math) are left out — a text-range suggestion keeps them. Used by suggest
+ * mode to wrap each run in a delete-suggestion node.
+ *
+ * Returns null when the blocks aren't top-level siblings or a point can't be
+ * resolved. Must be called inside a Lexical update context.
+ */
+export function $collectCoveredRunsAcrossBlocks(
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+): LexicalNode[][] | null {
+  const anchorBlock = $blockOfPoint(anchor, false);
+  const focusBlock = $blockOfPoint(focus, true);
+  if (!anchorBlock || !focusBlock || anchorBlock.getKey() === focusBlock.getKey()) return null;
+
+  const blocks: LexicalNode[] = [];
+  let currentBlock: LexicalNode | null = anchorBlock;
+  while (currentBlock) {
+    blocks.push(currentBlock);
+    if (currentBlock.getKey() === focusBlock.getKey()) break;
+    currentBlock = currentBlock.getNextSibling();
+  }
+  if (blocks[blocks.length - 1]?.getKey() !== focusBlock.getKey()) return null;
+
+  const runs: LexicalNode[][] = [];
+
+  const firstSelected = $resolveFirstSelectedNode(anchor);
+  if (!firstSelected) return null;
+  const firstRun: LexicalNode[] = [];
+  for (let node: LexicalNode | null = firstSelected; node; node = node.getNextSibling()) {
+    firstRun.push(node);
+  }
+  if (firstRun.length > 0) runs.push(firstRun);
+
+  for (const block of blocks.slice(1, -1)) {
+    if (!$isElementNode(block)) continue;
+    const children = block.getChildren();
+    if (children.length > 0) runs.push(children);
+  }
+
+  const lastSelected = $resolveLastSelectedNode(focus);
+  if (!lastSelected) return null;
+  const lastRun: LexicalNode[] = [];
+  const lastBlockStart = $isElementNode(focusBlock) ? focusBlock.getFirstChild() : focusBlock;
+  let reachedLast = false;
+  for (let node: LexicalNode | null = lastBlockStart; node; node = node.getNextSibling()) {
+    lastRun.push(node);
+    if (node.getKey() === lastSelected.getKey()) {
+      reachedLast = true;
+      break;
+    }
+  }
+  if (!reachedLast) return null;
+  if (lastRun.length > 0) runs.push(lastRun);
+
+  return runs.length > 0 ? runs : null;
+}
+
+/**
  * Pull a common-prefix boundary back out of any math token. A boundary that
  * falls strictly inside a `$…$` / `\(…\)` token of either string would split
  * an equation; snap it to that token's start instead.
@@ -280,6 +399,10 @@ export function $computeNarrowing(
   quote: string
   replacement: string
 } | null {
+  // `$collectPlainTextInRange` and `$advancePoint`/`$retreatPoint` walk
+  // sibling nodes, so across a block boundary they would silently collect
+  // the wrong text; cross-block edits use the full (un-narrowed) range.
+  if (!$pointsShareBlock(anchor, focus)) return null;
   const matchedPlainText = $collectPlainTextInRange(anchor, focus);
   if (matchedPlainText === null) return null;
 

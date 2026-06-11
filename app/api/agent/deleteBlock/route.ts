@@ -5,7 +5,7 @@ import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
-import { buildNodeMarkdownMapForSubtree, findBlockToOperateOnByPrefix, toPlainTextFilter } from "../mapMarkdownToLexical";
+import { $locateBlockByPrefix } from "../textIndexQuoteLocator";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deleteBlockToolSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
@@ -43,21 +43,13 @@ export async function deleteMarkdownBlock({
       await new Promise<void>((resolve) => {
         editor.update(() => {
           const root = $getRoot();
-          const rootChildren = root.getChildren();
-          const textFilter = toPlainTextFilter(prefix);
-          const mapResult = buildNodeMarkdownMapForSubtree(root.getKey(), textFilter);
-
-          const nodeToDelete = findBlockToOperateOnByPrefix({
-            rootChildren,
-            prefix,
-            mapResult,
-            textFilter,
-          });
+          const blockResult = $locateBlockByPrefix(prefix);
+          const nodeToDelete = blockResult.node;
 
           if (!nodeToDelete) {
             result = {
               deleted: false,
-              note: `No paragraph or list item markdown starts with locator text: ${prefix}`,
+              note: blockResult.reason ?? `No block starts with locator text: ${prefix}`,
             };
             return;
           }

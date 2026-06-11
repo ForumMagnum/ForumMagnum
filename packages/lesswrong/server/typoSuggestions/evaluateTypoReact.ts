@@ -9,7 +9,8 @@ import { createNotifications } from "@/server/notificationCallbacksHelpers";
 import { captureException } from "@/lib/sentryWrapper";
 import { loadHtmlIntoHeadlessEditor } from "./headlessLexical";
 import { $computeNarrowing } from "../../../../app/api/agent/applyEditAtSelection";
-import { findRenderedQuoteInMarkdown, locateMarkdownQuoteSelectionInSubtree } from "../../../../app/api/agent/mapMarkdownToLexical";
+import { findRenderedQuoteInMarkdown } from "../../../../app/api/agent/mapMarkdownToLexical";
+import { $locateQuoteWithTextIndex } from "../../../../app/api/agent/textIndexQuoteLocator";
 
 const TYPO_EVALUATION_MODEL = "anthropic/claude-opus-4-7";
 
@@ -163,7 +164,7 @@ function computeNarrowedDiff(
     let narrowedReplacement = replacement;
     editor.getEditorState().read(() => {
       const root = $getRoot();
-      const selectionResult = locateMarkdownQuoteSelectionInSubtree({
+      const selectionResult = $locateQuoteWithTextIndex({
         rootNodeKey: root.getKey(),
         markdownQuote: quote,
       });

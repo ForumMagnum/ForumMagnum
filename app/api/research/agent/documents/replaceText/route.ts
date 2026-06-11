@@ -5,7 +5,7 @@ import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { getMarkdownItForResearch } from "@/lib/utils/markdownItPlugins";
 import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
-import { locateMarkdownQuoteSelectionInSubtree } from "../../../../agent/mapMarkdownToLexical";
+import { $locateQuoteWithTextIndex } from "../../../../agent/textIndexQuoteLocator";
 import { $applyEditModeReplacement } from "../../../../agent/applyEditAtSelection";
 import {
   authorizeAgentRequest,
@@ -50,7 +50,7 @@ async function replaceTextInResearchDoc({
         editor.update(
           () => {
             const root = $getRoot();
-            const selectionResult = locateMarkdownQuoteSelectionInSubtree({
+            const selectionResult = $locateQuoteWithTextIndex({
               rootNodeKey: root.getKey(),
               markdownQuote: quote,
             });

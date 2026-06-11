@@ -9,14 +9,17 @@ import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess, renderAgentMarkdownToHtml } from "../editorAgentUtil";
 
-import { locateMarkdownQuoteSelectionInSubtree, markdownQuoteToPlainText, type MarkdownSelectionPoint } from "../mapMarkdownToLexical";
+import { markdownQuoteToPlainText, type MarkdownSelectionPoint } from "../mapMarkdownToLexical";
+import { $locateQuoteWithTextIndex } from "../textIndexQuoteLocator";
 import { replaceTextToolSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
 import {
   $applyEditModeReplacement,
+  $collectCoveredRunsAcrossBlocks,
   $computeNarrowing,
   $htmlToInlineNodes,
+  $pointsShareBlock,
   $splitAndCollectSelectedNodes,
 } from "../applyEditAtSelection";
 
@@ -238,6 +241,12 @@ function $applySuggestionForSelection(
     });
   }
 
+  if (!$pointsShareBlock(anchor, focus)) {
+    return $applySuggestionAcrossBlocks({
+      editor, anchor, focus, replacement, replacementNodes, suggestionId,
+    });
+  }
+
   const sameTextNode = anchor.key === focus.key
     && anchor.type === "text" && focus.type === "text";
 
@@ -256,6 +265,55 @@ function $applySuggestionForSelection(
   return $applySuggestionReplacementMultiNode({
     editor, anchor, focus, replacement, replacementNodes, suggestionId,
   });
+}
+
+/**
+ * Apply a suggestion whose range spans block boundaries: each block's
+ * covered run is wrapped in its own delete-suggestion node (sharing one
+ * suggestionId), and the replacement is inserted as a single
+ * insert-suggestion after the first run. Accepting removes the covered text
+ * from every block and keeps the replacement; the block boundaries
+ * themselves are not part of the suggestion (a paragraph merge cannot be
+ * represented as a text suggestion), so the blocks remain separate.
+ */
+function $applySuggestionAcrossBlocks({
+  editor,
+  anchor,
+  focus,
+  replacement,
+  replacementNodes,
+  suggestionId,
+}: {
+  editor: LexicalEditor
+  anchor: MarkdownSelectionPoint
+  focus: MarkdownSelectionPoint
+  replacement: string
+  replacementNodes?: LexicalNode[]
+  suggestionId: string
+}): boolean {
+  const runs = $collectCoveredRunsAcrossBlocks(anchor, focus);
+  if (!runs) return false;
+
+  let firstDeleteSuggestion: LexicalNode | null = null;
+  for (const run of runs) {
+    const deleteSuggestion = $createSuggestionNode(suggestionId, "delete");
+    run[0].insertBefore(deleteSuggestion);
+    for (const node of run) {
+      deleteSuggestion.append(node);
+    }
+    if (!firstDeleteSuggestion) {
+      firstDeleteSuggestion = deleteSuggestion;
+    }
+  }
+  if (!firstDeleteSuggestion) return false;
+
+  const insertSuggestion = $createSuggestionNode(suggestionId, "insert");
+  const nodes = replacementNodes ?? $narrowedReplacementToNodes(editor, replacement);
+  for (const node of nodes) {
+    insertSuggestion.append(node);
+  }
+  firstDeleteSuggestion.insertAfter(insertSuggestion);
+  return true;
 }
 
 /**
@@ -360,7 +418,7 @@ export async function replaceTextInMainDoc({
       await new Promise<void>((resolve) => {
         editor.update(() => {
           const root = $getRoot();
-          const selectionResult = locateMarkdownQuoteSelectionInSubtree({
+          const selectionResult = $locateQuoteWithTextIndex({
             rootNodeKey: root.getKey(),
             markdownQuote: quote,
           });
