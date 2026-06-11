@@ -1,11 +1,12 @@
 import { randomId } from "@/lib/random";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { NextRequest, NextResponse } from "next/server";
-import { $createRangeSelection, $getRoot, $setSelection } from "lexical";
+import { $createRangeSelection, $getRoot, $nodesOfType, $setSelection, type LexicalNode } from "lexical";
 import { $wrapSelectionInSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Utils";
+import { ProtonNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
-import { buildNodeMarkdownMapForSubtree, findBlockToOperateOnByPrefix, toPlainTextFilter } from "../mapMarkdownToLexical";
+import { $locateBlockByPrefix } from "../textIndexQuoteLocator";
 import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deleteBlockToolSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
@@ -16,6 +17,28 @@ interface DeleteBlockResult {
   note: string
   deletionIndex?: number
   suggestionId?: string
+}
+
+/**
+ * Wrap a matched block as a deletion suggestion, reporting whether any
+ * suggestion was actually created. `$wrapSelectionInSuggestionNode` has no
+ * case for block-level decorators (e.g. a top-level display MathNode) and
+ * silently creates nothing for them; its return value can't be checked
+ * directly because the table case creates per-cell suggestion nodes without
+ * reporting them — so success is verified by inspecting the tree for nodes
+ * carrying this call's suggestionId. Exported for testing. Must be called
+ * inside a Lexical update context.
+ */
+export function $wrapBlockAsDeletionSuggestion(blockNode: LexicalNode, suggestionId: string): boolean {
+  const parent = blockNode.getParent();
+  if (!parent) return false;
+  const indexInParent = blockNode.getIndexWithinParent();
+  const selection = $createRangeSelection();
+  selection.anchor.set(parent.getKey(), indexInParent, "element");
+  selection.focus.set(parent.getKey(), indexInParent + 1, "element");
+  $setSelection(selection);
+  $wrapSelectionInSuggestionNode(selection, false, suggestionId, "delete");
+  return $nodesOfType(ProtonNode).some((node) => node.getSuggestionIdOrThrow() === suggestionId);
 }
 
 export async function deleteMarkdownBlock({
@@ -43,21 +66,13 @@ export async function deleteMarkdownBlock({
       await new Promise<void>((resolve) => {
         editor.update(() => {
           const root = $getRoot();
-          const rootChildren = root.getChildren();
-          const textFilter = toPlainTextFilter(prefix);
-          const mapResult = buildNodeMarkdownMapForSubtree(root.getKey(), textFilter);
-
-          const nodeToDelete = findBlockToOperateOnByPrefix({
-            rootChildren,
-            prefix,
-            mapResult,
-            textFilter,
-          });
+          const blockResult = $locateBlockByPrefix(prefix);
+          const nodeToDelete = blockResult.node;
 
           if (!nodeToDelete) {
             result = {
               deleted: false,
-              note: `No paragraph or list item markdown starts with locator text: ${prefix}`,
+              note: blockResult.reason ?? `No block starts with locator text: ${prefix}`,
             };
             return;
           }
@@ -88,12 +103,14 @@ export async function deleteMarkdownBlock({
             return;
           }
 
-          const selection = $createRangeSelection();
-          selection.anchor.set(parent.getKey(), indexInParent, "element");
-          selection.focus.set(parent.getKey(), indexInParent + 1, "element");
-          $setSelection(selection);
           const suggestionId = randomId();
-          $wrapSelectionInSuggestionNode(selection, false, suggestionId, "delete");
+          if (!$wrapBlockAsDeletionSuggestion(nodeToDelete, suggestionId)) {
+            result = {
+              deleted: false,
+              note: "This block type cannot be wrapped as a deletion suggestion. Retry with mode \"edit\" to delete it directly.",
+            };
+            return;
+          }
           result = {
             deleted: true,
             note: "Marked markdown block as a deletion suggestion.",

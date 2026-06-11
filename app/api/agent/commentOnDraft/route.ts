@@ -13,7 +13,7 @@ import {
   waitForProviderSync,
   withMainDocEditorSession,
 } from "../editorAgentUtil";
-import { locateMarkdownQuoteSelectionInSubtree } from "../mapMarkdownToLexical";
+import { $locateQuoteWithTextIndex } from "../textIndexQuoteLocator";
 import { commentOnDraftToolSchema } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
@@ -64,6 +64,8 @@ function createCollabThread({
 export interface QuoteMarkResult {
   quoteFoundInDocument: boolean
   markCreated: boolean
+  /** Why locating failed (e.g. the quote is ambiguous), when it did. */
+  locateFailureReason?: string
 }
 
 /**
@@ -72,12 +74,9 @@ export interface QuoteMarkResult {
  */
 export function $attachMarkToQuote(quote: string, markId: string): QuoteMarkResult {
   const root = $getRoot();
-  const result = locateMarkdownQuoteSelectionInSubtree({
-    rootNodeKey: root.getKey(),
-    markdownQuote: quote,
-  });
+  const result = $locateQuoteWithTextIndex(quote);
   if (!result.found || !result.anchor || !result.focus) {
-    return { quoteFoundInDocument: result.found, markCreated: false };
+    return { quoteFoundInDocument: result.found, markCreated: false, locateFailureReason: result.reason };
   }
 
   const selection = $createRangeSelection();
@@ -98,7 +97,7 @@ async function getMainDocQuoteMatchResult({
   token: string
   quote: string
   markId: string
-}): Promise<{ quoteFoundInDocument: boolean, createdMarkId: string | null }> {
+}): Promise<{ quoteFoundInDocument: boolean, createdMarkId: string | null, locateFailureReason?: string }> {
   return withMainDocEditorSession({
     postId,
     token,
@@ -106,11 +105,13 @@ async function getMainDocQuoteMatchResult({
     callback: async ({ editor, provider: mainDocProvider }) => {
       let quoteFoundInDocument = false;
       let createdMarkId: string | null = null;
+      let locateFailureReason: string | undefined;
 
       await new Promise<void>((resolve) => {
         editor.update(() => {
           const markResult = $attachMarkToQuote(quote, markId);
           quoteFoundInDocument = markResult.quoteFoundInDocument;
+          locateFailureReason = markResult.locateFailureReason;
           if (markResult.markCreated) {
             createdMarkId = markId;
           }
@@ -121,7 +122,7 @@ async function getMainDocQuoteMatchResult({
         await waitForProviderFlush(mainDocProvider);
       }
 
-      return { quoteFoundInDocument, createdMarkId };
+      return { quoteFoundInDocument, createdMarkId, locateFailureReason };
     },
   });
 }
@@ -177,7 +178,7 @@ export async function insertDraftCommentThread({
       anchorStatus = "top_level_no_quote";
       anchorNote = "No quote provided; created top-level comment thread.";
     } else {
-      const { quoteFoundInDocument, createdMarkId } = await getMainDocQuoteMatchResult({
+      const { quoteFoundInDocument, createdMarkId, locateFailureReason } = await getMainDocQuoteMatchResult({
         postId,
         token,
         quote,
@@ -189,9 +190,10 @@ export async function insertDraftCommentThread({
         anchorNote = "Inserted a new text-range mark around quote text and attached the thread.";
       } else {
         anchorStatus = "top_level_no_match";
-        anchorNote = quoteFoundInDocument
-          ? "Quote text found in the document, but could not create a simple text-node anchor; created top-level comment thread."
-          : "Quote text was not found in the document; created top-level comment thread.";
+        const fallbackNote = quoteFoundInDocument
+          ? "Quote text found in the document, but could not create a text-range anchor."
+          : "Quote text was not found in the document.";
+        anchorNote = `${locateFailureReason ?? fallbackNote} Created top-level comment thread.`;
       }
     }
 

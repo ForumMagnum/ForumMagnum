@@ -1,10 +1,13 @@
 import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM } from "@lexical/html";
 import {
+  $createRangeSelection,
+  $isDecoratorNode,
   $getNodeByKey,
   $getRoot,
   $isElementNode,
   $isParagraphNode,
+  $isRootNode,
   $isTextNode,
   type LexicalEditor,
   type LexicalNode,
@@ -94,6 +97,9 @@ export function $applyEditAtSelection({
   focus: MarkdownSelectionPoint
   inlineNodes: LexicalNode[]
 }): boolean {
+  if (!$pointsShareBlock(anchor, focus)) {
+    return $applyEditAcrossBlocks({ anchor, focus, inlineNodes });
+  }
   const sameTextNode =
     anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
   if (sameTextNode) {
@@ -105,6 +111,68 @@ export function $applyEditAtSelection({
     });
   }
   return $applyEditMultiNode({ anchor, focus, inlineNodes });
+}
+
+/**
+ * The nearest block-level node containing a selection point: the first
+ * non-inline element or decorator ancestor (a paragraph inside a blockquote,
+ * a list item, a top-level display equation), not the top-level element.
+ * Sibling-walk application can only operate within one such block, so this
+ * is the boundary that decides same-block vs cross-block dispatch. An
+ * element point keyed on an element resolves to the child the boundary sits
+ * against: before it for an anchor, after it for a focus.
+ */
+function $blockOfPoint(point: MarkdownSelectionPoint, isFocus: boolean): LexicalNode | null {
+  let node = $getNodeByKey(point.key);
+  if (!node) return null;
+  if (point.type === "element" && $isElementNode(node)) {
+    const children = node.getChildren();
+    const index = Math.max(0, Math.min(isFocus ? point.offset - 1 : point.offset, children.length - 1));
+    node = children[index] ?? node;
+  }
+  let current: LexicalNode | null = node;
+  while (current && !$isRootNode(current)) {
+    const isBlock = ($isElementNode(current) || $isDecoratorNode(current)) && !current.isInline();
+    if (isBlock) return current;
+    current = current.getParent();
+  }
+  return null;
+}
+
+/** Whether both selection points sit inside the same block-level node. */
+function $pointsShareBlock(
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+): boolean {
+  const anchorBlock = $blockOfPoint(anchor, false);
+  const focusBlock = $blockOfPoint(focus, true);
+  return !!anchorBlock && !!focusBlock && anchorBlock.getKey() === focusBlock.getKey();
+}
+
+/**
+ * Apply an edit whose range spans block boundaries, via Lexical's own
+ * range-selection editing (the paste path): removing a cross-block range
+ * merges the boundary blocks, and inserting nodes splits blocks as needed
+ * when the replacement itself is multi-block.
+ */
+function $applyEditAcrossBlocks({
+  anchor,
+  focus,
+  inlineNodes,
+}: {
+  anchor: MarkdownSelectionPoint
+  focus: MarkdownSelectionPoint
+  inlineNodes: LexicalNode[]
+}): boolean {
+  const selection = $createRangeSelection();
+  selection.anchor.set(anchor.key, anchor.offset, anchor.type);
+  selection.focus.set(focus.key, focus.offset, focus.type);
+  if (inlineNodes.length === 0) {
+    selection.removeText();
+  } else {
+    selection.insertNodes(inlineNodes);
+  }
+  return true;
 }
 
 function $applyEditSingleNode({
@@ -197,7 +265,7 @@ function $resolveLastSelectedNode(focus: MarkdownSelectionPoint): LexicalNode | 
  * quote spans multiple inline nodes — across a bold/code boundary, or across
  * an atomic node like a MathNode (selected via an element-type point).
  */
-export function $splitAndCollectSelectedNodes(
+function $splitAndCollectSelectedNodes(
   anchor: MarkdownSelectionPoint,
   focus: MarkdownSelectionPoint,
 ): LexicalNode[] | null {
@@ -280,6 +348,10 @@ export function $computeNarrowing(
   quote: string
   replacement: string
 } | null {
+  // `$collectPlainTextInRange` and `$advancePoint`/`$retreatPoint` walk
+  // sibling nodes, so across a block boundary they would silently collect
+  // the wrong text; cross-block edits use the full (un-narrowed) range.
+  if (!$pointsShareBlock(anchor, focus)) return null;
   const matchedPlainText = $collectPlainTextInRange(anchor, focus);
   if (matchedPlainText === null) return null;
 

@@ -1,8 +1,11 @@
-import { $getRoot, type LexicalEditor } from "lexical";
+import { $getRoot, $isElementNode, type LexicalEditor, type LexicalNode } from "lexical";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import { $applySuggestionWithNarrowing } from "../../../app/api/agent/replaceText/route";
+import { $wrapBlockAsDeletionSuggestion } from "../../../app/api/agent/deleteBlock/route";
+import { $createMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
+import { $locateBlockByPrefix, $locateQuoteWithTextIndex } from "../../../app/api/agent/textIndexQuoteLocator";
 import { $applyEditModeReplacement } from "../../../app/api/agent/applyEditAtSelection";
-import { locateMarkdownQuoteSelectionInSubtree } from "../../../app/api/agent/mapMarkdownToLexical";
+import { $isListItemNode, $isListNode } from "@lexical/list";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
@@ -16,11 +19,7 @@ async function replaceTextAsSuggestion(
 ): Promise<boolean> {
   let replaced = false;
   await runEditorUpdate(editor, () => {
-    const root = $getRoot();
-    const result = locateMarkdownQuoteSelectionInSubtree({
-      rootNodeKey: root.getKey(),
-      markdownQuote: quote,
-    });
+    const result = $locateQuoteWithTextIndex(quote);
     if (!result.found || !result.anchor || !result.focus) return;
 
     const { anchor, focus } = result;
@@ -39,11 +38,7 @@ async function replaceTextInEditMode(
 ): Promise<boolean> {
   let replaced = false;
   await runEditorUpdate(editor, () => {
-    const root = $getRoot();
-    const result = locateMarkdownQuoteSelectionInSubtree({
-      rootNodeKey: root.getKey(),
-      markdownQuote: quote,
-    });
+    const result = $locateQuoteWithTextIndex(quote);
     if (!result.found || !result.anchor || !result.focus) return;
 
     replaced = $applyEditModeReplacement({
@@ -61,6 +56,174 @@ function getPlainTextContent(editor: LexicalEditor): string {
   });
   return text;
 }
+
+describe("replaceText across block boundaries", () => {
+  it("edits a quote spanning two paragraphs in edit mode", async () => {
+    const editor = await setupEditorWithContent(
+      "First paragraph ends here.\n\nSecond paragraph starts now, and continues.",
+    );
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "ends here.\n\nSecond paragraph starts now,",
+      "ends differently. The replacement starts now,",
+    );
+
+    expect(replaced).toBe(true);
+    const text = getPlainTextContent(editor);
+    expect(text).toContain("ends differently. The replacement starts now,");
+    expect(text).not.toContain("Second paragraph");
+  });
+
+  it("deletes a quote spanning two paragraphs in edit mode (empty replacement)", async () => {
+    const editor = await setupEditorWithContent(
+      "Alpha tail to remove.\n\nBeta head to remove, beta tail stays.",
+    );
+
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "tail to remove.\n\nBeta head to remove,",
+      "",
+    );
+
+    expect(replaced).toBe(true);
+    const text = getPlainTextContent(editor);
+    expect(text).toContain("beta tail stays");
+    expect(text).not.toContain("Beta head");
+  });
+
+  it("creates per-block delete suggestions for a cross-paragraph quote in suggest mode", async () => {
+    const editor = await setupEditorWithContent(
+      "First paragraph ends here.\n\nSecond paragraph starts now, and continues.",
+    );
+
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "ends here.\n\nSecond paragraph starts now,",
+      "ends differently. A new start,",
+    );
+
+    expect(replaced).toBe(true);
+    const suggestions = getAllSuggestions(editor);
+    const deletes = suggestions.filter((s) => s.type === "delete");
+    const inserts = suggestions.filter((s) => s.type === "insert");
+    // One delete run per covered block, one insert with the replacement.
+    expect(deletes.length).toBe(2);
+    expect(deletes.map((s) => s.textContent).join(" | ")).toBe(
+      "ends here. | Second paragraph starts now,",
+    );
+    expect(inserts.length).toBe(1);
+    expect(inserts[0].textContent).toBe("ends differently. A new start,");
+  });
+});
+
+describe("replaceText within nested block structures", () => {
+  it("edits a quote spanning two list items of one list", async () => {
+    const editor = await setupEditorWithContent(
+      "*   alpha item ending\n*   bravo item starting here",
+    );
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "item ending\n\nbravo item",
+      "item finishing, bravo entry",
+    );
+    expect(replaced).toBe(true);
+    expect(getPlainTextContent(editor)).toContain("item finishing, bravo entry starting here");
+  });
+
+  it("edits a quote spanning two paragraphs inside a blockquote", async () => {
+    const editor = await setupEditorWithContent(
+      "> First quoted paragraph ends.\n>\n> Second quoted paragraph starts.",
+    );
+    const replaced = await replaceTextInEditMode(
+      editor,
+      "paragraph ends.\n\nSecond quoted",
+      "paragraph closes. Next quoted",
+    );
+    expect(replaced).toBe(true);
+    expect(getPlainTextContent(editor)).toContain("paragraph closes. Next quoted paragraph starts.");
+  });
+
+  it("suggests across a paragraph and a list without wrapping block nodes", async () => {
+    const editor = await setupEditorWithContent(
+      "Intro paragraph tail.\n\n*   alpha item\n*   bravo item",
+    );
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "paragraph tail.\n\nalpha item",
+      "replacement text",
+    );
+    expect(replaced).toBe(true);
+    // Suggestion wrappers are inline nodes; they must never become direct
+    // children of a ListNode (which requires ListItemNode children).
+    editor.getEditorState().read(() => {
+      const walk = (node: LexicalNode): void => {
+        if ($isListNode(node)) {
+          for (const child of node.getChildren()) {
+            expect($isListItemNode(child)).toBe(true);
+          }
+        }
+        if ($isElementNode(node)) {
+          for (const child of node.getChildren()) walk(child);
+        }
+      };
+      walk($getRoot());
+    });
+  });
+
+  it("covers the full anchor block when the quote starts inside a link", async () => {
+    const editor = await setupEditorWithContent(
+      "Read [a great post](https://example.com) about X.\n\nIt explains things.",
+    );
+    const replaced = await replaceTextAsSuggestion(
+      editor,
+      "great post about X.\n\nIt explains",
+      "replacement",
+    );
+    expect(replaced).toBe(true);
+    const deletes = getAllSuggestions(editor).filter((s) => s.type === "delete");
+    const deletedText = deletes.map((s) => s.textContent).join(" ");
+    // The tail of the first paragraph after the link must be covered too.
+    expect(deletedText).toContain("about X.");
+    expect(deletedText).toContain("It explains");
+  });
+});
+
+describe("deleteBlock suggest-mode wrapping", () => {
+  async function wrapBlockByPrefix(editor: LexicalEditor, prefix: string): Promise<boolean> {
+    let wrapped = false;
+    await runEditorUpdate(editor, () => {
+      const block = $locateBlockByPrefix(prefix).node;
+      if (!block) throw new Error(`No block matched prefix: ${prefix}`);
+      wrapped = $wrapBlockAsDeletionSuggestion(block, randomId());
+    });
+    return wrapped;
+  }
+
+  it("wraps a paragraph block and creates delete suggestions", async () => {
+    const editor = await setupEditorWithContent("First paragraph.\n\nSecond paragraph.");
+    expect(await wrapBlockByPrefix(editor, "Second paragraph")).toBe(true);
+    expect(getAllSuggestions(editor).filter((s) => s.type === "delete").length).toBeGreaterThan(0);
+  });
+
+  it("wraps a table block via per-cell suggestion nodes", async () => {
+    const editor = await setupEditorWithContent(
+      "| h1 | h2 |\n| --- | --- |\n| a | b |",
+    );
+    expect(await wrapBlockByPrefix(editor, "h1")).toBe(true);
+  });
+
+  it("reports failure for a top-level display equation it cannot wrap", async () => {
+    // $wrapSelectionInSuggestionNode has no case for block-level decorators
+    // and silently creates nothing; the route must not report success.
+    const editor = await setupEditorWithContent("Intro paragraph.");
+    await runEditorUpdate(editor, () => {
+      $getRoot().append($createMathNode("E=mc^2", false));
+    });
+    expect(await wrapBlockByPrefix(editor, "$$\nE=mc^2\n$$")).toBe(false);
+    expect(getAllSuggestions(editor).length).toBe(0);
+  });
+});
 
 describe("replaceText suggest mode", () => {
   it("preserves markdown formatting in the replacement text", async () => {

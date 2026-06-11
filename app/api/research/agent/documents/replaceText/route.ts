@@ -5,7 +5,7 @@ import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { getMarkdownItForResearch } from "@/lib/utils/markdownItPlugins";
 import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
-import { locateMarkdownQuoteSelectionInSubtree } from "../../../../agent/mapMarkdownToLexical";
+import { $locateQuoteWithTextIndex } from "../../../../agent/textIndexQuoteLocator";
 import { $applyEditModeReplacement } from "../../../../agent/applyEditAtSelection";
 import {
   authorizeAgentRequest,
@@ -45,17 +45,16 @@ async function replaceTextInResearchDoc({
     callback: async ({ editor, provider }) => {
       let replaced = false;
       let quoteFoundInDocument = false;
+      let locateFailureReason: string | undefined;
 
       await new Promise<void>((resolve) => {
         editor.update(
           () => {
             const root = $getRoot();
-            const selectionResult = locateMarkdownQuoteSelectionInSubtree({
-              rootNodeKey: root.getKey(),
-              markdownQuote: quote,
-            });
+            const selectionResult = $locateQuoteWithTextIndex(quote);
             quoteFoundInDocument = selectionResult.found;
             if (!selectionResult.found || !selectionResult.anchor || !selectionResult.focus) {
+              locateFailureReason = selectionResult.reason;
               return;
             }
             // The research markdown-it instance is mention-aware, so
@@ -85,8 +84,9 @@ async function replaceTextInResearchDoc({
         replaced: false,
         quoteFoundInDocument,
         note: quoteFoundInDocument
-          ? "Quote was found in the document but spans multiple formatted regions (e.g. bold/italic/link boundaries), so the replacement could not be applied. Try quoting a smaller segment that falls within a single paragraph and formatting style."
-          : "Quote not found in document.",
+          ? locateFailureReason
+            ?? "Quote was found in the document, but the replacement could not be applied to its range. Try quoting a smaller segment."
+          : locateFailureReason ?? "Quote not found in document.",
       };
     },
   });

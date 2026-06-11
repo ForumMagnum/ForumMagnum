@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
 import { checkEditorTypeAndGetToken, splitParagraphAtDisplayMath, withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
-import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { agentMarkdownFromEditorHtml } from "../agent/agentMarkdownView";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import {
@@ -70,38 +70,6 @@ const LinkSharedPostMetadataQuery = `
     }
   }
 `;
-
-export function unescapeHtmlAttribute(value: string): string {
-  return value
-    .replace(/&quot;/g, "\"")
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&");
-}
-
-export function convertWidgetIframesToMarkdownFences(markdown: string): string {
-  return markdown.replace(/<iframe[\s\S]*?<\/iframe>/g, (iframeHtml) => {
-    if (!iframeHtml.includes("data-lexical-iframe-widget")) {
-      return iframeHtml;
-    }
-    const idMatch = iframeHtml.match(/data-widget-id="([^"]*)"/);
-    const widgetId = idMatch?.[1] ?? "";
-
-    const srcdocStart = iframeHtml.indexOf('srcdoc="');
-    if (srcdocStart < 0) {
-      return iframeHtml;
-    }
-    const srcdocValueStart = srcdocStart + 'srcdoc="'.length;
-    const srcdocValueEnd = iframeHtml.lastIndexOf('"></iframe>');
-    if (srcdocValueEnd <= srcdocValueStart) {
-      return iframeHtml;
-    }
-    const rawSrcdoc = iframeHtml.slice(srcdocValueStart, srcdocValueEnd);
-    const srcdoc = unescapeHtmlAttribute(rawSrcdoc);
-    return `\n\n\`\`\`widget[${widgetId}]\n${srcdoc}\n\`\`\`\n\n`;
-  });
-}
 
 interface SerializedComment {
   author: string
@@ -332,7 +300,7 @@ export async function getLiveLexicalMarkdown({
         return generated;
       });
       const processedHtml = transformHtml ? await transformHtml({ html, editor }) : html;
-      return convertWidgetIframesToMarkdownFences(htmlToMarkdown(processedHtml));
+      return agentMarkdownFromEditorHtml(processedHtml);
     },
   });
 }

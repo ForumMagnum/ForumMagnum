@@ -4,11 +4,7 @@ import { randomId } from "@/lib/random";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
-import {
-  buildNodeMarkdownMapForSubtree,
-  findBlockToOperateOnByPrefix,
-  toPlainTextFilter,
-} from "../../../../agent/mapMarkdownToLexical";
+import { $locateBlockByPrefix } from "../../../../agent/textIndexQuoteLocator";
 import {
   authorizeAgentRequest,
   authorizeAgentResearchDocumentAccess,
@@ -47,14 +43,12 @@ async function deleteMarkdownBlockInResearchDoc({
         editor.update(
           () => {
             const root = $getRoot();
-            const rootChildren = root.getChildren();
-            const textFilter = toPlainTextFilter(prefix);
-            const mapResult = buildNodeMarkdownMapForSubtree(root.getKey(), textFilter);
-            const nodeToDelete = findBlockToOperateOnByPrefix({ rootChildren, prefix, mapResult, textFilter });
+          const blockResult = $locateBlockByPrefix(prefix);
+            const nodeToDelete = blockResult.node;
             if (!nodeToDelete) {
               result = {
                 deleted: false,
-                note: `No paragraph or list item markdown starts with locator text: ${prefix}`,
+                note: blockResult.reason ?? `No block starts with locator text: ${prefix}`,
               };
               return;
             }

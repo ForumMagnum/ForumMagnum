@@ -23,7 +23,7 @@ import YjsDocuments from "@/server/collections/yjsDocuments/collection";
 import { getHocuspocusToken, getHocuspocusTokenForCollection } from "./getHocuspocusToken";
 import { captureAgentApiEvent } from "./captureAgentAnalytics";
 import { sanitize } from "@/lib/utils/sanitize";
-import { foldCaseOutsideMath, canonicalizeMathTokens, stripMathTokens } from "@/lib/utils/mathTokens";
+import { foldCaseOutsideMath, canonicalizeMathTokens } from "@/lib/utils/mathTokens";
 import type MarkdownIt from "markdown-it";
 
 /**
@@ -139,29 +139,6 @@ export function foldPunctuation(value: string): string {
 // (`$$…$$`, `\[…\]`, …) it was written with.
 export function normalizeText(value: string): string {
   return canonicalizeMathTokens(foldCaseOutsideMath(foldPunctuation(value).replace(/\s+/g, " ").trim()));
-}
-
-export function paragraphMarkdownStartsWith(paragraphMarkdown: string, prefix: string): boolean {
-  return normalizeText(paragraphMarkdown).startsWith(normalizeText(prefix));
-}
-
-export function plainTextStartsWith(nodeTextContent: string, prefix: string): boolean {
-  // Project the prefix the way `markdownQuoteToPlainText` projects agent
-  // quotes: links unwrap to their text, and math is zero-width — a MathNode
-  // contributes no text content to `nodeTextContent`, so the prefix must drop
-  // equations entirely (not unwrap them to their body) to stay comparable.
-  const prefixPlainText = stripMathTokens(
-    foldPunctuation(prefix).replace(/\[([^\]]+)\]\(([^)]+)\)/g, "$1"),
-  )
-    .replace(/[*_`~]/g, "")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
-  const normalizedTextContent = foldPunctuation(nodeTextContent)
-    .replace(/\s+/g, " ")
-    .trimStart()
-    .toLowerCase();
-  return prefixPlainText.length > 0 && normalizedTextContent.startsWith(prefixPlainText);
 }
 
 interface DeriveAgentAuthorArgs {
