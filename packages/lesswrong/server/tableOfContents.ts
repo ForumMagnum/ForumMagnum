@@ -27,7 +27,10 @@ async function getTocAnswersServer(document: DbPost, context: ResolverContext) {
   }
   const answers = await Comments.find(answersTerms, {sort:questionAnswersSortings.top}).fetch();
   const userIds = Array.from(new Set(answers.map((a) => a.userId)));
-  const users = await Users.find({_id: {$in: userIds}}, {projection: {displayName: 1}}).fetch();
+  const users = await Users.find(
+    {_id: {$in: userIds}},
+    {projection: {displayName: 1, deleted: 1},
+    }).fetch();
   const usersRecord: Record<string, { displayName: string, deleted: boolean }> = {};
   users.forEach(user => {
     usersRecord[user._id] = { displayName: user.displayName, deleted: user.deleted };
