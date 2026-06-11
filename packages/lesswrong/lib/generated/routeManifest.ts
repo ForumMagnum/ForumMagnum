@@ -395,6 +395,9 @@ export const routeTrie = {
         "getLlmFeedback": {
           "hasRoute": true
         },
+        "graphql": {
+          "hasRoute": true
+        },
         "health": {
           "hasRoute": true
         },
@@ -646,6 +649,7 @@ export const routeTrie = {
         "cron": "cron",
         "dropandcreatepg": "dropAndCreatePg",
         "getllmfeedback": "getLlmFeedback",
+        "graphql": "graphql",
         "health": "health",
         "homedesignchat": "homeDesignChat",
         "homedesigns": "homeDesigns",
