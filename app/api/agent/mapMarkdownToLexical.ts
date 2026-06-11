@@ -16,6 +16,7 @@ import { createHeadlessEditor, foldPunctuation, normalizeText, paragraphMarkdown
 import { FOOTNOTE_ELEMENT_TYPES } from "@/components/editor/lexicalPlugins/footnotes/constants";
 import { QUERY_INPUT_NODE_TYPE } from "@/components/research/lexical/QueryInputNode";
 import { $isMathNode } from "@/components/editor/lexicalPlugins/math/MathNode";
+import { $isIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 import { stripMathTokens, formatMathToken, foldCaseOutsideMath, canonicalizeMathTokens, findMathSpansInMarkdown, type MathSpan } from "@/lib/utils/mathTokens";
 import { $isListNode } from "@lexical/list";
 
@@ -26,10 +27,19 @@ import { $isListNode } from "@lexical/list";
  * element children and push their serialized forms into the `children`
  * array that `exportJSON()` leaves empty.
  */
-function exportNodeToJSONRecursive(node: LexicalNode): SerializedLexicalNode {
+function exportNodeToJSONRecursive(node: LexicalNode): SerializedLexicalNode | null {
+  if (isHiddenFromAgentEdits(node)) {
+    return null;
+  }
   const serialized = node.exportJSON();
   if ($isElementNode(node)) {
-    const children = node.getChildren().map(exportNodeToJSONRecursive);
+    const children: SerializedLexicalNode[] = [];
+    for (const child of node.getChildren()) {
+      const serializedChild = exportNodeToJSONRecursive(child);
+      if (serializedChild) {
+        children.push(serializedChild);
+      }
+    }
     (serialized as AnyBecauseHard).children = children;
   }
   return serialized;
@@ -462,6 +472,9 @@ function findTextRangeInNodeByPlainQuote(
 }
 
 function serializeNodeSubtreeToMarkdown(node: LexicalNode, editor: LexicalEditor): string {
+  if (isHiddenFromAgentEdits(node)) {
+    return "";
+  }
   if ($isTextNode(node)) {
     return node.getTextContent();
   }
@@ -469,9 +482,23 @@ function serializeNodeSubtreeToMarkdown(node: LexicalNode, editor: LexicalEditor
     return node.getTextContent();
   }
 
-  const rootChildren = node.getType() === "root" && $isElementNode(node)
-    ? node.getChildren().map((child) => exportNodeToJSONRecursive(child))
-    : [exportNodeToJSONRecursive(node)];
+  const rootChildren: SerializedLexicalNode[] = [];
+  if (node.getType() === "root" && $isElementNode(node)) {
+    for (const child of node.getChildren()) {
+      const serializedChild = exportNodeToJSONRecursive(child);
+      if (serializedChild) {
+        rootChildren.push(serializedChild);
+      }
+    }
+  } else {
+    const serializedNode = exportNodeToJSONRecursive(node);
+    if (serializedNode) {
+      rootChildren.push(serializedNode);
+    }
+  }
+  if (rootChildren.length === 0) {
+    return "";
+  }
   const state = {
     root: {
       children: rootChildren,
@@ -503,6 +530,9 @@ function serializeNodeSubtreeToMarkdown(node: LexicalNode, editor: LexicalEditor
 // both sides (`toPlainTextFilter` strips math tokens too), keeping the filter
 // reliably math-blind.
 function getTextContentForQuoteMatching(node: LexicalNode): string {
+  if (isHiddenFromAgentEdits(node)) {
+    return "";
+  }
   if (node.getType() === FOOTNOTE_ELEMENT_TYPES.footnoteReference) {
     return "";
   }
@@ -518,6 +548,9 @@ function getTextContentForQuoteMatching(node: LexicalNode): string {
 const HIDDEN_FROM_AGENT_EDITS_NODE_TYPES = new Set<string>([QUERY_INPUT_NODE_TYPE]);
 
 function isHiddenFromAgentEdits(node: LexicalNode): boolean {
+  if ($isIframeWidgetNode(node)) {
+    return true;
+  }
   // Hidden node types are always elements; cheap pre-check skips the
   // getType() virtual dispatch for every TextNode in the document.
   return $isElementNode(node) && HIDDEN_FROM_AGENT_EDITS_NODE_TYPES.has(node.getType());
@@ -582,11 +615,22 @@ export function buildNodeMarkdownMapForSubtree(rootNodeKey: string, textFilter?:
         continue;
       }
     }
+    let markdown: string;
+    try {
+      markdown = serializeNodeSubtreeToMarkdown(node, reusableEditor);
+    } catch {
+      // Some non-prose nodes serialize through browser-ish DOM APIs that can
+      // reject unusual embedded content. Quote matching should skip those
+      // candidates and keep searching ordinary prose instead of failing the
+      // whole agent request.
+      continue;
+    }
+
     const entry: NodeMarkdownEntry = {
       key: node.getKey(),
       type: node.getType(),
       depth,
-      markdown: serializeNodeSubtreeToMarkdown(node, reusableEditor),
+      markdown,
     };
     entries.push(entry);
     byKey.set(entry.key, entry);

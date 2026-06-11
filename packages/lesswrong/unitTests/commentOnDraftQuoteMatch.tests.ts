@@ -1,14 +1,18 @@
 import {
   type LexicalEditor,
   type LexicalNode,
+  $createParagraphNode,
+  $createTextNode,
   $isElementNode,
   $getRoot,
 } from "lexical";
 import { $isMarkNode } from "@lexical/mark";
 import { $attachMarkToQuote, type QuoteMarkResult } from "../../../app/api/agent/commentOnDraft/route";
+import { buildNodeMarkdownMapForSubtree, toPlainTextFilter } from "../../../app/api/agent/mapMarkdownToLexical";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithHtml } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
+import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidgetEmbed/IframeWidgetNode";
 
 async function attachCommentMark(
   editor: LexicalEditor,
@@ -335,6 +339,43 @@ describe("commentOnDraft quote matching", () => {
     expect(quoteFoundInDocument).toBe(true);
     expect(markCreated).toBe(true);
     expect(getAllMarkIds(editor)).toContain(markId);
+  });
+
+  it("ignores iframe widget source when matching ordinary prose quotes", async () => {
+    const editor = await setupEditorWithContent(
+      "Intro paragraph.\n\nTarget paragraph has found them totally fascinating in normal prose."
+    );
+    await runEditorUpdate(editor, () => {
+      const widget = $createIframeWidgetNode("large-widget");
+      widget.append($createTextNode(
+        "<!doctype html><html><body><script>" +
+        `const repeated = ${JSON.stringify("widget implementation detail ".repeat(500))};` +
+        "</script></body></html>"
+      ));
+      const trailingParagraph = $createParagraphNode();
+      trailingParagraph.append($createTextNode("Trailing paragraph."));
+      $getRoot().splice(1, 0, [widget, trailingParagraph]);
+    });
+
+    const quote = "found them totally fascinating";
+    editor.getEditorState().read(() => {
+      const root = $getRoot();
+      const mapping = buildNodeMarkdownMapForSubtree(root.getKey(), toPlainTextFilter(quote));
+      const rootMarkdown = mapping.byKey.get(root.getKey())?.markdown ?? "";
+      expect(rootMarkdown).not.toContain("```widget[large-widget]");
+      expect(rootMarkdown).not.toContain("widget implementation detail");
+    });
+
+    const markId = randomId();
+    const { quoteFoundInDocument, markCreated } = await attachCommentMark(
+      editor,
+      quote,
+      markId,
+    );
+
+    expect(quoteFoundInDocument).toBe(true);
+    expect(markCreated).toBe(true);
+    expect(getMarkedTextContent(editor, markId)).toBe(quote);
   });
 });
 
