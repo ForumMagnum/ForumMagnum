@@ -65,6 +65,7 @@ import { SentinelParagraphNode } from '@/components/editor/lexicalPlugins/blockC
 import { LLMContentBlockNode } from '@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockNode';
 import { LLMContentBlockHeaderNode } from '@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockHeaderNode';
 import { LLMContentBlockContentNode } from '@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockContentNode';
+import { $createStyledListNode, StyledListNode } from './StyledListNode';
 
 function validateLexicalNodes(nodes: Record<string, LexicalNodeConfig>): LexicalNodeConfig[] {
   for (const nodeName of Object.keys(nodes)) {
@@ -77,7 +78,12 @@ function validateLexicalNodes(nodes: Record<string, LexicalNodeConfig>): Lexical
 
 const PlaygroundNodes: Array<LexicalNodeConfig> = validateLexicalNodes({
   HeadingNode,
-  ListNode,
+  StyledListNode,
+  ListNodeReplacement: {
+    replace: ListNode,
+    with: (node: ListNode) => $createStyledListNode(node.getListType(), node.getStart()),
+    withKlass: StyledListNode,
+  },
   ListItemNode,
   // ContainerQuoteNode replaces the built-in QuoteNode. It acts as a shadow
   // root so block-level content (lists, collapsible sections, etc.) can be

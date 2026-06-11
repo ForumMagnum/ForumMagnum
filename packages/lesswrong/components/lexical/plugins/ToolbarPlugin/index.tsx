@@ -140,11 +140,13 @@ import {
   formatCode,
   formatHeading,
   formatNumberedList,
+  formatNumberedListStyle,
   formatParagraph,
   formatQuote,
 } from './utils';
 import { $isFootnoteItemNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteItemNode';
 import { $isFootnoteSectionNode } from '@/components/editor/lexicalPlugins/footnotes/FootnoteSectionNode';
+import type { OrderedListStyleType } from '../../nodes/StyledListNode';
 
 import {
   toolbarItem,
@@ -390,10 +392,12 @@ const ELEMENT_FORMAT_OPTIONS: {
 function BlockFormatDropDown({
   editor,
   blockType,
+  listStyleType,
   rootType,
   disabled = false,
 }: {
   blockType: keyof typeof blockTypeToBlockName;
+  listStyleType: OrderedListStyleType;
   rootType: keyof typeof rootTypeToRootName;
   editor: LexicalEditor;
   disabled?: boolean;
@@ -465,13 +469,49 @@ function BlockFormatDropDown({
       </DropDownItem>
       <DropDownItem
         wide
-        active={blockType === 'number'}
+        active={blockType === 'number' && listStyleType === 'decimal'}
         onClick={() => formatNumberedList(editor, blockType)}>
         <DropDownItemIconTextContainer>
           <ListOlIcon className={classes.dropdownIcon} />
           <DropDownItemText>Numbered List</DropDownItemText>
         </DropDownItemIconTextContainer>
         <DropDownItemShortcut>{SHORTCUTS.NUMBERED_LIST}</DropDownItemShortcut>
+      </DropDownItem>
+      <DropDownItem
+        wide
+        active={blockType === 'number' && listStyleType === 'upper-alpha'}
+        onClick={() => formatNumberedListStyle(editor, blockType, 'upper-alpha')}>
+        <DropDownItemIconTextContainer>
+          <ListOlIcon className={classes.dropdownIcon} />
+          <DropDownItemText>Uppercase Letter List</DropDownItemText>
+        </DropDownItemIconTextContainer>
+      </DropDownItem>
+      <DropDownItem
+        wide
+        active={blockType === 'number' && listStyleType === 'lower-alpha'}
+        onClick={() => formatNumberedListStyle(editor, blockType, 'lower-alpha')}>
+        <DropDownItemIconTextContainer>
+          <ListOlIcon className={classes.dropdownIcon} />
+          <DropDownItemText>Lowercase Letter List</DropDownItemText>
+        </DropDownItemIconTextContainer>
+      </DropDownItem>
+      <DropDownItem
+        wide
+        active={blockType === 'number' && listStyleType === 'upper-roman'}
+        onClick={() => formatNumberedListStyle(editor, blockType, 'upper-roman')}>
+        <DropDownItemIconTextContainer>
+          <ListOlIcon className={classes.dropdownIcon} />
+          <DropDownItemText>Uppercase Roman List</DropDownItemText>
+        </DropDownItemIconTextContainer>
+      </DropDownItem>
+      <DropDownItem
+        wide
+        active={blockType === 'number' && listStyleType === 'lower-roman'}
+        onClick={() => formatNumberedListStyle(editor, blockType, 'lower-roman')}>
+        <DropDownItemIconTextContainer>
+          <ListOlIcon className={classes.dropdownIcon} />
+          <DropDownItemText>Lowercase Roman List</DropDownItemText>
+        </DropDownItemIconTextContainer>
       </DropDownItem>
       <DropDownItem
         wide
@@ -957,6 +997,7 @@ export default function ToolbarPlugin({
             <BlockFormatDropDown
               disabled={!isEditable}
               blockType={toolbarState.blockType}
+              listStyleType={toolbarState.listStyleType}
               rootType={toolbarState.rootType}
               editor={activeEditor}
             />

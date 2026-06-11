@@ -45,6 +45,7 @@ import {
   useToolbarState,
 } from '../../context/ToolbarContext';
 import { getSelectedNode } from '../../utils/getSelectedNode';
+import { $getListStyleType, DEFAULT_ORDERED_LIST_STYLE_TYPE } from '../../nodes/StyledListNode';
 
 function $findTopLevelElement(node: LexicalNode) {
   let topLevelElement =
@@ -162,9 +163,14 @@ export default function ToolbarStatePlugin({
             ? parentList.getListType()
             : element.getListType();
           updateToolbarState('blockType', type);
+          updateToolbarState(
+            'listStyleType',
+            type === 'number' ? $getListStyleType(parentList ?? element) : DEFAULT_ORDERED_LIST_STYLE_TYPE,
+          );
         } else {
           $handleHeadingNode(element);
           $handleCodeNode(element);
+          updateToolbarState('listStyleType', DEFAULT_ORDERED_LIST_STYLE_TYPE);
         }
       }
 
@@ -231,10 +237,15 @@ export default function ToolbarStatePlugin({
         if (parentList) {
           const type = parentList.getListType();
           updateToolbarState('blockType', type);
+          updateToolbarState(
+            'listStyleType',
+            type === 'number' ? $getListStyleType(parentList) : DEFAULT_ORDERED_LIST_STYLE_TYPE,
+          );
         } else {
           const selectedElement = $findTopLevelElement(selectedNode);
           $handleHeadingNode(selectedElement);
           $handleCodeNode(selectedElement);
+          updateToolbarState('listStyleType', DEFAULT_ORDERED_LIST_STYLE_TYPE);
           if ($isElementNode(selectedElement)) {
             updateToolbarState(
               'elementFormat',

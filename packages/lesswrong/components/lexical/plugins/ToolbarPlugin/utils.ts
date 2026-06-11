@@ -36,6 +36,10 @@ import {
 import type { BlockType } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils';
 import { SET_BLOCK_TYPE_COMMAND } from '@/components/editor/lexicalPlugins/suggestions/blockTypeSuggestionUtils';
 import { $isContainerQuoteNode, $wrapInQuote, $unwrapQuote } from '@/components/editor/lexicalPlugins/quote/ContainerQuoteNode';
+import {
+  $setSelectedOrderedListStyleType,
+  type OrderedListStyleType,
+} from '../../nodes/StyledListNode';
 
 import {
   DEFAULT_FONT_SIZE,
@@ -325,6 +329,20 @@ export const formatNumberedList = (
   } else {
     formatParagraph(editor);
   }
+};
+
+export const formatNumberedListStyle = (
+  editor: LexicalEditor,
+  blockType: string,
+  listStyleType: OrderedListStyleType,
+) => {
+  editor.update(() => {
+    $addUpdateTag(SKIP_SELECTION_FOCUS_TAG);
+    if (blockType !== 'number') {
+      editor.dispatchCommand(INSERT_ORDERED_LIST_COMMAND, undefined);
+    }
+    $setSelectedOrderedListStyleType(listStyleType);
+  });
 };
 
 export const formatQuote = (editor: LexicalEditor, blockType: string) => {

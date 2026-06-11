@@ -7,6 +7,7 @@
  */
 
 import {ElementFormatType} from 'lexical';
+import type { OrderedListStyleType } from '@/components/lexical/nodes/StyledListNode';
 import React, {
   createContext,
   ReactNode,
@@ -72,6 +73,7 @@ const INITIAL_TOOLBAR_STATE = {
   isCapitalize: false,
   rootType: 'root' as keyof typeof rootTypeToRootName,
   listStartNumber: null as number | null,
+  listStyleType: 'decimal' as OrderedListStyleType,
 };
 
 type ToolbarState = typeof INITIAL_TOOLBAR_STATE;
