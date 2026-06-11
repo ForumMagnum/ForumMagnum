@@ -158,10 +158,10 @@ export const ContentItemBody = (props: ContentItemBodyProps) => {
 }
 
 function getParsedTextContent(parsedHtml: DomHandlerNode): string {
-  if (parsedHtml.type === htmlparser2.ElementType.Text) {
-    return (parsedHtml as DomHandlerText).data;
+  if (parsedHtml instanceof DomHandlerText) {
+    return parsedHtml.data;
   }
-  if ('childNodes' in parsedHtml) {
+  if (parsedHtml instanceof DomHandlerElement) {
     return parsedHtml.childNodes.map(getParsedTextContent).join('');
   }
   return '';
