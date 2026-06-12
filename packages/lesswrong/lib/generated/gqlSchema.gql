@@ -7803,6 +7803,7 @@ enum SubforumPreferredLayout {
 
 enum ReviewGroup {
   newContent
+  offboard
   highContext
   maybeSpam
   automod

@@ -6,6 +6,11 @@ import { getDefaultFacetFieldSelector, getFacetField } from "../search/facetFiel
 import { MULTISELECT_SUGGESTION_LIMIT } from "@/lib/collections/users/helpers";
 import { getViewablePostsSelector } from "./helpers";
 
+// Pangram score above which a rejected item counts toward offboarding 
+// deliberately higher than the autoreject threshold in
+// `createAutomatedContentEvaluation`;
+const OFFBOARD_HIGH_PANGRAM_SCORE_THRESHOLD = 0.6;
+
 const GET_USERS_BY_EMAIL_QUERY = `
 -- UsersRepo.GET_USERS_BY_EMAIL_QUERY 
 SELECT *
@@ -400,6 +405,54 @@ class UsersRepo extends AbstractRepo<"Users"> {
       SELECT "_id" FROM "Sequences" WHERE "userId" = $1
     `, [userId]);
     return results.map(({_id}) => _id);
+  }
+
+  /**
+   * Of the requested users, return the ids of those who belong in the supermod
+   * "offboard" review group, because they either:
+   *   (1) have a rejected post/comment with a high Pangram score, or
+   *   (2) have at least two rejected posts and/or comments, or
+   *   (3) have all of their content rejected.
+   * Rejected content counts for all criteria even if the user has since
+   * re-drafted/deleted the post or deleted the comment; never-rejected drafts
+   * and deleted items are ignored. Criterion (1) considers evaluations of any
+   * revision, not just the latest.
+   * All criteria are evaluated over all-time content state (deliberately not
+   * bounded by `lastRemovedFromReviewQueueAt`), so the offboard question keeps
+   * getting re-asked until the user is offboarded or their record improves.
+   */
+  async getOffboardCandidateUserIds(userIds: string[]): Promise<string[]> {
+    const rows = await this.getRawDb().any<{ userId: string }>(`
+      -- UsersRepo.getOffboardCandidateUserIds
+      WITH content AS (
+        SELECT p."_id" AS "documentId", p."userId", p."rejected"
+        FROM "Posts" p
+        WHERE p."userId" = ANY($(userIds)::text[])
+          AND (p."rejected" IS TRUE OR (p."draft" IS NOT TRUE AND p."deletedDraft" IS NOT TRUE))
+        UNION ALL
+        SELECT c."_id", c."userId", c."rejected"
+        FROM "Comments" c
+        WHERE c."userId" = ANY($(userIds)::text[])
+          AND (c."rejected" IS TRUE OR c."deleted" IS NOT TRUE)
+      ),
+      highPangramRejections AS (
+        SELECT c."userId"
+        FROM content c
+        JOIN "Revisions" r ON r."documentId" = c."documentId" AND r."fieldName" = 'contents'
+        JOIN "AutomatedContentEvaluations" ace ON ace."revisionId" = r."_id"
+        WHERE c."rejected" IS TRUE AND ace."pangramScore" > $(highPangramScoreThreshold)
+      )
+      -- (1) a rejected item with a high Pangram score
+      SELECT "userId" FROM highPangramRejections
+      UNION
+      -- (2) at least two rejected items, or (3) all content rejected
+      SELECT c."userId"
+      FROM content c
+      GROUP BY c."userId"
+      HAVING COUNT(*) FILTER (WHERE c."rejected" IS TRUE) >= 2
+        OR COUNT(*) FILTER (WHERE c."rejected" IS NOT TRUE) = 0
+    `, { userIds, highPangramScoreThreshold: OFFBOARD_HIGH_PANGRAM_SCORE_THRESHOLD });
+    return rows.map((row) => row.userId);
   }
 
   async getRejectedContentCounts(userIds: string[]): Promise<number[]> {
