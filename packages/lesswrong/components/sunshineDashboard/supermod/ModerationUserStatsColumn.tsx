@@ -6,6 +6,7 @@ import classNames from 'classnames';
 import ForumIcon from '@/components/common/ForumIcon';
 import ContentSummary from './ContentSummary';
 import Row from '@/components/common/Row';
+import LWTooltip from '@/components/common/LWTooltip';
 
 const sharedVoteStyles = {
   marginLeft: 4,
@@ -75,7 +76,40 @@ const styles = defineStyles('ModerationUserStatsColumn', (theme: ThemeType) => (
     ...sharedVoteStyles,
     fontWeight: 600,
   },
+  signalBadges: {
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: 6,
+    fontSize: 11,
+  },
+  signalBadge: {
+    padding: '2px 6px',
+    borderRadius: 3,
+    backgroundColor: theme.palette.grey[200],
+    color: theme.palette.grey[700],
+    fontWeight: 600,
+    whiteSpace: 'nowrap',
+  },
+  highRiskSignalBadge: {
+    backgroundColor: theme.palette.error.light,
+    color: theme.palette.error.dark,
+  },
 }));
+
+type ModeratedContentItem = SunshinePostsList | SunshineCommentsList;
+
+function getMaxPangramScore(contentItems: ModeratedContentItem[]) {
+  const scores = contentItems
+    .map(item => item.automatedContentEvaluations?.pangramScore)
+    .filter((score): score is number => typeof score === 'number');
+
+  if (!scores.length) return null;
+  return Math.max(...scores);
+}
+
+function getRejectedContentCount(contentItems: ModeratedContentItem[]) {
+  return contentItems.filter(item => item.rejected).length;
+}
 
 const ModerationUserStatsColumn = ({
   user,
@@ -84,9 +118,16 @@ const ModerationUserStatsColumn = ({
 }: {
   user: SunshineUsersList;
   posts: SunshinePostsList[];
-  comments: CommentsListWithParentMetadata[];
+  comments: SunshineCommentsList[];
 }) => {
   const classes = useStyles(styles);
+  const loadedContent = [...posts, ...comments];
+  const loadedContentCount = loadedContent.length;
+  const rejectedLoadedContentCount = getRejectedContentCount(loadedContent);
+  const allLoadedContentRejected = loadedContentCount > 0 && rejectedLoadedContentCount === loadedContentCount;
+  const maxPangramScore = getMaxPangramScore(loadedContent);
+  const hasHighPangramScore = maxPangramScore !== null && maxPangramScore >= 0.25;
+  const showSignalBadges = loadedContentCount > 0 && (maxPangramScore !== null || rejectedLoadedContentCount > 0);
 
   return (
     <div className={classes.column}>
@@ -117,6 +158,24 @@ const ModerationUserStatsColumn = ({
           </span>
         </div>
       </Row>
+      {showSignalBadges && (
+        <div className={classes.signalBadges}>
+          {maxPangramScore !== null && (
+            <LWTooltip title="Highest Pangram score among currently loaded posts and comments">
+              <span className={classNames(classes.signalBadge, hasHighPangramScore && classes.highRiskSignalBadge)}>
+                LLM max {maxPangramScore.toFixed(2)}
+              </span>
+            </LWTooltip>
+          )}
+          {rejectedLoadedContentCount > 0 && (
+            <LWTooltip title="Rejected posts and comments among currently loaded content">
+              <span className={classNames(classes.signalBadge, allLoadedContentRejected && classes.highRiskSignalBadge)}>
+                {allLoadedContentRejected ? 'All loaded rejected' : `Rejected ${rejectedLoadedContentCount}/${loadedContentCount}`}
+              </span>
+            </LWTooltip>
+          )}
+        </div>
+      )}
       {(posts.length > 0 || comments.length > 0) && (
         <ContentSummary user={user} posts={posts} comments={comments} />
       )}

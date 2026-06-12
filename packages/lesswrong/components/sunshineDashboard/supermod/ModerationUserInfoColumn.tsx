@@ -36,7 +36,7 @@ const ModerationUserInfoColumn = ({
 }: {
   user: SunshineUsersList;
   posts: SunshinePostsList[];
-  comments: CommentsListWithParentMetadata[];
+  comments: SunshineCommentsList[];
   currentUser: UsersCurrent;
 }) => {
   const classes = useStyles(styles);
