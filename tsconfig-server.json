@@ -8,6 +8,7 @@
   ],
   "compilerOptions": {
     "paths": {
+      "*": ["./*"],
       "@/client/*": ["./packages/lesswrong/stubs/client/*"],
       "@/*": ["./packages/lesswrong/*"]
     }
