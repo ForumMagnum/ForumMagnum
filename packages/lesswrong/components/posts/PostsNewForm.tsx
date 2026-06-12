@@ -5,7 +5,7 @@ import { userCanPost } from '@/lib/collections/users/helpers';
 import pick from 'lodash/pick';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser'
-import { isAF, isLWorAF } from '../../lib/instanceSettings';
+import { isAF } from '../../lib/instanceSettings';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -103,7 +103,6 @@ type EventTemplateFields =
 
 type PrefilledPostFields =
   | "isEvent"
-  | "question"
   | "activateRSVPs"
   | "onlineEvent"
   | "globalEvent"
@@ -163,14 +162,10 @@ const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: U
   }
 }
 
-function getPostCategory(query: Record<string, string>, questionInQuery: boolean) {
-  const category = isPostCategory(query.category)
+function getPostCategory(query: Record<string, string>) {
+  return isPostCategory(query.category)
     ? query.category
-    : questionInQuery
-      ? ("question" as const)
-      : postDefaultCategory;
-  // LW no longer allows creating new question posts
-  return (isLWorAF() && category === "question") ? postDefaultCategory : category;
+    : postDefaultCategory;
 }
 
 const PostsNewForm = () => {
@@ -184,9 +179,8 @@ const PostsNewFormInner = () => {
   const currentUser = useCurrentUser();
 
   const templateId = query && query.templateId;
-  const questionInQuery = query && !!query.question && !isLWorAF();
 
-  const postCategory = getPostCategory(query, questionInQuery);
+  const postCategory = getPostCategory(query);
 
   // if we are trying to create an event in a group,
   // we want to prefill the "onlineEvent" checkbox if the group is online
@@ -218,8 +212,6 @@ const PostsNewFormInner = () => {
 
   let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {
     isEvent: query && !!query.eventForm,
-    // On LW, members can no longer set the question field at all, so omit it (the db default is false)
-    ...(isLWorAF() ? {} : {question: (postCategory === "question") || questionInQuery}),
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
     globalEvent: groupData?.isOnline,
