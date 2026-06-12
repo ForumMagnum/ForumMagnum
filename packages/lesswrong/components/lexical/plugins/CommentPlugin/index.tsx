@@ -146,6 +146,9 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
       transform: 'rotate(135deg)',
       boxShadow: `-3px 3px 3px 0 ${theme.palette.greyAlpha(0.05)}`,
     },
+    "@media print": {
+      display: "none",
+    },
   },
   '@keyframes showInputBox': {
     '0%': {
@@ -211,6 +214,9 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     '&:hover $commentsIcon': {
       opacity: 1,
     },
+    "@media print": {
+      display: "none",
+    },
   },
   showCommentsButtonActive: {
     backgroundColor: theme.palette.grey[400],
@@ -244,6 +250,9 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     overflow: 'hidden',
     transition: 'top 0.2s ease-in-out, height 0.2s ease-in-out',
     ...theme.typography.commentStyle,
+    "@media print": {
+      display: "none",
+    },
   },
   commentsPanelHeading: {
     padding: '12px 14px 10px',

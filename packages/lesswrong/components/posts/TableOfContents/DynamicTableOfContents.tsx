@@ -103,6 +103,26 @@ const editorStyles = defineStyles("DynamicTableOfContents", (theme: ThemeType) =
         height: 'calc(100vh - 56px - 12px)',
       },
     },
+    "@media print": {
+      "& .MultiToCLayout-tableOfContents": {
+        display: "block",
+        gridTemplateColumns: "none !important",
+        gridTemplateAreas: "none !important",
+        gridTemplateRows: "none !important",
+      },
+      "& .MultiToCLayout-toc, & .MultiToCLayout-rhs, & .MultiToCLayout-gap1, & .MultiToCLayout-stickyBlockScroller": {
+        display: "none !important",
+      },
+      "& .MultiToCLayout-content": {
+        display: "block",
+        width: "100%",
+      },
+      "& #postContent": {
+        width: "100%",
+        maxWidth: "none",
+        margin: 0,
+      },
+    },
   },
   '@global': {
     [`body:has(.headroom--pinned) .${EDITOR_TOC_SCROLLER_CLASS_NAME}, body:has(.headroom--unfixed) .${EDITOR_TOC_SCROLLER_CLASS_NAME}`]: {

@@ -34,6 +34,10 @@ const styles = defineStyles('EditTitle', (theme: ThemeType) => ({
     "& textarea": {
       overflowY: "hidden",
     },
+    "@media print": {
+      marginTop: 0,
+      marginBottom: 16,
+    },
   }
 }));
 

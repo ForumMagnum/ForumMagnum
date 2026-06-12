@@ -46,11 +46,18 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
   },
   editorShell: {
     '--lexical-editor-min-height': '400px',
+    "@media print": {
+      '--lexical-editor-min-height': '0px',
+    },
   },
   editorInner: {
     position: 'relative',
     background: theme.palette.panelBackground.default,
     borderRadius: 4,
+    "@media print": {
+      background: 'transparent',
+      borderRadius: 0,
+    },
   },
   editorInput: {
     minHeight: 400,
@@ -62,6 +69,11 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
     caretColor: theme.palette.text.normal,
     '&:focus': {
       outline: 'none',
+    },
+    "@media print": {
+      minHeight: 0,
+      padding: 0,
+      caretColor: 'transparent',
     },
     // Content styles
     '& p': {
@@ -251,6 +263,9 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
     userSelect: 'none',
     display: 'inline-block',
     pointerEvents: 'none',
+    "@media print": {
+      display: 'none',
+    },
   },
 }));
 

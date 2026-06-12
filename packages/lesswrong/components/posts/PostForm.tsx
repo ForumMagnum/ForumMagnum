@@ -92,6 +92,9 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     [theme.breakpoints.down("sm")]: {
       display: "none",
     },
+    "@media print": {
+      display: "none",
+    },
   },
   iconButton: {
     width: ICON_BUTTON_SIZE,
@@ -220,6 +223,9 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     color: theme.palette.text.dim3,
     marginTop: 12,
     marginBottom: 96,
+    "@media print": {
+      marginBottom: 32,
+    },
   },
   metaAuthorInfo: {
     color: theme.palette.text.primary,
@@ -236,6 +242,9 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     opacity: 0.35,
     "&:hover": {
       opacity: 0.7,
+    },
+    "@media print": {
+      display: "none",
     },
   },
   addCoauthorButton: {
@@ -254,6 +263,9 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     verticalAlign: "baseline",
     "&:hover": {
       opacity: 0.85,
+    },
+    "@media print": {
+      display: "none",
     },
   },
   metaDate: {
@@ -362,6 +374,9 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     "&:hover": {
       opacity: 0.7,
     },
+    "@media print": {
+      display: "none",
+    },
   },
   coauthorSearchRow: {
     marginTop: -28,
@@ -379,6 +394,9 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     "& .MuiInputBase-input": {
       ...theme.typography.commentStyle,
       fontSize: 13,
+    },
+    "@media print": {
+      display: "none",
     },
   },
   // Override EditTitle margins to match LWPostsPageHeader layout:
@@ -398,10 +416,22 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     textWrap: 'balance',
     marginTop: 110,
     marginBottom: 0,
+    "@media print": {
+      marginTop: 0,
+      marginBottom: 16,
+    },
   },
   mobileBottomPadding: {
     [theme.breakpoints.down("md")]: {
       paddingBottom: 72,
+    },
+    "@media print": {
+      paddingBottom: 0,
+    },
+  },
+  printHiddenFields: {
+    "@media print": {
+      display: "none",
     },
   },
   '@global': {
@@ -929,7 +959,8 @@ const PostForm = ({
         </div>
       </LegacyFormGroupLayout>
 
-      {canEditMetadata && isEvent && <LegacyFormGroupLayout label={"Event Details"}>
+      {canEditMetadata && isEvent && <div className={classes.printHiddenFields}>
+        <LegacyFormGroupLayout label={"Event Details"}>
         <div className={classes.fieldWrapper}>
           <form.Field name="onlineEvent">
             {(field) => (
@@ -1133,7 +1164,8 @@ const PostForm = ({
             )}
           </form.Field>
         </div>}
-      </LegacyFormGroupLayout>}
+        </LegacyFormGroupLayout>
+      </div>}
 
       {canEditMetadata && sidebarPortalTarget && sidebarPanel && createPortal(
         <EditorSettingsSidebar
