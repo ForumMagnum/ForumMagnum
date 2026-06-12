@@ -5,7 +5,7 @@ import { validateAccessToken, OAuthError } from "@/server/oauth/oauthProvider";
 import { computeContextFromUser } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
 import Users from "@/server/collections/users/collection";
-import { insertDraftCommentThread } from "../agent/commentOnDraft/route";
+import { insertCollabCommentThread } from "../agent/collabCommentThreads";
 import { replaceTextInMainDoc } from "../agent/replaceText/route";
 import { insertMarkdownBlock } from "../agent/insertBlock/route";
 import { replaceWidgetInMainDoc } from "../agent/replaceWidget/route";
@@ -168,8 +168,9 @@ function createMcpServer(): McpServer {
       const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName: args.agentName } });
       const threadQuote = args.quote ?? "(No quote provided)";
 
-      const result = await insertDraftCommentThread({
-        postId: args.postId,
+      const result = await insertCollabCommentThread({
+        collectionName: "Posts",
+        documentId: args.postId,
         token,
         comment: args.comment,
         quote: threadQuote,

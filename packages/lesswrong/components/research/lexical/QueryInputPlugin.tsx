@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useContext, useEffect, useRef } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import {
   $createParagraphNode,
@@ -49,14 +49,15 @@ import { useResearchEditorEnvironment, type ResearchEditorEnvironment } from './
 import { isSandboxWarmingError } from '../sandboxWarming';
 import { useMessages } from '@/components/common/withMessages';
 import { type WithMessagesFunctions } from '@/components/layout/FlashMessages';
+import { EditorUserModeContext } from '@/components/common/sharedContexts';
+import { EditorUserMode } from '@/components/editor/lexicalPlugins/suggestions/EditorUserMode';
 
-/**
- * TODO: suggestion-mode support. The research editor doesn't currently thread
- * `isSuggestionMode` through ResearchEditorPlugins, so this plugin doesn't
- * block creation/deletion of query inputs in suggesting mode. If suggestion
- * mode arrives in the research editor, add the flash-error gates documented
- * in `components/editor/CLAUDE.md`.
- */
+// Query inputs are structural blocks that fire agent conversations and get
+// replaced by AgentBlocks; none of that can be represented as a tracked
+// suggestion, so creation, submission, and removal are all blocked in
+// suggesting mode (see the suggestion-mode section of
+// `components/editor/CLAUDE.md`).
+const QUERY_INPUT_SUGGESTION_MODE_MESSAGE = 'Query blocks are not supported in suggesting mode';
 
 export const QUERY_COMMAND_PREFIX = '/query ';
 const QUERY_BARE = '/query';
@@ -207,6 +208,13 @@ export function QueryInputPlugin() {
   const [editor] = useLexicalComposerContext();
   const env = useResearchEditorEnvironment();
   const { flash } = useMessages();
+  const externalModeContext = useContext(EditorUserModeContext);
+  // Read through a ref inside the long-lived handlers below so a mode toggle
+  // doesn't tear down and re-register them all (re-registering the node
+  // transform would also mark every QueryInputNode dirty and force a
+  // reconciliation pass).
+  const isSuggestionModeRef = useRef(false);
+  isSuggestionModeRef.current = externalModeContext?.userMode === EditorUserMode.Suggest;
 
   useEffect(() => {
     if (!editor.hasNodes([QueryInputNode, QueryInputContentNode])) {
@@ -218,6 +226,10 @@ export function QueryInputPlugin() {
       editor.registerCommand(
         INSERT_QUERY_INPUT_COMMAND,
         () => {
+          if (isSuggestionModeRef.current) {
+            flash({ messageString: QUERY_INPUT_SUGGESTION_MODE_MESSAGE, type: 'error' });
+            return true;
+          }
           editor.update(() => $insertQueryInputAtSelection());
           return true;
         },
@@ -238,6 +250,10 @@ export function QueryInputPlugin() {
           }
         });
         if (!hasMatch) return;
+        if (isSuggestionModeRef.current) {
+          flash({ messageString: QUERY_INPUT_SUGGESTION_MODE_MESSAGE, type: 'error' });
+          return;
+        }
         editor.update(() => {
           $insertQueryInputAtSelection();
         });
@@ -258,6 +274,12 @@ export function QueryInputPlugin() {
 
           const queryInput = $findMatchingParent(selection.anchor.getNode(), $isQueryInputNode);
           if (!queryInput) return false;
+
+          if (isSuggestionModeRef.current) {
+            flash({ messageString: 'Queries cannot be run in suggesting mode', type: 'error' });
+            event.preventDefault();
+            return true;
+          }
 
           if (!queryInput.getTextContent().trim()) {
             event.preventDefault();
@@ -320,6 +342,12 @@ export function QueryInputPlugin() {
           if (!$isRootNode(block.getParent())) return false;
           if (block.getTextContent() !== QUERY_BARE) return false;
 
+          if (isSuggestionModeRef.current) {
+            flash({ messageString: QUERY_INPUT_SUGGESTION_MODE_MESSAGE, type: 'error' });
+            event?.preventDefault();
+            return true;
+          }
+
           editor.update(() => {
             $insertQueryInputAtSelection();
           });
@@ -350,6 +378,12 @@ export function QueryInputPlugin() {
           const only = content.getFirstChild();
           if (!$isElementNode(only)) return false;
           if (only.getTextContentSize() !== 0) return false;
+
+          if (isSuggestionModeRef.current) {
+            flash({ messageString: QUERY_INPUT_SUGGESTION_MODE_MESSAGE, type: 'error' });
+            event.preventDefault();
+            return true;
+          }
 
           event.preventDefault();
           $dissolveQueryInput(queryInput);

@@ -3,7 +3,8 @@ import { randomId } from "@/lib/random";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
-import { $replaceWidgetInEditor, type ReplaceWidgetResult } from "../../../../agent/replaceWidget/route";
+import { $replaceWidgetInEditor, truncateForSummary, type ReplaceWidgetResult } from "../../../../agent/replaceWidget/route";
+import type { ReplaceMode } from "../../../../agent/toolSchemas";
 import {
   authorizeAgentRequest,
   authorizeAgentResearchDocumentAccess,
@@ -14,6 +15,7 @@ import {
 } from "../../captureResearchAgentAnalytics";
 import { withResearchDocEditorSession } from "../../researchEditorSession";
 import { replaceWidgetInResearchDocSchema } from "../../researchToolSchemas";
+import { maybeCreateResearchSuggestionThread } from "../../researchSuggestionThreads";
 
 const ROUTE = "documents.replaceWidget";
 
@@ -23,12 +25,14 @@ async function replaceWidgetInResearchDoc({
   widgetId,
   replacement,
   unifiedDiff,
+  mode,
 }: {
   documentId: string;
   hocuspocusToken: string;
   widgetId: string;
   replacement?: string;
   unifiedDiff?: string;
+  mode: ReplaceMode;
 }): Promise<ReplaceWidgetResult> {
   return withResearchDocEditorSession({
     documentId,
@@ -43,8 +47,7 @@ async function replaceWidgetInResearchDoc({
       await new Promise<void>((resolve) => {
         editor.update(
           () => {
-            // Research docs have no suggest/accept surface — edits land directly.
-            result = $replaceWidgetInEditor({ widgetId, replacement, unifiedDiff, mode: "edit" });
+            result = $replaceWidgetInEditor({ widgetId, replacement, unifiedDiff, mode });
           },
           { onUpdate: resolve },
         );
@@ -81,7 +84,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { documentId, widgetId, replacement, unifiedDiff } = parseResult.data;
+  const { documentId, widgetId, replacement, unifiedDiff, mode } = parseResult.data;
 
   try {
     const docAuth = await authorizeAgentResearchDocumentAccess({
@@ -99,6 +102,20 @@ export async function POST(req: NextRequest) {
       widgetId,
       replacement,
       unifiedDiff,
+      mode,
+    });
+
+    const { threadCreationFailed } = await maybeCreateResearchSuggestionThread({
+      mode,
+      documentId,
+      hocuspocusToken,
+      suggestionId: result.suggestionId,
+      conversationId: payload.conversationId,
+      summaryItems: [{
+        type: "replace",
+        content: truncateForSummary(result.previousContent ?? ""),
+        replaceWith: truncateForSummary(result.nextContent ?? ""),
+      }],
     });
 
     captureResearchAgentApiEvent({
@@ -120,7 +137,12 @@ export async function POST(req: NextRequest) {
       widgetId,
       replaced: result.replaced,
       widgetFound: result.widgetFound,
-      note: result.note,
+      note: threadCreationFailed
+        ? `${result.note} Warning: the suggestion was applied, but its review thread could not be created. Do not retry this edit.`
+        : result.note,
+      mode,
+      suggestionId: result.suggestionId ?? null,
+      threadCreationFailed,
       requestId: randomId(),
     });
   } catch (error) {

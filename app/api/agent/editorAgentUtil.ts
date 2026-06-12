@@ -20,7 +20,7 @@ import { sleep } from "@/lib/utils/asyncUtils";
 import { getLatestRev } from "@/server/editor/utils";
 import { captureException } from "@/lib/sentryWrapper";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
-import { getHocuspocusToken, getHocuspocusTokenForCollection } from "./getHocuspocusToken";
+import { getHocuspocusTokenForCollection } from "./getHocuspocusToken";
 import { captureAgentApiEvent } from "./captureAgentAnalytics";
 import { sanitize } from "@/lib/utils/sanitize";
 import { foldCaseOutsideMath, canonicalizeMathTokens } from "@/lib/utils/mathTokens";
@@ -81,6 +81,16 @@ export function buildHocuspocusDocumentName(collectionName: string, documentId: 
     throw new Error(`buildHocuspocusDocumentName: unsupported collection ${collectionName}`);
   }
   return `${prefix}${documentId}`;
+}
+
+/**
+ * Name of the Yjs subdocument holding the comment/suggestion threads for a
+ * collaborative document. The `/`-suffixed form matters for auth: the
+ * Hocuspocus server authorizes subdocuments by prefix match against the
+ * main document's name, so a main-doc token covers this subdocument too.
+ */
+export function buildHocuspocusCommentsDocName(collectionName: string, documentId: string): string {
+  return `${buildHocuspocusDocumentName(collectionName, documentId)}/comments`;
 }
 
 const HOCUSPOCUS_SYNC_TIMEOUT_MS = 15_000;
@@ -206,7 +216,7 @@ export async function isSupportedEditorType(
 }
 
 export function unsupportedEditorMessage(editorType: string): string {
-  return `This post uses the ${editorType} editor and cannot be edited via the agent API. Only posts created in the Lexical editor are supported.`;
+  return `This document uses the ${editorType} editor and cannot be edited via the agent API. Only documents created in the Lexical editor are supported.`;
 }
 
 export const UNAUTHORIZED_DRAFT_MESSAGE =
@@ -480,6 +490,52 @@ export async function withMainDocEditorSession<T>({
   } finally {
     rootSharedType.unobserveDeep(onYjsTreeChanges);
     removeLexicalListener();
+    provider.destroy();
+    doc.destroy();
+  }
+}
+
+/**
+ * Connect to the comment-threads Yjs subdocument of a collaborative document,
+ * run `callback` against the synced doc, then flush and tear down the
+ * provider. Unlike `withMainDocEditorSession` there is no Lexical editor —
+ * callers work with the raw Y.Doc (a top-level `comments` Y.Array of
+ * thread/comment Y.Maps).
+ */
+export async function withCommentsDocSession<T>({
+  collectionName,
+  documentId,
+  token,
+  callback,
+}: {
+  collectionName: string
+  documentId: string
+  token: string
+  callback: (args: {
+    doc: Doc
+    provider: HocuspocusProvider
+  }) => Promise<T>
+}): Promise<T> {
+  const wsUrl = process.env.HOCUSPOCUS_URL;
+  if (!wsUrl) {
+    throw new Error("HOCUSPOCUS_URL is not configured");
+  }
+
+  const doc = new Doc();
+  const provider = new HocuspocusProvider({
+    url: wsUrl,
+    name: buildHocuspocusCommentsDocName(collectionName, documentId),
+    document: doc,
+    token,
+    connect: false,
+  });
+
+  try {
+    await provider.connect();
+    await waitForProviderSync(provider);
+    return await callback({ doc, provider });
+  } finally {
+    await waitForProviderFlush(provider);
     provider.destroy();
     doc.destroy();
   }

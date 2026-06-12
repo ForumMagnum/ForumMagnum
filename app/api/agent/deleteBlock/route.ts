@@ -7,7 +7,7 @@ import { ProtonNode } from "@/components/editor/lexicalPlugins/suggestedEdits/Pr
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import { $locateBlockByPrefix } from "../textIndexQuoteLocator";
-import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
+import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deleteBlockToolSchema, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
@@ -17,6 +17,8 @@ interface DeleteBlockResult {
   note: string
   deletionIndex?: number
   suggestionId?: string
+  /** True when a suggestion was applied but its review thread couldn't be created. */
+  threadCreationFailed?: boolean
 }
 
 /**
@@ -56,7 +58,7 @@ export async function deleteMarkdownBlock({
   authorName: string
   authorId: string
 }): Promise<DeleteBlockResult> {
-  const result = await withMainDocEditorSession({
+  const result: DeleteBlockResult = await withMainDocEditorSession({
     postId,
     token,
     operationLabel: "DeleteBlock",
@@ -128,8 +130,9 @@ export async function deleteMarkdownBlock({
   });
 
   if (mode === "suggest" && result.deleted && result.suggestionId) {
-    await createSuggestionThreadInCommentsDoc({
-      postId,
+    const threadCreated = await tryCreateSuggestionThreadInCommentsDoc({
+      collectionName: "Posts",
+      documentId: postId,
       token,
       suggestionId: result.suggestionId,
       authorName,
@@ -139,6 +142,10 @@ export async function deleteMarkdownBlock({
         content: prefix,
       }],
     });
+    if (!threadCreated) {
+      result.threadCreationFailed = true;
+      result.note += " Warning: the suggestion was applied, but its review thread could not be created. Do not retry this edit.";
+    }
   }
 
   return result;
@@ -181,6 +188,8 @@ export async function POST(req: NextRequest) {
       deletionIndex: deleteResult.deletionIndex ?? null,
       note: deleteResult.note,
       deletionMode: mode,
+      suggestionId: deleteResult.suggestionId ?? null,
+      threadCreationFailed: deleteResult.threadCreationFailed ?? false,
       mode: "lexical-collaboration-delete-block",
       requestId: randomId(),
     });

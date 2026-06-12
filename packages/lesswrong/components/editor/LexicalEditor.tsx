@@ -410,10 +410,12 @@ const LexicalEditor = ({
   const collaborationCollectionName = collectionName === 'Posts' || collectionName === 'ResearchDocuments'
     ? collectionName
     : null;
+  const supportsCollabComments = !!collaborationCollectionName;
   const editorContextValue = useMemo(() => ({
     collectionName,
     isPostEditor,
-  }), [collectionName, isPostEditor]);
+    supportsCollabComments,
+  }), [collectionName, isPostEditor, supportsCollabComments]);
 
   // Always enable collaboration for supported collections (when documentId is
   // available). This keeps Posts behavior unchanged and lets ResearchDocuments

@@ -6,7 +6,8 @@ import { $generateHtmlFromNodes } from "@lexical/html";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $createSuggestionNode } from "@/components/editor/lexicalPlugins/suggestedEdits/ProtonNode";
 import { getMarkdownItForAgentPosts } from "@/lib/utils/markdownItPlugins";
-import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
+import type MarkdownIt from "markdown-it";
+import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess, renderAgentMarkdownToHtml } from "../editorAgentUtil";
 
 import { markdownQuoteToPlainText, type MarkdownSelectionPoint } from "../mapMarkdownToLexical";
@@ -26,6 +27,8 @@ interface ReplaceResult {
   quoteFoundInDocument: boolean
   note: string
   suggestionId?: string
+  /** True when a suggestion was applied but its review thread couldn't be created. */
+  threadCreationFailed?: boolean
   /** The quote/replacement after narrowing, for use in suggestion summaries. */
   summaryQuote?: string
   summaryReplacement?: string
@@ -56,6 +59,7 @@ interface SuggestionNarrowingResult {
 function $narrowedReplacementToNodes(
   editor: LexicalEditor,
   replacement: string,
+  markdownIt: MarkdownIt,
   expectedPlainText?: string,
 ): LexicalNode[] {
   if (replacement.length === 0) return [];
@@ -65,7 +69,7 @@ function $narrowedReplacementToNodes(
     return [$createTextNode(replacement)];
   }
 
-  const nodes = $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(getMarkdownItForAgentPosts(), replacement));
+  const nodes = $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, replacement));
   const nodesText = nodes.map(n => n.getTextContent()).join("");
 
   const leadingWs = plainText.match(/^(\s+)/)?.[1] ?? "";
@@ -130,12 +134,14 @@ function $applySuggestionInsertionAtPoint({
   point,
   replacement,
   suggestionId,
+  markdownIt,
   replacementNodes,
 }: {
   editor: LexicalEditor
   point: MarkdownSelectionPoint
   replacement: string
   suggestionId: string
+  markdownIt: MarkdownIt
   replacementNodes?: LexicalNode[]
 }): boolean {
   if (point.type !== "text") return false;
@@ -164,7 +170,7 @@ function $applySuggestionInsertionAtPoint({
     anchorNode.insertAfter(deleteSuggestion);
   }
 
-  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, replacementNodes, suggestionId });
+  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, replacementNodes, suggestionId, markdownIt });
   deleteSuggestion.insertAfter(insertSuggestion);
   return true;
 }
@@ -179,17 +185,18 @@ function $applySuggestionForSelection(
   focus: MarkdownSelectionPoint,
   replacement: string,
   suggestionId: string,
+  markdownIt: MarkdownIt,
   replacementNodes?: LexicalNode[],
 ): boolean {
   const insertionPoint = $getEquivalentInsertionPoint(anchor, focus);
   if (insertionPoint) {
     return $applySuggestionInsertionAtPoint({
-      editor, point: insertionPoint, replacement, suggestionId, replacementNodes,
+      editor, point: insertionPoint, replacement, suggestionId, markdownIt, replacementNodes,
     });
   }
 
   return $applySuggestionForRange({
-    editor, anchor, focus, replacement, replacementNodes, suggestionId,
+    editor, anchor, focus, replacement, replacementNodes, suggestionId, markdownIt,
   });
 }
 
@@ -212,6 +219,7 @@ function $applySuggestionForRange({
   replacement,
   replacementNodes,
   suggestionId,
+  markdownIt,
 }: {
   editor: LexicalEditor
   anchor: MarkdownSelectionPoint
@@ -219,6 +227,7 @@ function $applySuggestionForRange({
   replacement: string
   replacementNodes?: LexicalNode[]
   suggestionId: string
+  markdownIt: MarkdownIt
 }): boolean {
   const selection = $createRangeSelection();
   selection.anchor.set(anchor.key, anchor.offset, anchor.type);
@@ -226,7 +235,7 @@ function $applySuggestionForRange({
   const deleteSuggestions = $wrapSelectionInSuggestionNode(selection, false, suggestionId, "delete");
   if (deleteSuggestions.length === 0) return false;
 
-  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, replacementNodes, suggestionId });
+  const insertSuggestion = $buildInsertSuggestion({ editor, replacement, replacementNodes, suggestionId, markdownIt });
   deleteSuggestions[0].insertAfter(insertSuggestion);
   return true;
 }
@@ -236,14 +245,16 @@ function $buildInsertSuggestion({
   replacement,
   replacementNodes,
   suggestionId,
+  markdownIt,
 }: {
   editor: LexicalEditor
   replacement: string
   replacementNodes?: LexicalNode[]
   suggestionId: string
+  markdownIt: MarkdownIt
 }): LexicalNode {
   const insertSuggestion = $createSuggestionNode(suggestionId, "insert");
-  const nodes = replacementNodes ?? $narrowedReplacementToNodes(editor, replacement);
+  const nodes = replacementNodes ?? $narrowedReplacementToNodes(editor, replacement, markdownIt);
   for (const node of nodes) {
     insertSuggestion.append(node);
   }
@@ -265,6 +276,7 @@ export function $applySuggestionWithNarrowing({
   replacement,
   range,
   suggestionId,
+  markdownIt,
 }: {
   editor: LexicalEditor
   anchor: MarkdownSelectionPoint
@@ -273,18 +285,19 @@ export function $applySuggestionWithNarrowing({
   replacement: string
   range: LocatedQuoteRange | undefined
   suggestionId: string
+  markdownIt: MarkdownIt
 }): SuggestionNarrowingResult {
   const narrowing = $computeNarrowing(anchor, focus, quote, replacement, range);
 
   if (!narrowing) {
-    const replaced = $applySuggestionForSelection(editor, anchor, focus, replacement, suggestionId);
+    const replaced = $applySuggestionForSelection(editor, anchor, focus, replacement, suggestionId, markdownIt);
     return { replaced, narrowedQuote: quote, narrowedReplacement: replacement };
   }
 
   const narrowedPlainText = markdownQuoteToPlainText(narrowing.replacement);
-  const replacementNodes = $narrowedReplacementToNodes(editor, narrowing.replacement, narrowedPlainText);
+  const replacementNodes = $narrowedReplacementToNodes(editor, narrowing.replacement, markdownIt, narrowedPlainText);
   const replaced = $applySuggestionForSelection(
-    editor, narrowing.anchor, narrowing.focus, narrowing.replacement, suggestionId, replacementNodes,
+    editor, narrowing.anchor, narrowing.focus, narrowing.replacement, suggestionId, markdownIt, replacementNodes,
   );
   return { replaced, narrowedQuote: narrowing.quote, narrowedReplacement: narrowing.replacement };
 }
@@ -306,7 +319,7 @@ export async function replaceTextInMainDoc({
   authorName: string
   authorId: string
 }): Promise<ReplaceResult> {
-  const result = await withMainDocEditorSession({
+  const result: ReplaceResult = await withMainDocEditorSession({
     postId,
     token,
     operationLabel: "ReplaceText",
@@ -347,6 +360,7 @@ export async function replaceTextInMainDoc({
             editor, anchor, focus, quote, replacement,
             range: selectionResult.range,
             suggestionId,
+            markdownIt: getMarkdownItForAgentPosts(),
           });
           replaced = narrowingResult.replaced;
           summaryQuote = narrowingResult.narrowedQuote;
@@ -402,8 +416,9 @@ export async function replaceTextInMainDoc({
   });
 
   if (mode === "suggest" && result.replaced && result.suggestionId) {
-    await createSuggestionThreadInCommentsDoc({
-      postId,
+    const threadCreated = await tryCreateSuggestionThreadInCommentsDoc({
+      collectionName: "Posts",
+      documentId: postId,
       token,
       suggestionId: result.suggestionId,
       authorName,
@@ -414,6 +429,10 @@ export async function replaceTextInMainDoc({
         replaceWith: result.summaryReplacement ?? replacement,
       }],
     });
+    if (!threadCreated) {
+      result.threadCreationFailed = true;
+      result.note += " Warning: the suggestion was applied, but its review thread could not be created. Do not retry this edit.";
+    }
   }
 
   return result;
@@ -457,6 +476,8 @@ export async function POST(req: NextRequest) {
       replaced: result.replaced,
       quoteFoundInDocument: result.quoteFoundInDocument,
       note: result.note,
+      suggestionId: result.suggestionId ?? null,
+      threadCreationFailed: result.threadCreationFailed ?? false,
     });
   } catch (error) {
     // eslint-disable-next-line no-console

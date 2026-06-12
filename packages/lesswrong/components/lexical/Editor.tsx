@@ -747,7 +747,7 @@ export default function Editor({
   // Enable collaboration if config is provided OR if the setting is enabled
   const isCollab = isCollabSetting || !!collaborationConfig;
   const isCommentEditor = commentEditor;
-  const { isPostEditor } = useLexicalEditorContext();
+  const { supportsCollabComments } = useLexicalEditorContext();
   const hasInitialHtml = Boolean(initialHtml && initialHtml.trim().length > 0);
   const isEditable = useLexicalEditable();
   const placeholder = placeholderOverride ?? (isCollab
@@ -763,7 +763,7 @@ export default function Editor({
   const cursorsContainerRef = useRef<HTMLDivElement>(null);
   const canEdit = !accessLevel || accessLevelCan(accessLevel, "edit");
   const canComment = !accessLevel || accessLevelCan(accessLevel, "comment");
-  const showPostCommentFeatures = isPostEditor && !isCommentEditor;
+  const showCommentFeatures = supportsCollabComments && !isCommentEditor;
 
   // Use shared context for user mode if available (provided by PostForm),
   // otherwise fall back to local state (e.g. comment editors).
@@ -889,7 +889,7 @@ export default function Editor({
         <AutoLinkPlugin />
         <DateTimePlugin />
         <MarkNodesProvider>
-          {collaboratorIdentity && showPostCommentFeatures && (
+          {collaboratorIdentity && showCommentFeatures && (
             <CollaboratorIdentityProvider value={collaboratorIdentity}>
               <CommentStoreProvider
                 providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
@@ -1044,7 +1044,7 @@ export default function Editor({
               anchorElem={floatingAnchorElem}
               setIsLinkEditMode={setIsLinkEditMode}
               variant={isCommentEditor ? 'comment' : 'post'}
-              showInlineCommentButton={isCollab && !isCommentEditor}
+              showInlineCommentButton={isCollab && showCommentFeatures}
               isSuggestionMode={isSuggestionMode}
             />}
           </>

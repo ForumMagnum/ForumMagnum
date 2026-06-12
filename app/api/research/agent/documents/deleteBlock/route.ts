@@ -5,6 +5,8 @@ import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
 import { $locateBlockByPrefix } from "../../../../agent/textIndexQuoteLocator";
+import { $wrapBlockAsDeletionSuggestion } from "../../../../agent/deleteBlock/route";
+import type { ReplaceMode } from "../../../../agent/toolSchemas";
 import {
   authorizeAgentRequest,
   authorizeAgentResearchDocumentAccess,
@@ -15,6 +17,7 @@ import {
 } from "../../captureResearchAgentAnalytics";
 import { withResearchDocEditorSession } from "../../researchEditorSession";
 import { deleteBlockInResearchDocSchema } from "../../researchToolSchemas";
+import { maybeCreateResearchSuggestionThread } from "../../researchSuggestionThreads";
 
 const ROUTE = "documents.deleteBlock";
 
@@ -22,16 +25,19 @@ interface DeleteBlockResult {
   deleted: boolean;
   note: string;
   deletionIndex?: number;
+  suggestionId?: string;
 }
 
 async function deleteMarkdownBlockInResearchDoc({
   documentId,
   hocuspocusToken,
   prefix,
+  mode,
 }: {
   documentId: string;
   hocuspocusToken: string;
   prefix: string;
+  mode: ReplaceMode;
 }): Promise<DeleteBlockResult> {
   return withResearchDocEditorSession({
     documentId,
@@ -43,7 +49,7 @@ async function deleteMarkdownBlockInResearchDoc({
         editor.update(
           () => {
             const root = $getRoot();
-          const blockResult = $locateBlockByPrefix(prefix);
+            const blockResult = $locateBlockByPrefix(prefix);
             const nodeToDelete = blockResult.node;
             if (!nodeToDelete) {
               result = {
@@ -58,17 +64,36 @@ async function deleteMarkdownBlockInResearchDoc({
               return;
             }
             const indexInParent = nodeToDelete.getIndexWithinParent();
-            nodeToDelete.remove();
-            // If we just removed the last list item from a list, drop the
-            // (now-empty) list too — leaving an empty list behind looks like
-            // a rendering glitch in the editor.
-            if (parent !== root && parent.getChildrenSize() === 0) {
-              parent.remove();
+
+            if (mode === "edit") {
+              nodeToDelete.remove();
+              // If we just removed the last list item from a list, drop the
+              // (now-empty) list too — leaving an empty list behind looks like
+              // a rendering glitch in the editor.
+              if (parent !== root && parent.getChildrenSize() === 0) {
+                parent.remove();
+              }
+              result = {
+                deleted: true,
+                note: "Deleted markdown block from research document.",
+                deletionIndex: indexInParent,
+              };
+              return;
+            }
+
+            const suggestionId = randomId();
+            if (!$wrapBlockAsDeletionSuggestion(nodeToDelete, suggestionId)) {
+              result = {
+                deleted: false,
+                note: "This block type cannot be wrapped as a deletion suggestion. Retry with mode \"edit\" to delete it directly.",
+              };
+              return;
             }
             result = {
               deleted: true,
-              note: "Deleted markdown block from research document.",
+              note: "Marked markdown block as a deletion suggestion.",
               deletionIndex: indexInParent,
+              suggestionId,
             };
           },
           { onUpdate: resolve },
@@ -106,7 +131,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { documentId, prefix } = parseResult.data;
+  const { documentId, prefix, mode } = parseResult.data;
 
   try {
     const docAuth = await authorizeAgentResearchDocumentAccess({
@@ -122,6 +147,19 @@ export async function POST(req: NextRequest) {
       documentId,
       hocuspocusToken,
       prefix,
+      mode,
+    });
+
+    const { threadCreationFailed } = await maybeCreateResearchSuggestionThread({
+      mode,
+      documentId,
+      hocuspocusToken,
+      suggestionId: result.suggestionId,
+      conversationId: payload.conversationId,
+      summaryItems: [{
+        type: "delete",
+        content: prefix,
+      }],
     });
 
     captureResearchAgentApiEvent({
@@ -138,7 +176,12 @@ export async function POST(req: NextRequest) {
       documentId,
       deleted: result.deleted,
       deletionIndex: result.deletionIndex ?? null,
-      note: result.note,
+      note: threadCreationFailed
+        ? `${result.note} Warning: the suggestion was applied, but its review thread could not be created. Do not retry this edit.`
+        : result.note,
+      mode,
+      suggestionId: result.suggestionId ?? null,
+      threadCreationFailed,
       requestId: randomId(),
     });
   } catch (error) {

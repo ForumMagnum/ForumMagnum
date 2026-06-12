@@ -381,7 +381,7 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
  * when it auto-reconnects.
  */
 export async function disconnectCollaborationForPost(postId: string): Promise<void> {
-  const baseDocumentName = `post-${postId}`;
+  const baseDocumentName = getCollaborationBaseDocumentName(postId);
 
   // Disconnect all providers whose document name starts with this post's prefix
   // (covers the main editor and any sub-documents like comments)
