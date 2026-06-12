@@ -5,7 +5,7 @@ import { userCanPost } from '@/lib/collections/users/helpers';
 import pick from 'lodash/pick';
 import React, { useEffect, useRef, useState } from 'react';
 import { useCurrentUser } from '../common/withUser'
-import { isAF } from '../../lib/instanceSettings';
+import { isAF, isLWorAF } from '../../lib/instanceSettings';
 import { useLocation, useNavigate } from "../../lib/routeUtil";
 import { useMutation } from "@apollo/client/react";
 import { useQuery } from "@/lib/crud/useQuery";
@@ -164,11 +164,13 @@ const prefillFromTemplate = (template: PostsEditMutationFragment, currentUser: U
 }
 
 function getPostCategory(query: Record<string, string>, questionInQuery: boolean) {
-  return isPostCategory(query.category)
+  const category = isPostCategory(query.category)
     ? query.category
     : questionInQuery
       ? ("question" as const)
       : postDefaultCategory;
+  // LW no longer allows creating new question posts
+  return (isLWorAF() && category === "question") ? postDefaultCategory : category;
 }
 
 const PostsNewForm = () => {
@@ -182,7 +184,7 @@ const PostsNewFormInner = () => {
   const currentUser = useCurrentUser();
 
   const templateId = query && query.templateId;
-  const questionInQuery = query && !!query.question;
+  const questionInQuery = query && !!query.question && !isLWorAF();
 
   const postCategory = getPostCategory(query, questionInQuery);
 
@@ -216,7 +218,8 @@ const PostsNewFormInner = () => {
 
   let prefilledProps: PrefilledPost = templateDocument ? prefillFromTemplate(templateDocument, currentUser) : {
     isEvent: query && !!query.eventForm,
-    question: (postCategory === "question") || questionInQuery,
+    // On LW, members can no longer set the question field at all, so omit it (the db default is false)
+    ...(isLWorAF() ? {} : {question: (postCategory === "question") || questionInQuery}),
     activateRSVPs: true,
     onlineEvent: groupData?.isOnline,
     globalEvent: groupData?.isOnline,

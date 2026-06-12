@@ -3,6 +3,7 @@ import React from 'react';
 import { Link } from '../../lib/reactRouterWrapper';
 import { useLocation } from '../../lib/routeUtil';
 import { useCurrentUser } from '../common/withUser'
+import { isLWorAF } from '../../lib/instanceSettings';
 import AddBoxIcon from '@/lib/vendor/@material-ui/icons/src/AddBox'
 import { TupleSet } from '@/lib/utils/typeGuardUtils';
 import SingleColumnSection from "../common/SingleColumnSection";
@@ -43,7 +44,7 @@ const QuestionsPage = () => {
       </SingleColumnSection>
       <SingleColumnSection>
         <SectionTitle title="Recent Activity">
-          {currentUser && <Link to={'/newPost?question=true'}>
+          {currentUser && !isLWorAF() && <Link to={'/newPost?question=true'}>
             <SectionButton>
               <AddBoxIcon />
               New Question

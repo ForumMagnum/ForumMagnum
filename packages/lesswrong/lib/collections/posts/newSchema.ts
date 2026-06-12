@@ -209,6 +209,14 @@ function adminOnlyOnEAForum(user: DbUser | null) {
   return isEAForum() ? userIsAdmin(user) : userIsAdminOrMod(user);
 }
 
+// LW no longer allows users to create question posts, or to convert posts into
+// questions (existing question posts are unaffected, and still display as
+// questions). Mods and admins can still set the flag, e.g. to convert a
+// question back into a normal post.
+function userCanSetQuestionField(user: DbUser | null) {
+  return isLWorAF() ? userIsAdminOrMod(user) : !!user;
+}
+
 const schema = {
   _id: DEFAULT_ID_FIELD,
   schemaVersion: DEFAULT_SCHEMA_VERSION_FIELD,
@@ -767,8 +775,8 @@ const schema = {
       outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ["guests"],
-      canUpdate: ["members"],
-      canCreate: ["members"],
+      canUpdate: [userCanSetQuestionField],
+      canCreate: [userCanSetQuestionField],
       validation: {
         optional: true,
       },
