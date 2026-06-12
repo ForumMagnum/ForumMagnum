@@ -32,6 +32,7 @@ export async function POST(req: NextRequest) {
       documentId: postId,
       token,
       comment,
+      contentFormat: "markdown",
       quote: threadQuote,
       author: authorName,
       authorId,

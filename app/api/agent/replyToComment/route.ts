@@ -36,6 +36,7 @@ export async function POST(req: NextRequest) {
       token,
       threadId,
       comment,
+      contentFormat: "markdown",
       author: authorName,
       authorId,
     });

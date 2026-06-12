@@ -7,6 +7,7 @@
  */
 
 import type {LexicalEditor} from 'lexical';
+import { isCommentContentFormat, type CommentContentFormat } from './commentContentFormat';
 
 import {Provider, TOGGLE_CONNECT_COMMAND} from '@lexical/yjs';
 import {COMMAND_PRIORITY_LOW} from 'lexical';
@@ -25,6 +26,7 @@ export type Comment = {
   author: string;
   authorId: string;
   content: string;
+  contentFormat?: CommentContentFormat;
   deleted: boolean;
   id: string;
   commentKind?: 'suggestionSummary';
@@ -65,11 +67,13 @@ export function createComment(
   timeStamp?: number,
   deleted?: boolean,
   commentKind?: Comment['commentKind'],
+  contentFormat?: CommentContentFormat,
 ): Comment {
   return {
     author,
     authorId,
     content,
+    contentFormat,
     deleted: deleted === undefined ? false : deleted,
     id: id === undefined ? createUID() : id,
     commentKind,
@@ -106,12 +110,14 @@ export function createThread(
  * stable.
  */
 export function readCommentFromYMap(map: YMap<unknown>): Comment {
+  const contentFormat = map.get('contentFormat');
   return {
     type: 'comment',
     id: (map.get('id') as string) ?? '',
     author: (map.get('author') as string) ?? 'Unknown',
     authorId: (map.get('authorId') as string) ?? '',
     content: (map.get('content') as string) ?? '',
+    contentFormat: isCommentContentFormat(contentFormat) ? contentFormat : undefined,
     deleted: (map.get('deleted') as boolean) ?? false,
     timeStamp: (map.get('timeStamp') as number) ?? 0,
     commentKind: map.get('commentKind') as Comment['commentKind'],
@@ -151,6 +157,7 @@ function markDeleted(comment: Comment): Comment {
     author: comment.author,
     authorId: comment.authorId,
     content: '[Deleted Comment]',
+    contentFormat: comment.contentFormat,
     deleted: true,
     id: comment.id,
     commentKind: comment.commentKind,

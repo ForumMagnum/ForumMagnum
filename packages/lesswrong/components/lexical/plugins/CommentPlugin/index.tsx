@@ -72,6 +72,8 @@ import { SUGGESTION_SUMMARY_KIND } from '@/components/editor/lexicalPlugins/sugg
 import { useCurrentCollaboratorId } from '@/components/lexical/collaboration';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
+import { ContentItemBody } from '@/components/contents/ContentItemBody';
+import { markdownCommentToSafeHtml } from '../../commenting/commentContent';
 
 /**
  * Replacement for @lexical/selection's createRectsFromDOMRange.
@@ -324,12 +326,24 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     '&:first-child': {
       borderTop: 'none',
     },
+  },
+  commentContent: {
+    margin: 0,
+    marginTop: 4,
+    color: theme.palette.grey[900],
+    lineHeight: 1.5,
+    whiteSpace: 'pre-wrap',
     '& p': {
       margin: 0,
       marginTop: 4,
-      color: theme.palette.grey[900],
-      lineHeight: 1.5,
-      whiteSpace: 'pre-wrap',
+    },
+    '& ul, & ol': {
+      marginTop: 4,
+      marginBottom: 0,
+      paddingLeft: 20,
+    },
+    '& code': {
+      fontSize: '0.9em',
     },
   },
   listDetails: {
@@ -793,6 +807,15 @@ function CommentsPanelListComment({
 }): JSX.Element {
   const classes = useStyles(styles);
   const [modal, showModal] = useModal();
+  const commentContentClassName = classNames(classes.commentContent, {
+    [classes.deletedComment]: comment.deleted,
+  });
+  const safeMarkdownHtml = useMemo(
+    () => comment.contentFormat === 'markdown'
+      ? markdownCommentToSafeHtml(comment.content)
+      : null,
+    [comment.content, comment.contentFormat],
+  );
 
   return (
     <li className={classNames(classes.listComment, classes.listCommentHover)}>
@@ -805,10 +828,18 @@ function CommentsPanelListComment({
           {moment(comment.timeStamp).format('MMMM DD, YYYY, h:mm A')}
         </span>
       </div>
-      <p
-        className={comment.deleted ? classes.deletedComment : ''}>
-        {comment.content}
-      </p>
+      {safeMarkdownHtml
+        ? (
+          <ContentItemBody
+            className={commentContentClassName}
+            dangerouslySetInnerHTML={{ __html: safeMarkdownHtml }}
+          />
+        )
+        : (
+          <p className={commentContentClassName}>
+            {comment.content}
+          </p>
+        )}
       {/* TODO: Figure out the right design for individual comment deletion.
           The previous implementation used a trash icon per comment with a
           confirmation dialog. Commenting out until we decide on the UX.

@@ -3,6 +3,7 @@ import { randomId } from "@/lib/random";
 import { $createRangeSelection, $setSelection } from "lexical";
 import { $wrapSelectionInMarkNode } from "@lexical/mark";
 import type { ThreadType, ThreadStatus } from "@/components/lexical/commenting";
+import { isCommentContentFormat, type CommentContentFormat } from "@/components/lexical/commenting/commentContentFormat";
 import YjsDocuments from "@/server/collections/yjsDocuments/collection";
 import {
   normalizeText,
@@ -14,11 +15,13 @@ import { $locateQuoteWithTextIndex } from "./textIndexQuoteLocator";
 
 export function createCollabComment({
   content,
+  contentFormat,
   author,
   authorId,
   id,
 }: {
   content: string
+  contentFormat?: CommentContentFormat
   author: string
   authorId: string
   id: string
@@ -29,6 +32,9 @@ export function createCollabComment({
   commentMap.set("author", author);
   commentMap.set("authorId", authorId);
   commentMap.set("content", content);
+  if (contentFormat) {
+    commentMap.set("contentFormat", contentFormat);
+  }
   commentMap.set("deleted", false);
   commentMap.set("timeStamp", Date.now());
   return commentMap;
@@ -133,6 +139,7 @@ export async function insertCollabCommentThread({
   quote,
   author,
   authorId,
+  contentFormat,
 }: {
   collectionName: string
   documentId: string
@@ -141,6 +148,7 @@ export async function insertCollabCommentThread({
   quote: string
   author: string
   authorId: string
+  contentFormat?: CommentContentFormat
 }): Promise<{
   threadId: string
   commentId: string
@@ -188,7 +196,7 @@ export async function insertCollabCommentThread({
       }
 
       const comments = doc.get("comments", YArray<unknown>);
-      const commentMap = createCollabComment({ content: comment, author, authorId, id: commentId });
+      const commentMap = createCollabComment({ content: comment, contentFormat, author, authorId, id: commentId });
       const threadMap = createCollabThread({ quote, firstComment: commentMap, threadId });
       doc.transact(() => {
         comments.insert(comments.length, [threadMap]);
@@ -224,6 +232,7 @@ export async function appendReplyToCommentThread({
   comment,
   author,
   authorId,
+  contentFormat,
 }: {
   collectionName: string
   documentId: string
@@ -232,6 +241,7 @@ export async function appendReplyToCommentThread({
   comment: string
   author: string
   authorId: string
+  contentFormat?: CommentContentFormat
 }): Promise<AppendReplyResult> {
   return withCommentsDocSession({
     collectionName,
@@ -247,6 +257,7 @@ export async function appendReplyToCommentThread({
       const commentId = randomId();
       const commentMap = createCollabComment({
         content: comment,
+        contentFormat,
         author,
         authorId,
         id: commentId,
@@ -264,6 +275,7 @@ export async function appendReplyToCommentThread({
 export interface SerializedComment {
   author: string
   content: string
+  contentFormat?: CommentContentFormat
   timeStamp: number
   commentKind?: string
   deleted: boolean
@@ -280,9 +292,11 @@ export interface SerializedThread {
 function readThreadFromYMap(threadMap: YMap<unknown>): SerializedThread {
   const commentsArray = threadMap.get("comments") as YArray<unknown> | undefined;
   const serializedComments: SerializedComment[] = commentsArray?.toArray().map((comment: YMap<unknown>) => {
+    const contentFormat = comment.get("contentFormat");
     return {
       author: (comment.get("author") as string) ?? "Unknown",
       content: (comment.get("content") as string) ?? "",
+      contentFormat: isCommentContentFormat(contentFormat) ? contentFormat : undefined,
       timeStamp: (comment.get("timeStamp") as number) ?? 0,
       commentKind: comment.get("commentKind") as string | undefined,
       deleted: (comment.get("deleted") as boolean) ?? false,
