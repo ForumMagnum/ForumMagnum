@@ -10,7 +10,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  */
 export function useDebouncedFalse(initialValue: boolean, delayMs: number): [boolean, (value: boolean) => void] {
   const [value, setValueRaw] = useState(initialValue);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
   const setValue = useCallback((next: boolean) => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);

@@ -308,9 +308,8 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
   commentsPanelListDocked: {
     top: 0,
     height: '100%',
-    // The first thread's top border separates it from the floating variant's
-    // heading; docked, the host's tab bar sits there instead, so the line is
-    // just clutter.
+    // The host's tab bar sits directly above the list, so the first
+    // thread's top border is just clutter.
     '& > li:first-child': {
       borderTop: 'none',
     },

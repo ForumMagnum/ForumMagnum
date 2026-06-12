@@ -641,11 +641,9 @@ export const NewCommentOnDraftNotification = createNotificationType({
 export const NewCommentOnResearchDocNotification = createNotificationType({
   name: "newCommentOnResearchDoc",
   // No user setting: notification types sharing a setting field must share
-  // allowedChannels, so this onsite-only type can't reuse
-  // notificationCommentsOnDraft (onsite+email). While the research workspace
-  // is an admin-only prototype, always-on-onsite is fine; give it its own
-  // notificationCommentsOnResearchDoc user field (schema change + migration)
-  // when the feature ships more broadly.
+  // allowedChannels, and no existing onsite-only field fits.
+  // TODO: add a dedicated notificationCommentsOnResearchDoc user field
+  // (schema change + migration) when research ships beyond admins.
   userSettingField: null,
   // Onsite-only: agent/collaborator comments on research documents don't
   // warrant emails at the product's current stage.

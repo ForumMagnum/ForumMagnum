@@ -12,10 +12,10 @@ import classNames from 'classnames';
  *
  * Keep editor-specific rules scoped to the editor root so they don't leak
  * onto floating menus, toolbars, or popovers that share the wrapper. Scope
- * on `[data-lexical-editor]` (set permanently by Lexical on the editor root)
- * rather than `[contenteditable="true"]`, which stops matching when Viewing
- * mode makes the editor non-editable. The query-input content node sets its
- * own `contenteditable` but not `data-lexical-editor`, so it stays excluded.
+ * on `[data-lexical-editor]`, which Lexical sets permanently on the editor
+ * root and which keeps matching when Viewing mode makes the editor
+ * non-editable. The query-input content node sets its own `contenteditable`
+ * but not `data-lexical-editor`, so it stays excluded.
  */
 const researchDocumentBodyStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),

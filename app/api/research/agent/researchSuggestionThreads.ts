@@ -12,9 +12,9 @@ export const RESEARCH_AGENT_AUTHOR_NAME = "Research Agent";
  * via the return value (for a response warning) rather than thrown; failing
  * the request would invite a retry that stacks a duplicate suggestion.
  *
- * The thread author is keyed by the conversation rather than a per-request
- * id, so all suggestions from one conversation share an author (which is
- * also what reject-own-suggestion permissions key on).
+ * The thread author is the conversation id, so all suggestions from one
+ * conversation share an author (which is what reject-own-suggestion
+ * permissions key on).
  */
 export async function maybeCreateResearchSuggestionThread({
   mode,

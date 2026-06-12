@@ -22,6 +22,7 @@ import ProjectSidebar from './ProjectSidebar';
 import DocumentPane from './DocumentPane';
 import ChatPane from './ChatPane';
 import EditorModeMenuButton from './EditorModeMenuButton';
+import ProjectCommentsList from './ProjectCommentsList';
 
 interface ResearchWorkspaceProps {
   projectId: string;
@@ -192,11 +193,6 @@ const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
     minHeight: 0,
     overflow: 'hidden',
   },
-  commentsTabEmpty: {
-    padding: '16px 14px',
-    fontSize: 13,
-    color: theme.palette.text.dim,
-  },
   disconnectedIndicator: {
     display: 'flex',
     alignItems: 'center',
@@ -242,9 +238,6 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   // one React state update rather than a full Next route re-render.
   const [activeDocumentId, setActiveDocumentIdState] = useState<string | null>(null);
   const [activeChatConversationId, setActiveChatConversationId] = useState<string | null>(null);
-  // Default collapsed: the chat pane is on its way out (AgentBlocks are
-  // becoming the first-class way to continue conversations), and the
-  // reclaimed space is used by the Comments tab.
   const [rightPaneMode, setRightPaneMode] = useState<RightPaneMode>('closed');
   const [sidebarOpen, setSidebarOpen] = useState(true);
 
@@ -437,9 +430,14 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
           </div>
           <div className={classes.rightPaneBody}>
             {rightPaneMode === 'comments' && (
-              activeDocumentId
-                ? <div className={classes.commentsTabBody} ref={setCommentsPanelEl} />
-                : <div className={classes.commentsTabEmpty}>Select a document to see its comments.</div>
+              <>
+                {activeDocumentId && <div className={classes.commentsTabBody} ref={setCommentsPanelEl} />}
+                <ProjectCommentsList
+                  projectId={projectId}
+                  activeDocumentId={activeDocumentId}
+                  onSelectDocument={setActiveDocumentId}
+                />
+              </>
             )}
             {rightPaneMode === 'chat' && (
               <ChatPane
