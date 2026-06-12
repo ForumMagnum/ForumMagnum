@@ -8,8 +8,11 @@ import {
   $createTextNode,
   $createParagraphNode,
   $getRoot,
+  CAN_REDO_COMMAND,
   KEY_DOWN_COMMAND,
+  REDO_COMMAND,
   COMMAND_PRIORITY_HIGH,
+  COMMAND_PRIORITY_LOW,
   LineBreakNode,
   createCommand,
   LexicalCommand,
@@ -19,6 +22,29 @@ import { mergeRegister } from '@lexical/utils';
 
 export const TRIGGER_AUTOCOMPLETE_COMMAND: LexicalCommand<void> = createCommand('TRIGGER_AUTOCOMPLETE_COMMAND');
 export const TRIGGER_AUTOCOMPLETE_405B_COMMAND: LexicalCommand<void> = createCommand('TRIGGER_AUTOCOMPLETE_405B_COMMAND');
+
+type AutocompleteShortcut = 'standard' | 'largeModel';
+
+interface AutocompleteShortcutEvent {
+  ctrlKey: boolean;
+  key: string;
+  shiftKey: boolean;
+}
+
+export function getAutocompleteShortcut(
+  event: AutocompleteShortcutEvent,
+  canRedo: boolean,
+): AutocompleteShortcut | null {
+  if (!event.ctrlKey || event.key.toLowerCase() !== 'y') {
+    return null;
+  }
+
+  if (event.shiftKey) {
+    return 'largeModel';
+  }
+
+  return canRedo ? null : 'standard';
+}
 
 /**
  * Convert HTML to markdown using a simple approach
@@ -196,6 +222,7 @@ async function fetchAutocompletion(
 export function LLMAutocompletePlugin(): null {
   const [editor] = useLexicalComposerContext();
   const isAutocompleting = useRef(false);
+  const canRedo = useRef(false);
 
   // Get the content before cursor as markdown
   const getPrefix = useCallback((): string => {
@@ -288,20 +315,35 @@ export function LLMAutocompletePlugin(): null {
 
   useEffect(() => {
     return mergeRegister(
-      // Handle Ctrl+Y for autocomplete
+      editor.registerCommand(
+        CAN_REDO_COMMAND,
+        (payload: boolean) => {
+          canRedo.current = payload;
+          return false;
+        },
+        COMMAND_PRIORITY_LOW
+      ),
+
+      // Handle Ctrl+Y for autocomplete only when it would not be redo.
       editor.registerCommand(
         KEY_DOWN_COMMAND,
         (event: KeyboardEvent) => {
-          // Ctrl+Y (keyCode 89)
-          if (event.ctrlKey && !event.shiftKey && event.key.toLowerCase() === 'y') {
+          const shortcut = getAutocompleteShortcut(event, canRedo.current);
+
+          if (event.ctrlKey && !event.shiftKey && event.key.toLowerCase() === 'y' && canRedo.current) {
+            event.preventDefault();
+            event.stopPropagation();
+            return editor.dispatchCommand(REDO_COMMAND, undefined);
+          }
+
+          if (shortcut === 'standard') {
             event.preventDefault();
             event.stopPropagation();
             void autocomplete(false);
             return true;
           }
           
-          // Ctrl+Shift+Y for 405b model
-          if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'y') {
+          if (shortcut === 'largeModel') {
             event.preventDefault();
             event.stopPropagation();
             void autocomplete(true);
