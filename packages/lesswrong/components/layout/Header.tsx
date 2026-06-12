@@ -39,7 +39,7 @@ import { gql } from '@/lib/generated/gql-codegen';
 export const FUNDRAISER_BANNER_HEIGHT = 34;
 export const FUNDRAISER_BANNER_HEIGHT_MOBILE = 32;
 /** Height of top header (without fundraiser banner). On Book UI sites, this is for desktop only */
-const getHeaderHeight = () => 64;
+export const getHeaderHeight = () => 64;
 /** Height of top header on mobile (without fundraiser banner). On Friendly UI sites, this is the same as the HEADER_HEIGHT */
 const getMobileHeaderHeight = () => 56;
 

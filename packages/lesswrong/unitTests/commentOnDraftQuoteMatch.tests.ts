@@ -5,7 +5,7 @@ import {
   $getRoot,
 } from "lexical";
 import { $isMarkNode } from "@lexical/mark";
-import { $attachMarkToQuote, type QuoteMarkResult } from "../../../app/api/agent/commentOnDraft/route";
+import { $attachMarkToQuote, type QuoteMarkResult } from "../../../app/api/agent/collabCommentThreads";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithHtml } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";

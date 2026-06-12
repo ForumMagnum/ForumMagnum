@@ -3,7 +3,7 @@ import { getMarkdownItForResearch } from "@/lib/utils/markdownItPlugins";
 import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
 import { $insertMarkdownBlockInEditor, $markdownToNodes } from "../../../../agent/insertBlock/route";
 import { withResearchDocEditorSession } from "../../researchEditorSession";
-import type { InsertLocation } from "../../../../agent/toolSchemas";
+import type { InsertLocation, ReplaceMode } from "../../../../agent/toolSchemas";
 
 export function $researchMarkdownToNodes(editor: LexicalEditor, markdown: string): LexicalNode[] {
   return $markdownToNodes(editor, markdown, { markdownIt: getMarkdownItForResearch() });
@@ -13,6 +13,7 @@ export interface InsertBlockResult {
   inserted: boolean;
   note: string;
   insertionIndex?: number;
+  suggestionId?: string;
 }
 
 export async function insertMarkdownBlockInResearchDoc({
@@ -20,11 +21,13 @@ export async function insertMarkdownBlockInResearchDoc({
   hocuspocusToken,
   location,
   markdown,
+  mode,
 }: {
   documentId: string;
   hocuspocusToken: string;
   location: InsertLocation;
   markdown: string;
+  mode: ReplaceMode;
 }): Promise<InsertBlockResult> {
   return withResearchDocEditorSession({
     documentId,
@@ -36,10 +39,10 @@ export async function insertMarkdownBlockInResearchDoc({
         editor.update(
           () => {
             const r = $insertMarkdownBlockInEditor({
-              editor, mode: "edit", location, markdown,
+              editor, mode, location, markdown,
               markdownToNodes: $researchMarkdownToNodes,
             });
-            result = { inserted: r.inserted, note: r.note, insertionIndex: r.insertionIndex };
+            result = { inserted: r.inserted, note: r.note, insertionIndex: r.insertionIndex, suggestionId: r.suggestionId };
           },
           { onUpdate: resolve },
         );

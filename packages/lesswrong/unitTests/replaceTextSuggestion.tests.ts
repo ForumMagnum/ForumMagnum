@@ -26,6 +26,7 @@ async function replaceTextAsSuggestion(
     const { anchor, focus } = result;
     const narrowingResult = $applySuggestionWithNarrowing({
       editor, anchor, focus, quote, replacement, range: result.range, suggestionId: randomId(),
+      markdownIt: getMarkdownItForAgentPosts(),
     });
     replaced = narrowingResult.replaced;
   });

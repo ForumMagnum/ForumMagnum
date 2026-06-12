@@ -5,17 +5,21 @@ import classNames from 'classnames';
 /**
  * Research-document editor styling. Inherits the full postBodyStyles surface
  * (so spoilers, footnotes, embeds, tables, code blocks, etc. all look right),
- * then narrows the editor's own typography under `[contenteditable="true"]`:
+ * then narrows the editor's own typography under `[data-lexical-editor]`:
  * compact sans-serif sizing for paragraphs / headings / lists / blockquotes,
  * a fixed content column, and placeholder positioning that lines up with
  * where the user's first paragraph would actually sit.
  *
- * Keep editor-specific rules scoped to the contenteditable so they don't
- * leak onto floating menus, toolbars, or popovers that share the wrapper.
+ * Keep editor-specific rules scoped to the editor root so they don't leak
+ * onto floating menus, toolbars, or popovers that share the wrapper. Scope
+ * on `[data-lexical-editor]`, which Lexical sets permanently on the editor
+ * root and which keeps matching when Viewing mode makes the editor
+ * non-editable. The query-input content node sets its own `contenteditable`
+ * but not `data-lexical-editor`, so it stays excluded.
  */
 const researchDocumentBodyStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),
-  '& [contenteditable="true"]:not(.research-query-input-content)': {
+  '& [data-lexical-editor]': {
     minHeight: 'calc(100vh - var(--header-height, 56px))',
     fontSize: 14,
     lineHeight: 1.55,
@@ -23,44 +27,44 @@ const researchDocumentBodyStyles = (theme: ThemeType) => ({
     maxWidth: 960,
     padding: '20px 18px 40px',
   },
-  '& [contenteditable="true"] p': {
+  '& [data-lexical-editor] p': {
     margin: '0 0 0.75em',
   },
-  '& [contenteditable="true"] h1': {
+  '& [data-lexical-editor] h1': {
     fontSize: 24,
     lineHeight: 1.25,
     margin: '1em 0 0.5em',
     fontWeight: 600,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
-  '& [contenteditable="true"] h2': {
+  '& [data-lexical-editor] h2': {
     fontSize: 20,
     lineHeight: 1.3,
     margin: '1em 0 0.5em',
     fontWeight: 600,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
-  '& [contenteditable="true"] h3': {
+  '& [data-lexical-editor] h3': {
     fontSize: 17,
     lineHeight: 1.35,
     margin: '1em 0 0.5em',
     fontWeight: 600,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
-  '& [contenteditable="true"] h4': {
+  '& [data-lexical-editor] h4': {
     fontSize: 14,
     lineHeight: 1.4,
     margin: '1em 0 0.5em',
     fontWeight: 600,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
-  '& [contenteditable="true"] li': {
+  '& [data-lexical-editor] li': {
     fontSize: 14,
     lineHeight: 1.55,
     fontFamily: theme.palette.fonts.sansSerifStack,
     color: theme.palette.text.primary,
   },
-  '& [contenteditable="true"] blockquote': {
+  '& [data-lexical-editor] blockquote': {
     fontSize: 14,
     lineHeight: 1.55,
     fontFamily: theme.palette.fonts.sansSerifStack,
@@ -211,7 +215,7 @@ export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
   // Composed from `researchDocumentBodyStyles`, which itself spreads
   // `postBodyStyles` for full coverage (spoilers, footnotes, embeds, code,
   // tables, etc.) and then overrides editor-specific typography under
-  // `[contenteditable="true"]`. Combined with `contentStylesClassnames`
+  // `[data-lexical-editor]`. Combined with `contentStylesClassnames`
   // skipping `base` for this type, that gives the editor exactly one source
   // of post-body styling — its own — instead of stacking post-rendering
   // defaults underneath and fighting them with overrides.

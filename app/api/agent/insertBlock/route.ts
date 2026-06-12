@@ -21,7 +21,7 @@ import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, auth
 
 import { normalizeImportedTopLevelNodes } from "../../(markdown)/editorMarkdownUtils";
 import { $locateBlockByPrefix } from "../textIndexQuoteLocator";
-import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
+import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { insertBlockToolSchema, type InsertLocation, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
@@ -31,6 +31,8 @@ interface InsertBlockResult {
   note: string
   insertionIndex?: number
   suggestionId?: string
+  /** True when a suggestion was applied but its review thread couldn't be created. */
+  threadCreationFailed?: boolean
 }
 
 function getInsertionIndexByLocation(location: InsertLocation): { mode: "fixed", index: number } | { mode: "prefix", relation: "before" | "after", prefix: string } {
@@ -228,7 +230,7 @@ export async function insertMarkdownBlock({
   authorName: string
   authorId: string
 }): Promise<InsertBlockResult> {
-  const result = await withMainDocEditorSession({
+  const result: InsertBlockResult = await withMainDocEditorSession({
     postId,
     token,
     operationLabel: "InsertBlock",
@@ -252,8 +254,9 @@ export async function insertMarkdownBlock({
   });
 
   if (mode === "suggest" && result.inserted && result.suggestionId) {
-    await createSuggestionThreadInCommentsDoc({
-      postId,
+    const threadCreated = await tryCreateSuggestionThreadInCommentsDoc({
+      collectionName: "Posts",
+      documentId: postId,
       token,
       suggestionId: result.suggestionId,
       authorName,
@@ -263,6 +266,10 @@ export async function insertMarkdownBlock({
         content: markdown,
       }],
     });
+    if (!threadCreated) {
+      result.threadCreationFailed = true;
+      result.note += " Warning: the suggestion was applied, but its review thread could not be created. Do not retry this edit.";
+    }
   }
 
   return result;
@@ -306,6 +313,8 @@ export async function POST(req: NextRequest) {
       insertionIndex: insertResult.insertionIndex ?? null,
       note: insertResult.note,
       insertionMode: mode,
+      suggestionId: insertResult.suggestionId ?? null,
+      threadCreationFailed: insertResult.threadCreationFailed ?? false,
       mode: "lexical-collaboration-insert-block",
       requestId: randomId(),
     });

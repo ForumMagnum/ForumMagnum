@@ -93,7 +93,7 @@ const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
     position: 'relative',
     // Editor-content typography (sizing of paragraphs, headings, lists, etc.,
     // plus placeholder positioning) lives in the `researchDocument` content
-    // type in ContentStylesValues, scoped under `[contenteditable="true"]`
+    // type in ContentStylesValues, scoped under `[data-lexical-editor]`
     // so it doesn't leak onto floating menus or popovers inside this wrap.
   },
   loadingWrap: {

@@ -1,22 +1,28 @@
 import { NextRequest, NextResponse } from "next/server";
-import { randomId } from "@/lib/random";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
+import { appendReplyToCommentThread } from "../../../../agent/collabCommentThreads";
 import {
   authorizeAgentRequest,
   authorizeAgentResearchDocumentAccess,
+  forbiddenAgentScopeResponse,
 } from "../../researchAgentAuth";
 import {
   captureResearchAgentApiEvent,
   captureResearchAgentApiFailure,
 } from "../../captureResearchAgentAnalytics";
-import { insertBlockInResearchDocSchema } from "../../researchToolSchemas";
-import { validateMentionsOrRespond } from "../../researchMentionValidation";
-import { maybeCreateResearchSuggestionThread } from "../../researchSuggestionThreads";
-import { insertMarkdownBlockInResearchDoc } from "./insertMarkdownBlockInResearchDoc";
+import { replyToResearchDocCommentSchema } from "../../researchToolSchemas";
+import { RESEARCH_AGENT_AUTHOR_NAME } from "../../researchSuggestionThreads";
 
-const ROUTE = "documents.insertBlock";
+const ROUTE = "documents.replyToComment";
 
+/**
+ * POST `/api/research/agent/documents/replyToComment`
+ *
+ * Append a reply to an existing comment/suggestion thread in a research
+ * document's `/comments` Yjs subdocument. Thread IDs come from the
+ * "Comment Threads" section of the fetch-doc response.
+ */
 export async function POST(req: NextRequest) {
   const auth = authorizeAgentRequest({ req, route: ROUTE });
   if (auth.kind === "errorResponse") return auth.errorResponse;
@@ -27,7 +33,7 @@ export async function POST(req: NextRequest) {
     getContextFromReqAndRes({ req, isSSR: false }),
   ]);
 
-  const parseResult = insertBlockInResearchDocSchema.safeParse(body);
+  const parseResult = replyToResearchDocCommentSchema.safeParse(body);
   if (!parseResult.success) {
     captureResearchAgentApiEvent({
       route: ROUTE,
@@ -41,7 +47,11 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { documentId, location, markdown, mode } = parseResult.data;
+  const { documentId, threadId, comment } = parseResult.data;
+  const conversationId = payload.conversationId;
+  if (!conversationId) {
+    return forbiddenAgentScopeResponse();
+  }
 
   try {
     const docAuth = await authorizeAgentResearchDocumentAccess({
@@ -53,65 +63,58 @@ export async function POST(req: NextRequest) {
     if (docAuth.kind === "errorResponse") return docAuth.errorResponse;
     const { hocuspocusToken } = docAuth;
 
-    const mentionResult = await validateMentionsOrRespond({
-      markdown, context, route: ROUTE, payload, documentId,
-    });
-    if (!mentionResult.ok) return mentionResult.response;
-
-    const result = await insertMarkdownBlockInResearchDoc({
+    const result = await appendReplyToCommentThread({
+      collectionName: "ResearchDocuments",
       documentId,
-      hocuspocusToken,
-      location,
-      markdown: mentionResult.markdown,
-      mode,
+      token: hocuspocusToken,
+      threadId,
+      comment,
+      author: RESEARCH_AGENT_AUTHOR_NAME,
+      authorId: conversationId,
     });
 
-    const { threadCreationFailed } = await maybeCreateResearchSuggestionThread({
-      mode,
-      documentId,
-      hocuspocusToken,
-      suggestionId: result.suggestionId,
-      conversationId: payload.conversationId,
-      summaryItems: [{
-        type: "insert",
-        content: mentionResult.markdown,
-      }],
-    });
+    if (result.kind === "thread_not_found") {
+      captureResearchAgentApiEvent({
+        route: ROUTE,
+        status: "not_found",
+        conversationId,
+        projectId: payload.projectId,
+        documentId,
+        reason: "thread_not_found",
+      });
+      return NextResponse.json(
+        { error: `Thread not found: ${threadId}` },
+        { status: 400 },
+      );
+    }
 
     captureResearchAgentApiEvent({
       route: ROUTE,
       status: "success",
-      conversationId: payload.conversationId,
+      conversationId,
       projectId: payload.projectId,
       documentId,
-      operationResult: result.inserted ? "inserted" : "not_inserted",
     });
 
     return NextResponse.json({
       ok: true,
       documentId,
-      inserted: result.inserted,
-      insertionIndex: result.insertionIndex ?? null,
-      note: threadCreationFailed
-        ? `${result.note} Warning: the suggestion was applied, but its review thread could not be created. Do not retry this edit.`
-        : result.note,
-      mode,
-      suggestionId: result.suggestionId ?? null,
-      threadCreationFailed,
-      requestId: randomId(),
+      threadId,
+      commentId: result.commentId,
+      note: "Reply added to thread.",
     });
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error(error);
     captureException(error);
     captureResearchAgentApiFailure(ROUTE, error, {
-      conversationId: payload.conversationId,
+      conversationId,
       projectId: payload.projectId,
       documentId,
     });
     return NextResponse.json(
       {
-        error: "Failed to insert markdown block in research document",
+        error: "Failed to reply to comment thread",
         details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 },

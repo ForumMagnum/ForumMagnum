@@ -31,7 +31,7 @@ response). Errors go to stderr with a non-zero exit code.
 | --- | --- |
 | `postId` + `key` link-sharing key | `documentId` only; auth via env-loaded bearer |
 | `agentName` field for provenance | Implicit — captured from the bearer's `conversationId` |
-| `mode: "edit" \| "suggest"` | No mode. Research edits land directly. Provenance is preserved via the `producedByConversationId` attribute on each block |
+| `mode` defaults to `suggest` | `mode` defaults to `edit` (direct application; provenance via the `producedByConversationId` attribute on each block). Pass `--mode suggest` to create a tracked suggestion instead — see "Edit vs. suggest" below |
 | `insertWidget` / `replaceWidget` | Available as `edit-doc insert-widget` / `edit-doc replace-widget` |
 
 ### Reading the workspace
@@ -59,12 +59,18 @@ research-tool fetch-doc <documentId>
 ```
 Returns the live document state serialized as markdown:
 ```json
-{ "ok": true, "documentId": "...", "title": null, "markdown": "..." }
+{ "ok": true, "documentId": "...", "title": null, "markdown": "...", "commentThreads": "..." }
 ```
 The markdown comes from the *live* Yjs editor state — not the persisted
 snapshot — so it reflects changes you (or anyone else) made earlier in the
 turn. Re-fetch before retrying any edit that returned "no match"; the user
 can be typing concurrently.
+
+`commentThreads` is a markdown-formatted listing of the document's open
+comment and suggestion threads (empty string when there are none). Each
+thread shows its id, anchoring quote, and the discussion so far. If the
+user has left comments addressing you (or your earlier suggestions),
+read them here and respond with `reply-comment` and/or follow-up edits.
 
 ```
 research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]
@@ -265,6 +271,54 @@ leaves the surrounding list intact. For tables, match the
 leading text of the first cell; tables always delete as a whole. For
 LLM content blocks, match the `%%% llm-output ...` delimiter line; for
 widgets, match the `` ```widget[<id>] `` delimiter line.
+
+### Edit vs. suggest (`--mode`)
+
+`replace-text`, `insert-block`, `delete-block`, and `replace-widget` accept
+`--mode edit|suggest` (default `edit`):
+
+- `edit` applies the change directly to the live document.
+- `suggest` records the change as a tracked suggestion — shown inline in the
+  editor with strikethrough/underline markup plus a review thread — which the
+  user accepts or rejects. The response includes a `suggestionId`.
+
+How to choose: default to direct edits for **new content you are producing**
+(the document updating live is the expected behavior — e.g. drafting a
+section the user asked for, adding analysis, inserting widgets). Prefer
+`--mode suggest` when **modifying or deleting prose the user (or another
+author) wrote themselves** — wording changes, restructuring, deletions of
+their text — so they can review rather than discover the change after the
+fact. The user can override this in either direction ("just fix it
+directly" / "make these as suggestions"); when they do, follow their
+instruction. When unsure, think about whether the user would want to
+review the change before it sticks, and judge case-by-case.
+
+In suggest mode the change is *not* part of the document's rendered content
+until accepted; `fetch-doc` output may render pending suggestions with
+`<del>`/`<ins>`-style markup. Don't suggest-edit your own pending
+suggestions — wait for the user to resolve them.
+
+### Commenting on the document
+
+```
+research-tool comment-doc <documentId> --comment <markdown> [--quote <text>]
+```
+Start a comment thread on the document. With `--quote`, the thread anchors
+to the quoted text (same matching rules as `replace-text --quote`; the
+quote is highlighted in the editor). Without `--quote` — or when the quote
+can't be matched — the thread is created top-level. Returns
+`{ threadId, commentId, anchorStatus, anchorNote }`. Use comments for
+observations, questions, and review feedback that should *not* change the
+document text; use suggest-mode edits when you have a concrete replacement.
+
+```
+research-tool reply-comment <documentId> --thread-id <id> --comment <markdown>
+```
+Reply to an existing thread (a comment thread or the discussion attached to
+a suggestion). Thread ids come from the `commentThreads` section of
+`fetch-doc` output or from a `comment-doc` / suggest-mode edit response.
+If the user has commented on your suggestions or asked questions in a
+thread, reply there rather than (or in addition to) editing the document.
 
 ## User-attached context (`@[doc:<id> "<title>"]`, `@[conv:<id> "<title>"]`)
 

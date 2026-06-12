@@ -64,6 +64,7 @@ export function getNotificationIconByNotificationName(notificationName: string) 
     case 'cancelledRSVP': return <EventIcon style={iconStyles} />;
     case 'newGroupOrganizer': return <SupervisedUserCircleIcon style={iconStyles} />;
     case 'newCommentOnDraft': return <CommentsIcon style={iconStyles}/>;
+    case 'newCommentOnResearchDoc': return <CommentsIcon style={iconStyles}/>;
     case 'coauthorRequestNotification': return <GroupAddIcon style={iconStyles} />;
     case 'coauthorAcceptNotification': return <DoneIcon style={iconStyles} />;
     case 'newMention': return <CommentsIcon style={iconStyles}/>;
