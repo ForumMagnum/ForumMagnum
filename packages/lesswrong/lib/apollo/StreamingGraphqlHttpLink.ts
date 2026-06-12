@@ -25,7 +25,7 @@ type RequestEntry = {
   complete: Array<() => void>;
 };
 
-async function readJsonArrayStreamObjects(
+export async function readJsonArrayStreamObjects(
   response: Response,
   onLine: (obj: any) => void,
 ): Promise<void> {
@@ -67,8 +67,6 @@ async function readJsonArrayStreamObjects(
       const parsed = parseJsonArrayStreamLine(remaining);
       if (parsed !== undefined) onLine(parsed);
     }
-  } catch(e) {
-    // ignore
   } finally {
     reader.releaseLock();
   }
