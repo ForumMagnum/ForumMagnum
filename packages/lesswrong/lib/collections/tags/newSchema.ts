@@ -565,7 +565,7 @@ const schema = {
         const lastCommentTime = (tagCommentType === "SUBFORUM" ? tag.lastSubforumCommentAt : tag.lastCommentedAt) ?? undefined;
         const timeCutoff = moment(lastCommentTime).subtract(maxAgeHours, "hours").toDate();
         const comments = await Comments.find({
-          ...getDefaultViewSelector(CommentsViews, context),
+          ...await getDefaultViewSelector(CommentsViews, context),
           tagId: tag._id,
           score: { $gt: 0 },
           draft: false,

@@ -3536,7 +3536,7 @@ const schema = {
           Partial<Pick<DbComment, "contents">>;
 
         const comments: CommentForSideComments[] = await Comments.find({
-          ...getDefaultViewSelector(CommentsViews, context),
+          ...await getDefaultViewSelector(CommentsViews, context),
           postId: post._id,
           ...(cacheIsValid && {
             _id: {
@@ -3839,7 +3839,7 @@ const schema = {
         const timeCutoff = new Date(lastCommentedOrNow.getTime() - (maxAgeHours * oneHourInMs));
         const loaderName = af ? "recentCommentsAf" : "recentComments";
         const filter = {
-          ...getDefaultViewSelector(CommentsViews, context),
+          ...await getDefaultViewSelector(CommentsViews, context),
           score: { $gt: 0 },
           draft: false,
           deletedPublic: false,
@@ -4039,7 +4039,7 @@ const schema = {
         const { Comments } = context;
         const firstComment = await Comments.findOne(
           {
-            ...getDefaultViewSelector(CommentsViews, context),
+            ...await getDefaultViewSelector(CommentsViews, context),
             postId: post._id,
             // This actually forces `deleted: false` by combining with the default view selector
             deletedPublic: false,

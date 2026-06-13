@@ -2,7 +2,6 @@
 import { scheduleQueueProcessing } from './cache/swr';
 // import { initLegacyRoutes } from '@/lib/routes';
 import { startupSanityChecks } from './startupSanityChecks';
-import { refreshKarmaInflationCache } from './karmaInflation/cron';
 // import { addLegacyRssRoutes } from './legacy-redirects/routes';
 // import { initReviewWinnerCache } from './resolvers/reviewWinnerResolvers';
 import { serverCaptureEvent as captureEvent } from '@/server/analytics/serverAnalyticsWriter';
@@ -40,7 +39,6 @@ export async function runServerOnStartupFunctions() {
   scheduleQueueProcessing();
   // initLegacyRoutes();
   backgroundTask(startupSanityChecks());
-  backgroundTask(refreshKarmaInflationCache());
   // addLegacyRssRoutes();
   // backgroundTask(initReviewWinnerCache());
   backgroundTask(updateStripeIntentsCache());
