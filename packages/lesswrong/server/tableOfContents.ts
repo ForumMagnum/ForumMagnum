@@ -32,7 +32,7 @@ async function getTocCommentsServer(document: DbPost, context: ResolverContext) 
   const { Comments } = context;
 
   const commentSelector: any = {
-    ...getDefaultViewSelector(CommentsViews, context),
+    ...await getDefaultViewSelector(CommentsViews, context),
     answer: false,
     draft: false,
     parentAnswerId: null,

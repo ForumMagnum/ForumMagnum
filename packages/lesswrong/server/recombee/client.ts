@@ -253,8 +253,8 @@ const helpers = {
     const filteredStickiedPostTerms = { ...stickiedPostTerms, filterSettings };
 
     const postPromises = [curatedPostTerms, filteredStickiedPostTerms]
-      .map(terms => viewTermsToQuery(PostsViews, terms, undefined, context))
-      .map(postsQuery => context.Posts.find(postsQuery.selector, postsQuery.options, { _id: 1 }).fetch());
+      .map(terms => viewTermsToQuery(PostsViews, terms, undefined, context)
+        .then(postsQuery => context.Posts.find(postsQuery.selector, postsQuery.options, { _id: 1 }).fetch()));
 
     const [curatedPosts, stickiedPosts] = await Promise.all(postPromises);
 
@@ -339,7 +339,7 @@ const helpers = {
     return interleavedPosts;
   },
 
-  getNativeLatestPostsPromise(hybridArgs: HybridRecombeeConfiguration, limit: number, fixedArmCount: number, excludedPostIds: string[], context: ResolverContext) {
+  async getNativeLatestPostsPromise(hybridArgs: HybridRecombeeConfiguration, limit: number, fixedArmCount: number, excludedPostIds: string[], context: ResolverContext) {
     const loadMoreCount = hybridArgs.loadMore?.loadMoreCount;
     const loadMoreCountArg = loadMoreCount ? { offset: loadMoreCount * fixedArmCount } : {};
     const hiddenPostIds = context.currentUser?.hiddenPostsMetadata?.map(metadata => metadata.postId) ?? [];
@@ -359,7 +359,7 @@ const helpers = {
       ...loadMoreCountArg,
     };
 
-    const postsQuery = viewTermsToQuery(PostsViews, postsTerms, undefined, context);
+    const postsQuery = await viewTermsToQuery(PostsViews, postsTerms, undefined, context);
 
     return performQueryFromViewParameters(context.Posts, postsTerms, postsQuery);
   },

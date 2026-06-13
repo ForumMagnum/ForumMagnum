@@ -134,11 +134,12 @@ const getInclusionSelector = (algorithm: DefaultRecommendationsAlgorithm) => {
 
 // A filter (mongodb selector) for which posts should be considered at all as
 // recommendations.
-const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm, resolverContext: ResolverContext) => {
+const recommendablePostFilter = async (algorithm: DefaultRecommendationsAlgorithm, resolverContext: ResolverContext) => {
+  const defaultViewSelector = await getDefaultViewSelector(PostsViews, resolverContext);
   let recommendationFilter = {
     // Gets the selector from the default Posts view, which includes things like
     // excluding drafts and deleted posts
-    ...getDefaultViewSelector(PostsViews, resolverContext),
+    ...defaultViewSelector,
 
     // Only consider recommending posts if they hit the minimum base score. This has a big
     // effect on the size of the recommendable-post set, which needs to not be
@@ -165,7 +166,7 @@ const recommendablePostFilter = (algorithm: DefaultRecommendationsAlgorithm, res
       $or: [
         recommendationFilter,
         {
-          ...getDefaultViewSelector(PostsViews, resolverContext), // Ensure drafts are still excluded
+          ...defaultViewSelector, // Ensure drafts are still excluded
           defaultRecommendation: true,
           ...(algorithm.af ? {af: true} : {}),
         },
@@ -197,7 +198,7 @@ const allRecommendablePosts = async ({currentUser, algorithm, resolverContext}: 
         {},
         {joinHook},
       ),
-      recommendablePostFilter(algorithm, resolverContext),
+      await recommendablePostFilter(algorithm, resolverContext),
     ),
     {},
     {projection: scoreRelevantFields},

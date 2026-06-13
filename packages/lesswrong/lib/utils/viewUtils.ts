@@ -42,33 +42,33 @@ export function viewTermsToQuery<N extends CollectionNameString>(
  * a query that doesn't pass through the views system, you probably want to use
  * this selector as a starting point.
  */
-export function getDefaultViewSelector<N extends CollectionNameString>(
+export async function getDefaultViewSelector<N extends CollectionNameString>(
   viewSet: CollectionViewSet<N, Record<string, ViewFunction<N>>>,
   resolverContext: ResolverContext
 ) {
   // Downcast the generic to avoid a very expensive but useless type inference that indexes over all view terms by collection
-  const viewQuery = viewTermsToQuery<CollectionNameString>(viewSet, {}, undefined, resolverContext)
+  const viewQuery = await viewTermsToQuery<CollectionNameString>(viewSet, {}, undefined, resolverContext)
   return replaceSpecialFieldSelectors(viewQuery.selector);
 }
 
-export function mergeWithDefaultViewSelector<N extends CollectionNameString>(
+export async function mergeWithDefaultViewSelector<N extends CollectionNameString>(
   viewSet: CollectionViewSet<N, Record<string, ViewFunction<N>>>,
   selector: MongoSelector<ObjectsByCollectionName[N]>,
   resolverContext: ResolverContext
 ) {
-  return mergeSelectors(getDefaultViewSelector(viewSet, resolverContext), selector);
+  return mergeSelectors(await getDefaultViewSelector(viewSet, resolverContext), selector);
 }
 
 /**
  * Given a set of terms describing a view, translate them into a mongodb selector
  * and options, which is ready to execute (but don't execute it yet).
  */
-function getParameters<N extends CollectionNameString>(
+async function getParameters<N extends CollectionNameString>(
   viewSet: CollectionViewSet<N, Record<string, ViewFunction<N>>>,
   terms: ViewTermsByCollectionName[N],
   apolloClient?: any,
   context?: ResolverContext
-): MergedViewQueryAndOptions<ObjectsByCollectionName[N]> {
+): Promise<MergedViewQueryAndOptions<ObjectsByCollectionName[N]>> {
   const logger = loggerConstructor(`views-${viewSet.collectionName.toLowerCase()}-${terms.view?.toLowerCase() ?? 'default'}`)
   logger('getParameters(), terms:', terms);
 
@@ -80,7 +80,7 @@ function getParameters<N extends CollectionNameString>(
   const defaultView = viewSet.getDefaultView();
 
   if (defaultView) {
-    const defaultParameters = defaultView(terms, apolloClient, context);
+    const defaultParameters = await defaultView(terms, apolloClient, context);
     const newSelector = mergeSelectors(parameters.selector, defaultParameters.selector);
     parameters = {
       ...merge(parameters, defaultParameters),
@@ -93,7 +93,7 @@ function getParameters<N extends CollectionNameString>(
   // handle view option
   if (terms.view && viewSet.getView(terms.view)) {
     const viewFn = viewSet.getView(terms.view)!;
-    const view = viewFn(terms, apolloClient, context);
+    const view = await viewFn(terms, apolloClient, context);
     let mergedParameters = mergeSelectors(parameters, view);
 
     if (

@@ -464,7 +464,7 @@ const schema = {
       canRead: ["guests"],
       resolver: async (comment, args, context) => {
         const { currentUser, Comments } = context;
-        const params = viewTermsToQuery(CommentsViews, {
+        const params = await viewTermsToQuery(CommentsViews, {
           view: "shortformLatestChildren",
           topLevelCommentId: comment._id,
         }, undefined, context);

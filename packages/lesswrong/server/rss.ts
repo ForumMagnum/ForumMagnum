@@ -52,7 +52,7 @@ export const servePostRSS = async (terms: RSSTerms,) => {
   }
 
   const context = createAnonymousContext();
-  const parameters = viewTermsToQuery(PostsViews, terms, undefined, context);
+  const parameters = await viewTermsToQuery(PostsViews, terms, undefined, context);
   delete parameters['options']['sort']['sticky'];
 
   parameters.options.limit = 10;
@@ -109,7 +109,7 @@ export const serveCommentRSS = async (terms: RSSTerms, req: NextRequest) => {
   const feed = new RSS(getMeta(url));
   const context = await getContextFromReqAndRes({req, isSSR: false});
 
-  let parameters = viewTermsToQuery(CommentsViews, terms, undefined, context);
+  let parameters = await viewTermsToQuery(CommentsViews, terms, undefined, context);
   parameters.options.limit = 50;
   const commentsCursor = await Comments.find(parameters.selector, parameters.options).fetch();
   const restrictedComments = await accessFilterMultiple(null, 'Comments', commentsCursor, context) as DbComment[];
