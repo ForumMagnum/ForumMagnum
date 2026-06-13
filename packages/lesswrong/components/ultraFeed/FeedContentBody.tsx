@@ -5,6 +5,7 @@ import { defineStyles, useStyles } from '../../components/hooks/useStyles';
 import { useNavigate } from '../../lib/routeUtil';
 import ContentStyles from "../common/ContentStyles";
 import { ContentItemBody } from "../contents/ContentItemBody";
+import type { ContentReplacedSubstringComponentInfo } from "../contents/contentBodyUtil";
 
 const limitImageHeightClass = (theme: ThemeType) => ({
   maxHeight: 250,
@@ -163,6 +164,8 @@ export interface FeedContentBodyProps {
   serifStyle?: boolean;
   /** If true, item has been read - apply style changes and text to "read again" */
   isRead?: boolean;
+  /** Inline react highlights to apply to the content */
+  replacedSubstrings?: ContentReplacedSubstringComponentInfo[];
 }
 
 const FeedContentBody = ({
@@ -179,6 +182,7 @@ const FeedContentBody = ({
   resetSignal,
   serifStyle = false,
   isRead = false,
+  replacedSubstrings,
 }: FeedContentBodyProps) => {
 
   const classes = useStyles(styles);
@@ -363,6 +367,7 @@ const FeedContentBody = ({
             <ContentItemBody
               dangerouslySetInnerHTML={{ __html: truncatedHtml }}
               nofollow={nofollow}
+              replacedSubstrings={replacedSubstrings}
               className={classNames({
                 [classes.maxHeight]: !applyLineClamp && !isExpanded && wasTruncated,
                 [classes.lineClamp]: applyLineClamp && wasTruncated,
