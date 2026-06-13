@@ -10,7 +10,11 @@ declare global {
   }
 }
 
-export const defaultNotificationsView: ViewFunction<"Notifications"> = (terms: NotificationsViewTerms) => {
+// Not annotated as ViewFunction (which would widen the return type to
+// include Promise): notificationResolvers and the notificationCount route
+// call this directly and rely on it being synchronous. The CollectionViewSet
+// constructor below still checks assignability.
+export const defaultNotificationsView = (terms: NotificationsViewTerms) => {
   // const alignmentForum = forumTypeSetting.get() === 'AlignmentForum' ? {af: true} : {}
   return {
     selector: {
