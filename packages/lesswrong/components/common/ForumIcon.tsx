@@ -19,6 +19,8 @@ import HeartOutlineIcon from "@heroicons/react/24/outline/HeartIcon";
 import CheckCircleIcon from "@heroicons/react/20/solid/CheckCircleIcon";
 import ChevronLeftIcon from "@heroicons/react/24/solid/ChevronLeftIcon";
 import ChevronRightIcon from "@heroicons/react/24/solid/ChevronRightIcon";
+import ChevronDoubleLeftIcon from "@heroicons/react/24/outline/ChevronDoubleLeftIcon";
+import ChevronDoubleRightIcon from "@heroicons/react/24/outline/ChevronDoubleRightIcon";
 import CloseIcon from "@heroicons/react/24/solid/XMarkIcon";
 import ClockIcon from "@heroicons/react/24/outline/ClockIcon";
 import NoSymbolIcon from "@heroicons/react/24/solid/NoSymbolIcon";
@@ -219,6 +221,8 @@ export type ForumIconName =
   "Analytics" |
   "ChevronLeft" |
   "ChevronRight" |
+  "ChevronDoubleLeft" |
+  "ChevronDoubleRight" |
   "ThickChevronLeft" |
   "ThickChevronRight" |
   "ThickChevronDown" |
@@ -367,6 +371,8 @@ const icons: Record<ForumIconName, IconComponent> = {
   Analytics: MuiShowChartIcon,
   ChevronLeft: ChevronLeftIcon,
   ChevronRight: ChevronRightIcon,
+  ChevronDoubleLeft: ChevronDoubleLeftIcon,
+  ChevronDoubleRight: ChevronDoubleRightIcon,
   ThickChevronLeft: ThickChevronLeftIcon,
   ThickChevronRight: ThickChevronRightIcon,
   ThickChevronDown: ThickChevronDownIcon,

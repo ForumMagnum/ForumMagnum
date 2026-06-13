@@ -117,7 +117,7 @@ export function MentionComponent({ nodeKey, kind, id, title }: MentionComponentP
           if (kind === 'conv' && nav.host?.kind === 'conversation') return false;
           event?.preventDefault();
           if (kind === 'doc') nav.navigateToDocument(id);
-          else if (kind === 'conv') nav.openConversationInChat(id);
+          else if (kind === 'conv') nav.openConversation(id);
           return true;
         },
         COMMAND_PRIORITY_LOW,

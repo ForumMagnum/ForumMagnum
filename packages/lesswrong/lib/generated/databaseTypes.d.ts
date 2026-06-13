@@ -1172,6 +1172,7 @@ interface DbResearchConversation extends DbObject {
   entrypointDocumentId: string
   entrypointKind: string
   lastActivityAt: Date
+  presentationHtml: string | null
   projectId: string
   runtime: string | null
   title: string | null

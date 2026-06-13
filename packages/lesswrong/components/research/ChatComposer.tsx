@@ -7,9 +7,11 @@ import { $generateHtmlFromNodes } from '@lexical/html';
 import { EditorRefPlugin } from '@lexical/react/LexicalEditorRefPlugin';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useFormSubmitOnCmdEnter } from '@/components/hooks/useFormSubmitOnCmdEnter';
+import ForumIcon from '@/components/common/ForumIcon';
 import LexicalEditorRoot from '@/components/editor/LexicalEditor';
-import { chatComposerNodes } from './lexical/researchEditorNodes';
+import { chatComposerNodes } from './lexical/chatComposerNodes';
 import { MentionTypeaheadPlugin } from './lexical/MentionTypeaheadPlugin';
+import { researchAccentTint, researchChatSans, researchTransition } from './researchStyleUtils';
 
 interface ChatComposerProps {
   projectId: string;
@@ -21,26 +23,42 @@ interface ChatComposerProps {
 
 const styles = defineStyles('ChatComposer', (theme: ThemeType) => ({
   root: {
-    borderTop: theme.palette.greyBorder('1px', 0.1),
-    padding: 12,
     display: 'flex',
-    flexDirection: 'column',
+    alignItems: 'flex-end',
     gap: 8,
+    borderTop: `1px solid ${theme.palette.greyAlpha(0.07)}`,
+    paddingTop: 10,
   },
+  // A clearly-separate input field: flat surface, hairline border, rounded,
+  // with a quiet sage focus — no grey fill (surface tints read as cheap
+  // here; separation comes from the border and spacing).
   editorShell: {
-    minHeight: 80,
-    padding: 8,
-    border: theme.palette.greyBorder('1px', 0.15),
-    borderRadius: 4,
-    background: theme.palette.background.default,
-    fontFamily: 'inherit',
+    flex: 1,
+    minWidth: 0,
+    minHeight: 34,
+    boxSizing: 'border-box',
+    padding: '7px 12px',
+    background: theme.palette.panelBackground.default,
+    border: `1px solid ${theme.palette.greyAlpha(0.12)}`,
+    borderRadius: 8,
+    fontFamily: researchChatSans,
     fontSize: 14,
-    lineHeight: 1.4,
+    lineHeight: 1.45,
     color: theme.palette.text.primary,
     cursor: 'text',
+    transition: `border-color ${researchTransition}, box-shadow ${researchTransition}`,
+    '&:hover': {
+      borderColor: theme.palette.greyAlpha(0.2),
+    },
+    '&:focus-within': {
+      borderColor: theme.palette.primary.main,
+      boxShadow: `0 0 0 3px ${researchAccentTint(0.12)}`,
+    },
     '& [contenteditable="true"]': {
       outline: 'none',
-      minHeight: 64,
+      minHeight: 20,
+      maxHeight: 160,
+      overflowY: 'auto',
     },
   },
   editorShellDisabled: {
@@ -49,29 +67,46 @@ const styles = defineStyles('ChatComposer', (theme: ThemeType) => ({
   },
   actions: {
     display: 'flex',
-    justifyContent: 'flex-end',
-    gap: 8,
+    alignItems: 'center',
+    gap: 6,
+    paddingBottom: 4,
   },
   sendButton: {
-    padding: '6px 14px',
+    flex: 'none',
+    width: 26,
+    height: 26,
+    padding: 0,
     border: 'none',
-    borderRadius: 4,
+    borderRadius: '50%',
     background: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
     cursor: 'pointer',
-    fontSize: 13,
-    fontWeight: 500,
-    fontFamily: 'inherit',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    transition: `background ${researchTransition}, opacity ${researchTransition}`,
+    '&:hover': {
+      background: theme.palette.primary.dark,
+    },
     '&:disabled': {
-      opacity: 0.5,
+      opacity: 0.4,
       cursor: 'not-allowed',
     },
   },
+  sendIcon: {
+    '--icon-size': '14px',
+  },
 }));
 
+/**
+ * Compact inline composer for conversation blocks: borderless editor with a
+ * hairline top divider and a circular paper-airplane send button. Submits on
+ * ⌘/Ctrl+Enter; clears only once the send succeeds (a dispatch failure keeps
+ * the draft so the user can re-send).
+ */
 const ChatComposer = ({
   projectId,
-  placeholder = 'Ask anything…',
+  placeholder = 'Reply… (⌘↵ to send)',
   disabled = false,
   onSubmit,
   extraActions,
@@ -94,10 +129,6 @@ const ChatComposer = ({
       if (!isEmpty) promptHtml = $generateHtmlFromNodes(editor, null);
     });
     if (isEmpty) return;
-    // Clear the editor only once the send succeeds. On a dispatch failure
-    // `onSubmit` rethrows (the user turn isn't persisted until Claude echoes
-    // it, so a lost prompt would be lost for good) — keep the prompt so the
-    // user can re-send. `onSubmit` surfaces the error to the user itself.
     try {
       await onSubmit(promptHtml);
     } catch {
@@ -112,7 +143,11 @@ const ChatComposer = ({
 
   return (
     <div className={classes.root} ref={rootRef}>
-      <div className={classNames(classes.editorShell, disabled && classes.editorShellDisabled)}>
+      {/* The extra global class opts this nested editor out of the
+          researchDocument content styles (full-height reading column), which
+          otherwise match any descendant contenteditable of the document
+          editor — see ContentStylesValues.ts. */}
+      <div className={classNames('research-chat-composer', classes.editorShell, disabled && classes.editorShellDisabled)}>
         <LexicalEditorRoot
           data=""
           onChange={ignoreHtmlChange}
@@ -135,8 +170,10 @@ const ChatComposer = ({
           className={classes.sendButton}
           onClick={handleSend}
           disabled={disabled}
+          title="Send (⌘↵)"
+          aria-label="Send"
         >
-          Send
+          <ForumIcon icon="ArrowRightOutline" className={classes.sendIcon} />
         </button>
       </div>
     </div>

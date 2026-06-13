@@ -60,8 +60,8 @@ type ResearchEditorHost =
 export interface ResearchNavigationContextValue {
   /** Switch the workspace's active document. */
   navigateToDocument: (documentId: string) => void;
-  /** Open a conversation in the chat pane. */
-  openConversationInChat: (conversationId: string) => void;
+  /** Jump to a conversation's inline block (switching documents if needed) and focus it. */
+  openConversation: (conversationId: string) => void;
   /** Identifies this editor instance, when available. */
   host?: ResearchEditorHost;
 }

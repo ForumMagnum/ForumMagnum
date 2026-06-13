@@ -1,71 +1,99 @@
 'use client';
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
-import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $getNodeByKey, type NodeKey } from 'lexical';
+import { gql } from '@/lib/generated/gql-codegen';
+import { useQuery } from '@/lib/crud/useQuery';
+import { useMutation } from '@apollo/client/react';
+import { type NodeKey } from 'lexical';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { type StreamStatus, useConversationStream, type ConversationEvent } from '@/components/research/hooks/useConversationStream';
-import { $isAgentBlockNode } from './AgentBlockNode';
-import { useResearchEditorEnvironment, useResearchNavigationContext, usePendingConversation } from './ResearchEditorContext';
+import { useStopLexicalEventPropagation } from '@/components/editor/lexicalPlugins/useStopLexicalEventPropagation';
+import { useConversationStream, type ConversationEvent } from '@/components/research/hooks/useConversationStream';
+import { useResearchEditorEnvironment, usePendingConversation } from './ResearchEditorContext';
+import { useResearchWorkspaceApiOptional } from '../researchWorkspaceContext';
 import {
   getConversationEventChunks,
   isVisibleConversationEvent,
+  renderChunkMarkdownToHtml,
 } from '../conversationEventFormat';
-import { ConversationEventRow } from '../ConversationEventRow';
+import { ConversationTranscript } from '../ConversationTranscript';
+import { ConversationActions } from '../ConversationActions';
+import ChatComposer from '../ChatComposer';
+import ContentStyles from '@/components/common/ContentStyles';
+import { ContentItemBody } from '@/components/contents/ContentItemBody';
 import ForumIcon from '@/components/common/ForumIcon';
 import { htmlToTextDefault } from '@/lib/htmlToText';
+import { sanitize } from '@/lib/utils/sanitize';
+import { randomId } from '@/lib/random';
+import { useMessages } from '@/components/common/withMessages';
+import { isSandboxWarmingError } from '../sandboxWarming';
+import { researchAccentTint, researchChatProse, researchChatSans, researchMono, researchEasing } from '../researchStyleUtils';
+
+/** Cap on the focused block's height; the transcript scrolls inside it. */
+const FOCUSED_MAX_HEIGHT = '72vh';
+/** Clamp on the blurred presentation before it fades out. */
+const BLURRED_MAX_CONTENT_HEIGHT = 200;
+
+const ResearchConversationBlockQuery = gql(`
+  query ResearchConversationBlockInfo($conversationId: String!) {
+    researchConversation(selector: { _id: $conversationId }) {
+      result {
+        _id
+        title
+        presentationHtml
+      }
+    }
+  }
+`);
+
+const ContinueResearchConversationFromBlockMutation = gql(`
+  mutation ContinueResearchConversationFromBlock($conversationId: String!, $promptHtml: String!, $activeDocumentId: String!) {
+    continueResearchConversation(conversationId: $conversationId, promptHtml: $promptHtml, activeDocumentId: $activeDocumentId) {
+      conversationId
+    }
+  }
+`);
+
+const CancelResearchConversationFromBlockMutation = gql(`
+  mutation CancelResearchConversationFromBlock($conversationId: String!) {
+    cancelResearchConversation(conversationId: $conversationId) {
+      conversationId
+    }
+  }
+`);
 
 /**
- * Vertical room for ~1–2 paragraphs of body copy at the editor's 14px/1.55
- * baseline. Scroll kicks in past this; shorter content shrinks the chip
- * naturally because the inner column is the height contributor.
+ * The inline conversation surface. Two states:
+ *
+ * - BLURRED ("presentation orientation"): a one-line monospace header over
+ *   the conversation's presentation — agent-authored `presentationHtml` when
+ *   set, else the last assistant message as prose, clamped with a fade. Reads
+ *   as part of the document; a faint left rule is the only chrome.
+ * - FOCUSED: click in (or jump from the sidebar/palette) and the block
+ *   expands in place to a scrollable Claude Code-style transcript with a
+ *   pinned composer, capped at ~70vh. Click out (or Esc) collapses it back.
  */
-const EXPANDED_MAX_CONTENT_HEIGHT = 200;
-// Visible bottom indicator: a thin gradient hint. The hover target around it
-// is taller (`COLLAPSE_HOVER_HEIGHT`) so users don't have to be pixel-precise
-// to reveal the collapse arrow.
-const COLLAPSE_GRADIENT_HEIGHT = 14;
-const COLLAPSE_HOVER_HEIGHT = 36;
-
 const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   root: {
     position: 'relative',
-    border: theme.palette.greyBorder('1px', 0.09),
-    borderRadius: 6,
-    background: theme.palette.greyAlpha(0.025),
-    padding: '8px 64px 8px 14px',
-    margin: '10px 0',
-    fontSize: '0.95em',
-    // Pin line-height in pixels so different chunk kinds (which override
-    // font-size and font-family on the inline preview span — e.g. tool_use
-    // is monospace + 0.85em) don't change the row's vertical metrics. A
-    // unitless line-height multiplier inherits per-element by computed
-    // font-size, which causes the AgentBlock to twitch ±2-3px every time a
-    // new event of a different kind streams in.
-    lineHeight: '20px',
-    display: 'flex',
-    // Baseline-align so the small uppercase speaker label and the larger
-    // preview text share a typographic baseline. With `center` they'd both
-    // be vertically centered as line-boxes — and since the smaller font's
-    // glyphs sit higher within their own line-box than the larger font's,
-    // the speaker label visually floats above the preview. The status dot
-    // / checkmark / OpenInNew button each opt out via `alignSelf: center`
-    // so they stay vertically centered (their synthetic baseline would
-    // otherwise be the bottom of the element).
-    alignItems: 'baseline',
-    gap: 10,
-    minHeight: 36,
-    // When the AgentBlock sits inside an unrevealed spoiler, mask its colored
-    // chrome so the spoiler's hide-until-hover semantics apply uniformly. The
-    // chip's own speaker label / preview / pulse dot / border / icon all set
-    // explicit colors that would otherwise punch through the spoiler's
-    // cascading `color: spoilerBlock`. As soon as the user hovers any
-    // descendant — including this block — the parent `.spoilers` matches
-    // `:hover` and the override turns off, revealing the AgentBlock as
-    // normal.
+    margin: '14px 0',
+    borderLeft: `2px solid ${theme.palette.greyAlpha(0.14)}`,
+    paddingLeft: 14,
+    paddingTop: 2,
+    paddingBottom: 2,
+    // The block renders inside the document's contenteditable, which sets
+    // `white-space: pre-wrap` (Lexical's default). Without this reset every
+    // newline in the rendered markdown HTML becomes a visible blank line.
+    whiteSpace: 'normal',
+    // No height animation on expand/collapse: a growing container with a
+    // bottom-pinned transcript reads as the content scrolling, which the
+    // user consistently found disorienting. Focus/blur swap in one frame.
+    transition: `border-color 160ms ${researchEasing}`,
+    // Breathing room above the block when the workspace jumps to it.
+    scrollMarginTop: 18,
+    // Mask the block's chrome inside unrevealed spoilers, mirroring the
+    // hide-until-hover semantics of everything else in the spoiler.
     '.spoilers:not(:hover) &': {
-      backgroundColor: 'transparent',
       borderColor: theme.palette.panelBackground.spoilerBlock,
       color: theme.palette.panelBackground.spoilerBlock,
       '& *': {
@@ -78,25 +106,48 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
       },
     },
   },
-  // Expanded layout: vertical stack of events instead of a single row, with
-  // a sticky bottom collapse affordance overlaid on the scroll container.
-  // Vertical padding is owned by `scrollContainer` so top and bottom stay
-  // symmetric (the bottom needs gradient clearance; we mirror it on top).
-  rootExpanded: {
+  rootBlurred: {
+    cursor: 'pointer',
+    '&:hover': {
+      borderLeftColor: theme.palette.greyAlpha(0.28),
+    },
+  },
+  rootFocused: {
+    borderLeftColor: researchAccentTint(0.65),
+    display: 'flex',
     flexDirection: 'column',
-    alignItems: 'stretch',
-    gap: 0,
-    padding: '0 32px 0 14px',
+    maxHeight: FOCUSED_MAX_HEIGHT,
+    minHeight: 140,
   },
   rootProvenance: {
-    borderColor: theme.palette.greyAlpha(0.16),
-    background: theme.palette.greyAlpha(0.04),
-    boxShadow: `inset 3px 0 0 ${theme.palette.primary.main}`,
-    paddingLeft: 17,
+    borderLeftColor: researchAccentTint(0.35),
+  },
+  header: {
+    flex: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 7,
+    minHeight: 20,
+    fontFamily: researchMono,
+    fontSize: 11,
+    color: theme.palette.text.dim,
+    userSelect: 'none',
+  },
+  headerTitle: {
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  headerMeta: {
+    flex: 'none',
+    color: theme.palette.greyAlpha(0.4),
+  },
+  headerSpacer: {
+    flex: 1,
   },
   pulseDot: {
     flex: 'none',
-    alignSelf: 'center',
     width: 7,
     height: 7,
     borderRadius: '50%',
@@ -107,167 +158,85 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
     '0%, 100%': { opacity: 0.25, transform: 'scale(0.85)' },
     '50%': { opacity: 1, transform: 'scale(1)' },
   },
-  speaker: {
+  errorGlyph: {
     flex: 'none',
-    fontSize: '0.7em',
-    fontWeight: 600,
-    letterSpacing: '0.06em',
-    textTransform: 'uppercase',
-    color: theme.palette.greyAlpha(0.5),
-    userSelect: 'none',
-  },
-  speakerUser: {
-    color: theme.palette.greyAlpha(0.7),
-  },
-  speakerAssistant: {
-    color: theme.palette.primary.main,
-  },
-  speakerError: {
     color: theme.palette.error?.main ?? theme.palette.text.primary,
   },
-  preview: {
-    flex: 1,
-    minWidth: 0,
-    color: theme.palette.text.primary,
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-  },
-  previewThinking: {
-    color: theme.palette.greyAlpha(0.55),
-    fontStyle: 'italic',
-  },
-  previewTool: {
-    fontFamily: 'monospace',
-    fontSize: '0.85em',
-    color: theme.palette.greyAlpha(0.7),
-  },
-  previewError: {
-    color: theme.palette.error?.main ?? theme.palette.text.primary,
-  },
-  empty: {
-    color: theme.palette.greyAlpha(0.5),
-    fontStyle: 'italic',
-    fontSize: '0.9em',
-  },
-  // Pulse-dot replacement once a `result` event has been received and the
-  // agent isn't currently mid-turn. Same hue as the pulse so the chip's
-  // status indicator stays visually in the same column.
-  doneIcon: {
+  headerButton: {
     flex: 'none',
-    alignSelf: 'center',
-    '--icon-size': '12px',
-    color: theme.palette.primary.main,
-  },
-  iconButton: {
-    position: 'absolute',
-    top: 6,
-    right: 5,
-    background: 'transparent',
     border: 'none',
-    cursor: 'pointer',
-    padding: 4,
     borderRadius: 4,
-    color: theme.palette.greyAlpha(0.5),
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    background: 'transparent',
+    color: theme.palette.text.dim,
+    cursor: 'pointer',
+    fontFamily: researchMono,
+    fontSize: 10.5,
+    lineHeight: 1.4,
+    padding: '2px 6px',
+    whiteSpace: 'nowrap',
     '&:hover': {
       color: theme.palette.text.primary,
       background: theme.palette.greyAlpha(0.06),
     },
   },
-  expandIcon: {
-    '--icon-size': '14px',
-    // ChevronRight rotated to point downward — "expand" means "open below".
-    transform: 'rotate(90deg)',
-  },
-  icon: {
-    '--icon-size': '16px',
-  },
-  statusError: {
-    fontSize: '0.75em',
-    color: theme.palette.error?.main ?? theme.palette.text.primary,
-    textTransform: 'uppercase',
-    letterSpacing: '0.04em',
-    flex: 'none',
-  },
-
-  // --- Expanded body ----------------------------------------------------
-  scrollContainer: {
-    maxHeight: EXPANDED_MAX_CONTENT_HEIGHT,
-    overflowY: 'auto',
-    // Bottom padding leaves room for the gradient indicator so it fades
-    // over empty space at the end of the scroll, not over the last line.
-    // Top padding mirrors it so the chip's interior stays vertically symmetric.
-    padding: `${COLLAPSE_GRADIENT_HEIGHT + 4}px ${COLLAPSE_GRADIENT_HEIGHT + 4}px ${COLLAPSE_GRADIENT_HEIGHT + 4}px 0`,
-    display: 'flex',
-    flexDirection: 'column',
-    gap: 8,
-    minWidth: 0,
-  },
-  // --- Bottom-border toggle affordance ---------------------------------
-  // Same slot for both directions — collapse when expanded, expand when
-  // not. The strip is the visual + layout container; the gradient is the
-  // "there's something here" indicator; the button is the actual click
-  // target. All gated on root hover, so a chip at rest reads as clean.
-  // The strip itself is `pointer-events: none` so the user can still
-  // click/hover the chip body underneath; only the button captures clicks.
-  collapseStrip: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: COLLAPSE_HOVER_HEIGHT,
-    pointerEvents: 'none',
-    display: 'flex',
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-  },
-  collapseGradient: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: COLLAPSE_GRADIENT_HEIGHT,
-    background: `linear-gradient(to bottom, ${theme.palette.greyAlpha(0)} 0%, ${theme.palette.greyAlpha(0.06)} 60%, ${theme.palette.greyAlpha(0.14)} 100%)`,
-    pointerEvents: 'none',
-    borderRadius: '0 0 6px 6px',
-    opacity: 0,
-    transition: 'opacity 120ms ease',
-    '$root:hover &': {
-      opacity: 1,
-    },
-  },
   collapseButton: {
-    position: 'relative',
-    width: 26,
-    height: 16,
-    marginBottom: -8,
+    width: 20,
+    height: 20,
     padding: 0,
-    border: theme.palette.greyBorder('1px', 0.15),
-    borderRadius: 8,
-    background: theme.palette.background.default,
-    color: theme.palette.text.dim,
-    cursor: 'pointer',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    pointerEvents: 'auto',
-    opacity: 0,
-    transition: 'opacity 120ms ease',
-    '$root:hover &': {
-      opacity: 1,
-    },
-    '&:hover': {
-      color: theme.palette.text.primary,
-      background: theme.palette.background.pageActiveAreaBackground ?? theme.palette.background.default,
-    },
   },
   collapseIcon: {
-    '--icon-size': '14px',
-    // ChevronRight rotated to point upward — collapse means "fold up".
-    transform: 'rotate(-90deg)',
+    '--icon-size': '13px',
+  },
+  // --- Blurred body -------------------------------------------------------
+  blurredBody: {
+    position: 'relative',
+    maxHeight: BLURRED_MAX_CONTENT_HEIGHT,
+    overflow: 'hidden',
+    marginTop: 2,
+  },
+  blurredBodyOverflowing: {
+    maskImage: `linear-gradient(to bottom, ${theme.palette.text.alwaysBlack} calc(100% - 32px), transparent 100%)`,
+  },
+  presentationProse: {
+    ...researchChatProse(theme),
+    fontSize: 14.5,
+    lineHeight: 1.6,
+    fontFamily: researchChatSans,
+    color: theme.palette.text.primary,
+  },
+  emptyPlaceholder: {
+    fontSize: 13,
+    fontStyle: 'italic',
+    color: theme.palette.text.dim,
+  },
+  activityLine: {
+    display: 'flex',
+    alignItems: 'baseline',
+    gap: 7,
+    marginTop: 4,
+    fontFamily: researchMono,
+    fontSize: 11.5,
+    color: theme.palette.text.dim,
+    minWidth: 0,
+  },
+  activityText: {
+    flex: 1,
+    minWidth: 0,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'nowrap',
+  },
+  activityGlyph: {
+    flex: 'none',
+    color: theme.palette.primary.main,
+  },
+  // --- Focused body ---------------------------------------------------------
+  composerWrap: {
+    flex: 'none',
+    paddingRight: 6,
   },
 }));
 
@@ -277,41 +246,29 @@ interface AgentBlockComponentProps {
   producedByConversationId: string | null;
 }
 
-export function AgentBlockComponent({ nodeKey, conversationId, producedByConversationId }: AgentBlockComponentProps) {
+export function AgentBlockComponent({ nodeKey: _nodeKey, conversationId, producedByConversationId }: AgentBlockComponentProps) {
   const classes = useStyles(styles);
-  const [editor] = useLexicalComposerContext();
-  // Required to enforce the structural invariant that AgentBlocks only mount
-  // inside the document editor, where both providers are present.
+  // Enforces the structural invariant that AgentBlocks only mount inside the
+  // document editor, where the research providers are present.
   useResearchEditorEnvironment();
-  const nav = useResearchNavigationContext();
   const pending = usePendingConversation(conversationId);
   const wasPendingRef = useRef(false);
   if (pending) wasPendingRef.current = true;
 
   const fromAgent = !!producedByConversationId;
 
-  const removeBlock = useCallback(() => {
-    editor.update(() => {
-      const node = $getNodeByKey(nodeKey);
-      if ($isAgentBlockNode(node)) node.remove();
-    });
-  }, [editor, nodeKey]);
-
-  // This placeholder deliberately exposes no conversation navigation: the chat
-  // pane lives outside the pending-conversations registry, so letting the user
-  // open this conversation there would mount a second `useConversationStream`
-  // against the not-yet-created row and reintroduce the "Conversation not
-  // found" race.
   if (!conversationId || pending) {
     return (
       <div
         className={classNames(classes.root, fromAgent && classes.rootProvenance)}
         data-testid="research-agent-block-pending"
       >
-        <span className={classes.pulseDot} aria-label="Sending query" />
-        <span className={classes.preview}>
-          {pending ? htmlToTextDefault(pending.promptHtml) : 'Sending query…'}
-        </span>
+        <div className={classes.header}>
+          <span className={classes.pulseDot} aria-label="Sending query" />
+          <span className={classes.headerTitle}>
+            {pending ? htmlToTextDefault(pending.promptHtml) : 'Sending query…'}
+          </span>
+        </div>
       </div>
     );
   }
@@ -321,8 +278,6 @@ export function AgentBlockComponent({ nodeKey, conversationId, producedByConvers
       conversationId={conversationId}
       fromAgent={fromAgent}
       justDispatched={wasPendingRef.current}
-      onOpenInChat={nav.openConversationInChat}
-      onRemove={removeBlock}
     />
   );
 }
@@ -331,256 +286,354 @@ interface ActiveAgentBlockProps {
   conversationId: string;
   fromAgent: boolean;
   justDispatched: boolean;
-  onOpenInChat: (conversationId: string) => void;
-  onRemove: () => void;
 }
 
-function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, onOpenInChat, onRemove: _onRemove }: ActiveAgentBlockProps) {
+function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveAgentBlockProps) {
   const classes = useStyles(styles);
-  const { events, status, error, turnInFlight, markTurnExpected } = useConversationStream(conversationId);
+  const env = useResearchEditorEnvironment();
+  const workspace = useResearchWorkspaceApiOptional();
+  const { flash } = useMessages();
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const [focused, setFocused] = useState(false);
+  // Set while a programmatic focus (sidebar / palette jump) still needs the
+  // document positioned on the block.
+  const pendingFocusScrollRef = useRef(false);
+  // Set when the user clicked the blurred block; the expansion gets a
+  // minimal instant correction so the whole block (incl. composer) is in view.
+  const manualFocusRef = useRef(false);
+  const [sending, setSending] = useState(false);
+
+  const {
+    events, status, error, turnInFlight,
+    markTurnExpected, injectOptimisticEvent, clearOptimistic, refresh,
+  } = useConversationStream(conversationId);
 
   useEffect(() => {
     if (justDispatched) markTurnExpected();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const { resultCount, userEventCount, visibleEvents, latestVisible } = useMemo(() => {
-    let rc = 0;
-    let uc = 0;
-    const visible: ConversationEvent[] = [];
-    for (const e of events) {
-      if (e.kind === 'result') rc++;
-      if (e.kind === 'user') uc++;
-      if (isVisibleConversationEvent(e)) visible.push(e);
-    }
-    return {
-      resultCount: rc,
-      userEventCount: uc,
-      visibleEvents: visible,
-      latestVisible: visible.length > 0 ? visible[visible.length - 1] : null,
-    };
-  }, [events]);
+  // Keep keystrokes / pointer events inside the block (transcript, composer)
+  // away from the host document editor.
+  useStopLexicalEventPropagation(rootRef);
 
-  // Auto-expand on the falling edge of `turnInFlight`, but only when a user
-  // message arrived since the baseline: loading a document with
-  // previously-completed blocks (no rising edge) leaves them collapsed, and
-  // turns that start with no user action — background-task re-invocations,
-  // synthetic supervisor results closing a crashed turn — don't pop a
-  // collapsed block open while the user is passively reading.
-  const [expanded, setExpanded] = useState(false);
+  const { data: conversationData, refetch: refetchConversation } = useQuery(ResearchConversationBlockQuery, {
+    variables: { conversationId },
+    fetchPolicy: 'cache-and-network',
+  });
+  const conversation = conversationData?.researchConversation?.result;
+
+  // The agent may have updated its presentation (or the background title
+  // generation may have landed) during the turn — refresh on completion.
   const wasInFlightRef = useRef(false);
-  // Baseline of the user-event count: established from the first non-empty
-  // transcript observation — even one that's already mid-turn, so a block
-  // mounted while a re-invocation runs doesn't count the whole history as
-  // "new" at the falling edge — then kept current while idle. The message
-  // that created a just-dispatched block is excluded from its own baseline,
-  // so the turn the user just fired still expands on completion. `null`
-  // means "history not loaded yet"; no expand decisions until it is.
-  const userCountBaselineRef = useRef<number | null>(null);
   useEffect(() => {
-    if (userCountBaselineRef.current === null) {
-      if (events.length === 0) return;
-      userCountBaselineRef.current = Math.max(0, userEventCount - (justDispatched ? 1 : 0));
-    }
     if (wasInFlightRef.current && !turnInFlight) {
-      if (userEventCount > userCountBaselineRef.current) {
-        setExpanded(true);
-      }
-    }
-    if (!turnInFlight) {
-      userCountBaselineRef.current = userEventCount;
+      void refetchConversation();
     }
     wasInFlightRef.current = turnInFlight;
-  }, [turnInFlight, userEventCount, events.length, justDispatched]);
+  }, [turnInFlight, refetchConversation]);
 
-  const handleOpenInChat = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      // Stop propagation so the click doesn't also bubble to Lexical's
-      // selection handler and move the cursor into the (decorator) block.
-      e.stopPropagation();
-      e.preventDefault();
-      onOpenInChat?.(conversationId);
-    },
-    [conversationId, onOpenInChat],
+  const visibleEvents = useMemo(
+    () => events.filter(isVisibleConversationEvent),
+    [events],
+  );
+  const userTurnCount = useMemo(
+    () => events.reduce((n, e) => (e.kind === 'user' ? n + 1 : n), 0),
+    [events],
   );
 
-  const handleCollapse = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.stopPropagation();
-      e.preventDefault();
-      setExpanded(false);
-    },
-    [],
-  );
+  // Workspace-level "jump to this conversation" requests (sidebar, palette).
+  const focusRequest = workspace?.conversationFocusRequest ?? null;
+  useEffect(() => {
+    if (focusRequest && focusRequest.conversationId === conversationId) {
+      setFocused(true);
+      pendingFocusScrollRef.current = true;
+      workspace?.ackConversationFocus(focusRequest.nonce);
+    }
+  }, [focusRequest, conversationId, workspace]);
 
-  const handleExpand = useCallback(
-    (e: React.MouseEvent<HTMLButtonElement>) => {
-      e.stopPropagation();
-      e.preventDefault();
-      setExpanded(true);
-    },
-    [],
-  );
+  // Position the document on the expanded block in the same frame the
+  // focused layout commits (layout effect = before paint): the block appears
+  // already open, in view, with the transcript pinned to the bottom by its
+  // own mount effect. A smooth scroll here reads as disorienting drift.
+  //
+  // Content keeps settling after that first snap — collab sync streaming the
+  // document in above the block, iframe widgets reporting their real height,
+  // the transcript itself loading — each shift shoving the block around the
+  // viewport. So the block stays the scroll anchor for as long as layout
+  // keeps changing (ResizeObserver on the editor body and the block itself;
+  // every snap is instant and a no-op when stable), until the user interacts
+  // — from then on the scroll position is theirs.
+  useLayoutEffect(() => {
+    if (!focused) return;
+    if (manualFocusRef.current) {
+      manualFocusRef.current = false;
+      // Manual click: the block expands in place in one frame; just make
+      // sure it fits in the viewport, with the smallest possible jump.
+      rootRef.current?.scrollIntoView({ block: 'nearest', behavior: 'instant' });
+    }
+    if (!pendingFocusScrollRef.current) return;
+    pendingFocusScrollRef.current = false;
+    const root = rootRef.current;
+    if (!root) return;
+    // 'instant', not the default 'auto': auto defers to any
+    // `scroll-behavior: smooth` CSS in the environment (browser extensions
+    // and user stylesheets inject this), which would animate every snap.
+    const snap = () => rootRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' });
+    snap();
+    const observer = new ResizeObserver(snap);
+    observer.observe(root);
+    // The document editor's body — NOT `[contenteditable]`, which would match
+    // the block's own contenteditable="false" decorator wrapper first.
+    const editorBody = root.closest('[contenteditable="true"]');
+    if (editorBody) observer.observe(editorBody);
+    const stopAnchoring = () => observer.disconnect();
+    const interactionEvents = ['wheel', 'touchmove', 'pointerdown', 'keydown'] as const;
+    for (const eventName of interactionEvents) {
+      window.addEventListener(eventName, stopAnchoring, { capture: true, passive: true });
+    }
+    return () => {
+      stopAnchoring();
+      for (const eventName of interactionEvents) {
+        window.removeEventListener(eventName, stopAnchoring, { capture: true });
+      }
+    };
+  }, [focused]);
+
+  const blurBlock = useCallback(() => {
+    setFocused(false);
+  }, []);
+
+  // Click out → blur. Capture phase, because the block stops bubbling-phase
+  // pointer events at its root (see useStopLexicalEventPropagation above).
+  useEffect(() => {
+    if (!focused) return;
+    const onPointerDown = (e: PointerEvent) => {
+      const root = rootRef.current;
+      if (root && e.target instanceof Node && !root.contains(e.target)) {
+        blurBlock();
+      }
+    };
+    document.addEventListener('pointerdown', onPointerDown, true);
+    return () => document.removeEventListener('pointerdown', onPointerDown, true);
+  }, [focused, blurBlock]);
+
+  // Esc → blur. Native listener: keydown propagation is stopped at the block
+  // root, so a React synthetic handler would never fire.
+  useEffect(() => {
+    const root = rootRef.current;
+    if (!root || !focused) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') blurBlock();
+    };
+    root.addEventListener('keydown', onKeyDown);
+    return () => root.removeEventListener('keydown', onKeyDown);
+  }, [focused, blurBlock]);
+
+  const [continueConversation] = useMutation(ContinueResearchConversationFromBlockMutation);
+  const [cancelConversation] = useMutation(CancelResearchConversationFromBlockMutation);
+
+  const handleSend = useCallback(async (promptHtml: string) => {
+    if (sending) return;
+    setSending(true);
+    try {
+      markTurnExpected();
+      injectOptimisticEvent({
+        _id: `optimistic:user:${randomId()}`,
+        conversationId,
+        seq: -1,
+        kind: 'user',
+        claudeMessageUuid: null,
+        payload: { type: 'user', message: { role: 'user', content: htmlToTextDefault(promptHtml) } },
+        createdAt: new Date().toISOString(),
+      });
+      await continueConversation({
+        variables: { conversationId, promptHtml, activeDocumentId: env.documentId },
+      });
+      refresh();
+    } catch (err) {
+      clearOptimistic();
+      if (isSandboxWarmingError(err)) {
+        flash({ messageString: 'The sandbox is still starting up — try again in a moment.' });
+      } else {
+        // eslint-disable-next-line no-console
+        console.error('[research] conversation send failed', err);
+        flash({ messageString: 'Failed to send message — try again.', type: 'error' });
+      }
+      throw err;
+    } finally {
+      setSending(false);
+    }
+  }, [sending, conversationId, env.documentId, continueConversation, markTurnExpected, injectOptimisticEvent, clearOptimistic, refresh, flash]);
+
+  const handleCancel = useCallback(async () => {
+    await cancelConversation({ variables: { conversationId } });
+  }, [cancelConversation, conversationId]);
+
+  const handleFocusClick = useCallback(() => {
+    if (!focused) {
+      manualFocusRef.current = true;
+      setFocused(true);
+    }
+  }, [focused]);
+
+  const handleCollapseClick = useCallback((e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    blurBlock();
+  }, [blurBlock]);
+
+  const title = conversation?.title ?? 'Conversation';
+  const headerGlyph = turnInFlight
+    ? <span className={classes.pulseDot} aria-label="Agent is responding" />
+    : status === 'error'
+      ? <span className={classes.errorGlyph} title={error ?? 'error'}>✕</span>
+      : null;
 
   return (
     <div
-      className={classNames(
-        classes.root,
-        fromAgent && classes.rootProvenance,
-        expanded && classes.rootExpanded,
-      )}
+      ref={rootRef}
+      className={classNames(classes.root, {
+        [classes.rootBlurred]: !focused,
+        [classes.rootFocused]: focused,
+        [classes.rootProvenance]: fromAgent && !focused,
+      })}
+      onClick={handleFocusClick}
       data-testid="research-agent-block"
     >
-      {expanded ? (
-        <ExpandedBody
-          visibleEvents={visibleEvents}
+      <div className={classes.header}>
+        {headerGlyph}
+        <span className={classes.headerTitle}>{title}</span>
+        <span className={classes.headerMeta}>
+          · {userTurnCount} {userTurnCount === 1 ? 'turn' : 'turns'}
+        </span>
+        <span className={classes.headerSpacer} />
+        {focused ? (
+          <>
+            {turnInFlight ? (
+              <button type="button" className={classes.headerButton} onClick={handleCancel}>
+                ■ stop
+              </button>
+            ) : null}
+            <ConversationActions conversationId={conversationId} />
+            <button
+              type="button"
+              className={classNames(classes.headerButton, classes.collapseButton)}
+              onClick={handleCollapseClick}
+              title="Collapse (Esc)"
+              aria-label="Collapse"
+            >
+              <ForumIcon icon="Close" className={classes.collapseIcon} />
+            </button>
+          </>
+        ) : null}
+      </div>
+      {focused ? (
+        <>
+          <ConversationTranscript
+            events={visibleEvents}
+            turnInFlight={turnInFlight}
+            status={status}
+            error={error}
+          />
+          <div className={classes.composerWrap}>
+            <ChatComposer
+              projectId={env.projectId}
+              disabled={sending}
+              onSubmit={handleSend}
+            />
+          </div>
+        </>
+      ) : (
+        <BlurredPresentation
+          events={visibleEvents}
           turnInFlight={turnInFlight}
           status={status}
-          error={error}
+          presentationHtml={conversation?.presentationHtml ?? null}
         />
-      ) : (
-        <>
-          {turnInFlight ? (
-            <span className={classes.pulseDot} aria-label="Agent is responding" />
-          ) : resultCount > 0 ? (
-            <ForumIcon icon="Check" className={classes.doneIcon} aria-label="Agent done" />
-          ) : null}
-          <LatestEventPreview event={latestVisible} status={status} />
-          {status === 'error' && error ? (
-            <span className={classes.statusError} title={error}>error</span>
-          ) : null}
-        </>
       )}
-      <button
-        type="button"
-        className={classes.iconButton}
-        onClick={handleOpenInChat}
-        onMouseDown={(e) => e.preventDefault()}
-        title="Open conversation in chat"
-        aria-label="Open conversation in chat"
-      >
-        <ForumIcon icon="OpenInNew" className={classes.icon} />
-      </button>
-      {expanded || resultCount > 0 ? (
-        <div className={classes.collapseStrip}>
-          <div className={classes.collapseGradient} />
-          <button
-            type="button"
-            className={classes.collapseButton}
-            onClick={expanded ? handleCollapse : handleExpand}
-            onMouseDown={(e) => e.preventDefault()}
-            title={expanded ? 'Collapse' : 'Expand'}
-            aria-label={expanded ? 'Collapse' : 'Expand'}
-          >
-            <ForumIcon
-              icon="ChevronRight"
-              className={expanded ? classes.collapseIcon : classes.expandIcon}
-            />
-          </button>
-        </div>
-      ) : null}
     </div>
   );
 }
 
-interface ExpandedBodyProps {
-  visibleEvents: ConversationEvent[];
+interface BlurredPresentationProps {
+  events: ConversationEvent[];
   turnInFlight: boolean;
-  status: StreamStatus;
-  error: string | null;
+  status: string;
+  presentationHtml: string | null;
 }
 
-function ExpandedBody({ visibleEvents, turnInFlight, status, error }: ExpandedBodyProps) {
+/**
+ * The blurred block's body: agent-authored presentation HTML when set,
+ * otherwise the last assistant message rendered as prose, clamped with a
+ * bottom fade. While a turn runs, a live one-line activity readout of the
+ * latest event sits underneath.
+ */
+function BlurredPresentation({ events, turnInFlight, status, presentationHtml }: BlurredPresentationProps) {
   const classes = useStyles(styles);
+  const bodyRef = useRef<HTMLDivElement | null>(null);
+  const [overflowing, setOverflowing] = useState(false);
 
-  // Auto-scroll to the latest event whenever the content grows so the user
-  // sees what just arrived without scrolling manually. We pin to bottom only
-  // while a turn is in flight; once it completes the user owns the scroll.
-  const scrollRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!turnInFlight) return;
-    const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [visibleEvents.length, turnInFlight]);
+  const html = useMemo(() => {
+    if (presentationHtml) return sanitize(presentationHtml);
+    const lastAssistantText = getLastAssistantText(events);
+    return lastAssistantText ? renderChunkMarkdownToHtml(lastAssistantText) : null;
+  }, [presentationHtml, events]);
 
-  if (visibleEvents.length === 0) {
-    return (
-      <div className={classNames(classes.scrollContainer)} ref={scrollRef}>
-        <span className={classNames(classes.preview, classes.empty)}>
-          {emptyStatePlaceholder(status)}
-        </span>
-      </div>
-    );
-  }
+  useLayoutEffect(() => {
+    const el = bodyRef.current;
+    if (el) setOverflowing(el.scrollHeight > el.clientHeight + 1);
+  }, [html]);
 
-  return (
-    <div className={classes.scrollContainer} ref={scrollRef}>
-      {visibleEvents.map((event) => (
-        <ConversationEventRow key={`${event.seq}-${event._id}`} event={event} surface="agentBlock" />
-      ))}
-      {status === 'error' && error ? (
-        <span className={classes.statusError} title={error}>error</span>
-      ) : null}
-    </div>
-  );
-}
-
-interface LatestEventPreviewProps {
-  event: ConversationEvent | null;
-  status: StreamStatus;
-}
-
-function LatestEventPreview({ event, status }: LatestEventPreviewProps) {
-  const classes = useStyles(styles);
-
-  if (!event) {
-    return (
-      <span className={classNames(classes.preview, classes.empty)}>
-        {emptyStatePlaceholder(status)}
-      </span>
-    );
-  }
-
-  const chunks = getConversationEventChunks(event);
-  // First non-empty chunk's text drives the preview. Multi-chunk events
-  // (e.g. thinking + text) are folded to whichever chunk leads — we render
-  // its kind for styling so a still-thinking event reads as italic-grey
-  // instead of normal text.
-  const chunk = chunks.find((c) => c.text.length > 0);
-  const text = chunk?.text ?? '';
-  const speakerLabel =
-    event.kind === 'user' ? 'You' : event.kind === 'error' ? 'Error' : 'Agent';
-  const speakerClass = classNames(classes.speaker, {
-    [classes.speakerUser]: event.kind === 'user',
-    [classes.speakerAssistant]: event.kind === 'assistant',
-    [classes.speakerError]: event.kind === 'error',
-  });
-  const previewClass = classNames(classes.preview, {
-    [classes.previewThinking]: chunk?.kind === 'thinking',
-    [classes.previewTool]: chunk?.kind === 'tool_use' || chunk?.kind === 'tool_result',
-    [classes.previewError]: event.kind === 'error',
-  });
+  const latestActivity = turnInFlight ? getLatestActivityLine(events) : null;
 
   return (
     <>
-      <span className={speakerClass}>{speakerLabel}</span>
-      <span className={previewClass}>{text || '…'}</span>
+      {html ? (
+        <div
+          ref={bodyRef}
+          className={classNames(classes.blurredBody, overflowing && classes.blurredBodyOverflowing)}
+        >
+          <ContentStyles contentType="llmChat" className={classes.presentationProse}>
+            <ContentItemBody dangerouslySetInnerHTML={{ __html: html }} />
+          </ContentStyles>
+        </div>
+      ) : !turnInFlight ? (
+        <div className={classes.emptyPlaceholder}>
+          {status === 'loading' ? 'Loading…' : 'No output yet.'}
+        </div>
+      ) : null}
+      {latestActivity ? (
+        <div className={classes.activityLine}>
+          <span className={classes.activityGlyph}>✻</span>
+          <span className={classes.activityText}>{latestActivity}</span>
+        </div>
+      ) : null}
     </>
   );
 }
 
-// `'loading'` = fetching persisted transcript (agent may already be done, or
-// never started for this conversation). `'connecting'` / `'streaming'` /
-// `'reconnecting'` = SSE is or was attached to a live sandbox, so the agent
-// really is expected to produce output.
-function emptyStatePlaceholder(status: StreamStatus): string {
-  switch (status) {
-    case 'loading': return 'Loading…';
-    case 'connecting':
-    case 'streaming':
-    case 'reconnecting':
-      return 'Waiting for agent response…';
-    default:
-      return 'No output yet.';
+function getLastAssistantText(events: ConversationEvent[]): string | null {
+  for (let i = events.length - 1; i >= 0; i--) {
+    const event = events[i];
+    if (event.kind !== 'assistant') continue;
+    const text = getConversationEventChunks(event)
+      .filter((c) => c.kind === 'text')
+      .map((c) => c.text)
+      .join('\n\n')
+      .trim();
+    if (text) return text;
   }
+  return null;
+}
+
+function getLatestActivityLine(events: ConversationEvent[]): string {
+  for (let i = events.length - 1; i >= 0; i--) {
+    const chunks = getConversationEventChunks(events[i]);
+    const chunk = chunks.find((c) => c.text.trim().length > 0);
+    if (chunk) {
+      const compact = chunk.text.trim().replace(/\s+/g, ' ');
+      return compact.length > 160 ? compact.slice(0, 160).trimEnd() + '…' : compact;
+    }
+  }
+  return 'working…';
 }

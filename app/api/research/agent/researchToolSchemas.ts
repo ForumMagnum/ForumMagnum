@@ -57,6 +57,16 @@ export const replaceWidgetInResearchDocSchema = z
     path: ["replacement"],
   });
 
+export const setConversationPresentationSchema = z.object({
+  markdown: z
+    .string()
+    .max(32_000)
+    .nullable()
+    .describe(
+      "Markdown for the conversation block's collapsed presentation; null clears it (falling back to the last assistant message)",
+    ),
+});
+
 export const createResearchDocSchema = z.object({
   title: z
     .string()

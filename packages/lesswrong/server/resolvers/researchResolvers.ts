@@ -25,6 +25,7 @@ import {
   deriveLastInjectedActiveDocumentId,
 } from "@/server/research/systemReminder";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { createResearchDocument } from "@/server/collections/researchDocuments/mutations";
 import { encryptUserSecret } from "@/server/research/userSecretsCrypto";
 import { buildEnvironmentSnapshot } from "@/server/research/sandbox/saveEnvironment";
 import { randomId } from "@/lib/random";
@@ -235,6 +236,10 @@ export const researchResolversTypeDefs = gql`
     data: ResearchEnvironment
   }
 
+  type EnsureResearchScratchDocumentOutput {
+    documentId: String!
+  }
+
   extend type Mutation {
     fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
     continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
@@ -242,6 +247,7 @@ export const researchResolversTypeDefs = gql`
     mintDevPreviewUrl(conversationId: String!): DevPreviewUrlOutput
     setClaudeCodeOAuthToken(token: String!): SetClaudeCodeOAuthTokenOutput
     saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput
+    ensureResearchScratchDocument(projectId: String!): EnsureResearchScratchDocumentOutput
   }
 
   extend type Query {
@@ -313,6 +319,7 @@ export const researchResolversMutations = {
         runtime,
         title: null,
         claudeSessionId,
+        presentationHtml: null,
         lastActivityAt: now,
         createdAt: now,
       });
@@ -551,7 +558,43 @@ export const researchResolversMutations = {
     const filtered = await accessFilterSingle(context.currentUser, "ResearchEnvironments", created, context);
     return { data: filtered };
   },
+
+  /**
+   * Return the project's scratch document, creating it on first use. The
+   * scratch document hosts conversations that have no inline block of their
+   * own (new free-floating conversations, and legacy chat-kind ones being
+   * surfaced inline). Its id is remembered in the project's `settings` JSONB.
+   */
+  async ensureResearchScratchDocument(
+    _root: void,
+    args: { projectId: string },
+    context: ResolverContext,
+  ) {
+    const { currentUser, ResearchProjects, ResearchDocuments } = context;
+    if (!userIsAdmin(currentUser)) throw new Error("Forbidden");
+    const project = await ResearchProjects.findOne({ _id: args.projectId });
+    if (!project) throw new Error("Project not found");
+
+    const settings = isPlainRecord(project.settings) ? project.settings : {};
+    const existingId = typeof settings.scratchDocumentId === "string" ? settings.scratchDocumentId : null;
+    if (existingId) {
+      const existing = await ResearchDocuments.findOne({ _id: existingId, projectId: project._id });
+      if (existing) return { documentId: existing._id };
+    }
+
+    const created = await createResearchDocument(
+      { data: { projectId: project._id, title: SCRATCH_DOCUMENT_TITLE } },
+      context,
+    );
+    await ResearchProjects.rawUpdateOne(
+      { _id: project._id },
+      { $set: { settings: { ...settings, scratchDocumentId: created._id } } },
+    );
+    return { documentId: created._id };
+  },
 };
+
+const SCRATCH_DOCUMENT_TITLE = "Scratch";
 
 function sessionIdFromPayload(payload: unknown): string | null {
   if (!isPlainRecord(payload)) return null;

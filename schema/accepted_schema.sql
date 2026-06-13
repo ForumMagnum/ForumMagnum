@@ -2366,6 +2366,7 @@ CREATE TABLE "ResearchConversations" (
   "entrypointDocumentId" VARCHAR(27) NOT NULL,
   "baseEnvironmentId" VARCHAR(27),
   "runtime" TEXT,
+  "presentationHtml" TEXT,
   "lastActivityAt" TIMESTAMPTZ NOT NULL
 );
 

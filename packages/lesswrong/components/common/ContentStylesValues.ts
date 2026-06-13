@@ -1,6 +1,7 @@
 import { defineStyles } from '../hooks/defineStyles';
 import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
+import { researchAccentTint } from '../research/researchStyleUtils';
 
 /**
  * Research-document editor styling. Inherits the full postBodyStyles surface
@@ -15,71 +16,103 @@ import classNames from 'classnames';
  */
 const researchDocumentBodyStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),
-  '& [contenteditable="true"]:not(.research-query-input-content)': {
-    minHeight: 'calc(100vh - var(--header-height, 56px))',
-    fontSize: 14,
-    lineHeight: 1.55,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-    maxWidth: 960,
-    padding: '20px 18px 40px',
+  // Reading column in the LessWrong essay serif (Warnock Pro): research
+  // documents read as essays-in-progress, not tool output. The site header
+  // is hidden on /research, so the column owns the viewport height
+  // (--header-height resolves to 0 there).
+  // The :not(.research-chat-composer *) guard keeps these column rules off
+  // the nested composer editor inside conversation blocks.
+  '& [contenteditable="true"]:not(.research-query-input-content):not(.research-chat-composer *)': {
+    minHeight: 'calc(100vh - var(--header-height, 0px))',
+    boxSizing: 'border-box',
+    fontSize: 18,
+    lineHeight: 1.65,
+    fontFamily: theme.palette.fonts.serifStack,
+    color: theme.palette.text.primary,
+    maxWidth: 760 + 2 * 32,
+    margin: '0 auto',
+    padding: '44px 32px 160px',
   },
-  '& [contenteditable="true"] p': {
-    margin: '0 0 0.75em',
+  // The :not(.research-agent-block *) guards keep the document's reading
+  // typography (serif prose, large headings) off the conversation blocks'
+  // transcript/presentation content, which is rendered inside the same
+  // contenteditable but carries its own chat voice (see researchStyleUtils).
+  '& [contenteditable="true"] p:not(.research-agent-block *)': {
+    margin: '0 0 0.7em',
   },
-  '& [contenteditable="true"] h1': {
+  // Top-level heading in the site's display face (ETBook), like LW titles.
+  '& [contenteditable="true"] h1:not(.research-agent-block *)': {
+    fontSize: 32,
+    lineHeight: 1.2,
+    margin: '0.9em 0 0.45em',
+    fontWeight: 400,
+    fontFamily: theme.palette.fonts.headerStack,
+  },
+  '& [contenteditable="true"] h2:not(.research-agent-block *)': {
     fontSize: 24,
     lineHeight: 1.25,
-    margin: '1em 0 0.5em',
+    margin: '1em 0 0.45em',
     fontWeight: 600,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontFamily: theme.palette.fonts.serifStack,
   },
-  '& [contenteditable="true"] h2': {
+  '& [contenteditable="true"] h3:not(.research-agent-block *)': {
     fontSize: 20,
     lineHeight: 1.3,
-    margin: '1em 0 0.5em',
+    margin: '1em 0 0.45em',
     fontWeight: 600,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontFamily: theme.palette.fonts.serifStack,
   },
-  '& [contenteditable="true"] h3': {
-    fontSize: 17,
+  '& [contenteditable="true"] h4:not(.research-agent-block *)': {
+    fontSize: 18,
     lineHeight: 1.35,
-    margin: '1em 0 0.5em',
+    margin: '1em 0 0.45em',
     fontWeight: 600,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontStyle: 'italic',
+    fontFamily: theme.palette.fonts.serifStack,
   },
-  '& [contenteditable="true"] h4': {
-    fontSize: 14,
-    lineHeight: 1.4,
-    margin: '1em 0 0.5em',
-    fontWeight: 600,
-    fontFamily: theme.palette.fonts.sansSerifStack,
-  },
-  '& [contenteditable="true"] li': {
-    fontSize: 14,
-    lineHeight: 1.55,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+  '& [contenteditable="true"] li:not(.research-agent-block *)': {
+    fontSize: 18,
+    lineHeight: 1.65,
+    fontFamily: theme.palette.fonts.serifStack,
     color: theme.palette.text.primary,
   },
-  '& [contenteditable="true"] blockquote': {
-    fontSize: 14,
-    lineHeight: 1.55,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+  '& [contenteditable="true"] blockquote:not(.research-agent-block *)': {
+    fontSize: 18,
+    lineHeight: 1.65,
+    fontFamily: theme.palette.fonts.serifStack,
     margin: '0.5em 0',
     padding: '0.25em 0.75em',
     borderLeft: `3px solid ${theme.palette.greyAlpha(0.15)}`,
     color: theme.palette.text.primary,
     fontStyle: 'normal',
   },
+  // Inline-comment marks: a quiet sage wash with a firmer underline, stronger
+  // when the thread is selected. (The playground default is a loud yellow.)
+  '& mark.editor-mark': {
+    background: researchAccentTint(0.14),
+    borderBottom: `2px solid ${researchAccentTint(0.45)}`,
+    padding: '1px 0',
+    color: 'inherit',
+  },
+  '& mark.editor-mark.selected': {
+    background: researchAccentTint(0.28),
+    borderBottom: `2px solid ${researchAccentTint(0.7)}`,
+  },
   // Placeholder is a sibling of the contenteditable, absolutely positioned
   // at the top-left of the editor shell, so it doesn't pick up the
-  // contenteditable's padding via inheritance — match offsets explicitly so
-  // the empty-state text lines up with where the first paragraph would.
-  '& .LexicalContentEditable-placeholder': {
-    top: 20,
-    left: 18,
-    fontSize: 14,
-    lineHeight: 1.55,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+  // contenteditable's padding (or its centering) via inheritance — mirror
+  // the column geometry so the empty-state text lines up with where the
+  // first paragraph would.
+  '& .LexicalContentEditable-placeholder:not(.research-chat-composer *)': {
+    top: 44,
+    left: 0,
+    right: 0,
+    maxWidth: 760,
+    margin: '0 auto',
+    fontSize: 18,
+    lineHeight: 1.65,
+    fontStyle: 'italic',
+    fontFamily: theme.palette.fonts.serifStack,
   },
 });
 

@@ -5,6 +5,7 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { useApolloClient, useMutation } from '@apollo/client/react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useMessages } from '@/components/common/withMessages';
+import { researchMono } from './researchStyleUtils';
 
 const SaveResearchEnvironmentMutation = gql(`
   mutation SaveResearchEnvironment($conversationId: String!, $withConversation: Boolean!) {
@@ -25,26 +26,27 @@ const MintDevPreviewUrlMutation = gql(`
 const styles = defineStyles('ConversationActions', (theme: ThemeType) => ({
   root: {
     display: 'flex',
-    flexWrap: 'wrap',
+    flexWrap: 'nowrap',
+    flexShrink: 0,
     justifyContent: 'flex-end',
-    gap: 6,
+    gap: 2,
     alignItems: 'center',
   },
   button: {
     flexShrink: 0,
     whiteSpace: 'nowrap',
     background: 'transparent',
-    border: theme.palette.greyBorder('1px', 0.15),
+    border: 'none',
     borderRadius: 4,
-    fontSize: 11,
-    lineHeight: 1.5,
+    fontFamily: researchMono,
+    fontSize: 10.5,
+    lineHeight: 1.4,
     color: theme.palette.text.dim,
-    padding: '2px 8px',
+    padding: '2px 6px',
     cursor: 'pointer',
-    fontFamily: 'inherit',
     '&:hover': {
-      color: theme.palette.text.normal,
-      borderColor: theme.palette.greyAlpha(0.3),
+      color: theme.palette.text.primary,
+      background: theme.palette.greyAlpha(0.06),
     },
     '&:disabled': {
       opacity: 0.5,
@@ -113,7 +115,7 @@ export function ConversationActions({ conversationId }: { conversationId: string
         onClick={() => handleSave(true)}
         title="Save this sandbox as a reusable environment, including the conversation"
       >
-        Save (with chat)
+        save+chat
       </button>
       <button
         type="button"
@@ -122,7 +124,7 @@ export function ConversationActions({ conversationId }: { conversationId: string
         onClick={() => handleSave(false)}
         title="Save this sandbox as a reusable environment, without the conversation"
       >
-        Save (clean)
+        save
       </button>
       <button
         type="button"
@@ -131,7 +133,7 @@ export function ConversationActions({ conversationId }: { conversationId: string
         onClick={handlePreview}
         title="Open the sandbox's dev-server preview"
       >
-        Preview
+        preview
       </button>
     </div>
   );

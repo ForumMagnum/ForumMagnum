@@ -118,6 +118,21 @@ const schema = {
       validation: { optional: true },
     },
   },
+  // Agent-authored HTML shown as the conversation block's collapsed
+  // ("presentation") body in documents. Set via the agent backend endpoint
+  // (set-presentation), not by users; when null the client falls back to a
+  // truncated render of the last assistant message.
+  presentationHtml: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: [userOwns, "admins"],
+      validation: { optional: true },
+    },
+  },
   // Denormalized for sidebar sort.
   lastActivityAt: {
     database: {

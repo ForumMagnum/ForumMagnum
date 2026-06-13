@@ -59,6 +59,7 @@ import CodeHighlightCSSPlugin from './plugins/CodeHighlightCSSPlugin';
 import CollapsibleSectionsPlugin from '../editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import ContainerQuotePlugin from '../editor/lexicalPlugins/quote/ContainerQuotePlugin';
 import CommentPlugin from './plugins/CommentPlugin';
+import ResearchCommentsMargin from '@/components/research/lexical/ResearchCommentsMargin';
 import { CommentStoreProvider } from './commenting/CommentStoreContext';
 import { MarkNodesProvider } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext';
 import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
@@ -374,14 +375,14 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     '& .llm-content-block-content': {
       outline: 'none',
     },
+    // Ultra-minimal /query chrome: a faint left rule on otherwise-plain
+    // prose; the environment selector collapses into a small grey cluster
+    // pinned to the bottom-right corner that fades up on hover/focus.
     [`& .${QUERY_INPUT_DOM_CLASS}`]: {
       position: 'relative',
-      margin: '12px 0',
-      padding: '8px 12px',
-      paddingRight: 240,
-      border: `1px solid ${theme.palette.grey[300]}`,
-      borderRadius: 6,
-      background: theme.palette.grey[50],
+      margin: '14px 0',
+      padding: '2px 0 2px 14px',
+      borderLeft: `2px solid ${theme.palette.greyAlpha(0.14)}`,
       '& > p:first-of-type': {
         marginTop: 0,
       },
@@ -391,9 +392,17 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     },
     [`& .${QUERY_INPUT_HEADER_DOM_CLASS}`]: {
       position: 'absolute',
-      top: 4,
-      right: 8,
+      bottom: 0,
+      right: 0,
       zIndex: 1,
+      // Opaque mask so the cluster stays legible over text it overlaps.
+      background: theme.palette.panelBackground.default,
+      borderRadius: 4,
+      opacity: 0.45,
+      transition: 'opacity 120ms ease',
+    },
+    [`& .${QUERY_INPUT_DOM_CLASS}:hover .${QUERY_INPUT_HEADER_DOM_CLASS}, & .${QUERY_INPUT_DOM_CLASS}:focus-within .${QUERY_INPUT_HEADER_DOM_CLASS}`]: {
+      opacity: 1,
     },
     [`& .${QUERY_INPUT_CONTENT_DOM_CLASS}`]: {
       outline: 0,
@@ -747,7 +756,8 @@ export default function Editor({
   // Enable collaboration if config is provided OR if the setting is enabled
   const isCollab = isCollabSetting || !!collaborationConfig;
   const isCommentEditor = commentEditor;
-  const { isPostEditor } = useLexicalEditorContext();
+  const { isPostEditor, collectionName: editorCollectionName } = useLexicalEditorContext();
+  const isResearchEditor = editorCollectionName === 'ResearchDocuments';
   const hasInitialHtml = Boolean(initialHtml && initialHtml.trim().length > 0);
   const isEditable = useLexicalEditable();
   const placeholder = placeholderOverride ?? (isCollab
@@ -764,6 +774,10 @@ export default function Editor({
   const canEdit = !accessLevel || accessLevelCan(accessLevel, "edit");
   const canComment = !accessLevel || accessLevelCan(accessLevel, "comment");
   const showPostCommentFeatures = isPostEditor && !isCommentEditor;
+  // Research documents get inline comment threads too (rendered in the
+  // workspace's right margin, not the posts' comments panel), but none of
+  // the posts-only machinery (side comments, suggested edits).
+  const showResearchCommentFeatures = isResearchEditor && !isCommentEditor;
 
   // Use shared context for user mode if available (provided by PostForm),
   // otherwise fall back to local state (e.g. comment editors).
@@ -889,7 +903,7 @@ export default function Editor({
         <AutoLinkPlugin />
         <DateTimePlugin />
         <MarkNodesProvider>
-          {collaboratorIdentity && showPostCommentFeatures && (
+          {collaboratorIdentity && (showPostCommentFeatures || showResearchCommentFeatures) && (
             <CollaboratorIdentityProvider value={collaboratorIdentity}>
               <CommentStoreProvider
                 providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
@@ -897,14 +911,15 @@ export default function Editor({
                 {!(isCollab && useCollabV2) && (
                   <>
                     <CommentPlugin />
-                    <SideCommentsPlugin />
+                    {showPostCommentFeatures && <SideCommentsPlugin />}
                   </>
                 )}
-              <SuggestedEditsPlugin
+              {showPostCommentFeatures && <SuggestedEditsPlugin
                 isSuggestionMode={isSuggestionMode}
                 userMode={userMode}
                 onUserModeChange={handleUserModeChange}
-              />
+              />}
+              {showResearchCommentFeatures && <ResearchCommentsMargin />}
               </CommentStoreProvider>
             </CollaboratorIdentityProvider>
           )}

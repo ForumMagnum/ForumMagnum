@@ -8,6 +8,9 @@ import { pollForConversationTitle, ProjectSidebarQuery } from './projectSidebarQ
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { researchEditorNodes } from './lexical/researchEditorNodes';
+// Side-effect import: installs the AgentBlock component into its late-bound
+// registry before the editor mounts (see agentBlockComponentRegistry.ts).
+import './lexical/registerAgentBlockComponent';
 import { ResearchEditorPlugins } from './lexical/ResearchEditorPlugins';
 import {
   ResearchEditorProvider,
@@ -22,11 +25,17 @@ import {
 import Loading from '../vulcan-core/Loading';
 import LexicalEditor from '../editor/LexicalEditor';
 import ContentStyles from '../common/ContentStyles';
+import classNames from 'classnames';
+import {
+  ResearchCommentsMarginHostProvider,
+  type ResearchCommentsMarginHost,
+} from './lexical/researchCommentsMarginContext';
 
 interface DocumentPaneProps {
   projectId: string;
   documentId: string | null;
-  onOpenConversationInChat: (conversationId: string) => void;
+  /** Jump to a conversation's inline block (switching documents if needed) and focus it. */
+  openConversation: (conversationId: string) => void;
   onSelectDocument: (documentId: string) => void;
 }
 
@@ -73,6 +82,9 @@ const FireDocumentConversationMutation = gql(`
   }
 `);
 
+const COMMENTS_MARGIN_WIDTH = 300;
+const COMMENTS_MARGIN_RIGHT = 16;
+
 const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
   root: {
     height: '100%',
@@ -96,6 +108,26 @@ const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
     // type in ContentStylesValues, scoped under `[contenteditable="true"]`
     // so it doesn't leak onto floating menus or popovers inside this wrap.
   },
+  // When open comment threads exist, the reading column gives up its right
+  // side to the comments margin (the auto left margin keeps it centered in
+  // the remaining space, Google-Docs-style).
+  editorWrapWithComments: {
+    '& [contenteditable="true"]:not(.research-query-input-content):not(.research-chat-composer *)': {
+      marginRight: COMMENTS_MARGIN_WIDTH + COMMENTS_MARGIN_RIGHT + 24,
+    },
+  },
+  // Zero-height anchor layer at the right edge of the scroll content; thread
+  // cards portal into it with absolute tops in scroll-content coordinates.
+  commentsMargin: {
+    position: 'absolute',
+    top: 44,
+    right: COMMENTS_MARGIN_RIGHT,
+    width: COMMENTS_MARGIN_WIDTH,
+    height: 0,
+    overflow: 'visible',
+    pointerEvents: 'none',
+    zIndex: 2,
+  },
   loadingWrap: {
     flex: 1,
     display: 'flex',
@@ -108,9 +140,15 @@ function ignoreEditorChange(_html: string) {
   // ResearchDocument edits persist through the Yjs/Hocuspocus collaboration path.
 }
 
-const DocumentPane = ({ projectId, documentId, onOpenConversationInChat, onSelectDocument }: DocumentPaneProps) => {
+const DocumentPane = ({ projectId, documentId, openConversation, onSelectDocument }: DocumentPaneProps) => {
   const classes = useStyles(styles);
   const apolloClient = useApolloClient();
+  const [commentsMarginEl, setCommentsMarginEl] = useState<HTMLDivElement | null>(null);
+  const [openThreadCount, setOpenThreadCount] = useState(0);
+  const commentsMarginHost = useMemo<ResearchCommentsMarginHost>(() => ({
+    portalContainer: commentsMarginEl,
+    setOpenThreadCount,
+  }), [commentsMarginEl]);
   const [fireConversation] = useMutation(FireDocumentConversationMutation, {
     refetchQueries: [ProjectSidebarQuery],
   });
@@ -151,10 +189,6 @@ const DocumentPane = ({ projectId, documentId, onOpenConversationInChat, onSelec
           throw new Error('fireResearchConversation returned no conversationId');
         }
         void pollForConversationTitle(apolloClient, projectId, conversationId);
-        // Document queries belong to the AgentBlock that fired them; the chat
-        // pane is for stand-alone chat conversations. Surfacing every document
-        // query in the chat pane made the chat appear to mirror whichever
-        // AgentBlock was most recently active.
         return { conversationId };
       } finally {
         setPendingConversations((prev) => {
@@ -177,10 +211,10 @@ const DocumentPane = ({ projectId, documentId, onOpenConversationInChat, onSelec
     if (!documentId) return null;
     return {
       navigateToDocument: onSelectDocument,
-      openConversationInChat: onOpenConversationInChat,
+      openConversation,
       host: { kind: 'document', documentId },
     };
-  }, [documentId, onSelectDocument, onOpenConversationInChat]);
+  }, [documentId, onSelectDocument, openConversation]);
 
   if (!documentId) {
     return (
@@ -204,26 +238,32 @@ const DocumentPane = ({ projectId, documentId, onOpenConversationInChat, onSelec
 
   return (
     <div className={classes.root}>
-      <ContentStyles contentType="researchDocument" className={classes.editorWrap}>
+      <ContentStyles
+        contentType="researchDocument"
+        className={classNames(classes.editorWrap, openThreadCount > 0 && classes.editorWrapWithComments)}
+      >
         <ResearchNavigationProvider value={researchNavigationContext}>
           <ResearchEditorProvider environment={researchEditorEnvironment}>
             <PendingConversationsProvider value={pendingConversations}>
-              <LexicalEditor
-                data={documentRecord.contents?.html ?? ''}
-                onChange={ignoreEditorChange}
-                placeholder="Start writing..."
-                collectionName="ResearchDocuments"
-                documentId={documentId}
-                fieldName="contents"
-                accessLevel="edit"
-                extraNodes={researchEditorNodes}
-                disableMentions
-              >
-                <ResearchEditorPlugins projectId={projectId} />
-              </LexicalEditor>
+              <ResearchCommentsMarginHostProvider value={commentsMarginHost}>
+                <LexicalEditor
+                  data={documentRecord.contents?.html ?? ''}
+                  onChange={ignoreEditorChange}
+                  placeholder="Start writing..."
+                  collectionName="ResearchDocuments"
+                  documentId={documentId}
+                  fieldName="contents"
+                  accessLevel="edit"
+                  extraNodes={researchEditorNodes}
+                  disableMentions
+                >
+                  <ResearchEditorPlugins projectId={projectId} />
+                </LexicalEditor>
+              </ResearchCommentsMarginHostProvider>
             </PendingConversationsProvider>
           </ResearchEditorProvider>
         </ResearchNavigationProvider>
+        <div ref={setCommentsMarginEl} className={classes.commentsMargin} />
       </ContentStyles>
     </div>
   );

@@ -1,10 +1,11 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
 import qs from 'qs';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
+import { useMutation } from '@apollo/client/react';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { useCurrentUser } from '../common/withUser';
@@ -14,13 +15,28 @@ import ErrorAccessDenied from '../common/ErrorAccessDenied';
 import ForumIcon from '../common/ForumIcon';
 import ProjectSidebar from './ProjectSidebar';
 import DocumentPane from './DocumentPane';
-import ChatPane from './ChatPane';
+import ResearchCommandPalette from './ResearchCommandPalette';
+import { ProjectSidebarQuery } from './projectSidebarQuery';
+import {
+  ResearchWorkspaceProvider,
+  type ResearchEditorIntent,
+  type ConversationFocusRequest,
+  type ResearchWorkspaceApi,
+} from './researchWorkspaceContext';
+import {
+  researchResizeHandle,
+  researchResizeHandleActive,
+} from './researchStyleUtils';
 
 interface ResearchWorkspaceProps {
   projectId: string;
 }
 
-type RightPaneMode = 'chat' | 'closed';
+const SIDEBAR_WIDTH_STORAGE_KEY = 'researchSidebarWidth';
+const SIDEBAR_MIN_WIDTH = 180;
+const SIDEBAR_MAX_WIDTH = 440;
+const SIDEBAR_DEFAULT_WIDTH = 250;
+const SIDEBAR_COLLAPSED_WIDTH = 37;
 
 const FirstDocumentQuery = gql(`
   query ResearchWorkspaceFirstDocument($projectId: String!) {
@@ -30,50 +46,59 @@ const FirstDocumentQuery = gql(`
   }
 `);
 
+const EnsureScratchDocumentMutation = gql(`
+  mutation EnsureResearchScratchDocument($projectId: String!) {
+    ensureResearchScratchDocument(projectId: $projectId) {
+      documentId
+    }
+  }
+`);
+
 const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
   outer: {
     display: 'flex',
     flexDirection: 'column',
-    height: 'calc(100vh - 64px)',
+    // The site header is hidden on /research (see `research-active` in
+    // Layout.tsx) and the fullscreen route wrapper gives us the full
+    // viewport, so just fill the parent.
+    height: '100%',
     minHeight: 0,
-    background: theme.palette.background.default,
+    background: theme.palette.panelBackground.default,
     fontFamily: theme.palette.fonts.sansSerifStack,
   },
   root: {
-    display: 'grid',
-    gridTemplateColumns: '260px 1fr 360px',
-    gridTemplateRows: '1fr',
+    display: 'flex',
+    flexDirection: 'row',
     flex: 1,
     minHeight: 0,
   },
-  rootChatHidden: {
-    gridTemplateColumns: '260px 1fr 36px',
-  },
-  rootSidebarHidden: {
-    gridTemplateColumns: '36px 1fr 360px',
-  },
-  rootSidebarAndChatHidden: {
-    gridTemplateColumns: '36px 1fr 36px',
-  },
+  // Flat, same surface as the editor — the hairline border is the only
+  // separation. (A grey recess tint was tried twice and rejected both
+  // times; don't reintroduce one.)
   sidebar: {
-    borderRight: theme.palette.greyBorder('1px', 0.1),
-    overflow: 'hidden',
+    position: 'relative',
+    flex: 'none',
     minHeight: 0,
+    overflow: 'hidden',
+    borderRight: `1px solid ${theme.palette.greyAlpha(0.08)}`,
   },
   sidebarCollapsed: {
-    borderRight: theme.palette.greyBorder('1px', 0.1),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     paddingTop: 8,
     gap: 8,
-    background: theme.palette.background.pageActiveAreaBackground ?? theme.palette.background.default,
   },
+  resizeHandle: {
+    ...researchResizeHandle(theme),
+    right: -5,
+  },
+  resizeHandleActive: researchResizeHandleActive(theme),
   iconButton: {
-    width: 28,
-    height: 28,
+    width: 26,
+    height: 26,
     border: 'none',
-    borderRadius: 4,
+    borderRadius: 5,
     background: 'transparent',
     color: theme.palette.text.dim,
     cursor: 'pointer',
@@ -87,109 +112,34 @@ const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
     },
   },
   icon: {
-    '--icon-size': '16px',
+    '--icon-size': '15px',
   },
   document: {
+    flex: 1,
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
     minWidth: 0,
     minHeight: 0,
-  },
-  documentBody: {
-    flex: 1,
-    minHeight: 0,
-    overflow: 'hidden',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  rightPane: {
-    borderLeft: theme.palette.greyBorder('1px', 0.1),
-    overflow: 'hidden',
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: 0,
-  },
-  rightPaneTabs: {
-    display: 'flex',
-    borderBottom: theme.palette.greyBorder('1px', 0.1),
-  },
-  rightPaneTab: {
-    padding: '8px 12px',
-    cursor: 'pointer',
-    fontSize: 13,
-    fontWeight: 500,
-    color: theme.palette.text.dim,
-    borderBottom: '2px solid transparent',
-    background: 'transparent',
-    border: 'none',
-    fontFamily: 'inherit',
-    '&:hover': {
-      color: theme.palette.text.primary,
-    },
-  },
-  rightPaneTabActive: {
-    color: theme.palette.text.primary,
-    borderBottomColor: theme.palette.primary.main,
-  },
-  rightPaneSpacer: {
-    flex: 1,
-  },
-  rightPaneClose: {
-    width: 32,
-    cursor: 'pointer',
-    color: theme.palette.text.dim,
-    border: 'none',
-    background: 'transparent',
-    fontFamily: 'inherit',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    '&:hover': {
-      color: theme.palette.text.primary,
-    },
-  },
-  rightPaneBody: {
-    flex: 1,
-    minHeight: 0,
-    overflow: 'hidden',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  rightPaneCollapsed: {
-    borderLeft: theme.palette.greyBorder('1px', 0.1),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    paddingTop: 8,
-    gap: 8,
-  },
-  collapsedTab: {
-    background: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-    fontSize: 11,
-    color: theme.palette.text.dim,
-    writingMode: 'vertical-rl',
-    transform: 'rotate(180deg)',
-    padding: '8px 4px',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    '&:hover': {
-      color: theme.palette.text.primary,
-    },
+    background: theme.palette.panelBackground.default,
   },
 }));
 
+function readStoredSidebarWidth(): number {
+  if (typeof window === 'undefined') return SIDEBAR_DEFAULT_WIDTH;
+  const raw = window.localStorage.getItem(SIDEBAR_WIDTH_STORAGE_KEY);
+  const parsed = raw ? parseInt(raw, 10) : NaN;
+  if (Number.isNaN(parsed)) return SIDEBAR_DEFAULT_WIDTH;
+  return Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, parsed));
+}
+
 /**
- * Research workspace shell. Three-column layout: ProjectSidebar | DocumentPane | (Chat/Activity right pane).
- *
- * The right pane is toggleable between Chat, Activity, and a slim collapsed-rail. When closed it shows
- * a vertical strip with Chat/Activity buttons so users can re-open without losing the column.
- *
- * The first document in the project is auto-selected on mount so a brand-new project
- * with one default document opens straight into editing.
+ * Research workspace shell: a hidden-site-header, full-viewport, IDE-style
+ * two-column layout — resizable ProjectSidebar | DocumentPane. Conversations
+ * have no side panel; they live inline in documents as AgentBlocks, and the
+ * shell coordinates "open conversation X" by switching to its host document
+ * and raising a focus request that the block answers (see
+ * researchWorkspaceContext.tsx).
  */
 const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   const classes = useStyles(styles);
@@ -211,9 +161,17 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   // URL changes go through navigate({skipRouter:true}) so doc switching is
   // one React state update rather than a full Next route re-render.
   const [activeDocumentId, setActiveDocumentIdState] = useState<string | null>(null);
-  const [activeChatConversationId, setActiveChatConversationId] = useState<string | null>(null);
-  const [rightPaneMode, setRightPaneMode] = useState<RightPaneMode>('chat');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH);
+  const [resizing, setResizing] = useState(false);
+
+  const [editorIntent, setEditorIntent] = useState<ResearchEditorIntent | null>(null);
+  const [conversationFocusRequest, setConversationFocusRequest] = useState<ConversationFocusRequest | null>(null);
+  const intentNonceRef = useRef(0);
+
+  useEffect(() => {
+    setSidebarWidth(readStoredSidebarWidth());
+  }, []);
 
   useEffect(() => {
     const readDocIdFromUrl = () => {
@@ -229,6 +187,17 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
     variables: { projectId },
     skip: !!activeDocumentId,
     fetchPolicy: 'cache-and-network',
+  });
+
+  // The shell needs the conversation list to resolve "open conversation X" to
+  // its host document. Shares its cache entry with ProjectSidebar.
+  const { data: sidebarData } = useQuery(ProjectSidebarQuery, {
+    variables: { projectId },
+    fetchPolicy: 'cache-first',
+  });
+
+  const [ensureScratchDocument] = useMutation(EnsureScratchDocumentMutation, {
+    refetchQueries: [ProjectSidebarQuery],
   });
 
   useEffect(() => {
@@ -248,106 +217,160 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
     navigateRef.current({ ...currentLocation.location, search: `?${qs.stringify(newQuery)}` }, { skipRouter: true });
   }, []);
 
-  const openChat = useCallback((conversationId: string) => {
-    setActiveChatConversationId(conversationId);
-    setRightPaneMode('chat');
+  const conversationsRef = useRef(sidebarData?.researchConversations?.results);
+  conversationsRef.current = sidebarData?.researchConversations?.results;
+
+  const clearEditorIntent = useCallback((nonce: number) => {
+    setEditorIntent((prev) => (prev && prev.nonce === nonce ? null : prev));
   }, []);
 
-  const startNewChat = useCallback(() => {
-    setActiveChatConversationId(null);
-    setRightPaneMode('chat');
+  const requestConversationFocus = useCallback((conversationId: string) => {
+    intentNonceRef.current += 1;
+    setConversationFocusRequest({ conversationId, nonce: intentNonceRef.current });
   }, []);
 
-  const closeRightPane = useCallback(() => {
-    setRightPaneMode('closed');
+  const ackConversationFocus = useCallback((nonce: number) => {
+    setConversationFocusRequest((prev) => (prev && prev.nonce === nonce ? null : prev));
+  }, []);
+
+  /**
+   * Open a conversation wherever it lives: switch to its host document and
+   * ask its inline block to focus. Document-kind conversations host their
+   * block in their entrypoint document; chat-kind ones (from the retired chat
+   * side panel) get one materialized in the project scratch document. A
+   * conversation whose block was deleted from its document gets a fresh block
+   * appended there, so every conversation stays reachable.
+   */
+  const openConversation = useCallback(async (conversationId: string) => {
+    const conversation = conversationsRef.current?.find((c) => c._id === conversationId);
+    const entrypointDocumentId =
+      conversation?.entrypointKind === 'document' ? conversation?.entrypointDocumentId ?? null : null;
+    let targetDocumentId = entrypointDocumentId;
+    if (!targetDocumentId) {
+      const result = await ensureScratchDocument({ variables: { projectId } });
+      targetDocumentId = result.data?.ensureResearchScratchDocument?.documentId ?? null;
+    }
+    if (!targetDocumentId) return;
+    setActiveDocumentId(targetDocumentId);
+    intentNonceRef.current += 1;
+    setEditorIntent({
+      kind: 'focus-conversation',
+      conversationId,
+      materializeIfMissing: true,
+      nonce: intentNonceRef.current,
+    });
+  }, [ensureScratchDocument, projectId, setActiveDocumentId]);
+
+  /**
+   * Start a fresh conversation: open the project scratch document and append
+   * a /query input there for the user to type into.
+   */
+  const startNewConversation = useCallback(async () => {
+    const result = await ensureScratchDocument({ variables: { projectId } });
+    const scratchId = result.data?.ensureResearchScratchDocument?.documentId;
+    if (!scratchId) return;
+    setActiveDocumentId(scratchId);
+    intentNonceRef.current += 1;
+    setEditorIntent({ kind: 'insert-query', nonce: intentNonceRef.current });
+  }, [ensureScratchDocument, projectId, setActiveDocumentId]);
+
+  const workspaceApi = useMemo<ResearchWorkspaceApi>(() => ({
+    editorIntent,
+    clearEditorIntent,
+    conversationFocusRequest,
+    requestConversationFocus,
+    ackConversationFocus,
+  }), [editorIntent, clearEditorIntent, conversationFocusRequest, requestConversationFocus, ackConversationFocus]);
+
+  // --- Sidebar resize ----------------------------------------------------
+  const handleResizeStart = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setResizing(true);
+    const startX = e.clientX;
+    const startWidth = sidebarWidth;
+    let latestWidth = startWidth;
+    const onMove = (move: PointerEvent) => {
+      latestWidth = Math.min(
+        SIDEBAR_MAX_WIDTH,
+        Math.max(SIDEBAR_MIN_WIDTH, startWidth + (move.clientX - startX)),
+      );
+      setSidebarWidth(latestWidth);
+    };
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      setResizing(false);
+      window.localStorage.setItem(SIDEBAR_WIDTH_STORAGE_KEY, String(latestWidth));
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  }, [sidebarWidth]);
+
+  const toggleSidebar = useCallback(() => {
+    setSidebarOpen((open) => !open);
   }, []);
 
   if (!userIsAdmin(currentUser)) {
     return <ErrorAccessDenied />;
   }
 
-  const rightPaneOpen = rightPaneMode !== 'closed';
-  const rootClassName = classNames(classes.root, {
-    [classes.rootChatHidden]: rightPaneOpen === false && sidebarOpen,
-    [classes.rootSidebarHidden]: rightPaneOpen && sidebarOpen === false,
-    [classes.rootSidebarAndChatHidden]: rightPaneOpen === false && sidebarOpen === false,
-  });
-
   return (
-    <div className={classes.outer}>
-      <div className={rootClassName}>
-          {sidebarOpen ? (
-        <div className={classes.sidebar}>
-          <ProjectSidebar
-            projectId={projectId}
-            activeDocumentId={activeDocumentId}
-            activeChatConversationId={activeChatConversationId}
-            onSelectDocument={setActiveDocumentId}
-            onSelectConversation={openChat}
-            onStartNewChat={startNewChat}
-            onCollapse={() => setSidebarOpen(false)}
-          />
-        </div>
-      ) : (
-        <div className={classes.sidebarCollapsed}>
-          <button
-            type="button"
-            className={classes.iconButton}
-            onClick={() => setSidebarOpen(true)}
-            title="Open sidebar"
-            aria-label="Open sidebar"
+    <ResearchWorkspaceProvider value={workspaceApi}>
+      <div className={classes.outer}>
+        <div className={classes.root}>
+          <div
+            className={classNames(classes.sidebar, !sidebarOpen && classes.sidebarCollapsed)}
+            style={{ width: sidebarOpen ? sidebarWidth : SIDEBAR_COLLAPSED_WIDTH }}
           >
-            <ForumIcon icon="ChevronRight" className={classes.icon} />
-          </button>
-        </div>
-      )}
-      <div className={classes.document}>
-        <div className={classes.documentBody}>
-          <DocumentPane
-            projectId={projectId}
-            documentId={activeDocumentId}
-            onOpenConversationInChat={openChat}
-            onSelectDocument={setActiveDocumentId}
-          />
-        </div>
-      </div>
-      {rightPaneOpen ? (
-        <div className={classes.rightPane}>
-          <div className={classes.rightPaneTabs}>
-            <button
-              className={`${classes.rightPaneTab} ${classes.rightPaneTabActive}`}
-              onClick={() => setRightPaneMode('chat')}
-            >
-              Chat
-            </button>
-            <div className={classes.rightPaneSpacer} />
-            <button
-              className={classes.rightPaneClose}
-              onClick={closeRightPane}
-              title="Collapse panel"
-              aria-label="Collapse panel"
-            >
-              <ForumIcon icon="Close" className={classes.icon} />
-            </button>
+            {sidebarOpen ? (
+              <>
+                <ProjectSidebar
+                  projectId={projectId}
+                  activeDocumentId={activeDocumentId}
+                  onSelectDocument={setActiveDocumentId}
+                  onSelectConversation={openConversation}
+                  onStartNewConversation={startNewConversation}
+                  onCollapse={toggleSidebar}
+                />
+                <div
+                  className={classNames(classes.resizeHandle, resizing && classes.resizeHandleActive)}
+                  onPointerDown={handleResizeStart}
+                  role="separator"
+                  aria-orientation="vertical"
+                  aria-label="Resize sidebar"
+                />
+              </>
+            ) : (
+              <button
+                type="button"
+                className={classes.iconButton}
+                onClick={toggleSidebar}
+                title="Open sidebar"
+                aria-label="Open sidebar"
+              >
+                <ForumIcon icon="ChevronDoubleRight" className={classes.icon} />
+              </button>
+            )}
           </div>
-          <div className={classes.rightPaneBody}>
-            <ChatPane
+          <div className={classes.document}>
+            <DocumentPane
               projectId={projectId}
-              conversationId={activeChatConversationId}
-              activeDocumentId={activeDocumentId}
-              onConversationCreated={setActiveChatConversationId}
+              documentId={activeDocumentId}
+              openConversation={openConversation}
               onSelectDocument={setActiveDocumentId}
-              onOpenConversationInChat={openChat}
             />
           </div>
         </div>
-      ) : (
-        <div className={classes.rightPaneCollapsed}>
-          <button className={classes.collapsedTab} onClick={() => setRightPaneMode('chat')}>Chat</button>
-        </div>
-      )}
-        </div>
+        <ResearchCommandPalette
+          projectId={projectId}
+          activeDocumentId={activeDocumentId}
+          onSelectDocument={setActiveDocumentId}
+          onSelectConversation={openConversation}
+          onStartNewConversation={startNewConversation}
+          onToggleSidebar={toggleSidebar}
+        />
       </div>
+    </ResearchWorkspaceProvider>
   );
 };
 

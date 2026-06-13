@@ -30,6 +30,16 @@ export const isFullscreenRoute = (pathname: string) => pathnameMatchesAnyOf(path
   "/inbox",
   "/inbox/[conversationId]",
   "/moderatorInbox",
+  "/research",
+  "/research/projects/[projectId]",
+]);
+
+/**
+ * The research surface hides the site header entirely and owns the whole
+ * viewport (see the `research-active` global styles in Layout.tsx).
+ */
+export const isResearchRoute = (pathname: string) => pathnameMatchesAnyOf(pathname, [
+  "/research",
   "/research/projects/[projectId]",
 ]);
 

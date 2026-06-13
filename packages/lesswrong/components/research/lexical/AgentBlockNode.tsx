@@ -11,7 +11,7 @@ import {
   type Spread,
 } from 'lexical';
 import React from 'react';
-import { AgentBlockComponent } from './AgentBlockComponent';
+import { getAgentBlockComponent } from './agentBlockComponentRegistry';
 
 export interface AgentBlockProps {
   conversationId: string;
@@ -139,6 +139,11 @@ export class AgentBlockNode extends DecoratorNode<React.ReactElement> {
   }
 
   decorate(): React.ReactElement {
+    // Late-bound to avoid a module cycle through the base editor; see
+    // agentBlockComponentRegistry.ts. Null only in surfaces that never
+    // registered the component (headless editors don't render decorators).
+    const AgentBlockComponent = getAgentBlockComponent();
+    if (!AgentBlockComponent) return <span />;
     return (
       <AgentBlockComponent
         nodeKey={this.__key}

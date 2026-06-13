@@ -23,6 +23,7 @@ export const ProjectSidebarQuery = gql(`
         title
         lastActivityAt
         entrypointKind
+        entrypointDocumentId
       }
     }
   }

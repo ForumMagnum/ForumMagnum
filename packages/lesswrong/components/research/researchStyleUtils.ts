@@ -1,0 +1,340 @@
+/**
+ * Shared design tokens and style helpers for the research surface.
+ *
+ * The research UI aims for an IDE feel — a marriage of VSCode, Notion and
+ * Obsidian: the site header is hidden and the workspace owns the viewport;
+ * chrome panels (sidebar, palette) are IDE-compact. ALL surfaces are one
+ * flat bright canvas separated only by hairline borders — static grey
+ * surface tints have been rejected repeatedly ("looks cheap"); never add
+ * them (quiet hover/selection states are fine). A single sage-green accent
+ * (the LW primary) is used sparingly for interactive / agent state. The
+ * "tech" dial comes from monospace micro-labels, crisp focus rings,
+ * terminal-styled metadata, and tight micro-interactions rather than from
+ * loud color.
+ *
+ * Everything here is built from theme palette tokens (greyAlpha / text /
+ * primary), which auto-invert in dark mode — so the whole surface is
+ * dark-mode safe without per-color overrides.
+ */
+import { safeForDarkMode } from '../hooks/defineStyles';
+
+/**
+ * The research surface speaks in three typographic voices:
+ *
+ *  - DOCUMENTS — the LessWrong essay serif (`theme.palette.fonts.serifStack`,
+ *    Warnock Pro) with ETBook display headings: durable content reads as a
+ *    LessWrong essay-in-progress, not tool output.
+ *  - THE AGENT — Freight Sans (`researchChatSans`): conversation prose
+ *    (transcripts, composer, collapsed presentations) is warm and humanist
+ *    but visibly distinct from the user's document prose.
+ *  - THE MACHINERY — monospace (`researchMono`): tool calls, statuses,
+ *    eyebrows, metadata.
+ *
+ * Workspace chrome (sidebar, palette, buttons) stays in the site sans stack.
+ */
+
+// Machine voice. `source-code-pro` is on Adobe Fonts (add it to one of the
+// site's kits to activate everywhere); until then ui-monospace/SF Mono carry
+// it on macOS and Consolas on Windows.
+export const researchMono = '"source-code-pro", ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace';
+
+// Agent voice: Freight Sans Pro (already loaded sitewide via the Typekit
+// kits — it's the Alignment Forum sans), falling back down the site stack.
+export const researchChatSans = '"freight-sans-pro", GreekFallback, Calibri, "Gill Sans", "Gill Sans MT", "Helvetica Neue", Helvetica, Arial, sans-serif';
+
+export const researchRadius = {
+  sm: 6,
+  md: 8,
+  lg: 12,
+  pill: 999,
+} as const;
+
+// One easing curve for every transition so motion feels consistent.
+export const researchEasing = 'cubic-bezier(0.4, 0, 0.2, 1)';
+export const researchTransition = `120ms ${researchEasing}`;
+
+/**
+ * A thin, unobtrusive scrollbar for panels and scroll regions — reads as
+ * "tool" rather than "webpage". Spread into the scroll container's class.
+ */
+export function researchScrollbars(theme: ThemeType) {
+  return {
+    scrollbarWidth: 'thin' as const,
+    scrollbarColor: `${theme.palette.greyAlpha(0.18)} transparent`,
+    '&::-webkit-scrollbar': {
+      width: 9,
+      height: 9,
+    },
+    '&::-webkit-scrollbar-thumb': {
+      background: theme.palette.greyAlpha(0.16),
+      borderRadius: researchRadius.pill,
+      border: '2px solid transparent',
+      backgroundClip: 'padding-box',
+    },
+    '&:hover::-webkit-scrollbar-thumb': {
+      background: theme.palette.greyAlpha(0.26),
+      backgroundClip: 'padding-box',
+    },
+    '&::-webkit-scrollbar-track': {
+      background: 'transparent',
+    },
+  };
+}
+
+/** A tiny uppercase monospace section/eyebrow label. */
+export function researchEyebrow(theme: ThemeType) {
+  return {
+    fontFamily: researchMono,
+    fontSize: 11,
+    fontWeight: 600,
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase' as const,
+    color: theme.palette.text.dim,
+  };
+}
+
+/** Plain text input / textarea chrome shared by the list + forms. */
+export function researchTextInput(theme: ThemeType) {
+  return {
+    width: '100%',
+    boxSizing: 'border-box' as const,
+    border: `1px solid ${theme.palette.greyAlpha(0.1)}`,
+    borderRadius: researchRadius.md,
+    padding: '10px 13px',
+    fontSize: 14,
+    lineHeight: 1.4,
+    color: theme.palette.text.primary,
+    background: theme.palette.panelBackground.default,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    outline: 'none',
+    transition: `border-color ${researchTransition}, box-shadow ${researchTransition}, background ${researchTransition}`,
+    '&:hover': {
+      borderColor: theme.palette.greyAlpha(0.2),
+    },
+    '&:focus': {
+      // Global styles zero out input borders on focus; restate the full border
+      // (plus a soft sage focus ring) or the edge disappears.
+      borderColor: theme.palette.primary.main,
+      boxShadow: `0 0 0 3px ${researchAccentTint(0.16)}`,
+    },
+    '&::placeholder': { color: theme.palette.greyAlpha(0.32) },
+    '&:disabled': {
+      background: theme.palette.greyAlpha(0.04),
+      color: theme.palette.text.dim,
+      cursor: 'not-allowed',
+    },
+  };
+}
+
+/**
+ * Solid sage-green primary action button. `primary.main` is the same hue in
+ * light + dark mode, so the contrast text stays correct in both.
+ */
+export function researchPrimaryButton(theme: ThemeType) {
+  return {
+    appearance: 'none' as const,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    border: 'none',
+    borderRadius: researchRadius.md,
+    padding: '8px 16px',
+    fontSize: 13,
+    fontWeight: 600,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    lineHeight: 1.2,
+    background: theme.palette.primary.main,
+    color: theme.palette.primary.contrastText,
+    cursor: 'pointer',
+    whiteSpace: 'nowrap' as const,
+    transition: `background ${researchTransition}, box-shadow ${researchTransition}, transform ${researchTransition}`,
+    boxShadow: `0 1px 2px ${theme.palette.greyAlpha(0.12)}`,
+    '&:hover': {
+      background: theme.palette.primary.dark,
+    },
+    '&:active': {
+      transform: 'translateY(0.5px)',
+    },
+    '&:disabled': {
+      background: theme.palette.greyAlpha(0.1),
+      color: theme.palette.text.dim,
+      boxShadow: 'none',
+      cursor: 'not-allowed',
+    },
+  };
+}
+
+/** Quiet, bordered secondary button. */
+export function researchGhostButton(theme: ThemeType) {
+  return {
+    appearance: 'none' as const,
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    border: `1px solid ${theme.palette.greyAlpha(0.14)}`,
+    borderRadius: researchRadius.md,
+    padding: '7px 14px',
+    fontSize: 13,
+    fontWeight: 500,
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    lineHeight: 1.2,
+    background: theme.palette.panelBackground.default,
+    color: theme.palette.text.primary,
+    cursor: 'pointer',
+    whiteSpace: 'nowrap' as const,
+    transition: `border-color ${researchTransition}, background ${researchTransition}`,
+    '&:hover': {
+      borderColor: theme.palette.greyAlpha(0.24),
+      background: theme.palette.greyAlpha(0.03),
+    },
+    '&:disabled': {
+      opacity: 0.5,
+      cursor: 'not-allowed',
+    },
+  };
+}
+
+/** Card / panel surface: warm white, hairline border, soft lift. */
+export function researchCard(theme: ThemeType) {
+  return {
+    background: theme.palette.panelBackground.default,
+    border: `1px solid ${theme.palette.greyAlpha(0.08)}`,
+    borderRadius: researchRadius.lg,
+    boxShadow: `0 1px 2px ${theme.palette.greyAlpha(0.04)}`,
+  };
+}
+
+/**
+ * Sage-green tint at a given alpha. The LW primary green (#5f9b65) is constant
+ * across light/dark mode, so a fixed rgba reads correctly in both — wrapped in
+ * `safeForDarkMode` so the dark-mode color audit accepts it.
+ */
+export function researchAccentTint(alpha: number) {
+  return safeForDarkMode(`rgba(95, 155, 101, ${alpha})`);
+}
+
+/**
+ * Compact chat-prose normalization for conversation content rendered through
+ * ChunkContent / llmChat content styles inside a research document. Two
+ * leakage sources need cancelling:
+ *  - llmChat (commentBodyStyles) wrapper/paragraph margins, which read as
+ *    random whitespace in compact rows;
+ *  - the surrounding researchDocument scope's postBodyStyles, which pushes
+ *    the site's big serif reading typography onto li / blockquote / heading
+ *    descendants.
+ * Spread into any class applied to the chunk's ContentStyles wrapper, after
+ * setting that class's own fontSize/fontFamily.
+ */
+export function researchChatProse(_theme: ThemeType) {
+  return {
+    marginTop: 0,
+    marginBottom: 0,
+    '& p': {
+      marginTop: 0,
+      marginBottom: '0.55em',
+    },
+    '& p:last-child, & ul:last-child, & ol:last-child, & blockquote:last-child, & pre:last-child': {
+      marginBottom: 0,
+    },
+    '& ul, & ol': {
+      marginTop: 0,
+      marginBottom: '0.55em',
+    },
+    '& li, & blockquote': {
+      fontSize: 'inherit',
+      lineHeight: 'inherit',
+      fontFamily: 'inherit',
+    },
+    '& h1, & h2, & h3, & h4, & h5, & h6': {
+      fontSize: '1.1em',
+      lineHeight: 1.4,
+      margin: '0.8em 0 0.4em',
+      fontWeight: 600,
+      fontFamily: 'inherit',
+      color: 'inherit',
+    },
+  };
+}
+
+/**
+ * IDE-compact interactive row (sidebar items, palette results): 13px label,
+ * ~26px row height, quiet neutral hover/active. Spread into the row class and
+ * add `researchCompactRowActive` states on top.
+ */
+export function researchCompactRow(theme: ThemeType) {
+  return {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 7,
+    width: '100%',
+    boxSizing: 'border-box' as const,
+    minHeight: 26,
+    padding: '3px 8px',
+    border: 'none',
+    borderRadius: researchRadius.sm,
+    background: 'transparent',
+    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontSize: 13,
+    lineHeight: 1.3,
+    textAlign: 'left' as const,
+    color: theme.palette.text.primary,
+    cursor: 'pointer',
+    whiteSpace: 'nowrap' as const,
+    overflow: 'hidden',
+    transition: `background ${researchTransition}, color ${researchTransition}`,
+    '&:hover': {
+      background: theme.palette.greyAlpha(0.05),
+    },
+  };
+}
+
+/** Active/selected state to layer over `researchCompactRow`. */
+export function researchCompactRowActive(theme: ThemeType) {
+  return {
+    background: theme.palette.greyAlpha(0.07),
+    '&:hover': {
+      background: theme.palette.greyAlpha(0.09),
+    },
+  };
+}
+
+/**
+ * Invisible-until-hovered drag handle for resizable panels. Position it
+ * absolutely along the panel edge; the visible line fades in on hover/drag
+ * (add `researchResizeHandleActive` while dragging).
+ */
+export function researchResizeHandle(theme: ThemeType) {
+  return {
+    position: 'absolute' as const,
+    top: 0,
+    bottom: 0,
+    width: 9,
+    cursor: 'col-resize',
+    zIndex: 2,
+    // The visible 1px line, centered in the 9px hit area
+    '&:after': {
+      content: '""',
+      position: 'absolute' as const,
+      top: 0,
+      bottom: 0,
+      left: 4,
+      width: 1,
+      background: 'transparent',
+      transition: `background ${researchTransition}`,
+    },
+    '&:hover:after': {
+      background: theme.palette.greyAlpha(0.2),
+    },
+  };
+}
+
+/** Stronger line while a drag is in progress. */
+export function researchResizeHandleActive(theme: ThemeType) {
+  return {
+    '&:after': {
+      background: `${theme.palette.primary.main} !important`,
+    },
+  };
+}

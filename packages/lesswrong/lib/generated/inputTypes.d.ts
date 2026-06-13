@@ -246,6 +246,7 @@ interface Mutation {
   mintDevPreviewUrl: DevPreviewUrlOutput | null;
   setClaudeCodeOAuthToken: SetClaudeCodeOAuthTokenOutput | null;
   saveResearchEnvironment: SaveResearchEnvironmentOutput | null;
+  ensureResearchScratchDocument: EnsureResearchScratchDocumentOutput | null;
   mergeTags: boolean | null;
   promoteLensToMain: boolean | null;
   RefreshDbSettings: boolean | null;
@@ -1055,6 +1056,10 @@ interface SetClaudeCodeOAuthTokenOutput {
 
 interface SaveResearchEnvironmentOutput {
   data: ResearchEnvironment | null;
+}
+
+interface EnsureResearchScratchDocumentOutput {
+  documentId: string;
 }
 
 interface DocumentDeletion {
@@ -5663,6 +5668,7 @@ interface ResearchConversation {
   entrypointDocumentId: string | null;
   baseEnvironmentId: string | null;
   runtime: string | null;
+  presentationHtml: string | null;
   lastActivityAt: Date | null;
 }
 
@@ -9206,6 +9212,7 @@ interface GraphQLTypeMap {
   DevPreviewUrlOutput: DevPreviewUrlOutput;
   SetClaudeCodeOAuthTokenOutput: SetClaudeCodeOAuthTokenOutput;
   SaveResearchEnvironmentOutput: SaveResearchEnvironmentOutput;
+  EnsureResearchScratchDocumentOutput: EnsureResearchScratchDocumentOutput;
   DocumentDeletion: DocumentDeletion;
   TagUpdates: TagUpdates;
   TagPreviewWithSummaries: TagPreviewWithSummaries;
