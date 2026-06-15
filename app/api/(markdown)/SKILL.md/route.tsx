@@ -142,6 +142,13 @@ inline curl -d arguments):
     { "postId": "...", "key": "...", "comment": "..." }
     EOF
 
+When re-reading a draft after the user says they saved edits, use a direct
+HTTP client like \`curl\` rather than a general web-fetch or browser-fetch tool
+that might cache responses outside LessWrong's control:
+    curl -H 'Accept: text/markdown' '${urlPrefix}/editPost?postId=[id]&key=[linkSharingKey]'
+If you must use a tool that may cache, add a cache-busting query parameter such
+as \`&t=$(date +%s)\` and send \`Cache-Control: no-cache\`. This is especially
+important before telling the user that their latest edits did not appear.
 
 ## API Documentation
 The API can be used to edit and comment on post drafts, which will appear

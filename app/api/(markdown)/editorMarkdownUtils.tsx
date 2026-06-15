@@ -235,6 +235,8 @@ export async function getLiveLexicalMarkdown({
 // "no changes detected". Send no-store on every response from this route.
 const NO_CACHE_HEADERS = {
   "Cache-Control": "private, no-store, max-age=0",
+  "Pragma": "no-cache",
+  "Expires": "0",
 };
 
 export async function renderLiveEditorDraftMarkdownRoute({
@@ -304,7 +306,9 @@ export async function renderLiveEditorDraftMarkdownRoute({
       bodyMarkdown,
       commentThreadsMarkdown,
     });
-    response.headers.set("Cache-Control", NO_CACHE_HEADERS["Cache-Control"]);
+    for (const [header, value] of Object.entries(NO_CACHE_HEADERS)) {
+      response.headers.set(header, value);
+    }
     return response;
   } catch (error) {
     // This needs to be a 200 because Claude's web_fetch tool doesn't give it any additional information if you return a 4xx status code,
