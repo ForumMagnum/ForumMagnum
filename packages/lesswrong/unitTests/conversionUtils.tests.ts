@@ -162,6 +162,18 @@ describe("htmlToMarkdown preserves whitespace inside blank inline formatting", (
   });
 });
 
+describe("markdown footnote rendering", () => {
+  it("does not insert visual whitespace before inline footnote references", () => {
+    const html = markdownToHtml("Text before footnote[^1]\n\n[^1]: Footnote body");
+    const dom = new JSDOM(`<body>${html}</body>`);
+    const reference = dom.window.document.querySelector(".footnote-reference");
+
+    expect(reference).not.toBeNull();
+    expect(reference?.previousSibling?.textContent).toBe("Text before footnote");
+    expect(reference?.firstChild?.nodeName).toBe("SUP");
+  });
+});
+
 /**
  * Spoiler blocks (`>!`-prefixed lines) round-trip between Lexical's
  * `<div class="spoilers">` HTML and Markdown for the agent API.
