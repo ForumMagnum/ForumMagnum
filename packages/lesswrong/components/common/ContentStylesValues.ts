@@ -2,6 +2,10 @@ import { defineStyles } from '../hooks/defineStyles';
 import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
 
+const researchDocumentMaxWidth = 760;
+const researchDocumentHorizontalPadding = 18;
+const researchDocumentCenteredInset = `max(${researchDocumentHorizontalPadding}px, calc((100% - ${researchDocumentMaxWidth}px) / 2 + ${researchDocumentHorizontalPadding}px))`;
+
 /**
  * Research-document editor styling. Inherits the full postBodyStyles surface
  * (so spoilers, footnotes, embeds, tables, code blocks, etc. all look right),
@@ -24,8 +28,11 @@ const researchDocumentBodyStyles = (theme: ThemeType) => ({
     fontSize: 14,
     lineHeight: 1.55,
     fontFamily: theme.palette.fonts.sansSerifStack,
-    maxWidth: 960,
-    padding: '20px 18px 40px',
+    boxSizing: 'border-box',
+    width: '100%',
+    maxWidth: researchDocumentMaxWidth,
+    margin: '0 auto',
+    padding: `20px ${researchDocumentHorizontalPadding}px 40px`,
   },
   '& [data-lexical-editor] p': {
     margin: '0 0 0.75em',
@@ -80,7 +87,8 @@ const researchDocumentBodyStyles = (theme: ThemeType) => ({
   // the empty-state text lines up with where the first paragraph would.
   '& .LexicalContentEditable-placeholder': {
     top: 20,
-    left: 18,
+    left: researchDocumentCenteredInset,
+    right: researchDocumentCenteredInset,
     fontSize: 14,
     lineHeight: 1.55,
     fontFamily: theme.palette.fonts.sansSerifStack,
