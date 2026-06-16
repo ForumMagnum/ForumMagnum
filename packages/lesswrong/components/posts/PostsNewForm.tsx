@@ -311,5 +311,3 @@ const PostsNewFormInner = () => {
 }
 
 export default PostsNewForm;
-
-
