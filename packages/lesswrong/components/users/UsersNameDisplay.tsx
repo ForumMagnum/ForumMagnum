@@ -40,6 +40,7 @@ const UsersNameDisplay = ({
   tooltipPlacement="left",
   pageSectionContext,
   className,
+  disableNoKibitz=false,
 }: {
   /** The user whose name to show. If nullish, will show as "[anonymous]". */
   user: UsersMinimumInfo|null|undefined,
@@ -61,6 +62,8 @@ const UsersNameDisplay = ({
   pageSectionContext?: string,
   /** An additional class to apply to the text */
   className?: string,
+  /** If set, ignores the user's hide-author-names preference for this name. */
+  disableNoKibitz?: boolean,
 }) => {
   const classes = useStyles(styles);
   const {eventHandlers, hover} = useHover({
@@ -70,7 +73,7 @@ const UsersNameDisplay = ({
       userId: user?._id
     },
   });
-  const noKibitz = useNoKibitz(user);
+  const noKibitz = useNoKibitz(user, disableNoKibitz);
   const nameHidden = noKibitz && !hover;
 
   if (!user || user.deleted) {

@@ -9,15 +9,16 @@ const styles = defineStyles('PostsCoauthor', (_: ThemeType) => ({
   markers: AUTHOR_MARKER_STYLES,
 }));
 
-const PostsCoauthor = ({coauthor, pageSectionContext}: {
+const PostsCoauthor = ({coauthor, pageSectionContext, disableNoKibitz}: {
   coauthor: UsersMinimumInfo,
   pageSectionContext?: string,
+  disableNoKibitz?: boolean,
 }) => {
   const classes = useStyles(styles);
 
   return (
     <>
-      , <UsersName user={coauthor} pageSectionContext={pageSectionContext} />
+      , <UsersName user={coauthor} pageSectionContext={pageSectionContext} disableNoKibitz={disableNoKibitz} />
       <UserCommentMarkers user={coauthor} className={classes.markers} />
     </>
   );

@@ -35,6 +35,8 @@ const UsersName = ({
   hideFollowButton?: boolean,
   /** Add an extra class/styling to the link */
   className?: string,
+  /** If set, ignores the user's hide-author-names preference for this name. */
+  disableNoKibitz?: boolean,
 }) => {
   if (user) {
     return <UsersNameDisplay user={user} nofollow={nofollow} simple={simple} tooltipPlacement={tooltipPlacement} nowrap={nowrap} className={className} {...otherProps}/>

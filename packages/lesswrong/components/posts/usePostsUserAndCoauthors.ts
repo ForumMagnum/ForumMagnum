@@ -1,5 +1,26 @@
+import { useCurrentUserId } from "../common/withUser";
+
+export interface PostAuthorVisibilityInfo {
+  draft?: boolean | null,
+  userId?: string | null,
+  coauthorUserIds?: string[] | null,
+}
+
+export const currentUserCanSeeDraftAuthorNames = (
+  currentUserId: string | null | undefined,
+  post: PostAuthorVisibilityInfo,
+): boolean => {
+  return !!(
+    post.draft
+    && currentUserId
+    && (post.userId === currentUserId || post.coauthorUserIds?.includes(currentUserId))
+  );
+}
+
 export const usePostsUserAndCoauthors = (post: PostsList|SunshinePostsList|PostsBestOfList) => {
+  const currentUserId = useCurrentUserId();
   const isAnon = !post.user || !!post.hideAuthor;
+  const disableNoKibitz = currentUserCanSeeDraftAuthorNames(currentUserId, post);
 
   let topCommentAuthor = post.question
     ? post.bestAnswer?.user
@@ -16,5 +37,6 @@ export const usePostsUserAndCoauthors = (post: PostsList|SunshinePostsList|Posts
     isAnon,
     topCommentAuthor,
     authors,
+    disableNoKibitz,
   };
 }

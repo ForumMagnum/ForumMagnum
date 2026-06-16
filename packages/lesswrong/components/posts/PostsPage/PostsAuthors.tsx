@@ -7,6 +7,8 @@ import { AUTHOR_MARKER_STYLES } from "./authorMarkerStyles";
 import { Typography } from "../../common/Typography";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useCurrentUserId } from '@/components/common/withUser';
+import { currentUserCanSeeDraftAuthorNames } from '../usePostsUserAndCoauthors';
 
 const styles = defineStyles('PostsAuthors', (theme: ThemeType) => ({
   root: {
@@ -26,18 +28,20 @@ const PostsAuthors = ({post, pageSectionContext}: {
   pageSectionContext?: string,
 }) => {
   const classes = useStyles(styles);
+  const currentUserId = useCurrentUserId();
+  const disableNoKibitz = currentUserCanSeeDraftAuthorNames(currentUserId, post);
 
   return <Typography variant="body1" component="span" className={classes.root}>
     by <span className={classes.authorName}>
       {!post.user || post.hideAuthor
         ? <UserNameDeleted/>
         : <>
-          <UsersName user={post.user} pageSectionContext={pageSectionContext} />
+          <UsersName user={post.user} pageSectionContext={pageSectionContext} disableNoKibitz={disableNoKibitz} />
           <UserCommentMarkers user={post.user} className={classes.authorMarkers} />
         </>
       }
       {post.coauthors?.map(coauthor =>
-        <PostsCoauthor key={coauthor._id} coauthor={coauthor} pageSectionContext={pageSectionContext} />
+        <PostsCoauthor key={coauthor._id} coauthor={coauthor} pageSectionContext={pageSectionContext} disableNoKibitz={disableNoKibitz} />
       )}
     </span>
   </Typography>

@@ -60,7 +60,7 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, simple=false, tool
   showSubscribedIcon?: boolean,
 }) => {
   const classes = useStyles(styles);
-  const {isAnon, topCommentAuthor, authors} = usePostsUserAndCoauthors(post);
+  const {isAnon, topCommentAuthor, authors, disableNoKibitz} = usePostsUserAndCoauthors(post);
   const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersName;
   if (isAnon)
     return <UserNameDeleted/>;
@@ -77,6 +77,7 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, simple=false, tool
           user={author} 
           simple={simple} 
           tooltipPlacement={tooltipPlacement}
+          disableNoKibitz={disableNoKibitz}
           {...(useUltraFeedModal && { showSubscribedIcon })}
         />
         {showMarkers &&
@@ -91,6 +92,7 @@ const PostsUserAndCoauthors = ({post, abbreviateIfLong=false, simple=false, tool
         user={topCommentAuthor || undefined} 
         simple={simple} 
         tooltipPlacement={tooltipPlacement}
+        disableNoKibitz={disableNoKibitz}
         {...(useUltraFeedModal && { showSubscribedIcon })}
       />
     </span>}

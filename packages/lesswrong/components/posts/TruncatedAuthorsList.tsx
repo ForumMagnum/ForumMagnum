@@ -66,7 +66,7 @@ const TruncatedAuthorsList = ({post, expandContainer, className, useMoreSuffix =
   showSubscribedIcon?: boolean,
 }) => {
   const classes = useStyles(styles);
-  const {isAnon, authors, topCommentAuthor} = usePostsUserAndCoauthors(post);
+  const {isAnon, authors, topCommentAuthor, disableNoKibitz} = usePostsUserAndCoauthors(post);
   const UserNameComponent = useUltraFeedModal ? UsersNameWithModal : UsersNameDisplay;
   const ref = useRef<HTMLDivElement>(null);
 
@@ -95,13 +95,13 @@ const TruncatedAuthorsList = ({post, expandContainer, className, useMoreSuffix =
     : (
       <div className={classNames(classes.root, className)} ref={ref}>
         <span className={classNames(classes.item, classes.placeholder)}>
-          <UserNameComponent user={authors[0]} {...(useUltraFeedModal && { tooltipPlacement: "bottom-start", showSubscribedIcon })} />
+          <UserNameComponent user={authors[0]} disableNoKibitz={disableNoKibitz} {...(useUltraFeedModal && { tooltipPlacement: "bottom-start", showSubscribedIcon })} />
         </span>
         <div className={classes.scratch} aria-hidden="true">
           {authors.map((author, i) =>
             <span key={author._id} className={classes.item}>
               {i > 0 ? ", " : ""}
-              <UserNameComponent user={author} {...(useUltraFeedModal && { tooltipPlacement: "bottom-start", showSubscribedIcon })} />
+              <UserNameComponent user={author} disableNoKibitz={disableNoKibitz} {...(useUltraFeedModal && { tooltipPlacement: "bottom-start", showSubscribedIcon })} />
             </span>
           )}
           {authors.length > 1 && (
@@ -112,6 +112,7 @@ const TruncatedAuthorsList = ({post, expandContainer, className, useMoreSuffix =
                     <UserNameComponent 
                       key={author._id} 
                       user={author} 
+                      disableNoKibitz={disableNoKibitz}
                       {...(useUltraFeedModal && { simple: true, showSubscribedIcon })}
                     />
                   ))}

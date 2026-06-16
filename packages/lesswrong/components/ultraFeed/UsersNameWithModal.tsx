@@ -45,6 +45,7 @@ const UsersNameWithModal = ({
   className,
   simple = false,
   showSubscribedIcon = false,
+  disableNoKibitz = false,
   ...otherProps
 }: {
   user?: UsersMinimumInfo | null | undefined;
@@ -56,6 +57,8 @@ const UsersNameWithModal = ({
   showSubscribedIcon?: boolean;
   color?: boolean;
   pageSectionContext?: string;
+  /** If set, ignores the user's hide-author-names preference for this name. */
+  disableNoKibitz?: boolean;
 }) => {
   const classes = useStyles(styles);
   const {eventHandlers, hover} = useHover({
@@ -64,7 +67,7 @@ const UsersNameWithModal = ({
       userId: user?._id
     },
   });
-  const noKibitz = useNoKibitz(user);
+  const noKibitz = useNoKibitz(user, disableNoKibitz);
   const nameHidden = noKibitz && !hover;
 
   if (!user && !documentId) {
