@@ -3835,6 +3835,7 @@ type Mutation = {
   ImportGoogleDoc?: Maybe<Post>;
   MakeElicitPrediction?: Maybe<ElicitBlockData>;
   MarkAllNotificationsAsRead?: Maybe<Scalars['Boolean']['output']>;
+  MergeAccounts: Scalars['Boolean']['output'];
   NewUserCompleteProfile?: Maybe<NewUserCompletedProfile>;
   PetrovDayLaunchMissile?: Maybe<PetrovDayLaunchMissileData>;
   RSVPToEvent?: Maybe<Post>;
@@ -4014,6 +4015,13 @@ type MutationImportGoogleDocArgs = {
 type MutationMakeElicitPredictionArgs = {
   prediction?: InputMaybe<Scalars['Int']['input']>;
   questionId?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationMergeAccountsArgs = {
+  dryRun: Scalars['Boolean']['input'];
+  sourceUserId: Scalars['String']['input'];
+  targetUserId: Scalars['String']['input'];
 };
 
 
@@ -7215,6 +7223,7 @@ type Query = {
   UserReadHistory?: Maybe<UserReadHistoryResult>;
   UserReadsPerCoreTag: Array<UserCoreTagReads>;
   UsersReadPostsOfTargetUser?: Maybe<Array<Post>>;
+  UsersSearchForMerge: Array<User>;
   adminEmailPreviewAudience: AdminEmailAudiencePreview;
   adminHomePageDesigns: Array<AdminHomePageDesign>;
   arbitalTagContentRel?: Maybe<SingleArbitalTagContentRelOutput>;
@@ -7668,6 +7677,11 @@ type QueryUsersReadPostsOfTargetUserArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   targetUserId: Scalars['String']['input'];
   userId: Scalars['String']['input'];
+};
+
+
+type QueryUsersSearchForMergeArgs = {
+  query: Scalars['String']['input'];
 };
 
 
@@ -22659,6 +22673,33 @@ type updateUserDeleteAccountSectionMutationVariables = Exact<{
 
 type updateUserDeleteAccountSectionMutation = updateUserDeleteAccountSectionMutation_Mutation;
 
+type UsersSearchForMergeQuery_UsersSearchForMerge_User = (
+  { __typename?: 'User' }
+  & UsersMergeSearchResult
+);
+
+type UsersSearchForMergeQuery_Query = { __typename?: 'Query', UsersSearchForMerge: Array<UsersSearchForMergeQuery_UsersSearchForMerge_User> };
+
+
+type UsersSearchForMergeQueryVariables = Exact<{
+  query: Scalars['String']['input'];
+}>;
+
+
+type UsersSearchForMergeQuery = UsersSearchForMergeQuery_Query;
+
+type MergeAccountsMutation_Mutation = { __typename?: 'Mutation', MergeAccounts: boolean };
+
+
+type MergeAccountsMutationVariables = Exact<{
+  sourceUserId: Scalars['String']['input'];
+  targetUserId: Scalars['String']['input'];
+  dryRun: Scalars['Boolean']['input'];
+}>;
+
+
+type MergeAccountsMutation = MergeAccountsMutation_Mutation;
+
 type SoftDeleteUserMutation_Mutation = { __typename?: 'Mutation', SoftDeleteUser: boolean };
 
 
@@ -25003,6 +25044,11 @@ type UsersCrosspostInfo = { __typename?: 'User', _id: string, username: string |
 
 type SuggestAlignmentUser = (
   { __typename?: 'User', afKarma: number, afPostCount: number, afCommentCount: number, reviewForAlignmentForumUserId: string | null, groups: Array<string> | null, afApplicationText: string | null, afSubmittedApplication: boolean | null }
+  & UsersMinimumInfo
+);
+
+type UsersMergeSearchResult = (
+  { __typename?: 'User', email: string | null, emails: Array<any> | null }
   & UsersMinimumInfo
 );
 

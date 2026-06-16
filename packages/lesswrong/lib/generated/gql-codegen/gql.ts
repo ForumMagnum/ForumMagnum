@@ -618,6 +618,8 @@ type Documents = {
     "\n  query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": typeof types.multiUserUsersProfileQueryDocument,
     "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeactivateAccountSectionDocument,
     "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": typeof types.updateUserDeleteAccountSectionDocument,
+    "\n  query UsersSearchForMerge($query: String!) {\n    UsersSearchForMerge(query: $query) {\n      ...UsersMergeSearchResult\n    }\n  }\n": typeof types.UsersSearchForMergeDocument,
+    "\n  mutation MergeAccounts($sourceUserId: String!, $targetUserId: String!, $dryRun: Boolean!) {\n    MergeAccounts(sourceUserId: $sourceUserId, targetUserId: $targetUserId, dryRun: $dryRun)\n  }\n": typeof types.MergeAccountsDocument,
     "\n  mutation SoftDeleteUser($userId: String!) {\n    SoftDeleteUser(userId: $userId)\n  }\n": typeof types.SoftDeleteUserDocument,
     "\n  query UserTopPostsForManager($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": typeof types.UserTopPostsForManagerDocument,
     "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": typeof types.UsersAccountManagementGetUserBySlugDocument,
@@ -839,6 +841,7 @@ type Documents = {
     "\n  fragment UsersProfileEdit on User {\n    _id\n    slug\n    displayName\n    profileImageId\n    biography {\n      ...RevisionEdit\n    }\n    organizerOfGroupIds\n    organizerOfGroups {\n      ...localGroupsBase\n    }\n    programParticipation\n    mapLocation\n    website\n    linkedinProfileURL\n    facebookProfileURL\n    blueskyProfileURL\n    twitterProfileURL\n    githubProfileURL\n  }\n": typeof types.UsersProfileEditDoc,
     "\n  fragment UsersCrosspostInfo on User {\n    _id\n    username\n    slug\n    fmCrosspostUserId\n  }\n": typeof types.UsersCrosspostInfoDoc,
     "\n  fragment SuggestAlignmentUser on User {\n    ...UsersMinimumInfo\n    afKarma\n    afPostCount\n    afCommentCount\n    reviewForAlignmentForumUserId\n    groups\n    afApplicationText\n    afSubmittedApplication\n  }\n": typeof types.SuggestAlignmentUserDoc,
+    "\n  fragment UsersMergeSearchResult on User {\n    ...UsersMinimumInfo\n    email\n    emails\n  }\n": typeof types.UsersMergeSearchResultDoc,
     "\n  fragment TagRelVotes on Vote {\n    _id\n    userId\n    voteType\n    power\n    documentId\n    votedAt\n    isUnvote\n    tagRel {\n      ...WithVoteTagRel\n    }\n  }\n": typeof types.TagRelVotesDoc,
     "\n  fragment TagVotingActivity on Vote {\n    ...TagRelVotes\n    tagRel {\n      ...TagRelFragment\n    }\n  }\n": typeof types.TagVotingActivityDoc,
     "\n  fragment UserVotes on Vote {\n    _id\n    userId\n    voteType\n    power\n    cancelled\n    documentId\n    votedAt\n    isUnvote\n    collectionName\n  }\n": typeof types.UserVotesDoc,
@@ -1482,6 +1485,8 @@ const documents: Documents = {
     "\n  query multiUserUsersProfileQuery($selector: UserSelector, $limit: Int, $enableTotal: Boolean) {\n    users(selector: $selector, limit: $limit, enableTotal: $enableTotal) {\n      results {\n        ...UsersProfile\n      }\n      totalCount\n    }\n  }\n": types.multiUserUsersProfileQueryDocument,
     "\n  mutation updateUserDeactivateAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeactivateAccountSectionDocument,
     "\n  mutation updateUserDeleteAccountSection($selector: SelectorInput!, $data: UpdateUserDataInput!) {\n    updateUser(selector: $selector, data: $data) {\n      data {\n        ...UsersEdit\n      }\n    }\n  }\n": types.updateUserDeleteAccountSectionDocument,
+    "\n  query UsersSearchForMerge($query: String!) {\n    UsersSearchForMerge(query: $query) {\n      ...UsersMergeSearchResult\n    }\n  }\n": types.UsersSearchForMergeDocument,
+    "\n  mutation MergeAccounts($sourceUserId: String!, $targetUserId: String!, $dryRun: Boolean!) {\n    MergeAccounts(sourceUserId: $sourceUserId, targetUserId: $targetUserId, dryRun: $dryRun)\n  }\n": types.MergeAccountsDocument,
     "\n  mutation SoftDeleteUser($userId: String!) {\n    SoftDeleteUser(userId: $userId)\n  }\n": types.SoftDeleteUserDocument,
     "\n  query UserTopPostsForManager($selector: PostSelector, $limit: Int) {\n    posts(selector: $selector, limit: $limit) {\n      results {\n        ...PostsList\n      }\n    }\n  }\n": types.UserTopPostsForManagerDocument,
     "\n  query UsersAccountManagementGetUserBySlug($slug: String!) {\n    GetUserBySlug(slug: $slug) {\n      ...UsersEdit\n    }\n  }\n": types.UsersAccountManagementGetUserBySlugDocument,
@@ -1703,6 +1708,7 @@ const documents: Documents = {
     "\n  fragment UsersProfileEdit on User {\n    _id\n    slug\n    displayName\n    profileImageId\n    biography {\n      ...RevisionEdit\n    }\n    organizerOfGroupIds\n    organizerOfGroups {\n      ...localGroupsBase\n    }\n    programParticipation\n    mapLocation\n    website\n    linkedinProfileURL\n    facebookProfileURL\n    blueskyProfileURL\n    twitterProfileURL\n    githubProfileURL\n  }\n": types.UsersProfileEditDoc,
     "\n  fragment UsersCrosspostInfo on User {\n    _id\n    username\n    slug\n    fmCrosspostUserId\n  }\n": types.UsersCrosspostInfoDoc,
     "\n  fragment SuggestAlignmentUser on User {\n    ...UsersMinimumInfo\n    afKarma\n    afPostCount\n    afCommentCount\n    reviewForAlignmentForumUserId\n    groups\n    afApplicationText\n    afSubmittedApplication\n  }\n": types.SuggestAlignmentUserDoc,
+    "\n  fragment UsersMergeSearchResult on User {\n    ...UsersMinimumInfo\n    email\n    emails\n  }\n": types.UsersMergeSearchResultDoc,
     "\n  fragment TagRelVotes on Vote {\n    _id\n    userId\n    voteType\n    power\n    documentId\n    votedAt\n    isUnvote\n    tagRel {\n      ...WithVoteTagRel\n    }\n  }\n": types.TagRelVotesDoc,
     "\n  fragment TagVotingActivity on Vote {\n    ...TagRelVotes\n    tagRel {\n      ...TagRelFragment\n    }\n  }\n": types.TagVotingActivityDoc,
     "\n  fragment UserVotes on Vote {\n    _id\n    userId\n    voteType\n    power\n    cancelled\n    documentId\n    votedAt\n    isUnvote\n    collectionName\n  }\n": types.UserVotesDoc,
@@ -4175,6 +4181,14 @@ export function gql(source: "\n  mutation updateUserDeleteAccountSection($select
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
+export function gql(source: "\n  query UsersSearchForMerge($query: String!) {\n    UsersSearchForMerge(query: $query) {\n      ...UsersMergeSearchResult\n    }\n  }\n"): (typeof documents)["\n  query UsersSearchForMerge($query: String!) {\n    UsersSearchForMerge(query: $query) {\n      ...UsersMergeSearchResult\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  mutation MergeAccounts($sourceUserId: String!, $targetUserId: String!, $dryRun: Boolean!) {\n    MergeAccounts(sourceUserId: $sourceUserId, targetUserId: $targetUserId, dryRun: $dryRun)\n  }\n"): (typeof documents)["\n  mutation MergeAccounts($sourceUserId: String!, $targetUserId: String!, $dryRun: Boolean!) {\n    MergeAccounts(sourceUserId: $sourceUserId, targetUserId: $targetUserId, dryRun: $dryRun)\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
 export function gql(source: "\n  mutation SoftDeleteUser($userId: String!) {\n    SoftDeleteUser(userId: $userId)\n  }\n"): (typeof documents)["\n  mutation SoftDeleteUser($userId: String!) {\n    SoftDeleteUser(userId: $userId)\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
@@ -5056,6 +5070,10 @@ export function gql(source: "\n  fragment UsersCrosspostInfo on User {\n    _id\
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  fragment SuggestAlignmentUser on User {\n    ...UsersMinimumInfo\n    afKarma\n    afPostCount\n    afCommentCount\n    reviewForAlignmentForumUserId\n    groups\n    afApplicationText\n    afSubmittedApplication\n  }\n"): (typeof documents)["\n  fragment SuggestAlignmentUser on User {\n    ...UsersMinimumInfo\n    afKarma\n    afPostCount\n    afCommentCount\n    reviewForAlignmentForumUserId\n    groups\n    afApplicationText\n    afSubmittedApplication\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  fragment UsersMergeSearchResult on User {\n    ...UsersMinimumInfo\n    email\n    emails\n  }\n"): (typeof documents)["\n  fragment UsersMergeSearchResult on User {\n    ...UsersMinimumInfo\n    email\n    emails\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

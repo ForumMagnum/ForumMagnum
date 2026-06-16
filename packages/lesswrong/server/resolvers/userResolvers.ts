@@ -11,9 +11,10 @@ import { createPaginatedResolver } from './paginatedResolver';
 import { getUnusedSlugByCollectionName } from '../utils/slugUtil';
 import gql from 'graphql-tag';
 import { updateUser } from '../collections/users/mutations';
-import { accessFilterSingle } from '@/lib/utils/schemaUtils';
+import { accessFilterSingle, accessFilterMultiple } from '@/lib/utils/schemaUtils';
 import { backgroundTask } from '../utils/backgroundTask';
 import { invalidateLoginTokensFor } from '../vulcan-lib/apollo-server/authentication';
+import { mergeAccounts } from '../scripts/mergeAccounts';
 
 type NewUserUpdates = {
   username: string
@@ -100,12 +101,14 @@ export const graphqlTypeDefs = gql`
     UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User
     karmaChangesChecked(startDate: Date, endDate: Date): Boolean!
     SoftDeleteUser(userId: String!): Boolean!
+    MergeAccounts(sourceUserId: String!, targetUserId: String!, dryRun: Boolean!): Boolean!
   }
 
   extend type Query {
     UserReadsPerCoreTag(userId: String!): [UserCoreTagReads!]!
     GetRandomUser(userIsAuthor: String!): User
     IsDisplayNameTaken(displayName: String!): Boolean!
+    UsersSearchForMerge(query: String!): [User!]!
     GetUserBySlug(slug: String!): User
     NetKarmaChangesForAuthorsOverPeriod(days: Int!, limit: Int!): [NetKarmaChangesForAuthorsOverPeriod!]!
     AirtableLeaderboards: [AirtableLeaderboardResult!]!
@@ -272,6 +275,31 @@ export const graphqlMutations = {
     backgroundTask(invalidateLoginTokensFor(userId));
     return true;
   },
+  async MergeAccounts(
+    _root: void,
+    { sourceUserId, targetUserId, dryRun }: { sourceUserId: string, targetUserId: string, dryRun: boolean },
+    context: ResolverContext,
+  ) {
+    const { currentUser } = context;
+    if (!userIsAdmin(currentUser)) {
+      throw new Error("Only admins can merge accounts");
+    }
+    if (sourceUserId === targetUserId) {
+      throw new Error("Cannot merge an account into itself");
+    }
+    const [sourceUser, targetUser] = await Promise.all([
+      Users.findOne({ _id: sourceUserId }),
+      Users.findOne({ _id: targetUserId }),
+    ]);
+    if (!sourceUser) {
+      throw new Error(`Source user not found: ${sourceUserId}`);
+    }
+    if (!targetUser) {
+      throw new Error(`Target user not found: ${targetUserId}`);
+    }
+    await mergeAccounts({ sourceUserId, targetUserId, dryRun });
+    return true;
+  },
 }
 
 export const graphqlQueries = {
@@ -311,6 +339,22 @@ export const graphqlQueries = {
     }
     const isTaken = await context.repos.users.isDisplayNameTaken({ displayName, currentUserId: currentUser._id });
     return isTaken;
+  },
+  async UsersSearchForMerge(
+    _root: void,
+    { query }: { query: string },
+    context: ResolverContext,
+  ) {
+    const { currentUser } = context;
+    if (!userIsAdmin(currentUser)) {
+      throw new Error("Only admins can search for accounts to merge");
+    }
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+      return [];
+    }
+    const users = await context.repos.users.searchUsersForMerge(trimmedQuery, 20);
+    return accessFilterMultiple(currentUser, 'Users', users, context);
   },
   ...suggestedFeedQuery,
   ...suggestedTopActiveUsersQuery,

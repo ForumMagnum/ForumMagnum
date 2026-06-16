@@ -260,12 +260,14 @@ extend type Mutation {
   UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User
   karmaChangesChecked(startDate: Date, endDate: Date): Boolean!
   SoftDeleteUser(userId: String!): Boolean!
+  MergeAccounts(sourceUserId: String!, targetUserId: String!, dryRun: Boolean!): Boolean!
 }
 
 extend type Query {
   UserReadsPerCoreTag(userId: String!): [UserCoreTagReads!]!
   GetRandomUser(userIsAuthor: String!): User
   IsDisplayNameTaken(displayName: String!): Boolean!
+  UsersSearchForMerge(query: String!): [User!]!
   GetUserBySlug(slug: String!): User
   NetKarmaChangesForAuthorsOverPeriod(days: Int!, limit: Int!): [NetKarmaChangesForAuthorsOverPeriod!]!
   AirtableLeaderboards: [AirtableLeaderboardResult!]!

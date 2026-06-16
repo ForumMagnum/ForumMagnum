@@ -5,6 +5,7 @@ interface Query {
   UserReadsPerCoreTag: Array<UserCoreTagReads>;
   GetRandomUser: User | null;
   IsDisplayNameTaken: boolean;
+  UsersSearchForMerge: Array<User>;
   GetUserBySlug: User | null;
   NetKarmaChangesForAuthorsOverPeriod: Array<NetKarmaChangesForAuthorsOverPeriod>;
   AirtableLeaderboards: Array<AirtableLeaderboardResult>;
@@ -212,6 +213,7 @@ interface Mutation {
   UserUpdateSubforumMembership: User | null;
   karmaChangesChecked: boolean;
   SoftDeleteUser: boolean;
+  MergeAccounts: boolean;
   setVotePost: Post | null;
   performVotePost: VoteResultPost | null;
   setVoteComment: Comment | null;
