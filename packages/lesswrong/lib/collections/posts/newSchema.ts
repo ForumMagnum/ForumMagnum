@@ -767,8 +767,9 @@ const schema = {
       outputType: "Boolean!",
       inputType: "Boolean",
       canRead: ["guests"],
-      canUpdate: ["members"],
-      canCreate: ["members"],
+      // Users can no longer create question posts or convert posts into questions
+      canUpdate: ["sunshineRegiment", "admins"],
+      canCreate: ["sunshineRegiment", "admins"],
       validation: {
         optional: true,
       },
