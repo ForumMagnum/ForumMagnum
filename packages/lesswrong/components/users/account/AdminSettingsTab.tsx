@@ -252,16 +252,24 @@ const AdminSettingsTab = ({
         {userIsAdmin(currentUser) && (
           <SoftDeleteUserSection userId={form.state.values._id} />
         )}
+      </SettingsSection>
 
-        {userIsAdmin(currentUser) && (
+      {userIsAdmin(currentUser) && (
+        <SettingsSection title="Merge Accounts">
           <MergeAccountsSection targetUser={{
             _id: form.state.values._id,
             displayName: form.state.values.displayName ?? null,
             username: form.state.values.username ?? null,
             slug: form.state.values.slug ?? null,
+            karma: form.state.values.karma ?? null,
+            postCount: form.state.values.postCount ?? null,
+            commentCount: form.state.values.commentCount ?? null,
+            email: form.state.values.email ?? null,
+            createdAt: form.state.values.createdAt ?? null,
+            associatedOAuthServices: form.state.values.associatedOAuthServices ?? null,
           }} />
-        )}
-      </SettingsSection>
+        </SettingsSection>
+      )}
 
       {isLWorAF() && userIsAdmin(currentUser) && (
         <SettingsSection title="Prize / Payment Info">

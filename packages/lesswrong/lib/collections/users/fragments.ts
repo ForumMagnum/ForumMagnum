@@ -469,6 +469,9 @@ export const UsersEdit = gql(`
     deleteContent
     banned
 
+    # Linked OAuth providers (admin-only)
+    associatedOAuthServices
+
     # Name
     username
     displayName
@@ -600,5 +603,6 @@ export const UsersMergeSearchResult = gql(`
     ...UsersMinimumInfo
     email
     emails
+    associatedOAuthServices
   }
 `)

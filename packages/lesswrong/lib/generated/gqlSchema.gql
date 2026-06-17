@@ -254,13 +254,25 @@ type UserCoreTagReads {
   userReadCount: Int!
 }
 
+type MergeAccountsFailure {
+  stage: String!
+  message: String!
+  collectionName: String
+  documentId: String
+}
+
+type MergeAccountsResult {
+  success: Boolean!
+  failures: [MergeAccountsFailure!]!
+}
+
 extend type Mutation {
   NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile
   UserExpandFrontpageSection(section: String!, expanded: Boolean!): Boolean
   UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User
   karmaChangesChecked(startDate: Date, endDate: Date): Boolean!
   SoftDeleteUser(userId: String!): Boolean!
-  MergeAccounts(sourceUserId: String!, targetUserId: String!, dryRun: Boolean!): Boolean!
+  MergeAccounts(sourceUserId: String!, targetUserId: String!, dryRun: Boolean!): MergeAccountsResult!
 }
 
 extend type Query {
@@ -7504,6 +7516,7 @@ type User {
   isAdmin: Boolean!
   profile: JSON
   services: JSON
+  associatedOAuthServices: [String!]
   hasAuth0Id: Boolean
   displayName: String!
   previousDisplayName: String

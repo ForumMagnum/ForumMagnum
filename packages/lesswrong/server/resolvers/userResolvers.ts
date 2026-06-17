@@ -94,6 +94,16 @@ export const graphqlTypeDefs = gql`
     tagId: String!,
     userReadCount: Int!
   }
+  type MergeAccountsFailure {
+    stage: String!
+    message: String!
+    collectionName: String
+    documentId: String
+  }
+  type MergeAccountsResult {
+    success: Boolean!
+    failures: [MergeAccountsFailure!]!
+  }
 
   extend type Mutation {
     NewUserCompleteProfile(username: String!, subscribeToDigest: Boolean!, email: String, acceptedTos: Boolean): NewUserCompletedProfile
@@ -101,7 +111,7 @@ export const graphqlTypeDefs = gql`
     UserUpdateSubforumMembership(tagId: String!, member: Boolean!): User
     karmaChangesChecked(startDate: Date, endDate: Date): Boolean!
     SoftDeleteUser(userId: String!): Boolean!
-    MergeAccounts(sourceUserId: String!, targetUserId: String!, dryRun: Boolean!): Boolean!
+    MergeAccounts(sourceUserId: String!, targetUserId: String!, dryRun: Boolean!): MergeAccountsResult!
   }
 
   extend type Query {
@@ -297,8 +307,7 @@ export const graphqlMutations = {
     if (!targetUser) {
       throw new Error(`Target user not found: ${targetUserId}`);
     }
-    await mergeAccounts({ sourceUserId, targetUserId, dryRun });
-    return true;
+    return await mergeAccounts({ sourceUserId, targetUserId, dryRun });
   },
 }
 

@@ -507,6 +507,17 @@ const schema = {
       },
     },
   },
+  /** Names of the OAuth providers (e.g. "google", "github", "facebook") this account is linked to. */
+  associatedOAuthServices: {
+    graphql: {
+      outputType: "[String!]",
+      canRead: ownsOrIsAdmin,
+      resolver: (user) => {
+        const oauthProviders = ["google", "github", "facebook", "linkedin"] as const;
+        return oauthProviders.filter((provider) => !!getNestedProperty(user, `services.${provider}`));
+      },
+    },
+  },
   /** @deprecated hasAuth0Id: true if they use auth0 with username/password login, false otherwise */
   hasAuth0Id: {
     graphql: {

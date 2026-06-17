@@ -2776,6 +2776,20 @@ type MarketplaceHomePageDesign = {
   verified: Scalars['Boolean']['output'];
 };
 
+type MergeAccountsFailure = {
+  __typename?: 'MergeAccountsFailure';
+  collectionName?: Maybe<Scalars['String']['output']>;
+  documentId?: Maybe<Scalars['String']['output']>;
+  message: Scalars['String']['output'];
+  stage: Scalars['String']['output'];
+};
+
+type MergeAccountsResult = {
+  __typename?: 'MergeAccountsResult';
+  failures: Array<MergeAccountsFailure>;
+  success: Scalars['Boolean']['output'];
+};
+
 type Message = {
   __typename?: 'Message';
   _id: Scalars['String']['output'];
@@ -3835,7 +3849,7 @@ type Mutation = {
   ImportGoogleDoc?: Maybe<Post>;
   MakeElicitPrediction?: Maybe<ElicitBlockData>;
   MarkAllNotificationsAsRead?: Maybe<Scalars['Boolean']['output']>;
-  MergeAccounts: Scalars['Boolean']['output'];
+  MergeAccounts: MergeAccountsResult;
   NewUserCompleteProfile?: Maybe<NewUserCompletedProfile>;
   PetrovDayLaunchMissile?: Maybe<PetrovDayLaunchMissileData>;
   RSVPToEvent?: Maybe<Post>;
@@ -11526,6 +11540,7 @@ type User = {
   altAccountsDetected?: Maybe<Scalars['Boolean']['output']>;
   associatedClientId?: Maybe<ClientId>;
   associatedClientIds?: Maybe<Array<ClientId>>;
+  associatedOAuthServices?: Maybe<Array<Scalars['String']['output']>>;
   autoSubscribeAsOrganizer: Scalars['Boolean']['output'];
   auto_subscribe_to_my_comments: Scalars['Boolean']['output'];
   auto_subscribe_to_my_posts: Scalars['Boolean']['output'];
@@ -22688,7 +22703,11 @@ type UsersSearchForMergeQueryVariables = Exact<{
 
 type UsersSearchForMergeQuery = UsersSearchForMergeQuery_Query;
 
-type MergeAccountsMutation_Mutation = { __typename?: 'Mutation', MergeAccounts: boolean };
+type MergeAccountsMutation_MergeAccounts_MergeAccountsResult_failures_MergeAccountsFailure = { __typename?: 'MergeAccountsFailure', stage: string, message: string, collectionName: string | null, documentId: string | null };
+
+type MergeAccountsMutation_MergeAccounts_MergeAccountsResult = { __typename?: 'MergeAccountsResult', success: boolean, failures: Array<MergeAccountsMutation_MergeAccounts_MergeAccountsResult_failures_MergeAccountsFailure> };
+
+type MergeAccountsMutation_Mutation = { __typename?: 'Mutation', MergeAccounts: MergeAccountsMutation_MergeAccounts_MergeAccountsResult };
 
 
 type MergeAccountsMutationVariables = Exact<{
@@ -25018,7 +25037,7 @@ type UsersEdit_User_moderationGuidelines_Revision = (
 );
 
 type UsersEdit = (
-  { __typename?: 'User', markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, hideIntercom: boolean, commentSorting: string | null, currentFrontpageFilter: string | null, noCollapseCommentsPosts: boolean, noCollapseCommentsFrontpage: boolean, noSingleLineComments: boolean, hideCommunitySection: boolean, showCommunityInRecentDiscussion: boolean, beta: boolean | null, theme: any | null, email: string | null, whenConfirmationEmailSent: string | null, emailSubscribedToCurated: boolean | null, unsubscribeFromAll: boolean | null, moderatorAssistance: boolean | null, collapseModerationGuidelines: boolean | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, nullifyVotes: boolean | null, deleteContent: boolean | null, banned: string | null, username: string | null, displayName: string, fullName: string | null, mongoLocation: any | null, googleLocation: any | null, location: string | null, mapLocation: any | null, hideFromPeopleDirectory: boolean, allowDatadogSessionReplay: boolean, reviewedByUserId: string | null, reviewForAlignmentForumUserId: string | null, groups: Array<string> | null, afApplicationText: string | null, afSubmittedApplication: boolean | null, karmaChangeLastOpened: string | null, karmaChangeNotifierSettings: any | null, notificationShortformContent: any | null, notificationCommentsOnSubscribedPost: any | null, notificationRepliesToMyComments: any | null, notificationRepliesToSubscribedComments: any | null, notificationSubscribedUserPost: any | null, notificationSubscribedUserComment: any | null, notificationSubscribedTagPost: any | null, notificationSubscribedSequencePost: any | null, notificationPostsInGroups: any | null, notificationPrivateMessage: any | null, notificationSharedWithMe: any | null, notificationAlignmentSubmissionApproved: any | null, notificationEventInRadius: any | null, notificationRSVPs: any | null, notificationCommentsOnDraft: any | null, notificationPostsNominatedReview: any | null, notificationGroupAdministration: any | null, notificationSubforumUnread: any | null, notificationNewMention: any | null, notificationTypoSuggestions: any | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, notificationDialogueMessages: any | null, notificationPublishedDialogueMessages: any | null, hideFrontpageMap: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2020Ad: boolean | null, deleted: boolean, permanentDeletionRequestedAt: string | null, twitterProfileURLAdmin: string | null, biography: UsersEdit_User_biography_Revision | null, moderationGuidelines: UsersEdit_User_moderationGuidelines_Revision | null }
+  { __typename?: 'User', markDownPostEditor: boolean, hideElicitPredictions: boolean | null, hideAFNonMemberInitialWarning: boolean | null, hideIntercom: boolean, commentSorting: string | null, currentFrontpageFilter: string | null, noCollapseCommentsPosts: boolean, noCollapseCommentsFrontpage: boolean, noSingleLineComments: boolean, hideCommunitySection: boolean, showCommunityInRecentDiscussion: boolean, beta: boolean | null, theme: any | null, email: string | null, whenConfirmationEmailSent: string | null, emailSubscribedToCurated: boolean | null, unsubscribeFromAll: boolean | null, moderatorAssistance: boolean | null, collapseModerationGuidelines: boolean | null, bannedUserIds: Array<string> | null, bannedPersonalUserIds: Array<string> | null, noKibitz: boolean | null, showHideKarmaOption: boolean | null, nullifyVotes: boolean | null, deleteContent: boolean | null, banned: string | null, associatedOAuthServices: Array<string> | null, username: string | null, displayName: string, fullName: string | null, mongoLocation: any | null, googleLocation: any | null, location: string | null, mapLocation: any | null, hideFromPeopleDirectory: boolean, allowDatadogSessionReplay: boolean, reviewedByUserId: string | null, reviewForAlignmentForumUserId: string | null, groups: Array<string> | null, afApplicationText: string | null, afSubmittedApplication: boolean | null, karmaChangeLastOpened: string | null, karmaChangeNotifierSettings: any | null, notificationShortformContent: any | null, notificationCommentsOnSubscribedPost: any | null, notificationRepliesToMyComments: any | null, notificationRepliesToSubscribedComments: any | null, notificationSubscribedUserPost: any | null, notificationSubscribedUserComment: any | null, notificationSubscribedTagPost: any | null, notificationSubscribedSequencePost: any | null, notificationPostsInGroups: any | null, notificationPrivateMessage: any | null, notificationSharedWithMe: any | null, notificationAlignmentSubmissionApproved: any | null, notificationEventInRadius: any | null, notificationRSVPs: any | null, notificationCommentsOnDraft: any | null, notificationPostsNominatedReview: any | null, notificationGroupAdministration: any | null, notificationSubforumUnread: any | null, notificationNewMention: any | null, notificationTypoSuggestions: any | null, notificationNewDialogueChecks: any | null, notificationYourTurnMatchForm: any | null, notificationDialogueMessages: any | null, notificationPublishedDialogueMessages: any | null, hideFrontpageMap: boolean | null, hideTaggingProgressBar: boolean | null, hideFrontpageBookAd: boolean | null, hideFrontpageBook2020Ad: boolean | null, deleted: boolean, permanentDeletionRequestedAt: string | null, twitterProfileURLAdmin: string | null, biography: UsersEdit_User_biography_Revision | null, moderationGuidelines: UsersEdit_User_moderationGuidelines_Revision | null }
   & UsersProfile
   & UsersCurrent
 );
@@ -25048,7 +25067,7 @@ type SuggestAlignmentUser = (
 );
 
 type UsersMergeSearchResult = (
-  { __typename?: 'User', email: string | null, emails: Array<any> | null }
+  { __typename?: 'User', email: string | null, emails: Array<any> | null, associatedOAuthServices: Array<string> | null }
   & UsersMinimumInfo
 );
 
