@@ -459,6 +459,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
     annualReviewMarketInfo,
     showReadCheckbox,
     showDraftTag,
+    showRejectedTag,
     showPersonalIcon,
     showBottomBorder,
     showDismissButton,
@@ -543,6 +544,7 @@ const LWPostsItem = (props: PostsItemConfig) => {
                     read={isRead && !showReadCheckbox} // readCheckbox and post-title read-status don't aesthetically match
                     sticky={sticky}
                     showDraftTag={showDraftTag}
+                    showRejectedTag={showRejectedTag}
                     {...(showPersonalIcon ? {showPersonalIcon} : {})}
                     curatedIconLeft={curatedIconLeft}
                     strikethroughTitle={strikethroughTitle}

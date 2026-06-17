@@ -4481,6 +4481,7 @@ interface PostsDraftsInput {
   curatedAfter?: string | null;
   includeDraftEvents?: boolean | null;
   includeArchived?: boolean | null;
+  includeRejected?: boolean | null;
   includeShared?: boolean | null;
   sortDraftsBy?: string | null;
 }

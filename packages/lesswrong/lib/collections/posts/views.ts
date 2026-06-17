@@ -70,6 +70,7 @@ declare global {
     reviewPhase?: ReviewPhase,
     includeArchived?: boolean,
     includeDraftEvents?: boolean,
+    includeRejected?: boolean,
     includeShared?: boolean,
     distance?: number,
     audioOnly?: boolean,
@@ -649,18 +650,33 @@ function rejected(terms: PostsViewTerms) {
   }
 }
 
+const getDraftAccessClauses = (terms: PostsViewTerms): MongoSelector<DbPost>[] => {
+  const clauses: MongoSelector<DbPost>[] = [{userId: terms.userId}];
+  if (terms.includeShared) {
+    clauses.push(
+      {shareWithUsers: terms.userId},
+      {coauthorUserIds: terms.userId},
+    );
+  }
+  return clauses;
+}
+
 function drafts(terms: PostsViewTerms) {
   let query: any = {
     selector: {
       userId: viewFieldAllowAny,
       $or: [
-        {userId: terms.userId},
-        {shareWithUsers: terms.userId},
-        {coauthorUserIds: terms.userId},
+        ...getDraftAccessClauses(terms).map((accessClause) => ({
+          ...accessClause,
+          draft: true,
+          unlisted: null,
+        })),
+        ...(terms.includeRejected ? [{
+          userId: terms.userId,
+          rejected: true,
+        }] : []),
       ],
-      draft: true,
       hideAuthor: false,
-      unlisted: null,
       groupId: null, // TODO: fix vulcan so it doesn't do deep merges on viewFieldAllowAny
       authorIsUnreviewed: viewFieldAllowAny,
       hiddenRelatedQuestion: viewFieldAllowAny,
@@ -675,9 +691,6 @@ function drafts(terms: PostsViewTerms) {
   
   if (terms.includeDraftEvents) {
     query.selector.isEvent = viewFieldAllowAny
-  }
-  if (!terms.includeShared) {
-    query.selector.userId = terms.userId
   }
   if (terms.userId) {
     query.selector.hideAuthor = false

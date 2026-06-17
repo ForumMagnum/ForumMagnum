@@ -160,13 +160,14 @@ const postIcon = (post: PostsBase|PostsListBase) => {
 
 const DefaultWrapper: FC<PropsWithChildren<{}>> = ({children}) => <>{children}</>;
 
-const PostsTitle = ({post, postLink, sticky, read, showPersonalIcon=true, showDraftTag=true, wrap=false, showIcons=true, isLink=true, curatedIconLeft=true, strikethroughTitle=false, Wrapper=DefaultWrapper, showEventTag, linkEventProps, postItemHovered, className}: {
+const PostsTitle = ({post, postLink, sticky, read, showPersonalIcon=true, showDraftTag=true, showRejectedTag=false, wrap=false, showIcons=true, isLink=true, curatedIconLeft=true, strikethroughTitle=false, Wrapper=DefaultWrapper, showEventTag, linkEventProps, postItemHovered, className}: {
   post: PostsBase|PostsListBase,
   postLink?: string,
   sticky?: boolean,
   read?: boolean,
   showPersonalIcon?: boolean
   showDraftTag?: boolean,
+  showRejectedTag?: boolean,
   wrap?: boolean,
   showIcons?: boolean,
   isLink?: boolean,
@@ -198,6 +199,7 @@ const PostsTitle = ({post, postLink, sticky, read, showPersonalIcon=true, showDr
     {Icon && <Icon className={classes.primaryIcon}/>}
 
     {post.draft && showDraftTag && <span className={classes.tag}>[Draft]</span>}
+    {post.rejected && showRejectedTag && <span className={classes.tag}>[Rejected]</span>}
     {post.isFuture && <span className={classes.tag}>[Pending]</span>}
     {post.unlisted && <span className={classes.tag}>[Unlisted]</span>}
     {shared && <span className={classes.tag}>[Shared]</span>}

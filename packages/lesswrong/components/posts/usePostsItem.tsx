@@ -53,6 +53,7 @@ export type PostsItemConfig = {
   toggleDeleteDraft?: (post: PostsList) => void,
   showBottomBorder?: boolean,
   showDraftTag?: boolean,
+  showRejectedTag?: boolean,
   showPersonalIcon?: boolean
   showIcons?: boolean,
   showPostedAt?: boolean,
@@ -110,6 +111,7 @@ export const usePostsItem = ({
   toggleDeleteDraft,
   showBottomBorder = true,
   showDraftTag = true,
+  showRejectedTag = false,
   showPersonalIcon = true,
   showIcons = true,
   showPostedAt = true,
@@ -236,6 +238,7 @@ export const usePostsItem = ({
     annualReviewMarketInfo,
     showReadCheckbox,
     showDraftTag,
+    showRejectedTag,
     showPersonalIcon,
     showBottomBorder,
     showDismissButton,

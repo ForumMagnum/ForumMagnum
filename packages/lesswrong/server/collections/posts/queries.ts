@@ -573,6 +573,7 @@ export const graphqlPostQueryTypeDefs = gql`
     curatedAfter: String
     includeDraftEvents: Boolean
     includeArchived: Boolean
+    includeRejected: Boolean
     includeShared: Boolean
     sortDraftsBy: String
   }

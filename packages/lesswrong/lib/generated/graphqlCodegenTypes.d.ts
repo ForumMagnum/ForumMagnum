@@ -5890,6 +5890,7 @@ type PostsDraftsInput = {
   hideCommunity?: InputMaybe<Scalars['Boolean']['input']>;
   includeArchived?: InputMaybe<Scalars['Boolean']['input']>;
   includeDraftEvents?: InputMaybe<Scalars['Boolean']['input']>;
+  includeRejected?: InputMaybe<Scalars['Boolean']['input']>;
   includeRelatedQuestions?: InputMaybe<Scalars['String']['input']>;
   includeShared?: InputMaybe<Scalars['Boolean']['input']>;
   karmaThreshold?: InputMaybe<Scalars['Int']['input']>;

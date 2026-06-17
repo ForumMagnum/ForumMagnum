@@ -94,6 +94,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
     userId: userId ?? currentUser?._id,
     sortDraftsBy: currentSorting,
     includeArchived: !!query.includeArchived ? (query.includeArchived === 'true') : !!currentUser?.draftsListShowArchived,
+    includeRejected: true,
     includeShared: !!query.includeShared ? (query.includeShared === 'true') : (currentUser?.draftsListShowShared !== false),
   }), [userId, currentSorting, query.includeArchived, query.includeShared, currentUser]);
   
@@ -150,6 +151,7 @@ const DraftsList = ({limit, title="My Drafts", userId, showAllDraftsLink=true, h
           toggleDeleteDraft={toggleDelete}
           hideAuthor
           showDraftTag={false}
+          showRejectedTag
           showPersonalIcon={false}
           showBottomBorder={i < results.length-1}
           strikethroughTitle={post.deletedDraft}

@@ -30,3 +30,57 @@ describe("profile top posts", () => {
     });
   });
 });
+
+describe("drafts view", () => {
+  const draftsView = PostsViews.getView("drafts");
+
+  it("does not include rejected posts by default", () => {
+    const terms: PostsViewTerms = {
+      view: "drafts",
+      userId: "testUserId",
+      includeShared: true,
+    };
+
+    const params = draftsView(terms);
+
+    expect(params.selector.$or).toEqual([
+      { userId: "testUserId", draft: true, unlisted: null },
+      { shareWithUsers: "testUserId", draft: true, unlisted: null },
+      { coauthorUserIds: "testUserId", draft: true, unlisted: null },
+    ]);
+  });
+
+  it("can include rejected posts owned by the user", () => {
+    const terms: PostsViewTerms = {
+      view: "drafts",
+      userId: "testUserId",
+      includeRejected: true,
+      includeShared: true,
+    };
+
+    const params = draftsView(terms);
+
+    expect(params.selector.$or).toEqual([
+      { userId: "testUserId", draft: true, unlisted: null },
+      { shareWithUsers: "testUserId", draft: true, unlisted: null },
+      { coauthorUserIds: "testUserId", draft: true, unlisted: null },
+      { userId: "testUserId", rejected: true },
+    ]);
+  });
+
+  it("still excludes shared drafts when includeShared is false", () => {
+    const terms: PostsViewTerms = {
+      view: "drafts",
+      userId: "testUserId",
+      includeRejected: true,
+      includeShared: false,
+    };
+
+    const params = draftsView(terms);
+
+    expect(params.selector.$or).toEqual([
+      { userId: "testUserId", draft: true, unlisted: null },
+      { userId: "testUserId", rejected: true },
+    ]);
+  });
+});
