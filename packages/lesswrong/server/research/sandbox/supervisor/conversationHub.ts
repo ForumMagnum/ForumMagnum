@@ -52,13 +52,15 @@ const CANCEL_INTERRUPT_GRACE_MS = 10_000;
 const CANCEL_SIGKILL_GRACE_MS = 5_000;
 
 /**
- * `task_notification` statuses that do NOT mean the task ended. The CLI's
- * task events are undocumented, so deletion from the outstanding set is the
- * default (a wedged-awake sandbox is bounded by the 5h session cap and the
- * liveness gate in `hasPendingWork`), and only an explicitly in-progress
- * status keeps the task counted.
+ * Task statuses that mean a background task has settled, taken from the Claude
+ * Code Agent SDK message types (`@anthropic-ai/claude-agent-sdk`): the union of
+ * `SDKTaskNotificationMessage.status` ({completed, failed, stopped}) and the
+ * terminal subset of `SDKTaskUpdatedMessage.patch.status` ({completed, failed,
+ * killed}). The SDK exports the same set as `TERMINAL_TASK_STATUSES`. Every
+ * other status (pending/running/paused) and statusless patches (e.g.
+ * `{is_backgrounded: true}`) are non-terminal and keep the task counted.
  */
-const NON_TERMINAL_TASK_STATUSES = new Set(["running", "pending", "queued", "in_progress", "started"]);
+const TERMINAL_TASK_STATUSES = new Set(["completed", "failed", "killed", "stopped"]);
 
 export interface ConversationHubConfig {
   postPersister: PostPersister;
@@ -93,10 +95,11 @@ interface ConversationEntry {
    */
   cancelPending: boolean;
   /**
-   * Background Bash tasks the agent has started that haven't reached a
-   * terminal `task_notification` yet. A pending task means the process will
-   * re-invoke the agent later, so the sandbox must be kept alive even though
-   * no turn is running — surfaced to the heartbeat via `hasPendingWork`.
+   * Background Bash tasks the agent has started that haven't reached a terminal
+   * status yet (see `updateOutstandingTasks` for the terminal signals). A
+   * pending task means the process may re-invoke the agent later, so the
+   * sandbox must be kept alive even though no turn is running — surfaced to the
+   * heartbeat via `hasPendingWork`.
    */
   outstandingTaskIds: Set<string>;
   /** Serializes spawn/teardown so two dispatches can't race a respawn. */
@@ -235,20 +238,7 @@ export function createConversationHub(config: ConversationHubConfig) {
         entry.pendingTurns = Math.max(0, entry.pendingTurns - 1);
         entry.initSeenSinceResult = true;
       }
-      // `task_started` / `task_notification` bracket a background Bash task's
-      // lifetime. `task_updated` is deliberately ignored (can fire on
-      // non-terminal transitions), and a notification carrying an explicitly
-      // in-progress status keeps the task counted.
-      const taskId = line.parsed.task_id;
-      if (typeof taskId === "string") {
-        if (subtype === "task_started") entry.outstandingTaskIds.add(taskId);
-        if (subtype === "task_notification") {
-          const status = line.parsed.status;
-          if (typeof status !== "string" || !NON_TERMINAL_TASK_STATUSES.has(status)) {
-            entry.outstandingTaskIds.delete(taskId);
-          }
-        }
-      }
+      updateOutstandingTasks(entry, subtype, line.parsed);
     }
 
     if (line.kind === "result") {
@@ -521,6 +511,50 @@ function noop(): void {}
 function systemSubtypeOf(line: ParsedJsonlLine): string | undefined {
   const subtype = line.parsed?.subtype;
   return typeof subtype === "string" ? subtype : undefined;
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null;
+}
+
+function isTerminalTaskStatus(status: unknown): boolean {
+  return typeof status === "string" && TERMINAL_TASK_STATUSES.has(status);
+}
+
+/**
+ * Maintain `entry.outstandingTaskIds` from the agent's task lifecycle events: a
+ * background Bash task is added on `task_started` and removed once it settles.
+ * Its terminal signal arrives in one of two shapes (Agent SDK message types),
+ * and a background Bash task uses ONLY the second — it emits no
+ * `task_notification` (verified against Claude Code 2.1.170 and 2.1.181):
+ *   - `task_notification.status` ∈ TERMINAL_TASK_STATUSES
+ *   - `task_updated.patch.status` ∈ TERMINAL_TASK_STATUSES
+ * Non-terminal `task_updated` patches (status running/pending/paused, or an
+ * `is_backgrounded`/progress-only patch with no status) keep the task counted;
+ * anything still outstanding when the process exits is cleared in `onExit`.
+ */
+function updateOutstandingTasks(
+  entry: ConversationEntry,
+  subtype: string | undefined,
+  parsed: Record<string, unknown>,
+): void {
+  const taskId = parsed.task_id;
+  if (typeof taskId !== "string") return;
+
+  if (subtype === "task_started") {
+    entry.outstandingTaskIds.add(taskId);
+    return;
+  }
+  if (subtype === "task_notification" && isTerminalTaskStatus(parsed.status)) {
+    entry.outstandingTaskIds.delete(taskId);
+    return;
+  }
+  if (subtype === "task_updated") {
+    const patch = parsed.patch;
+    if (isRecord(patch) && isTerminalTaskStatus(patch.status)) {
+      entry.outstandingTaskIds.delete(taskId);
+    }
+  }
 }
 
 /**

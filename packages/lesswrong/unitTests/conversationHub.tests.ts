@@ -228,6 +228,44 @@ describe("conversationHub", () => {
     expect(hub.hasPendingWork()).toBe(false);
   });
 
+  it("clears a background task that finishes via task_updated with no task_notification", async () => {
+    // A backgrounded Bash task signals completion through a terminal
+    // `task_updated.patch.status` and emits no `task_notification` (verified
+    // against Claude Code 2.1.170 and 2.1.181).
+    const { hub, procs } = mkHub();
+    await hub.dispatch({ conversationId: "c1", prompt: "install deps", claudeSessionId: "sess-1" });
+    procs[0].emit(init);
+    procs[0].emit({ type: "system", subtype: "task_started", task_id: "t1", task_type: "local_bash", session_id: "sess-1", uuid: "u-t1" });
+    procs[0].emit(resultLine);
+    expect(hub.hasPendingWork()).toBe(true);
+
+    // A non-terminal update (here, the task being backgrounded) keeps it counted.
+    procs[0].emit({ type: "system", subtype: "task_updated", task_id: "t1", patch: { is_backgrounded: true }, session_id: "sess-1", uuid: "u-t2" });
+    expect(hub.hasPendingWork()).toBe(true);
+
+    // A terminal patch status settles it — without any task_notification.
+    procs[0].emit({ type: "system", subtype: "task_updated", task_id: "t1", patch: { status: "completed", end_time: 1 }, session_id: "sess-1", uuid: "u-t3" });
+    expect(hub.hasPendingWork()).toBe(false);
+  });
+
+  it("keeps a task counted while task_updated reports a non-terminal status", async () => {
+    const { hub, procs } = mkHub();
+    await hub.dispatch({ conversationId: "c1", prompt: "start proxy", claudeSessionId: "sess-1" });
+    procs[0].emit(init);
+    procs[0].emit({ type: "system", subtype: "task_started", task_id: "t1", task_type: "local_bash", session_id: "sess-1", uuid: "u-t1" });
+    procs[0].emit(resultLine);
+
+    // `running` / `paused` are non-terminal and must not clear the task.
+    procs[0].emit({ type: "system", subtype: "task_updated", task_id: "t1", patch: { status: "running" }, session_id: "sess-1", uuid: "u-t2" });
+    expect(hub.hasPendingWork()).toBe(true);
+    procs[0].emit({ type: "system", subtype: "task_updated", task_id: "t1", patch: { status: "paused" }, session_id: "sess-1", uuid: "u-t3" });
+    expect(hub.hasPendingWork()).toBe(true);
+
+    // A failed task is terminal and clears it.
+    procs[0].emit({ type: "system", subtype: "task_updated", task_id: "t1", patch: { status: "failed", error: "boom" }, session_id: "sess-1", uuid: "u-t4" });
+    expect(hub.hasPendingWork()).toBe(false);
+  });
+
   it("persists the user turn at dispatch, before any process output", async () => {
     const { hub, events } = mkHub();
     await hub.dispatch({ conversationId: "c1", prompt: "hello", claudeSessionId: "sess-1" });
