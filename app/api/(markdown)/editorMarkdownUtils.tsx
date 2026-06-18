@@ -235,7 +235,16 @@ export async function getLiveLexicalMarkdown({
 // "no changes detected". Send no-store on every response from this route.
 const NO_CACHE_HEADERS = {
   "Cache-Control": "private, no-store, max-age=0",
+  "Pragma": "no-cache",
+  "Expires": "0",
 };
+
+function setNoCacheHeaders(response: Response): Response {
+  for (const [header, value] of Object.entries(NO_CACHE_HEADERS)) {
+    response.headers.set(header, value);
+  }
+  return response;
+}
 
 export async function renderLiveEditorDraftMarkdownRoute({
   req,
@@ -304,8 +313,7 @@ export async function renderLiveEditorDraftMarkdownRoute({
       bodyMarkdown,
       commentThreadsMarkdown,
     });
-    response.headers.set("Cache-Control", NO_CACHE_HEADERS["Cache-Control"]);
-    return response;
+    return setNoCacheHeaders(response);
   } catch (error) {
     // This needs to be a 200 because Claude's web_fetch tool doesn't give it any additional information if you return a 4xx status code,
     // so if we want Claude to be able to tell the user what they need to do to make the post accessible, we have to return the error message

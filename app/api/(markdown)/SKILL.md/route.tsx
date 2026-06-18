@@ -156,6 +156,13 @@ anyone unless the user is asking you to give that person permission to edit
 the post. Once you have the post URL, read the post at:
     GET /editPost?postId=[id]&key=[linkSharingKey]
 
+If you are re-reading the draft after the user says they saved edits, use a
+direct HTTP request rather than a web-fetch/browser-style tool that may reuse a
+cached result. Prefer curl with no-cache headers and a cache-busting query
+parameter, for example:
+    curl -H 'Cache-Control: no-cache' -H 'Pragma: no-cache' \\
+      '${urlPrefix}/editPost?postId=[id]&key=[linkSharingKey]&_=[timestamp]'
+
 The editPost response includes a "Comment Threads" section after the post body
 if there are any open comment or suggestion threads on the draft. Each thread
 shows its ID, type (comment or suggestion), the quoted anchor text (if any),
@@ -193,9 +200,9 @@ A few things to watch out for:
    surrounding context rather than guessing.
  * If the call returns a "no match" error, the likely cause is that the user
    has edited the draft since you read it. Fetch the current state of the post
-   via /api/editPost and re-derive your quote from the fresh read before retrying.
-   Drafts are a live collaboration surface; text you read a few minutes ago may
-   no longer be present.
+   via /api/editPost using the no-cache curl pattern above, then re-derive your
+   quote from the fresh read before retrying. Drafts are a live collaboration
+   surface; text you read a few minutes ago may no longer be present.
 
 To reply to an existing comment thread on the draft:
     POST /api/agent/replyToComment
