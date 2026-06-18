@@ -14,10 +14,11 @@ import { agentMarkdownFromEditorHtml } from "../agent/agentMarkdownView";
 import { readOpenCommentThreads, type SerializedThread } from "../agent/collabCommentThreads";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
-import { applyUpdate, Doc, UndoManager } from "yjs";
-import { createBinding, syncYjsChangesToLexical, type Provider as LexicalProvider } from "@lexical/yjs";
+import { applyUpdate, Doc } from "yjs";
+import { createBinding, type Provider as LexicalProvider } from "@lexical/yjs";
 import {
   $createParagraphNode,
+  $getRoot,
   $isElementNode,
   $isDecoratorNode,
   $isParagraphNode,
@@ -260,30 +261,25 @@ export function getLexicalMarkdownFromYjsSnapshot(
 ): string {
   return withDomGlobals(() => {
     const doc = new Doc();
+    applyUpdate(doc, new Uint8Array(Buffer.from(yjsStateBase64, "base64")));
+
     const editor = createHeadlessEditor(operationLabel);
     const provider = createMockLexicalProvider();
     const docMap = new Map<string, Doc>([["main", doc]]);
     const binding = createBinding(editor, provider, "main", doc, docMap);
-    const rootSharedType = binding.root.getSharedType();
-    const onYjsTreeChanges = (
-      events: Parameters<typeof syncYjsChangesToLexical>[2],
-      transaction: { origin: unknown },
-    ) => {
-      if (transaction.origin !== binding) {
-        const isFromUndoManager = transaction.origin instanceof UndoManager;
-        syncYjsChangesToLexical(
-          binding,
-          provider,
-          events,
-          isFromUndoManager,
-          () => {},
-        );
-      }
-    };
 
-    rootSharedType.observeDeep(onYjsTreeChanges);
     try {
-      applyUpdate(doc, new Uint8Array(Buffer.from(yjsStateBase64, "base64")));
+      editor.update(
+        () => {
+          $getRoot().clear();
+          const delta = binding.root.getSharedType().toDelta();
+          if (delta.length > 0) {
+            binding.root.applyChildrenYjsDelta(binding, delta);
+            binding.root.syncChildrenFromYjs(binding);
+          }
+        },
+        { discrete: true },
+      );
 
       let html = "";
       editor.getEditorState().read(() => {
@@ -291,7 +287,6 @@ export function getLexicalMarkdownFromYjsSnapshot(
       });
       return agentMarkdownFromEditorHtml(html);
     } finally {
-      rootSharedType.unobserveDeep(onYjsTreeChanges);
       doc.destroy();
     }
   });
