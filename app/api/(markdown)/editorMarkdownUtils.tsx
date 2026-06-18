@@ -3,11 +3,19 @@ import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
 import { NextRequest, NextResponse } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
-import { checkEditorTypeAndGetToken, splitParagraphAtDisplayMath, withMainDocEditorSession } from "../agent/editorAgentUtil";
+import { getLatestRev } from "@/server/editor/utils";
+import {
+  checkEditorTypeAndGetToken,
+  createHeadlessEditor,
+  splitParagraphAtDisplayMath,
+  withMainDocEditorSession,
+} from "../agent/editorAgentUtil";
 import { agentMarkdownFromEditorHtml } from "../agent/agentMarkdownView";
 import { readOpenCommentThreads, type SerializedThread } from "../agent/collabCommentThreads";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
+import { applyUpdate, Doc, UndoManager } from "yjs";
+import { createBinding, syncYjsChangesToLexical, type Provider as LexicalProvider } from "@lexical/yjs";
 import {
   $createParagraphNode,
   $isElementNode,
@@ -229,12 +237,106 @@ export async function getLiveLexicalMarkdown({
   });
 }
 
+function createMockLexicalProvider(): LexicalProvider {
+  return {
+    awareness: {
+      getLocalState: () => null,
+      getStates: () => new Map(),
+      off: () => {},
+      on: () => {},
+      setLocalState: () => {},
+      setLocalStateField: () => {},
+    },
+    connect: () => {},
+    disconnect: () => {},
+    off: () => {},
+    on: () => {},
+  };
+}
+
+export function getLexicalMarkdownFromYjsSnapshot(
+  yjsStateBase64: string,
+  operationLabel = "MarkdownReadRevisionSnapshot",
+): string {
+  return withDomGlobals(() => {
+    const doc = new Doc();
+    const editor = createHeadlessEditor(operationLabel);
+    const provider = createMockLexicalProvider();
+    const docMap = new Map<string, Doc>([["main", doc]]);
+    const binding = createBinding(editor, provider, "main", doc, docMap);
+    const rootSharedType = binding.root.getSharedType();
+    const onYjsTreeChanges = (
+      events: Parameters<typeof syncYjsChangesToLexical>[2],
+      transaction: { origin: unknown },
+    ) => {
+      if (transaction.origin !== binding) {
+        const isFromUndoManager = transaction.origin instanceof UndoManager;
+        syncYjsChangesToLexical(
+          binding,
+          provider,
+          events,
+          isFromUndoManager,
+          () => {},
+        );
+      }
+    };
+
+    rootSharedType.observeDeep(onYjsTreeChanges);
+    try {
+      applyUpdate(doc, new Uint8Array(Buffer.from(yjsStateBase64, "base64")));
+
+      let html = "";
+      editor.getEditorState().read(() => {
+        html = $generateHtmlFromNodes(editor, null);
+      });
+      return agentMarkdownFromEditorHtml(html);
+    } finally {
+      rootSharedType.unobserveDeep(onYjsTreeChanges);
+      doc.destroy();
+    }
+  });
+}
+
+async function getNewerSavedDraftMarkdown({
+  postId,
+  context,
+}: {
+  postId: string
+  context: ResolverContext
+}): Promise<string | null> {
+  const [latestRev, yjsDoc] = await Promise.all([
+    getLatestRev(postId, "contents", context),
+    context.YjsDocuments.findOne(
+      { collectionName: "Posts", documentId: postId },
+      undefined,
+      { updatedAt: 1 },
+    ),
+  ]);
+  const yjsState = latestRev?.originalContents?.yjsState;
+  if (
+    latestRev?.originalContents?.type !== "lexical"
+    || !yjsState
+    || (yjsDoc && latestRev.editedAt <= yjsDoc.updatedAt)
+  ) {
+    return null;
+  }
+
+  try {
+    return getLexicalMarkdownFromYjsSnapshot(yjsState);
+  } catch (error) {
+    captureException(error);
+    return null;
+  }
+}
+
 // Live-draft markdown is per-user, ephemeral, and changes any time the user
 // edits the draft. Caches at any layer (Anthropic's web_fetch, browser,
 // CDN) cause agents to read stale content on a refetch and tell the user
 // "no changes detected". Send no-store on every response from this route.
 const NO_CACHE_HEADERS = {
   "Cache-Control": "private, no-store, max-age=0",
+  "Pragma": "no-cache",
+  "Expires": "0",
 };
 
 export async function renderLiveEditorDraftMarkdownRoute({
@@ -290,10 +392,12 @@ export async function renderLiveEditorDraftMarkdownRoute({
         )
       ).data?.post?.result;
 
-    const [bodyMarkdown, commentThreadsMarkdown] = await Promise.all([
+    const [liveBodyMarkdown, savedBodyMarkdown, commentThreadsMarkdown] = await Promise.all([
       getLiveDraftMarkdown({ postId, token }),
+      getNewerSavedDraftMarkdown({ postId, context: resolverContext }),
       getOpenCommentThreadsMarkdown({ collectionName: "Posts", documentId: postId, token }),
     ]);
+    const bodyMarkdown = savedBodyMarkdown ?? liveBodyMarkdown;
     const resolvedPostId = post?._id ?? postId;
     const title = post?.title ?? "(untitled draft)";
 
@@ -305,6 +409,8 @@ export async function renderLiveEditorDraftMarkdownRoute({
       commentThreadsMarkdown,
     });
     response.headers.set("Cache-Control", NO_CACHE_HEADERS["Cache-Control"]);
+    response.headers.set("Pragma", NO_CACHE_HEADERS["Pragma"]);
+    response.headers.set("Expires", NO_CACHE_HEADERS["Expires"]);
     return response;
   } catch (error) {
     // This needs to be a 200 because Claude's web_fetch tool doesn't give it any additional information if you return a 4xx status code,
