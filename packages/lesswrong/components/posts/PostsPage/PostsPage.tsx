@@ -290,13 +290,20 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
 
   // Show the podcast player if the user opened it on another post, hide it if they closed it (and by default)
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
+  const [audioPlayerPlaying, setAudioPlayerPlaying] = useState(false);
+  const showAudioControls = showEmbeddedPlayer || audioPlayerPlaying;
+
+  const onAudioPlaybackChange = useCallback((isPlaying: boolean) => {
+    setAudioPlayerPlaying(isPlaying);
+  }, []);
 
   const toggleEmbeddedPlayer = useCallback(() => {
     if (!post || !postHasAudioPlayer(post)) {
       return;
     }
-    const action = showEmbeddedPlayer ? "close" : "open";
-    const newCookieValue = showEmbeddedPlayer ? "false" : "true";
+    const newShowEmbeddedPlayer = !showAudioControls;
+    const action = newShowEmbeddedPlayer ? "open" : "close";
+    const newCookieValue = newShowEmbeddedPlayer ? "true" : "false";
     captureEvent("toggleAudioPlayer", { action });
     setCookie(
       SHOW_PODCAST_PLAYER_COOKIE,
@@ -304,8 +311,8 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
 
       path: "/"
     });
-    setShowEmbeddedPlayer(!showEmbeddedPlayer);
-  }, [post, showEmbeddedPlayer, captureEvent, setCookie]);
+    setShowEmbeddedPlayer(newShowEmbeddedPlayer);
+  }, [post, showAudioControls, captureEvent, setCookie]);
 
   const getSequenceId = () => {
     return sequenceIdFromUrl || fullPost?.canonicalSequenceId || null;
@@ -552,10 +559,11 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
           </div>}
           <LWPostsPageHeader
             post={post}
-            showEmbeddedPlayer={showEmbeddedPlayer}
+            showEmbeddedPlayer={showAudioControls}
             dialogueResponses={debateResponses}
             answerCount={answerCount}
             toggleEmbeddedPlayer={toggleEmbeddedPlayer}
+            onAudioPlaybackChange={onAudioPlaybackChange}
             annualReviewMarketInfo={marketInfo}
             showSplashPageHeader={showSplashPageHeader}
           />
@@ -598,7 +606,7 @@ const PostsPage = ({fullPost, postPreload, sequenceIdFromUrl, refetch, embedded}
     <div id="postBody" className={classNames(
       classes.centralColumn,
       classes.postBody,
-      !showEmbeddedPlayer && classes.audioPlayerHidden
+      !showAudioControls && classes.audioPlayerHidden
     )}>
       {header}
       {/* Body */}

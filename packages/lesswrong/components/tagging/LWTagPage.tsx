@@ -673,17 +673,24 @@ const LWTagPage = ({slug}: {slug: string}) => {
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
+  const [audioPlayerPlaying, setAudioPlayerPlaying] = useState(false);
+  const showAudioControls = showEmbeddedPlayer || audioPlayerPlaying;
+
+  const onAudioPlaybackChange = useCallback((isPlaying: boolean) => {
+    setAudioPlayerPlaying(isPlaying);
+  }, []);
   
   const toggleEmbeddedPlayer = tag && isTagAllowedType3Audio(tag) ? () => {
-    const action = showEmbeddedPlayer ? "close" : "open";
-    const newCookieValue = showEmbeddedPlayer ? "false" : "true";
+    const newShowEmbeddedPlayer = !showAudioControls;
+    const action = newShowEmbeddedPlayer ? "open" : "close";
+    const newCookieValue = newShowEmbeddedPlayer ? "true" : "false";
     captureEvent("audioPlayerToggle", { action, tagId: tag._id });
     setCookie(
       SHOW_PODCAST_PLAYER_COOKIE,
       newCookieValue, {
       path: "/"
     });
-    setShowEmbeddedPlayer(!showEmbeddedPlayer);
+    setShowEmbeddedPlayer(newShowEmbeddedPlayer);
   } : undefined;
 
   if (loadingTag && !tag) {
@@ -867,9 +874,13 @@ const LWTagPage = ({slug}: {slug: string}) => {
 
   const tagHeader = (
     <div className={classNames(classes.header,classes.centralColumn)}>
-      {tag && showEmbeddedPlayer && <>
+      {tag && showAudioControls && <>
         <span className={classNames(classes.nonMobileAudioPlayer)}>
-          <TagAudioPlayerWrapper tag={tag} showEmbeddedPlayer={showEmbeddedPlayer} />
+          <TagAudioPlayerWrapper
+            tag={tag}
+            showEmbeddedPlayer={showAudioControls}
+            onPlaybackChange={onAudioPlaybackChange}
+          />
         </span>
         <div className={classes.nonMobileAudioPlayerSpaceHolder} />
       </>}
@@ -911,7 +922,7 @@ const LWTagPage = ({slug}: {slug: string}) => {
           refetchTag={refetchTag}
           updateSelectedLens={updateSelectedLens}
           toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-          showEmbeddedPlayer={showEmbeddedPlayer}
+          showEmbeddedPlayer={showAudioControls}
         />
         {!tag.wikiOnly && !editing && userHasNewTagSubscriptions(currentUser) &&
           <SubscribeButton
@@ -926,7 +937,8 @@ const LWTagPage = ({slug}: {slug: string}) => {
       {tag && <span className={classNames(classes.mobileAudioPlayer)}>
           <TagAudioPlayerWrapper
             tag={tag}
-            showEmbeddedPlayer={showEmbeddedPlayer}
+            showEmbeddedPlayer={showAudioControls}
+            onPlaybackChange={onAudioPlaybackChange}
           />
         </span>}
       {(topContributors.length > 0 || smallContributors.length > 0) && <div className={classes.contributorRow}>
@@ -997,7 +1009,7 @@ const LWTagPage = ({slug}: {slug: string}) => {
           refetchTag={refetchTag}
           updateSelectedLens={updateSelectedLens}
           toggleEmbeddedPlayer={toggleEmbeddedPlayer}
-          showEmbeddedPlayer={showEmbeddedPlayer}
+          showEmbeddedPlayer={showAudioControls}
         />
         <SideItemsContainer>
           {multiColumnToc}

@@ -551,6 +551,11 @@ const UltraFeedPostDialog = ({
   const [cookies, setCookie] = useCookiesWithConsent([SHOW_PODCAST_PLAYER_COOKIE]);
   const showEmbeddedPlayerCookie = cookies[SHOW_PODCAST_PLAYER_COOKIE] === "true";
   const [showEmbeddedPlayer, setShowEmbeddedPlayer] = useState(showEmbeddedPlayerCookie);
+  const [audioPlayerPlaying, setAudioPlayerPlaying] = useState(false);
+  const showAudioControls = showEmbeddedPlayer || audioPlayerPlaying;
+  const onAudioPlaybackChange = useCallback((isPlaying: boolean) => {
+    setAudioPlayerPlaying(isPlaying);
+  }, []);
   
   const postId = (partialPost ?? post)._id;
   const recommId = postMetaInfo.recommInfo?.recommId;
@@ -666,11 +671,12 @@ const UltraFeedPostDialog = ({
   const toggleEmbeddedPlayer = displayPost && postHasAudioPlayer(displayPost) ? (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const action = showEmbeddedPlayer ? "close" : "open";
-    const newCookieValue = showEmbeddedPlayer ? "false" : "true";
+    const newShowEmbeddedPlayer = !showAudioControls;
+    const action = newShowEmbeddedPlayer ? "open" : "close";
+    const newCookieValue = newShowEmbeddedPlayer ? "true" : "false";
     captureEvent("toggleAudioPlayer", { action, pageModalContext: "ultraFeedPostModal" });
     setCookie(SHOW_PODCAST_PLAYER_COOKIE, newCookieValue, { path: "/" });
-    setShowEmbeddedPlayer(!showEmbeddedPlayer);
+    setShowEmbeddedPlayer(newShowEmbeddedPlayer);
   } : undefined;
   
   const scrollToComments = (e: React.MouseEvent) => {
@@ -843,7 +849,7 @@ const UltraFeedPostDialog = ({
                   <AudioToggle 
                     post={displayPost} 
                     toggleEmbeddedPlayer={toggleEmbeddedPlayer} 
-                    showEmbeddedPlayer={showEmbeddedPlayer} 
+                    showEmbeddedPlayer={showAudioControls} 
                   />
                 </div>
                 <div className={classes.vote}>
@@ -955,8 +961,9 @@ const UltraFeedPostDialog = ({
 
                   {fullPostForContent && (
                     <PostsAudioPlayerWrapper 
-                      showEmbeddedPlayer={showEmbeddedPlayer} 
+                      showEmbeddedPlayer={showAudioControls}
                       post={fullPostForContent}
+                      onPlaybackChange={onAudioPlaybackChange}
                     />
                   )}
 

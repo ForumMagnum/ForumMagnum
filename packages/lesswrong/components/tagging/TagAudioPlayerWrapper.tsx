@@ -12,9 +12,10 @@ const styles = defineStyles("TagAudioPlayerWrapper", (theme: ThemeType) => ({
   },
 }));
 
-export const TagAudioPlayerWrapper = ({tag, showEmbeddedPlayer}: {
+export const TagAudioPlayerWrapper = ({tag, showEmbeddedPlayer, onPlaybackChange}: {
   tag: TagPageFragment,
   showEmbeddedPlayer: boolean,
+  onPlaybackChange?: (isPlaying: boolean) => void,
 }) => {
   const classes = useStyles(styles);
 
@@ -25,6 +26,7 @@ export const TagAudioPlayerWrapper = ({tag, showEmbeddedPlayer}: {
           showEmbeddedPlayer={!!showEmbeddedPlayer} 
           documentId={tag._id}
           collectionName="Tags"
+          onPlaybackChange={onPlaybackChange}
         />}
     </>
   );

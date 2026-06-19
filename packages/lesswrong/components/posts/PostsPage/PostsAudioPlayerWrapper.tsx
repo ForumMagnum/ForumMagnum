@@ -20,9 +20,10 @@ export const postHasAudioPlayer = (post: PostsWithNavigation|PostsWithNavigation
     || isPostAllowedType3Audio(post);
 }
 
-export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer}: {
+export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer, onPlaybackChange}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer: boolean,
+  onPlaybackChange?: (isPlaying: boolean) => void,
 }) => {
   const classes = useStyles(styles);
 
@@ -30,7 +31,12 @@ export const PostsAudioPlayerWrapper = ({post, showEmbeddedPlayer}: {
     {('podcastEpisode' in post) && post.podcastEpisode && <div className={classNames(classes.embeddedPlayer, { [classes.hideEmbeddedPlayer]: !showEmbeddedPlayer })}>
       <PostsPodcastPlayer podcastEpisode={post.podcastEpisode} postId={post._id} />
     </div>}
-    {isPostAllowedType3Audio(post) && <T3AudioPlayer showEmbeddedPlayer={!!showEmbeddedPlayer} documentId={post._id} collectionName="Posts" />}
+    {isPostAllowedType3Audio(post) && <T3AudioPlayer
+      showEmbeddedPlayer={!!showEmbeddedPlayer}
+      documentId={post._id}
+      collectionName="Posts"
+      onPlaybackChange={onPlaybackChange}
+    />}
   </>;
 }
 

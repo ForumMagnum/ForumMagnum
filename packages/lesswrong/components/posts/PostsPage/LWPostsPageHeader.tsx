@@ -228,10 +228,11 @@ const styles = defineStyles('LWPostsPageHeader', (theme: ThemeType) => ({
 
 /// LWPostsPageHeader: The metadata block at the top of a post page, with
 /// title, author, voting, an actions menu, etc.
-const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, dialogueResponses, answerCount, annualReviewMarketInfo, showSplashPageHeader}: {
+const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, onAudioPlaybackChange, dialogueResponses, answerCount, annualReviewMarketInfo, showSplashPageHeader}: {
   post: PostsWithNavigation|PostsWithNavigationAndRevision|PostsListWithVotes,
   showEmbeddedPlayer?: boolean,
   toggleEmbeddedPlayer?: () => void,
+  onAudioPlaybackChange?: (isPlaying: boolean) => void,
   dialogueResponses: readonly CommentsList[],
   answerCount?: number,
   annualReviewMarketInfo?: AnnualReviewMarketInfo,
@@ -283,7 +284,11 @@ const LWPostsPageHeader = ({post, showEmbeddedPlayer, toggleEmbeddedPlayer, dial
         <LWPostsPageHeaderTopRight post={post} toggleEmbeddedPlayer={toggleEmbeddedPlayer} showEmbeddedPlayer={showEmbeddedPlayer} annualReviewMarketInfo={annualReviewMarketInfo} />
       </span>
       {post && <span className={classes.audioPlayerWrapper}>
-        <PostsAudioPlayerWrapper showEmbeddedPlayer={!!showEmbeddedPlayer} post={post}/>
+        <PostsAudioPlayerWrapper
+          showEmbeddedPlayer={!!showEmbeddedPlayer}
+          post={post}
+          onPlaybackChange={onAudioPlaybackChange}
+        />
       </span>}
     </div>
     <div className={classNames(classes.titleSection, {[classes.titleSectionWithSplashPageHeader]: showSplashPageHeader})}>
