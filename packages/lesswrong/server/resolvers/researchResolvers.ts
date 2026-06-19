@@ -281,7 +281,7 @@ export const researchResolversMutations = {
     let environment: DbResearchEnvironment | null = null;
     if (baseEnvironmentId) {
       environment = await context.ResearchEnvironments.findOne({ _id: baseEnvironmentId });
-      if (!environment || environment.userId !== currentUser._id || environment.projectId !== projectId) {
+      if (!environment || environment.projectId !== projectId) {
         throw new Error(`Environment ${baseEnvironmentId} not found`);
       }
     }
