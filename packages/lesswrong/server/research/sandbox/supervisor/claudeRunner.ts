@@ -111,7 +111,16 @@ export function startClaudeProcess(opts: ClaudeProcessOptions): ClaudeProcessHan
   try {
     proc = spawn(claudePath, args, {
       cwd,
-      env: { ...process.env, ...(opts.env ?? {}) },
+      env: {
+        ...process.env,
+        // Opt into authoritative `session_state_changed` events (idle/running/
+        // requires_action). The hub derives busy-state from these rather than
+        // inferring it from the turn stream — `idle` is the CLI's own
+        // turn-over signal and already accounts for queued messages and
+        // background-task re-invocations.
+        CLAUDE_CODE_EMIT_SESSION_STATE_EVENTS: "1",
+        ...(opts.env ?? {}),
+      },
       stdio: ["pipe", "pipe", "pipe"],
     });
   } catch (err) {
