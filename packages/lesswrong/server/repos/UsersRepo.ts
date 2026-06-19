@@ -97,6 +97,33 @@ class UsersRepo extends AbstractRepo<"Users"> {
     return this.oneOrNone(GET_USER_BY_USERNAME_OR_EMAIL_QUERY, [usernameOrEmail]);
   }
 
+  /**
+   * Admin-only flexible user lookup, used by the account-merge UI. Matches the
+   * given query against email/username/slug/displayName (case-insensitive
+   * substring) as well as against an exact _id, so an admin can paste any
+   * identifier they happen to have for the source account.
+   */
+  searchUsersForMerge(query: string, limit: number): Promise<DbUser[]> {
+    return this.any(`
+      -- UsersRepo.searchUsersForMerge
+      SELECT *
+      FROM "Users"
+      WHERE
+        _id = $(query)
+        OR LOWER(email) LIKE LOWER('%' || $(query) || '%')
+        OR LOWER(username) LIKE LOWER('%' || $(query) || '%')
+        OR LOWER(slug) LIKE LOWER('%' || $(query) || '%')
+        OR LOWER("displayName") LIKE LOWER('%' || $(query) || '%')
+        OR EXISTS (
+          SELECT 1
+          FROM UNNEST(emails) AS unnested
+          WHERE LOWER(unnested->>'address') LIKE LOWER('%' || $(query) || '%')
+        )
+      ORDER BY "createdAt" DESC
+      LIMIT $(limit)
+    `, { query, limit });
+  }
+
   async resetPassword(userId: string, hashedPassword: string): Promise<void> {
     await this.none(`
       -- UsersRepo.resetPassword
