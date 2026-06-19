@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useMutation, useApolloClient } from '@apollo/client/react';
 import { isSandboxWarmingError } from './sandboxWarming';
@@ -18,21 +18,10 @@ import {
   ResearchNavigationProvider,
   type ResearchNavigationContextValue,
 } from './lexical/ResearchEditorContext';
-import { isVisibleConversationEvent } from './conversationEventFormat';
+import { isVisibleConversationEvent, isMessageEvent, maxMessageSeq } from './conversationEventFormat';
+import { useTranscriptScroll } from './hooks/useTranscriptScroll';
 import { ConversationEventRow } from './ConversationEventRow';
 import { ConversationActions } from './ConversationActions';
-
-const CHAT_PANE_BOTTOM_THRESHOLD_PX = 64;
-
-function isScrolledNearBottom(el: HTMLElement): boolean {
-  return el.scrollHeight - el.scrollTop - el.clientHeight <= CHAT_PANE_BOTTOM_THRESHOLD_PX;
-}
-
-// Only user/assistant turns count toward the unread pill; tool calls and
-// thinking blocks would inflate the count well past what reads as "messages".
-function countMessageEvents(events: ConversationEvent[]): number {
-  return events.filter((event) => event.kind === 'user' || event.kind === 'assistant').length;
-}
 
 interface ChatPaneProps {
   projectId: string;
@@ -110,12 +99,31 @@ const styles = defineStyles('ChatPane', (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     gap: 12,
+    // The browser's native scroll anchoring would fight the manual re-anchor we
+    // do after paging in older history, double-adjusting the position.
+    overflowAnchor: 'none',
   },
   eventsWrapper: {
     flex: 1,
     minHeight: 0,
     position: 'relative',
     display: 'flex',
+  },
+  loadingOlder: {
+    // Overlaid (not in the scroll flow) so toggling it doesn't change the
+    // scrollable content height — otherwise the prepend-anchoring math would be
+    // thrown off by the indicator's height appearing/disappearing.
+    position: 'absolute',
+    top: 8,
+    left: '50%',
+    transform: 'translateX(-50%)',
+    zIndex: 1,
+    padding: '2px 10px',
+    borderRadius: 999,
+    background: theme.palette.panelBackground.default,
+    boxShadow: `0 1px 4px ${theme.palette.boxShadowColor(0.2)}`,
+    fontSize: 11,
+    color: theme.palette.text.dim,
   },
   newMessagesButton: {
     position: 'absolute',
@@ -175,12 +183,13 @@ const ChatPane = ({
   // Optimistic echo of a new chat's first prompt while `fireResearchConversation`
   // runs — the pane can't switch to the conversation until the row exists.
   const [pendingPrompt, setPendingPrompt] = useState<string | null>(null);
-  const eventsRef = useRef<HTMLDivElement | null>(null);
-  const isPinnedToBottomRef = useRef(true);
-  const previousConversationIdRef = useRef<string | null>(null);
-  const [lastSeenMessageCount, setLastSeenMessageCount] = useState(0);
+  // Unread pill is tracked by seq, not count: paging in older history grows the
+  // message count but those messages aren't new, so a count-delta would falsely
+  // light the pill. "Unread" is messages with seq beyond the last one seen at
+  // the bottom.
+  const [lastSeenSeq, setLastSeenSeq] = useState(-1);
 
-  const { events: rawEvents, status, error, refresh, injectOptimisticEvent, clearOptimistic, markTurnExpected } = useConversationStream(conversationId);
+  const { events: rawEvents, status, error, hasMoreOlder, loadingOlder, loadOlder, refresh, injectOptimisticEvent, clearOptimistic, markTurnExpected } = useConversationStream(conversationId);
   const [expectFirstTurnFor, setExpectFirstTurnFor] = useState<string | null>(null);
   useEffect(() => {
     if (conversationId && conversationId === expectFirstTurnFor) {
@@ -194,43 +203,27 @@ const ChatPane = ({
     () => rawEvents.filter(isVisibleConversationEvent),
     [rawEvents],
   );
-  const messageCount = useMemo(() => countMessageEvents(events), [events]);
-  const newMessageCount = Math.max(0, messageCount - lastSeenMessageCount);
+  const latestMessageSeq = useMemo(() => maxMessageSeq(events), [events]);
+  const newMessageCount = useMemo(
+    () => events.filter((e) => isMessageEvent(e) && e.seq > lastSeenSeq).length,
+    [events, lastSeenSeq],
+  );
   const [fireConversation] = useMutation(FireChatConversationMutation, {
     refetchQueries: [ProjectSidebarQuery],
   });
   const [continueConversation] = useMutation(ContinueResearchConversationMutation);
   const [cancelConversation] = useMutation(CancelResearchConversationMutation);
 
-  const scrollEventsToBottom = useCallback(() => {
-    // Update the bookkeeping even when the scroll container isn't mounted
-    // (conversation still loading), so the pane starts pinned once it appears.
-    isPinnedToBottomRef.current = true;
-    setLastSeenMessageCount(messageCount);
-    const el = eventsRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [messageCount]);
-
-  const handleEventsScroll = useCallback(() => {
-    const el = eventsRef.current;
-    if (!el) return;
-    isPinnedToBottomRef.current = isScrolledNearBottom(el);
-    if (isPinnedToBottomRef.current) {
-      setLastSeenMessageCount(messageCount);
-    }
-  }, [messageCount]);
-
-  // Keep the transcript pinned to the bottom as events stream in, unless the
-  // user has scrolled up to read history — then leave them be and let the
-  // unread pill take over. Layout effect so the jump (and the pill state
-  // reset on conversation switch) happens before paint.
-  useLayoutEffect(() => {
-    const conversationChanged = previousConversationIdRef.current !== conversationId;
-    previousConversationIdRef.current = conversationId;
-    if (conversationChanged || isPinnedToBottomRef.current) {
-      scrollEventsToBottom();
-    }
-  }, [conversationId, events.length, scrollEventsToBottom]);
+  // Pin-to-bottom + scroll-up pagination shared with the in-document agent block.
+  // The pill's "seen" mark advances whenever the view is at the bottom.
+  const { scrollRef, onScroll, scrollToBottom } = useTranscriptScroll({
+    events,
+    resetKey: conversationId,
+    hasMoreOlder,
+    loadingOlder,
+    loadOlder,
+    onReachedBottom: () => setLastSeenSeq(latestMessageSeq),
+  });
 
   const handleSend = useCallback(async (promptHtml: string) => {
     if (sending || !activeDocumentId) return;
@@ -332,7 +325,10 @@ const ChatPane = ({
         <div className={classes.events}><Loading /></div>
       ) : (
         <div className={classes.eventsWrapper}>
-          <div className={classes.events} ref={eventsRef} onScroll={handleEventsScroll}>
+          {loadingOlder ? (
+            <div className={classes.loadingOlder}>Loading earlier messages…</div>
+          ) : null}
+          <div className={classes.events} ref={scrollRef} onScroll={onScroll}>
             {events.map((event) => (
               <ConversationEventRow key={event._id ?? `${event.conversationId}:${event.seq}`} event={event} surface="chat" />
             ))}
@@ -341,7 +337,7 @@ const ChatPane = ({
             <button
               type="button"
               className={classes.newMessagesButton}
-              onClick={scrollEventsToBottom}
+              onClick={scrollToBottom}
             >
               {newMessageCount} new message{newMessageCount === 1 ? '' : 's'}
             </button>
