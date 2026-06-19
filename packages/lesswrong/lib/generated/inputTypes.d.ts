@@ -5782,6 +5782,7 @@ interface ResearchProject {
   _id: string;
   createdAt: Date;
   userId: string | null;
+  user: User | null;
   title: string | null;
   description: string | null;
   settings: any;

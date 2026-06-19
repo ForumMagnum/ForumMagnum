@@ -6256,6 +6256,7 @@ type ResearchProject {
   _id: String!
   createdAt: Date!
   userId: String
+  user: User
   title: String
   description: String
   settings: JSON

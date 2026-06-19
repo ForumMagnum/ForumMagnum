@@ -1,4 +1,5 @@
 import { DEFAULT_CREATED_AT_FIELD, DEFAULT_ID_FIELD } from "@/lib/collections/helpers/sharedFieldConstants";
+import { generateIdResolverSingle } from "@/lib/utils/schemaUtils";
 import { userOwns } from "@/lib/vulcan-users/permissions";
 
 const schema = {
@@ -17,6 +18,13 @@ const schema = {
       canUpdate: ["admins"],
       canCreate: ["admins"],
       validation: { optional: true },
+    },
+  },
+  user: {
+    graphql: {
+      outputType: "User",
+      canRead: [userOwns, "admins"],
+      resolver: generateIdResolverSingle({ foreignCollectionName: "Users", fieldName: "userId" }),
     },
   },
   title: {

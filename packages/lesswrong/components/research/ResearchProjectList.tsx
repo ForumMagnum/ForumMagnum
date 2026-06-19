@@ -14,12 +14,14 @@ import { useNavigate } from '@/lib/routeUtil';
 import ErrorAccessDenied from '../common/ErrorAccessDenied';
 import Loading from '../vulcan-core/Loading';
 import { useMessages } from '../common/withMessages';
+import UsersNameDisplay from '../users/UsersNameDisplay';
 
 interface ResearchProjectSummary {
   _id: string;
   title: string | null;
   description: string | null;
   createdAt: string;
+  user: UsersMinimumInfo | null;
 }
 
 const ResearchProjectsListQuery = gql(`
@@ -30,6 +32,9 @@ const ResearchProjectsListQuery = gql(`
         title
         description
         createdAt
+        user {
+          ...UsersMinimumInfo
+        }
       }
     }
   }
@@ -234,6 +239,18 @@ const projectListItemStyles = defineStyles('ResearchProjectListItem', (theme: Th
     fontSize: 15,
     fontWeight: 500,
     color: theme.palette.grey[900],
+  },
+  itemMeta: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+    fontSize: 12.5,
+    color: theme.palette.grey[500],
+    marginTop: 2,
+  },
+  itemOwner: {
+    fontWeight: 500,
+    color: theme.palette.grey[600],
   },
   itemDescription: {
     fontSize: 13,
@@ -512,6 +529,15 @@ function ProjectListItem({
   return (
     <li className={classes.item} onClick={onOpen}>
       <div className={classes.itemTitle}>{project.title}</div>
+      <div className={classes.itemMeta} onClick={(event) => event.stopPropagation()}>
+        <span>Created by</span>
+        <UsersNameDisplay
+          user={project.user}
+          className={classes.itemOwner}
+          hideFollowButton
+          tooltipPlacement="top"
+        />
+      </div>
       {project.description && (
         <div className={classes.itemDescription}>{project.description}</div>
       )}

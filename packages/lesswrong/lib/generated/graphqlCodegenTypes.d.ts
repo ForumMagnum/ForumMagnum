@@ -8925,6 +8925,7 @@ type ResearchProject = {
   description?: Maybe<Scalars['String']['output']>;
   settings?: Maybe<Scalars['JSON']['output']>;
   title?: Maybe<Scalars['String']['output']>;
+  user?: Maybe<User>;
   userId?: Maybe<Scalars['String']['output']>;
 };
 
@@ -17980,7 +17981,12 @@ type RenameResearchConversationSidebarMutationVariables = Exact<{
 
 type RenameResearchConversationSidebarMutation = RenameResearchConversationSidebarMutation_Mutation;
 
-type ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput_results_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string | null, description: string | null, createdAt: string };
+type ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput_results_ResearchProject_user_User = (
+  { __typename?: 'User' }
+  & UsersMinimumInfo
+);
+
+type ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput_results_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string | null, description: string | null, createdAt: string, user: ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput_results_ResearchProject_user_User | null };
 
 type ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput = { __typename?: 'MultiResearchProjectOutput', results: Array<ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput_results_ResearchProject> };
 
