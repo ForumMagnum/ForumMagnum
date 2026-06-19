@@ -6,11 +6,12 @@ import stringify from 'json-stringify-deterministic';
 import { SwrCache } from '@/lib/utils/swrCache';
 import { createAnonymousContext } from '../createContexts';
 import { createSchemaLink } from '@/server/rendering/ssrApolloClient';
+import { apolloTypePolicies } from '@/lib/apollo/typePolicies';
 
 // This client is used to prefetch data server side (necessary for SSR)
 // It is recreated on every request.
 export const createClient = async (context: ResolverContext | null, foreign = false) => {
-  const cache = new InMemoryCache();
+  const cache = new InMemoryCache({ typePolicies: apolloTypePolicies });
 
   const links: ApolloLink[] = [];
 

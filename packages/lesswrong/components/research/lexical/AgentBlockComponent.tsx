@@ -6,6 +6,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { $getNodeByKey, type NodeKey } from 'lexical';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { type StreamStatus, useConversationStream, type ConversationEvent } from '@/components/research/hooks/useConversationStream';
+import { useTranscriptScroll } from '@/components/research/hooks/useTranscriptScroll';
 import { $isAgentBlockNode } from './AgentBlockNode';
 import { useResearchEditorEnvironment, useResearchNavigationContext, usePendingConversation } from './ResearchEditorContext';
 import {
@@ -197,6 +198,9 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   scrollContainer: {
     maxHeight: EXPANDED_MAX_CONTENT_HEIGHT,
     overflowY: 'auto',
+    // Disable native scroll anchoring so it can't fight useTranscriptScroll's
+    // manual re-anchor when older history is paged in.
+    overflowAnchor: 'none',
     // Bottom padding leaves room for the gradient indicator so it fades
     // over empty space at the end of the scroll, not over the last line.
     // Top padding mirrors it so the chip's interior stays vertically symmetric.
@@ -337,7 +341,7 @@ interface ActiveAgentBlockProps {
 
 function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, onOpenInChat, onRemove: _onRemove }: ActiveAgentBlockProps) {
   const classes = useStyles(styles);
-  const { events, status, error, turnInFlight, markTurnExpected } = useConversationStream(conversationId);
+  const { events, status, error, turnInFlight, hasMoreOlder, loadingOlder, loadOlder, markTurnExpected } = useConversationStream(conversationId);
 
   useEffect(() => {
     if (justDispatched) markTurnExpected();
@@ -433,10 +437,13 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, onOpenInC
     >
       {expanded ? (
         <ExpandedBody
+          conversationId={conversationId}
           visibleEvents={visibleEvents}
-          turnInFlight={turnInFlight}
           status={status}
           error={error}
+          hasMoreOlder={hasMoreOlder}
+          loadingOlder={loadingOlder}
+          loadOlder={loadOlder}
         />
       ) : (
         <>
@@ -484,28 +491,31 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, onOpenInC
 }
 
 interface ExpandedBodyProps {
+  conversationId: string;
   visibleEvents: ConversationEvent[];
-  turnInFlight: boolean;
   status: StreamStatus;
   error: string | null;
+  hasMoreOlder: boolean;
+  loadingOlder: boolean;
+  loadOlder: () => void;
 }
 
-function ExpandedBody({ visibleEvents, turnInFlight, status, error }: ExpandedBodyProps) {
+function ExpandedBody({ conversationId, visibleEvents, status, error, hasMoreOlder, loadingOlder, loadOlder }: ExpandedBodyProps) {
   const classes = useStyles(styles);
 
-  // Auto-scroll to the latest event whenever the content grows so the user
-  // sees what just arrived without scrolling manually. We pin to bottom only
-  // while a turn is in flight; once it completes the user owns the scroll.
-  const scrollRef = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!turnInFlight) return;
-    const el = scrollRef.current;
-    if (el) el.scrollTop = el.scrollHeight;
-  }, [visibleEvents.length, turnInFlight]);
+  // Pin to bottom as events stream in (unless the user scrolled up) and page in
+  // older history on scroll-up — shared with the chat pane.
+  const { scrollRef, onScroll } = useTranscriptScroll({
+    events: visibleEvents,
+    resetKey: conversationId,
+    hasMoreOlder,
+    loadingOlder,
+    loadOlder,
+  });
 
   if (visibleEvents.length === 0) {
     return (
-      <div className={classNames(classes.scrollContainer)} ref={scrollRef}>
+      <div className={classNames(classes.scrollContainer)} ref={scrollRef} onScroll={onScroll}>
         <span className={classNames(classes.preview, classes.empty)}>
           {emptyStatePlaceholder(status)}
         </span>
@@ -514,7 +524,7 @@ function ExpandedBody({ visibleEvents, turnInFlight, status, error }: ExpandedBo
   }
 
   return (
-    <div className={classes.scrollContainer} ref={scrollRef}>
+    <div className={classes.scrollContainer} ref={scrollRef} onScroll={onScroll}>
       {visibleEvents.map((event) => (
         <ConversationEventRow key={`${event.seq}-${event._id}`} event={event} surface="agentBlock" />
       ))}

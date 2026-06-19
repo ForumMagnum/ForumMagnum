@@ -8,6 +8,7 @@ import {
   InMemoryCache,
 } from "@apollo/client-integration-nextjs";
 import { ApolloNextAppProvider } from "@/lib/vendor/@apollo/client-integration-nextjs/ApolloNextAppProvider";
+import { apolloTypePolicies } from "@/lib/apollo/typePolicies";
 import { SsrQueryCacheProvider } from "@/lib/crud/ssrQueryCache";
 import { SSRResolverContext } from "@/lib/crud/ssrResolverContext";
 import { disableFragmentWarnings } from "graphql-tag";
@@ -40,7 +41,7 @@ function makeApolloClientForClient({ loginToken }: {
     throw new Error("Not client")
   }
   const client = new ApolloClient({
-    cache: new InMemoryCache(),
+    cache: new InMemoryCache({ typePolicies: apolloTypePolicies }),
     link: ApolloLink.from([
       headerLink,
       createErrorLink(),

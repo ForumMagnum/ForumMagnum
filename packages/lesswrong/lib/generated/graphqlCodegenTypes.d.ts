@@ -8282,9 +8282,9 @@ type QueryresearchConversationEventsArgs = {
 
 
 type QueryresearchConversationTranscriptArgs = {
+  before?: InputMaybe<Scalars['Int']['input']>;
   conversationId: Scalars['String']['input'];
   limit?: InputMaybe<Scalars['Int']['input']>;
-  since?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -18054,7 +18054,8 @@ type ResearchConversationTranscriptQuery_Query = { __typename?: 'Query', researc
 
 type ResearchConversationTranscriptQueryVariables = Exact<{
   conversationId: Scalars['String']['input'];
-  since: InputMaybe<Scalars['Int']['input']>;
+  before: InputMaybe<Scalars['Int']['input']>;
+  limit: InputMaybe<Scalars['Int']['input']>;
 }>;
 
 
