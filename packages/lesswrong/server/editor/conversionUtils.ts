@@ -837,7 +837,7 @@ export function stripDeletedMarkupFromWidgetSrcdoc(srcdoc: string): string {
       if (delDepth === 0 && currentDelStart !== null) {
         ranges.push({
           start: currentDelStart,
-          end: (parser?.endIndex ?? srcdoc.length - 1) + 1,
+          end: (parser?.endIndex ?? (srcdoc.length - 1)) + 1,
         });
         currentDelStart = null;
       }
