@@ -34,8 +34,17 @@ interface CommentYMap {
   get(key: 'deleted'): boolean;
   get(key: 'timeStamp'): number;
   get(key: 'commentKind'): string | undefined;
+  get(key: 'source'): string | undefined;
   get(key: 'comments'): Y.Array<CommentYMap> | undefined;
   get(key: string): unknown;
+}
+
+function shouldNotifyForComment(comment: CommentYMap): boolean {
+  if (comment.get('commentKind') === 'suggestionSummary') {
+    return false;
+  }
+
+  return comment.get('source') !== 'agent';
 }
 
 /**
@@ -280,6 +289,10 @@ export class RevisionSyncExtension implements Extension {
           knownIds.add(id);
 
           if (type === 'comment') {
+            if (!shouldNotifyForComment(map)) {
+              continue;
+            }
+
             // A new comment was added to a thread
             const authorId = map.get('authorId');
             const authorName = map.get('author');
@@ -309,12 +322,11 @@ export class RevisionSyncExtension implements Extension {
               this.collectCommentIds(threadComments, knownIds);
             }
 
-            // Notify for the first comment in the thread (if any and not a
-            // suggestion summary, which is auto-generated)
+            // Notify for the first comment in the thread, unless it is
+            // auto-generated or created through the agent draft APIs.
             if (threadComments && threadComments.length > 0) {
               const firstComment = threadComments.get(0);
-              const commentKind = firstComment.get('commentKind');
-              if (commentKind === 'suggestionSummary') {
+              if (!shouldNotifyForComment(firstComment)) {
                 continue;
               }
 

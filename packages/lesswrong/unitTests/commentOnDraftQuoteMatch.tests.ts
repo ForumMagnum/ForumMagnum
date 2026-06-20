@@ -5,7 +5,7 @@ import {
   $getRoot,
 } from "lexical";
 import { $isMarkNode } from "@lexical/mark";
-import { $attachMarkToQuote, type QuoteMarkResult } from "../../../app/api/agent/collabCommentThreads";
+import { $attachMarkToQuote, createCollabComment, type QuoteMarkResult } from "../../../app/api/agent/collabCommentThreads";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithHtml } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
@@ -63,6 +63,31 @@ function getMarkedTextContent(editor: LexicalEditor, markId: string): string | n
   });
   return parts.length > 0 ? parts.join(" | ") : null;
 }
+
+describe("agent draft comment metadata", () => {
+  it("marks agent-created comments with source metadata", () => {
+    const commentMap = createCollabComment({
+      content: "Draft feedback",
+      author: "Claude",
+      authorId: "agent-id",
+      id: "comment-id",
+      source: "agent",
+    });
+
+    expect(commentMap.get("source")).toBe("agent");
+  });
+
+  it("does not mark ordinary comments as agent-created", () => {
+    const commentMap = createCollabComment({
+      content: "Ordinary feedback",
+      author: "Reviewer",
+      authorId: "reviewer-id",
+      id: "comment-id",
+    });
+
+    expect(commentMap.get("source")).toBeUndefined();
+  });
+});
 
 describe("commentOnDraft quote matching", () => {
   it("attaches a mark to a quote spanning a paragraph boundary", async () => {

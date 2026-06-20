@@ -17,11 +17,13 @@ export function createCollabComment({
   author,
   authorId,
   id,
+  source,
 }: {
   content: string
   author: string
   authorId: string
   id: string
+  source?: string
 }): YMap<unknown> {
   const commentMap = new YMap<unknown>();
   commentMap.set("type", "comment");
@@ -29,6 +31,9 @@ export function createCollabComment({
   commentMap.set("author", author);
   commentMap.set("authorId", authorId);
   commentMap.set("content", content);
+  if (source) {
+    commentMap.set("source", source);
+  }
   commentMap.set("deleted", false);
   commentMap.set("timeStamp", Date.now());
   return commentMap;
@@ -188,7 +193,7 @@ export async function insertCollabCommentThread({
       }
 
       const comments = doc.get("comments", YArray<unknown>);
-      const commentMap = createCollabComment({ content: comment, author, authorId, id: commentId });
+      const commentMap = createCollabComment({ content: comment, author, authorId, id: commentId, source: "agent" });
       const threadMap = createCollabThread({ quote, firstComment: commentMap, threadId });
       doc.transact(() => {
         comments.insert(comments.length, [threadMap]);
@@ -250,6 +255,7 @@ export async function appendReplyToCommentThread({
         author,
         authorId,
         id: commentId,
+        source: "agent",
       });
 
       doc.transact(() => {
