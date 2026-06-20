@@ -9,6 +9,7 @@ import { sanitize } from "@/lib/utils/sanitize";
 import { filterWhereFieldsNotNull } from '../../lib/utils/typeGuardUtils';
 import { getMarkdownIt, getMarkdownItNoMathjax } from '@/lib/utils/markdownItPlugins';
 import { formatMathToken } from '@/lib/utils/mathTokens';
+import { Parser } from 'htmlparser2';
 import type { Cheerio, CheerioAPI, Element as CheerioElement } from 'cheerio';
 import type { DataNode } from 'domhandler';
 import { mathjax } from 'mathjax-full/js/mathjax.js';
@@ -785,6 +786,80 @@ function lexicalMarkupToHtml(markup: string, context: ResolverContext, skipMathj
   }
 }
 
+interface SourceRange {
+  start: number
+  end: number
+}
+
+function removeSourceRanges(source: string, ranges: SourceRange[]): string {
+  if (ranges.length === 0) {
+    return source;
+  }
+  const chunks: string[] = [];
+  let cursor = 0;
+  for (const { start, end } of ranges) {
+    if (start > cursor) {
+      chunks.push(source.slice(cursor, start));
+    }
+    cursor = Math.max(cursor, end);
+  }
+  chunks.push(source.slice(cursor));
+  return chunks.join('');
+}
+
+export function stripDeletedMarkupFromWidgetSrcdoc(srcdoc: string): string {
+  if (!/<\/?del(?:\s|>|\/)/i.test(srcdoc)) {
+    return srcdoc;
+  }
+
+  // Work over source ranges rather than parse/serialize output, because widget
+  // scripts and styles must keep entity text such as "&quot;" byte-for-byte.
+  const ranges: SourceRange[] = [];
+  let delDepth = 0;
+  let currentDelStart: number | null = null;
+  let parser: Parser | null = null;
+
+  parser = new Parser({
+    onopentagname(name: string) {
+      if (name.toLowerCase() !== 'del') {
+        return;
+      }
+      if (delDepth === 0) {
+        currentDelStart = parser?.startIndex ?? 0;
+      }
+      delDepth++;
+    },
+    onclosetag(name: string) {
+      if (name.toLowerCase() !== 'del' || delDepth === 0) {
+        return;
+      }
+      delDepth--;
+      if (delDepth === 0 && currentDelStart !== null) {
+        ranges.push({
+          start: currentDelStart,
+          end: (parser?.endIndex ?? srcdoc.length - 1) + 1,
+        });
+        currentDelStart = null;
+      }
+    },
+    onend() {
+      if (delDepth > 0 && currentDelStart !== null) {
+        ranges.push({
+          start: currentDelStart,
+          end: srcdoc.length,
+        });
+      }
+    },
+  }, {
+    decodeEntities: false,
+    recognizeSelfClosing: true,
+  });
+  parser.write(srcdoc);
+  parser.end();
+
+  return removeSourceRanges(srcdoc, ranges);
+}
+
 export async function extractAndReplaceIframeWidgets(html: string, revisionId: string): Promise<string> {
   const $ = cheerioParse(html);
   const srcdocsToInsert: DbInsertion<DbIframeWidgetSrcdoc>[] = [];
@@ -795,7 +870,7 @@ export async function extractAndReplaceIframeWidgets(html: string, revisionId: s
     if (!rawSrcdoc) {
       return;
     }
-    const srcdoc = cheerioParse(rawSrcdoc).root().find('del').remove().end().html() ?? '';
+    const srcdoc = stripDeletedMarkupFromWidgetSrcdoc(rawSrcdoc);
 
     const srcdocId = randomId();
     srcdocsToInsert.push({

@@ -1,4 +1,4 @@
-import { htmlToMarkdown, markdownToHtml } from "@/server/editor/conversionUtils";
+import { htmlToMarkdown, markdownToHtml, stripDeletedMarkupFromWidgetSrcdoc } from "@/server/editor/conversionUtils";
 import { JSDOM } from "jsdom";
 import { getMarkdownIt } from "@/lib/utils/markdownItPlugins";
 import { findMathSpansInMarkdown } from "@/lib/utils/mathTokens";
@@ -159,6 +159,28 @@ describe("htmlToMarkdown preserves whitespace inside blank inline formatting", (
     const md = htmlToMarkdown(html);
     expect(md).not.toContain("alphabeta");
     expect(md).toMatch(/alpha\s+beta/);
+  });
+});
+
+describe("stripDeletedMarkupFromWidgetSrcdoc", () => {
+  it("preserves raw entity text inside script and style elements", () => {
+    const srcdoc = '<script>const escaped = { quote: "&quot;", amp: "&amp;", tag: "&lt;div&gt;" };</script>'
+      + '<style>.quote::before { content: "&quot;"; }</style>'
+      + '<p>&quot;</p>';
+
+    expect(stripDeletedMarkupFromWidgetSrcdoc(srcdoc)).toBe(srcdoc);
+  });
+
+  it("does not treat del-like text inside scripts as markup", () => {
+    const srcdoc = '<script>const html = "<del>&quot;</del>";</script><p>Rendered widget</p>';
+
+    expect(stripDeletedMarkupFromWidgetSrcdoc(srcdoc)).toBe(srcdoc);
+  });
+
+  it("removes real deleted markup and its contents", () => {
+    const srcdoc = '<p>Before</p><del><script>bad()</script>&quot;</del><p>After</p>';
+
+    expect(stripDeletedMarkupFromWidgetSrcdoc(srcdoc)).toBe('<p>Before</p><p>After</p>');
   });
 });
 
