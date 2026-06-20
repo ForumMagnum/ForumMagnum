@@ -9,6 +9,7 @@ import { $attachMarkToQuote, createCollabComment, type QuoteMarkResult } from ".
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithHtml } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
+import { Array as YArray, Doc, Map as YMap } from "yjs";
 
 async function attachCommentMark(
   editor: LexicalEditor,
@@ -64,6 +65,17 @@ function getMarkedTextContent(editor: LexicalEditor, markId: string): string | n
   return parts.length > 0 ? parts.join(" | ") : null;
 }
 
+function getPersistedCommentField(commentMap: YMap<unknown>, field: string): unknown {
+  const doc = new Doc();
+  const commentsArray = doc.get("comments", YArray<unknown>);
+  commentsArray.insert(0, [commentMap]);
+  const savedComment = commentsArray.get(0);
+
+  return savedComment instanceof YMap
+    ? savedComment.get(field)
+    : undefined;
+}
+
 describe("agent draft comment metadata", () => {
   it("marks agent-created comments with source metadata", () => {
     const commentMap = createCollabComment({
@@ -74,7 +86,7 @@ describe("agent draft comment metadata", () => {
       source: "agent",
     });
 
-    expect(commentMap.get("source")).toBe("agent");
+    expect(getPersistedCommentField(commentMap, "source")).toBe("agent");
   });
 
   it("does not mark ordinary comments as agent-created", () => {
@@ -85,7 +97,7 @@ describe("agent draft comment metadata", () => {
       id: "comment-id",
     });
 
-    expect(commentMap.get("source")).toBeUndefined();
+    expect(getPersistedCommentField(commentMap, "source")).toBeUndefined();
   });
 });
 
