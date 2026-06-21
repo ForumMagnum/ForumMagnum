@@ -151,7 +151,7 @@ const HoverPreviewLink = ({ href, id, rel, noPrefetch, contentStyleType, classNa
       {children}
     </a>
   } catch (err) {
-    console.error(err, href) // eslint-disable-line
+    console.warn(`Invalid URL for link preview: ${href}`) // eslint-disable-line
     return <a href={href} id={id} rel={rel} className={className}>
       {children}
     </a>
