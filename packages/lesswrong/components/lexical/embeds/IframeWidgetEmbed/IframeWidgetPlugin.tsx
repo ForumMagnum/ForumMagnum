@@ -446,9 +446,9 @@ export default function IframeWidgetPlugin({
 
   const handleIframeResize = useCallback((key: string, height: number) => {
     setWidgets((prev) => {
+      const state = prev.get(key);
+      if (!state || state.previewHeight === height) return prev;
       const next = new Map(prev);
-      const state = next.get(key);
-      if (!state) return prev;
       next.set(key, { ...state, previewHeight: height });
       return next;
     });
