@@ -20,6 +20,16 @@ import { mergeRegister } from '@lexical/utils';
 export const TRIGGER_AUTOCOMPLETE_COMMAND: LexicalCommand<void> = createCommand('TRIGGER_AUTOCOMPLETE_COMMAND');
 export const TRIGGER_AUTOCOMPLETE_405B_COMMAND: LexicalCommand<void> = createCommand('TRIGGER_AUTOCOMPLETE_405B_COMMAND');
 
+type AutocompleteShortcut = 'default' | '405b';
+
+export function getAutocompleteShortcut(event: KeyboardEvent): AutocompleteShortcut | null {
+  if (!event.ctrlKey || !event.altKey || event.metaKey || event.key.toLowerCase() !== 'y') {
+    return null;
+  }
+
+  return event.shiftKey ? '405b' : 'default';
+}
+
 /**
  * Convert HTML to markdown using a simple approach
  * For a more complete solution, consider using a library like turndown
@@ -190,8 +200,8 @@ async function fetchAutocompletion(
  * Plugin for AI-powered autocomplete.
  * 
  * Keyboard shortcuts:
- * - Ctrl+Y: Trigger autocomplete
- * - Ctrl+Shift+Y: Trigger autocomplete with 405b model
+ * - Ctrl+Alt+Y: Trigger autocomplete
+ * - Ctrl+Alt+Shift+Y: Trigger autocomplete with 405b model
  */
 export function LLMAutocompletePlugin(): null {
   const [editor] = useLexicalComposerContext();
@@ -288,23 +298,15 @@ export function LLMAutocompletePlugin(): null {
 
   useEffect(() => {
     return mergeRegister(
-      // Handle Ctrl+Y for autocomplete
+      // Handle autocomplete shortcuts
       editor.registerCommand(
         KEY_DOWN_COMMAND,
         (event: KeyboardEvent) => {
-          // Ctrl+Y (keyCode 89)
-          if (event.ctrlKey && !event.shiftKey && event.key.toLowerCase() === 'y') {
+          const shortcut = getAutocompleteShortcut(event);
+          if (shortcut) {
             event.preventDefault();
             event.stopPropagation();
-            void autocomplete(false);
-            return true;
-          }
-          
-          // Ctrl+Shift+Y for 405b model
-          if (event.ctrlKey && event.shiftKey && event.key.toLowerCase() === 'y') {
-            event.preventDefault();
-            event.stopPropagation();
-            void autocomplete(true);
+            void autocomplete(shortcut === '405b');
             return true;
           }
           
