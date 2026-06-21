@@ -116,8 +116,12 @@ const getClaudeAccessLinkMutation = gql(`
   }
 `);
 
-function getClaudeConfirmMessage(confirmUrl: string) {
-  return `Please confirm that you can access the LessWrong API by running:\n\ncurl -X POST ${confirmUrl}`;
+export function getClaudeConfirmMessage(confirmUrl: string) {
+  return `Please confirm LessWrong API access for this chat.\n\n`
+    + `Run this exact command once:\n\n`
+    + `curl -X POST ${confirmUrl}\n\n`
+    + `This only confirms that your current chat can reach LessWrong; it does not edit any posts or share any draft content.\n\n`
+    + `After running it, tell me the response you received. If it fails because the host is not allowed, ask me to add www.lesswrong.com to Claude's allowed domains and start a new chat.`;
 }
 
 const ClaudeOnboardingModal = ({
