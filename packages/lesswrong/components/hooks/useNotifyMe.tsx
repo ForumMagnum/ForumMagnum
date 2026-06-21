@@ -90,12 +90,15 @@ export const useNotifyMe = ({
   hideIfNotificationsDisabled,
   hideForLoggedOutUsers,
   hideFlashes,
+  optimisticIsSubscribed,
 }: {
   document: NotifyMeDocument,
   overrideSubscriptionType?: SubscriptionType,
   hideIfNotificationsDisabled?: boolean,
   hideForLoggedOutUsers?: boolean,
   hideFlashes?: boolean,
+  /** Used as the value of isSubscribed while the subscription state query is loading */
+  optimisticIsSubscribed?: boolean,
 }): NotifyMeConfig => {
   // __typename is added by apollo but it doesn't exist in the typesystem
   const document = rawDocument as NotifyMeDocument & {__typename: string};
@@ -131,7 +134,7 @@ export const useNotifyMe = ({
 
   const results = data?.subscriptions?.results;
 
-  const isSubscribed = currentUser ?
+  const resolvedIsSubscribed = currentUser ?
     currentUserIsSubscribed(
       currentUser,
       results,
@@ -140,6 +143,10 @@ export const useNotifyMe = ({
       document,
     )
     : false;
+
+  const isSubscribed = (loading && optimisticIsSubscribed !== undefined)
+    ? optimisticIsSubscribed
+    : resolvedIsSubscribed;
 
   const onSubscribe = useCallback(async (e: MouseEvent) => {
     if (!currentUser) {
@@ -234,6 +241,7 @@ export const useNotifyMe = ({
   if (loading) {
     return {
       loading: true,
+      ...(optimisticIsSubscribed !== undefined && { isSubscribed: optimisticIsSubscribed }),
     };
   }
 

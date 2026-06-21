@@ -1,9 +1,6 @@
-import React, { ReactNode } from "react";
-import { commentBodyStyles } from "@/themes/stylePiping";
+import React, { ReactNode, useEffect } from "react";
 import { useCurrentUser } from "../common/withUser";
-import { useCountItemsContext } from "../hooks/CountItemsContext";
 import SubscribedItem from "./SubscribedItem";
-import SectionTitle from "../common/SectionTitle";
 import Loading from "../vulcan-core/Loading";
 import LoadMore from "../common/LoadMore";
 import { TypedDocumentNode } from '@graphql-typed-document-node/core';
@@ -11,7 +8,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { useQueryWithLoadMore } from "@/components/hooks/useQueryWithLoadMore";
 import { gql } from "@/lib/generated/gql-codegen";
 
-const SubscriptionStateMultiQuery = gql(`
+export const SubscriptionStateMultiQuery = gql(`
   query multiSubscriptionSubscriptionsListQuery($selector: SubscriptionSelector, $limit: Int, $enableTotal: Boolean) {
     subscriptions(selector: $selector, limit: $limit, enableTotal: $enableTotal) {
       results {
@@ -24,14 +21,28 @@ const SubscriptionStateMultiQuery = gql(`
 
 const styles = defineStyles('SubscriptionsList', (theme: ThemeType) => ({
   root: {
-    ...commentBodyStyles(theme),
+    marginBottom: 24,
+  },
+  header: {
+    marginBottom: 8,
   },
   title: {
-    fontSize: "1.8rem !important",
+    fontSize: 14,
+    fontWeight: 600,
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.grey[800],
+    margin: 0,
   },
   subscriptionTypeDescription: {
-    marginBottom: 10,
-    fontStyle: "italic",
+    fontSize: 12,
+    fontFamily: theme.typography.fontFamily,
+    color: theme.palette.grey[500],
+    marginTop: 2,
+  },
+  itemList: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 2,
   },
 }));
 
@@ -43,6 +54,7 @@ export default function SubscriptionsList<TQuery, TExtractResult>({
   renderDocument,
   title,
   subscriptionTypeDescription,
+  onHasItems,
 }: {
   collectionName: CollectionNameString,
   subscriptionType: string,
@@ -50,15 +62,15 @@ export default function SubscriptionsList<TQuery, TExtractResult>({
   extractDocument: (data: TQuery) => TExtractResult,
   renderDocument: (document: NonNullable<TExtractResult>) => ReactNode,
   title: React.ReactNode,
-  subscriptionTypeDescription?: string
+  subscriptionTypeDescription?: string,
+  onHasItems?: () => void,
 }) {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
-  const countItemsContext = useCountItemsContext();
 
   const { data, loading, loadMoreProps } = useQueryWithLoadMore(SubscriptionStateMultiQuery, {
     variables: {
-      selector: { subscriptionsOfType: { userId: currentUser?._id, collectionName: collectionName, subscriptionType: subscriptionType } },
+      selector: { subscriptionsOfType: { userId: currentUser?._id, collectionName, subscriptionType } },
       limit: 20,
       enableTotal: true,
     },
@@ -66,41 +78,40 @@ export default function SubscriptionsList<TQuery, TExtractResult>({
   });
 
   const results = data?.subscriptions?.results;
-  const showLoadMore = !loadMoreProps.hidden;
+  const hasResults = !!results && results.length > 0;
 
-  if (!currentUser) {
-    return null;
-  }
-  if (loading) {
-    return <Loading/>;
-  }
-  if (!results) {
-    return null;
-  }
-  if (results.length === 0) {
-    return null;
-  }
+  useEffect(() => {
+    if (hasResults) {
+      onHasItems?.();
+    }
+  }, [hasResults, onHasItems]);
 
-  countItemsContext?.addItems(results.length);
+  if (!currentUser) return null;
+  if (loading && !results) return <Loading />;
+  if (!hasResults) return null;
 
   return (
     <div className={classes.root}>
-      <SectionTitle title={title} titleClassName={classes.title}/>
-      {subscriptionTypeDescription &&
-        <div className={classes.subscriptionTypeDescription}>
-          {subscriptionTypeDescription}
-        </div>
-      }
-      {results.map(result =>
-        <SubscribedItem
-          key={result._id}
-          query={query}
-          extractDocument={extractDocument}
-          subscription={result}
-          renderDocument={renderDocument}
-        />
-      )}
-      {showLoadMore && <LoadMore {...loadMoreProps} />}
+      <div className={classes.header}>
+        <h3 className={classes.title}>{title}</h3>
+        {subscriptionTypeDescription && (
+          <div className={classes.subscriptionTypeDescription}>
+            {subscriptionTypeDescription}
+          </div>
+        )}
+      </div>
+      <div className={classes.itemList}>
+        {results.map(result =>
+          <SubscribedItem
+            key={result._id}
+            query={query}
+            extractDocument={extractDocument}
+            subscription={result}
+            renderDocument={renderDocument}
+          />
+        )}
+      </div>
+      {!loadMoreProps.hidden && <LoadMore {...loadMoreProps} />}
     </div>
   );
 }

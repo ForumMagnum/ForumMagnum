@@ -139,7 +139,7 @@ const FIELD_TO_TAB: Record<string, SettingsTabId> = {
   groups: 'admin',
 };
 
-function getTabForField(fieldName: string | null | undefined): SettingsTabId | null {
+export function getSettingsTabForField(fieldName: string | null | undefined): SettingsTabId | null {
   if (!fieldName) return null;
   return FIELD_TO_TAB[fieldName] ?? null;
 }
@@ -202,6 +202,8 @@ const UsersForm = ({
   isCurrentUser,
   requestPasswordReset,
   accountManagement,
+  externalActiveTab,
+  hideSidebar,
 }: {
   initialData: EditableUser;
   currentUser: UsersCurrent;
@@ -209,16 +211,19 @@ const UsersForm = ({
   isCurrentUser: boolean;
   requestPasswordReset: () => void;
   accountManagement: React.ReactNode | null;
+  externalActiveTab?: SettingsTabId;
+  hideSidebar?: boolean;
 }) => {
   const classes = useStyles(styles);
   const { query } = useLocation();
   const navigate = useNavigate();
 
   const highlightedField = query?.highlightField ?? null;
-  const highlightTab = getTabForField(highlightedField);
+  const highlightTab = getSettingsTabForField(highlightedField);
 
   const rawTab = query?.tab as SettingsTabId | undefined;
-  const activeTab: SettingsTabId = highlightTab ?? rawTab ?? 'account';
+  const internalActiveTab: SettingsTabId = highlightTab ?? rawTab ?? 'account';
+  const activeTab = externalActiveTab ?? internalActiveTab;
 
   const setActiveTab = useCallback((tab: SettingsTabId) => {
     navigate({
@@ -312,12 +317,12 @@ const UsersForm = ({
     }}>
       {displayedErrorComponent}
 
-      <div className={classes.layout}>
-        <AccountSettingsSidebar
+      <div className={hideSidebar ? undefined : classes.layout}>
+        {!hideSidebar && <AccountSettingsSidebar
           activeTab={activeTab}
           onTabChange={setActiveTab}
           showAdminTab={showAdminTab}
-        />
+        />}
 
         <div className={classes.contentArea}>
           <div className={classNames(classes.tabPanel, activeTab === 'account' && classes.tabPanelActive)}>
@@ -379,9 +384,11 @@ const UsersForm = ({
   );
 };
 
-const UsersEditForm = ({ terms, accountManagement }: {
+const UsersEditForm = ({ terms, accountManagement, activeSettingsTab, hideSidebar }: {
   terms: { slug: string },
   accountManagement?: React.ReactNode | null,
+  activeSettingsTab?: SettingsTabId,
+  hideSidebar?: boolean,
 }) => {
   const classes = useStyles(styles);
   const currentUser = useCurrentUser();
@@ -436,6 +443,8 @@ const UsersEditForm = ({ terms, accountManagement }: {
           isCurrentUser={isCurrentUser}
           requestPasswordReset={requestPasswordReset}
           accountManagement={accountManagement ?? null}
+          externalActiveTab={activeSettingsTab}
+          hideSidebar={hideSidebar}
         />
       )}
     </div>
