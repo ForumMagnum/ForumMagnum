@@ -495,6 +495,21 @@ type SelectionSnapshot = {
   focusOffset: number;
 };
 
+function createSelectionSnapshotFromSelection(
+  selection: RangeSelection,
+): SelectionSnapshot | null {
+  const anchorNode = selection.anchor.getNode();
+  const focusNode = selection.focus.getNode();
+  if (!$isTextNode(anchorNode) || !$isTextNode(focusNode)) return null;
+
+  return {
+    anchorKey: anchorNode.getKey(),
+    anchorOffset: selection.anchor.offset,
+    focusKey: focusNode.getKey(),
+    focusOffset: selection.focus.offset,
+  };
+}
+
 export type InsertInlineThreadPayload = {
   threadId: string;
   initialContent: string;
@@ -548,7 +563,7 @@ function CommentInputBox({
     commentOrThread: Comment | Thread,
     isInlineComment: boolean,
     thread?: Thread,
-    selection?: RangeSelection | null,
+    selectionSnapshot?: SelectionSnapshot | null,
   ) => void;
   anchorRect: DOMRect | null;
 }) {
@@ -563,12 +578,15 @@ function CommentInputBox({
     }),
     [],
   );
-  const selectionRef = useRef<RangeSelection | null>(null);
+  const selectionSnapshotRef = useRef<SelectionSnapshot | null>(null);
+  const selectionQuoteRef = useRef('');
   const author = useCollabAuthorName();
   const authorId = useCurrentCollaboratorId();
 
   const updateLocation = useCallback(() => {
     if (anchorRect) {
+      selectionSnapshotRef.current = null;
+      selectionQuoteRef.current = '';
       const boxElem = boxRef.current;
       if (boxElem !== null) {
         const {left, width, bottom} = anchorRect;
@@ -597,7 +615,8 @@ function CommentInputBox({
       const selection = $getSelection();
 
       if ($isRangeSelection(selection)) {
-        selectionRef.current = selection.clone();
+        selectionSnapshotRef.current = createSelectionSnapshotFromSelection(selection);
+        selectionQuoteRef.current = selection.getTextContent();
         const anchor = selection.anchor;
         const focus = selection.focus;
         const range = createDOMRange(
@@ -652,6 +671,9 @@ function CommentInputBox({
             elements.pop();
           }
         }
+      } else {
+        selectionSnapshotRef.current = null;
+        selectionQuoteRef.current = '';
       }
     });
   }, [anchorRect, editor, selectionState]);
@@ -684,10 +706,7 @@ function CommentInputBox({
 
   const submitComment = () => {
     if (canSubmit) {
-      let quote = editor.getEditorState().read(() => {
-        const selection = selectionRef.current;
-        return selection ? selection.getTextContent() : '';
-      });
+      let quote = selectionQuoteRef.current;
       if (quote.length > 100) {
         quote = quote.slice(0, 99) + '…';
       }
@@ -695,9 +714,10 @@ function CommentInputBox({
         createThread(quote, [createComment(content, author, authorId)]),
         true,
         undefined,
-        selectionRef.current,
+        selectionSnapshotRef.current,
       );
-      selectionRef.current = null;
+      selectionSnapshotRef.current = null;
+      selectionQuoteRef.current = '';
     }
   };
 
@@ -1190,12 +1210,15 @@ export default function CommentPlugin(): JSX.Element {
       commentOrThread: Comment | Thread,
       isInlineComment: boolean,
       thread?: Thread,
-      selection?: RangeSelection | null,
+      selectionSnapshot?: SelectionSnapshot | null,
     ) => {
       commentStore.addComment(commentOrThread, thread);
       if (isInlineComment) {
         editor.update(() => {
-          if ($isRangeSelection(selection)) {
+          const selection = selectionSnapshot
+            ? createRangeSelectionFromSnapshot(selectionSnapshot)
+            : null;
+          if (selection) {
             const isBackward = selection.isBackward();
             const id = commentOrThread.id;
 
