@@ -1,4 +1,4 @@
-import { htmlToMarkdown, markdownToHtml } from "@/server/editor/conversionUtils";
+import { htmlToMarkdown, markdownToHtml, normalizeMathTexInHtml } from "@/server/editor/conversionUtils";
 import { JSDOM } from "jsdom";
 import { getMarkdownIt } from "@/lib/utils/markdownItPlugins";
 import { findMathSpansInMarkdown } from "@/lib/utils/mathTokens";
@@ -242,5 +242,20 @@ describe("LaTeX correctness regressions", () => {
       '<p><span><span class="math-tex">\\(x\\)</span></span>5 apples</p>'
     );
     expect(findMathSpansInMarkdown(md).length).toBe(1);
+  });
+
+  it("normalizes raw inline math-tex spans before MathJax rendering", () => {
+    const html = normalizeMathTexInHtml('<p>Value <span class="math-tex">x + y</span>.</p>');
+    expect(html).toContain('<span class="math-tex">\\(x + y\\)</span>');
+  });
+
+  it("normalizes raw display math-tex divs before MathJax rendering", () => {
+    const html = normalizeMathTexInHtml('<div class="math-tex">x^2 + y^2 = z^2</div>');
+    expect(html).toContain('<div class="math-tex">\\[x^2 + y^2 = z^2\\]</div>');
+  });
+
+  it("leaves already-delimited math-tex content unchanged", () => {
+    const html = normalizeMathTexInHtml('<span class="math-tex">\\(x\\)</span>');
+    expect(html).toContain('<span class="math-tex">\\(x\\)</span>');
   });
 });

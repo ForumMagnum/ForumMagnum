@@ -475,6 +475,49 @@ function getMathjax3() {
   return _mathjax3;
 }
 
+const delimitedMathRegexes = [
+  /^\\{1,2}\([\s\S]*\\{1,2}\)$/,
+  /^\\{1,2}\[[\s\S]*\\{1,2}\]$/,
+  /^\$\$[\s\S]*\$\$$/,
+  /^\$[\s\S]*\$$/,
+];
+
+function isAlreadyDelimitedMath(text: string): boolean {
+  return delimitedMathRegexes.some((regex) => regex.test(text));
+}
+
+function isDisplayMathTexElement(element: CheerioElement): boolean {
+  const tagName = element.tagName?.toLowerCase();
+  return tagName === "div";
+}
+
+export function normalizeMathTexInHtml(html: string): string {
+  if (!html.includes("math-tex")) {
+    return html;
+  }
+
+  const $ = cheerioParse(html);
+  $(".math-tex").each((_, element) => {
+    const mathNode = $(element);
+    if (mathNode.find("mjx-container, .mjx-chtml, .mjx-math").length > 0) {
+      return;
+    }
+
+    const equation = mathNode.text().trim();
+    if (!equation || isAlreadyDelimitedMath(equation)) {
+      return;
+    }
+
+    if (isDisplayMathTexElement(element)) {
+      mathNode.text(`\\[${equation}\\]`);
+    } else {
+      mathNode.text(`\\(${equation}\\)`);
+    }
+  });
+
+  return $.html();
+}
+
 /**
  * Render LaTeX math expressions in an HTML fragment using MathJax 3.
  *
@@ -488,8 +531,9 @@ export function renderMathInHtml(html: string): string {
 
   try {
     const { adaptor, tex, chtml } = getMathjax3();
+    const normalizedHtml = normalizeMathTexInHtml(html);
 
-    const doc = mathjax.document(html, {
+    const doc = mathjax.document(normalizedHtml, {
       InputJax: tex,
       OutputJax: chtml,
     });
