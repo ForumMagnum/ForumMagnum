@@ -35,6 +35,8 @@ import {
   COLLABORATION_TAG,
   COMMAND_PRIORITY_CRITICAL,
   COMMAND_PRIORITY_EDITOR,
+  COMMAND_PRIORITY_HIGH,
+  CONTROLLED_TEXT_INSERTION_COMMAND,
   createCommand,
   REDO_COMMAND,
   UNDO_COMMAND,
@@ -72,6 +74,7 @@ import { SUGGESTION_SUMMARY_KIND } from '@/components/editor/lexicalPlugins/sugg
 import { useCurrentCollaboratorId } from '@/components/lexical/collaboration';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import classNames from 'classnames';
+import { $replaceTextInsideCommentMark } from '../../commenting/commentMarkTextInsertion';
 
 /**
  * Replacement for @lexical/selection's createRectsFromDOMRange.
@@ -1361,6 +1364,11 @@ export default function CommentPlugin(): JSX.Element {
           }
         });
       }),
+      editor.registerCommand(
+        CONTROLLED_TEXT_INSERTION_COMMAND,
+        $replaceTextInsideCommentMark,
+        COMMAND_PRIORITY_HIGH,
+      ),
       editor.registerCommand(
         INSERT_INLINE_COMMAND,
         () => {

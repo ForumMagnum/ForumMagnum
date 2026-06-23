@@ -3,9 +3,14 @@ import {
   type LexicalNode,
   $isElementNode,
   $getRoot,
+  $getSelection,
+  $isRangeSelection,
+  $isTextNode,
+  type TextNode,
 } from "lexical";
 import { $isMarkNode } from "@lexical/mark";
 import { $attachMarkToQuote, type QuoteMarkResult } from "../../../app/api/agent/collabCommentThreads";
+import { $replaceTextInsideCommentMark } from "@/components/lexical/commenting/commentMarkTextInsertion";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithHtml } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
@@ -64,6 +69,74 @@ function getMarkedTextContent(editor: LexicalEditor, markId: string): string | n
   return parts.length > 0 ? parts.join(" | ") : null;
 }
 
+function getRootTextContent(editor: LexicalEditor): string {
+  let text = "";
+  editor.getEditorState().read(() => {
+    text = $getRoot().getTextContent();
+  });
+  return text;
+}
+
+function findMark(node: LexicalNode, markId: string): LexicalNode | null {
+  if ($isMarkNode(node) && node.getIDs().includes(markId)) {
+    return node;
+  }
+  if ($isElementNode(node)) {
+    for (const child of node.getChildren()) {
+      const found = findMark(child, markId);
+      if (found) return found;
+    }
+  }
+  return null;
+}
+
+function getFirstMarkedTextChild(markId: string): TextNode {
+  const markNode = findMark($getRoot(), markId);
+  if (!markNode || !$isElementNode(markNode)) {
+    throw new Error("Expected to find mark node");
+  }
+  const firstChild = markNode.getFirstChild();
+  if (!$isTextNode(firstChild)) {
+    throw new Error("Expected marked text child");
+  }
+  return firstChild;
+}
+
+async function insertTextAtStartOfMark(
+  editor: LexicalEditor,
+  markId: string,
+  text: string,
+): Promise<void> {
+  await runEditorUpdate(editor, () => {
+    const firstChild = getFirstMarkedTextChild(markId);
+    firstChild.select(0, 0);
+    const selection = $getSelection();
+    if (!$isRangeSelection(selection)) {
+      throw new Error("Expected range selection");
+    }
+    selection.insertText(text);
+  });
+}
+
+async function replaceFirstMarkedCharacter(
+  editor: LexicalEditor,
+  markId: string,
+  text: string,
+): Promise<void> {
+  await runEditorUpdate(editor, () => {
+    const firstChild = getFirstMarkedTextChild(markId);
+    firstChild.select(0, 1);
+    const selection = $getSelection();
+    if (!$isRangeSelection(selection)) {
+      throw new Error("Expected range selection");
+    }
+    const handled = $replaceTextInsideCommentMark(text);
+    if (!handled) {
+      throw new Error("Expected marked replacement to be handled");
+    }
+  });
+}
+
 describe("commentOnDraft quote matching", () => {
   it("attaches a mark to a quote spanning a paragraph boundary", async () => {
     const editor = await setupEditorWithContent(
@@ -99,6 +172,42 @@ describe("commentOnDraft quote matching", () => {
     expect(markCreated).toBe(true);
     expect(getAllMarkIds(editor)).toContain(markId);
     expect(getMarkedTextContent(editor, markId)).toBe("This is a test post.");
+  });
+
+  it("keeps inserted text visible when typing at the start of a marked quote", async () => {
+    const editor = await setupEditorWithContent(
+      "Alpha beta gamma."
+    );
+    const markId = randomId();
+    const { markCreated } = await attachCommentMark(
+      editor,
+      "Alpha beta",
+      markId,
+    );
+
+    expect(markCreated).toBe(true);
+    await insertTextAtStartOfMark(editor, markId, "New ");
+
+    expect(getRootTextContent(editor)).toBe("New Alpha beta gamma.");
+    expect(getMarkedTextContent(editor, markId)).toBe("Alpha beta");
+  });
+
+  it("keeps replacement text visible when editing the first character of a marked quote", async () => {
+    const editor = await setupEditorWithContent(
+      "Alpha beta gamma."
+    );
+    const markId = randomId();
+    const { markCreated } = await attachCommentMark(
+      editor,
+      "Alpha beta",
+      markId,
+    );
+
+    expect(markCreated).toBe(true);
+    await replaceFirstMarkedCharacter(editor, markId, "O");
+
+    expect(getRootTextContent(editor)).toBe("Olpha beta gamma.");
+    expect(getMarkedTextContent(editor, markId)).toBe("Olpha beta");
   });
 
   it("attaches a mark when quote is within a non-first ordered list item", async () => {
