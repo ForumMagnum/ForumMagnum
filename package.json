@@ -296,7 +296,7 @@
     "zod-to-json-schema": "^3.23.5"
   },
   "devDependencies": {
-    "@babel/core": "7.12.3",
+    "@babel/core": "7.29.6",
     "@babel/plugin-proposal-class-properties": "^7.12.1",
     "@babel/plugin-proposal-optional-chaining": "^7.12.1",
     "@babel/plugin-transform-react-jsx": "^7.12.11",
