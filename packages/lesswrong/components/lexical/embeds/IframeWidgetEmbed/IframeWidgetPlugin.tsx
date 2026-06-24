@@ -374,17 +374,19 @@ export default function IframeWidgetPlugin({
           const initialPreviews: Array<{ key: string; height: number }> = [];
           setWidgets((prev) => {
             const next = new Map(prev);
+            let changed = false;
             for (const [key, type] of mutations) {
               if (type === 'destroyed') {
-                next.delete(key);
+                changed = next.delete(key) || changed;
               } else {
                 const node = $getNodeByKey(key);
-                const hasContent = node ? node.getTextContent().trim().length > 0 : false;
-                const htmlContent = hasContent ? node!.getTextContent() : '';
+                const htmlContent = node?.getTextContent() ?? '';
+                const hasContent = htmlContent.trim().length > 0;
                 const existingState = next.get(key);
                 if (existingState) {
                   if (existingState.viewMode === 'preview' && existingState.htmlContent !== htmlContent) {
                     next.set(key, { ...existingState, htmlContent });
+                    changed = true;
                   }
                 } else {
                   next.set(key, {
@@ -392,13 +394,14 @@ export default function IframeWidgetPlugin({
                     previewHeight: IFRAME_DEFAULT_HEIGHT,
                     htmlContent,
                   });
+                  changed = true;
                   if (hasContent) {
                     initialPreviews.push({ key, height: IFRAME_DEFAULT_HEIGHT });
                   }
                 }
               }
             }
-            return next;
+            return changed ? next : prev;
           });
           for (const { key, height } of initialPreviews) {
             applyPreviewModeToDOM(editor, key, height);
