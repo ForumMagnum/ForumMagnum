@@ -19,6 +19,7 @@ import { randomId } from '@/lib/random';
 
 import {$createIframeWidgetNode, IframeWidgetNode} from './IframeWidgetNode';
 import {injectResizeScript, clampIframeHeight, IFRAME_DEFAULT_HEIGHT} from './iframeResizeScript';
+import { refreshIframeWidgetPreviewHtmlContent, type WidgetState } from './previewState';
 import {defineStyles, useStyles} from '@/components/hooks/useStyles';
 import ForumIcon from '@/components/common/ForumIcon';
 import { CodeIcon } from '../../icons/CodeIcon';
@@ -96,12 +97,6 @@ const styles = defineStyles('IframeWidgetPlugin', (theme: ThemeType) => ({
     height: 16,
   },
 }));
-
-interface WidgetState {
-  viewMode: 'code' | 'preview';
-  previewHeight: number;
-  htmlContent: string;
-}
 
 function stripDeletedMarkupFromSrcdoc(srcdoc: string): string {
   const parser = new DOMParser();
@@ -382,16 +377,24 @@ export default function IframeWidgetPlugin({
             for (const [key, type] of mutations) {
               if (type === 'destroyed') {
                 next.delete(key);
-              } else if (!next.has(key)) {
+              } else {
                 const node = $getNodeByKey(key);
                 const hasContent = node ? node.getTextContent().trim().length > 0 : false;
-                next.set(key, {
-                  viewMode: hasContent ? 'preview' : 'code',
-                  previewHeight: IFRAME_DEFAULT_HEIGHT,
-                  htmlContent: hasContent ? node!.getTextContent() : '',
-                });
-                if (hasContent) {
-                  initialPreviews.push({ key, height: IFRAME_DEFAULT_HEIGHT });
+                const htmlContent = hasContent ? node!.getTextContent() : '';
+                const existingState = next.get(key);
+                if (existingState) {
+                  if (existingState.viewMode === 'preview' && existingState.htmlContent !== htmlContent) {
+                    next.set(key, { ...existingState, htmlContent });
+                  }
+                } else {
+                  next.set(key, {
+                    viewMode: hasContent ? 'preview' : 'code',
+                    previewHeight: IFRAME_DEFAULT_HEIGHT,
+                    htmlContent,
+                  });
+                  if (hasContent) {
+                    initialPreviews.push({ key, height: IFRAME_DEFAULT_HEIGHT });
+                  }
                 }
               }
             }
@@ -402,6 +405,16 @@ export default function IframeWidgetPlugin({
           }
         });
       }, {skipInitialization: false}),
+      editor.registerUpdateListener(({editorState, dirtyElements}) => {
+        setWidgets((prev) => refreshIframeWidgetPreviewHtmlContent(prev, dirtyElements.keys(), (key) => {
+          let htmlContent = '';
+          editorState.read(() => {
+            const node = $getNodeByKey(key);
+            htmlContent = node?.getTextContent() ?? '';
+          });
+          return htmlContent;
+        }));
+      }),
       editor.registerMutationListener(IframeWidgetNode, (mutations) => {
         for (const [key, type] of mutations) {
           if (type !== 'destroyed') {
