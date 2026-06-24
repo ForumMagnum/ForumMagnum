@@ -234,6 +234,10 @@ export function buildArgs(
     "--output-format", "stream-json",
     "--verbose",
     "--permission-mode", "auto",
+    // In headless stream-json mode, Claude Code's AskUserQuestion tool can
+    // auto-resolve without surfacing the question to the hosting UI. Disable
+    // it so agents ask clarifying questions as normal chat text instead.
+    "--disallowedTools", "AskUserQuestion",
     "--model", RESEARCH_AGENT_MODEL,
   ];
   if (opts.sessionMode === "resume") {

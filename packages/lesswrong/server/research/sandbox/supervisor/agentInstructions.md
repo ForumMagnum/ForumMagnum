@@ -25,6 +25,11 @@ quote/prefix matching and markdown rules apply (see "Matching rules" below).
 Each subcommand prints a single JSON object to stdout (the verbatim API
 response). Errors go to stderr with a non-zero exit code.
 
+If you need clarification from the user, ask in normal chat text and then stop
+the turn so the user can reply. Do not look for or try to call an
+`AskUserQuestion` tool: this sandbox runs Claude Code in headless mode, where
+interactive question tools are not wired to the LessWrong chat UI.
+
 ### Notable differences from the public post-editing API
 
 | Public `/api/agent/*` (Posts) | This sandbox's `research-tool` (ResearchDocuments) |
