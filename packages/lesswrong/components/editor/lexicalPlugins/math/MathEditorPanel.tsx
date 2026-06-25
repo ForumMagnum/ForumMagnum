@@ -5,15 +5,9 @@ import { createPortal } from 'react-dom';
 import { defineStyles, useStyles } from '../../../hooks/useStyles';
 import { renderEquation } from './loadMathJax';
 
+const PANEL_VERTICAL_GAP = 8;
+
 const styles = defineStyles('MathEditorPanel', (theme: ThemeType) => ({
-  overlay: {
-    position: 'fixed',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1000,
-  },
   panel: {
     position: 'absolute',
     zIndex: 1001,
@@ -73,6 +67,24 @@ const styles = defineStyles('MathEditorPanel', (theme: ThemeType) => ({
     marginTop: '4px',
   },
 }));
+
+interface MathEditorAnchorRect {
+  left: number;
+  width: number;
+  bottom: number;
+}
+
+export function getMathEditorPanelStyle(
+  anchorRect: MathEditorAnchorRect,
+  scrollX: number,
+  scrollY: number,
+): React.CSSProperties {
+  return {
+    left: scrollX + anchorRect.left + (anchorRect.width / 2),
+    top: scrollY + anchorRect.bottom + PANEL_VERTICAL_GAP,
+    transform: 'translateX(-50%)',
+  };
+}
 
 interface MathEditorPanelProps {
   isOpen: boolean;
@@ -170,56 +182,64 @@ function MathEditorPanel({
     }
   }, [equation, isInline, onSubmit, onCancel]);
 
-  const handleOverlayClick = useCallback((e: React.MouseEvent) => {
-    // Only close if clicking the overlay itself, not the panel
-    if (e.target === e.currentTarget) {
+  useEffect(() => {
+    if (!isOpen) {
+      return;
+    }
+
+    const handleOutsidePointerDown = (event: PointerEvent) => {
+      const panel = panelRef.current;
+      const target = event.target;
+      if (panel && target instanceof Node && panel.contains(target)) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
       if (equation.trim()) {
         onSubmit(equation, isInline);
       } else {
         onCancel();
       }
-    }
-  }, [equation, isInline, onSubmit, onCancel]);
+    };
+
+    document.addEventListener('pointerdown', handleOutsidePointerDown, true);
+    return () => document.removeEventListener('pointerdown', handleOutsidePointerDown, true);
+  }, [equation, isInline, isOpen, onSubmit, onCancel]);
 
   if (!isOpen || !anchorRect) {
     return null;
   }
 
-  // Calculate position - center below the cursor
-  const panelStyle: React.CSSProperties = {
-    left: anchorRect.left + (anchorRect.width / 2),
-    top: anchorRect.bottom + 8,
-    transform: 'translateX(-50%)',
-  };
+  // Position in document coordinates so the panel scrolls with the editor content.
+  const panelStyle = getMathEditorPanelStyle(anchorRect, window.scrollX, window.scrollY);
 
   return createPortal(
-    <div className={classes.overlay} onClick={handleOverlayClick}>
-      <div
-        ref={panelRef}
-        className={classes.panel}
-        style={panelStyle}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className={classes.inputContainer}>
-          <textarea
-            ref={inputRef}
-            className={classes.input}
-            value={equation}
-            onChange={(e) => setEquation(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder={isInline ? "x^2 + y^2 = z^2" : "\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}"}
-            rows={1}
-          />
-          <div className={classes.hint}>
-            Enter to submit • Esc to cancel • Shift+Enter for newline
-          </div>
-        </div>
-        <div 
-          ref={previewRef} 
-          className={classes.preview}
-          style={{ display: equation.trim() ? 'flex' : 'none' }}
+    <div
+      ref={panelRef}
+      className={classes.panel}
+      style={panelStyle}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <div className={classes.inputContainer}>
+        <textarea
+          ref={inputRef}
+          className={classes.input}
+          value={equation}
+          onChange={(e) => setEquation(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={isInline ? "x^2 + y^2 = z^2" : "\\sum_{i=1}^{n} i = \\frac{n(n+1)}{2}"}
+          rows={1}
         />
+        <div className={classes.hint}>
+          Enter to submit • Esc to cancel • Shift+Enter for newline
+        </div>
       </div>
+      <div 
+        ref={previewRef} 
+        className={classes.preview}
+        style={{ display: equation.trim() ? 'flex' : 'none' }}
+      />
     </div>,
     document.body
   );
