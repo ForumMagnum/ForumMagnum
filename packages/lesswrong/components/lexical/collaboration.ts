@@ -422,6 +422,16 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
   return provider as Provider & HocuspocusProvider;
 }
 
+export function destroyWebsocketProvider(provider: HocuspocusProvider): void {
+  for (const [documentName, activeProvider] of providerInstances) {
+    if (activeProvider === provider) {
+      providerInstances.delete(documentName);
+    }
+  }
+  provider.configuration.preserveConnection = false;
+  provider.destroy();
+}
+
 /**
  * Disconnect all Hocuspocus providers and clear IndexedDB persistence
  * for the given post. Call this before a restore operation to prevent

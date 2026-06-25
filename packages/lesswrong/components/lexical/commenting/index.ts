@@ -20,6 +20,7 @@ import {
 } from 'yjs';
 import type { HocuspocusProvider } from '@hocuspocus/provider';
 import { TupleSet } from '@/lib/utils/typeGuardUtils';
+import { destroyWebsocketProvider } from '../collaboration';
 
 export type Comment = {
   author: string;
@@ -626,6 +627,7 @@ export class CommentStore {
       sharedCommentsArray.unobserveDeep(onSharedCommentChanges);
       unsubscribe();
       provider.off('synced', onSync);
+      destroyWebsocketProvider(provider);
       this._collabProvider = null;
     };
   }

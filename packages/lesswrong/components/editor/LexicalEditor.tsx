@@ -257,7 +257,7 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
 interface LexicalEditorProps {
   data?: string;
   placeholder?: string;
-  onChange: (html: string) => void;
+  onChange?: (html: string) => void;
   onReady?: () => void;
   /**
    * Called with a function that generates HTML with all suggestions rejected,
@@ -443,7 +443,7 @@ const LexicalEditor = ({
 
   const handleChange = useCallback((html: string) => {
     lastEmittedHtmlRef.current = html;
-    onChange(html);
+    onChange?.(html);
   }, [onChange]);
 
   const app = useMemo(
@@ -492,7 +492,7 @@ const LexicalEditor = ({
                   collaborationConfig={collaborationConfig ?? undefined}
                   accessLevel={accessLevel}
                   initialHtml={initialHtmlRef.current ?? ''}
-                  onChangeHtml={handleChange}
+                  onChangeHtml={onChange ? handleChange : undefined}
                   onGetDataWithDiscardedSuggestions={onGetDataWithDiscardedSuggestions}
                   placeholder={placeholder}
                   commentEditor={commentEditor}
