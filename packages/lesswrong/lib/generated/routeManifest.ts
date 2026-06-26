@@ -76,9 +76,6 @@ export const routeTrie = {
         "migrations": {
           "hasPage": true
         },
-        "moderation": {
-          "hasPage": true
-        },
         "moderationTemplates": {
           "hasPage": true
         },
@@ -86,9 +83,6 @@ export const routeTrie = {
           "hasPage": true
         },
         "random-user": {
-          "hasPage": true
-        },
-        "recentlyActiveUsers": {
           "hasPage": true
         },
         "supermod": {
@@ -110,11 +104,9 @@ export const routeTrie = {
         "emailsender": "emailSender",
         "llmconversations": "llmConversations",
         "migrations": "migrations",
-        "moderation": "moderation",
         "moderationtemplates": "moderationTemplates",
         "pangram": "pangram",
         "random-user": "random-user",
-        "recentlyactiveusers": "recentlyActiveUsers",
         "supermod": "supermod",
         "synonyms": "synonyms",
         "tagmerge": "tagMerge"
