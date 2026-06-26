@@ -20015,6 +20015,23 @@ type multiUserAltAccountInfoQueryQueryVariables = Exact<{
 
 type multiUserAltAccountInfoQueryQuery = multiUserAltAccountInfoQueryQuery_Query;
 
+type UserAltAccountsInfoQueryQuery_user_SingleUserOutput_result_User = (
+  { __typename?: 'User' }
+  & UserAltAccountsFragment
+);
+
+type UserAltAccountsInfoQueryQuery_user_SingleUserOutput = { __typename?: 'SingleUserOutput', result: UserAltAccountsInfoQueryQuery_user_SingleUserOutput_result_User | null };
+
+type UserAltAccountsInfoQueryQuery_Query = { __typename?: 'Query', user: UserAltAccountsInfoQueryQuery_user_SingleUserOutput | null };
+
+
+type UserAltAccountsInfoQueryQueryVariables = Exact<{
+  documentId: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type UserAltAccountsInfoQueryQuery = UserAltAccountsInfoQueryQuery_Query;
+
 type updateModeratorActionModeratorActionItemMutation_updateModeratorAction_ModeratorActionOutput_data_ModeratorAction = (
   { __typename?: 'ModeratorAction' }
   & ModeratorActionDisplay
@@ -24946,7 +24963,7 @@ type SunshineUsersList_User_moderatorActions_ModeratorAction = (
   & ModeratorActionDisplay
 );
 
-type SunshineUsersList_User_associatedClientIds_ClientId = { __typename?: 'ClientId', clientId: string | null, firstSeenReferrer: string | null, firstSeenLandingPage: string | null, userIds: Array<string> | null };
+type SunshineUsersList_User_associatedClientId_ClientId = { __typename?: 'ClientId', clientId: string | null, firstSeenReferrer: string | null, firstSeenLandingPage: string | null };
 
 type SunshineUsersList_User_userRateLimits_UserRateLimit = (
   { __typename?: 'UserRateLimit' }
@@ -24954,12 +24971,14 @@ type SunshineUsersList_User_userRateLimits_UserRateLimit = (
 );
 
 type SunshineUsersList = (
-  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, reviewGroup: ReviewGroup | null, usersContactedBeforeReview: Array<string> | null, altAccountsDetected: boolean | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, mailgunValidation: SunshineUsersList_User_mailgunValidation_MailgunValidationResult | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, associatedClientIds: Array<SunshineUsersList_User_associatedClientIds_ClientId> | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
+  { __typename?: 'User', karma: number, htmlBio: string, website: string | null, createdAt: string, email: string | null, emails: Array<any> | null, commentCount: number, maxCommentCount: number, postCount: number, maxPostCount: number, shortformFeedId: string | null, voteCount: number | null, smallUpvoteCount: number | null, bigUpvoteCount: number | null, smallDownvoteCount: number | null, bigDownvoteCount: number | null, banned: string | null, reviewedByUserId: string | null, reviewedAt: string | null, signUpReCaptchaRating: number | null, mapLocation: any | null, needsReview: boolean | null, sunshineNotes: string | null, sunshineFlagged: boolean | null, postingDisabled: boolean | null, allCommentingDisabled: boolean | null, commentingOnOtherUsersDisabled: boolean | null, conversationsDisabled: boolean | null, votingDisabled: boolean, snoozedUntilContentCount: number | null, nullifyVotes: boolean | null, deleteContent: boolean | null, reviewGroup: ReviewGroup | null, usersContactedBeforeReview: Array<string> | null, altAccountsDetected: boolean | null, voteReceivedCount: number | null, smallUpvoteReceivedCount: number | null, bigUpvoteReceivedCount: number | null, smallDownvoteReceivedCount: number | null, bigDownvoteReceivedCount: number | null, recentKarmaInfo: any | null, lastNotificationsCheck: string | null, lastRemovedFromReviewQueueAt: string | null, rejectedContentCount: number | null, mailgunValidation: SunshineUsersList_User_mailgunValidation_MailgunValidationResult | null, moderatorActions: Array<SunshineUsersList_User_moderatorActions_ModeratorAction> | null, associatedClientId: SunshineUsersList_User_associatedClientId_ClientId | null, userRateLimits: Array<SunshineUsersList_User_userRateLimits_UserRateLimit> | null }
   & UsersMinimumInfo
 );
 
+type UserAltAccountsFragment_User_associatedClientIds_ClientId = { __typename?: 'ClientId', clientId: string | null, firstSeenReferrer: string | null, firstSeenLandingPage: string | null, userIds: Array<string> | null };
+
 type UserAltAccountsFragment = (
-  { __typename?: 'User', IPs: Array<string> | null }
+  { __typename?: 'User', IPs: Array<string> | null, associatedClientIds: Array<UserAltAccountsFragment_User_associatedClientIds_ClientId> | null }
   & SunshineUsersList
 );
 

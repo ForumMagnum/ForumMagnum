@@ -22,6 +22,16 @@ const SunshineUsersListMultiQuery = gql(`
   }
 `);
 
+const UserAltAccountsInfoQuery = gql(`
+  query UserAltAccountsInfoQuery($documentId: String) {
+    user(input: { selector: { documentId: $documentId } }) {
+      result {
+        ...UserAltAccountsFragment
+      }
+    }
+  }
+`);
+
 const styles = defineStyles('AltAccountInfo', (theme: ThemeType) => ({
   root: {
 
@@ -41,8 +51,16 @@ export const AltAccountInfo = ({user}: {
 }) => {
   const classes = useStyles(styles);
   const [showAlternateAccounts, setShowAlternateAccounts] = useState<boolean>(false)
-  const associatedUserIds: string[] = user.associatedClientIds
-    ? flatMap(user.associatedClientIds, clientId=>(clientId.userIds||[]))
+  const { data: altAccountData, loading: loadingClientIds } = useQuery(UserAltAccountsInfoQuery, {
+    variables: {
+      documentId: user._id,
+    },
+    skip: !showAlternateAccounts,
+    notifyOnNetworkStatusChange: true,
+  });
+  const userWithClientIds = altAccountData?.user?.result;
+  const associatedUserIds: string[] = userWithClientIds?.associatedClientIds
+    ? Array.from(new Set(flatMap(userWithClientIds.associatedClientIds, clientId=>(clientId.userIds||[]))))
     : [];
   const { data, loading } = useQuery(SunshineUsersListMultiQuery, {
     variables: {
@@ -50,7 +68,7 @@ export const AltAccountInfo = ({user}: {
       limit: 10,
       enableTotal: false,
     },
-    skip: !(associatedUserIds.length > 0),
+    skip: !showAlternateAccounts || !(associatedUserIds.length > 0),
     notifyOnNetworkStatusChange: true,
   });
 
@@ -77,7 +95,7 @@ export const AltAccountInfo = ({user}: {
         {showAlternateAccounts ? <LockOpenIcon className={classes.icon}/> : <LockIcon className={classes.icon}/>}
       </span>
     </LWTooltip>
-    {loading && associatedUserIds.length>0 && <Loading/>}
+    {(loadingClientIds || (loading && associatedUserIds.length>0)) && <Loading/>}
     {showAlternateAccounts && altAccounts?.map(user => <li key={`${user._id}`}>
       <Link to={userGetProfileUrl(user)}>{user.displayName}</Link> {user.deleted && <>[Deleted]</>}
     </li>)}

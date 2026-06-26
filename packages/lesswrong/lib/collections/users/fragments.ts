@@ -369,11 +369,10 @@ export const SunshineUsersList = gql(`
     }
     reviewGroup
     usersContactedBeforeReview
-    associatedClientIds {
+    associatedClientId {
       clientId
       firstSeenReferrer
       firstSeenLandingPage
-      userIds
     }
     altAccountsDetected
 
@@ -397,6 +396,12 @@ export const SunshineUsersList = gql(`
 export const UserAltAccountsFragment = gql(`
   fragment UserAltAccountsFragment on User {
     ...SunshineUsersList
+    associatedClientIds {
+      clientId
+      firstSeenReferrer
+      firstSeenLandingPage
+      userIds
+    }
     IPs
   }
 `)

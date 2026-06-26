@@ -89,7 +89,7 @@ const ModerationUserIdentityColumn = ({
   likelyReviewTrigger: React.ReactNode;
 }) => {
   const classes = useStyles(styles);
-  const firstClientId = user.associatedClientIds?.[0];
+  const firstClientId = user.associatedClientId;
 
   return (
     <div className={classes.column}>

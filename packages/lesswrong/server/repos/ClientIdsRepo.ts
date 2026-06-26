@@ -65,6 +65,38 @@ class ClientIdsRepo extends AbstractRepo<"ClientIds"> {
     const rowsByUser = groupBy(rows, (row) => row.lookupUserId);
     return userIds.map((userId) => rowsByUser[userId] ?? []);
   }
+
+  async getLatestClientIdForUsers(userIds: string[]): Promise<Array<DbClientId | null>> {
+    const rows = await this.getRawDb().any<DbClientId & { lookupUserId: string }>(`
+      -- ClientIdsRepo.getLatestClientIdForUsers
+      SELECT req."userId" AS "lookupUserId", c.*
+      FROM unnest($1::text[]) AS req("userId")
+      JOIN LATERAL (
+        SELECT * FROM "ClientIds" c
+        WHERE c."userIds" @> ARRAY[req."userId"]
+        ORDER BY c."createdAt" DESC
+        LIMIT 1
+      ) c ON true
+    `, [userIds]);
+    const rowsByUser = groupBy(rows, (row) => row.lookupUserId);
+    return userIds.map((userId) => rowsByUser[userId]?.[0] ?? null);
+  }
+
+  async getUsersHaveAssociatedAltAccounts(userIds: string[]): Promise<boolean[]> {
+    const rows = await this.getRawDb().any<{ lookupUserId: string; hasAltAccounts: boolean }>(`
+      -- ClientIdsRepo.getUsersHaveAssociatedAltAccounts
+      SELECT
+        req."userId" AS "lookupUserId",
+        EXISTS (
+          SELECT 1 FROM "ClientIds" c
+          WHERE c."userIds" @> ARRAY[req."userId"]
+            AND cardinality(c."userIds") > 1
+        ) AS "hasAltAccounts"
+      FROM unnest($1::text[]) AS req("userId")
+    `, [userIds]);
+    const rowsByUser = groupBy(rows, (row) => row.lookupUserId);
+    return userIds.map((userId) => rowsByUser[userId]?.[0]?.hasAltAccounts ?? false);
+  }
 }
 
 recordPerfMetrics(ClientIdsRepo, { excludeMethods: ['ensureClientId'] });

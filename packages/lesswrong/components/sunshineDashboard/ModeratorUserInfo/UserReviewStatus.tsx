@@ -28,7 +28,7 @@ export const UserReviewStatus = ({user}: {
     ? "Banned"
     : (user.reviewedByUserId && user.snoozedUntilContentCount) ? `Snoozed, ${user.snoozedUntilContentCount}` : "Approved"
 
-  const firstClientId = user.associatedClientIds?.[0];
+  const firstClientId = user.associatedClientId;
   return <div className={classes.root}>
     {(user.reviewedByUserId && user.reviewedAt)
       ? <div>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/> ({approvalStatus})</div>

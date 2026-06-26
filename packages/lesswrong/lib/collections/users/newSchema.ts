@@ -3904,15 +3904,11 @@ const schema = {
       outputType: "ClientId",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        return await context.ClientIds.findOne(
-          {
-            userIds: user._id,
-          },
-          {
-            sort: {
-              createdAt: -1,
-            },
-          }
+        return await getWithCustomLoader(
+          context,
+          "latestAssociatedClientId",
+          user._id,
+          (userIds) => context.repos.clientIds.getLatestClientIdForUsers(userIds)
         );
       },
     },
@@ -3933,16 +3929,12 @@ const schema = {
       outputType: "Boolean",
       canRead: ["sunshineRegiment", "admins"],
       resolver: async (user, args, context) => {
-        // Shares the "associatedClientIds" loader (same name + batch fn) so the
-        // ClientIds for the whole moderation queue are fetched in one query.
-        const clientIds = await getWithCustomLoader(context, "associatedClientIds", user._id, (userIds) =>
-          context.repos.clientIds.getClientIdsForUsers(userIds)
+        return await getWithCustomLoader(
+          context,
+          "hasAssociatedAltAccounts",
+          user._id,
+          (userIds) => context.repos.clientIds.getUsersHaveAssociatedAltAccounts(userIds)
         );
-        const userIds = new Set();
-        for (let clientId of clientIds) {
-          for (let userId of clientId.userIds ?? []) userIds.add(userId);
-        }
-        return userIds.size > 1;
       },
     },
   },
