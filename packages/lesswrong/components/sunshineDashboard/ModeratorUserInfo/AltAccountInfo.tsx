@@ -37,7 +37,7 @@ const styles = defineStyles('AltAccountInfo', (theme: ThemeType) => ({
 }));
 
 export const AltAccountInfo = ({user}: {
-  user: SunshineUsersList
+  user: UserClientIdsInfo
 }) => {
   const classes = useStyles(styles);
   const [showAlternateAccounts, setShowAlternateAccounts] = useState<boolean>(false)

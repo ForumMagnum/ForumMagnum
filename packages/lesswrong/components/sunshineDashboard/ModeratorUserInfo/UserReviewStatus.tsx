@@ -5,6 +5,7 @@ import UsersNameWrapper from "../../users/UsersNameWrapper";
 import AltAccountInfo from "./AltAccountInfo";
 import { defineStyles } from '@/components/hooks/defineStyles';
 import { useStyles } from '@/components/hooks/useStyles';
+import { useUserClientIdsInfo } from '@/components/hooks/useUserClientIdsInfo';
 
 const styles = defineStyles('UserReviewStatus', (_theme: ThemeType) => ({
   root: {
@@ -24,11 +25,12 @@ export const UserReviewStatus = ({user}: {
   user: SunshineUsersList
 }) => {
   const classes = useStyles(styles);
-  const approvalStatus = user.banned 
+  const approvalStatus = user.banned
     ? "Banned"
     : (user.reviewedByUserId && user.snoozedUntilContentCount) ? `Snoozed, ${user.snoozedUntilContentCount}` : "Approved"
 
-  const firstClientId = user.associatedClientIds?.[0];
+  const clientIdsInfo = useUserClientIdsInfo(user._id);
+  const firstClientId = clientIdsInfo?.associatedClientIds?.[0];
   return <div className={classes.root}>
     {(user.reviewedByUserId && user.reviewedAt)
       ? <div>Reviewed <FormatDate date={user.reviewedAt}/> ago by <UsersNameWrapper documentId={user.reviewedByUserId}/> ({approvalStatus})</div>
@@ -48,7 +50,7 @@ export const UserReviewStatus = ({user}: {
 
     {firstClientId?.firstSeenReferrer && <div className={classes.qualitySignalRow}>Initial referrer: <a href={firstClientId?.firstSeenReferrer}>{firstClientId?.firstSeenReferrer}</a></div>}
     {firstClientId?.firstSeenLandingPage && <div className={classes.qualitySignalRow}>Initial landing page: <Link to={firstClientId?.firstSeenLandingPage}>{firstClientId?.firstSeenLandingPage}</Link></div>}
-    {user.altAccountsDetected && <AltAccountInfo user={user}/>}
+    {clientIdsInfo?.altAccountsDetected && <AltAccountInfo user={clientIdsInfo}/>}
     <div className={classes.qualitySignalRow}>ReCaptcha Rating: {user.signUpReCaptchaRating || "no rating"}</div>
   </div>;
 }
