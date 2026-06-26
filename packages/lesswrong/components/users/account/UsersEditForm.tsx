@@ -2,7 +2,7 @@ import { useMessages } from '@/components/common/withMessages';
 import React, { useCallback } from 'react';
 import { EditableUser, getUserEmail, userCanEditUser, userGetDisplayName, userGetProfileUrl } from '@/lib/collections/users/helpers';
 import Button from '@/lib/vendor/@material-ui/core/src/Button';
-import { useCurrentUser } from '@/components/common/withUser';
+import { useCurrentUser, useRefetchCurrentUser } from '@/components/common/withUser';
 import { useMutation, useApolloClient } from '@apollo/client/react';
 import { useQuery } from "@/lib/crud/useQuery"
 import { useLocation, useNavigate } from '@/lib/routeUtil.tsx';
@@ -388,6 +388,7 @@ const UsersEditForm = ({ terms, accountManagement }: {
   const { flash } = useMessages();
   const navigate = useNavigate();
   const client = useApolloClient();
+  const refetchCurrentUser = useRefetchCurrentUser();
   const [mutate] = useMutation(gql(`
     mutation resetPassword($email: String) {
       resetPassword(email: $email)
@@ -419,6 +420,9 @@ const UsersEditForm = ({ terms, accountManagement }: {
   const onSuccess = async (user: UsersEdit) => {
     flash(`User "${userGetDisplayName(user)}" edited`);
     try {
+      if (isCurrentUser) {
+        await refetchCurrentUser();
+      }
       await client.resetStore()
     } finally {
       navigate(userGetProfileUrl(user))
