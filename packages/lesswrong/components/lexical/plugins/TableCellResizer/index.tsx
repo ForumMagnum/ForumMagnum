@@ -65,6 +65,102 @@ const MIN_ROW_HEIGHT = 33;
 const MIN_COLUMN_WIDTH = 92;
 const ACTIVE_RESIZER_COLOR = '#76b6ff';
 
+export interface ResizeColumnWidthsArgs {
+  colWidths: number[];
+  measuredColWidths: number[] | null;
+  columnIndex: number;
+  widthChange: number;
+  minColumnWidth: number;
+}
+
+function isUsableMeasuredColumnWidths(
+  measuredColWidths: number[] | null,
+  expectedColumnCount: number,
+): measuredColWidths is number[] {
+  return (
+    measuredColWidths !== null &&
+    measuredColWidths.length === expectedColumnCount &&
+    measuredColWidths.every((width) => Number.isFinite(width) && width > 0)
+  );
+}
+
+export function calculateColumnWidthsAfterResize({
+  colWidths,
+  measuredColWidths,
+  columnIndex,
+  widthChange,
+  minColumnWidth,
+}: ResizeColumnWidthsArgs): number[] {
+  const baseWidths = isUsableMeasuredColumnWidths(
+    measuredColWidths,
+    colWidths.length,
+  )
+    ? measuredColWidths
+    : colWidths;
+  const currentWidth = baseWidths[columnIndex];
+  if (currentWidth === undefined) {
+    return [...baseWidths];
+  }
+
+  const newColWidths = [...baseWidths];
+  const adjacentColumnIndex = columnIndex + 1;
+  const adjacentWidth = baseWidths[adjacentColumnIndex];
+
+  if (adjacentWidth === undefined) {
+    newColWidths[columnIndex] = Math.max(
+      currentWidth + widthChange,
+      minColumnWidth,
+    );
+    return newColWidths;
+  }
+
+  const minWidthChange = minColumnWidth - currentWidth;
+  const maxWidthChange = adjacentWidth - minColumnWidth;
+  const boundedWidthChange = Math.max(
+    minWidthChange,
+    Math.min(widthChange, maxWidthChange),
+  );
+
+  newColWidths[columnIndex] = currentWidth + boundedWidthChange;
+  newColWidths[adjacentColumnIndex] = adjacentWidth - boundedWidthChange;
+  return newColWidths;
+}
+
+function getMeasuredColumnWidths(
+  tableMap: TableMapType,
+  activeEditor: LexicalEditor,
+): number[] | null {
+  const firstRow = tableMap[0];
+  if (!firstRow) {
+    return null;
+  }
+
+  const widths: number[] = [];
+  const seenCellKeys = new Set<NodeKey>();
+  for (const mapEntry of firstRow) {
+    const {cell} = mapEntry;
+    const cellKey = cell.getKey();
+    if (seenCellKeys.has(cellKey) || cell.getColSpan() !== 1) {
+      return null;
+    }
+
+    const domCellNode = activeEditor.getElementByKey(cellKey);
+    const measuredWidth = domCellNode?.getBoundingClientRect().width;
+    if (
+      measuredWidth === undefined ||
+      !Number.isFinite(measuredWidth) ||
+      measuredWidth <= 0
+    ) {
+      return null;
+    }
+
+    seenCellKeys.add(cellKey);
+    widths.push(measuredWidth);
+  }
+
+  return widths;
+}
+
 function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
   const classes = useStyles(styles);
   const targetRef = useRef<HTMLElement | null>(null);
@@ -324,13 +420,16 @@ function TableCellResizer({editor}: {editor: LexicalEditor}): JSX.Element {
           if (!colWidths) {
             return;
           }
-          const width = colWidths[columnIndex];
-          if (width === undefined) {
-            return;
-          }
-          const newColWidths = [...colWidths];
-          const newWidth = Math.max(width + widthChange, MIN_COLUMN_WIDTH);
-          newColWidths[columnIndex] = newWidth;
+          const resizeColumnIndex =
+            columnIndex + tableCellNode.getColSpan() - 1;
+          const measuredColWidths = getMeasuredColumnWidths(tableMap, editor);
+          const newColWidths = calculateColumnWidthsAfterResize({
+            colWidths,
+            measuredColWidths,
+            columnIndex: resizeColumnIndex,
+            widthChange,
+            minColumnWidth: MIN_COLUMN_WIDTH,
+          });
           tableNode.setColWidths(newColWidths);
         },
         {tag: SKIP_SCROLL_INTO_VIEW_TAG},
