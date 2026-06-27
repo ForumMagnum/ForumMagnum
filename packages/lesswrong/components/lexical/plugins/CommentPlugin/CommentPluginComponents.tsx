@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState, type JSX } from 'react';
 import type { EditorState, LexicalCommand, LexicalEditor } from 'lexical';
-import { CLEAR_EDITOR_COMMAND, COMMAND_PRIORITY_NORMAL, KEY_ESCAPE_COMMAND, createCommand } from 'lexical';
+import { CLEAR_EDITOR_COMMAND, COMMAND_PRIORITY_NORMAL, KEY_DOWN_COMMAND, KEY_ESCAPE_COMMAND, createCommand } from 'lexical';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { PlainTextPlugin } from '@lexical/react/LexicalPlainTextPlugin';
@@ -124,6 +124,32 @@ function EscapeHandlerPlugin({
   return null;
 }
 
+function SubmitShortcutPlugin({
+  onSubmitShortcut,
+}: {
+  onSubmitShortcut?: (event: KeyboardEvent) => boolean;
+}): null {
+  const [editor] = useLexicalComposerContext();
+
+  useEffect(() => {
+    if (!onSubmitShortcut) return;
+
+    return editor.registerCommand(
+      KEY_DOWN_COMMAND,
+      (event: KeyboardEvent) => {
+        if (event.key !== 'Enter' || event.isComposing || !(event.metaKey || event.ctrlKey)) {
+          return false;
+        }
+
+        return onSubmitShortcut(event);
+      },
+      COMMAND_PRIORITY_NORMAL,
+    );
+  }, [editor, onSubmitShortcut]);
+
+  return null;
+}
+
 const commentEditorInitialConfig = {
   namespace: 'Commenting',
   nodes: [] as const,
@@ -140,12 +166,14 @@ export function PlainTextEditor({
   onChange,
   editorRef,
   placeholder = 'Type a comment...',
+  onSubmitShortcut,
 }: {
   autoFocus?: boolean;
   className?: string;
   editorRef?: { current: null | LexicalEditor };
   onChange: (editorState: EditorState, editor: LexicalEditor) => void;
   onEscape: (e: KeyboardEvent) => boolean;
+  onSubmitShortcut?: (event: KeyboardEvent) => boolean;
   placeholder?: string;
 }) {
   const classes = useStyles(styles);
@@ -162,6 +190,7 @@ export function PlainTextEditor({
         <HistoryPlugin />
         {autoFocus !== false && <AutoFocusPlugin />}
         <EscapeHandlerPlugin onEscape={onEscape} />
+        <SubmitShortcutPlugin onSubmitShortcut={onSubmitShortcut} />
         <ClearEditorPlugin />
         {editorRef !== undefined && <EditorRefPlugin editorRef={editorRef} />}
       </div>
@@ -206,7 +235,7 @@ export function CommentsComposer({
 
   const onChange = useOnChange(setContent, setCanSubmit);
 
-  const submitComment = () => {
+  const submitComment = useCallback(() => {
     if (canSubmit) {
       submitAddComment(createComment(content, author, authorId), false, thread);
       const editor = editorRef.current;
@@ -214,7 +243,18 @@ export function CommentsComposer({
         editor.dispatchCommand(CLEAR_EDITOR_COMMAND, undefined);
       }
     }
-  };
+  }, [author, authorId, canSubmit, content, submitAddComment, thread]);
+
+  const submitCommentFromKeyboard = useCallback((event: KeyboardEvent) => {
+    if (!canSubmit) {
+      return false;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    submitComment();
+    return true;
+  }, [canSubmit, submitComment]);
 
   return (
     <>
@@ -227,6 +267,7 @@ export function CommentsComposer({
         onChange={onChange}
         editorRef={editorRef}
         placeholder={placeholder}
+        onSubmitShortcut={submitCommentFromKeyboard}
       />
       <Button
         className={classes.sendButton}
