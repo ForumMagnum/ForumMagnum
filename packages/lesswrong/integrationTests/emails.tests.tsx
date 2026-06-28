@@ -103,9 +103,14 @@ describe('renderEmail', () => {
         </mjx-container>
       </span>
     `;
-    const email = await renderTestEmail({
+    const emailContext = await createEmailContext(null);
+    const email = await generateEmail({
+      user: null,
+      to: "test@example.com",
+      subject: "Unit test email",
       bodyComponent: <div dangerouslySetInnerHTML={{__html: mathHtml}} />,
       boilerplateGenerator: mathJaxBoilerplateGenerator,
+      emailContext,
     });
 
     expect(email.html).to.not.contain("<mjx-");
