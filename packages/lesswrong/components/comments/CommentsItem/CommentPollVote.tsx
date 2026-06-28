@@ -72,7 +72,7 @@ const CommentPollVote = ({ comment, classes }: { comment: CommentsList; classes:
         </span>
       )}
       <LWTooltip
-        title={questionWording && <span>With the question "{questionWording}"</span>}
+        title={questionWording && <span>With the statement "{questionWording}"</span>}
         placement="top"
         popperClassName={classes.tooltip}
       >

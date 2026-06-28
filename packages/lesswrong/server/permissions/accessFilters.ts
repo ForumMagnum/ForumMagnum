@@ -43,6 +43,9 @@ const clientIdCheckAccess: CheckAccessFunction<'ClientIds'> = async (currentUser
 }
 
 const commentCheckAccess: CheckAccessFunction<'Comments'> = async (currentUser, document, context): Promise<boolean> => {
+  // Rejected comments are intentionally accessible by direct fetch (parallel to
+  // postCheckAccess), so users can audit moderation decisions via the moderation
+  // log. Default views still hide rejected comments from feeds.
   if (!document.draft) {
     return true;
   }

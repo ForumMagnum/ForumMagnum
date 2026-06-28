@@ -5,15 +5,6 @@ import gql from 'graphql-tag';
 import ElectionVotes from "../collections/electionVotes/collection";
 import { ACTIVE_DONATION_ELECTION, userIsAllowedToVoteInDonationElection } from "@/lib/givingSeason";
 import { instantRunoffAllPossibleResults, IRVote } from "@/lib/givingSeason/instantRunoff";
-import { memoizeWithExpiration } from "@/lib/utils/memoizeWithExpiration";
-
-const getVoteCounts = async () => {
-  const dbVotes = await ElectionVotes.find({ electionName: ACTIVE_DONATION_ELECTION }).fetch();
-  const votes: IRVote[] = dbVotes.map((vote) => vote.vote);
-  return instantRunoffAllPossibleResults(votes as IRVote[]);
-};
-
-const voteCountsWithCache = memoizeWithExpiration(getVoteCounts, 24 * 60 * 60 * 1000);
 
 export const givingSeasonGraphQLTypeDefs = gql`
   type GivingSeasonTagFeedQueryResults {
@@ -53,7 +44,9 @@ export const givingSeasonGraphQLQueries = {
     _args: {},
     _context: ResolverContext,
   ) => {
-    return voteCountsWithCache.get();
+    const dbVotes = await ElectionVotes.find({ electionName: ACTIVE_DONATION_ELECTION }).fetch();
+    const votes: IRVote[] = dbVotes.map((vote) => vote.vote);
+    return instantRunoffAllPossibleResults(votes);
   },
   GivingSeasonTagFeed: async (
     _root: void,

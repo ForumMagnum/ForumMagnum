@@ -63,7 +63,7 @@ import { faviconUrlSetting, isDatadogEnabled, isEAForum, isElasticEnabled, perfo
 import { resolvers, typeDefs } from './vulcan-lib/apollo-server/initGraphQL';
 import { botProtectionCommentRedirectSetting } from './databaseSettings';
 import { getSitemapWithCache } from './sitemap';
-import PostsRepo from './repos/PostsRepo';
+import { addEAFundsPostsRoute } from './eaFundsPosts';
 import { addGivingSeasonEndpoints } from './givingSeason/webhook';
 
 /**
@@ -204,7 +204,7 @@ export function startWebserver() {
 
   app.use(express.urlencoded({ extended: true })); // We send passwords + username via urlencoded form parameters
   app.use('/analyticsEvent', express.json({ limit: '50mb' }), clientIdMiddleware);
-  app.use('/ckeditor-webhook', express.json({ limit: '50mb' }));
+  app.use('/ckeditor-webhook', express.raw({ type: '*/*', limit: '50mb' }));
 
   if (isElasticEnabled) {
     // We register this here (before the auth middleware) to avoid blocking
@@ -276,23 +276,7 @@ export function startWebserver() {
   });
 
   if (isEAForum) {
-    addStaticRoute("/api/eafunds-posts", async (props, _req, res) => {
-      try {
-        const slugs = props.query?.slugs?.split(",");
-        if (!slugs?.length) {
-          throw new Error("Missing user slugs");
-        }
-        const posts = await new PostsRepo().fetchEAFundsPosts(slugs);
-        res.statusCode = 200;
-        res.setHeader("Content-Type", "application/json");
-        res.write(JSON.stringify(posts));
-      } catch (e) {
-        // eslint-disable-next-line no-console
-        console.error("Error fetching EA Funds posts:", e);
-        res.statusCode = 500;
-      }
-      res.end();
-    });
+    addEAFundsPostsRoute();
   }
 
   addStaticRoute("/js/bundle.js", ({query}, req, res, context) => {

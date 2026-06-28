@@ -167,11 +167,16 @@ export function getDenormalizedEditableResolver<N extends CollectionNameString>(
         context,
       ),
     } as DbRevision;
+    // Stash the real Revisions._id so field-level resolvers on Revision can
+    // fetch columns the JSONB mirror doesn't carry (see pangramFieldResolver).
+    (result as AnyBecauseHard)[LATEST_REVISION_ID_KEY] = (doc as AnyBecauseHard)[`${fieldName}_latest`] ?? null;
     // HACK: Pretend that this denormalized field is a DbRevision (even though
     // it's missing an _id and some other fields)
     return result
   }
 }
+
+export const LATEST_REVISION_ID_KEY = "_latestRevisionId";
 
 export function getDefaultLocalStorageIdGenerator<N extends CollectionNameString>(collectionName: N) {
   return function defaultLocalStorageIdGenerator(doc: any, name: string): {id: string, verify: boolean} {

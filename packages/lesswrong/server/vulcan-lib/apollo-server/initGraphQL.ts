@@ -53,6 +53,7 @@ import { reviewWinnerGraphQLQueries, reviewWinnerGraphQLTypeDefs } from '@/serve
 import { importUrlAsDraftPostGqlMutation, importUrlAsDraftPostTypeDefs } from '@/server/resolvers/importUrlAsDraftPost';
 import { revisionResolversGraphQLQueries, revisionResolversGraphQLMutations, revisionResolversGraphQLTypeDefs } from '@/server/resolvers/revisionResolvers';
 import { moderationGqlMutations, moderationGqlQueries, moderationGqlTypeDefs } from '@/server/resolvers/moderationResolvers';
+import { pangramGqlMutations, pangramGqlTypeDefs } from '@/server/resolvers/pangramResolvers';
 import { multiDocumentMutations, multiDocumentTypeDefs } from '@/server/resolvers/multiDocumentResolvers';
 import { spotlightGqlMutations, spotlightGqlTypeDefs } from '@/server/resolvers/spotlightResolvers';
 import { typingIndicatorsGqlMutations, typingIndicatorsGqlTypeDefs } from '@/server/resolvers/typingIndicatorsResolvers';
@@ -279,6 +280,7 @@ export const typeDefs = gql`
   ${importUrlAsDraftPostTypeDefs}
   ${revisionResolversGraphQLTypeDefs}
   ${moderationGqlTypeDefs}
+  ${pangramGqlTypeDefs}
   ${multiDocumentTypeDefs}
   ${spotlightGqlTypeDefs}
   ${typingIndicatorsGqlTypeDefs}
@@ -577,6 +579,7 @@ export const resolvers = {
     ...importUrlAsDraftPostGqlMutation,
     ...revisionResolversGraphQLMutations,
     ...moderationGqlMutations,
+    ...pangramGqlMutations,
     ...multiDocumentMutations,
     ...spotlightGqlMutations,
     ...typingIndicatorsGqlMutations,

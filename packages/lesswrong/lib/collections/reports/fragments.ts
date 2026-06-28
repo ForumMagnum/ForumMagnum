@@ -20,6 +20,17 @@ export const UnclaimedReportsList = () => frag`
     postId
     post {
       ...PostsList
+      contents {
+        _id
+        htmlHighlight
+        plaintextDescription
+        wordCount
+        version
+        pangramAiScore
+        pangramStatus
+        pangramCheckedAt
+        pangramRawResponse
+      }
     }
     reportedUserId
     reportedUser {

@@ -12,6 +12,10 @@ export const RevisionDisplay = () => frag`
     wordCount
     htmlHighlight
     plaintextDescription
+    pangramAiScore
+    pangramStatus
+    pangramCheckedAt
+    pangramRawResponse
   }
 `
 

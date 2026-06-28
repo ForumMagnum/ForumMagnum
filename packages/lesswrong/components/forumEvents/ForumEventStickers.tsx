@@ -353,6 +353,7 @@ const ForumEventStickers: FC<{
           cancelCallback={onCloseCommentForm}
           successCallback={onSuccess}
           setEmoji={icon ? undefined : setEmoji}
+          currentEmoji={draftSticker?.emoji}
           anchorEl={userVoteRef}
           post={currentForumEvent.post}
           prefilledProps={prefilledProps}

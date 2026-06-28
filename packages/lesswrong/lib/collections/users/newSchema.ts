@@ -1944,6 +1944,24 @@ const schema = {
       ...(isEAForum ? { onCreate: () => emailEnabledNotificationSettingOnCreate } : {}),
     },
   },
+  notificationPollClosingSoon: {
+    database: {
+      type: "JSONB",
+      defaultValue: bothChannelsEnabledNotificationTypeSettings,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+  },
+  notificationPollClosed: {
+    database: {
+      type: "JSONB",
+      defaultValue: defaultNotificationTypeSettings,
+      canAutofillDefault: true,
+      nullable: false,
+    },
+    graphql: DEFAULT_NOTIFICATION_GRAPHQL_OPTIONS,
+  },
   notificationDialogueMessages: {
     database: {
       type: "JSONB",
@@ -4412,6 +4430,20 @@ const schema = {
       inputType: "RecommendationSettingsInput",
       canRead: [userOwns],
       canUpdate: [userOwns],
+    },
+  },
+  babyBulbyState: {
+    database: {
+      type: "JSONB",
+    },
+    graphql: {
+      outputType: "JSON",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: {
+        optional: true,
+        blackbox: true,
+      },
     },
   },
   givingSeason2025DonatedFlair: {

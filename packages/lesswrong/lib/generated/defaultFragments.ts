@@ -1200,6 +1200,10 @@ export const RevisionsDefaultFragment = `
     changeMetrics
     googleDocMetadata
     skipAttributions
+    pangramAiScore
+    pangramCheckedAt
+    pangramStatus
+    pangramRawResponse
     voteCount
     baseScore
     extendedScore
@@ -1698,6 +1702,8 @@ export const UsersDefaultFragment = `
     notificationSubforumUnread
     notificationNewMention
     notificationNewPingback
+    notificationPollClosingSoon
+    notificationPollClosed
     notificationDialogueMessages
     notificationPublishedDialogueMessages
     notificationAddedAsCoauthor
@@ -1831,6 +1837,7 @@ export const UsersDefaultFragment = `
     userSurveyEmailSentAt
     inactiveSummaryEmailSentAt
     recommendationSettings
+    babyBulbyState
     givingSeason2025DonatedFlair
     givingSeason2025VotedFlair
   }

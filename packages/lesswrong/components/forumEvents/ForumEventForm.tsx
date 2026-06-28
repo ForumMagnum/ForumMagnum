@@ -238,10 +238,10 @@ const InnerForumEventForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="darkColor">
           {(field) => (
-            <LWTooltip title={`Used as the background of the banner for basic events. Sometimes used as a text color with "Secondary background color" ("lightColor" in the schema) as the background, so these should be roughly inverses of each other.`} placement="left-start" inlineBlock={false}>
+            <LWTooltip title={`Used as the background of the banner. "Background color" ("darkColor" in the schema) and "Foreground color" ("lightColor") should be roughly inverses of each other.`} placement="left-start" inlineBlock={false}>
               <FormComponentColorPicker
                 field={field}
-                label="Primary background color"
+                label="Background color"
               />
             </LWTooltip>
           )}
@@ -251,10 +251,10 @@ const InnerForumEventForm = ({
       <div className={classes.fieldWrapper}>
         <form.Field name="lightColor">
           {(field) => (
-            <LWTooltip title={`Used as the background in some places (e.g. topic tabs) with "Primary background color" as the foreground, so these should be roughly inverses of each other.`} placement="left-start" inlineBlock={false}>
+            <LWTooltip title={`Used as a foreground or text color. "Background color" ("darkColor" in the schema) and "Foreground color" ("lightColor") should be roughly inverses of each other.`} placement="left-start" inlineBlock={false}>
               <FormComponentColorPicker
                 field={field}
-                label="Secondary background color"
+                label="Foreground color"
               />
             </LWTooltip>
           )}
@@ -360,7 +360,7 @@ const InnerForumEventForm = ({
                   verify: true,
                 };
               }}
-              hintText="Write the poll question as plain text (no headings), footnotes will appear as tooltips on the frontpage"
+              hintText="Write the poll statement as plain text (no headings), footnotes will appear as tooltips on the frontpage"
               fieldName="pollQuestion"
               collectionName="ForumEvents"
               commentEditor={true}

@@ -857,6 +857,12 @@ interface ModeratorIPAddressInfo {
   userIds: Array<string>;
 }
 
+interface PangramRunResult {
+  status: PangramStatus;
+  aiScore: number | null;
+  rawResponse: any;
+}
+
 interface ToggleBookmarkInput {
   documentId: string;
   collectionName: string;
@@ -3143,6 +3149,10 @@ interface Revision {
   lens: MultiDocument | null;
   summary: MultiDocument | null;
   automatedContentEvaluations: AutomatedContentEvaluation | null;
+  pangramAiScore: number | null;
+  pangramCheckedAt: Date | null;
+  pangramStatus: string | null;
+  pangramRawResponse: any;
   currentUserVote: string | null;
   currentUserExtendedVote: any;
   voteCount: number;
@@ -4075,6 +4085,8 @@ interface User {
   notificationSubforumUnread: any;
   notificationNewMention: any;
   notificationNewPingback: any;
+  notificationPollClosingSoon: any;
+  notificationPollClosed: any;
   notificationDialogueMessages: any;
   notificationPublishedDialogueMessages: any;
   notificationAddedAsCoauthor: any;
@@ -4228,6 +4240,7 @@ interface User {
   inactiveSummaryEmailSentAt: Date | null;
   karmaChanges: KarmaChanges | null;
   recommendationSettings: any;
+  babyBulbyState: any;
   givingSeason2025DonatedFlair: boolean;
   givingSeason2025VotedFlair: boolean;
 }
@@ -5524,6 +5537,10 @@ interface CreateRevisionDataInput {
 interface UpdateRevisionDataInput {
   legacyData?: any;
   skipAttributions?: boolean | null;
+  pangramAiScore?: number | null;
+  pangramCheckedAt?: Date | null;
+  pangramStatus?: string | null;
+  pangramRawResponse?: any;
 }
 
 interface UpdateRevisionInput {
@@ -6185,6 +6202,8 @@ interface CreateUserDataInput {
   notificationSubforumUnread?: any;
   notificationNewMention?: any;
   notificationNewPingback?: any;
+  notificationPollClosingSoon?: any;
+  notificationPollClosed?: any;
   notificationDialogueMessages?: any;
   notificationPublishedDialogueMessages?: any;
   notificationAddedAsCoauthor?: any;
@@ -6365,6 +6384,8 @@ interface UpdateUserDataInput {
   notificationSubforumUnread?: any;
   notificationNewMention?: any;
   notificationNewPingback?: any;
+  notificationPollClosingSoon?: any;
+  notificationPollClosed?: any;
   notificationDialogueMessages?: any;
   notificationPublishedDialogueMessages?: any;
   notificationAddedAsCoauthor?: any;
@@ -6469,6 +6490,7 @@ interface UpdateUserDataInput {
   userSurveyEmailSentAt?: Date | null;
   inactiveSummaryEmailSentAt?: Date | null;
   recommendationSettings?: RecommendationSettingsInput | null;
+  babyBulbyState?: any;
   givingSeason2025DonatedFlair?: boolean | null;
   givingSeason2025VotedFlair?: boolean | null;
 }
@@ -6615,6 +6637,7 @@ interface GraphQLTypeMap {
   ExternalPostImportData: ExternalPostImportData;
   AutosaveContentType: AutosaveContentType;
   ModeratorIPAddressInfo: ModeratorIPAddressInfo;
+  PangramRunResult: PangramRunResult;
   ToggleBookmarkInput: ToggleBookmarkInput;
   ToggleBookmarkOutput: ToggleBookmarkOutput;
   RssPostChangeInfo: RssPostChangeInfo;

@@ -599,6 +599,14 @@ declare global {
       dim: ColorString,
       cardSeparator: string,
     }
+    pangram: {
+      scoreMidBackground: ColorString,
+      scoreHighBackground: ColorString,
+      errorBackground: ColorString,
+      aiFraction: ColorString,
+      assistedFraction: ColorString,
+      humanFraction: ColorString,
+    }
   };
   type ThemePalette = Merge<ThemeShadePalette,ThemeComponentPalette>
   

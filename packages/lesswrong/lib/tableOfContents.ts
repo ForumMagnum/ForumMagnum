@@ -213,6 +213,29 @@ function elementToToCTitle(element: HTMLElement): string {
   }
 }
 
+const getAnswerUser = (
+  answer: CommentType,
+  userMap?: Record<string, { displayName: string, deleted: boolean }>,
+): string => {
+  if ("user" in answer && answer.user) {
+    if (answer.user.deleted) {
+      return "[Anonymous]";
+    }
+    if (answer.user.displayName) {
+      return answer.user.displayName;
+    }
+  }
+  if (answer.userId && userMap?.[answer.userId]) {
+    if (userMap[answer.userId].deleted) {
+      return "[Anonymous]";
+    }
+    if (userMap[answer.userId].displayName) {
+      return userMap[answer.userId].displayName;
+    }
+  }
+  return "[Anonymous]";
+}
+
 type CommentType = CommentsList | DbComment
 export function getTocAnswers({
   post,
@@ -221,7 +244,7 @@ export function getTocAnswers({
 }: {
   post: { question: boolean };
   answers: CommentType[];
-  userMap?: Record<string, { displayName: string }>;
+  userMap?: Record<string, { displayName: string, deleted: boolean }>;
 }) {
   if (!post.question) return [];
 
@@ -229,10 +252,7 @@ export function getTocAnswers({
     const { html } = answer.contents || {};
     const highlight = truncate(html, 900);
     let shortHighlight = htmlToTextDefault(answerTocExcerptFromHTML(html ?? ""));
-    const author =
-      ("user" in answer ? answer.user?.displayName : null) ??
-      (answer.userId ? userMap?.[answer.userId]?.displayName : null) ??
-      ("author" in answer ? answer.author : null) ?? "[anonymous]";
+    const author = getAnswerUser(answer, userMap);
 
     return {
       title: `${answer.baseScore} ${author}`,
@@ -240,7 +260,7 @@ export function getTocAnswers({
         baseScore: answer.baseScore ?? 0,
         voteCount: answer.voteCount,
         postedAt: answer.postedAt,
-        author: author,
+        author,
         highlight,
         shortHighlight,
       },

@@ -982,6 +982,92 @@ export const NewPingbackNotification = createServerNotificationType({
   },
 });
 
+export const PollClosingSoonNotification = createServerNotificationType({
+  name: "pollClosingSoon",
+  canCombineEmails: true,
+  emailSubject: async ({ notifications }: {
+    user: DbUser,
+    notifications: DbNotification[],
+    context: ResolverContext,
+  }) => {
+    if (notifications.length > 1) {
+      return `${notifications.length} polls are closing soon`;
+    }
+    const notification = notifications[0];
+    const pollQuestion = notification.extraData?.pollQuestion || "a poll";
+    const isCreator = notification.extraData?.isCreator;
+    return isCreator
+      ? `Your poll closes soon: "${pollQuestion}"`
+      : `A poll you voted on closes soon: "${pollQuestion}"`;
+  },
+  emailBody: async ({ notifications }: {
+    user: DbUser,
+    notifications: DbNotification[],
+    context: ResolverContext,
+  }) => {
+    return (
+      <>
+        {notifications.map((notification, i) => {
+          const pollQuestion = notification.extraData?.pollQuestion || "a poll";
+          const isCreator = notification.extraData?.isCreator;
+          const link = notification.link;
+          if (!link) return null;
+
+          const prefix = isCreator ? "Your poll" : "A poll you voted on";
+          return (
+            <p key={i}>
+              {prefix} closes soon: <a href={makeAbsolute(link)}>"{pollQuestion}"</a>
+            </p>
+          );
+        })}
+      </>
+    );
+  },
+});
+
+export const PollClosedNotification = createServerNotificationType({
+  name: "pollClosed",
+  canCombineEmails: true,
+  emailSubject: async ({ notifications }: {
+    user: DbUser,
+    notifications: DbNotification[],
+    context: ResolverContext,
+  }) => {
+    if (notifications.length > 1) {
+      return `${notifications.length} polls have closed`;
+    }
+    const notification = notifications[0];
+    const pollQuestion = notification.extraData?.pollQuestion || "a poll";
+    const isCreator = notification.extraData?.isCreator;
+    return isCreator
+      ? `Your poll has closed: "${pollQuestion}"`
+      : `A poll you voted on has closed: "${pollQuestion}"`;
+  },
+  emailBody: async ({ notifications }: {
+    user: DbUser,
+    notifications: DbNotification[],
+    context: ResolverContext,
+  }) => {
+    return (
+      <>
+        {notifications.map((notification, i) => {
+          const pollQuestion = notification.extraData?.pollQuestion || "a poll";
+          const isCreator = notification.extraData?.isCreator;
+          if (!notification.link) return null;
+          const link = makeAbsolute(notification.link);
+          const prefix = isCreator ? "Your poll" : "A poll you voted on";
+          return (
+            <p key={i}>
+              {prefix} has closed:{" "}
+              <a href={link}>"{pollQuestion}" - click to view the results</a>
+            </p>
+          );
+        })}
+      </>
+    );
+  },
+});
+
 const serverNotificationTypesArray: ServerNotificationType[] = [
   NewPostNotification,
   PostApprovedNotification,
@@ -1020,6 +1106,8 @@ const serverNotificationTypesArray: ServerNotificationType[] = [
   NewSubforumMemberNotification,
   NewMentionNotification,
   NewPingbackNotification,
+  PollClosingSoonNotification,
+  PollClosedNotification,
 ];
 const serverNotificationTypes: Record<string,ServerNotificationType> = keyBy(serverNotificationTypesArray, n=>n.name);
 

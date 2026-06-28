@@ -1228,6 +1228,23 @@ extend type Mutation {
   unlockThread(commentId: String!): Boolean!
 }
 
+enum PangramStatus {
+  scored
+  too_short
+  skipped_spam
+  error
+}
+
+type PangramRunResult {
+  status: PangramStatus!
+  aiScore: Float
+  rawResponse: JSON
+}
+
+extend type Mutation {
+  runPangramOnDocument(collectionName: String!, documentId: String!, revisionId: String): PangramRunResult!
+}
+
 extend type Mutation {
   reorderSummaries(parentDocumentId: String!, parentDocumentCollectionName: String!, summaryIds: [String!]!): Boolean
 }
@@ -3847,6 +3864,10 @@ type Revision {
   lens: MultiDocument
   summary: MultiDocument
   automatedContentEvaluations: AutomatedContentEvaluation
+  pangramAiScore: Float
+  pangramCheckedAt: Date
+  pangramStatus: String
+  pangramRawResponse: JSON
   currentUserVote: String
   currentUserExtendedVote: JSON
   voteCount: Float!
@@ -4869,6 +4890,8 @@ type User {
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
   notificationNewPingback: JSON
+  notificationPollClosingSoon: JSON
+  notificationPollClosed: JSON
   notificationDialogueMessages: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
@@ -5022,6 +5045,7 @@ type User {
   inactiveSummaryEmailSentAt: Date
   karmaChanges(startDate: Date, endDate: Date): KarmaChanges
   recommendationSettings: JSON
+  babyBulbyState: JSON
   givingSeason2025DonatedFlair: Boolean!
   givingSeason2025VotedFlair: Boolean!
 }
@@ -6464,6 +6488,10 @@ input CreateRevisionDataInput {
 input UpdateRevisionDataInput {
   legacyData: JSON
   skipAttributions: Boolean
+  pangramAiScore: Float
+  pangramCheckedAt: Date
+  pangramStatus: String
+  pangramRawResponse: JSON
 }
 
 input UpdateRevisionInput {
@@ -7206,6 +7234,8 @@ input CreateUserDataInput {
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
   notificationNewPingback: JSON
+  notificationPollClosingSoon: JSON
+  notificationPollClosed: JSON
   notificationDialogueMessages: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
@@ -7386,6 +7416,8 @@ input UpdateUserDataInput {
   notificationSubforumUnread: JSON
   notificationNewMention: JSON
   notificationNewPingback: JSON
+  notificationPollClosingSoon: JSON
+  notificationPollClosed: JSON
   notificationDialogueMessages: JSON
   notificationPublishedDialogueMessages: JSON
   notificationAddedAsCoauthor: JSON
@@ -7490,6 +7522,7 @@ input UpdateUserDataInput {
   userSurveyEmailSentAt: Date
   inactiveSummaryEmailSentAt: Date
   recommendationSettings: RecommendationSettingsInput
+  babyBulbyState: JSON
   givingSeason2025DonatedFlair: Boolean
   givingSeason2025VotedFlair: Boolean
 }
@@ -8049,6 +8082,10 @@ fragment CommentsList on Comment {
     html
     plaintextMainText
     wordCount
+    pangramAiScore
+    pangramStatus
+    pangramCheckedAt
+    pangramRawResponse
   }
   postedAt
   lastEditedAt
@@ -10436,6 +10473,10 @@ fragment RevisionDisplay on Revision {
   wordCount
   htmlHighlight
   plaintextDescription
+  pangramAiScore
+  pangramStatus
+  pangramCheckedAt
+  pangramRawResponse
 }
 
 fragment RevisionEdit on Revision {
@@ -10534,6 +10575,10 @@ fragment RevisionsDefaultFragment on Revision {
   changeMetrics
   googleDocMetadata
   skipAttributions
+  pangramAiScore
+  pangramCheckedAt
+  pangramStatus
+  pangramRawResponse
   voteCount
   baseScore
   extendedScore
@@ -10929,6 +10974,11 @@ fragment SunshinePostsList on Post {
     htmlHighlight
     wordCount
     version
+
+    pangramAiScore
+    pangramStatus
+    pangramCheckedAt
+    pangramRawResponse
 
     automatedContentEvaluations {
       _id
@@ -11782,6 +11832,17 @@ fragment UnclaimedReportsList on Report {
   postId
   post {
     ...PostsList
+    contents {
+      _id
+      htmlHighlight
+      plaintextDescription
+      wordCount
+      version
+      pangramAiScore
+      pangramStatus
+      pangramCheckedAt
+      pangramRawResponse
+    }
   }
   reportedUserId
   reportedUser {
@@ -12404,6 +12465,8 @@ fragment UsersDefaultFragment on User {
   notificationSubforumUnread
   notificationNewMention
   notificationNewPingback
+  notificationPollClosingSoon
+  notificationPollClosed
   notificationDialogueMessages
   notificationPublishedDialogueMessages
   notificationAddedAsCoauthor
@@ -12537,6 +12600,7 @@ fragment UsersDefaultFragment on User {
   userSurveyEmailSentAt
   inactiveSummaryEmailSentAt
   recommendationSettings
+  babyBulbyState
   givingSeason2025DonatedFlair
   givingSeason2025VotedFlair
 }
@@ -12611,6 +12675,7 @@ fragment UsersEdit on User {
 
   # Admin & Review
   reviewedByUserId
+  needsReview
 
   # Alignment Forum
   reviewForAlignmentForumUserId
@@ -12642,6 +12707,8 @@ fragment UsersEdit on User {
   notificationSubforumUnread
   notificationNewMention
   notificationNewPingback
+  notificationPollClosingSoon
+  notificationPollClosed
   notificationNewDialogueChecks
   notificationYourTurnMatchForm
   notificationDialogueMessages

@@ -102,6 +102,9 @@ function replacePaletteWithStubs(theme: ThemeType): ThemeType {
 
 const colorWords = ["white","black","red","grey","gray"];
 function stringMentionsAnyColor(str: string): string | null {
+  if (str.trim().startsWith("var(--")) {
+    return null;
+  }
   if (!!str.match(/rgba?\(/)
     || !!str.match(/#[0-9a-fA-F]{6}/)
     || !!str.match(/#[0-9a-fA-F]{3}/)

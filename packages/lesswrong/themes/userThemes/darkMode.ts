@@ -296,6 +296,14 @@ export const darkModeTheme: UserThemeSpecification = {
     arbital: {
       arbitalGreen: '#02796b',
     },
+    pangram: {
+      scoreMidBackground: "#3e2f10",
+      scoreHighBackground: "#4a1f23",
+      errorBackground: "#4a1f23",
+      aiFraction: "#ff8a80",
+      assistedFraction: "#ffb74d",
+      humanFraction: "#81c784",
+    },
     action: {
       active: '#fff',
       hover: greyAlpha(0.1),

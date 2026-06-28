@@ -155,6 +155,49 @@ class ForumEventsRepo extends AbstractRepo<"ForumEvents"> {
       [stickerId, userId, forumEventId]
     );
   }
+
+  /**
+   * Get polls (eventFormat = 'POLL') closing between minDate and maxDate.
+   */
+  async getPollsClosingBetween(minDate: Date, maxDate: Date): Promise<Array<{
+    _id: string;
+    derivedPostId: string | null;
+    commentId: string | null;
+    startDate: Date | null;
+    endDate: Date;
+    publicData: Record<string, unknown> | null;
+    creatorUserIds: string[];
+  }>> {
+    return this.getRawDb().any<{
+      _id: string;
+      derivedPostId: string | null;
+      commentId: string | null;
+      startDate: Date | null;
+      endDate: Date;
+      publicData: Record<string, unknown> | null;
+      creatorUserIds: string[];
+    }>(`
+      -- ForumEventsRepo.getPollsClosingBetween
+      SELECT
+        fe."_id",
+        COALESCE(fe."postId", c."postId") as "derivedPostId",
+        fe."commentId",
+        fe."startDate",
+        fe."endDate",
+        fe."publicData",
+        array_remove(CASE
+          WHEN fe."commentId" IS NOT NULL THEN ARRAY[c."userId"]
+          ELSE ARRAY[p."userId"] || COALESCE(p."coauthorUserIds", ARRAY[]::text[])
+        END, NULL) as "creatorUserIds"
+      FROM "ForumEvents" fe
+      LEFT JOIN "Comments" c ON fe."commentId" = c."_id"
+      LEFT JOIN "Posts" p ON COALESCE(fe."postId", c."postId") = p."_id"
+      WHERE fe."eventFormat" = 'POLL'
+        AND fe."endDate" IS NOT NULL
+        AND fe."endDate" >= $1
+        AND fe."endDate" < $2
+    `, [minDate, maxDate]);
+  }
 }
 
 recordPerfMetrics(ForumEventsRepo);

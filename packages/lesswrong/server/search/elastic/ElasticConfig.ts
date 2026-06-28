@@ -57,6 +57,16 @@ export type IndexConfig = {
   /**
    * Filters to completely remove entries from the result set, irregardless of their
    * relevancy to the query. This is often used to remove deleted data.
+   *
+   * Convention: ForumMagnum indexes every row regardless of visibility (draft,
+   * deleted, rejected, authorIsUnreviewed, retracted, spam, etc.) and applies
+   * the filtering here at query time. Don't add WHERE clauses to the bulk-export
+   * methods (`getSearchDocuments` / `countSearchDocuments`) or to
+   * `getSearchDocumentById` — the per-document update path (`elasticSyncDocument`
+   * → `ElasticExporter.updateDocument`) always re-indexes the full row, so a
+   * filter applied only at bulk export drifts back to inconsistent the next time
+   * the row is touched. If something must not appear in search, add it to the
+   * relevant `filters` array below.
    */
   filters?: QueryDslQueryContainer[],
   /**

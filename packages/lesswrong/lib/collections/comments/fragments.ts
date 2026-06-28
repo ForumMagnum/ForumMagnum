@@ -23,6 +23,10 @@ export const CommentsList = () => frag`
       html
       plaintextMainText
       wordCount
+      pangramAiScore
+      pangramStatus
+      pangramCheckedAt
+      pangramRawResponse
     }
     postedAt
     lastEditedAt

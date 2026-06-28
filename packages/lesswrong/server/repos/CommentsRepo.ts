@@ -144,7 +144,8 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           "retracted" IS NOT TRUE AND
           "deleted" IS NOT TRUE AND
           "deletedPublic" IS NOT TRUE AND
-          "needsReview" IS NOT TRUE
+          "needsReview" IS NOT TRUE AND
+          "rejected" IS NOT TRUE
           ${afCommentsFilter}
         ORDER BY "postId", "baseScore" DESC
       ) q
@@ -262,6 +263,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
         AND ($2 IS NULL OR c."postedAt" >= $2)
         AND c."postedAt" <= $3
         AND c."deleted" IS NOT TRUE
+        AND c."rejected" IS NOT TRUE
       GROUP BY
         window_start_key
       ORDER BY
@@ -313,6 +315,7 @@ class CommentsRepo extends AbstractRepo<"Comments"> {
           AND "retracted" IS NOT TRUE
           AND "deletedPublic" IS NOT TRUE
           AND "moderatorHat" IS NOT TRUE
+          AND "rejected" IS NOT TRUE
           AND ${shortformCondition}
           AND "postedAt" > $1
           AND "postedAt" < $2

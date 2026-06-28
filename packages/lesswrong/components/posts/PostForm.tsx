@@ -1,7 +1,7 @@
 import { hasSidenotes, userCanCreateAndEditJargonTerms } from "@/lib/betas";
 import { localGroupTypeFormOptions } from "@/lib/collections/localgroups/groupTypes";
 import { MODERATION_GUIDELINES_OPTIONS, postStatusLabels, EVENT_TYPES } from "@/lib/collections/posts/constants";
-import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, MINIMUM_COAUTHOR_KARMA, userPassesCrosspostingKarmaThreshold, userCanEditCoauthors } from "@/lib/collections/posts/helpers";
+import { EditablePost, postCanEditHideCommentKarma, PostSubmitMeta, userPassesCrosspostingKarmaThreshold, userCanEditCoauthors } from "@/lib/collections/posts/helpers";
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
 import { defaultEditorPlaceholder } from "@/lib/editor/make_editable";
@@ -9,11 +9,12 @@ import { fmCrosspostBaseUrlSetting, fmCrosspostSiteNameSetting, isEAForum, isLWo
 import { allOf } from "@/lib/utils/functionUtils";
 import { getVotingSystems } from "@/lib/voting/getVotingSystem";
 import { registerComponent } from "@/lib/vulcan-lib/components";
-import { OwnableDocument, userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOverNKarmaOrApproved, userOwns } from "@/lib/vulcan-users/permissions";
+import { OwnableDocument, userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOwns } from "@/lib/vulcan-users/permissions";
 import { isFriendlyUI, preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import { useApolloClient } from "@apollo/client";
 import { useCurrentUser } from "../common/withUser";
 import { EditLinkpostUrl } from "../editor/EditLinkpostUrl";
 import { EditTitle } from "../editor/EditTitle";
@@ -30,7 +31,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { GlossaryEditFormWrapper } from "../jargon/GlossaryEditFormWrapper";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
-import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
+import { EditContentsRef, EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { LocationFormComponent } from "@/components/form-components/LocationFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
@@ -47,6 +48,7 @@ import Error404 from "../common/Error404";
 import FormGroupPostTopBar from "../form-components/FormGroupPostTopBar";
 import FooterTagList from "../tagging/FooterTagList";
 import FormComponentCheckbox from "../form-components/FormComponentCheckbox";
+import NewPostAIPolicy from "./NewPostAIPolicy";
 
 const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
   fieldWrapper: {
@@ -113,7 +115,9 @@ const PostForm = ({
 }) => {
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
+  const apolloClient = useApolloClient();
   const [editorType, setEditorType] = useState<string>();
+  const editContentsRef = useRef<EditContentsRef>(null);
 
   // TODO: maybe this is just an edit form?
   const formType = initialData ? 'edit' : 'new';
@@ -177,6 +181,11 @@ const PostForm = ({
           });
           result = data?.updatePost.data;
         }
+
+        // Invalidate ForumEvents cache so polls show updated endDate
+        apolloClient.cache.evict({ fieldName: 'forumEvent' });
+        apolloClient.cache.evict({ fieldName: 'forumEvents' });
+        apolloClient.cache.gc();
 
         onSuccessCallback.current?.(result, meta);
         onSuccessCallbackCustomHighlight.current?.(result, meta);
@@ -331,6 +340,8 @@ const PostForm = ({
         )}
       </form.Subscribe>
 
+      <NewPostAIPolicy postId={initialData._id} editContentsRef={editContentsRef} />
+
       <LegacyFormGroupLayout
         groupStyling={false}
         paddingStyling={true}
@@ -348,6 +359,7 @@ const PostForm = ({
                 addOnSuccessCallback={addOnSuccessCallback}
                 hasToc={true}
                 hintText={defaultEditorPlaceholder}
+                editContentsRef={editContentsRef}
                 fieldName="contents"
                 collectionName="Posts"
                 commentEditor={false}

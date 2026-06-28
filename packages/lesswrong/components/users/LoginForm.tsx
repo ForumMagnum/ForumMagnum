@@ -103,6 +103,7 @@ type LoginFormProps = {
   startingState?: possibleActions,
   immediateRedirect?: boolean,
   onClose?: () => void,
+  signupTitle?: string,
   classes: ClassesType<typeof styles>
 }
 
@@ -244,6 +245,7 @@ const LoginFormEA = ({
   startingState = "login",
   immediateRedirect,
   onClose,
+  signupTitle,
 }: LoginFormProps) => {
   const { pathname, query } = useLocation()
   const [action, setAction] = useState<"login" | "signup" | null>(
@@ -274,10 +276,9 @@ const LoginFormEA = ({
     <EALoginPopover
       action={action}
       setAction={wrappedSetAction}
+      signupTitle={signupTitle}
     />
   );
 }
 
 export default registerComponent('LoginForm', LoginForm, { styles });
-
-

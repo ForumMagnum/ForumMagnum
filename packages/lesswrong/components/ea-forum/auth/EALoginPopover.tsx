@@ -238,11 +238,19 @@ const links = {
   privacy: "/privacyPolicy",
 } as const;
 
-export const EALoginPopover = ({action: action_, setAction: setAction_, facebookEnabled = auth0FacebookLoginEnabled.get(), googleEnabled = true, classes}: {
+export const EALoginPopover = ({
+  action: action_,
+  setAction: setAction_,
+  facebookEnabled = auth0FacebookLoginEnabled.get(),
+  googleEnabled = true,
+  signupTitle,
+  classes,
+}: {
   action?: LoginAction | null,
   setAction?: (action: LoginAction | null) => void,
   facebookEnabled?: boolean,
   googleEnabled?: boolean,
+  signupTitle?: string,
   classes: ClassesType<typeof styles>,
 }) => {
   const {loginAction, setLoginAction} = useLoginPopoverContext();
@@ -303,6 +311,10 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
     setLoading(false);
   }, [client, email, action, isSignup, isResettingPassword]);
 
+  const onClose = useCallback(() => {
+    setAction(null);
+  }, [setAction]);
+
   const onSubmit = useCallback(async (ev: FormEvent<HTMLFormElement>) => {
     ev.preventDefault();
 
@@ -326,7 +338,12 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
           ? client.signup(email, password)
           : client.login(email, password)
       );
-      await refetchCurrentUser();
+      try {
+        await refetchCurrentUser();
+        onClose();
+      } catch {
+        window.location.reload();
+      }
     } catch (e) {
       // eslint-disable-next-line no-console
       console.error(e);
@@ -346,7 +363,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
     } finally {
       setLoading(false);
     }
-  }, [isResettingPassword, showFacebookWarning, email, password, onSendPasswordReset, isSignup, client, refetchCurrentUser, action]);
+  }, [isResettingPassword, showFacebookWarning, email, password, onSendPasswordReset, isSignup, client, refetchCurrentUser, action, onClose]);
 
   const onClickGoogle = useCallback(async () => {
     setMessage(null);
@@ -378,10 +395,6 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
     setAction("signup");
   }, [setAction]);
 
-  const onClose = useCallback(() => {
-    setAction(null);
-  }, [setAction]);
-
   useEffect(() => {
     if (!open) {
       setEmail("");
@@ -397,7 +410,7 @@ export const EALoginPopover = ({action: action_, setAction: setAction_, facebook
   }, [open]);
 
   const title = isSignup
-    ? `Sign up to get more from ${siteNameWithArticleSetting.get() || "forum"}`
+    ? (signupTitle ?? `Sign up to get more from ${siteNameWithArticleSetting.get() || "forum"}`)
     : showFacebookWarning
       ? "Facebook login will be removed soon"
       : "Welcome back";
@@ -568,5 +581,3 @@ export default registerComponent(
   EALoginPopover,
   {styles},
 );
-
-

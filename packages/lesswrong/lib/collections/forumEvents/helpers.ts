@@ -1,4 +1,13 @@
 import { parseDocumentFromString } from "@/lib/domParser";
+import { postGetPageUrl, PostsMinimumForGetPageUrl } from "../posts/helpers";
+
+/**
+ * Gets a URL to a poll on a post page. The poll will scroll into view when the page loads.
+ */
+export function getPollUrl(post: PostsMinimumForGetPageUrl, pollId: string, isAbsolute = false): string {
+  const baseUrl = postGetPageUrl(post, isAbsolute);
+  return `${baseUrl}?pollId=${pollId}`;
+}
 
 /**
  * Removes any footnotes and converts what remains to plain text. Only tested against basic html as
@@ -16,3 +25,7 @@ export function stripFootnotes(html: string): string {
 
   return (document.body.textContent || "").trim();
 }
+
+export const SCALING_SERIES_ID = "HvynzLsZDJm4vS2gL";
+export const BETTER_FUTURES_ID = "wwqGaWf76xgzDaFes";
+export const IN_DEVELOPMENT_SERIES_ID = "ryDBPmRxdYbakxsgR";

@@ -590,6 +590,7 @@ export const UsersEdit = () => frag`
 
     # Admin & Review
     reviewedByUserId
+    needsReview
 
     # Alignment Forum
     reviewForAlignmentForumUserId
@@ -621,6 +622,8 @@ export const UsersEdit = () => frag`
     notificationSubforumUnread
     notificationNewMention
     notificationNewPingback
+    notificationPollClosingSoon
+    notificationPollClosed
     notificationNewDialogueChecks
     notificationYourTurnMatchForm
     notificationDialogueMessages

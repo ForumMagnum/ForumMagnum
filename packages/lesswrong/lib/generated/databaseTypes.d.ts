@@ -1261,6 +1261,10 @@ interface DbRevision extends DbObject {
     type: string,
     data: string,
   } | null
+  pangramAiScore: number | null
+  pangramCheckedAt: Date | null
+  pangramRawResponse: any | null
+  pangramStatus: string | null
   score: number
   skipAttributions: boolean
   updateType: "initial" | "patch" | "minor" | "major" | null
@@ -1681,6 +1685,7 @@ interface DbUser extends DbObject {
   autoSubscribeAsOrganizer: boolean
   auto_subscribe_to_my_comments: boolean
   auto_subscribe_to_my_posts: boolean
+  babyBulbyState: any | null
   banned: Date | null
   bannedPersonalUserIds: Array<string> | null
   bannedUserIds: Array<string> | null
@@ -2000,6 +2005,34 @@ interface DbUser extends DbObject {
     },
   }
   notificationNewPingback: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationPollClosed: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  }
+  notificationPollClosingSoon: {
     onsite: {
       enabled: boolean,
       batchingFrequency: "realtime" | "daily" | "weekly",

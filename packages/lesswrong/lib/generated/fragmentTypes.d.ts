@@ -558,6 +558,10 @@ interface CommentsList_contents { // fragment on Revisions
   readonly html: string|null,
   readonly plaintextMainText: string,
   readonly wordCount: number,
+  readonly pangramAiScore: number|null,
+  readonly pangramStatus: string|null,
+  readonly pangramCheckedAt: Date|null,
+  readonly pangramRawResponse: any,
 }
 
 interface CommentsListWithModGPTAnalysis extends CommentsList { // fragment on Comments
@@ -2625,6 +2629,10 @@ interface RevisionDisplay { // fragment on Revisions
   readonly wordCount: number,
   readonly htmlHighlight: string,
   readonly plaintextDescription: string,
+  readonly pangramAiScore: number|null,
+  readonly pangramStatus: string|null,
+  readonly pangramCheckedAt: Date|null,
+  readonly pangramRawResponse: any,
 }
 
 interface RevisionEdit extends RevisionDisplay { // fragment on Revisions
@@ -2711,6 +2719,10 @@ interface RevisionsDefaultFragment { // fragment on Revisions
   readonly changeMetrics: any,
   readonly googleDocMetadata: any,
   readonly skipAttributions: boolean,
+  readonly pangramAiScore: number|null,
+  readonly pangramCheckedAt: Date|null,
+  readonly pangramStatus: string|null,
+  readonly pangramRawResponse: any,
   readonly voteCount: number,
   readonly baseScore: number,
   readonly extendedScore: any,
@@ -3087,6 +3099,10 @@ interface SunshinePostsList_contents { // fragment on Revisions
   readonly htmlHighlight: string,
   readonly wordCount: number,
   readonly version: string,
+  readonly pangramAiScore: number|null,
+  readonly pangramStatus: string|null,
+  readonly pangramCheckedAt: Date|null,
+  readonly pangramRawResponse: any,
   readonly automatedContentEvaluations: SunshinePostsList_contents_automatedContentEvaluations|null,
 }
 
@@ -3792,7 +3808,7 @@ interface UnclaimedReportsList { // fragment on Reports
   readonly commentId: string|null,
   readonly comment: UnclaimedReportsList_comment|null,
   readonly postId: string|null,
-  readonly post: PostsList|null,
+  readonly post: UnclaimedReportsList_post|null,
   readonly reportedUserId: string|null,
   readonly reportedUser: SunshineUsersList|null,
   readonly closedAt: Date|null,
@@ -3808,6 +3824,22 @@ interface UnclaimedReportsList { // fragment on Reports
 interface UnclaimedReportsList_comment extends CommentsList { // fragment on Comments
   readonly post: PostsMinimumInfo|null,
   readonly tag: TagBasicInfo|null,
+}
+
+interface UnclaimedReportsList_post extends PostsList { // fragment on Posts
+  readonly contents: UnclaimedReportsList_post_contents|null,
+}
+
+interface UnclaimedReportsList_post_contents { // fragment on Revisions
+  readonly _id: string,
+  readonly htmlHighlight: string,
+  readonly plaintextDescription: string,
+  readonly wordCount: number,
+  readonly version: string,
+  readonly pangramAiScore: number|null,
+  readonly pangramStatus: string|null,
+  readonly pangramCheckedAt: Date|null,
+  readonly pangramRawResponse: any,
 }
 
 interface UnclaimedReportsList_claimedUser { // fragment on Users
@@ -4578,6 +4610,34 @@ interface UsersDefaultFragment { // fragment on Users
       dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
     },
   },
+  readonly notificationPollClosingSoon: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  },
+  readonly notificationPollClosed: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  },
   readonly notificationDialogueMessages: {
     onsite: {
       enabled: boolean,
@@ -4833,6 +4893,7 @@ interface UsersDefaultFragment { // fragment on Users
   readonly userSurveyEmailSentAt: Date|null,
   readonly inactiveSummaryEmailSentAt: Date|null,
   readonly recommendationSettings: RecommendationSettingsInput,
+  readonly babyBulbyState: any,
   readonly givingSeason2025DonatedFlair: boolean,
   readonly givingSeason2025VotedFlair: boolean,
 }
@@ -4886,6 +4947,7 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
   readonly hideFromPeopleDirectory: boolean,
   readonly allowDatadogSessionReplay: boolean,
   readonly reviewedByUserId: string|null,
+  readonly needsReview: boolean|null,
   readonly reviewForAlignmentForumUserId: string|null,
   readonly groups: Array<string>,
   readonly afApplicationText: string|null,
@@ -5164,6 +5226,34 @@ interface UsersEdit extends UsersCurrent { // fragment on Users
     },
   },
   readonly notificationNewPingback: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  },
+  readonly notificationPollClosingSoon: {
+    onsite: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+    email: {
+      enabled: boolean,
+      batchingFrequency: "realtime" | "daily" | "weekly",
+      timeOfDayGMT: number,
+      dayOfWeekGMT: "Monday" | "Tuesday" | "Wednesday" | "Thursday" | "Friday" | "Saturday" | "Sunday",
+    },
+  },
+  readonly notificationPollClosed: {
     onsite: {
       enabled: boolean,
       batchingFrequency: "realtime" | "daily" | "weekly",

@@ -714,6 +714,11 @@ export const SunshinePostsList = () => frag`
       wordCount
       version
 
+      pangramAiScore
+      pangramStatus
+      pangramCheckedAt
+      pangramRawResponse
+
       automatedContentEvaluations {
         _id
         score

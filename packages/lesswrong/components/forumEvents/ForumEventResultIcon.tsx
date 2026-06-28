@@ -42,7 +42,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: '140%',
   },
   userResultsImage: {
-    outline: `2px solid var(--forum-event-foreground)`,
+    outline: `2px solid color-mix(in oklab, var(--forum-event-foreground) 50%, var(--forum-event-background) 50%)`,
     width: "100% !important",
     height: "unset !important",
   },

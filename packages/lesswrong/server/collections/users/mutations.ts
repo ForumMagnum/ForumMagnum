@@ -8,6 +8,7 @@ import { approveUnreviewedSubmissions, changeDisplayNameRateLimit, clearKarmaCha
 import { createInitialRevisionsForEditableFields, reuploadImagesIfEditableFieldsChanged, uploadImagesInEditableFields, notifyUsersOfNewPingbackMentions, createRevisionsForEditableFields, updateRevisionsDocumentIds } from "@/server/editor/make_editable_callbacks";
 import { logFieldChanges } from "@/server/fieldChanges";
 import { elasticSyncDocument } from "@/server/search/elastic/elasticCallbacks";
+import { maybeFlagUserBioForSpamWithAkismet } from "@/server/users/akismetBio";
 import { runSlugCreateBeforeCallback, runSlugUpdateBeforeCallback } from "@/server/utils/slugUtil";
 import { getCreatableGraphQLFields, getUpdatableGraphQLFields } from "@/server/vulcan-lib/apollo-server/graphqlTemplates";
 import { makeGqlCreateMutation, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo-server/helpers";
@@ -15,6 +16,7 @@ import { getLegacyCreateCallbackProps, getLegacyUpdateCallbackProps, insertAndRe
 import { dataToModifier, modifierToData } from "@/server/vulcan-lib/validation";
 import gql from "graphql-tag";
 import cloneDeep from "lodash/cloneDeep";
+import { captureException } from "@sentry/core";
 
 function newCheck() {
   return true;
@@ -135,6 +137,7 @@ export async function updateUser({ selector, data }: { data: UpdateUserDataInput
   await updateCountOfReferencesOnOtherCollectionsAfterUpdate('Users', updatedDocument, oldDocument);
 
   updateUserMayTriggerReview(updateCallbackProperties);
+  void maybeFlagUserBioForSpamWithAkismet(updatedDocument, oldDocument, context).catch(captureException);
   await userEditDeleteContentCallbacksAsync(updateCallbackProperties);
 
   await newSubforumMemberNotifyMods(updatedDocument, oldDocument, context);

@@ -116,10 +116,12 @@ function PostsEmailInner({
   postIds,
   reason,
   hideRecommendations,
+  hidePostPageLink,
 }: {
   postIds: string[];
   reason?: string;
   hideRecommendations?: boolean;
+  hidePostPageLink?: boolean;
 }) {
   const classes = useStyles(styles);
   const { results: posts } = useMulti({
@@ -194,7 +196,10 @@ function PostsEmailInner({
           </ContentStyles>
         )}
 
-        <a href={postGetPageUrl(post, true)}>{truncated ? "Read full post" : "Discuss"}</a>
+        {!hidePostPageLink &&
+          <a href={postGetPageUrl(post, true)}>{truncated ? "Read full post" : "Discuss"}</a>
+        }
+
         <hr className={classes.hr} />
       </React.Fragment>
     );
@@ -217,10 +222,16 @@ function PostsEmailInner({
   );
 }
 
-export const PostsEmail = ({ postIds, reason, hideRecommendations}: {
+export const PostsEmail = ({
+  postIds,
+  reason,
+  hideRecommendations,
+  hidePostPageLink,
+}: {
   postIds: string[];
   reason?: string;
   hideRecommendations?: boolean;
+  hidePostPageLink?: boolean;
 }) => {
   return (
     // Providers are required for useMulti
@@ -258,6 +269,7 @@ export const PostsEmail = ({ postIds, reason, hideRecommendations}: {
           postIds={postIds}
           reason={reason}
           hideRecommendations={hideRecommendations}
+          hidePostPageLink={hidePostPageLink}
         />
       </NavigationContext.Provider>
     </LocationContext.Provider>

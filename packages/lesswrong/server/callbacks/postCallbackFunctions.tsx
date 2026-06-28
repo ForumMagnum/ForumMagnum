@@ -6,6 +6,7 @@ import { postStatuses } from "@/lib/collections/posts/constants";
 import { TOS_NOT_ACCEPTED_ERROR } from "../fmCrosspost/errors";
 import { isRecombeeRecommendablePost, postIsApproved, postIsPublic } from "@/lib/collections/posts/helpers";
 import { getLatestContentsRevision } from "@/server/collections/revisions/helpers";
+import { isBeingUndrafted } from "@/server/editor/utils";
 import { subscriptionTypes } from "@/lib/collections/subscriptions/helpers";
 import { isAnyTest, isE2E } from "@/lib/executionEnvironment";
 import { eaFrontpageDateDefault, isEAForum, requireReviewToFrontpagePostsSetting } from "@/lib/instanceSettings";
@@ -37,6 +38,7 @@ import { cheerioParse } from "../utils/htmlUtil";
 import { createAdminContext, createAnonymousContext } from "../vulcan-lib/createContexts";
 import { getAdminTeamAccount } from "../utils/adminTeamAccount";
 import { triggerReviewIfNeeded } from "./sunshineCallbackUtils";
+import { documentIsEligibleForPangram, extractPangramInputFromPost, pangramIsConfigured, recordPangramSkip, runPangramOnRevision, userIsUnreviewedForPangram } from "../pangram";
 import { captureException } from "@sentry/core";
 import moment from "moment";
 import _ from "underscore";
@@ -143,6 +145,47 @@ export async function onPostPublished(post: DbPost, context: ResolverContext) {
   const { updateScoreOnPostPublish } = require("./votingCallbacks");
   await updateScoreOnPostPublish(post, context);
   await onPublishUtils.ensureNonzeroRevisionVersionsAfterUndraft(post, context);
+}
+
+export async function newPostTriggerPangram({document, context}: AfterCreateCallbackProperties<'Posts'>) {
+  void maybeRunPangramOnPost(document, context).catch(captureException);
+}
+
+export async function undraftedPostTriggerPangram({oldDocument, newDocument, context}: UpdateCallbackProperties<'Posts'>) {
+  if (!isBeingUndrafted(oldDocument, newDocument)) return;
+  void maybeRunPangramOnPost(newDocument, context).catch(captureException);
+}
+
+async function maybeRunPangramOnPost(post: DbPost, context: ResolverContext) {
+  if (!pangramIsConfigured()) return;
+
+  const eligibility = documentIsEligibleForPangram(post);
+  if (!eligibility.eligible && !eligibility.skipStatus) return;
+
+  const author = await context.loaders.Users.load(post.userId);
+  if (!author || !userIsUnreviewedForPangram(author)) return;
+
+  if (!eligibility.eligible) {
+    // Preview's `contents_latest` is safe to stamp for terminal states — spam/deleted
+    // posts aren't simultaneously getting a new revision from the same mutation.
+    if (eligibility.skipStatus && post.contents_latest) {
+      await recordPangramSkip(post.contents_latest, eligibility.skipStatus, context);
+    }
+    return;
+  }
+
+  // On undraft, the passed-in post is a preview built from `{...oldDocument, ...data}`
+  // captured BEFORE `createRevisionsForEditableFields` ran, so `contents_latest` can
+  // still point at the stale draft revision. Re-fetch to pick up the fresh one.
+  const freshPost = await context.Posts.findOne({ _id: post._id });
+  if (!freshPost) return;
+  const revision = await getLatestContentsRevision(freshPost, context);
+  if (!revision) return;
+  // Avoid re-scoring the same revision when a draft is re-published. Manual rerun still overwrites.
+  if (revision.pangramCheckedAt) return;
+
+  const text = extractPangramInputFromPost(freshPost, revision.html);
+  await runPangramOnRevision(revision._id, text, context);
 }
 
 const utils = {
@@ -986,12 +1029,12 @@ export async function sendNewPublishedDialogueMessageNotifications(newPost: DbPo
   }
 }
 
-export async function removeRedraftNotifications(newPost: Pick<DbPost, '_id' | 'draft' | 'status'>, oldPost: DbPost, context: ResolverContext) {
+export async function removeRedraftNotifications(newPost: Pick<DbPost, '_id' | 'draft' | 'status' | 'rejected'>, oldPost: DbPost, context: ResolverContext) {
   const { Notifications, TagRels } = context;
 
   if (!postIsPublic(newPost) && postIsPublic(oldPost)) {
       //eslint-disable-next-line no-console
-    console.info("Post redrafted, removing notifications");
+    console.info("Post no longer public, removing notifications");
 
     // delete post notifications
     const postNotifications = await Notifications.find({documentId: newPost._id}).fetch()

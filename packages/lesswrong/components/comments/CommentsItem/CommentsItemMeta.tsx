@@ -5,7 +5,7 @@ import { Link } from "../../../lib/reactRouterWrapper";
 import { isEAForum } from "../../../lib/instanceSettings";
 import { userIsPostCoauthor } from "../../../lib/collections/posts/helpers";
 import { useCommentLink, useCommentLinkState } from "./useCommentLink";
-import { userIsAdmin } from "../../../lib/vulcan-users/permissions";
+import { userIsAdmin, userIsAdminOrMod } from "../../../lib/vulcan-users/permissions";
 import { useCurrentUser } from "../../common/withUser";
 import { AnalyticsContext } from "../../../lib/analyticsEvents";
 import type { CommentTreeOptions } from "../commentTree";
@@ -24,6 +24,7 @@ import ForumIcon from "../../common/ForumIcon";
 import CommentsMenu from "../../dropdowns/comments/CommentsMenu";
 import UserCommentMarkers from "../../users/UserCommentMarkers";
 import CommentPollVote from "./CommentPollVote";
+import PangramBadge from "../../sunshineDashboard/PangramBadge";
 import { metaNoticeStyles } from "./metaNoticeStyles";
 
 const styles = (theme: ThemeType) => ({
@@ -296,6 +297,10 @@ export const CommentsItemMeta = ({
       />}
 
       {post && <CommentOutdatedWarning comment={comment} post={post}/>}
+
+      {userIsAdminOrMod(currentUser) && (
+        <PangramBadge contents={comment.contents} collectionName="Comments" documentId={comment._id} />
+      )}
 
       {comment.nominatedForReview &&
         <Link

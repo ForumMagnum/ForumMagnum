@@ -106,13 +106,20 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
     </LWTooltip>
   }
 
-  const dateToDisplay = useCuratedDate
+  const dateToDisplay = useCuratedDate && !isFriendlyUI
     ? post.curatedDate || post.postedAt
     : post.postedAt;
   const timeFromNow = formatRelative(new Date(dateToDisplay), now);
   const ago = includeAgo && timeFromNow !== "now"
     ? <span className={classes.xsHide}>&nbsp;ago</span>
     : null;
+  const curatedDateToDisplay = isFriendlyUI && useCuratedDate && post.curatedDate
+    ? post.curatedDate
+    : null
+  const curatedTimeFromNow = curatedDateToDisplay
+    ? formatRelative(new Date(curatedDateToDisplay), now)
+    : null;
+  const tooltipPlacement = isFriendlyUI ? "bottom-start" : "right";
 
   const isEmphasized = emphasizeIfNew && Math.abs(new Date(post.postedAt).getTime() - now.getTime()) < 48*HOUR_IN_MS
 
@@ -120,16 +127,29 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
     <PostsItem2MetaInfo className={classNames(classes.postedAt, {
       [classes.isNew ?? ""]: classes.isNew && isEmphasized,
     })}>
-      <TimeTag dateTime={dateToDisplay}>
+      <TimeTag
+        dateTime={dateToDisplay}
+        className={classNames(curatedDateToDisplay && classes.xsHide)}
+      >
         {timeFromNow}
         {ago}
       </TimeTag>
+      {curatedDateToDisplay && (
+        <span>
+          <span className={classes.xsHide}> · </span>
+          <TimeTag dateTime={curatedDateToDisplay}>
+            <span className={classes.xsHide}>Curated </span>
+            {curatedTimeFromNow}
+            {ago}
+          </TimeTag>
+        </span>
+      )}
     </PostsItem2MetaInfo>
   );
 
   if (post.curatedDate) {
     return <LWTooltip
-      placement="right"
+      placement={tooltipPlacement}
       title={<div>
         <div>Curated on <ExpandedDate date={post.curatedDate}/></div>
         <div>Posted on <ExpandedDate date={post.postedAt}/></div>
@@ -140,7 +160,7 @@ const PostsItemDate = ({post, noStyles, includeAgo, useCuratedDate, emphasizeIfN
   }
 
   return <LWTooltip
-    placement="right"
+    placement={tooltipPlacement}
     title={<ExpandedDate date={post.postedAt}/>}
   >
     {dateElement}

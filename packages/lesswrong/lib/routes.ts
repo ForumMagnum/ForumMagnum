@@ -170,10 +170,14 @@ import LeaderboardComponent from '@/components/users/Leaderboard';
 import KeywordsPage from '@/components/keywords/KeywordsPage';
 import KeywordResultsPage from '@/components/keywords/KeywordResultsPage';
 import AdminEventPostEmailPage from '@/components/admin/AdminEventPostEmailPage';
+import BetterFuturesPage from '@/components/forumEvents/BetterFuturesPage';
+import ScalingSeriesPage from '@/components/forumEvents/ScalingSeriesPage';
+import InDevelopmentPage from '@/components/forumEvents/InDevelopmentPage';
 import MarginalFundingPage from '@/components/forumEvents/givingSeason/MarginalFundingPage';
 import VotingPortalPage from '@/components/forumEvents/givingSeason/VotingPortalPage';
 import AdminElectionCandidates from '@/components/forumEvents/givingSeason/AdminElectionCandidates';
 import EditElectionCandidate from '@/components/forumEvents/givingSeason/EditElectionCandidate';
+import { GIVING_SEASON_ENABLED } from '@/lib/givingSeason';
 
 const communitySubtitle = { subtitleLink: communityPath, subtitle: isEAForum ? 'Groups' : 'Community' };
 
@@ -1061,6 +1065,30 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       hideFromSitemap: true,
     },
     {
+      name: "betterFutures",
+      path: "/better-futures",
+      component: BetterFuturesPage,
+      title: "Better Futures",
+      fullscreen: true,
+      noFooter: true,
+    },
+    {
+      name: "scalingSeries",
+      path: "/scaling-series",
+      component: ScalingSeriesPage,
+      title: "The Scaling Series",
+      fullscreen: true,
+      noFooter: true,
+    },
+    {
+      name: "inDevelopmentHighlight",
+      path: "/in-development-highlight",
+      component: InDevelopmentPage,
+      title: "In Development",
+      fullscreen: true,
+      noFooter: true,
+    },
+    {
       name: "marginFunding",
       path: "/marginal-funding",
       component: MarginalFundingPage,
@@ -1068,13 +1096,13 @@ const eaLwAfForumSpecificRoutes = forumSelect<Route[]>({
       fullscreen: true,
       noFooter: true,
     },
-    {
+    ...(GIVING_SEASON_ENABLED ? [{
       name: 'VotingPortal',
       path: '/voting-portal',
       component: VotingPortalPage,
       title: 'Vote in the Donation Election',
       noFooter: true,
-    },
+    }] : []),
     {
       name: 'ElectionCandidates',
       path: '/admin/election-candidates',

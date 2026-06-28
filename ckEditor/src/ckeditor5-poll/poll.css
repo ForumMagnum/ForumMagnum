@@ -40,8 +40,6 @@
 	border-radius: 4px;
 	opacity: 0.8;
 	background: var(--palette-grey-200);
-  min-width: 225px;
-  max-width: 490px;
 	width: 100%;
 	padding: 8px;
 	font-size: 13px;
@@ -102,13 +100,16 @@
 }
 
 .ck-reset_all .ck-color-selector-button {
-  border: 1px solid #ccc;
+  border-radius: 50% !important;
+  border: 2px solid var(--poll-foreground);
+  background-color: var(--poll-background);
   box-sizing: border-box;
   cursor: pointer;
+  box-shadow: none !important;
 }
 
 .ck-reset_all .ck-color-selector-button.ck-on {
-  border: 2px solid lightblue;
+  border: 3px solid var(--poll-foreground);
 }
 
 .ck-reset_all .ck-duration-input {
@@ -121,6 +122,7 @@
   font-family: var(--palette-fonts-sansSerifStack);
   text-align: center;
   background: var(--forum-event-background);
+  border: 1px solid var(--forum-event-banner-text);
   border-radius: calc(var(--borderRadius-default) * 1px);
   margin: 10px 0;
   padding: 20px;
@@ -133,8 +135,8 @@
 }
 .ck-poll-slider {
   position: relative;
-  height: 2px;
-  background: var(--forum-event-foreground);
+  height: 1px;
+  background: var(--forum-event-banner-text);
   margin: 40px 40px 0px 40px;
 }
 .ck-poll-circle {
@@ -146,7 +148,7 @@
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  border: 2px solid var(--forum-event-foreground);
+  border: 2px solid var(--forum-event-banner-text);
   opacity: 0.3;
 }
 .ck-poll-labels {

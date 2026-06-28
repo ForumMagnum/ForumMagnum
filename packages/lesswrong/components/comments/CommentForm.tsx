@@ -1,10 +1,11 @@
 import { useCreate } from "@/lib/crud/withCreate";
 import { useUpdate } from "@/lib/crud/withUpdate";
+import { useApolloClient } from "@apollo/client";
 import Button from "@/lib/vendor/@material-ui/core/src/Button";
 import { isFriendlyUI } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect } from "react";
 import { defineStyles, useStyles } from "../hooks/useStyles";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { useEditorFormCallbacks, EditorFormComponent } from "../editor/EditorFormComponent";
@@ -284,6 +285,7 @@ export const CommentForm = ({
   const { captureEvent } = useTracking();
   const classes = useStyles(formStyles);
   const currentUser = useCurrentUser();
+  const apolloClient = useApolloClient();
 
   const formType = initialData ? 'edit' : 'new';
 
@@ -321,12 +323,12 @@ export const CommentForm = ({
       draft: false,
     },
     onSubmit: async ({ formApi, meta }) => {
-      await onSubmitCallback.current?.();
-      onSubmit?.();
-
-      const { draft } = meta;
-
       try {
+        await onSubmitCallback.current?.();
+        onSubmit?.();
+
+        const { draft } = meta;
+
         let result: CommentsList;
 
         if (formType === 'new') {
@@ -344,6 +346,11 @@ export const CommentForm = ({
           result = data?.updateComment.data;
         }
 
+        // Invalidate ForumEvents cache so polls show updated endDate
+        apolloClient.cache.evict({ fieldName: 'forumEvent' });
+        apolloClient.cache.evict({ fieldName: 'forumEvents' });
+        apolloClient.cache.gc();
+
         onSuccessCallback.current?.(result);
 
         onSuccess(result);
@@ -356,6 +363,15 @@ export const CommentForm = ({
       }
     },
   });
+
+  useEffect(() => {
+    if (prefilledProps?.forumEventMetadata) {
+      form.setFieldValue(
+        "forumEventMetadata",
+        prefilledProps.forumEventMetadata
+      );
+    }
+  }, [form, prefilledProps?.forumEventMetadata]);
 
   const formRef = useFormSubmitOnCmdEnter(() => form.handleSubmit());
 

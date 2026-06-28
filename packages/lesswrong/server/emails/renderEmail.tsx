@@ -165,6 +165,7 @@ export async function generateEmail({
   bodyComponent,
   boilerplateGenerator = addEmailBoilerplate,
   includeCustomFonts,
+  relativeHashLinks,
   utmParams,
   tag,
 }: {
@@ -175,6 +176,7 @@ export async function generateEmail({
   bodyComponent: React.ReactNode,
   boilerplateGenerator?: BoilerplateGenerator,
   includeCustomFonts?: boolean,
+  relativeHashLinks?: boolean,
   utmParams?: Partial<Record<UtmParam, string>>;
   tag: string,
 }): Promise<RenderedEmail>
@@ -232,7 +234,7 @@ export async function generateEmail({
   });
 
   // Find any relative links, and convert them to absolute
-  const htmlWithAbsoluteUrls = makeAllUrlsAbsolute(html, getSiteUrl());
+  const htmlWithAbsoluteUrls = makeAllUrlsAbsolute(html, getSiteUrl(), relativeHashLinks);
   const htmlWithUtmParams = utmifyForumBacklinks({ html: htmlWithAbsoluteUrls, utmParams, siteUrl: getSiteUrl() });
   
   // Since emails can't use <style> tags, only inline styles, use the Juice
@@ -272,6 +274,7 @@ export const wrapAndRenderEmail = async ({
   subject,
   body,
   includeCustomFonts,
+  relativeHashLinks,
   unsubscribeNode,
   utmParams,
   tag,
@@ -282,6 +285,7 @@ export const wrapAndRenderEmail = async ({
   subject: string;
   body: React.ReactNode;
   includeCustomFonts?: boolean,
+  relativeHashLinks?: boolean,
   unsubscribeNode?: ReactNode,
   utmParams?: Partial<Record<UtmParam, string>>;
   tag: string,
@@ -299,6 +303,7 @@ export const wrapAndRenderEmail = async ({
     ),
     utmParams,
     includeCustomFonts,
+    relativeHashLinks,
     tag,
   });
 }
@@ -311,6 +316,7 @@ export const wrapAndSendEmail = async ({
   subject,
   body,
   includeCustomFonts,
+  relativeHashLinks,
   unsubscribeNode,
   utmParams,
   tag,
@@ -322,6 +328,7 @@ export const wrapAndSendEmail = async ({
   subject: string;
   body: React.ReactNode;
   includeCustomFonts?: boolean,
+  relativeHashLinks?: boolean,
   unsubscribeNode?: ReactNode,
   utmParams?: Partial<Record<UtmParam, string>>;
   tag: string,
@@ -349,6 +356,7 @@ export const wrapAndSendEmail = async ({
       body,
       utmParams,
       includeCustomFonts,
+      relativeHashLinks,
       unsubscribeNode,
       tag,
     });
@@ -426,7 +434,11 @@ export function reasonUserCantReceiveEmails(user: DbUser): string|null
   return null;
 }
 
-function makeAllUrlsAbsolute(html: string, relativeTo: string): string {
+function makeAllUrlsAbsolute(
+  html: string,
+  relativeTo: string,
+  relativeHashLinks?: boolean,
+): string {
   const $ = cheerioParse(html);
   
   $('a').each((_, element) => {
@@ -436,6 +448,11 @@ function makeAllUrlsAbsolute(html: string, relativeTo: string): string {
     if (!href || href.startsWith('http://') || href.startsWith('https://')
       || href === '' || href === '#' || href.startsWith('mailto:') || href.startsWith('tel:')
     ) {
+      return;
+    }
+
+    // Skip hash links if configured to do so
+    if (relativeHashLinks && href[0] === "#") {
       return;
     }
     

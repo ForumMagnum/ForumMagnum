@@ -3,6 +3,7 @@ import { PublicInstanceSetting } from "@/lib/instanceSettings";
 import { captureEvent } from "@/lib/analyticsEvents";
 import { getExchangeRate } from "./currencies";
 import DatabaseMetadataRepo from "../repos/DatabaseMetadataRepo";
+import { GIVING_SEASON_ENABLED } from "@/lib/givingSeason";
 
 export const addToGivingSeasonTotal = async (usdAmount: number) => {
   if (Number.isFinite(usdAmount) && usdAmount > 0) {
@@ -71,6 +72,10 @@ type WebhookPayload = {
 }
 
 export const addGivingSeasonEndpoints = (app: Express) => {
+  if (!GIVING_SEASON_ENABLED) {
+    return;
+  }
+
   const webhook = "/api/donation-election-2025-webhook";
   app.use(webhook, json({limit: "10mb"}));
   app.post(webhook, async (req, res) => {

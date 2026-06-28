@@ -61,7 +61,7 @@ const AnswerTocRow = ({classes, answer}: {
           {answer.baseScore}
         </span>
         <span className={classes.firstLine}>
-          <div className={classes.author}>{answer.author}</div> 
+          <div className={classes.author}>{answer.author || "[Anonymous]"}</div> 
           <div>
             { answer.shortHighlight }
           </div>

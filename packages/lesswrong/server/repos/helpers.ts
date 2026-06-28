@@ -26,6 +26,7 @@ export const getViewablePostsSelector = (postsTableAlias?: string) => {
     ${aliasPrefix}"authorIsUnreviewed" = FALSE AND
     ${aliasPrefix}"hiddenRelatedQuestion" = FALSE AND
     ${aliasPrefix}"isEvent" = FALSE AND
+    ${aliasPrefix}"rejected" IS NOT TRUE AND
     ${aliasPrefix}"postedAt" IS NOT NULL
   `;
 };

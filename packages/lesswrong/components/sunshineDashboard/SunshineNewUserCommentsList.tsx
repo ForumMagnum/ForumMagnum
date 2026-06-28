@@ -20,11 +20,11 @@ const styles = (theme: ThemeType) => ({
   meta: {
     display: "inline-block"
   },
-  rejection: {
+  rightAlignedRow: {
     display: "flex",
     justifyContent: "flex-end",
-    marginBottom: 2
-  }
+    marginBottom: 2,
+  },
 })
 
 const SunshineNewUserCommentsList = ({comments, user, classes}: {
@@ -39,7 +39,7 @@ const SunshineNewUserCommentsList = ({comments, user, classes}: {
   return (
     <div className={classes.root}>
       {(newComments.length > 0) && newComments.map(comment=><div className={classes.comment} key={`sunshine-new-user-${comment._id}`}>
-        {isLWorAF && <div className={classes.rejection}>
+        {isLWorAF && <div className={classes.rightAlignedRow}>
           {comment.rejected && <RejectedReasonDisplay reason={comment.rejectedReason}/>}
           <RejectContentButton contentWrapper={{collectionName:"Comments", content:comment}}/>
         </div>}

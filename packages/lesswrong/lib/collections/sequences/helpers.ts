@@ -6,6 +6,11 @@ import * as _ from 'underscore';
 import type { RouterLocation } from '../../vulcan-lib/routes';
 import type { Request, Response } from 'express';
 import { MARGINAL_FUNDING_SEQUENCE_ID } from '@/lib/givingSeason';
+import {
+  BETTER_FUTURES_ID,
+  IN_DEVELOPMENT_SERIES_ID,
+  SCALING_SERIES_ID,
+} from '@/lib/collections/forumEvents/helpers';
 
 export const SHOW_NEW_SEQUENCE_KARMA_THRESHOLD = 100;
 
@@ -18,7 +23,15 @@ interface SequencePostId {
 
 export const sequenceGetPageUrl = function(sequence: {_id: string}, isAbsolute = false){
   const prefix = isAbsolute ? getSiteUrl().slice(0,-1) : '';
-
+  if (sequence._id === BETTER_FUTURES_ID) {
+    return `${prefix}/better-futures`;
+  }
+  if (sequence._id === SCALING_SERIES_ID) {
+    return `${prefix}/scaling-series`;
+  }
+  if (sequence._id === IN_DEVELOPMENT_SERIES_ID) {
+    return `${prefix}/in-development-highlight`;
+  }
   return `${prefix}/s/${sequence._id}`;
 };
 
@@ -168,6 +181,12 @@ export const sequenceContainsPost = async function(sequenceId: string, postId: s
 export const sequenceRouteWillDefinitelyReturn200 = async (req: Request, res: Response, parsedRoute: RouterLocation, context: ResolverContext) => {
   const sequenceId = parsedRoute.params._id;
   if (!sequenceId) return false;
-  if (sequenceId === MARGINAL_FUNDING_SEQUENCE_ID) return false;
+  if (
+    sequenceId === MARGINAL_FUNDING_SEQUENCE_ID ||
+    sequenceId === SCALING_SERIES_ID ||
+    sequenceId === IN_DEVELOPMENT_SERIES_ID
+  ) {
+    return false;
+  }
   return await context.repos.sequences.sequenceRouteWillDefinitelyReturn200(sequenceId);
 }

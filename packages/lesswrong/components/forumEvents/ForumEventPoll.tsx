@@ -26,19 +26,78 @@ import UsersProfileImage from "../users/UsersProfileImage";
 import ForumEventCommentForm from "./ForumEventCommentForm";
 import Loading from "../vulcan-core/Loading";
 
-const SLIDER_MAX_WIDTH = 1120;
-const RESULT_ICON_MAX_HEIGHT = 27;
+const SLIDER_MAX_WIDTH = 880;
+const RESULT_ICON_MAX_HEIGHT = 32;
 const USER_IMAGE_SIZE = 30;
 const DEFAULT_STACK_IMAGES = 20;
 const NUM_TICKS = 21;
 const GAP = "calc(0.6% + 4px)" // Accounts for 2px outline
+
+/**
+ * Examples: "3 days", "1 day, 12 hours" (because <2 days), "3 hours", "1 hour, 12 mins"
+ */
+function formatRemainingTime(remainingMs: number): string {
+  if (remainingMs <= 0) return "closed";
+
+  const days = Math.floor(remainingMs / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((remainingMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+  const minutes = Math.floor((remainingMs % (1000 * 60 * 60)) / (1000 * 60));
+  const seconds = Math.floor((remainingMs % (1000 * 60)) / 1000);
+
+  if (days >= 2) return `${days} days`;
+  if (days >= 1) return `${days} day, ${hours} hour${hours !== 1 ? 's' : ''}`;
+  if (hours >= 2) return `${hours} hours`;
+  if (hours >= 1) return `${hours} hour, ${minutes} min${minutes !== 1 ? 's' : ''}`;
+  if (minutes >= 2) return `${minutes} mins`;
+  if (minutes >= 1) return `${minutes} min, ${seconds}s`;
+  return `${seconds}s`;
+}
+
+function PollSubtitle({
+  endDate,
+  voteCount,
+  hasVoted,
+  onViewResults,
+  buttonClassName,
+}: {
+  endDate: Date | string | null;
+  voteCount: number;
+  hasVoted: boolean;
+  onViewResults: () => void;
+  buttonClassName?: string;
+}) {
+  const end = useMemo(() => endDate ? new Date(endDate).getTime() : null, [endDate]);
+  const [remainingMs, setRemainingMs] = useState(() => end ? end - Date.now() : Infinity);
+
+  useEffect(() => {
+    if (!end) return;
+    // Examples: 2 mins left, will count down in 1s increments. 2 hours left, will count down in 1 min increments
+    const interval = Math.max(1000, Math.floor((end - Date.now()) / 120));
+    const timer = setInterval(() => setRemainingMs(end - Date.now()), interval);
+    return () => clearInterval(timer);
+  }, [end]);
+
+  const votingOpen = !end || remainingMs > 0;
+
+  return <>
+    {voteCount > 0 && `${voteCount} vote${voteCount === 1 ? "" : "s"}${votingOpen ? " so far" : ""}. `}
+    {end && (remainingMs > 0
+      ? <>Voting closes in {formatRemainingTime(remainingMs)}. </>
+      : <>Voting has closed. </>
+    )}
+    {votingOpen && (hasVoted ? "Change" : "Place") + " your vote or "}
+    <button className={buttonClassName} onClick={onViewResults}>
+      {votingOpen ? "view results." : "View results."}
+    </button>
+  </>;
+}
 
 const styles = (theme: ThemeType) => ({
   root: {
     textAlign: 'center',
     color: "var(--forum-event-banner-text)",
     fontFamily: theme.palette.fonts.sansSerifStack,
-    padding: "0px 16px 15px 24px",
+    padding: "0px 8px 15px 8px",
     margin: "0 auto",
     maxWidth: "100%",
   },
@@ -50,6 +109,9 @@ const styles = (theme: ThemeType) => ({
     marginBottom: 13,
     marginLeft: "auto",
     marginRight: "auto"
+  },
+  questionLink: {
+    textDecoration: "none !important",
   },
   questionFootnote: {
     fontSize: 20,
@@ -89,11 +151,11 @@ const styles = (theme: ThemeType) => ({
     cursor: "pointer",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "var(--forum-event-foreground)",
+    backgroundColor: "color-mix(in oklab, var(--forum-event-foreground) 50%, var(--forum-event-background) 50%)",
     color: "var(--forum-event-background)",
     borderRadius: "50%",
     fontWeight: "bold",
-    width: "calc(100% + 4px)",
+    width: "calc(100% + 4px)", // +4px to account for the 2px outline on vote icons
     aspectRatio: "1 / 1",
     overflow: "hidden",
     position: "relative",
@@ -105,7 +167,7 @@ const styles = (theme: ThemeType) => ({
     top: "50%",
     left: "50%",
     transform: "translate(-54%, -54%)",
-    fontSize: 14,
+    fontSize: 12,
     overflow: "hidden",
     textOverflow: "ellipsis",
     [theme.breakpoints.down('sm')]: {
@@ -119,7 +181,7 @@ const styles = (theme: ThemeType) => ({
   sliderLine: {
     position: "relative",
     width: "100%",
-    height: 2,
+    height: 1,
     backgroundColor: "var(--forum-event-foreground)",
     marginBottom: "16px",
     transition: "transform 0.5s ease-in-out",
@@ -130,8 +192,8 @@ const styles = (theme: ThemeType) => ({
     left: 0,
     right: 0,
     height: USER_IMAGE_SIZE,
-    paddingTop: (USER_IMAGE_SIZE - 12) / 2,
-    paddingBottom: (USER_IMAGE_SIZE - 12) / 2,
+    paddingTop: (USER_IMAGE_SIZE - 6) / 2,
+    paddingBottom: (USER_IMAGE_SIZE - 6) / 2,
     display: "flex",
     gap: GAP,
     '&:hover $tick': {
@@ -147,7 +209,7 @@ const styles = (theme: ThemeType) => ({
       top: 0,
       bottom: 0,
       left: "50%",
-      width: 2,
+      width: 1,
       backgroundColor: "var(--forum-event-foreground)",
       opacity: 0.3,
       transform: "translateX(-50%)",
@@ -173,14 +235,15 @@ const styles = (theme: ThemeType) => ({
   sliderArrow: {
     stroke: "var(--forum-event-foreground)",
     position: "absolute",
-    top: -11,
+    top: -5,
+    "--icon-size": "11px",
   },
   sliderArrowLeft: {
-    transform: "translateX(-8px)",
+    transform: "translateX(-4px)",
     left: 0,
   },
   sliderArrowRight: {
-    transform: "translateX(8px)",
+    transform: "translateX(4px)",
     right: 0,
   },
   voteTooltipHeading: {
@@ -195,7 +258,7 @@ const styles = (theme: ThemeType) => ({
     lineHeight: '140%',
   },
   userImage: {
-    outline: `2px solid var(--forum-event-foreground)`,
+    outline: `2px solid color-mix(in oklab, var(--forum-event-foreground) 50%, var(--forum-event-background) 50%)`,
   },
   placeholderUserIcon: {
     // add a black background to the placeholder user circle icon
@@ -212,13 +275,14 @@ const styles = (theme: ThemeType) => ({
     top: -5,
     right: -5,
     backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 10%, color-mix(in oklab, var(--forum-event-background) 65%, var(--forum-event-foreground) 35%))`,
+    color: theme.palette.text.alwaysWhite,
     padding: 2,
     borderRadius: '50%',
     cursor: 'pointer',
     width: 15,
     height: 15,
     "&:hover": {
-      backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 10%, var(--forum-event-background) 90%)`,
+      backgroundColor: `color-mix(in oklab, ${theme.palette.text.alwaysBlack} 50%, color-mix(in oklab, var(--forum-event-background) 65%, var(--forum-event-foreground) 35%))`,
     },
   },
   clearVote: {
@@ -467,6 +531,27 @@ function footnotesToTooltips({
   return resultArray;
 }
 
+const createQuestionNode = (
+  event: ForumEventsDisplay | null | undefined,
+  classes: ClassesType<typeof styles>,
+) => {
+  if (!event?.pollQuestion?.html) {
+    return null;
+  }
+  const questionNode = footnotesToTooltips({
+    html: event.pollQuestion.html,
+    event,
+    classes,
+  });
+  return event.post
+    ? (
+      <Link to={postGetPageUrl(event.post)} className={classes.questionLink}>
+        {questionNode}
+      </Link>
+    )
+    : questionNode;
+}
+
 /**
  * This component is for forum events that have a poll.
  * Displays the question, a slider where the user can vote on a scale from "Disagree" to "Agree",
@@ -506,8 +591,8 @@ export const ForumEventPoll = ({
   // Events where endDate is null always have voting open
   const votingOpen = event ? (!event.endDate || new Date(event.endDate) > new Date()) : false;
 
-  const displayHtml = useMemo(
-    () => (event?.pollQuestion?.html ? footnotesToTooltips({ html: event.pollQuestion.html, event, classes }) : null),
+  const questionNode = useMemo(
+    () => createQuestionNode(event, classes),
     [event, classes]
   );
   const plaintextQuestion = useMemo(
@@ -801,22 +886,18 @@ export const ForumEventPoll = ({
   return (
     <AnalyticsContext pageElementContext="forumEventPoll">
       <div className={classNames(classes.root, className)}>
-        {displayHtml && <div className={classes.question}>{displayHtml}</div>}
+        {questionNode && <div className={classes.question}>{questionNode}</div>}
         <div className={classes.votePromptWrapper}>
           <DeferRender ssr={false}>
             {!hideViewResults && (
               <div className={classes.votePrompt}>
-                {!resultsVisible ? <>
-                  {voteCount > 0 && `${voteCount} vote${voteCount === 1 ? "" : "s"}${votingOpen ? " so far" : ""}. `}
-                  {votingOpen ? (
-                    hasVoted ? "Click and drag your avatar to change your vote, or " : "Place your vote or "
-                  ) : (
-                    "Voting has now closed, "
-                  )}
-                  <button className={classes.viewResultsButton} onClick={() => setResultsVisible(true)}>
-                    view results.
-                  </button>
-                </> : <button
+                {!resultsVisible ? <PollSubtitle
+                  endDate={event?.endDate ?? null}
+                  voteCount={voteCount}
+                  hasVoted={hasVoted}
+                  onViewResults={() => setResultsVisible(true)}
+                  buttonClassName={classes.viewResultsButton}
+                /> : <button
                   className={classNames(classes.viewResultsButton, classes.hideResultsButton)}
                   onClick={() => setResultsVisible(false)}
                 >
@@ -925,6 +1006,7 @@ export const ForumEventPoll = ({
                       prefilledProps={commentPrefilledProps}
                       successMessage="Success! Open the results to view everyone's votes and comments."
                       forumEvent={event}
+                      cancelLabel="Skip"
                       cancelCallback={() => setCommentFormOpen(false)}
                       successCallback={refetchComments}
                       anchorEl={userVoteRef.current}
@@ -963,5 +1045,4 @@ export default registerComponent(
   ForumEventPoll,
   {styles}
 );
-
 

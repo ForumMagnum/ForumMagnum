@@ -424,8 +424,8 @@ export const isRecombeeRecommendablePost = (post: Pick<DbPost, keyof PostsBase &
   );
 };
 
-export const postIsPublic = (post: Pick<DbPost, '_id' | 'draft' | 'status'>) => {
-  return !post.draft && post.status === postStatuses.STATUS_APPROVED
+export const postIsPublic = (post: Pick<DbPost, '_id' | 'draft' | 'status' | 'rejected'>) => {
+  return !post.draft && post.status === postStatuses.STATUS_APPROVED && !post.rejected
 };
 
 export type PostParticipantInfo = Pick<PostsDetails, "userId"|"debate"|"coauthorUserIds">;

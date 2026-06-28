@@ -17,6 +17,7 @@ import CommentBody from "../comments/CommentsItem/CommentBody";
 import SunshineCommentsItemOverview from "./SunshineCommentsItemOverview";
 import SidebarActionMenu from "./SidebarActionMenu";
 import SidebarAction from "./SidebarAction";
+import PangramBadge from "./PangramBadge";
 
 const SunshineNewCommentsItem = ({comment}: {
   comment: CommentsListWithParentMetadata
@@ -54,6 +55,7 @@ const SunshineNewCommentsItem = ({comment}: {
     <span {...eventHandlers}>
         <SunshineListItem hover={hover}>
           <SidebarHoverOver hover={hover} anchorEl={anchorEl} >
+            <PangramBadge contents={comment.contents} collectionName="Comments" documentId={comment._id}/>
             <Typography variant="body2">
               <Link to={commentGetPageUrl(comment)}>
                 Commented on post: <strong>{ comment.post?.title }</strong>

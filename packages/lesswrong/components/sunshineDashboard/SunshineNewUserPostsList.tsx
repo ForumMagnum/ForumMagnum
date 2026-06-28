@@ -16,6 +16,7 @@ import LinkPostMessage from "../posts/LinkPostMessage";
 import RejectContentButton from "./RejectContentButton";
 import RejectedReasonDisplay from "./RejectedReasonDisplay";
 import LWDialog from "../common/LWDialog";
+import PangramBadge from "./PangramBadge";
 
 const styles = (theme: ThemeType) => ({
   row: {
@@ -139,6 +140,7 @@ const SunshineNewUserPostsList = ({posts, user, classes}: {
                       {postGetCommentCountStr(post)}
                     </Link>
                   </MetaInfo>
+                  <PangramBadge contents={post.contents} collectionName="Posts" documentId={post._id}/>
                 </span>
               </div>
             </div>
