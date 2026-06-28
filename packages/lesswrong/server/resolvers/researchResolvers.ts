@@ -26,7 +26,11 @@ import {
 } from "@/server/research/systemReminder";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { encryptUserSecret } from "@/server/research/userSecretsCrypto";
-import { buildEnvironmentSnapshot } from "@/server/research/sandbox/saveEnvironment";
+import {
+  buildEnvironmentSnapshot,
+  type SavedEnvironmentSnapshot,
+} from "@/server/research/sandbox/saveEnvironment";
+import { ResearchSandboxUnavailableError } from "@/server/research/sandbox/sandboxErrors";
 import { randomId } from "@/lib/random";
 import { Snapshot } from "@vercel/sandbox";
 import { isPostgresUniqueViolation } from "@/server/utils/postgresErrors";
@@ -521,13 +525,23 @@ export const researchResolversMutations = {
       throw new Error("This conversation has no sandbox yet — start a turn before saving an environment.");
     }
 
-    const built = await buildEnvironmentSnapshot({
-      conversationId: conv._id,
-      withConversation: args.withConversation,
-      conversationTitle: conv.title ?? null,
-      supervisorSecret: session.supervisorSecret,
-      context,
-    });
+    let built: SavedEnvironmentSnapshot;
+    try {
+      built = await buildEnvironmentSnapshot({
+        conversationId: conv._id,
+        withConversation: args.withConversation,
+        conversationTitle: conv.title ?? null,
+        supervisorSecret: session.supervisorSecret,
+        context,
+      });
+    } catch (err) {
+      if (err instanceof ResearchSandboxUnavailableError) {
+        throw new GraphQLError(err.message, {
+          extensions: { code: "RESEARCH_SANDBOX_UNAVAILABLE", noSentryCapture: true },
+        });
+      }
+      throw err;
+    }
 
     const _id = randomId();
     try {

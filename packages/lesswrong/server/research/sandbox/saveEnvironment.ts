@@ -5,6 +5,10 @@ import {
   sandboxNameForConversation,
   supervisorUrlForSandbox,
 } from "./sandboxManager";
+import {
+  isExpiredSandboxError,
+  ResearchSandboxUnavailableError,
+} from "./sandboxErrors";
 
 const QUIESCE_TIMEOUT_MS = 60_000;
 const QUIESCE_POLL_MS = 1000;
@@ -15,6 +19,14 @@ export interface SavedEnvironmentSnapshot {
   vercelSnapshotId: string;
   sourceEventId: string | null;
   label: string;
+}
+
+interface BuildEnvironmentSnapshotArgs {
+  conversationId: string;
+  withConversation: boolean;
+  conversationTitle: string | null;
+  supervisorSecret: string;
+  context: ResolverContext;
 }
 
 interface SupervisorStatus {
@@ -111,13 +123,22 @@ async function createCloneFromSnapshot(snapshotId: string): Promise<Sandbox> {
   });
 }
 
-export async function buildEnvironmentSnapshot(args: {
-  conversationId: string;
-  withConversation: boolean;
-  conversationTitle: string | null;
-  supervisorSecret: string;
-  context: ResolverContext;
-}): Promise<SavedEnvironmentSnapshot> {
+export async function buildEnvironmentSnapshot(
+  args: BuildEnvironmentSnapshotArgs,
+): Promise<SavedEnvironmentSnapshot> {
+  try {
+    return await buildEnvironmentSnapshotUnchecked(args);
+  } catch (err) {
+    if (isExpiredSandboxError(err)) {
+      throw new ResearchSandboxUnavailableError();
+    }
+    throw err;
+  }
+}
+
+async function buildEnvironmentSnapshotUnchecked(
+  args: BuildEnvironmentSnapshotArgs,
+): Promise<SavedEnvironmentSnapshot> {
   const { conversationId, withConversation, conversationTitle, supervisorSecret, context } = args;
   const sandboxName = sandboxNameForConversation(conversationId);
 
