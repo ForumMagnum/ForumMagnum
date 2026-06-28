@@ -23,7 +23,7 @@ import type { StyleDefinition } from '../styleGeneration';
 import { prerenderToNodeStream } from 'react-dom/static';
 import { EmailContextType } from '../emailComponents/emailContext';
 import { generateEmailStylesheet } from '@/lib/styleHelpers';
-import type { Element } from 'domhandler';
+import type { Element, Node as DomHandlerNode } from 'domhandler';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -117,12 +117,16 @@ export function normalizeMathJaxTagsForEmail(html: string): string {
   }
 
   const $ = cheerioParse(html);
-  $('*').each((_, element: Element) => {
-    if (element.name.toLowerCase().startsWith('mjx-')) {
+  $('*').each((_, element) => {
+    if (isElementNode(element) && element.name.toLowerCase().startsWith('mjx-')) {
       element.name = 'span';
     }
   });
   return $.html();
+}
+
+function isElementNode(node: DomHandlerNode): node is Element {
+  return 'name' in node;
 }
 
 export async function renderToString(component: React.ReactNode) {
