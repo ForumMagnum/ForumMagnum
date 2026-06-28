@@ -23,7 +23,7 @@ import type { StyleDefinition } from '../styleGeneration';
 import { prerenderToNodeStream } from 'react-dom/static';
 import { EmailContextType } from '../emailComponents/emailContext';
 import { generateEmailStylesheet } from '@/lib/styleHelpers';
-import type { Element, Node as DomHandlerNode } from 'domhandler';
+import type { Element } from 'cheerio';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -125,8 +125,8 @@ export function normalizeMathJaxTagsForEmail(html: string): string {
   return $.html();
 }
 
-function isElementNode(node: DomHandlerNode): node is Element {
-  return 'name' in node;
+function isElementNode(node: unknown): node is Element {
+  return typeof node === 'object' && node !== null && 'name' in node;
 }
 
 export async function renderToString(component: React.ReactNode) {
