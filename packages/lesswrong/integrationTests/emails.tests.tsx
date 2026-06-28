@@ -7,6 +7,7 @@ import { gql } from "@/lib/generated/gql-codegen";
 import { defineStyles } from "@/components/hooks/useStyles";
 import { emailUseQuery } from "@/server/vulcan-lib/query";
 import { EmailContextType, emailUseStyles } from "@/server/emailComponents/emailContext";
+import { expect } from 'chai';
 
 const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
 
@@ -84,6 +85,33 @@ describe('renderEmail', () => {
     });
     
     (email.html as any).should.equal(emailDoctype+'<div>Hello, <div class="StyledComponent-underlined" style="text-decoration: underline;">World</div></div>');
+  });
+
+  it("Converts MathJax custom tags to email-safe spans after inlining styles", async () => {
+    const mathJaxBoilerplateGenerator = ({body}: {css: string, title: string, body: string}): string => {
+      return `<style>
+        mjx-container[jax="CHTML"] { display: inline-block; }
+        mjx-mi { font-style: italic; }
+      </style>${body}`;
+    };
+    const mathHtml = `
+      <span class="math-tex">
+        <mjx-container jax="CHTML">
+          <mjx-math>
+            <mjx-mi>C</mjx-mi>
+          </mjx-math>
+        </mjx-container>
+      </span>
+    `;
+    const email = await renderTestEmail({
+      bodyComponent: <div dangerouslySetInnerHTML={{__html: mathHtml}} />,
+      boilerplateGenerator: mathJaxBoilerplateGenerator,
+    });
+
+    expect(email.html).to.not.contain("<mjx-");
+    expect(email.html).to.not.contain("</mjx-");
+    expect(email.html).to.contain('<span jax="CHTML" style="display: inline-block;">');
+    expect(email.html).to.contain('<span style="font-style: italic;">C</span>');
   });
   
   it("Can use emailUseQuery", async () => {

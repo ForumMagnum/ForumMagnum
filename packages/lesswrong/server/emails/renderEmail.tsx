@@ -23,6 +23,7 @@ import type { StyleDefinition } from '../styleGeneration';
 import { prerenderToNodeStream } from 'react-dom/static';
 import { EmailContextType } from '../emailComponents/emailContext';
 import { generateEmailStylesheet } from '@/lib/styleHelpers';
+import type { Element } from 'domhandler';
 
 export interface RenderedEmail {
   user: DbUser | null,
@@ -38,6 +39,7 @@ const plainTextWordWrap = 80;
 
 // Doctype string at the header of HTML emails
 const emailDoctype = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">';
+const mathJaxCustomTagRegex = /<\/?mjx-/i;
 
 // Global email CSS, inherited from Vulcan-Starter. Some of this is about
 // handling the top-level table layout; some of it looks like workarounds for
@@ -107,6 +109,20 @@ function addEmailBoilerplate({ css, title, body }: {
     ${body}
     </html>
   `;
+}
+
+export function normalizeMathJaxTagsForEmail(html: string): string {
+  if (!mathJaxCustomTagRegex.test(html)) {
+    return html;
+  }
+
+  const $ = cheerioParse(html);
+  $('*').each((_, element: Element) => {
+    if (element.name.toLowerCase().startsWith('mjx-')) {
+      element.name = 'span';
+    }
+  });
+  return $.html();
 }
 
 export async function renderToString(component: React.ReactNode) {
@@ -187,6 +203,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
   // library to convert accordingly.
   const { default: Juice } = await import('juice');
   const inlinedHTML = Juice(htmlWithUtmParams, { preserveMediaQueries: true });
+  const emailSafeHTML = normalizeMathJaxTagsForEmail(inlinedHTML);
   
   // Generate a plain-text representation, based on the React representation
   const plaintext = htmlToText(htmlWithUtmParams, {
@@ -209,7 +226,7 @@ export async function generateEmail({user, to, from, subject, bodyComponent, boi
     to,
     from: fromAddress,
     subject: isLWorAF() ? taggedSubject : subject,
-    html: emailDoctype + inlinedHTML,
+    html: emailDoctype + emailSafeHTML,
     text: plaintext,
   }
 }
