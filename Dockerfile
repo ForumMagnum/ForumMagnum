@@ -1,4 +1,4 @@
-# Node 22.x is LTS
+# Node 24.x is LTS
 FROM node:24.15.0
 ENV IS_DOCKER=true
 # Transcrypt dependency
