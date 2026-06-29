@@ -9,6 +9,7 @@ import type { LocationDescriptor } from 'history';
 import {siteUrlSetting} from './instanceSettings'
 import { getUrlClass } from '@/server/utils/getUrlClass';
 import { getCommandLineArguments } from '@/server/commandLine';
+import { isRouteOwnedByEAForumV3 } from './stranglerFig';
 
 // React Hook which returns the page location (parsed URL and route).
 // Return value contains:
@@ -71,10 +72,26 @@ export const useNavigate = () => {
         locationDescriptor :
         history.createHref(locationDescriptor);
       window.open(href, '_blank')?.focus();
-    } else if (options?.replace) {
-      history.replace(locationDescriptor);
     } else {
-      history.push(locationDescriptor);
+      const href = typeof locationDescriptor === 'string' ?
+        locationDescriptor :
+        history.createHref(locationDescriptor);
+
+      // STRANGLER FIG: Full page navigation for routes owned by new site
+      if (isRouteOwnedByEAForumV3(href)) {
+        if (options?.replace) {
+          window.location.replace(href);
+        } else {
+          window.location.href = href;
+        }
+        return;
+      }
+
+      if (options?.replace) {
+        history.replace(locationDescriptor);
+      } else {
+        history.push(locationDescriptor);
+      }
     }
   }, [history]);
 }
