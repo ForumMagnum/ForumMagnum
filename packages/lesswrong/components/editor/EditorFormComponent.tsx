@@ -517,6 +517,7 @@ function InnerEditorFormComponent<S, R>({
             autosave: false,
           });
         }
+        hasUnsavedDataRef.current.hasUnsavedData = false;
         return result;
       });
       return () => {

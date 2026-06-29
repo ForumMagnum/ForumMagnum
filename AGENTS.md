@@ -122,7 +122,7 @@ Implications:
 ## Path And Build Conventions
 
 - Use `yarn`, not `npm` or `pnpm`.
-- Use Node `>=22.12.0` (see `package.json` `engines`).
+- Use Node `>=24.15.0` (see `package.json` `engines`).
 - `@/` maps to `packages/lesswrong/*`.
 - `@/allComponents` maps to
   `packages/lesswrong/lib/generated/allComponents.ts`.
