@@ -7,7 +7,7 @@ const PREFER_NEW_SITE_COOKIE = 'prefer_ea_forum_v3';
 
 /**
  * Hook for managing the EA Forum V3 preference during strangler fig migration.
- * Toggle is shown to admins, or to anyone who has the cookie set to true (so they can turn it off).
+ * Toggle is shown to admins.
  */
 export const useEAForumV3 = (): {
   preferNewSite: boolean;
@@ -18,8 +18,7 @@ export const useEAForumV3 = (): {
   const [cookies, setCookie] = useCookiesWithConsent([PREFER_NEW_SITE_COOKIE]);
 
   const preferNewSite = cookies[PREFER_NEW_SITE_COOKIE] === 'true';
-  const isRealAdmin = userIsMemberOf(currentUser, "realAdmins");
-  const showNewSiteToggle = isRealAdmin || preferNewSite;
+  const showNewSiteToggle = userIsMemberOf(currentUser, "realAdmins");
 
   const setPreferNewSite = useCallback((value: boolean) => {
     const oneYearFromNow = new Date();
