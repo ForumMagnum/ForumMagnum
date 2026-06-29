@@ -8,7 +8,12 @@ const styles = (theme: ThemeType): JssStyles => ({
   input: {
     // this needs to be here because of Bootstrap. I am sorry :(
     padding: "6px 0 7px",
-    fontSize: "13px"
+    fontSize: "13px",
+    // Keep the input at >=16px on mobile so that iOS Safari doesn't auto-zoom
+    // the viewport when the field is focused.
+    [theme.breakpoints.down('sm')]: {
+      fontSize: "16px",
+    },
   }
 })
 

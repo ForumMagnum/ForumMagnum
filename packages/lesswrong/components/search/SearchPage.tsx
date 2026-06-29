@@ -100,6 +100,11 @@ const styles = (theme: ThemeType): JssStyles => ({
       fontSize: 'inherit',
       "-webkit-appearance": "none",
       cursor: "text",
+      // Keep the input at >=16px on mobile so that iOS Safari doesn't auto-zoom
+      // the viewport when the field is focused.
+      [theme.breakpoints.down('sm')]: {
+        fontSize: 16,
+      },
     },
   }
 })

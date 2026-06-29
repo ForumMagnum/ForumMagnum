@@ -13,6 +13,9 @@ const styles = (theme: ThemeType): JssStyles => ({
     width: 350,
     [theme.breakpoints.down('sm')]: {
       width: "calc(100% - 30px)", // leaving 30px so that the "clear" button for select forms has room
+      // Keep the input at >=16px on mobile so that iOS Safari doesn't auto-zoom
+      // the viewport when the field is focused.
+      fontSize: "16px",
     },
   },
   fullWidth: {

@@ -23,7 +23,10 @@ export const geoSuggestStyles = (theme: ThemeType): JssStyles => ({
     fontSize: 13,
     color: theme.palette.primary.main,
     [theme.breakpoints.down('sm')]: {
-      width: "100%"
+      width: "100%",
+      // Keep the input at >=16px on mobile so that iOS Safari doesn't auto-zoom
+      // the viewport when the field is focused.
+      fontSize: 16,
     },
   },
   "& .geosuggest__input:focus": {

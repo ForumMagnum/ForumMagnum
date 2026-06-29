@@ -62,6 +62,12 @@ const styles = (theme: ThemeType): JssStyles => ({
       cursor: "text",
       borderRadius:5,
 
+      // Keep the input at >=16px on mobile so that iOS Safari doesn't auto-zoom
+      // the viewport when the field is focused.
+      [theme.breakpoints.down('sm')]: {
+        fontSize: 16,
+      },
+
       [theme.breakpoints.down('tiny')]: {
         backgroundColor: "#eee",
         zIndex: theme.zIndexes.searchBar,
