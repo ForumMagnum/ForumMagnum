@@ -71,7 +71,7 @@ const LLMScoreBadge = ({
   return (
     <HoverOver
       title={hasScore
-        ? <div>Average: {score.toFixed(2)}, Max: {maxScore?.toFixed(2) ?? 'N/A'}</div>
+        ? <div>AI-involved: {score.toFixed(2)}, Max window: {maxScore?.toFixed(2) ?? 'N/A'}</div>
         : <div>No LLM evaluation — click to run check</div>}
     >
       <span className={classNames(classes.badge, className)} onClick={handleClick}>
