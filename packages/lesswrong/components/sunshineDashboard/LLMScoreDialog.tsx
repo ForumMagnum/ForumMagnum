@@ -115,7 +115,7 @@ function LLMScoreDialog({
       <DialogContent>
         {aceData ? (
           <div className={classes.contentContainer}>
-            <p>LLM Score Average: {score?.toFixed(2) ?? 'N/A'}, Max: {maxScore?.toFixed(2) ?? 'N/A'}</p>
+            <p>LLM AI-involved score: {score?.toFixed(2) ?? 'N/A'}, Max window: {maxScore?.toFixed(2) ?? 'N/A'}</p>
             {aceData.pangramPrediction && (
               <p>Prediction: <strong>{aceData.pangramPrediction}</strong></p>
             )}
