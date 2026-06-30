@@ -1570,8 +1570,13 @@ type AutomatedContentEvaluation {
   aiChoice: String
   aiReasoning: String
   aiCoT: String
+  pangramApiVersion: String
   pangramScore: Float
   pangramMaxScore: Float
+  pangramAiInvolvedScore: Float
+  pangramFractionAi: Float
+  pangramFractionAiAssisted: Float
+  pangramFractionHuman: Float
   pangramPrediction: String
   pangramWindowScores: [PangramWindowScore!]
 }
@@ -1586,6 +1591,9 @@ type PangramWindowScore {
   score: Float!
   startIndex: Int!
   endIndex: Int!
+  label: String
+  confidence: String
+  wordCount: Int
 }
 
 type Ban {

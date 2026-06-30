@@ -60,8 +60,13 @@ CREATE TABLE "AutomatedContentEvaluations" (
   "aiChoice" TEXT,
   "aiReasoning" TEXT,
   "aiCoT" TEXT,
+  "pangramApiVersion" TEXT,
   "pangramScore" DOUBLE PRECISION,
   "pangramMaxScore" DOUBLE PRECISION,
+  "pangramAiInvolvedScore" DOUBLE PRECISION,
+  "pangramFractionAi" DOUBLE PRECISION,
+  "pangramFractionAiAssisted" DOUBLE PRECISION,
+  "pangramFractionHuman" DOUBLE PRECISION,
   "pangramPrediction" TEXT,
   "pangramWindowScores" JSONB
 );

@@ -103,7 +103,10 @@ function LLMScoreDialog({
   
   const canRunCheck = !!documentId;
 
-  const score = aceData?.pangramScore;
+  const isPangramV3 = aceData?.pangramApiVersion === 'v3';
+  const score = isPangramV3
+    ? (aceData?.pangramAiInvolvedScore ?? aceData?.pangramScore)
+    : aceData?.pangramScore;
   const maxScore = aceData?.pangramMaxScore;
   
   const highlightedHtml = aceData 
@@ -115,7 +118,17 @@ function LLMScoreDialog({
       <DialogContent>
         {aceData ? (
           <div className={classes.contentContainer}>
-            <p>LLM AI-involved score: {score?.toFixed(2) ?? 'N/A'}, Max window: {maxScore?.toFixed(2) ?? 'N/A'}</p>
+            {isPangramV3 ? (
+              <p>
+                LLM AI-involved score: {score?.toFixed(2) ?? 'N/A'}
+                {' '}(AI-written: {aceData.pangramFractionAi?.toFixed(2) ?? 'N/A'},
+                {' '}AI-assisted: {aceData.pangramFractionAiAssisted?.toFixed(2) ?? 'N/A'},
+                {' '}human: {aceData.pangramFractionHuman?.toFixed(2) ?? 'N/A'}),
+                {' '}Max window: {maxScore?.toFixed(2) ?? 'N/A'}
+              </p>
+            ) : (
+              <p>LLM Score Average: {score?.toFixed(2) ?? 'N/A'}, Max: {maxScore?.toFixed(2) ?? 'N/A'}</p>
+            )}
             {aceData.pangramPrediction && (
               <p>Prediction: <strong>{aceData.pangramPrediction}</strong></p>
             )}

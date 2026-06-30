@@ -78,6 +78,17 @@ const schema = {
   },
 
   // Pangram AI detection fields
+  pangramApiVersion: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["sunshineRegiment", "admins"],
+    },
+  },
+
   pangramScore: {
     database: {
       type: "DOUBLE PRECISION",
@@ -90,6 +101,50 @@ const schema = {
   },
 
   pangramMaxScore: {
+    database: {
+      type: "DOUBLE PRECISION",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["sunshineRegiment", "admins"],
+    },
+  },
+
+  pangramAiInvolvedScore: {
+    database: {
+      type: "DOUBLE PRECISION",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["sunshineRegiment", "admins"],
+    },
+  },
+
+  pangramFractionAi: {
+    database: {
+      type: "DOUBLE PRECISION",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["sunshineRegiment", "admins"],
+    },
+  },
+
+  pangramFractionAiAssisted: {
+    database: {
+      type: "DOUBLE PRECISION",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: ["sunshineRegiment", "admins"],
+    },
+  },
+
+  pangramFractionHuman: {
     database: {
       type: "DOUBLE PRECISION",
       nullable: true,
@@ -118,7 +173,7 @@ const schema = {
     database: {
       type: "JSONB",
       nullable: true,
-      typescriptType: "{ text: string; score: number; startIndex: number; endIndex: number; }[]",
+      typescriptType: "{ text: string; score: number; startIndex: number; endIndex: number; label?: string; confidence?: string; wordCount?: number; }[]",
     },
     graphql: {
       outputType: "[PangramWindowScore!]",

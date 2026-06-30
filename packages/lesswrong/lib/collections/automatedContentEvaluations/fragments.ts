@@ -11,7 +11,12 @@ export const AutomatedContentEvaluationsFragment = gql(`
     aiChoice
     aiReasoning
     aiCoT
+    pangramApiVersion
     pangramScore
+    pangramAiInvolvedScore
+    pangramFractionAi
+    pangramFractionAiAssisted
+    pangramFractionHuman
     pangramMaxScore
     pangramPrediction
     pangramWindowScores {
@@ -19,6 +24,9 @@ export const AutomatedContentEvaluationsFragment = gql(`
       score
       startIndex
       endIndex
+      label
+      confidence
+      wordCount
     }
   }
 `);

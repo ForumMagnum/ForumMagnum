@@ -22,6 +22,7 @@ const saplingResponseSchema = z.object({
 });
 
 const pangramResponseSchema = z.object({
+  fraction_human: z.number(),
   fraction_ai: z.number(),
   fraction_ai_assisted: z.number(),
   prediction_short: z.enum(["AI", "Human", "Mixed"]).optional(),
@@ -30,16 +31,32 @@ const pangramResponseSchema = z.object({
     ai_assistance_score: z.number(),
     start_index: z.number(),
     end_index: z.number(),
+    label: z.string().optional(),
+    confidence: z.string().optional(),
+    word_count: z.number().optional(),
   })).optional(),
 });
 
 const PANGRAM_AUTOREJECT_THRESHOLD = 0.4;
 
 export interface PangramEvaluationResult {
+  pangramApiVersion: string | null;
   pangramScore: number;
+  pangramAiInvolvedScore: number | null;
+  pangramFractionAi: number | null;
+  pangramFractionAiAssisted: number | null;
+  pangramFractionHuman: number | null;
   pangramMaxScore: number | null;
   pangramPrediction: "AI" | "Human" | "Mixed" | null;
-  pangramWindowScores: { text: string; score: number; startIndex: number; endIndex: number; }[] | null;
+  pangramWindowScores: {
+    text: string;
+    score: number;
+    startIndex: number;
+    endIndex: number;
+    label?: string;
+    confidence?: string;
+    wordCount?: number;
+  }[] | null;
 }
 
 export async function getPangramEvaluationForText(text: string): Promise<PangramEvaluationResult> {
@@ -91,10 +108,19 @@ export async function getPangramEvaluationForText(text: string): Promise<Pangram
     score: w.ai_assistance_score,
     startIndex: w.start_index,
     endIndex: w.end_index,
+    ...(w.label ? { label: w.label } : {}),
+    ...(w.confidence ? { confidence: w.confidence } : {}),
+    ...(w.word_count !== undefined ? { wordCount: w.word_count } : {}),
   })) ?? null;
+  const pangramAiInvolvedScore = validatedResponse.data.fraction_ai + validatedResponse.data.fraction_ai_assisted;
 
   return {
-    pangramScore: validatedResponse.data.fraction_ai + validatedResponse.data.fraction_ai_assisted,
+    pangramApiVersion: "v3",
+    pangramScore: pangramAiInvolvedScore,
+    pangramAiInvolvedScore,
+    pangramFractionAi: validatedResponse.data.fraction_ai,
+    pangramFractionAiAssisted: validatedResponse.data.fraction_ai_assisted,
+    pangramFractionHuman: validatedResponse.data.fraction_human,
     pangramMaxScore: pangramWindowScores?.length
       ? Math.max(...pangramWindowScores.map(w => w.score))
       : null,
@@ -241,7 +267,12 @@ export async function createAutomatedContentEvaluation(
     aiChoice: null,
     aiReasoning: null,
     aiCoT: null,
+    pangramApiVersion: pangramEvaluation.pangramApiVersion,
     pangramScore: pangramEvaluation.pangramScore,
+    pangramAiInvolvedScore: pangramEvaluation.pangramAiInvolvedScore,
+    pangramFractionAi: pangramEvaluation.pangramFractionAi,
+    pangramFractionAiAssisted: pangramEvaluation.pangramFractionAiAssisted,
+    pangramFractionHuman: pangramEvaluation.pangramFractionHuman,
     pangramMaxScore: pangramEvaluation.pangramMaxScore,
     pangramPrediction: pangramEvaluation.pangramPrediction,
     pangramWindowScores: pangramEvaluation.pangramWindowScores,
@@ -306,7 +337,12 @@ export async function rerunLlmCheck(
       { _id: existingAce._id },
       {
         $set: {
+          pangramApiVersion: pangramResult.pangramApiVersion,
           pangramScore: pangramResult.pangramScore,
+          pangramAiInvolvedScore: pangramResult.pangramAiInvolvedScore,
+          pangramFractionAi: pangramResult.pangramFractionAi,
+          pangramFractionAiAssisted: pangramResult.pangramFractionAiAssisted,
+          pangramFractionHuman: pangramResult.pangramFractionHuman,
           pangramMaxScore: pangramResult.pangramMaxScore,
           pangramPrediction: pangramResult.pangramPrediction,
           pangramWindowScores: pangramResult.pangramWindowScores,
@@ -330,7 +366,12 @@ export async function rerunLlmCheck(
       aiChoice: null,
       aiReasoning: null,
       aiCoT: null,
+      pangramApiVersion: pangramResult.pangramApiVersion,
       pangramScore: pangramResult.pangramScore,
+      pangramAiInvolvedScore: pangramResult.pangramAiInvolvedScore,
+      pangramFractionAi: pangramResult.pangramFractionAi,
+      pangramFractionAiAssisted: pangramResult.pangramFractionAiAssisted,
+      pangramFractionHuman: pangramResult.pangramFractionHuman,
       pangramMaxScore: pangramResult.pangramMaxScore,
       pangramPrediction: pangramResult.pangramPrediction,
       pangramWindowScores: pangramResult.pangramWindowScores,
