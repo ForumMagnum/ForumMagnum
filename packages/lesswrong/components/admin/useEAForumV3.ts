@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useCurrentUser } from "../common/withUser";
 import { useCookiesWithConsent } from "../hooks/useCookiesWithConsent";
-import { userIsMemberOf } from "../../lib/vulcan-users/permissions";
+import { userIsAdminOrMod, userIsMemberOf } from "../../lib/vulcan-users/permissions";
 
 const PREFER_NEW_SITE_COOKIE = 'prefer_ea_forum_v3';
 
@@ -18,7 +18,8 @@ export const useEAForumV3 = (): {
   const [cookies, setCookie] = useCookiesWithConsent([PREFER_NEW_SITE_COOKIE]);
 
   const preferNewSite = cookies[PREFER_NEW_SITE_COOKIE] === 'true';
-  const showNewSiteToggle = userIsMemberOf(currentUser, "realAdmins");
+  const showNewSiteToggle = userIsMemberOf(currentUser, "realAdmins") ||
+    userIsAdminOrMod(currentUser);
 
   const setPreferNewSite = useCallback((value: boolean) => {
     const oneYearFromNow = new Date();
