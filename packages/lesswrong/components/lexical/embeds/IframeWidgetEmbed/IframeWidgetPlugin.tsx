@@ -1,5 +1,5 @@
 'use client';
-import React, { type JSX, useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
+import React, { type JSX, useState, useEffect, useCallback, useMemo, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 
 import {useLexicalComposerContext} from '@lexical/react/LexicalComposerContext';
@@ -172,16 +172,23 @@ function usePositionTracking(
         width: elemRect.width,
       });
     }
+    // Keep referential stability at both levels: unchanged entries reuse the
+    // previous position object (so memoized overlays skip re-rendering), and
+    // a fully unchanged map keeps its identity (no re-render at all).
     setPositions((prev) => {
-      if (prev.size !== next.size) return next;
+      let changed = prev.size !== next.size;
+      const merged = new Map<string, OverlayPosition>();
       for (const [key, pos] of next) {
         const prevPos = prev.get(key);
-        if (!prevPos || prevPos.top !== pos.top || prevPos.left !== pos.left
-          || prevPos.width !== pos.width) {
-          return next;
+        if (prevPos && prevPos.top === pos.top && prevPos.left === pos.left
+          && prevPos.width === pos.width) {
+          merged.set(key, prevPos);
+        } else {
+          merged.set(key, pos);
+          changed = true;
         }
       }
-      return prev;
+      return changed ? merged : prev;
     });
   }, [editor, anchorElem, widgets]);
 
@@ -191,14 +198,22 @@ function usePositionTracking(
 
   useEffect(() => {
     if (!anchorElem) return;
-    const unregister = editor.registerUpdateListener(() => {
-      requestAnimationFrame(measure);
-    });
-    const handleResize = () => measure();
-    window.addEventListener('resize', handleResize);
+    // One pending frame at a time: update listeners can fire several times
+    // per keystroke, and each measure forces a layout pass.
+    let scheduledFrame: number | null = null;
+    const scheduleMeasure = () => {
+      if (scheduledFrame !== null) return;
+      scheduledFrame = requestAnimationFrame(() => {
+        scheduledFrame = null;
+        measure();
+      });
+    };
+    const unregister = editor.registerUpdateListener(scheduleMeasure);
+    window.addEventListener('resize', scheduleMeasure);
     return () => {
       unregister();
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', scheduleMeasure);
+      if (scheduledFrame !== null) cancelAnimationFrame(scheduledFrame);
     };
   }, [editor, anchorElem, measure]);
 
@@ -233,16 +248,18 @@ function ToggleButton({
   );
 }
 
-function IframeWidgetOverlay({
+const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
+  nodeKey,
   state,
   position,
   onToggle,
   onIframeResize,
 }: {
+  nodeKey: string;
   state: WidgetState;
   position: OverlayPosition | undefined;
-  onToggle: () => void;
-  onIframeResize: (height: number) => void;
+  onToggle: (nodeKey: string) => void;
+  onIframeResize: (nodeKey: string, height: number) => void;
 }) {
   const classes = useStyles(styles);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -251,17 +268,24 @@ function IframeWidgetOverlay({
     function handler(event: MessageEvent) {
       if (event.source !== iframeRef.current?.contentWindow) return;
       if (event.data?.type !== 'iframe-widget-resize') return;
-      onIframeResize(clampIframeHeight(event.data.height));
+      onIframeResize(nodeKey, clampIframeHeight(event.data.height));
     }
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
-  }, [onIframeResize]);
+  }, [nodeKey, onIframeResize]);
+
+  const handleToggleClick = useCallback(() => onToggle(nodeKey), [onToggle, nodeKey]);
+
+  // DOMParser round-trip is expensive on large widgets — only redo it when
+  // the widget's HTML actually changes, not on every position shift.
+  const srcdoc = useMemo(
+    () => state.htmlContent.trim()
+      ? injectResizeScript(stripDeletedMarkupFromSrcdoc(state.htmlContent))
+      : '',
+    [state.htmlContent],
+  );
 
   if (state.viewMode !== 'preview' || !position) return null;
-
-  const srcdoc = state.htmlContent.trim()
-    ? injectResizeScript(stripDeletedMarkupFromSrcdoc(state.htmlContent))
-    : '';
 
   return (
     <div
@@ -270,7 +294,7 @@ function IframeWidgetOverlay({
     >
       <ToggleButton
         viewMode="preview"
-        onClick={onToggle}
+        onClick={handleToggleClick}
         className={classes.toggleButton}
         style={{ top: 4, right: 4 }}
       />
@@ -288,9 +312,9 @@ function IframeWidgetOverlay({
       )}
     </div>
   );
-}
+});
 
-function IframeWidgetCodeToggle({
+const IframeWidgetCodeToggle = React.memo(function IframeWidgetCodeToggle({
   nodeKey,
   editor,
   anchorElem,
@@ -299,7 +323,7 @@ function IframeWidgetCodeToggle({
   nodeKey: string;
   editor: LexicalEditor;
   anchorElem: HTMLElement;
-  onToggle: () => void;
+  onToggle: (nodeKey: string) => void;
 }) {
   const classes = useStyles(styles);
   const [position, setPosition] = useState<{ top: number; right: number } | null>(null);
@@ -310,33 +334,42 @@ function IframeWidgetCodeToggle({
       if (!elem) return;
       const codeRect = elem.getBoundingClientRect();
       const anchorRect = anchorElem.getBoundingClientRect();
-      setPosition({
-        top: codeRect.top - anchorRect.top + anchorElem.scrollTop + 4,
-        right: anchorRect.right - codeRect.right + 4,
-      });
+      const top = codeRect.top - anchorRect.top + anchorElem.scrollTop + 4;
+      const right = anchorRect.right - codeRect.right + 4;
+      // Bail out when unchanged so per-keystroke updates don't re-render.
+      setPosition((prev) => (prev && prev.top === top && prev.right === right ? prev : { top, right }));
     }
     measure();
-    const unregister = editor.registerUpdateListener(() => {
-      requestAnimationFrame(measure);
-    });
-    window.addEventListener('resize', measure);
+    let scheduledFrame: number | null = null;
+    const scheduleMeasure = () => {
+      if (scheduledFrame !== null) return;
+      scheduledFrame = requestAnimationFrame(() => {
+        scheduledFrame = null;
+        measure();
+      });
+    };
+    const unregister = editor.registerUpdateListener(scheduleMeasure);
+    window.addEventListener('resize', scheduleMeasure);
     return () => {
       unregister();
-      window.removeEventListener('resize', measure);
+      window.removeEventListener('resize', scheduleMeasure);
+      if (scheduledFrame !== null) cancelAnimationFrame(scheduledFrame);
     };
   }, [editor, nodeKey, anchorElem]);
+
+  const handleToggleClick = useCallback(() => onToggle(nodeKey), [onToggle, nodeKey]);
 
   if (!position) return null;
 
   return (
     <ToggleButton
       viewMode="code"
-      onClick={onToggle}
+      onClick={handleToggleClick}
       className={classes.toggleButton}
       style={{ top: position.top, right: position.right }}
     />
   );
-}
+});
 
 export default function IframeWidgetPlugin({
   anchorElem,
@@ -348,6 +381,11 @@ export default function IframeWidgetPlugin({
   const [editor] = useLexicalComposerContext();
   const {flash} = useMessages();
   const [widgets, setWidgets] = useState<Map<string, WidgetState>>(new Map);
+  // Mirror of `widgets` for the mutation listener: 'updated' mutations fire on
+  // every keystroke inside a widget, and the listener must be able to tell
+  // "already tracked, nothing to do" without going through a state update.
+  const widgetsRef = useRef(widgets);
+  widgetsRef.current = widgets;
 
   useEffect(() => {
     if (!editor.hasNodes([IframeWidgetNode])) {
@@ -375,32 +413,45 @@ export default function IframeWidgetPlugin({
         COMMAND_PRIORITY_EDITOR,
       ),
       editor.registerMutationListener(IframeWidgetNode, (mutations) => {
+        // Only additions and removals matter here; 'updated' fires on every
+        // keystroke inside a widget's code view and must not churn state
+        // (a new Map identity re-renders every overlay).
+        const tracked = widgetsRef.current;
+        const removed: string[] = [];
+        const added: Array<{ key: string; state: WidgetState }> = [];
         editor.getEditorState().read(() => {
-          const initialPreviews: Array<{ key: string; height: number }> = [];
-          setWidgets((prev) => {
-            const next = new Map(prev);
-            for (const [key, type] of mutations) {
-              if (type === 'destroyed') {
-                next.delete(key);
-              } else if (!next.has(key)) {
-                const node = $getNodeByKey(key);
-                const hasContent = node ? node.getTextContent().trim().length > 0 : false;
-                next.set(key, {
+          for (const [key, type] of mutations) {
+            if (type === 'destroyed') {
+              if (tracked.has(key)) removed.push(key);
+            } else if (!tracked.has(key)) {
+              const node = $getNodeByKey(key);
+              const htmlContent = node ? node.getTextContent() : '';
+              const hasContent = htmlContent.trim().length > 0;
+              added.push({
+                key,
+                state: {
                   viewMode: hasContent ? 'preview' : 'code',
                   previewHeight: IFRAME_DEFAULT_HEIGHT,
-                  htmlContent: hasContent ? node!.getTextContent() : '',
-                });
-                if (hasContent) {
-                  initialPreviews.push({ key, height: IFRAME_DEFAULT_HEIGHT });
-                }
-              }
+                  htmlContent: hasContent ? htmlContent : '',
+                },
+              });
             }
-            return next;
-          });
-          for (const { key, height } of initialPreviews) {
-            applyPreviewModeToDOM(editor, key, height);
           }
         });
+        if (removed.length === 0 && added.length === 0) return;
+        setWidgets((prev) => {
+          const next = new Map(prev);
+          for (const key of removed) next.delete(key);
+          for (const { key, state } of added) {
+            if (!next.has(key)) next.set(key, state);
+          }
+          return next;
+        });
+        for (const { key, state } of added) {
+          if (state.viewMode === 'preview') {
+            applyPreviewModeToDOM(editor, key, state.previewHeight);
+          }
+        }
       }, {skipInitialization: false}),
       editor.registerMutationListener(IframeWidgetNode, (mutations) => {
         for (const [key, type] of mutations) {
@@ -468,17 +519,18 @@ export default function IframeWidgetPlugin({
               nodeKey={key}
               editor={editor}
               anchorElem={anchorElem}
-              onToggle={() => handleToggle(key)}
+              onToggle={handleToggle}
             />
           );
         }
         return (
           <IframeWidgetOverlay
             key={key}
+            nodeKey={key}
             state={state}
             position={positions.get(key)}
-            onToggle={() => handleToggle(key)}
-            onIframeResize={(h) => handleIframeResize(key, h)}
+            onToggle={handleToggle}
+            onIframeResize={handleIframeResize}
           />
         );
       })}

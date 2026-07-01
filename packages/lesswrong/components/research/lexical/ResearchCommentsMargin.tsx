@@ -262,15 +262,27 @@ export default function ResearchCommentsMargin() {
 
   useLayoutEffect(() => {
     measureAnchors();
-    const removeUpdateListener = editor.registerUpdateListener(() => {
-      measureAnchors();
-    });
+    // Measuring reads layout (getBoundingClientRect per thread), and update
+    // listeners fire synchronously after Lexical's DOM writes — measuring
+    // there forces a full reflow on every keystroke. Defer to a single
+    // animation frame so the read coalesces with the layout pass the browser
+    // is about to do anyway.
+    let scheduledFrame: number | null = null;
+    const scheduleMeasure = () => {
+      if (scheduledFrame !== null) return;
+      scheduledFrame = requestAnimationFrame(() => {
+        scheduledFrame = null;
+        measureAnchors();
+      });
+    };
+    const removeUpdateListener = editor.registerUpdateListener(scheduleMeasure);
     const rootEl = editor.getRootElement();
-    const observer = new ResizeObserver(measureAnchors);
+    const observer = new ResizeObserver(scheduleMeasure);
     if (rootEl) observer.observe(rootEl);
     return () => {
       removeUpdateListener();
       observer.disconnect();
+      if (scheduledFrame !== null) cancelAnimationFrame(scheduledFrame);
     };
   }, [editor, measureAnchors]);
 
