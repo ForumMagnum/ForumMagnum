@@ -515,6 +515,34 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
               </button>
             ) : null}
             <ConversationActions conversationId={conversationId} />
+            {workspace ? (
+              <>
+                <button
+                  type="button"
+                  className={classNames(classes.headerButton, classes.collapseButton)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    workspace.openConversationChat(conversationId);
+                  }}
+                  title="Open in side panel"
+                  aria-label="Open in side panel"
+                >
+                  <ForumIcon icon="ViewColumns" className={classes.collapseIcon} />
+                </button>
+                <button
+                  type="button"
+                  className={classNames(classes.headerButton, classes.collapseButton)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    workspace.openConversationChat(conversationId, { fullscreen: true });
+                  }}
+                  title="Open full screen"
+                  aria-label="Open full screen"
+                >
+                  <ForumIcon icon="Fullscreen" className={classes.collapseIcon} />
+                </button>
+              </>
+            ) : null}
             <button
               type="button"
               className={classNames(classes.headerButton, classes.collapseButton)}

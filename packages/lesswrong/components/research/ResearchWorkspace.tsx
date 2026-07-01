@@ -16,11 +16,13 @@ import ForumIcon from '../common/ForumIcon';
 import ProjectSidebar from './ProjectSidebar';
 import DocumentPane from './DocumentPane';
 import ResearchCommandPalette from './ResearchCommandPalette';
+import { ConversationChatView } from './ConversationChatView';
 import { ProjectSidebarQuery } from './projectSidebarQuery';
 import {
   ResearchWorkspaceProvider,
   type ResearchEditorIntent,
   type ConversationFocusRequest,
+  type ResearchChatSurfaceState,
   type ResearchWorkspaceApi,
 } from './researchWorkspaceContext';
 import {
@@ -37,6 +39,11 @@ const SIDEBAR_MIN_WIDTH = 180;
 const SIDEBAR_MAX_WIDTH = 440;
 const SIDEBAR_DEFAULT_WIDTH = 250;
 const SIDEBAR_COLLAPSED_WIDTH = 37;
+
+const CHAT_PANEL_WIDTH_STORAGE_KEY = 'researchChatPanelWidth';
+const CHAT_PANEL_MIN_WIDTH = 320;
+const CHAT_PANEL_MAX_WIDTH = 720;
+const CHAT_PANEL_DEFAULT_WIDTH = 420;
 
 const FirstDocumentQuery = gql(`
   query ResearchWorkspaceFirstDocument($projectId: String!) {
@@ -56,6 +63,8 @@ const EnsureScratchDocumentMutation = gql(`
 
 const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
   outer: {
+    // Positioning context for the fullscreen chat overlay.
+    position: 'relative',
     display: 'flex',
     flexDirection: 'column',
     // The site header is hidden on /research (see `research-active` in
@@ -123,23 +132,45 @@ const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
     minHeight: 0,
     background: theme.palette.panelBackground.default,
   },
+  chatPanel: {
+    position: 'relative',
+    flex: 'none',
+    minHeight: 0,
+    overflow: 'hidden',
+    borderLeft: `1px solid ${theme.palette.greyAlpha(0.08)}`,
+  },
+  chatPanelResizeHandle: {
+    ...researchResizeHandle(theme),
+    left: -5,
+  },
+  // Full-viewport classic-LLM-chat overlay; covers the whole workspace
+  // (sidebar included) so it reads as a mode, not a pane.
+  fullscreenChat: {
+    position: 'absolute',
+    inset: 0,
+    zIndex: 10,
+    background: theme.palette.panelBackground.default,
+    display: 'flex',
+    flexDirection: 'column',
+  },
 }));
 
-function readStoredSidebarWidth(): number {
-  if (typeof window === 'undefined') return SIDEBAR_DEFAULT_WIDTH;
-  const raw = window.localStorage.getItem(SIDEBAR_WIDTH_STORAGE_KEY);
+function readStoredWidth(storageKey: string, minWidth: number, maxWidth: number, defaultWidth: number): number {
+  if (typeof window === 'undefined') return defaultWidth;
+  const raw = window.localStorage.getItem(storageKey);
   const parsed = raw ? parseInt(raw, 10) : NaN;
-  if (Number.isNaN(parsed)) return SIDEBAR_DEFAULT_WIDTH;
-  return Math.min(SIDEBAR_MAX_WIDTH, Math.max(SIDEBAR_MIN_WIDTH, parsed));
+  if (Number.isNaN(parsed)) return defaultWidth;
+  return Math.min(maxWidth, Math.max(minWidth, parsed));
 }
 
 /**
  * Research workspace shell: a hidden-site-header, full-viewport, IDE-style
- * two-column layout — resizable ProjectSidebar | DocumentPane. Conversations
- * have no side panel; they live inline in documents as AgentBlocks, and the
- * shell coordinates "open conversation X" by switching to its host document
- * and raising a focus request that the block answers (see
- * researchWorkspaceContext.tsx).
+ * layout — resizable ProjectSidebar | DocumentPane. Conversations live inline
+ * in documents as AgentBlocks; the shell coordinates "open conversation X" by
+ * switching to its host document and raising a focus request that the block
+ * answers (see researchWorkspaceContext.tsx). On request (an explicit button
+ * click on a block or a sidebar row), a conversation can additionally open in
+ * a resizable right chat panel, or in a fullscreen classic-LLM-chat overlay.
  */
 const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   const classes = useStyles(styles);
@@ -164,13 +195,17 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH);
   const [resizing, setResizing] = useState(false);
+  const [chatSurface, setChatSurface] = useState<ResearchChatSurfaceState | null>(null);
+  const [chatPanelWidth, setChatPanelWidth] = useState(CHAT_PANEL_DEFAULT_WIDTH);
+  const [chatPanelResizing, setChatPanelResizing] = useState(false);
 
   const [editorIntent, setEditorIntent] = useState<ResearchEditorIntent | null>(null);
   const [conversationFocusRequest, setConversationFocusRequest] = useState<ConversationFocusRequest | null>(null);
   const intentNonceRef = useRef(0);
 
   useEffect(() => {
-    setSidebarWidth(readStoredSidebarWidth());
+    setSidebarWidth(readStoredWidth(SIDEBAR_WIDTH_STORAGE_KEY, SIDEBAR_MIN_WIDTH, SIDEBAR_MAX_WIDTH, SIDEBAR_DEFAULT_WIDTH));
+    setChatPanelWidth(readStoredWidth(CHAT_PANEL_WIDTH_STORAGE_KEY, CHAT_PANEL_MIN_WIDTH, CHAT_PANEL_MAX_WIDTH, CHAT_PANEL_DEFAULT_WIDTH));
   }, []);
 
   useEffect(() => {
@@ -274,13 +309,33 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
     setEditorIntent({ kind: 'insert-query', nonce: intentNonceRef.current });
   }, [ensureScratchDocument, projectId, setActiveDocumentId]);
 
+  const openConversationChat = useCallback((conversationId: string, opts?: { fullscreen?: boolean }) => {
+    setChatSurface({ conversationId, fullscreen: opts?.fullscreen ?? false });
+  }, []);
+
+  const closeConversationChat = useCallback(() => {
+    setChatSurface(null);
+  }, []);
+
+  const setChatFullscreen = useCallback((fullscreen: boolean) => {
+    setChatSurface((prev) => (prev ? { ...prev, fullscreen } : prev));
+  }, []);
+
+  /** Close the chat surface and jump to the conversation's inline block. */
+  const openChatConversationInDocument = useCallback((conversationId: string) => {
+    setChatSurface(null);
+    void openConversation(conversationId);
+  }, [openConversation]);
+
   const workspaceApi = useMemo<ResearchWorkspaceApi>(() => ({
     editorIntent,
     clearEditorIntent,
     conversationFocusRequest,
     requestConversationFocus,
     ackConversationFocus,
-  }), [editorIntent, clearEditorIntent, conversationFocusRequest, requestConversationFocus, ackConversationFocus]);
+    openConversationChat,
+    closeConversationChat,
+  }), [editorIntent, clearEditorIntent, conversationFocusRequest, requestConversationFocus, ackConversationFocus, openConversationChat, closeConversationChat]);
 
   // --- Sidebar resize ----------------------------------------------------
   const handleResizeStart = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
@@ -306,6 +361,30 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
     window.addEventListener('pointerup', onUp);
   }, [sidebarWidth]);
 
+  const handleChatPanelResizeStart = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setChatPanelResizing(true);
+    const startX = e.clientX;
+    const startWidth = chatPanelWidth;
+    let latestWidth = startWidth;
+    const onMove = (move: PointerEvent) => {
+      // The handle sits on the panel's left edge: dragging left widens it.
+      latestWidth = Math.min(
+        CHAT_PANEL_MAX_WIDTH,
+        Math.max(CHAT_PANEL_MIN_WIDTH, startWidth - (move.clientX - startX)),
+      );
+      setChatPanelWidth(latestWidth);
+    };
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      setChatPanelResizing(false);
+      window.localStorage.setItem(CHAT_PANEL_WIDTH_STORAGE_KEY, String(latestWidth));
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  }, [chatPanelWidth]);
+
   const toggleSidebar = useCallback(() => {
     setSidebarOpen((open) => !open);
   }, []);
@@ -329,6 +408,7 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
                   activeDocumentId={activeDocumentId}
                   onSelectDocument={setActiveDocumentId}
                   onSelectConversation={openConversation}
+                  onOpenConversationChat={openConversationChat}
                   onStartNewConversation={startNewConversation}
                   onCollapse={toggleSidebar}
                 />
@@ -360,7 +440,40 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
               onSelectDocument={setActiveDocumentId}
             />
           </div>
+          {chatSurface && !chatSurface.fullscreen ? (
+            <div className={classes.chatPanel} style={{ width: chatPanelWidth }}>
+              <div
+                className={classNames(classes.chatPanelResizeHandle, chatPanelResizing && classes.resizeHandleActive)}
+                onPointerDown={handleChatPanelResizeStart}
+                role="separator"
+                aria-orientation="vertical"
+                aria-label="Resize chat panel"
+              />
+              <ConversationChatView
+                conversationId={chatSurface.conversationId}
+                projectId={projectId}
+                activeDocumentId={activeDocumentId}
+                variant="panel"
+                onClose={closeConversationChat}
+                onToggleFullscreen={() => setChatFullscreen(true)}
+                onOpenInDocument={() => openChatConversationInDocument(chatSurface.conversationId)}
+              />
+            </div>
+          ) : null}
         </div>
+        {chatSurface?.fullscreen ? (
+          <div className={classes.fullscreenChat}>
+            <ConversationChatView
+              conversationId={chatSurface.conversationId}
+              projectId={projectId}
+              activeDocumentId={activeDocumentId}
+              variant="fullscreen"
+              onClose={closeConversationChat}
+              onToggleFullscreen={() => setChatFullscreen(false)}
+              onOpenInDocument={() => openChatConversationInDocument(chatSurface.conversationId)}
+            />
+          </div>
+        ) : null}
         <ResearchCommandPalette
           projectId={projectId}
           activeDocumentId={activeDocumentId}

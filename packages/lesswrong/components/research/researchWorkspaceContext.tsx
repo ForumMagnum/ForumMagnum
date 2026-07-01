@@ -33,12 +33,26 @@ export interface ConversationFocusRequest {
   nonce: number;
 }
 
+/**
+ * The workspace's standalone chat surface for one conversation: a resizable
+ * right side panel, or (fullscreen) a full-viewport classic-LLM-chat overlay.
+ * Complementary to the inline AgentBlock — the same conversation can be open
+ * in both at once.
+ */
+export interface ResearchChatSurfaceState {
+  conversationId: string;
+  fullscreen: boolean;
+}
+
 export interface ResearchWorkspaceApi {
   editorIntent: ResearchEditorIntent | null;
   clearEditorIntent: (nonce: number) => void;
   conversationFocusRequest: ConversationFocusRequest | null;
   requestConversationFocus: (conversationId: string) => void;
   ackConversationFocus: (nonce: number) => void;
+  /** Open a conversation in the right side panel (or fullscreen overlay). */
+  openConversationChat: (conversationId: string, opts?: { fullscreen?: boolean }) => void;
+  closeConversationChat: () => void;
 }
 
 const ResearchWorkspaceContext = createContext<ResearchWorkspaceApi | null>(null);

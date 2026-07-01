@@ -17874,6 +17874,46 @@ type MintDevPreviewUrlMutationVariables = Exact<{
 
 type MintDevPreviewUrlMutation = MintDevPreviewUrlMutation_Mutation;
 
+type ConversationChatViewInfoQuery_researchConversation_SingleResearchConversationOutput_result_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null };
+
+type ConversationChatViewInfoQuery_researchConversation_SingleResearchConversationOutput = { __typename?: 'SingleResearchConversationOutput', result: ConversationChatViewInfoQuery_researchConversation_SingleResearchConversationOutput_result_ResearchConversation | null };
+
+type ConversationChatViewInfoQuery_Query = { __typename?: 'Query', researchConversation: ConversationChatViewInfoQuery_researchConversation_SingleResearchConversationOutput | null };
+
+
+type ConversationChatViewInfoQueryVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+}>;
+
+
+type ConversationChatViewInfoQuery = ConversationChatViewInfoQuery_Query;
+
+type ContinueResearchConversationFromChatViewMutation_continueResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', conversationId: string };
+
+type ContinueResearchConversationFromChatViewMutation_Mutation = { __typename?: 'Mutation', continueResearchConversation: ContinueResearchConversationFromChatViewMutation_continueResearchConversation_ResearchConversationOutput | null };
+
+
+type ContinueResearchConversationFromChatViewMutationVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+  promptHtml: Scalars['String']['input'];
+  activeDocumentId: Scalars['String']['input'];
+}>;
+
+
+type ContinueResearchConversationFromChatViewMutation = ContinueResearchConversationFromChatViewMutation_Mutation;
+
+type CancelResearchConversationFromChatViewMutation_cancelResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', conversationId: string };
+
+type CancelResearchConversationFromChatViewMutation_Mutation = { __typename?: 'Mutation', cancelResearchConversation: CancelResearchConversationFromChatViewMutation_cancelResearchConversation_ResearchConversationOutput | null };
+
+
+type CancelResearchConversationFromChatViewMutationVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+}>;
+
+
+type CancelResearchConversationFromChatViewMutation = CancelResearchConversationFromChatViewMutation_Mutation;
+
 type ResearchDocumentQueryQuery_researchDocument_SingleResearchDocumentOutput_result_ResearchDocument_contents_Revision_originalContents_ContentType = { __typename?: 'ContentType', type: string, data: any };
 
 type ResearchDocumentQueryQuery_researchDocument_SingleResearchDocumentOutput_result_ResearchDocument_contents_Revision = { __typename?: 'Revision', html: string | null, originalContents: ResearchDocumentQueryQuery_researchDocument_SingleResearchDocumentOutput_result_ResearchDocument_contents_Revision_originalContents_ContentType };

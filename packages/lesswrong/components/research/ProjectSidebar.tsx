@@ -24,6 +24,8 @@ interface ProjectSidebarProps {
   onSelectDocument: (documentId: string) => void;
   /** Navigate to the conversation's host document and focus its block. */
   onSelectConversation: (conversationId: string) => void;
+  /** Open the conversation in the right chat panel instead. */
+  onOpenConversationChat: (conversationId: string) => void;
   /** Open the scratch document with a fresh /query input appended. */
   onStartNewConversation: () => void;
   onCollapse: () => void;
@@ -218,6 +220,7 @@ const ProjectSidebar = ({
   activeDocumentId,
   onSelectDocument,
   onSelectConversation,
+  onOpenConversationChat,
   onStartNewConversation,
   onCollapse,
 }: ProjectSidebarProps) => {
@@ -365,6 +368,18 @@ const ProjectSidebar = ({
                     placeholder="Untitled conversation"
                     onRename={(next) => handleRenameConversation(conv._id, next)}
                   />
+                  <button
+                    type="button"
+                    className={classes.itemEditButton}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onOpenConversationChat(conv._id);
+                    }}
+                    title="Open in side panel"
+                    aria-label="Open in side panel"
+                  >
+                    <ForumIcon icon="ViewColumns" className={classes.editIcon} />
+                  </button>
                 </div>
               </li>
             ))}
