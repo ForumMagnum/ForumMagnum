@@ -210,9 +210,20 @@ function usePositionTracking(
     };
     const unregister = editor.registerUpdateListener(scheduleMeasure);
     window.addEventListener('resize', scheduleMeasure);
+    // Editor updates alone are not enough: the document reflows without any
+    // Lexical update when images/iframes finish loading, when another
+    // widget's spacer collapses or resizes, when fonts land, or when a
+    // workspace panel resizes the editor column. Watch the editor's own
+    // size — the anchor wrapper (width changes) and the contenteditable
+    // root (height changes with content) — and re-measure on any of it.
+    const resizeObserver = new ResizeObserver(scheduleMeasure);
+    resizeObserver.observe(anchorElem);
+    const rootElem = editor.getRootElement();
+    if (rootElem) resizeObserver.observe(rootElem);
     return () => {
       unregister();
       window.removeEventListener('resize', scheduleMeasure);
+      resizeObserver.disconnect();
       if (scheduledFrame !== null) cancelAnimationFrame(scheduledFrame);
     };
   }, [editor, anchorElem, measure]);
@@ -350,9 +361,16 @@ const IframeWidgetCodeToggle = React.memo(function IframeWidgetCodeToggle({
     };
     const unregister = editor.registerUpdateListener(scheduleMeasure);
     window.addEventListener('resize', scheduleMeasure);
+    // Track document reflows that happen without a Lexical update (loads,
+    // spacer collapses, panel resizes) — see usePositionTracking above.
+    const resizeObserver = new ResizeObserver(scheduleMeasure);
+    resizeObserver.observe(anchorElem);
+    const rootElem = editor.getRootElement();
+    if (rootElem) resizeObserver.observe(rootElem);
     return () => {
       unregister();
       window.removeEventListener('resize', scheduleMeasure);
+      resizeObserver.disconnect();
       if (scheduledFrame !== null) cancelAnimationFrame(scheduledFrame);
     };
   }, [editor, nodeKey, anchorElem]);
