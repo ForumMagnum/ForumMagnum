@@ -7,7 +7,7 @@ import { useTimezone } from '@/components/common/withTimezone';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { getConversationEventChunks, type ConversationEventChunk } from './conversationEventFormat';
 import { ChunkContent } from './ChunkContent';
-import { researchChatProse, researchChatSans, researchMono, researchTransition } from './researchStyleUtils';
+import { researchChatProse, researchChatSans, researchMono, researchTransition, researchWarmAlpha, researchRadius } from './researchStyleUtils';
 import type { ConversationEvent } from './hooks/useConversationStream';
 
 const META_BODY_MAX_HEIGHT = 240;
@@ -49,8 +49,8 @@ const styles = defineStyles('ConversationEventRow', (theme: ThemeType) => ({
     columnGap: 8,
     alignItems: 'baseline',
     padding: '6px 10px 6px 9px',
-    borderRadius: 8,
-    border: `1px solid ${theme.palette.greyAlpha(0.12)}`,
+    borderRadius: researchRadius.sm,
+    border: `1px solid ${researchWarmAlpha(0.12)}`,
     fontSize: 13,
     lineHeight: 1.5,
     color: theme.palette.text.primary,
@@ -63,7 +63,7 @@ const styles = defineStyles('ConversationEventRow', (theme: ThemeType) => ({
   userMarker: {
     fontFamily: researchMono,
     fontSize: 11,
-    color: theme.palette.greyAlpha(0.45),
+    color: researchWarmAlpha(0.45),
     userSelect: 'none',
   },
   assistantText: {
@@ -88,7 +88,7 @@ const styles = defineStyles('ConversationEventRow', (theme: ThemeType) => ({
     alignItems: 'baseline',
     gap: 7,
     padding: '1px 4px 1px 0',
-    borderRadius: 4,
+    borderRadius: researchRadius.xs,
     fontFamily: researchMono,
     fontSize: 11.5,
     lineHeight: '18px',
@@ -96,13 +96,13 @@ const styles = defineStyles('ConversationEventRow', (theme: ThemeType) => ({
     textAlign: 'left',
     transition: `background ${researchTransition}`,
     '&:hover': {
-      background: theme.palette.greyAlpha(0.04),
+      background: researchWarmAlpha(0.04),
     },
   },
   metaGlyph: {
     flex: 'none',
     userSelect: 'none',
-    color: theme.palette.greyAlpha(0.45),
+    color: researchWarmAlpha(0.45),
   },
   metaGlyphTool: {
     color: theme.palette.primary.main,
@@ -113,7 +113,7 @@ const styles = defineStyles('ConversationEventRow', (theme: ThemeType) => ({
   metaLabel: {
     flex: 'none',
     fontWeight: 600,
-    color: theme.palette.greyAlpha(0.6),
+    color: researchWarmAlpha(0.6),
   },
   metaLabelError: {
     color: theme.palette.error?.main ?? theme.palette.text.primary,
@@ -137,7 +137,7 @@ const styles = defineStyles('ConversationEventRow', (theme: ThemeType) => ({
     overflowY: 'auto',
     margin: '2px 0 4px 16px',
     padding: '6px 9px',
-    borderLeft: `2px solid ${theme.palette.greyAlpha(0.1)}`,
+    borderLeft: `2px solid ${researchWarmAlpha(0.1)}`,
     fontFamily: researchMono,
     fontSize: 11.5,
     lineHeight: 1.55,
@@ -149,7 +149,7 @@ const styles = defineStyles('ConversationEventRow', (theme: ThemeType) => ({
     fontFamily: researchChatSans,
     fontSize: 13.5,
     fontStyle: 'italic',
-    color: theme.palette.greyAlpha(0.6),
+    color: researchWarmAlpha(0.6),
     whiteSpace: 'normal',
   },
   metaBodyProse: researchChatProse(theme),

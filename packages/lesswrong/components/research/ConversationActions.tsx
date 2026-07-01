@@ -5,7 +5,7 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { useApolloClient, useMutation } from '@apollo/client/react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useMessages } from '@/components/common/withMessages';
-import { researchMono } from './researchStyleUtils';
+import { researchMono, researchWarmAlpha, researchRadius } from './researchStyleUtils';
 
 const SaveResearchEnvironmentMutation = gql(`
   mutation SaveResearchEnvironment($conversationId: String!, $withConversation: Boolean!) {
@@ -37,7 +37,7 @@ const styles = defineStyles('ConversationActions', (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     background: 'transparent',
     border: 'none',
-    borderRadius: 4,
+    borderRadius: researchRadius.xs,
     fontFamily: researchMono,
     fontSize: 10.5,
     lineHeight: 1.4,
@@ -46,7 +46,7 @@ const styles = defineStyles('ConversationActions', (theme: ThemeType) => ({
     cursor: 'pointer',
     '&:hover': {
       color: theme.palette.text.primary,
-      background: theme.palette.greyAlpha(0.06),
+      background: researchWarmAlpha(0.06),
     },
     '&:disabled': {
       opacity: 0.5,

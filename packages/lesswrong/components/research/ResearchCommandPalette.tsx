@@ -16,6 +16,9 @@ import {
   researchMono,
   researchRadius,
   researchScrollbars,
+  researchWarmAlpha,
+  researchCanvas,
+  researchUiSans,
 } from './researchStyleUtils';
 
 const CreatePaletteDocumentMutation = gql(`
@@ -36,7 +39,7 @@ const styles = defineStyles('ResearchCommandPalette', (theme: ThemeType) => ({
     position: 'fixed',
     inset: 0,
     zIndex: 10000,
-    background: theme.palette.greyAlpha(0.18),
+    background: researchWarmAlpha(0.18),
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'flex-start',
@@ -48,10 +51,10 @@ const styles = defineStyles('ResearchCommandPalette', (theme: ThemeType) => ({
     maxHeight: '56vh',
     display: 'flex',
     flexDirection: 'column',
-    background: theme.palette.panelBackground.default,
-    border: `1px solid ${theme.palette.greyAlpha(0.1)}`,
+    background: researchCanvas(theme),
+    border: `1px solid ${researchWarmAlpha(0.1)}`,
     borderRadius: researchRadius.lg,
-    boxShadow: `0 16px 60px ${theme.palette.greyAlpha(0.22)}, 0 2px 8px ${theme.palette.greyAlpha(0.08)}`,
+    boxShadow: `0 16px 60px ${researchWarmAlpha(0.22)}, 0 2px 8px ${researchWarmAlpha(0.08)}`,
     overflow: 'hidden',
   },
   input: {
@@ -62,16 +65,16 @@ const styles = defineStyles('ResearchCommandPalette', (theme: ThemeType) => ({
     background: 'transparent',
     padding: '13px 16px',
     fontSize: 14.5,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontFamily: researchUiSans,
     color: theme.palette.text.primary,
-    borderBottom: `1px solid ${theme.palette.greyAlpha(0.07)}`,
+    borderBottom: `1px solid ${researchWarmAlpha(0.07)}`,
     '&::placeholder': {
-      color: theme.palette.greyAlpha(0.32),
+      color: researchWarmAlpha(0.32),
     },
     // Global styles restyle input borders on focus; restate "none".
     '&:focus': {
       border: 'none',
-      borderBottom: `1px solid ${theme.palette.greyAlpha(0.07)}`,
+      borderBottom: `1px solid ${researchWarmAlpha(0.07)}`,
     },
   },
   results: {
@@ -110,7 +113,7 @@ const styles = defineStyles('ResearchCommandPalette', (theme: ThemeType) => ({
     flex: 'none',
     fontFamily: researchMono,
     fontSize: 10,
-    color: theme.palette.greyAlpha(0.35),
+    color: researchWarmAlpha(0.35),
     textTransform: 'uppercase',
     letterSpacing: '0.06em',
   },

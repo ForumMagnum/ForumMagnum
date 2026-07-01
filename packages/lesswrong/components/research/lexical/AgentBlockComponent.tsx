@@ -27,7 +27,7 @@ import { sanitize } from '@/lib/utils/sanitize';
 import { randomId } from '@/lib/random';
 import { useMessages } from '@/components/common/withMessages';
 import { isSandboxWarmingError } from '../sandboxWarming';
-import { researchAccentTint, researchChatProse, researchChatSans, researchMono, researchEasing } from '../researchStyleUtils';
+import { researchAccentTint, researchChatProse, researchChatSans, researchMono, researchEasing, researchWarmAlpha, researchRadius } from '../researchStyleUtils';
 
 /** Cap on the focused block's height; the transcript scrolls inside it. */
 const FOCUSED_MAX_HEIGHT = '72vh';
@@ -77,7 +77,7 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   root: {
     position: 'relative',
     margin: '14px 0',
-    borderLeft: `2px solid ${theme.palette.greyAlpha(0.14)}`,
+    borderLeft: `2px solid ${researchWarmAlpha(0.14)}`,
     paddingLeft: 14,
     paddingTop: 2,
     paddingBottom: 2,
@@ -109,7 +109,7 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   rootBlurred: {
     cursor: 'pointer',
     '&:hover': {
-      borderLeftColor: theme.palette.greyAlpha(0.28),
+      borderLeftColor: researchWarmAlpha(0.28),
     },
   },
   rootFocused: {
@@ -141,7 +141,7 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   },
   headerMeta: {
     flex: 'none',
-    color: theme.palette.greyAlpha(0.4),
+    color: researchWarmAlpha(0.4),
   },
   headerSpacer: {
     flex: 1,
@@ -165,7 +165,7 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   headerButton: {
     flex: 'none',
     border: 'none',
-    borderRadius: 4,
+    borderRadius: researchRadius.xs,
     background: 'transparent',
     color: theme.palette.text.dim,
     cursor: 'pointer',
@@ -176,7 +176,7 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     '&:hover': {
       color: theme.palette.text.primary,
-      background: theme.palette.greyAlpha(0.06),
+      background: researchWarmAlpha(0.06),
     },
   },
   collapseButton: {

@@ -16,6 +16,9 @@ import {
   researchCompactRowActive,
   researchEyebrow,
   researchScrollbars,
+  researchWarmAlpha,
+  researchCanvas,
+  researchRadius,
 } from './researchStyleUtils';
 
 interface ProjectSidebarProps {
@@ -114,7 +117,7 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
   },
   iconButton: {
     border: 'none',
-    borderRadius: 5,
+    borderRadius: researchRadius.xs,
     background: 'transparent',
     color: theme.palette.text.dim,
     cursor: 'pointer',
@@ -126,7 +129,7 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     padding: 0,
     flex: 'none',
     '&:hover': {
-      background: theme.palette.greyAlpha(0.06),
+      background: researchWarmAlpha(0.06),
       color: theme.palette.text.primary,
     },
   },
@@ -171,9 +174,9 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     fontSize: 'inherit',
     fontFamily: 'inherit',
     color: theme.palette.text.primary,
-    background: theme.palette.panelBackground.default,
-    border: `1px solid ${theme.palette.greyAlpha(0.2)}`,
-    borderRadius: 4,
+    background: researchCanvas(theme),
+    border: `1px solid ${researchWarmAlpha(0.2)}`,
+    borderRadius: researchRadius.xs,
     outline: 'none',
     '&:focus': {
       border: `1px solid ${theme.palette.primary.main}`,
@@ -191,11 +194,11 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 4,
+    borderRadius: researchRadius.xs,
     visibility: 'hidden',
     '&:hover': {
       color: theme.palette.text.primary,
-      background: theme.palette.greyAlpha(0.08),
+      background: researchWarmAlpha(0.08),
     },
   },
   editIcon: {

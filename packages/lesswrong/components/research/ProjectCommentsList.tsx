@@ -9,6 +9,7 @@ import { useStyles } from '../hooks/useStyles';
 import { formatSuggestionSummary } from '../editor/lexicalPlugins/suggestedEdits/suggestionSummaryUtils';
 import { type Thread } from '../lexical/commenting';
 import { useProjectCommentThreads } from './useProjectCommentThreads';
+import { researchWarmAlpha } from './researchStyleUtils';
 
 const ProjectCommentsDocumentsQuery = gql(`
   query ProjectCommentsDocumentsQuery($projectId: String!) {
@@ -38,13 +39,13 @@ const styles = defineStyles('ProjectCommentsList', (theme: ThemeType) => ({
     fontWeight: 600,
     letterSpacing: '0.07em',
     textTransform: 'uppercase',
-    color: theme.palette.greyAlpha(0.5),
+    color: researchWarmAlpha(0.5),
   },
   documentGroup: {
     padding: '6px 0',
     cursor: 'pointer',
     '&:hover': {
-      background: theme.palette.greyAlpha(0.04),
+      background: researchWarmAlpha(0.04),
     },
     '& + &': {
       borderTop: theme.palette.greyBorder('1px', 0.08),
@@ -61,7 +62,7 @@ const styles = defineStyles('ProjectCommentsList', (theme: ThemeType) => ({
   },
   quote: {
     fontSize: 12,
-    color: theme.palette.greyAlpha(0.55),
+    color: researchWarmAlpha(0.55),
     borderLeft: theme.palette.greyBorder('2px', 0.15),
     paddingLeft: 8,
     overflow: 'hidden',
@@ -78,7 +79,7 @@ const styles = defineStyles('ProjectCommentsList', (theme: ThemeType) => ({
   },
   threadMeta: {
     fontSize: 11,
-    color: theme.palette.greyAlpha(0.5),
+    color: researchWarmAlpha(0.5),
   },
   empty: {
     padding: '16px 14px',

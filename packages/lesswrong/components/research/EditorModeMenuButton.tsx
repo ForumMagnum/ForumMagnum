@@ -14,13 +14,14 @@ import {
   editorModeIcons,
   type EditorUserModeType,
 } from '../editor/lexicalPlugins/suggestions/EditorUserMode';
+import { researchWarmAlpha, researchRadius } from './researchStyleUtils';
 
 const styles = defineStyles('EditorModeMenuButton', (theme: ThemeType) => ({
   button: {
     width: 28,
     height: 28,
     border: 'none',
-    borderRadius: 4,
+    borderRadius: researchRadius.xs,
     background: 'transparent',
     color: theme.palette.text.dim,
     cursor: 'pointer',
@@ -29,7 +30,7 @@ const styles = defineStyles('EditorModeMenuButton', (theme: ThemeType) => ({
     justifyContent: 'center',
     padding: 0,
     '&:hover': {
-      background: theme.palette.greyAlpha(0.06),
+      background: researchWarmAlpha(0.06),
       color: theme.palette.text.primary,
     },
   },

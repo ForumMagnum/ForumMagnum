@@ -28,6 +28,10 @@ import {
 import {
   researchResizeHandle,
   researchResizeHandleActive,
+  researchWarmAlpha,
+  researchCanvas,
+  researchUiSans,
+  researchRadius,
 } from './researchStyleUtils';
 
 interface ResearchWorkspaceProps {
@@ -72,8 +76,8 @@ const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
     // viewport, so just fill the parent.
     height: '100%',
     minHeight: 0,
-    background: theme.palette.panelBackground.default,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    background: researchCanvas(theme),
+    fontFamily: researchUiSans,
   },
   root: {
     display: 'flex',
@@ -89,7 +93,7 @@ const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
     flex: 'none',
     minHeight: 0,
     overflow: 'hidden',
-    borderRight: `1px solid ${theme.palette.greyAlpha(0.08)}`,
+    borderRight: `1px solid ${researchWarmAlpha(0.08)}`,
   },
   sidebarCollapsed: {
     display: 'flex',
@@ -107,7 +111,7 @@ const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
     width: 26,
     height: 26,
     border: 'none',
-    borderRadius: 5,
+    borderRadius: researchRadius.xs,
     background: 'transparent',
     color: theme.palette.text.dim,
     cursor: 'pointer',
@@ -116,7 +120,7 @@ const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
     justifyContent: 'center',
     padding: 0,
     '&:hover': {
-      background: theme.palette.greyAlpha(0.06),
+      background: researchWarmAlpha(0.06),
       color: theme.palette.text.primary,
     },
   },
@@ -130,14 +134,14 @@ const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
     flexDirection: 'column',
     minWidth: 0,
     minHeight: 0,
-    background: theme.palette.panelBackground.default,
+    background: researchCanvas(theme),
   },
   chatPanel: {
     position: 'relative',
     flex: 'none',
     minHeight: 0,
     overflow: 'hidden',
-    borderLeft: `1px solid ${theme.palette.greyAlpha(0.08)}`,
+    borderLeft: `1px solid ${researchWarmAlpha(0.08)}`,
   },
   chatPanelResizeHandle: {
     ...researchResizeHandle(theme),
@@ -149,7 +153,7 @@ const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
     position: 'absolute',
     inset: 0,
     zIndex: 10,
-    background: theme.palette.panelBackground.default,
+    background: researchCanvas(theme),
     display: 'flex',
     flexDirection: 'column',
   },

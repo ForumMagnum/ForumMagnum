@@ -18,7 +18,7 @@ import {
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ForumIcon from '@/components/common/ForumIcon';
 import { useResearchCommentsMarginHostOptional } from './researchCommentsMarginContext';
-import { researchMono, researchTransition } from '../researchStyleUtils';
+import { researchMono, researchTransition, researchWarmAlpha, researchCanvas, researchUiSans, researchRadius } from '../researchStyleUtils';
 
 const CARD_GAP = 10;
 const DEFAULT_CARD_HEIGHT = 90;
@@ -30,30 +30,30 @@ const styles = defineStyles('ResearchCommentsMargin', (theme: ThemeType) => ({
     right: 0,
     boxSizing: 'border-box',
     pointerEvents: 'auto',
-    background: theme.palette.panelBackground.default,
-    border: `1px solid ${theme.palette.greyAlpha(0.1)}`,
-    borderRadius: 8,
+    background: researchCanvas(theme),
+    border: `1px solid ${researchWarmAlpha(0.1)}`,
+    borderRadius: researchRadius.sm,
     padding: '8px 10px',
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontFamily: researchUiSans,
     fontSize: 13,
     lineHeight: 1.45,
     color: theme.palette.text.primary,
     cursor: 'pointer',
     transition: `top 160ms ease, border-color ${researchTransition}, box-shadow ${researchTransition}`,
     '&:hover': {
-      borderColor: theme.palette.greyAlpha(0.2),
+      borderColor: researchWarmAlpha(0.2),
     },
   },
   cardActive: {
     borderColor: theme.palette.primary.main,
-    boxShadow: `0 2px 10px ${theme.palette.greyAlpha(0.08)}`,
+    boxShadow: `0 2px 10px ${researchWarmAlpha(0.08)}`,
   },
   quote: {
     fontFamily: theme.palette.fonts.serifStack,
     fontStyle: 'italic',
     fontSize: 12,
     color: theme.palette.text.dim,
-    borderLeft: `2px solid ${theme.palette.greyAlpha(0.15)}`,
+    borderLeft: `2px solid ${researchWarmAlpha(0.15)}`,
     paddingLeft: 7,
     marginBottom: 6,
     overflow: 'hidden',
@@ -83,7 +83,7 @@ const styles = defineStyles('ResearchCommentsMargin', (theme: ThemeType) => ({
     flex: 'none',
     fontFamily: researchMono,
     fontSize: 9.5,
-    color: theme.palette.greyAlpha(0.4),
+    color: researchWarmAlpha(0.4),
   },
   content: {
     overflowWrap: 'anywhere',
@@ -110,8 +110,8 @@ const styles = defineStyles('ResearchCommentsMargin', (theme: ThemeType) => ({
     height: 20,
     padding: 0,
     border: 'none',
-    borderRadius: 4,
-    background: theme.palette.panelBackground.default,
+    borderRadius: researchRadius.xs,
+    background: researchCanvas(theme),
     color: theme.palette.text.dim,
     cursor: 'pointer',
     display: 'flex',
@@ -119,7 +119,7 @@ const styles = defineStyles('ResearchCommentsMargin', (theme: ThemeType) => ({
     justifyContent: 'center',
     '&:hover': {
       color: theme.palette.text.primary,
-      background: theme.palette.greyAlpha(0.06),
+      background: researchWarmAlpha(0.06),
     },
   },
   actionIcon: {
@@ -130,7 +130,7 @@ const styles = defineStyles('ResearchCommentsMargin', (theme: ThemeType) => ({
     alignItems: 'flex-end',
     gap: 4,
     marginTop: 6,
-    borderTop: `1px solid ${theme.palette.greyAlpha(0.07)}`,
+    borderTop: `1px solid ${researchWarmAlpha(0.07)}`,
     paddingTop: 6,
     // The nested composer brings its own (playground-flavored) styles;
     // contain its editor to the card width.

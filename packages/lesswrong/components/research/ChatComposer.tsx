@@ -11,7 +11,7 @@ import ForumIcon from '@/components/common/ForumIcon';
 import LexicalEditorRoot from '@/components/editor/LexicalEditor';
 import { chatComposerNodes } from './lexical/chatComposerNodes';
 import { MentionTypeaheadPlugin } from './lexical/MentionTypeaheadPlugin';
-import { researchAccentTint, researchChatSans, researchTransition } from './researchStyleUtils';
+import { researchAccentTint, researchChatSans, researchTransition, researchWarmAlpha, researchCanvas, researchRadius } from './researchStyleUtils';
 
 interface ChatComposerProps {
   projectId: string;
@@ -26,7 +26,7 @@ const styles = defineStyles('ChatComposer', (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'flex-end',
     gap: 8,
-    borderTop: `1px solid ${theme.palette.greyAlpha(0.07)}`,
+    borderTop: `1px solid ${researchWarmAlpha(0.07)}`,
     paddingTop: 10,
   },
   // A clearly-separate input field: flat surface, hairline border, rounded,
@@ -38,9 +38,9 @@ const styles = defineStyles('ChatComposer', (theme: ThemeType) => ({
     minHeight: 34,
     boxSizing: 'border-box',
     padding: '7px 12px',
-    background: theme.palette.panelBackground.default,
-    border: `1px solid ${theme.palette.greyAlpha(0.12)}`,
-    borderRadius: 8,
+    background: researchCanvas(theme),
+    border: `1px solid ${researchWarmAlpha(0.12)}`,
+    borderRadius: researchRadius.sm,
     fontFamily: researchChatSans,
     fontSize: 14,
     lineHeight: 1.45,
@@ -48,7 +48,7 @@ const styles = defineStyles('ChatComposer', (theme: ThemeType) => ({
     cursor: 'text',
     transition: `border-color ${researchTransition}, box-shadow ${researchTransition}`,
     '&:hover': {
-      borderColor: theme.palette.greyAlpha(0.2),
+      borderColor: researchWarmAlpha(0.2),
     },
     '&:focus-within': {
       borderColor: theme.palette.primary.main,

@@ -22,6 +22,10 @@ import {
   researchScrollbars,
   researchTextInput,
   researchCard,
+  researchWarmAlpha,
+  researchCanvas,
+  researchUiSans,
+  researchRadius,
 } from './researchStyleUtils';
 
 interface ResearchProjectSummary {
@@ -88,8 +92,8 @@ const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
     flexDirection: 'column',
     height: '100%',
     minHeight: 0,
-    background: theme.palette.panelBackground.default,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    background: researchCanvas(theme),
+    fontFamily: researchUiSans,
   },
   scroll: {
     flex: 1,
@@ -114,10 +118,10 @@ const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
     color: theme.palette.text.dim,
     textDecoration: 'none',
     padding: '4px 8px',
-    borderRadius: 5,
+    borderRadius: researchRadius.xs,
     '&:hover': {
       color: theme.palette.text.primary,
-      background: theme.palette.greyAlpha(0.05),
+      background: researchWarmAlpha(0.05),
     },
   },
   heading: {
@@ -153,18 +157,18 @@ const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
     listStyle: 'none',
     padding: 0,
     margin: 0,
-    borderTop: `1px solid ${theme.palette.greyAlpha(0.07)}`,
+    borderTop: `1px solid ${researchWarmAlpha(0.07)}`,
   },
   item: {
     display: 'flex',
     alignItems: 'baseline',
     gap: 12,
     padding: '11px 8px',
-    borderBottom: `1px solid ${theme.palette.greyAlpha(0.07)}`,
+    borderBottom: `1px solid ${researchWarmAlpha(0.07)}`,
     cursor: 'pointer',
-    borderRadius: 2,
+    borderRadius: researchRadius.xs,
     '&:hover': {
-      background: theme.palette.greyAlpha(0.03),
+      background: researchWarmAlpha(0.03),
     },
   },
   // Project titles in the essay serif — the list reads as a shelf of
@@ -193,7 +197,7 @@ const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
     flex: 'none',
     fontFamily: researchMono,
     fontSize: 10.5,
-    color: theme.palette.greyAlpha(0.35),
+    color: researchWarmAlpha(0.35),
   },
   empty: {
     padding: '20px 8px',
@@ -219,8 +223,8 @@ const claudeCodeTokenStyles = defineStyles('ClaudeCodeToken', (theme: ThemeType)
     gap: 8,
     padding: '4px 10px',
     borderRadius: 999,
-    border: `1px solid ${theme.palette.greyAlpha(0.1)}`,
-    background: theme.palette.panelBackground.default,
+    border: `1px solid ${researchWarmAlpha(0.1)}`,
+    background: researchCanvas(theme),
     fontFamily: researchMono,
     fontSize: 10.5,
     color: theme.palette.text.dim,
@@ -228,7 +232,7 @@ const claudeCodeTokenStyles = defineStyles('ClaudeCodeToken', (theme: ThemeType)
   tokenChipReplace: {
     background: 'transparent',
     border: 'none',
-    color: theme.palette.greyAlpha(0.4),
+    color: researchWarmAlpha(0.4),
     fontSize: 10.5,
     padding: 0,
     cursor: 'pointer',

@@ -6,7 +6,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { useQuery } from '@/lib/crud/useQuery';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useStopLexicalEventPropagation } from '@/components/editor/lexicalPlugins/useStopLexicalEventPropagation';
-import { researchMono } from '../researchStyleUtils';
+import { researchMono, researchWarmAlpha, researchRadius } from '../researchStyleUtils';
 import { getBrowserLocalStorage } from '@/components/editor/localStorageHandlers';
 import { ResearchEnvironmentsByProjectQuery } from '../researchEnvironmentsQuery';
 import { useResearchEditorEnvironmentOptional } from './ResearchEditorContext';
@@ -29,7 +29,7 @@ const styles = defineStyles('QueryInputHeader', (theme: ThemeType) => ({
   select: {
     background: 'transparent',
     border: 'none',
-    borderRadius: 4,
+    borderRadius: researchRadius.xs,
     fontFamily: researchMono,
     fontSize: 10.5,
     color: theme.palette.text.dim,
@@ -47,7 +47,7 @@ const styles = defineStyles('QueryInputHeader', (theme: ThemeType) => ({
   runHint: {
     fontFamily: researchMono,
     fontSize: 10.5,
-    color: theme.palette.greyAlpha(0.4),
+    color: researchWarmAlpha(0.4),
     whiteSpace: 'nowrap',
     userSelect: 'none',
   },

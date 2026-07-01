@@ -16,7 +16,7 @@ import { ConversationTranscript } from './ConversationTranscript';
 import { ConversationActions } from './ConversationActions';
 import ChatComposer from './ChatComposer';
 import { isSandboxWarmingError } from './sandboxWarming';
-import { researchMono } from './researchStyleUtils';
+import { researchMono, researchWarmAlpha, researchCanvas, researchRadius } from './researchStyleUtils';
 
 const ConversationChatViewQuery = gql(`
   query ConversationChatViewInfo($conversationId: String!) {
@@ -55,7 +55,7 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
     height: '100%',
     minHeight: 0,
     minWidth: 0,
-    background: theme.palette.panelBackground.default,
+    background: researchCanvas(theme),
   },
   header: {
     flex: 'none',
@@ -64,7 +64,7 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
     gap: 7,
     minHeight: 20,
     padding: '8px 10px',
-    borderBottom: `1px solid ${theme.palette.greyAlpha(0.08)}`,
+    borderBottom: `1px solid ${researchWarmAlpha(0.08)}`,
     fontFamily: researchMono,
     fontSize: 11,
     color: theme.palette.text.dim,
@@ -101,7 +101,7 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     background: 'transparent',
     border: 'none',
-    borderRadius: 4,
+    borderRadius: researchRadius.xs,
     fontFamily: researchMono,
     fontSize: 10.5,
     lineHeight: 1.4,
@@ -110,7 +110,7 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
     cursor: 'pointer',
     '&:hover': {
       color: theme.palette.text.primary,
-      background: theme.palette.greyAlpha(0.06),
+      background: researchWarmAlpha(0.06),
     },
   },
   iconButton: {

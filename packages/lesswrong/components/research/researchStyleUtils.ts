@@ -42,10 +42,39 @@ export const researchMono = '"source-code-pro", ui-monospace, "SF Mono", "SFMono
 // kits — it's the Alignment Forum sans), falling back down the site stack.
 export const researchChatSans = '"freight-sans-pro", GreekFallback, Calibri, "Gill Sans", "Gill Sans MT", "Helvetica Neue", Helvetica, Arial, sans-serif';
 
+// Chrome voice (2026-07 warmth pass): workspace chrome shares the agent's
+// humanist Freight Sans rather than the site sans stack — the geometric
+// Gill Sans fallback read as angular/cold in the IDE chrome. Kept as its own
+// token so chrome can diverge from the agent voice again later.
+export const researchUiSans = researchChatSans;
+
+/**
+ * Warm neutral replacing `theme.palette.greyAlpha` on the research surface
+ * (2026-07 warmth pass): pure black-alpha greys read cold; this is the same
+ * idea tinted toward umber in light mode and cream in dark mode. Same alpha
+ * semantics as greyAlpha, so call sites swap 1:1.
+ */
+export function researchWarmAlpha(alpha: number): string {
+  return `light-dark(rgba(68, 52, 36, ${alpha}), rgba(246, 238, 226, ${alpha}))`;
+}
+
+/**
+ * The research canvas: warm paper instead of pure white, uniformly across
+ * every surface (sidebar, document, panels, inputs) — the flat-canvas rule
+ * still holds, the whole canvas just sits a step warmer. Dark mode gets the
+ * matching warm near-black.
+ */
+export function researchCanvas(_theme: ThemeType): string {
+  return 'light-dark(#FCFAF7, #211E1B)';
+}
+
+// 2026-07 warmth pass: one step rounder across the board. `xs` is for tiny
+// icon buttons and chips that would read blobby at the larger radii.
 export const researchRadius = {
-  sm: 6,
-  md: 8,
-  lg: 12,
+  xs: 6,
+  sm: 8,
+  md: 10,
+  lg: 14,
   pill: 999,
 } as const;
 
@@ -60,19 +89,19 @@ export const researchTransition = `120ms ${researchEasing}`;
 export function researchScrollbars(theme: ThemeType) {
   return {
     scrollbarWidth: 'thin' as const,
-    scrollbarColor: `${theme.palette.greyAlpha(0.18)} transparent`,
+    scrollbarColor: `${researchWarmAlpha(0.18)} transparent`,
     '&::-webkit-scrollbar': {
       width: 9,
       height: 9,
     },
     '&::-webkit-scrollbar-thumb': {
-      background: theme.palette.greyAlpha(0.16),
+      background: researchWarmAlpha(0.16),
       borderRadius: researchRadius.pill,
       border: '2px solid transparent',
       backgroundClip: 'padding-box',
     },
     '&:hover::-webkit-scrollbar-thumb': {
-      background: theme.palette.greyAlpha(0.26),
+      background: researchWarmAlpha(0.26),
       backgroundClip: 'padding-box',
     },
     '&::-webkit-scrollbar-track': {
@@ -98,18 +127,18 @@ export function researchTextInput(theme: ThemeType) {
   return {
     width: '100%',
     boxSizing: 'border-box' as const,
-    border: `1px solid ${theme.palette.greyAlpha(0.1)}`,
+    border: `1px solid ${researchWarmAlpha(0.1)}`,
     borderRadius: researchRadius.md,
     padding: '10px 13px',
     fontSize: 14,
     lineHeight: 1.4,
     color: theme.palette.text.primary,
-    background: theme.palette.panelBackground.default,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    background: researchCanvas(theme),
+    fontFamily: researchUiSans,
     outline: 'none',
     transition: `border-color ${researchTransition}, box-shadow ${researchTransition}, background ${researchTransition}`,
     '&:hover': {
-      borderColor: theme.palette.greyAlpha(0.2),
+      borderColor: researchWarmAlpha(0.2),
     },
     '&:focus': {
       // Global styles zero out input borders on focus; restate the full border
@@ -117,9 +146,9 @@ export function researchTextInput(theme: ThemeType) {
       borderColor: theme.palette.primary.main,
       boxShadow: `0 0 0 3px ${researchAccentTint(0.16)}`,
     },
-    '&::placeholder': { color: theme.palette.greyAlpha(0.32) },
+    '&::placeholder': { color: researchWarmAlpha(0.32) },
     '&:disabled': {
-      background: theme.palette.greyAlpha(0.04),
+      background: researchWarmAlpha(0.04),
       color: theme.palette.text.dim,
       cursor: 'not-allowed',
     },
@@ -142,14 +171,14 @@ export function researchPrimaryButton(theme: ThemeType) {
     padding: '8px 16px',
     fontSize: 13,
     fontWeight: 600,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontFamily: researchUiSans,
     lineHeight: 1.2,
     background: theme.palette.primary.main,
     color: theme.palette.primary.contrastText,
     cursor: 'pointer',
     whiteSpace: 'nowrap' as const,
     transition: `background ${researchTransition}, box-shadow ${researchTransition}, transform ${researchTransition}`,
-    boxShadow: `0 1px 2px ${theme.palette.greyAlpha(0.12)}`,
+    boxShadow: `0 1px 2px ${researchWarmAlpha(0.12)}`,
     '&:hover': {
       background: theme.palette.primary.dark,
     },
@@ -157,7 +186,7 @@ export function researchPrimaryButton(theme: ThemeType) {
       transform: 'translateY(0.5px)',
     },
     '&:disabled': {
-      background: theme.palette.greyAlpha(0.1),
+      background: researchWarmAlpha(0.1),
       color: theme.palette.text.dim,
       boxShadow: 'none',
       cursor: 'not-allowed',
@@ -173,21 +202,21 @@ export function researchGhostButton(theme: ThemeType) {
     alignItems: 'center',
     justifyContent: 'center',
     gap: 6,
-    border: `1px solid ${theme.palette.greyAlpha(0.14)}`,
+    border: `1px solid ${researchWarmAlpha(0.14)}`,
     borderRadius: researchRadius.md,
     padding: '7px 14px',
     fontSize: 13,
     fontWeight: 500,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontFamily: researchUiSans,
     lineHeight: 1.2,
-    background: theme.palette.panelBackground.default,
+    background: researchCanvas(theme),
     color: theme.palette.text.primary,
     cursor: 'pointer',
     whiteSpace: 'nowrap' as const,
     transition: `border-color ${researchTransition}, background ${researchTransition}`,
     '&:hover': {
-      borderColor: theme.palette.greyAlpha(0.24),
-      background: theme.palette.greyAlpha(0.03),
+      borderColor: researchWarmAlpha(0.24),
+      background: researchWarmAlpha(0.03),
     },
     '&:disabled': {
       opacity: 0.5,
@@ -199,10 +228,10 @@ export function researchGhostButton(theme: ThemeType) {
 /** Card / panel surface: warm white, hairline border, soft lift. */
 export function researchCard(theme: ThemeType) {
   return {
-    background: theme.palette.panelBackground.default,
-    border: `1px solid ${theme.palette.greyAlpha(0.08)}`,
+    background: researchCanvas(theme),
+    border: `1px solid ${researchWarmAlpha(0.08)}`,
     borderRadius: researchRadius.lg,
-    boxShadow: `0 1px 2px ${theme.palette.greyAlpha(0.04)}`,
+    boxShadow: `0 1px 2px ${researchWarmAlpha(0.04)}`,
   };
 }
 
@@ -275,7 +304,7 @@ export function researchCompactRow(theme: ThemeType) {
     border: 'none',
     borderRadius: researchRadius.sm,
     background: 'transparent',
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    fontFamily: researchUiSans,
     fontSize: 13,
     lineHeight: 1.3,
     textAlign: 'left' as const,
@@ -285,7 +314,7 @@ export function researchCompactRow(theme: ThemeType) {
     overflow: 'hidden',
     transition: `background ${researchTransition}, color ${researchTransition}`,
     '&:hover': {
-      background: theme.palette.greyAlpha(0.05),
+      background: researchWarmAlpha(0.05),
     },
   };
 }
@@ -293,9 +322,9 @@ export function researchCompactRow(theme: ThemeType) {
 /** Active/selected state to layer over `researchCompactRow`. */
 export function researchCompactRowActive(theme: ThemeType) {
   return {
-    background: theme.palette.greyAlpha(0.07),
+    background: researchWarmAlpha(0.07),
     '&:hover': {
-      background: theme.palette.greyAlpha(0.09),
+      background: researchWarmAlpha(0.09),
     },
   };
 }
@@ -325,7 +354,7 @@ export function researchResizeHandle(theme: ThemeType) {
       transition: `background ${researchTransition}`,
     },
     '&:hover:after': {
-      background: theme.palette.greyAlpha(0.2),
+      background: researchWarmAlpha(0.2),
     },
   };
 }
