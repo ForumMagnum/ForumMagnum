@@ -40,6 +40,18 @@ const isMathWhitespace = (ch: string | undefined): boolean =>
 const isAsciiDigit = (ch: string | undefined): boolean =>
   ch !== undefined && ch >= "0" && ch <= "9";
 
+export interface FindMathSpansOptions {
+  /**
+   * Whether `\[…\]` is recognized as a display-math span (default true).
+   * The bracket form collides with markdown escaping: in markdown produced
+   * by the Turndown read path, `\[` is almost always an escaped literal `[`
+   * (real display math is emitted as `$$…$$`). Quote-side callers can
+   * disable the bracket form to get the escaped-bracket reading, and retry
+   * with it enabled when that reading fails to match.
+   */
+  bracketDisplayForm?: boolean
+}
+
 /**
  * Locate every math token in a markdown string, in source order, in a single
  * linear-time pass.
@@ -55,12 +67,50 @@ const isAsciiDigit = (ch: string | undefined): boolean =>
  * them has no closer in the remaining text, no later opener of that type can
  * have one either, so the scan for it stops — which keeps the pass linear
  * even on input with many unclosed openers.
+ *
+ * Two guards keep prose dollar signs from pairing into phantom equations
+ * that swallow paragraphs of text between them:
+ *  - a `$…$`/`$$…$$` span must not cross a blank line. markdown-it's inline
+ *    tokenizer runs per-paragraph, so this matches what it could ever parse;
+ *  - a `$` opener followed by a digit is read as currency (`$2B and ($)`)
+ *    when the would-be equation contains whitespace but no LaTeX syntax or
+ *    math-operator characters; digit-leading real math (`$2^{100}$`,
+ *    `$2 + 2 = 4$`) is unaffected.
  */
-export function findMathSpansInMarkdown(markdown: string): MathSpan[] {
+export function findMathSpansInMarkdown(markdown: string, options?: FindMathSpansOptions): MathSpan[] {
+  const bracketDisplayForm = options?.bracketDisplayForm ?? true;
   const spans: MathSpan[] = [];
   let displayDollarExhausted = false;
   let parenExhausted = false;
   let bracketExhausted = false;
+
+  // Blank-line positions, computed once: per-span indexOf scans would be
+  // quadratic on inputs with many spans and no blank lines (e.g. the
+  // matcher's normalized projections, where all whitespace is collapsed).
+  const blankLinePositions: number[] = [];
+  for (let p = markdown.indexOf("\n\n"); p >= 0; p = markdown.indexOf("\n\n", p + 1)) {
+    blankLinePositions.push(p);
+  }
+  const crossesBlankLine = (from: number, to: number): boolean => {
+    let low = 0;
+    let high = blankLinePositions.length - 1;
+    while (low <= high) {
+      const mid = (low + high) >> 1;
+      if (blankLinePositions[mid] < from) low = mid + 1;
+      else high = mid - 1;
+    }
+    return low < blankLinePositions.length && blankLinePositions[low] < to;
+  };
+
+  const looksLikeCurrency = (contentStart: number, contentEnd: number): boolean => {
+    if (!isAsciiDigit(markdown[contentStart])) return false;
+    const content = markdown.slice(contentStart, contentEnd);
+    // Math operators mark digit-leading content as a real equation
+    // (`$2 + 2 = 4$`); without them, digit-leading content with word breaks
+    // is prose currency (`$2B from investors ($`).
+    return /\s/.test(content) && !/[\\^_{}=+*/<>|]/.test(content);
+  };
+
   let i = 0;
   while (i < markdown.length) {
     const ch = markdown[i];
@@ -71,14 +121,14 @@ export function findMathSpansInMarkdown(markdown: string): MathSpan[] {
           const close = markdown.indexOf("$$", i + 2);
           if (close < 0) {
             displayDollarExhausted = true;
-          } else if (markdown[close - 1] !== "\\") {
+          } else if (markdown[close - 1] !== "\\" && !crossesBlankLine(i + 2, close)) {
             spans.push({ start: i, end: close + 2, inline: false, equation: markdown.slice(i + 2, close).trim() });
             i = close + 2;
             continue;
           }
-          // A backslash-escaped closing `$$` is not a real closer (texMath
-          // rejects it too); fall through to `i++` and retry from a later
-          // position rather than treating display math as exhausted.
+          // A backslash-escaped or block-crossing closing `$$` is not a real
+          // closer; fall through to `i++` and retry from a later position
+          // rather than treating display math as exhausted.
         }
       } else if (!isMathWhitespace(markdown[i + 1])) {
         // `$…$` inline.
@@ -88,6 +138,8 @@ export function findMathSpansInMarkdown(markdown: string): MathSpan[] {
           && !isMathWhitespace(markdown[close - 1])
           && markdown[close - 1] !== "\\"
           && !isAsciiDigit(markdown[close + 1])
+          && !crossesBlankLine(i + 1, close)
+          && !looksLikeCurrency(i + 1, close)
         ) {
           spans.push({ start: i, end: close + 1, inline: true, equation: markdown.slice(i + 1, close).trim() });
           i = close + 1;
@@ -104,7 +156,7 @@ export function findMathSpansInMarkdown(markdown: string): MathSpan[] {
           continue;
         }
         parenExhausted = true;
-      } else if (next === "[" && !bracketExhausted) {
+      } else if (next === "[" && bracketDisplayForm && !bracketExhausted) {
         const close = markdown.indexOf("\\]", i + 2);
         if (close >= 0) {
           spans.push({ start: i, end: close + 2, inline: false, equation: markdown.slice(i + 2, close).trim() });

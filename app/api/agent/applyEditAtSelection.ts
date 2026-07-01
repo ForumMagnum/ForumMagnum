@@ -1,10 +1,13 @@
 import { JSDOM } from "jsdom";
 import { $generateNodesFromDOM } from "@lexical/html";
 import {
+  $createRangeSelection,
+  $isDecoratorNode,
   $getNodeByKey,
   $getRoot,
   $isElementNode,
   $isParagraphNode,
+  $isRootNode,
   $isTextNode,
   type LexicalEditor,
   type LexicalNode,
@@ -15,6 +18,11 @@ import {
 } from "./mapMarkdownToLexical";
 import { findMathSpansInMarkdown } from "@/lib/utils/mathTokens";
 import { renderAgentMarkdownToHtml, splitParagraphAtDisplayMath } from "./editorAgentUtil";
+import {
+  normalizeTracked,
+  resolveRawIndexToPoint,
+  type LocatedQuoteRange,
+} from "./textIndexQuoteLocator";
 import type MarkdownIt from "markdown-it";
 
 export interface FinalSelection {
@@ -40,8 +48,9 @@ export function $computeFinalSelection(
   focus: MarkdownSelectionPoint,
   quote: string,
   replacement: string,
+  range: LocatedQuoteRange | undefined,
 ): FinalSelection {
-  const narrowing = $computeNarrowing(anchor, focus, quote, replacement);
+  const narrowing = $computeNarrowing(anchor, focus, quote, replacement, range);
   if (!narrowing || narrowing.quote.length === 0) {
     return { anchor, focus, narrowedQuote: quote, narrowedReplacement: replacement };
   }
@@ -94,6 +103,9 @@ export function $applyEditAtSelection({
   focus: MarkdownSelectionPoint
   inlineNodes: LexicalNode[]
 }): boolean {
+  if (!$pointsShareBlock(anchor, focus)) {
+    return $applyEditAcrossBlocks({ anchor, focus, inlineNodes });
+  }
   const sameTextNode =
     anchor.key === focus.key && anchor.type === "text" && focus.type === "text";
   if (sameTextNode) {
@@ -105,6 +117,68 @@ export function $applyEditAtSelection({
     });
   }
   return $applyEditMultiNode({ anchor, focus, inlineNodes });
+}
+
+/**
+ * The nearest block-level node containing a selection point: the first
+ * non-inline element or decorator ancestor (a paragraph inside a blockquote,
+ * a list item, a top-level display equation), not the top-level element.
+ * Sibling-walk application can only operate within one such block, so this
+ * is the boundary that decides same-block vs cross-block dispatch. An
+ * element point keyed on an element resolves to the child the boundary sits
+ * against: before it for an anchor, after it for a focus.
+ */
+function $blockOfPoint(point: MarkdownSelectionPoint, isFocus: boolean): LexicalNode | null {
+  let node = $getNodeByKey(point.key);
+  if (!node) return null;
+  if (point.type === "element" && $isElementNode(node)) {
+    const children = node.getChildren();
+    const index = Math.max(0, Math.min(isFocus ? point.offset - 1 : point.offset, children.length - 1));
+    node = children[index] ?? node;
+  }
+  let current: LexicalNode | null = node;
+  while (current && !$isRootNode(current)) {
+    const isBlock = ($isElementNode(current) || $isDecoratorNode(current)) && !current.isInline();
+    if (isBlock) return current;
+    current = current.getParent();
+  }
+  return null;
+}
+
+/** Whether both selection points sit inside the same block-level node. */
+function $pointsShareBlock(
+  anchor: MarkdownSelectionPoint,
+  focus: MarkdownSelectionPoint,
+): boolean {
+  const anchorBlock = $blockOfPoint(anchor, false);
+  const focusBlock = $blockOfPoint(focus, true);
+  return !!anchorBlock && !!focusBlock && anchorBlock.getKey() === focusBlock.getKey();
+}
+
+/**
+ * Apply an edit whose range spans block boundaries, via Lexical's own
+ * range-selection editing (the paste path): removing a cross-block range
+ * merges the boundary blocks, and inserting nodes splits blocks as needed
+ * when the replacement itself is multi-block.
+ */
+function $applyEditAcrossBlocks({
+  anchor,
+  focus,
+  inlineNodes,
+}: {
+  anchor: MarkdownSelectionPoint
+  focus: MarkdownSelectionPoint
+  inlineNodes: LexicalNode[]
+}): boolean {
+  const selection = $createRangeSelection();
+  selection.anchor.set(anchor.key, anchor.offset, anchor.type);
+  selection.focus.set(focus.key, focus.offset, focus.type);
+  if (inlineNodes.length === 0) {
+    selection.removeText();
+  } else {
+    selection.insertNodes(inlineNodes);
+  }
+  return true;
 }
 
 function $applyEditSingleNode({
@@ -197,7 +271,7 @@ function $resolveLastSelectedNode(focus: MarkdownSelectionPoint): LexicalNode | 
  * quote spans multiple inline nodes — across a bold/code boundary, or across
  * an atomic node like a MathNode (selected via an element-type point).
  */
-export function $splitAndCollectSelectedNodes(
+function $splitAndCollectSelectedNodes(
   anchor: MarkdownSelectionPoint,
   focus: MarkdownSelectionPoint,
 ): LexicalNode[] | null {
@@ -274,18 +348,32 @@ export function $computeNarrowing(
   focus: MarkdownSelectionPoint,
   quote: string,
   replacement: string,
+  range: LocatedQuoteRange | undefined,
 ): {
   anchor: MarkdownSelectionPoint
   focus: MarkdownSelectionPoint
   quote: string
   replacement: string
 } | null {
-  const matchedPlainText = $collectPlainTextInRange(anchor, focus);
-  if (matchedPlainText === null) return null;
+  if (!range) return null;
+  // Narrowed replacements are rendered as inline nodes, which assumes a
+  // single block's inline context; cross-block edits use the full range.
+  if (!$pointsShareBlock(anchor, focus)) return null;
+
+  const matchedText = range.projection.text.slice(range.rawStart, range.rawEnd);
+  const quoteMapping = buildPlainToMarkdownMapping(quote);
+
+  // Narrowing advances document positions by quote plain-text character
+  // counts, which is only sound when the two texts correspond 1:1 — true
+  // whenever the quote was taken verbatim from the read API. Quotes that
+  // diverge from the document in length (typographic folding, marker-blind
+  // matches over literal markers, spans across math tokens or footnote
+  // references) fall back to the full range.
+  if (quoteMapping.plainText.length !== matchedText.length) return null;
 
   // If the visible text is identical, the change is purely structural
   // (formatting, link URLs, etc.) — show the full range.
-  if (markdownQuoteToPlainText(replacement) === matchedPlainText) return null;
+  if (markdownQuoteToPlainText(replacement) === matchedText) return null;
 
   // Compare at the markdown level so that formatting/syntax changes
   // prevent narrowing past them. Then pull each boundary out of any math
@@ -297,15 +385,28 @@ export function $computeNarrowing(
 
   // Convert markdown offsets to plain-text character counts using the
   // quote's mapping (which has full regex context for links, math, etc.)
-  const quoteMapping = buildPlainToMarkdownMapping(quote);
   const ptAdvance = countPlainTextInPrefix(quoteMapping.toMarkdown, mdPrefixLen);
   const ptRetreat = countPlainTextInSuffix(quoteMapping.toMarkdown, quote.length, mdSuffixLen);
 
   if (ptAdvance === 0 && ptRetreat === 0) return null;
-  if (ptAdvance + ptRetreat > matchedPlainText.length) return null;
+  if (ptAdvance + ptRetreat > matchedText.length) return null;
 
-  const narrowedAnchor = $advancePoint(anchor, ptAdvance);
-  const narrowedFocus = $retreatPoint(focus, ptRetreat);
+  // Equal overall lengths still allow positional drift between the two
+  // sides (e.g. whitespace collapsed at different offsets). Verify that the
+  // narrowed slices agree under the matcher's own normalization before
+  // trusting the boundaries.
+  const narrowedDocText = matchedText.slice(ptAdvance, matchedText.length - ptRetreat);
+  const narrowedQuotePlain = quoteMapping.plainText.slice(ptAdvance, quoteMapping.plainText.length - ptRetreat);
+  if (normalizeTracked(narrowedDocText).text !== normalizeTracked(narrowedQuotePlain).text) return null;
+
+  const anchorIndex = range.rawStart + ptAdvance;
+  const focusIndex = range.rawEnd - ptRetreat;
+  const narrowedAnchor = resolveRawIndexToPoint(range.projection, anchorIndex, false);
+  // A narrowing that consumes the whole quote is a pure insertion: resolve
+  // the collapsed boundary once so both points are identical.
+  const narrowedFocus = anchorIndex === focusIndex
+    ? narrowedAnchor
+    : resolveRawIndexToPoint(range.projection, focusIndex, true);
   if (!narrowedAnchor || !narrowedFocus) return null;
 
   return {
@@ -400,94 +501,6 @@ function countPlainTextInSuffix(toMarkdown: number[], markdownLength: number, md
 }
 
 /**
- * Collect the plain text content between anchor and focus by walking
- * sibling text nodes. Must be called inside a Lexical read/update context.
- */
-function $collectPlainTextInRange(
-  anchor: MarkdownSelectionPoint,
-  focus: MarkdownSelectionPoint,
-): string | null {
-  if (anchor.type !== "text" || focus.type !== "text") return null;
-
-  const anchorNode = $getNodeByKey(anchor.key);
-  if (!$isTextNode(anchorNode)) return null;
-
-  if (anchor.key === focus.key) {
-    return anchorNode.getTextContent().slice(anchor.offset, focus.offset);
-  }
-
-  let result = anchorNode.getTextContent().slice(anchor.offset);
-  let current: LexicalNode | null = anchorNode.getNextSibling();
-  while (current) {
-    if (current.getKey() === focus.key) {
-      result += current.getTextContent().slice(0, focus.offset);
-      break;
-    }
-    result += current.getTextContent();
-    current = current.getNextSibling();
-  }
-  return result;
-}
-
-/**
- * Advance a text selection point forward by `chars` characters, crossing
- * into subsequent sibling nodes as needed.
- */
-function $advancePoint(
-  point: MarkdownSelectionPoint,
-  chars: number,
-): MarkdownSelectionPoint | null {
-  if (chars === 0) return point;
-  if (point.type !== "text") return null;
-
-  let remaining = chars;
-  let currentNode: LexicalNode | null = $getNodeByKey(point.key);
-  if (!currentNode) return null;
-  let currentOffset = point.offset;
-
-  while (remaining > 0) {
-    const textLen = currentNode.getTextContent().length;
-    const available = textLen - currentOffset;
-    if (remaining <= available) {
-      return { key: currentNode.getKey(), offset: currentOffset + remaining, type: "text" };
-    }
-    remaining -= available;
-    currentNode = currentNode.getNextSibling();
-    if (!currentNode) return null;
-    currentOffset = 0;
-  }
-  return { key: currentNode.getKey(), offset: currentOffset, type: "text" };
-}
-
-/**
- * Retreat a text selection point backward by `chars` characters, crossing
- * into preceding sibling nodes as needed.
- */
-function $retreatPoint(
-  point: MarkdownSelectionPoint,
-  chars: number,
-): MarkdownSelectionPoint | null {
-  if (chars === 0) return point;
-  if (point.type !== "text") return null;
-
-  let remaining = chars;
-  let currentNode: LexicalNode | null = $getNodeByKey(point.key);
-  if (!currentNode) return null;
-  let currentOffset = point.offset;
-
-  while (remaining > 0) {
-    if (remaining <= currentOffset) {
-      return { key: currentNode.getKey(), offset: currentOffset - remaining, type: "text" };
-    }
-    remaining -= currentOffset;
-    currentNode = currentNode.getPreviousSibling();
-    if (!currentNode) return null;
-    currentOffset = currentNode.getTextContent().length;
-  }
-  return { key: currentNode.getKey(), offset: currentOffset, type: "text" };
-}
-
-/**
  * Apply an "edit" mode replacement at an already-located selection: narrow to
  * the minimal diff, render the narrowed replacement markdown to inline nodes
  * (the caller supplies the `math-tex`-emitting markdown-it instance — post or
@@ -501,6 +514,7 @@ export function $applyEditModeReplacement({
   focus,
   quote,
   replacement,
+  range,
   markdownIt,
 }: {
   editor: LexicalEditor
@@ -508,9 +522,10 @@ export function $applyEditModeReplacement({
   focus: MarkdownSelectionPoint
   quote: string
   replacement: string
+  range: LocatedQuoteRange | undefined
   markdownIt: MarkdownIt
 }): { replaced: boolean, narrowedQuote: string, narrowedReplacement: string } {
-  const sel = $computeFinalSelection(anchor, focus, quote, replacement);
+  const sel = $computeFinalSelection(anchor, focus, quote, replacement, range);
   const inlineNodes = sel.narrowedReplacement.length > 0
     ? $htmlToInlineNodes(editor, renderAgentMarkdownToHtml(markdownIt, sel.narrowedReplacement))
     : [];

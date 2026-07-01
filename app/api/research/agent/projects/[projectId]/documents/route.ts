@@ -175,6 +175,7 @@ export async function POST(
         hocuspocusToken,
         location: "start",
         markdown: canonicalMarkdown,
+        mode: "edit",
       });
       initialContentInserted = insertResult.inserted;
     }

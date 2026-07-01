@@ -45,13 +45,15 @@ export function getDisplayedReasonForGroupAssignment(user: SunshineUsersList): R
 }
 
 export function getTabsInPriorityOrder(): ReviewGroup[] {
-  return ['newContent', 'highContext', 'maybeSpam', 'automod', 'snoozeExpired', 'unknown'];
+  return ['newContent', 'offboard', 'highContext', 'maybeSpam', 'automod', 'snoozeExpired', 'unknown'];
 }
 
 export function getReviewGroupDisplayName(group: TabId): string {
   switch (group) {
     case 'newContent':
       return 'New Content';
+    case 'offboard':
+      return 'Offboard?';
     case 'highContext':
       return 'High Context';
     case 'maybeSpam':

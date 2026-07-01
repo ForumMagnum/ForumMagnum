@@ -35,6 +35,11 @@ interface InlineCommentsPanelContextType {
   setShowComments: React.Dispatch<React.SetStateAction<boolean>>;
   commentCount: number;
   setCommentCount: React.Dispatch<React.SetStateAction<number>>;
+  /**
+   * When set, the editor's comments panel renders docked inside this element
+   * (the host owns open/close) instead of floating over the page.
+   */
+  panelPortalEl?: HTMLElement | null;
 }
 
 export const InlineCommentsPanelContext = createContext<InlineCommentsPanelContextType>({

@@ -6,13 +6,18 @@ import { researchAccentTint } from '../research/researchStyleUtils';
 /**
  * Research-document editor styling. Inherits the full postBodyStyles surface
  * (so spoilers, footnotes, embeds, tables, code blocks, etc. all look right),
- * then narrows the editor's own typography under `[contenteditable="true"]`:
- * compact sans-serif sizing for paragraphs / headings / lists / blockquotes,
- * a fixed content column, and placeholder positioning that lines up with
- * where the user's first paragraph would actually sit.
+ * then restyles the editor's own typography under `[contenteditable="true"]`:
+ * a serif essay reading column (research docs read as essays-in-progress, not
+ * tool output) for paragraphs / headings / lists / blockquotes, plus
+ * placeholder positioning that lines up with where the user's first paragraph
+ * would actually sit.
  *
- * Keep editor-specific rules scoped to the contenteditable so they don't
- * leak onto floating menus, toolbars, or popovers that share the wrapper.
+ * Keep editor-specific rules scoped to the contenteditable so they don't leak
+ * onto floating menus, toolbars, or popovers that share the wrapper. The
+ * `:not(.research-query-input-content)`, `:not(.research-chat-composer *)`, and
+ * `:not(.research-agent-block *)` guards exclude the query input, the nested
+ * conversation-block composer, and agent transcript/presentation content,
+ * which carry their own chat voice rather than the document's reading column.
  */
 const researchDocumentBodyStyles = (theme: ThemeType) => ({
   ...postBodyStyles(theme),
@@ -244,7 +249,7 @@ export const styles = defineStyles("ContentStyles", (theme: ThemeType) => ({
   // Composed from `researchDocumentBodyStyles`, which itself spreads
   // `postBodyStyles` for full coverage (spoilers, footnotes, embeds, code,
   // tables, etc.) and then overrides editor-specific typography under
-  // `[contenteditable="true"]`. Combined with `contentStylesClassnames`
+  // `[data-lexical-editor]`. Combined with `contentStylesClassnames`
   // skipping `base` for this type, that gives the editor exactly one source
   // of post-body styling — its own — instead of stacking post-rendering
   // defaults underneath and fighting them with overrides.

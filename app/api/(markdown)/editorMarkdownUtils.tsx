@@ -3,8 +3,9 @@ import { MarkdownNode } from "@/server/markdownComponents/MarkdownNode";
 import { NextRequest, NextResponse } from "next/server";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { runQuery } from "@/server/vulcan-lib/query";
-import { checkEditorTypeAndGetToken, splitParagraphAtDisplayMath, withMainDocEditorSession, waitForProviderSync } from "../agent/editorAgentUtil";
-import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { checkEditorTypeAndGetToken, splitParagraphAtDisplayMath, withMainDocEditorSession } from "../agent/editorAgentUtil";
+import { agentMarkdownFromEditorHtml } from "../agent/agentMarkdownView";
+import { readOpenCommentThreads, type SerializedThread } from "../agent/collabCommentThreads";
 import { withDomGlobals } from "@/server/editor/withDomGlobals";
 import { $generateHtmlFromNodes } from "@lexical/html";
 import {
@@ -15,9 +16,6 @@ import {
   type LexicalEditor,
   type LexicalNode,
 } from "lexical";
-import { HocuspocusProvider } from "@hocuspocus/provider";
-import { Doc, Array as YArray, Map as YMap } from "yjs";
-import type { ThreadType, ThreadStatus } from "@/components/lexical/commenting";
 import { captureException } from "@/lib/sentryWrapper";
 
 export function normalizeImportedTopLevelNodes(nodes: LexicalNode[]): LexicalNode[] {
@@ -71,118 +69,6 @@ const LinkSharedPostMetadataQuery = `
   }
 `;
 
-export function unescapeHtmlAttribute(value: string): string {
-  return value
-    .replace(/&quot;/g, "\"")
-    .replace(/&#39;/g, "'")
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&");
-}
-
-export function convertWidgetIframesToMarkdownFences(markdown: string): string {
-  return markdown.replace(/<iframe[\s\S]*?<\/iframe>/g, (iframeHtml) => {
-    if (!iframeHtml.includes("data-lexical-iframe-widget")) {
-      return iframeHtml;
-    }
-    const idMatch = iframeHtml.match(/data-widget-id="([^"]*)"/);
-    const widgetId = idMatch?.[1] ?? "";
-
-    const srcdocStart = iframeHtml.indexOf('srcdoc="');
-    if (srcdocStart < 0) {
-      return iframeHtml;
-    }
-    const srcdocValueStart = srcdocStart + 'srcdoc="'.length;
-    const srcdocValueEnd = iframeHtml.lastIndexOf('"></iframe>');
-    if (srcdocValueEnd <= srcdocValueStart) {
-      return iframeHtml;
-    }
-    const rawSrcdoc = iframeHtml.slice(srcdocValueStart, srcdocValueEnd);
-    const srcdoc = unescapeHtmlAttribute(rawSrcdoc);
-    return `\n\n\`\`\`widget[${widgetId}]\n${srcdoc}\n\`\`\`\n\n`;
-  });
-}
-
-interface SerializedComment {
-  author: string
-  content: string
-  timeStamp: number
-  commentKind?: string
-  deleted: boolean
-}
-
-interface SerializedThread {
-  id: string
-  threadType: ThreadType
-  quote: string
-  status?: ThreadStatus
-  comments: SerializedComment[]
-}
-
-function readThreadFromYMap(threadMap: YMap<unknown>): SerializedThread {
-  const commentsArray = threadMap.get("comments") as YArray<unknown> | undefined;
-  const serializedComments: SerializedComment[] = commentsArray?.toArray().map((comment: YMap<unknown>) => {
-    return {
-      author: (comment.get("author") as string) ?? "Unknown",
-      content: (comment.get("content") as string) ?? "",
-      timeStamp: (comment.get("timeStamp") as number) ?? 0,
-      commentKind: comment.get("commentKind") as string | undefined,
-      deleted: (comment.get("deleted") as boolean) ?? false,
-    };
-  }) ?? [];
-
-  return {
-    id: (threadMap.get("id") as string) ?? "",
-    threadType: (threadMap.get("threadType") as ThreadType | undefined) ?? "comment",
-    quote: (threadMap.get("quote") as string) ?? "",
-    status: threadMap.get("status") as ThreadStatus | undefined,
-    comments: serializedComments,
-  };
-}
-
-async function readOpenCommentThreads({
-  postId,
-  token,
-}: {
-  postId: string
-  token: string
-}): Promise<SerializedThread[]> {
-  const wsUrl = process.env.HOCUSPOCUS_URL;
-  if (!wsUrl) return [];
-
-  const doc = new Doc();
-  const provider = new HocuspocusProvider({
-    url: wsUrl,
-    name: `post-${postId}/comments`,
-    document: doc,
-    token,
-    connect: false,
-  });
-
-  try {
-    await provider.connect();
-    await waitForProviderSync(provider);
-
-    const commentsArray = doc.get("comments", YArray);
-    const threads: SerializedThread[] = [];
-
-    for (let i = 0; i < commentsArray.length; i++) {
-      const threadMap = commentsArray.get(i) as YMap<unknown>;
-      if (threadMap.get("type") !== "thread") continue;
-      // Only include open threads (status undefined or "open")
-      const status = threadMap.get("status") as ThreadStatus | undefined;
-      if (status && status !== "open") continue;
-      const thread = readThreadFromYMap(threadMap);
-      threads.push(thread);
-    }
-
-    return threads;
-  } finally {
-    provider.destroy();
-    doc.destroy();
-  }
-}
-
 function formatCommentTimestamp(epochMs: number): string {
   const date = new Date(epochMs);
   const year = date.getUTCFullYear();
@@ -215,14 +101,16 @@ function formatSuggestionSummaryForMarkdown(content: string): string {
   }
 }
 
-function serializeThreadsToMarkdown(threads: SerializedThread[]): string {
+const POST_REPLY_INSTRUCTIONS = "To reply: POST /api/agent/replyToComment { postId, key, threadId, comment }";
+
+function serializeThreadsToMarkdown(threads: SerializedThread[], replyInstructions: string): string {
   if (threads.length === 0) return "";
 
   const lines: string[] = [];
   lines.push(`## Comment Threads`);
   lines.push("");
   lines.push(
-    `${threads.length} open thread${threads.length !== 1 ? "s" : ""}. To reply: POST /api/agent/replyToComment { postId, key, threadId, comment }`
+    `${threads.length} open thread${threads.length !== 1 ? "s" : ""}. ${replyInstructions}`
   );
 
   for (const thread of threads) {
@@ -249,16 +137,20 @@ function serializeThreadsToMarkdown(threads: SerializedThread[]): string {
   return lines.join("\n");
 }
 
-async function getOpenCommentThreadsMarkdown({
-  postId,
+export async function getOpenCommentThreadsMarkdown({
+  collectionName,
+  documentId,
   token,
+  replyInstructions,
 }: {
-  postId: string
+  collectionName: string
+  documentId: string
   token: string
+  replyInstructions?: string
 }): Promise<string> {
   try {
-    const threads = await readOpenCommentThreads({ postId, token });
-    return serializeThreadsToMarkdown(threads);
+    const threads = await readOpenCommentThreads({ collectionName, documentId, token });
+    return serializeThreadsToMarkdown(threads, replyInstructions ?? POST_REPLY_INSTRUCTIONS);
   } catch (error) {
     // Don't fail the whole request, but log for debugging
     // eslint-disable-next-line no-console
@@ -332,7 +224,7 @@ export async function getLiveLexicalMarkdown({
         return generated;
       });
       const processedHtml = transformHtml ? await transformHtml({ html, editor }) : html;
-      return convertWidgetIframesToMarkdownFences(htmlToMarkdown(processedHtml));
+      return agentMarkdownFromEditorHtml(processedHtml);
     },
   });
 }
@@ -400,7 +292,7 @@ export async function renderLiveEditorDraftMarkdownRoute({
 
     const [bodyMarkdown, commentThreadsMarkdown] = await Promise.all([
       getLiveDraftMarkdown({ postId, token }),
-      getOpenCommentThreadsMarkdown({ postId, token }),
+      getOpenCommentThreadsMarkdown({ collectionName: "Posts", documentId: postId, token }),
     ]);
     const resolvedPostId = post?._id ?? postId;
     const title = post?.title ?? "(untitled draft)";

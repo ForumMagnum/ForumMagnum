@@ -8954,6 +8954,7 @@ type ReviewGroup =
   | 'highContext'
   | 'maybeSpam'
   | 'newContent'
+  | 'offboard'
   | 'snoozeExpired'
   | 'unknown';
 
@@ -14717,20 +14718,6 @@ type updatePostEditTitleMutationVariables = Exact<{
 
 type updatePostEditTitleMutation = updatePostEditTitleMutation_Mutation;
 
-type HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string };
-
-type HocuspocusAuthQueryQuery_Query = { __typename?: 'Query', HocuspocusAuth: HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth | null };
-
-
-type HocuspocusAuthQueryQueryVariables = Exact<{
-  collectionName: InputMaybe<Scalars['String']['input']>;
-  documentId: InputMaybe<Scalars['String']['input']>;
-  linkSharingKey: InputMaybe<Scalars['String']['input']>;
-}>;
-
-
-type HocuspocusAuthQueryQuery = HocuspocusAuthQueryQuery_Query;
-
 type multiRevisionPostVersionHistoryQueryQuery_revisions_MultiRevisionOutput_results_Revision = (
   { __typename?: 'Revision' }
   & RevisionMetadataWithChangeMetrics
@@ -15794,6 +15781,20 @@ type updateUserLayoutMutationVariables = Exact<{
 
 
 type updateUserLayoutMutation = updateUserLayoutMutation_Mutation;
+
+type HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth = { __typename?: 'HocuspocusAuth', token: string };
+
+type HocuspocusAuthQueryQuery_Query = { __typename?: 'Query', HocuspocusAuth: HocuspocusAuthQueryQuery_HocuspocusAuth_HocuspocusAuth | null };
+
+
+type HocuspocusAuthQueryQueryVariables = Exact<{
+  collectionName: InputMaybe<Scalars['String']['input']>;
+  documentId: InputMaybe<Scalars['String']['input']>;
+  linkSharingKey: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type HocuspocusAuthQueryQuery = HocuspocusAuthQueryQuery_Query;
 
 type GetReviewResultsTableDataQuery_ReviewResultsTableData_ReviewResultsTableData_results_ReviewResultsPostEntry = { __typename?: 'ReviewResultsPostEntry', rank: number, title: string, postUrl: string, authorName: string, coauthorNames: Array<string>, votes: Array<number> };
 
@@ -17890,6 +17891,20 @@ type FireDocumentConversationMutationVariables = Exact<{
 
 
 type FireDocumentConversationMutation = FireDocumentConversationMutation_Mutation;
+
+type ProjectCommentsDocumentsQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null };
+
+type ProjectCommentsDocumentsQueryQuery_researchDocuments_MultiResearchDocumentOutput = { __typename?: 'MultiResearchDocumentOutput', results: Array<ProjectCommentsDocumentsQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument> };
+
+type ProjectCommentsDocumentsQueryQuery_Query = { __typename?: 'Query', researchDocuments: ProjectCommentsDocumentsQueryQuery_researchDocuments_MultiResearchDocumentOutput | null };
+
+
+type ProjectCommentsDocumentsQueryQueryVariables = Exact<{
+  projectId: Scalars['String']['input'];
+}>;
+
+
+type ProjectCommentsDocumentsQueryQuery = ProjectCommentsDocumentsQueryQuery_Query;
 
 type CreateResearchDocumentSidebarMutation_createResearchDocument_ResearchDocumentOutput_data_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null, createdAt: string };
 

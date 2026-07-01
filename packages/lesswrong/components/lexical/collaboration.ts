@@ -13,6 +13,34 @@ import {Doc, encodeStateAsUpdate, XmlText} from 'yjs';
 import {IndexeddbPersistence} from 'y-indexeddb';
 import { type CollaborativeEditingAccessLevel, accessLevelCan } from '@/lib/collections/posts/collabEditingPermissions';
 import { captureException } from '@/lib/sentryWrapper';
+import { gql } from '@/lib/generated/gql-codegen';
+import type { ApolloClient } from '@apollo/client/core';
+
+const HocuspocusAuthQuery = gql(`
+  query HocuspocusAuthQuery($collectionName: String, $documentId: String, $linkSharingKey: String) {
+    HocuspocusAuth(collectionName: $collectionName, documentId: $documentId, linkSharingKey: $linkSharingKey) {
+      token
+    }
+  }
+`);
+
+export async function fetchHocuspocusToken(
+  apolloClient: ApolloClient,
+  collectionName: CollectionNameString,
+  documentId: string,
+  linkSharingKey: string | null,
+): Promise<string> {
+  const { data } = await apolloClient.query({
+    query: HocuspocusAuthQuery,
+    variables: { collectionName, documentId, linkSharingKey },
+    fetchPolicy: 'network-only',
+  });
+  const token = data?.HocuspocusAuth?.token;
+  if (!token) {
+    throw new Error('Failed to fetch collaboration token');
+  }
+  return token;
+}
 
 /**
  * Removes "orphan" XmlText embeds from the main doc's root — live children of
@@ -175,6 +203,26 @@ function getCollaborationBaseDocumentNameForDocument(
 
 function getCollaborationBaseDocumentName(postId: string, fieldName = 'contents'): string {
   return getCollaborationBaseDocumentNameForDocument('Posts', postId, fieldName);
+}
+
+/**
+ * Subdoc id under which a document's comment/suggestion threads live. Also
+ * the yjsDocMap key the editor's CommentStoreProvider uses.
+ */
+export const COMMENTS_SUBDOC_ID = 'comments';
+
+/**
+ * Name of the Yjs subdocument holding a document's comment/suggestion
+ * threads. Mirrors the server-side `buildHocuspocusCommentsDocName`; the
+ * `/`-suffixed form matters for auth, since the Hocuspocus server authorizes
+ * subdocuments by prefix match against the main document's name.
+ */
+export function getCollabCommentsDocumentName(
+  collectionName: CollectionNameString,
+  documentId: string,
+  fieldName = 'contents',
+): string {
+  return `${getCollaborationBaseDocumentNameForDocument(collectionName, documentId, fieldName)}/${COMMENTS_SUBDOC_ID}`;
 }
 
 function getCollaborationBaseDocumentNameFromConfig(config: CollaborationConfig): string {
@@ -381,7 +429,7 @@ export function createWebsocketProviderWithDoc(id: string, doc: Doc): Provider &
  * when it auto-reconnects.
  */
 export async function disconnectCollaborationForPost(postId: string): Promise<void> {
-  const baseDocumentName = `post-${postId}`;
+  const baseDocumentName = getCollaborationBaseDocumentName(postId);
 
   // Disconnect all providers whose document name starts with this post's prefix
   // (covers the main editor and any sub-documents like comments)

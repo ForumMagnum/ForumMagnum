@@ -68,6 +68,15 @@ const getModeratorActionsForUser = (context: ResolverContext, userId: string) =>
   );
 };
 
+// Batched per-request check of whether a `newContent` user should instead be
+// surfaced in the supermod "offboard" review group.
+const getIsOffboardCandidate = (context: ResolverContext, userId: string): Promise<boolean> => {
+  return getWithCustomLoader(context, "offboardCandidates", userId, async (userIds) => {
+    const candidateIds = new Set(await context.repos.users.getOffboardCandidateUserIds(userIds));
+    return userIds.map((id) => candidateIds.has(id));
+  });
+};
+
 // Get last time user's `needsReview` flag was set to false (or null if never).
 const getLastRemovedFromReviewQueueAt = async (context: ResolverContext, userId: string): Promise<Date | null> => {
   const fieldChanges = await getWithLoader(
@@ -3977,7 +3986,15 @@ const schema = {
           active: isActionActive(action),
           createdAt: action.createdAt,
         }));
-        return getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
+        const baseGroup = getReviewGroupFromActions(actionsWithActiveStatus, lastRemovedFromReviewQueueAt);
+
+        // Users who would otherwise be in `newContent` get pulled into the
+        // `offboard` group if their content matches the offboarding criteria.
+        if (baseGroup === 'newContent' && await getIsOffboardCandidate(context, doc._id)) {
+          return 'offboard';
+        }
+
+        return baseGroup;
       },
     },
   },

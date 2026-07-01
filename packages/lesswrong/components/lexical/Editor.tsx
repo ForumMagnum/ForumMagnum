@@ -756,7 +756,7 @@ export default function Editor({
   // Enable collaboration if config is provided OR if the setting is enabled
   const isCollab = isCollabSetting || !!collaborationConfig;
   const isCommentEditor = commentEditor;
-  const { isPostEditor, collectionName: editorCollectionName } = useLexicalEditorContext();
+  const { isPostEditor, collectionName: editorCollectionName, supportsCollabComments } = useLexicalEditorContext();
   const isResearchEditor = editorCollectionName === 'ResearchDocuments';
   const hasInitialHtml = Boolean(initialHtml && initialHtml.trim().length > 0);
   const isEditable = useLexicalEditable();
@@ -778,6 +778,9 @@ export default function Editor({
   // workspace's right margin, not the posts' comments panel), but none of
   // the posts-only machinery (side comments, suggested edits).
   const showResearchCommentFeatures = isResearchEditor && !isCommentEditor;
+  // True for any collaborative collection (posts + research): gates the shared
+  // comment infrastructure (CommentPlugin, inline comment button).
+  const showCommentFeatures = supportsCollabComments && !isCommentEditor;
 
   // Use shared context for user mode if available (provided by PostForm),
   // otherwise fall back to local state (e.g. comment editors).
@@ -903,7 +906,7 @@ export default function Editor({
         <AutoLinkPlugin />
         <DateTimePlugin />
         <MarkNodesProvider>
-          {collaboratorIdentity && (showPostCommentFeatures || showResearchCommentFeatures) && (
+          {collaboratorIdentity && showCommentFeatures && (
             <CollaboratorIdentityProvider value={collaboratorIdentity}>
               <CommentStoreProvider
                 providerFactory={isCollabConfigReady ? createWebsocketProvider : undefined}
@@ -1059,7 +1062,7 @@ export default function Editor({
               anchorElem={floatingAnchorElem}
               setIsLinkEditMode={setIsLinkEditMode}
               variant={isCommentEditor ? 'comment' : 'post'}
-              showInlineCommentButton={isCollab && !isCommentEditor}
+              showInlineCommentButton={isCollab && showCommentFeatures}
               isSuggestionMode={isSuggestionMode}
             />}
           </>

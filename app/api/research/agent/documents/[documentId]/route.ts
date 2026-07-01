@@ -12,7 +12,7 @@ import {
   captureResearchAgentApiEvent,
   captureResearchAgentApiFailure,
 } from "../../captureResearchAgentAnalytics";
-import { getLiveLexicalMarkdown } from "../../../../(markdown)/editorMarkdownUtils";
+import { getLiveLexicalMarkdown, getOpenCommentThreadsMarkdown } from "../../../../(markdown)/editorMarkdownUtils";
 
 const ROUTE = "documents.fetch";
 
@@ -119,21 +119,29 @@ export async function GET(
     if (docAuth.kind === "errorResponse") return docAuth.errorResponse;
     const { document, hocuspocusToken } = docAuth;
 
-    const markdown = await getLiveLexicalMarkdown({
-      collectionName: "ResearchDocuments",
-      documentId,
-      token: hocuspocusToken,
-      operationLabel: "ResearchFetchDocument",
-      transformHtml: async ({ html, editor }) => {
-        const conversationIds = collectAgentBlockConversationIds(editor);
-        const metadata = await fetchAgentBlockConversationMetadata(
-          conversationIds,
-          document.projectId,
-          context,
-        );
-        return annotateAgentBlocksInHtml(html, metadata);
-      },
-    });
+    const [markdown, commentThreadsMarkdown] = await Promise.all([
+      getLiveLexicalMarkdown({
+        collectionName: "ResearchDocuments",
+        documentId,
+        token: hocuspocusToken,
+        operationLabel: "ResearchFetchDocument",
+        transformHtml: async ({ html, editor }) => {
+          const conversationIds = collectAgentBlockConversationIds(editor);
+          const metadata = await fetchAgentBlockConversationMetadata(
+            conversationIds,
+            document.projectId,
+            context,
+          );
+          return annotateAgentBlocksInHtml(html, metadata);
+        },
+      }),
+      getOpenCommentThreadsMarkdown({
+        collectionName: "ResearchDocuments",
+        documentId,
+        token: hocuspocusToken,
+        replyInstructions: "To reply: `research-tool reply-comment <documentId> --thread-id <threadId> --comment <text>`",
+      }),
+    ]);
 
     captureResearchAgentApiEvent({
       route: ROUTE,
@@ -149,6 +157,10 @@ export async function GET(
       documentId,
       title: document.title ?? null,
       markdown,
+      // Open comment/suggestion threads, serialized as a markdown section
+      // (empty string when there are none). Kept separate from `markdown` so
+      // the thread list is never mistaken for document content.
+      commentThreads: commentThreadsMarkdown,
     });
   } catch (error) {
     // eslint-disable-next-line no-console

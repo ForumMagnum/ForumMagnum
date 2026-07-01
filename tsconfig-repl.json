@@ -5,6 +5,7 @@
     "target": "esnext",
     "moduleResolution": "node",
     "paths": {
+      "*": ["./*"],
       "@/lib/generated/*": ["./packages/lesswrong/stubs/generated/*"],
       "@/client/*": ["./packages/lesswrong/stubs/client/*"],
       "@/*": ["./packages/lesswrong/*"],

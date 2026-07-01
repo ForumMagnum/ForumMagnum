@@ -294,6 +294,26 @@ const styles = defineStyles('LexicalCommentPlugin', (theme: ThemeType) => ({
     overflowY: 'auto',
     height: 'calc(100% - 42px)',
   },
+  // Docked variant: fills a host container (e.g. the research workspace's
+  // right-pane Comments tab) instead of floating over the page; the host
+  // supplies its own heading and close affordance. The list override must
+  // come after `commentsPanelList` — equal specificity, so source order
+  // decides whether `top: 0` beats the floating variant's heading offset.
+  commentsPanelDocked: {
+    position: 'relative',
+    height: '100%',
+    overflow: 'hidden',
+    ...theme.typography.commentStyle,
+  },
+  commentsPanelListDocked: {
+    top: 0,
+    height: '100%',
+    // The host's tab bar sits directly above the list, so the first
+    // thread's top border is just clutter.
+    '& > li:first-child': {
+      borderTop: 'none',
+    },
+  },
   listComment: {
     padding: '12px 16px',
     margin: 0,
@@ -822,6 +842,7 @@ function CommentsPanelList({
   listRef,
   submitAddComment,
   markNodeMap,
+  docked,
 }: {
   activeIDs: Array<string>;
   comments: Comments;
@@ -836,6 +857,7 @@ function CommentsPanelList({
     isInlineComment: boolean,
     thread?: Thread,
   ) => void;
+  docked?: boolean;
 }): JSX.Element {
   const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
@@ -864,7 +886,7 @@ function CommentsPanelList({
   }, [activeIDs, listRef]);
 
   return (
-    <ul className={classes.commentsPanelList} ref={listRef}>
+    <ul className={classNames(classes.commentsPanelList, docked && classes.commentsPanelListDocked)} ref={listRef}>
       {comments.map((commentOrThread) => {
         const id = commentOrThread.id;
         if (commentOrThread.type === 'thread') {
@@ -1049,6 +1071,7 @@ function CommentsPanel({
   comments,
   submitAddComment,
   markNodeMap,
+  docked,
 }: {
   panelRef: React.RefObject<HTMLDivElement | null>;
   activeIDs: Array<string>;
@@ -1063,6 +1086,7 @@ function CommentsPanel({
     isInlineComment: boolean,
     thread?: Thread,
   ) => void;
+  docked?: boolean;
 }): JSX.Element {
   const classes = useStyles(styles);
   const listRef = useRef<HTMLUListElement>(null);
@@ -1070,13 +1094,13 @@ function CommentsPanel({
   const { setShowComments } = useContext(InlineCommentsPanelContext);
 
   return (
-    <div ref={panelRef} className={classes.commentsPanel}>
-      <h2 className={classes.commentsPanelHeading}>
+    <div ref={panelRef} className={docked ? classes.commentsPanelDocked : classes.commentsPanel}>
+      {!docked && <h2 className={classes.commentsPanelHeading}>
         Comments
         <Button onClick={() => setShowComments(false)} className={classes.commentsPanelCloseButton}>
           <ForumIcon icon="Close" className={classes.commentsPanelCloseButtonIcon} />
         </Button>
-      </h2>
+      </h2>}
       {isEmpty ? (
         <div className={classes.commentsPanelEmpty}>No Comments</div>
       ) : (
@@ -1087,6 +1111,7 @@ function CommentsPanel({
           listRef={listRef}
           submitAddComment={submitAddComment}
           markNodeMap={markNodeMap}
+          docked={docked}
         />
       )}
     </div>
@@ -1095,7 +1120,7 @@ function CommentsPanel({
 
 export default function CommentPlugin(): JSX.Element {
   const classes = useStyles(styles);
-  const { isPostEditor } = useLexicalEditorContext();
+  const { supportsCollabComments } = useLexicalEditorContext();
   const [editor] = useLexicalComposerContext();
   const { commentStore } = useCommentStoreContext();
   const comments = useCommentStore(commentStore);
@@ -1106,7 +1131,7 @@ export default function CommentPlugin(): JSX.Element {
   const [commentAnchorRect, setCommentAnchorRect] = useState<DOMRect | null>(
     null,
   );
-  const { showComments, setShowComments, setCommentCount } = useContext(InlineCommentsPanelContext);
+  const { showComments, setShowComments, setCommentCount, panelPortalEl } = useContext(InlineCommentsPanelContext);
   const hasSideComments = useHasSideComments();
   const panelRef = useRef<HTMLDivElement>(null);
   const replyActivatedRef = useRef(false);
@@ -1498,9 +1523,14 @@ export default function CommentPlugin(): JSX.Element {
   };
 
   useEffect(() => {
-    if (!isPostEditor) return;
-    setCommentCount(comments.length);
-  }, [isPostEditor, comments.length, setCommentCount]);
+    if (!supportsCollabComments) return;
+    // Count only open threads — resolved/accepted/rejected threads stay in
+    // the store but aren't active discussion.
+    const openCount = comments.filter(
+      (commentOrThread) => commentOrThread.type !== 'thread' || (commentOrThread.status ?? 'open') === 'open',
+    ).length;
+    setCommentCount(openCount);
+  }, [supportsCollabComments, comments, setCommentCount]);
 
   return (
     <>
@@ -1514,8 +1544,24 @@ export default function CommentPlugin(): JSX.Element {
           />,
           document.body,
         )}
-      {showComments && isPostEditor &&
-        createPortal(
+      {/* When the host supplies a portal target (e.g. the research
+          workspace's right-pane Comments tab), the panel renders docked
+          inside it — the host owns open/close, so no click-away. Otherwise
+          it floats over the page (the post-editor behavior). */}
+      {showComments && supportsCollabComments && (panelPortalEl
+        ? createPortal(
+          <CommentsPanel
+            panelRef={panelRef}
+            comments={[...comments].reverse()}
+            submitAddComment={submitAddComment}
+            deleteCommentOrThread={deleteCommentOrThread}
+            activeIDs={activeIDs}
+            markNodeMap={markNodeMap}
+            docked
+          />,
+          panelPortalEl,
+        )
+        : createPortal(
           <LWClickAwayListener onClickAway={(e) => {
             if (replyActivatedRef.current) return;
             const target = e.target;
@@ -1532,7 +1578,7 @@ export default function CommentPlugin(): JSX.Element {
             />
           </LWClickAwayListener>,
           document.body,
-        )}
+        ))}
     </>
   );
 }

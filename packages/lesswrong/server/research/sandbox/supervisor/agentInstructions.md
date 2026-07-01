@@ -31,7 +31,7 @@ response). Errors go to stderr with a non-zero exit code.
 | --- | --- |
 | `postId` + `key` link-sharing key | `documentId` only; auth via env-loaded bearer |
 | `agentName` field for provenance | Implicit — captured from the bearer's `conversationId` |
-| `mode: "edit" \| "suggest"` | No mode. Research edits land directly. Provenance is preserved via the `producedByConversationId` attribute on each block |
+| `mode` defaults to `suggest` | `mode` defaults to `edit` (direct application; provenance via the `producedByConversationId` attribute on each block). Pass `--mode suggest` to create a tracked suggestion instead — see "Edit vs. suggest" below |
 | `insertWidget` / `replaceWidget` | Available as `edit-doc insert-widget` / `edit-doc replace-widget` |
 
 ### Reading the workspace
@@ -59,12 +59,18 @@ research-tool fetch-doc <documentId>
 ```
 Returns the live document state serialized as markdown:
 ```json
-{ "ok": true, "documentId": "...", "title": null, "markdown": "..." }
+{ "ok": true, "documentId": "...", "title": null, "markdown": "...", "commentThreads": "..." }
 ```
 The markdown comes from the *live* Yjs editor state — not the persisted
 snapshot — so it reflects changes you (or anyone else) made earlier in the
 turn. Re-fetch before retrying any edit that returned "no match"; the user
 can be typing concurrently.
+
+`commentThreads` is a markdown-formatted listing of the document's open
+comment and suggestion threads (empty string when there are none). Each
+thread shows its id, anchoring quote, and the discussion so far. If the
+user has left comments addressing you (or your earlier suggestions),
+read them here and respond with `reply-comment` and/or follow-up edits.
 
 ```
 research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]
@@ -109,10 +115,12 @@ research-tool edit-doc <documentId> replace-text \
     --quote <visible-text> --with <markdown>
 ```
 Find `--quote` in the document and replace it with `--with` (markdown).
-Returns `{ ok, replaced, quoteFoundInDocument, note }`. If `replaced` is
-false but `quoteFoundInDocument` is true, your quote spans multiple
-formatting boundaries (e.g. crosses a bold/italic/link boundary) and you
-need to pick a smaller, more uniform fragment.
+Returns `{ ok, replaced, quoteFoundInDocument, note }`. Quotes may span
+formatting boundaries (bold/italic/link) and even paragraph boundaries.
+When `replaced` is false, the `note` says why: an ambiguous quote (one
+that appears more than once) asks you to provide a longer quote with more
+surrounding context; a quote that isn't found usually means the document
+changed since you read it — re-fetch and re-derive the quote.
 
 ```
 research-tool edit-doc <documentId> insert-block \
@@ -254,12 +262,63 @@ A `widgetFound: false` response means no widget has that id.
 ```
 research-tool edit-doc <documentId> delete-block --prefix <text>
 ```
-Delete the first block whose markdown begins with `--prefix`. The matcher
-descends into lists — a single bullet's leading text deletes just that
-bullet and leaves the surrounding list intact. For tables, match the
+Delete the block whose markdown begins with `--prefix`. The prefix must
+match exactly one block — if several blocks start with it, the call fails
+and asks for a longer prefix — and must end within that block (a prefix
+spanning two blocks never matches). The matcher descends into lists at any
+nesting depth — a single bullet's leading text deletes just that bullet and
+leaves the surrounding list intact. For tables, match the
 leading text of the first cell; tables always delete as a whole. For
 LLM content blocks, match the `%%% llm-output ...` delimiter line; for
 widgets, match the `` ```widget[<id>] `` delimiter line.
+
+### Edit vs. suggest (`--mode`)
+
+`replace-text`, `insert-block`, `delete-block`, and `replace-widget` accept
+`--mode edit|suggest` (default `edit`):
+
+- `edit` applies the change directly to the live document.
+- `suggest` records the change as a tracked suggestion — shown inline in the
+  editor with strikethrough/underline markup plus a review thread — which the
+  user accepts or rejects. The response includes a `suggestionId`.
+
+How to choose: default to direct edits for **new content you are producing**
+(the document updating live is the expected behavior — e.g. drafting a
+section the user asked for, adding analysis, inserting widgets). Prefer
+`--mode suggest` when **modifying or deleting prose the user (or another
+author) wrote themselves** — wording changes, restructuring, deletions of
+their text — so they can review rather than discover the change after the
+fact. The user can override this in either direction ("just fix it
+directly" / "make these as suggestions"); when they do, follow their
+instruction. When unsure, think about whether the user would want to
+review the change before it sticks, and judge case-by-case.
+
+In suggest mode the change is *not* part of the document's rendered content
+until accepted; `fetch-doc` output may render pending suggestions with
+`<del>`/`<ins>`-style markup. Don't suggest-edit your own pending
+suggestions — wait for the user to resolve them.
+
+### Commenting on the document
+
+```
+research-tool comment-doc <documentId> --comment <markdown> [--quote <text>]
+```
+Start a comment thread on the document. With `--quote`, the thread anchors
+to the quoted text (same matching rules as `replace-text --quote`; the
+quote is highlighted in the editor). Without `--quote` — or when the quote
+can't be matched — the thread is created top-level. Returns
+`{ threadId, commentId, anchorStatus, anchorNote }`. Use comments for
+observations, questions, and review feedback that should *not* change the
+document text; use suggest-mode edits when you have a concrete replacement.
+
+```
+research-tool reply-comment <documentId> --thread-id <id> --comment <markdown>
+```
+Reply to an existing thread (a comment thread or the discussion attached to
+a suggestion). Thread ids come from the `commentThreads` section of
+`fetch-doc` output or from a `comment-doc` / suggest-mode edit response.
+If the user has commented on your suggestions or asked questions in a
+thread, reply there rather than (or in addition to) editing the document.
 
 ## User-attached context (`@[doc:<id> "<title>"]`, `@[conv:<id> "<title>"]`)
 
@@ -379,6 +438,9 @@ These rules come straight from the shared backend matcher:
   markdown emphasis markers (`**`, `_`, `` ` ``, `~`) automatically.
   Don't pre-normalize. Do not paraphrase or "clean up" the text — quote
   exactly what `fetch-doc` returned.
+- **Quotes must be unambiguous.** A quote or prefix that matches more than
+  one place fails with a count of the occurrences; lengthen it with more
+  surrounding context rather than guessing.
 - **Re-fetch on miss.** Documents are a live collaboration surface; if a
   quote that should match returns "no match", call `fetch-doc` again
   before retrying. The user may have edited concurrently.
@@ -395,11 +457,10 @@ These rules come straight from the shared backend matcher:
   retypeset it. A quote may span an equation but can't match a fragment of one.
 - **Anchoring against an `@[...]` mention chip:** quote the verbatim
   token as it appears in `fetch-doc` output, including the brackets,
-  kind, id, quotes, and title — `@[doc:abc123 "Zoning notes"]`. Quotes
-  that cross *into* a mention from surrounding text (e.g. quoting `notes
-  for context` when the doc reads `@[doc:abc "notes"] for context`) won't
-  match — same boundary class as bold/italic. Pick a quote that lies
-  fully inside or fully outside the chip.
+  kind, id, quotes, and title — `@[doc:abc123 "Zoning notes"]`. Chips are
+  atomic: a quote whose boundary falls partway through a chip resolves to
+  cover the whole chip, so for precise edits keep quote boundaries fully
+  inside or fully outside the chip token.
 
 ## Working directory and the sandbox filesystem
 

@@ -460,6 +460,9 @@ export const routeTrie = {
                 },
                 "documents": {
                   "staticChildren": {
+                    "commentOnDocument": {
+                      "hasRoute": true
+                    },
                     "deleteBlock": {
                       "hasRoute": true
                     },
@@ -477,15 +480,20 @@ export const routeTrie = {
                     },
                     "replaceWidget": {
                       "hasRoute": true
+                    },
+                    "replyToComment": {
+                      "hasRoute": true
                     }
                   },
                   "lowerCase": {
+                    "commentondocument": "commentOnDocument",
                     "deleteblock": "deleteBlock",
                     "insertblock": "insertBlock",
                     "insertllmblock": "insertLLMBlock",
                     "insertwidget": "insertWidget",
                     "replacetext": "replaceText",
-                    "replacewidget": "replaceWidget"
+                    "replacewidget": "replaceWidget",
+                    "replytocomment": "replyToComment"
                   },
                   "dynamicChild": {
                     "paramName": "documentId",

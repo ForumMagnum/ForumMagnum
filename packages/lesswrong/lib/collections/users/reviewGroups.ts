@@ -8,7 +8,8 @@ import maxBy from "lodash/maxBy";
  * highest-priority fresh review-trigger group.
  */
 export const REVIEW_GROUP_TO_PRIORITY = {
-  newContent: 6,
+  newContent: 7,
+  offboard: 6,
   highContext: 5,
   maybeSpam: 4,
   automod: 3,

@@ -3,12 +3,13 @@ import { getDefaultEditorPlaceholder } from '@/lib/editor/defaultEditorPlacehold
 import { isLWorAF, isEAForum } from "@/lib/instanceSettings";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useMemo, useEffect, useState, useRef, useCallback } from "react";
+import React, { useMemo, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { useCurrentUser } from "../common/withUser";
 import { EditTitle } from "../editor/EditTitle";
 import { SelectLocalgroup } from "../form-components/SelectLocalgroup";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { useDebouncedFalse } from "../hooks/useDebouncedFalse";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
 import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
@@ -414,36 +415,6 @@ const formStyles = defineStyles('PostForm', (theme: ThemeType) => ({
     },
   },
 }));
-
-/**
- * Like useState<boolean>, but debounces transitions to `false` by `delayMs`.
- * Transitions to `true` are instant and cancel any pending `false` timer.
- */
-function useDebouncedFalse(initialValue: boolean, delayMs: number): [boolean, (value: boolean) => void] {
-  const [value, setValueRaw] = useState(initialValue);
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const setValue = useCallback((next: boolean) => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current);
-      timerRef.current = null;
-    }
-    if (next) {
-      setValueRaw(true);
-    } else {
-      timerRef.current = setTimeout(() => {
-        setValueRaw(false);
-      }, delayMs);
-    }
-  }, [delayMs]);
-  useEffect(() => {
-    return () => {
-      if (timerRef.current) {
-        clearTimeout(timerRef.current);
-      }
-    };
-  }, []);
-  return [value, setValue];
-}
 
 const ON_SUBMIT_META: PostSubmitMeta = {};
 

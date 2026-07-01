@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { $getRoot } from "lexical";
 import { randomId } from "@/lib/random";
 import { captureException } from "@/lib/sentryWrapper";
 import { getContextFromReqAndRes } from "@/server/vulcan-lib/apollo-server/context";
 import { getMarkdownItForResearch } from "@/lib/utils/markdownItPlugins";
 import { waitForProviderFlush } from "../../../../agent/editorAgentUtil";
-import { locateMarkdownQuoteSelectionInSubtree } from "../../../../agent/mapMarkdownToLexical";
+import { $locateQuoteWithTextIndex } from "../../../../agent/textIndexQuoteLocator";
 import { $applyEditModeReplacement } from "../../../../agent/applyEditAtSelection";
+import { $applySuggestionWithNarrowing } from "../../../../agent/replaceText/route";
+import type { ReplaceMode } from "../../../../agent/toolSchemas";
 import {
   authorizeAgentRequest,
   authorizeAgentResearchDocumentAccess,
@@ -18,6 +19,7 @@ import {
 import { withResearchDocEditorSession } from "../../researchEditorSession";
 import { replaceTextInResearchDocSchema } from "../../researchToolSchemas";
 import { validateAndCanonicalizeMentionsInMarkdown } from "../../researchMentionValidation";
+import { maybeCreateResearchSuggestionThread } from "../../researchSuggestionThreads";
 
 const ROUTE = "documents.replaceText";
 
@@ -25,6 +27,10 @@ interface ReplaceResult {
   replaced: boolean;
   quoteFoundInDocument: boolean;
   note: string;
+  suggestionId?: string;
+  /** The quote/replacement after narrowing, for use in suggestion summaries. */
+  summaryQuote?: string;
+  summaryReplacement?: string;
 }
 
 async function replaceTextInResearchDoc({
@@ -32,11 +38,13 @@ async function replaceTextInResearchDoc({
   hocuspocusToken,
   quote,
   replacement,
+  mode,
 }: {
   documentId: string;
   hocuspocusToken: string;
   quote: string;
   replacement: string;
+  mode: ReplaceMode;
 }): Promise<ReplaceResult> {
   return withResearchDocEditorSession({
     documentId,
@@ -45,30 +53,51 @@ async function replaceTextInResearchDoc({
     callback: async ({ editor, provider }) => {
       let replaced = false;
       let quoteFoundInDocument = false;
+      let locateFailureReason: string | undefined;
+      let suggestionId: string | undefined;
+      let summaryQuote = quote;
+      let summaryReplacement = replacement;
 
       await new Promise<void>((resolve) => {
         editor.update(
           () => {
-            const root = $getRoot();
-            const selectionResult = locateMarkdownQuoteSelectionInSubtree({
-              rootNodeKey: root.getKey(),
-              markdownQuote: quote,
-            });
+            const selectionResult = $locateQuoteWithTextIndex(quote);
             quoteFoundInDocument = selectionResult.found;
             if (!selectionResult.found || !selectionResult.anchor || !selectionResult.focus) {
+              locateFailureReason = selectionResult.reason;
               return;
             }
-            // The research markdown-it instance is mention-aware, so
-            // `@[doc:<id> "..."]` tokens in the replacement become MentionNode
-            // chips (and `$...$` becomes a MathNode).
-            replaced = $applyEditModeReplacement({
-              editor,
-              anchor: selectionResult.anchor,
-              focus: selectionResult.focus,
-              quote,
-              replacement,
+
+            const { anchor, focus } = selectionResult;
+
+            if (mode === "edit") {
+              // The research markdown-it instance is mention-aware, so
+              // `@[doc:<id> "..."]` tokens in the replacement become MentionNode
+              // chips (and `$...$` becomes a MathNode).
+              const editResult = $applyEditModeReplacement({
+                editor, anchor, focus, quote, replacement,
+                range: selectionResult.range,
+                markdownIt: getMarkdownItForResearch(),
+              });
+              replaced = editResult.replaced;
+              summaryQuote = editResult.narrowedQuote;
+              summaryReplacement = editResult.narrowedReplacement;
+              return;
+            }
+
+            suggestionId = randomId();
+            const narrowingResult = $applySuggestionWithNarrowing({
+              editor, anchor, focus, quote, replacement,
+              range: selectionResult.range,
+              suggestionId,
               markdownIt: getMarkdownItForResearch(),
-            }).replaced;
+            });
+            replaced = narrowingResult.replaced;
+            summaryQuote = narrowingResult.narrowedQuote;
+            summaryReplacement = narrowingResult.narrowedReplacement;
+            if (!replaced) {
+              suggestionId = undefined;
+            }
           },
           { onUpdate: resolve },
         );
@@ -79,14 +108,24 @@ async function replaceTextInResearchDoc({
       }
 
       if (replaced) {
-        return { replaced: true, quoteFoundInDocument, note: "Replaced text directly." };
+        return {
+          replaced: true,
+          quoteFoundInDocument,
+          note: mode === "suggest"
+            ? "Created delete/insert suggestion nodes for replacement."
+            : "Replaced text directly.",
+          suggestionId,
+          summaryQuote,
+          summaryReplacement,
+        };
       }
       return {
         replaced: false,
         quoteFoundInDocument,
         note: quoteFoundInDocument
-          ? "Quote was found in the document but spans multiple formatted regions (e.g. bold/italic/link boundaries), so the replacement could not be applied. Try quoting a smaller segment that falls within a single paragraph and formatting style."
-          : "Quote not found in document.",
+          ? locateFailureReason
+            ?? "Quote was found in the document, but the replacement could not be applied to its range. Try quoting a smaller segment."
+          : locateFailureReason ?? "Quote not found in document.",
       };
     },
   });
@@ -116,7 +155,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { documentId, quote, replacement } = parseResult.data;
+  const { documentId, quote, replacement, mode } = parseResult.data;
 
   try {
     const docAuth = await authorizeAgentResearchDocumentAccess({
@@ -152,6 +191,20 @@ export async function POST(req: NextRequest) {
       hocuspocusToken,
       quote,
       replacement: mentionResult.markdown,
+      mode,
+    });
+
+    const { threadCreationFailed } = await maybeCreateResearchSuggestionThread({
+      mode,
+      documentId,
+      hocuspocusToken,
+      suggestionId: result.suggestionId,
+      conversationId: payload.conversationId,
+      summaryItems: [{
+        type: "replace",
+        content: result.summaryQuote ?? quote,
+        replaceWith: result.summaryReplacement ?? mentionResult.markdown,
+      }],
     });
 
     captureResearchAgentApiEvent({
@@ -172,7 +225,12 @@ export async function POST(req: NextRequest) {
       documentId,
       replaced: result.replaced,
       quoteFoundInDocument: result.quoteFoundInDocument,
-      note: result.note,
+      note: threadCreationFailed
+        ? `${result.note} Warning: the suggestion was applied, but its review thread could not be created. Do not retry this edit.`
+        : result.note,
+      mode,
+      suggestionId: result.suggestionId ?? null,
+      threadCreationFailed,
       requestId: randomId(),
     });
   } catch (error) {

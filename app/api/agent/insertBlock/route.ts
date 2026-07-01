@@ -20,8 +20,8 @@ import { $createIframeWidgetNode } from "@/components/lexical/embeds/IframeWidge
 import { deriveAgentAuthor, waitForProviderFlush, withMainDocEditorSession, authorizeAgentDraftAccess } from "../editorAgentUtil";
 
 import { normalizeImportedTopLevelNodes } from "../../(markdown)/editorMarkdownUtils";
-import { buildNodeMarkdownMapForSubtree, findBlockToOperateOnByPrefix, toPlainTextFilter } from "../mapMarkdownToLexical";
-import { createSuggestionThreadInCommentsDoc } from "../suggestionThreads";
+import { $locateBlockByPrefix } from "../textIndexQuoteLocator";
+import { tryCreateSuggestionThreadInCommentsDoc } from "../suggestionThreads";
 import { insertBlockToolSchema, type InsertLocation, type ReplaceMode } from "../toolSchemas";
 import { captureException } from "@/lib/sentryWrapper";
 import { captureAgentApiEvent, captureAgentApiFailure } from "../captureAgentAnalytics";
@@ -31,6 +31,8 @@ interface InsertBlockResult {
   note: string
   insertionIndex?: number
   suggestionId?: string
+  /** True when a suggestion was applied but its review thread couldn't be created. */
+  threadCreationFailed?: boolean
 }
 
 function getInsertionIndexByLocation(location: InsertLocation): { mode: "fixed", index: number } | { mode: "prefix", relation: "before" | "after", prefix: string } {
@@ -136,34 +138,34 @@ export function $postMarkdownToNodes(editor: LexicalEditor, markdown: string): L
   return $markdownToNodes(editor, markdownWithWidgetIframes, { markdownIt: getMarkdownItForAgentPosts() });
 }
 
-function findInsertionIndexByPrefix(
-  rootChildren: LexicalNode[],
-  prefix: string,
-  relation: "before" | "after",
-): number | null {
-  const root = $getRoot();
-  const textFilter = toPlainTextFilter(prefix);
-  const mapResult = buildNodeMarkdownMapForSubtree(root.getKey(), textFilter);
-  const matched = findBlockToOperateOnByPrefix({ rootChildren, prefix, mapResult, textFilter });
-  if (!matched) return null;
-  // The locator may descend into list items, but insertion always happens at
-  // the top level — translate a matched list item back to its parent list's
-  // index, so the caller inserts before/after the whole list rather than
-  // splitting the list open.
-  const matchParent = matched.getParent();
-  const topLevelIndex = matchParent === root
-    ? matched.getIndexWithinParent()
-    : matchParent?.getIndexWithinParent() ?? null;
-  if (topLevelIndex === null) return null;
-  return relation === "before" ? topLevelIndex : topLevelIndex + 1;
+export interface InsertionIndexResult {
+  index: number | null
+  /** Why no index could be resolved (e.g. an ambiguous prefix). */
+  reason?: string
 }
 
-export function resolveInsertionIndex(location: InsertLocation, rootChildren: LexicalNode[]): number | null {
+function findInsertionIndexByPrefix(
+  prefix: string,
+  relation: "before" | "after",
+): InsertionIndexResult {
+  const blockResult = $locateBlockByPrefix(prefix);
+  const matched = blockResult.node;
+  if (!matched) return { index: null, reason: blockResult.reason };
+  // The locator may descend into list items (at any nesting depth), but
+  // insertion always happens at the top level — translate the match back to
+  // its top-level ancestor's index, so the caller inserts before/after the
+  // whole list rather than splitting the list open.
+  const topLevel = matched.getTopLevelElement() ?? matched;
+  const topLevelIndex = topLevel.getIndexWithinParent();
+  return { index: relation === "before" ? topLevelIndex : topLevelIndex + 1 };
+}
+
+export function resolveInsertionIndex(location: InsertLocation, rootChildren: LexicalNode[]): InsertionIndexResult {
   const target = getInsertionIndexByLocation(location);
   if (target.mode === "fixed") {
-    return target.index === Number.MAX_SAFE_INTEGER ? rootChildren.length : target.index;
+    return { index: target.index === Number.MAX_SAFE_INTEGER ? rootChildren.length : target.index };
   }
-  return findInsertionIndexByPrefix(rootChildren, target.prefix, target.relation);
+  return findInsertionIndexByPrefix(target.prefix, target.relation);
 }
 
 /**
@@ -190,9 +192,9 @@ export function $insertMarkdownBlockInEditor({
   }
 
   const root = $getRoot();
-  const insertionIndex = resolveInsertionIndex(location, root.getChildren());
+  const { index: insertionIndex, reason } = resolveInsertionIndex(location, root.getChildren());
   if (insertionIndex === null) {
-    return { inserted: false, note: `No paragraph markdown starts with locator text: ${JSON.stringify(location)}` };
+    return { inserted: false, note: reason ?? `No block starts with locator text: ${JSON.stringify(location)}` };
   }
 
   root.splice(insertionIndex, 0, nodesToInsert);
@@ -228,7 +230,7 @@ export async function insertMarkdownBlock({
   authorName: string
   authorId: string
 }): Promise<InsertBlockResult> {
-  const result = await withMainDocEditorSession({
+  const result: InsertBlockResult = await withMainDocEditorSession({
     postId,
     token,
     operationLabel: "InsertBlock",
@@ -252,8 +254,9 @@ export async function insertMarkdownBlock({
   });
 
   if (mode === "suggest" && result.inserted && result.suggestionId) {
-    await createSuggestionThreadInCommentsDoc({
-      postId,
+    const threadCreated = await tryCreateSuggestionThreadInCommentsDoc({
+      collectionName: "Posts",
+      documentId: postId,
       token,
       suggestionId: result.suggestionId,
       authorName,
@@ -263,6 +266,10 @@ export async function insertMarkdownBlock({
         content: markdown,
       }],
     });
+    if (!threadCreated) {
+      result.threadCreationFailed = true;
+      result.note += " Warning: the suggestion was applied, but its review thread could not be created. Do not retry this edit.";
+    }
   }
 
   return result;
@@ -306,6 +313,8 @@ export async function POST(req: NextRequest) {
       insertionIndex: insertResult.insertionIndex ?? null,
       note: insertResult.note,
       insertionMode: mode,
+      suggestionId: insertResult.suggestionId ?? null,
+      threadCreationFailed: insertResult.threadCreationFailed ?? false,
       mode: "lexical-collaboration-insert-block",
       requestId: randomId(),
     });

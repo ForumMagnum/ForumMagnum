@@ -1,5 +1,6 @@
 import moment from 'moment';
-import { getKarmaInflationSeries, timeSeriesIndexExpr } from './karmaInflation';
+import { timeSeriesIndexExpr, TimeSeries } from './karmaInflation';
+import { getKarmaInflationSeries } from '@/server/karmaInflation/cache';
 import type { FilterMode, FilterSettings, FilterTag } from '../../filterSettings';
 import { adminAccountSetting, isAF, isEAForum, defaultVisibilityTags, openThreadTagIdSetting, startHerePostIdSetting } from '@/lib/instanceSettings';
 import { frontpageTimeDecayExpr, postScoreModifiers, timeDecayExpr } from '../../scoring';
@@ -9,6 +10,7 @@ import { getPositiveVoteThreshold, QUICK_REVIEW_SCORE_THRESHOLD, reviewExcludedP
 import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
 import { visitorGetsDynamicFrontpage } from '../../betas';
+import { getWithCustomLoader } from '@/lib/loaders';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
 import { CollectionViewSet } from '../../../lib/views/collectionViewSet';
 import type { ApolloClient } from '@apollo/client';
@@ -103,6 +105,18 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
   recentComments: { lastCommentedAt: -1 }
 }
 
+async function getVisitorActivity(context: ResolverContext): Promise<DbUserActivity|null> {
+  const { currentUser, clientId } = context;
+  if ((currentUser || clientId) && (isEAForum() || visitorGetsDynamicFrontpage(currentUser))) {
+    if (currentUser) {
+      return await context.UserActivities.findOne({visitorId: currentUser._id, type: 'userId'});
+    } else if (clientId) {
+      return await context.UserActivities.findOne({visitorId: clientId, type: 'clientId'});
+    }
+  }
+  return null;
+}
+
 /**
  * @summary Base parameters that will be common to all other view unless specific properties are overwritten
  *
@@ -112,7 +126,7 @@ export const sortings: Record<PostSortingMode,MongoSelector<DbPost>> = {
  * as it is *inclusive*. The parameters callback that handles it outputs
  * ~ $lt: before.endOf('day').
  */
-function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverContext) {
+async function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverContext) {
   const validFields: any = pick(terms, 'userId', 'groupId', 'af','question', 'authorIsUnreviewed');
   // Also valid fields: before, after, curatedAfter, timeField (select on postedAt), excludeEvents, and
   // karmaThreshold (selects on baseScore).
@@ -163,8 +177,16 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverC
       )
     }
   }
+  // Started before the visitorActivity fetch below so the two can overlap
+  const pendingKarmaInflationSeries = terms.sortedBy === 'topAdjusted' ? getKarmaInflationSeries() : null;
+
   if (terms.filterSettings) {
-    const filterParams = filterSettingsToParams(terms.filterSettings, terms, context);
+    const visitorActivity = context
+      ? await getWithCustomLoader(context, "visitorActivityLoader", "_",
+          async () => [await getVisitorActivity(context)]
+        )
+      : null;
+    const filterParams = filterSettingsToParams(terms.filterSettings, terms, visitorActivity, context);
     params = {
       selector: { ...params.selector, ...filterParams.selector },
       options: { ...params.options, ...filterParams.options },
@@ -180,8 +202,8 @@ function defaultView(terms: PostsViewTerms, _: ApolloClient, context?: ResolverC
     };
   }
   if (terms.sortedBy) {
-    if (terms.sortedBy === 'topAdjusted') {
-      params.syntheticFields = { ...params.syntheticFields, ...buildInflationAdjustedField() }
+    if (pendingKarmaInflationSeries) {
+      params.syntheticFields = { ...params.syntheticFields, ...buildInflationAdjustedField(await pendingKarmaInflationSeries) }
     }
 
     if ((sortings as AnyBecauseTodo)[terms.sortedBy]) {
@@ -263,8 +285,7 @@ const getFrontpageFilter = (filterSettings: FilterSettings): {filter: any, softF
   }
 }
 
-export function buildInflationAdjustedField(): any {
-  const karmaInflationSeries = getKarmaInflationSeries();
+export function buildInflationAdjustedField(karmaInflationSeries: TimeSeries): any {
   return {
     karmaInflationAdjustedScore: {
       $multiply: [
@@ -289,7 +310,7 @@ export function buildInflationAdjustedField(): any {
   }
 }
 
-function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, context?: ResolverContext): any {
+function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsViewTerms, visitorActivity: DbUserActivity|null, context?: ResolverContext): any {
   // We get the default tag relevance from the database config
   const tagFilterSettingsWithDefaults: FilterTag[] = filterSettings.tags?.map(t =>
     t.filterMode === "TagDefault" ? {
@@ -353,7 +374,7 @@ function filterSettingsToParams(filterSettings: FilterSettings, terms: PostsView
         activityHalfLifeHours: terms.algoActivityHalfLifeHours,
         activityWeight: terms.algoActivityWeight,
         overrideActivityFactor: terms.algoActivityFactor,
-      }, context) : timeDecayExpr()
+      }, visitorActivity) : timeDecayExpr()
     ]}
   }
   

@@ -33,9 +33,9 @@ export function $insertWidgetInEditor({
   location: InsertLocation
 }): InsertWidgetResult {
   const root = $getRoot();
-  const insertionIndex = resolveInsertionIndex(location, root.getChildren());
+  const { index: insertionIndex, reason } = resolveInsertionIndex(location, root.getChildren());
   if (insertionIndex === null) {
-    return { inserted: false, note: `No paragraph markdown starts with locator text: ${JSON.stringify(location)}` };
+    return { inserted: false, note: reason ?? `No block starts with locator text: ${JSON.stringify(location)}` };
   }
 
   const widgetId = randomId();

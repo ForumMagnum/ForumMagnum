@@ -1,35 +1,43 @@
 import { z } from "zod";
-import { insertLocationSchema, validateReplaceWidgetExclusivity } from "../../agent/toolSchemas";
+import { insertLocationSchema, replaceModeSchema, validateReplaceWidgetExclusivity } from "../../agent/toolSchemas";
 
 /**
  * Schemas for the research-agent edit endpoints. Mirror the Posts-side
  * `toolSchemas.ts` but drop fields that don't apply (`postId`, `key`,
- * `agentName`, `mode`):
+ * `agentName`):
  *  - `postId` is replaced by `documentId` (a ResearchDocument's `_id`)
  *  - link-sharing-key auth is replaced by sandbox-callback bearer token
  *    (in the `Authorization` header, not the body)
  *  - `agentName` becomes implicit — provenance is captured via
  *    `conversationId` from the bearer token, not a free-form name
- *  - `mode` is dropped — research docs don't have a suggest/accept review
- *    surface; agent edits land directly. Provenance is preserved via the
- *    `producedByConversationId` node attribute.
+ *  - `mode` defaults to `edit` (the opposite of the Posts default): the
+ *    `/query` → AgentBlock workflow is built around edits landing live,
+ *    with per-block `producedByConversationId` provenance. Suggest mode is
+ *    opt-in, for edits the user should review before they stick.
  */
+
+const researchModeSchema = replaceModeSchema
+  .default("edit")
+  .describe("Whether to apply directly ('edit') or as a tracked suggestion the user reviews in the editor ('suggest'). Defaults to 'edit'.");
 
 export const replaceTextInResearchDocSchema = z.object({
   documentId: z.string().describe("The ID of the ResearchDocument"),
   quote: z.string().describe("The text to find and replace"),
   replacement: z.string().describe("The replacement text in markdown"),
+  mode: researchModeSchema,
 });
 
 export const insertBlockInResearchDocSchema = z.object({
   documentId: z.string().describe("The ID of the ResearchDocument"),
   location: insertLocationSchema,
   markdown: z.string().describe("The markdown content to insert"),
+  mode: researchModeSchema,
 });
 
 export const deleteBlockInResearchDocSchema = z.object({
   documentId: z.string().describe("The ID of the ResearchDocument"),
   prefix: z.string().describe("Delete the first block whose markdown starts with this text"),
+  mode: researchModeSchema,
 });
 
 export const insertLLMBlockInResearchDocSchema = z.object({
@@ -51,6 +59,7 @@ export const replaceWidgetInResearchDocSchema = z
     widgetId: z.string().describe("The widget ID to update"),
     replacement: z.string().optional().describe("Full replacement widget content"),
     unifiedDiff: z.string().optional().describe("Unified diff to apply to current widget content"),
+    mode: researchModeSchema,
   })
   .refine((value) => validateReplaceWidgetExclusivity(value) === null, {
     message: "Provide exactly one of replacement or unifiedDiff",
@@ -65,6 +74,18 @@ export const setConversationPresentationSchema = z.object({
     .describe(
       "Markdown for the conversation block's collapsed presentation; null clears it (falling back to the last assistant message)",
     ),
+});
+
+export const commentOnResearchDocSchema = z.object({
+  documentId: z.string().describe("The ID of the ResearchDocument"),
+  quote: z.string().optional().describe("Text to attach the comment to (should be long enough to be unambiguous); omit for a top-level comment"),
+  comment: z.string().describe("The comment text in markdown"),
+});
+
+export const replyToResearchDocCommentSchema = z.object({
+  documentId: z.string().describe("The ID of the ResearchDocument"),
+  threadId: z.string().describe("The ID of the thread to reply to (from the Comment Threads section of fetch-doc output)"),
+  comment: z.string().describe("The reply text in markdown"),
 });
 
 export const createResearchDocSchema = z.object({

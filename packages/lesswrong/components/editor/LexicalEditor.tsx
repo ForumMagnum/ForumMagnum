@@ -16,10 +16,9 @@ import classNames from 'classnames';
 import { useCurrentUser } from '../common/withUser';
 import WarningBanner from '../common/WarningBanner';
 import { useClientId } from '../hooks/useClientId';
-import type { CollaborationConfig } from '../lexical/collaboration';
+import { fetchHocuspocusToken, type CollaborationConfig } from '../lexical/collaboration';
 import { useApolloClient } from '@apollo/client/react';
 import { useLocation } from '@/lib/routeUtil';
-import type { ApolloClient } from '@apollo/client/core';
 import Editor from '../lexical/Editor';
 import { LexicalEditorContext } from './LexicalEditorContext';
 import type { CollaborativeEditingAccessLevel } from '@/lib/collections/posts/collabEditingPermissions';
@@ -32,18 +31,10 @@ import { ToolbarContext } from '../lexical/context/ToolbarContext';
 import { TableCellNode } from '@lexical/table';
 import { CodeHighlightNode, CodeNode } from '@lexical/code';
 import { exportTextNode } from './lexicalDomExport';
-import { gql } from '@/lib/generated/gql-codegen';
 import { HorizontalRuleExtension } from '@lexical/extension';
 import ErrorBoundary from '../common/ErrorBoundary';
 import DeferRender from '../common/DeferRender';
 
-const HocuspocusAuthQuery = gql(`
-  query HocuspocusAuthQuery($collectionName: String, $documentId: String, $linkSharingKey: String) {
-    HocuspocusAuth(collectionName: $collectionName, documentId: $documentId, linkSharingKey: $linkSharingKey) {
-      token
-    }
-  }
-`);
 
 
 const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
@@ -351,24 +342,6 @@ const exportCodeNode = (editor: LexicalEditorType, target: LexicalNode): DOMExpo
   return output;
 };
 
-async function fetchHocuspocusToken(
-  apolloClient: ApolloClient,
-  collectionName: CollectionNameString,
-  documentId: string,
-  linkSharingKey: string | null,
-): Promise<string> {
-  const { data } = await apolloClient.query({
-    query: HocuspocusAuthQuery,
-    variables: { collectionName, documentId, linkSharingKey },
-    fetchPolicy: 'network-only',
-  });
-  const token = data?.HocuspocusAuth?.token;
-  if (!token) {
-    throw new Error('Failed to fetch collaboration token');
-  }
-  return token;
-}
-
 const LexicalEditor = ({
   data = '',
   placeholder = 'Start writing...',
@@ -410,10 +383,12 @@ const LexicalEditor = ({
   const collaborationCollectionName = collectionName === 'Posts' || collectionName === 'ResearchDocuments'
     ? collectionName
     : null;
+  const supportsCollabComments = !!collaborationCollectionName;
   const editorContextValue = useMemo(() => ({
     collectionName,
     isPostEditor,
-  }), [collectionName, isPostEditor]);
+    supportsCollabComments,
+  }), [collectionName, isPostEditor, supportsCollabComments]);
 
   // Always enable collaboration for supported collections (when documentId is
   // available). This keeps Posts behavior unchanged and lets ResearchDocuments

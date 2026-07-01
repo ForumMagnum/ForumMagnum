@@ -8,12 +8,14 @@
  * sandbox, e.g.:
  *
  *   research-tool fetch-doc <documentId>
- *   research-tool edit-doc <documentId> replace-text --quote "..." --with "..."
- *   research-tool edit-doc <documentId> insert-block --location end --markdown "..."
- *   research-tool edit-doc <documentId> delete-block --prefix "..."
+ *   research-tool edit-doc <documentId> replace-text --quote "..." --with "..." [--mode suggest]
+ *   research-tool edit-doc <documentId> insert-block --location end --markdown "..." [--mode suggest]
+ *   research-tool edit-doc <documentId> delete-block --prefix "..." [--mode suggest]
  *   research-tool edit-doc <documentId> insert-llm-block --model "..." --markdown "..." --location end
  *   research-tool edit-doc <documentId> insert-widget --content "..." --location end
- *   research-tool edit-doc <documentId> replace-widget --widget-id "..." --replacement "..."
+ *   research-tool edit-doc <documentId> replace-widget --widget-id "..." --replacement "..." [--mode suggest]
+ *   research-tool comment-doc <documentId> --comment "..." [--quote "..."]
+ *   research-tool reply-comment <documentId> --thread-id "..." --comment "..."
  *   research-tool create-doc [--title "..."] [--initial-markdown "..."]
  *   research-tool list-documents
  *   research-tool list-conversations
@@ -145,7 +147,7 @@ async function cmdEditDoc(args) {
         fail(1, "replace-text requires --quote and --with");
       }
       const result = await callApi("POST", "/api/research/agent/documents/replaceText", {
-        body: { documentId, quote, replacement },
+        body: { documentId, quote, replacement, mode: parseMode(args.flags) },
       });
       printJson(result);
       return;
@@ -155,7 +157,7 @@ async function cmdEditDoc(args) {
       const location = parseLocation(args.flags);
       if (!markdown) fail(1, "insert-block requires --markdown");
       const result = await callApi("POST", "/api/research/agent/documents/insertBlock", {
-        body: { documentId, markdown, location },
+        body: { documentId, markdown, location, mode: parseMode(args.flags) },
       });
       printJson(result);
       return;
@@ -164,7 +166,7 @@ async function cmdEditDoc(args) {
       const prefix = args.flags.prefix;
       if (!prefix) fail(1, "delete-block requires --prefix");
       const result = await callApi("POST", "/api/research/agent/documents/deleteBlock", {
-        body: { documentId, prefix },
+        body: { documentId, prefix, mode: parseMode(args.flags) },
       });
       printJson(result);
       return;
@@ -199,7 +201,7 @@ async function cmdEditDoc(args) {
       if (opCount !== 1) {
         fail(1, "replace-widget requires exactly one of --replacement or --unified-diff");
       }
-      const body = { documentId, widgetId };
+      const body = { documentId, widgetId, mode: parseMode(args.flags) };
       if (replacement !== undefined) body.replacement = replacement;
       if (unifiedDiff !== undefined) body.unifiedDiff = unifiedDiff;
       const result = await callApi("POST", "/api/research/agent/documents/replaceWidget", { body });
@@ -219,6 +221,37 @@ function parseLocation(flags) {
   if (flags.after) return { after: flags.after };
   fail(1, "location required: pass --location start|end OR --before <text> OR --after <text>");
   return undefined;
+}
+
+function parseMode(flags) {
+  const mode = flags.mode ?? (flags.suggest !== undefined ? "suggest" : "edit");
+  if (mode !== "edit" && mode !== "suggest") {
+    fail(1, `Invalid --mode: ${mode}. Use "edit" or "suggest".`);
+  }
+  return mode;
+}
+
+async function cmdCommentDoc(args) {
+  const documentId = args.positional[0];
+  if (!documentId) fail(1, "comment-doc requires <documentId> as the first positional argument");
+  const comment = args.flags.comment;
+  if (!comment) fail(1, "comment-doc requires --comment");
+  const body = { documentId, comment };
+  if (args.flags.quote !== undefined) body.quote = args.flags.quote;
+  const result = await callApi("POST", "/api/research/agent/documents/commentOnDocument", { body });
+  printJson(result);
+}
+
+async function cmdReplyComment(args) {
+  const documentId = args.positional[0];
+  if (!documentId) fail(1, "reply-comment requires <documentId> as the first positional argument");
+  const threadId = args.flags["thread-id"] ?? args.flags.threadId;
+  const comment = args.flags.comment;
+  if (!threadId || !comment) fail(1, "reply-comment requires --thread-id and --comment");
+  const result = await callApi("POST", "/api/research/agent/documents/replyToComment", {
+    body: { documentId, threadId, comment },
+  });
+  printJson(result);
 }
 
 async function cmdListDocuments() {
@@ -318,12 +351,14 @@ async function cmdHelp() {
     "",
     "Commands:",
     "  fetch-doc <documentId>",
-    "  edit-doc  <documentId> replace-text   --quote <text> --with <markdown>",
-    "  edit-doc  <documentId> insert-block   --markdown <md> (--location start|end | --before <text> | --after <text>)",
-    "  edit-doc  <documentId> delete-block   --prefix <text>",
+    "  edit-doc  <documentId> replace-text   --quote <text> --with <markdown> [--mode edit|suggest]",
+    "  edit-doc  <documentId> insert-block   --markdown <md> (--location start|end | --before <text> | --after <text>) [--mode edit|suggest]",
+    "  edit-doc  <documentId> delete-block   --prefix <text> [--mode edit|suggest]",
     "  edit-doc  <documentId> insert-llm-block --markdown <md> --model <name> (--location start|end | --before ... | --after ...)",
     "  edit-doc  <documentId> insert-widget  --content <html> (--location start|end | --before <text> | --after <text>)",
-    "  edit-doc  <documentId> replace-widget --widget-id <id> (--replacement <html> | --unified-diff <diff>)",
+    "  edit-doc  <documentId> replace-widget --widget-id <id> (--replacement <html> | --unified-diff <diff>) [--mode edit|suggest]",
+    "  comment-doc <documentId> --comment <markdown> [--quote <text>]",
+    "  reply-comment <documentId> --thread-id <id> --comment <markdown>",
     "  create-doc        [--title <text>] [--initial-markdown <md>]",
     "  list-documents",
     "  list-conversations",
@@ -366,6 +401,12 @@ async function main() {
       return;
     case "edit-doc":
       await cmdEditDoc(rest);
+      return;
+    case "comment-doc":
+      await cmdCommentDoc(rest);
+      return;
+    case "reply-comment":
+      await cmdReplyComment(rest);
       return;
     case "create-doc":
       await cmdCreateDoc(rest);
