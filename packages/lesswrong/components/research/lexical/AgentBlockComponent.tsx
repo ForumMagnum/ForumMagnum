@@ -304,7 +304,7 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
   const [sending, setSending] = useState(false);
 
   const {
-    events, status, error, turnInFlight,
+    events, status, error, turnInFlight, hasMoreOlder, loadingOlder, loadOlder,
     markTurnExpected, injectOptimisticEvent, clearOptimistic, refresh,
   } = useConversationStream(conversationId);
 
@@ -530,10 +530,14 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
       {focused ? (
         <>
           <ConversationTranscript
+            conversationId={conversationId}
             events={visibleEvents}
             turnInFlight={turnInFlight}
             status={status}
             error={error}
+            hasMoreOlder={hasMoreOlder}
+            loadingOlder={loadingOlder}
+            loadOlder={loadOlder}
           />
           <div className={classes.composerWrap}>
             <ChatComposer

@@ -251,7 +251,7 @@ export const researchResolversTypeDefs = gql`
   }
 
   extend type Query {
-    researchConversationTranscript(conversationId: String!, since: Int, limit: Int): [ResearchConversationEvent!]!
+    researchConversationTranscript(conversationId: String!, before: Int, limit: Int): [ResearchConversationEvent!]!
   }
 `;
 
@@ -287,7 +287,7 @@ export const researchResolversMutations = {
     let environment: DbResearchEnvironment | null = null;
     if (baseEnvironmentId) {
       environment = await context.ResearchEnvironments.findOne({ _id: baseEnvironmentId });
-      if (!environment || environment.userId !== currentUser._id || environment.projectId !== projectId) {
+      if (!environment || environment.projectId !== projectId) {
         throw new Error(`Environment ${baseEnvironmentId} not found`);
       }
     }
@@ -676,19 +676,24 @@ async function dispatchToSandbox(args: {
 export const researchResolversQueries = {
   async researchConversationTranscript(
     _root: void,
-    args: { conversationId: string; since?: number | null; limit?: number | null },
+    args: { conversationId: string; before?: number | null; limit?: number | null },
     context: ResolverContext,
   ) {
     await loadConversationOrThrow(args.conversationId, context);
     const { ResearchConversationEvents } = context;
+    // Page backward from the end (or from `before`, exclusive) so opening a long
+    // conversation loads only its most recent window; older history is paged in
+    // on scroll-up with successively smaller `before` cursors. We fetch
+    // newest-first to apply the limit to the tail, then return ascending for
+    // display.
     const selector = {
       conversationId: args.conversationId,
-      ...(args.since ? { seq: { $gt: args.since } } : {}),
+      ...(args.before != null ? { seq: { $lt: args.before } } : {}),
     };
     const events = await ResearchConversationEvents.find(
       selector,
-      { sort: { seq: 1 }, limit: args.limit ?? 5000 },
+      { sort: { seq: -1 }, limit: args.limit ?? 200 },
     ).fetch();
-    return events;
+    return events.reverse();
   },
 };

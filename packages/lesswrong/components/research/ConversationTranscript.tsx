@@ -1,23 +1,21 @@
 'use client';
 
-import React, { useCallback, useLayoutEffect, useRef } from 'react';
+import React from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ConversationEventRow } from './ConversationEventRow';
 import { researchMono, researchScrollbars } from './researchStyleUtils';
+import { useTranscriptScroll } from './hooks/useTranscriptScroll';
 import type { ConversationEvent, StreamStatus } from './hooks/useConversationStream';
-
-const BOTTOM_THRESHOLD_PX = 64;
-
-function isScrolledNearBottom(el: HTMLElement): boolean {
-  return el.scrollHeight - el.scrollTop - el.clientHeight <= BOTTOM_THRESHOLD_PX;
-}
 
 const styles = defineStyles('ConversationTranscript', (theme: ThemeType) => ({
   root: {
     flex: 1,
     minHeight: 0,
     overflowY: 'auto',
+    // Disable native scroll anchoring so it can't fight useTranscriptScroll's
+    // manual re-anchor when older history is paged in.
+    overflowAnchor: 'none',
     padding: '10px 2px 12px 0',
     ...researchScrollbars(theme),
   },
@@ -57,75 +55,47 @@ const styles = defineStyles('ConversationTranscript', (theme: ThemeType) => ({
 }));
 
 interface ConversationTranscriptProps {
+  conversationId: string;
   events: ConversationEvent[];
   turnInFlight: boolean;
   status: StreamStatus;
   error: string | null;
+  hasMoreOlder: boolean;
+  loadingOlder: boolean;
+  loadOlder: () => void;
 }
 
 /**
  * Scrollable Claude Code-style transcript: stays pinned to the bottom while
- * the agent streams (unless the user scrolls up to read), shows a quiet
- * pulsing "✻ working…" line during a turn.
+ * the agent streams (unless the user scrolls up to read), pages in older
+ * history on scroll-up, and shows a quiet pulsing "✻ working…" line during
+ * a turn.
  */
 export const ConversationTranscript = ({
+  conversationId,
   events,
   turnInFlight,
   status,
   error,
+  hasMoreOlder,
+  loadingOlder,
+  loadOlder,
 }: ConversationTranscriptProps) => {
   const classes = useStyles(styles);
-  const scrollRef = useRef<HTMLDivElement | null>(null);
-  const contentRef = useRef<HTMLDivElement | null>(null);
-  const isPinnedToBottomRef = useRef(true);
-  // Programmatic pinning fires scroll events; don't let those read as the
-  // user scrolling away from the bottom.
-  const ignoreNextScrollRef = useRef(false);
 
-  const handleScroll = useCallback(() => {
-    if (ignoreNextScrollRef.current) {
-      ignoreNextScrollRef.current = false;
-      return;
-    }
-    const el = scrollRef.current;
-    if (el) isPinnedToBottomRef.current = isScrolledNearBottom(el);
-  }, []);
-
-  // Keep the view pinned to the bottom while the user hasn't scrolled away.
-  // Content height changes for reasons beyond event count — markdown/image
-  // layout settling after mount, and the block's expand animation growing
-  // the container — so pin via ResizeObserver on both the container and the
-  // content, not just on events.length.
-  useLayoutEffect(() => {
-    const el = scrollRef.current;
-    const content = contentRef.current;
-    if (!el || !content) return;
-    const pinToBottom = () => {
-      if (isPinnedToBottomRef.current && el.scrollTop !== el.scrollHeight - el.clientHeight) {
-        ignoreNextScrollRef.current = true;
-        // 'instant', not a bare scrollTop assignment: the latter defers to
-        // any environment-injected `scroll-behavior: smooth` CSS, which
-        // would animate every pin.
-        el.scrollTo({ top: el.scrollHeight, behavior: 'instant' });
-      }
-    };
-    pinToBottom();
-    const observer = new ResizeObserver(pinToBottom);
-    observer.observe(el);
-    observer.observe(content);
-    return () => observer.disconnect();
-  }, []);
-
-  useLayoutEffect(() => {
-    const el = scrollRef.current;
-    if (el && isPinnedToBottomRef.current) {
-      ignoreNextScrollRef.current = true;
-      el.scrollTo({ top: el.scrollHeight, behavior: 'instant' });
-    }
-  }, [events.length, turnInFlight]);
+  // Pin to bottom as events stream in (unless the user scrolled up) and page
+  // in older history on scroll-up, re-anchoring the viewport so the prepend
+  // doesn't shift the content under the reader.
+  const { scrollRef, contentRef, onScroll } = useTranscriptScroll({
+    events,
+    resetKey: conversationId,
+    hasMoreOlder,
+    loadingOlder,
+    loadOlder,
+  });
 
   return (
-    <div className={classes.root} ref={scrollRef} onScroll={handleScroll}>
+    <div className={classes.root} ref={scrollRef} onScroll={onScroll}>
       <div className={classes.content} ref={contentRef}>
         {events.length === 0 && !turnInFlight ? (
           <div className={classes.empty}>

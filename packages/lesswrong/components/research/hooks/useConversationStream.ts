@@ -34,6 +34,12 @@ interface UseConversationStreamResult {
   // see isTurnInFlight for the derivation.
   turnInFlight: boolean;
   latestSeq: number;
+  // Whether older history remains unloaded above the current window.
+  hasMoreOlder: boolean;
+  loadingOlder: boolean;
+  // Page in the next batch of older events (scroll-up). No-op once the start of
+  // history is reached or while a previous load is in flight.
+  loadOlder: () => void;
   refresh: () => void;
   // Optimistic local-only insert (seq < 0); dropped once its persisted twin lands.
   injectOptimisticEvent: (event: ConversationEvent) => void;
@@ -53,9 +59,16 @@ const IDLE_POLL_MS = 15_000;
 
 const EXPECTING_TURN_TIMEOUT_MS = 120_000;
 
+// How many of the most recent events to load up front. The rest of the history
+// is paged in on demand (scroll-up) via `loadOlder`. Keeping the initial window
+// small is what keeps a long conversation from loading (and rendering) thousands
+// of events on open.
+const RECENT_WINDOW = 200;
+const OLDER_PAGE = 200;
+
 const ResearchConversationTranscriptQuery = gql(`
-  query ResearchConversationTranscript($conversationId: String!, $since: Int) {
-    researchConversationTranscript(conversationId: $conversationId, since: $since) {
+  query ResearchConversationTranscript($conversationId: String!, $before: Int, $limit: Int) {
+    researchConversationTranscript(conversationId: $conversationId, before: $before, limit: $limit) {
       _id
       conversationId
       seq
@@ -70,22 +83,25 @@ const ResearchConversationTranscriptQuery = gql(`
 /**
  * Single-source conversation stream. The Apollo cache is the store: history and
  * live events for a conversation live in one `researchConversationTranscript`
- * cache entry, read reactively via `useQuery`. Switching `conversationId` just
- * reads a different entry (no manual reset), and `cache-and-network` shows the
- * cached entry instantly while refetching, so a conversation that advanced
- * since it was last loaded refreshes itself rather than sticking stale.
+ * cache entry, read reactively via `useQuery`. That entry is union-merged by
+ * `seq` (see the field policy in `@/lib/apollo/typePolicies`), so its three
+ * writers — the initial recent-window load, older-page `loadOlder` fetches, and
+ * live SSE appends — coalesce into one ordered list and a network refetch can
+ * never drop events another writer added. Switching `conversationId` just reads
+ * a different entry (no manual reset).
  *
- * Live updates: the SSE stream (held open only while a turn is in flight)
- * appends each persisted event into that cache entry, which `useQuery` picks up
- * reactively. Between turns we close the stream and slow-poll via refetch.
+ * Only the most recent `RECENT_WINDOW` events load up front; older history is
+ * paged in on demand via `loadOlder`. Live updates: the SSE stream (held open
+ * only while a turn is in flight) appends each persisted event into the cache
+ * entry. Between turns we close the stream and slow-poll the recent window.
  */
 export function useConversationStream(
   conversationId: string | null | undefined,
 ): UseConversationStreamResult {
   const apollo = useApolloClient();
 
-  const { data, loading, error: queryError, refetch } = useQuery(ResearchConversationTranscriptQuery, {
-    variables: { conversationId: conversationId ?? '', since: null },
+  const { data, loading, error: queryError } = useQuery(ResearchConversationTranscriptQuery, {
+    variables: { conversationId: conversationId ?? '', before: null, limit: RECENT_WINDOW },
     fetchPolicy: 'cache-and-network',
     skip: !conversationId,
   });
@@ -137,8 +153,44 @@ export function useConversationStream(
   const latestSeqRef = useRef(latestSeq);
   useEffect(() => { latestSeqRef.current = latestSeq; }, [latestSeq]);
 
-  const refetchRef = useRef(refetch);
-  useEffect(() => { refetchRef.current = refetch; }, [refetch]);
+  // Oldest loaded seq drives `loadOlder`'s cursor and `hasMoreOlder`. Seq is a
+  // contiguous append-only sequence starting at 0, so "more history exists" is
+  // exactly "we haven't loaded seq 0 yet" — no page-count bookkeeping needed.
+  const oldestLoadedSeq = useMemo(() => {
+    let min = Infinity;
+    for (const e of persisted) if (e.seq < min) min = e.seq;
+    return min === Infinity ? null : min;
+  }, [persisted]);
+  const oldestLoadedSeqRef = useRef(oldestLoadedSeq);
+  useEffect(() => { oldestLoadedSeqRef.current = oldestLoadedSeq; }, [oldestLoadedSeq]);
+  const hasMoreOlder = oldestLoadedSeq != null && oldestLoadedSeq > 0;
+
+  const [loadingOlder, setLoadingOlder] = useState(false);
+  const loadingOlderRef = useRef(false);
+  const loadOlder = useCallback(async () => {
+    if (!conversationId || loadingOlderRef.current) return;
+    const before = oldestLoadedSeqRef.current;
+    if (before == null || before <= 0) return;
+    loadingOlderRef.current = true;
+    setLoadingOlder(true);
+    try {
+      await fetchTranscriptPage(apollo, conversationId, before, OLDER_PAGE);
+    } finally {
+      loadingOlderRef.current = false;
+      setLoadingOlder(false);
+    }
+  }, [conversationId, apollo]);
+
+  // Re-pull the recent window to notice a turn started elsewhere (idle poll) or
+  // after sending (refresh). Swallows transient failures; the next poll retries.
+  const refreshRecent = useCallback(async () => {
+    if (!conversationId) return;
+    try {
+      await fetchTranscriptPage(apollo, conversationId, null, RECENT_WINDOW);
+    } catch {
+      // Transient failure; the next idle poll or user action retries.
+    }
+  }, [apollo, conversationId]);
 
   // Drop the optimistic echo once a new persisted user turn lands (its real
   // twin is now in the transcript).
@@ -161,7 +213,7 @@ export function useConversationStream(
   }, [conversationId]);
 
   // Live stream lifecycle: hold the SSE open while a turn is in flight; when
-  // idle, close it and slow-poll (refetch) to notice a turn started elsewhere.
+  // idle, close it and slow-poll (refreshRecent) to notice a turn started elsewhere.
   useEffect(() => {
     if (!conversationId) {
       setConnectionStatus('idle');
@@ -171,7 +223,7 @@ export function useConversationStream(
 
     if (!streamShouldBeOpen) {
       setConnectionStatus('idle');
-      const poll = setInterval(() => { void refetchRef.current(); }, IDLE_POLL_MS);
+      const poll = setInterval(() => { void refreshRecent(); }, IDLE_POLL_MS);
       return () => clearInterval(poll);
     }
 
@@ -194,7 +246,7 @@ export function useConversationStream(
     };
 
     return () => es.close();
-  }, [conversationId, streamShouldBeOpen, apollo]);
+  }, [conversationId, streamShouldBeOpen, apollo, refreshRecent]);
 
   const injectOptimisticEvent = useCallback((event: ConversationEvent) => {
     setOptimistic((prev) => [...prev, event]);
@@ -215,7 +267,7 @@ export function useConversationStream(
     );
   }, []);
 
-  const refresh = useCallback(() => { void refetchRef.current(); }, []);
+  const refresh = useCallback(() => { void refreshRecent(); }, [refreshRecent]);
 
   const status: StreamStatus = useMemo(() => {
     if (!conversationId) return 'idle';
@@ -230,6 +282,9 @@ export function useConversationStream(
     error: queryError ? queryError.message : null,
     turnInFlight,
     latestSeq,
+    hasMoreOlder,
+    loadingOlder,
+    loadOlder,
     refresh,
     injectOptimisticEvent,
     clearOptimistic,
@@ -262,6 +317,28 @@ function mapRows(raw: readonly RawTranscriptRow[]): ConversationEvent[] {
   });
 }
 
+// Fetch one transcript page (the recent window when `before` is null, or the
+// page immediately older than `before`) and write it into the shared cache
+// entry. We use a standalone `apollo.query`, never the base query's
+// `refetch()`/`fetchMore()`: `refetch()` resets the cached field before writing,
+// so the merge policy sees `existing: undefined` and the page erases older pages
+// already merged in; `fetchMore()` on the `cache-and-network` base query
+// re-triggers its own network fetch and ping-pongs into an infinite loop once
+// the merge rebroadcasts. A one-off query writes through the merge with
+// `existing` intact, unioning the page in for the base `useQuery` to re-render.
+async function fetchTranscriptPage(
+  apollo: ApolloClient,
+  conversationId: string,
+  before: number | null,
+  limit: number,
+): Promise<void> {
+  await apollo.query({
+    query: ResearchConversationTranscriptQuery,
+    variables: { conversationId, before, limit },
+    fetchPolicy: 'network-only',
+  });
+}
+
 function parseStreamedRow(data: string): ConversationEvent | null {
   try {
     const raw = JSON.parse(data);
@@ -282,24 +359,22 @@ function parseStreamedRow(data: string): ConversationEvent | null {
   }
 }
 
-// Append a live event into the conversation's transcript cache entry. Keyed by
-// `_id` so a later refetch merges (rather than duplicates) the same row; guarded
-// on seq so a reconnect replay doesn't double-insert into the list.
+// Append a live event into the conversation's transcript cache entry. We write
+// only the single new row; the field's `merge` policy (keyed by `conversationId`,
+// unioned by `seq`) inserts it in order and dedupes a reconnect replay. We skip
+// the write until history is present so a stray live event can't transiently
+// render as the entire transcript — the in-flight network fetch covers that gap.
 function appendEventToCache(
   apollo: ApolloClient,
   conversationId: string,
   ev: ConversationEvent,
 ): void {
   apollo.cache.updateQuery(
-    { query: ResearchConversationTranscriptQuery, variables: { conversationId, since: null } },
+    { query: ResearchConversationTranscriptQuery, variables: { conversationId, before: null, limit: RECENT_WINDOW } },
     (prev) => {
-      const list = prev?.researchConversationTranscript;
-      // Not loaded yet — the in-flight network fetch will include this event.
-      if (!list) return undefined;
-      if (list.some((e) => e?.seq === ev.seq)) return undefined;
+      if (!prev?.researchConversationTranscript) return undefined;
       return {
         researchConversationTranscript: [
-          ...list,
           {
             __typename: 'ResearchConversationEvent' as const,
             _id: ev._id,

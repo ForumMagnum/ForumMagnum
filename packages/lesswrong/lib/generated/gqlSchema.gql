@@ -991,7 +991,7 @@ extend type Mutation {
 }
 
 extend type Query {
-  researchConversationTranscript(conversationId: String!, since: Int, limit: Int): [ResearchConversationEvent!]!
+  researchConversationTranscript(conversationId: String!, before: Int, limit: Int): [ResearchConversationEvent!]!
 }
 
 enum DocumentDeletionNetChange {

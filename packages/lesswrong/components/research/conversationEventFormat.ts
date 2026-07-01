@@ -42,6 +42,19 @@ export function isVisibleConversationEvent(event: { kind: string }): boolean {
   return visibleConversationEventKinds.has(event.kind);
 }
 
+// Only user/assistant turns count as "messages" (e.g. for the unread pill); tool
+// calls and thinking blocks would inflate the count past what reads as messages.
+export function isMessageEvent(event: { kind: string }): boolean {
+  return event.kind === 'user' || event.kind === 'assistant';
+}
+
+// Highest message seq among the given events, or -1 if there are none.
+export function maxMessageSeq(events: { kind: string; seq: number }[]): number {
+  let max = -1;
+  for (const event of events) if (isMessageEvent(event) && event.seq > max) max = event.seq;
+  return max;
+}
+
 /**
  * A user message dispatched while another turn runs is persisted immediately
  * but queued by Claude Code, so it can sit *before* the running turn's

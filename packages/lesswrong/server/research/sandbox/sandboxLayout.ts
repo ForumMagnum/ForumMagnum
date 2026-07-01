@@ -34,8 +34,10 @@ export const CLAUDE_MD_PATH = `${CLAUDE_DIR}/CLAUDE.md`;
  * this, rebuild the baseline snapshots, and existing sandboxes reconcile on
  * their next launch.
  */
-export const PINNED_CLAUDE_CODE_VERSION = "2.1.170";
+export const PINNED_CLAUDE_CODE_VERSION = "2.1.181";
 
 /** The model the research agent runs (`claude --model ...`). Requires a CLI
  * version that knows the model family — see PINNED_CLAUDE_CODE_VERSION. */
-export const RESEARCH_AGENT_MODEL = "claude-fable-5";
+// export const RESEARCH_AGENT_MODEL = "claude-fable-5";
+export const RESEARCH_AGENT_MODEL = "claude-opus-4-8";
+
