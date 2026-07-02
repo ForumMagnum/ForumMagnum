@@ -18,7 +18,7 @@ import { ConversationActions } from './ConversationActions';
 import ChatComposer from './ChatComposer';
 import { SandboxFileBrowser } from './SandboxFileBrowser';
 import { isSandboxWarmingError } from './sandboxWarming';
-import { researchMono, researchWarmAlpha, researchCanvas, researchChatSurface, researchRadius, researchSquircle } from './researchStyleUtils';
+import { researchMono, researchWarmAlpha, researchChatSurface, researchRadius } from './researchStyleUtils';
 
 const ConversationChatViewQuery = gql(`
   query ConversationChatViewInfo($conversationId: String!) {
@@ -57,7 +57,9 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
     height: '100%',
     minHeight: 0,
     minWidth: 0,
-    background: researchCanvas(theme),
+    // One flat cream surface for the whole panel (header + body); the panel's
+    // left border separates it from the canvas — no inner card.
+    background: researchChatSurface(theme),
   },
   header: {
     flex: 'none',
@@ -130,26 +132,23 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
   icon: {
     '--icon-size': '14px',
   },
-  // The transcript + composer column — a rounded cream box on the canvas
-  // (2026-07). In the side panel it fills the panel; in fullscreen it's the
-  // classic centered LLM-chat reading column.
+  // The transcript + composer column. It fills the panel (or the fullscreen
+  // overlay) edge-to-edge — the panel is already its own bordered container,
+  // so an inset rounded card here just nests a box in a box. Flat cream fill,
+  // no border/radius of its own.
   body: {
     flex: 1,
     minHeight: 0,
     display: 'flex',
     flexDirection: 'column',
     background: researchChatSurface(theme),
-    border: `1px solid ${researchWarmAlpha(0.07)}`,
-    borderRadius: researchRadius.lg,
-    ...researchSquircle,
-    margin: '10px 12px 12px',
-    padding: '0 14px 12px',
+    padding: '10px 14px 12px',
   },
   bodyFullscreen: {
     width: '100%',
     maxWidth: FULLSCREEN_COLUMN_MAX_WIDTH,
-    margin: '12px auto 20px',
-    padding: '0 24px 20px',
+    margin: '0 auto',
+    padding: '12px 24px 20px',
   },
   composerWrap: {
     flex: 'none',
