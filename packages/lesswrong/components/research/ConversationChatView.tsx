@@ -16,6 +16,7 @@ import { isVisibleConversationEvent } from './conversationEventFormat';
 import { ConversationTranscript } from './ConversationTranscript';
 import { ConversationActions } from './ConversationActions';
 import ChatComposer from './ChatComposer';
+import { PanelRightIcon } from './PanelRightIcon';
 import { SandboxFileBrowser } from './SandboxFileBrowser';
 import { SandboxFileViewer } from './SandboxFileViewer';
 import { useResearchWorkspaceApiOptional } from './researchWorkspaceContext';
@@ -137,6 +138,12 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
   icon: {
     '--icon-size': '14px',
   },
+  // PanelRightIcon is a raw SVG sized in em (not a ForumIcon), so drive it
+  // with font-size rather than the --icon-size var.
+  panelIcon: {
+    fontSize: 15,
+    display: 'block',
+  },
   // The transcript + composer column. It fills the panel (or the fullscreen
   // overlay) edge-to-edge — the panel is already its own bordered container,
   // so an inset rounded card here just nests a box in a box. Flat cream fill,
@@ -233,13 +240,9 @@ export const ConversationChatView = ({
   const { flash } = useMessages();
   const workspace = useResearchWorkspaceApiOptional();
   const [sending, setSending] = useState(false);
-  // The file browser: a right sidebar in fullscreen (open by default), or a
-  // body swap in the narrow side panel (closed by default). Reset to the
-  // per-variant default whenever the variant changes.
-  const [filesOpen, setFilesOpen] = useState(variant === 'fullscreen');
-  useEffect(() => {
-    setFilesOpen(variant === 'fullscreen');
-  }, [variant]);
+  // The file browser: a right sidebar in fullscreen, or a body swap in the
+  // narrow side panel. Closed by default in both; opened from the header.
+  const [filesOpen, setFilesOpen] = useState(false);
 
   const {
     events, status, error, turnInFlight, hasMoreOlder, loadingOlder, loadOlder,
@@ -379,7 +382,7 @@ export const ConversationChatView = ({
           aria-label="Toggle file browser"
           aria-pressed={filesOpen}
         >
-          <ForumIcon icon="ViewColumns" className={classes.icon} />
+          <PanelRightIcon className={classes.panelIcon} />
         </button>
         <button
           type="button"
