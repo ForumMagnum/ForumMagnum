@@ -16,6 +16,7 @@ import { isVisibleConversationEvent } from './conversationEventFormat';
 import { ConversationTranscript } from './ConversationTranscript';
 import { ConversationActions } from './ConversationActions';
 import ChatComposer from './ChatComposer';
+import { SandboxFileBrowser } from './SandboxFileBrowser';
 import { isSandboxWarmingError } from './sandboxWarming';
 import { researchMono, researchWarmAlpha, researchCanvas, researchChatSurface, researchRadius, researchSquircle } from './researchStyleUtils';
 
@@ -122,6 +123,10 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  iconButtonActive: {
+    color: theme.palette.text.primary,
+    background: researchWarmAlpha(0.1),
+  },
   icon: {
     '--icon-size': '14px',
   },
@@ -188,6 +193,7 @@ export const ConversationChatView = ({
   const classes = useStyles(styles);
   const { flash } = useMessages();
   const [sending, setSending] = useState(false);
+  const [showFiles, setShowFiles] = useState(false);
 
   const {
     events, status, error, turnInFlight, hasMoreOlder, loadingOlder, loadOlder,
@@ -293,6 +299,16 @@ export const ConversationChatView = ({
         <ConversationActions conversationId={conversationId} />
         <button
           type="button"
+          className={classNames(classes.headerButton, classes.iconButton, showFiles && classes.iconButtonActive)}
+          onClick={() => setShowFiles((v) => !v)}
+          title={showFiles ? 'Back to conversation' : 'Browse sandbox files'}
+          aria-label="Browse sandbox files"
+          aria-pressed={showFiles}
+        >
+          <ForumIcon icon="Tag" className={classes.icon} />
+        </button>
+        <button
+          type="button"
           className={classNames(classes.headerButton, classes.iconButton)}
           onClick={onOpenInDocument}
           title="Open at its place in the document"
@@ -320,23 +336,29 @@ export const ConversationChatView = ({
         </button>
       </div>
       <div className={classNames(classes.body, variant === 'fullscreen' && classes.bodyFullscreen)}>
-        <ConversationTranscript
-          conversationId={conversationId}
-          events={visibleEvents}
-          turnInFlight={turnInFlight}
-          status={status}
-          error={error}
-          hasMoreOlder={hasMoreOlder}
-          loadingOlder={loadingOlder}
-          loadOlder={loadOlder}
-        />
-        <div className={classes.composerWrap}>
-          <ChatComposer
-            projectId={projectId}
-            disabled={sending || !activeDocumentId}
-            onSubmit={handleSend}
-          />
-        </div>
+        {showFiles ? (
+          <SandboxFileBrowser conversationId={conversationId} />
+        ) : (
+          <>
+            <ConversationTranscript
+              conversationId={conversationId}
+              events={visibleEvents}
+              turnInFlight={turnInFlight}
+              status={status}
+              error={error}
+              hasMoreOlder={hasMoreOlder}
+              loadingOlder={loadingOlder}
+              loadOlder={loadOlder}
+            />
+            <div className={classes.composerWrap}>
+              <ChatComposer
+                projectId={projectId}
+                disabled={sending || !activeDocumentId}
+                onSubmit={handleSend}
+              />
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

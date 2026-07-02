@@ -359,6 +359,7 @@ type Documents = {
     "\n  mutation ResearchSetClaudeCodeOAuthToken($token: String!) {\n    setClaudeCodeOAuthToken(token: $token) {\n      success\n    }\n  }\n": typeof types.ResearchSetClaudeCodeOAuthTokenDocument,
     "\n  query ResearchWorkspaceFirstDocument($projectId: String!) {\n    researchDocuments(selector: { byProject: { projectId: $projectId } }, limit: 1) {\n      results { _id }\n    }\n  }\n": typeof types.ResearchWorkspaceFirstDocumentDocument,
     "\n  mutation EnsureResearchScratchDocument($projectId: String!) {\n    ensureResearchScratchDocument(projectId: $projectId) {\n      documentId\n    }\n  }\n": typeof types.EnsureResearchScratchDocumentDocument,
+    "\n  query ResearchSandboxDirectory($conversationId: String!, $path: String) {\n    researchSandboxDirectory(conversationId: $conversationId, path: $path) {\n      path\n      running\n      entries {\n        name\n        kind\n        size\n      }\n    }\n  }\n": typeof types.ResearchSandboxDirectoryDocument,
     "\n  query ResearchConversationTranscript($conversationId: String!, $before: Int, $limit: Int) {\n    researchConversationTranscript(conversationId: $conversationId, before: $before, limit: $limit) {\n      _id\n      conversationId\n      seq\n      claudeMessageUuid\n      kind\n      payload\n      createdAt\n    }\n  }\n": typeof types.ResearchConversationTranscriptDocument,
     "\n  mutation MarkResearchConversationRead($id: String!, $lastReadAt: Date!) {\n    updateResearchConversation(selector: { _id: $id }, data: { lastReadAt: $lastReadAt }) {\n      data {\n        _id\n        lastReadAt\n      }\n    }\n  }\n": typeof types.MarkResearchConversationReadDocument,
     "\n  query ResearchConversationBlockInfo($conversationId: String!) {\n    researchConversation(selector: { _id: $conversationId }) {\n      result {\n        _id\n        title\n        presentationHtml\n      }\n    }\n  }\n": typeof types.ResearchConversationBlockInfoDocument,
@@ -1230,6 +1231,7 @@ const documents: Documents = {
     "\n  mutation ResearchSetClaudeCodeOAuthToken($token: String!) {\n    setClaudeCodeOAuthToken(token: $token) {\n      success\n    }\n  }\n": types.ResearchSetClaudeCodeOAuthTokenDocument,
     "\n  query ResearchWorkspaceFirstDocument($projectId: String!) {\n    researchDocuments(selector: { byProject: { projectId: $projectId } }, limit: 1) {\n      results { _id }\n    }\n  }\n": types.ResearchWorkspaceFirstDocumentDocument,
     "\n  mutation EnsureResearchScratchDocument($projectId: String!) {\n    ensureResearchScratchDocument(projectId: $projectId) {\n      documentId\n    }\n  }\n": types.EnsureResearchScratchDocumentDocument,
+    "\n  query ResearchSandboxDirectory($conversationId: String!, $path: String) {\n    researchSandboxDirectory(conversationId: $conversationId, path: $path) {\n      path\n      running\n      entries {\n        name\n        kind\n        size\n      }\n    }\n  }\n": types.ResearchSandboxDirectoryDocument,
     "\n  query ResearchConversationTranscript($conversationId: String!, $before: Int, $limit: Int) {\n    researchConversationTranscript(conversationId: $conversationId, before: $before, limit: $limit) {\n      _id\n      conversationId\n      seq\n      claudeMessageUuid\n      kind\n      payload\n      createdAt\n    }\n  }\n": types.ResearchConversationTranscriptDocument,
     "\n  mutation MarkResearchConversationRead($id: String!, $lastReadAt: Date!) {\n    updateResearchConversation(selector: { _id: $id }, data: { lastReadAt: $lastReadAt }) {\n      data {\n        _id\n        lastReadAt\n      }\n    }\n  }\n": types.MarkResearchConversationReadDocument,
     "\n  query ResearchConversationBlockInfo($conversationId: String!) {\n    researchConversation(selector: { _id: $conversationId }) {\n      result {\n        _id\n        title\n        presentationHtml\n      }\n    }\n  }\n": types.ResearchConversationBlockInfoDocument,
@@ -3150,6 +3152,10 @@ export function gql(source: "\n  query ResearchWorkspaceFirstDocument($projectId
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation EnsureResearchScratchDocument($projectId: String!) {\n    ensureResearchScratchDocument(projectId: $projectId) {\n      documentId\n    }\n  }\n"): (typeof documents)["\n  mutation EnsureResearchScratchDocument($projectId: String!) {\n    ensureResearchScratchDocument(projectId: $projectId) {\n      documentId\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query ResearchSandboxDirectory($conversationId: String!, $path: String) {\n    researchSandboxDirectory(conversationId: $conversationId, path: $path) {\n      path\n      running\n      entries {\n        name\n        kind\n        size\n      }\n    }\n  }\n"): (typeof documents)["\n  query ResearchSandboxDirectory($conversationId: String!, $path: String) {\n    researchSandboxDirectory(conversationId: $conversationId, path: $path) {\n      path\n      running\n      entries {\n        name\n        kind\n        size\n      }\n    }\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

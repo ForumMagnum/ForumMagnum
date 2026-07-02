@@ -997,9 +997,22 @@ type ResearchConversationSidebarStatus {
   lastReadAt: Date
 }
 
+type ResearchSandboxDirEntry {
+  name: String!
+  kind: String!
+  size: Float
+}
+
+type ResearchSandboxDirListing {
+  path: String!
+  running: Boolean!
+  entries: [ResearchSandboxDirEntry!]!
+}
+
 extend type Query {
   researchConversationTranscript(conversationId: String!, before: Int, limit: Int): [ResearchConversationEvent!]!
   researchConversationSidebarStatuses(projectId: String!): [ResearchConversationSidebarStatus!]!
+  researchSandboxDirectory(conversationId: String!, path: String): ResearchSandboxDirListing!
 }
 
 enum DocumentDeletionNetChange {

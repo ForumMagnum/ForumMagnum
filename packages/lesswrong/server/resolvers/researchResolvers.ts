@@ -12,6 +12,7 @@ import {
   supervisorUrlForSandbox,
   type ProvisionedSandbox,
 } from "@/server/research/sandbox/sandboxManager";
+import { listSandboxDirectory, SANDBOX_DEFAULT_DIR } from "@/server/research/sandbox/listSandboxDirectory";
 import { GraphQLError } from "graphql";
 import { isPlainRecord } from "@/components/research/conversationEventFormat";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -259,9 +260,26 @@ export const researchResolversTypeDefs = gql`
     lastReadAt: Date
   }
 
+  type ResearchSandboxDirEntry {
+    name: String!
+    # "directory" | "file" | "symlink" | "other"
+    kind: String!
+    size: Float
+  }
+
+  type ResearchSandboxDirListing {
+    # Absolute path that was listed (the workspace-relative root is "").
+    path: String!
+    # Null when the sandbox isn't currently running (it only lives around a
+    # turn); the client shows a "start a turn to browse files" empty state.
+    running: Boolean!
+    entries: [ResearchSandboxDirEntry!]!
+  }
+
   extend type Query {
     researchConversationTranscript(conversationId: String!, before: Int, limit: Int): [ResearchConversationEvent!]!
     researchConversationSidebarStatuses(projectId: String!): [ResearchConversationSidebarStatus!]!
+    researchSandboxDirectory(conversationId: String!, path: String): ResearchSandboxDirListing!
   }
 `;
 
@@ -732,5 +750,22 @@ export const researchResolversQueries = {
       lastActivityAt: c.lastActivityAt,
       lastReadAt: c.lastReadAt ?? null,
     }));
+  },
+
+  async researchSandboxDirectory(
+    _root: void,
+    args: { conversationId: string; path?: string | null },
+    context: ResolverContext,
+  ) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    const sandbox = await getRunningSandbox(conv._id);
+    // The sandbox only lives during/around a turn; a null handle isn't an
+    // error, it's the "not running" state the client renders as an empty state.
+    if (!sandbox) {
+      return { path: args.path ?? SANDBOX_DEFAULT_DIR, running: false, entries: [] };
+    }
+    const path = args.path?.trim() || SANDBOX_DEFAULT_DIR;
+    const entries = await listSandboxDirectory(sandbox, path);
+    return { path, running: true, entries };
   },
 };

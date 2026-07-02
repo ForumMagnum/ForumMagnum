@@ -7333,6 +7333,7 @@ type Query = {
   researchEnvironments?: Maybe<MultiResearchEnvironmentOutput>;
   researchProject?: Maybe<SingleResearchProjectOutput>;
   researchProjects?: Maybe<MultiResearchProjectOutput>;
+  researchSandboxDirectory: ResearchSandboxDirListing;
   reviewPredictionPosts: Array<Post>;
   reviewVote?: Maybe<SingleReviewVoteOutput>;
   reviewVotes?: Maybe<MultiReviewVoteOutput>;
@@ -8359,6 +8360,12 @@ type QueryresearchProjectsArgs = {
 };
 
 
+type QueryresearchSandboxDirectoryArgs = {
+  conversationId: Scalars['String']['input'];
+  path?: InputMaybe<Scalars['String']['input']>;
+};
+
+
 type QueryreviewPredictionPostsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   year: Scalars['Int']['input'];
@@ -8974,6 +8981,20 @@ type ResearchProjectOutput = {
 
 type ResearchProjectSelector = {
   default?: InputMaybe<EmptyViewInput>;
+};
+
+type ResearchSandboxDirEntry = {
+  __typename?: 'ResearchSandboxDirEntry';
+  kind: Scalars['String']['output'];
+  name: Scalars['String']['output'];
+  size?: Maybe<Scalars['Float']['output']>;
+};
+
+type ResearchSandboxDirListing = {
+  __typename?: 'ResearchSandboxDirListing';
+  entries: Array<ResearchSandboxDirEntry>;
+  path: Scalars['String']['output'];
+  running: Scalars['Boolean']['output'];
 };
 
 type ReviewGroup =
@@ -18168,6 +18189,21 @@ type EnsureResearchScratchDocumentMutationVariables = Exact<{
 
 
 type EnsureResearchScratchDocumentMutation = EnsureResearchScratchDocumentMutation_Mutation;
+
+type ResearchSandboxDirectoryQuery_researchSandboxDirectory_ResearchSandboxDirListing_entries_ResearchSandboxDirEntry = { __typename?: 'ResearchSandboxDirEntry', name: string, kind: string, size: number | null };
+
+type ResearchSandboxDirectoryQuery_researchSandboxDirectory_ResearchSandboxDirListing = { __typename?: 'ResearchSandboxDirListing', path: string, running: boolean, entries: Array<ResearchSandboxDirectoryQuery_researchSandboxDirectory_ResearchSandboxDirListing_entries_ResearchSandboxDirEntry> };
+
+type ResearchSandboxDirectoryQuery_Query = { __typename?: 'Query', researchSandboxDirectory: ResearchSandboxDirectoryQuery_researchSandboxDirectory_ResearchSandboxDirListing };
+
+
+type ResearchSandboxDirectoryQueryVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+  path: InputMaybe<Scalars['String']['input']>;
+}>;
+
+
+type ResearchSandboxDirectoryQuery = ResearchSandboxDirectoryQuery_Query;
 
 type ResearchConversationTranscriptQuery_researchConversationTranscript_ResearchConversationEvent = { __typename?: 'ResearchConversationEvent', _id: string, conversationId: string | null, seq: number | null, claudeMessageUuid: string | null, kind: string | null, payload: any | null, createdAt: string };
 
