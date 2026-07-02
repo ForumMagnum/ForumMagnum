@@ -231,6 +231,12 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       padding: '0 !important',
       minHeight: '0 !important',
       border: 'none !important',
+      // The collapsed block still contains the full syntax-highlighted code
+      // DOM (thousands of token spans on big widgets). Skip its rendering
+      // work (style/layout/paint) entirely — the element keeps its explicit
+      // height, so the spacer geometry is unaffected, but per-keystroke
+      // style recalcs no longer walk the hidden token spans.
+      contentVisibility: 'hidden',
       '&::before': {
         display: 'none !important',
       },
@@ -850,13 +856,17 @@ export default function Editor({
   }, [editor, hasInitialHtml, initialHtml, isCollab]);
 
   const onChange = useCallback((editorState: EditorState) => {
+    // Serializing the whole document to HTML is expensive on large docs —
+    // skip it entirely when no one consumes the result (e.g. collaborative
+    // research documents, where persistence goes through yjs).
+    if (!onChangeHtml) return;
     editorState.read(() => {
       const html = $generateHtmlFromNodes(editor, null);
       const restoredHtml = restoreInternalIds(
         html,
         internalIdsRef.current
       );
-      onChangeHtml?.(restoredHtml);
+      onChangeHtml(restoredHtml);
     });
   }, [editor, onChangeHtml]);
 

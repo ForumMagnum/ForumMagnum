@@ -42,6 +42,9 @@ const isE2E = (process.env.E2E === "true");
 const nextConfig: NextConfig = {
   cacheComponents: !isE2E,
   reactStrictMode: false,
+  // Lets a second dev instance run from the same checkout (next dev holds a
+  // lock under distDir): NEXT_DIST_DIR=.next-profile yarn start dev -p 3005
+  ...(process.env.NEXT_DIST_DIR ? { distDir: process.env.NEXT_DIST_DIR } : {}),
 
   compiler: {
     define: {

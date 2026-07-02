@@ -136,10 +136,6 @@ const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
   },
 }));
 
-function ignoreEditorChange(_html: string) {
-  // ResearchDocument edits persist through the Yjs/Hocuspocus collaboration path.
-}
-
 const DocumentPane = ({ projectId, documentId, openConversation, onSelectDocument }: DocumentPaneProps) => {
   const classes = useStyles(styles);
   const apolloClient = useApolloClient();
@@ -248,7 +244,6 @@ const DocumentPane = ({ projectId, documentId, openConversation, onSelectDocumen
               <ResearchCommentsMarginHostProvider value={commentsMarginHost}>
                 <LexicalEditor
                   data={documentRecord.contents?.html ?? ''}
-                  onChange={ignoreEditorChange}
                   placeholder="Start writing..."
                   collectionName="ResearchDocuments"
                   documentId={documentId}

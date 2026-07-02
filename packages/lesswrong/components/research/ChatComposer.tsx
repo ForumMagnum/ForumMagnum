@@ -114,10 +114,6 @@ const ChatComposer = ({
   const classes = useStyles(styles);
   const editorRef = useRef<LexicalEditor | null>(null);
 
-  const ignoreHtmlChange = useCallback((_html: string) => {
-    // Editor state is serialized to HTML at submit time via $generateHtmlFromNodes.
-  }, []);
-
   const handleSend = useCallback(async () => {
     if (disabled) return;
     const editor = editorRef.current;
@@ -150,7 +146,6 @@ const ChatComposer = ({
       <div className={classNames('research-chat-composer', classes.editorShell, disabled && classes.editorShellDisabled)}>
         <LexicalEditorRoot
           data=""
-          onChange={ignoreHtmlChange}
           placeholder={placeholder}
           // No collectionName / documentId → collaboration is skipped
           // (see `shouldEnableCollaboration` in LexicalEditorRoot).
