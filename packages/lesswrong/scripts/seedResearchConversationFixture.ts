@@ -1,4 +1,5 @@
 import ResearchConversations from "@/server/collections/researchConversations/collection";
+import ResearchDocuments from "@/server/collections/researchDocuments/collection";
 import Users from "@/server/collections/users/collection";
 import { randomId } from "@/lib/random";
 
@@ -16,14 +17,21 @@ export async function seedResearchConversationFixture(projectId: string) {
     console.log("agent-test user not found");
     return;
   }
+  // entrypointDocumentId is NOT NULL — attach to any document in the project.
+  const doc = await ResearchDocuments.findOne({ projectId });
+  if (!doc) {
+    // eslint-disable-next-line no-console
+    console.log(`No document in project ${projectId} — create one first`);
+    return;
+  }
   const _id = randomId();
   const now = new Date();
   await ResearchConversations.rawInsert({
     _id,
     userId: user._id,
     projectId,
-    entrypointKind: "chat",
-    entrypointDocumentId: null,
+    entrypointKind: "document",
+    entrypointDocumentId: doc._id,
     baseEnvironmentId: null,
     runtime: null,
     title: "Fixture conversation",
