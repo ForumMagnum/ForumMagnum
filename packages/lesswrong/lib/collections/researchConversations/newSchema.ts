@@ -147,6 +147,25 @@ const schema = {
       validation: { optional: true },
     },
   },
+  /**
+   * When the owner last opened/viewed this conversation. Drives the sidebar's
+   * unread indicator: activity after this timestamp (with no turn in flight)
+   * shows as "completed, not yet looked at". Null = never explicitly opened
+   * since the field shipped; treated as read so old conversations don't all
+   * light up.
+   */
+  lastReadAt: {
+    database: {
+      type: "TIMESTAMPTZ",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Date",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: { optional: true },
+    },
+  },
 } satisfies Record<string, CollectionFieldSpecification<"ResearchConversations">>;
 
 export default schema;

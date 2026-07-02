@@ -7317,6 +7317,7 @@ type Query = {
   researchConversation?: Maybe<SingleResearchConversationOutput>;
   researchConversationEvent?: Maybe<SingleResearchConversationEventOutput>;
   researchConversationEvents?: Maybe<MultiResearchConversationEventOutput>;
+  researchConversationSidebarStatuses: Array<ResearchConversationSidebarStatus>;
   researchConversationTranscript: Array<ResearchConversationEvent>;
   researchConversations?: Maybe<MultiResearchConversationOutput>;
   researchDocument?: Maybe<SingleResearchDocumentOutput>;
@@ -8292,6 +8293,11 @@ type QueryresearchConversationEventsArgs = {
 };
 
 
+type QueryresearchConversationSidebarStatusesArgs = {
+  projectId: Scalars['String']['input'];
+};
+
+
 type QueryresearchConversationTranscriptArgs = {
   before?: InputMaybe<Scalars['Int']['input']>;
   conversationId: Scalars['String']['input'];
@@ -8830,6 +8836,7 @@ type ResearchConversation = {
   entrypointDocumentId?: Maybe<Scalars['String']['output']>;
   entrypointKind?: Maybe<ResearchEntrypointKind>;
   lastActivityAt?: Maybe<Scalars['Date']['output']>;
+  lastReadAt?: Maybe<Scalars['Date']['output']>;
   presentationHtml?: Maybe<Scalars['String']['output']>;
   projectId?: Maybe<Scalars['String']['output']>;
   runtime?: Maybe<Scalars['String']['output']>;
@@ -8863,6 +8870,14 @@ type ResearchConversationOutput = {
 type ResearchConversationSelector = {
   byProject?: InputMaybe<ResearchConversationsByProjectInput>;
   default?: InputMaybe<EmptyViewInput>;
+};
+
+type ResearchConversationSidebarStatus = {
+  __typename?: 'ResearchConversationSidebarStatus';
+  conversationId: Scalars['String']['output'];
+  lastActivityAt?: Maybe<Scalars['Date']['output']>;
+  lastReadAt?: Maybe<Scalars['Date']['output']>;
+  turnActive: Scalars['Boolean']['output'];
 };
 
 type ResearchConversationsByProjectInput = {
@@ -11084,6 +11099,7 @@ type UpdateResearchConversationDataInput = {
   entrypointDocumentId?: InputMaybe<Scalars['String']['input']>;
   entrypointKind?: InputMaybe<ResearchEntrypointKind>;
   lastActivityAt?: InputMaybe<Scalars['Date']['input']>;
+  lastReadAt?: InputMaybe<Scalars['Date']['input']>;
   projectId?: InputMaybe<Scalars['String']['input']>;
   runtime?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
@@ -18008,6 +18024,18 @@ type RenameResearchConversationSidebarMutationVariables = Exact<{
 
 type RenameResearchConversationSidebarMutation = RenameResearchConversationSidebarMutation_Mutation;
 
+type ResearchConversationSidebarStatusesQuery_researchConversationSidebarStatuses_ResearchConversationSidebarStatus = { __typename?: 'ResearchConversationSidebarStatus', conversationId: string, turnActive: boolean, lastActivityAt: string | null, lastReadAt: string | null };
+
+type ResearchConversationSidebarStatusesQuery_Query = { __typename?: 'Query', researchConversationSidebarStatuses: Array<ResearchConversationSidebarStatusesQuery_researchConversationSidebarStatuses_ResearchConversationSidebarStatus> };
+
+
+type ResearchConversationSidebarStatusesQueryVariables = Exact<{
+  projectId: Scalars['String']['input'];
+}>;
+
+
+type ResearchConversationSidebarStatusesQuery = ResearchConversationSidebarStatusesQuery_Query;
+
 type CreateResearchDocumentPaletteMutation_createResearchDocument_ResearchDocumentOutput_data_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null };
 
 type CreateResearchDocumentPaletteMutation_createResearchDocument_ResearchDocumentOutput = { __typename?: 'ResearchDocumentOutput', data: CreateResearchDocumentPaletteMutation_createResearchDocument_ResearchDocumentOutput_data_ResearchDocument | null };
@@ -18114,6 +18142,21 @@ type ResearchConversationTranscriptQueryVariables = Exact<{
 
 
 type ResearchConversationTranscriptQuery = ResearchConversationTranscriptQuery_Query;
+
+type MarkResearchConversationReadMutation_updateResearchConversation_ResearchConversationOutput_data_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, lastReadAt: string | null };
+
+type MarkResearchConversationReadMutation_updateResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', data: MarkResearchConversationReadMutation_updateResearchConversation_ResearchConversationOutput_data_ResearchConversation | null };
+
+type MarkResearchConversationReadMutation_Mutation = { __typename?: 'Mutation', updateResearchConversation: MarkResearchConversationReadMutation_updateResearchConversation_ResearchConversationOutput | null };
+
+
+type MarkResearchConversationReadMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+  lastReadAt: Scalars['Date']['input'];
+}>;
+
+
+type MarkResearchConversationReadMutation = MarkResearchConversationReadMutation_Mutation;
 
 type ResearchConversationBlockInfoQuery_researchConversation_SingleResearchConversationOutput_result_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, presentationHtml: string | null };
 

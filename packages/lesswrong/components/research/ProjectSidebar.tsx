@@ -69,6 +69,38 @@ const RenameResearchConversationMutation = gql(`
   }
 `);
 
+const SidebarStatusesQuery = gql(`
+  query ResearchConversationSidebarStatuses($projectId: String!) {
+    researchConversationSidebarStatuses(projectId: $projectId) {
+      conversationId
+      turnActive
+      lastActivityAt
+      lastReadAt
+    }
+  }
+`);
+
+const STATUS_POLL_MS = 10_000;
+
+interface SidebarConversationStatus {
+  turnActive: boolean;
+  unread: boolean;
+}
+
+function deriveConversationStatus(status: {
+  turnActive: boolean;
+  lastActivityAt: Date | string | null;
+  lastReadAt: Date | string | null;
+}): SidebarConversationStatus {
+  // Null lastReadAt = never stamped (pre-feature conversations) — treat as
+  // read so the whole sidebar doesn't light up on ship.
+  const unread = !status.turnActive
+    && !!status.lastReadAt
+    && !!status.lastActivityAt
+    && new Date(status.lastActivityAt).valueOf() > new Date(status.lastReadAt).valueOf();
+  return { turnActive: status.turnActive, unread };
+}
+
 const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
   root: {
     display: 'flex',
@@ -160,6 +192,34 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     flex: 'none',
     color: theme.palette.text.dim,
   },
+  // Both dots occupy the 13px icon slot so rows don't shift as state changes.
+  statusDot: {
+    flex: 'none',
+    width: 13,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    '&:before': {
+      content: '""',
+      width: 8,
+      height: 8,
+      borderRadius: '50%',
+      background: theme.palette.primary.main,
+    },
+  },
+  statusDotActive: {
+    animation: '$sidebarTurnPulse 1.4s ease-in-out infinite',
+  },
+  '@keyframes sidebarTurnPulse': {
+    '0%, 100%': { opacity: 0.25, transform: 'scale(0.85)' },
+    '50%': { opacity: 1, transform: 'scale(1)' },
+  },
+  itemUnread: {
+    '& $itemLabel': {
+      fontWeight: 600,
+      color: theme.palette.text.primary,
+    },
+  },
   itemLabel: {
     flex: 1,
     minWidth: 0,
@@ -239,6 +299,19 @@ const ProjectSidebar = ({
     fetchPolicy: 'cache-and-network',
     notifyOnNetworkStatusChange: true,
   });
+
+  // Lightweight polled status feed for the activity/unread indicators.
+  const { data: statusData } = useQuery(SidebarStatusesQuery, {
+    variables: { projectId },
+    pollInterval: STATUS_POLL_MS,
+  });
+  const statusByConversation = useMemo(() => {
+    const map = new Map<string, SidebarConversationStatus>();
+    for (const status of statusData?.researchConversationSidebarStatuses ?? []) {
+      map.set(status.conversationId, deriveConversationStatus(status));
+    }
+    return map;
+  }, [statusData]);
 
   const [createDocument] = useMutation(CreateResearchDocumentMutation);
   const [renameDocument] = useMutation(RenameResearchDocumentMutation);
@@ -359,15 +432,31 @@ const ProjectSidebar = ({
             <div className={classes.empty}>No conversations yet</div>
           ) : null}
           <ul className={classes.list}>
-            {conversations.map((conv) => (
+            {conversations.map((conv) => {
+              const status = statusByConversation.get(conv._id);
+              return (
               <li key={conv._id}>
                 <div
-                  className={classes.item}
+                  className={classNames(classes.item, status?.unread && classes.itemUnread)}
                   onClick={() => onSelectConversation(conv._id)}
                   role="button"
                   tabIndex={0}
                 >
-                  <ForumIcon icon="ChatBubbleLeftRight" className={classes.itemIcon} />
+                  {status?.turnActive ? (
+                    <span
+                      className={classNames(classes.statusDot, classes.statusDotActive)}
+                      title="Agent is working"
+                      aria-label="Agent is working"
+                    />
+                  ) : status?.unread ? (
+                    <span
+                      className={classes.statusDot}
+                      title="Finished since you last looked"
+                      aria-label="Unread activity"
+                    />
+                  ) : (
+                    <ForumIcon icon="ChatBubbleLeftRight" className={classes.itemIcon} />
+                  )}
                   <EditableTitle
                     classes={classes}
                     title={conv.title ?? null}
@@ -388,7 +477,8 @@ const ProjectSidebar = ({
                   </button>
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         </div>
       </div>

@@ -52,6 +52,7 @@ interface Query {
   TagHistoryFeed: TagHistoryFeedQueryResults;
   UserContentFeed: UserContentFeedQueryResults;
   researchConversationTranscript: Array<ResearchConversationEvent>;
+  researchConversationSidebarStatuses: Array<ResearchConversationSidebarStatus>;
   TagUpdatesInTimeBlock: Array<TagUpdates>;
   TagUpdatesByUser: Array<TagUpdates> | null;
   RandomTag: Tag;
@@ -1060,6 +1061,13 @@ interface SaveResearchEnvironmentOutput {
 
 interface EnsureResearchScratchDocumentOutput {
   documentId: string;
+}
+
+interface ResearchConversationSidebarStatus {
+  conversationId: string;
+  turnActive: boolean;
+  lastActivityAt: Date | null;
+  lastReadAt: Date | null;
 }
 
 interface DocumentDeletion {
@@ -5670,6 +5678,7 @@ interface ResearchConversation {
   runtime: string | null;
   presentationHtml: string | null;
   lastActivityAt: Date | null;
+  lastReadAt: Date | null;
 }
 
 interface SingleResearchConversationInput {
@@ -8264,6 +8273,7 @@ interface UpdateResearchConversationDataInput {
   baseEnvironmentId?: string | null;
   runtime?: string | null;
   lastActivityAt?: Date | null;
+  lastReadAt?: Date | null;
 }
 
 interface UpdateResearchConversationInput {
@@ -9213,6 +9223,7 @@ interface GraphQLTypeMap {
   SetClaudeCodeOAuthTokenOutput: SetClaudeCodeOAuthTokenOutput;
   SaveResearchEnvironmentOutput: SaveResearchEnvironmentOutput;
   EnsureResearchScratchDocumentOutput: EnsureResearchScratchDocumentOutput;
+  ResearchConversationSidebarStatus: ResearchConversationSidebarStatus;
   DocumentDeletion: DocumentDeletion;
   TagUpdates: TagUpdates;
   TagPreviewWithSummaries: TagPreviewWithSummaries;

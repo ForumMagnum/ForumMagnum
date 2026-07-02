@@ -990,8 +990,16 @@ extend type Mutation {
   ensureResearchScratchDocument(projectId: String!): EnsureResearchScratchDocumentOutput
 }
 
+type ResearchConversationSidebarStatus {
+  conversationId: String!
+  turnActive: Boolean!
+  lastActivityAt: Date
+  lastReadAt: Date
+}
+
 extend type Query {
   researchConversationTranscript(conversationId: String!, before: Int, limit: Int): [ResearchConversationEvent!]!
+  researchConversationSidebarStatuses(projectId: String!): [ResearchConversationSidebarStatus!]!
 }
 
 enum DocumentDeletionNetChange {
@@ -6129,6 +6137,7 @@ type ResearchConversation {
   runtime: String
   presentationHtml: String
   lastActivityAt: Date
+  lastReadAt: Date
 }
 
 input SingleResearchConversationInput {
@@ -9035,6 +9044,7 @@ input UpdateResearchConversationDataInput {
   baseEnvironmentId: String
   runtime: String
   lastActivityAt: Date
+  lastReadAt: Date
 }
 
 input UpdateResearchConversationInput {

@@ -17,6 +17,7 @@ import ProjectSidebar from './ProjectSidebar';
 import DocumentPane from './DocumentPane';
 import ResearchCommandPalette from './ResearchCommandPalette';
 import { ConversationChatView } from './ConversationChatView';
+import { useMarkConversationRead } from './hooks/useMarkConversationRead';
 import { ProjectSidebarQuery } from './projectSidebarQuery';
 import {
   ResearchWorkspaceProvider,
@@ -280,7 +281,10 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
    * conversation whose block was deleted from its document gets a fresh block
    * appended there, so every conversation stays reachable.
    */
+  const markConversationRead = useMarkConversationRead();
+
   const openConversation = useCallback(async (conversationId: string) => {
+    markConversationRead(conversationId);
     const conversation = conversationsRef.current?.find((c) => c._id === conversationId);
     const entrypointDocumentId =
       conversation?.entrypointKind === 'document' ? conversation?.entrypointDocumentId ?? null : null;
@@ -298,7 +302,7 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
       materializeIfMissing: true,
       nonce: intentNonceRef.current,
     });
-  }, [ensureScratchDocument, projectId, setActiveDocumentId]);
+  }, [ensureScratchDocument, projectId, setActiveDocumentId, markConversationRead]);
 
   /**
    * Start a fresh conversation: open the project scratch document and append
@@ -314,8 +318,9 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   }, [ensureScratchDocument, projectId, setActiveDocumentId]);
 
   const openConversationChat = useCallback((conversationId: string, opts?: { fullscreen?: boolean }) => {
+    markConversationRead(conversationId);
     setChatSurface({ conversationId, fullscreen: opts?.fullscreen ?? false });
-  }, []);
+  }, [markConversationRead]);
 
   const closeConversationChat = useCallback(() => {
     setChatSurface(null);

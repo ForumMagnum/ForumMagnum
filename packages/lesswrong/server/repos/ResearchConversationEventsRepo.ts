@@ -197,6 +197,39 @@ class ResearchConversationEventsRepo extends AbstractRepo<"ResearchConversationE
   }
 
   /**
+   * Batched `hasIncompleteTurn`: which of these conversations currently have
+   * a dangling turn? One round-trip for the sidebar's status indicators —
+   * the LATERAL subquery rides the `(conversationId, seq)` index per
+   * conversation, same access path as the single-conversation variant.
+   */
+  public async conversationsWithIncompleteTurns(conversationIds: string[]): Promise<string[]> {
+    if (conversationIds.length === 0) return [];
+    const rows = await this.getRawDb().any<{ conversationId: string }>(`
+      -- ResearchConversationEventsRepo.conversationsWithIncompleteTurns
+      SELECT ids.id AS "conversationId"
+      FROM unnest($(conversationIds)::text[]) AS ids(id)
+      CROSS JOIN LATERAL (
+        SELECT e."kind"
+        FROM "ResearchConversationEvents" e
+        WHERE e."conversationId" = ids.id
+          AND (
+            e."kind" IN ($(turnActivityKinds:csv))
+            OR e."kind" = 'result'
+            OR (e."kind" = 'system' AND e."payload"->>'subtype' = $(turnOpeningSubtype))
+          )
+        ORDER BY e."seq" DESC
+        LIMIT 1
+      ) last_event
+      WHERE last_event."kind" <> 'result'
+    `, {
+      conversationIds,
+      turnActivityKinds: [...TURN_ACTIVITY_EVENT_KINDS],
+      turnOpeningSubtype: TURN_OPENING_SYSTEM_SUBTYPE,
+    });
+    return rows.map((r) => r.conversationId);
+  }
+
+  /**
    * Tail query for the backend → client event stream: given a set of
    * `(conversationId, sinceSeq)` cursors, return all events with `seq > sinceSeq`
    * for each, in `seq` order, capped at `limitPerConversation` per conversation.

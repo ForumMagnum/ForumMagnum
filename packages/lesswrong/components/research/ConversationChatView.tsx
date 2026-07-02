@@ -11,6 +11,7 @@ import { htmlToTextDefault } from '@/lib/htmlToText';
 import { randomId } from '@/lib/random';
 import ForumIcon from '@/components/common/ForumIcon';
 import { useConversationStream } from './hooks/useConversationStream';
+import { useMarkConversationRead } from './hooks/useMarkConversationRead';
 import { isVisibleConversationEvent } from './conversationEventFormat';
 import { ConversationTranscript } from './ConversationTranscript';
 import { ConversationActions } from './ConversationActions';
@@ -199,14 +200,22 @@ export const ConversationChatView = ({
   });
   const title = conversationData?.researchConversation?.result?.title ?? 'Conversation';
 
+  // The chat surface being open counts as reading it — stamp on open and
+  // again when a turn completes while the user is watching.
+  const markConversationRead = useMarkConversationRead();
+  useEffect(() => {
+    markConversationRead(conversationId);
+  }, [conversationId, markConversationRead]);
+
   // Background title generation may land during a turn — refresh on completion.
   const wasInFlightRef = useRef(false);
   useEffect(() => {
     if (wasInFlightRef.current && !turnInFlight) {
       void refetchConversation();
+      markConversationRead(conversationId);
     }
     wasInFlightRef.current = turnInFlight;
-  }, [turnInFlight, refetchConversation]);
+  }, [turnInFlight, refetchConversation, conversationId, markConversationRead]);
 
   const visibleEvents = useMemo(
     () => events.filter(isVisibleConversationEvent),

@@ -2367,7 +2367,8 @@ CREATE TABLE "ResearchConversations" (
   "baseEnvironmentId" VARCHAR(27),
   "runtime" TEXT,
   "presentationHtml" TEXT,
-  "lastActivityAt" TIMESTAMPTZ NOT NULL
+  "lastActivityAt" TIMESTAMPTZ NOT NULL,
+  "lastReadAt" TIMESTAMPTZ
 );
 
 -- Index "idx_ResearchConversations_projectId_lastActivityAt"

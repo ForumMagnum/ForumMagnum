@@ -9,6 +9,7 @@ import { type NodeKey } from 'lexical';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useStopLexicalEventPropagation } from '@/components/editor/lexicalPlugins/useStopLexicalEventPropagation';
 import { useConversationStream, type ConversationEvent } from '@/components/research/hooks/useConversationStream';
+import { useMarkConversationRead } from '@/components/research/hooks/useMarkConversationRead';
 import { useResearchEditorEnvironment, usePendingConversation } from './ResearchEditorContext';
 import { useResearchWorkspaceApiOptional } from '../researchWorkspaceContext';
 import {
@@ -336,15 +337,24 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
   });
   const conversation = conversationData?.researchConversation?.result;
 
+  // Reading the conversation = reading it: focusing the block stamps it read,
+  // and a turn completing while the user has it focused stamps again so the
+  // sidebar's unread dot never lights up for something they just watched.
+  const markConversationRead = useMarkConversationRead();
+  useEffect(() => {
+    if (focused) markConversationRead(conversationId);
+  }, [focused, conversationId, markConversationRead]);
+
   // The agent may have updated its presentation (or the background title
   // generation may have landed) during the turn — refresh on completion.
   const wasInFlightRef = useRef(false);
   useEffect(() => {
     if (wasInFlightRef.current && !turnInFlight) {
       void refetchConversation();
+      if (focused) markConversationRead(conversationId);
     }
     wasInFlightRef.current = turnInFlight;
-  }, [turnInFlight, refetchConversation]);
+  }, [turnInFlight, refetchConversation, focused, conversationId, markConversationRead]);
 
   const visibleEvents = useMemo(
     () => events.filter(isVisibleConversationEvent),

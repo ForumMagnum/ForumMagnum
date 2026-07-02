@@ -250,8 +250,18 @@ export const researchResolversTypeDefs = gql`
     ensureResearchScratchDocument(projectId: String!): EnsureResearchScratchDocumentOutput
   }
 
+  # Lightweight per-conversation status for the sidebar's activity/unread
+  # indicators — polled, so it carries only what the indicators need.
+  type ResearchConversationSidebarStatus {
+    conversationId: String!
+    turnActive: Boolean!
+    lastActivityAt: Date
+    lastReadAt: Date
+  }
+
   extend type Query {
     researchConversationTranscript(conversationId: String!, before: Int, limit: Int): [ResearchConversationEvent!]!
+    researchConversationSidebarStatuses(projectId: String!): [ResearchConversationSidebarStatus!]!
   }
 `;
 
@@ -321,6 +331,8 @@ export const researchResolversMutations = {
         claudeSessionId,
         presentationHtml: null,
         lastActivityAt: now,
+        // The creator is looking at the conversation they just fired.
+        lastReadAt: now,
         createdAt: now,
       });
     } catch (err) {
@@ -695,5 +707,30 @@ export const researchResolversQueries = {
       { sort: { seq: -1 }, limit: args.limit ?? 200 },
     ).fetch();
     return events.reverse();
+  },
+
+  async researchConversationSidebarStatuses(
+    _root: void,
+    args: { projectId: string },
+    context: ResolverContext,
+  ) {
+    const { currentUser, ResearchConversations } = context;
+    if (!userIsAdmin(currentUser)) throw new Error("Forbidden");
+    const conversations = await ResearchConversations.find(
+      { projectId: args.projectId, userId: currentUser._id },
+      { limit: 500 },
+      { _id: 1, lastActivityAt: 1, lastReadAt: 1 },
+    ).fetch();
+    const activeIds = new Set(
+      await context.repos.researchConversationEvents.conversationsWithIncompleteTurns(
+        conversations.map((c) => c._id),
+      ),
+    );
+    return conversations.map((c) => ({
+      conversationId: c._id,
+      turnActive: activeIds.has(c._id),
+      lastActivityAt: c.lastActivityAt,
+      lastReadAt: c.lastReadAt ?? null,
+    }));
   },
 };
