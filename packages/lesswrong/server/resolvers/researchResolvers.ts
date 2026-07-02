@@ -13,6 +13,7 @@ import {
   type ProvisionedSandbox,
 } from "@/server/research/sandbox/sandboxManager";
 import { listSandboxDirectory, SANDBOX_DEFAULT_DIR } from "@/server/research/sandbox/listSandboxDirectory";
+import { readSandboxTextFile } from "@/server/research/sandbox/readSandboxTextFile";
 import { GraphQLError } from "graphql";
 import { isPlainRecord } from "@/components/research/conversationEventFormat";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -276,10 +277,24 @@ export const researchResolversTypeDefs = gql`
     entries: [ResearchSandboxDirEntry!]!
   }
 
+  type ResearchSandboxFileContents {
+    path: String!
+    # False when the sandbox isn't running (viewer shows an empty state).
+    running: Boolean!
+    content: String!
+    # content is only the leading bytes of a larger file.
+    truncated: Boolean!
+    # The file looks binary; content is empty and the viewer says so.
+    binary: Boolean!
+    # Full on-disk byte size.
+    size: Float!
+  }
+
   extend type Query {
     researchConversationTranscript(conversationId: String!, before: Int, limit: Int): [ResearchConversationEvent!]!
     researchConversationSidebarStatuses(projectId: String!): [ResearchConversationSidebarStatus!]!
     researchSandboxDirectory(conversationId: String!, path: String): ResearchSandboxDirListing!
+    researchSandboxFile(conversationId: String!, path: String!): ResearchSandboxFileContents!
   }
 `;
 
@@ -767,5 +782,19 @@ export const researchResolversQueries = {
     const path = args.path?.trim() || SANDBOX_DEFAULT_DIR;
     const entries = await listSandboxDirectory(sandbox, path);
     return { path, running: true, entries };
+  },
+
+  async researchSandboxFile(
+    _root: void,
+    args: { conversationId: string; path: string },
+    context: ResolverContext,
+  ) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    const sandbox = await getRunningSandbox(conv._id);
+    if (!sandbox) {
+      return { path: args.path, running: false, content: "", truncated: false, binary: false, size: 0 };
+    }
+    const file = await readSandboxTextFile(sandbox, args.path);
+    return { path: args.path, running: true, ...file };
   },
 };

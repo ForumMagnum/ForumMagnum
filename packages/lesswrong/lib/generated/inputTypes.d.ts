@@ -54,6 +54,7 @@ interface Query {
   researchConversationTranscript: Array<ResearchConversationEvent>;
   researchConversationSidebarStatuses: Array<ResearchConversationSidebarStatus>;
   researchSandboxDirectory: ResearchSandboxDirListing;
+  researchSandboxFile: ResearchSandboxFileContents;
   TagUpdatesInTimeBlock: Array<TagUpdates>;
   TagUpdatesByUser: Array<TagUpdates> | null;
   RandomTag: Tag;
@@ -1082,6 +1083,15 @@ interface ResearchSandboxDirListing {
   path: string;
   running: boolean;
   entries: Array<ResearchSandboxDirEntry>;
+}
+
+interface ResearchSandboxFileContents {
+  path: string;
+  running: boolean;
+  content: string;
+  truncated: boolean;
+  binary: boolean;
+  size: number;
 }
 
 interface DocumentDeletion {
@@ -9257,6 +9267,7 @@ interface GraphQLTypeMap {
   ResearchConversationSidebarStatus: ResearchConversationSidebarStatus;
   ResearchSandboxDirEntry: ResearchSandboxDirEntry;
   ResearchSandboxDirListing: ResearchSandboxDirListing;
+  ResearchSandboxFileContents: ResearchSandboxFileContents;
   DocumentDeletion: DocumentDeletion;
   TagUpdates: TagUpdates;
   TagPreviewWithSummaries: TagPreviewWithSummaries;

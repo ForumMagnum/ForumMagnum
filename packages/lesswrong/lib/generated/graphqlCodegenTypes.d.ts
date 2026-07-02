@@ -7334,6 +7334,7 @@ type Query = {
   researchProject?: Maybe<SingleResearchProjectOutput>;
   researchProjects?: Maybe<MultiResearchProjectOutput>;
   researchSandboxDirectory: ResearchSandboxDirListing;
+  researchSandboxFile: ResearchSandboxFileContents;
   reviewPredictionPosts: Array<Post>;
   reviewVote?: Maybe<SingleReviewVoteOutput>;
   reviewVotes?: Maybe<MultiReviewVoteOutput>;
@@ -8366,6 +8367,12 @@ type QueryresearchSandboxDirectoryArgs = {
 };
 
 
+type QueryresearchSandboxFileArgs = {
+  conversationId: Scalars['String']['input'];
+  path: Scalars['String']['input'];
+};
+
+
 type QueryreviewPredictionPostsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   year: Scalars['Int']['input'];
@@ -8995,6 +9002,16 @@ type ResearchSandboxDirListing = {
   entries: Array<ResearchSandboxDirEntry>;
   path: Scalars['String']['output'];
   running: Scalars['Boolean']['output'];
+};
+
+type ResearchSandboxFileContents = {
+  __typename?: 'ResearchSandboxFileContents';
+  binary: Scalars['Boolean']['output'];
+  content: Scalars['String']['output'];
+  path: Scalars['String']['output'];
+  running: Scalars['Boolean']['output'];
+  size: Scalars['Float']['output'];
+  truncated: Scalars['Boolean']['output'];
 };
 
 type ReviewGroup =
@@ -18204,6 +18221,19 @@ type ResearchSandboxDirectoryQueryVariables = Exact<{
 
 
 type ResearchSandboxDirectoryQuery = ResearchSandboxDirectoryQuery_Query;
+
+type ResearchSandboxFileQuery_researchSandboxFile_ResearchSandboxFileContents = { __typename?: 'ResearchSandboxFileContents', path: string, running: boolean, content: string, truncated: boolean, binary: boolean, size: number };
+
+type ResearchSandboxFileQuery_Query = { __typename?: 'Query', researchSandboxFile: ResearchSandboxFileQuery_researchSandboxFile_ResearchSandboxFileContents };
+
+
+type ResearchSandboxFileQueryVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+  path: Scalars['String']['input'];
+}>;
+
+
+type ResearchSandboxFileQuery = ResearchSandboxFileQuery_Query;
 
 type ResearchConversationTranscriptQuery_researchConversationTranscript_ResearchConversationEvent = { __typename?: 'ResearchConversationEvent', _id: string, conversationId: string | null, seq: number | null, claudeMessageUuid: string | null, kind: string | null, payload: any | null, createdAt: string };
 

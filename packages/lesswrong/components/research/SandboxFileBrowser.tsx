@@ -7,6 +7,7 @@ import { useLazyQuery } from '@apollo/client/react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ForumIcon from '@/components/common/ForumIcon';
 import Loading from '../vulcan-core/Loading';
+import { useResearchWorkspaceApiOptional } from './researchWorkspaceContext';
 import { researchMono, researchWarmAlpha, researchScrollbars, researchUiSans } from './researchStyleUtils';
 
 const SandboxDirectoryQuery = gql(`
@@ -145,6 +146,7 @@ interface SandboxFileBrowserProps {
  */
 export const SandboxFileBrowser = ({ conversationId }: SandboxFileBrowserProps) => {
   const classes = useStyles(styles);
+  const workspace = useResearchWorkspaceApiOptional();
   const [loadDirectory] = useLazyQuery(SandboxDirectoryQuery, { fetchPolicy: 'network-only' });
   const [treeData, setTreeData] = useState<FileNode[] | null>(null);
   const [running, setRunning] = useState<boolean | null>(null);
@@ -220,8 +222,15 @@ export const SandboxFileBrowser = ({ conversationId }: SandboxFileBrowserProps) 
     // directories, a document icon for files. Keeping them in the same column
     // (rather than a chevron column plus a separate icon column) means leaves
     // and folders line up with no empty slot / stray gutter.
+    const onRowClick = () => {
+      if (dir) {
+        node.toggle();
+      } else {
+        workspace?.openSandboxFile(conversationId, node.data.id);
+      }
+    };
     return (
-      <div className={classes.row} style={style} ref={dragHandle} onClick={() => node.toggle()}>
+      <div className={classes.row} style={style} ref={dragHandle} onClick={onRowClick}>
         {dir ? (
           <ForumIcon
             icon="ChevronRight"
@@ -234,7 +243,7 @@ export const SandboxFileBrowser = ({ conversationId }: SandboxFileBrowserProps) 
         {node.data.size != null ? <span className={classes.size}>{formatSize(node.data.size)}</span> : null}
       </div>
     );
-  }, [classes]);
+  }, [classes, workspace, conversationId]);
 
   let body: React.ReactNode;
   if (error) {

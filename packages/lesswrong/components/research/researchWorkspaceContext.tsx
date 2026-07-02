@@ -44,6 +44,15 @@ export interface ResearchChatSurfaceState {
   fullscreen: boolean;
 }
 
+/**
+ * A sandbox text file open in the center pane's read-only viewer (opened from
+ * a conversation's file browser). Cleared when the user closes the viewer.
+ */
+export interface SandboxFileView {
+  conversationId: string;
+  path: string;
+}
+
 export interface ResearchWorkspaceApi {
   editorIntent: ResearchEditorIntent | null;
   clearEditorIntent: (nonce: number) => void;
@@ -53,6 +62,10 @@ export interface ResearchWorkspaceApi {
   /** Open a conversation in the right side panel (or fullscreen overlay). */
   openConversationChat: (conversationId: string, opts?: { fullscreen?: boolean }) => void;
   closeConversationChat: () => void;
+  /** Open a sandbox text file in the center pane's read-only viewer. */
+  sandboxFileView: SandboxFileView | null;
+  openSandboxFile: (conversationId: string, path: string) => void;
+  closeSandboxFile: () => void;
 }
 
 const ResearchWorkspaceContext = createContext<ResearchWorkspaceApi | null>(null);

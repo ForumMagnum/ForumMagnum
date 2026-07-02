@@ -1009,10 +1009,20 @@ type ResearchSandboxDirListing {
   entries: [ResearchSandboxDirEntry!]!
 }
 
+type ResearchSandboxFileContents {
+  path: String!
+  running: Boolean!
+  content: String!
+  truncated: Boolean!
+  binary: Boolean!
+  size: Float!
+}
+
 extend type Query {
   researchConversationTranscript(conversationId: String!, before: Int, limit: Int): [ResearchConversationEvent!]!
   researchConversationSidebarStatuses(projectId: String!): [ResearchConversationSidebarStatus!]!
   researchSandboxDirectory(conversationId: String!, path: String): ResearchSandboxDirListing!
+  researchSandboxFile(conversationId: String!, path: String!): ResearchSandboxFileContents!
 }
 
 enum DocumentDeletionNetChange {

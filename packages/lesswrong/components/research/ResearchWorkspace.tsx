@@ -17,6 +17,7 @@ import ProjectSidebar from './ProjectSidebar';
 import DocumentPane from './DocumentPane';
 import ResearchCommandPalette from './ResearchCommandPalette';
 import { ConversationChatView } from './ConversationChatView';
+import { SandboxFileViewer } from './SandboxFileViewer';
 import { useMarkConversationRead } from './hooks/useMarkConversationRead';
 import { ProjectSidebarQuery } from './projectSidebarQuery';
 import {
@@ -24,6 +25,7 @@ import {
   type ResearchEditorIntent,
   type ConversationFocusRequest,
   type ResearchChatSurfaceState,
+  type SandboxFileView,
   type ResearchWorkspaceApi,
 } from './researchWorkspaceContext';
 import {
@@ -129,6 +131,8 @@ const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
     '--icon-size': '15px',
   },
   document: {
+    // Positioning context for the sandbox file viewer overlay.
+    position: 'relative',
     flex: 1,
     overflow: 'hidden',
     display: 'flex',
@@ -203,6 +207,7 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   const [chatSurface, setChatSurface] = useState<ResearchChatSurfaceState | null>(null);
   const [chatPanelWidth, setChatPanelWidth] = useState(CHAT_PANEL_DEFAULT_WIDTH);
   const [chatPanelResizing, setChatPanelResizing] = useState(false);
+  const [sandboxFileView, setSandboxFileView] = useState<SandboxFileView | null>(null);
 
   const [editorIntent, setEditorIntent] = useState<ResearchEditorIntent | null>(null);
   const [conversationFocusRequest, setConversationFocusRequest] = useState<ConversationFocusRequest | null>(null);
@@ -336,6 +341,14 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
     void openConversation(conversationId);
   }, [openConversation]);
 
+  const openSandboxFile = useCallback((conversationId: string, path: string) => {
+    setSandboxFileView({ conversationId, path });
+  }, []);
+
+  const closeSandboxFile = useCallback(() => {
+    setSandboxFileView(null);
+  }, []);
+
   const workspaceApi = useMemo<ResearchWorkspaceApi>(() => ({
     editorIntent,
     clearEditorIntent,
@@ -344,7 +357,10 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
     ackConversationFocus,
     openConversationChat,
     closeConversationChat,
-  }), [editorIntent, clearEditorIntent, conversationFocusRequest, requestConversationFocus, ackConversationFocus, openConversationChat, closeConversationChat]);
+    sandboxFileView,
+    openSandboxFile,
+    closeSandboxFile,
+  }), [editorIntent, clearEditorIntent, conversationFocusRequest, requestConversationFocus, ackConversationFocus, openConversationChat, closeConversationChat, sandboxFileView, openSandboxFile, closeSandboxFile]);
 
   // --- Sidebar resize ----------------------------------------------------
   const handleResizeStart = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
@@ -448,6 +464,15 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
               openConversation={openConversation}
               onSelectDocument={setActiveDocumentId}
             />
+            {/* The document editor stays mounted underneath so its state
+                survives opening/closing the viewer. */}
+            {sandboxFileView ? (
+              <SandboxFileViewer
+                conversationId={sandboxFileView.conversationId}
+                path={sandboxFileView.path}
+                onClose={closeSandboxFile}
+              />
+            ) : null}
           </div>
           {chatSurface && !chatSurface.fullscreen ? (
             <div className={classes.chatPanel} style={{ width: chatPanelWidth }}>
