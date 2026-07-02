@@ -11,7 +11,7 @@ import ForumIcon from '@/components/common/ForumIcon';
 import LexicalEditorRoot from '@/components/editor/LexicalEditor';
 import { chatComposerNodes } from './lexical/chatComposerNodes';
 import { MentionTypeaheadPlugin } from './lexical/MentionTypeaheadPlugin';
-import { researchAccentTint, researchChatSans, researchTransition, researchWarmAlpha, researchCanvas, researchRadius } from './researchStyleUtils';
+import { researchAccentTint, researchChatSans, researchTransition, researchWarmAlpha, researchInputBackground, researchRadius, researchSquircle } from './researchStyleUtils';
 
 interface ChatComposerProps {
   projectId: string;
@@ -38,9 +38,10 @@ const styles = defineStyles('ChatComposer', (theme: ThemeType) => ({
     minHeight: 34,
     boxSizing: 'border-box',
     padding: '7px 12px',
-    background: researchCanvas(theme),
+    background: researchInputBackground(theme),
     border: `1px solid ${researchWarmAlpha(0.12)}`,
     borderRadius: researchRadius.sm,
+    ...researchSquircle,
     fontFamily: researchChatSans,
     fontSize: 14,
     lineHeight: 1.45,

@@ -89,13 +89,32 @@ export function researchChatSurface(_theme: ThemeType): string {
 
 // 2026-07 warmth pass: one step rounder across the board. `xs` is for tiny
 // icon buttons and chips that would read blobby at the larger radii.
+// (lg was 14 for a beat; user found the big boxes "a bit too rounded" — 12.)
 export const researchRadius = {
   xs: 6,
   sm: 8,
   md: 10,
-  lg: 14,
+  lg: 12,
   pill: 999,
 } as const;
+
+/**
+ * Squircle corner geometry (2026-07, "will generally improve vibes"): spread
+ * alongside a borderRadius. `corner-shape` is supported in current Chromium;
+ * elsewhere it's ignored and corners stay plainly rounded.
+ */
+export const researchSquircle = {
+  cornerShape: 'squircle',
+} as const;
+
+/**
+ * Text-entry surfaces sit a step BRIGHTER than whatever they're on — pure
+ * white on the near-white chat cards and the warm canvas alike — so inputs
+ * read as the lightest thing on screen rather than a darker inset.
+ */
+export function researchInputBackground(_theme: ThemeType): string {
+  return 'light-dark(#FFFFFF, #302D27)';
+}
 
 // One easing curve for every transition so motion feels consistent.
 export const researchEasing = 'cubic-bezier(0.4, 0, 0.2, 1)';
@@ -148,11 +167,12 @@ export function researchTextInput(theme: ThemeType) {
     boxSizing: 'border-box' as const,
     border: `1px solid ${researchWarmAlpha(0.1)}`,
     borderRadius: researchRadius.md,
+    ...researchSquircle,
     padding: '10px 13px',
     fontSize: 14,
     lineHeight: 1.4,
     color: theme.palette.text.primary,
-    background: researchCanvas(theme),
+    background: researchInputBackground(theme),
     fontFamily: researchUiSans,
     outline: 'none',
     transition: `border-color ${researchTransition}, box-shadow ${researchTransition}, background ${researchTransition}`,
@@ -187,6 +207,7 @@ export function researchPrimaryButton(theme: ThemeType) {
     gap: 6,
     border: 'none',
     borderRadius: researchRadius.md,
+    ...researchSquircle,
     padding: '8px 16px',
     fontSize: 13,
     fontWeight: 600,
@@ -223,6 +244,7 @@ export function researchGhostButton(theme: ThemeType) {
     gap: 6,
     border: `1px solid ${researchWarmAlpha(0.14)}`,
     borderRadius: researchRadius.md,
+    ...researchSquircle,
     padding: '7px 14px',
     fontSize: 13,
     fontWeight: 500,
@@ -250,6 +272,7 @@ export function researchCard(theme: ThemeType) {
     background: researchCanvas(theme),
     border: `1px solid ${researchWarmAlpha(0.08)}`,
     borderRadius: researchRadius.lg,
+    ...researchSquircle,
     boxShadow: `0 1px 2px ${researchWarmAlpha(0.04)}`,
   };
 }

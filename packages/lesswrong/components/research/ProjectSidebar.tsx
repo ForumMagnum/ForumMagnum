@@ -12,6 +12,7 @@ import Loading from '../vulcan-core/Loading';
 import ForumIcon from '../common/ForumIcon';
 import { ProjectSidebarQuery } from './projectSidebarQuery';
 import {
+  researchInputBackground,
   researchCompactRow,
   researchCompactRowActive,
   researchEyebrow,
@@ -174,7 +175,7 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     fontSize: 'inherit',
     fontFamily: 'inherit',
     color: theme.palette.text.primary,
-    background: researchCanvas(theme),
+    background: researchInputBackground(theme),
     border: `1px solid ${researchWarmAlpha(0.2)}`,
     borderRadius: researchRadius.xs,
     outline: 'none',

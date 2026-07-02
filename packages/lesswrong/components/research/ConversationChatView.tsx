@@ -16,7 +16,7 @@ import { ConversationTranscript } from './ConversationTranscript';
 import { ConversationActions } from './ConversationActions';
 import ChatComposer from './ChatComposer';
 import { isSandboxWarmingError } from './sandboxWarming';
-import { researchMono, researchWarmAlpha, researchCanvas, researchChatSurface, researchRadius } from './researchStyleUtils';
+import { researchMono, researchWarmAlpha, researchCanvas, researchChatSurface, researchRadius, researchSquircle } from './researchStyleUtils';
 
 const ConversationChatViewQuery = gql(`
   query ConversationChatViewInfo($conversationId: String!) {
@@ -135,6 +135,7 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
     background: researchChatSurface(theme),
     border: `1px solid ${researchWarmAlpha(0.07)}`,
     borderRadius: researchRadius.lg,
+    ...researchSquircle,
     margin: '10px 12px 12px',
     padding: '0 14px 12px',
   },

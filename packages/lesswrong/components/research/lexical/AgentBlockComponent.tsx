@@ -27,7 +27,7 @@ import { sanitize } from '@/lib/utils/sanitize';
 import { randomId } from '@/lib/random';
 import { useMessages } from '@/components/common/withMessages';
 import { isSandboxWarmingError } from '../sandboxWarming';
-import { researchAccentTint, researchChatProse, researchChatSans, researchChatSurface, researchMono, researchEasing, researchWarmAlpha, researchRadius } from '../researchStyleUtils';
+import { researchAccentTint, researchChatProse, researchChatSans, researchChatSurface, researchMono, researchEasing, researchWarmAlpha, researchRadius, researchSquircle } from '../researchStyleUtils';
 
 /** Cap on the focused block's height; the transcript scrolls inside it. */
 const FOCUSED_MAX_HEIGHT = '72vh';
@@ -84,6 +84,7 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
     border: `1px solid ${researchWarmAlpha(0.07)}`,
     borderLeft: `2px solid ${researchWarmAlpha(0.14)}`,
     borderRadius: researchRadius.lg,
+    ...researchSquircle,
     padding: '10px 14px',
     // The block renders inside the document's contenteditable, which sets
     // `white-space: pre-wrap` (Lexical's default). Without this reset every
