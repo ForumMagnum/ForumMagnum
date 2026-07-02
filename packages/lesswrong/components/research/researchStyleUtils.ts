@@ -77,12 +77,14 @@ export function researchCanvas(_theme: ThemeType): string {
  * an explicit 2026-07 user request, carving out chat surfaces from the
  * no-static-surface-tints rule. Everything else stays on researchCanvas.
  *
- * Hue discipline: keep the same warmth ratio as researchCanvas (R−B ≈ 12)
- * and only step the lightness — the first attempt (#F6EFE0, R−B = 22)
- * doubled the yellow cast and was rejected as "far too yellow".
+ * Direction (settled after two rounds of feedback): chat boxes sit LIGHTER
+ * than the canvas — near-white cards floating on the warm paper, not a
+ * darker cream recess. Keep the yellow cast minimal (R−B ≤ ~8; the first
+ * attempt #F6EFE0 at R−B 22 read as "Biryani", the second #F6F2EA was still
+ * too tinted — the user wants it to "feel like white").
  */
 export function researchChatSurface(_theme: ThemeType): string {
-  return 'light-dark(#F6F2EA, #282521)';
+  return 'light-dark(#FDFBF7, #2A2722)';
 }
 
 // 2026-07 warmth pass: one step rounder across the board. `xs` is for tiny
