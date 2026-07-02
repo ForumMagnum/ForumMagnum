@@ -465,8 +465,10 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
               onSelectDocument={setActiveDocumentId}
             />
             {/* The document editor stays mounted underneath so its state
-                survives opening/closing the viewer. */}
-            {sandboxFileView ? (
+                survives opening/closing the viewer. Skipped while a fullscreen
+                chat covers the center pane — that surface renders its own
+                viewer over its chat column (see ConversationChatView). */}
+            {sandboxFileView && !chatSurface?.fullscreen ? (
               <SandboxFileViewer
                 conversationId={sandboxFileView.conversationId}
                 path={sandboxFileView.path}

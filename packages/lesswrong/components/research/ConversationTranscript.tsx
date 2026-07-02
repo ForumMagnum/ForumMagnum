@@ -63,6 +63,13 @@ interface ConversationTranscriptProps {
   hasMoreOlder: boolean;
   loadingOlder: boolean;
   loadOlder: () => void;
+  /**
+   * Cap the message content to this width (centered) while the scroll
+   * container stays full-width — the scrollbar sits at the far edge and the
+   * whole width is scrollable, but lines don't stretch. Unset = full-width
+   * content (the narrow side panel and agent block).
+   */
+  maxContentWidth?: number;
 }
 
 /**
@@ -80,6 +87,7 @@ export const ConversationTranscript = ({
   hasMoreOlder,
   loadingOlder,
   loadOlder,
+  maxContentWidth,
 }: ConversationTranscriptProps) => {
   const classes = useStyles(styles);
 
@@ -96,7 +104,11 @@ export const ConversationTranscript = ({
 
   return (
     <div className={classes.root} ref={scrollRef} onScroll={onScroll}>
-      <div className={classes.content} ref={contentRef}>
+      <div
+        className={classes.content}
+        ref={contentRef}
+        style={maxContentWidth ? { maxWidth: maxContentWidth, marginLeft: 'auto', marginRight: 'auto', width: '100%' } : undefined}
+      >
         {events.length === 0 && !turnInFlight ? (
           <div className={classes.empty}>
             {status === 'loading' ? 'Loading transcript…' : 'No output yet.'}

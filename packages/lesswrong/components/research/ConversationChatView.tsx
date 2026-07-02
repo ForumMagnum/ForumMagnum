@@ -17,6 +17,8 @@ import { ConversationTranscript } from './ConversationTranscript';
 import { ConversationActions } from './ConversationActions';
 import ChatComposer from './ChatComposer';
 import { SandboxFileBrowser } from './SandboxFileBrowser';
+import { SandboxFileViewer } from './SandboxFileViewer';
+import { useResearchWorkspaceApiOptional } from './researchWorkspaceContext';
 import { isSandboxWarmingError } from './sandboxWarming';
 import { researchMono, researchWarmAlpha, researchChatSurface, researchRadius } from './researchStyleUtils';
 
@@ -47,8 +49,11 @@ const CancelResearchConversationFromChatViewMutation = gql(`
   }
 `);
 
-// The classic-LLM-chat reading column in fullscreen mode.
-const FULLSCREEN_COLUMN_MAX_WIDTH = 780;
+// Width of the fullscreen file sidebar.
+const FULLSCREEN_FILE_SIDEBAR_WIDTH = 340;
+// Reading-column cap for chat content in fullscreen; the scroll area stays
+// full-width, only the messages/composer are capped and centered.
+const FULLSCREEN_CONTENT_MAX_WIDTH = 780;
 
 const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
   root: {
@@ -144,11 +149,46 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
     background: researchChatSurface(theme),
     padding: '10px 14px 12px',
   },
-  bodyFullscreen: {
+  // Fullscreen splits into a full-width chat column and an optional right file
+  // sidebar (open by default, toggled from the header).
+  fullscreenMain: {
+    flex: 1,
+    minHeight: 0,
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  fullscreenChatCol: {
+    // Positioning context for the file viewer overlay.
+    position: 'relative',
+    flex: 1,
+    minWidth: 0,
+    minHeight: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    background: researchChatSurface(theme),
+    // No horizontal padding: the transcript scroll area runs the full width
+    // (scrollbar at the edge). The content inside is capped + centered.
+    paddingTop: 12,
+  },
+  // Composer capped to the same reading column as the transcript content and
+  // centered, so it lines up under the messages.
+  fullscreenComposerWrap: {
+    flex: 'none',
     width: '100%',
-    maxWidth: FULLSCREEN_COLUMN_MAX_WIDTH,
+    maxWidth: FULLSCREEN_CONTENT_MAX_WIDTH,
     margin: '0 auto',
-    padding: '12px 24px 20px',
+    padding: '2px 24px 16px',
+    boxSizing: 'border-box',
+  },
+  fileSidebar: {
+    flex: 'none',
+    width: FULLSCREEN_FILE_SIDEBAR_WIDTH,
+    minHeight: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    borderLeft: `1px solid ${researchWarmAlpha(0.08)}`,
+    padding: '10px 10px 12px',
   },
   composerWrap: {
     flex: 'none',
@@ -191,8 +231,15 @@ export const ConversationChatView = ({
 }: ConversationChatViewProps) => {
   const classes = useStyles(styles);
   const { flash } = useMessages();
+  const workspace = useResearchWorkspaceApiOptional();
   const [sending, setSending] = useState(false);
-  const [showFiles, setShowFiles] = useState(false);
+  // The file browser: a right sidebar in fullscreen (open by default), or a
+  // body swap in the narrow side panel (closed by default). Reset to the
+  // per-variant default whenever the variant changes.
+  const [filesOpen, setFilesOpen] = useState(variant === 'fullscreen');
+  useEffect(() => {
+    setFilesOpen(variant === 'fullscreen');
+  }, [variant]);
 
   const {
     events, status, error, turnInFlight, hasMoreOlder, loadingOlder, loadOlder,
@@ -284,6 +331,34 @@ export const ConversationChatView = ({
       ? <span className={classes.errorGlyph} title={error ?? 'error'}>✕</span>
       : null;
 
+  // A sandbox file open in the viewer for THIS conversation (fullscreen renders
+  // it over the chat column, since the center-pane viewer is occluded here).
+  const fileView = workspace?.sandboxFileView ?? null;
+  const fileViewForThisConversation =
+    fileView && fileView.conversationId === conversationId ? fileView : null;
+
+  const chatContent = (
+    <>
+      <ConversationTranscript
+        conversationId={conversationId}
+        events={visibleEvents}
+        turnInFlight={turnInFlight}
+        status={status}
+        error={error}
+        hasMoreOlder={hasMoreOlder}
+        loadingOlder={loadingOlder}
+        loadOlder={loadOlder}
+      />
+      <div className={classes.composerWrap}>
+        <ChatComposer
+          projectId={projectId}
+          disabled={sending || !activeDocumentId}
+          onSubmit={handleSend}
+        />
+      </div>
+    </>
+  );
+
   return (
     <div className={classes.root}>
       <div className={classes.header}>
@@ -298,13 +373,13 @@ export const ConversationChatView = ({
         <ConversationActions conversationId={conversationId} />
         <button
           type="button"
-          className={classNames(classes.headerButton, classes.iconButton, showFiles && classes.iconButtonActive)}
-          onClick={() => setShowFiles((v) => !v)}
-          title={showFiles ? 'Back to conversation' : 'Browse sandbox files'}
-          aria-label="Browse sandbox files"
-          aria-pressed={showFiles}
+          className={classNames(classes.headerButton, classes.iconButton, filesOpen && classes.iconButtonActive)}
+          onClick={() => setFilesOpen((v) => !v)}
+          title={filesOpen ? 'Hide files' : 'Show files'}
+          aria-label="Toggle file browser"
+          aria-pressed={filesOpen}
         >
-          <ForumIcon icon="Tag" className={classes.icon} />
+          <ForumIcon icon="ViewColumns" className={classes.icon} />
         </button>
         <button
           type="button"
@@ -334,11 +409,12 @@ export const ConversationChatView = ({
           <ForumIcon icon="Close" className={classes.icon} />
         </button>
       </div>
-      <div className={classNames(classes.body, variant === 'fullscreen' && classes.bodyFullscreen)}>
-        {showFiles ? (
-          <SandboxFileBrowser conversationId={conversationId} />
-        ) : (
-          <>
+      {variant === 'fullscreen' ? (
+        // Full-width chat column + optional right file sidebar. An opened file
+        // is viewed over the chat column here (the workspace's center-pane
+        // viewer is behind this fullscreen overlay — see ResearchWorkspace).
+        <div className={classes.fullscreenMain}>
+          <div className={classes.fullscreenChatCol}>
             <ConversationTranscript
               conversationId={conversationId}
               events={visibleEvents}
@@ -348,17 +424,35 @@ export const ConversationChatView = ({
               hasMoreOlder={hasMoreOlder}
               loadingOlder={loadingOlder}
               loadOlder={loadOlder}
+              maxContentWidth={FULLSCREEN_CONTENT_MAX_WIDTH}
             />
-            <div className={classes.composerWrap}>
+            <div className={classes.fullscreenComposerWrap}>
               <ChatComposer
                 projectId={projectId}
                 disabled={sending || !activeDocumentId}
                 onSubmit={handleSend}
               />
             </div>
-          </>
-        )}
-      </div>
+            {fileViewForThisConversation ? (
+              <SandboxFileViewer
+                conversationId={conversationId}
+                path={fileViewForThisConversation.path}
+                onClose={() => workspace?.closeSandboxFile()}
+              />
+            ) : null}
+          </div>
+          {filesOpen ? (
+            <div className={classes.fileSidebar}>
+              <SandboxFileBrowser conversationId={conversationId} />
+            </div>
+          ) : null}
+        </div>
+      ) : (
+        // Narrow side panel: files swap in place of the transcript.
+        <div className={classes.body}>
+          {filesOpen ? <SandboxFileBrowser conversationId={conversationId} /> : chatContent}
+        </div>
+      )}
     </div>
   );
 };
