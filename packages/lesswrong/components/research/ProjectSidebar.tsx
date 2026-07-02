@@ -10,6 +10,7 @@ import { useStyles } from '../hooks/useStyles';
 import { useNavigate } from '../../lib/routeUtil';
 import Loading from '../vulcan-core/Loading';
 import ForumIcon from '../common/ForumIcon';
+import { PanelRightIcon } from './PanelRightIcon';
 import { ProjectSidebarQuery } from './projectSidebarQuery';
 import { ResearchEnvironmentsByProjectQuery } from './researchEnvironmentsQuery';
 import {
@@ -287,6 +288,11 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
   editIcon: {
     '--icon-size': '12px',
   },
+  // PanelRightIcon is a raw SVG sized in em, so drive it with font-size.
+  panelIcon: {
+    fontSize: 13,
+    display: 'block',
+  },
   empty: {
     padding: '4px 8px',
     fontSize: 12,
@@ -505,7 +511,7 @@ const ProjectSidebar = ({
                     title="Open in side panel"
                     aria-label="Open in side panel"
                   >
-                    <ForumIcon icon="ViewColumns" className={classes.editIcon} />
+                    <PanelRightIcon className={classes.panelIcon} />
                   </button>
                 </div>
               </li>

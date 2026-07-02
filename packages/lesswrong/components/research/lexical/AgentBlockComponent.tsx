@@ -23,6 +23,7 @@ import ChatComposer from '../ChatComposer';
 import ContentStyles from '@/components/common/ContentStyles';
 import { ContentItemBody } from '@/components/contents/ContentItemBody';
 import ForumIcon from '@/components/common/ForumIcon';
+import { PanelRightIcon } from '../PanelRightIcon';
 import { htmlToTextDefault } from '@/lib/htmlToText';
 import { sanitize } from '@/lib/utils/sanitize';
 import { randomId } from '@/lib/random';
@@ -203,6 +204,11 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   },
   collapseIcon: {
     '--icon-size': '13px',
+  },
+  // PanelRightIcon is a raw SVG sized in em, so drive it with font-size.
+  panelIcon: {
+    fontSize: 13,
+    display: 'block',
   },
   // --- Blurred body -------------------------------------------------------
   blurredBody: {
@@ -550,7 +556,7 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
                   title="Open in side panel"
                   aria-label="Open in side panel"
                 >
-                  <ForumIcon icon="ViewColumns" className={classes.collapseIcon} />
+                  <PanelRightIcon className={classes.panelIcon} />
                 </button>
                 <button
                   type="button"
