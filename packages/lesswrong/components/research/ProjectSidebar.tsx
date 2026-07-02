@@ -11,6 +11,7 @@ import { useNavigate } from '../../lib/routeUtil';
 import Loading from '../vulcan-core/Loading';
 import ForumIcon from '../common/ForumIcon';
 import { ProjectSidebarQuery } from './projectSidebarQuery';
+import { ResearchEnvironmentsByProjectQuery } from './researchEnvironmentsQuery';
 import {
   researchInputBackground,
   researchCompactRow,
@@ -64,6 +65,17 @@ const RenameResearchConversationMutation = gql(`
       data {
         _id
         title
+      }
+    }
+  }
+`);
+
+const RenameResearchEnvironmentMutation = gql(`
+  mutation RenameResearchEnvironmentSidebar($id: String!, $label: String!) {
+    updateResearchEnvironment(selector: { _id: $id }, data: { label: $label }) {
+      data {
+        _id
+        label
       }
     }
   }
@@ -187,6 +199,14 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     },
   },
   itemActive: researchCompactRowActive(theme),
+  // Snapshot rows aren't navigable (yet) — no pointer, no hover fill; the
+  // rename affordance is the only interaction.
+  itemStatic: {
+    cursor: 'default',
+    '&:hover': {
+      background: 'transparent',
+    },
+  },
   itemIcon: {
     '--icon-size': '13px',
     flex: 'none',
@@ -316,6 +336,13 @@ const ProjectSidebar = ({
   const [createDocument] = useMutation(CreateResearchDocumentMutation);
   const [renameDocument] = useMutation(RenameResearchDocumentMutation);
   const [renameConversation] = useMutation(RenameResearchConversationMutation);
+  const [renameEnvironment] = useMutation(RenameResearchEnvironmentMutation);
+
+  const { data: environmentsData } = useQuery(ResearchEnvironmentsByProjectQuery, {
+    variables: { projectId },
+    fetchPolicy: 'cache-and-network',
+  });
+  const snapshots = environmentsData?.researchEnvironments?.results ?? [];
 
   const project = data?.researchProject?.result;
   const documents = data?.researchDocuments?.results ?? [];
@@ -334,6 +361,11 @@ const ProjectSidebar = ({
   };
   const handleRenameConversation = async (id: string, title: string | null) => {
     await renameConversation({ variables: { id, title } });
+  };
+  const handleRenameSnapshot = async (id: string, label: string | null) => {
+    // Labels are required — an emptied input just cancels the rename.
+    if (!label) return;
+    await renameEnvironment({ variables: { id, label } });
   };
 
   const handleNewDocument = async () => {
@@ -481,6 +513,28 @@ const ProjectSidebar = ({
             })}
           </ul>
         </div>
+        {snapshots.length > 0 ? (
+          <div className={classes.section}>
+            <div className={classes.sectionHeader}>
+              <span>Snapshots</span>
+            </div>
+            <ul className={classes.list}>
+              {snapshots.map((snapshot) => (
+                <li key={snapshot._id}>
+                  <div className={classNames(classes.item, classes.itemStatic)}>
+                    <ForumIcon icon="Tag" className={classes.itemIcon} />
+                    <EditableTitle
+                      classes={classes}
+                      title={snapshot.label}
+                      placeholder="Untitled snapshot"
+                      onRename={(next) => handleRenameSnapshot(snapshot._id, next)}
+                    />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ) : null}
       </div>
     </div>
   );

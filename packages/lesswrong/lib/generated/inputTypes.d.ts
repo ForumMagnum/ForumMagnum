@@ -340,6 +340,7 @@ interface Mutation {
   createReport: ReportOutput | null;
   updateReport: ReportOutput | null;
   updateResearchConversation: ResearchConversationOutput | null;
+  updateResearchEnvironment: ResearchEnvironmentOutput | null;
   createResearchDocument: ResearchDocumentOutput | null;
   updateResearchDocument: ResearchDocumentOutput | null;
   createResearchProject: ResearchProjectOutput | null;
@@ -8281,6 +8282,23 @@ interface UpdateResearchConversationInput {
   data: UpdateResearchConversationDataInput;
 }
 
+interface UpdateResearchEnvironmentDataInput {
+  userId?: string | null;
+  projectId?: string | null;
+  label?: string | null;
+  vercelSnapshotId?: string | null;
+  sourceEventId?: string | null;
+}
+
+interface UpdateResearchEnvironmentInput {
+  selector: SelectorInput;
+  data: UpdateResearchEnvironmentDataInput;
+}
+
+interface ResearchEnvironmentOutput {
+  data: ResearchEnvironment | null;
+}
+
 interface CreateResearchDocumentDataInput {
   userId?: string | null;
   projectId: string;
@@ -9965,6 +9983,9 @@ interface GraphQLTypeMap {
   ReportOutput: ReportOutput;
   UpdateResearchConversationDataInput: UpdateResearchConversationDataInput;
   UpdateResearchConversationInput: UpdateResearchConversationInput;
+  UpdateResearchEnvironmentDataInput: UpdateResearchEnvironmentDataInput;
+  UpdateResearchEnvironmentInput: UpdateResearchEnvironmentInput;
+  ResearchEnvironmentOutput: ResearchEnvironmentOutput;
   CreateResearchDocumentDataInput: CreateResearchDocumentDataInput;
   CreateResearchDocumentInput: CreateResearchDocumentInput;
   UpdateResearchDocumentDataInput: UpdateResearchDocumentDataInput;
@@ -10149,6 +10170,7 @@ interface UpdateInputsByCollectionName {
   RSSFeeds: UpdateRSSFeedInput;
   Reports: UpdateReportInput;
   ResearchConversations: UpdateResearchConversationInput;
+  ResearchEnvironments: UpdateResearchEnvironmentInput;
   ResearchDocuments: UpdateResearchDocumentInput;
   ResearchProjects: UpdateResearchProjectInput;
   Revisions: UpdateRevisionInput;
@@ -10204,7 +10226,6 @@ interface UpdateInputsByCollectionName {
   ReadStatuses: never;
   RecommendationsCaches: never;
   ResearchConversationEvents: never;
-  ResearchEnvironments: never;
   ResearchSandboxSessions: never;
   ReviewVotes: never;
   ReviewWinnerArts: never;

@@ -9060,6 +9060,27 @@ extend type Mutation {
   updateResearchConversation(selector: SelectorInput!, data: UpdateResearchConversationDataInput!): ResearchConversationOutput
 }
 
+input UpdateResearchEnvironmentDataInput {
+  userId: String
+  projectId: String
+  label: String
+  vercelSnapshotId: String
+  sourceEventId: String
+}
+
+input UpdateResearchEnvironmentInput {
+  selector: SelectorInput!
+  data: UpdateResearchEnvironmentDataInput!
+}
+
+type ResearchEnvironmentOutput {
+  data: ResearchEnvironment
+}
+
+extend type Mutation {
+  updateResearchEnvironment(selector: SelectorInput!, data: UpdateResearchEnvironmentDataInput!): ResearchEnvironmentOutput
+}
+
 input CreateResearchDocumentDataInput {
   userId: String
   projectId: String!

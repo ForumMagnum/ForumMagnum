@@ -3980,6 +3980,7 @@ type Mutation = {
   updateReport?: Maybe<ReportOutput>;
   updateResearchConversation?: Maybe<ResearchConversationOutput>;
   updateResearchDocument?: Maybe<ResearchDocumentOutput>;
+  updateResearchEnvironment?: Maybe<ResearchEnvironmentOutput>;
   updateResearchProject?: Maybe<ResearchProjectOutput>;
   updateRevision?: Maybe<RevisionOutput>;
   updateSequence?: Maybe<SequenceOutput>;
@@ -4817,6 +4818,12 @@ type MutationupdateResearchConversationArgs = {
 
 type MutationupdateResearchDocumentArgs = {
   data: UpdateResearchDocumentDataInput;
+  selector: SelectorInput;
+};
+
+
+type MutationupdateResearchEnvironmentArgs = {
+  data: UpdateResearchEnvironmentDataInput;
   selector: SelectorInput;
 };
 
@@ -8936,6 +8943,11 @@ type ResearchEnvironment = {
   vercelSnapshotId?: Maybe<Scalars['String']['output']>;
 };
 
+type ResearchEnvironmentOutput = {
+  __typename?: 'ResearchEnvironmentOutput';
+  data?: Maybe<ResearchEnvironment>;
+};
+
 type ResearchEnvironmentSelector = {
   byProject?: InputMaybe<ResearchEnvironmentsByProjectInput>;
   default?: InputMaybe<EmptyViewInput>;
@@ -11120,6 +11132,19 @@ type UpdateResearchDocumentDataInput = {
 
 type UpdateResearchDocumentInput = {
   data: UpdateResearchDocumentDataInput;
+  selector: SelectorInput;
+};
+
+type UpdateResearchEnvironmentDataInput = {
+  label?: InputMaybe<Scalars['String']['input']>;
+  projectId?: InputMaybe<Scalars['String']['input']>;
+  sourceEventId?: InputMaybe<Scalars['String']['input']>;
+  userId?: InputMaybe<Scalars['String']['input']>;
+  vercelSnapshotId?: InputMaybe<Scalars['String']['input']>;
+};
+
+type UpdateResearchEnvironmentInput = {
+  data: UpdateResearchEnvironmentDataInput;
   selector: SelectorInput;
 };
 
@@ -18023,6 +18048,21 @@ type RenameResearchConversationSidebarMutationVariables = Exact<{
 
 
 type RenameResearchConversationSidebarMutation = RenameResearchConversationSidebarMutation_Mutation;
+
+type RenameResearchEnvironmentSidebarMutation_updateResearchEnvironment_ResearchEnvironmentOutput_data_ResearchEnvironment = { __typename?: 'ResearchEnvironment', _id: string, label: string | null };
+
+type RenameResearchEnvironmentSidebarMutation_updateResearchEnvironment_ResearchEnvironmentOutput = { __typename?: 'ResearchEnvironmentOutput', data: RenameResearchEnvironmentSidebarMutation_updateResearchEnvironment_ResearchEnvironmentOutput_data_ResearchEnvironment | null };
+
+type RenameResearchEnvironmentSidebarMutation_Mutation = { __typename?: 'Mutation', updateResearchEnvironment: RenameResearchEnvironmentSidebarMutation_updateResearchEnvironment_ResearchEnvironmentOutput | null };
+
+
+type RenameResearchEnvironmentSidebarMutationVariables = Exact<{
+  id: Scalars['String']['input'];
+  label: Scalars['String']['input'];
+}>;
+
+
+type RenameResearchEnvironmentSidebarMutation = RenameResearchEnvironmentSidebarMutation_Mutation;
 
 type ResearchConversationSidebarStatusesQuery_researchConversationSidebarStatuses_ResearchConversationSidebarStatus = { __typename?: 'ResearchConversationSidebarStatus', conversationId: string, turnActive: boolean, lastActivityAt: string | null, lastReadAt: string | null };
 
