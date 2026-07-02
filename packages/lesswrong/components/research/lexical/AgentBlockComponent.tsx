@@ -85,7 +85,7 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
     borderLeft: `2px solid ${researchWarmAlpha(0.14)}`,
     borderRadius: researchRadius.lg,
     ...researchSquircle,
-    padding: '10px 14px',
+    padding: '8px 14px 10px',
     // The block renders inside the document's contenteditable, which sets
     // `white-space: pre-wrap` (Lexical's default). Without this reset every
     // newline in the rendered markdown HTML becomes a visible blank line.
@@ -132,11 +132,19 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
     display: 'flex',
     alignItems: 'center',
     gap: 7,
-    minHeight: 20,
+    minHeight: 26,
     fontFamily: researchMono,
     fontSize: 11,
     color: theme.palette.text.dim,
     userSelect: 'none',
+  },
+  // Focused: the transcript scrolls beneath the header, so give it a real
+  // bottom edge — scrolled lines tuck under a hairline instead of colliding
+  // with the title.
+  headerFocused: {
+    paddingBottom: 7,
+    borderBottom: `1px solid ${researchWarmAlpha(0.07)}`,
+    marginBottom: 2,
   },
   headerTitle: {
     minWidth: 0,
@@ -505,7 +513,7 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
       onClick={handleFocusClick}
       data-testid="research-agent-block"
     >
-      <div className={classes.header}>
+      <div className={classNames(classes.header, focused && classes.headerFocused)}>
         {headerGlyph}
         <span className={classes.headerTitle}>{title}</span>
         <span className={classes.headerMeta}>
