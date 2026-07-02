@@ -243,6 +243,10 @@ export const researchResolversTypeDefs = gql`
     documentId: String!
   }
 
+  type ReorderResearchDocumentsOutput {
+    success: Boolean!
+  }
+
   extend type Mutation {
     fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
     continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
@@ -251,6 +255,7 @@ export const researchResolversTypeDefs = gql`
     setClaudeCodeOAuthToken(token: String!): SetClaudeCodeOAuthTokenOutput
     saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput
     ensureResearchScratchDocument(projectId: String!): EnsureResearchScratchDocumentOutput
+    reorderResearchDocuments(projectId: String!, orderedIds: [String!]!): ReorderResearchDocumentsOutput
   }
 
   # Lightweight per-conversation status for the sidebar's activity/unread
@@ -374,6 +379,7 @@ export const researchResolversMutations = {
         baseEnvironmentId,
         runtime,
         title: null,
+        icon: null,
         claudeSessionId,
         presentationHtml: null,
         lastActivityAt: now,
@@ -649,6 +655,34 @@ export const researchResolversMutations = {
       { $set: { settings: { ...settings, scratchDocumentId: created._id } } },
     );
     return { documentId: created._id };
+  },
+
+  /**
+   * Persist a manual document ordering for the sidebar. Assigns
+   * `sortOrder = index` to each id, scoped to the project and the current
+   * user's own documents. Ids not in the project (or not owned) are ignored.
+   */
+  async reorderResearchDocuments(
+    _root: void,
+    args: { projectId: string; orderedIds: string[] },
+    context: ResolverContext,
+  ) {
+    const { currentUser, ResearchDocuments } = context;
+    if (!userIsAdmin(currentUser)) throw new Error("Forbidden");
+    const docs = await ResearchDocuments.find(
+      { projectId: args.projectId, userId: currentUser._id },
+      { limit: 1000 },
+      { _id: 1 },
+    ).fetch();
+    const ownedIds = new Set(docs.map((d) => d._id));
+    await Promise.all(
+      args.orderedIds
+        .filter((id) => ownedIds.has(id))
+        .map((id, index) =>
+          ResearchDocuments.rawUpdateOne({ _id: id }, { $set: { sortOrder: index } }),
+        ),
+    );
+    return { success: true };
   },
 };
 

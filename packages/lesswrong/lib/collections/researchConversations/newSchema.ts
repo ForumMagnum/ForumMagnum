@@ -62,6 +62,19 @@ const schema = {
       validation: { optional: true },
     },
   },
+  // Custom emoji shown in the sidebar in place of the default chat glyph.
+  icon: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: { optional: true },
+    },
+  },
   entrypointKind: {
     database: {
       type: "TEXT",

@@ -32,6 +32,7 @@ export async function seedResearchConversationFixture(projectId: string) {
     projectId,
     entrypointKind: "document",
     entrypointDocumentId: doc._id,
+    icon: null,
     baseEnvironmentId: null,
     runtime: null,
     title: "Fixture conversation",

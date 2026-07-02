@@ -1,7 +1,22 @@
 "use client";
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import classNames from 'classnames';
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+  arrayMove,
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
 import { useMutation } from '@apollo/client/react';
@@ -11,6 +26,7 @@ import { useNavigate } from '../../lib/routeUtil';
 import Loading from '../vulcan-core/Loading';
 import ForumIcon from '../common/ForumIcon';
 import { PanelRightIcon } from './PanelRightIcon';
+import { ResearchEmojiPicker } from './ResearchEmojiPicker';
 import { ProjectSidebarQuery } from './projectSidebarQuery';
 import { ResearchEnvironmentsByProjectQuery } from './researchEnvironmentsQuery';
 import {
@@ -67,6 +83,36 @@ const RenameResearchConversationMutation = gql(`
         _id
         title
       }
+    }
+  }
+`);
+
+const SetResearchDocumentIconMutation = gql(`
+  mutation SetResearchDocumentIcon($id: String!, $icon: String) {
+    updateResearchDocument(selector: { _id: $id }, data: { icon: $icon }) {
+      data {
+        _id
+        icon
+      }
+    }
+  }
+`);
+
+const SetResearchConversationIconMutation = gql(`
+  mutation SetResearchConversationIcon($id: String!, $icon: String) {
+    updateResearchConversation(selector: { _id: $id }, data: { icon: $icon }) {
+      data {
+        _id
+        icon
+      }
+    }
+  }
+`);
+
+const ReorderResearchDocumentsMutation = gql(`
+  mutation ReorderResearchDocuments($projectId: String!, $orderedIds: [String!]!) {
+    reorderResearchDocuments(projectId: $projectId, orderedIds: $orderedIds) {
+      success
     }
   }
 `);
@@ -213,6 +259,10 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     flex: 'none',
     color: theme.palette.text.dim,
   },
+  // The default (non-emoji) glyph tinted to hint unread activity.
+  itemIconUnread: {
+    color: theme.palette.primary.main,
+  },
   // Both dots occupy the 13px icon slot so rows don't shift as state changes.
   statusDot: {
     flex: 'none',
@@ -293,6 +343,30 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     fontSize: 13,
     display: 'block',
   },
+  // The leading icon slot doubles as the emoji-picker trigger.
+  rowIconButton: {
+    flex: 'none',
+    width: 18,
+    height: 18,
+    padding: 0,
+    border: 'none',
+    background: 'transparent',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: researchRadius.xs,
+    cursor: 'pointer',
+    '&:hover': {
+      background: researchWarmAlpha(0.1),
+    },
+  },
+  iconEmoji: {
+    fontSize: 14,
+    lineHeight: 1,
+  },
+  dragging: {
+    opacity: 0.5,
+  },
   empty: {
     padding: '4px 8px',
     fontSize: 12,
@@ -343,6 +417,27 @@ const ProjectSidebar = ({
   const [renameDocument] = useMutation(RenameResearchDocumentMutation);
   const [renameConversation] = useMutation(RenameResearchConversationMutation);
   const [renameEnvironment] = useMutation(RenameResearchEnvironmentMutation);
+  const [setDocumentIcon] = useMutation(SetResearchDocumentIconMutation);
+  const [setConversationIcon] = useMutation(SetResearchConversationIconMutation);
+  const [reorderDocuments] = useMutation(ReorderResearchDocumentsMutation);
+
+  // Emoji picker anchor state: which row's icon is being edited, and where to
+  // pop the picker.
+  const [iconEditor, setIconEditor] = useState<
+    { kind: 'document' | 'conversation'; id: string; anchor: { left: number; bottom: number } } | null
+  >(null);
+
+  // A pending drag-reorder of documents, applied on top of the fetched list so
+  // the new order shows immediately (before the refetch lands). Cleared when
+  // switching projects so a stale order never leaks across projects.
+  const [documentOrderOverride, setDocumentOrderOverride] = useState<string[] | null>(null);
+  useEffect(() => { setDocumentOrderOverride(null); }, [projectId]);
+
+  const dndSensors = useSensors(
+    // A small activation distance so a click still selects the doc; only a
+    // deliberate drag starts a reorder.
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+  );
 
   const { data: environmentsData } = useQuery(ResearchEnvironmentsByProjectQuery, {
     variables: { projectId },
@@ -351,7 +446,46 @@ const ProjectSidebar = ({
   const snapshots = environmentsData?.researchEnvironments?.results ?? [];
 
   const project = data?.researchProject?.result;
-  const documents = data?.researchDocuments?.results ?? [];
+  const documents = useMemo(() => {
+    const list = [...(data?.researchDocuments?.results ?? [])];
+    // Base order: explicit sortOrder first (ascending), then unordered docs by
+    // creation time. A null sortOrder sorts after any numbered doc.
+    list.sort((a, b) => {
+      const ao = a.sortOrder ?? Infinity;
+      const bo = b.sortOrder ?? Infinity;
+      if (ao !== bo) return ao - bo;
+      const at = a.createdAt ? new Date(a.createdAt).valueOf() : 0;
+      const bt = b.createdAt ? new Date(b.createdAt).valueOf() : 0;
+      return at - bt;
+    });
+    if (!documentOrderOverride) return list;
+    // Apply the pending drag order: known ids in override order, then any docs
+    // not covered by the override (newly created since) appended in base order.
+    const byId = new Map(list.map((d) => [d._id, d]));
+    const ordered = documentOrderOverride.map((id) => byId.get(id)).filter((d): d is typeof list[number] => !!d);
+    const coveredIds = new Set(documentOrderOverride);
+    for (const d of list) if (!coveredIds.has(d._id)) ordered.push(d);
+    return ordered;
+  }, [data?.researchDocuments?.results, documentOrderOverride]);
+  const documentIds = useMemo(() => documents.map((d) => d._id), [documents]);
+
+  const handleDocumentDragEnd = useCallback((event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+    const oldIndex = documentIds.indexOf(String(active.id));
+    const newIndex = documentIds.indexOf(String(over.id));
+    if (oldIndex < 0 || newIndex < 0) return;
+    const newOrder = arrayMove(documentIds, oldIndex, newIndex);
+    setDocumentOrderOverride(newOrder);
+    void reorderDocuments({ variables: { projectId, orderedIds: newOrder } });
+  }, [documentIds, reorderDocuments, projectId]);
+
+  const handleSetIcon = useCallback(async (kind: 'document' | 'conversation', id: string, icon: string | null) => {
+    setIconEditor(null);
+    if (kind === 'document') await setDocumentIcon({ variables: { id, icon } });
+    else await setConversationIcon({ variables: { id, icon } });
+  }, [setDocumentIcon, setConversationIcon]);
+
   const conversations = useMemo(() => {
     const list = [...(data?.researchConversations?.results ?? [])];
     list.sort((a, b) => {
@@ -427,31 +561,26 @@ const ProjectSidebar = ({
             </button>
           </div>
           {loading && documents.length === 0 ? <Loading /> : null}
-          <ul className={classes.list}>
-            {documents.map((doc) => (
-              <li key={doc._id}>
-                <div
-                  className={classNames(classes.item, {
-                    [classes.itemActive]: doc._id === activeDocumentId,
-                  })}
-                  onClick={() => onSelectDocument(doc._id)}
-                  role="button"
-                  tabIndex={0}
-                >
-                  <ForumIcon icon="Document" className={classes.itemIcon} />
-                  <EditableTitle
+          <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleDocumentDragEnd}>
+            <SortableContext items={documentIds} strategy={verticalListSortingStrategy}>
+              <ul className={classes.list}>
+                {documents.map((doc) => (
+                  <SortableDocumentRow
+                    key={doc._id}
                     classes={classes}
-                    title={doc.title}
-                    placeholder="Untitled document"
+                    doc={doc}
+                    active={doc._id === activeDocumentId}
+                    onSelect={() => onSelectDocument(doc._id)}
                     onRename={(next) => handleRenameDocument(doc._id, next)}
+                    onEditIcon={(anchor) => setIconEditor({ kind: 'document', id: doc._id, anchor })}
                   />
-                </div>
-              </li>
-            ))}
-            {!loading && documents.length === 0 ? (
-              <li className={classes.empty}>No documents yet</li>
-            ) : null}
-          </ul>
+                ))}
+                {!loading && documents.length === 0 ? (
+                  <li className={classes.empty}>No documents yet</li>
+                ) : null}
+              </ul>
+            </SortableContext>
+          </DndContext>
         </div>
         <div className={classes.section}>
           <div className={classes.sectionHeader}>
@@ -481,19 +610,22 @@ const ProjectSidebar = ({
                   tabIndex={0}
                 >
                   {status?.turnActive ? (
+                    // Active-turn state takes the slot (transient, important);
+                    // the icon becomes editable again once the turn finishes.
                     <span
                       className={classNames(classes.statusDot, classes.statusDotActive)}
                       title="Agent is working"
                       aria-label="Agent is working"
                     />
-                  ) : status?.unread ? (
-                    <span
-                      className={classes.statusDot}
-                      title="Finished since you last looked"
-                      aria-label="Unread activity"
-                    />
                   ) : (
-                    <ForumIcon icon="ChatBubbleLeftRight" className={classes.itemIcon} />
+                    <SidebarRowIcon
+                      classes={classes}
+                      icon={conv.icon ?? null}
+                      defaultIcon="ChatBubbleLeftRight"
+                      unread={!!status?.unread}
+                      label="Set conversation icon"
+                      onEdit={(anchor) => setIconEditor({ kind: 'conversation', id: conv._id, anchor })}
+                    />
                   )}
                   <EditableTitle
                     classes={classes}
@@ -542,7 +674,98 @@ const ProjectSidebar = ({
           </div>
         ) : null}
       </div>
+      {iconEditor ? (
+        <ResearchEmojiPicker
+          anchor={iconEditor.anchor}
+          onSelect={(emoji) => handleSetIcon(iconEditor.kind, iconEditor.id, emoji)}
+          onClear={() => handleSetIcon(iconEditor.kind, iconEditor.id, null)}
+          onClose={() => setIconEditor(null)}
+        />
+      ) : null}
     </div>
+  );
+};
+
+// ForumIcon's `icon` prop is a large string-literal union; the default-icon
+// names used here are valid members. Kept as a loose string to avoid importing
+// the union type for two call sites.
+type ForumIconName = React.ComponentProps<typeof ForumIcon>['icon'];
+
+interface SidebarRowIconProps {
+  classes: Record<string, string>;
+  icon: string | null;
+  defaultIcon: ForumIconName;
+  unread?: boolean;
+  label: string;
+  onEdit: (anchor: { left: number; bottom: number }) => void;
+}
+
+/** The leading icon slot: a custom emoji if set, else a default glyph. Clicking
+ * it opens the emoji picker (anchored under the button). */
+const SidebarRowIcon = ({ classes, icon, defaultIcon, unread, label, onEdit }: SidebarRowIconProps) => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const r = e.currentTarget.getBoundingClientRect();
+    onEdit({ left: r.left, bottom: r.bottom });
+  };
+  return (
+    <button
+      type="button"
+      className={classes.rowIconButton}
+      onClick={handleClick}
+      title={label}
+      aria-label={label}
+    >
+      {icon
+        ? <span className={classes.iconEmoji}>{icon}</span>
+        : <ForumIcon icon={defaultIcon} className={unread ? classNames(classes.itemIcon, classes.itemIconUnread) : classes.itemIcon} />}
+    </button>
+  );
+};
+
+interface SortableDocumentRowProps {
+  classes: Record<string, string>;
+  doc: { _id: string; title: string | null; icon: string | null };
+  active: boolean;
+  onSelect: () => void;
+  onRename: (next: string | null) => Promise<unknown>;
+  onEditIcon: (anchor: { left: number; bottom: number }) => void;
+}
+
+/** A draggable document row (dnd-kit sortable). A plain click still selects the
+ * doc; a deliberate drag reorders (PointerSensor activation distance). */
+const SortableDocumentRow = ({ classes, doc, active, onSelect, onRename, onEditIcon }: SortableDocumentRowProps) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: doc._id });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+  return (
+    <li ref={setNodeRef} style={style} {...attributes} {...listeners}>
+      <div
+        className={classNames(classes.item, {
+          [classes.itemActive]: active,
+          [classes.dragging]: isDragging,
+        })}
+        onClick={onSelect}
+        role="button"
+        tabIndex={0}
+      >
+        <SidebarRowIcon
+          classes={classes}
+          icon={doc.icon}
+          defaultIcon="Document"
+          label="Set document icon"
+          onEdit={onEditIcon}
+        />
+        <EditableTitle
+          classes={classes}
+          title={doc.title}
+          placeholder="Untitled document"
+          onRename={onRename}
+        />
+      </div>
+    </li>
   );
 };
 

@@ -1171,6 +1171,7 @@ interface DbResearchConversation extends DbObject {
   createdAt: Date
   entrypointDocumentId: string
   entrypointKind: string
+  icon: string | null
   lastActivityAt: Date
   lastReadAt: Date | null
   presentationHtml: string | null
@@ -1186,7 +1187,9 @@ interface DbResearchDocument extends DbObject {
   __collectionName?: "ResearchDocuments"
   contents_latest: string | null
   createdAt: Date
+  icon: string | null
   projectId: string
+  sortOrder: number | null
   title: string | null
   userId: string
 }

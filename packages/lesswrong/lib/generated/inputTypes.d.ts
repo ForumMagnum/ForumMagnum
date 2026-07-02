@@ -251,6 +251,7 @@ interface Mutation {
   setClaudeCodeOAuthToken: SetClaudeCodeOAuthTokenOutput | null;
   saveResearchEnvironment: SaveResearchEnvironmentOutput | null;
   ensureResearchScratchDocument: EnsureResearchScratchDocumentOutput | null;
+  reorderResearchDocuments: ReorderResearchDocumentsOutput | null;
   mergeTags: boolean | null;
   promoteLensToMain: boolean | null;
   RefreshDbSettings: boolean | null;
@@ -1065,6 +1066,10 @@ interface SaveResearchEnvironmentOutput {
 
 interface EnsureResearchScratchDocumentOutput {
   documentId: string;
+}
+
+interface ReorderResearchDocumentsOutput {
+  success: boolean;
 }
 
 interface ResearchConversationSidebarStatus {
@@ -5706,6 +5711,7 @@ interface ResearchConversation {
   projectId: string | null;
   claudeSessionId: string | null;
   title: string | null;
+  icon: string | null;
   entrypointKind: ResearchEntrypointKind | null;
   entrypointDocumentId: string | null;
   baseEnvironmentId: string | null;
@@ -5751,6 +5757,8 @@ interface ResearchDocument {
   userId: string | null;
   projectId: string | null;
   title: string | null;
+  icon: string | null;
+  sortOrder: number | null;
   contents: Revision | null;
   contents_latest: string | null;
   revisions: Array<Revision> | null;
@@ -8302,6 +8310,7 @@ interface UpdateResearchConversationDataInput {
   projectId?: string | null;
   claudeSessionId?: string | null;
   title?: string | null;
+  icon?: string | null;
   entrypointKind?: ResearchEntrypointKind | null;
   entrypointDocumentId?: string | null;
   baseEnvironmentId?: string | null;
@@ -8347,6 +8356,8 @@ interface UpdateResearchDocumentDataInput {
   userId?: string | null;
   projectId?: string | null;
   title?: string | null;
+  icon?: string | null;
+  sortOrder?: number | null;
   contents?: CreateRevisionDataInput | null;
 }
 
@@ -9274,6 +9285,7 @@ interface GraphQLTypeMap {
   SetClaudeCodeOAuthTokenOutput: SetClaudeCodeOAuthTokenOutput;
   SaveResearchEnvironmentOutput: SaveResearchEnvironmentOutput;
   EnsureResearchScratchDocumentOutput: EnsureResearchScratchDocumentOutput;
+  ReorderResearchDocumentsOutput: ReorderResearchDocumentsOutput;
   ResearchConversationSidebarStatus: ResearchConversationSidebarStatus;
   ResearchSandboxDirEntry: ResearchSandboxDirEntry;
   ResearchSandboxDirListing: ResearchSandboxDirListing;

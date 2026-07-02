@@ -980,6 +980,10 @@ type EnsureResearchScratchDocumentOutput {
   documentId: String!
 }
 
+type ReorderResearchDocumentsOutput {
+  success: Boolean!
+}
+
 extend type Mutation {
   fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
   continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
@@ -988,6 +992,7 @@ extend type Mutation {
   setClaudeCodeOAuthToken(token: String!): SetClaudeCodeOAuthTokenOutput
   saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput
   ensureResearchScratchDocument(projectId: String!): EnsureResearchScratchDocumentOutput
+  reorderResearchDocuments(projectId: String!, orderedIds: [String!]!): ReorderResearchDocumentsOutput
 }
 
 type ResearchConversationSidebarStatus {
@@ -6164,6 +6169,7 @@ type ResearchConversation {
   projectId: String
   claudeSessionId: String
   title: String
+  icon: String
   entrypointKind: ResearchEntrypointKind
   entrypointDocumentId: String
   baseEnvironmentId: String
@@ -6214,6 +6220,8 @@ type ResearchDocument {
   userId: String
   projectId: String
   title: String
+  icon: String
+  sortOrder: Float
   contents(version: String): Revision
   contents_latest: String
   revisions(limit: Int = 5): [Revision!]
@@ -9072,6 +9080,7 @@ input UpdateResearchConversationDataInput {
   projectId: String
   claudeSessionId: String
   title: String
+  icon: String
   entrypointKind: ResearchEntrypointKind
   entrypointDocumentId: String
   baseEnvironmentId: String
@@ -9129,6 +9138,8 @@ input UpdateResearchDocumentDataInput {
   userId: String
   projectId: String
   title: String
+  icon: String
+  sortOrder: Float
   contents: CreateRevisionDataInput
 }
 

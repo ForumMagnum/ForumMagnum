@@ -48,6 +48,33 @@ const schema = {
       validation: { optional: true },
     },
   },
+  // Custom emoji shown in the sidebar in place of the default document glyph.
+  icon: {
+    database: {
+      type: "TEXT",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "String",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: { optional: true },
+    },
+  },
+  // Manual sidebar ordering; lower sorts first. Null (never reordered) sorts
+  // after ordered docs, then by createdAt. Set by reorderResearchDocuments.
+  sortOrder: {
+    database: {
+      type: "DOUBLE PRECISION",
+      nullable: true,
+    },
+    graphql: {
+      outputType: "Float",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: { optional: true },
+    },
+  },
   // Editable Lexical content backed by the Revisions collection (no
   // denormalized column). The last-persisted snapshot is the latest
   // `Revisions` row with `collectionName: 'ResearchDocuments'`,
