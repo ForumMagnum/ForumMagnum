@@ -1,11 +1,12 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useLazyQuery } from '@apollo/client/react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import ForumIcon from '@/components/common/ForumIcon';
 import Loading from '../vulcan-core/Loading';
+import { highlightFile } from './sandboxFileSyntax';
 import { researchMono, researchWarmAlpha, researchCanvas, researchScrollbars, researchUiSans } from './researchStyleUtils';
 
 const SandboxFileQuery = gql(`
@@ -116,6 +117,34 @@ const styles = defineStyles('SandboxFileViewer', (theme: ThemeType) => ({
     color: theme.palette.text.primary,
     whiteSpace: 'pre',
     tabSize: 2,
+    // Prism token colors, reusing the editor's code-highlight palette so the
+    // viewer matches inline code blocks and inverts correctly in dark mode.
+    '& .token.comment, & .token.prolog, & .token.doctype, & .token.cdata': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenComment,
+    },
+    '& .token.punctuation': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenPunctuation,
+    },
+    '& .token.property, & .token.tag, & .token.boolean, & .token.number, & .token.constant, & .token.symbol, & .token.deleted': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenProperty,
+    },
+    '& .token.selector, & .token.attr-name, & .token.string, & .token.char, & .token.builtin, & .token.inserted': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenSelector,
+    },
+    '& .token.operator, & .token.entity, & .token.url, & .token.variable': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenOperator,
+    },
+    '& .token.atrule, & .token.attr-value, & .token.keyword': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenAttr,
+    },
+    '& .token.function, & .token.class-name': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenFunction,
+    },
+    '& .token.regex, & .token.important': {
+      color: theme.palette.lexicalEditor.codeHighlight.tokenVariable,
+    },
+    '& .token.important, & .token.bold': { fontWeight: 'bold' },
+    '& .token.italic': { fontStyle: 'italic' },
   },
   message: {
     padding: '24px 16px',
@@ -167,6 +196,13 @@ export const SandboxFileViewer = ({ conversationId, path, onClose }: SandboxFile
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [onClose]);
 
+  // Extension-based syntax highlighting; memoized so it doesn't re-run on every
+  // render (large files make Prism non-trivial). null html → plain-text fallback.
+  const highlighted = useMemo(() => {
+    if (state.status !== 'ready' || state.binary || !state.content) return null;
+    return highlightFile(path, state.content);
+  }, [state, path]);
+
   let body: React.ReactNode;
   if (state.status === 'loading') {
     body = <Loading />;
@@ -178,6 +214,10 @@ export const SandboxFileViewer = ({ conversationId, path, onClose }: SandboxFile
     body = <div className={classes.message}>This looks like a binary file and can’t be shown as text.</div>;
   } else if (state.content.length === 0) {
     body = <div className={classes.message}>This file is empty.</div>;
+  } else if (highlighted?.html != null) {
+    // Prism output is token markup over the file's own (escaped) text — safe to
+    // inject; it contains no attributes or scriptable content.
+    body = <pre className={classes.pre}><code dangerouslySetInnerHTML={{ __html: highlighted.html }} /></pre>;
   } else {
     body = <pre className={classes.pre}>{state.content}</pre>;
   }
