@@ -27,7 +27,7 @@ import { sanitize } from '@/lib/utils/sanitize';
 import { randomId } from '@/lib/random';
 import { useMessages } from '@/components/common/withMessages';
 import { isSandboxWarmingError } from '../sandboxWarming';
-import { researchAccentTint, researchChatProse, researchChatSans, researchMono, researchEasing, researchWarmAlpha, researchRadius } from '../researchStyleUtils';
+import { researchAccentTint, researchChatProse, researchChatSans, researchChatSurface, researchMono, researchEasing, researchWarmAlpha, researchRadius } from '../researchStyleUtils';
 
 /** Cap on the focused block's height; the transcript scrolls inside it. */
 const FOCUSED_MAX_HEIGHT = '72vh';
@@ -77,10 +77,14 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   root: {
     position: 'relative',
     margin: '14px 0',
+    // Rounded cream box (2026-07): conversations read as their own soft
+    // surface on the canvas. The 2px left edge stays as the state signal
+    // (dim at rest, sage when focused / agent-initiated).
+    background: researchChatSurface(theme),
+    border: `1px solid ${researchWarmAlpha(0.07)}`,
     borderLeft: `2px solid ${researchWarmAlpha(0.14)}`,
-    paddingLeft: 14,
-    paddingTop: 2,
-    paddingBottom: 2,
+    borderRadius: researchRadius.lg,
+    padding: '10px 14px',
     // The block renders inside the document's contenteditable, which sets
     // `white-space: pre-wrap` (Lexical's default). Without this reset every
     // newline in the rendered markdown HTML becomes a visible blank line.

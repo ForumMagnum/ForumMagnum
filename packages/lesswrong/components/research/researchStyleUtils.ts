@@ -33,20 +33,22 @@ import { safeForDarkMode } from '../hooks/defineStyles';
  * Workspace chrome (sidebar, palette, buttons) stays in the site sans stack.
  */
 
-// Machine voice. `source-code-pro` is on Adobe Fonts (add it to one of the
-// site's kits to activate everywhere); until then ui-monospace/SF Mono carry
-// it on macOS and Consolas on Windows.
-export const researchMono = '"source-code-pro", ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace';
+// Machine voice (2026-07: Geist Mono — rounder and less aggressive than
+// SF Mono/source-code-pro). The variable is provided by app/research/
+// layout.tsx via next/font; outside /research routes the fallback stack
+// applies unchanged.
+export const researchMono = 'var(--font-geist-mono, "source-code-pro"), ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace';
 
 // Agent voice: Freight Sans Pro (already loaded sitewide via the Typekit
 // kits — it's the Alignment Forum sans), falling back down the site stack.
 export const researchChatSans = '"freight-sans-pro", GreekFallback, Calibri, "Gill Sans", "Gill Sans MT", "Helvetica Neue", Helvetica, Arial, sans-serif';
 
-// Chrome voice (2026-07 warmth pass): workspace chrome shares the agent's
-// humanist Freight Sans rather than the site sans stack — the geometric
-// Gill Sans fallback read as angular/cold in the IDE chrome. Kept as its own
-// token so chrome can diverge from the agent voice again later.
-export const researchUiSans = researchChatSans;
+// Chrome voice (2026-07, second revision): Geist — soft, round grotesque —
+// loaded via next/font in app/research/layout.tsx, falling back to the
+// agent's humanist Freight Sans where the variable isn't in scope. (First
+// revision replaced the site sans stack with Freight; the user wanted to
+// try Geist on top of that.)
+export const researchUiSans = 'var(--font-geist-sans, "freight-sans-pro"), GreekFallback, Calibri, "Gill Sans", "Gill Sans MT", "Helvetica Neue", Helvetica, Arial, sans-serif';
 
 /**
  * Warm neutral replacing `theme.palette.greyAlpha` on the research surface
@@ -62,10 +64,21 @@ export function researchWarmAlpha(alpha: number): string {
  * The research canvas: warm paper instead of pure white, uniformly across
  * every surface (sidebar, document, panels, inputs) — the flat-canvas rule
  * still holds, the whole canvas just sits a step warmer. Dark mode gets the
- * matching warm near-black.
+ * matching warm near-black. (2026-07: warmed a second step at user request,
+ * #FCFAF7 → #FAF6EE.)
  */
 export function researchCanvas(_theme: ThemeType): string {
-  return 'light-dark(#FCFAF7, #211E1B)';
+  return 'light-dark(#FAF6EE, #23201A)';
+}
+
+/**
+ * Conversation surfaces (agent blocks, the chat panel/fullscreen transcript
+ * column) sit on this slightly deeper cream, as rounded boxes on the canvas —
+ * an explicit 2026-07 user request, carving out chat surfaces from the
+ * no-static-surface-tints rule. Everything else stays on researchCanvas.
+ */
+export function researchChatSurface(_theme: ThemeType): string {
+  return 'light-dark(#F6EFE0, #2A251C)';
 }
 
 // 2026-07 warmth pass: one step rounder across the board. `xs` is for tiny

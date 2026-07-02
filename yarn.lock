@@ -13653,6 +13653,11 @@ gcp-metadata@^8.0.0:
     google-logging-utils "^1.0.0"
     json-bigint "^1.0.0"
 
+geist@^1.7.2:
+  version "1.7.2"
+  resolved "https://registry.yarnpkg.com/geist/-/geist-1.7.2.tgz#96f6e5d2b3305fd27eacbd5ae4dcfbc5a15e6939"
+  integrity sha512-Gu5lDFa3pLRyoBlBPf0QIFHVdWAnpco7fS1bJm41jyLPFoguBgiubseUN2oLXMgqZ7uxAxDoXcHMhCY/fOTTgg==
+
 generate-function@^2.3.1:
   version "2.3.1"
   resolved "https://registry.npmjs.org/generate-function/-/generate-function-2.3.1.tgz"

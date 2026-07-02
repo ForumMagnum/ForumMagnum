@@ -16,7 +16,7 @@ import { ConversationTranscript } from './ConversationTranscript';
 import { ConversationActions } from './ConversationActions';
 import ChatComposer from './ChatComposer';
 import { isSandboxWarmingError } from './sandboxWarming';
-import { researchMono, researchWarmAlpha, researchCanvas, researchRadius } from './researchStyleUtils';
+import { researchMono, researchWarmAlpha, researchCanvas, researchChatSurface, researchRadius } from './researchStyleUtils';
 
 const ConversationChatViewQuery = gql(`
   query ConversationChatViewInfo($conversationId: String!) {
@@ -124,19 +124,24 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
   icon: {
     '--icon-size': '14px',
   },
-  // The transcript + composer column. In the side panel it fills the panel;
-  // in fullscreen it's the classic centered LLM-chat reading column.
+  // The transcript + composer column — a rounded cream box on the canvas
+  // (2026-07). In the side panel it fills the panel; in fullscreen it's the
+  // classic centered LLM-chat reading column.
   body: {
     flex: 1,
     minHeight: 0,
     display: 'flex',
     flexDirection: 'column',
-    padding: '0 12px 12px',
+    background: researchChatSurface(theme),
+    border: `1px solid ${researchWarmAlpha(0.07)}`,
+    borderRadius: researchRadius.lg,
+    margin: '10px 12px 12px',
+    padding: '0 14px 12px',
   },
   bodyFullscreen: {
     width: '100%',
     maxWidth: FULLSCREEN_COLUMN_MAX_WIDTH,
-    margin: '0 auto',
+    margin: '12px auto 20px',
     padding: '0 24px 20px',
   },
   composerWrap: {
