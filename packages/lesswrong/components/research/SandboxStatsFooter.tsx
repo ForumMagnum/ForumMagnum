@@ -69,6 +69,9 @@ const styles = defineStyles('SandboxStatsFooter', (theme: ThemeType) => ({
     overflow: 'hidden',
   },
   meterFill: {
+    // Must be block: width/height are ignored on an inline <span>, so without
+    // this the fill collapses to zero and the meter never shades.
+    display: 'block',
     height: '100%',
     background: theme.palette.primary.main,
     borderRadius: 2,
