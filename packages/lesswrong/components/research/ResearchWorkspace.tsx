@@ -83,6 +83,10 @@ const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
     fontFamily: researchUiSans,
   },
   root: {
+    // Positioning context for the fullscreen chat overlay, which covers the
+    // document/chat region but is inset from the left so the sidebar stays
+    // visible.
+    position: 'relative',
     display: 'flex',
     flexDirection: 'row',
     flex: 1,
@@ -152,11 +156,15 @@ const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
     ...researchResizeHandle(theme),
     left: -5,
   },
-  // Full-viewport classic-LLM-chat overlay; covers the whole workspace
-  // (sidebar included) so it reads as a mode, not a pane.
+  // Fullscreen chat overlay: covers the document + chat region but is inset
+  // from the left (via an inline `left`) so the project sidebar stays visible
+  // and usable. Absolute (rather than replacing the document in flow) keeps
+  // the document editor mounted underneath across fullscreen toggles.
   fullscreenChat: {
     position: 'absolute',
-    inset: 0,
+    top: 0,
+    right: 0,
+    bottom: 0,
     zIndex: 10,
     background: researchCanvas(theme),
     display: 'flex',
@@ -496,20 +504,23 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
               />
             </div>
           ) : null}
+          {chatSurface?.fullscreen ? (
+            <div
+              className={classes.fullscreenChat}
+              style={{ left: sidebarOpen ? sidebarWidth : SIDEBAR_COLLAPSED_WIDTH }}
+            >
+              <ConversationChatView
+                conversationId={chatSurface.conversationId}
+                projectId={projectId}
+                activeDocumentId={activeDocumentId}
+                variant="fullscreen"
+                onClose={closeConversationChat}
+                onToggleFullscreen={() => setChatFullscreen(false)}
+                onOpenInDocument={() => openChatConversationInDocument(chatSurface.conversationId)}
+              />
+            </div>
+          ) : null}
         </div>
-        {chatSurface?.fullscreen ? (
-          <div className={classes.fullscreenChat}>
-            <ConversationChatView
-              conversationId={chatSurface.conversationId}
-              projectId={projectId}
-              activeDocumentId={activeDocumentId}
-              variant="fullscreen"
-              onClose={closeConversationChat}
-              onToggleFullscreen={() => setChatFullscreen(false)}
-              onOpenInDocument={() => openChatConversationInDocument(chatSurface.conversationId)}
-            />
-          </div>
-        ) : null}
         <ResearchCommandPalette
           projectId={projectId}
           activeDocumentId={activeDocumentId}
