@@ -14,6 +14,7 @@ import {
 } from "@/server/research/sandbox/sandboxManager";
 import { listSandboxDirectory, SANDBOX_DEFAULT_DIR } from "@/server/research/sandbox/listSandboxDirectory";
 import { readSandboxTextFile } from "@/server/research/sandbox/readSandboxTextFile";
+import { getSandboxResourceStats } from "@/server/research/sandbox/sandboxResourceStats";
 import { GraphQLError } from "graphql";
 import { isPlainRecord } from "@/components/research/conversationEventFormat";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -290,11 +291,23 @@ export const researchResolversTypeDefs = gql`
     size: Float!
   }
 
+  type ResearchSandboxStats {
+    # False when the sandbox isn't running (the footer hides its meters).
+    running: Boolean!
+    # 0–100, or null if unreadable. Bytes for the memory/disk pairs.
+    cpuPct: Float
+    memUsed: Float
+    memTotal: Float
+    diskUsed: Float
+    diskTotal: Float
+  }
+
   extend type Query {
     researchConversationTranscript(conversationId: String!, before: Int, limit: Int): [ResearchConversationEvent!]!
     researchConversationSidebarStatuses(projectId: String!): [ResearchConversationSidebarStatus!]!
     researchSandboxDirectory(conversationId: String!, path: String): ResearchSandboxDirListing!
     researchSandboxFile(conversationId: String!, path: String!): ResearchSandboxFileContents!
+    researchSandboxStats(conversationId: String!): ResearchSandboxStats!
   }
 `;
 
@@ -796,5 +809,19 @@ export const researchResolversQueries = {
     }
     const file = await readSandboxTextFile(sandbox, args.path);
     return { path: args.path, running: true, ...file };
+  },
+
+  async researchSandboxStats(
+    _root: void,
+    args: { conversationId: string },
+    context: ResolverContext,
+  ) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    const sandbox = await getRunningSandbox(conv._id);
+    if (!sandbox) {
+      return { running: false, cpuPct: null, memUsed: null, memTotal: null, diskUsed: null, diskTotal: null };
+    }
+    const stats = await getSandboxResourceStats(sandbox);
+    return { running: true, ...stats };
   },
 };

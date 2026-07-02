@@ -9221,6 +9221,7 @@ export type Query = {
   researchProjects: Maybe<MultiResearchProjectOutput>;
   researchSandboxDirectory: ResearchSandboxDirListing;
   researchSandboxFile: ResearchSandboxFileContents;
+  researchSandboxStats: ResearchSandboxStats;
   reviewPredictionPosts: Array<Post>;
   reviewVote: Maybe<SingleReviewVoteOutput>;
   reviewVotes: Maybe<MultiReviewVoteOutput>;
@@ -10259,6 +10260,11 @@ export type QueryresearchSandboxFileArgs = {
 };
 
 
+export type QueryresearchSandboxStatsArgs = {
+  conversationId: Scalars['String']['input'];
+};
+
+
 export type QueryreviewPredictionPostsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   year: Scalars['Int']['input'];
@@ -10898,6 +10904,16 @@ export type ResearchSandboxFileContents = {
   running: Scalars['Boolean']['output'];
   size: Scalars['Float']['output'];
   truncated: Scalars['Boolean']['output'];
+};
+
+export type ResearchSandboxStats = {
+  __typename?: 'ResearchSandboxStats';
+  cpuPct: Maybe<Scalars['Float']['output']>;
+  diskTotal: Maybe<Scalars['Float']['output']>;
+  diskUsed: Maybe<Scalars['Float']['output']>;
+  memTotal: Maybe<Scalars['Float']['output']>;
+  memUsed: Maybe<Scalars['Float']['output']>;
+  running: Scalars['Boolean']['output'];
 };
 
 export type ReviewGroup =
@@ -17697,6 +17713,13 @@ export type ResearchSandboxFileQueryVariables = Exact<{
 
 export type ResearchSandboxFileQuery = { __typename?: 'Query', researchSandboxFile: { __typename?: 'ResearchSandboxFileContents', path: string, running: boolean, content: string, truncated: boolean, binary: boolean, size: number } };
 
+export type ResearchSandboxStatsQueryVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+}>;
+
+
+export type ResearchSandboxStatsQuery = { __typename?: 'Query', researchSandboxStats: { __typename?: 'ResearchSandboxStats', running: boolean, cpuPct: number | null, memUsed: number | null, memTotal: number | null, diskUsed: number | null, diskTotal: number | null } };
+
 export type ResearchConversationTranscriptQueryVariables = Exact<{
   conversationId: Scalars['String']['input'];
   before?: InputMaybe<Scalars['Int']['input']>;
@@ -22943,6 +22966,7 @@ export const ResearchWorkspaceFirstDocumentDocument = _o1(_1,[_o11(_977,_984,_o3
 export const EnsureResearchScratchDocumentDocument = _o1(_1,[_o11(_977,_978,_o3(_3,"EnsureResearchScratchDocument"),_1590,_o5(_7,[_o7(_8,_o3(_3,"ensureResearchScratchDocument"),_1604,_o5(_7,[_282]))]))]) as unknown as DocumentNode<EnsureResearchScratchDocumentMutation, EnsureResearchScratchDocumentMutationVariables>;
 export const ResearchSandboxDirectoryDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"ResearchSandboxDirectory"),[_1401,_o12(_979,_1616,_982)],_o5(_7,[_o7(_8,_o3(_3,"researchSandboxDirectory"),_1617,_o5(_7,[_1618,_1619,_o6(_8,_o3(_3,"entries"),_o5(_7,[_123,_1620,_1621]))]))]))]) as unknown as DocumentNode<ResearchSandboxDirectoryQuery, ResearchSandboxDirectoryQueryVariables>;
 export const ResearchSandboxFileDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"ResearchSandboxFile"),[_1401,_o12(_979,_1616,_983)],_o5(_7,[_o7(_8,_o3(_3,"researchSandboxFile"),_1617,_o5(_7,[_1618,_1619,_401,_o4(_8,_o3(_3,"truncated")),_o4(_8,_o3(_3,"binary")),_1621]))]))]) as unknown as DocumentNode<ResearchSandboxFileQuery, ResearchSandboxFileQueryVariables>;
+export const ResearchSandboxStatsDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"ResearchSandboxStats"),_1402,_o5(_7,[_o7(_8,_o3(_3,"researchSandboxStats"),_1404,_o5(_7,[_1619,_o4(_8,_o3(_3,"cpuPct")),_o4(_8,_o3(_3,"memUsed")),_o4(_8,_o3(_3,"memTotal")),_o4(_8,_o3(_3,"diskUsed")),_o4(_8,_o3(_3,"diskTotal"))]))]))]) as unknown as DocumentNode<ResearchSandboxStatsQuery, ResearchSandboxStatsQueryVariables>;
 export const ResearchConversationTranscriptDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"ResearchConversationTranscript"),[_1401,_o12(_979,_1623,_1001),_1040],_o5(_7,[_o7(_8,_o3(_3,"researchConversationTranscript"),[_1403,_1624,_1043],_o5(_7,[_10,_365,_o4(_8,_o3(_3,"seq")),_o4(_8,_o3(_3,"claudeMessageUuid")),_1620,_o4(_8,_o3(_3,"payload")),_47]))]))]) as unknown as DocumentNode<ResearchConversationTranscriptQuery, ResearchConversationTranscriptQueryVariables>;
 export const MarkResearchConversationReadDocument = _o1(_1,[_o11(_977,_978,_o3(_3,"MarkResearchConversationRead"),[_1053,_o12(_979,_1625,_1626)],_o5(_7,[_o7(_8,_1602,[_1055,_o8(_530,_266,_o14(_990,[_o8(_991,_1606,_1625)]))],_o5(_7,[_o6(_8,_266,_o5(_7,[_10,_1607]))]))]))]) as unknown as DocumentNode<MarkResearchConversationReadMutation, MarkResearchConversationReadMutationVariables>;
 export const ResearchConversationBlockInfoDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"ResearchConversationBlockInfo"),_1402,_o5(_7,[_o7(_8,_1568,_1569,_o5(_7,[_o6(_8,_997,_o5(_7,[_10,_14,_o4(_8,_o3(_3,"presentationHtml"))]))]))]))]) as unknown as DocumentNode<ResearchConversationBlockInfoQuery, ResearchConversationBlockInfoQueryVariables>;

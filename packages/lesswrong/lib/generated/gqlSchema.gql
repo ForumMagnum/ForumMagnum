@@ -1018,11 +1018,21 @@ type ResearchSandboxFileContents {
   size: Float!
 }
 
+type ResearchSandboxStats {
+  running: Boolean!
+  cpuPct: Float
+  memUsed: Float
+  memTotal: Float
+  diskUsed: Float
+  diskTotal: Float
+}
+
 extend type Query {
   researchConversationTranscript(conversationId: String!, before: Int, limit: Int): [ResearchConversationEvent!]!
   researchConversationSidebarStatuses(projectId: String!): [ResearchConversationSidebarStatus!]!
   researchSandboxDirectory(conversationId: String!, path: String): ResearchSandboxDirListing!
   researchSandboxFile(conversationId: String!, path: String!): ResearchSandboxFileContents!
+  researchSandboxStats(conversationId: String!): ResearchSandboxStats!
 }
 
 enum DocumentDeletionNetChange {

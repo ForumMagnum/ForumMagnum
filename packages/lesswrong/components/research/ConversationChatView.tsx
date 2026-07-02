@@ -17,6 +17,7 @@ import { ConversationTranscript } from './ConversationTranscript';
 import { ConversationActions } from './ConversationActions';
 import ChatComposer from './ChatComposer';
 import { PanelRightIcon } from './PanelRightIcon';
+import { SandboxStatsFooter } from './SandboxStatsFooter';
 import { SandboxFileBrowser } from './SandboxFileBrowser';
 import { SandboxFileViewer } from './SandboxFileViewer';
 import { useResearchWorkspaceApiOptional } from './researchWorkspaceContext';
@@ -456,6 +457,9 @@ export const ConversationChatView = ({
           {filesOpen ? <SandboxFileBrowser conversationId={conversationId} /> : chatContent}
         </div>
       )}
+      {/* Resource-utilization strip pinned to the very bottom of the panel;
+          renders nothing while the sandbox is down. */}
+      <SandboxStatsFooter conversationId={conversationId} />
     </div>
   );
 };

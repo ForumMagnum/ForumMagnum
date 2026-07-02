@@ -7335,6 +7335,7 @@ type Query = {
   researchProjects?: Maybe<MultiResearchProjectOutput>;
   researchSandboxDirectory: ResearchSandboxDirListing;
   researchSandboxFile: ResearchSandboxFileContents;
+  researchSandboxStats: ResearchSandboxStats;
   reviewPredictionPosts: Array<Post>;
   reviewVote?: Maybe<SingleReviewVoteOutput>;
   reviewVotes?: Maybe<MultiReviewVoteOutput>;
@@ -8373,6 +8374,11 @@ type QueryresearchSandboxFileArgs = {
 };
 
 
+type QueryresearchSandboxStatsArgs = {
+  conversationId: Scalars['String']['input'];
+};
+
+
 type QueryreviewPredictionPostsArgs = {
   limit?: InputMaybe<Scalars['Int']['input']>;
   year: Scalars['Int']['input'];
@@ -9012,6 +9018,16 @@ type ResearchSandboxFileContents = {
   running: Scalars['Boolean']['output'];
   size: Scalars['Float']['output'];
   truncated: Scalars['Boolean']['output'];
+};
+
+type ResearchSandboxStats = {
+  __typename?: 'ResearchSandboxStats';
+  cpuPct?: Maybe<Scalars['Float']['output']>;
+  diskTotal?: Maybe<Scalars['Float']['output']>;
+  diskUsed?: Maybe<Scalars['Float']['output']>;
+  memTotal?: Maybe<Scalars['Float']['output']>;
+  memUsed?: Maybe<Scalars['Float']['output']>;
+  running: Scalars['Boolean']['output'];
 };
 
 type ReviewGroup =
@@ -18234,6 +18250,18 @@ type ResearchSandboxFileQueryVariables = Exact<{
 
 
 type ResearchSandboxFileQuery = ResearchSandboxFileQuery_Query;
+
+type ResearchSandboxStatsQuery_researchSandboxStats_ResearchSandboxStats = { __typename?: 'ResearchSandboxStats', running: boolean, cpuPct: number | null, memUsed: number | null, memTotal: number | null, diskUsed: number | null, diskTotal: number | null };
+
+type ResearchSandboxStatsQuery_Query = { __typename?: 'Query', researchSandboxStats: ResearchSandboxStatsQuery_researchSandboxStats_ResearchSandboxStats };
+
+
+type ResearchSandboxStatsQueryVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+}>;
+
+
+type ResearchSandboxStatsQuery = ResearchSandboxStatsQuery_Query;
 
 type ResearchConversationTranscriptQuery_researchConversationTranscript_ResearchConversationEvent = { __typename?: 'ResearchConversationEvent', _id: string, conversationId: string | null, seq: number | null, claudeMessageUuid: string | null, kind: string | null, payload: any | null, createdAt: string };
 
