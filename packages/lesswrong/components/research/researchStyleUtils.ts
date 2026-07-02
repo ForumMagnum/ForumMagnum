@@ -39,9 +39,11 @@ import { safeForDarkMode } from '../hooks/defineStyles';
 // applies unchanged.
 export const researchMono = 'var(--font-geist-mono, "source-code-pro"), ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace';
 
-// Agent voice: Freight Sans Pro (already loaded sitewide via the Typekit
-// kits — it's the Alignment Forum sans), falling back down the site stack.
-export const researchChatSans = '"freight-sans-pro", GreekFallback, Calibri, "Gill Sans", "Gill Sans MT", "Helvetica Neue", Helvetica, Arial, sans-serif';
+// Agent voice (2026-07: Geist, matching the chrome — the user moved the
+// whole sans surface to Geist; Freight Sans remains the fallback where the
+// next/font variable isn't in scope). Documents keep the essay serif, so
+// agent prose stays visibly distinct from the user's document prose.
+export const researchChatSans = 'var(--font-geist-sans, "freight-sans-pro"), GreekFallback, Calibri, "Gill Sans", "Gill Sans MT", "Helvetica Neue", Helvetica, Arial, sans-serif';
 
 // Chrome voice (2026-07, second revision): Geist — soft, round grotesque —
 // loaded via next/font in app/research/layout.tsx, falling back to the
