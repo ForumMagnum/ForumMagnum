@@ -76,9 +76,13 @@ export function researchCanvas(_theme: ThemeType): string {
  * column) sit on this slightly deeper cream, as rounded boxes on the canvas —
  * an explicit 2026-07 user request, carving out chat surfaces from the
  * no-static-surface-tints rule. Everything else stays on researchCanvas.
+ *
+ * Hue discipline: keep the same warmth ratio as researchCanvas (R−B ≈ 12)
+ * and only step the lightness — the first attempt (#F6EFE0, R−B = 22)
+ * doubled the yellow cast and was rejected as "far too yellow".
  */
 export function researchChatSurface(_theme: ThemeType): string {
-  return 'light-dark(#F6EFE0, #2A251C)';
+  return 'light-dark(#F6F2EA, #282521)';
 }
 
 // 2026-07 warmth pass: one step rounder across the board. `xs` is for tiny
