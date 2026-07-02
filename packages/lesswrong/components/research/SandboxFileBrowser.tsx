@@ -95,31 +95,20 @@ const styles = defineStyles('SandboxFileBrowser', (theme: ThemeType) => ({
       background: researchWarmAlpha(0.05),
     },
   },
-  twisty: {
+  // Shared glyph column — chevron for dirs, document for files. Fixed width so
+  // every row's name starts at the same x within its indent level.
+  glyph: {
     flex: 'none',
-    width: 14,
+    width: 15,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
     color: theme.palette.text.dim,
-    '--icon-size': '11px',
+    '--icon-size': '13px',
     transition: 'transform 100ms ease',
   },
-  twistyOpen: {
+  glyphOpen: {
     transform: 'rotate(90deg)',
-  },
-  twistySpacer: {
-    flex: 'none',
-    width: 14,
-  },
-  fileIcon: {
-    flex: 'none',
-    '--icon-size': '13px',
-    color: theme.palette.text.dim,
-  },
-  fileIconSpacer: {
-    flex: 'none',
-    width: 13,
   },
   name: {
     flex: 1,
@@ -227,19 +216,20 @@ export const SandboxFileBrowser = ({ conversationId }: SandboxFileBrowserProps) 
 
   const Node = useCallback(({ node, style, dragHandle }: NodeRendererProps<FileNode>) => {
     const dir = isDir(node.data.kind);
+    // One shared glyph column for both kinds: a rotating chevron for
+    // directories, a document icon for files. Keeping them in the same column
+    // (rather than a chevron column plus a separate icon column) means leaves
+    // and folders line up with no empty slot / stray gutter.
     return (
       <div className={classes.row} style={style} ref={dragHandle} onClick={() => node.toggle()}>
         {dir ? (
           <ForumIcon
             icon="ChevronRight"
-            className={node.isOpen ? `${classes.twisty} ${classes.twistyOpen}` : classes.twisty}
+            className={node.isOpen ? `${classes.glyph} ${classes.glyphOpen}` : classes.glyph}
           />
         ) : (
-          <span className={classes.twistySpacer} />
+          <ForumIcon icon="Document" className={classes.glyph} />
         )}
-        {/* No folder glyph in the icon set — the twisty carries "directory";
-            files get the document glyph. Both reserve the slot for alignment. */}
-        {dir ? <span className={classes.fileIconSpacer} /> : <ForumIcon icon="Document" className={classes.fileIcon} />}
         <span className={dir ? `${classes.name} ${classes.nameDir}` : classes.name}>{node.data.name}</span>
         {node.data.size != null ? <span className={classes.size}>{formatSize(node.data.size)}</span> : null}
       </div>
