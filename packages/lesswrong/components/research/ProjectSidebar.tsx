@@ -147,8 +147,11 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
   },
   item: {
     ...researchCompactRow(theme),
+    // display, not visibility: hidden hover buttons must not reserve layout
+    // width — on a narrow sidebar the two of them cost ~50px of label space
+    // and titles truncated absurdly early.
     '&:hover $itemEditButton': {
-      visibility: 'visible',
+      display: 'flex',
     },
   },
   itemActive: researchCompactRowActive(theme),
@@ -192,11 +195,10 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     color: theme.palette.text.dim,
     cursor: 'pointer',
     padding: 0,
-    display: 'flex',
+    display: 'none',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: researchRadius.xs,
-    visibility: 'hidden',
     '&:hover': {
       color: theme.palette.text.primary,
       background: researchWarmAlpha(0.08),
