@@ -133,12 +133,10 @@ export const HIDE_NEW_POST_HOW_TO_GUIDE_COOKIE = registerCookie({
   description: "Don't show the how-to guide on the new post page",
 });
 
-export const AI_DISCLOSURE_COOKIE_PREFIX = "hide_ai_disclosure_";
-registerCookie({
-  name: `${AI_DISCLOSURE_COOKIE_PREFIX}[*]`,
-  matches: (name: string) => name.startsWith(AI_DISCLOSURE_COOKIE_PREFIX),
+export const AI_DISCLOSURE_COOKIE = registerCookie({
+  name: "hide_ai_disclosure",
   type: "necessary",
-  description: "Whether or not to show particular the AI disclosure policy warning on the edit post page",
+  description: "Don't show the AI disclosure warning on the new post page",
 });
 
 export const HIDE_2021_BOOK_BANNER_COOKIE = registerCookie({

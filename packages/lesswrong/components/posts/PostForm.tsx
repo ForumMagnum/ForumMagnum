@@ -13,7 +13,7 @@ import { OwnableDocument, userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOwn
 import { isFriendlyUI, preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { useApolloClient } from "@apollo/client";
 import { useCurrentUser } from "../common/withUser";
 import { EditLinkpostUrl } from "../editor/EditLinkpostUrl";
@@ -31,7 +31,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { GlossaryEditFormWrapper } from "../jargon/GlossaryEditFormWrapper";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
-import { EditContentsRef, EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
+import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { LocationFormComponent } from "@/components/form-components/LocationFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
@@ -117,7 +117,6 @@ const PostForm = ({
   const currentUser = useCurrentUser();
   const apolloClient = useApolloClient();
   const [editorType, setEditorType] = useState<string>();
-  const editContentsRef = useRef<EditContentsRef>(null);
 
   // TODO: maybe this is just an edit form?
   const formType = initialData ? 'edit' : 'new';
@@ -340,7 +339,7 @@ const PostForm = ({
         )}
       </form.Subscribe>
 
-      <NewPostAIPolicy postId={initialData._id} editContentsRef={editContentsRef} />
+      <NewPostAIPolicy postId={initialData._id} />
 
       <LegacyFormGroupLayout
         groupStyling={false}
@@ -359,7 +358,6 @@ const PostForm = ({
                 addOnSuccessCallback={addOnSuccessCallback}
                 hasToc={true}
                 hintText={defaultEditorPlaceholder}
-                editContentsRef={editContentsRef}
                 fieldName="contents"
                 collectionName="Posts"
                 commentEditor={false}
@@ -1205,7 +1203,7 @@ const PostForm = ({
       {userCanCreateAndEditJargonTerms(currentUser) && <LegacyFormGroupLayout label="Glossary" startCollapsed={false} hideHeader>
         <div className={classes.fieldWrapper}>
           <form.Field name="glossary">
-            {(field) => (
+            {() => (
               <GlossaryEditFormWrapper
                 document={form.state.values}
               />
