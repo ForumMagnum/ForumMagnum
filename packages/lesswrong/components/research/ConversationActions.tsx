@@ -7,12 +7,13 @@ import { useApolloClient, useLazyQuery, useMutation } from '@apollo/client/react
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useMessages } from '@/components/common/withMessages';
 import { isSandboxWarmingError } from './sandboxWarming';
+import { ResearchEnvironmentsByProjectQuery } from './researchEnvironmentsQuery';
 import { researchMono, researchWarmAlpha, researchRadius, researchChatSurface } from './researchStyleUtils';
 
 const SaveResearchEnvironmentMutation = gql(`
   mutation SaveResearchEnvironment($conversationId: String!, $withConversation: Boolean!) {
     saveResearchEnvironment(conversationId: $conversationId, withConversation: $withConversation) {
-      data { _id label }
+      data { _id label sourceEventId createdAt }
     }
   }
 `);
@@ -186,7 +187,10 @@ const RestartSandboxMenu = ({ anchor, state, readyUrl, onRestart, onClose }: Res
   );
 };
 
-export function ConversationActions({ conversationId }: { conversationId: string }) {
+export function ConversationActions({ conversationId, projectId }: {
+  conversationId: string;
+  projectId: string;
+}) {
   const classes = useStyles(styles);
   const { flash } = useMessages();
   const apollo = useApolloClient();
@@ -205,14 +209,32 @@ export function ConversationActions({ conversationId }: { conversationId: string
     setBusy(true);
     try {
       const result = await saveEnvironment({ variables: { conversationId, withConversation } });
-      const label = result.data?.saveResearchEnvironment?.data?.label;
-      // Surface the new environment in the selector immediately (the redesign's
-      // "save, then start from it" workflow): drop the cached project env-list so
-      // a not-yet-mounted cache-first selector refetches on mount, then refetch
-      // any selector that's currently mounted.
-      apollo.cache.evict({ fieldName: 'researchEnvironments' });
-      apollo.cache.gc();
-      await apollo.refetchQueries({ include: ['ResearchEnvironmentsByProjectQuery'] });
+      const saved = result.data?.saveResearchEnvironment?.data;
+      // Surface the new environment everywhere immediately (sidebar snapshots,
+      // the env selector — both read this exact query) by prepending it to the
+      // cached list (the byProject view sorts createdAt desc). This must be a
+      // targeted cache write, NOT an evict + refetch: evicting the field made
+      // the crud useQuery's SSR/suspense machinery re-serve the stale
+      // SSR-captured list over the refetch, so the fresh snapshot appeared and
+      // then vanished until a full reload.
+      if (saved) {
+        apollo.cache.updateQuery(
+          { query: ResearchEnvironmentsByProjectQuery, variables: { projectId } },
+          (existing) => {
+            if (!existing?.researchEnvironments?.results) return existing;
+            const results = existing.researchEnvironments.results;
+            if (results.some((env) => env._id === saved._id)) return existing;
+            return {
+              ...existing,
+              researchEnvironments: {
+                ...existing.researchEnvironments,
+                results: [saved, ...results],
+              },
+            };
+          },
+        );
+      }
+      const label = saved?.label;
       flash({ messageString: label ? `Saved environment "${label}"` : 'Saved environment', type: 'success' });
     } catch (err) {
       // eslint-disable-next-line no-console
@@ -221,7 +243,7 @@ export function ConversationActions({ conversationId }: { conversationId: string
     } finally {
       setBusy(false);
     }
-  }, [busy, conversationId, saveEnvironment, apollo, flash]);
+  }, [busy, conversationId, projectId, saveEnvironment, apollo, flash]);
 
   const closeRestartMenu = useCallback(() => {
     restartAbortRef.current = true;

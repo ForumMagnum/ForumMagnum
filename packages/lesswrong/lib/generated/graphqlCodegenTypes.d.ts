@@ -17992,7 +17992,7 @@ type RecommendationsQueryQueryVariables = Exact<{
 
 type RecommendationsQueryQuery = RecommendationsQueryQuery_Query;
 
-type SaveResearchEnvironmentMutation_saveResearchEnvironment_SaveResearchEnvironmentOutput_data_ResearchEnvironment = { __typename?: 'ResearchEnvironment', _id: string, label: string | null };
+type SaveResearchEnvironmentMutation_saveResearchEnvironment_SaveResearchEnvironmentOutput_data_ResearchEnvironment = { __typename?: 'ResearchEnvironment', _id: string, label: string | null, sourceEventId: string | null, createdAt: string };
 
 type SaveResearchEnvironmentMutation_saveResearchEnvironment_SaveResearchEnvironmentOutput = { __typename?: 'SaveResearchEnvironmentOutput', data: SaveResearchEnvironmentMutation_saveResearchEnvironment_SaveResearchEnvironmentOutput_data_ResearchEnvironment | null };
 

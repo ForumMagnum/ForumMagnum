@@ -374,7 +374,7 @@ export const ConversationChatView = ({
             ■ stop
           </button>
         ) : null}
-        <ConversationActions conversationId={conversationId} />
+        <ConversationActions conversationId={conversationId} projectId={projectId} />
         <button
           type="button"
           className={classNames(classes.headerButton, classes.iconButton, filesOpen && classes.iconButtonActive)}

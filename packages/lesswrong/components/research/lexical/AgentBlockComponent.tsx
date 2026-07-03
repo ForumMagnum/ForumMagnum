@@ -546,7 +546,7 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
                 ■ stop
               </button>
             ) : null}
-            <ConversationActions conversationId={conversationId} />
+            <ConversationActions conversationId={conversationId} projectId={env.projectId} />
             {workspace ? (
               <>
                 <button
