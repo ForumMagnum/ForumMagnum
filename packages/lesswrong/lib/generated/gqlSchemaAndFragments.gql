@@ -3448,6 +3448,7 @@ type Post {
   fmCrosspost: CrosspostOutput
   canonicalSequenceId: String
   canonicalSequence: Sequence
+  pangramStatusOverride: String
   isMarginalFunding2025Post: Boolean!
   canonicalCollectionSlug: String
   canonicalCollection: Collection
@@ -6196,6 +6197,7 @@ input CreatePostDataInput {
   socialPreview: SocialPreviewInput
   fmCrosspost: CrosspostInput
   canonicalSequenceId: String
+  pangramStatusOverride: String
   canonicalCollectionSlug: String
   canonicalBookId: String
   canonicalNextPostSlug: String
@@ -6313,6 +6315,7 @@ input UpdatePostDataInput {
   socialPreview: SocialPreviewInput
   fmCrosspost: CrosspostInput
   canonicalSequenceId: String
+  pangramStatusOverride: String
   canonicalCollectionSlug: String
   canonicalBookId: String
   canonicalNextPostSlug: String
@@ -9688,6 +9691,7 @@ fragment PostsDefaultFragment on Post {
   socialPreviewImageId
   socialPreviewImageAutoUrl
   canonicalSequenceId
+  pangramStatusOverride
   canonicalCollectionSlug
   canonicalBookId
   canonicalNextPostSlug

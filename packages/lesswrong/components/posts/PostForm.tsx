@@ -13,7 +13,7 @@ import { OwnableDocument, userIsAdmin, userIsAdminOrMod, userIsMemberOf, userOwn
 import { isFriendlyUI, preferredHeadingCase } from "@/themes/forumTheme";
 import { useForm } from "@tanstack/react-form";
 import classNames from "classnames";
-import React, { useRef, useState } from "react";
+import React, { useState } from "react";
 import { useApolloClient } from "@apollo/client";
 import { useCurrentUser } from "../common/withUser";
 import { EditLinkpostUrl } from "../editor/EditLinkpostUrl";
@@ -31,7 +31,7 @@ import { defineStyles, useStyles } from "../hooks/useStyles";
 import { GlossaryEditFormWrapper } from "../jargon/GlossaryEditFormWrapper";
 import { getUpdatedFieldValues } from "@/components/tanstack-form-components/helpers";
 import { LegacyFormGroupLayout } from "@/components/tanstack-form-components/LegacyFormGroupLayout";
-import { EditContentsRef, EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
+import { EditorFormComponent, useEditorFormCallbacks } from "../editor/EditorFormComponent";
 import { ImageUpload } from "@/components/form-components/ImageUpload";
 import { LocationFormComponent } from "@/components/form-components/LocationFormComponent";
 import { MuiTextField } from "@/components/form-components/MuiTextField";
@@ -91,6 +91,15 @@ function getVotingSystemOptions(user: UsersCurrent | null) {
   }));
 }
 
+const getPangramStatusOptions = () => {
+  return [
+    {label: "Entirely human (no badge)", value: "human"},
+    {label: "Partly AI-written", value: "partly-ai"},
+    {label: "Mostly AI-written", value: "mostly-ai"},
+    {label: "~Entirely AI-written", value: "entirely-ai"},
+  ];
+}
+
 function getDraftLabel(post: { draft?: boolean | null } | null) {
   if (!post) return "Save Draft";
   if (!post.draft) return "Move to Drafts";
@@ -117,7 +126,6 @@ const PostForm = ({
   const currentUser = useCurrentUser();
   const apolloClient = useApolloClient();
   const [editorType, setEditorType] = useState<string>();
-  const editContentsRef = useRef<EditContentsRef>(null);
 
   // TODO: maybe this is just an edit form?
   const formType = initialData ? 'edit' : 'new';
@@ -340,7 +348,7 @@ const PostForm = ({
         )}
       </form.Subscribe>
 
-      <NewPostAIPolicy postId={initialData._id} editContentsRef={editContentsRef} />
+      <NewPostAIPolicy postId={initialData._id} />
 
       <LegacyFormGroupLayout
         groupStyling={false}
@@ -359,7 +367,6 @@ const PostForm = ({
                 addOnSuccessCallback={addOnSuccessCallback}
                 hasToc={true}
                 hintText={defaultEditorPlaceholder}
-                editContentsRef={editContentsRef}
                 fieldName="contents"
                 collectionName="Posts"
                 commentEditor={false}
@@ -966,6 +973,18 @@ const PostForm = ({
           </form.Field>
         </div>}
 
+        <div className={classes.fieldWrapper}>
+          <form.Field name="pangramStatusOverride">
+            {(field) => (
+              <FormComponentSelect
+                field={field}
+                options={getPangramStatusOptions()}
+                label="Pangram status override"
+              />
+            )}
+          </form.Field>
+        </div>
+
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="hideAuthor">
             {(field) => (
@@ -1205,7 +1224,7 @@ const PostForm = ({
       {userCanCreateAndEditJargonTerms(currentUser) && <LegacyFormGroupLayout label="Glossary" startCollapsed={false} hideHeader>
         <div className={classes.fieldWrapper}>
           <form.Field name="glossary">
-            {(field) => (
+            {() => (
               <GlossaryEditFormWrapper
                 document={form.state.values}
               />

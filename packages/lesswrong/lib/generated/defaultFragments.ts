@@ -988,6 +988,7 @@ export const PostsDefaultFragment = `
     socialPreviewImageId
     socialPreviewImageAutoUrl
     canonicalSequenceId
+    pangramStatusOverride
     canonicalCollectionSlug
     canonicalBookId
     canonicalNextPostSlug

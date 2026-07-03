@@ -2485,6 +2485,20 @@ const schema = {
       resolver: generateIdResolverSingle({ foreignCollectionName: "Sequences", fieldName: "canonicalSequenceId" }),
     },
   },
+  pangramStatusOverride: {
+    database: {
+      type: "TEXT",
+    },
+    graphql: {
+      outputType: "String",
+      canRead: ["guests"],
+      canUpdate: ["sunshineRegiment", "admins"],
+      canCreate: ["sunshineRegiment", "admins"],
+      validation: {
+        optional: true,
+      },
+    },
+  },
   isMarginalFunding2025Post: {
     graphql: {
       outputType: "Boolean!",

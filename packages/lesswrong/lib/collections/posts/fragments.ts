@@ -361,6 +361,7 @@ export const PostsDetails = () => frag`
     canonicalSource
     noIndex
     viewCount
+    pangramStatusOverride
     tags {
       ...TagPreviewFragment
     }
