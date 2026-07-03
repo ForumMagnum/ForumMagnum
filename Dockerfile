@@ -1,5 +1,5 @@
 # Node 22.x is LTS
-FROM node:22.12.0
+FROM node:22.13.0
 ENV IS_DOCKER=true
 # Transcrypt dependency
 RUN apt-get update && apt-get install -y bsdmainutils
