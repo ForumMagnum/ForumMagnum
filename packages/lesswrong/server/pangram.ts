@@ -1,5 +1,6 @@
-import { htmlToTextDefault } from "@/lib/htmlToText";
+import { compile as htmlToTextCompile } from "html-to-text";
 import { pangramApiKeySetting, pangramEnabledSetting } from "./databaseSettings";
+import { truncatise } from "@/lib/truncatise";
 
 const PANGRAM_ENDPOINT = "https://text.api.pangram.com/v3";
 // Pangram's accuracy drops sharply on very short text; 50 words is their recommended floor.
@@ -35,19 +36,42 @@ export function countWords(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
 }
 
+const pangramHtmlToText = htmlToTextCompile({
+  selectors: [
+    { selector: 'a', options: { ignoreHref: true } },
+    { selector: 'table', format: 'skip' },
+    { selector: 'img', format: 'skip' },
+    { selector: 'svg', format: 'skip' },
+    { selector: 'script', format: 'skip' },
+    { selector: 'style', format: 'skip' },
+    { selector: 'iframe', format: 'skip' },
+    { selector: 'blockquote', format: 'skip' },
+    { selector: 'pre', format: 'skip' },
+    { selector: 'code', format: 'skip' }
+  ],
+  wordwrap: false,
+  preserveNewlines: false,
+  decodeEntities: true,
+  limits: {
+    maxInputLength: 1_000_000,
+    maxDepth: 40,
+    maxChildNodes: 20_000,
+    ellipsis: '…'
+  },
+});
+
 export function extractPangramInputFromPost(
   post: Pick<DbPost, "title">,
   html: string | null | undefined,
 ): string {
-  // Title is intentionally folded into the scored text — it carries style signal Pangram uses.
-  const body = htmlToTextDefault(html ?? "");
-  return `${post.title ?? ""}\n\n${body}`.trim();
+  const body = `${post.title ?? ""}\n\n${pangramHtmlToText(html ?? "")}`.trim();
+  return truncatise(body, {TruncateBy: "words", TruncateLength: 2000});
 }
 
 export function extractPangramInputFromComment(
   html: string | null | undefined,
 ): string {
-  return htmlToTextDefault(html ?? "").trim();
+  return pangramHtmlToText(html ?? "").trim();
 }
 
 // "Not fully reviewed" per getReasonForReview — includes never-reviewed and currently-snoozed users.
@@ -61,6 +85,7 @@ export function documentIsEligibleForPangram(document: {
   rejected?: boolean | null;
   spam?: boolean | null;
   draft?: boolean | null;
+  isEvent?: boolean | null;
 }): { eligible: boolean; skipStatus?: PangramStatus } {
   // Spam/deleted: terminal states — record a skip so the badge shows "skipped" instead of sitting at "pending" forever.
   if (document.spam || document.deleted) {
