@@ -2763,6 +2763,7 @@ interface Post {
   fmCrosspost: CrosspostOutput | null;
   canonicalSequenceId: string | null;
   canonicalSequence: Sequence | null;
+  pangramStatusOverride: string | null;
   isMarginalFunding2025Post: boolean;
   canonicalCollectionSlug: string | null;
   canonicalCollection: Collection | null;
@@ -5260,6 +5261,7 @@ interface CreatePostDataInput {
   socialPreview?: SocialPreviewInput | null;
   fmCrosspost?: CrosspostInput | null;
   canonicalSequenceId?: string | null;
+  pangramStatusOverride?: string | null;
   canonicalCollectionSlug?: string | null;
   canonicalBookId?: string | null;
   canonicalNextPostSlug?: string | null;
@@ -5377,6 +5379,7 @@ interface UpdatePostDataInput {
   socialPreview?: SocialPreviewInput | null;
   fmCrosspost?: CrosspostInput | null;
   canonicalSequenceId?: string | null;
+  pangramStatusOverride?: string | null;
   canonicalCollectionSlug?: string | null;
   canonicalBookId?: string | null;
   canonicalNextPostSlug?: string | null;
