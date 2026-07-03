@@ -75,15 +75,11 @@ const styles = defineStyles('ResearchIconPicker', (theme: ThemeType) => ({
   body: {
     overflowY: 'auto',
     maxHeight: 440,
-    padding: '4px 10px 10px',
+    padding: '8px 10px 10px',
   },
-  groupLabel: {
-    fontFamily: researchMono,
-    fontSize: 10,
-    letterSpacing: '0.06em',
-    textTransform: 'uppercase',
-    color: theme.palette.text.dim,
-    padding: '8px 2px 3px',
+  divider: {
+    borderTop: `1px solid ${researchWarmAlpha(0.08)}`,
+    margin: '6px 2px',
   },
   iconGrid: {
     display: 'grid',
@@ -192,9 +188,9 @@ export const ResearchIconPicker = ({ anchor, onSelect, onClear, onClose }: Resea
         </button>
       </div>
       <div className={classes.body}>
-        {groups.map((group) => (
+        {groups.map((group, i) => (
           <React.Fragment key={group.title}>
-            <div className={classes.groupLabel}>{group.title}</div>
+            {i > 0 && <div className={classes.divider} />}
             <div className={classes.iconGrid}>
               {group.icons.map((def) => (
                 <button

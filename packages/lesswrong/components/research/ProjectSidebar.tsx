@@ -569,7 +569,9 @@ const ProjectSidebar = ({
             </button>
           </div>
           {loading && documents.length === 0 ? <Loading /> : null}
-          <DndContext sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleDocumentDragEnd}>
+          {/* Stable id: dnd-kit's auto-incremented one differs between SSR and
+              client, tripping a hydration-mismatch warning on aria-describedby. */}
+          <DndContext id="project-documents-dnd" sensors={dndSensors} collisionDetection={closestCenter} onDragEnd={handleDocumentDragEnd}>
             <SortableContext items={documentIds} strategy={verticalListSortingStrategy}>
               <ul className={classes.list}>
                 {documents.map((doc) => (
