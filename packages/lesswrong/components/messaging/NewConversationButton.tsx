@@ -83,7 +83,7 @@ const NewConversationButton = ({
       {children}
     </div>
 
-  if (!userCanInitiateConversations(currentUser)) {
+  if (currentUser && !userCanInitiateConversations(currentUser)) {
     return (
       <LWTooltip title="You must earn 10 karma to message" placement="bottom">
         {children}
