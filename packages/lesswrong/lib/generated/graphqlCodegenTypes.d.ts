@@ -8908,6 +8908,7 @@ type ResearchConversation = {
   runtime?: Maybe<Scalars['String']['output']>;
   title?: Maybe<Scalars['String']['output']>;
   userId?: Maybe<Scalars['String']['output']>;
+  userTurnCount?: Maybe<Scalars['Int']['output']>;
 };
 
 type ResearchConversationEvent = {
@@ -18421,7 +18422,7 @@ type MarkResearchConversationReadMutationVariables = Exact<{
 
 type MarkResearchConversationReadMutation = MarkResearchConversationReadMutation_Mutation;
 
-type ResearchConversationBlockInfoQuery_researchConversation_SingleResearchConversationOutput_result_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, presentationHtml: string | null };
+type ResearchConversationBlockInfoQuery_researchConversation_SingleResearchConversationOutput_result_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null, presentationHtml: string | null, userTurnCount: number | null };
 
 type ResearchConversationBlockInfoQuery_researchConversation_SingleResearchConversationOutput = { __typename?: 'SingleResearchConversationOutput', result: ResearchConversationBlockInfoQuery_researchConversation_SingleResearchConversationOutput_result_ResearchConversation | null };
 

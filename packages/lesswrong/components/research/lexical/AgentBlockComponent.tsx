@@ -43,6 +43,7 @@ const ResearchConversationBlockQuery = gql(`
         _id
         title
         presentationHtml
+        userTurnCount
       }
     }
   }
@@ -366,10 +367,16 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
     () => events.filter(isVisibleConversationEvent),
     [events],
   );
-  const userTurnCount = useMemo(
+  // Turn counter: the server count covers the WHOLE conversation (the event
+  // window only holds recent history, so counting it undercounts old
+  // conversations — the bug this replaced). The window count still wins right
+  // after a dispatch, when the just-sent turn hasn't reached the server-side
+  // count yet (it refreshes via refetchConversation at turn end).
+  const windowUserTurnCount = useMemo(
     () => events.reduce((n, e) => (e.kind === 'user' ? n + 1 : n), 0),
     [events],
   );
+  const userTurnCount = Math.max(conversation?.userTurnCount ?? 0, windowUserTurnCount);
 
   // Workspace-level "jump to this conversation" requests (sidebar, palette).
   const focusRequest = workspace?.conversationFocusRequest ?? null;

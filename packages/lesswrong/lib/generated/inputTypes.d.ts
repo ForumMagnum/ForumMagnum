@@ -5730,6 +5730,7 @@ interface ResearchConversation {
   baseEnvironmentId: string | null;
   runtime: string | null;
   presentationHtml: string | null;
+  userTurnCount: number | null;
   lastActivityAt: Date | null;
   lastReadAt: Date | null;
 }

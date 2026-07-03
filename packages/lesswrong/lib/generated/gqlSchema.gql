@@ -6188,6 +6188,7 @@ type ResearchConversation {
   baseEnvironmentId: String
   runtime: String
   presentationHtml: String
+  userTurnCount: Int
   lastActivityAt: Date
   lastReadAt: Date
 }
