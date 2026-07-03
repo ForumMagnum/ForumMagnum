@@ -159,11 +159,12 @@ export async function undraftedPostTriggerPangram({oldDocument, newDocument, con
 async function maybeRunPangramOnPost(post: DbPost, context: ResolverContext) {
   if (!pangramIsConfigured()) return;
 
+  if (post.isEvent || post.shortform) {
+    return;
+  }
+
   const eligibility = documentIsEligibleForPangram(post);
   if (!eligibility.eligible && !eligibility.skipStatus) return;
-
-  const author = await context.loaders.Users.load(post.userId);
-  if (!author || !userIsUnreviewedForPangram(author)) return;
 
   if (!eligibility.eligible) {
     // Preview's `contents_latest` is safe to stamp for terminal states — spam/deleted
@@ -181,6 +182,9 @@ async function maybeRunPangramOnPost(post: DbPost, context: ResolverContext) {
   if (!freshPost) return;
   const revision = await getLatestContentsRevision(freshPost, context);
   if (!revision) return;
+  if (revision.wordCount < 100) {
+    return;
+  }
   // Avoid re-scoring the same revision when a draft is re-published. Manual rerun still overwrites.
   if (revision.pangramCheckedAt) return;
 
