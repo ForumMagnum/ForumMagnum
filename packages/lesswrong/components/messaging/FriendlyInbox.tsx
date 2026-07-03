@@ -3,6 +3,7 @@ import { registerComponent } from "../../lib/vulcan-lib/components";
 import { UseMultiResult, useMulti } from "../../lib/crud/withMulti";
 import classNames from "classnames";
 import { conversationGetFriendlyTitle } from "../../lib/collections/conversations/helpers";
+import { userCanInitiateConversations } from "@/lib/collections/users/helpers";
 import { useDialog } from "../common/withDialog";
 import type { InboxComponentProps } from "./InboxWrapper";
 import { useSingle } from "../../lib/crud/withSingle";
@@ -17,6 +18,7 @@ import ConversationContents from "./ConversationContents";
 import ForumIcon from "../common/ForumIcon";
 import ConversationDetails from "./ConversationDetails";
 import EAButton from "../ea-forum/EAButton";
+import LWTooltip from "../common/LWTooltip";
 
 const MAX_WIDTH = 1100;
 
@@ -195,6 +197,7 @@ const FriendlyInbox = ({
 }) => {
   const { openDialog } = useDialog();
   const { location } = useLocation();
+  const canInitialConversations = userCanInitiateConversations(currentUser);
   const navigate = useNavigate();
   const markConversationRead = useMarkConversationRead();
 
@@ -208,6 +211,9 @@ const FriendlyInbox = ({
   );
 
   const openNewConversationDialog = useCallback(() => {
+    if (!canInitialConversations) {
+      return;
+    }
     openDialog({
       name: "NewConversationDialog",
       contents: ({onClose}) => <NewConversationDialog
@@ -215,7 +221,7 @@ const FriendlyInbox = ({
         isModInbox={isModInbox}
       />
     });
-  }, [isModInbox, openDialog]);
+  }, [isModInbox, openDialog, canInitialConversations]);
   const conversationsResult: UseMultiResult<"ConversationsListWithReadStatus"> = useMulti({
     terms,
     collectionName: "Conversations",
@@ -285,7 +291,16 @@ const FriendlyInbox = ({
         >
           <div className={classes.columnHeader}>
             <div className={classes.headerText}>All messages</div>
-            <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
+            <LWTooltip
+              title={
+                canInitialConversations
+                  ? undefined
+                  : "You must earn 10 karma to message"
+              }
+              placement="bottom"
+            >
+              <ForumIcon onClick={openNewConversationDialog} icon="PencilSquare" className={classes.actionIcon} />
+            </LWTooltip>
           </div>
           <div className={classes.navigation}>
             <FriendlyInboxNavigation
@@ -329,9 +344,18 @@ const FriendlyInbox = ({
                 <div className={classes.emptyStateTitle}>No conversation selected</div>
                 <div className={classes.emptyStateSubtitle}>Connect with other users on the forum</div>
               </div>
-              <EAButton onClick={openNewConversationDialog} className={classes.emptyStateButton}>
-                <ForumIcon icon="PencilSquare" className={classes.emptyStateActionIcon} /> Start a new conversation
-              </EAButton>
+              <LWTooltip
+                title={
+                  canInitialConversations
+                    ? undefined
+                    : "You must earn 10 karma to message"
+                }
+                placement="bottom"
+              >
+                <EAButton onClick={openNewConversationDialog} className={classes.emptyStateButton}>
+                  <ForumIcon icon="PencilSquare" className={classes.emptyStateActionIcon} /> Start a new conversation
+                </EAButton>
+              </LWTooltip>
             </div>
           )}
         </div>

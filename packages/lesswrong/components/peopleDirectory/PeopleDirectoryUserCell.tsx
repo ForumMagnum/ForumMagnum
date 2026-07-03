@@ -3,6 +3,7 @@ import { textCellStyles } from "./PeopleDirectoryTextCell";
 import { InteractionWrapper } from "../common/useClickableCell";
 import { useCurrentUser } from "../common/withUser";
 import { defineStyles, useStyles } from "../hooks/useStyles";
+import { userCanInitiateConversations } from "@/lib/collections/users/helpers";
 import UsersProfileImage from "../users/UsersProfileImage";
 import NewConversationButton from "../messaging/NewConversationButton";
 import ForumIcon from "../common/ForumIcon";
@@ -38,7 +39,7 @@ export const PeopleDirectoryUserCell = ({user}: {
     <div className={classes.root}>
       <UsersProfileImage user={user} size={32} />
       <div className={classes.name}>{user.displayName}</div>
-      {!isCurrentUser &&
+      {!isCurrentUser && userCanInitiateConversations(currentUser) &&
         <InteractionWrapper>
           <LWTooltip title="Send message" placement="bottom">
             <NewConversationButton

@@ -1,6 +1,7 @@
 
 import { canBlockUserMessages } from "@/lib/betas";
 import schema from "@/lib/collections/messages/newSchema";
+import { userCanInitiateConversations } from "@/lib/collections/users/helpers";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
 import { userCanDo } from "@/lib/vulcan-users/permissions";
 import { updateCountOfReferencesOnOtherCollectionsAfterCreate, updateCountOfReferencesOnOtherCollectionsAfterUpdate } from "@/server/callbacks/countOfReferenceCallbacks";
@@ -15,6 +16,13 @@ async function newCheck(user: DbUser | null, document: DbMessage | null, context
   const { Conversations } = context;
   if (!user || !document) return false;
   const conversation = await Conversations.findOne({_id: document.conversationId})
+  if (
+    (!conversation || conversation.messageCount < 1) &&
+    !userCanInitiateConversations(context.currentUser)
+  ) {
+    return false;
+    // throw new Error("You need at least 10 karma to send messages");
+  }
   return conversation && conversation.participantIds.includes(user._id)
     ? userCanDo(user, 'messages.new.own')
     : userCanDo(user, `messages.new.all`)
