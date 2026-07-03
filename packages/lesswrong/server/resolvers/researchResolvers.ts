@@ -9,6 +9,7 @@ import {
   getRunningSandbox,
   sandboxNameForConversation,
   SandboxWarmingError,
+  SESSION_TIMEOUT_MS,
   supervisorUrlForSandbox,
   type ProvisionedSandbox,
 } from "@/server/research/sandbox/sandboxManager";
@@ -312,8 +313,9 @@ export const researchResolversTypeDefs = gql`
     memTotal: Float
     diskUsed: Float
     diskTotal: Float
-    # When not running: the conversation's last activity, as a proxy for when
-    # the sandbox idled out (stop time isn't tracked). Null while running.
+    # When not running: last activity + the idle session timeout — the moment
+    # the sandbox actually stopped (stop time isn't tracked directly), clamped
+    # to now. Null while running.
     hibernatingSince: Date
   }
 
@@ -871,6 +873,12 @@ export const researchResolversQueries = {
     const conv = await loadConversationOrThrow(args.conversationId, context);
     const sandbox = await getRunningSandbox(conv._id);
     if (!sandbox) {
+      // The idle timeout lapses SESSION_TIMEOUT_MS after the last activity, so
+      // that's when the sandbox actually stopped. Clamp to now for sandboxes
+      // that stopped early (or whose timeout hasn't nominally lapsed yet).
+      const hibernatingSince = conv.lastActivityAt
+        ? new Date(Math.min(conv.lastActivityAt.getTime() + SESSION_TIMEOUT_MS, Date.now()))
+        : null;
       return {
         running: false,
         cpuPct: null,
@@ -878,7 +886,7 @@ export const researchResolversQueries = {
         memTotal: null,
         diskUsed: null,
         diskTotal: null,
-        hibernatingSince: conv.lastActivityAt ?? null,
+        hibernatingSince,
       };
     }
     const stats = await getSandboxResourceStats(sandbox);
