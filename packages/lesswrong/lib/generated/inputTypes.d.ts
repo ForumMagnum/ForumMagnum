@@ -248,6 +248,7 @@ interface Mutation {
   fireResearchConversation: ResearchConversationOutput | null;
   continueResearchConversation: ResearchConversationOutput | null;
   cancelResearchConversation: ResearchConversationOutput | null;
+  answerResearchConversationQuestion: AnswerResearchQuestionOutput | null;
   mintDevPreviewUrl: DevPreviewUrlOutput | null;
   setClaudeCodeOAuthToken: SetClaudeCodeOAuthTokenOutput | null;
   saveResearchEnvironment: SaveResearchEnvironmentOutput | null;
@@ -1076,6 +1077,11 @@ interface ReorderResearchDocumentsOutput {
 
 interface RestartResearchSandboxOutput {
   running: boolean;
+}
+
+interface AnswerResearchQuestionOutput {
+  ok: boolean;
+  expired: boolean;
 }
 
 interface ResearchConversationSidebarStatus {
@@ -9294,6 +9300,7 @@ interface GraphQLTypeMap {
   EnsureResearchScratchDocumentOutput: EnsureResearchScratchDocumentOutput;
   ReorderResearchDocumentsOutput: ReorderResearchDocumentsOutput;
   RestartResearchSandboxOutput: RestartResearchSandboxOutput;
+  AnswerResearchQuestionOutput: AnswerResearchQuestionOutput;
   ResearchConversationSidebarStatus: ResearchConversationSidebarStatus;
   ResearchSandboxDirEntry: ResearchSandboxDirEntry;
   ResearchSandboxDirListing: ResearchSandboxDirListing;

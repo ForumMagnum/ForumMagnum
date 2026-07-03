@@ -148,6 +148,33 @@ async function cancelTurnViaSupervisor(target: SupervisorTarget): Promise<void> 
 }
 
 /**
+ * POST an AskUserQuestion answer to the supervisor's /answer endpoint. The
+ * supervisor resolves the paused turn (writes the tool's answers back to the
+ * CLI). A 409 means no matching pending question — the sandbox restarted, or it
+ * was already answered — which we surface so the client can stop showing the
+ * prompt as actionable.
+ */
+async function answerQuestionViaSupervisor(
+  target: SupervisorTarget,
+  toolUseId: string,
+  answers: Record<string, string>,
+): Promise<{ ok: boolean; expired: boolean }> {
+  const bearer = signSupervisorBearer(target);
+  const response = await fetch(
+    `${target.supervisorUrl}/answer/${encodeURIComponent(target.conversationId)}`,
+    {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${bearer}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ toolUseId, answers }),
+    },
+  );
+  if (response.ok) return { ok: true, expired: false };
+  if (response.status === 409) return { ok: false, expired: true };
+  const text = await response.text().catch(() => "");
+  throw new Error(`supervisor /answer failed: ${response.status} ${text}`);
+}
+
+/**
  * Build the user-turn text to persist + dispatch. On the first turn, or
  * whenever the user's currently-focused document differs from the one named
  * in the most recently injected `<system-reminder>` block, wrap the prompt
@@ -252,10 +279,20 @@ export const researchResolversTypeDefs = gql`
     running: Boolean!
   }
 
+  type AnswerResearchQuestionOutput {
+    ok: Boolean!
+    # True when no matching pending question was found (sandbox restarted, or
+    # already answered) — the client should stop showing the prompt as actionable.
+    expired: Boolean!
+  }
+
   extend type Mutation {
     fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
     continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
     cancelResearchConversation(conversationId: String!): ResearchConversationOutput
+    # Resolve a pending AskUserQuestion. answersJson is a JSON object mapping each
+    # question's text to the chosen answer string (multi-select comma-joined).
+    answerResearchConversationQuestion(conversationId: String!, toolUseId: String!, answersJson: String!): AnswerResearchQuestionOutput
     mintDevPreviewUrl(conversationId: String!): DevPreviewUrlOutput
     setClaudeCodeOAuthToken(token: String!): SetClaudeCodeOAuthTokenOutput
     saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput
@@ -558,6 +595,52 @@ export const researchResolversMutations = {
       }
     }
     return { conversationId: conv._id, data: { _id: conv._id } };
+  },
+
+  /**
+   * Resolve a pending AskUserQuestion for a conversation. Forwards the answers
+   * to the supervisor's /answer endpoint, which un-pauses the turn. Never
+   * resumes a stopped sandbox: an answer only makes sense against the live turn
+   * that asked, so a missing sandbox (or a 409 from the supervisor) is reported
+   * as `expired`.
+   */
+  async answerResearchConversationQuestion(
+    _root: void,
+    args: { conversationId: string; toolUseId: string; answersJson: string },
+    context: ResolverContext,
+  ) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+
+    let answers: Record<string, string>;
+    try {
+      const parsed: unknown = JSON.parse(args.answersJson);
+      if (!isPlainRecord(parsed) || !Object.values(parsed).every((v) => typeof v === "string")) {
+        throw new Error("answersJson must be a JSON object of string values");
+      }
+      answers = parsed as Record<string, string>;
+    } catch (err) {
+      throw new Error(`Invalid answersJson: ${(err as Error).message}`);
+    }
+
+    const [sandbox, row] = await Promise.all([
+      getRunningSandbox(conv._id),
+      context.ResearchSandboxSessions.findOne({ conversationId: conv._id }),
+    ]);
+    if (!sandbox || !row) {
+      return { ok: false, expired: true };
+    }
+
+    const result = await answerQuestionViaSupervisor(
+      {
+        conversationId: conv._id,
+        sandboxName: sandboxNameForConversation(conv._id),
+        supervisorUrl: supervisorUrlForSandbox(sandbox),
+        supervisorSecret: row.supervisorSecret,
+      },
+      args.toolUseId,
+      answers,
+    );
+    return { ok: result.ok, expired: result.expired };
   },
 
   /**

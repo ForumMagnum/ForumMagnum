@@ -38,7 +38,7 @@
  */
 import { randomUUID } from "node:crypto";
 import { ParsedJsonlLine, ClaudeEventKind } from "./jsonlParser";
-import { ClaudeProcessHandle, startClaudeProcess } from "./claudeRunner";
+import { CanUseToolRequest, ClaudeProcessHandle, startClaudeProcess } from "./claudeRunner";
 import { BackendEvent, PostPersister } from "./postPersister";
 import { writeBootstrapJsonl } from "./sessionBootstrap";
 import { ConversationState } from "./server";
@@ -52,6 +52,19 @@ const CANCEL_SIGKILL_GRACE_MS = 5_000;
 
 /** Subtype of the CLI's authoritative busy/idle event (see module doc). */
 const SESSION_STATE_SUBTYPE = "session_state_changed";
+
+/**
+ * The one tool whose permission request we surface to the user rather than
+ * auto-allowing: the agent is explicitly asking the user a question. Every
+ * other `can_use_tool` that somehow reaches us (none, under the classifier)
+ * is auto-allowed so the turn never wedges.
+ */
+const ASK_USER_QUESTION_TOOL = "AskUserQuestion";
+
+/** Outcome of trying to resolve a pending question from an answer POST. */
+export type AnswerQuestionResult =
+  | { ok: true }
+  | { ok: false; reason: "no_pending_question" | "process_unavailable" };
 
 type SessionState = "idle" | "running" | "requires_action";
 
@@ -116,6 +129,15 @@ interface ConversationEntry {
    * heartbeat via `hasPendingWork`.
    */
   outstandingTaskIds: Set<string>;
+  /**
+   * AskUserQuestion permission requests awaiting a user answer, keyed by the
+   * tool_use_id (the transcript's stable handle for the question). Holds the
+   * CLI's `requestId` needed to resolve the paused turn. Cleared when answered
+   * or when the process exits (the turn is then closed by the dangling-turn
+   * heal). At most one is realistically open at a time, but a Map keeps the
+   * answer path keyed and idempotent.
+   */
+  pendingQuestions: Map<string, { requestId: string; input: Record<string, unknown> }>;
   /** Serializes spawn/teardown so two dispatches can't race a respawn. */
   opChain: Promise<void>;
 }
@@ -208,10 +230,55 @@ export function createConversationHub(config: ConversationHubConfig) {
       cancelPending: false,
       dispatchedDuringCancel: false,
       outstandingTaskIds: new Set(),
+      pendingQuestions: new Map(),
       opChain: Promise.resolve(),
     };
     conversations.set(conversationId, entry);
     return entry;
+  }
+
+  /**
+   * Handle a `can_use_tool` control_request. AskUserQuestion is parked for the
+   * user (recorded as pending; the tool_use line already persisted carries the
+   * questions, so the client renders the prompt from the transcript). Any other
+   * tool that reaches here is auto-allowed with its input unchanged, so an
+   * unexpected classifier deferral can't wedge the turn.
+   */
+  function handleCanUseTool(entry: ConversationEntry, req: CanUseToolRequest) {
+    if (req.toolName !== ASK_USER_QUESTION_TOOL) {
+      entry.proc?.respondPermission(req.requestId, {
+        behavior: "allow",
+        updatedInput: req.input,
+        toolUseId: req.toolUseId,
+      });
+      return;
+    }
+    entry.pendingQuestions.set(req.toolUseId, { requestId: req.requestId, input: req.input });
+  }
+
+  /**
+   * Resolve a pending AskUserQuestion with the user's answers, letting the
+   * paused turn continue. `answers` maps each question's text to its answer
+   * string (multi-select comma-joined; a freeform "Other" is just another
+   * value) — the shape the CLI reads back off the tool input.
+   */
+  function answerQuestion(
+    conversationId: string,
+    toolUseId: string,
+    answers: Record<string, string>,
+  ): AnswerQuestionResult {
+    const entry = conversations.get(conversationId);
+    const pending = entry?.pendingQuestions.get(toolUseId);
+    if (!entry || !pending) return { ok: false, reason: "no_pending_question" };
+    if (!entry.proc?.alive()) return { ok: false, reason: "process_unavailable" };
+    const wrote = entry.proc.respondPermission(pending.requestId, {
+      behavior: "allow",
+      updatedInput: { ...pending.input, answers },
+      toolUseId,
+    });
+    if (!wrote) return { ok: false, reason: "process_unavailable" };
+    entry.pendingQuestions.delete(toolUseId);
+    return { ok: true };
   }
 
   function isBusy(entry: ConversationEntry): boolean {
@@ -338,6 +405,7 @@ export function createConversationHub(config: ConversationHubConfig) {
       cwd: runnerOpts.cwd,
       env: runnerOpts.env,
       onLine: (line) => emit(entry, line),
+      onCanUseTool: (req) => handleCanUseTool(entry, req),
       onExit: ({ code }) => {
         if (entry.proc !== proc) return;
         entry.proc = null;
@@ -367,6 +435,11 @@ export function createConversationHub(config: ConversationHubConfig) {
         // No process, no future re-invocation: pending tasks can't keep the
         // sandbox alive any more (orphaned task processes die with the sandbox).
         entry.outstandingTaskIds.clear();
+        // Any unanswered question's requestId belonged to the dead process;
+        // the synthetic terminal result above (or the dangling-turn heal on a
+        // restart) closes its turn, so a later answer must not resolve a stale
+        // request against a new process.
+        entry.pendingQuestions.clear();
       },
       onError: (err) => {
         // eslint-disable-next-line no-console
@@ -520,6 +593,7 @@ export function createConversationHub(config: ConversationHubConfig) {
   return {
     dispatch,
     cancel,
+    answerQuestion,
     snapshot,
     hasPendingWork,
     shutdown,

@@ -4,6 +4,7 @@
  * Endpoints:
  *   POST /dispatch              — start (or resume) a Claude Code turn
  *   POST /cancel/:conversationId — abort the in-flight turn
+ *   POST /answer/:conversationId — resolve a pending AskUserQuestion
  *   GET  /status                — heartbeat: per-conversation states + pressure
  *
  * The supervisor runs turns and ships their events to the backend; clients read
@@ -46,6 +47,16 @@ export interface SupervisorDeps {
   dispatchTurn(req: DispatchRequest): Promise<{ accepted: boolean; reason?: string }>;
   /** Cancel the in-flight turn for a conversation. */
   cancelTurn(conversationId: string): Promise<void>;
+  /**
+   * Resolve a pending AskUserQuestion with the user's answers. Returns whether
+   * a pending question was found and answered; a false result (no pending
+   * question / dead process) is surfaced to the caller as 409.
+   */
+  answerQuestion(
+    conversationId: string,
+    toolUseId: string,
+    answers: Record<string, string>,
+  ): { ok: boolean; reason?: string };
   /** Snapshot of per-conversation state for /status. */
   getStateSnapshot(): {
     conversations: ConversationState[];
@@ -172,6 +183,24 @@ async function handleRequest(
     return json(res, 204, undefined);
   }
 
+  const answerMatch = path.match(/^\/answer\/([^/]+)$/);
+  if (answerMatch && method === "POST") {
+    const conversationId = answerMatch[1];
+    if (!supervisorTokenCanAccessConversation(validation.payload, conversationId)) {
+      return json(res, 403, { error: "forbidden", reason: "conversation scope mismatch" });
+    }
+    const body = await readJsonBody(req).catch((e) => ({ __err: e }));
+    if ("__err" in body) {
+      return json(res, 400, { error: "bad json" });
+    }
+    const answerReq = parseAnswerRequest(body);
+    if (!answerReq) {
+      return json(res, 400, { error: "missing toolUseId or answers" });
+    }
+    const result = deps.answerQuestion(conversationId, answerReq.toolUseId, answerReq.answers);
+    return json(res, result.ok ? 202 : 409, result);
+  }
+
   return json(res, 404, { error: "not found", path });
 }
 
@@ -204,6 +233,20 @@ function parseDispatchRequest(body: Record<string, unknown>): DispatchRequest | 
   if (Array.isArray(body.references)) out.references = body.references;
   if (typeof body.agentBackendToken === "string") out.agentBackendToken = body.agentBackendToken;
   return out;
+}
+
+function parseAnswerRequest(
+  body: Record<string, unknown>,
+): { toolUseId: string; answers: Record<string, string> } | null {
+  if (typeof body.toolUseId !== "string") return null;
+  const answers = body.answers;
+  if (!answers || typeof answers !== "object" || Array.isArray(answers)) return null;
+  const out: Record<string, string> = {};
+  for (const [k, v] of Object.entries(answers as Record<string, unknown>)) {
+    if (typeof v !== "string") return null;
+    out[k] = v;
+  }
+  return { toolUseId: body.toolUseId, answers: out };
 }
 
 async function readJsonBody(req: IncomingMessage): Promise<Record<string, unknown>> {

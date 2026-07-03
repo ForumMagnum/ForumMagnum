@@ -988,10 +988,16 @@ type RestartResearchSandboxOutput {
   running: Boolean!
 }
 
+type AnswerResearchQuestionOutput {
+  ok: Boolean!
+  expired: Boolean!
+}
+
 extend type Mutation {
   fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
   continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
   cancelResearchConversation(conversationId: String!): ResearchConversationOutput
+  answerResearchConversationQuestion(conversationId: String!, toolUseId: String!, answersJson: String!): AnswerResearchQuestionOutput
   mintDevPreviewUrl(conversationId: String!): DevPreviewUrlOutput
   setClaudeCodeOAuthToken(token: String!): SetClaudeCodeOAuthTokenOutput
   saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput

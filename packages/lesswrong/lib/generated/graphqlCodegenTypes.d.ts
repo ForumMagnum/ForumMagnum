@@ -139,6 +139,12 @@ type AnalyticsSeriesValue = {
   views?: Maybe<Scalars['Int']['output']>;
 };
 
+type AnswerResearchQuestionOutput = {
+  __typename?: 'AnswerResearchQuestionOutput';
+  expired: Scalars['Boolean']['output'];
+  ok: Scalars['Boolean']['output'];
+};
+
 type ArbitalCaches = {
   __typename?: 'ArbitalCaches';
   _id: Scalars['String']['output'];
@@ -3857,6 +3863,7 @@ type Mutation = {
   alignmentComment?: Maybe<Comment>;
   alignmentPost?: Maybe<Post>;
   analyticsEvent?: Maybe<Scalars['Boolean']['output']>;
+  answerResearchConversationQuestion?: Maybe<AnswerResearchQuestionOutput>;
   approveUserCurrentContentOnly: Scalars['Boolean']['output'];
   cancelResearchConversation?: Maybe<ResearchConversationOutput>;
   clickRecommendation?: Maybe<Scalars['Boolean']['output']>;
@@ -4118,6 +4125,13 @@ type MutationalignmentPostArgs = {
 type MutationanalyticsEventArgs = {
   events?: InputMaybe<Array<Scalars['JSON']['input']>>;
   now?: InputMaybe<Scalars['Date']['input']>;
+};
+
+
+type MutationanswerResearchConversationQuestionArgs = {
+  answersJson: Scalars['String']['input'];
+  conversationId: Scalars['String']['input'];
+  toolUseId: Scalars['String']['input'];
 };
 
 
@@ -18285,6 +18299,20 @@ type ResearchSetClaudeCodeOAuthTokenMutationVariables = Exact<{
 
 
 type ResearchSetClaudeCodeOAuthTokenMutation = ResearchSetClaudeCodeOAuthTokenMutation_Mutation;
+
+type AnswerResearchConversationQuestionMutation_answerResearchConversationQuestion_AnswerResearchQuestionOutput = { __typename?: 'AnswerResearchQuestionOutput', ok: boolean, expired: boolean };
+
+type AnswerResearchConversationQuestionMutation_Mutation = { __typename?: 'Mutation', answerResearchConversationQuestion: AnswerResearchConversationQuestionMutation_answerResearchConversationQuestion_AnswerResearchQuestionOutput | null };
+
+
+type AnswerResearchConversationQuestionMutationVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+  toolUseId: Scalars['String']['input'];
+  answersJson: Scalars['String']['input'];
+}>;
+
+
+type AnswerResearchConversationQuestionMutation = AnswerResearchConversationQuestionMutation_Mutation;
 
 type ResearchWorkspaceFirstDocumentQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument = { __typename?: 'ResearchDocument', _id: string };
 

@@ -1,12 +1,20 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import classNames from 'classnames';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { ConversationEventRow } from './ConversationEventRow';
+import { ResearchQuestionCard } from './ResearchQuestionCard';
+import { collectAskUserQuestionAnswers, extractAskUserQuestion, toolResultToolUseId } from './researchAskUserQuestion';
 import { researchMono, researchScrollbars } from './researchStyleUtils';
 import { useTranscriptScroll } from './hooks/useTranscriptScroll';
 import type { ConversationEvent, StreamStatus } from './hooks/useConversationStream';
+
+/** Whether a tool_result answers one of the AskUserQuestion tool_use ids. */
+function toolResultAnswersAsked(event: ConversationEvent, askedToolUseIds: Set<string>): boolean {
+  const id = toolResultToolUseId(event);
+  return id !== null && askedToolUseIds.has(id);
+}
 
 const styles = defineStyles('ConversationTranscript', (theme: ThemeType) => ({
   root: {
@@ -102,6 +110,44 @@ export const ConversationTranscript = ({
     loadOlder,
   });
 
+  // AskUserQuestion prompts render as an interactive card (not the generic
+  // tool_use mono line), and the corresponding tool_result line is suppressed
+  // — the card shows the answer itself. Everything here is derived from the
+  // event list: `prompts` maps a question event to its prompt + resolved
+  // state, and `hiddenEventIds` marks the answered-question tool_result rows.
+  const { prompts, hiddenEventIds } = useMemo(() => {
+    const answers = collectAskUserQuestionAnswers(events);
+    const askedToolUseIds = new Set<string>();
+    let lastResultIdx = -1;
+    for (let i = 0; i < events.length; i++) {
+      if (events[i].kind === 'result') lastResultIdx = i;
+      const prompt = extractAskUserQuestion(events[i]);
+      if (prompt) askedToolUseIds.add(prompt.toolUseId);
+    }
+
+    const promptMap = new Map<string, { prompt: ReturnType<typeof extractAskUserQuestion>; answers: Record<string, string> | null; actionable: boolean }>();
+    const hidden = new Set<string>();
+    for (let i = 0; i < events.length; i++) {
+      const event = events[i];
+      const prompt = extractAskUserQuestion(event);
+      if (prompt) {
+        const answered = answers.get(prompt.toolUseId) ?? null;
+        // Actionable only while the turn that asked is still paused: unanswered,
+        // the turn in flight, and no later `result` closed it out (a restart's
+        // synthetic terminal marks it expired instead).
+        const actionable = !answered && turnInFlight && lastResultIdx < i;
+        const key = event._id ?? `${event.conversationId}:${event.seq}`;
+        promptMap.set(key, { prompt, answers: answered, actionable });
+        continue;
+      }
+      // Hide the tool_result that answers an AskUserQuestion (the card shows it).
+      if (event.kind === 'tool_result' && toolResultAnswersAsked(event, askedToolUseIds)) {
+        hidden.add(event._id ?? `${event.conversationId}:${event.seq}`);
+      }
+    }
+    return { prompts: promptMap, hiddenEventIds: hidden };
+  }, [events, turnInFlight]);
+
   return (
     <div className={classes.root} ref={scrollRef} onScroll={onScroll}>
       <div
@@ -114,9 +160,23 @@ export const ConversationTranscript = ({
             {status === 'loading' ? 'Loading transcript…' : 'No output yet.'}
           </div>
         ) : null}
-        {events.map((event) => (
-          <ConversationEventRow key={event._id ?? `${event.conversationId}:${event.seq}`} event={event} />
-        ))}
+        {events.map((event) => {
+          const key = event._id ?? `${event.conversationId}:${event.seq}`;
+          const question = prompts.get(key);
+          if (question?.prompt) {
+            return (
+              <ResearchQuestionCard
+                key={key}
+                conversationId={conversationId}
+                prompt={question.prompt}
+                answers={question.answers}
+                actionable={question.actionable}
+              />
+            );
+          }
+          if (hiddenEventIds.has(key)) return null;
+          return <ConversationEventRow key={key} event={event} />;
+        })}
         {turnInFlight ? (
           <div className={classes.statusLine}>
             <span className={classes.workingGlyph}>✻</span>
