@@ -253,6 +253,7 @@ interface Mutation {
   saveResearchEnvironment: SaveResearchEnvironmentOutput | null;
   ensureResearchScratchDocument: EnsureResearchScratchDocumentOutput | null;
   reorderResearchDocuments: ReorderResearchDocumentsOutput | null;
+  restartResearchSandbox: RestartResearchSandboxOutput | null;
   mergeTags: boolean | null;
   promoteLensToMain: boolean | null;
   RefreshDbSettings: boolean | null;
@@ -1073,6 +1074,10 @@ interface ReorderResearchDocumentsOutput {
   success: boolean;
 }
 
+interface RestartResearchSandboxOutput {
+  running: boolean;
+}
+
 interface ResearchConversationSidebarStatus {
   conversationId: string;
   turnActive: boolean;
@@ -1108,6 +1113,7 @@ interface ResearchSandboxStats {
   memTotal: number | null;
   diskUsed: number | null;
   diskTotal: number | null;
+  hibernatingSince: Date | null;
 }
 
 interface DocumentDeletion {
@@ -9287,6 +9293,7 @@ interface GraphQLTypeMap {
   SaveResearchEnvironmentOutput: SaveResearchEnvironmentOutput;
   EnsureResearchScratchDocumentOutput: EnsureResearchScratchDocumentOutput;
   ReorderResearchDocumentsOutput: ReorderResearchDocumentsOutput;
+  RestartResearchSandboxOutput: RestartResearchSandboxOutput;
   ResearchConversationSidebarStatus: ResearchConversationSidebarStatus;
   ResearchSandboxDirEntry: ResearchSandboxDirEntry;
   ResearchSandboxDirListing: ResearchSandboxDirListing;

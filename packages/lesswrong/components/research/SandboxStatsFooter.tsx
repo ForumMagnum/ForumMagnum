@@ -1,10 +1,14 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
+import { useMutation } from '@apollo/client/react';
+import moment from '@/lib/moment-timezone';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
-import { researchMono, researchWarmAlpha } from './researchStyleUtils';
+import { useMessages } from '@/components/common/withMessages';
+import { isSandboxWarmingError } from './sandboxWarming';
+import { researchMono, researchRadius, researchWarmAlpha } from './researchStyleUtils';
 
 const SandboxStatsQuery = gql(`
   query ResearchSandboxStats($conversationId: String!) {
@@ -15,11 +19,28 @@ const SandboxStatsQuery = gql(`
       memTotal
       diskUsed
       diskTotal
+      hibernatingSince
+    }
+  }
+`);
+
+const RestartResearchSandboxMutation = gql(`
+  mutation RestartResearchSandbox($conversationId: String!) {
+    restartResearchSandbox(conversationId: $conversationId) {
+      running
     }
   }
 `);
 
 const POLL_MS = 5000;
+/** How often to re-poll the restart mutation while the sandbox is resuming. */
+const WARMING_RETRY_MS = 3000;
+/** Give up on a resume after this long — matches sandbox boot worst cases. */
+const WARMING_DEADLINE_MS = 3 * 60 * 1000;
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -79,9 +100,32 @@ const styles = defineStyles('SandboxStatsFooter', (theme: ThemeType) => ({
   meterFillHigh: {
     background: theme.palette.error?.main ?? theme.palette.primary.main,
   },
-  idle: {
-    color: researchWarmAlpha(0.4),
+  hibernating: {
+    color: researchWarmAlpha(0.45),
     fontStyle: 'italic',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+  },
+  restartButton: {
+    marginLeft: 'auto',
+    flex: 'none',
+    border: 'none',
+    background: 'transparent',
+    borderRadius: researchRadius.xs,
+    fontFamily: researchMono,
+    fontSize: 10.5,
+    lineHeight: 1.4,
+    color: theme.palette.text.dim,
+    padding: '2px 6px',
+    cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.text.primary,
+      background: researchWarmAlpha(0.06),
+    },
+    '&:disabled': {
+      opacity: 0.5,
+      cursor: 'default',
+    },
   },
 }));
 
@@ -108,20 +152,79 @@ interface SandboxStatsFooterProps {
 }
 
 /**
- * Compact resource-utilization strip for a conversation's sandbox: CPU %,
+ * Compact resource strip for a conversation's sandbox. Running: CPU %,
  * memory used/total, and workspace disk used/total, each with a thin meter.
- * Polls while mounted; renders nothing (no footer) when the sandbox is down or
- * stats are unavailable, so it never shows a dead bar.
+ * Stopped: "Instance hibernating since <time>" with a small restart button
+ * that resumes the sandbox (re-polling through SANDBOX_WARMING); the regular
+ * stats poll then swaps the meters back in. Renders nothing until the first
+ * stats response arrives.
  */
 export const SandboxStatsFooter = ({ conversationId }: SandboxStatsFooterProps) => {
   const classes = useStyles(styles);
-  const { data } = useQuery(SandboxStatsQuery, {
+  const { flash } = useMessages();
+  const { data, refetch } = useQuery(SandboxStatsQuery, {
     variables: { conversationId },
     pollInterval: POLL_MS,
   });
-  const stats = data?.researchSandboxStats;
+  const [restartSandbox] = useMutation(RestartResearchSandboxMutation);
+  const [restarting, setRestarting] = useState(false);
+  const unmountedRef = useRef(false);
 
-  if (!stats || !stats.running) return null;
+  useEffect(() => {
+    unmountedRef.current = false;
+    return () => { unmountedRef.current = true; };
+  }, []);
+
+  const handleRestart = useCallback(async () => {
+    if (restarting) return;
+    setRestarting(true);
+    const deadline = Date.now() + WARMING_DEADLINE_MS;
+    try {
+      for (;;) {
+        try {
+          await restartSandbox({ variables: { conversationId } });
+          if (!unmountedRef.current) await refetch();
+          return;
+        } catch (err) {
+          if (unmountedRef.current) return;
+          if (isSandboxWarmingError(err) && Date.now() < deadline) {
+            await sleep(WARMING_RETRY_MS);
+            if (unmountedRef.current) return;
+            continue;
+          }
+          // eslint-disable-next-line no-console
+          console.error('[research] restart sandbox failed', err);
+          flash({ messageString: `Failed to restart sandbox: ${(err as Error).message}`, type: 'error' });
+          return;
+        }
+      }
+    } finally {
+      if (!unmountedRef.current) setRestarting(false);
+    }
+  }, [restarting, conversationId, restartSandbox, refetch, flash]);
+
+  const stats = data?.researchSandboxStats;
+  if (!stats) return null;
+
+  if (!stats.running) {
+    const since = stats.hibernatingSince
+      ? ` since ${moment(stats.hibernatingSince).format('MMM D, h:mm A')}`
+      : '';
+    return (
+      <div className={classes.root}>
+        <span className={classes.hibernating}>Instance hibernating{since}</span>
+        <button
+          type="button"
+          className={classes.restartButton}
+          disabled={restarting}
+          onClick={handleRestart}
+          title="Resume this conversation's sandbox"
+        >
+          {restarting ? 'starting…' : 'restart'}
+        </button>
+      </div>
+    );
+  }
 
   const memFraction = stats.memUsed != null && stats.memTotal ? stats.memUsed / stats.memTotal : null;
   const diskFraction = stats.diskUsed != null && stats.diskTotal ? stats.diskUsed / stats.diskTotal : null;

@@ -984,6 +984,10 @@ type ReorderResearchDocumentsOutput {
   success: Boolean!
 }
 
+type RestartResearchSandboxOutput {
+  running: Boolean!
+}
+
 extend type Mutation {
   fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
   continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
@@ -993,6 +997,7 @@ extend type Mutation {
   saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput
   ensureResearchScratchDocument(projectId: String!): EnsureResearchScratchDocumentOutput
   reorderResearchDocuments(projectId: String!, orderedIds: [String!]!): ReorderResearchDocumentsOutput
+  restartResearchSandbox(conversationId: String!): RestartResearchSandboxOutput
 }
 
 type ResearchConversationSidebarStatus {
@@ -1030,6 +1035,7 @@ type ResearchSandboxStats {
   memTotal: Float
   diskUsed: Float
   diskTotal: Float
+  hibernatingSince: Date
 }
 
 extend type Query {

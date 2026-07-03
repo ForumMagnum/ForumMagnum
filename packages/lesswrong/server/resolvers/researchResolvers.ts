@@ -247,6 +247,10 @@ export const researchResolversTypeDefs = gql`
     success: Boolean!
   }
 
+  type RestartResearchSandboxOutput {
+    running: Boolean!
+  }
+
   extend type Mutation {
     fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
     continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
@@ -256,6 +260,9 @@ export const researchResolversTypeDefs = gql`
     saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput
     ensureResearchScratchDocument(projectId: String!): EnsureResearchScratchDocumentOutput
     reorderResearchDocuments(projectId: String!, orderedIds: [String!]!): ReorderResearchDocumentsOutput
+    # Resume a stopped sandbox without dispatching a turn or minting a preview
+    # URL. Rejects with SANDBOX_WARMING while the resume is in flight.
+    restartResearchSandbox(conversationId: String!): RestartResearchSandboxOutput
   }
 
   # Lightweight per-conversation status for the sidebar's activity/unread
@@ -305,6 +312,9 @@ export const researchResolversTypeDefs = gql`
     memTotal: Float
     diskUsed: Float
     diskTotal: Float
+    # When not running: the conversation's last activity, as a proxy for when
+    # the sandbox idled out (stop time isn't tracked). Null while running.
+    hibernatingSince: Date
   }
 
   extend type Query {
@@ -569,6 +579,12 @@ export const researchResolversMutations = {
     );
     const url = `${devProxyUrlForSandbox(provisioned.sandbox)}/_devauth/${encodeURIComponent(token)}`;
     return { url };
+  },
+
+  async restartResearchSandbox(_root: void, args: { conversationId: string }, context: ResolverContext) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    await provisionSandboxOrWarming(conv._id, context);
+    return { running: true };
   },
 
   async setClaudeCodeOAuthToken(_root: void, args: { token: string }, context: ResolverContext) {
@@ -855,10 +871,18 @@ export const researchResolversQueries = {
     const conv = await loadConversationOrThrow(args.conversationId, context);
     const sandbox = await getRunningSandbox(conv._id);
     if (!sandbox) {
-      return { running: false, cpuPct: null, memUsed: null, memTotal: null, diskUsed: null, diskTotal: null };
+      return {
+        running: false,
+        cpuPct: null,
+        memUsed: null,
+        memTotal: null,
+        diskUsed: null,
+        diskTotal: null,
+        hibernatingSince: conv.lastActivityAt ?? null,
+      };
     }
     const stats = await getSandboxResourceStats(sandbox);
-    return { running: true, ...stats };
+    return { running: true, ...stats, hibernatingSince: null };
   },
 
   async researchSandboxRunning(

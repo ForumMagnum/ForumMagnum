@@ -3933,6 +3933,7 @@ type Mutation = {
   reorderSummaries?: Maybe<Scalars['Boolean']['output']>;
   rerunLlmCheck: AutomatedContentEvaluation;
   resetPassword?: Maybe<Scalars['String']['output']>;
+  restartResearchSandbox?: Maybe<RestartResearchSandboxOutput>;
   resyncRssFeed: Scalars['Boolean']['output'];
   revertPostToRevision?: Maybe<Post>;
   revertTagToRevision?: Maybe<Tag>;
@@ -4533,6 +4534,11 @@ type MutationrerunLlmCheckArgs = {
 
 type MutationresetPasswordArgs = {
   email?: InputMaybe<Scalars['String']['input']>;
+};
+
+
+type MutationrestartResearchSandboxArgs = {
+  conversationId: Scalars['String']['input'];
 };
 
 
@@ -9046,8 +9052,14 @@ type ResearchSandboxStats = {
   cpuPct?: Maybe<Scalars['Float']['output']>;
   diskTotal?: Maybe<Scalars['Float']['output']>;
   diskUsed?: Maybe<Scalars['Float']['output']>;
+  hibernatingSince?: Maybe<Scalars['Date']['output']>;
   memTotal?: Maybe<Scalars['Float']['output']>;
   memUsed?: Maybe<Scalars['Float']['output']>;
+  running: Scalars['Boolean']['output'];
+};
+
+type RestartResearchSandboxOutput = {
+  __typename?: 'RestartResearchSandboxOutput';
   running: Scalars['Boolean']['output'];
 };
 
@@ -18328,7 +18340,7 @@ type ResearchSandboxFileQueryVariables = Exact<{
 
 type ResearchSandboxFileQuery = ResearchSandboxFileQuery_Query;
 
-type ResearchSandboxStatsQuery_researchSandboxStats_ResearchSandboxStats = { __typename?: 'ResearchSandboxStats', running: boolean, cpuPct: number | null, memUsed: number | null, memTotal: number | null, diskUsed: number | null, diskTotal: number | null };
+type ResearchSandboxStatsQuery_researchSandboxStats_ResearchSandboxStats = { __typename?: 'ResearchSandboxStats', running: boolean, cpuPct: number | null, memUsed: number | null, memTotal: number | null, diskUsed: number | null, diskTotal: number | null, hibernatingSince: string | null };
 
 type ResearchSandboxStatsQuery_Query = { __typename?: 'Query', researchSandboxStats: ResearchSandboxStatsQuery_researchSandboxStats_ResearchSandboxStats };
 
@@ -18339,6 +18351,18 @@ type ResearchSandboxStatsQueryVariables = Exact<{
 
 
 type ResearchSandboxStatsQuery = ResearchSandboxStatsQuery_Query;
+
+type RestartResearchSandboxMutation_restartResearchSandbox_RestartResearchSandboxOutput = { __typename?: 'RestartResearchSandboxOutput', running: boolean };
+
+type RestartResearchSandboxMutation_Mutation = { __typename?: 'Mutation', restartResearchSandbox: RestartResearchSandboxMutation_restartResearchSandbox_RestartResearchSandboxOutput | null };
+
+
+type RestartResearchSandboxMutationVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+}>;
+
+
+type RestartResearchSandboxMutation = RestartResearchSandboxMutation_Mutation;
 
 type ResearchConversationTranscriptQuery_researchConversationTranscript_ResearchConversationEvent = { __typename?: 'ResearchConversationEvent', _id: string, conversationId: string | null, seq: number | null, claudeMessageUuid: string | null, kind: string | null, payload: any | null, createdAt: string };
 
