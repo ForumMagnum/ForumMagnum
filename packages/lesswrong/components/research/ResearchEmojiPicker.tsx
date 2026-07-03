@@ -6,6 +6,7 @@ import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { researchCanvas, researchWarmAlpha, researchRadius, researchUiSans, researchMono } from './researchStyleUtils';
+import { RESEARCH_ICON_LIST, RESEARCH_SVG_ICON_PREFIX, ResearchCustomIcon } from './researchIconSet';
 
 const styles = defineStyles('ResearchEmojiPicker', (theme: ThemeType) => ({
   popover: {
@@ -23,7 +24,7 @@ const styles = defineStyles('ResearchEmojiPicker', (theme: ThemeType) => ({
     // minimal around it.
     '& em-emoji-picker': {
       '--rgb-accent': '95, 155, 101', // sage, matching primary.main
-      height: 380,
+      height: 340,
     },
   },
   headerRow: {
@@ -46,6 +47,38 @@ const styles = defineStyles('ResearchEmojiPicker', (theme: ThemeType) => ({
     whiteSpace: 'nowrap',
     '&:hover': { color: theme.palette.text.primary, background: researchWarmAlpha(0.06) },
   },
+  iconSection: {
+    flex: 'none',
+    padding: '6px 10px 8px',
+    borderBottom: `1px solid ${researchWarmAlpha(0.08)}`,
+  },
+  iconSectionLabel: {
+    fontFamily: researchMono,
+    fontSize: 10,
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+    color: theme.palette.text.dim,
+    padding: '0 2px 4px',
+  },
+  iconGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(12, 1fr)',
+  },
+  iconButton: {
+    border: 'none',
+    background: 'transparent',
+    width: 28,
+    height: 28,
+    padding: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: researchRadius.xs,
+    cursor: 'pointer',
+    fontSize: 17,
+    color: theme.palette.text.primary,
+    '&:hover': { background: researchWarmAlpha(0.08) },
+  },
 }));
 
 interface ResearchEmojiPickerProps {
@@ -58,7 +91,7 @@ interface ResearchEmojiPickerProps {
 }
 
 const POPOVER_WIDTH = 352;
-const POPOVER_MAX_HEIGHT = 420;
+const POPOVER_MAX_HEIGHT = 530;
 
 /**
  * Emoji picker popover for setting a document/conversation icon, backed by
@@ -101,6 +134,22 @@ export const ResearchEmojiPicker = ({ anchor, onSelect, onClear, onClose }: Rese
         <button type="button" className={classes.clearButton} onClick={onClear}>
           Remove icon
         </button>
+      </div>
+      <div className={classes.iconSection}>
+        <div className={classes.iconSectionLabel}>Icons</div>
+        <div className={classes.iconGrid}>
+          {RESEARCH_ICON_LIST.map((def) => (
+            <button
+              key={def.id}
+              type="button"
+              className={classes.iconButton}
+              title={def.label}
+              onClick={() => onSelect(RESEARCH_SVG_ICON_PREFIX + def.id)}
+            >
+              <ResearchCustomIcon def={def} />
+            </button>
+          ))}
+        </div>
       </div>
       <Picker
         data={data}

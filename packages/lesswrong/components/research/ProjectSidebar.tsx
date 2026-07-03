@@ -27,6 +27,7 @@ import Loading from '../vulcan-core/Loading';
 import ForumIcon from '../common/ForumIcon';
 import { PanelRightIcon } from './PanelRightIcon';
 import { ResearchEmojiPicker } from './ResearchEmojiPicker';
+import { ResearchItemIcon } from './researchIconSet';
 import { ProjectSidebarQuery } from './projectSidebarQuery';
 import { ResearchEnvironmentsByProjectQuery } from './researchEnvironmentsQuery';
 import {
@@ -363,6 +364,13 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
   iconEmoji: {
     fontSize: 14,
     lineHeight: 1,
+  },
+  // Set icons (`svg:` values) sit in the same 18px slot as emoji; slightly
+  // larger than the 13px default glyph since strokes read lighter than fills.
+  iconSvg: {
+    fontSize: 15,
+    display: 'block',
+    color: theme.palette.text.dim,
   },
   dragging: {
     opacity: 0.5,
@@ -717,7 +725,7 @@ const SidebarRowIcon = ({ classes, icon, defaultIcon, unread, label, onEdit }: S
       aria-label={label}
     >
       {icon
-        ? <span className={classes.iconEmoji}>{icon}</span>
+        ? <ResearchItemIcon icon={icon} emojiClassName={classes.iconEmoji} svgClassName={classes.iconSvg} />
         : <ForumIcon icon={defaultIcon} className={unread ? classNames(classes.itemIcon, classes.itemIconUnread) : classes.itemIcon} />}
     </button>
   );
