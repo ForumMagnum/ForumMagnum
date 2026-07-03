@@ -118,6 +118,9 @@ const styles = defineStyles('ResearchQuestionCard', (theme: ThemeType) => ({
   },
   optionBody: {
     minWidth: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    gap: 1,
   },
   optionLabel: {
     fontWeight: 600,
@@ -125,7 +128,6 @@ const styles = defineStyles('ResearchQuestionCard', (theme: ThemeType) => ({
   optionDescription: {
     color: theme.palette.text.dim,
     fontSize: 12,
-    marginTop: 1,
   },
   otherInput: {
     marginTop: 5,
