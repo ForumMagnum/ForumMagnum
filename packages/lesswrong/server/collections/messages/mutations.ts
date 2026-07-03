@@ -21,7 +21,6 @@ async function newCheck(user: DbUser | null, document: DbMessage | null, context
     !userCanInitiateConversations(context.currentUser)
   ) {
     return false;
-    // throw new Error("You need at least 10 karma to send messages");
   }
   return conversation && conversation.participantIds.includes(user._id)
     ? userCanDo(user, 'messages.new.own')

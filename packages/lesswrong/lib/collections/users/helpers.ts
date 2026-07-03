@@ -349,10 +349,13 @@ export const userGetAnalyticsUrl = (user: {slug: string}, isAbsolute=false): str
 }
 
 export const userCanInitiateConversations = (
-  user: Pick<DbUser, "email" | "karma"> | null,
+  user: UsersCurrent | DbUser | null,
 ): boolean => {
   if (!user) {
     return false;
+  }
+  if (isMod(user)) {
+    return true;
   }
   const adminAccount = adminAccountSetting.get();
   if (adminAccount?.email && adminAccount.email === user.email) {
