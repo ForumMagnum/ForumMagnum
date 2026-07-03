@@ -153,7 +153,15 @@ const RestartSandboxMenu = ({ anchor, state, readyUrl, onRestart, onClose }: Res
   if (typeof document === 'undefined') return null;
 
   return createPortal(
-    <div ref={menuRef} className={classes.menu} style={{ right: anchor.right, top: anchor.top }}>
+    // data-research-popover: exempts the menu from the agent block's
+    // click-out collapse (the portal lives outside the block root, so without
+    // it the block blurs — unmounting this menu — before the click lands).
+    <div
+      ref={menuRef}
+      className={classes.menu}
+      style={{ right: anchor.right, top: anchor.top }}
+      data-research-popover=""
+    >
       {state === 'idle' && (
         <button type="button" className={classes.menuItem} onClick={onRestart}>
           Restart sandbox

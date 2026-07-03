@@ -440,6 +440,9 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
     const onPointerDown = (e: PointerEvent) => {
       const root = rootRef.current;
       if (root && e.target instanceof Node && !root.contains(e.target)) {
+        // Popovers spawned from the header (e.g. the restart-sandbox menu)
+        // portal to document.body; clicking them must not collapse the block.
+        if (e.target instanceof Element && e.target.closest('[data-research-popover]')) return;
         blurBlock();
       }
     };
