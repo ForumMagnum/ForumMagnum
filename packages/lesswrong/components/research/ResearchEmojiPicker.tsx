@@ -5,6 +5,7 @@ import { createPortal } from 'react-dom';
 import data from '@emoji-mart/data';
 import Picker from '@emoji-mart/react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import { useTheme } from '@/components/themes/useTheme';
 import { researchCanvas, researchWarmAlpha, researchRadius, researchUiSans, researchMono } from './researchStyleUtils';
 import { RESEARCH_ICON_LIST, RESEARCH_SVG_ICON_PREFIX, ResearchCustomIcon } from './researchIconSet';
 
@@ -20,10 +21,20 @@ const styles = defineStyles('ResearchEmojiPicker', (theme: ThemeType) => ({
     flexDirection: 'column',
     overflow: 'hidden',
     fontFamily: researchUiSans,
-    // emoji-mart's own theming handles the picker body; keep our chrome
-    // minimal around it.
+    // Flatten emoji-mart's own card chrome (white bubble, radius, shadow,
+    // system font) into the popover surface via its CSS custom properties —
+    // RGB triples mirror researchCanvas / warm-alpha / input tokens, which
+    // can't be expressed with light-dark() inside rgba().
     '& em-emoji-picker': {
       '--rgb-accent': '95, 155, 101', // sage, matching primary.main
+      '--rgb-background': theme.dark ? '35, 32, 26' : '250, 246, 238',
+      '--rgb-color': theme.dark ? '246, 238, 226' : '68, 52, 36',
+      '--rgb-input': theme.dark ? '48, 45, 39' : '255, 255, 255',
+      '--color-border': researchWarmAlpha(0.12),
+      '--color-border-over': researchWarmAlpha(0.2),
+      '--border-radius': '0px',
+      '--shadow': 'none',
+      '--font-family': researchUiSans,
       height: 340,
     },
   },
@@ -102,6 +113,7 @@ const POPOVER_MAX_HEIGHT = 530;
  */
 export const ResearchEmojiPicker = ({ anchor, onSelect, onClear, onClose }: ResearchEmojiPickerProps) => {
   const classes = useStyles(styles);
+  const theme = useTheme();
   const popoverRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -156,7 +168,7 @@ export const ResearchEmojiPicker = ({ anchor, onSelect, onClear, onClose }: Rese
         onEmojiSelect={(emoji: { native?: string }) => {
           if (emoji.native) onSelect(emoji.native);
         }}
-        theme="auto"
+        theme={theme.dark ? 'dark' : 'light'}
         previewPosition="none"
         skinTonePosition="search"
         autoFocus
