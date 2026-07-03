@@ -9,8 +9,8 @@ test("can send and receive messages", async ({browser}) => {
   const pageA = await contextA.newPage();
   const pageB = await contextB.newPage();
 
-  const userA = await loginNewUser(contextA);
-  const userB = await loginNewUser(contextB);
+  const userA = await loginNewUser(contextA, { karma: 50 });
+  const userB = await loginNewUser(contextB, { karma: 50 });
 
   // User A clicks the "message" button on user B's profile
   await pageA.goto(`/users/${userB.slug}`);
