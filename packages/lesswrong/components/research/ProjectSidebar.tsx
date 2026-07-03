@@ -26,7 +26,7 @@ import { useNavigate } from '../../lib/routeUtil';
 import Loading from '../vulcan-core/Loading';
 import ForumIcon from '../common/ForumIcon';
 import { PanelRightIcon } from './PanelRightIcon';
-import { ResearchEmojiPicker } from './ResearchEmojiPicker';
+import { ResearchIconPicker } from './ResearchIconPicker';
 import { ResearchItemIcon } from './researchIconSet';
 import { ProjectSidebarQuery } from './projectSidebarQuery';
 import { ResearchEnvironmentsByProjectQuery } from './researchEnvironmentsQuery';
@@ -683,7 +683,7 @@ const ProjectSidebar = ({
         ) : null}
       </div>
       {iconEditor ? (
-        <ResearchEmojiPicker
+        <ResearchIconPicker
           anchor={iconEditor.anchor}
           onSelect={(emoji) => handleSetIcon(iconEditor.kind, iconEditor.id, emoji)}
           onClear={() => handleSetIcon(iconEditor.kind, iconEditor.id, null)}

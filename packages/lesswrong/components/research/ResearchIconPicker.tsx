@@ -1,0 +1,218 @@
+'use client';
+
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { defineStyles, useStyles } from '@/components/hooks/useStyles';
+import {
+  researchCanvas,
+  researchInputBackground,
+  researchMono,
+  researchRadius,
+  researchUiSans,
+  researchWarmAlpha,
+} from './researchStyleUtils';
+import {
+  RESEARCH_ICON_GROUPS,
+  RESEARCH_SVG_ICON_PREFIX,
+  ResearchCustomIcon,
+  type ResearchIconGroup,
+} from './researchIconSet';
+
+const styles = defineStyles('ResearchIconPicker', (theme: ThemeType) => ({
+  popover: {
+    position: 'fixed',
+    zIndex: 1000,
+    width: POPOVER_WIDTH,
+    background: researchCanvas(theme),
+    border: `1px solid ${researchWarmAlpha(0.16)}`,
+    borderRadius: researchRadius.md,
+    boxShadow: `0 6px 24px ${researchWarmAlpha(0.16)}`,
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden',
+    fontFamily: researchUiSans,
+  },
+  headerRow: {
+    flex: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '6px 8px',
+    borderBottom: `1px solid ${researchWarmAlpha(0.08)}`,
+  },
+  searchInput: {
+    flex: 1,
+    minWidth: 0,
+    border: `1px solid ${researchWarmAlpha(0.14)}`,
+    borderRadius: researchRadius.sm,
+    background: researchInputBackground(theme),
+    color: theme.palette.text.primary,
+    fontFamily: researchUiSans,
+    fontSize: 12.5,
+    lineHeight: 1.4,
+    padding: '4px 8px',
+    outline: 'none',
+    '&:focus': {
+      borderColor: theme.palette.primary.main,
+    },
+    '&::placeholder': {
+      color: theme.palette.text.dim,
+    },
+  },
+  clearButton: {
+    flex: 'none',
+    border: 'none',
+    background: 'transparent',
+    color: theme.palette.text.dim,
+    cursor: 'pointer',
+    fontFamily: researchMono,
+    fontSize: 10.5,
+    padding: '3px 7px',
+    borderRadius: researchRadius.xs,
+    whiteSpace: 'nowrap',
+    '&:hover': { color: theme.palette.text.primary, background: researchWarmAlpha(0.06) },
+  },
+  body: {
+    overflowY: 'auto',
+    maxHeight: 440,
+    padding: '4px 10px 10px',
+  },
+  groupLabel: {
+    fontFamily: researchMono,
+    fontSize: 10,
+    letterSpacing: '0.06em',
+    textTransform: 'uppercase',
+    color: theme.palette.text.dim,
+    padding: '8px 2px 3px',
+  },
+  iconGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(12, 1fr)',
+  },
+  iconButton: {
+    border: 'none',
+    background: 'transparent',
+    width: 28,
+    height: 28,
+    padding: 0,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: researchRadius.xs,
+    cursor: 'pointer',
+    fontSize: 17,
+    color: theme.palette.text.primary,
+    '&:hover': { background: researchWarmAlpha(0.08) },
+  },
+  empty: {
+    padding: '14px 2px',
+    fontSize: 12,
+    color: theme.palette.text.dim,
+    fontStyle: 'italic',
+  },
+}));
+
+interface ResearchIconPickerProps {
+  /** Screen coords to anchor the popover near (usually the trigger's rect). */
+  anchor: { left: number; bottom: number };
+  /** Receives the stored icon value (`svg:<id>`). */
+  onSelect: (icon: string) => void;
+  /** Clear the custom icon (revert to the default glyph). */
+  onClear: () => void;
+  onClose: () => void;
+}
+
+const POPOVER_WIDTH = 352;
+const POPOVER_MAX_HEIGHT = 490;
+
+function filterGroups(query: string): ResearchIconGroup[] {
+  const q = query.trim().toLowerCase();
+  if (!q) return RESEARCH_ICON_GROUPS;
+  return RESEARCH_ICON_GROUPS
+    .map((group) => ({
+      title: group.title,
+      icons: group.icons.filter(
+        (def) => def.label.toLowerCase().includes(q) || def.id.includes(q),
+      ),
+    }))
+    .filter((group) => group.icons.length > 0);
+}
+
+/**
+ * Icon picker popover for setting a document/conversation icon, offering the
+ * hand-drawn research icon set (grouped, with a label filter). Portaled to
+ * the body, positioned near the trigger and clamped to the viewport; closes
+ * on outside click or Esc. A slim header carries the filter input and the
+ * "Remove icon" (revert to default glyph) action.
+ */
+export const ResearchIconPicker = ({ anchor, onSelect, onClear, onClose }: ResearchIconPickerProps) => {
+  const classes = useStyles(styles);
+  const popoverRef = useRef<HTMLDivElement>(null);
+  const [query, setQuery] = useState('');
+
+  useEffect(() => {
+    const onKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const onPointerDown = (e: PointerEvent) => {
+      if (popoverRef.current && e.target instanceof Node && !popoverRef.current.contains(e.target)) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', onKeyDown);
+    // Capture phase so it fires before row-level handlers stop propagation.
+    document.addEventListener('pointerdown', onPointerDown, true);
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+      document.removeEventListener('pointerdown', onPointerDown, true);
+    };
+  }, [onClose]);
+
+  const groups = useMemo(() => filterGroups(query), [query]);
+
+  // Clamp to the viewport so the popover never overflows off-screen.
+  const left = Math.min(anchor.left, (typeof window !== 'undefined' ? window.innerWidth : 1200) - POPOVER_WIDTH - 8);
+  const top = typeof window !== 'undefined'
+    ? Math.min(anchor.bottom + 4, window.innerHeight - POPOVER_MAX_HEIGHT - 8)
+    : anchor.bottom + 4;
+
+  if (typeof document === 'undefined') return null;
+
+  return createPortal(
+    <div ref={popoverRef} className={classes.popover} style={{ left: Math.max(8, left), top: Math.max(8, top) }}>
+      <div className={classes.headerRow}>
+        <input
+          type="text"
+          className={classes.searchInput}
+          placeholder="Filter icons…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          autoFocus
+        />
+        <button type="button" className={classes.clearButton} onClick={onClear}>
+          Remove icon
+        </button>
+      </div>
+      <div className={classes.body}>
+        {groups.map((group) => (
+          <React.Fragment key={group.title}>
+            <div className={classes.groupLabel}>{group.title}</div>
+            <div className={classes.iconGrid}>
+              {group.icons.map((def) => (
+                <button
+                  key={def.id}
+                  type="button"
+                  className={classes.iconButton}
+                  title={def.label}
+                  onClick={() => onSelect(RESEARCH_SVG_ICON_PREFIX + def.id)}
+                >
+                  <ResearchCustomIcon def={def} />
+                </button>
+              ))}
+            </div>
+          </React.Fragment>
+        ))}
+        {groups.length === 0 && <div className={classes.empty}>No icons match "{query}"</div>}
+      </div>
+    </div>,
+    document.body,
+  );
+};
