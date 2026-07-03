@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import * as _ from 'underscore';
 import { getBrowserLocalStorage } from '../../../components/editor/localStorageHandlers';
 import type { PermissionResult } from '../../make_voteable';
-import { DatabasePublicSetting } from '../../publicSettings';
+import { adminAccountSetting, DatabasePublicSetting } from '../../publicSettings';
 import { hasAuthorModeration } from '../../betas';
 import { DeferredForumSelect } from '@/lib/forumTypeUtils';
 import { TupleSet, UnionOf } from '@/lib/utils/typeGuardUtils';
@@ -348,6 +348,21 @@ export const userGetAnalyticsUrl = (user: {slug: string}, isAbsolute=false): str
   }
 }
 
+export const userCanInitiateConversations = (
+  user: UsersCurrent | DbUser | null,
+): boolean => {
+  if (!user) {
+    return false;
+  }
+  if (isMod(user)) {
+    return true;
+  }
+  const adminAccount = adminAccountSetting.get();
+  if (adminAccount?.email && adminAccount.email === user.email) {
+    return true;
+  }
+  return (user.karma ?? 0) >= 10;
+}
 
 export const userUseMarkdownPostEditor = (user: UsersCurrent|null): boolean => {
   if (!user) {

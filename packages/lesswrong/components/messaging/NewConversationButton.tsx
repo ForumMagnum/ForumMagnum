@@ -6,6 +6,8 @@ import { useNavigate } from '../../lib/routeUtil';
 import { useInitiateConversation } from '../hooks/useInitiateConversation';
 import { userCanStartConversations } from "@/lib/collections/conversations/helpers";
 import LoginPopup from "../users/LoginPopup";
+import { userCanInitiateConversations } from '@/lib/collections/users/helpers';
+import LWTooltip from '../common/LWTooltip';
 
 export interface TemplateQueryStrings {
   templateId: string;
@@ -80,6 +82,14 @@ const NewConversationButton = ({
     return <div>
       {children}
     </div>
+
+  if (currentUser && !userCanInitiateConversations(currentUser)) {
+    return (
+      <LWTooltip title="You must earn 10 karma to message" placement="bottom">
+        {children}
+      </LWTooltip>
+    );
+  }
 
   return (
     <div onClick={handleClick}>
