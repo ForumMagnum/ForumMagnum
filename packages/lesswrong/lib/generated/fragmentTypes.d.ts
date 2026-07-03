@@ -1977,6 +1977,7 @@ interface PostsDefaultFragment { // fragment on Posts
   readonly socialPreviewImageId: string|null,
   readonly socialPreviewImageAutoUrl: string|null,
   readonly canonicalSequenceId: string|null,
+  readonly pangramStatusOverride: string|null,
   readonly canonicalCollectionSlug: string|null,
   readonly canonicalBookId: string|null,
   readonly canonicalNextPostSlug: string|null,

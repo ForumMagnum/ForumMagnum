@@ -1701,6 +1701,7 @@ CREATE TABLE "Posts" (
   "socialPreview" JSONB,
   "fmCrosspost" JSONB NOT NULL DEFAULT '{"isCrosspost":false}'::JSONB,
   "canonicalSequenceId" VARCHAR(27),
+  "pangramStatusOverride" TEXT,
   "canonicalCollectionSlug" TEXT,
   "canonicalBookId" VARCHAR(27),
   "canonicalNextPostSlug" TEXT,

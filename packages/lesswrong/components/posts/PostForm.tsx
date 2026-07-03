@@ -91,6 +91,15 @@ function getVotingSystemOptions(user: UsersCurrent | null) {
   }));
 }
 
+const getPangramStatusOptions = () => {
+  return [
+    {label: "Entirely human (no badge)", value: "human"},
+    {label: "Partly AI-written", value: "partly-ai"},
+    {label: "Mostly AI-written", value: "mostly-ai"},
+    {label: "~Entirely AI-written", value: "entirely-ai"},
+  ];
+}
+
 function getDraftLabel(post: { draft?: boolean | null } | null) {
   if (!post) return "Save Draft";
   if (!post.draft) return "Move to Drafts";
@@ -963,6 +972,18 @@ const PostForm = ({
             )}
           </form.Field>
         </div>}
+
+        <div className={classes.fieldWrapper}>
+          <form.Field name="pangramStatusOverride">
+            {(field) => (
+              <FormComponentSelect
+                field={field}
+                options={getPangramStatusOptions()}
+                label="Pangram status override"
+              />
+            )}
+          </form.Field>
+        </div>
 
         {userIsAdmin(currentUser) && <div className={classes.fieldWrapper}>
           <form.Field name="hideAuthor">
