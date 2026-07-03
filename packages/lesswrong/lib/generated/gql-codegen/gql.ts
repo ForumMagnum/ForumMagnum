@@ -341,6 +341,7 @@ type Documents = {
     "\n      query RecommendationsQuery($count: Int, $algorithm: JSON) {\n        Recommendations(count: $count, algorithm: $algorithm) {\n          ...PostsListWithVotesAndSequence\n        }\n      }\n    ": typeof types.RecommendationsQueryDocument,
     "\n  mutation SaveResearchEnvironment($conversationId: String!, $withConversation: Boolean!) {\n    saveResearchEnvironment(conversationId: $conversationId, withConversation: $withConversation) {\n      data { _id label }\n    }\n  }\n": typeof types.SaveResearchEnvironmentDocument,
     "\n  mutation MintDevPreviewUrl($conversationId: String!) {\n    mintDevPreviewUrl(conversationId: $conversationId) {\n      url\n    }\n  }\n": typeof types.MintDevPreviewUrlDocument,
+    "\n  query ResearchSandboxRunning($conversationId: String!) {\n    researchSandboxRunning(conversationId: $conversationId)\n  }\n": typeof types.ResearchSandboxRunningDocument,
     "\n  query ConversationChatViewInfo($conversationId: String!) {\n    researchConversation(selector: { _id: $conversationId }) {\n      result {\n        _id\n        title\n      }\n    }\n  }\n": typeof types.ConversationChatViewInfoDocument,
     "\n  mutation ContinueResearchConversationFromChatView($conversationId: String!, $promptHtml: String!, $activeDocumentId: String!) {\n    continueResearchConversation(conversationId: $conversationId, promptHtml: $promptHtml, activeDocumentId: $activeDocumentId) {\n      conversationId\n    }\n  }\n": typeof types.ContinueResearchConversationFromChatViewDocument,
     "\n  mutation CancelResearchConversationFromChatView($conversationId: String!) {\n    cancelResearchConversation(conversationId: $conversationId) {\n      conversationId\n    }\n  }\n": typeof types.CancelResearchConversationFromChatViewDocument,
@@ -1218,6 +1219,7 @@ const documents: Documents = {
     "\n      query RecommendationsQuery($count: Int, $algorithm: JSON) {\n        Recommendations(count: $count, algorithm: $algorithm) {\n          ...PostsListWithVotesAndSequence\n        }\n      }\n    ": types.RecommendationsQueryDocument,
     "\n  mutation SaveResearchEnvironment($conversationId: String!, $withConversation: Boolean!) {\n    saveResearchEnvironment(conversationId: $conversationId, withConversation: $withConversation) {\n      data { _id label }\n    }\n  }\n": types.SaveResearchEnvironmentDocument,
     "\n  mutation MintDevPreviewUrl($conversationId: String!) {\n    mintDevPreviewUrl(conversationId: $conversationId) {\n      url\n    }\n  }\n": types.MintDevPreviewUrlDocument,
+    "\n  query ResearchSandboxRunning($conversationId: String!) {\n    researchSandboxRunning(conversationId: $conversationId)\n  }\n": types.ResearchSandboxRunningDocument,
     "\n  query ConversationChatViewInfo($conversationId: String!) {\n    researchConversation(selector: { _id: $conversationId }) {\n      result {\n        _id\n        title\n      }\n    }\n  }\n": types.ConversationChatViewInfoDocument,
     "\n  mutation ContinueResearchConversationFromChatView($conversationId: String!, $promptHtml: String!, $activeDocumentId: String!) {\n    continueResearchConversation(conversationId: $conversationId, promptHtml: $promptHtml, activeDocumentId: $activeDocumentId) {\n      conversationId\n    }\n  }\n": types.ContinueResearchConversationFromChatViewDocument,
     "\n  mutation CancelResearchConversationFromChatView($conversationId: String!) {\n    cancelResearchConversation(conversationId: $conversationId) {\n      conversationId\n    }\n  }\n": types.CancelResearchConversationFromChatViewDocument,
@@ -3090,6 +3092,10 @@ export function gql(source: "\n  mutation SaveResearchEnvironment($conversationI
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */
 export function gql(source: "\n  mutation MintDevPreviewUrl($conversationId: String!) {\n    mintDevPreviewUrl(conversationId: $conversationId) {\n      url\n    }\n  }\n"): (typeof documents)["\n  mutation MintDevPreviewUrl($conversationId: String!) {\n    mintDevPreviewUrl(conversationId: $conversationId) {\n      url\n    }\n  }\n"];
+/**
+ * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
+ */
+export function gql(source: "\n  query ResearchSandboxRunning($conversationId: String!) {\n    researchSandboxRunning(conversationId: $conversationId)\n  }\n"): (typeof documents)["\n  query ResearchSandboxRunning($conversationId: String!) {\n    researchSandboxRunning(conversationId: $conversationId)\n  }\n"];
 /**
  * The gql function is used to parse GraphQL queries into a document that can be used by GraphQL clients.
  */

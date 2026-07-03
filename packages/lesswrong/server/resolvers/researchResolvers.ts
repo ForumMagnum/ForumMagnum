@@ -313,6 +313,8 @@ export const researchResolversTypeDefs = gql`
     researchSandboxDirectory(conversationId: String!, path: String): ResearchSandboxDirListing!
     researchSandboxFile(conversationId: String!, path: String!): ResearchSandboxFileContents!
     researchSandboxStats(conversationId: String!): ResearchSandboxStats!
+    # Cheap liveness check (no resume side effects, unlike mintDevPreviewUrl).
+    researchSandboxRunning(conversationId: String!): Boolean!
   }
 `;
 
@@ -857,5 +859,14 @@ export const researchResolversQueries = {
     }
     const stats = await getSandboxResourceStats(sandbox);
     return { running: true, ...stats };
+  },
+
+  async researchSandboxRunning(
+    _root: void,
+    args: { conversationId: string },
+    context: ResolverContext,
+  ) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    return (await getRunningSandbox(conv._id)) !== null;
   },
 };

@@ -1038,6 +1038,7 @@ extend type Query {
   researchSandboxDirectory(conversationId: String!, path: String): ResearchSandboxDirListing!
   researchSandboxFile(conversationId: String!, path: String!): ResearchSandboxFileContents!
   researchSandboxStats(conversationId: String!): ResearchSandboxStats!
+  researchSandboxRunning(conversationId: String!): Boolean!
 }
 
 enum DocumentDeletionNetChange {

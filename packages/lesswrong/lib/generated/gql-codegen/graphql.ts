@@ -9238,6 +9238,7 @@ export type Query = {
   researchProjects: Maybe<MultiResearchProjectOutput>;
   researchSandboxDirectory: ResearchSandboxDirListing;
   researchSandboxFile: ResearchSandboxFileContents;
+  researchSandboxRunning: Scalars['Boolean']['output'];
   researchSandboxStats: ResearchSandboxStats;
   reviewPredictionPosts: Array<Post>;
   reviewVote: Maybe<SingleReviewVoteOutput>;
@@ -10274,6 +10275,11 @@ export type QueryresearchSandboxDirectoryArgs = {
 export type QueryresearchSandboxFileArgs = {
   conversationId: Scalars['String']['input'];
   path: Scalars['String']['input'];
+};
+
+
+export type QueryresearchSandboxRunningArgs = {
+  conversationId: Scalars['String']['input'];
 };
 
 
@@ -17589,6 +17595,13 @@ export type MintDevPreviewUrlMutationVariables = Exact<{
 
 export type MintDevPreviewUrlMutation = { __typename?: 'Mutation', mintDevPreviewUrl: { __typename?: 'DevPreviewUrlOutput', url: string } | null };
 
+export type ResearchSandboxRunningQueryVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+}>;
+
+
+export type ResearchSandboxRunningQuery = { __typename?: 'Query', researchSandboxRunning: boolean };
+
 export type ConversationChatViewInfoQueryVariables = Exact<{
   conversationId: Scalars['String']['input'];
 }>;
@@ -22998,6 +23011,7 @@ export const dismissRecommendationDocument = _o1(_1,[_o11(_977,_978,_1556,_1417,
 export const RecommendationsQueryDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"RecommendationsQuery"),_1561,_1562),_23,_127,_61,_136,_146,_158,_184,_192,_198,_203,_207,_230,_226,_239,_486]) as unknown as DocumentNode<RecommendationsQueryQuery, RecommendationsQueryQueryVariables>;
 export const SaveResearchEnvironmentDocument = _o1(_1,[_o11(_977,_978,_o3(_3,"SaveResearchEnvironment"),[_1401,_o12(_979,_1564,_1008)],_o5(_7,[_o7(_8,_o3(_3,"saveResearchEnvironment"),[_1403,_o8(_530,_1563,_1564)],_1567)]))]) as unknown as DocumentNode<SaveResearchEnvironmentMutation, SaveResearchEnvironmentMutationVariables>;
 export const MintDevPreviewUrlDocument = _o1(_1,[_o11(_977,_978,_o3(_3,"MintDevPreviewUrl"),_1402,_o5(_7,[_o7(_8,_o3(_3,"mintDevPreviewUrl"),_1404,_o5(_7,[_78]))]))]) as unknown as DocumentNode<MintDevPreviewUrlMutation, MintDevPreviewUrlMutationVariables>;
+export const ResearchSandboxRunningDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"ResearchSandboxRunning"),_1402,_o5(_7,[_o10(_8,_o3(_3,"researchSandboxRunning"),_1404)]))]) as unknown as DocumentNode<ResearchSandboxRunningQuery, ResearchSandboxRunningQueryVariables>;
 export const ConversationChatViewInfoDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"ConversationChatViewInfo"),_1402,_o5(_7,[_o7(_8,_1568,_1569,_1570)]))]) as unknown as DocumentNode<ConversationChatViewInfoQuery, ConversationChatViewInfoQueryVariables>;
 export const ContinueResearchConversationFromChatViewDocument = _o1(_1,[_o11(_977,_978,_o3(_3,"ContinueResearchConversationFromChatView"),_1577,_1579)]) as unknown as DocumentNode<ContinueResearchConversationFromChatViewMutation, ContinueResearchConversationFromChatViewMutationVariables>;
 export const CancelResearchConversationFromChatViewDocument = _o1(_1,[_o11(_977,_978,_o3(_3,"CancelResearchConversationFromChatView"),_1402,_1580)]) as unknown as DocumentNode<CancelResearchConversationFromChatViewMutation, CancelResearchConversationFromChatViewMutationVariables>;

@@ -7342,6 +7342,7 @@ type Query = {
   researchProjects?: Maybe<MultiResearchProjectOutput>;
   researchSandboxDirectory: ResearchSandboxDirListing;
   researchSandboxFile: ResearchSandboxFileContents;
+  researchSandboxRunning: Scalars['Boolean']['output'];
   researchSandboxStats: ResearchSandboxStats;
   reviewPredictionPosts: Array<Post>;
   reviewVote?: Maybe<SingleReviewVoteOutput>;
@@ -8378,6 +8379,11 @@ type QueryresearchSandboxDirectoryArgs = {
 type QueryresearchSandboxFileArgs = {
   conversationId: Scalars['String']['input'];
   path: Scalars['String']['input'];
+};
+
+
+type QueryresearchSandboxRunningArgs = {
+  conversationId: Scalars['String']['input'];
 };
 
 
@@ -17986,6 +17992,16 @@ type MintDevPreviewUrlMutationVariables = Exact<{
 
 
 type MintDevPreviewUrlMutation = MintDevPreviewUrlMutation_Mutation;
+
+type ResearchSandboxRunningQuery_Query = { __typename?: 'Query', researchSandboxRunning: boolean };
+
+
+type ResearchSandboxRunningQueryVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+}>;
+
+
+type ResearchSandboxRunningQuery = ResearchSandboxRunningQuery_Query;
 
 type ConversationChatViewInfoQuery_researchConversation_SingleResearchConversationOutput_result_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, title: string | null };
 

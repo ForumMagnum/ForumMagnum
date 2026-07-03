@@ -56,6 +56,7 @@ interface Query {
   researchSandboxDirectory: ResearchSandboxDirListing;
   researchSandboxFile: ResearchSandboxFileContents;
   researchSandboxStats: ResearchSandboxStats;
+  researchSandboxRunning: boolean;
   TagUpdatesInTimeBlock: Array<TagUpdates>;
   TagUpdatesByUser: Array<TagUpdates> | null;
   RandomTag: Tag;
