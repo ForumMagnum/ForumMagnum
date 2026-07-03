@@ -1,6 +1,5 @@
 import { compile as htmlToTextCompile } from "html-to-text";
 import { pangramApiKeySetting, pangramEnabledSetting } from "./databaseSettings";
-import { truncatise } from "@/lib/truncatise";
 
 const PANGRAM_ENDPOINT = "https://text.api.pangram.com/v3";
 // Pangram's accuracy drops sharply on very short text; 50 words is their recommended floor.
@@ -60,12 +59,21 @@ const pangramHtmlToText = htmlToTextCompile({
   },
 });
 
+const truncateWords = (text: string, maxWords: number): string => {
+  const re = new RegExp(`^(?:\\s*\\S+\\s*){0,${maxWords}}`);
+  const match = text.match(re)?.[0] ?? "";
+  if (match.length === text.length) {
+    return text;
+  }
+  return match.replace(/\s+$/, "") + "…";
+}
+
 export function extractPangramInputFromPost(
   post: Pick<DbPost, "title">,
   html: string | null | undefined,
 ): string {
   const body = `${post.title ?? ""}\n\n${pangramHtmlToText(html ?? "")}`.trim();
-  return truncatise(body, {TruncateBy: "words", TruncateLength: 2000});
+  return truncateWords(body, 2000);
 }
 
 export function extractPangramInputFromComment(
@@ -85,7 +93,6 @@ export function documentIsEligibleForPangram(document: {
   rejected?: boolean | null;
   spam?: boolean | null;
   draft?: boolean | null;
-  isEvent?: boolean | null;
 }): { eligible: boolean; skipStatus?: PangramStatus } {
   // Spam/deleted: terminal states — record a skip so the badge shows "skipped" instead of sitting at "pending" forever.
   if (document.spam || document.deleted) {
