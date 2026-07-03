@@ -87,13 +87,28 @@ export type {
 } from './Bindings';
 export {createBinding, createBindingV2__EXPERIMENTAL} from './Bindings';
 
+const undoManagersByBinding = new WeakMap<BaseBinding, UndoManager>();
+
 export function createUndoManager(
   binding: BaseBinding,
   root: XmlText | XmlElement,
 ): UndoManager {
-  return new YjsUndoManager(root, {
+  const undoManager = new YjsUndoManager(root, {
     trackedOrigins: new Set([binding, null]),
   });
+  undoManagersByBinding.set(binding, undoManager);
+  return undoManager;
+}
+
+/**
+ * Returns the UndoManager created for the given binding (if any), so that
+ * code observing lexical updates can insert undo-capture boundaries (e.g.
+ * around updates tagged with HISTORY_PUSH_TAG).
+ */
+export function getUndoManagerForBinding(
+  binding: BaseBinding,
+): UndoManager | undefined {
+  return undoManagersByBinding.get(binding);
 }
 
 export function initLocalState(

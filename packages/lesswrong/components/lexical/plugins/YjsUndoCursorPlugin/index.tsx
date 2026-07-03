@@ -22,6 +22,7 @@ import {
   COMMAND_PRIORITY_LOW,
   COLLABORATION_TAG,
   HISTORIC_TAG,
+  HISTORY_PUSH_TAG,
   REDO_COMMAND,
   UNDO_COMMAND,
 } from 'lexical';
@@ -173,15 +174,18 @@ export default function YjsUndoCursorPlugin(): null {
         const prevSelection = prevEditorState._selection;
 
         // Only save selection at the start of a new undo group (matching the
-        // UndoManager's 500ms capture timeout)
-        if (now - lastEditTimeRef.current > CAPTURE_TIMEOUT_MS) {
+        // UndoManager's 500ms capture timeout). An update tagged
+        // HISTORY_PUSH_TAG is its own undo group on both sides (the collab
+        // sync calls stopCapturing() around it), so mirror that here.
+        const isHistoryPush = tags.has(HISTORY_PUSH_TAG);
+        if (isHistoryPush || now - lastEditTimeRef.current > CAPTURE_TIMEOUT_MS) {
           if ($isRangeSelection(prevSelection)) {
             undoStackRef.current.push({ before: prevSelection.clone() });
           }
           // New edit clears redo stack (standard undo behavior)
           redoStackRef.current.length = 0;
         }
-        lastEditTimeRef.current = now;
+        lastEditTimeRef.current = isHistoryPush ? 0 : now;
       }),
 
       // Intercept UNDO_COMMAND to set the action flag before the default handler runs.
