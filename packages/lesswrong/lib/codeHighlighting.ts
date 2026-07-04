@@ -13,7 +13,9 @@
 import { defineStyles } from '@/components/hooks/useStyles';
 
 // ---------------------------------------------------------------------------
-// Prism types (no @types/prismjs in this project)
+// Prism types. Typed by hand because this file reads the *global* Prism
+// instance rather than importing the prismjs module, so @types/prismjs
+// (which types the module) doesn't apply.
 // ---------------------------------------------------------------------------
 
 export interface PrismToken {

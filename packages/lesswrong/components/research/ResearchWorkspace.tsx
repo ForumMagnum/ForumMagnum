@@ -15,7 +15,6 @@ import ErrorAccessDenied from '../common/ErrorAccessDenied';
 import ForumIcon from '../common/ForumIcon';
 import ProjectSidebar from './ProjectSidebar';
 import DocumentPane from './DocumentPane';
-import ResearchCommandPalette from './ResearchCommandPalette';
 import { ConversationChatView } from './ConversationChatView';
 import { SandboxFileViewer } from './SandboxFileViewer';
 import { useMarkConversationRead } from './hooks/useMarkConversationRead';
@@ -287,35 +286,32 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   }, []);
 
   /**
-   * Open a conversation wherever it lives: switch to its host document and
-   * ask its inline block to focus. Document-kind conversations host their
-   * block in their entrypoint document; chat-kind ones (from the retired chat
-   * side panel) get one materialized in the project scratch document. A
-   * conversation whose block was deleted from its document gets a fresh block
-   * appended there, so every conversation stays reachable.
+   * Open a conversation wherever it lives. Document-kind conversations:
+   * switch to the entrypoint document and ask the inline block to focus
+   * (WorkspaceIntentPlugin falls back to the chat panel if the block was
+   * deleted from the document). Conversations with no host document (legacy
+   * chat-kind) open directly in the chat panel — opening a conversation
+   * never mutates a document.
    */
   const markConversationRead = useMarkConversationRead();
 
-  const openConversation = useCallback(async (conversationId: string) => {
+  const openConversation = useCallback((conversationId: string) => {
     markConversationRead(conversationId);
     const conversation = conversationsRef.current?.find((c) => c._id === conversationId);
     const entrypointDocumentId =
       conversation?.entrypointKind === 'document' ? conversation?.entrypointDocumentId ?? null : null;
-    let targetDocumentId = entrypointDocumentId;
-    if (!targetDocumentId) {
-      const result = await ensureScratchDocument({ variables: { projectId } });
-      targetDocumentId = result.data?.ensureResearchScratchDocument?.documentId ?? null;
+    if (!entrypointDocumentId) {
+      setChatSurface({ conversationId, fullscreen: false });
+      return;
     }
-    if (!targetDocumentId) return;
-    setActiveDocumentId(targetDocumentId);
+    setActiveDocumentId(entrypointDocumentId);
     intentNonceRef.current += 1;
     setEditorIntent({
       kind: 'focus-conversation',
       conversationId,
-      materializeIfMissing: true,
       nonce: intentNonceRef.current,
     });
-  }, [ensureScratchDocument, projectId, setActiveDocumentId, markConversationRead]);
+  }, [setActiveDocumentId, markConversationRead]);
 
   /**
    * Start a fresh conversation: open the project scratch document and append
@@ -484,51 +480,41 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
               />
             ) : null}
           </div>
-          {chatSurface && !chatSurface.fullscreen ? (
-            <div className={classes.chatPanel} style={{ width: chatPanelWidth }}>
-              <div
-                className={classNames(classes.chatPanelResizeHandle, chatPanelResizing && classes.resizeHandleActive)}
-                onPointerDown={handleChatPanelResizeStart}
-                role="separator"
-                aria-orientation="vertical"
-                aria-label="Resize chat panel"
-              />
-              <ConversationChatView
-                conversationId={chatSurface.conversationId}
-                projectId={projectId}
-                activeDocumentId={activeDocumentId}
-                variant="panel"
-                onClose={closeConversationChat}
-                onToggleFullscreen={() => setChatFullscreen(true)}
-                onOpenInDocument={() => openChatConversationInDocument(chatSurface.conversationId)}
-              />
-            </div>
-          ) : null}
-          {chatSurface?.fullscreen ? (
+          {chatSurface ? (
+            // One container for both chat shapes; the fullscreen toggle
+            // restyles it in place. Keyed children keep the chat view's
+            // reconciliation slot stable as the resize handle comes and
+            // goes, so the view (stream, scroll, file-browser toggle)
+            // survives the toggle.
             <div
-              className={classes.fullscreenChat}
-              style={{ left: sidebarOpen ? sidebarWidth : SIDEBAR_COLLAPSED_WIDTH }}
+              className={chatSurface.fullscreen ? classes.fullscreenChat : classes.chatPanel}
+              style={chatSurface.fullscreen
+                ? { left: sidebarOpen ? sidebarWidth : SIDEBAR_COLLAPSED_WIDTH }
+                : { width: chatPanelWidth }}
             >
+              {!chatSurface.fullscreen && (
+                <div
+                  key="resize-handle"
+                  className={classNames(classes.chatPanelResizeHandle, chatPanelResizing && classes.resizeHandleActive)}
+                  onPointerDown={handleChatPanelResizeStart}
+                  role="separator"
+                  aria-orientation="vertical"
+                  aria-label="Resize chat panel"
+                />
+              )}
               <ConversationChatView
+                key="chat-view"
                 conversationId={chatSurface.conversationId}
                 projectId={projectId}
                 activeDocumentId={activeDocumentId}
-                variant="fullscreen"
+                variant={chatSurface.fullscreen ? 'fullscreen' : 'panel'}
                 onClose={closeConversationChat}
-                onToggleFullscreen={() => setChatFullscreen(false)}
+                onToggleFullscreen={() => setChatFullscreen(!chatSurface.fullscreen)}
                 onOpenInDocument={() => openChatConversationInDocument(chatSurface.conversationId)}
               />
             </div>
           ) : null}
         </div>
-        <ResearchCommandPalette
-          projectId={projectId}
-          activeDocumentId={activeDocumentId}
-          onSelectDocument={setActiveDocumentId}
-          onSelectConversation={openConversation}
-          onStartNewConversation={startNewConversation}
-          onToggleSidebar={toggleSidebar}
-        />
       </div>
     </ResearchWorkspaceProvider>
   );

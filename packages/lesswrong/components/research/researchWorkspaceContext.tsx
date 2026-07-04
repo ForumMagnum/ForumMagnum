@@ -14,12 +14,6 @@ export type ResearchEditorIntent =
   | {
       kind: 'focus-conversation';
       conversationId: string;
-      /**
-       * When true and no AgentBlock bound to this conversation exists in the
-       * document, append one at the end (used to surface legacy chat-kind
-       * conversations inside the project's scratch document).
-       */
-      materializeIfMissing: boolean;
       nonce: number;
     };
 

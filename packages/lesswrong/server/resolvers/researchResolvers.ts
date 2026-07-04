@@ -279,6 +279,10 @@ export const researchResolversTypeDefs = gql`
     running: Boolean!
   }
 
+  type MarkResearchConversationReadOutput {
+    ok: Boolean!
+  }
+
   type AnswerResearchQuestionOutput {
     ok: Boolean!
     # True when no matching pending question was found (sandbox restarted, or
@@ -298,6 +302,10 @@ export const researchResolversTypeDefs = gql`
     saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput
     ensureResearchScratchDocument(projectId: String!): EnsureResearchScratchDocumentOutput
     reorderResearchDocuments(projectId: String!, orderedIds: [String!]!): ReorderResearchDocumentsOutput
+    # Stamp the conversation read (clears the sidebar's unread indicator).
+    # Takes no timestamp: the server clock is authoritative, so a skewed
+    # client clock can't produce a stamp that trails lastActivityAt.
+    markResearchConversationRead(conversationId: String!): MarkResearchConversationReadOutput
     # Resume a stopped sandbox without dispatching a turn or minting a preview
     # URL. Rejects with SANDBOX_WARMING while the resume is in flight.
     restartResearchSandbox(conversationId: String!): RestartResearchSandboxOutput
@@ -672,6 +680,20 @@ export const researchResolversMutations = {
     return { running: true };
   },
 
+  async markResearchConversationRead(_root: void, args: { conversationId: string }, context: ResolverContext) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    // Owner-only: the unread indicator is the owner's read state; another
+    // admin opening the conversation must not clear it for them.
+    if (conv.userId !== context.currentUser?._id) {
+      throw new Error("Only the conversation's owner can mark it read");
+    }
+    await context.ResearchConversations.rawUpdateOne(
+      { _id: conv._id },
+      { $set: { lastReadAt: new Date() } },
+    );
+    return { ok: true };
+  },
+
   async setClaudeCodeOAuthToken(_root: void, args: { token: string }, context: ResolverContext) {
     const { currentUser, Users } = context;
     if (!userIsAdmin(currentUser)) throw new Error("Forbidden");
@@ -770,20 +792,12 @@ export const researchResolversMutations = {
     args: { projectId: string; orderedIds: string[] },
     context: ResolverContext,
   ) {
-    const { currentUser, ResearchDocuments } = context;
+    const { currentUser } = context;
     if (!userIsAdmin(currentUser)) throw new Error("Forbidden");
-    const docs = await ResearchDocuments.find(
-      { projectId: args.projectId, userId: currentUser._id },
-      { limit: 1000 },
-      { _id: 1 },
-    ).fetch();
-    const ownedIds = new Set(docs.map((d) => d._id));
-    await Promise.all(
-      args.orderedIds
-        .filter((id) => ownedIds.has(id))
-        .map((id, index) =>
-          ResearchDocuments.rawUpdateOne({ _id: id }, { $set: { sortOrder: index } }),
-        ),
+    await context.repos.researchDocuments.reorderDocuments(
+      args.projectId,
+      currentUser._id,
+      args.orderedIds,
     );
     return { success: true };
   },

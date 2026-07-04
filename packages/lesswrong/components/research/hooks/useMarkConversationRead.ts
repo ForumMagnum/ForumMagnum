@@ -5,22 +5,21 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { useMutation } from '@apollo/client/react';
 
 const MarkResearchConversationReadMutation = gql(`
-  mutation MarkResearchConversationRead($id: String!, $lastReadAt: Date!) {
-    updateResearchConversation(selector: { _id: $id }, data: { lastReadAt: $lastReadAt }) {
-      data {
-        _id
-        lastReadAt
-      }
+  mutation MarkResearchConversationRead($conversationId: String!) {
+    markResearchConversationRead(conversationId: $conversationId) {
+      ok
     }
   }
 `);
 
 /**
- * Stamp a conversation as read (clears the sidebar's unread indicator).
+ * Stamp a conversation as read (clears the sidebar's unread indicator). The
+ * server supplies the timestamp — a skewed client clock could otherwise
+ * produce a stamp that trails lastActivityAt and never clears the indicator.
  * Fire-and-forget: called whenever the user actually looks at a conversation —
- * opening it from the sidebar/palette, focusing its inline block, opening the
- * chat panel, or watching a turn complete while it's open. Failures are
- * swallowed; the indicator self-corrects on the next successful stamp.
+ * opening it from the sidebar, focusing its inline block, opening the chat
+ * panel, or watching a turn complete while it's open. Failures are swallowed;
+ * the indicator self-corrects on the next successful stamp.
  */
 export function useMarkConversationRead(): (conversationId: string) => void {
   const [markRead] = useMutation(MarkResearchConversationReadMutation, {
@@ -29,8 +28,6 @@ export function useMarkConversationRead(): (conversationId: string) => void {
     refetchQueries: ['ResearchConversationSidebarStatuses'],
   });
   return useCallback((conversationId: string) => {
-    void markRead({
-      variables: { id: conversationId, lastReadAt: new Date() },
-    }).catch(() => {});
+    void markRead({ variables: { conversationId } }).catch(() => {});
   }, [markRead]);
 }

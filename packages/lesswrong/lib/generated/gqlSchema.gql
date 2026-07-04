@@ -988,6 +988,10 @@ type RestartResearchSandboxOutput {
   running: Boolean!
 }
 
+type MarkResearchConversationReadOutput {
+  ok: Boolean!
+}
+
 type AnswerResearchQuestionOutput {
   ok: Boolean!
   expired: Boolean!
@@ -1003,6 +1007,7 @@ extend type Mutation {
   saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput
   ensureResearchScratchDocument(projectId: String!): EnsureResearchScratchDocumentOutput
   reorderResearchDocuments(projectId: String!, orderedIds: [String!]!): ReorderResearchDocumentsOutput
+  markResearchConversationRead(conversationId: String!): MarkResearchConversationReadOutput
   restartResearchSandbox(conversationId: String!): RestartResearchSandboxOutput
 }
 
@@ -9100,7 +9105,6 @@ input UpdateResearchConversationDataInput {
   baseEnvironmentId: String
   runtime: String
   lastActivityAt: Date
-  lastReadAt: Date
 }
 
 input UpdateResearchConversationInput {
@@ -9153,7 +9157,6 @@ input UpdateResearchDocumentDataInput {
   projectId: String
   title: String
   icon: String
-  sortOrder: Float
   contents: CreateRevisionDataInput
 }
 

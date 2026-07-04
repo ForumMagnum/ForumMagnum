@@ -19,6 +19,7 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
+import { useMessages } from '@/components/common/withMessages';
 import { useMutation } from '@apollo/client/react';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
@@ -37,7 +38,6 @@ import {
   researchEyebrow,
   researchScrollbars,
   researchWarmAlpha,
-  researchCanvas,
   researchRadius,
 } from './researchStyleUtils';
 
@@ -400,6 +400,7 @@ const ProjectSidebar = ({
 }: ProjectSidebarProps) => {
   const classes = useStyles(styles);
   const navigate = useNavigate();
+  const { flash } = useMessages();
   const [creatingDoc, setCreatingDoc] = useState(false);
 
   const { data, loading, refetch } = useQuery(ProjectSidebarQuery, {
@@ -429,7 +430,7 @@ const ProjectSidebar = ({
   const [setConversationIcon] = useMutation(SetResearchConversationIconMutation);
   const [reorderDocuments] = useMutation(ReorderResearchDocumentsMutation);
 
-  // Emoji picker anchor state: which row's icon is being edited, and where to
+  // Icon picker anchor state: which row's icon is being edited, and where to
   // pop the picker.
   const [iconEditor, setIconEditor] = useState<
     { kind: 'document' | 'conversation'; id: string; anchor: { left: number; bottom: number } } | null
@@ -440,6 +441,9 @@ const ProjectSidebar = ({
   // switching projects so a stale order never leaks across projects.
   const [documentOrderOverride, setDocumentOrderOverride] = useState<string[] | null>(null);
   useEffect(() => { setDocumentOrderOverride(null); }, [projectId]);
+  // The most recent drag's order; guards the override cleanup in
+  // handleDocumentDragEnd against a slower earlier persist finishing last.
+  const latestReorderRef = useRef<string[] | null>(null);
 
   const dndSensors = useSensors(
     // A small activation distance so a click still selects the doc; only a
@@ -477,16 +481,35 @@ const ProjectSidebar = ({
   }, [data?.researchDocuments?.results, documentOrderOverride]);
   const documentIds = useMemo(() => documents.map((d) => d._id), [documents]);
 
-  const handleDocumentDragEnd = useCallback((event: DragEndEvent) => {
+  const handleDocumentDragEnd = useCallback(async (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over || active.id === over.id) return;
     const oldIndex = documentIds.indexOf(String(active.id));
     const newIndex = documentIds.indexOf(String(over.id));
     if (oldIndex < 0 || newIndex < 0) return;
     const newOrder = arrayMove(documentIds, oldIndex, newIndex);
+    // Optimistic: show the dragged order immediately; the override is
+    // reconciled away (or reverted) once the server settles.
     setDocumentOrderOverride(newOrder);
-    void reorderDocuments({ variables: { projectId, orderedIds: newOrder } });
-  }, [documentIds, reorderDocuments, projectId]);
+    latestReorderRef.current = newOrder;
+    try {
+      await reorderDocuments({ variables: { projectId, orderedIds: newOrder } });
+      // Pull the persisted sortOrders into the cache before dropping the
+      // override, so the list doesn't flash back to the stale order.
+      await refetch();
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error('[research] document reorder failed', err);
+      flash({ messageString: 'Failed to save the new document order.', type: 'error' });
+    } finally {
+      // A newer drag may have started while this one persisted — only the
+      // latest drag clears (or reverts) the override.
+      if (latestReorderRef.current === newOrder) {
+        setDocumentOrderOverride(null);
+        latestReorderRef.current = null;
+      }
+    }
+  }, [documentIds, reorderDocuments, projectId, refetch, flash]);
 
   const handleSetIcon = useCallback(async (kind: 'document' | 'conversation', id: string, icon: string | null) => {
     setIconEditor(null);
@@ -687,7 +710,7 @@ const ProjectSidebar = ({
       {iconEditor ? (
         <ResearchIconPicker
           anchor={iconEditor.anchor}
-          onSelect={(emoji) => handleSetIcon(iconEditor.kind, iconEditor.id, emoji)}
+          onSelect={(icon) => handleSetIcon(iconEditor.kind, iconEditor.id, icon)}
           onClear={() => handleSetIcon(iconEditor.kind, iconEditor.id, null)}
           onClose={() => setIconEditor(null)}
         />

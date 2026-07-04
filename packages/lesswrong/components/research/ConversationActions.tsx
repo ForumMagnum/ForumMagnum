@@ -6,7 +6,7 @@ import { gql } from '@/lib/generated/gql-codegen';
 import { useApolloClient, useLazyQuery, useMutation } from '@apollo/client/react';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useMessages } from '@/components/common/withMessages';
-import { isSandboxWarmingError } from './sandboxWarming';
+import { isSandboxWarmingError, retryWhileSandboxWarming } from './sandboxWarming';
 import { ResearchEnvironmentsByProjectQuery } from './researchEnvironmentsQuery';
 import { researchMono, researchWarmAlpha, researchRadius, researchChatSurface } from './researchStyleUtils';
 
@@ -31,15 +31,6 @@ const ResearchSandboxRunningQuery = gql(`
     researchSandboxRunning(conversationId: $conversationId)
   }
 `);
-
-/** How often to re-poll `mintDevPreviewUrl` while the sandbox is resuming. */
-const WARMING_RETRY_MS = 3000;
-/** Give up on a resume after this long — matches sandbox boot worst cases. */
-const WARMING_DEADLINE_MS = 3 * 60 * 1000;
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 const styles = defineStyles('ConversationActions', (theme: ThemeType) => ({
   root: {
@@ -263,42 +254,34 @@ export function ConversationActions({ conversationId, projectId }: {
   const handleRestart = useCallback(async () => {
     restartAbortRef.current = false;
     setRestartState('starting');
-    const deadline = Date.now() + WARMING_DEADLINE_MS;
-    for (;;) {
-      try {
-        const result = await mintPreview({ variables: { conversationId } });
-        if (restartAbortRef.current) return;
-        const url = result.data?.mintDevPreviewUrl?.url;
-        if (!url) {
-          closeRestartMenu();
-          flash({ messageString: 'Could not open a preview link.', type: 'error' });
-          return;
-        }
-        // The click gesture has long expired by now, so this window.open may
-        // be popup-blocked — fall back to a manual link in the menu.
-        const opened = window.open(url, '_blank', 'noopener,noreferrer');
-        if (opened) {
-          closeRestartMenu();
-        } else {
-          setReadyUrl(url);
-          setRestartState('ready');
-        }
-        return;
-      } catch (err) {
-        if (restartAbortRef.current) return;
-        // A stopped sandbox resumes server-side and rejects with
-        // SANDBOX_WARMING until it's reachable — keep re-minting.
-        if (isSandboxWarmingError(err) && Date.now() < deadline) {
-          await sleep(WARMING_RETRY_MS);
-          if (restartAbortRef.current) return;
-          continue;
-        }
-        closeRestartMenu();
-        // eslint-disable-next-line no-console
-        console.error('[research] restart sandbox failed', err);
-        flash({ messageString: `Failed to restart sandbox: ${(err as Error).message}`, type: 'error' });
-        return;
-      }
+    let result;
+    try {
+      result = await retryWhileSandboxWarming(
+        () => mintPreview({ variables: { conversationId } }),
+        () => restartAbortRef.current,
+      );
+    } catch (err) {
+      closeRestartMenu();
+      // eslint-disable-next-line no-console
+      console.error('[research] restart sandbox failed', err);
+      flash({ messageString: `Failed to restart sandbox: ${(err as Error).message}`, type: 'error' });
+      return;
+    }
+    if (!result) return; // aborted from the menu
+    const url = result.data?.mintDevPreviewUrl?.url;
+    if (!url) {
+      closeRestartMenu();
+      flash({ messageString: 'Could not open a preview link.', type: 'error' });
+      return;
+    }
+    // The click gesture has long expired by now, so this window.open may
+    // be popup-blocked — fall back to a manual link in the menu.
+    const opened = window.open(url, '_blank', 'noopener,noreferrer');
+    if (opened) {
+      closeRestartMenu();
+    } else {
+      setReadyUrl(url);
+      setRestartState('ready');
     }
   }, [conversationId, mintPreview, flash, closeRestartMenu]);
 

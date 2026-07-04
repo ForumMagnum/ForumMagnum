@@ -33,30 +33,27 @@ import { safeForDarkMode } from '../hooks/defineStyles';
  * Workspace chrome (sidebar, palette, buttons) stays in the site sans stack.
  */
 
-// Machine voice (2026-07: Geist Mono — rounder and less aggressive than
-// SF Mono/source-code-pro). The variable is provided by app/research/
+// Machine voice: Geist Mono. The variable is provided by app/research/
 // layout.tsx via next/font; outside /research routes the fallback stack
 // applies unchanged.
 export const researchMono = 'var(--font-geist-mono, "source-code-pro"), ui-monospace, "SF Mono", "SFMono-Regular", Menlo, Consolas, "Liberation Mono", monospace';
 
-// Agent voice (2026-07: Geist, matching the chrome — the user moved the
-// whole sans surface to Geist; Freight Sans remains the fallback where the
-// next/font variable isn't in scope). Documents keep the essay serif, so
-// agent prose stays visibly distinct from the user's document prose.
+// Agent voice: Geist, matching the chrome, with Freight Sans as the
+// fallback where the next/font variable isn't in scope. Documents keep the
+// essay serif, so agent prose stays visibly distinct from the user's
+// document prose.
 export const researchChatSans = 'var(--font-geist-sans, "freight-sans-pro"), GreekFallback, Calibri, "Gill Sans", "Gill Sans MT", "Helvetica Neue", Helvetica, Arial, sans-serif';
 
-// Chrome voice (2026-07, second revision): Geist — soft, round grotesque —
-// loaded via next/font in app/research/layout.tsx, falling back to the
-// agent's humanist Freight Sans where the variable isn't in scope. (First
-// revision replaced the site sans stack with Freight; the user wanted to
-// try Geist on top of that.)
+// Chrome voice: Geist — soft, round grotesque — loaded via next/font in
+// app/research/layout.tsx, falling back to the agent's humanist Freight
+// Sans where the variable isn't in scope.
 export const researchUiSans = 'var(--font-geist-sans, "freight-sans-pro"), GreekFallback, Calibri, "Gill Sans", "Gill Sans MT", "Helvetica Neue", Helvetica, Arial, sans-serif';
 
 /**
- * Warm neutral replacing `theme.palette.greyAlpha` on the research surface
- * (2026-07 warmth pass): pure black-alpha greys read cold; this is the same
- * idea tinted toward umber in light mode and cream in dark mode. Same alpha
- * semantics as greyAlpha, so call sites swap 1:1.
+ * Warm neutral replacing `theme.palette.greyAlpha` on the research surface:
+ * pure black-alpha greys read cold; this is the same idea tinted toward
+ * umber in light mode and cream in dark mode. Same alpha semantics as
+ * greyAlpha, so call sites swap 1:1.
  */
 export function researchWarmAlpha(alpha: number): string {
   return `light-dark(rgba(68, 52, 36, ${alpha}), rgba(246, 238, 226, ${alpha}))`;
@@ -66,8 +63,7 @@ export function researchWarmAlpha(alpha: number): string {
  * The research canvas: warm paper instead of pure white, uniformly across
  * every surface (sidebar, document, panels, inputs) — the flat-canvas rule
  * still holds, the whole canvas just sits a step warmer. Dark mode gets the
- * matching warm near-black. (2026-07: warmed a second step at user request,
- * #FCFAF7 → #FAF6EE.)
+ * matching warm near-black.
  */
 export function researchCanvas(_theme: ThemeType): string {
   return 'light-dark(#FAF6EE, #23201A)';
@@ -75,23 +71,19 @@ export function researchCanvas(_theme: ThemeType): string {
 
 /**
  * Conversation surfaces (agent blocks, the chat panel/fullscreen transcript
- * column) sit on this slightly deeper cream, as rounded boxes on the canvas —
- * an explicit 2026-07 user request, carving out chat surfaces from the
- * no-static-surface-tints rule. Everything else stays on researchCanvas.
- *
- * Direction (settled after two rounds of feedback): chat boxes sit LIGHTER
- * than the canvas — near-white cards floating on the warm paper, not a
- * darker cream recess. Keep the yellow cast minimal (R−B ≤ ~8; the first
- * attempt #F6EFE0 at R−B 22 read as "Biryani", the second #F6F2EA was still
- * too tinted — the user wants it to "feel like white").
+ * column): a deliberate carve-out from the no-static-surface-tints rule.
+ * Everything else stays on researchCanvas. Chat boxes sit LIGHTER than the
+ * canvas — near-white cards floating on the warm paper, not a darker cream
+ * recess — and the yellow cast stays minimal (R−B ≤ ~8; anything stronger
+ * reads tinted rather than "white").
  */
 export function researchChatSurface(_theme: ThemeType): string {
   return 'light-dark(#FDFBF7, #2A2722)';
 }
 
-// 2026-07 warmth pass: one step rounder across the board. `xs` is for tiny
-// icon buttons and chips that would read blobby at the larger radii.
-// (lg was 14 for a beat; user found the big boxes "a bit too rounded" — 12.)
+// `xs` is for tiny icon buttons and chips that would read blobby at the
+// larger radii; `lg` deliberately stops at 12 — bigger reads too rounded on
+// the large boxes.
 export const researchRadius = {
   xs: 6,
   sm: 8,
@@ -101,9 +93,9 @@ export const researchRadius = {
 } as const;
 
 /**
- * Squircle corner geometry (2026-07, "will generally improve vibes"): spread
- * alongside a borderRadius. `corner-shape` is supported in current Chromium;
- * elsewhere it's ignored and corners stay plainly rounded.
+ * Squircle corner geometry: spread alongside a borderRadius. `corner-shape`
+ * is supported in current Chromium; elsewhere it's ignored and corners stay
+ * plainly rounded.
  */
 export const researchSquircle = {
   cornerShape: 'squircle',

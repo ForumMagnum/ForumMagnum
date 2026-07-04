@@ -781,8 +781,7 @@ export default function Editor({
   const canComment = !accessLevel || accessLevelCan(accessLevel, "comment");
   const showPostCommentFeatures = isPostEditor && !isCommentEditor;
   // Research documents get inline comment threads too (rendered in the
-  // workspace's right margin, not the posts' comments panel), but none of
-  // the posts-only machinery (side comments, suggested edits).
+  // workspace's right margin, not the posts' side-comments panel).
   const showResearchCommentFeatures = isResearchEditor && !isCommentEditor;
   // True for any collaborative collection (posts + research): gates the shared
   // comment infrastructure (CommentPlugin, inline comment button).
@@ -927,11 +926,11 @@ export default function Editor({
                     {showPostCommentFeatures && <SideCommentsPlugin />}
                   </>
                 )}
-              {showPostCommentFeatures && <SuggestedEditsPlugin
+              <SuggestedEditsPlugin
                 isSuggestionMode={isSuggestionMode}
                 userMode={userMode}
                 onUserModeChange={handleUserModeChange}
-              />}
+              />
               {showResearchCommentFeatures && <ResearchCommentsMargin />}
               </CommentStoreProvider>
             </CollaboratorIdentityProvider>

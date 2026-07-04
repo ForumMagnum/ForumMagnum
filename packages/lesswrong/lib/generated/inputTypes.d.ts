@@ -254,6 +254,7 @@ interface Mutation {
   saveResearchEnvironment: SaveResearchEnvironmentOutput | null;
   ensureResearchScratchDocument: EnsureResearchScratchDocumentOutput | null;
   reorderResearchDocuments: ReorderResearchDocumentsOutput | null;
+  markResearchConversationRead: MarkResearchConversationReadOutput | null;
   restartResearchSandbox: RestartResearchSandboxOutput | null;
   mergeTags: boolean | null;
   promoteLensToMain: boolean | null;
@@ -1077,6 +1078,10 @@ interface ReorderResearchDocumentsOutput {
 
 interface RestartResearchSandboxOutput {
   running: boolean;
+}
+
+interface MarkResearchConversationReadOutput {
+  ok: boolean;
 }
 
 interface AnswerResearchQuestionOutput {
@@ -8330,7 +8335,6 @@ interface UpdateResearchConversationDataInput {
   baseEnvironmentId?: string | null;
   runtime?: string | null;
   lastActivityAt?: Date | null;
-  lastReadAt?: Date | null;
 }
 
 interface UpdateResearchConversationInput {
@@ -8371,7 +8375,6 @@ interface UpdateResearchDocumentDataInput {
   projectId?: string | null;
   title?: string | null;
   icon?: string | null;
-  sortOrder?: number | null;
   contents?: CreateRevisionDataInput | null;
 }
 
@@ -9301,6 +9304,7 @@ interface GraphQLTypeMap {
   EnsureResearchScratchDocumentOutput: EnsureResearchScratchDocumentOutput;
   ReorderResearchDocumentsOutput: ReorderResearchDocumentsOutput;
   RestartResearchSandboxOutput: RestartResearchSandboxOutput;
+  MarkResearchConversationReadOutput: MarkResearchConversationReadOutput;
   AnswerResearchQuestionOutput: AnswerResearchQuestionOutput;
   ResearchConversationSidebarStatus: ResearchConversationSidebarStatus;
   ResearchSandboxDirEntry: ResearchSandboxDirEntry;

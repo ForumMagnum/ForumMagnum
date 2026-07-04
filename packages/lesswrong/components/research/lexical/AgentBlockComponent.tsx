@@ -80,9 +80,9 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   root: {
     position: 'relative',
     margin: '14px 0',
-    // Rounded cream box (2026-07): conversations read as their own soft
-    // surface on the canvas. The 2px left edge stays as the state signal
-    // (dim at rest, sage when focused / agent-initiated).
+    // Rounded cream box: conversations read as their own soft surface on
+    // the canvas. The 2px left edge is the state signal (dim at rest, sage
+    // when focused / agent-initiated).
     background: researchChatSurface(theme),
     border: `1px solid ${researchWarmAlpha(0.07)}`,
     borderLeft: `2px solid ${researchWarmAlpha(0.14)}`,

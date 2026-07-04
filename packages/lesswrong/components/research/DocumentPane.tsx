@@ -8,9 +8,6 @@ import { pollForConversationTitle, ProjectSidebarQuery } from './projectSidebarQ
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { researchEditorNodes } from './lexical/researchEditorNodes';
-// Side-effect import: installs the AgentBlock component into its late-bound
-// registry before the editor mounts (see agentBlockComponentRegistry.ts).
-import './lexical/registerAgentBlockComponent';
 import { ResearchEditorPlugins } from './lexical/ResearchEditorPlugins';
 import {
   ResearchEditorProvider,

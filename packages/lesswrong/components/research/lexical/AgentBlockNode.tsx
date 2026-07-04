@@ -11,7 +11,16 @@ import {
   type Spread,
 } from 'lexical';
 import React from 'react';
-import { getAgentBlockComponent } from './agentBlockComponentRegistry';
+
+// Lazy like ImageNode et al: the component's import tree reaches the base
+// editor (via ChatComposer), which reaches this node's registry — a static
+// import here would close that cycle and TDZ-crash at startup. The dynamic
+// import defers the edge until the first render; headless editors never
+// render decorators, so they never load it at all. (Lexical wraps decorators
+// in <Suspense fallback={null}> itself.)
+const AgentBlockComponent = React.lazy(
+  () => import('./AgentBlockComponent').then((m) => ({ default: m.AgentBlockComponent })),
+);
 
 export interface AgentBlockProps {
   conversationId: string;
@@ -139,11 +148,6 @@ export class AgentBlockNode extends DecoratorNode<React.ReactElement> {
   }
 
   decorate(): React.ReactElement {
-    // Late-bound to avoid a module cycle through the base editor; see
-    // agentBlockComponentRegistry.ts. Null only in surfaces that never
-    // registered the component (headless editors don't render decorators).
-    const AgentBlockComponent = getAgentBlockComponent();
-    if (!AgentBlockComponent) return <span />;
     return (
       <AgentBlockComponent
         nodeKey={this.__key}

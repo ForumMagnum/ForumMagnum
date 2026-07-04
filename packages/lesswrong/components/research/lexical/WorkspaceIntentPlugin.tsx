@@ -2,9 +2,9 @@
 
 import { useEffect } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $createParagraphNode, $getRoot, type LexicalEditor } from 'lexical';
+import { $getRoot, type LexicalEditor } from 'lexical';
 import { $dfs } from '@lexical/utils';
-import { $createAgentBlockNode, $isAgentBlockNode } from './AgentBlockNode';
+import { $isAgentBlockNode } from './AgentBlockNode';
 import { $createPopulatedQueryInputNode } from './QueryInputNode';
 import { useResearchWorkspaceApiOptional } from '../researchWorkspaceContext';
 
@@ -13,12 +13,18 @@ import { useResearchWorkspaceApiOptional } from '../researchWorkspaceContext';
  * if no collaboration-tagged update arrived (an empty Yjs doc produces none).
  * Mutating before sync risks racing the initial remote state, so writes wait
  * for sync-or-deadline; reads (finding an existing block) run on every
- * update immediately. Materialization gets a longer deadline because acting
- * on a false "block missing" (sync still in flight) would append a duplicate
- * block, while a too-eager insert-query merely appears after a beat.
+ * update immediately.
  */
 const COLLAB_SYNC_DEADLINE_MS = 1500;
-const MATERIALIZE_DEADLINE_MS = 4000;
+
+/**
+ * How long to keep looking for the conversation's block before concluding it
+ * isn't in this document (deleted, or a legacy blockless conversation) and
+ * falling back to the chat panel. Generous because a false "missing" (sync
+ * still in flight) would bounce the user to the panel when the block was
+ * about to appear.
+ */
+const BLOCK_MISSING_DEADLINE_MS = 4000;
 
 /** Give up on an intent entirely after this long. */
 const INTENT_TIMEOUT_MS = 15_000;
@@ -46,9 +52,9 @@ function scrollNodeIntoView(editor: LexicalEditor, nodeKey: string): void {
  *   and put the cursor in it ("start a new conversation").
  * - `focus-conversation`: find the AgentBlock bound to the conversation,
  *   scroll to it, and raise the block-level focus request it listens for.
- *   With `materializeIfMissing` (legacy chat-kind conversations being
- *   surfaced in the scratch document), append a block bound to the
- *   conversation if none exists yet.
+ *   If no block turns up by the deadline (the user deleted it, or a legacy
+ *   conversation never had one), open the conversation in the chat panel
+ *   instead — the document is never mutated on the user's behalf.
  */
 export function WorkspaceIntentPlugin() {
   const [editor] = useLexicalComposerContext();
@@ -60,7 +66,6 @@ export function WorkspaceIntentPlugin() {
     const { nonce } = intent;
     let done = false;
     let writeReady = false;
-    let materializeReady = false;
 
     const finish = () => {
       done = true;
@@ -92,29 +97,12 @@ export function WorkspaceIntentPlugin() {
       if (existingKey) {
         workspace.requestConversationFocus(intent.conversationId);
         finish();
-        return;
-      }
-      if (intent.materializeIfMissing && materializeReady) {
-        editor.update(() => {
-          const block = $createAgentBlockNode({
-            conversationId: intent.conversationId,
-            producedByConversationId: null,
-          });
-          const root = $getRoot();
-          root.append(block);
-          // Trailing paragraph so the cursor has somewhere to land after the
-          // decorator block.
-          root.append($createParagraphNode());
-        });
-        workspace.requestConversationFocus(intent.conversationId);
-        finish();
       }
     };
 
     const removeUpdateListener = editor.registerUpdateListener(({ tags }) => {
       if (tags.has('collaboration')) {
         writeReady = true;
-        materializeReady = true;
       }
       tryExecute();
     });
@@ -122,10 +110,13 @@ export function WorkspaceIntentPlugin() {
       writeReady = true;
       tryExecute();
     }, COLLAB_SYNC_DEADLINE_MS);
-    const materializeDeadlineTimer = setTimeout(() => {
-      materializeReady = true;
-      tryExecute();
-    }, MATERIALIZE_DEADLINE_MS);
+    // No block by the deadline: treat the conversation as blockless and show
+    // it in the chat panel rather than mutating the document.
+    const blockMissingTimer = setTimeout(() => {
+      if (done || intent.kind !== 'focus-conversation') return;
+      workspace.openConversationChat(intent.conversationId);
+      finish();
+    }, BLOCK_MISSING_DEADLINE_MS);
     const giveUpTimer = setTimeout(() => {
       if (!done) finish();
     }, INTENT_TIMEOUT_MS);
@@ -135,7 +126,7 @@ export function WorkspaceIntentPlugin() {
     return () => {
       removeUpdateListener();
       clearTimeout(writeDeadlineTimer);
-      clearTimeout(materializeDeadlineTimer);
+      clearTimeout(blockMissingTimer);
       clearTimeout(giveUpTimer);
     };
     // Re-run per distinct intent; the intent object is stable for a given nonce.
