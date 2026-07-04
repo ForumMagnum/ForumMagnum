@@ -275,6 +275,7 @@ export async function bootSupervisor() {
       );
     },
     cancelTurn: (id) => hub.cancel(id),
+    answerQuestion: (id, toolUseId, answers) => hub.answerQuestion(id, toolUseId, answers),
     getStateSnapshot: () => {
       const snap = hub.snapshot();
       return {

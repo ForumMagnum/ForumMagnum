@@ -360,6 +360,40 @@ The server validates each token before applying your write:
 - The title field can be approximate; the server replaces it with the
   canonical current title from the database before storing the chip.
 
+## Your conversation's collapsed presentation (`set-presentation`)
+
+Your conversation appears inside the user's research document as an inline
+block. While the user is interacting with it, it shows the full transcript;
+when they click away, it collapses to a compact "presentation" — and **you
+control what that presentation shows**:
+
+```
+research-tool set-presentation --markdown <md>
+research-tool set-presentation --clear
+```
+
+- The markdown becomes the collapsed block's body (rendered like document
+  prose). Keep it short and reader-facing: the distilled answer, the key
+  table, the headline numbers — what a reader skimming the document should
+  take away from this conversation. A few paragraphs at most; it gets
+  visually clamped after ~200px.
+- By default (no presentation set), the collapsed block falls back to your
+  last chat message — which is often conversational ("Done! I also fixed…")
+  rather than presentational. When you finish a substantive piece of work,
+  prefer to set an explicit presentation summarizing the *result*, not the
+  dialogue.
+- Update it as the work evolves; each call replaces the previous
+  presentation. `--clear` returns to the last-message fallback.
+- Plain markdown only (paragraphs, lists, tables, emphasis, code) —
+  `@[doc:...]` mention tokens and widgets are *not* supported here; they
+  render as literal text.
+- This styles only **your own** conversation's block; you cannot set another
+  conversation's presentation.
+
+Don't confuse this with document edits: the presentation lives on the
+conversation block itself. Durable write-ups still belong in the document via
+`edit-doc`.
+
 ## Query inputs (unsubmitted user questions)
 
 The user can compose a `/query` block in the document — a UI input where they

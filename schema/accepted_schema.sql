@@ -2362,11 +2362,14 @@ CREATE TABLE "ResearchConversations" (
   "projectId" VARCHAR(27) NOT NULL,
   "claudeSessionId" TEXT,
   "title" TEXT,
+  "icon" TEXT,
   "entrypointKind" TEXT NOT NULL,
   "entrypointDocumentId" VARCHAR(27) NOT NULL,
   "baseEnvironmentId" VARCHAR(27),
   "runtime" TEXT,
-  "lastActivityAt" TIMESTAMPTZ NOT NULL
+  "presentationHtml" TEXT,
+  "lastActivityAt" TIMESTAMPTZ NOT NULL,
+  "lastReadAt" TIMESTAMPTZ
 );
 
 -- Index "idx_ResearchConversations_projectId_lastActivityAt"
@@ -2382,6 +2385,8 @@ CREATE TABLE "ResearchDocuments" (
   "userId" VARCHAR(27) NOT NULL,
   "projectId" VARCHAR(27) NOT NULL,
   "title" TEXT,
+  "icon" TEXT,
+  "sortOrder" DOUBLE PRECISION,
   "contents_latest" TEXT
 );
 

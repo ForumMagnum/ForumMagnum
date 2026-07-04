@@ -9,9 +9,13 @@ import {
   getRunningSandbox,
   sandboxNameForConversation,
   SandboxWarmingError,
+  SESSION_TIMEOUT_MS,
   supervisorUrlForSandbox,
   type ProvisionedSandbox,
 } from "@/server/research/sandbox/sandboxManager";
+import { listSandboxDirectory, SANDBOX_DEFAULT_DIR } from "@/server/research/sandbox/listSandboxDirectory";
+import { readSandboxTextFile } from "@/server/research/sandbox/readSandboxTextFile";
+import { getSandboxResourceStats } from "@/server/research/sandbox/sandboxResourceStats";
 import { GraphQLError } from "graphql";
 import { isPlainRecord } from "@/components/research/conversationEventFormat";
 import { accessFilterSingle } from "@/lib/utils/schemaUtils";
@@ -25,6 +29,7 @@ import {
   deriveLastInjectedActiveDocumentId,
 } from "@/server/research/systemReminder";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
+import { createResearchDocument } from "@/server/collections/researchDocuments/mutations";
 import { encryptUserSecret } from "@/server/research/userSecretsCrypto";
 import { buildEnvironmentSnapshot } from "@/server/research/sandbox/saveEnvironment";
 import { randomId } from "@/lib/random";
@@ -142,6 +147,26 @@ async function cancelTurnViaSupervisor(target: SupervisorTarget): Promise<void> 
   }
 }
 
+async function answerQuestionViaSupervisor(
+  target: SupervisorTarget,
+  toolUseId: string,
+  answers: Record<string, string>,
+): Promise<{ ok: boolean; expired: boolean }> {
+  const bearer = signSupervisorBearer(target);
+  const response = await fetch(
+    `${target.supervisorUrl}/answer/${encodeURIComponent(target.conversationId)}`,
+    {
+      method: "POST",
+      headers: { "Authorization": `Bearer ${bearer}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ toolUseId, answers }),
+    },
+  );
+  if (response.ok) return { ok: true, expired: false };
+  if (response.status === 409) return { ok: false, expired: true };
+  const text = await response.text().catch(() => "");
+  throw new Error(`supervisor /answer failed: ${response.status} ${text}`);
+}
+
 /**
  * Build the user-turn text to persist + dispatch. On the first turn, or
  * whenever the user's currently-focused document differs from the one named
@@ -193,7 +218,6 @@ async function prepareTurnPrompt(args: {
   );
 }
 
-
 export const researchResolversTypeDefs = gql`
   enum ResearchEntrypointKind {
     document
@@ -235,17 +259,111 @@ export const researchResolversTypeDefs = gql`
     data: ResearchEnvironment
   }
 
+  type EnsureResearchScratchDocumentOutput {
+    documentId: String!
+  }
+
+  type ReorderResearchDocumentsOutput {
+    success: Boolean!
+  }
+
+  type RestartResearchSandboxOutput {
+    running: Boolean!
+  }
+
+  type MarkResearchConversationReadOutput {
+    ok: Boolean!
+  }
+
+  type AnswerResearchQuestionOutput {
+    ok: Boolean!
+    # True when no matching pending question was found (sandbox restarted, or
+    # already answered) — the client should stop showing the prompt as actionable.
+    expired: Boolean!
+  }
+
   extend type Mutation {
     fireResearchConversation(input: FireResearchConversationInput!): ResearchConversationOutput
     continueResearchConversation(conversationId: String!, promptHtml: String!, activeDocumentId: String!): ResearchConversationOutput
     cancelResearchConversation(conversationId: String!): ResearchConversationOutput
+    # Resolve a pending AskUserQuestion. answersJson is a JSON object mapping each
+    # question's text to the chosen answer string (multi-select comma-joined).
+    answerResearchConversationQuestion(conversationId: String!, toolUseId: String!, answersJson: String!): AnswerResearchQuestionOutput
     mintDevPreviewUrl(conversationId: String!): DevPreviewUrlOutput
     setClaudeCodeOAuthToken(token: String!): SetClaudeCodeOAuthTokenOutput
     saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput
+    ensureResearchScratchDocument(projectId: String!): EnsureResearchScratchDocumentOutput
+    reorderResearchDocuments(projectId: String!, orderedIds: [String!]!): ReorderResearchDocumentsOutput
+    # Stamp the conversation read (clears the sidebar's unread indicator).
+    # Takes no timestamp: the server clock is authoritative, so a skewed
+    # client clock can't produce a stamp that trails lastActivityAt.
+    markResearchConversationRead(conversationId: String!): MarkResearchConversationReadOutput
+    # Resume a stopped sandbox without dispatching a turn or minting a preview
+    # URL. Rejects with SANDBOX_WARMING while the resume is in flight.
+    restartResearchSandbox(conversationId: String!): RestartResearchSandboxOutput
+  }
+
+  # Lightweight per-conversation status for the sidebar's activity/unread
+  # indicators — polled, so it carries only what the indicators need.
+  type ResearchConversationSidebarStatus {
+    conversationId: String!
+    turnActive: Boolean!
+    lastActivityAt: Date
+    lastReadAt: Date
+  }
+
+  type ResearchSandboxDirEntry {
+    name: String!
+    # "directory" | "file" | "symlink" | "other"
+    kind: String!
+    size: Float
+  }
+
+  type ResearchSandboxDirListing {
+    # Absolute path that was listed (the workspace-relative root is "").
+    path: String!
+    # Null when the sandbox isn't currently running (it only lives around a
+    # turn); the client shows a "start a turn to browse files" empty state.
+    running: Boolean!
+    entries: [ResearchSandboxDirEntry!]!
+  }
+
+  type ResearchSandboxFileContents {
+    path: String!
+    # False when the sandbox isn't running (viewer shows an empty state).
+    running: Boolean!
+    content: String!
+    # content is only the leading bytes of a larger file.
+    truncated: Boolean!
+    # The file looks binary; content is empty and the viewer says so.
+    binary: Boolean!
+    # Full on-disk byte size.
+    size: Float!
+  }
+
+  type ResearchSandboxStats {
+    # False when the sandbox isn't running (the footer hides its meters).
+    running: Boolean!
+    # 0–100, or null if unreadable. Bytes for the memory/disk pairs.
+    cpuPct: Float
+    memUsed: Float
+    memTotal: Float
+    diskUsed: Float
+    diskTotal: Float
+    # When not running: last activity + the idle session timeout — the moment
+    # the sandbox actually stopped (stop time isn't tracked directly), clamped
+    # to now. Null while running.
+    hibernatingSince: Date
   }
 
   extend type Query {
     researchConversationTranscript(conversationId: String!, before: Int, limit: Int): [ResearchConversationEvent!]!
+    researchConversationSidebarStatuses(projectId: String!): [ResearchConversationSidebarStatus!]!
+    researchSandboxDirectory(conversationId: String!, path: String): ResearchSandboxDirListing!
+    researchSandboxFile(conversationId: String!, path: String!): ResearchSandboxFileContents!
+    researchSandboxStats(conversationId: String!): ResearchSandboxStats!
+    # Cheap liveness check (no resume side effects, unlike mintDevPreviewUrl).
+    researchSandboxRunning(conversationId: String!): Boolean!
   }
 `;
 
@@ -312,8 +430,11 @@ export const researchResolversMutations = {
         baseEnvironmentId,
         runtime,
         title: null,
+        icon: null,
         claudeSessionId,
+        presentationHtml: null,
         lastActivityAt: now,
+        lastReadAt: now,
         createdAt: now,
       });
     } catch (err) {
@@ -475,6 +596,45 @@ export const researchResolversMutations = {
     return { conversationId: conv._id, data: { _id: conv._id } };
   },
 
+  async answerResearchConversationQuestion(
+    _root: void,
+    args: { conversationId: string; toolUseId: string; answersJson: string },
+    context: ResolverContext,
+  ) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+
+    let answers: Record<string, string>;
+    try {
+      const parsed: unknown = JSON.parse(args.answersJson);
+      if (!isPlainRecord(parsed) || !Object.values(parsed).every((v) => typeof v === "string")) {
+        throw new Error("answersJson must be a JSON object of string values");
+      }
+      answers = parsed as Record<string, string>;
+    } catch (err) {
+      throw new Error(`Invalid answersJson: ${(err as Error).message}`);
+    }
+
+    const [sandbox, row] = await Promise.all([
+      getRunningSandbox(conv._id),
+      context.ResearchSandboxSessions.findOne({ conversationId: conv._id }),
+    ]);
+    if (!sandbox || !row) {
+      return { ok: false, expired: true };
+    }
+
+    const result = await answerQuestionViaSupervisor(
+      {
+        conversationId: conv._id,
+        sandboxName: sandboxNameForConversation(conv._id),
+        supervisorUrl: supervisorUrlForSandbox(sandbox),
+        supervisorSecret: row.supervisorSecret,
+      },
+      args.toolUseId,
+      answers,
+    );
+    return { ok: result.ok, expired: result.expired };
+  },
+
   /**
    * Mint a fresh, per-session dev-server preview URL for a coding conversation.
    * Resumes the sandbox if stopped (the relaunched supervisor restarts the dev
@@ -496,6 +656,26 @@ export const researchResolversMutations = {
     );
     const url = `${devProxyUrlForSandbox(provisioned.sandbox)}/_devauth/${encodeURIComponent(token)}`;
     return { url };
+  },
+
+  async restartResearchSandbox(_root: void, args: { conversationId: string }, context: ResolverContext) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    await provisionSandboxOrWarming(conv._id, context);
+    return { running: true };
+  },
+
+  async markResearchConversationRead(_root: void, args: { conversationId: string }, context: ResolverContext) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    // Owner-only: the unread indicator is the owner's read state; another
+    // admin opening the conversation must not clear it for them.
+    if (conv.userId !== context.currentUser?._id) {
+      throw new Error("Only the conversation's owner can mark it read");
+    }
+    await context.ResearchConversations.rawUpdateOne(
+      { _id: conv._id },
+      { $set: { lastReadAt: new Date() } },
+    );
+    return { ok: true };
   },
 
   async setClaudeCodeOAuthToken(_root: void, args: { token: string }, context: ResolverContext) {
@@ -551,7 +731,52 @@ export const researchResolversMutations = {
     const filtered = await accessFilterSingle(context.currentUser, "ResearchEnvironments", created, context);
     return { data: filtered };
   },
+
+  async ensureResearchScratchDocument(
+    _root: void,
+    args: { projectId: string },
+    context: ResolverContext,
+  ) {
+    const { currentUser, ResearchProjects, ResearchDocuments } = context;
+    if (!userIsAdmin(currentUser)) throw new Error("Forbidden");
+    const project = await ResearchProjects.findOne({ _id: args.projectId });
+    if (!project) throw new Error("Project not found");
+
+    const settings = isPlainRecord(project.settings) ? project.settings : {};
+    const existingId = typeof settings.scratchDocumentId === "string" ? settings.scratchDocumentId : null;
+    if (existingId) {
+      const existing = await ResearchDocuments.findOne({ _id: existingId, projectId: project._id });
+      if (existing) return { documentId: existing._id };
+    }
+
+    const created = await createResearchDocument(
+      { data: { projectId: project._id, title: SCRATCH_DOCUMENT_TITLE } },
+      context,
+    );
+    await ResearchProjects.rawUpdateOne(
+      { _id: project._id },
+      { $set: { settings: { ...settings, scratchDocumentId: created._id } } },
+    );
+    return { documentId: created._id };
+  },
+
+  async reorderResearchDocuments(
+    _root: void,
+    args: { projectId: string; orderedIds: string[] },
+    context: ResolverContext,
+  ) {
+    const { currentUser } = context;
+    if (!userIsAdmin(currentUser)) throw new Error("Forbidden");
+    await context.repos.researchDocuments.reorderDocuments(
+      args.projectId,
+      currentUser._id,
+      args.orderedIds,
+    );
+    return { success: true };
+  },
 };
+
+const SCRATCH_DOCUMENT_TITLE = "Scratch";
 
 function sessionIdFromPayload(payload: unknown): string | null {
   if (!isPlainRecord(payload)) return null;
@@ -652,5 +877,93 @@ export const researchResolversQueries = {
       { sort: { seq: -1 }, limit: args.limit ?? 200 },
     ).fetch();
     return events.reverse();
+  },
+
+  async researchConversationSidebarStatuses(
+    _root: void,
+    args: { projectId: string },
+    context: ResolverContext,
+  ) {
+    const { currentUser, ResearchConversations } = context;
+    if (!userIsAdmin(currentUser)) throw new Error("Forbidden");
+    const conversations = await ResearchConversations.find(
+      { projectId: args.projectId, userId: currentUser._id },
+      { limit: 500 },
+      { _id: 1, lastActivityAt: 1, lastReadAt: 1 },
+    ).fetch();
+    const activeIds = new Set(
+      await context.repos.researchConversationEvents.conversationsWithIncompleteTurns(
+        conversations.map((c) => c._id),
+      ),
+    );
+    return conversations.map((c) => ({
+      conversationId: c._id,
+      turnActive: activeIds.has(c._id),
+      lastActivityAt: c.lastActivityAt,
+      lastReadAt: c.lastReadAt ?? null,
+    }));
+  },
+
+  async researchSandboxDirectory(
+    _root: void,
+    args: { conversationId: string; path?: string | null },
+    context: ResolverContext,
+  ) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    const sandbox = await getRunningSandbox(conv._id);
+    if (!sandbox) {
+      return { path: args.path ?? SANDBOX_DEFAULT_DIR, running: false, entries: [] };
+    }
+    const path = args.path?.trim() || SANDBOX_DEFAULT_DIR;
+    const entries = await listSandboxDirectory(sandbox, path);
+    return { path, running: true, entries };
+  },
+
+  async researchSandboxFile(
+    _root: void,
+    args: { conversationId: string; path: string },
+    context: ResolverContext,
+  ) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    const sandbox = await getRunningSandbox(conv._id);
+    if (!sandbox) {
+      return { path: args.path, running: false, content: "", truncated: false, binary: false, size: 0 };
+    }
+    const file = await readSandboxTextFile(sandbox, args.path);
+    return { path: args.path, running: true, ...file };
+  },
+
+  async researchSandboxStats(
+    _root: void,
+    args: { conversationId: string },
+    context: ResolverContext,
+  ) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    const sandbox = await getRunningSandbox(conv._id);
+    if (!sandbox) {
+      const hibernatingSince = conv.lastActivityAt
+        ? new Date(Math.min(conv.lastActivityAt.getTime() + SESSION_TIMEOUT_MS, Date.now()))
+        : null;
+      return {
+        running: false,
+        cpuPct: null,
+        memUsed: null,
+        memTotal: null,
+        diskUsed: null,
+        diskTotal: null,
+        hibernatingSince,
+      };
+    }
+    const stats = await getSandboxResourceStats(sandbox);
+    return { running: true, ...stats, hibernatingSince: null };
+  },
+
+  async researchSandboxRunning(
+    _root: void,
+    args: { conversationId: string },
+    context: ResolverContext,
+  ) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    return (await getRunningSandbox(conv._id)) !== null;
   },
 };

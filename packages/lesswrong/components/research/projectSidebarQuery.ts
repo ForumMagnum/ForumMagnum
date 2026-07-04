@@ -14,6 +14,8 @@ export const ProjectSidebarQuery = gql(`
       results {
         _id
         title
+        icon
+        sortOrder
         createdAt
       }
     }
@@ -21,8 +23,10 @@ export const ProjectSidebarQuery = gql(`
       results {
         _id
         title
+        icon
         lastActivityAt
         entrypointKind
+        entrypointDocumentId
       }
     }
   }

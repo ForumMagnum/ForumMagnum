@@ -20,6 +20,7 @@
  *   research-tool list-documents
  *   research-tool list-conversations
  *   research-tool fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]
+ *   research-tool set-presentation (--markdown "..." | --clear)
  *
  * Required env (set by the supervisor when launching Claude Code):
  *   RESEARCH_BACKEND_BASE_URL    — e.g. https://forum.example.com
@@ -328,6 +329,22 @@ async function cmdFetchConversation(args) {
   printJson(result);
 }
 
+async function cmdSetPresentation(args) {
+  const conversationId = process.env.RESEARCH_CONVERSATION_ID;
+  if (!conversationId) fail(1, "Missing required env var: RESEARCH_CONVERSATION_ID");
+  const clear = args.flags.clear !== undefined;
+  const markdown = args.flags.markdown;
+  if (clear === (markdown !== undefined)) {
+    fail(1, "set-presentation requires exactly one of --markdown <md> or --clear");
+  }
+  const result = await callApi(
+    "POST",
+    `/api/research/agent/conversations/${encodeURIComponent(conversationId)}/presentation`,
+    { body: { markdown: clear ? null : markdown } },
+  );
+  printJson(result);
+}
+
 async function cmdHelp() {
   const help = [
     "research-tool — in-sandbox client for the research agent API",
@@ -346,6 +363,7 @@ async function cmdHelp() {
     "  list-documents",
     "  list-conversations",
     "  fetch-conversation <conversationId> [--with-thinking] [--with-tool-payloads]",
+    "  set-presentation  (--markdown <md> | --clear)   (this conversation's collapsed-block presentation)",
     "  dev       start | stop | restart    (control the supervised dev server)",
     "",
     "Required env: RESEARCH_BACKEND_BASE_URL, RESEARCH_BACKEND_TOKEN, RESEARCH_PROJECT_ID",
@@ -401,6 +419,9 @@ async function main() {
       return;
     case "fetch-conversation":
       await cmdFetchConversation(rest);
+      return;
+    case "set-presentation":
+      await cmdSetPresentation(rest);
       return;
     case "dev":
       await cmdDev(rest);

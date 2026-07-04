@@ -25,6 +25,8 @@ export async function createResearchDocument({ data }: CreateResearchDocumentInp
     userId: currentUser._id,
     projectId: data.projectId,
     title: data.title ?? null,
+    icon: null,
+    sortOrder: null,
     contents_latest: null,
   }, 'ResearchDocuments', context);
 

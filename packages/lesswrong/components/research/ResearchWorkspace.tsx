@@ -5,30 +5,51 @@ import classNames from 'classnames';
 import qs from 'qs';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useQuery } from '@/lib/crud/useQuery';
+import { useMutation } from '@apollo/client/react';
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
-import { useDebouncedFalse } from '../hooks/useDebouncedFalse';
-import { useEventListener } from '../hooks/useEventListener';
 import { useCurrentUser } from '../common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { useLocation, useNavigate } from '../../lib/routeUtil';
-import { EditorUserModeContext, InlineCommentsPanelContext } from '../common/sharedContexts';
-import { getDefaultEditorUserMode, type EditorUserModeType } from '../editor/lexicalPlugins/suggestions/EditorUserMode';
 import ErrorAccessDenied from '../common/ErrorAccessDenied';
 import ForumIcon from '../common/ForumIcon';
-import LWTooltip from '../common/LWTooltip';
-import { getHeaderHeight } from '../layout/Header';
 import ProjectSidebar from './ProjectSidebar';
 import DocumentPane from './DocumentPane';
-import ChatPane from './ChatPane';
-import EditorModeMenuButton from './EditorModeMenuButton';
-import ProjectCommentsList from './ProjectCommentsList';
+import { ConversationChatView } from './ConversationChatView';
+import { SandboxFileViewer } from './SandboxFileViewer';
+import { useMarkConversationRead } from './hooks/useMarkConversationRead';
+import { ProjectSidebarQuery } from './projectSidebarQuery';
+import {
+  ResearchWorkspaceProvider,
+  type ResearchEditorIntent,
+  type ConversationFocusRequest,
+  type ResearchChatSurfaceState,
+  type SandboxFileView,
+  type ResearchWorkspaceApi,
+} from './researchWorkspaceContext';
+import {
+  researchResizeHandle,
+  researchResizeHandleActive,
+  researchWarmAlpha,
+  researchCanvas,
+  researchUiSans,
+  researchRadius,
+} from './researchStyleUtils';
 
 interface ResearchWorkspaceProps {
   projectId: string;
 }
 
-type RightPaneMode = 'comments' | 'chat' | 'closed';
+const SIDEBAR_WIDTH_STORAGE_KEY = 'researchSidebarWidth';
+const SIDEBAR_MIN_WIDTH = 180;
+const SIDEBAR_MAX_WIDTH = 440;
+const SIDEBAR_DEFAULT_WIDTH = 250;
+const SIDEBAR_COLLAPSED_WIDTH = 37;
+
+const CHAT_PANEL_WIDTH_STORAGE_KEY = 'researchChatPanelWidth';
+const CHAT_PANEL_MIN_WIDTH = 320;
+const CHAT_PANEL_MAX_WIDTH = 720;
+const CHAT_PANEL_DEFAULT_WIDTH = 420;
 
 const FirstDocumentQuery = gql(`
   query ResearchWorkspaceFirstDocument($projectId: String!) {
@@ -38,50 +59,55 @@ const FirstDocumentQuery = gql(`
   }
 `);
 
+const EnsureScratchDocumentMutation = gql(`
+  mutation EnsureResearchScratchDocument($projectId: String!) {
+    ensureResearchScratchDocument(projectId: $projectId) {
+      documentId
+    }
+  }
+`);
+
 const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
   outer: {
+    position: 'relative',
     display: 'flex',
     flexDirection: 'column',
-    height: `calc(100vh - ${getHeaderHeight()}px)`,
+    height: '100%',
     minHeight: 0,
-    background: theme.palette.background.default,
-    fontFamily: theme.palette.fonts.sansSerifStack,
+    background: researchCanvas(theme),
+    fontFamily: researchUiSans,
   },
   root: {
-    display: 'grid',
-    gridTemplateColumns: '260px 1fr 360px',
-    gridTemplateRows: '1fr',
+    position: 'relative',
+    display: 'flex',
+    flexDirection: 'row',
     flex: 1,
     minHeight: 0,
   },
-  rootChatHidden: {
-    gridTemplateColumns: '260px 1fr 36px',
-  },
-  rootSidebarHidden: {
-    gridTemplateColumns: '36px 1fr 360px',
-  },
-  rootSidebarAndChatHidden: {
-    gridTemplateColumns: '36px 1fr 36px',
-  },
   sidebar: {
-    borderRight: theme.palette.greyBorder('1px', 0.1),
-    overflow: 'hidden',
+    position: 'relative',
+    flex: 'none',
     minHeight: 0,
+    overflow: 'hidden',
+    borderRight: `1px solid ${researchWarmAlpha(0.08)}`,
   },
   sidebarCollapsed: {
-    borderRight: theme.palette.greyBorder('1px', 0.1),
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
     paddingTop: 8,
     gap: 8,
-    background: theme.palette.background.pageActiveAreaBackground ?? theme.palette.background.default,
   },
+  resizeHandle: {
+    ...researchResizeHandle(theme),
+    right: -5,
+  },
+  resizeHandleActive: researchResizeHandleActive(theme),
   iconButton: {
-    width: 28,
-    height: 28,
+    width: 26,
+    height: 26,
     border: 'none',
-    borderRadius: 4,
+    borderRadius: researchRadius.xs,
     background: 'transparent',
     color: theme.palette.text.dim,
     cursor: 'pointer',
@@ -90,132 +116,62 @@ const styles = defineStyles('ResearchWorkspace', (theme: ThemeType) => ({
     justifyContent: 'center',
     padding: 0,
     '&:hover': {
-      background: theme.palette.greyAlpha(0.06),
+      background: researchWarmAlpha(0.06),
       color: theme.palette.text.primary,
     },
   },
   icon: {
-    '--icon-size': '16px',
+    '--icon-size': '15px',
   },
   document: {
+    position: 'relative',
+    flex: 1,
     overflow: 'hidden',
     display: 'flex',
     flexDirection: 'column',
     minWidth: 0,
     minHeight: 0,
+    background: researchCanvas(theme),
   },
-  documentBody: {
-    flex: 1,
+  chatPanel: {
+    position: 'relative',
+    flex: 'none',
     minHeight: 0,
     overflow: 'hidden',
+    borderLeft: `1px solid ${researchWarmAlpha(0.08)}`,
+  },
+  chatPanelResizeHandle: {
+    ...researchResizeHandle(theme),
+    left: -5,
+  },
+  fullscreenChat: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 10,
+    background: researchCanvas(theme),
     display: 'flex',
     flexDirection: 'column',
-  },
-  rightPane: {
-    borderLeft: theme.palette.greyBorder('1px', 0.1),
-    overflow: 'hidden',
-    display: 'flex',
-    flexDirection: 'column',
-    minHeight: 0,
-  },
-  rightPaneTabs: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  rightPaneTab: {
-    padding: '8px 12px',
-    cursor: 'pointer',
-    fontSize: 13,
-    fontWeight: 500,
-    color: theme.palette.text.dim,
-    borderBottom: '2px solid transparent',
-    background: 'transparent',
-    border: 'none',
-    fontFamily: 'inherit',
-    '&:hover': {
-      color: theme.palette.text.primary,
-    },
-  },
-  rightPaneTabActive: {
-    color: theme.palette.text.primary,
-    borderBottomColor: theme.palette.primary.main,
-  },
-  rightPaneSpacer: {
-    flex: 1,
-  },
-  rightPaneClose: {
-    width: 32,
-    cursor: 'pointer',
-    color: theme.palette.text.dim,
-    border: 'none',
-    background: 'transparent',
-    fontFamily: 'inherit',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    '&:hover': {
-      color: theme.palette.text.primary,
-    },
-  },
-  rightPaneBody: {
-    flex: 1,
-    minHeight: 0,
-    overflow: 'hidden',
-    display: 'flex',
-    flexDirection: 'column',
-  },
-  rightPaneCollapsed: {
-    borderLeft: theme.palette.greyBorder('1px', 0.1),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-    paddingTop: 8,
-    gap: 8,
-  },
-  collapsedTab: {
-    background: 'transparent',
-    border: 'none',
-    cursor: 'pointer',
-    fontFamily: 'inherit',
-    fontSize: 11,
-    color: theme.palette.text.dim,
-    writingMode: 'vertical-rl',
-    transform: 'rotate(180deg)',
-    padding: '8px 4px',
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-    '&:hover': {
-      color: theme.palette.text.primary,
-    },
-  },
-  commentsTabBody: {
-    flex: 1,
-    minHeight: 0,
-    overflow: 'hidden',
-  },
-  disconnectedIndicator: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 28,
-    height: 28,
-    color: theme.palette.warning.main,
-  },
-  disconnectedIcon: {
-    '--icon-size': '14px',
   },
 }));
 
+function readStoredWidth(storageKey: string, minWidth: number, maxWidth: number, defaultWidth: number): number {
+  if (typeof window === 'undefined') return defaultWidth;
+  const raw = window.localStorage.getItem(storageKey);
+  const parsed = raw ? parseInt(raw, 10) : NaN;
+  if (Number.isNaN(parsed)) return defaultWidth;
+  return Math.min(maxWidth, Math.max(minWidth, parsed));
+}
+
 /**
- * Research workspace shell. Three-column layout: ProjectSidebar | DocumentPane | right pane.
- *
- * The right pane hosts Comments and Chat tabs, plus the (deliberately low-key)
- * editor-mode control; collapsed, it shows a slim rail with the same
- * affordances. The editor's comment/suggestion threads render docked into the
- * Comments tab via the `panelPortalEl` mechanism in InlineCommentsPanelContext.
- *
- * The first document in the project is auto-selected on mount so a brand-new project
- * with one default document opens straight into editing.
+ * Research workspace shell: a hidden-site-header, full-viewport, IDE-style
+ * layout — resizable ProjectSidebar | DocumentPane. Conversations live inline
+ * in documents as AgentBlocks; the shell coordinates "open conversation X" by
+ * switching to its host document and raising a focus request that the block
+ * answers (see researchWorkspaceContext.tsx). On request (an explicit button
+ * click on a block or a sidebar row), a conversation can additionally open in
+ * a resizable right chat panel, or in a fullscreen classic-LLM-chat overlay.
  */
 const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   const classes = useStyles(styles);
@@ -237,60 +193,22 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
   // URL changes go through navigate({skipRouter:true}) so doc switching is
   // one React state update rather than a full Next route re-render.
   const [activeDocumentId, setActiveDocumentIdState] = useState<string | null>(null);
-  const [activeChatConversationId, setActiveChatConversationId] = useState<string | null>(null);
-  const [rightPaneMode, setRightPaneMode] = useState<RightPaneMode>('closed');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH);
+  const [resizing, setResizing] = useState(false);
+  const [chatSurface, setChatSurface] = useState<ResearchChatSurfaceState | null>(null);
+  const [chatPanelWidth, setChatPanelWidth] = useState(CHAT_PANEL_DEFAULT_WIDTH);
+  const [chatPanelResizing, setChatPanelResizing] = useState(false);
+  const [sandboxFileView, setSandboxFileView] = useState<SandboxFileView | null>(null);
 
-  // In-editor comment/suggestion state, lifted here so the right pane can
-  // host the comments panel and the mode control. Research documents are
-  // only reachable by users with edit access (project owner or admin), so
-  // all three editor modes (Editing/Suggesting/Viewing) are available.
-  const [userMode, setUserMode] = useState<EditorUserModeType>(() => getDefaultEditorUserMode(true, true));
-  const [commentCount, setCommentCount] = useState(0);
-  const [commentsPanelEl, setCommentsPanelEl] = useState<HTMLElement | null>(null);
+  const [editorIntent, setEditorIntent] = useState<ResearchEditorIntent | null>(null);
+  const [conversationFocusRequest, setConversationFocusRequest] = useState<ConversationFocusRequest | null>(null);
+  const intentNonceRef = useRef(0);
 
-  // Debounce transitions to "disconnected" so the initial WebSocket
-  // handshake and brief reconnection blips don't flash the offline state.
-  const [isBrowserOnline, setIsBrowserOnline] = useState(() => typeof navigator !== 'undefined' ? navigator.onLine : true);
-  const [isWsConnected, setIsWsConnected] = useDebouncedFalse(true, 2000);
-  const isConnected = isBrowserOnline && isWsConnected;
-
-  useEventListener('online', () => setIsBrowserOnline(true));
-  useEventListener('offline', () => setIsBrowserOnline(false));
-
-  const editorUserModeContext = useMemo(() => ({
-    userMode,
-    setUserMode,
-    canEdit: true,
-    canComment: true,
-    isConnected,
-    setIsWsConnected,
-  }), [userMode, isConnected, setIsWsConnected]);
-
-  // The editor's "show comments panel" state maps onto the right pane's tab:
-  // opening the panel opens the Comments tab; closing it collapses the pane
-  // (but leaves the Chat tab alone if that's what's open).
-  const setShowComments = useCallback((value: React.SetStateAction<boolean>) => {
-    setRightPaneMode((prev) => {
-      const current = prev === 'comments';
-      const next = typeof value === 'function' ? value(current) : value;
-      if (next) return 'comments';
-      return current ? 'closed' : prev;
-    });
+  useEffect(() => {
+    setSidebarWidth(readStoredWidth(SIDEBAR_WIDTH_STORAGE_KEY, SIDEBAR_MIN_WIDTH, SIDEBAR_MAX_WIDTH, SIDEBAR_DEFAULT_WIDTH));
+    setChatPanelWidth(readStoredWidth(CHAT_PANEL_WIDTH_STORAGE_KEY, CHAT_PANEL_MIN_WIDTH, CHAT_PANEL_MAX_WIDTH, CHAT_PANEL_DEFAULT_WIDTH));
   }, []);
-
-  // Only report the panel as shown once the portal target exists, so the
-  // editor's CommentPlugin never falls back to its floating variant during
-  // the render where the tab body is still mounting.
-  const showComments = rightPaneMode === 'comments' && !!commentsPanelEl;
-
-  const inlineCommentsContext = useMemo(() => ({
-    showComments,
-    setShowComments,
-    commentCount,
-    setCommentCount,
-    panelPortalEl: commentsPanelEl,
-  }), [showComments, setShowComments, commentCount, commentsPanelEl]);
 
   useEffect(() => {
     const readDocIdFromUrl = () => {
@@ -306,6 +224,15 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
     variables: { projectId },
     skip: !!activeDocumentId,
     fetchPolicy: 'cache-and-network',
+  });
+
+  const { data: sidebarData } = useQuery(ProjectSidebarQuery, {
+    variables: { projectId },
+    fetchPolicy: 'cache-first',
+  });
+
+  const [ensureScratchDocument] = useMutation(EnsureScratchDocumentMutation, {
+    refetchQueries: [ProjectSidebarQuery],
   });
 
   useEffect(() => {
@@ -325,146 +252,230 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
     navigateRef.current({ ...currentLocation.location, search: `?${qs.stringify(newQuery)}` }, { skipRouter: true });
   }, []);
 
-  const openChat = useCallback((conversationId: string) => {
-    setActiveChatConversationId(conversationId);
-    setRightPaneMode('chat');
+  const conversationsRef = useRef(sidebarData?.researchConversations?.results);
+  conversationsRef.current = sidebarData?.researchConversations?.results;
+
+  const clearEditorIntent = useCallback((nonce: number) => {
+    setEditorIntent((prev) => (prev && prev.nonce === nonce ? null : prev));
   }, []);
 
-  const startNewChat = useCallback(() => {
-    setActiveChatConversationId(null);
-    setRightPaneMode('chat');
+  const requestConversationFocus = useCallback((conversationId: string) => {
+    intentNonceRef.current += 1;
+    setConversationFocusRequest({ conversationId, nonce: intentNonceRef.current });
   }, []);
 
-  const closeRightPane = useCallback(() => {
-    setRightPaneMode('closed');
+  const ackConversationFocus = useCallback((nonce: number) => {
+    setConversationFocusRequest((prev) => (prev && prev.nonce === nonce ? null : prev));
+  }, []);
+
+  const markConversationRead = useMarkConversationRead();
+
+  const openConversation = useCallback((conversationId: string) => {
+    markConversationRead(conversationId);
+    const conversation = conversationsRef.current?.find((c) => c._id === conversationId);
+    const entrypointDocumentId =
+      conversation?.entrypointKind === 'document' ? conversation?.entrypointDocumentId ?? null : null;
+    if (!entrypointDocumentId) {
+      setChatSurface({ conversationId, fullscreen: false });
+      return;
+    }
+    setActiveDocumentId(entrypointDocumentId);
+    intentNonceRef.current += 1;
+    setEditorIntent({
+      kind: 'focus-conversation',
+      conversationId,
+      nonce: intentNonceRef.current,
+    });
+  }, [setActiveDocumentId, markConversationRead]);
+
+  const startNewConversation = useCallback(async () => {
+    const result = await ensureScratchDocument({ variables: { projectId } });
+    const scratchId = result.data?.ensureResearchScratchDocument?.documentId;
+    if (!scratchId) return;
+    setActiveDocumentId(scratchId);
+    intentNonceRef.current += 1;
+    setEditorIntent({ kind: 'insert-query', nonce: intentNonceRef.current });
+  }, [ensureScratchDocument, projectId, setActiveDocumentId]);
+
+  const openConversationChat = useCallback((conversationId: string, opts?: { fullscreen?: boolean }) => {
+    markConversationRead(conversationId);
+    setChatSurface({ conversationId, fullscreen: opts?.fullscreen ?? false });
+  }, [markConversationRead]);
+
+  const closeConversationChat = useCallback(() => {
+    setChatSurface(null);
+  }, []);
+
+  const setChatFullscreen = useCallback((fullscreen: boolean) => {
+    setChatSurface((prev) => (prev ? { ...prev, fullscreen } : prev));
+  }, []);
+
+  const openChatConversationInDocument = useCallback((conversationId: string) => {
+    setChatSurface(null);
+    void openConversation(conversationId);
+  }, [openConversation]);
+
+  const openSandboxFile = useCallback((conversationId: string, path: string) => {
+    setSandboxFileView({ conversationId, path });
+  }, []);
+
+  const closeSandboxFile = useCallback(() => {
+    setSandboxFileView(null);
+  }, []);
+
+  const workspaceApi = useMemo<ResearchWorkspaceApi>(() => ({
+    editorIntent,
+    clearEditorIntent,
+    conversationFocusRequest,
+    requestConversationFocus,
+    ackConversationFocus,
+    openConversationChat,
+    closeConversationChat,
+    sandboxFileView,
+    openSandboxFile,
+    closeSandboxFile,
+  }), [editorIntent, clearEditorIntent, conversationFocusRequest, requestConversationFocus, ackConversationFocus, openConversationChat, closeConversationChat, sandboxFileView, openSandboxFile, closeSandboxFile]);
+
+  const handleResizeStart = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setResizing(true);
+    const startX = e.clientX;
+    const startWidth = sidebarWidth;
+    let latestWidth = startWidth;
+    const onMove = (move: PointerEvent) => {
+      latestWidth = Math.min(
+        SIDEBAR_MAX_WIDTH,
+        Math.max(SIDEBAR_MIN_WIDTH, startWidth + (move.clientX - startX)),
+      );
+      setSidebarWidth(latestWidth);
+    };
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      setResizing(false);
+      window.localStorage.setItem(SIDEBAR_WIDTH_STORAGE_KEY, String(latestWidth));
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  }, [sidebarWidth]);
+
+  const handleChatPanelResizeStart = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setChatPanelResizing(true);
+    const startX = e.clientX;
+    const startWidth = chatPanelWidth;
+    let latestWidth = startWidth;
+    const onMove = (move: PointerEvent) => {
+      latestWidth = Math.min(
+        CHAT_PANEL_MAX_WIDTH,
+        Math.max(CHAT_PANEL_MIN_WIDTH, startWidth - (move.clientX - startX)),
+      );
+      setChatPanelWidth(latestWidth);
+    };
+    const onUp = () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      setChatPanelResizing(false);
+      window.localStorage.setItem(CHAT_PANEL_WIDTH_STORAGE_KEY, String(latestWidth));
+    };
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+  }, [chatPanelWidth]);
+
+  const toggleSidebar = useCallback(() => {
+    setSidebarOpen((open) => !open);
   }, []);
 
   if (!userIsAdmin(currentUser)) {
     return <ErrorAccessDenied />;
   }
 
-  const rightPaneOpen = rightPaneMode !== 'closed';
-  const rootClassName = classNames(classes.root, {
-    [classes.rootChatHidden]: rightPaneOpen === false && sidebarOpen,
-    [classes.rootSidebarHidden]: rightPaneOpen && sidebarOpen === false,
-    [classes.rootSidebarAndChatHidden]: rightPaneOpen === false && sidebarOpen === false,
-  });
-
-  const commentsTabLabel = commentCount > 0 ? `Comments · ${commentCount}` : 'Comments';
-  // Only meaningful while an editor is mounted; without one the last-reported
-  // connection state would be stale.
-  const offlineIndicator = !!activeDocumentId && !isConnected && (
-    <LWTooltip title="Offline — changes are saved locally" placement="left">
-      <span className={classes.disconnectedIndicator}>
-        <ForumIcon icon="CloudOff" className={classes.disconnectedIcon} />
-      </span>
-    </LWTooltip>
-  );
-
   return (
-    <EditorUserModeContext.Provider value={editorUserModeContext}>
-    <InlineCommentsPanelContext.Provider value={inlineCommentsContext}>
-    <div className={classes.outer}>
-      <div className={rootClassName}>
-          {sidebarOpen ? (
-        <div className={classes.sidebar}>
-          <ProjectSidebar
-            projectId={projectId}
-            activeDocumentId={activeDocumentId}
-            activeChatConversationId={activeChatConversationId}
-            onSelectDocument={setActiveDocumentId}
-            onSelectConversation={openChat}
-            onStartNewChat={startNewChat}
-            onCollapse={() => setSidebarOpen(false)}
-          />
-        </div>
-      ) : (
-        <div className={classes.sidebarCollapsed}>
-          <button
-            type="button"
-            className={classes.iconButton}
-            onClick={() => setSidebarOpen(true)}
-            title="Open sidebar"
-            aria-label="Open sidebar"
+    <ResearchWorkspaceProvider value={workspaceApi}>
+      <div className={classes.outer}>
+        <div className={classes.root}>
+          <div
+            className={classNames(classes.sidebar, !sidebarOpen && classes.sidebarCollapsed)}
+            style={{ width: sidebarOpen ? sidebarWidth : SIDEBAR_COLLAPSED_WIDTH }}
           >
-            <ForumIcon icon="ChevronRight" className={classes.icon} />
-          </button>
-        </div>
-      )}
-      <div className={classes.document}>
-        <div className={classes.documentBody}>
-          <DocumentPane
-            projectId={projectId}
-            documentId={activeDocumentId}
-            onOpenConversationInChat={openChat}
-            onSelectDocument={setActiveDocumentId}
-          />
-        </div>
-      </div>
-      {rightPaneOpen ? (
-        <div className={classes.rightPane}>
-          <div className={classes.rightPaneTabs}>
-            <button
-              className={classNames(classes.rightPaneTab, rightPaneMode === 'comments' && classes.rightPaneTabActive)}
-              onClick={() => setRightPaneMode('comments')}
-            >
-              {commentsTabLabel}
-            </button>
-            <button
-              className={classNames(classes.rightPaneTab, rightPaneMode === 'chat' && classes.rightPaneTabActive)}
-              onClick={() => setRightPaneMode('chat')}
-            >
-              Chat
-            </button>
-            <div className={classes.rightPaneSpacer} />
-            {offlineIndicator}
-            <EditorModeMenuButton userMode={userMode} setUserMode={setUserMode} />
-            <button
-              className={classes.rightPaneClose}
-              onClick={closeRightPane}
-              title="Collapse panel"
-              aria-label="Collapse panel"
-            >
-              <ForumIcon icon="Close" className={classes.icon} />
-            </button>
-          </div>
-          <div className={classes.rightPaneBody}>
-            {rightPaneMode === 'comments' && (
+            {sidebarOpen ? (
               <>
-                {activeDocumentId && <div className={classes.commentsTabBody} ref={setCommentsPanelEl} />}
-                <ProjectCommentsList
+                <ProjectSidebar
                   projectId={projectId}
                   activeDocumentId={activeDocumentId}
                   onSelectDocument={setActiveDocumentId}
+                  onSelectConversation={openConversation}
+                  onOpenConversationChat={openConversationChat}
+                  onStartNewConversation={startNewConversation}
+                  onCollapse={toggleSidebar}
+                />
+                <div
+                  className={classNames(classes.resizeHandle, resizing && classes.resizeHandleActive)}
+                  onPointerDown={handleResizeStart}
+                  role="separator"
+                  aria-orientation="vertical"
+                  aria-label="Resize sidebar"
                 />
               </>
-            )}
-            {rightPaneMode === 'chat' && (
-              <ChatPane
-                projectId={projectId}
-                conversationId={activeChatConversationId}
-                activeDocumentId={activeDocumentId}
-                onConversationCreated={setActiveChatConversationId}
-                onSelectDocument={setActiveDocumentId}
-                onOpenConversationInChat={openChat}
-              />
+            ) : (
+              <button
+                type="button"
+                className={classes.iconButton}
+                onClick={toggleSidebar}
+                title="Open sidebar"
+                aria-label="Open sidebar"
+              >
+                <ForumIcon icon="ChevronDoubleRight" className={classes.icon} />
+              </button>
             )}
           </div>
-        </div>
-      ) : (
-        <div className={classes.rightPaneCollapsed}>
-          {offlineIndicator}
-          <EditorModeMenuButton userMode={userMode} setUserMode={setUserMode} />
-          <button className={classes.collapsedTab} onClick={() => setRightPaneMode('comments')}>
-            {commentsTabLabel}
-          </button>
-          <button className={classes.collapsedTab} onClick={() => setRightPaneMode('chat')}>Chat</button>
-        </div>
-      )}
+          <div className={classes.document}>
+            <DocumentPane
+              projectId={projectId}
+              documentId={activeDocumentId}
+              openConversation={openConversation}
+              onSelectDocument={setActiveDocumentId}
+            />
+            {sandboxFileView && !chatSurface?.fullscreen ? (
+              <SandboxFileViewer
+                conversationId={sandboxFileView.conversationId}
+                path={sandboxFileView.path}
+                onClose={closeSandboxFile}
+              />
+            ) : null}
+          </div>
+          {chatSurface ? (
+            <div
+              className={chatSurface.fullscreen ? classes.fullscreenChat : classes.chatPanel}
+              style={chatSurface.fullscreen
+                ? { left: sidebarOpen ? sidebarWidth : SIDEBAR_COLLAPSED_WIDTH }
+                : { width: chatPanelWidth }}
+            >
+              {!chatSurface.fullscreen && (
+                <div
+                  key="resize-handle"
+                  className={classNames(classes.chatPanelResizeHandle, chatPanelResizing && classes.resizeHandleActive)}
+                  onPointerDown={handleChatPanelResizeStart}
+                  role="separator"
+                  aria-orientation="vertical"
+                  aria-label="Resize chat panel"
+                />
+              )}
+              <ConversationChatView
+                key="chat-view"
+                conversationId={chatSurface.conversationId}
+                projectId={projectId}
+                activeDocumentId={activeDocumentId}
+                variant={chatSurface.fullscreen ? 'fullscreen' : 'panel'}
+                onClose={closeConversationChat}
+                onToggleFullscreen={() => setChatFullscreen(!chatSurface.fullscreen)}
+                onOpenInDocument={() => openChatConversationInDocument(chatSurface.conversationId)}
+              />
+            </div>
+          ) : null}
         </div>
       </div>
-    </InlineCommentsPanelContext.Provider>
-    </EditorUserModeContext.Provider>
+    </ResearchWorkspaceProvider>
   );
 };
 

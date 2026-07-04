@@ -66,6 +66,16 @@ export const replaceWidgetInResearchDocSchema = z
     path: ["replacement"],
   });
 
+export const setConversationPresentationSchema = z.object({
+  markdown: z
+    .string()
+    .max(32_000)
+    .nullable()
+    .describe(
+      "Markdown for the conversation block's collapsed presentation; null clears it (falling back to the last assistant message)",
+    ),
+});
+
 export const commentOnResearchDocSchema = z.object({
   documentId: z.string().describe("The ID of the ResearchDocument"),
   quote: z.string().optional().describe("Text to attach the comment to (should be long enough to be unambiguous); omit for a top-level comment"),

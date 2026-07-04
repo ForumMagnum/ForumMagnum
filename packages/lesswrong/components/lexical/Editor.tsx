@@ -59,6 +59,7 @@ import CodeHighlightCSSPlugin from './plugins/CodeHighlightCSSPlugin';
 import CollapsibleSectionsPlugin from '../editor/lexicalPlugins/collapsibleSections/CollapsibleSectionsPlugin';
 import ContainerQuotePlugin from '../editor/lexicalPlugins/quote/ContainerQuotePlugin';
 import CommentPlugin from './plugins/CommentPlugin';
+import ResearchCommentsMargin from '@/components/research/lexical/ResearchCommentsMargin';
 import { CommentStoreProvider } from './commenting/CommentStoreContext';
 import { MarkNodesProvider } from '@/components/editor/lexicalPlugins/suggestions/MarkNodesContext';
 import ComponentPickerPlugin from './plugins/ComponentPickerPlugin';
@@ -230,6 +231,12 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       padding: '0 !important',
       minHeight: '0 !important',
       border: 'none !important',
+      // The collapsed block still contains the full syntax-highlighted code
+      // DOM (thousands of token spans on big widgets). Skip its rendering
+      // work (style/layout/paint) entirely — the element keeps its explicit
+      // height, so the spacer geometry is unaffected, but per-keystroke
+      // style recalcs no longer walk the hidden token spans.
+      contentVisibility: 'hidden',
       '&::before': {
         display: 'none !important',
       },
@@ -376,12 +383,9 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     },
     [`& .${QUERY_INPUT_DOM_CLASS}`]: {
       position: 'relative',
-      margin: '12px 0',
-      padding: '8px 12px',
-      paddingRight: 240,
-      border: `1px solid ${theme.palette.grey[300]}`,
-      borderRadius: 6,
-      background: theme.palette.grey[50],
+      margin: '14px 0',
+      padding: '2px 0 2px 14px',
+      borderLeft: `2px solid ${theme.palette.greyAlpha(0.14)}`,
       '& > p:first-of-type': {
         marginTop: 0,
       },
@@ -391,9 +395,16 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     },
     [`& .${QUERY_INPUT_HEADER_DOM_CLASS}`]: {
       position: 'absolute',
-      top: 4,
-      right: 8,
+      bottom: 0,
+      right: 0,
       zIndex: 1,
+      background: theme.palette.panelBackground.default,
+      borderRadius: 4,
+      opacity: 0.45,
+      transition: 'opacity 120ms ease',
+    },
+    [`& .${QUERY_INPUT_DOM_CLASS}:hover .${QUERY_INPUT_HEADER_DOM_CLASS}, & .${QUERY_INPUT_DOM_CLASS}:focus-within .${QUERY_INPUT_HEADER_DOM_CLASS}`]: {
+      opacity: 1,
     },
     [`& .${QUERY_INPUT_CONTENT_DOM_CLASS}`]: {
       outline: 0,
@@ -747,7 +758,8 @@ export default function Editor({
   // Enable collaboration if config is provided OR if the setting is enabled
   const isCollab = isCollabSetting || !!collaborationConfig;
   const isCommentEditor = commentEditor;
-  const { supportsCollabComments } = useLexicalEditorContext();
+  const { isPostEditor, collectionName: editorCollectionName, supportsCollabComments } = useLexicalEditorContext();
+  const isResearchEditor = editorCollectionName === 'ResearchDocuments';
   const hasInitialHtml = Boolean(initialHtml && initialHtml.trim().length > 0);
   const isEditable = useLexicalEditable();
   const placeholder = placeholderOverride ?? (isCollab
@@ -763,6 +775,8 @@ export default function Editor({
   const cursorsContainerRef = useRef<HTMLDivElement>(null);
   const canEdit = !accessLevel || accessLevelCan(accessLevel, "edit");
   const canComment = !accessLevel || accessLevelCan(accessLevel, "comment");
+  const showPostCommentFeatures = isPostEditor && !isCommentEditor;
+  const showResearchCommentFeatures = isResearchEditor && !isCommentEditor;
   const showCommentFeatures = supportsCollabComments && !isCommentEditor;
 
   // Use shared context for user mode if available (provided by PostForm),
@@ -833,13 +847,14 @@ export default function Editor({
   }, [editor, hasInitialHtml, initialHtml, isCollab]);
 
   const onChange = useCallback((editorState: EditorState) => {
+    if (!onChangeHtml) return;
     editorState.read(() => {
       const html = $generateHtmlFromNodes(editor, null);
       const restoredHtml = restoreInternalIds(
         html,
         internalIdsRef.current
       );
-      onChangeHtml?.(restoredHtml);
+      onChangeHtml(restoredHtml);
     });
   }, [editor, onChangeHtml]);
 
@@ -897,7 +912,7 @@ export default function Editor({
                 {!(isCollab && useCollabV2) && (
                   <>
                     <CommentPlugin />
-                    <SideCommentsPlugin />
+                    {showPostCommentFeatures && <SideCommentsPlugin />}
                   </>
                 )}
               <SuggestedEditsPlugin
@@ -905,6 +920,7 @@ export default function Editor({
                 userMode={userMode}
                 onUserModeChange={handleUserModeChange}
               />
+              {showResearchCommentFeatures && <ResearchCommentsMargin />}
               </CommentStoreProvider>
             </CollaboratorIdentityProvider>
           )}

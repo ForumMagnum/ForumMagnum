@@ -6,6 +6,7 @@ import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext
 import { useQuery } from '@/lib/crud/useQuery';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useStopLexicalEventPropagation } from '@/components/editor/lexicalPlugins/useStopLexicalEventPropagation';
+import { researchMono, researchWarmAlpha, researchRadius } from '../researchStyleUtils';
 import { getBrowserLocalStorage } from '@/components/editor/localStorageHandlers';
 import { ResearchEnvironmentsByProjectQuery } from '../researchEnvironmentsQuery';
 import { useResearchEditorEnvironmentOptional } from './ResearchEditorContext';
@@ -19,19 +20,36 @@ import {
 } from './QueryInputNode';
 
 const styles = defineStyles('QueryInputHeader', (theme: ThemeType) => ({
+  cluster: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    padding: '1px 2px',
+  },
   select: {
-    background: theme.palette.panelBackground.default,
-    border: theme.palette.greyBorder('1px', 0.15),
-    borderRadius: 4,
-    fontSize: 12,
-    color: theme.palette.text.normal,
-    padding: '2px 4px',
-    maxWidth: 220,
+    background: 'transparent',
+    border: 'none',
+    borderRadius: researchRadius.xs,
+    fontFamily: researchMono,
+    fontSize: 10.5,
+    color: theme.palette.text.dim,
+    padding: '1px 2px',
+    maxWidth: 200,
     cursor: 'pointer',
+    '&:hover': {
+      color: theme.palette.text.primary,
+    },
     '&:disabled': {
       color: theme.palette.text.dim,
       cursor: 'default',
     },
+  },
+  runHint: {
+    fontFamily: researchMono,
+    fontSize: 10.5,
+    color: researchWarmAlpha(0.4),
+    whiteSpace: 'nowrap',
+    userSelect: 'none',
   },
 }));
 
@@ -163,31 +181,34 @@ export function QueryInputHeaderComponent({
   }, [editor, containerNodeKey, projectId, data, knownEnvIds]);
 
   return (
-    <select
-      ref={selectRef}
-      className={classes.select}
-      value={selectValue}
-      onChange={handleChange}
-    >
-      <optgroup label="Blank baseline">
-        {RESEARCH_BLANK_RUNTIMES.map((runtime) => (
-          <option key={runtime} value={encodeSelection({ baseEnvironmentId: null, runtime })}>
-            Blank · {runtime}
-          </option>
-        ))}
-      </optgroup>
-      {environments.length > 0 && (
-        <optgroup label="Saved environments">
-          {environments.map((environment) => (
-            <option
-              key={environment._id}
-              value={encodeSelection({ baseEnvironmentId: environment._id, runtime: null })}
-            >
-              {environment.label}
+    <span className={classes.cluster}>
+      <select
+        ref={selectRef}
+        className={classes.select}
+        value={selectValue}
+        onChange={handleChange}
+      >
+        <optgroup label="Blank baseline">
+          {RESEARCH_BLANK_RUNTIMES.map((runtime) => (
+            <option key={runtime} value={encodeSelection({ baseEnvironmentId: null, runtime })}>
+              Blank · {runtime}
             </option>
           ))}
         </optgroup>
-      )}
-    </select>
+        {environments.length > 0 && (
+          <optgroup label="Saved environments">
+            {environments.map((environment) => (
+              <option
+                key={environment._id}
+                value={encodeSelection({ baseEnvironmentId: environment._id, runtime: null })}
+              >
+                {environment.label}
+              </option>
+            ))}
+          </optgroup>
+        )}
+      </select>
+      <span className={classes.runHint} title="Run query">⌘↵</span>
+    </span>
   );
 }

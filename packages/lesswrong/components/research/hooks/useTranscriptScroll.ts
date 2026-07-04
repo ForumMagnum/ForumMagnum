@@ -27,6 +27,7 @@ interface UseTranscriptScrollParams {
 
 interface TranscriptScroll {
   scrollRef: RefObject<HTMLDivElement | null>;
+  contentRef: RefObject<HTMLDivElement | null>;
   onScroll: () => void;
   scrollToBottom: () => void;
 }
@@ -51,6 +52,7 @@ export function useTranscriptScroll({
   onReachedBottom,
 }: UseTranscriptScrollParams): TranscriptScroll {
   const scrollRef = useRef<HTMLDivElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
   const isPinnedToBottomRef = useRef(true);
   // Latest viewport distance-from-bottom, refreshed on every scroll, so a
   // prepend can restore the exact position the user is at when the page lands.
@@ -114,5 +116,19 @@ export function useTranscriptScroll({
     }
   }, [resetKey, events, scrollToBottom]);
 
-  return { scrollRef, onScroll, scrollToBottom };
+  useLayoutEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const pinIfPinned = () => {
+      if (isPinnedToBottomRef.current && el.scrollTop !== el.scrollHeight - el.clientHeight) {
+        el.scrollTo({ top: el.scrollHeight, behavior: 'instant' });
+      }
+    };
+    const observer = new ResizeObserver(pinIfPinned);
+    observer.observe(el);
+    if (contentRef.current) observer.observe(contentRef.current);
+    return () => observer.disconnect();
+  }, []);
+
+  return { scrollRef, contentRef, onScroll, scrollToBottom };
 }

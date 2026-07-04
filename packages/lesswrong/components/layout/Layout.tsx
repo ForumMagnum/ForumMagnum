@@ -36,7 +36,7 @@ import CookieBanner from "@/components/common/CookieBanner/CookieBanner";
 import NavigationEventSender from '@/components/hooks/useOnNavigate';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { SuspenseWrapper } from '@/components/common/SuspenseWrapper';
-import { isFullscreenRoute, isHomeRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
+import { isFullscreenRoute, isHomeRoute, isResearchRoute, isRouteWithLeftNavigationColumn, isStandaloneRoute } from '@/lib/routeChecks';
 import { EditorCommandsContextProvider } from '@/components/editor/EditorCommandsContext';
 import { SHOW_LLM_CHAT_COOKIE } from '@/lib/cookies/cookies';
 import { SubtitlePortalProvider } from './SubtitlePortalContext';
@@ -126,6 +126,19 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
     },
     'body:has(.home-design-active) #intercom-outer-frame, body:has(.home-design-active) #intercom-container, body:has(.home-design-active) .intercom-lightweight-app': {
       display: 'none !important',
+    },
+    '.research-active .Header-root': {
+      display: 'none !important',
+    },
+    '.research-active .Header-headerHeight': {
+      '--header-height': '0px',
+    },
+    '.research-active .RouteRootClient-centralColumn': {
+      paddingTop: '0 !important',
+    },
+    'body:has(.research-active)': {
+      overflow: 'hidden !important',
+      height: '100dvh !important',
     },
   },
   searchResultsArea: {
@@ -246,7 +259,6 @@ const Layout = ({children}: {
   )
 }
 
-
 function MaybeCookieBanner({ hideIntercomButton }: { hideIntercomButton: boolean }) {
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();
   const showCookieBanner = cookieConsentRequired === true && !cookieConsentGiven;
@@ -340,6 +352,7 @@ function PageBackgroundWrapper({children}: {
       [classes.fullscreen]: isFullscreenRoute(pathname),
       [classes.wrapper]: isLWorAF(),
       'home-design-active': isSandboxedHomePage,
+      'research-active': isResearchRoute(pathname),
     },
   )}>
     {children}

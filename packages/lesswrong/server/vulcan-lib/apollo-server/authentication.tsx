@@ -16,6 +16,9 @@ import { computeContextFromUser } from './context';
 import { createUser } from '@/server/collections/users/mutations';
 import { createDisplayName } from '@/lib/collections/users/newSchema';
 import { comparePasswords, createPasswordHash, validatePassword } from './passwordHelpers';
+import { isDevelopment } from '@/lib/executionEnvironment';
+
+const AGENT_TEST_USERNAME = 'agent-test';
 import type { NextRequest } from 'next/server';
 import { backgroundTask } from '@/server/utils/backgroundTask';
 import LoginTokens from '@/server/collections/loginTokens/collection';
@@ -72,7 +75,6 @@ async function authenticateWithPassword(username: string, password: string): Pro
   return { success: true, user }
 }
 
-
 function validateUsername(username: string): {validUsername: true} | {validUsername: false, reason: string} {
   if (username.length < 2) {
     return { validUsername: false, reason: "Your username must be at least 2 characters" };
@@ -121,9 +123,6 @@ export async function createAndSetToken(headers: Headers|undefined, user: DbUser
   registerLoginEvent(user, headers)
   return token
 }
-
-
-
 
 export const loginDataGraphQLTypeDefs = gql`
   type LoginReturnData {
@@ -227,8 +226,16 @@ export const loginDataGraphQLMutations = {
       },
     }, context);
 
+    // The `agent-test` account is the browser-automation account agents sign
+    // up themselves (see components/editor/CLAUDE.md). It needs admin (for
+    // /research) and beta (for the Lexical editor), and an agent can't grant
+    // those from the browser — so provision them at signup, dev only.
+    if (isDevelopment && username === AGENT_TEST_USERNAME) {
+      await Users.rawUpdateOne({ _id: user._id }, { $set: { isAdmin: true, beta: true } });
+    }
+
     const token = await createAndSetToken(headers, user)
-    return { 
+    return {
       token
     }
   },
@@ -259,7 +266,6 @@ export const loginDataGraphQLMutations = {
   },
 }
 
-
 async function insertHashedLoginToken(userId: string, hashedToken: string) {
   await LoginTokens.rawInsert({
     createdAt: new Date(),
@@ -288,7 +294,6 @@ export async function invalidateLoginTokensFor(userId: string) {
     }}
   );
 }
-
 
 function registerLoginEvent(user: DbUser, headers: Headers|undefined) {
   const document = {

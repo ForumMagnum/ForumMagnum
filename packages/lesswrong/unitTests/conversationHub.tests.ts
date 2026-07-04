@@ -13,6 +13,7 @@ interface FakeProcess {
   sent: string[];
   interrupts: string[];
   kills: string[];
+  permissionResponses: Array<{ requestId: string; decision: unknown }>;
   /** Feed one stdout line (an object; stringified through the real chunker). */
   emit(payload: Record<string, unknown>): void;
   /** Simulate process exit. */
@@ -38,9 +39,24 @@ function mkFakeFactory(opts?: { sendFailsForProcs?: number[] }): {
       sent: [],
       interrupts: [],
       kills: [],
+      permissionResponses: [],
       emit(payload) {
         for (const line of chunker.push(`${JSON.stringify(payload)}\n`)) {
-          procOpts.onLine(line);
+          const req = line.parsed;
+          if (
+            req?.type === "control_request" &&
+            (req.request as Record<string, unknown> | undefined)?.subtype === "can_use_tool"
+          ) {
+            const r = req.request as Record<string, unknown>;
+            procOpts.onCanUseTool?.({
+              requestId: req.request_id as string,
+              toolName: r.tool_name as string,
+              toolUseId: r.tool_use_id as string,
+              input: r.input as Record<string, unknown>,
+            });
+          } else {
+            procOpts.onLine(line);
+          }
         }
       },
       exit(code) {
@@ -62,6 +78,11 @@ function mkFakeFactory(opts?: { sendFailsForProcs?: number[] }): {
         interrupt(requestId: string) {
           if (exited) return false;
           fake.interrupts.push(requestId);
+          return true;
+        },
+        respondPermission(requestId: string, decision) {
+          if (exited) return false;
+          fake.permissionResponses.push({ requestId, decision });
           return true;
         },
         kill(signal = "SIGTERM") {
@@ -372,5 +393,56 @@ describe("conversationHub", () => {
     await hub.cancel("c1");
     expect(procs[0].interrupts.length).toBe(0);
     expect(procs[0].kills.length).toBe(0);
+  });
+
+  const askControlRequest = {
+    type: "control_request",
+    request_id: "perm-1",
+    request: {
+      subtype: "can_use_tool",
+      tool_name: "AskUserQuestion",
+      tool_use_id: "toolu_q1",
+      input: { questions: [{ question: "Red or blue?", header: "Color", multiSelect: false, options: [{ label: "Red" }, { label: "Blue" }] }] },
+    },
+  };
+
+  it("parks an AskUserQuestion permission request and resolves it on answer", async () => {
+    const { hub, procs } = mkHub();
+    await hub.dispatch({ conversationId: "c1", prompt: "ask me", claudeSessionId: "sess-1" });
+    procs[0].emit(askControlRequest);
+    expect(procs[0].permissionResponses.length).toBe(0);
+
+    const result = hub.answerQuestion("c1", "toolu_q1", { "Red or blue?": "Red" });
+    expect(result.ok).toBe(true);
+    expect(procs[0].permissionResponses.length).toBe(1);
+    const resp = procs[0].permissionResponses[0];
+    expect(resp.requestId).toBe("perm-1");
+    expect(resp.decision).toMatchObject({
+      behavior: "allow",
+      toolUseId: "toolu_q1",
+      updatedInput: { answers: { "Red or blue?": "Red" } },
+    });
+    expect((resp.decision as { updatedInput: { questions: unknown[] } }).updatedInput.questions).toBeDefined();
+
+    expect(hub.answerQuestion("c1", "toolu_q1", { "Red or blue?": "Blue" }).ok).toBe(false);
+  });
+
+  it("auto-allows a non-AskUserQuestion permission request", async () => {
+    const { hub, procs } = mkHub();
+    await hub.dispatch({ conversationId: "c1", prompt: "go", claudeSessionId: "sess-1" });
+    procs[0].emit({
+      type: "control_request",
+      request_id: "perm-2",
+      request: { subtype: "can_use_tool", tool_name: "Bash", tool_use_id: "toolu_b1", input: { command: "ls" } },
+    });
+    expect(procs[0].permissionResponses.length).toBe(1);
+    expect(procs[0].permissionResponses[0].decision).toMatchObject({ behavior: "allow", toolUseId: "toolu_b1" });
+  });
+
+  it("reports no pending question when answering an unknown tool_use", async () => {
+    const { hub } = mkHub();
+    await hub.dispatch({ conversationId: "c1", prompt: "go", claudeSessionId: "sess-1" });
+    const result = hub.answerQuestion("c1", "toolu_missing", { q: "a" });
+    expect(result).toEqual({ ok: false, reason: "no_pending_question" });
   });
 });

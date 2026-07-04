@@ -42,7 +42,7 @@ const schema = {
       outputType: "String",
       inputType: "String!",
       canRead: [userOwns, "admins"],
-      canUpdate: ["admins"],
+      canUpdate: [userOwns, "admins"],
       canCreate: ["admins"],
     },
   },
