@@ -28,7 +28,7 @@ const researchDocumentBodyStyles = (theme: ThemeType) => ({
     lineHeight: 1.65,
     fontFamily: theme.palette.fonts.serifStack,
     color: theme.palette.text.primary,
-    maxWidth: 760 + 2 * 32,
+    maxWidth: 760 + (2 * 32),
     margin: '0 auto',
     padding: '44px 32px 160px',
   },

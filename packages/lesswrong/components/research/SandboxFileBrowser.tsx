@@ -196,6 +196,7 @@ export const SandboxFileBrowser = ({ conversationId }: SandboxFileBrowserProps) 
       setRunning(listing.running);
       setTreeData((prev) => prev && setChildren(prev, id, listing.entries.map((e) => entryToNode(id, e))));
     } catch {
+      // Swallowed: the row stays unloaded and the next expand retries.
     } finally {
       loadingPathsRef.current.delete(id);
     }

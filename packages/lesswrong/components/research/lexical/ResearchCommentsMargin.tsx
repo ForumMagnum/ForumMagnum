@@ -153,7 +153,7 @@ function computeCardTops(
 
   let prevBottom = -CARD_GAP;
   for (const thread of orderedThreads) {
-    const desired = anchors.get(thread.id) ?? prevBottom + CARD_GAP;
+    const desired = anchors.get(thread.id) ?? (prevBottom + CARD_GAP);
     const top = Math.max(desired, prevBottom + CARD_GAP);
     tops.set(thread.id, top);
     prevBottom = top + heightOf(thread);
@@ -177,7 +177,7 @@ function computeCardTops(
       let bottom = desired + heightOf(active);
       for (let i = activeIndex + 1; i < orderedThreads.length; i++) {
         const thread = orderedThreads[i];
-        const desiredI = anchors.get(thread.id) ?? bottom + CARD_GAP;
+        const desiredI = anchors.get(thread.id) ?? (bottom + CARD_GAP);
         const top = Math.max(desiredI, bottom + CARD_GAP);
         tops.set(thread.id, top);
         bottom = top + heightOf(thread);
