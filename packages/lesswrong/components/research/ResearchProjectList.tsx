@@ -80,12 +80,6 @@ const SetClaudeCodeOAuthTokenMutation = gql(`
   }
 `);
 
-/**
- * Full-screen launcher for the research surface (the site header is hidden
- * here — see `research-active` in Layout.tsx): a quiet centered column with a
- * quick-create row and a compact project table, plus the Claude token status
- * tucked into the bottom corner.
- */
 const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
   outer: {
     display: 'flex',
@@ -130,8 +124,6 @@ const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
     gap: 6,
   },
   eyebrow: researchEyebrow(theme),
-  // Display face (ETBook), like the site's titles — the launcher reads as
-  // part of LessWrong, not a generic dashboard.
   title: {
     fontSize: 32,
     fontWeight: 400,
@@ -171,8 +163,6 @@ const styles = defineStyles('ResearchProjectList', (theme: ThemeType) => ({
       background: researchWarmAlpha(0.03),
     },
   },
-  // Project titles in the essay serif — the list reads as a shelf of
-  // works-in-progress.
   itemTitle: {
     flex: 'none',
     fontSize: 17,

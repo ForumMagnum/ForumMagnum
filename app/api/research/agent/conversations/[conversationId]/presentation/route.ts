@@ -15,13 +15,6 @@ import { setConversationPresentationSchema } from "../../../researchToolSchemas"
 
 const ROUTE = "conversations.presentation.set";
 
-/**
- * Set (or clear) the agent-authored presentation of a conversation's inline
- * block — the markdown shown as the block's collapsed body in the document.
- * Markdown is converted and sanitized to HTML server-side; the client renders
- * it verbatim. Scoped strictly to the agent's own conversation: the bearer's
- * conversationId must match the path.
- */
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ conversationId: string }> },

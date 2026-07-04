@@ -109,11 +109,8 @@ const styles = defineStyles('ResearchIconPicker', (theme: ThemeType) => ({
 }));
 
 interface ResearchIconPickerProps {
-  /** Screen coords to anchor the popover near (usually the trigger's rect). */
   anchor: { left: number; bottom: number };
-  /** Receives the stored icon value (`svg:<id>`). */
   onSelect: (icon: string) => void;
-  /** Clear the custom icon (revert to the default glyph). */
   onClear: () => void;
   onClose: () => void;
 }
@@ -134,13 +131,6 @@ function filterGroups(query: string): ResearchIconGroup[] {
     .filter((group) => group.icons.length > 0);
 }
 
-/**
- * Icon picker popover for setting a document/conversation icon, offering the
- * hand-drawn research icon set (grouped, with a label filter). Portaled to
- * the body, positioned near the trigger and clamped to the viewport; closes
- * on outside click or Esc. A slim header carries the filter input and the
- * "Remove icon" (revert to default glyph) action.
- */
 export const ResearchIconPicker = ({ anchor, onSelect, onClear, onClose }: ResearchIconPickerProps) => {
   const classes = useStyles(styles);
   const popoverRef = useRef<HTMLDivElement>(null);
@@ -154,7 +144,6 @@ export const ResearchIconPicker = ({ anchor, onSelect, onClear, onClose }: Resea
       }
     };
     window.addEventListener('keydown', onKeyDown);
-    // Capture phase so it fires before row-level handlers stop propagation.
     document.addEventListener('pointerdown', onPointerDown, true);
     return () => {
       window.removeEventListener('keydown', onKeyDown);
@@ -164,7 +153,6 @@ export const ResearchIconPicker = ({ anchor, onSelect, onClear, onClose }: Resea
 
   const groups = useMemo(() => filterGroups(query), [query]);
 
-  // Clamp to the viewport so the popover never overflows off-screen.
   const left = Math.min(anchor.left, (typeof window !== 'undefined' ? window.innerWidth : 1200) - POPOVER_WIDTH - 8);
   const top = typeof window !== 'undefined'
     ? Math.min(anchor.bottom + 4, window.innerHeight - POPOVER_MAX_HEIGHT - 8)

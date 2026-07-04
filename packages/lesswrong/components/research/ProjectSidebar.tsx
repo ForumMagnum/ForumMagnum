@@ -45,11 +45,8 @@ interface ProjectSidebarProps {
   projectId: string;
   activeDocumentId: string | null;
   onSelectDocument: (documentId: string) => void;
-  /** Navigate to the conversation's host document and focus its block. */
   onSelectConversation: (conversationId: string) => void;
-  /** Open the conversation in the right chat panel instead. */
   onOpenConversationChat: (conversationId: string) => void;
-  /** Open the scratch document with a fresh /query input appended. */
   onStartNewConversation: () => void;
   onCollapse: () => void;
 }
@@ -166,8 +163,6 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     height: '100%',
-    // Background comes from the workspace shell's whisper-recessed sidebar
-    // column; the sidebar itself stays transparent.
   },
   header: {
     flex: 'none',
@@ -178,8 +173,6 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     minHeight: 40,
     boxSizing: 'border-box',
   },
-  // The work's name gets the essay serif — the one brand moment in the
-  // workspace chrome (everything else stays in the UI sans).
   projectTitle: {
     fontSize: 15,
     fontWeight: 600,
@@ -239,16 +232,11 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
   },
   item: {
     ...researchCompactRow(theme),
-    // display, not visibility: hidden hover buttons must not reserve layout
-    // width — on a narrow sidebar the two of them cost ~50px of label space
-    // and titles truncated absurdly early.
     '&:hover $itemEditButton': {
       display: 'flex',
     },
   },
   itemActive: researchCompactRowActive(theme),
-  // Snapshot rows aren't navigable (yet) — no pointer, no hover fill; the
-  // rename affordance is the only interaction.
   itemStatic: {
     cursor: 'default',
     '&:hover': {
@@ -260,11 +248,9 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     flex: 'none',
     color: theme.palette.text.dim,
   },
-  // The default (non-emoji) glyph tinted to hint unread activity.
   itemIconUnread: {
     color: theme.palette.primary.main,
   },
-  // Both dots occupy the 13px icon slot so rows don't shift as state changes.
   statusDot: {
     flex: 'none',
     width: 13,
@@ -339,12 +325,10 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
   editIcon: {
     '--icon-size': '12px',
   },
-  // PanelRightIcon is a raw SVG sized in em, so drive it with font-size.
   panelIcon: {
     fontSize: 13,
     display: 'block',
   },
-  // The leading icon slot doubles as the emoji-picker trigger.
   rowIconButton: {
     flex: 'none',
     width: 18,
@@ -365,8 +349,6 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     fontSize: 14,
     lineHeight: 1,
   },
-  // Set icons (`svg:` values) sit in the same 18px slot as emoji; slightly
-  // larger than the 13px default glyph since strokes read lighter than fills.
   iconSvg: {
     fontSize: 15,
     display: 'block',
@@ -383,12 +365,6 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
   },
 }));
 
-/**
- * Workspace sidebar: project header with an escape hatch back to the project
- * list, then IDE-compact Documents and Conversations sections. Conversations
- * are a flat recency-sorted list — clicking one jumps to its inline block in
- * its host document.
- */
 const ProjectSidebar = ({
   projectId,
   activeDocumentId,
@@ -409,7 +385,6 @@ const ProjectSidebar = ({
     notifyOnNetworkStatusChange: true,
   });
 
-  // Lightweight polled status feed for the activity/unread indicators.
   const { data: statusData } = useQuery(SidebarStatusesQuery, {
     variables: { projectId },
     pollInterval: STATUS_POLL_MS,
@@ -430,24 +405,15 @@ const ProjectSidebar = ({
   const [setConversationIcon] = useMutation(SetResearchConversationIconMutation);
   const [reorderDocuments] = useMutation(ReorderResearchDocumentsMutation);
 
-  // Icon picker anchor state: which row's icon is being edited, and where to
-  // pop the picker.
   const [iconEditor, setIconEditor] = useState<
     { kind: 'document' | 'conversation'; id: string; anchor: { left: number; bottom: number } } | null
   >(null);
 
-  // A pending drag-reorder of documents, applied on top of the fetched list so
-  // the new order shows immediately (before the refetch lands). Cleared when
-  // switching projects so a stale order never leaks across projects.
   const [documentOrderOverride, setDocumentOrderOverride] = useState<string[] | null>(null);
   useEffect(() => { setDocumentOrderOverride(null); }, [projectId]);
-  // The most recent drag's order; guards the override cleanup in
-  // handleDocumentDragEnd against a slower earlier persist finishing last.
   const latestReorderRef = useRef<string[] | null>(null);
 
   const dndSensors = useSensors(
-    // A small activation distance so a click still selects the doc; only a
-    // deliberate drag starts a reorder.
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   );
 
@@ -460,8 +426,6 @@ const ProjectSidebar = ({
   const project = data?.researchProject?.result;
   const documents = useMemo(() => {
     const list = [...(data?.researchDocuments?.results ?? [])];
-    // Base order: explicit sortOrder first (ascending), then unordered docs by
-    // creation time. A null sortOrder sorts after any numbered doc.
     list.sort((a, b) => {
       const ao = a.sortOrder ?? Infinity;
       const bo = b.sortOrder ?? Infinity;
@@ -471,8 +435,6 @@ const ProjectSidebar = ({
       return at - bt;
     });
     if (!documentOrderOverride) return list;
-    // Apply the pending drag order: known ids in override order, then any docs
-    // not covered by the override (newly created since) appended in base order.
     const byId = new Map(list.map((d) => [d._id, d]));
     const ordered = documentOrderOverride.map((id) => byId.get(id)).filter((d): d is typeof list[number] => !!d);
     const coveredIds = new Set(documentOrderOverride);
@@ -488,8 +450,6 @@ const ProjectSidebar = ({
     const newIndex = documentIds.indexOf(String(over.id));
     if (oldIndex < 0 || newIndex < 0) return;
     const newOrder = arrayMove(documentIds, oldIndex, newIndex);
-    // Optimistic: show the dragged order immediately; the override is
-    // reconciled away (or reverted) once the server settles.
     setDocumentOrderOverride(newOrder);
     latestReorderRef.current = newOrder;
     try {
@@ -534,7 +494,6 @@ const ProjectSidebar = ({
     await renameConversation({ variables: { id, title } });
   };
   const handleRenameSnapshot = async (id: string, label: string | null) => {
-    // Labels are required — an emptied input just cancels the rename.
     if (!label) return;
     await renameEnvironment({ variables: { id, label } });
   };
@@ -643,8 +602,6 @@ const ProjectSidebar = ({
                   tabIndex={0}
                 >
                   {status?.turnActive ? (
-                    // Active-turn state takes the slot (transient, important);
-                    // the icon becomes editable again once the turn finishes.
                     <span
                       className={classNames(classes.statusDot, classes.statusDotActive)}
                       title="Agent is working"
@@ -719,9 +676,6 @@ const ProjectSidebar = ({
   );
 };
 
-// ForumIcon's `icon` prop is a large string-literal union; the default-icon
-// names used here are valid members. Kept as a loose string to avoid importing
-// the union type for two call sites.
 type ForumIconName = React.ComponentProps<typeof ForumIcon>['icon'];
 
 interface SidebarRowIconProps {
@@ -733,8 +687,6 @@ interface SidebarRowIconProps {
   onEdit: (anchor: { left: number; bottom: number }) => void;
 }
 
-/** The leading icon slot: a custom emoji if set, else a default glyph. Clicking
- * it opens the emoji picker (anchored under the button). */
 const SidebarRowIcon = ({ classes, icon, defaultIcon, unread, label, onEdit }: SidebarRowIconProps) => {
   const handleClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -765,8 +717,6 @@ interface SortableDocumentRowProps {
   onEditIcon: (anchor: { left: number; bottom: number }) => void;
 }
 
-/** A draggable document row (dnd-kit sortable). A plain click still selects the
- * doc; a deliberate drag reorders (PointerSensor activation distance). */
 const SortableDocumentRow = ({ classes, doc, active, onSelect, onRename, onEditIcon }: SortableDocumentRowProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: doc._id });
   const style: React.CSSProperties = {

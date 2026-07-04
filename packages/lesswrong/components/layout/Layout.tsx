@@ -127,10 +127,6 @@ const styles = defineStyles("Layout", (theme: ThemeType) => ({
     'body:has(.home-design-active) #intercom-outer-frame, body:has(.home-design-active) #intercom-container, body:has(.home-design-active) .intercom-lightweight-app': {
       display: 'none !important',
     },
-    // The research workspace hides the site header and owns the full
-    // viewport (IDE-style shell). Same mechanism as home-design-active: the
-    // class is toggled in PageBackgroundWrapper so it tracks the current
-    // route even when cacheComponents keeps old page trees in the DOM.
     '.research-active .Header-root': {
       display: 'none !important',
     },
@@ -262,7 +258,6 @@ const Layout = ({children}: {
     </AnalyticsContext>
   )
 }
-
 
 function MaybeCookieBanner({ hideIntercomButton }: { hideIntercomButton: boolean }) {
   const { explicitConsentGiven: cookieConsentGiven, explicitConsentRequired: cookieConsentRequired } = useCookiePreferences();

@@ -44,12 +44,6 @@ import {
 } from "./jsonlParser";
 import { RESEARCH_AGENT_MODEL } from "../sandboxLayout";
 
-/**
- * A `can_use_tool` control_request the CLI emits when a tool needs an out-of-band
- * decision — for us, only `AskUserQuestion` reaches this path (safe tools are
- * auto-approved by `--permission-mode auto`'s classifier before it; verified
- * empirically). `input` is the tool's input (for AskUserQuestion, `{questions}`).
- */
 export interface CanUseToolRequest {
   requestId: string;
   toolName: string;
@@ -57,7 +51,6 @@ export interface CanUseToolRequest {
   input: Record<string, unknown>;
 }
 
-/** The `response` body of a `control_response` that resolves a can_use_tool. */
 export type PermissionDecision =
   | { behavior: "allow"; updatedInput: Record<string, unknown>; toolUseId: string }
   | { behavior: "deny"; message: string };
@@ -82,11 +75,6 @@ export interface ClaudeProcessOptions {
   env?: Record<string, string>;
   /** Called for every parsed JSONL line (and verbatim raw text). */
   onLine: (line: ParsedJsonlLine) => void;
-  /**
-   * Called for each inbound `can_use_tool` control_request. The handler must
-   * eventually call `respondPermission` with a decision (for AskUserQuestion,
-   * after the user answers) — the CLI's turn is paused until it does.
-   */
   onCanUseTool?: (req: CanUseToolRequest) => void;
   /** Called when the subprocess exits. `code` is null if killed by signal. */
   onExit: (info: { code: number | null; signal: NodeJS.Signals | null }) => void;
@@ -114,11 +102,6 @@ export interface ClaudeProcessHandle {
    * Returns false if the process is no longer writable.
    */
   interrupt(requestId: string): boolean;
-  /**
-   * Resolve a `can_use_tool` control_request with a decision (allow-with-answers
-   * for AskUserQuestion, or deny). Returns false if the process is no longer
-   * writable.
-   */
   respondPermission(requestId: string, decision: PermissionDecision): boolean;
   /** Escalation path; prefer `interrupt`. Default: SIGTERM. */
   kill(signal?: NodeJS.Signals): void;
@@ -179,9 +162,6 @@ export function startClaudeProcess(opts: ClaudeProcessOptions): ClaudeProcessHan
   proc.stdout.on("data", (chunk: string) => {
     try {
       for (const line of chunker.push(chunk)) {
-        // `can_use_tool` control_requests are our control channel, not
-        // transcript content — route them to the permission handler instead of
-        // the persistence stream. Everything else flows to onLine.
         const canUseTool = asCanUseToolRequest(line.parsed);
         if (canUseTool) {
           opts.onCanUseTool?.(canUseTool);

@@ -147,13 +147,6 @@ async function cancelTurnViaSupervisor(target: SupervisorTarget): Promise<void> 
   }
 }
 
-/**
- * POST an AskUserQuestion answer to the supervisor's /answer endpoint. The
- * supervisor resolves the paused turn (writes the tool's answers back to the
- * CLI). A 409 means no matching pending question — the sandbox restarted, or it
- * was already answered — which we surface so the client can stop showing the
- * prompt as actionable.
- */
 async function answerQuestionViaSupervisor(
   target: SupervisorTarget,
   toolUseId: string,
@@ -224,7 +217,6 @@ async function prepareTurnPrompt(args: {
     rawPrompt,
   );
 }
-
 
 export const researchResolversTypeDefs = gql`
   enum ResearchEntrypointKind {
@@ -442,7 +434,6 @@ export const researchResolversMutations = {
         claudeSessionId,
         presentationHtml: null,
         lastActivityAt: now,
-        // The creator is looking at the conversation they just fired.
         lastReadAt: now,
         createdAt: now,
       });
@@ -605,13 +596,6 @@ export const researchResolversMutations = {
     return { conversationId: conv._id, data: { _id: conv._id } };
   },
 
-  /**
-   * Resolve a pending AskUserQuestion for a conversation. Forwards the answers
-   * to the supervisor's /answer endpoint, which un-pauses the turn. Never
-   * resumes a stopped sandbox: an answer only makes sense against the live turn
-   * that asked, so a missing sandbox (or a 409 from the supervisor) is reported
-   * as `expired`.
-   */
   async answerResearchConversationQuestion(
     _root: void,
     args: { conversationId: string; toolUseId: string; answersJson: string },
@@ -748,12 +732,6 @@ export const researchResolversMutations = {
     return { data: filtered };
   },
 
-  /**
-   * Return the project's scratch document, creating it on first use. The
-   * scratch document hosts conversations that have no inline block of their
-   * own (new free-floating conversations, and legacy chat-kind ones being
-   * surfaced inline). Its id is remembered in the project's `settings` JSONB.
-   */
   async ensureResearchScratchDocument(
     _root: void,
     args: { projectId: string },
@@ -782,11 +760,6 @@ export const researchResolversMutations = {
     return { documentId: created._id };
   },
 
-  /**
-   * Persist a manual document ordering for the sidebar. Assigns
-   * `sortOrder = index` to each id, scoped to the project and the current
-   * user's own documents. Ids not in the project (or not owned) are ignored.
-   */
   async reorderResearchDocuments(
     _root: void,
     args: { projectId: string; orderedIds: string[] },
@@ -938,8 +911,6 @@ export const researchResolversQueries = {
   ) {
     const conv = await loadConversationOrThrow(args.conversationId, context);
     const sandbox = await getRunningSandbox(conv._id);
-    // The sandbox only lives during/around a turn; a null handle isn't an
-    // error, it's the "not running" state the client renders as an empty state.
     if (!sandbox) {
       return { path: args.path ?? SANDBOX_DEFAULT_DIR, running: false, entries: [] };
     }
@@ -970,9 +941,6 @@ export const researchResolversQueries = {
     const conv = await loadConversationOrThrow(args.conversationId, context);
     const sandbox = await getRunningSandbox(conv._id);
     if (!sandbox) {
-      // The idle timeout lapses SESSION_TIMEOUT_MS after the last activity, so
-      // that's when the sandbox actually stopped. Clamp to now for sandboxes
-      // that stopped early (or whose timeout hasn't nominally lapsed yet).
       const hibernatingSince = conv.lastActivityAt
         ? new Date(Math.min(conv.lastActivityAt.getTime() + SESSION_TIMEOUT_MS, Date.now()))
         : null;

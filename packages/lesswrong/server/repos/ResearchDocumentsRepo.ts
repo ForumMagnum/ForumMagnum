@@ -7,11 +7,6 @@ class ResearchDocumentsRepo extends AbstractRepo<"ResearchDocuments"> {
     super(ResearchDocuments);
   }
 
-  /**
-   * Assign `sortOrder = position in orderedIds` to each document, in one
-   * statement. Scoped to the given project and owner, so ids outside the
-   * project (or not owned by the user) are ignored.
-   */
   async reorderDocuments(projectId: string, userId: string, orderedIds: string[]): Promise<void> {
     if (orderedIds.length === 0) return;
     await this.none(`

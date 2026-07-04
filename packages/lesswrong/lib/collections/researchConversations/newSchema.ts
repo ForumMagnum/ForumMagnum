@@ -148,9 +148,6 @@ const schema = {
       validation: { optional: true },
     },
   },
-  // Total user turns across the whole conversation. Resolver-only: the client
-  // can't derive this from its windowed event stream (older history isn't
-  // loaded), which is exactly the bug this replaces.
   userTurnCount: {
     graphql: {
       outputType: "Int",

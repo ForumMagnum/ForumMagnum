@@ -25,8 +25,6 @@ describe("highlightFile", () => {
   it("escapes the file text in its output (no raw injection)", () => {
     const result = highlightFile("x.json", '{"a": "<script>"}');
     expect(result.html).not.toBeNull();
-    // The '<' is escaped, so no <script> tag can form (Prism leaves the bare
-    // '>' as-is, which is inert in text content).
     expect(result.html).not.toContain("<script>");
     expect(result.html).toContain("&lt;script");
   });

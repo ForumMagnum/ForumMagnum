@@ -1,11 +1,5 @@
 import React from 'react';
 
-/**
- * "Toggle right panel" glyph: a rounded rectangle with a vertical divider near
- * the right, denoting a main area plus a right sidebar. Used for the chat
- * view's file-browser toggle. Strokes with currentColor; size via width/height
- * (defaults to 1em so it scales with font-size).
- */
 export const PanelRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"

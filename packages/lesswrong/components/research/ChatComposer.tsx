@@ -29,9 +29,6 @@ const styles = defineStyles('ChatComposer', (theme: ThemeType) => ({
     borderTop: `1px solid ${researchWarmAlpha(0.07)}`,
     paddingTop: 10,
   },
-  // A clearly-separate input field: flat surface, hairline border, rounded,
-  // with a quiet sage focus — no grey fill (surface tints read as cheap
-  // here; separation comes from the border and spacing).
   editorShell: {
     flex: 1,
     minWidth: 0,
@@ -99,12 +96,6 @@ const styles = defineStyles('ChatComposer', (theme: ThemeType) => ({
   },
 }));
 
-/**
- * Compact inline composer for conversation blocks: borderless editor with a
- * hairline top divider and a circular paper-airplane send button. Submits on
- * ⌘/Ctrl+Enter; clears only once the send succeeds (a dispatch failure keeps
- * the draft so the user can re-send).
- */
 const ChatComposer = ({
   projectId,
   placeholder = 'Reply… (⌘↵ to send)',

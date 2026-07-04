@@ -102,7 +102,6 @@ const styles = defineStyles('ConversationActions', (theme: ThemeType) => ({
 type RestartMenuState = 'idle' | 'starting' | 'ready';
 
 interface RestartMenuAnchor {
-  /** Distance from the viewport's right edge — the menu right-aligns to the button. */
   right: number;
   top: number;
 }
@@ -110,18 +109,11 @@ interface RestartMenuAnchor {
 interface RestartSandboxMenuProps {
   anchor: RestartMenuAnchor;
   state: RestartMenuState;
-  /** Set when the resumed preview couldn't be auto-opened (popup blocked). */
   readyUrl: string | null;
   onRestart: () => void;
   onClose: () => void;
 }
 
-/**
- * Tiny dropdown under the "preview" button, shown when the sandbox turned out
- * to be stopped: one "Restart sandbox" action, then a starting indicator, and
- * — only if the browser blocked the deferred window.open — a manual link.
- * Closes on Esc or outside click (which also aborts an in-flight restart poll).
- */
 const RestartSandboxMenu = ({ anchor, state, readyUrl, onRestart, onClose }: RestartSandboxMenuProps) => {
   const classes = useStyles(styles);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -134,7 +126,6 @@ const RestartSandboxMenu = ({ anchor, state, readyUrl, onRestart, onClose }: Res
       }
     };
     window.addEventListener('keydown', onKeyDown);
-    // Capture phase so it fires before header-level handlers stop propagation.
     document.addEventListener('pointerdown', onPointerDown, true);
     return () => {
       window.removeEventListener('keydown', onKeyDown);
@@ -267,15 +258,13 @@ export function ConversationActions({ conversationId, projectId }: {
       flash({ messageString: `Failed to restart sandbox: ${(err as Error).message}`, type: 'error' });
       return;
     }
-    if (!result) return; // aborted from the menu
+    if (!result) return;
     const url = result.data?.mintDevPreviewUrl?.url;
     if (!url) {
       closeRestartMenu();
       flash({ messageString: 'Could not open a preview link.', type: 'error' });
       return;
     }
-    // The click gesture has long expired by now, so this window.open may
-    // be popup-blocked — fall back to a manual link in the menu.
     const opened = window.open(url, '_blank', 'noopener,noreferrer');
     if (opened) {
       closeRestartMenu();
@@ -302,8 +291,6 @@ export function ConversationActions({ conversationId, projectId }: {
         flash({ messageString: 'Could not open a preview link.', type: 'error' });
       }
     } catch (err) {
-      // Rare race: the sandbox stopped (or is still booting) between the
-      // liveness check and the mint — route into the restart flow.
       if (isSandboxWarmingError(err)) {
         openRestartMenu();
         return;

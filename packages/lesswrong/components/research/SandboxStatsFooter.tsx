@@ -71,8 +71,6 @@ const styles = defineStyles('SandboxStatsFooter', (theme: ThemeType) => ({
   value: {
     color: theme.palette.text.dim,
   },
-  // A thin usage bar; the fill is the sage accent, warming toward the
-  // error color as it approaches full.
   meter: {
     flex: 'none',
     width: 44,
@@ -82,8 +80,6 @@ const styles = defineStyles('SandboxStatsFooter', (theme: ThemeType) => ({
     overflow: 'hidden',
   },
   meterFill: {
-    // Must be block: width/height are ignored on an inline <span>, so without
-    // this the fill collapses to zero and the meter never shades.
     display: 'block',
     height: '100%',
     background: theme.palette.primary.main,
@@ -143,14 +139,6 @@ interface SandboxStatsFooterProps {
   conversationId: string;
 }
 
-/**
- * Compact resource strip for a conversation's sandbox. Running: CPU %,
- * memory used/total, and workspace disk used/total, each with a thin meter.
- * Stopped: "Instance hibernating since <time>" with a small restart button
- * that resumes the sandbox (re-polling through SANDBOX_WARMING); the regular
- * stats poll then swaps the meters back in. Renders nothing until the first
- * stats response arrives.
- */
 export const SandboxStatsFooter = ({ conversationId }: SandboxStatsFooterProps) => {
   const classes = useStyles(styles);
   const { flash } = useMessages();

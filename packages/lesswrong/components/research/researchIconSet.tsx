@@ -1,32 +1,14 @@
 import React from 'react';
 
-/**
- * The hand-drawn monochrome icon set for research documents and conversations
- * — the full palette offered by the icon picker (the Unicode emoji picker was
- * retired in favor of this set; previously stored emoji still render). Drawn
- * on a 24px grid with a 1.6px stroke (matching the line weight of the
- * sidebar's Lucide-style glyphs), stroked in currentColor so they pick up the
- * warm grey text tones and invert in dark mode.
- *
- * Selections are stored in the existing `icon` text field as `svg:<id>`
- * (legacy Unicode emoji are stored as the bare character); render either kind
- * with <ResearchItemIcon />.
- */
-
 export const RESEARCH_SVG_ICON_PREFIX = 'svg:';
 
 export interface ResearchIconDef {
   id: string;
   label: string;
-  /** Stroked <path> d-strings. */
   paths?: string[];
-  /** Stroked circles: [cx, cy, r]. */
   circles?: Array<readonly [number, number, number]>;
-  /** Stroked ellipses: [cx, cy, rx, ry]. */
   ellipses?: Array<readonly [number, number, number, number]>;
-  /** Filled circles with an explicit radius (event horizons, etc). */
   discs?: Array<readonly [number, number, number]>;
-  /** Small filled dots (pips, pupils, points): [cx, cy]. */
   dots?: Array<readonly [number, number]>;
 }
 
@@ -776,7 +758,6 @@ export const RESEARCH_ICON_LIST: ResearchIconDef[] = RESEARCH_ICON_GROUPS.flatMa
 
 const iconsById = new Map(RESEARCH_ICON_LIST.map((def) => [def.id, def]));
 
-/** Resolve a stored `svg:<id>` icon value to its definition, or null. */
 export function getResearchIconDef(icon: string): ResearchIconDef | null {
   if (!icon.startsWith(RESEARCH_SVG_ICON_PREFIX)) return null;
   return iconsById.get(icon.slice(RESEARCH_SVG_ICON_PREFIX.length)) ?? null;
@@ -784,7 +765,6 @@ export function getResearchIconDef(icon: string): ResearchIconDef | null {
 
 const DOT_RADIUS = 1.15;
 
-/** One icon from the set, sized to 1em like an inline glyph. */
 export const ResearchCustomIcon = ({ def, className }: {
   def: ResearchIconDef;
   className?: string;
@@ -809,12 +789,6 @@ export const ResearchCustomIcon = ({ def, className }: {
   </svg>
 );
 
-/**
- * Render a stored icon value: an `svg:<id>` set icon, or a bare Unicode emoji
- * (legacy values from the retired emoji picker keep rendering).
- * Unknown `svg:` ids fall back to nothing (callers show their default glyph
- * by only calling this when `icon` is set — pass the fallback there).
- */
 export const ResearchItemIcon = ({ icon, emojiClassName, svgClassName }: {
   icon: string;
   emojiClassName?: string;

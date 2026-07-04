@@ -117,8 +117,6 @@ const styles = defineStyles('SandboxFileViewer', (theme: ThemeType) => ({
     color: theme.palette.text.primary,
     whiteSpace: 'pre',
     tabSize: 2,
-    // Prism token colors, reusing the editor's code-highlight palette so the
-    // viewer matches inline code blocks and inverts correctly in dark mode.
     '& .token.comment, & .token.prolog, & .token.doctype, & .token.cdata': {
       color: theme.palette.lexicalEditor.codeHighlight.tokenComment,
     },
@@ -160,11 +158,6 @@ interface SandboxFileViewerProps {
   onClose: () => void;
 }
 
-/**
- * Read-only monospace viewer for a single sandbox text file, shown in the
- * center pane over the document editor. Fetches on mount / path change; binary,
- * not-running, truncated, empty, and error states are all handled.
- */
 export const SandboxFileViewer = ({ conversationId, path, onClose }: SandboxFileViewerProps) => {
   const classes = useStyles(styles);
   const [loadFile] = useLazyQuery(SandboxFileQuery, { fetchPolicy: 'network-only' });
@@ -189,15 +182,12 @@ export const SandboxFileViewer = ({ conversationId, path, onClose }: SandboxFile
     return () => { cancelled = true; };
   }, [loadFile, conversationId, path]);
 
-  // Esc closes the viewer.
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [onClose]);
 
-  // Extension-based syntax highlighting; memoized so it doesn't re-run on every
-  // render (large files make Prism non-trivial). null html → plain-text fallback.
   const highlighted = useMemo(() => {
     if (state.status !== 'ready' || state.binary || !state.content) return null;
     return highlightFile(path, state.content);
@@ -215,8 +205,6 @@ export const SandboxFileViewer = ({ conversationId, path, onClose }: SandboxFile
   } else if (state.content.length === 0) {
     body = <div className={classes.message}>This file is empty.</div>;
   } else if (highlighted?.html != null) {
-    // Prism output is token markup over the file's own (escaped) text — safe to
-    // inject; it contains no attributes or scriptable content.
     body = <pre className={classes.pre}><code dangerouslySetInnerHTML={{ __html: highlighted.html }} /></pre>;
   } else {
     body = <pre className={classes.pre}>{state.content}</pre>;

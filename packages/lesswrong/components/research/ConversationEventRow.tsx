@@ -13,12 +13,6 @@ import type { ConversationEvent } from './hooks/useConversationStream';
 const META_BODY_MAX_HEIGHT = 240;
 const SUMMARY_MAX_CHARS = 200;
 
-/**
- * Claude Code-style transcript rows: user prompts are `❯`-prefixed quiet
- * blocks, assistant prose renders plain, and the machinery (tool calls, tool
- * results, thinking, errors) collapses to one-line monospace entries —
- * `⏺ ToolName(args…)`, `⎿ result…`, `✻ Thinking…` — that expand inline.
- */
 const styles = defineStyles('ConversationEventRow', (theme: ThemeType) => ({
   row: {
     display: 'flex',
@@ -27,8 +21,6 @@ const styles = defineStyles('ConversationEventRow', (theme: ThemeType) => ({
     minWidth: 0,
     wordBreak: 'break-word',
   },
-  // Per-kind vertical rhythm: user prompts open a turn (clear gap above),
-  // assistant prose breathes a little, machinery lines stack tight.
   rowUser: {
     margin: '12px 0 4px',
     '&:first-child': {
@@ -41,8 +33,6 @@ const styles = defineStyles('ConversationEventRow', (theme: ThemeType) => ({
   rowMeta: {
     margin: '1px 0',
   },
-  // Hairline-bordered, no fill — echoes the composer the prompt was typed
-  // into. (Grey fills on surfaces are banned in this UI.)
   userRow: {
     display: 'grid',
     gridTemplateColumns: 'auto 1fr',
@@ -74,7 +64,6 @@ const styles = defineStyles('ConversationEventRow', (theme: ThemeType) => ({
     color: theme.palette.text.primary,
     overflowWrap: 'anywhere',
   },
-  // --- Collapsible mono one-liners (tool / result / thinking / error) -----
   metaLine: {
     minWidth: 0,
   },
@@ -128,7 +117,6 @@ const styles = defineStyles('ConversationEventRow', (theme: ThemeType) => ({
   metaSummaryThinking: {
     fontStyle: 'italic',
   },
-  // Result lines indent under their tool call, CC-style.
   metaIndented: {
     paddingLeft: 16,
   },
@@ -283,10 +271,6 @@ function MetaLine({
   );
 }
 
-/**
- * `getConversationEventChunks` formats tool_use chunks as `Name({json})`;
- * split back into the tool name and a compacted argument preview.
- */
 function splitToolCall(text: string): { name: string; args: string } {
   const parenIdx = text.indexOf('(');
   if (parenIdx === -1) return { name: text, args: '' };

@@ -132,8 +132,6 @@ const styles = defineStyles('ResearchCommentsMargin', (theme: ThemeType) => ({
     marginTop: 6,
     borderTop: `1px solid ${researchWarmAlpha(0.07)}`,
     paddingTop: 6,
-    // The nested composer brings its own (playground-flavored) styles;
-    // contain its editor to the card width.
     '& [contenteditable="true"]': {
       fontSize: 12.5,
     },
@@ -141,7 +139,6 @@ const styles = defineStyles('ResearchCommentsMargin', (theme: ThemeType) => ({
 }));
 
 interface ThreadAnchors {
-  /** Thread id → anchor Y in portal-container (scroll content) coordinates. */
   anchors: Map<string, number>;
 }
 
@@ -154,7 +151,6 @@ function computeCardTops(
   const tops = new Map<string, number>();
   const heightOf = (thread: Thread) => heights.get(thread.id) ?? DEFAULT_CARD_HEIGHT;
 
-  // Greedy top-down: each card at its anchor, pushed down below the previous.
   let prevBottom = -CARD_GAP;
   for (const thread of orderedThreads) {
     const desired = anchors.get(thread.id) ?? prevBottom + CARD_GAP;
@@ -163,8 +159,6 @@ function computeCardTops(
     prevBottom = top + heightOf(thread);
   }
 
-  // If a thread is active (its mark is selected), pin it exactly to its
-  // anchor and push neighbors out of the way, Google-Docs-style.
   const activeIndex = activeThreadId
     ? orderedThreads.findIndex((t) => t.id === activeThreadId)
     : -1;
@@ -173,7 +167,6 @@ function computeCardTops(
     const desired = anchors.get(active.id);
     if (desired !== undefined && (tops.get(active.id) ?? 0) > desired) {
       tops.set(active.id, desired);
-      // Push earlier cards upward as needed.
       let upperLimit = desired;
       for (let i = activeIndex - 1; i >= 0; i--) {
         const thread = orderedThreads[i];
@@ -181,7 +174,6 @@ function computeCardTops(
         if ((tops.get(thread.id) ?? 0) > maxTop) tops.set(thread.id, maxTop);
         upperLimit = tops.get(thread.id) ?? maxTop;
       }
-      // Re-flow later cards downward from the active card.
       let bottom = desired + heightOf(active);
       for (let i = activeIndex + 1; i < orderedThreads.length; i++) {
         const thread = orderedThreads[i];
@@ -196,13 +188,6 @@ function computeCardTops(
   return tops;
 }
 
-/**
- * Renders the document's open comment threads as cards in the right margin
- * (portaled into the host container DocumentPane provides), each aligned to
- * its highlighted text and collision-resolved Google-Docs-style. Mounted from
- * the base editor for research documents, inside CommentStoreProvider /
- * MarkNodesProvider.
- */
 export default function ResearchCommentsMargin() {
   const classes = useStyles(styles);
   const [editor] = useLexicalComposerContext();
@@ -230,7 +215,6 @@ export default function ResearchCommentsMargin() {
     return () => setOpenThreadCount?.(0);
   }, [openThreads.length, setOpenThreadCount]);
 
-  // --- Anchor measurement -------------------------------------------------
   const portalContainer = host?.portalContainer ?? null;
   const measureAnchors = useCallback(() => {
     if (!portalContainer) return;
@@ -262,11 +246,6 @@ export default function ResearchCommentsMargin() {
 
   useLayoutEffect(() => {
     measureAnchors();
-    // Measuring reads layout (getBoundingClientRect per thread), and update
-    // listeners fire synchronously after Lexical's DOM writes — measuring
-    // there forces a full reflow on every keystroke. Defer to a single
-    // animation frame so the read coalesces with the layout pass the browser
-    // is about to do anyway.
     let scheduledFrame: number | null = null;
     const scheduleMeasure = () => {
       if (scheduledFrame !== null) return;
@@ -286,7 +265,6 @@ export default function ResearchCommentsMargin() {
     };
   }, [editor, measureAnchors]);
 
-  // --- Card height tracking ------------------------------------------------
   const heightObserverRef = useRef<ResizeObserver | null>(null);
   if (heightObserverRef.current === null && typeof ResizeObserver !== 'undefined') {
     heightObserverRef.current = new ResizeObserver((entries) => {
@@ -320,7 +298,6 @@ export default function ResearchCommentsMargin() {
     }
   }, []);
 
-  // --- Layout ----------------------------------------------------------------
   const orderedThreads = useMemo(() => {
     const withAnchors = openThreads.filter((t) => anchorState.anchors.has(t.id));
     return withAnchors.sort(
@@ -340,7 +317,6 @@ export default function ResearchCommentsMargin() {
     [orderedThreads, anchorState, cardHeights, activeThreadId],
   );
 
-  // --- Actions ----------------------------------------------------------------
   const scrollToMark = useCallback((thread: Thread) => {
     const keys = markNodeMap.get(getThreadMarkId(thread));
     const firstKey = keys ? keys.values().next().value : undefined;
@@ -466,7 +442,6 @@ function ThreadCard({
           </div>
         </div>
       ))}
-      {/* Stop clicks in the composer from re-triggering jump-to-mark */}
       <div className={classes.composerWrap} onClick={(e) => e.stopPropagation()}>
         <CommentsComposer
           submitAddComment={submitReply}

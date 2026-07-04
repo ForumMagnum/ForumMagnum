@@ -1,29 +1,15 @@
 import type { Sandbox } from "@vercel/sandbox";
 import { SANDBOX_DEFAULT_DIR } from "./listSandboxDirectory";
 
-/** Read at most this many bytes; larger files are shown truncated. */
 export const SANDBOX_FILE_MAX_BYTES = 512 * 1024;
 
 export interface SandboxFileContents {
-  /** Byte size of the full file on disk. */
   size: number;
-  /** File text (up to SANDBOX_FILE_MAX_BYTES). Empty for binary/empty files. */
   content: string;
-  /** True when `content` is only the leading SANDBOX_FILE_MAX_BYTES of a larger file. */
   truncated: boolean;
-  /** True when the file looks binary (not viewable as text). */
   binary: boolean;
 }
 
-/**
- * Read a text file from a sandbox for the read-only viewer. Confined to
- * `SANDBOX_DEFAULT_DIR` by an in-sandbox realpath + prefix check (symlinks and
- * `..` can't escape), reports binary files rather than dumping bytes, and caps
- * the read at SANDBOX_FILE_MAX_BYTES (larger files come back `truncated`).
- *
- * The command emits the on-disk size on a `__SIZE__` stderr line and the file
- * bytes on stdout, so a truncated read still reports the true size.
- */
 export async function readSandboxTextFile(
   sandbox: Sandbox,
   path: string,

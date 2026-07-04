@@ -381,9 +381,6 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
     '& .llm-content-block-content': {
       outline: 'none',
     },
-    // Ultra-minimal /query chrome: a faint left rule on otherwise-plain
-    // prose; the environment selector collapses into a small grey cluster
-    // pinned to the bottom-right corner that fades up on hover/focus.
     [`& .${QUERY_INPUT_DOM_CLASS}`]: {
       position: 'relative',
       margin: '14px 0',
@@ -401,7 +398,6 @@ const styles = defineStyles('LexicalEditor', (theme: ThemeType) => ({
       bottom: 0,
       right: 0,
       zIndex: 1,
-      // Opaque mask so the cluster stays legible over text it overlaps.
       background: theme.palette.panelBackground.default,
       borderRadius: 4,
       opacity: 0.45,
@@ -780,11 +776,7 @@ export default function Editor({
   const canEdit = !accessLevel || accessLevelCan(accessLevel, "edit");
   const canComment = !accessLevel || accessLevelCan(accessLevel, "comment");
   const showPostCommentFeatures = isPostEditor && !isCommentEditor;
-  // Research documents get inline comment threads too (rendered in the
-  // workspace's right margin, not the posts' side-comments panel).
   const showResearchCommentFeatures = isResearchEditor && !isCommentEditor;
-  // True for any collaborative collection (posts + research): gates the shared
-  // comment infrastructure (CommentPlugin, inline comment button).
   const showCommentFeatures = supportsCollabComments && !isCommentEditor;
 
   // Use shared context for user mode if available (provided by PostForm),
@@ -855,9 +847,6 @@ export default function Editor({
   }, [editor, hasInitialHtml, initialHtml, isCollab]);
 
   const onChange = useCallback((editorState: EditorState) => {
-    // Serializing the whole document to HTML is expensive on large docs —
-    // skip it entirely when no one consumes the result (e.g. collaborative
-    // research documents, where persistence goes through yjs).
     if (!onChangeHtml) return;
     editorState.read(() => {
       const html = $generateHtmlFromNodes(editor, null);

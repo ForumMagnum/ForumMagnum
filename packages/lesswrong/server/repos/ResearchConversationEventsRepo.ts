@@ -196,12 +196,6 @@ class ResearchConversationEventsRepo extends AbstractRepo<"ResearchConversationE
     return row !== null && row.kind !== "result";
   }
 
-  /**
-   * Batched `hasIncompleteTurn`: which of these conversations currently have
-   * a dangling turn? One round-trip for the sidebar's status indicators —
-   * the LATERAL subquery rides the `(conversationId, seq)` index per
-   * conversation, same access path as the single-conversation variant.
-   */
   public async conversationsWithIncompleteTurns(conversationIds: string[]): Promise<string[]> {
     if (conversationIds.length === 0) return [];
     const rows = await this.getRawDb().any<{ conversationId: string }>(`

@@ -26,7 +26,6 @@ const COLLAB_SYNC_DEADLINE_MS = 1500;
  */
 const BLOCK_MISSING_DEADLINE_MS = 4000;
 
-/** Give up on an intent entirely after this long. */
 const INTENT_TIMEOUT_MS = 15_000;
 
 function $findAgentBlockKey(conversationId: string): string | null {
@@ -44,18 +43,6 @@ function scrollNodeIntoView(editor: LexicalEditor, nodeKey: string): void {
   el?.scrollIntoView({ block: 'center', behavior: 'instant' });
 }
 
-/**
- * Executes one-shot intents raised by the workspace shell (see
- * researchWorkspaceContext.tsx) once this editor is ready:
- *
- * - `insert-query`: append a fresh /query input at the end of the document
- *   and put the cursor in it ("start a new conversation").
- * - `focus-conversation`: find the AgentBlock bound to the conversation,
- *   scroll to it, and raise the block-level focus request it listens for.
- *   If no block turns up by the deadline (the user deleted it, or a legacy
- *   conversation never had one), open the conversation in the chat panel
- *   instead — the document is never mutated on the user's behalf.
- */
 export function WorkspaceIntentPlugin() {
   const [editor] = useLexicalComposerContext();
   const workspace = useResearchWorkspaceApiOptional();
@@ -89,10 +76,6 @@ export function WorkspaceIntentPlugin() {
         return;
       }
 
-      // focus-conversation. Scrolling is owned by the block itself: on the
-      // focus request it expands without animation and positions the
-      // document in the same pre-paint frame, so the conversation appears
-      // already open and scrolled to its latest messages.
       const existingKey = editor.read(() => $findAgentBlockKey(intent.conversationId));
       if (existingKey) {
         workspace.requestConversationFocus(intent.conversationId);
@@ -110,8 +93,6 @@ export function WorkspaceIntentPlugin() {
       writeReady = true;
       tryExecute();
     }, COLLAB_SYNC_DEADLINE_MS);
-    // No block by the deadline: treat the conversation as blockless and show
-    // it in the chat panel rather than mutating the document.
     const blockMissingTimer = setTimeout(() => {
       if (done || intent.kind !== 'focus-conversation') return;
       workspace.openConversationChat(intent.conversationId);
@@ -129,7 +110,6 @@ export function WorkspaceIntentPlugin() {
       clearTimeout(blockMissingTimer);
       clearTimeout(giveUpTimer);
     };
-    // Re-run per distinct intent; the intent object is stable for a given nonce.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editor, workspace, intent?.nonce]);
 

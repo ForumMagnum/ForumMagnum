@@ -2,20 +2,13 @@ import type { Sandbox } from "@vercel/sandbox";
 import { SANDBOX_DEFAULT_DIR } from "./listSandboxDirectory";
 
 export interface SandboxResourceStats {
-  /** CPU busy percentage over a short sample (0–100), or null if unavailable. */
   cpuPct: number | null;
-  /** Memory used / total in bytes, or null if unavailable. */
   memUsed: number | null;
   memTotal: number | null;
-  /** Workspace disk used / total in bytes, or null if unavailable. */
   diskUsed: number | null;
   diskTotal: number | null;
 }
 
-// One shell script emits a single JSON line. Memory prefers cgroup v2
-// (container limit) and falls back to /proc/meminfo; CPU is host-busy% from two
-// /proc/stat samples; disk is df on the workspace mount. Any unreadable metric
-// comes back as null rather than failing the whole call.
 const STATS_SCRIPT = `
 set +e
 mem_used=null; mem_total=null
@@ -57,10 +50,6 @@ printf '{"cpuPct":%s,"memUsed":%s,"memTotal":%s,"diskUsed":%s,"diskTotal":%s}\\n
   "$cpu" "$mem_used" "$mem_total" "$disk_used" "$disk_total"
 `;
 
-/**
- * Read a running sandbox's current CPU / memory / disk utilization in one
- * command. Best-effort: any metric that can't be read comes back null.
- */
 export async function getSandboxResourceStats(sandbox: Sandbox): Promise<SandboxResourceStats> {
   const result = await sandbox.runCommand({ cmd: "bash", args: ["-c", STATS_SCRIPT] });
   const nullStats: SandboxResourceStats = {

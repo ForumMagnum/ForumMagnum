@@ -27,7 +27,6 @@ const AnswerResearchQuestionMutation = gql(`
   }
 `);
 
-/** Sentinel option value for the always-available freeform "Other" choice. */
 const OTHER = '__other__';
 
 const styles = defineStyles('ResearchQuestionCard', (theme: ThemeType) => ({
@@ -178,9 +177,7 @@ const styles = defineStyles('ResearchQuestionCard', (theme: ThemeType) => ({
 }));
 
 type Selection = {
-  /** Selected option labels (single-select uses at most one). */
   labels: Set<string>;
-  /** Whether the freeform "Other" is chosen, and its text. */
   otherChosen: boolean;
   otherText: string;
 };
@@ -189,7 +186,6 @@ function emptySelection(): Selection {
   return { labels: new Set(), otherChosen: false, otherText: '' };
 }
 
-/** Build the answer string for one question from its selection. */
 function answerForQuestion(q: AskUserQuestionItem, sel: Selection): string {
   const parts = q.options.filter((o) => sel.labels.has(o.label)).map((o) => o.label);
   if (sel.otherChosen && sel.otherText.trim()) parts.push(sel.otherText.trim());
@@ -199,20 +195,10 @@ function answerForQuestion(q: AskUserQuestionItem, sel: Selection): string {
 interface ResearchQuestionCardProps {
   conversationId: string;
   prompt: AskUserQuestionPrompt;
-  /** Non-null once answered — renders the read-only resolved state. */
   answers: Record<string, string> | null;
-  /** The turn is live and awaiting this answer (card is actionable). */
   actionable: boolean;
 }
 
-/**
- * Renders an agent AskUserQuestion prompt in the transcript. When actionable,
- * the user picks options (single- or multi-select, plus a freeform "Other")
- * and submits, which resolves the paused turn via the answer mutation. Once
- * answered it shows the chosen answers read-only. When neither answered nor
- * actionable (the turn ended first — e.g. a sandbox restart), it's marked
- * expired.
- */
 export const ResearchQuestionCard = ({ conversationId, prompt, answers, actionable }: ResearchQuestionCardProps) => {
   const classes = useStyles(styles);
   const { flash } = useMessages();
@@ -235,7 +221,6 @@ export const ResearchQuestionCard = ({ conversationId, prompt, answers, actionab
         if (labels.has(label)) labels.delete(label);
         else labels.add(label);
       } else {
-        // Single-select: exactly one of the options (clears "Other").
         labels.clear();
         labels.add(label);
         otherChosen = false;
@@ -248,7 +233,6 @@ export const ResearchQuestionCard = ({ conversationId, prompt, answers, actionab
     setSelections((prev) => {
       const cur = prev[qi] ?? emptySelection();
       const otherChosen = !cur.otherChosen;
-      // Single-select: choosing Other clears the option picks.
       const labels = q.multiSelect ? cur.labels : new Set<string>();
       return { ...prev, [qi]: { ...cur, otherChosen, labels } };
     });
@@ -280,8 +264,6 @@ export const ResearchQuestionCard = ({ conversationId, prompt, answers, actionab
         setSubmitted(true);
         flash({ messageString: 'This question expired — reply normally to continue.', type: 'error' });
       } else if (data?.ok) {
-        // The resolved turn's tool_result lands via the stream and flips this
-        // card to its answered state; keep it disabled until then.
         setSubmitted(true);
       } else {
         flash({ messageString: 'Could not submit the answer.', type: 'error' });

@@ -18,7 +18,6 @@ import { createDisplayName } from '@/lib/collections/users/newSchema';
 import { comparePasswords, createPasswordHash, validatePassword } from './passwordHelpers';
 import { isDevelopment } from '@/lib/executionEnvironment';
 
-/** Dev browser-automation account; see components/editor/CLAUDE.md. */
 const AGENT_TEST_USERNAME = 'agent-test';
 import type { NextRequest } from 'next/server';
 import { backgroundTask } from '@/server/utils/backgroundTask';
@@ -76,7 +75,6 @@ async function authenticateWithPassword(username: string, password: string): Pro
   return { success: true, user }
 }
 
-
 function validateUsername(username: string): {validUsername: true} | {validUsername: false, reason: string} {
   if (username.length < 2) {
     return { validUsername: false, reason: "Your username must be at least 2 characters" };
@@ -125,9 +123,6 @@ export async function createAndSetToken(headers: Headers|undefined, user: DbUser
   registerLoginEvent(user, headers)
   return token
 }
-
-
-
 
 export const loginDataGraphQLTypeDefs = gql`
   type LoginReturnData {
@@ -271,7 +266,6 @@ export const loginDataGraphQLMutations = {
   },
 }
 
-
 async function insertHashedLoginToken(userId: string, hashedToken: string) {
   await LoginTokens.rawInsert({
     createdAt: new Date(),
@@ -300,7 +294,6 @@ export async function invalidateLoginTokensFor(userId: string) {
     }}
   );
 }
-
 
 function registerLoginEvent(user: DbUser, headers: Headers|undefined) {
   const document = {
