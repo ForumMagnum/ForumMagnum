@@ -23,6 +23,7 @@ export async function seedResearchSnapshotFixture(projectId: string) {
     label: `Fixture snapshot ${_id.slice(0, 5)}`,
     vercelSnapshotId: `fixture-${_id}`,
     sourceEventId: null,
+    archived: false,
     createdAt: new Date(),
   });
   // eslint-disable-next-line no-console

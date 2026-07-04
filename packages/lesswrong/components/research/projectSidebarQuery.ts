@@ -19,7 +19,25 @@ export const ProjectSidebarQuery = gql(`
         createdAt
       }
     }
+    archivedDocuments: researchDocuments(selector: { byProjectArchived: { projectId: $projectId } }, limit: 200) {
+      results {
+        _id
+        title
+        icon
+        createdAt
+      }
+    }
     researchConversations(selector: { byProject: { projectId: $projectId } }, limit: 200) {
+      results {
+        _id
+        title
+        icon
+        lastActivityAt
+        entrypointKind
+        entrypointDocumentId
+      }
+    }
+    archivedConversations: researchConversations(selector: { byProjectArchived: { projectId: $projectId } }, limit: 200) {
       results {
         _id
         title

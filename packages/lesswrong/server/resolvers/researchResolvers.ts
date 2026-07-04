@@ -433,6 +433,7 @@ export const researchResolversMutations = {
         icon: null,
         claudeSessionId,
         presentationHtml: null,
+        archived: false,
         lastActivityAt: now,
         // The creator is looking at the conversation they just fired.
         lastReadAt: now,
@@ -712,6 +713,7 @@ export const researchResolversMutations = {
         label: built.label,
         vercelSnapshotId: built.vercelSnapshotId,
         sourceEventId: built.sourceEventId,
+        archived: false,
         createdAt: new Date(),
       });
     } catch (err) {

@@ -39,6 +39,7 @@ import {
   researchWarmAlpha,
   researchCanvas,
   researchRadius,
+  researchTransition,
 } from './researchStyleUtils';
 
 interface ProjectSidebarProps {
@@ -124,6 +125,39 @@ const RenameResearchEnvironmentMutation = gql(`
       data {
         _id
         label
+      }
+    }
+  }
+`);
+
+const ArchiveResearchDocumentMutation = gql(`
+  mutation ArchiveResearchDocument($id: String!, $archived: Boolean!) {
+    updateResearchDocument(selector: { _id: $id }, data: { archived: $archived }) {
+      data {
+        _id
+        archived
+      }
+    }
+  }
+`);
+
+const ArchiveResearchConversationMutation = gql(`
+  mutation ArchiveResearchConversation($id: String!, $archived: Boolean!) {
+    updateResearchConversation(selector: { _id: $id }, data: { archived: $archived }) {
+      data {
+        _id
+        archived
+      }
+    }
+  }
+`);
+
+const ArchiveResearchEnvironmentMutation = gql(`
+  mutation ArchiveResearchEnvironment($id: String!, $archived: Boolean!) {
+    updateResearchEnvironment(selector: { _id: $id }, data: { archived: $archived }) {
+      data {
+        _id
+        archived
       }
     }
   }
@@ -381,6 +415,77 @@ const styles = defineStyles('ProjectSidebar', (theme: ThemeType) => ({
     color: theme.palette.text.dim,
     fontStyle: 'italic',
   },
+  // The hand-drawn archive glyph, sized to sit in the hover-button slot next
+  // to rename/panel. (Restore uses the ForumIcon Undo glyph via editIcon.)
+  archiveIcon: {
+    fontSize: 13,
+    display: 'block',
+  },
+  // Leading icon slot for the (non-interactive) archived rows — matches the
+  // 18px footprint of the live rows' emoji-picker trigger, minus the button
+  // affordances.
+  rowIconStatic: {
+    flex: 'none',
+    width: 18,
+    height: 18,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    color: theme.palette.text.dim,
+  },
+  // Bottom-pinned "Archived" drawer: flex-none so it sits below the scrolling
+  // body, kept recessive with a low opacity that lifts on hover / when open.
+  archivedSection: {
+    flex: 'none',
+    borderTop: `1px solid ${researchWarmAlpha(0.08)}`,
+    opacity: 0.5,
+    transition: `opacity ${researchTransition}`,
+    '&:hover': {
+      opacity: 0.85,
+    },
+  },
+  archivedSectionOpen: {
+    opacity: 0.85,
+  },
+  archivedToggle: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 6,
+    width: '100%',
+    border: 'none',
+    background: 'transparent',
+    cursor: 'pointer',
+    padding: '8px 10px',
+    ...researchEyebrow(theme),
+    '&:hover': {
+      color: theme.palette.text.primary,
+    },
+  },
+  archivedChevron: {
+    '--icon-size': '12px',
+    flex: 'none',
+    transition: `transform ${researchTransition}`,
+  },
+  archivedChevronOpen: {
+    transform: 'rotate(90deg)',
+  },
+  archivedCount: {
+    marginLeft: 'auto',
+    fontVariantNumeric: 'tabular-nums',
+  },
+  archivedBody: {
+    maxHeight: 260,
+    overflowY: 'auto',
+    padding: '0 6px 8px',
+    ...researchScrollbars(theme),
+  },
+  archivedGroup: {
+    paddingTop: 6,
+  },
+  archivedGroupLabel: {
+    padding: '0 8px 2px',
+    ...researchEyebrow(theme),
+  },
 }));
 
 /**
@@ -428,6 +533,12 @@ const ProjectSidebar = ({
   const [setDocumentIcon] = useMutation(SetResearchDocumentIconMutation);
   const [setConversationIcon] = useMutation(SetResearchConversationIconMutation);
   const [reorderDocuments] = useMutation(ReorderResearchDocumentsMutation);
+  const [archiveDocument] = useMutation(ArchiveResearchDocumentMutation);
+  const [archiveConversation] = useMutation(ArchiveResearchConversationMutation);
+  const [archiveEnvironment] = useMutation(ArchiveResearchEnvironmentMutation);
+
+  // Whether the bottom "Archived" drawer is expanded.
+  const [archivedOpen, setArchivedOpen] = useState(false);
 
   // Emoji picker anchor state: which row's icon is being edited, and where to
   // pop the picker.
@@ -447,11 +558,12 @@ const ProjectSidebar = ({
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   );
 
-  const { data: environmentsData } = useQuery(ResearchEnvironmentsByProjectQuery, {
+  const { data: environmentsData, refetch: refetchEnvironments } = useQuery(ResearchEnvironmentsByProjectQuery, {
     variables: { projectId },
     fetchPolicy: 'cache-and-network',
   });
   const snapshots = environmentsData?.researchEnvironments?.results ?? [];
+  const archivedSnapshots = environmentsData?.archivedEnvironments?.results ?? [];
 
   const project = data?.researchProject?.result;
   const documents = useMemo(() => {
@@ -504,6 +616,28 @@ const ProjectSidebar = ({
     return list;
   }, [data?.researchConversations?.results]);
 
+  // Archived items feed the bottom drawer. Most-recently-touched first, so a
+  // just-archived item lands at the top of its group.
+  const archivedDocuments = useMemo(() => {
+    const list = [...(data?.archivedDocuments?.results ?? [])];
+    list.sort((a, b) => {
+      const at = a.createdAt ? new Date(a.createdAt).valueOf() : 0;
+      const bt = b.createdAt ? new Date(b.createdAt).valueOf() : 0;
+      return bt - at;
+    });
+    return list;
+  }, [data?.archivedDocuments?.results]);
+  const archivedConversations = useMemo(() => {
+    const list = [...(data?.archivedConversations?.results ?? [])];
+    list.sort((a, b) => {
+      const at = a.lastActivityAt ? new Date(a.lastActivityAt).valueOf() : 0;
+      const bt = b.lastActivityAt ? new Date(b.lastActivityAt).valueOf() : 0;
+      return bt - at;
+    });
+    return list;
+  }, [data?.archivedConversations?.results]);
+  const archivedCount = archivedDocuments.length + archivedConversations.length + archivedSnapshots.length;
+
   const handleRenameDocument = async (id: string, title: string | null) => {
     await renameDocument({ variables: { id, title } });
   };
@@ -514,6 +648,22 @@ const ProjectSidebar = ({
     // Labels are required — an emptied input just cancels the rename.
     if (!label) return;
     await renameEnvironment({ variables: { id, label } });
+  };
+
+  // Archive/restore just flips the `archived` flag; the item then moves
+  // between the main lists and the bottom drawer on the next refetch (both
+  // active and archived lists come from the same query).
+  const handleArchiveDocument = async (id: string, archived: boolean) => {
+    await archiveDocument({ variables: { id, archived } });
+    await refetch();
+  };
+  const handleArchiveConversation = async (id: string, archived: boolean) => {
+    await archiveConversation({ variables: { id, archived } });
+    await refetch();
+  };
+  const handleArchiveSnapshot = async (id: string, archived: boolean) => {
+    await archiveEnvironment({ variables: { id, archived } });
+    await refetchEnvironments();
   };
 
   const handleNewDocument = async () => {
@@ -583,6 +733,7 @@ const ProjectSidebar = ({
                     onSelect={() => onSelectDocument(doc._id)}
                     onRename={(next) => handleRenameDocument(doc._id, next)}
                     onEditIcon={(anchor) => setIconEditor({ kind: 'document', id: doc._id, anchor })}
+                    onArchive={() => handleArchiveDocument(doc._id, true)}
                   />
                 ))}
                 {!loading && documents.length === 0 ? (
@@ -655,6 +806,11 @@ const ProjectSidebar = ({
                   >
                     <PanelRightIcon className={classes.panelIcon} />
                   </button>
+                  <RowArchiveButton
+                    classes={classes}
+                    archived={false}
+                    onToggle={() => handleArchiveConversation(conv._id, true)}
+                  />
                 </div>
               </li>
               );
@@ -677,6 +833,11 @@ const ProjectSidebar = ({
                       placeholder="Untitled snapshot"
                       onRename={(next) => handleRenameSnapshot(snapshot._id, next)}
                     />
+                    <RowArchiveButton
+                      classes={classes}
+                      archived={false}
+                      onToggle={() => handleArchiveSnapshot(snapshot._id, true)}
+                    />
                   </div>
                 </li>
               ))}
@@ -684,6 +845,81 @@ const ProjectSidebar = ({
           </div>
         ) : null}
       </div>
+      {archivedCount > 0 ? (
+        <div className={classNames(classes.archivedSection, archivedOpen && classes.archivedSectionOpen)}>
+          <button
+            type="button"
+            className={classes.archivedToggle}
+            onClick={() => setArchivedOpen((v) => !v)}
+            aria-expanded={archivedOpen}
+          >
+            <ForumIcon
+              icon="ChevronRight"
+              className={classNames(classes.archivedChevron, archivedOpen && classes.archivedChevronOpen)}
+            />
+            <span>Archived</span>
+            <span className={classes.archivedCount}>{archivedCount}</span>
+          </button>
+          {archivedOpen ? (
+            <div className={classes.archivedBody}>
+              {archivedDocuments.length > 0 ? (
+                <div className={classes.archivedGroup}>
+                  <div className={classes.archivedGroupLabel}>Documents</div>
+                  <ul className={classes.list}>
+                    {archivedDocuments.map((doc) => (
+                      <ArchivedRow
+                        key={doc._id}
+                        classes={classes}
+                        icon={doc.icon ?? null}
+                        defaultIcon="Document"
+                        title={doc.title ?? null}
+                        placeholder="Untitled document"
+                        onRestore={() => handleArchiveDocument(doc._id, false)}
+                      />
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {archivedConversations.length > 0 ? (
+                <div className={classes.archivedGroup}>
+                  <div className={classes.archivedGroupLabel}>Conversations</div>
+                  <ul className={classes.list}>
+                    {archivedConversations.map((conv) => (
+                      <ArchivedRow
+                        key={conv._id}
+                        classes={classes}
+                        icon={conv.icon ?? null}
+                        defaultIcon="ChatBubbleLeftRight"
+                        title={conv.title ?? null}
+                        placeholder="Untitled conversation"
+                        onRestore={() => handleArchiveConversation(conv._id, false)}
+                      />
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+              {archivedSnapshots.length > 0 ? (
+                <div className={classes.archivedGroup}>
+                  <div className={classes.archivedGroupLabel}>Snapshots</div>
+                  <ul className={classes.list}>
+                    {archivedSnapshots.map((snapshot) => (
+                      <ArchivedRow
+                        key={snapshot._id}
+                        classes={classes}
+                        icon={null}
+                        defaultIcon="Tag"
+                        title={snapshot.label}
+                        placeholder="Untitled snapshot"
+                        onRestore={() => handleArchiveSnapshot(snapshot._id, false)}
+                      />
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      ) : null}
       {iconEditor ? (
         <ResearchIconPicker
           anchor={iconEditor.anchor}
@@ -733,6 +969,63 @@ const SidebarRowIcon = ({ classes, icon, defaultIcon, unread, label, onEdit }: S
   );
 };
 
+interface RowArchiveButtonProps {
+  classes: Record<string, string>;
+  archived: boolean;
+  onToggle: () => void;
+}
+
+/** The trailing hover action that archives a live row (archive glyph) or
+ * restores an archived one (undo glyph). Stops propagation so it never
+ * triggers the row's own select/navigate. */
+const RowArchiveButton = ({ classes, archived, onToggle }: RowArchiveButtonProps) => (
+  <button
+    type="button"
+    className={classes.itemEditButton}
+    onClick={(e) => {
+      e.stopPropagation();
+      onToggle();
+    }}
+    title={archived ? 'Restore' : 'Archive'}
+    aria-label={archived ? 'Restore' : 'Archive'}
+  >
+    {archived
+      ? <ForumIcon icon="Undo" className={classes.editIcon} />
+      : <ResearchItemIcon icon="svg:archive" emojiClassName={classes.archiveIcon} svgClassName={classes.archiveIcon} />}
+  </button>
+);
+
+interface ArchivedRowProps {
+  classes: Record<string, string>;
+  icon: string | null;
+  defaultIcon: ForumIconName;
+  title: string | null;
+  placeholder: string;
+  onRestore: () => void;
+}
+
+/** A read-only archived-item row: leading glyph, dimmed title, and a restore
+ * button on hover. Not navigable — the drawer is for review + restore. */
+const ArchivedRow = ({ classes, icon, defaultIcon, title, placeholder, onRestore }: ArchivedRowProps) => (
+  <li>
+    <div className={classNames(classes.item, classes.itemStatic)}>
+      {icon ? (
+        <span className={classes.rowIconStatic}>
+          <ResearchItemIcon icon={icon} emojiClassName={classes.iconEmoji} svgClassName={classes.iconSvg} />
+        </span>
+      ) : (
+        <span className={classes.rowIconStatic}>
+          <ForumIcon icon={defaultIcon} className={classes.itemIcon} />
+        </span>
+      )}
+      <span className={classNames(classes.itemLabel, !title && classes.itemLabelUntitled)}>
+        {title ?? placeholder}
+      </span>
+      <RowArchiveButton classes={classes} archived onToggle={onRestore} />
+    </div>
+  </li>
+);
+
 interface SortableDocumentRowProps {
   classes: Record<string, string>;
   doc: { _id: string; title: string | null; icon: string | null };
@@ -740,11 +1033,12 @@ interface SortableDocumentRowProps {
   onSelect: () => void;
   onRename: (next: string | null) => Promise<unknown>;
   onEditIcon: (anchor: { left: number; bottom: number }) => void;
+  onArchive: () => void;
 }
 
 /** A draggable document row (dnd-kit sortable). A plain click still selects the
  * doc; a deliberate drag reorders (PointerSensor activation distance). */
-const SortableDocumentRow = ({ classes, doc, active, onSelect, onRename, onEditIcon }: SortableDocumentRowProps) => {
+const SortableDocumentRow = ({ classes, doc, active, onSelect, onRename, onEditIcon, onArchive }: SortableDocumentRowProps) => {
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: doc._id });
   const style: React.CSSProperties = {
     transform: CSS.Transform.toString(transform),
@@ -774,6 +1068,7 @@ const SortableDocumentRow = ({ classes, doc, active, onSelect, onRename, onEditI
           placeholder="Untitled document"
           onRename={onRename}
         />
+        <RowArchiveButton classes={classes} archived={false} onToggle={onArchive} />
       </div>
     </li>
   );

@@ -38,6 +38,7 @@ export async function seedResearchConversationFixture(projectId: string) {
     title: "Fixture conversation",
     claudeSessionId: `fixture-${_id}`,
     presentationHtml: null,
+    archived: false,
     lastActivityAt: now,
     lastReadAt: now,
     createdAt: now,

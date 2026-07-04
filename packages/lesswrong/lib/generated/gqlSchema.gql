@@ -6191,6 +6191,7 @@ type ResearchConversation {
   userTurnCount: Int
   lastActivityAt: Date
   lastReadAt: Date
+  archived: Boolean
 }
 
 input SingleResearchConversationInput {
@@ -6206,9 +6207,14 @@ input ResearchConversationsByProjectInput {
   projectId: String
 }
 
+input ResearchConversationsByProjectArchivedInput {
+  projectId: String
+}
+
 input ResearchConversationSelector {
   default: EmptyViewInput
   byProject: ResearchConversationsByProjectInput
+  byProjectArchived: ResearchConversationsByProjectArchivedInput
 }
 
 input MultiResearchConversationInput {
@@ -6236,6 +6242,7 @@ type ResearchDocument {
   title: String
   icon: String
   sortOrder: Float
+  archived: Boolean
   contents(version: String): Revision
   contents_latest: String
   revisions(limit: Int = 5): [Revision!]
@@ -6255,9 +6262,14 @@ input ResearchDocumentsByProjectInput {
   projectId: String
 }
 
+input ResearchDocumentsByProjectArchivedInput {
+  projectId: String
+}
+
 input ResearchDocumentSelector {
   default: EmptyViewInput
   byProject: ResearchDocumentsByProjectInput
+  byProjectArchived: ResearchDocumentsByProjectArchivedInput
 }
 
 input MultiResearchDocumentInput {
@@ -6285,6 +6297,7 @@ type ResearchEnvironment {
   label: String
   vercelSnapshotId: String
   sourceEventId: String
+  archived: Boolean
 }
 
 input SingleResearchEnvironmentInput {
@@ -6300,9 +6313,14 @@ input ResearchEnvironmentsByProjectInput {
   projectId: String
 }
 
+input ResearchEnvironmentsByProjectArchivedInput {
+  projectId: String
+}
+
 input ResearchEnvironmentSelector {
   default: EmptyViewInput
   byProject: ResearchEnvironmentsByProjectInput
+  byProjectArchived: ResearchEnvironmentsByProjectArchivedInput
 }
 
 input MultiResearchEnvironmentInput {
@@ -9101,6 +9119,7 @@ input UpdateResearchConversationDataInput {
   runtime: String
   lastActivityAt: Date
   lastReadAt: Date
+  archived: Boolean
 }
 
 input UpdateResearchConversationInput {
@@ -9122,6 +9141,7 @@ input UpdateResearchEnvironmentDataInput {
   label: String
   vercelSnapshotId: String
   sourceEventId: String
+  archived: Boolean
 }
 
 input UpdateResearchEnvironmentInput {
@@ -9154,6 +9174,7 @@ input UpdateResearchDocumentDataInput {
   title: String
   icon: String
   sortOrder: Float
+  archived: Boolean
   contents: CreateRevisionDataInput
 }
 

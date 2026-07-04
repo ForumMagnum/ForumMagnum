@@ -1166,6 +1166,7 @@ type ResearchConversationsCollection = PgCollection<"ResearchConversations">;
 
 interface DbResearchConversation extends DbObject {
   __collectionName?: "ResearchConversations"
+  archived: boolean
   baseEnvironmentId: string | null
   claudeSessionId: string | null
   createdAt: Date
@@ -1185,6 +1186,7 @@ type ResearchDocumentsCollection = PgCollection<"ResearchDocuments">;
 
 interface DbResearchDocument extends DbObject {
   __collectionName?: "ResearchDocuments"
+  archived: boolean
   contents_latest: string | null
   createdAt: Date
   icon: string | null
@@ -1198,6 +1200,7 @@ type ResearchEnvironmentsCollection = PgCollection<"ResearchEnvironments">;
 
 interface DbResearchEnvironment extends DbObject {
   __collectionName?: "ResearchEnvironments"
+  archived: boolean
   createdAt: Date
   label: string
   projectId: string

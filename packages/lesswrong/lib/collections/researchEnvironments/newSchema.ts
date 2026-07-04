@@ -75,6 +75,23 @@ const schema = {
       validation: { optional: true },
     },
   },
+  // Soft-archive flag. Archived snapshots drop out of the sidebar's main
+  // list (the `byProject` view filters them out) and surface only in the
+  // collapsed "Archived" section, from which they can be restored. Toggled
+  // via the standard update mutation.
+  archived: {
+    database: {
+      type: "BOOL",
+      defaultValue: false,
+      nullable: false,
+    },
+    graphql: {
+      outputType: "Boolean",
+      canRead: [userOwns, "admins"],
+      canUpdate: [userOwns, "admins"],
+      validation: { optional: true },
+    },
+  },
 } satisfies Record<string, CollectionFieldSpecification<"ResearchEnvironments">>;
 
 export default schema;
