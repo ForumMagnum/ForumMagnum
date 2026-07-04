@@ -42,7 +42,6 @@ const schema = {
       outputType: "String",
       inputType: "String!",
       canRead: [userOwns, "admins"],
-      // Owners rename their snapshots from the sidebar management UI.
       canUpdate: [userOwns, "admins"],
       canCreate: ["admins"],
     },

@@ -48,7 +48,9 @@ const schema = {
       validation: { optional: true },
     },
   },
-  // Custom emoji shown in the sidebar in place of the default document glyph.
+  // Custom sidebar icon in place of the default document glyph: `svg:<id>`
+  // referencing the hand-drawn set in researchIconSet.tsx, or a bare Unicode
+  // emoji (legacy values from the retired emoji picker still render).
   icon: {
     database: {
       type: "TEXT",
@@ -62,7 +64,8 @@ const schema = {
     },
   },
   // Manual sidebar ordering; lower sorts first. Null (never reordered) sorts
-  // after ordered docs, then by createdAt. Set by reorderResearchDocuments.
+  // after ordered docs, then by createdAt. Written only by the
+  // reorderResearchDocuments mutation (server-side), so not client-updatable.
   sortOrder: {
     database: {
       type: "DOUBLE PRECISION",
@@ -71,7 +74,6 @@ const schema = {
     graphql: {
       outputType: "Float",
       canRead: [userOwns, "admins"],
-      canUpdate: [userOwns, "admins"],
       validation: { optional: true },
     },
   },

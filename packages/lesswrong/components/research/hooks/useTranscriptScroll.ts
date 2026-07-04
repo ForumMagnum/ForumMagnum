@@ -27,8 +27,6 @@ interface UseTranscriptScrollParams {
 
 interface TranscriptScroll {
   scrollRef: RefObject<HTMLDivElement | null>;
-  // Optional: attach to an inner content wrapper so late layout shifts
-  // (markdown/image settling, expand animations) also re-pin the view.
   contentRef: RefObject<HTMLDivElement | null>;
   onScroll: () => void;
   scrollToBottom: () => void;
@@ -118,18 +116,11 @@ export function useTranscriptScroll({
     }
   }, [resetKey, events, scrollToBottom]);
 
-  // Content height changes for reasons beyond event count — markdown/image
-  // layout settling after mount, and container expand animations — so also
-  // re-pin via ResizeObserver on the container and (when attached) the inner
-  // content wrapper, not just on `events` changes.
   useLayoutEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
     const pinIfPinned = () => {
       if (isPinnedToBottomRef.current && el.scrollTop !== el.scrollHeight - el.clientHeight) {
-        // 'instant', not a bare scrollTop assignment: the latter defers to
-        // any environment-injected `scroll-behavior: smooth` CSS, which
-        // would animate every pin.
         el.scrollTo({ top: el.scrollHeight, behavior: 'instant' });
       }
     };

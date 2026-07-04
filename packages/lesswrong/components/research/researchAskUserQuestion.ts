@@ -1,15 +1,5 @@
 import { isPlainRecord } from './conversationEventFormat';
 
-/**
- * Client-side reading of AskUserQuestion prompts out of the persisted event
- * stream. The agent's `AskUserQuestion` tool call is persisted like any other
- * tool_use (an assistant message with a `tool_use` content block); when the
- * user answers, the supervisor un-pauses the turn and the CLI emits a
- * `tool_result` carrying the chosen `answers`. So both the prompt and its
- * eventual answer live in the transcript — the question card renders from here
- * and needs no separate event kind.
- */
-
 export const ASK_USER_QUESTION_TOOL = 'AskUserQuestion';
 
 export interface AskUserQuestionOption {
@@ -25,7 +15,6 @@ export interface AskUserQuestionItem {
 }
 
 export interface AskUserQuestionPrompt {
-  /** The tool_use id — the stable handle the answer mutation targets. */
   toolUseId: string;
   questions: AskUserQuestionItem[];
 }
@@ -56,7 +45,6 @@ function parseQuestion(raw: unknown): AskUserQuestionItem | null {
   };
 }
 
-/** The tool_use_id a tool_result answers, or null if it isn't a tool_result. */
 export function toolResultToolUseId(event: EventLike): string | null {
   if (event.kind !== 'tool_result' || !isPlainRecord(event.payload)) return null;
   const message = isPlainRecord(event.payload.message) ? event.payload.message : null;
@@ -68,7 +56,6 @@ export function toolResultToolUseId(event: EventLike): string | null {
   return null;
 }
 
-/** Extract the AskUserQuestion tool_use block from an event, or null. */
 export function extractAskUserQuestion(event: EventLike): AskUserQuestionPrompt | null {
   if (event.kind !== 'assistant' && event.kind !== 'tool_use') return null;
   if (!isPlainRecord(event.payload)) return null;
@@ -87,11 +74,6 @@ export function extractAskUserQuestion(event: EventLike): AskUserQuestionPrompt 
   return null;
 }
 
-/**
- * The tool_use_id → answers map from every AskUserQuestion tool_result in the
- * event list. A question with an entry here has been answered; its value maps
- * each question's text to the chosen answer string (multi-select comma-joined).
- */
 export function collectAskUserQuestionAnswers(
   events: readonly EventLike[],
 ): Map<string, Record<string, string>> {

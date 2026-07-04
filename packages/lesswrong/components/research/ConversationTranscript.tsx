@@ -10,7 +10,6 @@ import { researchMono, researchScrollbars } from './researchStyleUtils';
 import { useTranscriptScroll } from './hooks/useTranscriptScroll';
 import type { ConversationEvent, StreamStatus } from './hooks/useConversationStream';
 
-/** Whether a tool_result answers one of the AskUserQuestion tool_use ids. */
 function toolResultAnswersAsked(event: ConversationEvent, askedToolUseIds: Set<string>): boolean {
   const id = toolResultToolUseId(event);
   return id !== null && askedToolUseIds.has(id);
@@ -21,15 +20,10 @@ const styles = defineStyles('ConversationTranscript', (theme: ThemeType) => ({
     flex: 1,
     minHeight: 0,
     overflowY: 'auto',
-    // Disable native scroll anchoring so it can't fight useTranscriptScroll's
-    // manual re-anchor when older history is paged in.
     overflowAnchor: 'none',
     padding: '10px 2px 12px 0',
     ...researchScrollbars(theme),
   },
-  // Inner wrapper so a ResizeObserver can track content growth (streamed
-  // events, late markdown/image layout) and keep the view pinned to the
-  // bottom. Rows carry their own vertical rhythm (see ConversationEventRow).
   content: {
     display: 'flex',
     flexDirection: 'column',
@@ -71,21 +65,9 @@ interface ConversationTranscriptProps {
   hasMoreOlder: boolean;
   loadingOlder: boolean;
   loadOlder: () => void;
-  /**
-   * Cap the message content to this width (centered) while the scroll
-   * container stays full-width — the scrollbar sits at the far edge and the
-   * whole width is scrollable, but lines don't stretch. Unset = full-width
-   * content (the narrow side panel and agent block).
-   */
   maxContentWidth?: number;
 }
 
-/**
- * Scrollable Claude Code-style transcript: stays pinned to the bottom while
- * the agent streams (unless the user scrolls up to read), pages in older
- * history on scroll-up, and shows a quiet pulsing "✻ working…" line during
- * a turn.
- */
 export const ConversationTranscript = ({
   conversationId,
   events,
@@ -99,9 +81,6 @@ export const ConversationTranscript = ({
 }: ConversationTranscriptProps) => {
   const classes = useStyles(styles);
 
-  // Pin to bottom as events stream in (unless the user scrolled up) and page
-  // in older history on scroll-up, re-anchoring the viewport so the prepend
-  // doesn't shift the content under the reader.
   const { scrollRef, contentRef, onScroll } = useTranscriptScroll({
     events,
     resetKey: conversationId,
@@ -110,11 +89,6 @@ export const ConversationTranscript = ({
     loadOlder,
   });
 
-  // AskUserQuestion prompts render as an interactive card (not the generic
-  // tool_use mono line), and the corresponding tool_result line is suppressed
-  // — the card shows the answer itself. Everything here is derived from the
-  // event list: `prompts` maps a question event to its prompt + resolved
-  // state, and `hiddenEventIds` marks the answered-question tool_result rows.
   const { prompts, hiddenEventIds } = useMemo(() => {
     const answers = collectAskUserQuestionAnswers(events);
     const askedToolUseIds = new Set<string>();
@@ -132,15 +106,11 @@ export const ConversationTranscript = ({
       const prompt = extractAskUserQuestion(event);
       if (prompt) {
         const answered = answers.get(prompt.toolUseId) ?? null;
-        // Actionable only while the turn that asked is still paused: unanswered,
-        // the turn in flight, and no later `result` closed it out (a restart's
-        // synthetic terminal marks it expired instead).
         const actionable = !answered && turnInFlight && lastResultIdx < i;
         const key = event._id ?? `${event.conversationId}:${event.seq}`;
         promptMap.set(key, { prompt, answers: answered, actionable });
         continue;
       }
-      // Hide the tool_result that answers an AskUserQuestion (the card shows it).
       if (event.kind === 'tool_result' && toolResultAnswersAsked(event, askedToolUseIds)) {
         hidden.add(event._id ?? `${event.conversationId}:${event.seq}`);
       }

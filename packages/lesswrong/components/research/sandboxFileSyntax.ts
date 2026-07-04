@@ -25,8 +25,6 @@ import 'prismjs/components/prism-docker';
 import 'prismjs/components/prism-graphql';
 import 'prismjs/components/prism-diff';
 
-// Extension (lowercase, no dot) → Prism language id. Extensions with no entry
-// render as plain text (still monospace, just unhighlighted).
 const EXTENSION_TO_LANGUAGE: Record<string, string> = {
   js: 'javascript', mjs: 'javascript', cjs: 'javascript', jsx: 'jsx',
   ts: 'typescript', mts: 'typescript', cts: 'typescript', tsx: 'tsx',
@@ -45,7 +43,6 @@ const EXTENSION_TO_LANGUAGE: Record<string, string> = {
   html: 'markup', htm: 'markup', xml: 'markup', svg: 'markup', vue: 'markup',
 };
 
-// Filenames (lowercase) that imply a language despite no/other extension.
 const FILENAME_TO_LANGUAGE: Record<string, string> = {
   dockerfile: 'docker',
   makefile: 'bash',
@@ -59,23 +56,16 @@ function languageForPath(path: string): string | null {
   const name = (path.split('/').pop() ?? path).toLowerCase();
   if (FILENAME_TO_LANGUAGE[name]) return FILENAME_TO_LANGUAGE[name];
   const dot = name.lastIndexOf('.');
-  if (dot <= 0) return null; // no extension, or a dotfile with no further ext
+  if (dot <= 0) return null;
   const ext = name.slice(dot + 1);
   return EXTENSION_TO_LANGUAGE[ext] ?? null;
 }
 
 export interface HighlightedFile {
-  /** Prism-highlighted HTML (token spans), or null when unhighlighted. */
   html: string | null;
-  /** The resolved language id, for display / debugging. */
   language: string | null;
 }
 
-/**
- * Highlight file text for the read-only viewer, choosing the grammar from the
- * file's extension/name. Returns `html: null` when the extension is unknown or
- * its grammar failed to load, so the caller can fall back to plain text.
- */
 export function highlightFile(path: string, content: string): HighlightedFile {
   const language = languageForPath(path);
   if (!language) return { html: null, language: null };

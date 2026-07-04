@@ -2,16 +2,12 @@ import type { Sandbox } from "@vercel/sandbox";
 
 export interface SandboxDirEntry {
   name: string;
-  /** "directory" | "file" | "symlink" | "other" */
   kind: string;
-  /** Byte size for files; null for directories and unstattable entries. */
   size: number | null;
 }
 
-/** Default working directory a conversation's repo/scratch lives under. */
 export const SANDBOX_DEFAULT_DIR = "/vercel/sandbox";
 
-// GNU find -printf type chars → our kind strings.
 function kindFromTypeChar(c: string): string {
   if (c === "d") return "directory";
   if (c === "f") return "file";
@@ -19,17 +15,6 @@ function kindFromTypeChar(c: string): string {
   return "other";
 }
 
-/**
- * List a single directory level in a sandbox (non-recursive; the client lazy-
- * loads deeper levels on expand). Read-only — runs `find -maxdepth 1`, which
- * emits one tab-separated `type\tsize\tname` line per child. Directories sort
- * first, then names, both case-insensitively.
- *
- * `path` is resolved and confined to `SANDBOX_DEFAULT_DIR`: the model-facing
- * surface is the workspace, and this keeps a crafted `..`/absolute path from
- * walking the rest of the container filesystem. Throws on escape or a
- * non-directory target.
- */
 export async function listSandboxDirectory(
   sandbox: Sandbox,
   path: string,

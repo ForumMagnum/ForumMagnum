@@ -62,7 +62,9 @@ const schema = {
       validation: { optional: true },
     },
   },
-  // Custom emoji shown in the sidebar in place of the default chat glyph.
+  // Custom sidebar icon in place of the default chat glyph: `svg:<id>`
+  // referencing the hand-drawn set in researchIconSet.tsx, or a bare Unicode
+  // emoji (legacy values from the retired emoji picker still render).
   icon: {
     database: {
       type: "TEXT",
@@ -146,9 +148,6 @@ const schema = {
       validation: { optional: true },
     },
   },
-  // Total user turns across the whole conversation. Resolver-only: the client
-  // can't derive this from its windowed event stream (older history isn't
-  // loaded), which is exactly the bug this replaces.
   userTurnCount: {
     graphql: {
       outputType: "Int",
@@ -180,7 +179,9 @@ const schema = {
    * unread indicator: activity after this timestamp (with no turn in flight)
    * shows as "completed, not yet looked at". Null = never explicitly opened
    * since the field shipped; treated as read so old conversations don't all
-   * light up.
+   * light up. Written only by `markResearchConversationRead`, which stamps
+   * the server clock — a client-supplied stamp could sit behind the
+   * server-written `lastActivityAt` and never clear the indicator.
    */
   lastReadAt: {
     database: {
@@ -190,7 +191,6 @@ const schema = {
     graphql: {
       outputType: "Date",
       canRead: [userOwns, "admins"],
-      canUpdate: [userOwns, "admins"],
       validation: { optional: true },
     },
   },

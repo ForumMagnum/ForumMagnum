@@ -7,7 +7,7 @@ import { useMutation } from '@apollo/client/react';
 import moment from '@/lib/moment-timezone';
 import { defineStyles, useStyles } from '@/components/hooks/useStyles';
 import { useMessages } from '@/components/common/withMessages';
-import { isSandboxWarmingError } from './sandboxWarming';
+import { retryWhileSandboxWarming } from './sandboxWarming';
 import { researchMono, researchRadius, researchWarmAlpha } from './researchStyleUtils';
 
 const SandboxStatsQuery = gql(`
@@ -33,14 +33,6 @@ const RestartResearchSandboxMutation = gql(`
 `);
 
 const POLL_MS = 5000;
-/** How often to re-poll the restart mutation while the sandbox is resuming. */
-const WARMING_RETRY_MS = 3000;
-/** Give up on a resume after this long — matches sandbox boot worst cases. */
-const WARMING_DEADLINE_MS = 3 * 60 * 1000;
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -79,8 +71,6 @@ const styles = defineStyles('SandboxStatsFooter', (theme: ThemeType) => ({
   value: {
     color: theme.palette.text.dim,
   },
-  // A thin usage bar; the fill is the sage accent, warming toward the
-  // error color as it approaches full.
   meter: {
     flex: 'none',
     width: 44,
@@ -90,8 +80,6 @@ const styles = defineStyles('SandboxStatsFooter', (theme: ThemeType) => ({
     overflow: 'hidden',
   },
   meterFill: {
-    // Must be block: width/height are ignored on an inline <span>, so without
-    // this the fill collapses to zero and the meter never shades.
     display: 'block',
     height: '100%',
     background: theme.palette.primary.main,
@@ -151,14 +139,6 @@ interface SandboxStatsFooterProps {
   conversationId: string;
 }
 
-/**
- * Compact resource strip for a conversation's sandbox. Running: CPU %,
- * memory used/total, and workspace disk used/total, each with a thin meter.
- * Stopped: "Instance hibernating since <time>" with a small restart button
- * that resumes the sandbox (re-polling through SANDBOX_WARMING); the regular
- * stats poll then swaps the meters back in. Renders nothing until the first
- * stats response arrives.
- */
 export const SandboxStatsFooter = ({ conversationId }: SandboxStatsFooterProps) => {
   const classes = useStyles(styles);
   const { flash } = useMessages();
@@ -178,25 +158,17 @@ export const SandboxStatsFooter = ({ conversationId }: SandboxStatsFooterProps) 
   const handleRestart = useCallback(async () => {
     if (restarting) return;
     setRestarting(true);
-    const deadline = Date.now() + WARMING_DEADLINE_MS;
     try {
-      for (;;) {
-        try {
-          await restartSandbox({ variables: { conversationId } });
-          if (!unmountedRef.current) await refetch();
-          return;
-        } catch (err) {
-          if (unmountedRef.current) return;
-          if (isSandboxWarmingError(err) && Date.now() < deadline) {
-            await sleep(WARMING_RETRY_MS);
-            if (unmountedRef.current) return;
-            continue;
-          }
-          // eslint-disable-next-line no-console
-          console.error('[research] restart sandbox failed', err);
-          flash({ messageString: `Failed to restart sandbox: ${(err as Error).message}`, type: 'error' });
-          return;
-        }
+      const result = await retryWhileSandboxWarming(
+        () => restartSandbox({ variables: { conversationId } }),
+        () => unmountedRef.current,
+      );
+      if (result) await refetch();
+    } catch (err) {
+      if (!unmountedRef.current) {
+        // eslint-disable-next-line no-console
+        console.error('[research] restart sandbox failed', err);
+        flash({ messageString: `Failed to restart sandbox: ${(err as Error).message}`, type: 'error' });
       }
     } finally {
       if (!unmountedRef.current) setRestarting(false);

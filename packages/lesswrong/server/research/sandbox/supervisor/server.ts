@@ -47,11 +47,6 @@ export interface SupervisorDeps {
   dispatchTurn(req: DispatchRequest): Promise<{ accepted: boolean; reason?: string }>;
   /** Cancel the in-flight turn for a conversation. */
   cancelTurn(conversationId: string): Promise<void>;
-  /**
-   * Resolve a pending AskUserQuestion with the user's answers. Returns whether
-   * a pending question was found and answered; a false result (no pending
-   * question / dead process) is surfaced to the caller as 409.
-   */
   answerQuestion(
     conversationId: string,
     toolUseId: string,

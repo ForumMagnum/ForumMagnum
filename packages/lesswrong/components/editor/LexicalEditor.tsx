@@ -35,8 +35,6 @@ import { HorizontalRuleExtension } from '@lexical/extension';
 import ErrorBoundary from '../common/ErrorBoundary';
 import DeferRender from '../common/DeferRender';
 
-
-
 const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
   editorContainer: {
     position: 'relative',
@@ -257,12 +255,6 @@ const lexicalStyles = defineStyles('LexicalPostEditor', (theme: ThemeType) => ({
 interface LexicalEditorProps {
   data?: string;
   placeholder?: string;
-  /**
-   * Called (debounced) with the document serialized to HTML. Omit when the
-   * HTML is not consumed (e.g. collaborative docs persisted via yjs, or
-   * composers read at submit time) — serialization of large documents is
-   * expensive and is skipped entirely when this is absent.
-   */
   onChange?: (html: string) => void;
   onReady?: () => void;
   /**

@@ -13,7 +13,6 @@ interface FakeProcess {
   sent: string[];
   interrupts: string[];
   kills: string[];
-  /** Permission decisions written back, keyed as `${requestId}` → decision. */
   permissionResponses: Array<{ requestId: string; decision: unknown }>;
   /** Feed one stdout line (an object; stringified through the real chunker). */
   emit(payload: Record<string, unknown>): void;
@@ -43,8 +42,6 @@ function mkFakeFactory(opts?: { sendFailsForProcs?: number[] }): {
       permissionResponses: [],
       emit(payload) {
         for (const line of chunker.push(`${JSON.stringify(payload)}\n`)) {
-          // Mirror the real runner: route can_use_tool control_requests to the
-          // permission handler, everything else to onLine.
           const req = line.parsed;
           if (
             req?.type === "control_request" &&
@@ -413,8 +410,6 @@ describe("conversationHub", () => {
     const { hub, procs } = mkHub();
     await hub.dispatch({ conversationId: "c1", prompt: "ask me", claudeSessionId: "sess-1" });
     procs[0].emit(askControlRequest);
-    // Parked, not auto-answered, and the question is not persisted as an event
-    // (the tool_use line carries it).
     expect(procs[0].permissionResponses.length).toBe(0);
 
     const result = hub.answerQuestion("c1", "toolu_q1", { "Red or blue?": "Red" });
@@ -427,10 +422,8 @@ describe("conversationHub", () => {
       toolUseId: "toolu_q1",
       updatedInput: { answers: { "Red or blue?": "Red" } },
     });
-    // The original input (questions) is preserved alongside the answers.
     expect((resp.decision as { updatedInput: { questions: unknown[] } }).updatedInput.questions).toBeDefined();
 
-    // A second answer for the same (now-resolved) question is a no-op.
     expect(hub.answerQuestion("c1", "toolu_q1", { "Red or blue?": "Blue" }).ok).toBe(false);
   });
 

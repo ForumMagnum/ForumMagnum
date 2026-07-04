@@ -8,9 +8,6 @@ import { pollForConversationTitle, ProjectSidebarQuery } from './projectSidebarQ
 import { defineStyles } from '../hooks/defineStyles';
 import { useStyles } from '../hooks/useStyles';
 import { researchEditorNodes } from './lexical/researchEditorNodes';
-// Side-effect import: installs the AgentBlock component into its late-bound
-// registry before the editor mounts (see agentBlockComponentRegistry.ts).
-import './lexical/registerAgentBlockComponent';
 import { ResearchEditorPlugins } from './lexical/ResearchEditorPlugins';
 import {
   ResearchEditorProvider,
@@ -34,7 +31,6 @@ import {
 interface DocumentPaneProps {
   projectId: string;
   documentId: string | null;
-  /** Jump to a conversation's inline block (switching documents if needed) and focus it. */
   openConversation: (conversationId: string) => void;
   onSelectDocument: (documentId: string) => void;
 }
@@ -108,16 +104,11 @@ const styles = defineStyles('DocumentPane', (theme: ThemeType) => ({
     // type in ContentStylesValues, scoped under `[data-lexical-editor]`
     // so it doesn't leak onto floating menus or popovers inside this wrap.
   },
-  // When open comment threads exist, the reading column gives up its right
-  // side to the comments margin (the auto left margin keeps it centered in
-  // the remaining space, Google-Docs-style).
   editorWrapWithComments: {
     '& [contenteditable="true"]:not(.research-query-input-content):not(.research-chat-composer *)': {
       marginRight: COMMENTS_MARGIN_WIDTH + COMMENTS_MARGIN_RIGHT + 24,
     },
   },
-  // Zero-height anchor layer at the right edge of the scroll content; thread
-  // cards portal into it with absolute tops in scroll-content coordinates.
   commentsMargin: {
     position: 'absolute',
     top: 44,

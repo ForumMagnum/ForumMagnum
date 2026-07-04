@@ -51,10 +51,7 @@ const CancelResearchConversationFromChatViewMutation = gql(`
   }
 `);
 
-// Width of the fullscreen file sidebar.
 const FULLSCREEN_FILE_SIDEBAR_WIDTH = 340;
-// Reading-column cap for chat content in fullscreen; the scroll area stays
-// full-width, only the messages/composer are capped and centered.
 const FULLSCREEN_CONTENT_MAX_WIDTH = 780;
 
 const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
@@ -64,8 +61,6 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
     height: '100%',
     minHeight: 0,
     minWidth: 0,
-    // One flat cream surface for the whole panel (header + body); the panel's
-    // left border separates it from the canvas — no inner card.
     background: researchChatSurface(theme),
   },
   header: {
@@ -139,34 +134,26 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
   icon: {
     '--icon-size': '14px',
   },
-  // PanelRightIcon is a raw SVG sized in em (not a ForumIcon), so drive it
-  // with font-size rather than the --icon-size var.
   panelIcon: {
     fontSize: 15,
     display: 'block',
   },
-  // The transcript + composer column. It fills the panel (or the fullscreen
-  // overlay) edge-to-edge — the panel is already its own bordered container,
-  // so an inset rounded card here just nests a box in a box. Flat cream fill,
-  // no border/radius of its own.
-  body: {
+  main: {
     flex: 1,
+    minHeight: 0,
+    display: 'flex',
+    flexDirection: 'row',
+  },
+  panelChatCol: {
+    flex: 1,
+    minWidth: 0,
     minHeight: 0,
     display: 'flex',
     flexDirection: 'column',
     background: researchChatSurface(theme),
     padding: '10px 14px 12px',
   },
-  // Fullscreen splits into a full-width chat column and an optional right file
-  // sidebar (open by default, toggled from the header).
-  fullscreenMain: {
-    flex: 1,
-    minHeight: 0,
-    display: 'flex',
-    flexDirection: 'row',
-  },
   fullscreenChatCol: {
-    // Positioning context for the file viewer overlay.
     position: 'relative',
     flex: 1,
     minWidth: 0,
@@ -174,12 +161,8 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
     display: 'flex',
     flexDirection: 'column',
     background: researchChatSurface(theme),
-    // No horizontal padding: the transcript scroll area runs the full width
-    // (scrollbar at the edge). The content inside is capped + centered.
     paddingTop: 12,
   },
-  // Composer capped to the same reading column as the transcript content and
-  // centered, so it lines up under the messages.
   fullscreenComposerWrap: {
     flex: 'none',
     width: '100%',
@@ -207,27 +190,13 @@ const styles = defineStyles('ConversationChatView', (theme: ThemeType) => ({
 interface ConversationChatViewProps {
   conversationId: string;
   projectId: string;
-  /**
-   * The document the user currently has open — forwarded to
-   * `continueResearchConversation` so the agent knows the user's working
-   * context. Sending is disabled while this is unknown.
-   */
   activeDocumentId: string | null;
   variant: 'panel' | 'fullscreen';
-  /** Close the chat surface entirely. */
   onClose: () => void;
-  /** Panel → fullscreen, or fullscreen → panel. */
   onToggleFullscreen: () => void;
-  /** Close the chat surface and jump to the conversation's inline block. */
   onOpenInDocument: () => void;
 }
 
-/**
- * The classic chat surface for a research conversation: header, scrollable
- * transcript (with scroll-up history paging), and a pinned composer. Hosted
- * in two shells by ResearchWorkspace — a resizable right side panel, and a
- * full-viewport overlay with a centered reading column.
- */
 export const ConversationChatView = ({
   conversationId,
   projectId,
@@ -241,8 +210,6 @@ export const ConversationChatView = ({
   const { flash } = useMessages();
   const workspace = useResearchWorkspaceApiOptional();
   const [sending, setSending] = useState(false);
-  // The file browser: a right sidebar in fullscreen, or a body swap in the
-  // narrow side panel. Closed by default in both; opened from the header.
   const [filesOpen, setFilesOpen] = useState(false);
 
   const {
@@ -256,14 +223,11 @@ export const ConversationChatView = ({
   });
   const title = conversationData?.researchConversation?.result?.title ?? 'Conversation';
 
-  // The chat surface being open counts as reading it — stamp on open and
-  // again when a turn completes while the user is watching.
   const markConversationRead = useMarkConversationRead();
   useEffect(() => {
     markConversationRead(conversationId);
   }, [conversationId, markConversationRead]);
 
-  // Background title generation may land during a turn — refresh on completion.
   const wasInFlightRef = useRef(false);
   useEffect(() => {
     if (wasInFlightRef.current && !turnInFlight) {
@@ -318,8 +282,6 @@ export const ConversationChatView = ({
     await cancelConversation({ variables: { conversationId } });
   }, [cancelConversation, conversationId]);
 
-  // Esc in fullscreen drops back to the side panel (the panel itself leaves
-  // Esc alone — it's a persistent surface, not a modal).
   useEffect(() => {
     if (variant !== 'fullscreen') return;
     const onKeyDown = (e: KeyboardEvent) => {
@@ -335,33 +297,9 @@ export const ConversationChatView = ({
       ? <span className={classes.errorGlyph} title={error ?? 'error'}>✕</span>
       : null;
 
-  // A sandbox file open in the viewer for THIS conversation (fullscreen renders
-  // it over the chat column, since the center-pane viewer is occluded here).
   const fileView = workspace?.sandboxFileView ?? null;
   const fileViewForThisConversation =
     fileView && fileView.conversationId === conversationId ? fileView : null;
-
-  const chatContent = (
-    <>
-      <ConversationTranscript
-        conversationId={conversationId}
-        events={visibleEvents}
-        turnInFlight={turnInFlight}
-        status={status}
-        error={error}
-        hasMoreOlder={hasMoreOlder}
-        loadingOlder={loadingOlder}
-        loadOlder={loadOlder}
-      />
-      <div className={classes.composerWrap}>
-        <ChatComposer
-          projectId={projectId}
-          disabled={sending || !activeDocumentId}
-          onSubmit={handleSend}
-        />
-      </div>
-    </>
-  );
 
   return (
     <div className={classes.root}>
@@ -413,52 +351,46 @@ export const ConversationChatView = ({
           <ForumIcon icon="Close" className={classes.icon} />
         </button>
       </div>
-      {variant === 'fullscreen' ? (
-        // Full-width chat column + optional right file sidebar. An opened file
-        // is viewed over the chat column here (the workspace's center-pane
-        // viewer is behind this fullscreen overlay — see ResearchWorkspace).
-        <div className={classes.fullscreenMain}>
-          <div className={classes.fullscreenChatCol}>
-            <ConversationTranscript
-              conversationId={conversationId}
-              events={visibleEvents}
-              turnInFlight={turnInFlight}
-              status={status}
-              error={error}
-              hasMoreOlder={hasMoreOlder}
-              loadingOlder={loadingOlder}
-              loadOlder={loadOlder}
-              maxContentWidth={FULLSCREEN_CONTENT_MAX_WIDTH}
-            />
-            <div className={classes.fullscreenComposerWrap}>
-              <ChatComposer
-                projectId={projectId}
-                disabled={sending || !activeDocumentId}
-                onSubmit={handleSend}
-              />
-            </div>
-            {fileViewForThisConversation ? (
-              <SandboxFileViewer
+      <div className={classes.main}>
+        <div className={variant === 'fullscreen' ? classes.fullscreenChatCol : classes.panelChatCol}>
+          {variant !== 'fullscreen' && filesOpen ? (
+            <SandboxFileBrowser conversationId={conversationId} />
+          ) : (
+            <>
+              <ConversationTranscript
                 conversationId={conversationId}
-                path={fileViewForThisConversation.path}
-                onClose={() => workspace?.closeSandboxFile()}
+                events={visibleEvents}
+                turnInFlight={turnInFlight}
+                status={status}
+                error={error}
+                hasMoreOlder={hasMoreOlder}
+                loadingOlder={loadingOlder}
+                loadOlder={loadOlder}
+                maxContentWidth={variant === 'fullscreen' ? FULLSCREEN_CONTENT_MAX_WIDTH : undefined}
               />
-            ) : null}
-          </div>
-          {filesOpen ? (
-            <div className={classes.fileSidebar}>
-              <SandboxFileBrowser conversationId={conversationId} />
-            </div>
+              <div className={variant === 'fullscreen' ? classes.fullscreenComposerWrap : classes.composerWrap}>
+                <ChatComposer
+                  projectId={projectId}
+                  disabled={sending || !activeDocumentId}
+                  onSubmit={handleSend}
+                />
+              </div>
+            </>
+          )}
+          {variant === 'fullscreen' && fileViewForThisConversation ? (
+            <SandboxFileViewer
+              conversationId={conversationId}
+              path={fileViewForThisConversation.path}
+              onClose={() => workspace?.closeSandboxFile()}
+            />
           ) : null}
         </div>
-      ) : (
-        // Narrow side panel: files swap in place of the transcript.
-        <div className={classes.body}>
-          {filesOpen ? <SandboxFileBrowser conversationId={conversationId} /> : chatContent}
-        </div>
-      )}
-      {/* Resource-utilization strip pinned to the very bottom of the panel;
-          renders nothing while the sandbox is down. */}
+        {variant === 'fullscreen' && filesOpen ? (
+          <div className={classes.fileSidebar}>
+            <SandboxFileBrowser conversationId={conversationId} />
+          </div>
+        ) : null}
+      </div>
       <SandboxStatsFooter conversationId={conversationId} />
     </div>
   );

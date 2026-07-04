@@ -49,7 +49,6 @@ function entryToNode(parentPath: string, entry: { name: string; kind: string; si
   };
 }
 
-/** Immutably replace the `children` of the node with `id` anywhere in the forest. */
 function setChildren(nodes: FileNode[], id: string, children: FileNode[]): FileNode[] {
   return nodes.map((node) => {
     if (node.id === id) return { ...node, children };
@@ -96,8 +95,6 @@ const styles = defineStyles('SandboxFileBrowser', (theme: ThemeType) => ({
       background: researchWarmAlpha(0.05),
     },
   },
-  // Shared glyph column — chevron for dirs, document for files. Fixed width so
-  // every row's name starts at the same x within its indent level.
   glyph: {
     flex: 'none',
     width: 15,
@@ -138,12 +135,6 @@ interface SandboxFileBrowserProps {
   conversationId: string;
 }
 
-/**
- * Read-only, lazy-loaded file tree of a conversation's sandbox instance.
- * Each directory level is fetched on expand via researchSandboxDirectory; the
- * sandbox only exists during/around a turn, so a not-running instance renders
- * an empty state rather than an error.
- */
 export const SandboxFileBrowser = ({ conversationId }: SandboxFileBrowserProps) => {
   const classes = useStyles(styles);
   const workspace = useResearchWorkspaceApiOptional();
@@ -153,7 +144,6 @@ export const SandboxFileBrowser = ({ conversationId }: SandboxFileBrowserProps) 
   const [error, setError] = useState<string | null>(null);
   const [size, setSize] = useState<{ width: number; height: number }>({ width: 240, height: 320 });
   const wrapRef = useRef<HTMLDivElement>(null);
-  // Directories whose fetch is in flight, so a slow load doesn't double-fire.
   const loadingPathsRef = useRef<Set<string>>(new Set());
 
   const fetchDirectory = useCallback(async (path: string | null) => {
@@ -163,7 +153,6 @@ export const SandboxFileBrowser = ({ conversationId }: SandboxFileBrowserProps) 
     return data.researchSandboxDirectory;
   }, [loadDirectory, conversationId]);
 
-  // Initial root load.
   useEffect(() => {
     let cancelled = false;
     setTreeData(null);
@@ -180,8 +169,6 @@ export const SandboxFileBrowser = ({ conversationId }: SandboxFileBrowserProps) 
     return () => { cancelled = true; };
   }, [fetchDirectory]);
 
-  // react-arborist reports the container size, but measuring the wrapper
-  // ourselves keeps the virtualized viewport correct inside a flex column.
   useEffect(() => {
     const el = wrapRef.current;
     if (!el) return;
@@ -193,7 +180,6 @@ export const SandboxFileBrowser = ({ conversationId }: SandboxFileBrowserProps) 
   }, []);
 
   const handleToggle = useCallback(async (id: string) => {
-    // Find the node; only unloaded directories (children === null) need a fetch.
     let target: FileNode | undefined;
     const walk = (nodes: FileNode[]) => {
       for (const n of nodes) {
@@ -210,7 +196,7 @@ export const SandboxFileBrowser = ({ conversationId }: SandboxFileBrowserProps) 
       setRunning(listing.running);
       setTreeData((prev) => prev && setChildren(prev, id, listing.entries.map((e) => entryToNode(id, e))));
     } catch {
-      // Leave it unloaded; the next expand retries.
+      // Swallowed: the row stays unloaded and the next expand retries.
     } finally {
       loadingPathsRef.current.delete(id);
     }
@@ -218,10 +204,6 @@ export const SandboxFileBrowser = ({ conversationId }: SandboxFileBrowserProps) 
 
   const Node = useCallback(({ node, style, dragHandle }: NodeRendererProps<FileNode>) => {
     const dir = isDir(node.data.kind);
-    // One shared glyph column for both kinds: a rotating chevron for
-    // directories, a document icon for files. Keeping them in the same column
-    // (rather than a chevron column plus a separate icon column) means leaves
-    // and folders line up with no empty slot / stray gutter.
     const onRowClick = () => {
       if (dir) {
         node.toggle();

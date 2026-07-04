@@ -147,13 +147,6 @@ async function cancelTurnViaSupervisor(target: SupervisorTarget): Promise<void> 
   }
 }
 
-/**
- * POST an AskUserQuestion answer to the supervisor's /answer endpoint. The
- * supervisor resolves the paused turn (writes the tool's answers back to the
- * CLI). A 409 means no matching pending question — the sandbox restarted, or it
- * was already answered — which we surface so the client can stop showing the
- * prompt as actionable.
- */
 async function answerQuestionViaSupervisor(
   target: SupervisorTarget,
   toolUseId: string,
@@ -225,7 +218,6 @@ async function prepareTurnPrompt(args: {
   );
 }
 
-
 export const researchResolversTypeDefs = gql`
   enum ResearchEntrypointKind {
     document
@@ -279,6 +271,10 @@ export const researchResolversTypeDefs = gql`
     running: Boolean!
   }
 
+  type MarkResearchConversationReadOutput {
+    ok: Boolean!
+  }
+
   type AnswerResearchQuestionOutput {
     ok: Boolean!
     # True when no matching pending question was found (sandbox restarted, or
@@ -298,6 +294,10 @@ export const researchResolversTypeDefs = gql`
     saveResearchEnvironment(conversationId: String!, withConversation: Boolean!): SaveResearchEnvironmentOutput
     ensureResearchScratchDocument(projectId: String!): EnsureResearchScratchDocumentOutput
     reorderResearchDocuments(projectId: String!, orderedIds: [String!]!): ReorderResearchDocumentsOutput
+    # Stamp the conversation read (clears the sidebar's unread indicator).
+    # Takes no timestamp: the server clock is authoritative, so a skewed
+    # client clock can't produce a stamp that trails lastActivityAt.
+    markResearchConversationRead(conversationId: String!): MarkResearchConversationReadOutput
     # Resume a stopped sandbox without dispatching a turn or minting a preview
     # URL. Rejects with SANDBOX_WARMING while the resume is in flight.
     restartResearchSandbox(conversationId: String!): RestartResearchSandboxOutput
@@ -435,7 +435,6 @@ export const researchResolversMutations = {
         presentationHtml: null,
         archived: false,
         lastActivityAt: now,
-        // The creator is looking at the conversation they just fired.
         lastReadAt: now,
         createdAt: now,
       });
@@ -598,13 +597,6 @@ export const researchResolversMutations = {
     return { conversationId: conv._id, data: { _id: conv._id } };
   },
 
-  /**
-   * Resolve a pending AskUserQuestion for a conversation. Forwards the answers
-   * to the supervisor's /answer endpoint, which un-pauses the turn. Never
-   * resumes a stopped sandbox: an answer only makes sense against the live turn
-   * that asked, so a missing sandbox (or a 409 from the supervisor) is reported
-   * as `expired`.
-   */
   async answerResearchConversationQuestion(
     _root: void,
     args: { conversationId: string; toolUseId: string; answersJson: string },
@@ -673,6 +665,20 @@ export const researchResolversMutations = {
     return { running: true };
   },
 
+  async markResearchConversationRead(_root: void, args: { conversationId: string }, context: ResolverContext) {
+    const conv = await loadConversationOrThrow(args.conversationId, context);
+    // Owner-only: the unread indicator is the owner's read state; another
+    // admin opening the conversation must not clear it for them.
+    if (conv.userId !== context.currentUser?._id) {
+      throw new Error("Only the conversation's owner can mark it read");
+    }
+    await context.ResearchConversations.rawUpdateOne(
+      { _id: conv._id },
+      { $set: { lastReadAt: new Date() } },
+    );
+    return { ok: true };
+  },
+
   async setClaudeCodeOAuthToken(_root: void, args: { token: string }, context: ResolverContext) {
     const { currentUser, Users } = context;
     if (!userIsAdmin(currentUser)) throw new Error("Forbidden");
@@ -728,12 +734,6 @@ export const researchResolversMutations = {
     return { data: filtered };
   },
 
-  /**
-   * Return the project's scratch document, creating it on first use. The
-   * scratch document hosts conversations that have no inline block of their
-   * own (new free-floating conversations, and legacy chat-kind ones being
-   * surfaced inline). Its id is remembered in the project's `settings` JSONB.
-   */
   async ensureResearchScratchDocument(
     _root: void,
     args: { projectId: string },
@@ -762,30 +762,17 @@ export const researchResolversMutations = {
     return { documentId: created._id };
   },
 
-  /**
-   * Persist a manual document ordering for the sidebar. Assigns
-   * `sortOrder = index` to each id, scoped to the project and the current
-   * user's own documents. Ids not in the project (or not owned) are ignored.
-   */
   async reorderResearchDocuments(
     _root: void,
     args: { projectId: string; orderedIds: string[] },
     context: ResolverContext,
   ) {
-    const { currentUser, ResearchDocuments } = context;
+    const { currentUser } = context;
     if (!userIsAdmin(currentUser)) throw new Error("Forbidden");
-    const docs = await ResearchDocuments.find(
-      { projectId: args.projectId, userId: currentUser._id },
-      { limit: 1000 },
-      { _id: 1 },
-    ).fetch();
-    const ownedIds = new Set(docs.map((d) => d._id));
-    await Promise.all(
-      args.orderedIds
-        .filter((id) => ownedIds.has(id))
-        .map((id, index) =>
-          ResearchDocuments.rawUpdateOne({ _id: id }, { $set: { sortOrder: index } }),
-        ),
+    await context.repos.researchDocuments.reorderDocuments(
+      args.projectId,
+      currentUser._id,
+      args.orderedIds,
     );
     return { success: true };
   },
@@ -926,8 +913,6 @@ export const researchResolversQueries = {
   ) {
     const conv = await loadConversationOrThrow(args.conversationId, context);
     const sandbox = await getRunningSandbox(conv._id);
-    // The sandbox only lives during/around a turn; a null handle isn't an
-    // error, it's the "not running" state the client renders as an empty state.
     if (!sandbox) {
       return { path: args.path ?? SANDBOX_DEFAULT_DIR, running: false, entries: [] };
     }
@@ -958,9 +943,6 @@ export const researchResolversQueries = {
     const conv = await loadConversationOrThrow(args.conversationId, context);
     const sandbox = await getRunningSandbox(conv._id);
     if (!sandbox) {
-      // The idle timeout lapses SESSION_TIMEOUT_MS after the last activity, so
-      // that's when the sandbox actually stopped. Clamp to now for sandboxes
-      // that stopped early (or whose timeout hasn't nominally lapsed yet).
       const hibernatingSince = conv.lastActivityAt
         ? new Date(Math.min(conv.lastActivityAt.getTime() + SESSION_TIMEOUT_MS, Date.now()))
         : null;

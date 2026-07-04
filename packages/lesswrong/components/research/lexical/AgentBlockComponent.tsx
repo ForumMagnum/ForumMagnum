@@ -31,9 +31,7 @@ import { useMessages } from '@/components/common/withMessages';
 import { isSandboxWarmingError } from '../sandboxWarming';
 import { researchAccentTint, researchChatProse, researchChatSans, researchChatSurface, researchMono, researchEasing, researchWarmAlpha, researchRadius, researchSquircle } from '../researchStyleUtils';
 
-/** Cap on the focused block's height; the transcript scrolls inside it. */
 const FOCUSED_MAX_HEIGHT = '72vh';
-/** Clamp on the blurred presentation before it fades out. */
 const BLURRED_MAX_CONTENT_HEIGHT = 200;
 
 const ResearchConversationBlockQuery = gql(`
@@ -80,9 +78,6 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   root: {
     position: 'relative',
     margin: '14px 0',
-    // Rounded cream box (2026-07): conversations read as their own soft
-    // surface on the canvas. The 2px left edge stays as the state signal
-    // (dim at rest, sage when focused / agent-initiated).
     background: researchChatSurface(theme),
     border: `1px solid ${researchWarmAlpha(0.07)}`,
     borderLeft: `2px solid ${researchWarmAlpha(0.14)}`,
@@ -93,14 +88,8 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
     // `white-space: pre-wrap` (Lexical's default). Without this reset every
     // newline in the rendered markdown HTML becomes a visible blank line.
     whiteSpace: 'normal',
-    // No height animation on expand/collapse: a growing container with a
-    // bottom-pinned transcript reads as the content scrolling, which the
-    // user consistently found disorienting. Focus/blur swap in one frame.
     transition: `border-color 160ms ${researchEasing}`,
-    // Breathing room above the block when the workspace jumps to it.
     scrollMarginTop: 18,
-    // Mask the block's chrome inside unrevealed spoilers, mirroring the
-    // hide-until-hover semantics of everything else in the spoiler.
     '.spoilers:not(:hover) &': {
       borderColor: theme.palette.panelBackground.spoilerBlock,
       color: theme.palette.panelBackground.spoilerBlock,
@@ -141,9 +130,6 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
     color: theme.palette.text.dim,
     userSelect: 'none',
   },
-  // Focused: the transcript scrolls beneath the header, so give it a real
-  // bottom edge — scrolled lines tuck under a hairline instead of colliding
-  // with the title.
   headerFocused: {
     paddingBottom: 7,
     borderBottom: `1px solid ${researchWarmAlpha(0.07)}`,
@@ -206,12 +192,10 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   collapseIcon: {
     '--icon-size': '13px',
   },
-  // PanelRightIcon is a raw SVG sized in em, so drive it with font-size.
   panelIcon: {
     fontSize: 13,
     display: 'block',
   },
-  // --- Blurred body -------------------------------------------------------
   blurredBody: {
     position: 'relative',
     maxHeight: BLURRED_MAX_CONTENT_HEIGHT,
@@ -254,7 +238,6 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
     flex: 'none',
     color: theme.palette.primary.main,
   },
-  // --- Focused body ---------------------------------------------------------
   composerWrap: {
     flex: 'none',
     paddingRight: 6,
@@ -269,8 +252,6 @@ interface AgentBlockComponentProps {
 
 export function AgentBlockComponent({ nodeKey: _nodeKey, conversationId, producedByConversationId }: AgentBlockComponentProps) {
   const classes = useStyles(styles);
-  // Enforces the structural invariant that AgentBlocks only mount inside the
-  // document editor, where the research providers are present.
   useResearchEditorEnvironment();
   const pending = usePendingConversation(conversationId);
   const wasPendingRef = useRef(false);
@@ -316,11 +297,7 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
   const { flash } = useMessages();
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [focused, setFocused] = useState(false);
-  // Set while a programmatic focus (sidebar / palette jump) still needs the
-  // document positioned on the block.
   const pendingFocusScrollRef = useRef(false);
-  // Set when the user clicked the blurred block; the expansion gets a
-  // minimal instant correction so the whole block (incl. composer) is in view.
   const manualFocusRef = useRef(false);
   const [sending, setSending] = useState(false);
 
@@ -334,8 +311,6 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Keep keystrokes / pointer events inside the block (transcript, composer)
-  // away from the host document editor.
   useStopLexicalEventPropagation(rootRef);
 
   const { data: conversationData, refetch: refetchConversation } = useQuery(ResearchConversationBlockQuery, {
@@ -344,16 +319,11 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
   });
   const conversation = conversationData?.researchConversation?.result;
 
-  // Reading the conversation = reading it: focusing the block stamps it read,
-  // and a turn completing while the user has it focused stamps again so the
-  // sidebar's unread dot never lights up for something they just watched.
   const markConversationRead = useMarkConversationRead();
   useEffect(() => {
     if (focused) markConversationRead(conversationId);
   }, [focused, conversationId, markConversationRead]);
 
-  // The agent may have updated its presentation (or the background title
-  // generation may have landed) during the turn — refresh on completion.
   const wasInFlightRef = useRef(false);
   useEffect(() => {
     if (wasInFlightRef.current && !turnInFlight) {
@@ -367,18 +337,12 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
     () => events.filter(isVisibleConversationEvent),
     [events],
   );
-  // Turn counter: the server count covers the WHOLE conversation (the event
-  // window only holds recent history, so counting it undercounts old
-  // conversations — the bug this replaced). The window count still wins right
-  // after a dispatch, when the just-sent turn hasn't reached the server-side
-  // count yet (it refreshes via refetchConversation at turn end).
   const windowUserTurnCount = useMemo(
     () => events.reduce((n, e) => (e.kind === 'user' ? n + 1 : n), 0),
     [events],
   );
   const userTurnCount = Math.max(conversation?.userTurnCount ?? 0, windowUserTurnCount);
 
-  // Workspace-level "jump to this conversation" requests (sidebar, palette).
   const focusRequest = workspace?.conversationFocusRequest ?? null;
   useEffect(() => {
     if (focusRequest && focusRequest.conversationId === conversationId) {
@@ -388,33 +352,16 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
     }
   }, [focusRequest, conversationId, workspace]);
 
-  // Position the document on the expanded block in the same frame the
-  // focused layout commits (layout effect = before paint): the block appears
-  // already open, in view, with the transcript pinned to the bottom by its
-  // own mount effect. A smooth scroll here reads as disorienting drift.
-  //
-  // Content keeps settling after that first snap — collab sync streaming the
-  // document in above the block, iframe widgets reporting their real height,
-  // the transcript itself loading — each shift shoving the block around the
-  // viewport. So the block stays the scroll anchor for as long as layout
-  // keeps changing (ResizeObserver on the editor body and the block itself;
-  // every snap is instant and a no-op when stable), until the user interacts
-  // — from then on the scroll position is theirs.
   useLayoutEffect(() => {
     if (!focused) return;
     if (manualFocusRef.current) {
       manualFocusRef.current = false;
-      // Manual click: the block expands in place in one frame; just make
-      // sure it fits in the viewport, with the smallest possible jump.
       rootRef.current?.scrollIntoView({ block: 'nearest', behavior: 'instant' });
     }
     if (!pendingFocusScrollRef.current) return;
     pendingFocusScrollRef.current = false;
     const root = rootRef.current;
     if (!root) return;
-    // 'instant', not the default 'auto': auto defers to any
-    // `scroll-behavior: smooth` CSS in the environment (browser extensions
-    // and user stylesheets inject this), which would animate every snap.
     const snap = () => rootRef.current?.scrollIntoView({ block: 'start', behavior: 'instant' });
     snap();
     const observer = new ResizeObserver(snap);
@@ -440,15 +387,11 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
     setFocused(false);
   }, []);
 
-  // Click out → blur. Capture phase, because the block stops bubbling-phase
-  // pointer events at its root (see useStopLexicalEventPropagation above).
   useEffect(() => {
     if (!focused) return;
     const onPointerDown = (e: PointerEvent) => {
       const root = rootRef.current;
       if (root && e.target instanceof Node && !root.contains(e.target)) {
-        // Popovers spawned from the header (e.g. the restart-sandbox menu)
-        // portal to document.body; clicking them must not collapse the block.
         if (e.target instanceof Element && e.target.closest('[data-research-popover]')) return;
         blurBlock();
       }
@@ -457,8 +400,6 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
     return () => document.removeEventListener('pointerdown', onPointerDown, true);
   }, [focused, blurBlock]);
 
-  // Esc → blur. Native listener: keydown propagation is stopped at the block
-  // root, so a React synthetic handler would never fire.
   useEffect(() => {
     const root = rootRef.current;
     if (!root || !focused) return;
@@ -633,12 +574,6 @@ interface BlurredPresentationProps {
   presentationHtml: string | null;
 }
 
-/**
- * The blurred block's body: agent-authored presentation HTML when set,
- * otherwise the last assistant message rendered as prose, clamped with a
- * bottom fade. While a turn runs, a live one-line activity readout of the
- * latest event sits underneath.
- */
 function BlurredPresentation({ events, turnInFlight, status, presentationHtml }: BlurredPresentationProps) {
   const classes = useStyles(styles);
   const bodyRef = useRef<HTMLDivElement | null>(null);

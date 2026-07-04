@@ -6,11 +6,6 @@ import { getDocumentId, makeGqlUpdateMutation } from "@/server/vulcan-lib/apollo
 import { updateAndReturnDocument } from "@/server/vulcan-lib/mutators";
 import gql from "graphql-tag";
 
-// Environments (sandbox snapshots) are created server-side by
-// `saveResearchEnvironment`, not via a generic create mutation — this file
-// only exposes the `update` shape, primarily for user-edited labels from the
-// sidebar's snapshot management UI.
-
 function editCheck(user: DbUser | null, document: DbResearchEnvironment | null) {
   if (!user || !document) return false;
   return userIsAdmin(user) || userOwns(user, document);

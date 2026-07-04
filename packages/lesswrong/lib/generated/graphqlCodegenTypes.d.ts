@@ -2777,6 +2777,11 @@ type ManifoldProbabilitiesCache = {
   year: Scalars['Float']['output'];
 };
 
+type MarkResearchConversationReadOutput = {
+  __typename?: 'MarkResearchConversationReadOutput';
+  ok: Scalars['Boolean']['output'];
+};
+
 type MarketplaceHomePageDesign = {
   __typename?: 'MarketplaceHomePageDesign';
   commentBaseScore: Scalars['Int']['output'];
@@ -3920,6 +3925,7 @@ type Mutation = {
   markAsReadOrUnread?: Maybe<Scalars['Boolean']['output']>;
   markConversationRead: Scalars['Boolean']['output'];
   markPostCommentsRead?: Maybe<Scalars['Boolean']['output']>;
+  markResearchConversationRead?: Maybe<MarkResearchConversationReadOutput>;
   mergeTags?: Maybe<Scalars['Boolean']['output']>;
   mintDevPreviewUrl?: Maybe<DevPreviewUrlOutput>;
   moderateComment?: Maybe<Comment>;
@@ -4420,6 +4426,11 @@ type MutationmarkConversationReadArgs = {
 
 type MutationmarkPostCommentsReadArgs = {
   postId: Scalars['String']['input'];
+};
+
+
+type MutationmarkResearchConversationReadArgs = {
+  conversationId: Scalars['String']['input'];
 };
 
 
@@ -11233,7 +11244,6 @@ type UpdateResearchConversationDataInput = {
   entrypointKind?: InputMaybe<ResearchEntrypointKind>;
   icon?: InputMaybe<Scalars['String']['input']>;
   lastActivityAt?: InputMaybe<Scalars['Date']['input']>;
-  lastReadAt?: InputMaybe<Scalars['Date']['input']>;
   projectId?: InputMaybe<Scalars['String']['input']>;
   runtime?: InputMaybe<Scalars['String']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
@@ -11250,7 +11260,6 @@ type UpdateResearchDocumentDataInput = {
   contents?: InputMaybe<CreateRevisionDataInput>;
   icon?: InputMaybe<Scalars['String']['input']>;
   projectId?: InputMaybe<Scalars['String']['input']>;
-  sortOrder?: InputMaybe<Scalars['Float']['input']>;
   title?: InputMaybe<Scalars['String']['input']>;
   userId?: InputMaybe<Scalars['String']['input']>;
 };
@@ -18300,20 +18309,6 @@ type ResearchConversationSidebarStatusesQueryVariables = Exact<{
 
 type ResearchConversationSidebarStatusesQuery = ResearchConversationSidebarStatusesQuery_Query;
 
-type CreateResearchDocumentPaletteMutation_createResearchDocument_ResearchDocumentOutput_data_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null };
-
-type CreateResearchDocumentPaletteMutation_createResearchDocument_ResearchDocumentOutput = { __typename?: 'ResearchDocumentOutput', data: CreateResearchDocumentPaletteMutation_createResearchDocument_ResearchDocumentOutput_data_ResearchDocument | null };
-
-type CreateResearchDocumentPaletteMutation_Mutation = { __typename?: 'Mutation', createResearchDocument: CreateResearchDocumentPaletteMutation_createResearchDocument_ResearchDocumentOutput | null };
-
-
-type CreateResearchDocumentPaletteMutationVariables = Exact<{
-  projectId: Scalars['String']['input'];
-}>;
-
-
-type CreateResearchDocumentPaletteMutation = CreateResearchDocumentPaletteMutation_Mutation;
-
 type ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput_results_ResearchProject = { __typename?: 'ResearchProject', _id: string, title: string | null, description: string | null, createdAt: string };
 
 type ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput = { __typename?: 'MultiResearchProjectOutput', results: Array<ResearchProjectListQueryQuery_researchProjects_MultiResearchProjectOutput_results_ResearchProject> };
@@ -18473,16 +18468,13 @@ type ResearchConversationTranscriptQueryVariables = Exact<{
 
 type ResearchConversationTranscriptQuery = ResearchConversationTranscriptQuery_Query;
 
-type MarkResearchConversationReadMutation_updateResearchConversation_ResearchConversationOutput_data_ResearchConversation = { __typename?: 'ResearchConversation', _id: string, lastReadAt: string | null };
+type MarkResearchConversationReadMutation_markResearchConversationRead_MarkResearchConversationReadOutput = { __typename?: 'MarkResearchConversationReadOutput', ok: boolean };
 
-type MarkResearchConversationReadMutation_updateResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', data: MarkResearchConversationReadMutation_updateResearchConversation_ResearchConversationOutput_data_ResearchConversation | null };
-
-type MarkResearchConversationReadMutation_Mutation = { __typename?: 'Mutation', updateResearchConversation: MarkResearchConversationReadMutation_updateResearchConversation_ResearchConversationOutput | null };
+type MarkResearchConversationReadMutation_Mutation = { __typename?: 'Mutation', markResearchConversationRead: MarkResearchConversationReadMutation_markResearchConversationRead_MarkResearchConversationReadOutput | null };
 
 
 type MarkResearchConversationReadMutationVariables = Exact<{
-  id: Scalars['String']['input'];
-  lastReadAt: Scalars['Date']['input'];
+  conversationId: Scalars['String']['input'];
 }>;
 
 

@@ -172,9 +172,6 @@ function usePositionTracking(
         width: elemRect.width,
       });
     }
-    // Keep referential stability at both levels: unchanged entries reuse the
-    // previous position object (so memoized overlays skip re-rendering), and
-    // a fully unchanged map keeps its identity (no re-render at all).
     setPositions((prev) => {
       let changed = prev.size !== next.size;
       const merged = new Map<string, OverlayPosition>();
@@ -198,8 +195,6 @@ function usePositionTracking(
 
   useEffect(() => {
     if (!anchorElem) return;
-    // One pending frame at a time: update listeners can fire several times
-    // per keystroke, and each measure forces a layout pass.
     let scheduledFrame: number | null = null;
     const scheduleMeasure = () => {
       if (scheduledFrame !== null) return;
@@ -287,8 +282,6 @@ const IframeWidgetOverlay = React.memo(function IframeWidgetOverlay({
 
   const handleToggleClick = useCallback(() => onToggle(nodeKey), [onToggle, nodeKey]);
 
-  // DOMParser round-trip is expensive on large widgets — only redo it when
-  // the widget's HTML actually changes, not on every position shift.
   const srcdoc = useMemo(
     () => state.htmlContent.trim()
       ? injectResizeScript(stripDeletedMarkupFromSrcdoc(state.htmlContent))
@@ -347,7 +340,6 @@ const IframeWidgetCodeToggle = React.memo(function IframeWidgetCodeToggle({
       const anchorRect = anchorElem.getBoundingClientRect();
       const top = codeRect.top - anchorRect.top + anchorElem.scrollTop + 4;
       const right = anchorRect.right - codeRect.right + 4;
-      // Bail out when unchanged so per-keystroke updates don't re-render.
       setPosition((prev) => (prev && prev.top === top && prev.right === right ? prev : { top, right }));
     }
     measure();
@@ -361,8 +353,6 @@ const IframeWidgetCodeToggle = React.memo(function IframeWidgetCodeToggle({
     };
     const unregister = editor.registerUpdateListener(scheduleMeasure);
     window.addEventListener('resize', scheduleMeasure);
-    // Track document reflows that happen without a Lexical update (loads,
-    // spacer collapses, panel resizes) — see usePositionTracking above.
     const resizeObserver = new ResizeObserver(scheduleMeasure);
     resizeObserver.observe(anchorElem);
     const rootElem = editor.getRootElement();
@@ -399,9 +389,6 @@ export default function IframeWidgetPlugin({
   const [editor] = useLexicalComposerContext();
   const {flash} = useMessages();
   const [widgets, setWidgets] = useState<Map<string, WidgetState>>(new Map);
-  // Mirror of `widgets` for the mutation listener: 'updated' mutations fire on
-  // every keystroke inside a widget, and the listener must be able to tell
-  // "already tracked, nothing to do" without going through a state update.
   const widgetsRef = useRef(widgets);
   widgetsRef.current = widgets;
 
@@ -431,9 +418,6 @@ export default function IframeWidgetPlugin({
         COMMAND_PRIORITY_EDITOR,
       ),
       editor.registerMutationListener(IframeWidgetNode, (mutations) => {
-        // Only additions and removals matter here; 'updated' fires on every
-        // keystroke inside a widget's code view and must not churn state
-        // (a new Map identity re-renders every overlay).
         const tracked = widgetsRef.current;
         const removed: string[] = [];
         const added: Array<{ key: string; state: WidgetState }> = [];

@@ -4,9 +4,6 @@ import {
   toolResultToolUseId,
 } from "../components/research/researchAskUserQuestion";
 
-// Payloads mirror real Claude Code stream-json lines (2.1.198): the tool_use
-// arrives as an assistant message content block; the answer comes back as a
-// user-role tool_result line with a top-level tool_use_result carrying answers.
 const askEvent = {
   kind: "assistant",
   payload: {
