@@ -5,7 +5,12 @@ import {
   $getRoot,
 } from "lexical";
 import { $isMarkNode } from "@lexical/mark";
-import { $attachMarkToQuote, type QuoteMarkResult } from "../../../app/api/agent/collabCommentThreads";
+import {
+  $attachMarkToQuote,
+  insertCollabCommentThread,
+  type QuoteMarkResult,
+} from "../../../app/api/agent/collabCommentThreads";
+import { commentOnDraftToolSchema } from "../../../app/api/agent/toolSchemas";
 import { htmlToMarkdown } from "@/server/editor/conversionUtils";
 import { runEditorUpdate, setupEditorWithContent, setupEditorWithHtml } from "./lexicalTestHelpers";
 import { randomId } from "@/lib/random";
@@ -357,6 +362,39 @@ describe("commentOnDraft quote matching", () => {
     expect(quoteFoundInDocument).toBe(true);
     expect(markCreated).toBe(true);
     expect(getAllMarkIds(editor)).toContain(markId);
+  });
+});
+
+describe("commentOnDraft anchorRequired option", () => {
+  it("defaults anchorRequired to false in the route schema", () => {
+    const parsed = commentOnDraftToolSchema.parse({
+      postId: "post123",
+      key: "key123",
+      comment: "Looks good.",
+    });
+
+    expect(parsed.anchorRequired).toBe(false);
+  });
+
+  it("does not create a top-level thread when anchorRequired is true and no quote is provided", async () => {
+    const result = await insertCollabCommentThread({
+      collectionName: "Posts",
+      documentId: "post123",
+      token: "token123",
+      comment: "This should not be posted.",
+      quote: "",
+      author: "Agent",
+      authorId: "agent123",
+      anchorRequired: true,
+    });
+
+    expect(result).toEqual({
+      commentCreated: false,
+      threadId: null,
+      commentId: null,
+      anchorStatus: "anchor_required_no_quote",
+      anchorNote: "No quote provided and anchorRequired was true; no comment thread created.",
+    });
   });
 });
 

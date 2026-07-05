@@ -20,6 +20,7 @@ export const commentOnDraftToolSchema = z.object({
   agentName: z.string().optional().describe("Name to attribute the comment to"),
   quote: z.string().optional().describe("Text to attach the comment to (should be long enough to be unambiguous)"),
   comment: z.string().describe("The comment text in markdown"),
+  anchorRequired: z.boolean().default(false).describe("If true, do not create a fallback top-level comment when the quote is missing, ambiguous, or cannot be anchored."),
 });
 
 export const replaceTextToolSchema = z.object({

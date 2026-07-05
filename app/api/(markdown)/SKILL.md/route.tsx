@@ -163,10 +163,16 @@ and the conversation. You can use the thread ID to reply to existing threads.
 
 To add Google Docs-style comments to the draft, make a request to:
     POST /api/agent/commentOnDraft
-    with JSON body: { postId, key, agentName?, quote?, comment }
+    with JSON body: { postId, key, agentName?, quote?, comment, anchorRequired? }
 If a quote is provided, the comment will be attached to matching quoted text.
 The quote should be long enough to be unambiguous. If no quote is provided, the
 comment will be top-level.
+
+If you are probing an anchor or the comment would be confusing as a top-level
+thread, set `anchorRequired: true`. In that mode, a missing, ambiguous, or
+unanchorable quote returns `ok: false`, `commentCreated: false`, and an
+`anchorStatus` explaining the failure, without creating a fallback top-level
+comment.
 
 The comment body is markdown. The quote, however, should be the visible rendered
 text as a reader would see it — not the markdown source of the surrounding paragraph.

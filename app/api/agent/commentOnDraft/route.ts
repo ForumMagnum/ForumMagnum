@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid request body", details: parseResult.error.format() }, { status: 400 });
   }
 
-  const { postId, key, agentName, quote, comment } = parseResult.data;
+  const { postId, key, agentName, quote, comment, anchorRequired } = parseResult.data;
 
   try {
     const auth = await authorizeAgentDraftAccess({ route: "commentOnDraft", postId, context, linkSharingKey: key, agentName });
@@ -27,7 +27,7 @@ export async function POST(req: NextRequest) {
     const { authorId, authorName } = deriveAgentAuthor({ context, args: { agentName } });
     const threadQuote = quote ?? "";
 
-    const { threadId, commentId, anchorStatus, anchorNote } = await insertCollabCommentThread({
+    const { commentCreated, threadId, commentId, anchorStatus, anchorNote } = await insertCollabCommentThread({
       collectionName: "Posts",
       documentId: postId,
       token,
@@ -35,14 +35,24 @@ export async function POST(req: NextRequest) {
       quote: threadQuote,
       author: authorName,
       authorId,
+      anchorRequired,
     });
 
-    captureAgentApiEvent({ route: "commentOnDraft", postId, userId: context.currentUser?._id, agentName, status: "success", operationResult: anchorStatus, threadId });
+    captureAgentApiEvent({
+      route: "commentOnDraft",
+      postId,
+      userId: context.currentUser?._id,
+      agentName,
+      status: "success",
+      operationResult: anchorStatus,
+      threadId: threadId ?? undefined,
+    });
     return NextResponse.json({
-      ok: true,
+      ok: commentCreated,
       postId,
       threadId,
       commentId,
+      commentCreated,
       anchorStatus,
       anchorNote,
       mode: "lexical-collaboration-comment-thread",

@@ -123,7 +123,30 @@ async function getMainDocQuoteMatchResult({
   });
 }
 
-export type CommentAnchorStatus = "attached_by_quote_match" | "top_level_no_match" | "top_level_no_quote";
+export type CommentAnchorStatus =
+  | "attached_by_quote_match"
+  | "top_level_no_match"
+  | "top_level_no_quote"
+  | "anchor_required_no_match"
+  | "anchor_required_no_quote";
+
+type CreatedCommentAnchorStatus = "attached_by_quote_match" | "top_level_no_match" | "top_level_no_quote";
+
+export type InsertCollabCommentThreadResult =
+  | {
+      commentCreated: true
+      threadId: string
+      commentId: string
+      anchorStatus: CreatedCommentAnchorStatus
+      anchorNote: string
+    }
+  | {
+      commentCreated: false
+      threadId: null
+      commentId: null
+      anchorStatus: "anchor_required_no_match" | "anchor_required_no_quote"
+      anchorNote: string
+    };
 
 export async function insertCollabCommentThread({
   collectionName,
@@ -133,6 +156,7 @@ export async function insertCollabCommentThread({
   quote,
   author,
   authorId,
+  anchorRequired = false,
 }: {
   collectionName: string
   documentId: string
@@ -141,15 +165,21 @@ export async function insertCollabCommentThread({
   quote: string
   author: string
   authorId: string
-}): Promise<{
-  threadId: string
-  commentId: string
-  anchorStatus: CommentAnchorStatus
-  anchorNote: string
-}> {
+  anchorRequired?: boolean
+}): Promise<InsertCollabCommentThreadResult> {
   const commentId = randomId();
   const threadId = randomId();
   const hasQuote = !!normalizeText(quote);
+
+  if (!hasQuote && anchorRequired) {
+    return {
+      commentCreated: false,
+      threadId: null,
+      commentId: null,
+      anchorStatus: "anchor_required_no_quote",
+      anchorNote: "No quote provided and anchorRequired was true; no comment thread created.",
+    };
+  }
 
   // The comments-doc session wraps the whole operation so that its
   // connect/sync (the failure-prone part) happens BEFORE the quote-match
@@ -160,7 +190,7 @@ export async function insertCollabCommentThread({
     documentId,
     token,
     callback: async ({ doc }) => {
-      let anchorStatus: CommentAnchorStatus;
+      let anchorStatus: CreatedCommentAnchorStatus;
       let anchorNote: string;
 
       if (!hasQuote) {
@@ -179,6 +209,18 @@ export async function insertCollabCommentThread({
           anchorStatus = "attached_by_quote_match";
           anchorNote = "Inserted a new text-range mark around quote text and attached the thread.";
         } else {
+          if (anchorRequired) {
+            const fallbackNote = quoteFoundInDocument
+              ? "Quote text found in the document, but could not create a text-range anchor."
+              : "Quote text was not found in the document.";
+            return {
+              commentCreated: false,
+              threadId: null,
+              commentId: null,
+              anchorStatus: "anchor_required_no_match",
+              anchorNote: `${locateFailureReason ?? fallbackNote} No comment thread created because anchorRequired was true.`,
+            };
+          }
           anchorStatus = "top_level_no_match";
           const fallbackNote = quoteFoundInDocument
             ? "Quote text found in the document, but could not create a text-range anchor."
@@ -194,7 +236,7 @@ export async function insertCollabCommentThread({
         comments.insert(comments.length, [threadMap]);
       }, "agent-comment-on-draft");
 
-      return { threadId, commentId, anchorStatus, anchorNote };
+      return { commentCreated: true, threadId, commentId, anchorStatus, anchorNote };
     },
   });
 }
