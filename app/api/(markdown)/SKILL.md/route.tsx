@@ -169,9 +169,9 @@ The quote should be long enough to be unambiguous. If no quote is provided, the
 comment will be top-level.
 
 If you are probing an anchor or the comment would be confusing as a top-level
-thread, set `anchorRequired: true`. In that mode, a missing, ambiguous, or
-unanchorable quote returns `ok: false`, `commentCreated: false`, and an
-`anchorStatus` explaining the failure, without creating a fallback top-level
+thread, set \`anchorRequired: true\`. In that mode, a missing, ambiguous, or
+unanchorable quote returns \`ok: false\`, \`commentCreated: false\`, and an
+\`anchorStatus\` explaining the failure, without creating a fallback top-level
 comment.
 
 The comment body is markdown. The quote, however, should be the visible rendered
