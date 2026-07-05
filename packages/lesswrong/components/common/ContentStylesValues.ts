@@ -35,6 +35,17 @@ const researchDocumentBodyStyles = (theme: ThemeType) => ({
   '& [contenteditable="true"] p:not(.research-agent-block *)': {
     margin: '0 0 0.7em',
   },
+  '& [contenteditable="true"] table:not(.research-agent-block *)': {
+    margin: '0.7em 0',
+  },
+  '& [contenteditable="true"] th, & [contenteditable="true"] td': {
+    '& p:not(.research-agent-block *)': {
+      margin: 0,
+    },
+    '& p:not(.research-agent-block *) + p:not(.research-agent-block *)': {
+      marginTop: '0.45em',
+    },
+  },
   '& [contenteditable="true"] h1:not(.research-agent-block *)': {
     fontSize: 32,
     lineHeight: 1.2,
