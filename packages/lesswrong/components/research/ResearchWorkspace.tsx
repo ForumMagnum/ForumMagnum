@@ -297,6 +297,15 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
     setEditorIntent({ kind: 'insert-query', nonce: intentNonceRef.current });
   }, [ensureScratchDocument, projectId, setActiveDocumentId]);
 
+  // Drop a full conversation block (transcript + composer) bound to
+  // `conversationId` at the active editor's current cursor (double-clicking a
+  // sidebar chat). Deliberately does not navigate — it lands wherever the user
+  // is currently editing.
+  const insertConversationBlockAtCursor = useCallback((conversationId: string) => {
+    intentNonceRef.current += 1;
+    setEditorIntent({ kind: 'insert-conversation-block', conversationId, nonce: intentNonceRef.current });
+  }, []);
+
   const openConversationChat = useCallback((conversationId: string, opts?: { fullscreen?: boolean }) => {
     markConversationRead(conversationId);
     setChatSurface({ conversationId, fullscreen: opts?.fullscreen ?? false });
@@ -405,6 +414,7 @@ const ResearchWorkspace = ({ projectId }: ResearchWorkspaceProps) => {
                   activeDocumentId={activeDocumentId}
                   onSelectDocument={setActiveDocumentId}
                   onSelectConversation={openConversation}
+                  onInsertConversationBlock={insertConversationBlockAtCursor}
                   onOpenConversationChat={openConversationChat}
                   onStartNewConversation={startNewConversation}
                   onCollapse={toggleSidebar}

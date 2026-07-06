@@ -29,7 +29,7 @@ import { sanitize } from '@/lib/utils/sanitize';
 import { randomId } from '@/lib/random';
 import { useMessages } from '@/components/common/withMessages';
 import { isSandboxWarmingError } from '../sandboxWarming';
-import { researchAccentTint, researchChatProse, researchChatSans, researchChatSurface, researchMono, researchEasing, researchWarmAlpha, researchRadius, researchSquircle } from '../researchStyleUtils';
+import { researchAccentTint, researchChatProse, researchChatSans, researchChatSurface, researchMono, researchWarmAlpha, researchRadius, researchSquircle } from '../researchStyleUtils';
 
 const FOCUSED_MAX_HEIGHT = '72vh';
 const BLURRED_MAX_CONTENT_HEIGHT = 200;
@@ -88,7 +88,10 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
     // `white-space: pre-wrap` (Lexical's default). Without this reset every
     // newline in the rendered markdown HTML becomes a visible blank line.
     whiteSpace: 'normal',
-    transition: `border-color 160ms ${researchEasing}`,
+    // No border-color transition: on a fresh mount (document switch) the
+    // border's initial computed color can differ for a frame, and a transition
+    // stretched that into a visible dark-border fade. Snapping the border-color
+    // keeps any such flash to a single, imperceptible frame.
     scrollMarginTop: 18,
     '.spoilers:not(:hover) &': {
       borderColor: theme.palette.panelBackground.spoilerBlock,
@@ -118,6 +121,15 @@ const styles = defineStyles('AgentBlockComponent', (theme: ThemeType) => ({
   },
   rootProvenance: {
     borderLeftColor: researchAccentTint(0.35),
+  },
+  // Embedded in a v2 ResearchConversationNode: the wrapper is the single card,
+  // so the transcript itself is chromeless (no border/background/margin/radius).
+  rootEmbedded: {
+    border: 'none',
+    borderLeft: 'none',
+    background: 'transparent',
+    margin: 0,
+    borderRadius: 0,
   },
   header: {
     flex: 'none',
@@ -248,9 +260,10 @@ interface AgentBlockComponentProps {
   nodeKey: NodeKey;
   conversationId: string;
   producedByConversationId: string | null;
+  hideComposer?: boolean;
 }
 
-export function AgentBlockComponent({ nodeKey: _nodeKey, conversationId, producedByConversationId }: AgentBlockComponentProps) {
+export function AgentBlockComponent({ nodeKey: _nodeKey, conversationId, producedByConversationId, hideComposer }: AgentBlockComponentProps) {
   const classes = useStyles(styles);
   useResearchEditorEnvironment();
   const pending = usePendingConversation(conversationId);
@@ -262,7 +275,7 @@ export function AgentBlockComponent({ nodeKey: _nodeKey, conversationId, produce
   if (!conversationId || pending) {
     return (
       <div
-        className={classNames(classes.root, fromAgent && classes.rootProvenance)}
+        className={classNames(classes.root, hideComposer && classes.rootEmbedded, fromAgent && classes.rootProvenance)}
         data-testid="research-agent-block-pending"
       >
         <div className={classes.header}>
@@ -280,6 +293,7 @@ export function AgentBlockComponent({ nodeKey: _nodeKey, conversationId, produce
       conversationId={conversationId}
       fromAgent={fromAgent}
       justDispatched={wasPendingRef.current}
+      hideComposer={hideComposer}
     />
   );
 }
@@ -288,9 +302,10 @@ interface ActiveAgentBlockProps {
   conversationId: string;
   fromAgent: boolean;
   justDispatched: boolean;
+  hideComposer?: boolean;
 }
 
-function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveAgentBlockProps) {
+function ActiveAgentBlock({ conversationId, fromAgent, justDispatched, hideComposer }: ActiveAgentBlockProps) {
   const classes = useStyles(styles);
   const env = useResearchEditorEnvironment();
   const workspace = useResearchWorkspaceApiOptional();
@@ -312,6 +327,60 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
   }, []);
 
   useStopLexicalEventPropagation(rootRef);
+
+  // v2 block: the reply composer is a sibling Lexical node (static DOM), so it
+  // can't read this component's `focused` state directly. Bridge it onto the
+  // wrapping ResearchConversationNode's DOM as `data-expanded`, which the
+  // content styles use to reveal the composer only while the block is expanded
+  // (matching the old in-block composer, which only rendered when focused).
+  useEffect(() => {
+    if (!hideComposer) return;
+    const wrapper = rootRef.current?.closest('.research-conversation');
+    if (wrapper) wrapper.setAttribute('data-expanded', focused ? 'true' : 'false');
+  }, [hideComposer, focused]);
+
+  // v2 block: when the block expands, drop the cursor into the reply composer
+  // so the user can type immediately (like clicking into a chat).
+  useEffect(() => {
+    if (!hideComposer || !focused) return;
+    const wrapper = rootRef.current?.closest('.research-conversation');
+    const editable = wrapper?.querySelector<HTMLElement>('.research-query-input-content');
+    if (!editable) return;
+    const raf = requestAnimationFrame(() => editable.focus());
+    return () => cancelAnimationFrame(raf);
+  }, [hideComposer, focused]);
+
+  // v2 block: expand on a click anywhere in the card, not just the transcript —
+  // the collapsed draft preview is a pointer-events:none sibling, so clicks on
+  // it fall through to the wrapper, which otherwise had no expand handler.
+  useEffect(() => {
+    if (!hideComposer || focused) return;
+    const wrapper = rootRef.current?.closest('.research-conversation');
+    if (!wrapper) return;
+    const onClick = () => {
+      manualFocusRef.current = true;
+      setFocused(true);
+    };
+    wrapper.addEventListener('click', onClick);
+    return () => wrapper.removeEventListener('click', onClick);
+  }, [hideComposer, focused]);
+
+  // v2 block: reflect whether the composer holds an unsent draft onto the
+  // wrapper (data-draft), so the collapsed block can show a dimmed preview of it.
+  useEffect(() => {
+    if (!hideComposer) return;
+    const wrapper = rootRef.current?.closest('.research-conversation');
+    const editable = wrapper?.querySelector<HTMLElement>('.research-query-input-content');
+    if (!wrapper || !editable) return;
+    const sync = () => {
+      const hasDraft = (editable.textContent ?? '').trim().length > 0;
+      wrapper.setAttribute('data-draft', hasDraft ? 'true' : 'false');
+    };
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(editable, { childList: true, subtree: true, characterData: true });
+    return () => observer.disconnect();
+  }, [hideComposer]);
 
   const { data: conversationData, refetch: refetchConversation } = useQuery(ResearchConversationBlockQuery, {
     variables: { conversationId },
@@ -390,7 +459,13 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
   useEffect(() => {
     if (!focused) return;
     const onPointerDown = (e: PointerEvent) => {
-      const root = rootRef.current;
+      // In a v2 block the reply composer is a sibling node, so the containment
+      // boundary is the whole ResearchConversationNode wrapper — otherwise
+      // clicking into the composer reads as "outside" and collapses the block
+      // (hiding the composer before it can be focused).
+      const root = hideComposer
+        ? (rootRef.current?.closest('.research-conversation') ?? rootRef.current)
+        : rootRef.current;
       if (root && e.target instanceof Node && !root.contains(e.target)) {
         if (e.target instanceof Element && e.target.closest('[data-research-popover]')) return;
         blurBlock();
@@ -473,6 +548,7 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
     <div
       ref={rootRef}
       className={classNames(classes.root, {
+        [classes.rootEmbedded]: hideComposer,
         [classes.rootBlurred]: !focused,
         [classes.rootFocused]: focused,
         [classes.rootProvenance]: fromAgent && !focused,
@@ -547,13 +623,15 @@ function ActiveAgentBlock({ conversationId, fromAgent, justDispatched }: ActiveA
             loadingOlder={loadingOlder}
             loadOlder={loadOlder}
           />
-          <div className={classes.composerWrap}>
-            <ChatComposer
-              projectId={env.projectId}
-              disabled={sending}
-              onSubmit={handleSend}
-            />
-          </div>
+          {hideComposer ? null : (
+            <div className={classes.composerWrap}>
+              <ChatComposer
+                projectId={env.projectId}
+                disabled={sending}
+                onSubmit={handleSend}
+              />
+            </div>
+          )}
         </>
       ) : (
         <BlurredPresentation

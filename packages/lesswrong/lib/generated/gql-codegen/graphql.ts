@@ -17925,6 +17925,15 @@ export type CancelResearchConversationFromBlockMutationVariables = Exact<{
 
 export type CancelResearchConversationFromBlockMutation = { __typename?: 'Mutation', cancelResearchConversation: { __typename?: 'ResearchConversationOutput', conversationId: string } | null };
 
+export type ContinueResearchConversationFromDocumentComposerMutationVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+  promptHtml: Scalars['String']['input'];
+  activeDocumentId: Scalars['String']['input'];
+}>;
+
+
+export type ContinueResearchConversationFromDocumentComposerMutation = { __typename?: 'Mutation', continueResearchConversation: { __typename?: 'ResearchConversationOutput', conversationId: string } | null };
+
 export type MentionTypeaheadProjectResourcesQueryQueryVariables = Exact<{
   projectId: Scalars['String']['input'];
 }>;
@@ -23145,6 +23154,7 @@ export const MarkResearchConversationReadDocument = _o1(_1,[_o11(_977,_978,_o3(_
 export const ResearchConversationBlockInfoDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"ResearchConversationBlockInfo"),_1402,_o5(_7,[_o7(_8,_1568,_1569,_o5(_7,[_o6(_8,_997,_o5(_7,[_10,_14,_o4(_8,_o3(_3,"presentationHtml")),_o4(_8,_o3(_3,"userTurnCount"))]))]))]))]) as unknown as DocumentNode<ResearchConversationBlockInfoQuery, ResearchConversationBlockInfoQueryVariables>;
 export const ContinueResearchConversationFromBlockDocument = _o1(_1,[_o11(_977,_978,_o3(_3,"ContinueResearchConversationFromBlock"),_1577,_1579)]) as unknown as DocumentNode<ContinueResearchConversationFromBlockMutation, ContinueResearchConversationFromBlockMutationVariables>;
 export const CancelResearchConversationFromBlockDocument = _o1(_1,[_o11(_977,_978,_o3(_3,"CancelResearchConversationFromBlock"),_1402,_1580)]) as unknown as DocumentNode<CancelResearchConversationFromBlockMutation, CancelResearchConversationFromBlockMutationVariables>;
+export const ContinueResearchConversationFromDocumentComposerDocument = _o1(_1,[_o11(_977,_978,_o3(_3,"ContinueResearchConversationFromDocumentComposer"),_1577,_1579)]) as unknown as DocumentNode<ContinueResearchConversationFromDocumentComposerMutation, ContinueResearchConversationFromDocumentComposerMutationVariables>;
 export const MentionTypeaheadProjectResourcesQueryDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"MentionTypeaheadProjectResourcesQuery"),_1590,_o5(_7,[_o7(_8,_1591,_1595,_o5(_7,[_o6(_8,_1014,_1599)])),_o7(_8,_1644,_1595,_o5(_7,[_o6(_8,_1014,_o5(_7,[_10,_14,_1623]))]))]))]) as unknown as DocumentNode<MentionTypeaheadProjectResourcesQueryQuery, MentionTypeaheadProjectResourcesQueryQueryVariables>;
 export const ProjectSidebarQueryDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"ProjectSidebarQuery"),_1590,_o5(_7,[_o7(_8,_o3(_3,"researchProject"),[_o8(_530,_992,_o14(_990,[_o8(_991,_9,_1582)]))],_1570),_o7(_8,_1591,_1595,_o5(_7,[_o6(_8,_1014,_o5(_7,[_10,_14,_1609,_o4(_8,_o3(_3,"sortOrder")),_47]))])),_o15(_8,_o3(_3,"archivedDocuments"),_1591,_1645,_o5(_7,[_o6(_8,_1014,_o5(_7,[_10,_14,_1609,_47]))])),_o7(_8,_1644,_1595,_1646),_o15(_8,_o3(_3,"archivedConversations"),_1644,_1645,_1646)]))]) as unknown as DocumentNode<ProjectSidebarQueryQuery, ProjectSidebarQueryQueryVariables>;
 export const ResearchEnvironmentsByProjectQueryDocument = _o1(_1,[_o11(_977,_984,_o3(_3,"ResearchEnvironmentsByProjectQuery"),_1590,_o5(_7,[_o7(_8,_1647,_1595,_1648),_o15(_8,_o3(_3,"archivedEnvironments"),_1647,_1645,_1648)]))]) as unknown as DocumentNode<ResearchEnvironmentsByProjectQueryQuery, ResearchEnvironmentsByProjectQueryQueryVariables>;

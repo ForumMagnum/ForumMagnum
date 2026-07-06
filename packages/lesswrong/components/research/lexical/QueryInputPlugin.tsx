@@ -27,7 +27,7 @@ import {
 import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
 import { $findMatchingParent, mergeRegister } from '@lexical/utils';
 import { randomId } from '@/lib/random';
-import { $createAgentBlockNode, $isAgentBlockNode } from './AgentBlockNode';
+import { $createPopulatedResearchConversationNode, $isResearchConversationNode } from './ResearchConversationNode';
 import {
   $createPopulatedQueryInputNode,
   $isQueryInputNode,
@@ -164,7 +164,7 @@ async function fireQuery({
     }
     editor.update(() => {
       const agentBlock = $getNodeByKey(agentBlockKey);
-      if (!$isAgentBlockNode(agentBlock)) return;
+      if (!$isResearchConversationNode(agentBlock)) return;
       const restored = $restoreQueryInputFromHtml(editor, promptHtml, selection);
       agentBlock.replace(restored.node);
       const last = restored.content.getLastDescendant();
@@ -307,14 +307,13 @@ export function QueryInputPlugin() {
           // finds the AgentBlock and the server-side row sharing the same id,
           // and the events stream wires up on reload.
           const conversationId = randomId();
-          const agentBlock = $createAgentBlockNode({
-            conversationId,
-            producedByConversationId: null,
-          });
+          // v2 conversation block: transcript + an in-document (Yjs) reply
+          // composer, replacing the query input in the doc.
+          const { node: agentBlock } = $createPopulatedResearchConversationNode(conversationId);
           const agentBlockKey = agentBlock.getKey();
 
-          // Trailing paragraph so the cursor has somewhere to land
-          // (decorator nodes aren't selectable text).
+          // Trailing paragraph so the cursor has somewhere to land after the
+          // block (its transcript is a decorator; the composer is shadow-rooted).
           const trailing = $createParagraphNode();
           queryInput.insertAfter(trailing);
           queryInput.replace(agentBlock);

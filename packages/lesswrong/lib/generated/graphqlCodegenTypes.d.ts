@@ -18520,6 +18520,20 @@ type CancelResearchConversationFromBlockMutationVariables = Exact<{
 
 type CancelResearchConversationFromBlockMutation = CancelResearchConversationFromBlockMutation_Mutation;
 
+type ContinueResearchConversationFromDocumentComposerMutation_continueResearchConversation_ResearchConversationOutput = { __typename?: 'ResearchConversationOutput', conversationId: string };
+
+type ContinueResearchConversationFromDocumentComposerMutation_Mutation = { __typename?: 'Mutation', continueResearchConversation: ContinueResearchConversationFromDocumentComposerMutation_continueResearchConversation_ResearchConversationOutput | null };
+
+
+type ContinueResearchConversationFromDocumentComposerMutationVariables = Exact<{
+  conversationId: Scalars['String']['input'];
+  promptHtml: Scalars['String']['input'];
+  activeDocumentId: Scalars['String']['input'];
+}>;
+
+
+type ContinueResearchConversationFromDocumentComposerMutation = ContinueResearchConversationFromDocumentComposerMutation_Mutation;
+
 type MentionTypeaheadProjectResourcesQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument = { __typename?: 'ResearchDocument', _id: string, title: string | null, createdAt: string };
 
 type MentionTypeaheadProjectResourcesQueryQuery_researchDocuments_MultiResearchDocumentOutput = { __typename?: 'MultiResearchDocumentOutput', results: Array<MentionTypeaheadProjectResourcesQueryQuery_researchDocuments_MultiResearchDocumentOutput_results_ResearchDocument> };

@@ -59,6 +59,7 @@ import { useCurrentUser } from '@/components/common/withUser';
 import { userIsAdmin } from '@/lib/vulcan-users/permissions';
 import { useResearchEditorEnvironmentOptional } from '@/components/research/lexical/ResearchEditorContext';
 import { INSERT_QUERY_INPUT_COMMAND } from '@/components/research/lexical/QueryInputPlugin';
+import { InsertResearchChatDialog } from '@/components/research/lexical/InsertResearchChatDialog';
 import { InsertReviewResultsDialog } from '../../embeds/ReviewResultsEmbed/InsertReviewResultsDialog';
 import { INSERT_IFRAME_WIDGET_COMMAND } from '../../embeds/IframeWidgetEmbed/IframeWidgetPlugin';
 import { INSERT_LLM_CONTENT_BLOCK_COMMAND } from '@/components/editor/lexicalPlugins/llmContentOutput/LLMContentBlockPlugin';
@@ -314,7 +315,10 @@ interface ResearchSlashCustomizations {
   extras: ComponentPickerOption[];
 }
 
-function useResearchSlashCustomizations(editor: LexicalEditor): ResearchSlashCustomizations | null {
+function useResearchSlashCustomizations(
+  editor: LexicalEditor,
+  openDialog: OpenDialogContextType['openDialog'],
+): ResearchSlashCustomizations | null {
   const env = useResearchEditorEnvironmentOptional();
   return useMemo(() => {
     if (!env) return null;
@@ -325,8 +329,24 @@ function useResearchSlashCustomizations(editor: LexicalEditor): ResearchSlashCus
         editor.dispatchCommand(INSERT_QUERY_INPUT_COMMAND, undefined);
       },
     });
-    return { extras: [queryOption] };
-  }, [env, editor]);
+    const insertChatOption = new ComponentPickerOption('Insert existing chat', {
+      icon: <ForumIcon icon="Robot" style={omit(iconStyle, 'marginTop')} />,
+      keywords: ['chat', 'conversation', 'existing', 'reference', 'llm', 'agent', 'insert'],
+      onSelect: () => {
+        openDialog({
+          name: 'InsertResearchChatDialog',
+          contents: ({ onClose }) => (
+            <InsertResearchChatDialog
+              activeEditor={editor}
+              projectId={env.projectId}
+              onClose={onClose}
+            />
+          ),
+        });
+      },
+    });
+    return { extras: [queryOption, insertChatOption] };
+  }, [env, editor, openDialog]);
 }
 
 export default function ComponentPickerMenuPlugin(): JSX.Element {
@@ -334,7 +354,7 @@ export default function ComponentPickerMenuPlugin(): JSX.Element {
   const [queryString, setQueryString] = useState<string | null>(null);
   const { openDialog } = useDialog();
   const currentUser = useCurrentUser();
-  const researchCustomizations = useResearchSlashCustomizations(editor);
+  const researchCustomizations = useResearchSlashCustomizations(editor, openDialog);
 
   const baseCheckForTriggerMatch = useBasicTypeaheadTriggerMatch('/', {
     allowWhitespace: true,

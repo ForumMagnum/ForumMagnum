@@ -2,11 +2,43 @@
 
 import { useEffect } from 'react';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
-import { $getRoot, type LexicalEditor } from 'lexical';
+import {
+  $createParagraphNode,
+  $getRoot,
+  $getSelection,
+  $isParagraphNode,
+  $isRangeSelection,
+  type LexicalEditor,
+} from 'lexical';
 import { $dfs } from '@lexical/utils';
 import { $isAgentBlockNode } from './AgentBlockNode';
 import { $createPopulatedQueryInputNode } from './QueryInputNode';
+import { $createPopulatedResearchConversationNode } from './ResearchConversationNode';
 import { useResearchWorkspaceApiOptional } from '../researchWorkspaceContext';
+
+/**
+ * Insert a full v2 conversation block (transcript + reply composer) bound to
+ * `conversationId` at the current selection: replace the cursor's block if it's
+ * an empty paragraph, otherwise insert right after it (append at the end if
+ * there's no selection), with a trailing paragraph for the cursor to land on.
+ * Returns the block's key.
+ */
+export function $insertConversationBlockAtSelection(conversationId: string): string {
+  const { node } = $createPopulatedResearchConversationNode(conversationId);
+  const selection = $getSelection();
+  const block = $isRangeSelection(selection) ? selection.anchor.getNode().getTopLevelElement() : null;
+  const trailing = $createParagraphNode();
+  if (block && $isParagraphNode(block) && block.getTextContentSize() === 0) {
+    block.replace(node);
+  } else if (block) {
+    block.insertAfter(node);
+  } else {
+    $getRoot().append(node);
+  }
+  node.insertAfter(trailing);
+  trailing.selectStart();
+  return node.getKey();
+}
 
 /**
  * How long after mount we assume the collaborative document has synced even
@@ -70,6 +102,19 @@ export function WorkspaceIntentPlugin() {
           $getRoot().append(node);
           insertedKey = node.getKey();
           content.getFirstChild()?.selectStart();
+        });
+        if (insertedKey) scrollNodeIntoView(editor, insertedKey);
+        finish();
+        return;
+      }
+
+      if (intent.kind === 'insert-conversation-block') {
+        // Instant — no `writeReady` wait: the target is the already-open,
+        // already-synced active doc, so there's no initial-sync race to guard
+        // against (unlike insert-query into a fresh scratch doc).
+        let insertedKey: string | null = null;
+        editor.update(() => {
+          insertedKey = $insertConversationBlockAtSelection(intent.conversationId);
         });
         if (insertedKey) scrollNodeIntoView(editor, insertedKey);
         finish();

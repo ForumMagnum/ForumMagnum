@@ -47,6 +47,9 @@ interface ProjectSidebarProps {
   activeDocumentId: string | null;
   onSelectDocument: (documentId: string) => void;
   onSelectConversation: (conversationId: string) => void;
+  /** Cmd/Ctrl+click: insert a full conversation block (transcript + composer)
+   * bound to the conversation at the current editor cursor, without navigating. */
+  onInsertConversationBlock: (conversationId: string) => void;
   onOpenConversationChat: (conversationId: string) => void;
   onStartNewConversation: () => void;
   onCollapse: () => void;
@@ -475,6 +478,7 @@ const ProjectSidebar = ({
   activeDocumentId,
   onSelectDocument,
   onSelectConversation,
+  onInsertConversationBlock,
   onOpenConversationChat,
   onStartNewConversation,
   onCollapse,
@@ -483,6 +487,17 @@ const ProjectSidebar = ({
   const navigate = useNavigate();
   const { flash } = useMessages();
   const [creatingDoc, setCreatingDoc] = useState(false);
+
+  // Plain click navigates (instant); Cmd/Ctrl+click drops a live copy of the
+  // conversation block into the current document at the cursor, without jumping.
+  const handleConversationClick = useCallback((e: React.MouseEvent, conversationId: string) => {
+    if (e.metaKey || e.ctrlKey) {
+      e.preventDefault();
+      onInsertConversationBlock(conversationId);
+    } else {
+      onSelectConversation(conversationId);
+    }
+  }, [onSelectConversation, onInsertConversationBlock]);
 
   const { data, loading, refetch } = useQuery(ProjectSidebarQuery, {
     variables: { projectId },
@@ -748,7 +763,7 @@ const ProjectSidebar = ({
               <li key={conv._id}>
                 <div
                   className={classNames(classes.item, status?.unread && classes.itemUnread)}
-                  onClick={() => onSelectConversation(conv._id)}
+                  onClick={(e) => handleConversationClick(e, conv._id)}
                   role="button"
                   tabIndex={0}
                 >

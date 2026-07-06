@@ -5,6 +5,14 @@ import React, { createContext, useContext, type ReactNode } from 'react';
 export type ResearchEditorIntent =
   | { kind: 'insert-query'; nonce: number }
   | {
+      // Insert a full v2 conversation block (transcript + reply composer) bound
+      // to `conversationId` at the editor's current cursor — a second live view
+      // of the conversation (double-clicking a sidebar chat).
+      kind: 'insert-conversation-block';
+      conversationId: string;
+      nonce: number;
+    }
+  | {
       kind: 'focus-conversation';
       conversationId: string;
       nonce: number;

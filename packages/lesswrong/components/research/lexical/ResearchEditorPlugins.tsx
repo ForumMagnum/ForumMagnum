@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { QueryInputPlugin } from './QueryInputPlugin';
+import { ConversationComposerPlugin } from './ConversationComposerPlugin';
 import { MentionTypeaheadPlugin } from './MentionTypeaheadPlugin';
 import { WorkspaceIntentPlugin } from './WorkspaceIntentPlugin';
 
@@ -17,6 +18,7 @@ export function ResearchEditorPlugins({ projectId }: ResearchEditorPluginsProps)
   return (
     <>
       <QueryInputPlugin />
+      <ConversationComposerPlugin />
       <MentionTypeaheadPlugin projectId={projectId} />
       <WorkspaceIntentPlugin />
     </>

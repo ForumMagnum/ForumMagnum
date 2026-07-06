@@ -1,7 +1,7 @@
 import { defineStyles } from '../hooks/defineStyles';
 import { postBodyStyles, smallPostStyles, commentBodyStyles } from '../../themes/stylePiping'
 import classNames from 'classnames';
-import { researchAccentTint } from '../research/researchStyleUtils';
+import { researchAccentTint, researchWarmAlpha, researchRadius, researchChatSurface, researchChatSans } from '../research/researchStyleUtils';
 
 /**
  * Research-document editor styling. Inherits the full postBodyStyles surface
@@ -102,6 +102,73 @@ const researchDocumentBodyStyles = (theme: ThemeType) => ({
     lineHeight: 1.65,
     fontStyle: 'italic',
     fontFamily: theme.palette.fonts.serifStack,
+  },
+  // In-document conversation composer (ConversationComposerNode): a chat-voiced
+  // box whose draft lives in the Yjs doc (live + persistent). Reads as a
+  // composer, not essay prose — so it opts out of the serif reading column
+  // (its editable content carries the `research-query-input-content` class,
+  // already exempted above) and sits as a rounded input box with a send hint.
+  '& .research-conversation-composer': {
+    position: 'relative',
+    margin: '12px 0',
+    padding: '9px 44px 9px 13px',
+    border: `1px solid ${researchWarmAlpha(0.16)}`,
+    borderRadius: researchRadius.md,
+    background: researchChatSurface(theme),
+    fontFamily: researchChatSans,
+    fontSize: 15,
+    lineHeight: 1.5,
+    color: theme.palette.text.primary,
+  },
+  // Persistent "⌘↵ to send" affordance in the corner.
+  '& .research-conversation-composer::after': {
+    content: '"⌘↵"',
+    position: 'absolute',
+    right: 10,
+    bottom: 7,
+    fontSize: 11,
+    color: theme.palette.text.dim,
+    pointerEvents: 'none',
+  },
+  // v2 conversation block (ResearchConversationNode): the wrapper is the single
+  // card; the transcript (chromeless via `rootEmbedded`) and the reply composer
+  // live inside it as one unit — no floating second box.
+  '& .research-conversation': {
+    margin: '14px 0',
+    border: `1px solid ${researchWarmAlpha(0.14)}`,
+    borderRadius: researchRadius.lg,
+    background: researchChatSurface(theme),
+    overflow: 'hidden',
+  },
+  // Inside the card the composer is chromeless and separated from the transcript
+  // above it by a hairline seam.
+  '& .research-conversation .research-conversation-composer': {
+    margin: 0,
+    border: 'none',
+    borderTop: `1px solid ${researchWarmAlpha(0.1)}`,
+    borderRadius: 0,
+    background: 'transparent',
+  },
+  // Collapsed block: show a dimmed, non-interactive preview of an unsent draft
+  // (data-draft is set by the transcript component; see AgentBlockComponent) —
+  // and hide the composer entirely when there's no draft. Expanded, the
+  // composer is fully editable (rules above). Matches the old in-block composer,
+  // which only fully rendered when the block was focused.
+  '& .research-conversation:not([data-expanded="true"])[data-draft="true"] .research-conversation-composer': {
+    fontSize: 12.5,
+    lineHeight: 1.45,
+    opacity: 0.55,
+    padding: '6px 13px',
+    maxHeight: '3.6em',
+    overflow: 'hidden',
+    pointerEvents: 'none',
+  },
+  '& .research-conversation:not([data-expanded="true"]):not([data-draft="true"]) .research-conversation-composer': {
+    display: 'none',
+  },
+  // The ⌘↵ hint only makes sense in the expanded, editable composer.
+  '& .research-conversation:not([data-expanded="true"]) .research-conversation-composer::after': {
+    display: 'none',
   },
 });
 

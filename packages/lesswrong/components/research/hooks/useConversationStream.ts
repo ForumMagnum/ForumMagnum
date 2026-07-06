@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import type { ApolloClient } from '@apollo/client';
 import { gql } from '@/lib/generated/gql-codegen';
 import { useApolloClient } from '@apollo/client/react';
@@ -80,6 +80,43 @@ const ResearchConversationTranscriptQuery = gql(`
   }
 `);
 
+// --- Shared optimistic echoes ------------------------------------------------
+// Optimistic user echoes (seq < 0, shown before the persisted twin lands) live
+// in a module-level store keyed by conversationId rather than local component
+// state, so *any* view of a conversation — an inline block's transcript, an
+// embedded composer, the chat panel — surfaces a just-sent message instantly.
+// (Persisted + live events already share the Apollo cache; this gives the
+// pre-persist echo the same shared, cross-component visibility.)
+const optimisticByConversation = new Map<string, ConversationEvent[]>();
+const optimisticListeners = new Set<() => void>();
+const EMPTY_OPTIMISTIC: ConversationEvent[] = [];
+
+function emitOptimisticChange(): void {
+  for (const listener of optimisticListeners) listener();
+}
+
+function subscribeOptimistic(listener: () => void): () => void {
+  optimisticListeners.add(listener);
+  return () => { optimisticListeners.delete(listener); };
+}
+
+// Stable per-conversation array reference (required by useSyncExternalStore):
+// the same array is returned until a push/drop replaces it.
+function readOptimistic(conversationId: string | null | undefined): ConversationEvent[] {
+  if (!conversationId) return EMPTY_OPTIMISTIC;
+  return optimisticByConversation.get(conversationId) ?? EMPTY_OPTIMISTIC;
+}
+
+export function pushOptimisticEvent(conversationId: string, event: ConversationEvent): void {
+  const current = optimisticByConversation.get(conversationId) ?? [];
+  optimisticByConversation.set(conversationId, [...current, event]);
+  emitOptimisticChange();
+}
+
+export function dropOptimisticEvents(conversationId: string): void {
+  if (optimisticByConversation.delete(conversationId)) emitOptimisticChange();
+}
+
 /**
  * Single-source conversation stream. The Apollo cache is the store: history and
  * live events for a conversation live in one `researchConversationTranscript`
@@ -111,9 +148,14 @@ export function useConversationStream(
     [data],
   );
 
-  // Optimistic echoes (seq < 0) live locally, appended after the persisted
-  // history; the cache owns everything real.
-  const [optimistic, setOptimistic] = useState<ConversationEvent[]>([]);
+  // Optimistic echoes (seq < 0) come from the shared per-conversation store
+  // (see top of file), appended after the persisted history; the cache owns
+  // everything real.
+  const optimistic = useSyncExternalStore(
+    subscribeOptimistic,
+    () => readOptimistic(conversationId),
+    () => EMPTY_OPTIMISTIC,
+  );
   const [connectionStatus, setConnectionStatus] = useState<StreamStatus>('idle');
   const [expectingTurn, setExpectingTurn] = useState(false);
   const expectingTurnTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -201,11 +243,11 @@ export function useConversationStream(
   const prevUserCountRef = useRef(persistedUserCount);
   useEffect(() => {
     if (persistedUserCount > prevUserCountRef.current) {
-      setOptimistic([]);
+      if (conversationId) dropOptimisticEvents(conversationId);
       setExpectingTurn(false);
     }
     prevUserCountRef.current = persistedUserCount;
-  }, [persistedUserCount]);
+  }, [persistedUserCount, conversationId]);
 
   useEffect(() => {
     setExpectingTurn(false);
@@ -249,14 +291,14 @@ export function useConversationStream(
   }, [conversationId, streamShouldBeOpen, apollo, refreshRecent]);
 
   const injectOptimisticEvent = useCallback((event: ConversationEvent) => {
-    setOptimistic((prev) => [...prev, event]);
-  }, []);
+    if (conversationId) pushOptimisticEvent(conversationId, event);
+  }, [conversationId]);
 
   const clearOptimistic = useCallback(() => {
-    setOptimistic([]);
+    if (conversationId) dropOptimisticEvents(conversationId);
     setExpectingTurn(false);
     if (expectingTurnTimerRef.current) clearTimeout(expectingTurnTimerRef.current);
-  }, []);
+  }, [conversationId]);
 
   const markTurnExpected = useCallback(() => {
     setExpectingTurn(true);
